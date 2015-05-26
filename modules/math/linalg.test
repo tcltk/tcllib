@@ -646,6 +646,7 @@ test leastsquares-1.0 "Least-squares solution" -match numbers -body {
     set x [::math::linearalgebra::leastSquaresSVD $A $b]
 } -result {1.0 1.0 0.1}
 
+
 test eigenvectors-1.0 "Eigenvectors solution" -match numbers -body {
     #
     # Matrix:
@@ -659,8 +660,23 @@ test eigenvectors-1.0 "Eigenvectors solution" -match numbers -body {
     set A  { {2 1}
              {1 2} } ;# Note: integer coefficients!
 
-    set result [::math::linearalgebra::eigenvectorsSVD $A]
+    ::math::linearalgebra::eigenvectorsSVD $A
+} -cleanup {
+    unset A
 } -result {{{0.7071068 -0.7071068} {0.7071068 0.7071068}} {3.0 1.0}}
+
+test eigenvectors-1.1-tkt7f082f8667 {Eigenvector signs} -setup {
+    # Test case derived from the example code found in ticket [7f082f8667].
+    set A {
+	{2.7563361585555084  0.02600440980933252 0.0}
+	{0.02600440980933252 2.785766824118953   0.0}
+	{0.0                 0.0                -5.542102982674461}
+    }
+} -body {
+    lindex [::math::linearalgebra::eigenvectorsSVD $A] 1
+} -cleanup {
+    unset A
+} -match numbers -result {2.80093075418638 2.7411722284880806 -5.542102982674461}
 
 
 test mkHilbert-1.0 "Hilbert matrix" -match numbers -body {

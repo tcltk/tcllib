@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'statistics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::statistics" n 0\&.9 tcllib "Tcl Math Library"
+.TH "math::statistics" n 1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::statistics  0\&.9\fR
+package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp
@@ -299,15 +299,19 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR ?weights?
 .sp
+\fB::math::statistics::histogram-alt\fR \fIlimits\fR \fIvalues\fR ?weights?
+.sp
 \fB::math::statistics::corr\fR \fIdata1\fR \fIdata2\fR
 .sp
 \fB::math::statistics::interval-mean-stdev\fR \fIdata\fR \fIconfidence\fR
 .sp
-\fB::math::statistics::t-test-mean\fR \fIdata\fR \fIest_mean\fR \fIest_stdev\fR \fIconfidence\fR
+\fB::math::statistics::t-test-mean\fR \fIdata\fR \fIest_mean\fR \fIest_stdev\fR \fIalpha\fR
 .sp
-\fB::math::statistics::test-normal\fR \fIdata\fR \fIconfidence\fR
+\fB::math::statistics::test-normal\fR \fIdata\fR \fIsignificance\fR
 .sp
 \fB::math::statistics::lillieforsFit\fR \fIdata\fR
+.sp
+\fB::math::statistics::test-Duckworth\fR \fIlist1\fR \fIlist2\fR \fIsignificance\fR
 .sp
 \fB::math::statistics::quantiles\fR \fIdata\fR \fIconfidence\fR
 .sp
@@ -359,6 +363,8 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::pdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 .sp
+\fB::math::statistics::pdf-lognormal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
+.sp
 \fB::math::statistics::pdf-exponential\fR \fImean\fR \fIvalue\fR
 .sp
 \fB::math::statistics::pdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
@@ -371,9 +377,21 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::pdf-student-t\fR \fIdf\fR \fIvalue\fR
 .sp
+\fB::math::statistics::pdf-gamma\fR \fIa\fR \fIb\fR \fIvalue\fR
+.sp
 \fB::math::statistics::pdf-beta\fR \fIa\fR \fIb\fR \fIvalue\fR
 .sp
+\fB::math::statistics::pdf-weibull\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-gumbel\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-pareto\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
 \fB::math::statistics::cdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-lognormal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-exponential\fR \fImean\fR \fIvalue\fR
 .sp
@@ -387,7 +405,19 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::cdf-beta\fR \fIa\fR \fIb\fR \fIvalue\fR
 .sp
+\fB::math::statistics::cdf-weibull\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-gumbel\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-pareto\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::empirical-distribution\fR \fIvalues\fR
+.sp
 \fB::math::statistics::random-normal\fR \fImean\fR \fIstdev\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-lognormal\fR \fImean\fR \fIstdev\fR \fInumber\fR
 .sp
 \fB::math::statistics::random-exponential\fR \fImean\fR \fInumber\fR
 .sp
@@ -403,11 +433,21 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::random-beta\fR \fIa\fR \fIb\fR \fInumber\fR
 .sp
+\fB::math::statistics::random-weibull\fR \fIscale\fR \fIshape\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-gumbel\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-pareto\fR \fIscale\fR \fIshape\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-cauchy\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+.sp
 \fB::math::statistics::histogram-uniform\fR \fIxmin\fR \fIxmax\fR \fIlimits\fR \fInumber\fR
 .sp
 \fB::math::statistics::incompleteGamma\fR \fIx\fR \fIp\fR ?tol?
 .sp
 \fB::math::statistics::incompleteBeta\fR \fIa\fR \fIb\fR \fIx\fR ?tol?
+.sp
+\fB::math::statistics::estimate-pareto\fR \fIvalues\fR
 .sp
 \fB::math::statistics::filter\fR \fIvarname\fR \fIdata\fR \fIexpression\fR
 .sp
@@ -585,6 +625,23 @@ list \fIweights\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::histogram-alt\fR \fIlimits\fR \fIvalues\fR ?weights?
+Alternative implementation of the histogram procedure: the open end of the intervals
+is at the lower bound instead of the upper bound\&.
+.RS
+.TP
+list \fIlimits\fR
+- List of upper limits (in ascending order) for the
+intervals of the histogram\&.
+.TP
+list \fIvalues\fR
+- List of data
+.TP
+list \fIweights\fR
+- List of weights, one weight per value
+.RE
+.sp
+.TP
 \fB::math::statistics::corr\fR \fIdata1\fR \fIdata2\fR
 Determine the correlation coefficient between two sets of data\&.
 .RS
@@ -611,9 +668,9 @@ float \fIconfidence\fR
 .RE
 .sp
 .TP
-\fB::math::statistics::t-test-mean\fR \fIdata\fR \fIest_mean\fR \fIest_stdev\fR \fIconfidence\fR
+\fB::math::statistics::t-test-mean\fR \fIdata\fR \fIest_mean\fR \fIest_stdev\fR \fIalpha\fR
 Test whether the mean value of a sample is in accordance with the
-estimated normal distribution with a certain level of confidence\&.
+estimated normal distribution with a certain probability\&.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
 the given distribution\&.
 .RS
@@ -627,26 +684,29 @@ float \fIest_mean\fR
 float \fIest_stdev\fR
 - Estimated stdev of the distribution
 .TP
-float \fIconfidence\fR
-- Confidence level (0\&.95 or 0\&.99 for instance)
+float \fIalpha\fR
+- Probability level (0\&.95 or 0\&.99 for instance)
 .RE
 .sp
 .TP
-\fB::math::statistics::test-normal\fR \fIdata\fR \fIconfidence\fR
+\fB::math::statistics::test-normal\fR \fIdata\fR \fIsignificance\fR
 Test whether the given data follow a normal distribution
-with a certain level of confidence\&.
+with a certain level of significance\&.
 Returns 1 if the data are normally distributed within the level of
-confidence, returns 0 if not\&. The underlying test is the Lilliefors
-test\&.
+significance, returns 0 if not\&. The underlying test is the Lilliefors
+test\&. Smaller values of the significance mean a stricter testing\&.
 .RS
 .TP
 list \fIdata\fR
 - List of raw data values
 .TP
-float \fIconfidence\fR
-- Confidence level (one of 0\&.80, 0\&.90, 0\&.95 or 0\&.99)
+float \fIsignificance\fR
+- Significance level (one of 0\&.01, 0\&.05, 0\&.10, 0\&.15 or 0\&.20)\&. For compatibility
+reasons the values "1-significance", 0\&.80, 0\&.85, 0\&.90, 0\&.95 or 0\&.99 are also accepted\&.
 .RE
 .sp
+Compatibility issue: the original implementation and documentation used the term "confidence" and used a value
+1-significance (see ticket 2812473fff)\&. This has been corrected as of version 0\&.9\&.3\&.
 .TP
 \fB::math::statistics::lillieforsFit\fR \fIdata\fR
 Returns the goodness of fit to a normal distribution according to
@@ -657,6 +717,35 @@ points\&.
 .TP
 list \fIdata\fR
 - List of raw data values
+.RE
+.sp
+.TP
+\fB::math::statistics::test-Duckworth\fR \fIlist1\fR \fIlist2\fR \fIsignificance\fR
+Determine if two data sets have the same median according to the Tukey-Duckworth test\&.
+The procedure returns 0 if the medians are unequal, 1 if they are equal, -1 if the test can not
+be conducted (the smallest value must be in a different set than the greatest value)\&.
+#
+# Arguments:
+#     list1           Values in the first data set
+#     list2           Values in the second data set
+#     significance    Significance level (either 0\&.05, 0\&.01 or 0\&.001)
+#
+# Returns:
+Test whether the given data follow a normal distribution
+with a certain level of significance\&.
+Returns 1 if the data are normally distributed within the level of
+significance, returns 0 if not\&. The underlying test is the Lilliefors
+test\&. Smaller values of the significance mean a stricter testing\&.
+.RS
+.TP
+list \fIlist1\fR
+- First list of data
+.TP
+list \fIlist2\fR
+- Second list of data
+.TP
+float \fIsignificance\fR
+- Significance level (either 0\&.05, 0\&.01 or 0\&.001)
 .RE
 .sp
 .TP
@@ -1179,7 +1268,7 @@ foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4
 In the literature a large number of probability distributions can be
 found\&. The statistics package supports:
 .IP \(bu
-The normal or Gaussian distribution
+The normal or Gaussian distribution as well as the log-normal distribution
 .IP \(bu
 The uniform distribution - equal probability for all data within a given
 interval
@@ -1189,11 +1278,21 @@ extreme-value distributions\&.
 .IP \(bu
 The gamma distribution - based on the incomplete Gamma integral
 .IP \(bu
+The beta distribution
+.IP \(bu
 The chi-square distribution
 .IP \(bu
 The student's T distribution
 .IP \(bu
 The Poisson distribution
+.IP \(bu
+The Pareto distribution
+.IP \(bu
+The Gumbel distribution
+.IP \(bu
+The Weibull distribution
+.IP \(bu
+The Cauchy distribution
 .IP \(bu
 PM - binomial,F\&.
 .PP
@@ -1213,6 +1312,22 @@ The following procedures have been implemented:
 .TP
 \fB::math::statistics::pdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 Return the probability of a given value for a normal distribution with
+given mean and standard deviation\&.
+.RS
+.TP
+float \fImean\fR
+- Mean value of the distribution
+.TP
+float \fIstdev\fR
+- Standard deviation of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-lognormal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
+Return the probability of a given value for a log-normal distribution with
 given mean and standard deviation\&.
 .RS
 .TP
@@ -1311,6 +1426,22 @@ float \fIvalue\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::pdf-gamma\fR \fIa\fR \fIb\fR \fIvalue\fR
+Return the probability of a given value for a Gamma
+distribution with given shape and rate parameters
+.RS
+.TP
+float \fIa\fR
+- Shape parameter
+.TP
+float \fIb\fR
+- Rate parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
 \fB::math::statistics::pdf-beta\fR \fIa\fR \fIb\fR \fIvalue\fR
 Return the probability of a given value for a Beta
 distribution with given shape parameters
@@ -1320,7 +1451,72 @@ float \fIa\fR
 - First shape parameter
 .TP
 float \fIb\fR
-- First shape parameter
+- Second shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-weibull\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+Return the probability of a given value for a Weibull
+distribution with given scale and shape parameters
+.RS
+.TP
+float \fIlocation\fR
+- Scale parameter
+.TP
+float \fIscale\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-gumbel\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the probability of a given value for a Gumbel
+distribution with given location and shape parameters
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-pareto\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+Return the probability of a given value for a Pareto
+distribution with given scale and shape parameters
+.RS
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIshape\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the probability of a given value for a Cauchy
+distribution with given location and shape parameters\&. Note that the Cauchy distribution
+has no finite higher-order moments\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Shape parameter
 .TP
 float \fIvalue\fR
 - Value for which the probability is required
@@ -1329,6 +1525,23 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 Return the cumulative probability of a given value for a normal
+distribution with given mean and standard deviation, that is the
+probability for values up to the given one\&.
+.RS
+.TP
+float \fImean\fR
+- Mean value of the distribution
+.TP
+float \fIstdev\fR
+- Standard deviation of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-lognormal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
+Return the cumulative probability of a given value for a log-normal
 distribution with given mean and standard deviation, that is the
 probability for values up to the given one\&.
 .RS
@@ -1388,7 +1601,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-gamma\fR \fIalpha\fR \fIbeta\fR \fIvalue\fR
 Return the cumulative probability of a given value for a Gamma
-distribution with given shape and rate parameters
+distribution with given shape and rate parameters\&.
 .RS
 .TP
 float \fIalpha\fR
@@ -1404,7 +1617,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-poisson\fR \fImu\fR \fIk\fR
 Return the cumulative probability of a given number of occurrences in
-the same interval (k) for a Poisson distribution with given mean (mu)
+the same interval (k) for a Poisson distribution with given mean (mu)\&.
 .RS
 .TP
 float \fImu\fR
@@ -1424,15 +1637,105 @@ float \fIa\fR
 - First shape parameter
 .TP
 float \fIb\fR
-- First shape parameter
+- Second shape parameter
 .TP
 float \fIvalue\fR
 - Value for which the probability is required
 .RE
 .sp
 .TP
+\fB::math::statistics::cdf-weibull\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Weibull
+distribution with given scale and shape parameters\&.
+.RS
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIshape\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-gumbel\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Gumbel
+distribution with given location and scale parameters\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-pareto\fR \fIscale\fR \fIshape\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Pareto
+distribution with given scale and shape parameters
+.RS
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIshape\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Cauchy
+distribution with given location and scale parameters\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::empirical-distribution\fR \fIvalues\fR
+Return a list of values and their empirical probability\&. The values are sorted in increasing order\&.
+(The implementation follows the description at the corresponding Wikipedia page)
+.RS
+.TP
+list \fIvalues\fR
+- List of data to be examined
+.RE
+.sp
+.TP
 \fB::math::statistics::random-normal\fR \fImean\fR \fIstdev\fR \fInumber\fR
 Return a list of "number" random values satisfying a normal
+distribution with given mean and standard deviation\&.
+.RS
+.TP
+float \fImean\fR
+- Mean value of the distribution
+.TP
+float \fIstdev\fR
+- Standard deviation of the distribution
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-lognormal\fR \fImean\fR \fIstdev\fR \fInumber\fR
+Return a list of "number" random values satisfying a log-normal
 distribution with given mean and standard deviation\&.
 .RS
 .TP
@@ -1478,7 +1781,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-gamma\fR \fIalpha\fR \fIbeta\fR \fInumber\fR
 Return a list of "number" random values satisfying
-a Gamma distribution with given shape and rate parameters
+a Gamma distribution with given shape and rate parameters\&.
 .RS
 .TP
 float \fIalpha\fR
@@ -1494,7 +1797,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-poisson\fR \fImu\fR \fInumber\fR
 Return a list of "number" random values satisfying
-a Poisson distribution with given mean
+a Poisson distribution with given mean\&.
 .RS
 .TP
 float \fImu\fR
@@ -1507,7 +1810,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-chisquare\fR \fIdf\fR \fInumber\fR
 Return a list of "number" random values satisfying
-a chi square distribution with given degrees of freedom
+a chi square distribution with given degrees of freedom\&.
 .RS
 .TP
 float \fIdf\fR
@@ -1520,7 +1823,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-student-t\fR \fIdf\fR \fInumber\fR
 Return a list of "number" random values satisfying
-a Student's t distribution with given degrees of freedom
+a Student's t distribution with given degrees of freedom\&.
 .RS
 .TP
 float \fIdf\fR
@@ -1533,7 +1836,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-beta\fR \fIa\fR \fIb\fR \fInumber\fR
 Return a list of "number" random values satisfying
-a Beta distribution with given shape parameters
+a Beta distribution with given shape parameters\&.
 .RS
 .TP
 float \fIa\fR
@@ -1541,6 +1844,70 @@ float \fIa\fR
 .TP
 float \fIb\fR
 - Second shape parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-weibull\fR \fIscale\fR \fIshape\fR \fInumber\fR
+Return a list of "number" random values satisfying
+a Weibull distribution with given scale and shape parameters\&.
+.RS
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIshape\fR
+- Shape parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-gumbel\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+Return a list of "number" random values satisfying
+a Gumbel distribution with given location and scale parameters\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-pareto\fR \fIscale\fR \fIshape\fR \fInumber\fR
+Return a list of "number" random values satisfying
+a Pareto distribution with given scale and shape parameters\&.
+.RS
+.TP
+float \fIscale\fR
+- Scale parameter
+.TP
+float \fIshape\fR
+- Shape parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-cauchy\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+Return a list of "number" random values satisfying
+a Cauchy distribution with given location and scale parameters\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter
+.TP
+float \fIscale\fR
+- Scale parameter
 .TP
 int \fInumber\fR
 - Number of values to be returned
@@ -1603,6 +1970,16 @@ float \fIx\fR
 .TP
 float \fItol\fR
 - Required tolerance (default: 1\&.0e-9)
+.RE
+.sp
+.TP
+\fB::math::statistics::estimate-pareto\fR \fIvalues\fR
+Estimate the parameters for the Pareto distribution that comes closest to the given values\&.
+Returns the estimated scale and shape parameters, as well as the standard error for the shape parameter\&.
+.RS
+.TP
+list \fIvalues\fR
+- List of values, assumed to be distributed according to a Pareto distribution
 .RE
 .sp
 .PP
