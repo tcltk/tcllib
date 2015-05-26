@@ -12,13 +12,14 @@
 #
 #
 
-if {$::tcl_version < 8.5} {
-    package require dict
-}
 
-package provide yaml 0.3.7
+
+package require Tcl 8.5
+package provide yaml 0.3.8
 package require cmdline
-package require huddle
+package require huddle 0.1.7
+
+
 
 
 namespace eval ::yaml {
@@ -75,11 +76,11 @@ namespace eval ::yaml {
     variable opts [lrange [::cmdline::GetOptionDefaults {
         {file             {input is filename}}
         {stream           {input is stream}}
-        {m.arg        ""  {fixed-modifiers bulk setting(null/true/false)}}
-        {m:null.arg   ""  {null modifier setting(default {"" {null "" ~}})}}
-        {m:true.arg   ""  {true modifier setting(default {1 {true on + yes y}})}}
-        {m:false.arg  ""  {false modifier setting(default {0 {false off - no n}})}}
-        {types.arg    ""  {modifier list setting(default {nop timestamp integer null true false})}}
+        {m.arg        ""  {fixed-modifiers bulk settings(null/true/false)}}
+        {m:null.arg   ""  {null modifier settings(default {"" {null "" ~}})}}
+        {m:true.arg   ""  {true modifier settings(default {1 {true on + yes y}})}}
+        {m:false.arg  ""  {false modifier settings(default {0 {false off - no n}})}}
+        {types.arg    ""  {modifier list settings(default {nop timestamp integer null true false})}}
         {validate         {to validate the input(not dumped tcl content)}}
     } result] 2 end] ;# Remove ? and help.
 
@@ -108,10 +109,14 @@ proc ::yaml::yaml2dict {args} {
     _getOption $args
     
     set result [_parseBlockNode]
+        
+    set a [huddle get_stripped $result]
+
     if {$yaml::data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
-    return [huddle strip $result]
+    
+    return [huddle get_stripped $result]
 }
 
 proc ::yaml::yaml2huddle {args} {
@@ -134,11 +139,11 @@ proc ::yaml::setOptions {argv} {
 #
 
 proc ::yaml::list2yaml {list {indent 2} {wordwrap 40}} {
-    return [huddle2yaml [eval huddle list $list] $indent $wordwrap]
+    return [huddle2yaml [huddle list {*}$list] $indent $wordwrap]
 }
 
 proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
-    return [huddle2yaml [eval huddle create $dict] $indent $wordwrap]
+    return [huddle2yaml [huddle create {*}$dict] $indent $wordwrap]
 }
 
 proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
@@ -152,7 +157,7 @@ proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
 
 
 ####################
-# Option Setting
+# Option settings
 ####################
 
 proc ::yaml::_getOption {argv} {
@@ -161,7 +166,7 @@ proc ::yaml::_getOption {argv} {
     variable fixed
     variable composer
 
-    # default setting
+    # default settings
     array set options [_imp_getOptions argv]
 
     array set fixed    $options(fixed)
@@ -190,7 +195,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
     variable opts
     array set options [array get defaults]
 
-    # default setting
+    # default settings
     array set fixed $options(fixed)
 
     # parse argv
@@ -236,7 +241,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
 #########################
 proc ::yaml::_composeTags {tag value} {
     if {$tag eq ""} {return $value}
-    set value [huddle strip $value]
+    set value [huddle get_stripped $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
     } elseif {[info exists yaml::composer($tag)]} {
@@ -244,7 +249,7 @@ proc ::yaml::_composeTags {tag value} {
     } else {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
     }
-    return  [eval huddle wrap $pair]
+    return  [huddle wrap $pair]
 }
 
 proc ::yaml::_composeBinary {value} {
@@ -255,10 +260,10 @@ proc ::yaml::_composeBinary {value} {
 proc ::yaml::_composePlain {value} {
     if {$value ne ""} {
         if {[huddle type $value] ne "plain"} {return $value}
-        set value [huddle strip $value]
+        set value [huddle get_stripped $value]
     }
     set pair [_toType $value]
-    return  [eval huddle wrap $pair]
+    return  [huddle wrap $pair]
 }
 
 proc ::yaml::_toType {value} {
@@ -432,7 +437,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         }
     }
     if {$status eq "SEQUENCE"} {
-        set result [eval huddle sequence $result]
+        set result [huddle sequence {*}$result]
     } elseif {$status eq "MAPPING"} {
         if {[llength $prev] == 2} {
             set result [_set_huddle_mapping $result $prev]
@@ -444,7 +449,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         set result [lindex $result 0]
         set result [_composePlain $result]
         if {![huddle isHuddle $result]} {
-            set result [huddle wrap !!str $result]
+            set result [huddle wrap [list !!str $result]]
         }
     }
     if {$tag ne ""} {
@@ -467,7 +472,9 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
     }
 
     set value [_parseBlockNode "" $pos]
-    if {[huddle type $value] eq "list"} {
+    set type_name [huddle type $value]
+    
+    if {$type_name eq "list" || $type_name  eq "sequence"} {
         set len [huddle llength $value]
         for {set i 0} {$i < $len} {incr i} {
             set sub [huddle get $value $i]
@@ -475,7 +482,7 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
         }
         unset sub len
     } else {
-        set result [huddle combine $result $value]
+        set result [huddle combine_relaxed $result $value]
     }
     return [list $result $prev]
 }
@@ -498,11 +505,15 @@ proc ::yaml::_parseSubBlock {pos statusnew} {
 }
 
 proc ::yaml::_set_huddle_mapping {result prev} {
+	
     foreach {key val} $prev break
+    
     set val [_composePlain $val]
     if {[huddle isHuddle $key]} {
-        set key [huddle strip $key]
+        set key [huddle get_stripped $key]
     }
+    
+  
     if {$result eq ""} {
         set result [huddle mapping $key $val]
     } else {
@@ -569,7 +580,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
             append value "\n"
         }
     }
-    return [huddle wrap !!str $value]
+    return [huddle wrap [list !!str $value]]
 }
 
 # in {> |}
@@ -677,7 +688,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             }
             "\]" { ; # ends a flow sequence
                 if {$status ne "SEQUENCE"} {error [_getErrorMessage SEQEND_NOT_IN_SEQ] }
-                set result [eval huddle sequence $result]
+                set result [huddle sequence {*}$result]
                 return $result
             }
             "&" { ; # node's anchor property
@@ -769,7 +780,7 @@ proc ::yaml::_parseScalarNode {type scope {pos 0}} {
             set tag !!plain
         }
     }
-    return [huddle wrap $tag $value]
+    return [huddle wrap [list $tag $value]]
 }
 
 # [time scanning at JST]
@@ -1107,7 +1118,7 @@ proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
     set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
     switch -- [huddle type $data] {
         "string" {
-            set data [huddle strip $data]
+            set data [huddle get_stripped $data]
             return [_dumpScalar $data $offset]
         }
         "list" {
@@ -1198,90 +1209,82 @@ proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
 }
 
 ########################
-## Huddle Settings    ##
+##    YAML TYPES      ##
 ########################
 
+namespace eval ::yaml::types {
 
-proc ::yaml::_huddle_mapping {command args} {
-    switch -- $command {
-        settings { ; # type definition
-            return {
-                type dict
-                method {mapping}
-                tag {!!map parent}
-                constructor mapping
-                str !!str
-            }
-        }
-        mapping { ; # $args: all arguments after "huddle mapping"
+	namespace eval mapping {
+    
+		variable settings
+        set settings {
+			    superclass dict
+                publicMethods {mapping}
+                tag !!map 
+                isContainer yes }
+        
+        proc mapping {args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
             set resultL {}
             foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value !!str]
+                lappend resultL $key [argument_to_node $value !!str]
             }
-            return [huddle wrap !!map $resultL]
+            return [huddle wrap [list !!map $resultL]]
         }
-        default { ; # devolving to default dict-callback
-            return [huddle call D $command $args]
-        }
+        
     }
-}
-
-proc ::yaml::_huddle_sequence {command args} {
-    switch -- $command {
-        settings { ; # type definition
-            return {
-                type list
-                method {sequence}
-                tag {!!seq parent}
-                constructor sequence
-                str !!str
+    
+    namespace eval sequence {
+		variable settings
+        
+        set settings {
+			    superclass list
+                publicMethods {sequence}
+                isContainer yes
+                tag !!seq
             }
-        }
-        sequence {
+        
+        proc sequence {args} {
             set resultL {}
             foreach {value} $args {
-                lappend resultL [huddle to_node $value !!str]
+                lappend resultL [argument_to_node $value !!str]
             }
-            return [huddle wrap !!seq $resultL]
+            return [wrap [list !!seq $resultL]]
         }
-        default {
-            return [huddle call L $command $args]
-        }
+        
     }
 }
 
+
+
 proc ::yaml::_makeChildType {type tag} {
-    set procname ::yaml::_huddle_$type
-    proc $procname {command args} [string map "@TYPE@ $type @TAG@ $tag" {
-        switch -- $command {
-            settings { ; # type definition
-                return {
-                    type @TYPE@
-                    method {}
-                    tag {@TAG@ child}
-                    constructor ""
-                    str @TAG@
-                }
+	set full_path_to_type ::yaml::types::$type
+    namespace eval $full_path_to_type [string map "@TYPE@ $type @TAG@ $tag" {
+
+			variable settings
+			set settings {
+					superClass string
+                    publicMethods {}
+                    isContainer no
+                    tag @TAG@
             }
-            default {
-                return [huddle call s $command $args]
-            }
-        }
+    
     }]
-    return $procname
+    
+    return $full_path_to_type
 }
 
-huddle addType ::yaml::_huddle_mapping
-huddle addType ::yaml::_huddle_sequence
-huddle addType [::yaml::_makeChildType string !!str]
-huddle addType [::yaml::_makeChildType string !!timestamp]
-huddle addType [::yaml::_makeChildType string !!float]
-huddle addType [::yaml::_makeChildType string !!int]
-huddle addType [::yaml::_makeChildType string !!null]
-huddle addType [::yaml::_makeChildType string !!true]
-huddle addType [::yaml::_makeChildType string !!false]
-huddle addType [::yaml::_makeChildType string !!binary]
+huddle addType ::yaml::types::mapping
+huddle addType ::yaml::types::sequence
+
+huddle addType [::yaml::_makeChildType str !!str]
+huddle addType [::yaml::_makeChildType timestamp !!timestamp]
+huddle addType [::yaml::_makeChildType float !!float]
+huddle addType [::yaml::_makeChildType int !!int]
+huddle addType [::yaml::_makeChildType null !!null]
+huddle addType [::yaml::_makeChildType true !!true]
+huddle addType [::yaml::_makeChildType false !!false]
+huddle addType [::yaml::_makeChildType binary !!binary]
 huddle addType [::yaml::_makeChildType plain !!plain]
 
 
