@@ -286,13 +286,13 @@ Please read the document \fIName service facility, introduction\fR
 first\&.
 .PP
 This package provides the \fIexact\fR same API as is provided by
-package \fBnameserv\fR, i\&.e the regular name service client\&. It
+package \fBnameserv\fR, i\&.e\&. the regular name service client\&. It
 differs from the former by taking measures to ensure that longer-lived
-data, i\&.e\&. bound names, continuous and unfulfilled async searches,
+data, i\&.e\&. bound names, continuous and unfullfilled async searches,
 survive the loss of the connection to the name server as much as is
 possible\&.
 .PP
-This means that the bound names and continuous and unfulfilled async
+This means that the bound names and continuous and unfullfilled async
 searches are remembered client-side and automatically re-entered into
 the server when the connection comes back after its loss\&. For bound
 names there is one important limitation to such restoration: It is
@@ -300,15 +300,15 @@ possible that a name of this client was bound by a different client
 while the connection was gone\&. Such names are fully lost, and the best
 the package can and will do is to inform the user of this\&.
 .SH API
-The user-visible API is mainly identical the API of \fBnameserv\fR
+The user-visible API is mainly identical to the API of \fBnameserv\fR
 and is therefore not described here\&. Please read the documentation of
 \fBnameserv\fR\&.
 .PP
-The differences are explained in the sections \fBOPTIONS\fR and
+The differences are explained below, in the sections \fBOPTIONS\fR and
 \fBEVENTS\fR\&.
 .SH OPTIONS
-This package supports all the option of package \fBnameserv\fR,
-and one more\&. The additional option allows the user to specifies the
+This package supports all the options of package \fBnameserv\fR,
+plus one more\&. The additional option allows the user to specify the
 time interval between attempts to restore a lost connection\&.
 .TP
 \fB-delay\fR \fImilliseconds\fR
@@ -318,7 +318,7 @@ milliseconds\&. The default value is \fB1000\fR, i\&.e\&. one second\&.
 .PP
 .SH EVENTS
 This package generates all of the events of package \fBnameserv\fR,
-and two more\&. Both events are generated for the tag \fInameserv\fR\&.
+plus two more\&. Both events are generated for the tag \fInameserv\fR\&.
 .TP
 \fIlost-name\fR
 This event is generated when a bound name is truly lost, i\&.e\&. could
@@ -339,14 +339,14 @@ The event has no detail information\&.
 .PP
 .SH DESIGN
 The package is implemented on top of the regular nameservice client,
-i\&.e\&.  package \fBnameserv\fR\&. It detects the loss of the
+i\&.e\&. package \fBnameserv\fR\&. It detects the loss of the
 connection by listening for \fIlost-connection\fR events, on the tag
 \fInameserv\fR\&.
 .PP
 It reacts to such events by starting a periodic timer and trying to
 reconnect to the server whenver this timer triggers\&. On success the
 timer is canceled, a \fIre-connection\fR event generated, and the
-package proceeds to re-enter the remembered bound names and continous
+package proceeds to re-enter the remembered bound names and continuous
 searches\&.
 .PP
 Another loss of the connection, be it during or after re-entering the
