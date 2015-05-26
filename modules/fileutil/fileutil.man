@@ -465,6 +465,38 @@ Symbolic links are [emph not] taken into account.
 
 [list_end]
 
+[section {Warnings and Incompatibilities}]
+
+[list_begin definitions]
+
+[def [const 1.14.9]]
+In this version [cmd fileutil::find]'s broken system for handling
+symlinks was replaced with one working correctly and properly
+enumerating all the legal non-cyclic paths under a base directory.
+
+[para] While correct this means that certain pathological directory
+hierarchies with cross-linked sym-links will now take about O(n**2)
+time to enumerate whereas the original broken code managed O(n) due to
+its brokenness.
+
+[para] A concrete example and extreme case is the [file /sys]
+hierarchy under Linux where some hundred devices exist under both
+[file /sys/devices] and [file /sys/class] with the two sub-hierarchies
+linking to the other, generating millions of legal paths to enumerate.
+The structure, reduced to three devices, roughly looks like
+
+[include cross-index.inc]
+
+[para] The command [cmd fileutil::find] currently has no way to escape
+this. When having to handle such a pathological hierarchy It is
+recommended to switch to package [package fileutil::traverse] and the
+same-named command it provides, and then use the [option -prefilter]
+option to prevent the traverser from following symbolic links, like so:
+
+[include cross-index-trav.inc]
+
+[list_end]
+
 [vset CATEGORY fileutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
