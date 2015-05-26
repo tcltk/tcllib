@@ -140,12 +140,12 @@
 <p>Please read the document <i class="term"><a href="nns_intro.html">Name service facility, introduction</a></i>
 first.</p>
 <p>This package provides the <em>exact</em> same API as is provided by
-package <b class="package"><a href="nns_client.html">nameserv</a></b>, i.e the regular name service client. It
+package <b class="package"><a href="nns_client.html">nameserv</a></b>, i.e. the regular name service client. It
 differs from the former by taking measures to ensure that longer-lived
-data, i.e. bound names, continuous and unfulfilled async searches,
+data, i.e. bound names, continuous and unfullfilled async searches,
 survive the loss of the connection to the name server as much as is
 possible.</p>
-<p>This means that the bound names and continuous and unfulfilled async
+<p>This means that the bound names and continuous and unfullfilled async
 searches are remembered client-side and automatically re-entered into
 the server when the connection comes back after its loss. For bound
 names there is one important limitation to such restoration: It is
@@ -154,15 +154,15 @@ while the connection was gone. Such names are fully lost, and the best
 the package can and will do is to inform the user of this.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">API</a></h2>
-<p>The user-visible API is mainly identical the API of <b class="package"><a href="nns_client.html">nameserv</a></b>
+<p>The user-visible API is mainly identical to the API of <b class="package"><a href="nns_client.html">nameserv</a></b>
 and is therefore not described here. Please read the documentation of
 <b class="package"><a href="nns_client.html">nameserv</a></b>.</p>
-<p>The differences are explained in the sections <span class="sectref"><a href="#section3">OPTIONS</a></span> and
+<p>The differences are explained below, in the sections <span class="sectref"><a href="#section3">OPTIONS</a></span> and
 <span class="sectref"><a href="#section4">EVENTS</a></span>.</p>
 </div>
 <div id="section3" class="section"><h2><a name="section3">OPTIONS</a></h2>
-<p>This package supports all the option of package <b class="package"><a href="nns_client.html">nameserv</a></b>,
-and one more. The additional option allows the user to specifies the
+<p>This package supports all the options of package <b class="package"><a href="nns_client.html">nameserv</a></b>,
+plus one more. The additional option allows the user to specify the
 time interval between attempts to restore a lost connection.</p>
 <dl class="options">
 <dt><b class="option">-delay</b> <i class="arg">milliseconds</i></dt>
@@ -173,7 +173,7 @@ milliseconds. The default value is <b class="const">1000</b>, i.e. one second.</
 </div>
 <div id="section4" class="section"><h2><a name="section4">EVENTS</a></h2>
 <p>This package generates all of the events of package <b class="package"><a href="nns_client.html">nameserv</a></b>,
-and two more. Both events are generated for the tag <i class="term"><a href="nns_client.html">nameserv</a></i>.</p>
+plus two more. Both events are generated for the tag <i class="term"><a href="nns_client.html">nameserv</a></i>.</p>
 <dl class="definitions">
 <dt><i class="term">lost-name</i></dt>
 <dd><p>This event is generated when a bound name is truly lost, i.e. could
@@ -192,13 +192,13 @@ posted.</p>
 </div>
 <div id="section5" class="section"><h2><a name="section5">DESIGN</a></h2>
 <p>The package is implemented on top of the regular nameservice client,
-i.e.  package <b class="package"><a href="nns_client.html">nameserv</a></b>. It detects the loss of the
+i.e. package <b class="package"><a href="nns_client.html">nameserv</a></b>. It detects the loss of the
 connection by listening for <i class="term">lost-connection</i> events, on the tag
 <i class="term"><a href="nns_client.html">nameserv</a></i>.</p>
 <p>It reacts to such events by starting a periodic timer and trying to
 reconnect to the server whenver this timer triggers. On success the
 timer is canceled, a <i class="term">re-connection</i> event generated, and the
-package proceeds to re-enter the remembered bound names and continous
+package proceeds to re-enter the remembered bound names and continuous
 searches.</p>
 <p>Another loss of the connection, be it during or after re-entering the
 remembered information simply restarts the timer and subsequent

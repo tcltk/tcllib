@@ -186,10 +186,12 @@ proc OpenConsole {} {
          set OPT(exec) ""
          set OPT(slaveexit) "close"
       }
-      # Search inside the *n.x envirement for TkCon ...
+      # Search inside the *n.x environment for TkCon ('tkcon' and 'tkcon.tcl') ...
       set TkConPath ""
-      catch {set TkConPath [exec csh -f -c {which tkcon.tcl}]}
-      # Search inide the Windows envirement for TkCon ...
+      catch {set TkConPath [exec which tkcon]}
+      if {$TkConPath==""} {catch {set TkConPath [exec which tkcon.tcl]}}
+		
+      # Search inide the Windows environment for TkCon ...
       catch {
          package require registry
          set TkConPath [registry get {HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tclsh.exe} Path]/tkcon.tcl

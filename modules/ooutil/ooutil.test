@@ -1,4 +1,4 @@
-# ooutil.test - Copyright (c) 2014 Andreas Kupries
+# ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
 
 # -------------------------------------------------------------------------
 
@@ -9,11 +9,8 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2
 
-# Check if we have TclOO available.
-tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
+testsNeed TclOO 1
 
-support {
-}
 testing {
     useLocal ooutil.tcl oo::util
 }
@@ -32,7 +29,7 @@ test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate 
 } -cleanup {
     namespace delete ooutiltest
     rename animal {}
-} -result {::ooutiltest::dog} -constraints tcloo
+} -result {::ooutiltest::dog}
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
