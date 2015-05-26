@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::linearalgebra n 1.1]
+[vset VERSION 1.1.5]
+[manpage_begin math::linearalgebra n [vset VERSION]]
 [keywords {least squares}]
 [keywords {linear algebra}]
 [keywords {linear equations}]
@@ -14,7 +15,7 @@
 [titledesc {Linear Algebra}]
 [category  Mathematics]
 [require Tcl [opt 8.4]]
-[require math::linearalgebra [opt 1.1]]
+[require math::linearalgebra [opt [vset VERSION]]]
 [description]
 [para]
 This package offers both low-level procedures and high-level algorithms

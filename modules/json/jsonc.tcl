@@ -3,12 +3,12 @@
 #       Implementation of a JSON parser in C.
 #	Binding to a yacc/bison parser by Mikhail.
 #
-# Copyright (c) 2013 - critcl wrapper - Andreas Kupries <andreas_kupries@users.sourceforge.net>
-# Copyright (c) 2013 - C binding      - mi+tcl.tk-2013@aldan.algebra.com
+# Copyright (c) 2013,2015 - critcl wrapper - Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2013      - C binding      - mi+tcl.tk-2013@aldan.algebra.com
 
 package require critcl
 # @sak notprovided jsonc
-package provide jsonc 1.1.1
+package provide jsonc 1.1.2
 package require Tcl 8.4
 
 #critcl::cheaders -g
