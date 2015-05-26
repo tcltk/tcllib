@@ -12,15 +12,10 @@
 #
 #
 
-
-
 package require Tcl 8.5
 package provide yaml 0.3.8
 package require cmdline
 package require huddle 0.1.7
-
-
-
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump
@@ -37,7 +32,7 @@ namespace eval ::yaml {
     #   return ""
     # }
     variable parsers
-    
+
     # scalar/collection treatment for matched specific yaml-tag
     # proc some_composer {type value} {
     #   return [list 1 $result-type $treatmented-value]
@@ -46,7 +41,7 @@ namespace eval ::yaml {
     # }
     variable composer
 
-    variable defaults 
+    variable defaults
     array set defaults {
         isfile   0
         validate 0
@@ -69,7 +64,7 @@ namespace eval ::yaml {
             false:Group {false off - no n}
         }
     }
-    
+
     variable _dumpIndent   2
     variable _dumpWordWrap 40
 
@@ -100,28 +95,27 @@ namespace eval ::yaml {
     }
 }
 
-
 ####################
 # Public APIs
 ####################
 
 proc ::yaml::yaml2dict {args} {
     _getOption $args
-    
+
     set result [_parseBlockNode]
-        
+
     set a [huddle get_stripped $result]
 
     if {$yaml::data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
-    
+
     return [huddle get_stripped $result]
 }
 
 proc ::yaml::yaml2huddle {args} {
     _getOption $args
-    
+
     set result [_parseBlockNode]
     if {$yaml::data(validate)} {
         set result [string map "{\n} {\\n}" $result]
@@ -149,7 +143,7 @@ proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
 proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
     set yaml::_dumpIndent   $indent
     set yaml::_dumpWordWrap $wordwrap
-    
+
     # Start at the base of the array and move through it.
     set out [join [list "---\n" [_imp_huddle2yaml $huddle] "\n"] ""]
     return $out
@@ -174,7 +168,7 @@ proc ::yaml::_getOption {argv} {
     array set composer $options(composer)
     array set data [list validate $options(validate) types $options(types)]
     set isfile $options(isfile)
-    
+
     foreach {buffer} $argv break
     if {$isfile} {
         set fd [open $buffer r]
@@ -268,7 +262,7 @@ proc ::yaml::_composePlain {value} {
 
 proc ::yaml::_toType {value} {
     if {$value eq ""} {return [list !!str ""]}
-    
+
     set lowerval [string tolower $value]
     foreach {type} $yaml::data(types) {
         if {[info exists yaml::parsers($type)]} {
@@ -330,11 +324,11 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 continue
             } else {
                 _ungetc 2
-                
+
                 # [Spec]
-                # Since people perceive theÅg-Åhindicator as indentation, 
-                # nested block sequences may be indented by one less space 
-                # to compensate, except, of course, 
+                # Since people perceive theÅg-Åhindicator as indentation,
+                # nested block sequences may be indented by one less space
+                # to compensate, except, of course,
                 # if nested inside another block sequence.
                 incr current
             }
@@ -346,11 +340,11 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 break
             } else {
                 _ungetc 2
-                
+
 #                 # [Spec]
-#                 # Since people perceive theÅg-Åhindicator as indentation, 
-#                 # nested block sequences may be indented by one less space 
-#                 # to compensate, except, of course, 
+#                 # Since people perceive theÅg-Åhindicator as indentation,
+#                 # nested block sequences may be indented by one less space
+#                 # to compensate, except, of course,
 #                 # if nested inside another block sequence.
 #                 incr current
             }
@@ -473,7 +467,7 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
 
     set value [_parseBlockNode "" $pos]
     set type_name [huddle type $value]
-    
+
     if {$type_name eq "list" || $type_name  eq "sequence"} {
         set len [huddle llength $value]
         for {set i 0} {$i < $len} {incr i} {
@@ -505,15 +499,15 @@ proc ::yaml::_parseSubBlock {pos statusnew} {
 }
 
 proc ::yaml::_set_huddle_mapping {result prev} {
-	
+
     foreach {key val} $prev break
-    
+
     set val [_composePlain $val]
     if {[huddle isHuddle $key]} {
         set key [huddle get_stripped $key]
     }
-    
-  
+
+
     if {$result eq ""} {
         set result [huddle mapping $key $val]
     } else {
@@ -540,7 +534,7 @@ proc ::yaml::_remove_duplication {dict} {
 # folding ">" (line separator is " ")
 proc ::yaml::_parseBlockScalar {base separator} {
     foreach {explicit chomping} [_parseBlockIndicator] break
-    
+
     set idch [string repeat " " $explicit]
     set sep $separator
     foreach {indent c line} [_getLine] break
@@ -549,7 +543,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
     set first $indent
     set value $line
     set stop 0
-    
+
     while {![_eof]} {
         set pos [_getpos]
         foreach {indent c line} [_getLine] break
@@ -842,7 +836,7 @@ proc ::yaml::_parseDirective {} {
     variable shorthands
 
     set directive [_getToken]
-    
+
     if {[regexp {^%YAML} $directive]} {
         # YAML directive
         _skipSpaces
@@ -864,7 +858,7 @@ proc ::yaml::_parseDirective {} {
 
 proc ::yaml::_parseTagHandle {} {
     set token [_getToken]
-    
+
     if {[regexp {^(!|!\w*!)(.*)} $token nop handle named]} {
         # shorthand or non-specific Tags
         switch -- $handle {
@@ -873,7 +867,7 @@ proc ::yaml::_parseTagHandle {} {
             !! { ;      # yaml Tags
             }
             default { ; # shorthand Tags
-                
+
             }
         }
         if {![info exists prefix($handle)]} { error [_getErrorMessage TAG_NOT_FOUND] }
@@ -883,7 +877,7 @@ proc ::yaml::_parseTagHandle {} {
     } else {
         error [_getErrorMessage ILLEGAL_TAG_HANDLE]
     }
-    
+
     return "!<$prefix($handle)$named>"
 }
 
@@ -920,7 +914,7 @@ proc ::yaml::_parseSingleQuoted {} {
     regsub -all { ?\r} $result "\n" result
 
     regsub -all {''} [string range $result 1 end-1] {'} chopped
-    
+
     return $chopped
 }
 
@@ -949,7 +943,7 @@ proc ::yaml::_getFoldedString {reStr} {
     set buff [string range $data(buffer) $data(start) end]
     regexp $reStr $buff token
     if {![info exists token]} {return}
-    
+
     set len [string length $token]
     if {[string first "\n" $token] >= 0} { ; # multi-line
         set data(current) [expr {$len - [string last "\n" $token]}]
@@ -957,7 +951,7 @@ proc ::yaml::_getFoldedString {reStr} {
         incr data(current) $len
     }
     incr data(start) $len
-    
+
     return $token
 }
 
@@ -1180,7 +1174,7 @@ proc ::yaml::_doFolding {value offset} {
     if {$_dumpWordWrap == 0} {
         return $value
     }
-    
+
     if {[string length $value] > $_dumpWordWrap} {
         set wrapped [_simple_justify $value $_dumpWordWrap "\n$offset"]
         set value ">\n$offset$wrapped"
@@ -1215,14 +1209,14 @@ proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
 namespace eval ::yaml::types {
 
 	namespace eval mapping {
-    
+
 		variable settings
         set settings {
 			    superclass dict
                 publicMethods {mapping}
-                tag !!map 
+                tag !!map
                 isContainer yes }
-        
+
         proc mapping {args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
             set resultL {}
@@ -1231,19 +1225,19 @@ namespace eval ::yaml::types {
             }
             return [huddle wrap [list !!map $resultL]]
         }
-        
+
     }
-    
+
     namespace eval sequence {
 		variable settings
-        
+
         set settings {
 			    superclass list
                 publicMethods {sequence}
                 isContainer yes
                 tag !!seq
             }
-        
+
         proc sequence {args} {
             set resultL {}
             foreach {value} $args {
@@ -1251,26 +1245,23 @@ namespace eval ::yaml::types {
             }
             return [wrap [list !!seq $resultL]]
         }
-        
+
     }
 }
 
-
-
 proc ::yaml::_makeChildType {type tag} {
-	set full_path_to_type ::yaml::types::$type
-    namespace eval $full_path_to_type [string map "@TYPE@ $type @TAG@ $tag" {
+    set full_path_to_type ::yaml::types::$type
+    namespace eval $full_path_to_type [string map [list @TYPE@ $type @TAG@ $tag] {
 
-			variable settings
-			set settings {
-					superClass string
-                    publicMethods {}
-                    isContainer no
-                    tag @TAG@
-            }
-    
+	variable settings
+	set settings {
+	    superClass string
+	    publicMethods {}
+	    isContainer no
+	    tag @TAG@
+	}
     }]
-    
+
     return $full_path_to_type
 }
 
