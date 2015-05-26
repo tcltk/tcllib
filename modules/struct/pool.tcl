@@ -58,11 +58,25 @@ namespace eval ::struct::pool {
 }
 
 # A small helper routine to generate structured errors
-proc ::struct::pool::Error {error args} {
-    variable Errors
-    return -code error -level 1 \
-	-errorcode [list STRUCT POOL $error {*}$args] \
-	[format $Errors($error) {*}$args]
+
+if {[package vsatisfies [package present Tcl] 8.5]} {
+    # Tcl 8.5+, have expansion operator and syntax. And option -level.
+    proc ::struct::pool::Error {error args} {
+	variable Errors
+	return -code error -level 1 \
+	    -errorcode [list STRUCT POOL $error {*}$args] \
+	    [format $Errors($error) {*}$args]
+    }
+} else {
+    # Tcl 8.4. No expansion operator available. Nor -level.
+    # Construct the pieces explicitly, via linsert/eval hop&dance.
+    proc ::struct::pool::Error {error args} {
+	variable Errors
+	lappend code STRUCT POOL $error
+	eval [linsert $args 0 lappend code]
+	set msg [eval [linsert $args 0 format $Errors($error)]]
+	return -code error -errorcode $code $msg
+    }
 }
 
 # A small helper routine to check list membership
@@ -73,7 +87,6 @@ proc ::struct::pool::lmember {list element} {
         return 0
     }
 }
-
 
 # General note
 # ============
@@ -699,4 +712,4 @@ namespace eval ::struct {
     namespace import -force pool::pool
     namespace export pool
 }
-package provide struct::pool 1.2.2
+package provide struct::pool 1.2.3
