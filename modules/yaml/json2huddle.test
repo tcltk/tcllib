@@ -1,12 +1,21 @@
+# json2huddle.test:  tests for the huddle library.
+# -*- tcl -*-
 
-#puts [::huddle::json2huddle {{"hola":23.3, "caracola": "jeje"}}]
+source [file join \
+	    [file dirname [file dirname [file join [pwd] [info script]]]] \
+	    devtools testutilities.tcl]
 
-package require tcltest
-namespace import ::tcltest::*
+testsNeedTcl     8.3
+testsNeedTcltest 1.0
+testsNeed dict 1
 
-source huddle.tcl
-source json2huddle.tcl
-
+support {
+    use json/json.tcl json
+    useLocal huddle.tcl huddle
+}
+testing {
+    useLocal json2huddle.tcl huddle::json
+}
 
 namespace import ::huddle::json2huddle
 

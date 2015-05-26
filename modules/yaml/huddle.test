@@ -5,7 +5,6 @@
 # All rights reserved.
 #
 
-
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
@@ -32,14 +31,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
     testsNeedTcl     8.3
     testsNeedTcltest 1.0
-
-    if {$::tcl_version < 8.5} {
-        if {[catch {package require dict}]} {
-            puts "    Aborting the tests found in \"[file tail [info script]]\""
-            puts "    Requiring dict package, not found."
-            return
-        }
-    }
+    testsNeed dict 1
 
     support {
 	use json/json.tcl json
@@ -47,7 +39,6 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     testing {
         useLocal huddle.tcl huddle
     }
-
 }
 
 test huddle-1.1 "test of huddle create" -body {
@@ -341,7 +332,7 @@ test huddle-11.1 "test of huddle superclass" -body {
 
 
 
-if [info exists selfrun] {
+if {[info exists selfrun]} {
     tcltest::cleanupTests
 } else {
     testsuiteCleanup
