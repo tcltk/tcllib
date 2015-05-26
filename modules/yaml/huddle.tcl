@@ -20,24 +20,24 @@ namespace eval ::huddle {
     # procs (e.g. from "set" to "Set")
 
     namespace ensemble create -map {
-	set					::huddle::Set
-	append				::huddle::Append
-	get					::huddle::Get
+	set			::huddle::Set
+	append			::huddle::Append
+	get			::huddle::Get
 	get_stripped		::huddle::get_stripped
-	unset				::huddle::Unset
-	combine				::huddle::combine
+	unset			::huddle::Unset
+	combine			::huddle::combine
 	combine_relaxed 	::huddle::combine_relaxed
-	type				::huddle::type
-	remove				::huddle::remove
-	equal				::huddle::equal
-	exists				::huddle::exists
-	clone				::huddle::clone
-	isHuddle			::huddle::isHuddle
-	wrap				::huddle::wrap
-	unwrap				::huddle::unwrap
-	addType				::huddle::addType
-	jsondump			::huddle::jsondump
-	compile				::huddle::compile
+	type			::huddle::type
+	remove			::huddle::remove
+	equal			::huddle::equal
+	exists			::huddle::exists
+	clone			::huddle::clone
+	isHuddle		::huddle::isHuddle
+	wrap			::huddle::wrap
+	unwrap			::huddle::unwrap
+	addType			::huddle::addType
+	jsondump		::huddle::jsondump
+	compile			::huddle::compile
     }
 }
 
@@ -538,7 +538,9 @@ namespace eval ::huddle::types {
 
 	# $args: all arguments after "huddle create"
 	proc create {args} {
-	    if {[llength $args] % 2} {error "wrong # args: should be \"huddle create ?key value ...?\""}
+	    if {[llength $args] % 2} {
+		error "wrong # args: should be \"huddle create ?key value ...?\""
+	    }
 	    set resultL [dict create]
 
 	    foreach {key value} $args {
@@ -819,13 +821,15 @@ proc ::huddle::compile {spec data} {
 
 	switch -- $type {
 	    dict {
-		lappend spec * string
+		if {![llength $spec]} {
+		    lappend spec * string
+		}
 
 		set result [huddle create]
-		foreach {key val} $data {
-		    foreach {keymatch valtype} $spec {
-			if {[string match $keymatch $key]} {
-			    huddle append result $key [compile $valtype $val]
+		foreach {key value} $data {
+		    foreach {matching_key subspec} $spec {
+			if {[string match $matching_key $key]} {
+			    Append result $key [compile $subspec $value]
 			    break
 			}
 		    }
@@ -839,8 +843,8 @@ proc ::huddle::compile {spec data} {
 		    set spec [lindex $spec 0]
 		}
 		set result [huddle list]
-		foreach val $data {
-		    huddle append result [compile $spec $val]
+		foreach list_item $data {
+		    Append result [compile $spec $list_item]
 		}
 		return $result
 	    }
@@ -848,7 +852,11 @@ proc ::huddle::compile {spec data} {
 		return [wrap [list s $data]]
 	    }
 	    number {
-		return [wrap [list num $data]]
+		if {[string is double -strict $data]} {
+		    return [wrap [list num $data]]
+		} else {
+		    error "Bad number: $data"
+		}
 	    }
 	    bool {
 		if {$data} {
@@ -858,9 +866,20 @@ proc ::huddle::compile {spec data} {
 		}
 	    }
 	    null {
-		return [wrap [list null]]
+		if {$data eq ""} {
+		    return [wrap [list null]]
+		} else {
+		    error "Data must be an empty string: '$data'"
+		}
 	    }
-	    default {error "Invalid type"}
+	    huddle {
+		if {[isHuddle $data]} {
+		    return $data
+		} else {
+		    error "Data is not a huddle object: $data"
+		}
+	    }
+	    default {error "Invalid type: '$type'"}
 	}
     }
 }
