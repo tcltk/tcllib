@@ -1777,7 +1777,8 @@ jsonerror(struct context *context, const char *message)
   }
 
   TRACE ((">>> %s\n",fullmessage));
-  Tcl_SetResult(context->I, fullmessage, TCL_DYNAMIC);
+  Tcl_SetResult    (context->I, fullmessage, TCL_DYNAMIC);
+  Tcl_SetErrorCode (context->I, "JSON", "SYNTAX", NULL);
   context->has_error = 1;
 }
 

@@ -20,15 +20,15 @@ first.
 [para]
 
 This package provides the [emph exact] same API as is provided by
-package [package nameserv], i.e the regular name service client. It
+package [package nameserv], i.e. the regular name service client. It
 differs from the former by taking measures to ensure that longer-lived
-data, i.e. bound names, continuous and unfulfilled async searches,
+data, i.e. bound names, continuous and unfullfilled async searches,
 survive the loss of the connection to the name server as much as is
 possible.
 
 [para]
 
-This means that the bound names and continuous and unfulfilled async
+This means that the bound names and continuous and unfullfilled async
 searches are remembered client-side and automatically re-entered into
 the server when the connection comes back after its loss. For bound
 names there is one important limitation to such restoration: It is
@@ -38,19 +38,19 @@ the package can and will do is to inform the user of this.
 
 [section API]
 
-The user-visible API is mainly identical the API of [package nameserv]
+The user-visible API is mainly identical to the API of [package nameserv]
 and is therefore not described here. Please read the documentation of
 [package nameserv].
 
 [para]
 
-The differences are explained in the sections [sectref OPTIONS] and
+The differences are explained below, in the sections [sectref OPTIONS] and
 [sectref EVENTS].
 
 [section OPTIONS]
 
-This package supports all the option of package [package nameserv],
-and one more. The additional option allows the user to specifies the
+This package supports all the options of package [package nameserv],
+plus one more. The additional option allows the user to specify the
 time interval between attempts to restore a lost connection.
 
 [list_begin options]
@@ -65,7 +65,7 @@ milliseconds. The default value is [const 1000], i.e. one second.
 [section EVENTS]
 
 This package generates all of the events of package [package nameserv],
-and two more. Both events are generated for the tag [term nameserv].
+plus two more. Both events are generated for the tag [term nameserv].
 
 [list_begin definitions]
 [def [term lost-name]]
@@ -96,7 +96,7 @@ The event has no detail information.
 [section DESIGN]
 
 The package is implemented on top of the regular nameservice client,
-i.e.  package [package nameserv]. It detects the loss of the
+i.e. package [package nameserv]. It detects the loss of the
 connection by listening for [term lost-connection] events, on the tag
 [term nameserv].
 
@@ -105,7 +105,7 @@ connection by listening for [term lost-connection] events, on the tag
 It reacts to such events by starting a periodic timer and trying to
 reconnect to the server whenver this timer triggers. On success the
 timer is canceled, a [term re-connection] event generated, and the
-package proceeds to re-enter the remembered bound names and continous
+package proceeds to re-enter the remembered bound names and continuous
 searches.
 
 [para]

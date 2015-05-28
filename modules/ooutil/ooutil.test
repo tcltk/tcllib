@@ -1,4 +1,4 @@
-# ooutil.test - Copyright (c) 2014 Andreas Kupries
+# ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
 
 # -------------------------------------------------------------------------
 
@@ -9,13 +9,12 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2
 
-# Check if we have TclOO available.
-tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
+testsNeed TclOO 1
 
-support {
-}
 testing {
-    useLocal ooutil.tcl oo::util
+  useLocal ooutil.tcl oo::util
+  useLocal oometa.tcl oo::meta
+  useLocal oooption.tcl oo::option
 }
 
 # -------------------------------------------------------------------------
@@ -32,9 +31,126 @@ test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate 
 } -cleanup {
     namespace delete ooutiltest
     rename animal {}
-} -result {::ooutiltest::dog} -constraints tcloo
+} -result {::ooutiltest::dog}
+
+# Test properties
+
+oo::class create foo {
+  property color blue
+  
+  constructor args {
+    my InitializePublic
+    my configure {*}$args
+  }
+}
+
+oo::class create bar {
+  superclass ::foo
+  property shape oval
+  property option color {
+    default green
+  }
+}
+
+test oo-class-meta-001 {Test accessing properties} {
+  foo meta get color
+} blue
+
+test oo-class-meta-002 {Test accessing properties} {
+  bar meta get color
+} blue
+
+test oo-class-meta-003 {Test accessing properties} {
+  bar meta get shape
+} oval
+
+bar create cheers -color pink
+test oo-object-meta-001 {Test accessing properties} {
+  cheers meta get color
+} pink
+
+test  oo-object-meta-002 {Test accessing properties} {
+  cheers meta get shape
+} oval
+
+test  oo-object-meta-003 {Test accessing properties} {
+  cheers cget color
+} pink
+
+bar create moes
+test  oo-object-meta-004 {Test accessing properties} {
+  moes meta get color
+} green
+
+test  oo-object-meta-005 {Test accessing properties} {
+  moes meta get shape
+} oval
+
+test  oo-object-meta-006 {Test accessing properties} {
+  moes cget color
+} green
+
+test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn't exist} {
+  moes cget shape
+} oval
+
+###
+# Test altering a property
+###
+
+oo::define ::foo property woozle whoop
+
+test oo-modclass-meta-001 {Test accessing properties of an altered class} {
+  foo meta get woozle
+} whoop
+
+test oo-modclass-meta-002 {Test accessing properties of the descendent of an altered class} {
+  bar meta get woozle
+} whoop
+
+test oo-modobject-meta-001 {Test the accessing of properties of an instance of an altered class} {
+  moes meta get woozle
+} whoop
+
+test obj-meta-for-001 {Test object meta for} {
+  set result {}
+  moes meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {
+    default green
+  }}
+
+test obj-meta-with-001 {Test object meta with} {
+  set result {}
+  moes meta with option {}
+  set color
+} {
+    default green
+  }
+
+test obj-meta-for-001 {Test class meta for} {
+  set result {}
+  bar meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {
+    default green
+  }}
+
+test obj-meta-with-001 {Test class meta with} {
+  set result {}
+  bar meta with option {}
+  set color
+} {
+    default green
+  }
 
 # -------------------------------------------------------------------------
+
+
 testsuiteCleanup
 
 # Local variables:

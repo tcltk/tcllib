@@ -115,7 +115,8 @@
 <li class="section"><a href="#toc">Table Of Contents</a></li>
 <li class="section"><a href="#synopsis">Synopsis</a></li>
 <li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section2">Warnings and Incompatibilities</a></li>
+<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 </ul>
@@ -456,7 +457,55 @@ and the other relative.</p>
 Symbolic links are <em>not</em> taken into account.</p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="section"><h2><a name="section2">Warnings and Incompatibilities</a></h2>
+<dl class="definitions">
+<dt><b class="const">1.14.9</b></dt>
+<dd><p>In this version <b class="cmd">fileutil::find</b>'s broken system for handling
+symlinks was replaced with one working correctly and properly
+enumerating all the legal non-cyclic paths under a base directory.</p>
+<p>While correct this means that certain pathological directory
+hierarchies with cross-linked sym-links will now take about O(n**2)
+time to enumerate whereas the original broken code managed O(n) due to
+its brokenness.</p>
+<p>A concrete example and extreme case is the &quot;<b class="file">/sys</b>&quot;
+hierarchy under Linux where some hundred devices exist under both
+&quot;<b class="file">/sys/devices</b>&quot; and &quot;<b class="file">/sys/class</b>&quot; with the two sub-hierarchies
+linking to the other, generating millions of legal paths to enumerate.
+The structure, reduced to three devices, roughly looks like</p>
+<pre class="example">
+	/sys/class/tty/tty0 --&gt; ../../dev/tty0
+	/sys/class/tty/tty1 --&gt; ../../dev/tty1
+	/sys/class/tty/tty2 --&gt; ../../dev/tty1
+	/sys/dev/tty0/bus
+	/sys/dev/tty0/subsystem --&gt; ../../class/tty
+	/sys/dev/tty1/bus
+	/sys/dev/tty1/subsystem --&gt; ../../class/tty
+	/sys/dev/tty2/bus
+	/sys/dev/tty2/subsystem --&gt; ../../class/tty
+</pre>
+<p>The command <b class="cmd">fileutil::find</b> currently has no way to escape
+this. When having to handle such a pathological hierarchy It is
+recommended to switch to package <b class="package">fileutil::traverse</b> and the
+same-named command it provides, and then use the <b class="option">-prefilter</b>
+option to prevent the traverser from following symbolic links, like so:</p>
+<pre class="example">
+    package require fileutil::traverse
+    proc NoLinks {fileName} {
+        if {[string equal [file type $fileName] link]} {
+            return 0
+        }
+        return 1
+    }
+    fileutil::traverse T /sys/devices -prefilter NoLinks
+    T foreach p {
+        puts $p
+    }
+    T destroy
+</pre>
+</dd>
+</dl>
+</div>
+<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>fileutil</em> of the
