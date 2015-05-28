@@ -13,6 +13,8 @@ testsNeed TclOO 1
 
 testing {
     useLocal ooutil.tcl oo::util
+    useLocal ooproperty.tcl oo::property
+
 }
 
 # -------------------------------------------------------------------------
@@ -31,7 +33,70 @@ test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate 
     rename animal {}
 } -result {::ooutiltest::dog}
 
+# Test properties
+
+oo::class create foo {
+  property color blue
+  
+  constructor args {
+    my InitializePublic
+    my configure {*}$args
+  }
+}
+
+oo::class create bar {
+  superclass ::foo
+  property shape oval
+  property option color {
+    default green
+  }
+}
+
+test oo-property-001 {Test accessing properties} {
+  foo property get color
+} blue
+
+test oo-property-002 {Test accessing properties} {
+  bar property get color
+} blue
+
+test oo-property-003 {Test accessing properties} {
+  bar property get shape
+} oval
+
+bar create cheers -color pink
+test oo-property-004 {Test accessing properties} {
+  cheers property get color
+} blue
+
+test oo-property-005 {Test accessing properties} {
+  cheers property get shape
+} oval
+
+test oo-property-006 {Test accessing properties} {
+  cheers cget color
+} pink
+
+bar create moes
+test oo-property-007 {Test accessing properties} {
+  moes property get color
+} blue
+
+test oo-property-008 {Test accessing properties} {
+  moes property get shape
+} oval
+
+test oo-property-009 {Test accessing properties} {
+  moes cget color
+} green
+
+test oo-property-010 {Test the CGET retrieves a property if an option doesn't exist} {
+  moes cget shape
+} oval
+
 # -------------------------------------------------------------------------
+
+
 testsuiteCleanup
 
 # Local variables:
