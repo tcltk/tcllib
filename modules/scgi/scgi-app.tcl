@@ -4,23 +4,114 @@
 
 package require html
 package require TclOO
+package require oo::meta
 
-namespace eval ::scgi::app {}
+namespace eval ::scgi {}
+
+oo::class create ::scgi::reply {  
+
+
+  constructor {Query_headers Query_body} {
+    my variable query_headers query_body reply_headers reply_body
+    set query_headers $Query_headers
+    set query_body $Query_body
+    my reset
+  }
+  
+  method error {msg} {
+    my variable reply_headers reply_body
+    set reply_headers {Status: {500 Internal server error} Content-Type: {text/html}}
+    set reply_body "
+<HTML>
+<HEAD>
+<TITLE>505 Internal Error</TITLE>
+</HEAD>
+<BODY>
+Guru meditation #[clock seconds]
+<p>
+The server encountered an internal error:
+<p>
+<pre>$msg</pre>
+<p>
+For deeper understanding:
+<p>
+<pre>$::errorInfo</pre>
+</BODY>
+</HTML>
+"
+  }
+
+  method flush {} {
+    my variable reply_headers reply_body
+    set result {}
+    foreach {key value} $reply_headers {
+      append result "$key $value" \n
+    }
+    append result \n $reply_body \n
+    return $result
+  }
+
+  ###
+  # REPLACE ME:
+  # This method is the "meat" of your application. It takes in the headers
+  # and body of the request, and returns 
+  method content {} {
+    my reset
+    my variable query_headers
+    array set Headers $query_headers
+
+    my puts "<HTML>"
+    my puts "<BODY>"
+    my puts "<H1>HELLO WORLD!</H1>"
+    mt puts "</BODY>"
+    my puts "</HTML>"
+  }
+
+  method reset {} {
+    my variable reply_headers reply_body
+    set reply_headers {Status: {200 OK} Content-Type: text-html}
+    set reply_body {}
+  }
+  
+  method reply_header {var val} {
+    my variable reply_headers
+    dict set reply_headers $var $val
+  }
+
+  method query_header {var} {
+    my variable query_headers
+    if {[dict exists $query_headers $var]} {
+      return [dict get $query_headers $var]
+    }
+    return {}
+  }
+
+  method query_body {} {
+    my variable query_body
+    return $query_body
+  }
+  
+  method puts line {
+    my variable reply_body
+    append reply_body $line \n
+  }
+
+}
 
 oo::class create scgi.app {
   superclass
 
-  constructor {port} {
-    my listen $port  
+  constructor {args} {
+    my start $args
   }
   
   destructor {
-    stop
+    my stop
   }
   
-  method listen {port script} {
+  method start args {
     my variable sock
-    set sock [socket -server [namespace code [list my connect]] $port]
+    set sock [socket -server [namespace code [list my connect]] {*}$args]
   }
   
   method stop {} {
@@ -82,106 +173,20 @@ oo::class create scgi.app {
       fileevent $sock readable [namespace code [list read_body $sock $headers $content_length $body]]
       return
     } else {
-      my variable page
-      set uuid [::uuid::uuid generate]
-      dict set page $uuid sock $sock
-      dict set page $uuid request-headers $headers
-      dict set page $uuid request-body $body
-      dict set page $uuid content_length $content_length
-      dict set page $uuid reply-header Status: {200 OK}
-      dict set page $uuid reply-header Content-Type: text-html
-      dict set page $uuid reply-data {}
-      if [catch {my reply $uuid} msg] {
-        my header Status: {500 Internal server error}
-        my header Content-Type: {text/html}
-        dict set page $uuid reply-data [my ErrorPage $msg]
+      set reply_class [my ReplyClass $headers $body]
+      set page [$reply_class new $sock $headers $body]
+      if {[catch {$page content} msg]} {
+        $page error $msg
       }
-      my flush $uuid
+      puts $sock [$page flush]
+      $page destroy
     }
   }
   
-  method ErrorPage msg {
-    uplevel 1 uuid uuid
-    return "
-<HTML>
-<HEAD>
-<TITLE>505 Internal Error</TITLE>
-</HEAD>
-<BODY>
-Guru meditation #$uuid
-<p>
-The server encountered an internal error:
-<p>
-<pre>$msg</pre>
-<p>
-For deeper understanding:
-<p>
-<pre>$::errorInfo</pre>
-</BODY>
-</HTML>
-"
+  method ReplyClass {headers body} {
+    return scgi.reply
   }
   
-  method flush uuid {
-    my variable page
-    set outbuf {}
-    foreach {key value} [dict get $page $uuid reply-header] {
-      append outbuf "$key $value" \n
-    }
-    append outbuf \n [dict get $page $uuid reply-data] \n
-    puts $sock $outbuf
-    close $sock
-  }
-  
-  method header {key value} {
-    upvar 1 uuid uuid
-    my variable page
-    dict set page $uuid reply-data $key $value
-  }
-    
-  method puts {line} {
-    upvar 1 uuid uuid
-    my variable page
-    dict append page $uuid reply-data "$line\n"
-  }
-  
-  ###
-  # REPLACE ME:
-  # This method is the "meat" of your application. It takes in the headers
-  # and body of the request, and returns 
-  method reply {uuid} {
-    my variable page
-    array set Headers [dict get $page $uuid request-headers]
-
-    my header Status: {200 OK}
-    my header Content-Type: {text/html}
-    
-    my puts "<HTML>"
-    my puts "<BODY>"
-    my puts [::html::tableFromArray Headers]
-    my puts "</BODY>"
-    my puts "<H3>Body</H3>"
-    my puts "<PRE>[dict get $page $uuid request-body]</PRE>"
-    if {$Headers(REQUEST_METHOD) eq "GET"} {
-      my puts {<FORM METHOD="post" ACTION="/scgi">}
-      foreach pair [split $Headers(QUERY_STRING) &] {
-        lassign [split $pair =] key val
-        my puts "$key: [::html::textInput $key $val]<BR>"
-      }
-      my puts "<BR>"
-      my puts {<INPUT TYPE="submit" VALUE="Try POST">}
-    } else {
-      my puts {<FORM METHOD="get" ACTION="/scgi">}
-      foreach pair [split [dict get $page $uuid request-body] &] {
-        lassign [split $pair =] key val
-        my puts "$key: [::html::textInput $key $val]<BR>"
-      }
-      my puts "<BR>"
-      my puts {<INPUT TYPE="submit" VALUE="Try GET">}
-    }
-    my puts "</FORM>"
-    my puts "</HTML>"
-  }
 }
 
 package provide scgi::app 0.1
