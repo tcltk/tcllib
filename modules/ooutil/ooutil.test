@@ -12,9 +12,9 @@ testsNeedTcltest 2
 testsNeed TclOO 1
 
 testing {
-    useLocal ooutil.tcl oo::util
-    useLocal ooproperty.tcl oo::property
-
+  useLocal ooutil.tcl oo::util
+  useLocal oometa.tcl oo::meta
+  useLocal oooption.tcl oo::option
 }
 
 # -------------------------------------------------------------------------
@@ -52,48 +52,65 @@ oo::class create bar {
   }
 }
 
-test oo-property-001 {Test accessing properties} {
-  foo property get color
+test oo-class-meta-001 {Test accessing properties} {
+  foo meta get color
 } blue
 
-test oo-property-002 {Test accessing properties} {
-  bar property get color
+test oo-class-meta-002 {Test accessing properties} {
+  bar meta get color
 } blue
 
-test oo-property-003 {Test accessing properties} {
-  bar property get shape
+test oo-class-meta-003 {Test accessing properties} {
+  bar meta get shape
 } oval
 
 bar create cheers -color pink
-test oo-property-004 {Test accessing properties} {
-  cheers property get color
-} blue
+test oo-object-meta-001 {Test accessing properties} {
+  cheers meta get color
+} pink
 
-test oo-property-005 {Test accessing properties} {
-  cheers property get shape
+test  oo-object-meta-002 {Test accessing properties} {
+  cheers meta get shape
 } oval
 
-test oo-property-006 {Test accessing properties} {
+test  oo-object-meta-003 {Test accessing properties} {
   cheers cget color
 } pink
 
 bar create moes
-test oo-property-007 {Test accessing properties} {
-  moes property get color
-} blue
+test  oo-object-meta-004 {Test accessing properties} {
+  moes meta get color
+} green
 
-test oo-property-008 {Test accessing properties} {
-  moes property get shape
+test  oo-object-meta-005 {Test accessing properties} {
+  moes meta get shape
 } oval
 
-test oo-property-009 {Test accessing properties} {
+test  oo-object-meta-006 {Test accessing properties} {
   moes cget color
 } green
 
-test oo-property-010 {Test the CGET retrieves a property if an option doesn't exist} {
+test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn't exist} {
   moes cget shape
 } oval
 
+###
+# Test altering a property
+###
+
+oo::define ::foo property woozle whoop
+
+test oo-modclass-meta-001 {Test accessing properties of an altered class} {
+  foo meta get woozle
+} whoop
+
+test oo-modclass-meta-002 {Test accessing properties of the descendent of an altered class} {
+  bar meta get woozle
+} whoop
+
+test oo-modobject-meta-001 {Test the accessing of properties of an instance of an altered class} {
+  moes meta get woozle
+} whoop
 # -------------------------------------------------------------------------
 
 
