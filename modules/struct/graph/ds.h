@@ -160,7 +160,7 @@ typedef struct G {
  */
 
 typedef struct GG {
-    long int counter;  /* Graph id generator */
+    size_t   counter;  /* Graph id generator */
     char     buf [50]; /* Buffer for handle construction */
 } GG;
 

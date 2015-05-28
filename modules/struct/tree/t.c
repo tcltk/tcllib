@@ -2,9 +2,10 @@
  * (c) Tree functions
  */
 
-#include <t.h>
-#include <tn.h>
-#include <util.h>
+#include <string.h>
+#include "t.h"
+#include "tn.h"
+#include "util.h"
 
 /* .................................................. */
 

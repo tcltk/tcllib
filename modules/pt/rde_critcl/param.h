@@ -9,6 +9,7 @@
 #include "tcl.h"
 #include <util.h>  /* Scoping */
 #include <stack.h> /* Stack handling */
+#include <stdint.h> /* intptr_t */
 
 /*
  * The state structure is opaque, its internals are known only to the
@@ -54,7 +55,7 @@ SCOPE const ERROR_STATE* rde_param_query_er      (RDE_PARAM p);
 SCOPE Tcl_Obj*           rde_param_query_er_tcl  (RDE_PARAM p, const ERROR_STATE* er);
 SCOPE void               rde_param_query_es      (RDE_PARAM p, long int* ec, ERROR_STATE*** ev);
 SCOPE void               rde_param_query_ls      (RDE_PARAM p, long int* lc, void*** lv);
-SCOPE long int           rde_param_query_lstop   (RDE_PARAM p);
+SCOPE intptr_t           rde_param_query_lstop   (RDE_PARAM p);
 SCOPE Tcl_HashTable*     rde_param_query_nc      (RDE_PARAM p);
 SCOPE int                rde_param_query_st      (RDE_PARAM p);
 SCOPE Tcl_Obj*           rde_param_query_sv      (RDE_PARAM p);

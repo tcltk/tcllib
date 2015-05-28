@@ -312,7 +312,7 @@ tms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	M_NODES,       M_NUMCHILDREN, M_PARENT,	   M_PREVIOUS, M_RENAME,
 	M_ROOTNAME,    M_SERIALIZE,   M_SET,	   M_SIZE,     M_SPLICE,
 	M_SWAP,	       M_UNSET,	      M_WALK,	   M_WALKPROC
-    };
+    } method;
 
     if (objc < 2) {
 	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
@@ -326,7 +326,7 @@ tms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      * the requested functionality
      */
 
-    switch (m) {
+    switch (method = m) {
     case M_TASSIGN:	return tm_TASSIGN     (t, interp, objc, objv);
     case M_TSET:	return tm_TSET	      (t, interp, objc, objv);
     case M_ANCESTORS:	return tm_ANCESTORS   (t, interp, objc, objv);

@@ -59,7 +59,7 @@ typedef struct {
 } MD5_CTX;
 
 void MD5Init   (MD5_CTX *mdContext);
-void MD5Update (MD5_CTX *mdContext, unsigned char *buf, unsigned int len);
+void MD5Update (MD5_CTX *mdContext, const unsigned char *buf, unsigned int len);
 void MD5Final  (unsigned char digest[16], MD5_CTX *mdContext);
 void Transform (UINT4 *buf, UINT4 *in);
 

@@ -4,14 +4,16 @@
  *    Implementations for all tree methods.
  */
 
+#include <ctype.h>
 #include <string.h>
-#include <arc.h>
-#include <graph.h>
-#include <methods.h>
-#include <nacommon.h>
-#include <node.h>
-#include <util.h>
-#include <walk.h>
+#include "arc.h"
+#include "attr.h"
+#include "graph.h"
+#include "methods.h"
+#include "nacommon.h"
+#include "node.h"
+#include "util.h"
+#include "walk.h"
 
 /* ..................................................
  * Handling of all indices, numeric and 'end-x' forms.  Copied straight out of

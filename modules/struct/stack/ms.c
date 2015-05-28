@@ -39,7 +39,7 @@ stms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     enum methods {
 	M_CLEAR, M_DESTROY, M_GET,    M_GETR, M_PEEK, M_PEEKR,
 	M_POP,   M_PUSH,    M_ROTATE, M_SIZE, M_TRIM, M_TRIMV
-    };
+    } method;
 
     if (objc < 2) {
 	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
@@ -53,7 +53,7 @@ stms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      * the requested functionality
      */
 
-    switch (m) {
+    switch (method = m) {
     case M_CLEAR:	return stm_CLEAR   (s, interp, objc, objv);
     case M_DESTROY:	return stm_DESTROY (s, interp, objc, objv);
     case M_GET:		return stm_GET     (s, interp, objc, objv, 0   ); /* get   */

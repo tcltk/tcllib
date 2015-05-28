@@ -80,7 +80,7 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 		s_get (interp, val, &vs);
 	    }
 
-	    (void*) Tcl_CreateHashEntry(&vs->el, key, &new);
+	    Tcl_CreateHashEntry(&vs->el, key, &new);
 	    nx = 1;
 	}
 	if (nx) {

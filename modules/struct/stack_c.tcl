@@ -40,7 +40,7 @@ namespace eval ::struct {
 	*/
 
 	typedef struct SDg {
-	    long int counter;
+	    size_t counter;
 	    char buf [50];
 	} SDg;
 
@@ -68,7 +68,7 @@ namespace eval ::struct {
 	    }
 	    
 	    sdg->counter ++;
-	    sprintf (sdg->buf, "stack%d", sdg->counter);
+	    sprintf (sdg->buf, "stack%td", sdg->counter);
 	    return sdg->buf;
 
 #undef  KEY

@@ -2,12 +2,13 @@
  * (c) Graph functions
  */
 
-#include <arc.h>
-#include <attr.h>
-#include <graph.h>
-#include <node.h>
-#include <objcmd.h>
-#include <util.h>
+#include <stdint.h>
+#include "arc.h"
+#include "attr.h"
+#include "graph.h"
+#include "node.h"
+#include "objcmd.h"
+#include "util.h"
 
 /* .................................................. */
 
@@ -159,11 +160,11 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
 	    if (!n) {
 		goto abort;
 	    }
-	    if (Tcl_FindHashEntry (&cn, (char*) n)) continue;
+	    if (Tcl_FindHashEntry (&cn, (void *) n)) continue;
 	    ASSERT_BOUNDS(j, lc-1);
-	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
+	    he = Tcl_CreateHashEntry (&cn, (void *) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) j);
+	    Tcl_SetHashValue (he, (ClientData)(intptr_t)j);
 	    j += 3;
 	}
 	lc = j + 1;
@@ -180,7 +181,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
 	    ASSERT_BOUNDS(j, lc-1);
 	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) j);
+	    Tcl_SetHashValue (he, (ClientData)(intptr_t)j);
 	    j += 3;
 	}
 	lc = j + 1;

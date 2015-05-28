@@ -57,8 +57,9 @@ namespace eval ::md5crypt {
                                const char *salt,
                                const char *magic)
         {
-            static char     passwd[120], *p;
-            static const unsigned char *sp,*ep;
+            static char     passwd[120];
+            char     *p;
+            const unsigned char *sp,*ep;
             unsigned char	final[16];
             int sl,pl,i;
             MD5_CTX	ctx,ctx1;
@@ -113,7 +114,7 @@ namespace eval ::md5crypt {
             }
             
             /* Now make the output string */
-            snprintf(passwd, sizeof(passwd), "%s%.*s$", (char *)magic,
+            p = passwd + snprintf(passwd, sizeof(passwd), "%s%.*s$", (char *)magic,
                     sl, (const char *)sp);
             
             MD5Final(final,&ctx);
@@ -143,8 +144,6 @@ namespace eval ::md5crypt {
                 MD5Final(final,&ctx1);
             }
 
-            p = passwd + strlen(passwd);
-            
             l = (final[ 0]<<16) | (final[ 6]<<8) | final[12]; to64(p,l,4); p += 4;
             l = (final[ 1]<<16) | (final[ 7]<<8) | final[13]; to64(p,l,4); p += 4;
             l = (final[ 2]<<16) | (final[ 8]<<8) | final[14]; to64(p,l,4); p += 4;

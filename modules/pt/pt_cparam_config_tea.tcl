@@ -94,6 +94,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 	* * ** *** ***** ******** ************* *********************/
 		#include <string.h>
 		#include <tcl.h>
+		#include <stdint.h>
 		#include <stdlib.h>
 		#include <ctype.h>
 		#define SCOPE static

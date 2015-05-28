@@ -115,7 +115,7 @@ MD5_CTX *mdContext;
    in the message whose digest is being computed.
  */
 void MD5Update (mdContext, inBuf, inLen)
-register MD5_CTX *mdContext; unsigned char *inBuf;
+register MD5_CTX *mdContext; const unsigned char *inBuf;
 		 unsigned int inLen;
 {
   register int i, ii;

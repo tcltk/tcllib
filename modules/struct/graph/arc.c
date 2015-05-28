@@ -2,10 +2,11 @@
  * (b) Arc operations.
  */
 
-#include <arc.h>
-#include <attr.h>
-#include <graph.h>
-#include <util.h>
+#include "arc.h"
+#include "attr.h"
+#include "graph.h"
+#include "nacommon.h"
+#include "util.h"
 
 /* .................................................. */
 

@@ -35,7 +35,7 @@ namespace eval ::struct {
 	*/
 
 	typedef struct QDg {
-	    long int counter;
+	    size_t counter;
 	    char buf [50];
 	} QDg;
 
@@ -63,7 +63,7 @@ namespace eval ::struct {
 	    }
 	    
 	    qdg->counter ++;
-	    sprintf (qdg->buf, "queue%d", qdg->counter);
+	    sprintf (qdg->buf, "queue%td", qdg->counter);
 	    return qdg->buf;
 
 #undef  KEY
