@@ -111,6 +111,43 @@ test oo-modclass-meta-002 {Test accessing properties of the descendent of an alt
 test oo-modobject-meta-001 {Test the accessing of properties of an instance of an altered class} {
   moes meta get woozle
 } whoop
+
+test obj-meta-for-001 {Test object meta for} {
+  set result {}
+  moes meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {
+    default green
+  }}
+
+test obj-meta-with-001 {Test object meta with} {
+  set result {}
+  moes meta with option {}
+  set color
+} {
+    default green
+  }
+
+test obj-meta-for-001 {Test class meta for} {
+  set result {}
+  bar meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {
+    default green
+  }}
+
+test obj-meta-with-001 {Test class meta with} {
+  set result {}
+  bar meta with option {}
+  set color
+} {
+    default green
+  }
+
 # -------------------------------------------------------------------------
 
 
