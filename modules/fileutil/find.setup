@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # Support code for the tests of the find command (and incremental find).
 #
-# Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2007-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # RCS: @(#) $Id: find.setup,v 1.3 2012/08/29 20:42:19 andreas_kupries Exp $
@@ -365,6 +365,39 @@ proc f_cleanupnoread {} {
     return
 }
 
+
+proc f_setup_crossindex {} {
+    makeDirectory s
+    makeDirectory s/c
+    makeDirectory s/c/t
+
+    makeDirectory s/d
+    makeDirectory s/d/t0
+    makeDirectory s/d/t1
+    makeDirectory s/d/t2
+
+    makeFile "" s/d/t0/b
+    makeFile "" s/d/t1/b
+    makeFile "" s/d/t2/b
+
+    f_link s/c/t/t0 ../../d/t0
+    f_link s/c/t/t1 ../../d/t1
+    f_link s/c/t/t2 ../../d/t2
+
+    f_link s/d/t0/s ../../c/t
+    f_link s/d/t1/s ../../c/t
+    f_link s/d/t2/s ../../c/t
+    return
+}
+
+proc f_cleanup_crossindex {} {
+    removeFile s/d/t0/b
+    removeFile s/d/t1/b
+    removeFile s/d/t2/b
+    removeDirectory s
+    return
+}
+
 proc f_cleanall {} {
     rename f_link           {}
     rename f_setup          {}
@@ -379,6 +412,8 @@ proc f_cleanall {} {
     rename f_cleanupnostat  {}
     rename f_setupnoread    {}
     rename f_cleanupnoread  {}
+    rename f_setup_crossindex   {}
+    rename f_cleanup_crossindex {}
     rename f_cleanall       {}
     rename fileIsBiggerThan {}
     catch {unset ::res}
