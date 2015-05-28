@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # gpx.test:  tests for the gpx package.
 #
-# Copyright (c) 2010 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2010-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # RCS: @(#) $Id: gpx.test,v 1.2 2010/07/10 15:58:23 andreas_kupries Exp $
@@ -19,13 +19,6 @@ if {[file exists testutilities.tcl]} {
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
-if {[catch {
-    package require tdom
-}]} {
-    puts "    Aborting the tests found in \"[file tail [info script]]\""
-    puts "    Required package tdom not found."
-    return
-}
 testsNeed tdom 0.8
 
 testing {
