@@ -58,17 +58,46 @@ proc ::oo::meta::ancestors class {
   return $result
 }
 
-proc ::oo::meta::info {method class args} {
-  set info [properties $class]
-  switch $method {
+proc ::oo::meta::info {class submethod args} {
+  switch $submethod {
+    rebuild {
+      if {$class ni $::oo::meta::dirty_classes} {
+        lappend ::oo::meta::dirty_classes $class
+      }
+    }
     is {
+      set info [properties $class]
       return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
     }
+    for -
+    map {
+      set info [properties $class]
+      puts [list [dict get $info {*}[lrange $args 1 end-1]]]
+      return [uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
+    }
+    with {
+      upvar 1 TEMPVAR info
+      set info [properties $class]
+      return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
+    }
+    append -
+    incr -
+    lappend -
+    set -
+    unset -
+    update {
+      if {$class ni $::oo::meta::dirty_classes} {
+        lappend ::oo::meta::dirty_classes $class
+      }
+      ::dict $submethod ::oo::meta::local_property($class) {*}$args
+    }
     dump {
+      set info [properties $class]
       return $info
     }
     default {
-      return [dict $method $info {*}$args] 
+      set info [properties $class]
+      return [::dict $submethod $info {*}$args] 
     }
   }
 }
@@ -123,15 +152,45 @@ proc ::oo::meta::properties class {
 ###
 proc ::oo::define::property {args} {
   set class [lindex [::info level -1] 1]
-  dict set ::oo::meta::local_property($class) {*}$args
-  lappend ::oo::meta::dirty_classes $class
+  ::oo::meta::info $class set {*}$args
 }
 
 oo::define oo::class {
 
   method meta {submethod args} {
     set class [self]
-    return [::oo::meta::info $submethod $class {*}$args]
+    switch $submethod {
+      is {
+        set info [::oo::meta::properties $class]
+        return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
+      }
+      for -
+      map {
+        set info [::oo::meta::properties $class]
+        return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
+      }
+      with {
+        upvar 1 TEMPVAR info
+        set info [::oo::meta::properties $class]
+        return [uplevel 1 [list dict with TEMPVAR {*}$args]]
+      }
+      dump {
+        return [::oo::meta::properties $class]
+      }
+      append -
+      incr -
+      lappend -
+      set -
+      unset -
+      update {
+        ::oo::meta::info $class rebuild
+        return [dict $submethod config {*}$args]
+      }
+      default {
+        set info [::oo::meta::properties $class]
+        return [dict $submethod $info {*}$args] 
+      }
+    }
   }
   
 }
@@ -144,15 +203,34 @@ oo::define oo::object {
       set config {}
     }
     set class [::info object class [self object]]
-    set info [dict merge [::oo::meta::properties $class] $config]
     switch $submethod {
       is {
+        set info [dict merge [::oo::meta::properties $class] $config]
         return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
       }
+      for -
+      map {
+        set info [dict merge [::oo::meta::properties $class] $config]
+        return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
+      }
+      with {
+        upvar 1 TEMPVAR info
+        set info [dict merge [::oo::meta::properties $class] $config]
+        return [uplevel 1 [list dict with TEMPVAR {*}$args]]
+      }
       dump {
-        return $info
+        return [dict merge [::oo::meta::properties $class] $config]
+      }
+      append -
+      incr -
+      lappend -
+      set -
+      unset -
+      update {
+        return [dict $submethod config {*}$args]
       }
       default {
+        set info [dict merge [::oo::meta::properties $class] $config]
         return [dict $submethod $info {*}$args] 
       }
     }
