@@ -45,6 +45,8 @@ namespace eval ::pt::parse {
     critcl::ccode {
 	/* -*- c -*- */
 
+	#include <stdint.h>
+	#include <stdlib.h>
 	#include <string.h>
 	#define SCOPE static
 
@@ -732,10 +734,10 @@ namespace eval ::pt::parse {
 	{
 	    rde_stack_get (p->LS, lc, lv);
 	}
-	SCOPE long int
+	SCOPE intptr_t
 	rde_param_query_lstop (RDE_PARAM p)
 	{
-	    (long int) rde_stack_top (p->LS);
+	    return (intptr_t) rde_stack_top (p->LS);
 	}
 	SCOPE Tcl_HashTable*
 	rde_param_query_nc (RDE_PARAM p)
@@ -896,7 +898,7 @@ namespace eval ::pt::parse {
 	    p->ER->loc      = p->CL;
 	    p->ER->msg      = rde_stack_new (NULL);
 	    ASSERT_BOUNDS(s,p->numstr);
-	    rde_stack_push (p->ER->msg, (void*) s);
+	    rde_stack_push (p->ER->msg, (void*)(intptr_t)s);
 	}
 	static void
 	error_state_free (void* esx)
@@ -986,7 +988,7 @@ namespace eval ::pt::parse {
 	    hPtr = Tcl_FindHashEntry (&p->NC, (char*) p->CL);
 	    if (!hPtr) { return 0; }
 	    tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
-	    hPtr = Tcl_FindHashEntry (tablePtr, (char*) s);
+	    hPtr = Tcl_FindHashEntry (tablePtr, (void *)(intptr_t)s);
 	    if (!hPtr) { return 0; }
 	    
 	    scs = Tcl_GetHashValue (hPtr);
@@ -1002,7 +1004,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_symbol_save (RDE_PARAM p, long int s)
 	{
-	    long int       at = (long int) rde_stack_top (p->LS);
+	    intptr_t       at = (intptr_t)rde_stack_top (p->LS);
 	    NC_STATE*      scs;
 	    Tcl_HashEntry* hPtr;
 	    Tcl_HashTable* tablePtr;
@@ -1011,7 +1013,7 @@ namespace eval ::pt::parse {
 	    TRACE (("RDE_PARAM %p",p));
 	    TRACE (("INT       %d",s));
 	    
-	    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) at, &isnew);
+	    hPtr = Tcl_CreateHashEntry (&p->NC, (void*) at, &isnew);
 	    if (isnew) {
 		tablePtr = ALLOC (Tcl_HashTable);
 		Tcl_InitHashTable (tablePtr, TCL_ONE_WORD_KEYS);
@@ -1019,7 +1021,7 @@ namespace eval ::pt::parse {
 	    } else {
 		tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
 	    }
-	    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) s, &isnew);
+	    hPtr = Tcl_CreateHashEntry (tablePtr, (void*)(intptr_t)s, &isnew);
 	    if (isnew) {
 		
 		scs = ALLOC (NC_STATE);
@@ -1169,12 +1171,14 @@ namespace eval ::pt::parse {
 	static int
 	UniCharIsHexDigit (int character)
 	{
-	    return (character >= 0) && (character < 0x80) && isxdigit(character);
+	    return UniCharIsDecDigit(character) ||
+		(character >= 'a' && character <= 'f') ||
+		(character >= 'A' && character <= 'F');
 	}
 	static int
 	UniCharIsDecDigit (int character)
 	{
-	    return (character >= 0) && (character < 0x80) && isdigit(character);
+	    return (character >= '0') && (character <= '9');
 	}
 	SCOPE void
 	rde_param_i_value_clear (RDE_PARAM p)
@@ -4727,7 +4731,7 @@ namespace eval ::pt::parse {
 	/* -*- c -*- */
 
 	typedef struct PARSERg {
-	    long int counter;
+	    size_t   counter;
 	    char     buf [50];
 	} PARSERg;
 
@@ -4755,7 +4759,7 @@ namespace eval ::pt::parse {
 	    }
 
 	    parserg->counter ++;
-	    sprintf (parserg->buf, "peg%ld", parserg->counter);
+	    sprintf (parserg->buf, "peg%td", parserg->counter);
 	    return parserg->buf;
 #undef  KEY
 	}

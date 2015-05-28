@@ -2,9 +2,10 @@
  * (c) PARAM functions
  */
 
-#include <pInt.h> /* Our public and internal APIs */
-#include <util.h> /* Allocation macros */
+#include <stdint.h>
 #include <string.h>
+#include "pInt.h" /* Our public and internal APIs */
+#include "util.h" /* Allocation macros */
 
 /* .................................................. */
 
@@ -132,7 +133,7 @@ param_intern (RDE_STATE p, const char* literal)
     hPtr = Tcl_CreateHashEntry(&p->str, literal, &isnew);
     ASSERT (isnew, "Should have found entry");
 
-    Tcl_SetHashValue (hPtr, p->numstr);
+    Tcl_SetHashValue (hPtr, (intptr_t)p->numstr);
 
     if (p->numstr >= p->maxnum) {
 	long int new;

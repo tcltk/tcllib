@@ -48,7 +48,7 @@ namespace eval ::pt {
 	*/
 
 	typedef struct PARAMg {
-	    long int counter;
+	    size_t counter;
 	    char     buf [50];
 	} PARAMg;
 
@@ -76,7 +76,7 @@ namespace eval ::pt {
 	    }
 	    
 	    paramg->counter ++;
-	    sprintf (paramg->buf, "rde%ld", paramg->counter);
+	    sprintf (paramg->buf, "rde%td", paramg->counter);
 	    return paramg->buf;
 
 #undef  KEY

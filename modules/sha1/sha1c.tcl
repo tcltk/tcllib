@@ -32,8 +32,7 @@ namespace eval ::sha1 {
         static void 
         sha1_free_rep(Tcl_Obj* obj)
         {
-            SHA1_CTX* mp = (SHA1_CTX*) obj->internalRep.otherValuePtr;
-            Tcl_Free ((char*)mp);
+            Tcl_Free(obj->internalRep.otherValuePtr);
         }
         
         static void

@@ -3,11 +3,13 @@
  * == pt::rde (critcl) - Data Structures - PARAM architectural state.
  */
 
-#include <param.h> /* Public and private APIs */
-#include <stack.h> /* Stack handling */
-#include <tc.h>    /* Token cache handling */
-#include <util.h>  /* Allocation utilities */
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include "param.h" /* Public and private APIs */
+#include "stack.h" /* Stack handling */
+#include "tc.h"    /* Token cache handling */
+#include "util.h"  /* Allocation utilities */
 
 /*
  * = = == === ===== ======== ============= =====================
@@ -420,10 +422,10 @@ rde_param_query_ls (RDE_PARAM p, long int* lc, void*** lv)
     rde_stack_get (p->LS, lc, lv);
 }
 
-SCOPE long int
+SCOPE intptr_t
 rde_param_query_lstop (RDE_PARAM p)
 {
-    (long int) rde_stack_top (p->LS);
+    return (intptr_t) rde_stack_top (p->LS);
 }
 
 SCOPE Tcl_HashTable*
@@ -670,7 +672,7 @@ error_set (RDE_PARAM p, long int s)
 
     ASSERT_BOUNDS(s,p->numstr);
 
-    rde_stack_push (p->ER->msg, (void*) s);
+    rde_stack_push (p->ER->msg, (void*)(intptr_t)s);
 }
 
 static void
@@ -820,7 +822,7 @@ rde_param_i_symbol_restore (RDE_PARAM p, long int s)
     if (!hPtr) { return 0; }
 
     tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
-    hPtr = Tcl_FindHashEntry (tablePtr, (char*) s);
+    hPtr = Tcl_FindHashEntry (tablePtr, (void*)(intptr_t)s);
     if (!hPtr) { return 0; }
 
     /*
@@ -861,7 +863,7 @@ rde_param_i_symbol_save (RDE_PARAM p, long int s)
      * 2-level hash table keyed by location, and symbol ...
      */
 
-    hPtr = Tcl_CreateHashEntry (&p->NC, (char*) at, &isnew);
+    hPtr = Tcl_CreateHashEntry (&p->NC, (void*)(intptr_t)at, &isnew);
 
     if (isnew) {
 	tablePtr = ALLOC (Tcl_HashTable);
@@ -871,7 +873,7 @@ rde_param_i_symbol_save (RDE_PARAM p, long int s)
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (hPtr);
     }
 
-    hPtr = Tcl_CreateHashEntry (tablePtr, (char*) s, &isnew);
+    hPtr = Tcl_CreateHashEntry (tablePtr, (void *)(intptr_t)s, &isnew);
 
     if (isnew) {
 	/*
@@ -1071,13 +1073,15 @@ UniCharIsAscii (int character)
 static int
 UniCharIsHexDigit (int character)
 {
-    return (character >= 0) && (character < 0x80) && isxdigit(character);
+    return UniCharIsDecDigit(character) ||
+	(character >= 'a' && character <= 'f') ||
+	(character >= 'A' && character <= 'F');
 }
 
 static int
 UniCharIsDecDigit (int character)
 {
-    return (character >= 0) && (character < 0x80) && isdigit(character);
+    return (character >= '0') && (character <= '9');
 }
 
 /*

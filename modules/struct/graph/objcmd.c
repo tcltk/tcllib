@@ -40,7 +40,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	M_DESTROY, M_GET,     M_GETALL,	   M_KEYEXISTS, M_KEYS, M_LAPPEND,
 	M_NODE,	   M_NODES,   M_SERIALIZE, M_SET,	M_SWAP, M_UNSET,
 	M_WALK
-    };
+    } method;
 
     static CONST char* a_methods [] = {
 	"append",      "attr",   "delete",        "exists",        "flip",
@@ -57,7 +57,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	MA_MOVE_SOURCE, MA_MOVE_TARGET, MA_NODES,	  MA_RENAME,    MA_SET,       MA_SETUNWEIGHTED,
 	MA_SETWEIGHT,	MA_SOURCE,      MA_TARGET,        MA_UNSET,     MA_UNSETWEIGHT,
 	MA_WEIGHTS
-    };
+    } a_method;
 
     static CONST char* n_methods [] = {
 	"append",  "attr",     "degree", "delete",    "exists",
@@ -69,7 +69,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	MN_APPEND,  MN_ATTR,	 MN_DEGREE, MN_DELETE,	  MN_EXISTS,
 	MN_GET,	    MN_GETALL,	 MN_INSERT, MN_KEYEXISTS, MN_KEYS,
 	MN_LAPPEND, MN_OPPOSITE, MN_RENAME, MN_SET,	  MN_UNSET
-    };
+    } n_method;
 
     if (objc < 2) {
 	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
@@ -83,7 +83,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      * the requested functionality
      */
 
-    switch (m) {
+    switch (method = m) {
     case M_GSET:	return gm_GSET	      (g, interp, objc, objv);
     case M_GASSIGN:	return gm_GASSIGN     (g, interp, objc, objv);
     case M_APPEND:	return gm_APPEND      (g, interp, objc, objv);
@@ -95,7 +95,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 					0, &m) != TCL_OK) {
 	    return TCL_ERROR;
 	}
-	switch (m) {
+	switch (a_method = m) {
 	case MA_APPEND:	       return gm_arc_APPEND     (g, interp, objc, objv);
 	case MA_ATTR:	       return gm_arc_ATTR	(g, interp, objc, objv);
 	case MA_DELETE:	       return gm_arc_DELETE     (g, interp, objc, objv);
@@ -141,7 +141,7 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 					0, &m) != TCL_OK) {
 	    return TCL_ERROR;
 	}
-	switch (m) {
+	switch (n_method = m) {
 	case MN_APPEND:	   return gm_node_APPEND    (g, interp, objc, objv);
 	case MN_ATTR:	   return gm_node_ATTR	    (g, interp, objc, objv);
 	case MN_DEGREE:	   return gm_node_DEGREE    (g, interp, objc, objv);

@@ -41,7 +41,7 @@ qums_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	M_CLEAR, M_DESTROY, M_GET,
 	M_PEEK,  M_PUT,     M_SIZE,
 	M_UNGET
-    };
+    } method;
 
     if (objc < 2) {
 	Tcl_WrongNumArgs (interp, objc, objv, "option ?arg arg ...?");
@@ -55,7 +55,7 @@ qums_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      * the requested functionality
      */
 
-    switch (m) {
+    switch (method = m) {
     case M_CLEAR:	return qum_CLEAR   (q, interp, objc, objv);
     case M_DESTROY:	return qum_DESTROY (q, interp, objc, objv);
     case M_GET:		return qum_PEEK    (q, interp, objc, objv, 1 /* get  */);

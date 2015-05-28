@@ -114,6 +114,8 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 	    critcl::ccode {
 		/* -*- c -*- */
 
+		#include <stdint.h>
+		#include <stdlib.h>
 		#include <string.h>
 		#define SCOPE static
 

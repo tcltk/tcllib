@@ -2,9 +2,10 @@
  * (c) Graph functions
  */
 
-#include <nacommon.h>
-#include <util.h>
-#include <node.h>
+#include "attr.h"
+#include "nacommon.h"
+#include "util.h"
+#include "node.h"
 
 /* .................................................. */
 

@@ -2,9 +2,10 @@
  * (c) Graph functions
  */
 
-#include <nacommon.h>
-#include <util.h>
-#include <node.h>
+#include <string.h>
+#include "nacommon.h"
+#include "util.h"
+#include "node.h"
 
 /* .................................................. */
 
@@ -253,13 +254,12 @@ filter_run (NA* na, Tcl_Interp* interp, int nodes, GCC* gx, GN_GET_GC* gf, Tcl_O
 	(na->mode == NA_NONE)) {
 	filter_none (interp, gx, &l);
     } else {
-	if (na->mode != NA_NONE) {
-	    if (nodes) {
-		filter_mode_n (na->mode, gx, &l, na->nc, na->nv, g);
-	    } else {
-		filter_mode_a (na->mode, gx, &l, na->nc, na->nv, g);
-	    }
+	if (nodes) {
+	    filter_mode_n (na->mode, gx, &l, na->nc, na->nv, g);
+	} else {
+	    filter_mode_a (na->mode, gx, &l, na->nc, na->nv, g);
 	}
+
 	if (na->key && na->value) {
 	    filter_kv (interp, gx, &l, gf, g, na->key, na->value);
 	} else if (na->key) {
@@ -324,6 +324,7 @@ filter_mode_a (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g
     case NA_IN:        filter_mode_a_in  (gx, l, nc, nv, g); break;
     case NA_INNER:     filter_mode_a_inn (gx, l, nc, nv, g); break;
     case NA_OUT:       filter_mode_a_out (gx, l, nc, nv, g); break;
+    case NA_NONE:      /* nothing */;
     }
 }
 
@@ -584,6 +585,7 @@ filter_mode_n (NA_MODE mode, GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g
     case NA_IN:        filter_mode_n_in  (gx, l, nc, nv, g); break;
     case NA_INNER:     filter_mode_n_inn (gx, l, nc, nv, g); break;
     case NA_OUT:       filter_mode_n_out (gx, l, nc, nv, g); break;
+    case NA_NONE:      /* nothing */;
     }
 }
 

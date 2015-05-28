@@ -4,6 +4,8 @@
  *    Implementations for all tree methods.
  */
 
+#include <ctype.h>
+#include <stdint.h>
 #include <string.h>
 #include "util.h"
 #include "m.h"
@@ -18,6 +20,8 @@
 
 static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
 			      int endValue, int* indexPtr);
+static int TclCheckBadOctal (Tcl_Interp *interp, const char *value);
+static int TclFormatInt (char *buffer, long n);
 
 /* .................................................. */
 
@@ -2545,7 +2549,7 @@ tm_WALKPROC (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
     res = t_walk (interp, tn, type, order,
 		  t_walk_invokecmd,
-		  (Tcl_Obj*) cc, (Tcl_Obj*) ev, objv [0]);
+		  (void *)(intptr_t)cc, (Tcl_Obj*) ev, objv [0]);
 
     ckfree ((char*) ev);
     return res;

@@ -53,7 +53,7 @@ namespace eval ::struct {
             S_equal,S_exclude,  S_include,      S_intersect,
             S_intersect3,       S_size, S_subsetof,     S_subtract,
             S_symdiff,  S_union
-        };
+        } method;
 
 	int m;
 
@@ -69,7 +69,7 @@ namespace eval ::struct {
          * the requested functionality
          */
 
-        switch (m) {
+        switch (method = m) {
             case S_add:        return sm_ADD        (NULL, interp, objc, objv);
             case S_contains:   return sm_CONTAINS   (NULL, interp, objc, objv);
             case S_difference: return sm_DIFFERENCE (NULL, interp, objc, objv);

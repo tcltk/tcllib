@@ -20,6 +20,8 @@ package provide rc4c 1.1.0
 namespace eval ::rc4 {
 
     critcl::ccode {
+	#include <string.h>
+
         #include <string.h>
 
         typedef struct RC4_CTX {

@@ -1,8 +1,8 @@
-
-#include "tcl.h"
-#include <graph.h>
-#include <util.h>
-#include <walk.h>
+#include <string.h>
+#include <tcl.h>
+#include "graph.h"
+#include "util.h"
+#include "walk.h"
 
 /* .................................................. */
 
@@ -22,7 +22,7 @@ static int walkbfspre  (Tcl_Interp* interp, GN* n, int dir,
 static int walk_invoke (Tcl_Interp* interp, GN* n,
 			int cc, Tcl_Obj** ev, Tcl_Obj* action);
 
-static int walk_neighbours (GN* n, Tcl_HashTable* v, int dir,
+static void walk_neighbours (GN* n, Tcl_HashTable* v, int dir,
 			    int* nc, GN*** nv);
 
 /* .................................................. */
@@ -287,7 +287,7 @@ walk_invoke (Tcl_Interp* interp, GN* n,
 
 /* .................................................. */
 
-static int
+static void
 walk_neighbours (GN* n, Tcl_HashTable* vn, int dir,
 		 int* nc, GN*** nv)
 {

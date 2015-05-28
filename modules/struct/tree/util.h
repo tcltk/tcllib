@@ -52,7 +52,7 @@ void  nlq_init   (NLQ* q);
 void  nlq_append (NLQ* q, void* n);
 void  nlq_push   (NLQ* q, void* n);
 void* nlq_pop    (NLQ* q);
-void* nlq_clear  (NLQ* q);
+void  nlq_clear  (NLQ* q);
 
 #endif /* _UTIL_H */
 

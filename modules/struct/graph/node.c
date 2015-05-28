@@ -2,9 +2,10 @@
  * (b) Node operations.
  */
 
-#include <arc.h>
-#include <node.h>
-#include <util.h>
+#include "nacommon.h"
+#include "arc.h"
+#include "node.h"
+#include "util.h"
 
 /* .................................................. */
 

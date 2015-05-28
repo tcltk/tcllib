@@ -293,7 +293,7 @@ s_difference (SPtr a, SPtr b)
 	if (Tcl_FindHashEntry (&b->el, key) != NULL) continue;
 	/* key is in a, not in b <=> in (a-b) */
 
-	(void*) Tcl_CreateHashEntry(&s->el, key, &new);
+	Tcl_CreateHashEntry(&s->el, key, &new);
     }
 
     return s;
@@ -329,7 +329,7 @@ s_intersect (SPtr a, SPtr b)
 	if (Tcl_FindHashEntry (&b->el, key) == NULL) continue;
 	/* key is in a, in b <=> in (a*b) */
 
-	(void*) Tcl_CreateHashEntry(&s->el, key, &new);
+	Tcl_CreateHashEntry(&s->el, key, &new);
     }
 
     return s;
@@ -365,7 +365,7 @@ s_add (SPtr a, SPtr b, int* newPtr)
 	    he != NULL;
 	    he = Tcl_NextHashEntry(&hs)) {
 	    key = Tcl_GetHashKey (&b->el, he);
-	    (void*) Tcl_CreateHashEntry(&a->el, key, &new);
+	    Tcl_CreateHashEntry(&a->el, key, &new);
 	    if (new) {nx = 1;}
 	}
     }
@@ -377,7 +377,7 @@ s_add1 (SPtr a, const char* item)
 {
     int new;
 
-    (void*) Tcl_CreateHashEntry(&a->el, item, &new);
+    Tcl_CreateHashEntry(&a->el, item, &new);
 }
 
 void
