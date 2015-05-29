@@ -1,3 +1,8 @@
+###
+# Author: Sean Woods, yoda@etoyoc.com
+##
+# TclOO routines to implement property tracking by class and object
+###
 package require oo::util
 
 namespace eval ::oo::meta {
