@@ -75,6 +75,7 @@ Module  grammar_fa  _tcl  _man  _null
 Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
+Module  httpd       _tcl  _man  _exa
 Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
 Module  http        _tcl  _man  _null

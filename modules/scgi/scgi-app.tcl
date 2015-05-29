@@ -1,4 +1,6 @@
 ###
+# Author: Sean Woods, yoda@etoyoc.com
+###
 # This file provides the "application" side of the SCGI protocol
 ###
 
@@ -8,184 +10,125 @@ package require oo::meta
 
 namespace eval ::scgi {}
 
-oo::class create ::scgi::reply {  
-
-
-  constructor {Query_headers Query_body} {
-    my variable query_headers query_body reply_headers reply_body
-    set query_headers $Query_headers
-    set query_body $Query_body
-    my reset
-  }
-  
-  method error {msg} {
-    my variable reply_headers reply_body
-    set reply_headers {Status: {500 Internal server error} Content-Type: {text/html}}
-    set reply_body "
-<HTML>
-<HEAD>
-<TITLE>505 Internal Error</TITLE>
-</HEAD>
-<BODY>
-Guru meditation #[clock seconds]
-<p>
-The server encountered an internal error:
-<p>
-<pre>$msg</pre>
-<p>
-For deeper understanding:
-<p>
-<pre>$::errorInfo</pre>
-</BODY>
-</HTML>
-"
-  }
-
-  method flush {} {
-    my variable reply_headers reply_body
-    set result {}
-    foreach {key value} $reply_headers {
-      append result "$key $value" \n
+proc ::scgi::decode_headers {rawheaders} {
+  #
+  # Take the tokenized header data and place the usual CGI headers into $env,
+  # and transform the HTTP_ variables to their original HTTP header field names
+  # as best as possible.
+  #
+  foreach {name value} $rawheaders {
+    if {[regexp {^HTTP_(.*)$} $name {} nameSuffix]} {
+      set nameParts [list]
+      foreach namePart [split $nameSuffix _] {
+        lappend nameParts [string toupper [string tolower $namePart] 0 0]
+      }
+      dict set headers [join $nameParts -] $value
+    } else {
+      dict set env $name $value
     }
-    append result \n $reply_body \n
-    return $result
   }
 
-  ###
-  # REPLACE ME:
-  # This method is the "meat" of your application. It takes in the headers
-  # and body of the request, and returns 
-  method content {} {
-    my reset
-    my variable query_headers
-    array set Headers $query_headers
+  #
+  # Store CONTENT_LENGTH as an HTTP header named Content-Length, too.
+  #
+  set contentLength [dict get $env CONTENT_LENGTH]
 
-    my puts "<HTML>"
-    my puts "<BODY>"
-    my puts "<H1>HELLO WORLD!</H1>"
-    mt puts "</BODY>"
-    my puts "</HTML>"
+  if {$contentLength > 0} {
+    dict set headers Content-Length $contentLength
   }
-
-  method reset {} {
-    my variable reply_headers reply_body
-    set reply_headers {Status: {200 OK} Content-Type: text-html}
-    set reply_body {}
-  }
-  
-  method reply_header {var val} {
-    my variable reply_headers
-    dict set reply_headers $var $val
-  }
-
-  method query_header {var} {
-    my variable query_headers
-    if {[dict exists $query_headers $var]} {
-      return [dict get $query_headers $var]
-    }
-    return {}
-  }
-
-  method query_body {} {
-    my variable query_body
-    return $query_body
-  }
-  
-  method puts line {
-    my variable reply_body
-    append reply_body $line \n
-  }
-
+  return [list env $enc headers $headers]
 }
 
-oo::class create scgi.app {
-  superclass
+oo::class create ::scgi::reply {  
+  superclass ::httpd::reply
+  
+  property socket buffersize   32768
+  property socket blocking     0
+  property socket translation  {binary binary}
 
-  constructor {args} {
-    my start $args
-  }
-  
-  destructor {
-    my stop
-  }
-  
-  method start args {
-    my variable sock
-    set sock [socket -server [namespace code [list my connect]] {*}$args]
-  }
-  
-  method stop {} {
-    my variable sock
-    catch {close $sock}
-  }
-  
-  method connect {sock ip port} {
-    fconfigure $sock -blocking 0 -translation {binary crlf}
-    fileevent $sock readable [namespace code [list my read_length $sock {}]]
-  }
 
-  ###
-  # Stage 1: Read the content length
-  ###
-  method read_length {sock data} {
-    append data [read $sock]
-    if {[eof $sock]} {
-      close $sock
+  method RequestRead {} {    
+    my variable chan
+    my variable data
+    my variable inbuffer
+    set rawdata [read $chan]
+    append inbuffer $rawdata
+    if {[eof $chan]} {
+      my destroy
       return
     }
-    set colonIdx [string first : $data]
-    if {$colonIdx == -1} {
-      # we don't have the headers length yet
-      fileevent $sock readable [namespace code [list my read_length $sock $data]]
-      return
-    } else {
-      set length [string range $data 0 $colonIdx-1]
-      set data [string range $data $colonIdx+1 end]
-      my read_headers $sock $length $data
-    }
-  }
-
-  ###
-  # Stage 2: Read the headers
-  ###
-  method read_headers {sock length data} {
-    append data [read $sock]
-    if {[string length $data] < $length+1} {
-      # we don't have the complete headers yet, wait for more
-      fileevent $sock readable [namespace code [list my read_headers $sock $length $data]]
-      return
-    } else {
-      set headers [string range $data 0 $length-1]
-      set headers [lrange [split $headers \0] 0 end-1]
-      set body [string range $data $length+1 end]
-      set content_length [dict get $headers CONTENT_LENGTH]
-      my read_body $sock $headers $content_length $body
-    }
-  }
-
-  ###
-  # Stage 3: Read the body
-  ###
-  method read_body {sock headers content_length body} {
-    append body [read $sock]
-    if {[string length $body] < $content_length} {
-      # we don't have the complete body yet, wait for more
-      fileevent $sock readable [namespace code [list read_body $sock $headers $content_length $body]]
-      return
-    } else {
-      set reply_class [my ReplyClass $headers $body]
-      set page [$reply_class new $sock $headers $body]
-      if {[catch {$page content} msg]} {
-        $page error $msg
+    if {$data(state) == "start"} {
+      set colonIdx [string first : $inbuffer]
+      if {$colonIdx == -1} {
+        # we don't have the headers length yet
+        return
+      } else {
+        set length [string range $inbuffer 0 $colonIdx-1]
+        set inbuffer [string range $inbuffer $colonIdx+1 end]
+        set data(state) headers
+        set data(length) $length
       }
-      puts $sock [$page flush]
-      $page destroy
     }
+    if {$data(state) == "headers" } {
+      if {[string length $inbuffer] < $data(length)+1} {
+        # we don't have the complete headers yet, wait for more
+        return
+      }
+      set headers [string range $inbuffer 0 $data(length)-1]
+      set headers [lrange [split $headers \0] 0 end-1]
+      my variable query_body
+      set inbuffer [string range $inbuffer $data(length)+1 end]
+      set data(content_length) [dict get $headers CONTENT_LENGTH]
+      my meta set query_headers $headers
+      set data(state) body
+    }
+    
+    if {[string length $inbuffer] < $data(content_length)} {
+      return
+    }
+    my variable query_body
+    set query_body $inbuffer
+
+    # Dispatch to the URL implementation.
+    if [catch {
+      set code [my <server> dispatch [self]]
+      if {$code eq 200} {
+        my content
+      }
+    } err] {
+      my error 500 $err
+    } else {
+      my output
+    }
+    return
+    
   }
   
-  method ReplyClass {headers body} {
-    return scgi.reply
+  ###
+  # Output the result or error to the channel
+  # and destroy this object
+  ###
+  method output {} {
+    my variable reply_body
+    set reply_body [string trim $reply_body]
+    set headers [my meta get reply_headers]
+    set result "Status: [my meta get reply_status]\n"
+    foreach {key value} $headers {  
+      append result "$key $value" \n
+    }
+    append result "Content-length: [string length $reply_body]" \n \n
+    append result $reply_body
+    my variable chan
+    puts -nonewline $chan $result
+    flush $chan
+    my destroy
   }
+}
+
+oo::class create scgi::app {
+  superclass ::httpd::server
+
+  property reply_class ::scgi::reply
   
 }
 
