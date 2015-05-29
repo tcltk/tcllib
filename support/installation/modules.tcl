@@ -47,7 +47,6 @@ Module  cache       _tcl  _man  _null
 Module  calendar     _tci _man  _null
 Module  clock       _tcl  _man _null
 Module  cmdline     _tcl  _man  _null
-Module  codebale    _tcl _null  _null
 Module  comm        _tcl  _man  _null
 Module  control      _tci _man  _null
 Module  coroutine   _tcl _null  _null
@@ -105,7 +104,6 @@ Module  nmea        _tcl  _man  _null
 Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
-Module  odie        _tcl  _man  _null
 Module  oauth       _tcl  _man  _null
 Module  ooutil      _tcl  _man  _null
 Module  otp         _tcl  _man  _null
