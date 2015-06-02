@@ -150,13 +150,13 @@ hierarchy under Linux where some hundred devices exist under both
 linking to the other, generating millions of legal paths to enumerate.
 The structure, reduced to three devices, roughly looks like
 
-[include cross-index.inc]
+[include include/cross-index.inc]
 
 [para] When having to handle such a pathological hierarchy it is
 recommended to use the [option -prefilter] option to prevent the
 traverser from following symbolic links, like so:
 
-[include cross-index-trav.inc]
+[include include/cross-index-trav.inc]
 
 [list_end]
 
