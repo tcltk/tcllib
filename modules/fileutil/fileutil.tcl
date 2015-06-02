@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.10
+package provide fileutil 1.14.11
 
 namespace eval ::fileutil {
     namespace export \
@@ -1656,10 +1656,10 @@ proc ::fileutil::fileType {filename} {
         lappend type graphic tiff
     } elseif { $binary && [string match "BM*" $test] && [string range $test 6 9] == "\x00\x00\x00\x00" } {
         lappend type graphic bitmap
-    } elseif { $binary && [string match "\%PDF\-*" $test] } {
-        lappend type pdf
     } elseif { ! $binary && [string match -nocase "*\<html\>*" $test] } {
         lappend type html
+    } elseif {[string match "\%PDF\-*" $test] } {
+        lappend type pdf
     } elseif { [string match "\%\!PS\-*" $test] } {
        lappend type ps
        if { [string match "* EPSF\-*" $test] } {
