@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#if TCL_MAJOR_VERSION > 8 || TCL_MINOR_VERSION > 4
+#if (TCL_MAJOR_VERSION > 8) || ( (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION > 4)
 #define USE_DICT
 #endif
 
