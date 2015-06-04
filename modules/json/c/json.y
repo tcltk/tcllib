@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#if (TCL_MAJOR_VERSION > 8) || ( (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION > 4)
+#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION > 4))
 #define USE_DICT
 #endif
 
@@ -204,11 +204,18 @@ jsonskip(struct context *context)
 Tcl_Obj *
 staticobj(enum constants constant)
 {
-    static Tcl_Obj   *objects[NUMCONSTANTS];
+    typedef struct ThreadSpecificData {
+        Tcl_Obj* objects [NUMCONSTANTS];
+    } ThreadSpecificData;
+
+    static Tcl_ThreadDataKey dataKey;
+    ThreadSpecificData *tsdPtr = 
+        (ThreadSpecificData *) Tcl_GetThreadData (&dataKey,
+						  sizeof (ThreadSpecificData));
     Tcl_Obj         **p;
 
     assert(constant >= 0 && constant < NUMCONSTANTS);
-    p = objects + constant;
+    p = tsdPtr->objects + constant;
     if (*p == NULL) {
 	/*
 	 * This is the first time we were asked for an object for
