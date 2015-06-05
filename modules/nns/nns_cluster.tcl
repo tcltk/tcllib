@@ -29,9 +29,19 @@ proc ::cluster::broadcast {args} {
   if {$::cluster::config(debug)} {
     puts [list $::cluster::local_pid SEND $args]
   }
-  set sock [listen]
-  puts -nonewline $sock [list [pid] {*}$args]
-  flush $sock
+  while {[catch {
+    set sock [listen]
+    puts -nonewline $sock [list [pid] {*}$args]
+    flush $sock
+  } error]} {
+    set ::cluster::broadcast_sock {}
+    if {$::cluster::config(debug)} {
+      puts "Broadcast ERR: $error - Reopening Socket"
+      ::cluster::sleep 2000
+    } else {
+      ::cluster::sleep 250
+    }
+  }
 }
 
 ###
