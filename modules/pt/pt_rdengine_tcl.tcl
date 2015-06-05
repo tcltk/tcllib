@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -24,26 +24,90 @@ package require pt::pe
 package require char ; # quoting
 
 # # ## ### ##### ######## ############# #####################
+## Support narrative tracing.
+
+package require debug
+package require debug::caller
+debug level  pt/rdengine
+debug prefix pt/rdengine {[debug caller] | }
+
+
+# # ## ### ##### ######## ############# #####################
 ## Implementation
 
 snit::type ::pt::rde_tcl {
+    # # ## ### ##### ######## ############# #####################
+    ## Instruction counter for tracing. Unused else. Plus other helpers.
+    variable trace 0
+
+    proc Inst {} {
+	upvar 1 trace trace myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror
+	return "<<[format %08d [incr trace]]>> ST $myok CL $myloc CC ($mycurrent) SV ($mysvalue) ER ($myerror)"
+    }
+
+    proc State {} {
+	upvar 1 myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror
+	return "ST $myok CL $myloc CC ($mycurrent) SV ($mysvalue) ER ($myerror)"
+    }
+
+    proc TraceSetupStacks {} {
+	upvar selfns selfns
+
+	# Move stack instances aside.
+	rename ${selfns}::LOC   ${selfns}::LOC__
+	rename ${selfns}::ERR   ${selfns}::ERR__
+	rename ${selfns}::AST   ${selfns}::AST__
+	rename ${selfns}::MARK  ${selfns}::MRK__
+
+	# Create procedures doing tracing, and forwarding to the
+	# renamed actual instances.
+
+	interp alias {} ${selfns}::LOC  {} ${selfns}::WRAP LOC__
+	interp alias {} ${selfns}::ERR  {} ${selfns}::WRAP ERR__
+	interp alias {} ${selfns}::AST  {} ${selfns}::WRAP AST__
+	interp alias {} ${selfns}::MARK {} ${selfns}::WRAP MRK__
+
+	proc ${selfns}::WRAP {stack args} {
+	    debug.pt/rdengine {}
+	    set res [$stack {*}$args]
+
+	    # Show state state after the op
+	    set n [$stack size]
+	    if {!$n} {
+		set c {()}
+	    } elseif {$n == 1} {
+		set c <<[$stack peek $n]>>
+	    } else {
+		set c <<[join [$stack peek $n] {>> <<}]>>
+	    }
+	    debug.pt/rdengine {state ($n):$c}
+
+	    # And op return
+	    debug.pt/rdengine {==> ($res)}
+	    return $res
+	}
+
+	return
+    }
 
     # # ## ### ##### ######## ############# #####################
     ## API - Lifecycle
 
     constructor {} {
-	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS
+	debug.pt/rdengine {}
+
+	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS -- TODO: wrap stacks for tracing.
 	set mystackerr  [struct::stack ${selfns}::ERR]  ; # ES
 	set mystackast  [struct::stack ${selfns}::AST]  ; # ARS/AS
 	set mystackmark [struct::stack ${selfns}::MARK] ; # s.a.
+
+	debug.pt/rdengine {[TraceSetupStacks]/done}
 	return
     }
 
-    #TRACE variable count 0
-    #variable count 0
+    method reset {{chan {}}} {
+	debug.pt/rdengine {}
 
-    method reset {{chan {}}} { ; #set count 0
-                               ; #TRACE puts "[format %8d [incr count]] RDE reset"
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
 	set myloc     -1         ; # CL
@@ -57,23 +121,37 @@ snit::type ::pt::rde_tcl {
 	$mystackerr  clear
 	$mystackast  clear
 	$mystackmark clear
+
+	debug.pt/rdengine {/done}
 	return
     }
 
-    method complete {} { ; #TRACE puts "[format %8d [incr count]] RDE complete"
+    method complete {} {
+	debug.pt/rdengine {[State]}
+
 	if {$myok} {
 	    set n [$mystackast size]
+	    debug.pt/rdengine {ast $n}
 	    if {$n > 1} {
+		# Multiple ASTs left, reduce into single containing them.
 		set  pos [$mystackloc peek]
 		incr pos
 		set children [$mystackast peekr [$mystackast size]] ; # SaveToMark
-		return [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
+		set ast [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
+
+		debug.pt/rdengine {n ==> ($ast)}
+		return $ast
 	    } elseif {$n == 0} {
 		# Match, but no AST. This is possible if the grammar
 		# consists of only the start expression.
+
+		debug.pt/rdengine {0 ==> ()}
 		return {}
 	    } else {
-		return [$mystackast peek]
+		# Match, with AST.
+		set ast [$mystackast peek]
+		debug.pt/rdengine {1 ==> ($ast)}
+		return $ast
 	    }
 	} else {
 	    lassign $myerror loc messages
@@ -103,7 +181,8 @@ snit::type ::pt::rde_tcl {
 
     # - - -- --- ----- --------
 
-    method tokens {{from {}} {to {}}} { ; #TRACE puts "[format %8d [incr count]] RDE tokens"
+    method tokens {{from {}} {to {}}} {
+	debug.pt/rdengine {}
 	switch -exact [llength [info level 0]] {
 	    5 { return $mytoken }
 	    6 { return [string range $mytoken $from $from] }
@@ -111,24 +190,27 @@ snit::type ::pt::rde_tcl {
 	}
     }
 
-    method symbols {} { ; #TRACE puts "[format %8d [incr count]] RDE symbols"
+    method symbols {} {
+	debug.pt/rdengine {}
 	return [array get mysymbol]
     }
 
-    method scached {} { ; #TRACE puts "[format %8d [incr count]] RDE scached"
+    method scached {} {
+	debug.pt/rdengine {}
 	return [array names mysymbol]
     }
 
     # - - -- --- ----- --------
 
-    method asts    {} { return [$mystackast  getr] }
-    method amarked {} { return [$mystackmark getr] }
-    method ast     {} { return [$mystackast  peek] }
+    method asts    {} { debug.pt/rdengine {} ; return [$mystackast  getr] }
+    method amarked {} { debug.pt/rdengine {} ; return [$mystackmark getr] }
+    method ast     {} { debug.pt/rdengine {} ; return [$mystackast  peek] }
 
     # # ## ### ##### ######## ############# #####################
     ## API - Preloading the token cache.
 
-    method data {data} { ; #TRACE puts "[format %8d [incr count]] RDE data"
+    method data {data} {
+	debug.pt/rdengine {}
 	append mytoken $data
 	return
     }
@@ -136,7 +218,8 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## Common instruction sequences
 
-    method si:void_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_push"
+    method si:void_state_push {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_push
 	# i_error_clear_push
 	$mystackloc push $myloc
@@ -145,7 +228,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void2_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void2_state_push"
+    method si:void2_state_push {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_push
 	# i_error_push
 	$mystackloc push $myloc
@@ -153,7 +237,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_push"
+    method si:value_state_push {} {
+	debug.pt/rdengine {[Inst]}
 	# i_ast_push
 	# i_loc_push
 	# i_error_clear_push
@@ -166,7 +251,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:void_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge"
+    method si:void_state_merge {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 
@@ -195,7 +281,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_state_merge_ok {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge_ok"
+    method si:void_state_merge_ok {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i_status_ok
@@ -226,7 +313,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_merge"
+    method si:value_state_merge {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i_loc_pop_rewind/discard
@@ -260,7 +348,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_notahead_start {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_start"
+    method si:value_notahead_start {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_push
 	# i_ast_push
 
@@ -269,7 +358,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_notahead_exit"
+    method si:void_notahead_exit {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_pop_rewind
 	# i_status_negate
 
@@ -278,7 +368,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_exit"
+    method si:value_notahead_exit {} {
+	debug.pt/rdengine {[Inst]}
 	# i_ast_pop_discard/rewind
 	# i_loc_pop_rewind
 	# i_status_negate
@@ -294,7 +385,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:kleene_abort {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_abort"
+    method si:kleene_abort {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_pop_rewind/discard
 	# i:fail_return
 
@@ -304,7 +396,8 @@ snit::type ::pt::rde_tcl {
 	return -code return
     }
 
-    method si:kleene_close {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_close"
+    method si:kleene_close {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i:fail_status_ok
@@ -338,7 +431,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_branch"
+    method si:voidvoid_branch {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -373,7 +467,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:voidvalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_branch"
+    method si:voidvalue_branch {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -410,7 +505,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevoid_branch"
+    method si:valuevoid_branch {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i:ok_loc_pop_discard
@@ -447,7 +543,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_branch"
+    method si:valuevalue_branch {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i_ast_pop_discard
 	# i:ok_loc_pop_discard
@@ -487,7 +584,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_part"
+    method si:voidvoid_part {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -519,7 +617,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:voidvalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_part"
+    method si:voidvalue_part {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -553,7 +652,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_part"
+    method si:valuevalue_part {} {
+	debug.pt/rdengine {[Inst]}
 	# i_error_pop_merge
 	# i:fail_ast_pop_rewind
 	# i:fail_loc_pop_rewind
@@ -589,7 +689,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str ($tok)"
+    method si:next_str {tok} {
+	debug.pt/rdengine {[Inst]}
 	# String = sequence of characters.
 	# No need for all the intermediate stack churn.
 
@@ -627,7 +728,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_class {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_class ($tok)"
+    method si:next_class {tok} {
+	debug.pt/rdengine {[Inst]}
 	# Class = Choice of characters. No need for stack churn.
 
 	# i_input_next "\{t $c\}"
@@ -657,7 +759,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_char ($tok)"
+    method si:next_char {tok} {
+	debug.pt/rdengine {[Inst]}
 	# i_input_next "\{t $c\}"
 	# i:fail_return
 	# i_test_char $c
@@ -681,7 +784,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_range ($toks $toke)"
+    method si:next_range {toks toke} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next "\{.. $s $e\}"
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_range $s $e
@@ -710,7 +814,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:next_alnum {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_alnum"
+    method si:next_alnum {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next alnum
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_alnum
@@ -734,7 +839,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_alpha {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_alpha"
+    method si:next_alpha {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next alpha
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_alpha
@@ -758,7 +864,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_ascii {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_ascii"
+    method si:next_ascii {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next ascii
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_ascii
@@ -782,7 +889,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_control {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_control"
+    method si:next_control {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next control
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_control
@@ -806,7 +914,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_ddigit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_ddigit"
+    method si:next_ddigit {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next ddigit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_ddigit
@@ -830,7 +939,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_digit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_digit"
+    method si:next_digit {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next digit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_digit
@@ -854,7 +964,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_graph {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_graph"
+    method si:next_graph {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next graph
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_graph
@@ -878,7 +989,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_lower {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_lower"
+    method si:next_lower {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next lower
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_lower
@@ -902,7 +1014,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_print {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_print"
+    method si:next_print {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next print
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_print
@@ -926,7 +1039,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_punct {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_punct"
+    method si:next_punct {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next punct
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_punct
@@ -950,7 +1064,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_space {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_space"
+    method si:next_space {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next space
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_space
@@ -974,7 +1089,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_upper {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_upper"
+    method si:next_upper {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next upper
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_upper
@@ -998,7 +1114,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_wordchar {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_wordchar"
+    method si:next_wordchar {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next wordchar
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_wordchar
@@ -1022,7 +1139,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_xdigit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_xdigit"
+    method si:next_xdigit {} {
+	debug.pt/rdengine {[Inst]}
 	#Asm::Ins i_input_next xdigit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_xdigit
@@ -1048,7 +1166,8 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_symbol_start ($symbol)"
+    method si:value_symbol_start {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1068,7 +1187,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_void_symbol_start ($symbol)"
+    method si:value_void_symbol_start {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1084,7 +1204,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_symbol_start ($symbol)"
+    method si:void_symbol_start {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1102,7 +1223,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_void_symbol_start ($symbol)"
+    method si:void_void_symbol_start {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1116,7 +1238,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:reduce_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:reduce_symbol_end ($symbol)"
+    method si:reduce_symbol_end {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# i_value_clear/reduce $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1174,7 +1297,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_leaf_symbol_end ($symbol)"
+    method si:void_leaf_symbol_end {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1217,7 +1341,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_leaf_symbol_end ($symbol)"
+    method si:value_leaf_symbol_end {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1262,7 +1387,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_clear_symbol_end ($symbol)"
+    method si:value_clear_symbol_end {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1289,7 +1415,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_clear_symbol_end ($symbol)"
+    method si:void_clear_symbol_end {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1316,22 +1443,26 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Control flow
 
-    method i:ok_continue {} { ; #TRACE puts "[format %8d [incr count]] RDE i:ok_continue"
+    method i:ok_continue {} {
+	debug.pt/rdengine {[Inst]}
 	if {!$myok} return
 	return -code continue
     }
 
-    method i:fail_continue {} { ; #TRACE puts "[format %8d [incr count]] RDE i:fail_continue"
+    method i:fail_continue {} {
+	debug.pt/rdengine {[Inst]}
 	if {$myok} return
 	return -code continue
     }
 
-    method i:fail_return {} { ; #TRACE puts "[format %8d [incr count]] RDE i:fail_return"
+    method i:fail_return {} {
+	debug.pt/rdengine {[Inst]}
 	if {$myok} return
 	return -code return
     }
 
-    method i:ok_return {} { ; #TRACE puts "[format %8d [incr count]] RDE i:ok_return"
+    method i:ok_return {} {
+	debug.pt/rdengine {[Inst]}
 	if {!$myok} return
 	return -code return
     }
@@ -1339,17 +1470,20 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - Unconditional matching.
 
-    method i_status_ok {} { ; #TRACE puts "[format %8d [incr count]] RDE i_status_ok"
+    method i_status_ok {} {
+	debug.pt/rdengine {[Inst]}
 	set myok 1
 	return
     }
 
-    method i_status_fail {} { ; #TRACE puts "[format %8d [incr count]] RDE i_status_fail"
+    method i_status_fail {} {
+	debug.pt/rdengine {[Inst]}
 	set myok 0
 	return
     }
 
-    method i_status_negate {} { ; #TRACE puts "[format %8d [incr count]] RDE i_status_negate"
+    method i_status_negate {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [expr {!$myok}]
 	return
     }
@@ -1357,23 +1491,27 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - Error handling.
 
-    method i_error_clear {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear"
+    method i_error_clear {} {
+	debug.pt/rdengine {[Inst]}
 	set myerror {}
 	return
     }
 
-    method i_error_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_push ($myerror)"
+    method i_error_push {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackerr push $myerror
 	return
     }
 
-    method i_error_clear_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear_push ()"
+    method i_error_clear_push {} {
+	debug.pt/rdengine {[Inst]}
 	set myerror {}
 	$mystackerr push {}
 	return
     }
 
-    method i_error_pop_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_pop_merge ($myerror)-/-([$mystackerr peek])"
+    method i_error_pop_merge {} {
+	debug.pt/rdengine {[Inst]}
 	set olderror [$mystackerr pop]
 
 	# We have either old or new error data, keep it.
@@ -1395,7 +1533,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal ($symbol)"
+    method i_error_nonterminal {symbol} {
+	debug.pt/rdengine {[Inst]}
 	#  i_error_nonterminal -- Disabled. Generate only low-level
 	#  i_error_nonterminal -- errors until we have worked out how
 	#  i_error_nonterminal -- to integrate symbol information with
@@ -1405,25 +1544,27 @@ snit::type ::pt::rde_tcl {
 
 	# Inlined: Errors, Expected.
 	if {![llength $myerror]} {
-	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) no error"
+	    debug.pt/rdengine {no error}
 	    return
 	}
 	set pos [$mystackloc peek]
 	incr pos
 	lassign $myerror loc messages
 	if {$loc != $pos} {
-	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) -- $myerror != $pos"
+	    debug.pt/rdengine {my $myerror != pos $pos}
 	    return
 	}
 	set myerror [list $loc [list [list n $symbol]]]
-	TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) := $myerror"
+
+	debug.pt/rdengine {::= ($myerror)}
 	return
     }
 
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - Basic input handling and tracking
 
-    method i_loc_pop_rewind/discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_pop_rewind/discard (ok $myok ([expr {$myok ? "keep $myloc drop" : "back@"}] [$mystackloc peek]))"
+    method i_loc_pop_rewind/discard {} {
+	debug.pt/rdengine {[Inst]}
 	#$myparser i:fail_loc_pop_rewind
 	#$myparser i:ok_loc_pop_discard
 	#return
@@ -1433,34 +1574,40 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_loc_pop_discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_pop_discard"
+    method i_loc_pop_discard {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackloc pop
 	return
     }
 
-    method i:ok_loc_pop_discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i:ok_loc_pop_discard"
+    method i:ok_loc_pop_discard {} {
+	debug.pt/rdengine {[Inst]}
 	if {!$myok} return
 	$mystackloc pop
 	return
     }
 
-    method i_loc_pop_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_pop_rewind"
+    method i_loc_pop_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	set myloc [$mystackloc pop]
 	return
     }
 
-    method i:fail_loc_pop_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i:fail_loc_pop_rewind"
+    method i:fail_loc_pop_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	if {$myok} return
 	set myloc [$mystackloc pop]
 	return
     }
 
-    method i_loc_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_push (saving @$myloc)"
+    method i_loc_push {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackloc push $myloc
 	return
     }
 
-    method i_loc_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_rewind"
+    method i_loc_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	# i_loc_pop_rewind - set myloc [$mystackloc pop]
 	# i_loc_push       - $mystackloc push $myloc    
 
@@ -1471,7 +1618,8 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - AST stack handling
 
-    method i_ast_pop_rewind/discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_pop_rewind/discard"
+    method i_ast_pop_rewind/discard {} {
+	debug.pt/rdengine {[Inst]}
 	#$myparser i:fail_ast_pop_rewind
 	#$myparser i:ok_ast_pop_discard
 	#return
@@ -1481,7 +1629,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_ast_pop_discard/rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_pop_discard/rewind"
+    method i_ast_pop_discard/rewind {} {
+	debug.pt/rdengine {[Inst]}
 	#$myparser i:ok_ast_pop_rewind
 	#$myparser i:fail_ast_pop_discard
 	#return
@@ -1491,40 +1640,47 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_ast_pop_discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_pop_discard"
+    method i_ast_pop_discard {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackmark pop
 	return
     }
 
-    method i:ok_ast_pop_discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i:ok_ast_pop_discard"
+    method i:ok_ast_pop_discard {} {
+	debug.pt/rdengine {[Inst]}
 	if {!$myok} return
 	$mystackmark pop
 	return
     }
 
-    method i_ast_pop_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_pop_rewind"
+    method i_ast_pop_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackast trim* [$mystackmark pop]
 	return
     }
 
-    method i:fail_ast_pop_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i:fail_ast_pop_rewind"
+    method i:fail_ast_pop_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	if {$myok} return
 	$mystackast trim* [$mystackmark pop]
 	return
     }
 
-    method i_ast_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_push"
+    method i_ast_push {} {
+	debug.pt/rdengine {[Inst]}
 	$mystackmark push [$mystackast size]
 	return
     }
 
-    method i:ok_ast_value_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i:ok_ast_value_push"
+    method i:ok_ast_value_push {} {
+	debug.pt/rdengine {[Inst]}
 	if {!$myok} return
 	$mystackast push $mysvalue
 	return
     }
 
-    method i_ast_rewind {} { ; #TRACE puts "[format %8d [incr count]] RDE i_ast_rewind"
+    method i_ast_rewind {} {
+	debug.pt/rdengine {[Inst]}
 	# i_ast_pop_rewind - $mystackast  trim* [$mystackmark pop]
 	# i_ast_push       - $mystackmark push [$mystackast size]
 
@@ -1535,7 +1691,8 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Nonterminal cache
 
-    method i_symbol_restore {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_restore ($symbol)"
+    method i_symbol_restore {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# Satisfy from cache if possible.
 	set k [list $myloc $symbol]
 	if {![info exists mysymbol($k)]} { return 0 }
@@ -1544,7 +1701,8 @@ snit::type ::pt::rde_tcl {
 	return 1
     }
 
-    method i_symbol_save {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_save ($symbol)"
+    method i_symbol_save {symbol} {
+	debug.pt/rdengine {[Inst]}
 	# Store not only the value, but also how far
 	# the match went (if it was a match).
 	set at [$mystackloc peek]
@@ -1556,12 +1714,15 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - Semantic values.
 
-    method i_value_clear {} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear"
+    method i_value_clear {} {
+	debug.pt/rdengine {[Inst]}
 	set mysvalue {}
 	return
     }
 
-    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf ($symbol ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
+    method i_value_clear/leaf {symbol} {
+	debug.pt/rdengine {[Inst] ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)}
+
 	# not quite value_lead (guarded, and clear on fail)
 	# Inlined clear, reduce, and optimized.
 	# Clear ; if {$ok} {Reduce $symbol}
@@ -1582,7 +1743,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/reduce {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/reduce ($symbol)"
+    method i_value_clear/reduce {symbol} {
+	debug.pt/rdengine {[Inst]}
 	set mysvalue {}
 	if {!$myok} return
 
@@ -1617,7 +1779,8 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Terminal matching
 
-    method i_input_next {msg} { ; #TRACE puts "[format %8d [incr count]] RDE i_input_next ($msg)"
+    method i_input_next {msg} {
+	debug.pt/rdengine {[Inst]}
 	# Inlined: Getch, Expected, ClearErrors
 	# Satisfy from input cache if possible.
 
@@ -1637,7 +1800,9 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_char (ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}])"
+    method i_test_char {tok} {
+	debug.pt/rdengine {[Inst] ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}]}
+
 	set myok [expr {$tok eq $mycurrent}]
 	if {$myok} {
 	    set myerror {}
@@ -1648,7 +1813,8 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_range ($toks $toke)"
+    method i_test_range {toks toke} {
+	debug.pt/rdengine {[Inst]}
 	set myok [expr {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
@@ -1662,96 +1828,101 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_alnum {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_alnum"
+    method i_test_alnum {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is alnum -strict $mycurrent]
 	OkFail alnum
 	return
     }
 
-    method i_test_alpha {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_alpha"
+    method i_test_alpha {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is alpha -strict $mycurrent]
 	OkFail alpha
 	return
     }
 
-    method i_test_ascii {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_ascii"
+    method i_test_ascii {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is ascii -strict $mycurrent]
 	OkFail ascii
 	return
     }
 
-    method i_test_control {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_control"
+    method i_test_control {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is control -strict $mycurrent]
 	OkFail control
 	return
     }
 
-    method i_test_ddigit {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_ddigit"
+    method i_test_ddigit {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string match {[0-9]} $mycurrent]
 	OkFail ddigit
 	return
     }
 
-    method i_test_digit {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_digit"
+    method i_test_digit {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is digit -strict $mycurrent]
 	OkFail digit
 	return
     }
 
-    method i_test_graph {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_graph"
+    method i_test_graph {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is graph -strict $mycurrent]
 	OkFail graph
 	return
     }
 
-    method i_test_lower {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_lower"
+    method i_test_lower {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is lower -strict $mycurrent]
 	OkFail lower
 	return
     }
 
-    method i_test_print {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_print"
+    method i_test_print {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is print -strict $mycurrent]
 	OkFail print
 	return
     }
 
-    method i_test_punct {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_punct"
+    method i_test_punct {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is punct -strict $mycurrent]
 	OkFail punct
 	return
     }
 
-    method i_test_space {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_space"
+    method i_test_space {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is space -strict $mycurrent]
 	OkFail space
 	return
     }
 
-    method i_test_upper {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_upper"
+    method i_test_upper {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is upper -strict $mycurrent]
 	OkFail upper
 	return
     }
 
-    method i_test_wordchar {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_wordchar"
+    method i_test_wordchar {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is wordchar -strict $mycurrent]
 	OkFail wordchar
 	return
     }
 
-    method i_test_xdigit {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_xdigit"
+    method i_test_xdigit {} {
+	debug.pt/rdengine {[Inst]}
 	set myok [string is xdigit -strict $mycurrent]
 	OkFail xdigit
-	return
-    }
-
-    # # ## ### ##### ######## ############# #####################
-    ## Debugging helper. To activate
-    ## string map {{; #TRACE} {; TRACE}}
-
-    proc TRACE {args} {
-	uplevel 1 $args
 	return
     }
 
@@ -1834,6 +2005,8 @@ snit::type ::pt::rde_tcl {
     typevariable ourmsg -array {}
 
     typeconstructor {
+	debug.pt/rdengine {}
+
 	set ourmsg(alnum)     [pt::pe alnum]
 	set ourmsg(alpha)     [pt::pe alpha]
 	set ourmsg(ascii)     [pt::pe ascii]
@@ -1848,6 +2021,8 @@ snit::type ::pt::rde_tcl {
 	set ourmsg(upper)     [pt::pe upper]
 	set ourmsg(wordchar)  [pt::pe wordchar]
 	set ourmsg(xdigit)    [pt::pe xdigit]
+
+	debug.pt/rdengine {/done}
 	return
     }
 
