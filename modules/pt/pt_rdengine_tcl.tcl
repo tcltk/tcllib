@@ -27,9 +27,9 @@ package require char ; # quoting
 ## Support narrative tracing.
 
 package require debug
-package require debug::caller
+#package require debug::caller
 debug level  pt/rdengine
-debug prefix pt/rdengine {[debug caller] | }
+debug prefix pt/rdengine {}
 
 
 # # ## ### ##### ######## ############# #####################
@@ -40,9 +40,16 @@ snit::type ::pt::rde_tcl {
     ## Instruction counter for tracing. Unused else. Plus other helpers.
     variable trace 0
 
-    proc Inst {} {
-	upvar 1 trace trace myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror
-	return "<<[format %08d [incr trace]]>> ST $myok CL $myloc CC ($mycurrent) SV ($mysvalue) ER ($myerror)"
+    proc Instruction {label {a {}} {b {}}} {
+	upvar 1 self self trace trace myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
+	set theinst [list $label $a $b]
+	return "$self <<[format %08d [incr trace]]>> START I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
+    }
+
+    proc InstReturn {} {
+	upvar 1 self self trace trace myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
+	lassign $theinst label a b
+	return "$self <<[format %08d $trace]>> END__ I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
     }
 
     proc State {} {
@@ -62,13 +69,13 @@ snit::type ::pt::rde_tcl {
 	# Create procedures doing tracing, and forwarding to the
 	# renamed actual instances.
 
-	interp alias {} ${selfns}::LOC  {} ${selfns}::WRAP LOC__
-	interp alias {} ${selfns}::ERR  {} ${selfns}::WRAP ERR__
-	interp alias {} ${selfns}::AST  {} ${selfns}::WRAP AST__
-	interp alias {} ${selfns}::MARK {} ${selfns}::WRAP MRK__
+	interp alias {} ${selfns}::LOC  {} ${selfns}::WRAP LS  LOC__
+	interp alias {} ${selfns}::ERR  {} ${selfns}::WRAP ES  ERR__
+	interp alias {} ${selfns}::AST  {} ${selfns}::WRAP ARS AST__
+	interp alias {} ${selfns}::MARK {} ${selfns}::WRAP ASM MRK__
 
-	proc ${selfns}::WRAP {stack args} {
-	    debug.pt/rdengine {}
+	proc ${selfns}::WRAP {label stack args} {
+	    debug.pt/rdengine {    $label ___ $args}
 	    set res [$stack {*}$args]
 
 	    # Show state state after the op
@@ -80,10 +87,10 @@ snit::type ::pt::rde_tcl {
 	    } else {
 		set c <<[join [$stack peek $n] {>> <<}]>>
 	    }
-	    debug.pt/rdengine {state ($n):$c}
+	    debug.pt/rdengine {    $label ==  ($n):$c}
 
 	    # And op return
-	    debug.pt/rdengine {==> ($res)}
+	    debug.pt/rdengine {    $label ==> ($res)}
 	    return $res
 	}
 
@@ -94,19 +101,19 @@ snit::type ::pt::rde_tcl {
     ## API - Lifecycle
 
     constructor {} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {$self constructor}
 
 	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS -- TODO: wrap stacks for tracing.
 	set mystackerr  [struct::stack ${selfns}::ERR]  ; # ES
 	set mystackast  [struct::stack ${selfns}::AST]  ; # ARS/AS
 	set mystackmark [struct::stack ${selfns}::MARK] ; # s.a.
 
-	debug.pt/rdengine {[TraceSetupStacks]/done}
+	debug.pt/rdengine {[TraceSetupStacks]$self constructor /done}
 	return
     }
 
     method reset {{chan {}}} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {reset}
 
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
@@ -122,16 +129,16 @@ snit::type ::pt::rde_tcl {
 	$mystackast  clear
 	$mystackmark clear
 
-	debug.pt/rdengine {/done}
+	debug.pt/rdengine {reset /done}
 	return
     }
 
     method complete {} {
-	debug.pt/rdengine {[State]}
+	debug.pt/rdengine {complete [State]}
 
 	if {$myok} {
 	    set n [$mystackast size]
-	    debug.pt/rdengine {ast $n}
+	    debug.pt/rdengine {complete ast $n}
 	    if {$n > 1} {
 		# Multiple ASTs left, reduce into single containing them.
 		set  pos [$mystackloc peek]
@@ -139,18 +146,18 @@ snit::type ::pt::rde_tcl {
 		set children [$mystackast peekr [$mystackast size]] ; # SaveToMark
 		set ast [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
 
-		debug.pt/rdengine {n ==> ($ast)}
+		debug.pt/rdengine {complete n ==> ($ast)}
 		return $ast
 	    } elseif {$n == 0} {
 		# Match, but no AST. This is possible if the grammar
 		# consists of only the start expression.
 
-		debug.pt/rdengine {0 ==> ()}
+		debug.pt/rdengine {complete 0 ==> ()}
 		return {}
 	    } else {
 		# Match, with AST.
 		set ast [$mystackast peek]
-		debug.pt/rdengine {1 ==> ($ast)}
+		debug.pt/rdengine {complete 1 ==> ($ast)}
 		return $ast
 	    }
 	} else {
@@ -219,26 +226,30 @@ snit::type ::pt::rde_tcl {
     ## Common instruction sequences
 
     method si:void_state_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_state_push]}
 	# i_loc_push
 	# i_error_clear_push
 	$mystackloc push $myloc
 	set myerror {}
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void2_state_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void2_state_push]}
 	# i_loc_push
 	# i_error_push
 	$mystackloc push $myloc
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_state_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_state_push]}
 	# i_ast_push
 	# i_loc_push
 	# i_error_clear_push
@@ -246,13 +257,15 @@ snit::type ::pt::rde_tcl {
 	$mystackloc push $myloc
 	set myerror {}
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:void_state_merge {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_state_merge]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 
@@ -276,13 +289,15 @@ snit::type ::pt::rde_tcl {
 	}
 
 	set last [$mystackloc pop]
-	if {$myok} return
-	set myloc $last
+	if {!$myok} {
+	    set myloc $last
+	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_state_merge_ok {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_state_merge_ok]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i_status_ok
@@ -307,14 +322,17 @@ snit::type ::pt::rde_tcl {
 	}
 
 	set last [$mystackloc pop]
-	if {$myok} return
-	set myloc $last
-	set myok 1
+	if {!$myok} {
+	    set myloc $last
+	    set myok 1
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_state_merge {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_state_merge]}
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i_loc_pop_rewind/discard
@@ -340,36 +358,43 @@ snit::type ::pt::rde_tcl {
 
 	set mark [$mystackmark pop]
 	set last [$mystackloc pop]
-	if {$myok} return
-	$mystackast trim* $mark
-	set myloc $last
+	if {!$myok} {
+	    $mystackast trim* $mark
+	    set myloc $last
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:value_notahead_start {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_notahead_start]}
 	# i_loc_push
 	# i_ast_push
 
 	$mystackloc  push $myloc
 	$mystackmark push [$mystackast size]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_notahead_exit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_notahead_exit]}
 	# i_loc_pop_rewind
 	# i_status_negate
 
 	set myloc [$mystackloc pop]
 	set myok [expr {!$myok}]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_notahead_exit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_notahead_exit]}
 	# i_ast_pop_discard/rewind
 	# i_loc_pop_rewind
 	# i_status_negate
@@ -380,24 +405,30 @@ snit::type ::pt::rde_tcl {
 	}
 	set myloc [$mystackloc pop]
 	set myok [expr {!$myok}]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:kleene_abort {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:kleene_abort]}
 	# i_loc_pop_rewind/discard
 	# i:fail_return
 
 	set last [$mystackloc pop]
-	if {$myok} return
+	if {$myok} {
+	    debug.pt/rdengine {[InstReturn]}
+	    return
+	}
 	set myloc $last
+	debug.pt/rdengine {[InstReturn]}
 	return -code return
     }
 
     method si:kleene_close {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:kleene_close]}
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i:fail_status_ok
@@ -423,16 +454,21 @@ snit::type ::pt::rde_tcl {
 	}
 
 	set last [$mystackloc pop]
-	if {$myok} return
+	if {$myok} {
+	    debug.pt/rdengine {[InstReturn]}
+	    return
+	}
 	set myok 1
 	set myloc $last
+
+	debug.pt/rdengine {[InstReturn]}
 	return -code return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:voidvoid_branch {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:voidvoid_branch]}
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -460,15 +496,18 @@ snit::type ::pt::rde_tcl {
 
 	if {$myok} {
 	    $mystackloc pop
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	set myloc [$mystackloc peek]
 	$mystackerr push $myerror
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:voidvalue_branch {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:voidvalue_branch]}
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -497,16 +536,19 @@ snit::type ::pt::rde_tcl {
 
 	if {$myok} {
 	    $mystackloc pop
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackmark push [$mystackast size]
 	set myloc [$mystackloc peek]
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:valuevoid_branch {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:valuevoid_branch]}
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i:ok_loc_pop_discard
@@ -535,16 +577,19 @@ snit::type ::pt::rde_tcl {
 	set mark [$mystackmark pop]
 	if {$myok} {
 	    $mystackloc pop
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackast trim* $mark
 	set myloc [$mystackloc peek]
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:valuevalue_branch {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:valuevalue_branch]}
 	# i_error_pop_merge
 	# i_ast_pop_discard
 	# i:ok_loc_pop_discard
@@ -574,18 +619,22 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    $mystackmark pop
 	    $mystackloc pop
+
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackast trim* [$mystackmark peek]
 	set myloc [$mystackloc peek]
 	$mystackerr push {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:voidvoid_part {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:voidvoid_part]}
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -611,14 +660,17 @@ snit::type ::pt::rde_tcl {
 	}
 	if {!$myok} {
 	    set myloc [$mystackloc pop]
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackerr push $myerror
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:voidvalue_part {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:voidvalue_part]}
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -645,15 +697,18 @@ snit::type ::pt::rde_tcl {
 	}
 	if {!$myok} {
 	    set myloc [$mystackloc pop]
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackmark push [$mystackast size]
 	$mystackerr push $myerror
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:valuevalue_part {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:valuevalue_part]}
 	# i_error_pop_merge
 	# i:fail_ast_pop_rewind
 	# i:fail_loc_pop_rewind
@@ -681,16 +736,20 @@ snit::type ::pt::rde_tcl {
 	if {!$myok} {
 	    $mystackast trim* [$mystackmark pop]
 	    set myloc [$mystackloc pop]
+
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackerr push $myerror
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:next_str {tok} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_str $tok]}
 	# String = sequence of characters.
 	# No need for all the intermediate stack churn.
 
@@ -703,6 +762,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set lex       [string range $mytoken $myloc $last]
@@ -725,11 +785,12 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    incr myloc -1
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_class {tok} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_class $tok]}
 	# Class = Choice of characters. No need for stack churn.
 
 	# i_input_next "\{t $c\}"
@@ -741,6 +802,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -756,11 +818,12 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    incr myloc -1
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_char {tok} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_char $tok]}
 	# i_input_next "\{t $c\}"
 	# i:fail_return
 	# i_test_char $c
@@ -770,6 +833,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -781,11 +845,12 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    incr myloc -1
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_range {toks toke} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_range $toks $toke]}
 	#Asm::Ins i_input_next "\{.. $s $e\}"
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_range $s $e
@@ -795,6 +860,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -809,13 +875,14 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    incr myloc -1
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:next_alnum {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_alnum]}
 	#Asm::Ins i_input_next alnum
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_alnum
@@ -825,6 +892,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list alnum]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -836,11 +904,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_alpha {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_alpha]}
 	#Asm::Ins i_input_next alpha
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_alpha
@@ -850,6 +919,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list alpha]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -861,11 +931,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_ascii {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_ascii]}
 	#Asm::Ins i_input_next ascii
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_ascii
@@ -875,6 +946,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list ascii]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -886,11 +958,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_control {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_control]}
 	#Asm::Ins i_input_next control
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_control
@@ -900,6 +973,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list control]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -911,11 +985,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_ddigit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_ddigit]}
 	#Asm::Ins i_input_next ddigit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_ddigit
@@ -925,6 +1000,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list ddigit]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -936,11 +1012,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_digit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_digit]}
 	#Asm::Ins i_input_next digit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_digit
@@ -950,6 +1027,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list digit]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -961,11 +1039,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_graph {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_graph]}
 	#Asm::Ins i_input_next graph
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_graph
@@ -975,6 +1054,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list graph]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -986,11 +1066,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_lower {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_lower]}
 	#Asm::Ins i_input_next lower
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_lower
@@ -1000,6 +1081,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list lower]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1011,11 +1093,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_print {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_print]}
 	#Asm::Ins i_input_next print
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_print
@@ -1025,6 +1108,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list print]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1036,11 +1120,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_punct {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_punct]}
 	#Asm::Ins i_input_next punct
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_punct
@@ -1050,6 +1135,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list punct]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1061,11 +1147,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_space {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_space]}
 	#Asm::Ins i_input_next space
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_space
@@ -1075,6 +1162,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list space]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1086,11 +1174,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_upper {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_upper]}
 	#Asm::Ins i_input_next upper
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_upper
@@ -1100,6 +1189,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list upper]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1111,11 +1201,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_wordchar {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_wordchar]}
 	#Asm::Ins i_input_next wordchar
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_wordchar
@@ -1125,6 +1216,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list wordchar]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1136,11 +1228,12 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:next_xdigit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:next_xdigit]}
 	#Asm::Ins i_input_next xdigit
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_xdigit
@@ -1150,6 +1243,7 @@ snit::type ::pt::rde_tcl {
 	    set myok    0
 	    set myerror [list $myloc [list xdigit]]
 	    # i:fail_return
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
@@ -1161,13 +1255,14 @@ snit::type ::pt::rde_tcl {
 	} else {
 	    set myerror {}
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:value_symbol_start {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_symbol_start $symbol]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1180,15 +1275,18 @@ snit::type ::pt::rde_tcl {
 	    if {$myok} {
 		$mystackast push $mysvalue
 	    }
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackloc  push $myloc
 	$mystackmark push [$mystackast size]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_void_symbol_start {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_void_symbol_start $symbol]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1197,15 +1295,18 @@ snit::type ::pt::rde_tcl {
 	set k [list $myloc $symbol]
 	if {[info exists mysymbol($k)]} { 
 	    lassign $mysymbol($k) myloc myok myerror mysvalue
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackloc  push $myloc
 	$mystackmark push [$mystackast size]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_symbol_start {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_symbol_start $symbol]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1217,14 +1318,17 @@ snit::type ::pt::rde_tcl {
 	    if {$myok} {
 		$mystackast push $mysvalue
 	    }
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackloc push $myloc
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_void_symbol_start {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_void_symbol_start $symbol]}
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1232,14 +1336,17 @@ snit::type ::pt::rde_tcl {
 	set k [list $myloc $symbol]
 	if {[info exists mysymbol($k)]} { 
 	    lassign $mysymbol($k) myloc myok myerror mysvalue
+	    debug.pt/rdengine {[InstReturn]}
 	    return -code return
 	}
 	$mystackloc push $myloc
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:reduce_symbol_end {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:reduce_symbol_end $symbol]}
 	# i_value_clear/reduce $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1294,11 +1401,12 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    $mystackast push $mysvalue
 	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_leaf_symbol_end {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_leaf_symbol_end $symbol]}
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1338,11 +1446,13 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    $mystackast push $mysvalue
 	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_leaf_symbol_end {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_leaf_symbol_end $symbol]}
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1384,11 +1494,13 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    $mystackast push $mysvalue
 	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:value_clear_symbol_end {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:value_clear_symbol_end $symbol]}
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1412,11 +1524,12 @@ snit::type ::pt::rde_tcl {
 	}}
 
 	$mystackast trim* [$mystackmark pop]
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method si:void_clear_symbol_end {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction si:void_clear_symbol_end $symbol]}
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1437,6 +1550,7 @@ snit::type ::pt::rde_tcl {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
 	}}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1444,25 +1558,25 @@ snit::type ::pt::rde_tcl {
     ## API - Instructions - Control flow
 
     method i:ok_continue {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i:ok_continue]}
 	if {!$myok} return
 	return -code continue
     }
 
     method i:fail_continue {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i:fail_continue]}
 	if {$myok} return
 	return -code continue
     }
 
     method i:fail_return {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i:fail_return]}
 	if {$myok} return
 	return -code return
     }
 
     method i:ok_return {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i:ok_return]}
 	if {!$myok} return
 	return -code return
     }
@@ -1471,20 +1585,23 @@ snit::type ::pt::rde_tcl {
     ##  API - Instructions - Unconditional matching.
 
     method i_status_ok {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_status_ok]}
 	set myok 1
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_status_fail {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_status_fail]}
 	set myok 0
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_status_negate {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_status_negate]}
 	set myok [expr {!$myok}]
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1492,32 +1609,35 @@ snit::type ::pt::rde_tcl {
     ##  API - Instructions - Error handling.
 
     method i_error_clear {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_error_clear]}
 	set myerror {}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_error_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_error_push]}
 	$mystackerr push $myerror
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_error_clear_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_error_clear_push]}
 	set myerror {}
 	$mystackerr push {}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_error_pop_merge {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_error_pop_merge]}
 	set olderror [$mystackerr pop]
 
 	# We have either old or new error data, keep it.
 
-	if {![llength $myerror]}  { set myerror $olderror ; return }
-	if {![llength $olderror]} return
+	if {![llength $myerror]}  { set myerror $olderror ; debug.pt/rdengine {[InstReturn]} ; return }
+	if {![llength $olderror]} { debug.pt/rdengine {[InstReturn]} ; return }
 
 	# If one of the errors is further on in the input choose that as
 	# the information to propagate.
@@ -1525,16 +1645,17 @@ snit::type ::pt::rde_tcl {
 	lassign $myerror  loe msgse
 	lassign $olderror lon msgsn
 
-	if {$lon > $loe} { set myerror $olderror ; return }
-	if {$loe > $lon} return
+	if {$lon > $loe} { set myerror $olderror ; debug.pt/rdengine {[InstReturn]} ; return }
+	if {$loe > $lon} { debug.pt/rdengine {[InstReturn]} ; return }
 
 	# Equal locations, merge the message lists, set-like.
 	set myerror [list $loe [lsort -uniq [list {*}$msgse {*}$msgsn]]]
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_error_nonterminal {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_error_nonterminal $symbol]}
 	#  i_error_nonterminal -- Disabled. Generate only low-level
 	#  i_error_nonterminal -- errors until we have worked out how
 	#  i_error_nonterminal -- to integrate symbol information with
@@ -1564,54 +1685,65 @@ snit::type ::pt::rde_tcl {
     ##  API - Instructions - Basic input handling and tracking
 
     method i_loc_pop_rewind/discard {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_loc_pop_rewind/discard]}
 	#$myparser i:fail_loc_pop_rewind
 	#$myparser i:ok_loc_pop_discard
 	#return
 	set last [$mystackloc pop]
-	if {$myok} return
-	set myloc $last
+	if {!$myok} {
+	    set myloc $last
+	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_loc_pop_discard {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_loc_pop_discard]}
 	$mystackloc pop
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i:ok_loc_pop_discard {} {
-	debug.pt/rdengine {[Inst]}
-	if {!$myok} return
-	$mystackloc pop
+	debug.pt/rdengine {[Instruction i:ok_loc_pop_discard]}
+	if {$myok} {
+	    $mystackloc pop
+	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_loc_pop_rewind {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_loc_pop_rewind]}
 	set myloc [$mystackloc pop]
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i:fail_loc_pop_rewind {} {
-	debug.pt/rdengine {[Inst]}
-	if {$myok} return
-	set myloc [$mystackloc pop]
+	debug.pt/rdengine {[Instruction i:fail_loc_pop_rewind]}
+	if {!$myok} {
+	    set myloc [$mystackloc pop]
+	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_loc_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_loc_push]}
 	$mystackloc push $myloc
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_loc_rewind {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_loc_rewind]}
 	# i_loc_pop_rewind - set myloc [$mystackloc pop]
 	# i_loc_push       - $mystackloc push $myloc    
 
 	set myloc [$mystackloc peek]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1619,72 +1751,95 @@ snit::type ::pt::rde_tcl {
     ##  API - Instructions - AST stack handling
 
     method i_ast_pop_rewind/discard {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_pop_rewind/discard]}
 	#$myparser i:fail_ast_pop_rewind
 	#$myparser i:ok_ast_pop_discard
 	#return
 	set mark [$mystackmark pop]
-	if {$myok} return
-	$mystackast trim* $mark
+	if {!$myok} {
+	    $mystackast trim* $mark
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_ast_pop_discard/rewind {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_pop_discard/rewind]}
 	#$myparser i:ok_ast_pop_rewind
 	#$myparser i:fail_ast_pop_discard
 	#return
 	set mark [$mystackmark pop]
-	if {!$myok} return
-	$mystackast trim* $mark
+	if {$myok} {
+	    $mystackast trim* $mark
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_ast_pop_discard {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_pop_discard]}
 	$mystackmark pop
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i:ok_ast_pop_discard {} {
-	debug.pt/rdengine {[Inst]}
-	if {!$myok} return
-	$mystackmark pop
+	debug.pt/rdengine {[Instruction i:ok_ast_pop_discard]}
+	if {$myok} {
+	    $mystackmark pop
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_ast_pop_rewind {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_pop_rewind]}
 	$mystackast trim* [$mystackmark pop]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i:fail_ast_pop_rewind {} {
-	debug.pt/rdengine {[Inst]}
-	if {$myok} return
-	$mystackast trim* [$mystackmark pop]
+	debug.pt/rdengine {[Instruction i:fail_ast_pop_rewind]}
+	if {!$myok} {
+	    $mystackast trim* [$mystackmark pop]
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_ast_push {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_push]}
 	$mystackmark push [$mystackast size]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i:ok_ast_value_push {} {
-	debug.pt/rdengine {[Inst]}
-	if {!$myok} return
-	$mystackast push $mysvalue
+	debug.pt/rdengine {[Instruction i:ok_ast_value_push]}
+	if {$myok} {
+	    $mystackast push $mysvalue
+	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_ast_rewind {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_ast_rewind]}
 	# i_ast_pop_rewind - $mystackast  trim* [$mystackmark pop]
 	# i_ast_push       - $mystackmark push [$mystackast size]
 
 	$mystackast trim* [$mystackmark peek]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1692,22 +1847,28 @@ snit::type ::pt::rde_tcl {
     ## API - Instructions - Nonterminal cache
 
     method i_symbol_restore {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_symbol_restore $symbol]}
 	# Satisfy from cache if possible.
 	set k [list $myloc $symbol]
-	if {![info exists mysymbol($k)]} { return 0 }
+	if {![info exists mysymbol($k)]} {
+	    debug.pt/rdengine {[InstReturn]}
+	    return 0
+	}
 	lassign $mysymbol($k) myloc myok myerror mysvalue
 	# We go forward, as the nonterminal matches (or not).
+	debug.pt/rdengine {[InstReturn]}
 	return 1
     }
 
     method i_symbol_save {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_symbol_save $symbol]}
 	# Store not only the value, but also how far
 	# the match went (if it was a match).
 	set at [$mystackloc peek]
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1715,64 +1876,71 @@ snit::type ::pt::rde_tcl {
     ##  API - Instructions - Semantic values.
 
     method i_value_clear {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_value_clear]}
 	set mysvalue {}
+	
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_value_clear/leaf {symbol} {
-	debug.pt/rdengine {[Inst] ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)}
+	debug.pt/rdengine {[Instruction i_value_clear/leaf $symbol] :: ([expr {[$mystackloc peek]+1}])-@$myloc)}
 
 	# not quite value_lead (guarded, and clear on fail)
 	# Inlined clear, reduce, and optimized.
 	# Clear ; if {$ok} {Reduce $symbol}
 	set mysvalue {}
-	if {!$myok} return
-	set  pos [$mystackloc peek]
-	incr pos
+        if {$myok} {
+	    set  pos [$mystackloc peek]
+	    incr pos
 
-	if {($pos - 1) == $myloc} {
-	    # The symbol did not process any input. As this is
-	    # signaled to be ok (*) we create a node covering an empty
-	    # range. (Ad *): Can happen for a RHS using toplevel
-	    # operators * or ?.
-	    set mysvalue [pt::ast new0 $symbol $pos]
-	} else {
-	    set mysvalue [pt::ast new $symbol $pos $myloc]
+	    if {($pos - 1) == $myloc} {
+		# The symbol did not process any input. As this is
+		# signaled to be ok (*) we create a node covering an empty
+		# range. (Ad *): Can happen for a RHS using toplevel
+		# operators * or ?.
+		set mysvalue [pt::ast new0 $symbol $pos]
+	    } else {
+		set mysvalue [pt::ast new $symbol $pos $myloc]
+	    }
 	}
+
+        debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_value_clear/reduce {symbol} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_value_clear/reduce $symbol]}
 	set mysvalue {}
-	if {!$myok} return
+	if {$myok} {
+	    set  mark [$mystackmark peek];# Old size of stack before current nt pushed more.
+	    set  newa [expr {[$mystackast size] - $mark}]
 
-	set  mark [$mystackmark peek];# Old size of stack before current nt pushed more.
-	set  newa [expr {[$mystackast size] - $mark}]
+	    set  pos  [$mystackloc  peek]
+	    incr pos
 
-	set  pos  [$mystackloc  peek]
-	incr pos
+	    if {!$newa} {
+		set mysvalue {}
+	    } elseif {$newa == 1} {
+		# peek 1 => single element comes back
+		set mysvalue [list [$mystackast peek]]     ; # SaveToMark
+	    } else {
+		# peek n > 1 => list of elements comes back
+		set mysvalue [$mystackast peekr $newa]     ; # SaveToMark
+	    }
 
-	if {!$newa} {
-	    set mysvalue {}
-	} elseif {$newa == 1} {
-	    # peek 1 => single element comes back
-	    set mysvalue [list [$mystackast peek]]     ; # SaveToMark
-	} else {
-	    # peek n > 1 => list of elements comes back
-	    set mysvalue [$mystackast peekr $newa]     ; # SaveToMark
+	    if {($pos - 1) == $myloc} {
+		# The symbol did not process any input. As this is
+		# signaled to be ok (*) we create a node covering an empty
+		# range. (Ad *): Can happen for a RHS using toplevel
+		# operators * or ?.
+		set mysvalue [pt::ast new0 $symbol $pos {*}$mysvalue]
+	    } else {
+		set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
+	    }
 	}
 
-	if {($pos - 1) == $myloc} {
-	    # The symbol did not process any input. As this is
-	    # signaled to be ok (*) we create a node covering an empty
-	    # range. (Ad *): Can happen for a RHS using toplevel
-	    # operators * or ?.
-	    set mysvalue [pt::ast new0 $symbol $pos {*}$mysvalue]
-	} else {
-	    set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
-	}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1780,7 +1948,7 @@ snit::type ::pt::rde_tcl {
     ## API - Instructions - Terminal matching
 
     method i_input_next {msg} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_input_next $msg]}
 	# Inlined: Getch, Expected, ClearErrors
 	# Satisfy from input cache if possible.
 
@@ -1791,17 +1959,21 @@ snit::type ::pt::rde_tcl {
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
 	    set myerror [list $myloc [list $msg]]
+
+	    debug.pt/rdengine {[InstReturn]}
 	    return
 	}
 	set mycurrent [string index $mytoken $myloc]
 
 	set myok    1
 	set myerror {}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_char {tok} {
-	debug.pt/rdengine {[Inst] ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}]}
+	debug.pt/rdengine {[Instruction i_test_char $tok] :: ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}]}
 
 	set myok [expr {$tok eq $mycurrent}]
 	if {$myok} {
@@ -1810,11 +1982,13 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    incr myloc -1
 	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_range {toks toke} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_range $toks $toke]}
 	set myok [expr {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
@@ -1825,104 +1999,134 @@ snit::type ::pt::rde_tcl {
 	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    incr myloc -1
 	}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_alnum {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_alnum]}
 	set myok [string is alnum -strict $mycurrent]
 	OkFail alnum
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_alpha {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_alpha]}
 	set myok [string is alpha -strict $mycurrent]
 	OkFail alpha
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_ascii {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_ascii]}
 	set myok [string is ascii -strict $mycurrent]
 	OkFail ascii
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_control {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_control]}
 	set myok [string is control -strict $mycurrent]
 	OkFail control
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_ddigit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_ddigit]}
 	set myok [string match {[0-9]} $mycurrent]
 	OkFail ddigit
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_digit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_digit]}
 	set myok [string is digit -strict $mycurrent]
 	OkFail digit
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_graph {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_graph]}
 	set myok [string is graph -strict $mycurrent]
 	OkFail graph
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_lower {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_lower]}
 	set myok [string is lower -strict $mycurrent]
 	OkFail lower
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_print {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_print]}
 	set myok [string is print -strict $mycurrent]
 	OkFail print
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_punct {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_punct]}
 	set myok [string is punct -strict $mycurrent]
 	OkFail punct
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_space {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_space]}
 	set myok [string is space -strict $mycurrent]
 	OkFail space
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_upper {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_upper]}
 	set myok [string is upper -strict $mycurrent]
 	OkFail upper
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_wordchar {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_wordchar]}
 	set myok [string is wordchar -strict $mycurrent]
 	OkFail wordchar
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_xdigit {} {
-	debug.pt/rdengine {[Inst]}
+	debug.pt/rdengine {[Instruction i_test_xdigit]}
 	set myok [string is xdigit -strict $mycurrent]
 	OkFail xdigit
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
