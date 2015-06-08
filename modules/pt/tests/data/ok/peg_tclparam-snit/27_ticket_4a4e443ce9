@@ -224,7 +224,7 @@ snit::type ::PARSER {
     
         $myparser si:value_notahead_start
         sym_X
-        $myparser si:void_notahead_exit
+        $myparser si:value_notahead_exit
         return
     }
     

@@ -581,7 +581,7 @@ proc ::pt::peg::to::tclparam::Op::! {modes expression} {
 	    #Asm::Ins i_loc_pop_rewind
 	    #Asm::Ins i_status_negate
 
-	    Asm::Ins si:void_notahead_exit
+	    Asm::Ins si:value_notahead_exit
 	} $expression
     } else {
 	Asm::Function [Asm::NewBlock notahead] {
@@ -1269,5 +1269,5 @@ namespace eval ::pt::peg::to::tclparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::tclparam 1.0.2
+package provide pt::peg::to::tclparam 1.0.3
 return
