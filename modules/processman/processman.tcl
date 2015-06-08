@@ -2,7 +2,6 @@
 # IRM External Process Manager
 ###
 
-package provide odie::processman 0.3
 package require cron 1.1
 
 ::namespace eval ::processman {}
@@ -17,7 +16,7 @@ if { $::tcl_platform(platform) eq "windows" } {
   if [catch {package require odielib}] {
     catch {package require Tclx}
   }
-  if {[info command subprocess_exists] eq {}} {
+  if {[info commands subprocess_exists] eq {}} {
     proc ::processman::subprocess_exists pid {
       set dat [exec ps]
       foreach line [split $dat \n] {
@@ -29,13 +28,13 @@ if { $::tcl_platform(platform) eq "windows" } {
       return 0
     }
   }
-  if {[info command kill_subprocess] eq {}} {
+  if {[info commands kill_subprocess] eq {}} {
     proc ::processman::kill_subprocess pid {
       catch {exec kill $pid}
     }
   }
 }
-if {[info command harvest_zombies] eq {}} {
+if {[info commands harvest_zombies] eq {}} {
   proc ::processman::harvest_zombies args {
   }
 }
@@ -267,3 +266,5 @@ if {![info exists process_binding]} {
 
 ::cron::every processman 60 ::processman::events
 
+package provide odie::processman 0.3
+package provide processman 0.3
