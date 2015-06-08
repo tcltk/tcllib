@@ -167,7 +167,7 @@
 
     <<runtime>> si:value_notahead_start
     <<self>> sym_X
-    <<runtime>> si:void_notahead_exit
+    <<runtime>> si:value_notahead_exit
     return
 }
 
