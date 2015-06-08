@@ -87,7 +87,7 @@ proc ::textutil::expander::expander {name} {
     }
 
     # NEXT, Check the name
-    if {"" != [info command $name]} {
+    if {"" != [info commands $name]} {
         return -code error "command name \"$name\" already exists"
     }
 

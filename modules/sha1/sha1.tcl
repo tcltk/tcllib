@@ -62,7 +62,7 @@ proc ::sha1::LoadAccelerator {name} {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require sha1c}]} {
-                set r [expr {[info command ::sha1::sha1c] != {}}]
+                set r [expr {[info commands ::sha1::sha1c] != {}}]
             }
         }
         cryptkit {
