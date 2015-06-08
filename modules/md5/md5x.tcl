@@ -521,7 +521,7 @@ proc ::md5::LoadAccelerator {name} {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require md5c}]} {
-                set r [expr {[info command ::md5::md5c] != {}}]
+                set r [expr {[info commands ::md5::md5c] != {}}]
             }
         }
         cryptkit {
