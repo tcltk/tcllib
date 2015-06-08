@@ -104,7 +104,7 @@ proc ::spf::Spf {ip domain sender spf} {
         set cmd [string tolower [lindex [split $directive {:/=}] 0]]
         set param [string range $directive [string length $cmd] end]
 
-        if {[info command ::spf::_$cmd] == {}} {
+        if {[info commands ::spf::_$cmd] == {}} {
             # 6.1 Unrecognised directives terminate processing
             #     but unknown modifiers are ignored.
             if {[string match "=*" $param]} {
@@ -445,7 +445,7 @@ proc ::spf::ExpandMacro {macro ip domain sender} {
 # -------------------------------------------------------------------------
 
 proc ::spf::Resolve {domain type resultproc} {
-    if {[info command $resultproc] == {}} {
+    if {[info commands $resultproc] == {}} {
         return -code error "invalid arg: \"$resultproc\" must be a command"
     }
     set tok [dns::resolve $domain -type $type]
