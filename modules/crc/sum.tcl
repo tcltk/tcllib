@@ -130,13 +130,13 @@ if {[package provide critcl] != {}} {
 # -------------------------------------------------------------------------
 # Switch from pure tcl to compiled if available.
 #
-if {[info command ::crc::SumBsd_c] == {}} {
+if {[info commands ::crc::SumBsd_c] == {}} {
     interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd
 } else {
     interp alias {} ::crc::sum-bsd  {} ::crc::SumBsd_c
 }
 
-if {[info command ::crc::SumSysV_c] == {}} {
+if {[info commands ::crc::SumSysV_c] == {}} {
     interp alias {} ::crc::sum-sysv {} ::crc::SumSysV
 } else {
     interp alias {} ::crc::sum-sysv {} ::crc::SumSysV_c

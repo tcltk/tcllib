@@ -84,7 +84,7 @@ proc ::sha2::LoadAccelerator {name} {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require sha256c}]} {
-                set r [expr {[info command ::sha2::sha256c_update] != {}}]
+                set r [expr {[info commands ::sha2::sha256c_update] != {}}]
             }
         }
         default {

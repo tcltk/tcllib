@@ -263,7 +263,7 @@ proc ::crc::LoadAccelerator {name} {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require crcc}]} {
-                set r [expr {[info command ::crc::Crc32_c] != {}}]
+                set r [expr {[info commands ::crc::Crc32_c] != {}}]
             }
         }
         trf {
