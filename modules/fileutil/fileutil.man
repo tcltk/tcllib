@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.14.10]
+[vset PACKAGE_VERSION 1.14.11]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n [vset PACKAGE_VERSION]]
 [keywords cat]
@@ -485,7 +485,7 @@ hierarchy under Linux where some hundred devices exist under both
 linking to the other, generating millions of legal paths to enumerate.
 The structure, reduced to three devices, roughly looks like
 
-[include cross-index.inc]
+[include include/cross-index.inc]
 
 [para] The command [cmd fileutil::find] currently has no way to escape
 this. When having to handle such a pathological hierarchy It is
@@ -493,7 +493,7 @@ recommended to switch to package [package fileutil::traverse] and the
 same-named command it provides, and then use the [option -prefilter]
 option to prevent the traverser from following symbolic links, like so:
 
-[include cross-index-trav.inc]
+[include include/cross-index-trav.inc]
 
 [list_end]
 
