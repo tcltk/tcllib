@@ -56,7 +56,7 @@ proc ::ftp::geturl {url} {
 
     # Fix for the tkcon List enhancements in ftp.tcl
     set List ::ftp::List_org
-    if {[info command $List] == {}} {
+    if {[info commands $List] == {}} {
         set List ::ftp::List 
     }
 

@@ -28,11 +28,11 @@ testing {
 # Set this true if we have the critcl version.
 
 ::tcltest::testConstraint md5crypt_c \
-        [llength [info command ::md5crypt::md5crypt_c]]
+        [llength [info commands ::md5crypt::md5crypt_c]]
 
 # -------------------------------------------------------------------------
 
-if {[llength [info command ::md5crypt::md5crypt_c]]} {
+if {[llength [info commands ::md5crypt::md5crypt_c]]} {
     puts "> critcl based"
     set impl critcl
 } else {
