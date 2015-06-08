@@ -1633,6 +1633,9 @@ proc __critcl-modules {} {
 
 proc critcl_module {pkg {extra ""}} {
     global critcl distribution critclmodules critcldefault
+
+    lappend extra -cache [pwd]/.critcl
+
     if {$pkg == $critcldefault} {
 	set files {}
 	foreach f $critclmodules($critcldefault) {
