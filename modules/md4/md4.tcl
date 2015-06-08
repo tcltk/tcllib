@@ -377,7 +377,7 @@ proc ::md4::LoadAccelerator {name} {
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require md4c}]} {
-                set r [expr {[info command ::md4::md4c] != {}}]
+                set r [expr {[info commands ::md4::md4c] != {}}]
             }
         }
         cryptkit {
