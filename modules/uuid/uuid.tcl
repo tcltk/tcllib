@@ -203,7 +203,7 @@ proc ::uuid::LoadAccelerator {name} {
     switch -exact -- $name {
         critcl {
             if {![catch {package require tcllibc}]} {
-                set r [expr {[info command ::uuid::generate_c] != {}}]
+                set r [expr {[info commands ::uuid::generate_c] != {}}]
             }
         }
         default {
