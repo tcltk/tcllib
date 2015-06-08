@@ -161,7 +161,7 @@ proc ::uuencode::pad {s} {
 
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
-if {[info command ::uuencode::CDecode] != {}} {    
+if {[info commands ::uuencode::CDecode] != {}} {    
     # tcllib critcl package
     interp alias {} ::uuencode::encode {} ::uuencode::CEncode
     interp alias {} ::uuencode::decode {} ::uuencode::CDecode
