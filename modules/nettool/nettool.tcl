@@ -8,7 +8,7 @@ package require platform
 # Uses the "ip" package from tcllib
 package require ip
 
-if {[info command ::ladd] eq {}} {
+if {[info commands ::ladd] eq {}} {
   proc ::ladd {varname args} {
     upvar 1 $varname var
     if ![info exists var] {
@@ -21,7 +21,7 @@ if {[info command ::ladd] eq {}} {
     return $var
   }
 }
-if {[info command ::get] eq {}} {
+if {[info commands ::get] eq {}} {
   proc ::get varname {
     upvar 1 $varname var
     if {[info exists var]} {
@@ -30,7 +30,7 @@ if {[info command ::get] eq {}} {
     return {}
   }
 }
-if {[info command ::cat] eq {}} {
+if {[info commands ::cat] eq {}} {
   proc ::cat filename {
     set fin [open $filename r]
     set dat [read $fin]
