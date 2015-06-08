@@ -210,7 +210,7 @@ oo::class create PARSER {
     
         my si:value_notahead_start
         my sym_X
-        my si:void_notahead_exit
+        my si:value_notahead_exit
         return
     }
     
