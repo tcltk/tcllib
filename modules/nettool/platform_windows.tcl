@@ -73,7 +73,7 @@ if {[::twapi::get_ip_addresses] ne {}} {
   ldelete result 127.0.0.1
   return $result
 } 
-} elseif {[info command ::twapi::get_system_ipaddrs] ne {}} {
+} elseif {[info commands ::twapi::get_system_ipaddrs] ne {}} {
 # They changed commands names on me...
   set body {
   set result [::twapi::get_system_ipaddrs]
