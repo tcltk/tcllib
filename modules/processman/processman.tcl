@@ -2,7 +2,6 @@
 # IRM External Process Manager
 ###
 
-package provide processman 0.3
 package require cron 1.1
 
 ::namespace eval ::processman {}
@@ -267,3 +266,5 @@ if {![info exists process_binding]} {
 
 ::cron::every processman 60 ::processman::events
 
+package provide odie::processman 0.3
+package provide processman 0.3
