@@ -16,9 +16,9 @@ package require Tcl 8.6
 namespace eval ::zipfile {}
 namespace eval ::zipfile::decode {}
 namespace eval ::zipfile::encode {}
-namespace eval zip {}
+namespace eval ::zipfile::mkzip {}
 
-proc ::mkzip::setbinary chan {
+proc ::zipfile::mkzip::setbinary chan {
   fconfigure $chan \
       -encoding    binary \
       -translation binary \
@@ -36,7 +36,7 @@ proc ::mkzip::setbinary chan {
 #   |Y|Y|Y|Y|Y|Y|Y|m| |m|m|m|d|d|d|d|d| |h|h|h|h|h|m|m|m| |m|m|m|s|s|s|s|s|
 #   +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+
 #
-proc ::mkzip::timet_to_dos {time_t} {
+proc ::zipfile::mkzip::timet_to_dos {time_t} {
     set s [clock format $time_t -format {%Y %m %e %k %M %S}]
     scan $s {%d %d %d %d %d %d} year month day hour min sec
     expr {(($year-1980) << 25) | ($month << 21) | ($day << 16) 
@@ -47,7 +47,7 @@ proc ::mkzip::timet_to_dos {time_t} {
 #
 #        Pop an element from a list
 #
-proc ::mkzip::pop {varname {nth 0}} {
+proc ::zipfile::mkzip::pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -61,7 +61,7 @@ proc ::mkzip::pop {varname {nth 0}} {
 #        The match arg is internal.
 #        eg: walk library {CVS/* *~ .#*} to exclude CVS and emacs cruft.
 #
-proc ::mkzip::walk {base {excludes ""} {match *} {path {}}} {
+proc ::zipfile::mkzip::walk {base {excludes ""} {match *} {path {}}} {
     set result {}
     set imatch [file join $path $match]
     set files [glob -nocomplain -tails -types f -directory $base $imatch]
@@ -93,7 +93,7 @@ proc ::mkzip::walk {base {excludes ""} {match *} {path {}}} {
 #
 # FIX ME: should  handle the current offset for non-seekable channels
 #
-proc ::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
+proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
     set fullpath [file join $base $path]
     set mtime [timet_to_dos [file mtime $fullpath]]
     if {[file isdirectory $fullpath]} {
@@ -209,7 +209,7 @@ proc ::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
 #
 #        eg: zip my.zip -directory Subdir -runtime unzipsfx.exe *.txt
 # 
-proc ::mkzip::mkzip {filename args} {
+proc ::zipfile::mkzip::mkzip {filename args} {
   array set opts {
       -zipkit 0 -runtime "" -comment "" -directory ""
       -exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
