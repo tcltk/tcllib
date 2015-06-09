@@ -26,7 +26,6 @@ namespace eval ::pt::rde {}
 ## Support narrative tracing.
 
 package require debug
-#package require debug::caller
 debug level  pt/rdengine
 debug prefix pt/rdengine {}
 
