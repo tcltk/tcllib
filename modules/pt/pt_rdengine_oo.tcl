@@ -37,78 +37,84 @@ oo::class create ::pt::rde::oo {
     # # ## ### ##### ######## ############# #####################
     ## Instruction counter for tracing. Unused else. Plus other helpers.
 
+    method TraceInitialization {} {
+	# Creation of the tracing support procedures.
+	# Conditional on debug tag "pt/rdengine".
+	# The instance namespace is the current context.
+	# This is where the procedures go.
+
+	proc Instruction {label {a {}} {b {}}} {
+	    upvar 1 mytracecounter mytracecounter myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
+	    set theinst [list $label $a $b]
+	    return "[uplevel 1 self] <<[format %08d [incr mytracecounter]]>> START I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
+	}
+
+	proc InstReturn {} {
+	    upvar 1 mytracecounter mytracecounter myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
+	    lassign $theinst label a b
+	    return "[uplevel 1 self] <<[format %08d $mytracecounter]>> END__ I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
+	}
+
+	proc State {} {
+	    upvar 1 myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror
+	    set sv [expr {[info exists mysvalue] ? $mysvalue : ""}]
+	    return "ST $myok CL $myloc CC ($mycurrent) SV ($sv) ER ($myerror)"
+	}
+
+	proc TraceSetupStacks {} {
+	    set selfns [namespace current]
+
+	    # Move stack instances aside.
+	    rename ${selfns}::LOC   ${selfns}::LOC__
+	    rename ${selfns}::ERR   ${selfns}::ERR__
+	    rename ${selfns}::AST   ${selfns}::AST__
+	    rename ${selfns}::MARK  ${selfns}::MRK__
+
+	    # Create procedures doing tracing, and forwarding to
+	    # the renamed actual instances.
+
+	    interp alias {} ${selfns}::LOC  {} ${selfns}::WRAP LS  LOC__
+	    interp alias {} ${selfns}::ERR  {} ${selfns}::WRAP ES  ERR__
+	    interp alias {} ${selfns}::AST  {} ${selfns}::WRAP ARS AST__
+	    interp alias {} ${selfns}::MARK {} ${selfns}::WRAP ASM MRK__
+
+	    proc WRAP {label stack args} {
+		debug.pt/rdengine {    $label ___ $args}
+		set res [$stack {*}$args]
+
+		# Show state state after the op
+		set n [$stack size]
+		if {!$n} {
+		    set c {()}
+		} elseif {$n == 1} {
+		    set c <<[$stack peek $n]>>
+		} else {
+		    set c <<[join [$stack peek $n] {>> <<}]>>
+		}
+		debug.pt/rdengine {    $label ==  ($n):$c}
+
+		# And op return
+		debug.pt/rdengine {    $label ==> ($res)}
+		return $res
+	    }
+	    return
+	}
+
+	return
+    }
+
     # # ## ### ##### ######## ############# #####################
     ## API - Lifecycle
 
     constructor {} {
-	debug.pt/rdengine {[apply [list {} {
-	    # Conditional creation of the tracing support procedures.
+	debug.pt/rdengine {[my TraceInitialization][self] constructor}
 
-	    proc Instruction {label {a {}} {b {}}} {
-		upvar 1 mytracecounter mytracecounter myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
-		set theinst [list $label $a $b]
-		return "[uplevel 1 self] <<[format %08d [incr mytracecounter]]>> START I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
-	    }
+	#set selfns [self namespace]
 
-	    proc InstReturn {} {
-		upvar 1 mytracecounter mytracecounter myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror __inst theinst
-		lassign $theinst label a b
-		return "[uplevel 1 self] <<[format %08d $mytracecounter]>> END__ I:[format %-30s $label] [format %-10s $a] [format %-10s $b] :: [State]"
-	    }
-
-	    proc State {} {
-		upvar 1 myok myok myloc myloc mycurrent mycurrent mysvalue mysvalue myerror myerror
-		return "ST $myok CL $myloc CC ($mycurrent) SV ($mysvalue) ER ($myerror)"
-	    }
-
-	    proc TraceSetupStacks {} {
-		upvar selfns selfns
-
-		# Move stack instances aside.
-		rename ${selfns}::LOC   ${selfns}::LOC__
-		rename ${selfns}::ERR   ${selfns}::ERR__
-		rename ${selfns}::AST   ${selfns}::AST__
-		rename ${selfns}::MARK  ${selfns}::MRK__
-
-		# Create procedures doing tracing, and forwarding to
-		# the renamed actual instances.
-
-		interp alias {} ${selfns}::LOC  {} ${selfns}::WRAP LS  LOC__
-		interp alias {} ${selfns}::ERR  {} ${selfns}::WRAP ES  ERR__
-		interp alias {} ${selfns}::AST  {} ${selfns}::WRAP ARS AST__
-		interp alias {} ${selfns}::MARK {} ${selfns}::WRAP ASM MRK__
-
-		proc ${selfns}::WRAP {label stack args} {
-		    debug.pt/rdengine {    $label ___ $args}
-		    set res [$stack {*}$args]
-
-		    # Show state state after the op
-		    set n [$stack size]
-		    if {!$n} {
-			set c {()}
-		    } elseif {$n == 1} {
-			set c <<[$stack peek $n]>>
-		    } else {
-			set c <<[join [$stack peek $n] {>> <<}]>>
-		    }
-		    debug.pt/rdengine {    $label ==  ($n):$c}
-
-		    # And op return
-		    debug.pt/rdengine {    $label ==> ($res)}
-		    return $res
-		}
-		return
-	    }
-
-	    return
-	}} [self namespace]]][self] constructor}
-
-	set selfns [self namespace]
-
-	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS
-	set mystackerr  [struct::stack ${selfns}::ERR]  ; # ES
-	set mystackast  [struct::stack ${selfns}::AST]  ; # ARS/AS
-	set mystackmark [struct::stack ${selfns}::MARK] ; # s.a.
+	set mystackloc  [struct::stack LOC]  ; # LS
+	set mystackerr  [struct::stack ERR]  ; # ES
+	set mystackast  [struct::stack AST]  ; # ARS/AS
+	set mystackmark [struct::stack MARK] ; # s.a.
 
 	debug.pt/rdengine {[TraceSetupStacks][self] constructor /done}
 	my reset {}
@@ -116,7 +122,7 @@ oo::class create ::pt::rde::oo {
     }
 
     method reset {chan} {
-	debug.pt/rdengine {reset ($chan)}
+	debug.pt/rdengine {[self] reset ($chan)}
 
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
@@ -132,22 +138,16 @@ oo::class create ::pt::rde::oo {
 	$mystackast  clear
 	$mystackmark clear
 
-	debug.pt/rdengine {reset /done}
-	return
-    }
-
-    method data {string} {
-	debug.pt/rdengine {data}
-	append mytoken $string
+	debug.pt/rdengine {[self] reset /done}
 	return
     }
 
     method complete {} {
-	debug.pt/rdengine {complete [State]}
+	debug.pt/rdengine {[self] complete [State]}
 
 	if {$myok} {
 	    set n [$mystackast size]
-	    debug.pt/rdengine {complete ast $n}
+	    debug.pt/rdengine {[self] complete ast $n}
 	    if {$n > 1} {
 		# Multiple ASTs left, reduce into single containing them.
 		set  pos [$mystackloc peek]
@@ -155,18 +155,18 @@ oo::class create ::pt::rde::oo {
 		set children [$mystackast peekr [$mystackast size]]     ; # SaveToMark
 		set ast [pt::ast new {} $pos $myloc {*}$children] ; # Reduce ALL
 
-		debug.pt/rdengine {complete n ==> ($ast)}
+		debug.pt/rdengine {[self] complete n ==> ($ast)}
 		return $ast
 	    } elseif {$n == 0} {
 		# Match, but no AST. This is possible if the grammar
 		# consists of only the start expression.
 
-		debug.pt/rdengine {complete 0 ==> ()}
+		debug.pt/rdengine {[self] complete 0 ==> ()}
 		return {}
 	    } else {
 		# Match, with AST.
 		set ast [$mystackast peek]
-		debug.pt/rdengine {complete 1 ==> ($ast)}
+		debug.pt/rdengine {[self] complete 1 ==> ($ast)}
 		return $ast
 	    }
 	} else {
@@ -180,25 +180,25 @@ oo::class create ::pt::rde::oo {
     # # ## ### ##### ######## ############# #####################
     ## API - State accessors
 
-    method chan   {} { debug.pt/rdengine {chan} ; return $mychan }
+    method chan   {} { debug.pt/rdengine {[self] chan} ; return $mychan }
 
     # - - -- --- ----- --------
 
-    method current  {} { debug.pt/rdengine {current}  ; return $mycurrent }
-    method location {} { debug.pt/rdengine {location} ; return $myloc }
-    method lmarked  {} { debug.pt/rdengine {lmarked}  ; return [$mystackloc getr] }
+    method current  {} { debug.pt/rdengine {[self] current}  ; return $mycurrent }
+    method location {} { debug.pt/rdengine {[self] location} ; return $myloc }
+    method lmarked  {} { debug.pt/rdengine {[self] lmarked}  ; return [$mystackloc getr] }
 
     # - - -- --- ----- --------
 
-    method ok      {} { debug.pt/rdengine {ok}      ; return $myok      }
-    method value   {} { debug.pt/rdengine {value}   ; return $mysvalue  }
-    method error   {} { debug.pt/rdengine {error}   ; return $myerror   }
-    method emarked {} { debug.pt/rdengine {emarked} ; return [$mystackerr getr] }
+    method ok      {} { debug.pt/rdengine {[self] ok}      ; return $myok      }
+    method value   {} { debug.pt/rdengine {[self] value}   ; return $mysvalue  }
+    method error   {} { debug.pt/rdengine {[self] error}   ; return $myerror   }
+    method emarked {} { debug.pt/rdengine {[self] emarked} ; return [$mystackerr getr] }
 
     # - - -- --- ----- --------
 
     method tokens {{from {}} {to {}}} {
-	debug.pt/rdengine {tokens ($from) ($to)}
+	debug.pt/rdengine {[self] tokens ($from) ($to)}
 	switch -exact [llength [info level 0]] {
 	    4 { return $mytoken }
 	    5 { return [string range $mytoken $from $from] }
@@ -207,20 +207,29 @@ oo::class create ::pt::rde::oo {
     }
 
     method symbols {} {
-	debug.pt/rdengine {symbols}
+	debug.pt/rdengine {[self] symbols}
 	return [array get mysymbol]
     }
 
     method scached {} {
-	debug.pt/rdengine {scached}
+	debug.pt/rdengine {[self] scached}
 	return [array names mysymbol]
     }
 
     # - - -- --- ----- --------
 
-    method asts    {} { debug.pt/rdengine {asts}    ; return [$mystackast  getr] }
-    method amarked {} { debug.pt/rdengine {amarked} ; return [$mystackmark getr] }
-    method ast     {} { debug.pt/rdengine {ast}     ; return [$mystackast  peek] }
+    method asts    {} { debug.pt/rdengine {[self] asts}    ; return [$mystackast  getr] }
+    method amarked {} { debug.pt/rdengine {[self] amarked} ; return [$mystackmark getr] }
+    method ast     {} { debug.pt/rdengine {[self] ast}     ; return [$mystackast  peek] }
+
+    # # ## ### ##### ######## ############# #####################
+    ## API - Preloading the token cache.
+
+    method data {string} {
+	debug.pt/rdengine {[self] data +[string length $string]}
+	append mytoken $string
+	return
+    }
 
     # # ## ### ##### ######## ############# #####################
     ## Common instruction sequences
@@ -1704,6 +1713,8 @@ oo::class create ::pt::rde::oo {
 	return
     }
 
+    # i:ok_loc_pop_discard - all uses inlined
+
     method i_loc_pop_rewind {} {
 	debug.pt/rdengine {[Instruction i_loc_pop_rewind]}
 	set myloc [$mystackloc pop]
@@ -1775,6 +1786,8 @@ oo::class create ::pt::rde::oo {
 	return
     }
 
+    # i:ok_ast_pop_discard - all uses inlined
+
     method i_ast_pop_rewind {} {
 	debug.pt/rdengine {[Instruction i_ast_pop_rewind]}
 	$mystackast trim* [$mystackmark pop]
@@ -1810,6 +1823,8 @@ oo::class create ::pt::rde::oo {
 	debug.pt/rdengine {[InstReturn]}
 	return
     }
+
+    # i_ast_rewind - all uses inlined
 
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Nonterminal cache
@@ -1942,9 +1957,10 @@ oo::class create ::pt::rde::oo {
 
     method i_test_char {tok} {
 	debug.pt/rdengine {[Instruction i_test_char $tok] :: ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}]}
-
 	set myok [expr {$tok eq $mycurrent}]
-	my OkFail [pt::pe terminal $tok]
+	my OkFailD {pt::pe terminal $tok}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
@@ -1954,14 +1970,16 @@ oo::class create ::pt::rde::oo {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
 		    }] ; # {}
-	my OkFail [pt::pe range $toks $toke]
+	my OkFailD {pt::pe range $toks $toke}
+
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
     method i_test_alnum {} {
 	debug.pt/rdengine {[Instruction i_test_alnum]}
 	set myok [string is alnum -strict $mycurrent]
-	my OkFail [pt::pe alnum]
+	my OkFailD {pt::pe alnum}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1970,7 +1988,7 @@ oo::class create ::pt::rde::oo {
     method i_test_alpha {} {
 	debug.pt/rdengine {[Instruction i_test_alpha]}
 	set myok [string is alpha -strict $mycurrent]
-	my OkFail [pt::pe alpha]
+	my OkFailD {pt::pe alpha}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1979,7 +1997,7 @@ oo::class create ::pt::rde::oo {
     method i_test_ascii {} {
 	debug.pt/rdengine {[Instruction i_test_ascii]}
 	set myok [string is ascii -strict $mycurrent]
-	my OkFail [pt::pe ascii]
+	my OkFailD {pt::pe ascii}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1988,7 +2006,7 @@ oo::class create ::pt::rde::oo {
     method i_test_control {} {
 	debug.pt/rdengine {[Instruction i_test_control]}
 	set myok [string is control -strict $mycurrent]
-	my OkFail [pt::pe control]
+	my OkFailD {pt::pe control}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1997,7 +2015,7 @@ oo::class create ::pt::rde::oo {
     method i_test_ddigit {} {
 	debug.pt/rdengine {[Instruction i_test_ddigit]}
 	set myok [string match {[0-9]} $mycurrent]
-	my OkFail [pt::pe ddigit]
+	my OkFailD {pt::pe ddigit}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2006,7 +2024,7 @@ oo::class create ::pt::rde::oo {
     method i_test_digit {} {
 	debug.pt/rdengine {[Instruction i_test_digit]}
 	set myok [string is digit -strict $mycurrent]
-	my OkFail [pt::pe digit]
+	my OkFailD {pt::pe digit}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2015,7 +2033,7 @@ oo::class create ::pt::rde::oo {
     method i_test_graph {} {
 	debug.pt/rdengine {[Instruction i_test_graph]}
 	set myok [string is graph -strict $mycurrent]
-	my OkFail [pt::pe graph]
+	my OkFailD {pt::pe graph}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2024,7 +2042,7 @@ oo::class create ::pt::rde::oo {
     method i_test_lower {} {
 	debug.pt/rdengine {[Instruction i_test_lower]}
 	set myok [string is lower -strict $mycurrent]
-	my OkFail [pt::pe lower]
+	my OkFailD {pt::pe lower}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2033,7 +2051,7 @@ oo::class create ::pt::rde::oo {
     method i_test_print {} {
 	debug.pt/rdengine {[Instruction i_test_print]}
 	set myok [string is print -strict $mycurrent]
-	my OkFail [pt::pe printable]
+	my OkFailD {pt::pe printable}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2042,7 +2060,7 @@ oo::class create ::pt::rde::oo {
     method i_test_punct {} {
 	debug.pt/rdengine {[Instruction i_test_punct]}
 	set myok [string is punct -strict $mycurrent]
-	my OkFail [pt::pe punct]
+	my OkFailD {pt::pe punct}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2051,7 +2069,7 @@ oo::class create ::pt::rde::oo {
     method i_test_space {} {
 	debug.pt/rdengine {[Instruction i_test_space]}
 	set myok [string is space -strict $mycurrent]
-	my OkFail [pt::pe space]
+	my OkFailD {pt::pe space}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2060,7 +2078,7 @@ oo::class create ::pt::rde::oo {
     method i_test_upper {} {
 	debug.pt/rdengine {[Instruction i_test_upper]}
 	set myok [string is upper -strict $mycurrent]
-	my OkFail [pt::pe upper]
+	my OkFailD {pt::pe upper}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2069,7 +2087,7 @@ oo::class create ::pt::rde::oo {
     method i_test_wordchar {} {
 	debug.pt/rdengine {[Instruction i_test_wordchar]}
 	set myok [string is wordchar -strict $mycurrent]
-	my OkFail [pt::pe wordchar]
+	my OkFailD {pt::pe wordchar}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2078,7 +2096,7 @@ oo::class create ::pt::rde::oo {
     method i_test_xdigit {} {
 	debug.pt/rdengine {[Instruction i_test_xdigit]}
 	set myok [string is xdigit -strict $mycurrent]
-	my OkFail [pt::pe xdigit]
+	my OkFailD {pt::pe xdigit}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -2088,8 +2106,6 @@ oo::class create ::pt::rde::oo {
     ## Internals
 
     method ExtendTC {} {
-	upvar 1 mychan mychan mytoken mytoken
-
 	if {($mychan eq {}) ||
 	    [eof $mychan]} {return 0}
 
@@ -2103,8 +2119,6 @@ oo::class create ::pt::rde::oo {
     }
 
     method ExtendTCN {n} {
-	upvar 1 mychan mychan mytoken mytoken
-
 	if {($mychan eq {}) ||
 	    [eof $mychan]} {return 0}
 
@@ -2119,11 +2133,10 @@ oo::class create ::pt::rde::oo {
 	return 1
     }
 
-    method OkFail {msg} {
-	upvar 1 myok myok myerror myerror myloc myloc
+    method OkFailD {msgcmd} {
 	# Inlined: Expected, Unget, ClearErrors
 	if {!$myok} {
-	    set myerror [list $myloc [list $msg]]
+	    set myerror [list $myloc [list [uplevel 1 $msgcmd]]]
 	    incr myloc -1
 	} else {
 	    set myerror {}
@@ -2152,6 +2165,5 @@ oo::class create ::pt::rde::oo {
 
 # # ## ### ##### ######## ############# #####################
 ## Ready
-
 package provide pt::rde::oo 1.1
 return
