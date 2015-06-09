@@ -18,10 +18,10 @@
 
 package require Tcl 8.5
 package require snit
-package require struct::stack 1.5 ; # Requiring peekr, getr, trim* methods
+package require struct::stack 1.5 ; # Requiring peekr, getr, get, trim* methods
 package require pt::ast
 package require pt::pe
-package require char ; # quoting
+#package require char ; # quoting
 
 # # ## ### ##### ######## ############# #####################
 ## Support narrative tracing.
@@ -111,7 +111,7 @@ snit::type ::pt::rde_tcl {
     }
 
     method reset {{chan {}}} {
-	debug.pt/rdengine {reset ($chan)}
+	debug.pt/rdengine {$self reset ($chan)}
 
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
@@ -127,16 +127,16 @@ snit::type ::pt::rde_tcl {
 	$mystackast  clear
 	$mystackmark clear
 
-	debug.pt/rdengine {reset /done}
+	debug.pt/rdengine {$self reset /done}
 	return
     }
 
     method complete {} {
-	debug.pt/rdengine {complete [State]}
+	debug.pt/rdengine {$self complete [State]}
 
 	if {$myok} {
 	    set n [$mystackast size]
-	    debug.pt/rdengine {complete ast $n}
+	    debug.pt/rdengine {$self complete ast $n}
 	    if {$n > 1} {
 		# Multiple ASTs left, reduce into single containing them.
 		set  pos [$mystackloc peek]
@@ -144,18 +144,18 @@ snit::type ::pt::rde_tcl {
 		set children [$mystackast peekr [$mystackast size]] ; # SaveToMark
 		set ast [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
 
-		debug.pt/rdengine {complete n ==> ($ast)}
+		debug.pt/rdengine {$self complete n ==> ($ast)}
 		return $ast
 	    } elseif {$n == 0} {
 		# Match, but no AST. This is possible if the grammar
 		# consists of only the start expression.
 
-		debug.pt/rdengine {complete 0 ==> ()}
+		debug.pt/rdengine {$self complete 0 ==> ()}
 		return {}
 	    } else {
 		# Match, with AST.
 		set ast [$mystackast peek]
-		debug.pt/rdengine {complete 1 ==> ($ast)}
+		debug.pt/rdengine {$self complete 1 ==> ($ast)}
 		return $ast
 	    }
 	} else {
@@ -169,25 +169,25 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - State accessors
 
-    method chan   {} { debug.pt/rdengine {chan} ; return $mychan }
+    method chan   {} { debug.pt/rdengine {$self chan} ; return $mychan }
 
     # - - -- --- ----- --------
 
-    method current  {} { debug.pt/rdengine {current}  ; return $mycurrent }
-    method location {} { debug.pt/rdengine {location} ; return $myloc }
-    method lmarked  {} { debug.pt/rdengine {lmarked}  ; return [$mystackloc getr] }
+    method current  {} { debug.pt/rdengine {$self current}  ; return $mycurrent }
+    method location {} { debug.pt/rdengine {$self location} ; return $myloc }
+    method lmarked  {} { debug.pt/rdengine {$self lmarked}  ; return [$mystackloc getr] }
 
     # - - -- --- ----- --------
 
-    method ok      {} { debug.pt/rdengine {ok}      ; return $myok      }
-    method value   {} { debug.pt/rdengine {value}   ; return $mysvalue  }
-    method error   {} { debug.pt/rdengine {error}   ; return $myerror   }
-    method emarked {} { debug.pt/rdengine {emarked} ; return [$mystackerr getr] }
+    method ok      {} { debug.pt/rdengine {$self ok}      ; return $myok      }
+    method value   {} { debug.pt/rdengine {$self value}   ; return $mysvalue  }
+    method error   {} { debug.pt/rdengine {$self error}   ; return $myerror   }
+    method emarked {} { debug.pt/rdengine {$self emarked} ; return [$mystackerr getr] }
 
     # - - -- --- ----- --------
 
     method tokens {{from {}} {to {}}} {
-	debug.pt/rdengine {tokens ($from) ($to)}
+	debug.pt/rdengine {$self tokens ($from) ($to)}
 	switch -exact [llength [info level 0]] {
 	    5 { return $mytoken }
 	    6 { return [string range $mytoken $from $from] }
@@ -196,26 +196,26 @@ snit::type ::pt::rde_tcl {
     }
 
     method symbols {} {
-	debug.pt/rdengine {symbols}
+	debug.pt/rdengine {$self symbols}
 	return [array get mysymbol]
     }
 
     method scached {} {
-	debug.pt/rdengine {scached}
+	debug.pt/rdengine {$self scached}
 	return [array names mysymbol]
     }
 
     # - - -- --- ----- --------
 
-    method asts    {} { debug.pt/rdengine {asts}    ; return [$mystackast  getr] }
-    method amarked {} { debug.pt/rdengine {amarked} ; return [$mystackmark getr] }
-    method ast     {} { debug.pt/rdengine {ast}     ; return [$mystackast  peek] }
+    method asts    {} { debug.pt/rdengine {$self asts}    ; return [$mystackast  getr] }
+    method amarked {} { debug.pt/rdengine {$self amarked} ; return [$mystackmark getr] }
+    method ast     {} { debug.pt/rdengine {$self ast}     ; return [$mystackast  peek] }
 
     # # ## ### ##### ######## ############# #####################
     ## API - Preloading the token cache.
 
     method data {data} {
-	debug.pt/rdengine {data}
+	debug.pt/rdengine {$self data +[string length $data]}
 	append mytoken $data
 	return
     }
@@ -1970,14 +1970,8 @@ snit::type ::pt::rde_tcl {
 
     method i_test_char {tok} {
 	debug.pt/rdengine {[Instruction i_test_char $tok] :: ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}]}
-
 	set myok [expr {$tok eq $mycurrent}]
-	if {$myok} {
-	    set myerror {}
-	} else {
-	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
-	    incr myloc -1
-	}
+	OkFailD {pt::pe terminal $tok}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1989,12 +1983,7 @@ snit::type ::pt::rde_tcl {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
 		    }] ; # {}
-	if {$myok} {
-	    set myerror {}
-	} else {
-	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
-	    incr myloc -1
-	}
+	OkFailD {pt::pe range $toks $toke}
 
 	debug.pt/rdengine {[InstReturn]}
 	return
