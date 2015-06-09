@@ -27,7 +27,6 @@ package require char ; # quoting
 ## Support narrative tracing.
 
 package require debug
-#package require debug::caller
 debug level  pt/rdengine
 debug prefix pt/rdengine {}
 
@@ -93,7 +92,6 @@ snit::type ::pt::rde_tcl {
 	    debug.pt/rdengine {    $label ==> ($res)}
 	    return $res
 	}
-
 	return
     }
 
@@ -103,7 +101,7 @@ snit::type ::pt::rde_tcl {
     constructor {} {
 	debug.pt/rdengine {$self constructor}
 
-	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS -- TODO: wrap stacks for tracing.
+	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS
 	set mystackerr  [struct::stack ${selfns}::ERR]  ; # ES
 	set mystackast  [struct::stack ${selfns}::AST]  ; # ARS/AS
 	set mystackmark [struct::stack ${selfns}::MARK] ; # s.a.
@@ -113,7 +111,7 @@ snit::type ::pt::rde_tcl {
     }
 
     method reset {{chan {}}} {
-	debug.pt/rdengine {reset}
+	debug.pt/rdengine {reset ($chan)}
 
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
@@ -121,7 +119,7 @@ snit::type ::pt::rde_tcl {
 	set myok      0          ; # ST
 	set msvalue   {}         ; # SV
 	set myerror   {}         ; # ER
-	set mytoken   {}         ; # TC
+	set mytoken   {}         ; # TC (string)
 	array unset   mysymbol * ; # NC
 
 	$mystackloc  clear
@@ -171,25 +169,25 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - State accessors
 
-    method chan   {} { return $mychan }
+    method chan   {} { debug.pt/rdengine {chan} ; return $mychan }
 
     # - - -- --- ----- --------
 
-    method current  {} { return $mycurrent }
-    method location {} { return $myloc }
-    method lmarked  {} { return [$mystackloc getr] }
+    method current  {} { debug.pt/rdengine {current}  ; return $mycurrent }
+    method location {} { debug.pt/rdengine {location} ; return $myloc }
+    method lmarked  {} { debug.pt/rdengine {lmarked}  ; return [$mystackloc getr] }
 
     # - - -- --- ----- --------
 
-    method ok      {} { return $myok      }
-    method value   {} { return $mysvalue  }
-    method error   {} { return $myerror   }
-    method emarked {} { return [$mystackerr getr] }
+    method ok      {} { debug.pt/rdengine {ok}      ; return $myok      }
+    method value   {} { debug.pt/rdengine {value}   ; return $mysvalue  }
+    method error   {} { debug.pt/rdengine {error}   ; return $myerror   }
+    method emarked {} { debug.pt/rdengine {emarked} ; return [$mystackerr getr] }
 
     # - - -- --- ----- --------
 
     method tokens {{from {}} {to {}}} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {tokens ($from) ($to)}
 	switch -exact [llength [info level 0]] {
 	    5 { return $mytoken }
 	    6 { return [string range $mytoken $from $from] }
@@ -198,26 +196,26 @@ snit::type ::pt::rde_tcl {
     }
 
     method symbols {} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {symbols}
 	return [array get mysymbol]
     }
 
     method scached {} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {scached}
 	return [array names mysymbol]
     }
 
     # - - -- --- ----- --------
 
-    method asts    {} { debug.pt/rdengine {} ; return [$mystackast  getr] }
-    method amarked {} { debug.pt/rdengine {} ; return [$mystackmark getr] }
-    method ast     {} { debug.pt/rdengine {} ; return [$mystackast  peek] }
+    method asts    {} { debug.pt/rdengine {asts}    ; return [$mystackast  getr] }
+    method amarked {} { debug.pt/rdengine {amarked} ; return [$mystackmark getr] }
+    method ast     {} { debug.pt/rdengine {ast}     ; return [$mystackast  peek] }
 
     # # ## ### ##### ######## ############# #####################
     ## API - Preloading the token cache.
 
     method data {data} {
-	debug.pt/rdengine {}
+	debug.pt/rdengine {data}
 	append mytoken $data
 	return
     }
@@ -1648,7 +1646,7 @@ snit::type ::pt::rde_tcl {
 	if {$lon > $loe} { set myerror $olderror ; debug.pt/rdengine {[InstReturn]} ; return }
 	if {$loe > $lon} { debug.pt/rdengine {[InstReturn]} ; return }
 
-	# Equal locations, merge the message lists, set-like.
+	# Equal locations, merge the message lists.
 	set myerror [list $loe [lsort -uniq [list {*}$msgse {*}$msgsn]]]
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -1740,9 +1738,7 @@ snit::type ::pt::rde_tcl {
 	debug.pt/rdengine {[Instruction i_loc_rewind]}
 	# i_loc_pop_rewind - set myloc [$mystackloc pop]
 	# i_loc_push       - $mystackloc push $myloc    
-
 	set myloc [$mystackloc peek]
-
 	debug.pt/rdengine {[InstReturn]}
 	return
     }
@@ -1905,7 +1901,7 @@ snit::type ::pt::rde_tcl {
 	    }
 	}
 
-        debug.pt/rdengine {[InstReturn]}
+	debug.pt/rdengine {[InstReturn]}
 	return
     }
 
