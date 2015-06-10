@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -164,5 +164,5 @@ namespace eval ::pt {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde::critcl 1.0.3
+package provide pt::rde::critcl 1.3.3
 return

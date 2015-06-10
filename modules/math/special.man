@@ -146,7 +146,7 @@ Compute the Beta function for arguments "x" and "y"
 
 [para]
 
-[call [cmd ::math::special::Gamma] [arg x] [arg y]]
+[call [cmd ::math::special::Gamma] [arg x]]
 
 Compute the Gamma function for argument "x"
 
