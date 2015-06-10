@@ -412,3 +412,4 @@ modules/yaml/huddle.man
 modules/yaml/yaml.man
 modules/zip/decode.man
 modules/zip/encode.man
+modules/zip/mkzip.man
