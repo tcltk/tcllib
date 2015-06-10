@@ -195,18 +195,22 @@ test multiplexer-5.2 {add access filter which denies access} {
     ${mp}::Init 37465
     ${mp}::AddAccessFilter DenyAccessFilter
     set sk1 [socket localhost 37465]
-    set sk2 [socket localhost 37465]
-    update
-    fconfigure $sk1 -buffering none
-    if { [catch {
-	puts $sk1 "boom"
-    } err] } {
-	set result "socket blocked"
-    } else {
-	set result "socket not blocked"
+    after idle {
+	update
+	fconfigure $sk1 -buffering none
+	if { [catch {
+	    puts $sk1 "boom"
+	    after 200	;# delay to overcome nagle - see ticket [ced089d5fe]
+	    puts $sk1 "tish"
+	} err] } {
+	    set ::forever "socket blocked"
+	} else {
+	    set ::forever "socket not blocked"
+	}
     }
+    vwait ::forever
     ${mp}::destroy
-    set result
+    set forever
 } {socket blocked}
 
 
