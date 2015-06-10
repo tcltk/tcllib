@@ -280,7 +280,7 @@ package require \fBmath::special  ?0\&.3?\fR
 .sp
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 .sp
-\fB::math::special::Gamma\fR \fIx\fR \fIy\fR
+\fB::math::special::Gamma\fR \fIx\fR
 .sp
 \fB::math::special::erf\fR \fIx\fR
 .sp
@@ -453,7 +453,7 @@ Second argument for the Beta function
 .RE
 .sp
 .TP
-\fB::math::special::Gamma\fR \fIx\fR \fIy\fR
+\fB::math::special::Gamma\fR \fIx\fR
 Compute the Gamma function for argument "x"
 .RS
 .TP

@@ -1511,3 +1511,6 @@ tcllib
 .TP
 \fBzipfile::encode\fR
 \fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives
+.TP
+\fBzipfile::mkzip\fR
+\fIfiles/modules/zip/mkzip\&.n\fR: Build a zip archive
