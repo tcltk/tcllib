@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -23,7 +23,14 @@ package require Tcl 8.5
 namespace eval ::pt::rde {}
 
 # # ## ### ##### ######## ############# #####################
-## Management of stack implementations.
+## Support narrative tracing.
+
+package require debug
+debug level  pt/rdengine
+debug prefix pt/rdengine {}
+
+# # ## ### ##### ######## ############# #####################
+## Management of RDengine implementations.
 
 # ::pt::rde::LoadAccelerator --
 #
@@ -37,6 +44,7 @@ namespace eval ::pt::rde {}
 #	was successfully loaded; and False otherwise.
 
 proc ::pt::rde::LoadAccelerator {key} {
+    debug.pt/rdengine {[info level 0]}
     variable accel
     set r 0
     switch -exact -- $key {
@@ -56,6 +64,7 @@ proc ::pt::rde::LoadAccelerator {key} {
         }
     }
     set accel($key) $r
+    debug.pt/rdengine {[info level 0] ==> ($r)}
     return $r
 }
 
@@ -70,14 +79,17 @@ proc ::pt::rde::LoadAccelerator {key} {
 #	None.
 
 proc ::pt::rde::SwitchTo {key} {
+    debug.pt/rdengine {[info level 0]}
     variable accel
     variable loaded
 
     if {$key eq $loaded} {
 	# No change, nothing to do.
+	debug.pt/rdengine {[info level 0] == $loaded /no change}
 	return
     } elseif {$key ne {}} {
 	# Validate the target implementation of the switch.
+	debug.pt/rdengine {[info level 0] validate}
 
 	if {![info exists accel($key)]} {
 	    return -code error "Unable to activate unknown implementation \"$key\""
@@ -89,12 +101,14 @@ proc ::pt::rde::SwitchTo {key} {
     # Deactivate the previous implementation, if there was any.
 
     if {$loaded ne {}} {
+	debug.pt/rdengine {[info level 0] disable $loaded}
 	rename ::pt::rde ::pt::rde_$loaded
     }
 
     # Activate the new implementation, if there is any.
 
     if {$key ne {}} {
+	debug.pt/rdengine {[info level 0] enable $key}
 	rename ::pt::rde_$key ::pt::rde
     }
 
@@ -102,6 +116,7 @@ proc ::pt::rde::SwitchTo {key} {
     # switches.
 
     set loaded $key
+    debug.pt/rdengine {[info level 0] /done}
     return
 }
 
@@ -117,12 +132,14 @@ proc ::pt::rde::SwitchTo {key} {
 #	A list of implementation keys.
 
 proc ::pt::rde::Implementations {} {
+    debug.pt/rdengine {[info level 0]}
     variable accel
     set res {}
     foreach n [array names accel] {
 	if {!$accel($n)} continue
 	lappend res $n
     }
+    debug.pt/rdengine {[info level 0] ==> ($res)}
     return $res
 }
 
@@ -139,10 +156,12 @@ proc ::pt::rde::Implementations {} {
 #	of preference, most prefered first.
 
 proc ::pt::rde::KnownImplementations {} {
+    debug.pt/rdengine {[info level 0]}
     return {critcl tcl}
 }
 
 proc ::pt::rde::Names {} {
+    debug.pt/rdengine {[info level 0]}
     return {
 	critcl {tcllibc based}
 	tcl    {pure Tcl}
@@ -184,4 +203,4 @@ namespace eval ::pt {
     namespace export rde
 }
 
-package provide pt::rde 1.0.3
+package provide pt::rde 1.1
