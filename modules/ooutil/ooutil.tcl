@@ -1,6 +1,6 @@
 # # ## ### ##### ######## ############# ####################
 ## -*- tcl -*-
-## (C) 2011-2013 Andreas Kupries, BSD licensed.
+## (C) 2011-2015 Andreas Kupries, BSD licensed.
 
 # # ## ### ##### ######## ############# ####################
 ## Requisites
@@ -91,13 +91,17 @@ proc ::oo::define::classmethod {name {args ""} {body ""}} {
 # Build this *almost* like a class method, but with extra care to avoid nuking
 # the existing method.
 oo::class create oo::class.Delegate {
-    method create {name {script ""}} {
-        if {[string match *.Delegate $name]} {
-            return [next $name $script]
+    method create {name args} {
+        if {![string match ::* $name]} {
+            set ns [uplevel 1 {namespace current}]
+            if {$ns eq "::"} {set ns ""}
+            set name ${ns}::${name}
         }
-        set cls [next $name]
-        set delegate [oo::class create $cls.Delegate]
-        uplevel 1 [::list oo::define $cls $script]
+        if {[string match *.Delegate $name]} {
+            return [next $name {*}$args]
+        }
+        set delegate [oo::class create $name.Delegate]
+        set cls [next $name {*}$args]
         set superdelegates [list $delegate]
         foreach c [info class superclass $cls] {
             set d $c.Delegate
@@ -182,4 +186,4 @@ proc ::oo::Helpers::link {args} {
 # # ## ### ##### ######## ############# ####################
 ## Ready
 
-package provide oo::util 1.2.1
+package provide oo::util 1.2.2
