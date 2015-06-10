@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
