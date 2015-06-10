@@ -32,6 +32,21 @@ test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate 
 } -result {::ooutiltest::dog}
 
 # -------------------------------------------------------------------------
+
+test ooutil-ticket-fe7a0e0a3a {classmethod must not interfere with constructor signatures} -setup {
+    oo::class create TestClass {
+        superclass oo::class
+        self method create {name ignore body} {
+            next $name $body
+        }
+    }
+} -body {
+    TestClass create okay {} {}
+} -cleanup {
+    rename TestClass {}
+} -result {::okay}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup
 
 # Local variables:
