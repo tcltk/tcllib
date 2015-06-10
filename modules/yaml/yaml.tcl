@@ -474,13 +474,12 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
             set sub [huddle get $value $i]
             set result [huddle combine $result $sub]
         }
-        unset sub len
+
     } else {
-        set result [huddle combine_relaxed $result $value]
+        set result [huddle combine $result $value]
     }
     return [list $result $prev]
 }
-
 
 proc ::yaml::_parseSubBlock {pos statusnew} {
     upvar 1 status status
@@ -1207,15 +1206,13 @@ proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
 ########################
 
 namespace eval ::yaml::types {
-
-	namespace eval mapping {
-
-		variable settings
+    namespace eval mapping {
+	variable settings
         set settings {
-			    superclass dict
-                publicMethods {mapping}
-                tag !!map
-                isContainer yes }
+	    superclass dict
+	    publicMethods {mapping}
+	    tag !!map
+	    isContainer yes }
 
         proc mapping {args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
@@ -1229,14 +1226,14 @@ namespace eval ::yaml::types {
     }
 
     namespace eval sequence {
-		variable settings
+	variable settings
 
         set settings {
-			    superclass list
-                publicMethods {sequence}
-                isContainer yes
-                tag !!seq
-            }
+	    superclass list
+	    publicMethods {sequence}
+	    isContainer yes
+	    tag !!seq
+	}
 
         proc sequence {args} {
             set resultL {}
@@ -1252,7 +1249,6 @@ namespace eval ::yaml::types {
 proc ::yaml::_makeChildType {type tag} {
     set full_path_to_type ::yaml::types::$type
     namespace eval $full_path_to_type [string map [list @TYPE@ $type @TAG@ $tag] {
-
 	variable settings
 	set settings {
 	    superClass string
