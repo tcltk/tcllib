@@ -2161,6 +2161,9 @@ tcl::transform::zlib
 .TP
 \fBfiles/modules/zip/decode\&.n\fR
 zipfile::decode
+.TP
+\fBfiles/modules/zip/mkzip\&.n\fR
+zipfile::mkzip
 .RE
 decryption
 .RS
@@ -11443,6 +11446,9 @@ zipfile::decode
 .TP
 \fBfiles/modules/zip/encode\&.n\fR
 zipfile::encode
+.TP
+\fBfiles/modules/zip/mkzip\&.n\fR
+zipfile::mkzip
 .RE
 zlib
 .RS
