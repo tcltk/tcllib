@@ -17,7 +17,7 @@ testing {
 
 # -------------------------------------------------------------------------
 
-if {[info command ::rc4::rc4c] != {}} {
+if {[llength [info commands ::rc4::rc4c]]} {
     puts "> critcl"
 }
 
