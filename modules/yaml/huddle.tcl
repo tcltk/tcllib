@@ -16,8 +16,9 @@ namespace eval ::huddle {
 
     variable types
 
-    # Some subcommands conflict reserved words. So, we make the convention of using first letter in uppercase for private
-    # procs (e.g. from "set" to "Set")
+    # Some subcommands conflict with Tcl builtin commands. So, we make
+    # the convention of using the first letter in uppercase for
+    # private procs (e.g. from "set" to "Set")
 
     namespace ensemble create -map {
 	set			::huddle::Set
@@ -41,12 +42,6 @@ namespace eval ::huddle {
     }
 }
 
-proc ::huddle::addTypes {} {
-    foreach typeNamespace [namespace children ::huddle::types] {
-	addType $typeNamespace
-    }
-}
-
 proc ::huddle::addType {typeNamespace} {
     variable types
 
@@ -56,62 +51,91 @@ proc ::huddle::addType {typeNamespace} {
     namespace upvar $typeNamespace settings settings
 
     if {[dict exists $settings map]} {
-	set map [dict get $settings map]
+        set ensemble_map_of_type [dict get $settings map]
+        set renamed_subcommands [dict values $ensemble_map_of_type]
     } else {
-	set map {}
+        set renamed_subcommands [list]
     }
 
-    set allSubcommands [list settings]
+    dict set ensemble_map_of_type settings ${typeNamespace}::settings
 
-    set reversed_map [lreverse $map]
+    foreach path_to_subcommand [info procs ${typeNamespace}::*] {
+        set subcommand [namespace tail $path_to_subcommand]
 
-    foreach path_to_subcommand [info commands ${typeNamespace}::*] {
-	set subcommand [namespace tail $path_to_subcommand]
-
-	if {[dict exists $reversed_map $subcommand]} {
-	    lappend allSubcommands [dict get $reversed_map $subcommand]
-	} else {
-	    lappend allSubcommands $subcommand
-	}
+        if {$subcommand ni $renamed_subcommands} {
+            dict set ensemble_map_of_type $subcommand ${typeNamespace}::$subcommand
+        }
     }
 
     namespace eval $typeNamespace "
-	namespace import ::huddle::wrap ::huddle::unwrap ::huddle::isHuddle ::huddle::strip_node ::huddle::are_equal_nodes ::huddle::argument_to_node ::huddle::get_src
+        namespace import ::huddle::wrap ::huddle::unwrap ::huddle::isHuddle ::huddle::strip_node ::huddle::are_equal_nodes ::huddle::argument_to_node ::huddle::get_src
 
-	namespace ensemble create -unknown ::huddle::unknown_subcommand -command $typeCommand -subcommands {$allSubcommands} -prefixes false -map {$map}
+        namespace ensemble create -unknown ::huddle::unknown_subcommand -command $typeCommand -prefixes false -map {$ensemble_map_of_type}
 
-	proc settings {} {
-		variable settings
-		return \$settings
-	}
+        proc settings {} {
+            variable settings
+            return \$settings
+        }
     "
 
     set huddle_map [namespace ensemble configure ::huddle -map]
 
     dict with settings {
-	foreach subcommand $publicMethods {
-	    dict set huddle_map $subcommand [list $typeCommand $subcommand]
-	}
+        foreach subcommand $publicMethods {
+            dict set huddle_map $subcommand [list $typeCommand $subcommand]
+        }
+
+        if [info exists superclass] {
+            set types(superclass:$tag) $superclass
+        }
 
 	set types(type:$tag) $typeName
 	set types(callback:$tag) $typeCommand
 	set types(isContainer:$tag) $isContainer
+        set types(tagOfType:$typeName) $tag
     }
 
     namespace ensemble configure ::huddle -map $huddle_map
+    return
+}
+
+proc ::huddle::is_superclass_of {tag1 tag2} {
+    variable types
+
+    if {![info exists types(list_of_superclasses:$tag1)]} {
+        set types(list_of_superclasses:$tag1) [list]
+
+        set superclass_tag $tag1
+
+        while true {
+            if [info exists types(superclass:$superclass_tag)] {
+                set superclass $types(superclass:$superclass_tag)
+                set superclass_tag $types(tagOfType:$superclass)
+
+                lappend types(list_of_superclasses:$tag1) $superclass_tag
+            } else {
+                break
+            }
+        }
+    }
+
+    if {$tag2 in $types(list_of_superclasses:$tag1) } {
+        return 1
+    } else {
+        return 0
+    }
 }
 
 proc ::huddle::unknown_subcommand {ensembleCmd subcommand args} {
     set settings [$ensembleCmd settings]
 
     if [dict exists $settings superclass] {
+        set superclass [dict get $settings superclass]
+
 	set map [namespace ensemble configure $ensembleCmd -map]
-	dict set map $subcommand [list ::huddle::Type_[dict get $settings superclass] $subcommand]
+	dict set map $subcommand [list ::huddle::Type_$superclass $subcommand]
 
 	namespace ensemble configure $ensembleCmd -map $map
-	set list_of_subcommands [namespace ensemble configure $ensembleCmd -subcommands]
-	lappend list_of_subcommands $subcommand
-	namespace ensemble configure $ensembleCmd -subcommands $list_of_subcommands
 	return ""
     } else {
 	error "Invalid subcommand '$subcommand' for type '$ensembleCmd'"
@@ -145,7 +169,6 @@ proc ::huddle::strip_node {node} {
     } else {
 	error "This head '$head' doesn't exists."
     }
-
 }
 
 proc ::huddle::call {tag cmd arguments} {
@@ -154,16 +177,6 @@ proc ::huddle::call {tag cmd arguments} {
 }
 
 proc ::huddle::combine {args} {
-    set relaxed_flag false
-    Combine_with_relaxed_flag $relaxed_flag {*}$args
-}
-
-proc ::huddle::combine_relaxed {args} {
-    set relaxed_flag true
-    Combine_with_relaxed_flag $relaxed_flag {*}$args
-}
-
-proc ::huddle::Combine_with_relaxed_flag {relaxed_flag args} {
     variable types
 
     foreach {obj} $args {
@@ -177,13 +190,20 @@ proc ::huddle::Combine_with_relaxed_flag {relaxed_flag args} {
 	set node [unwrap  $obj]
 	foreach {tag src} $node break
 
-	if {!$relaxed_flag && $tag ne $tag_of_group} {error "unmatched huddles are given."}
-
-	lappend result {*}$src
+        if {$tag_of_group ne $tag} {
+            if [is_superclass_of $tag $tag_of_group] {
+		set tag_of_group $tag
+            } else {
+                if {![is_superclass_of $tag_of_group $tag]} {
+                    error "unmatched types are given or one type is not a superclass of the other."
+                }
+            }
+	}
+        lappend result {*}$src
     }
+
     set src [$types(callback:$tag_of_group) append_subnodes "" {} $result]
     return [wrap [list $tag $src]]
-
 }
 
 proc ::huddle::checkHuddle {huddle_object} {
@@ -203,7 +223,6 @@ proc ::huddle::argument_to_node {src {default_tag s}} {
 proc ::huddle::wrap { node } {
     return [list HUDDLE $node]
 }
-
 
 proc ::huddle::unwrap { huddle_object } {
     return [lindex $huddle_object 1]
@@ -304,7 +323,6 @@ proc ::huddle::Append {objvar args} {
 }
 
 proc ::huddle::Set {objvar args} {
-
     upvar $objvar obj
 
     checkHuddle $obj
@@ -364,9 +382,7 @@ proc ::huddle::remove_node {node len path} {
 	$types(callback:$tag) remove src $first_key_to_removed_subnode
 	return [list $tag $src]
     }
-
 }
-
 
 proc ::huddle::Unset {objvar args} {
     upvar $objvar obj
@@ -453,292 +469,6 @@ proc ::huddle::Apply_to_subnode {subcommand node_var len path {subcommand_argume
 
 	$types(callback:$tag) $subcommand src $key $subcommand_arguments
 	lset node 1 $src
-    }
-}
-
-namespace eval ::huddle::types {
-    namespace export *
-
-    namespace eval dict {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {create keys}
-	    tag D
-	    isContainer yes
-	    map {set Set} }
-
-
-	proc get_subnode {src key} {
-	    # get a sub-node specified by "key" from the tagged-content
-	    return [dict get $src $key]
-	}
-
-	# strip from the tagged-content
-	proc strip {src} {
-	    foreach {key subnode} $src {
-		lappend result $key [strip_node $subnode]
-	    }
-	    return $result
-	}
-
-	# set a sub-node from the tagged-content
-	proc Set {src_var key value} {
-	    upvar $src_var src
-
-	    ::dict set src $key $value
-	}
-
-	proc items {src} {
-	    set result {}
-	    dict for {key subnode} $src {
-		lappend result [list $key $subnode]
-	    }
-	    return $result
-	}
-
-
-	# remove a sub-node from the tagged-content
-	proc remove {src_var key} {
-	    upvar $src_var src
-	    dict unset src $key
-	}
-
-
-	proc delete_subnode_but_not_key {src_var key} {
-	    upvar $src_var src
-	    return [dict set src $key ""]
-	}
-
-	# check equal for each node
-	proc equal {src1 src2} {
-	    if {[llength $src1] != [llength $src2]} {return 0}
-	    foreach {key1 subnode1} $src1 {
-		if {![dict exists $src2 $key1]} {return 0}
-		if {![are_equal_nodes $subnode1 [dict get $src2 $key1]]} {return 0}
-	    }
-	    return 1
-	}
-
-	proc append_subnodes {tag src list} {
-	    if {[llength $list] % 2} {
-		error "wrong # args: should be \"huddle append objvar ?key value ...?\""
-	    }
-	    set resultL $src
-	    foreach {key value} $list {
-		if {$tag ne ""} {
-		    lappend resultL $key [argument_to_node $value $tag]
-		} else {
-		    lappend resultL $key $value
-		}
-	    }
-	    return [dict create {*}$resultL]
-	}
-
-	# $args: all arguments after "huddle create"
-	proc create {args} {
-	    if {[llength $args] % 2} {
-		error "wrong # args: should be \"huddle create ?key value ...?\""
-	    }
-	    set resultL [dict create]
-
-	    foreach {key value} $args {
-		if {[isHuddle $key]} {
-		    foreach {tag src} [unwrap $key] break
-		    if {$tag ne "string"} {error "The key '$key' must a string literal or huddle string" }
-		    set key $src
-		}
-		dict set resultL $key [argument_to_node $value]
-	    }
-	    return [wrap [list D $resultL]]
-	}
-
-	proc keys {huddle_object} {
-	    return [dict keys [get_src $huddle_object]]
-	}
-
-	proc exists {src key} {
-	    return [dict exists $src $key]
-	}
-    }
-
-    namespace eval list {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {list llength}
-	    tag L
-	    isContainer yes
-	    map {list List set Set llength Llength} }
-
-	proc get_subnode {src index} {
-	    return [lindex $src $index]
-	}
-
-	proc items {src} {
-	    set result {}
-	    for {set i 0} {$i < [llength $src]} {incr i} {
-		lappend result [list $i [lindex $src $i]]
-	    }
-	    return $result
-	}
-
-	proc strip {src} {
-	    set result {}
-	    foreach {subnode} $src {
-		lappend result [strip_node $subnode]
-	    }
-	    return $result
-	}
-
-	proc Set {src_var index value} {
-	    upvar $src_var src
-	    lset src $index $value
-	}
-
-	proc remove {src_var index} {
-	    upvar $src_var src
-	    set src [lreplace $src $index $index]
-	}
-
-	proc delete_subnode_but_not_key {src_var index} {
-	    upvar $src_var src
-	    return [lset src $index ""]
-	}
-
-	proc equal {src1 src2} {
-	    if {[llength $src1] != [llength $src2]} {return 0}
-
-	    for {set i 0} {$i < [llength $src1]} {incr i} {
-		if {![are_equal_nodes [lindex $src1 $i] [lindex $src2 $i]]} {
-		    return 0
-		}
-	    }
-
-	    return 1
-	}
-
-	proc append_subnodes {tag src list} {
-	    set resultL $src
-	    foreach {value} $list {
-		if {$tag ne ""} {
-		    lappend resultL [argument_to_node $value $tag]
-		} else {
-		    lappend resultL $value
-		}
-	    }
-	    return $resultL
-	}
-
-	proc List {args} {
-
-	    set resultL {}
-	    foreach {value} $args {
-		lappend resultL [argument_to_node $value]
-	    }
-	    return [wrap [list L $resultL]]
-	}
-
-	proc Llength {huddle_object} {
-	    return [llength [get_src $huddle_object] ]
-	}
-
-	proc exists {src key} {
-	    return [expr {$key >=0 && $key < [llength $src]}]
-	}
-    }
-
-    namespace eval string {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {string}
-	    tag s
-	    isContainer no
-	    map {string String} }
-
-	proc String {src} {
-	    return [wrap [list s $src]]
-	}
-
-	proc equal {string1 string2} {
-	    return [expr {$string1 eq $string2}]
-	}
-    }
-
-    namespace eval number {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {number}
-	    tag num
-	    isContainer no }
-
-	proc number {src} {
-	    if [string is double -strict $src] {
-		return [wrap [list num $src]]
-	    } else {
-		error "Argument '$src' is not a number"
-	    }
-	}
-
-	proc equal {number1 number2} {
-	    return [expr {$number1 == $number2}]
-	}
-    }
-
-    namespace eval boolean {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {boolean true false}
-	    tag b
-	    isContainer no }
-
-	proc boolean {boolean_expresion} {
-
-	    if {$boolean_expresion} {
-		return [wrap [list b true]]
-	    } else {
-		return [wrap [list b false]]
-	    }
-	}
-
-	proc true {} {
-	    return [::huddle::wrap [list b true]]
-	}
-
-	proc false {} {
-	    return [wrap [list b false]]
-	}
-
-
-	proc equal {bool1 bool2} {
-	    return [expr {$bool1 eq $bool2}]
-	}
-    }
-
-    namespace eval null {
-	variable settings
-
-	# type definition
-	set settings {
-	    publicMethods {null}
-	    tag null
-	    isContainer no }
-
-	proc null {} {
-	    return [wrap [list null]]
-	}
-
-	proc equal {null1 null2} {
-	    return 1
-	}
     }
 }
 
@@ -884,4 +614,13 @@ proc ::huddle::compile {spec data} {
     }
 }
 
-::huddle::addTypes
+apply {{selfdir} {
+    source [file join $selfdir huddle_types.tcl]
+
+    foreach typeNamespace [namespace children ::huddle::types] {
+	addType $typeNamespace
+    }
+
+    return
+} ::huddle} [file dirname [file normalize [info script]]]
+return
