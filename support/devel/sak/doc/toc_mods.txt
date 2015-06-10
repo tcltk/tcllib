@@ -640,6 +640,7 @@
 [division_start zip]
 [item modules/zip/decode.man zipfile::decode {Access to zip archives}]
 [item modules/zip/encode.man zipfile::encode {Generation of zip archives}]
+[item modules/zip/mkzip.man  zipfile::mkzip  {Build a zip archive}]
 [division_end]
 [division_end]
 [toc_end]
