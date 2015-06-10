@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# (c) 2015 Miguel Lopez
+# (c) 2015 Miguel Martínez López
 
 package require Tcl 8.5
 package require TclOO       ; # For 8.5. Integrated with 8.6
@@ -61,7 +61,8 @@ namespace eval ::huddle::json {
 		if {$target == ""} {
 		    set target $ch
 		}
-		throw {HUDDLE JSONparser} "Trying to read the string $target at index $cursor."
+		return -code error -errorcode {HUDDLE JSONparser} \
+		    "Trying to read the string $target at index $cursor."
 	    }
 	}
 
@@ -71,7 +72,8 @@ namespace eval ::huddle::json {
 	    set ch [my peekChar]
 
 	    if {$ch eq ""} {
-		throw {HUDDLE JSONparser} {Nothing to read}
+		return -code error -errorcode {HUDDLE JSONparser} \
+		    {Nothing to read}
 	    }
 
 	    switch -exact -- $ch {
@@ -112,7 +114,8 @@ namespace eval ::huddle::json {
 		    return [my readNumber]
 		}
 		default {
-		    throw {HUDDLE JSONparser} "Input is not valid JSON: '$jsonText'"
+		    return -code error -errorcode {HUDDLE JSONparser} \
+			"Input is not valid JSON: '$jsonText'"
 		}
 	    }
 	}
@@ -169,7 +172,8 @@ namespace eval ::huddle::json {
 		    my readCStyleComment
 		}
 		default {
-		    throw {HUDDLE JSONparser} "Not a valid JSON comment: $jsonText"
+		    return -code error -errorcode {HUDDLE JSONparser} \
+			"Not a valid JSON comment: $jsonText"
 		}
 	    }
 	}
@@ -191,7 +195,8 @@ namespace eval ::huddle::json {
 			}
 			"/" {
 			    if { [my peekChar] eq "*"} {
-				throw {HUDDLE JSONparser} "Not a valid JSON comment: $jsonText, '/*' cannot be embedded in the comment at index $cursor."
+				return -code error -errorcode {HUDDLE JSONparser} \
+				    "Not a valid JSON comment: $jsonText, '/*' cannot be embedded in the comment at index $cursor."
 			    }
 			}
 
@@ -199,7 +204,8 @@ namespace eval ::huddle::json {
 		}
 
 	    } on $EndOfText {} {
-		throw {HUDDLE JSONparser} "not a valid JSON comment: $jsonText, expected */"
+		return -code error -errorcode {HUDDLE JSONparser} \
+		    "not a valid JSON comment: $jsonText, expected */"
 	    }
 	}
 
@@ -238,14 +244,16 @@ namespace eval ::huddle::json {
 			break
 		    } else {
 			if {$ch ne ","} {
-			    throw {HUDDLE JSONparser} "Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
+			    return -code error -errorcode {HUDDLE JSONparser} \
+				"Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
 			}
 
 			my eatWhitespace
 		    }
 		}
 	    } on $EndOfText {} {
-		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
+		return -code error -errorcode {HUDDLE JSONparser} \
+"Not a valid JSON string: '$jsonText'"
 	    }
 
 	    return [huddle list {*}$result]
@@ -269,7 +277,8 @@ namespace eval ::huddle::json {
 		    set ch [my nextChar]
 
 		    if { $ch ne ":"} {
-			throw {HUDDLE JSONparser} "Not a valid JSON object: '$jsonText' due to: '$ch' at index $cursor."
+			return -code error -errorcode {HUDDLE JSONparser} \
+			    "Not a valid JSON object: '$jsonText' due to: '$ch' at index $cursor."
 		    }
 
 		    my eatWhitespace
@@ -284,14 +293,16 @@ namespace eval ::huddle::json {
 			break
 		    } else {
 			if {$ch ne ","} {
-			    throw {HUDDLE JSONparser} "Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
+			    return -code error -errorcode {HUDDLE JSONparser} \
+				"Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
 			}
 
 			my eatWhitespace
 		    }
 		}
 	    } on $EndOfText {} {
-		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
+		return -code error -errorcode {HUDDLE JSONparser} \
+		    "Not a valid JSON string: '$jsonText'"
 	    }
 
 	    return [huddle create {*}$result]
@@ -345,14 +356,16 @@ namespace eval ::huddle::json {
 			    "/"  {}
 			    "\\" {}
 			    default {
-				throw {HUDDLE JSONparser} "Not a valid escaped JSON character: '$ch' in $jsonText"
+				return -code error -errorcode {HUDDLE JSONparser} \
+				    "Not a valid escaped JSON character: '$ch' in $jsonText"
 			    }
 			}
 		    }
 		    append result $ch
 		}
 	    } on $EndOfText {} {
-		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
+		return -code error -errorcode {HUDDLE JSONparser} \
+		    "Not a valid JSON string: '$jsonText'"
 	    }
 
 	    return $result

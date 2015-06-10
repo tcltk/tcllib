@@ -29,9 +29,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-    testsNeedTcl     8.3
-    testsNeedTcltest 1.0
-    testsNeed dict 1
+    testsNeedTcl     8.5
+    testsNeedTcltest 2
+    #testsNeed dict 1
 
     support {
 	use json/json.tcl json
@@ -175,7 +175,7 @@ test huddle-3.2 "test of huddle jsondump" -body {
 
 
 test huddle-3.3 "test of huddle jsondump" -body {
-    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
+    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {num 1} j {s { m\a}}}}}}}
     set json1 [huddle jsondump $huddle1]
     set json2 {{
   "dd": {
@@ -191,7 +191,7 @@ test huddle-3.3 "test of huddle jsondump" -body {
     "j": " m\\a"
   }
 }}
-
+	
     if {$json1 == $json2} {
 	return 1
     } else {
