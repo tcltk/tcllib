@@ -558,7 +558,7 @@ proc ::ftpd::Read {sock} {
                     && (![string equal $cmd "USER"]) \
                     && (![string equal $cmd "QUIT"])} {
                 puts $sock "530 Please login with USER and PASS."
-	    } elseif {[info command ::ftpd::command::$cmd] != ""} {
+	    } elseif {[info commands ::ftpd::command::$cmd] != ""} {
 		Log debug $command
 		::ftpd::command::$cmd $sock $argument
 		catch {flush $sock}
