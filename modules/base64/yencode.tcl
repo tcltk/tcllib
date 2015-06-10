@@ -141,7 +141,7 @@ if {[package provide critcl] != {}} {
     }
 }
 
-if {[info command ::yencode::CEncode] != {}} {
+if {[info commands ::yencode::CEncode] != {}} {
     interp alias {} ::yencode::encode {} ::yencode::CEncode
     interp alias {} ::yencode::decode {} ::yencode::CDecode
 } else {
