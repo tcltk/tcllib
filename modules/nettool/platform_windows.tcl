@@ -114,4 +114,8 @@ proc ::nettool::network_list {} {
   }
   return [lsort -unique $result]
 }
+
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(APPDATA) $appname]
+}
 package provide nettool::platform::windows 0.1

@@ -2,7 +2,6 @@
 # @mdgen OWNER: available_ports.tcl
 # @mdgen OWNER: locateport.tcl
 # @mdgen OWNER: platform_*.tcl
-package provide nettool 0.4.1
 
 package require platform
 # Uses the "ip" package from tcllib
@@ -65,4 +64,5 @@ if {[file exists $genfile]} {
 }
 
 ::nettool::init
+package provide nettool 0.5
 
