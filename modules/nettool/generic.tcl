@@ -88,6 +88,10 @@ proc ::nettool::platform {} {
   return $platform
 }
 
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(HOME) .$appname]
+}
+
 ###
 # Provide empty implementations
 ###
