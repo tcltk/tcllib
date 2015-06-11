@@ -21,24 +21,24 @@ namespace eval ::huddle {
     # private procs (e.g. from "set" to "Set")
 
     namespace ensemble create -map {
-	set			::huddle::Set
-	append			::huddle::Append
-	get			::huddle::Get
-	get_stripped		::huddle::get_stripped
-	unset			::huddle::Unset
-	combine			::huddle::combine
-	combine_relaxed 	::huddle::combine_relaxed
-	type			::huddle::type
-	remove			::huddle::remove
-	equal			::huddle::equal
-	exists			::huddle::exists
-	clone			::huddle::clone
-	isHuddle		::huddle::isHuddle
-	wrap			::huddle::wrap
-	unwrap			::huddle::unwrap
-	addType			::huddle::addType
-	jsondump		::huddle::jsondump
-	compile			::huddle::compile
+        set	    		::huddle::Set
+        append			::huddle::Append
+        get		    	::huddle::Get
+        get_stripped	::huddle::get_stripped
+        unset			::huddle::Unset
+        combine			::huddle::combine
+        combine_relaxed	::huddle::combine_relaxed
+        type			::huddle::type
+        remove			::huddle::remove
+        equal			::huddle::equal
+        exists			::huddle::exists
+        clone			::huddle::clone
+        isHuddle		::huddle::isHuddle
+        wrap			::huddle::wrap
+        unwrap			::huddle::unwrap
+        addType			::huddle::addType
+        jsondump		::huddle::jsondump
+        compile			::huddle::compile
     }
 }
 
@@ -89,9 +89,9 @@ proc ::huddle::addType {typeNamespace} {
             set types(superclass:$tag) $superclass
         }
 
-	set types(type:$tag) $typeName
-	set types(callback:$tag) $typeCommand
-	set types(isContainer:$tag) $isContainer
+        set types(type:$tag) $typeName
+        set types(callback:$tag) $typeCommand
+        set types(isContainer:$tag) $isContainer
         set types(tagOfType:$typeName) $tag
     }
 
@@ -132,26 +132,27 @@ proc ::huddle::unknown_subcommand {ensembleCmd subcommand args} {
     if [dict exists $settings superclass] {
         set superclass [dict get $settings superclass]
 
-	set map [namespace ensemble configure $ensembleCmd -map]
-	dict set map $subcommand [list ::huddle::Type_$superclass $subcommand]
+        set map [namespace ensemble configure $ensembleCmd -map]
+        dict set map $subcommand [list ::huddle::Type_$superclass $subcommand]
 
-	namespace ensemble configure $ensembleCmd -map $map
-	return ""
+        namespace ensemble configure $ensembleCmd -map $map
+        return ""
     } else {
-	error "Invalid subcommand '$subcommand' for type '$ensembleCmd'"
+        error "Invalid subcommand '$subcommand' for type '$ensembleCmd'"
     }
 }
 
 proc ::huddle::isHuddle {obj} {
     if {[lindex $obj 0] ne "HUDDLE" || [llength $obj] != 2} {
-	return 0
+        return 0
     }
+    
     variable types
     set node [lindex $obj 1]
     set tag [lindex $node 0]
 
     if { [array get types "type:$tag"] == ""} {
-	return 0
+        return 0
     }
 
     return 1
@@ -161,13 +162,13 @@ proc ::huddle::strip_node {node} {
     variable types
     foreach {head src} $node break
     if {[info exists types(type:$head)]} {
-	if $types(isContainer:$head) {
-	    return [$types(callback:$head) strip $src]
-	} else {
-	    return $src
-	}
+        if $types(isContainer:$head) {
+            return [$types(callback:$head) strip $src]
+        } else {
+            return $src
+        }
     } else {
-	error "This head '$head' doesn't exists."
+        error "This head '$head' doesn't exists."
     }
 }
 
@@ -180,25 +181,27 @@ proc ::huddle::combine {args} {
     variable types
 
     foreach {obj} $args {
-	checkHuddle $obj
+        checkHuddle $obj
     }
 
     set first_object [lindex $args 0]
     set tag_of_group [lindex [unwrap $first_object] 0]
 
     foreach {obj} $args {
-	set node [unwrap  $obj]
-	foreach {tag src} $node break
+        set node [unwrap  $obj]
+    
+        foreach {tag src} $node break
 
         if {$tag_of_group ne $tag} {
             if [is_superclass_of $tag $tag_of_group] {
-		set tag_of_group $tag
+                set tag_of_group $tag
             } else {
                 if {![is_superclass_of $tag_of_group $tag]} {
                     error "unmatched types are given or one type is not a superclass of the other."
                 }
             }
-	}
+        }
+        
         lappend result {*}$src
     }
 
@@ -208,15 +211,15 @@ proc ::huddle::combine {args} {
 
 proc ::huddle::checkHuddle {huddle_object} {
     if {![isHuddle $huddle_object]} {
-	error "\{$huddle_object\} is not a huddle."
+        error "\{$huddle_object\} is not a huddle."
     }
 }
 
 proc ::huddle::argument_to_node {src {default_tag s}} {
     if {[isHuddle $src]} {
-	return [unwrap $src]
+        return [unwrap $src]
     } else {
-	return [list $default_tag $src]
+        return [list $default_tag $src]
     }
 }
 
@@ -246,9 +249,9 @@ proc ::huddle::retrieve_huddle {huddle_object path striped} {
     set target_node [Find_node [unwrap $huddle_object] $path]
 
     if $striped {
-	return [strip_node $target_node]
+        return [strip_node $target_node]
     } else {
-	return [wrap $target_node]
+        return [wrap $target_node]
     }
 }
 
@@ -270,8 +273,8 @@ proc ::huddle::Find_node {node path} {
     set subnode $node
 
     foreach subpath $path {
-	foreach {tag src} $subnode break
-	set subnode [$types(callback:$tag) get_subnode $src $subpath]
+        foreach {tag src} $subnode break
+        set subnode [$types(callback:$tag) get_subnode $src $subpath]
     }
 
     return $subnode
@@ -285,12 +288,12 @@ proc ::huddle::exists {huddle_object args} {
     set subnode [unwrap $huddle_object]
 
     foreach key $args {
-	foreach {tag src} $subnode break
-	if {$types(isContainer:$tag) && [$types(callback:$tag) exists $src $key] } {
-	    set subnode [$types(callback:$tag) get_subnode $src $key]
-	} else {
-	    return 0
-	}
+        foreach {tag src} $subnode break
+        if {$types(isContainer:$tag) && [$types(callback:$tag) exists $src $key] } {
+            set subnode [$types(callback:$tag) get_subnode $src $key]
+        } else {
+            return 0
+        }
     }
 
     return 1
@@ -316,6 +319,7 @@ proc ::huddle::Append {objvar args} {
 
     upvar $objvar obj
     checkHuddle $obj
+    
     foreach {tag src} [unwrap $obj] break
     set src [$types(callback:$tag) append_subnodes $tag $src $args]
     set obj [wrap [list $tag $src]]
@@ -356,31 +360,32 @@ proc ::huddle::remove_node {node len path} {
     set first_key_to_removed_subnode [lindex $path 0]
 
     if {$len > 1} {
-	if { $types(isContainer:$tag) } {
+        if { $types(isContainer:$tag) } {
 
-	    set subpath_to_removed_subnode [lrange $path 1 end]
+            set subpath_to_removed_subnode [lrange $path 1 end]
 
-	    incr len -1
+            incr len -1
 
-	    set new_src ""
+            set new_src ""
 
-	    foreach item [$types(callback:$tag) items $src] {
-		foreach {key subnode} $item break
-		if {$key eq $first_key_to_removed_subnode} {
-		    set modified_subnode [::huddle::remove_node $subnode $len $subpath_to_removed_subnode]
-		    $types(callback:$tag) set new_src $key $modified_subnode
-		} else {
-		    set cloned_subnode [Clone_node $subnode]
-		    $types(callback:$tag) set new_src $key $cloned_subnode
-		}
-	    }
-	    return [list $tag $new_src]
-	} else {
-	    error "\{$src\} don't have any child node."
-	}
+            foreach item [$types(callback:$tag) items $src] {
+                foreach {key subnode} $item break
+                if {$key eq $first_key_to_removed_subnode} {
+                    set modified_subnode [::huddle::remove_node $subnode $len $subpath_to_removed_subnode]
+                    $types(callback:$tag) set new_src $key $modified_subnode
+                } else {
+                    set cloned_subnode [Clone_node $subnode]
+                    $types(callback:$tag) set new_src $key $cloned_subnode
+                }
+            }
+        
+            return [list $tag $new_src]
+        } else {
+            error "\{$src\} don't have any child node."
+        }
     } else {
-	$types(callback:$tag) remove src $first_key_to_removed_subnode
-	return [list $tag $src]
+        $types(callback:$tag) remove src $first_key_to_removed_subnode
+        return [list $tag $src]
     }
 }
 
@@ -411,16 +416,16 @@ proc ::huddle::Clone_node {node} {
     foreach {tag src} $node break
 
     if { $types(isContainer:$tag) } {
-	set cloned_src ""
+        set cloned_src ""
 
-	foreach item [$types(callback:$tag) items $src] {
-	    foreach {key subnode} $item break
-	    set cloned_subnode [Clone_node $subnode]
-	    $types(callback:$tag) set cloned_src $key $cloned_subnode
-	}
-	return [list $tag $cloned_src]
+        foreach item [$types(callback:$tag) items $src] {
+            foreach {key subnode} $item break
+            set cloned_subnode [Clone_node $subnode]
+            $types(callback:$tag) set cloned_src $key $cloned_subnode
+        }
+        return [list $tag $cloned_src]
     } else {
-	return $node
+        return $node
     }
 }
 
@@ -441,34 +446,34 @@ proc ::huddle::Apply_to_subnode {subcommand node_var len path {subcommand_argume
 
     if {$len > 1} {
 
-	set subpath [lrange $path 1 end]
+        set subpath [lrange $path 1 end]
 
-	incr len -1
+        incr len -1
 
-	if { $types(isContainer:$tag) } {
+        if { $types(isContainer:$tag) } {
 
-	    set subnode [$types(callback:$tag) get_subnode $src $key]
+            set subnode [$types(callback:$tag) get_subnode $src $key]
 
-	    # We delete the internal reference of $src to $subnode.
-	    # Now refcount of $subnode is 1
-	    $types(callback:$tag) delete_subnode_but_not_key src $key
+            # We delete the internal reference of $src to $subnode.
+            # Now refcount of $subnode is 1
+            $types(callback:$tag) delete_subnode_but_not_key src $key
 
-	    ::huddle::Apply_to_subnode $subcommand subnode $len $subpath $subcommand_arguments
+            ::huddle::Apply_to_subnode $subcommand subnode $len $subpath $subcommand_arguments
 
-	    # We add again the new $subnode to the original $src
-	    $types(callback:$tag) set src $key $subnode
+            # We add again the new $subnode to the original $src
+            $types(callback:$tag) set src $key $subnode
 
-	    # We add again the new $src to the parent node
-	    lset node 1 $src
+            # We add again the new $src to the parent node
+            lset node 1 $src
 
-	} else {
-	    error "\{$src\} don't have any child node."
-	}
+        } else {
+            error "\{$src\} don't have any child node."
+        }
     } else {
-	if {![info exists types(type:$tag)]} {error "\{$src\} is not a huddle node."}
+        if {![info exists types(type:$tag)]} {error "\{$src\} is not a huddle node."}
 
-	$types(callback:$tag) $subcommand src $key $subcommand_arguments
-	lset node 1 $src
+        $types(callback:$tag) $subcommand src $key $subcommand_arguments
+        lset node 1 $src
     }
 }
 
@@ -482,54 +487,58 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
     set type [huddle type $huddle_object]
 
     switch -- $type {
-	boolean -
-	number -
-	null {
-	    return [huddle get_stripped $huddle_object]
-	}
+        boolean -
+        number -
+        null {
+            return [huddle get_stripped $huddle_object]
+        }
 
-	string {
-	    set data [huddle get_stripped $huddle_object]
+        string {
+            set data [huddle get_stripped $huddle_object]
 
-	    # JSON permits only oneline string
-	    set data [string map {
-		\n \\n
-		\t \\t
-		\r \\r
-		\b \\b
-		\f \\f
-		\\ \\\\
-		    \" \\\"
-		/ \\/
-	    } $data
-		     ]
+            # JSON permits only oneline string
+			set data [string map {
+					\n \\n
+					\t \\t
+					\r \\r
+					\b \\b
+					\f \\f
+					\\ \\\\
+					\" \\\"
+					/ \\/
+				} $data
+			]
 	    return "\"$data\""
-	}
-	list {
-	    set inner {}
-	    set len [huddle llength $huddle_object]
-	    for {set i 0} {$i < $len} {incr i} {
-		set subobject [huddle get $huddle_object $i]
-		lappend inner [jsondump $subobject $offset $newline $nextoff]
-	    }
-	    if {[llength $inner] == 1} {
-		return "\[[lindex $inner 0]\]"
-	    }
-	    return "\[$nlof[join $inner ,$nlof]$newline$begin\]"
-	}
-	dict {
-	    set inner {}
-	    foreach {key} [huddle keys $huddle_object] {
-		lappend inner [subst {"$key":$sp[jsondump [huddle get $huddle_object $key] $offset $newline $nextoff]}]
-	    }
-	    if {[llength $inner] == 1} {
-		return $inner
-	    }
-	    return "\{$nlof[join $inner ,$nlof]$newline$begin\}"
-	}
-	default {
-	    return [$types(callback:$type) jsondump $data $offset $newline $nextoff]
-	}
+        }
+        
+        list {
+            set inner {}
+            set len [huddle llength $huddle_object]
+            for {set i 0} {$i < $len} {incr i} {
+                set subobject [huddle get $huddle_object $i]
+                lappend inner [jsondump $subobject $offset $newline $nextoff]
+            }
+            if {[llength $inner] == 1} {
+                return "\[[lindex $inner 0]\]"
+            }
+            
+            return "\[$nlof[join $inner ,$nlof]$newline$begin\]"
+        }
+        
+        dict {
+            set inner {}
+            foreach {key} [huddle keys $huddle_object] {
+                lappend inner [subst {"$key":$sp[jsondump [huddle get $huddle_object $key] $offset $newline $nextoff]}]
+            }
+            if {[llength $inner] == 1} {
+                return $inner
+            }
+            return "\{$nlof[join $inner ,$nlof]$newline$begin\}"
+        }
+        
+        default {
+            return [$types(callback:$type) jsondump $data $offset $newline $nextoff]
+        }
     }
 }
 
@@ -546,71 +555,81 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
 
 proc ::huddle::compile {spec data} {
     while {[llength $spec]} {
-	set type [lindex $spec 0]
-	set spec [lrange $spec 1 end]
+        set type [lindex $spec 0]
+        set spec [lrange $spec 1 end]
 
-	switch -- $type {
-	    dict {
-		if {![llength $spec]} {
-		    lappend spec * string
-		}
+        switch -- $type {
+            dict {
+                if {![llength $spec]} {
+                    lappend spec * string
+                }
 
-		set result [huddle create]
-		foreach {key value} $data {
-		    foreach {matching_key subspec} $spec {
-			if {[string match $matching_key $key]} {
-			    Append result $key [compile $subspec $value]
-			    break
-			}
-		    }
-		}
-		return $result
-	    }
-	    list {
-		if {![llength $spec]} {
-		    set spec string
-		} else {
-		    set spec [lindex $spec 0]
-		}
-		set result [huddle list]
-		foreach list_item $data {
-		    Append result [compile $spec $list_item]
-		}
-		return $result
-	    }
-	    string {
-		return [wrap [list s $data]]
-	    }
-	    number {
-		if {[string is double -strict $data]} {
-		    return [wrap [list num $data]]
-		} else {
-		    error "Bad number: $data"
-		}
-	    }
-	    bool {
-		if {$data} {
-		    return [wrap [list bool true]]
-		} else {
-		    return [wrap [list bool false]]
-		}
-	    }
-	    null {
-		if {$data eq ""} {
-		    return [wrap [list null]]
-		} else {
-		    error "Data must be an empty string: '$data'"
-		}
-	    }
-	    huddle {
-		if {[isHuddle $data]} {
-		    return $data
-		} else {
-		    error "Data is not a huddle object: $data"
-		}
-	    }
-	    default {error "Invalid type: '$type'"}
-	}
+                set result [huddle create]
+                foreach {key value} $data {
+                    foreach {matching_key subspec} $spec {
+                        if {[string match $matching_key $key]} {
+                            Append result $key [compile $subspec $value]
+                            break
+                        }
+                    }
+                }
+                
+                return $result
+            }
+            
+            list {
+                if {![llength $spec]} {
+                    set spec string
+                } else {
+                    set spec [lindex $spec 0]
+                }
+                
+                set result [huddle list]
+                foreach list_item $data {
+                    Append result [compile $spec $list_item]
+                }
+            
+                return $result
+            }
+	    
+            string {
+                return [wrap [list s $data]]
+            }
+	    
+            number {
+                if {[string is double -strict $data]} {
+                    return [wrap [list num $data]]
+                } else {
+                    error "Bad number: $data"
+                }
+            }
+        
+            bool {
+                if {$data} {
+                    return [wrap [list bool true]]
+                } else {
+                    return [wrap [list bool false]]
+                }
+            }
+        
+            null {
+                if {$data eq ""} {
+                    return [wrap [list null]]
+                } else {
+                    error "Data must be an empty string: '$data'"
+                }
+            }
+        
+            huddle {
+                if {[isHuddle $data]} {
+                    return $data
+                } else {
+                    error "Data is not a huddle object: $data"
+                }
+            }
+        
+            default {error "Invalid type: '$type'"}
+        }
     }
 }
 
@@ -618,7 +637,7 @@ apply {{selfdir} {
     source [file join $selfdir huddle_types.tcl]
 
     foreach typeNamespace [namespace children ::huddle::types] {
-	addType $typeNamespace
+        addType $typeNamespace
     }
 
     return
