@@ -21,24 +21,24 @@ namespace eval ::huddle {
     # private procs (e.g. from "set" to "Set")
 
     namespace ensemble create -map {
-        set	    		::huddle::Set
-        append			::huddle::Append
-        get		    	::huddle::Get
-        get_stripped	::huddle::get_stripped
-        unset			::huddle::Unset
-        combine			::huddle::combine
-        combine_relaxed	::huddle::combine_relaxed
-        type			::huddle::type
-        remove			::huddle::remove
-        equal			::huddle::equal
-        exists			::huddle::exists
-        clone			::huddle::clone
-        isHuddle		::huddle::isHuddle
-        wrap			::huddle::wrap
-        unwrap			::huddle::unwrap
-        addType			::huddle::addType
-        jsondump		::huddle::jsondump
-        compile			::huddle::compile
+        set                ::huddle::Set
+        append            ::huddle::Append
+        get                ::huddle::Get
+        get_stripped    ::huddle::get_stripped
+        unset            ::huddle::Unset
+        combine            ::huddle::combine
+        combine_relaxed    ::huddle::combine_relaxed
+        type            ::huddle::type
+        remove            ::huddle::remove
+        equal            ::huddle::equal
+        exists            ::huddle::exists
+        clone            ::huddle::clone
+        isHuddle        ::huddle::isHuddle
+        wrap            ::huddle::wrap
+        unwrap            ::huddle::unwrap
+        addType            ::huddle::addType
+        jsondump        ::huddle::jsondump
+        compile            ::huddle::compile
     }
 }
 
@@ -497,18 +497,18 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
             set data [huddle get_stripped $huddle_object]
 
             # JSON permits only oneline string
-			set data [string map {
-					\n \\n
-					\t \\t
-					\r \\r
-					\b \\b
-					\f \\f
-					\\ \\\\
-					\" \\\"
-					/ \\/
-				} $data
-			]
-	    return "\"$data\""
+            set data [string map {
+                    \n \\n
+                    \t \\t
+                    \r \\r
+                    \b \\b
+                    \f \\f
+                    \\ \\\\
+                    \" \\\"
+                    / \\/
+                } $data
+            ]
+        return "\"$data\""
         }
         
         list {
@@ -591,11 +591,11 @@ proc ::huddle::compile {spec data} {
             
                 return $result
             }
-	    
+        
             string {
                 return [wrap [list s $data]]
             }
-	    
+        
             number {
                 if {[string is double -strict $data]} {
                     return [wrap [list num $data]]
