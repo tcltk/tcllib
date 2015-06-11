@@ -226,3 +226,6 @@ proc ::nettool::status {} {
   return $result
 }
 
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(HOME) Library {Application Support} $appname]
+}
