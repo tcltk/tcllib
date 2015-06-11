@@ -2,41 +2,54 @@
 # (c) 2015 Miguel Martínez López
 
 package require Tcl 8.5
-package require TclOO       ; # For 8.5. Integrated with 8.6
-package require try         ; # For 8.5. Integrated with 8.6. Tcllib.
+package require TclOO	    ; # For 8.5. Integrated with 8.6
+package require try	    ; # For 8.5. Integrated with 8.6. Tcllib.
 package require huddle 0.1.7
 
 package provide huddle::json 0.1
+
 
 namespace eval ::huddle {
     namespace export json2huddle
 
     proc json2huddle {jsonText} {
-	::huddle::json::json2huddle init $jsonText
-	return [::huddle::json::json2huddle parse]
+	set huddle_object [::huddle::json::json2huddle parse $jsonText]
+	return $huddle_object
     }
 }
 
-namespace eval ::huddle::json {
-    oo::class create Json2huddle {
-	variable cursor jsonText EndOfText numberRE
 
+namespace eval ::huddle::json {
+    
+    if {[package vcompare [package present Tcl] 8.6] < 0} {
+	# Emulate Tcl 8.6 command in Tcl < 8.6.
+	proc ::throw {code msg} {
+	    return -code error -errorcode $code $msg
+	}
+    }
+    
+    oo::class create Json2huddle {
+	
+	variable cursor jsonText EndOfTextException numberRE
+	
 	constructor {} {
 	    set positiveRE {[1-9][[:digit:]]*}
 	    set cardinalRE "-?(?:$positiveRE|0)"
 	    set fractionRE {[.][[:digit:]]+}
 	    set exponentialRE {[eE][+-]?[[:digit:]]+}
 	    set numberRE "${cardinalRE}(?:$fractionRE)?(?:$exponentialRE)?"
-
+	    
 	    # Exception code for "End of Text" signal
-	    set EndOfText 5
-	}
-
-	method init {json_to_parse} {
+	    set EndOfTextException 5
+	}		
+	
+	method parse {json_to_parse} {
 	    set cursor -1
 	    set jsonText $json_to_parse
+	    
+	    my parse_next_json_data
 	}
-
+	
 	method peekChar { {increment 1} } {
 	    return [string index $jsonText [expr $cursor+$increment]]
 	}
@@ -44,48 +57,49 @@ namespace eval ::huddle::json {
 	method advanceCursor { {increment 1} } {
 	    incr cursor $increment
 	}
-
+	
 	method nextChar {} {
 	    if {$cursor + 1 < [string length $jsonText] } {
 		incr cursor
-		return [string index $jsonText $cursor]
+		return [string index $jsonText $cursor] 
 	    } else {
-		return -code $EndOfText
+		return -code $EndOfTextException
 	    }
 	}
-
+	
 	method assertNext {ch {target ""}} {
 	    incr cursor
-
+	    
 	    if {[string index $jsonText $cursor] != $ch} {
 		if {$target == ""} {
 		    set target $ch
 		}
-		return -code error -errorcode {HUDDLE JSONparser} \
-		    "Trying to read the string $target at index $cursor."
+		throw {HUDDLE JSONparser} "Trying to read the string $target at index $cursor."
 	    }
 	}
-
-	method parse {} {
+	
+	
+	method parse_next_json_data {} {
+	    
 	    my eatWhitespace
-
+	    
 	    set ch [my peekChar]
-
+	    
 	    if {$ch eq ""} {
-		return -code error -errorcode {HUDDLE JSONparser} \
-		    {Nothing to read}
+		throw {HUDDLE JSONparser} {Nothing to read}
 	    }
-
+	    
+	    
 	    switch -exact -- $ch {
 		"\{" {
 		    return [my readObject]
-		}
+		} 
 		"\[" {
 		    return [my readArray]
-		}
+		} 
 		"\"" {
 		    return [my readString]
-		}
+		} 
 
 		"t" {
 		    return [my readTrue]
@@ -95,10 +109,10 @@ namespace eval ::huddle::json {
 		}
 		"n" {
 		    return [my readNull]
-		}
+		} 
 		"/" {
 		    my readComment
-		    return [my parse]
+		    return [my parse_next_json_data]
 		}
 		"-" -
 		"0" -
@@ -112,19 +126,18 @@ namespace eval ::huddle::json {
 		"8" -
 		"9" {
 		    return [my readNumber]
-		}
+		} 
 		default {
-		    return -code error -errorcode {HUDDLE JSONparser} \
-			"Input is not valid JSON: '$jsonText'"
+		    throw {HUDDLE JSONparser} "Input is not valid JSON: '$jsonText'" 
 		}
 	    }
 	}
-
+	
 	method eatWhitespace {} {
 
 	    while {true} {
 		set ch [my peekChar]
-
+		
 		if [string is space -strict $ch] {
 		    my advanceCursor
 		} elseif {$ch eq "/"} {
@@ -135,7 +148,7 @@ namespace eval ::huddle::json {
 	    }
 	}
 
-
+	
 	method readTrue {} {
 	    my assertNext t true
 	    my assertNext r true
@@ -143,8 +156,8 @@ namespace eval ::huddle::json {
 	    my assertNext e true
 	    return [::huddle true]
 	}
-
-
+	
+	
 	method readFalse {} {
 	    my assertNext f false
 	    my assertNext a false
@@ -153,8 +166,8 @@ namespace eval ::huddle::json {
 	    my assertNext e false
 	    return [::huddle false]
 	}
-
-
+	
+	
 	method readNull {} {
 	    my assertNext n null
 	    my assertNext u null
@@ -162,8 +175,9 @@ namespace eval ::huddle::json {
 	    my assertNext l null
 	    return [::huddle null]
 	}
-
+	
 	method readComment {} {
+
 	    switch -exact -- [my peekChar 1][my peekChar 2] {
 		"//" {
 		    my readDoubleSolidusComment
@@ -172,20 +186,20 @@ namespace eval ::huddle::json {
 		    my readCStyleComment
 		}
 		default {
-		    return -code error -errorcode {HUDDLE JSONparser} \
-			"Not a valid JSON comment: $jsonText"
+		    throw {HUDDLE JSONparser} "Not a valid JSON comment: $jsonText"
 		}
 	    }
 	}
-
+	
 	method readCStyleComment {} {
 	    my assertNext "/" "/*"
 	    my assertNext "*" "/*"
-
+	    
 	    try {
+		
 		while {true} {
 		    set ch [my nextChar]
-
+		    
 		    switch -exact -- $ch {
 			"*" {
 			    if { [my peekChar] eq "/"} {
@@ -195,33 +209,31 @@ namespace eval ::huddle::json {
 			}
 			"/" {
 			    if { [my peekChar] eq "*"} {
-				return -code error -errorcode {HUDDLE JSONparser} \
-				    "Not a valid JSON comment: $jsonText, '/*' cannot be embedded in the comment at index $cursor."
+				throw {HUDDLE JSONparser} "Not a valid JSON comment: $jsonText, '/*' cannot be embedded in the comment at index $cursor." 
 			    }
 			}
 
-		    }
+		    } 
 		}
-
-	    } on $EndOfText {} {
-		return -code error -errorcode {HUDDLE JSONparser} \
-		    "not a valid JSON comment: $jsonText, expected */"
+		
+	    } on $EndOfTextException {} {
+		throw {HUDDLE JSONparser} "not a valid JSON comment: $jsonText, expected */"
 	    }
 	}
 
-
+	
 	method readDoubleSolidusComment {} {
 	    my assertNext "/" "//"
 	    my assertNext "/" "//"
-
+	    
 	    try {
 		set ch [my nextChar]
 		while { $ch ne "\r" && $ch ne "\n"} {
 		    set ch [my nextChar]
 		}
-	    } on $EndOfText {} {}
+	    } on $EndOfTextException {} {}
 	}
-
+	
 	method readArray {} {
 	    my assertNext "\["
 	    my eatWhitespace
@@ -230,36 +242,37 @@ namespace eval ::huddle::json {
 		my advanceCursor
 		return [huddle list]
 	    }
-
-	    try {
+	    
+	    try {		
 		while {true} {
-
-		    lappend result [my parse]
-
+		    
+		    lappend result [my parse_next_json_data]
+		    
 		    my eatWhitespace
-
+		    
 		    set ch [my nextChar]
-
+		    
 		    if {$ch eq "\]"} {
 			break
 		    } else {
 			if {$ch ne ","} {
-			    return -code error -errorcode {HUDDLE JSONparser} \
-				"Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
+			    throw {HUDDLE JSONparser} "Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
 			}
-
+			
 			my eatWhitespace
 		    }
 		}
-	    } on $EndOfText {} {
-		return -code error -errorcode {HUDDLE JSONparser} \
-"Not a valid JSON string: '$jsonText'"
+	    } on $EndOfTextException {} {
+		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
 	    }
-
+	    
 	    return [huddle list {*}$result]
 	}
-
+	
+	
+	
 	method readObject {} {
+
 	    my assertNext "\{"
 	    my eatWhitespace
 
@@ -267,70 +280,69 @@ namespace eval ::huddle::json {
 		my advanceCursor
 		return [huddle create]
 	    }
-
-	    try {
+	    
+	    try {		
 		while {true} {
 		    set key [my readStringLiteral]
-
+		    
 		    my eatWhitespace
-
+		    
 		    set ch [my nextChar]
-
+		    
 		    if { $ch ne ":"} {
-			return -code error -errorcode {HUDDLE JSONparser} \
-			    "Not a valid JSON object: '$jsonText' due to: '$ch' at index $cursor."
+			throw {HUDDLE JSONparser} "Not a valid JSON object: '$jsonText' due to: '$ch' at index $cursor."
 		    }
-
+		    
 		    my eatWhitespace
-
-		    lappend result $key [my parse]
-
+		    
+		    lappend result $key [my parse_next_json_data]
+		    
 		    my eatWhitespace
-
+		    
 		    set ch [my nextChar]
-
+		    
 		    if {$ch eq "\}"} {
 			break
 		    } else {
 			if {$ch ne ","} {
-			    return -code error -errorcode {HUDDLE JSONparser} \
-				"Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
+			    throw {HUDDLE JSONparser} "Not a valid JSON array: '$jsonText' due to: '$ch' at index $cursor."
 			}
-
+			
 			my eatWhitespace
 		    }
 		}
-	    } on $EndOfText {} {
-		return -code error -errorcode {HUDDLE JSONparser} \
-		    "Not a valid JSON string: '$jsonText'"
+	    } on $EndOfTextException {} {
+		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
 	    }
-
+	    
 	    return [huddle create {*}$result]
 	}
-
-
+	
+	
 	method readNumber {} {
 	    regexp -start $cursor -- $numberRE $jsonText number
 	    my advanceCursor [string length $number]
-
+	    
 	    return [huddle number $number]
-	}
-
+	}	
+	
 	method readString {} {
 	    set string [my readStringLiteral]
 	    return [huddle string $string]
 	}
+	
 
 	method readStringLiteral {} {
+	    
 	    my assertNext "\""
-
+	    
 	    set result ""
 	    try {
 		while {true} {
 		    set ch [my nextChar]
-
+		    
 		    if {$ch eq "\""} break
-
+		    
 		    if {$ch eq "\\"} {
 			set ch [my nextChar]
 			switch -exact -- $ch {
@@ -353,25 +365,25 @@ namespace eval ::huddle::json {
 				set ch [format "%c" 0x[my nextChar][my nextChar][my nextChar][my nextChar]]
 			    }
 			    "\"" {}
-			    "/"  {}
+			    "/"	 {}
 			    "\\" {}
 			    default {
-				return -code error -errorcode {HUDDLE JSONparser} \
-				    "Not a valid escaped JSON character: '$ch' in $jsonText"
+				throw {HUDDLE JSONparser} "Not a valid escaped JSON character: '$ch' in $jsonText"
 			    }
 			}
 		    }
 		    append result $ch
 		}
-	    } on $EndOfText {} {
-		return -code error -errorcode {HUDDLE JSONparser} \
-		    "Not a valid JSON string: '$jsonText'"
+	    } on $EndOfTextException {} {
+		throw {HUDDLE JSONparser} "Not a valid JSON string: '$jsonText'"
 	    }
 
 	    return $result
 	}
-
-    }
-
+	
+    }	
+    
     Json2huddle create json2huddle
 }
+
+
