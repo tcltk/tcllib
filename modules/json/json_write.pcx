@@ -33,7 +33,7 @@ pcx::check 1.0 std ::json::write {checkSimpleArgs 1 -1 {
 	{object {checkSimpleArgsModNk 0 2 {
 	    checkWord
 	    checkWord
-	}}}}
+	}}}
     } {}}
 }
 
