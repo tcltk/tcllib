@@ -45,6 +45,7 @@ pcx::check 0.4 std ::tar::create \
 	checkFileName
 	{checkListValues 1 -1 checkFileName}
 	{checkSwitches 1 {
+	    {-chan        checkChannelID}
 	    {-dereference checkBoolean}
 	} {}}
     }}
@@ -67,11 +68,12 @@ pcx::check 0.4 std ::tar::untar \
     {checkSimpleArgs 1 -1 {
 	checkFileName
 	{checkSwitches 1 {
+	    {-chan        checkChannelID}
 	    {-dir         checkFileName}
 	    {-file        checkFileName}
 	    {-glob        checkPattern}
-	    {-nooverwrite checkBoolean}
 	    {-nomtime     checkBoolean}
+	    {-nooverwrite checkBoolean}
 	    {-noperms     checkBoolean}
 	} {}}
     }}
