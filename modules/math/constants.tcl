@@ -33,7 +33,7 @@ namespace eval ::math::constants {
         radtodeg  57.2957795131            "Conversion from radians to degrees"
         degtorad  0.017453292519943        "Conversion from degrees to radians"
         onethird  1.0/3.0                  "One third (0.3333....)"
-        twothirds 2.0/3.0                  "Two thirds (0.3333....)"
+        twothirds 2.0/3.0                  "Two thirds (0.6666....)"
         onesixth  1.0/6.0                  "One sixth (0.1666....)"
         huge      [find_huge]              "(Approximately) largest number"
         tiny      [find_tiny]              "(Approximately) smallest number not equal zero"
