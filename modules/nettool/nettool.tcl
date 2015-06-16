@@ -1,7 +1,11 @@
 # @mdgen OWNER: generic.tcl
 # @mdgen OWNER: available_ports.tcl
 # @mdgen OWNER: locateport.tcl
-# @mdgen OWNER: platform_*.tcl
+# @mdgen OWNER: platform_unix_linux.tcl
+# @mdgen OWNER: platform_unix_macosx.tcl
+# @mdgen OWNER: platform_unix.tcl
+# @mdgen OWNER: platform_windows.tcl
+
 
 package require platform
 # Uses the "ip" package from tcllib
