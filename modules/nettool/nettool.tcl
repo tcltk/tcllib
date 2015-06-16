@@ -6,7 +6,6 @@
 # @mdgen OWNER: platform_unix.tcl
 # @mdgen OWNER: platform_windows.tcl
 
-package provide nettool 0.4
 
 package require platform
 # Uses the "ip" package from tcllib
@@ -69,4 +68,5 @@ if {[file exists $genfile]} {
 }
 
 ::nettool::init
+package provide nettool 0.5
 
