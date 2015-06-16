@@ -90,6 +90,7 @@ Module  json        _tcl  _man  _null
 Module  lambda      _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  {_exax logger}
+Module  markdown     _tcl  _man  _null
 Module  map         _tcl  _man  _null
 Module  mapproj     _tcl  _man _exa
 Module  math         _tci _man _exa
