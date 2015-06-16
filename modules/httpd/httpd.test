@@ -1,0 +1,36 @@
+# httpd.test - Copyright (c) 2015 Sean Woods
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testsNeed TclOO 1
+
+support {
+  use ooutil/oometa.tcl oo::meta
+  use ncgi/ncgi.tcl ncgi
+  use httpd/httpd.tcl httpd
+}
+
+testing {
+  useLocal httpd.tcl httpd
+}
+
+# -------------------------------------------------------------------------
+
+
+httpd::server create TESTAPP port 10001
+vwait forever
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
