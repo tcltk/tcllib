@@ -8,4 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded nettool 0.5 [list source [file join $dir nettool.tcl]]
+package ifneeded scgi::app 0.1 [list source [file join $dir scgi-application.tcl]]
+package ifneeded scgi::server 0.1 [list source [file join $dir scgi-server.tcl]]
