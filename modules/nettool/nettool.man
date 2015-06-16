@@ -131,6 +131,11 @@ Common fields include:
 [def memory_free]  Total physical RAM unused (MB)
 [list_end]
  
+[call [cmd ::nettool::user_data_root] [arg appname]]
+
+Return a fully qualified path to a folder where [arg appname] should store it's data.
+The path is not created, only computed, by this command.
+
 [list_end]
 [para]
 [vset CATEGORY odie]
