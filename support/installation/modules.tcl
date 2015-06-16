@@ -75,6 +75,7 @@ Module  grammar_fa  _tcl  _man  _null
 Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
+Module  httpd       _tcl  _man  _exa
 Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
 Module  http        _tcl  _man  _null
@@ -89,6 +90,7 @@ Module  json        _tcl  _man  _null
 Module  lambda      _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  {_exax logger}
+Module  markdown     _tcl  _man  _null
 Module  map         _tcl  _man  _null
 Module  mapproj     _tcl  _man _exa
 Module  math         _tci _man _exa
@@ -122,6 +124,7 @@ Module  report      _tcl  _man  _null
 Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
+Module  scgi        _tcl  _man  _null
 Module  sha1        _tcl  _man  _null
 Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa
