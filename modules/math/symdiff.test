@@ -359,7 +359,7 @@ test symdiff-25.3 {error handling} {
     }
     -match glob
     -returnCodes error
-    -result {syntax error*}
+    -result {invalid character*}
 }
 
 test symdiff-25.4 {error handling} {
@@ -372,7 +372,7 @@ test symdiff-25.5 {error handling} {
     }
     -returnCodes error
     -match glob
-    -result {syntax error*}
+    -result {invalid character*}
 }
 
 test symdiff-26.1 {unary minus optimization} {
