@@ -205,7 +205,7 @@ proc math::calculus::symdiff::Lexer {expression} {
 
 	    lappend tokens number
 	    lappend values $token
-	} elseif {[regexp {[[:space:]]+(.*)} $expression -> rest]} {
+	} elseif {[regexp {^[[:space:]]+(.*)} $expression -> rest]} {
 
 	    # Whitespace
 
