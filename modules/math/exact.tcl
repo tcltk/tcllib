@@ -25,17 +25,7 @@ namespace eval math::exact {
 	}
 
 	expression ::= expression addop term {
-	    switch -exact -- [lindex $_ 1] {
-		+ {
-		    set result [[dict get $clientData namespace]::+real \
-				    [lindex $_ 0] [lindex $_ 2]]
-		}
-		- {
-		    set result [[dict get $clientData namespace]::-real \
-				    [lindex $_ 0] [lindex $_ 2]]
-		}
-	    }
-	    set result
+	    {*}$_
 	}
 	expression ::= term {
 	    lindex $_ 0
@@ -48,17 +38,7 @@ namespace eval math::exact {
 	}
 
 	term ::= term mulop factor {
-	    switch -exact -- [lindex $_ 1] {
-		* {
-		    set result [[dict get $clientData namespace]::*real \
-				    [lindex $_ 0] [lindex $_ 2]]
-		}
-		/ {
-		    set result [[dict get $clientData namespace]::/real \
-				    [lindex $_ 0] [lindex $_ 2]]
-		}
-	    }
-	    set result
+	    {*}$_
 	}
 	term ::= factor {
 	    lindex $_ 0
@@ -76,8 +56,7 @@ namespace eval math::exact {
 		    set result [lindex $_ 1]
 		}
 		- {
-		    set result [[dict get $clientData namespace]::u-real \
-				    [lindex $_ 1]]
+		    set result [[lindex $_ 1] U-]
 		}
 	    }
 	    set result
@@ -101,9 +80,7 @@ namespace eval math::exact {
 	    uplevel [dict get $clientData caller] set [lindex $_ 1]
 	}
 	primary ::= number {
-	    [dict get $clientData namespace]::Mstrict new \
-		[set [dict get $clientData namespace]::spos] \
-		[[dict get $clientData namespace]::V new [list [lindex $_ 0] 1]]
+	    [dict get $clientData namespace]::V new [list [lindex $_ 0] 1]
 	}
 	primary ::= bareword ( ) {
 	    [dict get $clientData namespace]::function::[lindex $_ 0]
@@ -1239,13 +1216,33 @@ oo::class create math::exact::Expression {
 	return $interval
     }
 
+    # asReal --
+    #	Coerces an object from rational to real
+    #
+    # Parameters:
+    #	None.
+    #
+    # Results:
+    #	Returns this object
+    method asReal {} {self object}
+
     # asFloat --
     #	Represents this number in E format, after accumulating 'relDigits'
     #	digit matrices.
     method asFloat {relDigits} {
-	return [math::exact::mAsFloat [my getInterval $relDigits]]
+	set v [[my asReal] ref]
+	set result [math::exact::mAsFloat [$v getInterval $relDigits]]
+	$v unref
+	return $result
     }
 
+    # asPrint --
+    #	Represents this number for printing. Represents rationals exactly,
+    #   others after accumulating 'relDigits' digit matrices.
+    method asPrint {relDigits} {
+	tailcall math::exact::mAsFloat [my getInterval $relDigits]
+    }
+    
     # Derived classes are expected to implement the following methods:
     # method dump {} {  
     #	# Formats the object for debugging 
@@ -1273,7 +1270,246 @@ oo::class create math::exact::Expression {
     #	# Returns the result of absorption, which always represents a
     #	# smaller interval than this expression
     # }
-	
+
+    # U- --
+    #
+    #   Unary - applied to this object
+    #
+    # Results:
+    #	Returns the negation.
+
+    method U- {} {
+	my ref
+	lassign [my getSignAndMagnitude] sA mA
+	set m [math::exact::mdotm {{-1 0} {0 1}} $sA]
+	set result [math::exact::Mstrict new $m $mA]
+	my unref
+	return $result
+    }; export U-
+
+    # + --
+    #	Adds this object to another.
+    #
+    # Parameters:
+    #	r - Right addend
+    #
+    # Results:
+    #	Returns the sum
+    #
+    # Either object may be rational (an instance of V) or real (any other
+    # Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method + {r} {
+	return [$r E+ [self object]]
+    }; export +
+
+    # E+ --
+    #	Adds two exact reals.
+    #
+    # Parameters:
+    #	l - Left addend
+    #
+    # Results:
+    #	Returns the sum.
+    #
+    # Neither object is an instance of V (that is, neither is a rational).
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E+ {l} {
+	tailcall math::exact::+real $l [self object]
+    }; export E+
+
+    # V+ --
+    #	Adds a rational and an exact real
+    #
+    # Parameters:
+    #	l - Left addend
+    #
+    # Results:
+    #	Returns the sum.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method V+ {l} {
+	tailcall math::exact::+real $l [self object]
+    }; export V+
+
+    # - --
+    #	Subtracts another object from this object
+    #
+    # Parameters:
+    #	r - Subtrahend
+    #
+    # Results:
+    #	Returns the difference
+    #
+    # Either object may be rational (an instance of V) or real (any other
+    # Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method - {r} {
+	return [$r E- [self object]]
+    }; export -
+
+    # E- --
+    #	Subtracts this exact real from another
+    #
+    # Parameters:
+    #	l - Minuend
+    #
+    # Results:
+    #	Returns the difference
+    #
+    # Neither object is an instance of V (that is, neither is a rational).
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E- {l} {
+	tailcall math::exact::-real $l [self object]
+    }; export E-
+
+    # V- --
+    #	Subtracts this exact real from a rational
+    #
+    # Parameters:
+    #	l - Minuend
+    #
+    # Results:
+    #	Returns the difference
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method V- {l} {
+	tailcall math::exact::-real $l [self object]
+    }; export V-
+
+    # * --
+    #	Multiplies this object by another.
+    #
+    # Parameters:
+    #	r - Right argument to the multiplication
+    #
+    # Results:
+    #	Returns the product
+    #
+    # Either object may be rational (an instance of V) or real (any other
+    # Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method * {r} {
+	return [$r E* [self object]]
+    }; export *
+
+    # E* --
+    #	Multiplies two exact reals.
+    #
+    # Parameters:
+    #	l - Left argument to the multiplication
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # Neither object is an instance of V (that is, neither is a rational).
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E* {l} {
+	tailcall math::exact::*real $l [self object]
+    }; export E*
+
+    # V* --
+    #	Multiplies a rational and an exact real
+    #
+    # Parameters:
+    #	l - Left argument to the multiplication
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method V* {l} {
+	tailcall math::exact::*real $l [self object]
+    }; export V*
+
+    # / --
+    #	Divides this object by another.
+    #
+    # Parameters:
+    #	r - Divisor
+    #
+    # Results:
+    #	Returns the quotient
+    #
+    # Either object may be rational (an instance of V) or real (any other
+    # Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method / {r} {
+	return [$r E/ [self object]]
+    }; export /
+
+    # E/ --
+    #	Divides two exact reals.
+    #
+    # Parameters:
+    #	l - Dividend
+    #
+    # Results:
+    #	Returns the quotient.
+    #
+    # Neither object is an instance of V (that is, neither is a rational).
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E/ {l} {
+	tailcall math::exact::/real $l [self object]
+    }; export E/
+
+    # V/ --
+    #	Divides a rational by an exact real
+    #
+    # Parameters:
+    #	l - Dividend
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method V/ {l} {
+	tailcall math::exact::/real $l [self object]
+    }; export V/
 }
 
 # math::exact::V --
@@ -1369,6 +1605,11 @@ oo::class create math::exact::V {
 	}
     }
 
+    # Get the vector components
+    method getV {} {
+	return $v_
+    }
+
     # Get the (zero-width) interval that the vector represents.
     method getInterval {nDigits} {
 	return [list $v_ $v_]
@@ -1381,6 +1622,284 @@ oo::class create math::exact::V {
 	error "cannot absorb anything into a vector"
     }
 
+    # asReal --
+    #	Coerces an object from rational to real
+    #
+    # Parameters:
+    #	None.
+    #
+    # Results:
+    #	Returns this object converted to an exact real.
+    method asReal {} {
+	my ref
+	lassign [my getSignAndMagnitude] s m
+	set result [math::exact::Mstrict new $s $m]
+	my unref
+	return $result
+    }
+
+    # U- --
+    #
+    #   Unary - applied to this object
+    #
+    # Results:
+    #	Returns the negation.
+
+    method U- {} {
+	my ref
+	lassign $v_ p q
+	set result [math::exact::V new [list [expr {-$p}] $q]]
+	my unref
+	return $result
+    }; export U-
+
+    # + --
+    #	Adds a vector to another object
+    #
+    # Parameters:
+    #	r - Right addend
+    #
+    # Results:
+    #	Returns the sum
+    #
+    # The right-hand addend may be rational (an instance of V) or real
+    # (any other Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method + {r} {
+	return [$r V+ [self object]]
+    }; export +
+
+    # E+ --
+    #	Adds an exact real and a vector
+    #
+    # Parameters:
+    #	l - Left addend
+    #
+    # Results:
+    #	Returns the sim.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E+ {l} {
+	tailcall math::exact::+real $l [self object]
+    }; export E+
+
+    # V+ --
+    #	Adds two rationals
+    #
+    # Parameters:
+    #	l - Rational multiplicand
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    method V+ {l} {
+	my ref
+	$l ref
+	lassign [$l getV] a b
+	lassign $v_ c d
+	$l unref
+	my unref
+	return [math::exact::V new \
+		    [math::exact::vreduce \
+			 [list [expr {$a*$d+$b*$c}] [expr {$b*$d}]]]]
+    }; export V+
+
+    # - --
+    #	Subtracts another object from a vector
+    #
+    # Parameters:
+    #	r - Subtrahend
+    #
+    # Results:
+    #	Returns the difference
+    #
+    # The right-hand operand may be rational (an instance of V) or real
+    # (any other Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method - {r} {
+	return [$r V- [self object]]
+    }; export -
+
+    # E- --
+    #	Subtracts this exact real from a rational
+    #
+    # Parameters:
+    #	l - Left addend
+    #
+    # Results:
+    #	Returns the difference.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E- {l} {
+	tailcall math::exact::-real $l [self object]
+    }; export E-
+
+    # V- --
+    #	Subtracts this rational from another
+    #
+    # Parameters:
+    #	l - Rational minuend
+    #
+    # Results:
+    #	Returns the difference.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    method V- {l} {
+	my ref
+	$l ref
+	lassign [$l getV] a b
+	lassign $v_ c d
+	$l unref
+	my unref
+	return [math::exact::V new \
+		    [math::exact::vreduce \
+			 [list [expr {$a*$d-$b*$c}] [expr {$b*$d}]]]]
+    }; export V-
+
+    # * --
+    #	Multiplies a rational by another object
+    #
+    # Parameters:
+    #	r - Right-hand factor
+    #
+    # Results:
+    #	Returns the difference
+    #
+    # The right-hand operand may be rational (an instance of V) or real
+    # (any other Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method * {r} {
+	return [$r V* [self object]]
+    }; export *
+
+    # E* --
+    #	Multiplies an exact real and a rational
+    #
+    # Parameters:
+    #	l - Multiplicand
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E* {l} {
+	tailcall math::exact::*real $l [self object]
+    }; export E*
+
+    # V* --
+    #	Multiplies two rationals
+    #
+    # Parameters:
+    #	l - Rational multiplicand
+    #
+    # Results:
+    #	Returns the product.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    method V* {l} {
+	my ref
+	$l ref
+	lassign [$l getV] a b
+	lassign $v_ c d
+	$l unref
+	my unref
+	return [math::exact::V new \
+		    [math::exact::vreduce \
+			 [list [expr {$a*$c}] [expr {$b*$d}]]]]
+    }; export V*
+
+    # / --
+    #	Divides this object by another.
+    #
+    # Parameters:
+    #	r - Divisor
+    #
+    # Results:
+    #	Returns the quotient
+    #
+    # Either object may be rational (an instance of V) or real (any other
+    # Expression).
+    #
+    # This method is a Consumer with respect to the current object and to r.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method / {r} {
+	return [$r V/ [self object]]
+    }; export /
+ 
+   # E/ --
+    #	Divides an exact real and a rational
+    #
+    # Parameters:
+    #	l - Dividend
+    #
+    # Results:
+    #	Returns the quotient.
+    #
+    # The divisor is not a rationa.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    
+    method E/ {l} {
+	tailcall math::exact::/real $l [self object]
+    }; export E/
+
+    # V/ --
+    #	Divides two rationals
+    #
+    # Parameters:
+    #	l - Dividend
+    #
+    # Results:
+    #	Returns the quotient.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+    method V/ {l} {
+	my ref
+	$l ref
+	lassign [$l getV] a b
+	lassign $v_ c d
+	set result [math::exact::V new \
+			[math::exact::vreduce \
+			     [list [expr {$a*$d}] [expr {$b*$c}]]]]
+	$l unref
+	my unref
+	return $result
+    }; export V/
+    
 }
 
 # math::exact::M --
@@ -1759,23 +2278,22 @@ proc math::exact::-real {a b} { variable tsub; return [opreal $tsub $a $b] }
 proc math::exact::*real {a b} { variable tmul; return [opreal $tmul $a $b] }
 proc math::exact::/real {a b} { variable tdiv; return [opreal $tdiv $a $b] }
 
-# math::exact::u-real --
+# real --
 #
-#	Unary minus applied to an exact real
+#	Coerce an argument to exact-real (possibly from rational)
 #
 # Parameters:
-#	a - Operand
+#	x - Argument to coerce.
 #
 # Results:
-#	Returns -a
+#	Returns the argument coerced to a real.
+#
+# This operation either does nothing and returns its argument, or is a
+# Consumer with respect to its argument and a Constructor with respect to
+# its result.
 
-proc math::exact::u-real {a} {
-    $a ref
-    lassign [$a getSignAndMagnitude] sA mA
-    $mA ref; $a unref
-    set m [mdotm {{-1 0} {0 1}} $sA]
-    set result [math::exact::Mstrict new $m $mA]
-    $mA unref; return $result
+proc math::exact::function::real {x} {
+    tailcall $x asReal
 }
 
 # SqrtWorker --
