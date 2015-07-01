@@ -547,7 +547,7 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {1}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
@@ -559,7 +559,7 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {+ 1}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
@@ -571,127 +571,127 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {- 1}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 -9.999999999999999e-1}
+	-result {-1 -9.999999999999999e-1}
     }
 
     test math::exact-40.4 {product} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 * 3}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 6.000000000000000e0}
+	-result {6 6.000000000000000e0}
     }
 
     test math::exact-40.5 {quotient} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 / 3}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 6.666666666666666e-1}
+	-result {2/3 6.666666666666666e-1}
     }
 
     test math::exact-40.6 {associativity of /} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 / 3 / 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 1.6666666666666667e-1}
+	-result {1/6 1.6666666666666667e-1}
     }
 
     test math::exact-40.7 {associativity of */} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 / 3 * 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 2.6666666666666667e0}
+	-result {8/3 2.6666666666666667e0}
     }
 
     test math::exact-40.8 {associativity of */} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 * 3 / 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 1.5000000000000000e0}
+	-result {3/2 1.5000000000000000e0}
     }
 
     test math::exact-40.9 {sum} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 + 3}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 5.000000000000000e0}
+	-result {5 5.000000000000000e0}
     }
 
     test math::exact-40.10 {difference} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 - 3}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 -9.999999999999999e-1}
+	-result {-1 -9.999999999999999e-1}
     }
 
     test math::exact-40.11 {associativity of -} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 - 3 - 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 -5.000000000000000e0}
+	-result {-5 -5.000000000000000e0}
     }
 
     test math::exact-40.12 {associativity of +-} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 - 3 + 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 3.0000000000000001e0}
+	-result {3 3.0000000000000001e0}
     }
 
     test math::exact-40.13 {associativity of +-} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 + 3 - 4}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
@@ -703,37 +703,122 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {3 + 5 * 7}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 3.800000000000000e1}
+	-result {38 3.800000000000000e1}
     }
 
     test math::exact-40.15 {precedence of +*} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {3 * 5 + 7}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 2.200000000000000e1}
+	-result {22 2.200000000000000e1}
     }
 
     test math::exact-40.16 {parentheses} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {(2 + 3) * 5}] ref]
-	    set result [list [$v refcount] [$v asFloat 57]]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
 	    set result
 	}
-	-result {1 2.500000000000000e1}
+	-result {25 2.500000000000000e1}
     }
+
+    test math::exact::40.17 {V + E} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {2 + real(-3/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1.4000000000000000e0 1.4000000000000000e0}
+    }
+
+    test math::exact::40.18 {V - E} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {2 - real(3/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1.4000000000000000e0 1.4000000000000000e0}
+    }
+
+    test math::exact::40.19 {E / E} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {real(3/5)/real(2/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1.5000000000000000e0 1.5000000000000000e0}
+    }
+
+    test math::exact::40.20 {E + V} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {real(3/2) + (2/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1.9000000000000000e0 1.9000000000000000e0}
+    }
+	
+    test math::exact::40.21 {E - V} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {real(3/2) - (2/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1.1000000000000000e0 1.1000000000000000e0}
+    }
+
+    test math::exact::40.22 {E * V} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {real(3/2) * (2/5)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {6.0000000000000001e-1 6.0000000000000001e-1}
+    }
+	
+    test math::exact::40.23 {E / V} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {real(3/2) / (5/2)}] ref]
+	    set result [list [$v asPrint 57] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {6.0000000000000001e-1 6.0000000000000001e-1}
+    }
+	
 
     test math::exact-41.1 {square root} {
 	-setup leakBaseline
@@ -1507,6 +1592,53 @@ namespace eval math::exact::test {
 	-result {-5.4930614433405485e-1 0e-18 5.4930614433405485e-1}
     }
     
+    test math::exact-52.1 {e} {
+	-setup {
+	    # don't report cached digits of e as a leak
+	    $math::exact::e asPrint 100;
+	    leakBaseline
+	}
+	-body {
+	    set v [[math::exact::expr {e()}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 2.7182818284590452e0
+    }
+    
+    test math::exact-52.2 {e} {
+	-setup {
+	    # don't report cached digits of e as a leak
+	    $math::exact::e asPrint 100;
+	    leakBaseline
+	}
+	-body {
+	    set v [[math::exact::expr {log(e())}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1.0000000000000000e0
+    }
+
+    test math::exact-52.2 {e} {
+	-setup {
+	    # don't report cached digits of e as a leak
+	    $math::exact::e asPrint 100;
+	    leakBaseline
+	}
+	-body {
+	    set v [[math::exact::expr {asinh((e() - 1/e()) / 2)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1.0000000000000000e0
+    }
     
     testsuiteCleanup
 
