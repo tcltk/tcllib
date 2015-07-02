@@ -868,6 +868,58 @@ namespace eval math::exact::test {
 	-result {1 1.41421356237309e-3}
     }
 
+    test math::exact::41.5 {square root} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(sqrt(1/81))}] ref]
+	    set result [list [$v refcount] [$v asFloat 57]]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1 3.3333333333333333e-1}
+    }
+
+    test math::exact::41.6 {square root of negative rational} {
+	-setup {
+	    leakBaseline
+	    catch {unset v}
+	}
+	-body {
+	    set v [[math::exact::expr {sqrt(-1)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    unset v
+	    set result
+	}
+	-cleanup {
+	    if {[info exists v]} {$v unref}
+	}
+	-match glob
+	-returnCodes error
+	-result {*negative argument*}
+    }
+
+    test math::exact::41.7 {square root of negative real} {
+	-setup {
+	    leakBaseline
+	    catch {unset v}
+	}
+	-body {
+	    set v [[math::exact::expr {sqrt(-sqrt(81))}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    unset v
+	    set result
+	}
+	-cleanup {
+	    if {[info exists v]} {$v unref}
+	}
+	-match glob
+	-returnCodes error
+	-result {*negative argument*}
+    }
+    
     test math::exact-42.1 {exponential} {
 	-setup leakBaseline
 	-body {
@@ -1006,6 +1058,26 @@ namespace eval math::exact::test {
 	    set result
 	}
 	-result {1 1.0000000000000000e-1}
+    }
+
+    test math::exact-43.8 {logarithm of negative argument} {
+	-setup {
+	    leakBaseline
+	    catch {unset v}
+	}
+	-body {
+	    set v [[math::exact::expr {log(-sqrt(81))}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    unset v
+	    set result
+	}
+	-cleanup {
+	    if {[info exists v]} {$v unref}
+	}
+	-match glob
+	-returnCodes error
+	-result {*negative argument*}
     }
 
     test math::exact-44.1 {pi} {
@@ -1640,6 +1712,70 @@ namespace eval math::exact::test {
 	-result 1.0000000000000000e0
     }
     
+    # following are demos that I don't know where to put, yet
+
+    if 0 {
+    set p 1
+    for {set i 0} {$i < 36} {incr i} {
+	puts "floating: sin($p) == [expr {sin($p)}]"
+	set v [[math::exact::expr sin($p)] ref]
+	puts "exact:    sin($p) == [$v asPrint 57]"
+	$v unref
+	set p [expr {11 * $p}]
+    }
+    }
+
+    if 0 { # blows up because of memory consumption
+    set p 0.5
+    set q [[math::exact::expr 1/2] ref]
+    for {set i 0} {$i < 100} {incr i} {
+	set p [expr {(15./4.) * $p * (1.0-$p)}]
+	set q2 [[math::exact::expr {15/4 * real($q) * real((1-$q))}] ref]
+	$q unref
+	set q $q2
+	puts "iteration $i: float $p exact [$q asFloat 57]"
+	puts [$q dump]
+    }
+    $q unref
+    }
+    
+    if 0 {
+    for {set x 1} {$x < 12000} {incr x 100} {
+    set ex [[math::exact::expr $x] ref]
+    set fa [expr {-($x**-4.0)}]
+    set ea [[math::exact::expr {-1/$ex/$ex/$ex/$ex}] ref]
+    set fb [expr {exp($fa)}]
+    set eb [[math::exact::expr {exp($ea)}] ref]
+    set fc [expr {log($fb)}]
+    set ec [[math::exact::expr {log($eb)}] ref]
+    set ff [expr {(-$fc) ** -0.25}]
+    set ef [[math::exact::expr {exp((-1/4) * log(-$ec))}] ref]
+	puts [format "kahan's function: %g %g" $ff [$ef asFloat 28]]
+    $ef unref
+    $ec unref
+    $eb unref
+    $ea unref
+    $ex unref
+    }
+    }
+
+    if 0 {
+    set x0 4.0
+    set x1 4.25
+    set ex0 [[math::exact::expr 4] ref]
+    set ex1 [[math::exact::expr 4+25/100] ref]
+    for {set i 1} {$i < 25} {incr i} {
+	set x2 [expr {108. - (815. - 1500. / $x0) / $x1}]
+	set x0 $x1
+	set x1 $x2
+	set ex2 [[math::exact::expr {108 - (815 - 1500 / $ex0) / $ex1}] ref]
+	$ex0 unref
+	set ex0 $ex1
+	set ex1 $ex2
+	puts "$i $x2 [$ex2 asFloat 57]"
+    }
+    }
+
     testsuiteCleanup
 
 }
