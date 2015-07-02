@@ -1086,8 +1086,35 @@ oo::class create math::exact::counted {
 		}
 	    }
 	}
+
+	# Destroying this object can result in a long chain of object
+	# destruction and eventually a stack overflow. Instead of destroying
+	# immediately, list the objects to be destroyed in
+	# math::exact::deleteStack, and destroy them only from the outermost
+	# stack level that's running 'unref'.
+
 	if {[incr refcount_ -1] <= 0} {
-	    tailcall my destroy
+	    variable ::math::exact::deleteStack
+
+	    # Is this the outermost level?
+	    set queueActive [expr {[info exists deleteStack]}]
+
+	    # Schedule this object's destruction
+	    lappend deleteStack [self object]
+	    if {!$queueActive} {
+
+		# At outermost level, destroy all scheduled objects.
+		# Destroying one may schedule another.
+		while {[llength $deleteStack] != 0} {
+		    set obj [lindex $deleteStack end]
+		    set deleteStack \
+			[lreplace $deleteStack[set deleteStack {}] end end]
+		    $obj destroy
+		}
+
+		# Once everything quiesces, delete the list.
+		unset deleteStack
+	    }
 	}
     }
 
@@ -1510,6 +1537,71 @@ oo::class create math::exact::Expression {
     method V/ {l} {
 	tailcall math::exact::/real $l [self object]
     }; export V/
+
+    # sqrt --
+    #
+    #	Create an expression representing the square root of an exact
+    #	real argument.
+    #
+    # Results:
+    #	Returns the square root.
+    #
+    # This procedure is a Consumer with respect the the argument and a
+    # Constructor with respect to the result, returning a zero-reference
+    # result.
+
+    method sqrt {} {
+	variable ::math::exact::isneg
+	variable ::math::exact::idzer
+	variable ::math::exact::idneg
+	variable ::math::exact::idpos
+	
+	# The algorithm is a modified Newton-Raphson from the Potts and
+	# Menissier-Morain papers. The algorithm for sqrt(x) converges
+	# rapidly only if x is close to 1, so we rescale to make sure that
+	# x is between 1/3 and 3. Specifically:
+	# - if x is known to be negative (that is, if $idneg refines it)
+	#   then error.
+	# - if x is close to 1, $idzer refines it, and we can calculate the
+	#   square root directly.
+	# - if x is less than 1, $idneg refines it, and we calculate sqrt(4*x)
+	#   and multiply by 1/2.
+	# - if x is greater than 1, $idpos refines it, and we calculate
+	#   sqrt(x/4) and multiply by 2.
+	# - if none of the above hold, we have insufficient information about
+	#   the magnitude of x and perform a digit exchange.
+	
+	my ref
+	if {[my refinesM $isneg]} {
+	    # Negative argument is an error
+	    return -code error -errorcode {MATH EXACT SQRTNEGATIVE} \
+		"sqrt of negative argument"
+	} elseif {[my refinesM $idzer]} {
+	    # Argument close to 1
+	    set res [::math::exact::SqrtWorker new [self object]]
+	} elseif {[my refinesM $idneg]} {
+	    # Small argument - multiply by 4 and halve the square root
+	    set y [[my applyM {{4 0} {0 1}}] ref]
+	    set z [[$y sqrt] ref]
+	    set res [$z applyM {{1 0} {0 2}}]
+	    $z unref
+	    $y unref
+	} elseif {[my refinesM $idpos]} {
+	    # Large argument - divide by 4 and double the square root
+	    set y [[my applyM {{1 0} {0 4}}] ref]
+	    set z [[$y sqrt] ref]
+	    set res [$z applyM {{2 0} {0 1}}]
+	    $z unref
+	    $y unref
+	} else {
+	    # Unclassified argyment. Perform a digit exchange and try again.
+	    set y [[my absorb] ref]
+	    set res [$y sqrt]
+	    $y unref
+	}
+	my unref
+	return $res
+    }
 }
 
 # math::exact::V --
@@ -1899,6 +1991,26 @@ oo::class create math::exact::V {
 	my unref
 	return $result
     }; export V/
+
+    # sqrt --
+    #
+    #	Calculates the square root of this object
+    #
+    # Results:
+    #	Returns the square root as an exact real.
+    #
+    # This method is a Consumer with respect to this object and a Constructor
+    # with respect to the result, returning a zero-ref object.
+    method sqrt {} {
+	my ref
+	if {([lindex $v_ 0] < 0) ^ ([lindex $v_ 1] < 0)} {
+	    return -code error -errorCode "MATH EXACT SQRTNEGATIVE" \
+		{square root of negative argument}
+	}
+	set result [::math::exact::Sqrtrat new {*}$v_]
+	my unref
+	return $result
+    }
     
 }
 
@@ -2327,75 +2439,21 @@ oo::class create math::exact::SqrtWorker {
     }
 }
 
-# TODO - Work out handling of sqrt of rational
-
-interp alias {} math::exact::function::sqrt {} math::exact::sqrtreal
-
-# sqrtreal --
+# sqrt --
 #
-#	Create an expression representing the square root of an exact
-#	real argument.
+#	Returns the square root of a number
 #
 # Parameters:
-#	x - Quantity whose square root is to be extracted.
+#	x - Exact real number whose square root is needed.
 #
 # Results:
-#	Returns the square root.
+#	Returns the square root as an exact real.
 #
-# This procedure is a Consumer with respect the the argument and a Constructor
-# with respect to the result, returning a zero-reference result.
+# The number may be rational or real. There is a special optimization used
+# if the number is rational
 
-proc math::exact::sqrtreal {x} {
-    variable isneg
-    variable idzer
-    variable idneg
-    variable idpos
-
-    # The algorithm is a modified Newton-Raphson from the Potts and
-    # Menissier-Morain papers. The algorithm for sqrt(x) converges
-    # rapidly only if x is close to 1, so we rescale to make sure that
-    # x is between 1/3 and 3. Specifically:
-    # - if x is known to be negative (that is, if $idneg refines it)
-    #   then error.
-    # - if x is close to 1, $idzer refines it, and we can calculate the
-    #   square root directly.
-    # - if x is less than 1, $idneg refines it, and we calculate sqrt(4*x)
-    #   and multiply by 1/2.
-    # - if x is greater than 1, $idpos refines it, and we calculate
-    #   sqrt(x/4) and multiply by 2.
-    # - if none of the above hold, we have insufficient information about
-    #   the magnitude of x and perform a digit exchange.
-    
-    $x ref
-    if {[$x refinesM $isneg]} {
-	# Negative argument is an error
-	return -code error -errorcode {MATH EXACT SQRTNEGATIVE} \
-	    "sqrt of negative argument"
-    } elseif {[$x refinesM $idzer]} {
-	# Argument close to 1
-	set res [SqrtWorker new $x]
-    } elseif {[$x refinesM $idneg]} {
-	# Small argument - multiply by 4 and halve the square root
-	set y [[$x applyM {{4 0} {0 1}}] ref]
-	set z [[sqrtreal $y] ref]
-	set res [$z applyM {{1 0} {0 2}}]
-	$z unref
-	$y unref
-    } elseif {[$x refinesM $idpos]} {
-	# Large argument - divide by 4 and double the square root
-	set y [[$x applyM {{1 0} {0 4}}] ref]
-	set z [[sqrtreal $y] ref]
-	set res [$z applyM {{2 0} {0 1}}]
-	$z unref
-	$y unref
-    } else {
-	# Unclassified argyment. Perform a digit exchange and try again.
-	set y [[$x absorb] ref]
-	set res [sqrtreal $y]
-	$y unref
-    }
-    $x unref
-    return $res
+proc math::exact::function::sqrt {x} {
+    tailcall $x sqrt
 }
 
 # ExpWorker --
@@ -2881,7 +2939,7 @@ proc math::exact::asinreal {x} {
     $x unref
     return [opreal {{{0 0} {-1 0}} {{4 0} {0 2}}} \
 		$pi \
-		[function::atan [sqrtreal $y]]]
+		[function::atan [function::sqrt $y]]]
 }
 
 interp alias {} math::exact::function::asin {} math::exact::asinreal
@@ -2911,7 +2969,7 @@ proc math::exact::acosreal {x} {
     $x unref
     return [opreal {{{0 0} {1 0}} {{-2 0} {0 1}}} \
 		$pi \
-		[function::atan [sqrtreal $y]]]
+		[function::atan [function::sqrt $y]]]
 }
 
 interp alias {} math::exact::function::acos {} math::exact::acosreal
@@ -2977,7 +3035,7 @@ proc math::exact::asinhreal {x} {
     $x ref
     set retval [function::log \
 		    [+real $x \
-			 [sqrtreal \
+			 [function::sqrt \
 			      [opreal {{{1 0} {0 0}} {{0 0} {1 1}}} $x $x]]]]
     $x unref
     return $retval
@@ -2991,7 +3049,7 @@ proc math::exact::acoshreal {x} {
     $x ref
     set retval [function::log \
 		    [+real $x \
-			 [sqrtreal \
+			 [function::sqrt \
 			      [opreal {{{1 0} {0 0}} {{0 0} {-1 1}}} $x $x]]]]
     $x unref
     return $retval
@@ -3018,9 +3076,19 @@ proc math::exact::atanhreal {x} {
 
 interp alias {} math::exact::function::atanh {} math::exact::atanhreal
 
+# EWorker --
+#
+#	Evaluates the constant 'e' (the base of the natural logarithms
+#
+# This class is intended to be singleton. It returns 2.71828.... (the
+# base of the natural logarithms) as an exact real.
+
 oo::class create math::exact::EWorker {
     superclass math::exact::M
     variable m_ e_ n_
+
+    # Constructor accepts the number of the continuant.
+
     constructor {{n 0}} {
 	set n_ [::expr {$n + 1}]
 	next [list [list [::expr {2*$n + 2}] [::expr {2*$n + 1}]] \
@@ -3029,20 +3097,37 @@ oo::class create math::exact::EWorker {
     destructor {
 	next
     }
+
+    # e -- Returns the next continuant after this one.
+
     method e {} {
 	if {![info exists e_]} {
 	    set e_ [[math::exact::EWorker new $n_] ref]
 	}
 	return $e_
     }
+
+    # Formats this object for debugging
+    
     method dump {} {
 	return M($m_,EWorker($n_))
     }
 }
 
+# PiWorker --
+#
+#	Auxiliary object used in evaluating pi.
+#
+# This class evaluates the second and subsequent continuants in
+# Ramanaujan's formula for sqrt(10005)/pi. The Potts paper presents
+# the algorithm, almost without commentary.
+
 oo::class create math::exact::PiWorker {
     superclass math::exact::M
     variable m_ e_ n_
+
+    # Constructor accepts the number of the continuant
+
     constructor {{n 1}} {
 	set n_ [::expr {$n + 1}]
 	set nsq [::expr {$n * $n}]
@@ -3058,22 +3143,38 @@ oo::class create math::exact::PiWorker {
     destructor {
 	next
     }
+
+    # e --
+    #
+    #	Returns the next continuant after this one
+
     method e {} {
 	if {![info exists e_]} {
 	    set e_ [[math::exact::PiWorker new $n_] ref]
 	}
 	return $e_
     }
+
+    # dump --
+    #
+    #	Formats this object for debugging
     method dump {} {
 	return M($m_,PiWorker($n_))
     }
 }
 
-#####
+# Log2Worker --
+#
+#	Auxiliary class for evaluating log(2).
+#
+# This object represents the constant (1-2*log(2))/(log(2)-1), the
+# product of the second, third, ... nth LFT's of the representation of log(2).
 
 oo::class create math::exact::Log2Worker {
     superclass math::exact::M
     variable m_ e_ n_
+
+    # Constructor accepts the number of the continuant
     constructor {{n 1}} {
 	set n_ [::expr {$n + 1}]
 	set a [::expr {3*$n + 1}]
@@ -3085,22 +3186,35 @@ oo::class create math::exact::Log2Worker {
     destructor {
 	next
     }
+
+    # e --
+    #
+    #	Returns the next continuant after this one.
     method e {} {
 	if {![info exists e_]} {
 	    set e_ [[math::exact::Log2Worker new $n_] ref]
 	}
 	return $e_
     }
+
+    # dump --
+    #
+    #	Displays this object for debugging
     method dump {} {
 	return M($m_,Log2Worker($n_))
     }
 }
 
-# sqrt(rational) - needed for pi.
+# Sqrtrat --
+#
+#	Class that evaluates the square root of a rational
 
-oo::class create math::exact::sqrtrat {
+oo::class create math::exact::Sqrtrat {
     superclass math::exact::M
     variable m_ e_ a_ b_ c_
+
+    # Constructor accepts the numerator and denominator. The third argument
+    # is an intermediate result for the second and later continuants.
     constructor {a b {c {}}} {
 	if {$c eq {}} {
 	    set c [::expr {$a - $b}]
@@ -3121,21 +3235,37 @@ oo::class create math::exact::sqrtrat {
     destructor {
 	next
     }
+
+    # e --
+    #
+    #	Returns the next continuant after this one.
     method e {} {
 	if {![info exists e_]} {
-	    set e_ [[math::exact::sqrtrat new $a_ $b_ $c_] ref]
+	    set e_ [[math::exact::Sqrtrat new $a_ $b_ $c_] ref]
 	}
 	return $e_
     }
+
+    # dump --
+    #	Formats this object for debugging.
+    
     method dump {} {
-	return "M($m_,sqrtrat($a_,$b_,$c_))"
+	return "M($m_,Sqrtrat($a_,$b_,$c_))"
     }
 }
+
+# pi --
+#
+#	Returns pi as an exact real
 
 proc math::exact::function::pi {} {
     variable ::math::exact::pi
     return $pi
 }
+
+# e --
+#
+#	Returns e as an exact real
 
 proc math::exact::function::e {} {
     variable ::math::exact::e
@@ -3185,7 +3315,7 @@ namespace eval math::exact {
 	set worker \
 	    [[math::exact::Mstrict new {{6795705 213440} {6795704 213440}} \
 		  [math::exact::PiWorker new]] ref]
-	variable pi [[/real [sqrtrat new 10005 1] $worker] ref]
+	variable pi [[/real [function::sqrt [V new {10005 1}]] $worker] ref]
 	$worker unref
 
 	set worker [[Log2Worker new] ref]
