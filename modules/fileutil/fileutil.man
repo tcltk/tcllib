@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.14.11]
+[vset PACKAGE_VERSION 1.15]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n [vset PACKAGE_VERSION]]
 [keywords cat]
@@ -430,6 +430,26 @@ command.
 
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
+
+[call [cmd ::fileutil::maketempdir] \
+	[opt "[option -prefix] [arg str]"] \
+	[opt "[option -suffix] [arg str]"] \
+	[opt "[option -dir] [arg str]"]]
+
+The command generates a temporary directory suitable for writing to.
+The directory name will be unique, and the directory will be writable
+and contained in the appropriate system specific temp directory. The
+name of the directory will be returned as the result of the command.
+
+[para] The three options can used to tweak the behaviour of the command:
+
+[list_begin options]
+[opt_def -prefix str] The initial, fixed part of the directory name. Defaults to [const tmp] if not specified.
+[opt_def -suffix str] The fixed tail of the directory. Defaults to the empty string if not specified.
+[opt_def -dir    str] The directory to place the new directory into. Defaults to the result of [cmd fileutil::tempdir] if not specified.
+[list_end]
+
+[para]The initial code for this was supplied by [uri mailto:aplicacionamedida@gmail.com {Miguel Martinez Lopez}].
 
 [call [cmd ::fileutil::relative] [arg base] [arg dst]]
 
