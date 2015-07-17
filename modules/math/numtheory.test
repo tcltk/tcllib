@@ -19,6 +19,51 @@ source [file join\
 testsNeedTcl     8.5
 testsNeedTcltest 2
 testing {useLocal numtheory.tcl math::numtheory}
+test Barrett-1.1 "1e643" -body {
+   set mod [math::numtheory::make_modulo prefix 1[string repeat 0 643]]
+   list [
+      {*}$mod 1[string repeat 0 642]9
+   ] [
+      {*}$mod 10[string repeat 9 643]
+   ]
+} -result [list 9 [string repeat 9 643]]
+test powm-1.1 "powm(a,lcm(p-1,q-1)+1,pq)=a" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000025 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {2 3 5 7 11 13 100 98754}
+test powm-1.2 "powm(a,lcm(p-1,q-1),pq)=1" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000024 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {1 1 1 1 1 1 1 1}
+test powm-1.3 "powm(a,lcm(p-1,q-1)+2,pq)=a**2" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000026 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {4 9 25 49 121 169 10000 9752352516}
+test powm-2.1 "Code paths" -body {
+   set nearadd {::apply {{x y} {expr {$x+3+$y}}}}
+   list [
+      {*}[math::numtheory::make_powm 31 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 512 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 1023 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 160193 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 160195 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 160199 mulprefix $nearadd] 7
+   ]
+} -result {307 5117 10227 1601927 1601947 1601987}
 test prime_trialdivision-1 "Trial division of 1" -body {
    ::math::numtheory::prime_trialdivision 1
 } -returnCodes 2 -result 0

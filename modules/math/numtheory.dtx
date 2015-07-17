@@ -2,13 +2,13 @@
 % \iffalse
 % 
 %<*pkg>
-%% Copyright (c) 2010 by Lars Hellstrom.  All rights reserved.
+%% Copyright (c) 2010, 2015 by Lars Hellstrom.  All rights reserved.
 %% See the file "license.terms" for information on usage and redistribution
 %% of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 %</pkg>
 %<*driver>
 \documentclass{tclldoc}
-\usepackage{amsmath,amsfonts}
+\usepackage{amsmath,amsfonts,amssymb}
 \usepackage{url}
 \newcommand{\Tcl}{\Tcllogo}
 \begin{document}
@@ -23,9 +23,9 @@
 % \maketitle
 % 
 % \begin{abstract}
-%   This package provides a command to test whether an integer is a 
-%   prime, but may in time come to house also other number-theoretic 
-%   operations.
+%   This package provides operations related to the number theory 
+%   branch of mathematics, notably a command to test whether an integer 
+%   is a prime.
 % \end{abstract}
 % 
 % \tableofcontents
@@ -37,10 +37,9 @@
 package require Tcl 8.5
 % \end{tcl}
 % \Tcl~8.4 is seriously broken with respect to arithmetic overflow, 
-% so we require 8.5. There are (as yet) no explicit 8.5-isms in the 
-% code, however.
+% so we require 8.5.
 % \begin{tcl}
-package provide math::numtheory 1.0
+package provide math::numtheory 1.1
 namespace eval ::math::numtheory {
    namespace export isprime
 }
@@ -83,6 +82,1376 @@ integer is a prime.
 % \end{tcl}
 % 
 % 
+% \section{Modular arithmetic}
+% 
+% Many number-theoretic algorithms make use of arithmetic modulo some 
+% (possibly quite large) integer $N$, so there is a point in having 
+% efficient implementations of this available. \Tcl\ actually comes 
+% with C implementations of much of the following, as part of the 
+% tommath library it uses for integer arithmetic, but unfortunately 
+% those are not (currently) exposed on the \Tcl\ level.
+% 
+% 
+% \subsection{Barrett reduction}
+% 
+% The basic operation for modular arithmetic is computing the 
+% remainder, i.e., |expr|'s |%| operation. Unfortunately, that is 
+% quite often not as fast as one would like it to be.
+% 
+% The main catch is that while libtommath implements Karabatsura 
+% multiplication of integers to achieve an asymptotic complexity of 
+% $O(n^{1.585})$ (where $n$ is the bit-size of the inputs to the 
+% multiplication operation), it (currently) only implements a 
+% traditional $O(n^2)$ algorithm for integer division, so |/| and |%| 
+% (at the C level, there is a single function which calculates both) 
+% can be orders of magnitude slower than |*|. There is however also 
+% more generally the catch that even though division asymptotically 
+% has the same theoretical complexity as multiplication, the constant 
+% factor associated with division is several times larger than that 
+% of multiplication.
+% 
+% Barrett reduction is an algorithm for computing the remainder which 
+% avoids the division (instead doing just two multiplications), but 
+% which requires certain auxiliary constants $M$ and $s$ in addition 
+% to the actual denominator $N$. Computing these is feasible if the 
+% same denominator $N$ is going to be used in several remainder 
+% computations, and as it turns out, that is frequently the case.
+% 
+% \begin{proc}{Barrett_mod}
+%   The basic idea for Barrett reduction is one that may be familiar 
+%   from non-integer arithmetic, namely to replace a division $a/N$ 
+%   by a multiplication $a \cdot \frac{1}{N}$; by precomputing the 
+%   inverse $\frac{1}{N}$, the division can be avoided (or at least 
+%   only carried out once). There is of course the slight complication 
+%   that \Tcl\ cannot naively represent non-integers such as $1/N$ 
+%   with the necessary precision, so we'll express that as a 
+%   fixed-point number instead. This leads to the formula
+%   \begin{equation}
+%     a - \left\lfloor a \cdot \frac{M}{2^s} \right\rfloor \cdot N
+%     =
+%     \texttt{\$a - ((\$a * \$M) >> \$s) * \$N}
+%     \quad
+%     \text{where \(M 2^{-s} \approx 1/N\)}
+%   \end{equation}
+%   for computing the remainder $a \bmod N$. That $M 2^{-s}$ is not 
+%   exactly $N^{-1}$ does however leave some room for rounding errors 
+%   that would cause the computed quotient $a/N$ to be slightly off. 
+%   This is countered in a correction step after the main calculation, 
+%   and by having $N^{-1}$ rounded upwards it can be ensured that 
+%   incorrect remainders always end up negative, which is easy to 
+%   test for. Hence we arrive at the following procedure.
+%   \begin{tcl}
+%<*pkg>
+proc ::math::numtheory::Barrett_mod {N invN shift a} {
+   set r [expr {$a - (($a * $invN) >> $shift) * $N}]
+   if {$r<0} then {incr r $N}
+   return $r
+}
+%   \end{tcl}
+%   The reason for picking this sequence of arguments is that it is 
+%   natural to package Barrett reduction modulo $N$ as a command 
+%   prefix that takes the $a$ operand as its extra argument, so that 
+%   it could be called like
+%   \begin{quote}
+%     |{*}$modcmd $a|
+%   \end{quote}
+% \end{proc}
+% 
+% \begin{proc}{Barrett_parameters}
+%   For computing the extra parameters, there is a procedure with 
+%   call syntax
+%   \begin{quote}
+%     |Barrett_parameters| \word{$N$}
+%   \end{quote}
+%   where $N$ is a positive integer. The return value is a list
+%   \begin{quote}
+%     \word{$N$} \word{$M$} \word{$s$}
+%   \end{quote}
+%   where the elements satisfy \(s \geqslant 2 \log_2 N\) and 
+%   \(MN \geqslant 2^s > (M -\nobreak 1) N\), i.e., $M$ is 
+%   $\lceil 2^s/N \rceil$ as needed for |Barrett_mod|.
+%   
+%   In \Tcl, the most convenient way of computing an approximate 
+%   $2$-logarithm (i.e., bitsize) of a large integer is to |format| 
+%   said integer in hexadecimal: take the string length of the number 
+%   times the number of bits per digit. This won't be a tight bound, 
+%   but the overhead is not in the leading term of the complexity.
+%   To do an integer division rounded upwards, one can swap the sign 
+%   of the numerator, divide, and then swap the sign again.
+%   \begin{tcl}
+proc ::math::numtheory::Barrett_parameters {N} {
+   set s [expr {8*[string length [format %llx $N]]}]
+   set M [expr {-( (-1 << $s) / $N)}]
+   return [list $N $M $s]
+}
+%</pkg>
+%   \end{tcl}
+%   An alternative approach here, if one \emph{really} wants to avoid 
+%   big integer division, would be to use a Newton--Raphson iteration 
+%   for computing $M$, but that should (if implemented) really be 
+%   exposed publicly as a utility operation in its own right.
+% \end{proc}
+% 
+% The main limitation of Barrett reduction is that the finite 
+% precision of $M 2^{-s}$ as an approximation of $N^{-1}$ means $a M 
+% 2^{-s}$ slowly but surely deviates from $a/N$ as \(a \to \infty\). 
+% The correction step of adding $N$ to the remainder $r$ is 
+% equivalent to adjusting the quotient to counter this, but it cannot 
+% adjust the quotient by more than $1$. However, Barrett reduction is 
+% provably correct for all $a$ up to \(2^s \geqslant N^2\), which is the 
+% range of arguments that one encounters in implementing multiplication 
+% modulo $N$. To see this, let \(0 \leqslant a < 2^s\) be arbitrary. Let 
+% \(\delta = M2^{-s} - 1/N\) and \(\varepsilon = aM/2^s - \bigl\lfloor 
+% aM/2^s \bigr\rfloor\). Then the pre-adjustment computed remainder is
+% \begin{multline*}
+%   r 
+%   =
+%   a - \left\lfloor \frac{a M}{2^s} \right\rfloor N 
+%   =
+%   a - \left( \frac{a M}{2^s} - \varepsilon \right) N
+%   = \\ =
+%   a - a \frac{M}{2^s} N + \varepsilon N
+%   =
+%   a - a \left( \frac{1}{N} + \delta \right) N + \varepsilon N
+%   =
+%   (-a \delta + \varepsilon) N
+%   \text{.}
+% \end{multline*}
+% By definition \(0 \leqslant \varepsilon < 1\). For $\delta$, one 
+% finds
+% \begin{equation*}
+%   \delta
+%   =
+%   \frac{M}{2^s} - \frac{1}{N}
+%   =
+%   \frac{MN - 2^s}{2^s N}
+%   <
+%   \frac{MN - (M-1)N}{2^s N}
+%   =
+%   \frac{1}{2^s}
+% \end{equation*}
+% and hence \(1 > a\delta \geqslant 0\). This implies \(-1 < -a\delta 
+% + \varepsilon < 1\) and thus \(-N < r < N\), ensuring that the 
+% result of |Barrett_mod| is nonnegative and less than $N$ for \(a < 
+% N^2\).
+% 
+% \begin{proc}{make_modulo}
+%   Packaging it all up, the primary user interface is an ensemble 
+%   |make_modulo| that can be asked to do the preparation work for 
+%   us.
+%   \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::make_modulo] [arg subcmd] [arg N]]
+  The [cmd make_modulo] command precomputes some data that are useful 
+  for quickly computing remainders modulo [arg N], which must be a 
+  positive integer. The format of the return value depends on the 
+  [arg subcmd]. This kind of preparation is primarily of interest if 
+  one needs to compute many remainders modulo the same [arg N], but 
+  that turns out to be quite common.
+  
+  The [arg subcmd]s are:
+  [list_begin commands]
+  [cmd_def prefix]
+    Returns a [emph {command prefix}] that expects one extra argument 
+    [arg x]. 
+    [example_begin]{*}[arg modprefix] [arg x][example_end]
+    This argument [arg x] is an integer which should be nonnegative 
+    and less than [arg N]**2. The result of that call will be the
+    remainder of [arg x] divided by [arg N].
+  [cmd_def mulprefix]
+    Returns a command prefix that expects two extra arguments 
+    [arg x] and [arg y]. 
+    [example_begin]{*}[arg mulmodprefix] [arg x] [arg y][example_end]
+    These arguments are integers whose product should be nonnegative 
+    and less than [arg N]**2 (typically, [arg x] and [arg y] are both 
+    less than [arg N]), and the result of that call will be the 
+    remainder of [arg x]*[arg y] divided by [arg N].
+  [cmd_def Barrett-parameters]
+    Returns a list of three integers [arg N], [arg M], and [arg s] 
+    that are what one needs in order to perform Barrett reduction 
+    ([uri {http://en.wikipedia.org/wiki/Barrett_reduction}]). [arg N] 
+    is the argument. The shift amount [arg s] satisfies 2**([arg s]/2) 
+    > [arg N]. The scaled reciprocal [arg M] satisfies 
+    [arg M]*[arg N] >= 2**[arg s] > ([arg M]-1)*[arg N].
+  [list_end]
+  
+%</man>
+%   \end{tcl}
+%   Creating the ensemble is pretty straightforward. An explicit 
+%   |-map| is used to adjust the command names.
+%   \begin{tcl}
+%<*pkg>
+namespace eval ::math::numtheory {
+   namespace ensemble create -command make_modulo -map {
+      Barrett-parameters  Barrett_parameters
+      prefix              {Make_modulo_prefix 0}
+      mulprefix           {Make_modulo_prefix 1}
+   }
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{Barrett_mulmod}
+%   Obviously a command prefix that multiplies two arguments ends up 
+%   being implemented using a different command prefix than that 
+%   which does not, so |Barrett_mod| gets an obvious sibling.
+%   \begin{tcl}
+proc ::math::numtheory::Barrett_mulmod {N invN shift x y} {
+   set a [expr {$x*$y}]
+   set r [expr {$a - (($a * $invN) >> $shift) * $N}]
+   if {$r<0} then {incr r $N}
+   return $r
+}
+%   \end{tcl}
+%   The reason for not using one command and having it check its 
+%   number of arguments is purely for speed: this is something that 
+%   is done in various inner loops, so we really don't want it to 
+%   deal with variable syntax.
+% \end{proc}
+% 
+% \begin{proc}{Plain_mod}
+% \begin{proc}{Plain_mulmod}
+%   The reason that there is an option to get multiplication integrated 
+%   with the modulo operation is also speed, but under a slightly 
+%   different line of reasoning. Barrett reduction is useful for large 
+%   $N$ where |expr|'s built-in |%| grows comparatively slow, but for 
+%   smaller $N$ (which would still seem very large to a human having to 
+%   calculate with it) the overhead of evaluating more \Tcl\ commands 
+%   is the dominant factor. Hence a quite competitive alternative would 
+%   be to just do the obvious |expr| call, and in that case it is nice 
+%   to do two operations in one |expr|.
+%   \begin{tcl}
+proc ::math::numtheory::Plain_mod {N a} {expr {$a % $N}}
+proc ::math::numtheory::Plain_mulmod {N x y} {expr {$x*$y % $N}}
+%</pkg>
+%   \end{tcl}
+% \end{proc}\end{proc}
+% 
+% So which implementation should one choose for which $N$? Only 
+% |time| can tell, so we'll have to do a bit of experimentation.
+% \begin{tcl}
+%<*experiment>
+% \end{tcl}
+% First, we need a selection of integers of varying sizes. Easy 
+% enough to build as strings, but let's do some bitlogic afterwards 
+% to reduce the risk of easy proportions (and incidentally ensure 
+% that they have a numeric internal representation). Adding the 
+% |llength| is to ensure that the numbers do not all have the same 
+% parity.
+% \begin{tcl}
+set numL {}
+set digits 1
+set last 12345
+while {[llength $numL] < 1000} {
+   set new 1$digits
+   lappend numL [expr {$new ^ $last + [llength $numL]}]
+   set last $new
+   set d [expr {[llength $numL] % 10}]
+   set digits $d$digits$d
+}
+% \end{tcl}
+% 
+% Then some kind of test procedure. This takes $a$ and $N$ as 
+% arguments, computes $a \bmod N$ using both approaches, and returns 
+% the list of the two |time| messages.
+% \begin{tcl}
+proc time_both_modulo {a N} {
+   set P [math::numtheory::Barrett_parameters $N]
+   list [
+      time {math::numtheory::Plain_mod $N $a} 50
+   ] [
+      time {math::numtheory::Barrett_mod {*}$P $a} 20
+   ]
+}
+% \end{tcl} 
+% Finally run that on a suitable selection of the |numL| list.
+% \begin{tcl}
+set resL {}
+while {[llength $resL] < 500} {
+   lappend resL [
+      time_both_modulo\
+        [lindex $numL [expr {round(1.93*[llength $resL]+1)}]]\
+        [lindex $numL [llength $resL]]
+   ]
+}
+% \end{tcl}
+% The results are \dots\ a bit weird. But to make it easier to see 
+% the big picture, here's a routine that reduces the comparison 
+% between two timing values to a single digit: |Plain_mod| is faster 
+% for 0--4, |Barrett_mod| is faster for 5--9. The $1.2$ means each 
+% increment on this scale corresponds to another $20$\% difference in 
+% speed.
+% \begin{tcl}
+set over ""
+foreach pair $resL {
+   scan [lindex $pair 0] %f plain
+   scan [lindex $pair 1] %f b
+   set l [expr {round(log($plain/$b)/log(1.2)+4.5)}]
+   set m [expr {max(min($l,9),0)}]
+   append over $m
+}
+%</experiment>
+% \end{tcl} 
+% The good news is that from position $90$ and up, |Barrett_mod| is 
+% consistently faster. |[lindex $numL 90]| has $602$ bits, but let's 
+% pick $625$ as a nice round switchover point.
+% 
+% The somewhat surprising result, from looking at |[join $resL \n]|, 
+% is that whereas the timing results for |Barrett_mod| are well 
+% concentrated along a nice curve, the timing results for |Plain_mod| 
+% are not: they have seemingly random jumps up and down, which do not 
+% seem to be due to noise in the |time|ing as such. Presumably they 
+% are rather due to the actual numbers used---dependent upon the 
+% extent to which the code follows one branch or another in the main 
+% loop of \textbf{mp\_div}---but this would require a more extensive 
+% experiment (testing several numerators and denominators of each 
+% size) to examine.
+% 
+% The bad news can be had by changing the constant |1.93| above to 
+% for example |1.5| or |1.1|: in those cases |Barrett_mod| would not 
+% emerge as superior. The reason for this can be discovered through a 
+% more thorough complexity analysis of libtommath's division operation. 
+% While it is true that said implementation's time complexity is 
+% asymptotically quadratic, it would be more accurate to describe it 
+% as being $O(DQ)$, where \(D = \lceil \log_2 N \rceil$ is the size of 
+% the denominator and $Q$ is the size of the quotient. For numerator 
+% and denominator of roughly equal size, the size $Q$ of the quotient 
+% becomes effectively bounded (i.e., $O(1)$), and the overall |%| 
+% operation effectively linear(!) in the input size. As long as \(Q = 
+% o(D^{-1+\log_2 3}) = o(D^{0.585})\), the multiplications in 
+% |Barrett_mod| are asymptotically \emph{slower} than the naive 
+% remainder operation in |Plain_mod|! Asymptotically that would only 
+% allow the numerator's size to grow as $D + O(D^{0.585})$, which is 
+% a lot less than the $2D$ required for arbitrary \(a < N^2\), and 
+% it only differs in lower order terms from the size $D$ of $N$ 
+% itself, but $O(D^{0.585})$ doesn't grow \emph{that} much slower 
+% than $D$, so for practical input sizes a numerator $a$ of the same 
+% order as, say, $N^{1.5}$ might be just as efficiently reduced by 
+% |Plain_mod| as it might by |Barrett_mod|.
+% 
+% It's probably most fair to include a remark hinting at this in the 
+% manpage, where we're still in the scope of the 
+% |math::numtheory::make_modulo| item.
+% 
+% \begin{tcl}
+%<*man>
+  Note that the [arg modprefix] computed is tuned for applications 
+  where the number to be reduced modulo [arg N] is uniformly 
+  distributed in the interval from 0 (inclusive) to [arg N]**2. In 
+  applications where the number comes from a much smaller interval, 
+  the choice of algorithm for the [arg modprefix] may be suboptimal, 
+  but many number-theoretical and cryptographic algorithms end up 
+  exercising the full range.
+  
+%</man>
+% \end{tcl} 
+% 
+% \begin{proc}{Make_modulo_prefix}
+%   To finish the implementation, we need only the command that 
+%   actually constructs the prefixes. This has the call syntax
+%   \begin{quote}
+%     |Make_modulo_prefix| \word{mul-prefix?} \word{$N$}
+%   \end{quote}
+%   where \word{mul-prefix} is |1| if a mulmod prefix is sought, and 
+%   |0| if a mod prefix is sought.
+%   
+%   The implementation is to first call |Barrett_parameters|, since 
+%   these includes the bitsize of $N$ (or rather: twice that bitsize) 
+%   we need to choose between plain and Barrett reduction. That means 
+%   we'll sometimes perform an unnecessary division, but only in a 
+%   context where we expect to perform several more anyway.
+%   \begin{tcl}
+%<*pkg>
+proc ::math::numtheory::Make_modulo_prefix {mulQ N} {
+   set P [Barrett_parameters $N]
+%   \end{tcl}
+%   The switchover at $625$ bits becomes a bound of $1250$ for the 
+%   $s$ parameter.
+%   \begin{tcl}
+   if {[lindex $P 2] >= 1250} then {
+      return [linsert $P 0 [
+         namespace which [lindex {Barrett_mod Barrett_mulmod} $mulQ]
+      ]]
+   } else {
+      return [list [
+         namespace which [lindex {Plain_mod Plain_mulmod} $mulQ]
+      ] $N]
+   }
+}
+%</pkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% In the following test, the fun thing about $10^{643}$ is that it is 
+% only slightly smaller than \(2^{2136} \approx 1.00016 \cdot 10^{643}\). 
+% Picking a power of $10$ as the modulus makes it trivial to predict 
+% what the remainder should be for a number constructed as a sequence of 
+% digits. In the first case, the quotient estimate is $1$ (correct) 
+% and the remainder is correct on the first try, but in the second 
+% case the quotient estimate is $11$ (correct integer quotient is 
+% $10$), so the first try remainder is $-1$.
+% \begin{tcl}
+%<*test>
+test Barrett-1.1 "1e643" -body {
+   set mod [math::numtheory::make_modulo prefix 1[string repeat 0 643]]
+   list [
+      {*}$mod 1[string repeat 0 642]9
+   ] [
+      {*}$mod 10[string repeat 9 643]
+   ]
+} -result [list 9 [string repeat 9 643]]
+%</test>
+% \end{tcl}
+% 
+% 
+% 
+% \subsection{Power modulo}
+% 
+% The power-modulo, or \texttt{powm}, operation is that defined by
+% \begin{equation*}
+%   \mathrm{powm}(a,b,N) = a^b \bmod N
+%   \text{.}
+% \end{equation*}
+% The RSA public key cryptosystem established it as a workhorse in 
+% modern cryptography, but it is also a useful tool in several 
+% number-theoretical algorithms. Common to both domains is that all 
+% three arguments may be several thousand bits large, so reducing the 
+% work required to compute it is well worth the effort.
+% 
+% First, it should perhaps be remarked that computing 
+% $\mathrm{powm}(a,b,N)$ does not require computing the integer $a^b$ 
+% (which is a good thing, since it for quite moderate $a$ and $b$ could 
+% easily overflow available memory). By doing all multiplications 
+% modulo $N$, the space complexity of the calculation can remain 
+% linear.
+% 
+% Second, it would be unfeasible to compute power modulo using the 
+% simple recursion
+% \begin{equation*}
+%   \mathrm{powm}(a,b,N) = \begin{cases}
+%     a \bmod N & \text{if \(b = 1\),}\\
+%     \bigl( \mathrm{powm}(a,b-1,N) \cdot a \bigr) \bmod N
+%       & \text{if \(b > 1\)}
+%   \end{cases}
+% \end{equation*}
+% since we usually couldn't afford to have a loop iterated $b$ times 
+% (it makes the time complexity exponential) no matter how small the 
+% loop body was. Instead one preferably uses some variation on the 
+% \emph{exponentiation by squaring} algorithm, a recursion 
+% corresponding to which is
+% \begin{equation*}
+%   \mathrm{powm}(a,b,N) = \begin{cases}
+%     a \bmod N & \text{if \(b = 1\),}\\
+%     \bigl( \mathrm{powm}(a,b-1,N) \cdot a \bigr) \bmod N
+%       & \text{if \(b > 1\) is odd,} \\
+%     \mathrm{powm}(a,b/2,N)^2 \bmod N
+%       & \text{if \(b > 1\) is even.}
+%   \end{cases}
+% \end{equation*}
+% For $b$ having bit-size $n$, in the sense that \(2^n \leqslant b < 
+% 2^{n+1}\), that recursion will take the third branch $n$ times and 
+% the second branch at most $n$ times, so at most $2n$ mulmod 
+% operations suffice for computing $\mathrm{powm}(a,b,N)$. This 
+% places $\mathrm{powm}(a,b,N)$ solidly in the realm of things that 
+% can be computed in polynomial time. Conversely, it is not too hard 
+% to see that if $\mathrm{powm}$ is implemented using mulmod as 
+% underlying operation then it will require at least $n$ 
+% multiplications to get up to the $b$th power of $a$, so 
+% exponentiation by squaring is within a factor $2$ of the optimal 
+% algorithm. But with some planning it is in fact possible to get 
+% said factor quite close to $1$, so that extra preparation is well 
+% worth it.
+% 
+% An improvement upon the basic exponentiation by squaring algorithm 
+% is what might be called the \emph{fixed window} algorithm; in the 
+% particular case that the window width is $3$~bits, this algorithm 
+% can be straightforwardly understood as a trick based on writing the 
+% exponent in octal (base~$8$). The idea is that instead of for each 
+% bit in the exponent doing one modular squaring possibly followed 
+% by one modular multiplication, one does 
+% \emph{three} modular squarings in sequence (equivalent to raising 
+% to the eight power) possibly followed by one modular 
+% multiplication; instead of possibly doing the general modular 
+% multiplication for every bit of the exponent, one only does it for 
+% every third bit, thereby reducing the expected number of times one 
+% needs to do it. For example, if \(b = 125 = 1 \cdot 8^2 + 7 \cdot 8^1 
+% + 5 \cdot 8^0 = 2^6 + 2^5 + 2^4 + 2^3 + 2^2 + 2^0\), then instead of 
+% computing
+% \[
+%   a^b \equiv 
+%   (((((a^2 \cdot a)^2 \cdot a)^2 \cdot a)^2 \cdot a)^2)^2 \cdot a
+%   \pmod{N}
+% \]
+% one computes
+% \[
+%   a^b \equiv (a^8 \cdot a^7)^8 \cdot a^5 \pmod{N}
+% \]
+% with only $2$ general multiplications rather than $5$ general 
+% multiplications. The catch is of course that whereas $a$ as factor 
+% was simply given, the factors $a^7$ and $a^5$ above are not, so 
+% they would need to be computed as well, at a cost of some 
+% additional multiplications. But in an exponent large enough that 
+% each octal digit tends to occur several times, that additional cost 
+% is lower than what is gained by doing fewer multiplications in the 
+% main calculation of $a^b \bmod N$. Since determining the point of 
+% break even for the $3$ bit fixed window algorithm is instructive, 
+% we might as well take the time to do so.
+% 
+% It is reasonable to assume that the binary digits of $b$, after the 
+% initial $1$ of place value $2^n$, are random, independent, and 
+% uniformly distributed. This means the probability is $\frac{1}{2}$ 
+% that basic exponentiation by squaring will need to do a modular 
+% multiplication at any given bit, so the expected number of modular 
+% multiplications for an $n$-bit exponent is $\frac{1}{2}n$. With 
+% fixed windows $3$ bits wide, the probability is $\frac{1}{8}$ that 
+% all bits are $0$ so that we can skip the multiplication, therefore 
+% the probability is $\frac{7}{8}$ that it is needed, and we expect 
+% $\frac{7}{8}$ multiplications per $3$ bits, or $\frac{7}{24}$ 
+% multiplications per bit. The expected number of modular 
+% multiplications for an $n$-bit exponent is thus $\frac{7}{24}n$ 
+% (close to half of \(\frac{1}{2}n = \frac{12}{24}n\)!), but it 
+% requires an extra $6$ multiplications to 
+% precompute the powers $a^2$ through $a^7$. Thus the point of break 
+% even is where \(\frac{1}{2}n = \frac{7}{24}n + 6\), i.e., \(n = 
+% \frac{24}{5} \cdot 6 = 28.8\); in average, a mere ten octal digits 
+% suffice. But it is possible to do even better. For a general 
+% $k$-bit window, one expects to need $(1 -\nobreak 2^{-k}) \big/ k$ 
+% multiplications per bit and needs to precompute $2^k - 2$ powers of 
+% $a$, so the break even for the $k+1$ bit window over the $k$ bit 
+% window happens where
+% \begin{multline*}
+%   (1 - 2^{-k}) \frac{n}{k} + 2^k - 2 =
+%   (1 - 2^{-k-1}) \frac{n}{k+1} + 2^{k+1} - 2
+%   \quad\Longleftrightarrow \\
+%   \left( \frac{1 - 2^{-k}}{k} - \frac{1 - 2^{-k-1}}{k+1} \right) n 
+%   = 2^k
+%   \quad\Longleftrightarrow\\
+%   \frac{ k+1 - (k+1)2^{-k} - k + k2^{-k-1} }{ k(k+1) } n = 2^k
+%   \quad\Longleftrightarrow\\
+%   n = 
+%   \frac{ k(k+1) 2^k}{ 1 - (k+2)2^{-k-1} }
+%   \approx k(k+1) 2^k
+%   \text{,}
+% \end{multline*}
+% whence $4$-bit windows start to dominate over $3$-bit when \(n \approx 
+% 140\), and $5$-bit windows start to dominate over $4$-bit when 
+% \(n \approx 394\). None the less it is possible to do even better by 
+% using \emph{sliding} windows.
+% 
+% Sliding windows, like fixed windows, use a single modular 
+% multiplication to deal with some group of $k$ bits in the exponent, 
+% but it is not determined beforehand which bit positions will form a 
+% group. Instead, a group always begins with a bit that is $1$, 
+% because if the next bit to process is $0$ then you can always 
+% square the partial result and move on to the next bit. Knowing that 
+% you're at a $1$ bit gives you a better chance of covering 
+% additional $1$ bits in the same modular multiplication than you 
+% would have if you started at an arbitrary bit. This also means that 
+% you asymptotically only need to precompute half as many powers of 
+% $a$ as you would with fixed windows, since for sliding windows you 
+% only multiply by $a^i$ for \(2^{k-1} \leqslant i < 2^k\) because it 
+% is given that the leading bit in any group is a~$1$. If done 
+% without preprocessing, sliding window exponentiation by squaring 
+% proceeds as follows:
+% \begin{itemize}
+%   \item
+%     If the current bit in the exponent is a~$0$, then square the 
+%     partial result and move one bit to the right.
+%   \item
+%     If the current bit in the exponent is a~$1$, then square the 
+%     partial result $k$ times. Move $k$ bits to the right, and 
+%     collect the bits you pass to form the number $i$ (which 
+%     satisfies \(2^{k-1} \leqslant i < 2^k\)). Multiply the partial 
+%     result by $a^i$, which you get from a precomputed table.
+% \end{itemize}
+% In the end, it may happen that a $k$-bit window would extend past 
+% the end of the exponent, so at that point it may become necessary 
+% to fall back to basic exponentiation by squaring, but only for a 
+% sequence of less than $k$ bits.
+% 
+% \begin{proc}{Sliding_window_powm}
+%   The actual bit operations needed to observe the exponent $b$ 
+%   through a $k$-bit sliding window are kind of awkward in \Tcl, but 
+%   on the other hand many applications will use the same exponent 
+%   $b$ for several different bases $a$. Hence it makes sense to have 
+%   one procedure that performs a sliding window decomposition of an 
+%   exponent $b$, and another procedure that applies said 
+%   decomposition to compute $\mathrm{powm}(a,b,N)$ for some 
+%   arbitrary~$a$. This procedure is the latter; it is not expected 
+%   that users will manually construct calls to it.
+%   
+%   The call syntax is
+%   \begin{quote}
+%     |Sliding_window_powm| \word{$k$} \word{$i_0$} \word{$i_m$-list} 
+%     \word{tail bit list} \word{mulmod-prefix} \word{$a$}
+%   \end{quote}
+%   where $k$ is the window size (a positive integer), the three 
+%   arguments \word{$i_0$}, \word{$i_m$-list}, and \word{tail bit 
+%   list} encode the exponent $b$, \word{mulmod-prefix} is a command 
+%   prefix that performs multiplication modulo $N$, and finally $a$ 
+%   is the base of the exponentiation. It is presumed that $a$ is 
+%   appropriate for the \word{mulmod-prefix} (e.g.~that \(0 \leqslant 
+%   a < N\), if the \word{mulmod-prefix} is |Barrett_mulmod| and you 
+%   absolutely require the result to be reduced modulo $N$).
+%   
+%   The various $i_m$ numbers are integers in the range from $-1$ to 
+%   $2^{k-1}-1$, inclusive. The value $-1$ signals a step where the 
+%   current bit in the exponent was $0$. A nonnegative value signals 
+%   a step where it is $1$, and $i_m$ is then the numerical value of 
+%   the $k-1$ bits following that $1$ bit. $i_0$ is the $i_m$ number 
+%   for the window beginning at the most significant bit of the 
+%   exponent; unlike the others, it cannot be $-1$. The \word{tail 
+%   bit list} is the list of the final up to $k-1$ bits of the 
+%   exponent, that would not fit in an additional $k$-bit window; its 
+%   elements are either $0$ or $1$. Both the \word{$i_m$-list} and 
+%   the \word{tail bit list} are in order of falling bit significance.
+%   
+%   \begin{tcl}
+%<*pkg>
+proc ::math::numtheory::Sliding_window_powm {k i0 iL tL mulmod a} {
+%   \end{tcl}
+%   The first order of business is to precompute a table of the 
+%   numbers \(a^{i+2^{k-1}} \bmod N\) for \(0 \leqslant i < 
+%   2^{k-1}\). This first involves computing $a^{2^r}$ for \(1 
+%   \leqslant r \leqslant k-1\).
+%   \begin{tcl}
+   set apow $a
+   for {set r 1} {$r < $k} {incr r} {
+      set apow [{*}$mulmod $apow $apow]
+   }
+   set aL [list $apow]
+   set r [expr {1 << ($k-1)}]
+   while {[llength $aL] < $r} {
+      set apow [{*}$mulmod $apow $a]
+      lappend aL $apow
+   }
+%   \end{tcl}
+%   That taken care of, we can move on to the main sliding window 
+%   calculations.
+%   \begin{tcl}
+   set res [lindex $aL $i0]
+   foreach i $iL {
+      if {$i < 0} then {
+         set res [{*}$mulmod $res $res]
+      } else {
+         for {set r 0} {$r < $k} {incr r} {
+            set res [{*}$mulmod $res $res]
+         }
+         set res [{*}$mulmod $res [lindex $aL $i]]
+      }
+   }
+%   \end{tcl}
+%   And finally finish off with the tail bits.
+%   \begin{tcl}
+   foreach i $tL {
+      set res [{*}$mulmod $res $res]
+      if {$i} then {
+         set res [{*}$mulmod $res $a]
+      }
+   }
+   return $res
+}
+%   \end{tcl}
+%   
+%   This procedure has certain restrictions, insomuch as that the 
+%   smallest exponent $b$ that can used with window size $k$ is 
+%   $2^{k-1}$; it corresponds to having \(i_0 = 0\), the $i_m$-list 
+%   empty, and the tail bit list also empty. However, the bitsizes at 
+%   which a window width $k$ becomes optimal grows much faster 
+%   than~$k$, so that is a minor concern. Also, by taking \(k=1\), 
+%   \(i_0 = 0\), and the $i_m$-list to be empty, it is possible to 
+%   emulate any basic exponentiation by squaring without wasting 
+%   modular multiplications.
+% \end{proc}
+% 
+% \begin{proc}{Sliding_window_cover}
+%   The companion operation of computing an \word{$i_m$-list} and 
+%   \word{tail bit list} for a particular exponent is provided by the 
+%   call
+%   \begin{quote}
+%     |Sliding_window_cover| \word{$k$} \word{bitlist}
+%   \end{quote}
+%   where $k$ is the window size and \word{bitlist} is the list of 
+%   bits in the exponent, ordered from most to least significant; a 
+%   command for constructing that list for an exponent $b$ would be
+%\begin{verbatim}
+%   split [string trimleft [
+%      string map {0 000 1 001 2 010 3 011 4 100 5 101 6 110 7 111}\
+%        [format %llo $b]
+%   ] 0] ""
+%\end{verbatim}
+%   The return value from |Sliding_window_cover| is a list with the 
+%   structure
+%   \begin{quote}
+%     \word{cost} |{| \word{$i_0$} \meta{$i_m$-list} |}| 
+%     \word{tail bit list}
+%   \end{quote}
+%   where the \word{cost} is the number of modular multiplications 
+%   (not including the $n$ squarings, but including the calculations 
+%   for precomputing low powers of the base) that these data would 
+%   have |Sliding_window_powm| do. Note that $i_0$ is in this result 
+%   not separated from the list of $i_m$.
+%   
+%   The main implementation is like a little automaton reading the 
+%   \word{bitlist} element by element, and intermittently generating 
+%   output as it goes. The main internal control state is the 
+%   |collect| variable, which says how many bits of the current 
+%   window that still remain to be processed; when this is $0$, the 
+%   next bit may start a new window. After seeing the last bit of a 
+%   window, the corresponding $i_m$ value gets appended to |imL|, and 
+%   the |i| variable is where that $i_m$ value gets constructed (as a 
+%   number). The bits of the current window are also being collected 
+%   in the |tail| variable; if the \word{bitlist} ends before the 
+%   window does then the |tail| will be exactly the needed \word{tail 
+%   bit list}. (It should be observed that |tail| includes the first 
+%   bit of a window, whereas |i| does not.)
+%   \begin{tcl}
+proc ::math::numtheory::Sliding_window_cover {k bitlist} {
+   if {$k>=2} then {
+      set km1 [expr {$k-1}]
+      set cost [expr {(1 << $km1) - 2}]
+%   \end{tcl}
+%   That initial value for |cost| is essentially the cost for the 
+%   part of |Sliding_window_powm| that comes before the |foreach| 
+%   over the \word{$i_m$-list}, but the fine details need explaining. 
+%   First, the squarings in the initial |for| loop are not included, 
+%   because each of these replace one of the $n$ basic squarings of 
+%   the result |res|. Second, the |aL| list has $2^{k-1}$ elements, 
+%   but the first of these is not computed in the |while| loop, which 
+%   accounts for $-1$ above. The other $-1$ is because the cost 
+%   estimates below treat $i_0$ the same as the other $i_m$ numbers, 
+%   whereas in |Sliding_window_powm| there is no multiplication for 
+%   $i_0$, so a total adjustment of $-2$ is called for.
+%   \begin{tcl}
+      set imL {}
+      set collect 0
+      foreach bit $bitlist {
+         if {$collect>0} then {
+            set i [expr {($i<<1) | $bit}]
+            if {[incr collect -1]} then {
+               lappend tail $bit
+            } else {
+               lappend imL $i
+               incr cost
+            }
+         } elseif {$bit} then {
+            set tail [list $bit]
+            set i 0
+            set collect $km1
+         } else {
+            lappend imL -1
+         }
+      }
+   } else {
+%   \end{tcl}
+%   It turns out the above will not work right for \(k=1\), since 
+%   in that case |collect| is always zero. So to be on the safe side, 
+%   just throw everything in the |tail| in that case.
+%   \begin{tcl}
+      set imL [list 0]
+      set tail [lrange $bitlist 1 end]
+      set cost 0
+      set collect 1
+   }
+   if {$collect} then {
+      foreach bit $tail {incr cost $bit}
+   } else {
+      set tail {}
+   }
+   return [list $cost $imL $tail]
+}
+%   \end{tcl}
+%   Deliberately left out from this procedure is the matter of how to 
+%   choose the window width $k$.
+% \end{proc}
+% 
+% Deriving the optimal window width for a given bitsize $n$ is not as 
+% straightforward for sliding windows as it is for fixed windows, 
+% because in this case the sequence of steps taken through the 
+% bitstream of the exponent is itself the result of a stochastic 
+% process. In particular, it is by no means given that the $j$th bit 
+% (counting the most significant as the $0$th) will be the first bit 
+% in any sliding window; chances are rather that it will fall 
+% somewhere in the interior of a window, and thus have no effect on 
+% the sequence of steps that are taken. This complicates the 
+% definition (and consequently the derivation) of expected costs 
+% quite a bit.
+% 
+% One way to quantify things is to let $p_n$ be the probability that 
+% bit $n$ is the stream will be inspected as possibly the first one 
+% in a window, and let $C_n$ (the cost) be the expected number of 
+% general modular multiplications performed up to that point, i.e., 
+% the expected number of length $k$ steps taken to get there. Since 
+% the most significant bit by definition is a~$1$, the process always 
+% starts with a step of length $k$, and thus \(p_1 = p_2 = \dotsb = 
+% p_{k-1} = 0\) but \(p_k = 1\). After that \(p_{k+1} = \frac{1}{2}\), 
+% \(p_{k+2} = \frac{1}{4}\), and so on to \(p_{2k-1} = 2^{-(k-1)}\), 
+% but \(p_{2k} = \frac{1}{2} + 2^{-k}\) since one gets there either 
+% by seeing bit $k$ be $1$ or bits $k$ through $2k-1$ all be $0$. The 
+% general recursion is that
+% \begin{equation} \label{Eq:RecursionProbability}
+%   p_n = \tfrac{1}{2} p_{n-1} + \tfrac{1}{2} p_{n-k}
+%   \qquad\text{for \(n > k\)}
+% \end{equation}
+% because one can arrive at bit $n$ either by having seen $0$ at bit 
+% $n-1$ or by having seen $1$ at bit $n-k$, and in either of those 
+% positions the probability is $\tfrac{1}{2}$ of seeing the bit value 
+% that leads directly to bit $n$. The two events are furthermore 
+% disjoint (while it is possible to first visit bit $n-k$ and later 
+% bit $n-1$, this can only happen if one saw $0$ at bit $n-k$), so it 
+% is correct to simply add the probabilities. The corresponding 
+% recursion for the cost is
+% \begin{equation} \label{Eq:RecursionCost}
+%   C_n = \frac{
+%     \tfrac{1}{2}p_{n-1}C_{n-1} + \tfrac{1}{2}p_{n-k}(C_{n-k}+1)
+%   }{p_n}
+% \end{equation}
+% since $C_n$ is a conditioned expectation value; this recursion is 
+% effectively a weighted average of the expected costs at the 
+% previous step, with a $+1$ in one branch for the extra cost 
+% incurred there.
+% 
+% Beginning with the probabilities, it may be observed that 
+% \eqref{Eq:RecursionProbability} is a linear recursion with constant 
+% coefficients, so finding a closed form for it is actually feasible. 
+% Putting the recursion on vector form, one gets
+% \begin{equation}
+%   \begin{pmatrix}
+%     p_n \\ p_{n-1} \\ p_{n-2} \\ \vdots \\ p_{n-k+1}
+%   \end{pmatrix} =
+%   \begin{pmatrix}
+%     \tfrac{1}{2} & 0 & \dots & 0 & \tfrac{1}{2} \\
+%     1 & 0 & \dots & 0 & 0 \\
+%     0 & 1 & \dots & 0 & 0 \\
+%     \vdots & \vdots & \ddots & \vdots & \vdots \\
+%     0 & 0 & \dots & 1 & 0
+%   \end{pmatrix}
+%   \begin{pmatrix}
+%     p_{n-1} \\ p_{n-2} \\ \vdots \\ p_{n-k+1} \\ p_{n-k}
+%   \end{pmatrix}
+%   \text{.}
+% \end{equation}
+% Letting $T$ be that $k \times k$ matrix, one would thus have \(p_n 
+% = \mathbf{e}_1^\top T^{n-k} \mathbf{e}_1\), where $\mathbf{e}_1$ is 
+% the first vector in the standard basis of $\mathbb{R}^k$. While 
+% this technically is a closed form formula for $p_n$, its usefulness 
+% lies more in being convenient to analyse than in being a formula 
+% used to directly compute $p_n$ (even though exponentiation by 
+% squaring is a valid algorithm also for matrix multiplication, and 
+% thus could be utilised to compute any particular $p_n$ in polynomial 
+% time). In particular, high powers of a matrix are dominated by the 
+% largest eigenvalue of that matrix. For $T$, the characteristic 
+% polynomial \(\det (\lambda I -\nobreak T) = \lambda^k - 
+% \tfrac{1}{2} \lambda^{k-1} - \tfrac{1}{2}\), which has the obvious 
+% zero \(\lambda = 1\); indeed, it is immediate that \(T \mathbf{1} = 
+% \mathbf{1}\) where \(\mathbf{1} = \sum_{j=1}^k \mathbf{e}_j\) is  
+% the all-ones vector, and thus \(\lambda = 1\) is an obvious 
+% eigenvalue (of multiplicity $1$ with eigenvector $\mathbf{1}$) of $T$. 
+% There are furthermore no eigenvalues (solutions $\lambda$ to
+% \(2\lambda^k = \lambda^{k-1} + 1\)) with \(\lvert\lambda\rvert > 1\) 
+% since that would lead to the contradiction \(2\lvert\lambda\rvert^k = 
+% \lvert 2\lambda^k\rvert = \lvert \lambda^{k-1} +\nobreak 1 \rvert 
+% \leqslant \lvert\lambda^{k-1}\rvert + \lvert 1\rvert = 
+% \lvert\lambda\rvert^{k-1} + 1 < \lvert\lambda\rvert^k + 1^k <
+% 2 \lvert\lambda\rvert^k\), and the only solution if 
+% \(\lvert\lambda\rvert = 1\) is to make \(\lambda^k = \lambda^{k-1} 
+% = 1\), i.e., \(\lambda = 1\). This means \(\lambda = 1\) is the 
+% unique largest eigenvalue of $T$, having eigenvector $\mathbf{1}$, 
+% and thus \(T^n \mathbf{e}_1 \rightarrow p \mathbf{1}\) as 
+% \(n \rightarrow \infty\), for some constant $p$; asymptotically, 
+% \(p_n \rightarrow p\), meaning all positions are essentially of 
+% equal probability for sufficiently large $n$.
+% 
+% Knowing that, it is actually not necessary to determine the 
+% limiting probability $p$, since constant probabilities cancel in 
+% \eqref{Eq:RecursionCost}:
+% \begin{equation} \label{Eq2:RecursionCost}
+%   C_n \approx \frac{
+%     \tfrac{1}{2}pC_{n-1} + \tfrac{1}{2}p(C_{n-k}+1)
+%   }{p} =
+%   \tfrac{1}{2}C_{n-1} + \tfrac{1}{2}C_{n-k} + \tfrac{1}{2}
+%   \text{.}
+% \end{equation}
+% On the other hand, determining $p$ is rather easy. The transpose 
+% $T^\top$ has the same eigenvalues as $T$, but in general different 
+% eigenvectors, and in particular \(\mathbf{u} = \mathbf{1} + 
+% \mathbf{e}_1\) is an eigenvector since  \(T^\top \mathbf{u} = 
+% \mathbf{u}\), or putting it differently \(\mathbf{u}^\top T = 
+% \mathbf{u}^\top\). Hence
+% \begin{multline*}
+%   2 =
+%   \mathbf{u}^\top \mathbf{e}_1 =
+%   \mathbf{u}^\top T \mathbf{e}_1 =
+%   \mathbf{u}^\top T^{n-k} \mathbf{e}_1 =
+%   \mathbf{u}^\top \sum_{r=1}^k p_{n-(r-1)} \mathbf{e}_r \rightarrow
+%   \mathbf{u}^\top p \mathbf{1} =
+%   (k+1) p
+% \end{multline*}
+% and thus \(p = 2\big/ (k +\nobreak 1)\). This should really not 
+% come as a surprise, as it is easily calculated that the expected 
+% length of a step is \(\frac{1}{2} + \frac{1}{2}k = (k +\nobreak 1) 
+% / 2\) bits.
+% 
+% The analysis would however not be complete without also considering 
+% how long it takes for the probability $p_n$ to exhibit this 
+% limiting behaviour, since $k$ is in practice going to grow with 
+% $n$, thus lengthening the natural scale of the probability 
+% variations; without knowing the speeds at which things grow, it is 
+% impossible to tell whether the limiting behaviour is at all 
+% relevant! The bad news are that the bitsize required for variation 
+% decay grows considerably faster than the basic window size $k$, but 
+% the good news is that the bitsize for break even grows much faster 
+% still, so the limiting behaviour should dominate what happens at 
+% break even.
+% 
+% In more detail, the characteristic polynomial \(\lambda^k - 
+% \tfrac{1}{2}\lambda^{k-1} - \tfrac{1}{2}\) has no factor common 
+% with its derivative \(k\lambda^{k-1} - \tfrac{k-1}{2}\lambda^{k-2} 
+% = (k\lambda -\nobreak \tfrac{k-1}{2}) \lambda^{k-2}\), hence all 
+% its zeroes have multiplicity $1$, and thus the matrix $T$ is 
+% diagonalisable. It follows that \(p_n = \sum_{j=1}^k \alpha_j 
+% \lambda_j^n\) where \(\lambda_1,\dotsc,\lambda_k \in \mathbb{C}\) 
+% are the eigenvalues of $T$ and \(\alpha_1,\dotsc,\alpha_k \in 
+% \mathbb{C}\) are some constants. Ordering the eigenvalues so that 
+% \(\lvert\lambda_1\rvert \geqslant \lvert\lambda_2\rvert \geqslant 
+% \dotsb \geqslant \lvert\lambda_k\rvert\), we know from the above 
+% that \(\lambda_1=1\) and \(\alpha_1 = p = 2/(k +\nobreak 1)\), so 
+% the rate of convergence \(p_n \to p\) depends essentially on the 
+% second largest eigenvalue $\lambda_2$. (Since the complex 
+% eigenvalues all occur in conjugate pairs, it is actually the case 
+% that \(\lvert\lambda_2\rvert = \lvert\lambda_3\rvert\), but we may 
+% without loss of generality let $\lambda_2$ be that eigenvalue with 
+% positive imaginary part. This turns out to uniquely identify 
+% $\lambda_2$.) It is immediate from the triangle inequality that 
+% \(\lvert p_n -\nobreak p \rvert = \mathrm{O}\bigl( 
+% \lvert\lambda_2\rvert^n \bigr)\) as \(n \to \infty\), and 
+% straightforward to show that it is also $\Omega\bigl( 
+% \lvert\lambda_2\rvert^n \bigr)$, so essentially the lower end of 
+% the range of $n$ values for which \(\lvert p_n -\nobreak p \rvert < 
+% \varepsilon\) grows as $\ln\varepsilon \big/ 
+% \ln \lvert\lambda_2\rvert$; in particular the exact choice of 
+% tolerance \(\varepsilon > 0\) is of minor importance, since it only 
+% contributes a constant factor to the asymptotics of the 
+% convergence. What matters most is how close $\lvert\lambda_2\rvert$ 
+% gets to $1$.
+% 
+% Through the ansatz \(\lambda = r (\cos \theta +\nobreak 
+% i\sin\theta)\) in the characteristic equation \((2\lambda -\nobreak 
+% 1) \lambda^{k-1} = 1\) one may derive \(\lvert 2r\cos\theta 
+% -\nobreak 1 +\nobreak 2ir\sin\theta \rvert r^{k-1} = 1\), or 
+% equivalently
+% \begin{equation} \label{Eq:EigenvalueCurve}
+%   1 = 
+%   r^{k-1} \sqrt{ (2r\cos\theta - 1)^2 + 4r^2 \sin^2 \theta } =
+%   r^{k-1} \sqrt{ 4r^2 + 1 - 4 r \cos\theta }
+%   \text{.}
+% \end{equation}
+% The monotonicity of both $r^{k-1}$ and $4r^2 + 1 - 4r\cos\theta$ 
+% for \(r \geqslant \max\{\tfrac{1}{2}\cos\theta,0\}\) show that this 
+% equation has a unique solution $r$ for every $\theta$, meaning $r$ 
+% can be viewed as a function of $\theta$, and thus all eigenvalues 
+% lie on a simple polar curve in the complex plane. As 
+% \(k\to\infty\) that curve approaches the unit circle, with the 
+% greatest distance (at \(\theta=\pi\)) shrinking roughly as 
+% $\mathrm{O}(k^{-1})$ due to the factor $r^{k-1}$, but of greater 
+% importance for the asymptotic behaviour of $\lvert\lambda_2\rvert$ 
+% is actually the change in 
+% argument $\theta$, as the curve for every $k$ touches the unit 
+% circle at \(\theta = 0\). Considering instead the argument side of 
+% the characteristic equation, one arrives at
+% \[
+%   \arg (2\lambda - 1) + (k-1)\arg\lambda \equiv 0 \pmod{2\pi}
+%   \text{,}
+% \]
+% and since $\lambda_2$ has the smallest positive argument, it 
+% follows that \(\arg (2\lambda_2 -\nobreak 1) + (k -\nobreak 1) 
+% \arg\lambda_2 = 2\pi\). The first term of that equation is awkward 
+% to express exactly, but easy enough to put bounds on: there is a 
+% triangle in the complex plane with vertices at $0$, $2\lambda_2$, 
+% and $2\lambda_2-1$. Since \(\lvert 2\lambda_2 -\nobreak 1 \rvert = 
+% \lvert\lambda_2\rvert^{-(k-1)} > 1\), it follows that the side from 
+% $0$ to $2\lambda_2-1$ is longer than the side from $2\lambda_2-1$ 
+% to $2\lambda_2$, and consequently the angle at $2\lambda_2$ (being 
+% $\arg\lambda_2$ by parallel lines) is larger than the angle at $0$ 
+% (which is $\arg(2\lambda_2 -\nobreak 1) - \arg\lambda_2$). Hence 
+% \(2\arg\lambda_2 > \arg(2\lambda_2 -\nobreak 1) > \arg\lambda_2\) 
+% and \((k +\nobreak 1)\arg\lambda_2 > 2\pi > k \arg\lambda_2\). It 
+% follows that \(\arg\lambda_2 = \Theta(k^{-1})\) as \(k \to 
+% \infty\). Hence \(1 - \cos\arg\lambda_2 = \Theta(k^{-2})\), and 
+% writing \(1-x = \lvert\lambda_2\rvert\), \eqref{Eq:EigenvalueCurve} 
+% becomes
+% \begin{align*}
+%   1 ={}&
+%   (1 - x)^{k-1} 
+%     \sqrt{ 4(1-x)^2 + 1 - 4(1-x)\bigl(1 - \Theta(k^{-2}) \bigr) }
+%   = \\ ={}&
+%   (1 - x)^{k-1} 
+%     \sqrt{ 1 - 4x + 4x^2 + \Theta(k^{-2}) }
+%   = \\ ={}&
+%   (1 - x)^{k-1} 
+%     (1-2x)\Bigl( 1 + \tfrac{1}{(1-2x)^2}\Theta(k^{-2}) \Bigr)^{1/2}
+%   = \\ ={}&
+%   \bigl( 1 - (k-1)x + o(x^2) \bigr)  (1-2x) 
+%     \bigl( 1 +  \Theta(k^{-2}) \bigr)
+%   =
+%   1 - (k+1)x + \Theta(k^{-2})
+%   \text{,}
+% \end{align*}
+% whence \(x = \Theta(k^{-3})\), implying \(\ln \lvert\lambda_2\rvert 
+% = \Theta(k^{-3})\), and thus the $n$ required to 
+% make \(\lvert p_n -\nobreak p \rvert < \varepsilon\) grows as 
+% $\Theta(k^3)$. This is however much smaller than the point of break 
+% even, which rather grows like $\Theta(k^2 2^k)$, so equal bit 
+% probabilities is a valid approximation for estimating that.
+% 
+% The cost recursion~\eqref{Eq2:RecursionCost} is not homogeneous, 
+% but can be made such through the ansatz \(C_n = \beta n + D_n\), 
+% where \(D_n = \tfrac{1}{2} D_{n-1} + \tfrac{1}{2} D_{n-k}\); it 
+% then follows that \(\beta n = \tfrac{1}{2}\beta (n -\nobreak 1) + 
+% \tfrac{1}{2}\beta (n -\nobreak k) + \tfrac{1}{2}\) for all $n$, or 
+% from the constant terms alone that \(0 = -\tfrac{1}{2}\beta 
+% -\tfrac{1}{2}k\beta + \tfrac{1}{2}\), making \(\beta = 1 \big/ (k 
+% +\nobreak 1)\). Moreover, since the recursion for $D_n$ is the same 
+% as that for $p_n$, it follows from the above analysis of the 
+% eigenstructure of the transfer matrix $T$ that the sequence 
+% $\{D_n\}_{n=0}^\infty$ is bounded, meaning that asymptotically the 
+% marginal cost for a width $k$ sliding window is $\beta$ modular 
+% multiplications per bit. The cost estimate (including startup 
+% precomputations) for bitsize $n$ with sliding window size $k$ is 
+% thus
+% \begin{equation}
+%   \frac{n}{k+1} + 2^{k-1} - 1
+%   \text{,}
+% \end{equation}
+% which compared to the fixed window algorithm has the marginal cost 
+% of a window one size larger, and a startup cost almost that 
+% for a window one size smaller! Window size $k$ gains an advantage 
+% to window size $k-1$ where
+% \[
+%   \frac{n}{k+1} + 2^{k-1} - 1 =
+%   \frac{n}{k} + 2^{k-2} - 1
+%   \quad\Longleftrightarrow\quad
+%   2^{k-2} = \frac{n}{k(k+1)} 
+%   \text{,}
+% \]
+% making \(n = \Theta(k^2 2^k) > \Theta(k^3)\), as claimed.
+% 
+% \begin{proc}{make_powm}
+%   This command constructs a command prefix with the syntax
+%   \begin{quote}
+%     \meta{prefix} \word{a}
+%   \end{quote}
+%   which computes $\mathrm{powm}(a,b,N)$. The call syntax for 
+%   |make_powm| itself is
+%   \begin{quote}
+%     |make_powm| \word{exponent} \word{mod-style} \word{mod-data}
+%   \end{quote}
+%   where \word{exponent} is the exponent $b$. The \word{mod-style} 
+%   is either |mulprefix| or |modulo|. In the |modulo| case, the 
+%   \word{mod-data} is the modulo number $N$. In the |mulprefix| 
+%   case, it is a command prefix computing multiplication of two 
+%   factors (as one might construct using |make_modulo mulprefix|). 
+%   In the |mulprefix| case, it is technically not required that the 
+%   multiplication is modulo $N$, or even that the base $a$ is a 
+%   number; as long as the given prefix performs some kind of 
+%   associative multiplication, the returned prefix raises to the 
+%   power $b$ in the corresponding sense.
+%   
+%   \begin{tcl}
+proc ::math::numtheory::make_powm {b style data} {
+   if {$b < 1} then {
+      return -code error "Exponent must be positive"
+   }
+   switch $style {
+      modulo {
+         set mulmod [make_modulo mulprefix $data]
+      }
+      mulprefix {
+         set mulmod $data
+      }
+      default {
+         return -code error\
+           {Modulo style must be "modulo" or "mulprefix"}
+      }
+   }
+%   \end{tcl}
+%   The first order of business is to compute the bitlist of the 
+%   exponent. This also gives the bitsize $n$, as the list length 
+%   minus one.
+%   \begin{tcl}
+   set bitlist [split [string trimleft [
+      string map {0 000 1 001 2 010 3 011 4 100 5 101 6 110 7 111}\
+        [format %llo $b]
+   ] 0] ""]
+%   \end{tcl}
+%   The next step is to compute the appropriate window width $k$. By 
+%   the above that should be the largest integer solution to 
+%   \(k (k +\nobreak 1) 2^{k-2} \leqslant n\), and that happens to 
+%   be \(k=1\) for \(n < 6\). Hence special-casing that might be 
+%   appropriate for such ``small'' exponents.
+%   \begin{tcl}
+   if {[llength $bitlist] < 7} then {
+      return [list [namespace which Sliding_window_powm]\
+        1 0 {} [lrange $bitlist 1 end] $mulmod]
+   }
+%   \end{tcl}
+%   Above that, one may observe that the left hand side of the 
+%   inequality is increasing in $k$, so one might alternatively 
+%   choose to solve \(f(x) = \ln n\) for
+%   \[
+%     f(x) = 
+%     \ln x + \ln (x +\nobreak 1) + \ln 2^{x-2} = 
+%     \ln x + \ln (x+1) + (x-2)\ln 2 
+%     \text{.}
+%   \]
+%   An exact solution here is hardly called for, since only the 
+%   integer part of $x$ is relevant. Since in addition $f$ is nearly 
+%   linear, a solution that seems good enough is to start with \(x_0 = 
+%   2 + \ln n / \ln 2\) as initial guess and then perform one 
+%   Newton--Raphson step to adjust it.
+%   \begin{tcl}
+   set x [expr {log([llength $bitlist]-1)/log(2) + 2}]
+   set x [expr {$x - 
+      (log($x) + log($x+1)) / (1/$x + 1/($x+1) + log(2))
+   }]
+%   \end{tcl}
+%   where the numerator \(f(x) - \ln n\) could be simplified since 
+%   the remaining terms are equal for the chosen initial guess $x_0$. 
+%   This results in the following guesses:
+%   \begin{center}
+%     \begin{tabular}{ r@{--}r c}
+%       \multicolumn{2}{c}{$n$ range} & $\lfloor x_1 \rfloor$ \\
+%       11&40 & 2 \\
+%       41&124 & 3 \\
+%       125&353 & 4 \\
+%       354&945 & 5
+%     \end{tabular}
+%   \end{center}
+%   
+%   In practice, what determines the optimal window width for a 
+%   particular exponent may however be how well the windows manage to 
+%   cover the bitlist rather than the expected cost per bit. 
+%   Therefore this procedure computes coverings for two adjacent 
+%   window sizes and chooses that which has the lowest cost. This is 
+%   not guaranteed to be optimal---\(k=1\) is always optimal for an 
+%   exponent that is a power of $2$---but it should at least reduce 
+%   unfortunate resonances between bitpattern and window width.
+%   \begin{tcl}
+   set k [expr {int($x)}]
+   set down [Sliding_window_cover $k $bitlist]
+   incr k
+   set up [Sliding_window_cover $k $bitlist]
+   if {[lindex $down 0] < [lindex $up 0]} then {
+      incr k -1
+   } else {
+      set down $up
+   }
+   return [list [namespace which Sliding_window_powm]\
+     $k [lindex $down 1 0] [lrange [lindex $down 1] 1 end]\
+     [lindex $down 2] $mulmod]
+}
+%</pkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{powm}
+%   In practice, many users may prefer to use a command that ``just 
+%   computes the \texttt{powm},'' without caring about whether some 
+%   arguments are mostly constant.
+%   \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::powm] [arg a] [arg b] [arg N]]
+  The [cmd powm] command performs a modular exponentiation, i.e., it 
+  modulo [arg N] raises [arg a] to the power [arg b]. The arguments 
+  must all be integers and satisfy [arg N],[arg b]>=1. It is 
+  furthermore preferred that 0<=[arg a]<[arg N]; if it is not, then 
+  the result may sometimes fail to be so bounded, even though it will 
+  still be congruent to [arg a]**[arg b] modulo [arg N].
+  [para]
+  
+  This command is optimised for the case of large [arg b] and 
+  [arg N]; appropriate algorithms will be chosen also for small 
+  argument values, but the overhead for [emph {making the choice}] 
+  could then be nonnegligible. If the same values for [arg b] and 
+  [arg N] are to be used several times, then the overhead can be 
+  reduced considerably by instead using the [cmd make_powm] command 
+  to construct a command prefix which has those values hardwired. 
+  ([cmd powm] is in fact a convenience wrapper around 
+  [cmd make_powm].)
+  
+%</man>
+%   \end{tcl}
+%   `Convenience wrapper' it is: first compute the command prefix, 
+%   then apply it to the base $a$.
+%   \begin{tcl}
+%<*pkg>
+proc ::math::numtheory::powm {a b N} {{*}[make_powm $b modulo $N] $a}
+%</pkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% The description of |make_powm| should come next. It is probably 
+% best to make the |modulo| and |mulprefix| cases two separate 
+% prototype |call|s.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::make_powm] [arg exponent] [method modulo] [arg modulus]]
+  This command returns a command prefix, which expects an integer 
+  base [arg a] as its only additional argument. That command prefix 
+  computes [arg a] raised to the power [arg exponent] modulo the 
+  [arg modulus], using a "sliding window" variant of the 
+  exponentiation by squaring algorithm. The [arg exponent] and 
+  [arg modulus] must both be positive, and the implementation is 
+  designed to be performant when these numbers are very large. The 
+  returned command prefix has several large pieces of data embedded 
+  into it, that [cmd make_powm] derives from the [arg exponent] and 
+  [arg modulus], but no related data are cached outside of the command 
+  prefix itself.
+  [para]
+  
+  For example, the definition of [cmd powm] as a convenience call to 
+  [cmd make_powm] is
+[example {
+   proc ::math::numtheory::powm {a b N} {
+      {*}[make_powm $b modulo $N] $a
+   }
+}]
+[call [cmd math::numtheory::make_powm] [arg exponent] [method mulprefix] [arg prefix]]
+  This command returns a command prefix, which implements raising its 
+  argument to the power [arg exponent], through multiplying various 
+  smaller powers of that argument with each other. The [arg prefix] 
+  argument is the command prefix called upon to actually perform 
+  those multiplications; it should have the call syntax
+[example_begin]
+  {*}[arg prefix] [arg x] [arg y]
+[example_end]
+  and return the product of [arg x] and [arg y]. If [arg powprefix] 
+  similarly is the return value of [cmd make_powm], then it has the 
+  call syntax
+[example_begin]
+  {*}[arg powprefix] [arg a]
+[example_end]
+  and returns [arg a] raised to the power [arg exponent].
+  [para]
+  
+  The [method modulo] form of [cmd make_powm] is a shorthand that 
+  calls [cmd make_modulo] to compute the multiplication prefix. The 
+  longer [method mulprefix] form is useful in two cases. First, if 
+  the caller anyway has that multiplication prefix at hand, it would 
+  be unnecessary for [cmd make_powm] to compute it again. Second, the 
+  reduction of exponentiation to a select sequence of multiplications 
+  is not something that only makes sense in modular arithmetic; as 
+  long as the [arg prefix] implements some associative binary 
+  operation (e.g. matrix multiplication), [cmd make_powm] will 
+  construct the corresponding repetition of that operation, implemented 
+  in a fairly efficient manner.
+  
+%</man>
+% \end{tcl}
+% 
+% Testing someting like |make_powm|, designed to be used for very 
+% large numbers as it is, can be something of a challenge. One 
+% approach can be to pick two distinct primes $p$ and $q$, and then 
+% compute $a^{\mathrm{lcm}(p-1,q-1)+1} \bmod pq$ for a number of 
+% distinct bases $a$, since the result should again be $a$ by (Euler's 
+% generalisation of) Fermat's little theorem.
+% 
+% Two nice primes are \(p = 10^9+7\) and \(q = 10^9+9\), for which 
+% the product \(pq = 10^{18} + 16 \cdot 10^9 + 63 = 
+% 1 \mkern1mu 000 \mkern1mu 000 \mkern1mu 016 \mkern1mu 000 \mkern1mu 
+% 000 \mkern1mu 063\); this is of the same order of magnitude as $2^{60}$. 
+% It is immediate that \(\gcd( p -\nobreak 1, q -\nobreak 1) = 2\) and 
+% hence \(\mathrm{lcm}( p -\nobreak 1, q -\nobreak 1) = 
+% (p -\nobreak 1)(q -\nobreak 1) \big/ 2 =
+% 5 \cdot 10^{17} + 7 \cdot 10^9 + 24\).
+% \begin{tcl}
+%<*test>
+test powm-1.1 "powm(a,lcm(p-1,q-1)+1,pq)=a" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000025 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {2 3 5 7 11 13 100 98754}
+% \end{tcl}
+% Of course, it would not be entirely impossible for a completely 
+% messed up implementation to accidentally give back exactly what 
+% is fed in, so we might as well test that it also gives back $1$ for 
+% an exponent one less. It is somewhat harder for a complete 
+% garbage implementation to get both of these right.
+% \begin{tcl}
+test powm-1.2 "powm(a,lcm(p-1,q-1),pq)=1" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000024 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {1 1 1 1 1 1 1 1}
+% \end{tcl}
+% And way harder still for it to also get the 
+% $(p -\nobreak 1)(q -\nobreak 1) + 2$ case right.
+% \begin{tcl}
+test powm-1.3 "powm(a,lcm(p-1,q-1)+2,pq)=a**2" -body {
+   set powm [
+      math::numtheory::make_powm 500000007000000026 modulo 1000000016000000063
+   ]
+   list [{*}$powm 2] [{*}$powm 3] [{*}$powm 5] [{*}$powm 7]\
+     [{*}$powm 11] [{*}$powm 13] [{*}$powm 100] [{*}$powm 98754]
+} -result {4 9 25 49 121 169 10000 9752352516}
+% \end{tcl}
+% 
+% A different test direction would be to check that all code paths in 
+% |make_powm| and subsidiaries do things the right number of times. 
+% Here, it can be convenient to instead of modular multiplication use 
+% \((x,y) \mapsto x + 3 + y\) as a binary operation. When that is 
+% applied to $7$, the result will be \(7+3 = 10\) times the 
+% ``exponent'', minus $3$.
+% \begin{tcl}
+test powm-2.1 "Code paths" -body {
+   set nearadd {::apply {{x y} {expr {$x+3+$y}}}}
+   list [
+      {*}[math::numtheory::make_powm 31 mulprefix $nearadd] 7
+% \end{tcl}
+% \(31 = 2^5-1\) has a bitsize \(n=4\), and will thus take the 
+% \(k=1\) shortcut in |make_powm|.
+% \begin{tcl}
+   ] [
+      {*}[math::numtheory::make_powm 512 mulprefix $nearadd] 7
+% \end{tcl}
+% \(512 = 2^9\) has a bitsize \(n=8\), so |make_powm| computes \(x_1 
+% \approx 1.79\) and computes covers for the window sizes \(k=1\) and 
+% \(k=2\). It picks the former.
+% \begin{tcl}
+   ] [
+      {*}[math::numtheory::make_powm 1023 mulprefix $nearadd] 7
+% \end{tcl}
+% \(1023 = 2^{10}-1\) also has bitsize \(n=8\), so |make_powm| again 
+% finds \(x_1 \approx 1.79\) and computes covers for the window sizes 
+% \(k=1\) and \(k=2\), but here it picks the latter.
+% 
+% The final group of exponents are in octal |470701|, |470703|, and 
+% |470707|, respectively. The initial |47070| pattern produces equal 
+% costs for window widths $2$ and $3$, so the final digit decides 
+% which is used: with |1| there is a tie (and one tail bit), with |3| 
+% window width $2$ wins (it gets no tail, whereas $3$ would), and 
+% with |7| window width $3$ wins (it gets no tail, whereas $2$ 
+% would).
+% \begin{tcl}
+   ] [
+      {*}[math::numtheory::make_powm 160193 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 160195 mulprefix $nearadd] 7
+   ] [
+      {*}[math::numtheory::make_powm 160199 mulprefix $nearadd] 7
+   ]
+} -result {307 5117 10227 1601927 1601947 1601987}
+%</test>
+% \end{tcl}
+% 
+% 
+% 
+% 
+% 
 % \section{Primes}
 % 
 % The first (and so far only) operation provided is |isprime|, which 
@@ -116,9 +1485,10 @@ integer is a prime.
   [list_begin options]
   [opt_def -randommr [arg repetitions]]
     which controls how many times the Miller-Rabin test should be 
-    repeated with randomly chosen bases. Each repetition reduces the 
-    probability of a false positive by a factor at least 4. The 
-    default for [arg repetitions] is 4.
+    repeated with randomly chosen bases. The risk that one iteration 
+    of the test (with a random basis) fails to detect compositeness 
+    is at most 25%, with two iterations it is at most 6.25%, and so 
+    on. The default for [arg repetitions] is 4.
   [list_end]
   Unknown options are silently ignored.
 
@@ -885,7 +2255,7 @@ test isprime-2.0 "PRNG tweak" -setup {
 %<*man>
 [list_end]
 
-[keywords {number theory} prime]
+[keywords {number theory} prime {modular exponentiation}]
 [manpage_end]
 %</man>
 % \end{tcl}

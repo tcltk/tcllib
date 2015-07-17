@@ -1,6 +1,4 @@
 [manpage_begin math::numtheory n 1.0]
-[keywords {number theory}]
-[keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc   {Tcl Math Library}]
@@ -16,6 +14,118 @@ though at the moment it only provides that of testing whether an
 integer is a prime.
 
 [list_begin definitions]
+[call [cmd math::numtheory::make_modulo] [arg subcmd] [arg N]]
+  The [cmd make_modulo] command precomputes some data that are useful
+  for quickly computing remainders modulo [arg N], which must be a
+  positive integer. The format of the return value depends on the
+  [arg subcmd]. This kind of preparation is primarily of interest if
+  one needs to compute many remainders modulo the same [arg N], but
+  that turns out to be quite common.
+
+  The [arg subcmd]s are:
+  [list_begin commands]
+  [cmd_def prefix]
+    Returns a [emph {command prefix}] that expects one extra argument
+    [arg x].
+    [example_begin]{*}[arg modprefix] [arg x][example_end]
+    This argument [arg x] is an integer which should be nonnegative
+    and less than [arg N]**2. The result of that call will be the
+    remainder of [arg x] divided by [arg N].
+  [cmd_def mulprefix]
+    Returns a command prefix that expects two extra arguments
+    [arg x] and [arg y].
+    [example_begin]{*}[arg mulmodprefix] [arg x] [arg y][example_end]
+    These arguments are integers whose product should be nonnegative
+    and less than [arg N]**2 (typically, [arg x] and [arg y] are both
+    less than [arg N]), and the result of that call will be the
+    remainder of [arg x]*[arg y] divided by [arg N].
+  [cmd_def Barrett-parameters]
+    Returns a list of three integers [arg N], [arg M], and [arg s]
+    that are what one needs in order to perform Barrett reduction
+    ([uri {http://en.wikipedia.org/wiki/Barrett_reduction}]). [arg N]
+    is the argument. The shift amount [arg s] satisfies 2**([arg s]/2)
+    > [arg N]. The scaled reciprocal [arg M] satisfies
+    [arg M]*[arg N] >= 2**[arg s] > ([arg M]-1)*[arg N].
+  [list_end]
+
+  Note that the [arg modprefix] computed is tuned for applications
+  where the number to be reduced modulo [arg N] is uniformly
+  distributed in the interval from 0 (inclusive) to [arg N]**2. In
+  applications where the number comes from a much smaller interval,
+  the choice of algorithm for the [arg modprefix] may be suboptimal,
+  but many number-theoretical and cryptographic algorithms end up
+  exercising the full range.
+
+[call [cmd math::numtheory::powm] [arg a] [arg b] [arg N]]
+  The [cmd powm] command performs a modular exponentiation, i.e., it
+  modulo [arg N] raises [arg a] to the power [arg b]. The arguments
+  must all be integers and satisfy [arg N],[arg b]>=1. It is
+  furthermore preferred that 0<=[arg a]<[arg N]; if it is not, then
+  the result may sometimes fail to be so bounded, even though it will
+  still be congruent to [arg a]**[arg b] modulo [arg N].
+  [para]
+
+  This command is optimised for the case of large [arg b] and
+  [arg N]; appropriate algorithms will be chosen also for small
+  argument values, but the overhead for [emph {making the choice}]
+  could then be nonnegligible. If the same values for [arg b] and
+  [arg N] are to be used several times, then the overhead can be
+  reduced considerably by instead using the [cmd make_powm] command
+  to construct a command prefix which has those values hardwired.
+  ([cmd powm] is in fact a convenience wrapper around
+  [cmd make_powm].)
+
+[call [cmd math::numtheory::make_powm] [arg exponent] [method modulo] [arg modulus]]
+  This command returns a command prefix, which expects an integer
+  base [arg a] as its only additional argument. That command prefix
+  computes [arg a] raised to the power [arg exponent] modulo the
+  [arg modulus], using a "sliding window" variant of the
+  exponentiation by squaring algorithm. The [arg exponent] and
+  [arg modulus] must both be positive, and the implementation is
+  designed to be performant when these numbers are very large. The
+  returned command prefix has several large pieces of data embedded
+  into it, that [cmd make_powm] derives from the [arg exponent] and
+  [arg modulus], but no related data are cached outside of the command
+  prefix itself.
+  [para]
+
+  For example, the definition of [cmd powm] as a convenience call to
+  [cmd make_powm] is
+[example {
+   proc ::math::numtheory::powm {a b N} {
+      {*}[make_powm $b modulo $N] $a
+   }
+}]
+[call [cmd math::numtheory::make_powm] [arg exponent] [method mulprefix] [arg prefix]]
+  This command returns a command prefix, which implements raising its
+  argument to the power [arg exponent], through multiplying various
+  smaller powers of that argument with each other. The [arg prefix]
+  argument is the command prefix called upon to actually perform
+  those multiplications; it should have the call syntax
+[example_begin]
+  {*}[arg prefix] [arg x] [arg y]
+[example_end]
+  and return the product of [arg x] and [arg y]. If [arg powprefix]
+  similarly is the return value of [cmd make_powm], then it has the
+  call syntax
+[example_begin]
+  {*}[arg powprefix] [arg a]
+[example_end]
+  and returns [arg a] raised to the power [arg exponent].
+  [para]
+
+  The [method modulo] form of [cmd make_powm] is a shorthand that
+  calls [cmd make_modulo] to compute the multiplication prefix. The
+  longer [method mulprefix] form is useful in two cases. First, if
+  the caller anyway has that multiplication prefix at hand, it would
+  be unnecessary for [cmd make_powm] to compute it again. Second, the
+  reduction of exponentiation to a select sequence of multiplications
+  is not something that only makes sense in modular arithmetic; as
+  long as the [arg prefix] implements some associative binary
+  operation (e.g. matrix multiplication), [cmd make_powm] will
+  construct the corresponding repetition of that operation, implemented
+  in a fairly efficient manner.
+
 [call [cmd math::numtheory::isprime] [arg N] [
    opt "[arg option] [arg value] ..."
 ]]
@@ -43,14 +153,14 @@ integer is a prime.
   [list_begin options]
   [opt_def -randommr [arg repetitions]]
     which controls how many times the Miller-Rabin test should be
-    repeated with randomly chosen bases. Each repetition reduces the
-    probability of a false positive by a factor at least 4. The
-    default for [arg repetitions] is 4.
+    repeated with randomly chosen bases. The risk that one iteration
+    of the test (with a random basis) fails to detect compositeness
+    is at most 25%, with two iterations it is at most 6.25%, and so
+    on. The default for [arg repetitions] is 4.
   [list_end]
   Unknown options are silently ignored.
 
 [list_end]
 
-[vset CATEGORY {math :: numtheory}]
-[include ../doctools2base/include/feedback.inc]
+[keywords {number theory} prime {modular exponentiation}]
 [manpage_end]
