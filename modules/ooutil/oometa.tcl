@@ -3,7 +3,6 @@
 ##
 # TclOO routines to implement property tracking by class and object
 ###
-package require oo::util
 
 namespace eval ::oo::meta {
   variable dirty_classes {}
@@ -152,6 +151,28 @@ proc ::oo::meta::properties class {
   return $properties
 }
 
+
+proc ::oo::meta::search args {
+  variable local_property
+
+  set path [lrange $args 0 end-1]
+  set value [lindex $args end]
+
+  set result {}
+  foreach {class info} [array get local_property] {
+    if {![dict exists $info {*}$path]} continue
+    if {[string match [dict get $info {*}$path] $value]} {
+      lappend result $class
+    }
+  }
+  return $result
+}
+
+proc ::oo::define::meta {args} {
+  set class [lindex [::info level -1] 1]
+  ::oo::meta::info $class {*}$args
+}
+
 ###
 # Add properties and option handling
 ###
@@ -159,6 +180,8 @@ proc ::oo::define::property {args} {
   set class [lindex [::info level -1] 1]
   ::oo::meta::info $class set {*}$args
 }
+
+
 
 oo::define oo::class {
 
