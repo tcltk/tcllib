@@ -59,12 +59,30 @@ Create a huddle object as a dict. It can contain other huddle objects.
 [call [cmd "huddle list"] [opt [arg "value value ..."]]]
 Create a huddle object as a list. It can contain other huddle objects.
 
+[call [cmd "huddle number"] [arg "number"]]
+Create a huddle object as a number.
+
+[call [cmd "huddle string"] [arg "string"]]
+Create a huddle object as a string.
+
+[call [cmd "huddle boolean"] [arg "expression to evaluate as true or false"]]
+Create a huddle object as a boolean evaluating an expression as true or false-
+
+[call [cmd "huddle true"]]
+Create a huddle object as a boolean true.
+
+[call [cmd "huddle false"]]
+Create a huddle object as a boolean false.
+
+[call [cmd "huddle null"]]
+Create a huddle object as a null.
+
 [call [cmd "huddle get"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Almost the same as [cmd "dict get"].
 Get a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
 
-[call [cmd "huddle gets"] [arg object] [arg key]  [opt [arg "key ..."]]]
+[call [cmd "huddle getStripped"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Get a sub-object from the huddle object, stripped.
 
 [call [cmd "huddle set"] [arg objectVar] [arg key]  [opt [arg "key ..."]] [arg value]]
@@ -72,13 +90,17 @@ Almost the same as [cmd "dict set"].
 Set a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
 
-[call [cmd "huddle remove"] [arg object] [arg key]  [opt [arg "key ..."]]]
+[call [cmd "huddle remove"] [arg objectVar] [arg key]  [opt [arg "key ..."]]]
 Almost the same as [cmd "dict remove"].
-Remove a sub-object from the huddle object.
+Remove in place a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
 
+[call [cmd "huddle removed"] [arg object] [arg key]  [opt [arg "key ..."]]]
+Makes a copy of the huddle object and remove the indicated sub-object.
+This is more efficient than making first a clone and then use [cmd "huddle remove"] for removing the desired sub-object.
+
 [call [cmd "huddle combine"] [arg object1] [arg object2]  [opt [arg "object3 ..."]]]
-Merging huddle objects given.
+Merging huddle objects given.  The objects should be of the same type.
 
 [example {
 % set aa [huddle create a b c d]
@@ -232,19 +254,19 @@ if [arg object] is a huddle, returns 1. the other, returns 0.
 [call [cmd "huddle checkHuddle"] [arg object]]
 if [arg object] is not a huddle, rises an error.
 
-[call [cmd "huddle to_node"] [arg object] [opt [arg tag]]]
+[call [cmd "huddle argument_to_node"] [arg object] [opt [arg tag]]]
 for type-callbacks.
 [para]
 if [arg object] is a huddle, returns root-node. the other, returns [cmd {[list s $object]}].
 
 [example {
-% huddle to_node str
+% huddle argument_to_node str
 s str
-% huddle to_node str !!str
+% huddle argument_to_node str !!str
 !!str str
-% huddle to_node {HUDDLE {s str}}
+% huddle argument_to_node {HUDDLE {s str}}
 s str
-% huddle to_node {HUDDLE {l {a b c}}}
+% huddle argument_to_node {HUDDLE {l {a b c}}}
 l {a b c}
 }]
 
@@ -279,7 +301,7 @@ callback function name for additional type.
 [list_end]
 [list_end]
 
-[section {TYPE CALLBACK}]
+[section {TYPE NAMESPACE}]
 [para]
 
 The definition of callback for user-type.
@@ -313,7 +335,7 @@ tag list for huddle-node as a dict. if the type has child-nodes, use "parent", o
 
 [list_end]
 
-[call [cmd get_sub] [arg src] [arg key]]
+[call [cmd get_subnode] [arg src] [arg key]]
 returns a sub node specified by [arg key].
 [list_begin options]
 [opt_def src]
@@ -334,7 +356,7 @@ removes a sub-node from the tagged-content, and returns self.
 [para]
 
 [cmd strip] must be defined at all types.
-[cmd get_sub] must be defined at container types.
+[cmd get_subnode] must be defined at container types.
 [cmd set/remove] shuould be defined, if you call them.
 
 [example {
@@ -357,7 +379,7 @@ proc my_dict_setting {command args} {
             #          "set/remove/equal/append" shuould be defined, if you call them.
             # tag:    tag definition("child/parent" word is maybe obsoleted)
         }
-        get_sub { ; # get a sub-node specified by "key" from the tagged-content
+        get_subnode { ; # get a sub-node specified by "key" from the tagged-content
             foreach {src key} $args break
             return [dict get $src $key]
         }
@@ -392,7 +414,7 @@ proc my_dict_setting {command args} {
             set resultL $src
             foreach {key value} $list {
                 if {$str ne ""} {
-                    lappend resultL $key [huddle to_node $value $str]
+                    lappend resultL $key [huddle argument_to_node $value $str]
                 } else {
                     lappend resultL $key $value
                 }
@@ -403,7 +425,7 @@ proc my_dict_setting {command args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
             set resultL {}
             foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value]
+                lappend resultL $key [huddle argument_to_node $value]
             }
             return [huddle wrap D $resultL]
         }
@@ -434,7 +456,7 @@ proc ::yaml::_huddle_mapping {command args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
             set resultL {}
             foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value !!str]
+                lappend resultL $key [huddle argument_to_node $value !!str]
             }
             return [huddle wrap !!map $resultL]
         }

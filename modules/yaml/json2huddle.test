@@ -19,6 +19,8 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     testsNeedTcltest 2
 
     support {
+	use try/try.tcl   try
+	use try/throw.tcl throw
         use json/json.tcl json
         useLocal huddle.tcl huddle
     }
