@@ -104,13 +104,13 @@ proc ::yaml::yaml2dict {args} {
 
     set result [_parseBlockNode]
 
-    set a [huddle get_stripped $result]
+    set a [huddle getStripped $result]
 
     if {$yaml::data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
 
-    return [huddle get_stripped $result]
+    return [huddle getStripped $result]
 }
 
 proc ::yaml::yaml2huddle {args} {
@@ -235,7 +235,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
 #########################
 proc ::yaml::_composeTags {tag value} {
     if {$tag eq ""} {return $value}
-    set value [huddle get_stripped $value]
+    set value [huddle getStripped $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
     } elseif {[info exists yaml::composer($tag)]} {
@@ -254,7 +254,7 @@ proc ::yaml::_composeBinary {value} {
 proc ::yaml::_composePlain {value} {
     if {$value ne ""} {
         if {[huddle type $value] ne "plain"} {return $value}
-        set value [huddle get_stripped $value]
+        set value [huddle getStripped $value]
     }
     set pair [_toType $value]
     return  [huddle wrap $pair]
@@ -466,9 +466,8 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
     }
 
     set value [_parseBlockNode "" $pos]
-    set type_name [huddle type $value]
 
-    if {$type_name eq "list" || $type_name  eq "sequence"} {
+    if {[huddle type $value]  eq "sequence"} {
         set len [huddle llength $value]
         for {set i 0} {$i < $len} {incr i} {
             set sub [huddle get $value $i]
@@ -503,7 +502,7 @@ proc ::yaml::_set_huddle_mapping {result prev} {
 
     set val [_composePlain $val]
     if {[huddle isHuddle $key]} {
-        set key [huddle get_stripped $key]
+        set key [huddle getStripped $key]
     }
 
 
@@ -1111,7 +1110,7 @@ proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
     set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
     switch -- [huddle type $data] {
         "string" {
-            set data [huddle get_stripped $data]
+            set data [huddle getStripped $data]
             return [_dumpScalar $data $offset]
         }
         "list" {
@@ -1226,14 +1225,13 @@ namespace eval ::yaml::types {
     }
 
     namespace eval sequence {
-    variable settings
+        variable settings
 
         set settings {
         superclass list
         publicMethods {sequence}
         isContainer yes
-        tag !!seq
-    }
+        tag !!seq}
 
         proc sequence {args} {
             set resultL {}

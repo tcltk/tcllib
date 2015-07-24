@@ -34,7 +34,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     #testsNeed dict 1
 
     support {
-    use json/json.tcl json
+	use json/json.tcl json
     }
     testing {
         useLocal huddle.tcl huddle
@@ -65,11 +65,11 @@ test huddle-1.5 "test of huddle create" -body {
 } -result {HUDDLE {D {e {s f} g {s h}}}}
 
 test huddle-1.6 "test of huddle create" -body {
-    huddle get_stripped $folding dd
+    huddle getStripped $folding dd
 } -result {bb {a b c d} cc {e f g h}}
 
 test huddle-1.7 "test of huddle create" -body {
-    huddle get_stripped $folding dd cc
+    huddle getStripped $folding dd cc
 } -result {e f g h}
 
 test huddle-1.8 "test of huddle create" -body {
@@ -107,11 +107,11 @@ test huddle-2.5 "test of huddle list" -body {
 } -result {HUDDLE {L {{s a} {s b} {s c} {s d}}}}
 
 test huddle-2.6 "test of huddle list" -body {
-    huddle get_stripped $folding 0
+    huddle getStripped $folding 0
 } -result {i {a b c d} j k {e f g h}}
 
 test huddle-2.7 "test of huddle list" -body {
-    huddle get_stripped $folding 0 1
+    huddle getStripped $folding 0 1
 } -result {a b c d}
 
 test huddle-2.8 "test of huddle list" -body {
@@ -127,7 +127,7 @@ test huddle-2.10 "test of huddle list" -body {
 } -result {string}
 
 test huddle-2.11 "test of huddle list" -body {
-    huddle get_stripped {HUDDLE {L {{s a} {L {}} {s c}}}}
+    huddle getStripped {HUDDLE {L {{s a} {L {}} {s c}}}}
 } -result {a {} c}
 
 #test huddle-3.1 "test of huddle jsondump" {[info tclversion] >= 8.5} {
@@ -229,8 +229,8 @@ test huddle-4.1 "test of huddle set" -body {
     huddle set data_dict dd bb a baa
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {e {s f} g {s h}}}}} ee {D {i {s j} k {s l}}}}}}
 
-test huddle-4.2 "test of huddle remove" -body {
-    set data_dict [huddle remove $data_dict dd cc e]
+test huddle-4.2 "test of huddle removed" -body {
+    set data_dict [huddle removed $data_dict dd cc e]
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s l}}}}}}
 
 test huddle-4.3 "test of huddle set" -body {
@@ -238,7 +238,8 @@ test huddle-4.3 "test of huddle set" -body {
 } -result {HUDDLE {L {{L {{s i} {s baa} {s j} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t} {s u}}}}
 
 test huddle-4.4 "test of huddle remove" -body {
-    set data_list [huddle remove $data_list 0 2]
+    huddle remove data_list 0 2
+    return $data_list
 } -result {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t} {s u}}}}
 
 test huddle-4.5 "test of huddle equal" -body {
