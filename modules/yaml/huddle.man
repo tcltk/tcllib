@@ -82,7 +82,7 @@ Almost the same as [cmd "dict get"].
 Get a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
 
-[call [cmd "huddle getStripped"] [arg object] [arg key]  [opt [arg "key ..."]]]
+[call [cmd "huddle get_stripped"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Get a sub-object from the huddle object, stripped.
 
 [call [cmd "huddle set"] [arg objectVar] [arg key]  [opt [arg "key ..."]] [arg value]]
@@ -124,9 +124,11 @@ HUDDLE {D {c {s d} a {s b}}}
 1
 }]
 
-[call [cmd "huddle append"] [arg objectVar] [arg key] [arg value] [opt [arg "key value ..."]]]
-[call [cmd "huddle append"] [arg objectVar] [arg value] [opt [arg "value ..."]]]
-Appending child elements. When for dicts, giving key/value. When for lists, giving values.
+[call [cmd "huddle update_children"] [arg objectVar] [arg key] [arg value] [opt [arg "key value ..."]]]
+Update child elements. Lists only allow update indexes that are in its range.
+
+[call [cmd "huddle lappend"] [arg listVar] [arg value] [opt [arg "value ..."]]]
+Append new children to a list.
 
 [example {
 % set aa [huddle create a b c d]
@@ -163,6 +165,18 @@ the node is a dict.
 
 the node is a list.
 
+[opt_def [const number]]
+
+the node is a number.
+
+[opt_def [const boolean]]
+
+the node is a boolean.
+
+[opt_def [const null]]
+
+the node is a null.
+
 [list_end]
 
 [example {
@@ -177,7 +191,7 @@ string
 [call [cmd "huddle strip"] [arg object]]
 Stripped all tags. Converted to normal Tcl's list/dict.
 
-[call [cmd "huddle jsondump"] [arg object] [opt [arg offset]] [opt [arg newline]] [opt [arg begin_offset]]]
+[call [cmd "huddle json_dump"] [arg object] [opt [arg offset]] [opt [arg newline]] [opt [arg begin_offset]]]
 
 dump a json-stream from the huddle-object.
 
@@ -190,7 +204,7 @@ begin offset as spaces "  ".
 [list_end]
 
 [example {# normal output has some indents. some strings are escaped.
-% huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
+% huddle json_dump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
 [
   [
     "i",
@@ -207,7 +221,7 @@ begin offset as spaces "  ".
   "t"
 ]
 # stripped output
-% huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
+% huddle json_dump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
 a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}} "" ""
 {"dd": {"bb": {"a": "baa","c": "d\na"},"cc": {"g": "h"}},"ee": {"i": "j","k": 1,"j": " m\\a"}}
 }]
@@ -248,11 +262,11 @@ HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}
 HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}
 }]
 
-[call [cmd "huddle isHuddle"] [arg object]]
-if [arg object] is a huddle, returns 1. the other, returns 0.
+[call [cmd "huddle is_huddle"] [arg object]]
+if [arg object] is a huddle, returns 1. Otherwise, returns 0.
 
-[call [cmd "huddle checkHuddle"] [arg object]]
-if [arg object] is not a huddle, rises an error.
+[call [cmd "huddle check_huddle"] [arg object]]
+raise an error if [arg object] is not huddle.
 
 [call [cmd "huddle argument_to_node"] [arg object] [opt [arg tag]]]
 for type-callbacks.
@@ -287,16 +301,16 @@ for type-callbacks.
 [para]
 devolving [arg command] to default [arg tag]-callback
 
-[call [cmd "huddle addType"] [arg callback]]
+[call [cmd "huddle add_type"] [arg namespace]]
 add a user-specified-type/tag to the huddle library.
 To see "Additional Type".
 
 [para]
 
 [list_begin options]
-[opt_def callback]
+[opt_def namespace]
 
-callback function name for additional type.
+name of namespace with the definition of the new type.
 
 [list_end]
 [list_end]
@@ -304,60 +318,63 @@ callback function name for additional type.
 [section {TYPE NAMESPACE}]
 [para]
 
-The definition of callback for user-type.
-
+There is two kind of types: 
 [list_begin definitions]
-[call [cmd callback] [arg command] [opt [arg args]]]
-[list_begin options]
-[opt_def command]
-huddle subcomand which is needed to reply by the callback.
-[opt_def args]
-arguments of subcommand. The number of list of arguments is different for each subcommand.
-
-[list_end]
+[def "Containers"]It can contain other huddle object
+[def "Not containers"] It can not contain other huddle object
 [list_end]
 
-[para]
+All the types require a variable named settings. This variable has these attributes related to the type:
 
-The callback procedure shuould reply the following subcommands.
 [list_begin definitions]
-[call [cmd setting]]
-only returns a fixed dict of the type infomation for setting the user-tag.
-[list_begin definitions]
-[def "[const type] typename"]
-typename of the type
+[def "[const isContainer] boolean_flag"]
+a boolean value indicating whether the new type is a container
 
-[def "[const method] {method1 method2 method3 ...}"]
+[def "[const superclass] name_of_superclass"]
+this is optional. It indicantes what is the super class of these type. All the methods of the super class are inherited.
+
+[def "[const publicMethods] {method1 method2 method3 ...}"]
 method list as huddle subcommand. Then, you can call [cmd {[huddle method1 ...]}]
 
-[def "[const tag] {tag1 child/parent tag2 child/parent ...}"]
-tag list for huddle-node as a dict. if the type has child-nodes, use "parent", otherwise use "child".
+[def "[const map] {huddle_subcommand1 proc_name1 huddle_subcommand2 proc_name2 ...}"]
+it defines a map bettween huddle subcommands and the associated proc inside the type namespace.
+
+[def "[const tag] tag_name"]
+a tag representing the type
 
 [list_end]
 
-[call [cmd get_subnode] [arg src] [arg key]]
+
+
+[para]
+There is some required procs in a container type:
+
+[list_begin definitions]
+[call [cmd Set] [arg src_var] [arg key] [arg value]]
+set a subnode in the guiven variable containing a subnode content
+[call [cmd Strip] [arg src]]
+returns the node content stripped
+[call [cmd Exists] [arg src] [arg key]]
+returns a boolean value indicating whether the key exists in the node content
+[call [cmd Equal] [arg src1] [arg src2]]
+returns a boolean vlaue indicating whether the two node contents are equal
+[call [cmd Update_children] [arg src_var] [arg items]]
+udpate several subnodes at the same time for performance
+[call [cmd Get_subnode] [arg src] [arg key]]
 returns a sub node specified by [arg key].
-[list_begin options]
-[opt_def src]
-a node content in huddle object.
-[list_end]
-
-[call [cmd strip] [arg src]]
+[call [cmd Combine] [arg list_of_src]]
+returns a combined node content using the content of several nodes of the same type
+[call [cmd Strip] [arg src]]
 returns stripped node contents. if the type has child nodes, every node must be stripped.
 
-[call [cmd set] [arg src] [arg key] [arg value]]
+[call [cmd Set] [arg src] [arg key] [arg value]]
 sets a sub-node from the tagged-content, and returns self.
 
-[call [cmd remove] [arg src] [arg key] [arg value]]
+[call [cmd Remove] [arg src] [arg key] [arg value]]
 removes a sub-node from the tagged-content, and returns self.
 
 [list_end]
 
-[para]
-
-[cmd strip] must be defined at all types.
-[cmd get_subnode] must be defined at container types.
-[cmd set/remove] shuould be defined, if you call them.
 
 [example {
 # callback sample for my-dict
@@ -470,16 +487,32 @@ proc ::yaml::_huddle_mapping {command args} {
 [section "How to add type"]
 
 [para]
-You can add huddle-node types e.g. ::struct::tree.
+You can add huddle-node types e.g. a special type for dates.
 
-To do so, first, define a callback-procedure for additional tagged-type.
-The proc get argments as [arg command] and [opt [arg args]]. It has some switch-sections.
+To do so, first, define a namespace for additional tagged-type.
+
+The namespace require a variable named settings indicating the options associated to this type.
 
 [para]
-And, addType subcommand will called.
+And, execute the proc [cmd add_type] [arg "namespace_of_the_type"]
+to register this new type.
+
 [example {
-huddle addType my_dict_setting
+huddle add_type type_name
 }]
+
+If the new type is a container of other types, the namespace will require the definition of these procs as mentioned before:
+[list_begin itemized]
+[item] Set
+[item] Strip
+[item] Remove
+[item] Equal
+[item] Exists
+[item] Get_subnode
+[item] Update_children
+[item] Combine
+
+[list_end]
 
 [section "WORKING SAMPLE"]
 [example {
@@ -516,7 +549,7 @@ HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s 
 {bb {a b c kkk} cc {e f g h}} p {q r} s
 
 # dump as a JSON stream
-% huddle jsondump $folding
+% huddle json_dump $folding
 [
   {
     "bb": {
