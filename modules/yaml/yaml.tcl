@@ -15,7 +15,7 @@
 package require Tcl 8.5
 package provide yaml 0.3.8
 package require cmdline
-package require huddle 0.1.7
+package require huddle 0.2.0
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump
@@ -104,13 +104,13 @@ proc ::yaml::yaml2dict {args} {
 
     set result [_parseBlockNode]
 
-    set a [huddle getStripped $result]
+    set a [huddle get_stripped $result]
 
     if {$yaml::data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
 
-    return [huddle getStripped $result]
+    return [huddle get_stripped $result]
 }
 
 proc ::yaml::yaml2huddle {args} {
@@ -235,7 +235,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
 #########################
 proc ::yaml::_composeTags {tag value} {
     if {$tag eq ""} {return $value}
-    set value [huddle getStripped $value]
+    set value [huddle get_stripped $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
     } elseif {[info exists yaml::composer($tag)]} {
@@ -254,7 +254,7 @@ proc ::yaml::_composeBinary {value} {
 proc ::yaml::_composePlain {value} {
     if {$value ne ""} {
         if {[huddle type $value] ne "plain"} {return $value}
-        set value [huddle getStripped $value]
+        set value [huddle get_stripped $value]
     }
     set pair [_toType $value]
     return  [huddle wrap $pair]
@@ -442,7 +442,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         }
         set result [lindex $result 0]
         set result [_composePlain $result]
-        if {![huddle isHuddle $result]} {
+        if {![huddle is_huddle $result]} {
             set result [huddle wrap [list !!str $result]]
         }
     }
@@ -501,15 +501,15 @@ proc ::yaml::_set_huddle_mapping {result prev} {
     foreach {key val} $prev break
 
     set val [_composePlain $val]
-    if {[huddle isHuddle $key]} {
-        set key [huddle getStripped $key]
+    if {[huddle is_huddle $key]} {
+        set key [huddle get_stripped $key]
     }
 
 
     if {$result eq ""} {
         set result [huddle mapping $key $val]
     } else {
-        huddle append result $key $val
+        huddle update_children result $key $val
     }
     return $result
 }
@@ -1110,7 +1110,7 @@ proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
     set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
     switch -- [huddle type $data] {
         "string" {
-            set data [huddle getStripped $data]
+            set data [huddle get_stripped $data]
             return [_dumpScalar $data $offset]
         }
         "list" {
@@ -1259,17 +1259,17 @@ proc ::yaml::_makeChildType {type tag} {
     return $full_path_to_type
 }
 
-huddle addType ::yaml::types::mapping
-huddle addType ::yaml::types::sequence
+huddle add_type ::yaml::types::mapping
+huddle add_type ::yaml::types::sequence
 
-huddle addType [::yaml::_makeChildType str !!str]
-huddle addType [::yaml::_makeChildType timestamp !!timestamp]
-huddle addType [::yaml::_makeChildType float !!float]
-huddle addType [::yaml::_makeChildType int !!int]
-huddle addType [::yaml::_makeChildType null !!null]
-huddle addType [::yaml::_makeChildType true !!true]
-huddle addType [::yaml::_makeChildType false !!false]
-huddle addType [::yaml::_makeChildType binary !!binary]
-huddle addType [::yaml::_makeChildType plain !!plain]
+huddle add_type [::yaml::_makeChildType str !!str]
+huddle add_type [::yaml::_makeChildType timestamp !!timestamp]
+huddle add_type [::yaml::_makeChildType float !!float]
+huddle add_type [::yaml::_makeChildType int !!int]
+huddle add_type [::yaml::_makeChildType null !!null]
+huddle add_type [::yaml::_makeChildType true !!true]
+huddle add_type [::yaml::_makeChildType false !!false]
+huddle add_type [::yaml::_makeChildType binary !!binary]
+huddle add_type [::yaml::_makeChildType plain !!plain]
 
 
