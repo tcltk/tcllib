@@ -349,6 +349,7 @@ and for the fact that certain seemingly trivial computations like:
 give \fIexactly\fR the value you expect (if IEEE arithmetic is
 available)\&.
 .PP
+The full set of named constants is listed in section \fBConstants\fR\&.
 .SH PROCEDURES
 The package defines the following public procedures:
 .TP
@@ -360,6 +361,56 @@ Import the constants whose names are given as arguments
 Print the constants whose names are given as arguments on the screen
 (name, value and description) or, if no arguments are given, print all
 defined constants\&. This is mainly a convenience procedure\&.
+.PP
+.SH CONSTANTS
+.TP
+\fBpi\fR
+Ratio of circle circumference to diameter
+.TP
+\fBe\fR
+Base for natural logarithm
+.TP
+\fBln10\fR
+Natural logarithm of 10
+.TP
+\fBphi\fR
+Golden ratio
+.TP
+\fBgamma\fR
+Euler's constant
+.TP
+\fBsqrt2\fR
+Square root of 2
+.TP
+\fBthirdrt2\fR
+One-third power of 2
+.TP
+\fBsqrt3\fR
+Square root of 3
+.TP
+\fBradtodeg\fR
+Conversion from radians to degrees
+.TP
+\fBdegtorad\fR
+Conversion from degrees to radians
+.TP
+\fBonethird\fR
+One third (0\&.3333\&.\&.\&.\&.)
+.TP
+\fBtwothirds\fR
+Two thirds (0\&.6666\&.\&.\&.\&.)
+.TP
+\fBonesixth\fR
+One sixth (0\&.1666\&.\&.\&.\&.)
+.TP
+\fBhuge\fR
+(Approximately) largest number
+.TP
+\fBtiny\fR
+(Approximately) smallest number not equal zero
+.TP
+\fBeps\fR
+Smallest number such that 1+eps != 1
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

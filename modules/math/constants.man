@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::constants n 1.0.1]
+[vset VERSION 1.0.1]
+[manpage_begin math::constants n [vset VERSION]]
 [keywords constants]
 [keywords degrees]
 [keywords e]
@@ -11,7 +12,7 @@
 [titledesc {Mathematical and numerical constants}]
 [category  Mathematics]
 [require Tcl [opt 8.3]]
-[require math::constants [opt 1.0.1]]
+[require math::constants [opt [vset VERSION]]]
 
 [description]
 [para]
@@ -88,6 +89,8 @@ available).
 
 [list_end]
 
+The full set of named constants is listed in section [sectref Constants].
+
 [section "PROCEDURES"]
 
 The package defines the following public procedures:
@@ -106,6 +109,26 @@ Print the constants whose names are given as arguments on the screen
 (name, value and description) or, if no arguments are given, print all
 defined constants. This is mainly a convenience procedure.
 
+[list_end]
+
+[section "Constants"]
+[list_begin definitions]
+[def [const pi]]       Ratio of circle circumference to diameter
+[def [const e]]	       Base for natural logarithm
+[def [const ln10]]     Natural logarithm of 10
+[def [const phi]]      Golden ratio
+[def [const gamma]]    Euler's constant
+[def [const sqrt2]]    Square root of 2
+[def [const thirdrt2]] One-third power of 2
+[def [const sqrt3]]    Square root of 3
+[def [const radtodeg]] Conversion from radians to degrees
+[def [const degtorad]] Conversion from degrees to radians
+[def [const onethird]] One third (0.3333....)
+[def [const twothirds]]Two thirds (0.6666....)
+[def [const onesixth]] One sixth (0.1666....)
+[def [const huge]]     (Approximately) largest number
+[def [const tiny]]     (Approximately) smallest number not equal zero
+[def [const eps]]      Smallest number such that 1+eps != 1
 [list_end]
 
 [vset CATEGORY {math :: constants}]
