@@ -106,7 +106,12 @@ proc ::nettool::hwid_list {} {
   variable cached_data
   set result {}
   if {![info exists cached_data]} {
-    set cached_data [exec system_profiler SPHardwareDataType]
+    if {[catch {exec system_profiler SPHardwareDataType} hwlist]} {
+      set cached_data {}
+    } else {
+      set cached_data $hwlist
+      
+    }
   }
   set serial {}
   set hwuuid {}
@@ -133,7 +138,7 @@ proc ::nettool::hwid_list {} {
     return $result
   }
   foreach mac [::nettool::mac_list] {
-    lappend result 0x[string map {: {}} $num]
+    lappend result 0x[string map {: {}} $mac]
   }
   if {[llength $result]} {
     return $result
@@ -204,8 +209,9 @@ proc ::nettool::network_list {} {
 proc ::nettool::status {} {
   set result {}
   set loaddat [lindex [exec sysctl -n vm.loadavg] 0]
-  set cpus [cpuinfo cpus].0
-  dict set result load [expr {[lindex $loaddat 0]/$cpus}]
+  set cpus [cpuinfo cpus]
+  dict set result cpus $cpus
+  dict set result load [expr {[lindex $loaddat 0]*100.0/$cpus}]
   dict set result load_average_1 [lindex $loaddat 0]
   dict set result load_average_5 [lindex $loaddat 1]
   dict set result load_average_15 [lindex $loaddat 2]
@@ -213,7 +219,7 @@ proc ::nettool::status {} {
   set total [exec sysctl -n hw.memsize]
   dict set result memory_total [expr {$total / 1048576}]
   set used 0
-  foreach {amt} [exec sysctl -n sysctl -n machdep.memmap] {
+  foreach {amt} [exec sysctl -n machdep.memmap] {
     incr used $amt
   }
   dict set result memory_free [expr {($total - $used) / 1048576}]
@@ -221,3 +227,6 @@ proc ::nettool::status {} {
   return $result
 }
 
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(HOME) Library {Application Support} $appname]
+}
