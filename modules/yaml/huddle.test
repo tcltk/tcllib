@@ -34,7 +34,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     #testsNeed dict 1
 
     support {
-	use json/json.tcl json
+    use json/json.tcl json
     }
     testing {
         useLocal huddle.tcl huddle
@@ -65,11 +65,11 @@ test huddle-1.5 "test of huddle create" -body {
 } -result {HUDDLE {D {e {s f} g {s h}}}}
 
 test huddle-1.6 "test of huddle create" -body {
-    huddle getStripped $folding dd
+    huddle get_stripped $folding dd
 } -result {bb {a b c d} cc {e f g h}}
 
 test huddle-1.7 "test of huddle create" -body {
-    huddle getStripped $folding dd cc
+    huddle get_stripped $folding dd cc
 } -result {e f g h}
 
 test huddle-1.8 "test of huddle create" -body {
@@ -107,11 +107,11 @@ test huddle-2.5 "test of huddle list" -body {
 } -result {HUDDLE {L {{s a} {s b} {s c} {s d}}}}
 
 test huddle-2.6 "test of huddle list" -body {
-    huddle getStripped $folding 0
+    huddle get_stripped $folding 0
 } -result {i {a b c d} j k {e f g h}}
 
 test huddle-2.7 "test of huddle list" -body {
-    huddle getStripped $folding 0 1
+    huddle get_stripped $folding 0 1
 } -result {a b c d}
 
 test huddle-2.8 "test of huddle list" -body {
@@ -127,10 +127,14 @@ test huddle-2.10 "test of huddle list" -body {
 } -result {string}
 
 test huddle-2.11 "test of huddle list" -body {
-    huddle getStripped {HUDDLE {L {{s a} {L {}} {s c}}}}
+    huddle get_stripped {HUDDLE {L {{s a} {L {}} {s c}}}}
 } -result {a {} c}
 
-#test huddle-3.1 "test of huddle jsondump" {[info tclversion] >= 8.5} {
+test huddle-2.12 "test of huddle list" -body {
+    huddle llength {HUDDLE {L {{s a} {s b} {s c}}}}
+} -result {3}
+
+#test huddle-3.1 "test of huddle json_dump" {[info tclversion] >= 8.5} {
 #    # build a huddle container from normal tcl's container(multi rank dict/list)
 #    proc huddle_build {data} {
 #        foreach {key val} $data {
@@ -151,13 +155,13 @@ test huddle-2.11 "test of huddle list" -body {
 #    set data [json::json2dict $json1]
 ##    set data [huddle_build $data]
 ##
-##    set json2 [huddle jsondump $data]
+##    set json2 [huddle json_dump $data]
 ##    expr $json1 eq $json2
 ##    set json2
 #} {1}
 
-test huddle-3.2 "test of huddle jsondump" -body {
-    huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{num 1.0} {b true} {s g} {s h}}}}} {s t}}}}
+test huddle-3.2 "test of huddle json_dump" -body {
+    huddle json_dump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{num 1.0} {b true} {s g} {s h}}}}} {s t}}}}
 } -result {[
   [
     "i",
@@ -174,9 +178,9 @@ test huddle-3.2 "test of huddle jsondump" -body {
 ]}
 
 
-test huddle-3.3 "test of huddle jsondump" -body {
+test huddle-3.3 "test of huddle json_dump" -body {
     set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {num 1} j {s { m\a}}}}}}}
-    set json1 [huddle jsondump $huddle1]
+    set json1 [huddle json_dump $huddle1]
     set json2 {{
   "dd": {
     "bb": {
@@ -348,11 +352,11 @@ test huddle-11.1 "test of huddle superclass" -body {
             }
     }
     
-    huddle addType ::new_types::mapping
-    huddle addType ::new_types::str
+    huddle add_type ::new_types::mapping
+    huddle add_type ::new_types::str
 
     set a [huddle mapping key1 var1]
-    huddle append a key2 [huddle mapping key3 var3]
+    huddle update_children a key2 [huddle mapping key3 var3]
 } -result {HUDDLE {!!map {key1 {!!str var1} key2 {!!map {key3 {!!str var3}}}}}}
 
 

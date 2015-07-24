@@ -2,7 +2,7 @@
 # (c) 2015 Miguel Martínez López
 
 package require Tcl 8.5
-package require huddle 0.1.7
+package require huddle 0.2.0
 
 package require TclOO       ; # For 8.5. Integrated with 8.6
 package require try         ; # For 8.5. Integrated with 8.6. Tcllib.
@@ -44,7 +44,7 @@ namespace eval ::huddle::json {
         }
             
         method peekChar { {increment 1} } {
-            return [string index $jsonText [expr $cursor+$increment]]
+            return [string index $jsonText [expr {$cursor+$increment}]]
         }
 
         method advanceCursor { {increment 1} } {
@@ -131,7 +131,7 @@ namespace eval ::huddle::json {
             while {true} {
                 set ch [my peekChar]
                 
-                if [string is space -strict $ch] {
+                if {[string is space -strict $ch]} {
                     my advanceCursor
                 } elseif {$ch eq "/"} {
                     my readComment
