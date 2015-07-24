@@ -96,7 +96,7 @@ proc ::pt::util::Readables {msgs} {
 	    }
 	    cl {
 		# Fuse multiple 'cl'-tags into one.
-		foreach c [split $details] { lappend cl $c }
+		foreach c [split [lindex $pe 1]] { lappend cl $c }
 	    }
 	    default {
 		lappend r [Readable $pe]
