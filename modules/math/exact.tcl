@@ -1,9 +1,34 @@
+# exact.tcl --
+#
+#	Tcl package for exact real arithmetic.
+#
+# Copyright (c) 2015 by Kevin B. Kenny
+#
+# See the file "license.terms" for information on usage and redistribution of
+# this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+# This package provides a library for performing exact
+# computations over the computable real numbers. The algorithms
+# are largely based on the ones described in:
+#
+# Potts, Peter John. _Exact Real Arithmetic using Möbius Transformations._
+# PhD thesis, University of London, July 1998.
+# http://www.doc.ic.ac.uk/~ae/papers/potts-phd.pdf
+#
+# Some of the algorithms for the elementary functions are found instead
+# in:
+#
+# Menissier-Morain, Valérie. _Arbitrary Precision Real Arithmetic:
+# Design and Algorithms. J. Symbolic Computation 11 (1996)
+# http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.31.8983
+# 
+#-----------------------------------------------------------------------------
+
 package require Tcl 8.6
 package require grammar::aycock 1.0
 
-proc ::indent {} {format {%*s%d: } [expr {2*[info level] - 1}] {} [info level]}
-
 namespace eval math::exact {
+    
     namespace eval function {
 	namespace path ::math::exact
     }
@@ -61,18 +86,10 @@ namespace eval math::exact {
 	    }
 	    set result
 	}
-	factor ::= expon {
-	    lindex $_ 0
+	factor ::= primary ** factor {
+	    {*}$_
 	}
-
-	expon ::= primary ** expon {
-	    # TODO - Multiple cases in ** need to be handled with
-	    #        math::exact::**real, specifically the special
-	    #        cases of real**int, real**rational,
-	    #        real**rational-with-odd-denominator
-	    error "Exponentiation not there yet"
-	}
-	expon ::= primary {
+	factor ::= primary {
 	    lindex $_ 0
 	}
 
@@ -162,6 +179,19 @@ proc math::exact::Lexer {expression} {
     }
     return [list $tokens $values]
 }
+
+# math::exact::K --
+#
+#	K combinator. Returns its first argumetn
+#
+# Parameters:
+#	a - Return value
+#	b - Value to discard
+#
+# Results:
+#	Returns the first argument
+
+proc math::exact::K {a b} {return $a}
 
 # math::exact::expr --
 #
@@ -511,6 +541,57 @@ proc math::exact::treduce {x} {
 	[list \
 	     [list [::expr {$e / $G}] [::expr {$f / $G}]] \
 	     [list [::expr {$g / $G}] [::expr {$h / $G}]]]
+}
+
+# math::exact::vadd --
+#
+#	Adds two 2-vectors
+#
+# Parameters:
+#	x - First vector
+#	y - Second vector
+#
+# Results:
+#	Returns the vector sum
+
+proc math::exact::vadd {x y} {
+    lmap p $x q $y {::expr {$p + $q}}
+}
+
+# math::exact::madd --
+#
+#	Adds two 2x2 matrices
+#
+# Parameters:
+#	A - First matrix
+#	B - Second matrix
+#
+# Results:
+#	Returns the matrix sum
+
+proc math::exact::madd {A B} {
+    lmap x $A y $B {
+	lmap p $x q $y {::expr {$p + $q}}
+    }
+}
+
+# math::exact::tadd --
+#
+#	Adds two 2x2x2 tensors
+#
+# Parameters:
+#	U - First tensor
+#	V - Second tensor
+#
+# Results:
+#	Returns the tensor sum
+
+proc math::exact::tadd {U V} {
+    lmap A $U B $V {
+	lmap x $A y $B {
+	    lmap p $x q $y {::expr {$p + $q}}
+	}
+    }
 }
 
 # math::exact::mdotv --
@@ -1275,28 +1356,51 @@ oo::class create math::exact::Expression {
     #	# Formats the object for debugging 
     #	# Returns the formatted string
     # }
+    method dump {} {
+	error "[info object class [self object]] does not implement the 'dump' method."
+    }
+
     # method refinesM {m} { 
     #	# Returns 1 if premultiplying by the matrix m refines this object
     #   # Returns 0 otherwise
     # }
+    method refinesM {m} {
+	error "[info object class [self object]] does not implement the 'refinesM' method."
+    }
+    
     # method applyM {m} { 
     #	# Premultiplies this object by the matrix m 
     # }
+    method applyM {m} {
+	error "[info object class [self object]] does not implement the 'applyM' method."
+    }
+
     # method applyTLeft {t r} {
     # 	# Computes the left product of the tensor t with this object, and
     #	# applies the result to the right operand r.
     #	# Returns a new exact real representing the product
     # }
+    method applyTLeft {t r} {
+	error "[info object class [self object]] does not implement the 'applyTLeft' method."
+    }
+    
     # method applyTRight {t l} {
     # 	# Computes the right product of the tensor t with this object, and
     #	# applies the result to the left operand l.
     #	# Returns a new exact real representing the product
     # }
+    method applyTRight {t l} {
+	error "[info object class [self object]] does not implement the 'applyTRight' method."
+    }
+    
     # method absorb {} {
     #	# Absorbs the next subexpression or digit into this expression
     #	# Returns the result of absorption, which always represents a
     #	# smaller interval than this expression
     # }
+    method absorb {} {
+	error "[info object class [self object]] does not implement the 'absorb' method."
+    }
 
     # U- --
     #
@@ -1538,6 +1642,67 @@ oo::class create math::exact::Expression {
 	tailcall math::exact::/real $l [self object]
     }; export V/
 
+    # ** -
+    #	Raises an exact real to a power
+    #
+    # Parameters:
+    #	r - Exponent
+    #
+    # Results:
+    #	Returns the power.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method ** {r} {
+	tailcall $r E** [self object]
+    }; export **
+
+    # E** -
+    #	Raises an exact real to the power of an exact real
+    #
+    # Parameters:
+    #	l - Base to exponentiate
+    #
+    # Results:
+    #	Returns the power
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method E** {l} {
+	# This doesn't work as a tailcall, because this object could have
+	# been destroyed by the time we're trying to invoke the tailcall,
+	# and that will keep command names from resolving because the
+	# tailcall mechanism will try to find them in the destroyed namespace.
+	return [math::exact::function::exp \
+		    [my * [math::exact::function::log $l]]]
+    }; export E**
+
+    # V** -
+    #	Raises a rational to the power of an exact real
+    #
+    # Parameters:
+    #	l - Base to exponentiate
+    #
+    # Results:
+    #	Returns the power
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method V** {l} {
+	# This doesn't work as a tailcall, because this object could have
+	# been destroyed by the time we're trying to invoke the tailcall,
+	# and that will keep command names from resolving because the
+	# tailcall mechanism will try to find them in the destroyed namespace.
+	return [math::exact::function::exp \
+		    [my * [math::exact::function::log $l]]]
+    }; export V**
+    
     # sqrt --
     #
     #	Create an expression representing the square root of an exact
@@ -1992,6 +2157,156 @@ oo::class create math::exact::V {
 	return $result
     }; export V/
 
+    # ** -
+    #	Raises a rational to a power
+    #
+    # Parameters:
+    #	r - Exponent
+    #
+    # Results:
+    #	Returns the power.
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method ** {r} {
+	tailcall $r V** [self object]
+    }; export **
+
+    # E** -
+    #	Raises an exact real to a rational power
+    #
+    # Parameters:
+    #	l - Base to exponentiate
+    #
+    # Results:
+    #	Returns the power
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method E** {l} {
+
+	# Extract numerator and demominator of the exponent, and consume the
+	# exponent.
+	my ref
+	lassign $v_ c d
+	my unref
+ 
+	# Normalize the sign of the exponent
+	if {$d < 0} {
+	    set c [expr {-$c}]
+	    set d [expr {-$d}]
+	}
+
+	# Don't choke if somehow a 0/0 gets here.
+	if {$c == 0 && $d == 0} {
+	    $l unref
+	    return -code error -errorcode "MATH EXACT ZERODIVZERO" \
+		"zero divided by zero"
+	}
+
+	# Handle integer powers
+	if {$d == 1} {
+	    return [math::exact::real**int $l $c]
+	}
+
+	# Other rational powers come here.
+	# We know that $d > 0, and we're not just doing
+	# exponentiation by an integer
+	    
+	return [math::exact::real**rat $l $c $d]
+    }; export E**
+
+    # V** -
+    #	Raises a rational base to a rational power
+    #
+    # Parameters:
+    #	l - Base to exponentiate
+    #
+    # Results:
+    #	Returns the power
+    #
+    # This method is a Consumer with respect to the current object and to l.
+    # It is a Constructor with respect to its result, returning a zero-ref
+    # object.
+
+    method V** {l} {
+
+	# Extract the numerator and denominator of the base and consume
+	# the base.
+	$l ref
+	lassign [$l getV] a b
+	$l unref
+
+	# Extract numerator and demominator of the exponent, and consume the
+	# exponent.
+	my ref
+	lassign $v_ c d
+	my unref
+
+	# Normalize the signs of the arguments
+	if {$b < 0} {
+	    set a [expr {-$a}]
+	    set b [expr {-$b}]
+	}
+	if {$d < 0} {
+	    set c [expr {-$c}]
+	    set d [expr {-$d}]
+	}
+
+	# Don't choke if somehow a 0/0 gets here.
+	if {$a == 0 && $b == 0 || $c == 0 && $d == 0} {
+	    return -code error -errorcode "MATH EXACT ZERODIVZERO" \
+		"zero divided by zero"
+	}
+
+	# b >= 0 and d >= 0
+
+	if {$a == 0} {
+	    if {$c == 0} {
+		return -code error -errorcode "MATH EXACT ZEROPOWZERO" \
+		    "zero to zero power"
+	    } elseif {$d == 0} {
+		return -code error -errorcode "MATH EXACT ZEROPOWINF" \
+		    "zero to infinite power"
+	    } else {
+		return [math::exact::V new {0 1}]
+	    }
+	}
+
+	# a != 0, b >= 0, d >= 0
+
+	if {$b == 0} {
+	    if {$c == 0} {
+		return -code error -errorcode "MATH EXACT INFPOWZERO" \
+		    "infinity to zero power"
+	    } elseif {$c < 0} {
+		return [math::exact::V new {0 1}]
+	    } else {
+		return [math::exact::V new {1 0}]
+	    }
+	}
+
+	# a != 0, b > 0, d >= 0
+
+	if {$c == 0} {
+	    return [math::exact::V new {1 1}]
+	}
+
+	# handle integer exponents
+
+	if {$d == 1} {
+	    return [math::exact::rat**int $a $b $c]
+	}
+
+	# a != 0, b > 0, c != 0, d >= 0
+
+	return [math::exact::rat**rat $a $b $c $d]
+    }; export V**
+    
     # sqrt --
     #
     #	Calculates the square root of this object
@@ -2094,6 +2409,9 @@ oo::class create math::exact::M {
     #	# Returns the expression to which this matrix is applied.
     #	# Optionally memoizes the result in $e_.
     # }
+    method e {} {
+	error "[info object class [self object]] does not implement the 'e' method."
+    }
 }
 
 # math::exact::Mstrict --
@@ -2180,7 +2498,6 @@ oo::class create math::exact::T {
     #	Returns a Boolean indicator that is true if the product refines.
 
     method refinesM {m} {
-	#puts "does matrix $m refine tensor $t_?"
 	return [math::exact::trefines [math::exact::mdott $m $t_]]
     }
 
@@ -2250,11 +2567,13 @@ oo::class create math::exact::T {
 	# get the leading digit from this tensor, absorbing as
 	# necessary, right-multiply it into the tensor $t, and
 	# compose the new object.
-	# Note that we will be applying a digit matrix, so do not need
-	# to check for common factors other than 2.
-	lassign [my getLeadingDigitAndRest 1] ld rest
+	#
+	# Note that unless 'rest' is empty, 'ld' is a digit matrix,
+	# so we need to check only for powers of 2 when reducing to
+	# lowest terms
+	lassign [my getLeadingDigitAndRest 0] ld rest
 	if {$rest eq {}} {
-	    set u [math::exact::mscale [math::exact::trightv $t $ld]]
+	    set u [math::exact::mreduce [math::exact::trightv $t $ld]]
 	    return [math::exact::Mstrict new $u $l]
 	} else {
 	    set u [math::exact::tscale [math::exact::trightm $t $ld]]
@@ -2273,17 +2592,35 @@ oo::class create math::exact::T {
 	# get the leading digit from this tensor, absorbing as
 	# necessary, left-multiply it into the tensor $t, and
 	# compose the new object
-	# Note that we will be applying a digit matrix, so do not need
-	# to check for common factors other than 2.
-	lassign [my getLeadingDigitAndRest 1] ld rest
+	#
+	# Note that unless 'rest' is empty, 'ld' is a digit matrix,
+	# so we need to check only for powers of 2 when reducing to
+	# lowest terms
+	lassign [my getLeadingDigitAndRest 0] ld rest
 	if {$rest eq {}} {
-	    set u [math::exact::mscale [math::exact::tleftv $t $ld]]
+	    set u [math::exact::mreduce [math::exact::tleftv $t $ld]]
 	    return [math::exact::Mstrict $u $r]
 	} else {
 	    set u [math::exact::tscale [math::exact::tleftm $t $ld]]
 	    return [math::exact::Tstrict new $u 1 $rest $r]
 	} 
     }
+
+    # Derived classes are expected to implement the following:
+    # l --
+    #
+    #	Returns the left operand
+    method l {} {
+	error "[info object class [self object]] does not implement the 'l' method"
+    }
+
+    # r --
+    #
+    #	Returns the right operand
+    method r {} {
+	error "[info object class [self object]] does not implement the 'r' method"
+    }
+    
 }
 
 # math::exact::Tstrict --
@@ -2421,7 +2758,6 @@ oo::class create math::exact::SqrtWorker {
     #     e should be between close to 1 for good performance. The
     #     'sqrtreal' procedure below handles the scaling.
     constructor {e} {
-	#puts "[indent]SqrtWorker [$e dump]"
 	next {{{1 0} {2 1}} {{1 2} {0 1}}} 0
 	set l_ [$e ref]
     }
@@ -3254,6 +3590,320 @@ oo::class create math::exact::Sqrtrat {
     }
 }
 
+# math::exact::rat**int --
+#
+#	Service procedure to raise a rational number to an integer power
+#
+# Parameters:
+#	a - Numerator of the rational
+#	b - Denominator of the rational
+#	n - Power
+#
+# Preconditions:
+#	n is not zero, a is not zero, b is positive.
+#
+# Results:
+#	Returns the power
+#
+# This procedure is a Consumer with respect to its arguments and a
+# Constructor with respect to its result, returning a zero-ref object.
+
+proc math::exact::rat**int {a b n} {
+    if {$n < 0} {
+	return [V new [list [::expr {$b**(-$n)}] [::expr {$a**(-$n)}]]]
+    } elseif {$n > 0} {
+	return [V new [list [::expr {$a**($n)}] [::expr {$b**($n)}]]]
+    } else { ;# zero power shouldn't get here
+	return [V new {1 1}]
+    }
+}
+
+# math::exact::rat**rat --
+#
+#	Service procedure to raise a rational number to a rational power
+#
+# Parameters:
+#	a - Numerator of the base
+#	b - Denominator of the base
+#	m - Numerator of the exponent
+#	n - Denominator of the exponent
+#
+# Results:
+#	Returns the power as an exact real
+#
+# Preconditions:
+#	a != 0, b > 0, m != 0, n > 0
+#
+# This procedure is a Constructor with respect to its result
+
+proc math::exact::rat**rat {a b m n} {
+
+    # It would be attractive to special case this, but the real mechanism
+    # works as well for the moment.
+
+    tailcall real**rat [V new [list $a $b]] $m $n
+}
+
+# PowWorker --
+#
+#	Auxiliary class to compute
+#		((p/q)**n + b)**(m/n),
+#	where 0<m<n are integers, p, q are integers, b is an exact real
+
+oo::class create math::exact::PowWorker {
+    superclass math::exact::T
+
+    variable t_ l_ r_ delta_
+
+    # Self-method: start
+    #
+    #	Sets up to find z**(m/n) (1 <= m < n), with
+    #   z = (p/q)**n + y for integers p and q.
+    #
+    # Parameters:
+    #	p - numerator of the estimated nth root
+    #	q - denominator of the estimated nth root
+    #	y - residual of the quantity whose root is being extracted
+    #	m - numerator of the exponent
+    #	n - denominator of the exponent (1 <= m < n)
+    #
+    # Results:
+    #	Returns the power, as an exact real.
+    
+    self method start {p q y m n} {
+	set pm [expr {$p ** $m}]
+	set pnmm [expr {$p ** ($n-$m)}]
+	set pn [expr {$pm * $pnmm}]
+	set qm [expr {$q ** $m}]
+	set qnmm [expr {$q ** ($n-$m)}]
+	set qn [expr {$qm * $qnmm}]
+
+	set t0 \
+	    [list \
+		 [list \
+		      [list [expr {$m * $qn}] [expr {$n*$pnmm*$qm}]] \
+		      [list 0 [expr {($n-$m) * $qn}]]] \
+		 [list \
+		      [list [expr {2 * $n * $pn}] 0] \
+		      [list [expr {2 * ($n-$m) * $pm * $qnmm}] 0]]]
+	set t1 \
+	    [list \
+		 [list \
+		      [list [expr {$n * $qn}] [expr {2*$n * $pnmm*$qm}]] \
+		      [list 0 [expr {$n * $qn}]]] \
+		 [list \
+		      [list [expr {4 * $n * $pn}] 0] \
+		      [list [expr {2 * $n * $pm * $qnmm}] 0]]]
+    
+	set tinit \
+	    [list \
+		 [list \
+		      [list [expr {$m * $qn}] 0] \
+		      [list 0 0]] \
+		 [list \
+		      [list [expr {$n * $pn}] [expr {$n * $pnmm * $qm}]] \
+		      [list \
+			   [expr {($n-$m) * $pm * $qnmm}] \
+			   [expr {($n-$m) * $qn}]]]]
+	$y ref
+	set result [$y applyTLeft $tinit [my new $t0 $t1 $y]]
+	$y unref
+	return $result
+    }
+
+    # Constructor --
+    #
+    # Parameters:
+    #	t0 - Tensor from the previous iteration
+    #	delta - Increment to use
+    #	y - Residual
+    #
+    # The constructor should not be called directly. Instead, the 'start'
+    # method should be called to initialize the iteration
+
+    constructor {t0 delta y} {
+	set t [math::exact::tadd $t0 $delta]
+	next $t 0
+	set l_ [$y ref]
+	set delta_ $delta
+    }
+
+    # l --
+    #
+    #	Returns the left subexpression: that is, the 'y' parameter
+    method l {} {
+	return $l_
+    }
+
+    # r --
+    #
+    #	Returns the right subexpression: that is, the next continuant,
+    #	creating it if necessary
+    method r {} {
+	if {![info exists r_]} {
+	    set r_ [[math::exact::PowWorker new $t_ $delta_ $l_] ref]
+	}
+	return $r_
+    }
+
+    method dump {} {
+	set res "PowWorker($t_,$delta_,[$l_ dump],"
+	if {[info exists r_]} {
+	    append res [$r_ dump]
+	} else {
+	    append res ...
+	}
+	append res ")"
+	return $res
+    }
+    
+}
+
+# math::exact::real**int --
+#
+#	Service procedure to raise a real number to an integer power.
+#
+# Parameters:
+#	b - Number to exponentiate
+#	e - Power to raise b to.
+#
+# Results:
+#	Returns the power.
+#
+# This procedure is a Consumer with respect to its arguments and a
+# Constructor with respect to its result, returning a zero-ref object.
+
+proc math::exact::real**int {b e} {
+
+    # Handle a negative power by raising the reciprocal of the base to
+    # a positive power
+    if {$e < 0} {
+	set e [::expr {-$e}]
+	set b [K [[$b ref] applyM {{0 1} {1 0}}] [$b unref]]
+    }
+    
+    # Reduce using square-and-add
+    $b ref
+    set result [V new {1 1}]
+    while {$e != 0} {
+	if {$e & 1} {
+	    set result [$b * $result]
+	    set e [::expr {$e & ~1}]
+	}
+	if {$e == 0} break
+	set b [K [[$b * $b] ref] [$b unref]]
+	set e [::expr {$e>>1}]
+    }
+    $b unref
+    return $result
+}
+
+# math::exact::real**rat --
+#
+#	Service procedure to raise a real number to a rational power.
+#
+# Parameters -
+#
+#	b - The base to be exponentiated
+#	m - The numerator of the power
+#	n - The denominator of the power
+#
+# Preconditions:
+#	n > 0
+#
+# Results:
+#	Returns the power.
+#
+# This procedure is a Consumer with respect to its arguments and a
+# Constructor with respect to its result, returning a zero-ref object.
+
+proc math::exact::real**rat {b m n} {
+
+    variable isneg
+    variable ispos
+
+    # At this point we need to know the sign of b. Try to determine it.
+    # (This can be an infinite loop if b is zero or infinite)
+    while {1} {
+	if {[$b refinesM $ispos]} {
+	    break
+	} elseif {[$b refinesM $isneg]} {
+	    # negative number to rational power. The denominator must be
+	    # odd.
+	    if {$n % 2 == 0} {
+		return -code error -errorCode {MATH EXACT NEGATIVEPOWREAL} \
+		    "negative number to real power"
+	    } else {
+		set b [K [[$b ref] U-] [$b unref]]
+		tailcall [math::exact::real**rat $b $m $n] U-
+	    }
+	} else {
+	    # can't determine positive or negative yet
+	    $b ref
+	    set nextb [$b absorb]
+	    set result [math::exact::real**rat $nextb $m $n]
+	    $b unref
+	    return $result
+	}
+    }
+	    
+    # Handle b(-m/n) by taking (1/b)(m/n)
+    if {$m < 0} {
+	set m [::expr {-$m}]
+	set b [K [[$b ref] applyM {{0 1} {1 0}}] [$b unref]]
+    }
+
+    # Break m/n apart into integer and fractional parts
+    set i [::expr {$m / $n}]
+    set m [::expr {$m % $n}]
+
+    # Do the integer part
+    $b ref
+    set result [real**int $b $i]
+    if {$m == 0} {
+	# We really shouldn't get here if m/n is an integer, but don't choke
+	$b unref
+	return $result
+    }
+
+    # Come up with a rational approximation for b**(1/n)
+    # real: exp(log(b)/n)
+    set approx [[math::exact::function::exp \
+		     [[math::exact::function::log $b] \
+			  * [math::exact::V new [list 1 $n]]]] ref]
+    lassign [$approx getSignAndMagnitude] partial rest
+    $rest ref
+    $approx unref
+    while {1} {
+	lassign [$rest getLeadingDigitAndRest 0] digit y
+	$y ref
+	$rest unref
+	set partial [math::exact::mscale [math::exact::mdotm $partial $digit]]
+	set rest $y
+	lassign $partial pq rs
+	lassign $pq p q
+	lassign $rs r s
+	set qrn [::expr {($q*$r)**$n}]
+	set t1 [::expr {$qrn}]
+	set t2 [::expr {2 * ($p*$s)**$n}]
+	set t3 [::expr {4 * $qrn}]
+	if {$t1 < $t2 && $t2 < $t3} break
+    }
+    $y unref
+    
+    # Get the residual
+
+    lassign [math::exact::vscale [list $r $s]] p q
+    set xn [math::exact::V new [list [::expr {$p**$n}] [::expr {$q**$n}]]]
+    set y [$b - $xn]; $b unref
+
+    # Launch a worker process to perform quasi-Newton iteration to refine
+    # the result
+    
+    set retval [$result * [math::exact::PowWorker start $p $q $y $m $n]]
+    return $retval
+}
+
 # pi --
 #
 #	Returns pi as an exact real
@@ -3330,43 +3980,3 @@ namespace eval math::exact {
 package provide math::exact 0.1
 
 #-----------------------------------------------------------------------
-
-# Concept code, not yet exported anywhere
-
-proc math::exact::real**int {b e} {
-
-    # Anything to the zero power is 1.
-    if {$e == 0} {
-	return [Mstrict new {{1 0} {0 1}} [V new {1 1}]]
-    }
-
-    # Handle a negative power by raising the reciprocal of the base to
-    # a positive power
-    if {$e < 0} {
-	set b [$b applyM {{0 1} {1 0}}]
-	set e [::expr {-$e}]
-    }
-
-    # Anything to the power 1 is itself.
-    if {$e == 1} {
-	return $b
-    }
-
-    # Reduce using square-and-add
-    while {$e != 0} {
-	if {$e & 1} {
-	    if {![info exists result]} {
-		set result $b
-	    } else {
-		set result [*real $b $result]
-	    }
-	    set e [::expr {$e & ~1}]
-	}
-	if {$e == 0} break
-	set b [*real $b $b]
-	set e [::expr {$e>>1}]
-    }
-    return $result
-}
-
-

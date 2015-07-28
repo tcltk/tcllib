@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'fileutil\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil" n 1\&.14\&.11 tcllib "file utilities"
+.TH "fileutil" n 1\&.15 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ fileutil \- Procedures implementing some file utilities
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBfileutil  ?1\&.14\&.11?\fR
+package require \fBfileutil  ?1\&.15?\fR
 .sp
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 .sp
@@ -326,6 +326,8 @@ package require \fBfileutil  ?1\&.14\&.11?\fR
 \fB::fileutil::tempdirReset\fR
 .sp
 \fB::fileutil::tempfile\fR ?\fIprefix\fR?
+.sp
+\fB::fileutil::maketempdir\fR ?\fB-prefix\fR \fIstr\fR? ?\fB-suffix\fR \fIstr\fR? ?\fB-dir\fR \fIstr\fR?
 .sp
 \fB::fileutil::relative\fR \fIbase\fR \fIdst\fR
 .sp
@@ -673,6 +675,27 @@ command\&.
 .sp
 The code was taken from \fIhttp://wiki\&.tcl\&.tk/772\fR, attributed to
 Igor Volobouev and anon\&.
+.TP
+\fB::fileutil::maketempdir\fR ?\fB-prefix\fR \fIstr\fR? ?\fB-suffix\fR \fIstr\fR? ?\fB-dir\fR \fIstr\fR?
+The command generates a temporary directory suitable for writing to\&.
+The directory name will be unique, and the directory will be writable
+and contained in the appropriate system specific temp directory\&. The
+name of the directory will be returned as the result of the command\&.
+.sp
+The three options can used to tweak the behaviour of the command:
+.RS
+.TP
+\fB-prefix\fR str
+The initial, fixed part of the directory name\&. Defaults to \fBtmp\fR if not specified\&.
+.TP
+\fB-suffix\fR str
+The fixed tail of the directory\&. Defaults to the empty string if not specified\&.
+.TP
+\fB-dir\fR str
+The directory to place the new directory into\&. Defaults to the result of \fBfileutil::tempdir\fR if not specified\&.
+.RE
+.sp
+The initial code for this was supplied by \fIMiguel Martinez Lopez\fR [mailto:aplicacionamedida@gmail\&.com]\&.
 .TP
 \fB::fileutil::relative\fR \fIbase\fR \fIdst\fR
 This command takes two directory paths, both either absolute or relative
