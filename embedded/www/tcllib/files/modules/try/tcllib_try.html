@@ -172,7 +172,7 @@ of <i class="arg">pattern</i>, and inter-word spaces are normalized in both the
 <p>The <i class="arg">variableList</i> word in each <i class="arg">handler</i> is always
 interpreted as a list of variable names. If the first word of the list
 is present and non-empty, it names a variable into which the result of
-the evaluation of <i class="arg">body</i> (from the main <b class="cmd">try</b>) will be placed;
+the evaluation of <i class="arg">body</i> (from the main <b class="cmd"><a href="tcllib_throw.html">try</a></b>) will be placed;
 this will contain the human-readable form of any errors. If the second
 word of the list is present and non-empty, it names a variable into
 which the options dictionary of the interpreter at the moment of
@@ -186,7 +186,7 @@ is invoked instead (just like with the <b class="cmd">switch</b> command).</p>
 and that the first matching one is always selected.
 At most one <i class="arg">handler</i> clause will selected.
 As a consequence, an <b class="method">on error</b> will mask any subsequent
-<b class="method">trap</b> in the <b class="cmd">try</b>. Also note that <b class="method">on error</b> is
+<b class="method">trap</b> in the <b class="cmd"><a href="tcllib_throw.html">try</a></b>. Also note that <b class="method">on error</b> is
 equivalent to <b class="method">trap {}</b>.</p>
 <p>If an exception (i.e. any non-<b class="const">ok</b> result) occurs during
 the evaluation of either the <i class="arg">handler</i> or the <b class="method">finally</b>
@@ -199,7 +199,7 @@ the new exception's status dictionary under the <b class="option">-during</b> ke
 <p>Ensure that a file is closed no matter what:</p>
 <pre class="example">
 set f [open /some/file/name a]
-<b class="cmd">try</b> {
+<b class="cmd"><a href="tcllib_throw.html">try</a></b> {
     puts \$f &quot;some message&quot;
     # ...
 } <b class="cmd">finally</b> {
@@ -208,7 +208,7 @@ set f [open /some/file/name a]
 </pre>
 <p>Handle different reasons for a file to not be openable for reading:</p>
 <pre class="example">
-<b class="cmd">try</b> {
+<b class="cmd"><a href="tcllib_throw.html">try</a></b> {
     set f [open /some/file/name]
 } <b class="method">trap</b> {POSIX EISDIR} {} {
     puts &quot;failed to open /some/file/name: it's a directory&quot;

@@ -312,6 +312,8 @@ package require \fBplatform  0\&.1\fR
 .sp
 \fB::nettool::status\fR
 .sp
+\fB::nettool::user_data_root\fR \fIappname\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -426,6 +428,10 @@ Total physical RAM (MB)
 memory_free
 Total physical RAM unused (MB)
 .RE
+.TP
+\fB::nettool::user_data_root\fR \fIappname\fR
+Return a fully qualified path to a folder where \fIappname\fR should store it's data\&.
+The path is not created, only computed, by this command\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

@@ -212,30 +212,30 @@ namespace eval math::exact::test {
     test math::exact-13.3 {unit test mrefines} {
 	math::exact::mrefines {{-1 -2} {-3 -4}}
     } 1
-    test math::exact::13.4 {unit test mrefines} {
+    test math::exact-13.4 {unit test mrefines} {
 	math::exact::mrefines {{-1 2} {-3 4}}
     } 0
 
-    test math::exact::14.1 {unit test trefines} {
+    test math::exact-14.1 {unit test trefines} {
 	math::exact::trefines {{{1 2} {3 4}} {{5 6} {7 8}}}
     } 1
-    test math::exact::14.2 {unit test trefines} {
+    test math::exact-14.2 {unit test trefines} {
 	math::exact::trefines {{{-1 -2} {-3 -4}} {{-5 -6} {-7 -8}}}
     } 1
-    test math::exact::14.3 {unit test trefines} {
+    test math::exact-14.3 {unit test trefines} {
 	math::exact::trefines {{{-1 2} {-3 4}} {{-5 6} {-7 8}}}
     } 0
-    test math::exact::14.4 {unit test trefines} {
+    test math::exact-14.4 {unit test trefines} {
 	math::exact::trefines {{{1 2} {3 4}} {{5 6}} {{-7 -8}}}
     } 0
-    test math::exact::14.5 {unit test trefines} {
+    test math::exact-14.5 {unit test trefines} {
 	math::exact::trefines {{{1 2} {3 4}} {{-5 -6}} {{-7 -8}}}
     } 0
-    test math::exact::14.6 {unit test trefines} {
+    test math::exact-14.6 {unit test trefines} {
 	math::exact::trefines {{{1 2} {-3 -4}} {{-5 -6}} {{-7 -8}}}
     } 0
 
-    test math::exact::15.1 {unit test vlessv} {
+    test math::exact-15.1 {unit test vlessv} {
 	set intervals {
 	    {-1 0} {-2 1} {-1 1} {-1 2} {0 1} {2 4} {3 3} {14 7} {1 0}
 	}
@@ -263,7 +263,7 @@ namespace eval math::exact::test {
 	set trouble
     } {}
     
-    test math::exact::16.1 {unit test mlessm - also tests mlessv} {
+    test math::exact-16.1 {unit test mlessm - also tests mlessv} {
 	set intervals {
 	    {-2 1} {-1 1} {-1 2} {0 1} {2 4} {3 3} {14 7} {1 0}
 	}
@@ -735,7 +735,7 @@ namespace eval math::exact::test {
 	-result {25 2.500000000000000e1}
     }
 
-    test math::exact::40.17 {V + E} {
+    test math::exact-40.17 {V + E} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 + real(-3/5)}] ref]
@@ -747,7 +747,7 @@ namespace eval math::exact::test {
 	-result {1.4000000000000000e0 1.4000000000000000e0}
     }
 
-    test math::exact::40.18 {V - E} {
+    test math::exact-40.18 {V - E} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {2 - real(3/5)}] ref]
@@ -759,7 +759,7 @@ namespace eval math::exact::test {
 	-result {1.4000000000000000e0 1.4000000000000000e0}
     }
 
-    test math::exact::40.19 {E / E} {
+    test math::exact-40.19 {E / E} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {real(3/5)/real(2/5)}] ref]
@@ -771,7 +771,7 @@ namespace eval math::exact::test {
 	-result {1.5000000000000000e0 1.5000000000000000e0}
     }
 
-    test math::exact::40.20 {E + V} {
+    test math::exact-40.20 {E + V} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {real(3/2) + (2/5)}] ref]
@@ -783,7 +783,7 @@ namespace eval math::exact::test {
 	-result {1.9000000000000000e0 1.9000000000000000e0}
     }
 	
-    test math::exact::40.21 {E - V} {
+    test math::exact-40.21 {E - V} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {real(3/2) - (2/5)}] ref]
@@ -795,7 +795,7 @@ namespace eval math::exact::test {
 	-result {1.1000000000000000e0 1.1000000000000000e0}
     }
 
-    test math::exact::40.22 {E * V} {
+    test math::exact-40.22 {E * V} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {real(3/2) * (2/5)}] ref]
@@ -807,7 +807,7 @@ namespace eval math::exact::test {
 	-result {6.0000000000000001e-1 6.0000000000000001e-1}
     }
 	
-    test math::exact::40.23 {E / V} {
+    test math::exact-40.23 {E / V} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {real(3/2) / (5/2)}] ref]
@@ -818,8 +818,29 @@ namespace eval math::exact::test {
 	}
 	-result {6.0000000000000001e-1 6.0000000000000001e-1}
     }
-	
 
+    test math::exact-40.24 {lexical error} {
+	-setup leakBaseline
+	-body {
+	    set result [list [catch {math::exact::expr {2 ! 1}} m] $m]
+	    leakCheck
+	    set result
+	}
+	-match glob
+	-result {1 {invalid character*}}
+    }
+	
+    test math::exact-40.25 {syntax error} {
+	-setup leakBaseline
+	-body {
+	    set result [list [catch {math::exact::expr {2 $ 1}} m] $m]
+	    leakCheck
+	    set result
+	}
+	-match glob
+	-result {1 {syntax error*}}
+    }
+	
     test math::exact-41.1 {square root} {
 	-setup leakBaseline
 	-body {
@@ -868,7 +889,7 @@ namespace eval math::exact::test {
 	-result {1 1.41421356237309e-3}
     }
 
-    test math::exact::41.5 {square root} {
+    test math::exact-41.5 {square root} {
 	-setup leakBaseline
 	-body {
 	    set v [[math::exact::expr {sqrt(sqrt(1/81))}] ref]
@@ -880,7 +901,7 @@ namespace eval math::exact::test {
 	-result {1 3.3333333333333333e-1}
     }
 
-    test math::exact::41.6 {square root of negative rational} {
+    test math::exact-41.6 {square root of negative rational} {
 	-setup {
 	    leakBaseline
 	    catch {unset v}
@@ -900,7 +921,7 @@ namespace eval math::exact::test {
 	-result {*negative argument*}
     }
 
-    test math::exact::41.7 {square root of negative real} {
+    test math::exact-41.7 {square root of negative real} {
 	-setup {
 	    leakBaseline
 	    catch {unset v}
@@ -918,6 +939,20 @@ namespace eval math::exact::test {
 	-match glob
 	-returnCodes error
 	-result {*negative argument*}
+    }
+
+    test math::exact-41.8 {square root, cached result} {
+	-setup leakBaseline
+	-body {
+	    set x [[math::exact::expr {sqrt(2)}] ref]
+	    set y [[math::exact::expr {$x * $x}] ref]
+	    $x unref
+	    set result [list [$y asFloat 57] [$y asFloat 57]]
+	    $y unref
+	    leakCheck
+	    set result
+	}
+	-result {2.0000000000000000e0 2.0000000000000000e0}
     }
     
     test math::exact-42.1 {exponential} {
@@ -1478,6 +1513,20 @@ namespace eval math::exact::test {
 	-result {1 1.5700000000000000e0}
     }
 	    
+    test math::exact-45.6 {arctangent, cached} {
+	-setup leakBaseline
+	-body {
+	    set u [[math::exact::expr {atan(1)}] ref]
+	    set v [[math::exact::expr {$u + $u + $u + $u}] ref]
+	    $u unref
+	    set result [$v asFloat 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 3.1415926535897933e0
+    }
+
     test math::exact-46.1 {arcsine} {
 	-setup leakBaseline
 	-body {
@@ -1711,69 +1760,448 @@ namespace eval math::exact::test {
 	}
 	-result 1.0000000000000000e0
     }
-    
+
+    test math::exact-53.1 {real**real} {
+	-setup {
+	    # Consume digits from math::exact::e and math::exact::log2
+	    # to avoid appearance of a leak in the cache
+	    $math::exact::e asFloat 100
+	    $math::exact::log2 asFloat 100
+	    leakBaseline
+	}
+	-body {
+	    set v [[math::exact::expr {e() ** log(2)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 2.0000000000000000e0
+    }
+
+    test math::exact-53.2 {rational**real} {
+	-setup {
+	    # Consume digits from math::exact::e
+	    # to avoid appearance of a leak in the cache
+	    $math::exact::e asFloat 100
+	    leakBaseline
+	}
+	-body {
+	    set v [[math::exact::expr {2 ** e()}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 6.580885991017921e0
+    }
+
+    test math::exact-53.3 {real**1} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4) ** 1}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 2.0000000000000000e0
+    }
+
+    test math::exact-53.4 {real**-1} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4) ** (-1)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 5.000000000000000e-1
+    }
+
+    test math::exact-53.5 {real**0} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4) ** 0}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1
+    }
+
+    test math::exact-53.6 {real**+int} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4)**2}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 4.000000000000000e0
+    }
+
+    test math::exact-53.7 {real**+int} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4)**5}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 3.200000000000000e1
+    }
+
+    test math::exact-53.6 {real**-int} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4)**-2}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 2.5000000000000000e-1
+    }
+
+    test math::exact-53.7 {real**+int} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(4)**-5}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 3.125000000000000e-2
+    }
+
+    test math::exact-53.8 {real**rational} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(64)**(10/3)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1.02400000000000e3
+    }
+
+    test math::exact-53.9 {real**rational} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {sqrt(64)**(1/-3)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 5.000000000000000e-1
+    }
+	
+    test math::exact-53.10 {real**integer, accidental} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::real**rat [math::exact::expr {3}] 2 1] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 9
+    }
+	
+    test math::exact-53.11 {zero to zero power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {0**0}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result "zero to zero power"
+    }
+
+    test math::exact-53.12 {zero to infinite power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {0**(1/0)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result "zero to infinite power"
+    }
+	
+    test math::exact-53.13 {zero to rational power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {0**(1/2)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 0
+    }
+	
+    test math::exact-53.14 {infinity to zero power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(1/0)**0}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result "infinity to zero power"
+    }
+	
+    test math::exact-53.15 {infinity to negative power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(1/0)**-1}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 0
+    }
+	
+    test math::exact-53.15 {infinity to positive power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(1/0)**1}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result Inf
+    }
+	
+    test math::exact-53.16 {rational to zero power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(2/3)**0}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1
+    }
+
+    test math::exact-53.17 {rational power of negative real argument} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(-sqrt(64))**(1/3)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result -2.0000000000000000e0
+    }
+
+    test math::exact-53.18 {rational power of argument near zero} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {log(exp(1/8))**(1/3)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 5.000000000000000e-1
+    }
+
+    test math::exact-53.19 {negative real to real power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(-sqrt(4))**(1/2)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result "negative number to real power"
+    }
+	
+    test math::exact-53.20 {rational to zero power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(2/3)**0}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 1
+    }
+
+    test math::exact-53.21 {rational to positive integer power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(2/3)**2}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 4/9
+    }
+	
+    test math::exact-53.22 {rational to negative integer power} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(2/3)**-2}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result 9/4
+    }
+
+    test math::exact-53.23 {rational to rational} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::expr {(-8)**(1/3)}] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result -2.0000000000000000e0
+    }
+
+    test math::exact-53.24 {real to 0/0} {
+	-setup leakBaseline
+	-body {
+	    set bad [[math::exact::V new {0 0}] ref]
+	    set v [[math::exact::expr {sqrt(2)**$bad}] ref]
+	    $bad unref
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result {zero divided by zero}
+    }
+	
+    test math::exact-53.24 {rational to 0/0} {
+	-setup leakBaseline
+	-body {
+	    set bad [[math::exact::V new {0 0}] ref]
+	    set v [[math::exact::expr {(1/2)**$bad}] ref]
+	    $bad unref
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-returnCodes error
+	-result {zero divided by zero}
+    }
+	
+    test math::exact-53.26 {unit test - rat**int (2/3)**0} {
+	-setup leakBaseline
+	-body {
+	    set v [[math::exact::rat**int 2 3 0] ref]
+	    set result [$v asPrint 57]
+	    $v unref
+	    leakCheck
+	    set result
+	}
+	-result {1}
+    }
+
+    test math::exact-53.27 {rational powers - normalize base and exponent} {
+	-setup leakBaseline
+	-body {
+	    set p [[math::exact::V new {-2 -1}] ref]
+	    set q [[math::exact::V new {-3 -1}] ref]
+	    set r [[math::exact::expr {$p ** $q}] ref]
+	    $p unref
+	    $q unref
+	    set result [$r asPrint 57]
+	    $r unref
+	    leakCheck
+	    set result
+	}
+	-result 8
+    }
+
     # following are demos that I don't know where to put, yet
 
     if 0 {
     set p 1
-    for {set i 0} {$i < 36} {incr i} {
-	puts "floating: sin($p) == [expr {sin($p)}]"
-	set v [[math::exact::expr sin($p)] ref]
-	puts "exact:    sin($p) == [$v asPrint 57]"
-	$v unref
-	set p [expr {11 * $p}]
-    }
-    }
-
-    if 0 { # blows up because of memory consumption
-    set p 0.5
-    set q [[math::exact::expr 1/2] ref]
-    for {set i 0} {$i < 100} {incr i} {
-	set p [expr {(15./4.) * $p * (1.0-$p)}]
-	set q2 [[math::exact::expr {15/4 * real($q) * real((1-$q))}] ref]
-	$q unref
-	set q $q2
-	puts "iteration $i: float $p exact [$q asFloat 57]"
-	puts [$q dump]
-    }
-    $q unref
-    }
-    
-    if 0 {
-    for {set x 1} {$x < 12000} {incr x 100} {
-    set ex [[math::exact::expr $x] ref]
-    set fa [expr {-($x**-4.0)}]
-    set ea [[math::exact::expr {-1/$ex/$ex/$ex/$ex}] ref]
-    set fb [expr {exp($fa)}]
-    set eb [[math::exact::expr {exp($ea)}] ref]
-    set fc [expr {log($fb)}]
-    set ec [[math::exact::expr {log($eb)}] ref]
-    set ff [expr {(-$fc) ** -0.25}]
-    set ef [[math::exact::expr {exp((-1/4) * log(-$ec))}] ref]
-	puts [format "kahan's function: %g %g" $ff [$ef asFloat 28]]
-    $ef unref
-    $ec unref
-    $eb unref
-    $ea unref
-    $ex unref
+	for {set i 0} {$i < 20} {incr i} {
+	    set f [expr {sin(0.01 * $p* acos(-1))}]
+	    set v [[math::exact::expr "sin($p * pi() / 100)"] ref]
+	    set a [$v asPrint 57]
+	    set r [expr {$f - $a}]
+	    puts "i: $i p: $p float: $f exact: $a difference: $r"
+	    $v unref
+	    set p [expr {11 * $p}]
     }
     }
 
     if 0 {
-    set x0 4.0
-    set x1 4.25
-    set ex0 [[math::exact::expr 4] ref]
-    set ex1 [[math::exact::expr 4+25/100] ref]
-    for {set i 1} {$i < 25} {incr i} {
-	set x2 [expr {108. - (815. - 1500. / $x0) / $x1}]
-	set x0 $x1
-	set x1 $x2
-	set ex2 [[math::exact::expr {108 - (815 - 1500 / $ex0) / $ex1}] ref]
+	for {set x 100} {$x <= 12200} {incr x 100} {
+	    set ex [[math::exact::expr $x] ref]
+	    puts "x $x ex [$ex asPrint 57]"
+	    set fa [expr {-(double($x)**-4)}]
+	    set ea [[math::exact::expr {-($ex**-4)}] ref]
+	    puts "fa $fa ea [$ea asPrint 57]"
+	    set fb [expr {exp($fa)}]
+	    set eb [[math::exact::expr {exp($ea)}] ref]
+	    puts "fb $fb eb [$eb asPrint 120]"
+	    set fc [expr {log($fb)}]
+	    set ec [[math::exact::expr {log($eb)}] ref]
+	    puts "fc $fc ec [$ec asPrint 120]"
+	    catch {expr {(-$fc) ** -0.25}} ff
+	    set ef [[math::exact::expr {(-$ec)**(-1/4)}] ref]
+	    puts [format "kahan's function: %s %g" $ff [$ef asFloat 28]]
+	    $ef unref
+	    $ec unref
+	    $eb unref
+	    $ea unref
+	    $ex unref
+	}
+    }
+
+    if 0 {
+	set x0 4.0
+	set x1 4.25
+	set ex0 [[math::exact::expr 4] ref]
+	set ex1 [[math::exact::expr 4+25/100] ref]
+	for {set i 1} {$i < 100} {incr i} {
+	    set x2 [expr {108. - (815. - 1500. / $x0) / $x1}]
+	    set x0 $x1
+	    set x1 $x2
+	    set ex2 [[math::exact::expr {108 - (815 - 1500 / $ex0) / $ex1}] ref]
+	    $ex0 unref
+	    set ex0 $ex1
+	    set ex1 $ex2
+	    puts "$i $x2 [$ex2 asFloat 57]"
+	}
 	$ex0 unref
-	set ex0 $ex1
-	set ex1 $ex2
-	puts "$i $x2 [$ex2 asFloat 57]"
-    }
+	$ex1 unref
     }
 
     testsuiteCleanup
