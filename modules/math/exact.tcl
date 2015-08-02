@@ -193,7 +193,7 @@ proc math::exact::Lexer {expression} {
 
 proc math::exact::K {a b} {return $a}
 
-# math::exact::expr --
+# math::exact::exactexpr --
 #
 #	Evaluates an exact real expression.
 #
@@ -209,11 +209,11 @@ proc math::exact::K {a b} {return $a}
 # user of a real will [ref] the object when storing it in a variable and
 # [unref] it again when the variable goes out of scope or is overwritten.
 
-proc math::exact::expr {expr} {
+proc math::exact::exactexpr {expr} {
     variable parser
     set result [$parser parse {*}[Lexer $expr] \
 		    [dict create \
-			 caller "#[::expr {[info level] - 1}]" \
+			 caller "#[expr {[info level] - 1}]" \
 			 namespace [namespace current]]]
 }
 
@@ -264,7 +264,7 @@ proc math::exact::gcd {a args} {
 	}
 	while {$b > 0} {
 	    set t $b
-	    set b [::expr {$a % $b}]
+	    set b [expr {$a % $b}]
 	    set a $t
 	}
     }
@@ -302,7 +302,7 @@ proc math::exact::determinant {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
-    return [::expr {$a*$d - $b*$c}]
+    return [expr {$a*$d - $b*$c}]
 }
 
 # math::exact::reverse --
@@ -323,7 +323,7 @@ proc math::exact::reverse {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
-    tailcall list [list $d [::expr {-$b}]] [list [::expr {-$c}] $a]
+    tailcall list [list $d [expr {-$b}]] [list [expr {-$c}] $a]
 }
 
 # math::exact::veven --
@@ -338,7 +338,7 @@ proc math::exact::reverse {x} {
 
 proc math::exact::veven {x} {
     lassign $x a b
-    return [::expr {($a % 2 == 0) && ($b % 2 == 0)}]
+    return [expr {($a % 2 == 0) && ($b % 2 == 0)}]
 }
 
 # math::exact::meven --
@@ -353,7 +353,7 @@ proc math::exact::veven {x} {
 
 proc math::exact::meven {x} {
     lassign $x a b
-    return [::expr {[veven $a] && [veven $b]}]
+    return [expr {[veven $a] && [veven $b]}]
 }
 
 # math::exact::teven --
@@ -368,7 +368,7 @@ proc math::exact::meven {x} {
 
 proc math::exact::teven {x} {
     lassign $x a b
-    return [::expr {[meven $a] && [meven $b]}]
+    return [expr {[meven $a] && [meven $b]}]
 }
 
 # math::exact::vhalf --
@@ -383,7 +383,7 @@ proc math::exact::teven {x} {
 
 proc math::exact::vhalf {x} {
     lassign $x a b
-    tailcall list [::expr {$a / 2}] [::expr {$b / 2}]
+    tailcall list [expr {$a / 2}] [expr {$b / 2}]
 }
 
 # math::exact::mhalf --
@@ -482,7 +482,7 @@ proc math::exact::tscale {x} {
 proc math::exact::vreduce {x} {
     lassign $x a b
     set g [gcd $a $b]
-    tailcall list [::expr {$a / $g}] [::expr {$b / $g}]
+    tailcall list [expr {$a / $g}] [expr {$b / $g}]
 }
 
 # math::exact::mreduce --
@@ -506,8 +506,8 @@ proc math::exact::mreduce {x} {
     lassign $cd c d
     set g [gcd $a $b $c $d]
     tailcall list \
-	[list [::expr {$a / $g}] [::expr {$b / $g}]] \
-	[list [::expr {$c / $g}] [::expr {$d / $g}]]
+	[list [expr {$a / $g}] [expr {$b / $g}]] \
+	[list [expr {$c / $g}] [expr {$d / $g}]]
 }
 
 # math::exact::treduce --
@@ -536,11 +536,11 @@ proc math::exact::treduce {x} {
     set G [gcd $a $b $c $d $e $f $g $h]
     tailcall list \
 	[list \
-	     [list [::expr {$a / $G}] [::expr {$b / $G}]] \
-	     [list [::expr {$c / $G}] [::expr {$d / $G}]]] \
+	     [list [expr {$a / $G}] [expr {$b / $G}]] \
+	     [list [expr {$c / $G}] [expr {$d / $G}]]] \
 	[list \
-	     [list [::expr {$e / $G}] [::expr {$f / $G}]] \
-	     [list [::expr {$g / $G}] [::expr {$h / $G}]]]
+	     [list [expr {$e / $G}] [expr {$f / $G}]] \
+	     [list [expr {$g / $G}] [expr {$h / $G}]]]
 }
 
 # math::exact::vadd --
@@ -555,7 +555,7 @@ proc math::exact::treduce {x} {
 #	Returns the vector sum
 
 proc math::exact::vadd {x y} {
-    lmap p $x q $y {::expr {$p + $q}}
+    lmap p $x q $y {expr {$p + $q}}
 }
 
 # math::exact::madd --
@@ -571,7 +571,7 @@ proc math::exact::vadd {x y} {
 
 proc math::exact::madd {A B} {
     lmap x $A y $B {
-	lmap p $x q $y {::expr {$p + $q}}
+	lmap p $x q $y {expr {$p + $q}}
     }
 }
 
@@ -589,7 +589,7 @@ proc math::exact::madd {A B} {
 proc math::exact::tadd {U V} {
     lmap A $U B $V {
 	lmap x $A y $B {
-	    lmap p $x q $y {::expr {$p + $q}}
+	    lmap p $x q $y {expr {$p + $q}}
 	}
     }
 }
@@ -610,7 +610,7 @@ proc math::exact::mdotv {A x} {
     lassign $ab a b
     lassign $cd c d
     lassign $x e f
-    tailcall list [::expr {$a*$e + $c*$f}] [::expr {$b*$e + $d*$f}]
+    tailcall list [expr {$a*$e + $c*$f}] [expr {$b*$e + $d*$f}]
 }
 
 # math::exact::mdotm --
@@ -770,7 +770,7 @@ proc math::exact::sign {v} {
 #	1 if the vector refines, 0 otherwise.
 
 proc math::exact::vrefines {v} {
-    return [::expr {[sign $v] != 0}]
+    return [expr {[sign $v] != 0}]
 }
 
 # math::exact::mrefines --
@@ -787,7 +787,7 @@ proc math::exact::mrefines {A} {
     lassign $A v w
     set a [sign $v]
     set b [sign $w]
-    return [::expr {$a == $b && $b != 0}]
+    return [expr {$a == $b && $b != 0}]
 }
 
 # math::exact::trefines --
@@ -808,7 +808,7 @@ proc math::exact::trefines {T} {
     set b [sign $w]
     set c [sign $x]
     set d [sign $y]
-    return [::expr {$a == $b && $b == $c && $c == $d && $d != 0}]
+    return [expr {$a == $b && $b == $c && $c == $d && $d != 0}]
 }
 
 # math::exact::vlessv -
@@ -822,7 +822,7 @@ proc math::exact::trefines {T} {
 #	The result of the comparison.
 
 proc math::exact::vlessv {v w} {
-    ::expr {[determinant [list $v $w]] < 0}
+    expr {[determinant [list $v $w]] < 0}
 }
 
 # math::exact::mlessv -
@@ -838,7 +838,7 @@ proc math::exact::vlessv {v w} {
 
 proc math::exact::mlessv {m x} {
     lassign $m v w
-    ::expr {[vlessv $v $x] && [vlessv $w $x]}
+    expr {[vlessv $v $x] && [vlessv $w $x]}
 }
 
 # math::exact::mlessm -
@@ -854,7 +854,7 @@ proc math::exact::mlessv {m x} {
 
 proc math::exact::mlessm {m n} {
     lassign $n v w
-    ::expr {[mlessv $m $v] && [mlessv $m $w]}
+    expr {[mlessv $m $v] && [mlessv $m $w]}
 }
 
 # math::exact::mdisjointm -
@@ -869,7 +869,7 @@ proc math::exact::mlessm {m n} {
 #	Returns 1 if the intervals are disjoint, 0 otherwise
 
 proc math::exact::mdisjointm {m n} {
-    ::expr {[mlessm $m $n] || [mlessm $n $m]}
+    expr {[mlessm $m $n] || [mlessm $n $m]}
 }
 
 # math::exact::mAsFloat
@@ -892,8 +892,8 @@ proc math::exact::mAsFloat {m} {
     lassign [lindex $m 0] p q
     if {$d == 0} {
 	if {$q < 0} {
-	    set p [::expr {-$p}]
-	    set q [::expr {-$q}]
+	    set p [expr {-$p}]
+	    set q [expr {-$q}]
 	}
 	if {$p == 0} {
 	    if {$q == 0} {
@@ -907,7 +907,7 @@ proc math::exact::mAsFloat {m} {
 	    return $p
 	} else {
 	    set G [gcd $p $q]
-	    return [::expr {$p/$G}]/[::expr {$q/$G}]
+	    return [expr {$p/$G}]/[expr {$q/$G}]
 	}
     } else {
 	tailcall eFormat [scientificNotation $m]
@@ -966,10 +966,10 @@ proc math::exact::mantissa {m} {
 
 	for {set j -9} {$j <= 9} {incr j} {
 	    set digitMatrix \
-		[list [list [::expr {$j+1}] 10] [list [::expr {$j-1}] 10]]
+		[list [list [expr {$j+1}] 10] [list [expr {$j-1}] 10]]
 	    if {[mrefines [mdotm [reverse $digitMatrix] $m]]} {
 		lappend retval $j
-		set nextdigit [list {10 0} [list [::expr {-$j}] 1]]
+		set nextdigit [list {10 0} [list [expr {-$j}] 1]]
 		set m [mdotm $nextdigit $m]
 		set done 0
 		break
@@ -1000,7 +1000,7 @@ proc math::exact::eFormat {expAndDigits} {
     # Accumulate the digits
     set v 0
     foreach digit $significand {
-	set v [::expr {10 * $v + $digit}]
+	set v [expr {10 * $v + $digit}]
     }
 
     # Adjust the exponent if the significand has too few digits.
@@ -1016,7 +1016,7 @@ proc math::exact::eFormat {expAndDigits} {
 
     if {$v < 0} {
 	set result -
-	set v [::expr {-$v}]
+	set v [expr {-$v}]
     } else {
 	set result {}
     }
@@ -1050,7 +1050,7 @@ proc math::exact::eFormat {expAndDigits} {
 proc math::exact::showRat {v} {
     lassign $v p q
     if {$p != 0 || $q != 0} {
-	return [format %e [::expr {double($p)/double($q)}]]
+	return [format %e [expr {double($p)/double($q)}]]
     } else {
 	return NaN
     }
@@ -2814,13 +2814,13 @@ oo::class create math::exact::ExpWorker {
     constructor {e {n 0}} {
 	next [list \
 		  [list \
-		       [list [::expr {2*$n + 2}] [::expr {2*$n + 1}]] \
-		       [list [::expr {2*$n + 1}] [::expr {2*$n}]]] \
+		       [list [expr {2*$n + 2}] [expr {2*$n + 1}]] \
+		       [list [expr {2*$n + 1}] [expr {2*$n}]]] \
 		  [list \
-		       [list [::expr {2*$n}] [::expr {2*$n + 1}]] \
-		       [list [::expr {2*$n + 1}] [::expr {2*$n + 2}]]]] 0
+		       [list [expr {2*$n}] [expr {2*$n + 1}]] \
+		       [list [expr {2*$n + 1}] [expr {2*$n + 2}]]]] 0
 	set l_ [$e ref]
-	set n_ [::expr {$n + 1}]
+	set n_ [expr {$n + 1}]
     }
 
     # l --
@@ -2845,7 +2845,7 @@ oo::class create math::exact::ExpWorker {
     #
     #	Displays this object for debugging
     method dump {} {
-	return ExpWorker([$l_ dump],[::expr {$n_-1}])
+	return ExpWorker([$l_ dump],[expr {$n_-1}])
     }
 }
 
@@ -2914,12 +2914,12 @@ oo::class create math::exact::LogWorker {
 	next [list \
 		  [list \
 		       [list $n 0] \
-		       [list [::expr {2*$n + 1}] [::expr {$n+1}]]] \
+		       [list [expr {2*$n + 1}] [expr {$n+1}]]] \
 		  [list \
-		       [list [::expr {$n + 1}] [::expr {2*$n + 1}]] \
+		       [list [expr {$n + 1}] [expr {2*$n + 1}]] \
 		       [list 0 $n]]] 0
 	set l_ [$e ref]
-	set n_ [::expr {$n + 1}]
+	set n_ [expr {$n + 1}]
     }
 
     # l -
@@ -2940,7 +2940,7 @@ oo::class create math::exact::LogWorker {
     # dump -
     #	Dumps this object for debugging
     method dump {} {
-	return LogWorker([$l_ dump],[::expr {$n_-1}])
+	return LogWorker([$l_ dump],[expr {$n_-1}])
     }
 }
 
@@ -3017,13 +3017,13 @@ oo::class create math::exact::TanWorker {
     constructor {e {n 1}} {
 	next [list \
 		  [list \
-		       [list [::expr {2*$n + 1}] [::expr {2*$n + 3}]] \
-		       [list [::expr {2*$n - 1}] [::expr {2*$n + 1}]]] \
+		       [list [expr {2*$n + 1}] [expr {2*$n + 3}]] \
+		       [list [expr {2*$n - 1}] [expr {2*$n + 1}]]] \
 		  [list \
-		       [list [::expr {2*$n + 1}] [::expr {2*$n - 1}]] \
-		       [list [::expr {2*$n + 3}] [::expr {2*$n + 1}]]]] 0
+		       [list [expr {2*$n + 1}] [expr {2*$n - 1}]] \
+		       [list [expr {2*$n + 3}] [expr {2*$n + 1}]]]] 0
 	set l_ [$e ref]
-	set n_ [::expr {$n + 1}]
+	set n_ [expr {$n + 1}]
     }
 
     # l -
@@ -3044,7 +3044,7 @@ oo::class create math::exact::TanWorker {
     # dump -
     #	Displays this object for debugging
     method dump {} {
-	return TanWorker([$l_ dump],[::expr {$n_-1}])
+	return TanWorker([$l_ dump],[expr {$n_-1}])
     }
 }
 
@@ -3145,13 +3145,13 @@ oo::class create math::exact::AtanWorker {
     constructor {e {n 1}} {
 	next [list \
 		  [list \
-		       [list [::expr {2*$n + 1}] [::expr {$n + 1}]] \
+		       [list [expr {2*$n + 1}] [expr {$n + 1}]] \
 		       [list $n 0]] \
 		  [list \
 		       [list 0 $n] \
-		       [list [::expr {$n + 1}] [::expr {2*$n + 1}]]]] 0
+		       [list [expr {$n + 1}] [expr {2*$n + 1}]]]] 0
 	set l_ [$e ref]
-	set n_ [::expr {$n + 1}]
+	set n_ [expr {$n + 1}]
     }
 
     # l -
@@ -3172,7 +3172,7 @@ oo::class create math::exact::AtanWorker {
     # dump -
     #	Displays this object for debugging
     method dump {} {
-	return AtanWorker([$l_ dump],[::expr {$n_-1}])
+	return AtanWorker([$l_ dump],[expr {$n_-1}])
     }
 }
 
@@ -3426,9 +3426,9 @@ oo::class create math::exact::EWorker {
     # Constructor accepts the number of the continuant.
 
     constructor {{n 0}} {
-	set n_ [::expr {$n + 1}]
-	next [list [list [::expr {2*$n + 2}] [::expr {2*$n + 1}]] \
-		  [list [::expr {2*$n + 1}] [::expr {2*$n}]]]
+	set n_ [expr {$n + 1}]
+	next [list [list [expr {2*$n + 2}] [expr {2*$n + 1}]] \
+		  [list [expr {2*$n + 1}] [expr {2*$n}]]]
     }
     destructor {
 	next
@@ -3465,15 +3465,15 @@ oo::class create math::exact::PiWorker {
     # Constructor accepts the number of the continuant
 
     constructor {{n 1}} {
-	set n_ [::expr {$n + 1}]
-	set nsq [::expr {$n * $n}]
-	set n4 [::expr {$nsq * $nsq}]
-	set b [::expr {(2*$n - 1) * (6*$n - 5) * (6*$n - 1)}]
-	set c [::expr {$b * (545140134 * $n + 13591409)}]
-	set d [::expr {$b * ($n + 1)}]
-	set e [::expr {10939058860032000 * $n4}]
-	set p [list [::expr {$e - $d - $c}] [::expr {$e + $d + $c}]]
-	set q [list [::expr {$e + $d - $c}] [::expr {$e - $d + $c}]]
+	set n_ [expr {$n + 1}]
+	set nsq [expr {$n * $n}]
+	set n4 [expr {$nsq * $nsq}]
+	set b [expr {(2*$n - 1) * (6*$n - 5) * (6*$n - 1)}]
+	set c [expr {$b * (545140134 * $n + 13591409)}]
+	set d [expr {$b * ($n + 1)}]
+	set e [expr {10939058860032000 * $n4}]
+	set p [list [expr {$e - $d - $c}] [expr {$e + $d + $c}]]
+	set q [list [expr {$e + $d - $c}] [expr {$e - $d + $c}]]
 	next [list $p $q]
     }
     destructor {
@@ -3512,11 +3512,11 @@ oo::class create math::exact::Log2Worker {
 
     # Constructor accepts the number of the continuant
     constructor {{n 1}} {
-	set n_ [::expr {$n + 1}]
-	set a [::expr {3*$n + 1}]
-	set b [::expr {2*$n + 1}]
-	set c [::expr {4*$n + 2}]
-	set d [::expr {3*$n + 2}]
+	set n_ [expr {$n + 1}]
+	set a [expr {3*$n + 1}]
+	set b [expr {2*$n + 1}]
+	set c [expr {4*$n + 2}]
+	set d [expr {3*$n + 2}]
 	next [list [list $a $b] [list $c $d]]
     }
     destructor {
@@ -3553,18 +3553,18 @@ oo::class create math::exact::Sqrtrat {
     # is an intermediate result for the second and later continuants.
     constructor {a b {c {}}} {
 	if {$c eq {}} {
-	    set c [::expr {$a - $b}]
+	    set c [expr {$a - $b}]
 	}
-	set d [::expr {2*($b-$a) + $c}]
+	set d [expr {2*($b-$a) + $c}]
 	if {$d >= 0} {
 	    next $math::exact::dneg
-	    set a_ [::expr {4 * $a}]
+	    set a_ [expr {4 * $a}]
 	    set b_ $d
 	    set c_ $c
 	} else {
 	    next $math::exact::dpos
-	    set a_ [::expr {-$d}]
-	    set b_ [::expr {4 * $b}]
+	    set a_ [expr {-$d}]
+	    set b_ [expr {4 * $b}]
 	    set c_ $c
 	}
     }
@@ -3610,9 +3610,9 @@ oo::class create math::exact::Sqrtrat {
 
 proc math::exact::rat**int {a b n} {
     if {$n < 0} {
-	return [V new [list [::expr {$b**(-$n)}] [::expr {$a**(-$n)}]]]
+	return [V new [list [expr {$b**(-$n)}] [expr {$a**(-$n)}]]]
     } elseif {$n > 0} {
-	return [V new [list [::expr {$a**($n)}] [::expr {$b**($n)}]]]
+	return [V new [list [expr {$a**($n)}] [expr {$b**($n)}]]]
     } else { ;# zero power shouldn't get here
 	return [V new {1 1}]
     }
@@ -3778,7 +3778,7 @@ proc math::exact::real**int {b e} {
     # Handle a negative power by raising the reciprocal of the base to
     # a positive power
     if {$e < 0} {
-	set e [::expr {-$e}]
+	set e [expr {-$e}]
 	set b [K [[$b ref] applyM {{0 1} {1 0}}] [$b unref]]
     }
     
@@ -3788,11 +3788,11 @@ proc math::exact::real**int {b e} {
     while {$e != 0} {
 	if {$e & 1} {
 	    set result [$b * $result]
-	    set e [::expr {$e & ~1}]
+	    set e [expr {$e & ~1}]
 	}
 	if {$e == 0} break
 	set b [K [[$b * $b] ref] [$b unref]]
-	set e [::expr {$e>>1}]
+	set e [expr {$e>>1}]
     }
     $b unref
     return $result
@@ -3849,13 +3849,13 @@ proc math::exact::real**rat {b m n} {
 	    
     # Handle b(-m/n) by taking (1/b)(m/n)
     if {$m < 0} {
-	set m [::expr {-$m}]
+	set m [expr {-$m}]
 	set b [K [[$b ref] applyM {{0 1} {1 0}}] [$b unref]]
     }
 
     # Break m/n apart into integer and fractional parts
-    set i [::expr {$m / $n}]
-    set m [::expr {$m % $n}]
+    set i [expr {$m / $n}]
+    set m [expr {$m % $n}]
 
     # Do the integer part
     $b ref
@@ -3883,10 +3883,10 @@ proc math::exact::real**rat {b m n} {
 	lassign $partial pq rs
 	lassign $pq p q
 	lassign $rs r s
-	set qrn [::expr {($q*$r)**$n}]
-	set t1 [::expr {$qrn}]
-	set t2 [::expr {2 * ($p*$s)**$n}]
-	set t3 [::expr {4 * $qrn}]
+	set qrn [expr {($q*$r)**$n}]
+	set t1 [expr {$qrn}]
+	set t2 [expr {2 * ($p*$s)**$n}]
+	set t3 [expr {4 * $qrn}]
 	if {$t1 < $t2 && $t2 < $t3} break
     }
     $y unref
@@ -3894,7 +3894,7 @@ proc math::exact::real**rat {b m n} {
     # Get the residual
 
     lassign [math::exact::vscale [list $r $s]] p q
-    set xn [math::exact::V new [list [::expr {$p**$n}] [::expr {$q**$n}]]]
+    set xn [math::exact::V new [list [expr {$p**$n}] [expr {$q**$n}]]]
     set y [$b - $xn]; $b unref
 
     # Launch a worker process to perform quasi-Newton iteration to refine
@@ -3975,6 +3975,8 @@ namespace eval math::exact {
     }
     init
     rename init {}
+
+    namespace export exactexpr
 }
 
 package provide math::exact 0.1
