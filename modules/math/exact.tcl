@@ -3922,6 +3922,81 @@ proc math::exact::function::e {} {
     return $e
 }
 
+# math::exact::signum1 --
+#
+#	Tests an argument's sign.
+#
+# Parameters:
+#	x - Exact real number to test.
+#
+# Results:
+#	Returns -1 if x < -1. Returns 1 if x > 1. May return -1, 0 or 1 if
+#	-1 <= x <= 1.
+#
+# Equality of exact reals is not decidable, so a weaker version of comparison
+# testing is needed. This function provides the guts of such a thing. It
+# returns an approximation to the signum function that is exact for
+# |x| > 1, and arbitrary for |x| < 1.
+#
+# A typical use would be to replace a test p < q with a test that
+# looks like signum1((p-q) / epsilon) == -1. This test is decidable,
+# and becomes a test that is true if p < q - epsilon, false if p > q+epsilon,
+# and indeterminate if p lies within epsilon of q.  This test is enough for
+# most checks for convergence or for selecting a branch of a function.
+#
+# This function is not decidable if it is not decidable whether x is finite.
+
+proc math::exact::signum1 {x} {
+    variable ispos
+    variable isneg
+    variable iszer
+    while {1} {
+	if {[$x refinesM $ispos]} {
+	    return 1
+	} elseif {[$x refinesM $isneg]} {
+	    return -1
+	} elseif {[$x refinesM $iszer]} {
+	    return 0
+	} else {
+	    set x [$x absorb]
+	}
+    }
+}
+
+# math::exact::abs1 -
+#
+#	Test whether an exact real is 'small' in absolute value.
+#
+# Parameters:
+#	x - Exact real number to test
+#
+# Results:
+#	Returns 0 if |x| is 'close to zero', 1 if |x| is 'far from zero'
+#	and either 0, or 1 if |x| is close to 1.
+#
+# This function is another useful comparator for convergence testing.
+# It returns a three-way indication:
+#	|x| < 1/2 : 0
+#	|x| > 1 : 1
+#	1/2 <= |x| <= 2 : May return -1, 0, 1
+#
+# This function is useful for convergence testing, where it is desired
+# to know whether a given value has an absolute value less than a given
+# tolerance.
+
+proc math::exact::abs1 {x} {
+    variable iszer
+    while 1 {
+	if {[$x refinesM $iszer]} {
+	    return 0
+	} elseif {[$x refinesM {{2 1} {-2 1}}]} {
+	    return 1
+	} else {
+	    set x [$x absorb]
+	}
+    }
+}
+
 namespace eval math::exact {
 
     # Constant vectors, matrices and tensors
