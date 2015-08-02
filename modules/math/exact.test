@@ -33,6 +33,8 @@ package require math::exact     0.1
 
 namespace eval math::exact::test {
 
+    namespace import ::math::exact::exactexpr
+
     proc signum {x} {expr {($x > 0) - ($x < 0)}}
 
     proc leakBaseline {} {
@@ -546,7 +548,7 @@ namespace eval math::exact::test {
     test math::exact-40.1 {simple expr} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {1}] ref]
+	    set v [[exactexpr {1}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -558,7 +560,7 @@ namespace eval math::exact::test {
     test math::exact-40.2 {unary plus} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {+ 1}] ref]
+	    set v [[exactexpr {+ 1}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -570,7 +572,7 @@ namespace eval math::exact::test {
     test math::exact-40.3 {unary minus} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {- 1}] ref]
+	    set v [[exactexpr {- 1}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -582,7 +584,7 @@ namespace eval math::exact::test {
     test math::exact-40.4 {product} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 * 3}] ref]
+	    set v [[exactexpr {2 * 3}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -594,7 +596,7 @@ namespace eval math::exact::test {
     test math::exact-40.5 {quotient} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 / 3}] ref]
+	    set v [[exactexpr {2 / 3}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -606,7 +608,7 @@ namespace eval math::exact::test {
     test math::exact-40.6 {associativity of /} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 / 3 / 4}] ref]
+	    set v [[exactexpr {2 / 3 / 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -618,7 +620,7 @@ namespace eval math::exact::test {
     test math::exact-40.7 {associativity of */} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 / 3 * 4}] ref]
+	    set v [[exactexpr {2 / 3 * 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -630,7 +632,7 @@ namespace eval math::exact::test {
     test math::exact-40.8 {associativity of */} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 * 3 / 4}] ref]
+	    set v [[exactexpr {2 * 3 / 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -642,7 +644,7 @@ namespace eval math::exact::test {
     test math::exact-40.9 {sum} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 + 3}] ref]
+	    set v [[exactexpr {2 + 3}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -654,7 +656,7 @@ namespace eval math::exact::test {
     test math::exact-40.10 {difference} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 - 3}] ref]
+	    set v [[exactexpr {2 - 3}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -666,7 +668,7 @@ namespace eval math::exact::test {
     test math::exact-40.11 {associativity of -} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 - 3 - 4}] ref]
+	    set v [[exactexpr {2 - 3 - 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -678,7 +680,7 @@ namespace eval math::exact::test {
     test math::exact-40.12 {associativity of +-} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 - 3 + 4}] ref]
+	    set v [[exactexpr {2 - 3 + 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -690,7 +692,7 @@ namespace eval math::exact::test {
     test math::exact-40.13 {associativity of +-} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 + 3 - 4}] ref]
+	    set v [[exactexpr {2 + 3 - 4}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -702,7 +704,7 @@ namespace eval math::exact::test {
     test math::exact-40.14 {precedence of +*} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {3 + 5 * 7}] ref]
+	    set v [[exactexpr {3 + 5 * 7}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -714,7 +716,7 @@ namespace eval math::exact::test {
     test math::exact-40.15 {precedence of +*} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {3 * 5 + 7}] ref]
+	    set v [[exactexpr {3 * 5 + 7}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -726,7 +728,7 @@ namespace eval math::exact::test {
     test math::exact-40.16 {parentheses} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(2 + 3) * 5}] ref]
+	    set v [[exactexpr {(2 + 3) * 5}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -738,7 +740,7 @@ namespace eval math::exact::test {
     test math::exact-40.17 {V + E} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 + real(-3/5)}] ref]
+	    set v [[exactexpr {2 + real(-3/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -750,7 +752,7 @@ namespace eval math::exact::test {
     test math::exact-40.18 {V - E} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {2 - real(3/5)}] ref]
+	    set v [[exactexpr {2 - real(3/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -762,7 +764,7 @@ namespace eval math::exact::test {
     test math::exact-40.19 {E / E} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {real(3/5)/real(2/5)}] ref]
+	    set v [[exactexpr {real(3/5)/real(2/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -774,7 +776,7 @@ namespace eval math::exact::test {
     test math::exact-40.20 {E + V} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {real(3/2) + (2/5)}] ref]
+	    set v [[exactexpr {real(3/2) + (2/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -786,7 +788,7 @@ namespace eval math::exact::test {
     test math::exact-40.21 {E - V} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {real(3/2) - (2/5)}] ref]
+	    set v [[exactexpr {real(3/2) - (2/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -798,7 +800,7 @@ namespace eval math::exact::test {
     test math::exact-40.22 {E * V} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {real(3/2) * (2/5)}] ref]
+	    set v [[exactexpr {real(3/2) * (2/5)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -810,7 +812,7 @@ namespace eval math::exact::test {
     test math::exact-40.23 {E / V} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {real(3/2) / (5/2)}] ref]
+	    set v [[exactexpr {real(3/2) / (5/2)}] ref]
 	    set result [list [$v asPrint 57] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -822,7 +824,7 @@ namespace eval math::exact::test {
     test math::exact-40.24 {lexical error} {
 	-setup leakBaseline
 	-body {
-	    set result [list [catch {math::exact::expr {2 ! 1}} m] $m]
+	    set result [list [catch {exactexpr {2 ! 1}} m] $m]
 	    leakCheck
 	    set result
 	}
@@ -833,7 +835,7 @@ namespace eval math::exact::test {
     test math::exact-40.25 {syntax error} {
 	-setup leakBaseline
 	-body {
-	    set result [list [catch {math::exact::expr {2 $ 1}} m] $m]
+	    set result [list [catch {exactexpr {2 $ 1}} m] $m]
 	    leakCheck
 	    set result
 	}
@@ -844,7 +846,7 @@ namespace eval math::exact::test {
     test math::exact-41.1 {square root} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(25/16)}] ref]
+	    set v [[exactexpr {sqrt(25/16)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    #leakCheck
@@ -856,7 +858,7 @@ namespace eval math::exact::test {
     test math::exact-41.2 {square root} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(2)}] ref]
+	    set v [[exactexpr {sqrt(2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -868,7 +870,7 @@ namespace eval math::exact::test {
     test math::exact-41.3 {square root} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(2000000)}] ref]
+	    set v [[exactexpr {sqrt(2000000)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -880,7 +882,7 @@ namespace eval math::exact::test {
     test math::exact-41.4 {square root} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(2 / 1000000)}] ref]
+	    set v [[exactexpr {sqrt(2 / 1000000)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -892,7 +894,7 @@ namespace eval math::exact::test {
     test math::exact-41.5 {square root} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(sqrt(1/81))}] ref]
+	    set v [[exactexpr {sqrt(sqrt(1/81))}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -907,7 +909,7 @@ namespace eval math::exact::test {
 	    catch {unset v}
 	}
 	-body {
-	    set v [[math::exact::expr {sqrt(-1)}] ref]
+	    set v [[exactexpr {sqrt(-1)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    unset v
@@ -927,7 +929,7 @@ namespace eval math::exact::test {
 	    catch {unset v}
 	}
 	-body {
-	    set v [[math::exact::expr {sqrt(-sqrt(81))}] ref]
+	    set v [[exactexpr {sqrt(-sqrt(81))}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    unset v
@@ -944,8 +946,8 @@ namespace eval math::exact::test {
     test math::exact-41.8 {square root, cached result} {
 	-setup leakBaseline
 	-body {
-	    set x [[math::exact::expr {sqrt(2)}] ref]
-	    set y [[math::exact::expr {$x * $x}] ref]
+	    set x [[exactexpr {sqrt(2)}] ref]
+	    set y [[exactexpr {$x * $x}] ref]
 	    $x unref
 	    set result [list [$y asFloat 57] [$y asFloat 57]]
 	    $y unref
@@ -958,7 +960,7 @@ namespace eval math::exact::test {
     test math::exact-42.1 {exponential} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {exp(1)}] ref]
+	    set v [[exactexpr {exp(1)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -970,7 +972,7 @@ namespace eval math::exact::test {
     test math::exact-42.2 {exponential} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {exp(4)}] ref]
+	    set v [[exactexpr {exp(4)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -982,7 +984,7 @@ namespace eval math::exact::test {
     test math::exact-42.3 {exponential} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {exp(0)}] ref]
+	    set v [[exactexpr {exp(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -994,7 +996,7 @@ namespace eval math::exact::test {
     test math::exact-43.1 {logarithm} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {log(1)}] ref]
+	    set v [[exactexpr {log(1)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1006,7 +1008,7 @@ namespace eval math::exact::test {
     test math::exact-43.2 {logarithm} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {log(2)}] ref]
+	    set v [[exactexpr {log(2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1018,7 +1020,7 @@ namespace eval math::exact::test {
     test math::exact-43.3 {logarithm} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {log(1/2)}] ref]
+	    set v [[exactexpr {log(1/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1035,7 +1037,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {log(4)}] ref]
+	    set v [[exactexpr {log(4)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1052,7 +1054,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {log(1/4)}] ref]
+	    set v [[exactexpr {log(1/4)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1069,7 +1071,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {log(exp(10))}] ref]
+	    set v [[exactexpr {log(exp(10))}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1086,7 +1088,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {log(exp(1/10))}] ref]
+	    set v [[exactexpr {log(exp(1/10))}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1101,7 +1103,7 @@ namespace eval math::exact::test {
 	    catch {unset v}
 	}
 	-body {
-	    set v [[math::exact::expr {log(-sqrt(81))}] ref]
+	    set v [[exactexpr {log(-sqrt(81))}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    unset v
@@ -1123,7 +1125,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {pi()}] ref]
+	    set v [[exactexpr {pi()}] ref]
 	    set result [$v asFloat 3000]
 	    $v unref
 	    leakCheck
@@ -1142,7 +1144,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {exp(pi()*sqrt(163))}] ref]
+	    set v [[exactexpr {exp(pi()*sqrt(163))}] ref]
 	    set result [$v asFloat 160]
 	    $v unref
 	    leakCheck
@@ -1155,7 +1157,7 @@ namespace eval math::exact::test {
     test math::exact-45.1 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(0)}] ref]
+	    set v [[exactexpr {tan(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1167,7 +1169,7 @@ namespace eval math::exact::test {
     test math::exact-45.2 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(pi()/4)}] ref]
+	    set v [[exactexpr {tan(pi()/4)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1179,7 +1181,7 @@ namespace eval math::exact::test {
     test math::exact-45.3 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(pi()/-4)}] ref]
+	    set v [[exactexpr {tan(pi()/-4)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1191,7 +1193,7 @@ namespace eval math::exact::test {
     test math::exact-45.4 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(pi()/3)-sqrt(3)}] ref]
+	    set v [[exactexpr {tan(pi()/3)-sqrt(3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1203,7 +1205,7 @@ namespace eval math::exact::test {
     test math::exact-45.5 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(-pi()/3)+sqrt(3)}] ref]
+	    set v [[exactexpr {tan(-pi()/3)+sqrt(3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1215,7 +1217,7 @@ namespace eval math::exact::test {
     test math::exact-45.6 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {1/tan(pi()/2)}] ref]
+	    set v [[exactexpr {1/tan(pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1227,7 +1229,7 @@ namespace eval math::exact::test {
     test math::exact-45.7 {tangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {tan(pi()/2)}] ref]
+	    set v [[exactexpr {tan(pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1239,7 +1241,7 @@ namespace eval math::exact::test {
     test math::exact-46.1 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(0)}] ref]
+	    set v [[exactexpr {sin(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1251,7 +1253,7 @@ namespace eval math::exact::test {
     test math::exact-46.2 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(pi()/6)}] ref]
+	    set v [[exactexpr {sin(pi()/6)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1263,7 +1265,7 @@ namespace eval math::exact::test {
     test math::exact-46.3 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(-pi()/6)}] ref]
+	    set v [[exactexpr {sin(-pi()/6)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1275,7 +1277,7 @@ namespace eval math::exact::test {
     test math::exact-46.4 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(pi()/2)}] ref]
+	    set v [[exactexpr {sin(pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1287,7 +1289,7 @@ namespace eval math::exact::test {
     test math::exact-46.5 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(-pi()/2)}] ref]
+	    set v [[exactexpr {sin(-pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1299,7 +1301,7 @@ namespace eval math::exact::test {
     test math::exact-46.6 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(pi())}] ref]
+	    set v [[exactexpr {sin(pi())}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1311,7 +1313,7 @@ namespace eval math::exact::test {
     test math::exact-46.7 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(-pi())}] ref]
+	    set v [[exactexpr {sin(-pi())}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1323,7 +1325,7 @@ namespace eval math::exact::test {
     test math::exact-46.8 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(13*pi()/6)}] ref]
+	    set v [[exactexpr {sin(13*pi()/6)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1335,7 +1337,7 @@ namespace eval math::exact::test {
     test math::exact-46.9 {sine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sin(-13*pi()/6)}] ref]
+	    set v [[exactexpr {sin(-13*pi()/6)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1347,7 +1349,7 @@ namespace eval math::exact::test {
     test math::exact-47.1 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(0)}] ref]
+	    set v [[exactexpr {cos(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1359,7 +1361,7 @@ namespace eval math::exact::test {
     test math::exact-47.2 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(pi()/3)}] ref]
+	    set v [[exactexpr {cos(pi()/3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1371,7 +1373,7 @@ namespace eval math::exact::test {
     test math::exact-47.3 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(-pi()/3)}] ref]
+	    set v [[exactexpr {cos(-pi()/3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1383,7 +1385,7 @@ namespace eval math::exact::test {
     test math::exact-47.4 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(pi()/2)}] ref]
+	    set v [[exactexpr {cos(pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1395,7 +1397,7 @@ namespace eval math::exact::test {
     test math::exact-47.5 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(-pi()/2)}] ref]
+	    set v [[exactexpr {cos(-pi()/2)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1407,7 +1409,7 @@ namespace eval math::exact::test {
     test math::exact-47.6 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(pi())}] ref]
+	    set v [[exactexpr {cos(pi())}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1419,7 +1421,7 @@ namespace eval math::exact::test {
     test math::exact-47.7 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(-pi())}] ref]
+	    set v [[exactexpr {cos(-pi())}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1431,7 +1433,7 @@ namespace eval math::exact::test {
     test math::exact-47.8 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(7*pi()/3)}] ref]
+	    set v [[exactexpr {cos(7*pi()/3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1443,7 +1445,7 @@ namespace eval math::exact::test {
     test math::exact-47.9 {cosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {cos(-7*pi()/3)}] ref]
+	    set v [[exactexpr {cos(-7*pi()/3)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1455,7 +1457,7 @@ namespace eval math::exact::test {
     test math::exact-45.1 {arctangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {atan(0)}] ref]
+	    set v [[exactexpr {atan(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1468,7 +1470,7 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    # Hack to get $szer as a sign matrix
-	    set v [[math::exact::expr {atan(pi()-pi())}] ref]
+	    set v [[exactexpr {atan(pi()-pi())}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1480,7 +1482,7 @@ namespace eval math::exact::test {
     test math::exact-45.3 {arctangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {4*atan(1)-pi()}] ref]
+	    set v [[exactexpr {4*atan(1)-pi()}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1492,7 +1494,7 @@ namespace eval math::exact::test {
     test math::exact-45.4 {arctangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {4*atan(-1)+pi()}] ref]
+	    set v [[exactexpr {4*atan(-1)+pi()}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1504,7 +1506,7 @@ namespace eval math::exact::test {
     test math::exact-45.5 {arctangent} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {atan(tan(157/100))}] ref]
+	    set v [[exactexpr {atan(tan(157/100))}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1516,8 +1518,8 @@ namespace eval math::exact::test {
     test math::exact-45.6 {arctangent, cached} {
 	-setup leakBaseline
 	-body {
-	    set u [[math::exact::expr {atan(1)}] ref]
-	    set v [[math::exact::expr {$u + $u + $u + $u}] ref]
+	    set u [[exactexpr {atan(1)}] ref]
+	    set v [[exactexpr {$u + $u + $u + $u}] ref]
 	    $u unref
 	    set result [$v asFloat 57]
 	    $v unref
@@ -1530,7 +1532,7 @@ namespace eval math::exact::test {
     test math::exact-46.1 {arcsine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {asin(0)}] ref]
+	    set v [[exactexpr {asin(0)}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1542,7 +1544,7 @@ namespace eval math::exact::test {
     test math::exact-46.2 {arcsine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {asin(1/2)-pi()/6}] ref]
+	    set v [[exactexpr {asin(1/2)-pi()/6}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1554,7 +1556,7 @@ namespace eval math::exact::test {
     test math::exact-46.3 {arcsine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {asin(-1/2)+pi()/6}] ref]
+	    set v [[exactexpr {asin(-1/2)+pi()/6}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1566,7 +1568,7 @@ namespace eval math::exact::test {
     test math::exact-47.1 {arccosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {acos(0)-pi()/2}] ref]
+	    set v [[exactexpr {acos(0)-pi()/2}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1578,7 +1580,7 @@ namespace eval math::exact::test {
     test math::exact-47.2 {arccosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {acos(1/2)-pi()/3}] ref]
+	    set v [[exactexpr {acos(1/2)-pi()/3}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1590,7 +1592,7 @@ namespace eval math::exact::test {
     test math::exact-47.3 {arccosine} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {acos(-1/2)-2*pi()/3}] ref]
+	    set v [[exactexpr {acos(-1/2)-2*pi()/3}] ref]
 	    set result [list [$v refcount] [$v asFloat 57]]
 	    $v unref
 	    leakCheck
@@ -1603,13 +1605,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {sinh(0)}] ref]
+	    set v [[exactexpr {sinh(0)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {cosh(0)}] ref]
+	    set v [[exactexpr {cosh(0)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {tanh(0)}] ref]
+	    set v [[exactexpr {tanh(0)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1622,13 +1624,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {sinh(1)}] ref]
+	    set v [[exactexpr {sinh(1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {cosh(1)}] ref]
+	    set v [[exactexpr {cosh(1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {tanh(1)}] ref]
+	    set v [[exactexpr {tanh(1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1641,13 +1643,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {sinh(-1)}] ref]
+	    set v [[exactexpr {sinh(-1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {cosh(-1)}] ref]
+	    set v [[exactexpr {cosh(-1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {tanh(-1)}] ref]
+	    set v [[exactexpr {tanh(-1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1660,13 +1662,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {asinh(-1)}] ref]
+	    set v [[exactexpr {asinh(-1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {asinh(0)}] ref]
+	    set v [[exactexpr {asinh(0)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {asinh(1)}] ref]
+	    set v [[exactexpr {asinh(1)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1679,13 +1681,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {acosh(3/2)}] ref]
+	    set v [[exactexpr {acosh(3/2)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {acosh(2)}] ref]
+	    set v [[exactexpr {acosh(2)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {acosh(3)}] ref]
+	    set v [[exactexpr {acosh(3)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1698,13 +1700,13 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set result {}
-	    set v [[math::exact::expr {atanh(-1/2)}] ref]
+	    set v [[exactexpr {atanh(-1/2)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {atanh(0)}] ref]
+	    set v [[exactexpr {atanh(0)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
-	    set v [[math::exact::expr {atanh(1/2)}] ref]
+	    set v [[exactexpr {atanh(1/2)}] ref]
 	    lappend result [$v asFloat 57]
 	    $v unref
 	    leakCheck
@@ -1720,7 +1722,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {e()}] ref]
+	    set v [[exactexpr {e()}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1736,7 +1738,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {log(e())}] ref]
+	    set v [[exactexpr {log(e())}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1752,7 +1754,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {asinh((e() - 1/e()) / 2)}] ref]
+	    set v [[exactexpr {asinh((e() - 1/e()) / 2)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1770,7 +1772,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {e() ** log(2)}] ref]
+	    set v [[exactexpr {e() ** log(2)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1787,7 +1789,7 @@ namespace eval math::exact::test {
 	    leakBaseline
 	}
 	-body {
-	    set v [[math::exact::expr {2 ** e()}] ref]
+	    set v [[exactexpr {2 ** e()}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1799,7 +1801,7 @@ namespace eval math::exact::test {
     test math::exact-53.3 {real**1} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4) ** 1}] ref]
+	    set v [[exactexpr {sqrt(4) ** 1}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1811,7 +1813,7 @@ namespace eval math::exact::test {
     test math::exact-53.4 {real**-1} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4) ** (-1)}] ref]
+	    set v [[exactexpr {sqrt(4) ** (-1)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1823,7 +1825,7 @@ namespace eval math::exact::test {
     test math::exact-53.5 {real**0} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4) ** 0}] ref]
+	    set v [[exactexpr {sqrt(4) ** 0}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1835,7 +1837,7 @@ namespace eval math::exact::test {
     test math::exact-53.6 {real**+int} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4)**2}] ref]
+	    set v [[exactexpr {sqrt(4)**2}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1847,7 +1849,7 @@ namespace eval math::exact::test {
     test math::exact-53.7 {real**+int} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4)**5}] ref]
+	    set v [[exactexpr {sqrt(4)**5}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1859,7 +1861,7 @@ namespace eval math::exact::test {
     test math::exact-53.6 {real**-int} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4)**-2}] ref]
+	    set v [[exactexpr {sqrt(4)**-2}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1871,7 +1873,7 @@ namespace eval math::exact::test {
     test math::exact-53.7 {real**+int} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(4)**-5}] ref]
+	    set v [[exactexpr {sqrt(4)**-5}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1883,7 +1885,7 @@ namespace eval math::exact::test {
     test math::exact-53.8 {real**rational} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(64)**(10/3)}] ref]
+	    set v [[exactexpr {sqrt(64)**(10/3)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1895,7 +1897,7 @@ namespace eval math::exact::test {
     test math::exact-53.9 {real**rational} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {sqrt(64)**(1/-3)}] ref]
+	    set v [[exactexpr {sqrt(64)**(1/-3)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1907,7 +1909,7 @@ namespace eval math::exact::test {
     test math::exact-53.10 {real**integer, accidental} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::real**rat [math::exact::expr {3}] 2 1] ref]
+	    set v [[math::exact::real**rat [exactexpr {3}] 2 1] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1919,7 +1921,7 @@ namespace eval math::exact::test {
     test math::exact-53.11 {zero to zero power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {0**0}] ref]
+	    set v [[exactexpr {0**0}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1932,7 +1934,7 @@ namespace eval math::exact::test {
     test math::exact-53.12 {zero to infinite power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {0**(1/0)}] ref]
+	    set v [[exactexpr {0**(1/0)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1945,7 +1947,7 @@ namespace eval math::exact::test {
     test math::exact-53.13 {zero to rational power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {0**(1/2)}] ref]
+	    set v [[exactexpr {0**(1/2)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1957,7 +1959,7 @@ namespace eval math::exact::test {
     test math::exact-53.14 {infinity to zero power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(1/0)**0}] ref]
+	    set v [[exactexpr {(1/0)**0}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1970,7 +1972,7 @@ namespace eval math::exact::test {
     test math::exact-53.15 {infinity to negative power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(1/0)**-1}] ref]
+	    set v [[exactexpr {(1/0)**-1}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1982,7 +1984,7 @@ namespace eval math::exact::test {
     test math::exact-53.15 {infinity to positive power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(1/0)**1}] ref]
+	    set v [[exactexpr {(1/0)**1}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -1994,7 +1996,7 @@ namespace eval math::exact::test {
     test math::exact-53.16 {rational to zero power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(2/3)**0}] ref]
+	    set v [[exactexpr {(2/3)**0}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2006,7 +2008,7 @@ namespace eval math::exact::test {
     test math::exact-53.17 {rational power of negative real argument} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(-sqrt(64))**(1/3)}] ref]
+	    set v [[exactexpr {(-sqrt(64))**(1/3)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2018,7 +2020,7 @@ namespace eval math::exact::test {
     test math::exact-53.18 {rational power of argument near zero} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {log(exp(1/8))**(1/3)}] ref]
+	    set v [[exactexpr {log(exp(1/8))**(1/3)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2030,7 +2032,7 @@ namespace eval math::exact::test {
     test math::exact-53.19 {negative real to real power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(-sqrt(4))**(1/2)}] ref]
+	    set v [[exactexpr {(-sqrt(4))**(1/2)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2043,7 +2045,7 @@ namespace eval math::exact::test {
     test math::exact-53.20 {rational to zero power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(2/3)**0}] ref]
+	    set v [[exactexpr {(2/3)**0}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2055,7 +2057,7 @@ namespace eval math::exact::test {
     test math::exact-53.21 {rational to positive integer power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(2/3)**2}] ref]
+	    set v [[exactexpr {(2/3)**2}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2067,7 +2069,7 @@ namespace eval math::exact::test {
     test math::exact-53.22 {rational to negative integer power} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(2/3)**-2}] ref]
+	    set v [[exactexpr {(2/3)**-2}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2079,7 +2081,7 @@ namespace eval math::exact::test {
     test math::exact-53.23 {rational to rational} {
 	-setup leakBaseline
 	-body {
-	    set v [[math::exact::expr {(-8)**(1/3)}] ref]
+	    set v [[exactexpr {(-8)**(1/3)}] ref]
 	    set result [$v asPrint 57]
 	    $v unref
 	    leakCheck
@@ -2092,7 +2094,7 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set bad [[math::exact::V new {0 0}] ref]
-	    set v [[math::exact::expr {sqrt(2)**$bad}] ref]
+	    set v [[exactexpr {sqrt(2)**$bad}] ref]
 	    $bad unref
 	    set result [$v asPrint 57]
 	    $v unref
@@ -2107,7 +2109,7 @@ namespace eval math::exact::test {
 	-setup leakBaseline
 	-body {
 	    set bad [[math::exact::V new {0 0}] ref]
-	    set v [[math::exact::expr {(1/2)**$bad}] ref]
+	    set v [[exactexpr {(1/2)**$bad}] ref]
 	    $bad unref
 	    set result [$v asPrint 57]
 	    $v unref
@@ -2135,7 +2137,7 @@ namespace eval math::exact::test {
 	-body {
 	    set p [[math::exact::V new {-2 -1}] ref]
 	    set q [[math::exact::V new {-3 -1}] ref]
-	    set r [[math::exact::expr {$p ** $q}] ref]
+	    set r [[exactexpr {$p ** $q}] ref]
 	    $p unref
 	    $q unref
 	    set result [$r asPrint 57]
@@ -2152,7 +2154,7 @@ namespace eval math::exact::test {
     set p 1
 	for {set i 0} {$i < 20} {incr i} {
 	    set f [expr {sin(0.01 * $p* acos(-1))}]
-	    set v [[math::exact::expr "sin($p * pi() / 100)"] ref]
+	    set v [[exactexpr "sin($p * pi() / 100)"] ref]
 	    set a [$v asPrint 57]
 	    set r [expr {$f - $a}]
 	    puts "i: $i p: $p float: $f exact: $a difference: $r"
@@ -2163,19 +2165,19 @@ namespace eval math::exact::test {
 
     if 0 {
 	for {set x 100} {$x <= 12200} {incr x 100} {
-	    set ex [[math::exact::expr $x] ref]
+	    set ex [[exactexpr $x] ref]
 	    puts "x $x ex [$ex asPrint 57]"
 	    set fa [expr {-(double($x)**-4)}]
-	    set ea [[math::exact::expr {-($ex**-4)}] ref]
+	    set ea [[exactexpr {-($ex**-4)}] ref]
 	    puts "fa $fa ea [$ea asPrint 57]"
 	    set fb [expr {exp($fa)}]
-	    set eb [[math::exact::expr {exp($ea)}] ref]
+	    set eb [[exactexpr {exp($ea)}] ref]
 	    puts "fb $fb eb [$eb asPrint 120]"
 	    set fc [expr {log($fb)}]
-	    set ec [[math::exact::expr {log($eb)}] ref]
+	    set ec [[exactexpr {log($eb)}] ref]
 	    puts "fc $fc ec [$ec asPrint 120]"
 	    catch {expr {(-$fc) ** -0.25}} ff
-	    set ef [[math::exact::expr {(-$ec)**(-1/4)}] ref]
+	    set ef [[exactexpr {(-$ec)**(-1/4)}] ref]
 	    puts [format "kahan's function: %s %g" $ff [$ef asFloat 28]]
 	    $ef unref
 	    $ec unref
@@ -2188,13 +2190,13 @@ namespace eval math::exact::test {
     if 0 {
 	set x0 4.0
 	set x1 4.25
-	set ex0 [[math::exact::expr 4] ref]
-	set ex1 [[math::exact::expr 4+25/100] ref]
+	set ex0 [[exactexpr 4] ref]
+	set ex1 [[exactexpr 4+25/100] ref]
 	for {set i 1} {$i < 100} {incr i} {
 	    set x2 [expr {108. - (815. - 1500. / $x0) / $x1}]
 	    set x0 $x1
 	    set x1 $x2
-	    set ex2 [[math::exact::expr {108 - (815 - 1500 / $ex0) / $ex1}] ref]
+	    set ex2 [[exactexpr {108 - (815 - 1500 / $ex0) / $ex1}] ref]
 	    $ex0 unref
 	    set ex0 $ex1
 	    set ex1 $ex2
