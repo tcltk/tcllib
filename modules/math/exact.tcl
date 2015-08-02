@@ -4051,7 +4051,7 @@ namespace eval math::exact {
     init
     rename init {}
 
-    namespace export exactexpr
+    namespace export exactexpr abs1 signum1
 }
 
 package provide math::exact 0.1
