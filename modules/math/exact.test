@@ -2148,6 +2148,34 @@ namespace eval math::exact::test {
 	-result 8
     }
 
+    test math::exact-54.1 {abs1, signum1} {
+	-setup leakBaseline
+	-body {
+	    set p [[exactexpr {0}] ref]
+	    set q [[exactexpr {2}] ref]
+	    while 1 {
+		set t [[exactexpr {($q-$p) * 10**36}] ref]
+		set f [math::exact::abs1 $t]; $t unref
+		if {!$f} break
+		set x [[exactexpr {($p+$q)/2}] ref]
+		set resid [[exactexpr {$x*$x-2}] ref]
+		set t [[exactexpr {$resid * 10**36}] ref]
+		if {[math::exact::signum1 $t] > 0} {
+		    $q unref; set q $x
+		} else {
+		    $p unref; set p $x
+		}
+		$t unref; $resid unref
+	    }
+	    set result [$p asFloat 100]
+	    $p unref
+	    $q unref
+	    leakCheck
+	    set result
+	}
+	-result 1.41421356237309504880168872421e0
+    }
+
     # following are demos that I don't know where to put, yet
 
     if 0 {
