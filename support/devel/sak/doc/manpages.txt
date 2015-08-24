@@ -211,6 +211,7 @@ modules/nettool/nettool.man
 modules/nmea/nmea.man
 modules/nns/nns_auto.man
 modules/nns/nns_client.man
+modules/nns/nns_cluster.man
 modules/nns/nns_common.man
 modules/nns/nns_intro.man
 modules/nns/nns_protocol.man
@@ -287,6 +288,8 @@ modules/sasl/gtoken.man
 modules/sasl/ntlm.man
 modules/sasl/sasl.man
 modules/sasl/scram.man
+modules/scgi/scgi-app.man
+modules/scgi/scgi-server.man
 modules/sha1/sha1.man
 modules/sha1/sha256.man
 modules/simulation/annealing.man
@@ -356,6 +359,7 @@ modules/transfer/receiver.man
 modules/transfer/tqueue.man
 modules/transfer/transmitter.man
 modules/treeql/treeql.man
+modules/try/tcllib_throw.man
 modules/try/tcllib_try.man
 modules/uev/uevent.man
 modules/uev/uevent_onidle.man
