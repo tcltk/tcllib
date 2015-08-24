@@ -3118,6 +3118,9 @@ error
 .TP
 \fBfiles/modules/try/tcllib_try\&.n\fR
 try
+.TP
+\fBfiles/modules/try/tcllib_throw\&.n\fR
+try
 .RE
 error function
 .RS
@@ -8291,6 +8294,12 @@ restore
 \fBfiles/modules/nns/nns_auto\&.n\fR
 nameserv::auto
 .RE
+return
+.RS
+.TP
+\fBfiles/modules/try/tcllib_throw\&.n\fR
+try
+.RE
 reverse
 .RS
 .TP
@@ -10078,6 +10087,12 @@ coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
 coroutine::auto
+.RE
+throw
+.RS
+.TP
+\fBfiles/modules/try/tcllib_throw\&.n\fR
+try
 .RE
 thumbnail
 .RS
