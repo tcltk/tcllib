@@ -1425,6 +1425,9 @@ tcllib
 \fBtry\fR
 \fIfiles/modules/try/tcllib_try\&.n\fR: try - Trap and process errors and exceptions
 .TP
+\fBtry\fR
+\fIfiles/modules/try/tcllib_throw\&.n\fR: throw - Throw an error exception with a message
+.TP
 \fBuevent\fR
 \fIfiles/modules/uev/uevent\&.n\fR: User events
 .TP
