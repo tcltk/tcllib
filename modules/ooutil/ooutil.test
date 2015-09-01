@@ -92,30 +92,46 @@ oo::class create foo {
 oo::class create bar {
   superclass ::foo
   property shape oval
-  property option color {
+  option color {
     default green
   }
 }
 
 test oo-class-meta-001 {Test accessing properties} {
-  foo meta get color
+  foo meta get const color:
 } blue
 
 test oo-class-meta-002 {Test accessing properties} {
-  bar meta get color
+  bar meta get const color:
 } blue
 
 test oo-class-meta-003 {Test accessing properties} {
-  bar meta get shape
+  bar meta get const shape:
 } oval
 
-bar create cheers -color pink
+bar create cheers color pink
+# Pulling the meta data from const will return
+# the value specified in the class
 test oo-object-meta-001 {Test accessing properties} {
-  cheers meta get color
+  cheers meta get const color:
+} blue
+
+# Accessing the data via cget pulls from the local
+# definition
+test oo-object-meta-001a {Test accessing properties} {
+  cheers meta cget color
+} pink
+# With or without the trailing :
+test oo-object-meta-001b {Test accessing properties} {
+  cheers meta cget color:
+} pink
+# And using the local cget
+test oo-object-meta-001c {Test accessing properties} {
+  cheers cget color
 } pink
 
 test  oo-object-meta-002 {Test accessing properties} {
-  cheers meta get shape
+  cheers meta get const shape:
 } oval
 
 test  oo-object-meta-003 {Test accessing properties} {
@@ -124,11 +140,19 @@ test  oo-object-meta-003 {Test accessing properties} {
 
 bar create moes
 test  oo-object-meta-004 {Test accessing properties} {
-  moes meta get color
+  moes meta get const color:
+} blue
+
+test  oo-object-meta-004a {Test accessing properties} {
+  moes cget color
+} green
+
+test  oo-object-meta-004a {Test accessing properties} {
+  moes cget color:
 } green
 
 test  oo-object-meta-005 {Test accessing properties} {
-  moes meta get shape
+  moes meta get const shape:
 } oval
 
 test  oo-object-meta-006 {Test accessing properties} {
@@ -146,15 +170,15 @@ test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn'
 oo::define ::foo property woozle whoop
 
 test oo-modclass-meta-001 {Test accessing properties of an altered class} {
-  foo meta get woozle
+  foo meta get const woozle:
 } whoop
 
 test oo-modclass-meta-002 {Test accessing properties of the descendent of an altered class} {
-  bar meta get woozle
+  bar meta get const woozle:
 } whoop
 
 test oo-modobject-meta-001 {Test the accessing of properties of an instance of an altered class} {
-  moes meta get woozle
+  moes meta get const woozle:
 } whoop
 
 test obj-meta-for-001 {Test object meta for} {
@@ -163,17 +187,13 @@ test obj-meta-for-001 {Test object meta for} {
     lappend result $key $value
   }
   set result
-} {color {
-    default green
-  }}
+} {color {default: green}}
 
 test obj-meta-with-001 {Test object meta with} {
   set result {}
   moes meta with option {}
   set color
-} {
-    default green
-  }
+} {default: green}
 
 test obj-meta-for-001 {Test class meta for} {
   set result {}
@@ -181,17 +201,13 @@ test obj-meta-for-001 {Test class meta for} {
     lappend result $key $value
   }
   set result
-} {color {
-    default green
-  }}
+} {color {default: green}}
 
 test obj-meta-with-001 {Test class meta with} {
   set result {}
   bar meta with option {}
   set color
-} {
-    default green
-  }
+} {default: green}
 
 # -------------------------------------------------------------------------
 
