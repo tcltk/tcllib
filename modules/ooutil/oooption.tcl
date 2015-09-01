@@ -161,4 +161,4 @@ oo::define oo::object {
     }
   }
 }
-package provide oo::option 0.1
+package provide oo::option 0.2
