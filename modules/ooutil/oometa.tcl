@@ -6,6 +6,7 @@
 
 namespace eval ::oo::meta {
   variable dirty_classes {}
+  variable core_classes {::oo::class ::oo::object ::tao::moac}
 }
 
 if {[::info command ::tcl::dict::getnull] eq {}} {
@@ -39,10 +40,13 @@ proc ::oo::meta::ancestors class {
   set thisresult {}
   set result {}
   set queue $class
+  variable core_classes
+  
   while {[llength $queue]} {
     set tqueue $queue
     set queue {}
     foreach qclass $tqueue {
+      if {$qclass in $core_classes} continue
       foreach aclass [::info class superclasses $qclass] {
         if { $aclass in $result } continue
         if { $aclass in $queue } continue
@@ -52,7 +56,7 @@ proc ::oo::meta::ancestors class {
         if { $aclass in $result } continue
         if { $aclass in $queue } continue
         lappend queue $aclass
-      }            
+      }
     }
     foreach item $tqueue {
       if { $item ni $result } {
@@ -127,6 +131,11 @@ proc ::oo::meta::properties {class {force 0}} {
         if {$dclass in $cancestors} {
           unset -nocomplain ::oo::meta::cached_property($cclass)
           unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+        }
+      }
+      if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
+        if {$dclass ni $::oo::meta::core_classes} {
+          lappend ::oo::meta::core_classes $dclass
         }
       }
     }
@@ -240,7 +249,7 @@ proc ::oo::define::property args {
 proc ::oo::define::option {field argdict} {
   set class [lindex [::info level -1] 1]
   foreach {prop value} $argdict {
-    ::oo::meta::info $class set option $field $prop: $value
+    ::oo::meta::info $class set option $field [string trim $prop :]: $value
   }
 }
 
@@ -320,8 +329,8 @@ oo::define oo::object {
         return {}
       }
       is {
-        set info [dict merge [::oo::meta::properties $class] $config]
-        return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
+        set value [my meta cget {*}[lrange $args 1 end]]
+        return [string is [lindex $args 0] -strict $value]
       }
       for -
       map {
