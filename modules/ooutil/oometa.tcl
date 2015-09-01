@@ -35,6 +35,7 @@ proc ::oo::meta::args_to_options args {
 }
 
 proc ::oo::meta::ancestors class {
+  set class [::oo::meta::normalize $class]
   set thisresult {}
   set result {}
   set queue $class
@@ -63,6 +64,7 @@ proc ::oo::meta::ancestors class {
 }
 
 proc ::oo::meta::info {class submethod args} {
+  set class [::oo::meta::normalize $class]
   switch $submethod {
     rebuild {
       if {$class ni $::oo::meta::dirty_classes} {
@@ -106,16 +108,26 @@ proc ::oo::meta::info {class submethod args} {
   }
 }
 
-proc ::oo::meta::properties class {
+proc ::oo::meta::normalize class {
+  set class ::[string trimleft $class :]
+}
+
+proc ::oo::meta::properties {class {force 0}} {
+  set class [::oo::meta::normalize $class]
   ###
   # Destroy the cache of all derivitive classes
   ###
-  variable dirty_classes
-  foreach dclass $dirty_classes {
-    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
-      if {$dclass in $cancestors} {
-        unset -nocomplain ::oo::meta::cached_property($cclass)
-        unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+  if {$force} {
+    unset -nocomplain ::oo::meta::cached_property
+    unset -nocomplain ::oo::meta::cached_hierarchy
+  } else {
+    variable dirty_classes
+    foreach dclass $dirty_classes {
+      foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
+        if {$dclass in $cancestors} {
+          unset -nocomplain ::oo::meta::cached_property($cclass)
+          unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+        }
       }
     }
   }
@@ -137,15 +149,36 @@ proc ::oo::meta::properties class {
   set stack {}
   variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
-  foreach aclass $cached_hierarchy($class) {
+  foreach aclass [lrange $cached_hierarchy($class) 0 end-1] {
     if {[::info exists local_property($aclass)]} {
-      lappend stack $local_property($aclass)
+      foreach {lsec ldata} $local_property($aclass) {
+        if {$lsec in {meta classinfo}} continue
+        if {[string index $lsec end] eq ":"} {
+          set section($lsec) $ldata
+        } elseif {![::info exists section($lsec)]} {
+          set section($lsec) $ldata
+        } else {
+          if {[catch {dict size $ldata} err]} {
+            set section($lsec) $ldata
+          } else {
+            set section($lsec) [dict merge $section($lsec) $ldata]
+          }
+        }
+      }
     }
   }
-  if {[llength $stack]} {
-    set properties [dict merge {*}$stack]
-  } else {
-    set properties {}
+  if {[::info exists local_property($class)]} {
+    foreach {lsec ldata} $local_property($class) {
+      if {$lsec in {meta classinfo}} continue
+      if {![::info exists section($lsec)]} {
+        set section($lsec) $ldata
+      } else {
+        set section($lsec) [dict merge $section($lsec) $ldata]
+      }
+    }
+  }
+  foreach {sec data} [lsort -stride 2 [array get section]] {
+    dict set properties $sec $data
   }
   set cached_property($class) $properties
   return $properties
@@ -160,9 +193,16 @@ proc ::oo::meta::search args {
 
   set result {}
   foreach {class info} [array get local_property] {
-    if {![dict exists $info {*}$path]} continue
-    if {[string match [dict get $info {*}$path] $value]} {
-      lappend result $class
+    if {[dict exists $info {*}$path:]} {
+      if {[string match [dict get $info {*}$path:] $value]} {
+        lappend result $class
+      }
+      continue
+    }
+    if {[dict exists $info {*}$path]} {
+      if {[string match [dict get $info {*}$path] $value]} {
+        lappend result $class
+      }
     }
   }
   return $result
@@ -176,12 +216,33 @@ proc ::oo::define::meta {args} {
 ###
 # Add properties and option handling
 ###
-proc ::oo::define::property {args} {
+proc ::oo::define::property args {
   set class [lindex [::info level -1] 1]
+  switch [llength $args] {
+    2 {
+      set type const
+      set property [string trimleft [lindex $args 0] :]
+      set value [lindex $args 1]
+      ::oo::meta::info $class set $type $property: $value
+      return
+    }
+    3 {
+      set type     [lindex $args 0]
+      set property [string trimleft [lindex $args 1] :]
+      set value    [lindex $args 2]
+      ::oo::meta::info $class set $type $property: $value
+      return
+    }
+  }
   ::oo::meta::info $class set {*}$args
 }
 
-
+proc ::oo::define::option {field argdict} {
+  set class [lindex [::info level -1] 1]
+  foreach {prop value} $argdict {
+    ::oo::meta::info $class set option $field $prop: $value
+  }
+}
 
 oo::define oo::class {
 
@@ -231,7 +292,33 @@ oo::define oo::object {
       set config {}
     }
     set class [::info object class [self object]]
+    
     switch $submethod {
+      cget {
+        # Get a constant from the local dict, a field in the const section of meta data, or under the root
+        set path [lrange $args 0 end-1]
+        set field [string trim [lindex $args end] :]
+        if {[dict exists $config {*}$path $field:]} {
+          return [dict get $config {*}$path $field:]
+        }
+        if {[dict exists $config {*}$path $field]} {
+          return [dict get $config {*}$path $field]
+        }
+        set info [dict merge [::oo::meta::properties $class] $config]
+        if {[dict exists $info const {*}$path $field:]} {
+          return [dict get $info const {*}$path $field:]
+        }
+        if {[dict exists $info const {*}$path $field]} {
+          return [dict get $info const {*}$path $field]
+        }
+        if {[dict exists $info {*}$path $field:]} {
+          return [dict get $info {*}$path $field:]
+        }
+        if {[dict exists $info {*}$path $field]} {
+          return [dict get $info {*}$path $field]
+        }
+        return {}
+      }
       is {
         set info [dict merge [::oo::meta::properties $class] $config]
         return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
@@ -265,4 +352,4 @@ oo::define oo::object {
   }
 }
 
-package provide oo::meta 0.1
+package provide oo::meta 0.2
