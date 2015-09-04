@@ -93,6 +93,7 @@ oo::class create bar {
   superclass ::foo
   property shape oval
   option color {
+    label Color
     default green
   }
 }
@@ -187,13 +188,13 @@ test obj-meta-for-001 {Test object meta for} {
     lappend result $key $value
   }
   set result
-} {color {default: green}}
+} {color {label: Color default: green}}
 
 test obj-meta-with-001 {Test object meta with} {
   set result {}
   moes meta with option {}
   set color
-} {default: green}
+} {label: Color default: green}
 
 test obj-meta-for-001 {Test class meta for} {
   set result {}
@@ -201,16 +202,32 @@ test obj-meta-for-001 {Test class meta for} {
     lappend result $key $value
   }
   set result
-} {color {default: green}}
+} {color {label: Color default: green}}
 
 test obj-meta-with-001 {Test class meta with} {
   set result {}
   bar meta with option {}
   set color
-} {default: green}
+} {label: Color default: green}
 
 # -------------------------------------------------------------------------
 
+# Test of recursive dicts
+
+oo::class create baz {
+  superclass ::bar
+  meta set option color default: purple  
+}
+
+test obj-meta-recursive-1 {Test that meta set works with recursive dicts} {
+  set result {}
+  baz meta get option color default:
+} {purple}
+
+test obj-meta-recursive-2 {Test that meta set works with recursive dicts} {
+  set result {}
+  baz meta get option color label:
+} {Color}
 
 testsuiteCleanup
 
