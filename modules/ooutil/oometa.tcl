@@ -321,6 +321,10 @@ oo::define oo::class {
         ::oo::meta::info $class rebuild
         return [dict $submethod config {*}$args]
       }
+      merge {
+        ::oo::meta::info $class rebuild
+        return [dict $submethod config {*}$args]
+      }
       default {
         set info [::oo::meta::properties $class]
         return [dict $submethod $info {*}$args] 
@@ -333,12 +337,15 @@ oo::define oo::class {
 oo::define oo::object {
     
   method meta {submethod args} {
-    my variable config
+    my variable config class_properties
     if {![::info exists config]} {
       set config {}
     }
     set class [::info object class [self object]]
-    
+    if {![info exists class_properties] || [dict getnull $config meta class:] != $class || $class in $::oo::meta::dirty_classes} {
+      dict set config meta class: $class
+      set class_properties [::oo::meta::properties $class]
+    }
     switch $submethod {
       cget {
         # Get a constant from the local dict, a field in the const section of meta data, or under the root
@@ -371,16 +378,16 @@ oo::define oo::object {
       }
       for -
       map {
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set info [dict merge $class_properties $config]
         return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
       }
       with {
         upvar 1 TEMPVAR info
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set info [dict merge $class_properties $config]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        return [dict merge [::oo::meta::properties $class] $config]
+        return [dict merge $class_properties $config]
       }
       append -
       incr -
@@ -390,8 +397,13 @@ oo::define oo::object {
       update {
         return [dict $submethod config {*}$args]
       }
+      rmerge -
+      merge {
+        set config [dict rmerge $class_properties $config]
+        return $config
+      }
       default {
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set info [dict rmerge $class_properties $config]
         return [dict $submethod $info {*}$args] 
       }
     }
