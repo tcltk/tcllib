@@ -15,9 +15,54 @@ if {[::info command ::tcl::dict::getnull] eq {}} {
       get $dictionary {*}$args
     }
   }
-  
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
+}
+if {[::info command ::tcl::dict::rmerge] eq {}} {
+  ###
+  # Test if element is a dict
+  ###
+  proc ::tcl::dict::is_dict { d } {
+    # is it a dict, or can it be treated like one?
+    if {[catch {dict size $d} err]} {
+      return 0
+    }
+    return 1
+  }
+  
+  ###
+  # title: A recursive form of dict merge
+  # description:
+  # A routine to recursively dig through dicts and merge
+  # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+  ###
+  proc ::tcl::dict::rmerge {a args} {
+    ::set result $a
+    # Merge b into a, and handle nested dicts appropriately
+    ::foreach b $args {
+      for { k v } $b {
+        if {[string index $k end] eq ":"} {
+          # Element names that end in ":" are assumed to be literals
+          set result $k $v
+        } elseif { [dict exists $result $k] } {
+          # key exists in a and b?  let's see if both values are dicts
+          # both are dicts, so merge the dicts
+          if { [is_dict [get $result $k]] && [is_dict $v] } {
+            set result $k [rmerge [get $result $k] $v]
+          } else {  
+            set result $k $v
+          }
+        } else {
+          set result $k $v
+        }
+      }
+    }
+    return $result
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
 proc ::oo::meta::args_to_dict args {
@@ -101,6 +146,12 @@ proc ::oo::meta::info {class submethod args} {
       }
       ::dict $submethod ::oo::meta::local_property($class) {*}$args
     }
+    merge {
+      if {$class ni $::oo::meta::dirty_classes} {
+        lappend ::oo::meta::dirty_classes $class
+      }
+      set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
+    }
     dump {
       set info [properties $class]
       return $info
@@ -111,6 +162,12 @@ proc ::oo::meta::info {class submethod args} {
     }
   }
 }
+
+
+
+
+
+
 
 proc ::oo::meta::normalize class {
   set class ::[string trimleft $class :]
@@ -160,34 +217,14 @@ proc ::oo::meta::properties {class {force 0}} {
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
   foreach aclass [lrange $cached_hierarchy($class) 0 end-1] {
     if {[::info exists local_property($aclass)]} {
-      foreach {lsec ldata} $local_property($aclass) {
-        if {$lsec in {meta classinfo}} continue
-        if {[string index $lsec end] eq ":"} {
-          set section($lsec) $ldata
-        } elseif {![::info exists section($lsec)]} {
-          set section($lsec) $ldata
-        } else {
-          if {[catch {dict size $ldata} err]} {
-            set section($lsec) $ldata
-          } else {
-            set section($lsec) [dict merge $section($lsec) $ldata]
-          }
-        }
-      }
+      lappend properties $local_property($aclass)
     }
   }
+  lappend properties {classinfo {type {}}}
   if {[::info exists local_property($class)]} {
-    foreach {lsec ldata} $local_property($class) {
-      if {$lsec in {meta classinfo}} continue
-      if {![::info exists section($lsec)]} {
-        set section($lsec) $ldata
-      } else {
-        set section($lsec) [dict merge $section($lsec) $ldata]
-      }
-    }
-  }
-  foreach {sec data} [lsort -stride 2 [array get section]] {
-    dict set properties $sec $data
+    set properties [dict rmerge {*}$properties $local_property($class)]
+  } else {
+    set properties [dict rmerge {*}$properties]
   }
   set cached_property($class) $properties
   return $properties
