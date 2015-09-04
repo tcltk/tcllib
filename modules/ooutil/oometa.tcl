@@ -337,15 +337,11 @@ oo::define oo::class {
 oo::define oo::object {
     
   method meta {submethod args} {
-    my variable config class_properties
+    my variable config
     if {![::info exists config]} {
       set config {}
     }
     set class [::info object class [self object]]
-    if {![info exists class_properties] || [dict getnull $config meta class:] != $class || $class in $::oo::meta::dirty_classes} {
-      dict set config meta class: $class
-      set class_properties [::oo::meta::properties $class]
-    }
     switch $submethod {
       cget {
         # Get a constant from the local dict, a field in the const section of meta data, or under the root
@@ -357,18 +353,18 @@ oo::define oo::object {
         if {[dict exists $config {*}$path $field]} {
           return [dict get $config {*}$path $field]
         }
-        set info [dict merge [::oo::meta::properties $class] $config]
-        if {[dict exists $info const {*}$path $field:]} {
-          return [dict get $info const {*}$path $field:]
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties const {*}$path $field:]} {
+          return [dict get $class_properties const {*}$path $field:]
         }
-        if {[dict exists $info const {*}$path $field]} {
-          return [dict get $info const {*}$path $field]
+        if {[dict exists $class_properties const {*}$path $field]} {
+          return [dict get $class_properties const {*}$path $field]
         }
-        if {[dict exists $info {*}$path $field:]} {
-          return [dict get $info {*}$path $field:]
+        if {[dict exists $class_properties {*}$path $field:]} {
+          return [dict get $class_properties {*}$path $field:]
         }
-        if {[dict exists $info {*}$path $field]} {
-          return [dict get $info {*}$path $field]
+        if {[dict exists $class_properties {*}$path $field]} {
+          return [dict get $class_properties {*}$path $field]
         }
         return {}
       }
@@ -378,16 +374,19 @@ oo::define oo::object {
       }
       for -
       map {
-        set info [dict merge $class_properties $config]
+        set class_properties [::oo::meta::properties $class]
+        set info [dict rmerge $class_properties $config]
         return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
       }
       with {
+        set class_properties [::oo::meta::properties $class]
         upvar 1 TEMPVAR info
-        set info [dict merge $class_properties $config]
+        set info [dict rmerge $class_properties $config]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        return [dict merge $class_properties $config]
+        set class_properties [::oo::meta::properties $class]
+        return [dict rmerge $class_properties $config]
       }
       append -
       incr -
@@ -399,10 +398,31 @@ oo::define oo::object {
       }
       rmerge -
       merge {
-        set config [dict rmerge $class_properties $config]
+        set config [dict rmerge $config {*}$args]
         return $config
       }
+      getnull {
+        if {[dict exists $config {*}$args]} {
+          return [dict get $config {*}$args]
+        }
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties {*}$args]} {
+          return [dict get $class_properties {*}$args]
+        }
+        return {}
+      }
+      get {
+        if {[dict exists $config {*}$args]} {
+          return [dict get $config {*}$args]
+        }
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties {*}$args]} {
+          return [dict get $class_properties {*}$args]
+        }
+        error "Key {*}$args does not exist"
+      }
       default {
+        set class_properties [::oo::meta::properties $class]
         set info [dict rmerge $class_properties $config]
         return [dict $submethod $info {*}$args] 
       }
