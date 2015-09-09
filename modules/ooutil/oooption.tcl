@@ -22,25 +22,25 @@ oo::define oo::object {
     }
     set dat [my meta getnull option]
     foreach {var info} $dat {
-      if {[dict exists $info set-command]} {
+      if {[dict exists $info set-command:]} {
         if {[catch {my cget $var} value]} {
-          dict set config $var [my cget $var default]
+          dict set config $var [my cget $var default:]
         } else {
           if { $value eq {} } {
-            dict set config $var [my cget $var default]
+            dict set config $var [my cget $var default:]
           }
         }
       }
       if {![dict exists $config $var]} {
-        dict set config $var [my cget $var default]
+        dict set config $var [my cget $var default:]
       }
     }
     foreach {var info} [my meta getnull variable] {
       if { $var eq "config" } continue
       my variable $var
       if {![info exists $var]} {
-        if {[dict exists $info default]} {
-          set $var [dict get $info default]
+        if {[dict exists $info default:]} {
+          set $var [dict get $info default:]
         } else {
           set $var {}
         }
@@ -50,8 +50,8 @@ oo::define oo::object {
       if { $var eq "config" } continue
       my variable $var
       if {![info exists $var]} {
-        if {[dict exists $info default]} {
-          array set $var [dict get $info default]
+        if {[dict exists $info default:]} {
+          array set $var [dict get $info default:]
         } else {
           array set $var {}
         }
@@ -67,29 +67,29 @@ oo::define oo::object {
     set field [string trimleft $field -]
     set dat [my meta getnull option]
   
-    if {[my meta is true options_strict] && ![dict exists $dat $field]} {
+    if {[my meta is true const options_strict:] && ![dict exists $dat $field]} {
       error "Invalid option -$field. Valid: [dict keys $dat]"
     }
     set info [dict getnull $dat $field]    
     if {$default eq "default"} {
-      set getcmd [dict getnull $info default-command]
+      set getcmd [dict getnull $info default-command:]
       if {$getcmd ne {}} {
         return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
       } else {
-        return [dict getnull $info default]
+        return [dict getnull $info default:]
       }
     }
     if {[dict exists $dat $field]} {
-      set getcmd [dict getnull $info get-command]
+      set getcmd [dict getnull $info get-command:]
       if {$getcmd ne {}} {
         return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
       }
       if {![dict exists $config $field]} {
-        set getcmd [dict getnull $info default-command]
+        set getcmd [dict getnull $info default-command:]
         if {$getcmd ne {}} {
           dict set config $field [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
         } else {
-          dict set config $field [dict getnull $info default]
+          dict set config $field [dict getnull $info default:]
         }
       }
       if {$default eq "varname"} {
@@ -99,10 +99,7 @@ oo::define oo::object {
       }
       return [dict get $config $field]
     }
-    if {[dict exists $config $field]} {
-      return [dict get $config $field]
-    }
-    return [my meta get $field]
+    return [my meta cget $field]
   }
   
   ###
@@ -124,7 +121,7 @@ oo::define oo::object {
   method configurelist dictargs {
     my variable config
     set dat [my meta getnull option]
-    if {[my meta is true options_strict]} {
+    if {[my meta is true const options_strict:]} {
       foreach {field val} $dictargs {
         if {![dict exists $dat $field]} {
           error "Invalid option $field. Valid: [dict keys $dat]"
@@ -135,7 +132,7 @@ oo::define oo::object {
     # Validate all inputs
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field validate-command]
+      set script [dict getnull $dat $field validate-command:]
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       }
@@ -157,11 +154,11 @@ oo::define oo::object {
     # Apply all inputs with special rules
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field set-command]
+      set script [dict getnull $dat $field set-command:]
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       }
     }
   }
 }
-package provide oo::option 0.1
+package provide oo::option 0.2
