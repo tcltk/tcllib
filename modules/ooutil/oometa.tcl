@@ -25,6 +25,7 @@ if {[::info command ::tcl::dict::rmerge] eq {}} {
   proc ::tcl::dict::is_dict { d } {
     # is it a dict, or can it be treated like one?
     if {[catch {dict size $d} err]} {
+      #::set ::errorInfo {}
       return 0
     }
     return 1
@@ -127,7 +128,6 @@ proc ::oo::meta::info {class submethod args} {
     for -
     map {
       set info [properties $class]
-      puts [list [dict get $info {*}[lrange $args 1 end-1]]]
       return [uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
     }
     with {
