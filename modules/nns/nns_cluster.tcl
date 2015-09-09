@@ -252,6 +252,23 @@ proc ::cluster::configure {url infodict {send 1}} {
   }
 }
 
+proc ::cluster::get_free_port {{startport 50000}} {
+  set port $startport
+  set conflict 1
+  while {$conflict} {
+    set conflict 0
+    set port [::nettool::find_port $port]
+    foreach {url info} [search *@[macid]] {
+      if {[dict exists $info port] && [dict get $info port] eq $port} {
+        incr port
+        set conflict 1
+        break
+      }
+    }
+  }
+  return $port
+}
+
 proc ::cluster::log args {
   broadcast LOG {*}$args
 }
@@ -446,4 +463,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.1
+package provide nameserv::cluster 0.2.2
