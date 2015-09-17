@@ -350,13 +350,10 @@ proc ::cluster::throw {service command args} {
 }
 
 proc ::cluster::sleep ms {
-  update
-  set sid [incr ::_sleep_id]
-  set ::_sleep_flag($sid) 0
-  after $ms [list set ::_sleep_flag($sid) 1]
-  vwait ::_sleep_flag($sid)
-  unset -nocomplain ::_sleep_flag($sid)
-  update
+  set start [clock milliseconds]
+  while {([clock milliseconds]-$start) < $ms} {
+    update
+  }
 }
 
 ###
@@ -463,4 +460,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.2
+package provide nameserv::cluster 0.2.3
