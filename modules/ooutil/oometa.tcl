@@ -135,6 +135,14 @@ proc ::oo::meta::info {class submethod args} {
       set info [properties $class]
       return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
     }
+    branchset {
+      if {$class ni $::oo::meta::dirty_classes} {
+        lappend ::oo::meta::dirty_classes $class
+      }
+      foreach {field value} [lindex $args end] {
+        ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :] $value
+      }
+    }
     append -
     incr -
     lappend -
@@ -293,43 +301,7 @@ proc ::oo::define::option {field argdict} {
 oo::define oo::class {
 
   method meta {submethod args} {
-    set class [self]
-    switch $submethod {
-      is {
-        set info [::oo::meta::properties $class]
-        return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
-      }
-      for -
-      map {
-        set info [::oo::meta::properties $class]
-        return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
-      }
-      with {
-        upvar 1 TEMPVAR info
-        set info [::oo::meta::properties $class]
-        return [uplevel 1 [list dict with TEMPVAR {*}$args]]
-      }
-      dump {
-        return [::oo::meta::properties $class]
-      }
-      append -
-      incr -
-      lappend -
-      set -
-      unset -
-      update {
-        ::oo::meta::info $class rebuild
-        return [dict $submethod config {*}$args]
-      }
-      merge {
-        ::oo::meta::info $class rebuild
-        return [dict $submethod config {*}$args]
-      }
-      default {
-        set info [::oo::meta::properties $class]
-        return [dict $submethod $info {*}$args] 
-      }
-    }
+    return [::oo::meta::info [self] $submethod {*}$args]
   }
   
 }
@@ -396,6 +368,11 @@ oo::define oo::object {
       update {
         return [dict $submethod config {*}$args]
       }
+      branchset {
+        foreach {field value} [lindex $args end] {
+          dict set config {*}[lrange $args 0 end-1] [string trimright $field :] $value
+        }
+      }
       rmerge -
       merge {
         set config [dict rmerge $config {*}$args]
@@ -430,4 +407,4 @@ oo::define oo::object {
   }
 }
 
-package provide oo::meta 0.2
+package provide oo::meta 0.3
