@@ -6,6 +6,7 @@
 
 namespace eval ::oo::meta {
   variable dirty_classes {}
+  variable core_classes {::oo::class ::oo::object ::tao::moac}
 }
 
 if {[::info command ::tcl::dict::getnull] eq {}} {
@@ -14,9 +15,55 @@ if {[::info command ::tcl::dict::getnull] eq {}} {
       get $dictionary {*}$args
     }
   }
-  
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
+}
+if {[::info command ::tcl::dict::rmerge] eq {}} {
+  ###
+  # Test if element is a dict
+  ###
+  proc ::tcl::dict::is_dict { d } {
+    # is it a dict, or can it be treated like one?
+    if {[catch {dict size $d} err]} {
+      #::set ::errorInfo {}
+      return 0
+    }
+    return 1
+  }
+  
+  ###
+  # title: A recursive form of dict merge
+  # description:
+  # A routine to recursively dig through dicts and merge
+  # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+  ###
+  proc ::tcl::dict::rmerge {a args} {
+    ::set result $a
+    # Merge b into a, and handle nested dicts appropriately
+    ::foreach b $args {
+      for { k v } $b {
+        if {[string index $k end] eq ":"} {
+          # Element names that end in ":" are assumed to be literals
+          set result $k $v
+        } elseif { [dict exists $result $k] } {
+          # key exists in a and b?  let's see if both values are dicts
+          # both are dicts, so merge the dicts
+          if { [is_dict [get $result $k]] && [is_dict $v] } {
+            set result $k [rmerge [get $result $k] $v]
+          } else {  
+            set result $k $v
+          }
+        } else {
+          set result $k $v
+        }
+      }
+    }
+    return $result
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
 proc ::oo::meta::args_to_dict args {
@@ -35,13 +82,17 @@ proc ::oo::meta::args_to_options args {
 }
 
 proc ::oo::meta::ancestors class {
+  set class [::oo::meta::normalize $class]
   set thisresult {}
   set result {}
   set queue $class
+  variable core_classes
+  
   while {[llength $queue]} {
     set tqueue $queue
     set queue {}
     foreach qclass $tqueue {
+      if {$qclass in $core_classes} continue
       foreach aclass [::info class superclasses $qclass] {
         if { $aclass in $result } continue
         if { $aclass in $queue } continue
@@ -51,7 +102,7 @@ proc ::oo::meta::ancestors class {
         if { $aclass in $result } continue
         if { $aclass in $queue } continue
         lappend queue $aclass
-      }            
+      }
     }
     foreach item $tqueue {
       if { $item ni $result } {
@@ -63,6 +114,7 @@ proc ::oo::meta::ancestors class {
 }
 
 proc ::oo::meta::info {class submethod args} {
+  set class [::oo::meta::normalize $class]
   switch $submethod {
     rebuild {
       if {$class ni $::oo::meta::dirty_classes} {
@@ -76,7 +128,6 @@ proc ::oo::meta::info {class submethod args} {
     for -
     map {
       set info [properties $class]
-      puts [list [dict get $info {*}[lrange $args 1 end-1]]]
       return [uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
     }
     with {
@@ -95,6 +146,12 @@ proc ::oo::meta::info {class submethod args} {
       }
       ::dict $submethod ::oo::meta::local_property($class) {*}$args
     }
+    merge {
+      if {$class ni $::oo::meta::dirty_classes} {
+        lappend ::oo::meta::dirty_classes $class
+      }
+      set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
+    }
     dump {
       set info [properties $class]
       return $info
@@ -106,16 +163,37 @@ proc ::oo::meta::info {class submethod args} {
   }
 }
 
-proc ::oo::meta::properties class {
+
+
+
+
+
+
+proc ::oo::meta::normalize class {
+  set class ::[string trimleft $class :]
+}
+
+proc ::oo::meta::properties {class {force 0}} {
+  set class [::oo::meta::normalize $class]
   ###
   # Destroy the cache of all derivitive classes
   ###
-  variable dirty_classes
-  foreach dclass $dirty_classes {
-    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
-      if {$dclass in $cancestors} {
-        unset -nocomplain ::oo::meta::cached_property($cclass)
-        unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+  if {$force} {
+    unset -nocomplain ::oo::meta::cached_property
+    unset -nocomplain ::oo::meta::cached_hierarchy
+  } else {
+    variable dirty_classes
+    foreach dclass $dirty_classes {
+      foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
+        if {$dclass in $cancestors} {
+          unset -nocomplain ::oo::meta::cached_property($cclass)
+          unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+        }
+      }
+      if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
+        if {$dclass ni $::oo::meta::core_classes} {
+          lappend ::oo::meta::core_classes $dclass
+        }
       }
     }
   }
@@ -137,15 +215,16 @@ proc ::oo::meta::properties class {
   set stack {}
   variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
-  foreach aclass $cached_hierarchy($class) {
+  foreach aclass [lrange $cached_hierarchy($class) 0 end-1] {
     if {[::info exists local_property($aclass)]} {
-      lappend stack $local_property($aclass)
+      lappend properties $local_property($aclass)
     }
   }
-  if {[llength $stack]} {
-    set properties [dict merge {*}$stack]
+  lappend properties {classinfo {type {}}}
+  if {[::info exists local_property($class)]} {
+    set properties [dict rmerge {*}$properties $local_property($class)]
   } else {
-    set properties {}
+    set properties [dict rmerge {*}$properties]
   }
   set cached_property($class) $properties
   return $properties
@@ -160,9 +239,16 @@ proc ::oo::meta::search args {
 
   set result {}
   foreach {class info} [array get local_property] {
-    if {![dict exists $info {*}$path]} continue
-    if {[string match [dict get $info {*}$path] $value]} {
-      lappend result $class
+    if {[dict exists $info {*}$path:]} {
+      if {[string match [dict get $info {*}$path:] $value]} {
+        lappend result $class
+      }
+      continue
+    }
+    if {[dict exists $info {*}$path]} {
+      if {[string match [dict get $info {*}$path] $value]} {
+        lappend result $class
+      }
     }
   }
   return $result
@@ -176,12 +262,33 @@ proc ::oo::define::meta {args} {
 ###
 # Add properties and option handling
 ###
-proc ::oo::define::property {args} {
+proc ::oo::define::property args {
   set class [lindex [::info level -1] 1]
+  switch [llength $args] {
+    2 {
+      set type const
+      set property [string trimleft [lindex $args 0] :]
+      set value [lindex $args 1]
+      ::oo::meta::info $class set $type $property: $value
+      return
+    }
+    3 {
+      set type     [lindex $args 0]
+      set property [string trimleft [lindex $args 1] :]
+      set value    [lindex $args 2]
+      ::oo::meta::info $class set $type $property: $value
+      return
+    }
+  }
   ::oo::meta::info $class set {*}$args
 }
 
-
+proc ::oo::define::option {field argdict} {
+  set class [lindex [::info level -1] 1]
+  foreach {prop value} $argdict {
+    ::oo::meta::info $class set option $field [string trim $prop :]: $value
+  }
+}
 
 oo::define oo::class {
 
@@ -214,6 +321,10 @@ oo::define oo::class {
         ::oo::meta::info $class rebuild
         return [dict $submethod config {*}$args]
       }
+      merge {
+        ::oo::meta::info $class rebuild
+        return [dict $submethod config {*}$args]
+      }
       default {
         set info [::oo::meta::properties $class]
         return [dict $submethod $info {*}$args] 
@@ -232,22 +343,50 @@ oo::define oo::object {
     }
     set class [::info object class [self object]]
     switch $submethod {
+      cget {
+        # Get a constant from the local dict, a field in the const section of meta data, or under the root
+        set path [lrange $args 0 end-1]
+        set field [string trim [lindex $args end] :]
+        if {[dict exists $config {*}$path $field:]} {
+          return [dict get $config {*}$path $field:]
+        }
+        if {[dict exists $config {*}$path $field]} {
+          return [dict get $config {*}$path $field]
+        }
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties const {*}$path $field:]} {
+          return [dict get $class_properties const {*}$path $field:]
+        }
+        if {[dict exists $class_properties const {*}$path $field]} {
+          return [dict get $class_properties const {*}$path $field]
+        }
+        if {[dict exists $class_properties {*}$path $field:]} {
+          return [dict get $class_properties {*}$path $field:]
+        }
+        if {[dict exists $class_properties {*}$path $field]} {
+          return [dict get $class_properties {*}$path $field]
+        }
+        return {}
+      }
       is {
-        set info [dict merge [::oo::meta::properties $class] $config]
-        return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
+        set value [my meta cget {*}[lrange $args 1 end]]
+        return [string is [lindex $args 0] -strict $value]
       }
       for -
       map {
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set class_properties [::oo::meta::properties $class]
+        set info [dict rmerge $class_properties $config]
         return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
       }
       with {
+        set class_properties [::oo::meta::properties $class]
         upvar 1 TEMPVAR info
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set info [dict rmerge $class_properties $config]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        return [dict merge [::oo::meta::properties $class] $config]
+        set class_properties [::oo::meta::properties $class]
+        return [dict rmerge $class_properties $config]
       }
       append -
       incr -
@@ -257,12 +396,38 @@ oo::define oo::object {
       update {
         return [dict $submethod config {*}$args]
       }
+      rmerge -
+      merge {
+        set config [dict rmerge $config {*}$args]
+        return $config
+      }
+      getnull {
+        if {[dict exists $config {*}$args]} {
+          return [dict get $config {*}$args]
+        }
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties {*}$args]} {
+          return [dict get $class_properties {*}$args]
+        }
+        return {}
+      }
+      get {
+        if {[dict exists $config {*}$args]} {
+          return [dict get $config {*}$args]
+        }
+        set class_properties [::oo::meta::properties $class]
+        if {[dict exists $class_properties {*}$args]} {
+          return [dict get $class_properties {*}$args]
+        }
+        error "Key {*}$args does not exist"
+      }
       default {
-        set info [dict merge [::oo::meta::properties $class] $config]
+        set class_properties [::oo::meta::properties $class]
+        set info [dict rmerge $class_properties $config]
         return [dict $submethod $info {*}$args] 
       }
     }
   }
 }
 
-package provide oo::meta 0.1
+package provide oo::meta 0.2
