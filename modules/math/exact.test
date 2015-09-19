@@ -27,7 +27,7 @@ testing {
 
 package require Tcl             8.6
 package require grammar::aycock 1.0
-package require math::exact     0.1
+package require math::exact     1.0
 
 #-----------------------------------------------------------------------------
 

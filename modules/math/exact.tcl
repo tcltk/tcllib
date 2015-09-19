@@ -4054,6 +4054,6 @@ namespace eval math::exact {
     namespace export exactexpr abs1 signum1
 }
 
-package provide math::exact 0.1
+package provide math::exact 1.0
 
 #-----------------------------------------------------------------------
