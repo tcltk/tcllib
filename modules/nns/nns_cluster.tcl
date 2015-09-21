@@ -39,6 +39,7 @@ proc ::cluster::broadcast {args} {
       puts "Broadcast ERR: $error - Reopening Socket"
       ::cluster::sleep 2000
     } else {
+      # Double the delay
       ::cluster::sleep 250
     }
   }
@@ -132,6 +133,7 @@ proc ::cluster::UDPPacket sock {
       Service_Remove $serviceurl $serviceinfo
     }
     ~SERVICE {
+      set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
@@ -139,6 +141,7 @@ proc ::cluster::UDPPacket sock {
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     +SERVICE {
+      set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
@@ -236,7 +239,6 @@ proc ::cluster::unpublish {url infodict} {
   }
   set info [lindex [array get local_data $url] 1]
   broadcast -SERVICE $url $info
-  update
   unset -nocomplain local_data($url)
 }
 
@@ -253,6 +255,14 @@ proc ::cluster::configure {url infodict {send 1}} {
 }
 
 proc ::cluster::get_free_port {{startport 50000}} {
+  ::cluster::listen
+  ::cluster::broadcast DISCOVERY
+  after 10000 {set ::cluster::recv_message 0}
+  # Wait for a pingback or timeout
+  vwait ::cluster::recv_message
+  update
+  
+  set macid [::cluster::macid]
   set port $startport
   set conflict 1
   while {$conflict} {
@@ -265,6 +275,7 @@ proc ::cluster::get_free_port {{startport 50000}} {
         break
       }
     }
+    update
   }
   return $port
 }
