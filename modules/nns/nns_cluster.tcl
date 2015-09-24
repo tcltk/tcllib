@@ -98,6 +98,7 @@ proc ::cluster::listen {} {
     -remote [list $discovery_group $discovery_port]
   fileevent $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
   ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
+  
   return $broadcast_sock
 }
 
@@ -149,7 +150,16 @@ proc ::cluster::UDPPacket sock {
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     DISCOVERY {
+      variable config
       ::cluster::heartbeat
+      if {$config(local_registry)==1} {
+        variable ptpdata
+        # A local registry barfs back all data that is sees
+        set now [clock seconds]
+        foreach {url info} [array get ptpdata] {
+          broadcast ~SERVICE $url $info 
+        }
+      }
     }
     LOG {
       set serviceurl [lindex $messageinfo 0]
@@ -260,7 +270,7 @@ proc ::cluster::get_free_port {{startport 50000}} {
   after 10000 {set ::cluster::recv_message 0}
   # Wait for a pingback or timeout
   vwait ::cluster::recv_message
-  update
+  cluster::sleep 2000
   
   set macid [::cluster::macid]
   set port $startport
@@ -457,6 +467,7 @@ namespace eval ::cluster {
   array set config {
     debug 0
     discovery_ttl 300
+    local_registry 0
   }
   variable cache {}
   variable broadcast_sock {}
