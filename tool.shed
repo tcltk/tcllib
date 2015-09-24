@@ -1,22 +1,23 @@
 
-  generated: {2015-09-24 00:34:26 UTC}
+  generated: {2015-09-24 19:31:20 UTC}
   description: {The Tcl Library is a kitchen sink of packages across a broad spectrum of things.}
   name: Tcl
   uuid: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
+  installer: sak
   distribution/ {
     official {
       class: fossil
       project-name: Tcl
       project-code: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
       release: odie
-      url: http://core.tcl.tk/tcllib
+      url: http://fossil.etoyoc.com/fossil/tcllib
     }
   }
   release/ {
     odie {
       distribution: official
       checkout: odie
-      timestamp: {2015-09-24 00:34:26 UTC}
+      timestamp: {2015-09-24 19:31:20 UTC}
     }
     trunk {
       distribution: official
@@ -368,9 +369,7 @@ expressions found in a document.
     cmdline {
       name: cmdline
       path: modules/cmdline
-      module class:
-      tcllib module
-      origin: http://core.tcl.tk/tcllib
+      class: tcl
       sources: cmdline.tcl
       packages: {{cmdline 1.5}}
     }
@@ -387,12 +386,6 @@ expressions found in a document.
       class: tcl
       sources: comm.tcl
       packages: {{comm 4.6.3.1}}
-    }
-    common-text {
-      name: common-text
-      path: modules/common-text
-      class: tcl
-      sources: {}
     }
     control {
       name: control
@@ -1029,12 +1022,6 @@ expressions found in a document.
       class: tcl
       sources: tar.tcl
       packages: {{tar 0.10}}
-    }
-    tcllibc.tcl {
-      name: tcllibc.tcl
-      path: modules/tcllibc.tcl
-      class: tcl
-      sources: {}
     }
     tepam {
       name: tepam
@@ -3556,6 +3543,12 @@ expressions found in a document.
       name: tar
       version: 0.10
       module: tar
+    }
+    {tcllibc 0.3.14} {
+      file: tcllibc.tcl
+      require: critcl
+      name: tcllibc
+      version: 0.3.14
     }
     {tepam 0.5} {
       file: tepam.tcl
