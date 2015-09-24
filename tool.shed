@@ -1,0 +1,4190 @@
+
+  generated: {2015-09-24 00:34:26 UTC}
+  description: {The Tcl Library is a kitchen sink of packages across a broad spectrum of things.}
+  name: Tcl
+  uuid: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
+  distribution/ {
+    official {
+      class: fossil
+      project-name: Tcl
+      project-code: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
+      release: odie
+      url: http://fossil.etoyoc.com/fossil/tcllib
+    }
+  }
+  release/ {
+    odie {
+      distribution: official
+      checkout: odie
+      timestamp: {2015-09-24 00:34:26 UTC}
+    }
+    trunk {
+      distribution: official
+      checkout: trunk
+    }
+    tcllib-1-17 {
+      version: 1.17
+      checkout: tcllib-1-17
+      distribution: official
+    }
+    tcllib-1-16 {
+      version: 1.16
+      checkout: tcllib-1-16
+      distribution: official
+    }
+    tcllib-1-15 {
+      version: 1.15
+      checkout: tcllib-1-15
+      distribution: official
+    }
+    tcllib-1-14 {
+      version: 1.14
+      checkout: tcllib-1-14
+      distribution: official
+    }
+    tcllib-1-13 {
+      version: 1.13
+      checkout: tcllib-1-13
+      distribution: official
+    }
+    tcllib-1-12 {
+      version: 1.12
+      checkout: tcllib-1-12
+      distribution: official
+    }
+    tcllib-1-11-1 {
+      version: 1.11.1
+      checkout: tcllib-1-11-1
+      distribution: official
+    }
+    tcllib-1-11 {
+      version: 1.11
+      checkout: tcllib-1-11
+      distribution: official
+    }
+    tcllib-1-10 {
+      version: 1.10
+      checkout: tcllib-1-10
+      distribution: official
+    }
+    tcllib-1-9 {
+      version: 1.9
+      checkout: tcllib-1-9
+      distribution: official
+    }
+    tcllib-1-8 {
+      version: 1.8
+      checkout: tcllib-1-8
+      distribution: official
+    }
+    tcllib-1-7 {
+      version: 1.7
+      checkout: tcllib-1-7
+      distribution: official
+    }
+    tcllib-1-6-1 {
+      version: 1.6.1
+      checkout: tcllib-1-6-1
+      distribution: official
+    }
+    tcllib-1-4 {
+      version: 1.4
+      checkout: tcllib-1-4
+      distribution: official
+    }
+    tcllib-1-3 {
+      version: 1.3
+      checkout: tcllib-1-3
+      distribution: official
+    }
+    tcllib-1-2-0 {
+      version: 1.2.0
+      checkout: tcllib-1-2-0
+      distribution: official
+    }
+    tcllib-1-2 {
+      version: 1.2
+      checkout: tcllib-1-2
+      distribution: official
+    }
+    tcllib-1-1 {
+      version: 1.1
+      checkout: tcllib-1-1
+      distribution: official
+    }
+    tcllib-1-0 {
+      version: 1.0
+      checkout: tcllib-1-0
+      distribution: official
+    }
+    tcllib-0-8 {
+      version: 0.8
+      checkout: tcllib-0-8
+      distribution: official
+    }
+    tcllib-0-6-1 {
+      version: 0.6.1
+      checkout: tcllib-0-6-1
+      distribution: official
+    }
+    tcllib-0-6 {
+      version: 0.6
+      checkout: tcllib-0-6
+      distribution: official
+    }
+    tcllib-0-5 {
+      version: 0.5
+      checkout: tcllib-0-5
+      distribution: official
+    }
+    tcllib-0-4 {
+      version: 0.4
+      checkout: tcllib-0-4
+      distribution: official
+    }
+  }
+  application/ {
+    dtplite {
+      name: dtplite
+      file: apps/dtplite
+      class: script
+      teacup_type: Application
+      version: 1.0.5
+      platform: tcl
+      summary: {Lightweight DocTools Processor}
+      description: {This application is a simple processor
+for documents written in the doctools
+markup language. It covers the most
+common use cases, but is not as
+configurable as its big brother dtp.
+}
+      category: {Processing doctools documents}
+      subject: {doctools doctoc docidx}
+      require: {{dtplite 1.0.5}}
+      author: {Andreas Kupries}
+      license: BSD
+    }
+    nns {
+      name: nns
+      file: apps/nns
+      class: script
+      teacup_type: Application
+      version: 1.2
+      platform: tcl
+      summary: {Nano Name Service Client}
+      description: {This application connects to a name service demon
+and either registers a name with associated data
+(until exit) or searches for entries matching a
+glob pattern. Operations to identify client and
+server are made available as well. It will survive
+the loss of the nameserver and automatically reconnect
+and continue when it comes back (bind and search).
+
+}
+      subject: {{name service} client}
+      require: {logger nameserv::auto {nameserv::auto 0.3} struct::matrix {Tcl 8.4}}
+      author: {Andreas Kupries}
+      license: BSD
+      packages: nns
+    }
+    nnsd {
+      name: nnsd
+      file: apps/nnsd
+      class: script
+      teacup_type: Application
+      version: 1.0.1
+      platform: tcl
+      summary: {Nano Name Service Demon}
+      description: {This application is a simple demon on top
+of the nano name service facilities
+}
+      subject: {{name service} server demon}
+      require: {comm interp logger nameserv::common nameserv::server {Tcl 8.4}}
+      author: {Andreas Kupries}
+      license: BSD
+      packages: nnsd
+    }
+    nnslog {
+      name: nnslog
+      file: apps/nnslog
+      class: script
+      teacup_type: Application
+      version: 1.1
+      platform: tcl
+      summary: {Nano Name Service Logger}
+      description: {This application connects to a name service demon
+and then continuously logs all changes (new/removed
+definitions) to the standard output. It will survive
+the loss of the nameserver and automatically reconnect
+and continue when it comes back.
+}
+      subject: {{name service} client log}
+      require: {logger nameserv::auto {nameserv::auto 0.3} {Tcl 8.4}}
+      author: {Andreas Kupries}
+      license: BSD
+      packages: nnslog
+    }
+    page {
+      name: page
+      file: apps/page
+      class: script
+      teacup_type: Application
+      version: 1.0
+      platform: tcl
+      summary: {Tool for general text transformation}
+      description: {While the name is an allusion to parser
+generation, the modular plugin-based
+nature of this application allows for
+any type of text transformation which
+can be put into a plugin. Still, the
+plugins coming with Tcllib all deal
+with parser generation.
+}
+      category: {Processing text files}
+      subject: {{parser generation} {text transformation}}
+      require: {logger page::pluginmgr struct::matrix}
+      author: {Andreas Kupries}
+      license: BSD
+      packages: page
+    }
+    pt {
+      name: pt
+      file: apps/pt
+      class: script
+      require: {fileutil {pt::pgen 1.0.3} pt::util {Tcl 8.5} try}
+    }
+    tcldocstrip {
+      name: tcldocstrip
+      file: apps/tcldocstrip
+      class: script
+      teacup_type: Application
+      version: 1.0.1
+      platform: tcl
+      summary: {TeX's docstrip written in Tcl}
+      description: {This application is an implementation
+of TeX's docstrip application in Tcl.
+It provides commands to convert a docstrip
+weave according to a set of guards, to
+assemble an output based on several sets
+guards and input files, i.e. of a document
+spread over several inputs and/or guards,
+and to extract and list all unique guard
+expressions found in a document.
+}
+      category: {Processing docstrip documents}
+      subject: {docstrip TeX LaTeX}
+      require: docstrip
+      author: {Andreas Kupries}
+      license: BSD
+      packages: tcldocstrip
+    }
+  }
+  module/ {
+    aes {
+      name: aes
+      path: modules/aes
+      class: tcl
+      sources: aes.tcl
+      packages: {{aes 1.2.1}}
+    }
+    amazon-s3 {
+      name: amazon-s3
+      path: modules/amazon-s3
+      class: tcl
+      sources: {S3.tcl xsxp.tcl}
+      packages: {{S3 1.0.3} {xsxp 1.0}}
+    }
+    asn {
+      name: asn
+      path: modules/asn
+      class: tcl
+      sources: asn.tcl
+      packages: {{asn 0.8.4}}
+    }
+    base32 {
+      name: base32
+      path: modules/base32
+      class: tcl
+      require: {critcl {Tcl 8.4} base32::core critcl {Tcl 8.4} base32::core}
+      sources: {base32.tcl base32_c.tcl base32_tcl.tcl base32core.tcl base32hex.tcl base32hex_c.tcl base32hex_tcl.tcl}
+      packages: {{base32 0.1} {base32::core 0.1} {base32::hex 0.1}}
+    }
+    base64 {
+      name: base64
+      path: modules/base64
+      class: tcl
+      sources: {ascii85.tcl base64.tcl base64c.tcl uuencode.tcl yencode.tcl}
+      packages: {{ascii85 1.0} {base64 2.4.2} {base64c 0.1.0} {uuencode 1.1.5} {yencode 1.1.3}}
+    }
+    bee {
+      name: bee
+      path: modules/bee
+      class: tcl
+      sources: bee.tcl
+      packages: {{bee 0.1}}
+    }
+    bench {
+      name: bench
+      path: modules/bench
+      class: tcl
+      sources: {bench.tcl bench_read.tcl bench_wcsv.tcl bench_wtext.tcl libbench.tcl}
+      packages: {{bench 0.4} {bench::in 0.1} {bench::out::csv 0.1.2} {bench::out::text 0.1.2}}
+    }
+    bibtex {
+      name: bibtex
+      path: modules/bibtex
+      class: tcl
+      sources: bibtex.tcl
+      packages: {{bibtex 0.6}}
+    }
+    blowfish {
+      name: blowfish
+      path: modules/blowfish
+      class: tcl
+      sources: blowfish.tcl
+      packages: {{blowfish 1.0.4}}
+    }
+    cache {
+      name: cache
+      path: modules/cache
+      class: tcl
+      sources: async.tcl
+      packages: {{cache::async 0.3}}
+    }
+    calendar {
+      name: calendar
+      path: modules/calendar
+      class: tcl
+      require: {{Tcl 8.2} {Tcl 8.2}}
+      sources: {calendar.tcl gregorian.tcl}
+    }
+    clock {
+      name: clock
+      path: modules/clock
+      class: tcl
+      sources: {iso8601.tcl rfc2822.tcl}
+      packages: {{clock::iso8601 0.1} {clock::rfc2822 0.1}}
+    }
+    cmdline {
+      name: cmdline
+      path: modules/cmdline
+      module class:
+      tcllib module
+      origin: http://core.tcl.tk/tcllib
+      sources: cmdline.tcl
+      packages: {{cmdline 1.5}}
+    }
+    codebale {
+      name: codebale
+      path: modules/codebale
+      class: tcl
+      sources: {autobuild.tcl autodoc.tcl buildtools.tcl codebale.tcl index.tcl parser.tcl project.tcl}
+      packages: {{codebale::autodoc 0.1} {codebale 0.2}}
+    }
+    comm {
+      name: comm
+      path: modules/comm
+      class: tcl
+      sources: comm.tcl
+      packages: {{comm 4.6.3.1}}
+    }
+    common-text {
+      name: common-text
+      path: modules/common-text
+      class: tcl
+      sources: {}
+    }
+    control {
+      name: control
+      path: modules/control
+      class: tcl
+      require: {{Tcl 8.2}}
+      sources: {ascaller.tcl assert.tcl control.tcl do.tcl no-op.tcl}
+    }
+    coroutine {
+      name: coroutine
+      path: modules/coroutine
+      class: tcl
+      sources: {coro_auto.tcl coroutine.tcl}
+      packages: {{coroutine::auto 1.1.3} {coroutine 1.1.3}}
+    }
+    counter {
+      name: counter
+      path: modules/counter
+      class: tcl
+      sources: counter.tcl
+      packages: {{counter 2.0.4}}
+    }
+    crc {
+      name: crc
+      path: modules/crc
+      class: tcl
+      sources: {cksum.tcl crc16.tcl crc32.tcl crcc.tcl sum.tcl}
+      packages: {{cksum 1.1.4} {crc16 1.1.2} {crc32 1.3.2} {crcc 1.0.0} {sum 1.1.2}}
+    }
+    cron {
+      name: cron
+      path: modules/cron
+      class: tcl
+      sources: cron.tcl
+      packages: {{cron 1.1}}
+    }
+    csv {
+      name: csv
+      path: modules/csv
+      class: tcl
+      sources: csv.tcl
+      packages: {{csv 0.8}}
+    }
+    debug {
+      name: debug
+      path: modules/debug
+      class: tcl
+      sources: {caller.tcl debug.tcl heartbeat.tcl timestamp.tcl}
+      packages: {{debug::caller 1} {debug 1.0.5} {debug::heartbeat 1} {debug::timestamp 1}}
+    }
+    des {
+      name: des
+      path: modules/des
+      class: tcl
+      sources: {des.tcl tcldes.tcl tcldesjr.tcl}
+      packages: {{des 1.1.0} {tclDES 1.0.0} {tclDESjr 1.0.0}}
+    }
+    devtools {
+      name: devtools
+      path: modules/devtools
+      class: tcl
+      require: comm
+      sources: {coserv.tcl dialog.tcl testutilities.tcl}
+      packages: {{tcllib::testutils 1.2}}
+    }
+    dns {
+      name: dns
+      path: modules/dns
+      class: tcl
+      require: msgcat
+      sources: {dns.tcl ip.tcl ipMore.tcl ipMoreC.tcl resolv.tcl spf.tcl}
+      packages: {{dns 1.3.5} {ip 1.3} {ipMorec 1.0} {resolv 1.0.3} {spf 1.1.1}}
+    }
+    docstrip {
+      name: docstrip
+      path: modules/docstrip
+      class: tcl
+      sources: {docstrip.tcl docstrip_util.tcl}
+      packages: {{docstrip 1.2} {docstrip::util 1.3}}
+    }
+    doctools {
+      name: doctools
+      path: modules/doctools
+      class: tcl
+      require: {msgcat msgcat msgcat}
+      sources: {api.tcl api_idx.tcl api_toc.tcl changelog.tcl checker.tcl checker_idx.tcl checker_toc.tcl cvs.tcl docidx.tcl doctoc.tcl doctools.tcl}
+      packages: {{doctools::changelog 1.1} {doctools::cvs 1} {doctools::idx 1.0.5} {doctools::toc 1.1.4} {doctools 1.4.19}}
+    }
+    doctools2base {
+      name: doctools2base
+      path: modules/doctools2base
+      class: tcl
+      sources: {config.tcl html.tcl html_cssdefaults.tcl msgcat.tcl nroff_manmacros.tcl paths.tcl tcl_parse.tcl text.tcl}
+      packages: {{doctools::config 0.1} {doctools::html 0.1} {doctools::html::cssdefaults 0.1} {doctools::msgcat 0.1} {doctools::nroff::man_macros 0.1} {doctools::paths 0.1} {doctools::tcl::parse 0.1} {doctools::text 0.1}}
+    }
+    doctools2idx {
+      name: doctools2idx
+      path: modules/doctools2idx
+      class: tcl
+      sources: {container.tcl export.tcl export_docidx.tcl export_html.tcl export_json.tcl export_nroff.tcl export_text.tcl export_wiki.tcl import.tcl import_docidx.tcl import_json.tcl msgcat_c.tcl msgcat_de.tcl msgcat_en.tcl msgcat_fr.tcl parse.tcl structure.tcl}
+      packages: {{doctools::idx 2} {doctools::idx::export 0.1} {doctools::idx::export::docidx 0.1} {doctools::idx::export::html 0.2} {doctools::idx::export::json 0.1} {doctools::idx::export::nroff 0.3} {doctools::idx::export::text 0.2} {doctools::idx::export::wiki 0.2} {doctools::idx::import 0.1} {doctools::idx::import::docidx 0.1} {doctools::idx::import::json 0.1} {doctools::msgcat::idx::c 0.1} {doctools::msgcat::idx::de 0.1} {doctools::msgcat::idx::en 0.1} {doctools::msgcat::idx::fr 0.1} {doctools::idx::parse 0.1} {doctools::idx::structure 0.1}}
+    }
+    doctools2toc {
+      name: doctools2toc
+      path: modules/doctools2toc
+      class: tcl
+      sources: {container.tcl export.tcl export_doctoc.tcl export_html.tcl export_json.tcl export_nroff.tcl export_text.tcl export_wiki.tcl import.tcl import_doctoc.tcl import_json.tcl msgcat_c.tcl msgcat_de.tcl msgcat_en.tcl msgcat_fr.tcl parse.tcl structure.tcl}
+      packages: {{doctools::toc 2} {doctools::toc::export 0.1} {doctools::toc::export::doctoc 0.1} {doctools::toc::export::html 0.1} {doctools::toc::export::json 0.1} {doctools::toc::export::nroff 0.2} {doctools::toc::export::text 0.1} {doctools::toc::export::wiki 0.1} {doctools::toc::import 0.1} {doctools::toc::import::doctoc 0.1} {doctools::toc::import::json 0.1} {doctools::msgcat::toc::c 0.1} {doctools::msgcat::toc::de 0.1} {doctools::msgcat::toc::en 0.1} {doctools::msgcat::toc::fr 0.1} {doctools::toc::parse 0.1} {doctools::toc::structure 0.1}}
+    }
+    dtplite {
+      name: dtplite
+      path: modules/dtplite
+      class: tcl
+      sources: dtplite.tcl
+      packages: {{dtplite 1.2}}
+    }
+    exif {
+      name: exif
+      path: modules/exif
+      class: tcl
+      sources: exif.tcl
+      packages: {{exif 1.1.2}}
+    }
+    fileutil {
+      name: fileutil
+      path: modules/fileutil
+      class: tcl
+      sources: {decode.tcl fileutil.tcl multi.tcl multiop.tcl traverse.tcl}
+      packages: {{fileutil::decode 0.2} {fileutil 1.15} {fileutil::multi 0.1} {fileutil::multi::op 0.5.3} {fileutil::traverse 0.5}}
+    }
+    ftp {
+      name: ftp
+      path: modules/ftp
+      class: tcl
+      sources: {ftp.tcl ftp_geturl.tcl}
+      packages: {{ftp {[lindex}} {ftp::geturl {[lindex}}}
+    }
+    ftpd {
+      name: ftpd
+      path: modules/ftpd
+      class: tcl
+      sources: ftpd.tcl
+      packages: {{ftpd 1.2.6}}
+    }
+    fumagic {
+      name: fumagic
+      path: modules/fumagic
+      class: tcl
+      sources: {cfront.tcl cgen.tcl filetypes.tcl mimetypes.tcl rtcore.tcl}
+      packages: {{fileutil::magic::cfront 1.0} {fileutil::magic::cgen 1.0} {fileutil::magic::filetype 1.0.2} {fileutil::magic::mimetype 1.0.2} {fileutil::magic::rt 1.0}}
+    }
+    generator {
+      name: generator
+      path: modules/generator
+      class: tcl
+      sources: generator.tcl
+      packages: {{generator 0.1}}
+    }
+    gpx {
+      name: gpx
+      path: modules/gpx
+      class: tcl
+      sources: gpx.tcl
+      packages: {{gpx 1}}
+    }
+    grammar_aycock {
+      name: grammar_aycock
+      path: modules/grammar_aycock
+      class: tcl
+      sources: {aycock-build.tcl aycock-debug.tcl aycock-runtime.tcl}
+      packages: {{grammar::aycock 1.0} {grammar::aycock::debug 1.0} {grammar::aycock::runtime 1.0}}
+    }
+    grammar_fa {
+      name: grammar_fa
+      path: modules/grammar_fa
+      class: tcl
+      sources: {dacceptor.tcl dexec.tcl fa.tcl faop.tcl}
+      packages: {{grammar::fa::dacceptor 0.1.1} {grammar::fa::dexec 0.2} {grammar::fa 0.5} {grammar::fa::op 0.4.1}}
+    }
+    grammar_me {
+      name: grammar_me
+      path: modules/grammar_me
+      class: tcl
+      sources: {gasm.tcl me_cpu.tcl me_cpucore.tcl me_tcl.tcl me_util.tcl}
+      packages: {{grammar::me::cpu::gasm 0.1} {grammar::me::cpu 0.2} {grammar::me::cpu::core 0.2} {grammar::me::tcl 0.1} {grammar::me::util 0.1}}
+    }
+    grammar_peg {
+      name: grammar_peg
+      path: modules/grammar_peg
+      class: tcl
+      sources: {peg.tcl peg_interp.tcl}
+      packages: {{grammar::peg 0.2} {grammar::peg::interp 0.1.1}}
+    }
+    hook {
+      name: hook
+      path: modules/hook
+      class: tcl
+      sources: hook.tcl
+      packages: {{hook 0.1}}
+    }
+    html {
+      name: html
+      path: modules/html
+      class: tcl
+      sources: html.tcl
+      packages: {{html 1.4.4}}
+    }
+    htmlparse {
+      name: htmlparse
+      path: modules/htmlparse
+      class: tcl
+      sources: htmlparse.tcl
+      packages: {{htmlparse 1.2.1}}
+    }
+    http {
+      name: http
+      path: modules/http
+      class: tcl
+      sources: autoproxy.tcl
+      packages: {{autoproxy 1.5.3}}
+    }
+    httpd {
+      name: httpd
+      path: modules/httpd
+      class: tcl
+      sources: httpd.tcl
+      packages: {{httpd 0.1}}
+    }
+    ident {
+      name: ident
+      path: modules/ident
+      class: tcl
+      sources: ident.tcl
+      packages: {{ident 0.42}}
+    }
+    imap4 {
+      name: imap4
+      path: modules/imap4
+      class: tcl
+      sources: imap4.tcl
+      packages: {{imap4 0.5.2}}
+    }
+    inifile {
+      name: inifile
+      path: modules/inifile
+      class: tcl
+      sources: ini.tcl
+      packages: {{inifile 0.3}}
+    }
+    interp {
+      name: interp
+      path: modules/interp
+      class: tcl
+      sources: {deleg_method.tcl deleg_proc.tcl interp.tcl}
+      packages: {{interp::delegate::method 0.2} {interp::delegate::proc 0.2} {interp 0.1.2}}
+    }
+    irc {
+      name: irc
+      path: modules/irc
+      class: tcl
+      sources: {irc.tcl picoirc.tcl}
+      packages: {{irc 0.6.1} {picoirc 0.5.1}}
+    }
+    javascript {
+      name: javascript
+      path: modules/javascript
+      class: tcl
+      sources: javascript.tcl
+      packages: {{javascript 1.0.2}}
+    }
+    jpeg {
+      name: jpeg
+      path: modules/jpeg
+      class: tcl
+      sources: jpeg.tcl
+      packages: {{jpeg 0.5}}
+    }
+    json {
+      name: json
+      path: modules/json
+      class: tcl
+      sources: {json.tcl json_tcl.tcl json_write.tcl jsonc.tcl}
+      packages: {{json 1.3.3} {json::write 1.0.3} {jsonc 1.1.2}}
+    }
+    lambda {
+      name: lambda
+      path: modules/lambda
+      class: tcl
+      sources: lambda.tcl
+      packages: {{lambda 1}}
+    }
+    ldap {
+      name: ldap
+      path: modules/ldap
+      class: tcl
+      sources: {ldap.tcl ldapx.tcl}
+      packages: {{ldap 1.8} {ldapx 1.0}}
+    }
+    log {
+      name: log
+      path: modules/log
+      class: tcl
+      sources: {log.tcl logger.tcl loggerAppender.tcl loggerUtils.tcl}
+      packages: {{log 1.3} {logger 0.9.4} {logger::appender 1.3} {logger::utils 1.3}}
+    }
+    map {
+      name: map
+      path: modules/map
+      class: tcl
+      sources: {map_geocode_nominatim.tcl map_slippy.tcl map_slippy_cache.tcl map_slippy_fetcher.tcl}
+      packages: {{map::geocode::nominatim 0.1} {map::slippy 0.5} {map::slippy::cache 0.2} {map::slippy::fetcher 0.3}}
+    }
+    mapproj {
+      name: mapproj
+      path: modules/mapproj
+      class: tcl
+      sources: mapproj.tcl
+      packages: {{mapproj 1.0}}
+    }
+    markdown {
+      name: markdown
+      path: modules/markdown
+      class: tcl
+      sources: markdown.tcl
+      packages: {{Markdown 1.0}}
+    }
+    math {
+      name: math
+      path: modules/math
+      class: tcl
+      require: {math::polynomials {Tcl 8.0} {Tcl 8.2} {Tcl 8.2} {math::linearalgebra 1.0}}
+      sources: {bessel.tcl bigfloat.tcl bigfloat2.tcl bignum.tcl calculus.tcl classic_polyns.tcl combinatorics.tcl constants.tcl decimal.tcl elliptic.tcl exponential.tcl fourier.tcl fuzzy.tcl geometry.tcl interpolate.tcl kruskal.tcl linalg.tcl liststat.tcl machineparameters.tcl math.tcl misc.tcl mvlinreg.tcl numtheory.tcl optimize.tcl pdf_stat.tcl plotstat.tcl polynomials.tcl qcomplex.tcl rational_funcs.tcl romannumerals.tcl special.tcl stat_kernel.tcl statistics.tcl symdiff.tcl wilcoxon.tcl}
+      packages: {{math::bigfloat 1.2.2} {math::bigfloat 2.0.2} {math::bignum 3.1.1} {math::calculus 0.8.1} {math::constants 1.0.1} {math::decimal 1.0.3} {math::fourier 1.0.2} {math::fuzzy 0.2.1} {math::geometry 1.1.3} {math::interpolate 1.1} {math::linearalgebra 1.1.5} {math::machineparameters 0.1} {math::numtheory 1.0} {math::optimize 1.0.1} {math::polynomials 1.0.1} {math::complexnumbers 1.0.2} {math::rationalfunctions 1.0.1} {math::roman 1.0} {math::special 0.3.0} {math::statistics 1.0} {math::calculus::symdiff 1.0}}
+    }
+    md4 {
+      name: md4
+      path: modules/md4
+      class: tcl
+      sources: {md4.tcl md4c.tcl}
+      packages: {{md4 1.0.6} {md4c 1.1.0}}
+    }
+    md5 {
+      name: md5
+      path: modules/md5
+      class: tcl
+      sources: {md5.tcl md5c.tcl md5x.tcl}
+      packages: {{md5 1.4.4} {md5c 0.12} {md5 2.0.7}}
+    }
+    md5crypt {
+      name: md5crypt
+      path: modules/md5crypt
+      class: tcl
+      sources: {md5crypt.tcl md5cryptc.tcl}
+      packages: {{md5crypt 1.1.0} {md5cryptc 1.0}}
+    }
+    mime {
+      name: mime
+      path: modules/mime
+      class: tcl
+      sources: {mime.tcl smtp.tcl}
+      packages: {{mime 1.6} {smtp 1.4.5}}
+    }
+    multiplexer {
+      name: multiplexer
+      path: modules/multiplexer
+      class: tcl
+      sources: multiplexer.tcl
+      packages: {{multiplexer 0.2}}
+    }
+    namespacex {
+      name: namespacex
+      path: modules/namespacex
+      class: tcl
+      sources: namespacex.tcl
+      packages: {{namespacex 0.1}}
+    }
+    ncgi {
+      name: ncgi
+      path: modules/ncgi
+      class: tcl
+      sources: ncgi.tcl
+      packages: {{ncgi 1.4.3}}
+    }
+    nettool {
+      name: nettool
+      path: modules/nettool
+      class: tcl
+      sources: {available_ports.tcl generic.tcl locateport.tcl nettool.tcl platform_unix.tcl platform_unix_linux.tcl platform_unix_macosx.tcl platform_windows.tcl}
+      packages: {{nettool 0.5} {nettool::platform::windows 0.2}}
+    }
+    nmea {
+      name: nmea
+      path: modules/nmea
+      class: tcl
+      sources: nmea.tcl
+      packages: {{nmea 1.0.0}}
+    }
+    nns {
+      name: nns
+      path: modules/nns
+      class: tcl
+      sources: {common.tcl nns.tcl nns_auto.tcl nns_cluster.tcl server.tcl}
+      packages: {{nameserv::common 0.1} {nameserv 0.4.2} {nameserv::auto 0.3} {nameserv::cluster 0.2.3} {nameserv::server 0.3.2}}
+    }
+    nntp {
+      name: nntp
+      path: modules/nntp
+      class: tcl
+      sources: nntp.tcl
+      packages: {{nntp 0.2.1}}
+    }
+    ntp {
+      name: ntp
+      path: modules/ntp
+      class: tcl
+      sources: time.tcl
+      packages: {{time 1.2.1}}
+    }
+    oauth {
+      name: oauth
+      path: modules/oauth
+      class: tcl
+      sources: oauth.tcl
+      packages: {{oauth 1}}
+    }
+    odie {
+      name: odie
+      path: modules/odie
+      class: tcl
+      sources: {global.tcl index.tcl listutil.tcl logicset.tcl queue.tcl stack.tcl urlget.tcl}
+      packages: {{odie 0.2} {listutil 1.7} {http::wget 0.1}}
+    }
+    oohtml {
+      name: oohtml
+      path: modules/oohtml
+      class: tcl
+      sources: oohtml.tcl
+      packages: {{oo::html 0.1}}
+    }
+    ooutil {
+      name: ooutil
+      path: modules/ooutil
+      class: tcl
+      sources: {oometa.tcl oooption.tcl ooproperties.tcl ooutil.tcl temptest.tcl}
+      packages: {{oo::meta 0.3} {oo::option 0.2} {oo::properties 0.1} {oo::util 1.2.2}}
+    }
+    otp {
+      name: otp
+      path: modules/otp
+      class: tcl
+      sources: otp.tcl
+      packages: {{otp 1.0.0}}
+    }
+    page {
+      name: page
+      path: modules/page
+      class: tcl
+      sources: {analysis_peg_emodes.tcl analysis_peg_minimize.tcl analysis_peg_reachable.tcl analysis_peg_realizable.tcl compiler_peg_mecpu.tcl gen_peg_canon.tcl gen_peg_cpkg.tcl gen_peg_hb.tcl gen_peg_me.tcl gen_peg_mecpu.tcl gen_peg_ser.tcl gen_tree_text.tcl parse_lemon.tcl parse_peg.tcl parse_peghb.tcl parse_pegser.tcl peg_grammar.tcl pluginmgr.tcl util_flow.tcl util_norm_lemon.tcl util_norm_peg.tcl util_peg.tcl util_quote.tcl}
+      packages: {{page::analysis::peg::emodes 0.1} {page::analysis::peg::minimize 0.1} {page::analysis::peg::reachable 0.1} {page::analysis::peg::realizable 0.1} {page::compiler::peg::mecpu 0.1.1} {page::gen::peg::canon 0.1} {page::gen::peg::cpkg 0.1} {page::gen::peg::hb 0.1} {page::gen::peg::me 0.1} {page::gen::peg::mecpu 0.1} {page::gen::peg::ser 0.1} {page::gen::tree::text 0.1} {page::parse::lemon 0.1} {page::parse::peg 0.1} {page::parse::peghb 0.1} {page::parse::pegser 0.1} {pg::peg::grammar 0.1} {page::pluginmgr 0.2} {page::util::flow 0.1} {page::util::norm::lemon 0.1} {page::util::norm::peg 0.1} {page::util::peg 0.1} {page::util::quote 0.1}}
+    }
+    pki {
+      name: pki
+      path: modules/pki
+      class: tcl
+      sources: pki.tcl
+      packages: {{pki 0.6}}
+    }
+    pluginmgr {
+      name: pluginmgr
+      path: modules/pluginmgr
+      class: tcl
+      sources: pluginmgr.tcl
+      packages: {{pluginmgr 0.3}}
+    }
+    png {
+      name: png
+      path: modules/png
+      class: tcl
+      sources: png.tcl
+      packages: {{png 0.2}}
+    }
+    pop3 {
+      name: pop3
+      path: modules/pop3
+      class: tcl
+      sources: pop3.tcl
+      packages: {{pop3 1.9}}
+    }
+    pop3d {
+      name: pop3d
+      path: modules/pop3d
+      class: tcl
+      sources: {pop3d.tcl pop3d_dbox.tcl pop3d_udb.tcl}
+      packages: {{pop3d 1.1.0} {pop3d::dbox 1.0.2} {pop3d::udb 1.1}}
+    }
+    processman {
+      name: processman
+      path: modules/processman
+      class: tcl
+      sources: processman.tcl
+      packages: {{processman 0.3}}
+    }
+    profiler {
+      name: profiler
+      path: modules/profiler
+      class: tcl
+      sources: profiler.tcl
+      packages: {{profiler 0.3}}
+    }
+    pt {
+      name: pt
+      path: modules/pt
+      class: tcl
+      require: {{Tcl 8.5} snit {struct::stack 1.5} pt::ast pt::pe debug}
+      sources: {char.tcl configuration.tcl paths.tcl pt_astree.tcl pt_cparam_config_critcl.tcl pt_cparam_config_tea.tcl pt_parse_peg.tcl pt_parse_peg_c.tcl pt_parse_peg_tcl.tcl pt_peg_container.tcl pt_peg_container_peg.tcl pt_peg_export.tcl pt_peg_export_container.tcl pt_peg_export_json.tcl pt_peg_export_peg.tcl pt_peg_from_json.tcl pt_peg_from_peg.tcl pt_peg_import.tcl pt_peg_import_json.tcl pt_peg_import_peg.tcl pt_peg_interp.tcl pt_peg_op.tcl pt_peg_to_container.tcl pt_peg_to_cparam.tcl pt_peg_to_json.tcl pt_peg_to_param.tcl pt_peg_to_peg.tcl pt_peg_to_tclparam.tcl pt_pegrammar.tcl pt_pexpr_op.tcl pt_pexpression.tcl pt_pgen.tcl pt_rdengine.tcl pt_rdengine_c.tcl pt_rdengine_oo.tcl pt_rdengine_tcl.tcl pt_tclparam_config_snit.tcl pt_tclparam_config_tcloo.tcl pt_util.tcl text_write.tcl}
+      packages: {{char 1.0.1} {configuration 1} {paths 1} {pt::ast 1.1} {pt::cparam::configuration::critcl 1.0.2} {pt::cparam::configuration::tea 0.1} {pt::parse::peg 1.0.1} {pt_parse_peg_c 1.0.1} {pt::parse::peg_tcl 1.0.1} {pt::peg::container 1} {pt::peg::container::peg 1} {pt::peg::export 1} {pt::peg::export::container 1} {pt::peg::export::json 1} {pt::peg::export::peg 1} {pt::peg::from::json 1} {pt::peg::from::peg 1.0.3} {pt::peg::import 1} {pt::peg::import::json 1} {pt::peg::import::peg 1} {pt::peg::interp 1.0.1} {pt::peg::op 1.0.1} {pt::peg::to::container 1} {pt::peg::to::cparam 1.1.3} {pt::peg::to::json 1} {pt::peg::to::param 1.0.1} {pt::peg::to::peg 1.0.2} {pt::peg::to::tclparam 1.0.3} {pt::peg 1} {pt::pe::op 1} {pt::pe 1.0.2} {pt::pgen 1.0.3} {pt::rde 1.1} {pt::rde::critcl 1.3.3} {pt::rde::oo 1.1} {pt::tclparam::configuration::snit 1.0.2} {pt::tclparam::configuration::tcloo 1.0.4} {pt::util 1} {text::write 1}}
+    }
+    rc4 {
+      name: rc4
+      path: modules/rc4
+      class: tcl
+      sources: {rc4.tcl rc4c.tcl}
+      packages: {{rc4 1.1.0} {rc4c 1.1.0}}
+    }
+    rcs {
+      name: rcs
+      path: modules/rcs
+      class: tcl
+      sources: rcs.tcl
+      packages: {{rcs 0.1}}
+    }
+    report {
+      name: report
+      path: modules/report
+      class: tcl
+      sources: report.tcl
+      packages: {{report 0.3.2}}
+    }
+    rest {
+      name: rest
+      path: modules/rest
+      class: tcl
+      sources: rest.tcl
+      packages: {{rest 1.0.1}}
+    }
+    ripemd {
+      name: ripemd
+      path: modules/ripemd
+      class: tcl
+      sources: {ripemd128.tcl ripemd160.tcl}
+      packages: {{ripemd128 1.0.5} {ripemd160 1.0.5}}
+    }
+    sasl {
+      name: sasl
+      path: modules/sasl
+      class: tcl
+      sources: {gtoken.tcl ntlm.tcl sasl.tcl scram.tcl}
+      packages: {{SASL::XGoogleToken 1.0.1} {SASL::NTLM 1.1.2} {SASL 1.3.3} {SASL::SCRAM 0.1}}
+    }
+    scgi {
+      name: scgi
+      path: modules/scgi
+      class: tcl
+      sources: {scgi-app.tcl scgi-server.tcl}
+      packages: {{scgi::app 0.1} {scgi::server 0.1}}
+    }
+    sha1 {
+      name: sha1
+      path: modules/sha1
+      class: tcl
+      sources: {sha1.tcl sha1c.tcl sha1v1.tcl sha256.tcl sha256c.tcl}
+      packages: {{sha1 2.0.3} {sha1c 2.0.3} {sha1 1.1.1} {sha256 1.0.3} {sha256c 1.0.2}}
+    }
+    simulation {
+      name: simulation
+      path: modules/simulation
+      class: tcl
+      sources: {annealing.tcl montecarlo.tcl random.tcl}
+      packages: {{simulation::annealing 0.2} {simulation::montecarlo 0.1} {simulation::random 0.3.1}}
+    }
+    smtpd {
+      name: smtpd
+      path: modules/smtpd
+      class: tcl
+      sources: smtpd.tcl
+      packages: {{smtpd 1.5}}
+    }
+    snit {
+      name: snit
+      path: modules/snit
+      class: tcl
+      sources: {main1.tcl main1_83.tcl main2.tcl snit.tcl snit2.tcl snit_tcl83_utils.tcl validate.tcl}
+      packages: {{snit 1.4.2} {snit 2.3.2}}
+    }
+    soundex {
+      name: soundex
+      path: modules/soundex
+      class: tcl
+      sources: soundex.tcl
+      packages: {{soundex 1.0}}
+    }
+    stooop {
+      name: stooop
+      path: modules/stooop
+      class: tcl
+      sources: {mkpkgidx.tcl stooop.tcl switched.tcl xifo.tcl}
+      packages: {{stooop 4.4.1} {switched 2.2.1}}
+    }
+    string {
+      name: string
+      path: modules/string
+      class: tcl
+      sources: {token.tcl token_shell.tcl}
+      packages: {{string::token 1} {string::token::shell 1.2}}
+    }
+    stringprep {
+      name: stringprep
+      path: modules/stringprep
+      class: tcl
+      sources: {stringprep.tcl stringprep_data.tcl unicode.tcl unicode_data.tcl}
+      packages: {{stringprep 1.0.1} {stringprep::data 1.0.1} {unicode 1.0.0} {unicode::data 1.0.0}}
+    }
+    struct {
+      name: struct
+      path: modules/struct
+      class: tcl
+      require: {{Tcl 8.4} struct::list struct::set {Tcl 8.5} {TclOO 0.6.1-} {Tcl 8.0} {Tcl 8.5} {TclOO 0.6.1-} {Tcl 8.2} struct::list}
+      sources: {disjointset.tcl graph.tcl graph1.tcl graph_c.tcl graph_tcl.tcl graphops.tcl list.tcl matrix.tcl matrix1.tcl pool.tcl prioqueue.tcl queue.tcl queue_c.tcl queue_oo.tcl queue_tcl.tcl record.tcl sets.tcl sets_c.tcl sets_tcl.tcl skiplist.tcl stack.tcl stack_c.tcl stack_oo.tcl stack_tcl.tcl struct.tcl struct1.tcl tree.tcl tree1.tcl tree_c.tcl tree_tcl.tcl}
+      packages: {{struct::disjointset 1.0} {struct::graph 2.4} {struct::graph 1.2.1} {struct_graphc 2.1} {struct::graph::op 0.11.3} {struct::list 1.8.3} {struct::matrix 2.0.3} {struct::matrix 1.2.1} {struct::pool 1.2.3} {struct::prioqueue 1.4} {struct::queue 1.4.5} {struct_queuec 1.3.1} {struct::record 1.2.1} {struct::set 2.2.3} {struct_setc 2.1.1} {struct::skiplist 1.3} {struct::stack 1.5.3} {struct_stackc 1.3.1} {struct 2.1} {struct 1.4} {struct::tree 2.1.2} {struct::tree 1.2.2} {struct_treec 2.1.1}}
+    }
+    tar {
+      name: tar
+      path: modules/tar
+      class: tcl
+      sources: tar.tcl
+      packages: {{tar 0.10}}
+    }
+    tcllibc.tcl {
+      name: tcllibc.tcl
+      path: modules/tcllibc.tcl
+      class: tcl
+      sources: {}
+    }
+    tepam {
+      name: tepam
+      path: modules/tepam
+      class: tcl
+      sources: {tepam.tcl tepam_doc_gen.tcl}
+      packages: {{tepam 0.5} {tepam::doc_gen 0.1.1}}
+    }
+    term {
+      name: term
+      path: modules/term
+      class: tcl
+      sources: {bind.tcl imenu.tcl ipager.tcl receive.tcl send.tcl term.tcl}
+      packages: {{term::receive::bind 0.1} {term::interact::menu 0.1} {term::interact::pager 0.1} {term::receive 0.1} {term::send 0.1} {term 0.1}}
+    }
+    textutil {
+      name: textutil
+      path: modules/textutil
+      class: tcl
+      sources: {adjust.tcl expander.tcl repeat.tcl split.tcl string.tcl tabify.tcl textutil.tcl trim.tcl}
+      packages: {{textutil::adjust 0.7.3} {textutil::expander 1.3.1} {textutil::repeat 0.7} {textutil::split 0.7} {textutil::string 0.8} {textutil::tabify 0.7} {textutil 0.8} {textutil::trim 0.7}}
+    }
+    tie {
+      name: tie
+      path: modules/tie
+      class: tcl
+      sources: {tie.tcl tie_array.tcl tie_dsource.tcl tie_file.tcl tie_growfile.tcl tie_log.tcl tie_rarray.tcl}
+      packages: {{tie 1.1} {tie::std::array 1.0} {tie::std::dsource 1.0} {tie::std::file 1.0.4} {tie::std::growfile 1.0} {tie::std::log 1.0} {tie::std::rarray 1.0}}
+    }
+    tiff {
+      name: tiff
+      path: modules/tiff
+      class: tcl
+      sources: tiff.tcl
+      packages: {{tiff 0.2.1}}
+    }
+    transfer {
+      name: transfer
+      path: modules/transfer
+      class: tcl
+      sources: {connect.tcl copyops.tcl ddest.tcl dsource.tcl receiver.tcl tqueue.tcl transmitter.tcl}
+      packages: {{transfer::connect 0.2} {transfer::copy 0.3} {transfer::data::destination 0.2} {transfer::data::source 0.2} {transfer::receiver 0.2} {transfer::copy::queue 0.1} {transfer::transmitter 0.2}}
+    }
+    treeql {
+      name: treeql
+      path: modules/treeql
+      class: tcl
+      require: {{Tcl 8.4} snit struct::list struct::set {Tcl 8.5} snit struct::list struct::set}
+      sources: {treeql.tcl treeql84.tcl treeql85.tcl}
+      packages: {{treeql 1.3.1}}
+    }
+    try {
+      name: try
+      path: modules/try
+      class: tcl
+      sources: {throw.tcl try.tcl}
+      packages: {{throw 1} {try 1}}
+    }
+    uev {
+      name: uev
+      path: modules/uev
+      class: tcl
+      sources: {uevent.tcl uevent_onidle.tcl}
+      packages: {{uevent 0.3.1} {uevent::onidle 0.1}}
+    }
+    units {
+      name: units
+      path: modules/units
+      class: tcl
+      sources: units.tcl
+      packages: {{units 2.1.1}}
+    }
+    uri {
+      name: uri
+      path: modules/uri
+      class: tcl
+      sources: {uri.tcl urn-scheme.tcl}
+      packages: {{uri 1.2.5} {uri::urn 1.0.3}}
+    }
+    uuid {
+      name: uuid
+      path: modules/uuid
+      class: tcl
+      sources: uuid.tcl
+      packages: {{uuid 1.0.5}}
+    }
+    valtype {
+      name: valtype
+      path: modules/valtype
+      class: tcl
+      sources: {cc_amex.tcl cc_discover.tcl cc_mastercard.tcl cc_visa.tcl ean13.tcl iban.tcl imei.tcl isbn.tcl luhn.tcl luhn5.tcl usnpi.tcl valtype.tcl verhoeff.tcl}
+      packages: {{valtype::creditcard::amex 1} {valtype::creditcard::discover 1} {valtype::creditcard::mastercard 1} {valtype::creditcard::visa 1} {valtype::gs1::ean13 1} {valtype::iban 1.5} {valtype::imei 1} {valtype::isbn 1} {valtype::luhn 1} {valtype::luhn5 1} {valtype::usnpi 1} {valtype::common 1} {valtype::verhoeff 1}}
+    }
+    virtchannel_base {
+      name: virtchannel_base
+      path: modules/virtchannel_base
+      class: tcl
+      sources: {cat.tcl facade.tcl fifo.tcl fifo2.tcl halfpipe.tcl memchan.tcl null.tcl nullzero.tcl random.tcl randseed.tcl std.tcl string.tcl textwindow.tcl variable.tcl zero.tcl}
+      packages: {{tcl::chan::cat 1.0.2} {tcl::chan::facade 1.0.1} {tcl::chan::fifo 1} {tcl::chan::fifo2 1} {tcl::chan::halfpipe 1} {tcl::chan::memchan 1.0.3} {tcl::chan::null 1} {tcl::chan::nullzero 1} {tcl::chan::random 1} {tcl::randomseed 1} {tcl::chan::std 1.0.1} {tcl::chan::string 1.0.2} {tcl::chan::textwindow 1} {tcl::chan::variable 1.0.3} {tcl::chan::zero 1}}
+    }
+    virtchannel_core {
+      name: virtchannel_core
+      path: modules/virtchannel_core
+      class: tcl
+      sources: {core.tcl events.tcl transformcore.tcl}
+      packages: {{tcl::chan::core 1} {tcl::chan::events 1} {tcl::transform::core 1}}
+    }
+    virtchannel_transform {
+      name: virtchannel_transform
+      path: modules/virtchannel_transform
+      class: tcl
+      sources: {adler32.tcl base64.tcl counter.tcl crc32.tcl hex.tcl identity.tcl limitsize.tcl observe.tcl otp.tcl rot.tcl spacer.tcl zlib.tcl}
+      packages: {{tcl::transform::adler32 1} {tcl::transform::base64 1} {tcl::transform::counter 1} {tcl::transform::crc32 1} {tcl::transform::hex 1} {tcl::transform::identity 1} {tcl::transform::limitsize 1} {tcl::transform::observe 1} {tcl::transform::otp 1} {tcl::transform::rot 1} {tcl::transform::spacer 1} {tcl::transform::zlib 1.0.1}}
+    }
+    websocket {
+      name: websocket
+      path: modules/websocket
+      class: tcl
+      sources: websocket.tcl
+      packages: {{websocket 1.4}}
+    }
+    wip {
+      name: wip
+      path: modules/wip
+      class: tcl
+      sources: {wip.tcl wip2.tcl}
+      packages: {{wip 1.2} {wip 2.2}}
+    }
+    yaml {
+      name: yaml
+      path: modules/yaml
+      class: tcl
+      sources: {huddle.tcl yaml.tcl}
+      packages: {{huddle 0.1.5} {yaml 0.3.7}}
+    }
+    zip {
+      name: zip
+      path: modules/zip
+      class: tcl
+      sources: {decode.tcl encode.tcl mkzip.tcl}
+      packages: {{zipfile::decode 0.7} {zipfile::encode 0.3} {zipfile::mkzip 1.2}}
+    }
+  }
+  package/ {
+    {nns 1.2} {
+      file: nns
+      name: nns
+      version: 1.2
+      application: nns
+    }
+    {nnsd 1.0.1} {
+      file: nnsd
+      name: nnsd
+      version: 1.0.1
+      application: nnsd
+    }
+    {nnslog 1.0} {
+      file: nnslog
+      name: nnslog
+      version: 1.0
+      application: nnslog
+    }
+    {page 1.0} {
+      file: page
+      name: page
+      version: 1.0
+      application: page
+    }
+    {tcldocstrip 1.0.1} {
+      file: tcldocstrip
+      name: tcldocstrip
+      version: 1.0.1
+      application: tcldocstrip
+    }
+    {aes 1.2.1} {
+      file: aes.tcl
+      require: {{Tcl 8.5}}
+      name: aes
+      version: 1.2.1
+      module: aes
+    }
+    {S3 1.0.3} {
+      file: S3.tcl
+      require: {{Tcl 8.5} xsxp sha1 md5 base64}
+      name: S3
+      version: 1.0.3
+      module: amazon-s3
+    }
+    {xsxp 1.0} {
+      file: xsxp.tcl
+      require: xml
+      name: xsxp
+      version: 1.0
+      module: amazon-s3
+    }
+    {asn 0.8.4} {
+      file: asn.tcl
+      require: {{Tcl 8.4}}
+      name: asn
+      version: 0.8.4
+      module: asn
+    }
+    {base32 0.1} {
+      file: base32.tcl
+      require: {{Tcl 8.4}}
+      name: base32
+      version: 0.1
+      module: base32
+    }
+    {base32::core 0.1} {
+      file: base32core.tcl
+      name: base32::core
+      version: 0.1
+      module: base32
+    }
+    {base32::hex 0.1} {
+      file: base32hex.tcl
+      require: {{Tcl 8.4}}
+      name: base32::hex
+      version: 0.1
+      module: base32
+    }
+    {ascii85 1.0} {
+      file: ascii85.tcl
+      require: {{Tcl 8.4}}
+      name: ascii85
+      version: 1.0
+      module: base64
+    }
+    {base64 2.4.2} {
+      file: base64.tcl
+      require: {{Tcl 8.2}}
+      name: base64
+      version: 2.4.2
+      module: base64
+    }
+    {base64c 0.1.0} {
+      file: base64c.tcl
+      require: critcl
+      name: base64c
+      version: 0.1.0
+      module: base64
+    }
+    {uuencode 1.1.5} {
+      file: uuencode.tcl
+      require: {{Tcl 8.2}}
+      name: uuencode
+      version: 1.1.5
+      module: base64
+    }
+    {yencode 1.1.3} {
+      file: yencode.tcl
+      require: {{Tcl 8.2}}
+      name: yencode
+      version: 1.1.3
+      module: base64
+    }
+    {bee 0.1} {
+      file: bee.tcl
+      require: {{Tcl 8.4}}
+      name: bee
+      version: 0.1
+      module: bee
+    }
+    {bench 0.4} {
+      file: bench.tcl
+      require: {{Tcl 8.2} logger csv struct::matrix report}
+      name: bench
+      version: 0.4
+      module: bench
+    }
+    {bench::in 0.1} {
+      file: bench_read.tcl
+      require: {{Tcl 8.2} csv}
+      name: bench::in
+      version: 0.1
+      module: bench
+    }
+    {bench::out::csv 0.1.2} {
+      file: bench_wcsv.tcl
+      require: {{Tcl 8.2} csv}
+      name: bench::out::csv
+      version: 0.1.2
+      module: bench
+    }
+    {bench::out::text 0.1.2} {
+      file: bench_wtext.tcl
+      require: {{Tcl 8.2} struct::matrix report}
+      name: bench::out::text
+      version: 0.1.2
+      module: bench
+    }
+    {bibtex 0.6} {
+      file: bibtex.tcl
+      require: {{Tcl 8.4} cmdline}
+      name: bibtex
+      version: 0.6
+      module: bibtex
+    }
+    {blowfish 1.0.4} {
+      file: blowfish.tcl
+      require: {{Tcl 8.2}}
+      name: blowfish
+      version: 1.0.4
+      module: blowfish
+    }
+    {cache::async 0.3} {
+      file: async.tcl
+      require: {{Tcl 8.4} snit}
+      name: cache::async
+      version: 0.3
+      module: cache
+    }
+    {clock::iso8601 0.1} {
+      file: iso8601.tcl
+      require: {{Tcl 8.5}}
+      name: clock::iso8601
+      version: 0.1
+      module: clock
+    }
+    {clock::rfc2822 0.1} {
+      file: rfc2822.tcl
+      require: {{Tcl 8.5}}
+      name: clock::rfc2822
+      version: 0.1
+      module: clock
+    }
+    {cmdline 1.5} {
+      file: cmdline.tcl
+      require: {{Tcl 8.2}}
+      name: cmdline
+      version: 1.5
+      module: cmdline
+    }
+    {codebale::autodoc 0.1} {
+      file: autodoc.tcl
+      name: codebale::autodoc
+      version: 0.1
+      module: codebale
+    }
+    {codebale 0.2} {
+      file: index.tcl
+      name: codebale
+      version: 0.2
+      require: {odie fileutil}
+      module: codebale
+    }
+    {comm 4.6.3.1} {
+      file: comm.tcl
+      require: {{Tcl 8.3} snit}
+      name: comm
+      version: 4.6.3.1
+      module: comm
+    }
+    {coroutine::auto 1.1.3} {
+      file: coro_auto.tcl
+      require: {{Tcl 8.6} coroutine}
+      name: coroutine::auto
+      version: 1.1.3
+      module: coroutine
+    }
+    {coroutine 1.1.3} {
+      file: coroutine.tcl
+      require: {{Tcl 8.6}}
+      name: coroutine
+      version: 1.1.3
+      module: coroutine
+    }
+    {counter 2.0.4} {
+      file: counter.tcl
+      require: {{Tcl 8.2}}
+      name: counter
+      version: 2.0.4
+      module: counter
+    }
+    {cksum 1.1.4} {
+      file: cksum.tcl
+      require: {{Tcl 8.2}}
+      name: cksum
+      version: 1.1.4
+      module: crc
+    }
+    {crc16 1.1.2} {
+      file: crc16.tcl
+      require: {{Tcl 8.2}}
+      name: crc16
+      version: 1.1.2
+      module: crc
+    }
+    {crc32 1.3.2} {
+      file: crc32.tcl
+      require: {{Tcl 8.2}}
+      name: crc32
+      version: 1.3.2
+      module: crc
+    }
+    {crcc 1.0.0} {
+      file: crcc.tcl
+      require: critcl
+      name: crcc
+      version: 1.0.0
+      module: crc
+    }
+    {sum 1.1.2} {
+      file: sum.tcl
+      require: {{Tcl 8.2}}
+      name: sum
+      version: 1.1.2
+      module: crc
+    }
+    {cron 1.1} {
+      file: cron.tcl
+      name: cron
+      version: 1.1
+      module: cron
+    }
+    {csv 0.8} {
+      file: csv.tcl
+      require: {{Tcl 8.4}}
+      name: csv
+      version: 0.8
+      module: csv
+    }
+    {debug::caller 1} {
+      file: caller.tcl
+      require: {{Tcl 8.5} debug}
+      name: debug::caller
+      version: 1
+      module: debug
+    }
+    {debug 1.0.5} {
+      file: debug.tcl
+      require: {{Tcl 8.5}}
+      name: debug
+      version: 1.0.5
+      module: debug
+    }
+    {debug::heartbeat 1} {
+      file: heartbeat.tcl
+      require: {{Tcl 8.5} debug}
+      name: debug::heartbeat
+      version: 1
+      module: debug
+    }
+    {debug::timestamp 1} {
+      file: timestamp.tcl
+      require: {{Tcl 8.5} debug}
+      name: debug::timestamp
+      version: 1
+      module: debug
+    }
+    {des 1.1.0} {
+      file: des.tcl
+      require: {{Tcl 8.2}}
+      name: des
+      version: 1.1.0
+      module: des
+    }
+    {tclDES 1.0.0} {
+      file: tcldes.tcl
+      name: tclDES
+      version: 1.0.0
+      module: des
+    }
+    {tclDESjr 1.0.0} {
+      file: tcldesjr.tcl
+      name: tclDESjr
+      version: 1.0.0
+      module: des
+    }
+    {tcllib::testutils 1.2} {
+      file: testutilities.tcl
+      name: tcllib::testutils
+      version: 1.2
+      module: devtools
+    }
+    {dns 1.3.5} {
+      file: dns.tcl
+      require: {{Tcl 8.2} logger uri uri::urn ip}
+      name: dns
+      version: 1.3.5
+      module: dns
+    }
+    {ip 1.3} {
+      file: ip.tcl
+      require: {{Tcl 8.2}}
+      name: ip
+      version: 1.3
+      module: dns
+    }
+    {ipMorec 1.0} {
+      file: ipMoreC.tcl
+      require: critcl
+      name: ipMorec
+      version: 1.0
+      module: dns
+    }
+    {resolv 1.0.3} {
+      file: resolv.tcl
+      require: {{dns 1.0}}
+      name: resolv
+      version: 1.0.3
+      module: dns
+    }
+    {spf 1.1.1} {
+      file: spf.tcl
+      require: {{Tcl 8.2} dns logger ip struct::list uri::urn}
+      name: spf
+      version: 1.1.1
+      module: dns
+    }
+    {docstrip 1.2} {
+      file: docstrip.tcl
+      require: {{Tcl 8.4}}
+      name: docstrip
+      version: 1.2
+      module: docstrip
+    }
+    {docstrip::util 1.3} {
+      file: docstrip_util.tcl
+      require: {{Tcl 8.4} {docstrip 1.2}}
+      name: docstrip::util
+      version: 1.3
+      module: docstrip
+    }
+    {doctools::changelog 1.1} {
+      file: changelog.tcl
+      require: {{Tcl 8.2} textutil}
+      name: doctools::changelog
+      version: 1.1
+      module: doctools
+    }
+    {doctools::cvs 1} {
+      file: cvs.tcl
+      require: {{Tcl 8.2} textutil}
+      name: doctools::cvs
+      version: 1
+      module: doctools
+    }
+    {doctools::idx 1.0.5} {
+      file: docidx.tcl
+      require: {{Tcl 8.2} textutil::expander}
+      name: doctools::idx
+      version: 1.0.5
+      module: doctools
+    }
+    {doctools::toc 1.1.4} {
+      file: doctoc.tcl
+      require: {{Tcl 8.2} textutil::expander}
+      name: doctools::toc
+      version: 1.1.4
+      module: doctools
+    }
+    {doctools 1.4.19} {
+      file: doctools.tcl
+      require: {{Tcl 8.2} textutil::expander}
+      name: doctools
+      version: 1.4.19
+      module: doctools
+    }
+    {doctools::config 0.1} {
+      file: config.tcl
+      require: {{Tcl 8.4} snit}
+      name: doctools::config
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::html 0.1} {
+      file: html.tcl
+      require: {{Tcl 8.4} doctools::text}
+      name: doctools::html
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::html::cssdefaults 0.1} {
+      file: html_cssdefaults.tcl
+      require: {{Tcl 8.4}}
+      name: doctools::html::cssdefaults
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::msgcat 0.1} {
+      file: msgcat.tcl
+      require: {{Tcl 8.4} msgcat}
+      name: doctools::msgcat
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::nroff::man_macros 0.1} {
+      file: nroff_manmacros.tcl
+      require: {{Tcl 8.4}}
+      name: doctools::nroff::man_macros
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::paths 0.1} {
+      file: paths.tcl
+      require: {{Tcl 8.4} snit}
+      name: doctools::paths
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::tcl::parse 0.1} {
+      file: tcl_parse.tcl
+      require: {{Tcl 8.4} snit fileutil logger struct::list struct::stack struct::set treeql}
+      name: doctools::tcl::parse
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::text 0.1} {
+      file: text.tcl
+      require: {{Tcl 8.4}}
+      name: doctools::text
+      version: 0.1
+      module: doctools2base
+    }
+    {doctools::idx 2} {
+      file: container.tcl
+      require: {{Tcl 8.4} doctools::idx::structure snit}
+      name: doctools::idx
+      version: 2
+      module: doctools2idx
+    }
+    {doctools::idx::export 0.1} {
+      file: export.tcl
+      require: {{Tcl 8.4} doctools::config doctools::idx::structure pluginmgr snit}
+      name: doctools::idx::export
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::export::docidx 0.1} {
+      file: export_docidx.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure}
+      name: doctools::idx::export::docidx
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::export::html 0.2} {
+      file: export_html.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure doctools::html doctools::html::cssdefaults}
+      name: doctools::idx::export::html
+      version: 0.2
+      module: doctools2idx
+    }
+    {doctools::idx::export::json 0.1} {
+      file: export_json.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure textutil::adjust}
+      name: doctools::idx::export::json
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::export::nroff 0.3} {
+      file: export_nroff.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure doctools::text doctools::nroff::man_macros}
+      name: doctools::idx::export::nroff
+      version: 0.3
+      module: doctools2idx
+    }
+    {doctools::idx::export::text 0.2} {
+      file: export_text.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure doctools::text}
+      name: doctools::idx::export::text
+      version: 0.2
+      module: doctools2idx
+    }
+    {doctools::idx::export::wiki 0.2} {
+      file: export_wiki.tcl
+      require: {{Tcl 8.4} doctools::idx::export::plugin doctools::idx::structure doctools::text}
+      name: doctools::idx::export::wiki
+      version: 0.2
+      module: doctools2idx
+    }
+    {doctools::idx::import 0.1} {
+      file: import.tcl
+      require: {{Tcl 8.4} doctools::config doctools::idx::structure doctools::paths pluginmgr snit}
+      name: doctools::idx::import
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::import::docidx 0.1} {
+      file: import_docidx.tcl
+      require: {{Tcl 8.4} doctools::idx::import::plugin doctools::idx::parse}
+      name: doctools::idx::import::docidx
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::import::json 0.1} {
+      file: import_json.tcl
+      require: {{Tcl 8.4} doctools::idx::import::plugin doctools::idx::structure json}
+      name: doctools::idx::import::json
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::msgcat::idx::c 0.1} {
+      file: msgcat_c.tcl
+      require: msgcat
+      name: doctools::msgcat::idx::c
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::msgcat::idx::de 0.1} {
+      file: msgcat_de.tcl
+      require: msgcat
+      name: doctools::msgcat::idx::de
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::msgcat::idx::en 0.1} {
+      file: msgcat_en.tcl
+      require: msgcat
+      name: doctools::msgcat::idx::en
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::msgcat::idx::fr 0.1} {
+      file: msgcat_fr.tcl
+      require: msgcat
+      name: doctools::msgcat::idx::fr
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::parse 0.1} {
+      file: parse.tcl
+      require: {{Tcl 8.4} doctools::idx::structure doctools::msgcat doctools::tcl::parse fileutil logger snit struct::list struct::tree}
+      name: doctools::idx::parse
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::idx::structure 0.1} {
+      file: structure.tcl
+      require: {{Tcl 8.4} snit}
+      name: doctools::idx::structure
+      version: 0.1
+      module: doctools2idx
+    }
+    {doctools::toc 2} {
+      file: container.tcl
+      require: {{Tcl 8.4} doctools::toc::structure snit struct::tree}
+      name: doctools::toc
+      version: 2
+      module: doctools2toc
+    }
+    {doctools::toc::export 0.1} {
+      file: export.tcl
+      require: {{Tcl 8.4} doctools::config doctools::toc::structure pluginmgr snit}
+      name: doctools::toc::export
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::export::doctoc 0.1} {
+      file: export_doctoc.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure}
+      name: doctools::toc::export::doctoc
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::export::html 0.1} {
+      file: export_html.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure doctools::html doctools::html::cssdefaults}
+      name: doctools::toc::export::html
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::export::json 0.1} {
+      file: export_json.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure textutil::adjust}
+      name: doctools::toc::export::json
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::export::nroff 0.2} {
+      file: export_nroff.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure doctools::text doctools::nroff::man_macros}
+      name: doctools::toc::export::nroff
+      version: 0.2
+      module: doctools2toc
+    }
+    {doctools::toc::export::text 0.1} {
+      file: export_text.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure doctools::text}
+      name: doctools::toc::export::text
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::export::wiki 0.1} {
+      file: export_wiki.tcl
+      require: {{Tcl 8.4} doctools::toc::export::plugin doctools::toc::structure doctools::text}
+      name: doctools::toc::export::wiki
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::import 0.1} {
+      file: import.tcl
+      require: {{Tcl 8.4} doctools::config doctools::toc::structure doctools::paths pluginmgr snit}
+      name: doctools::toc::import
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::import::doctoc 0.1} {
+      file: import_doctoc.tcl
+      require: {{Tcl 8.4} doctools::toc::import::plugin doctools::toc::parse}
+      name: doctools::toc::import::doctoc
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::import::json 0.1} {
+      file: import_json.tcl
+      require: {{Tcl 8.4} doctools::toc::import::plugin doctools::toc::structure json}
+      name: doctools::toc::import::json
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::msgcat::toc::c 0.1} {
+      file: msgcat_c.tcl
+      require: msgcat
+      name: doctools::msgcat::toc::c
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::msgcat::toc::de 0.1} {
+      file: msgcat_de.tcl
+      require: msgcat
+      name: doctools::msgcat::toc::de
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::msgcat::toc::en 0.1} {
+      file: msgcat_en.tcl
+      require: msgcat
+      name: doctools::msgcat::toc::en
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::msgcat::toc::fr 0.1} {
+      file: msgcat_fr.tcl
+      require: msgcat
+      name: doctools::msgcat::toc::fr
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::parse 0.1} {
+      file: parse.tcl
+      require: {{Tcl 8.4} doctools::toc::structure doctools::msgcat doctools::tcl::parse fileutil logger snit struct::list struct::tree}
+      name: doctools::toc::parse
+      version: 0.1
+      module: doctools2toc
+    }
+    {doctools::toc::structure 0.1} {
+      file: structure.tcl
+      require: {{Tcl 8.4} snit}
+      name: doctools::toc::structure
+      version: 0.1
+      module: doctools2toc
+    }
+    {dtplite 1.2} {
+      file: dtplite.tcl
+      name: dtplite
+      version: 1.2
+      require: {{doctools 1.4.11} {doctools::idx 1.0.4} {doctools::toc 1.1.3} fileutil textutil::repeat}
+      module: dtplite
+    }
+    {exif 1.1.2} {
+      file: exif.tcl
+      require: {{Tcl 8.3}}
+      name: exif
+      version: 1.1.2
+      module: exif
+    }
+    {fileutil::decode 0.2} {
+      file: decode.tcl
+      require: {{Tcl 8.4}}
+      name: fileutil::decode
+      version: 0.2
+      module: fileutil
+    }
+    {fileutil 1.15} {
+      file: fileutil.tcl
+      require: {{Tcl 8.2} cmdline}
+      name: fileutil
+      version: 1.15
+      module: fileutil
+    }
+    {fileutil::multi 0.1} {
+      file: multi.tcl
+      require: fileutil::multi::op
+      name: fileutil::multi
+      version: 0.1
+      module: fileutil
+    }
+    {fileutil::multi::op 0.5.3} {
+      file: multiop.tcl
+      require: {fileutil snit struct::stack wip}
+      name: fileutil::multi::op
+      version: 0.5.3
+      module: fileutil
+    }
+    {fileutil::traverse 0.5} {
+      file: traverse.tcl
+      require: {{Tcl 8.3} control fileutil}
+      name: fileutil::traverse
+      version: 0.5
+      module: fileutil
+    }
+    {ftp {[lindex}} {
+      file: ftp.tcl
+      require: {{Tcl 8.2} log}
+      name: ftp
+      version: {[lindex}
+      module: ftp
+    }
+    {ftp::geturl {[lindex}} {
+      file: ftp_geturl.tcl
+      require: {ftp uri}
+      name: ftp::geturl
+      version: {[lindex}
+      module: ftp
+    }
+    {ftpd 1.2.6} {
+      file: ftpd.tcl
+      require: {{Tcl 8.2}}
+      name: ftpd
+      version: 1.2.6
+      module: ftpd
+    }
+    {fileutil::magic::cfront 1.0} {
+      file: cfront.tcl
+      require: {{Tcl 8.4} fileutil fileutil::magic::cgen fileutil::magic::rt struct::list}
+      name: fileutil::magic::cfront
+      version: 1.0
+      module: fumagic
+    }
+    {fileutil::magic::cgen 1.0} {
+      file: cgen.tcl
+      require: {{Tcl 8.4} fileutil::magic::rt struct::list struct::tree}
+      name: fileutil::magic::cgen
+      version: 1.0
+      module: fumagic
+    }
+    {fileutil::magic::filetype 1.0.2} {
+      file: filetypes.tcl
+      require: {{Tcl 8.4} fileutil::magic::rt fileutil::magic::rt}
+      name: fileutil::magic::filetype
+      version: 1.0.2
+      module: fumagic
+    }
+    {fileutil::magic::mimetype 1.0.2} {
+      file: mimetypes.tcl
+      require: {{Tcl 8.4} fileutil::magic::rt fileutil::magic::rt}
+      name: fileutil::magic::mimetype
+      version: 1.0.2
+      module: fumagic
+    }
+    {fileutil::magic::rt 1.0} {
+      file: rtcore.tcl
+      require: {{Tcl 8.4}}
+      name: fileutil::magic::rt
+      version: 1.0
+      module: fumagic
+    }
+    {generator 0.1} {
+      file: generator.tcl
+      require: {{Tcl 8.6}}
+      name: generator
+      version: 0.1
+      module: generator
+    }
+    {gpx 1} {
+      file: gpx.tcl
+      require: {{Tcl 8.5} tdom}
+      name: gpx
+      version: 1
+      module: gpx
+    }
+    {grammar::aycock 1.0} {
+      file: aycock-build.tcl
+      name: grammar::aycock
+      version: 1.0
+      require: {{Tcl 8.4} {grammar::aycock::debug 1.0}}
+      module: grammar_aycock
+    }
+    {grammar::aycock::debug 1.0} {
+      file: aycock-debug.tcl
+      name: grammar::aycock::debug
+      version: 1.0
+      require: {{Tcl 8.4} {grammar::aycock::runtime 1.0}}
+      module: grammar_aycock
+    }
+    {grammar::aycock::runtime 1.0} {
+      file: aycock-runtime.tcl
+      name: grammar::aycock::runtime
+      version: 1.0
+      require: {{Tcl 8.5}}
+      module: grammar_aycock
+    }
+    {grammar::fa::dacceptor 0.1.1} {
+      file: dacceptor.tcl
+      require: {snit struct::set}
+      name: grammar::fa::dacceptor
+      version: 0.1.1
+      module: grammar_fa
+    }
+    {grammar::fa::dexec 0.2} {
+      file: dexec.tcl
+      require: snit
+      name: grammar::fa::dexec
+      version: 0.2
+      module: grammar_fa
+    }
+    {grammar::fa 0.5} {
+      file: fa.tcl
+      require: {{Tcl 8.4} grammar::fa::op struct::list struct::set}
+      name: grammar::fa
+      version: 0.5
+      module: grammar_fa
+    }
+    {grammar::fa::op 0.4.1} {
+      file: faop.tcl
+      require: {struct::list struct::set}
+      name: grammar::fa::op
+      version: 0.4.1
+      module: grammar_fa
+    }
+    {grammar::me::cpu::gasm 0.1} {
+      file: gasm.tcl
+      name: grammar::me::cpu::gasm
+      version: 0.1
+      module: grammar_me
+    }
+    {grammar::me::cpu 0.2} {
+      file: me_cpu.tcl
+      require: {snit grammar::me::cpu::core}
+      name: grammar::me::cpu
+      version: 0.2
+      module: grammar_me
+    }
+    {grammar::me::cpu::core 0.2} {
+      file: me_cpucore.tcl
+      name: grammar::me::cpu::core
+      version: 0.2
+      module: grammar_me
+    }
+    {grammar::me::tcl 0.1} {
+      file: me_tcl.tcl
+      name: grammar::me::tcl
+      version: 0.1
+      module: grammar_me
+    }
+    {grammar::me::util 0.1} {
+      file: me_util.tcl
+      name: grammar::me::util
+      version: 0.1
+      module: grammar_me
+    }
+    {grammar::peg 0.2} {
+      file: peg.tcl
+      require: snit
+      name: grammar::peg
+      version: 0.2
+      module: grammar_peg
+    }
+    {grammar::peg::interp 0.1.1} {
+      file: peg_interp.tcl
+      require: grammar::me::tcl
+      name: grammar::peg::interp
+      version: 0.1.1
+      module: grammar_peg
+    }
+    {hook 0.1} {
+      file: hook.tcl
+      name: hook
+      version: 0.1
+      module: hook
+    }
+    {html 1.4.4} {
+      file: html.tcl
+      require: {{Tcl 8.2} ncgi}
+      name: html
+      version: 1.4.4
+      module: html
+    }
+    {htmlparse 1.2.1} {
+      file: htmlparse.tcl
+      require: {{Tcl 8.2} struct::stack {cmdline 1.1}}
+      name: htmlparse
+      version: 1.2.1
+      module: htmlparse
+    }
+    {autoproxy 1.5.3} {
+      file: autoproxy.tcl
+      require: {http uri base64}
+      name: autoproxy
+      version: 1.5.3
+      module: http
+    }
+    {httpd 0.1} {
+      file: httpd.tcl
+      require: {uri oo::meta nettool cron}
+      name: httpd
+      version: 0.1
+      module: httpd
+    }
+    {ident 0.42} {
+      file: ident.tcl
+      name: ident
+      version: 0.42
+      module: ident
+    }
+    {imap4 0.5.2} {
+      file: imap4.tcl
+      require: {{Tcl 8.5}}
+      name: imap4
+      version: 0.5.2
+      module: imap4
+    }
+    {inifile 0.3} {
+      file: ini.tcl
+      name: inifile
+      version: 0.3
+      module: inifile
+    }
+    {interp::delegate::method 0.2} {
+      file: deleg_method.tcl
+      require: {{Tcl 8.3} snit}
+      name: interp::delegate::method
+      version: 0.2
+      module: interp
+    }
+    {interp::delegate::proc 0.2} {
+      file: deleg_proc.tcl
+      require: {{Tcl 8.3}}
+      name: interp::delegate::proc
+      version: 0.2
+      module: interp
+    }
+    {interp 0.1.2} {
+      file: interp.tcl
+      require: {{Tcl 8.3}}
+      name: interp
+      version: 0.1.2
+      module: interp
+    }
+    {irc 0.6.1} {
+      file: irc.tcl
+      require: {{Tcl 8.3}}
+      name: irc
+      version: 0.6.1
+      module: irc
+    }
+    {picoirc 0.5.1} {
+      file: picoirc.tcl
+      name: picoirc
+      version: 0.5.1
+      module: irc
+    }
+    {javascript 1.0.2} {
+      file: javascript.tcl
+      require: {{Tcl 8} {ncgi 1}}
+      name: javascript
+      version: 1.0.2
+      module: javascript
+    }
+    {jpeg 0.5} {
+      file: jpeg.tcl
+      name: jpeg
+      version: 0.5
+      module: jpeg
+    }
+    {json 1.3.3} {
+      file: json.tcl
+      require: {{Tcl 8.4}}
+      name: json
+      version: 1.3.3
+      module: json
+    }
+    {json::write 1.0.3} {
+      file: json_write.tcl
+      require: {{Tcl 8.5}}
+      name: json::write
+      version: 1.0.3
+      module: json
+    }
+    {jsonc 1.1.2} {
+      file: jsonc.tcl
+      require: {critcl {Tcl 8.4}}
+      name: jsonc
+      version: 1.1.2
+      module: json
+    }
+    {lambda 1} {
+      file: lambda.tcl
+      require: {{Tcl 8.5}}
+      name: lambda
+      version: 1
+      module: lambda
+    }
+    {ldap 1.8} {
+      file: ldap.tcl
+      require: {{Tcl 8.4} {asn 0.7}}
+      name: ldap
+      version: 1.8
+      module: ldap
+    }
+    {ldapx 1.0} {
+      file: ldapx.tcl
+      require: {{Tcl 8.4} snit {uri 1.1.5} base64 {ldap 1.6}}
+      name: ldapx
+      version: 1.0
+      module: ldap
+    }
+    {log 1.3} {
+      file: log.tcl
+      require: {{Tcl 8}}
+      name: log
+      version: 1.3
+      module: log
+    }
+    {logger 0.9.4} {
+      file: logger.tcl
+      require: {{Tcl 8.2}}
+      name: logger
+      version: 0.9.4
+      module: log
+    }
+    {logger::appender 1.3} {
+      file: loggerAppender.tcl
+      require: md5
+      name: logger::appender
+      version: 1.3
+      module: log
+    }
+    {logger::utils 1.3} {
+      file: loggerUtils.tcl
+      require: {{Tcl 8.4} logger logger::appender msgcat}
+      name: logger::utils
+      version: 1.3
+      module: log
+    }
+    {map::geocode::nominatim 0.1} {
+      file: map_geocode_nominatim.tcl
+      require: {{Tcl 8.5} http json uri snit}
+      name: map::geocode::nominatim
+      version: 0.1
+      module: map
+    }
+    {map::slippy 0.5} {
+      file: map_slippy.tcl
+      require: {{Tcl 8.4} snit math::constants}
+      name: map::slippy
+      version: 0.5
+      module: map
+    }
+    {map::slippy::cache 0.2} {
+      file: map_slippy_cache.tcl
+      require: {{Tcl 8.4} Tk map::slippy fileutil img::png snit}
+      name: map::slippy::cache
+      version: 0.2
+      module: map
+    }
+    {map::slippy::fetcher 0.3} {
+      file: map_slippy_fetcher.tcl
+      require: {{Tcl 8.4} Tk img::png map::slippy http snit}
+      name: map::slippy::fetcher
+      version: 0.3
+      module: map
+    }
+    {mapproj 1.0} {
+      file: mapproj.tcl
+      require: {{Tcl 8.4} {math::interpolate 1.0} {math::special 0.2.1}}
+      name: mapproj
+      version: 1.0
+      module: mapproj
+    }
+    {Markdown 1.0} {
+      file: markdown.tcl
+      require: textutil
+      name: Markdown
+      version: 1.0
+      module: markdown
+    }
+    {math::bigfloat 1.2.2} {
+      file: bigfloat.tcl
+      require: {{Tcl 8.4} math::bignum}
+      name: math::bigfloat
+      version: 1.2.2
+      module: math
+    }
+    {math::bigfloat 2.0.2} {
+      file: bigfloat2.tcl
+      require: {{Tcl 8.5}}
+      name: math::bigfloat
+      version: 2.0.2
+      module: math
+    }
+    {math::bignum 3.1.1} {
+      file: bignum.tcl
+      require: {{Tcl 8.4}}
+      name: math::bignum
+      version: 3.1.1
+      module: math
+    }
+    {math::calculus 0.8.1} {
+      file: calculus.tcl
+      require: {{Tcl 8.4} math::interpolate}
+      name: math::calculus
+      version: 0.8.1
+      module: math
+    }
+    {math::constants 1.0.1} {
+      file: constants.tcl
+      require: {{Tcl 8.2}}
+      name: math::constants
+      version: 1.0.1
+      module: math
+    }
+    {math::decimal 1.0.3} {
+      file: decimal.tcl
+      require: {{Tcl 8.5}}
+      name: math::decimal
+      version: 1.0.3
+      module: math
+    }
+    {math::fourier 1.0.2} {
+      file: fourier.tcl
+      name: math::fourier
+      version: 1.0.2
+      module: math
+    }
+    {math::fuzzy 0.2.1} {
+      file: fuzzy.tcl
+      name: math::fuzzy
+      version: 0.2.1
+      module: math
+    }
+    {math::geometry 1.1.3} {
+      file: geometry.tcl
+      require: math
+      name: math::geometry
+      version: 1.1.3
+      module: math
+    }
+    {math::interpolate 1.1} {
+      file: interpolate.tcl
+      require: {{Tcl 8.4} struct::matrix}
+      name: math::interpolate
+      version: 1.1
+      module: math
+    }
+    {math::linearalgebra 1.1.5} {
+      file: linalg.tcl
+      require: {{Tcl 8.4}}
+      name: math::linearalgebra
+      version: 1.1.5
+      module: math
+    }
+    {math::machineparameters 0.1} {
+      file: machineparameters.tcl
+      require: snit
+      name: math::machineparameters
+      version: 0.1
+      module: math
+    }
+    {math::numtheory 1.0} {
+      file: numtheory.tcl
+      require: {{Tcl 8.5}}
+      name: math::numtheory
+      version: 1.0
+      module: math
+    }
+    {math::optimize 1.0.1} {
+      file: optimize.tcl
+      require: {{Tcl 8.4}}
+      name: math::optimize
+      version: 1.0.1
+      module: math
+    }
+    {math::polynomials 1.0.1} {
+      file: polynomials.tcl
+      name: math::polynomials
+      version: 1.0.1
+      module: math
+    }
+    {math::complexnumbers 1.0.2} {
+      file: qcomplex.tcl
+      name: math::complexnumbers
+      version: 1.0.2
+      module: math
+    }
+    {math::rationalfunctions 1.0.1} {
+      file: rational_funcs.tcl
+      require: math::polynomials
+      name: math::rationalfunctions
+      version: 1.0.1
+      module: math
+    }
+    {math::roman 1.0} {
+      file: romannumerals.tcl
+      name: math::roman
+      version: 1.0
+      module: math
+    }
+    {math::special 0.3.0} {
+      file: special.tcl
+      require: {math math::constants math::statistics}
+      name: math::special
+      version: 0.3.0
+      module: math
+    }
+    {math::statistics 1.0} {
+      file: statistics.tcl
+      require: {{Tcl 8.4} math}
+      name: math::statistics
+      version: 1.0
+      module: math
+    }
+    {math::calculus::symdiff 1.0} {
+      file: symdiff.tcl
+      require: {{Tcl 8.4} {grammar::aycock 1.0}}
+      name: math::calculus::symdiff
+      version: 1.0
+      module: math
+    }
+    {md4 1.0.6} {
+      file: md4.tcl
+      require: {{Tcl 8.2}}
+      name: md4
+      version: 1.0.6
+      module: md4
+    }
+    {md4c 1.1.0} {
+      file: md4c.tcl
+      require: critcl
+      name: md4c
+      version: 1.1.0
+      module: md4
+    }
+    {md5 1.4.4} {
+      file: md5.tcl
+      require: {{Tcl 8.2}}
+      name: md5
+      version: 1.4.4
+      module: md5
+    }
+    {md5c 0.12} {
+      file: md5c.tcl
+      require: critcl
+      name: md5c
+      version: 0.12
+      module: md5
+    }
+    {md5 2.0.7} {
+      file: md5x.tcl
+      require: {{Tcl 8.2}}
+      name: md5
+      version: 2.0.7
+      module: md5
+    }
+    {md5crypt 1.1.0} {
+      file: md5crypt.tcl
+      require: {{Tcl 8.2} {md5 2}}
+      name: md5crypt
+      version: 1.1.0
+      module: md5crypt
+    }
+    {md5cryptc 1.0} {
+      file: md5cryptc.tcl
+      require: critcl
+      name: md5cryptc
+      version: 1.0
+      module: md5crypt
+    }
+    {mime 1.6} {
+      file: mime.tcl
+      require: {{Tcl 8.5}}
+      name: mime
+      version: 1.6
+      module: mime
+    }
+    {smtp 1.4.5} {
+      file: smtp.tcl
+      require: {{Tcl 8.3} {mime 1.4.1}}
+      name: smtp
+      version: 1.4.5
+      module: mime
+    }
+    {multiplexer 0.2} {
+      file: multiplexer.tcl
+      name: multiplexer
+      version: 0.2
+      require: logger
+      module: multiplexer
+    }
+    {namespacex 0.1} {
+      file: namespacex.tcl
+      require: {{Tcl 8.5}}
+      name: namespacex
+      version: 0.1
+      module: namespacex
+    }
+    {ncgi 1.4.3} {
+      file: ncgi.tcl
+      require: {{Tcl 8.4} fileutil uri}
+      name: ncgi
+      version: 1.4.3
+      module: ncgi
+    }
+    {nettool 0.5} {
+      file: nettool.tcl
+      require: {platform ip}
+      name: nettool
+      version: 0.5
+      module: nettool
+    }
+    {nettool::platform::windows 0.2} {
+      file: platform_windows.tcl
+      require: twapi
+      name: nettool::platform::windows
+      version: 0.2
+      module: nettool
+    }
+    {nmea 1.0.0} {
+      file: nmea.tcl
+      require: {{Tcl 8.4}}
+      name: nmea
+      version: 1.0.0
+      module: nmea
+    }
+    {nameserv::common 0.1} {
+      file: common.tcl
+      name: nameserv::common
+      version: 0.1
+      module: nns
+    }
+    {nameserv 0.4.2} {
+      file: nns.tcl
+      require: {{Tcl 8.4} comm interp logger nameserv::common snit uevent}
+      name: nameserv
+      version: 0.4.2
+      module: nns
+    }
+    {nameserv::auto 0.3} {
+      file: nns_auto.tcl
+      require: {{nameserv 0.4.1} uevent}
+      name: nameserv::auto
+      version: 0.3
+      module: nns
+    }
+    {nameserv::cluster 0.2.3} {
+      file: nns_cluster.tcl
+      require: {{Tcl 8.5} comm interp logger uuid cron {nettool 0.4} udp}
+      name: nameserv::cluster
+      version: 0.2.3
+      module: nns
+    }
+    {nameserv::server 0.3.2} {
+      file: server.tcl
+      require: {{Tcl 8.4} comm interp logger nameserv::common}
+      name: nameserv::server
+      version: 0.3.2
+      module: nns
+    }
+    {nntp 0.2.1} {
+      file: nntp.tcl
+      require: {{Tcl 8.2}}
+      name: nntp
+      version: 0.2.1
+      module: nntp
+    }
+    {time 1.2.1} {
+      file: time.tcl
+      require: {{Tcl 8.0} log}
+      name: time
+      version: 1.2.1
+      module: ntp
+    }
+    {oauth 1} {
+      file: oauth.tcl
+      require: {{Tcl 8.5} http tls base64 sha1}
+      name: oauth
+      version: 1
+      module: oauth
+    }
+    {odie 0.2} {
+      file: index.tcl
+      name: odie
+      version: 0.2
+      module: odie
+    }
+    {listutil 1.7} {
+      file: listutil.tcl
+      name: listutil
+      version: 1.7
+      module: odie
+    }
+    {http::wget 0.1} {
+      file: urlget.tcl
+      name: http::wget
+      version: 0.1
+      require: http
+      module: odie
+    }
+    {oo::html 0.1} {
+      file: oohtml.tcl
+      require: {{Tcl 8.5} TclOO}
+      name: oo::html
+      version: 0.1
+      module: oohtml
+    }
+    {oo::meta 0.3} {
+      file: oometa.tcl
+      name: oo::meta
+      version: 0.3
+      module: ooutil
+    }
+    {oo::option 0.2} {
+      file: oooption.tcl
+      require: oo::meta
+      name: oo::option
+      version: 0.2
+      module: ooutil
+    }
+    {oo::properties 0.1} {
+      file: ooproperties.tcl
+      name: oo::properties
+      version: 0.1
+      module: ooutil
+    }
+    {oo::util 1.2.2} {
+      file: ooutil.tcl
+      require: {{Tcl 8.5} TclOO}
+      name: oo::util
+      version: 1.2.2
+      module: ooutil
+    }
+    {otp 1.0.0} {
+      file: otp.tcl
+      require: {{Tcl 8.2}}
+      name: otp
+      version: 1.0.0
+      module: otp
+    }
+    {page::analysis::peg::emodes 0.1} {
+      file: analysis_peg_emodes.tcl
+      require: {page::plugin page::util::flow page::util::peg treeql}
+      name: page::analysis::peg::emodes
+      version: 0.1
+      module: page
+    }
+    {page::analysis::peg::minimize 0.1} {
+      file: analysis_peg_minimize.tcl
+      require: {page::plugin page::analysis::peg::reachable page::analysis::peg::realizable}
+      name: page::analysis::peg::minimize
+      version: 0.1
+      module: page
+    }
+    {page::analysis::peg::reachable 0.1} {
+      file: analysis_peg_reachable.tcl
+      require: {page::plugin page::util::flow page::util::peg}
+      name: page::analysis::peg::reachable
+      version: 0.1
+      module: page
+    }
+    {page::analysis::peg::realizable 0.1} {
+      file: analysis_peg_realizable.tcl
+      require: {page::plugin page::util::flow page::util::peg treeql}
+      name: page::analysis::peg::realizable
+      version: 0.1
+      module: page
+    }
+    {page::compiler::peg::mecpu 0.1.1} {
+      file: compiler_peg_mecpu.tcl
+      require: {page::plugin grammar::me::cpu::gasm textutil struct::graph page::analysis::peg::emodes page::util::quote page::util::peg}
+      name: page::compiler::peg::mecpu
+      version: 0.1.1
+      module: page
+    }
+    {page::gen::peg::canon 0.1} {
+      file: gen_peg_canon.tcl
+      require: textutil
+      name: page::gen::peg::canon
+      version: 0.1
+      module: page
+    }
+    {page::gen::peg::cpkg 0.1} {
+      file: gen_peg_cpkg.tcl
+      require: page::util::peg
+      name: page::gen::peg::cpkg
+      version: 0.1
+      module: page
+    }
+    {page::gen::peg::hb 0.1} {
+      file: gen_peg_hb.tcl
+      require: page::util::peg
+      name: page::gen::peg::hb
+      version: 0.1
+      module: page
+    }
+    {page::gen::peg::me 0.1} {
+      file: gen_peg_me.tcl
+      require: {page::plugin textutil page::analysis::peg::emodes page::util::quote page::util::peg}
+      name: page::gen::peg::me
+      version: 0.1
+      module: page
+    }
+    {page::gen::peg::mecpu 0.1} {
+      file: gen_peg_mecpu.tcl
+      require: {page::plugin grammar::me::cpu::core textutil}
+      name: page::gen::peg::mecpu
+      version: 0.1
+      module: page
+    }
+    {page::gen::peg::ser 0.1} {
+      file: gen_peg_ser.tcl
+      require: {grammar::peg page::util::quote page::util::peg}
+      name: page::gen::peg::ser
+      version: 0.1
+      module: page
+    }
+    {page::gen::tree::text 0.1} {
+      file: gen_tree_text.tcl
+      require: page::util::quote
+      name: page::gen::tree::text
+      version: 0.1
+      module: page
+    }
+    {page::parse::lemon 0.1} {
+      file: parse_lemon.tcl
+      require: grammar::me::tcl
+      name: page::parse::lemon
+      version: 0.1
+      module: page
+    }
+    {page::parse::peg 0.1} {
+      file: parse_peg.tcl
+      require: grammar::me::tcl
+      name: page::parse::peg
+      version: 0.1
+      module: page
+    }
+    {page::parse::peghb 0.1} {
+      file: parse_peghb.tcl
+      name: page::parse::peghb
+      version: 0.1
+      module: page
+    }
+    {page::parse::pegser 0.1} {
+      file: parse_pegser.tcl
+      require: grammar::peg
+      name: page::parse::pegser
+      version: 0.1
+      module: page
+    }
+    {pg::peg::grammar 0.1} {
+      file: peg_grammar.tcl
+      require: grammar::peg
+      name: pg::peg::grammar
+      version: 0.1
+      module: page
+    }
+    {page::pluginmgr 0.2} {
+      file: pluginmgr.tcl
+      require: {fileutil pluginmgr}
+      name: page::pluginmgr
+      version: 0.2
+      module: page
+    }
+    {page::util::flow 0.1} {
+      file: util_flow.tcl
+      require: snit
+      name: page::util::flow
+      version: 0.1
+      module: page
+    }
+    {page::util::norm::lemon 0.1} {
+      file: util_norm_lemon.tcl
+      require: {page::plugin treeql page::util::quote page::util::peg}
+      name: page::util::norm::lemon
+      version: 0.1
+      module: page
+    }
+    {page::util::norm::peg 0.1} {
+      file: util_norm_peg.tcl
+      require: {page::plugin treeql page::util::quote}
+      name: page::util::norm::peg
+      version: 0.1
+      module: page
+    }
+    {page::util::peg 0.1} {
+      file: util_peg.tcl
+      require: page::util::quote
+      name: page::util::peg
+      version: 0.1
+      module: page
+    }
+    {page::util::quote 0.1} {
+      file: util_quote.tcl
+      name: page::util::quote
+      version: 0.1
+      module: page
+    }
+    {pki 0.6} {
+      file: pki.tcl
+      require: {{Tcl 8.5} {asn 0.8.4} aes des math::bignum {md5 2} sha1 sha256}
+      name: pki
+      version: 0.6
+      module: pki
+    }
+    {pluginmgr 0.3} {
+      file: pluginmgr.tcl
+      require: {{Tcl 8.4} snit}
+      name: pluginmgr
+      version: 0.3
+      module: pluginmgr
+    }
+    {png 0.2} {
+      file: png.tcl
+      name: png
+      version: 0.2
+      module: png
+    }
+    {pop3 1.9} {
+      file: pop3.tcl
+      require: {{Tcl 8.4} cmdline log}
+      name: pop3
+      version: 1.9
+      module: pop3
+    }
+    {pop3d 1.1.0} {
+      file: pop3d.tcl
+      require: {md5 mime log}
+      name: pop3d
+      version: 1.1.0
+      module: pop3d
+    }
+    {pop3d::dbox 1.0.2} {
+      file: pop3d_dbox.tcl
+      require: {mime log}
+      name: pop3d::dbox
+      version: 1.0.2
+      module: pop3d
+    }
+    {pop3d::udb 1.1} {
+      file: pop3d_udb.tcl
+      name: pop3d::udb
+      version: 1.1
+      module: pop3d
+    }
+    {processman 0.3} {
+      file: processman.tcl
+      require: {{cron 1.1}}
+      name: processman
+      version: 0.3
+      module: processman
+    }
+    {profiler 0.3} {
+      file: profiler.tcl
+      require: {{Tcl 8.3}}
+      name: profiler
+      version: 0.3
+      module: profiler
+    }
+    {char 1.0.1} {
+      file: char.tcl
+      require: {{Tcl 8.5}}
+      name: char
+      version: 1.0.1
+      module: pt
+    }
+    {configuration 1} {
+      file: configuration.tcl
+      require: {{Tcl 8.5} snit}
+      name: configuration
+      version: 1
+      module: pt
+    }
+    {paths 1} {
+      file: paths.tcl
+      require: {{Tcl 8.5} snit}
+      name: paths
+      version: 1
+      module: pt
+    }
+    {pt::ast 1.1} {
+      file: pt_astree.tcl
+      require: {{Tcl 8.5} char}
+      name: pt::ast
+      version: 1.1
+      module: pt
+    }
+    {pt::cparam::configuration::critcl 1.0.2} {
+      file: pt_cparam_config_critcl.tcl
+      require: {{Tcl 8.5}}
+      name: pt::cparam::configuration::critcl
+      version: 1.0.2
+      module: pt
+    }
+    {pt::cparam::configuration::tea 0.1} {
+      file: pt_cparam_config_tea.tcl
+      require: {{Tcl 8.5}}
+      name: pt::cparam::configuration::tea
+      version: 0.1
+      module: pt
+    }
+    {pt::parse::peg 1.0.1} {
+      file: pt_parse_peg.tcl
+      require: {{Tcl 8.5}}
+      name: pt::parse::peg
+      version: 1.0.1
+      module: pt
+    }
+    {pt_parse_peg_c 1.0.1} {
+      file: pt_parse_peg_c.tcl
+      require: {{Tcl 8.4} critcl}
+      name: pt_parse_peg_c
+      version: 1.0.1
+      module: pt
+    }
+    {pt::parse::peg_tcl 1.0.1} {
+      file: pt_parse_peg_tcl.tcl
+      require: {{Tcl 8.5} snit pt::rde}
+      name: pt::parse::peg_tcl
+      version: 1.0.1
+      module: pt
+    }
+    {pt::peg::container 1} {
+      file: pt_peg_container.tcl
+      require: {{Tcl 8.5} snit pt::pe pt::peg}
+      name: pt::peg::container
+      version: 1
+      module: pt
+    }
+    {pt::peg::container::peg 1} {
+      file: pt_peg_container_peg.tcl
+      require: {{Tcl 8.5} snit pt::peg::container}
+      name: pt::peg::container::peg
+      version: 1
+      module: pt
+    }
+    {pt::peg::export 1} {
+      file: pt_peg_export.tcl
+      require: {{Tcl 8.5} configuration pt::peg pluginmgr snit}
+      name: pt::peg::export
+      version: 1
+      module: pt
+    }
+    {pt::peg::export::container 1} {
+      file: pt_peg_export_container.tcl
+      require: pt::peg::to::container
+      name: pt::peg::export::container
+      version: 1
+      module: pt
+    }
+    {pt::peg::export::json 1} {
+      file: pt_peg_export_json.tcl
+      require: {{Tcl 8.5} pt::peg::export::plugin pt::peg::to::json}
+      name: pt::peg::export::json
+      version: 1
+      module: pt
+    }
+    {pt::peg::export::peg 1} {
+      file: pt_peg_export_peg.tcl
+      require: pt::peg::to::peg
+      name: pt::peg::export::peg
+      version: 1
+      module: pt
+    }
+    {pt::peg::from::json 1} {
+      file: pt_peg_from_json.tcl
+      require: {{Tcl 8.5} pt::peg json}
+      name: pt::peg::from::json
+      version: 1
+      module: pt
+    }
+    {pt::peg::from::peg 1.0.3} {
+      file: pt_peg_from_peg.tcl
+      require: {{Tcl 8.5} pt::peg pt::parse::peg pt::ast pt::pe pt::pe::op}
+      name: pt::peg::from::peg
+      version: 1.0.3
+      module: pt
+    }
+    {pt::peg::import 1} {
+      file: pt_peg_import.tcl
+      require: {{Tcl 8.5} paths pt::peg pluginmgr snit}
+      name: pt::peg::import
+      version: 1
+      module: pt
+    }
+    {pt::peg::import::json 1} {
+      file: pt_peg_import_json.tcl
+      require: {{Tcl 8.5} pt::peg::import::plugin pt::peg::from::json}
+      name: pt::peg::import::json
+      version: 1
+      module: pt
+    }
+    {pt::peg::import::peg 1} {
+      file: pt_peg_import_peg.tcl
+      require: {{Tcl 8.5} pt::peg::import::plugin pt::peg::from::peg}
+      name: pt::peg::import::peg
+      version: 1
+      module: pt
+    }
+    {pt::peg::interp 1.0.1} {
+      file: pt_peg_interp.tcl
+      require: {{Tcl 8.5} pt::rde snit}
+      name: pt::peg::interp
+      version: 1.0.1
+      module: pt
+    }
+    {pt::peg::op 1.0.1} {
+      file: pt_peg_op.tcl
+      require: {{Tcl 8.5} pt::pe pt::pe::op struct::set}
+      name: pt::peg::op
+      version: 1.0.1
+      module: pt
+    }
+    {pt::peg::to::container 1} {
+      file: pt_peg_to_container.tcl
+      require: {{Tcl 8.5} pt::peg pt::pe text::write char}
+      name: pt::peg::to::container
+      version: 1
+      module: pt
+    }
+    {pt::peg::to::cparam 1.1.3} {
+      file: pt_peg_to_cparam.tcl
+      name: pt::peg::to::cparam
+      version: 1.1.3
+      module: pt
+    }
+    {pt::peg::to::json 1} {
+      file: pt_peg_to_json.tcl
+      require: {{Tcl 8.5} pt::peg json::write}
+      name: pt::peg::to::json
+      version: 1
+      module: pt
+    }
+    {pt::peg::to::param 1.0.1} {
+      file: pt_peg_to_param.tcl
+      name: pt::peg::to::param
+      version: 1.0.1
+      module: pt
+    }
+    {pt::peg::to::peg 1.0.2} {
+      file: pt_peg_to_peg.tcl
+      name: pt::peg::to::peg
+      version: 1.0.2
+      module: pt
+    }
+    {pt::peg::to::tclparam 1.0.3} {
+      file: pt_peg_to_tclparam.tcl
+      name: pt::peg::to::tclparam
+      version: 1.0.3
+      module: pt
+    }
+    {pt::peg 1} {
+      file: pt_pegrammar.tcl
+      require: {{Tcl 8.5} pt::pe}
+      name: pt::peg
+      version: 1
+      module: pt
+    }
+    {pt::pe::op 1} {
+      file: pt_pexpr_op.tcl
+      require: {{Tcl 8.5} pt::pe struct::set}
+      name: pt::pe::op
+      version: 1
+      module: pt
+    }
+    {pt::pe 1.0.2} {
+      file: pt_pexpression.tcl
+      require: {{Tcl 8.5} char}
+      name: pt::pe
+      version: 1.0.2
+      module: pt
+    }
+    {pt::pgen 1.0.3} {
+      file: pt_pgen.tcl
+      require: {{Tcl 8.5} fileutil pt::peg::from::json pt::peg::from::peg pt::peg::to::container pt::peg::to::json pt::peg::to::peg pt::peg::to::param pt::peg::to::tclparam pt::peg::to::cparam {pt::tclparam::configuration::snit 1.0.2} {pt::tclparam::configuration::tcloo 1.0.4} {pt::cparam::configuration::critcl 1.0.2} pt::cparam::configuration::tea}
+      name: pt::pgen
+      version: 1.0.3
+      module: pt
+    }
+    {pt::rde 1.1} {
+      file: pt_rdengine.tcl
+      require: {{Tcl 8.5} debug}
+      name: pt::rde
+      version: 1.1
+      module: pt
+    }
+    {pt::rde::critcl 1.3.3} {
+      file: pt_rdengine_c.tcl
+      require: {{Tcl 8.4} critcl}
+      name: pt::rde::critcl
+      version: 1.3.3
+      module: pt
+    }
+    {pt::rde::oo 1.1} {
+      file: pt_rdengine_oo.tcl
+      require: {{Tcl 8.5} TclOO {struct::stack 1.5} pt::ast pt::pe debug}
+      name: pt::rde::oo
+      version: 1.1
+      module: pt
+    }
+    {pt::tclparam::configuration::snit 1.0.2} {
+      file: pt_tclparam_config_snit.tcl
+      require: {{Tcl 8.5}}
+      name: pt::tclparam::configuration::snit
+      version: 1.0.2
+      module: pt
+    }
+    {pt::tclparam::configuration::tcloo 1.0.4} {
+      file: pt_tclparam_config_tcloo.tcl
+      require: {{Tcl 8.5}}
+      name: pt::tclparam::configuration::tcloo
+      version: 1.0.4
+      module: pt
+    }
+    {pt::util 1} {
+      file: pt_util.tcl
+      require: {{Tcl 8.5} char}
+      name: pt::util
+      version: 1
+      module: pt
+    }
+    {text::write 1} {
+      file: text_write.tcl
+      require: {{Tcl 8.5} textutil::adjust}
+      name: text::write
+      version: 1
+      module: pt
+    }
+    {rc4 1.1.0} {
+      file: rc4.tcl
+      require: {{Tcl 8.2}}
+      name: rc4
+      version: 1.1.0
+      module: rc4
+    }
+    {rc4c 1.1.0} {
+      file: rc4c.tcl
+      require: critcl
+      name: rc4c
+      version: 1.1.0
+      module: rc4
+    }
+    {rcs 0.1} {
+      file: rcs.tcl
+      require: {{Tcl 8.4}}
+      name: rcs
+      version: 0.1
+      module: rcs
+    }
+    {report 0.3.2} {
+      file: report.tcl
+      require: {{Tcl 8.2}}
+      name: report
+      version: 0.3.2
+      module: report
+    }
+    {rest 1.0.1} {
+      file: rest.tcl
+      require: {{Tcl 8.5} {http 2.7} json tdom base64}
+      name: rest
+      version: 1.0.1
+      module: rest
+    }
+    {ripemd128 1.0.5} {
+      file: ripemd128.tcl
+      require: {{Tcl 8.2}}
+      name: ripemd128
+      version: 1.0.5
+      module: ripemd
+    }
+    {ripemd160 1.0.5} {
+      file: ripemd160.tcl
+      require: {{Tcl 8.2}}
+      name: ripemd160
+      version: 1.0.5
+      module: ripemd
+    }
+    {SASL::XGoogleToken 1.0.1} {
+      file: gtoken.tcl
+      require: {{Tcl 8.2} SASL http tls}
+      name: SASL::XGoogleToken
+      version: 1.0.1
+      module: sasl
+    }
+    {SASL::NTLM 1.1.2} {
+      file: ntlm.tcl
+      require: {{Tcl 8.2} {SASL 1.0} {des 1.0} md4}
+      name: SASL::NTLM
+      version: 1.1.2
+      module: sasl
+    }
+    {SASL 1.3.3} {
+      file: sasl.tcl
+      require: {{Tcl 8.2}}
+      name: SASL
+      version: 1.3.3
+      module: sasl
+    }
+    {SASL::SCRAM 0.1} {
+      file: scram.tcl
+      require: {{Tcl 8.2} SASL sha1 base64}
+      name: SASL::SCRAM
+      version: 0.1
+      module: sasl
+    }
+    {scgi::app 0.1} {
+      file: scgi-app.tcl
+      require: {html TclOO oo::meta}
+      name: scgi::app
+      version: 0.1
+      module: scgi
+    }
+    {scgi::server 0.1} {
+      file: scgi-server.tcl
+      name: scgi::server
+      version: 0.1
+      module: scgi
+    }
+    {sha1 2.0.3} {
+      file: sha1.tcl
+      require: {{Tcl 8.2}}
+      name: sha1
+      version: 2.0.3
+      module: sha1
+    }
+    {sha1c 2.0.3} {
+      file: sha1c.tcl
+      require: critcl
+      name: sha1c
+      version: 2.0.3
+      module: sha1
+    }
+    {sha1 1.1.1} {
+      file: sha1v1.tcl
+      require: {{Tcl 8.2}}
+      name: sha1
+      version: 1.1.1
+      module: sha1
+    }
+    {sha256 1.0.3} {
+      file: sha256.tcl
+      require: {{Tcl 8.2}}
+      name: sha256
+      version: 1.0.3
+      module: sha1
+    }
+    {sha256c 1.0.2} {
+      file: sha256c.tcl
+      require: critcl
+      name: sha256c
+      version: 1.0.2
+      module: sha1
+    }
+    {simulation::annealing 0.2} {
+      file: annealing.tcl
+      require: {{Tcl 8.4}}
+      name: simulation::annealing
+      version: 0.2
+      module: simulation
+    }
+    {simulation::montecarlo 0.1} {
+      file: montecarlo.tcl
+      require: {{Tcl 8.4} simulation::random math::statistics}
+      name: simulation::montecarlo
+      version: 0.1
+      module: simulation
+    }
+    {simulation::random 0.3.1} {
+      file: random.tcl
+      require: {{Tcl 8.4}}
+      name: simulation::random
+      version: 0.3.1
+      module: simulation
+    }
+    {smtpd 1.5} {
+      file: smtpd.tcl
+      require: {{Tcl 8.3} logger mime}
+      name: smtpd
+      version: 1.5
+      module: smtpd
+    }
+    {snit 1.4.2} {
+      file: snit.tcl
+      require: {{Tcl 8.3}}
+      name: snit
+      version: 1.4.2
+      module: snit
+    }
+    {snit 2.3.2} {
+      file: snit2.tcl
+      require: {{Tcl 8.5}}
+      name: snit
+      version: 2.3.2
+      module: snit
+    }
+    {soundex 1.0} {
+      file: soundex.tcl
+      require: {{Tcl 8.2}}
+      name: soundex
+      version: 1.0
+      module: soundex
+    }
+    {stooop 4.4.1} {
+      file: stooop.tcl
+      require: {{Tcl 8.3}}
+      name: stooop
+      version: 4.4.1
+      module: stooop
+    }
+    {switched 2.2.1} {
+      file: switched.tcl
+      require: stooop
+      name: switched
+      version: 2.2.1
+      module: stooop
+    }
+    {string::token 1} {
+      file: token.tcl
+      require: {{Tcl 8.5} fileutil}
+      name: string::token
+      version: 1
+      module: string
+    }
+    {string::token::shell 1.2} {
+      file: token_shell.tcl
+      require: {{Tcl 8.5} string::token}
+      name: string::token::shell
+      version: 1.2
+      module: string
+    }
+    {stringprep 1.0.1} {
+      file: stringprep.tcl
+      require: {{stringprep::data 1.0} {unicode 1.0}}
+      name: stringprep
+      version: 1.0.1
+      module: stringprep
+    }
+    {stringprep::data 1.0.1} {
+      file: stringprep_data.tcl
+      name: stringprep::data
+      version: 1.0.1
+      module: stringprep
+    }
+    {unicode 1.0.0} {
+      file: unicode.tcl
+      require: {{unicode::data 1.0}}
+      name: unicode
+      version: 1.0.0
+      module: stringprep
+    }
+    {unicode::data 1.0.0} {
+      file: unicode_data.tcl
+      name: unicode::data
+      version: 1.0.0
+      module: stringprep
+    }
+    {struct::disjointset 1.0} {
+      file: disjointset.tcl
+      require: {{Tcl 8.2} struct::set}
+      name: struct::disjointset
+      version: 1.0
+      module: struct
+    }
+    {struct::graph 2.4} {
+      file: graph.tcl
+      require: {{Tcl 8.4}}
+      name: struct::graph
+      version: 2.4
+      module: struct
+    }
+    {struct::graph 1.2.1} {
+      file: graph1.tcl
+      name: struct::graph
+      version: 1.2.1
+      module: struct
+    }
+    {struct_graphc 2.1} {
+      file: graph_c.tcl
+      require: {critcl {Tcl 8.2}}
+      name: struct_graphc
+      version: 2.1
+      module: struct
+    }
+    {struct::graph::op 0.11.3} {
+      file: graphops.tcl
+      require: {{Tcl 8.5} struct::disjointset struct::prioqueue struct::queue struct::stack struct::graph struct::tree}
+      name: struct::graph::op
+      version: 0.11.3
+      module: struct
+    }
+    {struct::list 1.8.3} {
+      file: list.tcl
+      require: {{Tcl 8.4} cmdline}
+      name: struct::list
+      version: 1.8.3
+      module: struct
+    }
+    {struct::matrix 2.0.3} {
+      file: matrix.tcl
+      require: {{Tcl 8.2}}
+      name: struct::matrix
+      version: 2.0.3
+      module: struct
+    }
+    {struct::matrix 1.2.1} {
+      file: matrix1.tcl
+      require: {{Tcl 8.2}}
+      name: struct::matrix
+      version: 1.2.1
+      module: struct
+    }
+    {struct::pool 1.2.3} {
+      file: pool.tcl
+      require: cmdline
+      name: struct::pool
+      version: 1.2.3
+      module: struct
+    }
+    {struct::prioqueue 1.4} {
+      file: prioqueue.tcl
+      require: {{Tcl 8.2}}
+      name: struct::prioqueue
+      version: 1.4
+      module: struct
+    }
+    {struct::queue 1.4.5} {
+      file: queue.tcl
+      require: {{Tcl 8.4}}
+      name: struct::queue
+      version: 1.4.5
+      module: struct
+    }
+    {struct_queuec 1.3.1} {
+      file: queue_c.tcl
+      require: {critcl {Tcl 8.4}}
+      name: struct_queuec
+      version: 1.3.1
+      module: struct
+    }
+    {struct::record 1.2.1} {
+      file: record.tcl
+      name: struct::record
+      version: 1.2.1
+      module: struct
+    }
+    {struct::set 2.2.3} {
+      file: sets.tcl
+      require: {{Tcl 8.2}}
+      name: struct::set
+      version: 2.2.3
+      module: struct
+    }
+    {struct_setc 2.1.1} {
+      file: sets_c.tcl
+      require: {critcl {Tcl 8.4}}
+      name: struct_setc
+      version: 2.1.1
+      module: struct
+    }
+    {struct::skiplist 1.3} {
+      file: skiplist.tcl
+      name: struct::skiplist
+      version: 1.3
+      module: struct
+    }
+    {struct::stack 1.5.3} {
+      file: stack.tcl
+      require: {{Tcl 8.4}}
+      name: struct::stack
+      version: 1.5.3
+      module: struct
+    }
+    {struct_stackc 1.3.1} {
+      file: stack_c.tcl
+      require: {critcl {Tcl 8.4}}
+      name: struct_stackc
+      version: 1.3.1
+      module: struct
+    }
+    {struct 2.1} {
+      file: struct.tcl
+      require: {{Tcl 8.2} {struct::graph 2.0} {struct::queue 1.2.1} {struct::stack 1.2.1} {struct::tree 2.0} {struct::matrix 2.0} {struct::pool 1.2.1} {struct::record 1.2.1} {struct::list 1.4} {struct::set 2.1} {struct::prioqueue 1.3} {struct::skiplist 1.3}}
+      name: struct
+      version: 2.1
+      module: struct
+    }
+    {struct 1.4} {
+      file: struct1.tcl
+      require: {{Tcl 8.2} {struct::graph 1.2.1} {struct::queue 1.2.1} {struct::stack 1.2.1} {struct::tree 1.2.1} {struct::matrix 1.2.1} {struct::pool 1.2.1} {struct::record 1.2.1} {struct::list 1.4} {struct::prioqueue 1.3} {struct::skiplist 1.3}}
+      name: struct
+      version: 1.4
+      module: struct
+    }
+    {struct::tree 2.1.2} {
+      file: tree.tcl
+      require: {{Tcl 8.2} struct::list}
+      name: struct::tree
+      version: 2.1.2
+      module: struct
+    }
+    {struct::tree 1.2.2} {
+      file: tree1.tcl
+      require: {{Tcl 8.2}}
+      name: struct::tree
+      version: 1.2.2
+      module: struct
+    }
+    {struct_treec 2.1.1} {
+      file: tree_c.tcl
+      require: {critcl {Tcl 8.2}}
+      name: struct_treec
+      version: 2.1.1
+      module: struct
+    }
+    {tar 0.10} {
+      file: tar.tcl
+      require: {{Tcl 8.4}}
+      name: tar
+      version: 0.10
+      module: tar
+    }
+    {tepam 0.5} {
+      file: tepam.tcl
+      require: {{Tcl 8.3}}
+      name: tepam
+      version: 0.5
+      module: tepam
+    }
+    {tepam::doc_gen 0.1.1} {
+      file: tepam_doc_gen.tcl
+      require: {{Tcl 8.3} {tepam 0.5}}
+      name: tepam::doc_gen
+      version: 0.1.1
+      module: tepam
+    }
+    {term::receive::bind 0.1} {
+      file: bind.tcl
+      require: {snit term::receive}
+      name: term::receive::bind
+      version: 0.1
+      module: term
+    }
+    {term::interact::menu 0.1} {
+      file: imenu.tcl
+      require: {snit textutil::repeat textutil::tabify term::ansi::send term::receive::bind term::ansi::code::ctrl}
+      name: term::interact::menu
+      version: 0.1
+      module: term
+    }
+    {term::interact::pager 0.1} {
+      file: ipager.tcl
+      require: {snit textutil::repeat textutil::tabify term::ansi::send term::receive::bind term::ansi::code::ctrl}
+      name: term::interact::pager
+      version: 0.1
+      module: term
+    }
+    {term::receive 0.1} {
+      file: receive.tcl
+      name: term::receive
+      version: 0.1
+      module: term
+    }
+    {term::send 0.1} {
+      file: send.tcl
+      name: term::send
+      version: 0.1
+      module: term
+    }
+    {term 0.1} {
+      file: term.tcl
+      name: term
+      version: 0.1
+      module: term
+    }
+    {textutil::adjust 0.7.3} {
+      file: adjust.tcl
+      require: {{Tcl 8.2} textutil::repeat textutil::string}
+      name: textutil::adjust
+      version: 0.7.3
+      module: textutil
+    }
+    {textutil::expander 1.3.1} {
+      file: expander.tcl
+      name: textutil::expander
+      version: 1.3.1
+      module: textutil
+    }
+    {textutil::repeat 0.7} {
+      file: repeat.tcl
+      require: {{Tcl 8.2}}
+      name: textutil::repeat
+      version: 0.7
+      module: textutil
+    }
+    {textutil::split 0.7} {
+      file: split.tcl
+      require: {{Tcl 8.2}}
+      name: textutil::split
+      version: 0.7
+      module: textutil
+    }
+    {textutil::string 0.8} {
+      file: string.tcl
+      require: {{Tcl 8.2}}
+      name: textutil::string
+      version: 0.8
+      module: textutil
+    }
+    {textutil::tabify 0.7} {
+      file: tabify.tcl
+      require: {{Tcl 8.2} textutil::repeat}
+      name: textutil::tabify
+      version: 0.7
+      module: textutil
+    }
+    {textutil 0.8} {
+      file: textutil.tcl
+      require: {{Tcl 8.2} textutil::string textutil::repeat textutil::adjust textutil::split textutil::tabify textutil::trim}
+      name: textutil
+      version: 0.8
+      module: textutil
+    }
+    {textutil::trim 0.7} {
+      file: trim.tcl
+      require: {{Tcl 8.2}}
+      name: textutil::trim
+      version: 0.7
+      module: textutil
+    }
+    {tie 1.1} {
+      file: tie.tcl
+      require: {snit cmdline}
+      name: tie
+      version: 1.1
+      module: tie
+    }
+    {tie::std::array 1.0} {
+      file: tie_array.tcl
+      require: {snit tie}
+      name: tie::std::array
+      version: 1.0
+      module: tie
+    }
+    {tie::std::dsource 1.0} {
+      file: tie_dsource.tcl
+      require: {snit tie}
+      name: tie::std::dsource
+      version: 1.0
+      module: tie
+    }
+    {tie::std::file 1.0.4} {
+      file: tie_file.tcl
+      require: {snit tie}
+      name: tie::std::file
+      version: 1.0.4
+      module: tie
+    }
+    {tie::std::growfile 1.0} {
+      file: tie_growfile.tcl
+      require: {snit tie}
+      name: tie::std::growfile
+      version: 1.0
+      module: tie
+    }
+    {tie::std::log 1.0} {
+      file: tie_log.tcl
+      require: {snit log tie snit}
+      name: tie::std::log
+      version: 1.0
+      module: tie
+    }
+    {tie::std::rarray 1.0} {
+      file: tie_rarray.tcl
+      require: {snit tie}
+      name: tie::std::rarray
+      version: 1.0
+      module: tie
+    }
+    {tiff 0.2.1} {
+      file: tiff.tcl
+      name: tiff
+      version: 0.2.1
+      module: tiff
+    }
+    {transfer::connect 0.2} {
+      file: connect.tcl
+      require: snit
+      name: transfer::connect
+      version: 0.2
+      module: transfer
+    }
+    {transfer::copy 0.3} {
+      file: copyops.tcl
+      require: {{Tcl 8.4}}
+      name: transfer::copy
+      version: 0.3
+      module: transfer
+    }
+    {transfer::data::destination 0.2} {
+      file: ddest.tcl
+      require: snit
+      name: transfer::data::destination
+      version: 0.2
+      module: transfer
+    }
+    {transfer::data::source 0.2} {
+      file: dsource.tcl
+      require: {transfer::copy snit}
+      name: transfer::data::source
+      version: 0.2
+      module: transfer
+    }
+    {transfer::receiver 0.2} {
+      file: receiver.tcl
+      require: {snit transfer::data::destination transfer::connect}
+      name: transfer::receiver
+      version: 0.2
+      module: transfer
+    }
+    {transfer::copy::queue 0.1} {
+      file: tqueue.tcl
+      require: {transfer::copy struct::queue snit {Tcl 8.4}}
+      name: transfer::copy::queue
+      version: 0.1
+      module: transfer
+    }
+    {transfer::transmitter 0.2} {
+      file: transmitter.tcl
+      require: {snit transfer::data::source transfer::connect}
+      name: transfer::transmitter
+      version: 0.2
+      module: transfer
+    }
+    {treeql 1.3.1} {
+      file: treeql.tcl
+      require: {{Tcl 8.4}}
+      name: treeql
+      version: 1.3.1
+      module: treeql
+    }
+    {throw 1} {
+      file: throw.tcl
+      name: throw
+      version: 1
+      require: {{Tcl 8.5}}
+      module: try
+    }
+    {try 1} {
+      file: try.tcl
+      name: try
+      version: 1
+      require: {{Tcl 8.5}}
+      module: try
+    }
+    {uevent 0.3.1} {
+      file: uevent.tcl
+      require: {{Tcl 8.4} logger}
+      name: uevent
+      version: 0.3.1
+      module: uev
+    }
+    {uevent::onidle 0.1} {
+      file: uevent_onidle.tcl
+      require: {{Tcl 8.4} snit}
+      name: uevent::onidle
+      version: 0.1
+      module: uev
+    }
+    {units 2.1.1} {
+      file: units.tcl
+      name: units
+      version: 2.1.1
+      require: {{Tcl 8.1}}
+      module: units
+    }
+    {uri 1.2.5} {
+      file: uri.tcl
+      require: {{Tcl 8.2}}
+      name: uri
+      version: 1.2.5
+      module: uri
+    }
+    {uri::urn 1.0.3} {
+      file: urn-scheme.tcl
+      require: {{uri 1.1.2}}
+      name: uri::urn
+      version: 1.0.3
+      module: uri
+    }
+    {uuid 1.0.5} {
+      file: uuid.tcl
+      name: uuid
+      version: 1.0.5
+      module: uuid
+    }
+    {valtype::creditcard::amex 1} {
+      file: cc_amex.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::creditcard::amex
+      version: 1
+      module: valtype
+    }
+    {valtype::creditcard::discover 1} {
+      file: cc_discover.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::creditcard::discover
+      version: 1
+      module: valtype
+    }
+    {valtype::creditcard::mastercard 1} {
+      file: cc_mastercard.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::creditcard::mastercard
+      version: 1
+      module: valtype
+    }
+    {valtype::creditcard::visa 1} {
+      file: cc_visa.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::creditcard::visa
+      version: 1
+      module: valtype
+    }
+    {valtype::gs1::ean13 1} {
+      file: ean13.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::gs1::ean13
+      version: 1
+      module: valtype
+    }
+    {valtype::iban 1.5} {
+      file: iban.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::iban
+      version: 1.5
+      module: valtype
+    }
+    {valtype::imei 1} {
+      file: imei.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::imei
+      version: 1
+      module: valtype
+    }
+    {valtype::isbn 1} {
+      file: isbn.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::isbn
+      version: 1
+      module: valtype
+    }
+    {valtype::luhn 1} {
+      file: luhn.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::luhn
+      version: 1
+      module: valtype
+    }
+    {valtype::luhn5 1} {
+      file: luhn5.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::luhn5
+      version: 1
+      module: valtype
+    }
+    {valtype::usnpi 1} {
+      file: usnpi.tcl
+      require: {{Tcl 8.5} snit valtype::luhn valtype::common}
+      name: valtype::usnpi
+      version: 1
+      module: valtype
+    }
+    {valtype::common 1} {
+      file: valtype.tcl
+      require: {{Tcl 8.5}}
+      name: valtype::common
+      version: 1
+      module: valtype
+    }
+    {valtype::verhoeff 1} {
+      file: verhoeff.tcl
+      require: {{Tcl 8.5} snit valtype::common}
+      name: valtype::verhoeff
+      version: 1
+      module: valtype
+    }
+    {tcl::chan::cat 1.0.2} {
+      file: cat.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::core}
+      name: tcl::chan::cat
+      version: 1.0.2
+      module: virtchannel_base
+    }
+    {tcl::chan::facade 1.0.1} {
+      file: facade.tcl
+      require: {{Tcl 8.5} TclOO logger tcl::chan::core}
+      name: tcl::chan::facade
+      version: 1.0.1
+      module: virtchannel_base
+    }
+    {tcl::chan::fifo 1} {
+      file: fifo.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::fifo
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::fifo2 1} {
+      file: fifo2.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::halfpipe}
+      name: tcl::chan::fifo2
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::halfpipe 1} {
+      file: halfpipe.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::halfpipe
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::memchan 1.0.3} {
+      file: memchan.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::memchan
+      version: 1.0.3
+      module: virtchannel_base
+    }
+    {tcl::chan::null 1} {
+      file: null.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::null
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::nullzero 1} {
+      file: nullzero.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::nullzero
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::random 1} {
+      file: random.tcl
+      require: {tcl::chan::events {Tcl 8.5} TclOO}
+      name: tcl::chan::random
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::randomseed 1} {
+      file: randseed.tcl
+      require: {{Tcl 8.5}}
+      name: tcl::randomseed
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::std 1.0.1} {
+      file: std.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::core}
+      name: tcl::chan::std
+      version: 1.0.1
+      module: virtchannel_base
+    }
+    {tcl::chan::string 1.0.2} {
+      file: string.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::string
+      version: 1.0.2
+      module: virtchannel_base
+    }
+    {tcl::chan::textwindow 1} {
+      file: textwindow.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::textwindow
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::variable 1.0.3} {
+      file: variable.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::variable
+      version: 1.0.3
+      module: virtchannel_base
+    }
+    {tcl::chan::zero 1} {
+      file: zero.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::events}
+      name: tcl::chan::zero
+      version: 1
+      module: virtchannel_base
+    }
+    {tcl::chan::core 1} {
+      file: core.tcl
+      require: {{Tcl 8.5} TclOO}
+      name: tcl::chan::core
+      version: 1
+      module: virtchannel_core
+    }
+    {tcl::chan::events 1} {
+      file: events.tcl
+      require: {{Tcl 8.5} TclOO tcl::chan::core}
+      name: tcl::chan::events
+      version: 1
+      module: virtchannel_core
+    }
+    {tcl::transform::core 1} {
+      file: transformcore.tcl
+      require: {{Tcl 8.6}}
+      name: tcl::transform::core
+      version: 1
+      module: virtchannel_core
+    }
+    {tcl::transform::adler32 1} {
+      file: adler32.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::adler32
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::base64 1} {
+      file: base64.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::base64
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::counter 1} {
+      file: counter.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::counter
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::crc32 1} {
+      file: crc32.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::crc32
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::hex 1} {
+      file: hex.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::hex
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::identity 1} {
+      file: identity.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::identity
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::limitsize 1} {
+      file: limitsize.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::limitsize
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::observe 1} {
+      file: observe.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::observe
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::otp 1} {
+      file: otp.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::otp
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::rot 1} {
+      file: rot.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::rot
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::spacer 1} {
+      file: spacer.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::spacer
+      version: 1
+      module: virtchannel_transform
+    }
+    {tcl::transform::zlib 1.0.1} {
+      file: zlib.tcl
+      require: {{Tcl 8.6} tcl::transform::core}
+      name: tcl::transform::zlib
+      version: 1.0.1
+      module: virtchannel_transform
+    }
+    {websocket 1.4} {
+      file: websocket.tcl
+      require: {{Tcl 8.5} {http 2.7} logger sha1 base64}
+      name: websocket
+      version: 1.4
+      module: websocket
+    }
+    {wip 1.2} {
+      file: wip.tcl
+      require: {{Tcl 8.4} {snit 1.3} struct::set}
+      name: wip
+      version: 1.2
+      module: wip
+    }
+    {wip 2.2} {
+      file: wip2.tcl
+      require: {{Tcl 8.5} {snit 1.3-} struct::set}
+      name: wip
+      version: 2.2
+      module: wip
+    }
+    {huddle 0.1.5} {
+      file: huddle.tcl
+      name: huddle
+      version: 0.1.5
+      module: yaml
+    }
+    {yaml 0.3.7} {
+      file: yaml.tcl
+      name: yaml
+      version: 0.3.7
+      require: {cmdline huddle}
+      module: yaml
+    }
+    {zipfile::decode 0.7} {
+      file: decode.tcl
+      require: {{Tcl 8.4} fileutil::magic::mimetype {fileutil::decode 0.2}}
+      name: zipfile::decode
+      version: 0.7
+      module: zip
+    }
+    {zipfile::encode 0.3} {
+      file: encode.tcl
+      require: {{Tcl 8.4} logger Trf crc32 snit zlibtcl fileutil}
+      name: zipfile::encode
+      version: 0.3
+      module: zip
+    }
+    {zipfile::mkzip 1.2} {
+      file: mkzip.tcl
+      require: {{Tcl 8.6}}
+      name: zipfile::mkzip
+      version: 1.2
+      module: zip
+    }
+  }
