@@ -9,7 +9,7 @@
       project-name: Tcl
       project-code: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
       release: odie
-      url: http://fossil.etoyoc.com/fossil/tcllib
+      url: http://core.tcl.tk/tcllib
     }
   }
   release/ {
