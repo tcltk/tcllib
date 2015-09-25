@@ -10,6 +10,7 @@
 ###
 # Populate the branches
 ###
+my meta set name: tcllib
 my meta set installer: sak
 my release add trunk {
   distribution: official
