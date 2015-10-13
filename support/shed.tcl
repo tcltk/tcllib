@@ -27,12 +27,12 @@ foreach release {
 
 foreach file [glob [file join $::TOOL_ROOT apps *]] {
   if {[file extension $file] ne {}} continue
-  my application scan $file
+  my product scan $file {class: application}
 }
 
 ###
 # Build the module section
 ###
 foreach path [glob [file join $::TOOL_ROOT modules *]] {
-  my module scan $path
+  my module scan $path {class: source}
 }
