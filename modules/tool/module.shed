@@ -1,0 +1,7 @@
+my shed set name: tool
+my shed set description: {
+The base of the TOOL framework
+}
+foreach file [glob -nocomplain [file join $dir *]] {
+  my product scan $file {class: source}
+}
