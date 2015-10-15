@@ -12,8 +12,9 @@
 ###
 my shed set name: tcllib
 my shed set installer: sak
-my release add trunk {
-  distribution: official
+my add {
+  name: trunk
+  linktype: release
   checkout: trunk
 }
 foreach release {
@@ -22,17 +23,18 @@ foreach release {
   0.8 0.6.1 0.6 0.5 0.4
 } {
   set checkout tcllib-[join [split $release .] -]
-  my release add $checkout [list version: $release checkout: $checkout distribution: official]
+  my add [list name: $checkout linktype: release version: $release checkout: $checkout]
 }
 
 foreach file [glob [file join $::TOOL_ROOT apps *]] {
   if {[file extension $file] ne {}} continue
-  my product scan $file {class: application}
+  my scan $file {class: application}
 }
 
 ###
 # Build the module section
 ###
 foreach path [glob [file join $::TOOL_ROOT modules *]] {
-  my module scan $path {class: source}
+  puts "SCANNING $path"
+  my scan $path {class: source}
 }
