@@ -6,6 +6,7 @@ oo::define oo::class {
   # topic: d15a85525b1f7151cd808e592bc09fed
   ###
   method morph newclass {
+    if {$newclass eq {}} return
     set class [string trimleft [info object class [self]]]
     set newclass [string trimleft $newclass :]
     if {[info command ::$newclass] eq {}} {
