@@ -1,6 +1,7 @@
 package require listutil
 package require dicttool
 package require cron 1.2
+package require sha1
 ::namespace eval ::tool {}
 
 ###
