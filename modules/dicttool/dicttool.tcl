@@ -84,6 +84,7 @@ if {[::info commands ::tcl::dict::print] eq {}} {
     }
   }
   proc ::tcl::dict::print dict {
+    ::set buffer {}
     ::foreach {field value} $dict {
       _putb buffer 0 $field $value
     }
