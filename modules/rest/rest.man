@@ -513,6 +513,18 @@ Please either read the package's implementation, or use
 
 [para] Do not forget developers' documentation on the respective sites either.
 
+[section TLS]
+
+The [package rest] package can be used with [term https]-secured
+services, by requiring the [package TLS] package and then registering
+it with the [package http] package it is sitting on top of.
+
+Example
+[example {
+    package require tls
+    http::register https 443 ::tls::socket
+}]
+
 [include ../common-text/tls-security-notes.inc]
 
 [vset CATEGORY rest]
