@@ -45,7 +45,7 @@ if {0} {
 }
 
 $cn registerevent KICK {
-    puts "[who] KICKed [target 1] from [target] : [msg]"
+    puts "[who] KICKed [target] : [msg]"
 }
 
 puts " done"
