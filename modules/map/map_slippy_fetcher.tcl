@@ -7,8 +7,18 @@
 ## Requisites
 
 package require Tcl     8.4 ; # No {*}-expansion :(, no ** either, nor lassign
-package require Tk          ; # image photo
-package require img::png    ; # Slippy tiles use the PNG image file format.
+
+# Tk8.6 "image photo" supports PNG directly. Earlier versions requires
+# the IMG extension, aka TkImg.
+#	See http://sourceforge.net/projects/tkimg
+
+if {[catch {
+    package require Tk 8.6
+}]} {
+    package require Tk;
+    package require img::png    ; # Slippy tiles use the PNG image file format.
+}
+
 package require map::slippy ; # Slippy contants
 package require http        ; # Retrieval method
 package require snit
@@ -170,4 +180,4 @@ snit::type map::slippy::fetcher {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::fetcher 0.3
+package provide map::slippy::fetcher 0.4
