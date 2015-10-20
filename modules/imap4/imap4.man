@@ -1,4 +1,4 @@
-[manpage_begin imap4 n 0.5.2]
+[manpage_begin imap4 n 0.5.3]
 [see_also ftp]
 [see_also http]
 [see_also imap]
@@ -49,6 +49,12 @@ loaded otherwise an error is raised.
     package require tls              ; # must be loaded for TLS/SSL
     set ::imap4::use_ssl 1           ; # request a secure connection
     set chan [::imap4::open $server] ; # default port is now 993 }]
+
+[call [cmd ::imap4::starttls] [arg chan]]
+
+Use this when tasked with connecting to an unsecure port which must be
+changed to a secure port prior to user login.  This feature is known
+as [term STARTTLS].
 
 [call [cmd ::imap4::login] [arg chan] [arg user] [arg pass]]
 [para]Login using the IMAP LOGIN command, 0 is returned on successful login.
