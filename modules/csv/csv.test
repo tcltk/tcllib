@@ -221,7 +221,7 @@ foreach {n sep} {
     6  ]    7  (    8  )
     9  ?    10 ,    11 ;
     12 .    13 -    14 =
-    15 :
+    15 :    16 x    17 9
 } {
     test csv-1.16-$n "split on $sep" {
 	::csv::split [join [list REC DPI AD1 AD2 AD3] $sep] $sep
