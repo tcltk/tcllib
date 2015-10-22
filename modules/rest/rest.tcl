@@ -60,6 +60,9 @@ proc ::rest::simple {url query args} {
             lappend headers Authorization "Basic [base64::encode [lindex $auth 1]:[lindex $auth 2]]"
         }
     }
+    if {[dict exists $config content-type]} {
+        lappend headers Content-type [join [dict get $config content-type] \;]
+    }
     if {[dict exists $config headers]} {
         dict for {key val} [dict get $config headers] { lappend headers $key $val }
     }
