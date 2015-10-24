@@ -19,7 +19,7 @@
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.2
+package provide dtplite 1.3
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -104,6 +104,7 @@ package provide dtplite 1.2
 #	- Allow setting of a stylesheet.
 #	- Allow integration of custom body header and footer html.
 #	- Allow additional links for the navigation bar.
+#	- Force module name, for when the directory name is wrong.
 #
 #	Note: The tool generates standard navigation bars to link the
 #	all tocs, indices, and pages together.
@@ -111,6 +112,7 @@ package provide dtplite 1.2
 #	-style file
 #	-header file
 #	-footer file
+#	-module name
 #	-nav label url
 #	-prenav label url
 #	-postnav label url
@@ -404,6 +406,7 @@ proc ::dtplite::Init {} {
 #		?-style file?	\
 #		?-header file?	\
 #		?-footer file?	\
+#		?-module name?	\
 #		?-nav label url?... \
 #		?-prenav label url?... \
 #		?-postnav label url?... \
@@ -425,6 +428,7 @@ proc ::dtplite::ProcessCmdline {argv} {
     # Process the options, perform basic validation.
 
     set fixup {}
+    set muser false
 
     while {[llength $argv]} {
 	set opt [lindex $argv 0]
@@ -491,6 +495,11 @@ proc ::dtplite::ProcessCmdline {argv} {
 	    if {[llength $argv] < 2} Usage
 	    set footer [lindex $argv 1]
 	    set argv   [lrange $argv 2 end]
+	} elseif {[string equal $opt "-module"]} {
+	    if {[llength $argv] < 2} Usage
+	    set module [lindex $argv 1]
+	    set argv   [lrange $argv 2 end]
+	    set muser true
 	} elseif {[string equal $opt "-nav"]} {
 	    if {[llength $argv] < 3} Usage
 	    lappend prenav [lrange $argv 1 2]
@@ -553,7 +562,7 @@ proc ::dtplite::ProcessCmdline {argv} {
     }
 
     # Set up an extension based on the format, if no extension was
-    # specified.  also compute the name of the module, based on the
+    # specified.  Also compute the name of the module, based on the
     # input. [SF Tcllib Bug 1111364]. Has to come before the line
     # marked with a [*], or a filename without extension is created.
 
@@ -617,7 +626,10 @@ proc ::dtplite::ProcessCmdline {argv} {
 	set mode Directory
     }
 
-    set module [file rootname [file tail [file normalize $input]]]
+    # Derive a module name iff user has not chosen any.
+    if {!$muser} {
+	set module [file rootname [file tail [file normalize $input]]]
+    }
     return
 }
 
