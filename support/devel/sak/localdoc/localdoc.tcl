@@ -31,6 +31,7 @@ proc ::sak::localdoc::run {} {
     global excluded modules apps guide
     source support/installation/modules.tcl
 
+    lappend baseconfig -module tcllib
     foreach e $excluded {
 	puts "Excluding $e ..."
 	lappend baseconfig -exclude */modules/$e/*
@@ -43,6 +44,10 @@ proc ::sak::localdoc::run {} {
     sak::doc::index __dummy__
 
     puts "Removing old documentation..."
+    # but keep the main index around, manually created, edited, not to be touched
+    # TODO: catch errors and restore automatically
+    file rename embedded/index.html e_index.html
+    
     file delete -force embedded
     file mkdir embedded/man
     file mkdir embedded/www
@@ -75,13 +80,14 @@ proc ::sak::localdoc::run {} {
     set     config $baseconfig
     lappend config -exclude  {*/doctools/tests/*} 
     lappend config -exclude  {*/support/*} 
-    lappend config -toc      $toc 
+    lappend config -toc      $toc
     lappend config -nav      {Tcllib Home} $nav 
     lappend config -post+toc Categories    $cats 
     lappend config -post+toc Modules       $mods 
     lappend config -post+toc Applications  $apps 
     lappend config -merge 
-    lappend config -o embedded/www 
+    lappend config -o embedded/www
+    lappend config -header support/fossil-nav-integration.html
     lappend config html .
 
     dtplite::do $config
@@ -89,6 +95,8 @@ proc ::sak::localdoc::run {} {
     puts "Generating HTML... Pass 2, resolving cross-references..."
     dtplite::do $config
 
+    # put the saved main page back into place.
+    file rename e_index.html embedded/index.html
     return
 }
 
