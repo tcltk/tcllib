@@ -52,6 +52,9 @@ proc ::sak::localdoc::run {} {
     file mkdir embedded/man
     file mkdir embedded/www
 
+    # Put the saved main page back into place, early.
+    file rename e_index.html embedded/index.html
+
     puts "Generating manpages..."
     set     config $baseconfig
     lappend config -exclude {*/doctools/tests/*}
@@ -81,11 +84,12 @@ proc ::sak::localdoc::run {} {
     lappend config -exclude  {*/doctools/tests/*} 
     lappend config -exclude  {*/support/*} 
     lappend config -toc      $toc
-    lappend config -nav      {Tcllib Home} $nav 
+    #lappend config -nav      {Tcllib Home} $nav 
     lappend config -post+toc Categories    $cats 
     lappend config -post+toc Modules       $mods 
     lappend config -post+toc Applications  $apps 
     lappend config -merge 
+    lappend config -raw 
     lappend config -o embedded/www
     lappend config -header support/fossil-nav-integration.html
     lappend config html .
@@ -94,9 +98,6 @@ proc ::sak::localdoc::run {} {
 
     puts "Generating HTML... Pass 2, resolving cross-references..."
     dtplite::do $config
-
-    # put the saved main page back into place.
-    file rename e_index.html embedded/index.html
     return
 }
 
