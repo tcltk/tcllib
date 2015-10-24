@@ -71,11 +71,13 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set description [c_get_title]
     set copyright   [c_get_copyright]
 
+    set pagetitle "$title - $shortdesc"
+    
     set hdr ""
 
     if {![Get raw]} {
 	append  hdr [tag html] [tag head] \n
-	append  hdr [tag_ title "$title - $shortdesc"] \n
+	append  hdr [tag_ title $pagetitle] \n
 
 	if {![Extend hdr ByParameter meta]} {
 	    # Insert standard CSS definitions.
@@ -89,13 +91,14 @@ c_pass 2 fmt_manpage_begin {title section version} {
 	if {$copyright != {}} {
 	    append  hdr [ht_comment $copyright]\n
 	}
-	append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]
+	append  hdr [ht_comment "$title.$section"]
 	append  hdr \n\n
 	append  hdr [tag body]
     }
     append  hdr [tag* div class doctools] \n
 
-    Extend hdr ByParameter header
+    Extend hdr ByParameter header \
+	@TITLE@ $pagetitle
 
     set thetitle "[string trimleft $title :]($section) $version $module \"$shortdesc\""
     append  hdr [tag_ h1 $thetitle class title] \n
@@ -521,10 +524,13 @@ proc fmt_varset        {varname text} {
 }
 
 # Engine parameter handling
-proc Extend {v _ by} {
+proc Extend {v _ by args} {
     set html [Get $by]
     if {$html == {}} { return 0 }
     upvar 1 $v text
+    if {[llength $args]} {
+	set html [string map $args $html]
+    }
     append text [markup $html] \n
     return 1
 }
