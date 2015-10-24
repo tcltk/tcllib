@@ -78,7 +78,7 @@ proc BeginHeader {} {
     upvar 1 lines lines
     lappend lines [markup <html>]
     lappend lines [ht_comment [c_provenance]]
-    lappend lines [ht_comment "CVS: \$Id\$ $la"]
+    lappend lines [ht_comment "$la"]
     lappend lines [markup <head>]
     lappend lines "[markup <title>] $la [markup </title>]"
     return
@@ -105,13 +105,15 @@ proc BeginBody {} {
     # Engine parameter - insert 'meta'
     set header [Get header]
     if {$header == {}} return
+    lappend map @TITLE@ [TheTitle]
+    set header [string map $map $header]
     lappend lines [markup $header]
     return
 }
 
-proc Title {} {
+proc TheTitle {} {
     global la ti
-    upvar 1 lines lines
+    set title ???
     if {($la != {}) && ($ti != {})} {
 	set title "$la -- $ti"
     } elseif {$la != {}} {
@@ -119,7 +121,12 @@ proc Title {} {
     } elseif {$ti != {}} {
 	set title $ti
     }
-    lappend lines "[markup <h3>] $title [markup </h3>]"
+    return $title
+}
+
+proc Title {} {
+    upvar 1 lines lines
+    lappend lines "[markup <h3>] [TheTitle] [markup </h3>]"
     return
 }
 
