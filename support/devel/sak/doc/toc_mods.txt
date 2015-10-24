@@ -294,6 +294,7 @@
 [item modules/math/qcomplex.man          math::complexnumbers     {Straightforward complex number package}]
 [item modules/math/constants.man         math::constants          {Mathematical and numerical constants}]
 [item modules/math/decimal.man           math::decimal            {General decimal arithmetic}]
+[item modules/math/exact.man             math::exact              {Exact Real Arithmetic}]
 [item modules/math/fourier.man           math::fourier            {Discrete and fast fourier transforms}]
 [item modules/math/fuzzy.man             math::fuzzy              {Fuzzy comparison of floating-point numbers}]
 [item modules/math/math_geometry.man     math::geometry           {Geometrical computations}]
