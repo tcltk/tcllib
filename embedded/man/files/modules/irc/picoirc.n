@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "picoirc" n 0\&.5 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.5\&.2 tcllib "Simple embeddable IRC interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
 package require \fBTcl \fR
 .sp
-package require \fBpicoirc  ?0\&.5?\fR
+package require \fBpicoirc  ?0\&.5\&.2?\fR
 .sp
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
 .sp

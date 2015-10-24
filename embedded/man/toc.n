@@ -789,6 +789,9 @@ tcllib
 \fBmath::decimal\fR
 \fIfiles/modules/math/decimal\&.n\fR: General decimal arithmetic
 .TP
+\fBmath::exact\fR
+\fIfiles/modules/math/exact\&.n\fR: Exact Real Arithmetic
+.TP
 \fBmath::fourier\fR
 \fIfiles/modules/math/fourier\&.n\fR: Discrete and fast fourier transforms
 .TP
