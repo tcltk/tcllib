@@ -1649,19 +1649,20 @@ proc ::dtplite::Navbar {nav ref} {
     set sep 0
     set first 1
     set hdr ""
-    if {![string equal $header ""]} {
-	append hdr $header
-	set sep 1
-    }
 
     append hdr [NavbarSegment sep first $prenav  $ref]
     append hdr [NavbarSegment sep first $nav     $ref]
     append hdr [NavbarSegment sep first $postnav $ref]
 
     if {[string length $hdr]} {
-	set hdr "<hr> \[\n $hdr \] <hr>\n"
+	set hdr "\[\n $hdr \]"
     }
-
+    if {![string equal $header ""]} {
+	set hdr "$header $hdr"
+    }
+    if {[string length $hdr]} {
+	set hdr "<hr> $hdr <hr>\n"
+    }
     return $hdr
 }
 
