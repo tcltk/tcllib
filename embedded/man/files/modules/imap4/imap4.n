@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'imap4\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "imap4" n 0\&.5\&.2 tcllib "imap client"
+.TH "imap4" n 0\&.5\&.3 tcllib "imap client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,6 +279,8 @@ package require \fBimap4  ?0\&.5\&.2?\fR
 .sp
 \fB::imap4::open\fR \fIhostname\fR ?\fIport\fR?
 .sp
+\fB::imap4::starttls\fR \fIchan\fR
+.sp
 \fB::imap4::login\fR \fIchan\fR \fIuser\fR \fIpass\fR
 .sp
 \fB::imap4::folders\fR \fIchan\fR ?\fI-inline\fR? ?\fImboxref\fR? ?\fImboxname\fR?
@@ -362,6 +364,11 @@ loaded otherwise an error is raised\&.
     set ::imap4::use_ssl 1           ; # request a secure connection
     set chan [::imap4::open $server] ; # default port is now 993
 .CE
+.TP
+\fB::imap4::starttls\fR \fIchan\fR
+Use this when tasked with connecting to an unsecure port which must be
+changed to a secure port prior to user login\&.  This feature is known
+as \fISTARTTLS\fR\&.
 .TP
 \fB::imap4::login\fR \fIchan\fR \fIuser\fR \fIpass\fR
 .sp

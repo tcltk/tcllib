@@ -94,11 +94,13 @@
 </head>
 <! -- Generated from file 'rest.man' by tcllib/doctools with format 'html'
    -->
-<! -- CVS: $Id$ rest.n
+<! -- rest.n
    -->
 <body><div class="doctools">
 <hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
+ <div class='fossil-doc' data-title='rest - A framework for RESTful web services'>
+<br>
+  <a href="../../../../../../../../home">Tcllib Home</a>
 | <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
@@ -119,8 +121,9 @@
 <li class="section"><a href="#section3">Interface usage</a></li>
 <li class="section"><a href="#section4">Examples</a></li>
 <li class="section"><a href="#section5">INCLUDED</a></li>
-<li class="section"><a href="#section6">TLS Security Considerations</a></li>
-<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section6">TLS</a></li>
+<li class="section"><a href="#section7">TLS Security Considerations</a></li>
+<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
 </ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
@@ -516,7 +519,17 @@ proc ::flickr::do_signature {query} {
 <b class="cmd">rest::describe</b> after loading it for their details.</p>
 <p>Do not forget developers' documentation on the respective sites either.</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">TLS Security Considerations</a></h2>
+<div id="section6" class="section"><h2><a name="section6">TLS</a></h2>
+<p>The <b class="package">rest</b> package can be used with <i class="term">https</i>-secured
+services, by requiring the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package and then registering
+it with the <b class="package"><a href="../../../../index.html#key445">http</a></b> package it is sitting on top of.
+Example</p>
+<pre class="example">
+    package require tls
+    http::register https 443 ::tls::socket
+</pre>
+</div>
+<div id="section7" class="section"><h2><a name="section7">TLS Security Considerations</a></h2>
 <p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
@@ -538,7 +551,7 @@ support, as shown in the example below.</p>
     ... your own application code ...
 </pre>
 </div>
-<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
+<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>rest</em> of the
