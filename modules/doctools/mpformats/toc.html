@@ -39,12 +39,16 @@ proc fmt_toc_begin     {label title}      {
 
     append  hdr "[markup </head>]\n"
     append  hdr [ht_comment [c_provenance]]\n
-    append  hdr [ht_comment "CVS: \$Id\$ $label"]\n
+    append  hdr [ht_comment "$label"]\n
     append  hdr \n
     append  hdr [markup <body>]\n
 
     # Engine parameter - insert 'header'
-    if {[set header [Get header]] != {}} {append hdr [markup $header]\n}
+    if {[set header [Get header]] != {}} {
+	lappend map @TITLE@ $label
+	set header [string map $map $header]
+	append hdr [markup $header]\n
+    }
 
     append  hdr "[markup <h3>] $label [markup </h3>]\n"
     append  hdr "[markup <hr><dl><dt><h2>] $title [markup </h2><dd>]\n"
