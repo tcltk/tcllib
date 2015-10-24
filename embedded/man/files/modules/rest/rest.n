@@ -761,6 +761,18 @@ Please either read the package's implementation, or use
 \fBrest::describe\fR after loading it for their details\&.
 .PP
 Do not forget developers' documentation on the respective sites either\&.
+.SH TLS
+The \fBrest\fR package can be used with \fIhttps\fR-secured
+services, by requiring the \fBTLS\fR package and then registering
+it with the \fBhttp\fR package it is sitting on top of\&.
+Example
+.CS
+
+
+    package require tls
+    http::register https 443 ::tls::socket
+
+.CE
 .SH "TLS SECURITY CONSIDERATIONS"
 This package uses the \fBTLS\fR package to handle the security
 for \fBhttps\fR urls and other socket connections\&.
