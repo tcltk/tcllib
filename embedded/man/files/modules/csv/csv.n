@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'csv\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2002-2015 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "csv" n 0\&.8 tcllib "CSV processing"
+.TH "csv" n 0\&.8\&.1 tcllib "CSV processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ csv \- Procedures to handle CSV data\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBcsv  ?0\&.8?\fR
+package require \fBcsv  ?0\&.8\&.1?\fR
 .sp
 \fB::csv::iscomplete\fR \fIdata\fR
 .sp
@@ -501,6 +501,6 @@ csv, matrix, package, queue, tcllib
 Text processing
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2002-2015 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
