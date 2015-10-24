@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'map_slippy_fetcher\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "map::slippy::fetcher" n 0\&.3 tcllib "Mapping utilities"
+.TH "map::slippy::fetcher" n 0\&.4 tcllib "Mapping utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -281,7 +281,7 @@ package require \fBimg::png \fR
 .sp
 package require \fBmap::slippy \fR
 .sp
-package require \fBmap::slippy::fetcher  ?0\&.3?\fR
+package require \fBmap::slippy::fetcher  ?0\&.4?\fR
 .sp
 \fB::map::slippy::fetcher\fR \fIfetcherName\fR \fIlevels\fR \fIurl\fR
 .sp

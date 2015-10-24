@@ -93,11 +93,13 @@
 </head>
 <! -- Generated from file 'imap4.man' by tcllib/doctools with format 'html'
    -->
-<! -- CVS: $Id$ imap4.n
+<! -- imap4.n
    -->
 <body><div class="doctools">
 <hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
+ <div class='fossil-doc' data-title='imap4 - imap client'>
+<br>
+  <a href="../../../../../../../../home">Tcllib Home</a>
 | <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
@@ -105,7 +107,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">imap4(n) 0.5.2 tcllib &quot;imap client&quot;</h1>
+<h1 class="title">imap4(n) 0.5.3 tcllib &quot;imap client&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>imap4 - imap client-side tcl implementation of imap protocol</p>
 </div>
@@ -131,30 +133,31 @@
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::imap4::open</b> <i class="arg">hostname</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
-<li><a href="#2"><b class="cmd">::imap4::login</b> <i class="arg">chan</i> <i class="arg">user</i> <i class="arg">pass</i></a></li>
-<li><a href="#3"><b class="cmd">::imap4::folders</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">mboxref</i>?</span> <span class="opt">?<i class="arg">mboxname</i>?</span></a></li>
-<li><a href="#4"><b class="cmd">::imap4::select</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></li>
-<li><a href="#5"><b class="cmd">::imap4::examine</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></li>
-<li><a href="#6"><b class="cmd">::imap4::fetch</b> <i class="arg">chan</i> <i class="arg">range</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">attr ...</i>?</span></a></li>
-<li><a href="#7"><b class="cmd">::imap4::noop</b> <i class="arg">chan</i></a></li>
-<li><a href="#8"><b class="cmd">::imap4::check</b> <i class="arg">chan</i></a></li>
-<li><a href="#9"><b class="cmd">::imap4::folderinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></li>
-<li><a href="#10"><b class="cmd">::imap4::msginfo</b> <i class="arg">chan</i> <i class="arg">msgid</i> <span class="opt">?<i class="arg">info</i>?</span> <span class="opt">?<i class="arg">defval</i>?</span></a></li>
-<li><a href="#11"><b class="cmd">::imap4::mboxinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></li>
-<li><a href="#12"><b class="cmd">::imap4::isableto</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">capability</i>?</span></a></li>
-<li><a href="#13"><b class="cmd">::imap4::create</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
-<li><a href="#14"><b class="cmd">::imap4::delete</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
-<li><a href="#15"><b class="cmd">::imap4::rename</b> <i class="arg">chan</i> <i class="arg">oldname</i> <i class="arg">newname</i></a></li>
-<li><a href="#16"><b class="cmd">::imap4::subscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
-<li><a href="#17"><b class="cmd">::imap4::unsubscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
-<li><a href="#18"><b class="cmd">::imap4::search</b> <i class="arg">chan</i> <i class="arg">expr</i> <span class="opt">?<i class="arg">...</i>?</span></a></li>
-<li><a href="#19"><b class="cmd">::imap4::close</b> <i class="arg">chan</i></a></li>
-<li><a href="#20"><b class="cmd">::imap4::cleanup</b> <i class="arg">chan</i></a></li>
-<li><a href="#21"><b class="cmd">::imap4::debugmode</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">errormsg</i>?</span></a></li>
-<li><a href="#22"><b class="cmd">::imap4::store</b> <i class="arg">chan</i> <i class="arg">range</i> <i class="arg">data</i> <i class="arg">flaglist</i></a></li>
-<li><a href="#23"><b class="cmd">::imap4::expunge</b> <i class="arg">chan</i></a></li>
-<li><a href="#24"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></li>
-<li><a href="#25"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></li>
+<li><a href="#2"><b class="cmd">::imap4::starttls</b> <i class="arg">chan</i></a></li>
+<li><a href="#3"><b class="cmd">::imap4::login</b> <i class="arg">chan</i> <i class="arg">user</i> <i class="arg">pass</i></a></li>
+<li><a href="#4"><b class="cmd">::imap4::folders</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">mboxref</i>?</span> <span class="opt">?<i class="arg">mboxname</i>?</span></a></li>
+<li><a href="#5"><b class="cmd">::imap4::select</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></li>
+<li><a href="#6"><b class="cmd">::imap4::examine</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></li>
+<li><a href="#7"><b class="cmd">::imap4::fetch</b> <i class="arg">chan</i> <i class="arg">range</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">attr ...</i>?</span></a></li>
+<li><a href="#8"><b class="cmd">::imap4::noop</b> <i class="arg">chan</i></a></li>
+<li><a href="#9"><b class="cmd">::imap4::check</b> <i class="arg">chan</i></a></li>
+<li><a href="#10"><b class="cmd">::imap4::folderinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></li>
+<li><a href="#11"><b class="cmd">::imap4::msginfo</b> <i class="arg">chan</i> <i class="arg">msgid</i> <span class="opt">?<i class="arg">info</i>?</span> <span class="opt">?<i class="arg">defval</i>?</span></a></li>
+<li><a href="#12"><b class="cmd">::imap4::mboxinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></li>
+<li><a href="#13"><b class="cmd">::imap4::isableto</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">capability</i>?</span></a></li>
+<li><a href="#14"><b class="cmd">::imap4::create</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#15"><b class="cmd">::imap4::delete</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#16"><b class="cmd">::imap4::rename</b> <i class="arg">chan</i> <i class="arg">oldname</i> <i class="arg">newname</i></a></li>
+<li><a href="#17"><b class="cmd">::imap4::subscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#18"><b class="cmd">::imap4::unsubscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#19"><b class="cmd">::imap4::search</b> <i class="arg">chan</i> <i class="arg">expr</i> <span class="opt">?<i class="arg">...</i>?</span></a></li>
+<li><a href="#20"><b class="cmd">::imap4::close</b> <i class="arg">chan</i></a></li>
+<li><a href="#21"><b class="cmd">::imap4::cleanup</b> <i class="arg">chan</i></a></li>
+<li><a href="#22"><b class="cmd">::imap4::debugmode</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">errormsg</i>?</span></a></li>
+<li><a href="#23"><b class="cmd">::imap4::store</b> <i class="arg">chan</i> <i class="arg">range</i> <i class="arg">data</i> <i class="arg">flaglist</i></a></li>
+<li><a href="#24"><b class="cmd">::imap4::expunge</b> <i class="arg">chan</i></a></li>
+<li><a href="#25"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#26"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></li>
 </ul>
 </div>
 </div>
@@ -185,12 +188,16 @@ loaded otherwise an error is raised.</p>
     set ::imap4::use_ssl 1           ; # request a secure connection
     set chan [::imap4::open $server] ; # default port is now 993 </pre>
 </dd>
-<dt><a name="2"><b class="cmd">::imap4::login</b> <i class="arg">chan</i> <i class="arg">user</i> <i class="arg">pass</i></a></dt>
+<dt><a name="2"><b class="cmd">::imap4::starttls</b> <i class="arg">chan</i></a></dt>
+<dd><p>Use this when tasked with connecting to an unsecure port which must be
+changed to a secure port prior to user login.  This feature is known
+as <i class="term">STARTTLS</i>.</p></dd>
+<dt><a name="3"><b class="cmd">::imap4::login</b> <i class="arg">chan</i> <i class="arg">user</i> <i class="arg">pass</i></a></dt>
 <dd><p>Login using the IMAP LOGIN command, 0 is returned on successful login.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">user</i> - username</p>
 <p><i class="arg">pass</i> - password</p></dd>
-<dt><a name="3"><b class="cmd">::imap4::folders</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">mboxref</i>?</span> <span class="opt">?<i class="arg">mboxname</i>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::imap4::folders</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">mboxref</i>?</span> <span class="opt">?<i class="arg">mboxname</i>?</span></a></dt>
 <dd><p>Get list of matching folders, 0 is returned on success.</p>
 <p>Wildcards '*' as '%' are allowed for <i class="arg">mboxref</i> and <i class="arg">mboxname</i>,
 command <b class="cmd">::imap4::folderinfo</b> can be used to retrieve folder information.</p>
@@ -202,18 +209,18 @@ returned instead of the result code. All flags are converted to
 lowercase and leading special characters are removed.</p>
 <pre class="example">{{Arc08 noselect} {Arc08/Private {noinferiors unmarked}} {INBOX noinferiors}}</pre>
 </dd>
-<dt><a name="4"><b class="cmd">::imap4::select</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></dt>
+<dt><a name="5"><b class="cmd">::imap4::select</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></dt>
 <dd><p>Select a mailbox, 0 is returned on success.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - Path of the mailbox,  defaults to <em>INBOX</em></p>
 <p>Prior to examine/select an open mailbox must be closed - see: <b class="cmd">::imap4::close</b>.</p></dd>
-<dt><a name="5"><b class="cmd">::imap4::examine</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></dt>
+<dt><a name="6"><b class="cmd">::imap4::examine</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">mailbox</i>?</span></a></dt>
 <dd><p>&quot;Examines&quot; a mailbox, read-only equivalent of <b class="cmd">::imap4::select</b>.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - mailbox name or path to mailbox,
 defaults to <em>INBOX</em></p>
 <p>Prior to examine/select an open mailbox must be closed - see: <b class="cmd">::imap4::close</b>.</p></dd>
-<dt><a name="6"><b class="cmd">::imap4::fetch</b> <i class="arg">chan</i> <i class="arg">range</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">attr ...</i>?</span></a></dt>
+<dt><a name="7"><b class="cmd">::imap4::fetch</b> <i class="arg">chan</i> <i class="arg">range</i> <span class="opt">?<i class="arg">-inline</i>?</span> <span class="opt">?<i class="arg">attr ...</i>?</span></a></dt>
 <dd><p>Fetch attributes from messages.</p>
 <p>The attributes are fetched and stored in the internal state
 which can be retrieved with command <b class="cmd">::imap4::msginfo</b>, 0 is returned
@@ -227,13 +234,13 @@ in order as defined in the <i class="arg">attr</i> argument.</p>
 If <em>FROM</em> is omitted, the 1st message is assumed,
 if <em>TO</em> is ommitted the last message is assumed.
 All message index ranges are 1-based.</p></dd>
-<dt><a name="7"><b class="cmd">::imap4::noop</b> <i class="arg">chan</i></a></dt>
+<dt><a name="8"><b class="cmd">::imap4::noop</b> <i class="arg">chan</i></a></dt>
 <dd><p>Send NOOP command to server. May get information as untagged data.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="8"><b class="cmd">::imap4::check</b> <i class="arg">chan</i></a></dt>
+<dt><a name="9"><b class="cmd">::imap4::check</b> <i class="arg">chan</i></a></dt>
 <dd><p>Send CHECK command to server. Flush to disk.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="9"><b class="cmd">::imap4::folderinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></dt>
+<dt><a name="10"><b class="cmd">::imap4::folderinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></dt>
 <dd><p>Get information on the recently selected folderlist.
 If the <i class="arg">info</i> argument is omitted or a null string, the full list
 of information available for the mailbox is returned.</p>
@@ -253,7 +260,7 @@ false if it is not.</p>
 {{Arc08 {{\NoSelect}}} {Arc08/Private {{\NoInferiors} {\UnMarked}}} {INBOX {\NoInferiors}}}
 </pre>
 </dd>
-<dt><a name="10"><b class="cmd">::imap4::msginfo</b> <i class="arg">chan</i> <i class="arg">msgid</i> <span class="opt">?<i class="arg">info</i>?</span> <span class="opt">?<i class="arg">defval</i>?</span></a></dt>
+<dt><a name="11"><b class="cmd">::imap4::msginfo</b> <i class="arg">chan</i> <i class="arg">msgid</i> <span class="opt">?<i class="arg">info</i>?</span> <span class="opt">?<i class="arg">defval</i>?</span></a></dt>
 <dd><p>Get information (from previously collected using fetch) from a given
 <em>msgid</em>. If the 'info' argument is omitted or a null string,
 the list of available information options for the given message is
@@ -267,7 +274,7 @@ false if it is not.</p>
 <p><i class="arg">defval</i> - default value, returned if info is empty</p>
 <p><em>Note:</em>
 All message index ranges are 1-based.</p></dd>
-<dt><a name="11"><b class="cmd">::imap4::mboxinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></dt>
+<dt><a name="12"><b class="cmd">::imap4::mboxinfo</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">info</i>?</span></a></dt>
 <dd><p>Get information on the currently selected mailbox.
 If the <i class="arg">info</i> argument is omitted or a null string, the list
 of available information options for the mailbox is returned.</p>
@@ -288,7 +295,7 @@ false if it is not.</p>
     ::imap4::select $chan INBOX
     puts &quot;[::imap4::mboxinfo $chan exists] mails in INBOX&quot;</pre>
 </dd>
-<dt><a name="12"><b class="cmd">::imap4::isableto</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">capability</i>?</span></a></dt>
+<dt><a name="13"><b class="cmd">::imap4::isableto</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">capability</i>?</span></a></dt>
 <dd><p>Test for capability.
 It returns 1 if requested capability is supported, 0 otherwise.
 If <i class="arg">capability</i> is omitted all capability imap
@@ -298,28 +305,28 @@ codes are retured as list.</p>
 <p><em>Note:</em>
 Use the capability command to ask the server if not
 already done by the user.</p></dd>
-<dt><a name="13"><b class="cmd">::imap4::create</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
+<dt><a name="14"><b class="cmd">::imap4::create</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
 <dd><p>Create a new mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - mailbox name</p></dd>
-<dt><a name="14"><b class="cmd">::imap4::delete</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
+<dt><a name="15"><b class="cmd">::imap4::delete</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
 <dd><p>Delete a new mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - mailbox name</p></dd>
-<dt><a name="15"><b class="cmd">::imap4::rename</b> <i class="arg">chan</i> <i class="arg">oldname</i> <i class="arg">newname</i></a></dt>
+<dt><a name="16"><b class="cmd">::imap4::rename</b> <i class="arg">chan</i> <i class="arg">oldname</i> <i class="arg">newname</i></a></dt>
 <dd><p>Rename a new mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - old mailbox name</p>
 <p><i class="arg">mailbox</i> - new mailbox name</p></dd>
-<dt><a name="16"><b class="cmd">::imap4::subscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
+<dt><a name="17"><b class="cmd">::imap4::subscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
 <dd><p>Subscribe a new mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - mailbox name</p></dd>
-<dt><a name="17"><b class="cmd">::imap4::unsubscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
+<dt><a name="18"><b class="cmd">::imap4::unsubscribe</b> <i class="arg">chan</i> <i class="arg">mailbox</i></a></dt>
 <dd><p>Unsubscribe a new mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">mailbox</i> - mailbox name</p></dd>
-<dt><a name="18"><b class="cmd">::imap4::search</b> <i class="arg">chan</i> <i class="arg">expr</i> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
+<dt><a name="19"><b class="cmd">::imap4::search</b> <i class="arg">chan</i> <i class="arg">expr</i> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
 <dd><p>Search for mails matching search criterions, 0 is returned on success.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">expr</i> - imap search expression</p>
@@ -343,16 +350,16 @@ OR, NOT</p>
 puts &quot;Found messages: [::imap4::mboxinfo $chan found]&quot;
 Found messages: 1 3 6 7 8 9 13 14 15 19 20</pre>
 </dd>
-<dt><a name="19"><b class="cmd">::imap4::close</b> <i class="arg">chan</i></a></dt>
+<dt><a name="20"><b class="cmd">::imap4::close</b> <i class="arg">chan</i></a></dt>
 <dd><p>Close the mailbox. Permanently removes \Deleted messages and
 return to the AUTH state.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="20"><b class="cmd">::imap4::cleanup</b> <i class="arg">chan</i></a></dt>
+<dt><a name="21"><b class="cmd">::imap4::cleanup</b> <i class="arg">chan</i></a></dt>
 <dd><p>Destroy an IMAP connection and free the used space.
 Close the mailbox. Permanently removes \Deleted messages
 and return to the AUTH state.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="21"><b class="cmd">::imap4::debugmode</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">errormsg</i>?</span></a></dt>
+<dt><a name="22"><b class="cmd">::imap4::debugmode</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">errormsg</i>?</span></a></dt>
 <dd><p>Switch client into command line debug mode.</p>
 <p>This is a developers mode only that pass the control to the
 programmer. Every line entered is sent verbatim to the
@@ -362,7 +369,7 @@ The ::imap4::debug variable is automatically set to '1' on enter.</p>
 with a slash.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">errormsg</i> - optional error message to display</p></dd>
-<dt><a name="22"><b class="cmd">::imap4::store</b> <i class="arg">chan</i> <i class="arg">range</i> <i class="arg">data</i> <i class="arg">flaglist</i></a></dt>
+<dt><a name="23"><b class="cmd">::imap4::store</b> <i class="arg">chan</i> <i class="arg">range</i> <i class="arg">data</i> <i class="arg">flaglist</i></a></dt>
 <dd><p>Alters data associated with a message in the selected
 mailbox.</p>
 <p><i class="arg">chan</i> - imap channel</p>
@@ -387,18 +394,18 @@ message.</p></dd>
 	::imap4::store $chan $start_msgid:$end_msgid +FLAGS &quot;Deleted&quot;
 </pre>
 </dd>
-<dt><a name="23"><b class="cmd">::imap4::expunge</b> <i class="arg">chan</i></a></dt>
+<dt><a name="24"><b class="cmd">::imap4::expunge</b> <i class="arg">chan</i></a></dt>
 <dd><p>Permanently removes all messages that have the \Deleted flag
 set from the currently selected mailbox, without the need to close the
 connection.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="24"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></dt>
+<dt><a name="25"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></dt>
 <dd><p>Copies the specified message (identified by its message number)
 to the named mailbox, i.e. imap folder.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">msgid</i> - message number</p>
 <p><i class="arg">mailbox</i> - mailbox name</p></dd>
-<dt><a name="25"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></dt>
+<dt><a name="26"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></dt>
 <dd><p>Informs the server that the client is done with the connection
 and closes the network connection. Permanently removes \Deleted
 messages.</p>
