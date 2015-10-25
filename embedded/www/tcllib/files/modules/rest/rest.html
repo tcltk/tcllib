@@ -1,7 +1,6 @@
 
-<html><head>
-<title>rest - A framework for RESTful web services</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='rest - A framework for RESTful web services'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,56 +81,49 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'rest.man' by tcllib/doctools with format 'html'
-   -->
-<! -- rest.n
-   -->
-<body><div class="doctools">
-<hr> <div class='fossil-doc' data-title='rest - A framework for RESTful web services'>
- [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">rest(n) 1.0.1 tcllib &quot;A framework for RESTful web services&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">rest(n) 1.0.1 tcllib &quot;A framework for RESTful web services&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rest - define REST web APIs and call them inline or asychronously</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Simple usage</a></li>
-<li class="section"><a href="#section3">Interface usage</a></li>
-<li class="section"><a href="#section4">Examples</a></li>
-<li class="section"><a href="#section5">INCLUDED</a></li>
-<li class="section"><a href="#section6">TLS</a></li>
-<li class="section"><a href="#section7">TLS Security Considerations</a></li>
-<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Simple usage</a></li>
+<li class="doctools_section"><a href="#section3">Interface usage</a></li>
+<li class="doctools_section"><a href="#section4">Examples</a></li>
+<li class="doctools_section"><a href="#section5">INCLUDED</a></li>
+<li class="doctools_section"><a href="#section6">TLS</a></li>
+<li class="doctools_section"><a href="#section7">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
 <li>package require <b class="pkgname">rest <span class="opt">?1.0.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::rest::get</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::rest::post</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
@@ -147,7 +139,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>There are two types of usage this package supports: <i class="term">simple calls</i>,
 and complete <i class="term">interfaces</i>.
 In an <i class="term">interface</i> you specify a set of rules and then the package
@@ -160,10 +152,10 @@ to implement it is also less featureful. It takes the url and a few
 options about the command and returns the result directly. Any
 formatting or checking is up to rest of the script.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Simple usage</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Simple usage</a></h2>
 <p>In simple usage you make calls using the http method procedures and
 then check or process the returned data yourself</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
 <dd></dd>
 <dt><a name="2"><b class="cmd">::rest::get</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
@@ -182,7 +174,7 @@ option in the <i class="arg">config</i> dictionary. If that is not done it defau
 to <b class="const">get</b>. If a <i class="arg">body</i> is needed then the <i class="arg">config</i>
 dictionary must be present, however it is allowed to be empty.</p>
 <p>The <i class="arg">config</i> dictionary supports the following keys</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">auth</b></dt>
 <dd></dd>
 <dt><b class="const">content-type</b></dt>
@@ -198,14 +190,14 @@ dictionary must be present, however it is allowed to be empty.</p>
 </dl>
 <p>Two quick examples:</p>
 <p>Example 1, Yahoo Boss:</p>
-<pre class="example">
+<pre class="doctools_example">
     set appid APPID
     set search tcl
     set res [rest::get http://boss.yahooapis.com/ysearch/web/v1/$search [list appid $appid]]
     set res [rest::format_json $res]
 </pre>
 <p>Example 2, Twitter:</p>
-<pre class="example">
+<pre class="doctools_example">
     set url   http://twitter.com/statuses/update.json
     set query [list status $text]
     set res [rest::simple $url $query {
@@ -217,7 +209,7 @@ dictionary must be present, however it is allowed to be empty.</p>
 </dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Interface usage</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Interface usage</a></h2>
 <p>An interface to a REST API consists of a series of definitions of REST
 calls contained in an array.
 The name of that array becomes a namespace containing the defined
@@ -229,7 +221,7 @@ After creating the definitions in the array simply calling
 <b class="cmd">rest::create_interface</b> with the array as argument will then
 create the desired commands.</p>
 <p>Example, Yahoo Weather:</p>
-<pre class="example">
+<pre class="doctools_example">
     package require rest
     set yweather(forecast) {
        url      http://weather.yahooapis.com/forecastrss
@@ -239,7 +231,7 @@ create the desired commands.</p>
     rest::create_interface yweather
     puts [yweather::forecast -p 94089]
 </pre>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="7"><b class="cmd">::rest::save</b> <i class="arg">name</i> <i class="arg">file</i></a></dt>
 <dd><p>This command saves a copy of the dynamically created procedures for
 all the API calls specified in the array variable <i class="arg">name</i> to the
@@ -256,7 +248,7 @@ returns said dictionary as its result.</p>
 entire dictionary, but only the value of that <i class="arg">key</i>.</p></dd>
 <dt><a name="10"><b class="cmd">::rest::parse_opts</b> <i class="arg">static</i> <i class="arg">required</i> <i class="arg">optional</i> <i class="arg">words</i></a></dt>
 <dd><p>This command implements a custom parserfor command options.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>dict <i class="arg">static</i></dt>
 <dd><p>A dictionary of options and their values that are always present in
 the output.</p></dd>
@@ -265,7 +257,7 @@ the output.</p></dd>
 <dt>list <i class="arg">optional</i></dt>
 <dd><p>A list of options that may appear in the <i class="arg">words</i>, but are not required.
 The elements must be in one of three forms:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>name</dt>
 <dd><p>The option may be present or not, no default.</p></dd>
 <dt>name:</dt>
@@ -298,7 +290,7 @@ array variable <i class="arg">name</i>.</p>
 commands. Each key of the array specifies the name of the call, with
 the associated configuration a dictionary, i.e. key/value pairs.
 The legal keys and their meanings are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">url</b></dt>
 <dd><p>The value of this <em>required</em> option must be the target of the
 http request.</p></dd>
@@ -310,7 +302,7 @@ Used only by <b class="cmd">::rest::describe</b>.</p></dd>
 <dd><p>The value of this option indicates if arguments are required for the
 call's request body or not. The acceptable values are listed below.
 Defaults to <b class="const">optional</b> if not specified.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">none</b></dt>
 <dd><p>The call has no request body, none must be supplied.</p></dd>
 <dt><b class="const">optional</b></dt>
@@ -363,7 +355,7 @@ the command line.</p></dd>
 <dt><b class="const">auth</b></dt>
 <dd><p>The value of this option specifies how to authenticate the calls.
 No authentication is done if the option is not specified.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">basic</b></dt>
 <dd><p>The user may configure the <i class="term">basic authentication</i> by overriding
 the procedure <b class="cmd">basic_auth</b> in the namespace of interface. This
@@ -406,7 +398,7 @@ The request body is accessible in the transform command via
 data.
 Defaults to <b class="const">auto</b> if not specified.
 The acceptable values are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">auto</b></dt>
 <dd><p>Auto detect between <b class="const">xml</b> and <b class="const">json</b>.</p></dd>
 <dt><b class="const">discard</b></dt>
@@ -454,9 +446,9 @@ otherwise.</p>
 </dl></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Examples</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Examples</a></h2>
 <p>Yahoo Geo:</p>
-<pre class="example">
+<pre class="doctools_example">
 set ygeo(parse) {
     url http://wherein.yahooapis.com/v1/document
     method post
@@ -466,7 +458,7 @@ ygeo::parse &quot;san jose ca&quot;
 # &quot;san jose ca&quot; will be interpreted as if it were specified as the -documentContent option
 </pre>
 <p>Google Docs:</p>
-<pre class="example">
+<pre class="doctools_example">
 set gdocs(upload) {
     url http://docs.google.com/feeds/default/private/full
     body mime_multipart
@@ -474,7 +466,7 @@ set gdocs(upload) {
 gdocs::upload [list {Content-Type application/atom+xml} $xml] [list {Content-Type image/jpeg} $filedata]
 </pre>
 <p>Delicious:</p>
-<pre class="example">
+<pre class="doctools_example">
 set delicious(updated) {
     url https://api.del.icio.us/v1/posts/update
     auth basic
@@ -483,7 +475,7 @@ rest::create_interface flickr
 flickr::basic_auth username password
 </pre>
 <p>Flickr:</p>
-<pre class="example">
+<pre class="doctools_example">
 set flickr(auth.getToken) {
    url http://api.flickr.com/services/rest/
    req_args { api_key: secret: }
@@ -496,9 +488,9 @@ proc ::flickr::do_signature {query} {
 }
 </pre>
 </div>
-<div id="section5" class="section"><h2><a name="section5">INCLUDED</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">INCLUDED</a></h2>
 <p>The package provides functional but incomplete implementations for the following services:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">del.icio.us</b></dt>
 <dd></dd>
 <dt><b class="const">facebook</b></dt>
@@ -518,17 +510,17 @@ proc ::flickr::do_signature {query} {
 <b class="cmd">rest::describe</b> after loading it for their details.</p>
 <p>Do not forget developers' documentation on the respective sites either.</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">TLS</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">TLS</a></h2>
 <p>The <b class="package">rest</b> package can be used with <i class="term">https</i>-secured
 services, by requiring the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package and then registering
 it with the <b class="package"><a href="../../../../index.html#key445">http</a></b> package it is sitting on top of.
 Example</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     http::register https 443 ::tls::socket
 </pre>
 </div>
-<div id="section7" class="section"><h2><a name="section7">TLS Security Considerations</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">TLS Security Considerations</a></h2>
 <p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
@@ -544,13 +536,13 @@ To handle this change the applications using <b class="package"><a href="../../.
 patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>rest</em> of the
@@ -558,4 +550,4 @@ Please report such in the category <em>rest</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-</div></body></html>
+</div>
