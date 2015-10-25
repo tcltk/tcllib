@@ -1,6 +1,5 @@
-<html><head>
-<title>tie - Tcl Data Structures</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='tie - Tcl Data Structures'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,69 +80,60 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'tie.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2004-2008 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- tie.n
-   -->
-<body><div class="doctools">
-<hr> <div class='fossil-doc' data-title='tie - Tcl Data Structures'>
- [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">tie(n) 1.1 tcllib &quot;Tcl Data Structures&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">tie(n) 1.1 tcllib &quot;Tcl Data Structures&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>tie - Array persistence</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">USING TIES</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">USING TIES</a>
 <ul>
-<li class="subsection"><a href="#subsection1">TIE API</a></li>
-<li class="subsection"><a href="#subsection2">STANDARD DATA SOURCE TYPES</a></li>
+<li class="doctools_subsection"><a href="#subsection1">TIE API</a></li>
+<li class="doctools_subsection"><a href="#subsection2">STANDARD DATA SOURCE TYPES</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section3">CREATING NEW DATA SOURCES</a>
+<li class="doctools_section"><a href="#section3">CREATING NEW DATA SOURCES</a>
 <ul>
-<li class="subsection"><a href="#subsection3">DATA SOURCE OBJECTS</a></li>
-<li class="subsection"><a href="#subsection4">REGISTERING A NEW DATA SOURCE CLASS</a></li>
-<li class="subsection"><a href="#subsection5">DATA SOURCE CLASS</a></li>
-<li class="subsection"><a href="#subsection6">DATA SOURCE OBJECT API</a></li>
+<li class="doctools_subsection"><a href="#subsection3">DATA SOURCE OBJECTS</a></li>
+<li class="doctools_subsection"><a href="#subsection4">REGISTERING A NEW DATA SOURCE CLASS</a></li>
+<li class="doctools_subsection"><a href="#subsection5">DATA SOURCE CLASS</a></li>
+<li class="doctools_subsection"><a href="#subsection6">DATA SOURCE OBJECT API</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">tie <span class="opt">?1.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::tie::tie</b> <i class="arg">arrayvarname</i> <i class="arg">options</i>... <i class="arg">dstype</i> <i class="arg">dsname</i>...</a></li>
 <li><a href="#2"><b class="cmd">::tie::untie</b> <i class="arg">arrayvarname</i> <span class="opt">?<i class="arg">token</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::tie::info</b> <b class="method">ties</b> <i class="arg">arrayvarname</i></a></li>
@@ -163,7 +153,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">tie</b> package provides a framework for the creation of
 persistent Tcl array variables. It should be noted that the provided
 mechanism is generic enough to also allow its usage for the
@@ -179,13 +169,13 @@ Tcl arrays in many client processes to a Tcl array in a server and all
 changes to any of them will be distributed to all. Less centralized
 variants of this are of course possible as well.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">USING TIES</a></h2>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">TIE API</a></h3>
+<div id="section2" class="doctools_section"><h2><a name="section2">USING TIES</a></h2>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">TIE API</a></h3>
 <p>This section describes the basic API used to establish and remove ties
 between Tcl array variables and data sources. This interface is the
 only one a casual user has to be concerned about. The following
 sections about the various internal interfaces can be safely skipped.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::tie::tie</b> <i class="arg">arrayvarname</i> <i class="arg">options</i>... <i class="arg">dstype</i> <i class="arg">dsname</i>...</a></dt>
 <dd><p>This command establishes a tie between the Tcl array whose name is
 provided by the argument <i class="arg">arrayvarname</i> and the
@@ -195,7 +185,7 @@ command returns will be saved to the <i class="term"><a href="../../../../index.
 safekeeping (or distribution).</p>
 <p>The result of the command is always a token which identifies the new
 tie. This token can be used later to destroy this specific tie.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>varname <i class="arg">arrayvarname</i> (in)</dt>
 <dd><p>The name of the Tcl array variable to connect the new tie to.</p></dd>
 <dt>name|command <i class="arg">dstype</i> (in)</dt>
@@ -215,7 +205,7 @@ be appropriate for the chosen type.</p></dd>
 <p>The command understands a number of additional options which guide the
 process of setting up the connection between Tcl array and
 <i class="term"><a href="../../../../index.html#key365">data source</a></i>.</p>
-<dl class="options">
+<dl class="doctools_options">
 <dt><b class="option">-open</b></dt>
 <dd><p>The Tcl array for the new tie is <i class="term">loaded</i> from the
 <i class="term"><a href="../../../../index.html#key365">data source</a></i>, and the previously existing contents of the Tcl
@@ -258,7 +248,7 @@ handled by the tie will not be touched, only closed.</p>
 <p>After the command returns none of changes made to the array will be
 saved to the <i class="term"><a href="../../../../index.html#key365">data source</a></i> anymore.</p>
 <p>The result of the command is an empty string.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>varname <i class="arg">arrayname</i> (in)</dt>
 <dd><p>The name of a Tcl array variable which may have ties.</p></dd>
 <dt>handle <i class="arg">token</i> (in)</dt>
@@ -277,10 +267,10 @@ name. This means that the command will follow a chain of type
 definitions ot its end.</p></dd>
 </dl>
 </div>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">STANDARD DATA SOURCE TYPES</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">STANDARD DATA SOURCE TYPES</a></h3>
 <p>This package provides the six following types as examples and standard
 data sources.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">log</b></dt>
 <dd><p>This <i class="term"><a href="../../../../index.html#key365">data source</a></i> does not maintain any actual data, nor
 persistence. It does not accept any identifying arguments. All changes
@@ -311,7 +301,7 @@ commands.</p>
 <p>Examples of command prefixes, listed with the id of the remote entity,
 without options. In reality only the part before the id is the command
 prefix:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="cmd"><a href="../../../../index.html#key353">send</a></b> <i class="arg">tkname</i></dt>
 <dd><p>The Tcl array is in a remote interpreter and is accessed via Tk's X
 communication.</p></dd>
@@ -361,11 +351,11 @@ ties and what <span class="sectref"><a href="#subsection3">data source objects</
 </dl>
 </div>
 </div>
-<div id="section3" class="section"><h2><a name="section3">CREATING NEW DATA SOURCES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">CREATING NEW DATA SOURCES</a></h2>
 <p>This section is of no interest to the casual user of ties. Only
 developers wishing to create new data sources have to know the
 information provided herein.</p>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">DATA SOURCE OBJECTS</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">DATA SOURCE OBJECTS</a></h3>
 <p>All ties are represented internally by an in-memory object which
 mediates between the tie framework and the specific
 <i class="term"><a href="../../../../index.html#key365">data source</a></i>, like an array, file, etc.
@@ -387,10 +377,10 @@ In other words, this type allows the creation of ties which talk to
 pre-existing <i class="term">data source object</i>s, and these objects will
 survive the removal of the ties using them as well.</p>
 </div>
-<div id="subsection4" class="subsection"><h3><a name="subsection4">REGISTERING A NEW DATA SOURCE CLASS</a></h3>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">REGISTERING A NEW DATA SOURCE CLASS</a></h3>
 <p>After a <span class="sectref"><a href="#subsection5">data source class</a></span> has been written it is necessary
 to register it as a new type with the framework.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="6"><b class="cmd">::tie::register</b> <i class="arg">dsclasscmd</i> <b class="const">as</b> <i class="arg">dstype</i></a></dt>
 <dd><p>Using this command causes the tie framework to remember the class
 command <i class="arg">dsclasscmd</i> of a <span class="sectref"><a href="#subsection5">data source class</a></span> under the
@@ -401,11 +391,11 @@ it internally to the appropriate class command for the creation of
 <span class="sectref"><a href="#subsection3">data source objects</a></span> for the new <i class="term"><a href="../../../../index.html#key365">data source</a></i>.</p></dd>
 </dl>
 </div>
-<div id="subsection5" class="subsection"><h3><a name="subsection5">DATA SOURCE CLASS</a></h3>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">DATA SOURCE CLASS</a></h3>
 <p>Each data source class is represented by a single command, also called
 the <i class="term">class command</i>, or <i class="term">object creation command</i>. Its
 syntax is</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="7"><b class="cmd">dsclasscmd</b> <i class="arg">objname</i> <span class="opt">?<i class="arg">dsname</i>...?</span></a></dt>
 <dd><p>The first argument of the class command is the name of the
 <i class="term">data source object</i> to create.
@@ -423,14 +413,14 @@ The interface this command has to follow is described in the section
 <span class="sectref"><a href="#subsection6">DATA SOURCE OBJECT API</a></span></p></dd>
 </dl>
 </div>
-<div id="subsection6" class="subsection"><h3><a name="subsection6">DATA SOURCE OBJECT API</a></h3>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">DATA SOURCE OBJECT API</a></h3>
 <p>Please read the section <span class="sectref"><a href="#subsection5">DATA SOURCE CLASS</a></span> first, to know
 how to generate new <i class="term">object commands</i>.</p>
 <p>Each <i class="term">object command</i> for a <i class="term"><a href="../../../../index.html#key365">data source</a></i> object has to
 provide at least the methods listed below for proper inter-operation
 with the tie framework. Note that the names of most of the methods
 match the subcommands of the builtin <b class="cmd"><a href="../../../../index.html#key37">array</a></b> command.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="8"><b class="cmd">ds</b> <b class="method">destroy</b></a></dt>
 <dd><p>This method is called when the object <b class="cmd">ds</b> is destroyed. It now
 has to release all its internal resources associated with the external
@@ -473,7 +463,7 @@ method call.</p></dd>
 </dl>
 <p>And here a small table comparing the <i class="term"><a href="../../../../index.html#key365">data source</a></i> methods to
 the regular Tcl commands for accessing an array.</p>
-<pre class="example">
+<pre class="doctools_example">
         Regular Tcl             Data source
         -----------             -----------
         array names a           ds names
@@ -489,7 +479,7 @@ the regular Tcl commands for accessing an array.</p>
 </pre>
 </div>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>tie</em> of the
@@ -497,13 +487,13 @@ Please report such in the category <em>tie</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#key37">array</a>, <a href="../../../../index.html#key34">database</a>, <a href="../../../../index.html#key31">file</a>, <a href="../../../../index.html#key36">metakit</a>, <a href="../../../../index.html#key33">persistence</a>, <a href="../../../../index.html#key35">tie</a>, <a href="../../../../index.html#key32">untie</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2004-2008 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>
