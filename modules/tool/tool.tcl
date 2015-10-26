@@ -105,6 +105,15 @@ proc ::tool::do_events {} {
 }
 
 proc ::tool::main {} {
+  package require cron 1.2
+  ###
+  # Have the cron::wake procedure wake up an idle loop instead
+  # of it's normal run commands in the background
+  ###
+  proc ::cron::wake {} {
+    set ::tool::wake_up 1
+  }
+
   set ::forever 1
   while {$::forever} {
     incr ::tool::loops(all)
@@ -125,13 +134,7 @@ proc ::tool::main {} {
   }
 }
 
-###
-# Have the cron::wake procedure wake up an idle loop instead
-# of it's normal run commands in the background
-###
-proc ::cron::wake {} {
-  set ::tool::wake_up 1
-}
+
 
 namespace eval ::tool {
   variable trace 0
