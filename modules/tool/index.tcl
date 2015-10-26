@@ -1,7 +1,6 @@
 package require listutil
 package require dicttool
-package require cron 1.2
-package require sha1
+
 ::namespace eval ::tool {}
 
 ###
@@ -29,5 +28,5 @@ set idxfile [file normalize [info script]]
 set cwd [file dirname $idxfile]
 set ::tool::tool_root [file dirname $cwd]
 ::tool::pathload $cwd {} $idxfile
-package provide tool 0.1
+package provide tool 0.2
 

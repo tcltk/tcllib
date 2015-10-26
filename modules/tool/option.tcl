@@ -20,7 +20,7 @@ oo::define oo::object {
   #    Note, by default an odie object will ignore
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
-  method InitializePublic {} {
+  method _staticInit {} {
     my variable config
     if {![info exists config]} {
       set config {}
@@ -40,27 +40,17 @@ oo::define oo::object {
         dict set config $var [my cget $var default]
       }
     }
-    foreach {var info} [my meta getnull variable] {
+    foreach {var value} [my meta getnull variable] {
       if { $var eq "config" } continue
       my variable $var
       if {![info exists $var]} {
-        if {[dict exists $info default:]} {
-          set $var [dict get $info default:]
-        } else {
-          set $var {}
-        }
+        set $var $value
       }
     }
-    foreach {var info} [my meta getnull array] {
+    foreach {var value} [my meta getnull array] {
       if { $var eq "config" } continue
       my variable $var
-      if {![info exists $var]} {
-        if {[dict exists $info default:]} {
-          array set $var [dict get $info default:]
-        } else {
-          array set $var {}
-        }
-      }
+      array set $var $value
     }
   }
 
