@@ -1,5 +1,7 @@
 package require listutil
 package require dicttool
+package require oo::meta 0.4
+package require oo::option 0.3
 
 ::namespace eval ::tool {}
 
@@ -27,6 +29,6 @@ proc ::tool::pathload {path {order {}} {skip {}}} {
 set idxfile [file normalize [info script]]
 set cwd [file dirname $idxfile]
 set ::tool::tool_root [file dirname $cwd]
-::tool::pathload $cwd {} $idxfile
+::tool::pathload $cwd {tool.tcl} $idxfile
 package provide tool 0.2
 

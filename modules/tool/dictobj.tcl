@@ -1,9 +1,9 @@
-::namespace eval ::oo::define {}
+::namespace eval ::tool::define {}
 ###
 # topic: 354490e9e9708425a6662239f2058401946e41a1
 # description: Creates a method which exports access to an internal dict
 ###
-proc ::oo::define::dictobj {methodname varname {cases {}}} {
+proc ::tool::define::dictobj {methodname varname {cases {}}} {
   set class [lindex [::info level -1] 1]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
@@ -50,7 +50,7 @@ proc ::oo::define::dictobj {methodname varname {cases {}}} {
 # topic: 354490e9e9708425a6662239f2058401946e41a1
 # description: Creates a method which exports access to an internal array
 ###
-proc ::oo::define::arrayobj {methodname varname {cases {}}} {
+proc ::tool::define::arrayobj {methodname varname {cases {}}} {
   set class [lindex [::info level -1] 1]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {

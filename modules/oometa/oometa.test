@@ -1,21 +1,22 @@
 # ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
 
 # -------------------------------------------------------------------------
-set here [file dirname [file join [pwd] [info script]]]
-source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
 
-testsNeedTcl     8.6
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
 testsNeedTcltest 2
 
 testsNeed TclOO 1
 
-source [file join $here .. dicttool dicttool.tcl]
-
 testing {
-  useLocal index.tcl tool
+  useLocal oometa.tcl oo::meta
+  useLocal oooption.tcl oo::option
 }
 
-
+# -------------------------------------------------------------------------
 # Test properties
 
 oo::class create foo {
@@ -31,7 +32,8 @@ oo::class create bar {
   superclass ::foo
   property shape oval
   option color {
-    default: green
+    label Color
+    default green
   }
 }
 
@@ -82,14 +84,10 @@ test  oo-object-meta-004 {Test accessing properties} {
 } blue
 
 test  oo-object-meta-004a {Test accessing properties} {
-  moes cget color default
-} green
-
-test  oo-object-meta-004b {Test accessing properties} {
   moes cget color
 } green
 
-test  oo-object-meta-004c {Test accessing properties} {
+test  oo-object-meta-004a {Test accessing properties} {
   moes cget color:
 } green
 
@@ -123,9 +121,52 @@ test oo-modobject-meta-001 {Test the accessing of properties of an instance of a
   moes meta get const woozle:
 } whoop
 
+test obj-meta-for-001 {Test object meta for} {
+  set result {}
+  moes meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {label: Color default: green}}
+
+test obj-meta-with-001 {Test object meta with} {
+  set result {}
+  moes meta with option {}
+  set color
+} {label: Color default: green}
+
+test obj-meta-for-001 {Test class meta for} {
+  set result {}
+  bar meta for {key value} option {
+    lappend result $key $value
+  }
+  set result
+} {color {label: Color default: green}}
+
+test obj-meta-with-001 {Test class meta with} {
+  set result {}
+  bar meta with option {}
+  set color
+} {label: Color default: green}
 
 # -------------------------------------------------------------------------
 
+# Test of recursive dicts
+
+oo::class create baz {
+  superclass ::bar
+  meta set option color default: purple  
+}
+
+test obj-meta-recursive-1 {Test that meta set works with recursive dicts} {
+  set result {}
+  baz meta get option color default:
+} {purple}
+
+test obj-meta-recursive-2 {Test that meta set works with recursive dicts} {
+  set result {}
+  baz meta get option color label:
+} {Color}
 
 testsuiteCleanup
 
