@@ -1,7 +1,7 @@
 ###
 # Class which implements the graft/organ mechanism
 ###
-oo::define oo::object {
+::tool::class ::tool::object {
   ###
   # title: Forward a method
   ###
@@ -46,7 +46,7 @@ oo::define oo::object {
 # stores no meta data of its own
 # Instead it vampires off of the master object
 ###
-oo::class create ::tool::organelle {
+::tool::class ::tool::organelle {
 
   constructor {master} {
     my entangle $master

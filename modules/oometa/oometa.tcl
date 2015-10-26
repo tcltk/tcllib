@@ -3,67 +3,10 @@
 ##
 # TclOO routines to implement property tracking by class and object
 ###
-
+package require dicttool
 namespace eval ::oo::meta {
   variable dirty_classes {}
   variable core_classes {::oo::class ::oo::object ::tao::moac}
-}
-
-if {[::info command ::tcl::dict::getnull] eq {}} {
-  proc ::tcl::dict::getnull {dictionary args} {
-    if {[exists $dictionary {*}$args]} {
-      get $dictionary {*}$args
-    }
-  }
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
-}
-if {[::info command ::tcl::dict::rmerge] eq {}} {
-  ###
-  # Test if element is a dict
-  ###
-  proc ::tcl::dict::is_dict { d } {
-    # is it a dict, or can it be treated like one?
-    if {[catch {dict size $d} err]} {
-      #::set ::errorInfo {}
-      return 0
-    }
-    return 1
-  }
-  
-  ###
-  # title: A recursive form of dict merge
-  # description:
-  # A routine to recursively dig through dicts and merge
-  # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
-  ###
-  proc ::tcl::dict::rmerge {a args} {
-    ::set result $a
-    # Merge b into a, and handle nested dicts appropriately
-    ::foreach b $args {
-      for { k v } $b {
-        if {[string index $k end] eq ":"} {
-          # Element names that end in ":" are assumed to be literals
-          set result $k $v
-        } elseif { [dict exists $result $k] } {
-          # key exists in a and b?  let's see if both values are dicts
-          # both are dicts, so merge the dicts
-          if { [is_dict [get $result $k]] && [is_dict $v] } {
-            set result $k [rmerge [get $result $k] $v]
-          } else {  
-            set result $k $v
-          }
-        } else {
-          set result $k $v
-        }
-      }
-    }
-    return $result
-  }
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
 proc ::oo::meta::args_to_dict args {
@@ -171,12 +114,6 @@ proc ::oo::meta::info {class submethod args} {
   }
 }
 
-
-
-
-
-
-
 proc ::oo::meta::normalize class {
   set class ::[string trimleft $class :]
 }
@@ -238,7 +175,6 @@ proc ::oo::meta::properties {class {force 0}} {
   return $properties
 }
 
-
 proc ::oo::meta::search args {
   variable local_property
 
@@ -291,39 +227,52 @@ proc ::oo::define::property args {
   ::oo::meta::info $class set {*}$args
 }
 
-proc ::oo::define::option {field argdict} {
-  set class [lindex [::info level -1] 1]
-  foreach {prop value} $argdict {
-    ::oo::meta::info $class set option $field [string trim $prop :]: $value
-  }
-}
-
 oo::define oo::class {
-
   method meta {submethod args} {
     return [::oo::meta::info [self] $submethod {*}$args]
   }
-  
 }
 
 oo::define oo::object {
-    
+
+  ###
+  # title: Provide access to meta data
+  # format: markdown
+  # description:
+  # The *meta* method allows an object access
+  # to a combination of its own meta data as
+  # well as to that of its class
+  ###
   method meta {submethod args} {
-    my variable config
-    if {![::info exists config]} {
-      set config {}
+    my variable meta
+    if {![::info exists meta]} {
+      set meta {}
     }
     set class [::info object class [self object]]
     switch $submethod {
       cget {
-        # Get a constant from the local dict, a field in the const section of meta data, or under the root
+        ###
+        # submethod: cget
+        # arguments: ?*path* ...? *field*
+        # format: markdown
+        # description:
+        # Retrieve a value from the local objects **config** dict
+        # or from the class' meta data. Values are searched in the
+        # following order:
+        # 1. From the local dict as **path** **field:**
+        # 2. From the local dict as **path** **field**
+        # 3. From class meta data as const **path** **field:**
+        # 4. From class meta data as const **path** **field**
+        # 5. From class meta data as **path** **field:**
+        # 6. From class meta data as **path** **field**
+        ###
         set path [lrange $args 0 end-1]
         set field [string trim [lindex $args end] :]
-        if {[dict exists $config {*}$path $field:]} {
-          return [dict get $config {*}$path $field:]
+        if {[dict exists $meta {*}$path $field:]} {
+          return [dict get $meta {*}$path $field:]
         }
-        if {[dict exists $config {*}$path $field]} {
-          return [dict get $config {*}$path $field]
+        if {[dict exists $meta {*}$path $field]} {
+          return [dict get $meta {*}$path $field]
         }
         set class_properties [::oo::meta::properties $class]
         if {[dict exists $class_properties const {*}$path $field:]} {
@@ -347,18 +296,18 @@ oo::define oo::object {
       for -
       map {
         set class_properties [::oo::meta::properties $class]
-        set info [dict rmerge $class_properties $config]
+        set info [dict rmerge $class_properties $meta]
         return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
       }
       with {
         set class_properties [::oo::meta::properties $class]
         upvar 1 TEMPVAR info
-        set info [dict rmerge $class_properties $config]
+        set info [dict rmerge $class_properties $meta]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
         set class_properties [::oo::meta::properties $class]
-        return [dict rmerge $class_properties $config]
+        return [dict rmerge $class_properties $meta]
       }
       append -
       incr -
@@ -366,21 +315,21 @@ oo::define oo::object {
       set -
       unset -
       update {
-        return [dict $submethod config {*}$args]
+        return [dict $submethod meta {*}$args]
       }
       branchset {
         foreach {field value} [lindex $args end] {
-          dict set config {*}[lrange $args 0 end-1] [string trimright $field :] $value
+          dict set meta {*}[lrange $args 0 end-1] [string trimright $field :]: $value
         }
       }
       rmerge -
       merge {
-        set config [dict rmerge $config {*}$args]
-        return $config
+        set meta [dict rmerge $meta {*}$args]
+        return $meta
       }
       getnull {
-        if {[dict exists $config {*}$args]} {
-          return [dict get $config {*}$args]
+        if {[dict exists $meta {*}$args]} {
+          return [dict get $meta {*}$args]
         }
         set class_properties [::oo::meta::properties $class]
         if {[dict exists $class_properties {*}$args]} {
@@ -389,8 +338,8 @@ oo::define oo::object {
         return {}
       }
       get {
-        if {[dict exists $config {*}$args]} {
-          return [dict get $config {*}$args]
+        if {[dict exists $meta {*}$args]} {
+          return [dict get $meta {*}$args]
         }
         set class_properties [::oo::meta::properties $class]
         if {[dict exists $class_properties {*}$args]} {
@@ -400,11 +349,11 @@ oo::define oo::object {
       }
       default {
         set class_properties [::oo::meta::properties $class]
-        set info [dict rmerge $class_properties $config]
+        set info [dict rmerge $class_properties $meta]
         return [dict $submethod $info {*}$args] 
       }
     }
   }
 }
 
-package provide oo::meta 0.3
+package provide oo::meta 0.4
