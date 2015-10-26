@@ -133,7 +133,7 @@ proc ::tool::signal::order sigdat {
   return $order
 }
 
-oo::define oo::object {
+::tool::class ::tool::object {
   ###
   # topic: 6c9e9e67ccd608d1983bbebcd81f2fd3
   ###
@@ -229,7 +229,7 @@ oo::define oo::object {
   # 
   ###
   method signal args {
-    set rawlist [::tool::meta::args_to_dict {*}$args]
+    set rawlist [::oo::meta::args_to_dict {*}$args]
     foreach var {signals_pending signals_processed} {
       my variable $var
       if {![info exists $var]} {
