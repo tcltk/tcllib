@@ -1,7 +1,14 @@
 ###
 # Option handling for TclOO
 ###
-package require oo::meta
+package require oo::meta 0.4
+
+proc ::oo::define::option {field argdict} {
+  set class [lindex [::info level -1] 1]
+  foreach {prop value} $argdict {
+    ::oo::meta::info $class set option $field [string trim $prop :]: $value
+  }
+}
 
 oo::define oo::object {
   
@@ -15,28 +22,28 @@ oo::define oo::object {
   #    Note, by default an odie object will ignore
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
-  method InitializePublic {} {
-    my variable config
-    if {![info exists config]} {
-      set config {}
+  method _staticInit {} {
+    my variable meta
+    if {![info exists meta]} {
+      set meta {}
     }
     set dat [my meta getnull option]
     foreach {var info} $dat {
       if {[dict exists $info set-command:]} {
         if {[catch {my cget $var} value]} {
-          dict set config $var [my cget $var default:]
+          dict set meta $var [my cget $var default:]
         } else {
           if { $value eq {} } {
-            dict set config $var [my cget $var default:]
+            dict set meta $var [my cget $var default:]
           }
         }
       }
-      if {![dict exists $config $var]} {
-        dict set config $var [my cget $var default:]
+      if {![dict exists $meta $var]} {
+        dict set meta $var [my cget $var default:]
       }
     }
     foreach {var info} [my meta getnull variable] {
-      if { $var eq "config" } continue
+      if { $var eq "meta" } continue
       my variable $var
       if {![info exists $var]} {
         if {[dict exists $info default:]} {
@@ -47,7 +54,7 @@ oo::define oo::object {
       }
     }
     foreach {var info} [my meta getnull array] {
-      if { $var eq "config" } continue
+      if { $var eq "meta" } continue
       my variable $var
       if {![info exists $var]} {
         if {[dict exists $info default:]} {
@@ -63,7 +70,7 @@ oo::define oo::object {
   # topic: 86a1b968cea8d439df87585afdbdaadb
   ###
   method cget {field {default {}}} {
-    my variable config
+    my variable _config
     set field [string trimleft $field -]
     set dat [my meta getnull option]
   
@@ -84,20 +91,19 @@ oo::define oo::object {
       if {$getcmd ne {}} {
         return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
       }
-      if {![dict exists $config $field]} {
+      if {![info exists _config($field)]} {
         set getcmd [dict getnull $info default-command:]
         if {$getcmd ne {}} {
-          dict set config $field [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
+          set _config($field) [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
         } else {
-          dict set config $field [dict getnull $info default:]
+          set _config($field) [dict getnull $info default:]
         }
       }
       if {$default eq "varname"} {
-        set varname [my varname visconfig]
-        set ${varname}($field) [dict get $config $field]
+        set varname [my varname _config]
         return "${varname}($field)"
       }
-      return [dict get $config $field]
+      return $_config($field)
     }
     return [my meta cget $field]
   }
@@ -119,7 +125,7 @@ oo::define oo::object {
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
   method configurelist dictargs {
-    my variable config
+    my variable _config
     set dat [my meta getnull option]
     if {[my meta is true const options_strict:]} {
       foreach {field val} $dictargs {
@@ -140,9 +146,7 @@ oo::define oo::object {
     ###
     # Apply all inputs with special rules
     ###
-    foreach {field val} $dictargs {
-      dict set config $field $val
-    }
+    array set _config $dictargs
   }
 
   ###
@@ -161,4 +165,4 @@ oo::define oo::object {
     }
   }
 }
-package provide oo::option 0.2
+package provide oo::option 0.3

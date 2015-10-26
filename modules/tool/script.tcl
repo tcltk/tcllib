@@ -1,7 +1,7 @@
 ###
 # Add configure by script facilities to TOOL
 ###
-::oo::define oo::object {
+::tool::define oo::object {
 
   ###
   # Allows for a constructor to accept a psuedo-code
