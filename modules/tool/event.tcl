@@ -27,7 +27,7 @@ proc ::tool::event::cancel {self {task *}} {
 #    spamming or infinite recursion
 ###
 proc ::tool::event::generate {self event args} {
-  set dictargs [::tool::meta::args_to_options {*}$args]
+  set dictargs [::oo::meta::args_to_options {*}$args]
 
   set info $dictargs
   set strict 0
@@ -143,7 +143,7 @@ proc ::tool::event::unsubscribe {self args} {
   }
 }
 
-oo::define oo::object {
+::tool::class ::tool::object {
   ###
   # topic: 20b4a97617b2b969b96997e7b241a98a
   ###

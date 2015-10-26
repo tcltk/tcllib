@@ -84,7 +84,7 @@ oo::class create foo {
   property color blue
   
   constructor args {
-    my InitializePublic
+    my _staticInit
     my configure {*}$args
   }
 }
