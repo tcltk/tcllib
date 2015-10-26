@@ -14,12 +14,10 @@ oo::define oo::class {
     }
     if { $class ne $newclass } {
       my Morph_leave
-      puts [list [self] to ::${newclass}]
-      puts [info commands ::${newclass}]
       oo::objdefine [self] class ::${newclass}
       my variable config
       set savestate $config
-      my InitializePublic
+      my _staticInit
       my configurelist $savestate
       my Morph_enter
     }
