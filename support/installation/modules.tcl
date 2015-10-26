@@ -109,6 +109,7 @@ Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
 Module  oauth       _tcl  _man  _null
+Module  oometa      _tcl  _man  _null
 Module  ooutil      _tcl  _man  _null
 Module  otp         _tcl  _man  _null
 Module  page         _trt _man  _null
