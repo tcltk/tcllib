@@ -65,17 +65,17 @@ proc ::oo::meta::info {class submethod args} {
       }
     }
     is {
-      set info [properties $class]
+      set info [metadata $class]
       return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
     }
     for -
     map {
-      set info [properties $class]
+      set info [metadata $class]
       return [uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
     }
     with {
       upvar 1 TEMPVAR info
-      set info [properties $class]
+      set info [metadata $class]
       return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
     }
     branchset {
@@ -104,11 +104,11 @@ proc ::oo::meta::info {class submethod args} {
       set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
     }
     dump {
-      set info [properties $class]
+      set info [metadata $class]
       return $info
     }
     default {
-      set info [properties $class]
+      set info [metadata $class]
       return [::dict $submethod $info {*}$args] 
     }
   }
@@ -118,7 +118,7 @@ proc ::oo::meta::normalize class {
   set class ::[string trimleft $class :]
 }
 
-proc ::oo::meta::properties {class {force 0}} {
+proc ::oo::meta::metadata {class {force 0}} {
   set class [::oo::meta::normalize $class]
   ###
   # Destroy the cache of all derivitive classes
@@ -152,27 +152,27 @@ proc ::oo::meta::properties {class {force 0}} {
   }
   ###
   # Build a cache of the hierarchy and the
-  # aggregate properties for this class and store
+  # aggregate metadata for this class and store
   # them for future use
   ###
   variable cached_hierarchy
-  set properties {}
+  set metadata {}
   set stack {}
   variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
   foreach aclass [lrange $cached_hierarchy($class) 0 end-1] {
     if {[::info exists local_property($aclass)]} {
-      lappend properties $local_property($aclass)
+      lappend metadata $local_property($aclass)
     }
   }
-  lappend properties {classinfo {type {}}}
+  lappend metadata {classinfo {type {}}}
   if {[::info exists local_property($class)]} {
-    set properties [dict rmerge {*}$properties $local_property($class)]
+    set metadata [dict rmerge {*}$metadata $local_property($class)]
   } else {
-    set properties [dict rmerge {*}$properties]
+    set metadata [dict rmerge {*}$metadata]
   }
-  set cached_property($class) $properties
-  return $properties
+  set cached_property($class) $metadata
+  return $metadata
 }
 
 proc ::oo::meta::search args {
@@ -204,7 +204,7 @@ proc ::oo::define::meta {args} {
 }
 
 ###
-# Add properties and option handling
+# Add metadata and option handling
 ###
 proc ::oo::define::property args {
   set class [lindex [::info level -1] 1]
@@ -256,7 +256,7 @@ oo::define oo::object {
         # arguments: ?*path* ...? *field*
         # format: markdown
         # description:
-        # Retrieve a value from the local objects **config** dict
+        # Retrieve a value from the local objects **meta** dict
         # or from the class' meta data. Values are searched in the
         # following order:
         # 1. From the local dict as **path** **field:**
@@ -274,18 +274,18 @@ oo::define oo::object {
         if {[dict exists $meta {*}$path $field]} {
           return [dict get $meta {*}$path $field]
         }
-        set class_properties [::oo::meta::properties $class]
-        if {[dict exists $class_properties const {*}$path $field:]} {
-          return [dict get $class_properties const {*}$path $field:]
+        set class_metadata [::oo::meta::metadata $class]
+        if {[dict exists $class_metadata const {*}$path $field:]} {
+          return [dict get $class_metadata const {*}$path $field:]
         }
-        if {[dict exists $class_properties const {*}$path $field]} {
-          return [dict get $class_properties const {*}$path $field]
+        if {[dict exists $class_metadata const {*}$path $field]} {
+          return [dict get $class_metadata const {*}$path $field]
         }
-        if {[dict exists $class_properties {*}$path $field:]} {
-          return [dict get $class_properties {*}$path $field:]
+        if {[dict exists $class_metadata {*}$path $field:]} {
+          return [dict get $class_metadata {*}$path $field:]
         }
-        if {[dict exists $class_properties {*}$path $field]} {
-          return [dict get $class_properties {*}$path $field]
+        if {[dict exists $class_metadata {*}$path $field]} {
+          return [dict get $class_metadata {*}$path $field]
         }
         return {}
       }
@@ -295,19 +295,19 @@ oo::define oo::object {
       }
       for -
       map {
-        set class_properties [::oo::meta::properties $class]
-        set info [dict rmerge $class_properties $meta]
+        set class_metadata [::oo::meta::metadata $class]
+        set info [dict rmerge $class_metadata $meta]
         return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
       }
       with {
-        set class_properties [::oo::meta::properties $class]
+        set class_metadata [::oo::meta::metadata $class]
         upvar 1 TEMPVAR info
-        set info [dict rmerge $class_properties $meta]
+        set info [dict rmerge $class_metadata $meta]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        set class_properties [::oo::meta::properties $class]
-        return [dict rmerge $class_properties $meta]
+        set class_metadata [::oo::meta::metadata $class]
+        return [dict rmerge $class_metadata $meta]
       }
       append -
       incr -
@@ -331,9 +331,9 @@ oo::define oo::object {
         if {[dict exists $meta {*}$args]} {
           return [dict get $meta {*}$args]
         }
-        set class_properties [::oo::meta::properties $class]
-        if {[dict exists $class_properties {*}$args]} {
-          return [dict get $class_properties {*}$args]
+        set class_metadata [::oo::meta::metadata $class]
+        if {[dict exists $class_metadata {*}$args]} {
+          return [dict get $class_metadata {*}$args]
         }
         return {}
       }
@@ -341,15 +341,15 @@ oo::define oo::object {
         if {[dict exists $meta {*}$args]} {
           return [dict get $meta {*}$args]
         }
-        set class_properties [::oo::meta::properties $class]
-        if {[dict exists $class_properties {*}$args]} {
-          return [dict get $class_properties {*}$args]
+        set class_metadata [::oo::meta::metadata $class]
+        if {[dict exists $class_metadata {*}$args]} {
+          return [dict get $class_metadata {*}$args]
         }
         error "Key {*}$args does not exist"
       }
       default {
-        set class_properties [::oo::meta::properties $class]
-        set info [dict rmerge $class_properties $meta]
+        set class_metadata [::oo::meta::metadata $class]
+        set info [dict rmerge $class_metadata $meta]
         return [dict $submethod $info {*}$args] 
       }
     }
