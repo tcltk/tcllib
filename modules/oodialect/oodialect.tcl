@@ -4,192 +4,145 @@
 
 namespace eval ::oo::dialect {}
 
+proc ::oo::dialect::push class {
+  ::variable class_stack
+  lappend class_stack $class
+}
+proc ::oo::dialect::peek {} {
+  ::variable class_stack
+  return [lindex $class_stack end]
+}
+proc ::oo::dialect::pop {} {
+  ::variable class_stack
+  set class_stack [lrange $class_stack 0 end-1]
+}
+
 ###
 # This proc will generate a namespace, a "mother of all classes",
 # and a rudimentary set of policies for this dialect
 ###
-proc ::oo::dialect::create {name} {
-  set name [string trimleft $name :]
-  set NAME ::${name}
-  uplevel #0 [string map [list %NAME% $NAME %name% $name] {
-namespace eval %NAME% {}
-namespace eval %NAME%::define {}
-
+proc ::oo::dialect::create {name {parent {}}} {
+  if {[string index $name 0] eq ":"} {
+    set name [string trimleft $name :]
+    set NSPACE ::${name}
+  } else {
+    set NSPACE [uplevel 1 [namespace current]]::$name
+  }
+  ::namespace eval $NSPACE {}
+  ::namespace eval ${NSPACE}::define {}
+  ###
+  # Build the "define" namespace
+  ###
+  if {$parent eq {}} {
+    ###
+    # With no "parent" language, begin with all of the keywords in oo::define
+    ###
+    foreach command [info commands ::oo::define::*] {
+      set procname [namespace tail $command]
+      proc ${NSPACE}::define::$procname args "oo::define \[::oo::dialect::peek\] $procname {*}\$args"
+    }
+    set ANCESTORS {}
+  } else {
+    ###
+    # If we have a parent language, that language already has the oo::define keywords
+    # as well as additional keywords and behaviors. We should begin with that
+    ###
+    if {[string index $parent 0] eq :} {
+      set parent [string trimleft $parent :]
+      set pnspace ::${parent}
+    } else {
+      set pnspace [uplevel 1 [namespace current]]::$parent
+      if {![namespace exists $pnspace]} {
+        set parent [string trimleft $parent :]
+        set pnspace ::${parent}
+      }
+    }
+    ::namespace eval ${pnspace}::define [list ::namespace export *]
+    ::namespace eval ${NSPACE}::define [list ::namespace import ${pnspace}::define::*]
+    set ANCESTORS ${pnspace}::class
+  }
+  ###
+  # Build our dialect template functions
+  ###
+  uplevel #0 [string map [list %NSPACE% $NSPACE %name% $name %ANCESTORS% $ANCESTORS] {
 ###
-# Build the "define" namespace
+# create the %NSPACE%::define command
 ###
-foreach command [info commands ::oo::define::*] {
-  set procname [namespace tail $command]
-  proc %NAME%::define::$procname args "
-oo::define \[%NAME%::peek\] $procname {*}\$args
-"
+proc %NSPACE%::define {class args} {
+  ::oo::dialect::push $class
+  if {[llength $args]==1} {
+    namespace eval %NSPACE%::define [lindex $args 0]
+  } else {
+    %NSPACE%::define::[lindex $args 0] {*}[lrange $args 1 end]
+  }
+  ::oo::dialect::pop
 }
 
 ###
-# topic: 5832132afd4f65a0dd404f834e7fce7f
 # title: Specify other names that this class will answer to
 ###
-proc %NAME%::define::aliases args {
-  set class [%NAME%::peek]
-  set %NAME%::cname($class) $class
+proc %NSPACE%::define::current_class args {
+  return [::oo::dialect::peek]
+}
+    
+###
+# title: Specify other names that this class will answer to
+###
+proc %NSPACE%::define::aliases args {
+  set class [::oo::dialect::peek]
+  set %NSPACE%::cname($class) $class
   foreach name $args {
     set alias ::[string trimleft $name :]
-    set %NAME%::cname($alias) $class
+    set %NSPACE%::cname($alias) $class
   }
 }
 
 ###
-# Hijack the constructor and superclass keywords at least
-# to enforce this framework
+# Create a superclass keyword which will enforce the inheritance
+# of our language's mother of all classes
 ###
-proc %NAME%::define::constructor {arglist body} {
-  set class [%NAME%::peek]
-  dict set %NAME%::class_info($class) constructor 1
-  set prefix [%NAME%::body_constructor]
-  oo::define $class constructor $arglist "$prefix\n$body"
-}
-
-proc %NAME%::define::superclass {args} {
-  set class [%NAME%::peek]
-  dict set %NAME%::class_info($class) superclass 1
+proc %NSPACE%::define::superclass {args} {
+  set class [::oo::dialect::peek]
+  dict set %NSPACE%::class_info($class) superclass 1
   set result {}
   foreach item $args {
     set Item ::[string trimleft $item :]
-    if {[info exists %NAME%::cname($Item)]} {
-      lappend result $%NAME%::cname($Item)
+    if {[info exists %NSPACE%::cname($Item)]} {
+      lappend result $%NSPACE%::cname($Item)
     } else {
       lappend result $item
     }
   }
-  if {$class ne "%NAME%::object" && "%NAME%::object" ni $result} {
-    lappend result %NAME%::object
+  if {$class ne "%NSPACE%::object" && "%NSPACE%::object" ni $result} {
+    lappend result %NSPACE%::object
   }
-  oo::define [%NAME%::peek] superclass {*}$result
+  oo::define [::oo::dialect::peek] superclass {*}$result
 }
 
-proc %NAME%::class {name args} {
-  variable class_info
-  set new 0
-  if {$name eq "new"} {
-    set class [uplevel 1 {oo::class new { superclass %NAME%::object }}]
-    set new 1
-  } else {
-    # FIRST, make sure the class is fully qualified
-    if {![string match "::*" $name]} {
-      set class ::[string trimleft [uplevel 1 {namespace current}]::$name :]
-    } else {
-      set class $name
+###
+# Build the metaclass for our language
+###
+oo::class create %NSPACE%::class {
+  superclass oo::class
+  constructor {definitionScript} {
+    %NSPACE%::define [self] {
+      superclass
+      constructor {} {}
     }
-    # Create class if it doesn’t exist
-    if {[info commands $class] eq {}} {
-      if {$class eq "%NAME%::object"} {
-        oo::class create %NAME%::object {}
-      } else {
-        oo::class create $class { superclass %NAME%::object }
-      }
-      set new 1
-    }
-  }
-  if {!$new} {
-    if {![info exists class_info($class)]} {
-      error "%NAME%::define on non-%name% class: \"$class\""
-    }
-  } else {
-    set class_info($class) {
-      constructor 0
-      superclass 0
-      dialect %name%
-    }
-  }
-
-  if {[llength $args] == 1} {
-    set script [lindex $args 0]
-  } else {
-    set script $args
-  }
-  define $class $script
-  return $class
-}
-
-proc %NAME%::define {name script} {
-  # FIRST, make sure the class is fully qualified
-  variable class_info
-  if {![string match "::*" $name]} {
-    set class ::[string trimleft [uplevel 1 {namespace current}]::$name :]
-  } else {
-    set class $name
-  }
-  %NAME%::push $class
-  try {
-    namespace eval %NAME%::define $script
-    if {![dict get $class_info($class) superclass]} {
-      # Define an empty superclass to trigger our magic
-      %NAME%::define::superclass
-    }
-    if {![dict get $class_info($class) constructor]} {
-      # Define an empty constructor to trigger our magic
-      %NAME%::define::constructor {} {}
-    }
-    %NAME%::dynamic_methods $class
-  } finally {
-    %NAME%::pop
+    %NSPACE%::define [self] $definitionScript
   }
 }
-
-###
-# title: Internal function
-# description: Returns the current class being processed
-###
-proc %NAME%::peek {} {
-  ::variable classStack
-  set class   [lindex $classStack end]
-  return ${class}
-}
-
-###
-# title: Internal function
-# description: Removes the current class being processed from the parser stack.
-###
-proc %NAME%::pop {} {
-  ::variable classStack
-  set class      [lindex $classStack end]
-  set classStack [lrange $classStack 0 end-1]
-  return $class
-}
-
-###
-# description: Push a class onto the stack
-###
-proc %NAME%::push type {
-  ::variable classStack
-  lappend classStack $type
-}
-
-###
-# Template functions to fill out
-###
-
-# Return any pre-amble to the constructor
-# that this framework expects
-proc %NAME%::body_constructor {} {
-}
-#
-proc %NAME%::dynamic_methods {class} {
-  # Build dynamically generated classes for this framework
-  #oo::define $class [string map [list %class% $class %ns% $ns] {
-  #}]
-}
-
-
 ###
 # Build the mother of all classes
 ###
 
-%NAME%::class %NAME%::object {
+%NSPACE%::class create %NSPACE%::object {
+  superclass %ANCESTORS%
     # Put MOACish stuff in here
 }
-
   }]
+  
+  
 }
-
+puts "LOADED OODIALECT"
 package provide oo::dialect 0.1
