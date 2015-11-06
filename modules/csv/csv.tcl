@@ -11,7 +11,7 @@
 # RCS: @(#) $Id: csv.tcl,v 1.28 2011/11/23 02:22:10 andreas_kupries Exp $
 
 package require Tcl 8.4
-package provide csv 0.8
+package provide csv 0.8.1
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 
@@ -426,8 +426,8 @@ proc ::csv::Split {alternate line sepChar {delChar \"}} {
     # Protect the sepchar from special interpretation by
     # the regex calls below.
 
-    set sepRE \\$sepChar
-    set delRE \\$delChar
+    set sepRE \[\[.${sepChar}.]]
+    set delRE \[\[.${delChar}.]]
 
     if {$alternate} {
 	# The alternate syntax requires a different parser.
