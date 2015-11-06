@@ -78,6 +78,14 @@ proc ::oo::meta::info {class submethod args} {
       set info [metadata $class]
       return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
     }
+    branchget {
+      set info [metadata $class]
+      set result {}
+      foreach {field value} [dict getnull $info {*}$args] {
+        dict set result [string trimright $field :] $value
+      }
+      return $result
+    }
     branchset {
       if {$class ni $::oo::meta::dirty_classes} {
         lappend ::oo::meta::dirty_classes $class
@@ -200,31 +208,11 @@ proc ::oo::meta::search args {
 
 proc ::oo::define::meta {args} {
   set class [lindex [::info level -1] 1]
-  ::oo::meta::info $class {*}$args
-}
-
-###
-# Add metadata and option handling
-###
-proc ::oo::define::property args {
-  set class [lindex [::info level -1] 1]
-  switch [llength $args] {
-    2 {
-      set type const
-      set property [string trimleft [lindex $args 0] :]
-      set value [lindex $args 1]
-      ::oo::meta::info $class set $type $property: $value
-      return
-    }
-    3 {
-      set type     [lindex $args 0]
-      set property [string trimleft [lindex $args 1] :]
-      set value    [lindex $args 2]
-      ::oo::meta::info $class set $type $property: $value
-      return
-    }
+  if {[lindex $args 0] in "set branchset"} {
+    ::oo::meta::info $class {*}$args
+  } else {
+    ::oo::meta::info $class set {*}$args
   }
-  ::oo::meta::info $class set {*}$args
 }
 
 oo::define oo::class {
@@ -328,14 +316,17 @@ oo::define oo::object {
         return $meta
       }
       getnull {
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
+        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]]
+      }
+      branchget {
+        set result {}
+        foreach {field value} [dict getnull [::oo::meta::metadata $class] {*}$args] {
+          dict set result [string trimright $field :] $value
         }
-        set class_metadata [::oo::meta::metadata $class]
-        if {[dict exists $class_metadata {*}$args]} {
-          return [dict get $class_metadata {*}$args]
+        foreach {field value} [dict getnull $meta {*}$args] {
+          dict set result [string trimright $field :] $value
         }
-        return {}
+        return $result
       }
       get {
         if {[dict exists $meta {*}$args]} {
