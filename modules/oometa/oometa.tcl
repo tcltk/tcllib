@@ -91,7 +91,7 @@ proc ::oo::meta::info {class submethod args} {
         lappend ::oo::meta::dirty_classes $class
       }
       foreach {field value} [lindex $args end] {
-        ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :] $value
+        ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
     }
     append -
