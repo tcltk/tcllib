@@ -244,12 +244,18 @@ For deeper understanding:
   method RequestRead {} {
     my variable chan
     my variable data
-
+    
     if {[catch {gets $chan line} readCount]} {
       my <server> log "read error: $readCount"
       my destroy
       return
     }
+  
+    ###
+    # TODO: Implement safeties for oversized headers
+    # TODO: check fblocked
+    # TODO: chan pending
+    ###
     
     # State machine is a function of our state variable:
     #	start: the connection is new
@@ -365,12 +371,12 @@ For deeper understanding:
         my meta set query_headers QUERY_STRING [dict getnull $data(uri_info) query]
         
         # Dispatch to the URL implementation.
-        if [catch {
+        if {[catch {
           set code [my <server> dispatch [self]]
           if {$code eq 200} {
             my content
           }
-        } err] {
+        } err]} {
           my error 500 $err
         } else {
           my output
