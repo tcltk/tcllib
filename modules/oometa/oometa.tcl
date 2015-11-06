@@ -329,12 +329,9 @@ oo::define oo::object {
         return $result
       }
       get {
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
-        }
-        set class_metadata [::oo::meta::metadata $class]
-        if {[dict exists $class_metadata {*}$args]} {
-          return [dict get $class_metadata {*}$args]
+        set data [dict rmerge [::oo::meta::metadata $class] $meta]
+        if {[dict exists $data {*}$args]} {
+          return [dict get $data {*}$args]
         }
         error "Key {*}$args does not exist"
       }
