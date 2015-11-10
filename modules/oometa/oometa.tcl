@@ -222,7 +222,6 @@ oo::define oo::class {
 }
 
 oo::define oo::object {
-
   ###
   # title: Provide access to meta data
   # format: markdown
@@ -234,9 +233,6 @@ oo::define oo::object {
   method meta {submethod args} {
     set class [::info object class [self object]]
     my variable meta
-    if {![::info exists meta]} {
-      return [::oo::meta::info $class $submethod {*}$args]
-    }
     switch $submethod {
       cget {
         ###
@@ -332,7 +328,7 @@ oo::define oo::object {
         if {![dict exists $meta {*}$args]} {
           return [dict get [::oo::meta::metadata $class] {*}$args]
         }
-        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]
+        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]]
       }
       default {
         set class_metadata [::oo::meta::metadata $class]

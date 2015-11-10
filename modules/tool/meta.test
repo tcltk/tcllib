@@ -1,0 +1,135 @@
+# ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
+
+# -------------------------------------------------------------------------
+set here [file dirname [file join [pwd] [info script]]]
+source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+testsNeed TclOO 1
+
+source [file join $here .. dicttool dicttool.tcl]
+
+testing {
+  useLocal index.tcl tool
+}
+
+
+# Test properties
+
+oo::class create foo {
+  property color blue
+  
+  constructor args {
+    my InitializePublic
+    my configure {*}$args
+  }
+}
+
+oo::class create bar {
+  superclass ::foo
+  property shape oval
+  option color {
+    default: green
+  }
+}
+
+test oo-class-meta-001 {Test accessing properties} {
+  foo meta get const color:
+} blue
+
+test oo-class-meta-002 {Test accessing properties} {
+  bar meta get const color:
+} blue
+
+test oo-class-meta-003 {Test accessing properties} {
+  bar meta get const shape:
+} oval
+
+bar create cheers color pink
+# Pulling the meta data from const will return
+# the value specified in the class
+test oo-object-meta-001 {Test accessing properties} {
+  cheers meta get const color:
+} blue
+
+# Accessing the data via cget pulls from the local
+# definition
+test oo-object-meta-001a {Test accessing properties} {
+  cheers meta cget color
+} pink
+# With or without the trailing :
+test oo-object-meta-001b {Test accessing properties} {
+  cheers meta cget color:
+} pink
+# And using the local cget
+test oo-object-meta-001c {Test accessing properties} {
+  cheers cget color
+} pink
+
+test  oo-object-meta-002 {Test accessing properties} {
+  cheers meta get const shape:
+} oval
+
+test  oo-object-meta-003 {Test accessing properties} {
+  cheers cget color
+} pink
+
+bar create moes
+test  oo-object-meta-004 {Test accessing properties} {
+  moes meta get const color:
+} blue
+
+test  oo-object-meta-004a {Test accessing properties} {
+  moes cget color default
+} green
+
+test  oo-object-meta-004b {Test accessing properties} {
+  moes cget color
+} green
+
+test  oo-object-meta-004c {Test accessing properties} {
+  moes cget color:
+} green
+
+test  oo-object-meta-005 {Test accessing properties} {
+  moes meta get const shape:
+} oval
+
+test  oo-object-meta-006 {Test accessing properties} {
+  moes cget color
+} green
+
+test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn't exist} {
+  moes cget shape
+} oval
+
+###
+# Test altering a property
+###
+
+oo::define ::foo property woozle whoop
+
+test oo-modclass-meta-001 {Test accessing properties of an altered class} {
+  foo meta get const woozle:
+} whoop
+
+test oo-modclass-meta-002 {Test accessing properties of the descendent of an altered class} {
+  bar meta get const woozle:
+} whoop
+
+test oo-modobject-meta-001 {Test the accessing of properties of an instance of an altered class} {
+  moes meta get const woozle:
+} whoop
+
+
+# -------------------------------------------------------------------------
+
+
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
