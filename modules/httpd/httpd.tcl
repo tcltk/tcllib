@@ -11,36 +11,21 @@
 ###
 
 package require uri
-package require oo::meta
-package require nettool
 package require cron
+package require tool
+package require oo::dialect
 
 namespace eval ::url {}
 
-if {[info command ::ldelete] eq {}} {
-  # Delete all occurances in a list
-  proc ::ldelete {varname args} {
-    upvar 1 $varname var
-    if ![info exists var] {
-        return
-    }
-    foreach item [lsort -unique $args] {
-      while {[set i [lsearch $var $item]]>=0} {
-        set var [lreplace $var $i $i]
-      }
-    }
-  }
-}
-
 namespace eval ::httpd {}
 
-::oo::class create ::httpd::reply {
+::tool::class create ::httpd::reply {
 
   property socket buffersize   32768
   property socket blocking     0
   property socket translation  {auto crlf}
 
-  property error_codes {
+  array error_codes {
     200 {Data follows}
     204 {No Content}
     302 {Found}
@@ -98,14 +83,14 @@ namespace eval ::httpd {}
 
     oo::objdefine [self] forward <server> $ServerObj
     foreach {field value} [::oo::meta::args_to_options {*}$args] {
-      my meta set $field $value
+      my meta set config $field: $value
     }
     
     set chan $newsock
     chan configure $chan \
-      -blocking [my meta get socket blocking] \
-      -translation [my meta get socket translation] \
-      -buffersize [my meta get socket buffersize]
+      -blocking [my meta get socket blocking:] \
+      -translation [my meta get socket translation:] \
+      -buffersize [my meta get socket buffersize:]
     chan event $chan readable [namespace code {my RequestRead}]
   }
   
@@ -120,11 +105,15 @@ namespace eval ::httpd {}
 
   method error {code {msg {}}} {
     my reset
-    my variable data
+    my variable data error_codes
     if {![info exists data(url)]} {
       set data(url) {}
     }
-    set errorstring [my meta getnull error_codes $code]
+    if {![info exists error_codes($code)]} {
+      set errorstring "Unknown Error Code"
+    } else {
+      set errorstring $error_codes($code)
+    }
     my meta set reply_headers Content-Type: {text/html; charset=ISO-8859-1}
     my meta set reply_status "$code $errorstring"
       my puts "
@@ -207,8 +196,8 @@ For deeper understanding:
   ###
   method output {} {
     my variable reply_body
-    set headers [my meta get reply_headers]
-    set result "HTTP/1.0 [my meta get reply_status]\n"
+    set headers [my meta cget reply_headers]
+    set result "HTTP/1.0 [my meta cget reply_status]\n"
     foreach {key value} $headers {  
       append result "$key $value" \n
     }
@@ -405,7 +394,7 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my meta set reply_headers [my meta get reply_headers_default]
+    my meta set reply_headers [my meta cget reply_headers_default]
     my meta set reply_headers Date: [my timestamp]
     
     my variable data
@@ -434,16 +423,15 @@ For deeper understanding:
 # 2) It is not hardened in any way against malicious attacks
 # 3) By default it will only listen on localhost
 ###
-::oo::class create ::httpd::server {
+::tool::class create ::httpd::server {
   
-  property port         auto
-  property myaddr       127.0.0.1
-  property reply_class  ::httpd::reply
+  option port  {default: auto}
+  option myaddr {default: 127.0.0.1}
+  
+  property reply_class ::httpd::reply
 
   constructor {args} {
-    foreach {field value} [::oo::meta::args_to_options {*}$args] {
-      my meta set $field $value
-    }
+    my configure {*}$args
     my start
   }
   
@@ -453,7 +441,7 @@ For deeper understanding:
 
   method connect {sock ip port} {
     my variable open_connections
-    set class [my meta get reply_class]
+    set class [my cget reply_class]
     set pageobj [$class new $sock [self] remote_ip $ip remote_port $port]
     lappend open_connections $pageobj
   }
@@ -513,13 +501,14 @@ For deeper understanding:
   method start {} {
     my variable socklist open_connections
     set open_connections {}
-    set port [my meta getnull port]
+    set port [my cget port]
     if { $port in {auto {}} } {
       set port [::nettool::allocate_port 8015]
-      my meta set port $port
     }
     my meta set port_listening $port
-    set myaddr [my meta get myaddr]
+    set myaddr [my cget myaddr]
+    puts [list [self] listening on $port $myaddr]
+
     if {$myaddr ne {}} {
       foreach ip $myaddr {
         lappend socklist [socket -server [namespace code [list my connect]] -myaddr $ip $port]
@@ -540,4 +529,4 @@ For deeper understanding:
   }
 }
 
-package provide httpd 0.1
+package provide tool::httpd 0.1
