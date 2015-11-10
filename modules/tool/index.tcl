@@ -1,4 +1,5 @@
 package require dicttool
+package require TclOO
 package require oo::meta 0.4.1
 package require oo::dialect
 
