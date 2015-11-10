@@ -34,7 +34,7 @@ proc ::scgi::encode_request {headers body info} {
 ###
 # Redirect a URL to an SCGI service
 ###
-oo::class create ::httpd::reply_scgi {
+tool::class create ::httpd::reply_scgi {
   superclass httpd::server
   
   property scgi port 10000
