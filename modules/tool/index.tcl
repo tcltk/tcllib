@@ -1,8 +1,9 @@
-package require listutil
 package require dicttool
-package require oo::meta 0.4
-package require oo::option 0.3
+package require TclOO
+package require oo::meta 0.4.1
+package require oo::dialect
 
+::oo::dialect::create ::tool
 ::namespace eval ::tool {}
 
 ###
@@ -29,6 +30,6 @@ proc ::tool::pathload {path {order {}} {skip {}}} {
 set idxfile [file normalize [info script]]
 set cwd [file dirname $idxfile]
 set ::tool::tool_root [file dirname $cwd]
-::tool::pathload $cwd {tool.tcl} $idxfile
-package provide tool 0.2
+::tool::pathload $cwd {} $idxfile
+package provide tool 0.4
 

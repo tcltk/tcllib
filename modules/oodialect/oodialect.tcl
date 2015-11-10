@@ -142,7 +142,6 @@ oo::class create %NSPACE%::class {
   constructor {definitionScript} {
     %NSPACE%::define [self] {
       superclass
-      constructor {} {}
     }
     %NSPACE%::define [self] $definitionScript
   }

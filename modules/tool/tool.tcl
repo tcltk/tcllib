@@ -3,9 +3,6 @@
 ###
 
 namespace eval ::tool {}
-namespace eval ::tool::define {
-  namespace import ::oo::define::*
-}
 
 proc ::tool::object_create objname {
   foreach varname {
