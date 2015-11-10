@@ -2,14 +2,17 @@
 
 # -------------------------------------------------------------------------
 set here [file dirname [file join [pwd] [info script]]]
+puts LOADING 
 source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
+source [file join $here .. .. .. tcllib modules oodialect oodialect.tcl]
+source [file join $here .. listutil listutil.tcl]
+source [file join $here .. .. .. tcllib modules dicttool dicttool.tcl]
+source [file join $here .. .. .. tcllib modules oometa oometa.tcl]
 
 testsNeedTcl     8.6
 testsNeedTcltest 2
 
 testsNeed TclOO 1
-
-source [file join $here .. dicttool dicttool.tcl]
 
 testing {
   useLocal index.tcl tool

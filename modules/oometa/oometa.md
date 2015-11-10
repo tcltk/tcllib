@@ -12,7 +12,7 @@ providing the following:
 * A **meta** method for *oo::object*, which combines data from the class with a local *meta* variable
 
 ## Usage
-~~~ tcl
+<pre><code>
 oo::class create animal {
   meta set biodata animal: 1
 }
@@ -42,7 +42,7 @@ puts [felix meta get biodata]
 felix meta set biodata mammal: yes
 puts [felix meta get biodata]
 > animal: 1 mammal: yes metabolism: warm-blooded diet: carnivore likes: {birds mice}
-~~~
+</code></pre>
 
 ## Concept
 The concept behind *oo::meta* is that each class contributes a snippet of *local* data. When
@@ -60,34 +60,34 @@ the following:
 #### oo::meta::info *class* branchget *?key...?* key
 Returns a dict representation of the element at *args*, but with any trailing : removed from field names.
 
-~~~ tcl
+<pre><code>
 ::oo::meta::info $myclass set option color {default: green widget: colorselect}
 puts [::oo::meta::info $myclass get option color]
 > {default: green widget: color}
 puts [::oo::meta::info $myclass branchget option color]
 > {default green widget color}
-~~~
+</code></pre>
 
 #### oo::meta::info *class* branchset *?key...? key dict*
 Merges *dict* with any other information contaned at node *?key...?*, and adding a trailing :
 to all field names.
 
-~~~ tcl
+<pre><code>
 ::oo::meta::info $myclass branchset option color {default green widget colorselect}
 puts [::oo::meta::info $myclass get option color]
 > {default: green widget: color}
-~~~
+</code></pre>
 
 #### oo::meta::dump *class*
 Returns the complete snapshot of a class metadata, as producted by **oo::meta::metadata**
 
 #### oo::meta::info *class* is *type* *args*
 Returns a boolean true or false if the element *args* would match **string is *type* *value***
-~~~ tcl
+<pre><code>
 ::oo::meta::info $myclass set constant mammal 1
 puts [::oo::meta::info $myclass is true constant mammal]
 > 1
-~~~
+</code></pre>
 
 #### oo::meta::info *class* merge *dict* *dict* ?*dict...*?
 Combines all of the arguments into a single dict, which is then stored as the new
