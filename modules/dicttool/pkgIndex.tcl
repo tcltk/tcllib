@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded dicttool 0.1 [list source [file join $dir dicttool.tcl]]
+package ifneeded dicttool 1.0 [list source [file join $dir dicttool.tcl]]
