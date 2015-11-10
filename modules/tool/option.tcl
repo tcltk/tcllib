@@ -20,30 +20,6 @@ proc ::tool::define::option {name args} {
     dict set dictargs [string trimright [string trimleft $var -] :]: $val
   }
   set name [string trimleft $name -]
-  
-  ###
-  # Mirrored Option Handling
-  ###
-  set mirror [dict getnull $dictargs mirror:]
-  if {[llength $mirror]} {
-    if {![dict exists $dictargs signal:]} {
-      set signal {}
-      foreach i $mirror {
-        set sname option_mirror_$i
-        lappend signal $sname
-        if {![::oo::meta::info $class exists signal $sname]} {
-          ::tool::define::signal $sname [string map [list %signal% sname %organ% $i] {
-            action: {
-              if {[my organ %organ%] ne {}} {
-                my %organ% configure {*}[my OptionsMirrored %organ%]
-              }
-            }
-          }]
-        }
-      }
-      dict set dictargs signal: $signal
-    }
-  }
   ::oo::meta::info $class branchset option $name $dictargs
 }
 
