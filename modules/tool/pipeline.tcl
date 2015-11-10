@@ -133,7 +133,7 @@ proc ::tool::signal::order sigdat {
   return $order
 }
 
-::tool::class ::tool::object {
+tool::define tool::object {
   ###
   # topic: 6c9e9e67ccd608d1983bbebcd81f2fd3
   ###

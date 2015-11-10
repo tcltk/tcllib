@@ -6,22 +6,44 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+set here [file dirname [file join [pwd] [info script]]]
 
-testsNeedTcl     8.5
+##
+# Use the Tcllib Test Tools
+##
+source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
+
+testsNeedTcl     8.6
 testsNeedTcltest 2
 
 testsNeed TclOO 1
 
+
+
 support {
+  use cmdline/cmdline.tcl cmdline
+  use fileutil/fileutil.tcl fileutil
+
+  use md5/md5.tcl md5
+  use base64/base64.tcl base64
   use mime/mime.tcl mime
-  use ooutil/oometa.tcl oo::meta
+  
+  use uri/uri.tcl uri
   use ncgi/ncgi.tcl ncgi
-  use httpd/httpd.tcl httpd
+
+  use dns/ip.tcl ip
+  use nettool/nettool.tcl nettool
+  use html/html.tcl html
+
+  use dicttool/dicttool.tcl dicttool
+  use cron/cron.tcl cron
+  use oodialect/oodialect.tcl oo::dialect
+  use oometa/oometa.tcl oo::meta
+  use tool/index.tcl tool
 }
+
 testing {
+  useLocal httpd.tcl tool::httpd
   useLocal scgi-server.tcl scgi::server
   useLocal scgi-app.tcl scgi::app
 }
@@ -33,19 +55,22 @@ namespace eval ::scgi::test {}
 ###
 # Build the server
 ###
-oo::class create ::scgi::test::reply {  
+tool::class create ::scgi::test::reply {  
   superclass ::scgi::reply
 
-  property reply_headers Content-Type: text/plain
-
-
+  property reply_headers {Content-Type: text/plain}
+  
   method error {code {msg {}}} {
     my reset
-    my variable data
+    my variable data error_codes
     if {![info exists data(url)]} {
       set data(url) {}
     }
-    set errorstring [my meta getnull error_codes $code]
+    if {![info exists error_codes($code)]} {
+      set errorstring "Unknown Error Code"
+    } else {
+      set errorstring $error_codes($code)
+    }
     my meta set reply_headers Content-Type: {text/plain}
     my meta set reply_status "$code $errorstring"
     my puts "
@@ -84,7 +109,7 @@ The programmer asked me to die this way
   }
 }
 
-oo::class create scgi::test::app {
+tool::class create scgi::test::app {
   superclass ::scgi::app
   
   property reply_class ::scgi::test::reply
