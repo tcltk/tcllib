@@ -18,7 +18,7 @@
 package require Tcl 8.4
 package require critcl
 # @sak notprovided pt_rde_critcl
-package provide pt_rde_critcl 1.3.3
+package provide pt_rde_critcl 1.3.4
 
 # # ## ### ##### ######## ############# #####################
 ## Implementation
@@ -164,5 +164,5 @@ namespace eval ::pt {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde::critcl 1.3.3
+package provide pt::rde::critcl 1.3.4
 return

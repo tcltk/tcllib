@@ -4,7 +4,7 @@
 # description: Creates a method which exports access to an internal dict
 ###
 proc ::tool::define::dictobj {methodname varname {cases {}}} {
-  set class [lindex [::info level -1] 1]
+  set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
   method %METHOD% {subcommand args} {
@@ -43,7 +43,7 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
     }
   }
 }]
-  oo::define $class $def
+  ::oo::define $class $def
 }
 
 ###
@@ -51,7 +51,7 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
 # description: Creates a method which exports access to an internal array
 ###
 proc ::tool::define::arrayobj {methodname varname {cases {}}} {
-  set class [lindex [::info level -1] 1]
+  set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
     
@@ -131,6 +131,6 @@ proc ::tool::define::arrayobj {methodname varname {cases {}}} {
     }
   }
 }]
-  oo::define $class $def
+  ::oo::define $class $def
 }
 

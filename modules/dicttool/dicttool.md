@@ -36,7 +36,7 @@ Return a dict which is the product of a recursive merge of all of the arguments.
 this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
 will be interpreted as a literal value, and not descended into further.
 
-~~~
+<pre><code>
 set items [dict merge {
   option {color {default: green}}
 } {
@@ -45,11 +45,11 @@ set items [dict merge {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
 puts [dict print $items]
-~~~
+</code></pre>
 
 
 Prints the following result:
-~~~
+<pre><code>
 option {
   color {
     default: blue
@@ -59,4 +59,4 @@ option {
     values: {mango apple cherry grape}
   }
 }
-~~~
+</pre></code>

@@ -9,7 +9,8 @@ by providing:
 * A "define" command to mirror the capabilties of *oo::define*
 
 Example usage:
-~~~ tcl
+<pre>
+<code>
 package require oo::dialect
 oo::dialect::create tool
 
@@ -42,11 +43,13 @@ my _optionInit
   }
 }
 
-~~~
+</code>
+</pre>
 
 In practice, a new class of this dialect would look like:
 
-~~~ tcl
+<pre>
+<code>
 ::tool::class create myclass {
   # Use our new option keyword
   option color {default: green}
@@ -55,5 +58,6 @@ In practice, a new class of this dialect would look like:
 myclass create myobj
 puts [myobj cget color]
 > green
-~~~
+</code>
+</pre>
 

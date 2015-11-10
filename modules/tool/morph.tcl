@@ -17,7 +17,7 @@ oo::define oo::class {
       oo::objdefine [self] class ::${newclass}
       my variable config
       set savestate $config
-      my _staticInit
+      my InitializePublic
       my configurelist $savestate
       my Morph_enter
     }
