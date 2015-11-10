@@ -90,6 +90,7 @@ proc setup_plugins {} {
     set paths [join [list \
 			 [tcllibPath grammar_peg] \
 			 [tcllibPath struct] \
+			 [tcllibPath json] \
 			 [tcllibPath textutil] \
 			] \
 		   [expr {$::tcl_platform(platform) eq "windows" ? ";" : ":"}]]
