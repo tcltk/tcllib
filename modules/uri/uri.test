@@ -84,6 +84,18 @@ test uri-1.14 {uri::split - ldap search with implicit scope an attributes} {
     dictsort [uri::split {ldap://ldaphost:999/o=mycomp???(uid=pda)}]
 } {attrs {} dn o=mycomp extensions {} filter (uid=pda) host ldaphost port 999 scheme ldap scope {}}
 
+test uri-1.15 {uri::split - https with IPv6} {
+    dictsort [uri::split {https://[2001:db8::7]:8080?foo=bar}]
+} {fragment {} host {[2001:db8::7]} path {} port 8080 pwd {} query foo=bar scheme https user {}}
+
+test uri-1.16 {uri::split - ftp with auth and IPv6} {
+    dictsort [uri::split {ftp://user:pass@[2001:db8::7]/alt}]
+} {host {[2001:db8::7]} path alt port {} pwd pass scheme ftp type {} user user}
+
+test uri-1.17 {uri::split - ldaps IPv6 search with port} {
+    dictsort [uri::split {ldaps://[2001:db8::7]:987/o=mycomp?uid,mail?sub?(uid=pda)}]
+} {attrs {uid mail} dn o=mycomp extensions {} filter (uid=pda) host {[2001:db8::7]} port 987 scheme ldaps scope sub}
+
 # -------------------------------------------------------------------------
 
 test uri-2.1 {uri::join - http} {

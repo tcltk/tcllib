@@ -70,8 +70,10 @@ namespace eval ::uri {
 
 	variable	hostname	\
 		"((${domainlabel}\\.)*${toplabel})"
-	variable	hostnumber	\
-		"(${digits}\\.${digits}\\.${digits}\\.${digits})"
+	variable	hostnumber4	\
+		"(?:${digits}\\.${digits}\\.${digits}\\.${digits})"
+	variable	hostnumber6	{(?:\[[^]]*\])}
+ 	variable	hostnumber	"(${hostnumber4}|${hostnumber6})"
 
 	variable	host		"(${hostname}|${hostnumber})"
 
@@ -495,7 +497,7 @@ proc ::uri::SplitLdap {url} {
     array set parts {host {} port {} dn {} attrs {} scope {} filter {} extensions {}}
 
     #          host        port           dn          attrs       scope               filter     extns
-    set re {//([^:?/]+)(?::([0-9]+))?(?:/([^?]+)(?:\?([^?]*)(?:\?(base|one|sub)?(?:\?([^?]*)(?:\?(.*))?)?)?)?)?}
+    set re {//((?:[^:?/]+)|(?:\[[^\]]*\]))(?::([0-9]+))?(?:/([^?]+)(?:\?([^?]*)(?:\?(base|one|sub)?(?:\?([^?]*)(?:\?(.*))?)?)?)?)?}
 
     if {! [regexp $re $url match parts(host) parts(port) \
 		parts(dn) parts(attrs) parts(scope) parts(filter) \
@@ -1045,4 +1047,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.5
+package provide uri 1.2.6
