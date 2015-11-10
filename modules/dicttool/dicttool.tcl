@@ -143,4 +143,4 @@ if {[::info commands ::tcl::dict::rmerge] eq {}} {
       [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
-package provide dicttool 0.1
+package provide dicttool 1.0

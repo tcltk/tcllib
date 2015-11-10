@@ -232,11 +232,11 @@ oo::define oo::object {
   # well as to that of its class
   ###
   method meta {submethod args} {
+    set class [::info object class [self object]]
     my variable meta
     if {![::info exists meta]} {
-      set meta {}
+      return [::oo::meta::info $class $submethod {*}$args]
     }
-    set class [::info object class [self object]]
     switch $submethod {
       cget {
         ###
@@ -329,14 +329,10 @@ oo::define oo::object {
         return $result
       }
       get {
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
+        if {![dict exists $meta {*}$args]} {
+          return [dict get [::oo::meta::metadata $class] {*}$args]
         }
-        set class_metadata [::oo::meta::metadata $class]
-        if {[dict exists $class_metadata {*}$args]} {
-          return [dict get $class_metadata {*}$args]
-        }
-        error "Key {*}$args does not exist"
+        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]
       }
       default {
         set class_metadata [::oo::meta::metadata $class]
@@ -346,5 +342,4 @@ oo::define oo::object {
     }
   }
 }
-
-package provide oo::meta 0.4
+package provide oo::meta 0.4.1
