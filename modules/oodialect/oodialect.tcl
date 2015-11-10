@@ -41,13 +41,15 @@ proc ::oo::dialect::create {name {parent {}}} {
       set procname [namespace tail $command]
       proc ${NSPACE}::define::$procname args "oo::define \[::oo::dialect::peek\] $procname {*}\$args"
     }
+    # Create an empty dynamic_methods proc
+    proc ${NSPACE}::dynamic_methods class {}
     set ANCESTORS {}
   } else {
     ###
     # If we have a parent language, that language already has the oo::define keywords
     # as well as additional keywords and behaviors. We should begin with that
     ###
-    if {[string index $parent 0] eq :} {
+    if {[string index $parent 0] eq ":"} {
       set parent [string trimleft $parent :]
       set pnspace ::${parent}
     } else {
@@ -57,9 +59,11 @@ proc ::oo::dialect::create {name {parent {}}} {
         set pnspace ::${parent}
       }
     }
+    ::namespace eval ${pnspace} [list ::namespace export dynamic_methods]
     ::namespace eval ${pnspace}::define [list ::namespace export *]
+    ::namespace eval ${NSPACE} [list ::namespace import ${pnspace}::dynamic_methods]    
     ::namespace eval ${NSPACE}::define [list ::namespace import ${pnspace}::define::*]
-    set ANCESTORS ${pnspace}::class
+    set ANCESTORS ${pnspace}::object
   }
   ###
   # Build our dialect template functions
@@ -75,6 +79,7 @@ proc %NSPACE%::define {class args} {
   } else {
     %NSPACE%::define::[lindex $args 0] {*}[lrange $args 1 end]
   }
+  %NSPACE%::dynamic_methods $class
   ::oo::dialect::pop
 }
 
@@ -108,9 +113,19 @@ proc %NSPACE%::define::superclass {args} {
   foreach item $args {
     set Item ::[string trimleft $item :]
     if {[info exists %NSPACE%::cname($Item)]} {
-      lappend result $%NSPACE%::cname($Item)
+      if {$%NSPACE%::cname($Item) ni $result} {
+        lappend result $%NSPACE%::cname($Item)
+      }
     } else {
-      lappend result $item
+      if {[info commands $Item] ne {}} {
+        if {$Item ni $result} {
+          lappend result $Item
+        }
+      } else {
+        if {$item ni $result} {
+          lappend result $item
+        }
+      }
     }
   }
   if {$class ne "%NSPACE%::object" && "%NSPACE%::object" ni $result} {
@@ -135,7 +150,6 @@ oo::class create %NSPACE%::class {
 ###
 # Build the mother of all classes
 ###
-
 %NSPACE%::class create %NSPACE%::object {
   superclass %ANCESTORS%
     # Put MOACish stuff in here
@@ -144,5 +158,4 @@ oo::class create %NSPACE%::class {
   
   
 }
-puts "LOADED OODIALECT"
 package provide oo::dialect 0.1
