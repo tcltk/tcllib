@@ -6,7 +6,7 @@
 
 package require html
 package require TclOO
-package require oo::meta
+package require tool::httpd
 
 namespace eval ::scgi {}
 
@@ -39,7 +39,7 @@ proc ::scgi::decode_headers {rawheaders} {
   return [list env $enc headers $headers]
 }
 
-oo::class create ::scgi::reply {  
+tool::class create ::scgi::reply {  
   superclass ::httpd::reply
   
   property socket buffersize   32768
@@ -111,8 +111,8 @@ oo::class create ::scgi::reply {
   method output {} {
     my variable reply_body
     set reply_body [string trim $reply_body]
-    set headers [my meta get reply_headers]
-    set result "Status: [my meta get reply_status]\n"
+    set headers [my meta cget reply_headers]
+    set result "Status: [my meta cget reply_status]\n"
     foreach {key value} $headers {  
       append result "$key $value" \n
     }
@@ -125,7 +125,7 @@ oo::class create ::scgi::reply {
   }
 }
 
-oo::class create scgi::app {
+tool::class create scgi::app {
   superclass ::httpd::server
 
   property reply_class ::scgi::reply
