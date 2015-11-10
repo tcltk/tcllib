@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.0.5]
+[vset PACKAGE_VERSION 1.0.6]
 [manpage_begin debug n [vset PACKAGE_VERSION]]
 [keywords debug]
 [keywords log]
@@ -23,7 +23,7 @@ detailed).
 [list_begin definitions]
 
 [comment {= = == === ===== ======== ============= =====================}]
-[call [cmd debug.[var tag]] [arg message] [opt [arg level]]]
+[call [cmd debug.][var tag] [arg message] [opt [arg level]]]
 
 For each known tag the package creates a command with this signature
 the user can then use to provide the debug narrative of the tag.
