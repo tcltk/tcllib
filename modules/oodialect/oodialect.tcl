@@ -1,6 +1,24 @@
 ###
-# A utility for defining a domain specific language for TclOO systems
+# oodialect.tcl
+#
+# Copyright (c) 2015 Sean Woods, Donald K Fellows
+#
+# BSD License
 ###
+# @@ Meta Begin
+# Package oo::dialect 0.2
+# Meta platform     tcl
+# Meta summary      A utility for defining a domain specific language for TclOO systems
+# Meta description  This package allows developers to generate
+# Meta description  domain specific languages to describe TclOO
+# Meta description  classes and objects.
+# Meta category     TclOO
+# Meta subject      oodialect
+# Meta require      {Tcl 8.6}
+# Meta author       Sean Woods
+# Meta author       Donald K. Fellows
+# Meta license      BSD
+# @@ Meta End
 
 namespace eval ::oo::dialect {
     namespace export create
@@ -187,4 +205,4 @@ proc ::oo::dialect::SuperClass {namespace args} {
     }
 }
 
-package provide oo::dialect 0.1.1
+package provide oo::dialect 0.2
