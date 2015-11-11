@@ -25,6 +25,12 @@ namespace eval ::httpd {}
   property socket blocking     0
   property socket translation  {auto crlf}
 
+  property reply_headers_default {
+    Status: {200 OK}
+    Content-Type: {text/html; charset=ISO-8859-1}
+    Connection: close
+  }  
+
   array error_codes {
     200 {Data follows}
     204 {No Content}
@@ -63,15 +69,7 @@ namespace eval ::httpd {}
     REQUEST_URI          uri
     REQUEST_PATH         url
   }
-  
-  property reply_status {200 OK}
-
-  property reply_headers_default {
-    Content-Type: {text/html; charset=ISO-8859-1}
-    Connection: close
-  }  
-  property reply_headers {}
-
+    
   constructor {newsock ServerObj args} {
     my variable chan
     my variable data
@@ -102,6 +100,14 @@ namespace eval ::httpd {}
     my variable chan
     catch {close $chan}
   }
+  
+  dictobj query_headers query_headers
+  dictobj reply_headers reply_headers {
+    initialize {
+      Content-Type: {text/html; charset=ISO-8859-1}
+      Connection: close
+    }
+  }
 
   method error {code {msg {}}} {
     my reset
@@ -114,9 +120,10 @@ namespace eval ::httpd {}
     } else {
       set errorstring $error_codes($code)
     }
-    my meta set reply_headers Content-Type: {text/html; charset=ISO-8859-1}
-    my meta set reply_status "$code $errorstring"
-      my puts "
+    my reply_headers replace {}
+    my reply_headers set Status: "$code $errorstring"
+    my reply_headers set Content-Type: {text/html; charset=ISO-8859-1}
+    my puts "
 <HTML>
 <HEAD>
 <TITLE>$code $errorstring</TITLE>
@@ -196,8 +203,9 @@ For deeper understanding:
   ###
   method output {} {
     my variable reply_body
-    set headers [my meta cget reply_headers]
-    set result "HTTP/1.0 [my meta cget reply_status]\n"
+    set headers [my reply_headers dump]
+    set result "HTTP/1.0 [dict get $headers Status:]\n"
+    dict unset headers Status:
     foreach {key value} $headers {  
       append result "$key $value" \n
     }
@@ -352,12 +360,12 @@ For deeper understanding:
         # publish the bits of the data array that
         # are fit for public consumption
         ###
-        foreach {field datamap} [my meta get env_map] {
+        foreach {field datamap} [my meta cget env_map] {
           if {[info exists data($datamap)]} {
-            my meta set query_headers $field $data($datamap)
+            my query_headers set $field $data($datamap)
           }
         }
-        my meta set query_headers QUERY_STRING [dict getnull $data(uri_info) query]
+        my query_headers set QUERY_STRING [dict getnull $data(uri_info) query]
         
         # Dispatch to the URL implementation.
         if {[catch {
@@ -394,11 +402,9 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my meta set reply_headers [my meta cget reply_headers_default]
-    my meta set reply_headers Date: [my timestamp]
-    
+    my reply_headers replace [my meta cget reply_headers_default]
+    my reply_headers set Date: [my timestamp]
     my variable data
-    
     set reply_body {}
   }
   
@@ -451,7 +457,6 @@ For deeper understanding:
     incr counters($which)
   }
   
-
   ###
   # Clean up any process that has gone out for lunch
   ###
@@ -503,6 +508,7 @@ For deeper understanding:
     set open_connections {}
     set port [my cget port]
     if { $port in {auto {}} } {
+      package require nettool
       set port [::nettool::allocate_port 8015]
     }
     my meta set port_listening $port

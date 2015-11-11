@@ -46,7 +46,6 @@ tool::class create ::scgi::reply {
   property socket blocking     0
   property socket translation  {binary binary}
 
-
   method RequestRead {} {    
     my variable chan
     my variable data
@@ -79,7 +78,7 @@ tool::class create ::scgi::reply {
       my variable query_body
       set inbuffer [string range $inbuffer $data(length)+1 end]
       set data(content_length) [dict get $headers CONTENT_LENGTH]
-      my meta set query_headers $headers
+      my query_headers merge $headers
       set data(state) body
     }
     
@@ -111,8 +110,9 @@ tool::class create ::scgi::reply {
   method output {} {
     my variable reply_body
     set reply_body [string trim $reply_body]
-    set headers [my meta cget reply_headers]
-    set result "Status: [my meta cget reply_status]\n"
+    set headers [my reply_headers dump]
+    set result "Status: [dict get $headers Status:]\n"
+    dict unset headers Status:
     foreach {key value} $headers {  
       append result "$key $value" \n
     }
