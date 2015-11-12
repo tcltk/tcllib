@@ -103,25 +103,8 @@ tool::class create ::scgi::reply {
     
   }
   
-  ###
-  # Output the result or error to the channel
-  # and destroy this object
-  ###
-  method output {} {
-    my variable reply_body
-    set reply_body [string trim $reply_body]
-    set headers [my reply_headers dump]
-    set result "Status: [dict get $headers Status:]\n"
-    dict unset headers Status:
-    foreach {key value} $headers {  
-      append result "$key $value" \n
-    }
-    append result "Content-length: [string length $reply_body]" \n \n
-    append result $reply_body
-    my variable chan
-    puts -nonewline $chan $result
-    flush $chan
-    my destroy
+  method EncodeStatus {status} {
+    return "Status: $status"
   }
 }
 
