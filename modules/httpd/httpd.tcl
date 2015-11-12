@@ -97,8 +97,9 @@ namespace eval ::httpd {}
   ###
   destructor {
     my <server> unregister [self]
-    my variable chan
+    my variable chan reply_chan
     catch {close $chan}
+    catch {close $reply_chan}
   }
   
   dictobj query_headers query_headers
@@ -196,24 +197,48 @@ For deeper understanding:
   method MorphExit {} {
     
   }
+  
+  method EncodeStatus {status} {
+    return "HTTP/1.0 $status"
+  }
 
   ###
   # Output the result or error to the channel
   # and destroy this object
   ###
   method output {} {
-    my variable reply_body
+    my variable reply_body reply_file reply_chan chan
+    chan configure $chan  -translation {binary binary}
+
     set headers [my reply_headers dump]
-    set result "HTTP/1.0 [dict get $headers Status:]\n"
-    dict unset headers Status:
-    foreach {key value} $headers {  
+    set result "[my EncodeStatus [dict get $headers Status:]]\n"
+    foreach {key value} $headers {
+      # Ignore Status and Content-length, if given
+      if {$key in {Status: Content-length:}} continue
       append result "$key $value" \n
     }
-    append result "Content-length: [string length $reply_body]" \n \n
-    append result $reply_body
-    my variable chan
-    puts $chan $result
-    flush $chan
+    if {![info exists reply_file] || [string length $reply_body]} {
+      ###
+      # Return dynamic content
+      ###
+      set reply_body [string trim $reply_body]
+      append result "Content-length: [string length $reply_body]" \n \n
+      append result $reply_body
+      puts -nonewline $chan $result
+    } else {
+      ###
+      # Return a stream of data from a file
+      ###
+      append result "Content-length: [file size $reply_file]" \n \n
+      puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      fcopy $reply_chan $chan
+    }
+    flush $chan    
+    my destroy
+  }
+  
+  method TransferComplete args {
     my destroy
   }
 

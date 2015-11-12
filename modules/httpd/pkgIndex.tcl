@@ -11,3 +11,4 @@
 package ifneeded scgi::server 0.1 [list source [file join $dir scgi-server.tcl]]
 package ifneeded scgi::app 0.1 [list source [file join $dir scgi-app.tcl]]
 package ifneeded tool::httpd 0.1 [list source [file join $dir httpd.tcl]]
+package ifneeded tool::httpd::content 0.1 [list source [file join $dir content.tcl]]
