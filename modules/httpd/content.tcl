@@ -77,4 +77,4 @@ tool::class create httpd::content::file {
   }
 }
 
-package provide tool::httpd::content 0.1
+package provide httpd::content 4.0
