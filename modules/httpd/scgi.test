@@ -90,6 +90,10 @@ while trying to obtain $data(url)
   method content {} {
     my reset
     switch [my query_headers get REQUEST_URI] {
+      /file {
+        my variable reply_file
+        set reply_file [file join $::here pkgIndex.tcl]
+      }
       /time {
 	my puts [clock seconds]
       }
@@ -179,6 +183,18 @@ REQUEST_URI /time
 
 THIS ONE ALONE IS MINE
 }] } $checkreply
+
+set fin [open [file join $here pkgIndex.tcl]]
+set checkreply [read $fin]
+close $fin
+test scgi-client-0006 {Return a file} {
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
+REQUEST_URI /file
+}] } "Status: 200 OK
+Content-Type: text/plain
+Content-length: [file size [file join $here pkgIndex.tcl]]
+
+$checkreply"
 
 # -------------------------------------------------------------------------
 
