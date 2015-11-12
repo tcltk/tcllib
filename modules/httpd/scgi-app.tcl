@@ -6,7 +6,7 @@
 
 package require html
 package require TclOO
-package require tool::httpd
+package require httpd 4.0
 
 namespace eval ::scgi {}
 
