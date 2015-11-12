@@ -5,6 +5,7 @@
 # SCGI protocol
 ###
 namespace eval ::scgi {}
+package require httpd
 
 proc ::scgi::encode_request {headers body info} {
   variable server_block
