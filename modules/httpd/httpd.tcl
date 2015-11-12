@@ -12,7 +12,7 @@
 
 package require uri
 package require cron
-package require tool
+package require tool 0.4
 package require oo::dialect
 
 namespace eval ::url {}

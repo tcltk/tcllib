@@ -5,7 +5,7 @@
 ###
 package require Markdown
 package require fileutil::magic::mimetype
-package require tool
+package require tool 0.4
 package require fileutil
 namespace eval httpd::content {}
 
