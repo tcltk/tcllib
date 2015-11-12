@@ -159,7 +159,7 @@ proc ::oo::dialect::Aliases {namespace args} {
     namespace upvar $namespace cname cname
     set cname($class) $class
     foreach name $args {
-	set alias ::[string trimleft $name :]
+	set alias [NSNormalize $name]
 	set cname($alias) $class
     }
 }
