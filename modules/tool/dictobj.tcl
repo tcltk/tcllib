@@ -6,6 +6,14 @@
 proc ::tool::define::dictobj {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
+  
+  if {[dict exists $cases initialize]} {
+    ::oo::meta::info $class set variable ${varname}: [dict get $cases initialize]
+    dict unset cases initialize
+  } elseif {![::oo::meta::info $class exists variable ${varname}:]} {
+    ::oo::meta::info $class set variable ${varname}: {}
+  }
+  
   set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
   method %METHOD% {subcommand args} {
     my variable %VARNAME%
@@ -36,6 +44,9 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
       merge {
         set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
         return $%VARNAME%
+      }
+      replace {
+        set %VARNAME% [lindex $args 0]
       }
       default {
         return [dict $subcommand $%VARNAME% {*}$args]
