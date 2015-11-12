@@ -43,7 +43,7 @@ support {
 }
 
 testing {
-  useLocal httpd.tcl tool::httpd
+  useLocal httpd.tcl httpd
   useLocal scgi-server.tcl scgi::server
   useLocal scgi-app.tcl scgi::app
 }

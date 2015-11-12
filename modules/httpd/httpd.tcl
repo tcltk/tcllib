@@ -560,4 +560,4 @@ For deeper understanding:
   }
 }
 
-package provide tool::httpd 0.1
+package provide httpd 4.0
