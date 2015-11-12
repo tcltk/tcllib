@@ -25,6 +25,12 @@ namespace eval ::httpd {}
   property socket blocking     0
   property socket translation  {auto crlf}
 
+  property reply_headers_default {
+    Status: {200 OK}
+    Content-Type: {text/html; charset=ISO-8859-1}
+    Connection: close
+  }  
+
   array error_codes {
     200 {Data follows}
     204 {No Content}
@@ -63,15 +69,7 @@ namespace eval ::httpd {}
     REQUEST_URI          uri
     REQUEST_PATH         url
   }
-  
-  property reply_status {200 OK}
-
-  property reply_headers_default {
-    Content-Type: {text/html; charset=ISO-8859-1}
-    Connection: close
-  }  
-  property reply_headers {}
-
+    
   constructor {newsock ServerObj args} {
     my variable chan
     my variable data
@@ -99,8 +97,17 @@ namespace eval ::httpd {}
   ###
   destructor {
     my <server> unregister [self]
-    my variable chan
+    my variable chan reply_chan
     catch {close $chan}
+    catch {close $reply_chan}
+  }
+  
+  dictobj query_headers query_headers
+  dictobj reply_headers reply_headers {
+    initialize {
+      Content-Type: {text/html; charset=ISO-8859-1}
+      Connection: close
+    }
   }
 
   method error {code {msg {}}} {
@@ -114,9 +121,10 @@ namespace eval ::httpd {}
     } else {
       set errorstring $error_codes($code)
     }
-    my meta set reply_headers Content-Type: {text/html; charset=ISO-8859-1}
-    my meta set reply_status "$code $errorstring"
-      my puts "
+    my reply_headers replace {}
+    my reply_headers set Status: "$code $errorstring"
+    my reply_headers set Content-Type: {text/html; charset=ISO-8859-1}
+    my puts "
 <HTML>
 <HEAD>
 <TITLE>$code $errorstring</TITLE>
@@ -189,23 +197,48 @@ For deeper understanding:
   method MorphExit {} {
     
   }
+  
+  method EncodeStatus {status} {
+    return "HTTP/1.0 $status"
+  }
 
   ###
   # Output the result or error to the channel
   # and destroy this object
   ###
   method output {} {
-    my variable reply_body
-    set headers [my meta cget reply_headers]
-    set result "HTTP/1.0 [my meta cget reply_status]\n"
-    foreach {key value} $headers {  
+    my variable reply_body reply_file reply_chan chan
+    chan configure $chan  -translation {binary binary}
+
+    set headers [my reply_headers dump]
+    set result "[my EncodeStatus [dict get $headers Status:]]\n"
+    foreach {key value} $headers {
+      # Ignore Status and Content-length, if given
+      if {$key in {Status: Content-length:}} continue
       append result "$key $value" \n
     }
-    append result "Content-length: [string length $reply_body]" \n \n
-    append result $reply_body
-    my variable chan
-    puts $chan $result
-    flush $chan
+    if {![info exists reply_file] || [string length $reply_body]} {
+      ###
+      # Return dynamic content
+      ###
+      set reply_body [string trim $reply_body]
+      append result "Content-length: [string length $reply_body]" \n \n
+      append result $reply_body
+      puts -nonewline $chan $result
+    } else {
+      ###
+      # Return a stream of data from a file
+      ###
+      append result "Content-length: [file size $reply_file]" \n \n
+      puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      fcopy $reply_chan $chan
+    }
+    flush $chan    
+    my destroy
+  }
+  
+  method TransferComplete args {
     my destroy
   }
 
@@ -352,12 +385,12 @@ For deeper understanding:
         # publish the bits of the data array that
         # are fit for public consumption
         ###
-        foreach {field datamap} [my meta get env_map] {
+        foreach {field datamap} [my meta cget env_map] {
           if {[info exists data($datamap)]} {
-            my meta set query_headers $field $data($datamap)
+            my query_headers set $field $data($datamap)
           }
         }
-        my meta set query_headers QUERY_STRING [dict getnull $data(uri_info) query]
+        my query_headers set QUERY_STRING [dict getnull $data(uri_info) query]
         
         # Dispatch to the URL implementation.
         if {[catch {
@@ -394,11 +427,9 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my meta set reply_headers [my meta cget reply_headers_default]
-    my meta set reply_headers Date: [my timestamp]
-    
+    my reply_headers replace [my meta cget reply_headers_default]
+    my reply_headers set Date: [my timestamp]
     my variable data
-    
     set reply_body {}
   }
   
@@ -451,7 +482,6 @@ For deeper understanding:
     incr counters($which)
   }
   
-
   ###
   # Clean up any process that has gone out for lunch
   ###
@@ -503,6 +533,7 @@ For deeper understanding:
     set open_connections {}
     set port [my cget port]
     if { $port in {auto {}} } {
+      package require nettool
       set port [::nettool::allocate_port 8015]
     }
     my meta set port_listening $port
