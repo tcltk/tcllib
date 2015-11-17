@@ -182,6 +182,7 @@ modules/math/calculus.man
 modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
+modules/math/exact.man
 modules/math/fourier.man
 modules/math/fuzzy.man
 modules/math/interpolate.man
@@ -211,7 +212,6 @@ modules/nettool/nettool.man
 modules/nmea/nmea.man
 modules/nns/nns_auto.man
 modules/nns/nns_client.man
-modules/nns/nns_cluster.man
 modules/nns/nns_common.man
 modules/nns/nns_intro.man
 modules/nns/nns_protocol.man
@@ -288,8 +288,6 @@ modules/sasl/gtoken.man
 modules/sasl/ntlm.man
 modules/sasl/sasl.man
 modules/sasl/scram.man
-modules/scgi/scgi-app.man
-modules/scgi/scgi-server.man
 modules/sha1/sha1.man
 modules/sha1/sha256.man
 modules/simulation/annealing.man
