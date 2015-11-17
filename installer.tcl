@@ -239,14 +239,14 @@ proc doinstall {} {
 	gen_main_index $config(pkg,path) $package_name $package_version
     }
     if {$config(doc,nroff)} {
-	foreach dir [glob -directory $distribution/embedded/man/files/modules *] {
+	foreach dir [glob -directory $distribution/idoc/man/files/modules *] {
 	    xcopy $dir $config(doc,nroff,path) 1
 	}
-	xcopy $distribution/embedded/man/files/apps $config(doc,nroff,path) 1
+	xcopy $distribution/idoc/man/files/apps $config(doc,nroff,path) 1
     }
     if {$config(doc,html)}  {
 	#xinstall doc html  html $config(doc,html,path)
-	xcopy $distribution/embedded/www $config(doc,html,path) 1
+	xcopy $distribution/idoc/www $config(doc,html,path) 1
     }
     if {$config(exa)}       {xinstall exa $config(exa,path)}
     if {$config(app)}       {ainstall}
