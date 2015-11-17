@@ -959,6 +959,9 @@ hook
 \fBfiles/modules/lambda/lambda\&.n\fR
 lambda
 .TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
+.TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
 .TP
@@ -1316,11 +1319,17 @@ switched
 class methods
 .RS
 .TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
+.TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
 .RE
 class variables
 .RS
+.TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
 .TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
@@ -1414,6 +1423,9 @@ command prefix
 .TP
 \fBfiles/modules/lambda/lambda\&.n\fR
 lambda
+.TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
 .TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
@@ -1970,6 +1982,9 @@ currying
 \fBfiles/modules/lambda/lambda\&.n\fR
 lambda
 .TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
+.TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
 .RE
@@ -2266,6 +2281,12 @@ diameter
 .TP
 \fBfiles/modules/struct/graphops\&.n\fR
 struct::graph::op
+.RE
+dict
+.RS
+.TP
+\fBfiles/modules/dicttool/dicttool\&.n\fR
+dicttool
 .RE
 diff
 .RS
@@ -6071,6 +6092,9 @@ interp
 method reference
 .RS
 .TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
+.TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
 .RE
@@ -6178,6 +6202,9 @@ math::bignum
 .RE
 my method
 .RS
+.TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
 .TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
@@ -9029,6 +9056,9 @@ simulation::random
 singleton
 .RS
 .TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
+.TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
 .RE
@@ -9700,6 +9730,9 @@ csv
 .RE
 TclOO
 .RS
+.TP
+\fBfiles/modules/tool/meta\&.n\fR
+oo::util
 .TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util

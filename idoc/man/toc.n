@@ -393,6 +393,9 @@ tcllib
 \fBdes\fR
 \fIfiles/modules/des/des\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
+\fBdicttool\fR
+\fIfiles/modules/dicttool/dicttool\&.n\fR: Dictionary Tools
+.TP
 \fBdns\fR
 \fIfiles/modules/dns/tcllib_dns\&.n\fR: Tcl Domain Name Service Client
 .TP
@@ -893,6 +896,9 @@ tcllib
 .TP
 \fBoauth\fR
 \fIfiles/modules/oauth/oauth\&.n\fR: oauth API base signature
+.TP
+\fBoo::util\fR
+\fIfiles/modules/tool/meta\&.n\fR: Utility commands for TclOO
 .TP
 \fBoo::util\fR
 \fIfiles/modules/ooutil/ooutil\&.n\fR: Utility commands for TclOO
