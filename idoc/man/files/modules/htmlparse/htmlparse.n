@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'htmlparse\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "htmlparse" n 1\&.2\&.1 tcllib "HTML Parser"
+.TH "htmlparse" n 1\&.2\&.2 tcllib "HTML Parser"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBstruct::stack  1\&.3\fR
 .sp
 package require \fBcmdline  1\&.1\fR
 .sp
-package require \fBhtmlparse  ?1\&.2\&.1?\fR
+package require \fBhtmlparse  ?1\&.2\&.2?\fR
 .sp
 \fB::htmlparse::parse\fR ?-cmd \fIcmd\fR? ?-vroot \fItag\fR? ?-split \fIn\fR? ?-incvar \fIvar\fR? ?-queue \fIq\fR? \fIhtml\fR
 .sp
