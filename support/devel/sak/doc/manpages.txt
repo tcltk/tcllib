@@ -49,6 +49,7 @@ modules/debug/debug_timestamp.man
 modules/des/des.man
 modules/des/tcldes.man
 modules/des/tcldesjr.man
+modules/dicttool/dicttool.man
 modules/dns/tcllib_dns.man
 modules/dns/tcllib_ip.man
 modules/docstrip/docstrip.man
@@ -349,6 +350,7 @@ modules/textutil/trim.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
+modules/tool/meta.man
 modules/transfer/connect.man
 modules/transfer/copyops.man
 modules/transfer/ddest.man
