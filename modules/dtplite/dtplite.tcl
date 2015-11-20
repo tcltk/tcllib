@@ -19,7 +19,7 @@
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.2
+package provide dtplite 1.3
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -104,6 +104,8 @@ package provide dtplite 1.2
 #	- Allow setting of a stylesheet.
 #	- Allow integration of custom body header and footer html.
 #	- Allow additional links for the navigation bar.
+#	- Force module name, for when the directory name is wrong.
+#	- Allow raw output, aka "embedded HTML", no head/body, just the body itself
 #
 #	Note: The tool generates standard navigation bars to link the
 #	all tocs, indices, and pages together.
@@ -111,9 +113,11 @@ package provide dtplite 1.2
 #	-style file
 #	-header file
 #	-footer file
+#	-module name
 #	-nav label url
 #	-prenav label url
 #	-postnav label url
+#	-raw
 #
 # *	The application may mis-detect files as doctools input.
 #	And we cannot always mark them as non-doctools because
@@ -197,6 +201,11 @@ namespace eval ::dtplite {
 
     variable  footer ""
 
+    # raw flag. When set "embedded HTML" is generated. Or whatever
+    # fits the definition for the active format.
+
+    variable raw off
+    
     # List of buttons/links for a navigation bar. No navigation bar is
     # created if this is empty. HTML specific, requires engine
     # parameter 'header' (The navigation bar is merged with the
@@ -400,10 +409,12 @@ proc ::dtplite::Init {} {
 ##
 # dtplite	-o outputpath	\
 #		?-merge?	\
+#		?-raw?	\
 #		?-ext ext?	\
 #		?-style file?	\
 #		?-header file?	\
 #		?-footer file?	\
+#		?-module name?	\
 #		?-nav label url?... \
 #		?-prenav label url?... \
 #		?-postnav label url?... \
@@ -421,10 +432,12 @@ proc ::dtplite::ProcessCmdline {argv} {
     variable ext    ; variable nav    ; variable merge
     variable module ; variable excl   ; variable utoc
     variable prenav ; variable postnav ; variable mtoc
+    variable raw
 
     # Process the options, perform basic validation.
 
     set fixup {}
+    set muser false
 
     while {[llength $argv]} {
 	set opt [lindex $argv 0]
@@ -436,6 +449,9 @@ proc ::dtplite::ProcessCmdline {argv} {
 	    set argv   [lrange $argv 2 end]
 	} elseif {[string equal $opt "-merge"]} {
 	    set merge 1
+	    set argv [lrange $argv 1 end]
+	} elseif {[string equal $opt "-raw"]} {
+	    set raw on
 	    set argv [lrange $argv 1 end]
 	} elseif {[string equal $opt "-ext"]} {
 	    if {[llength $argv] < 2} Usage
@@ -491,6 +507,11 @@ proc ::dtplite::ProcessCmdline {argv} {
 	    if {[llength $argv] < 2} Usage
 	    set footer [lindex $argv 1]
 	    set argv   [lrange $argv 2 end]
+	} elseif {[string equal $opt "-module"]} {
+	    if {[llength $argv] < 2} Usage
+	    set module [lindex $argv 1]
+	    set argv   [lrange $argv 2 end]
+	    set muser true
 	} elseif {[string equal $opt "-nav"]} {
 	    if {[llength $argv] < 3} Usage
 	    lappend prenav [lrange $argv 1 2]
@@ -537,8 +558,9 @@ proc ::dtplite::ProcessCmdline {argv} {
 
 	# Check style, header, and footer options, if present.
 
-	CheckInsert header {Header file}
-	CheckInsert footer {Footer file}
+	CheckInsert   header {Header file}
+	CheckInsert   footer {Footer file}
+	CheckPresence raw    {Raw flag}
 
 	if {[llength $nav] && ![in [dt parameters] header]} {
 	    ArgError "-nav not supported by format \"$format\""
@@ -553,7 +575,7 @@ proc ::dtplite::ProcessCmdline {argv} {
     }
 
     # Set up an extension based on the format, if no extension was
-    # specified.  also compute the name of the module, based on the
+    # specified.  Also compute the name of the module, based on the
     # input. [SF Tcllib Bug 1111364]. Has to come before the line
     # marked with a [*], or a filename without extension is created.
 
@@ -617,7 +639,10 @@ proc ::dtplite::ProcessCmdline {argv} {
 	set mode Directory
     }
 
-    set module [file rootname [file tail [file normalize $input]]]
+    # Derive a module name iff user has not chosen any.
+    if {!$muser} {
+	set module [file rootname [file tail [file normalize $input]]]
+    }
     return
 }
 
@@ -634,9 +659,9 @@ proc ::dtplite::ProcessCmdline {argv} {
 proc ::dtplite::Usage {} {
     global argv0
     Print stderr "$argv0 wrong#args, expected:\
-	    -o outputpath ?-merge? ?-ext ext?\
+	    -o outputpath ?-merge? ?-raw? ?-ext ext?\
 	    ?-style file? ?-header file?\
-	    ?-footer file? ?-nav label url?...\
+	    ?-footer file? ?-module string? ?-nav label url?...\
 	    format inputpath"
     return -code error -errorcode {DTPLITE STOP} {}
 }
@@ -740,6 +765,19 @@ proc ::dtplite::CheckInsert {option label} {
 	}
 	CheckInput $opt $label
 	set opt [Get $opt]
+    }
+    return
+}
+
+proc ::dtplite::CheckPresence {option label} {
+    variable format
+    variable $option
+    upvar 0  $option opt
+
+    if {$opt} {
+	if {![in [dt parameters] $option]} {
+	    ArgError "-$option not supported by format \"$format\""
+	}
     }
     return
 }
@@ -1613,7 +1651,13 @@ proc ::dtplite::HeaderSetup {o ref} {
     variable nav
     variable prenav
     variable postnav
+    variable raw
 
+    # Activate raw mode, if supported and requested.
+    if {[in [$o parameters] raw] && $raw} {
+	$o setparam raw 1
+    }
+    
     # We cannot generate a navigation bar if the output format does
     # not support a "header".
     if {![in [$o parameters] header]} return
@@ -1637,10 +1681,6 @@ proc ::dtplite::Navbar {nav ref} {
     set sep 0
     set first 1
     set hdr ""
-    if {![string equal $header ""]} {
-	append hdr $header
-	set sep 1
-    }
 
     append hdr [NavbarSegment sep first $prenav  $ref]
     append hdr [NavbarSegment sep first $nav     $ref]
@@ -1649,7 +1689,9 @@ proc ::dtplite::Navbar {nav ref} {
     if {[string length $hdr]} {
 	set hdr "<hr> \[\n $hdr \] <hr>\n"
     }
-
+    if {![string equal $header ""]} {
+	set hdr "$header $hdr"
+    }
     return $hdr
 }
 
