@@ -30,21 +30,27 @@ global maintable   ; set maintable   1
 global even        ; set even        1
 
 proc fmt_toc_begin     {label title}      {
-    set     hdr ""
-    append  hdr "[markup <html><head>]\n"
-    append  hdr "[markup <title>] $label [markup </title>]\n"
+    set hdr ""
+    if {![Get raw]} {
+	append  hdr "[markup <html><head>]\n"
+	append  hdr "[markup <title>] $label [markup </title>]\n"
 
-    # Engine parameter - insert 'meta'
-    if {[set meta [Get meta]] != {}} {append hdr [markup $meta]\n}
+	# Engine parameter - insert 'meta'
+	if {[set meta [Get meta]] != {}} {append hdr [markup $meta]\n}
 
-    append  hdr "[markup </head>]\n"
-    append  hdr [ht_comment [c_provenance]]\n
-    append  hdr [ht_comment "CVS: \$Id\$ $label"]\n
-    append  hdr \n
-    append  hdr [markup <body>]\n
-
+	append  hdr "[markup </head>]\n"
+	append  hdr [ht_comment [c_provenance]]\n
+	append  hdr [ht_comment "$label"]\n
+	append  hdr \n
+	append  hdr [markup <body>]\n
+    }
+    
     # Engine parameter - insert 'header'
-    if {[set header [Get header]] != {}} {append hdr [markup $header]\n}
+    if {[set header [Get header]] != {}} {
+	lappend map @TITLE@ $label
+	set header [string map $map $header]
+	append hdr [markup $header]\n
+    }
 
     append  hdr "[markup <h3>] $label [markup </h3>]\n"
     append  hdr "[markup <hr><dl><dt><h2>] $title [markup </h2><dd>]\n"
@@ -59,7 +65,12 @@ proc fmt_toc_end       {}           {
     set footer [Get footer]
     if {$footer != {}} {set footer \n[markup ${footer}]\n}
 
-    return $text[tag /dl][tag hr]${footer}[tag/ body][tag/ html]\n
+    append text [tag /dl][tag hr]${footer}
+
+    if {![Get raw]} {
+	append text [tag/ body][tag/ html]\n
+    }
+    return $text
 }
 proc fmt_division_start {title symfile} {
     global maintable ; set maintable 0
@@ -81,17 +92,17 @@ proc fmt_item          {file label desc} {
 
     if {$firstitem} {
 	set firstitem 0
-	append text \n[markup "<table class=\"#toc\">"]\n
+	append text \n[markup "<table class=\"#doctools_toc\">"]\n
     }
 
     if {$even} {
-	append text [markup "<tr class=\"#toceven\" >"]\n
+	append text [markup "<tr class=\"#doctools_toceven\" >"]\n
     } else {
-	append text [markup "<tr class=\"#tocodd\"  >"]\n
+	append text [markup "<tr class=\"#doctools_tocodd\"  >"]\n
     }
     set even [expr {1-$even}]
-    append text [markup "<td class=\"#tocleft\" >"][markup "<a href=\"[dt_fmap $file]\">"]$label[tag/ a][tag/ td]\n
-    append text [markup "<td class=\"#tocright\">"]${desc}[tag /td]\n
+    append text [markup "<td class=\"#doctools_tocleft\" >"][markup "<a href=\"[dt_fmap $file]\">"]$label[tag/ a][tag/ td]\n
+    append text [markup "<td class=\"#doctools_tocright\">"]${desc}[tag /td]\n
     append text [tag/ tr]\n
     return $text
 }
@@ -104,6 +115,7 @@ array set __var {
     meta   {}
     header {}
     footer {}
+    raw    0
 }
 proc Get               {varname}      {global __var ; return $__var($varname)}
 proc toc_listvariables {}             {global __var ; return [array names __var]}

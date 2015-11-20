@@ -31,6 +31,7 @@ proc ::sak::localdoc::run {} {
     global excluded modules apps guide
     source support/installation/modules.tcl
 
+    lappend baseconfig -module tcllib
     foreach e $excluded {
 	puts "Excluding $e ..."
 	lappend baseconfig -exclude */modules/$e/*
@@ -43,16 +44,26 @@ proc ::sak::localdoc::run {} {
     sak::doc::index __dummy__
 
     puts "Removing old documentation..."
+    # but keep the main index around, manually created, edited, not to be touched
+    # TODO: catch errors and restore automatically
+    file rename embedded/index.html e_index.html
+    
     file delete -force embedded
-    file mkdir embedded/man
     file mkdir embedded/www
 
-    puts "Generating manpages..."
+    # Put the saved main page back into place, early.
+    file rename e_index.html embedded/index.html
+
+    file delete -force idoc
+    file mkdir idoc/man
+    file mkdir idoc/www
+
+    puts "Generating manpages (installation)..."
     set     config $baseconfig
     lappend config -exclude {*/doctools/tests/*}
     lappend config -exclude {*/support/*}
     lappend config -ext n
-    lappend config -o embedded/man
+    lappend config -o idoc/man
     lappend config nroff .
 
     dtplite::do $config
@@ -71,24 +82,42 @@ proc ::sak::localdoc::run {} {
     set mods [string map $map [fileutil::cat support/devel/sak/doc/toc_mods.txt]]
     set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
 
-    puts "Generating HTML... Pass 1, draft..."
+    puts "Generating HTML (installation)... Pass 1, draft..."
     set     config $baseconfig
     lappend config -exclude  {*/doctools/tests/*} 
     lappend config -exclude  {*/support/*} 
-    lappend config -toc      $toc 
+    lappend config -toc      $toc
     lappend config -nav      {Tcllib Home} $nav 
     lappend config -post+toc Categories    $cats 
     lappend config -post+toc Modules       $mods 
     lappend config -post+toc Applications  $apps 
     lappend config -merge 
-    lappend config -o embedded/www 
+    lappend config -o idoc/www
     lappend config html .
 
     dtplite::do $config
 
-    puts "Generating HTML... Pass 2, resolving cross-references..."
+    puts "Generating HTML (installation)... Pass 2, resolving cross-references..."
     dtplite::do $config
 
+    puts "Generating HTML (online)... Pass 1, draft..."
+    set     config $baseconfig
+    lappend config -exclude  {*/doctools/tests/*} 
+    lappend config -exclude  {*/support/*} 
+    lappend config -toc      $toc
+    lappend config -post+toc Categories    $cats 
+    lappend config -post+toc Modules       $mods 
+    lappend config -post+toc Applications  $apps 
+    lappend config -merge 
+    lappend config -raw 
+    lappend config -o embedded/www
+    lappend config -header support/fossil-nav-integration.html
+    lappend config html .
+
+    dtplite::do $config
+
+    puts "Generating HTML (online)... Pass 2, resolving cross-references..."
+    dtplite::do $config
     return
 }
 
