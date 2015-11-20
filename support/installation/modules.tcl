@@ -77,7 +77,6 @@ Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
 Module  http        _tcl  _man  _null
-Module  httpwget    _tcl  _man  _null
 Module  httpd       _tcl  _man  _exa
 Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
@@ -128,7 +127,6 @@ Module  report      _tcl  _man  _null
 Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
-Module  scgi        _tcl  _man  _null
 Module  sha1        _tcl  _man  _null
 Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa

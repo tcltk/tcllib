@@ -49,6 +49,7 @@ modules/debug/debug_timestamp.man
 modules/des/des.man
 modules/des/tcldes.man
 modules/des/tcldesjr.man
+modules/dicttool/dicttool.man
 modules/dns/tcllib_dns.man
 modules/dns/tcllib_ip.man
 modules/docstrip/docstrip.man
@@ -182,6 +183,7 @@ modules/math/calculus.man
 modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
+modules/math/exact.man
 modules/math/fourier.man
 modules/math/fuzzy.man
 modules/math/interpolate.man
@@ -211,7 +213,6 @@ modules/nettool/nettool.man
 modules/nmea/nmea.man
 modules/nns/nns_auto.man
 modules/nns/nns_client.man
-modules/nns/nns_cluster.man
 modules/nns/nns_common.man
 modules/nns/nns_intro.man
 modules/nns/nns_protocol.man
@@ -288,8 +289,6 @@ modules/sasl/gtoken.man
 modules/sasl/ntlm.man
 modules/sasl/sasl.man
 modules/sasl/scram.man
-modules/scgi/scgi-app.man
-modules/scgi/scgi-server.man
 modules/sha1/sha1.man
 modules/sha1/sha256.man
 modules/simulation/annealing.man
@@ -351,6 +350,7 @@ modules/textutil/trim.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
+modules/tool/meta.man
 modules/transfer/connect.man
 modules/transfer/copyops.man
 modules/transfer/ddest.man
