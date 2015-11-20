@@ -1,6 +1,5 @@
-<html><head>
-<title>math::calculus::romberg - Tcl Math Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='math::calculus::romberg - Tcl Math Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,60 +80,52 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'romberg.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2004 Kevin B. Kenny &lt;kennykb@acm.org&gt;. All rights reserved. Redistribution permitted under the terms of the Open Publication License &lt;http://www.opencontent.org/openpub/&gt;
-   -->
-<! -- CVS: $Id$ math::calculus::romberg.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::calculus::romberg(n) 0.6 tcllib &quot;Tcl Math Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">math::calculus::romberg(n) 0.6 tcllib &quot;Tcl Math Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::calculus::romberg - Romberg integration</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">PROCEDURES</a></li>
-<li class="section"><a href="#section3">PARAMETERS</a></li>
-<li class="section"><a href="#section4">OPTIONS</a></li>
-<li class="section"><a href="#section5">DESCRIPTION</a></li>
-<li class="section"><a href="#section6">IMPROPER INTEGRALS</a></li>
-<li class="section"><a href="#section7">OTHER CHANGES OF VARIABLE</a></li>
-<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">PROCEDURES</a></li>
+<li class="doctools_section"><a href="#section3">PARAMETERS</a></li>
+<li class="doctools_section"><a href="#section4">OPTIONS</a></li>
+<li class="doctools_section"><a href="#section5">DESCRIPTION</a></li>
+<li class="doctools_section"><a href="#section6">IMPROPER INTEGRALS</a></li>
+<li class="doctools_section"><a href="#section7">OTHER CHANGES OF VARIABLE</a></li>
+<li class="doctools_section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">math::calculus 0.6</b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::calculus::romberg</b> <i class="arg">f</i> <i class="arg">a</i> <i class="arg">b</i> <span class="opt">?<i class="arg">-option value</i>...?</span></a></li>
 <li><a href="#2"><b class="cmd">::math::calculus::romberg_infinity</b> <i class="arg">f</i> <i class="arg">a</i> <i class="arg">b</i> <span class="opt">?<i class="arg">-option value</i>...?</span></a></li>
 <li><a href="#3"><b class="cmd">::math::calculus::romberg_sqrtSingLower</b> <i class="arg">f</i> <i class="arg">a</i> <i class="arg">b</i> <span class="opt">?<i class="arg">-option value</i>...?</span></a></li>
@@ -146,16 +137,16 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="cmd">romberg</b> procedures in the <b class="cmd"><a href="calculus.html">math::calculus</a></b> package
 perform numerical integration of a function of one variable.  They
 are intended to be of &quot;production quality&quot; in that they are robust,
 precise, and reasonably efficient in terms of the number of function
 evaluations.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">PROCEDURES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">PROCEDURES</a></h2>
 <p>The following procedures are available for Romberg integration:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::math::calculus::romberg</b> <i class="arg">f</i> <i class="arg">a</i> <i class="arg">b</i> <span class="opt">?<i class="arg">-option value</i>...?</span></a></dt>
 <dd><p>Integrates an analytic function over a given interval.</p></dd>
 <dt><a name="2"><b class="cmd">::math::calculus::romberg_infinity</b> <i class="arg">f</i> <i class="arg">a</i> <i class="arg">b</i> <span class="opt">?<i class="arg">-option value</i>...?</span></a></dt>
@@ -184,8 +175,8 @@ region of integration may be arbitrarily large and negative.</p></dd>
 region of integration may be arbitrarily large.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">PARAMETERS</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">PARAMETERS</a></h2>
+<dl class="doctools_definitions">
 <dt><i class="arg">f</i></dt>
 <dd><p>Function to integrate.  Must be expressed as a single Tcl command,
 to which will be appended a single argument, specifically, the
@@ -208,8 +199,8 @@ the other procedures, the limits may appear in either order.</p></dd>
 <span class="sectref"><a href="#section6">IMPROPER INTEGRALS</a></span> for details.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">OPTIONS</a></h2>
-<dl class="definitions">
+<div id="section4" class="doctools_section"><h2><a name="section4">OPTIONS</a></h2>
+<dl class="doctools_definitions">
 <dt><b class="option">-abserror</b> <i class="arg">epsilon</i></dt>
 <dd><p>Requests that the integration machinery proceed at most until
 the estimated absolute error of the integral is less than
@@ -237,7 +228,7 @@ in Romberg integration; see section <span class="sectref"><a href="#section5">DE
 details. Default is 4.  Can be at most <i class="arg">m</i>-1.</p></dd>
 </dl>
 </div>
-<div id="section5" class="section"><h2><a name="section5">DESCRIPTION</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">DESCRIPTION</a></h2>
 <p>The <b class="cmd">romberg</b> procedure performs Romberg integration using
 the modified midpoint rule. Romberg integration is an iterative
 process.  At the first step, the function is evaluated at the
@@ -269,7 +260,7 @@ the case mentioned above).  Care must be used, therefore, in
 integrating a function like 1/(1-x**2) to avoid the places
 where the derivative is singular.</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">IMPROPER INTEGRALS</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">IMPROPER INTEGRALS</a></h2>
 <p>Romberg integration is also useful for integrating functions over
 half-infinite intervals or functions that have singularities.
 The trick is to make a change of variable to eliminate the
@@ -277,7 +268,7 @@ singularity, and to put the singularity at one end or the other
 of the region of integration.  The <b class="cmd"><a href="calculus.html">math::calculus</a></b> package
 supplies a number of <b class="cmd">romberg</b> procedures to deal with the
 commoner cases.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="cmd">romberg_infinity</b></dt>
 <dd><p>Integrates a function over a half-infinite interval; either
 <i class="arg">a</i> or <i class="arg">b</i> may be infinite.  <i class="arg">a</i> and <i class="arg">b</i> must be
@@ -311,7 +302,7 @@ gives much more orderly convergence.</p>
 u=(x-a)**(1-gamma) (<b class="cmd">romberg_powerLawLower</b>) or
 u=(b-x)**(1-gamma) (<b class="cmd">romberg_powerLawUpper</b>).</p>
 <p>To summarize the meaning of gamma:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>If f(x) ~ x**(-a) (0 &lt; a &lt; 1), use gamma = a</p></li>
 <li><p>If f'(x) ~ x**(-b) (0 &lt; b &lt; 1), use gamma = b</p></li>
 </ul></dd>
@@ -332,7 +323,7 @@ be an arbitrary large positive number.  The functions make the
 change of variable u=exp(-x) and u=exp(x) respectively.</p></dd>
 </dl>
 </div>
-<div id="section7" class="section"><h2><a name="section7">OTHER CHANGES OF VARIABLE</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">OTHER CHANGES OF VARIABLE</a></h2>
 <p>If you need an improper integral other than the ones listed here,
 a change of variable can be written in very few lines of Tcl.
 Because the Tcl coding that does it is somewhat arcane,
@@ -349,7 +340,7 @@ from a to b of f(x) is the integral from asin(a) to asin(b)
 of f(sin(u))*cos(u).</p>
 <p>We can make a function <b class="cmd">g</b> that accepts an arbitrary function
 <b class="cmd">f</b> and the parameter u, and computes this new integrand.</p>
-<pre class="example">
+<pre class="doctools_example">
 proc g { f u } {
     set x [expr { sin($u) }]
     set cmd $f; lappend cmd $x; set y [eval $cmd]
@@ -360,7 +351,7 @@ proc g { f u } {
 as integrating <b class="cmd">g</b> from <i class="arg">asin(a)</i> to <i class="arg">asin(b)</i>.
 It's a little tricky to get <b class="cmd">f</b> consistently evaluated in
 the caller's scope; the following procedure does it.</p>
-<pre class="example">
+<pre class="doctools_example">
 proc romberg_sine { f a b args } {
     set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
     set f [list g $f]
@@ -370,20 +361,20 @@ proc romberg_sine { f a b args } {
 <p>This <b class="cmd">romberg_sine</b> procedure will do any function with
 sqrt(1-x*x) in the denominator. Our sample function is
 f(x)=exp(x)/sqrt(1-x*x):</p>
-<pre class="example">
+<pre class="doctools_example">
 proc f { x } {
     expr { exp($x) / sqrt( 1. - $x*$x ) }
 }
 </pre>
 <p>Integrating it is a matter of applying <b class="cmd">romberg_sine</b>
 as we would any of the other <b class="cmd">romberg</b> procedures:</p>
-<pre class="example">
+<pre class="doctools_example">
 foreach { value error } [romberg_sine f -1.0 1.0] break
 puts [format &quot;integral is %.6g +/- %.6g&quot; $value $error]
 integral is 3.97746 +/- 2.3557e-010
 </pre>
 </div>
-<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: calculus</em> of the
@@ -391,13 +382,13 @@ Please report such in the category <em>math :: calculus</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="calculus.html">math::calculus</a>, <a href="interpolate.html">math::interpolate</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2004 Kevin B. Kenny &lt;kennykb@acm.org&gt;. All rights reserved. Redistribution permitted under the terms of the Open Publication License &lt;http://www.opencontent.org/openpub/&gt;</p>
 </div>
-</div></body></html>
+</div>
