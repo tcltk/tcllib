@@ -244,7 +244,7 @@ proc ::picoirc::post {context channel msg} {
             version {send $context "PRIVMSG $first :\001VERSION\001"}
  	    msg {
  		if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
- 		    send $context "PRIVMSG $target :$msg"
+ 		    send $context "PRIVMSG $target :$querymsg"
  		    Callback $context chat $target $target $querymsg ""
  		}
  	    }
@@ -266,6 +266,6 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.5.1
+package provide picoirc 0.5.2
 
 # -------------------------------------------------------------------------

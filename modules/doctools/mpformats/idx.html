@@ -44,10 +44,15 @@ proc fmt_url     {u l} {Ref $u           $l}
 proc fmt_index_end {} {
     LoadKwid
     set lines {}
-    BeginHeader ; Meta  ; EndHeader
-    BeginBody   ; Title ; Navbar
-    BeginIndex  ; Keys  ; EndIndex
-    EndBody
+    if {![Get raw]} {
+	BeginHeader ; Meta ; EndHeader
+	BeginBody
+    }
+    BodyHeader ; Title ; Navbar
+    BeginIndex ; Keys ; EndIndex
+    if {![Get raw]} {
+	EndBody
+    }
     return [join $lines \n]
 }
 
@@ -78,7 +83,7 @@ proc BeginHeader {} {
     upvar 1 lines lines
     lappend lines [markup <html>]
     lappend lines [ht_comment [c_provenance]]
-    lappend lines [ht_comment "CVS: \$Id\$ $la"]
+    lappend lines [ht_comment "$la"]
     lappend lines [markup <head>]
     lappend lines "[markup <title>] $la [markup </title>]"
     return
@@ -102,16 +107,23 @@ proc EndHeader {} {
 proc BeginBody {} {
     upvar 1 lines lines
     lappend lines [markup <body>]
-    # Engine parameter - insert 'meta'
+    return
+}
+
+proc BodyHeader {} {
+    upvar 1 lines lines
+    # Engine parameter - insert 'header'
     set header [Get header]
     if {$header == {}} return
+    lappend map @TITLE@ [TheTitle]
+    set header [string map $map $header]
     lappend lines [markup $header]
     return
 }
 
-proc Title {} {
+proc TheTitle {} {
     global la ti
-    upvar 1 lines lines
+    set title ???
     if {($la != {}) && ($ti != {})} {
 	set title "$la -- $ti"
     } elseif {$la != {}} {
@@ -119,7 +131,12 @@ proc Title {} {
     } elseif {$ti != {}} {
 	set title $ti
     }
-    lappend lines "[markup <h3>] $title [markup </h3>]"
+    return $title
+}
+
+proc Title {} {
+    upvar 1 lines lines
+    lappend lines "[markup <h3>] [TheTitle] [markup </h3>]"
     return
 }
 
@@ -134,7 +151,7 @@ proc Navbar {} {
 	lappend nav [ALink $ref $c]
     }
 
-    lappend lines [markup "<hr><div class=\"#idxnav\">"]
+    lappend lines [markup "<hr><div class=\"#doctools_idxnav\">"]
     lappend lines [join $nav $dot]
     lappend lines [markup </div>]
     return
@@ -142,7 +159,7 @@ proc Navbar {} {
 
 proc BeginIndex {} {
     upvar 1 lines lines
-    lappend lines [markup "<hr><table class=\"#idx\" width=\"100%\">"]
+    lappend lines [markup "<hr><table class=\"#doctools_idx\" width=\"100%\">"]
     return
 }
 
@@ -162,7 +179,7 @@ proc Keys {} {
 proc Section {c} {
     global ch
     upvar 1 lines lines
-    lappend lines [markup {<tr class="#idxheader"><th colspan="2">}]
+    lappend lines [markup {<tr class="#doctools_idxheader"><th colspan="2">}]
     lappend lines [markup "<a name=\"$ch($c)\">Keywords: $c</a>"]
     lappend lines [markup </th></tr>]
     return
@@ -215,11 +232,11 @@ proc ALink {dst label} {
 }
 
 proc BeginColLeft {} {
-    return [markup {<td class="#idxleft" width="35%">}]
+    return [markup {<td class="#doctools_idxleft" width="35%">}]
 }
 
 proc BeginColRight {} {
-    return [markup {<td class="#idxright" width="65%">}]
+    return [markup {<td class="#doctools_idxright" width="65%">}]
 }
 
 proc SetAnchor {text} {
@@ -239,8 +256,8 @@ proc Anchor {text} {
 proc Row {} {
     global even
     set res [expr {$even
-    ? "\#idxeven"
-    : "\#idxodd"}]
+    ? "\#doctools_idxeven"
+    : "\#doctools_idxodd"}]
     Flip
     return $res
 }
@@ -282,6 +299,7 @@ array set __var {
     header {}
     footer {}
     kwid   {}
+    raw    0
 }
 proc Get               {varname}      {global __var ; return $__var($varname)}
 proc idx_listvariables {}             {global __var ; return [array names __var]}

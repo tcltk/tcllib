@@ -1,0 +1,18 @@
+set here [file dirname [file join [pwd] [info script]]]
+puts LOADING
+source [file join $here .. devtools testutilities.tcl]
+source [file join $here .. oodialect oodialect.tcl]
+source [file join $here .. dicttool dicttool.tcl]
+source [file join $here .. oometa oometa.tcl]
+
+source [file join $here index.tcl]
+
+tool::class create foo {
+  option color {default blue}
+}
+
+puts "START DEMO"
+foo create bar
+puts [bar cget color]
+bar configure color green
+puts [bar cget color]

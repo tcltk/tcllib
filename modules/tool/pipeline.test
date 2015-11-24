@@ -1,0 +1,145 @@
+# ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
+
+# -------------------------------------------------------------------------
+set here [file dirname [file join [pwd] [info script]]]
+puts LOADING 
+source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
+source [file join $here .. .. .. tcllib modules oodialect oodialect.tcl]
+source [file join $here .. listutil listutil.tcl]
+source [file join $here .. .. .. tcllib modules dicttool dicttool.tcl]
+source [file join $here .. .. .. tcllib modules oometa oometa.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2
+
+testsNeed TclOO 1
+
+testing {
+  useLocal index.tcl tool
+}
+
+
+# Test properties
+
+oo::class create foo {
+  superclass
+  meta set const color blue
+  meta branchset signal install {
+    follows: make
+    triggers: {}
+    require: {configure build}
+    action: {
+      my stage_complete install 0
+      my make install
+    }
+  }
+  meta branchset signal build {
+    follows: configure
+    require: {configure}
+    action: {
+      my stage_complete build 0
+      my stage_complete install 0
+      my make build
+    }
+  }
+  meta branchset signal configure {
+    follows: {}
+    action: {
+      my stage_complete configure 0
+      my stage_complete build 0
+      my stage_complete install 0
+      my make configure
+    }
+  }
+  
+  method stage_complete {stage args} {
+    my variable stage_complete
+    if {[llength $args]==1} {
+      set stage_complete($stage) [string is true -strict [lindex $args 0]]
+    }
+    if {![info exists stage_complete($stage)]} {
+      set stage_complete($stage) 0
+    }
+    return $stage_complete($stage)
+  }
+  
+  method make stage {
+    if {[my stage_complete $stage]} {
+      return
+    }
+    set info [my meta getnull signal $stage]
+    foreach item [dict getnull $info require:] {
+      my make $item
+    }
+    # Uncomment to follow along!
+    #puts "[self] MAKE STAGE $stage"
+    set ::processed([self]) $stage
+    yield
+    my stage_complete $stage 1
+    set ::processed([self]) {}
+  }
+  
+  constructor {} {
+    ::tool::object_create [self]
+  }
+  destructor {
+    ::tool::object_destroy [self]
+  }
+}
+
+foo create bar
+bar signal build
+
+test tool-class-pipeline-001 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} configure
+
+test tool-class-pipeline-002 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} build
+
+test tool-class-pipeline-003 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} {}
+
+bar signal install
+# Non-intuitive, but an "install" completes in a single step
+test tool-class-pipeline-004 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} {}
+
+bar signal configure install
+
+test tool-class-pipeline-006 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} configure
+
+test tool-class-pipeline-007 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} build
+
+test tool-class-pipeline-008 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} install
+
+test tool-class-pipeline-009 {Pipeline trial} {
+  ::tool::do_events 
+  set ::processed(::bar)
+} {}
+
+# -------------------------------------------------------------------------
+
+
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
