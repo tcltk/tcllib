@@ -1,7 +1,6 @@
 
-<html><head>
-<title>struct::matrix - Tcl Data Structures</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='struct::matrix - Tcl Data Structures'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,55 +81,47 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'matrix.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2002-2013 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ struct::matrix.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">struct::matrix(n) 2.0.3 tcllib &quot;Tcl Data Structures&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">struct::matrix(n) 2.0.3 tcllib &quot;Tcl Data Structures&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::matrix - Create and manipulate matrix objects</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">EXAMPLES</a></li>
-<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">struct::matrix <span class="opt">?2.0.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::matrix</b> <span class="opt">?<i class="arg">matrixName</i>?</span> <span class="opt">?<b class="const">=</b>|<b class="const">:=</b>|<b class="const">as</b>|<b class="const">deserialize</b> <i class="arg">source</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">matrixName</b> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
 <li><a href="#3"><i class="arg">matrixName</i> <b class="method">=</b> <i class="arg">sourcematrix</i></a></li>
@@ -179,7 +170,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>A matrix is a rectangular collection of cells, i.e. organized in rows
 and columns. Each cell contains exactly one value of arbitrary
 form. The cells in the matrix are addressed by pairs of integer
@@ -197,13 +188,13 @@ application. A specialty of this structure is the ability to export an
 array-view onto its contents. Such can be used by tkTable, for
 example, to link the matrix into the display.</p>
 <p>The main command of the package is:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::matrix</b> <span class="opt">?<i class="arg">matrixName</i>?</span> <span class="opt">?<b class="const">=</b>|<b class="const">:=</b>|<b class="const">as</b>|<b class="const">deserialize</b> <i class="arg">source</i>?</span></a></dt>
 <dd><p>The command creates a new matrix object with an associated global Tcl
 command whose name is <i class="arg">matrixName</i>.  This command may be used to
 invoke various operations on the matrix.  It has the following general
 form:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="2"><b class="cmd">matrixName</b> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
 <dd><p><i class="arg">Option</i> and the <i class="arg">arg</i>s determine the exact behavior of the
 command.</p></dd>
@@ -216,34 +207,34 @@ another matrix object, and the assignment operator <b class="method">=</b> will 
 executed. For <b class="const">deserialize</b> the <i class="arg">source</i> is a serialized
 matrix object and <b class="method">deserialize</b> will be executed.</p>
 <p>In other words</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::matrix mymatrix = b
 </pre>
 <p>is equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::matrix mymatrix
     mymatrix = b
 </pre>
 <p>and</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::matrix mymatrix deserialize $b
 </pre>
 <p>is equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::matrix mymatrix
     mymatrix deserialize $b
 </pre>
 </dd>
 </dl>
 <p>The following commands are possible for matrix objects:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="3"><i class="arg">matrixName</i> <b class="method">=</b> <i class="arg">sourcematrix</i></a></dt>
 <dd><p>This is the assignment operator for matrix objects. It copies the matrix
 contained in the matrix object <i class="arg">sourcematrix</i> over the matrix data in
 <i class="arg">matrixName</i>. The old contents of <i class="arg">matrixName</i> are deleted by
 this operation.</p>
 <p>This operation is in effect equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     <i class="arg">matrixName</i> <b class="method">deserialize</b> [<i class="arg">sourcematrix</i> <b class="method">serialize</b>]
 </pre>
 </dd>
@@ -253,7 +244,7 @@ the matrix contained in the matrix object <i class="arg">matrixName</i> over the
 data in the object <i class="arg">destmatrix</i>.
 The old contents of <i class="arg">destmatrix</i> are deleted by this operation.</p>
 <p>This operation is in effect equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     <i class="arg">destmatrix</i> <b class="method">deserialize</b> [<i class="arg">matrixName</i> <b class="method">serialize</b>]
 </pre>
 </dd>
@@ -438,7 +429,7 @@ we have serialized, in the form of a value like it is returned by the
 the matrix can be left out of that value as the size information in
 the serialization allows the receiver the creation of a matrix with
 the proper size despite the missing values.</p>
-<pre class="example">
+<pre class="doctools_example">
     # A possible serialization for the matrix structure
     #
     # | a b d g |
@@ -503,16 +494,16 @@ vice versa.</p></dd>
 if there is one.</p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">EXAMPLES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
 <p>The examples below assume a 5x5 matrix M with the first row containing
 the values 1 to 5, with 1 in the top-left cell. Each other row
 contains the contents of the row above it, rotated by one cell to the
 right.</p>
-<pre class="example">
+<pre class="doctools_example">
  % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 </pre>
-<pre class="example">
+<pre class="doctools_example">
  % M set rect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
  % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
@@ -522,7 +513,7 @@ manpage for the package <b class="package"><a href="../report/report.html">repor
 interpreter now an example which formats a matrix into a tabular
 report. The code filling the matrix with data is not shown.  contains
 useful data.</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::struct::matrix m
     % # ... fill m with data, assume 5 columns
     % ::report::report r 5 style captionedtable 1
@@ -542,7 +533,7 @@ useful data.</p>
     % r printmatrix m
 </pre>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>struct :: matrix</em> of the
@@ -550,13 +541,13 @@ Please report such in the category <em>struct :: matrix</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#key51">matrix</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2002-2013 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

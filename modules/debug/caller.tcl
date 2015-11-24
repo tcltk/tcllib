@@ -18,7 +18,7 @@ namespace eval ::debug {
 # ### ### ### ######### ######### #########
 ## API & Implementation
 
-proc ::debug::caller {} {
+proc ::debug::caller {args} {
     # For snit (type)methods, rework the command line to be more
     # legible and in line with what the user would expect. To this end
     # we pull the primary command out of the arguments, be it type or
@@ -28,6 +28,18 @@ proc ::debug::caller {} {
 
     set a [lassign [info level -1] m]
     regsub {.*Snit_} $m {} m
+
+    if {[string match ::oo::Obj*::my $m]} {
+	# TclOO call.
+	set m [uplevel 1 self]
+	return [list $m {*}[Filter $a $args]]
+    }
+    if {$m eq "my"} {
+	# TclOO call.
+	set m [uplevel 1 self]
+	return [list $m {*}[Filter $a $args]]
+    }
+
     switch -glob -- $m {
 	htypemethod* {
 	    # primary = type, a = type
@@ -59,14 +71,27 @@ proc ::debug::caller {} {
 	}
 	default {
 	    # Unknown
-	    return [list $m {*}$a]
+	    return [list $m {*}[Filter $a $args]]
 	}
     }
-    return [list $primary {*}$m {*}$a]
+    return [list $primary {*}$m {*}[Filter $a $args]]
+}
+
+proc ::debug::Filter {args droplist} {
+    if {[llength $droplist]} {
+	# Replace unwanted arguments with '*'. This is usually done
+	# for arguments which can be large Tcl values. These would
+	# screw up formatting and, to add insult to this injury, also
+	# repeat for each debug output in the same proc, method, etc.
+	foreach i [lsort -integer $droplist] {
+	    set args [lreplace $args $i $i *]
+	}
+    }
+    return $args
 }
 
 # ### ######### ###########################
 ## Ready for use
 
-package provide debug::caller 1
+package provide debug::caller 1.1
 return
