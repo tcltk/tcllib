@@ -39,6 +39,7 @@ proc ::cluster::broadcast {args} {
       puts "Broadcast ERR: $error - Reopening Socket"
       ::cluster::sleep 2000
     } else {
+      # Double the delay
       ::cluster::sleep 250
     }
   }
@@ -97,6 +98,7 @@ proc ::cluster::listen {} {
     -remote [list $discovery_group $discovery_port]
   fileevent $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
   ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
+  
   return $broadcast_sock
 }
 
@@ -132,6 +134,7 @@ proc ::cluster::UDPPacket sock {
       Service_Remove $serviceurl $serviceinfo
     }
     ~SERVICE {
+      set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
@@ -139,6 +142,7 @@ proc ::cluster::UDPPacket sock {
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     +SERVICE {
+      set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
@@ -146,7 +150,16 @@ proc ::cluster::UDPPacket sock {
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     DISCOVERY {
+      variable config
       ::cluster::heartbeat
+      if {$config(local_registry)==1} {
+        variable ptpdata
+        # A local registry barfs back all data that is sees
+        set now [clock seconds]
+        foreach {url info} [array get ptpdata] {
+          broadcast ~SERVICE $url $info 
+        }
+      }
     }
     LOG {
       set serviceurl [lindex $messageinfo 0]
@@ -236,7 +249,6 @@ proc ::cluster::unpublish {url infodict} {
   }
   set info [lindex [array get local_data $url] 1]
   broadcast -SERVICE $url $info
-  update
   unset -nocomplain local_data($url)
 }
 
@@ -250,6 +262,32 @@ proc ::cluster::configure {url infodict {send 1}} {
     broadcast ~SERVICE $url $local_data($url)
     update
   }
+}
+
+proc ::cluster::get_free_port {{startport 50000}} {
+  ::cluster::listen
+  ::cluster::broadcast DISCOVERY
+  after 10000 {set ::cluster::recv_message 0}
+  # Wait for a pingback or timeout
+  vwait ::cluster::recv_message
+  cluster::sleep 2000
+  
+  set macid [::cluster::macid]
+  set port $startport
+  set conflict 1
+  while {$conflict} {
+    set conflict 0
+    set port [::nettool::find_port $port]
+    foreach {url info} [search *@[macid]] {
+      if {[dict exists $info port] && [dict get $info port] eq $port} {
+        incr port
+        set conflict 1
+        break
+      }
+    }
+    update
+  }
+  return $port
 }
 
 proc ::cluster::log args {
@@ -333,13 +371,10 @@ proc ::cluster::throw {service command args} {
 }
 
 proc ::cluster::sleep ms {
-  update
-  set sid [incr ::_sleep_id]
-  set ::_sleep_flag($sid) 0
-  after $ms [list set ::_sleep_flag($sid) 1]
-  vwait ::_sleep_flag($sid)
-  unset -nocomplain ::_sleep_flag($sid)
-  update
+  set start [clock milliseconds]
+  while {([clock milliseconds]-$start) < $ms} {
+    update
+  }
 }
 
 ###
@@ -432,6 +467,7 @@ namespace eval ::cluster {
   array set config {
     debug 0
     discovery_ttl 300
+    local_registry 0
   }
   variable cache {}
   variable broadcast_sock {}
@@ -446,4 +482,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.1
+package provide nameserv::cluster 0.2.3

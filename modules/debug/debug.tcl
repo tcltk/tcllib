@@ -107,7 +107,7 @@ proc ::debug::2array {} {
     variable detail
     set result {}
     foreach n [lsort [array names detail]] {
-	if {[interp alias {} debug.$n] ne "::Debug::noop"} {
+	if {[interp alias {} debug.$n] ne "::debug::noop"} {
 	    lappend result $n $detail($n)
 	} else {
 	    lappend result $n -$detail($n)
@@ -302,5 +302,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.5
+package provide debug 1.0.6
 return

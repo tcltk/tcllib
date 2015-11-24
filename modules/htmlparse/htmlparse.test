@@ -245,7 +245,7 @@ test htmlparse-4.3 {numeric, decimal entities} {
     ::htmlparse::mapEscapes {emdash: &#8212; euro: &#8364;}
 } "emdash: \u2014 euro: \u20ac"
 
-test htmlparse-4.4 {numeric, hexidecimal entities} {
+test htmlparse-4.4 {numeric, hexadecimal entities} {
     ::htmlparse::mapEscapes {emdash: &#x2014; euro: &#x20ac;}
 } "emdash: \u2014 euro: \u20ac"
 
@@ -259,7 +259,7 @@ test htmlparse-4.6 {numeric, decimal entities; out-of-range} {
     ::htmlparse::mapEscapes {too big: &#89998; and unharmed}
 } {too big: &#89998; and unharmed}
 
-test htmlparse-4.7 {numeric, hexidecimal entities; out-of-range} {
+test htmlparse-4.7 {numeric, hexadecimal entities; out-of-range} {
     ::htmlparse::mapEscapes {too big: &#xffff; and unharmed}
 } {too big: &#xffff; and unharmed}
 
@@ -271,6 +271,11 @@ test htmlparse-4.8 {numeric character references, leading zeros} {
 test htmlparse-4.9 {XHTML/XML entity apos, bug 2028993} {
     ::htmlparse::mapEscapes {Apostrophe &apos;}
 } {Apostrophe '}
+
+# Ticket 86c971506c - HTML 5.1 entities
+test htmlparse-4.10 {predefined (HTML 5.1) entities} {
+    ::htmlparse::mapEscapes {&blacktriangle;&hbar;}
+} "\u25b4\u210f"
 
 # Bug #861277
 test htmlparse-6.1 {Backslashes in content} {

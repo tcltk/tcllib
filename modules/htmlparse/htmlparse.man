@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin htmlparse n 1.2.1]
+[vset VERSION 1.2.2]
+[manpage_begin htmlparse n [vset VERSION]]
 [see_also struct::tree]
 [keywords html]
 [keywords parsing]
@@ -11,7 +12,7 @@
 [require Tcl 8.2]
 [require struct::stack 1.3]
 [require cmdline 1.1]
-[require htmlparse [opt 1.2.1]]
+[require htmlparse [opt [vset VERSION]]]
 [description]
 [para]
 
