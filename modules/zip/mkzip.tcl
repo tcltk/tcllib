@@ -213,10 +213,12 @@ proc ::zipfile::mkzip::mkzip {filename args} {
   array set opts {
       -zipkit 0 -runtime "" -comment "" -directory ""
       -exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
+      -verbose 0
   }
   
   while {[string match -* [set option [lindex $args 0]]]} {
       switch -exact -- $option {
+          -verbose { set opts(-verbose) 1}
           -zipkit  { set opts(-zipkit) 1 }
           -comment { set opts(-comment) [encoding convertto utf-8 [pop args 1]] }
           -runtime { set opts(-runtime) [pop args 1] }
@@ -257,7 +259,9 @@ proc ::zipfile::mkzip::mkzip {filename args} {
       set paths [glob -nocomplain {*}$args]
   }
   foreach path $paths {
-      puts $path
+      if {[string is true $opts(-verbose)]} {
+        puts $path
+      }
       append cd [add_file_to_archive $zf $opts(-directory) $path]
       incr count
   }

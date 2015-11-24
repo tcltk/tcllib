@@ -128,8 +128,10 @@ check:
 sak-help:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` help
 
+shed:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/../sherpa/sherpa.tcl` shed generate `pwd` support/tool.tcl
 
-.PHONY: all binaries clean depend distclean doc install installdirs libraries test
+.PHONY: all binaries clean depend distclean doc install installdirs libraries test shed
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy::fetcher n 0.3]
+[vset VERSION 0.4]
+[manpage_begin map::slippy::fetcher n [vset VERSION]]
 [keywords http]
 [keywords location]
 [keywords map]
@@ -14,7 +15,7 @@
 [require Tk 8.4]
 [require img::png]
 [require map::slippy]
-[require map::slippy::fetcher [opt 0.3]]
+[require map::slippy::fetcher [opt [vset VERSION]]]
 [description]
 
 This package provides a class for accessing http servers providing
