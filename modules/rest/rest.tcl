@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.0.1
+package provide rest 1.0.2
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -43,12 +43,7 @@ proc ::rest::simple {url query args} {
         set body [lindex $args 1]
     }
 
-    # make sure we know which method to use
-    if {![dict exists $config method]} {
-        # set the method using the name we were invoked with (through interp alias)
-        dict set config method [namespace tail [lindex [dict get [info frame -1] cmd] 0]]
-        if {[dict get $config method] == "simple"} { dict set config method get }
-    }
+    DetermineMethod config
 
     if {[string first " " $query] > 0} {
         # if query has a space assume it is a list of key value pairs, and do the formatting
@@ -64,6 +59,9 @@ proc ::rest::simple {url query args} {
         if {[lindex $auth 0] == "basic"} {
             lappend headers Authorization "Basic [base64::encode [lindex $auth 1]:[lindex $auth 2]]"
         }
+    }
+    if {[dict exists $config content-type]} {
+        lappend headers Content-type [join [dict get $config content-type] \;]
     }
     if {[dict exists $config headers]} {
         dict for {key val} [dict get $config headers] { lappend headers $key $val }
@@ -87,6 +85,33 @@ interp alias {} ::rest::post   {} ::rest::simple
 interp alias {} ::rest::head   {} ::rest::simple
 interp alias {} ::rest::put    {} ::rest::simple
 interp alias {} ::rest::delete {} ::rest::simple
+
+proc ::rest::DetermineMethod {cv} {
+    upvar 1 $cv config
+    if {[dict exists $config method]} return
+
+    set loc [info frame -2]
+    if {![dict exists $loc cmd]} {
+	return -code error "Unable to determine rest::simple method in the current context ([dict get $loc type]). Please specify it explicitly."
+    }
+    set cmd [dict get $loc cmd]
+    if {[catch {
+	set cmd [lindex $cmd 0]
+    }]} {
+	# Not a proper list. String processing.
+	# Simple: Assume name without spaces.
+	# TODO: Quoted literal.
+	regexp {^([^ ]+).*$} $cmd -> cmd
+    }
+    if {$cmd ni {get delete head post put}} {
+	return -code error "Unable to determine rest::simple method, found \"$cmd\". Please specify it explicitly."
+    }
+    set cmd [namespace tail $cmd]    
+    if {$cmd eq "simple"} { set cmd get }
+    #puts >>>|$cmd|
+    dict set config method $cmd
+    return
+}
 
 # create_interface --
 #

@@ -56,6 +56,7 @@ Module  cron        _tcl  _man  _null
 Module  csv         _tcl  _man _exa
 Module  debug       _tcl _null  _null
 Module  des         _tcl  _man  _null
+Module  dicttool    _tcl  _man  _null
 Module  dns          _msg _man _exa
 Module  docstrip    _tcl  _man  _null
 Module  doctools     _doc _man _exa
@@ -75,10 +76,10 @@ Module  grammar_fa  _tcl  _man  _null
 Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
+Module  http        _tcl  _man  _null
 Module  httpd       _tcl  _man  _exa
 Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
-Module  http        _tcl  _man  _null
 Module  ident       _tcl  _man  _null
 Module  imap4       _tcl  _man  _null
 Module  inifile     _tcl  _man  _null
@@ -107,6 +108,7 @@ Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
 Module  oauth       _tcl  _man  _null
+Module  oometa      _tcl  _man  _null
 Module  ooutil      _tcl  _man  _null
 Module  otp         _tcl  _man  _null
 Module  page         _trt _man  _null
@@ -124,7 +126,6 @@ Module  report      _tcl  _man  _null
 Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
-Module  scgi        _tcl  _man  _null
 Module  sha1        _tcl  _man  _null
 Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa
@@ -140,6 +141,7 @@ Module  term         _tcr _man _exa
 Module  textutil     _tex _man  _null
 Module  tie         _tcl  _man  _exa
 Module  tiff        _tcl  _man  _null
+Module  tool        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
 Module  treeql      _tcl  _man  _null
 Module  try         _tcl  _man  _null

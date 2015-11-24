@@ -55,7 +55,7 @@
 #   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
 package require Tcl 8.5
-package provide imap4 0.5.2
+package provide imap4 0.5.3
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -162,6 +162,27 @@ namespace eval imap4 {
         array unset info $chan,*
 
         return $chan
+    }
+
+    # STARTTLS
+    # This is a new procc added to runs the STARTTLS command.  Use
+    # this when tasked with connecting to an unsecure port which must
+    # be changed to a secure port prior to user login.  This feature
+    # is known as STARTTLS.
+
+    proc starttls {chan} {                                  
+	#puts "Starting TLS"                          
+	request $chan "STARTTLS"
+	if {[getresponse $chan]} {
+	    #puts "error sending STARTTLS"
+	    return 1
+	}
+                               
+	#puts "TLS import"
+	set chan [::tls::import $chan -tls1 1]
+	#puts "TLS handshake"
+	set chan [::tls::handshake $chan]            
+        return 0
     }
 
     # Returns the last error code received.

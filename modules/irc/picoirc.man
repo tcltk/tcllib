@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin picoirc n 0.5]
+[vset VERSION 0.5.2]
+[manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
 [keywords irc]
@@ -7,7 +8,7 @@
 [titledesc {Small and simple embeddable IRC client.}]
 [category  Networking]
 [require Tcl]
-[require picoirc [opt 0.5]]
+[require picoirc [opt [vset VERSION]]]
 [description]
 
 This package provides a general purpose minimal IRC client suitable for

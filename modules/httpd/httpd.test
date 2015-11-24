@@ -12,9 +12,20 @@ testsNeedTcltest 2
 testsNeed TclOO 1
 
 support {
-  use ooutil/oometa.tcl oo::meta
+  use cmdline/cmdline.tcl cmdline
+  use fileutil/fileutil.tcl fileutil
+
+  use uri/uri.tcl uri
   use ncgi/ncgi.tcl ncgi
-  use httpd/httpd.tcl httpd
+
+  use dns/ip.tcl ip
+  use nettool/nettool.tcl nettool
+
+  use dicttool/dicttool.tcl dicttool
+  use cron/cron.tcl cron
+  use oodialect/oodialect.tcl oo::dialect
+  use oometa/oometa.tcl oo::meta
+  use tool/index.tcl tool
 }
 
 testing {
@@ -25,7 +36,7 @@ testing {
 
 
 httpd::server create TESTAPP port 10001
-vwait forever
+
 # -------------------------------------------------------------------------
 
 testsuiteCleanup
