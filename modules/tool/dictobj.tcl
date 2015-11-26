@@ -7,14 +7,16 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   
+  set initial {}
   if {[dict exists $cases initialize]} {
-    ::oo::meta::info $class set variable ${varname}: [dict get $cases initialize]
+    set initial [dict get $cases initialize]
+    ::oo::meta::info $class set variable ${varname}: $initial
     dict unset cases initialize
   } elseif {![::oo::meta::info $class exists variable ${varname}:]} {
     ::oo::meta::info $class set variable ${varname}: {}
   }
   
-  set def [string map [list %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
+  set def [string map [list %INITIAL%  %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
   method %METHOD% {subcommand args} {
     my variable %VARNAME%
     switch $subcommand {
@@ -23,6 +25,13 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
         set value [dict getnull $%VARNAME% {*}[lindex $args 0]]
         ladd value {*}[lrange $args 1 end]
         dict set %VARNAME% {*}[lindex $args 0] $value
+      }
+      initial {
+        return {%INITIAL%}
+      }
+      reset {
+        set %VARNAME% {%INITIAL%}
+        return $%VARNAME%
       }
       dump {
         return $%VARNAME%
@@ -46,7 +55,7 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
         return $%VARNAME%
       }
       replace {
-        set %VARNAME% [lindex $args 0]
+        set %VARNAME% [dict rmerge $%VARNAME% {%INITIAL%} {*}$args]
       }
       default {
         return [dict $subcommand $%VARNAME% {*}$args]
