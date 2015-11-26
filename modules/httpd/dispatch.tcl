@@ -10,63 +10,60 @@ package require httpd::content
 tool::class create httpd::server::dispatch {
   array template
   option doc_root {default {}}
-
+  variable url_patterns {}
+  variable scgi_patterns {}
+  
   method add_root {pattern class} {
     my variable url_patterns
     dict set url_patterns $pattern $class
   }
+
+  method add_scgi {pattern info} {
+    my variable scgi_patterns
+    dict set scgi_patterns $pattern $info
+  }
   
-  method dispatch {pageobj} {
-    my variable page
-    set dat [$pageobj query_headers dump]
-    set uri [dict get $dat REQUEST_URI]
+  method dispatch {data} {
+    set reply $data
+    set uri [dict get $data REQUEST_URI]
     # Search from longest pattern to shortest
     my variable url_patterns
     foreach {pattern class} $url_patterns {
+      puts "<server> CHECK url $uri $pattern"
       if {[string match ${pattern} $uri]} {
-        $pageobj query_header set prefix $pattern
-        oo::objdefine $pageobj mixin $class
-        return 200
+        puts [list MATCH $pattern $class]
+        dict set reply mixin $class
+        dict set reply prefix $pattern
+        return $reply
       }
     }
     set doc_root [my cget doc_root]
     if {$uri in "{} / /home /index.html /index.md /index"} {
+      puts "<server> url $uri HOME"
       ###
       # Handle HOME page
       ###
-      oo::objdefine $pageobj mixin httpd::content::file
-      $pageobj local_file [file join $doc_root index.md]
-      return 200
+      dict set reply mixin httpd::content::file
+      dict set reply local_file [file join $doc_root index.md]
+      return $reply
     }
     ###
     # Search for a file of the same name in doc_root
     ###
     if {$doc_root ne {}} {
+      set fname [string trimleft $uri /]
+      puts [list URL $fname doc_root $doc_root]
       if {[file exists [file join $doc_root $fname]]} {
-        oo::objdefine $pageobj mixin httpd::content::file
-        $pageobj local_file [file join $doc_root $fname]
-        return 200
+        dict set reply mixin httpd::content::file
+        dict set reply local_file [file join $doc_root $fname]
+        return $reply
       }
     }
-    # Return notfound
-    ###
-    # Get to the end, do a page not found and die
-    ###
-    $pageobj reset
-    $pageobj reply_headers set Status: {404 Not Found}
-    $pageobj puts [subst [my template notfound]]
-    $pageobj output
+    puts "NOTFOUND"
+    return {}
   }
   
-  method template page {
-    my variable template
-    if {[info exists template($page)]} {
-      return $template($page)
-    }
-    set template($page) [TemplateSearch $page]
-    return $template($page)
-  }
-  
+
   method TemplateSearch page {
     set doc_root [my cget doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -75,18 +72,7 @@ tool::class create httpd::server::dispatch {
     if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
       return [::fileutil::cat [file join $doc_root $page.html]]
     }
-    switch $page {
-      notfound {
-        return {
-<HTML>
-<HEAD><TITLE>404: Page Not Found</TITLE></HEAD>
-<BODY>
-The page you are looking for: <b>[$pageobj query_headers get REQUEST_URI]</b> does not exist.
-</BODY>
-</HTML>
-        }
-      }
-    }
+    return [next $page]
   }
 }
 
