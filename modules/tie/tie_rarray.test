@@ -32,7 +32,9 @@ proc mysend {args} {
     set async [expr {[lindex $args 0] eq "-async"}]
     if {$async} {set args [lrange $args 1 end]}
     set args [lrange $args 1 end]
-    set code [catch {uplevel 1 $args} msg]
+    set cmd [linsert $args 0 uplevel 1]
+    #puts stderr ||<<[join $cmd {>> <<}]>>||
+    set code [catch $cmd msg]
     if {$async} return
     return -code $code $msg
 }
@@ -277,6 +279,25 @@ test tie-rarray-8.3 {remote array setv} {
     set res
 } {{} {fox snarf}}
 
+test tie-rarray-8.4 {remote array setv, value containing space} {
+    unset -nocomplain av ; array set av {}
+    tie::std::rarray x av mysend _DUMMY_ID_
+    set     res {}
+    lappend res [x setv fox {snarf it}]
+    lappend res [dictsort [array get av]]
+    x destroy
+    set res
+} {{} {fox {snarf it}}}
+
+test tie-rarray-8.5 {remote array setv, varname containing space} {
+    unset -nocomplain {a v} ; array set {a v} {}
+    tie::std::rarray x {a v} mysend _DUMMY_ID_
+    set     res {}
+    lappend res [x setv fox {snarf it}]
+    lappend res [dictsort [array get {a v}]]
+    x destroy
+    set res
+} {{} {fox {snarf it}}}
 
 test tie-rarray-9.0 {remote array unsetv, wrong#args} {
     unset -nocomplain av ; array set av {}
