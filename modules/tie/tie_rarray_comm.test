@@ -35,21 +35,6 @@ set snit_code    [tcllibPath snit/snit.tcl]
 set tie_code     [localPath  tie.tcl]
 set tie_ra_code  [localPath  tie_rarray.tcl]
 
-# -------------------------------------------------------------------------
-
-proc mysend {args} {
-    # A fake send command, also local receiver, in a way.
-    # args = options?... id cmd arg...
-    # Options used is -async. Id is irrelevant here.
-
-    set async [expr {[lindex $args 0] eq "-async"}]
-    if {$async} {set args [lrange $args 1 end]}
-    set args [lrange $args 1 end]
-    set code [catch {uplevel 1 $args} msg]
-    if {$async} return
-    return -code $code $msg
-}
-
 # ------------------------------------------------------------------------
 #
 # First order of things is to spawn a separate tclsh into the background
@@ -91,7 +76,7 @@ interp alias {} csenda {} comm::comm send -async [slave]
 # ------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
-# We wish to test the regular rmeote communication, and circular
+# We wish to test the regular remote communication, and circular
 # communication, i.e. (1) a tie from A to remote B, and (2) ties from
 # A to B and back.
 
@@ -102,7 +87,7 @@ test tie-rarray-comm-1.0 {init from remote} {
 
     csend {
 	unset -nocomplain av
-	array set av {a 3 ab 4 fox snarf foo bar}
+	array set av {a 3 ab 4 fox snarf foo bar x {a b}}
     }
 
     tie::tie av remotearray av {comm::comm send} [slave]
@@ -111,7 +96,7 @@ test tie-rarray-comm-1.0 {init from remote} {
     set res [dictsort [array get av]]
     unset av
     set res
-} {a 3 ab 4 foo bar fox snarf}
+} {a 3 ab 4 foo bar fox snarf x {a b}}
 
 test tie-rarray-comm-1.1 {persistence to remote} {
     unset -nocomplain av ; array set av {}
@@ -134,6 +119,9 @@ test tie-rarray-comm-1.1 {persistence to remote} {
     set av(ax) foo         ; peek
     array unset av a*      ; peek
     array set av {b 5 d 6} ; peek
+    set av(x) {a b}        ; peek
+    array unset av *       ; peek
+    array set av {b {d e}} ; peek
 
     tie::untie av
     rename peek {}
@@ -143,7 +131,10 @@ test tie-rarray-comm-1.1 {persistence to remote} {
 a 4 b 2 c 3
 a 4 ax foo b 2 c 3
 b 2 c 3
-b 5 c 3 d 6}
+b 5 c 3 d 6
+b 5 c 3 d 6 x {a b}
+
+b {d e}}
 
 
 
