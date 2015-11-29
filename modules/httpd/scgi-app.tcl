@@ -10,35 +10,6 @@ package require httpd 4.0
 
 namespace eval ::scgi {}
 
-proc ::scgi::decode_headers {rawheaders} {
-  #
-  # Take the tokenized header data and place the usual CGI headers into $env,
-  # and transform the HTTP_ variables to their original HTTP header field names
-  # as best as possible.
-  #
-  foreach {name value} $rawheaders {
-    if {[regexp {^HTTP_(.*)$} $name {} nameSuffix]} {
-      set nameParts [list]
-      foreach namePart [split $nameSuffix _] {
-        lappend nameParts [string toupper [string tolower $namePart] 0 0]
-      }
-      dict set headers [join $nameParts -] $value
-    } else {
-      dict set env $name $value
-    }
-  }
-
-  #
-  # Store CONTENT_LENGTH as an HTTP header named Content-Length, too.
-  #
-  set contentLength [dict get $env CONTENT_LENGTH]
-
-  if {$contentLength > 0} {
-    dict set headers Content-Length $contentLength
-  }
-  return [list env $enc headers $headers]
-}
-
 tool::class create ::scgi::reply {  
   superclass ::httpd::reply
   
@@ -100,7 +71,6 @@ tool::class create ::scgi::reply {
       my output
     }
     return
-    
   }
   
   method EncodeStatus {status} {

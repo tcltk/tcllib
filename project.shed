@@ -9,7 +9,7 @@
     class: generic
     description: {The Tcl Library is a kitchen sink of packages across a broad spectrum of things.}
     distribution: fossil
-    generated: {2015-10-15 21:22:48 UTC}
+    generated: {2015-11-20 14:38:05 UTC}
     release: odie
   }
   release/ {
@@ -82,8 +82,6 @@
     c0c348244ecf5410519eafc0cc226052050ddd7c
     51ec651a9acb491ba43e73e347174c850f11370a
     63b0686b7548812d4da9afa8f923814c3fd11908
-    d02656686b5e7f6fe647b49af26b78649ecf237b
-    b7b709311639e013ef44f7239f1b3a66f03b6b3b
     8c5cbd867c1c229b0f7b78a4689a6b1b78ec3d15
     a9e769b884359226c7f8c15d1ebf7efbba82534e
     72908f6298595d8084b835073b66f8985d11e90a
@@ -193,7 +191,11 @@
     60c977eaab36efce94e5a25b2c92dcb657672f35
     8c7c525a354f457f5f65afa3a8cb454a959eb125
     2e328b86bcd2fc75c02c76df1b1576d3a7988aef
+    1bcef7a512eb20d6a9d5e69b064dcf8f0e7b90bb
+    078d6e984cedc9d19097f2a5778d1d3d0bffba49
     61ce79d6c0bd3c00e1ca66fec666f2bc5e50af52
+    91aba14cba2c2c5b7814099de8aa73b44054045a
+    fd57232262d7be14357a705596d64e5194afd0e7
     28a34f9ed0068a8db16c10444c806abff8dff95a
     b05a09169407d55959bc432d685d85400218d999
     caa7c49d2ee81134d5b8312e5f0e83d76d2c2d92
@@ -229,6 +231,7 @@
     037055fec9ec50e8924a790e03e5582bc757ea50
     f8ab5cf0a2def8341546370f8b534fdcf2533a1f
     4230d588ab6fd0a6212035d0d9bff9dcb50fcea2
+    9cebd191b01bc488f5c88683fa7ce9f3531b641d
     f04d938661ffdbdbcb42c6364093822e7add0227
     e72048b361cffcc2fd317553fc1593d6e5abdc87
     71861284833ba1186c672e9f75d64a8920d1c050
@@ -272,10 +275,11 @@
     3a2242db0c583085ce0e542865332f635685c59f
     fe35084c152c90b2b147f873597b8de4fe4b7495
     d14a696c4a66293b4b74223203c4e6079cbb11ef
+    fb61e97be353d20d76590c3cfb6c244b4f6355a5
     4c0558ec37f72a81cc4920bcd9e41cf30c2a9182
-    44342f562c78be01d002d0809a41784b4d7d0309
-    3818a795c83fc7d2b89db3ccec6229c47a83d96a
-    cd310fcc0eca18ec75e8272063bd763f60754750
+    3bfd231fc83526743b79017e0d9d012251a7fa17
+    785a134d17bdc727e545f1718c06fc16e2acdf68
+    e1cc3c6e89767d4267a5f5f9e177005149b22ec9
     4b5abdd152d25512975181d074666bd970302740
     b74435d9e3f010e25d0948ce4e48ba7bd4917974
     d89ce0626f2777f4470571a886c314db14b1477d
@@ -432,19 +436,11 @@
     849b96a57b50de700cbcfc0ce2c1f5d6ffaf67eb
     56dd81ff53b588966c5f8161e0ddd341901010fb
     d38621427a10ecd9423df435025ff04609b251df
-    b5c7aa6434c3bc87625a150e17546cffe834e41c
-    a11e187307e6ed0959a184510768b4fc4c864acd
     2517b0808d851fb8ac709b5fe5f60d5fc913e001
     b6159ec6ea2493fbbe52553e3aaf92bff0d61c26
     6d9830562b7c83d5473f2eeb39feebde13b86dcc
     ff43705960b23f0b786a88633c2b8bbd24ca74cd
     ff4799ba02d91b20df8c8b4c0a1027a591c350b2
-    be7a9033c1acf35511ffcf6d57d03f74faf5f5b5
-    b42a125653031b85ccd82e01e3f4f834118c277a
-    a46a06eb62bc6db493f1224db498f66a82f707af
-    b5e342b7cbc1f8a4b0b76294c28ecc1b25501abd
-    a71ed06baff23596390a220c98a5c40406247565
-    c8ff29ac6718dc04cb76466ee5cb99f8eec87d9e
     2f8a5119f627eb59640f1ad4914119c0eb9e2121
     694cdb1d8103166f852171732848a41c88961bef
     019f1032369cbe03bd42e54f8f679dc28d939b36
@@ -599,7 +595,6 @@
     a01d7f7119e68c484fa05977b2a79b1ea3753a07
     8ce24f2be32fe778edb2d18aba9313cf88d5448d
     53acad577616058b61a449d7f870418c7036c802
-    8ed83914bbad1617a29c4b4e4d4a296ad35d3260
     b610f8155c1403d222acd09ac6ed54a1fe644c22
     7089c8464810e67a7812eb135ff1ef7d016aa0b0
     d9255c1a6c470b9b00004b9d57df383b095fd911
@@ -664,7 +659,9 @@
     d785abdb856f570c074d4415f2b3a65e7db62fc1
     1b5d4a01e5607f7b85a4bb7e8bfc93a4ae1503ac
     5f72bcd9ab605aacf5d650cfd441001ab2940908
+    15c066c31a0ff1478a244fd6bdd92d320e4653d1
     30a6eef7c186a1a1169040ae9a59f181cfb26989
+    14e14d0b492bf7019ae030cb55d6e09ffbc391e9
     6de882c2439b9909c61f01434c7c89291b02231e
     a586afa4c3092f6d130ba469b58e8b5e5c3a84b5
     c62a66025edf41aa91390bf99e68109dc083dc41
@@ -682,10 +679,7 @@
     e815c6591539e0a9816efe59f12aa9a151f439cf
     0b35f82345850a7903e736fb449483f2a32783c9
     2dc4422c0e58d936c7b1d4275ab83bc135fb5560
-    a3efdc2bea5a62ec06da71342828bebb7e0500ef
     603f3be489518eccb821722c95235247f0bd97dd
-    38641333e34413de564a4d7ac06075cb9ebe83a1
-    26f4a6e08353baf2f87ba736513c186b34abe752
     f5a142353418fe903e98759e674492436f5a801c
     eb7cc73a4feefb5972165cd7803b92fa3205166c
     cf87e57206fb8e50687c0fc24413a71a448f0db3
@@ -695,6 +689,7 @@
     fe9e59000842473e9bbfd137b976d1676a600d60
     ba6501e2e3fb7425151915d651a180a0fab2eb5b
     8bba4b23e6fec08887dee730436bab07b0eef7ec
+    066774f6e43607572b876361c7d90e5fa48cece8
     a016beb0a2beccb2a05ca43562f484d407ab7583
     335b777832e7bf6004df6f538502e244a0b5b18c
     e481734b0fbc3dc78bc3cdd9b96ea903d3ef85fb
@@ -727,7 +722,7 @@
   meta {
     checkout: odie
     class: generic
-    timestamp: {2015-10-15 21:22:48 UTC}
+    timestamp: {2015-11-20 14:38:05 UTC}
   }
 }
 636af9224f7d0fff00af28247aad5adaf8083dc1 {
@@ -1743,45 +1738,6 @@ c0c348244ecf5410519eafc0cc226052050ddd7c {
     file: cmdline.tcl
   }
 }
-8ed83914bbad1617a29c4b4e4d4a296ad35d3260 {
-  entity {
-    name: codebale
-    shed_class: module
-    version: {}
-  }
-  meta {
-    class: source
-    package-provide: {{codebale 0.2} {codebale::autodoc 0.1}}
-    package-require: {fileutil odie}
-    path: modules/codebale
-  }
-  package/ {
-    d02656686b5e7f6fe647b49af26b78649ecf237b
-    b7b709311639e013ef44f7239f1b3a66f03b6b3b
-  }
-}
-d02656686b5e7f6fe647b49af26b78649ecf237b {
-  entity {
-    name: codebale::autodoc
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: autodoc.tcl
-  }
-}
-b7b709311639e013ef44f7239f1b3a66f03b6b3b {
-  entity {
-    name: codebale
-    shed_class: package
-    version: 0.2
-  }
-  meta {
-    class: package
-    file: index.tcl
-  }
-}
 b610f8155c1403d222acd09ac6ed54a1fe644c22 {
   entity {
     name: comm
@@ -1998,7 +1954,7 @@ c6ec723c12aee1d86f7894f2c4da8697d1bbfb64 {
   }
   meta {
     class: source
-    package-provide: {{csv 0.8}}
+    package-provide: {{csv 0.8.1}}
     package-require: {{Tcl 8.4}}
     path: modules/csv
   }
@@ -2010,7 +1966,7 @@ f4bbddfcd0daf2e05979c0c9ce821e996032d144 {
   entity {
     name: csv
     shed_class: package
-    version: 0.8
+    version: 0.8.1
   }
   meta {
     class: package
@@ -2025,7 +1981,7 @@ f4bbddfcd0daf2e05979c0c9ce821e996032d144 {
   }
   meta {
     class: source
-    package-provide: {{debug 1.0.5} {debug::caller 1} {debug::heartbeat 1} {debug::timestamp 1}}
+    package-provide: {{debug 1.0.6} {debug::caller 1} {debug::heartbeat 1} {debug::timestamp 1}}
     package-require: {debug {Tcl 8.5}}
     path: modules/debug
   }
@@ -2051,7 +2007,7 @@ f4bbddfcd0daf2e05979c0c9ce821e996032d144 {
   entity {
     name: debug
     shed_class: package
-    version: 1.0.5
+    version: 1.0.6
   }
   meta {
     class: package
@@ -2166,7 +2122,7 @@ dec1f7ed59aee04c3133a5ae9508f12c4f7f5ed3 {
   }
   meta {
     class: source
-    package-provide: {{dicttool 0.1}}
+    package-provide: {{dicttool 1.0}}
     package-require: {}
     path: modules/dicttool
   }
@@ -2178,7 +2134,7 @@ dec1f7ed59aee04c3133a5ae9508f12c4f7f5ed3 {
   entity {
     name: dicttool
     shed_class: package
-    version: 0.1
+    version: 1
   }
   meta {
     class: package
@@ -2931,7 +2887,7 @@ bf6a84dacf931c55ff4d290aa2757639e2d5efd2 {
   }
   meta {
     class: source
-    package-provide: {{dtplite 1.2}}
+    package-provide: {{dtplite 1.3}}
     package-require: {{doctools 1} {doctools 1.4.11} {doctools::idx 1} {doctools::idx 1.0.4} {doctools::toc 1} {doctools::toc 1.1.3} fileutil textutil::repeat}
     path: modules/dtplite
   }
@@ -2943,7 +2899,7 @@ bf6a84dacf931c55ff4d290aa2757639e2d5efd2 {
   entity {
     name: dtplite
     shed_class: package
-    version: 1.2
+    version: 1.3
   }
   meta {
     class: package
@@ -3537,7 +3493,7 @@ cbf3ea117701757093d5d5e0dc1253028ecbd984 {
   }
   meta {
     class: source
-    package-provide: {{htmlparse 1.2.1}}
+    package-provide: {{htmlparse 1.2.2}}
     package-require: {{cmdline 1.1} struct::stack {Tcl 8.2}}
     path: modules/htmlparse
   }
@@ -3549,7 +3505,7 @@ cbf3ea117701757093d5d5e0dc1253028ecbd984 {
   entity {
     name: htmlparse
     shed_class: package
-    version: 1.2.1
+    version: 1.2.2
   }
   meta {
     class: package
@@ -3591,23 +3547,71 @@ cbf3ea117701757093d5d5e0dc1253028ecbd984 {
   }
   meta {
     class: source
-    package-provide: {{httpd 0.1}}
-    package-require: {cron nettool oo::meta uri}
+    package-provide: {{httpd 4.0} {httpd::content 4.0} {httpd::dispatch 4.0} {scgi::app 0.1} {scgi::server 0.1}}
+    package-require: {cron fileutil fileutil::magic::mimetype html httpd {httpd 4.0} httpd::content Markdown oo::dialect TclOO tool {tool 0.4} uri}
     path: modules/httpd
   }
   package/ {
+    1bcef7a512eb20d6a9d5e69b064dcf8f0e7b90bb
+    078d6e984cedc9d19097f2a5778d1d3d0bffba49
     61ce79d6c0bd3c00e1ca66fec666f2bc5e50af52
+    91aba14cba2c2c5b7814099de8aa73b44054045a
+    fd57232262d7be14357a705596d64e5194afd0e7
+  }
+}
+1bcef7a512eb20d6a9d5e69b064dcf8f0e7b90bb {
+  entity {
+    name: httpd::content
+    shed_class: package
+    version: 4
+  }
+  meta {
+    class: package
+    file: content.tcl
+  }
+}
+078d6e984cedc9d19097f2a5778d1d3d0bffba49 {
+  entity {
+    name: httpd::dispatch
+    shed_class: package
+    version: 4
+  }
+  meta {
+    class: package
+    file: dispatch.tcl
   }
 }
 61ce79d6c0bd3c00e1ca66fec666f2bc5e50af52 {
   entity {
     name: httpd
     shed_class: package
-    version: 0.1
+    version: 4
   }
   meta {
     class: package
     file: httpd.tcl
+  }
+}
+91aba14cba2c2c5b7814099de8aa73b44054045a {
+  entity {
+    name: scgi::app
+    shed_class: package
+    version: 0.1
+  }
+  meta {
+    class: package
+    file: scgi-app.tcl
+  }
+}
+fd57232262d7be14357a705596d64e5194afd0e7 {
+  entity {
+    name: scgi::server
+    shed_class: package
+    version: 0.1
+  }
+  meta {
+    class: package
+    file: scgi-server.tcl
   }
 }
 e8f73421fa725c54a7821cb379a673c97da085ed {
@@ -3672,7 +3676,7 @@ b0af3fd039ab0d78599a9cb89a57da39e4c1beb7 {
   }
   meta {
     class: source
-    package-provide: {{imap4 0.5.2}}
+    package-provide: {{imap4 0.5.3}}
     package-require: {{Tcl 8.5}}
     path: modules/imap4
   }
@@ -3684,7 +3688,7 @@ caa7c49d2ee81134d5b8312e5f0e83d76d2c2d92 {
   entity {
     name: imap4
     shed_class: package
-    version: 0.5.2
+    version: 0.5.3
   }
   meta {
     class: package
@@ -3777,7 +3781,7 @@ b89665cfac193fff7b974e2f42449c14c083662b {
   }
   meta {
     class: source
-    package-provide: {{irc 0.6.1} {picoirc 0.5.1}}
+    package-provide: {{irc 0.6.1} {picoirc 0.5.2}}
     package-require: {{Tcl 8.3}}
     path: modules/irc
   }
@@ -3801,7 +3805,7 @@ d597de1c701edc7742283064c6e36da676aa17bd {
   entity {
     name: picoirc
     shed_class: package
-    version: 0.5.1
+    version: 0.5.2
   }
   meta {
     class: package
@@ -4050,7 +4054,7 @@ d6f30c944fb155eada0b8c9af54e5513dec642db {
   }
   meta {
     class: source
-    package-provide: {{map::geocode::nominatim 0.1} {map::slippy 0.5} {map::slippy::cache 0.2} {map::slippy::fetcher 0.3}}
+    package-provide: {{map::geocode::nominatim 0.1} {map::slippy 0.5} {map::slippy::cache 0.2} {map::slippy::fetcher 0.4}}
     package-require: {fileutil http img::png json map::slippy math::constants snit {Tcl 8.4} {Tcl 8.5} tcltest Tk uri}
     path: modules/map
   }
@@ -4098,7 +4102,7 @@ d481fe41b279c2a612f712b616df66b29e1e66c9 {
   entity {
     name: map::slippy::fetcher
     shed_class: package
-    version: 0.3
+    version: 0.4
   }
   meta {
     class: package
@@ -4167,8 +4171,8 @@ bba45f02c6c48f2652168fb35b1dc0cc979802ba {
   }
   meta {
     class: source
-    package-provide: {{a set} {math::bigfloat 1.2.2} {math::bigfloat 2.0.2} {math::bignum 3.1.1} {math::calculus 0.8.1} {math::calculus::symdiff 1.0} {math::complexnumbers 1.0.2} {math::constants 1.0.1} {math::decimal 1.0.3} {math::fourier 1.0.2} {math::fuzzy 0.2.1} {math::geometry 1.1.3} {math::interpolate 1.1} {math::linearalgebra 1.1.5} {math::machineparameters 0.1} {math::numtheory 1.0} {math::optimize 1.0.1} {math::polynomials 1.0.1} {math::rationalfunctions 1.0.1} {math::roman 1.0} {math::special 0.3.0} {math::statistics 1.0}}
-    package-require: {decimal {grammar::aycock 1.0} log math math::bigfloat math::bignum math::constants math::fuzzy math::interpolate {math::linearalgebra 1.0} math::machineparameters math::polynomials math::statistics snit struct::matrix {Tcl 8.0} {Tcl 8.2} {Tcl 8.4} {Tcl 8.5} tcltest Tk}
+    package-provide: {{a set} {math::bigfloat 1.2.2} {math::bigfloat 2.0.2} {math::bignum 3.1.1} {math::calculus 0.8.1} {math::calculus::symdiff 1.0} {math::complexnumbers 1.0.2} {math::constants 1.0.1} {math::decimal 1.0.3} {math::exact 1.0} {math::fourier 1.0.2} {math::fuzzy 0.2.1} {math::geometry 1.1.3} {math::interpolate 1.1} {math::linearalgebra 1.1.5} {math::machineparameters 0.1} {math::numtheory 1.0} {math::optimize 1.0.1} {math::polynomials 1.0.1} {math::rationalfunctions 1.0.1} {math::roman 1.0} {math::special 0.3.0} {math::statistics 1.0}}
+    package-require: {decimal {grammar::aycock 1.0} log math math::bigfloat math::bignum math::constants {math::exact 1.0} math::fuzzy math::interpolate {math::linearalgebra 1.0} math::machineparameters math::polynomials math::statistics snit struct::matrix {Tcl 8.0} {Tcl 8.2} {Tcl 8.4} {Tcl 8.5} {Tcl 8.6} tcltest Tk}
     path: modules/math
   }
   package/ {
@@ -4180,6 +4184,7 @@ bba45f02c6c48f2652168fb35b1dc0cc979802ba {
     037055fec9ec50e8924a790e03e5582bc757ea50
     f8ab5cf0a2def8341546370f8b534fdcf2533a1f
     4230d588ab6fd0a6212035d0d9bff9dcb50fcea2
+    9cebd191b01bc488f5c88683fa7ce9f3531b641d
     f04d938661ffdbdbcb42c6364093822e7add0227
     e72048b361cffcc2fd317553fc1593d6e5abdc87
     71861284833ba1186c672e9f75d64a8920d1c050
@@ -4284,6 +4289,17 @@ f8ab5cf0a2def8341546370f8b534fdcf2533a1f {
   meta {
     class: package
     file: decimal.tcl
+  }
+}
+9cebd191b01bc488f5c88683fa7ce9f3531b641d {
+  entity {
+    name: math::exact
+    shed_class: package
+    version: 1
+  }
+  meta {
+    class: package
+    file: exact.tcl
   }
 }
 f04d938661ffdbdbcb42c6364093822e7add0227 {
@@ -4996,6 +5012,33 @@ d14a696c4a66293b4b74223203c4e6079cbb11ef {
     file: urlget.tcl
   }
 }
+15c066c31a0ff1478a244fd6bdd92d320e4653d1 {
+  entity {
+    name: oodialect
+    shed_class: module
+    version: {}
+  }
+  meta {
+    class: source
+    package-provide: {{oo::dialect 0.2}}
+    package-require: {oo::dialect oo::meta {Tcl 8.6}}
+    path: modules/oodialect
+  }
+  package/ {
+    fb61e97be353d20d76590c3cfb6c244b4f6355a5
+  }
+}
+fb61e97be353d20d76590c3cfb6c244b4f6355a5 {
+  entity {
+    name: oo::dialect
+    shed_class: package
+    version: 0.2
+  }
+  meta {
+    class: package
+    file: oodialect.tcl
+  }
+}
 30a6eef7c186a1a1169040ae9a59f181cfb26989 {
   entity {
     name: oohtml
@@ -5023,6 +5066,57 @@ d14a696c4a66293b4b74223203c4e6079cbb11ef {
     file: oohtml.tcl
   }
 }
+14e14d0b492bf7019ae030cb55d6e09ffbc391e9 {
+  entity {
+    name: oometa
+    shed_class: module
+    version: {}
+  }
+  meta {
+    class: source
+    package-provide: {{oo::meta 0.4.1} {oo::metaclass 0.1} {oo::option 0.3}}
+    package-require: {dicttool {oo::meta 0.4}}
+    path: modules/oometa
+  }
+  package/ {
+    3bfd231fc83526743b79017e0d9d012251a7fa17
+    785a134d17bdc727e545f1718c06fc16e2acdf68
+    e1cc3c6e89767d4267a5f5f9e177005149b22ec9
+  }
+}
+3bfd231fc83526743b79017e0d9d012251a7fa17 {
+  entity {
+    name: oo::meta
+    shed_class: package
+    version: 0.4.1
+  }
+  meta {
+    class: package
+    file: oometa.tcl
+  }
+}
+785a134d17bdc727e545f1718c06fc16e2acdf68 {
+  entity {
+    name: oo::metaclass
+    shed_class: package
+    version: 0.1
+  }
+  meta {
+    class: package
+    file: oometaclass.tcl
+  }
+}
+e1cc3c6e89767d4267a5f5f9e177005149b22ec9 {
+  entity {
+    name: oo::option
+    shed_class: package
+    version: 0.3
+  }
+  meta {
+    class: package
+    file: oooption.tcl
+  }
+}
 6de882c2439b9909c61f01434c7c89291b02231e {
   entity {
     name: ooutil
@@ -5031,48 +5125,12 @@ d14a696c4a66293b4b74223203c4e6079cbb11ef {
   }
   meta {
     class: source
-    package-provide: {{oo::meta 0.3} {oo::option 0.2} {oo::properties 0.1} {oo::util 1.2.2}}
-    package-require: {oo::meta {Tcl 8.5} TclOO}
+    package-provide: {{oo::util 1.2.2}}
+    package-require: {{Tcl 8.5} TclOO}
     path: modules/ooutil
   }
   package/ {
-    44342f562c78be01d002d0809a41784b4d7d0309
-    3818a795c83fc7d2b89db3ccec6229c47a83d96a
-    cd310fcc0eca18ec75e8272063bd763f60754750
     4b5abdd152d25512975181d074666bd970302740
-  }
-}
-44342f562c78be01d002d0809a41784b4d7d0309 {
-  entity {
-    name: oo::meta
-    shed_class: package
-    version: 0.3
-  }
-  meta {
-    class: package
-    file: oometa.tcl
-  }
-}
-3818a795c83fc7d2b89db3ccec6229c47a83d96a {
-  entity {
-    name: oo::option
-    shed_class: package
-    version: 0.2
-  }
-  meta {
-    class: package
-    file: oooption.tcl
-  }
-}
-cd310fcc0eca18ec75e8272063bd763f60754750 {
-  entity {
-    name: oo::properties
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: ooproperties.tcl
   }
 }
 4b5abdd152d25512975181d074666bd970302740 {
@@ -5865,7 +5923,7 @@ b6be411cbaa76f6b8052647607d3cb4c3e7051a9 {
   }
   meta {
     class: source
-    package-provide: {{char 1.0.1} {configuration 1} {OO_PACKAGE 1} {paths 1} {pt::ast 1.1} {pt::cparam::configuration::critcl 1.0.2} {pt::cparam::configuration::tea 0.1} {pt::parse::peg 1.0.1} {pt::parse::peg_tcl 1.0.1} {pt::pe 1.0.2} {pt::pe::op 1} {pt::peg 1} {pt::peg::container 1} {pt::peg::container::peg 1} {pt::peg::export 1} {pt::peg::export::container 1} {pt::peg::export::json 1} {pt::peg::export::peg 1} {pt::peg::from::json 1} {pt::peg::from::peg 1.0.3} {pt::peg::import 1} {pt::peg::import::json 1} {pt::peg::import::peg 1} {pt::peg::interp 1.0.1} {pt::peg::op 1.0.1} {pt::peg::to::container 1} {pt::peg::to::cparam 1.1.3} {pt::peg::to::json 1} {pt::peg::to::param 1.0.1} {pt::peg::to::peg 1.0.2} {pt::peg::to::tclparam 1.0.3} {pt::pgen 1.0.3} {pt::rde 1.1} {pt::rde::critcl 1.3.3} {pt::rde::oo 1.1} {pt::tclparam::configuration::snit 1.0.2} {pt::tclparam::configuration::tcloo 1.0.4} {pt::util 1} {pt_parse_peg_c 1.0.1} {text::write 1}}
+    package-provide: {{char 1.0.1} {configuration 1} {OO_PACKAGE 1} {paths 1} {pt::ast 1.1} {pt::cparam::configuration::critcl 1.0.2} {pt::cparam::configuration::tea 0.1} {pt::parse::peg 1.0.1} {pt::parse::peg_tcl 1.0.1} {pt::pe 1.0.2} {pt::pe::op 1} {pt::peg 1} {pt::peg::container 1} {pt::peg::container::peg 1} {pt::peg::export 1} {pt::peg::export::container 1} {pt::peg::export::json 1} {pt::peg::export::peg 1} {pt::peg::from::json 1} {pt::peg::from::peg 1.0.3} {pt::peg::import 1} {pt::peg::import::json 1} {pt::peg::import::peg 1} {pt::peg::interp 1.0.1} {pt::peg::op 1.0.1} {pt::peg::to::container 1} {pt::peg::to::cparam 1.1.3} {pt::peg::to::json 1} {pt::peg::to::param 1.0.1} {pt::peg::to::peg 1.0.2} {pt::peg::to::tclparam 1.0.3} {pt::pgen 1.0.3} {pt::rde 1.1} {pt::rde::critcl 1.3.4} {pt::rde::oo 1.1} {pt::tclparam::configuration::snit 1.0.2} {pt::tclparam::configuration::tcloo 1.0.4} {pt::util 1} {pt_parse_peg_c 1.0.1} {text::write 1}}
     package-require: {bench::in char configuration critcl debug fileutil json json::write paths pluginmgr pt::ast {pt::cparam::configuration::critcl 1.0.2} pt::cparam::configuration::tea pt::parse::peg pt::pe pt::pe::op pt::peg pt::peg::container pt::peg::export::plugin pt::peg::from::json pt::peg::from::peg pt::peg::import::plugin pt::peg::to::container pt::peg::to::cparam pt::peg::to::json pt::peg::to::param pt::peg::to::peg pt::peg::to::tclparam {pt::pgen 1.0.3} pt::rde pt::rde::oo {pt::tclparam::configuration::snit 1.0.2} {pt::tclparam::configuration::tcloo 1.0.4} pt::util report snit struct::matrix struct::set {struct::stack 1.5} {Tcl 8.4} {Tcl 8.5} TclOO text::write textutil::adjust try}
     path: modules/pt
   }
@@ -6330,7 +6388,7 @@ e43a8d48c372e6e1c9a49f97055503ce35bd465e {
   entity {
     name: pt::rde::critcl
     shed_class: package
-    version: 1.3.3
+    version: 1.3.4
   }
   meta {
     class: package
@@ -7065,7 +7123,7 @@ e815c6591539e0a9816efe59f12aa9a151f439cf {
   }
   meta {
     class: source
-    package-provide: {{rest 1.0.1}}
+    package-provide: {{rest 1.0.2}}
     package-require: {base64 {http 2.7} json md5 rest {Tcl 8.5} tdom tls}
     path: modules/rest
   }
@@ -7077,7 +7135,7 @@ e815c6591539e0a9816efe59f12aa9a151f439cf {
   entity {
     name: rest
     shed_class: package
-    version: 1.0.1
+    version: 1.0.2
   }
   meta {
     class: package
@@ -7186,45 +7244,6 @@ d38621427a10ecd9423df435025ff04609b251df {
     file: scram.tcl
   }
 }
-a3efdc2bea5a62ec06da71342828bebb7e0500ef {
-  entity {
-    name: scgi
-    shed_class: module
-    version: {}
-  }
-  meta {
-    class: source
-    package-provide: {{scgi::app 0.1} {scgi::server 0.1}}
-    package-require: {html oo::meta TclOO}
-    path: modules/scgi
-  }
-  package/ {
-    b5c7aa6434c3bc87625a150e17546cffe834e41c
-    a11e187307e6ed0959a184510768b4fc4c864acd
-  }
-}
-b5c7aa6434c3bc87625a150e17546cffe834e41c {
-  entity {
-    name: scgi::app
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: scgi-app.tcl
-  }
-}
-a11e187307e6ed0959a184510768b4fc4c864acd {
-  entity {
-    name: scgi::server
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: scgi-server.tcl
-  }
-}
 603f3be489518eccb821722c95235247f0bd97dd {
   entity {
     name: sha1
@@ -7298,108 +7317,6 @@ ff4799ba02d91b20df8c8b4c0a1027a591c350b2 {
   meta {
     class: package
     file: sha256c.tcl
-  }
-}
-38641333e34413de564a4d7ac06075cb9ebe83a1 {
-  entity {
-    name: shed
-    shed_class: module
-    version: {}
-  }
-  meta {
-    class: source
-    package-provide: {{shed 0.1}}
-    package-require: {dicttool fileutil localtool sha1 sqlite3 tool tool::sqlite uuid}
-    path: modules/shed
-  }
-  package/ {
-    be7a9033c1acf35511ffcf6d57d03f74faf5f5b5
-  }
-}
-be7a9033c1acf35511ffcf6d57d03f74faf5f5b5 {
-  entity {
-    name: shed
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: index.tcl
-  }
-}
-26f4a6e08353baf2f87ba736513c186b34abe752 {
-  entity {
-    name: sherpa
-    shed_class: module
-    version: {}
-  }
-  meta {
-    class: source
-    package-provide: {{sherpa 2.0} {sherpa::recipes 0.1} {sherpa::settings 1.0} {sherpa::teapot 0.2} {sherpa_shell 0.1}}
-    package-require: {codebale localtool recipe shed {teapotclient 0.2} Tk tool tool_tk}
-    path: modules/sherpa
-  }
-  package/ {
-    b42a125653031b85ccd82e01e3f4f834118c277a
-    a46a06eb62bc6db493f1224db498f66a82f707af
-    b5e342b7cbc1f8a4b0b76294c28ecc1b25501abd
-    a71ed06baff23596390a220c98a5c40406247565
-    c8ff29ac6718dc04cb76466ee5cb99f8eec87d9e
-  }
-}
-b42a125653031b85ccd82e01e3f4f834118c277a {
-  entity {
-    name: sherpa
-    shed_class: package
-    version: 2
-  }
-  meta {
-    class: package
-    file: index.tcl
-  }
-}
-a46a06eb62bc6db493f1224db498f66a82f707af {
-  entity {
-    name: sherpa::recipes
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: recipes.tcl
-  }
-}
-b5e342b7cbc1f8a4b0b76294c28ecc1b25501abd {
-  entity {
-    name: sherpa::settings
-    shed_class: package
-    version: 1
-  }
-  meta {
-    class: package
-    file: setup.tcl
-  }
-}
-a71ed06baff23596390a220c98a5c40406247565 {
-  entity {
-    name: sherpa_shell
-    shed_class: package
-    version: 0.1
-  }
-  meta {
-    class: package
-    file: shell.tcl
-  }
-}
-c8ff29ac6718dc04cb76466ee5cb99f8eec87d9e {
-  entity {
-    name: sherpa::teapot
-    shed_class: package
-    version: 0.2
-  }
-  meta {
-    class: package
-    file: teapot.tcl
   }
 }
 f5a142353418fe903e98759e674492436f5a801c {
@@ -8005,11 +7922,24 @@ d8fa219e0837f42bbdd2b8392bb56514efe71f96 {
     file: tar.tcl
   }
 }
+066774f6e43607572b876361c7d90e5fa48cece8 {
+  entity {
+    name: tcllibc
+    shed_class: module
+    version: {}
+  }
+  meta {
+    class: source
+    package-provide: {}
+    package-require: {}
+    path: modules/tcllibc
+  }
+}
 ad9fa26c38cc9e4e16c5d9d1afb874ac4bcfacc7 {
   entity {
     name: tcllibc
     shed_class: package
-    version: 0.3.14
+    version: 0.3.15
   }
   meta {
     class: package
@@ -8026,7 +7956,7 @@ ba7825f5828ee41f0a965d383420cb11852f1eef {
     class: source
     file: modules/tcllibc.tcl
     format: tcl
-    package-provide: {tcllibc 0.3.14}
+    package-provide: {tcllibc 0.3.15}
     package-require: critcl
   }
   package/ {
@@ -8479,8 +8409,9 @@ b98e42f4015e9fb1e50a13e995a5734e7ee8df83 {
     description: {
 The base of the TOOL framework
 }
-    package-provide: {{tool 0.1}}
-    package-require: {{cron 1.2} dicttool listutil sha1}
+    origin: http://fossil.etoyoc.com/fossil/tool
+    package-provide: {{tool 0.4}}
+    package-require: {dicttool oo::dialect {oo::meta 0.4.1} TclOO}
     path: modules/tool
   }
   package/ {
@@ -8491,7 +8422,7 @@ The base of the TOOL framework
   entity {
     name: tool
     shed_class: package
-    version: 0.1
+    version: 0.4
   }
   meta {
     class: package
@@ -8737,7 +8668,7 @@ bfbf77673248a60cef762ea633fe3c26c4a539b0 {
   }
   meta {
     class: source
-    package-provide: {{uri 1.2.5} {uri::urn 1.0.3}}
+    package-provide: {{uri 1.2.6} {uri::urn 1.0.3}}
     package-require: {{Tcl 8.2} {uri 1.1.2}}
     path: modules/uri
   }
@@ -8750,7 +8681,7 @@ d08c522acd45615b0eed015bb19d2cea530e4bd7 {
   entity {
     name: uri
     shed_class: package
-    version: 1.2.5
+    version: 1.2.6
   }
   meta {
     class: package
@@ -9537,5 +9468,33 @@ dc962d6462f23aeb2f85758b1c66f5c0aa863654 {
   meta {
     class: package
     file: mkzip.tcl
+  }
+}
+17ba0791499db908433b80f37c5fbc89b870084b {
+  entity {
+    name: odie
+    shed_class: release
+    version: {}
+  }
+  meta {
+    checkout: odie
+    class: generic
+    timestamp: {2015-11-20 14:38:05 UTC}
+  }
+}
+7b52009b64fd0a2a49e6d8a939753077792b0554 {
+  entity {
+    name: fossil
+    shed_class: distribution
+    version: {}
+  }
+  meta {
+    class: generic
+    format: fossil
+    project: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
+    project-name: {Tcl Library Source Code}
+    project-short-name: tcllib
+    release: odie
+    url: http://fossil.etoyoc.com/fossil/tcllib
   }
 }
