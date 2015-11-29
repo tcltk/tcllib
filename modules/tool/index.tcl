@@ -10,9 +10,26 @@ package require oo::dialect
 # topic: 27196ce57a9fd09198a0b277aabdb0a96b432cb9
 ###
 proc ::tool::pathload {path {order {}} {skip {}}} {
+  ###
+  # On windows while running under a VFS, the system sometimes
+  # gets confused about the volume we are running under
+  ###
+  if {$::tcl_platform(platform) eq "windows"} {
+    if {[string range $path 1 6] eq ":/zvfs"} {
+      set path [string range $path 2 end]
+    }
+  }
   set loaded {pkgIndex.tcl index.tcl}
   foreach item $skip {
     lappend loaded [file tail $skip]
+  }
+  if {[file exists [file join $path metaclass.tcl]]} {
+    lappend loaded metaclass.tcl
+    uplevel #0 [list source [file join $path metaclass.tcl]]
+  }
+  if {[file exists [file join $path baseclass.tcl]]} {
+    lappend loaded baseclass.tcl
+    uplevel #0 [list source [file join $path baseclass.tcl]]
   }
   foreach file $order {
     set file [file tail $file]
@@ -27,9 +44,15 @@ proc ::tool::pathload {path {order {}} {skip {}}} {
   }
 }
 
-set idxfile [file normalize [info script]]
+set idxfile [file join [pwd] [info script]]
 set cwd [file dirname $idxfile]
 set ::tool::tool_root [file dirname $cwd]
-::tool::pathload $cwd {} $idxfile
+::tool::pathload $cwd {
+  tool.tcl
+  uuid.tcl
+  metaclass.tcl
+  event.tcl
+  dictobj.tcl
+} $idxfile
 package provide tool 0.4
 

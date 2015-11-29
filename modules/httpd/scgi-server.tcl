@@ -2,35 +2,12 @@
 # Author: Sean Woods, yoda@etoyoc.com
 ###
 # This file provides the server side implementation of the
-# SCGI protocol
+# SCGI protocol. It's principle purpose is to power the test
+# suite
 ###
-namespace eval ::scgi {}
 package require httpd
 
-proc ::scgi::encode_request {headers body info} {
-  variable server_block
-
-  dict set outdict CONTENT_LENGTH [string length $body]
-  set outdict [dict merge $outdict $server_block $info]
-  dict set outdict PWD [pwd]
-  foreach {key value} $headers {
-    switch $key {
-      SCRIPT_NAME -
-      REQUEST_METHOD -
-      REQUEST_URI {
-        dict set outdict $key $value
-      }
-      default {
-        dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
-      }
-    }
-  }  
-  set result {}
-  foreach {name value} $outdict {
-    append result $name \x00 $value \x00
-  }
-  return "[string length $result]:$result,"
-}
+namespace eval ::scgi {}
 
 ###
 # Redirect a URL to an SCGI service
@@ -49,7 +26,6 @@ tool::class create ::httpd::reply_scgi {
     
   }
 }
-
 
 ###
 # Minimal test harness for the .tests

@@ -5,9 +5,50 @@
 ###
 package require Markdown
 package require fileutil::magic::mimetype
-package require tool
+package require tool 0.4
 package require fileutil
 namespace eval httpd::content {}
+::tool::class create ::httpd::content::form {
+  
+  method Url_Decode data {
+    regsub -all {\+} $data " " data
+    regsub -all {([][$\\])} $data {\\\1} data
+    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
+    return [subst $data]
+  }
+  
+  method ReadForm {} {
+    my variable formdata
+    set formdata {}
+    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
+      my variable chan
+      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      set length [my query_headers get CONTENT_LENGTH]
+      set body [read $chan $length]
+      switch [my query_headers get CONTENT_TYPE] {
+        application/x-www-form-urlencoded {
+          # These foreach loops are structured this way to ensure there are matched
+          # name/value pairs.  Sometimes query data gets garbled.
+      
+          set result {}
+          foreach pair [split $body "&"] {
+            foreach {name value} [split $pair "="] {
+              lappend formdata [my Url_Decode $name] [my Url_Decode $value]
+            }
+          }
+        }
+      }
+      # We are expecting form data
+    } else {
+      foreach pair [split [my query_headers getnull QUERY_STRING] "&"] {
+        foreach {name value} [split $pair "="] {
+          lappend formdata [my Url_Decode $name] [my Url_Decode $value]
+        }
+      }
+    }
+    return $formdata
+  }
+}
 
 ###
 # Class to deliver Static content
@@ -16,12 +57,45 @@ namespace eval httpd::content {}
 ###
 tool::class create httpd::content::file {
   
-  method local_file filename {
-    if {![file exist $filename]} {
-       tailcall my error 404 {Not Found}
+  method FileName {} {
+    set uri [string trimleft [my query_headers get REQUEST_URI] /]
+    set path [my query_headers get path]
+    set prefix [my query_headers get prefix]
+    set fname [string range $uri [string length $prefix] end]
+    if {$fname in "{} index.html index.md index"} {
+      return $path
     }
-    my variable local_file
-    set local_file $filename
+    if {[file exists [file join $path $fname]]} {
+      return [file join $path $fname]
+    }
+    if {[file exists [file join $path $fname.md]]} {
+      return [file join $path $fname.md]
+    }
+    if {[file exists [file join $path $fname.html]]} {
+      return [file join $path $fname.html]
+    }
+    if {[file exists [file join $path $fname.tml]]} {
+      return [file join $path $fname.tml]
+    }
+    return {}
+  }
+  
+  
+  method DirectoryListing {local_file} {
+    my puts "<HTML><BODY><TABLE>"
+    foreach file [glob -nocomplain [file join $local_file *]] {
+      my puts "<TR><TD><a href=\"[file tail $file]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
+    }
+    my puts "</TABLE></BODY></HTML>"
+  }
+  
+  method dispatch {newsock datastate} {
+    # No need to process the rest of the headers
+    my variable chan
+    my query_headers replace $datastate
+    set chan $newsock
+    my content
+    my output
   }
   ###
   # We don't generate content when delivering local files
@@ -29,7 +103,11 @@ tool::class create httpd::content::file {
   ###
   method content {} {
     my reset
-    my variable local_file
+    my variable reply_file
+    set local_file [my FileName]
+    if {$local_file eq {} || ![file exist $local_file]} {
+       tailcall my error 404 {Not Found}
+    }
     if {[file isdirectory $local_file]} {
       ###
       # Produce an index page
@@ -47,12 +125,7 @@ tool::class create httpd::content::file {
         }
       }
       if {!$idxfound} {
-        my puts "<HTML><BODY><TABLE>"
-        foreach file [glob -nocomplain [file join $local_file *]] {
-          my puts "<TR><TD><a href=\"[file tail $file]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
-        }
-        my puts "</TABLE></BODY></HTML>"
-        return
+        tailcall DirectoryListing $local_file
       }
     }
     switch [file extension $local_file] {
@@ -65,6 +138,8 @@ tool::class create httpd::content::file {
       .tml {
         my reply_headers set Content-Type: {text/html; charset=ISO-8859-1}
         set tmltxt  [::fileutil::cat $local_file]
+        set headers [my query_headers dump]
+        dict with headers {}
         my puts [subst $tmltxt]        
       }
       default {
@@ -72,8 +147,283 @@ tool::class create httpd::content::file {
         # Assume we are returning a binary file
         ###
         my reply_headers set Content-Type: [::fileutil::magic::mimetype $local_file]
+        set reply_file $local_file
       }
     }
+  }
+
+  ###
+  # Output the result or error to the channel
+  # and destroy this object
+  ###
+  method output {} {
+    my variable reply_body reply_file reply_chan chan
+    chan configure $chan  -translation {binary binary}
+
+    set headers [my reply_headers dump]
+    if {[dict exists $headers Status:]} {
+      set result "[my EncodeStatus [dict get $headers Status:]]\n"
+    } else {
+      set result "[my EncodeStatus {505 Internal Error}]\n"
+
+    }
+    foreach {key value} $headers {
+      # Ignore Status and Content-length, if given
+      if {$key in {Status: Content-length:}} continue
+      append result "$key $value" \n
+    }
+    if {![info exists reply_file] || [string length $reply_body]} {
+      ###
+      # Return dynamic content
+      ###
+      set reply_body [string trim $reply_body]
+      append result "Content-length: [string length $reply_body]" \n \n
+      append result $reply_body
+      puts -nonewline $chan $result
+    } else {
+      ###
+      # Return a stream of data from a file
+      ###
+      append result "Content-length: [file size $reply_file]" \n \n
+      puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      chan copy $reply_chan $chan
+      catch {close $reply_chan}
+    }
+    chan flush $chan    
+    my destroy
+  }
+}
+
+###
+# Return data from an SCGI process
+###
+tool::class create httpd::content::scgi {
+
+  method scgi_info {} {
+    ###
+    # This method should check if a process is launched
+    # or launch it if needed, and return a list of
+    # HOST PORT SCRIPT_NAME
+    ###
+    # return {localhost 8016 /some/path}
+    error unimplemented
+  }
+  
+  method content {} {
+    my variable sock chan
+    set sockinfo [my scgi_info]
+    if {$sockinfo eq {}} {
+      my error 404 {Not Found}
+      return
+    }
+    lassign $sockinfo scgihost scgiport scgiscript
+    set sock [::socket $scgihost $scgiport]
+    # Add a few headers that SCGI needs
+    my query_headers set SCRIPT_NAME $scgiscript
+    my query_headers set SCGI 1.0    
+
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    ###
+    # Convert our query headers into netstring format. Note that
+    # MimeParse as already rigged it such that CONTENT_LENGTH is first
+    # and always populated (even if zero), per SCGI requirements
+    ###
+    set block [my query_headers netstring]
+    puts -nonewline $sock $block
+    set length [my query_headers get CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $chan $sock -size $length
+    }
+    chan flush $sock
+    ###
+    # Wake this object up after the SCGI process starts to respond
+    ###
+    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+    chan event $sock readable [namespace code {my output}]
+  }
+  
+  method output {} {
+    if {[my query_headers getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+    }
+    my variable sock chan
+    set replyhead [my HttpHeaders $sock]
+    set replydat  [my MimeParse $replyhead]
+    ###
+    # Convert the Status: header from the SCGI service to
+    # a standard service reply line from a web server, but
+    # otherwise spit out the rest of the headers verbatim
+    ###
+    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    set length [dict get $replydat CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -size $length
+    }
+    catch {close $sock}
+    chan flush $chan
+    my destroy
+  }
+}
+
+# Act as a proxy server
+tool::class create httpd::content::proxy {
+
+  method proxy_info {} {
+    ###
+    # This method should check if a process is launched
+    # or launch it if needed, and return a list of
+    # HOST PORT PROXYURI
+    ###
+    # return {localhost 8016 /some/path}
+    error unimplemented
+  }
+  
+  method content {} {
+    my variable chan sock rawrequest
+    set sockinfo [my proxy_info]
+    if {$sockinfo eq {}} {
+      tailcall my error 404 {Not Found}
+    }
+    lassign $sockinfo proxyhost proxyport proxyscript
+    set sock [::socket $proxyhost $proxyport]
+    
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+
+    # Pass along our modified METHOD URI PROTO
+    puts $sock "$proxyscript"
+    # Pass along the headers as we saw them
+    puts $sock $rawrequest
+    set length [my query_headers get CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $chan $sock -size $length
+    }
+    chan flush $sock
+    ###
+    # Wake this object up after the proxied process starts to respond
+    ###
+    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+    chan event $sock readable [namespace code {my output}]
+  }
+  
+  method output {} {
+    if {[my query_headers getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+    }
+    my variable sock chan
+    set length 0
+    chan configure $sock -translation {crlf crlf} -blocking 1
+    set replystatus [gets $sock]
+    set replyhead [my HttpHeaders $sock]
+    set replydat  [my MimeParse $replyhead]
+    
+    ###
+    # Pass along the status line and MIME headers
+    ###
+    set replybuffer "$replystatus\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    set length [dict get $replydat CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -size $length
+    }
+    catch {close $sock}
+    chan flush $chan
+    my destroy
+  }
+}
+
+###
+# Modified httpd server with a template engine
+# and a shim to insert URL domains
+###
+tool::class create httpd::server::dispatch {
+  array template
+  option doc_root {default {}}
+  variable url_patterns {}
+  
+  method add_uri {pattern info} {
+    my variable url_patterns
+    dict set url_patterns $pattern $info
+  }
+  
+  method PrefixNormalize prefix {
+    set prefix [string trimright $prefix /]
+    set prefix [string trimright $prefix *]
+    set prefix [string trimright $prefix /]
+    return $prefix
+  }
+  
+  method dispatch {data} {
+    set reply $data
+    set uri [dict get $data REQUEST_URI]
+    # Search from longest pattern to shortest
+    my variable url_patterns
+    foreach {pattern info} $url_patterns {
+      if {[string match ${pattern} $uri]} {
+        set reply [dict merge $data $info]
+        if {![dict exists $reply prefix]} {
+          dict set reply prefix [my PrefixNormalize $pattern]
+        }
+        return $reply
+      }
+    }
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {}} {
+      ###
+      # Fall back to doc_root handling
+      ###
+      dict set reply prefix {}
+      dict set reply path $doc_root
+      dict set reply mixin httpd::content::file
+      return $reply
+    }
+    return {}
+  }
+  
+  method TemplateSearch page {
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
+      return [::fileutil::cat [file join $doc_root $page.tml]]
+    }
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
+      return [::fileutil::cat [file join $doc_root $page.html]]
+    }
+    return [next $page]
   }
 }
 
