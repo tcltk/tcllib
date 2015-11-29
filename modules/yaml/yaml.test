@@ -21,19 +21,14 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-    testsNeedTcl     8.3
-    testsNeedTcltest 1.0
+    testsNeedTcl     8.5
+    testsNeedTcltest 2
 
-    if {$::tcl_version < 8.5} {
-        if {[catch {package require dict}]} {
-            puts "    Aborting the tests found in \"[file tail [info script]]\""
-            puts "    Requiring dict package, not found."
-            return
-        }
+    support {
+	use      json/json.tcl json
+        useLocal huddle.tcl    huddle
     }
-
     testing {
-        useLocal huddle.tcl huddle
         useLocal yaml.tcl yaml
     }
 }
