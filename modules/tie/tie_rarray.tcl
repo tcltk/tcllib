@@ -2,7 +2,7 @@
 #
 #	Data source: Remote Tcl array.
 #
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2015 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -104,7 +104,7 @@ snit::type ::tie::std::rarray {
     method Call {args} {
 	set     c $cmd
 	lappend c $rid
-	foreach a $args {lappend c $a}
+	lappend c $args
 	return [uplevel #0 $c]
     }
 
@@ -115,4 +115,4 @@ snit::type ::tie::std::rarray {
 ## Ready to go
 
 ::tie::register ::tie::std::rarray as remotearray
-package provide   tie::std::rarray 1.0
+package provide   tie::std::rarray 1.0.1
