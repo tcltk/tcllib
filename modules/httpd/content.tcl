@@ -8,7 +8,6 @@ package require fileutil::magic::mimetype
 package require tool 0.4
 package require fileutil
 namespace eval httpd::content {}
-
 ::tool::class create ::httpd::content::form {
   
   method Url_Decode data {
@@ -58,6 +57,38 @@ namespace eval httpd::content {}
 ###
 tool::class create httpd::content::file {
   
+  method FileName {} {
+    set uri [string trimleft [my query_headers get REQUEST_URI] /]
+    set path [my query_headers get path]
+    set prefix [my query_headers get prefix]
+    set fname [string range $uri [string length $prefix] end]
+    if {$fname in "{} index.html index.md index"} {
+      return $path
+    }
+    if {[file exists [file join $path $fname]]} {
+      return [file join $path $fname]
+    }
+    if {[file exists [file join $path $fname.md]]} {
+      return [file join $path $fname.md]
+    }
+    if {[file exists [file join $path $fname.html]]} {
+      return [file join $path $fname.html]
+    }
+    if {[file exists [file join $path $fname.tml]]} {
+      return [file join $path $fname.tml]
+    }
+    return {}
+  }
+  
+  
+  method DirectoryListing {local_file} {
+    my puts "<HTML><BODY><TABLE>"
+    foreach file [glob -nocomplain [file join $local_file *]] {
+      my puts "<TR><TD><a href=\"[file tail $file]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
+    }
+    my puts "</TABLE></BODY></HTML>"
+  }
+  
   method dispatch {newsock datastate} {
     # No need to process the rest of the headers
     my variable chan
@@ -73,8 +104,8 @@ tool::class create httpd::content::file {
   method content {} {
     my reset
     my variable reply_file
-    set local_file [my query_headers get local_file]
-    if {![file exist $local_file]} {
+    set local_file [my FileName]
+    if {$local_file eq {} || ![file exist $local_file]} {
        tailcall my error 404 {Not Found}
     }
     if {[file isdirectory $local_file]} {
@@ -94,12 +125,7 @@ tool::class create httpd::content::file {
         }
       }
       if {!$idxfound} {
-        my puts "<HTML><BODY><TABLE>"
-        foreach file [glob -nocomplain [file join $local_file *]] {
-          my puts "<TR><TD><a href=\"[file tail $file]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
-        }
-        my puts "</TABLE></BODY></HTML>"
-        return
+        tailcall DirectoryListing $local_file
       }
     }
     switch [file extension $local_file] {
@@ -112,6 +138,8 @@ tool::class create httpd::content::file {
       .tml {
         my reply_headers set Content-Type: {text/html; charset=ISO-8859-1}
         set tmltxt  [::fileutil::cat $local_file]
+        set headers [my query_headers dump]
+        dict with headers {}
         my puts [subst $tmltxt]        
       }
       default {
@@ -226,7 +254,6 @@ tool::class create httpd::content::scgi {
       ###
       next
     }
-    puts "RECV"
     my variable sock chan
     set replyhead [my HttpHeaders $sock]
     set replydat  [my MimeParse $replyhead]
@@ -271,7 +298,7 @@ tool::class create httpd::content::proxy {
   }
   
   method content {} {
-    my variable chan rawrequest
+    my variable chan sock rawrequest
     set sockinfo [my proxy_info]
     if {$sockinfo eq {}} {
       tailcall my error 404 {Not Found}
@@ -337,6 +364,66 @@ tool::class create httpd::content::proxy {
     catch {close $sock}
     chan flush $chan
     my destroy
+  }
+}
+
+###
+# Modified httpd server with a template engine
+# and a shim to insert URL domains
+###
+tool::class create httpd::server::dispatch {
+  array template
+  option doc_root {default {}}
+  variable url_patterns {}
+  
+  method add_uri {pattern info} {
+    my variable url_patterns
+    dict set url_patterns $pattern $info
+  }
+  
+  method PrefixNormalize prefix {
+    set prefix [string trimright $prefix /]
+    set prefix [string trimright $prefix *]
+    set prefix [string trimright $prefix /]
+    return $prefix
+  }
+  
+  method dispatch {data} {
+    set reply $data
+    set uri [dict get $data REQUEST_URI]
+    # Search from longest pattern to shortest
+    my variable url_patterns
+    foreach {pattern info} $url_patterns {
+      if {[string match ${pattern} $uri]} {
+        set reply [dict merge $data $info]
+        if {![dict exists $reply prefix]} {
+          dict set reply prefix [my PrefixNormalize $pattern]
+        }
+        return $reply
+      }
+    }
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {}} {
+      ###
+      # Fall back to doc_root handling
+      ###
+      dict set reply prefix {}
+      dict set reply path $doc_root
+      dict set reply mixin httpd::content::file
+      return $reply
+    }
+    return {}
+  }
+  
+  method TemplateSearch page {
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
+      return [::fileutil::cat [file join $doc_root $page.tml]]
+    }
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
+      return [::fileutil::cat [file join $doc_root $page.html]]
+    }
+    return [next $page]
   }
 }
 

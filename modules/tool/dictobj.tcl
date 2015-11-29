@@ -16,7 +16,7 @@ proc ::tool::define::dictobj {methodname varname {cases {}}} {
     ::oo::meta::info $class set variable ${varname}: {}
   }
   
-  set def [string map [list %INITIAL%  %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
+  set def [string map [list %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname %CASES% $CASES] {
   method %METHOD% {subcommand args} {
     my variable %VARNAME%
     switch $subcommand {

@@ -78,12 +78,10 @@ proc ::scgi::decode_headers {rawheaders} {
       dict set env $name $value
     }
   }
-
   #
   # Store CONTENT_LENGTH as an HTTP header named Content-Length, too.
   #
   set contentLength [dict get $env CONTENT_LENGTH]
-
   if {$contentLength > 0} {
     dict set headers Content-Length $contentLength
   }
