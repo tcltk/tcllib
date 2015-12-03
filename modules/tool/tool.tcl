@@ -4,6 +4,16 @@
 
 namespace eval ::tool {}
 
+###
+# topic: a92cd258900010f656f4c6e7dbffae57
+###
+proc ::tool::dynamic_methods class {
+  set metadata [::oo::meta::metadata $class]
+  ::tool::dynamic_methods_ensembles $class $metadata
+  ::tool::dynamic_methods_class    $class $metadata
+  #::tool::dynamic_methods_property $class $metadata
+}
+
 proc ::tool::object_create objname {
   foreach varname {
     object_info
@@ -18,7 +28,7 @@ proc ::tool::object_create objname {
 }
 
 proc ::tool::object_destroy objname {
-  ::tool::notify $objname object_destroy [list objname $objname]
+  ::tool::event::generate $objname object_destroy [list objname $objname]
 
   variable coroutine_object
   foreach {coro coro_objname} [array get coroutine_object] {
@@ -133,8 +143,6 @@ proc ::tool::main {} {
     }
   }
 }
-
-
 
 namespace eval ::tool {
   variable trace 0
