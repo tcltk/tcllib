@@ -1,5 +1,6 @@
 package require dicttool
 package require TclOO
+package require sha1
 package require oo::meta 0.4.1
 package require oo::dialect
 
@@ -50,9 +51,11 @@ set ::tool::tool_root [file dirname $cwd]
 ::tool::pathload $cwd {
   tool.tcl
   uuid.tcl
+  ensemble.tcl
   metaclass.tcl
   event.tcl
+  property.tcl
   dictobj.tcl
 } $idxfile
-package provide tool 0.4
+package provide tool 0.4.1
 

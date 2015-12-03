@@ -3,97 +3,84 @@
 ###
 
 set DIR [file dirname [file normalize [info script]]]
+set DEMOROOT [file join $DIR htdocs]
+set tcllibroot  [file normalize [file join $DIR .. ..]]
+set auto_path [linsert $auto_path 0 [file normalize [file join $tcllibroot modules]]]
+package require httpd
+package require httpd::content
 
-set auto_path [linsert $auto_path 0 [file normalize [file join $DIR .. .. modules]]]
-puts $auto_path
+###
+# This script creates two toplevel domains:
+# * Hosting the tcllib embedded documentation as static content
+# * Hosting a local fossil mirror of the tcllib repository
+###
 package require httpd
 
-oo::class create mycontent {
-  superclass ::httpd::reply
+tool::class create ::docserver::reply::scgi_fossil {
+  superclass httpd::content::scgi
 
-  method content {} {
-    my puts "<HTML>"
-    my puts "<BODY>"
-    my puts "<H1>HELLO WORLD!</H1>"
-    my puts "The time is now [my timestamp]"
-    my puts "</BODY>"
-    my puts "</HTML>"
+  method scgi_info {} {
+    ###
+    # We could calculate this all out ahead of time
+    # but it's a nice demo to be able to launch the process
+    # and compute the parameters needed on the fly
+    ###
+    set uri    [my query_headers get REQUEST_URI]
+    set prefix [my query_headers get prefix]
+    set prefix [string trimright $prefix *]
+    set prefix [string trimright $prefix /]
+    set module tcllib
+    ###
+    # 
+    if {![info exists ::fossil_process($module)]} {
+      puts [list GATHERING INFO FOR $module]
+      set info [exec fossil status]
+      set dbfile {}
+      foreach line [split $info \n] {
+        if {[lindex $line 0] eq "repository:"} {
+          set dbfile [string trim [string range $line 12 end]]
+          break
+        }
+      }
+      if {$dbfile eq {}} {
+        tailcall my error 505 "Could not locate fossil respository database"
+      }
+      puts [list LAUNCHING $module $dbfile]
+      package require processman
+      package require nettool
+      set port [::nettool::allocate_port 40000]
+      set handle fossil:$port
+      set mport [my <server> port_listening]
+      set cmd [list fossil server $dbfile --port $port --localhost --scgi --baseurl http://[my query_headers get HTTP_HOST]$prefix 2>/tmp/$module.err >/tmp/$module.log]
+      dict set ::fossil_process($module) port $port
+      dict set ::fossil_process($module) handle $handle
+      dict set ::fossil_process($module) cmd $cmd
+      dict set ::fossil_process($module) SCRIPT_NAME $prefix
+    }
+    dict with ::fossil_process($module) {}
+    if {![::processman::running $handle]} {
+      puts "LAUNCHING $module as $cmd"
+      set process [::processman::spawn $handle {*}$cmd]
+      puts "LAUNCHED"
+      my varname paused
+      after 500
+      puts "RESUMED"
+    }
+    return [list localhost $port $SCRIPT_NAME]
   }
 }
+tool::class create ::docserver::server {
+  superclass ::httpd::server::dispatch ::httpd::server
+  
 
-oo::class create myfile {
-  superclass ::httpd::reply
-  
-  method notfound {} {
-    my reset
-    set code 404
-    set errorstring [my meta getnull error_codes $code]
-    my meta set reply_status "$code $errorstring"
-    my puts "
-<HTML>
-<HEAD>
-<TITLE>$code $errorstring</TITLE>
-</HEAD>
-<BODY>"
-      my puts "
-Got the error <b>$code $errorstring</b>
-<p>
-while trying to obtain $data(url)
-      "
-    my puts "</BODY>
-</HTML>"
+  method log args {
+    puts [list {*}$args]
   }
   
-  method content {} {
-    set docroot [my <server> meta get doc_root]
-    set path [my meta get query_header REQUEST_PATH]
-    set path [string trimleft $path /]
-    set filename [file join $docroot $path]
-    if {![file exists $filename]} {
-      my notfound
-      return
-    }
-    switch [file extension $filename] {
-      .html -
-      .htm {
-        my meta set reply_headers  Content-Type: {text/html; charset=ISO-8859-1}
-        my puts [cat $filename]
-      }
-      .txt {
-        my meta set reply_headers  Content-Type: {text/plain}
-        my puts [cat $filename]
-      }
-      .md {
-        my meta set reply_headers  Content-Type: {text/html; charset=ISO-8859-1}
-        package require Markdown
-        set dat [cat $filename]
-        my puts [::Markdown::convert $dat]
-      }
-      default {
-        my notfound
-        return
-      }
-    }
-  }
 }
 
-oo::class create myserver {
-  superclass httpd::server
-  
-  method dispatch pageobj {
-    set path [$pageobj meta getnull query_header REQUEST_PATH]
-    set path [string trimleft $path /]
-    if {$path in {{} index index.html index.htm}} {
-      $pageobj meta set query_header REQUEST_PATH index.html
-    }
-    if {[lindex [split $path /] 0] eq "dynamic"} {
-      $pageobj morph mycontent
-    } else {
-      $pageobj morph myfile
-    }
-    return 200
-  }
-}
+::docserver::server create appmain doc_root $DEMOROOT
+appmain add_uri /tcllib* [list mixin httpd::content::file path [file join $tcllibroot embedded www]]
+appmain add_uri /fossil* {mixin ::docserver::reply::scgi_fossil}
 
-myserver create MAIN doc_root [file join $DIR htdocs] port 10001
-vwait forever
+tool::main

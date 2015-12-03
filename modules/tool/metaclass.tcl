@@ -13,11 +13,6 @@
 namespace eval ::tool {}
 namespace eval ::tool::define {}
 
-proc ::tool::dynamic_methods class {
-  set metainfo [::oo::meta::metadata $class]
-
-}
-
 proc ::tool::define::array {name {values {}}} {
   set class [current_class]
   set name [string trimright $name :]:
@@ -30,16 +25,44 @@ proc ::tool::define::array {name {values {}}} {
 }
 
 ###
-# Hijack the constructor and superclass keywords at least
-# to enforce this framework
+# topic: 710a93168e4ba7a971d3dbb8a3e7bcbc
 ###
-proc ::tool::define::constructor {arglist body} {
+proc ::tool::define::component {name info} {
   set class [current_class]
-  set prefix {
-  my InitializePublic
+  ::oo::meta::info $class branchset component $name $info
+}
+
+###
+# topic: 2cfc44a49f067124fda228458f77f177
+# title: Specify the constructor for a class
+###
+proc ::tool::define::constructor {arglist rawbody} {
+  set body {
+::tool::object_create [self]
+my InitializePublic
+my lock create constructor
   }
-  oo::define $class constructor $arglist "$prefix\n$body"
-  ::tool::dynamic_methods $class
+  append body $rawbody
+  append body {
+# Run "initialize"
+my initialize
+# Remove lock constructor
+my lock remove constructor
+  }
+  set class [current_class]
+  ::oo::define $class constructor $arglist $body
+}
+
+###
+# topic: 4cb3696bf06d1e372107795de7fe1545
+# title: Specify the destructor for a class
+###
+proc ::tool::define::destructor rawbody {
+  set body {
+::tool::object_destroy [self]
+  }
+  append body $rawbody
+  ::oo::define [current_class] destructor $body
 }
 
 proc ::tool::define::option {name branchinfo} {
@@ -47,32 +70,6 @@ proc ::tool::define::option {name branchinfo} {
   # NEXT, save the option data
   ::oo::meta::info $class branchset option $name $branchinfo
 }
-
-###
-# topic: 8bcae430f1eda4ccdb96daedeeea3bd409c6bb7a
-# description: Add properties and option handling
-###
-proc ::tool::define::property args {
-  set class [current_class]
-  switch [llength $args] {
-    2 {
-      set type const
-      set property [string trimleft [lindex $args 0] :]
-      set value [lindex $args 1]
-      ::oo::meta::info $class set $type $property: $value
-      return
-    }
-    3 {
-      set type     [lindex $args 0]
-      set property [string trimleft [lindex $args 1] :]
-      set value    [lindex $args 2]
-      ::oo::meta::info $class set $type $property: $value
-      return
-    }
-  }
-  ::oo::meta::info $class set {*}$args
-}
-
 
 proc ::tool::define::variable {name {default {}}} {
   set class [current_class]
@@ -84,13 +81,21 @@ proc ::tool::define::variable {name {default {}}} {
 #-------------------------------------------------------------------------
 # Option Handling Mother of all Classes
 
-# tao::object
+# tool::object
 #
 # This class is inherited by all classes that have options.
 #
 
 ::tool::define ::tool::object {
   # Put MOACish stuff in here
+  variable signals_pending create
+  
+  constructor args {
+    my configurelist [::tool::args_to_options {*}$args]
+    my initialize
+  }
+  
+  destructor {}
   
   method configure {args} {
     my variable options
@@ -110,6 +115,7 @@ proc ::tool::define::variable {name {default {}}} {
       }
     }
   }
+  
   method cget {option} {
     my variable options
     if {![my meta exists option $option]} {
@@ -118,6 +124,9 @@ proc ::tool::define::variable {name {default {}}} {
     return $options($option)
   }
 
+  # Called after all options and public variables are initialized
+  method initialize {} {}
+  
   method option_info args {
     set option_info [my meta getnull option]
     switch [llength $args] {

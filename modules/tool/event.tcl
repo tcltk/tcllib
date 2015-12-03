@@ -1,8 +1,8 @@
 ###
-# This file implements the Tao event manager
+# This file implements the Tool event manager
 ###
 
-::namespace eval ::tao {}
+::namespace eval ::tool {}
 
 ::namespace eval ::tool::event {}
 
@@ -27,8 +27,9 @@ proc ::tool::event::cancel {self {task *}} {
 #    spamming or infinite recursion
 ###
 proc ::tool::event::generate {self event args} {
+  set wholist [Notification_list $self $event]
+  if {$wholist eq {}} return
   set dictargs [::oo::meta::args_to_options {*}$args]
-
   set info $dictargs
   set strict 0
   set debug 0
@@ -38,9 +39,7 @@ proc ::tool::event::generate {self event args} {
   dict set info origin $self
   dict set info sender $sender
   dict set info rcpt   {}
-  
-  
-  foreach who [Notification_list $self $event] {
+  foreach who $wholist {
     catch {::tool::event::notify $who $self $event $info}
   }
 }
@@ -60,22 +59,18 @@ proc ::tool::event::nextid {} {
 #    who recieves notifications
 ###
 proc ::tool::event::Notification_list {self event {stackvar {}}} {
-  if { $stackvar ne {} } {
-    upvar 1 $stackvar stack
-  } else {
-    set stack {}
-  }
-  if {$self in $stack} {
-    return {}
-  }
-  lappend stack $self
-
-  ::tool::db eval {select receiver from object_subscribers where string_match(sender,:self) and string_match(event,:event)} {
-    ::tool::db eval {select name as rcpt from object where string_match(name,:receiver)} {
-      Notification_list $rcpt $event stack
+  set notify_list {}
+  foreach {obj patternlist} [array get ::tool::object_subscribe] {
+    if {$obj eq $self} continue
+    foreach pattern $patternlist {
+      lassign $pattern objpat eventpat
+      if {![string match $objpat $self]} continue
+      if {![string match $eventpat $event]} continue
+      lappend notify_list $obj
+      break
     }
   }
-  return $stack
+  return $notify_list
 }
 
 ###
@@ -122,23 +117,28 @@ proc ::tool::event::schedule {self handle interval script} {
 # topic: e64cff024027ee93403edddd5dd9fdde
 ###
 proc ::tool::event::subscribe {self who event} {
-  ::tool::db eval {
-insert or ignore into object(name) VALUES (:self);
-insert or replace into object_subscribers (receiver,sender,event) VALUES (:self,:who,:event);
-}
+  lappend ::tool::object_subscribe($self) [list $who $event]
 }
 
 ###
 # topic: 5f74cfd01735fb1a90705a5f74f6cd8f
 ###
 proc ::tool::event::unsubscribe {self args} {
+  if {![info exists ::tool::object_subscribe($self)]} continue
   switch {[llength $args]} {
     0 {
-      ::tool::db eval {delete from object_subscribers where receiver=:self}
+      set ::tool::object_subscribe($self) {}
     }
     1 {
       set event [lindex $args 0]
-      ::tool::db eval {delete from object_subscribers where receiver=:self and string_match(event,:event)=1}
+      set oldlist $::tool::object_subscribe($self)
+      set newlist {}
+      foreach pattern $oldlist {
+        lassign $pattern objpat eventpat
+        if {[string match $eventpat $event]} continue
+        lappend newlist $pattern
+      }
+      set ::tool::object_subscribe($self) $newlist
     }
   }
 }
@@ -154,7 +154,7 @@ tool::define tool::object {
 
 ###
 # topic: 37e7bd0be3ca7297996da2abdf5a85c7
-# description: The event manager for Tao
+# description: The event manager for Tool
 ###
 namespace eval ::tool::event {
   variable nextevent {}
