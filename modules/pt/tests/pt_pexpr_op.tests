@@ -78,17 +78,29 @@ foreach {data expected} {
 
 #----------------------------------------------------------------------
 
-set n 0
-foreach {data expected} {
-    {x {t a} {t b} {n X} {t c} {n Z} {t d} {t e} {t f}}  {x {str a b} {n X} {t c} {n Z} {str d e f}}
-    {x {n X} {t a} {t b} {t c} {n Z} {t d} {t e} {t f}}  {x {n X} {str a b c} {n Z} {str d e f}}
-    {x {t a} {n X} {t b} {n Y} {t c} {n Z} {t d} {n A}}  {x {t a} {n X} {t b} {n Y} {t c} {n Z} {t d} {n A}}
-    {x {t a} {t b}}                                      {x {str a b}}
-    {/ {t a} {t b} {n X} {t c} {n Z} {t d} {.. 0 9} {t e}}        {/ {cl a b} {n X} {t c} {n Z} {cl d {0 9} e}}
-    {/ {.. 0 0} {n X} {.. 1 1} {t a} {n Z} {.. 0 9} {n A} {n B}}  {/ {t 0} {n X} {cl 1 a} {n Z} {cl {0 9}} {n A} {n B}}
-    {/ {t a} {t b}}                                               {/ {cl a b}}
+set     trial {}
+lappend trial {x {t a} {t b} {n X} {t c} {n Z} {t d} {t e} {t f}}           {x {str a b} {n X} {t c} {n Z} {str d e f}}	       
+lappend trial {x {n X} {t a} {t b} {t c} {n Z} {t d} {t e} {t f}}           {x {n X} {str a b c} {n Z} {str d e f}}	       
+lappend trial {x {t a} {n X} {t b} {n Y} {t c} {n Z} {t d} {n A}}           {x {t a} {n X} {t b} {n Y} {t c} {n Z} {t d} {n A}}  
+lappend trial {x {t a} {t b}}                                               {x {str a b}}					       
+lappend trial {/ {t a} {t b} {n X} {t c} {n Z} {t d} {.. 0 9} {t e}}        {/ {cl a b} {n X} {t c} {n Z} {cl d {0 9} e}}	       
+lappend trial {/ {.. 0 0} {n X} {.. 1 1} {t a} {n Z} {.. 0 9} {n A} {n B}}  {/ {t 0} {n X} {cl 1 a} {n Z} {cl {0 9}} {n A} {n B}}
+lappend trial {/ {t a} {t b}}                                               {/ {cl a b}}
 
-} {
+lappend trial \
+    [list / space [list t "\{"]] \
+    [list / space [list t "\{"]]
+
+lappend trial \
+    [list / [list t n] [list t r] [list t t] [list t '] [list t "\""] [list t "\["] [list t "\]"] [list t "\\"]] \
+    [list / [list cl n r t ' "\"" "\[" "\]" "\\"]]
+
+lappend trial \
+    [list / [list t \n] [list t \r]] \
+    [list / [list cl \n \r]]
+
+set n 0
+foreach {data expected} $trial {
     test pt-pe-op-set:${setimpl}-8.$n {op fusechars} -body {
 	pt::pe::op fusechars $data
     } -result $expected
