@@ -9,11 +9,10 @@
     class: generic
     description: {The Tcl Library is a kitchen sink of packages across a broad spectrum of things.}
     distribution: fossil
-    generated: {2015-11-20 14:38:05 UTC}
-    release: odie
+    generated: {2015-11-29 15:32:08 UTC}
+    release: trunk
   }
   release/ {
-    18fa372ad80b1c9243a6ed9a525d27a6e60c789e
     0fe8984ed1477cb74734bff3d50a8f5b6fe9e028
     e620c4044f4fff6b730df5c5bd4b9f489e37d15d
     9b83c544adff23b1d30aa54b867a333ea3eac677
@@ -576,6 +575,7 @@
     0192c101679ecbc1d50c776c0c86b94bf9a9fed2
     dd422d78286b2d0494b5261b21980c470acedfe1
     28099cd8972939a47052f77e7e817adef8478e0a
+    86037348e03708ea87fead812df77b80ff6c3edd
     af203c381aaa7a46831767988cc64b0104af0879
     dc962d6462f23aeb2f85758b1c66f5c0aa863654
     40cb85926c214da4e364067a2b9bf3dd6c7850a4
@@ -713,16 +713,16 @@
     16d10152420ede154f852afcf77e3f91e9f7121e
   }
 }
-18fa372ad80b1c9243a6ed9a525d27a6e60c789e {
+0fe8984ed1477cb74734bff3d50a8f5b6fe9e028 {
   entity {
-    name: odie
-    shed_class: release
+    name: trunk
+    shed_class: generic
     version: {}
   }
   meta {
-    checkout: odie
+    checkout: trunk
     class: generic
-    timestamp: {2015-11-20 14:38:05 UTC}
+    timestamp: {2015-11-29 15:32:08 UTC}
   }
 }
 636af9224f7d0fff00af28247aad5adaf8083dc1 {
@@ -737,19 +737,8 @@
     project: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
     project-name: {Tcl Library Source Code}
     project-short-name: tcllib
-    release: odie
+    release: trunk
     url: http://fossil.etoyoc.com/fossil/tcllib
-  }
-}
-0fe8984ed1477cb74734bff3d50a8f5b6fe9e028 {
-  entity {
-    name: trunk
-    shed_class: generic
-    version: {}
-  }
-  meta {
-    checkout: trunk
-    class: generic
   }
 }
 e620c4044f4fff6b730df5c5bd4b9f489e37d15d {
@@ -1981,7 +1970,7 @@ f4bbddfcd0daf2e05979c0c9ce821e996032d144 {
   }
   meta {
     class: source
-    package-provide: {{debug 1.0.6} {debug::caller 1} {debug::heartbeat 1} {debug::timestamp 1}}
+    package-provide: {{debug 1.0.6} {debug::caller 1.1} {debug::heartbeat 1} {debug::timestamp 1}}
     package-require: {debug {Tcl 8.5}}
     path: modules/debug
   }
@@ -1996,7 +1985,7 @@ f4bbddfcd0daf2e05979c0c9ce821e996032d144 {
   entity {
     name: debug::caller
     shed_class: package
-    version: 1
+    version: 1.1
   }
   meta {
     class: package
@@ -8280,7 +8269,7 @@ dae7fcf0463f7324845965c4c9a809315a6f96a3 {
   }
   meta {
     class: source
-    package-provide: {{tie 1.1} {tie::std::array 1.0} {tie::std::dsource 1.0} {tie::std::file 1.0.4} {tie::std::growfile 1.0} {tie::std::log 1.0} {tie::std::rarray 1.0}}
+    package-provide: {{tie 1.1} {tie::std::array 1.0} {tie::std::dsource 1.0} {tie::std::file 1.0.4} {tie::std::growfile 1.0} {tie::std::log 1.0} {tie::std::rarray 1.0.1}}
     package-require: {cmdline log snit tie}
     path: modules/tie
   }
@@ -8364,7 +8353,7 @@ fbe25f305ec7be5447ae64063cde05d8d52aea45 {
   entity {
     name: tie::std::rarray
     shed_class: package
-    version: 1
+    version: 1.0.1
   }
   meta {
     class: package
@@ -9388,12 +9377,13 @@ efa2d3aed131f2b71357132db52b5a71f913e396 {
   }
   meta {
     class: source
-    package-provide: {{huddle 0.1.5} {yaml 0.3.7}}
-    package-require: {base64 cmdline huddle}
+    package-provide: {{huddle 0.2.0} {huddle::json 0.1} {yaml 0.3.8}}
+    package-require: {base64 cmdline {huddle 0.2.0} {Tcl 8.5} TclOO throw try}
     path: modules/yaml
   }
   package/ {
     28099cd8972939a47052f77e7e817adef8478e0a
+    86037348e03708ea87fead812df77b80ff6c3edd
     af203c381aaa7a46831767988cc64b0104af0879
   }
 }
@@ -9401,18 +9391,29 @@ efa2d3aed131f2b71357132db52b5a71f913e396 {
   entity {
     name: huddle
     shed_class: package
-    version: 0.1.5
+    version: 0.2.0
   }
   meta {
     class: package
     file: huddle.tcl
   }
 }
+86037348e03708ea87fead812df77b80ff6c3edd {
+  entity {
+    name: huddle::json
+    shed_class: package
+    version: 0.1
+  }
+  meta {
+    class: package
+    file: json2huddle.tcl
+  }
+}
 af203c381aaa7a46831767988cc64b0104af0879 {
   entity {
     name: yaml
     shed_class: package
-    version: 0.3.7
+    version: 0.3.8
   }
   meta {
     class: package
@@ -9472,14 +9473,14 @@ dc962d6462f23aeb2f85758b1c66f5c0aa863654 {
 }
 17ba0791499db908433b80f37c5fbc89b870084b {
   entity {
-    name: odie
+    name: trunk
     shed_class: release
     version: {}
   }
   meta {
-    checkout: odie
+    checkout: trunk
     class: generic
-    timestamp: {2015-11-20 14:38:05 UTC}
+    timestamp: {2015-11-29 15:32:08 UTC}
   }
 }
 7b52009b64fd0a2a49e6d8a939753077792b0554 {
@@ -9494,7 +9495,7 @@ dc962d6462f23aeb2f85758b1c66f5c0aa863654 {
     project: 05391902863193f286cc4eeb0b0cd8a8d16b4ec9
     project-name: {Tcl Library Source Code}
     project-short-name: tcllib
-    release: odie
+    release: trunk
     url: http://fossil.etoyoc.com/fossil/tcllib
   }
 }

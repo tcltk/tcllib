@@ -86,8 +86,19 @@ proc ::oo::dialect::create {name {parent ""}} {
     # Build our dialect template functions
     ###
 
-    interp alias {} ${NSPACE}::define {} \
-	::oo::dialect::Define $NSPACE
+    proc ${NSPACE}::define {class args} {
+	###
+	# To facilitate library reloading, allow
+	# a dialect to create a class from DEFINE
+	###
+	if {[info commands $class] eq {}} {
+	    [namespace current]::class create $class {*}${args}
+	} else {
+	    ::oo::dialect::Define [namespace current] $class {*}${args}
+	}
+    }
+    #interp alias {} ${NSPACE}::define {} \
+    #	::oo::dialect::Define $NSPACE
     interp alias {} ${NSPACE}::define::current_class {} \
 	::oo::dialect::Peek
     interp alias {} ${NSPACE}::define::aliases {} \

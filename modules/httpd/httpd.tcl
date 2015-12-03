@@ -12,92 +12,26 @@
 
 package require uri
 package require cron
-package require tool 0.4
+package require tool 0.4.1
 package require oo::dialect
 
 namespace eval ::url {}
-
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-###
-# Include handlers for SCGI headers
-###
-proc ::scgi::encode_request {headers body info} {
-  variable server_block
-
-  if {$body eq {}} {
-    # If blank, we may be streaming content
-    if {![dict exists $info CONTENT_LENGTH]} {
-      dict set outdict CONTENT_LENGTH 0
-    } else {
-      dict set outdict CONTENT_LENGTH [dict get $info CONTENT_LENGTH]
-    }
-  } else {
-    dict set outdict CONTENT_LENGTH [string length $body]
-  }
-  set outdict [dict merge $outdict $server_block $info]
-  dict set outdict PWD [pwd]
-  foreach {key value} $headers {
-    switch $key {
-      SCRIPT_NAME -
-      REQUEST_METHOD -
-      REQUEST_URI {
-        dict set outdict $key $value
-      }
-      default {
-        if {[string range $key 0 4] eq "HTTP_"} {
-          dict set outdict $key $value
-        } else {
-          dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
-        }
-      }
-    }
-  }  
-  set result {}
-  foreach {name value} $outdict {
-    append result $name \x00 $value \x00
-  }
-  return "[string length $result]:$result,"
-}
-
-proc ::scgi::decode_headers {rawheaders} {
-  #
-  # Take the tokenized header data and place the usual CGI headers into $env,
-  # and transform the HTTP_ variables to their original HTTP header field names
-  # as best as possible.
-  #
-  foreach {name value} $rawheaders {
-    if {[regexp {^HTTP_(.*)$} $name {} nameSuffix]} {
-      set nameParts [list]
-      foreach namePart [split $nameSuffix _] {
-        lappend nameParts [string toupper [string tolower $namePart] 0 0]
-      }
-      dict set headers [join $nameParts -] $value
-    } else {
-      dict set env $name $value
-    }
-  }
-  #
-  # Store CONTENT_LENGTH as an HTTP header named Content-Length, too.
-  #
-  set contentLength [dict get $env CONTENT_LENGTH]
-  if {$contentLength > 0} {
-    dict set headers Content-Length $contentLength
-  }
-  return [list env $enc headers $headers]
-}
+set ::httpd::version 4.0.0
 
 ###
 # Define the reply class
 ###
-::tool::class create ::httpd::reply {
+::tool::define ::httpd::reply {
 
   property reply_headers_default {
     Status: {200 OK}
     Content-Type: {text/html; charset=ISO-8859-1}
+    Cache-Control: {no-cache}
     Connection: close
-  }  
+  } 
 
   array error_codes {
     200 {Data follows}
@@ -130,34 +64,60 @@ proc ::scgi::decode_headers {rawheaders} {
   # clean up on exit
   ###
   destructor {
-    my <server> unregister [self]
+    my close
+  }
+  
+  method close {} {
     my variable chan
+    catch {flush $chan}
     catch {close $chan}
   }
   
   method HttpHeaders {sock {debug {}}} {
     set result {}
     ###
-    # Enter blocking mode with crlf translation in order
-    # to read the headers
+    # Set up a channel event to stream the data from the socket line by
+    # line. When a blank line is read, the HttpHeaderLine method will send
+    # a flag which will terminate the vwait.
+    #
+    # We do this rather than entering blocking mode to prevent the process
+    # from locking up if it's starved for input. (Or in the case of the test
+    # suite, when we are opening a blocking channel on the other side of the
+    # socket back to ourselves.)
     ###
-    chan configure $sock -translation {crlf crlf} -blocking 1
-    ###
-    # Read until the first empty line
-    ###
-    while {[gets $sock line]>0} {
-      if {$debug ne {}} { puts "$debug $line" }
-      append mime $line \n
-    }
-    ###
-    # Cancel blocking mode
-    ###
-    chan configure $sock -blocking 0
+    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    my variable MimeHeadersSock
+    set MimeHeadersSock($sock) {}
+    set MimeHeadersSock($sock.done) {}
+    chan event $sock readable [namespace code [list my HttpHeaderLine $sock]]
+    vwait [my varname MimeHeadersSock]($sock.done)
+    chan event $sock readable {}
     ###
     # Return our buffer
     ###
-    return $mime
+    return $MimeHeadersSock($sock)
   }
+  
+  method HttpHeaderLine {sock} {
+    my variable MimeHeadersSock
+    if {[chan eof $sock]} {
+      # Socket closed... die
+      tailcall my destroy
+    }
+    try {
+      if {[gets $sock line]==0} {
+        set [my varname MimeHeadersSock]($sock.done) 1      
+      } else {
+        append MimeHeadersSock($sock) $line \n
+      }
+    } trap {POSIX EBUSY} {err info} {
+      # Happens...
+    } on error {err info} {
+      puts "ERROR $err"
+      puts [dict print $info]
+    }
+  }
+  
   method MimeParse mimetext {
     foreach line [split $mimetext \n] {
       # This regexp picks up
@@ -217,11 +177,11 @@ proc ::scgi::decode_headers {rawheaders} {
   
   method dispatch {newsock datastate} {
     my query_headers replace $datastate
-    my variable chan rawrequest
+    my variable chan rawrequest dipatched_time
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
-   
+    set dispatched_time [clock seconds]
     try {
       set rawrequest [my HttpHeaders $chan]
       foreach {field value} [my MimeParse $rawrequest] {
@@ -230,7 +190,8 @@ proc ::scgi::decode_headers {rawheaders} {
       # Dispatch to the URL implementation.
       my content
     } on error {err info} {
-      puts stderr $::errorInfo
+      dict print $info
+      #puts stderr $::errorInfo
       my error 500 $err
     } finally {
       my output
@@ -257,7 +218,7 @@ proc ::scgi::decode_headers {rawheaders} {
   }
 
   method error {code {msg {}}} {
-    #puts [list [self] ERROR $code $msg $::errorInfo]
+    puts [list [self] ERROR $code $msg]
     my query_headers set HTTP_ERROR $code
     my reset
     my variable error_codes
@@ -298,7 +259,6 @@ For deeper understanding:
     }
     my puts "</BODY>
 </HTML>"
-    #my output
   }
   
   
@@ -342,7 +302,7 @@ For deeper understanding:
     ###
     # Return dynamic content
     ###
-    set reply_body [string trim $reply_body]
+    #set reply_body [string trim $reply_body]
     set length [string length $reply_body]
     if {${length} > 0} {
       append result "Content-length: [string length $reply_body]" \n \n
@@ -355,7 +315,64 @@ For deeper understanding:
     my destroy
   }
   
+  method Url_Decode data {
+    regsub -all {\+} $data " " data
+    regsub -all {([][$\\])} $data {\\\1} data
+    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
+    return [subst $data]
+  }
+  
+  method FormData {} {
+    my variable formdata
+    # Run this only once
+    if {[info exists formdata]} {
+      return $formdata
+    }
+    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
+      set body [my PostData]
+      switch [my query_headers get CONTENT_TYPE] {
+        application/x-www-form-urlencoded {
+          # These foreach loops are structured this way to ensure there are matched
+          # name/value pairs.  Sometimes query data gets garbled.
+      
+          set result {}
+          foreach pair [split $body "&"] {
+            foreach {name value} [split $pair "="] {
+              lappend formdata [my Url_Decode $name] [my Url_Decode $value]
+            }
+          }
+        }
+      }
+    } else {
+      foreach pair [split [my query_headers getnull QUERY_STRING] "&"] {
+        foreach {name value} [split $pair "="] {
+          lappend formdata [my Url_Decode $name] [my Url_Decode $value]
+        }
+      }
+    }
+    return $formdata
+  }
+  
+  method PostData {} {
+    my variable postdata
+    # Run this only once
+    if {[info exists postdata]} {
+      return $postdata
+    }
+    set postdata {}
+    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
+      my variable chan
+      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      set length [my query_headers get CONTENT_LENGTH]
+      set postdata [read $chan $length]
+    }
+    return $postdata
+  }  
+
   method TransferComplete args {
+    foreach c $args {
+      catch {close $c}
+    }
     my destroy
   }
 
@@ -381,6 +398,7 @@ For deeper understanding:
   method reset {} {
     my variable reply_body
     my reply_headers replace [my meta cget reply_headers_default]
+    my reply_headers set Server: [my <server> cget server_string]
     my reply_headers set Date: [my timestamp]
     set reply_body {}
   }
@@ -388,8 +406,15 @@ For deeper understanding:
   ###
   # Return true of this class as waited too long to respond
   ###
-  method timedOut {} {
-    return 0
+  method timeOutCheck {} {
+    my variable dipatched_time
+    if {([clock seconds]-$dipatched_time)>30} {
+      ###
+      # Something has lasted over 2 minutes. Kill this
+      ###
+      my error 505 {Operation Timed out}
+      my output
+    }
   }
   
   ###
@@ -406,10 +431,11 @@ For deeper understanding:
 # 2) It is not hardened in any way against malicious attacks
 # 3) By default it will only listen on localhost
 ###
-::tool::class create ::httpd::server {
+::tool::define ::httpd::server {
   
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
+  option server_string [list default: [list TclHttpd $::httpd::version]]
   
   property socket buffersize   32768
   property socket translation  {auto crlf}
@@ -423,14 +449,22 @@ For deeper understanding:
   destructor {
     my stop
   }
-
+  
   method connect {sock ip port} {
-    my variable open_connections
+    ###
+    # If an IP address is blocked
+    # send a "go to hell" message
+    ###
+    if {[my validation Blocked_IP $sock $ip]} {
+      catch {close $sock}
+      return
+    }
+    
     chan configure $sock \
       -blocking 1 \
       -translation {auto crlf} \
       -buffering line
-
+    
     my counter url_hit
     try {
       set readCount [gets $sock line]
@@ -440,9 +474,9 @@ For deeper understanding:
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
       if {[dict get $uriinfo host] eq {}} {
-        set HTTP_HOST [info hostname]
+        dict set query HTTP_HOST [info hostname]
       } else {
-        set HTTP_HOST [dict get $uriinfo host]
+        dict set query HTTP_HOST [dict get $uriinfo host]
       }
       dict set query HTTP_CLIENT_IP  $ip
       dict set query QUERY_STRING    [dict get $uriinfo query]
@@ -461,14 +495,15 @@ For deeper understanding:
         } else {
           set class [my cget reply_class]
         }  
-        set pageobj [$class new [self]]
+        set pageobj [$class create [namespace current]::reply::[::tool::uuid_short] [self]]
         if {[dict exists $reply mixin]} {
           oo::objdefine $pageobj mixin [dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
-        lappend open_connections $pageobj
+        my log HttpAccess $line
       } else {
         try {
+          my log HttpMissing $line
           puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
@@ -483,13 +518,14 @@ For deeper understanding:
       }
     } on error {err errdat} {
       try {
-        puts stderr $::errorInfo
+        puts stderr [dict print $errdat]
         puts $sock "HTTP/1.0 505 INTERNAL ERROR"
         dict with query {}
         set body [subst [my template internal_error]]
         puts $sock "Content-length: [string length $body]"
         puts $sock
         puts $sock $body
+        my log HttpError $line
       } on error {err errdat} {
         puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
@@ -507,17 +543,11 @@ For deeper understanding:
   # Clean up any process that has gone out for lunch
   ###
   method CheckTimeout {} {
-    my variable open_connections
-    set objlist $open_connections
-    foreach obj $objlist {
-      if {[catch {$obj timedOut} timeout]} {
-        my unregister $obj
-        continue
-      }
-      if {$timeout} {
-        catch {close [$obj chan]}
+    foreach obj [info commands [namespace current]::reply::*] {
+      try {
+        $obj timeOutCheck
+      } on error {} {
         catch {$obj destroy}
-        my unregister $obj
       }
     }
   }
@@ -537,26 +567,16 @@ For deeper understanding:
     # Do nothing for now
   }
   
-  method register object {
-    my variable open_connections
-    if { $object ni $open_connections } {
-      lappend open_connections $object
-    }
-  }
-  
-  method unregister object {
-    my variable open_connections
-    ldelete open_connections $object
-  }
-  
   method port_listening {} {
     my variable port_listening
     return $port_listening
   }
   
   method start {} {
-    my variable socklist open_connections port_listening
-    set open_connections {}
+    # Build a namespace to contain replies
+    namespace eval [namespace current]::reply {}
+    
+    my variable socklist port_listening
     set port [my cget port]
     if { $port in {auto {}} } {
       package require nettool
@@ -630,6 +650,15 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
         }
       }
     }
+  }
+  
+  ###
+  # Return true if this IP address is blocked
+  # The socket will be closed immediately after returning
+  # This handler is welcome to send a polite error message
+  ###
+  method validation::Blocked_IP {sock ip} {
+    return 0
   }
 }
 
