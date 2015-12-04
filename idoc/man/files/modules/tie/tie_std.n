@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'tie_std\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2008-2015 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 .TH "tie" n 1\&.1 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -276,17 +276,17 @@ tie \- Array persistence, standard data sources
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtie::std::log  ?1\&.1?\fR
+package require \fBtie::std::log  ?1\&.0?\fR
 .sp
-package require \fBtie::std::array  ?1\&.1?\fR
+package require \fBtie::std::array  ?1\&.0?\fR
 .sp
-package require \fBtie::std::rarray  ?1\&.1?\fR
+package require \fBtie::std::rarray  ?1\&.0\&.1?\fR
 .sp
-package require \fBtie::std::file  ?1\&.1?\fR
+package require \fBtie::std::file  ?1\&.0\&.4?\fR
 .sp
-package require \fBtie::std::growfile  ?1\&.1?\fR
+package require \fBtie::std::growfile  ?1\&.0?\fR
 .sp
-package require \fBtie::std::dsource  ?1\&.1?\fR
+package require \fBtie::std::dsource  ?1\&.0?\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -311,6 +311,6 @@ array, database, file, metakit, persistence, tie, untie
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2008-2015 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
