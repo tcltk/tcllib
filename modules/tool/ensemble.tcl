@@ -1,14 +1,66 @@
-###
-# Support for method ensembles
-###
+::namespace eval ::tool::define {}
 
 ###
-# topic: 7a5c7e04989704eef117ff3c9dd88823
-# title: Specify the a method for the class object itself, instead of for objects of the class
+# topic: fb8d74e9c08db81ee6f1275dad4d7d6f
 ###
-proc ::tool::define::class_method {name arglist body} {
-  set class [current_class]
-  ::oo::meta::info $class set class_typemethod $name: [list $arglist $body]
+proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
+  variable trace
+  set ensembledict {}
+  if {$trace} { puts "dynamic_methods_ensembles $thisclass"}
+  foreach {ensemble einfo} [dict getnull $metadata method_ensemble] {
+    set eswitch {}
+    set default standard
+    if {[dict exists $einfo default:]} {
+      set emethodinfo [dict get $einfo default:]
+      set arglist     [lindex $emethodinfo 0]
+      set realbody    [lindex $emethodinfo 1]
+      if {$arglist in {args {}}} {
+        set body {}
+      } else {
+        set body "\n      ::tool::dynamic_arguments [list $arglist] {*}\$args"
+      }
+      append body "\n      " [string trim $realbody] "      \n"
+      set default $body
+      dict unset einfo default:
+    }
+    set eswitch \n
+    append eswitch "\n    [list <list> [list return [lsort -dictionary [dict keys $einfo]]]]" \n
+    foreach {submethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
+      if {$submethod eq "_preamble:"} continue
+      set submethod [string trimright $submethod :]
+      lassign $esubmethodinfo arglist realbody
+      if {[string length [string trim $realbody]] eq {}} {
+        append eswitch "    [list $submethod {}]" \n
+      } else {
+        if {$arglist in {args {}}} {
+          set body {}
+        } else {
+          set body "\n      ::tool::dynamic_arguments [list $arglist] {*}\$args"
+        }
+        append body "\n      " [string trim $realbody] "      \n"
+        append eswitch "    [list $submethod $body]" \n
+      }
+    }
+    if {$default=="standard"} {
+      set default "error \"unknown method $ensemble \$method. Valid: [lsort -dictionary [dict keys $eswitch]]\""
+    }
+    append eswitch [list default $default] \n
+    if {[dict exists $einfo _preamble:]} {
+      set body [lindex [dict get $einfo _preamble:] 1]
+    } else {
+      set body {}
+    }
+    append body \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
+
+    #if { $ensemble == "action" } {
+    #  append body \n {  if {$code == 0} { my event generate event $method {*}$dictargs}}
+    #}
+    append body \n {return -options $opts $result}
+    oo::define $thisclass method $ensemble {{method default} args} $body
+    # Define a property for this ensemble for introspection
+    ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
+  }
+  if {$trace} { puts "/dynamic_methods_ensembles $thisclass"}
 }
 
 ###
@@ -42,138 +94,233 @@ proc ::tool::define::class_method {name arglist body} {
 }
 
 ###
-# topic: 4969d897a83d91a230a17f166dbcaede
+# topic: 354490e9e9708425a6662239f2058401946e41a1
+# description: Creates a method which exports access to an internal dict
 ###
-proc ::tool::dynamic_arguments {arglist args} {
-  set idx 0
-  set len [llength $args]
-  if {$len > [llength $arglist]} {
-    ###
-    # Catch if the user supplies too many arguments
-    ###
-    set dargs 0
-    if {[lindex $arglist end] ni {args dictargs}} {
-      set string [dynamic_wrongargs_message $arglist]
-      error $string
-    }
+proc ::tool::define::dictobj args {
+  dict_ensemble {*}$args
+}
+proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
+  set class [current_class]
+  set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
+  
+  set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
+  set initial [dict getnull $cases initialize]
+  variable $varname $initial
+  foreach {name body} $CASES {
+    dict set methoddata $name: [list args $body]
   }
-  foreach argdef $arglist {
-    if {$argdef eq "args"} {
-      ###
-      # Perform args processing in the style of tcl
-      ###
-      uplevel 1 [list set args [lrange $args $idx end]]
-      break
+  set template [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
+    _preamble {} {
+      my variable %VARNAME%
     }
-    if {$argdef eq "dictargs"} {
-      ###
-      # Perform args processing in the style of tcl
-      ###
-      uplevel 1 [list set args [lrange $args $idx end]]
-      ###
-      # Perform args processing in the style of tool
-      ###
-      set dictargs [::tool::args_to_options {*}[lrange $args $idx end]]
-      uplevel 1 [list set dictargs $dictargs]
-      break
-    }
-    if {$idx > $len} {
-      ###
-      # Catch if the user supplies too few arguments
-      ###
-      if {[llength $argdef]==1} {
-        set string [dynamic_wrongargs_message $arglist]
-        error $string
-      } else {
-        uplevel 1 [list set [lindex $argdef 0] [lindex $argdef 1]]
+    add args {
+      set field [string trimright [lindex $args 0] :]
+      set data [dict getnull $%VARNAME% $field]
+      foreach item [lrange $args 1 end] {
+        if {$item ni $data} {
+          lappend data $item
+        }
       }
-    } else {
-      uplevel 1 [list set [lindex $argdef 0] [lindex $args $idx]]
+      dict set %VARNAME% $field $data
     }
-    incr idx
-  }
-}
-
-###
-# topic: b88add196bb63abccc44639db5e5eae1
-###
-proc ::tool::dynamic_methods_class {thisclass metadata} {
-  foreach {method info} [dict getnull $metadata class_typemethod] {
-    lassign $info arglist body
-    set method [string trimright $method :]
-    ::oo::objdefine $thisclass method $method $arglist $body
-  }
-}
-
-###
-# topic: fb8d74e9c08db81ee6f1275dad4d7d6f
-###
-proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
-  variable trace
-  set ensembledict {}
-  if {$trace} { puts "dynamic_methods_ensembles $thisclass"}
-  foreach {ensemble einfo} [dict getnull $metadata method_ensemble] {
-    set eswitch {}
-    set default standard
-    if {[dict exists $einfo default:]} {
-      set emethodinfo [dict get $einfo default:]
-      set arglist     [lindex $emethodinfo 0]
-      set realbody    [lindex $emethodinfo 1]
-      set body "\n      ::tool::dynamic_arguments [list $arglist] {*}\$args"
-      append body "\n      " [string trim $realbody] "      \n"
-      set default $body
-      dict unset einfo default:
+    remove args {
+      set field [string trimright [lindex $args 0] :]
+      set data [dict getnull $%VARNAME% $field]
+      set result {}
+      foreach item $data {
+        if {$item in $args} continue
+        lappend result $item
+      }
+      dict set %VARNAME% $field $result
     }
-    set eswitch \n
-    append eswitch "\n    [list <list> [list return [lsort -dictionary [dict keys $einfo]]]]" \n
-    foreach {submethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-      set submethod [string trimright $submethod :]
-      lassign $esubmethodinfo arglist realbody
-      if {[string length [string trim $realbody]] eq {}} {
-        append eswitch "    [list $submethod {}]" \n
-      } else {
-        set body "\n      ::tool::dynamic_arguments [list $arglist] {*}\$args"
-        append body "\n      " [string trim $realbody] "      \n"
-        append eswitch "    [list $submethod $body]" \n
+    initial {} {
+      return [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
+    }
+    reset {} {
+      set %VARNAME% [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
+      return $%VARNAME%
+    }
+    dump {} {
+      return $%VARNAME%
+    }
+    append args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    incr args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    lappend args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    set args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    unset args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    update args {
+      return [dict $method %VARNAME% {*}$args]
+    }
+    branchset args {
+      foreach {field value} [lindex $args end] {
+        dict set %VARNAME% {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
     }
-    if {$default=="standard"} {
-      set default "error \"unknown method $ensemble \$method. Valid: [lsort -dictionary [dict keys $eswitch]]\""
+    rmerge args {
+      set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
+      return $%VARNAME%  
     }
-    append eswitch [list default $default] \n
-    set body {}
-    append body \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
-
-    #if { $ensemble == "action" } {
-    #  append body \n {  if {$code == 0} { my event generate event $method {*}$dictargs}}
-    #}
-    append body \n {return -options $opts $result}
-    oo::define $thisclass method $ensemble {{method default} args} $body
-    # Define a property for this ensemble for introspection
-    ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
+    merge args {
+      set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
+      return $%VARNAME%
+    }
+    replace args {
+      set %VARNAME% [dict rmerge $%VARNAME% {%INITIAL%} {*}$args]
+    }
+    default args {
+      return [dict $method $%VARNAME% {*}$args]
+    }
+  }]
+  foreach {name arglist body} $template {
+    if {[dict exists $methoddata $name:]} continue
+    dict set methoddata $name: [list $arglist $body]
   }
-  if {$trace} { puts "/dynamic_methods_ensembles $thisclass"}
+  ::oo::meta::info $class set method_ensemble $methodname $methoddata
+}
+
+proc ::tool::define::arrayobj args {
+  array_ensemble {*}$args
 }
 
 ###
-# topic: 53ab28ac5c6ee601fe1fe07b073be88e
+# topic: 354490e9e9708425a6662239f2058401946e41a1
+# description: Creates a method which exports access to an internal array
 ###
-proc ::tool::dynamic_wrongargs_message arglist {
-  set result "Wrong # args: should be:"
-  set dargs 0
-  foreach argdef $arglist {
-    if {$argdef in {args dictargs}} {
-      set dargs 1
-      break
+proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
+  set class [current_class]
+  set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
+  set initial [dict getnull $cases initialize]
+  array $varname $initial
+
+  set map [list %CLASS% $class %METHOD% $methodname %VARNAME% $varname %CASES% $CASES %INITIAL% $initial]
+
+  ::oo::define $class method _${methodname}Get {field} [string map $map {
+    my variable %VARNAME%
+    if {[info exists %VARNAME%($field)]} {
+      return $%VARNAME%($field)
     }
-    if {[llength $argdef]==1} {
-      append result " $argdef"
-    } else {
-      append result " ?[lindex $argdef 0]?"
+    return [my meta getnull %VARNAME% $field:]
+  }]
+  ::oo::define $class method _${methodname}Exists {field} [string map $map {
+    my variable %VARNAME%
+    if {[info exists %VARNAME%($field)]} {
+      return 1
     }
+    return [my meta exists %VARNAME% $field:]
+  }]
+  
+  set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
+  foreach {name body} $CASES {
+    dict set methoddata $name: [list args $body]
+  } 
+  set template  [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
+    _preamble {} {
+      my variable %VARNAME%
+    }
+    reset {} {
+      ::array unset %VARNAME% *
+      foreach {field value} [my meta getnull %VARNAME%] {
+        set %VARNAME%([string trimright $field :]) $value
+      }
+      ::array set %VARNAME% {%INITIAL%}
+      return [array get %VARNAME%]
+    }
+    add args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      foreach item [lrange $args 1 end] {
+        if {$item ni $data} {
+          lappend data $item
+        }
+      }
+      set %VARNAME%($field) $data
+    }
+    remove args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      set result {}
+      foreach item $data {
+        if {$item in $args} continue
+        lappend result $item
+      }
+      set %VARNAME%($field) $result
+    }
+    dump {} {
+      set result {}
+      foreach {var val} [my meta getnull %VARNAME%] {
+        dict set result [string trimright $var :] $val
+      }
+      foreach {var val} [lsort -dictionary -stride 2 [array get %VARNAME%]] {
+        dict set result [string trimright $var :] $val
+      }
+      return $result
+    }
+    exists args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Exists $field]
+    }
+    getnull args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]      
+    }
+    get field {
+      set field [string trimright $field :]
+      set data [my _%METHOD%Get $field]
+    }
+    set args {
+      set field [string trimright [lindex $args 0] :]
+      ::set %VARNAME%($field) {*}[lrange $args 1 end]        
+    }
+    append args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      ::append data {*}[lrange $args 1 end]
+      set %VARNAME%($field) $data
+    }
+    incr args {
+      set field [string trimright [lindex $args 0] :]
+      ::incr %VARNAME%($field) {*}[lrange $args 1 end]
+    }
+    lappend args {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      $method data {*}[lrange $args 1 end]
+      set %VARNAME%($field) $data
+    }
+    branchset args {
+      foreach {field value} [lindex $args end] {
+        set %VARNAME%([string trimright $field :]) $value
+      }
+    }
+    rmerge args {
+      foreach arg $args {
+        my %VARNAME% branchset $arg
+      }
+    }
+    merge args {
+      foreach arg $args {
+        my %VARNAME% branchset $arg
+      }
+    }
+    default args {
+      return [array $method %VARNAME% {*}$args]
+    }
+  }]
+  foreach {name arglist body} $template {
+    if {[dict exists $methoddata $name:]} continue
+    dict set methoddata $name: [list $arglist $body]
   }
-  if { $dargs } {
-    append result " ?option value?..."
-  }
-  return $result
+  ::oo::meta::info $class set method_ensemble $methodname $methoddata
 }
+
