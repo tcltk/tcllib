@@ -97,6 +97,19 @@ proc ::cron::run process {
   dict set processTable($process) lastrun 0
 }
 
+proc ::cron::doOneEvent task {
+  variable lock 1
+  variable processTable
+  set now [clock seconds]
+  dict with processTable($task) {
+    set err [catch {uplevel #0 $command} result]
+    if $err {
+      puts $result
+    }
+  }
+  set lock 0
+}
+
 ###
 # topic: 1f8d4726623321acc311734c1dadcd8e
 # description:
@@ -106,7 +119,6 @@ proc ::cron::run process {
 proc ::cron::runProcesses {} {
   variable processTable
   set now [clock seconds]
-  
   ###
   # Determine what tasks to run this timestep
   ###
@@ -130,14 +142,8 @@ proc ::cron::runProcesses {} {
     }
   }
   foreach task $tasks {
-    dict with processTable($task) {
-      set err [catch {uplevel #0 $command} result]
-      if $err {
-        puts $result
-      }
-    }
+    doOneEvent $task
   }
-
   foreach {task} $cancellist {
     unset -nocomplain processTable($task)
   }
@@ -197,6 +203,7 @@ proc ::cron::runTasksCoro {} {
   # Do this forever
   ###
   variable processTable
+  variable processing
   while 1 {
     set lastevent 0
     set nextevent 0
@@ -228,14 +235,7 @@ proc ::cron::runTasksCoro {} {
       }
     }
     foreach task $tasks {
-      #puts "Running task $task [clock format $now]"
-
-      dict with processTable($task) {
-        set err [catch {uplevel #0 $command} result]
-        if $err {
-          puts $result
-        }
-      }
+      doOneEvent $task
       yield 0
     }
     
@@ -251,7 +251,15 @@ proc ::cron::runTasksCoro {} {
   }
 }
 
+
+
 proc ::cron::wake {} {
+  variable lock
+  ##
+  # Only triggered by cron jobs kicking off other cron jobs within
+  # the script body
+  ##
+  if {$lock} return
   ::cron::runTasks
 }
 
@@ -265,8 +273,9 @@ proc ::cron::wake {} {
 namespace eval ::cron {
   variable lastcall 0
   variable processTable
+  variable lock 0
 }
 
 ::cron::wake
-package provide cron 1.2
+package provide cron 1.2.1
 
