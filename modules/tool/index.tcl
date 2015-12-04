@@ -1,11 +1,12 @@
 package require dicttool
 package require TclOO
+package require sha1
 package require oo::meta 0.4.1
 package require oo::dialect
 
 ::oo::dialect::create ::tool
 ::namespace eval ::tool {}
-
+set ::tool::trace 0
 ###
 # topic: 27196ce57a9fd09198a0b277aabdb0a96b432cb9
 ###
@@ -48,11 +49,10 @@ set idxfile [file join [pwd] [info script]]
 set cwd [file dirname $idxfile]
 set ::tool::tool_root [file dirname $cwd]
 ::tool::pathload $cwd {
-  tool.tcl
   uuid.tcl
+  ensemble.tcl
   metaclass.tcl
   event.tcl
-  dictobj.tcl
 } $idxfile
-package provide tool 0.4
+package provide tool 0.4.2
 
