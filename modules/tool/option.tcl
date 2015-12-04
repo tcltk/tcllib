@@ -1,14 +1,3 @@
-proc ::tool::define::array {name {values {}}} {
-  set class [current_class]
-  set name [string trimright $name :]:
-  if {![::oo::meta::info $class exists array $name]} {
-    ::oo::meta::info $class set array $name {}
-  }
-  foreach {var val} $values {
-    ::oo::meta::info $class set array $name $var $val
-  }
-}
-
 ###
 # topic: 68aa446005235a0632a10e2a441c0777
 # title: Define an option for the class
@@ -40,24 +29,6 @@ proc ::tool::define::option_class {name args} {
   ::oo::meta::info $class branchset option_class $name $dictargs
 }
 
-###
-# topic: 615b7c43b863b0d8d1f9107a8d126b21
-# title: Specify a variable which should be initialized in the constructor
-# description:
-#    This keyword can also be expressed:
-#    [example {property variable NAME {default DEFAULT}}]
-#    [para]
-#    Variables registered in the variable property are also initialized
-#    (if missing) when the object changes class via the [emph morph] method.
-###
-proc ::tool::define::variable {name {default {}}} {
-  set class [current_class]
-  set name [string trimright $name :]
-  ::oo::meta::info $class set variable $name: $default
-}
-
-
-
 ::tool::define ::tool::object {
   property options_strict 0
 
@@ -65,28 +36,20 @@ proc ::tool::define::variable {name {default {}}} {
   # topic: 86a1b968cea8d439df87585afdbdaadb
   ###
   method cget {field {default {}}} {
-    my variable config
-    set field [string trimleft $field -]  
-    if {[my meta is true options_strict] && ![my meta exists option $field]} {
+    my variable options options_canonical
+    set field [string trimleft $field -]
+    if {[info exists options_canonical($field)]} {
+      set field $options_canonical($field)
+    }
+    if {[info exists options($field)]} {
+      return $options($field)
+    }
+    if {[my property options_strict]} {
       error "Invalid option -$field. Valid: [my meta keys option]"
     }
-    set info [my meta branchget option $field]
-    if {$default eq "default"} {
-      return [my Option_Default $field]
-    }
-    set getcmd [dict getnull $info get-command:]
-    if {$getcmd ne {}} {
-      return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
-    }
-    if {[dict exists $config $field]} {
-      return [dict get $config $field]
-    }
-    if {$info ne {}} {
-      return [my Option_Default $field]
-    }
-    return [my meta getnull const ${field}:]
+    return [my property $field]
   }
-  
+
   ###
   # topic: 73e2566466b836cc4535f1a437c391b0
   ###
@@ -104,14 +67,20 @@ proc ::tool::define::variable {name {default {}}} {
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
   method configurelist dictargs {
-    my variable config
+    my variable options options_canonical
+    set rawlist $dictargs
+    set dictargs {}
     set dat [my meta getnull option]
-    if {[my meta is true options_strict]} {
-      foreach {field val} $dictargs {
-        if {![dict exists $dat $field]} {
-          error "Invalid option $field. Valid: [dict keys $dat]"
-        }
+    set strict [my meta is true options_strict]
+    foreach {field val} $rawlist {
+      set field [string trimleft $field -]
+      set field [string trimright $field :]
+      if {[info exists options_canonical($field)]} {
+        set field $options_canonical($field)
+      } elseif {$strict && ![dict exists $dat $field]} {
+        error "Invalid option $field. Valid: [dict keys $dat]"
       }
+      dict set dictargs $field $val
     }
     ###
     # Validate all inputs
@@ -119,7 +88,7 @@ proc ::tool::define::variable {name {default {}}} {
     foreach {field val} $dictargs {
       set script [dict getnull $dat $field validate-command:]
       if {$script ne {}} {
-        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
+        dict set dictargs $field [eval [string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]]
       }
     }
     ###
@@ -130,7 +99,7 @@ proc ::tool::define::variable {name {default {}}} {
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       } else {
-        dict set config $field $val
+        set options($field) $val
       }
     }
   }
@@ -139,12 +108,15 @@ proc ::tool::define::variable {name {default {}}} {
   # topic: 543c936485189593f0b9ed79b5d5f2c0
   ###
   method configurelist_triggers dictargs {
-    #set dat [my meta getnull option]
-    # Add a lock to prevent signals from
-    # spawning signals
-    ###
-    # Apply normal inputs
-    ###
+    set dat [my meta getnull option]
+    foreach {field val} $dictargs {
+      set script [dict getnull $dat $field post-command:]
+      if {$script ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
+      } else {
+        set options($field) $val
+      }
+    }
   }
 
   method Option_Default field {
@@ -172,25 +144,15 @@ proc ::tool::define::variable {name {default {}}} {
     if {![info exists meta]} {
       set meta {}
     }
-    if {![info exists config]} {
-      set config {}
-    }
-    foreach {var info} [my meta getnull option] {
-      if {![dict exists $config $var]} {
-        dict set config $var [my Option_Default $var]
-      }
-    }
     foreach {var value} [my meta branchget variable] {
-      if { $var eq "meta" } continue
-      if { $var eq "config" } continue
+      if { $var in {meta options} } continue
       my variable $var
       if {![info exists $var]} {
         set $var $value
       }
     }
     foreach {var value} [my meta branchget array] {
-      if { $var eq "meta" } continue
-      if { $var eq "config" } continue
+      if { $var eq {meta options} } continue
       my variable $var
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
@@ -198,5 +160,18 @@ proc ::tool::define::variable {name {default {}}} {
         }
       }
     }
+    my variable options options_canonical
+    foreach {var info} [my meta getnull option] {
+      if {[dict exists $info aliases:]} {
+        foreach alias [dict exists $info aliases:] {
+          set options_canonical($alias) $var
+        }
+      }
+      if {![info exists options($var)]} {
+        set options($var) [my Option_Default $var]
+      }
+    }
   }
 }
+
+package provide tool::option 0.1
