@@ -8,54 +8,13 @@ package require fileutil::magic::mimetype
 package require tool 0.4
 package require fileutil
 namespace eval httpd::content {}
-::tool::class create ::httpd::content::form {
-  
-  method Url_Decode data {
-    regsub -all {\+} $data " " data
-    regsub -all {([][$\\])} $data {\\\1} data
-    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
-    return [subst $data]
-  }
-  
-  method ReadForm {} {
-    my variable formdata
-    set formdata {}
-    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
-      my variable chan
-      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-      set length [my query_headers get CONTENT_LENGTH]
-      set body [read $chan $length]
-      switch [my query_headers get CONTENT_TYPE] {
-        application/x-www-form-urlencoded {
-          # These foreach loops are structured this way to ensure there are matched
-          # name/value pairs.  Sometimes query data gets garbled.
-      
-          set result {}
-          foreach pair [split $body "&"] {
-            foreach {name value} [split $pair "="] {
-              lappend formdata [my Url_Decode $name] [my Url_Decode $value]
-            }
-          }
-        }
-      }
-      # We are expecting form data
-    } else {
-      foreach pair [split [my query_headers getnull QUERY_STRING] "&"] {
-        foreach {name value} [split $pair "="] {
-          lappend formdata [my Url_Decode $name] [my Url_Decode $value]
-        }
-      }
-    }
-    return $formdata
-  }
-}
 
 ###
 # Class to deliver Static content
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-tool::class create httpd::content::file {
+::tool::define ::httpd::content::file {
   
   method FileName {} {
     set uri [string trimleft [my query_headers get REQUEST_URI] /]
@@ -91,21 +50,24 @@ tool::class create httpd::content::file {
   
   method dispatch {newsock datastate} {
     # No need to process the rest of the headers
-    my variable chan
+    my variable chan dipatched_time
+    set dispatched_time [clock seconds]
     my query_headers replace $datastate
     set chan $newsock
     my content
     my output
   }
-  ###
-  # We don't generate content when delivering local files
-  # we just go straight to output
-  ###
+
   method content {} {
     my reset
+    ###
+    # When delivering static content, allow web caches to save
+    ###
+    my reply_headers set Cache-Control: {max-age=3600}
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
+      my <server> log httpNotFound [my query_headers get REQUEST_URI]
        tailcall my error 404 {Not Found}
     }
     if {[file isdirectory $local_file]} {
@@ -180,25 +142,26 @@ tool::class create httpd::content::file {
       append result "Content-length: [string length $reply_body]" \n \n
       append result $reply_body
       puts -nonewline $chan $result
+      chan flush $chan    
+      my destroy
     } else {
       ###
       # Return a stream of data from a file
       ###
-      append result "Content-length: [file size $reply_file]" \n \n
+      set size [file size $reply_file]
+      append result "Content-length: $size" \n \n
       puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
-      chan copy $reply_chan $chan
-      catch {close $reply_chan}
+      chan configure $reply_chan  -translation {binary binary}
+      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
     }
-    chan flush $chan    
-    my destroy
   }
 }
 
 ###
 # Return data from an SCGI process
 ###
-tool::class create httpd::content::scgi {
+::tool::define ::httpd::content::scgi {
 
   method scgi_info {} {
     ###
@@ -243,7 +206,7 @@ tool::class create httpd::content::scgi {
     ###
     # Wake this object up after the SCGI process starts to respond
     ###
-    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+    #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     chan event $sock readable [namespace code {my output}]
   }
   
@@ -276,16 +239,17 @@ tool::class create httpd::content::scgi {
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -size $length
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
     }
-    catch {close $sock}
-    chan flush $chan
-    my destroy
   }
 }
 
 # Act as a proxy server
-tool::class create httpd::content::proxy {
+::tool::define ::httpd::content::proxy {
 
   method proxy_info {} {
     ###
@@ -359,11 +323,12 @@ tool::class create httpd::content::proxy {
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -size $length
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
     }
-    catch {close $sock}
-    chan flush $chan
-    my destroy
   }
 }
 
@@ -371,7 +336,7 @@ tool::class create httpd::content::proxy {
 # Modified httpd server with a template engine
 # and a shim to insert URL domains
 ###
-tool::class create httpd::server::dispatch {
+::tool::define ::httpd::server::dispatch {
   array template
   option doc_root {default {}}
   variable url_patterns {}
@@ -390,11 +355,11 @@ tool::class create httpd::server::dispatch {
   
   method dispatch {data} {
     set reply $data
-    set uri [dict get $data REQUEST_URI]
+    set uri [dict get $data REQUEST_PATH]
     # Search from longest pattern to shortest
     my variable url_patterns
     foreach {pattern info} $url_patterns {
-      if {[string match ${pattern} $uri]} {
+      if {[string match ${pattern} /$uri]} {
         set reply [dict merge $data $info]
         if {![dict exists $reply prefix]} {
           dict set reply prefix [my PrefixNormalize $pattern]
