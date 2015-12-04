@@ -248,12 +248,15 @@ proc ::pt::pe::op::CollectClass {c} {
     if {[lindex $c 0] ni {t ..}} return
 
     # A terminal or range. Just extend the accumulator. The main processing
-    # happens after each run of t-operators, see FuseTerminal.
+    # happens after each run of t-operators, see FuseClass.
 
     upvar 1 buf buf
     set new [lrange $c 1 end]
     if {([llength $new] == 1) || ([lindex $new 0] eq [lindex $new 1])} {
-	set new [lindex $new 0]
+	set new [list [lindex $new 0]]
+	#set new [lindex $new 0]
+	# Note how new is rewrapped as a list, because that is what
+	# FuseClass below expects, always. See <*>
     }
     lappend buf $new
     return -code continue
@@ -261,6 +264,8 @@ proc ::pt::pe::op::CollectClass {c} {
 
 proc ::pt::pe::op::FuseClass {} {
     upvar 1 changed changed res res buf buf
+
+    # buf :: list (elems), elems :: list (char ?char?)
 
     # Nothing has accumulated, nothing to fuse.
     if {$buf eq {}} return
@@ -279,7 +284,19 @@ proc ::pt::pe::op::FuseClass {} {
 	#         ranges if possible and worthwhile (>= 3), look for
 	#         overlapping ranges and merge.
 
-	lappend res [list cl {*}$buf]
+	# buf :: list (elems), elems :: list (char ?char?)
+	# The single-element elems have to change, become simple chars.
+	# A simple {*}-operation is not enough, as that leaves these as lists.
+
+	lappend tmp cl
+	foreach elem $buf {
+	    if {[llength $elem] == 1} {
+		lappend tmp [lindex $elem 0]
+	    } else {
+		lappend tmp $elem
+	    }
+	}
+	lappend res $tmp
 	set changed 1
     } else {
 	# We are behind a single t- or ..-operator. A terminal can be
@@ -287,7 +304,7 @@ proc ::pt::pe::op::FuseClass {} {
 	# except of the range is something like a-a, then this is just
 	# a different coding of a single character ... 
 
-	set args [lindex $buf 0]
+	set args [lindex $buf 0] ; # <*> args expected to be a list.
 	if {[llength $args] == 1} {
 	    lappend res [pt::pe terminal [lindex $args 0]]
 	} else {
@@ -314,5 +331,5 @@ namespace eval ::pt::pe::op {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::pe::op 1
+package provide pt::pe::op 1.0.1
 return
