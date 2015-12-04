@@ -143,7 +143,7 @@ proc ::tool::event::unsubscribe {self args} {
   }
 }
 
-tool::define tool::object {
+::tool::define ::tool::object {
   ###
   # topic: 20b4a97617b2b969b96997e7b241a98a
   ###
