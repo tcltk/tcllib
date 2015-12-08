@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">zipfile::encode(n) 0.3 tcllib &quot;Zip archive handling&quot;</h1>
+<h1 class="doctools_title">zipfile::encode(n) 0.4 tcllib &quot;Zip archive handling&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>zipfile::encode - Generation of zip archives</p>
 </div>
@@ -135,12 +135,12 @@
 <li>package require <b class="pkgname">snit</b></li>
 <li>package require <b class="pkgname">zlibtcl</b></li>
 <li>package require <b class="pkgname">fileutil</b></li>
-<li>package require <b class="pkgname">zipfile::encode <span class="opt">?0.3?</span></b></li>
+<li>package require <b class="pkgname">zipfile::encode <span class="opt">?0.4?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::zipfile::encode</b> <span class="opt">?<i class="arg">objectName</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">&lt;encoder&gt;</b> <b class="method">comment:</b> <i class="arg">text</i></a></li>
-<li><a href="#3"><b class="cmd">&lt;encoder&gt;</b> <b class="method">file:</b> <i class="arg">dst</i> <i class="arg">owned</i> <i class="arg">src</i></a></li>
+<li><a href="#3"><b class="cmd">&lt;encoder&gt;</b> <b class="method">file:</b> <i class="arg">dst</i> <i class="arg">owned</i> <i class="arg">src</i> <span class="opt">?<i class="arg">noCompress</i>?</span></a></li>
 <li><a href="#4"><b class="cmd">&lt;encoder&gt;</b> <b class="method">write</b> <i class="arg">archive</i></a></li>
 </ul>
 </div>
@@ -166,19 +166,28 @@ fully qualified the command will be created in the current namespace.</p></dd>
 The result of the method is the empty string.
 In case of multiple calls to this method for the same encoder the data
 from the last call prevails over all previous texts.</p></dd>
-<dt><a name="3"><b class="cmd">&lt;encoder&gt;</b> <b class="method">file:</b> <i class="arg">dst</i> <i class="arg">owned</i> <i class="arg">src</i></a></dt>
+<dt><a name="3"><b class="cmd">&lt;encoder&gt;</b> <b class="method">file:</b> <i class="arg">dst</i> <i class="arg">owned</i> <i class="arg">src</i> <span class="opt">?<i class="arg">noCompress</i>?</span></a></dt>
 <dd><p>This method adds a new file to the archive.
 The contents of the file are found in the filesystem at <i class="arg">src</i>, and
 will be stored in the archive under path <i class="arg">dst</i>.
 If the file is declared as <i class="arg">owned</i> by the archive the original
 file will be deleted when the archive is constructed and written.
+If <i class="arg">noCompress</i> is set to <b class="const">true</b> the file will not be
+compressed on writing. Otherwise (the default) the file is compressed
+if it is advantageous.
 The result of the method is an empty string.</p></dd>
 <dt><a name="4"><b class="cmd">&lt;encoder&gt;</b> <b class="method">write</b> <i class="arg">archive</i></a></dt>
 <dd><p>This method takes the global comment and all added files, encodes them
 as a zip archive and stores the result at path <i class="arg">archive</i> in the
 filesystem.
 All added files which were owned by the archive are deleted at this
-point.</p></dd>
+point.
+On the issue of ordering, the files are added to the archive in the
+same order as they were specified via <b class="method">file:</b>. <em>Note</em> that
+this behaviour is new for version 0.4 and higher. Before 0.4 no
+specific order was documented. It was lexicographically sorted. The
+change was made to support <b class="cmd"><a href="../../../../index.html#key42">zip</a></b>-based file formats which require
+a specific order of files in the archive, for example &quot;<b class="file">.epub</b>&quot;.</p></dd>
 </dl>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>

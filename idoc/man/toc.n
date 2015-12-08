@@ -1407,6 +1407,12 @@ tcllib
 \fBtiff\fR
 \fIfiles/modules/tiff/tiff\&.n\fR: TIFF reading, writing, and querying and manipulation of meta data
 .TP
+\fBtool\fR
+\fIfiles/modules/tool/tool\&.n\fR: Dictionary Tools
+.TP
+\fBtool::dict_ensemble\fR
+\fIfiles/modules/tool/tool_dict_ensemble\&.n\fR: Dictionary Tools
+.TP
 \fBtransfer::connect\fR
 \fIfiles/modules/transfer/connect\&.n\fR: Connection setup
 .TP
