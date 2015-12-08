@@ -1,5 +1,6 @@
+[vset VERSION 0.4]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin zipfile::encode n 0.3]
+[manpage_begin zipfile::encode n [vset VERSION]]
 [keywords compression zip]
 [copyright {2008-2009 Andreas Kupries}]
 [moddesc {Zip archive handling}]
@@ -12,7 +13,7 @@
 [require snit]
 [require zlibtcl]
 [require fileutil]
-[require zipfile::encode [opt 0.3]]
+[require zipfile::encode [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -50,7 +51,8 @@ In case of multiple calls to this method for the same encoder the data
 from the last call prevails over all previous texts.
 
 [comment ---------------------------------------------------------------------]
-[call [cmd <encoder>] [method file:] [arg dst] [arg owned] [arg src]]
+[call [cmd <encoder>] [method file:] [arg dst] [arg owned] [arg src] \
+     [opt [arg noCompress]]]
 
 This method adds a new file to the archive.
 
@@ -59,6 +61,10 @@ will be stored in the archive under path [arg dst].
 
 If the file is declared as [arg owned] by the archive the original
 file will be deleted when the archive is constructed and written.
+
+If [arg noCompress] is set to [const true] the file will not be
+compressed on writing. Otherwise (the default) the file is compressed
+if it is advantageous.
 
 The result of the method is an empty string.
 
@@ -71,6 +77,13 @@ filesystem.
 
 All added files which were owned by the archive are deleted at this
 point.
+
+On the issue of ordering, the files are added to the archive in the
+same order as they were specified via [method file:]. [emph Note] that
+this behaviour is new for version 0.4 and higher. Before 0.4 no
+specific order was documented. It was lexicographically sorted. The
+change was made to support [cmd zip]-based file formats which require
+a specific order of files in the archive, for example [file .epub].
 
 [list_end]
 

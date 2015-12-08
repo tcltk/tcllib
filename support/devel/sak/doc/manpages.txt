@@ -351,6 +351,8 @@ modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
 modules/tool/meta.man
+modules/tool/tool.man
+modules/tool/tool_dict_ensemble.man
 modules/transfer/connect.man
 modules/transfer/copyops.man
 modules/transfer/ddest.man
