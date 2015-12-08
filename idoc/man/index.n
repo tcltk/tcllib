@@ -9736,6 +9736,12 @@ oo::util
 .TP
 \fBfiles/modules/ooutil/ooutil\&.n\fR
 oo::util
+.TP
+\fBfiles/modules/tool/tool\&.n\fR
+tool
+.TP
+\fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
+tool::dict_ensemble
 .RE
 TCLPARAM
 .RS
@@ -10399,6 +10405,15 @@ string::token
 .TP
 \fBfiles/modules/string/token_shell\&.n\fR
 string::token::shell
+.RE
+TOOL
+.RS
+.TP
+\fBfiles/modules/tool/tool\&.n\fR
+tool
+.TP
+\fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
+tool::dict_ensemble
 .RE
 top-down parsing languages
 .RS
