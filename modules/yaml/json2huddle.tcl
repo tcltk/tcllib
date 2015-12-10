@@ -2,29 +2,36 @@
 # (c) 2015 Miguel Martínez López
 
 package require Tcl 8.5
-package require huddle 0.2.0
-
 package require TclOO       ; # For 8.5. Integrated with 8.6
 package require try         ; # For 8.5. Integrated with 8.6. Tcllib.
-package require throw       ; # For 8.5. Integrated with 8.6. Tcllib.
+package require huddle 0.1.7
 
 package provide huddle::json 0.1
 
 
-interp alias {} ::huddle::json2huddle {} ::huddle::json::json2huddle parse
-
 namespace eval ::huddle {
     namespace export json2huddle
+
+    proc json2huddle {jsonText} {
+        set huddle_object [::huddle::json::json2huddle parse $jsonText]
+        return $huddle_object
+    }
 }
 
     
 namespace eval ::huddle::json {
-        
+    
     oo::class create Json2huddle {
         
         variable cursor jsonText EndOfTextException numberRE
         
         constructor {} {
+
+            if {[package vcompare [package present Tcl] 8.6] == 0} {
+                proc throw {code msg} {
+                    return -code error -errorcode $code $msg
+                }
+            }
             
             set positiveRE {[1-9][[:digit:]]*}
             set cardinalRE "-?(?:$positiveRE|0)"
@@ -40,7 +47,7 @@ namespace eval ::huddle::json {
             set cursor -1
             set jsonText $json_to_parse
             
-            my parseNextData
+            my parse_next_json_data
         }
             
         method peekChar { {increment 1} } {
@@ -72,7 +79,7 @@ namespace eval ::huddle::json {
         }
     
     
-        method parseNextData {} {
+        method parse_next_json_data {} {
             
             my eatWhitespace
             
@@ -105,7 +112,7 @@ namespace eval ::huddle::json {
                 } 
                 "/" {
                     my readComment
-                    return [my parseNextData]
+                    return [my parse_next_json_data]
                 }
                 "-" -
                 "0" -
@@ -239,7 +246,7 @@ namespace eval ::huddle::json {
             try {        
                 while {true} {
                     
-                    lappend result [my parseNextData]
+                    lappend result [my parse_next_json_data]
                 
                     my eatWhitespace
                         
@@ -288,7 +295,7 @@ namespace eval ::huddle::json {
             
                     my eatWhitespace
             
-                    lappend result $key [my parseNextData]
+                    lappend result $key [my parse_next_json_data]
             
                     my eatWhitespace
             
@@ -377,7 +384,6 @@ namespace eval ::huddle::json {
     }    
     
     Json2huddle create json2huddle
-    
 }
     
 

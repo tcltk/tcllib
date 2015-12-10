@@ -13,9 +13,9 @@
 #
 
 package require Tcl 8.5
-package provide yaml 0.3.8
+package provide yaml 0.3.9
 package require cmdline
-package require huddle 0.2.0
+package require huddle 0.1.7
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump
@@ -442,7 +442,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         }
         set result [lindex $result 0]
         set result [_composePlain $result]
-        if {![huddle is_huddle $result]} {
+        if {![huddle isHuddle $result]} {
             set result [huddle wrap [list !!str $result]]
         }
     }
@@ -466,8 +466,9 @@ proc ::yaml::_mergeExpandedAliases {result pos prev} {
     }
 
     set value [_parseBlockNode "" $pos]
+    set type_name [huddle type $value]
 
-    if {[huddle type $value]  eq "sequence"} {
+    if {$type_name eq "list" || $type_name  eq "sequence"} {
         set len [huddle llength $value]
         for {set i 0} {$i < $len} {incr i} {
             set sub [huddle get $value $i]
@@ -501,7 +502,7 @@ proc ::yaml::_set_huddle_mapping {result prev} {
     foreach {key val} $prev break
 
     set val [_composePlain $val]
-    if {[huddle is_huddle $key]} {
+    if {[huddle isHuddle $key]} {
         set key [huddle get_stripped $key]
     }
 
@@ -509,7 +510,7 @@ proc ::yaml::_set_huddle_mapping {result prev} {
     if {$result eq ""} {
         set result [huddle mapping $key $val]
     } else {
-        huddle update_children result $key $val
+        huddle append result $key $val
     }
     return $result
 }
@@ -571,6 +572,9 @@ proc ::yaml::_parseBlockScalar {base separator} {
         "clip" {
             append value "\n"
         }
+	default {
+	    error "Should not be reached (chomping = $chomping)"
+	}
     }
     return [huddle wrap [list !!str $value]]
 }
@@ -983,6 +987,9 @@ proc ::yaml::_skipSpaces {{commentSkip 0}} {
                     continue
                 }
             }
+	    default {
+		# Any other character, do nothing
+	    }
         }
         break
     }
@@ -1225,13 +1232,14 @@ namespace eval ::yaml::types {
     }
 
     namespace eval sequence {
-        variable settings
+	variable settings
 
         set settings {
-        superclass list
-        publicMethods {sequence}
-        isContainer yes
-        tag !!seq}
+	    superclass list
+	    publicMethods {sequence}
+	    isContainer yes
+	    tag !!seq
+	}
 
         proc sequence {args} {
             set resultL {}
@@ -1247,29 +1255,29 @@ namespace eval ::yaml::types {
 proc ::yaml::_makeChildType {type tag} {
     set full_path_to_type ::yaml::types::$type
     namespace eval $full_path_to_type [string map [list @TYPE@ $type @TAG@ $tag] {
-    variable settings
-    set settings {
-        superClass string
-        publicMethods {}
-        isContainer no
-        tag @TAG@
-    }
+	variable settings
+	set settings {
+	    superClass string
+	    publicMethods {}
+	    isContainer no
+	    tag @TAG@
+	}
     }]
 
     return $full_path_to_type
 }
 
-huddle add_type ::yaml::types::mapping
-huddle add_type ::yaml::types::sequence
+huddle addType ::yaml::types::mapping
+huddle addType ::yaml::types::sequence
 
-huddle add_type [::yaml::_makeChildType str !!str]
-huddle add_type [::yaml::_makeChildType timestamp !!timestamp]
-huddle add_type [::yaml::_makeChildType float !!float]
-huddle add_type [::yaml::_makeChildType int !!int]
-huddle add_type [::yaml::_makeChildType null !!null]
-huddle add_type [::yaml::_makeChildType true !!true]
-huddle add_type [::yaml::_makeChildType false !!false]
-huddle add_type [::yaml::_makeChildType binary !!binary]
-huddle add_type [::yaml::_makeChildType plain !!plain]
+huddle addType [::yaml::_makeChildType str !!str]
+huddle addType [::yaml::_makeChildType timestamp !!timestamp]
+huddle addType [::yaml::_makeChildType float !!float]
+huddle addType [::yaml::_makeChildType int !!int]
+huddle addType [::yaml::_makeChildType null !!null]
+huddle addType [::yaml::_makeChildType true !!true]
+huddle addType [::yaml::_makeChildType false !!false]
+huddle addType [::yaml::_makeChildType binary !!binary]
+huddle addType [::yaml::_makeChildType plain !!plain]
 
 

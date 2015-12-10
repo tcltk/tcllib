@@ -94,7 +94,7 @@
 </head>
 <! -- Generated from file 'huddle.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 2008 KATO Kanryu &lt;kanryu6@users.sourceforge.net&gt;
+<! -- Copyright &copy; 2008-2011 KATO Kanryu &lt;kanryu6@users.sourceforge.net&gt;   -- Copyright &copy; 2015 Miguel Mart&iacute;nez L&oacute;pez &lt;aplicacionamedida@gmail.com&gt;
    -->
 <! -- huddle.n
    -->
@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">huddle(n) 0.1.6 tcllib &quot;HUDDLE&quot;</h1>
+<h1 class="doctools_title">huddle(n) 0.2 tcllib &quot;HUDDLE&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>huddle - Create and manipulate huddle object</p>
 </div>
@@ -118,7 +118,7 @@
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
 <li class="doctools_section"><a href="#section2">COMMANDS</a></li>
-<li class="doctools_section"><a href="#section3">TYPE NAMESPACE</a></li>
+<li class="doctools_section"><a href="#section3">TYPE CALLBACK</a></li>
 <li class="doctools_section"><a href="#section4">How to add type</a></li>
 <li class="doctools_section"><a href="#section5">WORKING SAMPLE</a></li>
 <li class="doctools_section"><a href="#section6">LIMITATIONS</a></li>
@@ -132,7 +132,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">huddle <span class="opt">?0.1.6?</span></b></li>
+<li>package require <b class="pkgname">huddle <span class="opt">?0.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">huddle create</b> <i class="arg">key</i> <i class="arg">value</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></li>
@@ -144,36 +144,31 @@
 <li><a href="#7"><b class="cmd">huddle false</b></a></li>
 <li><a href="#8"><b class="cmd">huddle null</b></a></li>
 <li><a href="#9"><b class="cmd">huddle get</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
-<li><a href="#10"><b class="cmd">huddle get_stripped</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
+<li><a href="#10"><b class="cmd">huddle gets</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
 <li><a href="#11"><b class="cmd">huddle set</b> <i class="arg">objectVar</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span> <i class="arg">value</i></a></li>
-<li><a href="#12"><b class="cmd">huddle remove</b> <i class="arg">objectVar</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
-<li><a href="#13"><b class="cmd">huddle removed</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
-<li><a href="#14"><b class="cmd">huddle combine</b> <i class="arg">object1</i> <i class="arg">object2</i> <span class="opt">?<i class="arg">object3 ...</i>?</span></a></li>
-<li><a href="#15"><b class="cmd">huddle equal</b> <i class="arg">object1</i> <i class="arg">object2</i></a></li>
-<li><a href="#16"><b class="cmd">huddle update_children</b> <i class="arg">objectVar</i> <i class="arg">key</i> <i class="arg">value</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></li>
-<li><a href="#17"><b class="cmd">huddle lappend</b> <i class="arg">listVar</i> <i class="arg">value</i> <span class="opt">?<i class="arg">value ...</i>?</span></a></li>
-<li><a href="#18"><b class="cmd">huddle keys</b> <i class="arg">object</i></a></li>
-<li><a href="#19"><b class="cmd">huddle llength</b> <i class="arg">object</i></a></li>
-<li><a href="#20"><b class="cmd">huddle type</b> <i class="arg">object</i> <span class="opt">?<i class="arg">key key...</i>?</span></a></li>
-<li><a href="#21"><b class="cmd">huddle strip</b> <i class="arg">object</i></a></li>
-<li><a href="#22"><b class="cmd">huddle json_dump</b> <i class="arg">object</i> <span class="opt">?<i class="arg">offset</i>?</span> <span class="opt">?<i class="arg">newline</i>?</span> <span class="opt">?<i class="arg">begin_offset</i>?</span></a></li>
-<li><a href="#23"><b class="cmd">huddle compile</b> <i class="arg">spec</i> <i class="arg">data</i></a></li>
-<li><a href="#24"><b class="cmd">huddle is_huddle</b> <i class="arg">object</i></a></li>
-<li><a href="#25"><b class="cmd">huddle check_huddle</b> <i class="arg">object</i></a></li>
-<li><a href="#26"><b class="cmd">huddle argument_to_node</b> <i class="arg">object</i> <span class="opt">?<i class="arg">tag</i>?</span></a></li>
-<li><a href="#27"><b class="cmd">huddle wrap</b> <i class="arg">tag</i> <i class="arg">src</i></a></li>
-<li><a href="#28"><b class="cmd">huddle call</b> <i class="arg">tag</i> <i class="arg">command</i> <i class="arg">args</i></a></li>
-<li><a href="#29"><b class="cmd">huddle add_type</b> <i class="arg">namespace</i></a></li>
-<li><a href="#30"><b class="cmd"><a href="../../../../index.html#key301">Set</a></b> <i class="arg">src_var</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
-<li><a href="#31"><b class="cmd">Strip</b> <i class="arg">src</i></a></li>
-<li><a href="#32"><b class="cmd">Exists</b> <i class="arg">src</i> <i class="arg">key</i></a></li>
-<li><a href="#33"><b class="cmd"><a href="../../../../index.html#key559">Equal</a></b> <i class="arg">src1</i> <i class="arg">src2</i></a></li>
-<li><a href="#34"><b class="cmd">Update_children</b> <i class="arg">src_var</i> <i class="arg">items</i></a></li>
-<li><a href="#35"><b class="cmd">Get_subnode</b> <i class="arg">src</i> <i class="arg">key</i></a></li>
-<li><a href="#36"><b class="cmd">Combine</b> <i class="arg">list_of_src</i></a></li>
-<li><a href="#37"><b class="cmd">Strip</b> <i class="arg">src</i></a></li>
-<li><a href="#38"><b class="cmd"><a href="../../../../index.html#key301">Set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
-<li><a href="#39"><b class="cmd"><a href="../../../../index.html#key228">Remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
+<li><a href="#12"><b class="cmd">huddle remove</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></li>
+<li><a href="#13"><b class="cmd">huddle combine</b> <i class="arg">object1</i> <i class="arg">object2</i> <span class="opt">?<i class="arg">object3 ...</i>?</span></a></li>
+<li><a href="#14"><b class="cmd">huddle equal</b> <i class="arg">object1</i> <i class="arg">object2</i></a></li>
+<li><a href="#15"><b class="cmd">huddle append</b> <i class="arg">objectVar</i> <i class="arg">key</i> <i class="arg">value</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></li>
+<li><a href="#16"><b class="cmd">huddle append</b> <i class="arg">objectVar</i> <i class="arg">value</i> <span class="opt">?<i class="arg">value ...</i>?</span></a></li>
+<li><a href="#17"><b class="cmd">huddle keys</b> <i class="arg">object</i></a></li>
+<li><a href="#18"><b class="cmd">huddle llength</b> <i class="arg">object</i></a></li>
+<li><a href="#19"><b class="cmd">huddle type</b> <i class="arg">object</i> <span class="opt">?<i class="arg">key key...</i>?</span></a></li>
+<li><a href="#20"><b class="cmd">huddle strip</b> <i class="arg">object</i></a></li>
+<li><a href="#21"><b class="cmd">huddle jsondump</b> <i class="arg">object</i> <span class="opt">?<i class="arg">offset</i>?</span> <span class="opt">?<i class="arg">newline</i>?</span> <span class="opt">?<i class="arg">begin_offset</i>?</span></a></li>
+<li><a href="#22"><b class="cmd">huddle compile</b> <i class="arg">spec</i> <i class="arg">data</i></a></li>
+<li><a href="#23"><b class="cmd">huddle isHuddle</b> <i class="arg">object</i></a></li>
+<li><a href="#24"><b class="cmd">huddle checkHuddle</b> <i class="arg">object</i></a></li>
+<li><a href="#25"><b class="cmd">huddle to_node</b> <i class="arg">object</i> <span class="opt">?<i class="arg">tag</i>?</span></a></li>
+<li><a href="#26"><b class="cmd">huddle wrap</b> <i class="arg">tag</i> <i class="arg">src</i></a></li>
+<li><a href="#27"><b class="cmd">huddle call</b> <i class="arg">tag</i> <i class="arg">command</i> <i class="arg">args</i></a></li>
+<li><a href="#28"><b class="cmd">huddle addType</b> <i class="arg">callback</i></a></li>
+<li><a href="#29"><b class="cmd"><a href="../../../../index.html#key539">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#30"><b class="cmd">setting</b></a></li>
+<li><a href="#31"><b class="cmd">get_sub</b> <i class="arg">src</i> <i class="arg">key</i></a></li>
+<li><a href="#32"><b class="cmd">strip</b> <i class="arg">src</i></a></li>
+<li><a href="#33"><b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
+<li><a href="#34"><b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
 </ul>
 </div>
 </div>
@@ -226,21 +221,18 @@ required for use.</p>
 <dd><p>Almost the same as <b class="cmd">dict get</b>.
 Get a sub-object from the huddle object.
 <i class="arg">key</i> can be used to huddle-list's index.</p></dd>
-<dt><a name="10"><b class="cmd">huddle get_stripped</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></dt>
+<dt><a name="10"><b class="cmd">huddle gets</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></dt>
 <dd><p>Get a sub-object from the huddle object, stripped.</p></dd>
 <dt><a name="11"><b class="cmd">huddle set</b> <i class="arg">objectVar</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span> <i class="arg">value</i></a></dt>
 <dd><p>Almost the same as <b class="cmd">dict set</b>.
 Set a sub-object from the huddle object.
 <i class="arg">key</i> can be used to huddle-list's index.</p></dd>
-<dt><a name="12"><b class="cmd">huddle remove</b> <i class="arg">objectVar</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></dt>
+<dt><a name="12"><b class="cmd">huddle remove</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></dt>
 <dd><p>Almost the same as <b class="cmd">dict remove</b>.
-Remove in place a sub-object from the huddle object.
+Remove a sub-object from the huddle object.
 <i class="arg">key</i> can be used to huddle-list's index.</p></dd>
-<dt><a name="13"><b class="cmd">huddle removed</b> <i class="arg">object</i> <i class="arg">key</i> <span class="opt">?<i class="arg">key ...</i>?</span></a></dt>
-<dd><p>Makes a copy of the huddle object and remove the indicated sub-object.
-This is more efficient than making first a clone and then use <b class="cmd">huddle remove</b> for removing the desired sub-object.</p></dd>
-<dt><a name="14"><b class="cmd">huddle combine</b> <i class="arg">object1</i> <i class="arg">object2</i> <span class="opt">?<i class="arg">object3 ...</i>?</span></a></dt>
-<dd><p>Merging huddle objects given.  The objects should be of the same type.</p>
+<dt><a name="13"><b class="cmd">huddle combine</b> <i class="arg">object1</i> <i class="arg">object2</i> <span class="opt">?<i class="arg">object3 ...</i>?</span></a></dt>
+<dd><p>Merging huddle objects given.</p>
 <pre class="doctools_example">
 % set aa [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
@@ -250,7 +242,7 @@ HUDDLE {D {a {s k} l {s m}}}
 HUDDLE {D {a {s k} c {s d} l {s m}}}
 </pre>
 </dd>
-<dt><a name="15"><b class="cmd">huddle equal</b> <i class="arg">object1</i> <i class="arg">object2</i></a></dt>
+<dt><a name="14"><b class="cmd">huddle equal</b> <i class="arg">object1</i> <i class="arg">object2</i></a></dt>
 <dd><p>Comparing two huddle objects recursively.
 When to equal, returns 1, otherwise 0.</p>
 <pre class="doctools_example">
@@ -262,10 +254,10 @@ HUDDLE {D {c {s d} a {s b}}}
 1
 </pre>
 </dd>
-<dt><a name="16"><b class="cmd">huddle update_children</b> <i class="arg">objectVar</i> <i class="arg">key</i> <i class="arg">value</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></dt>
-<dd><p>Update child elements. Lists only allow update indexes that are in its range.</p></dd>
-<dt><a name="17"><b class="cmd">huddle lappend</b> <i class="arg">listVar</i> <i class="arg">value</i> <span class="opt">?<i class="arg">value ...</i>?</span></a></dt>
-<dd><p>Append new children to a list.</p>
+<dt><a name="15"><b class="cmd">huddle append</b> <i class="arg">objectVar</i> <i class="arg">key</i> <i class="arg">value</i> <span class="opt">?<i class="arg">key value ...</i>?</span></a></dt>
+<dd></dd>
+<dt><a name="16"><b class="cmd">huddle append</b> <i class="arg">objectVar</i> <i class="arg">value</i> <span class="opt">?<i class="arg">value ...</i>?</span></a></dt>
+<dd><p>Appending child elements. When for dicts, giving key/value. When for lists, giving values.</p>
 <pre class="doctools_example">
 % set aa [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
@@ -277,11 +269,11 @@ HUDDLE {L {{s i} {s j} {s k} {s l}}}
 HUDDLE {L {{s i} {s j} {s k} {s l} {s g} {s h} {s i}}}
 </pre>
 </dd>
-<dt><a name="18"><b class="cmd">huddle keys</b> <i class="arg">object</i></a></dt>
+<dt><a name="17"><b class="cmd">huddle keys</b> <i class="arg">object</i></a></dt>
 <dd><p>The same as <b class="cmd">dict keys</b>.</p></dd>
-<dt><a name="19"><b class="cmd">huddle llength</b> <i class="arg">object</i></a></dt>
+<dt><a name="18"><b class="cmd">huddle llength</b> <i class="arg">object</i></a></dt>
 <dd><p>The same as <b class="cmd">llength</b>.</p></dd>
-<dt><a name="20"><b class="cmd">huddle type</b> <i class="arg">object</i> <span class="opt">?<i class="arg">key key...</i>?</span></a></dt>
+<dt><a name="19"><b class="cmd">huddle type</b> <i class="arg">object</i> <span class="opt">?<i class="arg">key key...</i>?</span></a></dt>
 <dd><p>Return the element type of specified by keys.
 if <span class="opt">?key?</span> is not given, returns the type of root node.</p>
 <dl class="doctools_options">
@@ -307,16 +299,16 @@ list
 string
 </pre>
 </dd>
-<dt><a name="21"><b class="cmd">huddle strip</b> <i class="arg">object</i></a></dt>
+<dt><a name="20"><b class="cmd">huddle strip</b> <i class="arg">object</i></a></dt>
 <dd><p>Stripped all tags. Converted to normal Tcl's list/dict.</p></dd>
-<dt><a name="22"><b class="cmd">huddle json_dump</b> <i class="arg">object</i> <span class="opt">?<i class="arg">offset</i>?</span> <span class="opt">?<i class="arg">newline</i>?</span> <span class="opt">?<i class="arg">begin_offset</i>?</span></a></dt>
+<dt><a name="21"><b class="cmd">huddle jsondump</b> <i class="arg">object</i> <span class="opt">?<i class="arg">offset</i>?</span> <span class="opt">?<i class="arg">newline</i>?</span> <span class="opt">?<i class="arg">begin_offset</i>?</span></a></dt>
 <dd><p>dump a json-stream from the huddle-object.</p>
 <dl class="doctools_options">
 <dt><b class="option"><b class="const">offset</b> &quot;&quot;</b></dt>
 <dd><p>begin offset as spaces &quot;  &quot;.</p></dd>
 </dl>
 <pre class="doctools_example"># normal output has some indents. some strings are escaped.
-% huddle json_dump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
+% huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
 [
   [
     &quot;i&quot;,
@@ -333,12 +325,12 @@ string
   &quot;t&quot;
 ]
 # stripped output
-% huddle json_dump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
+% huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
 a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}} &quot;&quot; &quot;&quot;
 {&quot;dd&quot;: {&quot;bb&quot;: {&quot;a&quot;: &quot;baa&quot;,&quot;c&quot;: &quot;d\na&quot;},&quot;cc&quot;: {&quot;g&quot;: &quot;h&quot;}},&quot;ee&quot;: {&quot;i&quot;: &quot;j&quot;,&quot;k&quot;: 1,&quot;j&quot;: &quot; m\\a&quot;}}
 </pre>
 </dd>
-<dt><a name="23"><b class="cmd">huddle compile</b> <i class="arg">spec</i> <i class="arg">data</i></a></dt>
+<dt><a name="22"><b class="cmd">huddle compile</b> <i class="arg">spec</i> <i class="arg">data</i></a></dt>
 <dd><p>construct a huddle object from plain old tcl values.
 <i class="arg">spec</i> is defined as follows:</p>
 <dl class="doctools_definitions">
@@ -364,25 +356,25 @@ HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}
 HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}
 </pre>
 </dd>
-<dt><a name="24"><b class="cmd">huddle is_huddle</b> <i class="arg">object</i></a></dt>
-<dd><p>if <i class="arg">object</i> is a huddle, returns 1. Otherwise, returns 0.</p></dd>
-<dt><a name="25"><b class="cmd">huddle check_huddle</b> <i class="arg">object</i></a></dt>
-<dd><p>raise an error if <i class="arg">object</i> is not huddle.</p></dd>
-<dt><a name="26"><b class="cmd">huddle argument_to_node</b> <i class="arg">object</i> <span class="opt">?<i class="arg">tag</i>?</span></a></dt>
+<dt><a name="23"><b class="cmd">huddle isHuddle</b> <i class="arg">object</i></a></dt>
+<dd><p>if <i class="arg">object</i> is a huddle, returns 1. the other, returns 0.</p></dd>
+<dt><a name="24"><b class="cmd">huddle checkHuddle</b> <i class="arg">object</i></a></dt>
+<dd><p>if <i class="arg">object</i> is not a huddle, rises an error.</p></dd>
+<dt><a name="25"><b class="cmd">huddle to_node</b> <i class="arg">object</i> <span class="opt">?<i class="arg">tag</i>?</span></a></dt>
 <dd><p>for type-callbacks.</p>
 <p>if <i class="arg">object</i> is a huddle, returns root-node. the other, returns <b class="cmd">[list s $object]</b>.</p>
 <pre class="doctools_example">
-% huddle argument_to_node str
+% huddle to_node str
 s str
-% huddle argument_to_node str !!str
+% huddle to_node str !!str
 !!str str
-% huddle argument_to_node {HUDDLE {s str}}
+% huddle to_node {HUDDLE {s str}}
 s str
-% huddle argument_to_node {HUDDLE {l {a b c}}}
+% huddle to_node {HUDDLE {l {a b c}}}
 l {a b c}
 </pre>
 </dd>
-<dt><a name="27"><b class="cmd">huddle wrap</b> <i class="arg">tag</i> <i class="arg">src</i></a></dt>
+<dt><a name="26"><b class="cmd">huddle wrap</b> <i class="arg">tag</i> <i class="arg">src</i></a></dt>
 <dd><p>for type-callbacks.</p>
 <p>Create a huddle object from <i class="arg">src</i> with specified <i class="arg">tag</i>.</p>
 <pre class="doctools_example">
@@ -392,62 +384,57 @@ HUDDLE str
 HUDDLE {s str}
 </pre>
 </dd>
-<dt><a name="28"><b class="cmd">huddle call</b> <i class="arg">tag</i> <i class="arg">command</i> <i class="arg">args</i></a></dt>
+<dt><a name="27"><b class="cmd">huddle call</b> <i class="arg">tag</i> <i class="arg">command</i> <i class="arg">args</i></a></dt>
 <dd><p>for type-callbacks.</p>
 <p>devolving <i class="arg">command</i> to default <i class="arg">tag</i>-callback</p></dd>
-<dt><a name="29"><b class="cmd">huddle add_type</b> <i class="arg">namespace</i></a></dt>
+<dt><a name="28"><b class="cmd">huddle addType</b> <i class="arg">callback</i></a></dt>
 <dd><p>add a user-specified-type/tag to the huddle library.
 To see &quot;Additional Type&quot;.</p>
 <dl class="doctools_options">
-<dt><b class="option">namespace</b></dt>
-<dd><p>name of namespace with the definition of the new type.</p></dd>
+<dt><b class="option">callback</b></dt>
+<dd><p>callback function name for additional type.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">TYPE NAMESPACE</a></h2>
-<p>There is two kind of types:</p>
+<div id="section3" class="doctools_section"><h2><a name="section3">TYPE CALLBACK</a></h2>
+<p>The definition of callback for user-type.</p>
 <dl class="doctools_definitions">
-<dt>Containers</dt>
-<dd><p>It can contain other huddle object</p></dd>
-<dt>Not containers</dt>
-<dd><p>It can not contain other huddle object</p></dd>
+<dt><a name="29"><b class="cmd"><a href="../../../../index.html#key539">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><dl class="doctools_options">
+<dt><b class="option">command</b></dt>
+<dd><p>huddle subcomand which is needed to reply by the callback.</p></dd>
+<dt><b class="option">args</b></dt>
+<dd><p>arguments of subcommand. The number of list of arguments is different for each subcommand.</p></dd>
+</dl></dd>
 </dl>
-<p>All the types require a variable named settings. This variable has these attributes related to the type:</p>
+<p>The callback procedure shuould reply the following subcommands.</p>
 <dl class="doctools_definitions">
-<dt><b class="const">isContainer</b> boolean_flag</dt>
-<dd><p>a boolean value indicating whether the new type is a container</p></dd>
-<dt><b class="const">superclass</b> name_of_superclass</dt>
-<dd><p>this is optional. It indicantes what is the super class of these type. All the methods of the super class are inherited.</p></dd>
-<dt><b class="const">publicMethods</b> {method1 method2 method3 ...}</dt>
+<dt><a name="30"><b class="cmd">setting</b></a></dt>
+<dd><p>only returns a fixed dict of the type infomation for setting the user-tag.</p>
+<dl class="doctools_definitions">
+<dt><b class="const">type</b> typename</dt>
+<dd><p>typename of the type</p></dd>
+<dt><b class="const">method</b> {method1 method2 method3 ...}</dt>
 <dd><p>method list as huddle subcommand. Then, you can call <b class="cmd">[huddle method1 ...]</b></p></dd>
-<dt><b class="const">map</b> {huddle_subcommand1 proc_name1 huddle_subcommand2 proc_name2 ...}</dt>
-<dd><p>it defines a map bettween huddle subcommands and the associated proc inside the type namespace.</p></dd>
-<dt><b class="const">tag</b> tag_name</dt>
-<dd><p>a tag representing the type</p></dd>
-</dl>
-<p>There is some required procs in a container type:</p>
-<dl class="doctools_definitions">
-<dt><a name="30"><b class="cmd"><a href="../../../../index.html#key301">Set</a></b> <i class="arg">src_var</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
-<dd><p>set a subnode in the guiven variable containing a subnode content</p></dd>
-<dt><a name="31"><b class="cmd">Strip</b> <i class="arg">src</i></a></dt>
-<dd><p>returns the node content stripped</p></dd>
-<dt><a name="32"><b class="cmd">Exists</b> <i class="arg">src</i> <i class="arg">key</i></a></dt>
-<dd><p>returns a boolean value indicating whether the key exists in the node content</p></dd>
-<dt><a name="33"><b class="cmd"><a href="../../../../index.html#key559">Equal</a></b> <i class="arg">src1</i> <i class="arg">src2</i></a></dt>
-<dd><p>returns a boolean vlaue indicating whether the two node contents are equal</p></dd>
-<dt><a name="34"><b class="cmd">Update_children</b> <i class="arg">src_var</i> <i class="arg">items</i></a></dt>
-<dd><p>udpate several subnodes at the same time for performance</p></dd>
-<dt><a name="35"><b class="cmd">Get_subnode</b> <i class="arg">src</i> <i class="arg">key</i></a></dt>
-<dd><p>returns a sub node specified by <i class="arg">key</i>.</p></dd>
-<dt><a name="36"><b class="cmd">Combine</b> <i class="arg">list_of_src</i></a></dt>
-<dd><p>returns a combined node content using the content of several nodes of the same type</p></dd>
-<dt><a name="37"><b class="cmd">Strip</b> <i class="arg">src</i></a></dt>
+<dt><b class="const">tag</b> {tag1 child/parent tag2 child/parent ...}</dt>
+<dd><p>tag list for huddle-node as a dict. if the type has child-nodes, use &quot;parent&quot;, otherwise use &quot;child&quot;.</p></dd>
+</dl></dd>
+<dt><a name="31"><b class="cmd">get_sub</b> <i class="arg">src</i> <i class="arg">key</i></a></dt>
+<dd><p>returns a sub node specified by <i class="arg">key</i>.</p>
+<dl class="doctools_options">
+<dt><b class="option">src</b></dt>
+<dd><p>a node content in huddle object.</p></dd>
+</dl></dd>
+<dt><a name="32"><b class="cmd">strip</b> <i class="arg">src</i></a></dt>
 <dd><p>returns stripped node contents. if the type has child nodes, every node must be stripped.</p></dd>
-<dt><a name="38"><b class="cmd"><a href="../../../../index.html#key301">Set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
+<dt><a name="33"><b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
 <dd><p>sets a sub-node from the tagged-content, and returns self.</p></dd>
-<dt><a name="39"><b class="cmd"><a href="../../../../index.html#key228">Remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
+<dt><a name="34"><b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
 <dd><p>removes a sub-node from the tagged-content, and returns self.</p></dd>
 </dl>
+<p><b class="cmd">strip</b> must be defined at all types.
+<b class="cmd">get_sub</b> must be defined at container types.
+<b class="cmd">set/remove</b> shuould be defined, if you call them.</p>
 <pre class="doctools_example">
 # callback sample for my-dict
 proc my_dict_setting {command args} {
@@ -468,7 +455,7 @@ proc my_dict_setting {command args} {
             #          &quot;set/remove/equal/append&quot; shuould be defined, if you call them.
             # tag:    tag definition(&quot;child/parent&quot; word is maybe obsoleted)
         }
-        get_subnode { ; # get a sub-node specified by &quot;key&quot; from the tagged-content
+        get_sub { ; # get a sub-node specified by &quot;key&quot; from the tagged-content
             foreach {src key} $args break
             return [dict get $src $key]
         }
@@ -503,7 +490,7 @@ proc my_dict_setting {command args} {
             set resultL $src
             foreach {key value} $list {
                 if {$str ne &quot;&quot;} {
-                    lappend resultL $key [huddle argument_to_node $value $str]
+                    lappend resultL $key [huddle to_node $value $str]
                 } else {
                     lappend resultL $key $value
                 }
@@ -514,7 +501,7 @@ proc my_dict_setting {command args} {
             if {[llength $args] % 2} {error {wrong # args: should be &quot;huddle create ?key value ...?&quot;}}
             set resultL {}
             foreach {key value} $args {
-                lappend resultL $key [huddle argument_to_node $value]
+                lappend resultL $key [huddle to_node $value]
             }
             return [huddle wrap D $resultL]
         }
@@ -545,7 +532,7 @@ proc ::yaml::_huddle_mapping {command args} {
             if {[llength $args] % 2} {error {wrong # args: should be &quot;huddle mapping ?key value ...?&quot;}}
             set resultL {}
             foreach {key value} $args {
-                lappend resultL $key [huddle argument_to_node $value !!str]
+                lappend resultL $key [huddle to_node $value !!str]
             }
             return [huddle wrap !!map $resultL]
         }
@@ -557,25 +544,13 @@ proc ::yaml::_huddle_mapping {command args} {
 </pre>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">How to add type</a></h2>
-<p>You can add huddle-node types e.g. a special type for dates.
-To do so, first, define a namespace for additional tagged-type.
-The namespace require a variable named settings indicating the options associated to this type.</p>
-<p>And, execute the proc <b class="cmd">add_type</b> <i class="arg">namespace_of_the_type</i>
-to register this new type.</p>
+<p>You can add huddle-node types e.g. ::struct::tree.
+To do so, first, define a callback-procedure for additional tagged-type.
+The proc get argments as <i class="arg">command</i> and <span class="opt">?<i class="arg">args</i>?</span>. It has some switch-sections.</p>
+<p>And, addType subcommand will called.</p>
 <pre class="doctools_example">
-huddle add_type type_name
+huddle addType my_dict_setting
 </pre>
-<p>If the new type is a container of other types, the namespace will require the definition of these procs as mentioned before:</p>
-<ul class="doctools_itemized">
-<li><p>Set</p></li>
-<li><p>Strip</p></li>
-<li><p>Remove</p></li>
-<li><p>Equal</p></li>
-<li><p>Exists</p></li>
-<li><p>Get_subnode</p></li>
-<li><p>Update_children</p></li>
-<li><p>Combine</p></li>
-</ul>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">WORKING SAMPLE</a></h2>
 <pre class="doctools_example">
@@ -606,7 +581,7 @@ HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s 
 % huddle strip $folding
 {bb {a b c kkk} cc {e f g h}} p {q r} s
 # dump as a JSON stream
-% huddle json_dump $folding
+% huddle jsondump $folding
 [
   {
     &quot;bb&quot;: {
@@ -647,6 +622,7 @@ package and/or documentation.</p>
 <p><a href="../../../../index.html#key205">data exchange</a>, <a href="../../../../index.html#key204">exchange format</a>, <a href="../../../../index.html#key587">huddle</a>, <a href="../../../../index.html#key206">json</a>, <a href="../../../../index.html#key26">parsing</a>, <a href="../../../../index.html#key192">text processing</a>, <a href="../../../../index.html#key588">yaml</a></p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2008 KATO Kanryu &lt;kanryu6@users.sourceforge.net&gt;</p>
+<p>Copyright &copy; 2008-2011 KATO Kanryu &lt;kanryu6@users.sourceforge.net&gt;<br>
+Copyright &copy; 2015 Miguel Mart&iacute;nez L&oacute;pez &lt;aplicacionamedida@gmail.com&gt;</p>
 </div>
 </div></body></html>
