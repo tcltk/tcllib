@@ -8,16 +8,17 @@ namespace eval ::huddle::types {
         set settings {
                         publicMethods {create keys} 
                         tag D 
-                        isContainer yes}
+                        isContainer yes
+                        map {set Set} }
 
 
-        proc Get_subnode {src key} { 
+        proc get_subnode {src key} { 
             # get a sub-node specified by "key" from the tagged-content
             return [dict get $src $key]
         }
         
         # strip from the tagged-content
-        proc Strip {src} {
+        proc strip {src} {
             foreach {key subnode} $src {
                 lappend result $key [strip_node $subnode]
             }
@@ -28,7 +29,7 @@ namespace eval ::huddle::types {
         proc Set {src_var key value} {
             upvar 1 $src_var src
 
-            dict set src $key $value
+            ::dict set src $key $value
         }
         
         proc items {src} {
@@ -41,13 +42,19 @@ namespace eval ::huddle::types {
         
         
         # remove a sub-node from the tagged-content
-        proc Remove {src_var key} {
+        proc remove {src_var key} {
             upvar 1 $src_var src
             dict unset src $key
         }
         
+
+        proc delete_subnode_but_not_key {src_var key} { 
+            upvar 1 $src_var src
+            return [dict set src $key ""]
+        }
+        
         # check equal for each node
-        proc Equal {src1 src2} {
+        proc equal {src1 src2} {
             if {[llength $src1] != [llength $src2]} {return 0}
             foreach {key1 subnode1} $src1 {
                 if {![dict exists $src2 $key1]} {return 0}
@@ -56,43 +63,40 @@ namespace eval ::huddle::types {
             return 1
         }
         
-        proc Combine {list_of_src} {
-            set combined_src [dict merge {*}$list_of_src]
-            return $combined_src
-        }
-
-        proc Update_children {src_var items} {
-            upvar 1 $src_var src
-
-            foreach {key value} $items {
-                dict set src $key [argument_to_node $value]
+        proc append_subnodes {tag src list} { 
+            if {[llength $list] % 2} {error {wrong # args: should be "huddle append objvar ?key value ...?"}}
+            set resultL $src
+            foreach {key value} $list {
+                if {$tag ne ""} {
+                    lappend resultL $key [argument_to_node $value $tag]
+                } else {
+                    lappend resultL $key $value
+                }
             }
+            return [dict create {*}$resultL]
         }
-
+        
         # $args: all arguments after "huddle create"
         proc create {args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
-            set resultD [dict create]
+            set resultL [dict create]
             
             foreach {key value} $args {
-                if {[is_huddle $key]} {
-                    lassign [unwrap $key] tag src
-
-                    if {$tag ne "string"} {
-                        return -code error "The key '$key' must a string literal or huddle string" 
-                    }
+                if {[isHuddle $key]} {
+                    foreach {tag src} [unwrap $key] break
+                    if {$tag ne "string"} {error "The key '$key' must a string literal or huddle string" }
                     set key $src    
                 }
-                dict set resultD $key [argument_to_node $value]
+                dict set resultL $key [argument_to_node $value]
             }
-            return [wrap [list D $resultD]]
+            return [wrap [list D $resultL]]
         }
         
         proc keys {huddle_object} {
             return [dict keys [get_src $huddle_object]]
         }
         
-        proc Exists {src key} {
+        proc exists {src key} {
             return [dict exists $src $key]
         }
     }
@@ -103,12 +107,12 @@ namespace eval ::huddle::types {
         
         # type definition
         set settings {
-                        publicMethods {list llength lappend} 
+                        publicMethods {list llength} 
                         tag L 
                         isContainer yes 
-                        map {list List llength Llength lappend Lappend} }
+                        map {list List set Set llength Llength} }
         
-        proc Get_subnode {src index} {
+        proc get_subnode {src index} {
             return [lindex $src $index]
         }
         
@@ -120,7 +124,7 @@ namespace eval ::huddle::types {
             return $result
         }
         
-        proc Strip {src} {
+        proc strip {src} {
             set result {}
             foreach {subnode} $src {
                 lappend result [strip_node $subnode]
@@ -145,12 +149,18 @@ namespace eval ::huddle::types {
             }
         }
         
-        proc Remove {src_var index} {
+        proc remove {src_var index} {
             upvar 1 $src_var src
             set src [lreplace $src $index $index]
         }
         
-        proc Equal {src1 src2} {
+        
+        proc delete_subnode_but_not_key {src_var index} {
+            upvar 1 $src_var src
+            return [lset src $index ""]            
+        }
+        
+        proc equal {src1 src2} {
             if {[llength $src1] != [llength $src2]} {return 0}
             
             for {set i 0} {$i < [llength $src1]} {incr i} {
@@ -161,44 +171,17 @@ namespace eval ::huddle::types {
 
             return 1
         }
-
-        proc Combine {list_of_src} {
-            set combined_src [list]
-            foreach src $list_of_src {
-                lappend combined_src {*}$src
-            }
-            
-            return $combined_src
-        }
         
-        proc Update_children {src_var items} {
-            upvar 1 $src_var src
-
-            foreach {key value} $items {
-                if {!([string is digit $key] && [string index $key 0] ne "0")} {
-                    return -code error "The key should be a natural number: $key"
+        proc append_subnodes {tag src list} {
+            set resultL $src
+            foreach {value} $list {
+                if {$tag ne ""} {
+                    lappend resultL [argument_to_node $value $tag]
+                } else {
+                    lappend resultL $value
                 }
-                
-                if { $key >= [llength $src]} {
-                    return -code error "The key is out of range: $key. List type only allow update children that exists in the list."
-                }
-                
-                lset src $key [argument_to_node $value]
             }
-        }
-        
-        proc Lappend {huddle_var args} {
-            upvar 1 $huddle_var huddle_object
-            
-            set src [get_src $huddle_object]
-            
-            delete_src huddle_object
-            
-            foreach argument $args {
-                set subnode [argument_to_node $argument]
-                lappend src $subnode
-            }
-            return [wrap [list L $src]]
+            return $resultL
         }
         
         proc List {args} {
@@ -214,7 +197,7 @@ namespace eval ::huddle::types {
             return [llength [get_src $huddle_object] ]
         }
         
-        proc Exists {src key} {
+        proc exists {src key} {
             return [expr {$key >=0 && $key < [llength $src]}]
         }
     }
@@ -233,7 +216,7 @@ namespace eval ::huddle::types {
             return [wrap [list s $src]]
         }
         
-        proc Equal {string1 string2} {
+        proc equal {string1 string2} {
             return [expr {$string1 eq $string2}]
         }
     }
@@ -252,11 +235,11 @@ namespace eval ::huddle::types {
             if {[string is double -strict $src]} {
                 return [wrap [list num $src]]
             } else {
-                return -code error "Argument '$src' is not a number"
+                error "Argument '$src' is not a number"
             }
         }
         
-        proc Equal {number1 number2} {
+        proc equal {number1 number2} {
             return [expr {$number1 == $number2}]
         }
     }
@@ -288,7 +271,7 @@ namespace eval ::huddle::types {
         }
 
         
-        proc Equal {bool1 bool2} {
+        proc equal {bool1 bool2} {
             return [expr {$bool1 eq $bool2}]
         }
     }
@@ -306,7 +289,7 @@ namespace eval ::huddle::types {
             return [wrap [list null]]
         }
         
-        proc Equal {null1 null2} {
+        proc equal {null1 null2} {
             return 1
         }        
     }
