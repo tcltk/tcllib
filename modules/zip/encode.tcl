@@ -223,7 +223,7 @@ snit::type            ::zipfile::encode {
     }
 
     method writeCentralFileHeader {ch dst} {
-	foreach {owned src size ctime attr cm gpbf csize offset crc} $files($dst) break
+	foreach {owned src size ctime attr noCompress cm gpbf csize offset crc} $files($dst) break
 
 	set fnlen [string bytelength $dst]
 
