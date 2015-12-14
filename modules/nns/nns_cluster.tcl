@@ -235,6 +235,19 @@ proc ::cluster::heartbeat {} {
   foreach {url info} [array get local_data] {
     broadcast ~SERVICE $url $info
   }
+  ###
+  # Trigger any cluster events that haven't fired off
+  ###
+  foreach {eventid info} [array get ::cluster::events] {
+    if {$info eq "-1"} {
+      unset ::cluster::events($eventid)
+    } else {
+      lassign $info seconds ms
+      if {$seconds < $now} {
+        set ::cluster::events($eventid) -1
+      }
+    }
+  }
 }
 
 proc ::cluster::info url {
@@ -371,10 +384,10 @@ proc ::cluster::throw {service command args} {
 }
 
 proc ::cluster::sleep ms {
-  set start [clock milliseconds]
-  while {([clock milliseconds]-$start) < $ms} {
-    update
-  }
+  set eventid [incr ::cluster::eventcount]
+  set ::cluster::event($eventid) [list [clock seconds] [expr {[clock milliseconds]+$ms}]]
+  after $ms set ::cluster::event($eventid) -1
+  vwait ::cluster::event($eventid)
 }
 
 ###
@@ -469,6 +482,7 @@ namespace eval ::cluster {
     discovery_ttl 300
     local_registry 0
   }
+  variable eventcount 0
   variable cache {}
   variable broadcast_sock {}
   variable cache_maxage 500
