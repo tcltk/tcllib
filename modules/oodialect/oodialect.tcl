@@ -43,7 +43,7 @@ proc ::oo::dialect::Pop {} {
 # rudimentary set of policies for this dialect.
 ###
 proc ::oo::dialect::create {name {parent ""}} {
-    set NSPACE [NSNormalize $name]
+    set NSPACE [NSNormalize [uplevel 1 {namespace current}] $name]
     ::namespace eval $NSPACE {::namespace eval define {}}
     ###
     # Build the "define" namespace
@@ -71,13 +71,13 @@ proc ::oo::dialect::create {name {parent ""}} {
 	# [oo::define] keywords as well as additional keywords and behaviors.
 	# We should begin with that
 	###
-	set pnspace [NSNormalize $parent]
+	set pnspace [NSNormalize [uplevel 1 {namespace current}] $parent]
 	apply [list parent {
 	    ::namespace export dynamic_methods
-	    ::namespace import ${parent}::dynamic_methods
+	    ::namespace import -force ${parent}::dynamic_methods
 	} $NSPACE] $pnspace
 	apply [list parent {
-	    ::namespace import ${parent}::define::*
+	    ::namespace import -force ${parent}::define::*
 	    ::namespace export *
 	} ${NSPACE}::define] $pnspace
 	set ANCESTORS [list ${pnspace}::object]
@@ -91,14 +91,13 @@ proc ::oo::dialect::create {name {parent ""}} {
 	# To facilitate library reloading, allow
 	# a dialect to create a class from DEFINE
 	###
-	if {[info commands $class] eq {}} {
+    set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $class]
+	if {[info commands $class] eq {}} {      
 	    [namespace current]::class create $class {*}${args}
 	} else {
 	    ::oo::dialect::Define [namespace current] $class {*}${args}
 	}
     }
-    #interp alias {} ${NSPACE}::define {} \
-    #	::oo::dialect::Define $NSPACE
     interp alias {} ${NSPACE}::define::current_class {} \
 	::oo::dialect::Peek
     interp alias {} ${NSPACE}::define::aliases {} \
@@ -106,6 +105,9 @@ proc ::oo::dialect::create {name {parent ""}} {
     interp alias {} ${NSPACE}::define::superclass {} \
 	::oo::dialect::SuperClass $NSPACE
 
+    if {[info command ${NSPACE}::class] ne {}} {
+      ::rename ${NSPACE}::class {}
+    }
     ###
     # Build the metaclass for our language
     ###
@@ -131,16 +133,34 @@ proc ::oo::dialect::create {name {parent ""}} {
 }
 
 # Support commands; not intended to be called directly.
-
-proc ::oo::dialect::NSNormalize {qualname} {
+proc ::oo::dialect::NSNormalize {namespace qualname} {
     if {![string match ::* $qualname]} {
-	set qualname [uplevel 2 {namespace current}]::$qualname
+	  set qualname ${namespace}::$qualname
     }
     regsub -all {::+} $qualname "::"
 }
 
 proc ::oo::dialect::DefineThunk {target args} {
     tailcall ::oo::define [Peek] $target {*}$args
+}
+
+proc ::oo::dialect::Canonical {namespace NSpace class} {
+    namespace upvar $namespace cname cname
+    if {[string match ::* $class]} {
+      return $class
+    }
+    if {[info exists cname($class)]} {
+      return $cname($class)
+    }
+    if {[info exists ::oo::dialect::cname($class)]} {
+      return $::oo::dialect::cname($class)
+    }
+    foreach item [list "${NSpace}::$class" "::$class"] {
+      if {[info command $item] ne {}} {
+        return $item
+      }
+    }
+    return $class
 }
 
 ###
@@ -168,10 +188,19 @@ proc ::oo::dialect::Define {namespace class args} {
 proc ::oo::dialect::Aliases {namespace args} {
     set class [Peek]
     namespace upvar $namespace cname cname
+    set NSpace [join [lrange [split $class ::] 1 end-2] ::]
     set cname($class) $class
     foreach name $args {
-	set alias [NSNormalize $name]
-	set cname($alias) $class
+      set alias $name
+      #set alias [NSNormalize $NSpace $name]
+      # Add a local metaclass reference
+      set cname($alias) $class
+      if {![info exists ::oo::dialect::cname($alias)]} {
+        ##
+        # Add a global reference, first come, first served
+        ##
+        set ::oo::dialect::cname($alias) $class
+      }
     }
 }
 
@@ -182,21 +211,18 @@ proc ::oo::dialect::Aliases {namespace args} {
 
 proc ::oo::dialect::SuperClass {namespace args} {
     set class [Peek]
-    namespace upvar $namespace class_info class_info cname cname
+    namespace upvar $namespace class_info class_info
     dict set class_info($class) superclass 1
+    set ::oo::dialect::cname($class) $class
+    set NSpace [join [lrange [split $class ::] 1 end-2] ::]
     set unique {}
     foreach item $args {
-	set Item [NSNormalize $item]
-	if {[info exists cname($Item)]} {
-	    set item $cname($Item)
-	} elseif {[llength [info commands $Item]]} {
-	    set item $Item
-	}
-	dict set unique $item $item
+      set Item [Canonical $namespace $NSpace $item]
+      dict set unique $Item $item
     }
     set root ${namespace}::object
     if {$class ne $root} {
-	dict set unique $root $root
+      dict set unique $root $root
     }
     tailcall ::oo::define $class superclass {*}[dict keys $unique]
 }
@@ -216,4 +242,4 @@ proc ::oo::dialect::SuperClass {namespace args} {
     }
 }
 
-package provide oo::dialect 0.2
+package provide oo::dialect 0.3
