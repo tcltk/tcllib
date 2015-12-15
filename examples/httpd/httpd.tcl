@@ -51,7 +51,7 @@ tool::class create ::docserver::reply::scgi_fossil {
       set port [::nettool::allocate_port 40000]
       set handle fossil:$port
       set mport [my <server> port_listening]
-      set cmd [list fossil server $dbfile --port $port --localhost --scgi --baseurl http://[my query_headers get HTTP_HOST]$prefix 2>/tmp/$module.err >/tmp/$module.log]
+      set cmd [list fossil server $dbfile --port $port --localhost --scgi 2>/tmp/$module.err >/tmp/$module.log]
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd

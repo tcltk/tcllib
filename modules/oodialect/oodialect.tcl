@@ -86,18 +86,18 @@ proc ::oo::dialect::create {name {parent ""}} {
     # Build our dialect template functions
     ###
 
-    proc ${NSPACE}::define {class args} {
+    proc ${NSPACE}::define {oclass args} [string map [list %NSPACE% $NSPACE] {
 	###
 	# To facilitate library reloading, allow
 	# a dialect to create a class from DEFINE
 	###
-    set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $class]
+    set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
 	if {[info commands $class] eq {}} {      
-	    [namespace current]::class create $class {*}${args}
+	    %NSPACE%::class create $class {*}${args}
 	} else {
-	    ::oo::dialect::Define [namespace current] $class {*}${args}
+	    ::oo::dialect::Define %NSPACE% $class {*}${args}
 	}
-    }
+    }]
     interp alias {} ${NSPACE}::define::current_class {} \
 	::oo::dialect::Peek
     interp alias {} ${NSPACE}::define::aliases {} \
@@ -160,7 +160,7 @@ proc ::oo::dialect::Canonical {namespace NSpace class} {
         return $item
       }
     }
-    return $class
+    return ${NSpace}::$class
 }
 
 ###
