@@ -42,15 +42,13 @@ proc ::tool::define::component {name info} {
 proc ::tool::define::constructor {arglist rawbody} {
   set body {
 ::tool::object_create [self]
+# Initialize public variables and options
 my InitializePublic
-my lock create constructor
   }
   append body $rawbody
   append body {
 # Run "initialize"
 my initialize
-# Remove lock constructor
-my lock remove constructor
   }
   set class [current_class]
   ::oo::define $class constructor $arglist $body
@@ -263,7 +261,7 @@ proc ::tool::object_destroy objname {
     object_subscribe
   } {
     variable $varname
-    unset ${varname}($objname)
+    unset -nocomplain ${varname}($objname)
   }
 }
 
@@ -278,14 +276,14 @@ proc ::tool::object_destroy objname {
 ::tool::define ::tool::object {
   # Put MOACish stuff in here
   variable signals_pending create
+  variable organs {}
   
   constructor args {
-    my configurelist [::tool::args_to_options {*}$args]
-    my initialize
+    my config merge [::tool::args_to_options {*}$args]
   }
   
   destructor {}
-  
+    
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
     if {$reverse} {
@@ -331,20 +329,77 @@ proc ::tool::object_destroy objname {
   #    Note, by default an odie object will ignore
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
   method InitializePublic {} {
     my variable config meta
     if {![info exists meta]} {
       set meta {}
     }
-    foreach {var value} [my meta branchget variable] {
-      if { $var in "meta" } continue
+    if {![info exists config]} {
+      set config {}
+    }
+    my ClassPublicApply {}
+  }
+  
+  class_method info {which} {
+    my variable cache
+    if {![info exists cache($which)]} {
+      set cache($which) {}
+      switch $which {
+        public {
+          dict set cache(public) variable [my meta branchget variable]
+          dict set cache(public) array [my meta branchget array]
+          set optinfo [my meta getnull option]
+          dict set cache(public) option_info $optinfo
+          foreach {var info} [dict getnull $cache(public) option_info] {
+            if {[dict exists $info aliases:]} {
+              foreach alias [dict exists $info aliases:] {
+                dict set cache(public) option_canonical $alias $var
+              }
+            }
+            set getcmd [dict getnull $info default-command:]
+            if {$getcmd ne {}} {
+              dict set cache(public) option_default_command $var $getcmd
+            } else {
+              dict set cache(public) option_default_value $var [dict getnull $info default:]
+            }
+            dict set cache(public) option_canonical $var $var
+          }
+        }
+      }
+    }
+    return $cache($which)
+  }
+  
+  ###
+  # Incorporate the class's variables, arrays, and options
+  ###
+  method ClassPublicApply class {
+    set integrate 0
+    if {$class eq {}} {
+      set class [info object class [self]]      
+    } else {
+      set integrate 1
+    }
+    set public [$class info public]
+    foreach {var value} [dict getnull $public variable] {
+      if { $var in {meta config} } continue
       my variable $var
       if {![info exists $var]} {
         set $var $value
       }
     }
-    foreach {var value} [my meta branchget array] {
-      if { $var eq "meta" } continue
+    foreach {var value} [dict getnull $public array] {
+      if { $var eq {meta config} } continue
       my variable $var
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
@@ -352,6 +407,51 @@ proc ::tool::object_destroy objname {
         }
       }
     }
+    set dat [dict getnull $public option_info]
+    if {$integrate} {
+      my meta rmerge [list option $dat]
+    }
+    #set field [my cget field]
+    my variable config option_canonical
+    array set option_canonical [dict getnull $public option_canonical]
+    set dictargs {}
+    foreach {var getcmd} [dict getnull $public option_default_command] {
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var [{*}[string map [list %field% $var %self% [namespace which my]] $getcmd]]
+    }
+    foreach {var value} [dict getnull $public option_default_value] {
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var $value
+    }
+    ###
+    # Apply all inputs with special rules
+    ###
+    foreach {field val} $dictargs {
+      set script [dict getnull $dat $field set-command:]
+      if {$script ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
+      } else {
+        dict set config $field $val
+      }
+    }
+  }
+  
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
+  method mixin class {
+    ###
+    # Mix in the class
+    ###
+    ::oo::objdefine [self] mixin $class
+    my ClassPublicApply $class
   }
   
   method morph newclass {
@@ -390,6 +490,20 @@ proc ::tool::object_destroy objname {
       return $organs
     }
     return [dict getnull $organs $stub]
+  }
+
+  class_method property args {
+    if {[my meta exists {*}$args]} {
+      return [my meta get {*}$args]
+    }
+    set field [string trimright [lindex $args end] :]:
+    if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
+      return [my meta get {*}[lrange $args 0 end-1] $field]
+    }
+    if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
+      return [my meta get const {*}[lrange $args 0 end-1] $field]
+    }
+    return {}
   }
   
   method property args {
