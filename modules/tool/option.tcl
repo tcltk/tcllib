@@ -60,10 +60,13 @@ proc ::tool::define::option_class {name args} {
   dict_ensemble config config
 
   method config::get {field args} {
-    my variable config option_canonical
+    my variable config option_canonical option_getcmd
     set field [string trimleft $field -]
     if {[info exists option_canonical($field)]} {
       set field $option_canonical($field)
+    }
+    if {[info exists option_getcmd($field)]} {
+      return [eval $option_getcmd($field)]
     }
     if {[dict exists $config $field]} {
       return [dict get $config $field]
@@ -77,7 +80,7 @@ proc ::tool::define::option_class {name args} {
   method config::set args {
     set dictargs [::oo::meta::args_to_options {*}$args]
     set dat [my config merge $dictargs]
-    my config trigger $dat
+    my config triggers $dat
   }
   
   ###
@@ -108,14 +111,11 @@ proc ::tool::define::option_class {name args} {
     set rawlist $dictargs
     set dictargs {}
     set dat [my meta getnull option]
-    set strict [my meta is true options_strict]
     foreach {field val} $rawlist {
       set field [string trimleft $field -]
       set field [string trimright $field :]
       if {[info exists option_canonical($field)]} {
         set field $option_canonical($field)
-      } elseif {$strict && ![dict exists $dat $field]} {
-        error "Invalid option $field. Valid: [dict keys $dat]"
       }
       dict set dictargs $field $val
     }
