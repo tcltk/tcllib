@@ -21,6 +21,7 @@ tool::class create OptionClass {
   property color green
   property mass  1200kg
   option bodystyle {default: sedan}
+  option master {class organ default ::noop}
 }
 
 tool::class create OptionClass2 {
@@ -295,121 +296,34 @@ test tool-ensemble-013 {Test array reset} {
 } {color pink foo bar}
 
 
-# Test Signals and Pipelines
 
-tool::class create PipeLineClass {
-  superclass
-  meta set const color blue
-  meta branchset signal install {
-    follows: make
-    triggers: {}
-    require: {configure build}
-    action: {
-      my stage_complete install 0
-      my make install
-    }
-  }
-  meta branchset signal build {
-    follows: configure
-    require: {configure}
-    action: {
-      my stage_complete build 0
-      my stage_complete install 0
-      my make build
-    }
-  }
-  meta branchset signal configure {
-    follows: {}
-    action: {
-      my stage_complete configure 0
-      my stage_complete build 0
-      my stage_complete install 0
-      my make configure
-    }
-  }
-  
-  method stage_complete {stage args} {
-    my variable stage_complete
-    if {[llength $args]==1} {
-      set stage_complete($stage) [string is true -strict [lindex $args 0]]
-    }
-    if {![info exists stage_complete($stage)]} {
-      set stage_complete($stage) 0
-    }
-    return $stage_complete($stage)
-  }
-  
-  method make stage {
-    if {[my stage_complete $stage]} {
-      return
-    }
-    set info [my meta getnull signal $stage]
-    foreach item [dict getnull $info require:] {
-      my make $item
-    }
-    # Uncomment to follow along!
-    #puts "[self] MAKE STAGE $stage"
-    set ::processed([self]) $stage
-    yield
-    my stage_complete $stage 1
-    set ::processed([self]) {}
-  }
-  
-  constructor {} {
-    ::tool::object_create [self]
-  }
-  destructor {
-    ::tool::object_destroy [self]
-  }
+
+test tool-option_class-001 {Test option class} {
+  ObjectOptionTest1 meta get option master
+} {default: ::noop class: organ widget: label set-command: {my graft %field% %value%} get-command: {my organ %field%}}
+
+proc GNDN args {
+  return $args
 }
 
-PipeLineClass create PipeLineObject1
-PipeLineObject1 signal build
+ObjectOptionTest1 configure master GNDN
+test tool-option_class-002 {Test option class} {
+  ObjectOptionTest1 organ master
+} GNDN
 
-test tool-class-pipeline-001 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} configure
+test tool-option_class-003 {Test option class} {
+  ObjectOptionTest1 <master> puts FOO
+} {puts FOO}
 
-test tool-class-pipeline-002 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} build
+OptionClass2 create ObjectOptionTest5 bodystyle SUV transmission cvt color white master GNDN
 
-test tool-class-pipeline-003 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} {}
+test tool-option_class-002 {Test option class} {
+  ObjectOptionTest5 organ master
+} GNDN
 
-PipeLineObject1 signal install
-# Non-intuitive, but an "install" completes in a single step
-test tool-class-pipeline-004 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} {}
-
-PipeLineObject1 signal configure install
-
-test tool-class-pipeline-006 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} configure
-
-test tool-class-pipeline-007 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} build
-
-test tool-class-pipeline-008 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} install
-
-test tool-class-pipeline-009 {Pipeline trial} {
-  ::tool::do_events 
-  set ::processed(::PipeLineObject1)
-} {}
-
+test tool-option_class-003 {Test option class} {
+  ObjectOptionTest5 <master> puts FOO
+} {puts FOO}
 # -------------------------------------------------------------------------
 
 
