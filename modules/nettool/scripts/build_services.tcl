@@ -19,7 +19,7 @@ proc ::record {service port type usage} {
 for {set x 0} {$x < 65536} {incr x} {
   set ::available_port($x) {}
 }
-package require listutil
+package require dicttool
 package require csv
 set fin [open [lindex $argv 0] r]
 set headers [gets $fin]
