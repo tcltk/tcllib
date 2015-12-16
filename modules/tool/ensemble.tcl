@@ -7,7 +7,13 @@ proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
   variable trace
   set ensembledict {}
   if {$trace} { puts "dynamic_methods_ensembles $thisclass"}
-  foreach {ensemble einfo} [dict getnull $metadata method_ensemble] {
+  ###
+  # Only go through the motions for classes that have a locally defined
+  # ensemble method implementation
+  ###
+  set local_ensembles [dict keys [::oo::meta::localdata $thisclass method_ensemble]]
+  foreach ensemble $local_ensembles {
+    set einfo [dict getnull $metadata method_ensemble $ensemble]
     set eswitch {}
     set default standard
     if {[dict exists $einfo default:]} {
