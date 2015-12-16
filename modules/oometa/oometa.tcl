@@ -47,6 +47,19 @@ proc ::oo::meta::ancestors class {
         lappend queue $aclass
       }
     }
+    foreach qclass $tqueue {
+      if {$qclass ni $core_classes} continue
+      foreach aclass [::info class superclasses $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+      foreach aclass [::info class mixins $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+    }
     foreach item $tqueue {
       if { $item ni $result } {
         set result [linsert $result 0 $item]
