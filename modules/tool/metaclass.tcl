@@ -384,6 +384,7 @@ proc ::tool::object_destroy objname {
   # Incorporate the class's variables, arrays, and options
   ###
   method ClassPublicApply class {
+    my variable config
     set integrate 0
     if {$class eq {}} {
       set class [info object class [self]]      
@@ -412,7 +413,7 @@ proc ::tool::object_destroy objname {
       my meta rmerge [list option $dat]
     }
     #set field [my cget field]
-    my variable config option_canonical
+    my variable option_canonical
     array set option_canonical [dict getnull $public option_canonical]
     set dictargs {}
     foreach {var getcmd} [dict getnull $public option_default_command] {
@@ -427,11 +428,11 @@ proc ::tool::object_destroy objname {
     # Apply all inputs with special rules
     ###
     foreach {field val} $dictargs {
+      if {[dict exists $config $field]} continue
       set script [dict getnull $dat $field set-command:]
+      dict set config $field $val
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
-      } else {
-        dict set config $field $val
       }
     }
   }
