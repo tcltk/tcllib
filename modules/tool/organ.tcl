@@ -4,7 +4,7 @@
 # Instead it vampires off of the master object
 ###
 tool::class create ::tool::organelle {
-
+  
   constructor {master} {
     my entangle $master
     set final_class [my select]
