@@ -148,6 +148,16 @@ proc ::oo::meta::info {class submethod args} {
   }
 }
 
+proc ::oo::meta::localdata {class args} {
+  if {![::info exists ::oo::meta::local_property($class)]} {
+    return {}
+  }
+  if {[::llength $args]==0} {
+    return $::oo::meta::local_property($class)
+  }
+  return [::dict getnull $::oo::meta::local_property($class) {*}$args]
+}
+
 proc ::oo::meta::normalize class {
   set class ::[string trimleft $class :]
 }

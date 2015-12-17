@@ -32,6 +32,7 @@ proc ::tool::coroutine_unregister {coroutine} {
 proc ::tool::do_events {} {
   # Process coroutines
   variable all_coroutines
+  variable coroutine_object
   set count 0
   foreach coro $all_coroutines {
     if {[info command $coro] eq {}} {
@@ -46,11 +47,18 @@ proc ::tool::do_events {} {
     } on break {} {
       # Terminate the coroutine
       coroutine_unregister $coro
-    } on error {} {
+    } on error {errtxt errdat} {
       # Coroutine encountered an error
       coroutine_unregister $coro
       puts "ERROR $coro"
-      puts "$::errorInfo"
+      set errorinfo $::errorInfo
+      catch {
+      puts "OBJECT: $coroutine_object($coro)"
+      puts "CLASS: [info object class $coroutine_object($coro)]"
+      }
+      puts "$errtxt"
+      puts ***
+      puts $errorinfo
     } on continue {result opts} {
       # Ignore continue
       if { $result eq "done" } {
