@@ -47,6 +47,19 @@ proc ::oo::meta::ancestors class {
         lappend queue $aclass
       }
     }
+    foreach qclass $tqueue {
+      if {$qclass ni $core_classes} continue
+      foreach aclass [::info class superclasses $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+      foreach aclass [::info class mixins $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+    }
     foreach item $tqueue {
       if { $item ni $result } {
         set result [linsert $result 0 $item]
@@ -93,6 +106,19 @@ proc ::oo::meta::info {class submethod args} {
       foreach {field value} [lindex $args end] {
         ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
+    }
+    leaf_add {
+      set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      ladd result {*}[lrange $args 1 end]
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
+    }
+    leaf_remove {
+      set result {}
+      forearch element [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]] {
+        if { $element in [lrange $args 1 end]} continue
+        lappend result $element
+      }
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
     }
     append -
     incr -
