@@ -143,6 +143,7 @@ Module  textutil     _tex _man  _null
 Module  tie         _tcl  _man  _exa
 Module  tiff        _tcl  _man  _null
 Module  tool        _tcl  _man  _null
+Module  tool_datatype        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
 Module  treeql      _tcl  _man  _null
 Module  try         _tcl  _man  _null
