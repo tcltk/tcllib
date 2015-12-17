@@ -4,7 +4,7 @@
 # Instead it vampires off of the master object
 ###
 tool::class create ::tool::organelle {
-
+  
   constructor {master} {
     my entangle $master
     set final_class [my select]
@@ -20,6 +20,9 @@ tool::class create ::tool::organelle {
     my forward meta $master meta
     foreach {stub organ} [$master organ] {
       my graft $stub $organ
+    }
+    foreach {methodname variable} [my meta branchget array_ensemble] {
+      my forward $methodname $master $methodname
     }
   }
   
