@@ -50,6 +50,7 @@ dictionary must be present, however it is allowed to be empty.
 [def [const auth]]
 [def [const content-type]]
 [def [const cookie]]
+[def [const error-body]]
 [def [const format]]
 [def [const headers]]
 [def [const method]]
@@ -438,6 +439,12 @@ otherwise.
 [para] The second expression is the ERROR condition, it must return
 [const false] unless there is an error, then it has to return
 [const true].
+
+[comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
+[def [const error_body]]
+
+The value of this option determines whether to return the response when
+encountering an HTTP error.  This defaults to no response body on error.
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [list_end]
