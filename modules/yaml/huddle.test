@@ -130,11 +130,7 @@ test huddle-2.11 "test of huddle list" -body {
     huddle get_stripped {HUDDLE {L {{s a} {L {}} {s c}}}}
 } -result {a {} c}
 
-test huddle-2.12 "test of huddle list" -body {
-    huddle llength {HUDDLE {L {{s a} {s b} {s c}}}}
-} -result {3}
-
-#test huddle-3.1 "test of huddle json_dump" {[info tclversion] >= 8.5} {
+#test huddle-3.1 "test of huddle jsondump" {[info tclversion] >= 8.5} {
 #    # build a huddle container from normal tcl's container(multi rank dict/list)
 #    proc huddle_build {data} {
 #        foreach {key val} $data {
@@ -155,13 +151,13 @@ test huddle-2.12 "test of huddle list" -body {
 #    set data [json::json2dict $json1]
 ##    set data [huddle_build $data]
 ##
-##    set json2 [huddle json_dump $data]
+##    set json2 [huddle jsondump $data]
 ##    expr $json1 eq $json2
 ##    set json2
 #} {1}
 
-test huddle-3.2 "test of huddle json_dump" -body {
-    huddle json_dump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{num 1.0} {b true} {s g} {s h}}}}} {s t}}}}
+test huddle-3.2 "test of huddle jsondump" -body {
+    huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{num 1.0} {b true} {s g} {s h}}}}} {s t}}}}
 } -result {[
   [
     "i",
@@ -178,9 +174,9 @@ test huddle-3.2 "test of huddle json_dump" -body {
 ]}
 
 
-test huddle-3.3 "test of huddle json_dump" -body {
+test huddle-3.3 "test of huddle jsondump" -body {
     set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {num 1} j {s { m\a}}}}}}}
-    set json1 [huddle json_dump $huddle1]
+    set json1 [huddle jsondump $huddle1]
     set json2 {{
   "dd": {
     "bb": {
@@ -233,8 +229,8 @@ test huddle-4.1 "test of huddle set" -body {
     huddle set data_dict dd bb a baa
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {e {s f} g {s h}}}}} ee {D {i {s j} k {s l}}}}}}
 
-test huddle-4.2 "test of huddle removed" -body {
-    set data_dict [huddle removed $data_dict dd cc e]
+test huddle-4.2 "test of huddle remove" -body {
+    set data_dict [huddle remove $data_dict dd cc e]
 } -result {HUDDLE {D {dd {D {bb {D {a {s baa} c {s d}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s l}}}}}}
 
 test huddle-4.3 "test of huddle set" -body {
@@ -242,8 +238,7 @@ test huddle-4.3 "test of huddle set" -body {
 } -result {HUDDLE {L {{L {{s i} {s baa} {s j} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t} {s u}}}}
 
 test huddle-4.4 "test of huddle remove" -body {
-    huddle remove data_list 0 2
-    return $data_list
+    set data_list [huddle remove $data_list 0 2]
 } -result {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t} {s u}}}}
 
 test huddle-4.5 "test of huddle equal" -body {
@@ -352,11 +347,11 @@ test huddle-11.1 "test of huddle superclass" -body {
             }
     }
     
-    huddle add_type ::new_types::mapping
-    huddle add_type ::new_types::str
+    huddle addType ::new_types::mapping
+    huddle addType ::new_types::str
 
     set a [huddle mapping key1 var1]
-    huddle update_children a key2 [huddle mapping key3 var3]
+    huddle append a key2 [huddle mapping key3 var3]
 } -result {HUDDLE {!!map {key1 {!!str var1} key2 {!!map {key3 {!!str var3}}}}}}
 
 
