@@ -2,7 +2,7 @@
 '\" Generated from file 'encode\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008-2009 Andreas Kupries
 '\"
-.TH "zipfile::encode" n 0\&.3 tcllib "Zip archive handling"
+.TH "zipfile::encode" n 0\&.4 tcllib "Zip archive handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -288,13 +288,13 @@ package require \fBzlibtcl \fR
 .sp
 package require \fBfileutil \fR
 .sp
-package require \fBzipfile::encode  ?0\&.3?\fR
+package require \fBzipfile::encode  ?0\&.4?\fR
 .sp
 \fB::zipfile::encode\fR ?\fIobjectName\fR?
 .sp
 \fB<encoder>\fR \fBcomment:\fR \fItext\fR
 .sp
-\fB<encoder>\fR \fBfile:\fR \fIdst\fR \fIowned\fR \fIsrc\fR
+\fB<encoder>\fR \fBfile:\fR \fIdst\fR \fIowned\fR \fIsrc\fR ?\fInoCompress\fR?
 .sp
 \fB<encoder>\fR \fBwrite\fR \fIarchive\fR
 .sp
@@ -321,12 +321,15 @@ The result of the method is the empty string\&.
 In case of multiple calls to this method for the same encoder the data
 from the last call prevails over all previous texts\&.
 .TP
-\fB<encoder>\fR \fBfile:\fR \fIdst\fR \fIowned\fR \fIsrc\fR
+\fB<encoder>\fR \fBfile:\fR \fIdst\fR \fIowned\fR \fIsrc\fR ?\fInoCompress\fR?
 This method adds a new file to the archive\&.
 The contents of the file are found in the filesystem at \fIsrc\fR, and
 will be stored in the archive under path \fIdst\fR\&.
 If the file is declared as \fIowned\fR by the archive the original
 file will be deleted when the archive is constructed and written\&.
+If \fInoCompress\fR is set to \fBtrue\fR the file will not be
+compressed on writing\&. Otherwise (the default) the file is compressed
+if it is advantageous\&.
 The result of the method is an empty string\&.
 .TP
 \fB<encoder>\fR \fBwrite\fR \fIarchive\fR
@@ -335,6 +338,12 @@ as a zip archive and stores the result at path \fIarchive\fR in the
 filesystem\&.
 All added files which were owned by the archive are deleted at this
 point\&.
+On the issue of ordering, the files are added to the archive in the
+same order as they were specified via \fBfile:\fR\&. \fINote\fR that
+this behaviour is new for version 0\&.4 and higher\&. Before 0\&.4 no
+specific order was documented\&. It was lexicographically sorted\&. The
+change was made to support \fBzip\fR-based file formats which require
+a specific order of files in the archive, for example "\fI\&.epub\fR"\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

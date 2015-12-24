@@ -219,7 +219,7 @@ movies get {The Day the Earth Stood Still} date:
 
 [call [emph object] [cmd Option_Default] [arg field]]
 
-Computes the default value for an option. See [package tool::option_handling]
+Computes the default value for an option. See [package tool::option_handling].
 
 [list_end]
 
