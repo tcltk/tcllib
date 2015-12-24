@@ -107,6 +107,19 @@ proc ::oo::meta::info {class submethod args} {
         ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
     }
+    leaf_add {
+      set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      ladd result {*}[lrange $args 1 end]
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
+    }
+    leaf_remove {
+      set result {}
+      forearch element [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]] {
+        if { $element in [lrange $args 1 end]} continue
+        lappend result $element
+      }
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
+    }
     append -
     incr -
     lappend -

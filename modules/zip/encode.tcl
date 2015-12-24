@@ -33,7 +33,7 @@ snit::type            ::zipfile::encode {
 	return
     }
 
-    method file: {dst owned src} {
+    method file: {dst owned src {noCompress 0}} {
 	if {[info exists files($dst)]} {
 	    return -code error -errorcode {ZIP ENCODE DUPLICATE PATH} \
 		"Duplicate destination path \"$dst\""
@@ -60,18 +60,19 @@ snit::type            ::zipfile::encode {
 	}
 
 	if {[file isdirectory $src]} {
-	    set files($dst/) [list 0 {} 0 $s(ctime) $attr]
+	    set files($dst/) [list 0 {} 0 $s(ctime) $attr $noCompress]
 	} else {
-	    set files($dst) [list $owned $src [file size $src] $s(ctime) $attr]
+	    set files($dst) [list $owned $src [file size $src] $s(ctime) $attr $noCompress]
 	    log::debug "file: files($dst) = \{$files($dst)\}"
 	}
+	lappend files_ordering $dst
 	return
     }
 
     method write {archive} {
 	set ch [setbinary [open $archive w]]
 
-	set dstsorted [lsort -dict [array names files]]
+	set dstsorted $files_ordering
 
 	# Archive = <
 	#  afile ...
@@ -99,8 +100,9 @@ snit::type            ::zipfile::encode {
     # ### ### ### ######### ######### #########
     ##
 
-    variable comment      {}
-    variable files -array {}
+    variable comment        {}
+    variable files -array   {}
+    variable files_ordering {}
 
     # ### ### ### ######### ######### #########
     ##
@@ -111,9 +113,8 @@ snit::type            ::zipfile::encode {
 	#  file data
 	# >
 
-	foreach {owned src size ctime attr} $files($dst) break
-
-	log::debug "write-a-file: $dst = $owned $size $src"
+	foreach {owned src size ctime attr noCompress} $files($dst) break
+	log::debug "write-a-file: $dst = $owned $size $src noCompress = $noCompress"
 
 	# Determine if compression of the file to store will save us
 	# some space. Also compute the crc checksum of the file to put
@@ -127,7 +128,7 @@ snit::type            ::zipfile::encode {
 	    set crc 0
 	}
 
-	if {$size == 0} {
+	if {($size == 0) || $noCompress} {
 	    set csize $size ; # compressed size is uncompressed
 	    set cm    0     ; # uncompressed
 	    set gpbf  0     ; # No flags
@@ -153,7 +154,7 @@ snit::type            ::zipfile::encode {
 		if {$owned} {
 		    file delete -force $src
 		}
-		set src   $temp ; # Copy the copressed temp file.
+		set src   $temp ; # Copy the compressed temp file.
 		set owned 1     ; # We own the source file now.
 		set cm    8     ; # deflated
 		set gpbf  2     ; # flags - deflated maximum
@@ -222,7 +223,7 @@ snit::type            ::zipfile::encode {
     }
 
     method writeCentralFileHeader {ch dst} {
-	foreach {owned src size ctime attr cm gpbf csize offset crc} $files($dst) break
+	foreach {owned src size ctime attr noCompress cm gpbf csize offset crc} $files($dst) break
 
 	set fnlen [string bytelength $dst]
 
@@ -367,5 +368,5 @@ snit::type            ::zipfile::encode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.3
+package provide zipfile::encode 0.4
 return
