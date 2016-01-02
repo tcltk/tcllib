@@ -78,6 +78,7 @@ Module  grammar_peg _tcl  _man  _null
 Module  hook        _tcl  _man  _null
 Module  http        _tcl  _man  _null
 Module  httpd       _tcl  _man  _exa
+Module  httpwget    _tcl  _null _null
 Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
 Module  ident       _tcl  _man  _null
