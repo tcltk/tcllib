@@ -225,6 +225,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     return [my meta exists %VARNAME% $field:]
   }]
+  set methoddata [::oo::meta::info $class set array_ensemble $methodname: $varname]
   
   set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
   foreach {name body} $CASES {
@@ -241,6 +242,16 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
       }
       ::array set %VARNAME% {%INITIAL%}
       return [array get %VARNAME%]
+    }
+    ni value {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      return [expr {$value ni $data}]
+    }
+    in value {
+      set field [string trimright [lindex $args 0] :]
+      set data [my _%METHOD%Get $field]
+      return [expr {$value in $data}]
     }
     add args {
       set field [string trimright [lindex $args 0] :]
