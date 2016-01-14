@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.1]
+[vset PACKAGE_VERSION 0.5.1]
 [manpage_begin nettool n [vset PACKAGE_VERSION]]
 [keywords {nettool}]
 [keywords {odie}]
