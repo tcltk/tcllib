@@ -1,18 +1,23 @@
 # tool.test - Copyright (c) 2015 Sean Woods
 # -------------------------------------------------------------------------
-set here [file dirname [file join [pwd] [info script]]]
-source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
-source [file join $here .. .. .. tcllib modules dicttool dicttool.tcl]
-source [file join $here .. .. .. tcllib modules oometa oometa.tcl]
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
 testsNeedTcl     8.6
 testsNeedTcltest 2
+testsNeed        TclOO 1
 
-testsNeed TclOO 1
-
-testing {
-  useLocal oodialect.tcl oo::dialect
+support {
+    use dicttool/dicttool.tcl dicttool
+    use oometa/oometa.tcl     oo::meta
 }
+testing {
+    useLocal oodialect.tcl oo::dialect
+}
+
+# -------------------------------------------------------------------------
 
 ::oo::dialect::create ::alpha
 
