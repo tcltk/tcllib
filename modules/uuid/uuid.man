@@ -6,7 +6,7 @@
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {UUID generation and comparison}]
 [category  {Hashes, checksums, and encryption}]
-[require Tcl 8.2]
+[require Tcl 8.5]
 [require uuid [opt [vset UUID_VERSION]]]
 [description]
 [para]
