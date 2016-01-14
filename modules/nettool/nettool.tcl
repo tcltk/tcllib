@@ -68,5 +68,5 @@ if {[file exists $genfile]} {
 }
 
 ::nettool::init
-package provide nettool 0.5
+package provide nettool 0.5.1
 
