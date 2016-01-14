@@ -576,7 +576,7 @@ in the directory:
     #
 
     l configure -scope one
-    ::ldapx::ldap create e
+    ::ldapx::entry create e
     set n 0
     l traverse "ou=people,o=mycomp" "(sn=Joe*)" {sn givenName} e {
 	puts "dn: [e dn]"
@@ -593,7 +593,7 @@ in the directory:
     #
 
     set lent [l search "ou=people,o=mycomp" "(sn=Joe*)" {}]
-    ::ldapx::ldap create c
+    ::ldapx::entry create c
     foreach e $lent {
 	$e backup
 	$e add1 "telephoneNumber" "+31415926535"
