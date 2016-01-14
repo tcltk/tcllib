@@ -12,9 +12,7 @@ testsNeedTcltest 2
 testsNeed TclOO 1
 
 testing {
-  useLocal ooutil.tcl oo::util
-  useLocal oometa.tcl oo::meta
-  useLocal oooption.tcl oo::option
+    useLocal ooutil.tcl oo::util
 }
 
 # -------------------------------------------------------------------------
