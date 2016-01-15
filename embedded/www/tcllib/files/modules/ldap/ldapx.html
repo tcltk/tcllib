@@ -575,7 +575,7 @@ in the directory:</p>
     # Search all entries matching some criterion
     #
     l configure -scope one
-    ::ldapx::ldap create e
+    ::ldapx::entry create e
     set n 0
     l traverse &quot;ou=people,o=mycomp&quot; &quot;(sn=Joe*)&quot; {sn givenName} e {
 	puts &quot;dn: [e dn]&quot;
@@ -590,7 +590,7 @@ in the directory:</p>
     # Note this modification cannot be done in the &quot;traverse&quot; operation.
     #
     set lent [l search &quot;ou=people,o=mycomp&quot; &quot;(sn=Joe*)&quot; {}]
-    ::ldapx::ldap create c
+    ::ldapx::entry create c
     foreach e $lent {
 	$e backup
 	$e add1 &quot;telephoneNumber&quot; &quot;+31415926535&quot;
