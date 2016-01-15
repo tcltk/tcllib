@@ -12,7 +12,7 @@
 
 package require Tcl 8.2
 
-package provide math::constants 1.0.1
+package provide math::constants 1.0.2
 
 # namespace constants
 #    Create a convenient namespace for the constants

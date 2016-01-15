@@ -2,7 +2,7 @@
 '\" Generated from file 'nettool\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "nettool" n 0\&.1 tcllib "nettool"
+.TH "nettool" n 0\&.5\&.1 tcllib "nettool"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ nettool \- Tools for networked applications
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBnettool  ?0\&.1?\fR
+package require \fBnettool  ?0\&.5\&.1?\fR
 .sp
 package require \fBtwapi  3\&.1\fR
 .sp
