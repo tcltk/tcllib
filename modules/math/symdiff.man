@@ -1,4 +1,5 @@
-[manpage_begin math::calculus::symdiff n 1.0]
+[vset VERSION 1.0.1]
+[manpage_begin math::calculus::symdiff n [vset VERSION]]
 [see_also math::calculus]
 [see_also math::interpolate]
 [copyright "2010 by Kevin B. Kenny <kennykb@acm.org>
@@ -8,7 +9,7 @@ Publication License <http://www.opencontent.org/openpub/>"]
 [titledesc "Symbolic differentiation for Tcl"]
 [require Tcl 8.5]
 [require grammar::aycock 1.0]
-[require math::calculus::symdiff 1.0]
+[require math::calculus::symdiff [vset VERSION]]
 [description]
 [para]
 The [cmd math::calculus::symdiff] package provides a symbolic differentiation
