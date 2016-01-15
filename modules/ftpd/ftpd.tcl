@@ -2004,7 +2004,7 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.2.6
+package provide ftpd 1.3
 
 
 ##

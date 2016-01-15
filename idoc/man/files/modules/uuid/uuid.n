@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 uuid \- UUID generation and comparison
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBuuid  ?1\&.0\&.4?\fR
 .sp
