@@ -15,7 +15,7 @@
 ##
 package require Tcl 8.4
 package require docstrip 1.2
-package provide docstrip::util 1.3
+package provide docstrip::util 1.3.1
 namespace eval docstrip::util {
    namespace export ddt2man guard patch thefile\
      packages_provided index_from_catalogue modules_from_catalogue\
@@ -168,8 +168,8 @@ proc docstrip::util::modules_from_catalogue {target source args} {
    variable filename $source
    variable fileoptions $Opt(-sourceconf)
    variable thefile [eval [list thefile $source] $fileoptions]
-   variable Report {}  Report_store $O(-report) \
-     Report_cmd $O(-reportcmd)
+   variable Report {}  Report_store $Opt(-report) \
+     Report_cmd $Opt(-reportcmd)
    set catalogue [extract $thefile\
      [linsert $Opt(-options) 0 docstrip.tcl::catalogue]\
      -metaprefix {#} -onerror puts]
@@ -188,7 +188,7 @@ proc docstrip::util::modules_from_catalogue {target source args} {
    $c alias fileoptions [namespace which fileoptions]
    $c eval $catalogue
    interp delete $c
-   if {$O(-report)} then {return [join $Report \n]}
+   if {$Opt(-report)} then {return [join $Report \n]}
 }
 proc docstrip::util::GenerateNamedPkg\
   {target preamblecmd postamblecmd name version terminals} {
