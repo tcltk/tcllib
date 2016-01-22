@@ -437,6 +437,24 @@ pkgIndex utilpkg
 %<*man,utilman>
 %<man>[manpage_begin docstrip n 1.2]
 %<utilman>[manpage_begin docstrip_util n 1.3]
+%<man>[see_also docstrip_util]
+%<utilman>[see_also docstrip]
+%<utilman>[see_also doctools]
+%<utilman>[see_also doctools_fmt]
+%<utilman>[keywords .ddt]
+[keywords .dtx]
+%<utilman>[keywords catalogue]
+%<utilman>[keywords diff]
+[keywords docstrip]
+%<utilman>[keywords doctools]
+[keywords documentation]
+[keywords LaTeX]
+[keywords {literate programming}]
+%<utilman>[keywords module]
+%<utilman>[keywords {package indexing}]
+%<utilman>[keywords patch]
+[keywords source]
+%<utilman>[keywords {Tcl module}]
 [copyright "2003\u20132010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
@@ -475,8 +493,8 @@ pkgIndex utilpkg
 % \textsf{docstrip} package, but not the other way around. Hence the 
 % next block is slightly shorter.
 % \begin{tcl}
-%<utilpkg>package provide docstrip::util 1.3
-%<idx>package ifneeded docstrip::util 1.3\
+%<utilpkg>package provide docstrip::util 1.3.1
+%<idx>package ifneeded docstrip::util 1.3.1\
 %<idx>  [list source [file join $dir docstrip_util.tcl]]
 %<utilman>[require docstrip::util [opt 1.3]]
 % \end{tcl}
@@ -667,7 +685,6 @@ want to know more about it may consult the following sources.
   [emph {The LaTeX Companion}] (second edition),
   Addison-Wesley, 2004; ISBN 0-201-36299-6.
 [list_end]
-
 %    \end{macrocode}
 % 
 % \subsection{File format}
@@ -959,7 +976,6 @@ stops at a line that is exactly "\endinput"; this is often used to
 avoid copying random whitespace at the end of a file. In the unlikely 
 case that one wants such a code line, one can protect it with a 
 verbatim guard.
-
 %    \end{macrocode}
 % Thus far the general descriptions; now for the actual commands. 
 % The manpage source for these are next to the actual implementations.
@@ -1430,7 +1446,6 @@ tcltest::test docstrip-2.1 {have docstrip extract itself} -constraints {
 %     (LH)}
 %   \begin{tcl}
 %<*man>
-
 [call [cmd docstrip::sourcefrom] [arg filename] [arg terminals] [
    opt "[arg option] [arg value] ..."
 ]]
@@ -2368,8 +2383,8 @@ proc docstrip::util::modules_from_catalogue {target source args} {
    variable filename $source
    variable fileoptions $Opt(-sourceconf)
    variable thefile [eval [list thefile $source] $fileoptions]
-   variable Report {}  Report_store $O(-report) \
-     Report_cmd $O(-reportcmd)
+   variable Report {}  Report_store $Opt(-report) \
+     Report_cmd $Opt(-reportcmd)
    set catalogue [extract $thefile\
      [linsert $Opt(-options) 0 docstrip.tcl::catalogue]\
      -metaprefix {#} -onerror puts]
@@ -2388,7 +2403,7 @@ proc docstrip::util::modules_from_catalogue {target source args} {
    $c alias fileoptions [namespace which fileoptions]
    $c eval $catalogue
    interp delete $c
-   if {$O(-report)} then {return [join $Report \n]}
+   if {$Opt(-report)} then {return [join $Report \n]}
 }
 %   \end{tcl}
 % \end{proc}
@@ -2881,6 +2896,8 @@ all types of lines.
 %<*utilman,gcdexample>
 %<<verbatim
 % [manpage_begin gcd n 1.0]
+% [keywords divisor]
+% [keywords math]
 % [moddesc {Greatest Common Divisor}]
 % [require gcd [opt 1.0]]
 % [description]
@@ -3892,16 +3909,6 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 % keywords.
 %    \begin{macrocode}
 %<*man,utilman>
-
-%<man>[see_also docstrip_util]
-%<utilman>[see_also docstrip doctools doctools_fmt]
-
-[keywords documentation source {literate programming} docstrip]
-%<man>[keywords LaTeX .dtx]
-%<*utilman>
-[keywords doctools .ddt diff patch]
-[keywords {package indexing} {Tcl module} module catalogue]
-%</utilman>
 [manpage_end]
 %</man,utilman>
 %    \end{macrocode}
