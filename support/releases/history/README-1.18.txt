@@ -2,9 +2,9 @@ Overview
 ========
 
     18  new packages                in 14  modules
-    31  changed packages            in 21  modules
-    23  internally changed packages in 17  modules
-    359 unchanged packages          in 98  modules
+    32  changed packages            in 22  modules
+    24  internally changed packages in 18  modules
+    357 unchanged packages          in 97  modules
     438 packages, total             in 126 modules, total
 
 New in tcllib 1.18
@@ -48,6 +48,7 @@ Changes from tcllib 1.17 to 1.18
     debug       debug                     1.0.5         1.0.6         B D EF
                 debug::caller             1             1.1           EF
     ----------- ------------------------- ------------- ------------- ----------
+    docstrip    docstrip::util            1.3           1.3.1         B D
     dtplite     dtplite                   1.2           1.3           B EF
     ----------- ------------------------- ------------- ------------- ----------
     fileutil    fileutil                  1.14.10       1.15          B D EF T
@@ -99,6 +100,7 @@ Invisible changes (documentation, testsuites)
                   sum                  1.1.2         1.1.2         I
     ------------- -------------------- ------------- ------------- ----------
     dns           spf                  1.1.1         1.1.1         I
+    docstrip      docstrip             1.2           1.2           D
     ------------- -------------------- ------------- ------------- ----------
     doctools      doctools             1.4.19        1.4.19        EF
                   doctools::idx        1.0.5         1.0.5         EF
@@ -138,39 +140,39 @@ Unchanged
     bench::out::text, bibtex, blowfish, cache::async, calendar,
     char, cksum, clock::iso8601, clock::rfc2822, cmdline, comm,
     configuration, control, coroutine, coroutine::auto, counter,
-    crc16, debug::heartbeat, debug::timestamp, des, dns, docstrip,
-    docstrip::util, doctools::changelog, doctools::config,
-    doctools::cvs, doctools::html, doctools::html::cssdefaults,
-    doctools::idx, doctools::idx::export,
-    doctools::idx::export::docidx, doctools::idx::export::html,
-    doctools::idx::export::json, doctools::idx::export::nroff,
-    doctools::idx::export::text, doctools::idx::export::wiki,
-    doctools::idx::import, doctools::idx::import::docidx,
-    doctools::idx::import::json, doctools::idx::parse,
-    doctools::idx::structure, doctools::msgcat,
-    doctools::msgcat::idx::c, doctools::msgcat::idx::de,
-    doctools::msgcat::idx::en, doctools::msgcat::idx::fr,
-    doctools::msgcat::toc::c, doctools::msgcat::toc::de,
-    doctools::msgcat::toc::en, doctools::msgcat::toc::fr,
-    doctools::nroff::man_macros, doctools::paths,
-    doctools::tcl::parse, doctools::text, doctools::toc,
-    doctools::toc::export, doctools::toc::export::doctoc,
-    doctools::toc::export::html, doctools::toc::export::json,
-    doctools::toc::export::nroff, doctools::toc::export::text,
-    doctools::toc::export::wiki, doctools::toc::import,
-    doctools::toc::import::doctoc, doctools::toc::import::json,
-    doctools::toc::parse, doctools::toc::structure, exif,
-    fileutil::decode, fileutil::magic::cfront,
-    fileutil::magic::cgen, fileutil::magic::filetype,
-    fileutil::magic::mimetype, fileutil::magic::rt, fileutil::multi,
-    fileutil::multi::op, ftp, generator, grammar::aycock,
-    grammar::aycock::debug, grammar::aycock::runtime, grammar::fa,
-    grammar::fa::dacceptor, grammar::fa::dexec, grammar::fa::op,
-    grammar::me::cpu, grammar::me::cpu::core,
-    grammar::me::cpu::gasm, grammar::me::tcl, grammar::me::util,
-    grammar::peg, grammar::peg::interp, hook, html, ident, inifile,
-    interp, interp::delegate::method, interp::delegate::proc, ip,
-    irc, javascript, jpeg, json::write, lambda, ldap, log, logger,
+    crc16, debug::heartbeat, debug::timestamp, des, dns,
+    doctools::changelog, doctools::config, doctools::cvs,
+    doctools::html, doctools::html::cssdefaults, doctools::idx,
+    doctools::idx::export, doctools::idx::export::docidx,
+    doctools::idx::export::html, doctools::idx::export::json,
+    doctools::idx::export::nroff, doctools::idx::export::text,
+    doctools::idx::export::wiki, doctools::idx::import,
+    doctools::idx::import::docidx, doctools::idx::import::json,
+    doctools::idx::parse, doctools::idx::structure,
+    doctools::msgcat, doctools::msgcat::idx::c,
+    doctools::msgcat::idx::de, doctools::msgcat::idx::en,
+    doctools::msgcat::idx::fr, doctools::msgcat::toc::c,
+    doctools::msgcat::toc::de, doctools::msgcat::toc::en,
+    doctools::msgcat::toc::fr, doctools::nroff::man_macros,
+    doctools::paths, doctools::tcl::parse, doctools::text,
+    doctools::toc, doctools::toc::export,
+    doctools::toc::export::doctoc, doctools::toc::export::html,
+    doctools::toc::export::json, doctools::toc::export::nroff,
+    doctools::toc::export::text, doctools::toc::export::wiki,
+    doctools::toc::import, doctools::toc::import::doctoc,
+    doctools::toc::import::json, doctools::toc::parse,
+    doctools::toc::structure, exif, fileutil::decode,
+    fileutil::magic::cfront, fileutil::magic::cgen,
+    fileutil::magic::filetype, fileutil::magic::mimetype,
+    fileutil::magic::rt, fileutil::multi, fileutil::multi::op, ftp,
+    generator, grammar::aycock, grammar::aycock::debug,
+    grammar::aycock::runtime, grammar::fa, grammar::fa::dacceptor,
+    grammar::fa::dexec, grammar::fa::op, grammar::me::cpu,
+    grammar::me::cpu::core, grammar::me::cpu::gasm,
+    grammar::me::tcl, grammar::me::util, grammar::peg,
+    grammar::peg::interp, hook, html, ident, inifile, interp,
+    interp::delegate::method, interp::delegate::proc, ip, irc,
+    javascript, jpeg, json::write, lambda, ldap, log, logger,
     logger::appender, logger::utils, map::geocode::nominatim,
     map::slippy, map::slippy::cache, mapproj, math, math::bigfloat,
     math::bignum, math::calculus, math::complexnumbers,
