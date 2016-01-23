@@ -284,6 +284,9 @@ docstrip_util
 \fBfiles/modules/docstrip/docstrip\&.n\fR
 docstrip
 .TP
+\fBfiles/modules/docstrip/docstrip_util\&.n\fR
+docstrip_util
+.TP
 \fBfiles/apps/tcldocstrip\&.n\fR
 tcldocstrip
 .RE
@@ -4999,6 +5002,9 @@ LaTeX
 .TP
 \fBfiles/modules/docstrip/docstrip\&.n\fR
 docstrip
+.TP
+\fBfiles/modules/docstrip/docstrip_util\&.n\fR
+docstrip_util
 .TP
 \fBfiles/apps/tcldocstrip\&.n\fR
 tcldocstrip
