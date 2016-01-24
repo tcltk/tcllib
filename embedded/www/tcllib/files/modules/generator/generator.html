@@ -1,6 +1,5 @@
-<html><head>
-<title>generator - Tcl Generator Commands</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='generator - Tcl Generator Commands'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,52 +80,46 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'generator.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ generator.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">generator(n) 0.1 tcllib &quot;Tcl Generator Commands&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">generator(n) 0.1 tcllib &quot;Tcl Generator Commands&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>generator - Procedures for creating and using generators.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">PRELUDE</a></li>
-<li class="section"><a href="#section4">BUGS, IDEAS, FEEDBACK</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">PRELUDE</a></li>
+<li class="doctools_section"><a href="#section4">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
 <li>package require <b class="pkgname">generator <span class="opt">?0.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">generator</b> <b class="method">define</b> <i class="arg">name</i> <i class="arg">params</i> <i class="arg">body</i></a></li>
 <li><a href="#2"><b class="cmd">generator</b> <b class="method">yield</b> <i class="arg">arg</i> <span class="opt">?<i class="arg">args..</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">generator</b> <b class="method">foreach</b> <i class="arg">varList</i> <i class="arg">generator</i> <i class="arg">varList</i> <i class="arg">generator</i> <span class="opt">?...?</span> <i class="arg">body</i></a></li>
@@ -171,7 +164,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="cmd">generator</b> package provides commands to define and iterate over
 generator expressions. A <em>generator</em> is a command that returns a sequence
 of values. However, unlike an ordinary command that returns a list, a
@@ -189,7 +182,7 @@ mechanism.</p>
 <p>The package exports a single ensemble command, <b class="cmd">generator</b>. All
 functionality is provided as subcommands of this command. The core subcommands
 of the package are <b class="method">define</b>, <b class="method">yield</b>, and <b class="method">foreach</b>. The
-<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key589">proc</a></b> command, but creates a
+<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key591">proc</a></b> command, but creates a
 generator procedure; that is, a procedure that returns a generator when called.
 The generator itself is a command that can be called multiple times: each time
 it returns the next value in the generated series. When the
@@ -197,13 +190,13 @@ series has been exhausted, the generator command returns an empty list and then
 destroys itself. Rather than manually call a generator, however, the package
 also provides a flexible <b class="method">foreach</b> command that loops through the values of
 one or more generators. This loop construct mimicks the functionality of the
-built-in Tcl <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b> command, including handling multiple return values
+built-in Tcl <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b> command, including handling multiple return values
 and looping over multiple generators at once. Writing a generator is also a
 simple task, much like writing a normal procedure: simply use the <b class="method">define</b>
-command to define the generator, and then call <b class="method">yield</b> instead of <b class="cmd">return</b>.
+command to define the generator, and then call <b class="method">yield</b> instead of <b class="cmd"><a href="../../../../index.html#key187">return</a></b>.
 For example, we can define a generator for looping through the integers
 in a particular range:</p>
-<pre class="example">
+<pre class="doctools_example">
     generator define range {n m} {
         for {set i $n} {$i &lt;= $m} {incr i} { generator yield $i }
     }
@@ -219,7 +212,7 @@ can define a generator that produces the sequence of natural numbers: an
 infinite series. A normal procedure would never return trying to produce this
 series as a list. By using a generator we only have to generate those values
 which are actually used:</p>
-<pre class="example">
+<pre class="doctools_example">
     generator define nats {} {
         while 1 { generator yield [incr nat] }
     }
@@ -228,11 +221,11 @@ which are actually used:</p>
     }
 </pre>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">generator</b> <b class="method">define</b> <i class="arg">name</i> <i class="arg">params</i> <i class="arg">body</i></a></dt>
 <dd><p>Creates a new generator procedure. The arguments to the command are identical to
-those for <b class="cmd"><a href="../../../../index.html#key589">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
+those for <b class="cmd"><a href="../../../../index.html#key591">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
 parameter list format is identical to a procedure. In particular, default values
 and the <span class="opt">?args?</span> syntax can be used as usual. Each time the resulting
 generator procedure is called it creates a new generator command (coroutine)
@@ -251,10 +244,10 @@ multiple arguments, in which case this is equivalent to calling <b class="method
 once for each argument.</p></dd>
 <dt><a name="3"><b class="cmd">generator</b> <b class="method">foreach</b> <i class="arg">varList</i> <i class="arg">generator</i> <i class="arg">varList</i> <i class="arg">generator</i> <span class="opt">?...?</span> <i class="arg">body</i></a></dt>
 <dd><p>Loops through one or more generators, assigning the next values to variables and
-then executing the loop body. Works much like the built-in <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>
+then executing the loop body. Works much like the built-in <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>
 command, but working with generators rather than lists. Multiple generators can
 be iterated over in parallel, and multiple results can be retrieved from a
-single generator at once.  Like the built-in <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>, the loop will
+single generator at once.  Like the built-in <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>, the loop will
 continue until all of the generators have been exhausted: variables for
 generators that are exhausted early will be set to the empty string.</p>
 <p>The <b class="method">foreach</b> command will automatically clean-up all of the generators
@@ -285,12 +278,12 @@ the empty string.</p></dd>
 <dd><p>Used in the definition of a generator procedure, this command arranges for a
 resource to be cleaned up whenever the generator is destroyed, either explicitly
 or implicitly when the generator is exhausted. This command can be used like a
-<b class="method">finally</b> block in the <b class="cmd"><a href="../try/tcllib_try.html">try</a></b> command, except that it is tied to the
+<b class="method">finally</b> block in the <b class="cmd"><a href="../try/tcllib_throw.html">try</a></b> command, except that it is tied to the
 life-cycle of the generator rather than to a particular scope. For example, if
 we create a generator to iterate over the lines in a text file, we can use
 <b class="method">finally</b> to ensure that the file is closed whenever the generator is
 destroyed:</p>
-<pre class="example">
+<pre class="doctools_example">
     generator define lines file {
         set in [open $file]
         # Ensure file is always closed
@@ -309,7 +302,7 @@ destroyed:</p>
 <b class="method">map</b> and <b class="method">filter</b> generators defined later), then you should use
 a <b class="method">finally</b> command to ensure that this generator is destroyed when its
 parent is. For example, the <b class="method">map</b> generator is defined as follows:</p>
-<pre class="example">
+<pre class="doctools_example">
     generator define map {f xs} {
         generator finally generator destroy $xs
         generator foreach x $xs { generator yield [{*}$f $x] }
@@ -326,27 +319,27 @@ Finally, strings are yielded a character at a time.</p></dd>
 <b class="method">from</b> command, and supports the same data structures. The two operations
 obey the following identity laws (where <b class="method">=</b> is interpreted
 appropriately):</p>
-<pre class="example">
+<pre class="doctools_example">
     [generator to $fmt [generator from $fmt $value]] = $value
     [generator from $fmt [generator to $fmt $gen]]   = $gen
 </pre>
 </dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">PRELUDE</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">PRELUDE</a></h2>
 <p>The following commands are provided as a standard library of generator
 combinators and functions that perform convenience operations on generators. The
 functions in this section are loosely modelled on the equivalent functions from
 the Haskell Prelude. <em>Warning:</em> most of the functions in this prelude
 destroy any generator arguments they are passed as a side-effect. If you want to
 have persistent generators, see the streams library.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="11"><b class="cmd">generator</b> <b class="method">map</b> <i class="arg">function</i> <i class="arg">generator</i></a></dt>
 <dd><p>Apply a function to every element of a generator, returning a new generator of
 the results. This is the classic map function from functional programming,
 applied to generators. For example, we can generate all the square numbers using
 the following code (where <b class="cmd">nats</b> is defined as earlier):</p>
-<pre class="example">
+<pre class="doctools_example">
     proc square x { expr {$x * $x} }
     generator foreach n [generator map square [nats]] {
         puts &quot;n = $n&quot;
@@ -361,7 +354,7 @@ predicate (boolean function). For example, if we had a generator <b class="varia
 that returned a stream of dictionaries representing people, we could filter all
 those whose salaries are above 100,000 dollars (or whichever currency you prefer)
 using a simple filter:</p>
-<pre class="example">
+<pre class="doctools_example">
     proc salary&gt; {amount person} { expr {[dict get $person salary] &gt; $amount} }
     set fat-cats [generator filter {salary&gt; 100000} $employees]
 </pre>
@@ -378,7 +371,7 @@ operation, then we can consider the <b class="method">reduce</b> command as <em>
 the operator between each successive pair of values in the generator in a
 left-associative fashion. For example, the sum of a sequence of numbers can be
 calculated by folding a <b class="cmd">+</b> operator between them, with 0 as the identity:</p>
-<pre class="example">
+<pre class="doctools_example">
     # sum xs          = reduce + 0 xs
     # sum [range 1 5] = reduce + 0 [range 1 5]
     #                 = reduce + [+ 0 1] [range 2 5]
@@ -395,7 +388,7 @@ calculated by folding a <b class="cmd">+</b> operator between them, with 0 as th
 different operations can be defined using it. For example, we can define a
 factorial function as the product of a range using generators. This definition
 is both very clear and also quite efficient (in both memory and running time):</p>
-<pre class="example">
+<pre class="doctools_example">
     proc * {x y} { expr {$x * $y} }
     proc prod gen { generator reduce * 0 $gen }
     proc fac n { prod [range 1 $n] }
@@ -403,7 +396,7 @@ is both very clear and also quite efficient (in both memory and running time):</
 <p>However, while the <b class="method">reduce</b> operation is efficient for finite generators,
 care should be taken not to apply it to an infinite generator, as this will
 result in an infinite loop:</p>
-<pre class="example">
+<pre class="doctools_example">
     sum [nats]; # Never returns
 </pre>
 </dd>
@@ -464,7 +457,7 @@ generator is destroyed.</p></dd>
 <dt><a name="32"><b class="cmd">generator</b> <b class="method">iterate</b> <i class="arg">function</i> <i class="arg">init</i></a></dt>
 <dd><p>Returns an infinite generator formed by repeatedly applying the function to the
 initial argument. For example, the Fibonacci numbers can be defined as follows:</p>
-<pre class="example">
+<pre class="doctools_example">
     proc fst pair { lindex $pair 0 }
     proc snd pair { lindex $pair 1 }
     proc nextFib ab { list [snd $ab] [expr {[fst $ab] + [snd $ab]}] }
@@ -492,7 +485,7 @@ the predicate.</p></dd>
 delimiters. The resulting lists are returned as a generator. Elements matching
 the delimiter predicate are discarded. For example, to split up a generator
 using the string &quot;|&quot; as a delimiter:</p>
-<pre class="example">
+<pre class="doctools_example">
     set xs [generator from list {a | b | c}]
     generator split {string equal &quot;|&quot;} $xs ;# returns a then b then c
 </pre>
@@ -503,11 +496,11 @@ values for the accumulator argument. The final element of this generator is
 equivalent to <b class="method">foldl</b> called on the same arguments.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">BUGS, IDEAS, FEEDBACK</a></h2>
 <p>Please report any errors in this document, or in the package it describes, to
 <a href="mailto:nem@cs.nott.ac.uk">Neil Madden</a>.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key222">control structure</a>, <a href="../../../../index.html#key217">coroutine</a>, <a href="../../../../index.html#key221">filter</a>, <a href="../../../../index.html#key219">foldl</a>, <a href="../../../../index.html#key224">foldr</a>, <a href="../../../../index.html#key216">foreach</a>, <a href="../../../../index.html#key223">generator</a>, <a href="../../../../index.html#key220">iterator</a>, <a href="../../../../index.html#key199">map</a>, <a href="../../../../index.html#key215">reduce</a>, <a href="../../../../index.html#key218">scanl</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key224">control structure</a>, <a href="../../../../index.html#key219">coroutine</a>, <a href="../../../../index.html#key223">filter</a>, <a href="../../../../index.html#key221">foldl</a>, <a href="../../../../index.html#key226">foldr</a>, <a href="../../../../index.html#key218">foreach</a>, <a href="../../../../index.html#key225">generator</a>, <a href="../../../../index.html#key222">iterator</a>, <a href="../../../../index.html#key201">map</a>, <a href="../../../../index.html#key217">reduce</a>, <a href="../../../../index.html#key220">scanl</a></p>
 </div>
-</div></body></html>
+</div>

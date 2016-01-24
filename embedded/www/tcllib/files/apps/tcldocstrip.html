@@ -1,7 +1,6 @@
 
-<html><head>
-<title>tcldocstrip - Textprocessing toolbox</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='tcldocstrip - Textprocessing toolbox'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,72 +81,64 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'tcldocstrip.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2005 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ tcldocstrip.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../home">Tcllib Home</a>
-| <a href="../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../toc.html">Main Table Of Contents</a>
 | <a href="../../toc.html">Table Of Contents</a>
 | <a href="../../../index.html">Keyword Index</a>
 | <a href="../../../toc0.html">Categories</a>
 | <a href="../../../toc1.html">Modules</a>
 | <a href="../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">tcldocstrip(n) 1.0 tcllib &quot;Textprocessing toolbox&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">tcldocstrip(n) 1.0 tcllib &quot;Textprocessing toolbox&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>tcldocstrip - Tcl-based Docstrip Processor</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a>
 <ul>
-<li class="subsection"><a href="#subsection1">USE CASES</a></li>
-<li class="subsection"><a href="#subsection2">COMMAND LINE</a></li>
-<li class="subsection"><a href="#subsection3">OPTIONS</a></li>
+<li class="doctools_subsection"><a href="#subsection1">USE CASES</a></li>
+<li class="doctools_subsection"><a href="#subsection2">COMMAND LINE</a></li>
+<li class="doctools_subsection"><a href="#subsection3">OPTIONS</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="syntax">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">tcldocstrip</b> <i class="arg">output</i> <span class="opt">?options?</span> <i class="arg">input</i> <span class="opt">?<i class="arg">guards</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">tcldocstrip</b> <span class="opt">?options?</span> <i class="arg">output</i> (<span class="opt">?options?</span> <i class="arg">input</i> <i class="arg">guards</i>)...</a></li>
 <li><a href="#3"><b class="cmd">tcldocstrip</b> <b class="option">-guards</b> <i class="arg">input</i></a></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The application described by this document, <b class="syscmd">tcldocstrip</b>, is a
 relative of <b class="syscmd"><a href="../modules/docstrip/docstrip.html">docstrip</a></b>, a simple literate programming tool for
 LaTeX.</p>
 <p><b class="syscmd">tcldocstrip</b> is based upon the package <b class="package"><a href="../modules/docstrip/docstrip.html">docstrip</a></b>.</p>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">USE CASES</a></h3>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">USE CASES</a></h3>
 <p><b class="syscmd">tcldocstrip</b> was written with the following three use cases in
 mind.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>Conversion of a single input file according to the listed guards into
 the stripped output. This handles the most simple case of a set of
 guards specifying a single document found in a single input file.</p></li>
@@ -160,8 +151,8 @@ used within a document to help a person which did not author the
 document in question in familiarizing itself with it.</p></li>
 </ol>
 </div>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">COMMAND LINE</a></h3>
-<dl class="definitions">
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">COMMAND LINE</a></h3>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">tcldocstrip</b> <i class="arg">output</i> <span class="opt">?options?</span> <i class="arg">input</i> <span class="opt">?<i class="arg">guards</i>?</span></a></dt>
 <dd><p>This is the form for use case [1]. It converts the <i class="arg">input</i>
 file according to the specified <i class="arg">guards</i> and options. The result
@@ -170,7 +161,7 @@ Usage of the string <b class="const">-</b> as the name of the output signals tha
 the result should be written to <b class="const">stdout</b>. The guards are
 document-specific and have to be known to the caller. The
 <i class="arg">options</i> will be explained later, in section <span class="sectref"><a href="#subsection3">OPTIONS</a></span>.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>path <i class="arg">output</i> (in)</dt>
 <dd><p>This argument specifies where to write the generated document. It can
 be the path to a file or directory, or <b class="const">-</b>.
@@ -180,7 +171,7 @@ documented to <b class="const">stdout</b>.</p>
 has to exist and must be a writable directory.</p></dd>
 <dt>path <i class="arg">inputfile</i> (in)</dt>
 <dd><p>This argument specifies the path to the file to process. It has to
-exist, must be readable, and written in <i class="term"><a href="../../../index.html#key432">docstrip</a></i> format.</p></dd>
+exist, must be readable, and written in <i class="term"><a href="../../../index.html#key434">docstrip</a></i> format.</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">tcldocstrip</b> <span class="opt">?options?</span> <i class="arg">output</i> (<span class="opt">?options?</span> <i class="arg">input</i> <i class="arg">guards</i>)...</a></dt>
 <dd><p>This is the form for use case [2]. It differs from the form for
@@ -207,11 +198,11 @@ provided <i class="arg">input</i> document. The found strings are written to
 stdout, one string per line.</p></dd>
 </dl>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">OPTIONS</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">OPTIONS</a></h3>
 <p>This section describes all the options available to the user of the
 application, with the exception of the option <b class="option">-guards</b>. This
 option was described already, in section <span class="sectref"><a href="#subsection2">COMMAND LINE</a></span>.</p>
-<dl class="options">
+<dl class="doctools_options">
 <dt><b class="option">-metaprefix</b> string</dt>
 <dd><p>This option is inherited from the command <b class="cmd">docstrip::extract</b>
 provided by the package <b class="package"><a href="../modules/docstrip/docstrip.html">docstrip</a></b>.</p>
@@ -223,7 +214,7 @@ be '#'.</p></dd>
 provided by the package <b class="package"><a href="../modules/docstrip/docstrip.html">docstrip</a></b>.</p>
 <p>It controls what will be done when a format error in the <i class="arg">text</i>
 being processed is detected. The settings are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">ignore</b></dt>
 <dd><p>Just ignore the error; continue as if nothing happened.</p></dd>
 <dt><b class="const">puts</b></dt>
@@ -256,7 +247,7 @@ written after the actual content of a generated file.</p></dd>
 </dl>
 </div>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>docstrip</em> of the
@@ -264,16 +255,16 @@ Please report such in the category <em>docstrip</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="../modules/docstrip/docstrip.html">docstrip</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../index.html#key436">.dtx</a>, <a href="../../../index.html#key435">LaTeX</a>, <a href="../../../index.html#key20">conversion</a>, <a href="../../../index.html#key432">docstrip</a>, <a href="../../../index.html#key185">documentation</a>, <a href="../../../index.html#key434">literate programming</a>, <a href="../../../index.html#key16">markup</a>, <a href="../../../index.html#key433">source</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../index.html#key438">.dtx</a>, <a href="../../../index.html#key437">LaTeX</a>, <a href="../../../index.html#key20">conversion</a>, <a href="../../../index.html#key434">docstrip</a>, <a href="../../../index.html#key185">documentation</a>, <a href="../../../index.html#key436">literate programming</a>, <a href="../../../index.html#key16">markup</a>, <a href="../../../index.html#key435">source</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2005 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

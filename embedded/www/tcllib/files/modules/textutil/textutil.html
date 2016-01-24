@@ -1,6 +1,5 @@
-<html><head>
-<title>textutil - Text and string utilities, macro processing</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='textutil - Text and string utilities, macro processing'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,52 +80,46 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'textutil.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ textutil.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">textutil(n) 0.8 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">textutil(n) 0.8 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>textutil - Procedures to manipulate texts and strings.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">textutil <span class="opt">?0.8?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::textutil::adjust</b> <i class="arg">string args</i></a></li>
 <li><a href="#2"><b class="cmd">::textutil::adjust::readPatterns</b> <i class="arg">filename</i></a></li>
 <li><a href="#3"><b class="cmd">::textutil::adjust::listPredefined</b></a></li>
@@ -155,12 +148,12 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The package <b class="package">textutil</b> provides commands that manipulate
 strings or texts (a.k.a. long strings or string with embedded newlines
 or paragraphs).
 It is actually a bundle providing the commands of the six packages</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="package"><a href="adjust.html">textutil::adjust</a></b></dt>
 <dd></dd>
 <dt><b class="package"><a href="repeat.html">textutil::repeat</a></b></dt>
@@ -180,7 +173,7 @@ release of Tcllib, after the next release. It is recommended to use the
 relevant sub packages instead for whatever functionality is needed by
 the using package or application.</p>
 <p>The complete set of procedures is described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::textutil::adjust</b> <i class="arg">string args</i></a></dt>
 <dd><p>Do a justification on the <i class="arg">string</i> according to <i class="arg">args</i>.  The
 string is taken as one big paragraph, ignoring any newlines.  Then the
@@ -202,7 +195,7 @@ trailing spaces are ignored before returning the string (see
 <b class="option">-full</b> option below). The following options may be used after the
 <i class="arg">string</i> parameter, and change the way the command place a
 <em>real</em> line in a <em>logical</em> line.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>-full <i class="arg">boolean</i></dt>
 <dd><p>If set to <b class="const">false</b>, any trailing space chars are deleted before
 returning the string. If set to <b class="const">true</b>, any trailing space
@@ -222,7 +215,7 @@ chars in the last line is less than 90% of the length of a line (see
 <b class="option">-length</b>), then this line is justified with the <b class="const">left</b>
 value, avoiding the expansion of this line when it is too small. The
 meaning of each value is:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">center</b></dt>
 <dd><p>The real line is centered in the logical line. If needed, a set of
 space characters are added at the beginning (half of the needed set)
@@ -306,8 +299,8 @@ according to the regular expression <i class="arg">regexp</i> instead of a simpl
 list of chars. Note that if you add parenthesis into the <i class="arg">regexp</i>,
 the parentheses part of separator would be added into list as
 additional element. If the <i class="arg">string</i> is empty the result is the
-empty list, like for <b class="cmd"><a href="../../../../index.html#key437">split</a></b>. If <i class="arg">regexp</i> is empty the
-<i class="arg">string</i> is split at every character, like <b class="cmd"><a href="../../../../index.html#key437">split</a></b> does.
+empty list, like for <b class="cmd"><a href="../../../../index.html#key439">split</a></b>. If <i class="arg">regexp</i> is empty the
+<i class="arg">string</i> is split at every character, like <b class="cmd"><a href="../../../../index.html#key439">split</a></b> does.
 The regular expression <i class="arg">regexp</i> defaults to &quot;[\\t \\r\\n]+&quot;.</p></dd>
 <dt><a name="9"><b class="cmd">::textutil::tabify</b> <i class="arg">string</i> <span class="opt">?<i class="arg">num</i>?</span></a></dt>
 <dd><p>Tabify the <i class="arg">string</i> by replacing any substring of <i class="arg">num</i> space
@@ -403,7 +396,7 @@ one string was specified, the string itself is returned, as it is its
 own longest common prefix.</p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>textutil</em> of the
@@ -411,13 +404,13 @@ Please report such in the category <em>textutil</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>regexp(n), split(n), string(n)</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key343">TeX</a>, <a href="../../../../index.html#key245">formatting</a>, <a href="../../../../index.html#key346">hyphenation</a>, <a href="../../../../index.html#key342">indenting</a>, <a href="../../../../index.html#key345">paragraph</a>, <a href="../../../../index.html#key322">regular expression</a>, <a href="../../../../index.html#key278">string</a>, <a href="../../../../index.html#key426">trimming</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key345">TeX</a>, <a href="../../../../index.html#key247">formatting</a>, <a href="../../../../index.html#key348">hyphenation</a>, <a href="../../../../index.html#key344">indenting</a>, <a href="../../../../index.html#key347">paragraph</a>, <a href="../../../../index.html#key324">regular expression</a>, <a href="../../../../index.html#key280">string</a>, <a href="../../../../index.html#key428">trimming</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Text processing</p>
 </div>
-</div></body></html>
+</div>

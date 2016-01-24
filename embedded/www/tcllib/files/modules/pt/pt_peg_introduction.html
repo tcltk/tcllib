@@ -1,7 +1,6 @@
 
-<html><head>
-<title>pt::pegrammar - Parser Tools</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='pt::pegrammar - Parser Tools'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,57 +81,49 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'pt_peg_introduction.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ pt::pegrammar.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">pt::pegrammar(n) 1 tcllib &quot;Parser Tools&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">pt::pegrammar(n) 1 tcllib &quot;Parser Tools&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>pt::pegrammar - Introduction to Parsing Expression Grammars</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Formal definition</a></li>
-<li class="section"><a href="#section3">References</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Formal definition</a></li>
+<li class="doctools_section"><a href="#section3">References</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
@@ -190,24 +181,24 @@ PEGs for the mathematically inclined, and an appendix listing
 references to places with more information on PEGs specifically, and
 parsing in general.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Formal definition</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Formal definition</a></h2>
 <p>For the mathematically inclined, a Parsing Expression Grammar is a
 4-tuple (VN,VT,R,eS) where</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>VN is a set of <i class="term">nonterminal symbols</i>,</p></li>
 <li><p>VT is a set of <i class="term">terminal symbols</i>,</p></li>
 <li><p>R is a finite set of rules, where each rule is a pair (A,e), A in VN,
-and <i class="term"><a href="../../../../index.html#key802">e</a></i> a <i class="term"><a href="../../../../index.html#key8">parsing expression</a></i>.</p></li>
+and <i class="term"><a href="../../../../index.html#key806">e</a></i> a <i class="term"><a href="../../../../index.html#key8">parsing expression</a></i>.</p></li>
 <li><p>eS is a parsing expression, the <i class="term">start expression</i>.</p></li>
 </ul>
 <p>Further constraints are</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The intersection of VN and VT is empty.</p></li>
 <li><p>For all A in VT exists exactly one pair (A,e) in R. In other words, R
 is a function from nonterminal symbols to parsing expressions.</p></li>
 </ul>
 <p>Parsing expressions are inductively defined via</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The empty string (epsilon) is a parsing expression.</p></li>
 <li><p>A terminal symbol <i class="term">a</i> is a parsing expression.</p></li>
 <li><p>A nonterminal symbol <i class="term">A</i> is a parsing expression.</p></li>
@@ -215,15 +206,15 @@ is a function from nonterminal symbols to parsing expressions.</p></li>
 <i class="term">e1</i> and <i class="term">2</i>. This is called <i class="term">sequence</i>.</p></li>
 <li><p><i class="term">e1</i>/<i class="term">e2</i> is a parsing expression for parsing expressions
 <i class="term">e1</i> and <i class="term">2</i>. This is called <i class="term">ordered choice</i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key802">e</a></i>* is a parsing expression for parsing expression
-<i class="term"><a href="../../../../index.html#key802">e</a></i>. This is called <i class="term">zero-or-more repetitions</i>, also known
+<li><p><i class="term"><a href="../../../../index.html#key806">e</a></i>* is a parsing expression for parsing expression
+<i class="term"><a href="../../../../index.html#key806">e</a></i>. This is called <i class="term">zero-or-more repetitions</i>, also known
 as <i class="term">kleene closure</i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key802">e</a></i>+ is a parsing expression for parsing expression
-<i class="term"><a href="../../../../index.html#key802">e</a></i>. This is called <i class="term">one-or-more repetitions</i>, also known
+<li><p><i class="term"><a href="../../../../index.html#key806">e</a></i>+ is a parsing expression for parsing expression
+<i class="term"><a href="../../../../index.html#key806">e</a></i>. This is called <i class="term">one-or-more repetitions</i>, also known
 as <i class="term">positive kleene closure</i>.</p></li>
-<li><p>!<i class="term"><a href="../../../../index.html#key802">e</a></i> is a parsing expression for parsing expression
+<li><p>!<i class="term"><a href="../../../../index.html#key806">e</a></i> is a parsing expression for parsing expression
 <i class="term">e1</i>. This is called a <i class="term">not lookahead predicate</i>.</p></li>
-<li><p>&amp;<i class="term"><a href="../../../../index.html#key802">e</a></i> is a parsing expression for parsing expression
+<li><p>&amp;<i class="term"><a href="../../../../index.html#key806">e</a></i> is a parsing expression for parsing expression
 <i class="term">e1</i>. This is called an <i class="term">and lookahead predicate</i>.</p></li>
 </ul>
 <p>PEGs are used to define a grammatical structure for streams of symbols
@@ -235,8 +226,8 @@ scheme), and gTS (generalized TS). Later they were renamed to TPDL
 backtracking. This makes them relatives of LL(k) Context-Free
 Grammars.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">References</a></h2>
-<ol class="enumerated">
+<div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
+<ol class="doctools_enumerated">
 <li><p><a href="http://www.pdos.lcs.mit.edu/~baford/packrat/">The Packrat Parsing and Parsing Expression Grammars Page</a>,
 by Bryan Ford, Massachusetts Institute of Technology. This is the main
 entry page to PEGs, and their realization through Packrat Parsers.</p></li>
@@ -250,7 +241,7 @@ applicabilities, including error recovery techniques.</p></li>
 CoCo/R, a generator for recursive descent parsers.</p></li>
 </ol>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>pt</em> of the
@@ -258,13 +249,13 @@ Please report such in the category <em>pt</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#key3">EBNF</a>, <a href="../../../../index.html#key15">LL(k)</a>, <a href="../../../../index.html#key6">PEG</a>, <a href="../../../../index.html#key7">TDPL</a>, <a href="../../../../index.html#key4">context-free languages</a>, <a href="../../../../index.html#key0">expression</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key9">parser</a>, <a href="../../../../index.html#key8">parsing expression</a>, <a href="../../../../index.html#key14">parsing expression grammar</a>, <a href="../../../../index.html#key1">push down automaton</a>, <a href="../../../../index.html#key10">recursive descent</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key13">top-down parsing languages</a>, <a href="../../../../index.html#key12">transducer</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Parsing and Grammars</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

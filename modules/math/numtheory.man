@@ -1,11 +1,14 @@
-[manpage_begin math::numtheory n 1.0]
+[manpage_begin math::numtheory n 1.1]
+[keywords {modular exponentiation}]
+[keywords {number theory}]
+[keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc   {Tcl Math Library}]
 [titledesc {Number Theory}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::numtheory [opt 1.0]]
+[require math::numtheory [opt 1.1]]
 
 [description]
 [para]
@@ -162,5 +165,6 @@ integer is a prime.
 
 [list_end]
 
-[keywords {number theory} prime {modular exponentiation}]
+[vset CATEGORY {math :: numtheory}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

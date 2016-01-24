@@ -1,7 +1,6 @@
 
-<html><head>
-<title>websocket - websocket client and server</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='websocket - websocket client and server'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,52 +81,46 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'websocket.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ websocket.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">websocket(n) 1.3.1 tcllib &quot;websocket client and server&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">websocket(n) 1.3.1 tcllib &quot;websocket client and server&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>websocket - Tcl implementation of the websocket protocol</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Callbacks</a></li>
-<li class="section"><a href="#section3">API</a></li>
-<li class="section"><a href="#section4">Examples</a></li>
-<li class="section"><a href="#section5">TLS Security Considerations</a></li>
-<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Callbacks</a></li>
+<li class="doctools_section"><a href="#section3">API</a></li>
+<li class="doctools_section"><a href="#section4">Examples</a></li>
+<li class="doctools_section"><a href="#section5">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">http 2.7</b></li>
 <li>package require <b class="pkgname">logger</b></li>
@@ -135,7 +128,7 @@
 <li>package require <b class="pkgname">base64</b></li>
 <li>package require <b class="pkgname">websocket <span class="opt">?1.3.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::websocket::open</b> <i class="arg">url</i> <i class="arg">handler</i> <span class="opt">?<i class="arg">options</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::websocket::send</b> <i class="arg">sock</i> <i class="arg">type</i> <span class="opt">?<i class="arg">msg</i>?</span> <span class="opt">?<i class="arg">final</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::websocket::server</b> <i class="arg">sock</i></a></li>
@@ -151,7 +144,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>NOTE: THIS DOCUMENTATION IS WORK IN PROGRESS...</p>
 <p>The websocket library is a pure Tcl implementation of the WebSocket
 specification covering the needs of both clients and servers.
@@ -200,20 +193,20 @@ callbacks, i.e. commands that are triggered whenever important events
 within the library have occur, but mostly whenever data has been
 received on a WebSocket.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Callbacks</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Callbacks</a></h2>
 <p>A number of commands of the library take a handler handler command as
 an argument, a command which will be called back upon reception of
 data, but also upon important events within the library or events
 resulting from control messages sent by the remote end.  For each
 callback being performed, the following arguments will be appended:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><i class="arg">sock</i></dt>
 <dd><p>The identifier of the WebSocket, as returned for example by 
 <b class="cmd">::websocket::open</b></p></dd>
 <dt><i class="arg">type</i></dt>
 <dd><p>A textual type describing the event or message content, can be one of
 the following</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">text</b></dt>
 <dd><p>Complete text message</p></dd>
 <dt><b class="const">binary</b></dt>
@@ -233,8 +226,8 @@ i.e. when the <i class="arg">type</i> is <b class="const">text</b>, <b class="co
 <b class="const">ping</b> and whenever there is data available.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">API</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::websocket::open</b> <i class="arg">url</i> <i class="arg">handler</i> <span class="opt">?<i class="arg">options</i>?</span></a></dt>
 <dd><p>This command is used in clients to open a WebSocket to a remote
 websocket-enabled HTTP server.  The URL provided as an argument in
@@ -251,7 +244,7 @@ this command provides mostly the same set of dash-led options than
 <b class="cmd">::http::geturl</b>.  Documented below are the options that differ
 from <b class="cmd">::http::geturl</b> and which are specific to the WebSocket
 library.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>-headers</dt>
 <dd><p>This option is supported, knowing that a number of headers will be
 automatically added internally in the library in order to be able to
@@ -337,7 +330,7 @@ true, the library will arrange to send these pings automatically.</p></dd>
 some semi-internal information about an existing websocket
 connection. Depending on the value of the <i class="arg">what</i> argument, the
 procedure returns the following piece of information:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">peername</b></dt>
 <dd><p>Name (preferred) or IP of remote end.</p></dd>
 <dt><b class="const">sockname</b></dt>
@@ -354,7 +347,7 @@ procedure returns the following piece of information:</p>
 <dd><p>The handler command associated to the websocket</p></dd>
 <dt><b class="const">state</b></dt>
 <dd><p>The state of the websocket, which can be one of:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">CONNECTING</b></dt>
 <dd><p>Connection to remote end is in progress.</p></dd>
 <dt><b class="const">CONNECTED</b></dt>
@@ -376,7 +369,7 @@ arguments are glob-style string matching filters and default to
 configure the behaviour of an existing websocket connection.  The
 recognised options are the following (they can be shortened to the
 lowest common denominator):</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">-keepalive</b></dt>
 <dd><p>is the number of seconds between each
 keepalive pings being sent along the connection.  A zero or negative
@@ -401,7 +394,7 @@ the desired log level.</p></dd>
 Good defaults are provided, so that reasons for a number of known codes will
 be sent back. Only the first 125 characters of a reason string will be kept and
 sent as part of the handshake. The known codes are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">1000</b></dt>
 <dd><p>Normal closure (the default <i class="arg">code</i> when none provided).</p></dd>
 <dt><b class="const">1001</b></dt>
@@ -427,14 +420,14 @@ sent as part of the handshake. The known codes are:</p>
 </dl></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Examples</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Examples</a></h2>
 <p>The following example opens a websocket connection to the echo
 service, waits 400ms to ensure that the connection is really
 established and sends a single textual message which should be echoed
 back by the echo service.  A real example would probably use the
 <b class="const">connect</b> callback to know when connection to the remote
 server has been establish and would only send data at that time.</p>
-<pre class="example">
+<pre class="doctools_example">
 package require websocket
 ::websocket::loglevel debug
 proc handler { sock type msg } {
@@ -461,11 +454,11 @@ after 400 test $sock
 vwait forever
 </pre>
 </div>
-<div id="section5" class="section"><h2><a name="section5">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key329">TLS</a></b> package to handle the security
+<div id="section5" class="doctools_section"><h2><a name="section5">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -473,17 +466,17 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key329">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key329">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>websocket</em> of the
@@ -491,13 +484,13 @@ Please report such in the category <em>websocket</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
-<p><a href="../../../../index.html#key443">http</a></p>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
+<p><a href="../../../../index.html#key445">http</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key443">http</a>, <a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key293">net</a>, <a href="../../../../index.html#key444">rfc 6455</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key445">http</a>, <a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key295">net</a>, <a href="../../../../index.html#key446">rfc 6455</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-</div></body></html>
+</div>

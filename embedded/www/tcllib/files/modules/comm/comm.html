@@ -1,7 +1,6 @@
 
-<html><head>
-<title>comm - Remote communication</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='comm - Remote communication'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,78 +81,70 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'comm.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 1995-1998 The Open Group. All Rights Reserved.   -- Copyright &copy; 2003-2004 ActiveState Corporation.   -- Copyright &copy; 2006-2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ comm.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">comm(n) 4.6.3 tcllib &quot;Remote communication&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">comm(n) 4.6.3 tcllib &quot;Remote communication&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>comm - A remote communication facility for Tcl (8.3 and later)</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Commands</a></li>
-<li class="subsection"><a href="#subsection2">Eval Semantics</a></li>
-<li class="subsection"><a href="#subsection3">Multiple Channels</a></li>
-<li class="subsection"><a href="#subsection4">Channel Configuration</a></li>
-<li class="subsection"><a href="#subsection5">Id/port Assignments</a></li>
-<li class="subsection"><a href="#subsection6">Execution Environment</a></li>
-<li class="subsection"><a href="#subsection7">Remote Interpreters</a></li>
-<li class="subsection"><a href="#subsection8">Closing Connections</a></li>
-<li class="subsection"><a href="#subsection9">Callbacks</a></li>
-<li class="subsection"><a href="#subsection10">Unsupported</a></li>
-<li class="subsection"><a href="#subsection11">Security</a></li>
-<li class="subsection"><a href="#subsection12">Blocking Semantics</a></li>
-<li class="subsection"><a href="#subsection13">Asynchronous Result Generation</a></li>
-<li class="subsection"><a href="#subsection14">Compatibility</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Commands</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Eval Semantics</a></li>
+<li class="doctools_subsection"><a href="#subsection3">Multiple Channels</a></li>
+<li class="doctools_subsection"><a href="#subsection4">Channel Configuration</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Id/port Assignments</a></li>
+<li class="doctools_subsection"><a href="#subsection6">Execution Environment</a></li>
+<li class="doctools_subsection"><a href="#subsection7">Remote Interpreters</a></li>
+<li class="doctools_subsection"><a href="#subsection8">Closing Connections</a></li>
+<li class="doctools_subsection"><a href="#subsection9">Callbacks</a></li>
+<li class="doctools_subsection"><a href="#subsection10">Unsupported</a></li>
+<li class="doctools_subsection"><a href="#subsection11">Security</a></li>
+<li class="doctools_subsection"><a href="#subsection12">Blocking Semantics</a></li>
+<li class="doctools_subsection"><a href="#subsection13">Asynchronous Result Generation</a></li>
+<li class="doctools_subsection"><a href="#subsection14">Compatibility</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section2">TLS Security Considerations</a></li>
-<li class="section"><a href="#section3">Author</a></li>
-<li class="section"><a href="#section4">License</a></li>
-<li class="section"><a href="#section5">Bugs</a></li>
-<li class="section"><a href="#section6">On Using Old Versions Of Tcl</a></li>
-<li class="section"><a href="#section7">Related Work</a></li>
-<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section2">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section3">Author</a></li>
+<li class="doctools_section"><a href="#section4">License</a></li>
+<li class="doctools_section"><a href="#section5">Bugs</a></li>
+<li class="doctools_section"><a href="#section6">On Using Old Versions Of Tcl</a></li>
+<li class="doctools_section"><a href="#section7">Related Work</a></li>
+<li class="doctools_section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
 <li>package require <b class="pkgname">comm <span class="opt">?4.6.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::comm::comm send</b> <span class="opt">?-async?</span> <span class="opt">?-command <i class="arg">callback</i>?</span> <i class="arg">id</i> <i class="arg">cmd</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::comm::comm self</b></a></li>
 <li><a href="#3"><b class="cmd">::comm::comm interps</b></a></li>
@@ -176,28 +167,28 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">comm</b> command provides an inter-interpreter remote
 execution facility much like Tk's <b class="cmd">send(n)</b>, except that it uses
 sockets rather than the X server for the communication path.  As a
 result, <b class="package">comm</b> works with multiple interpreters, works on
 Windows and Macintosh systems, and provides control over the remote
 execution path.</p>
-<p>These commands work just like <b class="cmd"><a href="../../../../index.html#key351">send</a></b> and <b class="cmd">winfo interps</b> :</p>
-<pre class="example">
+<p>These commands work just like <b class="cmd"><a href="../../../../index.html#key353">send</a></b> and <b class="cmd">winfo interps</b> :</p>
+<pre class="doctools_example">
     ::comm::comm send ?-async? id cmd ?arg arg ...?
     ::comm::comm interps
 </pre>
 <p>This is all that is really needed to know in order to use
 <b class="package">comm</b></p>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Commands</a></h3>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Commands</a></h3>
 <p>The package initializes <b class="cmd">::comm::comm</b> as the default <em>chan</em>.</p>
 <p><b class="package">comm</b> names communication endpoints with an <em>id</em> unique
 to each machine.  Before sending commands, the <em>id</em> of another
 interpreter is needed.  Unlike Tk's send, <b class="package">comm</b> doesn't
 implicitly know the <em>id</em>'s of all the interpreters on the system.
 The following four methods make up the basic <b class="package">comm</b> interface.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::comm::comm send</b> <span class="opt">?-async?</span> <span class="opt">?-command <i class="arg">callback</i>?</span> <i class="arg">id</i> <i class="arg">cmd</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
 <dd><p>This invokes the given command in the interpreter named by <i class="arg">id</i>.  The
 command waits for the result and remote errors are returned unless the
@@ -232,31 +223,31 @@ sending a command.  After this, the remote <em>id</em> will appear in
 <b class="cmd">::comm::comm interps</b>.</p></dd>
 </dl>
 </div>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">Eval Semantics</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Eval Semantics</a></h3>
 <p>The evaluation semantics of <b class="cmd">::comm::comm send</b> are intended to
-match Tk's <b class="cmd"><a href="../../../../index.html#key351">send</a></b> <em>exactly</em>. This means that <b class="package">comm</b>
+match Tk's <b class="cmd"><a href="../../../../index.html#key353">send</a></b> <em>exactly</em>. This means that <b class="package">comm</b>
 evaluates arguments on the remote side.</p>
 <p>If you find that <b class="cmd">::comm::comm send</b> doesn't work for a
 particular command, try the same thing with Tk's send and see if the
 result is different.  If there is a problem, please report it.  For
 instance, there was had one report that this command produced an
-error.  Note that the equivalent <b class="cmd"><a href="../../../../index.html#key351">send</a></b> command also produces the
+error.  Note that the equivalent <b class="cmd"><a href="../../../../index.html#key353">send</a></b> command also produces the
 same error.</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm send id llength {a b c}
     wrong # args: should be &quot;llength list&quot;
     % send name llength {a b c}
     wrong # args: should be &quot;llength list&quot;
 </pre>
 <p>The <b class="cmd">eval</b> hook (described below) can be used to change from
-<b class="cmd"><a href="../../../../index.html#key351">send</a></b>'s double eval semantics to single eval semantics.</p>
+<b class="cmd"><a href="../../../../index.html#key353">send</a></b>'s double eval semantics to single eval semantics.</p>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
 <p>More than one <b class="cmd">comm</b> channel (or <em>listener</em>) can be created
 in each Tcl interpreter.  This allows flexibility to create full and
-restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key677">hook</a></i> scripts are specific
+restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key679">hook</a></i> scripts are specific
 to the channel they are defined against.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="5"><b class="cmd">::comm::comm new</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">name value ...</i>?</span></a></dt>
 <dd><p>This creates a new channel and Tcl command with the given channel
 name.  This new command controls the new channel and takes all the
@@ -267,18 +258,18 @@ name is returned.</p></dd>
 <dd><p>This lists all the channels allocated in this Tcl interpreter.</p></dd>
 </dl>
 <p>The default configuration parameters for a new channel are:</p>
-<pre class="example">
+<pre class="doctools_example">
     &quot;-port 0 -local 1 -listen 0 -silent 0&quot;
 </pre>
 <p>The default channel <b class="cmd">::comm::comm</b> is created with:</p>
-<pre class="example">
+<pre class="doctools_example">
     &quot;::comm::comm new ::comm::comm -port 0 -local 1 -listen 1 -silent 0&quot;
 </pre>
 </div>
-<div id="subsection4" class="subsection"><h3><a name="subsection4">Channel Configuration</a></h3>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Channel Configuration</a></h3>
 <p>The <b class="cmd">config</b> method acts similar to <b class="cmd">fconfigure</b> in that it
 sets or queries configuration variables associated with a channel.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="7"><b class="cmd">::comm::comm config</b></a></dt>
 <dd></dd>
 <dt><a name="8"><b class="cmd">::comm::comm config</b> <i class="arg">name</i></a></dt>
@@ -291,7 +282,7 @@ variables are set to the given values.</p></dd>
 </dl>
 <p>These configuration variables can be changed (descriptions of them are
 elsewhere in this manual page):</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-listen</b> <span class="opt">?<i class="arg">0|1</i>?</span></dt>
 <dd></dd>
 <dt><b class="option">-local</b>  <span class="opt">?<i class="arg">0|1</i>?</span></dt>
@@ -308,7 +299,7 @@ elsewhere in this manual page):</p>
 <dd></dd>
 </dl>
 <p>These configuration variables are read only:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-chan</b>    <i class="arg">chan</i></dt>
 <dd></dd>
 <dt><b class="option">-serial</b>  <i class="arg">n</i></dt>
@@ -324,7 +315,7 @@ happens.
 Recycling the socket is done by invoking <b class="cmd">::comm::comm abort</b>,
 which causes all active sends to terminate.</p>
 </div>
-<div id="subsection5" class="subsection"><h3><a name="subsection5">Id/port Assignments</a></h3>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Id/port Assignments</a></h3>
 <p><b class="package">comm</b> uses a TCP port for endpoint <em>id</em>.  The
 <b class="method">interps</b> (or <b class="method">ids</b>) method merely lists all the TCP ports
 to which the channel is connected.  By default, each channel's
@@ -346,7 +337,7 @@ As another special case, if the channel is configured with
 attempts where the protocol negotiation phase failed, instead of
 throwing an error.</p>
 </div>
-<div id="subsection6" class="subsection"><h3><a name="subsection6">Execution Environment</a></h3>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">Execution Environment</a></h3>
 <p>A communication channel in its default configuration will use the
 current interpreter for the execution of all received scripts, and of
 the event scripts associated with the various hooks.</p>
@@ -376,7 +367,7 @@ interpreter as well. The contents of this option are ignored if the
 communication channel is configured to execute received scripts in the
 current interpreter.</p>
 </div>
-<div id="subsection7" class="subsection"><h3><a name="subsection7">Remote Interpreters</a></h3>
+<div id="subsection7" class="doctools_subsection"><h3><a name="subsection7">Remote Interpreters</a></h3>
 <p>By default, each channel is restricted to accepting connections from
 the local system.  This can be overridden by using the
 <b class="option">-local 0</b> configuration option For such channels, the
@@ -385,9 +376,9 @@ the local system.  This can be overridden by using the
 form (e.g., as either a fully qualified domain name, plain hostname or
 an IP address).</p>
 </div>
-<div id="subsection8" class="subsection"><h3><a name="subsection8">Closing Connections</a></h3>
+<div id="subsection8" class="doctools_subsection"><h3><a name="subsection8">Closing Connections</a></h3>
 <p>These methods give control over closing connections:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="10"><b class="cmd">::comm::comm shutdown</b> <i class="arg">id</i></a></dt>
 <dd><p>This closes the connection to <i class="arg">id</i>, aborting all outstanding
 commands in progress.  Note that nothing prevents the connection from
@@ -401,7 +392,7 @@ the default <b class="cmd">::comm::comm</b> channel to be closed such that the
 <b class="cmd">::comm::comm</b> command it is not destroyed.  Doing so closes the
 listening socket, preventing both incoming and outgoing commands on
 the channel.  This sequence reinitializes the default channel:</p>
-<pre class="example">
+<pre class="doctools_example">
     &quot;::comm::comm destroy; ::comm::comm new ::comm::comm&quot;
 </pre>
 </dd>
@@ -411,11 +402,11 @@ the channel.  This sequence reinitializes the default channel:</p>
 This can be used to cleanup or restart an ancillary process, for
 instance.  See the <i class="term">lost</i> callback below.</p>
 </div>
-<div id="subsection9" class="subsection"><h3><a name="subsection9">Callbacks</a></h3>
+<div id="subsection9" class="doctools_subsection"><h3><a name="subsection9">Callbacks</a></h3>
 <p>This is a mechanism for setting hooks for particular events:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="13"><b class="cmd">::comm::comm hook</b> <i class="arg">event</i> <span class="opt">?<b class="const">+</b>?</span> <span class="opt">?<i class="arg">script</i>?</span></a></dt>
-<dd><p>This uses a syntax similar to Tk's <b class="cmd"><a href="../../../../index.html#key710">bind</a></b> command.  Prefixing
+<dd><p>This uses a syntax similar to Tk's <b class="cmd"><a href="../../../../index.html#key713">bind</a></b> command.  Prefixing
 <i class="arg">script</i> with a <b class="const">+</b> causes the new script to be appended.
 Without this, a new <i class="arg">script</i> replaces any existing script.  When
 invoked without a script, no change is made.  In all cases, the new
@@ -425,7 +416,7 @@ evaluated with the listed variables in scope and available.  The
 return code (<em>not</em> the return value) of the script is commonly
 used decide how to further process after the hook.</p>
 <p>Common variables include:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="variable">chan</b></dt>
 <dd><p>the name of the comm channel (and command)</p></dd>
 <dt><b class="variable">id</b></dt>
@@ -435,14 +426,14 @@ used decide how to further process after the hook.</p>
 </dl></dd>
 </dl>
 <p>These are the defined <em>events</em>:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">connecting</b></dt>
 <dd><p>Variables:
 <b class="variable">chan</b>, <b class="variable">id</b></p>
 <p>This hook is invoked before making a connection to the remote named in
 <i class="arg">id</i>.  An error return (via <b class="cmd"><a href="../../../../index.html#key161">error</a></b>) will abort the connection
 attempt with the error.  Example:</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm hook connecting {
         if {[string match {*[02468]} $id]} {
             error &quot;Can't connect to even ids&quot;
@@ -471,7 +462,7 @@ authentication over socket named by <i class="arg">fid</i>.  An error return (vi
 <b class="cmd"><a href="../../../../index.html#key161">error</a></b>) will close the connection with the error.  Note that the
 peer is named by <i class="arg">remport</i> and <i class="arg">addr</i> but that the remote
 <em>id</em> is still unknown.  Example:</p>
-<pre class="example">
+<pre class="doctools_example">
     ::comm::comm hook incoming {
         if {[string match 127.0.0.1 $addr]} {
             error &quot;I don't talk to myself&quot;
@@ -490,7 +481,7 @@ evaluate.  At the time the hook is called, <i class="arg">$chan remoteid</i> is
 identical in value to <i class="arg">id</i>.</p>
 <p>By changing <i class="arg">buffer</i>, the hook can change the script to be
 evaluated.  The hook can short circuit evaluation and cause a value to
-be immediately returned by using <b class="cmd">return</b> <i class="arg">result</i> (or, from
+be immediately returned by using <b class="cmd"><a href="../../../../index.html#key187">return</a></b> <i class="arg">result</i> (or, from
 within a procedure, <b class="cmd">return -code return</b> <i class="arg">result</i>).  An
 error return (via <b class="cmd"><a href="../../../../index.html#key161">error</a></b>) will return an error result, as is if
 the script caused the error.  Any other return will evaluate the
@@ -499,9 +490,9 @@ script in <i class="arg">buffer</i> as normal.  For compatibility with 3.2,
 acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code return</b>
 <i class="arg">result</i>.</p>
 <p>Examples:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>augmenting a command</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm send [::comm::comm self] pid
     5013
     % ::comm::comm hook eval {puts &quot;going to execute $buffer&quot;}
@@ -511,7 +502,7 @@ acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code
 </pre>
 </li>
 <li><p>short circuiting a command</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm hook eval {puts &quot;would have executed $buffer&quot;; return 0}
     % ::comm::comm send [::comm::comm self] pid
     would have executed pid
@@ -519,7 +510,7 @@ acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code
 </pre>
 </li>
 <li><p>Replacing double eval semantics</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm send [::comm::comm self] llength {a b c}
     wrong # args: should be &quot;llength list&quot;
     % ::comm::comm hook eval {return [uplevel #0 $buffer]}
@@ -529,7 +520,7 @@ acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code
 </pre>
 </li>
 <li><p>Using a slave interpreter</p>
-<pre class="example">
+<pre class="doctools_example">
     % interp create foo
     % ::comm::comm hook eval {return [foo eval $buffer]}
     % ::comm::comm send [::comm::comm self] set myvar 123
@@ -541,12 +532,12 @@ acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code
 </pre>
 </li>
 <li><p>Using a slave interpreter (double eval)</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm hook eval {return [eval foo eval $buffer]}
 </pre>
 </li>
 <li><p>Subverting the script to execute</p>
-<pre class="example">
+<pre class="doctools_example">
     % ::comm::comm hook eval {
         switch -- $buffer {
             a {return A-OK}
@@ -568,14 +559,14 @@ acting similarly to <b class="cmd">return {}</b> and <b class="cmd">return -code
 remote but <em>before</em> evaluating it.  This allows complete
 control over the processing of replies to sent commands.  The reply
 <i class="arg">buffer</i> is in one of the following forms</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>return result</p></li>
 <li><p>return -code code result</p></li>
 <li><p>return -code code -errorinfo info -errorcode ecode msg</p></li>
 </ul>
 <p>For safety reasons, this is decomposed.  The return result is in
 <i class="arg">ret</i>, and the return switches are in the return array:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p><em>return(-code)</em></p></li>
 <li><p><em>return(-errorinfo)</em></p></li>
 <li><p><em>return(-errorcode)</em></p></li>
@@ -593,7 +584,7 @@ effect.</p></dd>
 <p>This hook is invoked when the connection to <b class="variable">id</b> is lost.  Return
 value (or thrown error) is ignored.  <i class="arg">reason</i> is an explanatory
 string indicating why the connection was lost.  Example:</p>
-<pre class="example">
+<pre class="doctools_example">
     ::comm::comm hook lost {
         global myvar
         if {$myvar(id) == $id} {
@@ -605,19 +596,19 @@ string indicating why the connection was lost.  Example:</p>
 </dd>
 </dl>
 </div>
-<div id="subsection10" class="subsection"><h3><a name="subsection10">Unsupported</a></h3>
+<div id="subsection10" class="doctools_subsection"><h3><a name="subsection10">Unsupported</a></h3>
 <p>These interfaces may change or go away in subsequence releases.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="14"><b class="cmd">::comm::comm remoteid</b></a></dt>
 <dd><p>Returns the <i class="arg">id</i> of the sender of the last remote command
 executed on this channel.  If used by a proc being invoked remotely,
 it must be called before any events are processed.  Otherwise, another
 command may get invoked and change the value.</p></dd>
 <dt><a name="15"><b class="cmd">::comm::comm_send</b></a></dt>
-<dd><p>Invoking this procedure will substitute the Tk <b class="cmd"><a href="../../../../index.html#key351">send</a></b> and
+<dd><p>Invoking this procedure will substitute the Tk <b class="cmd"><a href="../../../../index.html#key353">send</a></b> and
 <b class="cmd">winfo interps</b> commands with these equivalents that use
 <b class="cmd">::comm::comm</b>.</p>
-<pre class="example">
+<pre class="doctools_example">
     proc send {args} {
         eval ::comm::comm send $args
     }
@@ -632,14 +623,14 @@ command may get invoked and change the value.</p></dd>
 </dd>
 </dl>
 </div>
-<div id="subsection11" class="subsection"><h3><a name="subsection11">Security</a></h3>
+<div id="subsection11" class="doctools_subsection"><h3><a name="subsection11">Security</a></h3>
 <p>Starting with version 4.6 of the package an option <b class="option">-socketcmd</b>
 is supported, allowing the user of a comm channel to specify which
 command to use when opening a socket. Anything which is API-compatible
 with the builtin <b class="cmd">::socket</b> (the default) can be used.</p>
 <p>The envisioned main use is the specification of the <b class="cmd">tls::socket</b>
-command, see package <b class="package"><a href="../../../../index.html#key329">tls</a></b>, to secure the communication.</p>
-<pre class="example">
+command, see package <b class="package"><a href="../../../../index.html#key331">tls</a></b>, to secure the communication.</p>
+<pre class="doctools_example">
 	# Load and initialize tls
 	package require tls
 	tls::init  -cafile /path/to/ca/cert -keyfile ...
@@ -652,28 +643,28 @@ are also relevant to the security of the system, providing means to
 restrict the execution to a specific environment, perform additional
 authentication, and the like.</p>
 </div>
-<div id="subsection12" class="subsection"><h3><a name="subsection12">Blocking Semantics</a></h3>
+<div id="subsection12" class="doctools_subsection"><h3><a name="subsection12">Blocking Semantics</a></h3>
 <p>There is one outstanding difference between <b class="package">comm</b> and
-<b class="cmd"><a href="../../../../index.html#key351">send</a></b>.  When blocking in a synchronous remote command, <b class="cmd"><a href="../../../../index.html#key351">send</a></b>
+<b class="cmd"><a href="../../../../index.html#key353">send</a></b>.  When blocking in a synchronous remote command, <b class="cmd"><a href="../../../../index.html#key353">send</a></b>
 uses an internal C hook (Tk_RestrictEvents) to the event loop to look
 ahead for send-related events and only process those without
 processing any other events.  In contrast, <b class="package">comm</b> uses the
-<b class="cmd"><a href="../../../../index.html#key415">vwait</a></b> command as a semaphore to indicate the return message has
-arrived.  The difference is that a synchronous <b class="cmd"><a href="../../../../index.html#key351">send</a></b> will block
+<b class="cmd"><a href="../../../../index.html#key417">vwait</a></b> command as a semaphore to indicate the return message has
+arrived.  The difference is that a synchronous <b class="cmd"><a href="../../../../index.html#key353">send</a></b> will block
 the application and prevent all events (including window related ones)
 from being processed, while a synchronous <b class="cmd">::comm::comm send</b>
 will block the application but still allow other events to get
 processed.  In particular, <b class="cmd">after idle</b> handlers will fire
 immediately when comm blocks.</p>
 <p>What can be done about this?  First, note that this behavior will come
-from any code using <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b> to block and wait for an event to
+from any code using <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b> to block and wait for an event to
 occur.  At the cost of multiple channel support, <b class="package">comm</b> could
 be changed to do blocking I/O on the socket, giving send-like blocking
 semantics.  However, multiple channel support is a very useful feature
 of comm that it is deemed too important to lose.  The remaining
 approaches involve a new loadable module written in C (which is
 somewhat against the philosophy of <b class="cmd">comm</b>) One way would be to
-create a modified version of the <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b> command that allow the
+create a modified version of the <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b> command that allow the
 event flags passed to Tcl_DoOneEvent to be specified.  For <b class="cmd">comm</b>,
 just the TCL_FILE_EVENTS would be processed.  Another way would be to
 implement a mechanism like Tk_RestrictEvents, but apply it to the Tcl
@@ -681,7 +672,7 @@ event loop (since <b class="package">comm</b> doesn't require Tk).  One of these
 approaches will be available in a future <b class="package">comm</b> release as an
 optional component.</p>
 </div>
-<div id="subsection13" class="subsection"><h3><a name="subsection13">Asynchronous Result Generation</a></h3>
+<div id="subsection13" class="doctools_subsection"><h3><a name="subsection13">Asynchronous Result Generation</a></h3>
 <p>By default the result returned by a remotely invoked command is the
 result sent back to the invoker. This means that the result is
 generated synchronously, and the server handling the call is blocked
@@ -691,7 +682,7 @@ invoked on the server long-running commands, like database queries
 make this a problem. One command can prevent the processing requests
 of all other clients for an arbitrary period of time.</p>
 <p>Before version 4.5 of comm the only solution was to rewrite the server
-command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>, or one of its
+command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>, or one of its
 relatives like <b class="cmd">tkwait</b>, to open a new event loop which processes
 requests while the long-running operation is executed. This however
 has its own perils, as this makes it possible to both overflow the Tcl
@@ -708,7 +699,7 @@ result to comm, via the future object, which is then forwarded to the
 invoker as usual.</p>
 <p>The necessary support for this solution has been added to comm since
 version 4.5, in the form of the new method <b class="method">return_async</b>.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="16"><b class="cmd">::comm::comm return_async</b></a></dt>
 <dd><p>This command is used by a remotely invoked script to notify the comm
 channel which invoked it that the result to send back to the invoker
@@ -726,7 +717,7 @@ configured with a command to call when the invoker is lost. This
 enables the user to implement an early abort of the long-running
 operation, should this be supported by it.</p>
 <p>An example:</p>
-<pre class="example">
+<pre class="doctools_example">
 # Procedure invoked by remote clients to run database operations.
 proc select {sql} {
     # Signal the async generation of the result
@@ -745,7 +736,7 @@ proc select {sql} {
 }
 </pre>
 <p>The API of a future object is:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="17"><b class="cmd">$future</b> <b class="method">return</b> <span class="opt">?<b class="option">-code</b> <i class="arg">code</i>?</span> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
 <dd><p>Use this method to tell the future that long-running operation has
 completed. Arguments are an optional return value (defaults to the
@@ -761,18 +752,18 @@ called if the connection the future belongs to has been lost.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="subsection14" class="subsection"><h3><a name="subsection14">Compatibility</a></h3>
+<div id="subsection14" class="doctools_subsection"><h3><a name="subsection14">Compatibility</a></h3>
 <p><b class="package">comm</b> exports itself as a package.  The package version number
 is in the form <em>major . minor</em>, where the major version will
 only change when a non-compatible change happens to the API or
 protocol.  Minor bug fixes and changes will only affect the minor
 version.  To load <b class="package">comm</b> this command is usually used:</p>
-<pre class="example">
+<pre class="doctools_example">
     package require comm 3
 </pre>
 <p>Note that requiring no version (or a specific version) can also be done.</p>
 <p>The revision history of <b class="package">comm</b> includes these releases:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>4.6.3</dt>
 <dd><p>Fixed ticket [ced0d60fc9]. Added proper detection of eof on a
 socket, properly closing it.</p></dd>
@@ -795,13 +786,13 @@ buffer.</p></dd>
 <dt>4.6</dt>
 <dd><p>Added the option <b class="option">-socketcmd</b> enabling users to override how a
 socket is opened. The envisioned main use is the specification of the
-<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key329">tls</a></b>, to secure the
+<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key331">tls</a></b>, to secure the
 communication.</p></dd>
 <dt>4.5.7</dt>
 <dd><p>Changed handling of ports already in use to provide a proper error
 message.</p></dd>
 <dt>4.5.6</dt>
-<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>, made robust against of
+<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>, made robust against of
 variable names containing spaces.</p></dd>
 <dt>4.5.5</dt>
 <dd><p>Bugfix in the handling of hooks, typo in variable name.</p></dd>
@@ -811,17 +802,17 @@ method. Replaced an <em>after idle unset result</em> with an immediate
 <b class="cmd">unset</b>, with the information saved to a local variable.</p>
 <p>The <b class="cmd">after idle</b> can spill into a forked child process if there
 is no event loop between its setup and the fork. This may bork the
-child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b> of <b class="package">comm</b>'s
+child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b> of <b class="package">comm</b>'s
 <b class="method">send</b> a few lines above the <b class="cmd">after idle</b>, and the child
 used the same serial number for its next request. In that case the
 parent's <b class="cmd">after idle unset</b> will delete the very array element
-the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>, causing it to
+the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>, causing it to
 access a now missing array element, instead of the expected result.</p></dd>
 <dt>4.5.3</dt>
-<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key414">update</a></b> and <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>
+<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key416">update</a></b> and <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>
 commands.</p></dd>
 <dt>4.5.2</dt>
-<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key414">update</a></b> command.</p></dd>
+<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key416">update</a></b> command.</p></dd>
 <dt>4.5.1</dt>
 <dd><p>Bugfixes in the handling of -interp for regular scripts. The handling
 of the buffer was wrong for scripts which are a single statement as
@@ -862,9 +853,9 @@ invoked commands.</p></dd>
 be triggered when the connection was closed while several asynchronous
 sends were queued to be executed.</p></dd>
 <dt>3.5</dt>
-<dd><p>Internal change to how reply messages from a <b class="cmd"><a href="../../../../index.html#key351">send</a></b> are handled.
+<dd><p>Internal change to how reply messages from a <b class="cmd"><a href="../../../../index.html#key353">send</a></b> are handled.
 Reply messages are now decoded into the <i class="arg">value</i> to pass to
-<b class="cmd">return</b>; a new return statement is then cons'd up to with this
+<b class="cmd"><a href="../../../../index.html#key187">return</a></b>; a new return statement is then cons'd up to with this
 value.  Previously, the return code was passed in from the remote as a
 command to evaluate.  Since the wire protocol has not changed, this is
 still the case.  Instead, the reply handling code decodes the
@@ -880,8 +871,8 @@ conditions were not being returned correctly from <b class="cmd">comm send</b>.
 This has been fixed by removing the extra level of indirection into
 the internal procedure <b class="cmd">commSend</b>.  Also added propagation of
 the <i class="arg">errorCode</i> variable.  This means that these commands return
-exactly as they would with <b class="cmd"><a href="../../../../index.html#key351">send</a></b>:</p>
-<pre class="example">
+exactly as they would with <b class="cmd"><a href="../../../../index.html#key353">send</a></b>:</p>
+<pre class="doctools_example">
     comm send id break
     catch {comm send id break}
     comm send id expr 1 / 0
@@ -932,11 +923,11 @@ with Comm 1.0, without the requirement to use obTcl).</p></dd>
 </dl>
 </div>
 </div>
-<div id="section2" class="section"><h2><a name="section2">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key329">TLS</a></b> package to handle the security
+<div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -944,29 +935,29 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key329">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key329">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Author</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Author</a></h2>
 <p>John LoVerso, John@LoVerso.Southborough.MA.US</p>
 <p><em>http://www.opengroup.org/~loverso/tcl-tk/#comm</em></p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">License</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">License</a></h2>
 <p>Please see the file <em>comm.LICENSE</em> that accompanied this source,
 or
 <a href="http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html">http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html</a>.</p>
 <p>This license for <b class="package">comm</b>, new as of version 3.2, allows it to be
 used for free, without any licensing fee or royalty.</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">Bugs</a></h2>
-<ul class="itemized">
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs</a></h2>
+<ul class="doctools_itemized">
 <li><p>If there is a failure initializing a channel created with
 <b class="cmd">::comm::comm new</b>, then the channel should be destroyed.
 Currently, it is left in an inconsistent state.</p></li>
@@ -976,14 +967,14 @@ configuration.</p></li>
 <p>The following items can be implemented with the existing hooks and are
 listed here as a reminder to provide a sample hook in a future
 version.</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>Allow easier use of a slave interp for actual command execution
 (especially when operating in &quot;not local&quot; mode).</p></li>
 <li><p>Add host list (xhost-like) or &quot;magic cookie&quot; (xauth-like)
 authentication to initial handshake.</p></li>
 </ul>
 <p>The following are outstanding todo items.</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>Add an interp discovery and name-&gt;port mapping.  This is likely to be
 in a separate, optional nameserver.  (See also the related work,
 below.)</p></li>
@@ -992,11 +983,11 @@ canonical hostnames.  This requires fixes to Tcl to resolve hostnames!</p></li>
 </ul>
 <p>This man page is bigger than the source file.</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">On Using Old Versions Of Tcl</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">On Using Old Versions Of Tcl</a></h2>
 <p>Tcl7.5 under Windows contains a bug that causes the interpreter to
 hang when EOF is reached on non-blocking sockets.  This can be
 triggered with a command such as this:</p>
-<pre class="example">
+<pre class="doctools_example">
     &quot;comm send $other exit&quot;
 </pre>
 <p>Always make sure the channel is quiescent before closing/exiting or
@@ -1006,7 +997,7 @@ at least Tcl7.6p2.</p>
 <p>Tcl8.0 on UNIX contains a socket bug that can crash Tcl.  It is recommended
 you use Tcl8.0p1 (or Tcl7.6p2).</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">Related Work</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">Related Work</a></h2>
 <p>Tcl-DP provides an RPC-based remote execution interface, but is a
 compiled Tcl extension.  See
 <a href="http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html">http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html</a>.</p>
@@ -1016,7 +1007,7 @@ RPC interface using standard Tcl sockets, much like <b class="package">comm</b>.
 <b class="package">comm</b> and has built a simple nameserver as part of his Pool
 library.  See <a href="http://www.purl.org/net/akupries/soft/pool/index.htm">http://www.purl.org/net/akupries/soft/pool/index.htm</a>.</p>
 </div>
-<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>comm</em> of the
@@ -1024,18 +1015,18 @@ Please report such in the category <em>comm</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>send(n)</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key40">comm</a>, <a href="../../../../index.html#key353">communication</a>, <a href="../../../../index.html#key358">ipc</a>, <a href="../../../../index.html#key359">message</a>, <a href="../../../../index.html#key356">remote communication</a>, <a href="../../../../index.html#key355">remote execution</a>, <a href="../../../../index.html#key352">rpc</a>, <a href="../../../../index.html#key354">secure</a>, <a href="../../../../index.html#key351">send</a>, <a href="../../../../index.html#key350">socket</a>, <a href="../../../../index.html#key357">ssl</a>, <a href="../../../../index.html#key329">tls</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key40">comm</a>, <a href="../../../../index.html#key355">communication</a>, <a href="../../../../index.html#key360">ipc</a>, <a href="../../../../index.html#key361">message</a>, <a href="../../../../index.html#key358">remote communication</a>, <a href="../../../../index.html#key357">remote execution</a>, <a href="../../../../index.html#key354">rpc</a>, <a href="../../../../index.html#key356">secure</a>, <a href="../../../../index.html#key353">send</a>, <a href="../../../../index.html#key352">socket</a>, <a href="../../../../index.html#key359">ssl</a>, <a href="../../../../index.html#key331">tls</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 1995-1998 The Open Group. All Rights Reserved.<br>
 Copyright &copy; 2003-2004 ActiveState Corporation.<br>
 Copyright &copy; 2006-2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.14.10]
+[vset PACKAGE_VERSION 1.15]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n [vset PACKAGE_VERSION]]
 [keywords cat]
@@ -431,6 +431,26 @@ command.
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
 
+[call [cmd ::fileutil::maketempdir] \
+	[opt "[option -prefix] [arg str]"] \
+	[opt "[option -suffix] [arg str]"] \
+	[opt "[option -dir] [arg str]"]]
+
+The command generates a temporary directory suitable for writing to.
+The directory name will be unique, and the directory will be writable
+and contained in the appropriate system specific temp directory. The
+name of the directory will be returned as the result of the command.
+
+[para] The three options can used to tweak the behaviour of the command:
+
+[list_begin options]
+[opt_def -prefix str] The initial, fixed part of the directory name. Defaults to [const tmp] if not specified.
+[opt_def -suffix str] The fixed tail of the directory. Defaults to the empty string if not specified.
+[opt_def -dir    str] The directory to place the new directory into. Defaults to the result of [cmd fileutil::tempdir] if not specified.
+[list_end]
+
+[para]The initial code for this was supplied by [uri mailto:aplicacionamedida@gmail.com {Miguel Martinez Lopez}].
+
 [call [cmd ::fileutil::relative] [arg base] [arg dst]]
 
 This command takes two directory paths, both either absolute or relative
@@ -462,6 +482,38 @@ and the other relative.
 
 [emph Note:] The processing done by this command is purely lexical.
 Symbolic links are [emph not] taken into account.
+
+[list_end]
+
+[section {Warnings and Incompatibilities}]
+
+[list_begin definitions]
+
+[def [const 1.14.9]]
+In this version [cmd fileutil::find]'s broken system for handling
+symlinks was replaced with one working correctly and properly
+enumerating all the legal non-cyclic paths under a base directory.
+
+[para] While correct this means that certain pathological directory
+hierarchies with cross-linked sym-links will now take about O(n**2)
+time to enumerate whereas the original broken code managed O(n) due to
+its brokenness.
+
+[para] A concrete example and extreme case is the [file /sys]
+hierarchy under Linux where some hundred devices exist under both
+[file /sys/devices] and [file /sys/class] with the two sub-hierarchies
+linking to the other, generating millions of legal paths to enumerate.
+The structure, reduced to three devices, roughly looks like
+
+[include include/cross-index.inc]
+
+[para] The command [cmd fileutil::find] currently has no way to escape
+this. When having to handle such a pathological hierarchy It is
+recommended to switch to package [package fileutil::traverse] and the
+same-named command it provides, and then use the [option -prefilter]
+option to prevent the traverser from following symbolic links, like so:
+
+[include include/cross-index-trav.inc]
 
 [list_end]
 

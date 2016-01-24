@@ -1,7 +1,6 @@
 
-<html><head>
-<title>irc - Low Level Tcl IRC Interface</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='irc - Low Level Tcl IRC Interface'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,54 +81,48 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'irc.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ irc.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">irc(n) 0.6.1 tcllib &quot;Low Level Tcl IRC Interface&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">irc(n) 0.6.1 tcllib &quot;Low Level Tcl IRC Interface&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>irc - Create IRC connection and interface.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Per-connection Commands</a></li>
-<li class="section"><a href="#section3">Callback Commands</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Per-connection Commands</a></li>
+<li class="doctools_section"><a href="#section3">Callback Commands</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl</b></li>
 <li>package require <b class="pkgname">irc <span class="opt">?0.6.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::irc::config</b> <span class="opt">?key?</span> <span class="opt">?value?</span></a></li>
 <li><a href="#2"><b class="cmd">::irc::connection</b></a></li>
 <li><a href="#3"><b class="cmd">::irc::connections</b></a></li>
@@ -169,11 +162,11 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides low-level commands to deal with the IRC protocol
 (Internet Relay Chat) for immediate and interactive multi-cast
 communication.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::irc::config</b> <span class="opt">?key?</span> <span class="opt">?value?</span></a></dt>
 <dd><p>Sets configuration <span class="opt">?key?</span> to <span class="opt">?value?</span>. The configuration keys
 currently defined are the boolean flags <b class="const">logger</b> and <b class="const">debug</b>.
@@ -192,11 +185,11 @@ deprecated.  Use <b class="cmd">connect</b> instead to specify this information.
 <b class="const">connection</b></p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Per-connection Commands</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Per-connection Commands</a></h2>
 <p>In the following list of available connection methods <i class="arg">net</i>
 represents a connection command as returned by
 <b class="cmd">::irc::connection</b>.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="4"><i class="arg">net</i> <b class="method">registerevent</b> <i class="arg">event</i> <i class="arg">script</i></a></dt>
 <dd><p>Registers a callback handler for the specific event.  Events available
 are those described in RFC 1459
@@ -284,9 +277,9 @@ will remove the topic.</p></dd>
 <dd><p>Deletes the connection and its associated namespace and information.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Callback Commands</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Callback Commands</a></h2>
 <p>These commands can be used within callbacks</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="31"><b class="cmd">who</b> <span class="opt">?<b class="const">address</b>?</span></a></dt>
 <dd><p>Returns the nick of the user who performed a command.  The optional
 keyword <b class="const">address</b> causes the command to return the user in the
@@ -305,7 +298,7 @@ user to whom a PRIVMSG is sent.</p></dd>
 <dd><p>Returns the message portion of the command (the part after the :).</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>irc</em> of the
@@ -313,13 +306,13 @@ Please report such in the category <em>irc</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>rfc 1459</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key690">chat</a>, <a href="../../../../index.html#key740">irc</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key692">chat</a>, <a href="../../../../index.html#key743">irc</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-</div></body></html>
+</div>

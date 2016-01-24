@@ -1,7 +1,6 @@
 
-<html><head>
-<title>units - Convert and manipulate quantities with units</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='units - Convert and manipulate quantities with units'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,77 +81,69 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'units.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2000-2005 Mayo Foundation
-   -->
-<! -- CVS: $Id$ units.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">units(n) 1.2 tcllib &quot;Convert and manipulate quantities with units&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">units(n) 1.2 tcllib &quot;Convert and manipulate quantities with units&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>units - unit conversion</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">UNIT STRING FORMAT</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">UNIT STRING FORMAT</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Example Valid Unit Strings</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Example Valid Unit Strings</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section4">SI UNITS</a>
+<li class="doctools_section"><a href="#section4">SI UNITS</a>
 <ul>
-<li class="subsection"><a href="#subsection2">SI Base Units</a></li>
-<li class="subsection"><a href="#subsection3">SI Derived Units with Special Names</a></li>
-<li class="subsection"><a href="#subsection4">SI Prefixes</a></li>
-<li class="subsection"><a href="#subsection5">Non-SI Units</a></li>
-<li class="subsection"><a href="#subsection6">Quantities and Derived Units with Special Names</a></li>
+<li class="doctools_subsection"><a href="#subsection2">SI Base Units</a></li>
+<li class="doctools_subsection"><a href="#subsection3">SI Derived Units with Special Names</a></li>
+<li class="doctools_subsection"><a href="#subsection4">SI Prefixes</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Non-SI Units</a></li>
+<li class="doctools_subsection"><a href="#subsection6">Quantities and Derived Units with Special Names</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section5">REFERENCES</a></li>
-<li class="section"><a href="#section6">AUTHORS</a></li>
-<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section5">REFERENCES</a></li>
+<li class="doctools_section"><a href="#section6">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.1</b></li>
 <li>package require <b class="pkgname">units <span class="opt">?2.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::units::convert</b> <i class="arg">value</i> <i class="arg">targetUnits</i></a></li>
 <li><a href="#2"><b class="cmd">::units::reduce</b> <i class="arg">unitString</i></a></li>
 <li><a href="#3"><b class="cmd">::units::new</b> <i class="arg">name</i> <i class="arg">baseUnits</i></a></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This library provides a conversion facility from a variety of
 scientific and engineering shorthand notations into floating point
 numbers.  This allows application developers to easily convert
@@ -174,8 +165,8 @@ primitive unit, although that will probably be unnecessary.  New units
 will most commonly be defined to accommodate non-SI measurement
 systems, such as defining the unit <em>inch</em> as <em>2.54 cm</em>.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::units::convert</b> <i class="arg">value</i> <i class="arg">targetUnits</i></a></dt>
 <dd><p>Converts the <i class="arg">value</i> string into a floating point number, scaled to the
 specified <i class="arg">targetUnits</i>.  The <i class="arg">value</i> string may contain a
@@ -183,7 +174,7 @@ number and units.  If units are specified, then they must be
 compatible with the <i class="arg">targetUnits</i>.  If units are not specified
 for the <i class="arg">value</i>, then it will be scaled to the target units.  For
 example,</p>
-<pre class="example">
+<pre class="doctools_example">
 % ::units::convert &quot;2.3 miles&quot; km
 3.7014912
 % ::units::convert 300m/s miles/hour
@@ -201,7 +192,7 @@ unit string may include a forward-slash (separated from the
 surrounding primitive subunits by spaces) indicating that the
 remaining subunits are in the denominator.  Generates an error if the
 <i class="arg">unitString</i> is invalid.</p>
-<pre class="example">
+<pre class="doctools_example">
 % ::units::reduce pascal
 1000.0 gram / meter second second
 </pre>
@@ -217,7 +208,7 @@ could also be the string <em>-primitive</em> to represent a new
 kind of quantity which cannot be derived from other units.  But you
 probably would not do that unless you have discovered some kind of new
 universal property.</p>
-<pre class="example">
+<pre class="doctools_example">
 % ::units::new furlong &quot;220 yards&quot;
 % ::units::new fortnight &quot;14 days&quot;
 % ::units::convert 100m/s furlongs/fortnight
@@ -226,11 +217,11 @@ universal property.</p>
 </dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">UNIT STRING FORMAT</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">UNIT STRING FORMAT</a></h2>
 <p>Value and unit string format is quite flexible.  It is possible to
 define virtually any combination of units, prefixes, and powers.
 Valid unit strings must conform to these rules.</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>A unit string consists of an optional scale factor followed by zero or
 more subunits.  The scale factor must be a valid floating point
 number, and may or may not be separated from the subunits.  The scale
@@ -256,8 +247,8 @@ integer, after the unit name (or plural suffix, if there is one).
 Negative exponents are not allowed.  (Remember that the hyphen is a
 unit separator.)</p></li>
 </ul>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Example Valid Unit Strings</a></h3>
-<pre class="example">
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Example Valid Unit Strings</a></h3>
+<pre class="doctools_example">
 Unit String              Reduced Unit String
 ------------------------------------------------------------
 meter                    1.0 meter
@@ -274,14 +265,14 @@ kg-m/s^2                 1000.0 gram meter / second second
 </pre>
 </div>
 </div>
-<div id="section4" class="section"><h2><a name="section4">SI UNITS</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">SI UNITS</a></h2>
 <p>The standard SI units are predefined according to <em>NIST Special
 Publication 330</em>.  Standard units for both SI Base Units (Table
 1) and SI Derived Units with Special Names (Tables 3a and 3b) are
 included here for reference.  Each standard unit name and abbreviation
 are included in this package.</p>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">SI Base Units</a></h3>
-<pre class="example">
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">SI Base Units</a></h3>
+<pre class="doctools_example">
 Quantity                Unit Name    Abbr.
 ---------------------------------------------
 Length                  meter        m
@@ -293,8 +284,8 @@ Amount                  mole         mol
 Luminous Intensity      candela      cd
 </pre>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">SI Derived Units with Special Names</a></h3>
-<pre class="example">
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">SI Derived Units with Special Names</a></h3>
+<pre class="doctools_example">
 Quantity                Unit Name    Abbr.   Units     Base Units
 --------------------------------------------------------------------
 plane angle             radian      rad     m/m       m/m
@@ -336,8 +327,8 @@ prefixes are not allowed, and a prefix should never be used alone.
 These prefixes are defined in Table 5 of <em>Special Publication
 330</em>.</p>
 </div>
-<div id="subsection4" class="subsection"><h3><a name="subsection4">SI Prefixes</a></h3>
-<pre class="example">
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">SI Prefixes</a></h3>
+<pre class="doctools_example">
 Prefix Name     Abbr.   Factor
 ---------------------------------------
 yotta           Y       1e24
@@ -376,8 +367,8 @@ conversions can always be added using the <b class="cmd">new</b>
 command, but some well known and often used conversions are included
 in this package.</p>
 </div>
-<div id="subsection5" class="subsection"><h3><a name="subsection5">Non-SI Units</a></h3>
-<pre class="example">
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Non-SI Units</a></h3>
+<pre class="doctools_example">
 Unit Name            Abbr.    Base Units
 --------------------------------------------------
 angstrom                      1.0E-10 m
@@ -415,7 +406,7 @@ yard                 yd       9.144E-1 m
 year                          3.1536E7 s
 </pre>
 </div>
-<div id="subsection6" class="subsection"><h3><a name="subsection6">Quantities and Derived Units with Special Names</a></h3>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">Quantities and Derived Units with Special Names</a></h3>
 <p>This units conversion package is limited specifically to unit
 reduction, comparison, and scaling.  This package does not consider
 any of the quantity names for either base or derived units.  A similar
@@ -443,7 +434,7 @@ the utility of defining a unit named <em>square meter</em> is
 arguable.</p>
 </div>
 </div>
-<div id="section5" class="section"><h2><a name="section5">REFERENCES</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">REFERENCES</a></h2>
 <p>The unit names, abbreviations, and conversion values are derived from
 those published by the United States Department of Commerce Technology
 Administration, National Institute of Standards and Technology (NIST)
@@ -458,10 +449,10 @@ analysis of unit strings using fixed size tables of C structs.  After
 going missing in the late 1990's, Adrian's code has reappeared in the
 GNU Units program at <a href="http://www.gnu.org/software/units/">http://www.gnu.org/software/units/</a></p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">AUTHORS</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">AUTHORS</a></h2>
 <p>Robert W. Techentin</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>units</em> of the
@@ -469,10 +460,10 @@ Please report such in the category <em>units</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key579">angle</a>, <a href="../../../../index.html#key607">constants</a>, <a href="../../../../index.html#key20">conversion</a>, <a href="../../../../index.html#key476">distance</a>, <a href="../../../../index.html#key608">radians</a>, <a href="../../../../index.html#key606">unit</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key581">angle</a>, <a href="../../../../index.html#key609">constants</a>, <a href="../../../../index.html#key20">conversion</a>, <a href="../../../../index.html#key478">distance</a>, <a href="../../../../index.html#key610">radians</a>, <a href="../../../../index.html#key608">unit</a></p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2000-2005 Mayo Foundation</p>
 </div>
-</div></body></html>
+</div>

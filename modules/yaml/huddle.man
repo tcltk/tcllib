@@ -1,5 +1,6 @@
+[vset VERSION 0.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin huddle n 0.1.5]
+[manpage_begin huddle n [vset VERSION]]
 [see_also yaml]
 [keywords {data exchange}]
 [keywords {exchange format}]
@@ -8,11 +9,12 @@
 [keywords parsing]
 [keywords {text processing}]
 [keywords yaml]
-[copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
+[copyright {2008-2011 KATO Kanryu <kanryu6@users.sourceforge.net>}]
+[copyright {2015 Miguel Martínez López <aplicacionamedida@gmail.com>}]
 [moddesc   {HUDDLE}]
 [titledesc {Create and manipulate huddle object}]
 [require Tcl 8.4]
-[require huddle [opt 0.1.5]]
+[require huddle [opt [vset VERSION]]]
 [description]
 [para]
 Huddle provides a generic Tcl-based serialization/intermediary format.
@@ -57,6 +59,24 @@ Create a huddle object as a dict. It can contain other huddle objects.
 
 [call [cmd "huddle list"] [opt [arg "value value ..."]]]
 Create a huddle object as a list. It can contain other huddle objects.
+
+[call [cmd "huddle number"] [arg "number"]]
+Create a huddle object as a number.
+
+[call [cmd "huddle string"] [arg "string"]]
+Create a huddle object as a string.
+
+[call [cmd "huddle boolean"] [arg "expression to evaluate as true or false"]]
+Create a huddle object as a boolean evaluating an expression as true or false-
+
+[call [cmd "huddle true"]]
+Create a huddle object as a boolean true.
+
+[call [cmd "huddle false"]]
+Create a huddle object as a boolean false.
+
+[call [cmd "huddle null"]]
+Create a huddle object as a null.
 
 [call [cmd "huddle get"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Almost the same as [cmd "dict get"].
@@ -139,6 +159,18 @@ the node is a dict.
 [opt_def [const list]]
 
 the node is a list.
+
+[opt_def [const number]]
+
+the node is a number.
+
+[opt_def [const boolean]]
+
+the node is a boolean.
+
+[opt_def [const null]]
+
+the node is a null.
 
 [list_end]
 

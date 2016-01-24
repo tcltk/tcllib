@@ -448,10 +448,48 @@ test tempfile-1.4 {temp file in user specified directory} {
 
     set          filename [::fileutil::tempfile TEST]
     file delete $filename
+    ::fileutil::tempdirReset
 
     removeDirectory x
     string match $xpath/TEST* $filename
 } 1
+
+# -------------------------------------------------------------------------
+
+test maketempdir-1.1 {generate temporary directory} {
+    set filename [::fileutil::maketempdir]
+    set res [file exists $filename]
+    file delete $filename
+    unset filename
+    set res
+} {1}
+
+test maketempdir-1.2 {generate writable temporary directory} {
+    set filename [::fileutil::maketempdir]
+    set res [file writable $filename]
+    file delete $filename
+    unset filename
+    set res
+} {1}
+
+test maketempdir-1.3 {generate 100 unique temporary directories} {
+    set filenames [list]
+    for {set i 0} {$i<100} {incr i} {
+	lappend filenames [::fileutil::maketempdir]
+    }
+    foreach f $filenames {
+	file delete $f
+    }
+    set i
+} {100}
+
+test maketempdir-1.4 {temp directory in user specified directory} {
+    set          filename [::fileutil::maketempdir -dir $xpath -prefix TEST]
+    file delete $filename
+    string match $xpath/TEST* $filename
+} 1
+
+# -------------------------------------------------------------------------
 
 tmp_cleanup
 

@@ -157,7 +157,7 @@ proc tkerror {msg} {
 
 proc ToggleConsole {} {
     variable console
-    if {[info command console] ne {}} {
+    if {[llength [info commands console]]} {
         if {$console} {
             console hide ; set console 0
         } else {

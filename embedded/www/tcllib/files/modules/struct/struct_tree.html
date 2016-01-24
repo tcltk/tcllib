@@ -1,7 +1,6 @@
 
-<html><head>
-<title>struct::tree - Tcl Data Structures</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='struct::tree - Tcl Data Structures'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,63 +81,55 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'struct_tree.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2002-2004,2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ struct::tree.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">struct::tree(n) 2.1.1 tcllib &quot;Tcl Data Structures&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">struct::tree(n) 2.1.1 tcllib &quot;Tcl Data Structures&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::tree - Create and manipulate tree objects</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Tree CLASS API</a></li>
-<li class="subsection"><a href="#subsection2">Tree OBJECT API</a></li>
-<li class="subsection"><a href="#subsection3">Changes for 2.0</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Tree CLASS API</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Tree OBJECT API</a></li>
+<li class="doctools_subsection"><a href="#subsection3">Changes for 2.0</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section3">EXAMPLES</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">struct::tree <span class="opt">?2.1.1?</span></b></li>
 <li>package require <b class="pkgname">struct::list <span class="opt">?1.5?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::tree</b> <span class="opt">?<i class="arg">treeName</i>?</span> <span class="opt">?<b class="const">=</b>|<b class="const">:=</b>|<b class="const">as</b>|<b class="const">deserialize</b> <i class="arg">source</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">treeName</b> <b class="method">option</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::struct::tree::prune</b></a></li>
@@ -186,7 +177,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>A tree is a collection of named elements, called nodes, one of which is
 distinguished as a root, along with a relation (&quot;parenthood&quot;) that
 places a hierarchical structure on the nodes. (Data Structures and
@@ -197,7 +188,7 @@ each node.</p>
 <p>The element names can be arbitrary strings.</p>
 <p>A tree is thus similar to an array, but with three important
 differences:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>Trees are accessed through an object command, whereas arrays are
 accessed as variables. (This means trees cannot be local to a procedure.)</p></li>
 <li><p>Trees have a hierarchical structure, whereas an array is just an
@@ -205,22 +196,22 @@ unordered collection.</p></li>
 <li><p>Each node of a tree has a separate collection of attributes and
 values. This is like an array where every value is a dictionary.</p></li>
 </ol>
-<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#key325">struct</a></b> has
+<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#key327">struct</a></b> has
 been changed to version 2.0, due to backward incompatible changes in
 the API of this module. Please read the section
 <span class="sectref"><a href="#subsection3">Changes for 2.0</a></span> for a full list of all changes,
 incompatible and otherwise.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Tree CLASS API</a></h3>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Tree CLASS API</a></h3>
 <p>The main commands of the package are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::tree</b> <span class="opt">?<i class="arg">treeName</i>?</span> <span class="opt">?<b class="const">=</b>|<b class="const">:=</b>|<b class="const">as</b>|<b class="const">deserialize</b> <i class="arg">source</i>?</span></a></dt>
 <dd><p>The command creates a new tree object with an associated global Tcl
 command whose name is <i class="arg">treeName</i>. This command may be used to
 invoke various operations on the tree.
 It has the following general form:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="2"><b class="cmd">treeName</b> <b class="method">option</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
 <dd><p><i class="arg">Option</i> and the <i class="arg">arg</i>s determine the exact behavior of the
 command.</p></dd>
@@ -233,20 +224,20 @@ object, and the assignment operator <b class="method">=</b> will be executed. Fo
 <b class="const">deserialize</b> the <i class="arg">source</i> is a serialized tree object and
 <b class="method">deserialize</b> will be executed.</p>
 <p>In other words</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::tree mytree = b
 </pre>
 <p>is equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::tree mytree
     mytree = b
 </pre>
 <p>and</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::tree mytree deserialize $b
 </pre>
 <p>is equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     ::struct::tree mytree
     mytree deserialize $b
 </pre>
@@ -263,9 +254,9 @@ only applicable orders of traversal are <b class="const">pre</b> and
 traversal do not fit.</p></dd>
 </dl>
 </div>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">Tree OBJECT API</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Tree OBJECT API</a></h3>
 <p>Two general observations beforehand:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The root node of the tree can be used in most places where a node is
 asked for. The default name of the rootnode is &quot;root&quot;, but this can be
 changed with the method <b class="method">rename</b> (see below). Whatever the
@@ -276,14 +267,14 @@ they are automatically added to a parent. A tree object cannot have
 nodes without a parent, save the root node.</p></li>
 </ol>
 <p>And now the methods supported by tree objects created by this package:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="4"><i class="arg">treeName</i> <b class="method">=</b> <i class="arg">sourcetree</i></a></dt>
 <dd><p>This is the assignment operator for tree objects. It copies the tree
 contained in the tree object <i class="arg">sourcetree</i> over the tree data in
 <i class="arg">treeName</i>. The old contents of <i class="arg">treeName</i> are deleted by this
 operation.</p>
 <p>This operation is in effect equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     <i class="arg">treeName</i> <b class="method">deserialize</b> [<i class="arg">sourcetree</i> <b class="method">serialize</b>]
 </pre>
 </dd>
@@ -293,7 +284,7 @@ contained in the tree object <i class="arg">treeName</i> over the tree data in t
 <i class="arg">desttree</i>. The old contents of <i class="arg">desttree</i> are deleted by this
 operation.</p>
 <p>This operation is in effect equivalent to</p>
-<pre class="example">
+<pre class="doctools_example">
     <i class="arg">desttree</i> <b class="method">deserialize</b> [<i class="arg">treeName</i> <b class="method">serialize</b>]
 </pre>
 </dd>
@@ -321,7 +312,7 @@ attribute <i class="arg">key</i> at that node.
 Nodes not having the attribute <i class="arg">key</i>, or not passing a
 specified restriction, are not listed in the result.</p>
 <p>The possible restrictions are:</p>
-<dl class="options">
+<dl class="doctools_options">
 <dt><b class="option">-nodes</b></dt>
 <dd><p>The value is a list of nodes. Only the nodes mentioned in this list
 are searched for the attribute.</p></dd>
@@ -344,7 +335,7 @@ and has to return a boolean value. Nodes for which the command returns
 <b class="const">false</b> are removed from the result list before it is returned
 to the caller.</p>
 <p>Some examples:</p>
-<pre class="example">
+<pre class="doctools_example">
     mytree insert root end 0 ; mytree set 0 volume 30
     mytree insert root end 1
     mytree insert root end 2
@@ -503,7 +494,7 @@ the structure of the tree is that the root node is signaled by the
 empty string for the parent reference, that all other nodes refer to
 their parent through the index in the list, and that children occur in
 the same order as in their parent.</p>
-<pre class="example">
+<pre class="doctools_example">
  A possible serialization for the tree structure
              +- d
        +- a -+
@@ -588,7 +579,7 @@ may succeed, error out, silently compute the wrong result, or anything
 in between.</p>
 <p>At last a small table showing the relationship between the various
 options and the possible actions.</p>
-<pre class="example">
+<pre class="doctools_example">
  order       type    actions         notes
  -----       ----    -----           -----
  pre         dfs     enter           parent before children
@@ -614,9 +605,9 @@ three additional arguments (tree, node, and action), instead of
 evaluating a script and passing the node via a loop variable.</p></dd>
 </dl>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">Changes for 2.0</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Changes for 2.0</a></h3>
 <p>The following noteworthy changes have occurred:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The API for accessing attributes and their values has been
 simplified.</p>
 <p>All functionality regarding the default attribute &quot;data&quot; has been
@@ -644,8 +635,8 @@ documentation on the construction of tree objects.</p>
 the transfer of tree objects over arbitrary channels and for easy
 persistence.</p></li>
 <li><p>The walker API has been streamlined and made more similar to the
-command <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>. In detail:</p>
-<ul class="itemized">
+command <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>. In detail:</p>
+<ul class="doctools_itemized">
 <li><p>The superfluous option <b class="option">-command</b> has been removed.</p></li>
 <li><p>Ditto for the place holders. Instead of the placeholders two loop
 variables have to be specified to contain node and action information.</p></li>
@@ -668,9 +659,9 @@ immediate children of the node, but the whole tree below it.</p></li>
 </ol>
 </div>
 </div>
-<div id="section3" class="section"><h2><a name="section3">EXAMPLES</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
 <p>The following example demonstrates the creation of new nodes:</p>
-<pre class="example">
+<pre class="doctools_example">
     mytree insert root end 0   ; # Create node 0, as child of the root
     mytree insert root end 1 2 ; # Ditto nodes 1 &amp; 2
     mytree insert 0    end 3   ; # Now create node 3 as child of node 0
@@ -679,7 +670,7 @@ immediate children of the node, but the whole tree below it.</p></li>
     #                              as the result of the command.
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>struct :: tree</em> of the
@@ -687,13 +678,13 @@ Please report such in the category <em>struct :: tree</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key699">breadth-first</a>, <a href="../../../../index.html#key697">depth-first</a>, <a href="../../../../index.html#key696">in-order</a>, <a href="../../../../index.html#key460">node</a>, <a href="../../../../index.html#key698">post-order</a>, <a href="../../../../index.html#key695">pre-order</a>, <a href="../../../../index.html#key109">serialization</a>, <a href="../../../../index.html#key298">tree</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key701">breadth-first</a>, <a href="../../../../index.html#key699">depth-first</a>, <a href="../../../../index.html#key698">in-order</a>, <a href="../../../../index.html#key462">node</a>, <a href="../../../../index.html#key700">post-order</a>, <a href="../../../../index.html#key697">pre-order</a>, <a href="../../../../index.html#key109">serialization</a>, <a href="../../../../index.html#key300">tree</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2002-2004,2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

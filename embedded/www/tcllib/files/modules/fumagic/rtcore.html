@@ -1,7 +1,6 @@
 
-<html><head>
-<title>fileutil::magic::rt - file utilities</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='fileutil::magic::rt - file utilities'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,54 +81,48 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'rtcore.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ fileutil::magic::rt.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">fileutil::magic::rt(n) 1.0 tcllib &quot;file utilities&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">fileutil::magic::rt(n) 1.0 tcllib &quot;file utilities&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>fileutil::magic::rt - Runtime core for file type recognition engines written in pure Tcl</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">NUMERIC TYPES</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">NUMERIC TYPES</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">fileutil::magic::rt <span class="opt">?1.0?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::fileutil::magic::rt::open</b> <i class="arg">filename</i></a></li>
 <li><a href="#2"><b class="cmd">::fileutil::magic::rt::close</b></a></li>
 <li><a href="#3"><b class="cmd">::fileutil::magic::rt::file_start</b> <i class="arg">name</i></a></li>
@@ -149,7 +142,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides the runtime core for file type recognition
 engines written in pure Tcl and is thus used by all other packages in
 this module, i.e. the two frontend packages
@@ -158,8 +151,8 @@ this module, i.e. the two frontend packages
 packages <b class="package"><a href="cgen.html">fileutil::magic::cgen</a></b> and
 <b class="package"><a href="cfront.html">fileutil::magic::cfront</a></b>.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::fileutil::magic::rt::open</b> <i class="arg">filename</i></a></dt>
 <dd><p>This command initializes the runtime and prepares the file
 <i class="arg">filename</i> for use by the system.
@@ -195,7 +188,7 @@ special character sequences.</p></dd>
 message may contain the following special character sequences. They
 will be replaced with buffered values before the message is added to
 the result. The command returns the empty string as its result.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">\b</b></dt>
 <dd><p>This sequence is removed</p></dd>
 <dt><b class="const">%s</b></dt>
@@ -212,11 +205,11 @@ fetched value is further stored in the numeric buffer.</p>
 <p>If <i class="arg">qual</i> is specified it is considered to be a mask and applied
 to the fetched value before it is stored and returned. It has to have
 the form of a partial Tcl bit-wise expression, i.e.</p>
-<pre class="example">
+<pre class="doctools_example">
 	&amp; number
 </pre>
 <p>For example:</p>
-<pre class="example">
+<pre class="doctools_example">
 	Nv lelong 0 &amp;0x8080ffff
 </pre>
 <p>For the possible types see section <span class="sectref"><a href="#section3">NUMERIC TYPES</a></span>.</p></dd>
@@ -227,7 +220,7 @@ as specified with <i class="arg">comp</i> and returns the result of that
 comparison.</p>
 <p>The argument <i class="arg">comp</i> has to contain one of Tcl's comparison
 operators, and the comparison made will be</p>
-<pre class="example">
+<pre class="doctools_example">
 	&lt;val&gt; &lt;comp&gt; &lt;fetched-and-masked-value&gt;
 </pre>
 <p>The special comparison operator <b class="const">x</b> signals that no comparison
@@ -271,8 +264,8 @@ base the offset is added to is the last location remembered for the
 level in the calling context.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">NUMERIC TYPES</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">NUMERIC TYPES</a></h2>
+<dl class="doctools_definitions">
 <dt><b class="const">byte</b></dt>
 <dd><p>8-bit integer</p></dd>
 <dt><b class="const">short</b></dt>
@@ -290,7 +283,7 @@ level in the calling context.</p></dd>
 </dl>
 <p>All of the types above exit in an unsigned form as well. The type
 names are the same, with the character &quot;u&quot; added as prefix.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">date</b></dt>
 <dd><p>32-bit integer timestamp, stored in native endianess</p></dd>
 <dt><b class="const">bedate</b></dt>
@@ -305,7 +298,7 @@ names are the same, with the character &quot;u&quot; added as prefix.</p>
 <dd><p>see above, stored in small/little endian</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>fileutil :: magic</em> of the
@@ -313,13 +306,13 @@ Please report such in the category <em>fileutil :: magic</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>file(1), <a href="../fileutil/fileutil.html">fileutil</a>, magic(5)</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key116">file recognition</a>, <a href="../../../../index.html#key118">file type</a>, <a href="../../../../index.html#key115">file utilities</a>, <a href="../../../../index.html#key228">mime</a>, <a href="../../../../index.html#key117">type</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key116">file recognition</a>, <a href="../../../../index.html#key118">file type</a>, <a href="../../../../index.html#key115">file utilities</a>, <a href="../../../../index.html#key230">mime</a>, <a href="../../../../index.html#key117">type</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-</div></body></html>
+</div>

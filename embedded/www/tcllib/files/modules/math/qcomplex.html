@@ -1,7 +1,6 @@
 
-<html><head>
-<title>math::complexnumbers - Tcl Math Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='math::complexnumbers - Tcl Math Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,55 +81,47 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'qcomplex.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ math::complexnumbers.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::complexnumbers(n) 1.0.2 tcllib &quot;Tcl Math Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">math::complexnumbers(n) 1.0.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::complexnumbers - Straightforward complex number package</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">AVAILABLE PROCEDURES</a></li>
-<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">AVAILABLE PROCEDURES</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
 <li>package require <b class="pkgname">math::complexnumbers <span class="opt">?1.0.2?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::complexnumbers::+</b> <i class="arg">z1</i> <i class="arg">z2</i></a></li>
 <li><a href="#2"><b class="cmd">::math::complexnumbers::-</b> <i class="arg">z1</i> <i class="arg">z2</i></a></li>
 <li><a href="#3"><b class="cmd">::math::complexnumbers::*</b> <i class="arg">z1</i> <i class="arg">z2</i></a></li>
@@ -152,7 +143,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The mathematical module <em>complexnumbers</em> provides a straightforward
 implementation of complex numbers in pure Tcl. The philosophy is that
 the user knows he or she is dealing with complex numbers in an abstract
@@ -166,25 +157,25 @@ complex number (though this is a mere detail: rely on the
 <p>Most procedures implement the basic arithmetic operations or elementary
 functions whereas several others convert to and from different
 representations:</p>
-<pre class="example">
+<pre class="doctools_example">
     set z [complex 0 1]
     puts &quot;z = [tostring $z]&quot;
     puts &quot;z**2 = [* $z $z]
 </pre>
 <p>would result in:</p>
-<pre class="example">
+<pre class="doctools_example">
     z = i
     z**2 = -1
 </pre>
 </div>
-<div id="section2" class="section"><h2><a name="section2">AVAILABLE PROCEDURES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">AVAILABLE PROCEDURES</a></h2>
 <p>The package implements all or most basic operations and elementary
 functions.</p>
 <p><em>The arithmetic operations are:</em></p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::math::complexnumbers::+</b> <i class="arg">z1</i> <i class="arg">z2</i></a></dt>
 <dd><p>Add the two arguments and return the resulting complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>First argument in the summation</p></dd>
 <dt>complex <i class="arg">z2</i> (in)</dt>
@@ -194,7 +185,7 @@ functions.</p>
 <dd><p>Subtract the second argument from the first and return the
 resulting complex number. If there is only one argument, the
 opposite of z1 is returned (i.e. -z1)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>First argument in the subtraction</p></dd>
 <dt>complex <i class="arg">z2</i> (in)</dt>
@@ -202,7 +193,7 @@ opposite of z1 is returned (i.e. -z1)</p>
 </dl></dd>
 <dt><a name="3"><b class="cmd">::math::complexnumbers::*</b> <i class="arg">z1</i> <i class="arg">z2</i></a></dt>
 <dd><p>Multiply the two arguments and return the resulting complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>First argument in the multiplication</p></dd>
 <dt>complex <i class="arg">z2</i> (in)</dt>
@@ -211,7 +202,7 @@ opposite of z1 is returned (i.e. -z1)</p>
 <dt><a name="4"><b class="cmd">::math::complexnumbers::/</b> <i class="arg">z1</i> <i class="arg">z2</i></a></dt>
 <dd><p>Divide the first argument by the second and return the resulting complex
 number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>First argument (numerator) in the division</p></dd>
 <dt>complex <i class="arg">z2</i> (in)</dt>
@@ -219,40 +210,40 @@ number</p>
 </dl></dd>
 <dt><a name="5"><b class="cmd">::math::complexnumbers::conj</b> <i class="arg">z1</i></a></dt>
 <dd><p>Return the conjugate of the given complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>Complex number in question</p></dd>
 </dl></dd>
 </dl>
 <p><em>Conversion/inquiry procedures:</em></p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="6"><b class="cmd">::math::complexnumbers::real</b> <i class="arg">z1</i></a></dt>
 <dd><p>Return the real part of the given complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>Complex number in question</p></dd>
 </dl></dd>
 <dt><a name="7"><b class="cmd">::math::complexnumbers::imag</b> <i class="arg">z1</i></a></dt>
 <dd><p>Return the imaginary part of the given complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>Complex number in question</p></dd>
 </dl></dd>
 <dt><a name="8"><b class="cmd">::math::complexnumbers::mod</b> <i class="arg">z1</i></a></dt>
 <dd><p>Return the modulus of the given complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>Complex number in question</p></dd>
 </dl></dd>
 <dt><a name="9"><b class="cmd">::math::complexnumbers::arg</b> <i class="arg">z1</i></a></dt>
 <dd><p>Return the argument (&quot;angle&quot; in radians) of the given complex number</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>Complex number in question</p></dd>
 </dl></dd>
 <dt><a name="10"><b class="cmd">::math::complexnumbers::complex</b> <i class="arg">real</i> <i class="arg">imag</i></a></dt>
 <dd><p>Construct the complex number &quot;real + imag*i&quot; and return it</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">real</i> (in)</dt>
 <dd><p>The real part of the new complex number</p></dd>
 <dt>float <i class="arg">imag</i> (in)</dt>
@@ -261,58 +252,58 @@ number</p>
 <dt><a name="11"><b class="cmd">::math::complexnumbers::tostring</b> <i class="arg">z1</i></a></dt>
 <dd><p>Convert the complex number to the form &quot;real + imag*i&quot; and return the
 string</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">complex</i> (in)</dt>
 <dd><p>The complex number to be converted</p></dd>
 </dl></dd>
 </dl>
 <p><em>Elementary functions:</em></p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="12"><b class="cmd">::math::complexnumbers::exp</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the exponential for the given complex argument and return the
 result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="13"><b class="cmd">::math::complexnumbers::sin</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the sine function for the given complex argument and return
 the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="14"><b class="cmd">::math::complexnumbers::cos</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the cosine function for the given complex argument and return
 the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="15"><b class="cmd">::math::complexnumbers::tan</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the tangent function for the given complex argument and
 return the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="16"><b class="cmd">::math::complexnumbers::log</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the (principle value of the) logarithm for the given complex
 argument and return the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="17"><b class="cmd">::math::complexnumbers::sqrt</b> <i class="arg">z1</i></a></dt>
 <dd><p>Calculate the (principle value of the) square root for the given complex
 argument and return the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex argument for the function</p></dd>
 </dl></dd>
 <dt><a name="18"><b class="cmd">::math::complexnumbers::pow</b> <i class="arg">z1</i> <i class="arg">z2</i></a></dt>
 <dd><p>Calculate &quot;z1 to the power of z2&quot; and return the result</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>complex <i class="arg">z1</i> (in)</dt>
 <dd><p>The complex number to be raised to a power</p></dd>
 <dt>complex <i class="arg">z2</i> (in)</dt>
@@ -320,7 +311,7 @@ argument and return the result</p>
 </dl></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: complexnumbers</em> of the
@@ -328,13 +319,13 @@ Please report such in the category <em>math :: complexnumbers</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key792">complex numbers</a>, <a href="../../../../index.html#key71">math</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key796">complex numbers</a>, <a href="../../../../index.html#key71">math</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

@@ -1,7 +1,6 @@
 
-<html><head>
-<title>map::slippy - Mapping utilities</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='map::slippy - Mapping utilities'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,59 +81,53 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'map_slippy.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ map::slippy.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">map::slippy(n) 0.5 tcllib &quot;Mapping utilities&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">map::slippy(n) 0.5 tcllib &quot;Mapping utilities&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>map::slippy - Common code for slippy based map packages</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a></li>
-<li class="section"><a href="#section3">Coordinate systems</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Coordinate systems</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Geographic</a></li>
-<li class="subsection"><a href="#subsection2">Tiles</a></li>
-<li class="subsection"><a href="#subsection3">Pixels/Points</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Geographic</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Tiles</a></li>
+<li class="doctools_subsection"><a href="#subsection3">Pixels/Points</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section4">References</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#section4">References</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">Tk 8.4</b></li>
 <li>package require <b class="pkgname">map::slippy <span class="opt">?0.5?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::map::slippy</b> <b class="method">length</b> <i class="arg">level</i></a></li>
 <li><a href="#2"><b class="cmd">::map::slippy</b> <b class="method">tiles</b> <i class="arg">level</i></a></li>
 <li><a href="#3"><b class="cmd">::map::slippy</b> <b class="method">tile size</b></a></li>
@@ -150,17 +143,17 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides a number of methods doing things needed by all
 types of slippy-based map packages.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::map::slippy</b> <b class="method">length</b> <i class="arg">level</i></a></dt>
 <dd><p>This method returns the width/height of a slippy-based map at the
 specified zoom <i class="arg">level</i>, in pixels. This is, in essence, the result
 of</p>
-<pre class="example">
+<pre class="doctools_example">
 	expr { [tiles $level] * [tile size] }
 </pre>
 </dd>
@@ -226,12 +219,12 @@ in this order) fits into a viewport given by <i class="arg">canvdim</i>, a
 this order.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Coordinate systems</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Coordinate systems</a></h2>
 <p>The commands of this package operate on three distinct coordinate
 systems, which are explained below.</p>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Geographic</a></h3>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Geographic</a></h3>
 <p><i class="term">Geographic</i>al coordinates are represented by <i class="term">Latitude</i> and
-<i class="term"><a href="../../../../index.html#key201">Longitude</a></i>, each of which is measured in degrees, as they are
+<i class="term"><a href="../../../../index.html#key203">Longitude</a></i>, each of which is measured in degrees, as they are
 essentially angles.</p>
 <p><b class="const">Zero</b> longitude is the <i class="term">Greenwich meridian</i>, with
 positive values going <i class="term">east</i>, and negative values going
@@ -244,7 +237,7 @@ requires us to cap the range at +/- 85.05112877983284 degrees. This
 means that north and south pole are not representable and not part of
 any map.</p>
 </div>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">Tiles</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Tiles</a></h3>
 <p>While <span class="sectref"><a href="#subsection1">Geographic</a></span>al coordinates of the previous section are
 independent of zoom level the <i class="term">tile coordinates</i> are not.</p>
 <p>Generally the integer part of tile coordinates represent the
@@ -267,19 +260,19 @@ tiles of level N+1.</p>
 and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
 coordinates ranging from 0 to 2^N+1.</p>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">Pixels/Points</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Pixels/Points</a></h3>
 <p><i class="term">pixel coordinates</i>, also called <i class="term">point coordinates</i> are
 in essence <span class="sectref"><a href="#subsection2">tile coordinates</a></span> scaled by the size of
 the image representing a tile. This tile size currently has a fixed
 value, <b class="const">256</b>.</p>
 </div>
 </div>
-<div id="section4" class="section"><h2><a name="section4">References</a></h2>
-<ol class="enumerated">
+<div id="section4" class="doctools_section"><h2><a name="section4">References</a></h2>
+<ol class="doctools_enumerated">
 <li><p><a href="http://wiki.openstreetmap.org/wiki/Main_Page">http://wiki.openstreetmap.org/wiki/Main_Page</a></p></li>
 </ol>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key195">geodesy</a>, <a href="../../../../index.html#key200">geography</a>, <a href="../../../../index.html#key194">latitute</a>, <a href="../../../../index.html#key198">location</a>, <a href="../../../../index.html#key201">longitude</a>, <a href="../../../../index.html#key199">map</a>, <a href="../../../../index.html#key197">slippy</a>, <a href="../../../../index.html#key196">zoom</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key197">geodesy</a>, <a href="../../../../index.html#key202">geography</a>, <a href="../../../../index.html#key196">latitute</a>, <a href="../../../../index.html#key200">location</a>, <a href="../../../../index.html#key203">longitude</a>, <a href="../../../../index.html#key201">map</a>, <a href="../../../../index.html#key199">slippy</a>, <a href="../../../../index.html#key198">zoom</a></p>
 </div>
-</div></body></html>
+</div>

@@ -62,14 +62,17 @@ testing {useLocal numtheory.tcl math::numtheory}
 % And the same is true for the manpage.
 % \begin{tcl}
 %<*man>
-[manpage_begin math::numtheory n 1.0]
+[manpage_begin math::numtheory n 1.1]
+[keywords {modular exponentiation}]
+[keywords {number theory}]
+[keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\ 
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc   {Tcl Math Library}]
 [titledesc {Number Theory}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::numtheory [opt 1.0]]
+[require math::numtheory [opt 1.1]]
 
 [description]
 [para]
@@ -2203,7 +2206,13 @@ test isprime-1.17 "Jaeschke psi_11" -body {
 %   \end{tcl}
 %   RFC~2409~\cite{RFC2409} lists a number of primes (and primitive 
 %   generators of their respective multiplicative groups). The 
-%   smallest of these is defined as \(p = 2^{768} - 2^{704} - 1 + 
+%   smallest of these\footnote{
+%     The authors of the Logjam attack calculate that it would be 
+%     feasible for an academic team to precompute tables that would 
+%     allow computing the discrete logarithm modulo this prime (or 
+%     any other given prime of similar size), so it shouldn't be used 
+%     in cryptographic applications anymore.
+%   } is defined as \(p = 2^{768} - 2^{704} - 1 + 
 %   2^{64} \cdot \left( [2^{638} \pi] + 149686 \right)\) (where the 
 %   brackets probably denote rounding to the nearest integer), but 
 %   since high precision (roughly $200$ decimal digits would be 
@@ -2225,6 +2234,8 @@ test isprime-1.18 "OAKLEY group 1 prime" -body {
      [::math::numtheory::isprime 0x[string reverse $digits]]
 } -result {on 0}
 %   \end{tcl}
+%   I.e., the second (least significant digit first) interpretation 
+%   is clearly not a prime.
 %   
 %   A quite different thing to test is that the tweaked PRNG really 
 %   produces only \(a \equiv 1,5 \pmod{6}\).
@@ -2255,7 +2266,8 @@ test isprime-2.0 "PRNG tweak" -setup {
 %<*man>
 [list_end]
 
-[keywords {number theory} prime {modular exponentiation}]
+[vset CATEGORY {math :: numtheory}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
 %</man>
 % \end{tcl}

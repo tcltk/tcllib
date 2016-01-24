@@ -1,7 +1,6 @@
 
-<html><head>
-<title>page_pluginmgr - Parser generator tools</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='page_pluginmgr - Parser generator tools'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,61 +81,53 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'page_pluginmgr.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2007 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ page_pluginmgr.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">page_pluginmgr(n) 1.0 tcllib &quot;Parser generator tools&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">page_pluginmgr(n) 1.0 tcllib &quot;Parser generator tools&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>page_pluginmgr - page plugin manager</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a></li>
-<li class="section"><a href="#section3">CONFIG PLUGIN API</a></li>
-<li class="section"><a href="#section4">READER PLUGIN API</a></li>
-<li class="section"><a href="#section5">WRITER PLUGIN API</a></li>
-<li class="section"><a href="#section6">TRANSFORM PLUGIN API</a></li>
-<li class="section"><a href="#section7">PREDEFINED PLUGINS</a></li>
-<li class="section"><a href="#section8">FEATURES</a></li>
-<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">CONFIG PLUGIN API</a></li>
+<li class="doctools_section"><a href="#section4">READER PLUGIN API</a></li>
+<li class="doctools_section"><a href="#section5">WRITER PLUGIN API</a></li>
+<li class="doctools_section"><a href="#section6">TRANSFORM PLUGIN API</a></li>
+<li class="doctools_section"><a href="#section7">PREDEFINED PLUGINS</a></li>
+<li class="doctools_section"><a href="#section8">FEATURES</a></li>
+<li class="doctools_section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">page::pluginmgr <span class="opt">?0.2?</span></b></li>
 <li>package require <b class="pkgname">fileutil</b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::page::pluginmgr::reportvia</b> <i class="arg">cmd</i></a></li>
 <li><a href="#2"><b class="cmd">::page::pluginmgr::report</b> <i class="arg">level</i> <i class="arg">text</i> <span class="opt">?<i class="arg">from</i> <span class="opt">?<i class="arg">to</i>?</span>?</span></a></li>
 <li><a href="#3"><b class="cmd">::page::pluginmgr::log</b> <i class="arg">cmd</i></a></li>
@@ -217,7 +208,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides the plugin manager central to the <b class="syscmd"><a href="../../apps/page.html">page</a></b>
 application. It manages the various reader, writer, configuration, and
 transformation plugins which actually process the text (read,
@@ -229,7 +220,7 @@ tclsh. Because of that they are only described in general terms in
 section <span class="sectref"><a href="#section7">PREDEFINED PLUGINS</a></span>, and not documented as regular
 packages. It is expected that they follow the APIs specified in the
 sections</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p><span class="sectref"><a href="#section3">CONFIG PLUGIN API</a></span></p></li>
 <li><p><span class="sectref"><a href="#section4">READER PLUGIN API</a></span></p></li>
 <li><p><span class="sectref"><a href="#section5">WRITER PLUGIN API</a></span></p></li>
@@ -237,8 +228,8 @@ sections</p>
 </ol>
 <p>as per their type.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::page::pluginmgr::reportvia</b> <i class="arg">cmd</i></a></dt>
 <dd><p>This command defines the callback command used by
 <b class="cmd">::page::pluginmgr::report</b> (see below) to report input errors and
@@ -311,7 +302,7 @@ optional <i class="arg">done</i> can be used to intrecept when the plugin has
 completed its processing. All arguments are command prefixes.</p>
 <p>The plugin will invoke the various callbacks in the following
 situations:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="13"><i class="arg">read</i> <i class="arg">num</i></a></dt>
 <dd><p>is invoked whenever input to process is needed, with the number of
 characters/bytes it asks for. The result is expected to be the input
@@ -393,10 +384,10 @@ specified <i class="arg">data</i>. The result of the plugin is returned as the
 result of the command.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">CONFIG PLUGIN API</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">CONFIG PLUGIN API</a></h2>
 <p>Configuration plugins are expected to provide a single command,
 described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="32"><b class="cmd">page_cdefinition</b></a></dt>
 <dd><p>This command of a configuration plugin is called by the plugin manager
 to execute it. Its result has to be a list of options and values to
@@ -410,10 +401,10 @@ by the package <b class="package">page::config::<b class="const">FOO</b></b>.</p
 they are not kept in memory. The command for doing this is
 <b class="cmd">::page::pluginmgr::configuration</b>.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">READER PLUGIN API</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">READER PLUGIN API</a></h2>
 <p>Reader plugins are expected to provide the following commands,
 described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="33"><b class="cmd">page_rfeature</b> <i class="arg">name</i></a></dt>
 <dd><p>This command takes a feature <i class="arg">name</i> and returns a boolean flag
 indicating whether the feature is supported by the plugin, or not.
@@ -445,7 +436,7 @@ processing.</p></dd>
 </dl>
 <p>Reader plugins expect the environment to provide the following special
 commands.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="41"><b class="cmd">page_read</b> <i class="arg">num</i></a></dt>
 <dd><p>This command is invoked to read <i class="arg">num</i> characters/bytes from the
 input. Its result has to be read characters/bytes.</p></dd>
@@ -481,10 +472,10 @@ by the package <b class="package">page::reader::<b class="const">FOO</b></b>.</p
 <b class="cmd">::page::pluginmgr::reader</b>. At most one reader plugin can be kept
 in memory.</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">WRITER PLUGIN API</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">WRITER PLUGIN API</a></h2>
 <p>Writer plugins are expected to provide the following commands,
 described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="50"><b class="cmd">page_wfeature</b></a></dt>
 <dd><p>This command takes a feature <i class="arg">name</i> and returns a boolean flag
 indicating whether the feature is supported by the plugin, or not.
@@ -516,7 +507,7 @@ opened for writing. The result of the command is the empty string.</p></dd>
 </dl>
 <p>Writer plugins expect the environment to provide the following special
 commands.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="58"><b class="cmd">page_info</b> <i class="arg">text</i> <span class="opt">?<i class="arg">from</i> <span class="opt">?<i class="arg">to</i>?</span>?</span></a></dt>
 <dd><p>Invoked to report some information to the user. May indicate a
 location or range in the input. Each piece of location data, if
@@ -542,11 +533,11 @@ by the package <b class="package">page::writer::<b class="const">FOO</b></b>.</p
 <b class="cmd">::page::pluginmgr::writer</b>. At most one writer plugin can be kept
 in memory.</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">TRANSFORM PLUGIN API</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">TRANSFORM PLUGIN API</a></h2>
 <p>page::transform::*
 Transformation plugins are expected to provide the following commands,
 described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="64"><b class="cmd">page_tfeature</b></a></dt>
 <dd><p>This command takes a feature <i class="arg">name</i> and returns a boolean flag
 indicating whether the feature is supported by the plugin, or not.
@@ -578,7 +569,7 @@ opened for writing. The result of the command is the empty string.</p></dd>
 </dl>
 <p>Transformation plugins expect the environment to provide the following
 special commands.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="72"><b class="cmd">page_info</b> <i class="arg">text</i> <span class="opt">?<i class="arg">from</i> <span class="opt">?<i class="arg">to</i>?</span>?</span></a></dt>
 <dd><p>Invoked to report some information to the user. May indicate a
 location or range in the input. Each piece of location data, if
@@ -604,12 +595,12 @@ by the package <b class="package">page::transform::<b class="const">FOO</b></b>.
 <b class="cmd">::page::pluginmgr::transform</b>. More than one transformation
 plugin can be kept in memory.</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">PREDEFINED PLUGINS</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">PREDEFINED PLUGINS</a></h2>
 <p>The following predefined plugins are known, i.e. provided by the page
 module.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>Configuration</dt>
-<dd><dl class="definitions">
+<dd><dl class="doctools_definitions">
 <dt>peg</dt>
 <dd><p>Returns a set of options to configure the <b class="syscmd"><a href="../../apps/page.html">page</a></b> application
 for the processing of a PEG grammar and the generation of ME code. See
@@ -617,7 +608,7 @@ the packages <b class="package">grammar_peg</b>, <b class="package">grammar_me</
 for more details.</p></dd>
 </dl></dd>
 <dt>Reader</dt>
-<dd><dl class="definitions">
+<dd><dl class="doctools_definitions">
 <dt>hb</dt>
 <dd><p>Expects a so-called <i class="term">half-baked PEG container</i> as input and
 returns the equivalent abstract syntax tree. See the writer plugin
@@ -637,7 +628,7 @@ into an equivalent abstract syntax tree and returns that.</p></dd>
 <b class="package"><a href="../struct/struct_tree.html">struct::tree</a></b> as input and returns it, after validation.</p></dd>
 </dl></dd>
 <dt>Writer</dt>
-<dd><dl class="definitions">
+<dd><dl class="doctools_definitions">
 <dt>hb</dt>
 <dd><p>Expects an abstract syntax tree for a parsing expression grammar as
 input and writes it out in the form of a so-called
@@ -673,7 +664,7 @@ provided by the package <b class="package"><a href="../grammar_peg/peg.html">gra
 input and writes it out in a generic indented format.</p></dd>
 </dl></dd>
 <dt>Transformation</dt>
-<dd><dl class="definitions">
+<dd><dl class="doctools_definitions">
 <dt>mecpu</dt>
 <dd><p>Takes an abstract syntax tree for a parsing expression grammer as
 input, generates symbolic assembler code for the MatchEngine CPU, and
@@ -690,12 +681,12 @@ and annotated tree.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section8" class="section"><h2><a name="section8">FEATURES</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">FEATURES</a></h2>
 <p>The plugin manager currently checks the plugins for only one feature,
 <b class="const">timeable</b>. A plugin supporting this feature is assumed to be
 able to collect timing statistics on request.</p>
 </div>
-<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
+<div id="section9" class="doctools_section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>page</em> of the
@@ -703,13 +694,13 @@ Please report such in the category <em>page</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key189">page</a>, <a href="../../../../index.html#key187">parser generator</a>, <a href="../../../../index.html#key190">text processing</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key191">page</a>, <a href="../../../../index.html#key189">parser generator</a>, <a href="../../../../index.html#key192">text processing</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Page Parser Generator</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2007 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

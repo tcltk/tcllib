@@ -5,14 +5,14 @@
 # All rights reserved.
 #
 
-
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
     lappend auto_path [pwd]
     package require tcltest
     namespace import ::tcltest::*
-    puts [source huddle.tcl]
+    
+    source huddle.tcl
     package require json
 
     proc dictsort {dict} {
@@ -29,24 +29,16 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-    testsNeedTcl     8.3
-    testsNeedTcltest 1.0
-
-    if {$::tcl_version < 8.5} {
-        if {[catch {package require dict}]} {
-            puts "    Aborting the tests found in \"[file tail [info script]]\""
-            puts "    Requiring dict package, not found."
-            return
-        }
-    }
+    testsNeedTcl     8.5
+    testsNeedTcltest 2
+    #testsNeed dict 1
 
     support {
-	use json/json.tcl json
+    use json/json.tcl json
     }
     testing {
         useLocal huddle.tcl huddle
     }
-
 }
 
 test huddle-1.1 "test of huddle create" -body {
@@ -73,11 +65,11 @@ test huddle-1.5 "test of huddle create" -body {
 } -result {HUDDLE {D {e {s f} g {s h}}}}
 
 test huddle-1.6 "test of huddle create" -body {
-    huddle gets $folding dd
+    huddle get_stripped $folding dd
 } -result {bb {a b c d} cc {e f g h}}
 
 test huddle-1.7 "test of huddle create" -body {
-    huddle gets $folding dd cc
+    huddle get_stripped $folding dd cc
 } -result {e f g h}
 
 test huddle-1.8 "test of huddle create" -body {
@@ -115,11 +107,11 @@ test huddle-2.5 "test of huddle list" -body {
 } -result {HUDDLE {L {{s a} {s b} {s c} {s d}}}}
 
 test huddle-2.6 "test of huddle list" -body {
-    huddle gets $folding 0
+    huddle get_stripped $folding 0
 } -result {i {a b c d} j k {e f g h}}
 
 test huddle-2.7 "test of huddle list" -body {
-    huddle gets $folding 0 1
+    huddle get_stripped $folding 0 1
 } -result {a b c d}
 
 test huddle-2.8 "test of huddle list" -body {
@@ -135,7 +127,7 @@ test huddle-2.10 "test of huddle list" -body {
 } -result {string}
 
 test huddle-2.11 "test of huddle list" -body {
-    huddle strip {HUDDLE {L {{s a} {L {}} {s c}}}}
+    huddle get_stripped {HUDDLE {L {{s a} {L {}} {s c}}}}
 } -result {a {} c}
 
 #test huddle-3.1 "test of huddle jsondump" {[info tclversion] >= 8.5} {
@@ -165,7 +157,7 @@ test huddle-2.11 "test of huddle list" -body {
 #} {1}
 
 test huddle-3.2 "test of huddle jsondump" -body {
-    huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{s 1.0} {s true} {s g} {s h}}}}} {s t}}}}
+    huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{num 1.0} {b true} {s g} {s h}}}}} {s t}}}}
 } -result {[
   [
     "i",
@@ -181,16 +173,15 @@ test huddle-3.2 "test of huddle jsondump" -body {
   "t"
 ]}
 
-if { [package vcompare [package provide Tcl] 8.5] > 0 } {
+
 test huddle-3.3 "test of huddle jsondump" -body {
-    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
-a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
+    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {num 1} j {s { m\a}}}}}}}
     set json1 [huddle jsondump $huddle1]
     set json2 {{
   "dd": {
     "bb": {
       "a": "baa",
-      "c": "d\na"
+      "c": "d a"
     },
     "cc": {"g": "h"}
   },
@@ -200,12 +191,36 @@ a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
     "j": " m\\a"
   }
 }}
-    if {$json1 == $json2} {return 1}
+    
+    if {$json1 == $json2} {
+    return 1
+    } else {
+    return 0
+    }
+} -result {1}
+
+
+test huddle-3.4 "test of huddle compile" -body {
+    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {num 1} j {s { m\a}}}}}}}
+    set json1 {{
+  "dd": {
+    "bb": {
+      "a": "baa",
+      "c": "d a"
+    },
+    "cc": {"g": "h"}
+  },
+  "ee": {
+    "i": "j",
+    "k": 1,
+    "j": " m\\a"
+  }
+}}
+    
     set data [json::json2dict $json1]
-    set data [huddle compile {dict dd {dict * dict} ee dict} $data]
+    set data [huddle compile {dict dd {dict * dict} ee {dict k number * string}}  $data]
     huddle equal $huddle1 $data
 } -result {1}
-}
 
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
@@ -250,11 +265,98 @@ test huddle-4.10 "test of huddle equal" -body {
     huddle equal $data_list {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t}}}}
 } -result 0
 
-# ... Tests of addStrings ...
-#     (Requires introspection of parser state)
+test huddle-5.1 "test of huddle boolean" -body {
+    huddle true
+} -result {HUDDLE {b true}}
+
+test huddle-5.2 "test of huddle boolean" -body {
+    huddle false
+} -result {HUDDLE {b false}}
+
+test huddle-6.1 "test of huddle null" -body {
+    huddle null
+} -result {HUDDLE null}
+
+test huddle-7.1 "test of huddle number" -body {
+    huddle number -4.5E-6
+} -result {HUDDLE {num -4.5E-6}}
 
 
-if [info exists selfrun] {
+test huddle-8.1 "test of complex data structure using the new types: number, boolean and null" -body {
+    huddle create key1 var1 key2 [huddle number 4] key3 [huddle list [huddle null] sadf [huddle true]]
+} -result {HUDDLE {D {key1 {s var1} key2 {num 4} key3 {L {null {s sadf} {b true}}}}}}
+
+
+test huddle-9.1 "test of huddle exists" -body {
+    set obj [huddle list [huddle create key1 2 key3 4] 1 2 [huddle list  1 2 [huddle list 1 2]] ]
+    huddle exists $obj 0 key1
+} -result {1}
+
+test huddle-9.2 "test of huddle exists" -body {
+    set obj [huddle list [huddle create key1 2 key3 4] 1 2 [huddle list  1 2 [huddle list 1 2]] ]
+    huddle exists $obj 3 2 1
+} -result {1}
+
+test huddle-9.1 "test of huddle exists" -body {
+    set obj [huddle list [huddle create key1 2 key3 4] 1 2 [huddle list  1 2 [huddle list 1 2]] ]
+    huddle exists $obj 0 key1
+} -result {1}
+
+test huddle-9.3 "test of huddle exists" -body {
+    set obj [huddle list [huddle create key1 2 key3 4] 1 2 [huddle list  1 2 [huddle list 1 2]] ]
+    huddle exists $obj 3 3 1
+} -result {0}
+
+test huddle-10.1 "test of huddle clone" -body {
+    set obj [huddle list item0 item1 [huddle create key0 value0 key1 value1]]
+    huddle clone $obj
+} -result {HUDDLE {L {{s item0} {s item1} {D {key0 {s value0} key1 {s value1}}}}}}
+
+
+test huddle-11.1 "test of huddle superclass" -body {
+    
+    namespace eval ::new_types::mapping {
+    
+        variable settings
+        set settings {
+                superclass dict
+                publicMethods {mapping}
+                tag !!map 
+                isContainer yes }
+        
+        proc mapping {args} {
+            if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
+            set resultL {}
+            foreach {key value} $args {
+                lappend resultL $key [argument_to_node $value !!str]
+            }
+
+            return [wrap [list !!map $resultL]]
+        }
+        
+    }
+    
+    namespace eval ::new_types::str {
+        
+            variable settings
+            set settings {
+                    superclass string
+                    publicMethods {}
+                    isContainer no
+                    tag !!str
+            }
+    }
+    
+    huddle addType ::new_types::mapping
+    huddle addType ::new_types::str
+
+    set a [huddle mapping key1 var1]
+    huddle append a key2 [huddle mapping key3 var3]
+} -result {HUDDLE {!!map {key1 {!!str var1} key2 {!!map {key3 {!!str var3}}}}}}
+
+
+
+if {[info exists selfrun]} {
     tcltest::cleanupTests
 } else {
     testsuiteCleanup

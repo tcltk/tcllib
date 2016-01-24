@@ -23,7 +23,7 @@ testing {
 
 # -------------------------------------------------------------------------
 
-if {[info command ::crc::SumBsd_c] == {}} {
+if {[info commands ::crc::SumBsd_c] == {}} {
     puts "> pure tcl"
 } else {    
     puts "> critcl based"

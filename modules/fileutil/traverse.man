@@ -129,6 +129,37 @@ results from the callback are ignored.
 
 [list_end]
 
+
+[section {Warnings and Incompatibilities}]
+
+[list_begin definitions]
+
+[def [const 0.4.4]]
+In this version the traverser's broken system for handling symlinks
+was replaced with one working correctly and properly enumerating all
+the legal non-cyclic paths under a base directory.
+
+[para] While correct this means that certain pathological directory
+hierarchies with cross-linked sym-links will now take about O(n**2)
+time to enumerate whereas the original broken code managed O(n) due to
+its brokenness.
+
+[para] A concrete example and extreme case is the [file /sys]
+hierarchy under Linux where some hundred devices exist under both
+[file /sys/devices] and [file /sys/class] with the two sub-hierarchies
+linking to the other, generating millions of legal paths to enumerate.
+The structure, reduced to three devices, roughly looks like
+
+[include include/cross-index.inc]
+
+[para] When having to handle such a pathological hierarchy it is
+recommended to use the [option -prefilter] option to prevent the
+traverser from following symbolic links, like so:
+
+[include include/cross-index-trav.inc]
+
+[list_end]
+
 [vset CATEGORY fileutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

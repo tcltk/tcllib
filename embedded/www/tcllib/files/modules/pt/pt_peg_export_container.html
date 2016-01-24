@@ -1,7 +1,6 @@
 
-<html><head>
-<title>pt::peg::export::container - Parser Tools</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='pt::peg::export::container - Parser Tools'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,77 +81,69 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'plugin.inc' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ pt::peg::export::container.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">pt::peg::export::container(n) 1 tcllib &quot;Parser Tools&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">pt::peg::export::container(n) 1 tcllib &quot;Parser Tools&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>pt::peg::export::container - PEG Export Plugin. Write CONTAINER format</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a></li>
-<li class="section"><a href="#section3">Configuration</a></li>
-<li class="section"><a href="#section4">Grammar Container</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Configuration</a></li>
+<li class="doctools_section"><a href="#section4">Grammar Container</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Example</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Example</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section5">PEG serialization format</a>
+<li class="doctools_section"><a href="#section5">PEG serialization format</a>
 <ul>
-<li class="subsection"><a href="#subsection2">Example</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Example</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section6">PE serialization format</a>
+<li class="doctools_section"><a href="#section6">PE serialization format</a>
 <ul>
-<li class="subsection"><a href="#subsection3">Example</a></li>
+<li class="doctools_subsection"><a href="#subsection3">Example</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<li class="doctools_section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
 <li>package require <b class="pkgname">pt::peg::export::container <span class="opt">?1?</span></b></li>
 <li>package require <b class="pkgname">pt::peg::to::container</b></li>
 </ul>
-<ul class="syntax">
-<li><a href="#1"><b class="cmd"><a href="../../../../index.html#key258">export</a></b> <i class="arg">serial</i> <i class="arg">configuration</i></a></li>
+<ul class="doctools_syntax">
+<li><a href="#1"><b class="cmd"><a href="../../../../index.html#key260">export</a></b> <i class="arg">serial</i> <i class="arg">configuration</i></a></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
@@ -169,7 +160,7 @@ functionality provided by <b class="package"><a href="pt_peg_to_container.html">
 possible, this is strongly disrecommended and requires a number of
 contortions to provide the expected environment.
 The proper way to use this functionality depends on the situation:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>In an untrusted environment the proper access is through the package
 <b class="package"><a href="pt_peg_export.html">pt::peg::export</a></b> and the export manager objects it
 provides.</p></li>
@@ -178,12 +169,12 @@ provides.</p></li>
 conversion functionality directly.</p></li>
 </ol>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <p>The API provided by this package satisfies the specification of the
 Plugin API found in the <i class="term"><a href="pt_to_api.html">Parser Tools Export API</a></i>
 specification.</p>
-<dl class="definitions">
-<dt><a name="1"><b class="cmd"><a href="../../../../index.html#key258">export</a></b> <i class="arg">serial</i> <i class="arg">configuration</i></a></dt>
+<dl class="doctools_definitions">
+<dt><a name="1"><b class="cmd"><a href="../../../../index.html#key260">export</a></b> <i class="arg">serial</i> <i class="arg">configuration</i></a></dt>
 <dd><p>This command takes the canonical serialization of a parsing expression
 grammar, as specified in section <span class="sectref"><a href="#section5">PEG serialization format</a></span>,
 and contained in <i class="arg">serial</i>, the <i class="arg">configuration</i>, a dictionary,
@@ -191,15 +182,15 @@ and generates CONTAINER markup encoding the grammar.
 The created string is then returned as the result of the command.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Configuration</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Configuration</a></h2>
 <p>The CONTAINER export plugin recognizes the following configuration
 variables and changes its behaviour as they specify.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>enum <i class="arg">mode</i></dt>
 <dd><p>The value of this configuration variable controls which methods of
 <b class="package"><a href="pt_pegrammar.html">pt::peg</a></b> instances the plugin will use to specify the
 grammar. There are two legal values</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">bulk</b></dt>
 <dd><p>In this mode the methods <b class="method">start</b>, <b class="method">add</b>, <b class="method">modes</b>,
 and <b class="method">rules</b> are used to specify the grammar in a bulk manner,
@@ -216,7 +207,7 @@ nonterminal having its own block of defining commands.</p></dd>
 string into which to put the generated code and other configuration
 data. The various locations are expected to be specified with the
 following placeholders:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">@user@</b></dt>
 <dd><p>To be replaced with the value of the configuration variable <b class="option">user</b>.</p></dd>
 <dt><b class="const">@format@</b></dt>
@@ -240,7 +231,7 @@ depending on the chosen template.</p>
 is used as name of the grammar in the output. Otherwise the plugin
 falls back to the default name <b class="const">a_pe_grammar</b>.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Grammar Container</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Grammar Container</a></h2>
 <p>The <b class="const">container</b> format is another form of describing parsing
 expression grammars. While data in this format is executable it does
 not constitute a parser for the grammar. It always has to be used in
@@ -251,9 +242,9 @@ whose instances are API-compatible to the instances of the
 <b class="package"><a href="pt_peg_container.html">pt::peg::container</a></b> package, and which are preloaded with the
 grammar in question.</p>
 <p>It has no direct formal specification beyond what was said above.</p>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Example</a></h3>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Example</a></h3>
 <p>Assuming the following PEG for simple mathematical expressions</p>
-<pre class="example">
+<pre class="doctools_example">
 PEG calculator (Expression)
     Digit      &lt;- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
     Sign       &lt;- '-' / '+'                                     ;
@@ -266,7 +257,7 @@ PEG calculator (Expression)
 END;
 </pre>
 <p>one possible CONTAINER serialization for it is</p>
-<pre class="example">
+<pre class="doctools_example">
 snit::type a_pe_grammar {
     constructor {} {
         install myg using pt::peg::container ${selfns}::G
@@ -300,7 +291,7 @@ snit::type a_pe_grammar {
 </pre>
 </div>
 </div>
-<div id="section5" class="section"><h2><a name="section5">PEG serialization format</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">PEG serialization format</a></h2>
 <p>Here we specify the format used by the Parser Tools to serialize
 Parsing Expression Grammars as immutable values for transport,
 comparison, etc.</p>
@@ -308,25 +299,25 @@ comparison, etc.</p>
 serializations.
 While a PEG may have more than one regular serialization only exactly
 one of them will be <i class="term">canonical</i>.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>regular serialization</dt>
-<dd><ol class="enumerated">
+<dd><ol class="doctools_enumerated">
 <li><p>The serialization of any PEG is a nested Tcl dictionary.</p></li>
 <li><p>This dictionary holds a single key, <b class="const">pt::grammar::peg</b>, and its
 value. This value holds the contents of the grammar.</p></li>
 <li><p>The contents of the grammar are a Tcl dictionary holding the set of
 nonterminal symbols and the starting expression. The relevant keys and
 their values are</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">rules</b></dt>
 <dd><p>The value is a Tcl dictionary whose keys are the names of the
 nonterminal symbols known to the grammar.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>Each nonterminal symbol may occur only once.</p></li>
 <li><p>The empty string is not a legal nonterminal symbol.</p></li>
 <li><p>The value for each symbol is a Tcl dictionary itself. The relevant
 keys and their values in this dictionary are</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">is</b></dt>
 <dd><p>The value is the serialization of the parsing expression describing
 the symbols sentennial structure, as specified in the section
@@ -334,7 +325,7 @@ the symbols sentennial structure, as specified in the section
 <dt><b class="const">mode</b></dt>
 <dd><p>The value can be one of three values specifying how a parser should
 handle the semantic value produced by the symbol.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">value</b></dt>
 <dd><p>The semantic value of the nonterminal symbol is an abstract syntax
 tree consisting of a single node node for the nonterminal itself,
@@ -365,7 +356,7 @@ RHS of the grammar rules.</p></li>
 in the previous item, and then additionally satisfies the constraints
 below, which make it unique among all the possible serializations of
 this grammar.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
 <b class="cmd">lsort -increasing -dict</b>.</p></li>
@@ -373,9 +364,9 @@ ascending dictionary order, as generated by Tcl's builtin command
 of a Tcl dictionary. I.e. it does not contain superfluous whitespace.</p></li>
 </ol></dd>
 </dl>
-<div id="subsection2" class="subsection"><h3><a name="subsection2">Example</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Example</a></h3>
 <p>Assuming the following PEG for simple mathematical expressions</p>
-<pre class="example">
+<pre class="doctools_example">
 PEG calculator (Expression)
     Digit      &lt;- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
     Sign       &lt;- '-' / '+'                                     ;
@@ -388,7 +379,7 @@ PEG calculator (Expression)
 END;
 </pre>
 <p>then its canonical serialization (except for whitespace) is</p>
-<pre class="example">
+<pre class="doctools_example">
 pt::grammar::peg {
     rules {
         AddOp      {is {/ {t -} {t +}}                                                                mode value}
@@ -405,7 +396,7 @@ pt::grammar::peg {
 </pre>
 </div>
 </div>
-<div id="section6" class="section"><h2><a name="section6">PE serialization format</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">PE serialization format</a></h2>
 <p>Here we specify the format used by the Parser Tools to serialize
 Parsing Expressions as immutable values for transport, comparison,
 etc.</p>
@@ -413,11 +404,11 @@ etc.</p>
 serializations.
 While a parsing expression may have more than one regular
 serialization only exactly one of them will be <i class="term">canonical</i>.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>Regular serialization</dt>
-<dd><dl class="definitions">
+<dd><dl class="doctools_definitions">
 <dt><b class="const">Atomic Parsing Expressions</b></dt>
-<dd><ol class="enumerated">
+<dd><ol class="doctools_enumerated">
 <li><p>The string <b class="const">epsilon</b> is an atomic parsing expression. It matches
 the empty string.</p></li>
 <li><p>The string <b class="const">dot</b> is an atomic parsing expression. It matches
@@ -475,7 +466,7 @@ is an atomic parsing expression. It matches the terminal string <b class="variab
 is an atomic parsing expression. It matches the nonterminal <b class="variable">A</b>.</p></li>
 </ol></dd>
 <dt><b class="const">Combined Parsing Expressions</b></dt>
-<dd><ol class="enumerated">
+<dd><ol class="doctools_enumerated">
 <li><p>For parsing expressions <b class="variable">e1</b>, <b class="variable">e2</b>, ... the result of
     [list / <b class="variable">e1</b> <b class="variable">e2</b> ... ]
 is a parsing expression as well.
@@ -513,26 +504,26 @@ This is the <i class="term">optional input</i>.</p></li>
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
 serializations of this parsing expression.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The string representation of the value is the canonical representation
 of a pure Tcl list. I.e. it does not contain superfluous whitespace.</p></li>
 <li><p>Terminals are <em>not</em> encoded as ranges (where start and end of the
 range are identical).</p></li>
 </ol></dd>
 </dl>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">Example</a></h3>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Example</a></h3>
 <p>Assuming the parsing expression shown on the right-hand side of the
 rule</p>
-<pre class="example">
+<pre class="doctools_example">
     Expression &lt;- Term (AddOp Term)*
 </pre>
 <p>then its canonical serialization (except for whitespace) is</p>
-<pre class="example">
+<pre class="doctools_example">
     {x {n Term} {* {x {n AddOp} {n Term}}}}
 </pre>
 </div>
 </div>
-<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>pt</em> of the
@@ -540,13 +531,13 @@ Please report such in the category <em>pt</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key347">CONTAINER</a>, <a href="../../../../index.html#key3">EBNF</a>, <a href="../../../../index.html#key15">LL(k)</a>, <a href="../../../../index.html#key6">PEG</a>, <a href="../../../../index.html#key7">TDPL</a>, <a href="../../../../index.html#key4">context-free languages</a>, <a href="../../../../index.html#key258">export</a>, <a href="../../../../index.html#key0">expression</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key9">parser</a>, <a href="../../../../index.html#key8">parsing expression</a>, <a href="../../../../index.html#key14">parsing expression grammar</a>, <a href="../../../../index.html#key250">plugin</a>, <a href="../../../../index.html#key1">push down automaton</a>, <a href="../../../../index.html#key10">recursive descent</a>, <a href="../../../../index.html#key109">serialization</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key13">top-down parsing languages</a>, <a href="../../../../index.html#key12">transducer</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key349">CONTAINER</a>, <a href="../../../../index.html#key3">EBNF</a>, <a href="../../../../index.html#key15">LL(k)</a>, <a href="../../../../index.html#key6">PEG</a>, <a href="../../../../index.html#key7">TDPL</a>, <a href="../../../../index.html#key4">context-free languages</a>, <a href="../../../../index.html#key260">export</a>, <a href="../../../../index.html#key0">expression</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key9">parser</a>, <a href="../../../../index.html#key8">parsing expression</a>, <a href="../../../../index.html#key14">parsing expression grammar</a>, <a href="../../../../index.html#key252">plugin</a>, <a href="../../../../index.html#key1">push down automaton</a>, <a href="../../../../index.html#key10">recursive descent</a>, <a href="../../../../index.html#key109">serialization</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key13">top-down parsing languages</a>, <a href="../../../../index.html#key12">transducer</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Parsing and Grammars</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

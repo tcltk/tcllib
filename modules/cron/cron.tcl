@@ -6,8 +6,6 @@
 #
 # Author: Sean Woods (for T&E Solutions)
 
-package provide cron 1.1
-
 ::namespace eval ::cron {}
 
 proc ::cron::at args {
@@ -38,7 +36,7 @@ proc ::cron::at args {
   foreach {field value} $info {
     dict set processTable($process) $field $value
   }
-  ::cron::runTasks
+  ::cron::wake
   return $process
 }
 
@@ -66,7 +64,7 @@ proc ::cron::in args {
   foreach {field value} $info {
     dict set processTable($process) $field $value
   }
-  ::cron::runTasks
+  ::cron::wake
   return $process
 }
 
@@ -83,7 +81,7 @@ proc ::cron::every {process frequency command} {
   foreach {field value} $info {
     dict set processTable($process) $field $value
   }
-  ::cron::runTasks
+  ::cron::wake
 }
 
 proc ::cron::cancel {process} {
@@ -99,6 +97,19 @@ proc ::cron::run process {
   dict set processTable($process) lastrun 0
 }
 
+proc ::cron::doOneEvent task {
+  variable lock 1
+  variable processTable
+  set now [clock seconds]
+  dict with processTable($task) {
+    set err [catch {uplevel #0 $command} result]
+    if $err {
+      puts $result
+    }
+  }
+  set lock 0
+}
+
 ###
 # topic: 1f8d4726623321acc311734c1dadcd8e
 # description:
@@ -108,7 +119,6 @@ proc ::cron::run process {
 proc ::cron::runProcesses {} {
   variable processTable
   set now [clock seconds]
-  
   ###
   # Determine what tasks to run this timestep
   ###
@@ -132,14 +142,8 @@ proc ::cron::runProcesses {} {
     }
   }
   foreach task $tasks {
-    dict with processTable($task) {
-      set err [catch {uplevel #0 $command} result]
-      if $err {
-        puts $result
-      }
-    }
+    doOneEvent $task
   }
-
   foreach {task} $cancellist {
     unset -nocomplain processTable($task)
   }
@@ -185,6 +189,80 @@ proc ::cron::runTasks {} {
   set lastcall [after $next [namespace current]::runTasks]
 }
 
+
+###
+# topic: 21de7bb8db019f3a2fd5a6ae9b38fd55
+# description:
+#    Called once per second, and timed to ensure
+#    we run in roughly realtime
+###
+proc ::cron::runTasksCoro {} {
+  variable lastcall
+  after cancel $lastcall
+  ###
+  # Do this forever
+  ###
+  variable processTable
+  variable processing
+  while 1 {
+    set lastevent 0
+    set nextevent 0
+    set now [clock seconds]
+    ###
+    # Determine what tasks to run this timestep
+    ###
+    set tasks {}
+    set cancellist {}
+    foreach {process} [lsort -dictionary [array names processTable]] {
+      dict with processTable($process) {
+        if { $scheduled <= $now } {
+          lappend tasks $process
+          if { $frequency <= 0 } {
+            lappend cancellist $process
+          } else {
+            set scheduled [expr {$frequency + $lastrun}]
+            if { $scheduled <= $now } {
+              set scheduled [expr {$frequency + $now}]
+            }
+          }
+          set lastrun $now
+        } else {
+          if {$nextevent==0 || $scheduled < $nextevent} {
+            set $nextevent $scheduled
+          }
+        }
+        set lastevent $now
+      }
+    }
+    foreach task $tasks {
+      doOneEvent $task
+      yield 0
+    }
+    
+    foreach {task} $cancellist {
+      unset -nocomplain processTable($task)
+    }
+    if {$nextevent==0} {
+      # Wake me up in 5 minutes, just out of principle
+      yield 300
+    } else {
+      yield $nextevent
+    }
+  }
+}
+
+
+
+proc ::cron::wake {} {
+  variable lock
+  ##
+  # Only triggered by cron jobs kicking off other cron jobs within
+  # the script body
+  ##
+  if {$lock} return
+  ::cron::runTasks
+}
+
 ###
 # topic: 4a891d0caabc6e25fbec9514ea8104dd
 # description:
@@ -195,7 +273,9 @@ proc ::cron::runTasks {} {
 namespace eval ::cron {
   variable lastcall 0
   variable processTable
+  variable lock 0
 }
 
-::cron::runTasks
+::cron::wake
+package provide cron 1.2.1
 

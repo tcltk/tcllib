@@ -1,7 +1,6 @@
 
-<html><head>
-<title>dns - Domain Name Service</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='dns - Domain Name Service'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,59 +81,51 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'tcllib_dns.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2002, Pat Thoyts
-   -->
-<! -- CVS: $Id$ dns.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">dns(n) 1.3.5 tcllib &quot;Domain Name Service&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">dns(n) 1.3.5 tcllib &quot;Domain Name Service&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>dns - Tcl Domain Name Service Client</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">EXAMPLES</a></li>
-<li class="section"><a href="#section4">REFERENCES</a></li>
-<li class="section"><a href="#section5">AUTHORS</a></li>
-<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section4">REFERENCES</a></li>
+<li class="doctools_section"><a href="#section5">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">dns <span class="opt">?1.3.5?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::dns::resolve</b> <i class="arg">query</i> <span class="opt">?<i class="arg">options</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::dns::configure</b> <span class="opt">?<i class="arg">options</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::dns::name</b> <i class="arg">token</i></a></li>
@@ -150,7 +141,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The dns package provides a Tcl only Domain Name Service client. You
 should refer to (1) and (2) for information about the DNS protocol or
 read resolver(3) to find out how the C library resolves domain names.
@@ -172,13 +163,13 @@ correctly handles binary data (&gt; 1.0.4).
 This is available at <a href="http://tcludp.sourceforge.net/">http://tcludp.sourceforge.net/</a>.
 If the <b class="package">udp</b> package is present then UDP will be used by default.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::dns::resolve</b> <i class="arg">query</i> <span class="opt">?<i class="arg">options</i>?</span></a></dt>
-<dd><p>Resolve a domain name using the <i class="term"><a href="../../../../index.html#key596">DNS</a></i> protocol. <i class="arg">query</i> is
+<dd><p>Resolve a domain name using the <i class="term"><a href="../../../../index.html#key598">DNS</a></i> protocol. <i class="arg">query</i> is
 the domain name to be lookup up. This should be either a fully
 qualified domain name or a DNS URI.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="cmd">-nameserver</b> <i class="arg">hostname</i> or <b class="cmd">-server</b> <i class="arg">hostname</i></dt>
 <dd><p>Specify an alternative name server for this request.</p></dd>
 <dt><b class="cmd">-protocol</b> <i class="arg">tcp|udp</i></dt>
@@ -214,7 +205,7 @@ all set via this command. If no arguments are provided then a list of
 all the current settings is returned.  If only one argument then it
 must the the name of an option and the value for that option is
 returned.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="cmd">-nameserver</b> <i class="arg">hostname</i></dt>
 <dd><p>Set the default name server to be used by all queries. The default is
   <i class="term">localhost</i>.</p></dd>
@@ -261,8 +252,8 @@ systems we examine certain parts of the registry. If no nameserver can
 be found then the loopback address (127.0.0.1) is used as a default.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">EXAMPLES</a></h2>
-<pre class="example">
+<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLES</a></h2>
+<pre class="doctools_example">
 % set tok [dns::resolve www.tcl.tk]
 ::dns::1
 % dns::status $tok
@@ -274,12 +265,12 @@ www.tcl.tk
 % dns::cleanup $tok
 </pre>
 <p>Using DNS URIs as queries:</p>
-<pre class="example">
+<pre class="doctools_example">
 % set tok [dns::resolve &quot;dns:tcl.tk;type=MX&quot;]
 % set tok [dns::resolve &quot;dns://l.root-servers.net/www.tcl.tk&quot;]
 </pre>
 <p>Reverse address lookup:</p>
-<pre class="example">
+<pre class="doctools_example">
 % set tok [dns::resolve 127.0.0.1]
 ::dns::1
 % dns::name $tok
@@ -287,8 +278,8 @@ localhost
 % dns::cleanup $tok
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">REFERENCES</a></h2>
-<ol class="enumerated">
+<div id="section4" class="doctools_section"><h2><a name="section4">REFERENCES</a></h2>
+<ol class="doctools_enumerated">
 <li><p>Mockapetris, P., &quot;Domain Names - Concepts and Facilities&quot;,
     RFC 1034, November 1987.
     (<a href="http://www.ietf.org/rfc/rfc1034.txt">http://www.ietf.org/rfc/rfc1034.txt</a>)</p></li>
@@ -310,10 +301,10 @@ localhost
     (<a href="http://www.ietf.org/rfc/rfc1995.txt">http://www.ietf.org/rfc/rfc1995.txt</a>)</p></li>
 </ol>
 </div>
-<div id="section5" class="section"><h2><a name="section5">AUTHORS</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>dns</em> of the
@@ -321,16 +312,16 @@ Please report such in the category <em>dns</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>resolver(5)</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key596">DNS</a>, <a href="../../../../index.html#key599">domain name service</a>, <a href="../../../../index.html#key598">resolver</a>, <a href="../../../../index.html#key600">rfc 1034</a>, <a href="../../../../index.html#key595">rfc 1035</a>, <a href="../../../../index.html#key597">rfc 1886</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key598">DNS</a>, <a href="../../../../index.html#key601">domain name service</a>, <a href="../../../../index.html#key600">resolver</a>, <a href="../../../../index.html#key602">rfc 1034</a>, <a href="../../../../index.html#key597">rfc 1035</a>, <a href="../../../../index.html#key599">rfc 1886</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2002, Pat Thoyts</p>
 </div>
-</div></body></html>
+</div>

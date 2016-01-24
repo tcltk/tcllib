@@ -1,7 +1,6 @@
 
-<html><head>
-<title>logger - Object Oriented logging facility</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='logger - Object Oriented logging facility'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,53 +81,47 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'logger.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ logger.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">logger(n) 0.9.4 tcllib &quot;Object Oriented logging facility&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">logger(n) 0.9.4 tcllib &quot;Object Oriented logging facility&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>logger - System to control logging of events.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">IMPLEMENTATION</a></li>
-<li class="section"><a href="#section3">Logprocs and Callstack</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">IMPLEMENTATION</a></li>
+<li class="doctools_section"><a href="#section3">Logprocs and Callstack</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">logger <span class="opt">?0.9.4?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">logger::init</b> <i class="arg">service</i></a></li>
 <li><a href="#2"><b class="cmd">logger::import</b> <span class="opt">?<b class="option">-all</b>?</span> <span class="opt">?<b class="option">-force</b>?</span> <span class="opt">?<b class="option">-prefix</b> <i class="arg">prefix</i>?</span> <span class="opt">?<b class="option">-namespace</b> <i class="arg">namespace</i>?</span> <i class="arg">service</i></a></li>
 <li><a href="#3"><b class="cmd">logger::initNamespace</b> <i class="arg">ns</i> <span class="opt">?<i class="arg">level</i>?</span></a></li>
@@ -166,16 +159,16 @@
 <li><a href="#35"><b class="cmd">${log}::trace</b> <b class="cmd">status</b> <span class="opt">?procName?</span> <span class="opt">?...?</span></a></li>
 <li><a href="#36"><b class="cmd">${log}::trace</b> <b class="cmd">add</b> <i class="arg">procName</i> <span class="opt">?...?</span></a></li>
 <li><a href="#37"><b class="cmd">${log}::trace</b> <b class="cmd">add</b> <span class="opt">?-ns?</span> <i class="arg">nsName</i> <span class="opt">?...?</span></a></li>
-<li><a href="#38"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key226">remove</a></b> <i class="arg">procName</i> <span class="opt">?...?</span></a></li>
-<li><a href="#39"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key226">remove</a></b> <span class="opt">?-ns?</span> <i class="arg">nsName</i> <span class="opt">?...?</span></a></li>
+<li><a href="#38"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">procName</i> <span class="opt">?...?</span></a></li>
+<li><a href="#39"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <span class="opt">?-ns?</span> <i class="arg">nsName</i> <span class="opt">?...?</span></a></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">logger</b> package provides a flexible system for logging messages
 from different services, at priority levels, with different commands.</p>
 <p>To begin using the logger package, we do the following:</p>
-<pre class="example">
+<pre class="doctools_example">
     package require logger
     set log [logger::init myservice]
     ${log}::notice &quot;Initialized myservice logging&quot;
@@ -185,7 +178,7 @@ from different services, at priority levels, with different commands.</p>
 </pre>
 <p>In the above code, after the package is loaded, the following things
 happen:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">logger::init</b> <i class="arg">service</i></a></dt>
 <dd><p>Initializes the service <i class="arg">service</i> for logging.  The service names
 are actually Tcl namespace names, so they are separated with '::'.
@@ -272,7 +265,7 @@ Disabling the loglevel <b class="const">emergency</b> switches logging off for t
 If called without a command it returns the currently registered command. The command gets two arguments
 appended, the old and the new loglevel. The callback is invoked after all changes have been done.
 If child loggers are affected, their callbacks are called before their parents callback.</p>
-<pre class="example">
+<pre class="doctools_example">
  	proc lvlcallback {old new} {
  	    puts &quot;Loglevel changed from $old to $new&quot;
  	}
@@ -295,7 +288,7 @@ for a given level.  The logger package ships with default commands for
 all log levels, but with <b class="cmd">logproc</b> it is possible to replace them
 with custom code.  This would let you send your logs over the network,
 to a database, or anything else.  For example:</p>
-<pre class="example">
+<pre class="doctools_example">
     proc logtoserver {txt} {
         variable socket
         puts $socket &quot;Notice: $txt&quot;
@@ -306,7 +299,7 @@ to a database, or anything else.  For example:</p>
 the argument provided to the logproc is a dictionary consisting of the
 <b class="const">enter</b> or <b class="const">leave</b> keyword along with another dictionary of
 details about the trace.  These include:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p><b class="const">proc</b> - Name of the procedure being traced.</p></li>
 <li><p><b class="const">level</b> - The stack level for the procedure invocation
 (from <b class="cmd"><a href="../../../../index.html#key83">info</a></b> <b class="cmd">level</b>).</p></li>
@@ -335,7 +328,7 @@ traces only).</p></li>
 <dd><p>Set the script to call when the log instance in question is deleted.
 If called without a command it returns the currently registered command.
 For example:</p>
-<pre class="example">
+<pre class="doctools_example">
     ${log}::delproc [list closesock $logsock]
 </pre>
 </dd>
@@ -348,7 +341,7 @@ It is used to enable and disable tracing, query tracing status, and
 specify procedures are to be traced.  Trace handlers are unregistered when
 tracing is disabled.  As a result, there is not performance impact to a
 library when tracing is disabled, just as with other log level commands.</p>
-<pre class="example">
+<pre class="doctools_example">
   proc tracecmd { dict } {
       puts $dict
   }
@@ -408,15 +401,15 @@ Procedures must be defined prior to registering them for tracing
 through the <b class="cmd"><a href="../../../../index.html#key74">trace</a></b> <b class="cmd">add</b> command.  Any procedure or namespace
 names/patterns that don't match any existing procedures will be
 silently ignored.</p></dd>
-<dt><a name="38"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key226">remove</a></b> <i class="arg">procName</i> <span class="opt">?...?</span></a></dt>
+<dt><a name="38"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">procName</i> <span class="opt">?...?</span></a></dt>
 <dd></dd>
-<dt><a name="39"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key226">remove</a></b> <span class="opt">?-ns?</span> <i class="arg">nsName</i> <span class="opt">?...?</span></a></dt>
+<dt><a name="39"><b class="cmd">${log}::trace</b> <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <span class="opt">?-ns?</span> <i class="arg">nsName</i> <span class="opt">?...?</span></a></dt>
 <dd><p>This command unregisters one or more procedures so that they will no
 longer have trace logging performed, with the same matching rules as
 that of the <b class="cmd"><a href="../../../../index.html#key74">trace</a></b> <b class="cmd">add</b> command.</p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">IMPLEMENTATION</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">IMPLEMENTATION</a></h2>
 <p>The logger package is implemented in such a way as to optimize (for
 Tcl 8.4 and newer) log procedures which are disabled.  They are
 aliased to a proc which has no body, which is compiled to a no op in
@@ -431,12 +424,12 @@ Using an actual object oriented system would probably be a better way
 of doing things, or at least provide for a cleaner implementation.</p>
 <p>The service &quot;object orientation&quot; is done with namespaces.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Logprocs and Callstack</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Logprocs and Callstack</a></h2>
 <p>The logger package takes extra care to keep the logproc out of the call stack.
 This enables logprocs to execute code in the callers scope by using uplevel or
 linking to local variables by using upvar. This may fire traces with all usual
 side effects.</p>
-<pre class="example">
+<pre class="doctools_example">
      # Print caller and current vars in the calling proc
      proc log_local_var {txt} {
           set caller [info level -1]
@@ -459,7 +452,7 @@ side effects.</p>
      ${log}::logproc debug log_local_var
      </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>logger</em> of the
@@ -467,10 +460,10 @@ Please report such in the category <em>logger</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#key73">log</a>, <a href="../../../../index.html#key91">log level</a>, <a href="../../../../index.html#key89">logger</a>, <a href="../../../../index.html#key90">service</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-</div></body></html>
+</div>

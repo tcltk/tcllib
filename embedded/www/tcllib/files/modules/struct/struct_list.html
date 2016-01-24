@@ -1,7 +1,6 @@
 
-<html><head>
-<title>struct::list - Tcl Data Structures</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='struct::list - Tcl Data Structures'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,58 +81,50 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'struct_list.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2003-2005 by Kevin B. Kenny. All rights reserved   -- Copyright &copy; 2003-2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ struct::list.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">struct::list(n) 1.8.3 tcllib &quot;Tcl Data Structures&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">struct::list(n) 1.8.3 tcllib &quot;Tcl Data Structures&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::list - Procedures for manipulating lists</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON</a></li>
-<li class="section"><a href="#section4">TABLE JOIN</a></li>
-<li class="section"><a href="#section5">REFERENCES</a></li>
-<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON</a></li>
+<li class="doctools_section"><a href="#section4">TABLE JOIN</a></li>
+<li class="doctools_section"><a href="#section5">REFERENCES</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">struct::list <span class="opt">?1.8.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence</b> <i class="arg">sequence1</i> <i class="arg">sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence2</b> <i class="arg">sequence1 sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::struct::list</b> <b class="method">lcsInvert</b> <i class="arg">lcsData</i> <i class="arg">len1</i> <i class="arg">len2</i></a></li>
@@ -165,7 +156,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="cmd">::struct::list</b> namespace contains several useful commands
 for processing Tcl lists. Generally speaking, they implement
 algorithms more complex or specialized than the ones provided by Tcl
@@ -174,8 +165,8 @@ itself.</p>
 functionality provided here can be reached through a subcommand of
 this command.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::list</b> <b class="method">longestCommonSubsequence</b> <i class="arg">sequence1</i> <i class="arg">sequence2</i> <span class="opt">?<i class="arg">maxOccurs</i>?</span></a></dt>
 <dd><p>Returns the longest common subsequence of elements in the two lists
 <i class="arg">sequence1</i> and <i class="arg">sequence2</i>. If the <i class="arg">maxOccurs</i> parameter
@@ -214,7 +205,7 @@ differences between the two sequences. This description is a list
 containing three elements, a type and two pairs of indices into
 <i class="arg">sequence1</i> and <i class="arg">sequence2</i> respectively, in this order.
 The type can be one of three values:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">added</b></dt>
 <dd><p>Describes an addition. I.e. items which are missing in <i class="arg">sequence1</i>
 can be found in <i class="arg">sequence2</i>.
@@ -247,7 +238,7 @@ replacing the original range. Again the first index refers to the
 first item in the range, and the second index refers to the last item
 in the range.</p></dd>
 </dl>
-<pre class="example">
+<pre class="doctools_example">
     sequence 1 = {a b r a c a d a b r a}
     lcs 1      =   {1 2   4 5     8 9 10}
     lcs 2      =   {0 1   3 4     5 6 7}
@@ -258,7 +249,7 @@ in the range.</p></dd>
                   {added   {10 11}  {8 8}}}
 </pre>
 <p><em>Notes:</em></p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>An index of <b class="const">-1</b> in a <i class="term">deleted</i> chunk refers to just before
 the first element of the second sequence.</p></li>
 <li><p>Also an index equal to the length of the first sequence in an
@@ -276,7 +267,7 @@ structure as that command, except that it may contain chunks of type
 two sequences. This means that the result of this command describes
 both the changed and unchanged parts of the two sequences in one
 structure.</p>
-<pre class="example">
+<pre class="doctools_example">
     sequence 1 = {a b r a c a d a b r a}
     lcs 1      =   {1 2   4 5     8 9 10}
     lcs 2      =   {0 1   3 4     5 6 7}
@@ -314,7 +305,7 @@ variables.</p>
 <p>If there are more elements in the <i class="arg">sequence</i> than variable names
 specified the subcommand returns a list containing the unassigned
 elements. Else an empty list is returned.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; ::struct::list assign {a b c d e} foo bar
     c d e
     tclsh&gt; set foo
@@ -330,7 +321,7 @@ sequence. In other words, the sublists in the input sequence are
 replaced by their elements.</p>
 <p>The subcommand will remove any nesting it finds if the option
 <b class="option">-full</b> is specified.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; ::struct::list flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
     1 2 3 4 5 6 7 {8 9} 10
     tclsh&gt; ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
@@ -345,7 +336,7 @@ consisting of the results of that application.</p>
 <p>The command prefix will be evaluated with a single word appended to
 it. The evaluation takes place in the context of the caller of the
 subcommand.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; # squaring all elements in a list
     tclsh&gt; proc sqr {x} {expr {$x*$x}}
     tclsh&gt; ::struct::list map {1 2 3 4 5} sqr
@@ -364,7 +355,7 @@ consisting of the results of that application.</p>
 <p>The script will be evaluated as is, and has access to the current list element
 through the specified iteration variable <i class="arg">var</i>. The evaluation takes place
 in the context of the caller of the subcommand.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; # squaring all elements in a list
     tclsh&gt; ::struct::list mapfor x {1 2 3 4 5} {
 	expr {$x * $x}
@@ -390,7 +381,7 @@ returns the remaining elements.</p>
 <p>The command prefix will be evaluated with a single word appended to
 it. The evaluation takes place in the context of the caller of the
 subcommand.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; # removing all odd numbers from the input
     tclsh&gt; proc even {x} {expr {($x % 2) == 0}}
     tclsh&gt; ::struct::list filter {1 2 3 4 5} even
@@ -410,7 +401,7 @@ returns the remaining elements.</p>
 <p>The expression will be evaluated as is, and has access to the current list
 element through the specified iteration variable <i class="arg">var</i>. The evaluation
 takes place in the context of the caller of the subcommand.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; # removing all odd numbers from the input
     tclsh&gt; ::struct::list filterfor x {1 2 3 4 5} {($x % 2) == 0}
     2 4
@@ -438,7 +429,7 @@ the subcommand.</p>
 <p>It then reduces the sequence into a single value through repeated
 application of the command prefix and returns that value. This
 reduction is done by</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">1</b></dt>
 <dd><p>Application of the command to the initial value and the first element
 of the list.</p></dd>
@@ -457,7 +448,7 @@ second element of the list.</p></dd>
 element of the list. The result of this call is returned as the result
 of the subcommand.</p></dd>
 </dl>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; # summing the elements in a list.
     tclsh&gt; proc + {a b} {expr {$a + $b}}
     tclsh&gt; ::struct::list fold {1 2 3 4 5} 0 +
@@ -495,7 +486,7 @@ Note that <b class="cmd">repeat 1 arg ...</b>  is identical to
 <b class="cmd">list arg ...</b>, though the <i class="arg">arg</i> is required
 with <b class="method">repeat</b>.</p>
 <p><em>Examples:</em></p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; ::struct::list repeat 3 a
     a a a
     tclsh&gt; ::struct::list repeat 3 [::struct::list repeat 3 0]
@@ -522,7 +513,7 @@ list will be nested, and of the length specified by the last
 are defined as the result of <b class="cmd">Repeat</b> for the same arguments,
 but with the last <i class="arg">size</i> value removed.</p>
 <p>An empty list will be returned if no <i class="arg">size</i> arguments are present.</p>
-<pre class="example">
+<pre class="doctools_example">
     tclsh&gt; ::struct::list repeatn  0 3 4
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
     tclsh&gt; ::struct::list repeatn  0 {3 4}
@@ -597,10 +588,10 @@ permutation for which <i class="arg">body</i> is currently executed. The result 
 the loop command is the empty string.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">LONGEST COMMON SUBSEQUENCE AND FILE COMPARISON</a></h2>
 <p>The <b class="method">longestCommonSubsequence</b> subcommand forms the core of a
 flexible system for doing differential comparisons of files, similar
-to the capability offered by the Unix command <b class="syscmd"><a href="../../../../index.html#key560">diff</a></b>.
+to the capability offered by the Unix command <b class="syscmd"><a href="../../../../index.html#key562">diff</a></b>.
 While this procedure is quite rapid for many tasks of file comparison,
 its performance degrades severely if <i class="arg">sequence2</i> contains many
 equal elements (as, for instance, when using this procedure to compare
@@ -620,7 +611,7 @@ computes the longest common subsequence of infrequent elements, and
 then subdivides the subsequences that lie between the matches to
 approximate the true longest common subsequence.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">TABLE JOIN</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">TABLE JOIN</a></h2>
 <p>This is an operation from relational algebra for relational databases.</p>
 <p>The easiest way to understand the regular inner join is that it
 creates the cartesian product of all the tables involved first and
@@ -636,7 +627,7 @@ use arrays internally.</p>
 tables. There are three variants of outerjoins, called <i class="term">left</i>,
 <i class="term">right</i>, and <i class="term">full</i> outer joins. Their result always
 contains all rows from an inner join and then some additional rows.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>For the left outer join the additional rows are all rows from the left
 table for which there is no key in the right table. They are joined to
 an empty row of the right table to fit them into the result.</p></li>
@@ -649,11 +640,11 @@ right outer join, combined.</p></li>
 </ol>
 <p>We extend all the joins from two to <b class="variable">n</b> tables (<b class="variable">n</b> &gt; 2) by
 executing</p>
-<pre class="example">
+<pre class="doctools_example">
     (...((table1 join table2) join table3) ...) join tableN
 </pre>
 <p>Examples for all the joins:</p>
-<pre class="example">
+<pre class="doctools_example">
     Inner Join
     {0 foo}              {0 bagel}    {0 foo   0 bagel}
     {1 snarf} inner join {1 snatz}  = {1 snarf 1 snatz}
@@ -673,8 +664,8 @@ executing</p>
                                            {{} {}   3 driver}
 </pre>
 </div>
-<div id="section5" class="section"><h2><a name="section5">REFERENCES</a></h2>
-<ol class="enumerated">
+<div id="section5" class="doctools_section"><h2><a name="section5">REFERENCES</a></h2>
+<ol class="doctools_enumerated">
 <li><p>J. W. Hunt and M. D. McIlroy, &quot;An algorithm for differential
 file comparison,&quot; Comp. Sci. Tech. Rep. #41, Bell Telephone
 Laboratories (1976). Available on the Web at the second
@@ -684,7 +675,7 @@ volume 4&quot;. Available on the Web at the author's personal site:
 <a href="http://www-cs-faculty.stanford.edu/~knuth/fasc2b.ps.gz">http://www-cs-faculty.stanford.edu/~knuth/fasc2b.ps.gz</a>.</p></li>
 </ol>
 </div>
-<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>struct :: list</em> of the
@@ -692,14 +683,14 @@ Please report such in the category <em>struct :: list</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key566">Fisher-Yates</a>, <a href="../../../../index.html#key568">assign</a>, <a href="../../../../index.html#key549">common</a>, <a href="../../../../index.html#key551">comparison</a>, <a href="../../../../index.html#key560">diff</a>, <a href="../../../../index.html#key554">differential</a>, <a href="../../../../index.html#key557">equal</a>, <a href="../../../../index.html#key570">equality</a>, <a href="../../../../index.html#key221">filter</a>, <a href="../../../../index.html#key558">first permutation</a>, <a href="../../../../index.html#key555">flatten</a>, <a href="../../../../index.html#key563">folding</a>, <a href="../../../../index.html#key561">full outer join</a>, <a href="../../../../index.html#key569">generate permutations</a>, <a href="../../../../index.html#key565">inner join</a>, <a href="../../../../index.html#key556">join</a>, <a href="../../../../index.html#key550">left outer join</a>, <a href="../../../../index.html#key300">list</a>, <a href="../../../../index.html#key548">longest common subsequence</a>, <a href="../../../../index.html#key199">map</a>, <a href="../../../../index.html#key573">next permutation</a>, <a href="../../../../index.html#key572">outer join</a>, <a href="../../../../index.html#key547">permutation</a>, <a href="../../../../index.html#key215">reduce</a>, <a href="../../../../index.html#key571">repeating</a>, <a href="../../../../index.html#key279">repetition</a>, <a href="../../../../index.html#key564">reshuffle</a>, <a href="../../../../index.html#key552">reverse</a>, <a href="../../../../index.html#key553">right outer join</a>, <a href="../../../../index.html#key567">shuffle</a>, <a href="../../../../index.html#key562">subsequence</a>, <a href="../../../../index.html#key559">swapping</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key568">Fisher-Yates</a>, <a href="../../../../index.html#key570">assign</a>, <a href="../../../../index.html#key551">common</a>, <a href="../../../../index.html#key553">comparison</a>, <a href="../../../../index.html#key562">diff</a>, <a href="../../../../index.html#key556">differential</a>, <a href="../../../../index.html#key559">equal</a>, <a href="../../../../index.html#key572">equality</a>, <a href="../../../../index.html#key223">filter</a>, <a href="../../../../index.html#key560">first permutation</a>, <a href="../../../../index.html#key557">flatten</a>, <a href="../../../../index.html#key565">folding</a>, <a href="../../../../index.html#key563">full outer join</a>, <a href="../../../../index.html#key571">generate permutations</a>, <a href="../../../../index.html#key567">inner join</a>, <a href="../../../../index.html#key558">join</a>, <a href="../../../../index.html#key552">left outer join</a>, <a href="../../../../index.html#key302">list</a>, <a href="../../../../index.html#key550">longest common subsequence</a>, <a href="../../../../index.html#key201">map</a>, <a href="../../../../index.html#key575">next permutation</a>, <a href="../../../../index.html#key574">outer join</a>, <a href="../../../../index.html#key549">permutation</a>, <a href="../../../../index.html#key217">reduce</a>, <a href="../../../../index.html#key573">repeating</a>, <a href="../../../../index.html#key281">repetition</a>, <a href="../../../../index.html#key566">reshuffle</a>, <a href="../../../../index.html#key554">reverse</a>, <a href="../../../../index.html#key555">right outer join</a>, <a href="../../../../index.html#key569">shuffle</a>, <a href="../../../../index.html#key564">subsequence</a>, <a href="../../../../index.html#key561">swapping</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2003-2005 by Kevin B. Kenny. All rights reserved<br>
 Copyright &copy; 2003-2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

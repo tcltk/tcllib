@@ -40,25 +40,38 @@ proc ::uuid::generate_tcl_machinfo {} {
   if {[info exists machinfo]} {
     return $machinfo
   }
-  # More spatial information -- better than hostname.
-  # bug 1150714: opening a server socket may raise a warning messagebox
-  #   with WinXP firewall, using ipconfig will return all IP addresses
-  #   including ipv6 ones if available. ipconfig is OK on win98+
-  if {[string equal $::tcl_platform(platform) "windows"]} {
-    catch {exec ipconfig} config
-    lappend machinfo $config
+  lappend machinfo [clock seconds]; # timestamp
+  lappend machinfo [clock clicks];  # system incrementing counter
+  lappend machinfo [info hostname]; # spatial unique id (poor)
+  lappend machinfo [pid];           # additional entropy
+  lappend machinfo [array get ::tcl_platform]
+  if {[catch {package require nettool}]} {
+    # More spatial information -- better than hostname.
+    # bug 1150714: opening a server socket may raise a warning messagebox
+    #   with WinXP firewall, using ipconfig will return all IP addresses
+    #   including ipv6 ones if available. ipconfig is OK on win98+
+    if {[string equal $::tcl_platform(platform) "windows"]} {
+      catch {exec ipconfig} config
+      lappend machinfo $config
+    } else {
+      catch {
+          set s [socket -server void -myaddr [info hostname] 0]
+          K [fconfigure $s -sockname] [close $s]
+      } r
+      lappend machinfo $r
+    }
+  
+    if {[package provide Tk] != {}} {
+      lappend machinfo [winfo pointerxy .]
+      lappend machinfo [winfo id .]
+    }
   } else {
-    catch {
-        set s [socket -server void -myaddr [info hostname] 0]
-        K [fconfigure $s -sockname] [close $s]
-    } r
-    lappend machinfo $r
+    ###
+    # If the nettool package works on this platform
+    # use the stream of hardware ids from it
+    ###
+    lappend machinfo {*}[::nettool::hwid_list]
   }
-
-  if {[package provide Tk] != {}} {
-    lappend machinfo [winfo pointerxy .]
-    lappend machinfo [winfo id .]
-  }  
   return $machinfo
 }
 
@@ -68,15 +81,9 @@ proc ::uuid::generate_tcl_machinfo {} {
 proc ::uuid::generate_tcl {} {
     package require md5 2
     variable uid
-
-    set tok [md5::MD5Init]
-    md5::MD5Update $tok [clock seconds]; # timestamp
-    md5::MD5Update $tok [clock clicks];  # system incrementing counter
-    md5::MD5Update $tok [incr uid];      # package incrementing counter 
-    md5::MD5Update $tok [info hostname]; # spatial unique id (poor)
-    md5::MD5Update $tok [pid];           # additional entropy
-    md5::MD5Update $tok [array get ::tcl_platform]
     
+    set tok [md5::MD5Init]
+    md5::MD5Update $tok [incr uid];      # package incrementing counter 
     foreach string [generate_tcl_machinfo] {
       md5::MD5Update $tok $string
     }
@@ -203,7 +210,7 @@ proc ::uuid::LoadAccelerator {name} {
     switch -exact -- $name {
         critcl {
             if {![catch {package require tcllibc}]} {
-                set r [expr {[info command ::uuid::generate_c] != {}}]
+                set r [expr {[info commands ::uuid::generate_c] != {}}]
             }
         }
         default {
@@ -225,7 +232,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid 1.0.4
+package provide uuid 1.0.5
 
 # -------------------------------------------------------------------------
 # Local variables:

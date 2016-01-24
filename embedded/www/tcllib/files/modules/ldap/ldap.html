@@ -1,7 +1,6 @@
 
-<html><head>
-<title>ldap - LDAP client</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='ldap - LDAP client'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,57 +81,49 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'ldap.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2004 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;   -- Copyright &copy; 2004 Jochen Loewer &lt;loewerj@web.de&gt;   -- Copyright &copy; 2006 Michael Schlenker &lt;mic42@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ ldap.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">ldap(n) 1.6.9 tcllib &quot;LDAP client&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">ldap(n) 1.6.9 tcllib &quot;LDAP client&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ldap - LDAP client</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">TLS Security Considerations</a></li>
-<li class="section"><a href="#section3">COMMANDS</a></li>
-<li class="section"><a href="#section4">EXAMPLES</a></li>
-<li class="section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section3">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section4">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">ldap <span class="opt">?1.8?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::ldap::connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></li>
@@ -150,11 +141,11 @@
 <li><a href="#15"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
 <li><a href="#16"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></li>
 <li><a href="#17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></li>
-<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key448">ip</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key450">ip</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
 <li><a href="#20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
 <li><a href="#21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
-<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key329">tls</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key331">tls</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></li>
 <li><a href="#24"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#25"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></li>
@@ -162,7 +153,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">ldap</b> package provides a Tcl-only client library
 for the LDAPv3 protocol as specified in
 RFC 4511 (<a href="http://www.rfc-editor.org/rfc/rfc4511.txt">http://www.rfc-editor.org/rfc/rfc4511.txt</a>).
@@ -171,11 +162,11 @@ server, and then providing a Tcl API to access the LDAP protocol
 commands.  All server errors are returned as Tcl errors (thrown) which
 must be caught with the Tcl <b class="cmd">catch</b> command.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key329">TLS</a></b> package to handle the security
+<div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -183,18 +174,18 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key329">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key329">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section3" class="section"><h2><a name="section3">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::ldap::connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Opens a LDAPv3 connection to the specified <i class="arg">host</i>, at the given
 <i class="arg">port</i>, and returns a token for the connection. This token is the
@@ -205,8 +196,8 @@ establishment definitely failed.</p></dd>
 <dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::ldap::connect</b>, except that the created connection is
 secured by SSL. The port defaults to <b class="const">636</b>.  This command
-depends on the availability of the package <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, which is a
-SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key329">TLS</a></b> is not available, then this
+depends on the availability of the package <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, which is a
+SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key331">TLS</a></b> is not available, then this
 command will fail.</p>
 <p>The command blocks until the connection has been established, or
 establishment definitely failed.</p></dd>
@@ -247,13 +238,13 @@ list of <i class="arg">attributes</i> was empty all attributes are returned. The
 command blocks until it has received all results.
 The valid <i class="arg">options</i> are identical to the options listed for <b class="cmd">::ldap::searchInit</b>.</p>
 <p>An example of a search expression is</p>
-<pre class="example">
+<pre class="doctools_example">
     set filterString &quot;|(cn=Linus*)(sn=Torvalds*)&quot;
 </pre>
 <p>The return value of the command is a list of nested dictionaries. The
 first level keys are object identifiers (DNs), second levels keys are
 attribute names. In other words, it is in the form</p>
-<pre class="example">
+<pre class="doctools_example">
     {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 </pre>
 </dd>
@@ -274,11 +265,11 @@ with the first <b class="cmd">::ldap::searchNext</b> call and should be checked 
 If the list of requested <i class="arg">attributes</i> is empty all attributes will be returned.
 The parameter <i class="arg">options</i> specifies the options to be used in the search,
 and has the following format:</p>
-<pre class="example">
+<pre class="doctools_example">
     {-option1 value1 -option2 value2 ... }
 </pre>
 <p>Following options are available:</p>
-<dl class="options">
+<dl class="doctools_options">
 <dt><b class="option">-scope</b> base one sub</dt>
 <dd><p>Control the scope of the search to be one of <b class="const">base</b>, <b class="const">one</b>, or <b class="const">sub</b>,  to  specify  a  base
 object,  one-level or  subtree  search.   The  default is <b class="const">sub</b>.</p></dd>
@@ -310,7 +301,7 @@ the event loop alive.
 The returned entry is a list with
 two elements: the first is the DN of the entry, the second is the
 list of attributes and values, under the format:</p>
-<pre class="example">
+<pre class="doctools_example">
     dn {attr1 {val11 val12 ...} attr2 {val21...} ...}
 </pre>
 <p>The <b class="cmd">::ldap::searchNext</b> command returns an empty list at the
@@ -329,7 +320,7 @@ deletes attributes, and adds new attributes with new values.
 All arguments are dictionaries mapping attribute names to values. The
 optional arguments default to the empty dictionary, which means that
 no attributes will be deleted nor added.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>dictionary <i class="arg">attrValToReplace</i> (in)</dt>
 <dd><p>No attributes will be changed if this argument is empty. The
 dictionary contains the new attributes and their values. They
@@ -351,13 +342,13 @@ is the empty string.</p></dd>
 connected to via <i class="arg">handle</i>. It replaces attributes with new values,
 deletes attributes, and adds new attributes with new values.
 All arguments are lists with the format:</p>
-<pre class="example">
+<pre class="doctools_example">
     attr1 {val11 val12 ...} attr2 {val21...} ...
 </pre>
 <p>where each value list may be empty for deleting all attributes.
 The optional arguments default to empty lists of attributes to
 delete and to add.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">attrValToReplace</i> (in)</dt>
 <dd><p>No attributes will be changed if this argument is empty. The
 dictionary contains the new attributes and their values. They
@@ -406,7 +397,7 @@ the tree. If this argument is given, the argument <i class="arg">deleteOld</i>
 must be specified also.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key448">ip</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key450">ip</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the IP address of the remote LDAP server the handle is connected to.</p></dd>
 <dt><a name="19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.
@@ -416,7 +407,7 @@ If no bind was done or it failed, a 0 is returned.</p></dd>
 If no bound was done or it failed, an empty string is returned.</p></dd>
 <dt><a name="21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></dt>
 <dd><p>This command returns all currently existing ldap connection handles.</p></dd>
-<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key329">tls</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key331">tls</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if the ldap connection <i class="arg">handle</i> used TLS/SSL for
 connection via <b class="cmd">ldap::secure_connect</b> or completed <b class="cmd">ldap::starttls</b>, 0 otherwise.</p></dd>
 <dt><a name="23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></dt>
@@ -433,10 +424,10 @@ This is currently experimental and subject to change.</p></dd>
 protocol extension.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">EXAMPLES</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">EXAMPLES</a></h2>
 <p>A small example, extracted from the test application coming with this
 code.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require ldap
     # Connect, bind, add a new object, modify it in various ways
     set handle [ldap::connect localhost 9009]
@@ -478,7 +469,7 @@ code.</p>
 </pre>
 <p>And a another example, a simple query, and processing the
 results.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require ldap
     set handle [ldap::connect ldap.acme.com 389]
     ldap::bind $handle
@@ -511,7 +502,7 @@ results.</p>
     ldap::disconnect $handle
 </pre>
 </div>
-<div id="section5" class="section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>ldap</em> of the
@@ -519,15 +510,15 @@ Please report such in the category <em>ldap</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
 <p><a href="../../../../index.html#key135">directory access</a>, <a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key130">ldap</a>, <a href="../../../../index.html#key128">ldap client</a>, <a href="../../../../index.html#key133">protocol</a>, <a href="../../../../index.html#key129">rfc 2251</a>, <a href="../../../../index.html#key132">rfc 4511</a>, <a href="../../../../index.html#key134">x.500</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2004 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;<br>
 Copyright &copy; 2004 Jochen Loewer &lt;loewerj@web.de&gt;<br>
 Copyright &copy; 2006 Michael Schlenker &lt;mic42@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

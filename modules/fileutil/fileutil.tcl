@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.10
+package provide fileutil 1.15
 
 namespace eval ::fileutil {
     namespace export \
@@ -21,7 +21,7 @@ namespace eval ::fileutil {
 	    jail stripPwd stripN stripPath tempdir tempfile \
 	    install fileType writeFile appendToFile \
 	    insertIntoFile removeFromFile replaceInFile \
-	    updateInPlace test tempdirReset
+	    updateInPlace test tempdirReset maketempdir
 }
 
 # ::fileutil::grep --
@@ -1656,10 +1656,10 @@ proc ::fileutil::fileType {filename} {
         lappend type graphic tiff
     } elseif { $binary && [string match "BM*" $test] && [string range $test 6 9] == "\x00\x00\x00\x00" } {
         lappend type graphic bitmap
-    } elseif { $binary && [string match "\%PDF\-*" $test] } {
-        lappend type pdf
     } elseif { ! $binary && [string match -nocase "*\<html\>*" $test] } {
         lappend type html
+    } elseif {[string match "\%PDF\-*" $test] } {
+        lappend type pdf
     } elseif { [string match "\%\!PS\-*" $test] } {
        lappend type ps
        if { [string match "* EPSF\-*" $test] } {
@@ -1862,6 +1862,56 @@ proc ::fileutil::TempDir {} {
 namespace eval ::fileutil {
     variable tempdir    {}
     variable tempdirSet 0
+}
+
+# ::fileutil::maketempdir --
+
+proc ::fileutil::maketempdir {args} {
+    return [Normalize [MakeTempDir $args]]
+}
+
+proc ::fileutil::MakeTempDir {config} {
+    # Setup of default configuration.
+    array set options {}
+    set options(-suffix) ""
+    set options(-prefix) "tmp"
+    set options(-dir)    [tempdir]
+
+    # TODO: Check for and reject options not in -suffix, -prefix, -dir
+    # Merge user configuration, overwrite defaults.
+    array set options $config
+
+    # See also "tempfile" below. Could be shareable internal configuration.
+    set chars       abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+    set nrand_chars 10
+    set maxtries    10
+
+    for {set i 0} {$i < $maxtries} {incr i} {
+	# Build up the candidate name. See also "tempfile".
+	set directory_name $options(-prefix)
+	for {set j 0} {$j < $nrand_chars} {incr j} {
+	    append directory_name \
+		[string index $chars [expr {int(rand() * 62)}]]
+	}
+	append directory_name $options(-suffix)
+	set path [file join $options(-dir) $directory_name]
+
+	# Try to create. Try again if already exists, or trouble
+	# with creation and setting of perms.
+	#
+	# Note: The last looks as if it is able to leave partial
+	# directories behind (created, trouble with perms). But
+	# deleting ... Might pull the rug out from somebody else.
+
+	if {[file exists $path]} continue
+	if {[catch {
+	    file mkdir $path
+	    file attributes $path -permissions 0700
+	}]} continue
+
+	return $path
+    }
+    return -code error "Failed to find an unused temporary directory name"
 }
 
 # ::fileutil::tempfile --

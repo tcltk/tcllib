@@ -1,7 +1,6 @@
 
-<html><head>
-<title>S3 - Amazon S3 Web Service Utilities</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='S3 - Amazon S3 Web Service Utilities'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,58 +81,50 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'S3.man' by tcllib/doctools with format 'html'
-   -->
-<! -- 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.
-   -->
-<! -- CVS: $Id$ S3.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">S3(n) 1.0.3 tcllib &quot;Amazon S3 Web Service Utilities&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">S3(n) 1.0.3 tcllib &quot;Amazon S3 Web Service Utilities&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>S3 - Amazon S3 Web Service Interface</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">ERROR REPORTING</a></li>
-<li class="section"><a href="#section3">COMMANDS</a></li>
-<li class="section"><a href="#section4">LOW LEVEL COMMANDS</a></li>
-<li class="section"><a href="#section5">HIGH LEVEL COMMANDS</a></li>
-<li class="section"><a href="#section6">LIMITATIONS</a></li>
-<li class="section"><a href="#section7">USAGE SUGGESTIONS</a></li>
-<li class="section"><a href="#section8">FUTURE DEVELOPMENTS</a></li>
-<li class="section"><a href="#section9">TLS Security Considerations</a></li>
-<li class="section"><a href="#section10">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">ERROR REPORTING</a></li>
+<li class="doctools_section"><a href="#section3">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section4">LOW LEVEL COMMANDS</a></li>
+<li class="doctools_section"><a href="#section5">HIGH LEVEL COMMANDS</a></li>
+<li class="doctools_section"><a href="#section6">LIMITATIONS</a></li>
+<li class="doctools_section"><a href="#section7">USAGE SUGGESTIONS</a></li>
+<li class="doctools_section"><a href="#section8">FUTURE DEVELOPMENTS</a></li>
+<li class="doctools_section"><a href="#section9">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section10">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
 <li>package require <b class="pkgname">S3 <span class="opt">?1.0.3?</span></b></li>
 <li>package require <b class="pkgname">sha1 1.0</b></li>
@@ -141,7 +132,7 @@
 <li>package require <b class="pkgname">base64 2.3</b></li>
 <li>package require <b class="pkgname">xsxp 1.0</b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">S3::Configure</b> <span class="opt">?<b class="option">-reset</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-retries</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-accesskeyid</b> <i class="arg">idstring</i>?</span> <span class="opt">?<b class="option">-secretaccesskey</b> <i class="arg">idstring</i>?</span> <span class="opt">?<b class="option">-service-access-point</b> <i class="arg">FQDN</i>?</span> <span class="opt">?<b class="option">-use-tls</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-default-compare</b> <i class="arg">always|never|exists|missing|newer|date|checksum|different</i>?</span> <span class="opt">?<b class="option">-default-separator</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-default-acl</b> <i class="arg">private|public-read|public-read-write|authenticated-read|keep|calc</i>?</span> <span class="opt">?<b class="option">-default-bucket</b> <i class="arg">bucketname</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">S3::SuggestBucket</b> <span class="opt">?<i class="arg">name</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">S3::REST</b> <i class="arg">dict</i></a></li>
@@ -161,7 +152,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides access to Amazon's Simple Storage Solution web service.</p>
 <p>As a quick summary, Amazon Simple Storage Solution
 provides a for-fee web service allowing the storage of arbitrary data as
@@ -180,7 +171,7 @@ COPYING OR USE INDEMNIFIES THE AUTHOR IN ALL WAYS.
 This software is licensed under essentially the same
 terms as Tcl. See LICENSE.txt for the terms.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">ERROR REPORTING</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">ERROR REPORTING</a></h2>
 <p>The error reporting from this package makes use of $errorCode to
 provide more details on what happened than simply throwing an error.
 Any error caught by the S3 package (and we try to catch them all)
@@ -191,7 +182,7 @@ the value of the third and subsequent elements. S3::REST does not
 throw an error, but rather returns a dictionary with the keys &quot;error&quot;,
 &quot;errorInfo&quot;, and &quot;errorCode&quot; set. This allows for reliable background
 use. The possible second elements are these:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>usage</dt>
 <dd><p>The usage of the package is incorrect. For example,
 a command has been invoked which requires the library to be configured
@@ -231,9 +222,9 @@ schema is unexpected. For the high-level commands that accept
 service XML as input for parsing, this may also be thrown.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">COMMANDS</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">COMMANDS</a></h2>
 <p>This package provides several separate levels of complexity.</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The lowest level simply takes arguments to be sent to the service,
 sends them, retrieves the result, and provides it to the caller.
 <em>Note:</em> This layer allows both synchronous and event-driven
@@ -262,13 +253,13 @@ Cloud web service.</p></li>
 pure Tcl using only that which comes from widely-available sources,
 such as Tcllib.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">LOW LEVEL COMMANDS</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">LOW LEVEL COMMANDS</a></h2>
 <p>These commands do not require any packages not listed above.
 They talk directly to the service, or they are utility or
 configuration routines. Note that the &quot;xsxp&quot; package was
 written to support this package, so it should be available
 wherever you got this package.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">S3::Configure</b> <span class="opt">?<b class="option">-reset</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-retries</b> <i class="arg">integer</i>?</span> <span class="opt">?<b class="option">-accesskeyid</b> <i class="arg">idstring</i>?</span> <span class="opt">?<b class="option">-secretaccesskey</b> <i class="arg">idstring</i>?</span> <span class="opt">?<b class="option">-service-access-point</b> <i class="arg">FQDN</i>?</span> <span class="opt">?<b class="option">-use-tls</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-default-compare</b> <i class="arg">always|never|exists|missing|newer|date|checksum|different</i>?</span> <span class="opt">?<b class="option">-default-separator</b> <i class="arg">string</i>?</span> <span class="opt">?<b class="option">-default-acl</b> <i class="arg">private|public-read|public-read-write|authenticated-read|keep|calc</i>?</span> <span class="opt">?<b class="option">-default-bucket</b> <i class="arg">bucketname</i>?</span></a></dt>
 <dd><p>There is one command for configuration, and that is <b class="cmd">S3::Configure</b>.
 If called with no arguments, it returns a
@@ -278,7 +269,7 @@ called with two or more arguments, it must be called with pairs of
 arguments, and it applies the changes in order.  There is only one set
 of configuration information per interpreter.</p>
 <p>The following options are accepted:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-reset</b> <i class="arg">boolean</i></dt>
 <dd><p>By default, false.  If true, any previous changes and any changes on the
 same call before the reset option will be returned to default values.</p></dd>
@@ -372,7 +363,7 @@ of <b class="option">resultvar</b> in the input dictionary. This requires
 the <i class="arg">-accesskeyid</i> and <i class="arg">-secretaccesskey</i> to be configured via
 <b class="cmd">S3::Configure</b> before being called.</p>
 <p>The possible input keys are these:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">verb</b> <i class="arg">GET|PUT|DELETE|HEAD</i></dt>
 <dd><p>This required item indicates the verb to be used.</p></dd>
 <dt><b class="option">resource</b> <i class="arg">string</i></dt>
@@ -456,7 +447,7 @@ and this option is not provided or is set to <i class="arg">throw</i>, then
 either in the <i class="arg">resultvar</i> or as the result of execution. This dict is
 a copy of the original dict with the results added as new keys. The possible
 new keys are these:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">error</b> <i class="arg">errorstring</i></dt>
 <dd></dd>
 <dt><b class="option">errorInfo</b> <i class="arg">errorstring</i></dt>
@@ -489,7 +480,7 @@ Both keys and values are trimmed of extraneous whitespace.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section5" class="section"><h2><a name="section5">HIGH LEVEL COMMANDS</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">HIGH LEVEL COMMANDS</a></h2>
 <p>The routines in this section all make use of one or more calls
 to <b class="cmd">S3::REST</b> to do their work, then parse and manage the data
 in a convenient way.  All these commands throw errors
@@ -498,7 +489,7 @@ as described in <span class="sectref"><a href="#section2">ERROR REPORTING</a></s
 in any order. All the argument names start with a hyphen.</p>
 <p>There are a few options that are common to many
 of the commands, and those common options are documented here.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-blocking</b> <i class="arg">boolean</i></dt>
 <dd><p>If provided and specified as false,
 then any calls to <b class="cmd">S3:REST</b> will be non-blocking,
@@ -531,7 +522,7 @@ This does not need to be URL-encoded, even if it contains
 special or non-ASCII characters.</p></dd>
 <dt><b class="option">-compare</b> <i class="arg">always|never|exists|missing|newer|date|checksum|different</i></dt>
 <dd><p>When commands copy resources to files or files to resources, the caller may specify that the copy should be skipped if the contents are the same. This argument specifies the conditions under which the files should be copied. If it is not passed, the result of <b class="cmd">S3::Configure -default-compare</b> is used, which in turn defaults to &quot;always.&quot; The meanings of the various values are these:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><i class="arg">always</i></dt>
 <dd><p>Always copy the data. This is the default.</p></dd>
 <dt><i class="arg">never</i></dt>
@@ -571,7 +562,7 @@ data is copied if the checksums differ.</p></dd>
 <dd><p>This routine performs a GET on the Amazon S3 service, which is
 defined to return a list of buckets owned by the account identified
 by the authorization header. (Blame Amazon for the dumb names.)</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-blocking</b> <i class="arg">boolean</i></dt>
 <dd><p>See above for standard definition.</p></dd>
 <dt><b class="option">-parse-xml</b> <i class="arg">xmlstring</i></dt>
@@ -584,7 +575,7 @@ by the authorization header. (Blame Amazon for the dumb names.)</p>
 <dd><p>The XML of the body as parsed by <b class="cmd">xsxp::parse</b> is returned.</p></dd>
 <dt><b class="option">-result-type</b> <i class="arg">dict</i></dt>
 <dd><p>A dictionary of interesting portions of the XML is returned. The dictionary contains the following keys:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>Owner/ID</dt>
 <dd><p>The Amazon AWS ID (in hex) of the owner of the bucket.</p></dd>
 <dt>Owner/DisplayName</dt>
@@ -616,7 +607,7 @@ errors until then.</p></dd>
 <dd><p>This lists the contents of a bucket. That is, it returns a directory
 listing of resources within a bucket, rather than transfering any
 user data.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b> <i class="arg">bucketname</i></dt>
 <dd><p>The standard bucket argument.</p></dd>
 <dt><b class="option">-blocking</b> <i class="arg">boolean</i></dt>
@@ -640,7 +631,7 @@ into one entry, as if S3 supported directories. See the
 Amazon documentation for details.</p></dd>
 <dt><b class="option">-result-type</b> <i class="arg">REST|xml|pxml|names|dict</i></dt>
 <dd><p>This indicates the format of the return result of the command.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>REST</dt>
 <dd><p>If <i class="arg">-max-count</i> is specified, the dictionary returned
 from <b class="cmd">S3::REST</b> is returned. If <i class="arg">-max-count</i> is
@@ -666,7 +657,7 @@ resources with the specified <i class="arg">-prefix</i>.</p></dd>
 <dt>dict</dt>
 <dd><p>Returns a dictionary. (Returns only one dictionary even if <i class="arg">-max-count</i>
 wasn't specified.) The keys of the dictionary are as follows:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>Name</dt>
 <dd><p>The name of the bucket (from the final call to <b class="cmd">S3::REST</b>).</p></dd>
 <dt>Prefix</dt>
@@ -708,7 +699,7 @@ if the transfer was attempted but failed.
 Server 5XX errors and S3 socket errors are retried
 according to <b class="cmd">S3:Configure -retries</b> settings before throwing an error;
 other errors throw immediately.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This specifies the bucket into which the resource will be written.
 Leading and/or trailing slashes are removed for you, as are spaces.</p></dd>
@@ -772,7 +763,7 @@ according to <b class="cmd">S3:Configure</b> settings before throwing an error;
 other errors throw immediately. Note that this is always authenticated
 as the user configured in via <b class="cmd">S3::Configure -accesskeyid</b>. Use
 the Tcllib http for unauthenticated GETs.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This specifies the bucket from which the resource will be read.
 Leading and/or trailing slashes are removed for you, as are spaces.</p></dd>
@@ -826,7 +817,7 @@ of the request, never throwing an S3 remote error.
 That is, if this returns 1, the resource exists and is
 accessible. If this returns 0, something went wrong, and the
 <b class="option">-status</b> result can be consulted for details.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This specifies the bucket from which the resource will be read.
 Leading and/or trailing slashes are removed for you, as are spaces.</p></dd>
@@ -852,7 +843,7 @@ the HTTP message (such as &quot;OK&quot; or &quot;Forbidden&quot;).</p></dd>
 <dt><a name="11"><b class="cmd">S3::GetAcl</b> <span class="opt">?<b class="option">-blocking</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-bucket</b> <i class="arg">bucketname</i>?</span> <b class="option">-resource</b> <i class="arg">resourcename</i> <span class="opt">?<b class="option">-result-type</b> <i class="arg">REST|xml|pxml</i>?</span></a></dt>
 <dd><p>This command gets the ACL of the indicated resource or throws an
 error if it is unavailable.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-blocking</b> <i class="arg">boolean</i></dt>
 <dd><p>See above for standard definition.</p></dd>
 <dt><b class="option">-bucket</b></dt>
@@ -886,7 +877,7 @@ not especially useful; use pxml to obtain them if necessary.</p></dd>
 </dl></dd>
 <dt><a name="12"><b class="cmd">S3::PutAcl</b> <span class="opt">?<b class="option">-blocking</b> <i class="arg">boolean</i>?</span> <span class="opt">?<b class="option">-bucket</b> <i class="arg">bucketname</i>?</span> <b class="option">-resource</b> <i class="arg">resourcename</i> <span class="opt">?<b class="option">-acl</b> <i class="arg">new-acl</i>?</span></a></dt>
 <dd><p>This sets the ACL on the indicated resource. It returns the XML written to the ACL, or throws an error if anything went wrong.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-blocking</b> <i class="arg">boolean</i></dt>
 <dd><p>See above for standard definition.</p></dd>
 <dt><b class="option">-bucket</b></dt>
@@ -928,7 +919,7 @@ another user may not do exactly what you expect.</p></dd>
 <dd><p>This command deletes the specified resource from the specified bucket.
 It returns 1 if the resource was deleted successfully, 0 otherwise.
 It returns 0 rather than throwing an S3 remote error.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This specifies the bucket from which the resource will be deleted.
 Leading and/or trailing slashes are removed for you, as are spaces.</p></dd>
@@ -957,7 +948,7 @@ so changing the case of a file on a Windows machine may lead
 to otherwise-unnecessary transfers.
 Note that only regular files are considered, so devices, pipes, symlinks,
 and directories are not copied.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This names the bucket into which data will be pushed.</p></dd>
 <dt><b class="option">-directory</b></dt>
@@ -971,7 +962,7 @@ of files that could not be opened.</p></dd>
 That is, it is the remote equivalent of <b class="option">-directory</b>.
 If it is not specified, the root of the bucket will be treated
 as the remote directory. An example may clarify.</p>
-<pre class="example">
+<pre class="doctools_example">
 S3::Push -bucket test -directory /tmp/xyz -prefix hello/world
 </pre>
 <p>In this example, /tmp/xyz/pdq.html will be stored as
@@ -1005,7 +996,7 @@ list of resources in the remote bucket always throw errors.
 This option allows control over &quot;partial&quot; errors, when some
 files were copied and some were not. <b class="cmd">S3::Delete</b> is always
 finished up, with errors simply recorded in the return result.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt>throw</dt>
 <dd><p>The error is rethrown with the same errorCode.</p></dd>
 <dt>break</dt>
@@ -1088,7 +1079,7 @@ It fetches the bucket listing (including timestamps and eTags),
 then calls <b class="cmd">S3::Get</b>, which uses HEAD to find the timestamps
 and eTags again. Correcting this with no API change
 is planned for a future upgrade.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>This names the bucket from which data will be pulled.</p></dd>
 <dt><b class="option">-directory</b></dt>
@@ -1133,7 +1124,7 @@ if they are empty and get deleted.</p></dd>
 <dd><p>This deletes some or all resources within a bucket. It would be
 considered a &quot;recursive delete&quot; had Amazon implemented actual
 directories.</p>
-<dl class="options">
+<dl class="doctools_options">
 <dt><b class="option">-bucket</b></dt>
 <dd><p>The bucket from which resources will be deleted.</p></dd>
 <dt><b class="option"><b class="option">-blocking</b></b></dt>
@@ -1173,8 +1164,8 @@ dictionary. The keys of this embedded dictionary include
 &quot;filesdeleted&quot; and &quot;filesnotdeleted&quot;, each of which has integer values.</p></dd>
 </dl>
 </div>
-<div id="section6" class="section"><h2><a name="section6">LIMITATIONS</a></h2>
-<ul class="itemized">
+<div id="section6" class="doctools_section"><h2><a name="section6">LIMITATIONS</a></h2>
+<ul class="doctools_itemized">
 <li><p>The pure-Tcl MD5 checking is slow. If you are processing
 files in the megabyte range, consider ensuring binary support is available.</p></li>
 <li><p>The commands <b class="cmd">S3::Pull</b> and <b class="cmd">S3::Push</b> fetch a
@@ -1213,9 +1204,9 @@ deleted from one place but not the other yet not copying
 changed files is untested.</p></li>
 </ul>
 </div>
-<div id="section7" class="section"><h2><a name="section7">USAGE SUGGESTIONS</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">USAGE SUGGESTIONS</a></h2>
 <p>To fetch a &quot;directory&quot; out of a bucket, make changes, and store it back:</p>
-<pre class="example">
+<pre class="doctools_example">
 file mkdir ./tempfiles
 S3::Pull -bucket sample -prefix of/interest -directory ./tempfiles \
   -timestamp aws
@@ -1225,12 +1216,12 @@ S3::Push -bucket sample -prefix of/interest -directory ./tempfiles \
 </pre>
 <p>To delete files locally that were deleted off of S3 but not otherwise
 update files:</p>
-<pre class="example">
+<pre class="doctools_example">
 S3::Pull -bucket sample -prefix of/interest -directory ./myfiles \
   -compare never -delete true
 </pre>
 </div>
-<div id="section8" class="section"><h2><a name="section8">FUTURE DEVELOPMENTS</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">FUTURE DEVELOPMENTS</a></h2>
 <p>The author intends to work on several additional projects related to
 this package, in addition to finishing the unfinished features.</p>
 <p>First, a command-line program allowing browsing of buckets and
@@ -1247,11 +1238,11 @@ each moving on to the next unstarted task as it finishes each.
 This is still being designed, and it is intended primarily
 to be run on Amazon's Elastic Compute Cloud.</p>
 </div>
-<div id="section9" class="section"><h2><a name="section9">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key329">TLS</a></b> package to handle the security
+<div id="section9" class="doctools_section"><h2><a name="section9">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -1259,17 +1250,17 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key329">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key329">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section10" class="section"><h2><a name="section10">Bugs, Ideas, Feedback</a></h2>
+<div id="section10" class="doctools_section"><h2><a name="section10">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>amazon-s3</em> of the
@@ -1277,13 +1268,13 @@ Please report such in the category <em>amazon-s3</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key519">amazon</a>, <a href="../../../../index.html#key520">cloud</a>, <a href="../../../../index.html#key518">s3</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key521">amazon</a>, <a href="../../../../index.html#key522">cloud</a>, <a href="../../../../index.html#key520">s3</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.</p>
 </div>
-</div></body></html>
+</div>

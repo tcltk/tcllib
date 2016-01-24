@@ -15,7 +15,7 @@ package ifneeded pt::util    1   [list source [file join $dir pt_util.tcl]]
 
 # Parsing Expression support
 package ifneeded pt::pe        1.0.2 [list source [file join $dir pt_pexpression.tcl]]
-package ifneeded pt::pe::op        1 [list source [file join $dir pt_pexpr_op.tcl]]
+package ifneeded pt::pe::op    1.0.1 [list source [file join $dir pt_pexpr_op.tcl]]
 
 # Parsing Expression Grammar support.
 package ifneeded pt::peg                1 [list source [file join $dir pt_pegrammar.tcl]]
@@ -44,15 +44,15 @@ package ifneeded pt::peg::to::cparam    1.1.3 [list source [file join $dir pt_pe
 package ifneeded pt::peg::to::json          1 [list source [file join $dir pt_peg_to_json.tcl]]
 package ifneeded pt::peg::to::param     1.0.1 [list source [file join $dir pt_peg_to_param.tcl]]
 package ifneeded pt::peg::to::peg       1.0.2 [list source [file join $dir pt_peg_to_peg.tcl]]
-package ifneeded pt::peg::to::tclparam  1.0.2 [list source [file join $dir pt_peg_to_tclparam.tcl]]
+package ifneeded pt::peg::to::tclparam  1.0.3 [list source [file join $dir pt_peg_to_tclparam.tcl]]
 
 # Import core functionality: Conversion from a specific format to PEG.
 package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_from_json.tcl]]
 package ifneeded pt::peg::from::peg   1.0.3 [list source [file join $dir pt_peg_from_peg.tcl]]
 
 # PARAM runtime.
-package ifneeded pt::rde      1.0.3 [list source [file join $dir pt_rdengine.tcl]]
-package ifneeded pt::rde::oo  1.0.3 [list source [file join $dir pt_rdengine_oo.tcl]]
+package ifneeded pt::rde      1.1 [list source [file join $dir pt_rdengine.tcl]]
+package ifneeded pt::rde::oo  1.1 [list source [file join $dir pt_rdengine_oo.tcl]]
 
 # PEG grammar specification, as CONTAINER
 package ifneeded pt::peg::container::peg 1 [list source [file join $dir pt_peg_container_peg.tcl]]

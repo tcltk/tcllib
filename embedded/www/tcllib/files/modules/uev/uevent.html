@@ -1,6 +1,5 @@
-<html><head>
-<title>uevent - User events</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='uevent - User events'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,59 +80,51 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'uevent.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2007-2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ uevent.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">uevent(n) 0.3.1 tcllib &quot;User events&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">uevent(n) 0.3.1 tcllib &quot;User events&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>uevent - User events</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a></li>
-<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">API</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">uevent <span class="opt">?0.3.1?</span></b></li>
 <li>package require <b class="pkgname">logger</b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::uevent::bind</b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">command</i></a></li>
-<li><a href="#2"><b class="cmd"><a href="../../../../index.html#key273">command</a></b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">details</i></a></li>
+<li><a href="#2"><b class="cmd"><a href="../../../../index.html#key275">command</a></b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">details</i></a></li>
 <li><a href="#3"><b class="cmd">::uevent::unbind</b> <i class="arg">token</i></a></li>
 <li><a href="#4"><b class="cmd">::uevent::generate</b> <i class="arg">tag</i> <i class="arg">event</i> <span class="opt">?<i class="arg">details</i>?</span></a></li>
 <li><a href="#5"><b class="cmd">::uevent::list</b></a></li>
@@ -150,7 +141,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides a general facility for the handling of user
 events. Allows the binding of arbitrary commands to arbitrary events
 on arbitrary tags, removal of bindings, and event generation.</p>
@@ -162,7 +153,7 @@ events for such.</p>
 <p>Here we can, by assuming that each object in question is represented
 by its own tag. Which is possible as we allow arbitrary tags.</p>
 <p>More differences:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The package uses only a two-level hierarchy, tags and events, to
 handle everything, whereas the Tcl/Tk system uses three levels, i.e.
 objects, tags, and events, with a n:m relationship between objects and
@@ -173,11 +164,11 @@ the event processing core to abort the processing of command coming
 after it.</p></li>
 </ol>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
 <p>The package exports eight commands, as specified below. Note that when
 the package is used from within Tcl 8.5+ all the higher commands are
 ensembles, i.e. the :: separators can be replaceed by spaces.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::uevent::bind</b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">command</i></a></dt>
 <dd><p>Using this command registers the <i class="arg">command</i> prefix to be triggered
 when the <i class="arg">event</i> occurs for the <i class="arg">tag</i>. The result of the
@@ -185,8 +176,8 @@ command is an opaque token representing the binding. Note that if the
 same combination of &lt;<i class="arg">tag</i>,<i class="arg">event</i>,<i class="arg">command</i>&gt; is used
 multiple times the same token is returned by every call.</p>
 <p>The signature of the <i class="arg">command</i> prefix is</p>
-<dl class="definitions">
-<dt><a name="2"><b class="cmd"><a href="../../../../index.html#key273">command</a></b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">details</i></a></dt>
+<dl class="doctools_definitions">
+<dt><a name="2"><b class="cmd"><a href="../../../../index.html#key275">command</a></b> <i class="arg">tag</i> <i class="arg">event</i> <i class="arg">details</i></a></dt>
 <dd></dd>
 </dl>
 <p>where <i class="arg">details</i> contains the argument(s) of the event. Its
@@ -232,7 +223,7 @@ unbind from specific tags.</p>
 first when the first command is bound to any event of the tag, and
 second when the last command bound to the tag is removed.</p>
 <p>The signature of the <i class="arg">command</i> prefix is</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="9"><b class="cmd">{*}command</b> <b class="const">bound</b> <i class="arg">tag</i></a></dt>
 <dd></dd>
 <dt><a name="10"><b class="cmd">{*}command</b> <b class="const">unbound</b> <i class="arg">tag</i></a></dt>
@@ -250,7 +241,7 @@ unbind from specific combinations of tags and events.</p>
 tag/event combination, first when the first command is bound to it,
 and second when the last command bound to the it is removed.</p>
 <p>The signature of the <i class="arg">command</i> prefix is</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="13"><b class="cmd">{*}command</b> <b class="const">bound</b> <i class="arg">tag</i> <i class="arg">event</i></a></dt>
 <dd></dd>
 <dt><a name="14"><b class="cmd">{*}command</b> <b class="const">unbound</b> <i class="arg">tag</i> <i class="arg">event</i></a></dt>
@@ -263,7 +254,7 @@ combinations.</p>
 <p>The result of the command is the empty string.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>uevent</em> of the
@@ -271,16 +262,16 @@ Please report such in the category <em>uevent</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="../hook/hook.html">hook(n)</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key710">bind</a>, <a href="../../../../index.html#key539">event</a>, <a href="../../../../index.html#key709">generate event</a>, <a href="../../../../index.html#key677">hook</a>, <a href="../../../../index.html#key708">unbind</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key713">bind</a>, <a href="../../../../index.html#key541">event</a>, <a href="../../../../index.html#key712">generate event</a>, <a href="../../../../index.html#key679">hook</a>, <a href="../../../../index.html#key711">unbind</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2007-2012 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

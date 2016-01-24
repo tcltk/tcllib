@@ -29,4 +29,5 @@ package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigf
 package ifneeded math::numtheory         1.1   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
 
-
+if {![package vsatisfies [package require Tcl] 8.6]} {return}
+package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]

@@ -1,7 +1,6 @@
 
-<html><head>
-<title>ncgi - CGI Support</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='ncgi - CGI Support'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,53 +81,47 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'ncgi.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ ncgi.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">ncgi(n) 1.4.3 tcllib &quot;CGI Support&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">ncgi(n) 1.4.3 tcllib &quot;CGI Support&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ncgi - Procedures to manipulate CGI values.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">EXAMPLES</a></li>
-<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">ncgi <span class="opt">?1.4.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::ncgi::cookie</b> <i class="arg">cookie</i></a></li>
 <li><a href="#2"><b class="cmd">::ncgi::decode</b> <i class="arg">str</i></a></li>
 <li><a href="#3"><b class="cmd">::ncgi::empty</b> <i class="arg">name</i></a></li>
@@ -159,7 +152,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">ncgi</b> package provides commands that manipulate CGI
 values.  These are values that come from Web forms and are processed
 either by CGI scripts or web pages with embedded Tcl code.  Use the
@@ -179,7 +172,7 @@ it find repeated form elements without the right name.</p>
 servers to initialize the source of the CGI values.  Otherwise the
 values are read in from the CGI environment.</p>
 <p>The complete set of procedures is described below.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::ncgi::cookie</b> <i class="arg">cookie</i></a></dt>
 <dd><p>Return a list of values for <i class="arg">cookie</i>, if any.  It is possible that
 more than one cookie with the same name can be present, so this
@@ -213,7 +206,7 @@ listed in <i class="arg">args</i> is imported.</p></dd>
 field of type <b class="const">file</b> with name <i class="arg">cginame</i>.  <i class="arg">cmd</i> can be
 one of <b class="option">-server</b> <b class="option">-client</b>, <b class="option">-type</b> or
 <b class="option">-data</b>.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-client</b> <i class="arg">cginame</i></dt>
 <dd><p>returns the filename as sent by the client.</p></dd>
 <dt><b class="option">-type</b> <i class="arg">cginame</i></dt>
@@ -281,7 +274,7 @@ CGI environment for its data.</p></dd>
 must be done before <b class="cmd">::ncgi::header</b> or <b class="cmd">::ncgi::redirect</b> is
 called in order for the cookie to be returned properly.  The
 <i class="arg">args</i> are a set of flags and values:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-name</b> <i class="arg">name</i></dt>
 <dd></dd>
 <dt><b class="option">-value</b> <i class="arg">value</i></dt>
@@ -335,9 +328,9 @@ The first element is meta-data in the form of a parameter, value list.
 The second element is the form value.</p></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">EXAMPLES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
 <p>Uploading a file</p>
-<pre class="example">
+<pre class="doctools_example">
 HTML:
 &lt;html&gt;
 &lt;form action=&quot;/cgi-bin/upload.cgi&quot; method=&quot;POST&quot; enctype=&quot;multipart/form-data&quot;&gt;
@@ -358,7 +351,7 @@ puts -nonewline $fh $filedata
 close $fh
 </pre>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>ncgi</em> of the
@@ -366,13 +359,13 @@ Please report such in the category <em>ncgi</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="../html/html.html">html</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key673">CGI</a>, <a href="../../../../index.html#key672">cookie</a>, <a href="../../../../index.html#key613">form</a>, <a href="../../../../index.html#key614">html</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key675">CGI</a>, <a href="../../../../index.html#key674">cookie</a>, <a href="../../../../index.html#key615">form</a>, <a href="../../../../index.html#key616">html</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>CGI programming</p>
 </div>
-</div></body></html>
+</div>

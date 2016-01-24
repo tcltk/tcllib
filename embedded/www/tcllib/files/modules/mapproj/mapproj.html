@@ -1,7 +1,6 @@
 
-<html><head>
-<title>mapproj - Tcl Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='mapproj - Tcl Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,58 +81,50 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'mapproj.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2007 Kevin B. Kenny &lt;kennykb@acm.org&gt;
-   -->
-<! -- CVS: $Id$ mapproj.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">mapproj(n) 0.1 tcllib &quot;Tcl Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">mapproj(n) 0.1 tcllib &quot;Tcl Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>mapproj - Map projection routines</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Commands</a></li>
-<li class="section"><a href="#section3">Arguments</a></li>
-<li class="section"><a href="#section4">Results</a></li>
-<li class="section"><a href="#section5">Choosing a projection</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Commands</a></li>
+<li class="doctools_section"><a href="#section3">Arguments</a></li>
+<li class="doctools_section"><a href="#section4">Results</a></li>
+<li class="doctools_section"><a href="#section5">Choosing a projection</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.4?</span></b></li>
 <li>package require <b class="pkgname">math::interpolate <span class="opt">?1.0?</span></b></li>
 <li>package require <b class="pkgname">math::special <span class="opt">?0.2.1?</span></b></li>
 <li>package require <b class="pkgname">mapproj <span class="opt">?1.0?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::mapproj::toPlateCarree</b> <i class="arg">lambda_0</i> <i class="arg">phi_0</i> <i class="arg">lambda</i> <i class="arg">phi</i></a></li>
 <li><a href="#2"><b class="cmd">::mapproj::fromPlateCarree</b> <i class="arg">lambda_0</i> <i class="arg">phi_0</i> <i class="arg">x</i> <i class="arg">y</i></a></li>
 <li><a href="#3"><b class="cmd">::mapproj::toCylindricalEqualArea</b> <i class="arg">lambda_0</i> <i class="arg">phi_0</i> <i class="arg">lambda</i> <i class="arg">phi</i></a></li>
@@ -189,15 +180,15 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">mapproj</b> package provides a set of procedures for
 converting between world co-ordinates (latitude and longitude) and map
 co-ordinates on a number of different map projections.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Commands</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
 <p>The following commands convert between world co-ordinates and
 map co-ordinates:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::mapproj::toPlateCarree</b> <i class="arg">lambda_0</i> <i class="arg">phi_0</i> <i class="arg">lambda</i> <i class="arg">phi</i></a></dt>
 <dd><p>Converts to the <em>plate carr&eacute;e</em> (cylindrical equidistant)
 projection.</p></dd>
@@ -287,7 +278,7 @@ projection.</p></dd>
 </dl>
 <p>Among the cylindrical equal-area projections, there are a number of
 choices of standard parallels that have names:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="41"><b class="cmd">::mapproj::toLambertCylindricalEqualArea</b> <i class="arg">lambda_0</i> <i class="arg">phi_0</i> <i class="arg">lambda</i> <i class="arg">phi</i></a></dt>
 <dd><p>Converts to the Lambert cylindrical equal area projection. (standard parallel
 is the Equator.)</p></dd>
@@ -326,9 +317,9 @@ are 50 degrees North and South)</p></dd>
 are 50 degrees North and South.)</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Arguments</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Arguments</a></h2>
 <p>The following arguments are accepted by the projection commands:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><i class="arg">lambda</i></dt>
 <dd><p>Longitude of the point to be projected, in degrees.</p></dd>
 <dt><i class="arg">phi</i></dt>
@@ -351,7 +342,7 @@ parallels.</p></dd>
 <dd><p>Y co-ordinate of a point on the map, in units of Earth radii.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Results</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Results</a></h2>
 <p>For all of the procedures whose names begin with 'to', the return value
 is a list comprising an <em>x</em> co-ordinate and a <em>y</em> co-ordinate.
 The co-ordinates are relative to the center of the map sheet to be drawn,
@@ -359,7 +350,7 @@ measured in Earth radii at the reference location on the map.
 For all of the functions whose names begin with 'from', the return value
 is a list comprising the longitude and latitude, in degrees.</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">Choosing a projection</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Choosing a projection</a></h2>
 <p>This package offers a great many projections, because no single projection
 is appropriate to all maps.  This section attempts to provide guidance
 on how to choose a projection.</p>
@@ -447,10 +438,10 @@ While this projection is useful for navigational planning, it
 has extreme distortions of shape and area, and can display
 only a limited area of the Earth (substantially less than a hemisphere).</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key195">geodesy</a>, <a href="../../../../index.html#key199">map</a>, <a href="../../../../index.html#key640">projection</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key197">geodesy</a>, <a href="../../../../index.html#key201">map</a>, <a href="../../../../index.html#key642">projection</a></p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2007 Kevin B. Kenny &lt;kennykb@acm.org&gt;</p>
 </div>
-</div></body></html>
+</div>

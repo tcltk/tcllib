@@ -1,7 +1,6 @@
 
-<html><head>
-<title>math::statistics - Tcl Math Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='math::statistics - Tcl Math Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,58 +81,52 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'statistics.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ math::statistics.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::statistics(n) 1 tcllib &quot;Tcl Math Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">math::statistics(n) 1 tcllib &quot;Tcl Math Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::statistics - Basic statistical functions and procedures</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">GENERAL PROCEDURES</a></li>
-<li class="section"><a href="#section3">MULTIVARIATE LINEAR REGRESSION</a></li>
-<li class="section"><a href="#section4">STATISTICAL DISTRIBUTIONS</a></li>
-<li class="section"><a href="#section5">DATA MANIPULATION</a></li>
-<li class="section"><a href="#section6">PLOT PROCEDURES</a></li>
-<li class="section"><a href="#section7">THINGS TO DO</a></li>
-<li class="section"><a href="#section8">EXAMPLES</a></li>
-<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">GENERAL PROCEDURES</a></li>
+<li class="doctools_section"><a href="#section3">MULTIVARIATE LINEAR REGRESSION</a></li>
+<li class="doctools_section"><a href="#section4">STATISTICAL DISTRIBUTIONS</a></li>
+<li class="doctools_section"><a href="#section5">DATA MANIPULATION</a></li>
+<li class="doctools_section"><a href="#section6">PLOT PROCEDURES</a></li>
+<li class="doctools_section"><a href="#section7">THINGS TO DO</a></li>
+<li class="doctools_section"><a href="#section8">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">math::statistics 1</b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::statistics::mean</b> <i class="arg">data</i></a></li>
 <li><a href="#2"><b class="cmd">::math::statistics::min</b> <i class="arg">data</i></a></li>
 <li><a href="#3"><b class="cmd">::math::statistics::max</b> <i class="arg">data</i></a></li>
@@ -233,10 +226,10 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">math::statistics</b> package contains functions and procedures for
 basic statistical data analysis, such as:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>Descriptive statistical parameters (mean, minimum, maximum, standard
 deviation)</p></li>
 <li><p>Estimates of the distribution in the form of histograms and quantiles</p></li>
@@ -258,57 +251,57 @@ Tk).
 <em>Note:</em> The data that need to be analyzed are always contained in a
 simple list. Missing values are represented as empty list elements.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">GENERAL PROCEDURES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">GENERAL PROCEDURES</a></h2>
 <p>The general statistical procedures are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::math::statistics::mean</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">mean</i> value of the given list of data.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">::math::statistics::min</b> <i class="arg">data</i></a></dt>
-<dd><p>Determine the <i class="term"><a href="../../../../index.html#key307">minimum</a></i> value of the given list of data.</p>
-<dl class="arguments">
+<dd><p>Determine the <i class="term"><a href="../../../../index.html#key309">minimum</a></i> value of the given list of data.</p>
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="3"><b class="cmd">::math::statistics::max</b> <i class="arg">data</i></a></dt>
-<dd><p>Determine the <i class="term"><a href="../../../../index.html#key308">maximum</a></i> value of the given list of data.</p>
-<dl class="arguments">
+<dd><p>Determine the <i class="term"><a href="../../../../index.html#key310">maximum</a></i> value of the given list of data.</p>
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="4"><b class="cmd">::math::statistics::number</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">number</i> of non-missing data in the given list</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="5"><b class="cmd">::math::statistics::stdev</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">sample standard deviation</i> of the data in the
 given list</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="6"><b class="cmd">::math::statistics::var</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">sample variance</i> of the data in the given list</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="7"><b class="cmd">::math::statistics::pstdev</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">population standard deviation</i> of the data
 in the given list</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
 <dt><a name="8"><b class="cmd">::math::statistics::pvar</b> <i class="arg">data</i></a></dt>
 <dd><p>Determine the <i class="term">population variance</i> of the data in the
 given list</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
@@ -316,7 +309,7 @@ given list</p>
 <dd><p>Determine the <i class="term">median</i> of the data in the given list
 (Note that this requires sorting the data, which may be a
 costly operation)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
@@ -327,7 +320,7 @@ population standard deviation and population variance.</p>
 <p>(This routine is called whenever either or all of the basic statistical
 parameters are required. Hence all calculations are done and the
 relevant values are returned.)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of data</p></dd>
 </dl></dd>
@@ -338,7 +331,7 @@ list consisting of the number of values that fall into each interval.
 the last interval consists of all values greater than the last limit.
 There is one more interval than there are limits.)</p>
 <p>Optionally, you can use weights to influence the histogram.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">limits</i></dt>
 <dd><p>- List of upper limits (in ascending order) for the
 intervals of the histogram.</p></dd>
@@ -350,7 +343,7 @@ intervals of the histogram.</p></dd>
 <dt><a name="12"><b class="cmd">::math::statistics::histogram-alt</b> <i class="arg">limits</i> <i class="arg">values</i> <span class="opt">?weights?</span></a></dt>
 <dd><p>Alternative implementation of the histogram procedure: the open end of the intervals
 is at the lower bound instead of the upper bound.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">limits</i></dt>
 <dd><p>- List of upper limits (in ascending order) for the
 intervals of the histogram.</p></dd>
@@ -361,7 +354,7 @@ intervals of the histogram.</p></dd>
 </dl></dd>
 <dt><a name="13"><b class="cmd">::math::statistics::corr</b> <i class="arg">data1</i> <i class="arg">data2</i></a></dt>
 <dd><p>Determine the correlation coefficient between two sets of data.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data1</i></dt>
 <dd><p>- First list of data</p></dd>
 <dt>list <i class="arg">data2</i></dt>
@@ -371,7 +364,7 @@ intervals of the histogram.</p></dd>
 <dd><p>Return the interval containing the mean value and one
 containing the standard deviation with a certain
 level of confidence (assuming a normal distribution)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of raw data values (small sample)</p></dd>
 <dt>float <i class="arg">confidence</i></dt>
@@ -382,7 +375,7 @@ level of confidence (assuming a normal distribution)</p>
 estimated normal distribution with a certain probability.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
 the given distribution.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of raw data values (small sample)</p></dd>
 <dt>float <i class="arg">est_mean</i></dt>
@@ -398,7 +391,7 @@ with a certain level of significance.
 Returns 1 if the data are normally distributed within the level of
 significance, returns 0 if not. The underlying test is the Lilliefors
 test. Smaller values of the significance mean a stricter testing.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of raw data values</p></dd>
 <dt>float <i class="arg">significance</i></dt>
@@ -412,7 +405,7 @@ reasons the values &quot;1-significance&quot;, 0.80, 0.85, 0.90, 0.95 or 0.99 ar
 Lilliefors. The higher the number, the more likely the data are indeed
 normally distributed. The test requires at least <em>five</em> data
 points.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of raw data values</p></dd>
 </dl></dd>
@@ -432,7 +425,7 @@ with a certain level of significance.
 Returns 1 if the data are normally distributed within the level of
 significance, returns 0 if not. The underlying test is the Lilliefors
 test. Smaller values of the significance mean a stricter testing.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">list1</i></dt>
 <dd><p>- First list of data</p></dd>
 <dt>list <i class="arg">list2</i></dt>
@@ -442,7 +435,7 @@ test. Smaller values of the significance mean a stricter testing.</p>
 </dl></dd>
 <dt><a name="19"><b class="cmd">::math::statistics::quantiles</b> <i class="arg">data</i> <i class="arg">confidence</i></a></dt>
 <dd><p>Return the quantiles for a given set of data</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of raw data values</p></dd>
 <dt>float <i class="arg">confidence</i></dt>
@@ -451,7 +444,7 @@ test. Smaller values of the significance mean a stricter testing.</p>
 <dt><a name="20"><b class="cmd">::math::statistics::quantiles</b> <i class="arg">limits</i> <i class="arg">counts</i> <i class="arg">confidence</i></a></dt>
 <dd><p>Return the quantiles based on histogram information (alternative to the
 call with two arguments)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">limits</i></dt>
 <dd><p>- List of upper limits from histogram</p></dd>
 <dt>list <i class="arg">counts</i></dt>
@@ -466,7 +459,7 @@ equidistance between samples, about 1/2 of the number of raw data)</p>
 always 1 and all others are equal to or smaller than 1. The number of
 values involved will diminish as the &quot;time&quot; (the index in the list of
 returned values) increases</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- Raw data for which the autocorrelation must be determined</p></dd>
 </dl></dd>
@@ -476,7 +469,7 @@ equidistance between samples, about 1/2 of the number of raw data)</p>
 <p>The correlation is determined in such a way that the values can never
 exceed 1 in magnitude. The number of values involved will diminish
 as the &quot;time&quot; (the index in the list of returned values) increases.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data1</i></dt>
 <dd><p>- First list of data</p></dd>
 <dt>list <i class="arg">data2</i></dt>
@@ -486,7 +479,7 @@ as the &quot;time&quot; (the index in the list of returned values) increases.</p
 <dd><p>Determine reasonable limits based on mean and standard deviation
 for a histogram
 Convenience function - the result is suitable for the histogram function.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean of the data</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -497,7 +490,7 @@ Convenience function - the result is suitable for the histogram function.</p>
 <dt><a name="24"><b class="cmd">::math::statistics::minmax-histogram-limits</b> <i class="arg">min</i> <i class="arg">max</i> <i class="arg">number</i></a></dt>
 <dd><p>Determine reasonable limits based on a minimum and maximum for a histogram</p>
 <p>Convenience function - the result is suitable for the histogram function.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">min</i></dt>
 <dd><p>- Expected minimum</p></dd>
 <dt>float <i class="arg">max</i></dt>
@@ -509,7 +502,7 @@ Convenience function - the result is suitable for the histogram function.</p>
 <dd><p>Determine the coefficients for a linear regression between
 two series of data (the model: Y = A + B*X). Returns a list of
 parameters describing the fit</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">xdata</i></dt>
 <dd><p>- List of independent data</p></dd>
 <dt>list <i class="arg">ydata</i></dt>
@@ -518,7 +511,7 @@ parameters describing the fit</p>
 <dd><p>- (Optional) compute the intercept (1, default) or fit
 to a line through the origin (0)</p>
 <p>The result consists of the following list:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>(Estimate of) Intercept A</p></li>
 <li><p>(Estimate of) Slope B</p></li>
 <li><p>Standard deviation of Y relative to fit</p></li>
@@ -535,7 +528,7 @@ to a line through the origin (0)</p>
 the linear model.</p>
 <p>Returns a list of the differences between the actual data and the
 predicted values.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">xdata</i></dt>
 <dd><p>- List of independent data</p></dd>
 <dt>list <i class="arg">ydata</i></dt>
@@ -549,7 +542,7 @@ to a line through the origin (0)</p></dd>
 differ significantly or not (implying a different parameter).</p>
 <p>Returns the &quot;chi-square&quot; value, which can be used to the determine the
 significance.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>int <i class="arg">n11</i></dt>
 <dd><p>- Number of outcomes with the first value from the first sample.</p></dd>
 <dt>int <i class="arg">n21</i></dt>
@@ -563,7 +556,7 @@ significance.</p>
 <dd><p>Determine if two set of samples, each from a binomial distribution,
 differ significantly or not (implying a different parameter).</p>
 <p>Returns a short report, useful in an interactive session.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>int <i class="arg">n11</i></dt>
 <dd><p>- Number of outcomes with the first value from the first sample.</p></dd>
 <dt>int <i class="arg">n21</i></dt>
@@ -578,7 +571,7 @@ differ significantly or not (implying a different parameter).</p>
 in each subsample defaults to 4. At least 20 subsamples are required.</p>
 <p>Returns the mean, the lower limit, the upper limit and the number of
 data per subsample.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of observed data</p></dd>
 <dt>int <i class="arg">nsamples</i></dt>
@@ -589,7 +582,7 @@ data per subsample.</p>
 in each subsample (nsamples) defaults to 4. At least 20 subsamples are required.</p>
 <p>Returns the mean range, the lower limit, the upper limit and the number
 of data per subsample.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- List of observed data</p></dd>
 <dt>int <i class="arg">nsamples</i></dt>
@@ -599,7 +592,7 @@ of data per subsample.</p>
 <dd><p>Determine if the data exceed the control limits for the xbar chart.</p>
 <p>Returns a list of subsamples (their indices) that indeed violate the
 limits.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">control</i></dt>
 <dd><p>- Control limits as returned by the &quot;control-xbar&quot; procedure</p></dd>
 <dt>list <i class="arg">data</i></dt>
@@ -609,7 +602,7 @@ limits.</p>
 <dd><p>Determine if the data exceed the control limits for the R chart.</p>
 <p>Returns a list of subsamples (their indices) that indeed violate the
 limits.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">control</i></dt>
 <dd><p>- Control limits as returned by the &quot;control-Rchart&quot; procedure</p></dd>
 <dt>list <i class="arg">data</i></dt>
@@ -618,7 +611,7 @@ limits.</p>
 <dt><a name="33"><b class="cmd">::math::statistics::test-Kruskal-Wallis</b> <i class="arg">confidence</i> <i class="arg">args</i></a></dt>
 <dd><p>Check if the population medians of two or more groups are equal with a
 given confidence level, using the Kruskal-Wallis test.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">confidence</i></dt>
 <dd><p>- Confidence level to be used (0-1)</p></dd>
 <dt>list <i class="arg">args</i></dt>
@@ -629,7 +622,7 @@ given confidence level, using the Kruskal-Wallis test.</p>
 Returns the Kruskal-Wallis statistic and the probability that that
 value would occur assuming the medians of the populations are
 equal.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">args</i></dt>
 <dd><p>- Two or more lists of data</p></dd>
 </dl></dd>
@@ -637,7 +630,7 @@ equal.</p>
 <dd><p>Rank the groups of data with respect to the complete set.
 Returns a list consisting of the group ID, the value and the rank
 (possibly a rational number, in case of ties) for each data item.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">args</i></dt>
 <dd><p>- Two or more lists of data</p></dd>
 </dl></dd>
@@ -645,7 +638,7 @@ Returns a list consisting of the group ID, the value and the rank
 <dd><p>Compute the Wilcoxon test statistic to determine if two samples have the
 same median or not. (The statistic can be regarded as standard normal, if the
 sample sizes are both larger than 10. Returns the value of this statistic.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">sample_a</i></dt>
 <dd><p>- List of data comprising the first sample</p></dd>
 <dt>list <i class="arg">sample_b</i></dt>
@@ -654,7 +647,7 @@ sample sizes are both larger than 10. Returns the value of this statistic.</p>
 <dt><a name="37"><b class="cmd">::math::statistics::spearman-rank</b> <i class="arg">sample_a</i> <i class="arg">sample_b</i></a></dt>
 <dd><p>Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
 coefficient. The two samples should have the same number of data.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">sample_a</i></dt>
 <dd><p>- First list of data</p></dd>
 <dt>list <i class="arg">sample_b</i></dt>
@@ -665,7 +658,7 @@ coefficient. The two samples should have the same number of data.</p>
 coefficient as well as additional data. The two samples should have the same number of data.
 The procedure returns the correlation coefficient, the number of data pairs used and the
 z-score, an approximately standard normal statistic, indicating the significance of the correlation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">sample_a</i></dt>
 <dd><p>- First list of data</p></dd>
 <dt>list <i class="arg">sample_b</i></dt>
@@ -678,12 +671,12 @@ a small set of options, each of which is given a reasonable default.</p>
 <p>The return value consists of three lists: the centres of the bins, the associated probability
 density and a list of computational parameters (begin and end of the interval, mean and standard
 deviation and the used bandwidth). The computational parameters can be used for further analysis.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">data</i></dt>
 <dd><p>- The data to be examined</p></dd>
 <dt>list <i class="arg">args</i></dt>
 <dd><p>- Option-value pairs:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-weights</b> <i class="arg">weights</i></dt>
 <dd><p>Per data point the weight (default: 1 for all data)</p></dd>
 <dt><b class="option">-bandwidth</b> <i class="arg">value</i></dt>
@@ -700,7 +693,7 @@ epanechnikov, uniform, triangular, biweight, logistic; default: gaussian)</p></d
 </dl></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">MULTIVARIATE LINEAR REGRESSION</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">MULTIVARIATE LINEAR REGRESSION</a></h2>
 <p>Besides the linear regression with a single independent variable, the
 statistics package provides two procedures for doing ordinary
 least squares (OLS) and weighted least squares (WLS) linear regression
@@ -711,10 +704,10 @@ degrees of freedom that is required to demonstrate a given level of
 significance.</p>
 <p>Note: These procedures depend on the math::linearalgebra package.</p>
 <p><em>Description of the procedures</em></p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="40"><b class="cmd">::math::statistics::tstat</b> <i class="arg">dof</i> <span class="opt">?alpha?</span></a></dt>
 <dd><p>Returns the value of the t-distribution t* satisfying</p>
-<pre class="example">
+<pre class="doctools_example">
     P(t*)  =  1 - alpha/2
     P(-t*) =  alpha/2
 </pre>
@@ -723,14 +716,14 @@ significance.</p>
 estimate xbar for the mean and sbar for the standard deviation,
 the alpha confidence interval for the estimate of the mean can
 be calculated as</p>
-<pre class="example">
+<pre class="doctools_example">
       ( xbar - t* sbar , xbar + t* sbar)
 </pre>
 <p>The return values from this procedure can be compared to
 an estimated t-statistic to determine whether the estimated
 value of a parameter is significantly different from zero at
 the given confidence level.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>int <i class="arg">dof</i></dt>
 <dd><p>Number of degrees of freedom</p></dd>
 <dt>float <i class="arg">alpha</i></dt>
@@ -740,15 +733,15 @@ the given confidence level.</p>
 <dd><p>Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point.</p>
 <p>The linear model is of the form</p>
-<pre class="example">
+<pre class="doctools_example">
     y = b0 + b1 * x1 + b2 * x2 ... + bN * xN + error
 </pre>
 <p>and each point satisfies</p>
-<pre class="example">
+<pre class="doctools_example">
     yi = b0 + b1 * xi1 + b2 * xi2 + ... + bN * xiN + Residual_i
 </pre>
 <p>The procedure returns a list with the following elements:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The r-squared statistic</p></li>
 <li><p>The adjusted r-squared statistic</p></li>
 <li><p>A list containing the estimated coefficients b1, ... bN, b0
@@ -758,7 +751,7 @@ the data points provided, with weights assigned to each point.</p>
 with each set of bounds returned as a list with two values</p></li>
 </ul>
 <p>Arguments:</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">weights_and_values</i></dt>
 <dd><p>A list consisting of: the weight for the first observation, the data
 for the first observation (as a sublist), the weight for the second
@@ -773,7 +766,7 @@ the data points provided.</p>
 set to 1.0, and returns the same information.</p></dd>
 </dl>
 <p><em>Example of the use:</em></p>
-<pre class="example">
+<pre class="doctools_example">
 # Store the value of the unicode value for the &quot;+/-&quot; character
 set pm &quot;\u00B1&quot;
 # Provide some data
@@ -800,10 +793,10 @@ foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4
 }
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">STATISTICAL DISTRIBUTIONS</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">STATISTICAL DISTRIBUTIONS</a></h2>
 <p>In the literature a large number of probability distributions can be
 found. The statistics package supports:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The normal or Gaussian distribution as well as the log-normal distribution</p></li>
 <li><p>The uniform distribution - equal probability for all data within a given
 interval</p></li>
@@ -821,7 +814,7 @@ extreme-value distributions.</p></li>
 <li><p>PM - binomial,F.</p></li>
 </ul>
 <p>In principle for each distribution one has procedures for:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>The probability density (pdf-*)</p></li>
 <li><p>The cumulative density (cdf-*)</p></li>
 <li><p>Quantiles for the given distribution (quantiles-*)</p></li>
@@ -829,11 +822,11 @@ extreme-value distributions.</p></li>
 <li><p>List of random values with the given distribution (random-*)</p></li>
 </ul>
 <p>The following procedures have been implemented:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="43"><b class="cmd">::math::statistics::pdf-normal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a normal distribution with
 given mean and standard deviation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -844,7 +837,7 @@ given mean and standard deviation.</p>
 <dt><a name="44"><b class="cmd">::math::statistics::pdf-lognormal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a log-normal distribution with
 given mean and standard deviation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -855,7 +848,7 @@ given mean and standard deviation.</p>
 <dt><a name="45"><b class="cmd">::math::statistics::pdf-exponential</b> <i class="arg">mean</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for an exponential
 distribution with given mean.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">value</i></dt>
@@ -864,7 +857,7 @@ distribution with given mean.</p>
 <dt><a name="46"><b class="cmd">::math::statistics::pdf-uniform</b> <i class="arg">xmin</i> <i class="arg">xmax</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a uniform
 distribution with given extremes.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">xmin</i></dt>
 <dd><p>- Minimum value of the distribution</p></dd>
 <dt>float <i class="arg">xmin</i></dt>
@@ -875,7 +868,7 @@ distribution with given extremes.</p>
 <dt><a name="47"><b class="cmd">::math::statistics::pdf-gamma</b> <i class="arg">alpha</i> <i class="arg">beta</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Gamma
 distribution with given shape and rate parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">alpha</i></dt>
 <dd><p>- Shape parameter</p></dd>
 <dt>float <i class="arg">beta</i></dt>
@@ -886,7 +879,7 @@ distribution with given shape and rate parameters</p>
 <dt><a name="48"><b class="cmd">::math::statistics::pdf-poisson</b> <i class="arg">mu</i> <i class="arg">k</i></a></dt>
 <dd><p>Return the probability of a given number of occurrences in the same
 interval (k) for a Poisson distribution with given mean (mu)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mu</i></dt>
 <dd><p>- Mean number of occurrences</p></dd>
 <dt>int <i class="arg">k</i></dt>
@@ -895,7 +888,7 @@ interval (k) for a Poisson distribution with given mean (mu)</p>
 <dt><a name="49"><b class="cmd">::math::statistics::pdf-chisquare</b> <i class="arg">df</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a chi square
 distribution with given degrees of freedom</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">df</i></dt>
 <dd><p>- Degrees of freedom</p></dd>
 <dt>float <i class="arg">value</i></dt>
@@ -904,7 +897,7 @@ distribution with given degrees of freedom</p>
 <dt><a name="50"><b class="cmd">::math::statistics::pdf-student-t</b> <i class="arg">df</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Student's t
 distribution with given degrees of freedom</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">df</i></dt>
 <dd><p>- Degrees of freedom</p></dd>
 <dt>float <i class="arg">value</i></dt>
@@ -913,7 +906,7 @@ distribution with given degrees of freedom</p>
 <dt><a name="51"><b class="cmd">::math::statistics::pdf-gamma</b> <i class="arg">a</i> <i class="arg">b</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Gamma
 distribution with given shape and rate parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">a</i></dt>
 <dd><p>- Shape parameter</p></dd>
 <dt>float <i class="arg">b</i></dt>
@@ -924,7 +917,7 @@ distribution with given shape and rate parameters</p>
 <dt><a name="52"><b class="cmd">::math::statistics::pdf-beta</b> <i class="arg">a</i> <i class="arg">b</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Beta
 distribution with given shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">a</i></dt>
 <dd><p>- First shape parameter</p></dd>
 <dt>float <i class="arg">b</i></dt>
@@ -935,7 +928,7 @@ distribution with given shape parameters</p>
 <dt><a name="53"><b class="cmd">::math::statistics::pdf-weibull</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Weibull
 distribution with given scale and shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -946,7 +939,7 @@ distribution with given scale and shape parameters</p>
 <dt><a name="54"><b class="cmd">::math::statistics::pdf-gumbel</b> <i class="arg">location</i> <i class="arg">scale</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Gumbel
 distribution with given location and shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -957,7 +950,7 @@ distribution with given location and shape parameters</p>
 <dt><a name="55"><b class="cmd">::math::statistics::pdf-pareto</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the probability of a given value for a Pareto
 distribution with given scale and shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">scale</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">shape</i></dt>
@@ -969,7 +962,7 @@ distribution with given scale and shape parameters</p>
 <dd><p>Return the probability of a given value for a Cauchy
 distribution with given location and shape parameters. Note that the Cauchy distribution
 has no finite higher-order moments.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -981,7 +974,7 @@ has no finite higher-order moments.</p>
 <dd><p>Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
 probability for values up to the given one.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -993,7 +986,7 @@ probability for values up to the given one.</p>
 <dd><p>Return the cumulative probability of a given value for a log-normal
 distribution with given mean and standard deviation, that is the
 probability for values up to the given one.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -1004,7 +997,7 @@ probability for values up to the given one.</p>
 <dt><a name="59"><b class="cmd">::math::statistics::cdf-exponential</b> <i class="arg">mean</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for an exponential
 distribution with given mean.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">value</i></dt>
@@ -1013,7 +1006,7 @@ distribution with given mean.</p>
 <dt><a name="60"><b class="cmd">::math::statistics::cdf-uniform</b> <i class="arg">xmin</i> <i class="arg">xmax</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a uniform
 distribution with given extremes.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">xmin</i></dt>
 <dd><p>- Minimum value of the distribution</p></dd>
 <dt>float <i class="arg">xmin</i></dt>
@@ -1024,7 +1017,7 @@ distribution with given extremes.</p>
 <dt><a name="61"><b class="cmd">::math::statistics::cdf-students-t</b> <i class="arg">degrees</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Student's t
 distribution with given number of degrees.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>int <i class="arg">degrees</i></dt>
 <dd><p>- Number of degrees of freedom</p></dd>
 <dt>float <i class="arg">value</i></dt>
@@ -1033,7 +1026,7 @@ distribution with given number of degrees.</p>
 <dt><a name="62"><b class="cmd">::math::statistics::cdf-gamma</b> <i class="arg">alpha</i> <i class="arg">beta</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Gamma
 distribution with given shape and rate parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">alpha</i></dt>
 <dd><p>- Shape parameter</p></dd>
 <dt>float <i class="arg">beta</i></dt>
@@ -1044,7 +1037,7 @@ distribution with given shape and rate parameters.</p>
 <dt><a name="63"><b class="cmd">::math::statistics::cdf-poisson</b> <i class="arg">mu</i> <i class="arg">k</i></a></dt>
 <dd><p>Return the cumulative probability of a given number of occurrences in
 the same interval (k) for a Poisson distribution with given mean (mu).</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mu</i></dt>
 <dd><p>- Mean number of occurrences</p></dd>
 <dt>int <i class="arg">k</i></dt>
@@ -1053,7 +1046,7 @@ the same interval (k) for a Poisson distribution with given mean (mu).</p>
 <dt><a name="64"><b class="cmd">::math::statistics::cdf-beta</b> <i class="arg">a</i> <i class="arg">b</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Beta
 distribution with given shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">a</i></dt>
 <dd><p>- First shape parameter</p></dd>
 <dt>float <i class="arg">b</i></dt>
@@ -1064,7 +1057,7 @@ distribution with given shape parameters</p>
 <dt><a name="65"><b class="cmd">::math::statistics::cdf-weibull</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Weibull
 distribution with given scale and shape parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">scale</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">shape</i></dt>
@@ -1075,7 +1068,7 @@ distribution with given scale and shape parameters.</p>
 <dt><a name="66"><b class="cmd">::math::statistics::cdf-gumbel</b> <i class="arg">location</i> <i class="arg">scale</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Gumbel
 distribution with given location and scale parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -1086,7 +1079,7 @@ distribution with given location and scale parameters.</p>
 <dt><a name="67"><b class="cmd">::math::statistics::cdf-pareto</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Pareto
 distribution with given scale and shape parameters</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">scale</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">shape</i></dt>
@@ -1097,7 +1090,7 @@ distribution with given scale and shape parameters</p>
 <dt><a name="68"><b class="cmd">::math::statistics::cdf-cauchy</b> <i class="arg">location</i> <i class="arg">scale</i> <i class="arg">value</i></a></dt>
 <dd><p>Return the cumulative probability of a given value for a Cauchy
 distribution with given location and scale parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -1108,14 +1101,14 @@ distribution with given location and scale parameters.</p>
 <dt><a name="69"><b class="cmd">::math::statistics::empirical-distribution</b> <i class="arg">values</i></a></dt>
 <dd><p>Return a list of values and their empirical probability. The values are sorted in increasing order.
 (The implementation follows the description at the corresponding Wikipedia page)</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">values</i></dt>
 <dd><p>- List of data to be examined</p></dd>
 </dl></dd>
 <dt><a name="70"><b class="cmd">::math::statistics::random-normal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying a normal
 distribution with given mean and standard deviation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -1126,7 +1119,7 @@ distribution with given mean and standard deviation.</p>
 <dt><a name="71"><b class="cmd">::math::statistics::random-lognormal</b> <i class="arg">mean</i> <i class="arg">stdev</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying a log-normal
 distribution with given mean and standard deviation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>float <i class="arg">stdev</i></dt>
@@ -1137,7 +1130,7 @@ distribution with given mean and standard deviation.</p>
 <dt><a name="72"><b class="cmd">::math::statistics::random-exponential</b> <i class="arg">mean</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying an exponential
 distribution with given mean.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mean</i></dt>
 <dd><p>- Mean value of the distribution</p></dd>
 <dt>int <i class="arg">number</i></dt>
@@ -1146,7 +1139,7 @@ distribution with given mean.</p>
 <dt><a name="73"><b class="cmd">::math::statistics::random-uniform</b> <i class="arg">xmin</i> <i class="arg">xmax</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying a uniform
 distribution with given extremes.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">xmin</i></dt>
 <dd><p>- Minimum value of the distribution</p></dd>
 <dt>float <i class="arg">xmax</i></dt>
@@ -1157,7 +1150,7 @@ distribution with given extremes.</p>
 <dt><a name="74"><b class="cmd">::math::statistics::random-gamma</b> <i class="arg">alpha</i> <i class="arg">beta</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Gamma distribution with given shape and rate parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">alpha</i></dt>
 <dd><p>- Shape parameter</p></dd>
 <dt>float <i class="arg">beta</i></dt>
@@ -1168,7 +1161,7 @@ a Gamma distribution with given shape and rate parameters.</p>
 <dt><a name="75"><b class="cmd">::math::statistics::random-poisson</b> <i class="arg">mu</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Poisson distribution with given mean.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">mu</i></dt>
 <dd><p>- Mean of the distribution</p></dd>
 <dt>int <i class="arg">number</i></dt>
@@ -1177,7 +1170,7 @@ a Poisson distribution with given mean.</p>
 <dt><a name="76"><b class="cmd">::math::statistics::random-chisquare</b> <i class="arg">df</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a chi square distribution with given degrees of freedom.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">df</i></dt>
 <dd><p>- Degrees of freedom</p></dd>
 <dt>int <i class="arg">number</i></dt>
@@ -1186,7 +1179,7 @@ a chi square distribution with given degrees of freedom.</p>
 <dt><a name="77"><b class="cmd">::math::statistics::random-student-t</b> <i class="arg">df</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Student's t distribution with given degrees of freedom.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">df</i></dt>
 <dd><p>- Degrees of freedom</p></dd>
 <dt>int <i class="arg">number</i></dt>
@@ -1195,7 +1188,7 @@ a Student's t distribution with given degrees of freedom.</p>
 <dt><a name="78"><b class="cmd">::math::statistics::random-beta</b> <i class="arg">a</i> <i class="arg">b</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Beta distribution with given shape parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">a</i></dt>
 <dd><p>- First shape parameter</p></dd>
 <dt>float <i class="arg">b</i></dt>
@@ -1206,7 +1199,7 @@ a Beta distribution with given shape parameters.</p>
 <dt><a name="79"><b class="cmd">::math::statistics::random-weibull</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Weibull distribution with given scale and shape parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">scale</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">shape</i></dt>
@@ -1217,7 +1210,7 @@ a Weibull distribution with given scale and shape parameters.</p>
 <dt><a name="80"><b class="cmd">::math::statistics::random-gumbel</b> <i class="arg">location</i> <i class="arg">scale</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Gumbel distribution with given location and scale parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -1228,7 +1221,7 @@ a Gumbel distribution with given location and scale parameters.</p>
 <dt><a name="81"><b class="cmd">::math::statistics::random-pareto</b> <i class="arg">scale</i> <i class="arg">shape</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Pareto distribution with given scale and shape parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">scale</i></dt>
 <dd><p>- Scale parameter</p></dd>
 <dt>float <i class="arg">shape</i></dt>
@@ -1239,7 +1232,7 @@ a Pareto distribution with given scale and shape parameters.</p>
 <dt><a name="82"><b class="cmd">::math::statistics::random-cauchy</b> <i class="arg">location</i> <i class="arg">scale</i> <i class="arg">number</i></a></dt>
 <dd><p>Return a list of &quot;number&quot; random values satisfying
 a Cauchy distribution with given location and scale parameters.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">location</i></dt>
 <dd><p>- Location parameter</p></dd>
 <dt>float <i class="arg">scale</i></dt>
@@ -1249,7 +1242,7 @@ a Cauchy distribution with given location and scale parameters.</p>
 </dl></dd>
 <dt><a name="83"><b class="cmd">::math::statistics::histogram-uniform</b> <i class="arg">xmin</i> <i class="arg">xmax</i> <i class="arg">limits</i> <i class="arg">number</i></a></dt>
 <dd><p>Return the expected histogram for a uniform distribution.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">xmin</i></dt>
 <dd><p>- Minimum value of the distribution</p></dd>
 <dt>float <i class="arg">xmax</i></dt>
@@ -1261,12 +1254,12 @@ a Cauchy distribution with given location and scale parameters.</p>
 </dl></dd>
 <dt><a name="84"><b class="cmd">::math::statistics::incompleteGamma</b> <i class="arg">x</i> <i class="arg">p</i> <span class="opt">?tol?</span></a></dt>
 <dd><p>Evaluate the incomplete Gamma integral</p>
-<pre class="example">
+<pre class="doctools_example">
                     1       / x               p-1
       P(p,x) =  --------   |   dt exp(-t) * t
                 Gamma(p)  / 0
 </pre>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>- Value of x (limit of the integral)</p></dd>
 <dt>float <i class="arg">p</i></dt>
@@ -1276,7 +1269,7 @@ a Cauchy distribution with given location and scale parameters.</p>
 </dl></dd>
 <dt><a name="85"><b class="cmd">::math::statistics::incompleteBeta</b> <i class="arg">a</i> <i class="arg">b</i> <i class="arg">x</i> <span class="opt">?tol?</span></a></dt>
 <dd><p>Evaluate the incomplete Beta integral</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>float <i class="arg">a</i></dt>
 <dd><p>- First shape parameter</p></dd>
 <dt>float <i class="arg">b</i></dt>
@@ -1289,20 +1282,20 @@ a Cauchy distribution with given location and scale parameters.</p>
 <dt><a name="86"><b class="cmd">::math::statistics::estimate-pareto</b> <i class="arg">values</i></a></dt>
 <dd><p>Estimate the parameters for the Pareto distribution that comes closest to the given values.
 Returns the estimated scale and shape parameters, as well as the standard error for the shape parameter.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>list <i class="arg">values</i></dt>
 <dd><p>- List of values, assumed to be distributed according to a Pareto distribution</p></dd>
 </dl></dd>
 </dl>
 <p>TO DO: more function descriptions to be added</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">DATA MANIPULATION</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">DATA MANIPULATION</a></h2>
 <p>The data manipulation procedures act on lists or lists of lists:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="87"><b class="cmd">::math::statistics::filter</b> <i class="arg">varname</i> <i class="arg">data</i> <i class="arg">expression</i></a></dt>
 <dd><p>Return a list consisting of the data for which the logical
-expression is true (this command works analogously to the command <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>).</p>
-<dl class="arguments">
+expression is true (this command works analogously to the command <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>).</p>
+<dl class="doctools_arguments">
 <dt>string <i class="arg">varname</i></dt>
 <dd><p>- Name of the variable used in the expression</p></dd>
 <dt>list <i class="arg">data</i></dt>
@@ -1313,7 +1306,7 @@ expression is true (this command works analogously to the command <b class="cmd"
 <dt><a name="88"><b class="cmd">::math::statistics::map</b> <i class="arg">varname</i> <i class="arg">data</i> <i class="arg">expression</i></a></dt>
 <dd><p>Return a list consisting of the data that are transformed via the
 expression.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>string <i class="arg">varname</i></dt>
 <dd><p>- Name of the variable used in the expression</p></dd>
 <dt>list <i class="arg">data</i></dt>
@@ -1324,7 +1317,7 @@ expression.</p>
 <dt><a name="89"><b class="cmd">::math::statistics::samplescount</b> <i class="arg">varname</i> <i class="arg">list</i> <i class="arg">expression</i></a></dt>
 <dd><p>Return a list consisting of the <i class="term">counts</i> of all data in the
 sublists of the &quot;list&quot; argument for which the expression is true.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>string <i class="arg">varname</i></dt>
 <dd><p>- Name of the variable used in the expression</p></dd>
 <dt>list <i class="arg">data</i></dt>
@@ -1337,14 +1330,14 @@ sublists of the &quot;list&quot; argument for which the expression is true.</p>
 <dd><p>Routine <em>PM</em> - not implemented yet</p></dd>
 </dl>
 </div>
-<div id="section6" class="section"><h2><a name="section6">PLOT PROCEDURES</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">PLOT PROCEDURES</a></h2>
 <p>The following simple plotting procedures are available:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="91"><b class="cmd">::math::statistics::plot-scale</b> <i class="arg">canvas</i> <i class="arg">xmin</i> <i class="arg">xmax</i> <i class="arg">ymin</i> <i class="arg">ymax</i></a></dt>
 <dd><p>Set the scale for a plot in the given canvas. All plot routines expect
 this function to be called first. There is no automatic scaling
 provided.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>float <i class="arg">xmin</i></dt>
@@ -1360,7 +1353,7 @@ provided.</p>
 <dd><p>Create a simple XY plot in the given canvas - the data are
 shown as a collection of dots. The tag can be used to manipulate the
 appearance.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>float <i class="arg">xdata</i></dt>
@@ -1374,7 +1367,7 @@ appearance.</p>
 <dd><p>Create a simple XY plot in the given canvas - the data are
 shown as a line through the data points. The tag can be used to
 manipulate the appearance.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>list <i class="arg">xdata</i></dt>
@@ -1390,7 +1383,7 @@ shown as a collection of dots. The horizontal coordinate is equal to the
 index. The tag can be used to manipulate the appearance.
 This type of presentation is suitable for autocorrelation functions for
 instance or for inspecting the time-dependent behaviour.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>list <i class="arg">tdata</i></dt>
@@ -1401,7 +1394,7 @@ instance or for inspecting the time-dependent behaviour.</p>
 <dt><a name="95"><b class="cmd">::math::statistics::plot-tline</b> <i class="arg">canvas</i> <i class="arg">tdata</i> <i class="arg">tag</i></a></dt>
 <dd><p>Create a simple XY plot in the given canvas - the data are
 shown as a line. See plot-tdata for an explanation.</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>list <i class="arg">tdata</i></dt>
@@ -1411,7 +1404,7 @@ shown as a line. See plot-tdata for an explanation.</p>
 </dl></dd>
 <dt><a name="96"><b class="cmd">::math::statistics::plot-histogram</b> <i class="arg">canvas</i> <i class="arg">counts</i> <i class="arg">limits</i> <i class="arg">tag</i></a></dt>
 <dd><p>Create a simple histogram in the given canvas</p>
-<dl class="arguments">
+<dl class="doctools_arguments">
 <dt>widget <i class="arg">canvas</i></dt>
 <dd><p>- Canvas widget to use</p></dd>
 <dt>list <i class="arg">counts</i></dt>
@@ -1423,9 +1416,9 @@ shown as a line. See plot-tdata for an explanation.</p>
 </dl></dd>
 </dl>
 </div>
-<div id="section7" class="section"><h2><a name="section7">THINGS TO DO</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">THINGS TO DO</a></h2>
 <p>The following procedures are yet to be implemented:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>F-test-stdev</p></li>
 <li><p>interval-mean-stdev</p></li>
 <li><p>histogram-normal</p></li>
@@ -1441,10 +1434,10 @@ shown as a line. See plot-tdata for an explanation.</p>
 <li><p>subdivide</p></li>
 </ul>
 </div>
-<div id="section8" class="section"><h2><a name="section8">EXAMPLES</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">EXAMPLES</a></h2>
 <p>The code below is a small example of how you can examine a set of
 data:</p>
-<pre class="example">
+<pre class="doctools_example">
 # Simple example:
 # - Generate data (as a cheap way of getting some)
 # - Perform statistical analysis to describe the data
@@ -1539,7 +1532,7 @@ puts &quot;First:  [::math::statistics::quantiles $data1 {0.1 0.2 0.5 0.8 0.9}]&
 puts &quot;Second: [::math::statistics::quantiles $data2 {0.1 0.2 0.5 0.8 0.9}]&quot;
 </pre>
 <p>If you run this example, then the following should be clear:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>There is a strong correlation between two time series, as displayed by
 the raw data and especially by the correlation functions.</p></li>
 <li><p>Both time series show a significant periodic component</p></li>
@@ -1547,7 +1540,7 @@ the raw data and especially by the correlation functions.</p></li>
 series - they do not show the periodic nature.</p></li>
 </ul>
 </div>
-<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
+<div id="section9" class="doctools_section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: statistics</em> of the
@@ -1555,10 +1548,10 @@ Please report such in the category <em>math :: statistics</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key627">data analysis</a>, <a href="../../../../index.html#key626">mathematics</a>, <a href="../../../../index.html#key193">statistics</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key629">data analysis</a>, <a href="../../../../index.html#key628">mathematics</a>, <a href="../../../../index.html#key195">statistics</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
 </div>
-</div></body></html>
+</div>

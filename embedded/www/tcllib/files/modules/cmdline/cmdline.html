@@ -1,6 +1,5 @@
-<html><head>
-<title>cmdline - Command line and option processing</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='cmdline - Command line and option processing'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,58 +80,52 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'cmdline.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ cmdline.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">cmdline(n) 1.5 tcllib &quot;Command line and option processing&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">cmdline(n) 1.5 tcllib &quot;Command line and option processing&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>cmdline - Procedures to process command lines and options.</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">::argv handling</a></li>
-<li class="section"><a href="#section3">API</a>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">::argv handling</a></li>
+<li class="doctools_section"><a href="#section3">API</a>
 <ul>
-<li class="subsection"><a href="#subsection1">Error Codes</a></li>
+<li class="doctools_subsection"><a href="#subsection1">Error Codes</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section4">EXAMPLES</a></li>
-<li class="section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#section4">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">cmdline <span class="opt">?1.3.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::cmdline::getopt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></li>
 <li><a href="#2"><b class="cmd">::cmdline::getKnownOpt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></li>
 <li><a href="#3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></li>
@@ -143,10 +136,10 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides commands to parse command lines and options.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">::argv handling</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">::argv handling</a></h2>
 <p>One of the most common variables this package will be used with is
 <b class="variable">::argv</b>, which holds the command line of the current
 application. This variable has a companion <b class="variable">::argc</b> which is
@@ -156,8 +149,8 @@ of the application.</p>
 companion when called with <b class="variable">::argv</b>. Keeping the value consistent,
 if such is desired or required, is the responsibility of the caller.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">API</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::cmdline::getopt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></dt>
 <dd><p>This command works in a fashion like the standard C based <b class="cmd">getopt</b>
 function.  Given an option string and a pointer to an array of args
@@ -227,14 +220,14 @@ strip off the leading path and removes the extension &quot;.bin&quot;. The
 latter is used by the pro-apps because they must be wrapped by a shell
 script.</p></dd>
 </dl>
-<div id="subsection1" class="subsection"><h3><a name="subsection1">Error Codes</a></h3>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Error Codes</a></h3>
 <p>Starting with version 1.5 all errors thrown by the package have a
-proper <b class="variable">::errorCode</b> for use with Tcl's <b class="cmd"><a href="../try/tcllib_try.html">try</a></b> command. This
+proper <b class="variable">::errorCode</b> for use with Tcl's <b class="cmd"><a href="../try/tcllib_throw.html">try</a></b> command. This
 code always has the word <b class="const">CMDLINE</b> as its first element.</p>
 </div>
 </div>
-<div id="section4" class="section"><h2><a name="section4">EXAMPLES</a></h2>
-<pre class="example">
+<div id="section4" class="doctools_section"><h2><a name="section4">EXAMPLES</a></h2>
+<pre class="doctools_example">
         package require Tcl 8.5
         package require try         ;# Tcllib.
         package require cmdline 1.5 ;# First version with proper error-codes.
@@ -275,7 +268,7 @@ options is created, then the 'args' list is passed to cmdline for
 processing.  Subsequently, different options are checked to see if
 they have been passed to the script, and what their value is.</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>cmdline</em> of the
@@ -283,10 +276,10 @@ Please report such in the category <em>cmdline</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key262">argument processing</a>, <a href="../../../../index.html#key261">argv</a>, <a href="../../../../index.html#key260">argv0</a>, <a href="../../../../index.html#key263">cmdline processing</a>, <a href="../../../../index.html#key259">command line processing</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key264">argument processing</a>, <a href="../../../../index.html#key263">argv</a>, <a href="../../../../index.html#key262">argv0</a>, <a href="../../../../index.html#key265">cmdline processing</a>, <a href="../../../../index.html#key261">command line processing</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
 </div>
-</div></body></html>
+</div>

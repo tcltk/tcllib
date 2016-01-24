@@ -1,7 +1,6 @@
 
-<html><head>
-<title>math::bignum - Tcl Math Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='math::bignum - Tcl Math Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,56 +81,48 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'bignum.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2004 Salvatore Sanfilippo &lt;antirez at invece dot org&gt;   -- Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus at users dot sourceforge dot net&gt;
-   -->
-<! -- CVS: $Id$ math::bignum.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::bignum(n) 3.1 tcllib &quot;Tcl Math Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">math::bignum(n) 3.1 tcllib &quot;Tcl Math Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::bignum - Arbitrary precision integer numbers</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">EXAMPLES</a></li>
-<li class="section"><a href="#section3">API</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section3">API</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.4?</span></b></li>
 <li>package require <b class="pkgname">math::bignum <span class="opt">?3.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::bignum::fromstr</b> <i class="arg">string</i> ?<i class="arg">radix</i>?</a></li>
 <li><a href="#2"><b class="cmd">::math::bignum::tostr</b> <i class="arg">bignum</i> ?<i class="arg">radix</i>?</a></li>
 <li><a href="#3"><b class="cmd">::math::bignum::sign</b> <i class="arg">bignum</i></a></li>
@@ -169,13 +160,13 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The bignum package provides arbitrary precision integer math
 (also known as &quot;big numbers&quot;) capabilities to the Tcl language.
 Big numbers are internally represented at Tcl lists: this
 package provides a set of procedures operating against
 the internal representation in order to:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>perform math operations</p></li>
 <li><p>convert bignums from the internal representation to a string in
 the desired radix and vice versa.</p></li>
@@ -189,12 +180,12 @@ in this package (but created by hand) may lead to unspecified behaviours.
 It's safe to treat bignums as pure values, so there is no need
 to free a bignum, or to duplicate it via a special operation.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">EXAMPLES</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
 <p>This section shows some simple example. This library being just
 a way to perform math operations, examples may be the simplest way
 to learn how to work with it. Consult the API section of
 this man page for information about individual procedures.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require math::bignum
     # Multiplication of two bignums
     set a [::math::bignum::fromstr 88888881111111]
@@ -218,8 +209,8 @@ this man page for information about individual procedures.</p>
     puts [::math::bignum::tostr [fact 100]]
 </pre>
 </div>
-<div id="section3" class="section"><h2><a name="section3">API</a></h2>
-<dl class="definitions">
+<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::math::bignum::fromstr</b> <i class="arg">string</i> ?<i class="arg">radix</i>?</a></dt>
 <dd><p>Convert <em>string</em> into a bignum. If <em>radix</em> is omitted or zero,
 the string is interpreted in hex if prefixed with
@@ -331,7 +322,7 @@ range, it is considered as set to zero.</p></dd>
 <dd><p>Return the number of bits needed to represent bignum in radix 2.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: bignum</em> of the
@@ -339,14 +330,14 @@ Please report such in the category <em>math :: bignum</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key285">bignums</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key287">multiprecision</a>, <a href="../../../../index.html#key286">tcl</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key287">bignums</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key289">multiprecision</a>, <a href="../../../../index.html#key288">tcl</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2004 Salvatore Sanfilippo &lt;antirez at invece dot org&gt;<br>
 Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus at users dot sourceforge dot net&gt;</p>
 </div>
-</div></body></html>
+</div>

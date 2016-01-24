@@ -73,7 +73,7 @@ if {[::twapi::get_ip_addresses] ne {}} {
   ldelete result 127.0.0.1
   return $result
 } 
-} elseif {[info command ::twapi::get_system_ipaddrs] ne {}} {
+} elseif {[info commands ::twapi::get_system_ipaddrs] ne {}} {
 # They changed commands names on me...
   set body {
   set result [::twapi::get_system_ipaddrs]
@@ -114,4 +114,22 @@ proc ::nettool::network_list {} {
   }
   return [lsort -unique $result]
 }
-package provide nettool::platform::windows 0.1
+
+proc ::nettool::status {} {
+  set result {}
+  #dict set result load [::twapi::]
+  set cpus [::twapi::get_processor_count]
+  set usage 0
+  for {set p 0} {$p < $cpus} {incr p} {
+    set pu  [lindex [::twapi::get_processor_info $p  -processorutilization] 1]
+    set usage [expr {$usage+$pu}]
+  }
+  dict set result cpus $cpus
+  dict set result load [expr {$usage/$cpus}]
+  dict set result uptime [::twapi::get_system_uptime]
+}
+
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(APPDATA) $appname]
+}
+package provide nettool::platform::windows 0.2

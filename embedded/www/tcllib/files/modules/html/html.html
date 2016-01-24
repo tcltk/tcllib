@@ -1,7 +1,6 @@
 
-<html><head>
-<title>html - HTML Generation</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='html - HTML Generation'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,52 +81,46 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'html.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ html.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">html(n) 1.4.4 tcllib &quot;HTML Generation&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">html(n) 1.4.4 tcllib &quot;HTML Generation&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>html - Procedures to generate HTML structures</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">html <span class="opt">?1.4.4?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::html::author</b> <i class="arg">author</i></a></li>
 <li><a href="#2"><b class="cmd">::html::bodyTag</b> <i class="arg">args</i></a></li>
 <li><a href="#3"><b class="cmd">::html::cell</b> <i class="arg">param value</i> <span class="opt">?<i class="arg">tag</i>?</span></a></li>
@@ -193,14 +186,14 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The package <b class="package">html</b> provides commands that generate HTML.
 These commands typically return an HTML string as their result. In
 particular, they do not output their result to <b class="const">stdout</b>.</p>
 <p>The command <b class="cmd">::html::init</b> should be called early to initialize
 the module.  You can also use this procedure to define default values
 for HTML tag parameters.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::html::author</b> <i class="arg">author</i></a></dt>
 <dd><p><em>Side effect only</em>.  Call this before <b class="cmd">::html::head</b> to
 define an author for the page.  The author is noted in a comment in
@@ -215,16 +208,16 @@ tag parameters come from <i class="arg">param</i> or TD.* attributes defined wit
 <b class="cmd">::html::init</b>.  This uses <b class="cmd">::html::font</b> to insert a standard
 <i class="term">font</i> tag into the table cell. The <i class="arg">tag</i> argument defaults to &quot;td&quot;.</p></dd>
 <dt><a name="4"><b class="cmd">::html::checkbox</b> <i class="arg">name value</i></a></dt>
-<dd><p>Generate a <i class="term"><a href="../../../../index.html#key617">checkbox</a></i> form element with the specified name and value.
+<dd><p>Generate a <i class="term"><a href="../../../../index.html#key619">checkbox</a></i> form element with the specified name and value.
 This uses <b class="cmd">::html::checkValue</b>.</p></dd>
 <dt><a name="5"><b class="cmd">::html::checkSet</b> <i class="arg">key sep list</i></a></dt>
-<dd><p>Generate a set of <i class="term"><a href="../../../../index.html#key617">checkbox</a></i> form elements and associated labels.  The
+<dd><p>Generate a set of <i class="term"><a href="../../../../index.html#key619">checkbox</a></i> form elements and associated labels.  The
 <i class="arg">list</i> should contain an alternating list of labels and values.
-This uses <b class="cmd">::html::checkbox</b>. All the <i class="term"><a href="../../../../index.html#key617">checkbox</a></i> buttons share the
+This uses <b class="cmd">::html::checkbox</b>. All the <i class="term"><a href="../../../../index.html#key619">checkbox</a></i> buttons share the
 same <i class="arg">key</i> for their name. The <i class="arg">sep</i> is text used to separate
 the elements.</p></dd>
 <dt><a name="6"><b class="cmd">::html::checkValue</b> <i class="arg">name</i> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
-<dd><p>Generate the &quot;name=<i class="arg">name</i> value=<i class="arg">value</i>&quot; for a <i class="term"><a href="../../../../index.html#key617">checkbox</a></i> form
+<dd><p>Generate the &quot;name=<i class="arg">name</i> value=<i class="arg">value</i>&quot; for a <i class="term"><a href="../../../../index.html#key619">checkbox</a></i> form
 element.  If the CGI variable <i class="arg">name</i> has the value <i class="arg">value</i>,
 then SELECTED is added to the return value. <i class="arg">value</i> defaults to
 &quot;1&quot;.</p></dd>
@@ -269,14 +262,14 @@ structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>. Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
 <dt><a name="15"><b class="cmd">::html::foreach</b> <i class="arg">varlist1 list1</i> <span class="opt">?<i class="arg">varlist2 list2 ...</i>?</span> <i class="arg">body</i></a></dt>
-<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b> control
+<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b> control
 structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>.  Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
 <dt><a name="16"><b class="cmd">::html::formValue</b> <i class="arg">name</i> <span class="opt">?<i class="arg">defvalue</i>?</span></a></dt>
 <dd><p>Return a name and value pair, where the value is initialized from
 existing CGI data, if any.  The result has this form:</p>
-<pre class="example">
+<pre class="doctools_example">
   name=&quot;fred&quot; value=&quot;freds value&quot;
 </pre>
 </dd>
@@ -315,7 +308,7 @@ If previous calls have been made to
 or
 <b class="cmd">::html::meta</b>
 then additional tags are inserted into the <i class="term">head</i> section.
-This leaves an open <i class="term"><a href="../../../../index.html#key614">html</a></i> tag pushed on the stack with
+This leaves an open <i class="term"><a href="../../../../index.html#key616">html</a></i> tag pushed on the stack with
 <b class="cmd">::html::openTag</b>.</p></dd>
 <dt><a name="28"><b class="cmd">::html::headTag</b> <i class="arg">string</i></a></dt>
 <dd><p>Save a tag for inclusion in the <i class="term">head</i> section generated by
@@ -398,11 +391,11 @@ list whose elements are formatted to be in the form
 the <i class="term">tr</i> tag. The value of <i class="arg">cparam</i> is passed to <b class="cmd">::html::cell</b>
 as parameter for the <i class="term">td</i> tags.</p></dd>
 <dt><a name="44"><b class="cmd">::html::passwordInput</b> <span class="opt">?<i class="arg">name</i>?</span></a></dt>
-<dd><p>Generate an <i class="term">input</i> tag of type <i class="term"><a href="../../../../index.html#key689">password</a></i>. The <i class="arg">name</i> defaults to
+<dd><p>Generate an <i class="term">input</i> tag of type <i class="term"><a href="../../../../index.html#key691">password</a></i>. The <i class="arg">name</i> defaults to
 &quot;password&quot;.</p></dd>
 <dt><a name="45"><b class="cmd">::html::passwordInputRow</b> <i class="arg">label</i> <span class="opt">?<i class="arg">name</i>?</span></a></dt>
 <dd><p>Format a table row containing a label and an <i class="term">input</i> tag of type
-<i class="term"><a href="../../../../index.html#key689">password</a></i>. The <i class="arg">name</i> defaults to &quot;password&quot;.</p></dd>
+<i class="term"><a href="../../../../index.html#key691">password</a></i>. The <i class="arg">name</i> defaults to &quot;password&quot;.</p></dd>
 <dt><a name="46"><b class="cmd">::html::quoteFormValue</b> <i class="arg">value</i></a></dt>
 <dd><p>Quote special characters in <i class="arg">value</i> by replacing them with HTML
 entities for quotes, ampersand, and angle brackets.</p></dd>
@@ -434,7 +427,7 @@ list is a Tcl-style name, value list.</p></dd>
 values used for the <i class="term">option</i> tags.  The label and the value for each
 <i class="term">option</i> are the same.</p></dd>
 <dt><a name="53"><b class="cmd">::html::set</b> <i class="arg">var val</i></a></dt>
-<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key299">set</a></b> command.  The
+<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key301">set</a></b> command.  The
 main difference is that it returns &quot;&quot; so it can be called from an HTML
 template file without appending unwanted results.  The other
 difference is that it must take two arguments.</p></dd>
@@ -457,11 +450,11 @@ pre-formatted string.</p></dd>
 <dt><a name="57"><b class="cmd">::html::textarea</b> <i class="arg">name</i> <span class="opt">?<i class="arg">param</i>?</span> <span class="opt">?<i class="arg">current</i>?</span></a></dt>
 <dd><p>Generate a <i class="term">textarea</i> tag wrapped around its current values.</p></dd>
 <dt><a name="58"><b class="cmd">::html::textInput</b> <i class="arg">name value args</i></a></dt>
-<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key246">text</a></i>.  This uses
+<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key248">text</a></i>.  This uses
 <b class="cmd">::html::formValue</b>.  The args is any additional tag attributes
 you want to put into the <i class="term">input</i> tag.</p></dd>
 <dt><a name="59"><b class="cmd">::html::textInputRow</b> <i class="arg">label name value args</i></a></dt>
-<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key246">text</a></i> formatted into a table row
+<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key248">text</a></i> formatted into a table row
 with an associated label.  The args is any additional tag attributes
 you want to put into the <i class="term">input</i> tag.</p></dd>
 <dt><a name="60"><b class="cmd">::html::varEmpty</b> <i class="arg">name</i></a></dt>
@@ -477,7 +470,7 @@ concatenated to the result value.</p></dd>
 declaration string. It will return the standard declaration
 string for the id, or throw an error if the id is not known.
 The following id's are defined:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>HTML32</p></li>
 <li><p>HTML40</p></li>
 <li><p>HTML40T</p></li>
@@ -493,7 +486,7 @@ The following id's are defined:</p>
 </ol></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>html</em> of the
@@ -501,13 +494,13 @@ Please report such in the category <em>html</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="../htmlparse/htmlparse.html">htmlparse</a>, <a href="../ncgi/ncgi.html">ncgi</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key617">checkbox</a>, <a href="../../../../index.html#key615">checkbutton</a>, <a href="../../../../index.html#key613">form</a>, <a href="../../../../index.html#key614">html</a>, <a href="../../../../index.html#key616">radiobutton</a>, <a href="../../../../index.html#key106">table</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key619">checkbox</a>, <a href="../../../../index.html#key617">checkbutton</a>, <a href="../../../../index.html#key615">form</a>, <a href="../../../../index.html#key616">html</a>, <a href="../../../../index.html#key618">radiobutton</a>, <a href="../../../../index.html#key106">table</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>CGI programming</p>
 </div>
-</div></body></html>
+</div>

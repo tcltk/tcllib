@@ -45,7 +45,7 @@ proc ::nettool::hwaddr_to_ipaddr {hwaddr args} {}
 proc ::nettool::hwid_list {} {
   set result {}
   foreach mac [::nettool::mac_list] {
-    lappend result 0x[string map {: {}} $num]
+    lappend result 0x[string map {: {}} $mac]
   }
   if {[llength $result]} {
     return $result
@@ -86,6 +86,10 @@ proc ::nettool::mac_list {} {}
 proc ::nettool::platform {} {
   variable platform
   return $platform
+}
+
+proc ::nettool::user_data_root {appname} {
+  return [file join $::env(HOME) .$appname]
 }
 
 ###

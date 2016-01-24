@@ -49,6 +49,7 @@ modules/debug/debug_timestamp.man
 modules/des/des.man
 modules/des/tcldes.man
 modules/des/tcldesjr.man
+modules/dicttool/dicttool.man
 modules/dns/tcllib_dns.man
 modules/dns/tcllib_ip.man
 modules/docstrip/docstrip.man
@@ -182,6 +183,7 @@ modules/math/calculus.man
 modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
+modules/math/exact.man
 modules/math/fourier.man
 modules/math/fuzzy.man
 modules/math/interpolate.man
@@ -348,6 +350,9 @@ modules/textutil/trim.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
+modules/tool/meta.man
+modules/tool/tool.man
+modules/tool/tool_dict_ensemble.man
 modules/transfer/connect.man
 modules/transfer/copyops.man
 modules/transfer/ddest.man
@@ -356,6 +361,7 @@ modules/transfer/receiver.man
 modules/transfer/tqueue.man
 modules/transfer/transmitter.man
 modules/treeql/treeql.man
+modules/try/tcllib_throw.man
 modules/try/tcllib_try.man
 modules/uev/uevent.man
 modules/uev/uevent_onidle.man
@@ -412,3 +418,4 @@ modules/yaml/huddle.man
 modules/yaml/yaml.man
 modules/zip/decode.man
 modules/zip/encode.man
+modules/zip/mkzip.man

@@ -1,5 +1,5 @@
 ###
-# topic: 1b090f3648b8120c7df65ecbac65d548
+# topic: 65dfea29d424543cdfc0e1cbf9f90295ef6214cb
 # description:
 #    This script digests the raw data from
 #    http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
@@ -19,7 +19,7 @@ proc ::record {service port type usage} {
 for {set x 0} {$x < 65536} {incr x} {
   set ::available_port($x) {}
 }
-package require listutil
+package require dicttool
 package require csv
 set fin [open [lindex $argv 0] r]
 set headers [gets $fin]

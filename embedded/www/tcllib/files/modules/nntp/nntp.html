@@ -1,7 +1,6 @@
 
-<html><head>
-<title>nntp - Tcl NNTP Client Library</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='nntp - Tcl NNTP Client Library'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,53 +81,47 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'nntp.man' by tcllib/doctools with format 'html'
-   -->
-<! -- CVS: $Id$ nntp.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">nntp(n) 1.5.1 tcllib &quot;Tcl NNTP Client Library&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">nntp(n) 1.5.1 tcllib &quot;Tcl NNTP Client Library&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>nntp - Tcl client for the NNTP protocol</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">COMMANDS</a></li>
-<li class="section"><a href="#section3">EXAMPLE</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section3">EXAMPLE</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">nntp <span class="opt">?0.2.1?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::nntp::nntp</b> <span class="opt">?<i class="arg">host</i>?</span> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">nntpName</i>?</span></a></li>
 <li><a href="#2"><i class="arg">nntpName</i> <b class="method">method</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
 <li><a href="#3"><i class="arg">nntpName</i> <b class="method">article</b> <span class="opt">?<i class="arg">msgid</i>?</span></a></li>
@@ -162,15 +155,15 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The package <b class="package">nntp</b> provides a simple Tcl-only client library
 for the NNTP protocol.  It works by opening the standard NNTP socket
 on the server, and then providing a Tcl API to access the NNTP
 protocol commands.  All server errors are returned as Tcl errors
 (thrown) which must be caught with the Tcl <b class="cmd">catch</b> command.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::nntp::nntp</b> <span class="opt">?<i class="arg">host</i>?</span> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">nntpName</i>?</span></a></dt>
 <dd><p>The command opens a socket connection to the specified NNTP server and
 creates a new nntp object with an associated global Tcl command whose
@@ -183,7 +176,7 @@ can be overridden with the environment variables <b class="variable">NNTPPORT</b
 nntp rfc 977 (<a href="http://www.rfc-editor.org/rfc/rfc977.txt">http://www.rfc-editor.org/rfc/rfc977.txt</a>) and will
 not be available (or implemented) on all nntp servers.</p>
 <p>The access command <i class="arg">nntpName</i> has the following general form:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="2"><i class="arg">nntpName</i> <b class="method">method</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
 <dd><p><i class="arg">Option</i> and the <i class="arg">arg</i>s determine the exact behavior of the
 command.</p></dd>
@@ -235,7 +228,7 @@ one) and returns the msgid of that message.</p></dd>
 <dt><a name="15"><i class="arg">nntpName</i> <b class="method">list</b></a></dt>
 <dd><p>Returns a tcl list of valid newsgroups and associated information.  Each
 newsgroup is returned as an element in the tcl list with the following format:</p>
-<pre class="example">
+<pre class="doctools_example">
       group last first p
 </pre>
 <p>where &lt;group&gt; is the name of the newsgroup, &lt;last&gt; is the number of
@@ -259,7 +252,7 @@ specified by the argument <i class="arg">since</i>.  The argument <i class="arg"
 time string that is understood by <b class="cmd">clock scan</b>. The tcl list of newsgroups
 is returned in a similar form to the list of groups returned by the
 <b class="cmd">nntpName list</b> command.  Each element of the list has the form:</p>
-<pre class="example">
+<pre class="doctools_example">
       group last first p
 </pre>
 <p>where &lt;group&gt; is the name of the newsgroup, &lt;last&gt; is the number of
@@ -304,7 +297,7 @@ selection by message-id does NOT alter the &quot;current article pointer&quot;</
 the socket.</p></dd>
 <dt><a name="27"><i class="arg">nntpName</i> <b class="method">xgtitle</b> <span class="opt">?<i class="arg">group_pattern</i>?</span></a></dt>
 <dd><p>Returns a tcl list where each element is of the form:</p>
-<pre class="example">
+<pre class="doctools_example">
 newsgroup description
 </pre>
 <p>If a <i class="arg">group_pattern</i> is specified then only newsgroups that match
@@ -315,12 +308,12 @@ list of messages from the current group.  <i class="arg">field</i> is the title 
 field in the header such as from, subject, date, etc.  If <i class="arg">range</i> is
 not specified or is &quot;&quot; then the current message is queried.  The command
 returns a list of elements where each element has the form of:</p>
-<pre class="example">
+<pre class="doctools_example">
     msgid value
 </pre>
 <p>Where msgid is the number of the message and value is the value set for the
 queried field.  The <i class="arg">range</i> argument can be in any of the following forms:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">&quot;&quot;</b></dt>
 <dd><p>The current message is queried.</p></dd>
 <dt><i class="arg">msgid1</i>-<i class="arg">msgid2</i></dt>
@@ -334,12 +327,12 @@ queried field.  The <i class="arg">range</i> argument can be in any of the follo
 <dd><p>Returns header information for the current message or for a range of messages
 from the current group.  The information is returned in a tcl list
 where each element is of the form:</p>
-<pre class="example">
+<pre class="doctools_example">
     msgid subject from date idstring bodysize headersize xref
 </pre>
 <p>If <i class="arg">range</i> is not specified or is &quot;&quot; then the current message is queried.
 The <i class="arg">range</i> argument can be in any of the following forms:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">&quot;&quot;</b></dt>
 <dd><p>The current message is queried.</p></dd>
 <dt><i class="arg">msgid1</i>-<i class="arg">msgid2</i></dt>
@@ -355,12 +348,12 @@ list of messages from the current group where the messages match the
 pattern(s) given in the pattern_list.  <i class="arg">field</i> is the title of a
 field in the header such as from, subject, date, etc.  The information is
 returned in a tcl list where each element is of the form:</p>
-<pre class="example">
+<pre class="doctools_example">
     msgid value
 </pre>
 <p>Where msgid is the number of the message and value is the value set for the
 queried field.  The <i class="arg">range</i> argument can be in any of the following forms:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><i class="arg">msgid</i></dt>
 <dd><p>The message specified by <i class="arg">msgid</i> is queried.</p></dd>
 <dt><i class="arg">msgid1</i>-<i class="arg">msgid2</i></dt>
@@ -372,9 +365,9 @@ queried field.  The <i class="arg">range</i> argument can be in any of the follo
 </dl></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">EXAMPLE</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">EXAMPLE</a></h2>
 <p>A bigger example for posting a single article.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require nntp
     set n [nntp::nntp NNTP_SERVER]
     $n post &quot;From: USER@DOMAIN.EXT (USER_FULL)
@@ -388,7 +381,7 @@ queried field.  The <i class="arg">range</i> argument can be in any of the follo
     Test message body&quot;
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>nntp</em> of the
@@ -396,10 +389,10 @@ Please report such in the category <em>nntp</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key529">news</a>, <a href="../../../../index.html#key649">nntp</a>, <a href="../../../../index.html#key652">nntpclient</a>, <a href="../../../../index.html#key650">rfc 1036</a>, <a href="../../../../index.html#key651">rfc 977</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key531">news</a>, <a href="../../../../index.html#key651">nntp</a>, <a href="../../../../index.html#key654">nntpclient</a>, <a href="../../../../index.html#key652">rfc 1036</a>, <a href="../../../../index.html#key653">rfc 977</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-</div></body></html>
+</div>

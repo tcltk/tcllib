@@ -1,6 +1,5 @@
-<html><head>
-<title>docstrip - Literate programming tool</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='docstrip - Literate programming tool'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -24,7 +23,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -41,11 +40,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -62,18 +61,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -81,63 +80,55 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'docstrip.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2003–2010 Lars Hellstr&ouml;m &lt;Lars dot Hellstrom at residenset dot net&gt;
-   -->
-<! -- CVS: $Id$ docstrip.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">docstrip(n) 1.2 tcllib &quot;Literate programming tool&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">docstrip(n) 1.2 tcllib &quot;Literate programming tool&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>docstrip - Docstrip style source code extraction</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">File format</a></li>
-<li class="section"><a href="#section3">Commands</a></li>
-<li class="section"><a href="#section4">Document structure</a></li>
-<li class="section"><a href="#see-also">See Also</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">File format</a></li>
+<li class="doctools_section"><a href="#section3">Commands</a></li>
+<li class="doctools_section"><a href="#section4">Document structure</a></li>
+<li class="doctools_section"><a href="#see-also">See Also</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
 <li>package require <b class="pkgname">docstrip <span class="opt">?1.2?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">docstrip::extract</b> <i class="arg">text</i> <i class="arg">terminals</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></li>
 <li><a href="#2"><b class="cmd">docstrip::sourcefrom</b> <i class="arg">filename</i> <i class="arg">terminals</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></li>
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p><b class="syscmd">Docstrip</b> is a tool created to support a brand of Literate
 Programming. It is most common in the (La)TeX community, where it
 is being used for pretty much everything from the LaTeX core and up,
@@ -153,7 +144,7 @@ The <b class="package">docstrip</b> Tcl package handles this translation.</p>
 <p>Even for those who do not whole-hartedly subscribe to the philosophy
 behind literate programming, <b class="syscmd">docstrip</b> can bring greater
 clarity to in particular:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
   
 <li><p>programs employing non-obvious mathematics</p></li>
 <li><p>projects where separate pieces of code, perhaps in
@@ -179,7 +170,7 @@ program, and thus makes it possible for a Tcl interpreter to read
 and interpret the master source files directly.</p>
 <p>Readers who are not previously familiar with <b class="syscmd">docstrip</b> but
 want to know more about it may consult the following sources.</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p><em>The tclldoc package and class</em>,
   <a href="http://ctan.org/tex-archive/macros/latex/contrib/tclldoc/">http://ctan.org/tex-archive/macros/latex/contrib/tclldoc/</a>.</p></li>
 <li><p><em>The DocStrip utility</em>,
@@ -191,14 +182,14 @@ want to know more about it may consult the following sources.</p>
   Addison-Wesley, 2004; ISBN 0-201-36299-6.</p></li>
 </ol>
 </div>
-<div id="section2" class="section"><h2><a name="section2">File format</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">File format</a></h2>
 <p>The basic unit <b class="syscmd">docstrip</b> operates on are the <em>lines</em> of
 a master source file. Extraction consists of selecting some of these
 lines to be copied from input text to output text. The basic
 distinction is that between <em>code lines</em> (which are copied and
 do not begin with a percent character) and <em>comment lines</em>
 (which begin with a percent character and are not copied).</p>
-<pre class="example">
+<pre class="doctools_example">
    docstrip::extract [join {
      {% comment}
      {% more comment !&quot;#$%&amp;/(}
@@ -211,7 +202,7 @@ do not begin with a percent character) and <em>comment lines</em>
    } \n] {}
 </pre>
 <p>returns the same sequence of lines as</p>
-<pre class="example">
+<pre class="doctools_example">
    join {
      {some command}
      { % blah $blah &quot;Not a comment.&quot;}
@@ -237,12 +228,12 @@ category is by far the most common.</p>
 guard by the value of a boolean expression; the guarded block of
 code lines will only be included if the expression evaluates to true.
 The syntax of an ordinary guard line is one of</p>
-<pre class="example">
+<pre class="doctools_example">
     '%' '&lt;' STARSLASH EXPRESSION '&gt;'
     '%' '&lt;' PLUSMINUS EXPRESSION '&gt;' CODE
 </pre>
 <p>where</p>
-<pre class="example">
+<pre class="doctools_example">
     STARSLASH  ::=  '*' | '/'
     PLUSMINUS  ::=  | '+' | '-'
     EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
@@ -264,7 +255,7 @@ TERMINALs count as being 'false' when guard expressions are evaluated.</p>
 all lines up to the next '%&lt;/<em>EXPRESSION</em>&gt;' guard with the same
 <em>EXPRESSION</em> (compared as strings). The blocks of code delimited
 by such '*' and '/' guard lines must be properly nested.</p>
-<pre class="example">
+<pre class="doctools_example">
    set text [join {
       {begin}
       {%&lt;*foo&gt;}
@@ -288,7 +279,7 @@ by such '*' and '/' guard lines must be properly nested.</p>
    append res [docstrip::extract $text bar]
 </pre>
 <p>sets $res to the result of</p>
-<pre class="example">
+<pre class="doctools_example">
    join {
       {begin}
       {1}
@@ -321,7 +312,7 @@ copyright notices and similar material. The '%%' prefix is however
 not kept, but substituted by the current <b class="option">-metaprefix</b>, which
 is customarily set to some &quot;comment until end of line&quot; character (or
 character sequence) of the language of the code being extracted.</p>
-<pre class="example">
+<pre class="doctools_example">
    set text [join {
       {begin}
       {%&lt;foo&gt; foo}
@@ -338,7 +329,7 @@ character sequence) of the language of the code being extracted.</p>
    append res [docstrip::extract $text bar -metaprefix {#}]
 </pre>
 <p>sets $res to the result of</p>
-<pre class="example">
+<pre class="doctools_example">
    join {
       {begin}
       { foo}
@@ -359,7 +350,7 @@ interpretation of a block of lines even if some of them happen to look
 like any other type of lines to docstrip. A verbatim guard has the
 form '%&lt;&lt;<em>END-TAG</em>' and the verbatim block is terminated by the
 first line that is exactly '%<em>END-TAG</em>'.</p>
-<pre class="example">
+<pre class="doctools_example">
    set text [join {
       {begin}
       {%&lt;*myblock&gt;}
@@ -378,7 +369,7 @@ first line that is exactly '%<em>END-TAG</em>'.</p>
    append res [docstrip::extract $text {}]
 </pre>
 <p>sets $res to the result of</p>
-<pre class="example">
+<pre class="doctools_example">
    join {
       {begin}
       {some stupid()}
@@ -400,16 +391,16 @@ avoid copying random whitespace at the end of a file. In the unlikely
 case that one wants such a code line, one can protect it with a
 verbatim guard.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Commands</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">Commands</a></h2>
 <p>The package defines two commands.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">docstrip::extract</b> <i class="arg">text</i> <i class="arg">terminals</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></dt>
 <dd><p>The <b class="cmd">extract</b> command docstrips the <i class="arg">text</i> and returns the
   extracted lines of code, as a string with each line terminated with
   a newline. The <i class="arg">terminals</i> is the list of those guard
   expression terminals which should evaluate to true.
   The available options are:</p>
-<dl class="options">
+<dl class="doctools_options">
   
 <dt><b class="option">-annotate</b> <i class="arg">lines</i></dt>
 <dd><p>Requests the specified number of lines of annotation to follow
@@ -430,7 +421,7 @@ verbatim guard.</p>
 <dt><b class="option">-onerror</b> <i class="arg">keyword</i></dt>
 <dd><p>Controls what will be done when a format error in the <i class="arg">text</i>
     being processed is detected. The settings are:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
     
 <dt><b class="const">ignore</b></dt>
 <dd><p>Just ignore the error; continue as if nothing happened.</p></dd>
@@ -452,7 +443,7 @@ verbatim guard.</p>
   these specify which optional code fragments should be included.</p></dd>
 <dt><a name="2"><b class="cmd">docstrip::sourcefrom</b> <i class="arg">filename</i> <i class="arg">terminals</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></dt>
 <dd><p>The <b class="cmd">sourcefrom</b> command is a docstripping emulation of
-  <b class="cmd"><a href="../../../../index.html#key433">source</a></b>. It opens the file <i class="arg">filename</i>, reads it, closes it,
+  <b class="cmd"><a href="../../../../index.html#key435">source</a></b>. It opens the file <i class="arg">filename</i>, reads it, closes it,
   docstrips the contents as specified by the <i class="arg">terminals</i>, and
   evaluates the result in the local context of the caller, during
   which time the <b class="cmd"><a href="../../../../index.html#key83">info</a></b> <b class="method">script</b> value will be the
@@ -462,7 +453,7 @@ verbatim guard.</p>
   options have their default values.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Document structure</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Document structure</a></h2>
 <p>The file format (as described above) determines whether a master
 source code file can be processed correctly by <b class="syscmd">docstrip</b>,
 but the usefulness of the format is to no little part also dependent
@@ -477,7 +468,7 @@ LaTeX-based &quot;<b class="file">.dtx</b>&quot; files.</p>
 that they can be typeset directly by <b class="syscmd"><a href="../../../../index.html#key186">latex</a></b> without any
 support from other files. This is achieved by beginning the file
 with the lines</p>
-<pre class="example">
+<pre class="doctools_example">
    % \iffalse
    %&lt;*driver&gt;
    \documentclass{tclldoc}
@@ -512,16 +503,16 @@ provide a number of features that are convenient for &quot;<b class="file">.dtx<
 files containing Tcl code. More information on this matter can be
 found in the references above.</p>
 </div>
-<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="docstrip_util.html">docstrip_util</a></p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key436">.dtx</a>, <a href="../../../../index.html#key435">LaTeX</a>, <a href="../../../../index.html#key432">docstrip</a>, <a href="../../../../index.html#key185">documentation</a>, <a href="../../../../index.html#key434">literate programming</a>, <a href="../../../../index.html#key433">source</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key438">.dtx</a>, <a href="../../../../index.html#key437">LaTeX</a>, <a href="../../../../index.html#key434">docstrip</a>, <a href="../../../../index.html#key185">documentation</a>, <a href="../../../../index.html#key436">literate programming</a>, <a href="../../../../index.html#key435">source</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2003–2010 Lars Hellstr&ouml;m &lt;Lars dot Hellstrom at residenset dot net&gt;</p>
 </div>
-</div></body></html>
+</div>

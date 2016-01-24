@@ -1,7 +1,6 @@
 
-<html><head>
-<title>struct::pool - Tcl Data Structures</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='struct::pool - Tcl Data Structures'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,58 +81,50 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'pool.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; 2002, Erik Leunissen &lt;e.leunissen@hccnet.nl&gt;
-   -->
-<! -- CVS: $Id$ struct::pool.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">struct::pool(n) 1.2.3 tcllib &quot;Tcl Data Structures&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">struct::pool(n) 1.2.3 tcllib &quot;Tcl Data Structures&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::pool - Create and manipulate pool objects (of discrete items)</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">POOLS AND ALLOCATION</a></li>
-<li class="section"><a href="#section3">ITEMS</a></li>
-<li class="section"><a href="#section4">POOL OBJECT COMMAND</a></li>
-<li class="section"><a href="#section5">EXAMPLES</a></li>
-<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">POOLS AND ALLOCATION</a></li>
+<li class="doctools_section"><a href="#section3">ITEMS</a></li>
+<li class="doctools_section"><a href="#section4">POOL OBJECT COMMAND</a></li>
+<li class="doctools_section"><a href="#section5">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">struct::pool <span class="opt">?1.2.3?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::struct::pool</b> <span class="opt">?<i class="arg">poolName</i>?</span> <span class="opt">?<i class="arg">maxsize</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">poolName</b> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
 <li><a href="#3"><i class="arg">poolName</i> <b class="method">add</b> <i class="arg">itemName1</i> <span class="opt">?<i class="arg">itemName2 itemName3 ...</i>?</span></a></li>
@@ -147,10 +138,10 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides pool objects which can be used to manage
 finite collections of discrete items.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::struct::pool</b> <span class="opt">?<i class="arg">poolName</i>?</span> <span class="opt">?<i class="arg">maxsize</i>?</span></a></dt>
 <dd><p>Creates a new pool object. If no <i class="arg">poolName</i> is supplied, then the
 new pool will be named pool<b class="variable">X</b>, where X is a positive integer.
@@ -162,7 +153,7 @@ number of items the pool may hold. The default for this value is
 <i class="arg">poolName</i>. This command may be used to invoke various
 configuration operations on the report. It has the following general
 form:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="2"><b class="cmd">poolName</b> <i class="arg">option</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
 <dd><p><i class="arg">Option</i> and the <i class="arg">arg</i>s determine the exact behavior of the
 command. See section <span class="sectref"><a href="#section4">POOL OBJECT COMMAND</a></span> for a detailed
@@ -170,11 +161,11 @@ list of options and their behaviour.</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section2" class="section"><h2><a name="section2">POOLS AND ALLOCATION</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">POOLS AND ALLOCATION</a></h2>
 <p>The purpose of the pool command and the pool object command that it
 generates, is to manage pools of discrete items.
 Examples of a pool of discrete items are:</p>
-<ul class="itemized">
+<ul class="doctools_itemized">
 <li><p>the seats in a cinema, theatre, train etc.. for which visitors/travelers can  make a reservation;</p></li>
 <li><p>the dynamic IP-addresses that an ISP can dole out  to subscribers;</p></li>
 <li><p>a car rental's collection of cars, which can be rented by customers;</p></li>
@@ -199,9 +190,9 @@ an item is <i class="term">free</i>, it is <i class="term">available</i>. Deallo
 item is equivalent to setting free or releasing an item. The person or
 entity to which the item has been allotted is said to own the item.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">ITEMS</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">ITEMS</a></h2>
 <p><em>Discrete items</em></p>
-<p>The <b class="cmd"><a href="../../../../index.html#key302">pool</a></b> command is designed for
+<p>The <b class="cmd"><a href="../../../../index.html#key304">pool</a></b> command is designed for
 <em>discrete items only</em>. Note that there are pools where
 allocation occurs on a non-discrete basis, for example computer
 memory. There are also pools from which the shares that are doled out
@@ -227,10 +218,10 @@ items. Note that the pool commands themselves are not designed to
 manage such item properties. If item properties play a role in an
 application, they should be managed separately.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">POOL OBJECT COMMAND</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">POOL OBJECT COMMAND</a></h2>
 <p>The following subcommands and corresponding arguments are available to
 any pool object command.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><a name="3"><i class="arg">poolName</i> <b class="method">add</b> <i class="arg">itemName1</i> <span class="opt">?<i class="arg">itemName2 itemName3 ...</i>?</span></a></dt>
 <dd><p>This command adds the items on the command line to the pool. If
 duplicate item names occur on the command line, an error is raised. If
@@ -253,7 +244,7 @@ structure will be destroyed regardless allocation state of its items.</p></dd>
 <dd><p>Returns various information about the pool for further programmatic
 use. The <i class="arg">type</i> argument indicates the type of information
 requested. Only the type <b class="const">allocID</b> uses an additional argument.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="const">allocID</b> <i class="arg">itemName</i></dt>
 <dd><p>returns the allocID of the item whose name is <i class="arg">itemName</i>. Free
 items have an allocation id of <b class="const">-1</b>.</p></dd>
@@ -292,7 +283,7 @@ item will be removed regardless its allocation state.</p></dd>
 <dd><p>Handles a request for an item, taking into account a possible
 preference for a particular item. There are two possible outcomes
 depending on the availability of items:</p>
-<ol class="enumerated">
+<ol class="doctools_enumerated">
 <li><p>The request is honoured, an item is allocated and the variable whose
 name is passed with the argument <i class="arg">itemVar</i> will be set to the name
 of the item that was allocated. The command returns 1.</p></li>
@@ -307,7 +298,7 @@ may result in erroneous behaviour. If no preference for a particular
 item is supplied through the option <b class="option">-prefer</b> (see below), then
 all requests are honoured as long as items are available.</p>
 <p>The following options are supported:</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-allocID</b> <i class="arg">allocID</i></dt>
 <dd><p>If the request is honoured, an item will be allocated to the entity
 identified by allocID. If the allocation state of an item is queried,
@@ -324,7 +315,7 @@ invoked, the request is denied (return value is 0).</p></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="section5" class="section"><h2><a name="section5">EXAMPLES</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">EXAMPLES</a></h2>
 <p>Two examples are provided. The first one mimics a step by step
 interactive tclsh session, where each step is explained. The second
 example shows the usage in a server application that talks to a
@@ -342,7 +333,7 @@ items, they need to be managed separately. In the latter case the
 items should be labeled with more neutral names such as: car1, car2,
 car3 , etc ... and a separate database or array should hold the brand
 names associated with the car labels.</p>
-<pre class="example">
+<pre class="doctools_example">
      1. Load the package into an interpreter
      % package require pool
      0.1
@@ -361,7 +352,7 @@ names associated with the car labels.</p>
 </pre>
 <p>Suspend the interactive session temporarily, and show the programmatic
 use of the request subcommand:</p>
-<pre class="example">
+<pre class="doctools_example">
      # Mrs. Swift needs a car. She doesn't have a preference for a
      # particular car. We'll issue a request on her behalf as follows:
      if { [CarPool request car -allocID &quot;Mrs. Swift&quot;] }  {
@@ -374,7 +365,7 @@ use of the request subcommand:</p>
 </pre>
 <p>Note how the <b class="cmd">if</b> command uses the value returned by the
 <b class="method">request</b> subcommand.</p>
-<pre class="example">
+<pre class="doctools_example">
      # Suppose Mr. Wiggly has a preference for the Trabant:
      if { [CarPool request car -allocID &quot;Mr. Wiggly&quot; -prefer Trabant] }  {
          # request was honoured, process the variable `car'
@@ -385,7 +376,7 @@ use of the request subcommand:</p>
      }
 </pre>
 <p>Resume the interactive session:</p>
-<pre class="example">
+<pre class="doctools_example">
      8. When the car is returned then you can render it available by:
      % CarPool release Trabant
      9. When done, you delete the pool.
@@ -405,7 +396,7 @@ of back-end applications to which a client request may be passed
 along. The file descriptors that identify the channels to these
 back-end instances make up a pool of connections. A particular
 connection may be allocated to just one client request at a time.</p>
-<pre class="example">
+<pre class="doctools_example">
      # Create the pool of connections (pipes)
      set maxpipes 10
      pool Pipes $maxpipes
@@ -427,7 +418,7 @@ connection may be allocated to just one client request at a time.</p>
      }
 </pre>
 </div>
-<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>struct :: pool</em> of the
@@ -435,13 +426,13 @@ Please report such in the category <em>struct :: pool</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key782">discrete items</a>, <a href="../../../../index.html#key783">finite</a>, <a href="../../../../index.html#key302">pool</a>, <a href="../../../../index.html#key325">struct</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key786">discrete items</a>, <a href="../../../../index.html#key787">finite</a>, <a href="../../../../index.html#key304">pool</a>, <a href="../../../../index.html#key327">struct</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2002, Erik Leunissen &lt;e.leunissen@hccnet.nl&gt;</p>
 </div>
-</div></body></html>
+</div>

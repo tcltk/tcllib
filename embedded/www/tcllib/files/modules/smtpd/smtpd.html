@@ -1,7 +1,6 @@
 
-<html><head>
-<title>smtpd - Tcl SMTP Server Package</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='smtpd - Tcl SMTP Server Package'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -25,7 +24,7 @@
 	background: 	transparent;
 	text-align:		left;
     }
-    H1.title {
+    H1.doctools_title {
 	text-align: center;
     }
     UL,OL {
@@ -42,11 +41,11 @@
     DT {
 	padding-top: 	1ex;
     }
-    UL.toc,UL.toc UL, UL.toc UL UL {
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
 	font:		normal 12pt/14pt sans-serif;
 	list-style:	none;
     }
-    LI.section, LI.subsection {
+    LI.doctools_section, LI.doctools_subsection {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
@@ -63,18 +62,18 @@
 	padding-right:	1ex;
 	width:		100%;
     }
-    PRE.example {
+    PRE.doctools_example {
 	color: 		black;
 	background: 	#f5dcb3;
 	border:		1px solid black;
     }
-    UL.requirements LI, UL.syntax LI {
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
 	list-style: 	none;
 	margin-left: 	0em;
 	text-indent:	0em;
 	padding:	0em;
     }
-    DIV.synopsis {
+    DIV.doctools_synopsis {
 	color: 		black;
 	background: 	#80ffff;
 	border:		1px solid black;
@@ -82,61 +81,53 @@
 	margin-top: 	1em;
 	margin-bottom: 	1em;
     }
-    UL.syntax {
+    UL.doctools_syntax {
 	margin-top: 	1em;
 	border-top:	1px solid black;
     }
-    UL.requirements {
+    UL.doctools_requirements {
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<! -- Generated from file 'smtpd.man' by tcllib/doctools with format 'html'
-   -->
-<! -- Copyright &copy; Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
-   -->
-<! -- CVS: $Id$ smtpd.n
-   -->
-<body><div class="doctools">
-<hr> [
-   <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="../../../../toc0.html">Categories</a>
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">smtpd(n) 1.5 tcllib &quot;Tcl SMTP Server Package&quot;</h1>
-<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<div class="doctools">
+<h1 class="doctools_title">smtpd(n) 1.5 tcllib &quot;Tcl SMTP Server Package&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>smtpd - Tcl SMTP server implementation</p>
 </div>
-<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
-<ul class="toc">
-<li class="section"><a href="#toc">Table Of Contents</a></li>
-<li class="section"><a href="#synopsis">Synopsis</a></li>
-<li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">SECURITY</a></li>
-<li class="section"><a href="#section3">TLS Security Considerations</a></li>
-<li class="section"><a href="#section4">COMMANDS</a></li>
-<li class="section"><a href="#section5">CALLBACKS</a></li>
-<li class="section"><a href="#section6">VARIABLES</a></li>
-<li class="section"><a href="#section7">AUTHOR</a></li>
-<li class="section"><a href="#section8">LICENSE</a></li>
-<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
-<li class="section"><a href="#keywords">Keywords</a></li>
-<li class="section"><a href="#category">Category</a></li>
-<li class="section"><a href="#copyright">Copyright</a></li>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">SECURITY</a></li>
+<li class="doctools_section"><a href="#section3">TLS Security Considerations</a></li>
+<li class="doctools_section"><a href="#section4">COMMANDS</a></li>
+<li class="doctools_section"><a href="#section5">CALLBACKS</a></li>
+<li class="doctools_section"><a href="#section6">VARIABLES</a></li>
+<li class="doctools_section"><a href="#section7">AUTHOR</a></li>
+<li class="doctools_section"><a href="#section8">LICENSE</a></li>
+<li class="doctools_section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
-<div class="synopsis">
-<ul class="requirements">
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
 <li>package require <b class="pkgname">smtpd <span class="opt">?1.5?</span></b></li>
 </ul>
-<ul class="syntax">
+<ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::smtpd::start</b> <span class="opt">?<i class="arg">myaddr</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::smtpd::stop</b></a></li>
 <li><a href="#3"><b class="cmd">::smptd::configure</b> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i>?</span> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> <i class="arg">...</i>?</span></a></li>
@@ -144,7 +135,7 @@
 </ul>
 </div>
 </div>
-<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>The <b class="package">smtpd</b> package provides a simple Tcl-only server library
 for the Simple Mail Transfer Protocol as described in
 RFC  821 (<a href="http://www.rfc-editor.org/rfc/rfc821.txt">http://www.rfc-editor.org/rfc/rfc821.txt</a>) and
@@ -156,7 +147,7 @@ from a developers workstation. <em>It does not attempt to deliver  mail to your 
 write a procedure that will be called when mail arrives. Once this
 procedure returns, the server has nothing further to do with the mail.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">SECURITY</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">SECURITY</a></h2>
 <p>On Unix platforms binding to the SMTP port requires root privileges. I
 would not recommend running any script-based server as root unless
 there is some method for dropping root privileges immediately after
@@ -169,11 +160,11 @@ though we are careful not to evaluate remote user input. There are
 many other well tested and security audited programs that can be used
 as mail servers for internet connected hosts.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key329">TLS</a></b> package to handle the security
+<div id="section3" class="doctools_section"><h2><a name="section3">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
 for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key329">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -181,25 +172,25 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key329">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key329">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
-<pre class="example">
+<pre class="doctools_example">
     package require tls
     tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">COMMANDS</a></h2>
-<dl class="definitions">
+<div id="section4" class="doctools_section"><h2><a name="section4">COMMANDS</a></h2>
+<dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::smtpd::start</b> <span class="opt">?<i class="arg">myaddr</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Start the service listening on <i class="arg">port</i> or the default port 25. If
 <i class="arg">myaddr</i> is given as a domain-style name or numerical
 dotted-quad IP address then the server socket will be bound to that
 network interface. By default the server is bound to all network
 interfaces. For example:</p>
-<pre class="example">
+<pre class="doctools_example">
   set sock [::smtpd::start [info hostname] 0]
 </pre>
 <p>will bind to the hosts internet interface on the first available port.</p>
@@ -212,13 +203,13 @@ usage.</p>
 <p>As the server code uses <b class="cmd">fileevent</b>(n) handlers to process the
 input on sockets you will need to run the event loop. This means
 either you should be running from within <b class="syscmd">wish</b>(1) or you
-should <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
+should <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
 set when the server is stopped.</p></dd>
 <dt><a name="2"><b class="cmd">::smtpd::stop</b></a></dt>
 <dd><p>Halt the server and release the listening socket. If the server has
 not been started then this command does nothing.
 The <b class="variable">::smtpd::stopped</b> variable is set for use with
-<b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>(n).</p>
+<b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n).</p>
 <p>It should be noted that stopping the server does not disconnect any
 currently active sessions as these are operating over an independent
 channel. Only explicitly tracking and closing these sessions, or
@@ -231,7 +222,7 @@ the child process.</p></dd>
 name of a callback procedure to be called at various points in the
 SMTP protocol. See the <span class="sectref"><a href="#section5">CALLBACKS</a></span> section for details of the
 procedures.</p>
-<dl class="definitions">
+<dl class="doctools_definitions">
 <dt><b class="option">-banner</b> <i class="arg">text</i></dt>
 <dd><p>Text of a custom banner message. The default banner is &quot;tcllib smtpd 1.5&quot;.
 Note that changing the banner does not affect the bracketing text
@@ -257,14 +248,14 @@ options and their current values. If an option is specified it will
 return the value of that option.</p></dd>
 </dl>
 </div>
-<div id="section5" class="section"><h2><a name="section5">CALLBACKS</a></h2>
-<dl class="definitions">
+<div id="section5" class="doctools_section"><h2><a name="section5">CALLBACKS</a></h2>
+<dl class="doctools_definitions">
 <dt><b class="cmd">validate_host</b> callback</dt>
 <dd><p>This procedure is called with the clients ip address as soon as a
 connection request has been accepted and before any protocol commands
 are processed. If you wish to deny access to a specific host then an
 error should be returned by this callback. For example:</p>
-<pre class="example">
+<pre class="doctools_example">
  proc validate_host {ipnum} {
     if {[string match &quot;192.168.1.*&quot; $ipnum]} {
        error &quot;go away!&quot;
@@ -273,7 +264,7 @@ error should be returned by this callback. For example:</p>
 </pre>
 <p>If access is denied the client will receive a standard message that
 includes the text of your error, such as:</p>
-<pre class="example">
+<pre class="doctools_example">
  550 Access denied: I hate you.
 </pre>
 <p>As per the SMTP protocol, the connection is not closed but we wait for
@@ -284,7 +275,7 @@ the client to send a QUIT command. Any other commands cause a
 during processing of a MAIL command to allow you to accept or reject
 mail based upon the declared sender. To reject mail you should throw
 an error. For example, to reject mail from user &quot;denied&quot;:</p>
-<pre class="example">
+<pre class="doctools_example">
  proc validate_sender {address} {
     eval array set addr [mime::parseaddress $address]
     if {[string match &quot;denied&quot; $addr(local)]} {
@@ -306,7 +297,7 @@ successfully passed to the server. A mime token is constructed from
 the sender, recipients and data and the users procedure it called with
 this single argument. When the call returns, the mime token is cleaned
 up so if the user wishes to preserve the data she must make a copy.</p>
-<pre class="example">
+<pre class="doctools_example">
  proc deliverMIME {token} {
      set sender [lindex [mime::getheader $token From] 0]
      set recipients [lindex [mime::getheader $token To] 0]
@@ -321,7 +312,7 @@ up so if the user wishes to preserve the data she must make a copy.</p>
 successfully passed to the server and there is no -deliverMIME option
 set. The procedure is called with the sender, a list of recipients and
 the text of the mail as a list of lines. For example:</p>
-<pre class="example">
+<pre class="doctools_example">
  proc deliver {sender recipients data} {
     set mail &quot;From $sender  [clock format [clock seconds]]&quot;
     append mail &quot;\n&quot; [join $data &quot;\n&quot;]
@@ -332,23 +323,23 @@ the text of the mail as a list of lines. For example:</p>
 recipient has yet been defined.</p></dd>
 </dl>
 </div>
-<div id="section6" class="section"><h2><a name="section6">VARIABLES</a></h2>
-<dl class="definitions">
+<div id="section6" class="doctools_section"><h2><a name="section6">VARIABLES</a></h2>
+<dl class="doctools_definitions">
 <dt><b class="variable">::smtpd::stopped</b></dt>
 <dd><p>This variable is set to <b class="const">true</b> during the <b class="cmd">::smtpd::stop</b>
-command to permit the use of the <b class="cmd"><a href="../../../../index.html#key415">vwait</a></b>(n) command.</p></dd>
+command to permit the use of the <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n) command.</p></dd>
 </dl>
 </div>
-<div id="section7" class="section"><h2><a name="section7">AUTHOR</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">AUTHOR</a></h2>
 <p>Written by Pat Thoyts <a href="mailto:patthoyts@users.sourceforge.net">mailto:patthoyts@users.sourceforge.net</a>.</p>
 </div>
-<div id="section8" class="section"><h2><a name="section8">LICENSE</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">LICENSE</a></h2>
 <p>This software is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 &quot;<b class="file">license.terms</b>&quot; for more details.</p>
 </div>
-<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
+<div id="section9" class="doctools_section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>smtpd</em> of the
@@ -356,13 +347,13 @@ Please report such in the category <em>smtpd</em> of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key327">rfc 2821</a>, <a href="../../../../index.html#key330">rfc 821</a>, <a href="../../../../index.html#key602">services</a>, <a href="../../../../index.html#key335">smtp</a>, <a href="../../../../index.html#key668">smtpd</a>, <a href="../../../../index.html#key350">socket</a>, <a href="../../../../index.html#key415">vwait</a></p>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key329">rfc 2821</a>, <a href="../../../../index.html#key332">rfc 821</a>, <a href="../../../../index.html#key604">services</a>, <a href="../../../../index.html#key337">smtp</a>, <a href="../../../../index.html#key670">smtpd</a>, <a href="../../../../index.html#key352">socket</a>, <a href="../../../../index.html#key417">vwait</a></p>
 </div>
-<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;</p>
 </div>
-</div></body></html>
+</div>

@@ -702,7 +702,7 @@
 	SCOPE long int
 	rde_param_query_lstop (RDE_PARAM p)
 	{
-	    (long int) rde_stack_top (p->LS);
+	    return (long int) rde_stack_top (p->LS);
 	}
 	SCOPE Tcl_HashTable*
 	rde_param_query_nc (RDE_PARAM p)
