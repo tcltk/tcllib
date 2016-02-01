@@ -606,7 +606,7 @@ proc ::huddle::compile {spec data} {
             }
         
             bool {
-                return [wrap [list b true]]
+                return [wrap [list b $data]]
             }
         
             null {
