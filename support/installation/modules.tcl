@@ -118,6 +118,7 @@ Module  pluginmgr   _tcl  _man  _null
 Module  png         _tcl  _man  _null
 Module  pop3        _tcl  _man  _null
 Module  pop3d       _tcl  _man  _null
+Module  practcl     _tcl  _man  _exa
 Module  processman  _tcl  _man  _null
 Module  profiler    _tcl  _man  _null
 Module  pt           _rde _man  _null
