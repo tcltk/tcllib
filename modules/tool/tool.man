@@ -25,6 +25,8 @@ The TOOL metaclass was build with the [package oo::dialect] package, and thus ca
 be used as the basis for additional metaclasses. As a metaclass, TOOL has it's own
 "class" class, "object" class, and define namespace.
 [example {
+package require tool
+
 # tool::class workds just like oo::class
 tool::class create myclass {
 }
