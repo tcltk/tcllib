@@ -13,6 +13,14 @@ manner.
 * Delegation
 * Method Ensembles
 
+## Using TOOL
+
+Tool is accessed from the "tool" package:
+
+<pre><code>
+package require tool
+</code></pre>
+
 ## Metadata Interitance
 
 TOOL builds on the oo::meta package to allow data and configuration to be
