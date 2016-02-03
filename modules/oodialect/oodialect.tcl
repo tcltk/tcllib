@@ -20,6 +20,8 @@
 # Meta license      BSD
 # @@ Meta End
 
+package require TclOO
+
 namespace eval ::oo::dialect {
     namespace export create
 }
