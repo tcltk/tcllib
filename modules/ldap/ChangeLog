@@ -1,3 +1,8 @@
+2016-01-02  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* ldapx.man: Fix wrong example [Ticket: 2886893fff]
+
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
