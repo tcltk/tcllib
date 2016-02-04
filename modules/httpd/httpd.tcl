@@ -584,7 +584,7 @@ For deeper understanding:
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    puts [list [self] listening on $port $myaddr]
+    #puts [list [self] listening on $port $myaddr]
 
     if {$myaddr ne {}} {
       foreach ip $myaddr {

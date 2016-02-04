@@ -7,12 +7,9 @@
 
 # -------------------------------------------------------------------------
 
-set here [file dirname [file join [pwd] [info script]]]
-
-##
-# Use the Tcllib Test Tools
-##
-source [file join $here .. .. .. tcllib modules devtools testutilities.tcl]
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
 
 testsNeedTcl     8.6
 testsNeedTcltest 2

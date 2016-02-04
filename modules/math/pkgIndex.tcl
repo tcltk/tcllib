@@ -4,7 +4,7 @@ package ifneeded math::geometry          1.1.3 [list source [file join $dir geom
 package ifneeded math::fuzzy             0.2.1 [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::complexnumbers    1.0.2 [list source [file join $dir qcomplex.tcl]]
 package ifneeded math::special           0.3.0 [list source [file join $dir special.tcl]]
-package ifneeded math::constants         1.0.1 [list source [file join $dir constants.tcl]]
+package ifneeded math::constants         1.0.2 [list source [file join $dir constants.tcl]]
 package ifneeded math::polynomials       1.0.1 [list source [file join $dir polynomials.tcl]]
 package ifneeded math::rationalfunctions 1.0.1 [list source [file join $dir rational_funcs.tcl]]
 package ifneeded math::fourier           1.0.2 [list source [file join $dir fourier.tcl]]
@@ -24,7 +24,7 @@ package ifneeded math::bigfloat          1.2.2 [list source [file join $dir bigf
 package ifneeded math::machineparameters 0.1   [list source [file join $dir machineparameters.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
-package ifneeded math::calculus::symdiff 1.0   [list source [file join $dir symdiff.tcl]]
+package ifneeded math::calculus::symdiff 1.0.1 [list source [file join $dir symdiff.tcl]]
 package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigfloat2.tcl]]
 package ifneeded math::numtheory         1.0   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
