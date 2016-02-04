@@ -1,4 +1,5 @@
-[manpage_begin docstrip_util n 1.3]
+[vset VERSION 1.3.1]
+[manpage_begin docstrip_util n [vset VERSION]]
 [see_also docstrip]
 [see_also doctools]
 [see_also doctools_fmt]
@@ -23,7 +24,7 @@
 [category  {Documentation tools}]
 [require Tcl 8.4]
 [require docstrip [opt 1.2]]
-[require docstrip::util [opt 1.3]]
+[require docstrip::util [opt [vset VERSION]]]
 [vset emdash \u2014]
 [description]
 The [package docstrip::util] package is meant for collecting various
