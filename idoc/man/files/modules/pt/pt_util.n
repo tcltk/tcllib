@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_util\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::util" n 1 tcllib "Parser Tools"
+.TH "pt::util" n 1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::util \- General utilities
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::ast  ?1?\fR
+package require \fBpt::ast  ?1\&.1?\fR
 .sp
 \fB::pt::util\fR \fBerror2readable\fR \fIerror\fR \fItext\fR
 .sp

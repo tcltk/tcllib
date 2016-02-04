@@ -156,5 +156,5 @@ proc ::pt::util::Readable {pe} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::util 1
+package provide pt::util 1.1
 return
