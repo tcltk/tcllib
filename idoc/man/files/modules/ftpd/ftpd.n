@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'ftpd\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "ftpd" n 1\&.2\&.6 tcllib "Tcl FTP Server Package"
+.TH "ftpd" n 1\&.3 tcllib "Tcl FTP Server Package"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ ftpd \- Tcl FTP server implementation
 .SH SYNOPSIS
 package require \fBTcl  8\&.3\fR
 .sp
-package require \fBftpd  ?1\&.2\&.6?\fR
+package require \fBftpd  ?1\&.3?\fR
 .sp
 \fB::ftpd::server\fR ?\fImyaddr\fR?
 .sp
