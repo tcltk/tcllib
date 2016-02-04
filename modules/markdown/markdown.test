@@ -1,0 +1,418 @@
+# tool.test - Copyright (c) 2016 Sean Woods, Will DuQuette, Caius Project
+# -------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+# TITLE:
+#    markdown.test
+#
+# PROJECT:
+#    tcl-markdown: Your project description
+#
+# DESCRIPTION:
+#    markdown: Test Suite
+#-------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+
+    use textutil/textutil.tcl textutil
+}
+testing {
+    useLocal markdown.tcl Markdown
+}
+
+#-------------------------------------------------------------------------
+# Setup
+
+tcltest::testConstraint knownbug 0
+
+
+# outdent text
+#
+# text   - A multi-line text string
+#
+# This command outdents a multi-line text string to the left margin.
+
+proc outdent {text} {
+    # FIRST, remove any leading blank lines
+    regsub {\A(\s*\n)} $text "" text
+
+    # NEXT, remove any trailing whitespace
+    set text [string trimright $text]
+
+    # NEXT, get the length of the leading on the first line.
+    if {[regexp {\A(\s*)\S} $text dummy leader]} {
+
+        # Remove the leader from the beginning of each indented
+        # line, and update the string.
+        regsub -all -line "^$leader" $text "" text
+    }
+
+    return $text
+}
+
+
+proc cmp {s1 s2} {
+    set s1 [string trim $s1]
+    set s2 [string trim $s2]
+
+    return [expr {$s1 eq $s2}]
+}
+
+proc dumpcmp {s1 s2} {
+    set s1 [string trim $s1]
+    set s2 [string trim $s2]
+
+    puts "# START S1"
+    puts $s1
+    puts "# START S2"
+    puts $s2
+    puts "# END TEXT"
+    puts "# LENGTH = [string length $s1], [string length $s2]"
+}
+
+# convert in
+#
+# in - markdown input, possibly indented.
+#
+# Outdents the input and converts it to HTML.  Indents it for inclusion
+# in a result.
+proc convert {in} {
+    set lines [split [string trim [Markdown::convert [outdent $in]]] \n]
+
+    set out [join $lines "\n    "]
+    return "\n    $out\n"
+}
+
+#=========================================================================
+# Tcl-markdown tests
+
+#-------------------------------------------------------------------------
+# Conversion tests
+
+test basic-1.1 {basic text} -body {
+    convert {
+        A line of text.
+
+        Another line of text.
+    }
+} -result {
+    <p>A line of text.</p>
+    
+    <p>Another line of text.</p>
+}
+
+test basic-1.2 {multi-line paragraphs} -body {
+    convert {
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+        enim ad minim veniam, quis nostrud exercitation ullamco laboris
+        nisi ut aliquip ex ea commodo consequat. 
+
+        Duis aute irure dolor in reprehenderit in voluptate velit esse 
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit 
+        anim id est laborum.
+    }
+} -result {
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+    enim ad minim veniam, quis nostrud exercitation ullamco laboris
+    nisi ut aliquip ex ea commodo consequat.</p>
+    
+    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse 
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
+    cupidatat non proident, sunt in culpa qui officia deserunt mollit 
+    anim id est laborum.</p>
+}
+
+test bquote-1.1 {simple blockquote} -body {
+    convert {
+        >
+        > A line of text.
+        >
+    }
+} -result {
+    <blockquote>
+    <p>A line of text.</p>
+    </blockquote>
+}
+
+test bquote-1.2 {">" on first line only.} -body {
+    convert {
+        > Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    }
+} -result {
+    <blockquote>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </blockquote>
+}
+
+test bquote-1.3 {block quote with markup} -body {
+    convert {
+        > ### Heading 3
+        > 
+        > Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    }
+} -result {
+    <blockquote>
+    <h3>Heading 3</h3>
+    
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+    </blockquote>
+}
+
+test bquote-1.4 {nested block quotes} -body {
+    convert {
+        > First this.
+        >
+        > > And then this and this
+        > > and this.
+        > 
+        > And then this.
+    }
+} -result {
+    <blockquote>
+    <p>First this.</p>
+    
+    <blockquote>
+    <p>And then this and this
+    and this.</p>
+    </blockquote>
+    
+    <p>And then this.</p>
+    </blockquote>
+}
+
+test bquote-1.5 {complex case (from Caius test suite)} -body {
+    convert {
+        >
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        > >
+        > > ### Heading 3 #####
+        > >
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        > >     
+        > >     import os
+        > >     os.path.listdir()
+        > >
+        > > This is what he said. This is what she said. This is what
+        > > he said. This is what she said.
+        >
+        > ## Heading 2
+        >
+        > This is what he said. This is what she said. This is what
+        > he said. This is what she said.
+
+        This is a test.
+    }
+} -result {
+    <blockquote>
+    <blockquote>
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    
+    <h3>Heading 3</h3>
+    
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    
+    <pre><code>import os
+    os.path.listdir()</code></pre>
+    
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    </blockquote>
+    
+    <h2>Heading 2</h2>
+    
+    <p>This is what he said. This is what she said. This is what
+    he said. This is what she said.</p>
+    </blockquote>
+    
+    <p>This is a test.</p>
+}
+
+
+
+test convert-2.2 {refs} -body {
+    convert {
+        Find it [here][foo]!
+
+        [foo]: http://example.com/  "Optional Title Here"
+    }
+} -result {
+    <p>Find it <a href="http://example.com/" title="Optional Title Here">here</a>!</p>
+}
+
+
+#=========================================================================
+# Tests related to other processors or test suites
+
+#-------------------------------------------------------------------------
+# Caius Markdown Tests
+#
+# These tests translate entire files.  I prefer tests for individual 
+# features; when a test fails, you don't need to go hunting for the
+# specifics.  But I'm keeping these to show compatibility with the 
+# Caius processor.
+
+# 1.* - Caius markdown tests
+
+test caius-1.1 {bq test} -body {
+    set md   [::tcltest::viewFile test/bq.md]
+    set html [::tcltest::viewFile test/bq.html]
+
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.2 {code test} -body {
+    set md   [::tcltest::viewFile test/code.md]
+    set html [::tcltest::viewFile test/code.html]
+
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.3 {comments test} -body {
+    set md   [::tcltest::viewFile test/comments.md]
+    set html [::tcltest::viewFile test/comments.html]
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.4 {inline test} -body {
+    set md   [::tcltest::viewFile test/inline.md]
+    set html [::tcltest::viewFile test/inline.html]
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.5 {lists test} -body {
+    set md   [::tcltest::viewFile test/lists.md]
+    set html [::tcltest::viewFile test/lists.html]
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.6 {p_br_h_hr test} -body {
+    set md   [::tcltest::viewFile test/p_br_h_hr.md]
+    set html [::tcltest::viewFile test/p_br_h_hr.html]
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+test caius-1.7 {indent test} -body {
+    set md   [::tcltest::viewFile test/indent.md]
+    set html [::tcltest::viewFile test/indent.html]
+    cmp $html [Markdown::convert $md]
+} -result {1}
+
+#-------------------------------------------------------------------------
+# mdtest: Bugs found while running michelf/mdtest
+
+
+test mdtest-1.1 {AL: Auto links: & not escaped in URL} -body {
+    convert {
+        Auto-link with ampersand: <http://example.com/?foo=1&bar=2>
+    }
+} -result {
+    <p>Auto-link with ampersand: <a href="http://example.com/?foo=1&amp;bar=2">http://example.com/?foo=1&amp;bar=2</a></p>
+}
+
+test mdtest-1.2 {Undefined refs cause syntax error} -body {
+    convert {
+        Undefined ref: [foo]
+    }
+} -result {
+    <p>Undefined ref: [foo]</p>
+}
+
+test mdtest-1.3 {LRS: Embedded brackets in link} -constraints knownbug -body {
+    convert {
+        With [embedded [brackets]] [b].
+
+        [b]: /url/
+    }
+} -result {
+    <p>With <a href="/url/">embedded [brackets]</a>.</p>
+}
+
+test mdtest-1.4 {LRS: Simple reflink} -constraints knownbug -body {
+    convert {
+        Simple link [this].
+
+        [this]: /url/
+    }
+} -result {
+    <p>Simple link <a href="/url/">this</a>.</p>
+}
+
+
+test mdtest-1.5 {LRS: Reflink embedded in brackets 1} -constraints knownbug -body {
+    convert {
+        [Links can be [embedded][] in brackets]
+
+        [embedded]: /url/
+    }
+} -result {
+    <p>[Links can be <a href="/url/">embedded</a> in brackets]</p>
+}
+
+test mdtest-1.6 {LRS: Reflink embedded in brackets 2} -constraints knownbug -body {
+    convert {
+        [Links can be [embedded] in brackets]
+
+        [embedded]: /url/
+    }
+} -result {
+    <p>[Links can be <a href="/url/">embedded</a> in brackets]</p>
+}
+
+test mdtest-1.7 {LRS: link breaks across lines, 1} -constraints knownbug -body {
+    convert {
+        The [link
+        breaks] across lines.
+
+        [link breaks]: /url/
+    }
+} -result {
+    <p>The <a href="/url/">link
+    breaks</a> across lines.</p>
+}
+
+test mdtest-1.8 {LRS: link breaks across lines, 2} -constraints knownbug -body {
+    convert {
+        The [link 
+        breaks] across lines, but with a line-ending space.
+
+        [link breaks]: /url/
+    }
+} -result {
+    <p>The <a href="/url/">link 
+    breaks</a> across lines, but with a line-ending space.</p>
+}
+
+test mdtest-1.9 {OAUL: "* * *" line after unordered list} -body {
+    # This causes the processor to hang.
+    convert {
+        * asterisk 1
+
+        * * *
+    }
+} -result {
+    <ul>
+    <li><p>asterisk 1</p>
+    
+    </li>
+    <li><p>* *</p></li></ul>
+}
+
+#-------------------------------------------------------------------------
+# Cleanup
+
+testsuiteCleanup
