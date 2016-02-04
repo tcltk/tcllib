@@ -1,0 +1,22 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin markdown n 1.0]
+[moddesc   {Markdown to HTML Converter}]
+[titledesc {Converts Markdown text to HTML}]
+[category  {Text processing}]
+[require Tcl 8.5]
+[require textutil [opt 0.8]]
+[description]
+
+The package [package Markdown] provides a command to convert
+Markdown annotated text into HMTL. 
+
+[list_begin definitions]
+[call [cmd ::Markdown::convert] [arg "markdown"]]
+
+This command takes in a block of Markdown text, and returns a block
+of HTML.
+[list_end]
+
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
