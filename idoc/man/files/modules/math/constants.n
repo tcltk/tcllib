@@ -2,7 +2,7 @@
 '\" Generated from file 'constants\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "math::constants" n 1\&.0\&.1 tcllib "Tcl Math Library"
+.TH "math::constants" n 1\&.0\&.2 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::constants \- Mathematical and numerical constants
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::constants  ?1\&.0\&.1?\fR
+package require \fBmath::constants  ?1\&.0\&.2?\fR
 .sp
 \fB::math::constants::constants\fR \fIargs\fR
 .sp

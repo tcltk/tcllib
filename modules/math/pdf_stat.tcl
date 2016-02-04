@@ -599,7 +599,7 @@ proc ::math::statistics::random-lognormal { mean stdev number } {
 #        lappend result [Inverse-cdf-normal $mean $stdev [expr {rand()}]]
 #    }
 
-    puts "Random-lognormal: $mu -- $sigma"
+    #puts "Random-lognormal: $mu -- $sigma"
 
     set result {}
 

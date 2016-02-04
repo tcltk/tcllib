@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[vset VERSION 0.5]
+[vset VERSION 0.6]
 [manpage_begin fileutil_traverse n [vset VERSION]]
 [keywords {directory traversal}]
 [keywords traversal]
