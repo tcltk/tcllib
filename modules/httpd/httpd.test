@@ -6,7 +6,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.5
+testsNeedTcl     8.6 ;# tool requires 8.6
 testsNeedTcltest 2
 
 testsNeed TclOO 1

@@ -2,7 +2,7 @@
 '\" Generated from file 'docstrip_util\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003–2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
-.TH "docstrip_util" n 1\&.3 tcllib "Literate programming tool"
+.TH "docstrip_util" n 1\&.3\&.1 tcllib "Literate programming tool"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.4\fR
 .sp
 package require \fBdocstrip  ?1\&.2?\fR
 .sp
-package require \fBdocstrip::util  ?1\&.3?\fR
+package require \fBdocstrip::util  ?1\&.3\&.1?\fR
 .sp
 \fBpkgProvide\fR \fIname\fR \fIversion\fR \fIterminals\fR
 .sp
@@ -705,21 +705,8 @@ not available\&. A source file could however look as follows
 
 
 % [manpage_begin gcd n 1\&.0]
-[see_also docstrip]
-[see_also doctools]
-[see_also doctools_fmt]
-[keywords \&.ddt]
-[keywords catalogue]
-[keywords diff]
-[keywords docstrip]
-[keywords doctools]
-[keywords documentation]
-[keywords {literate programming}]
-[keywords module]
-[keywords {package indexing}]
-[keywords patch]
-[keywords source]
-[keywords {Tcl module}]
+% [keywords divisor]
+% [keywords math]
 % [moddesc {Greatest Common Divisor}]
 % [require gcd [opt 1\&.0]]
 % [description]
@@ -927,7 +914,7 @@ in both\&.
 .SH "SEE ALSO"
 docstrip, doctools, doctools_fmt
 .SH KEYWORDS
-\\\&.ddt, Tcl module, catalogue, diff, docstrip, doctools, documentation, literate programming, module, package indexing, patch, source
+\\\&.ddt, \&.dtx, LaTeX, Tcl module, catalogue, diff, docstrip, doctools, documentation, literate programming, module, package indexing, patch, source
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT

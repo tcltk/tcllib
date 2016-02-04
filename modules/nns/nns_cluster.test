@@ -12,16 +12,21 @@ set testutilsscript [file join \
 source $testutilsscript
 
 package require tcltest
-testsNeedTcl     8
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 set ::WHOAMI Main
 
 support {
-  use comm/comm.tcl comm 
-  use nettool/nettool.tcl nettool
-  use cron/cron.tcl cron
-  use uuid/uuid.tcl uuid
+    use snit/snit2.tcl      snit
+    use comm/comm.tcl       comm
+    use dns/ip.tcl          ip
+    use nettool/nettool.tcl nettool
+    use cron/cron.tcl       cron
+    use uuid/uuid.tcl       uuid
+    use interp/interp.tcl   interp
+    use log/logger.tcl      logger
+    use md5/md5x.tcl        md5
 }
 testing {
     useLocal nns_cluster.tcl nameserv::cluster
@@ -37,17 +42,22 @@ interp eval server {
   set ::WHOAMI Server
 
   package require tcltest
-  testsNeedTcl     8
+  testsNeedTcl     8.5
   testsNeedTcltest 1.0
   
   support {
-    use comm/comm.tcl comm 
-    use nettool/nettool.tcl nettool
-    use cron/cron.tcl cron
-    use uuid/uuid.tcl uuid
+      use snit/snit2.tcl      snit
+      use comm/comm.tcl       comm
+      use dns/ip.tcl          ip
+      use nettool/nettool.tcl nettool
+      use cron/cron.tcl       cron
+      use uuid/uuid.tcl       uuid
+      use interp/interp.tcl   interp
+      use log/logger.tcl      logger
+      use md5/md5x.tcl        md5
   }
   testing {
-      useLocal nns_cluster.tcl nameserv::cluster
+      use nns/nns_cluster.tcl nameserv::cluster
   }
   set ::cluster::local_pid SERVER
   ::cluster::publish nns@[::cluster::macid] {}
@@ -117,13 +127,18 @@ interp eval otherclient {
   testsNeedTcltest 1.0
   
   support {
-    use comm/comm.tcl comm 
-    use nettool/nettool.tcl nettool
-    use cron/cron.tcl cron
-    use uuid/uuid.tcl uuid
+      use snit/snit2.tcl      snit
+      use comm/comm.tcl comm 
+      use dns/ip.tcl          ip
+      use nettool/nettool.tcl nettool
+      use cron/cron.tcl cron
+      use uuid/uuid.tcl uuid
+      use interp/interp.tcl   interp
+      use log/logger.tcl      logger
+      use md5/md5x.tcl        md5
   }
   testing {
-    useLocal nns_cluster.tcl nameserv::cluster
+      use nns/nns_cluster.tcl nameserv::cluster
   }
 
   ###
@@ -174,7 +189,7 @@ test cluster-comm-4.1 {Check that service is closed} {
 test cluster-comm-5.0 {Service lookup failture} {
   catch {cluster::resolve foo@bar} pat
 } {1}
-puts $pat
+#puts $pat
 
 testsuiteCleanup
 return
