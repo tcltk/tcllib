@@ -344,7 +344,7 @@ proc ::cluster::resolve {rawname} {
   if { $result ne {} } {
     return $result
   }
-  error "Could not located $rawname"
+  error "Could not locate $rawname"
 }
 
 ###
