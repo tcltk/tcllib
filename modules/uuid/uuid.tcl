@@ -11,6 +11,8 @@
 # Usage: uuid::uuid generate
 #        uuid::uuid equal $idA $idB
 
+package require Tcl 8.5
+
 namespace eval uuid {
     variable accel
     array set accel {critcl 0}
@@ -20,11 +22,6 @@ namespace eval uuid {
     variable uid
     if {![info exists uid]} {
         set uid 1
-    }
-
-    if {[package vcompare [package provide Tcl] 8.4] < 0} {
-        package require struct::list
-        interp alias {} ::uuid::lset {} ::struct::list::lset
     }
 
     proc K {a b} {set a}
