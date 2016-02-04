@@ -20,7 +20,7 @@
 
 package require Tcl 8.4
 package require grammar::aycock 1.0
-package provide math::calculus::symdiff 1.0
+package provide math::calculus::symdiff 1.0.1
 
 namespace eval math {}
 namespace eval math::calculus {}

@@ -515,7 +515,7 @@ movies get {The Day the Earth Stood Still} date:
 .CE
 .TP
 \fIobject\fR \fBOption_Default\fR \fIfield\fR
-Computes the default value for an option\&. See \fBtool::option_handling\fR
+Computes the default value for an option\&. See \fBtool::option_handling\fR\&.
 .PP
 .SH AUTHORS
 Sean Woods

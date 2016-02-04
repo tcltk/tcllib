@@ -11,7 +11,7 @@ package ifneeded pt::ast     1.1 [list source [file join $dir pt_astree.tcl]]
 
 # General parser support. Currently only conversion of structured
 # syntax errors (or parts thereof) into a human-readable form.
-package ifneeded pt::util    1   [list source [file join $dir pt_util.tcl]]
+package ifneeded pt::util    1.1 [list source [file join $dir pt_util.tcl]]
 
 # Parsing Expression support
 package ifneeded pt::pe        1.0.2 [list source [file join $dir pt_pexpression.tcl]]

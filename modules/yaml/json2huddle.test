@@ -1,7 +1,6 @@
 # -*- tcl -*-
 # json2huddle.test:  tests for the huddle library.
 
-
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
@@ -17,6 +16,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
         
     testsNeedTcl     8.5
     testsNeedTcltest 2
+    testsNeed        TclOO 1
 
     support {
 	use try/try.tcl   try
