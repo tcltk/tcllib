@@ -3,7 +3,7 @@
 '\" Copyright (c) 2010 by Kevin B\&. Kenny <kennykb@acm\&.org>
 '\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
-.TH "math::calculus::symdiff" n 1\&.0 tcllib "Symbolic differentiation for Tcl"
+.TH "math::calculus::symdiff" n 1\&.0\&.1 tcllib "Symbolic differentiation for Tcl"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  8\&.5\fR
 .sp
 package require \fBgrammar::aycock  1\&.0\fR
 .sp
-package require \fBmath::calculus::symdiff  1\&.0\fR
+package require \fBmath::calculus::symdiff  1\&.0\&.1\fR
 .sp
 \fBmath::calculus::symdiff::symdiff\fR \fIexpression\fR \fIvariable\fR
 .sp

@@ -1,5 +1,6 @@
+[vset VERSION 0.2.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ftp::geturl n 0.2.1]
+[manpage_begin ftp::geturl n [vset VERSION]]
 [see_also ftpd]
 [see_also mime]
 [see_also pop3]
@@ -12,7 +13,7 @@
 [titledesc {Uri handler for ftp urls}]
 [category  Networking]
 [require Tcl 8.2]
-[require ftp::geturl [opt 0.2.1]]
+[require ftp::geturl [opt [vset VERSION]]]
 [description]
 
 This package provides a command which wraps around the client side of

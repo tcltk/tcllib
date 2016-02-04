@@ -503,4 +503,4 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.5
+package provide fileutil::traverse 0.6
