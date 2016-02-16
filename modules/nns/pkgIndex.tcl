@@ -7,4 +7,4 @@ package ifneeded nameserv::server 0.3.2 [list source [file join $dir server.tcl]
 package ifneeded nameserv::auto   0.3   [list source [file join $dir nns_auto.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
-package ifneeded nameserv::cluster 0.2.3   [list source [file join $dir nns_cluster.tcl]]
+package ifneeded nameserv::cluster 0.2.4   [list source [file join $dir nns_cluster.tcl]]

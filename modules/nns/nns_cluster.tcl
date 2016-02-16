@@ -129,37 +129,68 @@ proc ::cluster::UDPPacket sock {
     -SERVICE {
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
-      dict set serviceinfo ipaddr [lindex $peer 0]
-      dict set serviceinfo closed 1
-      Service_Remove $serviceurl $serviceinfo
+      if {![::info exists ptpdata($serviceurl)]} {
+        set result $serviceinfo
+      } else {
+        set result [dict merge $ptpdata($serviceurl) $serviceinfo]
+      }
+      dict set result ipaddr [lindex $peer 0]
+      dict set result closed 1
+      if {[dict exists $result pid] && [dict get $result pid] eq [pid] } {
+        # Ignore attempts to overwrite locally managed services from the network
+        return
+      }
+      set ptpdata($serviceurl) $result
+      Service_Remove $serviceurl $result
     }
+    PONG -
     ~SERVICE {
       set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
-      Service_Modified $serviceurl $serviceinfo
+      if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+        # Ignore attempts to overwrite locally managed services from the network
+        return
+      }
+      if {[::info exists ptpdata($serviceurl)]} {
+        set ptpinfo $ptpdata($serviceurl)
+      } else {
+        set ptpinfo {}
+      }
+      set delta {}
+      foreach {field value} $serviceinfo {
+        if {![dict exists $ptpinfo $field] || [dict get $ptpinfo $field] ne $value} {
+          dict set ptpdata($serviceurl) $field $value
+          dict set delta $field $value
+        }
+      }
+      dict set ptpdata($serviceurl) updated [clock seconds]
+      dict set ptpdata($serviceurl) closed 0
+      Service_Modified $serviceurl $serviceinfo $delta
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     +SERVICE {
       set ::cluster::recv_message 1
       set serviceurl [lindex $messageinfo 0]
       set serviceinfo [lindex $messageinfo 1]
+      
       dict set serviceinfo ipaddr [lindex $peer 0]
+      # Code to register the presence of a service
+      if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+        # Ignore attempts to overwrite locally managed services from the network
+        return
+      }
+      variable ptpdata
+      set ptpdata($serviceurl) $serviceinfo
+      dict set ptpdata($serviceurl) updated [clock seconds]
+      dict set ptpdata($serviceurl) closed 0
       Service_Add $serviceurl $serviceinfo
       set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     DISCOVERY {
       variable config
       ::cluster::heartbeat
-      if {$config(local_registry)==1} {
-        variable ptpdata
-        # A local registry barfs back all data that is sees
-        set now [clock seconds]
-        foreach {url info} [array get ptpdata] {
-          broadcast ~SERVICE $url $info 
-        }
-      }
     }
     LOG {
       set serviceurl [lindex $messageinfo 0]
@@ -171,12 +202,6 @@ proc ::cluster::UDPPacket sock {
       if { $wmacid eq [::cluster::self] } {
         broadcast +WHOIS [::cluster::self]
       }
-    }
-    PONG {
-      set serviceurl [lindex $messageinfo 0]
-      set serviceinfo [lindex $messageinfo 1]
-      Service_Modified $serviceurl $serviceinfo
-      set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     PING {
       set serviceurl [lindex $messageinfo 0]
@@ -207,7 +232,7 @@ proc ::cluster::publish {url infodict} {
   variable local_data
   dict set infodict macid [self]
   dict set infodict pid [pid]
-  set local_data($url) $infodict
+  set local_data($url) [dict merge $infodict {ipaddr 127.0.0.1}]
   broadcast +SERVICE $url $infodict
 }
 
@@ -215,19 +240,7 @@ proc ::cluster::heartbeat {} {
   variable ptpdata
   variable config
   
-  set now [clock seconds]
-  foreach {item info} [array get ptpdata] {
-    set remove 0
-    if {[dict exists $info closed] && [dict get $info closed]} {
-      set remove 1
-    }
-    if {[dict exists $info updated] && ($now - [dict get $info updated])>$config(discovery_ttl)} {
-      set remove 1
-    }
-    if {$remove} {
-      Service_Remove $item $info
-    }
-  }
+  _Winnow
   ###
   # Broadcast the status of our local services
   ###
@@ -262,12 +275,13 @@ proc ::cluster::unpublish {url infodict} {
   }
   set info [lindex [array get local_data $url] 1]
   broadcast -SERVICE $url $info
-  unset -nocomplain local_data($url)
+  dict set local_data($url) closed 1
 }
 
 proc ::cluster::configure {url infodict {send 1}} {
   variable local_data
   if {![::info exists local_data($url)]} return
+  dict set local_data($url) closed 0
   foreach {field value} $infodict {
     dict set local_data($url) $field $value
   }
@@ -394,6 +408,7 @@ proc ::cluster::sleep ms {
 # topic: c8475e832c912e962f238c61580b669e
 ###
 proc ::cluster::search pattern {
+  _Winnow
   set result {}  
   variable ptpdata
   foreach {service dat} [array get ptpdata $pattern] {
@@ -401,11 +416,11 @@ proc ::cluster::search pattern {
       dict set result $service $field $value
     }
   }
+
   variable local_data
   foreach {service dat} [array get local_data $pattern] {
     foreach {field value} $dat {
       dict set result $service $field $value
-      dict set result $service ipaddr 127.0.0.1
     }
   }
   return $result
@@ -434,41 +449,53 @@ proc ::cluster::search_local pattern {
 }
 
 proc ::cluster::Service_Add {serviceurl serviceinfo} {
-  # Code to register the presence of a service
-  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
-    # Ignore attempts to overwrite locally managed services from the network
-    return
-  }
-  variable ptpdata
-  set ptpdata($serviceurl) $serviceinfo
-  dict set ptpdata($serviceurl) updated [clock seconds]
+  # Code to register the emergencs of a new service
 }
 
 proc ::cluster::Service_Remove {serviceurl serviceinfo} {
   # Code to register the loss of a service
-  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
-    # Ignore attempts to overwrite locally managed services from the network
-    return
-  }
-  variable ptpdata
-  unset -nocomplain ptpdata($serviceurl)
 }
 
-proc ::cluster::Service_Modified {serviceurl serviceinfo} {
+proc ::cluster::Service_Modified {serviceurl serviceinfo {delta {}}} {
   # Code to register an update to a service
-  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
-    # Ignore attempts to overwrite locally managed services from the network
-    return
-  }
-  variable ptpdata
-  foreach {field value} $serviceinfo {
-    dict set ptpdata($serviceurl) $field $value
-  }
-  dict set ptpdata($serviceurl) updated [clock seconds]
 }
 
-proc ::cluster::Service_Log {service data} {
+proc ::cluster::Service_Log {service data delta} {
   # Code to register an event
+}
+
+###
+# Clean out closed and expired entries
+# Performed immediately before searches
+# and heartbeats
+###
+proc ::cluster::_Winnow {} {
+  variable ptpdata
+  variable config
+  variable local_data
+  
+  set now [clock seconds]
+  foreach {item info} [array get ptpdata] {
+    set remove 0
+    if {[dict exists $info closed] && [dict get $info closed]} {
+      set remove 1
+    }
+    if {[dict exists $info updated] && ($now - [dict get $info updated])>$config(discovery_ttl)} {
+      set remove 1
+    }
+    if {$remove} {
+      unset ptpdata($item)
+    }
+  }
+  foreach {item info} [array get local_data] {
+    set remove 0
+    if {[dict exists $info closed] && [dict get $info closed]} {
+      set remove 1
+    }
+    if {$remove} {
+      unset local_data($item)
+    }
+  }
 }
 
 ###
@@ -496,4 +523,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.3
+package provide nameserv::cluster 0.2.4
