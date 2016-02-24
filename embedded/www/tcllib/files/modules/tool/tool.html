@@ -132,7 +132,7 @@
 <li><a href="#2">tool::define <b class="cmd"><a href="../../../../index.html#key37">array</a></b> <i class="arg">name</i> <i class="arg">contents</i></a></li>
 <li><a href="#3">tool::define <b class="cmd">array_ensemble</b> <i class="arg">methodname</i> <i class="arg">varname</i> <span class="opt">?cases?</span></a></li>
 <li><a href="#4">tool::define <b class="cmd">dict_ensemble</b> <i class="arg">methodname</i> <i class="arg">varname</i> <span class="opt">?cases?</span></a></li>
-<li><a href="#5">tool::define <b class="cmd"><a href="../../../../index.html#key371">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
+<li><a href="#5">tool::define <b class="cmd"><a href="../../../../index.html#key372">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#6">tool::define <b class="cmd">option</b> <i class="arg">name</i> <i class="arg">dictopts</i></a></li>
 <li><a href="#7">tool::define <b class="cmd">property</b> <span class="opt">?branch?</span> <i class="arg">field</i> <i class="arg">value</i></a></li>
 <li><a href="#8">tool::define <b class="cmd">variable</b> <i class="arg">name</i> <i class="arg">value</i></a></li>
@@ -159,6 +159,7 @@ top-down integration with the capabilities provided by the <b class="package">oo
 be used as the basis for additional metaclasses. As a metaclass, TOOL has it's own
 &quot;class&quot; class, &quot;object&quot; class, and define namespace.</p>
 <pre class="doctools_example">
+package require tool
 # tool::class workds just like oo::class
 tool::class create myclass {
 }
@@ -209,10 +210,10 @@ and will not be expressed as a method for the ensemble.</p></dd>
 overlaid on top of the standard template. See <b class="package"><a href="tool_dict_ensemble.html">tool::dict_ensemble</a></b>.</p>
 <p>One method name is reserved: <b class="cmd">initialize</b>. <b class="cmd">initialize</b> Declares the initial values to be populated in the array, as a key/value list,
 and will not be expressed as a method for the ensemble.</p></dd>
-<dt><a name="5">tool::define <b class="cmd"><a href="../../../../index.html#key371">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
+<dt><a name="5">tool::define <b class="cmd"><a href="../../../../index.html#key372">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
 <dd><p>If <i class="arg">methodname</i> contains ::, the method is considered to be
 part of a method ensemble. See <b class="package">tool::method_ensembles</b>. Otherwise
-this command behaves exactly like the standard <b class="namespace">oo::define</b> <b class="cmd"><a href="../../../../index.html#key371">method</a></b>
+this command behaves exactly like the standard <b class="namespace">oo::define</b> <b class="cmd"><a href="../../../../index.html#key372">method</a></b>
 command.</p></dd>
 <dt><a name="6">tool::define <b class="cmd">option</b> <i class="arg">name</i> <i class="arg">dictopts</i></a></dt>
 <dd><p>Declares an option. <i class="arg">dictopts</i> is a key/value list defining parameters for the option. See <b class="package">tool::option_handling</b>.</p>
@@ -331,7 +332,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key775">TOOL</a>, <a href="../../../../index.html#key756">TclOO</a></p>
+<p><a href="../../../../index.html#key776">TOOL</a>, <a href="../../../../index.html#key757">TclOO</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Utility</p>

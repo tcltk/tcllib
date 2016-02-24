@@ -177,6 +177,7 @@ modules/map/map_slippy.man
 modules/map/map_slippy_cache.man
 modules/map/map_slippy_fetcher.man
 modules/mapproj/mapproj.man
+modules/markdown/markdown.man
 modules/math/bigfloat.man
 modules/math/bignum.man
 modules/math/calculus.man
@@ -236,6 +237,7 @@ modules/pop3/pop3.man
 modules/pop3d/pop3d.man
 modules/pop3d/pop3d_dbox.man
 modules/pop3d/pop3d_udb.man
+modules/practcl/practcl.man
 modules/processman/processman.man
 modules/profiler/profiler.man
 modules/pt/pt_astree.man

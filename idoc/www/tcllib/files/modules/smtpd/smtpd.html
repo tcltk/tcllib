@@ -212,13 +212,13 @@ usage.</p>
 <p>As the server code uses <b class="cmd">fileevent</b>(n) handlers to process the
 input on sockets you will need to run the event loop. This means
 either you should be running from within <b class="syscmd">wish</b>(1) or you
-should <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
+should <b class="cmd"><a href="../../../../index.html#key418">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
 set when the server is stopped.</p></dd>
 <dt><a name="2"><b class="cmd">::smtpd::stop</b></a></dt>
 <dd><p>Halt the server and release the listening socket. If the server has
 not been started then this command does nothing.
 The <b class="variable">::smtpd::stopped</b> variable is set for use with
-<b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n).</p>
+<b class="cmd"><a href="../../../../index.html#key418">vwait</a></b>(n).</p>
 <p>It should be noted that stopping the server does not disconnect any
 currently active sessions as these are operating over an independent
 channel. Only explicitly tracking and closing these sessions, or
@@ -336,7 +336,7 @@ recipient has yet been defined.</p></dd>
 <dl class="doctools_definitions">
 <dt><b class="variable">::smtpd::stopped</b></dt>
 <dd><p>This variable is set to <b class="const">true</b> during the <b class="cmd">::smtpd::stop</b>
-command to permit the use of the <b class="cmd"><a href="../../../../index.html#key417">vwait</a></b>(n) command.</p></dd>
+command to permit the use of the <b class="cmd"><a href="../../../../index.html#key418">vwait</a></b>(n) command.</p></dd>
 </dl>
 </div>
 <div id="section7" class="doctools_section"><h2><a name="section7">AUTHOR</a></h2>
@@ -357,7 +357,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key329">rfc 2821</a>, <a href="../../../../index.html#key332">rfc 821</a>, <a href="../../../../index.html#key604">services</a>, <a href="../../../../index.html#key337">smtp</a>, <a href="../../../../index.html#key670">smtpd</a>, <a href="../../../../index.html#key352">socket</a>, <a href="../../../../index.html#key417">vwait</a></p>
+<p><a href="../../../../index.html#key329">rfc 2821</a>, <a href="../../../../index.html#key332">rfc 821</a>, <a href="../../../../index.html#key605">services</a>, <a href="../../../../index.html#key337">smtp</a>, <a href="../../../../index.html#key671">smtpd</a>, <a href="../../../../index.html#key352">socket</a>, <a href="../../../../index.html#key418">vwait</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

@@ -3140,10 +3140,10 @@ struct::disjointset
 error
 .RS
 .TP
-\fBfiles/modules/try/tcllib_try\&.n\fR
-try
-.TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
+throw
+.TP
+\fBfiles/modules/try/tcllib_try\&.n\fR
 try
 .RE
 error function
@@ -7529,6 +7529,12 @@ post-order
 \fBfiles/modules/struct/struct_tree\&.n\fR
 struct::tree
 .RE
+practcl
+.RS
+.TP
+\fBfiles/modules/practcl/practcl\&.n\fR
+practcl
+.RE
 pre-order
 .RS
 .TP
@@ -8331,7 +8337,7 @@ return
 .RS
 .TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
-try
+throw
 .RE
 reverse
 .RS
@@ -10137,7 +10143,7 @@ throw
 .RS
 .TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
-try
+throw
 .RE
 thumbnail
 .RS

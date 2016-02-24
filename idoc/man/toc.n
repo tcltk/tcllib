@@ -762,6 +762,9 @@ tcllib
 \fBmapproj\fR
 \fIfiles/modules/mapproj/mapproj\&.n\fR: Map projection routines
 .TP
+\fBmarkdown\fR
+\fIfiles/modules/markdown/markdown\&.n\fR: Converts Markdown text to HTML
+.TP
 \fBmath\fR
 \fIfiles/modules/math/math\&.n\fR: Tcl Math Library
 .TP
@@ -953,6 +956,9 @@ tcllib
 .TP
 \fBpop3d::udb\fR
 \fIfiles/modules/pop3d/pop3d_udb\&.n\fR: Simple user database for pop3d
+.TP
+\fBpractcl\fR
+\fIfiles/modules/practcl/practcl\&.n\fR: The Practcl Module
 .TP
 \fBprocessman\fR
 \fIfiles/modules/processman/processman\&.n\fR: Tool for automating the period callback of commands
@@ -1398,6 +1404,9 @@ tcllib
 \fBtextutil::trim\fR
 \fIfiles/modules/textutil/trim\&.n\fR: Procedures to trim strings
 .TP
+\fBthrow\fR
+\fIfiles/modules/try/tcllib_throw\&.n\fR: throw - Throw an error exception with a message
+.TP
 \fBtie\fR
 \fIfiles/modules/tie/tie\&.n\fR: Array persistence
 .TP
@@ -1439,9 +1448,6 @@ tcllib
 .TP
 \fBtry\fR
 \fIfiles/modules/try/tcllib_try\&.n\fR: try - Trap and process errors and exceptions
-.TP
-\fBtry\fR
-\fIfiles/modules/try/tcllib_throw\&.n\fR: throw - Throw an error exception with a message
 .TP
 \fBuevent\fR
 \fIfiles/modules/uev/uevent\&.n\fR: User events
