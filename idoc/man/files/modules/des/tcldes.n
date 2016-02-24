@@ -2,7 +2,7 @@
 '\" Generated from file 'tcldes\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "tcldes" n 1\&.1 tcllib "Data Encryption Standard (DES)"
+.TH "tclDES" n 1\&.1 tcllib "Data Encryption Standard (DES)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,11 +272,11 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tcldes \- Implementation of the DES and triple-DES ciphers
+tclDES \- Implementation of the DES and triple-DES ciphers
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtclDES  1\fR
+package require \fBtclDES  1\&.1\fR
 .sp
 .BE
 .SH DESCRIPTION
