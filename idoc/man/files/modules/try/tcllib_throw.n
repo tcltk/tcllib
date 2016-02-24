@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_throw\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2015 Miguel Martínez López, BSD licensed
 '\"
-.TH "try" n 1 tcllib "Forward compatibility implementation of [throw]"
+.TH "throw" n 1 tcllib "Forward compatibility implementation of [throw]"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,7 +272,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-try \- throw - Throw an error exception with a message
+throw \- throw - Throw an error exception with a message
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
