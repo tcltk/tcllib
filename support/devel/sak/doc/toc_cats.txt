@@ -145,7 +145,6 @@
 [item modules/zip/mkzip.man  zipfile::mkzip  {Build a zip archive}]
 [division_end]
 [division_start {File formats}]
-[item modules/exif/exif.man exif {Tcl EXIF extracts and parses EXIF fields from digital images}]
 [item modules/gpx/gpx.man   gpx  {Extracts waypoints, tracks and routes from GPX files}]
 [item modules/jpeg/jpeg.man jpeg {JPEG querying and manipulation of meta data}]
 [item modules/png/png.man   png  {PNG querying and manipulation of meta data}]
