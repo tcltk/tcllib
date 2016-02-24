@@ -40,8 +40,8 @@ proc ::sak::localdoc::run {} {
     set nav ../../../../home
 
     puts "Reindex the documentation..."
-    sak::doc::imake __dummy__
-    sak::doc::index __dummy__
+    sak::doc::imake __dummy__ $excluded
+    sak::doc::index __dummy__ $excluded
 
     puts "Removing old documentation..."
     # but keep the main index around, manually created, edited, not to be touched
