@@ -1317,11 +1317,11 @@ tcllib
 \fBtcl::transform::zlib\fR
 \fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
 .TP
-\fBtcldes\fR
-\fIfiles/modules/des/tcldesjr\&.n\fR: Implementation of the DES and triple-DES ciphers
-.TP
-\fBtcldes\fR
+\fBtclDES\fR
 \fIfiles/modules/des/tcldes\&.n\fR: Implementation of the DES and triple-DES ciphers
+.TP
+\fBtclDESjr\fR
+\fIfiles/modules/des/tcldesjr\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
