@@ -182,7 +182,7 @@ mechanism.</p>
 <p>The package exports a single ensemble command, <b class="cmd">generator</b>. All
 functionality is provided as subcommands of this command. The core subcommands
 of the package are <b class="method">define</b>, <b class="method">yield</b>, and <b class="method">foreach</b>. The
-<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key591">proc</a></b> command, but creates a
+<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key592">proc</a></b> command, but creates a
 generator procedure; that is, a procedure that returns a generator when called.
 The generator itself is a command that can be called multiple times: each time
 it returns the next value in the generated series. When the
@@ -225,7 +225,7 @@ which are actually used:</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">generator</b> <b class="method">define</b> <i class="arg">name</i> <i class="arg">params</i> <i class="arg">body</i></a></dt>
 <dd><p>Creates a new generator procedure. The arguments to the command are identical to
-those for <b class="cmd"><a href="../../../../index.html#key591">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
+those for <b class="cmd"><a href="../../../../index.html#key592">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
 parameter list format is identical to a procedure. In particular, default values
 and the <span class="opt">?args?</span> syntax can be used as usual. Each time the resulting
 generator procedure is called it creates a new generator command (coroutine)
@@ -278,7 +278,7 @@ the empty string.</p></dd>
 <dd><p>Used in the definition of a generator procedure, this command arranges for a
 resource to be cleaned up whenever the generator is destroyed, either explicitly
 or implicitly when the generator is exhausted. This command can be used like a
-<b class="method">finally</b> block in the <b class="cmd"><a href="../try/tcllib_throw.html">try</a></b> command, except that it is tied to the
+<b class="method">finally</b> block in the <b class="cmd"><a href="../try/tcllib_try.html">try</a></b> command, except that it is tied to the
 life-cycle of the generator rather than to a particular scope. For example, if
 we create a generator to iterate over the lines in a text file, we can use
 <b class="method">finally</b> to ensure that the file is closed whenever the generator is

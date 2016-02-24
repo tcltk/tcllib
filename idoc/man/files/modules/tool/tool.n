@@ -335,6 +335,8 @@ be used as the basis for additional metaclasses\&. As a metaclass, TOOL has it's
 .CS
 
 
+package require tool
+
 # tool::class workds just like oo::class
 tool::class create myclass {
 }
