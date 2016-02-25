@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.0.2]
+[vset VERSION 1.1]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
@@ -273,10 +273,10 @@ itself.
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [def [const unset]]
 
-When present the value of this option names an option in the current
-call. This option is removed from the definition. Use this after
-[const copy]ing an existing definition to remove options, instead of
-overriding their value.
+When present the value of this option contains a list of options in
+the current call. These options are removed from the definition. Use
+this after [const copy]ing an existing definition to remove options,
+instead of overriding their value.
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [def [const headers]]
@@ -339,10 +339,10 @@ If this option is present then the method will be created as an
 of the associated http token instead of the call's result. The event
 loop must be active to use this option.
 
-[para] The value of this option is the name of a procedure which is
-invoked when the HTTP call is complete. The procedure will receive
-three arguments, the name of the calling procedure, the status of the
-result (one of [const OK] or [const ERROR]), and the data associated
+[para] The value of this option is treated as a command prefix which is
+invoked when the HTTP call is complete. The prefix will receive three
+additional arguments, the name of the calling procedure, the status of
+the result (one of [const OK] or [const ERROR]), and the data associated
 with the result, in this order.
 
 The http request header will be available in that procedure via
