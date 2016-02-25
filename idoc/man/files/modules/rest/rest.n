@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.0\&.2 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.1 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBrest  ?1\&.0\&.2?\fR
+package require \fBrest  ?1\&.1?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?\fIconfig\fR? ?\fIbody\fR?
 .sp
@@ -537,10 +537,10 @@ current call, except for the options specified by the current call
 itself\&.
 .TP
 \fBunset\fR
-When present the value of this option names an option in the current
-call\&. This option is removed from the definition\&. Use this after
-\fBcopy\fRing an existing definition to remove options, instead of
-overriding their value\&.
+When present the value of this option contains a list of options in
+the current call\&. These options are removed from the definition\&. Use
+this after \fBcopy\fRing an existing definition to remove options,
+instead of overriding their value\&.
 .TP
 \fBheaders\fR
 Specification of additional header fields\&. The value of this option
@@ -586,10 +586,10 @@ If this option is present then the method will be created as an
 of the associated http token instead of the call's result\&. The event
 loop must be active to use this option\&.
 .sp
-The value of this option is the name of a procedure which is
-invoked when the HTTP call is complete\&. The procedure will receive
-three arguments, the name of the calling procedure, the status of the
-result (one of \fBOK\fR or \fBERROR\fR), and the data associated
+The value of this option is treated as a command prefix which is
+invoked when the HTTP call is complete\&. The prefix will receive three
+additional arguments, the name of the calling procedure, the status of
+the result (one of \fBOK\fR or \fBERROR\fR), and the data associated
 with the result, in this order\&.
 The http request header will be available in that procedure via
 \fBupvar token token\fR\&.
