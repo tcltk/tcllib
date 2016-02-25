@@ -13,6 +13,7 @@ package require uuid
 package require cron
 package require nettool 0.4
 package require udp
+package require dicttool
 
 namespace eval ::comm {}
 ::namespace eval ::cluster {}
@@ -122,19 +123,48 @@ proc ::cluster::UDPPacket sock {
     # Ignore messages from myself
     return
   }
+  set ipaddr [lindex $peer 0]
+  set messagetype [string toupper [lindex $packet 1]]
+
+  # These two message types are not associated with a service
+  switch -- $messagetype {
+    DISCOVERY {
+      variable config
+      ::cluster::heartbeat
+      return
+    }
+    ?WHOIS {
+      set wmacid [lindex $messageinfo 0]
+      if { $wmacid eq [::cluster::self] } {
+        broadcast +WHOIS [::cluster::self]
+      }
+      return
+    }
+  }
   
-  set messagetype [lindex $packet 1]
-  set messageinfo [lrange $packet 2 end]
-  switch -- [string toupper $messagetype] {
+  set now [clock seconds]
+  set serviceurl  [lindex $packet 2]
+  set serviceinfo [lindex $packet 3]
+  set ::cluster::ping_recv($serviceurl) $now
+
+  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+    # Ignore attempts to overwrite locally managed services from the network
+    return
+  }
+  # Always update the IP of the service info
+  dict set ptpdata($serviceurl) ipaddr $ipaddr
+  dict set ptpdata($serviceurl) updated $now
+  dict set serviceinfo ipaddr [lindex $peer 0]
+  dict set serviceinfo updated $now
+  set messageinfo [lrange $packet 4 end]
+  
+  switch -- $messagetype {
     -SERVICE {
-      set serviceurl [lindex $messageinfo 0]
-      set serviceinfo [lindex $messageinfo 1]
       if {![::info exists ptpdata($serviceurl)]} {
         set result $serviceinfo
       } else {
         set result [dict merge $ptpdata($serviceurl) $serviceinfo]
       }
-      dict set result ipaddr [lindex $peer 0]
       dict set result closed 1
       if {[dict exists $result pid] && [dict get $result pid] eq [pid] } {
         # Ignore attempts to overwrite locally managed services from the network
@@ -146,13 +176,7 @@ proc ::cluster::UDPPacket sock {
     PONG -
     ~SERVICE {
       set ::cluster::recv_message 1
-      set serviceurl [lindex $messageinfo 0]
-      set serviceinfo [lindex $messageinfo 1]
-      dict set serviceinfo ipaddr [lindex $peer 0]
-      if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
-        # Ignore attempts to overwrite locally managed services from the network
-        return
-      }
+
       if {[::info exists ptpdata($serviceurl)]} {
         set ptpinfo $ptpdata($serviceurl)
       } else {
@@ -165,46 +189,21 @@ proc ::cluster::UDPPacket sock {
           dict set delta $field $value
         }
       }
-      dict set ptpdata($serviceurl) updated [clock seconds]
       dict set ptpdata($serviceurl) closed 0
       Service_Modified $serviceurl $serviceinfo $delta
-      set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     +SERVICE {
       set ::cluster::recv_message 1
-      set serviceurl [lindex $messageinfo 0]
-      set serviceinfo [lindex $messageinfo 1]
-      
-      dict set serviceinfo ipaddr [lindex $peer 0]
       # Code to register the presence of a service
-      if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
-        # Ignore attempts to overwrite locally managed services from the network
-        return
-      }
       variable ptpdata
       set ptpdata($serviceurl) $serviceinfo
-      dict set ptpdata($serviceurl) updated [clock seconds]
       dict set ptpdata($serviceurl) closed 0
       Service_Add $serviceurl $serviceinfo
-      set ::cluster::ping_recv($serviceurl) [clock seconds]
-    }
-    DISCOVERY {
-      variable config
-      ::cluster::heartbeat
     }
     LOG {
-      set serviceurl [lindex $messageinfo 0]
-      set serviceinfo [lindex $messageinfo 1]
       Service_Log $serviceurl $serviceinfo
     }
-    ?WHOIS {
-      set wmacid [lindex $messageinfo 0]
-      if { $wmacid eq [::cluster::self] } {
-        broadcast +WHOIS [::cluster::self]
-      }
-    }
     PING {
-      set serviceurl [lindex $messageinfo 0]
       foreach {url info} [search_local $serviceurl] {
         broadcast PONG $url $info
       }
@@ -214,17 +213,22 @@ proc ::cluster::UDPPacket sock {
 
 proc ::cluster::ping {rawname} {
   set rcpt [cname $rawname]
-  set ::cluster::ping_recv($rcpt) 0
+  variable ptpdata
   set starttime [clock seconds]
-  set sleeptime 1
+
+  set ::cluster::ping_recv($rcpt) 0
+  broadcast PING $rcpt
+  update
   while 1 {
-    broadcast PING $rcpt
-    update
     if {$::cluster::ping_recv($rcpt)} break
-    if {([clock seconds] - $starttime) > 120} {
-      error "Could not locate a local dispatch service"
+    if {([clock seconds] - $starttime) > $::cluster::config(ping_timeout)} {
+      error "Could not locate $rcpt on the network"
     }
-    sleep [incr sleeptime $sleeptime]
+    broadcast PING $rcpt
+    sleep $::cluster::config(ping_sleep)
+  }
+  if {[::info exists ptpdata($rcpt)]} {
+    return [dict getnull $ptpdata($rcpt) ipaddr]
   }
 }
 
@@ -321,44 +325,46 @@ proc ::cluster::log args {
   broadcast LOG {*}$args
 }
 
-proc ::cluster::LookUp {rawname} {
-  set self [self]
-  foreach {servname dat} [search [cname $rawname]] {
-    # Ignore services in the process of closing
-    if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
-      set ipaddr 127.0.0.1
-    } elseif {![dict exists $dat ipaddr]} {
-      set ipaddr [ipaddr [lindex [split $servname @] 1]]
-    } else {
-      set ipaddr [dict get $dat ipaddr]
-    }
-    if {![dict exists $dat port]} continue
-    if {[llength $ipaddr] > 1} {
-      ## Sort out which ipaddr is proper later
-      # for now take the last one
-      set ipaddr [lindex [dict get $dat ipaddr] end]
-    }
-    set port [dict get $dat port]
-    return [list $port $ipaddr]
-  }
-  return {}
-}
-
 ###
 # topic: 2c04e58c7f93798f9a5ed31a7f5779ab
 ###
 proc ::cluster::resolve {rawname} {
-  set result [LookUp $rawname]
-  if { $result ne {} } {
-    return $result
+  variable ptpdata
+  set self [self]
+  set rcpt [cname $rawname]
+  set ipaddr {}
+  if {[::info exists ptpdata($rcpt)] && [dict exists $ptpdata($rcpt) macid] && [dict get $ptpdata($rcpt) macid] eq $self} {
+    set ipaddr 127.0.0.1
+  } elseif {[::info exists ptpdata($rcpt)] && [dict exists $ptpdata($rcpt) ipaddr] && [dict exists $ptpdata($rcpt) updated]} {
+    # Try Pull the info from cache
+    set updatetm [dict get $ptpdata($rcpt) updated]
+    dict with $ptpdata($rcpt) {}
+    if {([clock seconds] - $updatetm) < 30} {
+      set ipaddr [dict get $ptpdata($rcpt) ipaddr]
+    }
   }
-  broadcast DISCOVERY
-  sleep 250
-  set result [LookUp $rawname]
-  if { $result ne {} } {
-    return $result
+  if {$ipaddr eq {}} {
+    ping $rcpt
+    if {![::info exists ptpdata($rcpt)]} {
+      error "Could not locate $rcpt on the network"
+    }
+    if {[dict exists $ptpdata($rcpt) macid] && [dict get $ptpdata($rcpt) macid] eq $self} {
+      set ipaddr 127.0.0.1
+    } else {
+      if {![dict exists $ptpdata($rcpt) ipaddr]} {
+        error "Could not locate $rcpt on the network"
+      }
+      set ipaddr [dict getnull $ptpdata($rcpt) ipaddr]
+      if {$ipaddr eq {}} {
+        error "Could not locate $rcpt on the network"
+      }
+    }
   }
-  error "Could not locate $rawname"
+  set port [dict getnull $ptpdata($rcpt) port]
+  if {$port eq {}} {
+    error "Could not locate $rcpt on the network"
+  }
+  return [list $port $ipaddr]
 }
 
 ###
@@ -388,8 +394,7 @@ proc ::cluster::send {service command args} {
 }
 
 proc ::cluster::throw {service command args} {
-  set commid [LookUp $service]
-  if { $commid eq {} } {
+  if {[catch {resolve $service} commid]} {
     return
   }
   if [catch {::comm::comm send -async $commid $command {*}$args} reply] {
@@ -508,6 +513,8 @@ namespace eval ::cluster {
     debug 0
     discovery_ttl 300
     local_registry 0
+    ping_timeout 120
+    ping_sleep   250
   }
   variable eventcount 0
   variable cache {}
@@ -523,4 +530,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.4
+package provide nameserv::cluster 0.2.5

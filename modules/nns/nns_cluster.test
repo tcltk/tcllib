@@ -18,8 +18,8 @@ testsNeedTcltest 1.0
 set ::WHOAMI Main
 
 support {
+    use dicttool/dicttool.tcl        dicttool
     use snit/snit2.tcl      snit
-    use comm/comm.tcl       comm
     use dns/ip.tcl          ip
     use nettool/nettool.tcl nettool
     use cron/cron.tcl       cron
@@ -46,7 +46,7 @@ interp eval server {
   testsNeedTcltest 1.0
   
   support {
-      use snit/snit2.tcl      snit
+      use dicttool/dicttool.tcl        dicttool
       use comm/comm.tcl       comm
       use dns/ip.tcl          ip
       use nettool/nettool.tcl nettool
@@ -127,7 +127,7 @@ interp eval otherclient {
   testsNeedTcltest 1.0
   
   support {
-      use snit/snit2.tcl      snit
+     use dicttool/dicttool.tcl        dicttool
       use comm/comm.tcl comm 
       use dns/ip.tcl          ip
       use nettool/nettool.tcl nettool
@@ -149,8 +149,11 @@ interp eval otherclient {
   
   set url other@$macid
   ::comm::comm new $url -port $myport -local 0 -listen 1
+  #set ::cluster::config(debug) 1
   ::cluster::publish $url [list port $myport protocol comm class comm]
 }
+
+#set ::cluster::config(debug) 1
 ::cluster::ping nns@$macid
 
 set data [::cluster::search *]
@@ -179,6 +182,9 @@ set data [::cluster::search *]
 test cluster-comm-4.0 {Publish service - NNS} {
   dict exists $data nns@[::cluster::macid]
 } {1}
+
+# Shorten the normal 2 minute timeout to 5 seconds
+set ::cluster::config(ping_timeout) 5
 test cluster-comm-4.1 {Check that service is closed} {
   dict exists $data foo@bar
 } {0}
