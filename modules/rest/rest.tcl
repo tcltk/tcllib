@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.0.2
+package provide rest 1.1
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -47,7 +47,7 @@ proc ::rest::simple {url query args} {
 
     if {[string first " " $query] > 0} {
         # if query has a space assume it is a list of key value pairs, and do the formatting
-        set query [eval ::http::formatQuery $query]
+        set query [::http::formatQuery {*}$query]
     } elseif {[string first ? $url] > 0 && $query == ""} {
         # if the url contains a query string and query empty then split it to the correct vars
         set query [join [lrange [split $url ?] 1 end] ?]
@@ -149,7 +149,7 @@ proc ::rest::create_interface {name} {
             set config [dict merge $in([dict get $config copy]) $config]
         }
         if {[dict exists $config unset]} {
-            set config [eval [list dict remove $config] [dict get $config unset]]
+            set config [dict remove $config {*}[dict get $config unset]]
         }
         if {[dict exists $config content-type]} {
             dict set config headers content-type [dict get $config content-type]
@@ -215,7 +215,7 @@ proc ::rest::create_interface {name} {
             lappend proc "set query \[::${name}::[lindex [dict get $config auth] 1] \$query]"
         }
         
-        lappend proc {set query [eval ::http::formatQuery $query]}
+        lappend proc {set query [::http::formatQuery {*}$query]}
         
         # if this is an async call (has defined a callback)
         # then end the main proc here by returning the http token
@@ -390,7 +390,7 @@ proc ::rest::parameters {url args} {
     foreach x [split [lindex [split $url ?] 1] &] {
         set x [split $x =]
         if {[llength $x] < 2} { lappend x "" }
-        eval lappend dict $x
+        lappend dict {*}$x
     }
     if {[llength $args] > 0} {
         return [dict get $dict [lindex $args 0]]
@@ -511,12 +511,12 @@ proc ::rest::_callback {datacb usercb t} {
             lappend data [dict get $token(meta) Location]
         }
         http::cleanup $t
-        $usercb ERROR $data
+        {*}$usercb ERROR $data
         return
     }
     set data [http::data $t]
     http::cleanup $t
-    eval $datacb [list $data]
+    {*}$datacb $data
 }
 
 # parse_opts --
