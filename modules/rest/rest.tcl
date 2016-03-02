@@ -69,8 +69,13 @@ proc ::rest::simple {url query args} {
     if {[dict exists $config cookie]} {
         lappend headers Cookie [join [dict get $config cookie] \;]
     }
+    if {[dict exists $config error-body]} {
+        set error_body [dict get $config error-body]
+    } else {
+        set error_body 0
+    }
 
-    set result [::rest::_call {} $headers $url $query $body]
+    set result [::rest::_call {} $headers $url $query $body $error_body]
 
     # if a format was specified then convert the data, but dont do any auto formatting
     if {[dict exists $config result]} {
@@ -189,6 +194,12 @@ proc ::rest::create_interface {name} {
                 lappend proc {dict set config headers content-type "multipart/related; boundary=$b"}
             }
         }
+        if {[dict exists $config error-body]} {
+            set error_body [dict get $config error-body]
+        } else {
+            set error_body 0
+        }
+        lappend proc "set error_body $error_body"
         # end option processing
 
         if {[dict exists $config auth]} {
@@ -222,13 +233,13 @@ proc ::rest::create_interface {name} {
         # the rest of the normal result processing will be put in a _callback_NAME
         # proc which is called by the generic _callback proc
         if {[dict exists $config callback]} {
-            lappend proc "set t \[::rest::_call \{[list ::${name}::_callback_$call [dict get $config callback]]\} \$headers \$url \$query \$body]"
+            lappend proc "set t \[::rest::_call \{[list ::${name}::_callback_$call [dict get $config callback]]\} \$headers \$url \$query \$body \$error_body]"
             lappend proc {return $t}
             proc ::${name}::$call args [join $proc \n]
             set proc {}
             lappend proc {upvar token token}
         } else {
-            lappend proc {set result [::rest::_call {} $headers $url $query $body]}
+            lappend proc {set result [::rest::_call {} $headers $url $query $body $error_body]}
         }
         
         # process results
@@ -420,7 +431,7 @@ proc ::rest::parameters {url args} {
 # RETURNS:
 #       the data from the http reply, or an http token if the request was async
 #
-proc ::rest::_call {callback headers url query body} {
+proc ::rest::_call {callback headers url query body error_body} {
     #puts "_call [list $callback $headers $url $query $body]"
     # get the settings from the calling proc
     upvar config config
@@ -459,6 +470,8 @@ proc ::rest::_call {callback headers url query body} {
     #puts "geturl $url"
     #return
     set t [http::geturl $url -headers $headers {*}$opts]
+    set data [http::data $t]
+    set httpCode [http::ncode $t]
 
     # if this is an async request return now, otherwise process the result
     if {$callback != ""} { return $t }
@@ -466,11 +479,12 @@ proc ::rest::_call {callback headers url query body} {
         #parray $t
         if {[string match {30[123]} [http::ncode $t]]} {
             upvar #0 $t a
-            return -code error [list HTTP [http::ncode $t] [dict get $a(meta) Location]]
+            set retList [list HTTP [http::ncode $t] [dict get $a(meta) Location]]
         }
-        return -code error [list HTTP [http::ncode $t]]
+        set retList [list HTTP [http::ncode $t]]
+        if {$error_body} {lappend retList $data}
+        return -code error $retList
     }
-    set data [http::data $t]
     # copy the token into the calling scope so that the transforms can access it
     # via uplevel, and we can still call cleanup on the real token
     upvar token token
