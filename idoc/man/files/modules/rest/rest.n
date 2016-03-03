@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.1 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.2 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBrest  ?1\&.1?\fR
+package require \fBrest  ?1\&.2?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?\fIconfig\fR? ?\fIbody\fR?
 .sp
@@ -345,6 +345,8 @@ The \fIconfig\fR dictionary supports the following keys
 \fBcontent-type\fR
 .TP
 \fBcookie\fR
+.TP
+\fBerror-body\fR
 .TP
 \fBformat\fR
 .TP
@@ -586,11 +588,21 @@ If this option is present then the method will be created as an
 of the associated http token instead of the call's result\&. The event
 loop must be active to use this option\&.
 .sp
-The value of this option is treated as a command prefix which is
-invoked when the HTTP call is complete\&. The prefix will receive three
-additional arguments, the name of the calling procedure, the status of
-the result (one of \fBOK\fR or \fBERROR\fR), and the data associated
-with the result, in this order\&.
+The value of this option is treated as a command prefix which
+is invoked when the HTTP call is complete\&. The prefix will receive at
+least two additional arguments, the name of the calling procedure and
+the status of the result (one of \fBOK\fR or \fBERROR\fR), in this
+order\&.
+.sp
+In case of \fBOK\fR a third argument is added, the data
+associated with the result\&.
+.sp
+If and only if the \fBERROR\fR is a redirection, the location
+redirected to will be added as argument\&.
+Further, if the configuration key \fBerror-body\fR is set to
+\fBtrue\fR the data associated with the result will be added as
+argument as well\&.
+.sp
 The http request header will be available in that procedure via
 \fBupvar token token\fR\&.
 .TP
@@ -677,6 +689,13 @@ otherwise\&.
 The second expression is the ERROR condition, it must return
 \fBfalse\fR unless there is an error, then it has to return
 \fBtrue\fR\&.
+.TP
+\fBerror_body\fR
+The value of this option determines whether to return the response
+when encountering an HTTP error, or not\&. The default is to not return
+the response body on error\&.
+.sp
+See \fBcallback\fR above for more information\&.
 .RE
 .PP
 .SH EXAMPLES
