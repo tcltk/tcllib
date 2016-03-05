@@ -1363,6 +1363,7 @@ namespace eval tepam {
             ProcedureHelp_Append "DESCRIPTION"
             foreach ProcName $ProcNames {
                if {[info exists ProcDef($ProcName,-description)]} {
+                  set PureProcName [PureProcName]
                   if {[llength $ProcNames]>1} {
                      ProcedureHelp_Append "      $PureProcName"
                      ProcedureHelp_Append "         $ProcDef($ProcName,-description)"
@@ -1377,6 +1378,7 @@ namespace eval tepam {
             ProcedureHelp_Append "EXAMPLE"
             foreach ProcName $ProcNames {
                if {[info exists ProcDef($ProcName,-example)]} {
+                  set PureProcName [PureProcName]
                   if {[llength $ProcNames]>1} {
                      ProcedureHelp_Append "      $PureProcName"
                      ProcedureHelp_Append "         $ProcDef($ProcName,-example)"
@@ -2709,11 +2711,16 @@ namespace eval tepam {
 }; # End namespace tepam
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam 0.5
+package provide tepam 0.5.1
 
 ##########################################################################
 # Id: tepam.tcl
 # Modifications:
+#
+# TEPAM version 0.5.1 - 2016/03/05 droll
+# * Help generation
+#   - Correction of bug a0e091b25d (Misformatted description in auto-generated 
+#     help text)
 #
 # TEPAM version 0.5 - 2013/10/14 droll
 # * procedure command
