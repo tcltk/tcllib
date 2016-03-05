@@ -1,5 +1,10 @@
 2013/10/14  Andreas Drollinger  <droll>
 
+   * TEPAM version 0.5.1 - 2016/03/05 droll
+      Help generation
+       - Correction of bug a0e091b25d (Misformatted description in auto-generated 
+         help text)
+
    * TEPAM version 0.5.0
       tepam::procedure command
        - New procedure attributes: -validatecommand_error_text, -validatecommand
