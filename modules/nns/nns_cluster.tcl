@@ -338,7 +338,6 @@ proc ::cluster::resolve {rawname} {
   } elseif {[::info exists ptpdata($rcpt)] && [dict exists $ptpdata($rcpt) ipaddr] && [dict exists $ptpdata($rcpt) updated]} {
     # Try Pull the info from cache
     set updatetm [dict get $ptpdata($rcpt) updated]
-    dict with $ptpdata($rcpt) {}
     if {([clock seconds] - $updatetm) < 30} {
       set ipaddr [dict get $ptpdata($rcpt) ipaddr]
     }
