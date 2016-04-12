@@ -1,6 +1,8 @@
-2015-04-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
-	* geometry.tcl: Replace the algorithm in pointInsidePolygon (ticket dc49af96c2)
-	* geometry.test: Add the new test case for this ticket and adjust the outcome for an edge case (hour glass)
+2016-04-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.tcl: Replace the algorithm in pointInsidePolygon (ticket dc49af96c2), also add an alternative
+	                method based on the winding number
+	* geometry.test: Add the new test case for this ticket and adjust the outcome for an edge case (hour glass).
+	                Further tests added for the alternative method and for some edge cases
 
 2015-11-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Add test-anova-F

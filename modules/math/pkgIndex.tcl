@@ -27,6 +27,6 @@ package ifneeded math::calculus::symdiff 1.0.1 [list source [file join $dir symd
 package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigfloat2.tcl]]
 package ifneeded math::numtheory         1.0   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
-package ifneeded math::geometry          1.2.1 [list source [file join $dir geometry.tcl]]
+package ifneeded math::geometry          1.2.2 [list source [file join $dir geometry.tcl]]
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]
