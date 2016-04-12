@@ -422,7 +422,18 @@ test geometry-15.13 {geometry::pointInsidePolygon, edge case polygon/point, tick
 test geometry-15.14 {geometry::pointInsidePolygon, point well outside polygon, negative coordinates, ticket dc49af96c2} {
     math::geometry::pointInsidePolygon {838 456} {-764 -677 -668 -1341 -124 -797 -508 -406}
 } 0
+test geometry-15.15 {geometry::pointInsidePolygon, point well outside polygons, mixture of negative nd positive coordinates, ticket dc49af96c2} {
+    set ::polygons {
+        "-764 -677 -668 -1341 -124 -797 -508 -406"
+        "764 -677 668 -1341 124 -797 508 -406"
+        "-764 677 -668 1341 -124 797 -508 406"
+        "764 677 668 1341 124 797 508 406"
+    }
 
+    set point "838 456"
+
+    return [lmap polygon $polygons {::math::geometry::pointInsidePolygon $point $polygon}]
+} {0 0 0 0}
 
 ###
 # rectangleInsidePolygon
