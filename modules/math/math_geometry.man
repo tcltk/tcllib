@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.2.1]
+[manpage_begin math::geometry n 1.2.2]
 [keywords angle]
 [keywords distance]
 [keywords line]
@@ -14,7 +14,7 @@
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::geometry [opt 1.2.1]]
+[require math::geometry [opt 1.2.2]]
 
 [description]
 [para]
@@ -410,6 +410,21 @@ coordinates: the upper-left and the lower-right corner of the box.
 Determine if a point is completely inside a polygon. If the point
 touches the polygon, then the point is not completely inside the
 polygon.
+
+[list_begin arguments]
+[arg_def list P] Coordinates of the point
+[arg_def list polyline] The polyline to be examined
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::pointInsidePolygonAlt] [arg P] [arg polyline]]
+
+Determine if a point is completely inside a polygon. If the point
+touches the polygon, then the point is not completely inside the
+polygon. [emph Note:] this alternative procedure uses the so-called
+winding number to determine this. It handles self-intersecting polygons
+in a "natural" way.
 
 [list_begin arguments]
 [arg_def list P] Coordinates of the point

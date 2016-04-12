@@ -1174,6 +1174,65 @@ proc ::math::geometry::pointInsidePolygon {point polygon} {
     return $c
 }
 
+# ::math::geometry::pointInsidePolygonAlt
+#
+#       Determine if a point is completely inside a polygon. If the point
+#       touches the polygon, then the point is not complete inside the
+#       polygon.
+#       This alternative algorithm works with complex (self-intersecting)
+#       polygons in a "natural" way. It uses the winding number instead
+#       of the number of crossings.
+#
+#       See: http://geomalgorithms.com/a03-_inclusion.html
+#
+# Arguments:
+#       P             a point
+#       polygon       a polygon
+#
+# Results:
+#       isinside      a boolean saying whether the point is
+#                     completely inside the polygon or not
+#
+
+# Auxiliary procedure:
+#     > 0 if point 2 left of line through points 0 and 1
+#     < 0 if point 2 right of the line
+#     = 0 if point on the line
+#
+proc ::math::geometry::LeftOfEdge {x0 y0 x1 y1 x2 y2} {
+    expr {($x1 - $x0) * ($y2 - $y0) - ($x2 - $x0) * ($y1 - $y0)}
+}
+
+proc ::math::geometry::pointInsidePolygonAlt {point polygon} {
+    lassign $point testx testy
+    foreach {x y} $polygon {
+        lappend vertx $x
+        lappend verty $y
+    }
+    set w 0
+    set nvert [llength $vertx]
+    for {set i 0} {$i < $nvert} {incr i} {
+        set j [expr {$i+1}]
+        if { $j == $nvert } {
+            set j 0
+        }
+        if { [lindex $verty $i] <= $testy } {
+            if { [lindex $verty $j] > $testy } {
+                if { [LeftOfEdge [lindex $vertx $i] [lindex $verty $i] [lindex $vertx $j] [lindex $verty $j] $testx $testy] > 0.0 } {
+                    incr w
+                }
+            }
+        } else {
+            if { [lindex $verty $j] <= $testy } {
+                if { [LeftOfEdge [lindex $vertx $i] [lindex $verty $i] [lindex $vertx $j] [lindex $verty $j] $testx $testy] < 0.0 } {
+                    incr w -1
+                }
+            }
+        }
+    }
+    return [expr {$w != 0}]
+}
+
 # ::math::geometry::rectangleInsidePolygon
 #
 #       Determine if a rectangle is completely inside a polygon. If polygon
@@ -1491,8 +1550,8 @@ namespace eval ::math::geometry {
 	calculateDistanceToLineSegment findClosestPointOnLineSegment \
 	calculateDistanceToPolylineSegment findClosestPointOnPolyline lengthOfPolyline \
 	movePointInDirection lineSegmentsIntersect findLineSegmentIntersection findLineIntersection \
-	polylinesIntersect polylinesBoundingIntersect intervalsOverlap rectanglesOverlap pointInsidePolygon \
+	polylinesIntersect polylinesBoundingIntersect intervalsOverlap rectanglesOverlap pointInsidePolygon pointInsidePolygonAlt \
 	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
 }
 
-package provide math::geometry 1.2.1
+package provide math::geometry 1.2.2
