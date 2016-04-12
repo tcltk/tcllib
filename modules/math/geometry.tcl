@@ -1149,6 +1149,30 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
     return [expr {$noOfIntersections % 2}]
 }
 
+# See ticket [dc49af96c2]
+# Original code found at: https://www.ecse.rpi.edu/~wrf/Research/Short_Notes/pnpoly.html
+# Thanks to Christian Gollwitzer, Peter Lewerin and Eduard Zozuly
+# Replaced by:
+proc ::math::geometry::pointInsidePolygon {point polygon} {
+    lassign $point testx testy
+    foreach {x y} $polygon {
+        lappend vertx $x
+        lappend verty $y
+    }
+    set c 0
+    set nvert [llength $vertx]
+    for {set i 0 ; set j [expr {$nvert-1}]} {$i < $nvert} {set j $i ; incr i} {
+        if {
+            (([lindex $verty $i]>$testy) != ([lindex $verty $j]>$testy)) &&
+            ($testx < ([lindex $vertx $j] - [lindex $vertx $i]) *
+            ($testy - [lindex $verty $i]) /
+            ([lindex $verty $j] - [lindex $verty $i]) + [lindex $vertx $i])
+        } {
+            set c [expr {!$c}]
+        }
+    }
+    return $c
+}
 
 # ::math::geometry::rectangleInsidePolygon
 #
@@ -1249,6 +1273,209 @@ proc ::math::geometry::areaPolygon {polygon} {
     expr {0.5*abs($area)}
 }
 
+# ::math::geometry::inproduct
+#
+#       Determine the inproduct of two vectors
+#
+# Arguments:
+#       vector1       first vector
+#       vector2       second vector
+#
+# Results:
+#       inproduct     the inproduct
+#
+proc ::math::geometry::inproduct {vector1 vector2} {
+
+    set inproduct 0.0
+    foreach v1 $vector1 v2 $vector2 {
+        set inproduct [expr {$inproduct + $v1 * $v2}]
+    }
+
+    return $inproduct
+}
+
+# ::math::geometry::angleBetween
+#
+#       Determine the angle between two vectors (degrees)
+#
+# Arguments:
+#       vector1       first vector
+#       vector2       second vector
+#
+# Results:
+#       angle         the angle in degrees
+#
+proc ::math::geometry::angleBetween {vector1 vector2} {
+    variable todeg
+
+    set inproduct 0.0
+    set length1   0.0
+    set length2   0.0
+    foreach v1 $vector1 v2 $vector2 {
+        set inproduct [expr {$inproduct + $v1 * $v2}]
+        set length1   [expr {$length1   + $v1 * $v1}]
+        set length2   [expr {$length2   + $v2 * $v2}]
+    }
+    set angle [expr {acos($inproduct/sqrt($length1 * $length2)) * $todeg}]
+
+    return $angle
+}
+
+# ::math::geometry::areaParallellogram
+#
+#       Determine the area of the parallellogram spanned by two vectors
+#
+# Arguments:
+#       vector1       first vector
+#       vector2       second vector
+#
+# Results:
+#       area          the area of the parallellogram
+#
+proc ::math::geometry::areaParallellogram {vector1 vector2} {
+
+    foreach {x1 y1} $vector1 {break}
+    foreach {x2 y2} $vector2 {break}
+
+    set area [expr {abs($x2 * $y1 - $x1 * $y2}]
+
+    return $area
+}
+
+# ::math::geometry::translate
+#
+#       Translate a polyline over a given vector
+#
+# Arguments:
+#       vector        Translation vector
+#       polyline      Polyline (or any list of coordinate pairs)
+#
+# Results:
+#       newPolyline   Translated poyline
+#
+proc ::math::geometry::translate {vector polyline} {
+
+    set newPolyline $polyline
+
+    foreach {xt yt} $vector {break}
+
+    set idx 0
+    foreach {x y} $polyline {
+        lset newPolyline $idx [expr {$x + $xt}]
+        incr idx
+        lset newPolyline $idx [expr {$y + $yt}]
+        incr idx
+    }
+
+    return $newPolyline
+}
+
+# ::math::geometry::rotate
+#
+#       Rotate a polyline over a given angle (degrees) around the origin
+#
+# Arguments:
+#       angle         rotation angle (degrees)
+#       polyline      polyline (or any list of coordinate pairs)
+#
+# Results:
+#       newPolyline   rotated polyline
+#
+# Note:
+#       rotation is counterclockwise
+#
+proc ::math::geometry::rotate {angle polyline} {
+    variable torad
+
+    set angle [expr {$torad * $angle}]
+    set cosa  [expr {cos($angle)}]
+    set sina  [expr {sin($angle)}]
+
+    set newPolyline $polyline
+
+    set idx 0
+    foreach {x y} $polyline {
+        set newx [expr {$cosa * $x - $sina *$y}]
+        set newy [expr {$sina * $x + $cosa *$y}]
+
+        lset newPolyline $idx $newx
+        incr idx
+        lset newPolyline $idx $newy
+        incr idx
+    }
+
+    return $newPolyline
+}
+
+# ::math::geometry::reflect
+#
+#       Reflect a polyline in a line through the origin at a given angle to the x-axis
+#
+# Arguments:
+#       angle         angle of the line of reflection (degrees)
+#       polyline      polyline (or any list of coordinate pairs)
+#
+# Results:
+#       newPolyline   reflected polyline
+#
+# Note:
+#       the angle is used counterclockwise
+#
+proc ::math::geometry::reflect {angle polyline} {
+    variable torad
+
+    set angle [expr {2.0 * $torad * $angle}]
+    set cosa  [expr {cos($angle)}]
+    set sina  [expr {sin($angle)}]
+
+    set newPolyline $polyline
+
+    set idx 0
+    foreach {x y} $polyline {
+        set newx [expr {$cosa * $x + $sina *$y}]
+        set newy [expr {$sina * $x - $cosa *$y}]
+
+        lset newPolyline $idx $newx
+        incr idx
+        lset newPolyline $idx $newy
+        incr idx
+    }
+
+    return $newPolyline
+}
+
+# ::math::geometry::degToRad
+#
+#       Convert from degrees to radians
+#
+# Arguments:
+#       angle         angle (degrees)
+#
+# Results:
+#       angle         angle in radians
+#
+proc ::math::geometry::degToRad {angle} {
+    variable torad
+
+    return [expr {$angle * $torad}]
+}
+
+# ::math::geometry::radToDeg
+#
+#       Convert from radians to degrees
+#
+# Arguments:
+#       angle         angle (radians)
+#
+# Results:
+#       angle         angle in degrees
+#
+proc ::math::geometry::radToDeg {angle} {
+    variable todeg
+
+    return [expr {$angle * $todeg}]
+}
+
 # # ## ### ##### #############
 
 namespace eval ::math::geometry {
@@ -1259,7 +1486,13 @@ namespace eval ::math::geometry {
     namespace export \
 	+ - s* direction v h p between distance length \
 	nwse rect octant findLineSegmentIntersection \
-	findLineIntersection bbox x y conjx conjy
+	findLineIntersection bbox x y conjx conjy \
+	calculateDistanceToLine findClosestPointOnLine \
+	calculateDistanceToLineSegment findClosestPointOnLineSegment \
+	calculateDistanceToPolylineSegment findClosestPointOnPolyline lengthOfPolyline \
+	movePointInDirection lineSegmentsIntersect findLineSegmentIntersection findLineIntersection \
+	polylinesIntersect polylinesBoundingIntersect intervalsOverlap rectanglesOverlap pointInsidePolygon \
+	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
 }
 
-package provide math::geometry 1.1.3
+package provide math::geometry 1.2.1
