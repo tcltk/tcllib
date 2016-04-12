@@ -391,9 +391,13 @@ test geometry-15.4 {geometry::pointInsidePolygon, point identical with one of po
 test geometry-15.5 {geometry::pointInsidePolygon, point not in polygon's bbox} {
     math::geometry::pointInsidePolygon {5 5} {8 8 8 9 9 9 9 8}
 } 0
+#
+# Note: outcome changed, because of ticket dc49af96c2
+# This is an edge case anyway
+#
 test geometry-15.6 {geometry::pointInsidePolygon, hour-glass with center on point} {
     math::geometry::pointInsidePolygon {5 5} {4 4 6 6 6 4 4 6}
-} 0
+} 1
 test geometry-15.7 {geometry::pointInsidePolygon, hour-glass with point inside one of the areas} {
     math::geometry::pointInsidePolygon {5 5} {3 2 5 11 3 11 11 6}
 } 1
@@ -414,6 +418,9 @@ test geometry-15.12 {geometry::pointInsidePolygon, polygon with zero-length side
 } 1
 test geometry-15.13 {geometry::pointInsidePolygon, edge case polygon/point, ticket c1ca34ead3} {
     math::geometry::pointInsidePolygon {3.0 -1.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}
+} 0
+test geometry-15.14 {geometry::pointInsidePolygon, point well outside polygon, negative coordinates, ticket dc49af96c2} {
+    math::geometry::pointInsidePolygon {838 456} {-764 -677 -668 -1341 -124 -797 -508 -406}
 } 0
 
 
@@ -514,6 +521,34 @@ test geometry-17.13 {octant} {
 test geometry-18.1 {geometry::calculateDistanceToPolygon, non-closed polygon, point on polygon} {
     eval withFourDecimals [::math::geometry::calculateDistanceToPolygon {2.0 0.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}]
 } 0.0
+
+
+###
+# transformations
+###
+test geometry-19.1 {geometry::translate over (1,-1)} {
+    eval withFourDecimals [::math::geometry::translate {1.0 -1.0} {0.0 0.0 1.0 1.0}]
+} {1.0 -1.0 2.0 0.0}
+
+test geometry-19.2 {geometry::rotate over 90 degrees} {
+    eval withFourDecimals [::math::geometry::rotate 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+} {0.0 0.0 -1.0 1.0 -1.0 0.0}
+
+test geometry-19.3 {geometry::reflect in x-axis} {
+    eval withFourDecimals [::math::geometry::reflect 180.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+} {0.0 0.0 1.0 -1.0 0.0 -1.0}
+
+test geometry-19.4 {geometry::reflect in y-axis} {
+    eval withFourDecimals [::math::geometry::reflect 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+} {0.0 0.0 -1.0 1.0 0.0 1.0}
+
+test geometry-19.5 {geometry::radToDeg} {
+    ::math::geometry::radToDeg [expr {acos(-1.0)}]
+} 180.0
+
+test geometry-19.6 {geometry::degToRad} {
+    ::math::geometry::degToRad 180.0
+} [expr {acos(-1.0)}]
 
 
 ###

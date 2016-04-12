@@ -1,3 +1,17 @@
+2015-04-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.tcl: Replace the algorithm in pointInsidePolygon (ticket dc49af96c2)
+	* geometry.test: Add the new test case for this ticket and adjust the outcome for an edge case (hour glass)
+
+2015-11-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Add test-anova-F
+	* pdf_stat.tcl: Add cdf-F
+	* statistics.test: Add tests for test-anova-F and cdf-F
+	* statistics.man: Describe test-anova-F and cdf-F
+	* geometry.tcl: Implement translation, rotation, reflection and conversion to/from radians and degrees
+	* geometry.test: Add tests for translation, rotation and reflection and conversion radians/degrees
+	* math_geometry.tcl: Describe the new procedures
+	* special.man: Correct description of Beta and Gamma functions
+
 2015-04-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Add test-Duckworth
 	* pdf_stat.tcl: Add empirical-distribution
