@@ -298,4 +298,5 @@ infinite depth.
 Roy Keene
 
 [vset CATEGORY rsa]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
