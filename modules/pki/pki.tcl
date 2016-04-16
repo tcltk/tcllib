@@ -28,7 +28,9 @@ namespace eval ::pki {
 	variable oids
 	array set oids {
 		1.2.840.113549.1.1.1           rsaEncryption
+		1.2.840.113549.1.1.4           md5WithRSAEncryption
 		1.2.840.113549.1.1.5           sha1WithRSAEncryption
+		1.2.840.113549.1.1.11          sha256WithRSAEncryption
 		1.2.840.113549.2.5             md5
 		1.3.14.3.2.26                  sha1
 		2.16.840.1.101.3.4.2.1         sha256
@@ -180,14 +182,14 @@ namespace eval ::pki {
 		2.5.29.18                      id-ce-issuerAltName
 		2.5.29.19                      id-ce-basicConstraints
 		2.5.29.20                      id-ce-cRLNumber
+		2.5.29.31                      id-ce-cRLDistributionPoints
 		2.5.29.32                      id-ce-certificatePolicies
-		2.5.29.33                      id-ce-cRLDistributionPoints
 		2.5.29.35                      id-ce-authorityKeyIdentifier
 	}
 
 	variable handlers
 	array set handlers {
-		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate ::pki::rsa::serialize_key}
+		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate ::pki::rsa::serialize_key ::pki::rsa::serialize_public_key}
 	}
 
 	variable INT_MAX [expr {[format "%u" -1] / 2}]
@@ -266,7 +268,7 @@ proc ::pki::_oid_name_to_number {name} {
 		}
 	}
 
-	return -code error
+	return -code error "Unable to convert OID $name to an OID value"
 }
 
 proc ::pki::rsa::_encrypt_num {input exponent mod} {
@@ -426,6 +428,34 @@ proc ::pki::rsa::decrypt {mode input keylist} {
 	return $retval
 }
 
+proc ::pki::rsa::serialize_public_key {keylist} {
+	array set key $keylist
+
+	foreach entry [list n e] {
+		if {![info exists key($entry)]} {
+			return -code error "Key does not contain an element $entry"
+		}
+	}
+
+	set pubkey [::asn::asnSequence \
+		[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
+		[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
+		]
+	set pubkey_algo_params [::asn::asnNull]
+
+	binary scan $pubkey B* pubkey_bitstring
+
+	set ret [::asn::asnSequence \
+		[::asn::asnSequence \
+				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number rsaEncryption]] \
+				$pubkey_algo_params \
+			] \
+			[::asn::asnBitString $pubkey_bitstring] \
+			]
+
+	return [list data $ret begin "-----BEGIN PUBLIC KEY-----" end "-----END PUBLIC KEY-----"]
+}
+
 proc ::pki::rsa::serialize_key {keylist} {
 	array set key $keylist
 
@@ -479,6 +509,9 @@ proc ::pki::_lookup_command {action keylist} {
 		}
 		"serialize_key" {
 			set idx 3
+		}
+		"serialize_public_key" {
+			set idx 4
 		}
 	}
 
@@ -743,6 +776,62 @@ proc ::pki::key {keylist {password ""} {encodePem 1}} {
 	return $retval
 }
 
+proc ::pki::public_key {keylist {password ""} {encodePem 1}} {
+	set serialize_key [::pki::_lookup_command serialize_public_key $keylist]
+
+	if {$serialize_key eq ""} {
+		array set key $keylist
+
+		return -code error "Do not know how to serialize an $key(type) key"
+	}
+
+	array set retval_parts [$serialize_key $keylist]
+
+	if {$encodePem} {
+		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) $retval_parts(end) $password]
+	} else {
+		if {$password != ""} {
+			return -code error "DER encoded keys may not be password protected"
+		}
+
+		set retval $retval_parts(data)
+	}
+
+	return $retval
+}
+
+proc ::pki::parse {text {errorOnUnknownType 0}} {
+	set rc [list]
+	while {[regexp {^.*?-----BEGIN (.*?)-----(.*?)-----END (.*?)-----(.*)$} $text - type body type2 text]} {
+		if {$type != $type2} {
+			return -code error "BEGIN and END types do not match ($type and $type2)"
+		}
+		set body "-----BEGIN $type-----\n$body\n-----END $type-----\n"
+
+		switch -- $type {
+			"RSA PRIVATE KEY" {
+				lappend rc key [::pki::pkcs::parse_key $body]
+			}
+			"PUBLIC KEY" {
+				lappend rc public_key [::pki::pkcs::parse_public_key $body]
+			}
+			"CERTIFICATE" {
+				lappend rc certificate [::pki::x509::parse_cert $body]
+			}
+			"CERTIFICATE REQUEST" {
+				lappend rc certificate_request [::pki::pkcs::parse_csr $body]
+			}
+			default {
+				if {$errorOnUnknownType} {
+					return -code error "Unable to parse key with type $type"
+				}
+			}
+		}
+	}
+
+	return $rc
+}
+
 proc ::pki::_parse_init {} {
 	if {[info exists ::pki::_parse_init_done]} {
 		return
@@ -955,6 +1044,39 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 	return [array get ret]
 }
 
+proc ::pki::pkcs::parse_public_key {key {password ""}} {
+	array set parsed_key [::pki::_parse_pem $key "-----BEGIN PUBLIC KEY-----" "-----END PUBLIC KEY-----" $password]
+
+	set key_seq $parsed_key(data)
+
+	::asn::asnGetSequence key_seq pubkeyinfo
+		::asn::asnGetSequence pubkeyinfo pubkey_algoid
+			::asn::asnGetObjectIdentifier pubkey_algoid oid
+		::asn::asnGetBitString pubkeyinfo pubkey
+	set ret(pubkey_algo) [::pki::_oid_number_to_name $oid]
+
+	switch -- $ret(pubkey_algo) {
+		"rsaEncryption" {
+			set pubkey [binary format B* $pubkey]
+
+			::asn::asnGetSequence pubkey pubkey_parts
+				::asn::asnGetBigInteger pubkey_parts ret(n)
+				::asn::asnGetBigInteger pubkey_parts ret(e)
+
+			set ret(n) [::math::bignum::tostr $ret(n)]
+			set ret(e) [::math::bignum::tostr $ret(e)]
+			set ret(l) [expr {int([::pki::_bits $ret(n)] / 8.0000 + 0.5) * 8}]
+			set ret(type) rsa
+		}
+		default {
+			error "Unknown algorithm"
+		}
+	}
+
+	return [array get ret]
+}
+
+
 proc ::pki::pkcs::parse_key {key {password ""}} {
 	array set parsed_key [::pki::_parse_pem $key "-----BEGIN RSA PRIVATE KEY-----" "-----END RSA PRIVATE KEY-----" $password]
 
@@ -1067,6 +1189,10 @@ proc ::pki::x509::parse_cert {cert} {
 
 	array set ret [list]
 
+	# Include the raw certificate
+	set ret(raw) $cert
+	binary scan $ret(raw) H* ret(raw)
+
 	# Decode X.509 certificate, which is an ASN.1 sequence
 	::asn::asnGetSequence cert_seq wholething
 	::asn::asnGetSequence wholething cert
@@ -1130,7 +1256,7 @@ proc ::pki::x509::parse_cert {cert} {
 					set ext_value [list $ext_critical]
 
 					switch -- $ext_oid {
-						id-ce-basicConstraints {
+						"id-ce-basicConstraints" {
 							::asn::asnGetSequence ext_value_seq ext_value_bin
 
 							if {$ext_value_bin != ""} {
@@ -1266,7 +1392,7 @@ proc ::pki::x509::validate_cert {cert args} {
 		set critical [lindex $ext_val 0]
 
 		switch -- $ext_id {
-			id-ce-basicConstraints {
+			"id-ce-basicConstraints" {
 				set CA [lindex $ext_val 1]
 				set CAdepth [lindex $ext_val 2]
 			}
@@ -1505,8 +1631,24 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 	lappend certlist [::asn::asnBigInteger [math::bignum::fromstr $serial_number]]
 
 	## Insert data algorithm
+	switch -glob -- $algo {
+		"*With*Encryption" {
+			# Already fully qualified, add nothing
+			regexp {^.*With(.*)Encryption$} $algo -> type
+			regexp {^(.*)With(.*)Encryption$} $algo -> hashingAlgorithm type
+
+			set hashingAlgorithm [string tolower $hashingAlgorithm]
+			set type [string tolower $type]
+		}
+		default {
+			set hashingAlgorithm $algo
+
+			set algo "${algo}With${type}Encryption"
+		}
+	}
+
 	lappend certlist [::asn::asnSequence \
-		[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}With${type}Encryption"]] \
+		[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}"]] \
 		[::asn::asnNull] \
 	]
 
@@ -1562,6 +1704,107 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 						set extvalue [::asn::asnSequence [::asn::asnBoolean $allowCA] [::asn::asnInteger $caDepth]]
 					}
 				}
+				"id-ce-subjectAltName" {
+					set critical [lindex $extvalue 0]
+	
+					unset -nocomplain altnames
+
+					foreach {altnametype altnamevalue} [lrange $extvalue 1 end] {
+						switch -- [string tolower $altnametype] {
+							"rfc822name" {
+								lappend altnames [::asn::asnChoice 1 $altnamevalue]
+							}
+							"dnsname" {
+								lappend altnames [::asn::asnChoice 2 $altnamevalue]
+							}
+							default {
+								return -code error "Unknown subjectAltName type: $altnametype"
+							}
+						}
+					}
+
+					set extvalue [::asn::asnSequence {*}$altnames]
+				}
+				"id-ce-cRLDistributionPoints" {
+					set critical [lindex $extvalue 0]
+
+					set crlDistributionPoint_objects [list distributionPoint reasons cRLIssuer]
+					set crlDistributionPointsASN [list]
+
+					foreach crlDistributionPoint_dict [lrange $extvalue 1 end] {
+						set crlDistributionPoint_objectASN [list]
+						set crlSequenceIdx -1
+
+						foreach crlDistributionPoint_objectName $crlDistributionPoint_objects {
+							unset -nocomplain crlDistributionPointASN
+							incr crlSequenceIdx
+
+							if {![dict exists $crlDistributionPoint_dict $crlDistributionPoint_objectName]} {
+								continue
+							}
+
+							set crlDistributionPoint_object [dict get $crlDistributionPoint_dict $crlDistributionPoint_objectName]
+
+							switch -- $crlDistributionPoint_objectName {
+								"distributionPoint" {
+									foreach {crlDistributionPointNameType crlDistributionPointName_dict} $crlDistributionPoint_object {
+										switch -- $crlDistributionPointNameType {
+											"name" {
+												unset -nocomplain crlDistributionPointName
+												array set crlDistributionPointName $crlDistributionPointName_dict
+
+												switch -- $crlDistributionPointName(type) {
+													"url" {
+														set crlDistributionPointNameASN [::asn::asnChoice 6 $crlDistributionPointName(value)]
+													}
+													default {
+														return -code error "Unsupported crlDistributionPointName choice: $crlDistributionPointName(type)"
+													}
+												}
+												set crlDistributionPointASN [::asn::asnContextConstr 0 $crlDistributionPointNameASN]
+											}
+											default {
+												return -code error "Unsupported crlDistributionPointNameType: $crlDistributionPointNameType"
+											}
+										}
+									}
+								}
+								default {
+									return -code error "Unsupported crlDistributionPoint option: $crlDistributionPoint_objectName"
+								}
+							}
+
+							lappend crlDistributionPoint_objectASN [::asn::asnContextConstr $crlSequenceIdx $crlDistributionPointASN]
+						}
+						lappend crlDistributionPointsASN [::asn::asnSequenceFromList $crlDistributionPoint_objectASN]
+					}
+
+					set extvalue [::asn::asnSequenceFromList $crlDistributionPointsASN]
+				}
+				"id-ce-keyUsage" {
+					set critical [lindex $extvalue 0]
+					set extvalue [string tolower [lrange $extvalue 1 end]]
+
+					set keyUsages [string tolower [list digitalSignature nonRepudiation keyEncipherment dataEncipherment keyAgreement keyCertSign cRLSign encipherOnly decipherOnly]]
+
+					foreach keyUsage $extvalue {
+						if {$keyUsage ni $keyUsages} {
+							return -code error "Invalid key usage: $keyUsage"
+						}
+					}
+
+					set keyUsageValue ""
+					foreach keyUsage $keyUsages {
+						if {$keyUsage in $extvalue} {
+							set keyUsageResult 1
+						} else {
+							set keyUsageResult 0
+						}
+						append keyUsageValue $keyUsageResult
+					}
+
+					set extvalue [::asn::asnBitString $keyUsageValue]
+				}
 				default {
 					return -code error "Unknown extension: $extension"
 				}
@@ -1581,13 +1824,13 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 	set cert [::asn::asnSequenceFromList $certlist]
 
 	# Sign certificate request using CA
-	set signature [::pki::sign $cert $cakeylist $algo]
+	set signature [::pki::sign $cert $cakeylist $hashingAlgorithm]
 	binary scan $signature B* signature_bitstring
 
 	set cert [::asn::asnSequence \
 		$cert \
 		[::asn::asnSequence \
-			[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}With${type}Encryption"]] \
+			[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}"]] \
 			[::asn::asnNull] \
 		] \
 		[::asn::asnBitString $signature_bitstring] \
@@ -1799,7 +2042,16 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 		}
 
 		if {$plen >= $componentbitlen && $qlen >= $componentbitlen} {
-			break
+			set n [expr {$p * $q}]
+			set nlen [::pki::_bits $n]
+
+			unset n
+
+			if {$nlen == $bitlength} {
+				unset nlen
+
+				break
+                        }
 		}
 
 		set x [::pki::_random]
@@ -1881,4 +2133,4 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.6
+package provide pki 0.10
