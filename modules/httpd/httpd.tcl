@@ -69,8 +69,10 @@ set ::httpd::version 4.0.0
   
   method close {} {
     my variable chan
-    catch {flush $chan}
-    catch {close $chan}
+    if {[info exists chan] && $chan ne {}} {
+      catch {flush $chan}
+      catch {close $chan}
+    }
   }
   
   method HttpHeaders {sock {debug {}}} {
@@ -183,9 +185,11 @@ set ::httpd::version 4.0.0
     chan configure $chan -translation {auto crlf} -buffering line
     set dispatched_time [clock seconds]
     try {
-      set rawrequest [my HttpHeaders $chan]
-      foreach {field value} [my MimeParse $rawrequest] {
-        my query_headers set $field $value
+      if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
+        set rawrequest [my HttpHeaders $chan]
+        foreach {field value} [my MimeParse $rawrequest] {
+          my query_headers set $field $value
+        }
       }
       # Dispatch to the URL implementation.
       my content
@@ -280,38 +284,44 @@ For deeper understanding:
     return "HTTP/1.0 $status"
   }
 
+  method output {} {
+    my variable chan
+    chan event $chan writable [namespace code {my DoOutput}]
+  }
   ###
   # Output the result or error to the channel
   # and destroy this object
   ###
-  method output {} {
+  method DoOutput {} {
     my variable reply_body reply_chan chan
-    chan configure $chan  -translation {binary binary}
+    chan event $chan writable {}
 
-    set headers [my reply_headers dump]
-    if {[dict exists $headers Status:]} {
-      set result "[my EncodeStatus [dict get $headers Status:]]\n"
-    } else {
-      set result "[my EncodeStatus {505 Internal Error}]\n"
+    catch {
+      chan configure $chan  -translation {binary binary}
+      set headers [my reply_headers dump]
+      if {[dict exists $headers Status:]} {
+        set result "[my EncodeStatus [dict get $headers Status:]]\n"
+      } else {
+        set result "[my EncodeStatus {505 Internal Error}]\n"
+      }
+      foreach {key value} $headers {
+        # Ignore Status and Content-length, if given
+        if {$key in {Status: Content-length:}} continue
+        append result "$key $value" \n
+      }
+      ###
+      # Return dynamic content
+      ###
+      #set reply_body [string trim $reply_body]
+      set length [string length $reply_body]
+      if {${length} > 0} {
+        append result "Content-length: [string length $reply_body]" \n \n
+        append result $reply_body
+      } else {
+        append result \n
+      }
+      chan puts -nonewline $chan $result
     }
-    foreach {key value} $headers {
-      # Ignore Status and Content-length, if given
-      if {$key in {Status: Content-length:}} continue
-      append result "$key $value" \n
-    }
-    ###
-    # Return dynamic content
-    ###
-    #set reply_body [string trim $reply_body]
-    set length [string length $reply_body]
-    if {${length} > 0} {
-      append result "Content-length: [string length $reply_body]" \n \n
-      append result $reply_body
-    } else {
-      append result \n
-    }
-    puts -nonewline $chan $result
-    chan flush $chan    
     my destroy
   }
   
@@ -461,10 +471,13 @@ For deeper understanding:
     }
     
     chan configure $sock \
-      -blocking 1 \
+      -blocking 0 \
       -translation {auto crlf} \
       -buffering line
-    
+    chan event $sock readable [namespace code [list my Connect $sock $ip]]
+  }
+  method Connect {sock ip} {
+    chan even $sock readable {}
     my counter url_hit
     try {
       set readCount [gets $sock line]
@@ -504,32 +517,32 @@ For deeper understanding:
       } else {
         try {
           my log HttpMissing $line
-          puts $sock "HTTP/1.0 404 NOT FOUND"
+          chan puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          puts $sock "Content-length: [string length $body]"
-          puts $sock
-          puts $sock $body
+          chan puts $sock "Content-length: [string length $body]"
+          chan puts $sock
+          chan puts $sock $body
         } on error {err errdat} {
           puts stderr "FAILED ON 404: $err"
         } finally {
-          catch {close $sock}
+          catch {chan close $sock}
         }
       }
     } on error {err errdat} {
       try {
         puts stderr [dict print $errdat]
-        puts $sock "HTTP/1.0 505 INTERNAL ERROR"
+        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR"
         dict with query {}
         set body [subst [my template internal_error]]
-        puts $sock "Content-length: [string length $body]"
-        puts $sock
-        puts $sock $body
+        chan puts $sock "Content-length: [string length $body]"
+        chan puts $sock
+        chan puts $sock $body
         my log HttpError $line
       } on error {err errdat} {
         puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
-        catch {close $sock}
+        catch {chan close $sock}
       }
     }
   }
@@ -598,8 +611,10 @@ For deeper understanding:
 
   method stop {} {
     my variable socklist
-    foreach sock $socklist {
-      catch {close $sock}
+    if {[info exists socklist]} {
+      foreach sock $socklist {
+        catch {close $sock}
+      }
     }
     set socklist {}
     ::cron::cancel [self]
@@ -662,4 +677,4 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   }
 }
 
-package provide httpd 4.0
+package provide httpd 4.0.1
