@@ -323,11 +323,11 @@ tcl::chan::zero
 \fBfiles/modules/des/des\&.n\fR
 des
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 abstract syntax tree
 .RS
@@ -860,11 +860,11 @@ blowfish
 \fBfiles/modules/des/des\&.n\fR
 des
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 blocking flow
 .RS
@@ -2099,11 +2099,11 @@ rc4
 \fBfiles/modules/crc/sum\&.n\fR
 sum
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 data source
 .RS
@@ -2252,11 +2252,11 @@ DES
 \fBfiles/modules/des/des\&.n\fR
 des
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 deserialization
 .RS
@@ -3107,11 +3107,11 @@ tcl::transform::otp
 \fBfiles/modules/virtchannel_transform/rot\&.n\fR
 tcl::transform::rot
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 entry mask
 .RS
@@ -3140,10 +3140,10 @@ struct::disjointset
 error
 .RS
 .TP
-\fBfiles/modules/try/tcllib_try\&.n\fR
-try
-.TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
+throw
+.TP
+\fBfiles/modules/try/tcllib_try\&.n\fR
 try
 .RE
 error function
@@ -7529,6 +7529,12 @@ post-order
 \fBfiles/modules/struct/struct_tree\&.n\fR
 struct::tree
 .RE
+practcl
+.RS
+.TP
+\fBfiles/modules/practcl/practcl\&.n\fR
+practcl
+.RE
 pre-order
 .RS
 .TP
@@ -8331,7 +8337,7 @@ return
 .RS
 .TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
-try
+throw
 .RE
 reverse
 .RS
@@ -8792,11 +8798,11 @@ sha256
 \fBfiles/modules/crc/sum\&.n\fR
 sum
 .TP
-\fBfiles/modules/des/tcldesjr\&.n\fR
-tcldes
-.TP
 \fBfiles/modules/des/tcldes\&.n\fR
-tcldes
+tclDES
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tclDESjr
 .RE
 seed
 .RS
@@ -10137,7 +10143,7 @@ throw
 .RS
 .TP
 \fBfiles/modules/try/tcllib_throw\&.n\fR
-try
+throw
 .RE
 thumbnail
 .RS
