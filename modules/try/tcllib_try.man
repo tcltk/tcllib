@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin try n 1]
+[vset VERSION 1]
+[manpage_begin try n [vset VERSION]]
 [see_also catch(n)]
 [see_also error(n)]
 [see_also return(n)]
@@ -14,7 +15,7 @@
 [titledesc {try - Trap and process errors and exceptions}]
 [category  Utility]
 [require Tcl 8.5]
-[require try [opt 1]]
+[require try [opt [vset VERSION]]]
 [description]
 [para]
 

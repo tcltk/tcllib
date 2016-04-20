@@ -1,17 +1,19 @@
 [comment {-*- practlc -*-}]
-[manpage_begin practcl n 0.1]
+[vset VERSION 0.1]
+[manpage_begin practcl n [vset VERSION]]
 [keywords practcl]
 [copyright {2016 Sean Woods <yoda@etoyoc.com>}]
 [moddesc {The The Proper Rational API for C to Tool Command Language Module}]
 [titledesc {The Practcl Module}]
 [category {TclOO}]
 [require TclOO 1.0]
+[require practcl [vset VERSION]]
 [description]
 The Practcl module is a tool for integrating large modules for C API
 Tcl code that requires custom Tcl types and TclOO objects.
 
 [section COMMANDS]
-[list_begin utility]
+[list_begin definitions]
 
 [call [cmd CPUTS] [arg varname] [arg body] [opt [arg body]...]]
 Appends blocks of text to a buffer. This command tries to reduce the number
@@ -20,9 +22,9 @@ of line breaks between bodies.
 [call [cmd practcl::_isdirectory] [arg path]]
 Returns true if [arg path] is a directory, using the test 
 
+[list_end]
 
-[end_list]
-[list_begin classes]
+[list_begin definitions]
 [call [cmd practcl::object] [arg "parent"] [opt [arg "keyvaluelist"]]]
 
 A generic Practcl object
@@ -56,8 +58,6 @@ A Practcl object representing a dynamically generated C/H/Tcl suite
 A Practcl object representing a dynamically generated C/H/Tcl suite, subordinate to a module
 [list_end]
 
-
-[vset CATEGORY tcloo c]
-[include scripts/feedback.inc]
-
+[vset CATEGORY practcl]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

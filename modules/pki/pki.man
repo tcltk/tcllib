@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pki n 0.6]
+[manpage_begin pki n 0.10]
 [see_also aes(n)]
 [see_also blowfish(n)]
 [see_also des(n)]
@@ -16,7 +16,7 @@
 [titledesc {Implementation of the public key cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.5]
-[require pki [opt 0.6]]
+[require pki [opt 0.10]]
 [description]
 [para]
 

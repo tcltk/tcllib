@@ -181,6 +181,143 @@ testing {
                -body {MainProc3 SubProc2 SubProc22} \
                -result "Proc322" -output "" -match exact
 
+######## Specific tests about the help text ########
+
+   namespace eval ::TestNS {
+      tepam::procedure {MainProc4} {
+         -description "DescrMain"
+         -args { {a0 -description "MainProc4 arg"} }
+         -example {TestNS::MainProc4 "Hello0"}
+      } {}
+
+      tepam::procedure {MainProc4 SubProc1} {
+         -description "DescrSub1"
+         -args { {a1 -description "DescrSub1 arg"} }
+         -example {TestNS::MainProc4 DescrSub1 "Hello1"}
+      } {}
+      
+      tepam::procedure {MainProc4 SubProc2} {
+         -description "DescrSub2"
+         -args { {a2 -description "DescrSub2 arg"} }
+         -example {TestNS::MainProc4 DescrSub2 "Hello2"}
+      } {}
+      
+      tepam::procedure {MainProc4 SubProc3} {
+         -description "DescrSub3"
+         -args { {a3 -description "DescrSub3 arg"} }
+         -example {TestNS::MainProc4 DescrSub3 "Hello3"}
+      } {}
+      
+      tepam::procedure {MainProc4 SubProc3 SubSubProc31} {
+         -description "SubSubProc31"
+         -args { {a31 -description "DescrSubSub31 arg"} }
+         -example {TestNS::MainProc4 DescrSub3 SubSubProc31 "Hello31"}
+      } {}
+   }
+
+   test tepam-sp.help_main "tepam, main, sub and sub-sub procedures, help main" \
+      -body {::TestNS::MainProc4 -help} \
+      -result "" -output [join {
+         {NAME}
+         {      TestNS::MainProc4}
+         {SYNOPSIS}
+         {      TestNS::MainProc4}
+         {            <a0>}
+         {               MainProc4 arg}
+         {      TestNS::MainProc4 SubProc1}
+         {            <a1>}
+         {               DescrSub1 arg}
+         {      TestNS::MainProc4 SubProc2}
+         {            <a2>}
+         {               DescrSub2 arg}
+         {      TestNS::MainProc4 SubProc3}
+         {            <a3>}
+         {               DescrSub3 arg}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {            <a31>}
+         {               DescrSubSub31 arg}
+         {DESCRIPTION}
+         {      TestNS::MainProc4}
+         {         DescrMain}
+         {      TestNS::MainProc4 SubProc1}
+         {         DescrSub1}
+         {      TestNS::MainProc4 SubProc2}
+         {         DescrSub2}
+         {      TestNS::MainProc4 SubProc3}
+         {         DescrSub3}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {         SubSubProc31}
+         {EXAMPLE}
+         {      TestNS::MainProc4}
+         {         TestNS::MainProc4 "Hello0"}
+         {      TestNS::MainProc4 SubProc1}
+         {         TestNS::MainProc4 DescrSub1 "Hello1"}
+         {      TestNS::MainProc4 SubProc2}
+         {         TestNS::MainProc4 DescrSub2 "Hello2"}
+         {      TestNS::MainProc4 SubProc3}
+         {         TestNS::MainProc4 DescrSub3 "Hello3"}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {         TestNS::MainProc4 DescrSub3 SubSubProc31 "Hello31"}
+         {} {}
+      } "\n"]
+
+  test tepam-sp.help_sp1 "tepam, main, sub and sub-sub procedures, help sub-proc 1" \
+      -body {::TestNS::MainProc4 SubProc1 -help} \
+      -result "" -output [join {
+         {NAME}
+         {      TestNS::MainProc4 SubProc1}
+         {SYNOPSIS}
+         {      TestNS::MainProc4 SubProc1}
+         {            <a1>}
+         {               DescrSub1 arg}
+         {DESCRIPTION}
+         {      DescrSub1}
+         {EXAMPLE}
+         {      TestNS::MainProc4 DescrSub1 "Hello1"}
+         {} {}
+      } "\n"]
+
+  test tepam-sp.help_sp3 "tepam, main, sub and sub-sub procedures, help sub-proc 3" \
+      -body {::TestNS::MainProc4 SubProc3 -help} \
+      -result "" -output [join {
+         {NAME}
+         {      TestNS::MainProc4 SubProc3}
+         {SYNOPSIS}
+         {      TestNS::MainProc4 SubProc3}
+         {            <a3>}
+         {               DescrSub3 arg}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {            <a31>}
+         {               DescrSubSub31 arg}
+         {DESCRIPTION}
+         {      TestNS::MainProc4 SubProc3}
+         {         DescrSub3}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {         SubSubProc31}
+         {EXAMPLE}
+         {      TestNS::MainProc4 SubProc3}
+         {         TestNS::MainProc4 DescrSub3 "Hello3"}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {         TestNS::MainProc4 DescrSub3 SubSubProc31 "Hello31"}
+         {} {}
+      } "\n"]
+
+  test tepam-sp.help_sp31 "tepam, main, sub and sub-sub procedures, help sub-sub-proc 3" \
+      -body {::TestNS::MainProc4 SubProc3 SubSubProc31 -help} \
+      -result "" -output [join {
+         {NAME}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {SYNOPSIS}
+         {      TestNS::MainProc4 SubProc3 SubSubProc31}
+         {            <a31>}
+         {               DescrSubSub31 arg}
+         {DESCRIPTION}
+         {      SubSubProc31}
+         {EXAMPLE}
+         {      TestNS::MainProc4 DescrSub3 SubSubProc31 "Hello31"}
+         {} {}
+      } "\n"]
+
 ######## With one unnamed argument ########
 
 ######## That's all ########
@@ -192,6 +329,9 @@ return
 # Id: proc_subproc.test
 # Modifications:
 #
-# Revision 1.1  2010/02/11 21:50:55  droll
+# Revision 2015/03/05 21:50:55  droll
+# * Added a test to detect failures in generated help text for procedures that contain sub-commands.
+#
+# Revision 2010/02/11 21:50:55  droll
 # * TEPAM module checkin
 ##########################################################################

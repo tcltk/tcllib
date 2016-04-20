@@ -1,6 +1,5 @@
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded math                    1.2.5 [list source [file join $dir math.tcl]]
-package ifneeded math::geometry          1.1.3 [list source [file join $dir geometry.tcl]]
 package ifneeded math::fuzzy             0.2.1 [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::complexnumbers    1.0.2 [list source [file join $dir qcomplex.tcl]]
 package ifneeded math::special           0.3.0 [list source [file join $dir special.tcl]]
@@ -28,6 +27,6 @@ package ifneeded math::calculus::symdiff 1.0.1 [list source [file join $dir symd
 package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigfloat2.tcl]]
 package ifneeded math::numtheory         1.0   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
-
+package ifneeded math::geometry          1.2.2 [list source [file join $dir geometry.tcl]]
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]

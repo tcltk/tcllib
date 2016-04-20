@@ -106,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">rest(n) 1.0.2 tcllib &quot;A framework for RESTful web services&quot;</h1>
+<h1 class="doctools_title">rest(n) 1.2 tcllib &quot;A framework for RESTful web services&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rest - define REST web APIs and call them inline or asychronously</p>
 </div>
@@ -128,7 +128,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">rest <span class="opt">?1.0.2?</span></b></li>
+<li>package require <b class="pkgname">rest <span class="opt">?1.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
@@ -187,6 +187,8 @@ dictionary must be present, however it is allowed to be empty.</p>
 <dt><b class="const">content-type</b></dt>
 <dd></dd>
 <dt><b class="const">cookie</b></dt>
+<dd></dd>
+<dt><b class="const">error-body</b></dt>
 <dd></dd>
 <dt><b class="const">format</b></dt>
 <dd></dd>
@@ -338,10 +340,10 @@ previously defined call. The definition of that call is copied to the
 current call, except for the options specified by the current call
 itself.</p></dd>
 <dt><b class="const">unset</b></dt>
-<dd><p>When present the value of this option names an option in the current
-call. This option is removed from the definition. Use this after
-<b class="const">copy</b>ing an existing definition to remove options, instead of
-overriding their value.</p></dd>
+<dd><p>When present the value of this option contains a list of options in
+the current call. These options are removed from the definition. Use
+this after <b class="const">copy</b>ing an existing definition to remove options,
+instead of overriding their value.</p></dd>
 <dt><b class="const">headers</b></dt>
 <dd><p>Specification of additional header fields. The value of this option
 must be a dictionary, interpreted to contain the new header fields and
@@ -377,12 +379,19 @@ a procedure which will be called to perform request signing.</p></dd>
 <i class="term">async</i> call. Such calls will return immediately with the value
 of the associated http token instead of the call's result. The event
 loop must be active to use this option.</p>
-<p>The value of this option is the name of a procedure which is
-invoked when the HTTP call is complete. The procedure will receive
-three arguments, the name of the calling procedure, the status of the
-result (one of <b class="const">OK</b> or <b class="const">ERROR</b>), and the data associated
-with the result, in this order.
-The http request header will be available in that procedure via
+<p>The value of this option is treated as a command prefix which
+is invoked when the HTTP call is complete. The prefix will receive at
+least two additional arguments, the name of the calling procedure and
+the status of the result (one of <b class="const">OK</b> or <b class="const">ERROR</b>), in this
+order.</p>
+<p>In case of <b class="const">OK</b> a third argument is added, the data
+associated with the result.</p>
+<p>If and only if the <b class="const">ERROR</b> is a redirection, the location
+redirected to will be added as argument.
+Further, if the configuration key <b class="const">error-body</b> is set to
+<b class="const">true</b> the data associated with the result will be added as
+argument as well.</p>
+<p>The http request header will be available in that procedure via
 <b class="cmd">upvar token token</b>.</p></dd>
 <dt><b class="const">cookie</b></dt>
 <dd><p>The value of this option is a list of cookies to be passed in the http
@@ -450,6 +459,11 @@ otherwise.</p>
 <p>The second expression is the ERROR condition, it must return
 <b class="const">false</b> unless there is an error, then it has to return
 <b class="const">true</b>.</p></dd>
+<dt><b class="const">error_body</b></dt>
+<dd><p>The value of this option determines whether to return the response
+when encountering an HTTP error, or not. The default is to not return
+the response body on error.</p>
+<p>See <b class="const">callback</b> above for more information.</p></dd>
 </dl></dd>
 </dl>
 </div>
@@ -520,7 +534,7 @@ proc ::flickr::do_signature {query} {
 <div id="section6" class="doctools_section"><h2><a name="section6">TLS</a></h2>
 <p>The <b class="package">rest</b> package can be used with <i class="term">https</i>-secured
 services, by requiring the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package and then registering
-it with the <b class="package"><a href="../../../../index.html#key445">http</a></b> package it is sitting on top of.
+it with the <b class="package"><a href="../../../../index.html#key446">http</a></b> package it is sitting on top of.
 Example</p>
 <pre class="doctools_example">
     package require tls
