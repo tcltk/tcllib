@@ -24,7 +24,7 @@ namespace eval ::math::statistics {
 	    histogram-uniform \
 	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t pdf-beta \
 	    pdf-weibull pdf-gumbel pdf-pareto pdf-cauchy \
-	    cdf-gamma cdf-poisson cdf-chisquare cdf-beta \
+	    cdf-gamma cdf-poisson cdf-chisquare cdf-beta cdf-F \
 	    cdf-weibull cdf-gumbel cdf-pareto cdf-cauchy \
 	    random-gamma random-poisson random-chisquare random-students-t random-beta \
 	    random-weibull random-gumbel random-pareto random-cauchy \
@@ -1418,6 +1418,23 @@ proc ::math::statistics::cdf-beta { a b x } {
 }
 
 
+# cdf-F --
+#    Return the cumulative probabilities belonging to an Fisher F distribution
+#
+# Arguments:
+#    nf1       Degrees of freedom for numerator
+#    nf2       Degrees of freedom for denominator
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+proc ::math::statistics::cdf-F { nf1 nf2 x } {
+    set dx          [expr {$nf1 * double($x) / ($nf1 * $x + $nf2)}]
+    incompleteBeta [expr {$nf1/2.0}] [expr {$nf2/2.0}] $dx
+}
+
+
 # cdf-weibull --
 #    Return the cumulative probabilities belonging to a Weibull distribution
 #
@@ -2007,4 +2024,6 @@ if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]
     puts "Normal exponential variables"
     set rndvars [::math::statistics::random-exponential 2.0 20]
     puts $rndvars
+
+    puts [::math::statistics::cdf-F 3 3 0.05]
 }

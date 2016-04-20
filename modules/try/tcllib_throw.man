@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin try n 1]
+[vset VERSION 1]
+[manpage_begin throw n [vset VERSION]]
 [see_also error(n)]
 [keywords error]
 [keywords throw]
@@ -10,7 +11,7 @@
 [titledesc {throw - Throw an error exception with a message}]
 [category  Utility]
 [require Tcl 8.5]
-[require throw [opt 1]]
+[require throw [opt [vset VERSION]]]
 [description]
 [para]
 

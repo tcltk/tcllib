@@ -32,15 +32,27 @@ proc ::sak::doc::auto::toc {{name toc.txt}} {
 
 ## ### ### ### ######### ######### #########
 
-proc ::sak::doc::auto::findManpages {base} {
+proc ::sak::doc::auto::findManpages {base {excluded {}}} {
     set top [file normalize $base]
     set manpages {}
-    foreach page [concat \
-		      [glob -nocomplain -directory $top/modules */*.man] \
-		      [glob -nocomplain -directory $top/apps      *.man]] {
+    foreach page [glob -nocomplain -directory $top/modules */*.man] {
+	set rpage [fileutil::stripPath $top $page]
+	# rpage = modules/*/foo.man
+	set m [file tail [file dirname $rpage]]
+	if {[isExcluded $excluded $m]} continue
+	lappend manpages $rpage
+    }
+    foreach page [glob -nocomplain -directory $top/apps *.man] {
 	lappend manpages [fileutil::stripPath $top $page]
     }
     return [lsort -dict $manpages]
+}
+
+proc ::sak::doc::auto::isExcluded {excluded m} {
+    foreach e $excluded {
+	if {$e eq $m} { return yes }
+    }
+    return no
 }
 
 proc ::sak::doc::auto::saveManpages {manpages} {

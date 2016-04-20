@@ -787,6 +787,18 @@ test "cauchy-distribution-1.1" "Test cdf-cauchy" -match tolerant -body {
         [::math::statistics::cdf-cauchy 2.0 2.0 2.0] ]
 } -result {0.25 0.25 0.6475836 0.5}
 
+test "F-distribution-1.1" "Test cdf-F" -match tolerant -body {
+    # Note: returned values are 1-0.05, 1-0.10 and 1-0.01
+    set x [list \
+        [::math::statistics::cdf-F  3  3 9.277] \
+        [::math::statistics::cdf-F  1 30 4.171] \
+        [::math::statistics::cdf-F  7  8 3.500] \
+        [::math::statistics::cdf-F  2 10 2.924] \
+        [::math::statistics::cdf-F 17  2 9.433] \
+        [::math::statistics::cdf-F  5  6 8.746] \
+        [::math::statistics::cdf-F  8 11 4.744] ]
+} -result {0.95 0.95 0.95 0.90 0.90 0.99 0.99}
+
 test "empirical-distribution-1.0" "Test empirical-distribution" -match tolerant -body {
     set x {10 4 3 2 5 6 7}
     set distribution [::math::statistics::empirical-distribution $x]
@@ -1038,6 +1050,14 @@ test "kernel-density-1.2" "Dealing with missing values" -body {
 
     return [expr {abs($sum-1.0) < 0.01}]
 } -result 1
+
+test "anova-one-way-1.1" "ANOVA test from Wikipedia" -body {
+    test-anova-F 0.05 {6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}
+} 1
+
+test "anova-one-way-1.2" "ANOVA test from Wikipedia - using nested list" -body {
+    test-anova-F 0.05 {{6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}}
+} 1
 
 # End of test cases
 testsuiteCleanup

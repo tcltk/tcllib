@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.0.2]
+[vset VERSION 1.2]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
@@ -50,6 +50,7 @@ dictionary must be present, however it is allowed to be empty.
 [def [const auth]]
 [def [const content-type]]
 [def [const cookie]]
+[def [const error-body]]
 [def [const format]]
 [def [const headers]]
 [def [const method]]
@@ -273,10 +274,10 @@ itself.
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [def [const unset]]
 
-When present the value of this option names an option in the current
-call. This option is removed from the definition. Use this after
-[const copy]ing an existing definition to remove options, instead of
-overriding their value.
+When present the value of this option contains a list of options in
+the current call. These options are removed from the definition. Use
+this after [const copy]ing an existing definition to remove options,
+instead of overriding their value.
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [def [const headers]]
@@ -339,13 +340,23 @@ If this option is present then the method will be created as an
 of the associated http token instead of the call's result. The event
 loop must be active to use this option.
 
-[para] The value of this option is the name of a procedure which is
-invoked when the HTTP call is complete. The procedure will receive
-three arguments, the name of the calling procedure, the status of the
-result (one of [const OK] or [const ERROR]), and the data associated
-with the result, in this order.
+[para] The value of this option is treated as a command prefix which
+is invoked when the HTTP call is complete. The prefix will receive at
+least two additional arguments, the name of the calling procedure and
+the status of the result (one of [const OK] or [const ERROR]), in this
+order.
 
-The http request header will be available in that procedure via
+[para] In case of [const OK] a third argument is added, the data
+associated with the result.
+
+[para] If and only if the [const ERROR] is a redirection, the location
+redirected to will be added as argument.
+
+Further, if the configuration key [const error-body] is set to
+[const true] the data associated with the result will be added as
+argument as well.
+
+[para] The http request header will be available in that procedure via
 [cmd {upvar token token}].
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
@@ -438,6 +449,15 @@ otherwise.
 [para] The second expression is the ERROR condition, it must return
 [const false] unless there is an error, then it has to return
 [const true].
+
+[comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
+[def [const error_body]]
+
+The value of this option determines whether to return the response
+when encountering an HTTP error, or not. The default is to not return
+the response body on error.
+
+[para] See [const callback] above for more information.
 
 [comment @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@]
 [list_end]

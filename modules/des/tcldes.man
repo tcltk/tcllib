@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcldes n 1.1]
+[vset VERSION 1.1]
+[manpage_begin tclDES n [vset VERSION]]
 [see_also des(n)]
 [keywords 3DES]
 [keywords {block cipher}]
@@ -12,7 +13,7 @@
 [titledesc {Implementation of the DES and triple-DES ciphers}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require tclDES 1]
+[require tclDES [vset VERSION]]
 [description]
 [para]
 

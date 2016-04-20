@@ -1,5 +1,54 @@
 This file records outstanding actions for the math module
 
+dd. 11 april 2016
+Fix problem in math::geometry::pointInsidePolygon (Eduard on comp.lang.tcl):
+
+% set polygon "-764 -677 -668 -1341 -124 -797 -508 -406"
+-764 -677 -668 -1341 -124 -797 -508 -406
+% set point "838 456"
+838 456
+% package require math::geometry
+1.1.3
+% ::math::geometry::pointInsidePolygon $point $polygon
+1
+
+Possible solution at: https://www.ecse.rpi.edu/~wrf/Research/Short_Notes/pnpoly.html
+
+I fixed the calculation of the point far away - but I want an edge case or two extra!
+
+
+dd. 10 november 2015, Arjen Markus
+Implement Box-Cox and Fisher's F test
+
+Note: Fisher's F test implemented as test-anova-F
+
+dd. 28 october 2015, Arjen Markus
+Implement Dunnett's test for means and Levene's test for standard deviations
+
+
+dd. 1 october 2015, Arjen Markus
+Implement the following geometrical functions:
+inproduct, crossProduct, areaParallellogram, unitVector, translate, rotate, rotateGeneral, reflect, reflectGeneral,
+angleBetween, affine, degToRad, radToDeg, mkAffine
+
+circles and triangles
+
+Still to be implemented:
+unitVector, rotateGeneral, reflectGeneral, affine, mkAffine
+
+don't use lset, but lappend instead?
+
+Describe the procedures
+
+Implement tests
+
+dd. 9 september 2015, Arjen Markus
+Implement an inverse Student's t function - based on cephes library (cprob.tgz)
+
+dd. 29 may 2015, Arjen Markus
+- implement a wavelets module
+- small stuff: create a proc that constructs a piece-wise linear function from a specification
+
 dd. 26 april 2015, Arjen Markus
 Add:
 - additional linear algebra procedures by Federico Ferri

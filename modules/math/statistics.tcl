@@ -18,6 +18,7 @@
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
 # version 0.9:   added kernel density estimation
 # version 0.9.3: added histogram-alt, corrected test-normal
+# version 1.0:   added test-anova-F
 
 package require Tcl 8.4
 package provide math::statistics 1.0
@@ -54,7 +55,7 @@ namespace eval ::math::statistics {
 	    control-Rchart test-Rchart \
 	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
 	    test-Wilcoxon spearman-rank spearman-rank-extended \
-	    test-Duckworth
+	    test-Duckworth test-anova-F
     #
     # Error messages
     #
@@ -1480,6 +1481,72 @@ proc ::math::statistics::test-Duckworth {list1 list2 significance} {
         }
     }
 }
+
+# test-anova-F --
+#     Check if two or more groups with normally distributed data have the same
+#     variances
+#
+# Arguments:
+#     alpha            Significance level
+#     args             One or more lists containing the data for the
+#                      other groups
+#
+# Returns:
+#     Whether the variation for the groups is likely to be the same (1)
+#     or not (0).
+#
+# Note:
+#     args may be a nested list
+#
+#     Implementation based on Wikipedia page on the F-test, one-way ANOVA
+#
+#     Possibly of interest: the ratio itself.
+#
+proc test-anova-F {alpha args} {
+    if { [llength $args] == 1 } {
+        set args [lindex $args 0]
+    }
+
+    if { [llength $args] < 2 } {
+        return -code error -errorcode ARG -errorinfo "At least two groups are required" \
+                                                     "At least two groups are required"
+    }
+
+    #
+    # Determine the variance within the groups and the variance between the groups
+    #
+    set meanPerGroup {}
+    set varPerGroup  {}
+    set allData   {}
+    foreach group $args {
+        lappend meanPerGroup [::math::statistics::mean $group]
+        lappend varPerGroup  [::math::statistics::pvar $group]
+        set allData          [concat $allData $group]
+    }
+    set meanOverall [::math::statistics::mean $allData]
+
+    set varBetween 0.0
+    foreach group $args mean $meanPerGroup {
+        set varBetween [expr {$varBetween + [llength $group] * ($mean - $meanOverall)**2}]
+    }
+    set varBetween [expr {$varBetween / ([llength $args] - 1)}]
+
+    set varWithin 0.0
+    foreach group $args var $varPerGroup {
+        set varWithin [expr {$varWithin + [llength $group] * $var}]
+    }
+    set varWithin [expr {$varWithin / ([llength $allData] - [llength $args])}]
+
+    #
+    # Finally compare the ratio to the F-distribution
+    #
+    set ratio [expr {$varBetween / $varWithin}]
+    set nf1   [expr {[llength $args]    - 1}]
+    set nf2   [expr {[llength $allData] - [llength $args]}]
+
+    expr {[::math::statistics::cdf-F $nf1 $nf2 $ratio] <= 1.0 - $alpha}
+}
+
 
 
 #
