@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.1.3]
+[manpage_begin math::geometry n 1.2.2]
 [keywords angle]
 [keywords distance]
 [keywords line]
@@ -13,8 +13,8 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Geometrical computations}]
 [category  Mathematics]
-[require Tcl [opt 8.3]]
-[require math::geometry [opt 1.1.3]]
+[require Tcl [opt 8.5]]
+[require math::geometry [opt 1.2.2]]
 
 [description]
 [para]
@@ -418,6 +418,21 @@ polygon.
 
 [para]
 
+[call [cmd ::math::geometry::pointInsidePolygonAlt] [arg P] [arg polyline]]
+
+Determine if a point is completely inside a polygon. If the point
+touches the polygon, then the point is not completely inside the
+polygon. [emph Note:] this alternative procedure uses the so-called
+winding number to determine this. It handles self-intersecting polygons
+in a "natural" way.
+
+[list_begin arguments]
+[arg_def list P] Coordinates of the point
+[arg_def list polyline] The polyline to be examined
+[list_end]
+
+[para]
+
 [call [cmd ::math::geometry::rectangleInsidePolygon] [arg P1] [arg P2] [arg polyline]]
 
 Determine if a rectangle is completely inside a polygon. If polygon
@@ -439,6 +454,59 @@ Calculate the area of a polygon.
 
 [list_begin arguments]
 [arg_def list polygon] The polygon in question
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::translate] [arg vector] [arg polyline]]
+
+Translate a polyline over a given vector
+
+[list_begin arguments]
+[arg_def list vector]   Translation vector
+[arg_def list polyline] The polyline to be rotated
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::rotate] [arg angle] [arg polyline]]
+
+Rotate a polyline over a given angle (degrees) around the origin
+
+[list_begin arguments]
+[arg_def list angle]    Angle over which to rotate the polyline (degrees)
+[arg_def list polyline] The polyline to be translated
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::reflect] [arg angle] [arg polyline]]
+
+Reflect a polyline in a line through the origin at a given angle (degrees) to the x-axis
+
+[list_begin arguments]
+[arg_def list angle]    Angle of the line of reflection (degrees)
+[arg_def list polyline] The polyline to be reflected
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::degToRad] [arg angle]]
+
+Convert from degrees to radians
+
+[list_begin arguments]
+[arg_def list angle]    Angle in degrees
+[list_end]
+
+[para]
+
+[call [cmd ::math::geometry::radToDeg] [arg angle]]
+
+Convert from radians to degrees
+
+[list_begin arguments]
+[arg_def list angle]    Angle in radians
 [list_end]
 
 [list_end]

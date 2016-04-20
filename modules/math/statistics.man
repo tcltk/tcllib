@@ -223,6 +223,7 @@ reasons the values "1-significance", 0.80, 0.85, 0.90, 0.95 or 0.99 are also acc
 [para]
 Compatibility issue: the original implementation and documentation used the term "confidence" and used a value
 1-significance (see ticket 2812473fff). This has been corrected as of version 0.9.3.
+[para]
 
 [call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
@@ -258,6 +259,25 @@ test. Smaller values of the significance mean a stricter testing.
 [arg_def list list1] - First list of data
 [arg_def list list2] - Second list of data
 [arg_def float significance] - Significance level (either 0.05, 0.01 or 0.001)
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::test-anova-F] [arg alpha] [arg args]]
+Determine if two or more groups with normally distributed data have the same variances.
+The procedure returns 0 if the variances are likely unequal, 1 if they are. This is
+a one-way ANOVA test. The groups may also be stored in a nested list:
+
+[example {
+    test-anova-F 0.05 $A $B $C
+    #
+    # Or equivalently:
+    #
+    test-anova-F 0.05 [list $A $B $C]
+}]
+[list_begin arguments]
+[arg_def float alpha] - Significance level
+[arg_def list args] - Two or more groups of data to be checked
 [list_end]
 [para]
 
@@ -713,7 +733,9 @@ The Weibull distribution
 [item]
 The Cauchy distribution
 [item]
-PM - binomial,F.
+The F distribution (only the cumulative density function)
+[item]
+PM - binomial.
 [list_end]
 
 In principle for each distribution one has procedures for:
@@ -1011,6 +1033,17 @@ distribution with given location and scale parameters.
 [list_begin arguments]
 [arg_def float location] - Location parameter
 [arg_def float scale] - Scale parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-F] [arg nf1] [arg nf2] [arg value]]
+Return the cumulative probability of a given value for an F
+distribution with nf1 and nf2 degrees of freedom.
+
+[list_begin arguments]
+[arg_def float nf1] - Degrees of freedom for the numerator
+[arg_def float nf2] - Degrees of freedom for the denominator
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
