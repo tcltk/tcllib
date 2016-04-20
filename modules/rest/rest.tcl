@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.0.2
+package provide rest 1.2
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -47,7 +47,7 @@ proc ::rest::simple {url query args} {
 
     if {[string first " " $query] > 0} {
         # if query has a space assume it is a list of key value pairs, and do the formatting
-        set query [eval ::http::formatQuery $query]
+        set query [::http::formatQuery {*}$query]
     } elseif {[string first ? $url] > 0 && $query == ""} {
         # if the url contains a query string and query empty then split it to the correct vars
         set query [join [lrange [split $url ?] 1 end] ?]
@@ -69,8 +69,13 @@ proc ::rest::simple {url query args} {
     if {[dict exists $config cookie]} {
         lappend headers Cookie [join [dict get $config cookie] \;]
     }
-
-    set result [::rest::_call {} $headers $url $query $body]
+    if {[dict exists $config error-body]} {
+        set error_body [dict get $config error-body]
+    } else {
+        set error_body 0
+    }
+ 
+    set result [::rest::_call {} $headers $url $query $body $error_body]
 
     # if a format was specified then convert the data, but dont do any auto formatting
     if {[dict exists $config result]} {
@@ -149,7 +154,7 @@ proc ::rest::create_interface {name} {
             set config [dict merge $in([dict get $config copy]) $config]
         }
         if {[dict exists $config unset]} {
-            set config [eval [list dict remove $config] [dict get $config unset]]
+            set config [dict remove $config {*}[dict get $config unset]]
         }
         if {[dict exists $config content-type]} {
             dict set config headers content-type [dict get $config content-type]
@@ -189,6 +194,12 @@ proc ::rest::create_interface {name} {
                 lappend proc {dict set config headers content-type "multipart/related; boundary=$b"}
             }
         }
+        if {[dict exists $config error-body]} {
+            set error_body [dict get $config error-body]
+        } else {
+            set error_body 0
+        }
+        lappend proc "set error_body $error_body"
         # end option processing
 
         if {[dict exists $config auth]} {
@@ -215,20 +226,20 @@ proc ::rest::create_interface {name} {
             lappend proc "set query \[::${name}::[lindex [dict get $config auth] 1] \$query]"
         }
         
-        lappend proc {set query [eval ::http::formatQuery $query]}
+        lappend proc {set query [::http::formatQuery {*}$query]}
         
         # if this is an async call (has defined a callback)
         # then end the main proc here by returning the http token
         # the rest of the normal result processing will be put in a _callback_NAME
         # proc which is called by the generic _callback proc
         if {[dict exists $config callback]} {
-            lappend proc "set t \[::rest::_call \{[list ::${name}::_callback_$call [dict get $config callback]]\} \$headers \$url \$query \$body]"
+            lappend proc "set t \[::rest::_call \{[list ::${name}::_callback_$call [dict get $config callback]]\} \$headers \$url \$query \$body \$error_body]"
             lappend proc {return $t}
             proc ::${name}::$call args [join $proc \n]
             set proc {}
             lappend proc {upvar token token}
         } else {
-            lappend proc {set result [::rest::_call {} $headers $url $query $body]}
+            lappend proc {set result [::rest::_call {} $headers $url $query $body $error_body]}
         }
         
         # process results
@@ -390,7 +401,7 @@ proc ::rest::parameters {url args} {
     foreach x [split [lindex [split $url ?] 1] &] {
         set x [split $x =]
         if {[llength $x] < 2} { lappend x "" }
-        eval lappend dict $x
+        lappend dict {*}$x
     }
     if {[llength $args] > 0} {
         return [dict get $dict [lindex $args 0]]
@@ -420,8 +431,8 @@ proc ::rest::parameters {url args} {
 # RETURNS:
 #       the data from the http reply, or an http token if the request was async
 #
-proc ::rest::_call {callback headers url query body} {
-    #puts "_call [list $callback $headers $url $query $body]"
+proc ::rest::_call {callback headers url query body error_body} {
+    #puts "_call [list $callback $headers $url $query $body $error_body]"
     # get the settings from the calling proc
     upvar config config
     
@@ -458,21 +469,29 @@ proc ::rest::_call {callback headers url query body} {
     #puts "opts $opts"
     #puts "geturl $url"
     #return
-    set t [http::geturl $url -headers $headers {*}$opts]
+    set t        [http::geturl $url -headers $headers {*}$opts]
+    set data     [http::data  $t]
+    set httpCode [http::ncode $t]
 
-    # if this is an async request return now, otherwise process the result
+    # if this is an async request return now, otherwise process the
+    # result
     if {$callback != ""} { return $t }
-    if {![string match 2* [http::ncode $t]]} {
+
+    # Generate an error return for a failed request
+    if {![string match 2* $httpCode]} {
         #parray $t
-        if {[string match {30[123]} [http::ncode $t]]} {
+	set retList [list HTTP $httpCode]
+        if {[string match {30[123]} $httpCode]} {
             upvar #0 $t a
-            return -code error [list HTTP [http::ncode $t] [dict get $a(meta) Location]]
+            lappend retList [dict get $a(meta) Location]
         }
-        return -code error [list HTTP [http::ncode $t]]
+        if {$error_body} {lappend retList $data}
+        return -code error $retList
     }
-    set data [http::data $t]
-    # copy the token into the calling scope so that the transforms can access it
-    # via uplevel, and we can still call cleanup on the real token
+
+    # copy the token into the calling scope so that the transforms can
+    # access it via uplevel, and we can still call cleanup on the real
+    # token
     upvar token token
     array set token [array get $t]
 
@@ -511,12 +530,12 @@ proc ::rest::_callback {datacb usercb t} {
             lappend data [dict get $token(meta) Location]
         }
         http::cleanup $t
-        $usercb ERROR $data
+        {*}$usercb ERROR $data
         return
     }
     set data [http::data $t]
     http::cleanup $t
-    eval $datacb [list $data]
+    {*}$datacb $data
 }
 
 # parse_opts --

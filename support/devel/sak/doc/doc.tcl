@@ -11,12 +11,12 @@ namespace eval ::sak::doc {}
 
 ## ### ### ### ######### ######### #########
 
-proc ::sak::doc::index {modules} {
+proc ::sak::doc::index {modules {excluded {}}} {
     # The argument (= set of modules) is irrelevant to this command.
     global base
 
     # First locate all manpages in the CVS workspace.
-    set manpages [auto::findManpages $base]
+    set manpages [auto::findManpages $base $excluded]
     auto::saveManpages $manpages
 
     # Then scan the found pages and extract the information needed for
@@ -80,10 +80,10 @@ proc ::sak::doc::index {modules} {
     return
 }
 
-proc ::sak::doc::imake {modules} {
+proc ::sak::doc::imake {modules {excluded {}}} {
     global base
     # The argument (= set of modules) is irrelevant to this command.
-    auto::saveManpages [auto::findManpages $base]
+    auto::saveManpages [auto::findManpages $base $excluded]
     return
 }
 

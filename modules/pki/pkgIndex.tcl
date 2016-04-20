@@ -1,1 +1,1 @@
-package ifneeded pki 0.6 [list source [file join $dir pki.tcl]]
+package ifneeded pki 0.10 [list source [file join $dir pki.tcl]]
