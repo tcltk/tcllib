@@ -118,7 +118,8 @@ namespace eval httpd::content {}
   # Output the result or error to the channel
   # and destroy this object
   ###
-  method output {} {
+  method DoOutput {} {
+    chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
     chan configure $chan  -translation {binary binary}
 
@@ -141,7 +142,7 @@ namespace eval httpd::content {}
       set reply_body [string trim $reply_body]
       append result "Content-length: [string length $reply_body]" \n \n
       append result $reply_body
-      puts -nonewline $chan $result
+      chan puts -nonewline $chan $result
       chan flush $chan    
       my destroy
     } else {
@@ -150,7 +151,7 @@ namespace eval httpd::content {}
       ###
       set size [file size $reply_file]
       append result "Content-length: $size" \n \n
-      puts -nonewline $chan $result
+      chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       chan configure $reply_chan  -translation {binary binary}
       chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
@@ -194,7 +195,7 @@ namespace eval httpd::content {}
     # and always populated (even if zero), per SCGI requirements
     ###
     set block [my query_headers netstring]
-    puts -nonewline $sock $block
+    chan puts -nonewline $sock $block
     set length [my query_headers get CONTENT_LENGTH]
     if {$length} {
       ###
@@ -210,7 +211,8 @@ namespace eval httpd::content {}
     chan event $sock readable [namespace code {my output}]
   }
   
-  method output {} {
+  method DoOutput {} {
+    chan event $chan writable {}
     if {[my query_headers getnull HTTP_ERROR] ne {}} {
       ###
       # If something croaked internally, handle this page as a normal reply
@@ -228,7 +230,7 @@ namespace eval httpd::content {}
     set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
     append replybuffer $replyhead
     chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
-    puts $chan $replybuffer
+    chan puts $chan $replybuffer
     ###
     # Output the body
     ###
@@ -274,9 +276,9 @@ namespace eval httpd::content {}
     chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
 
     # Pass along our modified METHOD URI PROTO
-    puts $sock "$proxyscript"
+    chan puts $sock "$proxyscript"
     # Pass along the headers as we saw them
-    puts $sock $rawrequest
+    chan puts $sock $rawrequest
     set length [my query_headers get CONTENT_LENGTH]
     if {$length} {
       ###
@@ -292,7 +294,8 @@ namespace eval httpd::content {}
     chan event $sock readable [namespace code {my output}]
   }
   
-  method output {} {
+  method DoOutput {} {
+    chan event $chan writable {}
     if {[my query_headers getnull HTTP_ERROR] ne {}} {
       ###
       # If something croaked internally, handle this page as a normal reply
@@ -312,7 +315,7 @@ namespace eval httpd::content {}
     set replybuffer "$replystatus\n"
     append replybuffer $replyhead
     chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
-    puts $chan $replybuffer
+    chan puts $chan $replybuffer
     ###
     # Output the body
     ###
@@ -325,8 +328,6 @@ namespace eval httpd::content {}
       ###
       chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
     } else {
-      catch {close $sock}
-      chan flush $chan
       my destroy
     }
   }
@@ -392,4 +393,4 @@ namespace eval httpd::content {}
   }
 }
 
-package provide httpd::content 4.0
+package provide httpd::content 4.0.1
