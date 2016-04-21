@@ -13,7 +13,7 @@ if { $::tcl_platform(platform) eq "windows" } {
   # Try to utilize C level utilities that are bundled
   # with either TclX or Odielib
   ###
-  if [catch {package require odielib}] {
+  if [catch {package require odielibc}] {
     catch {package require Tclx}
   }
   if {[info commands subprocess_exists] eq {}} {
