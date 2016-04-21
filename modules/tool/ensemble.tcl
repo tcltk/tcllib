@@ -11,8 +11,7 @@ proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
   # Only go through the motions for classes that have a locally defined
   # ensemble method implementation
   ###
-  set local_ensembles [dict keys [::oo::meta::localdata $thisclass method_ensemble]]
-  foreach ensemble $local_ensembles {
+  foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
     set einfo [dict getnull $metadata method_ensemble $ensemble]
     set eswitch {}
     set default standard
