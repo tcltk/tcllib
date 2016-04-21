@@ -7,5 +7,5 @@
 # in response to "package require" commands.  When this
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
-  
-package ifneeded practcl 0.1 [list source [file join $dir practcl.tcl]]
+
+package ifneeded practcl 0.3 [list source [file join $dir practcl.tcl]]
