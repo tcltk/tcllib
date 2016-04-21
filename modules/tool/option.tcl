@@ -20,6 +20,9 @@ proc ::tool::define::option {name args} {
         dict set dictargs $f $v
       }
     }
+    if {$optclass eq "variable"} {
+      variable $name [dict getnull $dictargs default:]
+    }
   }
   ::oo::meta::info $class branchset option $name $dictargs
 }
