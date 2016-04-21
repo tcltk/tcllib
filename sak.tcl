@@ -266,7 +266,14 @@ proc ppackages {args} {
 
 	    sakdebug {puts stderr __$f\ _________$line}
 
-	    foreach {n v} $line break
+            #foreach {n v} $line break
+            if {[catch {
+	      set n [lindex $line 0]
+              set v [lindex $line 1]
+            } err]} {
+              sakdebug {puts stderr "Line: $line of file $f threw $err"}
+              continue
+            }
 
 	    # HACK ...
 	    # Module 'page', package 'page::gen::peg::cpkg'.
