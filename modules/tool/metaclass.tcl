@@ -42,6 +42,7 @@ proc ::tool::define::component {name info} {
 proc ::tool::define::constructor {arglist rawbody} {
   set body {
 ::tool::object_create [self]
+my graft class [info object class [self]]
 # Initialize public variables and options
 my InitializePublic
   }
@@ -464,6 +465,7 @@ proc ::tool::object_destroy objname {
     }
     if { $class ne $newclass } {
       my Morph_leave
+      my graft class ::${newclass}
       oo::objdefine [self] class ::${newclass}
       my InitializePublic
       my Morph_enter
@@ -517,6 +519,17 @@ proc ::tool::object_destroy objname {
     }
     if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
       return [my meta get const {*}[lrange $args 0 end-1] $field]
+    }
+    set class [info object class [self]]
+    if {[$class meta exists {*}[lrange $args 0 end-1] $field]} {
+      set value [$class meta get {*}[lrange $args 0 end-1] $field]
+      my meta set const {*}[lrange $args 0 end-1] $field $value
+      return $value
+    }
+    if {[$class meta exists const {*}[lrange $args 0 end-1] $field]} {
+      set value [$class meta get const {*}[lrange $args 0 end-1] $field]
+      my meta set const {*}[lrange $args 0 end-1] $field $value
+      return $value
     }
     return {}
   }
