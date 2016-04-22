@@ -21,7 +21,7 @@ tool::class create ::tool::organelle {
     foreach {stub organ} [$master organ] {
       my graft $stub $organ
     }
-    foreach {methodname variable} [my meta branchget array_ensemble] {
+    foreach {methodname variable} [my <class> meta branchget array_ensemble] {
       my forward $methodname $master $methodname
     }
   }

@@ -211,10 +211,9 @@ proc ::oo::meta::metadata {class {force 0}} {
   }
   lappend metadata {classinfo {type {}}}
   if {[::info exists local_property($class)]} {
-    set metadata [dict rmerge {*}$metadata $local_property($class)]
-  } else {
-    set metadata [dict rmerge {*}$metadata]
+    lappend metadata $local_property($class)
   }
+  set metadata [dict rmerge {*}$metadata]
   set cached_property($class) $metadata
   return $metadata
 }
