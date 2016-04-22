@@ -6,7 +6,6 @@
 proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
   variable trace
   set ensembledict {}
-  if {$trace} { puts "dynamic_methods_ensembles $thisclass"}
   ###
   # Only go through the motions for classes that have a locally defined
   # ensemble method implementation
@@ -28,14 +27,17 @@ proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
       set default $body
       dict unset einfo default:
     }
-    set eswitch \n
-    append eswitch "\n    [list <list> [list return [lsort -dictionary [dict keys $einfo]]]]" \n
+    set methodlist {}
+    foreach item [dict keys $einfo] {
+      lappend methodlist [string trimright $item :]
+    }
+    set methodlist  [lsort -dictionary -unique $methodlist]
     foreach {submethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-      if {$submethod eq "_preamble:"} continue
+      if {$submethod in {"_preamble:" "default:"}} continue
       set submethod [string trimright $submethod :]
       lassign $esubmethodinfo arglist realbody
       if {[string length [string trim $realbody]] eq {}} {
-        append eswitch "    [list $submethod {}]" \n
+        dict set eswitch $submethod {}
       } else {
         if {$arglist in {args {}}} {
           set body {}
@@ -43,29 +45,28 @@ proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
           set body "\n      ::tool::dynamic_arguments [list $arglist] {*}\$args"
         }
         append body "\n      " [string trim $realbody] "      \n"
-        append eswitch "    [list $submethod $body]" \n
+        dict set eswitch $submethod $body
       }
     }
-    if {$default=="standard"} {
-      set default "error \"unknown method $ensemble \$method. Valid: [lsort -dictionary [dict keys $eswitch]]\""
+    if {![dict exists $eswitch <list>]} {
+      dict set eswitch <list> {return $methodlist}
     }
-    append eswitch [list default $default] \n
+    if {$default=="standard"} {
+      set default "error \"unknown method $ensemble \$method. Valid: \$methodlist\""
+    }
+    dict set eswitch default $default
     if {[dict exists $einfo _preamble:]} {
       set body [lindex [dict get $einfo _preamble:] 1]
     } else {
       set body {}
     }
+    append body \n [list set methodlist $methodlist]
     append body \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
-
-    #if { $ensemble == "action" } {
-    #  append body \n {  if {$code == 0} { my event generate event $method {*}$dictargs}}
-    #}
     append body \n {return -options $opts $result}
     oo::define $thisclass method $ensemble {{method default} args} $body
     # Define a property for this ensemble for introspection
     ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
   }
-  if {$trace} { puts "/dynamic_methods_ensembles $thisclass"}
 }
 
 ###
@@ -340,3 +341,88 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
   ::oo::meta::info $class set method_ensemble $methodname $methoddata
 }
 
+
+proc ::tool::dynamic_methods_property {thisclass metadata} {
+  ###
+  # Apply properties
+  ###
+  set ancestors [::oo::meta::ancestors $thisclass]
+  set preswitchbody {}
+  set switchbody {}
+  dict set preswitchbody ancestors [list return $ancestors]
+  dict set preswitchbody class [list return $thisclass]
+  foreach {item dict} [dict keys $metadata] {
+    if {$item in "method_ensemble"} continue
+    dict set preswitchbody $item [string map [list %class% $thisclass] {
+      set dict [::oo::meta::info %class% branchget $field]
+      if {[llength $args]==0} {
+        return $dict
+      }
+      set element [lindex $args 0]
+      if {$element in {list <list>}} {
+        return [dict keys $dict]
+      }
+      if {$element in {dict <dict> dump}} {
+        return $dict
+      }
+      return [dict getnull $dict {*}$args]
+    }]
+  }
+  dict set preswitchbody <subdicts> [list return [lsort -dictionary [dict keys $preswitchbody]]]
+  foreach {field value} [dict getnull $metadata const] {
+    set field [string trimleft [string trimright $field :] -]
+    dict set switchbody $field [list return $value]
+  }
+  set body \n
+  append body "\nswitch \$field \{"
+  foreach {field script} $preswitchbody {
+    append body \n "  [list $field $script]"
+  }
+  append body \n \}
+  append body "\nswitch \$field \{"
+  foreach {field script} $switchbody {
+    append body \n "  [list $field $script]"
+  }
+  append body \n \}
+  oo::objdefine $thisclass method property {field args} $body
+  
+  
+  foreach {field value} [dict getnull $metadata option] {
+    set field [string trimleft [string trimright $field :] -]
+    dict set switchbody $field [string map [list %field% $field] {return [my cget %field]}]
+  }
+  foreach {field value} [dict getnull $metadata variable] {
+    set field [string trimleft [string trimright $field :] -]
+    dict set switchbody $field [string map [list %field% $field] {my variable %field% ; return $%field%}]
+  }
+  foreach {item dict} [dict keys $metadata] {
+    if {$item in "method_ensemble"} continue
+    dict set switchbody $item [string map [list %class% $thisclass] {
+      set dict [::oo::meta::info %class% branchget $field]
+      if {[llength $args]==0} {
+        return $dict
+      }
+      set element [lindex $args 0]
+      if {$element in {list <list>}} {
+        return [dict keys $dict]
+      }
+      if {$element in {dict <dict> dump}} {
+        return $dict
+      }
+      return [dict getnull $dict {*}$args]
+    }]
+  }
+  set body \n
+  append body "\nswitch \$field \{"
+  foreach {field script} $preswitchbody {
+    append body \n "  [list $field $script]"
+  }
+  append body \n \}
+  append body "\nswitch \$field \{"
+  foreach {field script} $switchbody {
+    append body \n "  [list $field $script]"
+  }
+  append body \n \}
+  append body \n "return {}"
+  oo::define $thisclass method property {field args} $body
+}
