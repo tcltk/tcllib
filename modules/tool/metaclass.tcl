@@ -152,7 +152,7 @@ proc ::tool::args_to_options args {
 ###
 proc ::tool::dynamic_methods class {
   set metadata [::oo::meta::metadata $class]
-  foreach command [info commands ::tool::dynamic_methods_*] {
+  foreach command [info commands [namespace current]::dynamic_methods_*] {
     $command $class $metadata
   }
 }
@@ -495,44 +495,44 @@ proc ::tool::object_destroy objname {
     return [dict getnull $organs $stub]
   }
 
-  class_method property args {
-    if {[my meta exists {*}$args]} {
-      return [my meta get {*}$args]
-    }
-    set field [string trimright [lindex $args end] :]:
-    if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
-      return [my meta get {*}[lrange $args 0 end-1] $field]
-    }
-    if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
-      return [my meta get const {*}[lrange $args 0 end-1] $field]
-    }
-    return {}
-  }
+  #class_method property args {
+  #  if {[my meta exists {*}$args]} {
+  #    return [my meta get {*}$args]
+  #  }
+  #  set field [string trimright [lindex $args end] :]:
+  #  if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
+  #    return [my meta get {*}[lrange $args 0 end-1] $field]
+  #  }
+  #  if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
+  #    return [my meta get const {*}[lrange $args 0 end-1] $field]
+  #  }
+  #  return {}
+  #}
   
-  method property args {
-    if {[my meta exists {*}$args]} {
-      return [my meta get {*}$args]
-    }
-    set field [string trimright [lindex $args end] :]:
-    if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
-      return [my meta get {*}[lrange $args 0 end-1] $field]
-    }
-    if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
-      return [my meta get const {*}[lrange $args 0 end-1] $field]
-    }
-    set class [info object class [self]]
-    if {[$class meta exists {*}[lrange $args 0 end-1] $field]} {
-      set value [$class meta get {*}[lrange $args 0 end-1] $field]
-      my meta set const {*}[lrange $args 0 end-1] $field $value
-      return $value
-    }
-    if {[$class meta exists const {*}[lrange $args 0 end-1] $field]} {
-      set value [$class meta get const {*}[lrange $args 0 end-1] $field]
-      my meta set const {*}[lrange $args 0 end-1] $field $value
-      return $value
-    }
-    return {}
-  }
+  #method property args {
+  #  if {[my meta exists {*}$args]} {
+  #    return [my meta get {*}$args]
+  #  }
+  #  set field [string trimright [lindex $args end] :]:
+  #  if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
+  #    return [my meta get {*}[lrange $args 0 end-1] $field]
+  #  }
+  #  if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
+  #    return [my meta get const {*}[lrange $args 0 end-1] $field]
+  #  }
+  #  set class [info object class [self]]
+  #  if {[$class meta exists {*}[lrange $args 0 end-1] $field]} {
+  #    set value [$class meta get {*}[lrange $args 0 end-1] $field]
+  #    my meta set const {*}[lrange $args 0 end-1] $field $value
+  #    return $value
+  #  }
+  #  if {[$class meta exists const {*}[lrange $args 0 end-1] $field]} {
+  #    set value [$class meta get const {*}[lrange $args 0 end-1] $field]
+  #    my meta set const {*}[lrange $args 0 end-1] $field $value
+  #    return $value
+  #  }
+  #  return {}
+  #}
 }
 
 
