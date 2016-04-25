@@ -90,10 +90,12 @@ proc ::tool::event::notify {rcpt sender event eventinfo} {
 proc ::tool::event::process {self handle script} {
   variable timer_event
   array unset timer_event $self:$handle
-  set err [catch {uplevel #0 $script} result]
+  set err [catch {uplevel #0 $script} result errdat]
   if $err {
     puts "BGError: $self $handle $script
-ERR: $result"
+ERR: $result
+[dict get $errdat -errorinfo]
+***"
   }
 }
 
