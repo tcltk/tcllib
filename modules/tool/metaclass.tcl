@@ -310,6 +310,10 @@ proc ::tool::object_destroy objname {
     }
     set object {}
     foreach {stub object} $args {
+      if {$stub eq "class"} {
+        # Force class to always track the object's current class
+        set obj [info object class [self]]
+      }
       dict set organs $stub $object
       oo::objdefine [self] forward <${stub}> $object
       oo::objdefine [self] export <${stub}>
@@ -465,8 +469,8 @@ proc ::tool::object_destroy objname {
     }
     if { $class ne $newclass } {
       my Morph_leave
-      my graft class ::${newclass}
       oo::objdefine [self] class ::${newclass}
+      my graft class ::${newclass}
       my InitializePublic
       my Morph_enter
     }
