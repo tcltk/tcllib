@@ -563,6 +563,7 @@ proc ::uri::GetUPHP {urlvar} {
     upvar \#0 [namespace current]::basic::port		port
 
     upvar $urlvar url
+    set url_save $url
 
     array set parts {user {} pwd {} host {} port {}}
 
@@ -604,6 +605,10 @@ proc ::uri::GetUPHP {urlvar} {
 	incr matchEnd
 
 	set url	[string range $url $matchEnd end]
+    }
+    
+    if {![string match /* $url] && $url ne {}} {
+	error [list {invalid url} $url $url_save]
     }
 
     return [array get parts]
