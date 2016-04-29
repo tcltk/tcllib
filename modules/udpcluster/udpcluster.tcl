@@ -31,21 +31,22 @@ proc ::cluster::broadcast {args} {
     puts [list $::cluster::local_pid SEND $args]
   }
   variable discovery_port
+  listen
   while {[catch {
 
-    #foreach net [::nettool::broadcast_list] {
-    #  if {$::cluster::config(debug)} {
-    #    puts [list BROADCAST -> $net $args]
-    #  }
-    #  set s [udp_open]
-    #  udp_conf $s $net $discovery_port
-    #  puts -nonewline $s [list [pid] {*}$args]
-    #  chan flush $s
-    #  chan close $s
-    #}
-    set sock [listen]
-    puts -nonewline $sock [list [pid] {*}$args]
-    flush $sock
+    foreach net [::nettool::broadcast_list] {
+      if {$::cluster::config(debug)} {
+        puts [list BROADCAST -> $net $args]
+      }
+      set s [udp_open]
+      udp_conf $s $net $discovery_port
+      puts -nonewline $s [list [pid] {*}$args]
+      chan flush $s
+      chan close $s
+    }
+    #set sock [listen]
+    #puts -nonewline $sock [list [pid] {*}$args]
+    #flush $sock
   } error]} {
     set ::cluster::broadcast_sock {}
     if {$::cluster::config(debug)} {
