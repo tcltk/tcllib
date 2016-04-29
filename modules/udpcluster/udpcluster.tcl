@@ -30,7 +30,19 @@ proc ::cluster::broadcast {args} {
   if {$::cluster::config(debug)} {
     puts [list $::cluster::local_pid SEND $args]
   }
+  variable discovery_port
   while {[catch {
+
+    #foreach net [::nettool::broadcast_list] {
+    #  if {$::cluster::config(debug)} {
+    #    puts [list BROADCAST -> $net $args]
+    #  }
+    #  set s [udp_open]
+    #  udp_conf $s $net $discovery_port
+    #  puts -nonewline $s [list [pid] {*}$args]
+    #  chan flush $s
+    #  chan close $s
+    #}
     set sock [listen]
     puts -nonewline $sock [list [pid] {*}$args]
     flush $sock
@@ -91,10 +103,26 @@ proc ::cluster::listen {} {
   if {$broadcast_sock != {}} {
     return $broadcast_sock
   }
-  variable discovery_port
+
+  variable discovery_port 
+  #foreach net [::nettool::broadcast_list] {
+  #  set s [udp_open $discovery_port reuse]
+  #
+  #    if {$::cluster::config(debug)} {
+  #      puts [list BROADCAST -> $net $args]
+  #    }
+  #    set s [udp_open]
+  #    udp_conf $s $net $discovery_port
+  #    puts -nonewline $s [list [pid] {*}$args]
+  #    chan flush $s
+  #    chan close $s
+  #  }
+  
+  # Open a local discovery port to catch non-IP traffic
   variable discovery_group
   set broadcast_sock [udp_open $discovery_port reuse]
   fconfigure $broadcast_sock -buffering none -blocking 0 \
+    -broadcast 1 \
     -mcastadd $discovery_group \
     -remote [list $discovery_group $discovery_port]
   fileevent $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
@@ -529,4 +557,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2.5
+package provide udpcluster 0.3
