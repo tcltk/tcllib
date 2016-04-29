@@ -18,18 +18,18 @@ testsNeedTcltest 1.0
 set ::WHOAMI Main
 
 support {
-    use dicttool/dicttool.tcl        dicttool
-    use snit/snit2.tcl      snit
-    use dns/ip.tcl          ip
-    use nettool/nettool.tcl nettool
-    use cron/cron.tcl       cron
-    use uuid/uuid.tcl       uuid
-    use interp/interp.tcl   interp
-    use log/logger.tcl      logger
-    use md5/md5x.tcl        md5
+      use dicttool/dicttool.tcl        dicttool
+      use comm/comm.tcl       comm
+      use dns/ip.tcl          ip
+      use nettool/nettool.tcl nettool
+      use cron/cron.tcl       cron
+      use uuid/uuid.tcl       uuid
+      use interp/interp.tcl   interp
+      use log/logger.tcl      logger
+      use md5/md5x.tcl        md5
 }
 testing {
-    useLocal nns_cluster.tcl nameserv::cluster
+    useLocal udpcluster.tcl udpcluster
 }
 
 ###
@@ -57,9 +57,10 @@ interp eval server {
       use md5/md5x.tcl        md5
   }
   testing {
-      use nns/nns_cluster.tcl nameserv::cluster
+      use udpcluster/udpcluster.tcl udpcluster
   }
   set ::cluster::local_pid SERVER
+  #set ::cluster::config(debug) 1
   ::cluster::publish nns@[::cluster::macid] {}
   update
 }
@@ -138,7 +139,7 @@ interp eval otherclient {
       use md5/md5x.tcl        md5
   }
   testing {
-      use nns/nns_cluster.tcl nameserv::cluster
+      use udpcluster/udpcluster.tcl udpcluster
   }
 
   ###
@@ -146,7 +147,7 @@ interp eval otherclient {
   ###
   set macid [::cluster::macid]
   set myport [::nettool::allocate_port 10000]
-  
+  #set ::cluster::config(debug) 1
   set url other@$macid
   ::comm::comm new $url -port $myport -local 0 -listen 1
   #set ::cluster::config(debug) 1
