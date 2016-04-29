@@ -150,7 +150,6 @@ interp eval otherclient {
   #set ::cluster::config(debug) 1
   set url other@$macid
   ::comm::comm new $url -port $myport -local 0 -listen 1
-  #set ::cluster::config(debug) 1
   ::cluster::publish $url [list port $myport protocol comm class comm]
 }
 
