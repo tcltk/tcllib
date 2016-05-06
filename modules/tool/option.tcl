@@ -75,7 +75,7 @@ proc ::tool::define::option_class {name args} {
       return [dict get $config $field]
     }
     if {[llength $args]} {
-      return [linded $args 0]
+      return [lindex $args 0]
     }
     return [my property $field] 
   }
