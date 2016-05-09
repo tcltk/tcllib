@@ -142,7 +142,7 @@ proc ::tool::args_to_dict args {
 proc ::tool::args_to_options args {
   set result {}
   foreach {var val} [args_to_dict {*}$args] {
-    lappend result [string trimleft $var -] $val
+    lappend result [string trimright [string trimleft $var -] :] $val
   }
   return $result
 }
