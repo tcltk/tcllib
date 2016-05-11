@@ -2,7 +2,7 @@ package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
 package require dicttool
 package require TclOO
 package require sha1
-package require oo::meta 0.4.1
+package require oo::meta 0.5
 package require oo::dialect
 
 ::oo::dialect::create ::tool

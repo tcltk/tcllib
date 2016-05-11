@@ -185,6 +185,7 @@ proc ::oo::meta::metadata {class {force 0}} {
         }
       }
     }
+    set dirty_classes {}
   }
 
   ###
@@ -204,11 +205,11 @@ proc ::oo::meta::metadata {class {force 0}} {
   set stack {}
   variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
-  foreach aclass [lrange $cached_hierarchy($class) 0 end-1] {
-    if {[::info exists local_property($aclass)]} {
-      lappend metadata $local_property($aclass)
-    }
+  
+  foreach aclass [lreverse [::info class superclasses $class]] {
+    lappend metadata [::oo::meta::metadata $aclass]
   }
+
   lappend metadata {classinfo {type {}}}
   if {[::info exists local_property($class)]} {
     lappend metadata $local_property($class)
@@ -373,4 +374,4 @@ oo::define oo::object {
     }
   }
 }
-package provide oo::meta 0.4.1
+package provide oo::meta 0.5
