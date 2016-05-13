@@ -62,12 +62,21 @@ proc ::tool::event::Notification_list {self event {stackvar {}}} {
   set notify_list {}
   foreach {obj patternlist} [array get ::tool::object_subscribe] {
     if {$obj eq $self} continue
-    foreach pattern $patternlist {
-      lassign $pattern objpat eventpat
+    if {$obj in $notify_list} continue
+    set match 0
+    foreach {objpat eventlist} $patternlist {
       if {![string match $objpat $self]} continue
-      if {![string match $eventpat $event]} continue
+      foreach eventpat $eventlist {
+        if {![string match $eventpat $event]} continue
+        set match 1
+        break
+      }
+      if {$match} {
+        break
+      }
+    }
+    if {$match} {
       lappend notify_list $obj
-      break
     }
   }
   return $notify_list
@@ -119,28 +128,65 @@ proc ::tool::event::schedule {self handle interval script} {
 # topic: e64cff024027ee93403edddd5dd9fdde
 ###
 proc ::tool::event::subscribe {self who event} {
-  lappend ::tool::object_subscribe($self) [list $who $event]
+  upvar #0 ::tool::object_subscribe($self) subscriptions
+  if {![info exists subscriptions]} {
+    set subscriptions {}
+  }
+  set match 0
+  foreach {objpat eventlist} $subscriptions {
+    if {![string match $objpat $who]} continue      
+    foreach eventpat $eventlist {
+      if {[string match $eventpat $event]} {
+        # This rule already exists
+        return
+      }
+    }
+  }
+  dict lappend subscriptions $who $event
 }
 
 ###
 # topic: 5f74cfd01735fb1a90705a5f74f6cd8f
 ###
 proc ::tool::event::unsubscribe {self args} {
-  if {![info exists ::tool::object_subscribe($self)]} continue
-  switch {[llength $args]} {
-    0 {
-      set ::tool::object_subscribe($self) {}
-    }
+  upvar #0 ::tool::object_subscribe($self) subscriptions
+  if {![info exists subscriptions]} {
+    return
+  }  
+  switch [llength $args] {
     1 {
       set event [lindex $args 0]
-      set oldlist $::tool::object_subscribe($self)
-      set newlist {}
-      foreach pattern $oldlist {
-        lassign $pattern objpat eventpat
-        if {[string match $eventpat $event]} continue
-        lappend newlist $pattern
+      if {$event eq "*"} {
+        # Shortcut, if the 
+        set subscriptions {}
+      } else {
+        set newlist {}
+        foreach {objpat eventlist} $subscriptions {
+          foreach eventpat $eventlist {
+            if {[string match $event $eventpat]} continue
+            dict lappend newlist $objpat $eventpat
+          }
+        }
+        set subscriptions $newlist
       }
-      set ::tool::object_subscribe($self) $newlist
+    }
+    2 {
+      set who [lindex $args 0]
+      set event [lindex $args 1]
+      if {$who eq "*" && $event eq "*"} {
+        set subscriptions {}
+      } else {
+        set newlist {}
+        foreach {objpat eventlist} $subscriptions {
+          if {[string match $who $objpat]} {
+            foreach eventpat $eventlist {
+              if {[string match $event $eventpat]} continue
+              dict lappend newlist $objpat $eventpat
+            }
+          }
+        }
+        set subscriptions $newlist
+      }
     }
   }
 }
