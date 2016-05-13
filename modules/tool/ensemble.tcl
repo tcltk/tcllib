@@ -341,7 +341,10 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
   ::oo::meta::info $class set method_ensemble $methodname $methoddata
 }
 
-
+###
+# This method was provided for backward compadibility with
+# Taolib, and is deprecated
+###
 proc ::tool::dynamic_methods_property {thisclass metadata} {
   ###
   # Apply properties
