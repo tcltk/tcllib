@@ -139,13 +139,12 @@ test fumagic.filetype-1.15 {test binary graphic tiff} {
     list $res $msg
 } {0 {TIFF image data, big-endian}}
 
-# 1.16 output possibly broken, missing substs.
 test fumagic.filetype-1.16 {test binary pdf} {
     set f [makePdfFile]
     set res [catch {fileutil::magic::filetype $f} msg]
     removePdfFile
     list $res $msg
-} {0 {PDF document , version %c .%c}}
+} {0 {PDF document , version 1 .2}}
 
 test fumagic.filetype-1.17 {test text ps} {
     set f [makePSFile]
@@ -173,7 +172,7 @@ test fumagic.filetype-1.20 {test binary compressed bzip} {
     set res [catch {fileutil::magic::filetype $f} msg]
     removeBzipFile
     list $res $msg
-} {0 {bzip2 compressed data bzip compressed data , version: %c , compression block size 900k}}
+} {0 {bzip2 compressed data bzip compressed data , version: h , compression block size 900k}}
 
 test fumagic.filetype-1.21 {test binary compressed gzip} {
     set f [makeGzipFile]

@@ -122,6 +122,7 @@ proc ::fileutil::magic::rt::emit {msg} {
 
     set map [list \
 	    \\b "" \
+		%c [format %c $numeric] \
 	    %s  $string \
 	    %ld $numeric \
 	    %d  $numeric \
