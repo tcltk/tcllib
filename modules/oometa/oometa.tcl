@@ -6,7 +6,7 @@
 package require dicttool
 namespace eval ::oo::meta {
   variable dirty_classes {}
-  variable core_classes {::oo::class ::oo::object ::tao::moac}
+  variable core_classes {::oo::class ::oo::object}
 }
 
 proc ::oo::meta::args_to_dict args {
