@@ -62,7 +62,27 @@ proc ::tool::define::option_class {name args} {
   
   dict_ensemble config config
 
-  method config::get {field args} {
+  ###
+  # topic: 86a1b968cea8d439df87585afdbdaadb
+  ###
+  method cget args {
+    return [my Config_get {*}$args]
+  }
+
+  ###
+  # topic: 73e2566466b836cc4535f1a437c391b0
+  ###
+  method configure args {
+    # Will be removed at the end of "configurelist_triggers"
+    set dictargs [::oo::meta::args_to_options {*}$args]
+    if {[llength $dictargs] == 1} {
+      return [my cget [lindex $dictargs 0]]
+    }
+    set dat [my Config_merge $dictargs]
+    my Config_triggers $dat
+  }
+
+  method Config_get {field args} {
     my variable config option_canonical option_getcmd
     set field [string trimleft $field -]
     if {[info exists option_canonical($field)]} {
@@ -79,37 +99,15 @@ proc ::tool::define::option_class {name args} {
     }
     return [my property $field] 
   }
-  
-  method config::set args {
-    set dictargs [::tool::args_to_options {*}$args]
-    set dat [my config merge $dictargs]
-    my config triggers $dat
-  }
-  
-  ###
-  # topic: 86a1b968cea8d439df87585afdbdaadb
-  ###
-  method cget args {
-    return [my config get {*}$args]
-  }
 
-  ###
-  # topic: 73e2566466b836cc4535f1a437c391b0
-  ###
-  method configure args {
-    # Will be removed at the end of "configurelist_triggers"
-    set dictargs [::oo::meta::args_to_options {*}$args]
-    if {[llength $dictargs] == 1} {
-      return [my cget [lindex $dictargs 0]]
-    }
-    set dat [my config merge $dictargs]
-    my config triggers $dat
+  method config::get {field args} {
+    return [my Config_get $field {*}$args]
   }
 
   ###
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
-  method config::merge dictargs {
+  method Config_merge dictargs {
     my variable config option_canonical
     set rawlist $dictargs
     set dictargs {}
@@ -143,11 +141,25 @@ proc ::tool::define::option_class {name args} {
     }
     return $dictargs
   }
-
+  
+  method config::merge dictargs {
+    my Config_merge $dictargs
+  }
+  
+  method Config_set dictargs {
+    set dictargs [::tool::args_to_options {*}$args]
+    set dat [my Config_merge $dictargs]
+    my Config_triggers $dat
+  }
+  
+  method config::set args {
+    my Config_set {*}$args
+  }
+  
   ###
   # topic: 543c936485189593f0b9ed79b5d5f2c0
   ###
-  method config::triggers dictargs {
+  method Config_triggers dictargs {
     set dat [my meta getnull option]
     foreach {field val} $dictargs {
       set script [dict getnull $dat $field post-command:]

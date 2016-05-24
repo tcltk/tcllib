@@ -25,36 +25,44 @@ proc ::oo::meta::args_to_options args {
 }
 
 proc ::oo::meta::ancestors class {
-  set class [::oo::meta::normalize $class]
-  set thisresult {}
-  set result {}
-  set queue $class
   variable core_classes
-  
+  set class [::oo::meta::normalize $class]
+  set core_result {}
+  set queue $class
+  set result {}
+  # Rig things such that that the top superclasses
+  # are evaluated first
   while {[llength $queue]} {
     set tqueue $queue
     set queue {}
     foreach qclass $tqueue {
-      if {$qclass in $core_classes} continue
+      if {$qclass in $core_classes} {
+        if {$qclass ni $core_result} {
+          lappend core_result $qclass
+        }
+        continue
+      }
       foreach aclass [::info class superclasses $qclass] {
         if { $aclass in $result } continue
-        if { $aclass in $queue } continue
-        lappend queue $aclass
-      }
-      foreach aclass [::info class mixins $qclass] {
-        if { $aclass in $result } continue
+        if { $aclass in $core_result } continue
         if { $aclass in $queue } continue
         lappend queue $aclass
       }
     }
-    foreach qclass $tqueue {
-      if {$qclass ni $core_classes} continue
-      foreach aclass [::info class superclasses $qclass] {
-        if { $aclass in $result } continue
-        if { $aclass in $queue } continue
-        lappend queue $aclass
+    foreach item $tqueue {
+      if {$item in $core_result} continue
+      if { $item ni $result } {
+        set result [linsert $result 0 $item]
       }
-      foreach aclass [::info class mixins $qclass] {
+    }
+  }
+  # Handle core classes last
+  set queue $core_result
+  while {[llength $queue]} {
+    set tqueue $queue
+    set queue {}
+    foreach qclass $tqueue {
+      foreach aclass [::info class superclasses $qclass] {
         if { $aclass in $result } continue
         if { $aclass in $queue } continue
         lappend queue $aclass
@@ -205,12 +213,16 @@ proc ::oo::meta::metadata {class {force 0}} {
   set stack {}
   variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
-  
-  foreach aclass [lreverse [::info class superclasses $class]] {
-    lappend metadata [::oo::meta::metadata $aclass]
+  foreach class $cached_hierarchy($class) {
+    if {[::info exists local_property($class)]} {
+      lappend metadata $local_property($class)
+    }
   }
+  #foreach aclass [lreverse [::info class superclasses $class]] {
+  #  lappend metadata [::oo::meta::metadata $aclass]
+  #}
 
-  lappend metadata {classinfo {type {}}}
+  lappend metadata {classinfo {type: {}}}
   if {[::info exists local_property($class)]} {
     lappend metadata $local_property($class)
   }
@@ -374,4 +386,4 @@ oo::define oo::object {
     }
   }
 }
-package provide oo::meta 0.5
+package provide oo::meta 0.5.1

@@ -20,7 +20,7 @@ testing {
 # Test properties
 
 oo::class create foo {
-  property color blue
+  meta set const color: blue
   
   constructor args {
     my _staticInit
@@ -30,7 +30,7 @@ oo::class create foo {
 
 oo::class create bar {
   superclass ::foo
-  property shape oval
+  meta set const shape: oval
   option color {
     label Color
     default green
