@@ -60,7 +60,17 @@ proc ::tool::define::option_class {name args} {
     get-command {my variable %field% ; set %field%}
   }
   
-  dict_ensemble config config
+  dict_ensemble config config {
+    get {
+      return [my Config_get {*}$args]
+    }
+    merge {
+      return [my Config_merge {*}$args]
+    }
+    set {
+      my Config_set {*}$args
+    }
+  }
 
   ###
   # topic: 86a1b968cea8d439df87585afdbdaadb
@@ -99,11 +109,7 @@ proc ::tool::define::option_class {name args} {
     }
     return [my property $field] 
   }
-
-  method config::get {field args} {
-    return [my Config_get $field {*}$args]
-  }
-
+  
   ###
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
@@ -142,18 +148,10 @@ proc ::tool::define::option_class {name args} {
     return $dictargs
   }
   
-  method config::merge dictargs {
-    my Config_merge $dictargs
-  }
-  
-  method Config_set dictargs {
+  method Config_set args {
     set dictargs [::tool::args_to_options {*}$args]
     set dat [my Config_merge $dictargs]
     my Config_triggers $dat
-  }
-  
-  method config::set args {
-    my Config_set {*}$args
   }
   
   ###
