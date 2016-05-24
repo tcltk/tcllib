@@ -280,7 +280,7 @@ proc ::tool::object_destroy objname {
   variable organs {}
   
   constructor args {
-    my config merge [::tool::args_to_options {*}$args]
+    my Config_merge [::tool::args_to_options {*}$args]
   }
   
   destructor {}
