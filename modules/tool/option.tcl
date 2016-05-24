@@ -81,7 +81,7 @@ proc ::tool::define::option_class {name args} {
   }
   
   method config::set args {
-    set dictargs [::oo::meta::args_to_options {*}$args]
+    set dictargs [::tool::args_to_options {*}$args]
     set dat [my config merge $dictargs]
     my config triggers $dat
   }

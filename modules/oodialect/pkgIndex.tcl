@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
   
-package ifneeded oo::dialect 0.3 [list source [file join $dir oodialect.tcl]]
+package ifneeded oo::dialect 0.3.1 [list source [file join $dir oodialect.tcl]]
