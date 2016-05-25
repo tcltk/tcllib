@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.2
+# Package oo::dialect 0.3.1
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -132,6 +132,14 @@ proc ::oo::dialect::create {name {parent ""}} {
 	    # Put MOACish stuff in here
 	}
     }]
+    if {[info exists ::oo::meta::core_classes]} {
+      if { "${NSPACE}::class" ni $::oo::meta::core_classes } {
+	lappend ::oo::meta::core_classes "${NSPACE}::class"
+      }
+      if { "${NSPACE}::object" ni $::oo::meta::core_classes } {
+	lappend ::oo::meta::core_classes "${NSPACE}::object"
+      }
+    }
 }
 
 # Support commands; not intended to be called directly.
@@ -244,4 +252,4 @@ proc ::oo::dialect::SuperClass {namespace args} {
     }
 }
 
-package provide oo::dialect 0.3
+package provide oo::dialect 0.3.1
