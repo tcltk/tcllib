@@ -122,6 +122,11 @@ proc ::nettool::status {} {
   set usage 0
   for {set p 0} {$p < $cpus} {incr p} {
     set pu  [lindex [::twapi::get_processor_info $p  -processorutilization] 1]
+    while {$pu eq {}} {
+      after 100 {set pause 0}
+      vwait pause
+      set pu  [lindex [::twapi::get_processor_info $p  -processorutilization] 1]
+    }
     set usage [expr {$usage+$pu}]
   }
   dict set result cpus $cpus
