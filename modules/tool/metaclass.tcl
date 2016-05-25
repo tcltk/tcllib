@@ -142,7 +142,7 @@ proc ::tool::args_to_dict args {
 proc ::tool::args_to_options args {
   set result {}
   foreach {var val} [args_to_dict {*}$args] {
-    lappend result [string trimleft $var -] $val
+    lappend result [string trimright [string trimleft $var -] :] $val
   }
   return $result
 }
@@ -280,7 +280,7 @@ proc ::tool::object_destroy objname {
   variable organs {}
   
   constructor args {
-    my config merge [::tool::args_to_options {*}$args]
+    my Config_merge [::tool::args_to_options {*}$args]
   }
   
   destructor {}
