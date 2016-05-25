@@ -21,6 +21,74 @@ testing {
 
 # -------------------------------------------------------------------------
 
+###
+# Test the underlying components
+###
+::tool::event::subscribe ::BARNEY ::BETTY *
+test tool-subscribe-001 {Test that tool subscribe inserts a pattern into the dictionary} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY *}
+
+test tool-notify-001 {Test the distribution list} {
+  ::tool::event::Notification_list ::BETTY niceday
+} ::BARNEY
+
+::tool::event::subscribe ::BARNEY ::BETTY *
+test tool-subscribe-002 {Test that tool subscribe inserts a pattern into the dictionary only once} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY *}
+
+::tool::event::subscribe ::BARNEY ::BETTY niceday
+test tool-subscribe-002 {Test that tool subscribe will not add a more specific pattern if a general one already exists} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY *}
+
+test tool-notify-002 {Test the distribution list} {
+  ::tool::event::Notification_list ::BETTY niceday
+} ::BARNEY
+
+::tool::event::subscribe ::BARNEY * caring
+test tool-subscribe-003 {Test that tool subscribe inserts a global pattern} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY * * caring}
+
+::tool::event::subscribe ::BARNEY * sharing
+test tool-subscribe-004 {Test that tool subscribe inserts a global pattern} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY * * {caring sharing}}
+
+::tool::event::subscribe ::BARNEY ::FRED sharing
+::tool::event::unsubscribe ::BARNEY * sharing
+test tool-subscribe-005 {Test that tool unsubscribe removes a global pattern} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY * * caring}
+
+::tool::event::subscribe ::BARNEY ::FRED sharing
+::tool::event::subscribe ::BARNEY ::FRED niceday
+::tool::event::subscribe ::BETTY ::FRED niceday
+
+test tool-subscribe-005 {Test that tool unsubscribe removes a global pattern} {
+  set ::tool::object_subscribe(::BARNEY)
+} {::BETTY * * caring ::FRED {sharing niceday}}
+
+test tool-notify-002 {Test the distribution list} {
+  ::tool::event::Notification_list ::BETTY caring
+} ::BARNEY
+
+test tool-notify-002 {Test the distribution list} {
+  lsort -dictionary [::tool::event::Notification_list ::FRED niceday]
+} {::BARNEY ::BETTY}
+
+# Test that destroy auto-cleans up the event list
+::tool::object_destroy ::BARNEY
+test tool-destroy-001 {Test that destroy auto-cleans up the event list} {
+  info exists ::tool::object_subscribe(::BARNEY)
+} 0
+
+# Start over
+array unset ::tool::object_subscribe
+
+
 tool::class create OptionClass {
   property color green
   property mass  1200kg
@@ -43,19 +111,19 @@ OptionClass2 create ObjectOptionTest4 bodystyle SUV transmission cvt color white
 # Property ignores options
 ###
 test tool-options-001 {Simple property queries} {
-  ObjectOptionTest1 property color
+  ObjectOptionTest1 meta cget color
 } green
 
 test tool-options-002 {Simple property queries} {
-  ObjectOptionTest2 property color
+  ObjectOptionTest2 meta cget color
 } green
 
 test tool-options-003 {Simple property queries} {
-  ObjectOptionTest3 property color
+  ObjectOptionTest3 meta cget color
 } green
 
 test tool-options-004 {Simple property queries} {
-  ObjectOptionTest4 property color
+  ObjectOptionTest4 meta cget color
 } green
 
 ###
