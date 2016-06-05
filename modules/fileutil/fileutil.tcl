@@ -1420,25 +1420,24 @@ proc ::fileutil::foreachLine {var filename cmd} {
     catch {
 	set code 0
 	set result {}
+	set return 0
 	while {[gets $fp line] >= 0} {
-	    set code [catch {uplevel 1 $cmd} result]
-	    if {($code != 0) && ($code != 4)} {break}
+	    set code [catch {uplevel 1 $cmd} result options]
+	    if {$code == 2} {
+		set return 1
+		set code [dict get $options -code]
+		break
+	    } elseif {$code != 0 && $code != 4} {
+		break
+	    }
 	}
     }
     close $fp
 
-    if {($code == 0) || ($code == 3) || ($code == 4)} {
-        return $result
+    if {$return || $code == 1 || $code > 4} {
+	return -options $options $result
     }
-    if {$code == 1} {
-        global errorCode errorInfo
-        return \
-		-code      $code      \
-		-errorcode $errorCode \
-		-errorinfo $errorInfo \
-		$result
-    }
-    return -code $code $result
+    return $result
 }
 
 # ::fileutil::touch --
