@@ -9,18 +9,19 @@ exec tclsh "$0" ${1+"$@"}
 # ---------
  
 # (-)	Compilation of one or more files in magic(5) syntax into a
-#	single recognizer performing all the checks and mappings
+#	list of recognizers performing all the checks and mappings
 #	encoded in them.
 # 
 # Command syntax
 # --------------
 # 
-# Ad 1)	tmc procname magic-file ?magic-file...?
+# Ad 1)	tmc namespace magic-file ?magic-file...?
 #
-#	Compile all magic files into a recognizer, put it into the
-#	named procedure, and write the result to stdout.
+#	Compile all magic files list of recognizers, generate a script which
+#	assigns the recognizers to $namespace::tests and $namespace::named and
+#	write the script to stdout.
 # 
-# Ad 2)	tmc -merge tclfile procname magic-file ?magic-file...?
+# Ad 2)	tmc -merge tclfile namespace magic-file ?magic-file...?
 #
 #	Same as (1), but does not write to stdout. Instead the part of
 #	the 'tclfile' delineated by marker lines containing "BEGIN
@@ -76,11 +77,11 @@ proc ::tmc::processCmdline {} {
 
     variable output
     variable magic
-    variable proc
+    variable namespace
 
     set output ""
     set magic  {}
-    set proc   ""
+    set namespace ""
 
     # Process the options, perform basic validation.
 
@@ -101,13 +102,13 @@ proc ::tmc::processCmdline {} {
 
     if {[llength $argv] != 2} Usage
 
-    set proc  [lindex $argv 0]
+    set namespace  [lindex $argv 0]
     set magic [lrange $argv 1 end]
 
     # Final validation across the whole configuration.
 
-    if {$proc eq ""} {
-	ArgError "Illegal empty proc name"
+    if {$namespace eq ""} {
+	ArgError "Illegal empty namespace name"
     }
     foreach m $magic {
 	CheckInput $m {Magic file}
@@ -131,7 +132,7 @@ proc ::tmc::processCmdline {} {
 proc ::tmc::Usage {} {
     global argv0
     puts stderr "$argv0 wrong#args, expected:\
-	    ?-merge iofile? procname magic magic..."
+	    ?-merge iofile? namespace magic magic..."
     exit 1
 }
 
@@ -226,13 +227,13 @@ proc ::tmc::Merge {f script} {
 
 if {[catch {
     # Read and process all input files.
-    # Generate a single tcl procedure from them.
+    # Generate commands into a namespace.
     # Write the result either to stdout, or merge
     # into the specified output file.
 
     set tcl [eval [linsert $tmc::magic 0 \
-	    fileutil::magic::cfront::procdef \
-	    $tmc::proc]]
+	    fileutil::magic::cfront::generate \
+	    $tmc::namespace]]
 
     if {$tmc::output eq ""} {
 	puts stdout $tcl
