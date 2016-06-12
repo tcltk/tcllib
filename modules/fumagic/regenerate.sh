@@ -5,9 +5,7 @@
 
 filesrc="$1"
 
-mime="${filesrc}/magic/magic.mime"
 type="${filesrc}/magic/Magdir"
 
-`dirname $0`/tmc -merge mimetypes.tcl '::fileutil::magic::mimetype::run' "${mime}"
-`dirname $0`/tmc -merge filetypes.tcl '::fileutil::magic::filetype::run' "${type}"
+`dirname $0`/tmc -merge filetypes.tcl '::fileutil::magic::filetype' "${type}"
 exit 0
