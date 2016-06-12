@@ -37,8 +37,9 @@ This command is similar to the command [cmd fileutil::fileType].
 
 [para]
 
-Returns a list containing a list of descriptions, mimetype and a list file
-extensions.  Returns an empty string if the file content is not recognized.
+Returns a list containing a list of descriptions, a list of mimetype
+components, and a list file extensions.  Returns an empty string if the file
+content is not recognized.
 
 [para]
 
