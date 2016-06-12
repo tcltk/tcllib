@@ -28,8 +28,8 @@ exec tclsh "$0" ${1+"$@"}
 #	generated code.
 
 package require Tcl 8.4
-lappend auto_path [file dirname [file normalize [info script]]] ; # This directory
-lappend auto_path [file dirname [lindex $auto_path end]]        ; # and the one above
+set auto_path [linsert $auto_path 0 [file dirname [file normalize [info script]]]] ; # This directory
+set auto_path [linsert $auto_path 0 [file dirname [lindex $auto_path end]]]]        ; # and the one above
 #puts *\t[join $auto_path \n*\t]
 package require fileutil::magic::cfront
 
