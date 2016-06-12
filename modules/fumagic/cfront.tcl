@@ -49,7 +49,7 @@ namespace eval ::fileutil::magic::cfront {
     # Make backend functionality accessible
     namespace import ::fileutil::magic::cgen
 
-    namespace export compile procdef install
+    namespace export compile generate install
 
     variable floattestops {= < > !}
     variable inttestops {= < > & ^ ~ !}
@@ -769,43 +769,26 @@ proc ::fileutil::magic::cfront::compile {args} {
 
     set tests [cgen treegen $tree root]
     set named [$tree get root named]
-    set tcl [string map [list @named@ [list $named] @tests@ [list $tests]] {
-	yield [info coroutine]
-	set named @named@
-	foreach test @tests@ {
-	    set level 0
-	    set ext {}
-	    set mime {}
-	    try $test
-	    lassign [resultv] found weight result
-	    if {$found}  {
-		yield [list $weight $result $mime [split $ext /]]
-	    }
-	}
-	return
-    }]
 
     ::fileutil::magic::cfront::Debug {puts [treedump $t]}
     #set tcl [run $script]
 
-    return $tcl
+    return [list $named $tests]
 }
 
-proc ::fileutil::magic::cfront::procdef {procname args} {
+proc ::fileutil::magic::cfront::generate {namespace args} {
 
-    set pspace [namespace qualifiers $procname]
+    set pspace [namespace qualifiers $namespace]
 
     if {$pspace eq ""} {
 	return -code error "Cannot generate recognizer in the global namespace"
     }
 
-    append script "package require fileutil::magic::rt"
-    append script "\nnamespace eval [list $pspace] \{"
-    append script "    namespace import ::fileutil::magic::rt::*"
-    append script "\}"
-    append script \n 
-    append script "proc [list $procname] {} {
-	[eval [linsert $args 0 compile]]\n
+    lassign [compile {*}$args] named tests
+
+    set script "namespace eval [list $namespace] {
+	variable named [list $named]
+	variable tests [list $tests]
     }"
     return $script 
 }
@@ -813,7 +796,7 @@ proc ::fileutil::magic::cfront::procdef {procname args} {
 proc ::fileutil::magic::cfront::install {args} {
     foreach arg $args {
 	set path [file tail $arg]
-	eval [procdef ::fileutil::magic::/${path}::run $arg]
+	eval [generate ::fileutil::magic::/$path $arg]
     }
     return
 }
