@@ -3,6 +3,7 @@
 #	Generator frontend for compiler of magic(5) files into recognizers
 #	based on the 'rtcore'. Parses magic(5) into a basic 'script'.
 #
+# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
 # Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
@@ -31,8 +32,9 @@ package require fileutil              ; # File processing (input)
 package require fileutil::magic::cgen ; # Code generator.
 package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
+package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.0
+package provide fileutil::magic::cfront 1.2
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -44,295 +46,744 @@ namespace eval ::fileutil::magic::cfront {
 
     variable debug 0
 
-    # Constants
-
-    variable hashprotection  [list "\#" "\\#" \" \\\" \{ \\\{ \} \\\}]      ;#"
-    variable hashprotectionB [list "\#" "\\\#" \" \\\" \} \\\} ( \\( ) \\)] ;#"
-
     # Make backend functionality accessible
-    namespace import ::fileutil::magic::cgen::*
+    namespace import ::fileutil::magic::cgen
 
     namespace export compile procdef install
+
+    variable floattestops {= < > !}
+    variable inttestops {= < > & ^ ~ !}
+    variable stringtestops { > < = !}
+    variable offsetopts {& | ^ + - * / %}
+    variable stringmodifiers {W w c C t b T}
+    variable typemodifiers [dict create \
+	indirect r \
+	search $stringmodifiers \
+	string $stringmodifiers \
+	pstring [list {*}$stringmodifiers B H h L l J] \
+	regex {c s l} \
+    ]
+    set numeric_modifier_allowed {regex search}
+	
+    variable types_numeric_short { 
+	dC byte d1 byte C byte 1 byte ds short d2 short S short 2 short dI long
+	dL long d4 long I long L long 4 long  d8 quad 8 quad dQ quad Q quad
+    }
+
+    variable types_numeric_re [join [list {*}[
+	array names ::fileutil::magic::rt::typemap] {*}[
+	dict keys $types_numeric_short]] |]
+
+    variable types_string_short [dict create s string] 
+
+    variable types_string {
+	bestring clear default indirect lestring pstring regex search string
+    }
+    variable types_string_re [join [list {*}[
+	dict keys $types_string_short] {*}$types_string] |]
+
+    variable types_verbatim {name use}
+
+    variable types_notimplemented {}
+    variable types_notimplemented_re [join $types_notimplemented |]
+
+    variable types_numeric_real {
+	float double befloat bedouble lefloat ledouble
+    }
+
+    variable indir_typemap [dict create \
+	b byte c byte e ledouble f ledouble g ledouble i leid3 h leshort \
+	s leshort l lelong B byte C byte E bedouble F bedouble G bedouble \
+	H beshort I beid3 L belong m ME S beshort]
+
 }
 
+proc ::fileutil::magic::cfront::advance {len args} {
+    upvar node node tree tree
+    if {[llength args]} {
+	upvar [lindex $args 0] res
+    }
+    set res {}
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    if {[string index $len 0] eq {w}} {
+	regexp -start $cursor {\A(\s*)} $line match res
+	incr cursor [string length $match]
+	set len [string range $len 1 end]
+    }
+    if {$len ne {}} {
+	if {[regexp -start $cursor "\\A(.{[
+	    scan $len %lld]})" $line match res]} {
+	    incr cursor [string length $match]
+	}
+    }
+    set line [$tree get $node line]
+    $tree set $node cursor $cursor
+    return $res
+}
+
+proc ::fileutil::magic::cfront::rewind len {
+    upvar node node tree tree
+    set cursor [$tree get $node cursor]
+    incr cursor -$len
+    $tree set $node cursor $cursor
+}
+
+proc ::fileutil::magic::cfront::parseerror args {
+    upvar node node tree tree
+    set cursor [$tree get $node cursor]
+    set line [$tree get $node line]
+    set files [$tree get root files]
+    set file [lindex files [$tree get $node file]]
+    return -code error -errorcode [list fumagic {parse error}] [
+	list [lmap arg $args {string trim $arg}] \
+	file $file \
+	linenenum [$tree get $node linenum] \
+	cursor $cursor \
+	line [list \
+	    [string range $line 0 ${cursor}-1] \
+	    [string range $line $cursor end]]]
+}
+
+proc ::fileutil::magic::cfront::parsewarning args {
+    upvar node node tree tree
+    catch {parseerror {*}$args} res options
+    puts stderr [dict get $options -errorinfo]
+}
+
+
 # parse an individual line
-proc ::fileutil::magic::cfront::parseline {line {maxlevel 10000}} {
-    # calculate the line's level
-    set unlevel [string trimleft $line >]
-    set level   [expr {[string length $line] - [string length $unlevel]}]
-    if {$level > $maxlevel} {
-   	return -code continue "Skip - too high a level"
-    }
+variable ::fileutil::magic::cfront::parsedkeys {
+}
+proc ::fileutil::magic::cfront::parseline {tree node} {
+    variable parsedkeys
+    set line [$tree get $node line]
+    $tree set $node cursor 0 
+    parseoffset $tree $node
+    parsetype $tree $node
+    parsetest $tree $node
+    parsemsg $tree $node
 
-    # regexp parse line into (offset, type, value, command)
-    set parse [regexp -expanded -inline {^(\S+)\s+(\S+)\s*((\S|(\B\s))*)\s*(.*)$} $unlevel]
-    if {$parse == {}} {
-   	error "Can't parse: '$unlevel'"
+    set record [$tree getall $node]
+    foreach key $parsedkeys {
+	if {![dict exists $record $key]} {
+	    return -code error [list {missing key} $key]
+	}
     }
-
-    # unpack parsed line
-    set value   ""
-    set command ""
-    foreach {junk offset type value junk1 junk2 command} $parse break
-
-    # handle trailing spaces
-    if {[string index $value end] eq "\\"} {
-   	append value " "
-    }
-    if {[string index $command end] eq "\\"} {
-   	append command " "
-    }
-
-    if {$value eq ""} {
-	# badly formatted line
-   	return -code error "no value"
-    }
-
     ::fileutil::magic::cfront::Debug {
-   	puts "level:$level offset:$offset type:$type value:'$value' command:'$command'"
+   	puts [list parsed $record]
+    }
+}
+
+proc ::fileutil::magic::cfront::parsefloat {tree node} {
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    # If only [scan] had a @ conversion character like [binary scan]
+    set line2 [string range $line $cursor end]
+    if {[scan $line2 %e%n num count] < 0} {
+	parseerror {invalid floating point number}
+    }
+    set cursor [expr {$cursor + $count}]
+    $tree set $node cursor $cursor
+
+    # These suffixes are not used in magic files
+    #if {[regexp -start $cursor {\A([fFlL)} -> modifier]} {
+    #    advance [string length $modifier]]
+    #}
+    return $num
+}
+
+proc ::fileutil::magic::cfront::parseint {tree node} {
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    # If only [scan] had a @ conversion character like [binary scan]
+    set line2 [string range $line $cursor end]
+    if {[set scanres [scan $line2 %lli%n num n]] < 1} {
+	parseerror {invalid number}
+    }
+    set cursor [expr {$cursor + $n}]
+    $tree set $node cursor $cursor
+    # Thse suffixes are not used in magic files
+    #if {[regexp -start $cursor {\A([uU]?[lL]{1,2})} -> modifier]} {
+    #    advance [string length $modifier]]
+    #}
+    return $num
+}
+
+
+proc ::fileutil::magic::cfront::parsetype {tree node} {
+    variable types_numeric_re
+    variable types_numeric_short
+    variable types_string_re
+    variable types_string_short
+    variable types_notimplemented_re
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    $tree set $node mod {}
+    $tree set $node mand {}
+    if {[regexp -start $cursor {\A\s*(\w+)} $line match type]} {
+	advance [string length $match]
+	switch -regexp -matchvar match $type \
+	    ^(u?)($types_numeric_re)$ - ^($types_string_re)$ {
+
+	    set type [lindex $match end]
+	    if {[llength $match] == 3} {
+		#numeric
+		if {[dict exists $types_numeric_short $type]} {
+		    set type [dict get $types_numeric_short $type]
+		}
+		$tree set $node type $type
+
+		# {to do} {Current design doesn't use sign, right?  Is it
+		# really not needed?}
+		$tree set $node sgn [dict get {{} 1 u 0} [
+		    lindex $match 1]]
+
+		parsetypenummod $tree $node
+	    } else {
+		lassign $match match type
+		if {[dict exists $types_string_short $type]} {
+		    set type [dict get $types_string_short $type]
+		}
+		$tree set $node type $type
+
+		# No modifying operator for strings
+		parsetypemod $tree $node
+
+		if {$type eq {search} && [$tree get $node mand] eq {}} {
+		    parseerror {search has no number}
+		}
+	    }
+	} \
+	^(name|use)$ {
+	    $tree set $node type [lindex $match end] 
+	} \
+	$types_notimplemented_re {
+	    parseerror {type not implemented}
+	} \
+	default {
+	    parseerror {unknown type}
+	}
+    } else {
+	parseerror {no type}
+    }
+}
+
+proc ::fileutil::magic::cfront::parsetypemod {tree node} {
+    # For numeric types , $mod is a list of modifiers and $mand is either a
+    # number or the empty strinng .
+    variable typemodifiers
+    variable numeric_modifier_allowed
+    set type [$tree get $node type]
+    if {[advance 1 char] ne {/}} {
+	rewind 1
+	return
+    }
+    set res [dict create] 
+    while 1 {
+	if {[advance 1 char] eq {/}} {
+	    continue
+	}
+	if {[string is space $char]} {
+	    break
+	}
+	if {[dict exists $typemodifiers $type] && $char in [dict get $typemodifiers $type]} {
+	    dict set res $char {}
+	} elseif {$type in $numeric_modifier_allowed} {
+	    rewind 1
+	    if {[catch {parseint $tree $node} mand]} {
+		# Whatever it is, it isn't a number.  Let the next parsing step
+		# handle it .
+		break
+	    } else {
+		$tree set $node mand $mand  ; # numeric modifier
+	    }
+	} else {
+	    parseerror {bad modifier}
+	}
+    }
+    $tree set $node mod [dict keys $res]
+}
+
+proc ::fileutil::magic::cfront::parsetypenummod {tree node} {
+    # For numeric types, $mod is an operator and $mand is a number
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    if {[regexp -start $cursor {\A([-&|^+*/%])} \
+	$line match mod]} {
+	advance [string length $match]
+	$tree set $node mod $mod
+	# {to do} {parse floats?}
+	$tree set $node mand [parseint $tree $node] ; # mod operand
+    } else {
+	$tree set $node mod {}
+	$tree set $node mand {} 
+    }
+}
+
+
+proc ::fileutil::magic::cfront::parsestringval {tree node} {
+    variable floattestops
+    variable inttestops
+    variable stringtestops
+    advance w1 char 
+    set val {}
+    set line [$tree get $node line]
+    while 1 {
+	# break on whitespace or empty string
+	if {[string is space $char] || $char eq {}} break
+	switch $char [dict create  \
+	    \\ {
+		advance 1 char
+		if {[string is space $char]} {
+		    append val \\$char
+		} else {
+		    # extra backslashes because of interaction with glob
+		    switch -glob $char [dict create \
+			{\\} {
+			    append val {\\}
+			} \t {
+			    parsewarning {use \t instead of \<tab>}
+			    append val \\t
+			} > - < - & - ^ - = - ! - ( - ) - . {
+			    if {$char in [list {*}$stringtestops \
+				{*}$floattestops {*}$inttestops]} {
+				parsewarning {no need to escape operators}
+			    }
+			    append val $char 
+			} a - b - f - n - r - t - v {
+			    append val \\$char
+			} x {
+			    set cursor [$tree get $node cursor]
+			    if {[regexp -start $cursor \
+				{\A([0-9A-Fa-f]{1,2})} $line match char2]} {
+				advance [string length $match] 
+				append val \\x$char2
+			    } else {
+				parseerror {malformed \x escape sequence}
+			    }
+			} \[0-7\] {
+			    set cursor [$tree get $node cursor]
+			    append val \\$char
+			    if {[regexp -start $cursor \
+				{\A([0-7]{1,2})} $line match char2]} {
+				advance [string length $match] 
+				append val $char2
+			    }
+			} default {
+			    parseerror {Could not handle escape sequence in value}
+			}
+		    ]
+		}
+	    } default {
+		if {[string is space $char] || $char in [
+		    list \# \{ \} \[  \] \" \$ \; \n]} {
+		    append val \\
+		}
+		append val $char
+	    }
+	]
+	advance 1 char
+    }
+    $tree set $node val $val
+}
+
+proc ::fileutil::magic::cfront::parsetestverbatim {tree node} {
+    switch [$tree get $node type] {
+	name {
+	    $tree set $node rel 1
+	}
+	use {
+	    set cursor [$tree get $node cursor]
+	    # order matters in regular expression : longest match must come
+	    # first in parenthesized
+	    if {[regexp -start $cursor {\A\s*(?:\\\^|\^)} [$tree get $node line] match]} {
+		advance [string length $match]
+		$tree set $node iendian 1
+	    } else {
+		$tree set $node iendian 0
+	    }
+	}
+
+    }
+    parsestringval $tree $node
+}
+
+proc ::fileutil::magic::cfront::parsetest {tree node} {
+    variable floattestops
+    variable inttestops
+    variable stringtestops
+    variable types_numeric_real
+    variable types_numeric_short
+    variable types_string
+    variable types_verbatim
+    set type [$tree get $node type]
+    if {$type in $types_verbatim} {
+	parsetestverbatim $tree $node
+	return
+    }
+    $tree set $node compinvert 0
+    set testinvert 0
+    set comp ==
+    advance w1 char
+    if {$char eq {x}} {
+	advance 1 char
+	if {[string is space $char]} {
+	    $tree set $node testinvert 0
+	    $tree set $node comp x
+	    $tree set $node val {}
+	    return
+	} else {
+	    rewind 1
+	}
     }
 
-    # return the line's fields
-    return [list $level $offset $type $value $command]
+    if {$type in $types_string} {
+	while 1  {
+	    if {$char in $stringtestops} {
+		if {$char eq {!}} {
+		    set testinvert 1
+		} else {
+		    set comp $char
+		    # Exclamation must precede any normal operator
+		    break
+		}
+		advance w1 char
+	    } else {
+		rewind 1
+		break
+	    }
+	}
+	parsestringval $tree $node
+    } elseif {$type in [list {*}[
+	array names ::fileutil::magic::rt::typemap] {*}[
+	dict keys $types_numeric_short]]} {
+	if {$type in $types_numeric_real} {
+	    set ops $floattestops
+	    set parsecmd parsefloat
+	} else {
+	    set ops $inttestops 
+	    set parsecmd parseint
+	}
+
+	while 1 {
+	    if {$char in $ops} {
+		if {$char eq {~}} {
+		    $tree set $node compinvert 1 
+		} elseif {$char eq {!}} {
+		    set testinvert 1
+		} else {
+		    set comp $char
+		    # Exclamation and tilde must precede any normal operator
+		    break
+		}
+		advance w1 char
+	    } else {
+		rewind 1
+		break
+	    }
+	}
+	$tree set $node val [$parsecmd $tree $node]
+    } else {
+	parseerror {don't know how to parse the test or this type}
+    }
+    switch $comp {
+	= {
+	    set comp ==
+	}
+    }
+    # This facilitates Switch creation by [treegen1]
+    if {$testinvert && ($comp eq {==})} {
+	set comp !=
+	set testinvert 0
+    }
+    $tree set $node testinvert $testinvert
+    $tree set $node comp $comp 
+}
+
+proc ::fileutil::magic::cfront::parseoffset {tree node} {
+
+    # Offset parser.
+    # Syntax:
+    #   ( ?&? number ?.[bslBSL]? ?[+-]? ?number? )
+
+    # This was all fine and dandy, but didn't do spaces where spaces might
+    # exist between lexical elements in the wild, and ididn't do offset
+    # operators
+
+    #set n {([-+]?[0-9]+|[-+]?0x[0-9A-Fa-f]+)[UL]*}
+
+    ##"\\((&?)(${n})((\\.\[bslBSL])?)()(\[+-]?)(${n}?)\\)"
+    #set o \
+    #    "^(&?)${n}((?:\\.\[bslBSL])?)(?:(\[-+*/%&|^])${n})?(?:(\[+-])(\\()?${n}\\)?)?$"
+    ##     |   |   |                     |            |        |      |    |
+    ##     1   2   3                     4            5        6      7    8 
+    ##                            1    2    3     4   5        6    7     8   
+    #set ok [regexp $o $offset -> irel base type  iop ioperand sign ind idx]
+
+
+    variable offsetopts
+    variable indir_typemap
+    $tree set $node rel 0 ;   # relative
+    $tree set $node ind 0 ;   # indirect
+    $tree set $node ir 0 ;    # indirect relative
+    $tree set $node it {} ;   # indir_type
+    $tree set $node ioi 0 ;   # indirect offset invert
+    $tree set $node iir 0 ;   # indirect indirect relative 
+    $tree set $node ioo 0 ;   # indirect_offset_op
+    $tree set $node io 0 ;    # indirect offset
+    advance w1 char
+    if {$char eq {&}} {
+	advance w1 char
+	$tree set $node rel 1
+    }
+
+    if {$char eq {(}} {
+	$tree set $node ind 1
+
+	if {[advance w1] eq {&}} {
+	    $tree set $node ir 1
+	} else {
+	    rewind 1
+	}
+	$tree set $node o [parseint $tree $node]
+
+	# $char is used below if it's not "."
+	if {[advance w1 char] eq {.}} {
+	    advance w1 it
+	    if {[dict exists $indir_typemap $it]} {
+		set it [
+		    dict get $indir_typemap $it]
+	    } else {
+		parseerror {bad indirect offset type}
+	    }
+	    advance w1 char
+	} else {
+	    set it long
+	}
+	$tree set $node it $it
+
+
+	# The C implementation does this, so we will , too .
+	if {$char eq {~}} {
+	    advance w1 char
+	    $tree set $node ioi 1
+	}
+
+	if {$char in $offsetopts} {
+	    $tree set $node ioo $char
+	    if {[advance w1] in {(}} {
+		$tree set $node iir 1
+	    } else {
+		rewind 1
+	    }
+	    $tree set $node io [parseint $tree $node]
+	    if {[$tree get $node iir]} {
+		if {[advance w1] ne {)}} {
+		    parseerror {
+			expected closing parenthesis for indirect indirect offset offset
+		    }
+		}
+	    }
+	    advance w1 char
+	}
+
+	if {$char ne {)}} {
+	    parseerror {
+		expected close parenthesis for indirect offset 
+	    }
+	}
+    } else {
+	rewind 1
+	$tree set $node o [parseint $tree $node]
+    }
+}
+
+proc ::fileutil::magic::cfront::parseoffsetmod {tree node} {
+    advance w1 char
+    if {$char eq {~}} {
+	$tree set $node offset_invert 1
+	advance w1 char
+    } else {
+	$tree set $node offset_invert 0
+    }
+    switch $char {
+	+ - - - * - / - % - & - | - ^ {
+	    $tree set $node offset_mod_op $char
+	    $tree set $node offset_mod [parseint $tree $node]
+	}
+	default {
+	    $tree set $node offset_mod_op {}
+	    $tree set $node offset_mod {}
+	    rewind 1
+	    # no offset modifier
+	}
+    }
+}
+
+proc ::fileutil::magic::cfront::parsemsg {tree node} {
+    advance w
+    set line [$tree get $node line]
+    set cursor [$tree get $node cursor]
+    ##leave \b in the message for [emit] to parse
+    #regexp -start $cursor {\A(\b|\\b)?(.*)$} $line match b line
+    #if {$b ne {}} {
+    #    $tree set $node space 0
+    #} else {
+    #    $tree set $node space 1
+    #}
+    set line [string range $line $cursor end]
+    $tree set $node desc $line
 }
 
 # process a magic file
-proc ::fileutil::magic::cfront::process {file {maxlevel 10000}} {
-    variable hashprotection
-    variable hashprotectionB
+proc ::fileutil::magic::cfront::process {tree file {maxlevel 10000}} {
     variable level	;# level of line
     variable linenum	;# line number
 
     set level  0
-    set script {}
 
     set linenum 0
+    set records {}
+    set rejected 0
+    set script {}
+    if {[$tree keyexists root files]} {
+	set files [$tree get root files]
+    } else {
+	set files {}
+    }
+    set fileidx [llength $files] 
+    if {$file in $files} {
+	return -code error [list {already processed file} $file]
+    }
+    lappend files $file
+    $tree set root files $files
+    $tree set root level -1
+    set node root
     ::fileutil::foreachLine line $file {
    	incr linenum
-   	set line [string trim $line " "]
-   	if {[string index $line 0] eq "#"} {
+	# Only trim the left side . White space on the the right side could be
+	# part of an escape sequence , and trimming would munge it .
+   	set line [string trimleft $line]
+   	if {[string index $line 0] eq {#}} {
    	    continue	;# skip comments
-   	} elseif {$line == ""} {
+   	} elseif {$line eq {}} {
    	    continue	;# skip blank lines
    	} else {
    	    # parse line
-   	    if {[catch {parseline $line $maxlevel} parsed]} {
-   		continue	;# skip erroring lines
-   	    }
+	    if {[regexp {!:(\S+)\s*(.*)$} $line -> extname extdata]} {
+		if {$rejected} {
+		    continue
+		}
+		if {$node eq {root}} {
+		    return -code error [list {malformed magic file}]
+		}
+		$tree set $node ext_$extname $extdata
+	    } else {
+		# calculate the line's level
+		set unlevel [string trimleft $line >]
+		set level   [expr {[string length $line] - [string length $unlevel]}]
+		set line $unlevel
+		if {$level > $maxlevel} {
+		    return -code continue "Skip - too high a level"
+		}
+		if {$level > 0} {
+		    if {$rejected} {
+			continue
+		    }
+		    while {[$tree keyexists $node level] && [$tree get $node level] >= $level} {
+			set node [$tree parent $node]
+		    }
+		    if {$level > [$tree get $node level]+1} {
+			return -code error [
+			    list {level more than one greater than parent level} \
+				file $file linenum $linenum line $line]
+		    }
+		    set node [$tree insert $node end]
+		} else {
+		    set rejected 0
+		    set node [$tree insert root end]
+		    set node0 $node
+		}
+		$tree set $node file $fileidx
+		$tree set $node line $line
+		$tree set $node linenum $linenum
+		$tree set $node level $level
+		if {[catch {parseline $tree $node} cres copts]} {
+		    set errorcode [dict get $copts -errorcode]
+		    if {[lindex $errorcode 0] eq {fumagic} && [
+			lindex $errorcode 1] eq {parse error}} {
+			$tree delete $node0
+			set rejected 1
+			puts stderr [list Rejected {bad parse}]
+			puts stderr [dict get $copts -errorinfo]
+			continue	;# skip erroring lines
+		    } else {
+			return -options $copts $cres
+		    }
 
-   	    # got a valid line
-   	    foreach {level offset type value message} $parsed break
-
-   	    # strip comparator out of value field,
-   	    # (they are combined)
-   	    set compare [string index $value 0]
-   	    switch -glob --  $value {
-   		[<>]=* {
-   		    set compare [string range $value 0 1]
-   		    set value   [string range $value 2 end]
-   		}
-
-   		<* - >* - &* - ^* {
-   		    set value [string range $value 1 end]
-   		}
-
-   		=* {
-   		    set compare "=="
-   		    set value   [string range $value 1 end]
-   		}
-
-   		!* {
-   		    set compare "!="
-   		    set value   [string range $value 1 end]
-   		}
-
-   		x {
-   		    # this is the 'don't care' match
-   		    # used for collecting values
-   		    set value ""
-   		}
-
-   		default {
-   		    # the default comparator is equals
-   		    set compare "=="
-   		    if {[string match {\\[<!>=]*} $value]} {
-   			set value [string range $value 1 end]
-   		    }
-   		}
-   	    }
-
-   	    # process type field
-   	    set qual ""
-   	    switch -glob -- $type {
-   		pstring* - string* {
-   		    # String or Pascal string type
-
-   		    # extract string match qualifiers
-		    foreach {type qual} [split $type /] break
-
-   		    # convert pstring to string + qualifier
-   		    if {$type eq "pstring"} {
-   			append qual "p"
-   			set type "string"
-   		    }
-
-   		    # protect hashes in output script value
-   		    set value [string map $hashprotection $value]
-
-   		    if {($value eq "\\0") && ($compare eq ">")} {
-   			# record 'any string' match
-   			set value   ""
-   			set compare x
-   		    } elseif {$compare eq "!="} {
-   			# string doesn't allow !match
-   			set value   !$value
-   			set compare "=="
-   		    }
-
-   		    if {$type ne "string"} {
-   			# don't let any odd string types sneak in
-   			puts stderr "Reject String: ${file}:$linenum $type - $line"
-   			continue
-   		    }
-   		}
-
-   		regex {
-   		    # I am *not* going to handle regex
-   		    puts stderr "Reject Regex: ${file}:$linenum $type - $line"
-   		    continue
-   		}
-
-   		*byte* - *short* - *long* - *date* {
-   		    # Numeric types
-
-   		    # extract numeric match &qualifiers
-   		    set type [split  $type &]
-   		    set qual [lindex $type 1]
-
-   		    if {$qual ne ""} {
-   			# this is an &-qualifier
-   			set qual &$qual
-   		    } else {
-   			# extract -qualifier from type
-   			set type [split  $type -]
-   			set qual [lindex $type 1]
-   			if {$qual ne ""} {
-   			    set qual -$qual
-   			}
-   		    }
-   		    set type [lindex $type 0]
-
-   		    # perform value adjustments
-   		    if {$compare ne "x"} {
-   			# trim redundant Long value qualifier
-   			set value [string trimright $value L]
-
-   			if {[catch {set value [expr $value]} x]} {
-			    upvar #0 errorInfo eo
-   			    # check that value is representable in tcl
-   			    puts stderr "Reject Value Error: ${file}:$linenum '$value' '$line' - $eo"
-   			    continue;
-   			}
-
-   			# coerce numeric value into hex
-   			set value [format "0x%x" $value]
-   		    }
-   		}
-
-   		default {
-   		    # this is not a type we can handle
-   		    puts stderr "Reject Unknown Type: ${file}:$linenum $type - $line"
-   		    continue
-   		}
-   	    }
+		}
+	    }
    	}
 
    	# collect some summaries
    	::fileutil::magic::cfront::Debug {
    	    variable types
-   	    set types($type) $type
+   	    set types($type) [$tree get $node type]
    	    variable quals
-   	    set quals($qual) $qual
+   	    set quals($qual) [$tree get $node qual]
    	}
 
    	#puts $linenum level:$level offset:$offset type:$type
-	#puts qual:$qual compare:$compare value:'$value' message:'$message'
+	#puts qual:$qual compare:$compare val:'$val' desc:'$desc'
 
-   	# protect hashes in output script message
-   	set message [string map $hashprotectionB $message]
-
-   	if {![string match "(*)" $offset]} {
-   	    catch {set offset [expr $offset]}
-   	}
-
-   	# record is the complete match command,
-   	# encoded for tcl code generation
-   	set record [list $linenum $type $qual $compare $offset $value $message]
-   	if {$script == {}} {
-   	    # the original script has level 0,
-   	    # regardless of what the script says
-   	    set level 0
-   	}
-
-   	if {$level == 0} {
-   	    # add a new 0-level record
-   	    lappend script $record
-   	} else {
-   	    # find the growing edge of the script
-   	    set depth [::struct::list repeat [expr $level] end]
-   	    while {[catch {
-   		# get the insertion point
-   		set insertion [eval [linsert $depth 0 lindex $script]]
-		# 8.5 #	set insertion [lindex $script {*}$depth]
-   	    }]} {
-   		# handle scripts which jump levels,
-   		# reduce depth to current-depth+1
-   		set depth [lreplace $depth end end]
-   	    }
-
-   	    # add the record at the insertion point
-   	    lappend insertion $record
-
-   	    # re-insert the record into its correct position
-   	    eval [linsert [linsert $depth 0 lset script] end $insertion]
-   	    # 8.5 # lset script {*}$depth $insertion
-   	}
     }
-    #puts "Script: $script"
-    return $script
 }
+
 
 # compile up magic files or directories of magic files into a single recognizer.
 proc ::fileutil::magic::cfront::compile {args} {
-    set tcl ""
-    set script {}
-    foreach arg $args {
-   	if {[file type $arg] == "directory"} {
-   	    foreach file [glob [file join $arg *]] {
-   		set script1 [process $file]
-		eval [linsert $script1 0 lappend script [list file $file]]
-   		# 8.5 # lappend script [list file $file] {*}$script1
+    set tree [tree]
 
-   		#append tcl "magic::file_start $file" \n
-   		#append tcl [run $script1] \n
+    foreach arg $args {
+   	if {[file type $arg] eq  {directory}} {
+   	    foreach file [glob [file join $arg *]] {
+   		process $tree $file
    	    }
+	    #append tcl "magic::file_start $file" \n
+	    #append tcl [run $script1] \n
    	} else {
    	    set file $arg
-   	    set script1 [process $file]
-   	     eval [linsert $script1 0 lappend script [list file $file]]
-   	    # 8.5 # lappend script [list file $file] {*}$script1
-
-   	    #append tcl "magic::file_start $file" \n
-   	    #append tcl [run $script1] \n
+   	    process $tree $file
+	    #append tcl "magic::file_start $file" \n
+	    #append tcl [run $script1] \n
    	}
     }
 
     #puts stderr $script
     ::fileutil::magic::cfront::Debug {puts "\# $args"}
 
-    set    t   [2tree $script]
-    set    tcl [treegen $t root]
-    append tcl "\nreturn \{\}"
+    # Historically, this command converted the output of [process] , which was
+    # a list , into a tree . Now it post-processes the tree .
+    cgen 2tree $tree
+
+    set tests [cgen treegen $tree root]
+    set named [$tree get root named]
+    set tcl [string map [list @named@ [list $named] @tests@ [list $tests]] {
+	yield [info coroutine]
+	set named @named@
+	foreach test @tests@ {
+	    set level 0
+	    set ext {}
+	    set mime {}
+	    try $test
+	    lassign [resultv] found weight result
+	    if {$found}  {
+		yield [list $weight $result $mime [split $ext /]]
+	    }
+	}
+	return
+    }]
 
     ::fileutil::magic::cfront::Debug {puts [treedump $t]}
     #set tcl [run $script]
@@ -348,14 +799,15 @@ proc ::fileutil::magic::cfront::procdef {procname args} {
 	return -code error "Cannot generate recognizer in the global namespace"
     }
 
-    set     script {}
-    lappend script "package require fileutil::magic::rt"
-    lappend script "namespace eval [list ${pspace}] \{"
-    lappend script "    namespace import ::fileutil::magic::rt::*"
-    lappend script "\}"
-    lappend script ""
-    lappend script [list proc ${procname} {} \n[eval [linsert $args 0 compile]]\n]
-    return [join $script \n]
+    append script "package require fileutil::magic::rt"
+    append script "\nnamespace eval [list $pspace] \{"
+    append script "    namespace import ::fileutil::magic::rt::*"
+    append script "\}"
+    append script \n 
+    append script "proc [list $procname] {} {
+	[eval [linsert $args 0 compile]]\n
+    }"
+    return $script 
 }
 
 proc ::fileutil::magic::cfront::install {args} {
@@ -364,6 +816,17 @@ proc ::fileutil::magic::cfront::install {args} {
 	eval [procdef ::fileutil::magic::/${path}::run $arg]
     }
     return
+}
+
+proc ::fileutil::magic::cfront::tree {} {
+    set tree [::struct::tree]
+
+    $tree set root path ""
+    $tree set root otype Root
+    $tree set root type root
+    $tree set root named {}
+    $tree set root message "unknown"
+    return $tree
 }
 
 # ### ### ### ######### ######### #########
