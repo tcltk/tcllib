@@ -24,7 +24,7 @@ pcx::check 1.0 std ::fileutil::magic::cfront::install \
     {checkSimpleArgs 1 -1 {
 	checkFileName
     }}
-pcx::check 1.0 std ::fileutil::magic::cfront::procdef \
+pcx::check 1.0 std ::fileutil::magic::cfront::generate \
     {checkSimpleArgs 2 -1 {
 	checkWord
 	checkFileName
