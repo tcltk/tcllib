@@ -26,7 +26,7 @@ file-types.
 
 [para]
 
-[emph Beware!] This recognizer is large, about 276 Kilobyte of
+[emph Beware!] This recognizer is large, about 752 Kilobyte of
 generated Tcl code.
 
 [list_begin definitions]
@@ -37,8 +37,8 @@ This command is similar to the command [cmd fileutil::fileType].
 
 [para]
 
-The output of the command for the specified file is a string
-describing the type of the file.
+Returns a list containing a list of descriptions, mimetype and a list file
+extensions.  Returns an empty string if the file content is not recognized.
 
 [para]
 
