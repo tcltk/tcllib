@@ -29,24 +29,28 @@ abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
 ## Creates a series of commands for the creation of small data files
 ## for various file formats.
 
-foreach {name data} [list \
+foreach {name data} [dict create \
 	Empty  {} \
 	Bin    "\u0000" \
 	Elf    [cat "\x7F" "ELF" "\x01\x01\x01\x00\x00"] \
 	Bzip   "BZh91AY&SY\x01\x01\x01\x00\x00" \
 	Gzip   "\x1f\x8b\x01\x01\x01\x00\x00" \
-	Jpeg   [cat "\xFF\xD8\xFF\xE0\x00\x10JFIF" "\x00\x01\x02\x01\x01\x2c"] \
+	Jpeg   [cat "\xFF\xD8\xFF\xE0\x00\x10JFIF" "\x00\x01\x02\x01\x01\x2c\x01\x3c"] \
+	Jpeg2   [cat "\xFF\xD8\xFF\xE0\x00\x10JFIF" "\x00\x01\x02\x01\x01\x2c\x01\x3c\x80\x70"] \
 	Gif    "GIF89a\x2b\x00\x40\x00\xf7\xff\x00" \
-	Png    "\x89PNG\x00\x01\x02\x01\x01\x2c" \
+	Png    "\x89PNG\x0D\x0A\x1A\x0A" \
+	PngMalformed "\x89PNG\x00\x01\x02\x01\x01\x2c" \
 	Tiff   "MM\x00\*\x00\x01\x02\x01\x01\x2c" \
 	Pdf    "%PDF-1.2 \x00\x01\x02\x01\x01\x2c" \
-	Igwd   "IGWD\x00\x01\x02\x01\x01\x2c"
+	Igwd   "IGWD\x00\x01\x02\x01\x01\x2c" \
+	wsdl "wsdl\x03 \x07\x00\x00\x00\x05\x00\x00\x00hello\x0b\x00\x00\x00some source\x0c\x00\x00\x00and a targetxxxmore text" 
 	] {
     proc make${name}File   {} [list makeBinaryFile $data $name]
     proc remove${name}File {} [list removeFile           $name]
 }
 
-foreach {name data} [list \
+foreach {name data} [dict create \
+	CSource "#include <stdio.h>\nint main(int argc, char *argv[]) {int a;}" \
 	PS     "%!PS-ADOBO-123 EPSF-1.4" \
 	EPS    "%!PS-ADOBO-123 EPSF-1.4" \
 	Text   "simple text" \
