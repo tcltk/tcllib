@@ -32,20 +32,22 @@ package require fileutil::magic::rt    ; # We need the runtime core.
 # ### ### ### ######### ######### #########
 ## Implementation
 
-namespace eval ::fileutil::magic {}
+namespace eval ::fileutil::magic::filetype {
+    namespace import ::fileutil::magic::rt::*
+}
 
 proc ::fileutil::magic::filetype file {
     if {![file exists $file]} {
         return -code error "file not found: \"$file\""
     }
     if {[file isdirectory $file]} {
-	return directory
+	return [list directory application/x-directory {}]
     }
 
     rt::open $file
     try {
 	set matches {}
-	set coro [coroutine [info cmdcount] filetype::run]
+	set coro [coroutine [info cmdcount] filetype::tests]
 	while 1 {
 	    lassign [$coro] weight result mimetype ext 
 	    if {[namespace which $coro] ne $coro} break
@@ -73,6 +75,23 @@ proc ::fileutil::magic::filetype file {
     }
 }
 
+proc ::fileutil::magic::filetype::tests {} {
+    variable named
+    variable tests
+    yield [info coroutine]
+    foreach test $tests {
+	set level 0
+	set ext {}
+	set mime {}
+	try $test
+	lassign [resultv] found weight result
+	if {$found}  {
+	    yield [list $weight $result [split $mime /] [split $ext /]]
+	}
+    }
+    return
+}
+
 package provide fileutil::magic::filetype 1.1.2
 # The actual recognizer is the command below.
 
@@ -80,12 +99,8 @@ package provide fileutil::magic::filetype 1.1.2
 ## -- Do not edit after this line !
 ## -- ** BEGIN GENERATED CODE ** --
 
-package require fileutil::magic::rt
-namespace eval ::fileutil::magic::filetype {    namespace import ::fileutil::magic::rt::*}
-proc ::fileutil::magic::filetype::run {} {
-	
-	yield [info coroutine]
-	set named {7 {new-dump-be {
+namespace eval ::fileutil::magic::filetype {
+	variable named {7 {new-dump-be {
 if {[N bedate 4 0 0 {} {} x {}]} {>
 
 emit {Previous dump %s,}
@@ -4034,7 +4049,7 @@ if {[N byte 3 0 0 {} {} x {}]} {>
 emit {\b, version %d}
 <}
 }}}
-	foreach test {{
+	variable tests {{
 switch -- [Nvx beshort 0 0 {} {}] 5493 {>;emit {fsav macro virus signatures}
 
 if {[N leshort 8 0 0 {} {} > 0]} {>
@@ -45808,19 +45823,7 @@ if {[S string 0 0 {} {} eq !<PDF>!\n]} {>
 
 emit {profiling data file}
 <}
-}} {
-	    set level 0
-	    set ext {}
-	    set mime {}
-	    try $test
-	    lassign [resultv] found weight result
-	    if {$found}  {
-		yield [list $weight $result $mime [split $ext /]]
-	    }
-	}
-	return
-    
-
+}}
     }
 
 ## -- ** END GENERATED CODE ** --
