@@ -29,6 +29,14 @@ packages [package fileutil::magic::cgen] and
 
 [list_begin definitions]
 
+[call [cmd ::fileutil::magic::rt::>]] 
+
+Shorthand for [cmd incr level].
+
+[call [cmd ::fileutil::magic::rt::<]] 
+
+Shorthand for [cmd incr level -1].
+
 [call [cmd ::fileutil::magic::rt::open] [arg filename]]
 
 This command initializes the runtime and prepares the file
@@ -151,18 +159,18 @@ The special comparison operator [const x] signals that no comparison
 should be done, or, in other words, that the fetched value will always
 match [arg val].
 
-[call [cmd ::fileutil::magic::rt::Nvx] [arg atlevel] [arg type] [arg offset] [opt [arg qual]]]
+[call [cmd ::fileutil::magic::rt::Nvx] [arg type] [arg offset] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::Nv], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by
+the calling context, for the current level, for later use by
 [cmd ::fileutil::magic::rt::R].
 
-[call [cmd ::fileutil::magic::rt::Nx] [arg atlevel] [arg type] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
+[call [cmd ::fileutil::magic::rt::Nx] [arg type] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::N], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by
+the calling context, for the current, for later use by
 [cmd ::fileutil::magic::rt::R].
 
 [call [cmd ::fileutil::magic::rt::S] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
@@ -172,11 +180,11 @@ it fetches and compares strings, not numeric data. The fetched value
 is also stored in the internal string buffer instead of the numeric
 buffer.
 
-[call [cmd ::fileutil::magic::rt::Sx] [arg atlevel] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
+[call [cmd ::fileutil::magic::rt::Sx] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::S], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by
+the calling context, for the current level, for later use by
 [cmd ::fileutil::magic::rt::R].
 
 [call [cmd ::fileutil::magic::rt::L] [arg newlevel]]
@@ -206,6 +214,10 @@ In other words, the command computes an absolute location in the file
 based on the relative [arg offset] and returns it as its result. The
 base the offset is added to is the last location remembered for the
 level in the calling context.
+
+[call [cmd ::fileutil::magic::rt::U] [arg fileindex] [arg name]]
+
+Use a named test script at the current level.
 
 [list_end]
 
