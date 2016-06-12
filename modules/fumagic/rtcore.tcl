@@ -46,7 +46,7 @@
 #
 #	    time {2016 06}
 #	}
-#
+
 #	{implement string qualifiers} {
 #	    done
 #	    
@@ -54,6 +54,8 @@
 #
 #	    time {2016 06}
 #	}
+#
+#	{finish implementing the indirect type}
 #
 #	{Maybe distinguish between binary and text tests, like file(n)}
 #	
