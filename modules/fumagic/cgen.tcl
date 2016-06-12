@@ -3,6 +3,7 @@
 #	Generator core for compiler of magic(5) files into recognizers
 #	based on the 'rtcore'.
 #
+# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
 # Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
@@ -24,17 +25,21 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.6
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
-package require struct::tree        ; #
 
-package provide fileutil::magic::cgen 1.0
+package provide fileutil::magic::cgen 1.2
 
 # ### ### ### ######### ######### #########
 ## Implementation
 
+namespace eval ::fileutil::magic {
+    namespace export *
+}
 namespace eval ::fileutil::magic::cgen {
+    namespace ensemble create
+    namespace export *
     # Import the runtime typemap into our scope.
     variable ::fileutil::magic::rt::typemap
 
@@ -44,18 +49,14 @@ namespace eval ::fileutil::magic::cgen {
     # Generator data structure.
     variable regions
 
-    # Type mapping for indirect offsets.
-    # empty -> long/Q, because this uses native byteorder.
-
-    array set otmap {
-        .b c    .B c
-        .s s    .S S
-        .l i    .L I
-	{} Q
-    }
-
     # Export the API
     namespace export 2tree treedump treegen
+
+   # Assumption : the parser folds the test inversion operator into equality and
+   # inequality operators .
+    variable offsetskey {
+	type o rel ind ir it ioi ioo iir io compinvert mod mand
+    }
 }
 
 
@@ -91,7 +92,6 @@ namespace eval ::fileutil::magic::cgen {
 # - common prefix strings will have to be guarded against, by
 #   sorting string values, then sorting the tests in reverse length order.
 
-
 proc ::fileutil::magic::cgen::path {tree} {
     # Annotates the tree. In each node we store the path from the root
     # to this node, as list of nodes, with the current node the last
@@ -108,79 +108,65 @@ proc ::fileutil::magic::cgen::path {tree} {
     return
 }
 
-proc ::fileutil::magic::cgen::tree_el {tree parent file line type qual comp offset val message args} {
+proc ::fileutil::magic::cgen::tree_el {tree node} {
+    set parent [$tree parent $node]
+    if {[$tree keyexists $parent path]} {
+	set path [$tree get $parent path]
+    } else {
+	set path {} 
+    }
+    lappend path [$tree index $node]
+    $tree set $node path $path
+
+    foreach name {type} {
+	set $name [$tree get $node $name]
+    }
 
     # Recursively creates and annotates a node for the specified
     # tests, and its sub-tests (args).
 
-    set     node [$tree insert $parent end]
-    set     path [$tree get    $parent path]
-    lappend path [$tree index  $node]
-    $tree set $node path $path
 
     # generate a proc call type for the type, Numeric or String
     variable ::fileutil::magic::rt::typemap
 
     switch -glob -- $type {
    	*byte* -
+	*double* -
    	*short* -
    	*long* -
+	*quad* -
    	*date* {
-   	    set otype N
-   	    set type [lindex $typemap($type) 1]
+   	    $tree set $node otype N
    	}
-   	*string {
-   	    set otype S
+   	clear - default - search - regex - *string* {
+   	    $tree set $node otype S
    	}
+	name {
+	    $tree set $node otype A
+	}
+	use {
+	    $tree set $node otype U
+	}
    	default {
    	    puts stderr "Unknown type: '$type'"
+	    $tree set $node otype Unknown
    	}
     }
 
     # Stores the type determined above, and the arguments into
     # attributes of the new node.
 
-    foreach key {line type qual comp offset val message file otype} {
-   	if {[catch {
-   	    $tree set $node $key [set $key]
-   	} result]} {
-	    upvar ::errorInfo eo
-   	    puts "Tree: $eo - $file $line $type"
-   	}
-    }
-
     # now add children
-    foreach el $args {
-	eval [linsert $el 0 tree_el $tree $node $file]
-   	# 8.5 # tree_el $tree $node $file {*}$el
+    foreach el [$tree children $node] {
+	tree_el $tree $el
     }
-    return $node
+    return
 }
 
-proc ::fileutil::magic::cgen::2tree {script} {
+proc ::fileutil::magic::cgen::2tree {tree} {
 
-    # Converts a recognizer which is in a simple script form into a
-    # tree.
-
-    variable tree
-    set tree [::struct::tree]
-
-    $tree set root path ""
-    $tree set root otype Root
-    $tree set root type root
-    $tree set root message "unknown"
-
-    # generate a test for each match
-    set file "unknown"
-    foreach el $script {
-   	#puts "EL: $el"
-   	if {[lindex $el 0] eq "file"} {
-   	    set file [lindex $el 1]
-   	} else {
-	    set node [eval [linsert $el 0 tree_el $tree root $file]]
-	    # 8.5 # set more [tree_el $tree root $file {*}$el]
-   	    append result $node
-   	}
+    foreach child [$tree children root] {
+	tree_el $tree $child
     }
     optNum $tree root
     #optStr $tree root
@@ -252,9 +238,9 @@ proc ::fileutil::magic::cgen::optStr1 {tree node} {
 	    continue
 	}
 
-	set offset [$tree get $el offset]
+	set o [$tree get $el o]
 	set len    [string length [$tree get $el val]]
-	lappend regions([list $offset $len]) $el
+	lappend regions([list $o $len]) $el
     }
 }
 
@@ -267,6 +253,7 @@ proc ::fileutil::magic::cgen::switchNSort {tree n1 n2} {
 }
 
 proc ::fileutil::magic::cgen::optNum {tree node} {
+    variable offsetskey
     array set offsets {}
 
     # traverse each numeric element of this node's children,
@@ -284,10 +271,14 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
     }
 
     foreach el $numerics {
-	if {[$tree get $el comp] ne "=="} {
+	if {[$tree get $el comp] ne {==}} {
 	    continue
 	}
-	lappend offsets([$tree get $el type],[$tree get $el offset],[$tree get $el qual]) $el
+	set key {}
+	foreach name $offsetskey {
+	    lappend key [$tree get $el $name]
+	}
+	lappend offsets([join $key ,]) $el
     }
 
     #puts "Offset: stderr [array get offsets]"
@@ -309,13 +300,13 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
 	    }
 	}
 
-	foreach {type offset qual} [split $match ,] break
+	foreach $offsetskey [split $match ,] break
 	set switch [$tree insert $node [$tree index [lindex $nodes 0]]]
 	$tree set $switch otype   Switch
-	$tree set $switch message $match
-	$tree set $switch offset  $offset
-	$tree set $switch type    $type
-	$tree set $switch qual    $qual
+	$tree set $switch desc $match
+	foreach name $offsetskey {
+	    $tree set $switch $name [set $name]
+	}
 
 	set nodes [lsort -command [list ::fileutil::magic::cgen::switchNSort $tree] $nodes]
 
@@ -324,6 +315,9 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
 	set     path [$tree get [$tree parent $switch] path]
 	lappend path [$tree index $switch]
 	$tree set $switch path $path
+
+	set level [$tree get [$tree parent $switch] level]
+	$tree set $switch level [expr {$level+1}]
     }
 }
 
@@ -336,15 +330,19 @@ proc ::fileutil::magic::cgen::Offsets {tree} {
     # regenerated at the current level.
 
     $tree walk root -type dfs node {
-	$tree set $node save 0
 	$tree set $node kill 0
+	if {[$tree get $node otype] ne {Root} &&
+	    ([$tree get $node rel] || [$tree get $node ir])} {
+	    $tree set $node save 1
+	} else {
+	    $tree set $node save 0
+	}
     }
 
     # We walk from the leafs up to the root, synthesizing the data
     # needed, as we go.
     $tree walk root -type dfs -order post node {
-	if {$node eq "root"} continue
-	DecodeOffset $tree $node [$tree get $node offset]
+	if {$node eq {root}} continue
 
 	# If the current node's parent is a switch, and the node has
 	# to save, then the switch has to save. Because the current
@@ -354,7 +352,7 @@ proc ::fileutil::magic::cgen::Offsets {tree} {
 	if {[$tree get $node save]} {
 	    # We save, therefore we kill.
 	    $tree set $node kill 1
-	    if {[$tree get [$tree parent $node] otype] eq "Switch"} {
+	    if {[$tree get [$tree parent $node] otype] eq {Switch}} {
 		$tree set [$tree parent $node] save 1
 	    }
 	} else {
@@ -371,87 +369,29 @@ proc ::fileutil::magic::cgen::Offsets {tree} {
     }
 }
 
-proc ::fileutil::magic::cgen::DecodeOffset {tree node offset} {
-    if {[string match "(*)" $offset]} {
-	# Indirection offset. (Decoding is non-trivial, therefore
-	# packed into a proc).
 
-	set ind 1 ; # Indirect location
-	foreach {rel base itype idelta} [DecodeIndirectOffset $offset] break
-
-    } elseif {[string match "&*" $offset]} {
-	# Direct relative offset. (Decoding is trivial)
-
-	set ind    0       ; # Direct location
-	set rel    1       ; # Relative
-	set base   [string range $offset 1 end] ; # Base Delta
-	set itype  {}      ; # No data for indirect
-	set idelta {}      ; # s.a.
-
-    } else {
-	set ind    0       ; # Direct location
-	set rel    0       ; # Absolute
-	set base   $offset ; # Here!
-	set itype  {}      ; # No data for indirect
-	set idelta {}      ; # s.a.
+# Useful when debugging
+proc ::fileutil::magic::cgen::stack {tree node} {
+    set res {}
+    set files [$tree get root files]
+    while 1 {
+	set s [dict create \
+	    file [lindex $files [$tree get $node file]] \
+	    linenum [$tree get $node linenum]]
+	if {[$tree keyexists $node origin]} {
+	    set origin [$tree get $node origin]
+	    dict set s origin [dict create \
+		name [$tree get $origin val] \
+		file [lindex $files [$tree get $origin file]] \
+		linenum [$tree get $origin linenum]]
+	}
+	set res [linsert $res 0 $s]
+	set node [$tree parent $node]
+	if {$node eq {root}} {
+	    break
+	}
     }
-
-    # Store the expanded data back into the tree.
-
-    foreach v {ind rel base itype idelta} {
-	$tree set $node $v [set $v]
-    }
-
-    # For nodes with adressing relative to last field above the latter
-    # has to save this information.
-
-    if {$rel} {
-	$tree set [$tree parent $node] save 1
-    }
-    return
-}
-
-proc ::fileutil::magic::cgen::DecodeIndirectOffset {offset} {
-    variable otmap ; # Offset typemap.
-
-    # Offset parser.
-    # Syntax:
-    #   ( ?&? number ?.[bslBSL]? ?[+-]? ?number? )
-
-    set n {(([0-9]+)|(0x[0-9A-Fa-f]+))}
-    set o "\\((&?)(${n})((\\.\[bslBSL])?)(\[+-]?)(${n}?)\\)"
-    #         |   | ||| ||               |       | |||
-    #         1   2 345 67               8       9 012
-    #         ^   ^     ^                ^       ^
-    #         rel base  type             sign    index
-    #
-    #                            1   2    3 4 5 6    7 8    9   0 1 2
-    set ok [regexp $o $offset -> rel base _ _ _ type _ sign idx _ _ _]
-
-    if {!$ok} {
-        return -code error "Bad offset \"$offset\""
-    }
-
-    # rel is in {"", &}, map to 0|1
-    if {$rel eq ""} {set rel 0} else {set rel 1}
-
-    # base is a number, enforce decimal. Not optional.
-    set base [expr $base]
-
-    # Type is in .b .s .l .B .S .L, and "". Map to a regular magic
-    # type code.
-    set type $otmap($type)
-
-    # sign is in {+,-,""}. Map to -|"" (Becomes sign of index)
-    if {$sign eq "+"} {set sign ""}
-
-    # Index is optional number. Enforce decimal, empty is zero. Add in
-    # the sign as well for a proper signed index.
-
-    if {$idx eq ""} {set idx 0}
-    set idx $sign[expr $idx]
-
-    return [list $rel $base $type $idx]
+    return $res
 }
 
 proc ::fileutil::magic::cgen::treedump {tree} {
@@ -462,11 +402,11 @@ proc ::fileutil::magic::cgen::treedump {tree} {
 
 	append result [string repeat "  " $depth] [list $path] ": " [$tree get $node type]:
 
-	if {[$tree keyexists $node offset]} {
-	    append result " ,O|[$tree get $node offset]|"
+	if {[$tree keyexists $node o]} {
+	    append result " ,O|[$tree get $node o]|"
 
 	    set x {}
-	    foreach v {ind rel base itype idelta} {lappend x [$tree get $node $v]}
+	    foreach v {ind rel base itype iop ioperand idelta} {lappend x [$tree get $node $v]}
 	    append result "=<[join $x !]>"
 	}
 	if {[$tree keyexists $node qual]} {
@@ -488,12 +428,12 @@ proc ::fileutil::magic::cgen::treedump {tree} {
 	}
 
 	if {$depth == 1} {
-	    set msg [$tree get $node message]
+	    set msg [$tree get $node desc]
 	    set n $node
 	    while {($n != {}) && ($msg == "")} {
 		set n [lindex [$tree children $n] 0]
 		if {$n != {}} {
-		    set msg [$tree get $n message]
+		    set msg [$tree get $n desc]
 		}
 	    }
 	    append result " " ( $msg )
@@ -509,142 +449,163 @@ proc ::fileutil::magic::cgen::treedump {tree} {
 }
 
 proc ::fileutil::magic::cgen::treegen {tree node} {
-    return "[treegen1 $tree $node]\nresult\n"
-}
-
-proc ::fileutil::magic::cgen::treegen1 {tree node} {
     variable ::fileutil::magic::rt::typemap
 
-    set result ""
-    foreach k {otype type offset comp val qual message save path} {
-	if {[$tree keyexists $node $k]} {
-	    set $k [$tree get $node $k]
-	}
-    }
+    set result {} 
+    set named [$tree get root named]
+    set otype [$tree get $node otype]
+    set level [$tree get $node level]
 
-    set level [llength $path]
+    set indent \n[string repeat \t [expr {$level > 0 ? $level-1 : 0}]]
 
     # Generate code for each node per its type.
 
     switch $otype {
+	A {
+	    set file [$tree get $node file]
+	    set val [$tree get $node val]
+	    if {[dict exists named $file$val]} {
+		return -code error [list {name already exists} $file $val]
+	    }
+	    set aresult {}
+	    foreach child [$tree children $node] {
+		lappend aresult [treegen $tree $child]
+	    }
+	    dict set named $file $val [join $aresult \n]
+	    $tree set root named $named
+	    return
+	}
+	U {
+	    set file [$tree get $node file]
+	    set val [$tree get $node val]
+	    append result "U [list $file] [list $val]\n" 
+	}
 	N -
 	S {
-	    if {$save} {
-		# We have to save field data for relative adressing under this
-		# leaf.
-		if {$otype eq "N"} {
-		    set type [list Nx $level $type]
-		} elseif {$otype eq "S"} {
-		    set type [list Sx $level]
-		}
-	    } else {
-		# Regular fetching of information.
-		if {$otype eq "N"} {
-		    set type [list N $type]
-		} elseif {$otype eq "S"} {
-		    set type S
-		}
+	    set names {type mod mand testinvert compinvert comp val desc kill save path}
+	    foreach name $names {
+		set $name [$tree get $node $name]
 	    }
 
-	    set offset [GenerateOffset $tree $node]
+	    set o [GenerateOffset $tree $node]
 
-	    if {$qual eq ""} {
-		append result "if \{\[$type $offset $comp [list $val]\]\} \{"
-	    } else {
-		append result "if \{\[$type $offset $comp [list $val] $qual\]\} \{"
+	    if {$val eq {}} {
+		# If the value is the empty string, armor it.  Otherwise, it's
+		# already been armored.
+		set val [list $val]
 	    }
 
-	    if {[$tree isleaf $node]} {
-		if {$message ne ""} {
-		    append result "emit [list $message]"
+	    if {$otype eq {N}} {
+		if {$kill} {
+		    # We have to save field data for relative adressing under this
+		    # leaf.
+		    set type [list Nx $type]
 		} else {
-		    append result "emit [$tree get $node path]"
+		    # Regular fetching of information.
+		    set type [list N $type]
 		}
+		# $type and $o are expanded via substitution 
+		append result "${indent}if \{\[$type $o [list $testinvert] [
+		    list $compinvert] [list $mod] [list $mand] [
+		    list $comp] $val\]\} \{>\n"
+	    } elseif {$otype eq {S}} {
+		switch $comp {
+		    == {set comp eq}
+		    != {set comp ne}
+		}
+		if {$kill} {
+		    set type [list Sx $type]
+		} else {
+		    set type [list S $type]
+		}
+		append result "${indent}if \{\[$type $o [list $testinvert] [
+		    list $mod] [list $mand] [list $comp] $val\]\} \{>\n"
+	    }
+
+	    if {[$tree isleaf $node] && $desc ne {}} {
+		append result "${indent}emit [list $desc]"
 	    } else {
-		# If we saved data the child branches may destroy
-		# level information. We regenerate it if needed.
-
-		if {$message ne ""} {
-		    append result "emit [list $message]\n"
+		if {$desc ne {}} {
+		    append result "${indent}emit [list $desc]\n"
 		}
-
-		set killed 0
 		foreach child [$tree children $node] {
-		    if {$save && $killed && [$tree get $child rel]} {
-			# This location already does not regenerate if
-			# the killing subnode was last. We also do not
-			# need to regenerate if the current subnode
-			# does not use relative adressing.
-			append result "L $level;"
-			set killed 0
-		    }
-		    append result [treegen1 $tree $child]
-		    set killed [expr {$killed || [$tree get $child kill]}]
+		    append result [treegen $tree $child]
 		}
 		#append result "\nreturn \$result"
 	    }
 
-	    append result "\}\n"
+	    if {[$tree keyexists $node ext_mime]} {
+		append result "${indent}mime [$tree get $node ext_mime]\n"
+	    }
+
+	    if {[$tree keyexists $node ext_ext]} {
+		append result "${indent}ext [$tree get $node ext_ext]\n"
+	    }
+
+	    append result "\n<\}\n"
 	}
 	Root {
 	    foreach child [$tree children $node] {
-		append result [treegen1 $tree $child]
+		lappend result [treegen $tree $child]
+		if {[lindex $result end] eq {}} {
+		    set result [lreplace $result[set result {}] end end]
+		}
 	    }
 	}
 	Switch {
-	    set offset [GenerateOffset $tree $node]
+	    set names {o type compinvert mod mand kill save}
+	    foreach name $names {
+		set $name [$tree get $node $name]
+	    }
+	    set o [GenerateOffset $tree $node]
 
-	    if {$save} {
-		set fetch "Nvx $level"
+	    if {$kill} {
+		set fetch Nvx
 	    } else {
 		set fetch Nv
 	    }
 
-	    append fetch " " $type " " $offset
-	    if {$qual ne ""} {
-		append fetch " " $qual
-	    }
-	    append result "switch -- \[$fetch\] "
+	    append fetch " $type $o [list $compinvert] [list $mod] [list $mand]"
+	    append result "${indent}switch -- \[$fetch\] "
 
 	    set scan [lindex $typemap($type) 1]
 
 	    set ckilled 0
 	    foreach child [$tree children $node] {
-		binary scan [binary format $scan [$tree get $child val]] $scan val
-		append result "$val \{"
-
-		if {$save && $ckilled} {
-		    # This location already does not regenerate if
-		    # the killing subnode was last. We also do not
-		    # need to regenerate if the current subnode
-		    # does not use relative adressing.
-		    append result "L $level;"
-		    set ckilled 0
+		# See ::fileutil::magic::rt::rtscan
+		if {$scan eq {me}} {
+		    set scan I
 		}
 
-		if {[$tree isleaf $child]} {
-		    append result "emit [list [$tree get $child message]]"
+		# get value in binary form, then back to numeric
+		# this avoids problems with sign, as both values are
+		# [binary scan]-converted identically
+		binary scan [binary format $scan [$tree get $child val]] $scan val
+
+		append result "$val \{>;"
+
+		set desc [$tree get $child desc]
+		if {[$tree isleaf $child] && $desc ne {}} {
+		    append result "emit [list [$tree get $child desc]]"
 		} else {
-		    set killed 0
-		    append result "emit [list [$tree get $child message]]\n"
+		    if {$desc ne {}} {
+			append result "emit [list [$tree get $child desc]]\n"
+		    }
 		    foreach grandchild [$tree children $child] {
-			if {$save && $killed && [$tree get $grandchild rel]} {
-			    # This location already does not regenerate if
-			    # the killing subnode was last. We also do not
-			    # need to regenerate if the current subnode
-			    # does not use relative adressing.
-			    append result "L $level;"
-			    set killed 0
-			}
-			append result [treegen1 $tree $grandchild]
-			set killed [expr {$killed || [$tree get $grandchild kill]}]
+			append result [treegen $tree $grandchild]
 		    }
 		}
+		if {[$tree keyexists $child ext_mime]} {
+		    append result "${indent}mime [$tree get $child ext_mime]\n"
+		}
 
-		set ckilled [expr {$ckilled || [$tree get $child kill]}]
-		append result "\} "
+		if {[$tree keyexists $child ext_ext]} {
+		    append result "${indent}ext [$tree get $child ext_ext]\n"
+		}
+
+		append result ";<\} "
 	    }
-	    append result "\n"
+	    append result "\n<\n"
 	}
     }
     return $result
@@ -654,16 +615,31 @@ proc ::fileutil::magic::cgen::GenerateOffset {tree node} {
     # Examples:
     # direct absolute:     45      -> 45
     # direct relative:    &45      -> [R 45]
-    # indirect absolute:  (45.s+1) -> [I 45 s 1]
-    # indirect relative: (&45.s+1) -> [I [R 45] s 1]
+    # indirect absolute:  (45.s+1) -> [I 45 s + 0 1]
+    # indirect absolute (indirect offset):  (45.s+(1)) -> [I 45 s + 1 1]
+    # relative indirect absolute:  &(45.s+1) -> [R [I 45 s + 0 1]]
+    # relative indirect absolute (indirect offset):  &(45.s+(1)) -> [R [I 45 s + 1 1]]
+    # indirect relative: (&45.s+1) -> [I [R 45] s op 0 1]
+    # relative indirect relative: &(&45.s+1) -> [R [I [R 45] s + 0 1]]
+    # relative indirect relative: &(&45.s+(1)) -> [R [I [R 45] s + 1 1]]
 
-    foreach v {ind rel base itype idelta} {
+    foreach v {o rel ind ir it ioi iir ioo io} {
 	set $v [$tree get $node $v]
     }
 
-    if {$rel} {set base "\[R $base\]"}
-    if {$ind} {set base "\[I $base $itype $idelta\]"}
-    return $base
+    #foreach v {ind rel base itype iop ioperand iindir idelta} {
+    #    set $v [$tree get $node $v]
+    #}
+
+    if {$ind} {
+	if {$ir} {set o "\[R $o]"}
+	set o "\[I $o [list $it] [list $ioi] [list $ioo] [list $iir] [list $io]\]"
+    }
+    if {$rel} {
+	set o "\[R $o\]"
+    }
+    
+    return $o
 }
 
 # ### ### ### ######### ######### #########
