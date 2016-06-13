@@ -5,7 +5,7 @@ proc ::tool::coroutine_register {objname coroutine} {
   variable object_coroutines
   variable coroutine_object
   # Wake a sleeping main loop
-  set ::tool::wake_up 2
+  set ::tool::wake_up 0
   if {$coroutine in $all_coroutines} {
     return 1
   }
@@ -79,17 +79,21 @@ proc ::tool::do_events {} {
 }
 
 proc ::tool::Main_Service {} {
-  # Cap cron delays at 1 minute
   if {[info command ::CRON] eq {}} {
     coroutine ::CRON ::cron::runTasksCoro
   }
+  set now [clock seconds]
   set cron_delay [::CRON]
+  set ::tool::busy 1
   set tool_running [::tool::do_events]
+  set ::tool::busy 0
   if {$cron_delay==0 || $tool_running>0} {
+    set ::tool::wake_up 0
     incr ::tool::loops(active)
-    update
-    set ::tool::wake_up 1
+    puts "ACTIVE"
   } else {
+    set ::tool::wake_up [expr {$cron_delay+$now}]
+    puts "IDLE"
     incr ::tool::loops(idle)
   }
 }
@@ -115,28 +119,38 @@ proc ::tool::main {} {
   # of it's normal run commands in the background
   ###
   proc ::cron::wake {} {
-    set ::tool::wake_up 1
+    set ::tool::wake_up 0
   }
   # Signal for all other MAIN loops to terminate
   for {set x 0} {$x < $event_loops} {incr x} {
     set ::tool::main($x) 0
   }
-  set ::tool::wake_up -1
+  set ::tool::wake_up 0
   update
   set this [incr event_loops]
   set ::tool::main($this) 1
   set ::tool::wake_up 0
-
+  set ::tool::busy 0
   while {$::tool::main($this)} {
-    set panic [after 120000 {puts "Warning: Tool event loop has not responded in 2 minutes"}]
+    # Call an update just to give the rest of the event loop a chance
+    update
     incr ::tool::loops(all)
-    after idle ::tool::Main_Service
-    set next [after [expr {60000}] {set ::tool::wake_up 1}]
+    if {$::tool::wake_up > 0} {
+      set next [after [expr {(${::tool::wake_up}-[clock seconds])*1000}] {set ::tool::wake_up 0}]
+    } elseif {$::tool::busy==0} {
+      # Kick off a new round of event processing 
+      # only if the current round
+      # has completed
+      set panic [after 120000 {puts "Warning: Tool event loop has not responded in 2 minutes" ; set ::tool::busy 0}]
+      set next [after 60000 {set ::tool::wake_up 0}]
+      after idle ::tool::Main_Service
+    }
+    set ::tool::wake_up 0
     vwait ::tool::wake_up
-    after cancel $panic
+    puts [list BUSY $::tool::busy WAKE $::tool::wake_up [expr {${::tool::wake_up}-[clock seconds]}]]
     after cancel $next
-    if {$::tool::wake_up < 0} {
-      break
+    if {${::tool::busy} == 0} {
+      after cancel $panic
     }
   }
 }

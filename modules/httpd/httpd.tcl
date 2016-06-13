@@ -87,13 +87,12 @@ set ::httpd::version 4.0.0
     # suite, when we are opening a blocking channel on the other side of the
     # socket back to ourselves.)
     ###
-    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    chan configure $sock -translation {crlf crlf} -blocking 0 -buffering line
     my variable MimeHeadersSock
     set MimeHeadersSock($sock) {}
     set MimeHeadersSock($sock.done) {}
     chan event $sock readable [namespace code [list my HttpHeaderLine $sock]]
     vwait [my varname MimeHeadersSock]($sock.done)
-    chan event $sock readable {}
     ###
     # Return our buffer
     ###
@@ -107,8 +106,10 @@ set ::httpd::version 4.0.0
       tailcall my destroy
     }
     try {
-      if {[gets $sock line]==0} {
-        set [my varname MimeHeadersSock]($sock.done) 1      
+      gets $sock line
+      if {$line eq {}} {
+        set [my varname MimeHeadersSock]($sock.done) 1
+        chan event $sock readable {}
       } else {
         append MimeHeadersSock($sock) $line \n
       }
@@ -196,7 +197,7 @@ set ::httpd::version 4.0.0
     } on error {err info} {
       dict print $info
       #puts stderr $::errorInfo
-      my error 500 $err
+      my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
     }
@@ -221,7 +222,7 @@ set ::httpd::version 4.0.0
     }
   }
 
-  method error {code {msg {}}} {
+  method error {code {msg {}} {errorInfo {}}} {
     puts [list [self] ERROR $code $msg]
     my query_headers set HTTP_ERROR $code
     my reset
@@ -258,7 +259,7 @@ The server encountered an internal error:
 <p>
 For deeper understanding:
 <p>
-<pre>$::errorInfo</pre>
+<pre>$errorInfo</pre>
 "
     }
     my puts "</BODY>
@@ -446,7 +447,8 @@ For deeper understanding:
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
   option server_string [list default: [list TclHttpd $::httpd::version]]
-  
+  option server_name [list default: [list [info hostname]]]
+
   property socket buffersize   32768
   property socket translation  {auto crlf}
   property reply_class ::httpd::reply
@@ -597,9 +599,9 @@ For deeper understanding:
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    #puts [list [self] listening on $port $myaddr]
-
-    if {$myaddr ne {}} {
+    puts [list [self] listening on $port $myaddr]
+ 
+    if {$myaddr ni {* {}}} {
       foreach ip $myaddr {
         lappend socklist [socket -server [namespace code [list my connect]] -myaddr $ip $port]
       }
