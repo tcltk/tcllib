@@ -90,10 +90,8 @@ proc ::tool::Main_Service {} {
   if {$cron_delay==0 || $tool_running>0} {
     set ::tool::wake_up 0
     incr ::tool::loops(active)
-    puts "ACTIVE"
   } else {
     set ::tool::wake_up [expr {$cron_delay+$now}]
-    puts "IDLE"
     incr ::tool::loops(idle)
   }
 }
@@ -109,7 +107,6 @@ proc ::tool::main {} {
       set ::tool::wake_up 1
       update
       if {$last_event>0} {
-        puts "Avoiding re-entrance into ::tool::main"
         return
       }
     }
@@ -147,7 +144,6 @@ proc ::tool::main {} {
     }
     set ::tool::wake_up 0
     vwait ::tool::wake_up
-    puts [list BUSY $::tool::busy WAKE $::tool::wake_up [expr {${::tool::wake_up}-[clock seconds]}]]
     after cancel $next
     if {${::tool::busy} == 0} {
       after cancel $panic
