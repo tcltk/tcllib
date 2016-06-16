@@ -92,7 +92,7 @@ proc ::fileutil::magic::filetype::tests {} {
     return
 }
 
-package provide fileutil::magic::filetype 1.1.2
+package provide fileutil::magic::filetype 1.2
 # The actual recognizer is the command below.
 
 ##
