@@ -6,6 +6,7 @@ proc ::tool::coroutine_register {objname coroutine} {
   variable coroutine_object
   # Wake a sleeping main loop
   set ::tool::wake_up 0
+  set ::tool::rouser ::tool::coroutine_register
   if {$coroutine in $all_coroutines} {
     return 1
   }
@@ -105,8 +106,10 @@ proc ::tool::Main_Service {} {
   set ::tool::busy 0
   if {$cron_delay==0 || $tool_running>0} {
     set ::tool::wake_up 0
+    set ::tool::rouser {Main_Service active}
     incr ::tool::loops(active)
   } else {
+    set ::tool::rouser [list Main_Service idle $cron_delay]
     set ::tool::wake_up [expr {$cron_delay+$now}]
     incr ::tool::loops(idle)
   }
@@ -114,13 +117,16 @@ proc ::tool::Main_Service {} {
 
 
 proc ::tool::main {} {
+  set ::tool::rouser STARTUP
   package require cron 1.2
   variable event_loops
   variable last_event
+  variable trace
   if {[info exists ::tool::main($event_loops)]} {
     if {$::tool::main($event_loops)} {
       set last_event -1
       set ::tool::wake_up 0
+      set ::tool::rouser RESTART_EVENT_LOOP
       update
       if {$last_event>0} {
         return
@@ -133,6 +139,8 @@ proc ::tool::main {} {
   ###
   proc ::cron::wake {} {
     set ::tool::wake_up 0
+  set ::tool::rouser ::cron::wake
+
   }
   # Signal for all other MAIN loops to terminate
   for {set x 0} {$x < $event_loops} {incr x} {
@@ -148,25 +156,25 @@ proc ::tool::main {} {
     # Call an update just to give the rest of the event loop a chance
     update
     incr ::tool::loops(all)
-    if {$::tool::wake_up > 0} {
-      set delay [expr {(${::tool::wake_up}-[clock seconds])*1000}]
-      if {$delay > 60000} {
-        set delay 60000
-      }
-    } else {
-      set delay 60000
-    }
-    set next [after $delay {set ::tool::wake_up 0}]
     if {$::tool::busy==0} {
       # Kick off a new round of event processing 
       # only if the current round
       # has completed
-      set panic [after 120000 {puts "Warning: Tool event loop has not responded in 2 minutes" ; set ::tool::busy 0}]
+      set panic [after 120000 {puts "Warning: Tool event loop has not responded in 2 minutes" ; set ::tool::rouser PANIC ; set ::tool::busy 0}]
       after idle ::tool::Main_Service
+      update
     }
-    set ::tool::wake_up 0
-    vwait ::tool::wake_up
-    after cancel $next
+    if {$::tool::wake_up > 0} {
+      set delay [expr {(${::tool::wake_up}-[clock seconds])*1000}]
+      if {$trace} {
+        puts [list EVENT LOOP WILL WAKE IN [expr {$delay/1000}]s active: $::tool::loops(active) idle: $::tool::loops(idle) busy: $::tool::busy rouser: $::tool::rouser]
+      }
+      set next [after $delay {set ::tool::wake_up 0}]
+      set ::tool::rouser IDLELOOP
+      set ::tool::wake_up 0
+      vwait ::tool::wake_up
+      after cancel $next
+    }
     if {${::tool::busy} == 0} {
       after cancel $panic
     }
@@ -234,6 +242,13 @@ namespace eval ::tool {
   variable event_loops
   if {![info exists event_loops]} {
     set event_loops 0
+  }
+  if {![info exists ::tool::loops]} {
+    array set ::tool::loops {
+      active 0
+      all 0
+      idle 0
+    }
   }
   variable all_coroutines
   if {![info exists all_coroutines]} {

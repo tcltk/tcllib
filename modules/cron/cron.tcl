@@ -116,7 +116,7 @@ proc ::cron::doOneEvent task {
 #    Run through our process table and
 #    kick off overdue tasks
 ###
-proc ::cron::runProcesses {} {
+proc ::cron::runProcesses {{coro 0}} {
   variable processTable
   set now [clock seconds]
   ###
@@ -124,7 +124,7 @@ proc ::cron::runProcesses {} {
   ###
   set tasks {}
   set cancellist {}
-  foreach {process} [array names processTable] {
+  foreach {process} [lsort -dictionary [array names processTable]] {
     dict with processTable($process) {
       if { $scheduled <= $now } {
         lappend tasks $process
@@ -142,7 +142,11 @@ proc ::cron::runProcesses {} {
     }
   }
   foreach task $tasks {
+    dict set processTable($task) lastrun $now
     doOneEvent $task
+    if {$coro} {
+      yield 0
+    }
   }
   foreach {task} $cancellist {
     unset -nocomplain processTable($task)
@@ -206,47 +210,28 @@ proc ::cron::runTasksCoro {} {
   variable processing
   while 1 {
     set lastevent 0
-    set nextevent 0
+    runProcesses 1
+    # Wake me up in 5 minute intervals, just out of principle
     set now [clock seconds]
-    ###
-    # Determine what tasks to run this timestep
-    ###
-    set tasks {}
-    set cancellist {}
+    set nextevent [expr {$now-($now % 300) + 300}]
+    set nexttask {}
     foreach {process} [lsort -dictionary [array names processTable]] {
       dict with processTable($process) {
-        if { $scheduled <= $now } {
-          lappend tasks $process
-          if { $frequency <= 0 } {
-            lappend cancellist $process
-          } else {
-            set scheduled [expr {$frequency + $lastrun}]
-            if { $scheduled <= $now } {
-              set scheduled [expr {$frequency + $now}]
-            }
-          }
-          set lastrun $now
-        } else {
-          if {$nextevent==0 || $scheduled < $nextevent} {
-            set $nextevent $scheduled
-          }
+        if {$scheduled < $nextevent} {
+          set nexttask $process
+          set nextevent $scheduled
         }
         set lastevent $now
       }
     }
-    foreach task $tasks {
-      doOneEvent $task
+    set delay [expr {$nextevent-$now}]
+    if {$delay < 0} {
       yield 0
-    }
-    
-    foreach {task} $cancellist {
-      unset -nocomplain processTable($task)
-    }
-    if {$nextevent==0} {
-      # Wake me up in 5 minutes, just out of principle
-      yield 300
     } else {
-      yield $nextevent
+      if {$delay > 120} {
+        set delay [expr {$delay-($delay % 60) + 60}]
+      }
+      yield $delay      
     }
   }
 }
