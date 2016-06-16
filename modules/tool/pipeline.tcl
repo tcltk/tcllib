@@ -33,15 +33,23 @@ proc ::tool::do_events {} {
   # Process coroutines
   variable all_coroutines
   variable coroutine_object
+  variable coroutine_busy
   variable last_event
   set last_event [clock seconds]
   set count 0
   foreach coro $all_coroutines {
+    if {![info exists coroutine_busy($coro)]} {
+      set coroutine_busy($coro) 0
+    }
+    # Prevent a stuck coroutine from logjamming the entire event loop
+    if {$coroutine_busy($coro)} continue
+    set coroutine_busy($coro) 1
     if {[info command $coro] eq {}} {
       #puts "$coro quit"
       coroutine_unregister $coro
       continue
     }
+    set deleted 0
     #puts [list RUN $coro]
     try $coro on return {} {
       # Terminate the coroutine
@@ -66,13 +74,21 @@ proc ::tool::do_events {} {
       if { $result eq "done" } {
         incr count
         coroutine_unregister $coro
+        set deleted 1
+
       }
     } on ok {result opts} {
       if { $result eq "done" } {
         coroutine_unregister $coro
+        set deleted 1
       } else {
         incr count
       }
+    }
+    if {$deleted} {
+      unset -nocomplain coroutine_busy($coro)
+    } else {
+      set coroutine_busy($coro) 0
     }
   }
   return $count
@@ -104,7 +120,7 @@ proc ::tool::main {} {
   if {[info exists ::tool::main($event_loops)]} {
     if {$::tool::main($event_loops)} {
       set last_event -1
-      set ::tool::wake_up 1
+      set ::tool::wake_up 0
       update
       if {$last_event>0} {
         return
@@ -133,13 +149,19 @@ proc ::tool::main {} {
     update
     incr ::tool::loops(all)
     if {$::tool::wake_up > 0} {
-      set next [after [expr {(${::tool::wake_up}-[clock seconds])*1000}] {set ::tool::wake_up 0}]
-    } elseif {$::tool::busy==0} {
+      set delay [expr {(${::tool::wake_up}-[clock seconds])*1000}]
+      if {$delay > 60000} {
+        set delay 60000
+      }
+    } else {
+      set delay 60000
+    }
+    set next [after $delay {set ::tool::wake_up 0}]
+    if {$::tool::busy==0} {
       # Kick off a new round of event processing 
       # only if the current round
       # has completed
       set panic [after 120000 {puts "Warning: Tool event loop has not responded in 2 minutes" ; set ::tool::busy 0}]
-      set next [after 60000 {set ::tool::wake_up 0}]
       after idle ::tool::Main_Service
     }
     set ::tool::wake_up 0

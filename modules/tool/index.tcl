@@ -55,5 +55,5 @@ set ::tool::tool_root [file dirname $cwd]
   metaclass.tcl
   event.tcl
 } $idxfile
-package provide tool 0.5.4
+package provide tool 0.5.5
 
