@@ -221,32 +221,29 @@ proc ::fileutil::magic::cfront::parsetype {tree node} {
     set cursor [$tree get $node cursor]
     $tree set $node mod {}
     $tree set $node mand {}
+    set num_or_string {
+    }
     if {[regexp -start $cursor {\A\s*(\w+)} $line match type]} {
 	advance [string length $match]
 	switch -regexp -matchvar match $type \
-	    ^(u?)($types_numeric_re)$ - ^($types_string_re)$ {
+	    ^(u?)($types_numeric_re)$ - ^(u?)($types_string_re)$ {
 
-	    set type [lindex $match end]
-	    if {[llength $match] == 3} {
-		#numeric
+	    lassign $match -> sgn type
+	    # {to do} {Current design doesn't use sign, right?  Is it
+	    # really not needed?}
+	    $tree set $node sgn [dict get {{} 1 u 0} $sgn]
+
+	    if {[regexp ^($types_numeric_re)$ $type]} {
 		if {[dict exists $types_numeric_short $type]} {
 		    set type [dict get $types_numeric_short $type]
 		}
 		$tree set $node type $type
-
-		# {to do} {Current design doesn't use sign, right?  Is it
-		# really not needed?}
-		$tree set $node sgn [dict get {{} 1 u 0} [
-		    lindex $match 1]]
-
 		parsetypenummod $tree $node
 	    } else {
-		lassign $match match type
 		if {[dict exists $types_string_short $type]} {
 		    set type [dict get $types_string_short $type]
 		}
 		$tree set $node type $type
-
 		# No modifying operator for strings
 		parsetypemod $tree $node
 
@@ -254,6 +251,8 @@ proc ::fileutil::magic::cfront::parsetype {tree node} {
 		    parseerror {search has no number}
 		}
 	    }
+
+
 	} \
 	^(name|use)$ {
 	    $tree set $node type [lindex $match end] 

@@ -21645,6 +21645,13 @@ mime application/x-lzma
 
 <}
 } {
+if {[S string 0 0 {} {} eq \xFD7zXZ\x00]} {>
+
+emit {XZ compressed data}
+mime application/x-xz
+
+<}
+} {
 if {[S string 0 0 {} {} eq LRZI]} {>
 
 emit {LRZIP compressed data}
