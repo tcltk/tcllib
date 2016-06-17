@@ -43,7 +43,8 @@ foreach {name data} [dict create \
 	Tiff   "MM\x00\*\x00\x01\x02\x01\x01\x2c" \
 	Pdf    "%PDF-1.2 \x00\x01\x02\x01\x01\x2c" \
 	Igwd   "IGWD\x00\x01\x02\x01\x01\x2c" \
-	wsdl "wsdl\x03 \x07\x00\x00\x00\x05\x00\x00\x00hello\x0b\x00\x00\x00some source\x0c\x00\x00\x00and a targetxxxmore text" 
+	Xz     \xFD7zXZ\x00 \
+	Wsdl "wsdl\x03 \x07\x00\x00\x00\x05\x00\x00\x00hello\x0b\x00\x00\x00some source\x0c\x00\x00\x00and a targetxxxmore text" 
 	] {
     proc make${name}File   {} [list makeBinaryFile $data $name]
     proc remove${name}File {} [list removeFile           $name]
