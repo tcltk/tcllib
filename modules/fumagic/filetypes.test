@@ -107,7 +107,7 @@ test fumagic.filetype-1.10 {test xml with dtd text} {
 
 test fumagic.filetype-1.11 {
 	test PGP message. Their are multiple matches, and the longest match should
-	carry greater weight, and thus be the one returnes.  If the match is "PGP
+	carry greater weight, and thus be the one returned.  If the match is "PGP
 	armored data message", this isn't happening.
 } {
     set f [makePGPFile]
@@ -205,9 +205,9 @@ test fumagic.filetype-1.21 {test binary compressed gzip} {
 } {0 {{{gzip compressed data, reserved method, ASCII, last modified: 1}} {application x-gzip} {}}}
 
 test fumagic.filetype-1.22 {test pstring} {
-    set f [makewsdlFile]
+    set f [makeWsdlFile]
     set res [catch {fileutil::magic::filetype $f} msg]
-    removewsdlFile
+    removeWsdlFile
     list $res $msg
 } {0 {{{PHP WSDL cache,} {version 0x03, created 7, uri: "hello", source: "some source", target_ns: "and a target"}} {} {}}}
  
@@ -217,6 +217,13 @@ test fumagic.filetype-1.23 {regular expressions} {
     removeCSourceFile
     list $res $msg
 } {0 {{{C source text}} {text x-c} {}}}
+
+test fumagic.filetype-1.24 {ustring} {
+    set f [makeXzFile]
+    set res [catch {fileutil::magic::filetype $f} msg]
+    removeXzFile
+    list $res $msg
+} {0 {{{XZ compressed data}} {application x-xz} {}}}
 
 testsuiteCleanup
 return
