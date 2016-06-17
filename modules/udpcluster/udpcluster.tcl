@@ -81,10 +81,16 @@ proc ::cluster::Directory args {
   # Fullfill locally
   switch [lindex $args 0] {
     alloc_port {
-      return [list + [Get_free_port [lindex $args 1]]]
+      return [Get_free_port [lindex $args 1]]
+    }
+    port_busy {
+      return [::nettool::port_busy [lindex $args 1]]
+    }
+    pid {
+      return [pid]
     }
   }
-  return [list - UNKNOWN COMMAND $args]
+  error "UNKNOWN COMMAND [lindex $args 0]"
 }
 
 
@@ -109,9 +115,14 @@ proc ::cluster::directory args {
     error "Timed out"
   }
   set ${handle} -1
-  set reply [gets $sock]
+  set reply {}
+  while {[gets $sock line]>0} {
+    append reply \n $line
+    if {[::info complete $reply]} break
+  }
   catch {close $sock}
-  return $reply
+  lassign $reply result errdat
+  return $result {*}$errdat
 }
 
 ###
@@ -179,7 +190,11 @@ proc ::cluster::TCPRespond {sock} {
   set packet [gets $sock]
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
-  puts $sock [Directory {*}$packet]
+  if {[catch {Directory {*}$packet} reply errdat]} {
+    puts $sock [list $reply $errdat]   
+  } else {
+    puts $sock [list $reply {}]
+  }
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
@@ -441,14 +456,11 @@ proc ::cluster::Get_free_port {{port 50000}} {
     }
   }
   ::nettool::claim_port $port
+  return $port
 }
 
 proc ::cluster::get_free_port {{startport 50000}} {
-  set reply [directory alloc_port $startport]
-  if {[lindex $reply 0] != "+"} { error "BAD REPLY $reply" }
-  set port [lindex $reply 1]
-  if {![string is integer -strict $port]} { error "BAD REPLY $reply" }
-  return $port
+  return [directory alloc_port $startport]
 }
 
 proc ::cluster::log args {
@@ -542,7 +554,7 @@ proc ::cluster::sleep_handle {ms} {
 
 proc ::cluster::sleep ms {
   set handle [sleep_handle $ms]
-  vwait $var
+  vwait $handle
 }
 
 ###
