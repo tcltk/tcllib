@@ -105,16 +105,8 @@ proc ::cluster::directory args {
   set sock [socket localhost $directory_port]
   chan configure $sock -translation crlf -buffering line -blocking 1
   puts $sock $args
-  set eventid [incr ::cluster::eventcount]
-  set var ::cluster::event($eventid)
-
-  set handle [sleep_handle 120000]
-  chan event $sock readable [list set ${handle} 0]
-  vwait $handle
-  if {[set $handle] < 0} {
-    error "Timed out"
-  }
-  set ${handle} -1
+  flush $sock
+  update
   set reply {}
   while {[gets $sock line]>0} {
     append reply \n $line
@@ -182,11 +174,6 @@ proc ::cluster::listen {} {
 
 proc ::cluster::TCPAccept {sock host port} {
   chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
-  chan event $sock readable [list ::cluster::TCPRespond $sock]
-  set ::cluster::sockaddr($sock) $host
-}
-
-proc ::cluster::TCPRespond {sock} {
   set packet [gets $sock]
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
@@ -195,6 +182,8 @@ proc ::cluster::TCPRespond {sock} {
   } else {
     puts $sock [list $reply {}]
   }
+  flush $sock
+  close $sock
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
