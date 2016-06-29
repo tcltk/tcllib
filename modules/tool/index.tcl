@@ -16,11 +16,6 @@ proc ::tool::pathload {path {order {}} {skip {}}} {
   # On windows while running under a VFS, the system sometimes
   # gets confused about the volume we are running under
   ###
-  if {$::tcl_platform(platform) eq "windows"} {
-    if {[string range $path 1 6] eq ":/zvfs"} {
-      set path [string range $path 2 end]
-    }
-  }
   set loaded {pkgIndex.tcl index.tcl}
   foreach item $skip {
     lappend loaded [file tail $skip]
