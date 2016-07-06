@@ -181,62 +181,6 @@ proc ::tool::main {} {
   }
 }
 
-proc ::tool::object_create objname {
-  foreach varname {
-    object_info
-    object_signal
-    object_subscribe
-    object_coroutine
-  } {
-    variable $varname
-    set ${varname}($objname) {}
-  }
-  set object_info($objname) [list class [info object class $objname]]
-}
-
-proc ::tool::object_rename {object newname} {
-  foreach varname {
-    object_info
-    object_signal
-    object_subscribe
-    object_coroutine
-  } {
-    variable $varname
-    if {[info exists ${varname}($object)]} {
-      set ${varname}($newname) [set ${varname}($object)]
-      unset ${varname}($object)
-    }
-  }
-  variable coroutine_object
-  foreach {coro coro_objname} [array get coroutine_object] {
-    if { $object eq $coro_objname } {
-      set coroutine_object($coro) $newname
-    }
-  }
-  rename $object ::[string trimleft $newname]
-  ::tool::event::generate $object object_rename [list newname $newname]
-}
-
-proc ::tool::object_destroy objname {
-  ::tool::event::generate $objname object_destroy [list objname $objname]
-
-  variable coroutine_object
-  foreach {coro coro_objname} [array get coroutine_object] {
-    if { $objname eq $coro_objname } {
-      coroutine_unregister $coro
-    }
-  }
-  foreach varname {
-    object_info
-    object_signal
-    object_subscribe
-    object_coroutine
-  } {
-    variable $varname
-    unset -nocomplain ${varname}($objname)
-  }
-}
-
 namespace eval ::tool {
   variable trace 0
   variable event_loops
