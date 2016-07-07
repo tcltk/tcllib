@@ -490,7 +490,7 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
 
     # To preserve the semantics, the w operation must occur prior to the W
     # operation (Assuming the interpretation that w makes all whitespace
-    # optional, relazing the requirements of W) .
+    # optional, relaxing the requirements of W) .
     if {{w} in $mod} {
 	regsub -all {\s} $string[set string {}] {} string
 	regsub -all {\s} $val[set val {}] {} val
@@ -498,8 +498,8 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
 
     if {{W} in $mod} {
 	set blanklen [::tcl::mathfunc::max 0 {*}[
-	    lmap blanks [lrange [regexp -all -inline {(\s+)} $val] 1 end] {
-	    expr {[$lindex blanks 1] - [$lindex blanks 0]}
+	    lmap {_unused_ blanks} [regexp -all -indices -inline {(\s+)} $val] {
+	    expr {[lindex $blanks 1] - [lindex $blanks 0]}
 	}]]
 	if {![regexp "\s{$blanklen}" $string]} {
 	    ::fileutil::magic::rt::Debug {
