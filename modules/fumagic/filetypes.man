@@ -41,9 +41,6 @@ Returns a list containing a list of descriptions, a list of mimetype
 components, and a list file extensions.  Returns an empty string if the file
 content is not recognized.
 
-[para]
-
-This list will be empty if the type of the file is not recognized.
 
 [list_end]
 
