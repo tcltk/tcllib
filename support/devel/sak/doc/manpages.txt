@@ -129,7 +129,6 @@ modules/ftpd/ftpd.man
 modules/fumagic/cfront.man
 modules/fumagic/cgen.man
 modules/fumagic/filetypes.man
-modules/fumagic/mimetypes.man
 modules/fumagic/rtcore.man
 modules/generator/generator.man
 modules/gpx/gpx.man
@@ -364,6 +363,7 @@ modules/transfer/transmitter.man
 modules/treeql/treeql.man
 modules/try/tcllib_throw.man
 modules/try/tcllib_try.man
+modules/udpcluster/udpcluster.man
 modules/uev/uevent.man
 modules/uev/uevent_onidle.man
 modules/units/units.man

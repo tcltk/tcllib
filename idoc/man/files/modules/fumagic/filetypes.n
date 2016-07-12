@@ -289,14 +289,15 @@ The core part of the recognizer was generated from a "magic(5)" file
 containing the checks to perform to recognize files, and associated
 file-types\&.
 .PP
-\fIBeware!\fR This recognizer is large, about 276 Kilobyte of
+\fIBeware!\fR This recognizer is large, about 752 Kilobyte of
 generated Tcl code\&.
 .TP
 \fB::fileutil::magic::filetype\fR \fIfilename\fR
 This command is similar to the command \fBfileutil::fileType\fR\&.
 .sp
-The output of the command for the specified file is a string
-describing the type of the file\&.
+Returns a list containing a list of descriptions, a list of mimetype
+components, and a list file extensions\&.  Returns an empty string if the file
+content is not recognized\&.
 .sp
 This list will be empty if the type of the file is not recognized\&.
 .PP
