@@ -298,8 +298,6 @@ This command is similar to the command \fBfileutil::fileType\fR\&.
 Returns a list containing a list of descriptions, a list of mimetype
 components, and a list file extensions\&.  Returns an empty string if the file
 content is not recognized\&.
-.sp
-This list will be empty if the type of the file is not recognized\&.
 .PP
 .SH REFERENCES
 .IP [1]
