@@ -612,9 +612,6 @@ tcllib
 \fBfileutil::magic::filetype\fR
 \fIfiles/modules/fumagic/filetypes\&.n\fR: Procedures implementing file-type recognition
 .TP
-\fBfileutil::magic::mimetype\fR
-\fIfiles/modules/fumagic/mimetypes\&.n\fR: Procedures implementing mime-type recognition
-.TP
 \fBfileutil::magic::rt\fR
 \fIfiles/modules/fumagic/rtcore\&.n\fR: Runtime core for file type recognition engines written in pure Tcl
 .TP
@@ -1448,6 +1445,9 @@ tcllib
 .TP
 \fBtry\fR
 \fIfiles/modules/try/tcllib_try\&.n\fR: try - Trap and process errors and exceptions
+.TP
+\fBudpcluster\fR
+\fIfiles/modules/udpcluster/udpcluster\&.n\fR: UDP Peer-to-Peer cluster
 .TP
 \fBuevent\fR
 \fIfiles/modules/uev/uevent\&.n\fR: User events

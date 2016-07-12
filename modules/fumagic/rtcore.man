@@ -31,11 +31,11 @@ packages [package fileutil::magic::cgen] and
 
 [call [cmd ::fileutil::magic::rt::>]] 
 
-Shorthand for [cmd incr level].
+Shorthand for [cmd {incr level}].
 
 [call [cmd ::fileutil::magic::rt::<]] 
 
-Shorthand for [cmd incr level -1].
+Shorthand for [cmd {incr level -1}].
 
 [call [cmd ::fileutil::magic::rt::open] [arg filename]]
 
