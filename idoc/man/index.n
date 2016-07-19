@@ -3512,9 +3512,6 @@ fileutil::magic::cgen
 \fBfiles/modules/fumagic/filetypes\&.n\fR
 fileutil::magic::filetype
 .TP
-\fBfiles/modules/fumagic/mimetypes\&.n\fR
-fileutil::magic::mimetype
-.TP
 \fBfiles/modules/fumagic/rtcore\&.n\fR
 fileutil::magic::rt
 .RE
@@ -3529,9 +3526,6 @@ fileutil::magic::cgen
 .TP
 \fBfiles/modules/fumagic/filetypes\&.n\fR
 fileutil::magic::filetype
-.TP
-\fBfiles/modules/fumagic/mimetypes\&.n\fR
-fileutil::magic::mimetype
 .TP
 \fBfiles/modules/fumagic/rtcore\&.n\fR
 fileutil::magic::rt
@@ -3550,9 +3544,6 @@ fileutil::magic::cgen
 .TP
 \fBfiles/modules/fumagic/filetypes\&.n\fR
 fileutil::magic::filetype
-.TP
-\fBfiles/modules/fumagic/mimetypes\&.n\fR
-fileutil::magic::mimetype
 .TP
 \fBfiles/modules/fumagic/rtcore\&.n\fR
 fileutil::magic::rt
@@ -6113,9 +6104,6 @@ fileutil::magic::cfront
 \fBfiles/modules/fumagic/cgen\&.n\fR
 fileutil::magic::cgen
 .TP
-\fBfiles/modules/fumagic/mimetypes\&.n\fR
-fileutil::magic::mimetype
-.TP
 \fBfiles/modules/fumagic/rtcore\&.n\fR
 fileutil::magic::rt
 .TP
@@ -6244,6 +6232,9 @@ nnsd
 .TP
 \fBfiles/apps/nnslog\&.n\fR
 nnslog
+.TP
+\fBfiles/modules/udpcluster/udpcluster\&.n\fR
+udpcluster
 .RE
 namespace unknown
 .RS
@@ -8998,6 +8989,9 @@ nns_intro
 .TP
 \fBfiles/apps/nnsd\&.n\fR
 nnsd
+.TP
+\fBfiles/modules/udpcluster/udpcluster\&.n\fR
+udpcluster
 .RE
 service
 .RS
@@ -10915,9 +10909,6 @@ fileutil::magic::cgen
 .TP
 \fBfiles/modules/fumagic/filetypes\&.n\fR
 fileutil::magic::filetype
-.TP
-\fBfiles/modules/fumagic/mimetypes\&.n\fR
-fileutil::magic::mimetype
 .TP
 \fBfiles/modules/fumagic/rtcore\&.n\fR
 fileutil::magic::rt
