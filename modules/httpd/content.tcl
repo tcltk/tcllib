@@ -119,6 +119,7 @@ namespace eval httpd::content {}
   # and destroy this object
   ###
   method DoOutput {} {
+    my variable chan
     chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
     chan configure $chan  -translation {binary binary}
@@ -184,9 +185,15 @@ namespace eval httpd::content {}
     lassign $sockinfo scgihost scgiport scgiscript
     set sock [::socket $scgihost $scgiport]
     # Add a few headers that SCGI needs
+    my query_headers set SERVER_NAME [my <server> cget server_name]
     my query_headers set SCRIPT_NAME $scgiscript
+    my query_headers set SERVER_PORT [my <server> port_listening]
+    set ::env(SCRIPT_NAME) $scgiscript
     my query_headers set SCGI 1.0    
-
+      ::puts {HEADERS} 
+      foreach {field element} [my query_headers dump] { 
+        ::puts [list $field $element]
+      }
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     ###
@@ -212,22 +219,29 @@ namespace eval httpd::content {}
   }
   
   method DoOutput {} {
+    my variable chan sock
     chan event $chan writable {}
-    if {[my query_headers getnull HTTP_ERROR] ne {}} {
+    if {![info exists sock] || [my query_headers getnull HTTP_ERROR] ne {}} {
       ###
       # If something croaked internally, handle this page as a normal reply
       ###
       next
+      return
     }
-    my variable sock chan
     set replyhead [my HttpHeaders $sock]
+    puts [list REPLY HEADERS $replyhead]
     set replydat  [my MimeParse $replyhead]
     ###
     # Convert the Status: header from the SCGI service to
     # a standard service reply line from a web server, but
     # otherwise spit out the rest of the headers verbatim
     ###
-    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
+    if {![dict exists $replydat HTTP_STATUS]} {
+      set status 200
+    } else {
+      set status [dict get $replydat HTTP_STATUS]
+    }
+    set replybuffer "HTTP/1.1 $status\n"
     append replybuffer $replyhead
     chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chan $replybuffer
@@ -295,14 +309,15 @@ namespace eval httpd::content {}
   }
   
   method DoOutput {} {
+    my variable chan sock
     chan event $chan writable {}
-    if {[my query_headers getnull HTTP_ERROR] ne {}} {
+    if {![info exists sock] || [my query_headers getnull HTTP_ERROR] ne {}} {
       ###
       # If something croaked internally, handle this page as a normal reply
       ###
       next
+      return
     }
-    my variable sock chan
     set length 0
     chan configure $sock -translation {crlf crlf} -blocking 1
     set replystatus [gets $sock]
