@@ -33,20 +33,16 @@ proc ::cluster::broadcast {args} {
   variable discovery_port
   listen
   while {[catch {
-
     foreach net [::nettool::broadcast_list] {
       if {$::cluster::config(debug)} {
         puts [list BROADCAST -> $net $args]
       }
       set s [udp_open]
       udp_conf $s $net $discovery_port
-      puts -nonewline $s [list [pid] {*}$args]
+      chan puts -nonewline $s [list [pid] {*}$args]
       chan flush $s
       chan close $s
     }
-    #set sock [listen]
-    #puts -nonewline $sock [list [pid] {*}$args]
-    #flush $sock
   } error]} {
     set ::cluster::broadcast_sock {}
     if {$::cluster::config(debug)} {
@@ -104,15 +100,15 @@ proc ::cluster::directory args {
   variable directory_port
   set sock [socket localhost $directory_port]
   chan configure $sock -translation crlf -buffering line -blocking 1
-  puts $sock $args
-  flush $sock
+  chan puts $sock $args
+  chan flush $sock
   update
   set reply {}
-  while {[gets $sock line]>0} {
+  while {[chan gets $sock line]>0} {
     append reply \n $line
     if {[::info complete $reply]} break
   }
-  catch {close $sock}
+  catch {chan close $sock}
   lassign $reply result errdat
   return $result {*}$errdat
 }
@@ -174,16 +170,16 @@ proc ::cluster::listen {} {
 
 proc ::cluster::TCPAccept {sock host port} {
   chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
-  set packet [gets $sock]
+  set packet [chan gets $sock]
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
   if {[catch {Directory {*}$packet} reply errdat]} {
-    puts $sock [list $reply $errdat]   
+    chan puts $sock [list $reply $errdat]   
   } else {
-    puts $sock [list $reply {}]
+    chan puts $sock [list $reply {}]
   }
-  flush $sock
-  close $sock
+  chan flush $sock
+  chan close $sock
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164

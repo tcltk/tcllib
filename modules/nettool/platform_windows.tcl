@@ -19,22 +19,6 @@ proc ::nettool::arp_table {} {
   return $result
 }
 
-###
-# topic: 92ebbfa155883ad41c37d3f843392be4
-# title: Return list of broadcast addresses for local networks
-###
-proc ::nettool::broadcast_list {} {
-  set result {}
-  lappend result 127.0.0.1
-  foreach iface [::twapi::get_netif_indices] {
-    set dat [::twapi::GetIpAddrTable $iface]
-    foreach element $dat {
-      foreach {addr ifindx netmask broadcast reamsize} $element break;
-      lappend result [::ip::broadcastAddress $addr/$netmask]
-    }
-  }
-  return [lsort -unique -dictionary $result]
-}
 
 ###
 # topic: 57fdc331bc60c7bf2bd3f3214e9a906f
@@ -54,6 +38,7 @@ proc ::nettool::hwid_list {} {
   return 0x[string map {- {}} $num]
 }
 
+if {[info command ::twapi::get_netif_indices] ne {}} {
 ###
 # topic: 4b87d977492bd10802bfc0327cd07ac2
 # title: Return list of network interfaces
@@ -62,26 +47,7 @@ proc ::nettool::if_list {} {
   return [::twapi::get_netif_indices]
 }
 
-###
-# topic: 417672d3f31b80d749588365af88baf6
-# title: Return list of ip addresses for this computer (primary first)
-###
-set body {}
-if {[::twapi::get_ip_addresses] ne {}} {
-  set body {
-  set result [::twapi::get_ip_addresses]
-  ldelete result 127.0.0.1
-  return $result
-} 
-} elseif {[info commands ::twapi::get_system_ipaddrs] ne {}} {
-# They changed commands names on me...
-  set body {
-  set result [::twapi::get_system_ipaddrs]
-  ldelete result 127.0.0.1
-  return $result
-}
-}
-proc ::nettool::ip_list {} $body
+
 ###
 # topic: ac9d6815d47f60d45930f0c8c8ae8f16
 # title: Return list of mac numbers for this computer (primary first)
@@ -114,6 +80,83 @@ proc ::nettool::network_list {} {
   }
   return [lsort -unique $result]
 }
+} else {
+
+if {[info commands ::twapi::get_network_adapters] ne {}} {
+proc ::nettool::if_list {} {
+  return [::twapi::get_network_adapters]
+}
+}
+
+if {[info commands ::twapi::get_network_adapter_info] ne {}} {
+proc ::nettool::mac_list {} {
+  
+  set result {}
+  foreach iface [if_list] {
+    set dat [::twapi::get_network_adapter_info $iface -physicaladdress]
+    set addr [string map {- :} [lindex $dat 1]]
+    if {[string length $addr] eq 0} continue
+    if {[string range $addr 0 5] eq "00:00:"} continue
+    lappend result $addr
+  }
+  return $result
+}
+  
+proc ::nettool::network_list {} {
+  set result {}
+  foreach iface [if_list] {
+    set dat [::twapi::get_network_adapter_info $iface -prefixes]
+    foreach kvlist [lindex $dat 1] {
+      if {![dict exists $kvlist -address]} continue
+      if {![dict exists $kvlist -prefixlength]} continue
+      set length [dict get $kvlist -prefixlength]
+      if {$length>31} continue
+      set address [dict get $kvlist -address]
+      if {[string range $address 0 1] eq "ff"} continue
+      lappend result $address/$length
+    }
+  }
+  return [lsort -unique $result]
+}
+
+}
+}
+
+
+###
+# topic: 92ebbfa155883ad41c37d3f843392be4
+# title: Return list of broadcast addresses for local networks
+###
+proc ::nettool::broadcast_list {} {
+  set result {}
+  lappend result 127.0.0.1
+  foreach net [network_list] {
+    if {$net in {224.0.0.0/4 127.0.0.0/8}} continue
+    lappend result [::ip::broadcastAddress $net]
+  }
+  return [lsort -unique -dictionary $result]
+}
+###
+# topic: 417672d3f31b80d749588365af88baf6
+# title: Return list of ip addresses for this computer (primary first)
+###
+set body {}
+if {[info commands ::twapi::get_ip_addresses] ne {}} {
+proc ::nettool::ip_list {} {
+  set result [::twapi::get_ip_addresses]
+  ldelete result 127.0.0.1
+  return $result
+}
+} elseif {[info commands ::twapi::get_system_ipaddrs] ne {}} {
+# They changed commands names on me...
+proc ::nettool::ip_list {} {
+  set result [::twapi::get_system_ipaddrs -version 4]
+  ldelete result 127.0.0.1
+  return $result
+}
+}
+
+
 
 proc ::nettool::status {} {
   set result {}
