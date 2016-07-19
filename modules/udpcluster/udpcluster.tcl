@@ -33,20 +33,16 @@ proc ::cluster::broadcast {args} {
   variable discovery_port
   listen
   while {[catch {
-
     foreach net [::nettool::broadcast_list] {
       if {$::cluster::config(debug)} {
         puts [list BROADCAST -> $net $args]
       }
       set s [udp_open]
       udp_conf $s $net $discovery_port
-      puts -nonewline $s [list [pid] {*}$args]
+      chan puts -nonewline $s [list [pid] {*}$args]
       chan flush $s
       chan close $s
     }
-    #set sock [listen]
-    #puts -nonewline $sock [list [pid] {*}$args]
-    #flush $sock
   } error]} {
     set ::cluster::broadcast_sock {}
     if {$::cluster::config(debug)} {
@@ -77,6 +73,46 @@ proc ::cluster::cname rawname {
   return $service@$host
 }
 
+proc ::cluster::Directory args {
+  # Fullfill locally
+  switch [lindex $args 0] {
+    alloc_port {
+      return [Get_free_port [lindex $args 1]]
+    }
+    port_busy {
+      return [::nettool::port_busy [lindex $args 1]]
+    }
+    pid {
+      return [pid]
+    }
+  }
+  error "UNKNOWN COMMAND [lindex $args 0]"
+}
+
+
+proc ::cluster::directory args {
+  ::cluster::listen
+  variable directory_sock
+  if {$directory_sock ne {}} {
+    return [Directory {*}$args]
+  }
+  # We are not acting as the directory, query who is
+  variable directory_port
+  set sock [socket localhost $directory_port]
+  chan configure $sock -translation crlf -buffering line -blocking 1
+  chan puts $sock $args
+  chan flush $sock
+  update
+  set reply {}
+  while {[chan gets $sock line]>0} {
+    append reply \n $line
+    if {[::info complete $reply]} break
+  }
+  catch {chan close $sock}
+  lassign $reply result errdat
+  return $result {*}$errdat
+}
+
 ###
 # topic: 3f5f9e197cc9666dd7953d97fef34019
 ###
@@ -105,20 +141,7 @@ proc ::cluster::listen {} {
     return $broadcast_sock
   }
 
-  variable discovery_port 
-  #foreach net [::nettool::broadcast_list] {
-  #  set s [udp_open $discovery_port reuse]
-  #
-  #    if {$::cluster::config(debug)} {
-  #      puts [list BROADCAST -> $net $args]
-  #    }
-  #    set s [udp_open]
-  #    udp_conf $s $net $discovery_port
-  #    puts -nonewline $s [list [pid] {*}$args]
-  #    chan flush $s
-  #    chan close $s
-  #  }
-  
+  variable discovery_port   
   # Open a local discovery port to catch non-IP traffic
   variable discovery_group
   set broadcast_sock [udp_open $discovery_port reuse]
@@ -126,12 +149,38 @@ proc ::cluster::listen {} {
     -broadcast 1 \
     -mcastadd $discovery_group \
     -remote [list $discovery_group $discovery_port]
-  fileevent $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
+  chan event $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
   ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
-  
+
+  variable directory_sock
+  variable directory_pid
+  if {$directory_sock eq {} && $directory_pid eq {}} {
+    variable directory_port
+    # Nobody is acting as the directory. Have this process step on
+    if {![catch {socket -server ::cluster::TCPAccept $directory_port} newsock]} {
+      set directory_sock $newsock
+      set directory_pid [pid]
+    } else {
+      set directory_sock {}
+      set directory_pid {}
+    }
+  }
   return $broadcast_sock
 }
 
+proc ::cluster::TCPAccept {sock host port} {
+  chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
+  set packet [chan gets $sock]
+  if {![string is ascii $packet]} return
+  if {![::info complete $packet]} return
+  if {[catch {Directory {*}$packet} reply errdat]} {
+    chan puts $sock [list $reply $errdat]   
+  } else {
+    chan puts $sock [list $reply {}]
+  }
+  chan flush $sock
+  chan close $sock
+}
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
 ###
@@ -175,7 +224,8 @@ proc ::cluster::UDPPacket sock {
   set serviceurl  [lindex $packet 2]
   set serviceinfo [lindex $packet 3]
   set ::cluster::ping_recv($serviceurl) $now
-
+  UDPPortInfo $serviceurl $messagetype $serviceinfo
+  
   if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
     # Ignore attempts to overwrite locally managed services from the network
     return
@@ -240,7 +290,51 @@ proc ::cluster::UDPPacket sock {
   }
 }
 
-proc ::cluster::ping {rawname} {
+proc ::cluster::UDPPortInfo {serviceurl msgtype newinfo} {
+  variable ptpdata
+  # We only care about port changes on the local machine
+  if {[dict exists $newinfo macid]} {
+    set macid [dict get $newinfo macid]
+    if {$macid ne [::cluster::self]} {
+      return
+    }
+  } elseif {[::info exists ptpdata($serviceurl)] && [dict exists $ptpdata($serviceurl) macid]} {
+    set macid [dict get $ptpdata($serviceurl) macid]
+    if {$macid ne [::cluster::self]} {
+      return
+    }
+  } else {
+    return
+  }
+  set newport {}
+  set oldport {}
+  if {[dict exists $newinfo port]} {
+    set newport [dict get $newinfo port]
+  }
+  if {[::info exists ptpdata($serviceurl)] && [dict exists $ptpdata($serviceurl) port]} {
+    set oldport [dict get $ptpdata($serviceurl) port]
+  }
+  switch -- $msgtype {
+    -SERVICE {
+      if {$oldport ne {}} {
+        ::nettool::release_port $oldport
+      }
+      if {$newport ne {}} {
+        ::nettool::release_port $newport
+      }
+    }
+    default {
+      if {$oldport ne {}} {
+        ::nettool::release_port $oldport
+      }
+      if {$newport ne {}} {
+        ::nettool::claim_port $newport
+      }
+    }
+  }
+}
+
+proc ::cluster::ping {rawname {timeout -1}} {
   set rcpt [cname $rawname]
   variable ptpdata
   set starttime [clock seconds]
@@ -248,9 +342,12 @@ proc ::cluster::ping {rawname} {
   set ::cluster::ping_recv($rcpt) 0
   broadcast PING $rcpt
   update
+  if {$timeout <= 0} {
+    set timeout $::cluster::config(ping_timeout)
+  }
   while 1 {
     if {$::cluster::ping_recv($rcpt)} break
-    if {([clock seconds] - $starttime) > $::cluster::config(ping_timeout)} {
+    if {([clock seconds] - $starttime) > $timeout} {
       error "Could not locate $rcpt on the network"
     }
     broadcast PING $rcpt
@@ -324,16 +421,10 @@ proc ::cluster::configure {url infodict {send 1}} {
   }
 }
 
-proc ::cluster::get_free_port {{startport 50000}} {
-  ::cluster::listen
-  ::cluster::broadcast DISCOVERY
-  after 10000 {set ::cluster::recv_message 0}
-  # Wait for a pingback or timeout
-  vwait ::cluster::recv_message
-  cluster::sleep 2000
-  
-  set macid [::cluster::macid]
-  set port $startport
+proc ::cluster::Get_free_port {{port 50000}} {
+  if {$port in {{} 0 -1}} {
+    set port 50000
+  }
   set conflict 1
   while {$conflict} {
     set conflict 0
@@ -345,9 +436,16 @@ proc ::cluster::get_free_port {{startport 50000}} {
         break
       }
     }
-    update
+    if {$port >= 65336 } {
+      error "All ports consumed"
+    }
   }
+  ::nettool::claim_port $port
   return $port
+}
+
+proc ::cluster::get_free_port {{startport 50000}} {
+  return [directory alloc_port $startport]
 }
 
 proc ::cluster::log args {
@@ -430,11 +528,18 @@ proc ::cluster::throw {service command args} {
   }
 }
 
-proc ::cluster::sleep ms {
+proc ::cluster::sleep_handle {ms} {
   set eventid [incr ::cluster::eventcount]
-  set ::cluster::event($eventid) [list [clock seconds] [expr {[clock milliseconds]+$ms}]]
-  after $ms set ::cluster::event($eventid) -1
-  vwait ::cluster::event($eventid)
+  set var ::cluster::event($eventid)
+  set ${var} [list [clock seconds] [expr {[clock milliseconds]+$ms}]]
+  after $ms [list set $var -1]
+  return $var
+}
+
+
+proc ::cluster::sleep ms {
+  set handle [sleep_handle $ms]
+  vwait $handle
 }
 
 ###
@@ -547,8 +652,13 @@ namespace eval ::cluster {
   variable eventcount 0
   variable cache {}
   variable broadcast_sock {}
+  variable directory_sock {}
+
   variable cache_maxage 500
   variable discovery_port 38573
+  variable directory_port 38574
+  variable directory_pid {}
+
   # Currently an unassigned group in the
   # Local Network Control Block (224.0.0/24)
   # See: RFC3692 and http://www.iana.org
@@ -558,4 +668,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide udpcluster 0.3
+package provide udpcluster 0.3.1
