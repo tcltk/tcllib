@@ -1,5 +1,5 @@
 ::namespace eval ::tool::signal {}
-package require coroutine::auto
+package require coroutine
 
 proc ::tool::coroutine_register {objname coroutine} {
   variable all_coroutines
