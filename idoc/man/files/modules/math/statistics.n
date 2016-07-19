@@ -313,6 +313,8 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::test-Duckworth\fR \fIlist1\fR \fIlist2\fR \fIsignificance\fR
 .sp
+\fB::math::statistics::test-anova-F\fR \fIalpha\fR \fIargs\fR
+.sp
 \fB::math::statistics::quantiles\fR \fIdata\fR \fIconfidence\fR
 .sp
 \fB::math::statistics::quantiles\fR \fIlimits\fR \fIcounts\fR \fIconfidence\fR
@@ -412,6 +414,8 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::cdf-pareto\fR \fIscale\fR \fIshape\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-F\fR \fInf1\fR \fInf2\fR \fIvalue\fR
 .sp
 \fB::math::statistics::empirical-distribution\fR \fIvalues\fR
 .sp
@@ -707,6 +711,7 @@ reasons the values "1-significance", 0\&.80, 0\&.85, 0\&.90, 0\&.95 or 0\&.99 ar
 .sp
 Compatibility issue: the original implementation and documentation used the term "confidence" and used a value
 1-significance (see ticket 2812473fff)\&. This has been corrected as of version 0\&.9\&.3\&.
+.sp
 .TP
 \fB::math::statistics::lillieforsFit\fR \fIdata\fR
 Returns the goodness of fit to a normal distribution according to
@@ -746,6 +751,30 @@ list \fIlist2\fR
 .TP
 float \fIsignificance\fR
 - Significance level (either 0\&.05, 0\&.01 or 0\&.001)
+.RE
+.sp
+.TP
+\fB::math::statistics::test-anova-F\fR \fIalpha\fR \fIargs\fR
+Determine if two or more groups with normally distributed data have the same variances\&.
+The procedure returns 0 if the variances are likely unequal, 1 if they are\&. This is
+a one-way ANOVA test\&. The groups may also be stored in a nested list:
+.CS
+
+
+    test-anova-F 0\&.05 $A $B $C
+    #
+    # Or equivalently:
+    #
+    test-anova-F 0\&.05 [list $A $B $C]
+
+.CE
+.RS
+.TP
+float \fIalpha\fR
+- Significance level
+.TP
+list \fIargs\fR
+- Two or more groups of data to be checked
 .RE
 .sp
 .TP
@@ -1294,7 +1323,9 @@ The Weibull distribution
 .IP \(bu
 The Cauchy distribution
 .IP \(bu
-PM - binomial,F\&.
+The F distribution (only the cumulative density function)
+.IP \(bu
+PM - binomial\&.
 .PP
 In principle for each distribution one has procedures for:
 .IP \(bu
@@ -1702,6 +1733,22 @@ float \fIlocation\fR
 .TP
 float \fIscale\fR
 - Scale parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-F\fR \fInf1\fR \fInf2\fR \fIvalue\fR
+Return the cumulative probability of a given value for an F
+distribution with nf1 and nf2 degrees of freedom\&.
+.RS
+.TP
+float \fInf1\fR
+- Degrees of freedom for the numerator
+.TP
+float \fInf2\fR
+- Degrees of freedom for the denominator
 .TP
 float \fIvalue\fR
 - Value for which the probability is required

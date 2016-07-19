@@ -139,14 +139,14 @@ pure Tcl.</p>
 <p>The core part of the recognizer was generated from a &quot;magic(5)&quot; file
 containing the checks to perform to recognize files, and associated
 file-types.</p>
-<p><em>Beware!</em> This recognizer is large, about 276 Kilobyte of
+<p><em>Beware!</em> This recognizer is large, about 752 Kilobyte of
 generated Tcl code.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::fileutil::magic::filetype</b> <i class="arg">filename</i></a></dt>
 <dd><p>This command is similar to the command <b class="cmd">fileutil::fileType</b>.</p>
-<p>The output of the command for the specified file is a string
-describing the type of the file.</p>
-<p>This list will be empty if the type of the file is not recognized.</p></dd>
+<p>Returns a list containing a list of descriptions, a list of mimetype
+components, and a list file extensions.  Returns an empty string if the file
+content is not recognized.</p></dd>
 </dl>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">REFERENCES</a></h2>

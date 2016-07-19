@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::geometry(n) 1.1.3 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::geometry(n) 1.2.2 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::geometry - Geometrical computations</p>
 </div>
@@ -128,8 +128,8 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl <span class="opt">?8.3?</span></b></li>
-<li>package require <b class="pkgname">math::geometry <span class="opt">?1.1.3?</span></b></li>
+<li>package require <b class="pkgname">Tcl <span class="opt">?8.5?</span></b></li>
+<li>package require <b class="pkgname">math::geometry <span class="opt">?1.2.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::geometry::+</b> <i class="arg">point1</i> <i class="arg">point2</i></a></li>
@@ -164,8 +164,14 @@
 <li><a href="#30"><b class="cmd">::math::geometry::rectanglesOverlap</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">Q1</i> <i class="arg">Q2</i> <i class="arg">strict</i></a></li>
 <li><a href="#31"><b class="cmd">::math::geometry::bbox</b> <i class="arg">polyline</i></a></li>
 <li><a href="#32"><b class="cmd">::math::geometry::pointInsidePolygon</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
-<li><a href="#33"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></li>
-<li><a href="#34"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></li>
+<li><a href="#33"><b class="cmd">::math::geometry::pointInsidePolygonAlt</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
+<li><a href="#34"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></li>
+<li><a href="#35"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></li>
+<li><a href="#36"><b class="cmd">::math::geometry::translate</b> <i class="arg">vector</i> <i class="arg">polyline</i></a></li>
+<li><a href="#37"><b class="cmd">::math::geometry::rotate</b> <i class="arg">angle</i> <i class="arg">polyline</i></a></li>
+<li><a href="#38"><b class="cmd">::math::geometry::reflect</b> <i class="arg">angle</i> <i class="arg">polyline</i></a></li>
+<li><a href="#39"><b class="cmd">::math::geometry::degToRad</b> <i class="arg">angle</i></a></li>
+<li><a href="#40"><b class="cmd">::math::geometry::radToDeg</b> <i class="arg">angle</i></a></li>
 </ul>
 </div>
 </div>
@@ -454,7 +460,19 @@ polygon.</p>
 <dt>list <i class="arg">polyline</i></dt>
 <dd><p>The polyline to be examined</p></dd>
 </dl></dd>
-<dt><a name="33"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></dt>
+<dt><a name="33"><b class="cmd">::math::geometry::pointInsidePolygonAlt</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
+<dd><p>Determine if a point is completely inside a polygon. If the point
+touches the polygon, then the point is not completely inside the
+polygon. <em>Note:</em> this alternative procedure uses the so-called
+winding number to determine this. It handles self-intersecting polygons
+in a &quot;natural&quot; way.</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">P</i></dt>
+<dd><p>Coordinates of the point</p></dd>
+<dt>list <i class="arg">polyline</i></dt>
+<dd><p>The polyline to be examined</p></dd>
+</dl></dd>
+<dt><a name="34"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></dt>
 <dd><p>Determine if a rectangle is completely inside a polygon. If polygon
 touches the rectangle, then the rectangle is not complete inside the
 polygon.</p>
@@ -466,11 +484,47 @@ polygon.</p>
 <dt>list <i class="arg">polygon</i></dt>
 <dd><p>The polygon in question</p></dd>
 </dl></dd>
-<dt><a name="34"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></dt>
+<dt><a name="35"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></dt>
 <dd><p>Calculate the area of a polygon.</p>
 <dl class="doctools_arguments">
 <dt>list <i class="arg">polygon</i></dt>
 <dd><p>The polygon in question</p></dd>
+</dl></dd>
+<dt><a name="36"><b class="cmd">::math::geometry::translate</b> <i class="arg">vector</i> <i class="arg">polyline</i></a></dt>
+<dd><p>Translate a polyline over a given vector</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">vector</i></dt>
+<dd><p>Translation vector</p></dd>
+<dt>list <i class="arg">polyline</i></dt>
+<dd><p>The polyline to be rotated</p></dd>
+</dl></dd>
+<dt><a name="37"><b class="cmd">::math::geometry::rotate</b> <i class="arg">angle</i> <i class="arg">polyline</i></a></dt>
+<dd><p>Rotate a polyline over a given angle (degrees) around the origin</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">angle</i></dt>
+<dd><p>Angle over which to rotate the polyline (degrees)</p></dd>
+<dt>list <i class="arg">polyline</i></dt>
+<dd><p>The polyline to be translated</p></dd>
+</dl></dd>
+<dt><a name="38"><b class="cmd">::math::geometry::reflect</b> <i class="arg">angle</i> <i class="arg">polyline</i></a></dt>
+<dd><p>Reflect a polyline in a line through the origin at a given angle (degrees) to the x-axis</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">angle</i></dt>
+<dd><p>Angle of the line of reflection (degrees)</p></dd>
+<dt>list <i class="arg">polyline</i></dt>
+<dd><p>The polyline to be reflected</p></dd>
+</dl></dd>
+<dt><a name="39"><b class="cmd">::math::geometry::degToRad</b> <i class="arg">angle</i></a></dt>
+<dd><p>Convert from degrees to radians</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">angle</i></dt>
+<dd><p>Angle in degrees</p></dd>
+</dl></dd>
+<dt><a name="40"><b class="cmd">::math::geometry::radToDeg</b> <i class="arg">angle</i></a></dt>
+<dd><p>Convert from radians to degrees</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">angle</i></dt>
+<dd><p>Angle in radians</p></dd>
 </dl></dd>
 </dl>
 </div>
