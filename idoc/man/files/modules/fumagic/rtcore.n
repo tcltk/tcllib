@@ -277,6 +277,10 @@ package require \fBTcl  8\&.4\fR
 .sp
 package require \fBfileutil::magic::rt  ?1\&.0?\fR
 .sp
+\fB::fileutil::magic::rt::>\fR
+.sp
+\fB::fileutil::magic::rt::<\fR
+.sp
 \fB::fileutil::magic::rt::open\fR \fIfilename\fR
 .sp
 \fB::fileutil::magic::rt::close\fR
@@ -295,19 +299,21 @@ package require \fBfileutil::magic::rt  ?1\&.0?\fR
 .sp
 \fB::fileutil::magic::rt::N\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 .sp
-\fB::fileutil::magic::rt::Nvx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Nvx\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
 .sp
-\fB::fileutil::magic::rt::Nx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Nx\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 .sp
 \fB::fileutil::magic::rt::S\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 .sp
-\fB::fileutil::magic::rt::Sx\fR \fIatlevel\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Sx\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 .sp
 \fB::fileutil::magic::rt::L\fR \fInewlevel\fR
 .sp
 \fB::fileutil::magic::rt::I\fR \fIbase\fR \fItype\fR \fIdelta\fR
 .sp
 \fB::fileutil::magic::rt::R\fR \fIoffset\fR
+.sp
+\fB::fileutil::magic::rt::U\fR \fIfileindex\fR \fIname\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -320,6 +326,12 @@ this module, i\&.e\&. the two frontend packages
 packages \fBfileutil::magic::cgen\fR and
 \fBfileutil::magic::cfront\fR\&.
 .SH COMMANDS
+.TP
+\fB::fileutil::magic::rt::>\fR
+Shorthand for \fBincr level\fR\&.
+.TP
+\fB::fileutil::magic::rt::<\fR
+Shorthand for \fBincr level -1\fR\&.
 .TP
 \fB::fileutil::magic::rt::open\fR \fIfilename\fR
 This command initializes the runtime and prepares the file
@@ -424,16 +436,16 @@ The special comparison operator \fBx\fR signals that no comparison
 should be done, or, in other words, that the fetched value will always
 match \fIval\fR\&.
 .TP
-\fB::fileutil::magic::rt::Nvx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Nvx\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::Nv\fR, except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level \fIatlevel\fR, for later use by
+the calling context, for the current level, for later use by
 \fB::fileutil::magic::rt::R\fR\&.
 .TP
-\fB::fileutil::magic::rt::Nx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Nx\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::N\fR, except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level \fIatlevel\fR, for later use by
+the calling context, for the current, for later use by
 \fB::fileutil::magic::rt::R\fR\&.
 .TP
 \fB::fileutil::magic::rt::S\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
@@ -442,10 +454,10 @@ it fetches and compares strings, not numeric data\&. The fetched value
 is also stored in the internal string buffer instead of the numeric
 buffer\&.
 .TP
-\fB::fileutil::magic::rt::Sx\fR \fIatlevel\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
+\fB::fileutil::magic::rt::Sx\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::S\fR, except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level \fIatlevel\fR, for later use by
+the calling context, for the current level, for later use by
 \fB::fileutil::magic::rt::R\fR\&.
 .TP
 \fB::fileutil::magic::rt::L\fR \fInewlevel\fR
@@ -468,6 +480,9 @@ In other words, the command computes an absolute location in the file
 based on the relative \fIoffset\fR and returns it as its result\&. The
 base the offset is added to is the last location remembered for the
 level in the calling context\&.
+.TP
+\fB::fileutil::magic::rt::U\fR \fIfileindex\fR \fIname\fR
+Use a named test script at the current level\&.
 .PP
 .SH "NUMERIC TYPES"
 .TP
