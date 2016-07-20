@@ -2,6 +2,7 @@ package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
 package require dicttool
 package require TclOO
 package require sha1
+package require cron 1.3
 package require oo::meta 0.5.1
 package require oo::dialect
 
@@ -55,5 +56,5 @@ set ::tool::tool_root [file dirname $cwd]
   metaclass.tcl
   event.tcl
 } $idxfile
-package provide tool 0.5.5
+package provide tool 0.5.6
 
