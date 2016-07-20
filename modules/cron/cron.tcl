@@ -91,8 +91,13 @@ proc ::cron::coroutine_register {objname coroutine} {
 }
 
 proc ::cron::sleep_handle {ms} {
-  set eventid [incr ::cron::eventcount]
-  set var ::cron::event($eventid)
+  set coro [info coroutine]
+  if {$coro ne {}} {
+    set var ::cron::event($coro)
+  } else {
+    set eventid [incr ::cron::eventcount]
+    set var ::cron::event($eventid)
+  }
   set ${var} [expr {[clock milliseconds]+$ms}]
   return $var
 }
@@ -101,28 +106,21 @@ proc ::cron::sleep_handle {ms} {
 proc ::cron::sleep ms {
   set coro [info coroutine]
   if {$coro eq {}} {
-    set handle [sleep_handle $ms]
-    ::cron::wake CRON_SLEEP
-    while {[set $handle]>0} {
-      vwait $handle
+    set eventid [incr ::cron::eventcount]
+    set ::cron::event($eventid) [expr {[clock milliseconds]+$ms}]
+    after $ms [list set ::cron::event($eventid) -1]
+    vwait ::cron::event($eventid)
+    while {$::cron::event($eventid) > [clock milliseconds]} {
+      vwait ::cron::event($eventid)
     }
-    unset $handle
+    unset ::cron::event($eventid)
     return
   }
-  variable all_coroutines
-  variable coroutine_sleep
-  if {$coro ni $all_coroutines} {
-    coroutine_register {} $coro
-  }
-  if {![info exists coroutine_sleep($coro)]} {
-    set coroutine_sleep($coro) [expr {[clock milliseconds]+$ms}]
-    ::cron::wake COROUTINE_SLEEP
-  }
-  yield
-  while {$coroutine_sleep($coro)>[clock milliseconds]} {
-    yield
-  }
-  unset coroutine_sleep($coro)
+  set eventid $coro
+  set ::cron::event($eventid) [expr {[clock milliseconds]+$ms}]
+  after $ms [list set ::cron::event($eventid) -1]
+  ::coroutine::util::vwait ::cron::event($eventid)
+  unset ::cron::event($eventid)
 }
 
 proc ::cron::coroutine_unregister {coroutine} {
@@ -142,14 +140,13 @@ proc ::cron::do_events {} {
   variable all_coroutines
   variable coroutine_object
   variable coroutine_busy
-  variable coroutine_sleep
   variable last_event
   set last_event [clock seconds]
   set count 0
   set mnow [clock milliseconds]
   foreach coro $all_coroutines {
-    if {[info exists coroutine_sleep($coro)]} {
-      if {$coroutine_sleep($coro) > $mnow} continue
+    if {[info exists ::cron::event($coro)]} {
+      if {$::cron::event($coro) > $mnow} continue
     }
     if {![info exists coroutine_busy($coro)]} {
       set coroutine_busy($coro) 0
@@ -296,19 +293,12 @@ proc ::cron::runTasksCoro {} {
       }
     }
     set mnow [clock milliseconds]
-    foreach {coro msec} [array get ::cron::coroutine_sleep] {
-      set scheduled [expr $msec/1000]
-      if {$scheduled<$nextevent} {
-        set nexttask $coro
-        set nextevent $scheduled
-      }
-    }
     foreach {eventid msec} [array get ::cron::event] {
       if {$msec < 0} continue
       if {$msec < $mnow} {
         set ::cron::event($eventid) -1
       }
-      set scheduled [expr $msec/1000]
+      set scheduled [expr {$msec/1000}]
       if {$scheduled<$nextevent} {
         set nexttask "SLEEP $eventid"
         set nextevent $scheduled
@@ -342,7 +332,6 @@ proc ::cron::wake {{who ???}} {
     set ::cron::panic_event {}
   }
   if {$::cron::busy && $::cron::panic_event eq {}} {
-    puts "BUSY..."
     after cancel $::cron::panic_event
     set ::cron::panic_event [after 120000 {::cron::wake PANIC}]
     return
