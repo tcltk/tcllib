@@ -6,7 +6,7 @@
 #
 # Author: Sean Woods (for T&E Solutions)
 package require coroutine
-
+package require dicttool
 ::namespace eval ::cron {}
 
 proc ::cron::at args {
@@ -90,6 +90,41 @@ proc ::cron::coroutine_register {objname coroutine} {
   return 0
 }
 
+proc ::cron::sleep_handle {ms} {
+  set eventid [incr ::cron::eventcount]
+  set var ::cron::event($eventid)
+  set ${var} [expr {[clock milliseconds]+$ms}]
+  return $var
+}
+
+
+proc ::cron::sleep ms {
+  set coro [info coroutine]
+  if {$coro eq {}} {
+    set handle [sleep_handle $ms]
+    ::cron::wake CRON_SLEEP
+    while {[set $handle]>0} {
+      vwait $handle
+    }
+    unset $handle
+    return
+  }
+  variable all_coroutines
+  variable coroutine_sleep
+  if {$coro ni $all_coroutines} {
+    coroutine_register {} $coro
+  }
+  if {![info exists coroutine_sleep($coro)]} {
+    set coroutine_sleep($coro) [expr {[clock milliseconds]+$ms}]
+    ::cron::wake COROUTINE_SLEEP
+  }
+  yield
+  while {$coroutine_sleep($coro)>[clock milliseconds]} {
+    yield
+  }
+  unset coroutine_sleep($coro)
+}
+
 proc ::cron::coroutine_unregister {coroutine} {
   variable all_coroutines
   variable object_coroutines
@@ -107,10 +142,15 @@ proc ::cron::do_events {} {
   variable all_coroutines
   variable coroutine_object
   variable coroutine_busy
+  variable coroutine_sleep
   variable last_event
   set last_event [clock seconds]
   set count 0
+  set mnow [clock milliseconds]
   foreach coro $all_coroutines {
+    if {[info exists coroutine_sleep($coro)]} {
+      if {$coroutine_sleep($coro) > $mnow} continue
+    }
     if {![info exists coroutine_busy($coro)]} {
       set coroutine_busy($coro) 0
     }
@@ -255,6 +295,25 @@ proc ::cron::runTasksCoro {} {
         set lastevent $now
       }
     }
+    set mnow [clock milliseconds]
+    foreach {coro msec} [array get ::cron::coroutine_sleep] {
+      set scheduled [expr $msec/1000]
+      if {$scheduled<$nextevent} {
+        set nexttask $coro
+        set nextevent $scheduled
+      }
+    }
+    foreach {eventid msec} [array get ::cron::event] {
+      if {$msec < 0} continue
+      if {$msec < $mnow} {
+        set ::cron::event($eventid) -1
+      }
+      set scheduled [expr $msec/1000]
+      if {$scheduled<$nextevent} {
+        set nexttask "SLEEP $eventid"
+        set nextevent $scheduled
+      }
+    }  
     set delay [expr {$nextevent-$now}]
     if {$delay < 0} {
       yield 0
@@ -273,6 +332,10 @@ proc ::cron::wake {{who ???}} {
   # the script body
   ##
   after cancel $::cron::next_event
+  if {[info coroutine] ne {}} {
+    set ::cron::next_event [after idle {::cron::wake IDLE}]
+    return
+  }
   if {$who eq "PANIC"} {
     # Cron is overdue and may be stuck
     set ::cron::busy 0
