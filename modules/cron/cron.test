@@ -4,7 +4,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2014 by Sean Woods
+# Copyright (c) 2016 by Sean Woods
 # (Insert BSDish style "use at your own risk" license text)
 
 source [file join \
@@ -12,7 +12,7 @@ source [file join \
     devtools testutilities.tcl]
 
 package require tcltest
-testsNeedTcl     8.5
+testsNeedTcl     8.6
 testsNeedTcltest 1.0
 
 testing {
@@ -79,5 +79,17 @@ test cron-1.8 {cron::in} {
   set ::inevent
 } 1
 
+::cron::in 5 {
+  set ::cron::forever 0
+test cron-1.9 {cron::main} {
+  set ::cron::forever
+} 0
+}
+::cron::main
+
+# If we get to this test, mission successful
+test cron-1.10 {cron::main} {
+  return 1
+} 1
 testsuiteCleanup
 return
