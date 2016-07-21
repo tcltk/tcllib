@@ -10,8 +10,8 @@ package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
 package require uuid
-package require cron
-package require nettool 0.4
+package require cron 2.0
+package require nettool 0.5.1
 package require udp
 package require dicttool
 
