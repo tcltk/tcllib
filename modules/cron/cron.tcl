@@ -364,9 +364,12 @@ proc ::cron::runTasksCoro {} {
       }
       dict set processTable($task) running 1
       set coro [dict get $processTable($task) coroutine]
-      if {$coro ne {}} {
+      set command [dict get $processTable($task) command]
+      if {$command eq {} && $coro eq {}} {
+        # Task has nothing to do. Slot it for destruction
+        lappend cancellist $task
+      } elseif {$coro ne {}} {
         if {[info command $coro] eq {}} {
-          set command [dict get $processTable($task) command]
           set object [dict get $processTable($task) object]
           # Trigger coroutine again if a command was given
           # If this coroutine is associated with an object, ensure

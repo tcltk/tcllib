@@ -2,7 +2,7 @@
 # IRM External Process Manager
 ###
 
-package require cron 1.1
+package require cron 2.0
 
 ::namespace eval ::processman {}
 
