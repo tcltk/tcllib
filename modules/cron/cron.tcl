@@ -486,6 +486,9 @@ proc ::cron::wake {{who ???}} {
     set ::cron::panic_event [after 120000 {::cron::wake PANIC}]
     return
   }
+  if {$::cron::busy} {
+    return
+  }
   after cancel $::cron::next_event
   set ::cron::next_event [after idle [list ::cron::do_one_event $who]]
 }
