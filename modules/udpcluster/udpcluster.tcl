@@ -10,8 +10,8 @@ package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
 package require uuid
-package require cron
-package require nettool 0.4
+package require cron 2.0
+package require nettool 0.5.1
 package require udp
 package require dicttool
 
@@ -47,10 +47,10 @@ proc ::cluster::broadcast {args} {
     set ::cluster::broadcast_sock {}
     if {$::cluster::config(debug)} {
       puts "Broadcast ERR: $error - Reopening Socket"
-      ::cluster::sleep 2000
+      ::cron::sleep 2000
     } else {
       # Double the delay
-      ::cluster::sleep 250
+      ::cron::sleep 250
     }
   }
 }
@@ -166,6 +166,10 @@ proc ::cluster::listen {} {
     }
   }
   return $broadcast_sock
+}
+
+proc ::cluster::sleep args {
+  ::cron::sleep {*}$args
 }
 
 proc ::cluster::TCPAccept {sock host port} {
@@ -351,7 +355,7 @@ proc ::cluster::ping {rawname {timeout -1}} {
       error "Could not locate $rcpt on the network"
     }
     broadcast PING $rcpt
-    sleep $::cluster::config(ping_sleep)
+    ::cron::sleep $::cluster::config(ping_sleep)
   }
   if {[::info exists ptpdata($rcpt)]} {
     return [dict getnull $ptpdata($rcpt) ipaddr]
@@ -528,20 +532,6 @@ proc ::cluster::throw {service command args} {
   }
 }
 
-proc ::cluster::sleep_handle {ms} {
-  set eventid [incr ::cluster::eventcount]
-  set var ::cluster::event($eventid)
-  set ${var} [list [clock seconds] [expr {[clock milliseconds]+$ms}]]
-  after $ms [list set $var -1]
-  return $var
-}
-
-
-proc ::cluster::sleep ms {
-  set handle [sleep_handle $ms]
-  vwait $handle
-}
-
 ###
 # topic: c8475e832c912e962f238c61580b669e
 ###
@@ -668,4 +658,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide udpcluster 0.3.1
+package provide udpcluster 0.3.2
