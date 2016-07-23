@@ -99,7 +99,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">cron(n) 0.1 tcllib &quot;cron&quot;</h1>
+<h1 class="doctools_title">cron(n) 2.0 tcllib &quot;cron&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>cron - Tool for automating the period callback of commands</p>
 </div>
@@ -118,14 +118,25 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">cron <span class="opt">?0.1?</span></b></li>
+<li>package require <b class="pkgname">Tcl 8.6</b></li>
+<li>package require <b class="pkgname">cron <span class="opt">?2.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::cron::at</b> <i class="arg">?processname?</i> <i class="arg">timecode</i> <i class="arg">command</i></a></li>
 <li><a href="#2"><b class="cmd">::cron::cancel</b> <i class="arg">processname</i></a></li>
 <li><a href="#3"><b class="cmd">::cron::every</b> <i class="arg">processname</i> <i class="arg">frequency</i> <i class="arg">command</i></a></li>
 <li><a href="#4"><b class="cmd">::cron::in</b> <i class="arg">?processname?</i> <i class="arg">timecode</i> <i class="arg">command</i></a></li>
+<li><a href="#5"><b class="cmd">::cron::object_coroutine</b> <i class="arg">object</i> <i class="arg">coroutine</i> <i class="arg">?info?</i></a></li>
+<li><a href="#6"><b class="cmd">::cron::sleep</b> <i class="arg">milliseconds</i></a></li>
+<li><a href="#7"><b class="cmd">::cron::task delete</b> <i class="arg">process</i></a></li>
+<li><a href="#8"><b class="cmd">::cron::task exists</b> <i class="arg">process</i></a></li>
+<li><a href="#9"><b class="cmd">::cron::task info</b> <i class="arg">process</i></a></li>
+<li><a href="#10"><b class="cmd">::cron::task set</b> <i class="arg">process</i> <i class="arg">field</i> <i class="arg">value</i> <i class="arg">?field...?</i> <i class="arg">?value...?</i></a></li>
+<li><a href="#11"><b class="cmd">::cron::wake</b> <i class="arg">?who?</i></a></li>
+<li><a href="#12"><b class="cmd">::cron::clock_step</b> <i class="arg">milleseconds</i></a></li>
+<li><a href="#13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milleseconds</i></a></li>
+<li><a href="#14"><b class="cmd">::cron::clock_sleep</b> <i class="arg">seconds</i> <i class="arg">?offset?</i></a></li>
+<li><a href="#15"><b class="cmd">::cron::clock_set</b> <i class="arg">newtime</i></a></li>
 </ul>
 </div>
 </div>
@@ -135,8 +146,14 @@ programs to schedule tasks to occur at regular intervals. Rather than
 force each task to issue it's own call to the event loop, the cron
 system mimics the cron utility in Unix: on task periodically checks to
 see if something is to be done, and issues all commands for a given
-time step at once.
-The cron package is intended to work in time scales greater than 1 second.</p>
+time step at once.</p>
+<p>Changes in version 2.0</p>
+<p>While cron was originally designed to handle time scales &gt; 1 second, the
+latest version's internal understand time granularity down to the millisecond,
+making it easier to integrate with other timed events.
+Version 2.0 also understands how to properly integrate coroutines and objects.
+It also adds a facility for an external (or script driven) clock. Note that vwait style events
+won't work very well with an external clock.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
 <dl class="doctools_definitions">
@@ -177,6 +194,82 @@ This task can be modified by subsequent calls to
 this package's commands by referencing <i class="arg">processname</i>. If <i class="arg">processname</i> exists,
 it will be replaced.
 If <i class="arg">processname</i> is not given, one is generated and returned by the command.</p></dd>
+<dt><a name="5"><b class="cmd">::cron::object_coroutine</b> <i class="arg">object</i> <i class="arg">coroutine</i> <i class="arg">?info?</i></a></dt>
+<dd><p>This command registers a <i class="arg">coroutine</i>, associated with <i class="arg">object</i> to be called
+given the parameters of <i class="arg">info</i>. If now parameters are given, the coroutine is assumed
+to be an idle task which will self-terminate. <i class="arg">info</i> can be given in any form compadible with
+<b class="cmd">::cron::task set</b></p></dd>
+<dt><a name="6"><b class="cmd">::cron::sleep</b> <i class="arg">milliseconds</i></a></dt>
+<dd><p>When run within a coroutine, this command will register the coroutine for a callback
+at the appointed time, and immediately yield.</p>
+<p>If the ::cron::time variable is &gt; 0 this command will advance the internal time,
+100ms at a time.</p>
+<p>In all other cases this command will generate a fictious variable, generate an
+after call, and vwait the variable:</p>
+<pre class="doctools_example">
+set eventid [incr ::cron::eventcount]
+set var ::cron::event_#$eventid
+set $var 0
+::after $ms &quot;set $var 1&quot;
+::vwait $var
+::unset $var
+</pre>
+<p>Usage:</p>
+<pre class="doctools_example">
+::cron::sleep 250
+</pre>
+</dd>
+<dt><a name="7"><b class="cmd">::cron::task delete</b> <i class="arg">process</i></a></dt>
+<dd><p>Delete the process specified the <i class="arg">process</i></p></dd>
+<dt><a name="8"><b class="cmd">::cron::task exists</b> <i class="arg">process</i></a></dt>
+<dd><p>Returns true if <i class="arg">process</i> is registered with cron.</p></dd>
+<dt><a name="9"><b class="cmd">::cron::task info</b> <i class="arg">process</i></a></dt>
+<dd><p>Returns a dict describing <i class="arg">process</i>. See <b class="cmd">::cron::task set</b> for a description of the options.</p></dd>
+<dt><a name="10"><b class="cmd">::cron::task set</b> <i class="arg">process</i> <i class="arg">field</i> <i class="arg">value</i> <i class="arg">?field...?</i> <i class="arg">?value...?</i></a></dt>
+<dd><p>If <i class="arg">process</i> does not exist, it is created. Options Include:</p>
+<dl class="doctools_definitions">
+<b class="cmd"><a href="../../../../index.html#key275">command</a></b>
+If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is black, a global command which implements this process. If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is not
+black, the command to invoke to create or recreate the coroutine.
+<b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b>
+The name of the coroutine (if any) which implements this process.
+<b class="cmd">frequency</b>
+If -1, this process is terminated after the next event. If 0 this process should be called during every
+idle event. If positive, this process should generate events periodically. The frequency is an interger number
+of milleseconds between events.
+<b class="cmd"><a href="../../../../index.html#key243">object</a></b>
+The object associated with this process or coroutine.
+<b class="cmd">scheduled</b>
+If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
+If zero, and the <b class="cmd">frequency</b> is also zero, this process is called every idle loop.
+<b class="cmd"><a href="../../../../index.html#key433">running</a></b>
+A boolean flag. If true it indicates the process never returned or yielded during the event loop,
+and will not be called again until it does so.
+</dl></dd>
+<dt><a name="11"><b class="cmd">::cron::wake</b> <i class="arg">?who?</i></a></dt>
+<dd><p>Wake up cron, and arrange for its event loop to be run during the next Idle cycle.</p>
+<pre class="doctools_example">
+::cron::wake {I just did something important}
+</pre>
+</dd>
+</dl>
+<p>Several utility commands are provided that are used internally within cron and for
+testing cron, but may or may not be useful in the general cases.</p>
+<dl class="doctools_definitions">
+<dt><a name="12"><b class="cmd">::cron::clock_step</b> <i class="arg">milleseconds</i></a></dt>
+<dd><p>Return a clock time absolute to the epoch which falls on the next
+border between one second and the next for the value of <i class="arg">milleseconds</i></p></dd>
+<dt><a name="13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milleseconds</i></a></dt>
+<dd><p>Return a clock time absolute to the epoch which falls on the next
+border between one second and the next <i class="arg">milleseconds</i> in the future.</p></dd>
+<dt><a name="14"><b class="cmd">::cron::clock_sleep</b> <i class="arg">seconds</i> <i class="arg">?offset?</i></a></dt>
+<dd><p>Return a clock time absolute to the epoch which falls exactly <i class="arg">seconds</i> in
+the future. If offset is given it may be positive or negative, and will shift
+the final time to before or after the second would flip.</p></dd>
+<dt><a name="15"><b class="cmd">::cron::clock_set</b> <i class="arg">newtime</i></a></dt>
+<dd><p>Sets the internal clock for cron. This command will advance the time in 100ms
+increment, triggering events, until the internal time catches up with <i class="arg">newtime</i>.</p>
+<p><i class="arg">newtime</i> is expressed in absolute milleseconds since the beginning of the epoch.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
@@ -188,12 +281,12 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key621">cron</a>, <a href="../../../../index.html#key255">odie</a></p>
+<p><a href="../../../../index.html#key623">cron</a>, <a href="../../../../index.html#key255">odie</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>System</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2015 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
+<p>Copyright &copy; 2016 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
 </div>
 </div>
