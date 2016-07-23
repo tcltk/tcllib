@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'cron\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "cron" n 0\&.1 tcllib "cron"
+.TH "cron" n 2\&.0 tcllib "cron"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 cron \- Tool for automating the period callback of commands
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcron  ?0\&.1?\fR
+package require \fBcron  ?2\&.0?\fR
 .sp
 \fB::cron::at\fR \fI?processname?\fR \fItimecode\fR \fIcommand\fR
 .sp
@@ -285,6 +285,28 @@ package require \fBcron  ?0\&.1?\fR
 \fB::cron::every\fR \fIprocessname\fR \fIfrequency\fR \fIcommand\fR
 .sp
 \fB::cron::in\fR \fI?processname?\fR \fItimecode\fR \fIcommand\fR
+.sp
+\fB::cron::object_coroutine\fR \fIobject\fR \fIcoroutine\fR \fI?info?\fR
+.sp
+\fB::cron::sleep\fR \fImilliseconds\fR
+.sp
+\fB::cron::task delete\fR \fIprocess\fR
+.sp
+\fB::cron::task exists\fR \fIprocess\fR
+.sp
+\fB::cron::task info\fR \fIprocess\fR
+.sp
+\fB::cron::task set\fR \fIprocess\fR \fIfield\fR \fIvalue\fR \fI?field\&.\&.\&.?\fR \fI?value\&.\&.\&.?\fR
+.sp
+\fB::cron::wake\fR \fI?who?\fR
+.sp
+\fB::cron::clock_step\fR \fImilleseconds\fR
+.sp
+\fB::cron::clock_delay\fR \fImilleseconds\fR
+.sp
+\fB::cron::clock_sleep\fR \fIseconds\fR \fI?offset?\fR
+.sp
+\fB::cron::clock_set\fR \fInewtime\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -295,7 +317,15 @@ force each task to issue it's own call to the event loop, the cron
 system mimics the cron utility in Unix: on task periodically checks to
 see if something is to be done, and issues all commands for a given
 time step at once\&.
-The cron package is intended to work in time scales greater than 1 second\&.
+.PP
+Changes in version 2\&.0
+.PP
+While cron was originally designed to handle time scales > 1 second, the
+latest version's internal understand time granularity down to the millisecond,
+making it easier to integrate with other timed events\&.
+Version 2\&.0 also understands how to properly integrate coroutines and objects\&.
+It also adds a facility for an external (or script driven) clock\&. Note that vwait style events
+won't work very well with an external clock\&.
 .SH COMMANDS
 .TP
 \fB::cron::at\fR \fI?processname?\fR \fItimecode\fR \fIcommand\fR
@@ -344,6 +374,109 @@ This task can be modified by subsequent calls to
 this package's commands by referencing \fIprocessname\fR\&. If \fIprocessname\fR exists,
 it will be replaced\&.
 If \fIprocessname\fR is not given, one is generated and returned by the command\&.
+.TP
+\fB::cron::object_coroutine\fR \fIobject\fR \fIcoroutine\fR \fI?info?\fR
+This command registers a \fIcoroutine\fR, associated with \fIobject\fR to be called
+given the parameters of \fIinfo\fR\&. If now parameters are given, the coroutine is assumed
+to be an idle task which will self-terminate\&. \fIinfo\fR can be given in any form compadible with
+\fB::cron::task set\fR
+.TP
+\fB::cron::sleep\fR \fImilliseconds\fR
+When run within a coroutine, this command will register the coroutine for a callback
+at the appointed time, and immediately yield\&.
+.sp
+If the ::cron::time variable is > 0 this command will advance the internal time,
+100ms at a time\&.
+.sp
+In all other cases this command will generate a fictious variable, generate an
+after call, and vwait the variable:
+.CS
+
+
+set eventid [incr ::cron::eventcount]
+set var ::cron::event_#$eventid
+set $var 0
+::after $ms "set $var 1"
+::vwait $var
+::unset $var
+
+.CE
+.sp
+Usage:
+.CS
+
+
+::cron::sleep 250
+
+.CE
+.TP
+\fB::cron::task delete\fR \fIprocess\fR
+Delete the process specified the \fIprocess\fR
+.TP
+\fB::cron::task exists\fR \fIprocess\fR
+Returns true if \fIprocess\fR is registered with cron\&.
+.TP
+\fB::cron::task info\fR \fIprocess\fR
+Returns a dict describing \fIprocess\fR\&. See \fB::cron::task set\fR for a description of the options\&.
+.TP
+\fB::cron::task set\fR \fIprocess\fR \fIfield\fR \fIvalue\fR \fI?field\&.\&.\&.?\fR \fI?value\&.\&.\&.?\fR
+.sp
+If \fIprocess\fR does not exist, it is created\&. Options Include:
+.RS
+\fBcommand\fR
+If \fBcoroutine\fR is black, a global command which implements this process\&. If \fBcoroutine\fR is not
+black, the command to invoke to create or recreate the coroutine\&.
+\fBcoroutine\fR
+The name of the coroutine (if any) which implements this process\&.
+\fBfrequency\fR
+If -1, this process is terminated after the next event\&. If 0 this process should be called during every
+idle event\&. If positive, this process should generate events periodically\&. The frequency is an interger number
+of milleseconds between events\&.
+\fBobject\fR
+The object associated with this process or coroutine\&.
+\fBscheduled\fR
+If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event\&.
+If zero, and the \fBfrequency\fR is also zero, this process is called every idle loop\&.
+\fBrunning\fR
+A boolean flag\&. If true it indicates the process never returned or yielded during the event loop,
+and will not be called again until it does so\&.
+.RE
+.TP
+\fB::cron::wake\fR \fI?who?\fR
+Wake up cron, and arrange for its event loop to be run during the next Idle cycle\&.
+.CS
+
+
+::cron::wake {I just did something important}
+
+.CE
+.PP
+.PP
+Several utility commands are provided that are used internally within cron and for
+testing cron, but may or may not be useful in the general cases\&.
+.TP
+\fB::cron::clock_step\fR \fImilleseconds\fR
+.sp
+Return a clock time absolute to the epoch which falls on the next
+border between one second and the next for the value of \fImilleseconds\fR
+.TP
+\fB::cron::clock_delay\fR \fImilleseconds\fR
+.sp
+Return a clock time absolute to the epoch which falls on the next
+border between one second and the next \fImilleseconds\fR in the future\&.
+.TP
+\fB::cron::clock_sleep\fR \fIseconds\fR \fI?offset?\fR
+.sp
+Return a clock time absolute to the epoch which falls exactly \fIseconds\fR in
+the future\&. If offset is given it may be positive or negative, and will shift
+the final time to before or after the second would flip\&.
+.TP
+\fB::cron::clock_set\fR \fInewtime\fR
+.sp
+Sets the internal clock for cron\&. This command will advance the time in 100ms
+increment, triggering events, until the internal time catches up with \fInewtime\fR\&.
+.sp
+\fInewtime\fR is expressed in absolute milleseconds since the beginning of the epoch\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -359,6 +492,6 @@ cron, odie
 System
 .SH COPYRIGHT
 .nf
-Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

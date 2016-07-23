@@ -353,6 +353,7 @@ modules/tiff/tiff.man
 modules/tool/meta.man
 modules/tool/tool.man
 modules/tool/tool_dict_ensemble.man
+modules/tool/tool_template.man
 modules/transfer/connect.man
 modules/transfer/copyops.man
 modules/transfer/ddest.man
