@@ -1,13 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.1]
+[vset PACKAGE_VERSION 2.0]
 [manpage_begin cron n [vset PACKAGE_VERSION]]
 [keywords {cron}]
 [keywords {odie}]
-[copyright {2015 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2016 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {cron}]
 [titledesc {Tool for automating the period callback of commands}]
 [category  System]
-[require Tcl 8.5]
+[require Tcl 8.6]
 [require cron [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]
@@ -18,8 +18,16 @@ force each task to issue it's own call to the event loop, the cron
 system mimics the cron utility in Unix: on task periodically checks to
 see if something is to be done, and issues all commands for a given
 time step at once.
+[para]
+Changes in version 2.0
+[para]
+While cron was originally designed to handle time scales > 1 second, the
+latest version's internal understand time granularity down to the millisecond,
+making it easier to integrate with other timed events.
 
-The cron package is intended to work in time scales greater than 1 second.
+Version 2.0 also understands how to properly integrate coroutines and objects.
+It also adds a facility for an external (or script driven) clock. Note that vwait style events
+won't work very well with an external clock.
 
 [section Commands]
 [list_begin definitions]
@@ -70,6 +78,106 @@ this package's commands by referencing [arg processname]. If [arg processname] e
 it will be replaced.
 
 If [arg processname] is not given, one is generated and returned by the command.
+
+[call [cmd ::cron::object_coroutine] [arg object] [arg coroutine] [arg ?info?]]
+
+This command registers a [arg coroutine], associated with [arg object] to be called
+given the parameters of [arg info]. If now parameters are given, the coroutine is assumed
+to be an idle task which will self-terminate. [arg info] can be given in any form compadible with
+[cmd {::cron::task set}]
+
+[call [cmd ::cron::sleep] [arg milliseconds]]
+
+When run within a coroutine, this command will register the coroutine for a callback
+at the appointed time, and immediately yield.
+[para]
+If the ::cron::time variable is > 0 this command will advance the internal time,
+100ms at a time.
+[para]
+In all other cases this command will generate a fictious variable, generate an
+after call, and vwait the variable:
+[example {
+set eventid [incr ::cron::eventcount]
+set var ::cron::event_#$eventid
+set $var 0
+::after $ms "set $var 1"
+::vwait $var
+::unset $var
+}]
+[para]
+Usage:
+[example_begin]
+::cron::sleep 250
+[example_end]
+
+[call [cmd {::cron::task delete}] [arg process]]
+Delete the process specified the [arg process]
+
+[call [cmd {::cron::task exists}] [arg process]]
+Returns true if [arg process] is registered with cron.
+
+[call [cmd {::cron::task info}] [arg process]]
+Returns a dict describing [arg process]. See [cmd {::cron::task set}] for a description of the options.
+
+[call [cmd {::cron::task set}] [arg process] [arg field] [arg value] [arg ?field...?] [arg ?value...?]]
+[para]
+If [arg process] does not exist, it is created. Options Include:
+[list_begin definitions]
+[cmd command]
+If [cmd coroutine] is black, a global command which implements this process. If [cmd coroutine] is not
+black, the command to invoke to create or recreate the coroutine.
+[cmd coroutine]
+The name of the coroutine (if any) which implements this process.
+[cmd frequency]
+If -1, this process is terminated after the next event. If 0 this process should be called during every
+idle event. If positive, this process should generate events periodically. The frequency is an interger number
+of milleseconds between events.
+
+[cmd object]
+The object associated with this process or coroutine.
+[cmd scheduled]
+If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
+If zero, and the [cmd frequency] is also zero, this process is called every idle loop.
+[cmd running]
+A boolean flag. If true it indicates the process never returned or yielded during the event loop,
+and will not be called again until it does so.
+[list_end]
+[call [cmd ::cron::wake] [arg ?who?]]
+
+Wake up cron, and arrange for its event loop to be run during the next Idle cycle.
+
+[example_begin]
+::cron::wake {I just did something important}
+[example_end]
+[list_end]
+[para]
+Several utility commands are provided that are used internally within cron and for
+testing cron, but may or may not be useful in the general cases.
+[list_begin definitions]
+
+[call [cmd ::cron::clock_step] [arg milleseconds]]
+[para]
+Return a clock time absolute to the epoch which falls on the next
+border between one second and the next for the value of [arg milleseconds]
+
+[call [cmd ::cron::clock_delay] [arg milleseconds]]
+[para]
+Return a clock time absolute to the epoch which falls on the next
+border between one second and the next [arg milleseconds] in the future.
+
+[call [cmd ::cron::clock_sleep] [arg seconds] [arg ?offset?]]
+[para]
+Return a clock time absolute to the epoch which falls exactly [arg seconds] in
+the future. If offset is given it may be positive or negative, and will shift
+the final time to before or after the second would flip.
+
+[call [cmd ::cron::clock_set] [arg newtime]]
+[para]
+Sets the internal clock for cron. This command will advance the time in 100ms
+increment, triggering events, until the internal time catches up with [arg newtime].
+[para]
+[arg newtime] is expressed in absolute milleseconds since the beginning of the epoch.
+
 
 [list_end]
 [para]
