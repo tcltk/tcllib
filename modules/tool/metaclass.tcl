@@ -249,7 +249,6 @@ proc ::tool::object_create objname {
     object_info
     object_signal
     object_subscribe
-    object_coroutine
   } {
     variable $varname
     set ${varname}($objname) {}
@@ -263,7 +262,6 @@ proc ::tool::object_rename {object newname} {
     object_info
     object_signal
     object_subscribe
-    object_coroutine
   } {
     variable $varname
     if {[info exists ${varname}($object)]} {
@@ -284,18 +282,12 @@ proc ::tool::object_rename {object newname} {
 proc ::tool::object_destroy objname {
   ::tool::event::generate $objname object_destroy [list objname $objname]
   ::tool::event::cancel $objname *
-
+  ::cron::object_destroy $objname
   variable coroutine_object
-  foreach {coro coro_objname} [array get coroutine_object] {
-    if { $objname eq $coro_objname } {
-      coroutine_unregister $coro
-    }
-  }
   foreach varname {
     object_info
     object_signal
     object_subscribe
-    object_coroutine
   } {
     variable $varname
     unset -nocomplain ${varname}($objname)
