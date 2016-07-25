@@ -160,6 +160,7 @@ namespace eval httpd::content {}
   }
 }
 
+
 ###
 # Return data from an SCGI process
 ###
@@ -185,11 +186,11 @@ namespace eval httpd::content {}
     lassign $sockinfo scgihost scgiport scgiscript
     set sock [::socket $scgihost $scgiport]
     # Add a few headers that SCGI needs
-    my query_headers set SERVER_NAME [my <server> cget server_name]
+    #my query_headers set SERVER_NAME [my <server> cget server_name]
     my query_headers set SCRIPT_NAME $scgiscript
-    my query_headers set SERVER_PORT [my <server> port_listening]
-    set ::env(SCRIPT_NAME) $scgiscript
     my query_headers set SCGI 1.0    
+    #my query_headers set SERVER_PORT [my <server> port_listening]
+    #set ::env(SCRIPT_NAME) $scgiscript
       ::puts {HEADERS} 
       foreach {field element} [my query_headers dump] { 
         ::puts [list $field $element]

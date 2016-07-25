@@ -34,17 +34,29 @@ tool::class create httpd::content::fossil_root {
 }
 
 ###
-# Fossil nodes are actually handoffs to fossil passthrough handlers
+# This driver for fossil is not a standard SCGI module
+# it's more or less cargo culted from a working prototype
+# developed for the GORT project. You'll note it does some
+# things that are non-standard for SCGI, and that's to work
+# around quirks in Fossil SCGI implementation.
+#
+# (Either that or my reading of SCGI specs is way, way off.
+# I'm 75% sure I'm doing something wrong.)
+#
+# Actually, according to DRH we should really be using CGI
+# because that is better supported. So until we get the
+# CGI functions fleshed out, here's FOSSIL...
+#
+# --Sean "The Hypnotoad" Woods
 ###
 tool::class create httpd::content::fossil_node_scgi {
-  superclass httpd::content::scgi
   
+  superclass httpd::content::scgi
   method scgi_info {} {
-    file mkdir ~/tmp
     set uri    [my query_headers get REQUEST_URI]
     set prefix [my query_headers get prefix]
     set module [lindex [split $uri /] 2]
-    puts [list *** $uri -> $module]
+    file mkdir ~/tmp
     if {![info exists ::fossil_process($module)]} {
       package require processman
       package require nettool
@@ -58,19 +70,13 @@ tool::class create httpd::content::fossil_node_scgi {
       if {![file exists $dbfile]} {
         tailcall my error 400 {Not Found}
       }
-      set server_name [my <server> cget server_name]
       set mport [my <server> port_listening]
-      set baseurl http://${server_name}:${mport}/fossil/$module
-      set cmd [list fossil server --baseurl $baseurl --port $port --localhost --scgi $dbfile 2>~/tmp/$module.err >~/tmp/$module.log]
-      dict set ::fossil_process($module) repo $dbfile
+      set cmd [list fossil server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
+
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd
       dict set ::fossil_process($module) SCRIPT_NAME $prefix/$module
-      ::puts [list Launching SCGI $module]
-      foreach {field value} $::fossil_process($module) {
-        ::puts [list $field: $value]
-      }
     }
     dict with ::fossil_process($module) {}
     if {![::processman::running $handle]} {
@@ -80,6 +86,104 @@ tool::class create httpd::content::fossil_node_scgi {
     }
     return [list localhost $port $SCRIPT_NAME]
   }
+
+  method content {} {
+    my variable sock chan
+    set sockinfo [my scgi_info]
+    if {$sockinfo eq {}} {
+      my error 404 {Not Found}
+      return
+    }
+    lassign $sockinfo scgihost scgiport scgiscript
+    set sock [::socket $scgihost $scgiport]
+    # Add a few headers that SCGI needs
+    my query_headers set SCRIPT_NAME $scgiscript
+    my query_headers set SCGI 1.0    
+
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    ###
+    # Convert our query headers into netstring format. Note that
+    # MimeParse as already rigged it such that CONTENT_LENGTH is first
+    # and always populated (even if zero), per SCGI requirements
+    ###
+    set block [my query_headers netstring]
+    puts -nonewline $sock $block
+    set length [my query_headers get CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $chan $sock -size $length
+    }
+    chan flush $sock
+    ###
+    # Wake this object up after the SCGI process starts to respond
+    ###
+    #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    chan event $sock readable [namespace code {my output}]
+  }
+  
+  method dispatch {newsock datastate} {
+    my query_headers replace $datastate
+    my variable chan rawrequest dipatched_time
+    set chan $newsock
+    chan event $chan readable {}
+    chan configure $chan -translation {auto crlf} -buffering line
+    set dispatched_time [clock seconds]
+    try {
+      set rawrequest [my HttpHeaders $chan]
+      foreach {field value} [my MimeParse $rawrequest] {
+        my query_headers set $field $value
+      }
+      # Dispatch to the URL implementation.
+      my content
+    } on error {err info} {
+      dict print $info
+      #puts stderr $::errorInfo
+      my error 500 $err
+    } finally {
+      my output
+    }
+  }
+  
+  method output {} {
+    if {[my query_headers getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+    }
+    my variable sock chan
+    set replyhead [my HttpHeaders $sock]
+    set replydat  [my MimeParse $replyhead]
+    ###
+    # Convert the Status: header from the SCGI service to
+    # a standard service reply line from a web server, but
+    # otherwise spit out the rest of the headers verbatim
+    ###
+    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    set length [dict get $replydat CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
+    }
+  }
+
 }
 
 tool::class create ::docserver::server {
