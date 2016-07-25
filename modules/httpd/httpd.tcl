@@ -12,7 +12,8 @@
 
 package require uri
 package require cron
-package require tool 0.4.1
+package require coroutine
+package require tool
 package require oo::dialect
 
 namespace eval ::url {}
@@ -92,7 +93,7 @@ set ::httpd::version 4.0.0
     set MimeHeadersSock($sock) {}
     set MimeHeadersSock($sock.done) {}
     chan event $sock readable [namespace code [list my HttpHeaderLine $sock]]
-    vwait [my varname MimeHeadersSock]($sock.done)
+    vwait [my varname MimeHeadersSock]_$sock.done
     ###
     # Return our buffer
     ###
@@ -108,7 +109,7 @@ set ::httpd::version 4.0.0
     try {
       gets $sock line
       if {$line eq {}} {
-        set [my varname MimeHeadersSock]($sock.done) 1
+        set [my varname MimeHeadersSock]_$sock.done 1
         chan event $sock readable {}
       } else {
         append MimeHeadersSock($sock) $line \n
@@ -483,6 +484,7 @@ For deeper understanding:
     my counter url_hit
     try {
       set readCount [gets $sock line]
+      dict set query REMOTE_ADDR     $ip
       dict set query REQUEST_METHOD  [lindex $line 0]
       set uriinfo [::uri::split [lindex $line 1]]
       dict set query REQUEST_URI     [lindex $line 1]
