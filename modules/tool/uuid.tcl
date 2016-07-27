@@ -1,9 +1,16 @@
 ::namespace eval ::tool {}
 
 proc ::tool::uuid_seed args {
-  if {$args eq {} } {
+  if {[llength $args]==0 || ([llength $args]==1 && [lindex $args 0] eq {})} {
+    if {[info exists ::env(USERNAME)]} {
+      set user $::env(USERNAME)
+    } elseif {[info exists ::env(USER)]} {
+      set user $::env(USER)
+    } else {
+      set user $::env(user)
+    }
     incr ::tool::nextuuid $::tool::globaluuid
-    set ::tool::UUID_Seed [list [info hostname] [get env(USER)] [get env(user)] [clock format [clock seconds]]]
+    set ::tool::UUID_Seed [list user@[info hostname] [clock format [clock seconds]]]
   } else {
     incr ::tool::globaluuid $::tool::nextuuid
     set ::tool::nextuuid 0
@@ -55,4 +62,4 @@ namespace eval ::tool {
 ###
 set ::tool::nextuuid 0
 set ::tool::globaluuid 0
-::tool::uuid_seed {}
+::tool::uuid_seed
