@@ -1,3 +1,9 @@
+2016-08-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Correct the calculation of the weight for interpolation - cast to double
+	* interpolate.test: Added test for this change
+	* statistics.test: Correct the ANOVA tests (use -result)
+	* linalg.test: Added test to show that permuted linear systems give the same result
+
 2016-04-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.tcl: Replace the algorithm in pointInsidePolygon (ticket dc49af96c2), also add an alternative
 	                method based on the winding number
