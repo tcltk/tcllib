@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'cfront\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil::magic::cfront" n 1\&.0 tcllib "file utilities"
+.TH "fileutil::magic::cfront" n 1\&.2\&.0 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,13 +273,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 fileutil::magic::cfront \- Generator core for compiler of magic(5) files
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBfileutil::magic::cfront  ?1\&.0?\fR
+package require \fBfileutil::magic::cfront  ?1\&.2\&.0?\fR
 .sp
-package require \fBfileutil::magic::cgen  ?1\&.0?\fR
+package require \fBfileutil::magic::cgen  ?1\&.2\&.0?\fR
 .sp
-package require \fBfileutil::magic::rt  ?1\&.0?\fR
+package require \fBfileutil::magic::rt  ?1\&.2\&.0?\fR
 .sp
 package require \fBstruct::list \fR
 .sp

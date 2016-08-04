@@ -1419,9 +1419,6 @@ tcllib
 \fBtool::dict_ensemble\fR
 \fIfiles/modules/tool/tool_dict_ensemble\&.n\fR: Dictionary Tools
 .TP
-\fBtool::template\fR
-\fIfiles/modules/tool/tool_template\&.n\fR: Dictionary Tools
-.TP
 \fBtransfer::connect\fR
 \fIfiles/modules/transfer/connect\&.n\fR: Connection setup
 .TP

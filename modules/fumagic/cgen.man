@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::cgen n 1.0]
+[manpage_begin fileutil::magic::cgen n 1.2.0]
 [see_also file(1)]
 [see_also fileutil]
 [see_also magic(5)]
@@ -12,8 +12,8 @@
 [titledesc {Generator core for compiler of magic(5) files}]
 [category  {Programming tools}]
 [require Tcl 8.4]
-[require fileutil::magic::cgen [opt 1.0]]
-[require fileutil::magic::rt [opt 1.0]]
+[require fileutil::magic::cgen [opt 1.2.0]]
+[require fileutil::magic::rt [opt 1.2.0]]
 
 [require struct::tree]
 [require struct::list]
