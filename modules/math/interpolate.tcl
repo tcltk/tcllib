@@ -664,4 +664,4 @@ proc ::math::interpolate::interp-cubic-splines {coeffs x} {
 #
 # Announce our presence
 #
-package provide math::interpolate 1.1
+package provide math::interpolate 1.1.1
