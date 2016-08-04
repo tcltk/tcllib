@@ -25,7 +25,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5
 
 # file to compile the magic file from magic(5) into a tcl program
 package require fileutil              ; # File processing (input)
@@ -34,7 +34,7 @@ package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
 package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.2
+package provide fileutil::magic::cfront 1.2.0
 
 # ### ### ### ######### ######### #########
 ## Implementation

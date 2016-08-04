@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'cgen\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil::magic::cgen" n 1\&.0 tcllib "file utilities"
+.TH "fileutil::magic::cgen" n 1\&.2\&.0 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,9 @@ fileutil::magic::cgen \- Generator core for compiler of magic(5) files
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBfileutil::magic::cgen  ?1\&.0?\fR
+package require \fBfileutil::magic::cgen  ?1\&.2\&.0?\fR
 .sp
-package require \fBfileutil::magic::rt  ?1\&.0?\fR
+package require \fBfileutil::magic::rt  ?1\&.2\&.0?\fR
 .sp
 package require \fBstruct::tree \fR
 .sp
