@@ -1,5 +1,16 @@
 This file records outstanding actions for the math module
 
+
+dd. 3 august 2016
+- Fix problem in interpolation - integer arguments - done
+- Fix problem in pdf-lognormal and cdf-lognormal: stdev is now used as variance
+
+dd. 4 august 2016
+- Add test case for permuted linear system
+- Add test case for pdf-lognormal and cdf-lognormal (non-unity standard deviation)
+
+
+
 dd. 11 april 2016
 Fix problem in math::geometry::pointInsidePolygon (Eduard on comp.lang.tcl):
 
