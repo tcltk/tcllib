@@ -1053,11 +1053,11 @@ test "kernel-density-1.2" "Dealing with missing values" -body {
 
 test "anova-one-way-1.1" "ANOVA test from Wikipedia" -body {
     test-anova-F 0.05 {6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}
-} 1
+} -result 1
 
 test "anova-one-way-1.2" "ANOVA test from Wikipedia - using nested list" -body {
     test-anova-F 0.05 {{6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}}
-} 1
+} -result 1
 
 # End of test cases
 testsuiteCleanup
