@@ -461,7 +461,6 @@
 [item modules/try/tcllib_throw.man        throw               {throw - Throw an error exception with a message}]
 [item modules/tool/tool.man               tool                {Dictionary Tools}]
 [item modules/tool/tool_dict_ensemble.man tool::dict_ensemble {Dictionary Tools}]
-[item modules/tool/tool_template.man      tool::template      {Dictionary Tools}]
 [item modules/try/tcllib_try.man          try                 {try - Trap and process errors and exceptions}]
 [division_end]
 [division_start {Validation, Type checking}]

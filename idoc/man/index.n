@@ -9748,9 +9748,6 @@ tool
 .TP
 \fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
 tool::dict_ensemble
-.TP
-\fBfiles/modules/tool/tool_template\&.n\fR
-tool::template
 .RE
 TCLPARAM
 .RS
@@ -10423,9 +10420,6 @@ tool
 .TP
 \fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
 tool::dict_ensemble
-.TP
-\fBfiles/modules/tool/tool_template\&.n\fR
-tool::template
 .RE
 top-down parsing languages
 .RS
