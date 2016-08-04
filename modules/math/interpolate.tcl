@@ -115,7 +115,7 @@ proc ::math::interpolate::interp-1d-table { table xval } {
    if { $row == $row2 } {
       return [concat $xval [lrange $prev_values 1 end]]
    } else {
-      set wprev [expr {($xnext-$xval)/($xnext-$xprev)}]
+      set wprev [expr {($xnext-$xval)/double($xnext-$xprev)}]
       set wnext [expr {1.0-$wprev}]
       set results {}
       foreach vprev $prev_values vnext $next_values {
