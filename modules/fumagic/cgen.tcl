@@ -605,7 +605,7 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 
 		append result ";<\} "
 	    }
-	    append result "\n<\n"
+	    append result "\n"
 	}
     }
     return $result

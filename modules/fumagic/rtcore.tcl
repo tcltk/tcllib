@@ -92,6 +92,8 @@ namespace eval ::fileutil::magic::rt {
     variable cursor 0      ; # The current offset
     variable fd     {}     ; # Channel to file under scrutiny
     variable found 0       ; # Whether the last test produced a match
+    variable lfound {}     ; # For each level, whether a match was found
+    variable level 0
     variable strbuf {}     ; # Input cache [*].
     variable cache         ; # Cache of fetched and decoded numeric
     array set cache {}	   ; # values.
@@ -117,12 +119,12 @@ namespace eval ::fileutil::magic::rt {
 ## Public API, general use.
 
 proc ::fileutil::magic::rt::> {} {
-    upvar level level
+    variable level
     incr level
 }
 
 proc ::fileutil::magic::rt::< {} {
-    upvar level level
+    variable level
     incr level -1
 }
 
@@ -183,6 +185,7 @@ proc ::fileutil::magic::rt::file_start {name} {
 
 # return the emitted result
 proc ::fileutil::magic::rt::result {{msg {}}} {
+    variable lfound {}
     variable found
     variable result
     variable weight
@@ -208,12 +211,15 @@ proc ::fileutil::magic::rt::resultv {{msg {}}} {
 # emit a description 
 proc ::fileutil::magic::rt::emit msg {
     variable found
+    variable lfound
+    variable level
     variable maxpstring
     variable extracted
     variable result
     variable weight
     variable weighttotal
     set found 1
+    dict set lfound $level 1
     incr weighttotal $weight
 
     #set map [list \
@@ -384,6 +390,8 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
     variable cursor
     variable extracted
     variable fd
+    variable level
+    variable lfound
     variable maxstring
     variable regexdefaultlen
     variable weight
@@ -436,6 +444,10 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 		set c 0
 	    }
 	} default {
+	    # explicit "default" type, which is intended only to be used with
+	    # the "x" pattern
+	    set c [expr {[dict exists $lfound $level] ? ![dict get $lfound $level] : 1}]
+	} default {
 	    # get the string and compare it
 	    switch $type bestring16 - lestring16 {
 		set extracted [GetString $offset $maxstring]
@@ -479,9 +491,12 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
 	return 1
     }
 
-    if {![string length $string]} {
-	# Nothing matches an empty $string.
-	return 0
+    if {![string length $string] && $op in {eq == < <=}} {
+	if {$op in {eq == < <=}} {
+	    # Nothing matches an empty $string.
+	    return 0
+	}
+	return 1
     }
 
     if {$op eq {>} && [string length $val] > [string length $string]} {
@@ -568,11 +583,11 @@ proc ::fileutil::magic::rt::Nvx {type offset compinvert mod mand} {
     variable extracted
     variable last
     variable weight
+    variable level
 
-    upvar 1 level l
     # unpack the type characteristics
     foreach {size scan} $typemap($type) break
-    set last($l) [expr {$offset + $size}]
+    set last($level) [expr {$offset + $size}]
 
     set extracted [Nv $type $offset $compinvert $mod $mand]
 
@@ -589,16 +604,15 @@ proc ::fileutil::magic::rt::Nx {
     variable typemap
     variable extracted
     variable last
+    variable level
     variable weight
-
-    upvar 1 level l
 
     set res [N $type $offset $testinvert $compinvert $mod $mand $comp $val]
 
     ::fileutil::magic::rt::Debug {
 	puts stderr "Nx numeric $type: $val $comp $extracted / $qual - $c"
     }
-    set last($l) $cursor
+    set last($level) $cursor
     return $res
 }
 
@@ -608,17 +622,16 @@ proc ::fileutil::magic::rt::Sx {
     variable extracted
     variable fd
     variable last
+    variable level
     variable weight
 
-    upvar 1 level l
-
     set res [S $type $offset $testinvert $mod $mand $comp $val]
-    set last($l) $cursor
+    set last($level) $cursor
     return $res
 }
 proc ::fileutil::magic::rt::L {newlevel} {
+    variable level $newlevel
     # Regenerate level information in the calling context.
-    upvar 1 level l ; set l $newlevel
     return
 }
 
@@ -628,15 +641,19 @@ proc ::fileutil::magic::rt::I {offset it ioi ioo iir io} {
     variable typemap
     foreach {size scan} $typemap($it) break
     if {$iir} {
+	# To do:  this can't be right.
 	set io [Fetch [expr $offset + $io] $size $scan]
     }
-    set data [Fetch [expr $offset $ioo $io] $size $scan]
+    set data [Fetch $offset $size $scan]
 
-    if {$ioi} {
+    if {$ioi && [string is double -strict $data]} {
 	set data [expr {~$data}]
     }
-    if {$ioo ne {}} {
+    if {$ioo ne {} && [string is double -strict $data]} {
 	set data [expr $data $ioo $io]
+    }
+    if {![string is double -strict $data]} {
+	set data -1
     }
     return $data
 }
@@ -646,13 +663,12 @@ proc ::fileutil::magic::rt::R base {
     # last field one level above.
 
     variable last   ; # Remembered locations.
-    upvar 1 level l ; # The level to get data from.
-    return [expr {$last([expr {$l-1}]) + $base}]
+    variable level  ; # The level to get data from.
+    return [expr {$last([expr {$level-1}]) + $base}]
 }
 
 
 proc ::fileutil::magic::rt::U {file name} {
-    upvar level l
     upvar named named
     set script [use $named $file $name]
     tailcall ::try $script
@@ -669,6 +685,10 @@ proc ::fileutil::magic::rt::Fetch {where what scan} {
     variable strbuf
     variable fd
 
+    # Avoid [seek] errors
+    if {$where < 0} {
+	set where 0
+    }
     # {to do} id3 length
     if {![info exists cache($where,$what,$scan)]} {
 	::seek $fd $where
