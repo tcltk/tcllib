@@ -100,7 +100,7 @@ proc ::tmc::processCmdline {} {
     # Additional validation, and extraction of the non-option
     # arguments.
 
-    if {[llength $argv] != 2} Usage
+    if {[llength $argv] < 2} Usage
 
     set namespace  [lindex $argv 0]
     set magic [lrange $argv 1 end]

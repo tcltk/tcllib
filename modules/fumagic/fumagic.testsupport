@@ -29,7 +29,7 @@ abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
 ## Creates a series of commands for the creation of small data files
 ## for various file formats.
 
-foreach {name data} [dict create \
+set filedata [dict create \
 	Empty  {} \
 	Bin    "\u0000" \
 	Elf    [cat "\x7F" "ELF" "\x01\x01\x01\x00\x00" "\x00\x00\x00\x00\x00\x00\x00" "\x02\x00"] \
@@ -42,15 +42,34 @@ foreach {name data} [dict create \
 	PngMalformed "\x89PNG\x00\x01\x02\x01\x01\x2c" \
 	Tiff   "MM\x00\*\x00\x01\x02\x01\x01\x2c" \
 	Pdf    "%PDF-1.2 \x00\x01\x02\x01\x01\x2c" \
+	Pdf2   {%PDF-1.3%âãÏÓ
+25 0 obj<< /Linearized 1 /O 29 /H [ 1948 443 ] /L 64573 /E 41907 /N 3 /T 63955 >> endobj                                                          xref25 67 0000000016 00000 n
+0000001687 00000 n
+0000001800 00000 n
+0000001870 00000 n
+0000002391 00000 n
+} \
 	Igwd   "IGWD\x00\x01\x02\x01\x01\x2c" \
 	Xz     \xFD7zXZ\x00 \
 	Wsdl "wsdl\x03 \x07\x00\x00\x00\x05\x00\x00\x00hello\x0b\x00\x00\x00some source\x0c\x00\x00\x00and a targetxxxmore text" 
-	] {
+	]
+
+	dict set filedata Pe "MZP\0\x02\0\0\0\x04\0\x0f\0ÿÿ\0\0¸\0\0\0\0\0\0\0@\0\x1a\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0º\x10\0\x0e\x1f´\x09Í!¸\x01LÍ!\x90\x90This program must be run under Win32"
+	dict set filedata Pe2 "[dict get $filedata Pe]
+\$7\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0PE\0\0L\x01\x08\0Z¬\x98V\0\0\0\0\0\0\0\0à\0\x8f\x81\x0b\x01\x02\x19\0þ\0\0\0\x16\x01\0\0\0\0\0¼\x13\x01\0\0\x10\0\0\0 \x01\0\0\0@\0\0\x10\0\0\0\x02\0\0\x05\0\0\0\x06\0\0\0\x05\0\0\0\0\0\0\0\0À\x02\0\0\x04\0\05w\x0e\0\x02\0@\x81\0\0\x10\0\0@\0\0\0\0\x10\0\0\x10\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\0\x90\x01\0Ð\x0d\0\0\0À\x01\0Hö\0\0\0\0\0\0\0\0\0\0PÈ\x0d\08/\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0°\x01\0\x18\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0ü\x92\x01\0\x0c\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0.text\0\0\04ñ\0\0\0\x10\0\0\0ò\0\0\0\x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0 \0\0`.itext\0\0D\x0b\0\0\0\x10\x01\0\0\x0c\0\0\0ö\0\0\0\0\0\0\0\0\0\0\0\0\0\0 \0\0`.data"
+
+foreach {name data} $filedata { 
     proc make${name}File   {} [list makeBinaryFile $data $name]
     proc remove${name}File {} [list removeFile           $name]
 }
 
 foreach {name data} [dict create \
+	BinData [join [apply {{} {
+		for {set i 0} {$i < 256} {incr i} {
+			append result [binary format c $i]
+		}
+		return [string repeat $result 5]
+	}}] {}] \
 	CSource "#include <stdio.h>\nint main(int argc, char *argv[]) {int a;}" \
 	PS     "%!PS-ADOBO-123 EPSF-1.4" \
 	EPS    "%!PS-ADOBO-123 EPSF-1.4" \
