@@ -67,7 +67,7 @@ test fumagic.filetype-1.5 {test elf executable} {
     set res [catch {fileutil::magic::filetype $f} msg]
     removeElfFile
     list $res $msg
-} {0 {{ELF 32-bit LSB executable, {*unknown arch 0x0*} (SYSV)} {application x-executable} {}}}
+} {0 {{ELF 32-bit LSB executable, (SYSV)} {application x-executable} {}}}
 
 test fumagic.filetype-1.6 {test simple text} {
     set f [makeTextFile]
@@ -224,6 +224,35 @@ test fumagic.filetype-1.24 {ustring} {
     removeXzFile
     list $res $msg
 } {0 {{{XZ compressed data}} {application x-xz} {}}}
+
+test fumagic.filetype-1.25 {
+    tests negative relative offsets 
+} {
+    set f [makePdf2File]
+    set res [catch {fileutil::magic::filetype $f} msg]
+    removePdf2File
+    list $res $msg
+} {0 {{{PDF document, version 1.3}} {application pdf} {}}}
+
+test fumagic.filetype-1.26 {
+    Tests comparisons against the empty string when a file is malformed or
+    missing data at specified offsets.
+} {
+    set f [makePeFile]
+    set res [catch {fileutil::magic::filetype $f} msg]
+    removePeFile
+    list $res $msg
+} {0 {{{MS-DOS executable}} {application x-dosexec} {}}}
+
+test fumagic.filetype-1.27 {
+    Tests indirect offsets, as well as the "default" test type. 
+} {
+    #set f [makePe2File]
+    set f /home/yorick/Downloads/KeyFinderInstaller.exe
+    set res [catch {fileutil::magic::filetype $f} msg]
+    removePe2File
+    list $res $msg
+} {0 {{{PE32 executable} (GUI) {Intel 80386, for MS Windows}} {application x-dosexec} {}}}
 
 testsuiteCleanup
 return

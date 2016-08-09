@@ -529,7 +529,7 @@ proc ::fileutil::magic::cfront::parseoffset {tree node} {
     $tree set $node it {} ;   # indir_type
     $tree set $node ioi 0 ;   # indirect offset invert
     $tree set $node iir 0 ;   # indirect indirect relative 
-    $tree set $node ioo 0 ;   # indirect_offset_op
+    $tree set $node ioo + ;   # indirect_offset_op
     $tree set $node io 0 ;    # indirect offset
     advance w1 char
     if {$char eq {&}} {
