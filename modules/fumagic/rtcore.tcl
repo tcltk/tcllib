@@ -544,6 +544,7 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
     set opnum [dict get {< -1 == 0 eq 0 != 0 ne 0 > 1} $op]
 
     if {{c} in $mod || {C} in $mod} {
+	set res 1
 	if {{c} in $mod && {C} in $mod} {
 	    set string [string tolower $string[set string {}]]
 	    set val [string tolower $val[set val {}]]
