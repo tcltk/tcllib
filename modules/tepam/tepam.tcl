@@ -1,7 +1,7 @@
 ##########################################################################
 # TEPAM - Tcl's Enhanced Procedure and Argument Manager
 ##########################################################################
-# tepam.tcl - TEPAM's main Tcl package
+# tepam.tcl - TEPAM main Tcl package
 # 
 # TEPAM offers an alternative way to declare Tcl procedures. It provides 
 # enhanced argument handling features like automatically generatehd, 
@@ -143,7 +143,7 @@ namespace eval tepam {
    #       puts $message; # Procedure body
    #    }
    #
-   # ProcedureArgumentEvaluation uses the TCL procedure's args argument to read all the provided
+   # ProcedureArgumentEvaluation uses the TCL procedure args argument to read all the provided
    # arguments. It evaluates first if a sub procedure has to be called. This information and the
    # argument validation result are provided to the calling procedure respectively via the 
    # variables SubProcedure and ProcedureArgumentEvaluationResult. In case the result evaluation
@@ -162,7 +162,7 @@ namespace eval tepam {
    #
    # Procedure creates in this case for the main procedure a Tcl procedure as well as for the sub
    # procedure. The main procedure creates an error when it directly called. The sub-procedure
-   # is executed within the main procedure's context using the uplevel command.
+   # is executed within the main procedure context using the uplevel command.
    #
    #    proc my_proc {args} {
    #       ::tepam::ProcedureArgumentEvaluation;
@@ -556,7 +556,7 @@ namespace eval tepam {
    ######## ProcedureArgumentEvaluation ########
 
    # ProcedureArgumentEvaluation is the argument evaluator that is embedded by the procedure
-   # declaration command 'procedure' into the procedure's body in the following way:
+   # declaration command 'procedure' into the procedure body in the following way:
    #
    #    proc my_proc {args} {
    #       ::tepam::ProcedureArgumentEvaluation;
@@ -639,10 +639,15 @@ namespace eval tepam {
             ProcedureArgumentEvaluationReturn ""
          }
 
-      #### Call an argument_dialogbox if the procedure has been called with'-interactive' ####
+      #### Call an argument_dialogbox if the procedure has been called with '-interactive' ####
          set NewArgs {}
          if {$InteractiveCall} {
-            # Start creating the argument_dialogbox's argument list with the title attribute:
+            # Generate an error if Tk hasn't been loaded
+            if {[catch {package present Tk}]} {
+               ProcedureArgumentEvaluationReturn "[PureProcName]: Interactive calls are only supported if Tk is loaded!"
+            }
+
+            # Start creating the argument_dialogbox argument list with the title attribute:
             set DialogBoxArguments [list -title $ProcName -context $ProcName]
 
             # Add eventual global validation commands
@@ -1120,7 +1125,7 @@ namespace eval tepam {
    ######## Validation commands ########
    
    # For each of the standard argument types supported by TEPAM, the validation command 
-   # 'Validate(<Type>) specified in the following section. These commands have to return '1' in
+   # 'Validate(<Type>)' specified in the following section. These commands have to return '1' in
    # case the provided value correspond to the relevant type and '0' if not. Additional user or
    # application specific types can easily be supported simply by adding a validation command
    # for the new type into the 'tepam' namespace.
@@ -1422,7 +1427,7 @@ namespace eval tepam {
    set argument_dialogbox(test,script) {}
    
    # The array variable 'last_parameters' is only used by an argument dialog box when its context 
-   # has been specified via the -context attribute. The argument dialog box' position and size as 
+   # has been specified via the -context attribute. The argument dialog box position and size as 
    # well as its entered data are stored inside this variable when the data are acknowledged and 
    # the form is closed. This allows the form to restore its previous state once it is called 
    # another time.
@@ -1487,11 +1492,12 @@ namespace eval tepam {
    ######## argument_dialogbox ########
 
    # The argument dialog box allows a very easy generation of complex dialog boxes that can be 
-   # used for tool configuration purposes or to control actions.
+   # used for tool configuration purposes or to control actions. This command is only available
+   # if Tk has been loaded.
    # The argument dialog box accepts only named arguments, e.g. all arguments have to be defined 
    # as argument pairs (-<ArgumentName> <ArgumentValue>). There are some view arguments like -title,
-   # -windows and -context that effect the argument dialog box' general attitude and embedding. The
-   # remaining argument block's objective is the definition of variables. Except the two arguments 
+   # -windows and -context that effect the argument dialog box general attitude and embedding. The
+   # remaining argument block objective is the definition of variables. Except the two arguments 
    # -frame and -sep that are used to structure graphically the form, all other arguments have to
    # be assigned either to a local or global variable. The argument dialog box will create in the
    # procedure from which it has been called a local variable, unless the variable has not been 
@@ -1528,12 +1534,18 @@ namespace eval tepam {
       variable argument_dialogbox
       variable ArgumentDialogboxHelp
       variable last_parameters
+      
+      # Generate an error if Tk hasn't been loaded
+      if {[catch {package present Tk}]} {
+         return -code error "argument_dialogbox requires Tk!"
+      }
+      
       # Call an initialization command that generates eventual required images:
       GuiEnvironmentInit
 
       #### Basic parameter check ####
 
-         # Use the args' first element as args list if args contains only one element:
+         # Use the first element of args as args list if args contains only one element:
          if {[llength $args]==1} {
             set args [lindex $args 0]
          }
@@ -1579,7 +1591,7 @@ namespace eval tepam {
             }
          }
 
-         # Create the dialog box' top-level window. Hide it until the windows has been entirely 
+         # Create the dialog box top-level window. Hide it until the windows has been entirely 
          # deployed:
          catch {destroy $Wtop}
          toplevel $Wtop
@@ -1765,7 +1777,7 @@ namespace eval tepam {
 
          wm deiconify $Wtop
 
-      #### Wait until the dialog box's entries are acknowleged (OK button) or discarded #
+      #### Wait until the dialog box entries are acknowledged (OK button) or discarded #
       
          # Execute a script if required (only for testing purposes)
          if {$argument_dialogbox(test,script)!={}} {
@@ -1904,7 +1916,7 @@ namespace eval tepam {
             }
          }
          
-         #### Save the dialog box' geometry and destroy the form ####
+         #### Save the dialog box geometry and destroy the form ####
 
          if {[info exists ProcOption(-context)]} {
             set last_parameters($ProcOption(-context),-geometry) [wm geometry $Wtop]
@@ -1914,7 +1926,7 @@ namespace eval tepam {
          return $status
    }
 
-   # The procedure 'argument_dialogbox_scroll' is used by the argument dialogbox' y-scrollbar to
+   # The procedure 'argument_dialogbox_scroll' is used by the argument dialogbox y-scrollbar to
    # execute the scroll commands. It implements the Tk typical scroll commands like 'moveto', 
    # 'scroll x pages/units'. In addition to this it implements also an initialization (used to
    # initialize the scrolled frame) and a configuragion command that can be executed when a 
@@ -2711,7 +2723,7 @@ namespace eval tepam {
 }; # End namespace tepam
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam 0.5.1
+package provide tepam 0.5.2
 
 ##########################################################################
 # Id: tepam.tcl
