@@ -1,9 +1,19 @@
-2013/10/14  Andreas Drollinger  <droll>
+2016/08/14  Andreas Drollinger  <droll>
 
-   * TEPAM version 0.5.1 - 2016/03/05 droll
+   * TEPAM version 0.5.2
+      Fix of bug 21c45cb4c4bff37adeac400189809c7f25cea1ea (TEPAM doesn't require 
+      Tk package before using Tk commands): The updated TEPAM revision checks if 
+      Tk has been loaded prior of using Tk commands. If this is not the case an 
+      adequate error will be generated.
+
+2016/03/05  Andreas Drollinger  <droll>
+
+   * TEPAM version 0.5.1
       Help generation
-       - Correction of bug a0e091b25d (Misformatted description in auto-generated 
+       - Correction of bug a0e091b25d (Mis formatted description in auto-generated 
          help text)
+
+2013/10/14  Andreas Drollinger  <droll>
 
    * TEPAM version 0.5.0
       tepam::procedure command
@@ -69,8 +79,8 @@
  
    * TEPAM version 0.3.0
    * tepam.tcl: Add support to log the called procedures inside an array variable.
-   * tepam.tcl: Simplify the value validation procedures using the 'string is'
-     procedure's -strict option.
+   * tepam.tcl: Simplify the value validation procedures using the -strict option
+     of 'string is <class>'.
    * tepam.tcl: Keep the original value list in the right list of the 
      'disjointlistbox'.
    * tepam.tcl: Add the procedure 'ConfigureWindowsGeometry' to handle window 
