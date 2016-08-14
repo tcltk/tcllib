@@ -79,7 +79,7 @@ The following example declares the subcommand [cmd message] of the procedure [cm
 [example_begin][cmd tepam::procedure] {display message} {
    -return            -
    -short_description "Displays a simple message box"
-   -description       "This procedure allows displaying a configurable message box.
+   -description       "This procedure allows displaying a configurable message box."
    -args {
       {-mtype -default Warning -choices {Info Warning Error} -description "Message type"}
       {-font -type font -default {Arial 10 italic} -description "Message text font"}
@@ -210,7 +210,7 @@ Selection choices have to be respected ...
 
 [section "INTERACTIVE PROCEDURE CALLS"]
 
-The most intuitive way to call the procedure is using an form that allows specifying all arguments interactively. This form will automatically be generated if the declared procedure is called with the [arg -interactive] flag.
+The most intuitive way to call the procedure is using an form that allows specifying all arguments interactively. This form will automatically be generated if the declared procedure is called with the [arg -interactive] flag. To use this feature the Tk library has to be loaded.
 
 [example_begin][cmd {display message}] -interactive[example_end]
 
@@ -222,7 +222,7 @@ The procedure calls can optionally be logged in a variable. This is for example 
 
 [section "FLEXIBLE ARGUMENT DIALOG BOX"]
 
-The form generator that creates in the previous example the argument dialog box for the interactive procedure call is also available for other purposes than for the definition of procedure arguments. TEPAM's provided argument dialog box allows crating complex parameter definition forms in a very efficient way.
+The form generator that creates in the previous example the argument dialog box for the interactive procedure call is also available for other purposes than for the definition of procedure arguments. If Tk has been loaded TEPAM provides and argument dialog box that allows creating complex parameter definition forms in a very efficient way.
 [para]
 The following example tries to illustrate the simplicity to create complex data entry forms. It creates an input mask that allows specifying a file to copy, a destination folder as well as a checkbox that allows specifying if an eventual existing file can be overwritten. Comfortable browsers can be used to select files and directories. And finally, the form offers also the possibility to accept and decline the selection. Here is the code snippet that is doing all this:
 
