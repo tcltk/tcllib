@@ -1,3 +1,10 @@
+2016-08-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf_stat.tcl: Correct the use of the argument for standard deviation, affects pdf-lognormal and cdf-lognormal
+	                (ticket 002b9e8e07777425)
+	* statistics.test: Correct the tests for both procedures
+	* statistics.tcl: Bumped the version to 1.0.1
+	* pkgIndex.tcl: Load version 1.0.1 of the statistics module
+
 2016-08-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* interpolate.tcl: Correct the calculation of the weight for interpolation - cast to double
 	* interpolate.test: Added test for this change
