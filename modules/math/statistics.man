@@ -48,6 +48,11 @@ Tk).
 [emph Note:] The data that need to be analyzed are always contained in a
 simple list. Missing values are represented as empty list elements.
 
+[emph Note:] With version 1.0.1 a mistake in the procs [term pdf-lognormal],
+[term cdf-lognormal] and [random-lognormal] has been corrected. In previous
+versions the argument for the standard deviation was actually used as if
+it was the variance.
+
 [section "GENERAL PROCEDURES"]
 The general statistical procedures are:
 
