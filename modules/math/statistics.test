@@ -570,11 +570,15 @@ test "normal-distribution-1.1" "Test cdf-normal" -match tolerant -body {
         [::math::statistics::cdf-normal  2.0 2.0 3.0]]
 } -result {0.8413205502059895 0.8413205502059895 0.8413205502059895 0.8413205502059895 0.691451459572962}
 
+#
+# The values of the mean and the standard deviation are reconstructed from mu and sigma.
+# If you use mu and sigma in pdf-normal/cdf-normal, the same numbers should arise
+#
 test "lognormal-distribution-1.0" "Test pdf-lognormal" -match tolerant -body {
     foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
         set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
         set $mean  $m
-        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+        set $stdev [expr {sqrt(exp($sigma*$sigma) - 1.0) * $m}]
     }
 
     set x [list \
@@ -588,7 +592,7 @@ test "lognormal-distribution-1.1" "Test cdf-lognormal" -match tolerant -body {
     foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
         set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
         set $mean  $m
-        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+        set $stdev [expr {sqrt(exp($sigma*$sigma) - 1.0) * $m}]
     }
 
     set x [list \
