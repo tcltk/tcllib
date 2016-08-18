@@ -192,6 +192,7 @@ snit::type map::slippy {
                 # fits: grow
                 #puts "fits: grow..."
                 if { [info exists z1] } break; # but not if we come "from above"
+                if {$z >= $zmax} break; # can't be > $zmax
                 set z0 $z
                 incr z
             }
