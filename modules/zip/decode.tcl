@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # ### ### ### ######### ######### #########
-## Copyright (c) 2008-2012 ActiveState Software Inc.
-##                         Andreas Kupries
+## Copyright (c) 2008-2012 ActiveState Software Inc., Andreas Kupries
+##                    2016 Andreas Kupries
 ## BSD License
 ##
 # Package providing commands for the decoding of basic zip-file
@@ -9,7 +9,7 @@
 
 package require Tcl 8.4
 package require fileutil::magic::mimetype ; # Tcllib. File type determination via magic constants
-package require fileutil::decode 0.2      ; # Framework for easy decoding of files.
+package require fileutil::decode 0.2.1    ; # Framework for easy decoding of files.
 namespace eval ::zipfile::decode {}
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
   # Only needed pre-8.6
@@ -60,8 +60,7 @@ proc ::zipfile::decode::open {fname} {
     if {[catch {
 	set eoa [LocateEnd $fname]
     } msg]} {
-	return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
-	    "\"$fname\" is not a zip file"
+	Error "\"$fname\" is not a zip file" BAD ARCHIVE	    
     }
     fileutil::decode::open $fname
     return
@@ -99,8 +98,7 @@ proc ::zipfile::decode::copyfile {zdict src dst} {
     array set f $_(files)
 
     if {![info exists f($src)]} {
-	return -code error -errorcode {ZIP DECODE BAD PATH} \
-	    "File \"$src\" not known"
+	Error "File \"$src\" not known" BAD PATH
     }
 
     array set     fd $f($src)
@@ -113,8 +111,7 @@ proc ::zipfile::decode::getfile {zdict src} {
     array set f $_(files)
 
     if {![info exists f($src)]} {
-	return -code error -errorcode {ZIP DECODE BAD PATH} \
-	    "File \"$src\" not known"
+	Error "File \"$src\" not known" BAD PATH
     }
 
     array set fd $f($src)
@@ -182,8 +179,8 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 	    ::close $out
 	}
 	default {
-	    return -code error -errorcode {ZIP DECODE BAD COMPRESSION} \
-		"Unable to handle file \"$src\" compressed with method \"$fd(cm)\""
+	    Error "Unable to handle file \"$src\" compressed with method \"$fd(cm)\"" \
+		BAD COMPRESSION
 	}
     }
 
@@ -210,6 +207,9 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 }
 
 proc ::zipfile::decode::GetFile {src fdv} {
+    # See also CopyFile for similar code.
+    # TODO: Check with CopyFile for refactoring opportunity
+
     upvar 1 $fdv fd
 
     # Entry is a directory.
@@ -234,8 +234,8 @@ proc ::zipfile::decode::GetFile {src fdv} {
 	    return [zip -mode decompress -nowrap 1 -- [getval]]
 	}
 	default {
-	    return -code error -errorcode {ZIP DECODE BAD COMPRESSION} \
-		"Unable to handle file \"$src\" compressed with method \"$fd(cm)\""
+	    Error "Unable to handle file \"$src\" compressed with method \"$fd(cm)\"" \
+		BAD COMPRESSION
 	}
     }
 
@@ -299,9 +299,9 @@ proc ::zipfile::decode::centralfileheader {} {
     short-le ; unsigned ; recode VER ; put vmb         ; # ++ version made by
     short-le ; unsigned ; recode VER ; put vnte        ; #    version needed to extract				       
     short-le ; unsigned ;              put gpbf        ; #    general purpose bitflag				       
-    short-le ; unsigned ; recode CM  ; put cm          ; #    compression method					       
-    short-le ; unsigned ;              put lmft        ; #    last mod file time					       
-    short-le ; unsigned ;              put lmfd        ; #    last mod file date					       
+    short-le ; unsigned ; recode CM  ; put cm          ; #    compression method
+    short-le ; unsigned ;              put lmft        ; #    last mod file time
+    short-le ; unsigned ;              put lmfd        ; #    last mod file date
     long-le  ; unsigned ;              put crc         ; #    crc32                  | zero's here imply non-seekable,     
     long-le  ; unsigned ;              put csize       ; #    compressed file size   | data is in a DDS behind the stored  
     long-le  ; unsigned ;              put ucsize      ; #    uncompressed file size | file.			       
@@ -386,8 +386,7 @@ proc ::zipfile::decode::afile {} {
 	    setbuf [array get hdr]
 	}
     } else {
-	return -code error -errorcode {ZIP DECODE INCOMPLETE} \
-	    "Search data descriptor. Not Yet Implementyed"
+	Error "Search data descriptor. Not Yet Implemented" INCOMPLETE
     }
     return 1
 }
@@ -417,8 +416,7 @@ proc ::zipfile::decode::archive {} {
 	set here [at]
 	go [expr {$cb(base) + $_(localloc)}]
 	if {![localfileheader]} {
-	    return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
-		"Bad zip file. Directory entry without file."
+	    ArchiveError "Directory entry without file." DIR WITHOUT FILE
 	}
 
 	array set lh [get] ; clear
@@ -428,8 +426,7 @@ proc ::zipfile::decode::archive {} {
 	# LFH. Should match.
 
 	if {![hdrmatch lh _]} {
-	    return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
-		"Bad zip file. File/Dir Header mismatch."
+	    ArchiveError "File/Dir Header mismatch." HEADER MISMATCH FILE/DIR
 	}
 
 	# Merge local and central data.
@@ -441,7 +438,7 @@ proc ::zipfile::decode::archive {} {
     }
 
     if {![endcentralfiledir]} {
-	return -code error "Bad zip file. Bad closure."
+	ArchiveError "Bad closure." BAD CLOSURE
     }
 
     array set _ [get] ; clear
@@ -450,7 +447,8 @@ proc ::zipfile::decode::archive {} {
     #puts \#$nentries
 
     if {$nentries != $_(tnecd)} {
-	return -code error "Bad zip file. \#Files does match \#Actual files"
+	ArchiveError "\#Files ($_(tnecd)) does not match \#Actual files ($nentries)" \
+	    MISMATCH COUNTS
     }
 
     set _(files) [array get fn]
@@ -595,6 +593,19 @@ proc ::zipfile::decode::GPBF {v cm} {
 
 # ### ### ### ######### ######### #########
 
+proc ::zipfile::decode::ArchiveError {msg args} {
+    # Inlined "Error" -- Avoided eval/linsert dance
+    set code [linsert $args 0 ZIP DECODE BAD ARCHIVE]
+    return -code error -errorcode $code  "Bad zip file. $msg"
+}
+
+proc ::zipfile::decode::Error {msg args} {
+    set code [linsert $args 0 ZIP DECODE]
+    return -code error -errorcode $code $msg
+}
+
+# ### ### ### ######### ######### #########
+
 ## Decode the zip file by locating its end (of the central file
 ## header). The higher levels will then use the information
 ## inside to locate and read the CFH. No scanning from the beginning
@@ -635,7 +646,7 @@ proc ::zipfile::decode::LocateEnd {path} {
 	set pos [string last "PK\05\06" $hdr]
 	if {$pos == -1} {
 	    if {$at >= $sz} {
-		return -code error "no header found"
+		ArchiveError "No header found" HEADER MISSING
 	    }
 
 	    # after the 1st iteration we force an overlap with last
@@ -686,5 +697,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.7
+package provide zipfile::decode 0.7.1
 return
