@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file 'decode\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008-2016 Andreas Kupries
+'\" Generated from file 'udpcluster\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "zipfile::decode" n 0\&.7\&.1 tcllib "Zip archive handling"
+.TH "udpcluster" n 0\&.3 tcllib "Lightweight UDP based tool for cluster node discovery"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,137 +272,80 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-zipfile::decode \- Access to zip archives
+udpcluster \- UDP Peer-to-Peer cluster
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBfileutil::magic::mimetype \fR
+package require \fBip \fR
 .sp
-package require \fBfileutil::decode  0\&.2\&.1\fR
+package require \fBnettool \fR
 .sp
-package require \fBTrf \fR
+package require \fBcomm \fR
 .sp
-package require \fBzlibtcl \fR
+package require \fBinterp \fR
 .sp
-package require \fBzipfile::decode  ?0\&.7\&.1?\fR
+package require \fBdicttool \fR
 .sp
-\fB::zipfile::decode::archive\fR
-.sp
-\fB::zipfile::decode::close\fR
-.sp
-\fB::zipfile::decode::comment\fR \fIadict\fR
-.sp
-\fB::zipfile::decode::content\fR \fIarchive\fR
-.sp
-\fB::zipfile::decode::copyfile\fR \fIadict\fR \fIpath\fR \fIdst\fR
-.sp
-\fB::zipfile::decode::files\fR \fIadict\fR
-.sp
-\fB::zipfile::decode::getfile\fR \fIzdict\fR \fIpath\fR
-.sp
-\fB::zipfile::decode::hasfile\fR \fIadict\fR \fIpath\fR
-.sp
-\fB::zipfile::decode::iszip\fR \fIarchive\fR
-.sp
-\fB::zipfile::decode::open\fR \fIarchive\fR
-.sp
-\fB::zipfile::decode::unzip\fR \fIadict\fR \fIdstdir\fR
-.sp
-\fB::zipfile::decode::unzipfile\fR \fIarchive\fR \fIdstdir\fR
+package require \fBcron \fR
 .sp
 .BE
 .SH DESCRIPTION
+This package is a lightweight alternative to Zeroconf\&. It utilizes UDP packets to
+populate a table of services provided by each node on a local network\&. Each participant
+broadcasts a key/value list in plain UTF-8 which lists what ports are open, and what
+protocols are expected on those ports\&. Developers are free to add any additional key/value
+pairs beyond those\&.
 .PP
-This package provides commands to decompress and access the contents
-of zip archives\&.
-.SH API
-.TP
-\fB::zipfile::decode::archive\fR
-This command decodes the last opened (and not yet closed) zip archive
-file\&.
-The result of the command is a dictionary describing the contents of
-the archive\&. The structure of this dictionary is not public\&. Proper
-access should be made through the provided accessor command of this
-package\&.
-.TP
-\fB::zipfile::decode::close\fR
-This command releases all state associated with the last call of
-\fB::zipfile::decode::open\fR\&.
-The result of the command is the empty string\&.
-.TP
-\fB::zipfile::decode::comment\fR \fIadict\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-returns the global comment of the archive\&.
-.TP
-\fB::zipfile::decode::content\fR \fIarchive\fR
-This is a convenience command which decodes the specified zip
-\fIarchive\fR file and returns the list of paths found in it as its
-result\&.
-.TP
-\fB::zipfile::decode::copyfile\fR \fIadict\fR \fIpath\fR \fIdst\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-copies the decompressed contents of the file \fIpath\fR in the archive
-to the the file \fIdst\fR\&.
-An error is thrown if the file is not found in the archive\&.
-.TP
-\fB::zipfile::decode::files\fR \fIadict\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-returns the list of files found in the archive\&.
-.TP
-\fB::zipfile::decode::getfile\fR \fIzdict\fR \fIpath\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-returns the decompressed contents of the file \fIpath\fR in the archive\&.
-An error is thrown if the file is not found in the archive\&.
-.TP
-\fB::zipfile::decode::hasfile\fR \fIadict\fR \fIpath\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-check if the specified \fIpath\fR is found in the archive\&.
-The result of the command is a boolean flag, \fBtrue\fR if the path
-is found, and \fBfalse\fR otherwise\&.
-.TP
-\fB::zipfile::decode::iszip\fR \fIarchive\fR
-This command takes the path of a presumed zip \fIarchive\fR file and
-returns a boolean flag as the result of the command telling us if it
-actually is a zip archive (\fBtrue\fR), or not (\fBfalse\fR)\&.
-.TP
-\fB::zipfile::decode::open\fR \fIarchive\fR
-This command takes the path of a zip \fIarchive\fR file and prepares
-it for decoding\&.
-The result of the command is the empty string\&.
-All important information is stored in global state\&.  If multiple open
-calls are made one after the other only the state of the last call is
-available to the other commands\&.
-.TP
-\fB::zipfile::decode::unzip\fR \fIadict\fR \fIdstdir\fR
-This command takes a dictionary describing the currently open zip
-archive file, as returned by \fB::zipfile::decode::archive\fR, and
-unpacks the archive in the given destination directory \fIdstdir\fR\&.
-The result of the command is the empty string\&.
-.TP
-\fB::zipfile::decode::unzipfile\fR \fIarchive\fR \fIdstdir\fR
-This is a convenience command which unpacks the specified zip
-\fIarchive\fR file in the given destination directory \fIdstdir\fR\&.
-.sp
-The result of the command is the empty string\&.
+Using udpcluster\&.
 .PP
+For every service you wish to publish invoke:
+.PP
+.CS
+
+
+cluster::publish echo@[cluster::macid] {port 10000 protocol echo}
+
+.CE
+.PP
+To query what services are available on the local network:
+.CS
+
+
+set results [cluster::search PATTERN]
+# And inside that result\&.\&.\&.
+echo@LOCALMACID {
+   port 10000
+   protocol echo
+}
+
+.CE
+.PP
+To unpublish a service:
+.CS
+
+
+cluster::unpublish echo@[cluster::macid]
+
+.CE
+.PP
+Results will
+Historical Notes:
+.PP
+This tool was originally known as nns::cluster, but as development progressed, it was
+clear that it wasn't interacting with any of the other facilities in NNS\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fIzipfile\fR of the
+Please report such in the category \fInameserv\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-decompression, zip
+name service, server
 .SH CATEGORY
-File
+Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008-2016 Andreas Kupries
+Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
 
 .fi
