@@ -503,6 +503,10 @@ select or transform data and simple plotting procedures (these require
 Tk)\&.
 \fINote:\fR The data that need to be analyzed are always contained in a
 simple list\&. Missing values are represented as empty list elements\&.
+\fINote:\fR With version 1\&.0\&.1 a mistake in the procs \fIpdf-lognormal\fR,
+\fIcdf-lognormal\fR and \fIrandom-lognormal\fR has been corrected\&. In
+previous versions the argument for the standard deviation was actually
+used as if it was the variance\&.
 .SH "GENERAL PROCEDURES"
 The general statistical procedures are:
 .TP
