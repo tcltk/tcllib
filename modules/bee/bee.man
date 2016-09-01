@@ -16,7 +16,7 @@
 
 The [package bee] package provides de- and encoder commands for data
 in bencoding (speak 'bee'), the serialization format for data and
-messages used by the BitTorrent application.
+messages used by the BitTorrent protocol.
 
 [para]
 
