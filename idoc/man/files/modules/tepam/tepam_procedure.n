@@ -293,7 +293,7 @@ The exact meaning of several terms that are used in this document will be shortl
 \fISubcommand\fR
 The usage of subcommands is heavily used in the Tcl language\&. Several commands are incorporated into a single main command and are selectable via the first argument\&.
 .sp
-The \fBstring\fR command is an example of such a command that implements for example subcommands to check a character string's length, to compare strings, to extract substrings, etc:
+The \fBstring\fR command is an example of such a command that implements for example subcommands to check a character string length, to compare strings, to extract substrings, etc:
 .CS
 
 \fBstring length\fR \fIstring\fR
@@ -302,7 +302,7 @@ The \fBstring\fR command is an example of such a command that implements for exa
 \&.\&.\&.
 .CE
 .sp
-TEPAM provides a framework that allows implementing easily such subcommands in form of Tcl procedures\&. It allows not only defining a first level of subcommands, but also a higher level of subcommands\&. The \fBstring\fR command's class check could be implemented as independent sub-sub-commands of the \fBstring\fR command:
+TEPAM provides a framework that allows implementing easily such subcommands in form of Tcl procedures\&. It allows not only defining a first level of subcommands, but also a higher level of subcommands\&. The \fBstring\fR command class check could be implemented as independent sub-sub-commands of the \fBstring\fR command:
 .CS
 
 \fBstring is alnum\fR \fIstring\fR
@@ -447,7 +447,7 @@ The commands \fBprocedure\fR as well as \fBargument_dialogbox\fR are exported fr
 The first group of attributes affect the behavior of the declared procedure:
 .TP
 -named_arguments_first \fB0\fR|\fB1\fR
-This attribute defines the calling style of a procedure\&. TEPAM uses by default the \fInamed arguments first, unnamed arguments later\fR style (Tcl)\&. This default behavior can globally be changed by setting the variable \fBtepam::named_arguments_first\fR to \fB0\fR\&. This global calling style can be changed individually for a procedure with the procedure's \fI-named_arguments_first\fR attribute\&.
+This attribute defines the calling style of a procedure\&. TEPAM uses by default the \fInamed arguments first, unnamed arguments later\fR style (Tcl)\&. This default behavior can globally be changed by setting the variable \fBtepam::named_arguments_first\fR to \fB0\fR\&. This global calling style can be changed individually for a procedure with the \fI-named_arguments_first\fR attribute\&.
 .TP
 -auto_argument_name_completion \fB0\fR|\fB1\fR
 The declared procedures will by default automatically try to match eventually abbreviated argument names to the defined arguments names\&. This default behavior can globally be changed by setting the variable \fBtepam::auto_argument_name_completion\fR to \fB0\fR\&. This global setting of the automatic argument name completion can be changed individually for a procedure with the \fI-auto_argument_name_completion\fR procedure attribute\&.
@@ -458,7 +458,7 @@ A procedure declared with the TEPAM \fBprocedure\fR command can always be called
 The choice to use short or extended forms can be globally configured via the variable \fBtepam::interactive_display_format\fR\&. This global setting can then be changed individually for a procedure with the \fI-interactive_display_format\fR procedure attribute\&.
 .TP
 -args \fIlist\fR
-The procedure's arguments are declared via the \fI-args\fR attribute\&. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes\&. All these argument definition lists are packaged themselves into a global list that is assigned to the procedure's \fI-args\fR attribute\&.
+The procedure arguments are declared via the \fI-args\fR attribute\&. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes\&. All these argument definition lists are packaged themselves into a global list that is assigned to the \fI-args\fR attribute\&.
 .sp
 The argument definition syntax will be described more in detail in the following sub section\&.
 .PP
@@ -478,7 +478,7 @@ tepam::procedure {display_message} {
 }
 .CE
 .IP
-The validation command is executed in the context of the declared procedure's body\&. The different argument values are accessed via the argument names\&. Note there is also an argument attribute \fI-validatecommand\fR that allows declaring custom checks for specific arguments\&.
+The validation command is executed in the context of the declared procedure body\&. The different argument values are accessed via the argument names\&. Note there is also an argument attribute \fI-validatecommand\fR that allows declaring custom checks for specific arguments\&.
 .sp
 The attribute \fI-validatecommand\fR can be repeated to declare multiple custom checks\&.
 .TP
@@ -611,12 +611,12 @@ tepam::procedure {complex_multiply} {
    -description "This function perform a complex multiplication"
    -args {
       \fB{#### First complex number ####}\fR
-      {-r0 -type double -description "First number's real part"}
-      {-i0 -type double -description "First number's imaginary part"}
+      {-r0 -type double -description "First number real part"}
+      {-i0 -type double -description "First number imaginary part"}
 
       \fB{#### Second complex number ####}\fR
-      {-r1 -type double -description "Second number's real part"}
-      {-i1 -type double -description "Second number's imaginary part"}
+      {-r1 -type double -description "Second number real part"}
+      {-i1 -type double -description "Second number imaginary part"}
    }
 } {
    return [expr $r0*$r1 - $i0*$i1]
@@ -721,7 +721,7 @@ If the auxiliary argument attributes are not static but have to be dynamically a
 .RE
 .PP
 .SH VARIABLES
-Several variables defined inside the \fB::tepam\fR namespace impact the mode of operation of the procedures that have been declared with TEPAM' \fBprocedure\fR command\&.
+Several variables defined inside the \fB::tepam\fR namespace impact the mode of operation of the procedures that have been declared with the TEPAM \fBprocedure\fR command\&.
 .TP
 \fBnamed_arguments_first\fR
 This variable defines the general calling style of the procedures\&. It is by default set to \fB1\fR which selects the \fInamed arguments first, unnamed arguments later\fR style (Tcl style)\&.
@@ -999,7 +999,7 @@ On the other hand, the following call will result in an error:
 display message: Argument '-help' not known\fR
 .CE
 .SS "INTERACTIVE PROCEDURE CALL"
-Calling a procedure with the \fI-interactive\fR flag will open a graphical form that allows specifying interactively all procedure arguments\&. The Tk library has to be loaded to use the interactive call\&. The following example assures that the Tk library is loaded and shows the command line to call interactively the procedure declared in \fBPROCEDURE CALLS\fR:
+If Tk has been loaded a procedure can be called with the \fI-interactive\fR flag to open a graphical form that allows specifying interactively all procedure arguments\&. The following example assures that the Tk library is loaded and shows the command line to call interactively the procedure declared in \fBPROCEDURE CALLS\fR:
 .CS
 
 package require Tk

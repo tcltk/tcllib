@@ -287,7 +287,7 @@ package require \fBtepam  ?0\&.5?\fR
 .BE
 .SH DESCRIPTION
 .SH "ARGUMENT DIALOGBOX CALL"
-TEPAM's \fBargument_dialogbox\fR is a flexible and easily usable data entry form generator\&. Each data entry element of a form is defined via a \fIdata entry item\fR that can be provided to \fBargument_dialogbox\fR in two formats:
+The TEPAM \fBargument_dialogbox\fR is a flexible and easily usable data entry form generator that is available if Tk has been loaded\&. Each data entry element of a form is defined via a \fIdata entry item\fR that can be provided to \fBargument_dialogbox\fR in two formats:
 .TP
 \fBtepam::argument_dialogbox\fR \fIitem_name item_attributes ?item_name item_attributes? ?\&.\&.\&.?\fR
 Using this first format, each \fIdata entry item\fR is defined via a pair of two arguments\&. The first one is the \fIitem name\fR that defines the entry widget that has to be used in the form\&. The second argument, called \fIitem attributes\fR, specifies the variable which is attributed to the data entry element as well as eventual formatting and context information\&.
@@ -348,7 +348,7 @@ tepam::argument_dialogbox \\
 The following items are classified into this group:
 .TP
 -title \fIstring\fR
-The dialog box window's title which is by default \fIDialog\fR can be changed with the \fI-title\fR item:
+The dialog box window title which is by default \fIDialog\fR can be changed with the \fI-title\fR item:
 .CS
 
 tepam::argument_dialogbox \\
@@ -375,7 +375,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -context \fIstring\fR
-If a context is defined the dialog box's state, e\&.g\&. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called\&. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box\&.
+If a context is defined the dialog box state, e\&.g\&. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called\&. The assignment of a context allows saving the dialog box state in its context to distinguish between different usages of the argument dialog box\&.
 .CS
 
 tepam::argument_dialogbox \\
@@ -508,7 +508,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -text \fIlist\fR
-The \fI-text\fR item generates a multi line text entry widget\&. The widget's height can be selected with the \fI-height\fR attribute\&.
+The \fI-text\fR item generates a multi line text entry widget\&. The widget height can be selected with the \fI-height\fR attribute\&.
 .CS
 
 tepam::argument_dialogbox \\
@@ -524,7 +524,7 @@ tepam::argument_dialogbox \\
                -choices {bold italic underline} -default italic}
 .CE
 .IP
-If the check boxes' labels should differ from the option values, their labels can be defined with the \fI-choicelabels\fR attribute:
+If the labels of the check boxes should differ from the option values, their labels can be defined with the \fI-choicelabels\fR attribute:
 .CS
 
 tepam::argument_dialogbox \\
@@ -547,7 +547,7 @@ tepam::argument_dialogbox \\
               -choices {left center right} -default left}
 .CE
 .IP
-If the radio boxes' labels should differ from the option values, their labels can be defined with the \fI-choicelabels\fR attribute:
+If the labels of the radio boxes should differ from the option values, their labels can be defined with the \fI-choicelabels\fR attribute:
 .CS
 
 tepam::argument_dialogbox \\
@@ -583,7 +583,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -listbox \fIlist\fR
-In contrast to the combo box, the list box is always displayed by the \fIlistbox\fR entry widget\&. Only one element is selectable unless the \fI-multiple_selection\fR attribute is set\&. The list box height can be selected with the \fI-height\fR attribute\&. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box' size\&.
+In contrast to the combo box, the list box is always displayed by the \fIlistbox\fR entry widget\&. Only one element is selectable unless the \fI-multiple_selection\fR attribute is set\&. The list box height can be selected with the \fI-height\fR attribute\&. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box size\&.
 The first example uses a variable to define the available choices:
 .CS
 
@@ -701,7 +701,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -variable \fIstring\fR
-All entry widgets require a specified variable\&. After accepting the entered information with the OK button, the entry widget's data are stored inside the defined variables\&.
+All entry widgets require a specified variable\&. After accepting the entered information with the OK button, the entry widget data is stored inside the defined variables\&.
 .CS
 
 tepam::argument_dialogbox \\
@@ -777,7 +777,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -choicelabels \fIstring\fR \fI(only check and radio buttons)\fR
-If the check and radio boxes' labels should differ from the option values, they can be defined with the \fI-choicelabels\fR attribute:
+If the labels of the check and radio boxes should differ from the option values, they can be defined with the \fI-choicelabels\fR attribute:
 .CS
 
 tepam::argument_dialogbox \\
@@ -843,7 +843,7 @@ tepam::argument_dialogbox \\
              -choices {8 9 10 12 15 18} -default 12 \fB-height 3\fR}
 .CE
 .IP
-If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box' size\&.
+If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box size\&.
 .PP
 .SH "APPLICATION SPECIFIC ENTRY WIDGETS"
 An application specific entry widget can be made available to the argument dialog box by adding a dedicated procedure to the \fBtepam\fR namespace\&. This procedure has three arguments; the first one is the widget path, the second one a subcommand and the third argument has various purposes:
@@ -878,7 +878,7 @@ The available selection list that is either specified with the \fI-choices\fR or
 If a default value is either defined via the \fI-default\fR attribute or via a preceding call the entry widget procedure is called with the \fIset\fR command\&. The argument \fIPar\fR contains in this case the value to which the entry widget has to be initialized\&.
 .TP
 \fIget\fR
-The entry widget procedure's command \fIget\fR has to return the current value of the entry widget\&.
+The entry widget procedure command \fIget\fR has to return the current value of the entry widget\&.
 .PP
 Eventually specified entry widget item attributes are available via the \fBOption\fR array variable of the calling procedure\&. This variable becomes accessible inside the entry widget procedure via the \fBupvar\fR command\&.
 .PP
@@ -915,7 +915,7 @@ The \fBargument_dialogbox\fR is using two variables inside the namespace \fB::te
 Application specific entry widget procedures can use this array variable to store their own data, using as index the widget path provided to the procedure, e\&.g\&. \fIargument_dialogbox($W,<sub_index>)\fR\&.
 .TP
 \fBlast_parameters\fR
-This array variable is only used by an argument dialog box if its context has been specified via the \fI-context\fR attribute\&. The argument dialog box' position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed\&. This allows the form to restore its previous state once it is called another time\&.
+This array variable is only used by an argument dialog box if its context has been specified via the \fI-context\fR attribute\&. The argument dialog box position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed\&. This allows the form to restore its previous state once it is called another time\&.
 .sp
 To reuse the saved parameters not just in the actual application session but also in another one, it is sufficient to store the \fBlast_parameter\fR array variable contents in a configuration file which is loaded the next time an application is launched\&.
 .PP
