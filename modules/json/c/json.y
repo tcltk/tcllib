@@ -3,7 +3,10 @@
  * Mikhail.
  */
 
+%define api.pure full
+
 %{
+/* * ** *** ***** ******** ************* ********************* */
 #include <tcl.h>
 #include <ctype.h>
 #include <math.h>
@@ -21,20 +24,17 @@
 #define FALSE_O (Tcl_NewStringObj("false", 5))
 #define NULL_O  (Tcl_NewStringObj("null", 4))
 
-static void jsonerror(struct context *, const char *);
-static int  jsonlexp(struct context *context);
+typedef union YYSTYPE YYSTYPE;
 
-#define YYPARSE_PARAM_TYPE void *
-#define YYPARSE_PARAM	   context
-#define YYPARSE_PARAM_DECL
+static void jsonerror (struct context *, const char *);
+static int  jsonlexp  (YYSTYPE *lvalp, struct context *context);
 
-#define yylex()	     jsonlexp(context)
-#define yyerror(msg) jsonerror(context, msg)
+#define yylex   jsonlexp
+#define yyerror jsonerror
 
-#ifndef YYBISON
-static int yyparse(YYPARSE_PARAM_TYPE YYPARSE_PARAM);
-#endif
-
+/* * ** *** ***** ******** ************* *********************
+** User declarations <EOF>
+ */
 %}
 
 %union {
@@ -44,6 +44,9 @@ static int yyparse(YYPARSE_PARAM_TYPE YYPARSE_PARAM);
 		Tcl_Obj	*val;
 	} keyval;
 };
+
+%lex-param   {struct context* context}
+%parse-param {struct context* context}
 
 %token STRING CONSTANT
 
@@ -61,13 +64,12 @@ static int yyparse(YYPARSE_PARAM_TYPE YYPARSE_PARAM);
 
 tree    : json
 	{
-		struct context *c = context;
 		REDUCE("TREE");
-		if (c->I) {
-		  Tcl_SetObjResult(c->I, $1);
+		if (context->I) {
+		  Tcl_SetObjResult(context->I, $1);
 		  TRACE (("  RESULT (%s)\n", Tcl_GetString($1)));
 		}
-		c->result = TCL_OK;
+		context->result = TCL_OK;
 	}
 	;
 
@@ -128,13 +130,13 @@ member	: string ':' value
 
 string	: STRING
 	{
-		$$ = ((struct context *)context)->obj;
+		$$ = context->obj;
 	}
 	;
 
 value	: CONSTANT
 	{
-		$$ = ((struct context *)context)->obj;
+		$$ = context->obj;
 	}
 	| string
 	| object
@@ -142,6 +144,10 @@ value	: CONSTANT
 	;
 
 %%
+/* * ** *** ***** ******** ************* *********************
+** User definitions
+ */
+
 void
 jsonparse (struct context* context)
 {
@@ -181,7 +187,7 @@ jsonskip(struct context *context)
 }
 
 static int
-jsonlexp(struct context *context)
+jsonlexp(YYSTYPE *lvalp, struct context *context)
 {
   const char *bp = NULL;
 
@@ -257,7 +263,7 @@ jsonlexp(struct context *context)
 
 	if (!HAVE(1)) {
 	  Tcl_AppendToObj(context->obj, "\\", 1);
-	  yyerror("incomplete escape at <<eof> error");
+	  yyerror(context,"incomplete escape at <<eof> error");
 	  TOKEN("incomplete escape at <<eof>> error");
 	  return -1;
 	}
@@ -274,14 +280,14 @@ jsonlexp(struct context *context)
 	  case 'u':
 	    if (!HAVE(5)) {
 	      Tcl_AppendToObj(context->obj, "\\u", 2);
-	      yyerror("incomplete escape at <<eof> error");
+	      yyerror(context,"incomplete escape at <<eof> error");
 	      TOKEN("incomplete escape at <<eof>> error");
 	      return -1;
 	    }
 	    break;
 	  default:
 	    Tcl_AppendToObj(context->obj, context->text + 1, 1);
-	    yyerror("bad escape");
+	    yyerror(context,"bad escape");
 	    TOKEN("bad escape");
 	    return -1;
 	}
@@ -340,7 +346,7 @@ jsonlexp(struct context *context)
       lstate = INSTR;
       continue;
     case '\\':
-      yyerror("Escape character outside of string");
+      yyerror(context,"Escape character outside of string");
       TOKEN ("escape error");
       return -1;
     }
@@ -376,7 +382,7 @@ jsonlexp(struct context *context)
   TOKEN ("<<eof>>");
   return 0;
  bareword:
-  yyerror("Bare word encountered");
+  yyerror(context,"Bare word encountered");
   TOKEN ("bare word error");
   return -1;
 }
