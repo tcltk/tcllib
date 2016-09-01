@@ -251,7 +251,11 @@ that deal with specific statistical distributions, list procedures to
 select or transform data and simple plotting procedures (these require
 Tk).
 <em>Note:</em> The data that need to be analyzed are always contained in a
-simple list. Missing values are represented as empty list elements.</p>
+simple list. Missing values are represented as empty list elements.
+<em>Note:</em> With version 1.0.1 a mistake in the procs <i class="term">pdf-lognormal</i>,
+<i class="term">cdf-lognormal</i> and <i class="term">random-lognormal</i> has been corrected. In
+previous versions the argument for the standard deviation was actually
+used as if it was the variance.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">GENERAL PROCEDURES</a></h2>
 <p>The general statistical procedures are:</p>

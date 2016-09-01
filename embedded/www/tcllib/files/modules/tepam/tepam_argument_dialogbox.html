@@ -140,7 +140,7 @@
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">ARGUMENT DIALOGBOX CALL</a></h2>
-<p>TEPAM's <b class="cmd">argument_dialogbox</b> is a flexible and easily usable data entry form generator. Each data entry element of a form is defined via a <em>data entry item</em> that can be provided to <b class="cmd">argument_dialogbox</b> in two formats:</p>
+<p>The TEPAM <b class="cmd">argument_dialogbox</b> is a flexible and easily usable data entry form generator that is available if Tk has been loaded. Each data entry element of a form is defined via a <em>data entry item</em> that can be provided to <b class="cmd">argument_dialogbox</b> in two formats:</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">tepam::argument_dialogbox</b> <i class="arg">item_name item_attributes <span class="opt">?item_name item_attributes?</span> <span class="opt">?...?</span></i></a></dt>
 <dd><p>Using this first format, each <em>data entry item</em> is defined via a pair of two arguments. The first one is the <em>item name</em> that defines the entry widget that has to be used in the form. The second argument, called <em>item attributes</em>, specifies the variable which is attributed to the data entry element as well as eventual formatting and context information.</p>
@@ -185,7 +185,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
 <p>The following items are classified into this group:</p>
 <dl class="doctools_definitions">
 <dt>-title <i class="arg">string</i></dt>
-<dd><p>The dialog box window's title which is by default <em>Dialog</em> can be changed with the <em>-title</em> item:</p>
+<dd><p>The dialog box window title which is by default <em>Dialog</em> can be changed with the <em>-title</em> item:</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-title</b> &quot;System configuration&quot; \
    ...</pre>
@@ -203,7 +203,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
    ...</pre>
 </dd>
 <dt>-context <i class="arg">string</i></dt>
-<dd><p>If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.</p>
+<dd><p>If a context is defined the dialog box state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box state in its context to distinguish between different usages of the argument dialog box.</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-context</b> destination_definitions \
    ...</pre>
@@ -301,7 +301,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
    <b class="cmd">-entry</b> {-label Name -variable Entry}</pre>
 </dd>
 <dt>-text <i class="arg">list</i></dt>
-<dd><p>The <i class="arg">-text</i> item generates a multi line text entry widget. The widget's height can be selected with the <i class="arg">-height</i> attribute.</p>
+<dd><p>The <i class="arg">-text</i> item generates a multi line text entry widget. The widget height can be selected with the <i class="arg">-height</i> attribute.</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-text</b> {-label Name -variable Text -height 5}</pre>
 </dd>
@@ -310,7 +310,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-checkbox</b> {-label &quot;Font sytle&quot; -variable FontStyle \
                -choices {bold italic underline} -default italic}</pre>
-<p>If the check boxes' labels should differ from the option values, their labels can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
+<p>If the labels of the check boxes should differ from the option values, their labels can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-checkbox</b> {-label &quot;Font sytle&quot; -variable FontStyle \
               -choices {bold italic underline} \
@@ -323,7 +323,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-radiobox</b> {-label &quot;Text adjustment&quot; -variable Adjustment \
               -choices {left center right} -default left}</pre>
-<p>If the radio boxes' labels should differ from the option values, their labels can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
+<p>If the labels of the radio boxes should differ from the option values, their labels can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    <b class="cmd">-radiobox</b> {-label &quot;Text adjustment&quot; -variable Adjustment \
               -choices {left center right} \
@@ -347,7 +347,7 @@ tepam::argument_dialogbox \
    <b class="cmd">-combobox</b> {-label &quot;Text size&quot; -variable Size -choicevariable TextSizes -default 12}</pre>
 </dd>
 <dt>-listbox <i class="arg">list</i></dt>
-<dd><p>In contrast to the combo box, the list box is always displayed by the <i class="arg">listbox</i> entry widget. Only one element is selectable unless the <i class="arg">-multiple_selection</i> attribute is set. The list box height can be selected with the <i class="arg">-height</i> attribute. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box' size.
+<dd><p>In contrast to the combo box, the list box is always displayed by the <i class="arg">listbox</i> entry widget. Only one element is selectable unless the <i class="arg">-multiple_selection</i> attribute is set. The list box height can be selected with the <i class="arg">-height</i> attribute. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box size.
 The first example uses a variable to define the available choices:</p>
 <pre class="doctools_example">set set AvailableSizes
 for {set k 0} {$k&lt;16} {incr k} {lappend AvailableSizes [expr 1&lt;&lt;$k]}
@@ -431,7 +431,7 @@ tepam::argument_dialogbox \
    -entry {<b class="cmd">-label Name</b> -variable Name}</pre>
 </dd>
 <dt>-variable <i class="arg">string</i></dt>
-<dd><p>All entry widgets require a specified variable. After accepting the entered information with the OK button, the entry widget's data are stored inside the defined variables.</p>
+<dd><p>All entry widgets require a specified variable. After accepting the entered information with the OK button, the entry widget data is stored inside the defined variables.</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    -existingdirectory {-label &quot;Report directory&quot; <b class="cmd">-variable ReportDir</b>}</pre>
 </dd>
@@ -480,7 +480,7 @@ tepam::argument_dialogbox \
              <b class="cmd">-choices {bold italic underline}</b> -default underline</pre>
 </dd>
 <dt>-choicelabels <i class="arg">string</i> <em>(only check and radio buttons)</em></dt>
-<dd><p>If the check and radio boxes' labels should differ from the option values, they can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
+<dd><p>If the labels of the check and radio boxes should differ from the option values, they can be defined with the <i class="arg">-choicelabels</i> attribute:</p>
 <pre class="doctools_example">tepam::argument_dialogbox \
    -checkbox {-label &quot;Font sytle&quot; -variable FontStyle \
               -choices {bold italic underline} \
@@ -526,7 +526,7 @@ tepam::argument_dialogbox \
 <pre class="doctools_example">tepam::argument_dialogbox \
    -listbox {-label &quot;Text size&quot; -variable Size \
              -choices {8 9 10 12 15 18} -default 12 <b class="cmd">-height 3</b>}</pre>
-<p>If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box' size.</p></dd>
+<p>If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box size.</p></dd>
 </dl>
 </div>
 </div>
@@ -554,7 +554,7 @@ tepam::argument_dialogbox \
 <dt><i class="arg">set</i></dt>
 <dd><p>If a default value is either defined via the <i class="arg">-default</i> attribute or via a preceding call the entry widget procedure is called with the <i class="arg">set</i> command. The argument <i class="arg">Par</i> contains in this case the value to which the entry widget has to be initialized.</p></dd>
 <dt><i class="arg">get</i></dt>
-<dd><p>The entry widget procedure's command <i class="arg">get</i> has to return the current value of the entry widget.</p></dd>
+<dd><p>The entry widget procedure command <i class="arg">get</i> has to return the current value of the entry widget.</p></dd>
 </dl>
 <p>Eventually specified entry widget item attributes are available via the <b class="variable">Option</b> array variable of the calling procedure. This variable becomes accessible inside the entry widget procedure via the <b class="cmd">upvar</b> command.</p>
 <p>There may be a need to store some information in a variable. The array variable <b class="variable">argument_dialogbox</b> has to be used for this purpose together with array indexes starting with <em>&quot;$W,&quot;</em>, e.g. <em>argument_dialogbox($W,values)</em>.</p>
@@ -583,7 +583,7 @@ tepam::argument_dialogbox \
 <dt><b class="variable">argument_dialogbox</b></dt>
 <dd><p>Application specific entry widget procedures can use this array variable to store their own data, using as index the widget path provided to the procedure, e.g. <em>argument_dialogbox($W,&lt;sub_index&gt;)</em>.</p></dd>
 <dt><b class="variable">last_parameters</b></dt>
-<dd><p>This array variable is only used by an argument dialog box if its context has been specified via the <i class="arg">-context</i> attribute. The argument dialog box' position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed. This allows the form to restore its previous state once it is called another time.</p>
+<dd><p>This array variable is only used by an argument dialog box if its context has been specified via the <i class="arg">-context</i> attribute. The argument dialog box position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed. This allows the form to restore its previous state once it is called another time.</p>
 <p>To reuse the saved parameters not just in the actual application session but also in another one, it is sufficient to store the <b class="variable">last_parameter</b> array variable contents in a configuration file which is loaded the next time an application is launched.</p></dd>
 </dl>
 </div>
