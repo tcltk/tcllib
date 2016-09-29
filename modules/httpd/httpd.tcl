@@ -583,7 +583,7 @@ For deeper understanding:
   method log args {
     # Do nothing for now
   }
-  
+    
   method port_listening {} {
     my variable port_listening
     return $port_listening
@@ -603,7 +603,7 @@ For deeper understanding:
     set myaddr [my cget myaddr]
     puts [list [self] listening on $port $myaddr]
  
-    if {$myaddr ni {* {}}} {
+    if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
         lappend socklist [socket -server [namespace code [list my connect]] -myaddr $ip $port]
       }
