@@ -9,14 +9,14 @@
 
 package require pcx
 pcx::register fileutil::magic::filetype
-pcx::tcldep   1.0.2 needs tcl 8.4
+pcx::tcldep   1.2.0 needs tcl 8.6
 
 namespace eval ::fileutil::magic::filetype {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.0.2 std ::fileutil::magic::filetype \
+pcx::check 1.2.0 std ::fileutil::magic::filetype \
     {checkSimpleArgs 1 1 {
 	checkFileName
     }}

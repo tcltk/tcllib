@@ -28,7 +28,7 @@ exec tclsh "$0" ${1+"$@"}
 #	GENERATED CODE" and "END GENERATED CODE" is replaced with the
 #	generated code.
 
-package require Tcl 8.4
+package require Tcl 8.5
 set auto_path [linsert $auto_path 0 [file dirname [file normalize [info script]]]] ; # This directory
 set auto_path [linsert $auto_path 0 [file dirname [lindex $auto_path end]]]]        ; # and the one above
 #puts *\t[join $auto_path \n*\t]
@@ -100,7 +100,7 @@ proc ::tmc::processCmdline {} {
     # Additional validation, and extraction of the non-option
     # arguments.
 
-    if {[llength $argv] != 2} Usage
+    if {[llength $argv] < 2} Usage
 
     set namespace  [lindex $argv 0]
     set magic [lrange $argv 1 end]
