@@ -1,4 +1,4 @@
-# ooutil.test - Copyright (c) 2014-2015 Andreas Kupries
+# oometa.test - Copyright (c) 2016 Sean Woods
 
 # -------------------------------------------------------------------------
 
@@ -60,11 +60,15 @@ test oo-object-meta-001 {Test accessing properties} {
 # definition
 test oo-object-meta-001a {Test accessing properties} {
   cheers meta cget color
-} pink
+} green
+# pink - Meta CGET is no longer connected to the local object's config
+
 # With or without the trailing :
 test oo-object-meta-001b {Test accessing properties} {
   cheers meta cget color:
-} pink
+} green
+# pink - Meta CGET is no longer connected to the local object's config
+
 # And using the local cget
 test oo-object-meta-001c {Test accessing properties} {
   cheers cget color
@@ -107,7 +111,8 @@ test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn'
 # Test altering a property
 ###
 
-oo::define ::foo property woozle whoop
+#oo::define ::foo property woozle whoop
+::foo meta set const woozle: whoop
 
 test oo-modclass-meta-001 {Test accessing properties of an altered class} {
   foo meta get const woozle:
@@ -122,11 +127,11 @@ test oo-modobject-meta-001 {Test the accessing of properties of an instance of a
 } whoop
 
 test obj-meta-for-001 {Test object meta for} {
-  set result {}
+  set output {}
   moes meta for {key value} option {
-    lappend result $key $value
+    lappend output $key $value
   }
-  set result
+  set output
 } {color {label: Color default: green}}
 
 test obj-meta-with-001 {Test object meta with} {
@@ -135,15 +140,15 @@ test obj-meta-with-001 {Test object meta with} {
   set color
 } {label: Color default: green}
 
-test obj-meta-for-001 {Test class meta for} {
-  set result {}
+test class-meta-for-001 {Test class meta for} {
+  set output {}
   bar meta for {key value} option {
-    lappend result $key $value
+    lappend output $key $value
   }
-  set result
+  set output
 } {color {label: Color default: green}}
 
-test obj-meta-with-001 {Test class meta with} {
+test class-meta-with-001 {Test class meta with} {
   set result {}
   bar meta with option {}
   set color
@@ -168,6 +173,61 @@ test obj-meta-recursive-2 {Test that meta set works with recursive dicts} {
   baz meta get option color label:
 } {Color}
 
+
+###
+# New test, of mixins
+###
+oo::class create mixin-test-A {
+  meta set const color: blue
+  meta set field {
+    pkey {name: {Primary Key} type: integer}
+    name {name: {Unit Name} type: string}
+    typefield {name: {Type Field} type: integer}
+  }
+  constructor args {
+    my _staticInit
+    my configure {*}$args
+  }
+}
+
+oo::class create mixin-test-B {
+  meta set const shape: oval
+  meta set field {
+    location {name: {Location} type: vector}
+    typefield {name: {Type Field} type: custom}
+  }
+  option color {
+    label Color
+    default green
+  }
+  constructor args {
+    my _staticInit
+    my configure {*}$args
+  }
+}
+
+mixin-test-B create MTB
+
+test obj-mixin-001 {Test that meta prior to meta mixin we don't have a color} {
+  MTB meta exists const color:
+} 0
+
+MTB meta mixin mixin-test-A
+test obj-mixin-002 {Test that prior to meta mixin we don't have a color} {
+  MTB meta exists const color:
+} 1
+test obj-mixin-002 {Test that after meta mixin we do have a color} {
+  MTB meta get const color:
+} blue
+test obj-mixin-003 {Test that after meta mixin we can access the field dict} {
+  MTB meta get field pkey name:
+} {Primary Key}
+test obj-mixin-004 {Test that after meta mixin we can access the field dict's local only value} {
+  MTB meta get field location type:
+} vector
+test obj-mixin-005 {Test that mixed in data overrides conflicting local data} {
+  MTB meta get field typefield type:
+} integer
 testsuiteCleanup
 
 # Local variables:
