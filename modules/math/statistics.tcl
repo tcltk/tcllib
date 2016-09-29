@@ -19,9 +19,10 @@
 # version 0.9:   added kernel density estimation
 # version 0.9.3: added histogram-alt, corrected test-normal
 # version 1.0:   added test-anova-F
+# version 1.0.1: correction in pdf-lognormal and cdf-lognormal
 
 package require Tcl 8.4
-package provide math::statistics 1.0
+package provide math::statistics 1.0.1
 package require math
 
 if {![llength [info commands ::lrepeat]]} {

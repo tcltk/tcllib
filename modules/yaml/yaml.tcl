@@ -13,7 +13,7 @@
 #
 
 package require Tcl 8.5
-package provide yaml 0.3.9
+package provide yaml 0.3.10
 package require cmdline
 package require huddle 0.1.7
 
@@ -68,6 +68,7 @@ namespace eval ::yaml {
     variable _dumpIndent   2
     variable _dumpWordWrap 40
 
+    variable result
     variable opts [lrange [::cmdline::GetOptionDefaults {
         {file             {input is filename}}
         {stream           {input is stream}}

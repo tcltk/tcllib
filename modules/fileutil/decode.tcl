@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # ### ### ### ######### ######### #########
-## Copyright (c) 2008-2009 ActiveState Software Inc.
-##                         Andreas Kupries
+## Copyright (c) 2008-2009 ActiveState Software Inc., Andreas Kupries
+##                    2016 Andreas Kupries
 ## BSD License
 ##
 # Package to help the writing of file decoders. Provides generic
@@ -54,7 +54,9 @@ proc ::fileutil::decode::rewind {} {
     variable chan
     variable mark
     if {$mark == {}} {
-	return -code error "No mark to rewind to"
+	return -code error \
+	    -errorcode {FILE DECODE NO MARK} \
+	    "No mark to rewind to"
     }
     seek $chan $mark start
     set mark {}
@@ -71,6 +73,7 @@ proc ::fileutil::decode::at {} {
 
 proc ::fileutil::decode::byte {} {
     variable chan
+    variable mask 0xff
     variable val [read $chan 1]
     binary scan $val c val
     return
@@ -78,6 +81,7 @@ proc ::fileutil::decode::byte {} {
 
 proc ::fileutil::decode::short-le {} {
     variable chan
+    variable mask 0xffff
     variable val [read $chan 2]
     binary scan $val s val
     return
@@ -85,6 +89,7 @@ proc ::fileutil::decode::short-le {} {
 
 proc ::fileutil::decode::long-le {} {
     variable chan
+    variable mask 0xffffffff
     variable val [read $chan 4]
     binary scan $val i val
     return
@@ -92,6 +97,7 @@ proc ::fileutil::decode::long-le {} {
 
 proc ::fileutil::decode::nbytes {n} {
     variable chan
+    variable mask {}
     variable val [read $chan $n]
     return
 }
@@ -109,7 +115,13 @@ proc ::fileutil::decode::skip {n} {
 proc ::fileutil::decode::unsigned {} {
     variable val
     if {$val >= 0} return
-    set val [format %u [expr {$val & 0xffffffff}]]
+    variable mask
+    if {$mask eq {}} {
+	return -code error \
+	    -errorcode {FILE DECODE ILLEGAL UNSIGNED} \
+	    "Unsigned not possible here"
+    }
+    set val [format %u [expr {$val & $mask}]]
     return
 }
 
@@ -183,9 +195,13 @@ namespace eval ::fileutil::decode {
 
     # Buffer for accumulating structured results
     variable buf  {}
+
+    # Mask for trimming a value to unsigned.
+    # Size-dependent
+    variable mask {}
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide fileutil::decode 0.2
+package provide fileutil::decode 0.2.1
 return

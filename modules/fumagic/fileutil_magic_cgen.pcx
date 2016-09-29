@@ -9,22 +9,22 @@
 
 package require pcx
 pcx::register fileutil::magic::cgen
-pcx::tcldep   1.0 needs tcl 8.4
+pcx::tcldep   1.2.0 needs tcl 8.4
 
 namespace eval ::fileutil::magic::cgen {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.0 std ::fileutil::magic::cgen::2tree \
+pcx::check 1.2.0 std ::fileutil::magic::cgen::2tree \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}
-pcx::check 1.0 std ::fileutil::magic::cgen::treedump \
+pcx::check 1.2.0 std ::fileutil::magic::cgen::treedump \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}
-pcx::check 1.0 std ::fileutil::magic::cgen::treegen \
+pcx::check 1.2.0 std ::fileutil::magic::cgen::treegen \
     {checkSimpleArgs 2 2 {
 	checkWord
 	checkWord
