@@ -30,7 +30,7 @@ The exact meaning of several terms that are used in this document will be shortl
 
 The usage of subcommands is heavily used in the Tcl language. Several commands are incorporated into a single main command and are selectable via the first argument.
 [para]
-The [fun string] command is an example of such a command that implements for example subcommands to check a character string's length, to compare strings, to extract substrings, etc:
+The [fun string] command is an example of such a command that implements for example subcommands to check a character string length, to compare strings, to extract substrings, etc:
 
 [example_begin][fun {string length}] [arg string]
 [fun {string compare}] [arg string] [arg string]
@@ -38,7 +38,7 @@ The [fun string] command is an example of such a command that implements for exa
 ...[example_end]
 
 [para]
-TEPAM provides a framework that allows implementing easily such subcommands in form of Tcl procedures. It allows not only defining a first level of subcommands, but also a higher level of subcommands. The [fun string] command's class check could be implemented as independent sub-sub-commands of the [fun string] command:
+TEPAM provides a framework that allows implementing easily such subcommands in form of Tcl procedures. It allows not only defining a first level of subcommands, but also a higher level of subcommands. The [fun string] command class check could be implemented as independent sub-sub-commands of the [fun string] command:
 
 [example_begin][fun {string is alnum}] [arg string]
 [fun {string is integer}] [arg string]
@@ -192,7 +192,7 @@ The first group of attributes affect the behavior of the declared procedure:
 
 [list_begin definitions]
 [def "-named_arguments_first [const 0]|[const 1]"]
-This attribute defines the calling style of a procedure. TEPAM uses by default the [emph "named arguments first, unnamed arguments later"] style (Tcl). This default behavior can globally be changed by setting the variable [var tepam::named_arguments_first] to [const 0]. This global calling style can be changed individually for a procedure with the procedure's [arg -named_arguments_first] attribute.
+This attribute defines the calling style of a procedure. TEPAM uses by default the [emph "named arguments first, unnamed arguments later"] style (Tcl). This default behavior can globally be changed by setting the variable [var tepam::named_arguments_first] to [const 0]. This global calling style can be changed individually for a procedure with the [arg -named_arguments_first] attribute.
 
 [def "-auto_argument_name_completion [const 0]|[const 1]"]
 The declared procedures will by default automatically try to match eventually abbreviated argument names to the defined arguments names. This default behavior can globally be changed by setting the variable [var tepam::auto_argument_name_completion] to [const 0]. This global setting of the automatic argument name completion can be changed individually for a procedure with the [arg -auto_argument_name_completion] procedure attribute.
@@ -203,7 +203,7 @@ A procedure declared with the TEPAM [fun procedure] command can always be called
 The choice to use short or extended forms can be globally configured via the variable [var tepam::interactive_display_format]. This global setting can then be changed individually for a procedure with the [arg -interactive_display_format] procedure attribute.
 
 [def "-args [arg list]"]
-The procedure's arguments are declared via the [arg -args] attribute. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes. All these argument definition lists are packaged themselves into a global list that is assigned to the procedure's [arg -args] attribute.
+The procedure arguments are declared via the [arg -args] attribute. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes. All these argument definition lists are packaged themselves into a global list that is assigned to the [arg -args] attribute.
 [para]
 The argument definition syntax will be described more in detail in the following sub section.
 
@@ -223,7 +223,7 @@ Validation command declaration example:
    [cmd {-validatecommand {IllegalWordDetector $text}}]
 } {
 }[example_end]
-The validation command is executed in the context of the declared procedure's body. The different argument values are accessed via the argument names. Note there is also an argument attribute [arg -validatecommand] that allows declaring custom checks for specific arguments.
+The validation command is executed in the context of the declared procedure body. The different argument values are accessed via the argument names. Note there is also an argument attribute [arg -validatecommand] that allows declaring custom checks for specific arguments.
 [para]
 The attribute [arg -validatecommand] can be repeated to declare multiple custom checks.
 
@@ -357,12 +357,12 @@ Section comments can be used to structure visually the argument definition code.
    -description "This function perform a complex multiplication"
    -args {
       [cmd {{#### First complex number ####}}]
-      {-r0 -type double -description "First number's real part"}
-      {-i0 -type double -description "First number's imaginary part"}
+      {-r0 -type double -description "First number real part"}
+      {-i0 -type double -description "First number imaginary part"}
 
       [cmd {{#### Second complex number ####}}]
-      {-r1 -type double -description "Second number's real part"}
-      {-i1 -type double -description "Second number's imaginary part"}
+      {-r1 -type double -description "Second number real part"}
+      {-i1 -type double -description "Second number imaginary part"}
    }
 } {
    return [lb]expr $r0*$r1 - $i0*$i1[rb]
@@ -458,7 +458,7 @@ If the auxiliary argument attributes are not static but have to be dynamically a
 
 [section "VARIABLES"]
 
-Several variables defined inside the [namespace ::tepam] namespace impact the mode of operation of the procedures that have been declared with TEPAM' [fun procedure] command.
+Several variables defined inside the [namespace ::tepam] namespace impact the mode of operation of the procedures that have been declared with the TEPAM [fun procedure] command.
 
 [list_begin definitions]
 [def "[var named_arguments_first]"]
@@ -661,7 +661,7 @@ display message: Argument '-help' not known}][example_end]
 
 [subsection "Interactive Procedure Call"]
 
-Calling a procedure with the [arg -interactive] flag will open a graphical form that allows specifying interactively all procedure arguments. The Tk library has to be loaded to use the interactive call. The following example assures that the Tk library is loaded and shows the command line to call interactively the procedure declared in [sectref {PROCEDURE CALLS}]:
+If Tk has been loaded a procedure can be called with the [arg -interactive] flag to open a graphical form that allows specifying interactively all procedure arguments. The following example assures that the Tk library is loaded and shows the command line to call interactively the procedure declared in [sectref {PROCEDURE CALLS}]:
 
 [example_begin]package require Tk
 [cmd {display message -interactive}][example_end]

@@ -15,7 +15,7 @@
 
 [section "ARGUMENT DIALOGBOX CALL"]
 
-TEPAM's [cmd argument_dialogbox] is a flexible and easily usable data entry form generator. Each data entry element of a form is defined via a [emph {data entry item}] that can be provided to [cmd argument_dialogbox] in two formats:
+The TEPAM [cmd argument_dialogbox] is a flexible and easily usable data entry form generator that is available if Tk has been loaded. Each data entry element of a form is defined via a [emph {data entry item}] that can be provided to [cmd argument_dialogbox] in two formats:
 
 [list_begin definitions]
 [call [cmd tepam::argument_dialogbox] [arg "item_name item_attributes [opt {item_name item_attributes}] [opt {...}]"]]
@@ -78,7 +78,7 @@ The following items are classified into this group:
 [list_begin definitions]
 
 [def "-title [arg string]"]
-The dialog box window's title which is by default [emph Dialog] can be changed with the [emph -title] item:
+The dialog box window title which is by default [emph Dialog] can be changed with the [emph -title] item:
 [example_begin]tepam::argument_dialogbox \
    [cmd -title] "System configuration" \
    ...[example_end]
@@ -96,7 +96,7 @@ By defining a parent window, the argument dialog box will be displayed beside th
    ...[example_end]
 
 [def "-context [arg string]"]
-If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.
+If a context is defined the dialog box state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box state in its context to distinguish between different usages of the argument dialog box.
 [example_begin]tepam::argument_dialogbox \
    [cmd -context] destination_definitions \
    ...[example_end]
@@ -220,7 +220,7 @@ The [arg -entry] item generates the simplest but most universal data entry widge
    [cmd -entry] {-label Name -variable Entry}[example_end]
 
 [def "-text [arg list]"]
-The [arg -text] item generates a multi line text entry widget. The widget's height can be selected with the [arg -height] attribute.
+The [arg -text] item generates a multi line text entry widget. The widget height can be selected with the [arg -height] attribute.
 [example_begin]tepam::argument_dialogbox \
    [cmd -text] {-label Name -variable Text -height 5}[example_end]
 
@@ -229,7 +229,7 @@ A group of check boxes is created with the [arg -checkbox] item. The number of c
 [example_begin]tepam::argument_dialogbox \
    [cmd -checkbox] {-label "Font sytle" -variable FontStyle \
                -choices {bold italic underline} -default italic}[example_end]
-If the check boxes' labels should differ from the option values, their labels can be defined with the [arg -choicelabels] attribute:
+If the labels of the check boxes should differ from the option values, their labels can be defined with the [arg -choicelabels] attribute:
 [example_begin]tepam::argument_dialogbox \
    [cmd -checkbox] {-label "Font sytle" -variable FontStyle \
               -choices {bold italic underline} \
@@ -245,7 +245,7 @@ In contrast to a check box group, a radio box group allows selecting simultaneou
 [example_begin]tepam::argument_dialogbox \
    [cmd -radiobox] {-label "Text adjustment" -variable Adjustment \
               -choices {left center right} -default left}[example_end]
-If the radio boxes' labels should differ from the option values, their labels can be defined with the [arg -choicelabels] attribute:
+If the labels of the radio boxes should differ from the option values, their labels can be defined with the [arg -choicelabels] attribute:
 [example_begin]tepam::argument_dialogbox \
    [cmd -radiobox] {-label "Text adjustment" -variable Adjustment \
               -choices {left center right} \
@@ -274,7 +274,7 @@ tepam::argument_dialogbox \
    [cmd -combobox] {-label "Text size" -variable Size -choicevariable TextSizes -default 12}[example_end]
 
 [def "-listbox [arg list]"]
-In contrast to the combo box, the list box is always displayed by the [arg listbox] entry widget. Only one element is selectable unless the [arg -multiple_selection] attribute is set. The list box height can be selected with the [arg -height] attribute. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box' size.
+In contrast to the combo box, the list box is always displayed by the [arg listbox] entry widget. Only one element is selectable unless the [arg -multiple_selection] attribute is set. The list box height can be selected with the [arg -height] attribute. If the height is not explicitly defined, the list box height is automatically adapted to the argument dialog box size.
 The first example uses a variable to define the available choices:
 
 [example_begin]set set AvailableSizes
@@ -375,7 +375,7 @@ The label attribute creates left to the entry widget a label using the provided 
    -entry {[cmd {-label Name}] -variable Name}[example_end]
 
 [def "-variable [arg string]"]
-All entry widgets require a specified variable. After accepting the entered information with the OK button, the entry widget's data are stored inside the defined variables.
+All entry widgets require a specified variable. After accepting the entered information with the OK button, the entry widget data is stored inside the defined variables.
 [example_begin]tepam::argument_dialogbox \
    -existingdirectory {-label "Report directory" [cmd {-variable ReportDir}]}[example_end]
 
@@ -433,7 +433,7 @@ Choice lists can directly be defined with the [arg -choices] attribute. This way
              [cmd {-choices {bold italic underline}}] -default underline[example_end]
 
 [def "-choicelabels [arg string] [emph {(only check and radio buttons)}]"]
-If the check and radio boxes' labels should differ from the option values, they can be defined with the [arg -choicelabels] attribute:
+If the labels of the check and radio boxes should differ from the option values, they can be defined with the [arg -choicelabels] attribute:
 [example_begin]tepam::argument_dialogbox \
    -checkbox {-label "Font sytle" -variable FontStyle \
               -choices {bold italic underline} \
@@ -485,7 +485,7 @@ All widgets containing a selection list ([cmd -listbox], [cmd -disjointlistbox],
 [example_begin]tepam::argument_dialogbox \
    -listbox {-label "Text size" -variable Size \
              -choices {8 9 10 12 15 18} -default 12 [cmd {-height 3}]}[example_end]
-If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box' size.
+If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box size.
 [list_end]
 
 [section "APPLICATION SPECIFIC ENTRY WIDGETS"]
@@ -522,7 +522,7 @@ The available selection list that is either specified with the [arg -choices] or
 If a default value is either defined via the [arg -default] attribute or via a preceding call the entry widget procedure is called with the [arg set] command. The argument [arg Par] contains in this case the value to which the entry widget has to be initialized.
 
 [def [arg get]]
-The entry widget procedure's command [arg get] has to return the current value of the entry widget.
+The entry widget procedure command [arg get] has to return the current value of the entry widget.
 
 [list_end]
 
@@ -562,7 +562,7 @@ The [cmd argument_dialogbox] is using two variables inside the namespace [namesp
 Application specific entry widget procedures can use this array variable to store their own data, using as index the widget path provided to the procedure, e.g. [emph {argument_dialogbox($W,<sub_index>)}].
 
 [def "[var last_parameters]"]
-This array variable is only used by an argument dialog box if its context has been specified via the [arg -context] attribute. The argument dialog box' position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed. This allows the form to restore its previous state once it is called another time.
+This array variable is only used by an argument dialog box if its context has been specified via the [arg -context] attribute. The argument dialog box position and size as well as its entered data are stored inside this variable if the data are acknowledged and the form is closed. This allows the form to restore its previous state once it is called another time.
 [para]
 To reuse the saved parameters not just in the actual application session but also in another one, it is sufficient to store the [var last_parameter] array variable contents in a configuration file which is loaded the next time an application is launched.
 

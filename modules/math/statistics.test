@@ -570,11 +570,15 @@ test "normal-distribution-1.1" "Test cdf-normal" -match tolerant -body {
         [::math::statistics::cdf-normal  2.0 2.0 3.0]]
 } -result {0.8413205502059895 0.8413205502059895 0.8413205502059895 0.8413205502059895 0.691451459572962}
 
+#
+# The values of the mean and the standard deviation are reconstructed from mu and sigma.
+# If you use mu and sigma in pdf-normal/cdf-normal, the same numbers should arise
+#
 test "lognormal-distribution-1.0" "Test pdf-lognormal" -match tolerant -body {
     foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
         set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
         set $mean  $m
-        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+        set $stdev [expr {sqrt(exp($sigma*$sigma) - 1.0) * $m}]
     }
 
     set x [list \
@@ -588,7 +592,7 @@ test "lognormal-distribution-1.1" "Test cdf-lognormal" -match tolerant -body {
     foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
         set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
         set $mean  $m
-        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+        set $stdev [expr {sqrt(exp($sigma*$sigma) - 1.0) * $m}]
     }
 
     set x [list \
@@ -1053,11 +1057,11 @@ test "kernel-density-1.2" "Dealing with missing values" -body {
 
 test "anova-one-way-1.1" "ANOVA test from Wikipedia" -body {
     test-anova-F 0.05 {6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}
-} 1
+} -result 1
 
 test "anova-one-way-1.2" "ANOVA test from Wikipedia - using nested list" -body {
     test-anova-F 0.05 {{6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}}
-} 1
+} -result 1
 
 # End of test cases
 testsuiteCleanup

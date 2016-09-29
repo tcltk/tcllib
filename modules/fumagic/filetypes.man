@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::filetype n 1.0.2]
+[manpage_begin fileutil::magic::filetype n 1.2.0]
 [see_also file(1)]
 [see_also fileutil]
 [see_also magic(5)]
@@ -10,8 +10,8 @@
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing file-type recognition}]
 [category  {Programming tools}]
-[require Tcl 8.4]
-[require fileutil::magic::filetype [opt 1.0.2]]
+[require Tcl 8.6]
+[require fileutil::magic::filetype [opt 1.2.0]]
 [description]
 [para]
 

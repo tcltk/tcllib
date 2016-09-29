@@ -499,6 +499,26 @@ test solve-1.5 "solveGauss - Hilbert matrix" -match numbers -body {
     set result [expr {$norm<1.e-3}]
 } -result {1}
 
+test solve-1.6 "solveGauss - permuted matrix" -match numbers -body {
+    set matrix {{1000    1    1   10}
+                 {   1 1000   10  100}
+                 {  10   10  100    1}
+                 { 100  100 1000 1000}}
+    set b      {1003.3 133 31.3 610}
+
+    set xvec1 [solveGauss $matrix $b]
+
+    set matrix {{ 100  100 1000 1000}
+                {1000    1    1   10}
+                {   1 1000   10  100}
+                {  10   10  100    1}}
+    set b      {610 1003.3 133 31.3}
+
+    set xvec2 [solveGauss $matrix $b]
+
+    set closeValues [areClose $xvec1 $xvec2 1.0-e8]
+} -result {1 1 1 1}
+
 test solvepgauss-1.6 "solveGauss - 2x2 difficult matrix with necessary permutations" -match numbers -body {
     set M {{1.e-8 1} {1 1}}
     set b [list [expr {1.+1.e-8}] 2.]

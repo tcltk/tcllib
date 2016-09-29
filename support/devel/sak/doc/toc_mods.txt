@@ -557,7 +557,6 @@
 [item modules/tool/meta.man               oo::util            {Utility commands for TclOO}]
 [item modules/tool/tool.man               tool                {Dictionary Tools}]
 [item modules/tool/tool_dict_ensemble.man tool::dict_ensemble {Dictionary Tools}]
-[item modules/tool/tool_template.man      tool::template      {Dictionary Tools}]
 [division_end]
 [division_start transfer]
 [item modules/transfer/connect.man     transfer::connect           {Connection setup}]

@@ -86,7 +86,7 @@ proc ::math::statistics::pdf-lognormal { mean stdev x } {
 		"Standard deviation and mean must be positive"
     }
 
-    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set sigma [expr {sqrt(log(1.0 + $stdev*$stdev /double($mean*$mean)))}]
     set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
 
     set xn   [expr {(log($x)-$mu)/$sigma}]
@@ -203,7 +203,7 @@ proc ::math::statistics::cdf-lognormal { mean stdev x } {
 		"Standard deviation and mean must be positive"
     }
 
-    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set sigma [expr {sqrt(log(1.0 + $stdev*$stdev /double($mean*$mean)))}]
     set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
 
     set xn   [expr {(log($x)-$mu)/$sigma}]
@@ -591,7 +591,7 @@ proc ::math::statistics::random-lognormal { mean stdev number } {
 		"Standard deviation and mean must be positive"
     }
 
-    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set sigma [expr {sqrt(log(1.0 + $stdev*$stdev /double($mean*$mean)))}]
     set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
 
 #    set result {}

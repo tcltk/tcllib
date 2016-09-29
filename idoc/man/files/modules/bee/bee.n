@@ -311,7 +311,7 @@ package require \fBbee  ?0\&.1?\fR
 .PP
 The \fBbee\fR package provides de- and encoder commands for data
 in bencoding (speak 'bee'), the serialization format for data and
-messages used by the BitTorrent application\&.
+messages used by the BitTorrent protocol\&.
 .PP
 .SH "PUBLIC API"
 .SS ENCODER
