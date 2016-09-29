@@ -25,7 +25,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.4
+package require Tcl 8.5
 
 # file to compile the magic file from magic(5) into a tcl program
 package require fileutil              ; # File processing (input)
@@ -34,7 +34,7 @@ package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
 package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.2
+package provide fileutil::magic::cfront 1.2.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -529,7 +529,7 @@ proc ::fileutil::magic::cfront::parseoffset {tree node} {
     $tree set $node it {} ;   # indir_type
     $tree set $node ioi 0 ;   # indirect offset invert
     $tree set $node iir 0 ;   # indirect indirect relative 
-    $tree set $node ioo 0 ;   # indirect_offset_op
+    $tree set $node ioo + ;   # indirect_offset_op
     $tree set $node io 0 ;    # indirect offset
     advance w1 char
     if {$char eq {&}} {

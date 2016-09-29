@@ -142,12 +142,12 @@
 </ul>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">PROCEDURE DECLARATION</a></h2>
-<p>TEPAM's procedure declaration syntax is simple and self-explaining. Instead of declaring a procedure with the Tcl key word <b class="cmd"><a href="../../../../index.html#key594">proc</a></b>, a procedure is declared with the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> which takes as <b class="cmd"><a href="../../../../index.html#key594">proc</a></b> also 3 arguments: The procedure name, the procedure header and the procedure body.</p>
-<p>The following example declares the subcommand <b class="cmd"><a href="../../../../index.html#key363">message</a></b> of the procedure <b class="cmd">display</b>. This command has several named and unnamed arguments:</p>
+<p>TEPAM's procedure declaration syntax is simple and self-explaining. Instead of declaring a procedure with the Tcl key word <b class="cmd"><a href="../../../../index.html#key592">proc</a></b>, a procedure is declared with the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> which takes as <b class="cmd"><a href="../../../../index.html#key592">proc</a></b> also 3 arguments: The procedure name, the procedure header and the procedure body.</p>
+<p>The following example declares the subcommand <b class="cmd"><a href="../../../../index.html#key361">message</a></b> of the procedure <b class="cmd">display</b>. This command has several named and unnamed arguments:</p>
 <pre class="doctools_example"><b class="cmd"><a href="tepam_procedure.html">tepam::procedure</a></b> {display message} {
    -return            -
    -short_description &quot;Displays a simple message box&quot;
-   -description       &quot;This procedure allows displaying a configurable message box.
+   -description       &quot;This procedure allows displaying a configurable message box.&quot;
    -args {
       {-mtype -default Warning -choices {Info Warning Error} -description &quot;Message type&quot;}
       {-font -type font -default {Arial 10 italic} -description &quot;Message text font&quot;}
@@ -167,7 +167,7 @@
    }
 </em>}</pre>
 <p>A call of procedure that has been declared in this way will first invoke the TEPAM argument manager, before the procedure body is executed. The argument manager parses the provided arguments, validates them, completes them eventually with some default values, and makes them finally available to the procedure body as local variables. In case an argument is missing or has a wrong type, the argument manager generates an error message that explains the reason for the error.</p>
-<p>As the example above shows, the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> accepts subcommand definitions as procedure name and allows defining much more information than just the argument list inside the procedure header. The procedure body on the other hand is identical between a command declared with <b class="cmd"><a href="../../../../index.html#key594">proc</a></b> and a command declared with <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b>.</p>
+<p>As the example above shows, the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> accepts subcommand definitions as procedure name and allows defining much more information than just the argument list inside the procedure header. The procedure body on the other hand is identical between a command declared with <b class="cmd"><a href="../../../../index.html#key592">proc</a></b> and a command declared with <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b>.</p>
 <p>The procedure header allows defining in addition to the arguments some procedure attributes, like a description, information concerning the return value, etc. This information is basically used for the automatic generation of comprehensive help and usage texts.</p>
 <p>A list of argument definition statements assigned to the <i class="arg">-args</i> argument is defining the procedure arguments. Each argument definition statement starts with the argument name, optionally followed by some argument attributes.</p>
 <p>Three types of arguments can be defined: Unnamed arguments, named arguments and flags. The distinction between the named and unnamed arguments is made by the first argument name character which is simply &quot;-&quot; for named arguments. A flag is defined as named argument that has the type  <em>none</em>.</p>
@@ -251,14 +251,14 @@ DESCRIPTION
 <em>  -&gt; display message: Argument (level) has to be between 1 and 10</em></pre>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">INTERACTIVE PROCEDURE CALLS</a></h2>
-<p>The most intuitive way to call the procedure is using an form that allows specifying all arguments interactively. This form will automatically be generated if the declared procedure is called with the <i class="arg">-interactive</i> flag.</p>
+<p>The most intuitive way to call the procedure is using an form that allows specifying all arguments interactively. This form will automatically be generated if the declared procedure is called with the <i class="arg">-interactive</i> flag. To use this feature the Tk library has to be loaded.</p>
 <pre class="doctools_example"><b class="cmd">display message</b> -interactive</pre>
 <p>The generated form contains for each argument a data entry widget that is adapted to the argument type. Check buttons are used to specify flags, radio boxes for tiny choice lists, disjoint list boxes for larger choice lists and files, directories, fonts and colors can be selected with dedicated browsers.</p>
 <p>After acknowledging the specified argument data via an OK button, the entered data are first validated, before the provided arguments are transformed into local variables and the procedure body is executed. In case the entered data are invalid, a message appears and the user can correct them until they are valid.</p>
 <p>The procedure calls can optionally be logged in a variable. This is for example useful to get the command call lines of interactively called procedures.</p>
 </div>
 <div id="section7" class="doctools_section"><h2><a name="section7">FLEXIBLE ARGUMENT DIALOG BOX</a></h2>
-<p>The form generator that creates in the previous example the argument dialog box for the interactive procedure call is also available for other purposes than for the definition of procedure arguments. TEPAM's provided argument dialog box allows crating complex parameter definition forms in a very efficient way.</p>
+<p>The form generator that creates in the previous example the argument dialog box for the interactive procedure call is also available for other purposes than for the definition of procedure arguments. If Tk has been loaded TEPAM provides and argument dialog box that allows creating complex parameter definition forms in a very efficient way.</p>
 <p>The following example tries to illustrate the simplicity to create complex data entry forms. It creates an input mask that allows specifying a file to copy, a destination folder as well as a checkbox that allows specifying if an eventual existing file can be overwritten. Comfortable browsers can be used to select files and directories. And finally, the form offers also the possibility to accept and decline the selection. Here is the code snippet that is doing all this:</p>
 <pre class="doctools_example"><b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox</a></b> \
    <b class="cmd">-existingfile</b> {-label &quot;Source file&quot; -variable SourceFile} \
@@ -341,7 +341,7 @@ set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argume
 <p><a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a>, <a href="tepam_procedure.html">tepam::procedure(n)</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key765">argument integrity</a>, <a href="../../../../index.html#key766">argument validation</a>, <a href="../../../../index.html#key764">arguments</a>, <a href="../../../../index.html#key767">entry mask</a>, <a href="../../../../index.html#key406">parameter entry form</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key763">subcommand</a></p>
+<p><a href="../../../../index.html#key764">argument integrity</a>, <a href="../../../../index.html#key765">argument validation</a>, <a href="../../../../index.html#key763">arguments</a>, <a href="../../../../index.html#key766">entry mask</a>, <a href="../../../../index.html#key404">parameter entry form</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key762">subcommand</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>
