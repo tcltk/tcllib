@@ -4,6 +4,8 @@
 # TclOO routines to implement property tracking by class and object
 ###
 package require dicttool
+package provide oo::meta 0.6
+
 namespace eval ::oo::meta {
   variable dirty_classes {}
   variable core_classes {::oo::class ::oo::object}
@@ -92,7 +94,7 @@ proc ::oo::meta::info {class submethod args} {
     for -
     map {
       set info [metadata $class]
-      return [uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
+      uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
     }
     with {
       upvar 1 TEMPVAR info
@@ -265,7 +267,7 @@ proc ::oo::define::meta {args} {
 
 oo::define oo::class {
   method meta {submethod args} {
-    return [::oo::meta::info [self] $submethod {*}$args]
+    tailcall ::oo::meta::info [self] $submethod {*}$args
   }
 }
 
@@ -279,8 +281,12 @@ oo::define oo::object {
   # well as to that of its class
   ###
   method meta {submethod args} {
+    my variable meta MetaMixin
+    if {![info exists MetaMixin]} {
+      set MetaMixin {}
+    }
     set class [::info object class [self object]]
-    my variable meta
+    set classlist [list $class {*}$MetaMixin]
     switch $submethod {
       cget {
         ###
@@ -291,6 +297,7 @@ oo::define oo::object {
         # Retrieve a value from the local objects **meta** dict
         # or from the class' meta data. Values are searched in the
         # following order:
+        # 0. (If path length==1) From the _config array
         # 1. From the local dict as **path** **field:**
         # 2. From the local dict as **path** **field**
         # 3. From class meta data as const **path** **field:**
@@ -306,18 +313,20 @@ oo::define oo::object {
         if {[dict exists $meta {*}$path $field]} {
           return [dict get $meta {*}$path $field]
         }
-        set class_metadata [::oo::meta::metadata $class]
-        if {[dict exists $class_metadata const {*}$path $field:]} {
-          return [dict get $class_metadata const {*}$path $field:]
-        }
-        if {[dict exists $class_metadata const {*}$path $field]} {
-          return [dict get $class_metadata const {*}$path $field]
-        }
-        if {[dict exists $class_metadata {*}$path $field:]} {
-          return [dict get $class_metadata {*}$path $field:]
-        }
-        if {[dict exists $class_metadata {*}$path $field]} {
-          return [dict get $class_metadata {*}$path $field]
+        foreach mclass [lreverse $classlist] {
+          set class_metadata [::oo::meta::metadata $mclass]
+          if {[dict exists $class_metadata const {*}$path $field:]} {
+            return [dict get $class_metadata const {*}$path $field:]
+          }
+          if {[dict exists $class_metadata const {*}$path $field]} {
+            return [dict get $class_metadata const {*}$path $field]
+          }
+          if {[dict exists $class_metadata {*}$path $field:]} {
+            return [dict get $class_metadata {*}$path $field:]
+          }
+          if {[dict exists $class_metadata {*}$path $field]} {
+            return [dict get $class_metadata {*}$path $field]
+          }
         }
         return {}
       }
@@ -327,19 +336,25 @@ oo::define oo::object {
       }
       for -
       map {
-        set class_metadata [::oo::meta::metadata $class]
-        set info [dict rmerge $class_metadata $meta]
-        return [uplevel 1 [list dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
       }
       with {
-        set class_metadata [::oo::meta::metadata $class]
         upvar 1 TEMPVAR info
-        set info [dict rmerge $class_metadata $meta]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
         return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        set class_metadata [::oo::meta::metadata $class]
-        return [dict rmerge $class_metadata $meta]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        return [dict rmerge {*}$mdata $meta]
       }
       append -
       incr -
@@ -359,31 +374,92 @@ oo::define oo::object {
         set meta [dict rmerge $meta {*}$args]
         return $meta
       }
+      exists {
+        foreach mclass $classlist {
+          if {[dict exists [::oo::meta::metadata $mclass] {*}$args]} {
+            return 1
+          }
+        }
+        if {[dict exists $meta {*}$args]} {
+          return 1
+        }
+        return 0
+      }
+      get -
       getnull {
-        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]]
+        if {[string index [lindex $args end] end]==":"} {
+          # Looking for a leaf node
+          if {[dict exists $meta {*}$args]} {
+            return [dict get $meta {*}$args]
+          }
+          foreach mclass [lreverse $classlist] {
+            set mdata [::oo::meta::metadata $mclass]
+            if {[dict exists $mdata {*}$args]} {
+              return [dict get $mdata {*}$args]
+            }
+          }
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
+        }
+        # Looking for a branch node
+        # So we need to composite the result
+        set found 0
+        foreach mclass $classlist {
+          set mdata [::oo::meta::metadata $mclass]
+          if {[dict exists $mdata {*}$args]} {
+            set found 1
+            lappend result [dict get $mdata {*}$args]
+          }
+        }
+        if {[dict exists $meta {*}$args]} {
+          set found 1
+          lappend result [dict get $meta {*}$args]
+        }
+        if {!$found} {
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
+        }
+        return [dict rmerge {*}$result]
       }
       branchget {
         set result {}
-        foreach {field value} [dict getnull [::oo::meta::metadata $class] {*}$args] {
-          dict set result [string trimright $field :] $value
+        foreach mclass [lreverse $classlist] {
+          foreach {field value} [dict getnull [::oo::meta::metadata $mclass] {*}$args] {
+            dict set result [string trimright $field :] $value
+          }
         }
         foreach {field value} [dict getnull $meta {*}$args] {
           dict set result [string trimright $field :] $value
         }
         return $result
       }
-      get {
-        if {![dict exists $meta {*}$args]} {
-          return [dict get [::oo::meta::metadata $class] {*}$args]
+      mixin {
+        foreach mclass $args {
+          set mclass [::oo::meta::normalize $mclass]
+          if {$mclass ni $MetaMixin} {
+            lappend MetaMixin $mclass
+          }
         }
-        return [dict rmerge [dict getnull [::oo::meta::metadata $class] {*}$args] [dict getnull $meta {*}$args]]
+      }
+      mixout {
+        foreach mclass $args {
+          set mclass [::oo::meta::normalize $mclass]
+          while {[set i [lsearch $MetaMixin $mclass]]>=0} {
+            set MetaMixin [lreplace $MetaMixin $i $i]
+          }
+        }
       }
       default {
-        set class_metadata [::oo::meta::metadata $class]
-        set info [dict rmerge $class_metadata $meta]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
         return [dict $submethod $info {*}$args] 
       }
     }
   }
 }
-package provide oo::meta 0.5.1
