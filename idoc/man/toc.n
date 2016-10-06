@@ -1062,6 +1062,9 @@ tcllib
 \fBpt::rde\fR
 \fIfiles/modules/pt/pt_rdengine\&.n\fR: Parsing Runtime Support, PARAM based
 .TP
+\fBpt::tclparam::configuration::nx\fR
+\fIfiles/modules/pt/pt_tclparam_config_nx\&.n\fR: Tcl/PARAM, Canned configuration, NX
+.TP
 \fBpt::tclparam::configuration::snit\fR
 \fIfiles/modules/pt/pt_tclparam_config_snit\&.n\fR: Tcl/PARAM, Canned configuration, Snit
 .TP
