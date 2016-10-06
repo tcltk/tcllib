@@ -181,8 +181,8 @@ proc ::ip::contract {ip} {
     set s [ToString [Normalize $ip $version]]
     if {$version == 6} {
         set r ""
-        foreach o [split $s :] { 
-            append r [format %x: 0x$o] 
+        foreach o [split $s :] {
+            append r [format %x: 0x$o]
         }
         set r [string trimright $r :]
         regsub {(?:^|:)0(?::0)+(?::|$)} $r {::} r
@@ -460,12 +460,15 @@ proc ::ip::Normalize4 {ip} {
     } elseif {[llength $octets] < 4} {
         set octets [lrange [concat $octets 0 0 0] 0 3]
     }
+    set normalized {}
     foreach oct $octets {
+        set oct [scan $oct %d]
         if {$oct < 0 || $oct > 255} {
             return -code error "invalid ip address"
         }
+        lappend normalized $oct
     }
-    return [binary format c4 $octets]
+    return [binary format c4 $normalized]
 }
 
 proc ::ip::Normalize6 {ip} {
@@ -545,7 +548,7 @@ source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 
-package provide ip 1.3
+package provide ip 1.4
 
 # -------------------------------------------------------------------------
 # Local Variables:
