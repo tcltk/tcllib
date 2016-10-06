@@ -275,6 +275,7 @@ modules/pt/pt_pexpr_op.man
 modules/pt/pt_pexpression.man
 modules/pt/pt_pgen.man
 modules/pt/pt_rdengine.man
+modules/pt/pt_tclparam_config_nx.man
 modules/pt/pt_tclparam_config_snit.man
 modules/pt/pt_tclparam_config_tcloo.man
 modules/pt/pt_to_api.man

@@ -1667,6 +1667,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -2981,6 +2984,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -3418,6 +3424,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -4081,6 +4090,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -5270,6 +5282,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -5740,6 +5755,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -6740,6 +6758,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -6983,6 +7004,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -7123,6 +7147,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -7303,6 +7330,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -7769,6 +7799,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -8035,6 +8068,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -9362,6 +9398,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -9862,6 +9901,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
@@ -10532,6 +10574,9 @@ pt::pgen
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
 .TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
+.TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
 .TP
@@ -10717,6 +10762,9 @@ pt::pgen
 .TP
 \fBfiles/modules/pt/pt_rdengine\&.n\fR
 pt::rde
+.TP
+\fBfiles/modules/pt/pt_tclparam_config_nx\&.n\fR
+pt::tclparam::configuration::nx
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_snit\&.n\fR
 pt::tclparam::configuration::snit
