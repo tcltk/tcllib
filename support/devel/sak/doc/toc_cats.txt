@@ -305,6 +305,7 @@
 [item modules/pt/pt_peg_introduction.man      pt::pegrammar                      {Introduction to Parsing Expression Grammars}]
 [item modules/pt/pt_pgen.man                  pt::pgen                           {Parser Generator}]
 [item modules/pt/pt_rdengine.man              pt::rde                            {Parsing Runtime Support, PARAM based}]
+[item modules/pt/pt_tclparam_config_nx.man    pt::tclparam::configuration::nx    {Tcl/PARAM, Canned configuration, NX}]
 [item modules/pt/pt_tclparam_config_snit.man  pt::tclparam::configuration::snit  {Tcl/PARAM, Canned configuration, Snit}]
 [item modules/pt/pt_tclparam_config_tcloo.man pt::tclparam::configuration::tcloo {Tcl/PARAM, Canned configuration, Tcloo}]
 [item modules/pt/pt_util.man                  pt::util                           {General utilities}]
