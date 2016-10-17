@@ -363,8 +363,8 @@ proc ::cron::runTasksCoro {} {
         puts [list RUNNING $task [task info $task]]
       }
       dict set processTable($task) running 1
-      set coro [dict get $processTable($task) coroutine]
-      set command [dict get $processTable($task) command]
+      set coro [dict getnull $processTable($task) coroutine]
+      set command [dict getnull $processTable($task) command]
       if {$command eq {} && $coro eq {}} {
         # Task has nothing to do. Slot it for destruction
         lappend cancellist $task
@@ -433,6 +433,8 @@ proc ::cron::runTasksCoro {} {
       unset -nocomplain processTable($task)
     }
     foreach {process} [lsort -dictionary [array names processTable]] {
+      set scheduled 0
+      set frequency 0
       dict with processTable($process) {
         if {$scheduled==0 && $frequency==0} {
           if {$next_idle_event < $nextevent} {
