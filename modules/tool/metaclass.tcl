@@ -41,8 +41,7 @@ proc ::tool::define::component {name info} {
 ###
 proc ::tool::define::constructor {arglist rawbody} {
   set body {
-::tool::object_create [self]
-my graft class [info object class [self]]
+::tool::object_create [self] [info object class [self]]
 # Initialize public variables and options
 my InitializePublic
   }
@@ -244,7 +243,7 @@ proc ::tool::dynamic_wrongargs_message arglist {
   return $result
 }
 
-proc ::tool::object_create objname {
+proc ::tool::object_create {objname {class {}}} {
   foreach varname {
     object_info
     object_signal
@@ -253,7 +252,16 @@ proc ::tool::object_create objname {
     variable $varname
     set ${varname}($objname) {}
   }
-  set object_info($objname) [list class [info object class $objname]]
+  if {$class eq {}} {
+    set class [info object class $objname]
+  }
+   set object_info($objname) [list class $class]
+  if {$class ne {}} {
+    $objname graft class $class
+    foreach command [info commands [namespace current]::dynamic_object_*] {
+      $command $objname $class
+    }
+  }
 }
 
 
