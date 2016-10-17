@@ -1,17 +1,46 @@
 ::namespace eval ::tool::define {}
 
+if {![info exists ::tool::dirty_classes]} {
+  set ::tool::dirty_classes {}
+}
+
+###
+# Monkey patch oometa's rebuild function to
+# include a notifier to tool
+###
+proc ::oo::meta::rebuild args {
+  foreach class $args {
+    if {$class ni $::oo::meta::dirty_classes} {
+      lappend ::oo::meta::dirty_classes $class
+    }
+    if {$class ni $::tool::dirty_classes} {
+      lappend ::tool::dirty_classes $class
+    }
+  }
+}
+
+
 ###
 # topic: fb8d74e9c08db81ee6f1275dad4d7d6f
 ###
-proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
+proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
   variable trace
   set ensembledict {}
+  foreach dclass $::tool::dirty_classes {
+    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
+      if {$dclass in $cancestors} {
+        unset -nocomplain ::tool::obj_ensemble_cache($cclass)
+      }
+    }
+  }
+  set ::tool::dirty_classes {}
   ###
   # Only go through the motions for classes that have a locally defined
   # ensemble method implementation
   ###
+  if {[info exists ::tool::obj_ensemble_cache($thisclass)]} return
   foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
-    set einfo [dict getnull $metadata method_ensemble $ensemble]
+    #set einfo [dict getnull $einfo method_ensemble $ensemble]
     set eswitch {}
     set default standard
     if {[dict exists $einfo default:]} {
@@ -67,6 +96,8 @@ proc ::tool::dynamic_methods_ensembles {thisclass metadata} {
     # Define a property for this ensemble for introspection
     ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
   }
+  set ::tool::obj_ensemble_cache($thisclass) 1
+
 }
 
 ###
