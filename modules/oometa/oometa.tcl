@@ -4,7 +4,7 @@
 # TclOO routines to implement property tracking by class and object
 ###
 package require dicttool
-package provide oo::meta 0.6
+package provide oo::meta 0.7
 
 namespace eval ::oo::meta {
   variable dirty_classes {}
@@ -79,13 +79,11 @@ proc ::oo::meta::ancestors class {
   return $result
 }
 
-proc ::oo::meta::info {class submethod args} {
+proc oo::meta::info {class submethod args} {
   set class [::oo::meta::normalize $class]
   switch $submethod {
     rebuild {
-      if {$class ni $::oo::meta::dirty_classes} {
-        lappend ::oo::meta::dirty_classes $class
-      }
+      ::oo::meta::rebuild $class
     }
     is {
       set info [metadata $class]
@@ -110,9 +108,7 @@ proc ::oo::meta::info {class submethod args} {
       return $result
     }
     branchset {
-      if {$class ni $::oo::meta::dirty_classes} {
-        lappend ::oo::meta::dirty_classes $class
-      }
+      ::oo::meta::rebuild $class
       foreach {field value} [lindex $args end] {
         ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
@@ -136,15 +132,11 @@ proc ::oo::meta::info {class submethod args} {
     set -
     unset -
     update {
-      if {$class ni $::oo::meta::dirty_classes} {
-        lappend ::oo::meta::dirty_classes $class
-      }
+      ::oo::meta::rebuild $class
       ::dict $submethod ::oo::meta::local_property($class) {*}$args
     }
     merge {
-      if {$class ni $::oo::meta::dirty_classes} {
-        lappend ::oo::meta::dirty_classes $class
-      }
+      ::oo::meta::rebuild $class
       set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
     }
     dump {
@@ -231,6 +223,14 @@ proc ::oo::meta::metadata {class {force 0}} {
   set metadata [dict rmerge {*}$metadata]
   set cached_property($class) $metadata
   return $metadata
+}
+
+proc ::oo::meta::rebuild args {
+  foreach class $args {
+    if {$class ni $::oo::meta::dirty_classes} {
+      lappend ::oo::meta::dirty_classes $class
+    }
+  }
 }
 
 proc ::oo::meta::search args {
