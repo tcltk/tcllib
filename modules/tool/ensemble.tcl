@@ -19,27 +19,21 @@ proc ::oo::meta::rebuild args {
   }
 }
 
-
-###
-# topic: fb8d74e9c08db81ee6f1275dad4d7d6f
-###
-proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
-  variable trace
-  set ensembledict {}
-  foreach dclass $::tool::dirty_classes {
-    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
-      if {$dclass in $cancestors} {
-        unset -nocomplain ::tool::obj_ensemble_cache($cclass)
+proc ::tool::ensemble_build_map args {
+  set emap {}
+  foreach thisclass $args {
+    foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
+      foreach {submethod subinfo} $einfo {
+        dict set emap $ensemble $submethod $subinfo
       }
     }
   }
-  set ::tool::dirty_classes {}
-  ###
-  # Only go through the motions for classes that have a locally defined
-  # ensemble method implementation
-  ###
-  if {[info exists ::tool::obj_ensemble_cache($thisclass)]} return
-  foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
+  return $emap
+}
+
+proc ::tool::ensemble_methods emap {
+  set result {}
+  foreach {ensemble einfo} $emap {
     #set einfo [dict getnull $einfo method_ensemble $ensemble]
     set eswitch {}
     set default standard
@@ -92,12 +86,38 @@ proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
     append body \n [list set methodlist $methodlist]
     append body \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
     append body \n {return -options $opts $result}
-    oo::define $thisclass method $ensemble {{method default} args} $body
-    # Define a property for this ensemble for introspection
+    append result \n [list method $ensemble {{method default} args} $body]    
+  }
+  return $result
+}
+
+###
+# topic: fb8d74e9c08db81ee6f1275dad4d7d6f
+###
+proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
+  variable trace
+  set ensembledict {}
+  foreach dclass $::tool::dirty_classes {
+    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
+      if {$dclass in $cancestors} {
+        unset -nocomplain ::tool::obj_ensemble_cache($cclass)
+      }
+    }
+  }
+  set ::tool::dirty_classes {}
+  ###
+  # Only go through the motions for classes that have a locally defined
+  # ensemble method implementation
+  ###
+  if {[info exists ::tool::obj_ensemble_cache($thisclass)]} return
+  set emap [::tool::ensemble_build_map $thisclass]
+  set body [::tool::ensemble_methods $emap]
+  oo::define $thisclass $body
+  # Define a property for this ensemble for introspection
+  foreach {ensemble einfo} $emap {
     ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
   }
   set ::tool::obj_ensemble_cache($thisclass) 1
-
 }
 
 ###
