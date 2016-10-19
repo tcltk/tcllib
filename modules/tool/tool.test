@@ -396,6 +396,111 @@ test tool-option_class-002 {Test option class} {
 test tool-option_class-003 {Test option class} {
   ObjectOptionTest5 <master> puts FOO
 } {puts FOO}
+
+###
+# Second round of testing
+# Make sure the various and sundry ways to generate
+# dynamic methods follow through morphs, mixins,
+# and class method definitions
+###
+
+tool::class create WidgetClass {
+  class_method unknown args {
+    set tkpath [lindex $args 0]
+    if {[string index $tkpath 0] eq "."} {
+      set obj [my new $tkpath {*}[lrange $args 1 end]]
+      $obj tkalias $tkpath
+      return $tkpath
+    }
+    next {*}$args
+  }
+  
+  constructor {TkPath args} {
+    my variable hull
+    set hull $TkPath
+    my graft hull $TkPath
+  }
+    
+  method tkalias tkname {
+    set oldname $tkname
+    my variable tkalias
+    set tkalias $tkname
+    set self [self]
+    set hullwidget [::info object namespace $self]::tkwidget
+    my graft tkwidget $hullwidget
+    #rename ::$tkalias $hullwidget
+    my graft hullwidget $hullwidget
+    ::tool::object_rename [self] ::$tkalias
+    #my Hull_Bind $tkname
+    return $hullwidget
+  }
+}
+
+test tool-class-method-001 {Test Tk style creator} {
+  WidgetClass .foo
+  .foo organ hull
+} {.foo}
+
+tool::class create WidgetNewClass {
+  superclass WidgetClass
+}
+
+test tool-class-method-002 {Test Tk style creator inherited by morph} {
+  WidgetNewClass .bar
+  .bar organ hull
+} {.bar}
+
+tool::class create DummyClass {
+  method i_am_here {} {
+    return DummyClass
+  }
+}
+
+
+tool::class create OrganClass {
+  option db {class organ default ::noop}
+  constructor args {
+    my config set $args
+  }
+}
+DummyClass create ::DbObj
+OrganClass create OrganObject db ::DbObj
+test tool-constructor-args-001 {Test that organs passed as options map correctly} {
+  OrganObject organ db
+} {::DbObj} 
+test tool-constructor-args-002 {Test that organs passed as options map correctly} {
+  OrganObject cget db
+} {::DbObj}
+
+tool::object create MorphOrganObject#1
+tool::object create MorphOrganObject#2
+MorphOrganObject#2 graft db ::DbObj
+
+MorphOrganObject#1 morph OrganClass
+test tool-constructor-args-003 {Test that a default for an organ option is applied after a morph} {
+  MorphOrganObject#1  organ db
+} {::noop}
+
+MorphOrganObject#2 morph OrganClass
+test tool-constructor-args-004 {Test that a default for an organ option is NOT applied if the graft exists following a morph} {
+  MorphOrganObject#2  organ db
+} {::DbObj}
+
+tool::object create MorphOrganObject#3
+tool::object create MorphOrganObject#4
+MorphOrganObject#4 graft db ::DbObj
+MorphOrganObject#3 mixin OrganClass
+test tool-constructor-args-005 {Test that a default for an organ option is applied during a mixin} {
+  MorphOrganObject#3  organ db
+} {::noop}
+
+MorphOrganObject#4 mixin OrganClass
+test tool-constructor-args-006 {Test that a default for an organ option is NOT applied if the graft exists during a mixin} {
+  MorphOrganObject#4  organ db
+} {::DbObj}
+
+
+
 # -------------------------------------------------------------------------
 
 
