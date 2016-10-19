@@ -150,6 +150,7 @@ proc ::tool::args_to_options args {
 # topic: a92cd258900010f656f4c6e7dbffae57
 ###
 proc ::tool::dynamic_methods class {
+  ::oo::meta::rebuild $class
   set metadata [::oo::meta::metadata $class]
   foreach command [info commands [namespace current]::dynamic_methods_*] {
     $command $class $metadata
@@ -314,6 +315,7 @@ proc ::tool::object_destroy objname {
   # Put MOACish stuff in here
   variable signals_pending create
   variable organs {}
+  variable mixins {}
   
   constructor args {
     my Config_merge [::tool::args_to_options {*}$args]
@@ -453,15 +455,20 @@ proc ::tool::object_destroy objname {
     if {$integrate} {
       my meta rmerge [list option $dat]
     }
-    #set field [my cget field]
     my variable option_canonical
     array set option_canonical [dict getnull $public option_canonical]
     set dictargs {}
     foreach {var getcmd} [dict getnull $public option_default_command] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
+      }
       if {[dict exists $config $var]} continue
       dict set dictargs $var [{*}[string map [list %field% $var %self% [namespace which my]] $getcmd]]
     }
     foreach {var value} [dict getnull $public option_default_value] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
+      }
       if {[dict exists $config $var]} continue
       dict set dictargs $var $value
     }
@@ -488,12 +495,23 @@ proc ::tool::object_destroy objname {
   #    Note, by default an odie object will ignore
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
-  method mixin class {
+  method mixin args {
     ###
     # Mix in the class
     ###
-    ::oo::objdefine [self] mixin $class
-    my ClassPublicApply $class
+    my variable mixins
+    set mixins $args
+    ::oo::objdefine [self] mixin {*}$args
+    ###
+    # Build a compsite map of all ensembles defined by the object's current
+    # class as well as all of the classes being mixed in
+    ###
+    set emap [::tool::ensemble_build_map [::info object class [self]] {*}[lreverse $args]]
+    set body [::tool::ensemble_methods $emap]
+    oo::objdefine [self] $body
+    foreach class $args {
+      my ClassPublicApply $class
+    }
   }
   
   method morph newclass {
@@ -505,8 +523,11 @@ proc ::tool::object_destroy objname {
     }
     if { $class ne $newclass } {
       my Morph_leave
+      my variable mixins
       oo::objdefine [self] class ::${newclass}
       my graft class ::${newclass}
+      # Reapply mixins
+      my mixin {*}$mixins
       my InitializePublic
       my Morph_enter
     }
@@ -534,45 +555,6 @@ proc ::tool::object_destroy objname {
     }
     return [dict getnull $organs $stub]
   }
-
-  #class_method property args {
-  #  if {[my meta exists {*}$args]} {
-  #    return [my meta get {*}$args]
-  #  }
-  #  set field [string trimright [lindex $args end] :]:
-  #  if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
-  #    return [my meta get {*}[lrange $args 0 end-1] $field]
-  #  }
-  #  if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
-  #    return [my meta get const {*}[lrange $args 0 end-1] $field]
-  #  }
-  #  return {}
-  #}
-  
-  #method property args {
-  #  if {[my meta exists {*}$args]} {
-  #    return [my meta get {*}$args]
-  #  }
-  #  set field [string trimright [lindex $args end] :]:
-  #  if {[my meta exists {*}[lrange $args 0 end-1] $field]} {
-  #    return [my meta get {*}[lrange $args 0 end-1] $field]
-  #  }
-  #  if {[my meta exists const {*}[lrange $args 0 end-1] $field]} {
-  #    return [my meta get const {*}[lrange $args 0 end-1] $field]
-  #  }
-  #  set class [info object class [self]]
-  #  if {[$class meta exists {*}[lrange $args 0 end-1] $field]} {
-  #    set value [$class meta get {*}[lrange $args 0 end-1] $field]
-  #    my meta set const {*}[lrange $args 0 end-1] $field $value
-  #    return $value
-  #  }
-  #  if {[$class meta exists const {*}[lrange $args 0 end-1] $field]} {
-  #    set value [$class meta get const {*}[lrange $args 0 end-1] $field]
-  #    my meta set const {*}[lrange $args 0 end-1] $field $value
-  #    return $value
-  #  }
-  #  return {}
-  #}
 }
 
 
