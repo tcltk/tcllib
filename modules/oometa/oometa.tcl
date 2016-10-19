@@ -114,11 +114,14 @@ proc oo::meta::info {class submethod args} {
       }
     }
     leaf_add {
-      set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      if {[::info exists ::oo::meta::local_property($class)]} {
+        set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      }
       ladd result {*}[lrange $args 1 end]
       dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
     }
     leaf_remove {
+      if {![::info exists ::oo::meta::local_property($class)]} return
       set result {}
       forearch element [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]] {
         if { $element in [lrange $args 1 end]} continue
@@ -181,6 +184,7 @@ proc ::oo::meta::metadata {class {force 0}} {
           unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
         }
       }
+      if {![::info exists ::oo::meta::local_property($dclass)]} continue
       if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
         if {$dclass ni $::oo::meta::core_classes} {
           lappend ::oo::meta::core_classes $dclass
