@@ -109,15 +109,17 @@ proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
   # Only go through the motions for classes that have a locally defined
   # ensemble method implementation
   ###
-  if {[info exists ::tool::obj_ensemble_cache($thisclass)]} return
-  set emap [::tool::ensemble_build_map $thisclass]
-  set body [::tool::ensemble_methods $emap]
-  oo::define $thisclass $body
-  # Define a property for this ensemble for introspection
-  foreach {ensemble einfo} $emap {
-    ::oo::meta::info $thisclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
+  foreach aclass [::oo::meta::ancestors $thisclass] {
+    if {[info exists ::tool::obj_ensemble_cache($aclass)]} continue
+    set emap [::tool::ensemble_build_map $aclass]
+    set body [::tool::ensemble_methods $emap]
+    oo::define $aclass $body
+    # Define a property for this ensemble for introspection
+    foreach {ensemble einfo} $emap {
+      ::oo::meta::info $aclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
+    }
+    set ::tool::obj_ensemble_cache($aclass) 1
   }
-  set ::tool::obj_ensemble_cache($thisclass) 1
 }
 
 ###
