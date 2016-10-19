@@ -499,7 +499,78 @@ test tool-constructor-args-006 {Test that a default for an organ option is NOT a
   MorphOrganObject#4  organ db
 } {::DbObj}
 
+###
+# Test ensemble inheritence
+###
+tool::define NestedClassA {
+  method do::family {
+    return [self class]
+  }
+  method do::something {
+    return A
+  }
+  method do::whop {
+    return A
+  }
+}
+tool::define NestedClassB {
+  superclass NestedClassA
+  method do::family {
+    set r [next family]
+    lappend r [self class]
+    return $r
+  }
+  method do::whop {
+    return B
+  }
+}
+tool::define NestedClassC {
+  superclass NestedClassB
 
+  method do::somethingelse {
+    return C
+  }
+}
+tool::define NestedClassD {
+  superclass NestedClassB
+
+  method do::somethingelse {
+    return D
+  }
+}
+
+tool::define NestedClassE {
+  superclass NestedClassD NestedClassC
+}
+
+tool::define NestedClassF {
+  superclass NestedClassC NestedClassD
+}
+
+NestedClassC create NestedObjectC
+
+test tool-ensemble-001 {Test that an ensemble can access [next] even if no object of the ancestor class have been instantiated} {
+  NestedObjectC do family
+} {::NestedClassA ::NestedClassB ::NestedClassC}
+
+test tool-ensemble-002 {Test that a later ensemble definition trumps a more primitive one} {
+  NestedObjectC do whop
+} {B}
+test tool-ensemble-003 {Test that an ensemble definitions in an ancestor carry over} {
+  NestedObjectC do something
+} {A}
+
+NestedClassE create NestedObjectE
+NestedClassF create NestedObjectF
+
+
+test tool-ensemble-004 {Test that ensembles follow the same rules for inheritance as methods} {
+  NestedObjectE do somethingelse
+} {D}
+
+test tool-ensemble-005 {Test that ensembles follow the same rules for inheritance as methods} {
+  NestedObjectF do somethingelse
+} {C}
 
 # -------------------------------------------------------------------------
 
