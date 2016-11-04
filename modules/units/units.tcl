@@ -6,14 +6,18 @@
 #  scientific and engineering shorthand notations into floating point
 #  numbers.
 #
+#  Sean Woods
+#  November 4, 2016
+#  Test and Evaluation Solutions, LLC
+#
 #  Robert W. Techentin
 #  November 1, 2000
 #  Copyright (C) Mayo Foundation.  All Rights Reserved.
 #
 #-----------------------------------------------------------------
-package provide units 2.1.1
+package provide units 2.2
 
-package require Tcl 8.1
+package require Tcl 8.5
 
 namespace eval ::units {
 
@@ -95,7 +99,6 @@ proc ::units::new { args } {
 #-----------------------------------------------------------------
 
 proc ::units::convert { args } {
-
     #  Check number of arguments
     switch [llength $args] {
 	2 {
@@ -107,12 +110,30 @@ proc ::units::convert { args } {
 	    error "Wrong # args. units::convert value targetUnits "
 	}
     }
-
     #  Reduce each of value and target
     #  to primitive units
     set reducedValue [::units::reduce $value]
     set reducedTarget [::units::reduce $targetUnits]
-
+    
+    set operation {}
+    if {[llength $reducedValue]==4 && [lindex $reducedValue 1] in {+ -}} {
+	if {[lindex $reducedValue 1] eq "+"} {
+	    lappend operation [lindex $reducedValue 0] - [lindex $reducedValue 2]
+	} else {
+	    lappend operation [lindex $reducedValue 0] + [lindex $reducedValue 2]
+	}
+	set reducedValue [reduce [lindex $reducedValue 3]]
+	lappend operation * [lindex $reducedValue 0] /
+    } else {
+	lappend operation [lindex $reducedValue 0] /
+    }
+    if {[llength $reducedTarget]==4 && [lindex $reducedTarget 1] in {+ -}} {
+	set postop [lrange $reducedTarget 0 2]
+	set reducedTarget  [reduce [lindex $reducedTarget 3]]
+	lappend operation  [lindex $reducedTarget 0] * {*}$postop
+    } else {
+	lappend operation [lindex $reducedTarget 0]
+    }
     #  If the value has units, it must be compatible with
     #  the target.  (If it is unitless, then compatibility
     #  is not required.)
@@ -121,9 +142,8 @@ proc ::units::convert { args } {
 	    error "'$value' and '$targetUnits' have incompatible units"
 	}
     }
-
-    #  Compute and return scaled value
-    expr {[lindex $reducedValue 0] / [lindex $reducedTarget 0]}
+    #  Compute and return scaled and transformed value
+    return [expr $operation]
 }
 
 
@@ -177,22 +197,18 @@ proc ::units::convert { args } {
 #-----------------------------------------------------------------
 #
 
-proc ::units::reduce { args } {
-
+proc ::units::reduce unitString {
     #  Check number of arguments
-    switch [llength $args] {
-	1 {
-	    set unitString [lindex $args 0]
-	}
-	default {
-	    #  issue same error as C extension
-	    error "Wrong # args. units::reduce unitString "
-	}
-    }
 
     # check for primitive unit - may already be reduced
     #  This gets excercised by new units
     if { "$unitString" == "-primitive" } {
+	return $unitString
+    }
+    if { [string range $unitString 0 1] == "+ " } {
+	return $unitString
+    }
+    if { [string range $unitString 0 1] == "- " } {
 	return $unitString
     }
 
@@ -242,7 +258,7 @@ proc ::units::reduce { args } {
     #  may be necessary to process it recursively, without
     #  performing the string syntax checks again.  But check
     #  for errors.
-    if { [catch {ReduceList $scaleFactor $subunits} result] } {
+    if { [catch {ReduceList $scaleFactor $subunits} result errdat] } {
 	error "$result in '$unitString'"
     }
 
@@ -252,6 +268,39 @@ proc ::units::reduce { args } {
 }
 
 
+# Utility Function - Reduce factor/numerator/denominator
+proc ::units::_ReduceList_opt {factor numerator denominator} {
+
+    #  Sort both numerator and denominator
+    set numerator [lsort $numerator]
+    set denominator [lsort $denominator]
+
+    #  Cancel any duplicate units.
+    #  Foreach and for loops don't work well for this.
+    #  (We keep changing list length).
+    set i 0
+    while {$i < [llength $numerator]} {
+	set u [lindex $numerator $i]
+	set index [lsearch $denominator $u]
+	if { $index >= 0 } {
+	    set numerator [lreplace $numerator $i $i]
+	    set denominator [lreplace $denominator $index $index]
+	} else {
+	    incr i
+	}
+    }
+
+    #  Now we've got numerator, denominator, and factors.
+    #  Assemble the result into a single list.
+    if { [llength $denominator] > 0 } {
+	set result [eval list $factor $numerator "/" $denominator]
+    } else {
+	set result [eval list $factor $numerator]
+    }
+
+    #  Now return the result
+    return $result
+}
 #-----------------------------------------------------------------
 #
 # ::units::ReduceList --
@@ -276,7 +325,6 @@ proc ::units::reduce { args } {
 #-----------------------------------------------------------------
 #
 proc ::units::ReduceList { factor unitString } {
-
     variable UnitList
     variable UnitTable
     variable PrefixTable
@@ -290,6 +338,9 @@ proc ::units::ReduceList { factor unitString } {
     set numerflag 1
     set numerator [list]
     set denominator [list]
+    
+    set operations {}
+    
     foreach subunit $unitString {
 
 	#  Check for "/"
@@ -437,7 +488,15 @@ proc ::units::ReduceList { factor unitString } {
 		set reducedUnit [::units::reduce $unitValue]
 		set ::units::cache($unitValue) $reducedUnit
 	    }
-
+	    set opcode [lindex $reducedUnit 0]
+	    if {$opcode in {+ -}} {
+		lappend operations {*}[_ReduceList_opt $factor $numerator $denominator] $opcode
+		set numerflag 1
+		set numerator [list]
+		set denominator [list]
+		set factor 1.0
+		set reducedUnit [lrange $reducedUnit 1 end]
+	    }	    
 	    #  Include multiple factor from reduced unit
 	    set multiple [expr {pow([lindex $reducedUnit 0],$exponent)}]
 	    if { $numerflag } {
@@ -468,38 +527,11 @@ proc ::units::ReduceList { factor unitString } {
 		    }
 		}
 	    }
+	    
 	}
     }
-
-    #  Sort both numerator and denominator
-    set numerator [lsort $numerator]
-    set denominator [lsort $denominator]
-
-    #  Cancel any duplicate units.
-    #  Foreach and for loops don't work well for this.
-    #  (We keep changing list length).
-    set i 0
-    while {$i < [llength $numerator]} {
-	set u [lindex $numerator $i]
-	set index [lsearch $denominator $u]
-	if { $index >= 0 } {
-	    set numerator [lreplace $numerator $i $i]
-	    set denominator [lreplace $denominator $index $index]
-	} else {
-	    incr i
-	}
-    }
-
-    #  Now we've got numerator, denominator, and factors.
-    #  Assemble the result into a single list.
-    if { [llength $denominator] > 0 } {
-	set result [eval list $factor $numerator "/" $denominator]
-    } else {
-	set result [eval list $factor $numerator]
-    }
-
-    #  Now return the result
-    return $result
+    lappend operations {*}[_ReduceList_opt $factor $numerator $denominator]
+    return $operations
 }
 
 
