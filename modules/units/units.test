@@ -21,8 +21,8 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.1
-testsNeedTcltest 1.0
+testsNeedTcl     8.5
+testsNeedTcltest 2
 
 testing {
     useLocal units.tcl units
