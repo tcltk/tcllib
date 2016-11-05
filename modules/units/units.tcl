@@ -94,9 +94,9 @@ proc ::units::convert {value targetUnits} {
     set operation {}
     if {[llength $reducedValue]==4 && [lindex $reducedValue 1] in {+ -}} {
 	if {[lindex $reducedValue 1] eq "+"} {
-	    lappend operation [lindex $reducedValue 0] - [lindex $reducedValue 2]
+	    lappend operation ( [lindex $reducedValue 0] - [lindex $reducedValue 2] )
 	} else {
-	    lappend operation [lindex $reducedValue 0] + [lindex $reducedValue 2]
+	    lappend operation ( [lindex $reducedValue 0] + [lindex $reducedValue 2] )
 	}
 	set reducedValue [reduce [lindex $reducedValue 3]]
 	lappend operation * [lindex $reducedValue 0] /
