@@ -29,18 +29,17 @@ testing {
 }
 
 #-----------------------------------------------------------
-
 test units-1.1 {new command exists} {
     list [catch {units::new} msg] $msg
-} {1 {Wrong # args. units::new name baseUnits }}
+} {1 {wrong # args: should be "units::new name baseUnits"}}
 
 test units-1.2 {convert command exists} {
     list [catch {units::convert} msg] $msg
-} {1 {Wrong # args. units::convert value targetUnits }}
+} {1 {wrong # args: should be "units::convert value targetUnits"}}
 
 test units-1.3 {reduce command exists} {
     list [catch {units::reduce} msg] $msg
-} {1 {Wrong # args. units::reduce unitString }}
+} {1 {wrong # args: should be "units::reduce unitString"}}
 
 
 
@@ -515,7 +514,20 @@ test units-10.1 {leading zero is not octal} {
     format %5.3f [::units::convert 09mm meter]
 } {0.009}
 
+###
+# Dimensional analysis tests
+###
+::units::new rankine {0.55555555555556 kelvin}
+::units::new farhenheit {- 459.67 rankine}
+::units::new celsius {- 273.15 kelvin}
 
+test units-11.0 {Test kelvin -> rankine} {
+    format %5.3f [::units::convert {451 rankine} kelvin]
+} {250.556}
+
+test units-11.1 {Test kelvin -> rankine} {
+    format %5.3f [::units::convert {18 celsius} farhenheit]
+} {50.000}
 
 #-----------------------------------------------------------
 

@@ -40,22 +40,9 @@ namespace eval ::units {
 #  Otherwise, it must reduce to units already defined.
 #
 #-----------------------------------------------------------------
-proc ::units::new { args } {
-
+proc ::units::new {name baseUnits} {
     variable UnitTable
     variable UnitList
-
-    #  Check number of arguments
-    switch [llength $args] {
-	2 {
-	    set name [lindex $args 0]
-	    set baseUnits [lindex $args 1]
-	}
-	default {
-	    #  issue same error as C extension
-	    error "Wrong # args. units::new name baseUnits "
-	}
-    }
 
     # check for duplicates
     if { [info exists UnitTable($name)] } {
@@ -98,18 +85,7 @@ proc ::units::new { args } {
 #
 #-----------------------------------------------------------------
 
-proc ::units::convert { args } {
-    #  Check number of arguments
-    switch [llength $args] {
-	2 {
-	    set value [lindex $args 0]
-	    set targetUnits [lindex $args 1]
-	}
-	default {
-	    #  issue same error as C extension
-	    error "Wrong # args. units::convert value targetUnits "
-	}
-    }
+proc ::units::convert {value targetUnits} {
     #  Reduce each of value and target
     #  to primitive units
     set reducedValue [::units::reduce $value]
