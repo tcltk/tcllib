@@ -25,7 +25,7 @@ namespace eval ::units {
     namespace export convert
     namespace export reduce
 
-    variable UnitTable
+    variable UnitList
     variable PrefixTable
 }
 
@@ -41,11 +41,10 @@ namespace eval ::units {
 #
 #-----------------------------------------------------------------
 proc ::units::new {name baseUnits} {
-    variable UnitTable
     variable UnitList
 
     # check for duplicates
-    if { [info exists UnitTable($name)] } {
+    if { [dict exists $UnitList $name] } {
 	error "unit '$name' is already defined"
     }
 
@@ -60,8 +59,7 @@ proc ::units::new {name baseUnits} {
     }
 
     # add the unit, but don't return a value
-    set UnitTable($name) $reducedUnits
-    lappend UnitList $name $reducedUnits
+    dict set UnitList $name $reducedUnits
     return
 }
 
@@ -245,7 +243,7 @@ proc ::units::reduce unitString {
 
 
 # Utility Function - Reduce factor/numerator/denominator
-proc ::units::_ReduceList_opt {factor numerator denominator} {
+proc ::units::_ReduceList_term {factor numerator denominator} {
 
     #  Sort both numerator and denominator
     set numerator [lsort $numerator]
@@ -302,7 +300,6 @@ proc ::units::_ReduceList_opt {factor numerator denominator} {
 #
 proc ::units::ReduceList { factor unitString } {
     variable UnitList
-    variable UnitTable
     variable PrefixTable
 
     # process each subunit in turn, starting in the numerator
@@ -466,7 +463,7 @@ proc ::units::ReduceList { factor unitString } {
 	    }
 	    set opcode [lindex $reducedUnit 0]
 	    if {$opcode in {+ -}} {
-		lappend operations {*}[_ReduceList_opt $factor $numerator $denominator] $opcode
+		lappend operations {*}[_ReduceList_term $factor $numerator $denominator] $opcode
 		set numerflag 1
 		set numerator [list]
 		set denominator [list]
@@ -506,7 +503,7 @@ proc ::units::ReduceList { factor unitString } {
 	    
 	}
     }
-    lappend operations {*}[_ReduceList_opt $factor $numerator $denominator]
+    lappend operations {*}[_ReduceList_term $factor $numerator $denominator]
     return $operations
 }
 
@@ -563,7 +560,6 @@ namespace eval ::units {
     }
 
     array set PrefixTable $PrefixList
-
 
     set SIunits {
 	meter        -primitive
@@ -679,20 +675,15 @@ namespace eval ::units {
     }
 
     foreach {name value} $SIunits {
-	lappend UnitList $name $value
-	set UnitTable($name) $value
+	dict set UnitList $name $value
     }
     foreach {name value} $nonSIunits {
-	lappend UnitList $name $value
-	set UnitTable($name) $value
+	dict set UnitList $name $value
     }
     foreach {name value} $SIabbrevs {
-	lappend UnitList $name $value
-	set UnitTable($name) $value
+	dict set UnitList $name $value
     }
     foreach {name value} $nonSIabbrevs {
-	lappend UnitList $name $value
-	set UnitTable($name) $value
+	dict set UnitList $name $value
     }
-
 }
