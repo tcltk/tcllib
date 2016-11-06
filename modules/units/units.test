@@ -551,22 +551,13 @@ foreach {value_a unit_a value_b unit_b} {
   0 celsius 32 farhenheit
   100 celsius 212 farhenheit
 } {
-  set test_a []
-  set test_b []
   test units-11.4.$value_a [list Test Celcius -> Fahrenheight $value_a] {
     expr {int(round([::units::convert [list $value_a $unit_a] $unit_b]))}
   } $value_b
   test units-11.4.$value_b [list Test Fahrenheight -> Celcius $value_b] {
     expr {round([::units::convert [list $value_b $unit_b] $unit_a])}
   } $value_a
-
 }
-puts [list TESTING 0 C]
-puts [list [C_to_F 0] [::units::convert [list 0 celsius] farhenheit]]
-puts [list TESTING 100 C]
-
-puts [list [C_to_F 100] [::units::convert [list 100 celsius] farhenheit]]
-
 for {set test_temp -50} {$test_temp < 150} {incr test_temp 10} {
   test units-11.5.$test_temp [list Test Fahrenheight -> Celcius $test_temp] {
     format %5.3f [::units::convert [list $test_temp farhenheit] celsius]
