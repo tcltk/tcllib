@@ -21,26 +21,25 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.1
-testsNeedTcltest 1.0
+testsNeedTcl     8.5
+testsNeedTcltest 2
 
 testing {
     useLocal units.tcl units
 }
 
 #-----------------------------------------------------------
-
 test units-1.1 {new command exists} {
     list [catch {units::new} msg] $msg
-} {1 {Wrong # args. units::new name baseUnits }}
+} {1 {wrong # args: should be "units::new name baseUnits"}}
 
 test units-1.2 {convert command exists} {
     list [catch {units::convert} msg] $msg
-} {1 {Wrong # args. units::convert value targetUnits }}
+} {1 {wrong # args: should be "units::convert value targetUnits"}}
 
 test units-1.3 {reduce command exists} {
     list [catch {units::reduce} msg] $msg
-} {1 {Wrong # args. units::reduce unitString }}
+} {1 {wrong # args: should be "units::reduce unitString"}}
 
 
 
@@ -515,7 +514,58 @@ test units-10.1 {leading zero is not octal} {
     format %5.3f [::units::convert 09mm meter]
 } {0.009}
 
+###
+# Dimensional analysis tests
+###
+::units::new rankine {0.55555555555556 kelvin}
+::units::new farhenheit {- 459.67 rankine}
+::units::new celsius {- 273.15 kelvin}
 
+test units-11.0 {Test kelvin -> rankine} {
+    format %5.3f [::units::convert {451 rankine} kelvin]
+} {250.556}
+
+test units-11.2 {Test farhenheit -> farhenheit} {
+    format %5.3f [::units::convert {50 farhenheit} farhenheit]
+} {50.000}
+
+test units-11.3 {Test kelvin -> rankine} {
+    format %5.3f [::units::convert {50 celsius} celsius]
+} {50.000}
+
+
+proc C_to_K temp {
+  return [format %5.3f [expr {$temp-273.15}]]
+}
+proc F_to_C temp {
+  return [format %5.3f [expr {($temp-32)*5.0/9.0}]]
+}
+proc C_to_F temp {
+  return [format %5.3f [expr {$temp*9.0/5.0+32}]]
+}
+
+###
+# Cherry pick some known values
+###
+foreach {value_a unit_a value_b unit_b} {
+  0 celsius 32 farhenheit
+  100 celsius 212 farhenheit
+} {
+  test units-11.4.$value_a [list Test Celcius -> Fahrenheight $value_a] {
+    expr {int(round([::units::convert [list $value_a $unit_a] $unit_b]))}
+  } $value_b
+  test units-11.4.$value_b [list Test Fahrenheight -> Celcius $value_b] {
+    expr {round([::units::convert [list $value_b $unit_b] $unit_a])}
+  } $value_a
+}
+for {set test_temp -50} {$test_temp < 150} {incr test_temp 10} {
+  test units-11.5.$test_temp [list Test Fahrenheight -> Celcius $test_temp] {
+    format %5.3f [::units::convert [list $test_temp farhenheit] celsius]
+  } [F_to_C $test_temp]
+  test units-11.5.$test_temp [list Test Celcius -> Fahrenheight $test_temp] {
+    format %5.3f [::units::convert [list $test_temp celsius] farhenheit]
+  } [C_to_F $test_temp]
+}
 
 #-----------------------------------------------------------
 
