@@ -670,7 +670,7 @@ proc ::fileutil::magic::cfront::process {tree file {maxlevel 10000}} {
    	    continue	;# skip blank lines
    	} else {
    	    # parse line
-	    if {[regexp {!:(\S+)\s*(.*)$} $line -> extname extdata]} {
+	    if {[regexp {!:(\S+)\s*([^\s]*).*$} $line -> extname extdata]} {
 		if {$rejected} {
 		    continue
 		}

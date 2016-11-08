@@ -3673,7 +3673,7 @@ if {[N leshort 18 0 0 & 36480 == 0]} {>
 <}
 
 <}
-}} 211 {apple-driver-map {
+}} 212 {apple-driver-map {
 if {[N bequad 0 0 0 {} {} != 0]} {>
 
 	if {[N belong 0 0 0 {} {} x {}]} {>
@@ -3825,7 +3825,7 @@ emit {\bx%d}
 ext cwk
 
 <}
-}} 217 {riff-wave {
+}} 218 {riff-wave {
 switch -- [Nv leshort 0 0 {} {}] 1 {>;emit {\b, Microsoft PCM}
 
 	if {[N leshort 14 0 0 {} {} > 0]} {>
@@ -3864,7 +3864,7 @@ if {[N lelong 4 0 0 {} {} > 0]} {>
 if {[S string 0 0 {} {} eq fmt\x20]} {>
 
 	if {[N lelong 4 0 0 {} {} < 128]} {>
-U 217 riff-wave
+U 218 riff-wave
 
 <}
 
@@ -3872,31 +3872,31 @@ U 217 riff-wave
 
 
 if {[Sx string 0 0 {} {} eq LIST]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
 
 if {[Sx string 0 0 {} {} eq DISP]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
 
 if {[Sx string 0 0 {} {} eq bext]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
 
 if {[Sx string 0 0 {} {} eq Fake]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
 
 if {[Sx string 0 0 {} {} eq fact]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
@@ -3934,7 +3934,7 @@ if {[S string 0 0 {} {} eq VP8]} {>
 <}
 
 <}
-}} 223 {msdos-com {
+}} 224 {msdos-com {
 if {[N byte 0 0 0 {} {} x {}]} {>
 
 emit {DOS executable (COM)}
@@ -4023,10 +4023,10 @@ if {[N lelong 18 0 0 {} {} & 6]} {>
 
 			emit {\bs}
 <}
-U 223 ico-entry
+U 224 ico-entry
 
 			if {[N leshort 4 0 0 {} {} > 1]} {>
-U 223 ico-entry
+U 224 ico-entry
 
 <}
 
@@ -4044,7 +4044,7 @@ U 223 ico-entry
 
 			emit {\bs}
 <}
-U 223 cur-entry
+U 224 cur-entry
 
 		mime image/x-win-bitmap
 
@@ -4054,7 +4054,7 @@ U 223 cur-entry
 <}
 
 <}
-} cur-entry {U 223 cur-ico-entry
+} cur-entry {U 224 cur-ico-entry
 
 
 if {[N leshort 4 0 0 {} {} x {}]} {>
@@ -4067,7 +4067,7 @@ if {[N leshort 6 0 0 {} {} x {}]} {>
 
 emit {\b%d}
 <}
-} ico-entry {U 223 cur-ico-entry
+} ico-entry {U 224 cur-ico-entry
 
 
 if {[N leshort 4 0 0 {} {} > 1]} {>
@@ -4119,7 +4119,7 @@ if {[Nx belong [I 12 lelong 0 + 0 0] 0 0 {} {} == 2303741511]} {>
 if {[N belong [I 12 lelong 0 + 0 0] 0 0 {} {} != 2303741511]} {>
 
 <}
-}} 246 {nintendo-fds-disk-info-block {
+}} 247 {nintendo-fds-disk-info-block {
 if {[S string 1 0 {} {} eq *NINTENDO-HVC*]} {>
 
 emit {Famicom Disk System disk image:}
@@ -4350,7 +4350,7 @@ if {[N leshort 0 0 0 & 15 x {}]} {>
 
 emit {\b.%u}
 <}
-}} 273 {sereal {
+}} 274 {sereal {
 if {[N byte 4 0 0 & 15 x {}]} {>
 
 emit {(version %d,}
@@ -4364,7 +4364,7 @@ if {[N byte 4 0 0 & 240 > 32]} {>
 
 emit {unknown subformat, flag: %d>>4)}
 <}
-}} 280 {cups-le {
+}} 281 {cups-le {
 if {[N lelong 280 0 0 {} {} x {}]} {>
 
 emit {\b, %d}
@@ -4614,7 +4614,7 @@ switch -- [Nv byte 54 0 {} {}] 1 {>;emit -Csnc;<} 2 {>;emit -Cssw;<} 3 {>;emit -
 ;<} 373 {>;emit {i386 COFF object};<} 29127 {>;emit {cpio archive}
 mime application/x-cpio
 ;<} -14479 {>;emit {byte-swapped cpio archive}
-mime application/x-cpio # encoding: swapped
+mime application/x-cpio
 ;<} 24672 {>;emit {Dyalog APL transfer};<} 7967 {>;emit {old packed data}
 mime application/octet-stream
 ;<} 8191 {>;emit {compacted data}
@@ -5305,7 +5305,7 @@ emit -%d
 <}
 ;<} 1360 {>;
 if {[N leshort 18 0 0 & 36480 == 0]} {>
-U 221 display-coff
+U 222 display-coff
 
 <}
 ;<} 358 {>;emit {MS Windows COFF MIPS R4000 object file};<} 388 {>;emit {MS Windows COFF Alpha object file};<} 616 {>;emit {MS Windows COFF Motorola 68000 object file};<} 496 {>;emit {MS Windows COFF PowerPC object file};<} 656 {>;emit {MS Windows COFF PA-RISC object file};<} -24712 {>;emit TNEF
@@ -6415,6 +6415,17 @@ emit %dx
 if {[N leshort 18 0 0 {} {} x {}]} {>
 
 emit {\b%d}
+<}
+;<} 119734787 {>;emit {Khronos SPIR-V binary, little-endian}
+
+if {[N lelong 4 0 0 {} {} x {}]} {>
+
+emit {\b, version 0x%08x}
+<}
+
+if {[N lelong 8 0 0 {} {} x {}]} {>
+
+emit {\b, generator 0x%08x}
 <}
 ;<} 65389 {>;emit {very old 32-bit-int little-endian archive};<} 65381 {>;emit {old 32-bit-int little-endian archive}
 
@@ -7874,6 +7885,31 @@ switch -- [Nv belong 20 0 {} {}] 0 {>;emit {old format,};<} 2 {>;emit compressed
 switch -- [Nv belong 24 0 {} {}] 0 {>;emit {no colormap};<} 1 {>;emit {RGB colormap};<} 2 {>;emit {raw colormap};<} 
 ;<} 235082497 {>;emit {Hierarchical Data Format (version 4) data}
 mime application/x-hdf
+;<} -1991489968 {>;
+if {[N belong 4 0 0 {} {} == 218765834]} {>
+
+<}
+
+if {[N belong 12 0 0 {} {} == 0]} {>
+
+emit {Lytro Light Field Picture}
+<}
+
+if {[N belong 8 0 0 {} {} x {}]} {>
+
+emit {\b, version %d}
+<}
+;<} 119734787 {>;emit {Khronos SPIR-V binary, big-endian}
+
+if {[N belong 4 0 0 {} {} x {}]} {>
+
+emit {\b, version 0x%08x}
+<}
+
+if {[N belong 8 0 0 {} {} x {}]} {>
+
+emit {\b, generator 0x%08x}
+<}
 ;<} 134551296 {>;emit {Bentley/Intergraph MicroStation DGN cell library};<} 134872578 {>;emit {Bentley/Intergraph MicroStation DGN vector CAD};<} -938869246 {>;emit {Bentley/Intergraph MicroStation DGN vector CAD};<} 1936484385 {>;emit {Allegro datafile (packed)};<} 1936484398 {>;emit {Allegro datafile (not packed/autodetect)};<} 1936484395 {>;emit {Allegro datafile (appended exe data)};<} 65389 {>;emit {very old 32-bit-int big-endian archive};<} 65381 {>;emit {old 32-bit-int big-endian archive}
 
 if {[S string 4 0 {} {} eq __.SYMDEF]} {>
@@ -8053,7 +8089,7 @@ if {[N belong 4 0 0 {} {} x {}]} {>
 
 emit {- %d bytes}
 <}
-;<} 1347223552 {>;U 211 apple-apm
+;<} 1347223552 {>;U 212 apple-apm
 ;<} -1040441407 {>;emit {Common Trace Format (CTF) trace data (BE)};<} 1976638807 {>;emit {Common Trace Format (CTF) packetized metadata (BE)}
 
 if {[N byte 35 0 0 {} {} x {}]} {>
@@ -8232,8 +8268,8 @@ if {[N byte 7 0 0 {} {} == 0]} {>
 		ext cnf
 
 <}
-U 223 lotus-cells
-U 223 lotus-cells
+U 224 lotus-cells
+U 224 lotus-cells
 
 	mime application/vnd.lotus-1-2-3
 
@@ -8245,16 +8281,16 @@ switch -- [Nv byte 9 0 {} {}] 0 {>;
 	if {[N byte 0 0 0 {} {} x {}]} {>
 
 <}
-U 223 cur-ico-dir
+U 224 cur-ico-dir
 ;<} -1 {>;
 	if {[N byte 0 0 0 {} {} x {}]} {>
 
 <}
-U 223 cur-ico-dir
+U 224 cur-ico-dir
 ;<} 
 ;<} 512 {>;
-switch -- [Nv byte 9 0 {} {}] 0 {>;U 223 cur-ico-dir
-;<} -1 {>;U 223 cur-ico-dir
+switch -- [Nv byte 9 0 {} {}] 0 {>;U 224 cur-ico-dir
+;<} -1 {>;U 224 cur-ico-dir
 ;<} 
 ;<} -976170042 {>;emit {DOS EPS Binary File}
 
@@ -8360,7 +8396,7 @@ if {[N belong 12 0 0 {} {} == 1048576]} {>
 	if {[N belong [I 8 belong 0 + 0 28] 0 0 {} {} == 3258163005]} {>
 
 	emit {Nintendo GameCube embedded disc image:}
-U 246 nintendo-gcn-disc-common
+U 247 nintendo-gcn-disc-common
 
 <}
 
@@ -8814,7 +8850,7 @@ if {[S string 4 0 {} {} ne O====]} {>
 if {[N byte 1 0 0 {} {} > -1]} {>
 
 	if {[N byte [I 1 byte 0 + 0 2] 0 0 {} {} x {}]} {>
-U 223 msdos-com
+U 224 msdos-com
 
 <}
 
@@ -9555,7 +9591,7 @@ mime application/x-pgp-keyring
 ;<} -27392 {>;emit {PGP key security ring}
 mime application/x-pgp-keyring
 ;<} -23040 {>;emit {PGP encrypted data}
-mime text/PGP # encoding: armored data
+mime text/PGP
 ;<} 368 {>;emit {WE32000 COFF}
 
 if {[N beshort 18 0 0 {} {} ^ 16]} {>
@@ -10266,7 +10302,7 @@ if {[N belong 24 0 0 {} {} > 0]} {>
 emit {- version %d}
 <}
 ;<} -31486 {>;emit {GPG encrypted data}
-mime text/PGP # encoding: data
+mime text/PGP
 ;<} 5493 {>;emit {fsav macro virus signatures}
 
 if {[N leshort 8 0 0 {} {} > 0]} {>
@@ -10325,56 +10361,56 @@ emit {Apple Driver Map}
 	if {[N belong 516 0 0 {} {} > 0]} {>
 
 	emit {\b, contains[@0x200]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 1]} {>
 
 	emit {\b, contains[@0x400]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 2]} {>
 
 	emit {\b, contains[@0x600]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 3]} {>
 
 	emit {\b, contains[@0x800]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 4]} {>
 
 	emit {\b, contains[@0xA00]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 5]} {>
 
 	emit {\b, contains[@0xC00]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 6]} {>
 
 	emit {\b, contains[@0xE00]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
 	if {[N belong 516 0 0 {} {} > 7]} {>
 
 	emit {\b, contains[@0x1000]: }
-U 211 apple-apm
+U 212 apple-apm
 
 <}
 
@@ -10501,7 +10537,7 @@ emit {- version %d}
 <}
 ;<} 1280 {>;
 if {[N beshort 18 0 0 & 36480 == 0]} {>
-U 221 display-coff
+U 222 display-coff
 
 <}
 ;<} -32768 {>;emit {lif file};<} -1279 {>;emit {QDOS object}
@@ -24172,26 +24208,27 @@ if {[N leshort 16386 0 0 {} {} > 16399]} {>
 	if {[S string 16394 0 {} {} eq \0\0\0\0\0\0]} {>
 
 	emit {MSX ROM with nonstandard page order}
+
+		if {[N leshort 16386 0 0 {} {} x {}]} {>
+
+		emit {\b, init=0x%04x}
 <}
 
-	if {[N leshort 16386 0 0 {} {} x {}]} {>
+		if {[N leshort 16388 0 0 {} {} > 0]} {>
 
-	emit {\b, init=0x%04x}
+		emit {\b, stahdl=0x%04x}
 <}
 
-	if {[N leshort 16388 0 0 {} {} > 0]} {>
+		if {[N leshort 16390 0 0 {} {} > 0]} {>
 
-	emit {\b, stahdl=0x%04x}
+		emit {\b, devhdl=0x%04x}
 <}
 
-	if {[N leshort 16390 0 0 {} {} > 0]} {>
+		if {[N leshort 16392 0 0 {} {} > 0]} {>
 
-	emit {\b, devhdl=0x%04x}
+		emit {\b, bas=0x%04x}
 <}
 
-	if {[N leshort 16392 0 0 {} {} > 0]} {>
-
-	emit {\b, bas=0x%04x}
 <}
 
 <}
@@ -24205,26 +24242,27 @@ if {[N leshort 32770 0 0 {} {} > 16399]} {>
 	if {[S string 32778 0 {} {} eq \0\0\0\0\0\0]} {>
 
 	emit {MSX ROM with nonstandard page order}
+
+		if {[N leshort 32770 0 0 {} {} x {}]} {>
+
+		emit {\b, init=0x%04x}
 <}
 
-	if {[N leshort 32770 0 0 {} {} x {}]} {>
+		if {[N leshort 32772 0 0 {} {} > 0]} {>
 
-	emit {\b, init=0x%04x}
+		emit {\b, stahdl=0x%04x}
 <}
 
-	if {[N leshort 32772 0 0 {} {} > 0]} {>
+		if {[N leshort 32774 0 0 {} {} > 0]} {>
 
-	emit {\b, stahdl=0x%04x}
+		emit {\b, devhdl=0x%04x}
 <}
 
-	if {[N leshort 32774 0 0 {} {} > 0]} {>
+		if {[N leshort 32776 0 0 {} {} > 0]} {>
 
-	emit {\b, devhdl=0x%04x}
+		emit {\b, bas=0x%04x}
 <}
 
-	if {[N leshort 32776 0 0 {} {} > 0]} {>
-
-	emit {\b, bas=0x%04x}
 <}
 
 <}
@@ -29276,7 +29314,7 @@ emit {\b}
 
 	switch -- [Nv byte 20 0 & 14] 0 {>;emit {\b, mono};<} 2 {>;emit {\b, stereo};<} 4 {>;emit {\b, 3 channels};<} 6 {>;emit {\b, 4 channels};<} 8 {>;emit {\b, 5 channels};<} 10 {>;emit {\b, 6 channels};<} 12 {>;emit {\b, 7 channels};<} 14 {>;emit {\b, 8 channels};<} 
 
-	switch -- [Nv belong 17 0 & 16777200] 705600 {>;emit {\b, 44.1 kHz};<} 768000 {>;emit {\b, 48 kHz};<} 512000 {>;emit {\b, 32 kHz};<} 352800 {>;emit {\b, 22.05 kHz};<} 384000 {>;emit {\b, 24 kHz};<} 256000 {>;emit {\b, 16 kHz};<} 176400 {>;emit {\b, 11.025 kHz};<} 192000 {>;emit {\b, 12 kHz};<} 128000 {>;emit {\b, 8 kHz};<} 1536000 {>;emit {\b, 96 kHz};<} 1024000 {>;emit {\b, 64 kHz};<} 
+	switch -- [Nv belong 17 0 & 16777200] 3072000 {>;emit {\b, 192 kHz};<} 1411200 {>;emit {\b, 88.2 kHz};<} 705600 {>;emit {\b, 44.1 kHz};<} 768000 {>;emit {\b, 48 kHz};<} 512000 {>;emit {\b, 32 kHz};<} 352800 {>;emit {\b, 22.05 kHz};<} 384000 {>;emit {\b, 24 kHz};<} 256000 {>;emit {\b, 16 kHz};<} 176400 {>;emit {\b, 11.025 kHz};<} 192000 {>;emit {\b, 12 kHz};<} 128000 {>;emit {\b, 8 kHz};<} 1536000 {>;emit {\b, 96 kHz};<} 1024000 {>;emit {\b, 64 kHz};<} 
 
 	if {[N byte 21 0 0 & 15 > 0]} {>
 
@@ -30188,7 +30226,7 @@ if {[S string 0 0 {} {} eq \;ELC]} {>
 if {[N byte 4 0 0 {} {} > 18]} {>
 
 emit {Emacs/XEmacs v%d byte-compiled Lisp data}
-mime application/x-elc		
+mime application/x-elc
 
 ext elc
 
@@ -32104,7 +32142,7 @@ U 167 old-dump-be
 ;<} 424935705 {>;emit {new-fs dump file (ufs2, big endian), }
 U 167 ufs2-dump-be
 ;<} 1562156707 {>;emit {Nintendo Wii disc image:}
-U 246 nintendo-gcn-disc-common
+U 247 nintendo-gcn-disc-common
 ;<} 60013 {>;emit {dump format, 4.2 or 4.3 BSD (IDC compatible)};<} 60014 {>;emit {dump format, Convex Storage Manager by-reference dump};<} 
 } {
 switch -- [Nv lelong 24 0 {} {}] 60012 {>;emit {new-fs dump file (little endian), }
@@ -34722,14 +34760,14 @@ emit %s
 if {[S string 257 0 {} {} eq ustar\0]} {>
 
 emit {POSIX tar archive}
-mime application/x-tar # encoding: posix
+mime application/x-tar
 
 <}
 } {
 if {[S string 257 0 {} {} eq ustar\040\040\0]} {>
 
 emit {GNU tar archive}
-mime application/x-tar # encoding: gnu
+mime application/x-tar
 
 <}
 } {
@@ -39448,6 +39486,35 @@ switch -- [Nv short 126 0 {} {}] 18765 {>;emit {(big endian)}
 
 <}
 } {
+if {[S string 0 0 {} {} eq YARA]} {>
+
+if {[N lelong 4 0 0 {} {} > 2047]} {>
+
+<}
+
+if {[N byte 8 0 0 {} {} < 20]} {>
+
+emit {YARA 3.x compiled rule set}
+
+	if {[S clear 8 0 {} {} eq r]} {>
+
+<}
+
+	switch -- [Nv byte 8 0 {} {}] 6 {>;emit {created with version 3.3.0};<} 8 {>;emit {created with version 3.4.0};<} 11 {>;emit {created with version 3.5.0};<} 
+
+	if {[S default 8 0 {} {} x {}]} {>
+
+		if {[N byte 8 0 0 {} {} x {}]} {>
+
+		emit {development version 0x%02x}
+<}
+
+<}
+
+<}
+
+<}
+} {
 if {[S string 8 0 {} {} eq \001s\ ]} {>
 
 emit {SCCS archive data}
@@ -40307,7 +40374,7 @@ if {[N byte 0 0 0 {} {} > 4]} {>
 	if {[N belong 12 0 0 {} {} == 0]} {>
 
 		if {[N belong 26 0 0 {} {} == 0]} {>
-U 211 appleworks
+U 212 appleworks
 
 <}
 
@@ -40316,7 +40383,7 @@ U 211 appleworks
 <}
 
 if {[N belong 0 0 0 {} {} == 75607296]} {>
-U 211 appleworks
+U 212 appleworks
 
 <}
 
@@ -40537,7 +40604,7 @@ if {[S string 8 0 {} {} eq WAVE]} {>
 emit {\b, WAVE audio}
 
 	if {[S string 12 0 {} {} > \0]} {>
-U 217 riff-walk
+U 218 riff-walk
 
 <}
 
@@ -40882,7 +40949,7 @@ emit {\b, AMV }
 if {[S string 8 0 {} {} eq WEBP]} {>
 
 emit {\b, Web/P image}
-U 217 riff-walk
+U 218 riff-walk
 
 mime image/webp
 
@@ -42475,17 +42542,34 @@ mime application/msword
 
 <}
 } {
-if {[S string 0 0 b {} eq \376\067\0\043]} {>
+if {[N long 4 0 0 {} {} == 0]} {>
 
-emit {Microsoft Office Document}
+switch -- [Nv belong 0 0 {} {}] -30277632 {>;emit {Microsoft Word for Macintosh 1.0}
 mime application/msword
+
+ext mcw
+;<} -30146560 {>;emit {Microsoft Word for Macintosh 3.0}
+mime application/msword
+
+ext mcw
+;<} -29949924 {>;emit {Microsoft Word for Macintosh 4.0}
+mime application/msword
+
+ext mcw
+;<} -29949917 {>;emit {Microsoft Word for Macintosh 5.0}
+mime application/msword
+
+ext mcw
+;<} 
 
 <}
 } {
 if {[S string 0 0 b {} eq \333\245-\0\0\0]} {>
 
-emit {Microsoft Office Document}
+emit {Microsoft Word 2.0 Document}
 mime application/msword
+
+ext doc
 
 <}
 } {
@@ -43074,6 +43158,79 @@ emit {Mallard BASIC Jetsam data}
 if {[S string 0 0 {} {} eq Jetsam0]} {>
 
 emit {Mallard BASIC Jetsam index data}
+<}
+} {
+if {[N short 3 0 0 {} {} > 1979]} {>
+
+if {[N byte 5 0 0 - 1 < 31]} {>
+
+	if {[N byte 6 0 0 - 1 < 12]} {>
+
+		if {[S string 7 0 {} {} eq \0\0\0\0\0\0\0\0]} {>
+
+			if {[N byte 1 0 0 {} {} x {}]} {>
+
+			emit {DOS 2.0 backup id file, sequence %d}
+			ext @@@
+
+<}
+
+			if {[N byte 0 0 0 {} {} == 255]} {>
+
+			emit {\b, last disk}
+<}
+
+<}
+
+<}
+
+<}
+
+<}
+} {
+if {[N byte 83 0 0 {} {} < 79]} {>
+
+if {[S string 84 0 {} {} eq \0\0\0\0\0\0\0\0]} {>
+
+	if {[S string 5 0 {} {} x {}]} {>
+
+	emit {DOS 2.0 backed up file %s,}
+<}
+
+	if {[N byte 0 0 0 {} {} == 255]} {>
+
+	emit {complete file}
+<}
+
+	if {[N byte 0 0 0 {} {} != 255]} {>
+
+		if {[N short 1 0 0 {} {} x {}]} {>
+
+		emit {split file, sequence %d}
+<}
+
+<}
+
+<}
+
+<}
+} {
+if {[S string 0 0 {} {} eq \x8bBACKUP\x20]} {>
+
+if {[S string 10 0 {} {} eq \0\0\0\0\0\0\0\0]} {>
+
+	if {[N byte 9 0 0 {} {} x {}]} {>
+
+	emit {DOS 3.3 backup control file, sequence %d}
+<}
+
+	if {[N byte 138 0 0 {} {} == 255]} {>
+
+	emit {\b, last disk}
+<}
+
+<}
+
 <}
 } {
 if {[S string 0 0 {} {} eq spec]} {>
@@ -44356,7 +44513,7 @@ emit {UNIF v%d format NES ROM image}
 if {[S string 0 0 {} {} eq FDS\x1A]} {>
 
 if {[S string 17 0 {} {} eq *NINTENDO-HVC*]} {>
-U 246 nintendo-fds-disk-info-block
+U 247 nintendo-fds-disk-info-block
 
 <}
 
@@ -44373,7 +44530,7 @@ emit {(%u sides)}
 <}
 } {
 if {[S string 1 0 {} {} eq *NINTENDO-HVC*]} {>
-U 246 nintendo-fds-disk-info-block
+U 247 nintendo-fds-disk-info-block
 
 <}
 } {
@@ -44439,7 +44596,7 @@ switch -- [Nv byte 329 0 {} {}] 1 {>;emit {\b, RAM: 16Kbit};<} 2 {>;emit {\b, RA
 if {[S string 0 0 {} {} eq SEGADISCSYSTEM\ \ ]} {>
 
 emit {Sega Mega CD disc image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44451,7 +44608,7 @@ emit {\b, 2048-byte sectors}
 if {[S string 0 0 {} {} eq SEGABOOTDISC\ \ \ \ ]} {>
 
 emit {Sega Mega CD disc image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44463,7 +44620,7 @@ emit {\b, 2048-byte sectors}
 if {[S string 16 0 {} {} eq SEGADISCSYSTEM\ \ ]} {>
 
 emit {Sega Mega CD disc image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44475,7 +44632,7 @@ emit {\b, 2352-byte sectors}
 if {[S string 16 0 {} {} eq SEGABOOTDISC\ \ \ \ ]} {>
 
 emit {Sega Mega CD disc image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44489,7 +44646,7 @@ if {[S string 256 0 {} {} eq SEGA]} {>
 if {[N bequad 960 0 0 {} {} == 5566821131383687237]} {>
 
 emit {Sega 32X ROM image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 <}
 
@@ -44498,7 +44655,7 @@ if {[N bequad 960 0 0 {} {} != 5566821131383687237]} {>
 	if {[N belong 261 0 0 {} {} == 1346978639]} {>
 
 	emit {Sega Pico ROM image}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 <}
 
@@ -44513,7 +44670,7 @@ U 246 sega-mega-drive-header
 
 		emit {Sega Mega Drive / Genesis ROM image}
 <}
-U 246 sega-mega-drive-header
+U 247 sega-mega-drive-header
 
 <}
 
@@ -44526,7 +44683,7 @@ if {[S string 640 0 {} {} eq EAGN]} {>
 if {[N beshort 8 0 0 {} {} == 43707]} {>
 
 emit {Sega Mega Drive / Genesis ROM image (SMD format):}
-U 246 sega-genesis-smd-header
+U 247 sega-genesis-smd-header
 
 <}
 
@@ -44537,31 +44694,31 @@ if {[S string 640 0 {} {} eq EAMG]} {>
 if {[N beshort 8 0 0 {} {} == 43707]} {>
 
 emit {Sega Mega Drive / Genesis ROM image (SMD format):}
-U 246 sega-genesis-smd-header
+U 247 sega-genesis-smd-header
 
 <}
 
 <}
 } {
 if {[S string 32752 0 {} {} eq TMR\ SEGA]} {>
-U 246 sega-master-system-rom-header
+U 247 sega-master-system-rom-header
 
 <}
 } {
 if {[S string 16368 0 {} {} eq TMR\ SEGA]} {>
-U 246 sega-master-system-rom-header
+U 247 sega-master-system-rom-header
 
 <}
 } {
 if {[S string 8176 0 {} {} eq TMR\ SEGA]} {>
-U 246 sega-master-system-rom-header
+U 247 sega-master-system-rom-header
 
 <}
 } {
 if {[S string 0 0 {} {} eq SEGA\ SEGASATURN\ ]} {>
 
 emit {Sega Saturn disc image}
-U 246 sega-saturn-disc-header
+U 247 sega-saturn-disc-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44573,7 +44730,7 @@ emit {(2048-byte sectors)}
 if {[S string 16 0 {} {} eq SEGA\ SEGASATURN\ ]} {>
 
 emit {Sega Saturn disc image}
-U 246 sega-saturn-disc-header
+U 247 sega-saturn-disc-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44585,7 +44742,7 @@ emit {(2352-byte sectors)}
 if {[S string 0 0 {} {} eq SEGA\ SEGAKATANA\ ]} {>
 
 emit {Sega Dreamcast disc image}
-U 246 sega-dreamcast-disc-header
+U 247 sega-dreamcast-disc-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -44597,7 +44754,7 @@ emit {(2048-byte sectors)}
 if {[S string 16 0 {} {} eq SEGA\ SEGAKATANA\ ]} {>
 
 emit {Sega Dreamcast disc image}
-U 246 sega-dreamcast-disc-header
+U 247 sega-dreamcast-disc-header
 
 if {[N byte 0 0 0 {} {} x {}]} {>
 
@@ -45140,7 +45297,7 @@ emit {"%s"}
 if {[N belong 28 0 0 {} {} == 3258163005]} {>
 
 emit {Nintendo GameCube disc image:}
-U 246 nintendo-gcn-disc-common
+U 247 nintendo-gcn-disc-common
 
 <}
 } {
@@ -45149,7 +45306,7 @@ if {[S string 0 0 {} {} eq WBFS]} {>
 if {[N belong 536 0 0 {} {} == 1562156707]} {>
 
 emit {Nintendo Wii disc image (WBFS format):}
-U 246 nintendo-gcn-disc-common
+U 247 nintendo-gcn-disc-common
 
 <}
 
@@ -45200,7 +45357,7 @@ switch -- [Nv byte 397 0 {} {}] 5 {>;
 
 	emit {(Old3DS System Update v}
 <}
-U 246 nintendo-3ds-version-code
+U 247 nintendo-3ds-version-code
 
 	if {[N leshort 270 0 0 {} {} x {}]} {>
 
@@ -45211,7 +45368,7 @@ U 246 nintendo-3ds-version-code
 
 	emit {(New3DS System Update v}
 <}
-U 246 nintendo-3ds-version-code
+U 247 nintendo-3ds-version-code
 
 	if {[N leshort 270 0 0 {} {} x {}]} {>
 
@@ -45227,7 +45384,7 @@ if {[N byte 397 0 0 {} {} != 5]} {>
 
 		emit (v
 <}
-U 246 nintendo-3ds-version-code
+U 247 nintendo-3ds-version-code
 
 		if {[N byte 274 0 0 {} {} x {}]} {>
 
@@ -46849,7 +47006,7 @@ emit {old timezone data}
 if {[Sx string 0 0 b {} eq =srl]} {>
 
 emit {Sereal data packet}
-U 273 sereal
+U 274 sereal
 
 mime application/sereal
 
@@ -46858,7 +47015,7 @@ mime application/sereal
 if {[Sx string 0 0 b {} eq =\xF3rl]} {>
 
 emit {Sereal data packet}
-U 273 sereal
+U 274 sereal
 
 mime application/sereal
 
@@ -46867,7 +47024,7 @@ mime application/sereal
 if {[Sx string 0 0 b {} eq =\xC3\xB3rl]} {>
 
 emit {Sereal data packet, UTF-8 encoded}
-U 273 sereal
+U 274 sereal
 
 mime application/sereal
 
@@ -47103,7 +47260,7 @@ emit {Cups Raster version 3, Big Endian}
 mime application/vnd.cups-raster
 
 <}
-U 280 cups-le
+U 281 cups-le
 
 <}
 } {
@@ -47125,7 +47282,7 @@ emit {Cups Raster version 3, Little Endian}
 mime application/vnd.cups-raster
 
 <}
-U 280 cups-le
+U 281 cups-le
 
 <}
 }}
