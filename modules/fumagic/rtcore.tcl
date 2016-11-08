@@ -296,7 +296,7 @@ proc ::fileutil::magic::rt::use {named file name} {
 	}
     }
     if {![info exists script]} {
-	return -code error [list {name not found} $key]
+	return -code error [list {name not found} $file $name]
     }
     return $script
 }
