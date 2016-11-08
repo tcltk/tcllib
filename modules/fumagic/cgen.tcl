@@ -142,6 +142,7 @@ proc ::fileutil::magic::cgen::tree_el {tree node} {
    	    $tree set $node otype S
    	}
 	name {
+	    puts [list cromble otype [$tree getall $node]]
 	    $tree set $node otype A
 	}
 	use {
@@ -452,7 +453,6 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
     variable ::fileutil::magic::rt::typemap
 
     set result {} 
-    set named [$tree get root named]
     set otype [$tree get $node otype]
     set level [$tree get $node level]
 
@@ -471,6 +471,7 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 	    foreach child [$tree children $node] {
 		lappend aresult [treegen $tree $child]
 	    }
+	    set named [$tree get root named]
 	    dict set named $file $val [join $aresult \n]
 	    $tree set root named $named
 	    return
