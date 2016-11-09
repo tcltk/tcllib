@@ -670,7 +670,7 @@ proc ::fileutil::magic::cfront::process {tree file {maxlevel 10000}} {
    	    continue	;# skip blank lines
    	} else {
    	    # parse line
-	    if {[regexp {!:(\S+)\s*(.*)$} $line -> extname extdata]} {
+	    if {[regexp {!:(\S+)\s*([^\s]*).*$} $line -> extname extdata]} {
 		if {$rejected} {
 		    continue
 		}
@@ -747,6 +747,16 @@ proc ::fileutil::magic::cfront::compile {args} {
     foreach arg $args {
    	if {[file type $arg] eq  {directory}} {
    	    foreach file [glob [file join $arg *]] {
+		if {[file tail $file] eq {make}} {
+		    set chan [open $file r+]
+		    set data [read $chan]
+		    seek $chan 0
+		    regsub {\\\^\\\.BEGIN} $data {^\\\\.BEGIN} data
+		    regsub {\\\^\\\.PRECIOUS} $data {^\\\\.PRECIOUS} data
+		    regsub {\\\^\\\.include} $data {^\\\\.include} data
+		    puts $chan $data
+		    close $chan
+		}
    		process $tree $file
    	    }
 	    #append tcl "magic::file_start $file" \n
@@ -792,7 +802,7 @@ proc ::fileutil::magic::cfront::generate {namespace args} {
     return $script 
 }
 
-proc ::fileutil::magic::cfront::install {args} {
+proc ::fileutil::magic::cfront::install args {
     foreach arg $args {
 	set path [file tail $arg]
 	eval [generate ::fileutil::magic::/$path $arg]

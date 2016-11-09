@@ -247,8 +247,7 @@ test fumagic.filetype-1.26 {
 test fumagic.filetype-1.27 {
     Tests indirect offsets, as well as the "default" test type. 
 } {
-    #set f [makePe2File]
-    set f /home/yorick/Downloads/KeyFinderInstaller.exe
+    set f [makePe2File]
     set res [catch {fileutil::magic::filetype $f} msg]
     removePe2File
     list $res $msg
