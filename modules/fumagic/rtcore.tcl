@@ -453,9 +453,9 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 		set extracted [GetString $offset $maxstring]
 		set extracted [string range $extracted 0 1]
 		switch $type bestring16 {
-		    set extracted [binary scan $extracted Su]
+		    binary scan $extracted Su extracted
 		} lestring16 {
-		    set extracted [binary scan $extracted Su]
+		    binary scan $extracted Su extracted
 		}
 		set extracted [format %c $extracted]
 	    } default {
