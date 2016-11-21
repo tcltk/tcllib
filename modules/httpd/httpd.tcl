@@ -468,22 +468,29 @@ For deeper understanding:
     # If an IP address is blocked
     # send a "go to hell" message
     ###
-    if {[my validation Blocked_IP $sock $ip]} {
+    if {[my Validate_Connection $sock $ip]} {
       catch {close $sock}
       return
     }
-    
+    set uuid [::tool::uuid_short] 
     chan configure $sock \
       -blocking 0 \
       -translation {auto crlf} \
       -buffering line
-    chan event $sock readable [namespace code [list my Connect $sock $ip]]
+    
+    set coro [coroutine [namespace current]::CORO$uuid ::apply [list {uuid sock ip} {
+      yield [info coroutine]
+      tailcall my Connect $uuid $sock $ip
+    } [namespace current]] $uuid $sock $ip]
+
+    chan event $sock readable $coro
   }
-  method Connect {sock ip} {
-    chan even $sock readable {}
+  
+  method Connect {uuid sock ip} {
     my counter url_hit
+    set line {}
     try {
-      set readCount [gets $sock line]
+      set readCount [::coroutine::util::gets_safety $sock 4096 line]
       dict set query REMOTE_ADDR     $ip
       dict set query REQUEST_METHOD  [lindex $line 0]
       set uriinfo [::uri::split [lindex $line 1]]
@@ -512,7 +519,7 @@ For deeper understanding:
         } else {
           set class [my cget reply_class]
         }  
-        set pageobj [$class create [namespace current]::reply::[::tool::uuid_short] [self]]
+        set pageobj [$class create [namespace current]::reply$uuid [self]]
         if {[dict exists $reply mixin]} {
           oo::objdefine $pageobj mixin [dict get $reply mixin]
         }
@@ -531,6 +538,7 @@ For deeper understanding:
           puts stderr "FAILED ON 404: $err"
         } finally {
           catch {chan close $sock}
+          catch {destroy $pageobj}
         }
       }
     } on error {err errdat} {
@@ -547,6 +555,7 @@ For deeper understanding:
         puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}
+        catch {destroy $pageobj}
       }
     }
   }
@@ -676,7 +685,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   # The socket will be closed immediately after returning
   # This handler is welcome to send a polite error message
   ###
-  method validation::Blocked_IP {sock ip} {
+  method Validate_Connection {sock ip} {
     return 0
   }
 }
