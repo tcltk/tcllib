@@ -177,9 +177,8 @@ proc ::coroutine::util::gets {args} {
 
     # Loop until we have a complete line. Yield to the event loop
     # where necessary. During 
-
+    set blocking [::chan configure $chan -blocking]
     while {1} {
-        set blocking [::chan configure $chan -blocking]
         ::chan configure $chan -blocking 0
 
 	try {
@@ -204,6 +203,43 @@ proc ::coroutine::util::gets {args} {
         }
     }
 }
+
+
+proc ::coroutine::util::gets_safety {chan limit varname} {
+    # Process arguments.
+    # Acceptable syntax:
+    # * gets CHAN ?VARNAME?
+
+    # Loop until we have a complete line. Yield to the event loop
+    # where necessary. During 
+    set blocking [::chan configure $chan -blocking]
+    upvar 1 $varname line
+    try {
+	while {1} {
+	    ::chan configure $chan -blocking 0
+	    if {[::chan pending input $chan]>= $limit} {
+		error {Too many notes, Mozart. Too many notes}
+	    }
+	    try {
+		set result [::chan gets $chan line]
+	    } on error {result opts} {
+		return -code $result -options $opts
+	    }
+    
+	    if {[::chan blocked $chan]} {
+		::chan event $chan readable [list [info coroutine]]
+		yield
+		::chan event $chan readable {}
+	    } else {
+		return $result
+	    }
+	}
+    } finally {
+        ::chan configure $chan -blocking $blocking
+    }
+}
+
+
 
 # - -- --- ----- -------- -------------
 
