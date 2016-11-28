@@ -567,6 +567,10 @@ for {set test_temp -50} {$test_temp < 150} {incr test_temp 10} {
   } [C_to_F $test_temp]
 }
 
+
+::units::new deg_f farhenheit
+
+
 #-----------------------------------------------------------
 
 testsuiteCleanup
