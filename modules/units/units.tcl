@@ -49,7 +49,7 @@ proc ::units::new {name baseUnits} {
     }
 
     # check for valid characters
-    if { [regexp {[^a-zA-Z]} $name] } {
+    if { [regexp {[^a-zA-Z_]} $name] } {
 	error "non-alphabetic characters in unit name '$name'"
     }
 
@@ -233,6 +233,7 @@ proc ::units::reduce unitString {
     #  performing the string syntax checks again.  But check
     #  for errors.
     if { [catch {ReduceList $scaleFactor $subunits} result errdat] } {
+	#puts [dict get $errdat -errorinfo]
 	error "$result in '$unitString'"
     }
 
@@ -267,9 +268,9 @@ proc ::units::_ReduceList_term {factor numerator denominator} {
     #  Now we've got numerator, denominator, and factors.
     #  Assemble the result into a single list.
     if { [llength $denominator] > 0 } {
-	set result [eval list $factor $numerator "/" $denominator]
+	set result [eval ::list $factor $numerator "/" $denominator]
     } else {
-	set result [eval list $factor $numerator]
+	set result [eval ::list $factor $numerator]
     }
 
     #  Now return the result
@@ -309,8 +310,8 @@ proc ::units::ReduceList { factor unitString } {
     #  This same style is used for processing recursively
     #  reduced subunits
     set numerflag 1
-    set numerator [list]
-    set denominator [list]
+    set numerator [::list]
+    set denominator [::list]
     
     set operations {}
     
@@ -371,7 +372,7 @@ proc ::units::ReduceList { factor unitString } {
 	#  versions of the subunit as well.
 	set unitValue ""
 
-	set subunitmatchlist [list $subunitname]
+	set subunitmatchlist [::list $subunitname]
 	if { [string range $subunitname end end] == "s" } {
 	    lappend subunitmatchlist [string range $subunitname 0 end-1]
 	}
@@ -465,8 +466,8 @@ proc ::units::ReduceList { factor unitString } {
 	    if {$opcode in {+ -}} {
 		lappend operations {*}[_ReduceList_term $factor $numerator $denominator] $opcode
 		set numerflag 1
-		set numerator [list]
-		set denominator [list]
+		set numerator [::list]
+		set denominator [::list]
 		set factor 1.0
 		set reducedUnit [lrange $reducedUnit 1 end]
 	    }	    
