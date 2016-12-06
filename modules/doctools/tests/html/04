@@ -91,11 +91,11 @@
     }
 --></style>
 </head>
-<! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
+<!-- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; .COPYRIGHT.
+<!-- Copyright &copy; .COPYRIGHT.
    -->
-<! -- TEST.z
+<!-- TEST.z
    -->
 <body><div class="doctools">
 <h1 class="doctools_title">TEST(z) 3.14.15.926 .MODULE. &quot;&quot;</h1>

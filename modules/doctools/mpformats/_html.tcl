@@ -180,7 +180,7 @@ proc tag* {t args} {
 }
 
 proc ht_comment {text}   {
-    return "[markup <]! -- [join [split $text \n] "   -- "]\n   --[markup >]"
+    return "[markup <]!-- [join [split $text \n] "   -- "]\n   --[markup >]"
 }
 
 # wrap content gi --
