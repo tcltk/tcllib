@@ -114,7 +114,6 @@ ERR: $result
 ###
 proc ::tool::event::schedule {self handle interval script} {
   variable timer_event
-
   if {$::tool::trace} {
     puts [list $self schedule $handle $interval]
   }
@@ -122,6 +121,22 @@ proc ::tool::event::schedule {self handle interval script} {
     ::after cancel $timer_event($self:$handle)
   }
   set timer_event($self:$handle) [::after $interval [list ::tool::event::process $self $handle $script]]
+}
+
+proc ::tool::event::sleep msec {
+  if {[info coroutine] ne {}} {
+    puts [list SLEEPING [info coroutine]]
+    ::after $msec [list [info coroutine] wake]
+    return [yield]
+  } else {
+    variable sleeper_count
+    incr sleeper_count
+    set ::tool::event::sleeper($sleeper_count) 0
+    puts [list SLEEPING $sleeper_count]
+    after 1000 [list set ::tool::event::sleeper($sleeper_count) 1]
+    vwait ::tool::event::sleeper($sleeper_count)
+    unset ::tool::event::sleeper($sleeper_count)
+  }
 }
 
 ###
