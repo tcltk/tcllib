@@ -64,7 +64,7 @@ namespace eval ::uri {
 	variable	digits		"${digit}+"
 
 	variable	toplabel	\
-		"(${alpha}${alphaDigitMinus}*${alphaDigit}|${alpha})"
+		"(${alphaDigit}${alphaDigitMinus}*${alphaDigit}\\.?|${alphaDigit}\\.?)"
 	variable	domainlabel	\
 		"(${alphaDigit}${alphaDigitMinus}*${alphaDigit}|${alphaDigit})"
 
@@ -167,8 +167,8 @@ proc ::uri::split {url {defaultscheme http}} {
     set url [string trim $url]
     set scheme {}
 
-    # RFC 1738:	scheme = 1*[ lowalpha | digit | "+" | "-" | "." ]
-    regexp -- {^([A-Za-z0-9+.-][A-Za-z0-9+.-]*):} $url dummy scheme
+    # RFC 3986 Sec 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+    regexp -- {^([A-Za-z][A-Za-z0-9+.-]*):} $url dummy scheme
 
     if {$scheme == {}} {
 	set scheme $defaultscheme
@@ -299,7 +299,7 @@ proc ::uri::SplitHttp {url} {
     array set parts {host {} port {} path {} query {} fragment {}}
 
     set searchPattern   "\\?(${search})\$"
-    set fragmentPattern "#(${segment})\$"
+    set fragmentPattern "#(.*)\$"
 
     # slash off possible fragment.
 
@@ -713,7 +713,7 @@ proc ::uri::resolve {base url} {
 #	Returns 1 if the URL is relative, 0 otherwise
 
 proc ::uri::isrelative url {
-    return [expr {![regexp -- {^[a-z0-9+-.][a-z0-9+-.]*:} $url]}]
+    return [expr {![regexp -- {^[A-Za-z][A-Za-z0-9+.-]*:} $url]}]
 }
 
 # ::uri::geturl --
