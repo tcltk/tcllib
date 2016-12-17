@@ -652,6 +652,10 @@ proc ::uri::GetHostPort {urlvar} {
 #
 #	Resolve an arbitrary URL, given a base URL
 #
+# This code depends on the ability of uri::split to process relative URIs.
+# N.B. http(s): and ftp: path does not begin with "/" and may be empty.
+# The file: path (unix) always begins "/", even if a host is specified.
+#
 # Arguments:
 #	base	base URL (absolute)
 #	url	arbitrary URL
@@ -669,6 +673,7 @@ proc ::uri::resolve {base url} {
 		https -
 		ftp -
 		file {
+		    set changed 0
 		    array set relparts [split $baseparts(scheme):$url]
 		    if { [string match /* $url] } {
 			catch { set baseparts(path) $relparts(path) }
@@ -678,22 +683,57 @@ proc ::uri::resolve {base url} {
 				set baseparts(host) $relparts(host)
 			    }
 			}
-		    } elseif { [string match */ $baseparts(path)] } {
+			set changed 1
+		    } elseif {    [string match */ $baseparts(path)]
+			       && ([string length $relparts(path)] > 0)
+		    } {
 			set baseparts(path) "$baseparts(path)$relparts(path)"
-		    } else {
-			if { [string length $relparts(path)] > 0 } {
+			set changed 1
+		    } elseif { [string length $relparts(path)] > 0 } {
 			    set path [lreplace [::split $baseparts(path) /] end end]
 			    set baseparts(path) "[::join $path /]/$relparts(path)"
-			}
+			    set changed 1
+		    } else {
 		    }
-		    catch { set baseparts(query) $relparts(query) }
-		    catch { set baseparts(fragment) $relparts(fragment) }
-		    return [eval [linsert [array get baseparts] 0 join]]
 		}
 		default {
 		    return -code error "unable to resolve relative URL \"$url\""
 		}
 	    }
+
+	    # query and fragment are defined for http, https; not for file, ftp
+	    switch -- $baseparts(scheme) {
+		http -
+		https {
+		    if {[array names relparts query] != {query}} {
+			set relparts(query) {}
+		    }
+		    if {[array names relparts fragment] != {fragment}} {
+			set relparts(fragment) {}
+		    }
+
+		    if {$changed || ($relparts(query) != {})} {
+			set baseparts(query) $relparts(query)
+			set changed 1
+		    } else {
+			# Keep base query.
+			# Possible error if url has empty query "?".
+		    }
+
+		    if {$changed || ($relparts(fragment) != {})} {
+			set baseparts(fragment) $relparts(fragment)
+			set changed 1
+		    } else {
+			# Keep base fragment.
+			# Possible error if url has empty fragment "#".
+		    }
+		}
+		ftp -
+		file -
+		default {
+		}
+	    }
+	    return [eval [linsert [array get baseparts] 0 join]]
 	} else {
 	    return $url
 	}
@@ -805,6 +845,7 @@ proc ::uri::join args {
 #
 # Acknowledgements:
 #	Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#	Keith Nash <kjnash@users.sourceforge.net>
 #
 # Arguments:
 #	uri	URI (which contains a path component)
@@ -838,22 +879,58 @@ proc ::uri::canonicalize uri {
 	return $uri
     }
 
-    set uri $u(path)
+    set oldList [::split $u(path) /]
 
-    # Remove leading "./" "../" "/.." (and "/../")
-    regsub -all -- {^(\./)+}    $uri {}  uri
-    regsub -all -- {^/(\.\./)+} $uri {/} uri
-    regsub -all -- {^(\.\./)+}  $uri {}  uri
+    if {[lindex $oldList 0] == {}} {
+	set lead 1
+    } else {
+	set lead 0
+    }
 
-    # Remove inner /./ and /../
-    while {[regsub -all -- {/\./}         $uri {/} uri]} {}
-    while {[regsub -all -- {/[^/]+/\.\./} $uri {/} uri]} {}
-    while {[regsub -all -- {^[^/]+/\.\./} $uri {}  uri]} {}
-    # Munge trailing /..
-    while {[regsub -all -- {/[^/]+/\.\.} $uri {/} uri]} {}
-    if { $uri == ".." } { set uri "/" }
+    set end [llength $oldList]
+    incr end -1
 
-    set u(path) $uri
+    # i - index of element seg in oldList
+    # j - index of last element written to newList
+    set i 0
+    set j -1
+    set newList {}
+    foreach seg $oldList {
+	if {($seg == {}) && ($i != 0) && ($i != $end)} {
+	    # Throw away this empty segment.
+	    # This merges adjacent "/".
+	    # If the first or last segment is empty, it is handled at "else".
+	} elseif {($seg == {.}) && ($i == $end)} {
+	    # Replace "." with {} to keep a trailing "/" in path.
+	    lappend newList {}
+	    incr j
+	} elseif {$seg == {.}} {
+	    # Throw away this "." segment.
+	} elseif {($seg == {..}) && ($j > $lead - 1) && ($i == $end)} {
+	    # Remove the element previously added to newList, and
+	    # replace it with {} to keep a trailing "/" in path.
+	    set newList [lreplace $newList $j $j {}]
+	} elseif {($seg == {..}) && ($j > $lead - 1)} {
+	    # Remove the element previously added to newList.
+	    set newList [lreplace $newList $j $j]
+	    incr j -1
+	} elseif {($seg == {..}) && ($i == $end)} {
+	    # Can't go any deeper in newList, but this path needs a
+	    # leading "/".
+	    lappend newList {}
+	    incr j
+	} elseif {$seg == {..}} {
+	    # Can't go any deeper in newList.
+	} else {
+	    # A "normal" path segment!
+	    lappend newList $seg
+	    incr j
+	}
+
+	incr i
+    }
+
+    set u(path) [::join $newList /]
     set uri [eval [linsert [array get u] 0 ::uri::join]]
 
     return $uri
@@ -1052,4 +1129,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.6
+package provide uri 1.2.7

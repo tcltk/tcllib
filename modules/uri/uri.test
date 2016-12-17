@@ -321,6 +321,134 @@ test uri-5.15-0 {uri::canonicalize trailing ..} {
     uri::canonicalize http://www.example.com/..
 } {http://www.example.com/}
 
+test uri-5.16-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/..s
+} {http://www.example.com/..s}
+
+test uri-5.17-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/..s/
+} {http://www.example.com/..s/}
+
+test uri-5.18-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/path1/..s
+} {http://www.example.com/path1/..s}
+
+test uri-5.19-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/path1/..s/
+} {http://www.example.com/path1/..s/}
+
+test uri-5.20-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/path1/..s/path2
+} {http://www.example.com/path1/..s/path2}
+
+test uri-5.21-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/path1/..s/path2/
+} {http://www.example.com/path1/..s/path2/}
+
+test uri-5.22-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/..s/path1
+} {http://www.example.com/..s/path1}
+
+test uri-5.23-0 {uri::canonicalize not ..s} {
+    uri::canonicalize http://www.example.com/..s/path1/
+} {http://www.example.com/..s/path1/}
+
+test uri-5.24-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/.s
+} {http://www.example.com/.s}
+
+test uri-5.25-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/.s/
+} {http://www.example.com/.s/}
+
+test uri-5.26-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/path1/.s
+} {http://www.example.com/path1/.s}
+
+test uri-5.27-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/path1/.s/
+} {http://www.example.com/path1/.s/}
+
+test uri-5.28-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/path1/.s/path2
+} {http://www.example.com/path1/.s/path2}
+
+test uri-5.29-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/path1/.s/path2/
+} {http://www.example.com/path1/.s/path2/}
+
+test uri-5.30-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/.s/path1
+} {http://www.example.com/.s/path1}
+
+test uri-5.31-0 {uri::canonicalize not .s} {
+    uri::canonicalize http://www.example.com/.s/path1/
+} {http://www.example.com/.s/path1/}
+
+test uri-5.32-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/s..
+} {http://www.example.com/s..}
+
+test uri-5.33-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/s../
+} {http://www.example.com/s../}
+
+test uri-5.34-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/path1/s..
+} {http://www.example.com/path1/s..}
+
+test uri-5.35-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/path1/s../
+} {http://www.example.com/path1/s../}
+
+test uri-5.36-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/path1/s../path2
+} {http://www.example.com/path1/s../path2}
+
+test uri-5.37-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/path1/s../path2/
+} {http://www.example.com/path1/s../path2/}
+
+test uri-5.38-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/s../path1
+} {http://www.example.com/s../path1}
+
+test uri-5.39-0 {uri::canonicalize not s..} {
+    uri::canonicalize http://www.example.com/s../path1/
+} {http://www.example.com/s../path1/}
+
+test uri-5.40-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/s.
+} {http://www.example.com/s.}
+
+test uri-5.41-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/s./
+} {http://www.example.com/s./}
+
+test uri-5.42-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/path1/s.
+} {http://www.example.com/path1/s.}
+
+test uri-5.43-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/path1/s./
+} {http://www.example.com/path1/s./}
+
+test uri-5.44-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/path1/s./path2
+} {http://www.example.com/path1/s./path2}
+
+test uri-5.45-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/path1/s./path2/
+} {http://www.example.com/path1/s./path2/}
+
+test uri-5.46-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/s./path1
+} {http://www.example.com/s./path1}
+
+test uri-5.47-0 {uri::canonicalize not s.} {
+    uri::canonicalize http://www.example.com/s./path1/
+} {http://www.example.com/s./path1/}
+
 test uri-5.1-1 {uri::canonicalize} {
     uri::canonicalize ftp://ftp.test.net/path1/./remove/../path2/resource
 } ftp://ftp.test.net/path1/path2/resource
@@ -368,6 +496,134 @@ test uri-5.11-1 {uri::canonicalize} {
 test uri-5.12-1 {uri::canonicalize infinite loop} {
     uri::canonicalize ftp://ftp.test.net/../../../path.html/resource
 } {ftp://ftp.test.net/path.html/resource}
+
+test uri-5.16-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/..s
+} {ftp://ftp.test.net/..s}
+
+test uri-5.17-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/..s/
+} {ftp://ftp.test.net/..s/}
+
+test uri-5.18-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/path1/..s
+} {ftp://ftp.test.net/path1/..s}
+
+test uri-5.19-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/path1/..s/
+} {ftp://ftp.test.net/path1/..s/}
+
+test uri-5.20-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/path1/..s/path2
+} {ftp://ftp.test.net/path1/..s/path2}
+
+test uri-5.21-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/path1/..s/path2/
+} {ftp://ftp.test.net/path1/..s/path2/}
+
+test uri-5.22-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/..s/path1
+} {ftp://ftp.test.net/..s/path1}
+
+test uri-5.23-1 {uri::canonicalize not ..s} {
+    uri::canonicalize ftp://ftp.test.net/..s/path1/
+} {ftp://ftp.test.net/..s/path1/}
+
+test uri-5.24-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/.s
+} {ftp://ftp.test.net/.s}
+
+test uri-5.25-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/.s/
+} {ftp://ftp.test.net/.s/}
+
+test uri-5.26-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/path1/.s
+} {ftp://ftp.test.net/path1/.s}
+
+test uri-5.27-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/path1/.s/
+} {ftp://ftp.test.net/path1/.s/}
+
+test uri-5.28-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/path1/.s/path2
+} {ftp://ftp.test.net/path1/.s/path2}
+
+test uri-5.29-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/path1/.s/path2/
+} {ftp://ftp.test.net/path1/.s/path2/}
+
+test uri-5.30-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/.s/path1
+} {ftp://ftp.test.net/.s/path1}
+
+test uri-5.31-1 {uri::canonicalize not .s} {
+    uri::canonicalize ftp://ftp.test.net/.s/path1/
+} {ftp://ftp.test.net/.s/path1/}
+
+test uri-5.32-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/s..
+} {ftp://ftp.test.net/s..}
+
+test uri-5.33-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/s../
+} {ftp://ftp.test.net/s../}
+
+test uri-5.34-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/path1/s..
+} {ftp://ftp.test.net/path1/s..}
+
+test uri-5.35-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/path1/s../
+} {ftp://ftp.test.net/path1/s../}
+
+test uri-5.36-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/path1/s../path2
+} {ftp://ftp.test.net/path1/s../path2}
+
+test uri-5.37-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/path1/s../path2/
+} {ftp://ftp.test.net/path1/s../path2/}
+
+test uri-5.38-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/s../path1
+} {ftp://ftp.test.net/s../path1}
+
+test uri-5.39-1 {uri::canonicalize not s..} {
+    uri::canonicalize ftp://ftp.test.net/s../path1/
+} {ftp://ftp.test.net/s../path1/}
+
+test uri-5.40-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/s.
+} {ftp://ftp.test.net/s.}
+
+test uri-5.41-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/s./
+} {ftp://ftp.test.net/s./}
+
+test uri-5.42-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/path1/s.
+} {ftp://ftp.test.net/path1/s.}
+
+test uri-5.43-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/path1/s./
+} {ftp://ftp.test.net/path1/s./}
+
+test uri-5.44-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/path1/s./path2
+} {ftp://ftp.test.net/path1/s./path2}
+
+test uri-5.45-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/path1/s./path2/
+} {ftp://ftp.test.net/path1/s./path2/}
+
+test uri-5.46-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/s./path1
+} {ftp://ftp.test.net/s./path1}
+
+test uri-5.47-1 {uri::canonicalize not s.} {
+    uri::canonicalize ftp://ftp.test.net/s./path1/
+} {ftp://ftp.test.net/s./path1/}
 
 test uri-5.1-2 {uri::canonicalize} {
     uri::canonicalize file://goo.test.net/path1/./remove/../path2/resource
@@ -417,6 +673,134 @@ test uri-5.12-2 {uri::canonicalize infinite loop} {
     uri::canonicalize file://goo.test.net/../../../path.html/resource
 } {file://goo.test.net/path.html/resource}
 
+test uri-5.16-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/..s
+} {file://goo.test.net/..s}
+
+test uri-5.17-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/..s/
+} {file://goo.test.net/..s/}
+
+test uri-5.18-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/path1/..s
+} {file://goo.test.net/path1/..s}
+
+test uri-5.19-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/path1/..s/
+} {file://goo.test.net/path1/..s/}
+
+test uri-5.20-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/path1/..s/path2
+} {file://goo.test.net/path1/..s/path2}
+
+test uri-5.21-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/path1/..s/path2/
+} {file://goo.test.net/path1/..s/path2/}
+
+test uri-5.22-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/..s/path1
+} {file://goo.test.net/..s/path1}
+
+test uri-5.23-2 {uri::canonicalize not ..s} {
+    uri::canonicalize file://goo.test.net/..s/path1/
+} {file://goo.test.net/..s/path1/}
+
+test uri-5.24-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/.s
+} {file://goo.test.net/.s}
+
+test uri-5.25-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/.s/
+} {file://goo.test.net/.s/}
+
+test uri-5.26-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/path1/.s
+} {file://goo.test.net/path1/.s}
+
+test uri-5.27-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/path1/.s/
+} {file://goo.test.net/path1/.s/}
+
+test uri-5.28-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/path1/.s/path2
+} {file://goo.test.net/path1/.s/path2}
+
+test uri-5.29-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/path1/.s/path2/
+} {file://goo.test.net/path1/.s/path2/}
+
+test uri-5.30-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/.s/path1
+} {file://goo.test.net/.s/path1}
+
+test uri-5.31-2 {uri::canonicalize not .s} {
+    uri::canonicalize file://goo.test.net/.s/path1/
+} {file://goo.test.net/.s/path1/}
+
+test uri-5.32-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/s..
+} {file://goo.test.net/s..}
+
+test uri-5.33-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/s../
+} {file://goo.test.net/s../}
+
+test uri-5.34-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/path1/s..
+} {file://goo.test.net/path1/s..}
+
+test uri-5.35-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/path1/s../
+} {file://goo.test.net/path1/s../}
+
+test uri-5.36-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/path1/s../path2
+} {file://goo.test.net/path1/s../path2}
+
+test uri-5.37-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/path1/s../path2/
+} {file://goo.test.net/path1/s../path2/}
+
+test uri-5.38-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/s../path1
+} {file://goo.test.net/s../path1}
+
+test uri-5.39-2 {uri::canonicalize not s..} {
+    uri::canonicalize file://goo.test.net/s../path1/
+} {file://goo.test.net/s../path1/}
+
+test uri-5.40-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/s.
+} {file://goo.test.net/s.}
+
+test uri-5.41-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/s./
+} {file://goo.test.net/s./}
+
+test uri-5.42-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/path1/s.
+} {file://goo.test.net/path1/s.}
+
+test uri-5.43-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/path1/s./
+} {file://goo.test.net/path1/s./}
+
+test uri-5.44-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/path1/s./path2
+} {file://goo.test.net/path1/s./path2}
+
+test uri-5.45-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/path1/s./path2/
+} {file://goo.test.net/path1/s./path2/}
+
+test uri-5.46-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/s./path1
+} {file://goo.test.net/s./path1}
+
+test uri-5.47-2 {uri::canonicalize not s.} {
+    uri::canonicalize file://goo.test.net/s./path1/
+} {file://goo.test.net/s./path1/}
+
 test uri-5.1-3 {uri::canonicalize} {
     uri::canonicalize file:///path1/./remove/../path2/resource
 } file:///path1/path2/resource
@@ -464,6 +848,135 @@ test uri-5.11-3 {uri::canonicalize} {
 test uri-5.12-3 {uri::canonicalize infinite loop} {
     uri::canonicalize file:///../../../path.html/resource
 } {file:///path.html/resource}
+
+test uri-5.16-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///..s
+} {file:///..s}
+
+test uri-5.17-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///..s/
+} {file:///..s/}
+
+test uri-5.18-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///path1/..s
+} {file:///path1/..s}
+
+test uri-5.19-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///path1/..s/
+} {file:///path1/..s/}
+
+test uri-5.20-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///path1/..s/path2
+} {file:///path1/..s/path2}
+
+test uri-5.21-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///path1/..s/path2/
+} {file:///path1/..s/path2/}
+
+test uri-5.22-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///..s/path1
+} {file:///..s/path1}
+
+test uri-5.23-3 {uri::canonicalize not ..s} {
+    uri::canonicalize file:///..s/path1/
+} {file:///..s/path1/}
+
+test uri-5.24-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///.s
+} {file:///.s}
+
+test uri-5.25-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///.s/
+} {file:///.s/}
+
+test uri-5.26-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///path1/.s
+} {file:///path1/.s}
+
+test uri-5.27-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///path1/.s/
+} {file:///path1/.s/}
+
+test uri-5.28-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///path1/.s/path2
+} {file:///path1/.s/path2}
+
+test uri-5.29-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///path1/.s/path2/
+} {file:///path1/.s/path2/}
+
+test uri-5.30-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///.s/path1
+} {file:///.s/path1}
+
+test uri-5.31-3 {uri::canonicalize not .s} {
+    uri::canonicalize file:///.s/path1/
+} {file:///.s/path1/}
+
+test uri-5.32-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///s..
+} {file:///s..}
+
+test uri-5.33-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///s../
+} {file:///s../}
+
+test uri-5.34-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///path1/s..
+} {file:///path1/s..}
+
+test uri-5.35-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///path1/s../
+} {file:///path1/s../}
+
+test uri-5.36-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///path1/s../path2
+} {file:///path1/s../path2}
+
+test uri-5.37-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///path1/s../path2/
+} {file:///path1/s../path2/}
+
+test uri-5.38-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///s../path1
+} {file:///s../path1}
+
+test uri-5.39-3 {uri::canonicalize not s..} {
+    uri::canonicalize file:///s../path1/
+} {file:///s../path1/}
+
+test uri-5.40-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///s.
+} {file:///s.}
+
+test uri-5.41-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///s./
+} {file:///s./}
+
+test uri-5.42-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///path1/s.
+} {file:///path1/s.}
+
+test uri-5.43-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///path1/s./
+} {file:///path1/s./}
+
+test uri-5.44-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///path1/s./path2
+} {file:///path1/s./path2}
+
+test uri-5.45-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///path1/s./path2/
+} {file:///path1/s./path2/}
+
+test uri-5.46-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///s./path1
+} {file:///s./path1}
+
+test uri-5.47-3 {uri::canonicalize not s.} {
+    uri::canonicalize file:///s./path1/
+} {file:///s./path1/}
+
 
 test uri-6.0 {uri::canonicalize} {
     uri::canonicalize telnet://goo.test.net/
