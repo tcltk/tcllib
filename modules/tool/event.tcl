@@ -125,14 +125,17 @@ proc ::tool::event::schedule {self handle interval script} {
 
 proc ::tool::event::sleep msec {
   if {[info coroutine] ne {}} {
-    puts [list SLEEPING [info coroutine]]
-    ::after $msec [list [info coroutine] wake]
+    set coro [info coroutine]
+    ::after $msec [string map [list %coro% $coro] {
+if {[info commands %coro%] ne {}} {
+  %coro% wake
+}
+}]
     return [yield]
   } else {
     variable sleeper_count
     incr sleeper_count
     set ::tool::event::sleeper($sleeper_count) 0
-    puts [list SLEEPING $sleeper_count]
     after 1000 [list set ::tool::event::sleeper($sleeper_count) 1]
     vwait ::tool::event::sleeper($sleeper_count)
     unset ::tool::event::sleeper($sleeper_count)
