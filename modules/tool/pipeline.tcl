@@ -10,10 +10,6 @@ proc ::tool::do_events {} {
   ::cron::do_events
 }
 
-proc ::tool::main {} {
-  ::cron::main
-}
-
 proc ::tao::do_events {} {
   ::cron::do_events
 }

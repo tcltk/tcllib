@@ -9,9 +9,11 @@ testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
+
 support {
     use oodialect/oodialect.tcl oo::dialect
     use dicttool/dicttool.tcl   dicttool
+    use cron/cron.tcl           cron
     use oometa/oometa.tcl       oo::meta
     use sha1/sha1.tcl           sha1
 }
@@ -149,7 +151,7 @@ test tool-options-008 {Simple property queries} {
 # Tests with options in an object changing class
 ###
 test tool-options-009 {Simple property queries} {
-  ObjectOptionTest3 property mass
+  ObjectOptionTest3 meta cget mass
 } 1400kg
 
 ObjectOptionTest3 morph OptionClass
@@ -159,17 +161,17 @@ test tool-options-010 {Simple property queries} {
 } blue
 # The "color" property on the other hand should revert
 test tool-options-011 {Simple property queries} {
-  ObjectOptionTest3 property color
+  ObjectOptionTest3 meta cget color
 } green
 # The "mass" property on the other hand should revert
 test tool-options-012 {Simple property queries} {
-  ObjectOptionTest3 property mass
+  ObjectOptionTest3 meta cget mass
 } 1200kg
 
 # Change a OptionClass to a OptionClass2
 
 test tool-options-013 {Simple property queries} {
-  ObjectOptionTest2 property mass
+  ObjectOptionTest2 meta cget mass
 } 1200kg
 
 ObjectOptionTest2 morph OptionClass2
@@ -179,7 +181,7 @@ test tool-options-014 {Simple property queries} {
 } blue
 
 test tool-options-015 {Simple property queries} {
-  ObjectOptionTest2 property mass
+  ObjectOptionTest2 meta cget mass
 } 1400kg
 
 # When changing back, the set option remains
@@ -189,7 +191,7 @@ test tool-options-016 {Simple property queries} {
 } blue
 
 test tool-options-017 {Simple property queries} {
-  ObjectOptionTest2 property mass
+  ObjectOptionTest2 meta cget mass
 } 1200kg
 
 

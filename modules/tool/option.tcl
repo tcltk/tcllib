@@ -107,7 +107,7 @@ proc ::tool::define::option_class {name args} {
     if {[llength $args]} {
       return [lindex $args 0]
     }
-    return [my property $field] 
+    return [my meta cget $field] 
   }
   
   ###
