@@ -4,7 +4,7 @@
 # TclOO routines to implement property tracking by class and object
 ###
 package require dicttool
-package provide oo::meta 0.7
+package provide oo::meta 0.7.1
 
 namespace eval ::oo::meta {
   variable dirty_classes {}
@@ -82,6 +82,39 @@ proc ::oo::meta::ancestors class {
 proc oo::meta::info {class submethod args} {
   set class [::oo::meta::normalize $class]
   switch $submethod {
+    cget {
+      ###
+      # submethod: cget
+      # arguments: ?*path* ...? *field*
+      # format: markdown
+      # description:
+      # Retrieve a value from the class' meta data. Values are searched in the
+      # following order:
+      # 1. From class meta data as const **path** **field:**
+      # 2. From class meta data as const **path** **field**
+      # 3. From class meta data as **path** **field:**
+      # 4. From class meta data as **path** **field**
+      ###
+      set path [lrange $args 0 end-1]
+      set field [string trimright [lindex $args end] :]
+      foreach mclass [lreverse [::oo::meta::ancestors $class]] {
+        if {![::info exists ::oo::meta::local_property($mclass)]} continue
+        set class_metadata $::oo::meta::local_property($mclass)
+        if {[dict exists $class_metadata const {*}$path $field:]} {
+          return [dict get $class_metadata const {*}$path $field:]
+        }
+        if {[dict exists $class_metadata const {*}$path $field]} {
+          return [dict get $class_metadata const {*}$path $field]
+        }
+        if {[dict exists $class_metadata {*}$path $field:]} {
+          return [dict get $class_metadata {*}$path $field:]
+        }
+        if {[dict exists $class_metadata {*}$path $field]} {
+          return [dict get $class_metadata {*}$path $field]
+        }
+      }
+      return {}
+    }
     rebuild {
       ::oo::meta::rebuild $class
     }
@@ -262,7 +295,7 @@ proc ::oo::meta::search args {
 
 proc ::oo::define::meta {args} {
   set class [lindex [::info level -1] 1]
-  if {[lindex $args 0] in "set branchset"} {
+  if {[lindex $args 0] in "cget set branchset"} {
     ::oo::meta::info $class {*}$args
   } else {
     ::oo::meta::info $class set {*}$args
