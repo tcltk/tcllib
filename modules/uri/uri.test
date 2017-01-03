@@ -96,6 +96,154 @@ test uri-1.17 {uri::split - ldaps IPv6 search with port} {
     dictsort [uri::split {ldaps://[2001:db8::7]:987/o=mycomp?uid,mail?sub?(uid=pda)}]
 } {attrs {uid mail} dn o=mycomp extensions {} filter (uid=pda) host {[2001:db8::7]} port 987 scheme ldaps scope sub}
 
+test uri-1.18 {uri::split - http w/- valid hostname on local network} {
+    dictsort [uri::split http://test-host/path/path2?query]
+} {fragment {} host test-host path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.19 {uri::split - http w/- valid hostname on local network FQDN} {
+    dictsort [uri::split http://test-host./path/path2?query]
+} {fragment {} host test-host. path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.20 {uri::split - http w/- valid hostname on local network and port} {
+    dictsort [uri::split http://test-host:8080/path/path2?query]
+} {fragment {} host test-host path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.21 {uri::split - http w/- valid hostname on local network FQDN and port} {
+    dictsort [uri::split http://test-host.:8080/path/path2?query]
+} {fragment {} host test-host. path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.22 {uri::split - http w/- valid hostname "9" on local network} {
+    dictsort [uri::split http://9/path/path2?query]
+} {fragment {} host 9 path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.23 {uri::split - http w/- valid hostname "9" on local network FQDN} {
+    dictsort [uri::split http://9./path/path2?query]
+} {fragment {} host 9. path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.24 {uri::split - http w/- valid hostname "9" on local network and port} {
+    dictsort [uri::split http://9:8080/path/path2?query]
+} {fragment {} host 9 path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.25 {uri::split - http w/- valid hostname "9" on local network FQDN and port} {
+    dictsort [uri::split http://9.:8080/path/path2?query]
+} {fragment {} host 9. path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.26 {uri::split - http w/- valid hostname "0-9" on local network} {
+    dictsort [uri::split http://0-9/path/path2?query]
+} {fragment {} host 0-9 path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.27 {uri::split - http w/- valid hostname "0-9" on local network FQDN} {
+    dictsort [uri::split http://0-9./path/path2?query]
+} {fragment {} host 0-9. path path/path2 port {} pwd {} query query scheme http user {}}
+
+test uri-1.28 {uri::split - http w/- valid hostname "0-9" on local network and port} {
+    dictsort [uri::split http://0-9:8080/path/path2?query]
+} {fragment {} host 0-9 path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.29 {uri::split - http w/- valid hostname "0-9" on local network FQDN and port} {
+    dictsort [uri::split http://0-9.:8080/path/path2?query]
+} {fragment {} host 0-9. path path/path2 port 8080 pwd {} query query scheme http user {}}
+
+test uri-1.30 {uri::split - http w/- nested query and FQDN} {
+    dictsort [uri::split http://test.net./path/path2?query=url?otherquery]
+} {fragment {} host test.net. path path/path2 port {} pwd {} query query=url?otherquery scheme http user {}}
+
+test uri-1.31 {uri::split - http w/- nested query and FQDN and port} {
+    dictsort [uri::split http://test.net.:8080/path/path2?query=url?otherquery]
+} {fragment {} host test.net. path path/path2 port 8080 pwd {} query query=url?otherquery scheme http user {}}
+
+test uri-1.32 {uri::split - http w/- query test / in query} {
+    dictsort [uri::split http://test.net/path/path2?fetch=dir/file.txt]
+} {fragment {} host test.net path path/path2 port {} pwd {} query fetch=dir/file.txt scheme http user {}}
+
+test uri-1.33 {uri::split - http w/- fragment test / ? in fragment} {
+    dictsort [uri::split http://test.net/path/path2?fetch=dir/file.txt#ab5/s?too]
+} {fragment ab5/s?too host test.net path path/path2 port {} pwd {} query fetch=dir/file.txt scheme http user {}}
+
+test uri-1.34 {uri::split - http w/- fragment test {}# in fragment - illegal chars see [7b5c6cb477]} {
+    dictsort [uri::split http://test.net/path/path2?fetch=dir/file.txt#ab5/s?to#o{and}fg]
+} {fragment ab5/s?to#o{and}fg host test.net path path/path2 port {} pwd {} query fetch=dir/file.txt scheme http user {}}
+
+test uri-1.35 {uri::split - http w/- fragment test {}# in fragment - illegal chars see [7b5c6cb477]} {
+    dictsort [uri::split http://test.net/path/path2#ab5/s?to#o{and}fg]
+} {fragment ab5/s?to#o{and}fg host test.net path path/path2 port {} pwd {} query {} scheme http user {}}
+
+test uri-1.36 {uri::split - http w/- fragment test {}# in fragment - illegal chars see [7b5c6cb477]} {
+    dictsort [uri::split http://test.net/#ab5/s?to#o{and}fg]
+} {fragment ab5/s?to#o{and}fg host test.net path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.37 {uri::split - http w/- fragment test {}# in fragment - illegal chars see [7b5c6cb477]} {
+    dictsort [uri::split http://test.net#ab5/s?to#o{and}fg]
+} {fragment ab5/s?to#o{and}fg host test.net path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.38 {uri::split - relative URI} {
+    dictsort [uri::split //test.net#ab5/s?to#o{and}fg]
+} {fragment ab5/s?to#o{and}fg host test.net path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.39 {uri::split - relative URI} {
+    dictsort [uri::split //test.net#ab5/s?to#o{and}fg https]
+} {fragment ab5/s?to#o{and}fg host test.net path {} port {} pwd {} query {} scheme https user {}}
+
+test uri-1.40 {uri::split - relative URI {}} {
+    dictsort [uri::split {}]
+} {fragment {} host {} path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.41 {uri::split - relative URI http cf bug 2798448} {
+    dictsort [uri::split host.td]
+} {fragment {} host host.td path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.42 {uri::split - relative URI http cf bug 2798448} {
+    dictsort [uri::split http://host.td]
+} {fragment {} host host.td path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-1.43 {uri::split - relative URI ftp cf bug 2798448} {
+    dictsort [uri::split host.td ftp]
+} {host host.td path {} port {} pwd {} scheme ftp type {} user {}}
+
+test uri-1.44 {uri::split - relative URI ftp cf bug 2798448} {
+    dictsort [uri::split ftp://host.td]
+} {host host.td path {} port {} pwd {} scheme ftp type {} user {}}
+
+test uri-1.45 {uri::split relative URI http/https/ftp path} {
+    dictsort [::uri::split gone/away]
+} {fragment {} host gone path away port {} pwd {} query {} scheme http user {}}
+
+test uri-1.46 {uri::split relative URI http/https/ftp path} {
+    dictsort [::uri::split /gone/away]
+} {fragment {} host {} path gone/away port {} pwd {} query {} scheme http user {}}
+
+test uri-1.47 {uri::split relative URI http/https/ftp path} {
+    dictsort [::uri::split //gone/away]
+} {fragment {} host gone path away port {} pwd {} query {} scheme http user {}}
+
+test uri-1.48 {uri::split relative URI http/https/ftp path} {
+    dictsort [::uri::split ///gone/away]
+} {fragment {} host {} path gone/away port {} pwd {} query {} scheme http user {}}
+
+test uri-1.49 {uri::split relative URI http/https/ftp path} {
+    dictsort [::uri::split ////gone/away]
+} {fragment {} host {} path gone/away port {} pwd {} query {} scheme http user {}}
+
+test uri-1.50 {uri::split relative URI file path} {
+    dictsort [::uri::split gone/away file]
+} {path gone/away scheme file}
+
+test uri-1.51 {uri::split relative URI file path} {
+    dictsort [::uri::split /gone/away file]
+} {path /gone/away scheme file}
+
+test uri-1.52 {uri::split relative URI file path} {
+    dictsort [::uri::split //gone/away file]
+} {host gone path /away scheme file}
+
+test uri-1.53 {uri::split relative URI file path} {
+    dictsort [::uri::split ///gone/away file]
+} {path /gone/away scheme file}
+
+test uri-1.54 {uri::split relative URI file path} {
+    dictsort [::uri::split ////gone/away file]
+} {path //gone/away scheme file}
+
 # -------------------------------------------------------------------------
 
 test uri-2.1 {uri::join - http} {
@@ -187,6 +335,101 @@ test uri-2.21 {uri::join - ldap search with implicit scope an attributes} {
     uri::join dn o=mycomp filter (uid=pda) host ldaphost port 999 scheme ldap
 } {ldap://ldaphost:999/o=mycomp???(uid=pda)}
 
+test uri-2.22 {uri::join - https w/- query user pwd frag} {
+    uri::join scheme https query abc=def&ghi=jkl host www.test.net path /path/ user user pwd passwd fragment f
+} https://user:passwd@www.test.net/path/?abc=def&ghi=jkl#f
+
+test uri-2.23 {uri::join - https w/- query user pwd frag FQDN} {
+    uri::join scheme https query abc=def&ghi=jkl host www.test.net. path /path/ user user pwd passwd fragment f
+} https://user:passwd@www.test.net./path/?abc=def&ghi=jkl#f
+
+test uri-2.24 {uri::join - https w/- query user pwd frag port} {
+    uri::join scheme https query abc=def&ghi=jkl host www.test.net path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@www.test.net:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.25 {uri::join - https w/- query user pwd frag FQDN port} {
+    uri::join scheme https query abc=def&ghi=jkl host www.test.net. path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@www.test.net.:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.26 {uri::join - https w/- query user pwd frag valid hostname on local network} {
+    uri::join scheme https query abc=def&ghi=jkl host test-host path /path/ user user pwd passwd fragment f
+} https://user:passwd@test-host/path/?abc=def&ghi=jkl#f
+
+test uri-2.27 {uri::join - https w/- query user pwd frag valid hostname on local network FQDN} {
+    uri::join scheme https query abc=def&ghi=jkl host test-host. path /path/ user user pwd passwd fragment f
+} https://user:passwd@test-host./path/?abc=def&ghi=jkl#f
+
+test uri-2.28 {uri::join - https w/- query user pwd frag valid hostname on local network port} {
+    uri::join scheme https query abc=def&ghi=jkl host test-host path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@test-host:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.29 {uri::join - https w/- query user pwd frag valid hostname on local network FQDN port} {
+    uri::join scheme https query abc=def&ghi=jkl host test-host. path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@test-host.:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.30 {uri::join - https w/- query user pwd frag valid hostname "9" on local network} {
+    uri::join scheme https query abc=def&ghi=jkl host 9 path /path/ user user pwd passwd fragment f
+} https://user:passwd@9/path/?abc=def&ghi=jkl#f
+
+test uri-2.31 {uri::join - https w/- query user pwd frag valid hostname "9" on local network FQDN} {
+    uri::join scheme https query abc=def&ghi=jkl host 9. path /path/ user user pwd passwd fragment f
+} https://user:passwd@9./path/?abc=def&ghi=jkl#f
+
+test uri-2.32 {uri::join - https w/- query user pwd frag valid hostname "9" on local network port} {
+    uri::join scheme https query abc=def&ghi=jkl host 9 path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@9:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.33 {uri::join - https w/- query user pwd frag valid hostname "9" on local network FQDN port} {
+    uri::join scheme https query abc=def&ghi=jkl host 9. path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@9.:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.34 {uri::join - https w/- query user pwd frag valid hostname "0-9" on local network} {
+    uri::join scheme https query abc=def&ghi=jkl host 0-9 path /path/ user user pwd passwd fragment f
+} https://user:passwd@0-9/path/?abc=def&ghi=jkl#f
+
+test uri-2.35 {uri::join - https w/- query user pwd frag valid hostname "0-9" on local network FQDN} {
+    uri::join scheme https query abc=def&ghi=jkl host 0-9. path /path/ user user pwd passwd fragment f
+} https://user:passwd@0-9./path/?abc=def&ghi=jkl#f
+
+test uri-2.36 {uri::join - https w/- query user pwd frag valid hostname "0-9" on local network port} {
+    uri::join scheme https query abc=def&ghi=jkl host 0-9 path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@0-9:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.37 {uri::join - https w/- query user pwd frag valid hostname "0-9" on local network FQDN port} {
+    uri::join scheme https query abc=def&ghi=jkl host 0-9. path /path/ user user pwd passwd fragment f port 8080
+} https://user:passwd@0-9.:8080/path/?abc=def&ghi=jkl#f
+
+test uri-2.38 {uri::join -- scheme file, do not use first segment of path as host} {
+    ::uri::join path b/c/d scheme file
+} file:///b/c/d
+
+test uri-2.39 {uri::join -- scheme file, usual case} {
+    ::uri::join path /b/c/d scheme file
+} file:///b/c/d
+
+test uri-2.40 {uri::join -- scheme file, trimleft excess "/", do not use first segment of path as host} {
+    ::uri::join path //b/c/d scheme file
+} file:///b/c/d
+
+test uri-2.41 {uri::join -- scheme file, trimleft excess "/", do not use first segment of path as host} {
+    ::uri::join path ///b/c/d scheme file
+} file:///b/c/d
+
+test uri-2.42 {uri::join -- scheme file, trimleft excess "/", do not use first segment of path as host} {
+    ::uri::join path ////b/c/d scheme file
+} file:///b/c/d
+
+test uri-2.43 {uri::join -- with uri::split, identity function preserves user:pwd for http; appends "/"} {
+  eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk]
+} http://anonymous:passw0rd@core.tcl.tk/
+
+test uri-2.44 {uri::join -- with uri::split, identity function preserves user:pwd and port for http} {
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk:8080/foo]
+} http://anonymous:passw0rd@core.tcl.tk:8080/foo
+
+test uri-2.45 {uri::join -- with uri::split, identity function preserves user:pwd and port for http FQDN} {
+    eval ::uri::join [::uri::split http://anonymous:passw0rd@core.tcl.tk.:8080/foo]
+} http://anonymous:passw0rd@core.tcl.tk.:8080/foo
 
 # -------------------------------------------------------------------------
 
@@ -231,7 +474,6 @@ test uri-3.10 {uri::resolve - two queries,
     uri::resolve http://www.example.com/baz?foo=bar /baz?shoo=bee
 } http://www.example.com/baz?shoo=bee
 
-
 test uri-3.11 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
     uri::resolve http://www.foo.com/ //www.bar.com/
 }  http://www.bar.com/
@@ -244,6 +486,80 @@ test uri-3.13 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
     uri::resolve https://www.foo.com/ //www.bar.com
 }  https://www.bar.com/
 
+test uri-3.14 {uri::resolve - two queries,
+    one absolute URL, one absolute path, port} {
+    uri::resolve http://www.example.com:8080/baz?foo=bar /baz?shoo=bee
+} http://www.example.com:8080/baz?shoo=bee
+
+test uri-3.15 {uri::resolve - two queries,
+    one absolute URL, one absolute path, FQDN} {
+    uri::resolve http://www.example.com./baz?foo=bar /baz?shoo=bee
+} http://www.example.com./baz?shoo=bee
+
+test uri-3.16 {uri::resolve - two queries,
+    one absolute URL, one absolute path, FQDN, port} {
+    uri::resolve http://www.example.com.:8080/baz?foo=bar /baz?shoo=bee
+} http://www.example.com.:8080/baz?shoo=bee
+
+test uri-3.17 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "9" on local network} {
+    uri::resolve http://9/baz?foo=bar /baz?shoo=bee
+} http://9/baz?shoo=bee
+
+test uri-3.18 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "9" on local network, port} {
+    uri::resolve http://9:8080/baz?foo=bar /baz?shoo=bee
+} http://9:8080/baz?shoo=bee
+
+test uri-3.19 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "0-9" on local network} {
+    uri::resolve http://0-9/baz?foo=bar /baz?shoo=bee
+} http://0-9/baz?shoo=bee
+
+test uri-3.20 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "0-9" on local network, port} {
+    uri::resolve http://0-9:8080/baz?foo=bar /baz?shoo=bee
+} http://0-9:8080/baz?shoo=bee
+
+test uri-3.21 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "9" on local network, FQDN} {
+    uri::resolve http://9./baz?foo=bar /baz?shoo=bee
+} http://9./baz?shoo=bee
+
+test uri-3.22 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "9" on local network, FQDN, port} {
+    uri::resolve http://9.:8080/baz?foo=bar /baz?shoo=bee
+} http://9.:8080/baz?shoo=bee
+
+test uri-3.23 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "0-9" on local network, FQDN} {
+    uri::resolve http://0-9./baz?foo=bar /baz?shoo=bee
+} http://0-9./baz?shoo=bee
+
+test uri-3.24 {uri::resolve - two queries,
+    one absolute URL, one absolute path, valid hostname "0-9" on local network, FQDN, port} {
+    uri::resolve http://0-9.:8080/baz?foo=bar /baz?shoo=bee
+} http://0-9.:8080/baz?shoo=bee
+
+test uri-3.25 {uri::resolve -- user:pwd for http} {
+    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar /some 
+} http://anonymous:passw0rd@core.tcl.tk/some
+
+test uri-3.26 {uri::resolve -- user:pwd for http} {
+    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar //www.tcl.tk/foo/bar
+} http://www.tcl.tk/foo/bar
+
+test uri-3.27 {uri::resolve -- user:pwd for http} {
+    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk/foo/bar //core.tcl.tk/foo/bar
+} http://core.tcl.tk/foo/bar
+
+test uri-3.28 {uri::resolve -- port for http} {
+    ::uri::resolve http://core.tcl.tk:8080/foo/bar //core.tcl.tk/foo/bar
+} http://core.tcl.tk/foo/bar
+
+test uri-3.29 {uri::resolve -- user:pwd and port for http} {
+    ::uri::resolve http://anonymous:passw0rd@core.tcl.tk:8080/foo/bar //core.tcl.tk/foo/bar
+} http://core.tcl.tk/foo/bar
 
 # -------------------------------------------------------------------------
 
@@ -449,6 +765,30 @@ test uri-5.47-0 {uri::canonicalize not s.} {
     uri::canonicalize http://www.example.com/s./path1/
 } {http://www.example.com/s./path1/}
 
+test uri-5.48-0 {uri::canonicalize infinite loop, valid hostname on local network} {
+    uri::canonicalize http://test-host/../path.html/resource
+} {http://test-host/path.html/resource}
+
+test uri-5.49-0 {uri::canonicalize infinite loop, valid hostname "9" on local network} {
+    uri::canonicalize http://9/../path.html/resource
+} {http://9/path.html/resource}
+
+test uri-5.50-0 {uri::canonicalize infinite loop, valid hostname "0-9" on local network} {
+    uri::canonicalize http://0-9/../path.html/resource
+} {http://0-9/path.html/resource}
+
+test uri-5.51-0 {uri::canonicalize infinite loop, valid hostname on local network, FQDN} {
+    uri::canonicalize http://test-host./../path.html/resource
+} {http://test-host./path.html/resource}
+
+test uri-5.52-0 {uri::canonicalize infinite loop, valid hostname "9" on local network, FQDN} {
+    uri::canonicalize http://9./../path.html/resource
+} {http://9./path.html/resource}
+
+test uri-5.53-0 {uri::canonicalize infinite loop, valid hostname "0-9" on local network, FQDN} {
+    uri::canonicalize http://0-9./../path.html/resource
+} {http://0-9./path.html/resource}
+
 test uri-5.1-1 {uri::canonicalize} {
     uri::canonicalize ftp://ftp.test.net/path1/./remove/../path2/resource
 } ftp://ftp.test.net/path1/path2/resource
@@ -624,6 +964,30 @@ test uri-5.46-1 {uri::canonicalize not s.} {
 test uri-5.47-1 {uri::canonicalize not s.} {
     uri::canonicalize ftp://ftp.test.net/s./path1/
 } {ftp://ftp.test.net/s./path1/}
+
+test uri-5.48-1 {uri::canonicalize infinite loop, valid hostname on local network} {
+    uri::canonicalize ftp://test-host/../path.html/resource
+} {ftp://test-host/path.html/resource}
+
+test uri-5.49-1 {uri::canonicalize infinite loop, valid hostname "9" on local network} {
+    uri::canonicalize ftp://9/../path.html/resource
+} {ftp://9/path.html/resource}
+
+test uri-5.50-1 {uri::canonicalize infinite loop, valid hostname "0-9" on local network} {
+    uri::canonicalize ftp://0-9/../path.html/resource
+} {ftp://0-9/path.html/resource}
+
+test uri-5.51-1 {uri::canonicalize infinite loop, valid hostname on local network, FQDN} {
+    uri::canonicalize ftp://test-host./../path.html/resource
+} {ftp://test-host./path.html/resource}
+
+test uri-5.52-1 {uri::canonicalize infinite loop, valid hostname "9" on local network, FQDN} {
+    uri::canonicalize ftp://9./../path.html/resource
+} {ftp://9./path.html/resource}
+
+test uri-5.53-1 {uri::canonicalize infinite loop, valid hostname "0-9" on local network, FQDN} {
+    uri::canonicalize ftp://0-9./../path.html/resource
+} {ftp://0-9./path.html/resource}
 
 test uri-5.1-2 {uri::canonicalize} {
     uri::canonicalize file://goo.test.net/path1/./remove/../path2/resource
@@ -801,6 +1165,30 @@ test uri-5.47-2 {uri::canonicalize not s.} {
     uri::canonicalize file://goo.test.net/s./path1/
 } {file://goo.test.net/s./path1/}
 
+test uri-5.48-2 {uri::canonicalize infinite loop, valid hostname on local network} {
+    uri::canonicalize file://test-host/../path.html/resource
+} {file://test-host/path.html/resource}
+
+test uri-5.49-2 {uri::canonicalize infinite loop, valid hostname "9" on local network} {
+    uri::canonicalize file://9/../path.html/resource
+} {file://9/path.html/resource}
+
+test uri-5.50-2 {uri::canonicalize infinite loop, valid hostname "0-9" on local network} {
+    uri::canonicalize file://0-9/../path.html/resource
+} {file://0-9/path.html/resource}
+
+test uri-5.51-2 {uri::canonicalize infinite loop, valid hostname on local network, FQDN} {
+    uri::canonicalize file://test-host./../path.html/resource
+} {file://test-host./path.html/resource}
+
+test uri-5.52-2 {uri::canonicalize infinite loop, valid hostname "9" on local network, FQDN} {
+    uri::canonicalize file://9./../path.html/resource
+} {file://9./path.html/resource}
+
+test uri-5.53-2 {uri::canonicalize infinite loop, valid hostname "0-9" on local network, FQDN} {
+    uri::canonicalize file://0-9./../path.html/resource
+} {file://0-9./path.html/resource}
+
 test uri-5.1-3 {uri::canonicalize} {
     uri::canonicalize file:///path1/./remove/../path2/resource
 } file:///path1/path2/resource
@@ -977,12 +1365,18 @@ test uri-5.47-3 {uri::canonicalize not s.} {
     uri::canonicalize file:///s./path1/
 } {file:///s./path1/}
 
+# There are no counterparts uri-5.48-3 to uri-5.53-3 for the tests
+# uri-5.48-* to uri-5.53-*, *=0,1,2 because these tests try different hosts.
+
+# -------------------------------------------------------------------------
 
 test uri-6.0 {uri::canonicalize} {
     uri::canonicalize telnet://goo.test.net/
 } telnet://goo.test.net/
 
-test uri-7.0 {uri::split & uri::join} {
+# -------------------------------------------------------------------------
+
+test uri-7.0 {uri::split & uri::join with unusual fragment including pseudo-query} {
     set ls [uri::split http://tcl.apache.org/websh/faq.ws3\#generic?foo=bar]
     eval uri::join $ls
 } {http://tcl.apache.org/websh/faq.ws3#generic?foo=bar}
@@ -1027,6 +1421,228 @@ test uri-12.1 {uri::split, host-only without scheme, ticket cfb76ff494} {
 
 # -------------------------------------------------------------------------
 
+test uri-13.0 {uri::isrelative rfc3986 Section 3.1} {
+    ::uri::isrelative https://example.com/
+} 0
+
+test uri-13.1 {uri::isrelative rfc3986 Section 3.1} {
+    ::uri::isrelative //example.com/
+} 1
+
+test uri-13.2 {uri::isrelative rfc3986 Section 3.1} {
+    ::uri::isrelative /foo/bar.html
+} 1
+
+test uri-13.3 {uri::isrelative rfc3986 Section 3.1} {
+    ::uri::isrelative ?a=b&c=d
+} 1
+
+test uri-13.4 {uri::isrelative rfc3986 Section 3.1} {
+    ::uri::isrelative #top
+} 1
+
+test uri-13.5 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative test:foo
+} 0
+
+test uri-13.6 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative TEST:foo
+} 0
+
+test uri-13.7 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative Test:foo
+} 0
+
+test uri-13.8 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative tesT:foo
+} 0
+
+test uri-13.9 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative te.st:foo
+} 0
+
+test uri-13.10 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative te+st:foo
+} 0
+
+test uri-13.11 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative te9st:foo
+} 0
+
+test uri-13.12 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative te-st:foo
+} 0
+
+test uri-13.13 {uri::isrelative rfc3986 Section 3.1 valid scheme} {
+    ::uri::isrelative test-:foo
+} 0
+
+test uri-13.14 {uri::isrelative rfc3986 Section 3.1 need initial letter} {
+    ::uri::isrelative 9est:foo
+} 1
+
+test uri-13.15 {uri::isrelative rfc3986 Section 3.1 need initial letter} {
+    ::uri::isrelative -est:foo
+} 1
+
+test uri-13.16 {uri::isrelative rfc3986 Section 3.1 need initial letter} {
+    ::uri::isrelative .est:foo
+} 1
+
+test uri-13.17 {uri::isrelative rfc3986 Section 3.1 need initial letter} {
+    ::uri::isrelative +est:foo
+} 1
+
+test uri-13.18 {uri::isrelative rfc3986 Section 3.1 bad character} {
+    ::uri::isrelative te,st:foo
+} 1
+
+test uri-13.19 {uri::isrelative rfc3986 Section 3.1 correct but unhelpful result} {
+    ::uri::isrelative www.example.com:80
+} 0
+
+test uri-13.20 {uri::isrelative rfc3986 Section 3.1 correct but unhelpful result} {
+    ::uri::isrelative c:/windows/welcome.html
+} 0
+
+test uri-13.21 {uri::isrelative rfc3986 Section 3.1 correct but unhelpful result} {
+    ::uri::isrelative C:/WINDOWS/welcome.html
+} 0
+
+# -------------------------------------------------------------------------
+# More tests on uri::resolve - scheme-relative url with authority
+
+test uri-14.0 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-14.1 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //test-host
+}  http://test-host/
+
+test uri-14.2 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //9
+}  http://9/
+
+test uri-14.3 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //0-9
+}  http://0-9/
+
+test uri-14.4 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, FQDN} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com./dir/dir22?a=b&c=d#g
+}  http://www.bar.com./dir/dir22?a=b&c=d#g
+
+test uri-14.5 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, FQDN} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //test-host.
+}  http://test-host./
+
+test uri-14.6 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, FQDN} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //9.
+}  http://9./
+
+test uri-14.7 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, FQDN} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //0-9.
+}  http://0-9./
+
+test uri-14.8 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com:8080/dir/dir22?a=b&c=d#g
+}  http://www.bar.com:8080/dir/dir22?a=b&c=d#g
+
+test uri-14.9 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //test-host:8080
+}  http://test-host:8080/
+
+test uri-14.10 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //9:8080
+}  http://9:8080/
+
+test uri-14.11 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //0-9:8080
+}  http://0-9:8080/
+
+test uri-14.12 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, FQDN, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com.:8080/dir/dir22?a=b&c=d#g
+}  http://www.bar.com.:8080/dir/dir22?a=b&c=d#g
+
+test uri-14.13 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, FQDN, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //test-host.:8080
+}  http://test-host.:8080/
+
+test uri-14.14 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, FQDN, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //9.:8080
+}  http://9.:8080/
+
+test uri-14.15 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, FQDN, port} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //0-9.:8080
+}  http://0-9.:8080/
+
+# -------------------------------------------------------------------------
+
+test uri-15.0 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.1 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network} {
+    uri::resolve http://test-host/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.2 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network} {
+    uri::resolve http://9/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.3 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network} {
+    uri::resolve http://0-9/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.4 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, FQDN} {
+    uri::resolve http://www.foo.com/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.5 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, FQDN} {
+    uri::resolve http://test-host./path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.6 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, FQDN} {
+    uri::resolve http://9./path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.7 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, FQDN} {
+    uri::resolve http://0-9./path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.8 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, port} {
+    uri::resolve http://www.foo.com:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.9 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, port} {
+    uri::resolve http://test-host:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.10 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, port} {
+    uri::resolve http://9:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.11 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, port} {
+    uri::resolve http://0-9:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.12 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, FQDN, port} {
+    uri::resolve http://www.foo.com.:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.13 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname on local network, FQDN, port} {
+    uri::resolve http://test-host.:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.14 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "9" on local network, FQDN, port} {
+    uri::resolve http://9.:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+test uri-15.15 {uri::resolve - scheme-relative url with authority, rfc3986 4.2, valid hostname "0-9" on local network, FQDN, port} {
+    uri::resolve http://0-9.:8080/path/path2?query=url?otherquery#f //www.bar.com/dir/dir22?a=b&c=d#g
+}  http://www.bar.com/dir/dir22?a=b&c=d#g
+
+# -------------------------------------------------------------------------
 
 testsuiteCleanup
 return
