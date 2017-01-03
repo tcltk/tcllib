@@ -162,7 +162,10 @@ proc ::processman::priority {id level} {
     package require twapi
     switch $level {
       background {
-	twapi::set_priority_class $pid 0x00100000
+        if  {[catch {twapi::set_priority_class $pid 0x00104000} err]} {
+          puts "BG Mode failed - $err"
+          twapi::set_priority_class $pid 0x00004000
+        }
       }
       low {
         twapi::set_priority_class $pid 0x00004000
