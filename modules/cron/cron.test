@@ -127,7 +127,7 @@ test cron-objects-1-3 {cron::every} {
 ::cron::clock_sleep 1
 
 ###
-# The couroutine should have completed, and now ceases to exist
+# The coroutine should have completed, and now ceases to exist
 ###
 test cron-objects-1-4 {cron::every} {
   ::cron::task exists $coro

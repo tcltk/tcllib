@@ -161,18 +161,24 @@ proc ::processman::priority {id level} {
   if { $::tcl_platform(platform) eq "windows" } {
     package require twapi
     switch $level {
+      background {
+	twapi::set_priority_class $pid 0x00100000
+      }
       low {
-        twapi::set_priority_class $pid 0x4000
+        twapi::set_priority_class $pid 0x00004000
       }
       high {
-        twapi::set_priority_class $pid 0x20
+        twapi::set_priority_class $pid 0x00000020
       }
       default {
-        twapi::set_priority_class $pid 0x8000
+        twapi::set_priority_class $pid 0x00008000
       }
     }
   } else {
     switch $level {
+      background {
+        exec renice -n 20 -p $pid
+      }
       low {
         exec renice -n 10 -p $pid
       }
