@@ -88,7 +88,6 @@ namespace eval ::uri {
     } ;# basic {}
 }
 
-
 # ::uri::register --
 #
 #	Register a scheme (and aliases) in the package. The command
@@ -151,7 +150,7 @@ proc ::uri::register {schemeList script} {
     set url [string trimright $url |]
     return
 }
-
+
 # ::uri::split --
 #
 #	Splits the given <a url> into its constituents.
@@ -174,8 +173,14 @@ proc ::uri::split {url {defaultscheme http}} {
 	set scheme $defaultscheme
 	switch -- $scheme {
 	    http - https - ftp {
-		# Force an empty host part
-		set url //$url
+		# x/y     -> //x/y    PREPEND //
+		# /x/y    -> ///x/y   PREPEND //
+		# //x/y   -> //x/y
+		# ///x/y  -> ///x/y
+		# ////x/y -> ////x/y
+		if {[string range $url 0 1] != "//"} {
+		    set url //$url
+		}
 	    }
 	}
     }
@@ -244,28 +249,19 @@ proc ::uri::SplitFtp {url} {
 }
 
 proc ::uri::JoinFtp args {
+    set uphp [eval [linsert $args 0 ComposeUPHP {}]]
+
     array set components {
-	user {} pwd {} host {} port {}
 	path {} type {}
     }
     array set components $args
-
-    set userPwd {}
-    if {[string length $components(user)] || [string length $components(pwd)]} {
-	set userPwd $components(user)[expr {[string length $components(pwd)] ? ":$components(pwd)" : {}}]@
-    }
-
-    set port {}
-    if {[string length $components(port)]} {
-	set port :$components(port)
-    }
 
     set type {}
     if {[string length $components(type)]} {
 	set type \;type=$components(type)
     }
 
-    return ftp://${userPwd}$components(host)${port}/[string trimleft $components(path) /]$type
+    return ftp://${uphp}/[string trimleft $components(path) /]$type
 }
 
 proc ::uri::SplitHttps {url} {
@@ -349,14 +345,10 @@ proc ::uri::JoinHttps {args} {
 }
 
 proc ::uri::JoinHttpInner {scheme defport args} {
-    array set components {host {} path {} query {} fragment {}}
-    set       components(port) $defport
-    array set components $args
+    set uphp [eval [linsert $args 0 ComposeUPHP $defport]]
 
-    set port {}
-    if {[string length $components(port)] && $components(port) != $defport} {
-	set port :$components(port)
-    }
+    array set components {path {} query {} fragment {}}
+    array set components $args
 
     set query {}
     if {[string length $components(query)]} {
@@ -371,7 +363,7 @@ proc ::uri::JoinHttpInner {scheme defport args} {
 	set components(fragment) ""
     }
 
-    return $scheme://$components(host)$port/$components(path)$query$components(fragment)
+    return $scheme://$uphp/$components(path)$query$components(fragment)
 }
 
 proc ::uri::SplitFile {url} {
@@ -429,7 +421,8 @@ proc ::uri::JoinFile args {
 	    }
 	}
 	default {
-	    return file://$components(host)$components(path)
+	    set components(path) [string trimleft $components(path) /]
+	    return file://$components(host)/$components(path)
 	}
     }
 }
@@ -548,6 +541,28 @@ proc ::uri::JoinLdapInner {scheme defport args} {
     return $url
 }
 
+proc ::uri::ComposeUPHP {defport args} {
+    # user:pwd@host:port
+
+    array set components {
+	user {} pwd {} host {} port {}
+    }
+    set       components(port) $defport
+    array set components $args
+
+    set userPwd {}
+    if {[string length $components(user)] || [string length $components(pwd)]} {
+	set userPwd $components(user)[expr {[string length $components(pwd)] ? ":$components(pwd)" : {}}]@
+    }
+
+    set port {}
+    if {[string length $components(port)] && $components(port) != $defport} {
+	set port :$components(port)
+    }
+
+    return ${userPwd}$components(host)${port}
+}
+
 proc ::uri::GetUPHP {urlvar} {
     # @c Parse user, password host and port out of the url stored in
     # @c variable <a urlvar>.
@@ -656,6 +671,11 @@ proc ::uri::GetHostPort {urlvar} {
 # N.B. http(s): and ftp: path does not begin with "/" and may be empty.
 # The file: path (unix) always begins "/", even if a host is specified.
 #
+# RFC 3986 Sec. 5.2 defines how URI relative resolution should proceed.
+# This command is a "strict parser" in the sense of Sec. 5.2.2: it does not
+# allow a relative URI such as "http:foo/bar.html".  See also the last example
+# in Sec. 5.4.2 and uri-rfc2396.test test uri-rfc2396-11.19.
+#
 # Arguments:
 #	base	base URL (absolute)
 #	url	arbitrary URL
@@ -664,81 +684,102 @@ proc ::uri::GetHostPort {urlvar} {
 #	Returns a URL
 
 proc ::uri::resolve {base url} {
-    if {[string length $url]} {
-	if {[isrelative $url]} {
-	    array set baseparts [split $base]
+    if {[isrelative $url]} {
+	set canon 1
+	array set baseparts [split $base]
 
-	    switch -- $baseparts(scheme) {
-		http -
-		https -
-		ftp -
-		file {
-		    set changed 0
-		    array set relparts [split $baseparts(scheme):$url]
-		    if { [string match /* $url] } {
-			catch { set baseparts(path) $relparts(path) }
-			# RFC 3986 section 4.2 - no scheme, but authority (host), keep authority
-			catch {
-			    if {$relparts(host) != ""} {
-				set baseparts(host) $relparts(host)
-			    }
+	switch -- $baseparts(scheme) {
+	    http -
+	    https -
+	    ftp -
+	    file {
+		set changed 0
+		array set relparts [split $baseparts(scheme):$url]
+		if {[array names relparts path] != {path}} {
+		    set relparts(path) {}
+		}
+		if { [string match /* $url] } {
+		    set baseparts(path) $relparts(path)
+		    catch {
+			if {$relparts(host) != ""} {
+			    # RFC 3986 section 4.2 and 5.2.2.
+			    # url has no scheme, but has authority
+			    # ("UPHP" or User,Password,Host,Port). Use that
+			    # authority. Do not transfer credentials or port
+			    # number from the base authority.
+			    set baseparts(host) $relparts(host)
+			    set baseparts(user) {}
+			    set baseparts(pwd)  {}
+			    set baseparts(port) {}
+			    set baseparts(user) $relparts(user)
+			    set baseparts(pwd)  $relparts(pwd)
+			    set baseparts(port) $relparts(port)
 			}
-			set changed 1
-		    } elseif {    [string match */ $baseparts(path)]
-			       && ([string length $relparts(path)] > 0)
-		    } {
-			set baseparts(path) "$baseparts(path)$relparts(path)"
-			set changed 1
-		    } elseif { [string length $relparts(path)] > 0 } {
-			    set path [lreplace [::split $baseparts(path) /] end end]
-			    set baseparts(path) "[::join $path /]/$relparts(path)"
-			    set changed 1
-		    } else {
 		    }
-		}
-		default {
-		    return -code error "unable to resolve relative URL \"$url\""
-		}
-	    }
-
-	    # query and fragment are defined for http, https; not for file, ftp
-	    switch -- $baseparts(scheme) {
-		http -
-		https {
-		    if {[array names relparts query] != {query}} {
-			set relparts(query) {}
-		    }
-		    if {[array names relparts fragment] != {fragment}} {
-			set relparts(fragment) {}
-		    }
-
-		    if {$changed || ($relparts(query) != {})} {
-			set baseparts(query) $relparts(query)
-			set changed 1
-		    } else {
-			# Keep base query.
-			# Possible error if url has empty query "?".
-		    }
-
-		    if {$changed || ($relparts(fragment) != {})} {
-			set baseparts(fragment) $relparts(fragment)
-			set changed 1
-		    } else {
-			# Keep base fragment.
-			# Possible error if url has empty fragment "#".
-		    }
-		}
-		ftp -
-		file -
-		default {
+		    set changed 1
+		} elseif {    [string match */ $baseparts(path)]
+			   && ([string length $relparts(path)] > 0)
+		} {
+		    set baseparts(path) "$baseparts(path)$relparts(path)"
+		    set changed 1
+		} elseif { [string length $relparts(path)] > 0 } {
+		    set path [lreplace [::split $baseparts(path) /] end end]
+		    set baseparts(path) "[::join $path /]/$relparts(path)"
+		    set changed 1
+		} else {
+		    # Do not overwrite baseparts(path).  In this case,
+		    # RFC 3986 Sec. 5.2.2 does not demand canonicalization.
+		    # FIXME check whether it assumes the base URI is already canonical.
+		    set canon 0
 		}
 	    }
-	    return [eval [linsert [array get baseparts] 0 join]]
-	} else {
-	    return $url
+	    default {
+		return -code error "unable to resolve relative URL \"$url\""
+	    }
 	}
+
+	# query and fragment are defined for http, https; not for file, ftp
+	# FIXME check the RFCs re fragment: it is useful in HTML documents when
+	# accessed by file or ftp.
+	switch -- $baseparts(scheme) {
+	    http -
+	    https {
+		if {[array names relparts query] != {query}} {
+		    set relparts(query) {}
+		}
+		if {[array names relparts fragment] != {fragment}} {
+		    set relparts(fragment) {}
+		}
+
+		if {$changed || ($relparts(query) != {})} {
+		    set baseparts(query) $relparts(query)
+		    set changed 1
+		} else {
+		    # Keep base query.
+		    # FIXME error if url has empty query "?".
+		}
+
+		# RFC 3986 section 5.2.2 requires that the base fragment
+		# is always discarded.
+		set baseparts(fragment) $relparts(fragment)
+		# FIXME (in split/join) empty fragment "#".
+	    }
+	    ftp -
+	    file -
+	    default {
+	    }
+	}
+	set url [eval [linsert [array get baseparts] 0 join]]
+	if {$canon} {
+	    # RFC 3986 section 5.2.2 requires us to canonicalize the path.
+	    set url [canonicalize $url]
+	} else {
+	}
+	return $url
     } else {
-	return $base
+	# RFC 3986 section 5.2.2 requires us to canonicalize the path.
+	set url [canonicalize $url]
+	return $url
     }
 }
 

@@ -26,8 +26,8 @@ testing {
 #     The RFC is therefore ambiguous as to whether "http://host/" or
 #     "http://host" is the canonical form.  Both URIs refer to the same
 #     resource.
-# (5) Add tests uri-rfc2396-3.* from RFC 3986 Sec. 5.4.2 "Abnormal Examples".
-# (6) Test uri-rfc2396-3.19 fails - constraints and explanation added.
+# (5) Add tests uri-rfc2396-11.* from RFC 3986 Sec. 5.4.2 "Abnormal Examples".
+# (6) Test uri-rfc2396-11.19 fails - constraints and explanation added.
 # ------------------------------------------------------------------------------
 
 # Test the "Normal Examples" from RFC 3986 Sec. 5.4.1.
@@ -52,7 +52,7 @@ test uri-rfc2396-1.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q /g]
 } http://a/g
 
-test uri-rfc2396-1.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug sf-tcllib-bug-581781} {
+test uri-rfc2396-1.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q //g]
 } http://g
 
@@ -125,7 +125,7 @@ test uri-rfc2396-1.22 {uri::resolve} {
 } http://a/g
 
 
-# This is the end of the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
 # The tests below are similar, but the base URL omits the query-string "?q".
 
 test uri-rfc2396-2.1 {uri::resolve} {
@@ -148,7 +148,7 @@ test uri-rfc2396-2.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p /g]
 } http://a/g
 
-test uri-rfc2396-2.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug sf-tcllib-bug-581781} {
+test uri-rfc2396-2.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p //g]
 } http://g
 
@@ -220,84 +220,747 @@ test uri-rfc2396-2.22 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p ../../g]
 } http://a/g
 
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# The tests below are similar, but the base URL has a fragment #f
+
+test uri-rfc2396-3.1 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g:h]
+} g:h
+
+test uri-rfc2396-3.2 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g]
+} http://a/b/c/g
+
+test uri-rfc2396-3.3 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ./g]
+} http://a/b/c/g
+
+test uri-rfc2396-3.4 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g/]
+} http://a/b/c/g/
+
+test uri-rfc2396-3.5 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f /g]
+} http://a/g
+
+test uri-rfc2396-3.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f //g]
+} http://g
+
+test uri-rfc2396-3.7 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ?y]
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-3.8 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g?y]
+} http://a/b/c/g?y
+
+test uri-rfc2396-3.9 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f \#s]
+} {http://a/b/c/d;p?q#s}
+
+test uri-rfc2396-3.10 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g\#s]
+} http://a/b/c/g#s
+
+test uri-rfc2396-3.11 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g?y\#s]
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-3.12 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f \;x]
+} {http://a/b/c/;x}
+
+test uri-rfc2396-3.13 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g\;x]
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-3.14 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f g\;x?y#s]
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-3.14a {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f {}]
+} {http://a/b/c/d;p?q}
+
+test uri-rfc2396-3.15 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f .]
+} http://a/b/c/
+
+test uri-rfc2396-3.16 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ./]
+} http://a/b/c/
+
+test uri-rfc2396-3.17 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ..]
+} http://a/b/
+
+test uri-rfc2396-3.18 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ../]
+} http://a/b/
+
+test uri-rfc2396-3.19 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ../g]
+} http://a/b/g
+
+test uri-rfc2396-3.20 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ../..]
+} http://a/
+
+test uri-rfc2396-3.21 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ../../]
+} http://a/
+
+test uri-rfc2396-3.22 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f ../../g]
+} http://a/g
+
+
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# The tests below are similar, but the base URL omits the query-string "?q" and has a fragment #f.
+
+test uri-rfc2396-4.1 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g:h]
+} g:h
+
+test uri-rfc2396-4.2 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g]
+} http://a/b/c/g
+
+test uri-rfc2396-4.3 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ./g]
+} http://a/b/c/g
+
+test uri-rfc2396-4.4 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g/]
+} http://a/b/c/g/
+
+test uri-rfc2396-4.5 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f /g]
+} http://a/g
+
+test uri-rfc2396-4.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f //g]
+} http://g
+
+test uri-rfc2396-4.7 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ?y]
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-4.8 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g?y]
+} http://a/b/c/g?y
+
+test uri-rfc2396-4.9 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f \#s]
+} {http://a/b/c/d;p#s}
+
+test uri-rfc2396-4.10 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g\#s]
+} http://a/b/c/g#s
+
+test uri-rfc2396-4.11 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g?y\#s]
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-4.12 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f \;x]
+} {http://a/b/c/;x}
+
+test uri-rfc2396-4.13 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g\;x]
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-4.14 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f g\;x?y#s]
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-4.14a {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f {}]
+} {http://a/b/c/d;p}
+
+test uri-rfc2396-4.15 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f .]
+} http://a/b/c/
+
+test uri-rfc2396-4.16 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ./]
+} http://a/b/c/
+
+test uri-rfc2396-4.17 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ..]
+} http://a/b/
+
+test uri-rfc2396-4.18 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ../]
+} http://a/b/
+
+test uri-rfc2396-4.19 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ../g]
+} http://a/b/g
+
+test uri-rfc2396-4.20 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ../..]
+} http://a/
+
+test uri-rfc2396-4.21 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ../../]
+} http://a/
+
+test uri-rfc2396-4.22 {uri::resolve} {
+    uri::canonicalize [uri::resolve http://a/b/c/d\;p#f ../../g]
+} http://a/g
+
+# Test the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# Without explicit canonicalization.
+
+test uri-rfc2396-5.1 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g:h
+} g:h
+
+test uri-rfc2396-5.2 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g
+} http://a/b/c/g
+
+test uri-rfc2396-5.3 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ./g
+} http://a/b/c/g
+
+test uri-rfc2396-5.4 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g/
+} http://a/b/c/g/
+
+test uri-rfc2396-5.5 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q /g
+} http://a/g
+
+test uri-rfc2396-5.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::resolve http://a/b/c/d\;p?q //g
+} http://g
+
+test uri-rfc2396-5.7 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ?y
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-5.8 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g?y
+} http://a/b/c/g?y
+
+test uri-rfc2396-5.9 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q \#s
+} {http://a/b/c/d;p?q#s}
+
+test uri-rfc2396-5.10 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g\#s
+} http://a/b/c/g#s
+
+test uri-rfc2396-5.11 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g?y\#s
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-5.12 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q \;x
+} {http://a/b/c/;x}
+
+test uri-rfc2396-5.13 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g\;x
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-5.14 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q g\;x?y#s
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-5.14a {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q {}
+} {http://a/b/c/d;p?q}
+
+test uri-rfc2396-5.15 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q .
+} http://a/b/c/
+
+test uri-rfc2396-5.16 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ./
+} http://a/b/c/
+
+test uri-rfc2396-5.17 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ..
+} http://a/b/
+
+test uri-rfc2396-5.18 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ../
+} http://a/b/
+
+test uri-rfc2396-5.19 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ../g
+} http://a/b/g
+
+test uri-rfc2396-5.20 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ../..
+} http://a/
+
+test uri-rfc2396-5.21 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ../../
+} http://a/
+
+test uri-rfc2396-5.22 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q ../../g
+} http://a/g
+
+
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# The tests below are similar, but the base URL omits the query-string "?q".
+# Without explicit canonicalization.
+
+test uri-rfc2396-6.1 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g:h
+} g:h
+
+test uri-rfc2396-6.2 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g
+} http://a/b/c/g
+
+test uri-rfc2396-6.3 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ./g
+} http://a/b/c/g
+
+test uri-rfc2396-6.4 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g/
+} http://a/b/c/g/
+
+test uri-rfc2396-6.5 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p /g
+} http://a/g
+
+test uri-rfc2396-6.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::resolve http://a/b/c/d\;p //g
+} http://g
+
+test uri-rfc2396-6.7 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ?y
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-6.8 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g?y
+} http://a/b/c/g?y
+
+test uri-rfc2396-6.9 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p \#s
+} {http://a/b/c/d;p#s}
+
+test uri-rfc2396-6.10 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g\#s
+} http://a/b/c/g#s
+
+test uri-rfc2396-6.11 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g?y\#s
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-6.12 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p \;x
+} {http://a/b/c/;x}
+
+test uri-rfc2396-6.13 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g\;x
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-6.14 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p g\;x?y#s
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-6.14a {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p {}
+} {http://a/b/c/d;p}
+
+test uri-rfc2396-6.15 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p .
+} http://a/b/c/
+
+test uri-rfc2396-6.16 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ./
+} http://a/b/c/
+
+test uri-rfc2396-6.17 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ..
+} http://a/b/
+
+test uri-rfc2396-6.18 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ../
+} http://a/b/
+
+test uri-rfc2396-6.19 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ../g
+} http://a/b/g
+
+test uri-rfc2396-6.20 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ../..
+} http://a/
+
+test uri-rfc2396-6.21 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ../../
+} http://a/
+
+test uri-rfc2396-6.22 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p ../../g
+} http://a/g
+
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# The tests below are similar, but the base URL has a fragment #f
+# Without explicit canonicalization.
+
+test uri-rfc2396-7.1 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g:h
+} g:h
+
+test uri-rfc2396-7.2 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g
+} http://a/b/c/g
+
+test uri-rfc2396-7.3 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ./g
+} http://a/b/c/g
+
+test uri-rfc2396-7.4 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g/
+} http://a/b/c/g/
+
+test uri-rfc2396-7.5 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f /g
+} http://a/g
+
+test uri-rfc2396-7.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::resolve http://a/b/c/d\;p?q#f //g
+} http://g
+
+test uri-rfc2396-7.7 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ?y
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-7.8 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g?y
+} http://a/b/c/g?y
+
+test uri-rfc2396-7.9 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f \#s
+} {http://a/b/c/d;p?q#s}
+
+test uri-rfc2396-7.10 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g\#s
+} http://a/b/c/g#s
+
+test uri-rfc2396-7.11 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g?y\#s
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-7.12 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f \;x
+} {http://a/b/c/;x}
+
+test uri-rfc2396-7.13 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g\;x
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-7.14 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f g\;x?y#s
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-7.14a {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f {}
+} {http://a/b/c/d;p?q}
+
+test uri-rfc2396-7.15 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f .
+} http://a/b/c/
+
+test uri-rfc2396-7.16 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ./
+} http://a/b/c/
+
+test uri-rfc2396-7.17 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ..
+} http://a/b/
+
+test uri-rfc2396-7.18 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ../
+} http://a/b/
+
+test uri-rfc2396-7.19 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ../g
+} http://a/b/g
+
+test uri-rfc2396-7.20 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ../..
+} http://a/
+
+test uri-rfc2396-7.21 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ../../
+} http://a/
+
+test uri-rfc2396-7.22 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p?q#f ../../g
+} http://a/g
+
+# Cf. the "Normal Examples" from RFC 3986 Sec. 5.4.1.
+# The tests below are similar, but the base URL omits the query-string "?q" and has a fragment #f.
+# Without explicit canonicalization.
+
+test uri-rfc2396-8.1 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g:h
+} g:h
+
+test uri-rfc2396-8.2 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g
+} http://a/b/c/g
+
+test uri-rfc2396-8.3 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ./g
+} http://a/b/c/g
+
+test uri-rfc2396-8.4 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g/
+} http://a/b/c/g/
+
+test uri-rfc2396-8.5 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f /g
+} http://a/g
+
+test uri-rfc2396-8.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+    uri::resolve http://a/b/c/d\;p#f //g
+} http://g
+
+test uri-rfc2396-8.7 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ?y
+} {http://a/b/c/d;p?y}
+
+test uri-rfc2396-8.8 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g?y
+} http://a/b/c/g?y
+
+test uri-rfc2396-8.9 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f \#s
+} {http://a/b/c/d;p#s}
+
+test uri-rfc2396-8.10 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g\#s
+} http://a/b/c/g#s
+
+test uri-rfc2396-8.11 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g?y\#s
+} http://a/b/c/g?y#s
+
+test uri-rfc2396-8.12 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f \;x
+} {http://a/b/c/;x}
+
+test uri-rfc2396-8.13 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g\;x
+} {http://a/b/c/g;x}
+
+test uri-rfc2396-8.14 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f g\;x?y#s
+} {http://a/b/c/g;x?y#s}
+
+test uri-rfc2396-8.14a {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f {}
+} {http://a/b/c/d;p}
+
+test uri-rfc2396-8.15 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f .
+} http://a/b/c/
+
+test uri-rfc2396-8.16 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ./
+} http://a/b/c/
+
+test uri-rfc2396-8.17 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ..
+} http://a/b/
+
+test uri-rfc2396-8.18 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ../
+} http://a/b/
+
+test uri-rfc2396-8.19 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ../g
+} http://a/b/g
+
+test uri-rfc2396-8.20 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ../..
+} http://a/
+
+test uri-rfc2396-8.21 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ../../
+} http://a/
+
+test uri-rfc2396-8.22 {uri::resolve} {
+    uri::resolve http://a/b/c/d\;p#f ../../g
+} http://a/g
+
 
 # Now tests from RFC 3986 Sec. 5.4.2. "Abnormal Examples".
 
-test uri-rfc2396-3.1  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.1  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q ../../../g]
 } http://a/g
 
-test uri-rfc2396-3.2  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.2  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q ../../../../g]
 } http://a/g
 
-test uri-rfc2396-3.3  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.3  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q /./g]
 } http://a/g
 
-test uri-rfc2396-3.4  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.4  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q /../g]
 } http://a/g
 
-test uri-rfc2396-3.5  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.5  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g.]
 } http://a/b/c/g.
 
-test uri-rfc2396-3.6  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.6  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q .g]
 } http://a/b/c/.g
 
-test uri-rfc2396-3.7  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.7  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g..]
 } http://a/b/c/g..
 
-test uri-rfc2396-3.8  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.8  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q ..g]
 } http://a/b/c/..g
 
-test uri-rfc2396-3.9  {uri::resolve abnormal examples} {
+test uri-rfc2396-11.9  {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q ./../g]
 } http://a/b/g
 
-test uri-rfc2396-3.10 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.10 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q ./g/.]
 } http://a/b/c/g/
 
-test uri-rfc2396-3.11 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.11 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g/./h]
 } http://a/b/c/g/h
 
-test uri-rfc2396-3.12 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.12 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g/../h]
 } http://a/b/c/h
 
-test uri-rfc2396-3.13 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.13 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g\;x=1/./y]
 } {http://a/b/c/g;x=1/y}
 
-test uri-rfc2396-3.14 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.14 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g\;x=1/../y]
 } http://a/b/c/y
 
-test uri-rfc2396-3.15 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.15 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g?y/./x]
 } http://a/b/c/g?y/./x
 
-test uri-rfc2396-3.16 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.16 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g?y/../x]
 } http://a/b/c/g?y/../x
 
-test uri-rfc2396-3.17 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.17 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g#s/./x]
 } http://a/b/c/g#s/./x
 
-test uri-rfc2396-3.18 {uri::resolve abnormal examples} {
+test uri-rfc2396-11.18 {uri::resolve abnormal examples} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q g#s/../x]
 } http://a/b/c/g#s/../x
 
-test uri-rfc2396-3.19 {uri::resolve abnormal examples RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole in RFC 1630.} {knownBug rfc1630-loophole-avoid-use} {
+test uri-rfc2396-11.19 {uri::resolve abnormal examples
+    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole in RFC 1630.
+    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2: it does not
+    allow a relative URI such as "http:foo/bar.html" and therefore will fail this test.
+} {knownBug rfc1630-loophole-avoid-use} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q http:g]
 } http:g
+
+# Cf. tests from RFC 3986 Sec. 5.4.2. "Abnormal Examples".
+# Without explicit canonicalization.
+
+test uri-rfc2396-12.1  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q ../../../g
+} http://a/g
+
+test uri-rfc2396-12.2  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q ../../../../g
+} http://a/g
+
+test uri-rfc2396-12.3  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q /./g
+} http://a/g
+
+test uri-rfc2396-12.4  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q /../g
+} http://a/g
+
+test uri-rfc2396-12.5  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g.
+} http://a/b/c/g.
+
+test uri-rfc2396-12.6  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q .g
+} http://a/b/c/.g
+
+test uri-rfc2396-12.7  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g..
+} http://a/b/c/g..
+
+test uri-rfc2396-12.8  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q ..g
+} http://a/b/c/..g
+
+test uri-rfc2396-12.9  {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q ./../g
+} http://a/b/g
+
+test uri-rfc2396-12.10 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q ./g/.
+} http://a/b/c/g/
+
+test uri-rfc2396-12.11 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g/./h
+} http://a/b/c/g/h
+
+test uri-rfc2396-12.12 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g/../h
+} http://a/b/c/h
+
+test uri-rfc2396-12.13 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g\;x=1/./y
+} {http://a/b/c/g;x=1/y}
+
+test uri-rfc2396-12.14 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g\;x=1/../y
+} http://a/b/c/y
+
+test uri-rfc2396-12.15 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g?y/./x
+} http://a/b/c/g?y/./x
+
+test uri-rfc2396-12.16 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g?y/../x
+} http://a/b/c/g?y/../x
+
+test uri-rfc2396-12.17 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g#s/./x
+} http://a/b/c/g#s/./x
+
+test uri-rfc2396-12.18 {uri::resolve abnormal examples} {
+    uri::resolve http://a/b/c/d\;p?q g#s/../x
+} http://a/b/c/g#s/../x
+
+test uri-rfc2396-12.19 {uri::resolve abnormal examples
+    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole in RFC 1630.
+    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2: it does not
+    allow a relative URI such as "http:foo/bar.html" and therefore will fail this test.
+} {knownBug rfc1630-loophole-avoid-use} {
+    uri::resolve http://a/b/c/d\;p?q http:g
+} http:g
+
 
 
 # ------------------------------------------------------------------------------
