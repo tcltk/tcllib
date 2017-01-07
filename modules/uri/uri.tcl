@@ -26,13 +26,24 @@ namespace eval ::uri {
 
     variable file:counter 0
 
-    # extend these variable in the coming namespaces
+    # --------------------------------------------------------------------------
+    # These variables are used by uri::register and are a repository of
+    # scheme-related pattern information that may be accessed by external code.
+    # None is used by the other commands of this package.
+    # --------------------------------------------------------------------------
     variable schemes       {}
+    variable schemePattern ""
+    variable url           ""
+    variable url2part
+    array set url2part     {}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # basic regular expressions used in URL syntax.
 
     namespace eval basic {
+	# ----------------------------------------------------------------------
+	# These variables are used to construct the variables used by commands.
+	# ----------------------------------------------------------------------
 	variable	digit		{[0-9]}
 	variable	hex		{[0-9A-Fa-f]}
 	variable	alphaDigit	{[A-Za-z0-9]}
@@ -51,33 +62,79 @@ namespace eval ::uri {
 		"(?:${digits}\\.${digits}\\.${digits}\\.${digits})"
 	variable	hostnumber6	{(?:\[[^]]*\])}
 	variable	hostnumber	"(${hostnumber4}|${hostnumber6})"
-	variable	hostspec	"${hostname}|${hostnumber}"
-
-	variable	port		$digits
 
 	variable	usrCharN	{[a-zA-Z0-9$_.+!*'(,);?&=-]}
 	variable	usrChar		"(${usrCharN}|${escape})"
+
+	# ----------------------------------------------------------------------
+	# >>> THESE VARIABLES ARE THE ONLY ONES USED BY COMMANDS <<<
+	# ----------------------------------------------------------------------
+
+	variable	hostspec	"${hostname}|${hostnumber}"
+	variable	port		"${digit}*"
 	variable	user		"${usrChar}*"
 	variable	password	$user
-	# Used by commands: hostspec port user password
+
+	# ----------------------------------------------------------------------
+	# This variable (and escape, hostname, hostnumber, port, user, password
+	# from above) are used to construct the variables in the block below.
+	# ----------------------------------------------------------------------
+
+	variable	xCharN		{[a-zA-Z0-9$_.+!*'(,);/?:@&=-]}
+
+	# ----------------------------------------------------------------------
+	# These variables (and "escape") are used in the patterns defined in the
+	# calls to uri::register at the end of the file.  They are not used by
+	# any commands.
+	# ----------------------------------------------------------------------
+
+	variable	xChar		"(${xCharN}|${escape})"
+	variable	host		"(${hostname}|${hostnumber})"
+	variable	hostOrPort	"${host}(:${port})?"
+	variable	login		"(${user}(:${password})?@)?${hostOrPort}"
+	variable	alpha		{[a-zA-Z]}
+
+	# ----------------------------------------------------------------------
+	# These variables are not used by anything in this file.
+	# ----------------------------------------------------------------------
+
+	variable	loAlpha		{[a-z]}
+	variable	hiAlpha		{[A-Z]}
+	variable	safe		{[$_.+-]}
+	variable	extra		{[!*'(,)]}
+	# danger in next pattern, order important for []
+	variable	national	{[][|\}\{\^~`]}
+	variable	punctuation	{[<>#%"]}	;#" fake emacs hilit
+	variable	reserved	{[;/?:@&=]}
+
+	# next is <national | punctuation>
+	variable	unsafe		{[][<>"#%\{\}|\\^~`]} ;#" emacs hilit
+
+	#	unreserved	= alpha | digit | safe | extra
+	#	xchar		= unreserved | reserved | escape
+
+	variable	unreserved	{[a-zA-Z0-9$_.+!*'(,)-]}
+	variable	uChar		"(${unreserved}|${escape})"
+
     } ;# basic {}
 }
-
-# ::uri::register (DEPRECATED) --
+
+# ::uri::register --
 #
 #	Register a scheme (and aliases) in the package. The command
 #	creates a namespace below "::uri" with the same name as the
 #	scheme and executes the script declaring the pattern variables
-#	for this scheme in the new namespace.
+#	for this scheme in the new namespace. At last it updates the
+#	uri variables keeping track of overall scheme information.
 #
-# REASON FOR DEPRECATION
-#	- Registration defines a namespace and pattern variables.
-#	- From v1.2.7, the built-in schemes (and the urn scheme) do this without
-#	  calling uri::register.
-#	- Before v1.2.7, uri::register prevented re-registration of the same
-#	  scheme name(s), and maintained variables that were not used for
-#	  anything.
-#	- The command is retained for use by third-party legacy code.
+#	The script has to declare at least the variable "schemepart",
+#	the pattern for an url of the registered scheme after the
+#	scheme declaration. Not declaring this variable is an error.
+#
+#	Registration provides a number of pattern variables for use by external
+#	code.  It is unconnected to the commands provided by the uri package.
+#	See the warnings near the end of this file where uri::register is
+#	called.
 #
 # Arguments:
 #	schemeList	Name of the scheme to register, plus aliases
@@ -88,6 +145,9 @@ namespace eval ::uri {
 
 proc ::uri::register {schemeList script} {
     variable schemes
+    variable schemePattern
+    variable url
+    variable url2part
 
     # Check scheme and its aliases for existence.
     foreach scheme $schemeList {
@@ -105,6 +165,25 @@ proc ::uri::register {schemeList script} {
 	return -code error \
 	    "error while evaluating scheme script: $msg"
     }
+
+    if {![info exists ${scheme}::schemepart]} {
+	namespace delete $scheme
+	return -code error \
+	    "Variable \"schemepart\" is missing."
+    }
+
+    # Now we can extend the variables which keep track of the registered schemes.
+
+    eval [linsert $schemeList 0 lappend schemes]
+    set schemePattern	"([::join $schemes |]):"
+
+    foreach s $schemeList {
+	# FRINK: nocheck
+	set url2part($s) "${s}:[set ${scheme}::schemepart]"
+	# FRINK: nocheck
+	append url "(${s}:[set ${scheme}::schemepart])|"
+    }
+    set url [string trimright $url |]
     return
 }
 
@@ -941,11 +1020,183 @@ proc ::uri::canonicalize uri {
 # ldap		//<host>:<port>/<dn>?<attrs>?<scope>?<filter>?<extensions>
 # ------------------------------------------------
 
+
+# ------------------------------------------------------------------------------
+#     IMPORTANT WARNINGS
+# ------------------------------------------------------------------------------
+# (1) THE PATTERNS DEFINED BELOW (with one exception) ARE NOT USED FOR PARSING
+#     URLS BY ANY OF THIS PACKAGE'S COMMANDS.
+# (2) THAT EXCEPTION IS THE VARIABLE ::uri::ftp::typepart
+# (3) AS LONG AS THAT VARIABLE IS ASSIGNED THE CORRECT VALUE, ALL THE
+#     uri::register CALLS CAN BE DELETED WITHOUT AFFECTING THE uri::* COMMANDS.
+# (2) REGISTRATION OF A SCHEME DOES NOT IMPLEMENT COMMANDS FOR THAT SCHEME.
+# (3) REGISTRATION OF A SCHEME IS NOT NECESSARY TO IMPLEMENT COMMANDS FOR THAT
+#     SCHEME.
+#     Instead:
+# (4) THE PATTERNS ARE FOR REFERENCE, AND CAN BE ACCESSED VIA THESE NAMESPACE
+#     VARIABLES, OR IN SOME CASES VIA VARIABLES MAINTAINED BY uri::register.
+# (5) THE VARIABLES schemepart AND url ARE MENTIONED IN THE DOCUMENTATION.
+# (6) UNDOCUMENTED VARIABLES MIGHT BE ACCESSED BY THIRD-PARTY CODE.
+# (7) THEREFORE EVERYTHING IS RETAINED FOR BACKWARD COMPATIBILITY.
+# ------------------------------------------------------------------------------
+
 # FTP
-namespace eval ::uri::ftp {
-    variable	Type		{[AaDdIi]}
-    variable	typepart	";type=(${Type})"
+uri::register ftp {
+    # Please read the warnings above.
+    variable escape [set [namespace parent [namespace current]]::basic::escape]
+    variable login  [set [namespace parent [namespace current]]::basic::login]
+
+    variable	charN	{[a-zA-Z0-9$_.+!*'(,)?:@&=-]}
+    variable	char	"(${charN}|${escape})"
+    variable	segment	"${char}*"
+    variable	path	"${segment}(/${segment})*"
+
+    variable	type		{[AaDdIi]}
+    variable	typepart	";type=(${type})"
     # Used elsewhere: typepart
+
+    variable	schemepart	\
+		    "//${login}(/${path}(${typepart})?)?"
+
+    variable	url		"ftp:${schemepart}"
+}
+
+# FILE
+uri::register file {
+    # Please read the warnings above.
+    variable	host [set [namespace parent [namespace current]]::basic::host]
+    variable	path [set [namespace parent [namespace current]]::ftp::path]
+
+    variable	schemepart	"//(${host}|localhost)?/${path}"
+    variable	url		"file:${schemepart}"
+}
+
+# HTTP
+uri::register http {
+    # Please read the warnings above.
+    variable	escape \
+        [set [namespace parent [namespace current]]::basic::escape]
+    variable	hostOrPort	\
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+
+    variable	charN		{[a-zA-Z0-9$_.+!*'(,);:@&=-]}
+    variable	char		"($charN|${escape})"
+    variable	segment		"${char}*"
+
+    variable	path		"${segment}(/${segment})*"
+    variable	search		$segment
+    variable	schemepart	\
+	    "//${hostOrPort}(/${path}(\\?${search})?)?"
+
+    variable	url		"http:${schemepart}"
+}
+
+# GOPHER
+uri::register gopher {
+    # Please read the warnings above.
+    variable	xChar \
+        [set [namespace parent [namespace current]]::basic::xChar]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	search \
+        [set [namespace parent [namespace current]]::http::search]
+
+    variable	type		$xChar
+    variable	selector	"$xChar*"
+    variable	string		$selector
+    variable	schemepart	\
+	    "//${hostOrPort}(/(${type}(${selector}(%09${search}(%09${string})?)?)?)?)?"
+    variable	url		"gopher:${schemepart}"
+}
+
+# MAILTO
+uri::register mailto {
+    # Please read the warnings above.
+    variable xChar [set [namespace parent [namespace current]]::basic::xChar]
+    variable host  [set [namespace parent [namespace current]]::basic::host]
+
+    variable schemepart	"$xChar+(@${host})?"
+    variable url	"mailto:${schemepart}"
+}
+
+# NEWS
+uri::register news {
+    # Please read the warnings above.
+    variable escape [set [namespace parent [namespace current]]::basic::escape]
+    variable alpha  [set [namespace parent [namespace current]]::basic::alpha]
+    variable host   [set [namespace parent [namespace current]]::basic::host]
+
+    variable	aCharN		{[a-zA-Z0-9$_.+!*'(,);/?:&=-]}
+    variable	aChar		"($aCharN|${escape})"
+    variable	gChar		{[a-zA-Z0-9$_.+-]}
+    variable	newsgroup-name	"${alpha}${gChar}*"
+    variable	message-id	"${aChar}+@${host}"
+    variable	schemepart	"\\*|${newsgroup-name}|${message-id}"
+    variable	url		"news:${schemepart}"
+}
+
+# WAIS
+uri::register wais {
+    # Please read the warnings above.
+    variable	uChar \
+        [set [namespace parent [namespace current]]::basic::xChar]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	search \
+        [set [namespace parent [namespace current]]::http::search]
+
+    variable	db		"${uChar}*"
+    variable	type		"${uChar}*"
+    variable	path		"${uChar}*"
+
+    variable	database	"//${hostOrPort}/${db}"
+    variable	index		"//${hostOrPort}/${db}\\?${search}"
+    variable	doc		"//${hostOrPort}/${db}/${type}/${path}"
+
+    #variable	schemepart	"${doc}|${index}|${database}"
+
+    variable	schemepart \
+	    "//${hostOrPort}/${db}((\\?${search})|(/${type}/${path}))?"
+
+    variable	url		"wais:${schemepart}"
+}
+
+# PROSPERO
+uri::register prospero {
+    # Please read the warnings above.
+    variable	escape \
+        [set [namespace parent [namespace current]]::basic::escape]
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+    variable	path \
+        [set [namespace parent [namespace current]]::ftp::path]
+
+    variable	charN		{[a-zA-Z0-9$_.+!*'(,)?:@&-]}
+    variable	char		"(${charN}|$escape)"
+
+    variable	fieldname	"${char}*"
+    variable	fieldvalue	"${char}*"
+    variable	fieldspec	";${fieldname}=${fieldvalue}"
+
+    variable	schemepart	"//${hostOrPort}/${path}(${fieldspec})*"
+    variable	url		"prospero:$schemepart"
+}
+
+# LDAP
+uri::register ldap {
+    # Please read the warnings above.
+    variable	hostOrPort \
+        [set [namespace parent [namespace current]]::basic::hostOrPort]
+
+    # very crude parsing
+    variable	dn		{[^?]*}
+    variable	attrs		{[^?]*}
+    variable	scope		"base|one|sub"
+    variable	filter		{[^?]*}
+    # extensions are not handled yet
+
+    variable	schemepart	"//${hostOrPort}(/${dn}(\?${attrs}(\?(${scope})(\?${filter})?)?)?)?"
+    variable	url		"ldap:$schemepart"
 }
 
 package provide uri 1.2.7
