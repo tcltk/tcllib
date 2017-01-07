@@ -123,13 +123,14 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
 
 # -------------------------------------------------------------------------
 
-namespace eval ::uri::urn {
+::uri::register {urn URN} {
 	variable NIDpart {[a-zA-Z0-9][a-zA-Z0-9-]{0,31}}
         variable esc {%[0-9a-fA-F]{2}}
         variable trans {a-zA-Z0-9$_.+!*'(,):=@;-}
         variable NSSpart "($esc|\[$trans\])+"
         variable URNpart "($NIDpart):($NSSpart)"
-        # Used elsewhere: NIDpart trans URNpart
+        variable schemepart $URNpart
+	variable url "urn:$NIDpart:$NSSpart"
 }
 
 # -------------------------------------------------------------------------
