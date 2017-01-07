@@ -5,6 +5,7 @@
 # Copyright (c) 2000 Zveno Pty Ltd
 # Copyright (c) 2006 Pierre DAVID <Pierre.David@crc.u-strasbg.fr>
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2017 Keith Nash <kjnash@users.sourceforge.net>
 # Steve Ball, http://www.zveno.com/
 # Derived from urls.tcl by Andreas Kupries
 #
@@ -27,40 +28,16 @@ namespace eval ::uri {
 
     # extend these variable in the coming namespaces
     variable schemes       {}
-    variable schemePattern ""
-    variable url           ""
-    variable url2part
-    array set url2part     {}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # basic regular expressions used in URL syntax.
 
     namespace eval basic {
-	variable	loAlpha		{[a-z]}
-	variable	hiAlpha		{[A-Z]}
 	variable	digit		{[0-9]}
-	variable	alpha		{[a-zA-Z]}
-	variable	safe		{[$_.+-]}
-	variable	extra		{[!*'(,)]}
-	# danger in next pattern, order important for []
-	variable	national	{[][|\}\{\^~`]}
-	variable	punctuation	{[<>#%"]}	;#" fake emacs hilit
-	variable	reserved	{[;/?:@&=]}
 	variable	hex		{[0-9A-Fa-f]}
 	variable	alphaDigit	{[A-Za-z0-9]}
 	variable	alphaDigitMinus	{[A-Za-z0-9-]}
-
-	# next is <national | punctuation>
-	variable	unsafe		{[][<>"#%\{\}|\\^~`]} ;#" emacs hilit
 	variable	escape		"%${hex}${hex}"
-
-	#	unreserved	= alpha | digit | safe | extra
-	#	xchar		= unreserved | reserved | escape
-
-	variable	unreserved	{[a-zA-Z0-9$_.+!*'(,)-]}
-	variable	uChar		"(${unreserved}|${escape})"
-	variable	xCharN		{[a-zA-Z0-9$_.+!*'(,);/?:@&=-]}
-	variable	xChar		"(${xCharN}|${escape})"
 	variable	digits		"${digit}+"
 
 	variable	toplabel	\
@@ -73,32 +50,34 @@ namespace eval ::uri {
 	variable	hostnumber4	\
 		"(?:${digits}\\.${digits}\\.${digits}\\.${digits})"
 	variable	hostnumber6	{(?:\[[^]]*\])}
- 	variable	hostnumber	"(${hostnumber4}|${hostnumber6})"
-
-	variable	host		"(${hostname}|${hostnumber})"
+	variable	hostnumber	"(${hostnumber4}|${hostnumber6})"
+	variable	hostspec	"${hostname}|${hostnumber}"
 
 	variable	port		$digits
-	variable	hostOrPort	"${host}(:${port})?"
 
 	variable	usrCharN	{[a-zA-Z0-9$_.+!*'(,);?&=-]}
 	variable	usrChar		"(${usrCharN}|${escape})"
 	variable	user		"${usrChar}*"
 	variable	password	$user
-	variable	login		"(${user}(:${password})?@)?${hostOrPort}"
+	# Used by commands: hostspec port user password
     } ;# basic {}
 }
 
-# ::uri::register --
+# ::uri::register (DEPRECATED) --
 #
 #	Register a scheme (and aliases) in the package. The command
 #	creates a namespace below "::uri" with the same name as the
 #	scheme and executes the script declaring the pattern variables
-#	for this scheme in the new namespace. At last it updates the
-#	uri variables keeping track of overall scheme information.
+#	for this scheme in the new namespace.
 #
-#	The script has to declare at least the variable "schemepart",
-#	the pattern for an url of the registered scheme after the
-#	scheme declaration. Not declaring this variable is an error.
+# REASON FOR DEPRECATION
+#	- Registration defines a namespace and pattern variables.
+#	- From v1.2.7, the built-in schemes (and the urn scheme) do this without
+#	  calling uri::register.
+#	- Before v1.2.7, uri::register prevented re-registration of the same
+#	  scheme name(s), and maintained variables that were not used for
+#	  anything.
+#	- The command is retained for use by third-party legacy code.
 #
 # Arguments:
 #	schemeList	Name of the scheme to register, plus aliases
@@ -109,9 +88,6 @@ namespace eval ::uri {
 
 proc ::uri::register {schemeList script} {
     variable schemes
-    variable schemePattern
-    variable url
-    variable url2part
 
     # Check scheme and its aliases for existence.
     foreach scheme $schemeList {
@@ -129,25 +105,6 @@ proc ::uri::register {schemeList script} {
 	return -code error \
 	    "error while evaluating scheme script: $msg"
     }
-
-    if {![info exists ${scheme}::schemepart]} {
-	namespace delete $scheme
-	return -code error \
-	    "Variable \"schemepart\" is missing."
-    }
-
-    # Now we can extend the variables which keep track of the registered schemes.
-
-    eval [linsert $schemeList 0 lappend schemes]
-    set schemePattern	"([::join $schemes |]):"
-
-    foreach s $schemeList {
-	# FRINK: nocheck
-	set url2part($s) "${s}:[set ${scheme}::schemepart]"
-	# FRINK: nocheck
-	append url "(${s}:[set ${scheme}::schemepart])|"
-    }
-    set url [string trimright $url |]
     return
 }
 
@@ -289,12 +246,8 @@ proc ::uri::SplitHttp {url} {
     #
     # path == <cwd1> "/" ..."/" <cwdN> "/" <name> ["#" <fragment>]
 
-    upvar #0 [namespace current]::http::search  search
-    upvar #0 [namespace current]::http::segment segment
-
     array set parts {host {} port {} path {} query {} fragment {}}
 
-    set searchPattern   "\\?(${search})\$"
     set fragmentPattern "#(.*)\$"
 
     # slash off possible fragment.
@@ -371,13 +324,13 @@ proc ::uri::SplitFile {url} {
     # @a url: The url to split, without! scheme specification.
     # @r List containing the constituents, suitable for 'array set'.
 
-    upvar #0 [namespace current]::basic::hostname	hostname
-    upvar #0 [namespace current]::basic::hostnumber	hostnumber
+    upvar #0 [namespace current]::basic::hostspec	hostspec
 
     if {[string match "//*" $url]} {
 	set url [string range $url 2 end]
 
-	set hostPattern "^($hostname|$hostnumber)"
+	set hostPattern "^($hostspec)"
+
 	switch -exact -- $::tcl_platform(platform) {
 	    windows {
 		# Catch drive letter
@@ -573,8 +526,7 @@ proc ::uri::GetUPHP {urlvar} {
 
     upvar \#0 [namespace current]::basic::user		user
     upvar \#0 [namespace current]::basic::password	password
-    upvar \#0 [namespace current]::basic::hostname	hostname
-    upvar \#0 [namespace current]::basic::hostnumber	hostnumber
+    upvar \#0 [namespace current]::basic::hostspec	hostspec
     upvar \#0 [namespace current]::basic::port		port
 
     upvar $urlvar url
@@ -604,7 +556,7 @@ proc ::uri::GetUPHP {urlvar} {
 	set url	[string range $url $matchEnd end]
     }
 
-    set hpPattern "^($hostname|$hostnumber)(:($port))?"
+    set hpPattern "^($hostspec)(:($port))?"
 
     if {[regexp -indices -- $hpPattern $url match theHost c d e f g h thePort]} {
 	set fh	[lindex $theHost 0]
@@ -624,40 +576,6 @@ proc ::uri::GetUPHP {urlvar} {
     
     if {![string match /* $url] && $url ne {}} {
 	error [list {invalid url} $url $url_save]
-    }
-
-    return [array get parts]
-}
-
-proc ::uri::GetHostPort {urlvar} {
-    # @c Parse host and port out of the url stored in variable <a urlvar>.
-    # @d Side effect: The extracted information is removed from the given url.
-    # @r List containing the extracted information in a format suitable for
-    # @r 'array set'.
-    # @a urlvar: Name of the variable containing the url to parse.
-
-    upvar #0 [namespace current]::basic::hostname	hostname
-    upvar #0 [namespace current]::basic::hostnumber	hostnumber
-    upvar #0 [namespace current]::basic::port		port
-
-    upvar $urlvar url
-
-    set pattern "^(${hostname}|${hostnumber})(:(${port}))?"
-
-    if {[regexp -indices -- $pattern $url match host c d e f g h thePort]} {
-	set fromHost	[lindex $host 0]
-	set toHost	[lindex $host 1]
-
-	set fromPort	[lindex $thePort 0]
-	set toPort	[lindex $thePort 1]
-
-	set parts(host)	[string range $url $fromHost $toHost]
-	set parts(port)	[string range $url $fromPort $toPort]
-
-	set  matchEnd   [lindex $match 1]
-	incr matchEnd
-
-	set url [string range $url $matchEnd end]
     }
 
     return [array get parts]
@@ -987,8 +905,9 @@ proc ::uri::canonicalize uri {
 # scheme	basic syntax of scheme specific part
 # ------------------------------------------------
 # ftp		//<user>:<password>@<host>:<port>/<cwd1>/.../<cwdN>/<name>;type=<typecode>
+#    		//<user>:<password>@<host>:<port>/fpath;type=<typecode>
 #
-# http		//<host>:<port>/<path>?<searchpart>
+# http		//<host>:<port>/<hpath>?<searchpart>
 #
 # gopher	//<host>:<port>/<gophertype><selector>
 #				<gophertype><selector>%09<search>
@@ -1002,7 +921,7 @@ proc ::uri::canonicalize uri {
 # wais		//<host>:<port>/<database>
 #		//<host>:<port>/<database>?<search>
 #		//<host>:<port>/<database>/<wtype>/<wpath>
-# file		//<host>/<path>
+# file		//<host>/<fpath>
 # prospero	//<host>:<port>/<hsoname>;<field>=<value>
 # ------------------------------------------------
 #
@@ -1023,151 +942,10 @@ proc ::uri::canonicalize uri {
 # ------------------------------------------------
 
 # FTP
-uri::register ftp {
-    variable escape [set [namespace parent [namespace current]]::basic::escape]
-    variable login  [set [namespace parent [namespace current]]::basic::login]
-
-    variable	charN	{[a-zA-Z0-9$_.+!*'(,)?:@&=-]}
-    variable	char	"(${charN}|${escape})"
-    variable	segment	"${char}*"
-    variable	path	"${segment}(/${segment})*"
-
-    variable	type		{[AaDdIi]}
-    variable	typepart	";type=(${type})"
-    variable	schemepart	\
-		    "//${login}(/${path}(${typepart})?)?"
-
-    variable	url		"ftp:${schemepart}"
-}
-
-# FILE
-uri::register file {
-    variable	host [set [namespace parent [namespace current]]::basic::host]
-    variable	path [set [namespace parent [namespace current]]::ftp::path]
-
-    variable	schemepart	"//(${host}|localhost)?/${path}"
-    variable	url		"file:${schemepart}"
-}
-
-# HTTP
-uri::register http {
-    variable	escape \
-        [set [namespace parent [namespace current]]::basic::escape]
-    variable	hostOrPort	\
-        [set [namespace parent [namespace current]]::basic::hostOrPort]
-
-    variable	charN		{[a-zA-Z0-9$_.+!*'(,);:@&=-]}
-    variable	char		"($charN|${escape})"
-    variable	segment		"${char}*"
-
-    variable	path		"${segment}(/${segment})*"
-    variable	search		$segment
-    variable	schemepart	\
-	    "//${hostOrPort}(/${path}(\\?${search})?)?"
-
-    variable	url		"http:${schemepart}"
-}
-
-# GOPHER
-uri::register gopher {
-    variable	xChar \
-        [set [namespace parent [namespace current]]::basic::xChar]
-    variable	hostOrPort \
-        [set [namespace parent [namespace current]]::basic::hostOrPort]
-    variable	search \
-        [set [namespace parent [namespace current]]::http::search]
-
-    variable	type		$xChar
-    variable	selector	"$xChar*"
-    variable	string		$selector
-    variable	schemepart	\
-	    "//${hostOrPort}(/(${type}(${selector}(%09${search}(%09${string})?)?)?)?)?"
-    variable	url		"gopher:${schemepart}"
-}
-
-# MAILTO
-uri::register mailto {
-    variable xChar [set [namespace parent [namespace current]]::basic::xChar]
-    variable host  [set [namespace parent [namespace current]]::basic::host]
-
-    variable schemepart	"$xChar+(@${host})?"
-    variable url	"mailto:${schemepart}"
-}
-
-# NEWS
-uri::register news {
-    variable escape [set [namespace parent [namespace current]]::basic::escape]
-    variable alpha  [set [namespace parent [namespace current]]::basic::alpha]
-    variable host   [set [namespace parent [namespace current]]::basic::host]
-
-    variable	aCharN		{[a-zA-Z0-9$_.+!*'(,);/?:&=-]}
-    variable	aChar		"($aCharN|${escape})"
-    variable	gChar		{[a-zA-Z0-9$_.+-]}
-    variable	newsgroup-name	"${alpha}${gChar}*"
-    variable	message-id	"${aChar}+@${host}"
-    variable	schemepart	"\\*|${newsgroup-name}|${message-id}"
-    variable	url		"news:${schemepart}"
-}
-
-# WAIS
-uri::register wais {
-    variable	uChar \
-        [set [namespace parent [namespace current]]::basic::xChar]
-    variable	hostOrPort \
-        [set [namespace parent [namespace current]]::basic::hostOrPort]
-    variable	search \
-        [set [namespace parent [namespace current]]::http::search]
-
-    variable	db		"${uChar}*"
-    variable	type		"${uChar}*"
-    variable	path		"${uChar}*"
-
-    variable	database	"//${hostOrPort}/${db}"
-    variable	index		"//${hostOrPort}/${db}\\?${search}"
-    variable	doc		"//${hostOrPort}/${db}/${type}/${path}"
-
-    #variable	schemepart	"${doc}|${index}|${database}"
-
-    variable	schemepart \
-	    "//${hostOrPort}/${db}((\\?${search})|(/${type}/${path}))?"
-
-    variable	url		"wais:${schemepart}"
-}
-
-# PROSPERO
-uri::register prospero {
-    variable	escape \
-        [set [namespace parent [namespace current]]::basic::escape]
-    variable	hostOrPort \
-        [set [namespace parent [namespace current]]::basic::hostOrPort]
-    variable	path \
-        [set [namespace parent [namespace current]]::ftp::path]
-
-    variable	charN		{[a-zA-Z0-9$_.+!*'(,)?:@&-]}
-    variable	char		"(${charN}|$escape)"
-
-    variable	fieldname	"${char}*"
-    variable	fieldvalue	"${char}*"
-    variable	fieldspec	";${fieldname}=${fieldvalue}"
-
-    variable	schemepart	"//${hostOrPort}/${path}(${fieldspec})*"
-    variable	url		"prospero:$schemepart"
-}
-
-# LDAP
-uri::register ldap {
-    variable	hostOrPort \
-        [set [namespace parent [namespace current]]::basic::hostOrPort]
-
-    # very crude parsing
-    variable	dn		{[^?]*}
-    variable	attrs		{[^?]*}
-    variable	scope		"base|one|sub"
-    variable	filter		{[^?]*}
-    # extensions are not handled yet
-
-    variable	schemepart	"//${hostOrPort}(/${dn}(\?${attrs}(\?(${scope})(\?${filter})?)?)?)?"
-    variable	url		"ldap:$schemepart"
+namespace eval ::uri::ftp {
+    variable	Type		{[AaDdIi]}
+    variable	typepart	";type=(${Type})"
+    # Used elsewhere: typepart
 }
 
 package provide uri 1.2.7
