@@ -516,8 +516,8 @@ test solve-1.6 "solveGauss - permuted matrix" -match numbers -body {
 
     set xvec2 [solveGauss $matrix $b]
 
-    set closeValues [areClose $xvec1 $xvec2 1.0-e8]
-} -result {1 1 1 1}
+    set closeValues [areClose $xvec1 $xvec2 1.0e-8]
+} -result 1
 
 test solvepgauss-1.6 "solveGauss - 2x2 difficult matrix with necessary permutations" -match numbers -body {
     set M {{1.e-8 1} {1 1}}
