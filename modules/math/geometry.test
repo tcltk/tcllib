@@ -30,6 +30,17 @@ proc withFourDecimals {args} {
     return $res
 }
 
+if { [info commands lmap] eq {} } {
+    proc lmap {var list body} {
+        upvar 1 $var _$var
+        set __$var {}
+        foreach _$var $list {
+            lappend __$var [uplevel 1 $body]
+        }
+        set __$var
+    }
+}
+
 # -------------------------------------------------------------------------
 
 ###
