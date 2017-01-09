@@ -1485,7 +1485,7 @@ proc ::math::statistics::test-Duckworth {list1 list2 significance} {
 
 # test-anova-F --
 #     Check if two or more groups with normally distributed data have the same
-#     variances
+#     means
 #
 # Arguments:
 #     alpha            Significance level
@@ -1493,7 +1493,7 @@ proc ::math::statistics::test-Duckworth {list1 list2 significance} {
 #                      other groups
 #
 # Returns:
-#     Whether the variation for the groups is likely to be the same (1)
+#     Whether the mean for the groups is likely to be the same (1)
 #     or not (0).
 #
 # Note:
@@ -1503,7 +1503,7 @@ proc ::math::statistics::test-Duckworth {list1 list2 significance} {
 #
 #     Possibly of interest: the ratio itself.
 #
-proc test-anova-F {alpha args} {
+proc ::math::statistics::test-anova-F {alpha args} {
     if { [llength $args] == 1 } {
         set args [lindex $args 0]
     }
