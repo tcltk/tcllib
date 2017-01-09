@@ -13,21 +13,20 @@ testing {
 }
 
 # ------------------------------------------------------------------------------
-# 2016-12-17 revisions
+# 2016-12-16 to 2017-01-09 revisions (KJN)
 # ------------------------------------------------------------------------------
-# (1) Test result corrected to match RFC 3986 Sec. 5.4.1 for tests:
+# (1) Test results corrected to match RFC 3986 Sec. 5.4.1 for tests:
 #     uri-rfc2396-1.7 uri-rfc2396-1.9 uri-rfc2396-2.7 uri-rfc2396-2.9
 # (2) Add tests uri-rfc2396-1.14a uri-rfc2396-2.14a from the list in RFC 3986.
-# (3) Constraints removed for all tests that now pass.
-# (4) Tests uri-rfc2396-1.6 uri-rfc2396-2.6 still fail.  The Tcl result has "/"
-#     appended.  RFC 3986 wants to resolve:
-#        "//g"     =>  "http://g"    (test uri-rfc2396-1.6)
-#        "../.."   =>  "http://a/"   (test uri-rfc2396-1.20)
-#     The RFC is therefore ambiguous as to whether "http://host/" or
-#     "http://host" is the canonical form.  Both URIs refer to the same
-#     resource.
-# (5) Add tests uri-rfc2396-11.* from RFC 3986 Sec. 5.4.2 "Abnormal Examples".
-# (6) Test uri-rfc2396-11.19 fails - constraints and explanation added.
+# (3) All tests now pass: existing "knownBug" constraints removed.
+# (4) Add tests uri-rfc2396-3.*, uri-rfc2396-4.* for different cases of query
+#     and fragment.
+# (5) Add tests uri-rfc2396-5.*, uri-rfc2396-8.* for uri::resolve without
+#     explicit call to uri::canonicalize.
+# (6) Add tests uri-rfc2396-11.*,  uri-rfc2396-12.* from RFC 3986 Sec. 5.4.2
+#     "Abnormal Examples".
+# (7) Tests uri-rfc2396-11.19, uri-rfc2396-12.19 fail - new "knownBug"
+#     constraints and explanation added.
 # ------------------------------------------------------------------------------
 
 # Test the "Normal Examples" from RFC 3986 Sec. 5.4.1.
@@ -52,7 +51,7 @@ test uri-rfc2396-1.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q /g]
 } http://a/g
 
-test uri-rfc2396-1.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-1.6 {uri::resolve} {} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q //g]
 } http://g
 
@@ -148,7 +147,7 @@ test uri-rfc2396-2.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p /g]
 } http://a/g
 
-test uri-rfc2396-2.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-2.6 {uri::resolve} {} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p //g]
 } http://g
 
@@ -243,7 +242,7 @@ test uri-rfc2396-3.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f /g]
 } http://a/g
 
-test uri-rfc2396-3.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-3.6 {uri::resolve} {} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q#f //g]
 } http://g
 
@@ -339,7 +338,7 @@ test uri-rfc2396-4.5 {uri::resolve} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p#f /g]
 } http://a/g
 
-test uri-rfc2396-4.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-4.6 {uri::resolve} {} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p#f //g]
 } http://g
 
@@ -434,7 +433,7 @@ test uri-rfc2396-5.5 {uri::resolve} {
     uri::resolve http://a/b/c/d\;p?q /g
 } http://a/g
 
-test uri-rfc2396-5.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-5.6 {uri::resolve} {} {
     uri::resolve http://a/b/c/d\;p?q //g
 } http://g
 
@@ -531,7 +530,7 @@ test uri-rfc2396-6.5 {uri::resolve} {
     uri::resolve http://a/b/c/d\;p /g
 } http://a/g
 
-test uri-rfc2396-6.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-6.6 {uri::resolve} {} {
     uri::resolve http://a/b/c/d\;p //g
 } http://g
 
@@ -627,7 +626,7 @@ test uri-rfc2396-7.5 {uri::resolve} {
     uri::resolve http://a/b/c/d\;p?q#f /g
 } http://a/g
 
-test uri-rfc2396-7.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-7.6 {uri::resolve} {} {
     uri::resolve http://a/b/c/d\;p?q#f //g
 } http://g
 
@@ -723,7 +722,7 @@ test uri-rfc2396-8.5 {uri::resolve} {
     uri::resolve http://a/b/c/d\;p#f /g
 } http://a/g
 
-test uri-rfc2396-8.6 {uri::resolve RFC 3986 Sec. 5.4.1 is ambiguous - see comments in test file} {knownBug rfc3986-ambiguous} {
+test uri-rfc2396-8.6 {uri::resolve} {} {
     uri::resolve http://a/b/c/d\;p#f //g
 } http://g
 
@@ -871,9 +870,11 @@ test uri-rfc2396-11.18 {uri::resolve abnormal examples} {
 } http://a/b/c/g#s/../x
 
 test uri-rfc2396-11.19 {uri::resolve abnormal examples
-    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole in RFC 1630.
-    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2: it does not
-    allow a relative URI such as "http:foo/bar.html" and therefore will fail this test.
+    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole
+    in RFC 1630, which allows a relative URI to specify the scheme if it
+    is the same as the scheme of the base URI.
+    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2:
+    however, it does not handle the loophole correctly and fails this test.
 } {knownBug rfc1630-loophole-avoid-use} {
     uri::canonicalize [uri::resolve http://a/b/c/d\;p?q http:g]
 } http:g
@@ -954,9 +955,11 @@ test uri-rfc2396-12.18 {uri::resolve abnormal examples} {
 } http://a/b/c/g#s/../x
 
 test uri-rfc2396-12.19 {uri::resolve abnormal examples
-    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole in RFC 1630.
-    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2: it does not
-    allow a relative URI such as "http:foo/bar.html" and therefore will fail this test.
+    RFC 3986 Sec. 5.4.2 advises avoiding this usage which is a loophole
+    in RFC 1630, which allows a relative URI to specify the scheme if it
+    is the same as the scheme of the base URI.
+    uri::resolve is a "strict parser" in the sense of RFC 3986 Sec. 5.2.2:
+    however, it does not handle the loophole correctly and fails this test.
 } {knownBug rfc1630-loophole-avoid-use} {
     uri::resolve http://a/b/c/d\;p?q http:g
 } http:g
