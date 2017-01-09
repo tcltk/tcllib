@@ -1,13 +1,16 @@
 This file records outstanding actions for the math module
 
+dd. 8 january 2017
+- Fix problem with test-anova-F (at least the test cases 1.1 and 1.2)
+
 
 dd. 3 august 2016
 - Fix problem in interpolation - integer arguments - done
-- Fix problem in pdf-lognormal and cdf-lognormal: stdev is now used as variance
+- Fix problem in pdf-lognormal and cdf-lognormal: stdev is now used as variance - done
 
 dd. 4 august 2016
-- Add test case for permuted linear system
-- Add test case for pdf-lognormal and cdf-lognormal (non-unity standard deviation)
+- Add test case for permuted linear system - done
+- Add test case for pdf-lognormal and cdf-lognormal (non-unity standard deviation) - done
 
 
 
