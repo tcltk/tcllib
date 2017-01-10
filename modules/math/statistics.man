@@ -269,8 +269,8 @@ test. Smaller values of the significance mean a stricter testing.
 
 
 [call [cmd ::math::statistics::test-anova-F] [arg alpha] [arg args]]
-Determine if two or more groups with normally distributed data have the same variances.
-The procedure returns 0 if the variances are likely unequal, 1 if they are. This is
+Determine if two or more groups with normally distributed data have the same means.
+The procedure returns 0 if the means are likely unequal, 1 if they are. This is
 a one-way ANOVA test. The groups may also be stored in a nested list:
 
 [example {
