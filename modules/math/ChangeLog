@@ -1,3 +1,11 @@
+2017-01-10  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.test: Correct the tests for the test-anova-F procedure
+	* statistics.tcl: Correct the namespace for the test-anova-F procedure and the comment
+	* statistics.man: Correct the description of the test-anova-F procedure
+	* linalg.test: Correct test solve-1.6 regarding permuted matrices
+	* geometry.test: Add a simple definition of lmap for older versions of Tcl (notably 8.5)
+	* interpolate.test: Correct test Interpolate-1.3 - missing keyword -result and use of existing table name
+
 2016-08-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* pdf_stat.tcl: Correct the use of the argument for standard deviation, affects pdf-lognormal and cdf-lognormal
 	                (ticket 002b9e8e07777425)

@@ -1,7 +1,7 @@
 This file records outstanding actions for the math module
 
 dd. 8 january 2017
-- Fix problem with test-anova-F (at least the test cases 1.1 and 1.2)
+- Fix problem with test-anova-F (at least the test cases 1.1 and 1.2) - done
 
 
 dd. 3 august 2016
