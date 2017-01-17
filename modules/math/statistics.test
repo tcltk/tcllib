@@ -1063,5 +1063,52 @@ test "anova-one-way-1.2" "ANOVA test from Wikipedia - using nested list" -body {
     ::math::statistics::test-anova-F 0.05 {{6 8 4 5 3 4} {8 12 9 11 6 8} {13 9 11 8 7 12}}
 } -result 0
 
+#
+# Data from http://www.itl.nist.gov/div898/handbook/prc/section4/prc436.htm#example1
+# See also http://www.itl.nist.gov/div898/handbook/prc/section4/prc471.htm
+# Caveat: the calculation produces slightly different confidence intervals. I checked whether
+# I got the calculation of the pooled variance right against the example appearing on Wikipedia
+# (https://en.wikipedia.org/wiki/Pooled_variance) and that seems okay.
+# No idea where the numerical difference is coming from.
+#
+test "Tukey-range-test-1.1" "Tukey range test" -body {
+    set data {
+        Group 1        {6.9     5.4     5.8     4.6     4.0}
+        Group 2        {8.3     6.8     7.8     9.2     6.5}
+        Group 3        {8.0     10.5    8.1     6.9     9.3}
+        Group 4        {5.8     3.8     6.1     5.6     6.2}
+    }
+
+    set groupData {}
+    foreach {dummy label d} $data {
+        lappend groupData $d
+    }
+
+    set tukeyRange [::math::statistics::test-Tukey-range 0.05 $groupData]
+
+    set indications {}
+    foreach t $tukeyRange {
+        lappend indications [lindex $t 2]
+    }
+    set indications
+} -result {1 1 0 0 0 1}
+
+#
+# Data from https://en.wikipedia.org/wiki/Dunnett's_test
+# Note that the Wikipedia uses t = 2.94, whereas it should have been 2.88
+#
+test "Dunnet-test-1.1" "Dunnett test" -body {
+    set control {55 47 48}
+    set data    {{55 64 64} {55 49 52} {50 44 41}}
+
+    set dunnett [::math::statistics::test-Dunnett 0.05 $control $data]
+
+    set indications {}
+    foreach t $dunnett {
+        lappend indications [lindex $t 0]
+    }
+    set indications
+} -result {1 0 0}
+
 # End of test cases
 testsuiteCleanup
