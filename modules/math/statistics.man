@@ -273,6 +273,11 @@ Determine if two or more groups with normally distributed data have the same mea
 The procedure returns 0 if the means are likely unequal, 1 if they are. This is
 a one-way ANOVA test. The groups may also be stored in a nested list:
 
+The procedure returns a list of the comparison results for each pair of groups. Each
+element of this list contains: the index of the first group and that of the second group,
+whether the means are likely to be different (1) or not (0) and the confidence interval
+the conclusion is based on. The groups may also be stored in a nested list:
+
 [example {
     test-anova-F 0.05 $A $B $C
     #
@@ -283,6 +288,40 @@ a one-way ANOVA test. The groups may also be stored in a nested list:
 [list_begin arguments]
 [arg_def float alpha] - Significance level
 [arg_def list args] - Two or more groups of data to be checked
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::test-Tukey-range] [arg alpha] [arg args]]
+Determine if two or more groups with normally distributed data have the same means,
+using Tukey's range test. It is complementary to the ANOVA test.
+The procedure returns a list of the comparison results for each pair of groups. Each
+element of this list contains: the index of the first group and that of the second group,
+whether the means are likely to be different (1) or not (0) and the confidence interval
+the conclusion is based on. The groups may also be stored in a nested list, just as with
+the ANOVA test.
+[list_begin arguments]
+[arg_def float alpha] - Significance level - either 0.05 or 0.01
+[arg_def list args] - Two or more groups of data to be checked
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::test-Dunnett] [arg alpha] [arg control] [arg args]]
+Determine if one or more groups with normally distributed data have the same means as
+the group of control data, using Dunnett's test. It is complementary to the ANOVA test.
+The procedure returns a list of the comparison results for each group with the control group. Each
+element of this list contains: whether the means are likely to be different (1) or not (0)
+and the confidence interval the conclusion is based on. The groups may also be stored in a
+nested list, just as with the ANOVA test.
+[nl]
+Note: some care is required if there is only one group to compare the control with:
+[example {
+    test-Dunnett-F 0.05 $control [list $A]
+}]
+Otherwise the group A is split up into groups of one element - this is due to an ambiguity.
+
+[list_begin arguments]
+[arg_def float alpha] - Significance level - either 0.05 or 0.01
+[arg_def list args] - One or more groups of data to be checked
 [list_end]
 [para]
 

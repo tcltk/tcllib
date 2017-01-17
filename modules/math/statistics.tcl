@@ -20,9 +20,10 @@
 # version 0.9.3: added histogram-alt, corrected test-normal
 # version 1.0:   added test-anova-F
 # version 1.0.1: correction in pdf-lognormal and cdf-lognormal
+# version 1.1:   added test-Tukey-range and test-Dunnett
 
 package require Tcl 8.4
-package provide math::statistics 1.0.1
+package provide math::statistics 1.1.0
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
@@ -56,7 +57,7 @@ namespace eval ::math::statistics {
 	    control-Rchart test-Rchart \
 	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
 	    test-Wilcoxon spearman-rank spearman-rank-extended \
-	    test-Duckworth test-anova-F
+	    test-Duckworth test-anova-F test-Tukey-range test-Dunnett
     #
     # Error messages
     #
@@ -1548,7 +1549,240 @@ proc ::math::statistics::test-anova-F {alpha args} {
     expr {[::math::statistics::cdf-F $nf1 $nf2 $ratio] <= 1.0 - $alpha}
 }
 
+# test-Tukey-range --
+#     Check if two or more groups with normally distributed data have different
+#     means or not, using Tukey's range test
+#
+# Arguments:
+#     alpha            Significance level
+#     args             Two or more lists containing the data for the
+#                      other groups
+#
+# Returns:
+#     For each pair of groups a list of:
+#     - group indices
+#     - whether the means differ (1) or not (0)
+#     - limits of the confidence interval (for closer investigation)
+#
+# Note:
+#     args may be a nested list
+#
+#     Implementation based on Wikipedia page on Tukey's range test
+#
+proc ::math::statistics::test-Tukey-range {alpha args} {
+    if { [llength $args] == 1 } {
+        set args [lindex $args 0]
+    }
 
+    if { [llength $args] < 2 } {
+        return -code error -errorcode ARG -errorinfo "At least two groups are required" \
+                                                     "At least two groups are required"
+    }
+
+    if { $alpha != 0.05 && $alpha != 0.01 } {
+        return -code error -errorcode ARG -errorinfo "Alpha must 0.05 or 0.01"
+    }
+
+    #
+    # Determine the mean per group and the pooled variance of the data
+    #
+    set meanPerGroup {}
+    set allData      {}
+    set sumVar       0.0
+    foreach group $args {
+        lappend meanPerGroup  [mean $group]
+        set sumVar            [expr {$sumVar + ([llength $group]-1) * [var $group]}]
+        set allData           [concat $allData $group]
+    }
+
+    set n          [llength $allData]
+    set stdOverall [expr {sqrt($sumVar /($n - [llength $args]))}]
+
+    set qcrit      [Qcrit-Tukey $alpha $n [llength $args]]
+
+    set result {}
+
+    for {set g 0} {$g < [llength $args]} {incr g} {
+        set ggroup [lindex $args $g]
+        set gmean  [mean $ggroup]
+        set ng     [llength $ggroup]
+
+        for {set h [expr {$g+1}]} {$h < [llength $args]} {incr h} {
+            set hgroup    [lindex $args $h]
+            set hmean     [mean $hgroup]
+            set nh        [llength $hgroup]
+
+            set halfwidth [expr {$qcrit * $stdOverall / sqrt(2.0) * sqrt( 1.0/$ng + 1.0/$nh )}]
+            set lower     [expr {$hmean - $gmean - $halfwidth}]
+            set upper     [expr {$hmean - $gmean + $halfwidth}]
+            set unequal   1
+            if { $lower < 0.0 && $upper > 0.0 } {
+                set unequal 0
+            }
+            lappend result [list $g $h $unequal $lower $upper]
+        }
+    }
+
+    return $result
+}
+
+# Qcrit-Tukey --
+#     Determine the critical value for the Tukey range test
+#
+# Arguments:
+#     alpha            Significance level
+#     numberData       Total number of data
+#     numberGroups     Number of groups
+#
+# Returns:
+#     Critical value
+#
+# Note:
+#     If there are more than 10 groups, simply use 10 groups
+#
+proc ::math::statistics::Qcrit-Tukey {alpha numberData numberGroups} {
+    variable tukey_table_05
+    variable tukey_table_01
+
+    if { $alpha == 0.05 } {
+        upvar 0 tukey_table_05 tukey_table
+    } else {
+        upvar 0 tukey_table_05 tukey_table
+    }
+
+    set df [expr {$numberData - $numberGroups}]
+
+    if { $numberGroups > 10 } {
+        set numberGroups 10
+    }
+    incr numberGroups -1 ;# Offset because of 0-based numbering
+
+    if { $df > 120 } {
+        return [lindex $tukey_table end $numberGroups]
+    }
+
+    foreach {dfe values} $tukey_table {
+        if { $df <= $dfe } {
+            return [lindex $values $numberGroups]
+        }
+    }
+}
+
+# test-Dunnett --
+#     Check if one or more groups with normally distributed data have different
+#     means from the control group or not, using Dunnett's test
+#
+# Arguments:
+#     alpha            Significance level
+#     control          Control group
+#     args             One or more lists containing the data for the
+#                      other groups
+#
+# Returns:
+#     For each group a list of:
+#     - whether the mean differs (1) from the control or not (0)
+#     - the confidence interval
+#
+# Note:
+#     args may be a nested list
+#
+#     Implementation based on Wikipedia page on Dunnett's test
+#     The test is two-sided.
+#
+proc ::math::statistics::test-Dunnett {alpha control args} {
+    if { [llength $args] == 1 } {
+        set args [lindex $args 0]
+    }
+
+    if { [llength $args] < 1 } {
+        return -code error -errorcode ARG -errorinfo "At least one additional group is required" \
+                                                     "At least one additional group is required"
+    }
+
+    if { $alpha != 0.05 && $alpha != 0.01 } {
+        return -code error -errorcode ARG -errorinfo "Alpha must 0.05 or 0.01"
+    }
+
+    #
+    # Determine the mean per group and the pooled variance
+    #
+    set allData      $control
+    set sumVar       [expr {([llength $control]-1)*[var $control]}]
+    foreach group $args {
+        set sumVar            [expr {$sumVar + ([llength $group]-1) * [var $group]}]
+        set allData           [concat $allData $group]
+    }
+
+    set n          [llength $allData]
+    set stdOverall [expr {sqrt($sumVar /($n - [llength $args] - 1))}]
+
+    set tcrit [Tcrit-Dunnett $alpha $n [llength $args]]
+
+    set result {}
+
+    set cmean  [mean $control]
+    set nc     [llength $control]
+
+    for {set g 0} {$g < [llength $args]} {incr g} {
+        set ggroup    [lindex $args $g]
+        set gmean     [mean $ggroup]
+        set ng        [llength $ggroup]
+
+        set halfwidth [expr {$tcrit * $stdOverall * sqrt( 1.0/$nc + 1.0/$ng )}]
+        set lower     [expr {$gmean - $cmean - $halfwidth}]
+        set upper     [expr {$gmean - $cmean + $halfwidth}]
+        set unequal   1
+        if { $lower < 0.0 && $upper > 0.0 } {
+            set unequal 0
+        }
+        lappend result [list $unequal $lower $upper]
+    }
+
+    return $result
+}
+
+# Tcrit-Dunnett --
+#     Determine the critical value for the Dunnett test
+#
+# Arguments:
+#     alpha            Significance level
+#     numberData       Total number of data
+#     numberGroups     Number of groups to compare against the control
+#
+# Returns:
+#     Critical value
+#
+# Note:
+#     If there are more than 10 groups, simply use 10 groups
+#
+proc ::math::statistics::Tcrit-Dunnett {alpha numberData numberGroups} {
+    variable dunnett_table_05
+    variable dunnett_table_01
+
+    if { $alpha == 0.05 } {
+        upvar 0 dunnett_table_05 dunnett_table
+    } else {
+        upvar 0 dunnett_table_05 dunnett_table
+    }
+
+    set df [expr {$numberData - $numberGroups - 1}]
+
+    incr numberGroups 1 ;# Add the control group
+    if { $numberGroups > 10 } {
+        set numberGroups 10
+    }
+    incr numberGroups -2 ;# Offset because of 0-based numbering and start at 2
+
+    if { $df > 60 } {
+        return [lindex $dunnett_table end $numberGroups]
+    }
+
+    foreach {dfe values} $dunnett_table {
+        if { $df <= $dfe } {
+            return [lindex $values $numberGroups]
+        }
+    }
+}
 
 #
 # Load the auxiliary scripts
@@ -1565,25 +1799,122 @@ source [file join [file dirname [info script]] stat_kernel.tcl]
 # Define the tables
 #
 namespace eval ::math::statistics {
-    variable student_t_table
+    variable tukey_table_05
+    variable tukey_table_01
+    variable dunnett_table_05
+    variable dunnett_table_01
 
-    #   set student_t_table [::math::interpolation::defineTable student_t
-    #          {X        80%    90%    95%    98%    99%}
-    #          {X      0.80   0.90   0.95   0.98   0.99
-    #           1      3.078  6.314 12.706 31.821 63.657
-    #           2      1.886  2.920  4.303  6.965  9.925
-    #           3      1.638  2.353  3.182  4.541  5.841
-    #           5      1.476  2.015  2.571  3.365  4.032
-    #          10      1.372  1.812  2.228  2.764  3.169
-    #          15      1.341  1.753  2.131  2.602  2.947
-    #          20      1.325  1.725  2.086  2.528  2.845
-    #          30      1.310  1.697  2.042  2.457  2.750
-    #          60      1.296  1.671  2.000  2.390  2.660
-    #         1.0e9    1.282  1.645  1.960  2.326  2.576 }]
+    #alpha = 0.05
+    #k 2 3 4 5 6 7 8 9 10
+    #df
+    set tukey_table_05 {
+        1  {18.0 27.0 32.8 37.1 40.4 43.1 45.4 47.4 49.1}
+        2  {6.08 8.33 9.80 10.88 11.73 12.43 13.03 13.54 13.99}
+        3  {4.50 5.91 6.82 7.50 8.04 8.48 8.85 9.18 9.46}
+        4  {3.93 5.04 5.76 6.29 6.71 7.05 7.35 7.60 7.83}
+        5  {3.64 4.60 5.22 5.67 6.03 6.33 6.58 6.80 6.99}
+        6  {3.46 4.34 4.90 5.30 5.63 5.90 6.12 6.32 6.49}
+        7  {3.34 4.16 4.68 5.06 5.36 5.61 5.82 6.00 6.16}
+        8  {3.26 4.04 4.53 4.89 5.17 5.40 5.60 5.77 5.92}
+        9  {3.20 3.95 4.41 4.76 5.02 5.24 5.43 5.59 5.74}
+        10 {3.15 3.88 4.33 4.65 4.91 5.12 5.30 5.46 5.60}
+        11 {3.11 3.82 4.26 4.57 4.82 5.03 5.20 5.35 5.49}
+        12 {3.08 3.77 4.20 4.51 4.75 4.95 5.12 5.27 5.39}
+        13 {3.06 3.73 4.15 4.45 4.69 4.88 5.05 5.19 5.32}
+        14 {3.03 3.70 4.11 4.41 4.64 4.83 4.99 5.13 5.25}
+        15 {3.01 3.67 4.08 4.37 4.59 4.78 4.94 5.08 5.20}
+        16 {3.00 3.65 4.05 4.33 4.56 4.74 4.90 5.03 5.15}
+        17 {2.98 3.63 4.02 4.30 4.52 4.70 4.86 4.99 5.11}
+        18 {2.97 3.61 4.00 4.28 4.49 4.67 4.82 4.96 5.07}
+        19 {2.96 3.59 3.98 4.25 4.47 4.65 4.79 4.92 5.04}
+        20 {2.95 3.58 3.96 4.23 4.45 4.62 4.77 4.90 5.01}
+        24 {2.92 3.53 3.90 4.17 4.37 4.54 4.68 4.81 4.92}
+        30 {2.89 3.49 3.85 4.10 4.30 4.46 4.60 4.72 4.82}
+        40 {2.86 3.44 3.79 4.04 4.23 4.39 4.52 4.63 4.73}
+        60 {2.83 3.40 3.74 3.98 4.16 4.31 4.44 4.55 4.65}
+        120 {2.80 3.36 3.68 3.92 4.10 4.24 4.36 4.47 4.56}
+        inf {2.77 3.31 3.63 3.86 4.03 4.17 4.29 4.39 4.47}}
 
-    # PM
-    #set chi_squared_table [::math::interpolation::defineTable chi_square
-    #   ...
+    #alpha = 0.01
+    #k 2 3 4 5 6 7 8 9 10
+    #df
+    set tukey_table_01 {
+        1  {90.0 135 164 186 202 216 227 237 246}
+        2  {13.90 19.02 22.56 25.37 27.76 29.86 31.73 33.41 34.93}
+        3  {8.26 10.62 12.17 13.32 14.24 15.00 15.65 16.21 16.71}
+        4  {6.51 8.12 9.17 9.96 10.58 11.10 11.54 11.92 12.26}
+        5  {5.70 6.98 7.80 8.42 8.91 9.32 9.67 9.97 10.24}
+        6  {5.24 6.33 7.03 7.56 7.97 8.32 8.61 8.87 9.10}
+        7  {4.95 5.92 6.54 7.00 7.37 7.68 7.94 8.17 8.37}
+        8  {4.75 5.64 6.20 6.62 6.96 7.24 7.47 7.68 7.86}
+        9  {4.60 5.43 5.96 6.35 6.66 6.91 7.13 7.33 7.49}
+        10 {4.48 5.27 5.77 6.14 6.43 6.67 6.87 7.05 7.21}
+        11 {4.39 5.15 5.62 5.97 6.25 6.48 6.67 6.84 6.99}
+        12 {4.32 5.05 5.50 5.84 6.10 6.32 6.51 6.67 6.81}
+        13 {4.26 4.96 5.40 5.73 5.98 6.19 6.37 6.53 6.67}
+        14 {4.21 4.89 5.32 5.63 5.88 6.08 6.26 6.41 6.54}
+        15 {4.17 4.84 5.25 5.56 5.80 5.99 6.16 6.31 6.44}
+        16 {4.13 4.79 5.19 5.49 5.72 5.92 6.08 6.22 6.35}
+        17 {4.10 4.74 5.14 5.43 5.66 5.85 6.01 6.15 6.27}
+        18 {4.07 4.70 5.09 5.38 5.60 5.79 5.94 6.08 6.20}
+        19 {4.05 4.67 5.05 5.33 5.55 5.73 5.89 6.02 6.14}
+        20 {4.02 4.64 5.02 5.29 5.51 5.69 5.84 5.97 6.09}
+        24 {3.96 4.55 4.91 5.17 5.37 5.54 5.69 5.81 5.92}
+        30 {3.89 4.45 4.80 5.05 5.24 5.40 5.54 5.65 5.76}
+        40 {3.82 4.37 4.70 4.93 5.11 5.26 5.39 5.50 5.60}
+        60 {3.76 4.28 4.59 4.82 4.99 5.13 5.25 5.36 5.45}
+        120 {3.70 4.20 4.50 4.71 4.87 5.01 5.12 5.21 5.30}
+        inf {3.64 4.12 4.40 4.60 4.76 4.88 4.99 5.08 5.16}}
+
+    #From: http://davidmlane.com/hyperstat/table_Dunnett.html
+    #Dunnett Table
+    #Number of Groups Including Control Group
+    #dfe     alpha = 0.05
+    #         2       3       4       5       6       7       8       9       10
+    set dunnett_table_05 {
+    5        {2.57    3.03    3.29    3.48    3.62    3.73    3.82    3.9     3.97}
+    6        {2.45    2.86    3.1     3.26    3.39    3.49    3.57    3.64    3.71}
+    7        {2.36    2.75    2.97    3.12    3.24    3.33    3.41    3.47    3.53}
+    8        {2.31    2.67    2.88    3.02    3.13    3.22    3.29    3.35    3.41}
+    9        {2.26    2.61    2.81    2.95    3.05    3.14    3.2     3.26    3.32}
+    10       {2.23    2.57    2.76    2.89    2.99    3.07    3.14    3.19    3.24}
+    11       {2.2     2.53    2.72    2.84    2.94    3.02    3.08    3.14    3.19}
+    12       {2.18    2.5     2.68    2.81    2.9     2.98    3.04    3.09    3.14}
+    13       {2.16    2.48    2.65    2.78    2.87    2.94    3       3.06    3.1}
+    14       {2.14    2.46    2.63    2.75    2.84    2.91    2.97    3.02    3.07}
+    15       {2.13    2.44    2.61    2.73    2.82    2.89    2.95    3       3.04}
+    16       {2.12    2.42    2.59    2.71    2.8     2.87    2.92    2.97    3.02}
+    17       {2.11    2.41    2.58    2.69    2.78    2.85    2.9     2.95    3}
+    18       {2.1     2.4     2.56    2.68    2.76    2.83    2.89    2.94    2.98}
+    19       {2.09    2.39    2.55    2.66    2.75    2.81    2.87    2.92    2.96}
+    20       {2.09    2.38    2.54    2.65    2.73    2.8     2.86    2.9     2.95}
+    24       {2.06    2.35    2.51    2.61    2.7     2.76    2.81    2.86    2.9}
+    30       {2.04    2.32    2.47    2.58    2.66    2.72    2.77    2.82    2.86}
+    40       {2.02    2.29    2.44    2.54    2.62    2.68    2.73    2.77    2.81}
+    60       {2       2.27    2.41    2.51    2.58    2.64    2.69    2.73    2.77}}
+
+    set dunnett_table_01 {
+    5        {4.03    4.63    4.98    5.22    5.41    5.56    5.69    5.8     5.89}
+    6        {3.71    4.21    4.51    4.71    4.87    5       5.1     5.2     5.28}
+    7        {3.5     3.95    4.21    4.39    4.53    4.64    4.74    4.82    4.89}
+    8        {3.36    3.77    4       4.17    4.29    4.4     4.48    4.56    4.62}
+    9        {3.25    3.63    3.85    4.01    4.12    4.22    4.3     4.37    4.43}
+    10       {3.17    3.53    3.74    3.88    3.99    4.08    4.16    4.22    4.28}
+    11       {3.11    3.45    3.65    3.79    3.89    3.98    4.05    4.11    4.16}
+    12       {3.05    3.39    3.58    3.71    3.81    3.89    3.96    4.02    4.07}
+    13       {3.01    3.33    3.52    3.65    3.74    3.82    3.89    3.94    3.99}
+    14       {2.98    3.29    3.47    3.59    3.69    3.76    3.83    3.88    3.93}
+    15       {2.95    3.25    3.43    3.55    3.64    3.71    3.78    3.83    3.88}
+    16       {2.92    3.22    3.39    3.51    3.6     3.67    3.73    3.78    3.83}
+    17       {2.9     3.19    3.36    3.47    3.56    3.63    3.69    3.74    3.79}
+    18       {2.88    3.17    3.33    3.44    3.53    3.6     3.66    3.71    3.75}
+    19       {2.86    3.15    3.31    3.42    3.5     3.57    3.63    3.68    3.72}
+    20       {2.85    3.13    3.29    3.4     3.48    3.55    3.6     3.65    3.69}
+    24       {2.8     3.07    3.22    3.32    3.4     3.47    3.52    3.57    3.61}
+    30       {2.75    3.01    3.15    3.25    3.33    3.39    3.44    3.49    3.52}
+    40       {2.7     2.95    3.09    3.19    3.26    3.32    3.37    3.41    3.44}
+    60       {2.66    2.9     3.03    3.12    3.19    3.25    3.29    3.33    3.37}}
+
 }
 
 #
