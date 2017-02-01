@@ -518,8 +518,8 @@ test units-10.1 {leading zero is not octal} {
 # Dimensional analysis tests
 ###
 ::units::new rankine {0.55555555555556 kelvin}
-::units::new farhenheit {- 459.67 rankine}
-::units::new celsius {- 273.15 kelvin}
+::units::new farhenheit {+ 459.67 rankine}
+::units::new celsius {+ 273.15 kelvin}
 
 test units-11.0 {Test kelvin -> rankine} {
     format %5.3f [::units::convert {451 rankine} kelvin]
@@ -550,6 +550,7 @@ proc C_to_F temp {
 foreach {value_a unit_a value_b unit_b} {
   0 celsius 32 farhenheit
   100 celsius 212 farhenheit
+  100 farhenheit 38 celsius
 } {
   test units-11.4.$value_a [list Test Celcius -> Fahrenheight $value_a] {
     expr {int(round([::units::convert [list $value_a $unit_a] $unit_b]))}
