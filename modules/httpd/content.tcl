@@ -4,7 +4,7 @@
 # either an HTTPD or SCGI reply
 ###
 package require Markdown
-package require fileutil::magic::mimetype
+package require fileutil::magic::filetype
 package require tool 0.4
 package require fileutil
 namespace eval httpd::content {}
@@ -108,7 +108,7 @@ namespace eval httpd::content {}
         ###
         # Assume we are returning a binary file
         ###
-        my reply_headers set Content-Type: [::fileutil::magic::mimetype $local_file]
+        my reply_headers set Content-Type: [::fileutil::magic::filetype $local_file]
         set reply_file $local_file
       }
     }
