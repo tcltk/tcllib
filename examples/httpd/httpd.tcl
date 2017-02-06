@@ -16,13 +16,27 @@ package require httpd::content
 ###
 package require httpd
 
+proc ::fossil-list {} {
+  return [::fossil all list]
+}
+proc ::fossil args {
+  if {![info exists ::fossil_exe]} {
+    set ::fossil_exe fossil
+  }
+  if {[llength $args]==0} {
+    return $::fossil_exe
+  }
+  return [exec ${::fossil_exe} {*}$args]
+}
+
 tool::class create httpd::content::fossil_root {
+
   method content {} {
     my reset
     my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
     global recipe
     my puts "<UL>"
-    set dbfiles [exec fossil all list]
+    set dbfiles [::fossil-list]
     foreach file [lsort -dictionary $dbfiles]  {
       dict set result [file rootname [file tail $file]] $file
     }
@@ -50,7 +64,7 @@ tool::class create httpd::content::fossil_root {
 # --Sean "The Hypnotoad" Woods
 ###
 tool::class create httpd::content::fossil_node_scgi {
-  
+
   superclass httpd::content::scgi
   method scgi_info {} {
     set uri    [my query_headers get REQUEST_URI]
@@ -62,7 +76,7 @@ tool::class create httpd::content::fossil_node_scgi {
       package require nettool
       set port [::nettool::allocate_port 40000]
       set handle fossil:$port
-      set dbfiles [exec fossil all list]
+      set dbfiles [::fossil-list]
       foreach file [lsort -dictionary $dbfiles]  {
         dict set result [file rootname [file tail $file]] $file
       }
@@ -71,8 +85,8 @@ tool::class create httpd::content::fossil_node_scgi {
         tailcall my error 400 {Not Found}
       }
       set mport [my <server> port_listening]
-      set cmd [list fossil server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
-
+      set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
+ 
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd
@@ -195,10 +209,32 @@ tool::class create ::docserver::server {
   }
   
 }
+set opts [::tool::args_to_options {*}$argv]
+set serveropts {}
+set optinfo [::docserver::server meta getnull option]
+foreach {f v} $opts {
+  if {[dict exists $optinfo $f]} {
+    dict set serveropts $f $v
+  }
+}
+puts $serveropts
+set fossilopts {}
+set optinfo [::httpd::content::fossil_root meta getnull option]
+foreach {f v} $opts {
+  if {[dict exists $optinfo $f]} {
+    dict set fossilopts $f $v
+  }
+}
+if {[dict exists $opts fossil]} {
+  set ::fossil_exe [dict get $opts fossil]
+}
+puts "Server Options: $serveropts"
+puts "Fossil Options: $fossilopts"
+
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
 appmain add_uri /tcllib* [list mixin httpd::content::file path [file join $tcllibroot embedded www]]
-appmain add_uri /fossil {mixin httpd::content::fossil_root}
-appmain add_uri /fossil/* {mixin httpd::content::fossil_node_scgi}
+appmain add_uri /fossil [list mixin httpd::content::fossil_root {*}$fossilopts]
+appmain add_uri /fossil/* [list mixin httpd::content::fossil_node_scgi {*}$fossilopts]
 puts [list LISTENING]
 tool::main
