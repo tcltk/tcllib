@@ -1,5 +1,5 @@
 ###
-# Simple webserver example
+# "Simple" webserver example
 ###
 
 set DIR [file dirname [file normalize [info script]]]
