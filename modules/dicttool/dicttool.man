@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin dicttool n 1.0]
 [keywords dict]
-[copyright {2015 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2017 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Extensions to the standard "dict" command}]
 [category Utilites]
 [titledesc {Dictionary Tools}]
