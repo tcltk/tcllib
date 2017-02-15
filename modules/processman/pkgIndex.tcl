@@ -8,5 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded odie::processman 0.3 [list source [file join $dir processman.tcl]]
-package ifneeded processman 0.3 [list source [file join $dir processman.tcl]]
+package ifneeded odie::processman 0.4 [list source [file join $dir processman.tcl]]
+package ifneeded processman 0.4 [list source [file join $dir processman.tcl]]

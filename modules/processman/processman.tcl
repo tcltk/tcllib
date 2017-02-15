@@ -201,10 +201,11 @@ proc ::processman::priority {id level} {
 ###
 proc ::processman::process_list {} {
   variable process_list
-  if {![info exists process_list]} {
-    return {}
-  }
   set result {}
+  dict set result self [pid]
+  if {![info exists process_list]} {
+    return $result
+  }
   foreach {name pidlist} $process_list {
     foreach pid $pidlist {
       lappend result $name $pid [subprocess_exists $pid]
@@ -219,10 +220,19 @@ proc ::processman::process_list {} {
 ###
 proc ::processman::running id {
   variable process_list
-  if {![dict exists $process_list $id]} {
-    return 0
+  set pidlist {}
+  if {![string is integer -strict $id]} {
+    if {$id eq "self"} {
+      return [pid]
+    }
+    if {![dict exists $process_list $id]} {
+      return 0
+    }
+    set pidlist [dict get $process_list $id]
+  } else {
+    set pidlist $id
   }
-  foreach pid [dict get $process_list $id] {
+  foreach pid $pidlist {
     if { $::tcl_platform(platform) eq "windows" } {
       if {[::twapi::process_exists $pid]} {
         return $pid
@@ -275,5 +285,5 @@ if {![info exists process_binding]} {
 
 ::cron::every processman 60 ::processman::events
 
-package provide odie::processman 0.3
-package provide processman 0.3
+package provide odie::processman 0.4
+package provide processman 0.4

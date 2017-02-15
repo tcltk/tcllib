@@ -143,4 +143,13 @@ if {[::info commands ::tcl::dict::rmerge] eq {}} {
       [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
-package provide dicttool 1.0
+if {[::info commands ::tcl::dict::isnull] eq {}} {
+  proc ::tcl::dict::isnull {dictionary args} {
+    if {![exists $dictionary {*}$args]} {return 1}
+    return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
+}
+
+package provide dicttool 1.1
