@@ -20,7 +20,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
     variable  accel
-    array set accel {critcl 0 cryptkit 0 trf 0}
+    array set accel {tcc 0 critcl 0 cryptkit 0 trf 0}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
 
@@ -85,8 +85,14 @@ proc ::md5::MD5Init {} {
 proc ::md5::MD5Update {token data} {
     variable accel
     upvar #0 $token state
-
-    if {$accel(critcl)} {
+    if {$accel(tcc)} {
+        if {[info exists state(md5c)]} {
+            set state(md5tcc) [md5tcc $data $state(md5tcc)]
+        } else {
+            set state(md5tcc) [md5tcc $data]
+        }
+        return
+    } elseif {$accel(critcl)} {
         if {[info exists state(md5c)]} {
             set state(md5c) [md5c $data $state(md5c)]
         } else {
@@ -130,7 +136,11 @@ proc ::md5::MD5Final {token} {
     upvar #0 $token state
 
     # Check for either of the C-compiled versions.
-    if {[info exists state(md5c)]} {
+    if {[info exists state(md5tcc)]} {
+      set r [md5::md5tcc_final $state(md5tcc)]
+      unset state
+      return $r
+    } elseif {[info exists state(md5c)]} {
         set r $state(md5c)
         unset state
         return $r
@@ -518,6 +528,12 @@ proc ::md5::LoadAccelerator {name} {
     variable accel
     set r 0
     switch -exact -- $name {
+        tcc {
+            if {![catch {package require tcc4tcl}]} {
+                package require md5tcc
+                set r [expr {[info commands ::md5::md5tcc] != {}}]
+            }
+        }
         critcl {
             if {![catch {package require tcllibc}]
                 || ![catch {package require md5c}]} {
@@ -698,7 +714,7 @@ proc ::md5::hmac {args} {
 # Try and load a compiled extension to help.
 namespace eval ::md5 {
     variable e
-    foreach  e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+    foreach  e {tcc critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
     unset    e
 }
 
