@@ -86,7 +86,7 @@ proc ::md5::MD5Update {token data} {
     variable accel
     upvar #0 $token state
     if {$accel(tcc)} {
-        if {[info exists state(md5c)]} {
+        if {[info exists state(md5tcc)]} {
             set state(md5tcc) [md5tcc $data $state(md5tcc)]
         } else {
             set state(md5tcc) [md5tcc $data]
@@ -529,8 +529,8 @@ proc ::md5::LoadAccelerator {name} {
     set r 0
     switch -exact -- $name {
         tcc {
-            if {![catch {package require tcc4tcl}]} {
-                package require md5tcc
+            if {![catch {package require tcc4tcl}] &&
+                ! [catch {package require md5tcc}]} {
                 set r [expr {[info commands ::md5::md5tcc] != {}}]
             }
         }

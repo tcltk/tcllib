@@ -27,14 +27,10 @@ namespace eval ::md5 {
         return TCL_ERROR;
       }
       obj = objv[1];
-      if (Tcl_IsShared(obj)) {
-        obj = Tcl_DuplicateObj(obj);
-      }
       mp = (MD5_CTX *) Tcl_GetByteArrayFromObj(obj,NULL);
-      MD5Final(&buf, mp);
+      MD5Final(buf, mp);
       size = sizeof buf;
       Tcl_SetObjResult(ip, Tcl_NewByteArrayObj(buf,size));
-      Tcl_DecrRefCount(obj);
       return TCL_OK;
 
   }
@@ -56,14 +52,13 @@ namespace eval ::md5 {
         }
       } else {
         obj = Tcl_NewByteArrayObj(NULL, sizeof *mp);
-        Tcl_InvalidateStringRep(obj);
         mp = (MD5_CTX *) Tcl_GetByteArrayFromObj(obj,NULL);
         MD5Init(mp);
       }
 
-      Tcl_InvalidateStringRep(obj);
       mp = (MD5_CTX *) Tcl_GetByteArrayFromObj(obj,NULL);
       data = Tcl_GetByteArrayFromObj(objv[1], &size);
+      Tcl_InvalidateStringRep(obj);
       MD5Update(mp, data, size);
       Tcl_SetObjResult(ip, obj);
       return TCL_OK;
