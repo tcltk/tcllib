@@ -11,10 +11,13 @@ package provide md5tcc 0.0.1;              #
 
 namespace eval ::md5 {
   set handle [tcc4tcl::new]
-  
-  set f [open md5.c]
+ 
+  set source_dir [file dirname [info script]] 
+  set f [open [file join $source_dir md5.c]]
+  puts [pwd]
   set c [read $f]
   close $f 
+  $handle add_include_path $source_dir
   $handle ccode $c
 
   $handle ccommand md5tcc_final {dummy ip objc objv} {
