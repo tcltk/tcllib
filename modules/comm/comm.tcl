@@ -980,8 +980,10 @@ proc ::comm::commIncomingOffered {chan fid addr remport} {
 
     if {[info exists comm($chan,peers,$id)] && $id != $comm($chan,port)} {
 
-	puts stderr "commIncoming race condition: $id"
-	puts stderr "peers=$comm($chan,peers,$id) port=$comm($chan,port)"
+	commDebug {
+	    puts stderr "commIncoming race condition: $id"
+	    puts stderr "peers=$comm($chan,peers,$id) port=$comm($chan,port)"
+	}
 
 	# To avoid the race, we really want to terminate one connection.
 	# However, both sides are committed to using it.
@@ -1114,10 +1116,14 @@ proc ::comm::commBgerror {err} {
     # logic as in Tcl itself. Errors thrown by bgerror itself get
     # reported to stderr.
     if {[catch {bgerror $err} msg]} {
-	puts stderr "bgerror failed to handle background error."
-	puts stderr "    Original error: $err"
-	puts stderr "    Error in bgerror: $msg"
-	flush stderr
+	# If comm is running within a daemon process, stderr, might
+	# not exist, so we must put it in a catch as well;
+	catch {
+	    puts stderr "bgerror failed to handle background error."
+	    puts stderr "    Original error: $err"
+	    puts stderr "    Error in bgerror: $msg"
+	    flush stderr
+	}
     }
 }
 
