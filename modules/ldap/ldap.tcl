@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.8
+package provide ldap 1.9
 
 namespace eval ldap {
 
@@ -66,8 +66,10 @@ namespace eval ldap {
 
     namespace import ::asn::*
 
-    variable SSLCertifiedAuthoritiesFile
     variable doDebug
+
+    # Valid TLS procotol versions
+    variable tlsProtocols [list -tls1 yes -tls1.1 yes -tls1.2 yes]
 
     set doDebug 0
 
@@ -393,25 +395,37 @@ proc ldap::connect { host {port 389} } {
 #    secure_connect
 #
 #-----------------------------------------------------------------------------
-proc ldap::secure_connect { host {port 636} } {
+proc ldap::secure_connect { host {port 636} {verify_cert 1} {sni_servername ""}} {
 
-    variable SSLCertifiedAuthoritiesFile
+    variable tlsProtocols
 
     package require tls
 
     #------------------------------------------------------------------
     #   connect via TCP/IP
     #------------------------------------------------------------------
-    set sock [socket $host $port]
+    set cmd [list tls::socket -request 1 -require $verify_cert \
+                              -ssl2 no -ssl3 no]
+    if {$sni_servername ne ""} {
+	lappend cmd -servername $sni_servername
+    }
+
+    # The valid ones depend on the server and openssl version,
+    # tls::ciphers all tells it in the error message, but offers no
+    # nice introspection.
+    foreach {proto active} $tlsProtocols {
+	lappend cmd $proto $active
+    }
+    lappend cmd $host $port
+
+    set sock [eval $cmd]
+
     fconfigure $sock -blocking no -translation binary -buffering full
 
     #------------------------------------------------------------------
-    #   make it a SSL connection
+    #   Run the TLS handshake
     #
     #------------------------------------------------------------------
-    #tls::import $sock -cafile $SSLCertifiedAuthoritiesFile -ssl2 no -ssl3 yes -tls1 yes
-    tls::import $sock -cafile "" -certfile "" -keyfile "" \
-                      -request 1 -server 0 -require 0 -ssl2 no -ssl3 yes -tls1 yes
     set retry 0
     while {1} {
         if {$retry > 20} {
@@ -458,11 +472,14 @@ proc ldap::secure_connect { host {port 636} } {
 #    starttls -  negotiate tls on an open ldap connection
 #
 #------------------------------------------------------------------------------
-proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
+proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""} \
+                     {verify_cert 1} {sni_servername ""}} {
     CheckHandle $handle
 
     upvar #0 $handle conn
 
+    variable tlsProtocols
+    
     if {$conn(tls)} {
         return -code error \
             "Cannot StartTLS on connection, TLS already running"
@@ -517,8 +534,22 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
             "Unexpected LDAP response"
     }
 
-    tls::import $conn(sock) -cafile $cafile -certfile $certfile -keyfile $keyfile \
-                      -request 1 -server 0 -require 0 -ssl2 no -ssl3 yes -tls1 yes
+
+    # Initiate the TLS socket setup
+    set cmd [tls::import $conn(sock) 
+                         -cafile $cafile -certfile $certfile -keyfile $keyfile \
+                         -request 1 -server 0 -require $verify -ssl2 no -ssl3 no ]
+    
+    if {$sni_servername ne ""} {
+	lappend cmd -servername $sni_servername
+    }
+
+    foreach {proto active} $tlsProtocols {
+	lappend cmd $proto $active
+    }
+
+    eval $cmd
+
     set retry 0
     while {1} {
         if {$retry > 20} {
