@@ -11,9 +11,8 @@
 
 [description]
 [para]
-This package is for collecting various number-theoretic operations,
-though at the moment it only provides that of testing whether an
-integer is a prime.
+This package is for collecting various number-theoretic operations, with
+a slight bias to prime numbers.
 
 [list_begin definitions]
 [call [cmd math::numtheory::isprime] [arg N] [
@@ -48,6 +47,116 @@ integer is a prime.
     default for [arg repetitions] is 4.
   [list_end]
   Unknown options are silently ignored.
+
+[call [cmd math::numtheory::firstNprimes] [arg N]]
+Return the first N primes
+
+[list_begin arguments]
+[arg_def integer N in]
+Number of primes to return
+[list_end]
+
+[call [cmd math::numtheory::primesLowerThan] [arg N]]
+Return the prime numbers lower/equal to N
+
+[list_begin arguments]
+[arg_def integer N in]
+Maximum number to consider
+[list_end]
+
+[call [cmd math::numtheory::primeFactors] [arg N]]
+Return a list of the prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+[call [cmd math::numtheory::uniquePrimeFactors] [arg N]]
+Return a list of the [emph unique] prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+[call [cmd math::numtheory::factors] [arg N]]
+Return a list of all [emph unique] factors in the number N, including 1 and N itself
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+[call [cmd math::numtheory::totient] [arg N]]
+Evaluate the Euler totient function for the number N (number of numbers
+relatively prime to N)
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+[call [cmd math::numtheory::moebius] [arg N]]
+Evaluate the Moebius function for the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+[call [cmd math::numtheory::legendre] [arg a] [arg p]]
+Evaluate the Legendre symbol (a/p)
+
+[list_begin arguments]
+[arg_def integer a in]
+Upper number in the symbol
+[arg_def integer p in]
+Lower number in the symbol (must be non-zero)
+[list_end]
+
+[call [cmd math::numtheory::gcd] [arg m] [arg n]]
+Return the greatest common divisor of [term m] and [term n]
+
+[list_begin arguments]
+[arg_def integer m in]
+First number
+[arg_def integer n in]
+Second number
+[list_end]
+
+[call [cmd math::numtheory::lcm] [arg m] [arg n]]
+Return the lowest common multiple of [term m] and [term n]
+
+[list_begin arguments]
+[arg_def integer m in]
+First number
+[arg_def integer n in]
+Second number
+[list_end]
+
+[call [cmd math::numtheory::numberPrimesGauss] [arg N]]
+Estimate the number of primes according the formula by Gauss.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+[call [cmd math::numtheory::numberPrimesLegendre] [arg N]]
+Estimate the number of primes according the formula by Legendre.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+[call [cmd math::numtheory::numberPrimesLegendreModified] [arg N]]
+Estimate the number of primes according the modified formula by Legendre.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
 
 [list_end]
 
