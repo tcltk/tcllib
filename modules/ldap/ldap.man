@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ldap n 1.6.9]
+[manpage_begin ldap n 1.9]
 [keywords {directory access}]
 [keywords internet]
 [keywords ldap]
@@ -15,7 +15,7 @@
 [titledesc {LDAP client}]
 [category  Networking]
 [require Tcl 8.4]
-[require ldap [opt 1.8]]
+[require ldap [opt 1.9]]
 [description]
 [para]
 
@@ -47,7 +47,7 @@ specified it will default to [const 389].
 The command blocks until the connection has been established, or
 establishment definitely failed.
 
-[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]]]
+[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]] [opt [arg verify_cert]] [opt [arg sni_servername]]]
 
 Like [cmd ::ldap::connect], except that the created connection is
 secured by SSL. The port defaults to [const 636].  This command
@@ -60,18 +60,41 @@ command will fail.
 The command blocks until the connection has been established, or
 establishment definitely failed.
 
+[para]
+
+If [arg verify_cert] is set to 1, the default, this checks the server certificate against
+the known hosts. If [arg sni_servername] is set, the given hostname is used as the 
+hostname for Server Name Indication in the TLS handshake.
+
+[para]
+
+Use [cmd ::tls::init] to setup defaults for trusted certificates.
+
+[example {
+    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
+}]
+
+[para]
+
+TLS supports different protocol levels. In common use are the versions 1.0, 1.1 and 1.2.
+By default all those versions are offered. If you need to modify the acceptable
+protocols, you can change the ::ldap::tlsProtocols list.
+
 [call [cmd ::ldap::disconnect] [arg handle]]
 
 Closes the ldap connection refered to by the token
 [arg handle]. Returns the empty string as its result.
 
-[call [cmd ::ldap::starttls] [arg handle] [opt [arg cafile]] [opt [arg certfile]] [opt [arg keyfile]]]
+[call [cmd ::ldap::starttls] [arg handle] [opt [arg cafile]] [opt [arg certfile]] [opt [arg keyfile]] [opt [arg verify_cert]] [opt [arg sni_servername]]]
 
 Start TLS negotiation on the connection denoted by [arg handle].
 
-This is currently experimental and subject to change, more control over the TLS details
-will probably be exposed later, to allow users to fine tune the negotiation according
-to their security needs.
+You need to set at least the [arg cafile] argument to a file with trusted certificates, if [arg verify_cert] is 1, which is the default.
+The [arg sni_servername] can be used to signal a different hostname during the TLS handshake.
+
+The announced protocols are determined in the same way as [cmd ::ldap::secure_connect].
+
+You can specify a TLS client certificate with the [arg certfile] and [arg keyfile] options.
 
 [call [cmd ::ldap::bind] [arg handle] [opt [arg name]] [opt [arg password]]]
 
@@ -347,7 +370,7 @@ attributes from the server.
 The command blocks until the operation has completed. Its result
 is the empty string.
 
-[call [cmd ::ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]] [opt [arg newSuperior]]]]
+[call [cmd ::ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]] [opt [arg newSuperior]]]
 
 This command moves or copies the object specified by [arg dn]
 to a new location in the tree of object. This location is
