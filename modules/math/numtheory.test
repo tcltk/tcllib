@@ -1,12 +1,12 @@
-## 
+##
 ## This is the file `numtheory.test',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-## 
+##
 ## The original source files were:
-## 
+##
 ## numtheory.dtx  (with options: `test')
-## 
+##
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -202,7 +202,8 @@ test isprime-2.0 "PRNG tweak" -setup {
       rename _orig_Miller--Rabin Miller--Rabin
    }
 }
+
 testsuiteCleanup
-## 
-## 
+##
+##
 ## End of file `numtheory.test'.
