@@ -126,6 +126,11 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
     set shape1 [shape $obj1]
     set shape2 [shape $obj2]
     set result 0
+
+    if { $type ni {shape rows matmul} } {
+        return -code error "Unknown type of conforming check - $type - should be one of: shape rows matmul"
+    }
+
     if { $type == "shape" } {
         set result [expr {[lindex $shape1 0] == [lindex $shape2 0] &&
                           [lindex $shape1 1] == [lindex $shape2 1]}]
@@ -134,7 +139,13 @@ proc ::math::linearalgebra::conforming { type obj1 obj2 } {
         set result [expr {[lindex $shape1 0] == [lindex $shape2 0]}]
     }
     if { $type == "matmul" } {
-        set result [expr {[lindex $shape1 1] == [lindex $shape2 0]}]
+        if { [llength $shape1] == 2 } {
+            set result [expr {[lindex $shape1 1] == [lindex $shape2 0]}]
+        } elseif { [llength $shape2] == 2 } {
+            set result [expr {[lindex $shape1 0] == [lindex $shape2 0]}]
+        } else {
+            set result [expr {[lindex $shape1 0] == [lindex $shape2 0]}]
+        }
     }
     return $result
 }
@@ -2210,7 +2221,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1.5
+package provide math::linearalgebra 1.1.6
 
 if { 0 } {
 Te doen:
