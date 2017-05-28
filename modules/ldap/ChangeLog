@@ -1,7 +1,19 @@
+2017-05-28  Michael Schlenker  <mic42@users.sourceforge.net>
+	
+	* ldap.tcl: Bumped to version 1.9.
+	* ldap.man: Fixed [Ticket 7cf9323d38af6cf4e074ec10f6f15ad4c4e1fdf1]
+	* ldap.test: and improved the TLS connection options and
+	             documentation.
+    
+        *** INCOMPATIBLE CHANGE *** 
+
+	The defaults changed to do basic certificate validation. Old could
+	might need to provide a list of trusted certificates or disable
+	validation.
+
 2016-01-02  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* ldapx.man: Fix wrong example [Ticket: 2886893fff]
-
 
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

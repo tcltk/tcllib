@@ -155,14 +155,14 @@ test ldap-13.0 {check wrong num args for ldap::secure_connect
    ldap::secure_connect
 } -returnCodes {error} \
   -result [tcltest::wrongNumArgs \
-	{ldap::secure_connect} {host ?port?} 0]
+	{ldap::secure_connect} {host ?port? ?verify_cert? ?sni_servername?} 0]
 
 test ldap-14.0 {check wrong num args for ldap::starttls
 } -body {
    ldap::starttls
 } -returnCodes {error} \
   -result [tcltest::wrongNumArgs {ldap::starttls} \
-	{handle ?cafile? ?certfile? ?keyfile?} 0]
+	{handle ?cafile? ?certfile? ?keyfile? ?verify_cert? ?sni_servername?} 0]
 
 test ldap-15.0 {check wrong num args for ldap::bindSASL
 } -body {
