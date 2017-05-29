@@ -4,7 +4,9 @@
 	              and factors (tickets 1be9ea99c9b76c8ffeff3edfb73671309bf657e8 and 734dd2ae5c89319a3b8579e48d581f9d0a3da4f4)
 	* numtheory.man: Document additional procedures
 	* primes.test: Tests for additional procedures
-	* pkgIndex.tcl: Bumped version of numtheory to 1.1
+	* linalg.tcl: Correction of [conforming] procedure (ticket 776a75f14f53b5c9a06fe3f3892485a6efe1dc20)
+	* linalg.test: Added tests for the [conforming] procedure
+	* pkgIndex.tcl: Bumped version of numtheory to 1.1, linearalgebra to 1.1.6
 
 2017-01-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.test: Add tests for test-Tukey-range and test-Dunnett
