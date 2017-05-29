@@ -23,7 +23,8 @@ proc ::json::json2dict_tcl {jsonText} {
     set nrTokens [llength $tokens]
     set tokenCursor 0
 
-#puts T:\t[join $tokens \nT:\t]
+    #puts I:($jsonText)
+    #puts T:\t[join $tokens \nT:\t]
     return [parseValue $tokens $nrTokens tokenCursor]
 }
 
