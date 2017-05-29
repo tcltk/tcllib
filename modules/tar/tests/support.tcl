@@ -124,3 +124,26 @@ variable filesys {
 	}
     }
 }
+
+proc setup-tkt-9f4c0e3e95 {} {
+    variable tmpdir tartest
+
+    tcltest::makeDirectory $tmpdir
+    tcltest::makeFile {zero-two}   $tmpdir/02
+    tcltest::makeFile {number two} $tmpdir/2
+
+    set here [pwd]
+    cd $tmpdir
+    tar::create t.tar {2 02}
+    cd $here
+
+    return $tmpdir/t.tar
+}
+
+proc cleanup-tkt-9f4c0e3e95 {} {
+    variable tmpdir
+    tcltest::removeFile      $tmpdir/2
+    tcltest::removeFile      $tmpdir/02
+    tcltest::removeDirectory $tmpdir
+    return
+}

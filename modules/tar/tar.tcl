@@ -12,7 +12,7 @@
 # RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
 package require Tcl 8.4
-package provide tar 0.10
+package provide tar 0.11
 
 namespace eval ::tar {}
 
@@ -24,7 +24,10 @@ proc ::tar::parseOpts {acc opts} {
     set i 0
     while {$i < $len} {
         set name [string trimleft [lindex $opts $i] -]
-        if {![info exists flags($name)]} {return -code error "unknown option \"$name\""}
+        if {![info exists flags($name)]} {
+	    return -errorcode {TAR INVALID OPTION} \
+		-code error "unknown option \"$name\""
+	}
         if {$flags($name) == 1} {
             set $name [lindex $opts [expr {$i + 1}]]
             incr i $flags($name)
@@ -47,7 +50,8 @@ proc ::tar::pad {size} {
 proc ::tar::seekorskip {ch off wh} {
     if {[tell $ch] < 0} {
 	if {$wh!="current"} {
-	    error "WHENCE=$wh not supported on non-seekable channel $ch"
+	    return -code error -errorcode [LIST TAR INVALID WHENCE $wh] \
+		"WHENCE=$wh not supported on non-seekable channel $ch"
 	}
 	skip $ch $off
 	return
@@ -197,10 +201,10 @@ proc ::tar::get {tar file args} {
 	set data [read $fh 512]
         array set header [readHeader $data]
 	HandleLongLink $fh header
-        if {$header(name) == ""} break
-	if {$header(prefix) != ""} {append header(prefix) /}
+        if {$header(name) eq ""} break
+	if {$header(prefix) ne ""} {append header(prefix) /}
         set name [string trimleft $header(prefix)$header(name) /]
-        if {$name == $file} {
+        if {$name eq $file} {
             set file [read $fh $header(size)]
             if {!$chan} {
 		close $fh
@@ -212,7 +216,8 @@ proc ::tar::get {tar file args} {
     if {!$chan} {
 	close $fh
     }
-    return {}
+    return -code error -errorcode {TAR MISSING FILE} \
+	"Tar \"$tar\": File \"$file\" not found"
 }
 
 proc ::tar::untar {tar args} {
@@ -379,11 +384,13 @@ proc ::tar::formatHeader {name info} {
     
     set name [string trimleft $name /]
     if {[string length $name] > 255} {
-        return -code error "path name over 255 chars"
+        return -code error -errorcode {TAR BAD PATH LENGTH} \
+	    "path name over 255 chars"
     } elseif {[string length $name] > 100} {
 	set common [string range $name end-99 154]
 	if {[set splitpoint [string first / $common]] == -1} {
-	    return -code error "path name cannot be split into prefix and name"
+	    return -code error -errorcode {TAR BAD PATH UNSPLITTABLE} \
+		"path name cannot be split into prefix and name"
 	}
 	set prefix [string range $name 0 end-100][string range $common 0 $splitpoint-1]
 	set name   [string range $common $splitpoint+1 end][string range $name 155 end]

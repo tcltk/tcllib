@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 0.10]
+[vset PACKAGE_VERSION 0.11]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
@@ -86,19 +86,21 @@ puts "Extracted $file ($size bytes)"
 
 [call [cmd ::tar::get] [arg tarball] [arg fileName] [opt [option -chan]]]
 
-Returns the contents of [arg fileName] from the [arg tarball]
-[para]
+Returns the contents of [arg fileName] from the [arg tarball].
 
-[example {
+[para][example {
 % set readme [::tar::get tarball.tar doc/README] {
 % puts $readme
 }
 }]
 
-[para]
-If the option [option -chan] is present [arg tarball] is interpreted as an open channel.
-It is assumed that the channel was opened for reading, and configured for binary input.
-The command will [emph not] close the channel.
+[para] If the option [option -chan] is present [arg tarball] is
+interpreted as an open channel.  It is assumed that the channel was
+opened for reading, and configured for binary input.  The command will
+[emph not] close the channel.
+
+[para] An error is thrown when [arg fileName] is not found in the tar
+archive.
 
 [call [cmd ::tar::create] [arg tarball] [arg files] [arg args]]
 
