@@ -219,12 +219,15 @@ namespace eval ::json {
     variable cardinalRE "-?(?:$positiveRE|0)"
     variable fractionRE {[.][[:digit:]]+}
     variable exponentialRE {[eE][+-]?[[:digit:]]+}
-    variable numberRE "${cardinalRE}(?:$fractionRE)?(?:$exponentialRE)?"
+    variable numberREa "${cardinalRE}(?:$fractionRE)?(?:$exponentialRE)?"
+    variable numberREb "${fractionRE}(?:$exponentialRE)?"
+    variable numberREc "${cardinalRE}\[.\](?:$exponentialRE)?"
+    variable numberRE  "$numberREa|$numberREb|$numberREc"
+    variable numberRE  "$numberREa|$numberREb|$numberREc"
 
     # JSON token, and validation
     variable tokenRE "$singleCharTokenRE|$stringRE|$wordTokenRE|$numberRE"
     variable tokenREv "$singleCharTokenRE|$stringREv|$wordTokenRE|$numberRE"
-
 
     # 0..n white space characters
     set whiteSpaceRE {[[:space:]]*}
@@ -279,4 +282,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.3
+package provide json 1.3.4
