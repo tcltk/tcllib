@@ -2767,6 +2767,10 @@ proc ::struct::graph::_walk {name node args} {
 		set node [lindex   $st end]
 		ldelete st end
 
+		# Skip all nodes already visited via some other path
+		# through the graph.
+		if {[info exists visited($node)]} continue
+		
 		# Evaluate the command at this node
 		set cmdcpy $cmd
 		lappend cmdcpy enter $name $node
