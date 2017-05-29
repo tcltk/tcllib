@@ -220,6 +220,30 @@ test graph-${impl}-${setimpl}-tkt.39ab616d8f-walk-4.0 {Ticket 39ab616d8f, dfs pr
     unset t
 } -result [tmE {enter a enter b enter c} {enter a enter c enter b}]
 
+test graph-${impl}-${setimpl}-tkt.39ab616d8f-walk-4.1 {Ticket 39ab616d8f, dfs pre-order} -setup {
+    # This is like 4.0, with arcs ab, ac inserted in reverse
+    # order. This forces the Critcl implementation into the same
+    # situation as 4.0 does for Tcl, having c in the work stack as
+    # neighbour of a and then getting visited from b before reahed
+    # again. Passes.
+    SETUP
+    mygraph node insert a
+    mygraph node insert b
+    mygraph node insert c
+    mygraph arc insert a c ac
+    mygraph arc insert a b ab
+    mygraph arc insert b c bc
+    #  /-> b -\
+    # a -----> c
+    set t {}    
+} -body {
+    mygraph walk a -command record -dir forward -order pre -type dfs
+    set t
+} -cleanup {
+    mygraph destroy
+    unset t
+} -result [tmE {enter a enter c enter b} {enter a enter b enter c}]
+
 # -------------------------------------------------------------------------
 
 rename record {}
