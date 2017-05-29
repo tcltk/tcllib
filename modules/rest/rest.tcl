@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.2
+package provide rest 1.3
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -85,11 +85,12 @@ proc ::rest::simple {url query args} {
     return $result
 }
 
-interp alias {} ::rest::get    {} ::rest::simple
-interp alias {} ::rest::post   {} ::rest::simple
-interp alias {} ::rest::head   {} ::rest::simple
-interp alias {} ::rest::put    {} ::rest::simple
 interp alias {} ::rest::delete {} ::rest::simple
+interp alias {} ::rest::get    {} ::rest::simple
+interp alias {} ::rest::head   {} ::rest::simple
+interp alias {} ::rest::patch  {} ::rest::simple
+interp alias {} ::rest::post   {} ::rest::simple
+interp alias {} ::rest::put    {} ::rest::simple
 
 proc ::rest::DetermineMethod {cv} {
     upvar 1 $cv config
