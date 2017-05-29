@@ -55,7 +55,7 @@ pcx::check 0.1 std ::bee::encodeDict \
 	checkDict
     }}
 pcx::check 0.1 std ::bee::encodeDictArgs \
-    {checkSimpleArgsModNk 0 2 {
+    {checkSimpleArgsModNk 0 -1 2 0 {
 	checkWord
 	checkWord
     }}
