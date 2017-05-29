@@ -121,6 +121,18 @@ test legendre-2 "Legendre symbol (-3/7)" -body {
     ::math::numtheory::legendre -3 7
 } -result 1
 
+test jacobi-1 "Jacobi symbol (6/7)" -body {
+    ::math::numtheory::jacobi 6 7
+} -result -1
+
+test jacobi-2 "Jacobi symbol (6/9)" -body {
+    ::math::numtheory::jacobi 6 9
+} -result 0
+
+test jacobi-3 "Jacobi symbol (3/11)" -body {
+    ::math::numtheory::jacobi 3 11
+} -result 1
+
 test gcd-1 "Greatest common divisor 2 and 3" -body {
     ::math::numtheory::gcd 2 3
 } -result 1
