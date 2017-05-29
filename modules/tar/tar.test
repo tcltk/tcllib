@@ -116,4 +116,24 @@ test tar-bug-2840180 {} -setup {
 				] \n]
 
 # -------------------------------------------------------------------------
+
+test tar-tkt-9f4c0e3e95-1.0 {Ticket 9f4c0e3e95, A} -setup {
+    setup-tkt-9f4c0e3e95
+} -body {
+    tar::get $tmpdir/9f/t.tar 02
+    # Expecting zero-two
+} -cleanup {
+    cleanup-tkt-9f4c0e3e95
+} -result {zero-two}
+
+test tar-tkt-9f4c0e3e95-1.1 {Ticket 9f4c0e3e95, B, } -setup {
+    setup-tkt-9f4c0e3e95
+} -body {
+    tar::get $tmpdir/9f/t.tar 0b10
+    # Expecting error
+} -cleanup {
+    cleanup-tkt-9f4c0e3e95
+} -returnCodes error -result {}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup
