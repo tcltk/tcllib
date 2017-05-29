@@ -7,7 +7,7 @@ namespace eval ::math::numtheory {
     variable nextPrimeIncrement  1 ;# Examine numbers 6n+1 and 6n+5
 
     namespace export firstNprimes primesLowerThan primeFactors uniquePrimeFactors factors \
-                     totient moebius legendre gcd lcm \
+                     totient moebius legendre jacobi gcd lcm \
                      numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified
 }
 
@@ -302,7 +302,54 @@ proc ::math::numtheory::legendre {a p} {
     return $legendre
 }
 
-# TODO: Jacobi symbol
+# jacobi --
+#     Return the value of the Jacobi symbol (a/b)
+#
+# Arguments:
+#     a              Upper number in the symbol
+#     b              Lower number in the symbol
+#
+# Result:
+#     The Jacobi symbol
+#
+# Note:
+#     Implementation adopted from the Wiki - http://wiki.tcl.tk/36990
+#     encoded by rmelton 9/25/12
+#     Further references:
+#     http://en.wikipedia.org/wiki/Jacobi_symbol
+#     http://2000clicks.com/mathhelp/NumberTh27JacobiSymbolAlgorithm.aspx
+#
+proc ::math::numtheory::jacobi {a b} {
+    if { $b<=0 || ($b&1)==0 } {
+        return 0;
+    }
+
+    set j 1
+    if {$a<0} {
+        set a [expr {0-$a}]
+        set j [expr {0-$j}]
+    }
+    while {$a != 0} {
+        while {($a&1) == 0} {
+            ##/* Process factors of 2: Jacobi(2,b)=-1 if b=3,5 (mod 8) */
+            set a [expr {$a>>1}]
+            if {(($b & 7)==3) || (($b & 7)==5)} {
+                set j [expr {0-$j}]
+            }
+        }
+        ##/* Quadratic reciprocity: Jacobi(a,b)=-Jacobi(b,a) if a=3,b=3 (mod 4) */
+        lassign [list $a $b] b a
+        if {(($a & 3)==3) && (($b & 3)==3)} {
+            set j [expr {0-$j}]
+        }
+        set a [expr {$a % $b}]
+    }
+    if {$b==1} {
+        return $j
+    } else {
+        return 0
+    }
+}
 
 # gcd --
 #     Return the greatest common divisor of two numbers n and m

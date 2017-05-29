@@ -1,3 +1,9 @@
+2017-05-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.test: Require at least Tcl 8.5
+	* numtheory.man: Add description of Jacobi symbol
+	* primes.tcl: Add Jacobi symbol
+	* primes.test: Add tests for Jacobi symbol
+
 2017-05-28  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* numtheory.tcl: Source primes.tcl at the end, version now 1.1
 	* primes.tcl: Additonal procedures for the number theory package, includes estimates of number of primes
