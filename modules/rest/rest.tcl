@@ -109,7 +109,7 @@ proc ::rest::DetermineMethod {cv} {
 	# TODO: Quoted literal.
 	regexp {^([^ ]+).*$} $cmd -> cmd
     }
-    if {$cmd ni {get delete head post put}} {
+    if {$cmd ni {get delete head post put patch}} {
 	return -code error "Unable to determine rest::simple method, found \"$cmd\". Please specify it explicitly."
     }
     set cmd [namespace tail $cmd]    
