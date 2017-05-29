@@ -95,7 +95,7 @@ test tar-add {add} -constraints tcloo -setup {
 } -result {tartest/one/a tartest/one/two/a tartest/one/three/a hello2}
 
 
-test tar-bug-2840180 {} -setup {
+test tar-bug-2840180 {Ticket 2840180} -setup {
     setup2
 } -body {
     tar::create $chan1 [list $tmpdir/[large-path]/a] -chan
@@ -118,22 +118,22 @@ test tar-bug-2840180 {} -setup {
 # -------------------------------------------------------------------------
 
 test tar-tkt-9f4c0e3e95-1.0 {Ticket 9f4c0e3e95, A} -setup {
-    setup-tkt-9f4c0e3e95
+    set tarfile [setup-tkt-9f4c0e3e95]
 } -body {
-    tar::get $tmpdir/9f/t.tar 02
-    # Expecting zero-two
+    string trim [tar::get $tarfile 02]
 } -cleanup {
     cleanup-tkt-9f4c0e3e95
+    unset tarfile
 } -result {zero-two}
 
 test tar-tkt-9f4c0e3e95-1.1 {Ticket 9f4c0e3e95, B, } -setup {
-    setup-tkt-9f4c0e3e95
+    set tarfile [setup-tkt-9f4c0e3e95]
 } -body {
-    tar::get $tmpdir/9f/t.tar 0b10
-    # Expecting error
+    tar::get $tarfile 0b10
 } -cleanup {
     cleanup-tkt-9f4c0e3e95
-} -returnCodes error -result {}
+    unset tarfile
+} -returnCodes error -result {Tar "tartest/t.tar": File "0b10" not found}
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
