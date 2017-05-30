@@ -50,7 +50,7 @@ proc ::tar::pad {size} {
 proc ::tar::seekorskip {ch off wh} {
     if {[tell $ch] < 0} {
 	if {$wh!="current"} {
-	    return -code error -errorcode [LIST TAR INVALID WHENCE $wh] \
+	    return -code error -errorcode [list TAR INVALID WHENCE $wh] \
 		"WHENCE=$wh not supported on non-seekable channel $ch"
 	}
 	skip $ch $off
