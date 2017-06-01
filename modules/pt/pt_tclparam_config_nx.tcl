@@ -96,7 +96,7 @@ proc ::pt::tclparam::configuration::nx::def {class pkg version cmd} {
 	## Ready
 
 	package provide @@PKG@@ @@VERSION@@
-	# return
+	return
     }]]
 
     return

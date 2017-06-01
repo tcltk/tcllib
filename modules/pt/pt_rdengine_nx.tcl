@@ -29,24 +29,31 @@ namespace eval ::pt::rde {
 		namespace import ::nsf::my
 	    }
 
+	    set vars [info class variables ${:prototype}]
+	    if {[llength $vars]} {
+		set vars [concat :instvar $vars]
+	    }
+	    
 	    ## clone constructor
 	    lassign [info class constructor ${:prototype}] ctorParams ctorBody
-	    :method init $ctorParams [:injectVars $ctorBody]
+	    
+	    set ctorBody [string map [list @body@ $ctorBody @vars@ $vars] {
+		:require namespace; apply [list {} {
+		    namespace import ::nsf::my
+		    @vars@
+		    @body@
+		} [self]]
+	    }]
+	    
+	    :method init $ctorParams $ctorBody		       
+
 	    ## clone all methods
 	    foreach m [info class methods ${:prototype} -private] {
 		lassign [info class definition ${:prototype} $m] params body
-		:method $m $params [:injectVars $body]
-	    }
-	}
-	:method injectVars {body} {
-	    if {![info exists :vars]} {
-		set :vars [info class variables ${:prototype}]
-	    }
-	    if {[llength ${:vars}]} {
-		append tmp [list :instvar {*}${:vars}] "\n" $body;
-		return $tmp
-	    } else {
-		return $body;
+		:method $m $params [string map [list @body@ $body @vars@ $vars] {
+		    @vars@
+		    @body@
+		}]
 	    }
 	}
     }
