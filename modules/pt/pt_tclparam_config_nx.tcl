@@ -109,5 +109,5 @@ namespace eval ::pt::tclparam::configuration::nx {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::nx 1.0.0
+package provide pt::tclparam::configuration::nx 1.0.1
 return
