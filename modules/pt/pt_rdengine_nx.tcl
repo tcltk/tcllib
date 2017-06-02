@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2016 by Stefan Sobernig <stefan.sobernig@wu.ac.at>
+# Copyright (c) 2016-2017 by Stefan Sobernig <stefan.sobernig@wu.ac.at>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
