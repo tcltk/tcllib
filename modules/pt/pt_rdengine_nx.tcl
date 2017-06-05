@@ -69,4 +69,4 @@ namespace eval ::pt::rde {
     
 }
 
-package provide pt::rde::nx [package req pt::rde::oo]
+package provide pt::rde::nx [package req pt::rde::oo].1.0
