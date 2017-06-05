@@ -53,7 +53,10 @@ package ifneeded pt::peg::from::peg   1.0.3 [list source [file join $dir pt_peg_
 # PARAM runtime.
 package ifneeded pt::rde      1.1 [list source [file join $dir pt_rdengine.tcl]]
 package ifneeded pt::rde::oo  1.1 [list source [file join $dir pt_rdengine_oo.tcl]]
-package ifneeded pt::rde::nx  1.1 [list source [file join $dir pt_rdengine_nx.tcl]]
+
+# Note: The last two numbers are the rde::nx version itself. The
+# preceding version information is the rde::oo version it is based on.
+package ifneeded pt::rde::nx  1.1.1.0 [list source [file join $dir pt_rdengine_nx.tcl]]
 
 
 # PEG grammar specification, as CONTAINER
