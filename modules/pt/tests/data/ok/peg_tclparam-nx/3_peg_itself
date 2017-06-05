@@ -2410,4 +2410,4 @@ nx::Class create PARSER -superclasses pt::rde::nx {
 ## Ready
 
 package provide NX_PACKAGE 1
-# return
+return

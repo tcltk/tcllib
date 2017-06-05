@@ -96,7 +96,7 @@ proc ::pt::tclparam::configuration::nx::def {class pkg version cmd} {
 	## Ready
 
 	package provide @@PKG@@ @@VERSION@@
-	# return
+	return
     }]]
 
     return
@@ -109,5 +109,5 @@ namespace eval ::pt::tclparam::configuration::nx {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::nx 1.0.0
+package provide pt::tclparam::configuration::nx 1.0.1
 return
