@@ -11,7 +11,7 @@
 # Copyright (c) 2015 Miguel Martínez López <aplicacionamedida@gmail.com>
 
 package require Tcl 8.5
-package provide huddle 0.2
+package provide huddle 0.3
 
 namespace eval ::huddle {
     namespace export huddle wrap unwrap isHuddle strip_node are_equal_nodes argument_to_node get_src
@@ -489,11 +489,12 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
 
     switch -- $type {
         boolean -
-        number -
-        null {
+        number {
             return [huddle get_stripped $huddle_object]
         }
-
+	null {
+	    return null
+	}
         string {
             set data [huddle get_stripped $huddle_object]
 
@@ -509,9 +510,8 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
                     / \\/
                 } $data
             ]
-        return "\"$data\""
+	    return "\"$data\""
         }
-        
         list {
             set inner {}
             set len [huddle llength $huddle_object]
@@ -522,10 +522,8 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
             if {[llength $inner] == 1} {
                 return "\[[lindex $inner 0]\]"
             }
-            
             return "\[$nlof[join $inner ,$nlof]$newline$begin\]"
         }
-        
         dict {
             set inner {}
             foreach {key} [huddle keys $huddle_object] {
@@ -536,7 +534,6 @@ proc ::huddle::jsondump {huddle_object {offset "  "} {newline "\n"} {begin ""}} 
             }
             return "\{$nlof[join $inner ,$nlof]$newline$begin\}"
         }
-        
         default {
             return [$types(callback:$type) jsondump $data $offset $newline $nextoff]
         }
