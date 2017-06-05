@@ -84,7 +84,16 @@ set  TCL(emptyList4) {{}}
 set JSON(escapes) {"\t\r\n\f\b\/\\\""}
 set  TCL(escapes) "\t\r\n\f\b/\\\""
 
-
+foreach {label json tcl} {
+    fp1.1  1.1  1.1
+    fp1.   1.   1.
+    fp.1   .1   .1
+    fp0.1  0.1  0.1
+    fp1    1    1
+} {
+    set JSON($label) $json
+    set TCL($label) $tcl
+}
 
 foreach f [TestFilesGlob tests/*.fail] {
     set name [file rootname [file tail $f]]

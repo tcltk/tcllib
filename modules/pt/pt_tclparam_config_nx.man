@@ -1,4 +1,4 @@
-[vset VERSION 1.0.0]
+[vset VERSION 1.0.1]
 [comment {-*- text -*- doctools manpage}]
 [manpage_begin pt::tclparam::configuration::nx n [vset VERSION]]
 [include include/module.inc]

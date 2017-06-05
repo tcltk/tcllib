@@ -1,5 +1,8 @@
 This file records outstanding actions for the math module
 
+dd. 29 may 2017
+- Implement Kronecker symbol (extension of Jacobi symbol)
+
 dd. 8 january 2017
 - Fix problem with test-anova-F (at least the test cases 1.1 and 1.2) - done
 

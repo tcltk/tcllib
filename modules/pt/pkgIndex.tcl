@@ -53,7 +53,10 @@ package ifneeded pt::peg::from::peg   1.0.3 [list source [file join $dir pt_peg_
 # PARAM runtime.
 package ifneeded pt::rde      1.1 [list source [file join $dir pt_rdengine.tcl]]
 package ifneeded pt::rde::oo  1.1 [list source [file join $dir pt_rdengine_oo.tcl]]
-package ifneeded pt::rde::nx  1.1 [list source [file join $dir pt_rdengine_nx.tcl]]
+
+# Note: The last two numbers are the rde::nx version itself. The
+# preceding version information is the rde::oo version it is based on.
+package ifneeded pt::rde::nx  1.1.1.0 [list source [file join $dir pt_rdengine_nx.tcl]]
 
 
 # PEG grammar specification, as CONTAINER
@@ -64,7 +67,7 @@ package ifneeded pt::cparam::configuration::critcl  1.0.2 [list source [file joi
 package ifneeded pt::cparam::configuration::tea     0.1   [list source [file join $dir pt_cparam_config_tea.tcl]]
 package ifneeded pt::tclparam::configuration::snit  1.0.2 [list source [file join $dir pt_tclparam_config_snit.tcl]]
 package ifneeded pt::tclparam::configuration::tcloo 1.0.4 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
-package ifneeded pt::tclparam::configuration::nx    1.0.0 [list source [file join $dir pt_tclparam_config_nx.tcl]]
+package ifneeded pt::tclparam::configuration::nx    1.0.1 [list source [file join $dir pt_tclparam_config_nx.tcl]]
 
 # Parser generator core.
 package ifneeded pt::pgen 1.0.3 [list source [file join $dir pt_pgen.tcl]]
