@@ -114,6 +114,16 @@ Upper number in the symbol
 Lower number in the symbol (must be non-zero)
 [list_end]
 
+[call [cmd math::numtheory::jacobi] [arg a] [arg b]]
+Evaluate the Jacobi symbol (a/b)
+
+[list_begin arguments]
+[arg_def integer a in]
+Upper number in the symbol
+[arg_def integer b in]
+Lower number in the symbol (must be odd)
+[list_end]
+
 [call [cmd math::numtheory::gcd] [arg m] [arg n]]
 Return the greatest common divisor of [term m] and [term n]
 

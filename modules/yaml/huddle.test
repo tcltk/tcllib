@@ -222,6 +222,17 @@ test huddle-3.4 "test of huddle compile" -body {
     huddle equal $huddle1 $data
 } -result {1}
 
+test huddle-3.5 "test of huddle jsondump - null handling" -body {
+    huddle jsondump {HUDDLE null}
+} -result {null}
+
+test huddle-3.6 "test of huddle jsondump - dict and null handling" -body {
+    huddle jsondump {HUDDLE {D {a {s foo} b null}}}
+} -result {{
+  "a": "foo",
+  "b": null
+}}
+
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 

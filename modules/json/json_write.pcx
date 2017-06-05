@@ -30,12 +30,12 @@ pcx::check 1.0 std ::json::write {checkSimpleArgs 1 -1 {
 	{array {checkSimpleArgs 0 -1 {
 	    checkWord
 	}}}
-	{object {checkSimpleArgsModNk 0 2 {
+	{object {checkSimpleArgsModNk 0 -1 2 0 {
 	    checkWord
 	    checkWord
 	}}}
     } {}}
-}
+}}
 
 # Initialization via pcx::init.
 # Use a ::json::write::init procedure for non-standard initialization.
