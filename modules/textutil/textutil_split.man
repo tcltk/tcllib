@@ -1,4 +1,5 @@
-[manpage_begin textutil::split n 0.7]
+[vset VERSION 0.8]
+[manpage_begin textutil::split n [vset VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -9,7 +10,7 @@
 [titledesc {Procedures to split texts}]
 [category  {Text processing}]
 [require Tcl 8.2]
-[require textutil::split [opt 0.7]]
+[require textutil::split [opt [vset VERSION]]]
 [description]
 
 The package [package textutil::split] provides commands that split
