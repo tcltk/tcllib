@@ -616,6 +616,13 @@ test geometry-19.6 {geometry::degToRad} {
     ::math::geometry::degToRad 180.0
 } [expr {acos(-1.0)}]
 
+##
+# areaPolygon
+##
+
+test geometry-20.0 {geometry::areaPolygon} {
+    math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 10}
+} 400.0
 
 ###
 testsuiteCleanup

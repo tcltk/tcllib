@@ -14,6 +14,7 @@
 
 namespace eval ::math::geometry {}
 
+package require Tcl 8.5
 package require math
 
 ###
@@ -60,34 +61,31 @@ proc ::math::geometry::p {x y} {
 
 # Vector addition
 proc ::math::geometry::+ {pa pb} {
-    foreach {ax ay} $pa break
-    foreach {bx by} $pb break
+    lassign $pa ax ay; lassign $pb bx by
     return [list [expr {$ax + $bx}] [expr {$ay + $by}]]
 }
 
 # Vector difference
 proc ::math::geometry::- {pa pb} {
-    foreach {ax ay} $pa break
-    foreach {bx by} $pb break
+    lassign $pa ax ay; lassign $pb bx by
     return [list [expr {$ax - $bx}] [expr {$ay - $by}]]
 }
 
 # Distance between 2 points
 proc ::math::geometry::distance {pa pb} {
-    foreach {ax ay} $pa break
-    foreach {bx by} $pb break
+    lassign $pa ax ay; lassign $pb bx by
     return [expr {hypot($bx-$ax,$by-$ay)}]
 }
 
 # Length of a vector
 proc ::math::geometry::length {v} {
-    foreach {x y} $v break
+    lassign $v x y
     return [expr {hypot($x,$y)}]
 }
 
 # Scaling a vector by a factor
 proc ::math::geometry::s* {factor p} {
-    foreach {x y} $p break
+    lassign $p x y
     return [list [expr {$x * $factor}] [expr {$y * $factor}]]
 }
 
@@ -118,7 +116,7 @@ proc ::math::geometry::between {pa pb s} {
 # Find direction octant the point (vector) lies in.
 proc ::math::geometry::octant {p} {
     variable todeg
-    foreach {x y} $p break
+    lassign $p x y
 
     set a [expr {(atan2(-$y,$x)*$todeg)}]
     while {$a >  360} {set a [expr {$a - 360}]}
@@ -150,35 +148,32 @@ proc ::math::geometry::octant {p} {
 
 # Return the NW and SE corners of the rectangle.
 proc ::math::geometry::nwse {rect} {
-    foreach {xnw ynw xse yse} $rect break
+    lassign $rect xnw ynw xse yse
     return [list [p $xnw $ynw] [p $xse $yse]]
 }
 
 # Construct rectangle from NW and SE corners.
 proc ::math::geometry::rect {pa pb} {
-    foreach {ax ay} $pa break
-    foreach {bx by} $pb break
+    lassign $pa ax ay; lassign $pb bx by
     return [list $ax $ay $bx $by]
 }
 
 proc ::math::geometry::conjx {p} {
-    foreach {x y} $p break
+    lassign $p x y
     return [list [expr {- $x}] $y]
 }
 
 proc ::math::geometry::conjy {p} {
-    foreach {x y} $p break
+    lassign $p x y
     return [list $x [expr {- $y}]]
 }
 
 proc ::math::geometry::x {p} {
-    foreach {x y} $p break
-    return $x
+    return [lindex $p 0]
 }
 
 proc ::math::geometry::y {p} {
-    foreach {x y} $p break
-    return $y
+    return [lindex $p 1]
 }
 
 # ::math::geometry::calculateDistanceToLine
@@ -200,7 +195,7 @@ proc ::math::geometry::y {p} {
 #
 proc ::math::geometry::calculateDistanceToLine {P line} {
     # solution based on FAQ 1.02 on comp.graphics.algorithms
-    # L = sqrt( (Bx-Ax)^2 + (By-Ay)^2 )
+    # L = hypot( Bx-Ax, By-Ay )
     #     (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
     # s = -----------------------------
     #                 L^2
@@ -220,7 +215,7 @@ proc ::math::geometry::calculateDistanceToLine {P line} {
     if {$Ax==$Bx && $Ay==$By} {
 	return [lengthOfPolyline [concat $P [lrange $line 0 1]]]
     } else {
-	set L [expr {sqrt(pow($Bx-$Ax,2) + pow($By-$Ay,2))}]
+	set L [expr {hypot($Bx-$Ax,$By-$Ay)}]
 	return [expr {abs(($Ay-$Cy)*($Bx-$Ax)-($Ax-$Cx)*($By-$Ay)) / $L}]
     }
 }
@@ -267,8 +262,9 @@ proc ::math::geometry::findClosestPointOnLine {P line} {
 #                        0<r<1    P is interior to AB
 #
 proc ::math::geometry::findClosestPointOnLineImpl {P line} {
-    # solution based on FAQ 1.02 on comp.graphics.algorithms
-    #   L = sqrt( (Bx-Ax)^2 + (By-Ay)^2 )
+    # solution based on FAQ 1.02 on comp.graphics.algorithms - but avoid the
+    # chain of pow( sqrt(...) ,2) for better precision (& performance).
+    #   L^2 = (Bx-Ax)^2 + (By-Ay)^2
     #        (Cx-Ax)(Bx-Ax) + (Cy-Ay)(By-Ay)
     #   r = -------------------------------
     #                     L^2
@@ -283,8 +279,8 @@ proc ::math::geometry::findClosestPointOnLineImpl {P line} {
     if {$Ax==$Bx && $Ay==$By} {
 	return [list [list $Ax $Ay] 0]
     } else {
-	set L [expr {sqrt(pow($Bx-$Ax,2) + pow($By-$Ay,2))}]
-	set r [expr {(($Cx-$Ax)*($Bx-$Ax) + ($Cy-$Ay)*($By-$Ay))/pow($L,2)}]
+	set Lsquared [expr {pow($Bx-$Ax,2) + pow($By-$Ay,2)}]
+	set r [expr {(($Cx-$Ax)*($Bx-$Ax) + ($Cy-$Ay)*($By-$Ay))/$Lsquared}]
 	set Px [expr {$Ax + $r*($Bx-$Ax)}]
 	set Py [expr {$Ay + $r*($By-$Ay)}]
 	return [list [list $Px $Py] $r]
@@ -342,7 +338,7 @@ proc ::math::geometry::calculateDistanceToLineSegment {P linesegment} {
 #
 proc ::math::geometry::calculateDistanceToLineSegmentImpl {P linesegment} {
     # solution based on FAQ 1.02 on comp.graphics.algorithms
-    # L = sqrt( (Bx-Ax)^2 + (By-Ay)^2 )
+    # L = hypot( Bx-Ax , By-Ay )
     #     (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
     # s = -----------------------------
     #                 L^2
@@ -365,7 +361,7 @@ proc ::math::geometry::calculateDistanceToLineSegmentImpl {P linesegment} {
     if {$Ax==$Bx && $Ay==$By} {
 	return [list [lengthOfPolyline [concat $P [lrange $linesegment 0 1]]] 0]
     } else {
-	set L [expr {sqrt(pow($Bx-$Ax,2) + pow($By-$Ay,2))}]
+	set L [expr {hypot($Bx-$Ax,$By-$Ay)}]
 	set r [expr {(($Cx-$Ax)*($Bx-$Ax) + ($Cy-$Ay)*($By-$Ay))/pow($L,2)}]
 	return [list [expr {abs(($Ay-$Cy)*($Bx-$Ax)-($Ax-$Cx)*($By-$Ay)) / $L}] $r]
     }
@@ -422,12 +418,13 @@ proc ::math::geometry::findClosestPointOnLineSegment {P linesegment} {
 #       Result: 6.7082039325
 #
 proc ::math::geometry::calculateDistanceToPolyline {P polyline} {
-    set minDist "none"
-    foreach {Ax Ay} [lrange $polyline 0 end-2] {Bx By} [lrange $polyline 2 end] {
+    set minDist "Inf"
+    foreach {Bx By} [lassign $polyline Ax Ay] {
 	set dist [calculateDistanceToLineSegment $P [list $Ax $Ay $Bx $By]]
-	if {$minDist=="none" || $dist < $minDist} {
+	if {$dist < $minDist} {
 	    set minDist $dist
 	}
+	set Ax $Bx; set Ay $By
     }
     return $minDist
 }
@@ -471,14 +468,15 @@ proc ::math::geometry::calculateDistanceToPolygon {P polygon} {
 #       Result: 8.0 4.0
 #
 proc ::math::geometry::findClosestPointOnPolyline {P polyline} {
-    set closestPoint "none"
-    foreach {Ax Ay} [lrange $polyline 0 end-2] {Bx By} [lrange $polyline 2 end] {
+    set closestPoint "none"; set closestDistance "Inf"
+    foreach {Bx By} [lassign $polyline Ax Ay] {
 	set Q [findClosestPointOnLineSegment $P [list $Ax $Ay $Bx $By]]
 	set dist [lengthOfPolyline [concat $P $Q]]
-	if {$closestPoint=="none" || $dist<$closestDistance} {
+	if {$dist<$closestDistance} {
 	    set closestPoint $Q
 	    set closestDistance $dist
 	}
+	set Ax $Bx; set Ay $By
     }
     return $closestPoint
 }
@@ -505,9 +503,9 @@ proc ::math::geometry::findClosestPointOnPolyline {P polyline} {
 #
 proc ::math::geometry::lengthOfPolyline {polyline} {
     set length 0
-    foreach {x1 y1} [lrange $polyline 0 end-2] {x2 y2} [lrange $polyline 2 end] {
-	set length [expr {$length + sqrt(pow($x1-$x2,2) + pow($y1-$y2,2))}]
-	#set length [expr {$length + sqrt(($x1-$x2)*($x1-$x2) + ($y1-$y2)*($y1-$y2))}]
+    foreach {x2 y2} [lassign $polyline x1 y1] {
+	set length [expr {$length + hypot($x1-$x2,$y1-$y2)}]
+	set x1 $x2; set y1 $y2
     }
     return $length
 }
@@ -853,14 +851,16 @@ proc ::math::geometry::polylinesBoundingIntersect {polyline1 polyline2 granulari
 		    [lrange $part2bbox 0 1] [lrange $part2bbox 2 3] 0]} {
 		# the lines' bounding boxes intersect
 		if {$perfectmatch} {
-		    foreach {l1x1 l1y1} [lrange $part1 0 end-2] {l1x2 l1y2} [lrange $part1 2 end] {
-			foreach {l2x1 l2y1} [lrange $part2 0 end-2] {l2x2 l2y2} [lrange $part2 2 end] {
+		    foreach {l1x2 l1y2} [lassign $part1 l1x1 l1y1] {
+			foreach {l2x2 l2y2} [lassign $part2 l2x1 l2y1] {
 			    if {[lineSegmentsIntersect [list $l1x1 $l1y1 $l1x2 $l1y2] \
 				    [list $l2x1 $l2y1 $l2x2 $l2y2]]} {
 				# two line segments overlap
 				return 1
 			    }
+			    set l2x1 $l2x2; set l2y1 $l2y2
 			}
+			set l1x1 $l1x2; set l1y1 $l1y2
 		    }
 		    return 0
 		} else {
@@ -1063,15 +1063,14 @@ proc ::math::geometry::bbox {polyline} {
 #
 proc ::math::geometry::ClosedPolygon {polygon} {
 
-    if { [lindex $polygon 0] != [lindex $polygon end-1] ||
-         [lindex $polygon 1] != [lindex $polygon end]     } {
+    lassign $polygon x y
+    if { $x != [lindex $polygon end-1] ||
+         $y != [lindex $polygon end]     } {
 
-        return [concat $polygon [lrange $polygon 0 1]]
+        lappend polygon $x $y
 
-    } else {
-
-        return $polygon
     }
+    return $polygon
 }
 
 
@@ -1100,10 +1099,11 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
     # inside the polygon)
     set closedPolygon [ClosedPolygon $polygon]
 
-    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
+    foreach {x2 y2} [lassign $closedPolygon x1 y1] {
 	if {[calculateDistanceToLineSegment $P [list $x1 $y1 $x2 $y2]]<0.0000001} {
 	    return 0
 	}
+	set x1 $x2; set y1 $y2
     }
 
     # Algorithm
@@ -1135,10 +1135,11 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
     # calculate number of intersections
     set noOfIntersections 0
     #   1. count intersections between the line and the polygon's sides
-    foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
+    foreach {x2 y2} [lassign $closedPolygon x1 y1] {
 	if {[lineSegmentsIntersect $infinityLine [list $x1 $y1 $x2 $y2]]} {
 	    incr noOfIntersections
 	}
+	set x1 $x2; set y1 $y2
     }
     #   2. count intersections between the line and the polygon's points
     foreach {x1 y1} $closedPolygon {
@@ -1321,11 +1322,12 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
 #
 proc ::math::geometry::areaPolygon {polygon} {
 
-    foreach {a1 a2 b1 b2} $polygon {break}
+    # get last pair of the polygon for start:
+    set b1 [lindex $polygon end-1]; set b2 [lindex $polygon end]
 
     set area 0.0
-    foreach {c1 c2} [lrange $polygon 4 end] {
-        set area [expr {$area + $b1*$c2 - $b2*$c1}]
+    foreach {c1 c2} $polygon {
+        set area [expr {$area + ($b1*$c2 - $b2*$c1)}]
         set b1   $c1
         set b2   $c2
     }
@@ -1393,8 +1395,7 @@ proc ::math::geometry::angleBetween {vector1 vector2} {
 #
 proc ::math::geometry::areaParallellogram {vector1 vector2} {
 
-    foreach {x1 y1} $vector1 {break}
-    foreach {x2 y2} $vector2 {break}
+    lassign $vector1 x1 y1; lassign $vector2 x2 y2
 
     set area [expr {abs($x2 * $y1 - $x1 * $y2}]
 
@@ -1416,7 +1417,7 @@ proc ::math::geometry::translate {vector polyline} {
 
     set newPolyline $polyline
 
-    foreach {xt yt} $vector {break}
+    lassign $vector xt yt
 
     set idx 0
     foreach {x y} $polyline {
@@ -1554,4 +1555,4 @@ namespace eval ::math::geometry {
 	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
 }
 
-package provide math::geometry 1.2.2
+package provide math::geometry 1.2.3
