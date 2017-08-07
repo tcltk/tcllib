@@ -14,7 +14,7 @@
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::geometry [opt 1.2.2]]
+[require math::geometry [opt 1.2.3]]
 
 [description]
 [para]
