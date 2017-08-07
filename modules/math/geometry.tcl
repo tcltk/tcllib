@@ -1555,4 +1555,4 @@ namespace eval ::math::geometry {
 	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
 }
 
-package provide math::geometry 1.2.2
+package provide math::geometry 1.2.3
