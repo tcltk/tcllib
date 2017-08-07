@@ -521,6 +521,13 @@ test geometry-16.9 {geometry::rectangleInsidePolygon, infinityLine crosses point
     math::geometry::rectangleInsidePolygon {5 5} {6 6} {4 4 4 7 7 7 7 4}
 } 1
 
+
+
+#     - areaPolygon {-10 -10 10 -10 10 10 -10 10}
+#       Result: 400
+
+
+
 ###
 ###
 
@@ -616,6 +623,13 @@ test geometry-19.6 {geometry::degToRad} {
     ::math::geometry::degToRad 180.0
 } [expr {acos(-1.0)}]
 
+##
+# areaPolygon
+##
+
+test geometry-20.0 {geometry::areaPolygon} {
+    math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 10}
+} 400
 
 ###
 testsuiteCleanup
