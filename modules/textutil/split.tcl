@@ -62,6 +62,11 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
         if {[string length $regexp] == 0} {
             return [::split $str ""]
         }
+	if {[regexp $regexp {}]} {
+	    return -code error \
+		"splitting on regexp \"$regexp\" would cause infinite loop"
+	}
+
         set list  {}
         set start 0
         while {[regexp -start $start -indices -- $regexp $str match submatch]} {
@@ -89,6 +94,10 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
         if {[string length $regexp] == 0} {
             return [::split $str {}]
         }
+	if {[regexp $regexp {}]} {
+	    return -code error \
+		"splitting on regexp \"$regexp\" would cause infinite loop"
+	}
 
         set list  {}
         while {[regexp -indices -- $regexp $str match submatch]} {
@@ -164,4 +173,4 @@ namespace eval ::textutil::split {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::split 0.7
+package provide textutil::split 0.8
