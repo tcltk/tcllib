@@ -25,11 +25,11 @@ test splitn-0.1 {split empty string} {
     ::textutil::split::splitn ""
 } [list]
 
-test splitn-0.2 {split empty string with explicit lenght 1} {
+test splitn-0.2 {split empty string with explicit length 1} {
     ::textutil::split::splitn "" 1
 } [list]
 
-test splitn-0.3 {split empty string with explicit lenght 2} {
+test splitn-0.3 {split empty string with explicit length 2} {
     ::textutil::split::splitn "" 2
 } [list]
 
@@ -45,7 +45,7 @@ test splitn-1.3 {split simple string with explicit length 2} {
     ::textutil::split::splitn "abc" 2
 } [list ab c]
 
-test splitn-2.1 {split with nonpositive lenght ->error!} {
+test splitn-2.1 {split with nonpositive length ->error!} {
     catch {::textutil::split::splitn "abc" 0} msg
     set msg
 } {len must be > 0}
@@ -156,3 +156,10 @@ test splitx-4.2 {splitting of empty strings} {
 test splitx-5.0 {splitting using an empty regexp} {
     ::textutil::split::splitx "fooo bar bas" ""
 } {f o o o { } b a r { } b a s}
+
+
+test splitx-6.0 {split with regexp matching "" causes infinite loop eating RAM} {
+    list [catch {
+	::textutil::split::splitx "Hello, Word" "|"
+    } msg] $msg
+} {1 {splitting on regexp "|" would cause infinite loop}}
