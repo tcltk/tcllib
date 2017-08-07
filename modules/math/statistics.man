@@ -312,7 +312,7 @@ The procedure returns a list of the comparison results for each group with the c
 element of this list contains: whether the means are likely to be different (1) or not (0)
 and the confidence interval the conclusion is based on. The groups may also be stored in a
 nested list, just as with the ANOVA test.
-[nl]
+[para]
 Note: some care is required if there is only one group to compare the control with:
 [example {
     test-Dunnett-F 0.05 $control [list $A]
