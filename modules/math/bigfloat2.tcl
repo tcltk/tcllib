@@ -1635,7 +1635,7 @@ proc ::math::bigfloat::rad2deg {x} {
 }
 
 ################################################################################
-# retourne la partie entière (ou 0) du nombre "number"
+# retourne la partie entiÃ¨re (ou 0) du nombre "number"
 ################################################################################
 proc ::math::bigfloat::round {number} {
     checkFloat $number

@@ -1935,7 +1935,7 @@ proc ::pki::_isprime {n} {
 		return false
 	}
 	
-	# write n - 1 as 2^s·d with d odd by factoring powers of 2 from n \u2212 1
+	# write n - 1 as 2^sÂ·d with d odd by factoring powers of 2 from n \u2212 1
 	set d [expr {$n - 1}]
 	set s 0
 	while {$d % 2 == 0} {
