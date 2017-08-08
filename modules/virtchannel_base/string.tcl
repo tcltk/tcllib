@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::string 1
+# Package tcl::chan::string 1.0.3
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -89,8 +89,8 @@ oo::class create ::tcl::chan::string::implementation {
 	set max [string length $content]
 	switch -exact -- $base {
 	    start   { set newloc $offset}
-	    current { set newloc [expr {$at  + $offset    }] }
-	    end     { set newloc [expr {$max + $offset - 1}] }
+	    current { set newloc [expr {$at  + $offset }] }
+	    end     { set newloc [expr {$max + $offset }] }
 	}
 
 	# Check if the new location is beyond the range given by the
@@ -98,7 +98,7 @@ oo::class create ::tcl::chan::string::implementation {
 
 	if {$newloc < 0} {
 	    return -code error "Cannot seek before the start of the channel"
-	} elseif {$newloc >= $max} {
+	} elseif {$newloc > $max} {
 	    return -code error "Cannot seek after the end of the channel"
 	}
 
@@ -120,5 +120,5 @@ oo::class create ::tcl::chan::string::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::string 1.0.2
+package provide tcl::chan::string 1.0.3
 return
