@@ -162,14 +162,14 @@ proc ::md5::MD5Final {token} {
         incr pad 64
     }
 
-    puts "P $pad|bits=[expr {8 * $state(n)}]"
+    #puts "P $pad|bits=[expr {8 * $state(n)}]"
 
     append state(i) [binary format a$pad \x80]
 
     # RFC1321:3.2 - Append length in bits as little-endian wide int.
     append state(i) [binary format ii [expr {8 * $state(n)}] 0]
 
-puts DATA=[Hex $state(i)]([string length $state(i)])
+    #puts DATA=[Hex $state(i)]([string length $state(i)])
 
     # Calculate the hash for the remaining block.
     set len [string length $state(i)]
@@ -177,14 +177,14 @@ puts DATA=[Hex $state(i)]([string length $state(i)])
         MD5Hash $token [string range $state(i) $n [incr n 64]]
     }
 
-    puts md5-post__________________________________________
-    parray ::${token}
+    #puts md5-post__________________________________________
+    #parray ::${token}
 
     # RFC1321:3.5 - Output
     set r [bytes $state(A)][bytes $state(B)][bytes $state(C)][bytes $state(D)]
     unset state
 
-    puts HASH=[Hex $r]
+    #puts HASH=[Hex $r]
     return $r
 }
 
@@ -268,12 +268,12 @@ set ::md5::MD5Hash_body {
     variable $token
     upvar 0 $token state
 
-    puts TR__=[Hex $msg]([string length $msg])
+    #puts TR__=[Hex $msg]([string length $msg])
 
     # RFC1321:3.4 - Process Message in 16-Word Blocks
     binary scan $msg i* blocks
     foreach {X0 X1 X2 X3 X4 X5 X6 X7 X8 X9 X10 X11 X12 X13 X14 X15} $blocks {
-        puts BL
+        #puts BL
 
         set A $state(A)
         set B $state(B)
@@ -617,14 +617,14 @@ proc ::md5::md5 {args} {
         }
         set tok [MD5Init]
 
-        puts md5_______________________________________________
-        parray ::${tok}
+        #puts md5_______________________________________________
+        #parray ::${tok}
 
-        puts IN=(([lindex $args 0]))
+        #puts IN=(([lindex $args 0]))
         MD5Update $tok [lindex $args 0]
 
-        puts md5-final_________________________________________
-        parray ::${tok}
+        #puts md5-final_________________________________________
+        #parray ::${tok}
 
         set r [MD5Final $tok]
 
