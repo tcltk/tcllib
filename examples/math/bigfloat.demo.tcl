@@ -167,12 +167,12 @@ proc init {} {
     frame .functions
     pack .functions
     set f .functions
-    # chaque fonction est associée, d'une part,
-    # à un bouton portant un libellé, et d'autre part
-    # à une commande Tcl
-    # ici nous associons le bouton "add" à la commande "add"
+    # chaque fonction est associÃ©e, d'une part,
+    # Ã  un bouton portant un libellÃ©, et d'autre part
+    # Ã  une commande Tcl
+    # ici nous associons le bouton "add" Ã  la commande "add"
     addButtonTwo add
-    # toutes ces commandes se trouvent à la fin de ce fichier
+    # toutes ces commandes se trouvent Ã  la fin de ce fichier
     addButtonTwo sub
     addButtonTwo mul
     addButtonTwo div
@@ -304,5 +304,5 @@ proc _exit {} {
 # initialize the calculator and create the widgets (GUI)
 init
 # chaque fois qu'une commande modifie la pile de nombres,
-# la commande drawStack sera appelée pour la réactualiser
+# la commande drawStack sera appelÃ©e pour la rÃ©actualiser
 trace add variable ::stack write drawStack
