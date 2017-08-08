@@ -505,9 +505,9 @@ rename powTest ""
 # pi constant and angles conversion
 ################################################################################
 fassert pi 3.8.0 {todouble [pi 16]} [expr {atan(1)*4}]
-# converts Pi -> 180°
+# converts Pi -> 180Â°
 fassert rad2deg 3.8.1 {todouble [rad2deg [pi 20]]} 180.0
-# converts 180° -> Pi
+# converts 180Â° -> Pi
 fassert deg2rad 3.8.2 {todouble [deg2rad [fromstr 180.0 20]]} [expr {atan(1.0)*4}]
 
 
