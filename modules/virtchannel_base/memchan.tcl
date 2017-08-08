@@ -7,7 +7,7 @@
 # bytes.
 
 # @@ Meta Begin
-# Package tcl::chan::memchan 1.0.2
+# Package tcl::chan::memchan 1.0.4
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -131,8 +131,8 @@ oo::class create ::tcl::chan::memchan::implementation {
 	set max [string length $content]
 	switch -exact -- $base {
 	    start   { set newloc $offset}
-	    current { set newloc [expr {$at  + $offset    }] }
-	    end     { set newloc [expr {$max + $offset - 1}] }
+	    current { set newloc [expr {$at  + $offset }] }
+	    end     { set newloc [expr {$max + $offset }] }
 	}
 
 	# Check if the new location is beyond the range given by the
@@ -140,9 +140,10 @@ oo::class create ::tcl::chan::memchan::implementation {
 
 	if {$newloc < 0} {
 	    return -code error "Cannot seek before the start of the channel"
-	} elseif {$newloc >= $max} {
+	} elseif {$newloc > $max} {
 	    # We can seek beyond the end of the current contents, add
 	    # a block of zeros.
+	    #puts XXX.PAD.[expr {$newloc - $max}]
 	    append content [binary format @[expr {$newloc - $max}]]
 	}
 
@@ -164,5 +165,5 @@ oo::class create ::tcl::chan::memchan::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::memchan 1.0.3
+package provide tcl::chan::memchan 1.0.4
 return
