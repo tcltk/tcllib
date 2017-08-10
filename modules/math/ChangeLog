@@ -1,3 +1,6 @@
+2017-08-10  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.test: Add tests for areaPolygon
+	* geometry.tcl: Correct implementation of areaPolygon (ticket cb043ecc70e0e90bff93535d1d371a78b94f5d44)
 2017-05-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.test: Require at least Tcl 8.5
 	* numtheory.man: Add description of Jacobi symbol
