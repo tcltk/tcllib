@@ -616,6 +616,31 @@ test geometry-19.6 {geometry::degToRad} {
     ::math::geometry::degToRad 180.0
 } [expr {acos(-1.0)}]
 
+
+###
+# areaPolygon
+###
+test geometry-20.1 {geometry::areaPolygon, closed polygon} {
+    eval withFourDecimals [::math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 10 -10 -10}]
+} 400.0
+
+test geometry-20.2 {geometry::areaPolygon, non-closed polygon} {
+    eval withFourDecimals [::math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 10}]
+} 400.0
+
+test geometry-20.3 {geometry::areaPolygon, closed triangle} {
+    eval withFourDecimals [::math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 -10}]
+} 200.0
+
+test geometry-20.4 {geometry::areaPolygon, open triangle} {
+    eval withFourDecimals [::math::geometry::areaPolygon {-10 -10 10 -10 10 10}]
+} 200.0
+
+test geometry-20.4 {geometry::areaPolygon, self-intersecting polygon} {
+    eval withFourDecimals [::math::geometry::areaPolygon {-10 -10 10 -10 -10 10 10 10 -10 -10}]
+} 0.0
+
+
 ##
 # areaPolygon
 ##
