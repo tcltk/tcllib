@@ -205,3 +205,6 @@ test defer-6.7 {defer::cancel syntax too many args} -body {
 		return "PASS"
 	}}
 } -result {PASS}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
