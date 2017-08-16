@@ -32,6 +32,7 @@ global even        ; set even        1
 proc fmt_toc_begin     {label title}      {
     set hdr ""
     if {![Get raw]} {
+	append  hdr "[markup {<!DOCTYPE html>}]"
 	append  hdr "[markup <html><head>]\n"
 	append  hdr "[markup <title>] $label [markup </title>]\n"
 
