@@ -81,6 +81,7 @@ proc LoadKwid {} {
 proc BeginHeader {} {
     global la ti
     upvar 1 lines lines
+    lappend lines [markup {<!DOCTYPE html>}]
     lappend lines [markup <html>]
     lappend lines [ht_comment [c_provenance]]
     lappend lines [ht_comment "$la"]

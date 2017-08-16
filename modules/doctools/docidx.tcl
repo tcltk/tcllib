@@ -959,4 +959,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 1.0.6
+package provide doctools::idx 1.0.7
