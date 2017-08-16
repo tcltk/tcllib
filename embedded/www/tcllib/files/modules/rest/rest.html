@@ -99,7 +99,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">rest(n) 1.2 tcllib &quot;A framework for RESTful web services&quot;</h1>
+<h1 class="doctools_title">rest(n) 1.3 tcllib &quot;A framework for RESTful web services&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>rest - define REST web APIs and call them inline or asychronously</p>
 </div>
@@ -121,21 +121,22 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">rest <span class="opt">?1.2?</span></b></li>
+<li>package require <b class="pkgname">rest <span class="opt">?1.3?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::rest::simple</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::rest::get</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::rest::post</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
-<li><a href="#4"><b class="cmd">::rest::head</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
-<li><a href="#5"><b class="cmd">::rest::put</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
-<li><a href="#6"><b class="cmd">::rest::delete</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
-<li><a href="#7"><b class="cmd">::rest::save</b> <i class="arg">name</i> <i class="arg">file</i></a></li>
-<li><a href="#8"><b class="cmd">::rest::describe</b> <i class="arg">name</i></a></li>
-<li><a href="#9"><b class="cmd">::rest::parameters</b> <i class="arg">url</i> <span class="opt">?<i class="arg">key</i>?</span></a></li>
-<li><a href="#10"><b class="cmd">::rest::parse_opts</b> <i class="arg">static</i> <i class="arg">required</i> <i class="arg">optional</i> <i class="arg">words</i></a></li>
-<li><a href="#11"><b class="cmd">::rest::substitute</b> <i class="arg">string</i> <i class="arg">var</i></a></li>
-<li><a href="#12"><b class="cmd">::rest::create_interface</b> <i class="arg">name</i></a></li>
+<li><a href="#4"><b class="cmd">::rest::patch</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
+<li><a href="#5"><b class="cmd">::rest::head</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
+<li><a href="#6"><b class="cmd">::rest::put</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
+<li><a href="#7"><b class="cmd">::rest::delete</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></li>
+<li><a href="#8"><b class="cmd">::rest::save</b> <i class="arg">name</i> <i class="arg">file</i></a></li>
+<li><a href="#9"><b class="cmd">::rest::describe</b> <i class="arg">name</i></a></li>
+<li><a href="#10"><b class="cmd">::rest::parameters</b> <i class="arg">url</i> <span class="opt">?<i class="arg">key</i>?</span></a></li>
+<li><a href="#11"><b class="cmd">::rest::parse_opts</b> <i class="arg">static</i> <i class="arg">required</i> <i class="arg">optional</i> <i class="arg">words</i></a></li>
+<li><a href="#12"><b class="cmd">::rest::substitute</b> <i class="arg">string</i> <i class="arg">var</i></a></li>
+<li><a href="#13"><b class="cmd">::rest::create_interface</b> <i class="arg">name</i></a></li>
 </ul>
 </div>
 </div>
@@ -162,11 +163,13 @@ then check or process the returned data yourself</p>
 <dd></dd>
 <dt><a name="3"><b class="cmd">::rest::post</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
 <dd></dd>
-<dt><a name="4"><b class="cmd">::rest::head</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::rest::patch</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
 <dd></dd>
-<dt><a name="5"><b class="cmd">::rest::put</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
+<dt><a name="5"><b class="cmd">::rest::head</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
 <dd></dd>
-<dt><a name="6"><b class="cmd">::rest::delete</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
+<dt><a name="6"><b class="cmd">::rest::put</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
+<dd></dd>
+<dt><a name="7"><b class="cmd">::rest::delete</b> <i class="arg">url</i> <i class="arg">query</i> <span class="opt">?<i class="arg">config</i>?</span> <span class="opt">?<i class="arg">body</i>?</span></a></dt>
 <dd><p>These commands are all equivalent except for the http method
 used.
 If you use <b class="cmd">simple</b> then the method should be specified as an
@@ -234,21 +237,21 @@ create the desired commands.</p>
     puts [yweather::forecast -p 94089]
 </pre>
 <dl class="doctools_definitions">
-<dt><a name="7"><b class="cmd">::rest::save</b> <i class="arg">name</i> <i class="arg">file</i></a></dt>
+<dt><a name="8"><b class="cmd">::rest::save</b> <i class="arg">name</i> <i class="arg">file</i></a></dt>
 <dd><p>This command saves a copy of the dynamically created procedures for
 all the API calls specified in the array variable <i class="arg">name</i> to the
 <i class="arg">file</i>, for later loading.</p>
 <p>The result of the command is the empty string</p></dd>
-<dt><a name="8"><b class="cmd">::rest::describe</b> <i class="arg">name</i></a></dt>
+<dt><a name="9"><b class="cmd">::rest::describe</b> <i class="arg">name</i></a></dt>
 <dd><p>This command prints a description of all API calls specified in the array
 variable <i class="arg">name</i> to the channel <b class="const">stdout</b>.</p>
 <p>The result of the command is the empty string.</p></dd>
-<dt><a name="9"><b class="cmd">::rest::parameters</b> <i class="arg">url</i> <span class="opt">?<i class="arg">key</i>?</span></a></dt>
+<dt><a name="10"><b class="cmd">::rest::parameters</b> <i class="arg">url</i> <span class="opt">?<i class="arg">key</i>?</span></a></dt>
 <dd><p>This command parses an <i class="arg">url</i> query string into a dictionary and
 returns said dictionary as its result.</p>
 <p>If <i class="arg">key</i> is specified the command will not return the
 entire dictionary, but only the value of that <i class="arg">key</i>.</p></dd>
-<dt><a name="10"><b class="cmd">::rest::parse_opts</b> <i class="arg">static</i> <i class="arg">required</i> <i class="arg">optional</i> <i class="arg">words</i></a></dt>
+<dt><a name="11"><b class="cmd">::rest::parse_opts</b> <i class="arg">static</i> <i class="arg">required</i> <i class="arg">optional</i> <i class="arg">words</i></a></dt>
 <dd><p>This command implements a custom parserfor command options.</p>
 <dl class="doctools_arguments">
 <dt>dict <i class="arg">static</i></dt>
@@ -273,7 +276,7 @@ The elements must be in one of three forms:</p>
 <p>The result of the command is a list containing two elements.
 The first element is a dictionary containing the parsed options and
 their values.  The second element is a list of the remaining words.</p></dd>
-<dt><a name="11"><b class="cmd">::rest::substitute</b> <i class="arg">string</i> <i class="arg">var</i></a></dt>
+<dt><a name="12"><b class="cmd">::rest::substitute</b> <i class="arg">string</i> <i class="arg">var</i></a></dt>
 <dd><p>This command takes a <i class="arg">string</i>, substitutes values for any option
 identifiers found inside and returns the modified string as its
 results.</p>
@@ -285,7 +288,7 @@ replaced with the empty string.</p>
 <p>The option identifiers in <i class="arg">string</i> have to follow the
 syntax <b class="const">%...%</b> where <b class="variable">...</b> may contain any combination of
 lower-case alphanumeric characters, plus underscore, colon and dash.</p></dd>
-<dt><a name="12"><b class="cmd">::rest::create_interface</b> <i class="arg">name</i></a></dt>
+<dt><a name="13"><b class="cmd">::rest::create_interface</b> <i class="arg">name</i></a></dt>
 <dd><p>This command creates procedures for all the API calls specified in the
 array variable <i class="arg">name</i>.</p>
 <p>The name of that array becomes a namespace containing the defined
@@ -525,9 +528,9 @@ proc ::flickr::do_signature {query} {
 <p>Do not forget developers' documentation on the respective sites either.</p>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">TLS</a></h2>
-<p>The <b class="package">rest</b> package can be used with <i class="term">https</i>-secured
+<p>The <b class="package">rest</b> package can be used with <i class="term"><a href="../../../../index.html#key531">https</a></i>-secured
 services, by requiring the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package and then registering
-it with the <b class="package"><a href="../../../../index.html#key446">http</a></b> package it is sitting on top of.
+it with the <b class="package"><a href="../../../../index.html#key447">http</a></b> package it is sitting on top of.
 Example</p>
 <pre class="doctools_example">
     package require tls

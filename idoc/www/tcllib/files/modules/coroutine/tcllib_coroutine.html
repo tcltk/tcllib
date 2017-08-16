@@ -92,11 +92,11 @@
     }
 --></style>
 </head>
-<! -- Generated from file 'tcllib_coroutine.man' by tcllib/doctools with format 'html'
+<!-- Generated from file 'tcllib_coroutine.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 2010-2015 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
+<!-- Copyright &copy; 2010-2015 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
-<! -- coroutine.n
+<!-- coroutine.n
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
@@ -136,10 +136,11 @@
 <li><a href="#3"><b class="cmd">coroutine::util create</b> <i class="arg">arg</i>...</a></li>
 <li><a href="#4"><b class="cmd">coroutine::util exit</b> <span class="opt">?<i class="arg">status</i>?</span></a></li>
 <li><a href="#5"><b class="cmd">coroutine::util gets</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">varname</i>?</span></a></li>
-<li><a href="#6"><b class="cmd">coroutine::util global</b> <i class="arg">varname</i>...</a></li>
-<li><a href="#7"><b class="cmd">coroutine::util read</b> <b class="option">-nonewline</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">n</i>?</span></a></li>
-<li><a href="#8"><b class="cmd">coroutine::util update</b> <span class="opt">?<b class="const">idletasks</b>?</span></a></li>
-<li><a href="#9"><b class="cmd">coroutine::util vwait</b> <i class="arg">varname</i></a></li>
+<li><a href="#6"><b class="cmd">coroutine::util gets_safety</b> <i class="arg">chan</i> <i class="arg">limit</i> <i class="arg">varname</i></a></li>
+<li><a href="#7"><b class="cmd">coroutine::util global</b> <i class="arg">varname</i>...</a></li>
+<li><a href="#8"><b class="cmd">coroutine::util read</b> <b class="option">-nonewline</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">n</i>?</span></a></li>
+<li><a href="#9"><b class="cmd">coroutine::util update</b> <span class="opt">?<b class="const">idletasks</b>?</span></a></li>
+<li><a href="#10"><b class="cmd">coroutine::util vwait</b> <i class="arg">varname</i></a></li>
 </ul>
 </div>
 </div>
@@ -184,20 +185,25 @@ returned.</p></dd>
 <dd><p>This command reads a line from the channel <i class="arg">chan</i> and returns it
 either as its result, or, if a <i class="arg">varname</i> was specified, writes it
 to the named variable and returns the number of characters read.</p></dd>
-<dt><a name="6"><b class="cmd">coroutine::util global</b> <i class="arg">varname</i>...</a></dt>
+<dt><a name="6"><b class="cmd">coroutine::util gets_safety</b> <i class="arg">chan</i> <i class="arg">limit</i> <i class="arg">varname</i></a></dt>
+<dd><p>This command reads a line from the channel <i class="arg">chan</i> up to size <i class="arg">limit</i>
+and stores the result in <i class="arg">varname</i>. Of <i class="arg">limit</i> is reached before the
+set first newline, an error is thrown. The command returns the number of
+characters read.</p></dd>
+<dt><a name="7"><b class="cmd">coroutine::util global</b> <i class="arg">varname</i>...</a></dt>
 <dd><p>This command imports the named global variables of the coroutine into
 the current scope. From the technical point of view these variables
 reside in level <b class="const">#1</b> of the Tcl stack. I.e. these are not the
 regular global variable in to the global namespace, and each coroutine
 can have their own set, independent of all others.</p></dd>
-<dt><a name="7"><b class="cmd">coroutine::util read</b> <b class="option">-nonewline</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">n</i>?</span></a></dt>
+<dt><a name="8"><b class="cmd">coroutine::util read</b> <b class="option">-nonewline</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">n</i>?</span></a></dt>
 <dd><p>This command reads <i class="arg">n</i> characters from the channel <i class="arg">chan</i> and
 returns them as its result. If <i class="arg">n</i> is not specified the command
 will read the channel until EOF is reached.</p></dd>
-<dt><a name="8"><b class="cmd">coroutine::util update</b> <span class="opt">?<b class="const">idletasks</b>?</span></a></dt>
+<dt><a name="9"><b class="cmd">coroutine::util update</b> <span class="opt">?<b class="const">idletasks</b>?</span></a></dt>
 <dd><p>This command causes the coroutine invoking it to run pending events or
 idle handlers before proceeding.</p></dd>
-<dt><a name="9"><b class="cmd">coroutine::util vwait</b> <i class="arg">varname</i></a></dt>
+<dt><a name="10"><b class="cmd">coroutine::util vwait</b> <i class="arg">varname</i></a></dt>
 <dd><p>This command causes the coroutine calling it to wait for a write to
 the named namespace variable <i class="arg">varname</i>.</p></dd>
 </dl>
@@ -211,7 +217,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key414">after</a>, <a href="../../../../index.html#key63">channel</a>, <a href="../../../../index.html#key219">coroutine</a>, <a href="../../../../index.html#key412">events</a>, <a href="../../../../index.html#key415">exit</a>, <a href="../../../../index.html#key416">gets</a>, <a href="../../../../index.html#key413">global</a>, <a href="../../../../index.html#key419">green threads</a>, <a href="../../../../index.html#key411">read</a>, <a href="../../../../index.html#key410">threads</a>, <a href="../../../../index.html#key417">update</a>, <a href="../../../../index.html#key418">vwait</a></p>
+<p><a href="../../../../index.html#key415">after</a>, <a href="../../../../index.html#key63">channel</a>, <a href="../../../../index.html#key219">coroutine</a>, <a href="../../../../index.html#key413">events</a>, <a href="../../../../index.html#key416">exit</a>, <a href="../../../../index.html#key417">gets</a>, <a href="../../../../index.html#key414">global</a>, <a href="../../../../index.html#key420">green threads</a>, <a href="../../../../index.html#key412">read</a>, <a href="../../../../index.html#key411">threads</a>, <a href="../../../../index.html#key418">update</a>, <a href="../../../../index.html#key419">vwait</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Coroutine</p>

@@ -46,6 +46,7 @@ modules/debug/debug.man
 modules/debug/debug_caller.man
 modules/debug/debug_heartbeat.man
 modules/debug/debug_timestamp.man
+modules/defer/defer.man
 modules/des/des.man
 modules/des/tcldes.man
 modules/des/tcldesjr.man

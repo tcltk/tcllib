@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'uri\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "uri" n 1\&.2\&.6 tcllib "Tcl Uniform Resource Identifier Management"
+.TH "uri" n 1\&.2\&.7 tcllib "Tcl Uniform Resource Identifier Management"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,9 @@ uri \- URI utilities
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBuri  ?1\&.2\&.6?\fR
+package require \fBuri  ?1\&.2\&.7?\fR
+.sp
+\fBuri::setQuirkOption\fR \fIoption\fR ?\fIvalue\fR?
 .sp
 \fBuri::split\fR \fIurl\fR ?\fIdefaultscheme\fR?
 .sp
@@ -293,42 +295,58 @@ package require \fBuri  ?1\&.2\&.6?\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package contains two parts\&. First it provides regular expressions
-for a number of url/uri schemes\&. Second it provides a number of
-commands for manipulating urls/uris and fetching data specified by
-them\&. For the latter this package analyses the requested url/uri and
-then dispatches it to the appropriate package (http, ftp, \&.\&.\&.) for
-actual fetching\&.
+This package does two things\&.
 .PP
-The package currently does not conform to
-RFC 2396 (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc2396\&.txt\fR),
-but quite likely should be\&. Patches and other help are welcome\&.
+First, it provides a number of
+commands for manipulating URLs/URIs and fetching data specified by
+them\&. For fetching data this package analyses the requested URL/URI and
+then dispatches it to the appropriate package (\fBhttp\fR, \fBftp\fR, \&.\&.\&.) for
+actual retrieval\&.  Currently these commands are defined for the schemes
+\fIhttp\fR, \fIhttps\fR, \fIftp\fR, \fImailto\fR, \fInews\fR,
+\fIldap\fR, \fIldaps\fR and \fIfile\fR\&.  The package \fBuri::urn\fR adds scheme \fIurn\fR\&.
+.PP
+Second, it provides regular expressions
+for a number of \fBregistered\fR URL/URI schemes\&. Registered
+schemes are currently \fIftp\fR, \fIldap\fR, \fIldaps\fR, \fIfile\fR,
+\fIhttp\fR, \fIhttps\fR, \fIgopher\fR, \fImailto\fR, \fInews\fR,
+\fIwais\fR and \fIprospero\fR\&.  The package \fBuri::urn\fR adds scheme
+\fIurn\fR\&.
+.PP
+The commands of the package conform to
+RFC 3986 (\fIhttps://www\&.rfc-editor\&.org/rfc/rfc3986\&.txt\fR),
+with the exception of a loophole arising from RFC 1630 and described
+in RFC 3986 Sections 5\&.2\&.2 and 5\&.4\&.2\&. The loophole allows a relative
+URI to include a scheme if it is the same as the scheme of the base
+URI against which it is resolved\&. RFC 3986 recommends avoiding this usage\&.
 .SH COMMANDS
 .TP
+\fBuri::setQuirkOption\fR \fIoption\fR ?\fIvalue\fR?
+\fBuri::setQuirkOption\fR is an accessor command for a number of "quirk options"\&.
+The command has the same semantics as the command \fBset\fR: when called with one argument it reads an existing value; with two arguments it writes a new value\&.  The value of a "quirk option" is boolean: the value \fBfalse\fR requests conformance with RFC 3986, while \fBtrue\fR requests use of the quirk\&.  See section \fBQUIRK OPTIONS\fR for discussion of the different options and their purpose\&.
+.TP
 \fBuri::split\fR \fIurl\fR ?\fIdefaultscheme\fR?
-\fBuri::split\fR takes an \fIurl\fR, decodes it and then returns a
+\fBuri::split\fR takes a \fIurl\fR, decodes it and then returns a
 list of key/value pairs suitable for \fBarray set\fR containing the
-constituents of the \fIurl\fR\&. If the scheme is missing from the url
+constituents of the \fIurl\fR\&. If the scheme is missing from the \fIurl\fR
 it defaults to the value of \fIdefaultscheme\fR if it was specified,
-or \fIhttp\fR else\&. Currently only the schemes \fIhttp\fR,
-\fIftp\fR, \fImailto\fR, \fIurn\fR, \fInews\fR, \fIldap\fR and
+or \fIhttp\fR else\&. Currently the schemes \fIhttp\fR,
+\fIhttps\fR, \fIftp\fR, \fImailto\fR, \fInews\fR, \fIldap\fR, \fIldaps\fR and
 \fIfile\fR are supported by the package itself\&.
 See section \fBEXTENDING\fR on how to expand that range\&.
 .sp
-The set of constituents of an url (= the set of keys in the returned
-dictionary) is dependent on the scheme of the url\&. The only key which
+The set of constituents of a URL (= the set of keys in the returned
+dictionary) is dependent on the scheme of the URL\&. The only key which
 is therefore always present is \fBscheme\fR\&. For the following
 schemes the constituents and their keys are known:
 .RS
 .TP
 ftp
 \fBuser\fR, \fBpwd\fR, \fBhost\fR, \fBport\fR,
-\fBpath\fR, \fBtype\fR
+\fBpath\fR, \fBtype\fR, \fBpbare\fR\&.  The pbare is optional\&.
 .TP
 http(s)
 \fBuser\fR, \fBpwd\fR, \fBhost\fR, \fBport\fR,
-\fBpath\fR, \fBquery\fR, \fBfragment\fR\&. The fragment
-is optional\&.
+\fBpath\fR, \fBquery\fR, \fBfragment\fR, \fBpbare\fR\&.  The pbare is optional\&.
 .TP
 file
 \fBpath\fR, \fBhost\fR\&. The host is optional\&.
@@ -336,35 +354,44 @@ file
 mailto
 \fBuser\fR, \fBhost\fR\&. The host is optional\&.
 .TP
+ldap(s)
+\fBhost\fR, \fBport\fR, \fBdn\fR, \fBattrs\fR, \fBscope\fR, \fBfilter\fR, \fBextensions\fR
+.TP
 news
 Either \fBmessage-id\fR or \fBnewsgroup-name\fR\&.
 .RE
+.IP
+For discussion of the boolean \fBpbare\fR see options \fINoInitialSlash\fR and \fINoExtraKeys\fR in \fBQUIRK OPTIONS\fR\&.
+.sp
+The constituents are returned as slices of the argument \fIurl\fR, without removal of percent-encoding ("url-encoding") or other adaptations\&.  Notably, on Windows® the \fBpath\fR in scheme \fIfile\fR is not a valid local filename\&.  See \fBEXAMPLES\fR for more information\&.
 .sp
 .TP
 \fBuri::join\fR ?\fIkey\fR \fIvalue\fR?\&.\&.\&.
 \fBuri::join\fR takes a list of key/value pairs (generated by
-\fBuri::split\fR, for example) and returns the canonical url they
-represent\&. Currently only the schemes \fIhttp\fR, \fIftp\fR,
-\fImailto\fR, \fIurn\fR, \fInews\fR, \fIldap\fR and \fIfile\fR
-are supported\&. See section \fBEXTENDING\fR on how to expand that
-range\&.
+\fBuri::split\fR, for example) and returns the canonical URL they
+represent\&. Currently the schemes \fIhttp\fR, \fIhttps\fR,
+\fIftp\fR, \fImailto\fR, \fInews\fR, \fIldap\fR, \fIldaps\fR and \fIfile\fR
+are supported by the package itself\&. See section \fBEXTENDING\fR on how to expand that range\&.
+.sp
+The arguments are expected to be slices of a valid URL, with percent-encoding ("url-encoding") and any other necessary adaptations\&.  Notably, on Windows the \fBpath\fR in scheme \fIfile\fR is not a valid local filename\&.  See \fBEXAMPLES\fR for more information\&.
 .TP
 \fBuri::resolve\fR \fIbase\fR \fIurl\fR
 \fBuri::resolve\fR resolves the specified \fIurl\fR relative to
-\fIbase\fR\&. In other words: A non-relative \fIurl\fR is returned
+\fIbase\fR, in conformance with RFC 3986\&. In other words: a
+non-relative \fIurl\fR is returned
 unchanged, whereas for a relative \fIurl\fR the missing parts are
 taken from \fIbase\fR and prepended to it\&. The result of this
 operation is returned\&. For an empty \fIurl\fR the result is
-\fIbase\fR\&.
+\fIbase\fR, without its URI fragment (if any)\&.  The command is available for schemes \fIhttp\fR, \fIhttps\fR, \fIftp\fR, and \fIfile\fR\&.
 .TP
 \fBuri::isrelative\fR \fIurl\fR
 \fBuri::isrelative\fR determines whether the specified \fIurl\fR is
-absolute or relative\&.
+absolute or relative\&.  The command is available for a \fIurl\fR of any scheme\&.
 .TP
 \fBuri::geturl\fR \fIurl\fR ?\fIoptions\fR\&.\&.\&.?
 \fBuri::geturl\fR decodes the specified \fIurl\fR and then dispatches
 the request to the package appropriate for the scheme found in the
-url\&. The command assumes that the package to handle the given scheme
+URL\&. The command assumes that the package to handle the given scheme
 either has the same name as the scheme itself (including possible
 capitalization) followed by \fB::geturl\fR, or, in case of this
 failing, has the same name as the scheme itself (including possible
@@ -374,7 +401,7 @@ the package itself\&. This command is called with the given \fIurl\fR
 and all given \fIoptions\fR\&. Currently \fBgeturl\fR does not handle
 any options itself\&.
 .sp
-\fINote:\fR \fIfile\fR-urls are an exception to the rule
+\fINote:\fR \fIfile\fR-URLs are an exception to the rule
 described above\&. They are handled internally\&.
 .sp
 It is not possible to specify results of the command\&. They depend on
@@ -383,45 +410,161 @@ the \fBgeturl\fR-command for the scheme the request was dispatched to\&.
 \fBuri::canonicalize\fR \fIuri\fR
 \fBuri::canonicalize\fR returns the canonical form of a URI\&.  The
 canonical form of a URI is one where relative path specifications,
-ie\&. \&. and \&.\&., have been resolved\&.
+i\&.e\&. "\&." and "\&.\&.", have been resolved\&.  The command is available for all
+URI schemes that have \fBuri::split\fR and \fBuri::join\fR commands\&. The command
+returns a canonicalized URI if the URI scheme has a \fBpath\fR component (i\&.e\&. \fIhttp\fR, \fIhttps\fR, \fIftp\fR, and \fIfile\fR)\&.  For schemes that have \fBuri::split\fR and \fBuri::join\fR commands but no \fBpath\fR component (i\&.e\&. \fImailto\fR, \fInews\fR, \fIldap\fR, and \fIldaps\fR), the command returns the \fIuri\fR unchanged\&.
 .TP
 \fBuri::register\fR \fIschemeList\fR \fIscript\fR
 \fBuri::register\fR registers the first element of \fIschemeList\fR as
 a new scheme and the remaining elements as aliases for this scheme\&. It
 creates the namespace for the scheme and executes the \fIscript\fR in
-the new namespace\&. The script has to declare variables containing the
+the new namespace\&. The script has to declare variables containing
 regular expressions relevant to the scheme\&. At least the variable
 \fBschemepart\fR has to be declared as that one is used to extend
 the variables keeping track of the registered schemes\&.
 .PP
 .SH SCHEMES
 In addition to the commands mentioned above this package provides
-regular expression to recognize urls for a number of url schemes\&.
+regular expression to recognize URLs for a number of URL schemes\&.
 .PP
 For each supported scheme a namespace of the same name as the scheme
 itself is provided inside of the namespace \fIuri\fR containing the
 variable \fBurl\fR whose contents are a regular expression to
-recognize urls of that scheme\&. Additional variables may contain
-regular expressions for parts of urls for that scheme\&.
+recognize URLs of that scheme\&. Additional variables may contain
+regular expressions for parts of URLs for that scheme\&.
 .PP
-The variable \fBuri::schemes\fR contains a list of all supported
-schemes\&. Currently these are \fIftp\fR, \fIldap\fR, \fIfile\fR,
-\fIhttp\fR, \fIgopher\fR, \fImailto\fR, \fInews\fR,
+The variable \fBuri::schemes\fR contains a list of all registered
+schemes\&. Currently these are \fIftp\fR, \fIldap\fR, \fIldaps\fR, \fIfile\fR,
+\fIhttp\fR, \fIhttps\fR, \fIgopher\fR, \fImailto\fR, \fInews\fR,
 \fIwais\fR and \fIprospero\fR\&.
 .SH EXTENDING
 Extending the range of schemes supported by \fBuri::split\fR and
 \fBuri::join\fR is easy because both commands do not handle the
 request by themselves but dispatch it to another command in the
-\fIuri\fR namespace using the scheme of the url as criterion\&.
+\fIuri\fR namespace using the scheme of the URL as criterion\&.
 .PP
 \fBuri::split\fR and \fBuri::join\fR
 call \fBSplit[string totitle <scheme>]\fR
 and  \fBJoin[string totitle <scheme>]\fR respectively\&.
+.PP
+The provision of split and join commands is sufficient to extend the commands \fBuri::canonicalize\fR and \fBuri::geturl\fR
+(the latter subject to the availability of a suitable package with a \fBgeturl\fR command)\&.  In contrast, to extend the command \fBuri::resolve\fR to a new scheme, the command itself must be modified\&.
+.PP
+To extend the range of schemes for which pattern information is
+available, use the command \fBuri::register\fR\&.
+.PP
+An example of a package that provides both commands and pattern information for a new scheme is \fBuri::urn\fR, which adds scheme \fIurn\fR\&.
+.SH "QUIRK OPTIONS"
+The value of a "quirk option" is boolean: the value \fBfalse\fR requests conformance with RFC 3986, while \fBtrue\fR requests use of the quirk\&.  Use command \fBuri::setQuirkOption\fR to access the values of quirk options\&.
+.PP
+Quirk options are useful both for allowing backwards compatibility when a command
+specification changes, and for adding useful features that are not included
+in RFC specifications\&.  The following quirk options are currently defined:
+.TP
+\fINoInitialSlash\fR
+This quirk option concerns the leading character of \fBpath\fR (if non-empty) in the schemes \fIhttp\fR, \fIhttps\fR, and \fIftp\fR\&.
+.sp
+RFC 3986 defines \fBpath\fR in an absolute URI to have an initial "/", unless the value of \fBpath\fR is the empty string\&. For the scheme \fIfile\fR, all versions of package \fBuri\fR follow this rule\&.  The quirk option \fINoInitialSlash\fR does not apply to scheme \fIfile\fR\&.
+.sp
+For the schemes \fIhttp\fR, \fIhttps\fR, and \fIftp\fR, versions of \fBuri\fR before 1\&.2\&.7 define the \fBpath\fR \fINOT\fR to include an initial "/"\&.  When the quirk option \fINoInitialSlash\fR is \fBtrue\fR (the default), this behavior is also used in version 1\&.2\&.7\&.  To use instead values of \fBpath\fR as defined by RFC 3986, set this quirk option to \fBfalse\fR\&.
+.sp
+This setting does not affect RFC 3986 conformance\&.  If \fINoInitialSlash\fR is \fBtrue\fR, then the value of \fBpath\fR in the schemes \fIhttp\fR, \fIhttps\fR, or \fIftp\fR, cannot distinguish between URIs in which the full "RFC 3986 path" is the empty string "" or a single slash "/" respectively\&.  The missing information is recorded in an additional \fBuri::split\fR key \fBpbare\fR\&.
+.sp
+The boolean \fBpbare\fR is defined when quirk options \fINoInitialSlash\fR and \fINoExtraKeys\fR have values \fBtrue\fR and \fBfalse\fR respectively\&.  In this case, if the value of \fBpath\fR is the empty string "", \fBpbare\fR is \fBtrue\fR if the full "RFC 3986 path" is "", and \fBpbare\fR is \fBfalse\fR if the full "RFC 3986 path" is "/"\&.
+.sp
+Using this quirk option \fINoInitialSlash\fR is a matter of preference\&.
+.TP
+\fINoExtraKeys\fR
+This quirk option permits full backward compatibility with versions of \fBuri\fR before 1\&.2\&.7, by omitting the \fBuri::split\fR key \fBpbare\fR described above (see quirk option \fINoInitialSlash\fR)\&.  The outcome is greater backward compatibility of the \fBuri::split\fR command, but an inability to distinguish between URIs in which the full "RFC 3986 path" is the empty string "" or a single slash "/" respectively - i\&.e\&. a minor non-conformance with RFC 3986\&.
+.sp
+If the quirk option \fINoExtraKeys\fR is \fBfalse\fR (the default), command \fBuri::split\fR returns an additional key \fBpbare\fR, and the commands comply with RFC 3986\&. If the quirk option \fINoExtraKeys\fR is \fBtrue\fR, the key \fBpbare\fR is not defined and there is not full conformance with RFC 3986\&.
+.sp
+Using the quirk option \fINoExtraKeys\fR is \fINOT\fR recommended, because if set to \fBtrue\fR it will reduce conformance with RFC 3986\&.  The option is included only for compatibility with code, written for earlier versions of \fBuri\fR, that needs values of \fBpath\fR without a leading "/", \fIAND ALSO\fR cannot tolerate unexpected keys in the results of \fBuri::split\fR\&.
+.TP
+\fIHostAsDriveLetter\fR
+When handling the scheme \fIfile\fR on the
+Windows platform, versions of \fBuri\fR before 1\&.2\&.7
+use the \fBhost\fR field to represent a Windows drive letter and the colon that follows it, and the \fBpath\fR field to represent the filename path after the colon\&.  Such URIs are invalid, and are not recognized by any RFC\&. When the quirk option \fIHostAsDriveLetter\fR is \fBtrue\fR, this behavior is also used in version 1\&.2\&.7\&.  To use \fIfile\fR URIs on Windows that conform to RFC 3986, set this quirk option to \fBfalse\fR (the default)\&.
+.sp
+Using this quirk is \fINOT\fR recommended, because if set to \fBtrue\fR it will cause the \fBuri\fR commands to expect and produce invalid URIs\&.  The option is included only for compatibility with legacy code\&.
+.TP
+\fIRemoveDoubleSlashes\fR
+When a URI is canonicalized by \fBuri::canonicalize\fR, its \fBpath\fR is normalized by removal of segments "\&." and "\&.\&."\&.  RFC 3986 does not mandate
+the removal of empty segments "" (i\&.e\&. the merger of double slashes, which is a feature of filename normalization but not of URI \fBpath\fR normalization): it treats URIs with excess slashes as referring to different resources\&.  When the quirk option \fIRemoveDoubleSlashes\fR is \fBtrue\fR (the default), empty segments will be removed from \fBpath\fR\&.  To prevent removal, and thereby conform to RFC 3986, set this quirk option to \fBfalse\fR\&.
+.sp
+Using this quirk is a matter of preference\&.  A URI with double slashes in its path was most likely generated by error, certainly so if it has a straightforward mapping to a file on a server\&.  In some cases it may be better to sanitize the URI; in others, to keep the URI and let the server handle the possible error\&.
+.PP
+.PP
+.SS "BACKWARD COMPATIBILITY"
+To behave as similarly as possible to versions of \fBuri\fR earlier than 1\&.2\&.7, set the following quirk options:
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoInitialSlash\fR 1
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoExtraKeys\fR 1
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIHostAsDriveLetter\fR 1
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIRemoveDoubleSlashes\fR 0
+.PP
+In code that can tolerate the return by \fBuri::split\fR of an additional key \fBpbare\fR, set
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoExtraKeys\fR 0
+.PP
+in order to achieve greater compliance with RFC 3986\&.
+.SS "NEW DESIGNS"
+For new projects, the following settings are recommended:
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoInitialSlash\fR 0
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoExtraKeys\fR 0
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIHostAsDriveLetter\fR 0
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIRemoveDoubleSlashes\fR 0|1
+.PP
+.SS "DEFAULT VALUES"
+The default values for package \fBuri\fR version 1\&.2\&.7 are intended to be a compromise between backwards compatibility and improved features\&.  Different default values may be chosen in future versions of package \fBuri\fR\&.
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoInitialSlash\fR 1
+.IP \(bu
+\fBuri::setQuirkOption\fR \fINoExtraKeys\fR 0
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIHostAsDriveLetter\fR 0
+.IP \(bu
+\fBuri::setQuirkOption\fR \fIRemoveDoubleSlashes\fR 1
+.PP
+.SH EXAMPLES
+A Windows® local filename such as "\fBC:\\Other Files\\startup\&.txt\fR" is not suitable for use as the \fBpath\fR element of a URI in the scheme \fIfile\fR\&.
+.PP
+The Tcl command \fBfile normalize\fR will convert the backslashes to forward slashes\&.  To generate a valid \fBpath\fR for the scheme \fIfile\fR, the normalized filename must be prepended with "\fB/\fR", and then any characters that do not match the \fBregexp\fR bracket expression
+.CS
+
+
+    [a-zA-Z0-9$_\&.+!*'(,)?:@&=-]
+
+.CE
+must be percent-encoded\&.
+.PP
+The result in this example is "\fB/C:/Other%20Files/startup\&.txt\fR" which is a valid value for \fBpath\fR\&.
+.CS
+
+
+% uri::join path /C:/Other%20Files/startup\&.txt scheme file
+
+file:///C:/Other%20Files/startup\&.txt
+
+% uri::split file:///C:/Other%20Files/startup\&.txt
+
+path /C:/Other%20Files/startup\&.txt scheme file
+
+
+.CE
+On UNIX® systems filenames begin with "\fB/\fR" which is also used as the directory separator\&.  The only action needed to convert a filename to a valid \fBpath\fR is percent-encoding\&.
 .SH CREDITS
 .PP
 Original code (regular expressions) by Andreas Kupries\&.
 Modularisation by Steve Ball, also the split/join/resolve
-functionality\&.
+functionality\&. RFC 3986 conformance by Keith Nash\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
@@ -430,6 +573,6 @@ Please report such in the category \fIuri\fR of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-fetching information, file, ftp, gopher, http, ldap, mailto, news, prospero, rfc 2255, rfc 2396, uri, url, wais, www
+fetching information, file, ftp, gopher, http, https, ldap, mailto, news, prospero, rfc 1630, rfc 2255, rfc 2396, rfc 3986, uri, url, wais, www
 .SH CATEGORY
 Networking

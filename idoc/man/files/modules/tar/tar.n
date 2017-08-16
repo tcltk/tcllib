@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'tar\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "tar" n 0\&.10 tcllib "Tar file handling"
+.TH "tar" n 0\&.11 tcllib "Tar file handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ tar \- Tar file creation, extraction & manipulation
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtar  ?0\&.10?\fR
+package require \fBtar  ?0\&.11?\fR
 .sp
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
 .sp
@@ -368,7 +368,7 @@ puts "Extracted $file ($size bytes)"
 .CE
 .TP
 \fB::tar::get\fR \fItarball\fR \fIfileName\fR ?\fB-chan\fR?
-Returns the contents of \fIfileName\fR from the \fItarball\fR
+Returns the contents of \fIfileName\fR from the \fItarball\fR\&.
 .sp
 .CS
 
@@ -379,9 +379,13 @@ Returns the contents of \fIfileName\fR from the \fItarball\fR
 
 .CE
 .sp
-If the option \fB-chan\fR is present \fItarball\fR is interpreted as an open channel\&.
-It is assumed that the channel was opened for reading, and configured for binary input\&.
-The command will \fInot\fR close the channel\&.
+If the option \fB-chan\fR is present \fItarball\fR is
+interpreted as an open channel\&.  It is assumed that the channel was
+opened for reading, and configured for binary input\&.  The command will
+\fInot\fR close the channel\&.
+.sp
+An error is thrown when \fIfileName\fR is not found in the tar
+archive\&.
 .TP
 \fB::tar::create\fR \fItarball\fR \fIfiles\fR \fIargs\fR
 Creates a new tar file containing the \fIfiles\fR\&. \fIfiles\fR must be specified

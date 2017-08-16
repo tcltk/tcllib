@@ -1,3 +1,4 @@
+
 <html><head>
 <title>textutil::split - Text and string utilities, macro processing</title>
 <style type="text/css"><!--
@@ -91,9 +92,9 @@
     }
 --></style>
 </head>
-<! -- Generated from file 'textutil_split.man' by tcllib/doctools with format 'html'
+<!-- Generated from file 'textutil_split.man' by tcllib/doctools with format 'html'
    -->
-<! -- textutil::split.n
+<!-- textutil::split.n
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
@@ -105,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">textutil::split(n) 0.7 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
+<h1 class="doctools_title">textutil::split(n) 0.8 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>textutil::split - Procedures to split texts</p>
 </div>
@@ -124,7 +125,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">textutil::split <span class="opt">?0.7?</span></b></li>
+<li>package require <b class="pkgname">textutil::split <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::textutil::split::splitn</b> <i class="arg">string</i> <span class="opt">?<i class="arg">len</i>?</span></a></li>
@@ -150,11 +151,12 @@ generated list will be shorter than <i class="arg">len</i>.</p></dd>
 <dd><p>This command splits the <i class="arg">string</i> and return a list. The string is
 split according to the regular expression <i class="arg">regexp</i> instead of a
 simple list of chars.
-Note that if you parentheses are added into the <i class="arg">regexp</i>, the
-parentheses part of separator will be added into the result list as
-additional element. If the <i class="arg">string</i> is empty the result is the
-empty list, like for <b class="cmd"><a href="../../../../index.html#key440">split</a></b>. If <i class="arg">regexp</i> is empty the
-<i class="arg">string</i> is split at every character, like <b class="cmd"><a href="../../../../index.html#key440">split</a></b> does.
+<em>Note</em>: When parentheses are used in the <i class="arg">regexp</i>, i.e. regex
+capture groups, then these groups will be added into the result list
+as additional elements. If the <i class="arg">string</i> is empty the result is the
+empty list, like for <b class="cmd"><a href="../../../../index.html#key441">split</a></b>.
+If <i class="arg">regexp</i> is empty the <i class="arg">string</i> is split at every character,
+like <b class="cmd"><a href="../../../../index.html#key441">split</a></b> does.
 The regular expression <i class="arg">regexp</i> defaults to &quot;[\\t \\r\\n]+&quot;.</p></dd>
 </dl>
 </div>
@@ -170,7 +172,7 @@ package and/or documentation.</p>
 <p>regexp(n), split(n), string(n)</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key324">regular expression</a>, <a href="../../../../index.html#key440">split</a>, <a href="../../../../index.html#key280">string</a></p>
+<p><a href="../../../../index.html#key324">regular expression</a>, <a href="../../../../index.html#key441">split</a>, <a href="../../../../index.html#key280">string</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Text processing</p>
