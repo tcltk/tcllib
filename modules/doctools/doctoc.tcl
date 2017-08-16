@@ -965,4 +965,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.5
+package provide doctools::toc 1.1.6
