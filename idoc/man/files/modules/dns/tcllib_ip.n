@@ -344,15 +344,15 @@ and IPv6 (2) address types\&.
 .SH COMMANDS
 .TP
 \fB::ip::version\fR \fIaddress\fR
-Returns the protocol version of the address (4 or 6) or 0 if the
-address is neither IPv4 or IPv6\&.
+Returns the protocol version of the address (\fB4\fR or \fB6\fR),
+or \fB-1\fR if the address is neither IPv4 or IPv6\&.
 .TP
 \fB::ip::is\fR \fIclass\fR \fIaddress\fR
 Returns true if the address is a member of the given protocol
-class\&. The class parameter may be either \fIipv4\fR or \fIipv6\fR
+class\&. The class parameter may be either \fBipv4\fR or \fBipv6\fR
 This is effectively a boolean equivalent of the \fBversion\fR
-command\&. The \fIclass\fR argument may be shortened to \fI4\fR or
-\fI6\fR\&.
+command\&. The \fIclass\fR argument may be shortened to \fB4\fR or
+\fB6\fR\&.
 .TP
 \fB::ip::equal\fR \fIaddress\fR \fIaddress\fR
 Compare two address specifications for equivalence\&. The arguments are

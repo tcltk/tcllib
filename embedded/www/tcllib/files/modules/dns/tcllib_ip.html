@@ -165,14 +165,14 @@ and IPv6 (2) address types.</p>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::ip::version</b> <i class="arg">address</i></a></dt>
-<dd><p>Returns the protocol version of the address (4 or 6) or 0 if the
-address is neither IPv4 or IPv6.</p></dd>
+<dd><p>Returns the protocol version of the address (<b class="const">4</b> or <b class="const">6</b>),
+or <b class="const">-1</b> if the address is neither IPv4 or IPv6.</p></dd>
 <dt><a name="2"><b class="cmd">::ip::is</b> <i class="arg">class</i> <i class="arg">address</i></a></dt>
 <dd><p>Returns true if the address is a member of the given protocol
-class. The class parameter may be either <i class="arg">ipv4</i> or <i class="arg">ipv6</i>
+class. The class parameter may be either <b class="const">ipv4</b> or <b class="const">ipv6</b>
 This is effectively a boolean equivalent of the <b class="cmd">version</b>
-command. The <i class="arg">class</i> argument may be shortened to <i class="arg">4</i> or
-<i class="arg">6</i>.</p></dd>
+command. The <i class="arg">class</i> argument may be shortened to <b class="const">4</b> or
+<b class="const">6</b>.</p></dd>
 <dt><a name="3"><b class="cmd">::ip::equal</b> <i class="arg">address</i> <i class="arg">address</i></a></dt>
 <dd><p>Compare two address specifications for equivalence. The arguments are
 normalized and the address prefix determined (if a mask is
