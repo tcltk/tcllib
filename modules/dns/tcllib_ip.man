@@ -28,16 +28,16 @@ and IPv6 (2) address types.
 
 [call [cmd ::ip::version] [arg address]]
 
-Returns the protocol version of the address (4 or 6) or 0 if the
-address is neither IPv4 or IPv6.
+Returns the protocol version of the address ([const 4] or [const 6]),
+or [const -1] if the address is neither IPv4 or IPv6.
 
 [call [cmd ::ip::is] [arg class] [arg address]]
 
 Returns true if the address is a member of the given protocol
-class. The class parameter may be either [arg ipv4] or [arg ipv6]
+class. The class parameter may be either [const ipv4] or [const ipv6]
 This is effectively a boolean equivalent of the [cmd version]
-command. The [arg class] argument may be shortened to [arg 4] or
-[arg 6].
+command. The [arg class] argument may be shortened to [const 4] or
+[const 6].
 
 [call [cmd ::ip::equal] [arg address] [arg address]]
 
