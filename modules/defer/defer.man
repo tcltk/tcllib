@@ -1,5 +1,6 @@
+[vset VERSION 1]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin defer n 1]
+[manpage_begin defer n [vset VERSION]]
 [keywords golang]
 [keywords cleanup]
 [copyright {2017, Roy Keene}]
@@ -7,7 +8,7 @@
 [titledesc {Defered execution}]
 [category  {Utility}]
 [require Tcl 8.6]
-[require defer [opt 1]]
+[require defer [opt [vset VERSION]]]
 [description]
 
 The [cmd defer] commands allow a developer to schedule actions to happen
