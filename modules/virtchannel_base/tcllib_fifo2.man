@@ -27,7 +27,7 @@ application for this is communication between threads, with one half
 of the pair moved to the thread to talk to.
 
 This is equivalent to the fifo2 channels provided by the package
-[package Mmechan], except that this is written in pure Tcl, not C. On
+[package Memchan], except that this is written in pure Tcl, not C. On
 the other hand, [package Memchan] is usable with Tcl 8.4 and before,
 whereas this package requires Tcl 8.5 or higher, and [package TclOO].
 
