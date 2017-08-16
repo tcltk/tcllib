@@ -315,6 +315,10 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::test-anova-F\fR \fIalpha\fR \fIargs\fR
 .sp
+\fB::math::statistics::test-Tukey-range\fR \fIalpha\fR \fIargs\fR
+.sp
+\fB::math::statistics::test-Dunnett\fR \fIalpha\fR \fIcontrol\fR \fIargs\fR
+.sp
 \fB::math::statistics::quantiles\fR \fIdata\fR \fIconfidence\fR
 .sp
 \fB::math::statistics::quantiles\fR \fIlimits\fR \fIcounts\fR \fIconfidence\fR
@@ -759,9 +763,13 @@ float \fIsignificance\fR
 .sp
 .TP
 \fB::math::statistics::test-anova-F\fR \fIalpha\fR \fIargs\fR
-Determine if two or more groups with normally distributed data have the same variances\&.
-The procedure returns 0 if the variances are likely unequal, 1 if they are\&. This is
+Determine if two or more groups with normally distributed data have the same means\&.
+The procedure returns 0 if the means are likely unequal, 1 if they are\&. This is
 a one-way ANOVA test\&. The groups may also be stored in a nested list:
+The procedure returns a list of the comparison results for each pair of groups\&. Each
+element of this list contains: the index of the first group and that of the second group,
+whether the means are likely to be different (1) or not (0) and the confidence interval
+the conclusion is based on\&. The groups may also be stored in a nested list:
 .CS
 
 
@@ -779,6 +787,51 @@ float \fIalpha\fR
 .TP
 list \fIargs\fR
 - Two or more groups of data to be checked
+.RE
+.sp
+.TP
+\fB::math::statistics::test-Tukey-range\fR \fIalpha\fR \fIargs\fR
+Determine if two or more groups with normally distributed data have the same means,
+using Tukey's range test\&. It is complementary to the ANOVA test\&.
+The procedure returns a list of the comparison results for each pair of groups\&. Each
+element of this list contains: the index of the first group and that of the second group,
+whether the means are likely to be different (1) or not (0) and the confidence interval
+the conclusion is based on\&. The groups may also be stored in a nested list, just as with
+the ANOVA test\&.
+.RS
+.TP
+float \fIalpha\fR
+- Significance level - either 0\&.05 or 0\&.01
+.TP
+list \fIargs\fR
+- Two or more groups of data to be checked
+.RE
+.sp
+.TP
+\fB::math::statistics::test-Dunnett\fR \fIalpha\fR \fIcontrol\fR \fIargs\fR
+Determine if one or more groups with normally distributed data have the same means as
+the group of control data, using Dunnett's test\&. It is complementary to the ANOVA test\&.
+The procedure returns a list of the comparison results for each group with the control group\&. Each
+element of this list contains: whether the means are likely to be different (1) or not (0)
+and the confidence interval the conclusion is based on\&. The groups may also be stored in a
+nested list, just as with the ANOVA test\&.
+.sp
+Note: some care is required if there is only one group to compare the control with:
+.CS
+
+
+    test-Dunnett-F 0\&.05 $control [list $A]
+
+.CE
+.IP
+Otherwise the group A is split up into groups of one element - this is due to an ambiguity\&.
+.RS
+.TP
+float \fIalpha\fR
+- Significance level - either 0\&.05 or 0\&.01
+.TP
+list \fIargs\fR
+- One or more groups of data to be checked
 .RE
 .sp
 .TP

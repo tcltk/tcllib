@@ -92,9 +92,9 @@
     }
 --></style>
 </head>
-<! -- Generated from file 'tar.man' by tcllib/doctools with format 'html'
+<!-- Generated from file 'tar.man' by tcllib/doctools with format 'html'
    -->
-<! -- tar.n
+<!-- tar.n
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
@@ -106,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">tar(n) 0.10 tcllib &quot;Tar file handling&quot;</h1>
+<h1 class="doctools_title">tar(n) 0.11 tcllib &quot;Tar file handling&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>tar - Tar file creation, extraction &amp; manipulation</p>
 </div>
@@ -124,7 +124,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">tar <span class="opt">?0.10?</span></b></li>
+<li>package require <b class="pkgname">tar <span class="opt">?0.11?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span></a></li>
@@ -193,15 +193,18 @@ puts &quot;Extracted $file ($size bytes)&quot;
 </pre>
 </dd>
 <dt><a name="4"><b class="cmd">::tar::get</b> <i class="arg">tarball</i> <i class="arg">fileName</i> <span class="opt">?<b class="option">-chan</b>?</span></a></dt>
-<dd><p>Returns the contents of <i class="arg">fileName</i> from the <i class="arg">tarball</i></p>
+<dd><p>Returns the contents of <i class="arg">fileName</i> from the <i class="arg">tarball</i>.</p>
 <pre class="doctools_example">
 % set readme [::tar::get tarball.tar doc/README] {
 % puts $readme
 }
 </pre>
-<p>If the option <b class="option">-chan</b> is present <i class="arg">tarball</i> is interpreted as an open channel.
-It is assumed that the channel was opened for reading, and configured for binary input.
-The command will <em>not</em> close the channel.</p></dd>
+<p>If the option <b class="option">-chan</b> is present <i class="arg">tarball</i> is
+interpreted as an open channel.  It is assumed that the channel was
+opened for reading, and configured for binary input.  The command will
+<em>not</em> close the channel.</p>
+<p>An error is thrown when <i class="arg">fileName</i> is not found in the tar
+archive.</p></dd>
 <dt><a name="5"><b class="cmd">::tar::create</b> <i class="arg">tarball</i> <i class="arg">files</i> <i class="arg">args</i></a></dt>
 <dd><p>Creates a new tar file containing the <i class="arg">files</i>. <i class="arg">files</i> must be specified
 as a single argument which is a proper list of filenames.</p>
@@ -261,7 +264,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key736">archive</a>, <a href="../../../../index.html#key735">tape archive</a>, <a href="../../../../index.html#key737">tar</a></p>
+<p><a href="../../../../index.html#key740">archive</a>, <a href="../../../../index.html#key739">tape archive</a>, <a href="../../../../index.html#key741">tar</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>File formats</p>

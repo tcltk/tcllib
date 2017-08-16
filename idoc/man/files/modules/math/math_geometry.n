@@ -279,7 +279,7 @@ math::geometry \- Geometrical computations
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::geometry  ?1\&.2\&.2?\fR
+package require \fBmath::geometry  ?1\&.2\&.3?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp

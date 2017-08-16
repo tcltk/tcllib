@@ -99,7 +99,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">ldap(n) 1.6.9 tcllib &quot;LDAP client&quot;</h1>
+<h1 class="doctools_title">ldap(n) 1.9 tcllib &quot;LDAP client&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ldap - LDAP client</p>
 </div>
@@ -121,13 +121,13 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">ldap <span class="opt">?1.8?</span></b></li>
+<li>package require <b class="pkgname">ldap <span class="opt">?1.9?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::ldap::connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
-<li><a href="#2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
+<li><a href="#2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
 <li><a href="#3"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></li>
-<li><a href="#4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span></a></li>
+<li><a href="#4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
 <li><a href="#5"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
 <li><a href="#6"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
 <li><a href="#7"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></li>
@@ -141,7 +141,7 @@
 <li><a href="#15"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
 <li><a href="#16"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></li>
 <li><a href="#17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></li>
-<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key451">ip</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key452">ip</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
 <li><a href="#20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
 <li><a href="#21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
@@ -193,22 +193,33 @@ support, as shown in the example below.</p>
 specified it will default to <b class="const">389</b>.</p>
 <p>The command blocks until the connection has been established, or
 establishment definitely failed.</p></dd>
-<dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
+<dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::ldap::connect</b>, except that the created connection is
 secured by SSL. The port defaults to <b class="const">636</b>.  This command
 depends on the availability of the package <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, which is a
 SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key331">TLS</a></b> is not available, then this
 command will fail.</p>
 <p>The command blocks until the connection has been established, or
-establishment definitely failed.</p></dd>
+establishment definitely failed.</p>
+<p>If <i class="arg">verify_cert</i> is set to 1, the default, this checks the server certificate against
+the known hosts. If <i class="arg">sni_servername</i> is set, the given hostname is used as the 
+hostname for Server Name Indication in the TLS handshake.</p>
+<p>Use <b class="cmd">::tls::init</b> to setup defaults for trusted certificates.</p>
+<pre class="doctools_example">
+    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
+</pre>
+<p>TLS supports different protocol levels. In common use are the versions 1.0, 1.1 and 1.2.
+By default all those versions are offered. If you need to modify the acceptable
+protocols, you can change the ::ldap::tlsProtocols list.</p></dd>
 <dt><a name="3"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></dt>
 <dd><p>Closes the ldap connection refered to by the token
 <i class="arg">handle</i>. Returns the empty string as its result.</p></dd>
-<dt><a name="4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span></a></dt>
+<dt><a name="4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
 <dd><p>Start TLS negotiation on the connection denoted by <i class="arg">handle</i>.
-This is currently experimental and subject to change, more control over the TLS details
-will probably be exposed later, to allow users to fine tune the negotiation according
-to their security needs.</p></dd>
+You need to set at least the <i class="arg">cafile</i> argument to a file with trusted certificates, if <i class="arg">verify_cert</i> is 1, which is the default.
+The <i class="arg">sni_servername</i> can be used to signal a different hostname during the TLS handshake.
+The announced protocols are determined in the same way as <b class="cmd">::ldap::secure_connect</b>.
+You can specify a TLS client certificate with the <i class="arg">certfile</i> and <i class="arg">keyfile</i> options.</p></dd>
 <dt><a name="5"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
 <dd><p>This command authenticates the ldap connection refered to by the token
 in <i class="arg">handle</i>, with a user name and associated password. It blocks
@@ -383,8 +394,7 @@ attributes from the server.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
 <dt><a name="17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></dt>
-<dd><p>]
-This command moves or copies the object specified by <i class="arg">dn</i>
+<dd><p>This command moves or copies the object specified by <i class="arg">dn</i>
 to a new location in the tree of object. This location is
 specified by <i class="arg">newrdn</i>, a <em>relative</em> designation,
 or by <i class="arg">newrdn</i> and <i class="arg">newSuperior</i>, a <em>absolute</em> designation.
@@ -397,7 +407,7 @@ the tree. If this argument is given, the argument <i class="arg">deleteOld</i>
 must be specified also.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key451">ip</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key452">ip</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the IP address of the remote LDAP server the handle is connected to.</p></dd>
 <dt><a name="19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.

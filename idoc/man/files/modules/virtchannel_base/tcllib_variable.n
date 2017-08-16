@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_variable\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::variable" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::variable" n 1\&.0\&.4 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::variable  ?1?\fR
+package require \fBtcl::chan::variable  ?1\&.0\&.4?\fR
 .sp
 \fB::tcl::chan::variable\fR \fIvarname\fR
 .sp

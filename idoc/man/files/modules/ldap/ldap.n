@@ -4,7 +4,7 @@
 '\" Copyright (c) 2004 Jochen Loewer <loewerj@web\&.de>
 '\" Copyright (c) 2006 Michael Schlenker <mic42@users\&.sourceforge\&.net>
 '\"
-.TH "ldap" n 1\&.6\&.9 tcllib "LDAP client"
+.TH "ldap" n 1\&.9 tcllib "LDAP client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,15 +278,15 @@ ldap \- LDAP client
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBldap  ?1\&.8?\fR
+package require \fBldap  ?1\&.9?\fR
 .sp
 \fB::ldap::connect\fR \fIhost\fR ?\fIport\fR?
 .sp
-\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR?
+\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 .sp
 \fB::ldap::disconnect\fR \fIhandle\fR
 .sp
-\fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR?
+\fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 .sp
 \fB::ldap::bind\fR \fIhandle\fR ?\fIname\fR? ?\fIpassword\fR?
 .sp
@@ -380,7 +380,7 @@ specified it will default to \fB389\fR\&.
 The command blocks until the connection has been established, or
 establishment definitely failed\&.
 .TP
-\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR?
+\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 Like \fB::ldap::connect\fR, except that the created connection is
 secured by SSL\&. The port defaults to \fB636\fR\&.  This command
 depends on the availability of the package \fBTLS\fR, which is a
@@ -389,16 +389,33 @@ command will fail\&.
 .sp
 The command blocks until the connection has been established, or
 establishment definitely failed\&.
+.sp
+If \fIverify_cert\fR is set to 1, the default, this checks the server certificate against
+the known hosts\&. If \fIsni_servername\fR is set, the given hostname is used as the
+hostname for Server Name Indication in the TLS handshake\&.
+.sp
+Use \fB::tls::init\fR to setup defaults for trusted certificates\&.
+.CS
+
+
+    tls::init -cadir /etc/ssl/certs/ca-certificates\&.crt
+
+.CE
+.sp
+TLS supports different protocol levels\&. In common use are the versions 1\&.0, 1\&.1 and 1\&.2\&.
+By default all those versions are offered\&. If you need to modify the acceptable
+protocols, you can change the ::ldap::tlsProtocols list\&.
 .TP
 \fB::ldap::disconnect\fR \fIhandle\fR
 Closes the ldap connection refered to by the token
 \fIhandle\fR\&. Returns the empty string as its result\&.
 .TP
-\fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR?
+\fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 Start TLS negotiation on the connection denoted by \fIhandle\fR\&.
-This is currently experimental and subject to change, more control over the TLS details
-will probably be exposed later, to allow users to fine tune the negotiation according
-to their security needs\&.
+You need to set at least the \fIcafile\fR argument to a file with trusted certificates, if \fIverify_cert\fR is 1, which is the default\&.
+The \fIsni_servername\fR can be used to signal a different hostname during the TLS handshake\&.
+The announced protocols are determined in the same way as \fB::ldap::secure_connect\fR\&.
+You can specify a TLS client certificate with the \fIcertfile\fR and \fIkeyfile\fR options\&.
 .TP
 \fB::ldap::bind\fR \fIhandle\fR ?\fIname\fR? ?\fIpassword\fR?
 This command authenticates the ldap connection refered to by the token
@@ -628,7 +645,6 @@ The command blocks until the operation has completed\&. Its result
 is the empty string\&.
 .TP
 \fB::ldap::modifyDN\fR \fIhandle\fR \fIdn\fR \fInewrdn\fR ?\fIdeleteOld\fR? ?\fInewSuperior\fR?
-]
 This command moves or copies the object specified by \fIdn\fR
 to a new location in the tree of object\&. This location is
 specified by \fInewrdn\fR, a \fIrelative\fR designation,

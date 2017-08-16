@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'dicttool\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2017 Sean Woods <yoda@etoyoc\&.com>
 '\"
 .TH "dicttool" n 1\&.0 tcllib "Extensions to the standard "dict" command"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -363,6 +363,6 @@ dict
 Utilites
 .SH COPYRIGHT
 .nf
-Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2017 Sean Woods <yoda@etoyoc\&.com>
 
 .fi
