@@ -2,7 +2,7 @@
 '\" Generated from file 'graph\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::graph" n 2\&.4 tcllib "Tcl Data Structures"
+.TH "struct::graph" n 2\&.4\&.1 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::graph \- Create and manipulate directed graph objects
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBstruct::graph  ?2\&.4?\fR
+package require \fBstruct::graph  ?2\&.4\&.1?\fR
 .sp
 package require \fBstruct::list  ?1\&.5?\fR
 .sp

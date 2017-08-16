@@ -384,6 +384,9 @@ tcllib
 \fBdebug::timestamp\fR
 \fIfiles/modules/debug/debug_timestamp\&.n\fR: debug narrative - timestamping
 .TP
+\fBdefer\fR
+\fIfiles/modules/defer/defer\&.n\fR: Defered execution
+.TP
 \fBdeleg_method\fR
 \fIfiles/modules/interp/deleg_method\&.n\fR: Creation of comm delegates (snit methods)
 .TP

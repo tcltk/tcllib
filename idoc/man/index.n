@@ -1340,6 +1340,9 @@ oo::util
 cleanup
 .RS
 .TP
+\fBfiles/modules/defer/defer\&.n\fR
+defer
+.TP
 \fBfiles/modules/try/tcllib_try\&.n\fR
 try
 .RE
@@ -3929,6 +3932,12 @@ coroutine
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
 coroutine::auto
 .RE
+golang
+.RS
+.TP
+\fBfiles/modules/defer/defer\&.n\fR
+defer
+.RE
 gopher
 .RS
 .TP
@@ -4321,6 +4330,12 @@ uri
 .TP
 \fBfiles/modules/websocket/websocket\&.n\fR
 websocket
+.RE
+https
+.RS
+.TP
+\fBfiles/modules/uri/uri\&.n\fR
+uri
 .RE
 huddle
 .RS
@@ -8474,6 +8489,12 @@ rfc 1413
 \fBfiles/modules/ident/ident\&.n\fR
 ident
 .RE
+rfc 1630
+.RS
+.TP
+\fBfiles/modules/uri/uri\&.n\fR
+uri
+.RE
 rfc 1886
 .RS
 .TP
@@ -8605,6 +8626,12 @@ rfc 3513
 .TP
 \fBfiles/modules/dns/tcllib_ip\&.n\fR
 tcllib_ip
+.RE
+rfc 3986
+.RS
+.TP
+\fBfiles/modules/uri/uri\&.n\fR
+uri
 .RE
 rfc 4511
 .RS

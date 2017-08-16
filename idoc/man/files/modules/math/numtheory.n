@@ -280,12 +280,39 @@ package require \fBmath::numtheory  ?1\&.0?\fR
 .sp
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp
+\fBmath::numtheory::firstNprimes\fR \fIN\fR
+.sp
+\fBmath::numtheory::primesLowerThan\fR \fIN\fR
+.sp
+\fBmath::numtheory::primeFactors\fR \fIN\fR
+.sp
+\fBmath::numtheory::uniquePrimeFactors\fR \fIN\fR
+.sp
+\fBmath::numtheory::factors\fR \fIN\fR
+.sp
+\fBmath::numtheory::totient\fR \fIN\fR
+.sp
+\fBmath::numtheory::moebius\fR \fIN\fR
+.sp
+\fBmath::numtheory::legendre\fR \fIa\fR \fIp\fR
+.sp
+\fBmath::numtheory::jacobi\fR \fIa\fR \fIb\fR
+.sp
+\fBmath::numtheory::gcd\fR \fIm\fR \fIn\fR
+.sp
+\fBmath::numtheory::lcm\fR \fIm\fR \fIn\fR
+.sp
+\fBmath::numtheory::numberPrimesGauss\fR \fIN\fR
+.sp
+\fBmath::numtheory::numberPrimesLegendre\fR \fIN\fR
+.sp
+\fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
-This package is for collecting various number-theoretic operations,
-though at the moment it only provides that of testing whether an
-integer is a prime\&.
+This package is for collecting various number-theoretic operations, with
+a slight bias to prime numbers\&.
 .TP
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 The \fBisprime\fR command tests whether the integer \fIN\fR is a
@@ -317,6 +344,131 @@ default for \fIrepetitions\fR is 4\&.
 .RE
 .IP
 Unknown options are silently ignored\&.
+.TP
+\fBmath::numtheory::firstNprimes\fR \fIN\fR
+Return the first N primes
+.RS
+.TP
+integer \fIN\fR (in)
+Number of primes to return
+.RE
+.TP
+\fBmath::numtheory::primesLowerThan\fR \fIN\fR
+Return the prime numbers lower/equal to N
+.RS
+.TP
+integer \fIN\fR (in)
+Maximum number to consider
+.RE
+.TP
+\fBmath::numtheory::primeFactors\fR \fIN\fR
+Return a list of the prime numbers in the number N
+.RS
+.TP
+integer \fIN\fR (in)
+Number to be factorised
+.RE
+.TP
+\fBmath::numtheory::uniquePrimeFactors\fR \fIN\fR
+Return a list of the \fIunique\fR prime numbers in the number N
+.RS
+.TP
+integer \fIN\fR (in)
+Number to be factorised
+.RE
+.TP
+\fBmath::numtheory::factors\fR \fIN\fR
+Return a list of all \fIunique\fR factors in the number N, including 1 and N itself
+.RS
+.TP
+integer \fIN\fR (in)
+Number to be factorised
+.RE
+.TP
+\fBmath::numtheory::totient\fR \fIN\fR
+Evaluate the Euler totient function for the number N (number of numbers
+relatively prime to N)
+.RS
+.TP
+integer \fIN\fR (in)
+Number in question
+.RE
+.TP
+\fBmath::numtheory::moebius\fR \fIN\fR
+Evaluate the Moebius function for the number N
+.RS
+.TP
+integer \fIN\fR (in)
+Number in question
+.RE
+.TP
+\fBmath::numtheory::legendre\fR \fIa\fR \fIp\fR
+Evaluate the Legendre symbol (a/p)
+.RS
+.TP
+integer \fIa\fR (in)
+Upper number in the symbol
+.TP
+integer \fIp\fR (in)
+Lower number in the symbol (must be non-zero)
+.RE
+.TP
+\fBmath::numtheory::jacobi\fR \fIa\fR \fIb\fR
+Evaluate the Jacobi symbol (a/b)
+.RS
+.TP
+integer \fIa\fR (in)
+Upper number in the symbol
+.TP
+integer \fIb\fR (in)
+Lower number in the symbol (must be odd)
+.RE
+.TP
+\fBmath::numtheory::gcd\fR \fIm\fR \fIn\fR
+Return the greatest common divisor of \fIm\fR and \fIn\fR
+.RS
+.TP
+integer \fIm\fR (in)
+First number
+.TP
+integer \fIn\fR (in)
+Second number
+.RE
+.TP
+\fBmath::numtheory::lcm\fR \fIm\fR \fIn\fR
+Return the lowest common multiple of \fIm\fR and \fIn\fR
+.RS
+.TP
+integer \fIm\fR (in)
+First number
+.TP
+integer \fIn\fR (in)
+Second number
+.RE
+.TP
+\fBmath::numtheory::numberPrimesGauss\fR \fIN\fR
+Estimate the number of primes according the formula by Gauss\&.
+.RS
+.TP
+integer \fIN\fR (in)
+Number in question
+.RE
+.TP
+\fBmath::numtheory::numberPrimesLegendre\fR \fIN\fR
+Estimate the number of primes according the formula by Legendre\&.
+.RS
+.TP
+integer \fIN\fR (in)
+Number in question
+.RE
+.TP
+\fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
+Estimate the number of primes according the modified formula by Legendre\&.
+.RS
+.TP
+integer \fIN\fR (in)
+Number in question
+.RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

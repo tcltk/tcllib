@@ -456,6 +456,7 @@
 [item modules/dicttool/dicttool.man dicttool {Dictionary Tools}]
 [division_end]
 [division_start Utility]
+[item modules/defer/defer.man             defer               {Defered execution}]
 [item modules/lambda/lambda.man           lambda              {Utility commands for anonymous procedures}]
 [item modules/ooutil/ooutil.man           oo::util            {Utility commands for TclOO}]
 [item modules/tool/meta.man               oo::util            {Utility commands for TclOO}]

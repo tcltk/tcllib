@@ -288,6 +288,8 @@ package require \fBcoroutine  1\&.1\&.3\fR
 .sp
 \fBcoroutine::util gets\fR \fIchan\fR ?\fIvarname\fR?
 .sp
+\fBcoroutine::util gets_safety\fR \fIchan\fR \fIlimit\fR \fIvarname\fR
+.sp
 \fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
 .sp
 \fBcoroutine::util read\fR \fB-nonewline\fR \fIchan\fR ?\fIn\fR?
@@ -342,6 +344,12 @@ returned\&.
 This command reads a line from the channel \fIchan\fR and returns it
 either as its result, or, if a \fIvarname\fR was specified, writes it
 to the named variable and returns the number of characters read\&.
+.TP
+\fBcoroutine::util gets_safety\fR \fIchan\fR \fIlimit\fR \fIvarname\fR
+This command reads a line from the channel \fIchan\fR up to size \fIlimit\fR
+and stores the result in \fIvarname\fR\&. Of \fIlimit\fR is reached before the
+set first newline, an error is thrown\&. The command returns the number of
+characters read\&.
 .TP
 \fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
 This command imports the named global variables of the coroutine into

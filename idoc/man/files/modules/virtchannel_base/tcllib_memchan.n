@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'tcllib_memchan\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::memchan" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::memchan" n 1\&.0\&.4 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::memchan  ?1?\fR
+package require \fBtcl::chan::memchan  ?1\&.0\&.4?\fR
 .sp
 \fB::tcl::chan::memchan\fR
 .sp
@@ -318,6 +318,6 @@ in-memory channel, reflected channel, tip 219, virtual channel
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
