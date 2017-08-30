@@ -46,15 +46,15 @@ this man page for information about individual procedures.
 
 [para]
 [example_begin]
-    package require decimal
+    package require math::decimal
 
     # Various operations on two numbers.
     # We first convert them to decimal format.
     set a [lb]::math::decimal::fromstr 8.2[rb]
     set b [lb]::math::decimal::fromstr .2[rb]
 
-    # Then we perform our operations. Here we multiply
-    set c [lb]::math::decimal::* $a $b[rb]
+    # Then we perform our operations. Here we add
+    set c [lb]::math::decimal::+ $a $b[rb]
 
     # Finally we convert back to string format for presentation to the user.
     puts [lb]::math::decimal::tostr $c[rb] ; # => will output 8.4
