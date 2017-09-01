@@ -275,7 +275,7 @@ proc ::ncgi::decode {str} {
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
     regsub -all -nocase -- {%([CD][A-F0-9])%([89AB][A-F0-9])}                     \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
-    regsub -all -nocase -- {%([0-7][A-F0-9])} $str {\\u00\1} str
+    regsub -all -nocase -- {%([A-F0-9][A-F0-9])} $str {\\u00\1} str
 
     # process \u unicode mapped chars
     return [subst -novar $str]
