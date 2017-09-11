@@ -173,17 +173,28 @@ proc ::cluster::sleep args {
 }
 
 proc ::cluster::TCPAccept {sock host port} {
-  chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
-  set packet [chan gets $sock]
-  if {![string is ascii $packet]} return
-  if {![::info complete $packet]} return
-  if {[catch {Directory {*}$packet} reply errdat]} {
-    chan puts $sock [list $reply $errdat]   
-  } else {
-    chan puts $sock [list $reply {}]
-  }
-  chan flush $sock
-  chan close $sock
+  variable tcl_connection
+  set coroname [namespace current]::CORO[incr tcl_connection]
+  set coro [coroutine $coroname ::apply [list {uuid sock ip} {
+    yield [info coroutine]
+    set packet {}
+    chan configure $sock -translation {crlf crlf} -buffering line -blocking 0
+    try {
+      set readCount [::coroutine::util::gets_safety $sock 65535 packet]
+      if {![string is ascii $packet]} return
+      if {![::info complete $packet]} return
+      if {[catch {::cluster::Directory {*}$packet} reply errdat]} {
+        chan puts $sock [list $reply $errdat]   
+      } else {
+        chan puts $sock [list $reply {}]
+      }
+    } on error {err errdat} {
+      puts stderr $err
+    } finally {
+      catch {chan flush $sock}
+      catch {chan close $sock}
+    }
+  } [namespace current]] $uuid $sock $ip]
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
