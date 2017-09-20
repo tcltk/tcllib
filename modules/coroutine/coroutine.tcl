@@ -292,16 +292,16 @@ proc ::coroutine::util::read {args} {
 		return -code $result -options $opts
 	    }
 
+	    append buf $result
+
 	    if {[::chan blocked $chan]} {
 		::chan event $chan readable [list [info coroutine]]
 		yield
 		::chan event $chan readable {}
 	    } else {
 		::chan configure $chan -blocking $blocking
-		append buf $result
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		}
 	    }
@@ -332,7 +332,6 @@ proc ::coroutine::util::read {args} {
 		incr   left -[string length $result]
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		} elseif {!$left} {
 		    break
