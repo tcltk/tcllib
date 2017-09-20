@@ -281,61 +281,57 @@ proc ::coroutine::util::read {args} {
     if {$total eq "Inf"} {
 	# Loop until eof.
 
-	while {1} {
+	while 1 {
 	    set blocking [::chan configure $chan -blocking]
 	    ::chan configure $chan -blocking 0
+	    if {[::chan eof $chan]} {
+		break
+	    } elseif {[::chan blocked $chan]} {
+		::chan event $chan readable [list [info coroutine]]
+		yield
+		::chan event $chan readable {}
+	    }
 
 	    try {
 		set result [::chan read $chan]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
-	    }
-
-	    append buf $result
-
-	    if {[::chan blocked $chan]} {
-		::chan event $chan readable [list [info coroutine]]
-		yield
-		::chan event $chan readable {}
-	    } else {
+	    } finally {
 		::chan configure $chan -blocking $blocking
-
-		if {[::chan eof $chan]} {
-		    break
-		}
 	    }
+	    append buf $result
 	}
     } else {
 	# Loop until total characters have been read, or eof found,
 	# whichever is first.
 
 	set left $total
-	while {1} {
+	while 1 {
 	    set blocking [::chan configure $chan -blocking]
 	    ::chan configure $chan -blocking 0
+
+	    if {[::chan eof $chan]} {
+		break
+	    } elseif {[::chan blocked $chan]} {
+		::chan event $chan readable [list [info coroutine]]
+		yield
+		::chan event $chan readable {}
+	    }
 
 	    try {
 		set result [::chan read $chan $left]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
+	    } finally {
+		::chan configure $chan -blocking $blocking
 	    }
 
-	    if {[::chan blocked $chan]} {
-		::chan event $chan readable [list [info coroutine]]
-		yield
-		::chan event $chan readable {}
-	    } else {
-		::chan configure $chan -blocking $blocking
-		append buf $result
-		incr   left -[string length $result]
-
-		if {[::chan eof $chan]} {
-		    break
-		} elseif {!$left} {
-		    break
-		}
+	    append buf $result
+	    incr left -[string length $result]
+	    if {!$left} {
+		break
 	    }
 	}
     }
