@@ -4,7 +4,7 @@
 #     Released under the BSD license under any terms
 #     that allow it to be compatible with tcllib
 
-package require math::linearalgebra 1.0
+package require math::linearalgebra 1.1.1
 
 # ::math::statistics --
 #     This file adds:
@@ -215,7 +215,11 @@ proc ::math::statistics::mv-wls {data} {
         set sstot [expr {$sstot + $wt * ($yval - $ymean) * ($yval - $ymean)}]
         set ssreg [expr {$ssreg + $wt * ($yhatval - $ymean) * ($yhatval - $ymean)}]
     }
-    set r2 [expr {double($ssreg)/$sstot}]
+    if { $sstot != 0.0 } {
+        set r2 [expr {double($ssreg)/$sstot}]
+    } else {
+        set r2 1.0
+    }
     set adjr2 [expr {1.0 - (1.0 - $r2) * ($n - 1)/($n - $k)}]
     set sumsqresid [dotproduct $R $R]
     set s2 [expr {double($sumsqresid) / double($n - $k)}]
