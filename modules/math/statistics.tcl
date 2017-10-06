@@ -23,7 +23,7 @@
 # version 1.1:   added test-Tukey-range and test-Dunnett
 
 package require Tcl 8.4
-package provide math::statistics 1.1.0
+package provide math::statistics 1.1.1
 package require math
 
 if {![llength [info commands ::lrepeat]]} {

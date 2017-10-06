@@ -1,3 +1,9 @@
+2017-10-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* mvlinreg.tcl: Special case for zero variation - then the correlation coefficient should be 1.0
+	* statistics.test: Test that mv-ols is well behaved if the variation in the dependent variable is zero (ticket 51c03aac1a45161ab6cc59afb69d1768175e054c)
+	* statistics.tcl: Bumped the version to 1.1.1
+	* pkgIndex.tcl: Bumped the version of math::statistics to 1.1.1
+
 2017-08-10  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.test: Add tests for areaPolygon
 	* geometry.tcl: Correct implementation of areaPolygon (ticket cb043ecc70e0e90bff93535d1d371a78b94f5d44)
