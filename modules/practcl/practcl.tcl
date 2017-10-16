@@ -1,4 +1,76 @@
 ###
+# Amalgamated package for practcl
+# Do not edit directly, tweak the source in src/ and rerun
+# build.tcl
+###
+package provide practcl 0.8
+namespace eval ::practcl {}
+
+###
+# START: httpwget/wget.tcl
+###
+###
+# Tool to download file from the web
+# Enhacements to http
+###
+package provide http::wget 0.1
+package require http
+
+::namespace eval ::http {}
+
+###
+# topic: 1ed971e03ae89415e2f25d20e59b765c
+# description: this proc contributed by Donal Fellows
+###
+proc ::http::_followRedirects {url args} {
+    while 1 {
+        set token [geturl $url -validate 1]
+        set ncode [ncode $token]
+        if { $ncode eq "404" } {
+          error "URL Not found"
+        }
+        switch -glob $ncode {
+            30[1237] {### redirect - see below ###}
+            default  {cleanup $token ; return $url}
+        }
+        upvar #0 $token state
+        array set meta [set ${token}(meta)]
+        cleanup $token
+        if {![info exists meta(Location)]} {
+           return $url
+        }
+        set url $meta(Location)
+        unset meta
+    }
+    return $url
+}
+
+###
+# topic: fced7bc395596569ac225a719c686dcc
+###
+proc ::http::wget {url destfile {verbose 1}} {
+    set tmpchan [open $destfile w]
+    fconfigure $tmpchan -translation binary
+    if { $verbose } {
+        puts [list  GETTING [file tail $destfile] from $url]
+    }
+    set real_url [_followRedirects $url]
+    set token [geturl $real_url -channel $tmpchan -binary yes]
+    if {[ncode $token] != "200"} {
+      error "DOWNLOAD FAILED"
+    }
+    cleanup $token
+    close $tmpchan
+}
+
+
+###
+# END: httpwget/wget.tcl
+###
+###
+# START: setup.tcl
+###
+###
 # Practcl
 # An object oriented templating system for stamping out Tcl API calls to C
 ###
@@ -16,56 +88,17 @@ foreach path {.. ../.. ../../..} {
   }
   if {$tcllib_path ne {}} break
 }
+namespace eval ::practcl {}
 
+###
+# END: setup.tcl
+###
+###
+# START: buildutil.tcl
+###
 ###
 # Build utility functions
 ###
-
-
-###
-# Extend http to follow redirects (ala Sourceforge downloads)
-###
-namespace eval ::http {}
-proc ::http::_followRedirects {url args} {
-  while 1 {
-    set token [geturl $url -validate 1]
-    set ncode [ncode $token]
-    if { $ncode eq "404" } {
-      error "URL Not found"
-    }
-    switch -glob $ncode {
-      30[1237] {### redirect - see below ###}
-      default  {cleanup $token ; return $url}
-    }
-    upvar #0 $token state
-    array set meta [set ${token}(meta)]
-    cleanup $token
-    if {![info exists meta(Location)]} {
-      return $url
-    }
-    set url $meta(Location)
-    unset meta
-  }
-  return $url
-}
-
-proc ::http::wget {url destfile {verbose 1}} {
-  package require http
-  set tmpchan [open $destfile w]
-  fconfigure $tmpchan -translation binary
-  if { $verbose } {
-    puts [list  GETTING [file tail $destfile] from $url]
-  }
-  set real_url [_followRedirects $url]
-  set token [geturl $real_url -channel $tmpchan -binary yes]
-  if {[ncode $token] != "200"} {
-    error "DOWNLOAD FAILED"
-  }
-  cleanup $token
-  close $tmpchan
-}
-
-namespace eval ::practcl {}
 
 ###
 # A command to do nothing. A handy way of
@@ -399,112 +432,6 @@ proc ::practcl::msys_to_tclpath msyspath {
 }
 }
 
-###
-# Bits stolen from fileutil
-###
-proc ::practcl::cat fname {
-    set fname [open $fname r]
-    set data [read $fname]
-    close $fname
-    return $data
-}
-
-proc ::practcl::file_lexnormalize {sp} {
-    set spx [file split $sp]
-
-    # Resolution of embedded relative modifiers (., and ..).
-
-    if {
-	([lsearch -exact $spx . ] < 0) &&
-	([lsearch -exact $spx ..] < 0)
-    } {
-	# Quick path out if there are no relative modifiers
-	return $sp
-    }
-
-    set absolute [expr {![string equal [file pathtype $sp] relative]}]
-    # A volumerelative path counts as absolute for our purposes.
-
-    set sp $spx
-    set np {}
-    set noskip 1
-
-    while {[llength $sp]} {
-	set ele    [lindex $sp 0]
-	set sp     [lrange $sp 1 end]
-	set islast [expr {[llength $sp] == 0}]
-
-	if {[string equal $ele ".."]} {
-	    if {
-		($absolute  && ([llength $np] >  1)) ||
-		(!$absolute && ([llength $np] >= 1))
-	    } {
-		# .. : Remove the previous element added to the
-		# new path, if there actually is enough to remove.
-		set np [lrange $np 0 end-1]
-	    }
-	} elseif {[string equal $ele "."]} {
-	    # Ignore .'s, they stay at the current location
-	    continue
-	} else {
-	    # A regular element.
-	    lappend np $ele
-	}
-    }
-    if {[llength $np] > 0} {
-	return [eval [linsert $np 0 file join]]
-	# 8.5: return [file join {*}$np]
-    }
-    return {}
-}
-
-proc ::practcl::file_relative {base dst} {
-    # Ensure that the link to directory 'dst' is properly done relative to
-    # the directory 'base'.
-
-    if {![string equal [file pathtype $base] [file pathtype $dst]]} {
-	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
-    }
-
-    set base [file_lexnormalize [file join [pwd] $base]]
-    set dst  [file_lexnormalize [file join [pwd] $dst]]
-
-    set save $dst
-    set base [file split $base]
-    set dst  [file split $dst]
-
-    while {[string equal [lindex $dst 0] [lindex $base 0]]} {
-	set dst  [lrange $dst  1 end]
-	set base [lrange $base 1 end]
-	if {![llength $dst]} {break}
-    }
-
-    set dstlen  [llength $dst]
-    set baselen [llength $base]
-
-    if {($dstlen == 0) && ($baselen == 0)} {
-	# Cases:
-	# (a) base == dst
-
-	set dst .
-    } else {
-	# Cases:
-	# (b) base is: base/sub = sub
-	#     dst  is: base     = {}
-
-	# (c) base is: base     = {}
-	#     dst  is: base/sub = sub
-
-	while {$baselen > 0} {
-	    set dst [linsert $dst 0 ..]
-	    incr baselen -1
-	}
-	# 8.5: set dst [file join {*}$dst]
-	set dst [eval [linsert $dst 0 file join]]
-    }
-
-    return $dst
-}
 
 # Try to load  a package, and failing that
 # retrieve tcllib
@@ -760,7 +687,6 @@ proc ::practcl::cputs {varname args} {
   append buffer [string trimleft [lindex $args 0] \n] {*}[lrange $args 1 end]
 }
 
-
 proc ::practcl::tcl_to_c {body} {
   set result {}
   foreach rawline [split $body \n] {
@@ -802,10 +728,186 @@ proc ::practcl::_tagblock {text {style tcl} {note {}}} {
   return $output
 }
 
+
+proc ::practcl::de_shell {data} {
+  set values {}
+  foreach flag {DEFS TCL_DEFS TK_DEFS} {
+    if {[dict exists $data $flag]} {
+      #set value {}
+      #foreach item [dict get $data $flag] {
+      #  append value " " [string map {{ } {\ }} $item]
+      #}
+      dict set values $flag [dict get $data $flag]
+    }
+  }
+  set map {}
+  lappend map {${PKG_OBJECTS}} %LIBRARY_OBJECTS%
+  lappend map {$(PKG_OBJECTS)} %LIBRARY_OBJECTS%
+  lappend map {${PKG_STUB_OBJECTS}} %LIBRARY_STUB_OBJECTS%
+  lappend map {$(PKG_STUB_OBJECTS)} %LIBRARY_STUB_OBJECTS%
+
+  if {[dict exists $data name]} {
+    lappend map %LIBRARY_NAME% [dict get $data name]
+    lappend map %LIBRARY_VERSION% [dict get $data version]
+    lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} [dict get $data version]]
+    if {[dict exists $data libprefix]} {
+      lappend map %LIBRARY_PREFIX% [dict get $data libprefix]
+    } else {
+      lappend map %LIBRARY_PREFIX% [dict get $data prefix]
+    }
+  }
+  foreach flag [dict keys $data] {
+    if {$flag in {TCL_DEFS TK_DEFS DEFS}} continue
+    set value [string trim [dict get $data $flag] \"]
+    dict set map "\$\{${flag}\}" $value
+    dict set map "\$\(${flag}\)" $value
+    #dict set map "\$${flag}" $value
+    dict set map "%${flag}%" $value
+    dict set values $flag [dict get $data $flag]
+    #dict set map "\$\{${flag}\}" $proj($flag)
+  }
+  set changed 1
+  while {$changed} {
+    set changed 0
+    foreach {field value} $values {
+      if {$field in {TCL_DEFS TK_DEFS DEFS}} continue
+      dict with values {}
+      set newval [string map $map $value]
+      if {$newval eq $value} continue
+      set changed 1
+      dict set values $field $newval
+    }
+  }
+  return $values
+}
+
+###
+# END: buildutil.tcl
+###
+###
+# START: fileutil.tcl
+###
+###
+# Bits stolen from fileutil
+###
+proc ::practcl::cat fname {
+    set fname [open $fname r]
+    set data [read $fname]
+    close $fname
+    return $data
+}
+
+proc ::practcl::file_lexnormalize {sp} {
+    set spx [file split $sp]
+
+    # Resolution of embedded relative modifiers (., and ..).
+
+    if {
+	([lsearch -exact $spx . ] < 0) &&
+	([lsearch -exact $spx ..] < 0)
+    } {
+	# Quick path out if there are no relative modifiers
+	return $sp
+    }
+
+    set absolute [expr {![string equal [file pathtype $sp] relative]}]
+    # A volumerelative path counts as absolute for our purposes.
+
+    set sp $spx
+    set np {}
+    set noskip 1
+
+    while {[llength $sp]} {
+	set ele    [lindex $sp 0]
+	set sp     [lrange $sp 1 end]
+	set islast [expr {[llength $sp] == 0}]
+
+	if {[string equal $ele ".."]} {
+	    if {
+		($absolute  && ([llength $np] >  1)) ||
+		(!$absolute && ([llength $np] >= 1))
+	    } {
+		# .. : Remove the previous element added to the
+		# new path, if there actually is enough to remove.
+		set np [lrange $np 0 end-1]
+	    }
+	} elseif {[string equal $ele "."]} {
+	    # Ignore .'s, they stay at the current location
+	    continue
+	} else {
+	    # A regular element.
+	    lappend np $ele
+	}
+    }
+    if {[llength $np] > 0} {
+	return [eval [linsert $np 0 file join]]
+	# 8.5: return [file join {*}$np]
+    }
+    return {}
+}
+
+proc ::practcl::file_relative {base dst} {
+    # Ensure that the link to directory 'dst' is properly done relative to
+    # the directory 'base'.
+
+    if {![string equal [file pathtype $base] [file pathtype $dst]]} {
+	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
+    }
+
+    set base [file_lexnormalize [file join [pwd] $base]]
+    set dst  [file_lexnormalize [file join [pwd] $dst]]
+
+    set save $dst
+    set base [file split $base]
+    set dst  [file split $dst]
+
+    while {[string equal [lindex $dst 0] [lindex $base 0]]} {
+	set dst  [lrange $dst  1 end]
+	set base [lrange $base 1 end]
+	if {![llength $dst]} {break}
+    }
+
+    set dstlen  [llength $dst]
+    set baselen [llength $base]
+
+    if {($dstlen == 0) && ($baselen == 0)} {
+	# Cases:
+	# (a) base == dst
+
+	set dst .
+    } else {
+	# Cases:
+	# (b) base is: base/sub = sub
+	#     dst  is: base     = {}
+
+	# (c) base is: base     = {}
+	#     dst  is: base/sub = sub
+
+	while {$baselen > 0} {
+	    set dst [linsert $dst 0 ..]
+	    incr baselen -1
+	}
+	# 8.5: set dst [file join {*}$dst]
+	set dst [eval [linsert $dst 0 file join]]
+    }
+
+    return $dst
+}
+
+
+
+###
+# END: fileutil.tcl
+###
+###
+# START: installutil.tcl
+###
+###
+# Installer tools
+###
 proc ::practcl::_isdirectory name {
   return [file isdirectory $name]
 }
-
 ###
 # Return true if the pkgindex file contains
 # any statement other than "package ifneeded"
@@ -1024,6 +1126,58 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   }
 }
 
+###
+# END: installutil.tcl
+###
+###
+# START: makeutil.tcl
+###
+###
+# Make facilities
+###
+
+proc ::practcl::trigger {args} {
+  foreach name $args {
+    if {[dict exists $::make_objects $name]} {
+      [dict get $::make_objects $name] triggers
+    }
+  }
+}
+
+proc ::practcl::depends {args} {
+  foreach name $args {
+    if {[dict exists $::make_objects $name]} {
+      [dict get $::make_objects $name] check
+    }
+  }
+}
+
+proc ::practcl::target {name info} {
+  set obj [::practcl::target_obj new $name $info]
+  dict set ::make_objects $name $obj
+  if {[dict exists $info aliases]} {
+    foreach item [dict get $info aliases] {
+      if {![dict exists $::make_objects $item]} {
+        dict set ::make_objects $item $obj
+      }
+    }
+  }
+  set ::make($name) 0
+  set ::trigger($name) 0
+  set filename [$obj define get filename]
+  if {$filename ne {}} {
+    set ::target($name) $filename
+  }
+}
+
+###
+# END: makeutil.tcl
+###
+###
+# START: class metaclass.tcl
+###
+
+
 ::oo::class create ::practcl::metaclass {
   superclass ::oo::object
 
@@ -1208,93 +1362,13 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   }
 }
 
-proc ::practcl::trigger {args} {
-  foreach name $args {
-    if {[dict exists $::make_objects $name]} {
-      [dict get $::make_objects $name] triggers
-    }
-  }
-}
+###
+# END: class metaclass.tcl
+###
+###
+# START: class build baseclass.tcl
+###
 
-proc ::practcl::depends {args} {
-  foreach name $args {
-    if {[dict exists $::make_objects $name]} {
-      [dict get $::make_objects $name] check
-    }
-  }
-}
-
-proc ::practcl::target {name info} {
-  set obj [::practcl::target_obj new $name $info]
-  dict set ::make_objects $name $obj
-  if {[dict exists $info aliases]} {
-    foreach item [dict get $info aliases] {
-      if {![dict exists $::make_objects $item]} {
-        dict set ::make_objects $item $obj
-      }
-    }
-  }
-  set ::make($name) 0
-  set ::trigger($name) 0
-  set filename [$obj define get filename]
-  if {$filename ne {}} {
-    set ::target($name) $filename
-  }
-}
-
-### Batch Tasks
-
-proc ::practcl::de_shell {data} {
-  set values {}
-  foreach flag {DEFS TCL_DEFS TK_DEFS} {
-    if {[dict exists $data $flag]} {
-      #set value {}
-      #foreach item [dict get $data $flag] {
-      #  append value " " [string map {{ } {\ }} $item]
-      #}
-      dict set values $flag [dict get $data $flag]
-    }
-  }
-  set map {}
-  lappend map {${PKG_OBJECTS}} %LIBRARY_OBJECTS%
-  lappend map {$(PKG_OBJECTS)} %LIBRARY_OBJECTS%
-  lappend map {${PKG_STUB_OBJECTS}} %LIBRARY_STUB_OBJECTS%
-  lappend map {$(PKG_STUB_OBJECTS)} %LIBRARY_STUB_OBJECTS%
-
-  if {[dict exists $data name]} {
-    lappend map %LIBRARY_NAME% [dict get $data name]
-    lappend map %LIBRARY_VERSION% [dict get $data version]
-    lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} [dict get $data version]]
-    if {[dict exists $data libprefix]} {
-      lappend map %LIBRARY_PREFIX% [dict get $data libprefix]
-    } else {
-      lappend map %LIBRARY_PREFIX% [dict get $data prefix]
-    }
-  }
-  foreach flag [dict keys $data] {
-    if {$flag in {TCL_DEFS TK_DEFS DEFS}} continue
-    set value [string trim [dict get $data $flag] \"]
-    dict set map "\$\{${flag}\}" $value
-    dict set map "\$\(${flag}\)" $value
-    #dict set map "\$${flag}" $value
-    dict set map "%${flag}%" $value
-    dict set values $flag [dict get $data $flag]
-    #dict set map "\$\{${flag}\}" $proj($flag)
-  }
-  set changed 1
-  while {$changed} {
-    set changed 0
-    foreach {field value} $values {
-      if {$field in {TCL_DEFS TK_DEFS DEFS}} continue
-      dict with values {}
-      set newval [string map $map $value]
-      if {$newval eq $value} continue
-      set changed 1
-      dict set values $field $newval
-    }
-  }
-  return $values
-}
 
 ###
 # Ancestor-less class intended to be a mixin
@@ -1532,6 +1606,12 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
 
 }
 
+###
+# END: class build baseclass.tcl
+###
+###
+# START: class build gcc.tcl
+###
 
 ::oo::class create ::practcl::build.gcc {
   superclass ::practcl::build
@@ -1977,11 +2057,23 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
 }
 }
 
-
+###
+# END: class build gcc.tcl
+###
+###
+# START: class build msvc.tcl
+###
 ::oo::class create ::practcl::build.msvc {
   superclass ::practcl::build
 
 }
+
+###
+# END: class build msvc.tcl
+###
+###
+# START: class target.tcl
+###
 
 ::oo::class create ::practcl::target_obj {
   superclass ::practcl::metaclass
@@ -2058,9 +2150,11 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
   }
 }
 
-
 ###
-# Define the metaclass
+# END: class target.tcl
+###
+###
+# START: class object.tcl
 ###
 ::oo::class create ::practcl::object {
   superclass ::practcl::metaclass
@@ -2691,8 +2785,14 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       is_unix { return [expr {$::tcl_platform(platform) eq "unix"}] }
     }
   }
-
 }
+
+###
+# END: class object.tcl
+###
+###
+# START: class product baseclass.tcl
+###
 
 ::oo::class create ::practcl::product {
   superclass ::practcl::object
@@ -2733,6 +2833,36 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     return $result
   }
 }
+
+###
+# Flesh out several trivial varieties of product
+###
+::oo::class create ::practcl::cheader {
+  superclass ::practcl::product
+
+  method compile-products {} {}
+  method generate-cinit {} {}
+}
+
+::oo::class create ::practcl::csource {
+  superclass ::practcl::product
+}
+
+::oo::class create ::practcl::clibrary {
+  superclass ::practcl::product
+
+  method linker-products {configdict} {
+    return [my define get filename]
+  }
+
+}
+
+###
+# END: class product baseclass.tcl
+###
+###
+# START: class product dynamic.tcl
+###
 
 ###
 # Dynamic blocks do not generate their own .c files,
@@ -3303,25 +3433,14 @@ $body"
   }
 }
 
-::oo::class create ::practcl::cheader {
-  superclass ::practcl::product
 
-  method compile-products {} {}
-  method generate-cinit {} {}
-}
 
-::oo::class create ::practcl::csource {
-  superclass ::practcl::product
-}
-
-::oo::class create ::practcl::clibrary {
-  superclass ::practcl::product
-
-  method linker-products {configdict} {
-    return [my define get filename]
-  }
-
-}
+###
+# END: class product dynamic.tcl
+###
+###
+# START: class module.tcl
+###
 
 ###
 # In the end, all C code must be loaded into a module
@@ -3389,6 +3508,13 @@ $body"
   }
 }
 
+###
+# END: class module.tcl
+###
+###
+# START: class autoconf.tcl
+###
+
 ::oo::class create ::practcl::autoconf {
 
   ###
@@ -3447,6 +3573,12 @@ $body"
   }
 }
 
+###
+# END: class autoconf.tcl
+###
+###
+# START: class project baseclass.tcl
+###
 
 ::oo::class create ::practcl::project {
   superclass ::practcl::module ::practcl::autoconf
@@ -3591,6 +3723,13 @@ $body"
     ${obj} {*}$args
   }
 }
+
+###
+# END: class project baseclass.tcl
+###
+###
+# START: class project library.tcl
+###
 
 ::oo::class create ::practcl::library {
   superclass ::practcl::project
@@ -3899,6 +4038,14 @@ char *
   }
 }
 
+###
+# END: class project library.tcl
+###
+###
+# START: class project tclkit.tcl
+###
+
+
 ::oo::class create ::practcl::tclkit {
   superclass ::practcl::library
 
@@ -4041,6 +4188,13 @@ foreach {pkg script} [array get ::kitpkg] {
 }
 
 ###
+# END: class project tclkit.tcl
+###
+###
+# START: class distro baseclass.tcl
+###
+
+###
 # Standalone class to manage code distribution
 # This class is intended to be mixed into another class
 # (Thus the lack of ancestors)
@@ -4147,6 +4301,13 @@ oo::objdefine ::practcl::distribution {
   }
 }
 
+###
+# END: class distro baseclass.tcl
+###
+###
+# START: class distro snapshot.tcl
+###
+
 oo::class create ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
   method ScmUnpack {} {
@@ -4200,6 +4361,12 @@ oo::objdefine ::practcl::distribution.snapshot {
   }
 }
 
+###
+# END: class distro snapshot.tcl
+###
+###
+# START: class distro fossil.tcl
+###
 
 oo::class create ::practcl::distribution.fossil {
   superclass ::practcl::distribution
@@ -4329,6 +4496,14 @@ oo::objdefine ::practcl::distribution.fossil {
   }
 }
 
+###
+# END: class distro fossil.tcl
+###
+###
+# START: class distro git.tcl
+###
+
+
 oo::class create ::practcl::distribution.git {
 
   method ScmTag {} {
@@ -4391,8 +4566,10 @@ oo::objdefine ::practcl::distribution.git {
 }
 
 ###
-# Meta repository
-# The default is an inert source code block
+# END: class distro git.tcl
+###
+###
+# START: class subproject baseclass.tcl
 ###
 oo::class create ::practcl::subproject {
   superclass ::practcl::object ::practcl::distribution
@@ -4446,6 +4623,11 @@ oo::class create ::practcl::subproject {
 
   method sources {} {}
 }
+
+###
+# Trivial implementations
+###
+
 
 ###
 # A project which the kit compiles and integrates
@@ -4536,6 +4718,13 @@ oo::class create ::practcl::subproject.sak {
       -no-wait -no-gui -no-apps
   }
 }
+
+###
+# END: class subproject baseclass.tcl
+###
+###
+# START: class subproject binary.tcl
+###
 
 ###
 # A binary package
@@ -4900,6 +5089,13 @@ oo::class create ::practcl::subproject.external {
   }
 }
 
+###
+# END: class subproject binary.tcl
+###
+###
+# START: class subproject core.tcl
+###
+
 oo::class create ::practcl::subproject.core {
   superclass ::practcl::subproject.binary
 
@@ -4982,7 +5178,12 @@ oo::class create ::practcl::subproject.core {
   }
 }
 
-
+###
+# END: class subproject core.tcl
+###
+###
+# START: class tool.tcl
+###
 ###
 # Classes to manage tools that needed in the local environment
 # to compile and/or installed other packages
@@ -5101,4 +5302,12 @@ set ::auto_index(::practcl::LOCAL) {
     fossil_url http://fossil.etoyoc.com/fossil/odie
   }
 }
-package provide practcl 0.8
+
+###
+# END: class tool.tcl
+###
+
+namespace eval ::practcl {
+  namespace export *
+}
+
