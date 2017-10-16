@@ -1,0 +1,32 @@
+[comment {-*- tool-ui -*-}]
+[manpage_begin tool-ui n 0.1]
+[keywords TclOO]
+[keywords tao]
+[keywords odielib]
+[copyright {2014 Sean Woods <yoda@etoyoc.com>}]
+[moddesc {Tao User Interface (TaoUI)}]
+[titledesc {Abstractions to allow Tao to express Native Tk, HTML5, and Tao-Layout interfaces}]
+[category {Object System}]
+[require Tcl 8.6]
+[description]
+
+[para]
+
+The [package tool-ui] package to allows Tao to express Native Tk, HTML5, and Tao-Layout interfaces.
+[para]
+Code in this module returns only text and list values. It should not rely on the presence of Tk
+or a web backend.
+
+[section COMMANDS]
+[para]
+
+[section "REFERENCES"]
+
+
+[section AUTHORS]
+Sean Woods
+
+[vset CATEGORY tool-ui]
+[include scripts/feedback.inc]
+
+[manpage_end]
