@@ -5294,7 +5294,7 @@ set ::auto_index(::practcl::LOCAL) {
     tag trunk class tool.source fossil_url http://fossil.etoyoc.com/fossil/kettle
   }
   ::practcl::LOCAL add_tool critcl {
-    tag trunk class tool.source
+    tag master class tool.source
     git_url http://github.com/andreas-kupries/critcl
   }
   ::practcl::LOCAL add_tool odie {
