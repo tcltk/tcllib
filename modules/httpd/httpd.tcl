@@ -32,7 +32,7 @@ set ::httpd::version 4.0.0
     Content-Type: {text/html; charset=ISO-8859-1}
     Cache-Control: {no-cache}
     Connection: close
-  } 
+  }
 
   array error_codes {
     200 {Data follows}
@@ -52,7 +52,7 @@ set ::httpd::version 4.0.0
     504 {Service Temporarily Unavailable}
     505 {Internal Server Error}
   }
-  
+
   constructor {ServerObj args} {
     my variable chan
     oo::objdefine [self] forward <server> $ServerObj
@@ -60,14 +60,14 @@ set ::httpd::version 4.0.0
       my meta set config $field: $value
     }
   }
-  
+
   ###
   # clean up on exit
   ###
   destructor {
     my close
   }
-  
+
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -75,7 +75,7 @@ set ::httpd::version 4.0.0
       catch {close $chan}
     }
   }
-  
+
   method HttpHeaders {sock {debug {}}} {
     set result {}
     ###
@@ -99,7 +99,7 @@ set ::httpd::version 4.0.0
     ###
     return $MimeHeadersSock($sock)
   }
-  
+
   method HttpHeaderLine {sock} {
     my variable MimeHeadersSock
     if {[chan eof $sock]} {
@@ -121,7 +121,7 @@ set ::httpd::version 4.0.0
       puts [dict print $info]
     }
   }
-  
+
   method MimeParse mimetext {
     foreach line [split $mimetext \n] {
       # This regexp picks up
@@ -129,7 +129,7 @@ set ::httpd::version 4.0.0
       # MIME headers.  MIME headers may be continue with a line
       # that starts with spaces or a tab
       if {[string length [string trim $line]]==0} break
-      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {  
+      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
         # The following allows something to
         # recreate the headers exactly
         lappend data(headerlist) $key $value
@@ -178,7 +178,7 @@ set ::httpd::version 4.0.0
     }
     return $result
   }
-  
+
   method dispatch {newsock datastate} {
     my query_headers replace $datastate
     my variable chan rawrequest dipatched_time
@@ -203,7 +203,7 @@ set ::httpd::version 4.0.0
       my output
     }
   }
-  
+
   dictobj query_headers query_headers {
     initialize {
       CONTENT_LENGTH 0
@@ -266,8 +266,8 @@ For deeper understanding:
     my puts "</BODY>
 </HTML>"
   }
-  
-  
+
+
   ###
   # REPLACE ME:
   # This method is the "meat" of your application.
@@ -281,7 +281,7 @@ For deeper understanding:
     my puts "</BODY>"
     my puts "</HTML>"
   }
-  
+
   method EncodeStatus {status} {
     return "HTTP/1.0 $status"
   }
@@ -295,7 +295,7 @@ For deeper understanding:
   # and destroy this object
   ###
   method DoOutput {} {
-    my variable reply_body reply_chan chan
+    my variable reply_body chan
     chan event $chan writable {}
 
     catch {
@@ -326,14 +326,14 @@ For deeper understanding:
     }
     my destroy
   }
-  
+
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data
     regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
     return [subst $data]
   }
-  
+
   method FormData {} {
     my variable formdata
     # Run this only once
@@ -346,7 +346,7 @@ For deeper understanding:
         application/x-www-form-urlencoded {
           # These foreach loops are structured this way to ensure there are matched
           # name/value pairs.  Sometimes query data gets garbled.
-      
+
           set result {}
           foreach pair [split $body "&"] {
             foreach {name value} [split $pair "="] {
@@ -364,7 +364,7 @@ For deeper understanding:
     }
     return $formdata
   }
-  
+
   method PostData {} {
     my variable postdata
     # Run this only once
@@ -379,7 +379,7 @@ For deeper understanding:
       set postdata [read $chan $length]
     }
     return $postdata
-  }  
+  }
 
   method TransferComplete args {
     foreach c $args {
@@ -397,14 +397,6 @@ For deeper understanding:
   }
 
   ###
-  # Read out the contents of the POST
-  ###
-  method query_body {} {
-    my variable query_body
-    return $query_body
-  }
-
-  ###
   # Reset the result
   ###
   method reset {} {
@@ -414,7 +406,7 @@ For deeper understanding:
     my reply_headers set Date: [my timestamp]
     set reply_body {}
   }
-  
+
   ###
   # Return true of this class as waited too long to respond
   ###
@@ -428,7 +420,7 @@ For deeper understanding:
       my output
     }
   }
-  
+
   ###
   # Return a timestamp
   ###
@@ -444,7 +436,7 @@ For deeper understanding:
 # 3) By default it will only listen on localhost
 ###
 ::tool::define ::httpd::server {
-  
+
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
   option server_string [list default: [list TclHttpd $::httpd::version]]
@@ -458,11 +450,11 @@ For deeper understanding:
     my configure {*}$args
     my start
   }
-  
+
   destructor {
     my stop
   }
-  
+
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -472,12 +464,12 @@ For deeper understanding:
       catch {close $sock}
       return
     }
-    set uuid [::tool::uuid_short] 
+    set uuid [::tool::uuid_short]
     chan configure $sock \
       -blocking 0 \
       -translation {auto crlf} \
       -buffering line
-    
+
     set coro [coroutine [namespace current]::CORO$uuid ::apply [list {uuid sock ip} {
       yield [info coroutine]
       tailcall my Connect $uuid $sock $ip
@@ -485,7 +477,7 @@ For deeper understanding:
 
     chan event $sock readable $coro
   }
-  
+
   method Connect {uuid sock ip} {
     my counter url_hit
     set line {}
@@ -515,10 +507,10 @@ For deeper understanding:
       set reply [my dispatch $query]
       if {[llength $reply]} {
         if {[dict exists $reply class]} {
-          set class [dict get $reply class]          
+          set class [dict get $reply class]
         } else {
           set class [my cget reply_class]
-        }  
+        }
         set pageobj [$class create [namespace current]::reply$uuid [self]]
         if {[dict exists $reply mixin]} {
           oo::objdefine $pageobj mixin [dict get $reply mixin]
@@ -564,7 +556,7 @@ For deeper understanding:
     my variable counters
     incr counters($which)
   }
-  
+
   ###
   # Clean up any process that has gone out for lunch
   ###
@@ -577,7 +569,7 @@ For deeper understanding:
       }
     }
   }
-  
+
   ###
   # REPLACE ME:
   # This method should perform any transformations
@@ -592,16 +584,16 @@ For deeper understanding:
   method log args {
     # Do nothing for now
   }
-    
+
   method port_listening {} {
     my variable port_listening
     return $port_listening
   }
-  
+
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
-    
+
     my variable socklist port_listening
     set port [my cget port]
     if { $port in {auto {}} } {
@@ -611,7 +603,7 @@ For deeper understanding:
     set port_listening $port
     set myaddr [my cget myaddr]
     puts [list [self] listening on $port $myaddr]
- 
+
     if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
         lappend socklist [socket -server [namespace code [list my connect]] -myaddr $ip $port]
@@ -632,7 +624,7 @@ For deeper understanding:
     set socklist {}
     ::cron::cancel [self]
   }
-  
+
 
   method template page {
     my variable template
@@ -642,7 +634,7 @@ For deeper understanding:
     set template($page) [my TemplateSearch $page]
     return $template($page)
   }
-  
+
   method TemplateSearch page {
     set doc_root [my cget doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -679,7 +671,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       }
     }
   }
-  
+
   ###
   # Return true if this IP address is blocked
   # The socket will be closed immediately after returning
