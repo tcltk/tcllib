@@ -20,7 +20,8 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-set ::httpd::version 4.0.0
+set ::httpd::version 4.0.1
+package provide httpd 4.0.1
 
 ###
 # Define the reply class
@@ -681,5 +682,3 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     return 0
   }
 }
-
-package provide httpd 4.0.1
