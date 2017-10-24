@@ -964,8 +964,8 @@ proc ::practcl::_pkgindex_directory {path} {
         if { [string range $line 0 14] != "package provide" } continue
         set package [lindex $line 2]
         set version [lindex $line 3]
-        if {[string index $package 0] in "\$ \["} continue
-        if {[string index $version 0] in "\$ \["} continue
+        if {[string index $package 0] in "\$ \[ @"} continue
+        if {[string index $version 0] in "\$ \[ @"} continue
         append buffer "package ifneeded $package $version \[list source \[file join \$dir [file tail $file]\]\]" \n
         break
       }
