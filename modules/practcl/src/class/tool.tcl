@@ -62,6 +62,11 @@ oo::class create ::practcl::tool {
   }
 
   method LocalLoad {} {}
+
+  method unpack {} {
+    ::practcl::distribution select [self]
+    my Unpack
+  }
 }
 
 oo::class create ::practcl::tool.source {
@@ -82,6 +87,15 @@ oo::class create ::practcl::tool.source {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
+}
+
+oo::class create ::practcl::tool.tea {
+  superclass ::practcl::tool ::practcl::subproject.binary
+
+  method present {} {
+    return [expr {![catch {package require [my define get pkg_name [my define get name]]}]}]
+  }
+
 }
 
 ###
@@ -107,9 +121,14 @@ set ::auto_index(::practcl::LOCAL) {
   ::practcl::LOCAL add_tool kettle {
     tag trunk class tool.source fossil_url http://fossil.etoyoc.com/fossil/kettle
   }
+  ::practcl::LOCAL add_tool tclvfs {
+    tag trunk class tool.tea
+    fossil_url http://fossil.etoyoc.com/fossil/tclvfs
+  }
   ::practcl::LOCAL add_tool critcl {
     tag master class tool.source
     git_url http://github.com/andreas-kupries/critcl
+    modules lib
   }
   ::practcl::LOCAL add_tool odie {
     tag trunk class tool.source

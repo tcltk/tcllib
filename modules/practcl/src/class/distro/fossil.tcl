@@ -116,6 +116,7 @@ oo::objdefine ::practcl::distribution.fossil {
 
   # Check for markers in the metadata
   method claim_object obj {
+    puts [list [self] claim_object obj: $obj]
     set path [$obj define get srcdir]
     if {[my claim_path $path]} {
       return true

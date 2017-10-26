@@ -70,7 +70,6 @@ oo::class create ::practcl::subproject.core {
     }
     set sandbox [my Sandbox]
     set debug [my define get debug 0]
-    puts [list [self] NAME $pkg debug $debug]
     if {$debug} {
       set srcdir [file join [my Sandbox] $pkg.debug]
     } else {

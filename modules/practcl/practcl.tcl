@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.8
+package provide practcl 0.9a0
 namespace eval ::practcl {}
 
 ###
@@ -1176,26 +1176,14 @@ proc ::practcl::target {name info} {
 ###
 # START: class metaclass.tcl
 ###
-
-
 ::oo::class create ::practcl::metaclass {
   superclass ::oo::object
-
-  method script script {
-    eval $script
-  }
-
-  method source filename {
-    source $filename
-  }
-
-  method initialize {} {}
 
   method define {submethod args} {
     my variable define
     switch $submethod {
       dump {
-	return [array get define]
+        return [array get define]
       }
       add {
         set field [lindex $args 0]
@@ -1268,18 +1256,8 @@ proc ::practcl::target {name info} {
     return $object
   }
 
-  method organ {{stub all}} {
-    my variable organs
-    if {![info exists organs]} {
-      return {}
-    }
-    if { $stub eq "all" } {
-      return $organs
-    }
-    if {[dict exists $organs $stub]} {
-      return [dict get $organs $stub]
-    }
-  }
+  method initialize {} {}
+
 
   method link {command args} {
     my variable links
@@ -1336,6 +1314,50 @@ proc ::practcl::target {name info} {
     }
   }
 
+  method mixin {slot classname} {
+    my variable mixinslot
+    set class {}
+    set map [list @slot@ $slot @name@ $classname]
+    foreach pattern [split [string map $map {
+      @name@
+      @slot@.@name@
+      ::practcl::@name@
+      ::practcl::@slot@.@name@
+      ::practcl::@slot@*@name@
+      ::practcl::*@name@*
+    }] \n] {
+      set pattern [string trim $pattern]
+      set matches [info commands $pattern]
+      if {![llength $matches]} continue
+      set class [lindex $matches 0]
+      break
+    }
+    dict set mixinslot $slot $class
+    set mixins {}
+    foreach {s c} $mixinslot {
+      if {$c eq {}} continue
+      lappend mixins $c
+    }
+    oo::objdefine [self] mixin {*}$mixins
+  }
+
+  method organ {{stub all}} {
+    my variable organs
+    if {![info exists organs]} {
+      return {}
+    }
+    if { $stub eq "all" } {
+      return $organs
+    }
+    if {[dict exists $organs $stub]} {
+      return [dict get $organs $stub]
+    }
+  }
+
+  method script script {
+    eval $script
+  }
+
   method select {} {
     my variable define
     set class {}
@@ -1360,22 +1382,79 @@ proc ::practcl::target {name info} {
       unset define(oodefine)
     }
   }
+
+  method source filename {
+    source $filename
+  }
 }
 
 ###
 # END: class metaclass.tcl
 ###
 ###
-# START: class build baseclass.tcl
+# START: class toolset baseclass.tcl
 ###
-
-
 ###
 # Ancestor-less class intended to be a mixin
 # which defines a family of build related behaviors
 # that are modified when targetting either gcc or msvc
 ###
-::oo::class create ::practcl::build {
+oo::class create ::practcl::toolset {
+  ###
+  # find or fake a key/value list describing this project
+  ###
+  method config.sh {} {
+    my variable conf_result
+    if {[info exists conf_result]} {
+      return $conf_result
+    }
+    set result {}
+    set name [my define get name]
+    set PWD $::CWD
+    set builddir [my define get builddir]
+    my unpack
+    set srcdir [my define get srcdir]
+    if {![file exists $builddir]} {
+      my Configure
+    }
+    set filename [file join $builddir config.tcl]
+    # Project uses the practcl template. Use the leavings from autoconf
+    if {[file exists $filename]} {
+      set dat [::practcl::config.tcl $builddir]
+      foreach {item value} [::practcl::sort_dict $dat] {
+        dict set result $item $value
+      }
+      set conf_result $result
+      return $result
+    }
+    set filename [file join $builddir ${name}Config.sh]
+    if {[file exists $filename]} {
+      set l [expr {[string length $name]+1}]
+      foreach {field dat} [::practcl::read_Config.sh $filename] {
+        set field [string tolower $field]
+        if {[string match ${name}_* $field]} {
+          set field [string range $field $l end]
+        }
+        dict set result $field $dat
+      }
+      set conf_result $result
+      return $result
+    }
+    ###
+    # Oh man... we have to guess
+    ###
+    set filename [file join $builddir Makefile]
+    if {![file exists $filename]} {
+      error "Could not locate any configuration data in $srcdir"
+    }
+    foreach {field dat} [::practcl::read_Makefile $filename] {
+      dict set result $field $dat
+    }
+    set conf_result $result
+    cd $PWD
+    return $result
+  }
+
   ## method DEFS
   # This method populates 4 variables:
   # name - The name of the package
@@ -1410,211 +1489,116 @@ proc ::practcl::target {name info} {
     return $defs
   }
 
-  method build-tclkit_main {PROJECT PKG_OBJS} {
-  ###
-  # Build static package list
-  ###
-  set statpkglist {}
-  foreach cobj [list {*}${PKG_OBJS} $PROJECT] {
-    foreach {pkg info} [$cobj static-packages] {
-      dict set statpkglist $pkg $info
+
+  method NmakeOpts {} {
+    set opts {}
+    set builddir [file normalize [my define get builddir]]
+
+    if {[my <project> define exists tclsrcdir]} {
+      ###
+      # On Windows we are probably running under MSYS, which doesn't deal with
+      # spaces in filename well
+      ###
+      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] ..]]]
+      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
+      lappend opts TCLDIR=[file normalize $TCLSRCDIR]
+      #--with-tclinclude=$TCLGENERIC
     }
-  }
-  foreach {ofile info} [${PROJECT} compile-products] {
-    if {![dict exists $info object]} continue
-    set cobj [dict get $info object]
-    foreach {pkg info} [$cobj static-packages] {
-      dict set statpkglist $pkg $info
+    if {[my <project> define exists tksrcdir]} {
+      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] ..]]]
+      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
+      #lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
+      lappend opts TKDIR=[file normalize $TKSRCDIR]
     }
+    return $opts
   }
 
-  set result {}
-  $PROJECT include {<tcl.h>}
-  $PROJECT include {"tclInt.h"}
-  $PROJECT include {"tclFileSystem.h"}
-  $PROJECT include {<assert.h>}
-  $PROJECT include {<stdio.h>}
-  $PROJECT include {<stdlib.h>}
-  $PROJECT include {<string.h>}
-  $PROJECT include {<math.h>}
-
-  $PROJECT code header {
-#ifndef MODULE_SCOPE
-#   define MODULE_SCOPE extern
-#endif
-
-/*
-** Provide a dummy Tcl_InitStubs if we are using this as a static
-** library.
-*/
-#ifndef USE_TCL_STUBS
-# undef  Tcl_InitStubs
-# define Tcl_InitStubs(a,b,c) TCL_VERSION
-#endif
-#define STATIC_BUILD 1
-#undef USE_TCL_STUBS
-
-/* Make sure the stubbed variants of those are never used. */
-#undef Tcl_ObjSetVar2
-#undef Tcl_NewStringObj
-#undef Tk_Init
-#undef Tk_MainEx
-#undef Tk_SafeInit
-}
-
-  # Build an area of the file for #define directives and
-  # function declarations
-  set define {}
-  set mainhook   [$PROJECT define get TCL_LOCAL_MAIN_HOOK Tclkit_MainHook]
-  set mainfunc   [$PROJECT define get TCL_LOCAL_APPINIT Tclkit_AppInit]
-  set mainscript [$PROJECT define get main.tcl main.tcl]
-  set vfsroot    [$PROJECT define get vfsroot "[$PROJECT define get ZIPFS_VOLUME]app"]
-  set vfs_main "${vfsroot}/${mainscript}"
-  set vfs_tcl_library "${vfsroot}/boot/tcl"
-  set vfs_tk_library "${vfsroot}/boot/tk"
-
-  set map {}
-  foreach var {
-    vfsroot mainhook mainfunc vfs_main vfs_tcl_library vfs_tk_library
-  } {
-    dict set map %${var}% [set $var]
-  }
-  set preinitscript {
-set ::odie(boot_vfs) {%vfsroot%}
-set ::SRCDIR {%vfsroot%}
-if {[file exists {%vfs_tcl_library%}]} {
-  set ::tcl_library {%vfs_tcl_library%}
-  set ::auto_path {}
-}
-if {[file exists {%vfs_tk_library%}]} {
-  set ::tk_library {%vfs_tk_library%}
-}
-} ; # Preinitscript
-
-  set zvfsboot {
-/*
- * %mainhook% --
- * Performs the argument munging for the shell
- */
-  }
-  ::practcl::cputs zvfsboot {
-  CONST char *archive;
-  Tcl_FindExecutable(*argv[0]);
-  archive=Tcl_GetNameOfExecutable();
-  }
-  # We have to initialize the virtual filesystem before calling
-  # Tcl_Init().  Otherwise, Tcl_Init() will not be able to find
-  # its startup script files.
-  if {[$PROJECT define get tip_430 0]} {
-    ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
-  } else {
-    ::practcl::cputs zvfsboot {  Odie_Zipfs_Init(NULL);}
-    ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
-  }
-  ::practcl::cputs zvfsboot {
-    Tcl_Obj *vfsinitscript;
-    vfsinitscript=Tcl_NewStringObj("%vfs_main%",-1);
-    Tcl_IncrRefCount(vfsinitscript);
-    if(Tcl_FSAccess(vfsinitscript,F_OK)==0) {
-      /* Startup script should be set before calling Tcl_AppInit */
-      Tcl_SetStartupScript(vfsinitscript,NULL);
-    }
-  }
-  ::practcl::cputs zvfsboot "    TclSetPreInitScript([::practcl::tcl_to_c $preinitscript])\;"
-  ::practcl::cputs zvfsboot "  \x7D else \x7B"
-  ::practcl::cputs zvfsboot "    TclSetPreInitScript([::practcl::tcl_to_c {
-foreach path {
-  ../tcl
-} {
-  set p  [file join $path library init.tcl]
-  if {[file exists [file join $path library init.tcl]]} {
-    set ::tcl_library [file normalize [file join $path library]]
-    break
-  }
-}
-foreach path {
-  ../tk
-} {
-  if {[file exists [file join $path library tk.tcl]]} {
-    set ::tk_library [file normalize [file join $path library]]
-    break
-  }
-}
-}])\;"
-
-  ::practcl::cputs zvfsboot "  \x7D"
-  ::practcl::cputs zvfsboot "  return TCL_OK;"
-
-  if {[$PROJECT define get TEACUP_OS] eq "windows"} {
-    set header {int %mainhook%(int *argc, TCHAR ***argv)}
-  } else {
-    set header {int %mainhook%(int *argc, char ***argv)}
-  }
-  $PROJECT c_function  [string map $map $header] [string map $map $zvfsboot]
-
-  practcl::cputs appinit "int %mainfunc%(Tcl_Interp *interp) \x7B"
-
-  # Build AppInit()
-  set appinit {}
-  practcl::cputs appinit {
-  if ((Tcl_Init)(interp) == TCL_ERROR) {
-      return TCL_ERROR;
-  }
-}
-  set main_init_script {}
-
-  foreach {statpkg info} $statpkglist {
-    set initfunc {}
-    if {[dict exists $info initfunc]} {
-      set initfunc [dict get $info initfunc]
-    }
-    if {$initfunc eq {}} {
-      set initfunc [string totitle ${statpkg}]_Init
-    }
-    if {![dict exists $info version]} {
-      error "$statpkg HAS NO VERSION"
-    }
-    # We employ a NULL to prevent the package system from thinking the
-    # package is actually loaded into the interpreter
-    $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
-    set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
-    append main_init_script \n [list set ::kitpkg(${statpkg}) $script]
-    if {[dict get $info autoload]} {
-      ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
-      ::practcl::cputs appinit "  Tcl_StaticPackage(interp,\"$statpkg\",$initfunc,NULL)\;"
+  method ConfigureOpts {} {
+    set opts {}
+    set builddir [my define get builddir]
+    if {[my define get broken_destroot 0]} {
+      set PREFIX [my <project> define get prefix_broken_destdir]
     } else {
-      ::practcl::cputs appinit "\n  Tcl_StaticPackage(NULL,\"$statpkg\",$initfunc,NULL)\;"
-      append main_init_script \n $script
+      set PREFIX [my <project> define get prefix]
+    }
+    if {[my <project> define get CONFIG_SITE] != {}} {
+      lappend opts --host=[my <project> define get HOST]
+    }
+    lappend opts --with-tclsh=[info nameofexecutable]
+    if {[my <project> define exists tclsrcdir]} {
+      ###
+      # On Windows we are probably running under MSYS, which doesn't deal with
+      # spaces in filename well
+      ###
+      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
+      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
+      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
+    }
+    if {[my <project> define exists tksrcdir]} {
+      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
+      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
+      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
+    }
+    lappend opts {*}[my define get config_opts]
+    if {![regexp -- "--prefix" $opts]} {
+      lappend opts --prefix=$PREFIX
+    }
+    if {[my define get debug 0]} {
+      lappend opts --enable-symbols=true
+    }
+    #--exec_prefix=$PREFIX
+    #if {$::tcl_platform(platform) eq "windows"} {
+    #  lappend opts --disable-64bit
+    #}
+    if {[my define get static 1]} {
+      lappend opts --disable-shared
+      #--disable-stubs
+      #
+    } else {
+      lappend opts --enable-shared
+    }
+    return $opts
+  }
+
+  #method unpack {} {
+  #  ::practcl::distribution select [self]
+  #  my Unpack
+  #}
+}
+
+
+oo::objdefine ::practcl::toolset {
+
+
+  method select object {
+    ###
+    # Select the toolset to use for this project
+    ###
+    if {[$object define exists toolset]} {
+      return [$object define get toolset]
+    }
+    set class [$object define get toolset]
+    if {$class ne {}} {
+      $object mixin toolset $class
+    } else {
+      if {[info exists ::env(VisualStudioVersion)]} {
+        $object mixin toolset ::practcl::toolset.msvc
+      } else {
+        $object mixin toolset ::practcl::toolset.gcc
+      }
     }
   }
-  append main_init_script \n {
-if {[file exists [file join $::SRCDIR packages.tcl]]} {
-  #In a wrapped exe, we don't go out to the environment
-  set dir $::SRCDIR
-  source [file join $::SRCDIR packages.tcl]
-}
-# Specify a user-specific startup file to invoke if the application
-# is run interactively.  Typically the startup file is "~/.apprc"
-# where "app" is the name of the application.  If this line is deleted
-# then no user-specific startup file will be run under any conditions.
-  }
-  append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
-  practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $main_init_script]);"
-  practcl::cputs appinit {  return TCL_OK;}
-  $PROJECT c_function [string map $map "int %mainfunc%(Tcl_Interp *interp)"] [string map $map $appinit]
-}
-
 }
 
 ###
-# END: class build baseclass.tcl
+# END: class toolset baseclass.tcl
 ###
 ###
-# START: class build gcc.tcl
+# START: class toolset gcc.tcl
 ###
 
-::oo::class create ::practcl::build.gcc {
-  superclass ::practcl::build
+::oo::class create ::practcl::toolset.gcc {
+  superclass ::practcl::toolset
 
   method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
   set EXTERN_OBJS {}
@@ -1878,6 +1862,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 method build-tclsh {outfile PROJECT} {
   puts " BUILDING STATIC TCLSH "
   set TCLOBJ [$PROJECT project TCLCORE]
+  ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
   foreach item [$PROJECT link list core.library] {
     if {[string is true [$item define get static]]} {
@@ -1896,6 +1881,7 @@ method build-tclsh {outfile PROJECT} {
     set TKOBJ ::noop
     $PROJECT define set static_tk 0
   } else {
+    ::practcl::toolset select $TKOBJ
     array set TK  [$TKOBJ config.sh]
     set do_tk [$TKOBJ define get static]
     $PROJECT define set static_tk $do_tk
@@ -2058,18 +2044,18 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
 }
 
 ###
-# END: class build gcc.tcl
+# END: class toolset gcc.tcl
 ###
 ###
-# START: class build msvc.tcl
+# START: class toolset msvc.tcl
 ###
-::oo::class create ::practcl::build.msvc {
-  superclass ::practcl::build
+::oo::class create ::practcl::toolset.msvc {
+  superclass ::practcl::toolset
 
 }
 
 ###
-# END: class build msvc.tcl
+# END: class toolset msvc.tcl
 ###
 ###
 # START: class target.tcl
@@ -3439,6 +3425,17 @@ $body"
 # END: class product dynamic.tcl
 ###
 ###
+# START: class product critcl.tcl
+###
+::oo::class create ::practcl::product.critcl {
+  superclass ::practcl::product.dynamic
+
+}
+
+###
+# END: class product critcl.tcl
+###
+###
 # START: class module.tcl
 ###
 
@@ -3515,63 +3512,6 @@ $body"
 # START: class autoconf.tcl
 ###
 
-::oo::class create ::practcl::autoconf {
-
-  ###
-  # find or fake a key/value list describing this project
-  ###
-  method config.sh {} {
-    my variable conf_result
-    if {[info exists conf_result]} {
-      return $conf_result
-    }
-    set result {}
-    set name [my define get name]
-    set PWD $::CWD
-    set builddir [my define get builddir]
-    my unpack
-    set srcdir [my define get srcdir]
-    if {![file exists $builddir]} {
-      my Configure
-    }
-    set filename [file join $builddir config.tcl]
-    # Project uses the practcl template. Use the leavings from autoconf
-    if {[file exists $filename]} {
-      set dat [::practcl::config.tcl $builddir]
-      foreach {item value} [::practcl::sort_dict $dat] {
-        dict set result $item $value
-      }
-      set conf_result $result
-      return $result
-    }
-    set filename [file join $builddir ${name}Config.sh]
-    if {[file exists $filename]} {
-      set l [expr {[string length $name]+1}]
-      foreach {field dat} [::practcl::read_Config.sh $filename] {
-        set field [string tolower $field]
-        if {[string match ${name}_* $field]} {
-          set field [string range $field $l end]
-        }
-        dict set result $field $dat
-      }
-      set conf_result $result
-      return $result
-    }
-    ###
-    # Oh man... we have to guess
-    ###
-    set filename [file join $builddir Makefile]
-    if {![file exists $filename]} {
-      error "Could not locate any configuration data in $srcdir"
-    }
-    foreach {field dat} [::practcl::read_Makefile $filename] {
-      dict set result $field $dat
-    }
-    set conf_result $result
-    cd $PWD
-    return $result
-  }
-}
 
 ###
 # END: class autoconf.tcl
@@ -3581,7 +3521,7 @@ $body"
 ###
 
 ::oo::class create ::practcl::project {
-  superclass ::practcl::module ::practcl::autoconf
+  superclass ::practcl::module
 
   constructor args {
     my variable define
@@ -3610,7 +3550,7 @@ $body"
       }
     }
     array set define $contents
-    my select
+    ::practcl::toolset select [self]
     my initialize
   }
 
@@ -3684,35 +3624,6 @@ $body"
       return $obj
     }
     ${obj} {*}$args
-  }
-
-  method select {} {
-    next
-    ###
-    # Select the toolset to use for this project
-    ###
-    my variable define
-    set class {}
-    if {[info exists define(toolset)]} {
-      if {[info command $define(toolset)] ne {}} {
-        set class $define(toolset)
-      } elseif {[info command ::practcl::$define(toolset)] ne {}} {
-        set class ::practcl::$define(toolset)
-      } else {
-        switch $define(toolset) {
-          default {
-            set class ::practcl::build.gcc
-          }
-        }
-      }
-    } else {
-      if {[info exists ::env(VisualStudioVersion)]} {
-        set class ::practcl::build.msvc
-      } else {
-        set class ::practcl::build.gcc
-      }
-    }
-    ::oo::objdefine [self] mixin $class
   }
 
   method tool {pkg args} {
@@ -4049,6 +3960,197 @@ char *
 ::oo::class create ::practcl::tclkit {
   superclass ::practcl::library
 
+  method build-tclkit_main {PROJECT PKG_OBJS} {
+    ###
+    # Build static package list
+    ###
+    set statpkglist {}
+    foreach cobj [list {*}${PKG_OBJS} $PROJECT] {
+      foreach {pkg info} [$cobj static-packages] {
+        dict set statpkglist $pkg $info
+      }
+    }
+    foreach {ofile info} [${PROJECT} compile-products] {
+      if {![dict exists $info object]} continue
+      set cobj [dict get $info object]
+      foreach {pkg info} [$cobj static-packages] {
+        dict set statpkglist $pkg $info
+      }
+    }
+
+    set result {}
+    $PROJECT include {<tcl.h>}
+    $PROJECT include {"tclInt.h"}
+    $PROJECT include {"tclFileSystem.h"}
+    $PROJECT include {<assert.h>}
+    $PROJECT include {<stdio.h>}
+    $PROJECT include {<stdlib.h>}
+    $PROJECT include {<string.h>}
+    $PROJECT include {<math.h>}
+
+    $PROJECT code header {
+#ifndef MODULE_SCOPE
+#   define MODULE_SCOPE extern
+#endif
+
+/*
+** Provide a dummy Tcl_InitStubs if we are using this as a static
+** library.
+*/
+#ifndef USE_TCL_STUBS
+# undef  Tcl_InitStubs
+# define Tcl_InitStubs(a,b,c) TCL_VERSION
+#endif
+#define STATIC_BUILD 1
+#undef USE_TCL_STUBS
+
+/* Make sure the stubbed variants of those are never used. */
+#undef Tcl_ObjSetVar2
+#undef Tcl_NewStringObj
+#undef Tk_Init
+#undef Tk_MainEx
+#undef Tk_SafeInit
+}
+
+    # Build an area of the file for #define directives and
+    # function declarations
+    set define {}
+    set mainhook   [$PROJECT define get TCL_LOCAL_MAIN_HOOK Tclkit_MainHook]
+    set mainfunc   [$PROJECT define get TCL_LOCAL_APPINIT Tclkit_AppInit]
+    set mainscript [$PROJECT define get main.tcl main.tcl]
+    set vfsroot    [$PROJECT define get vfsroot "[$PROJECT define get ZIPFS_VOLUME]app"]
+    set vfs_main "${vfsroot}/${mainscript}"
+    set vfs_tcl_library "${vfsroot}/boot/tcl"
+    set vfs_tk_library "${vfsroot}/boot/tk"
+
+    set map {}
+    foreach var {
+      vfsroot mainhook mainfunc vfs_main vfs_tcl_library vfs_tk_library
+    } {
+      dict set map %${var}% [set $var]
+    }
+    set preinitscript {
+set ::odie(boot_vfs) {%vfsroot%}
+set ::SRCDIR {%vfsroot%}
+if {[file exists {%vfs_tcl_library%}]} {
+  set ::tcl_library {%vfs_tcl_library%}
+  set ::auto_path {}
+}
+if {[file exists {%vfs_tk_library%}]} {
+  set ::tk_library {%vfs_tk_library%}
+}
+} ; # Preinitscript
+
+    set zvfsboot {
+/*
+ * %mainhook% --
+ * Performs the argument munging for the shell
+ */
+  }
+    ::practcl::cputs zvfsboot {
+  CONST char *archive;
+  Tcl_FindExecutable(*argv[0]);
+  archive=Tcl_GetNameOfExecutable();
+}
+    # We have to initialize the virtual filesystem before calling
+    # Tcl_Init().  Otherwise, Tcl_Init() will not be able to find
+    # its startup script files.
+    if {[$PROJECT define get tip_430 0]} {
+      ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
+    } else {
+      ::practcl::cputs zvfsboot {  Odie_Zipfs_Init(NULL);}
+      ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
+    }
+    ::practcl::cputs zvfsboot {
+      Tcl_Obj *vfsinitscript;
+      vfsinitscript=Tcl_NewStringObj("%vfs_main%",-1);
+      Tcl_IncrRefCount(vfsinitscript);
+      if(Tcl_FSAccess(vfsinitscript,F_OK)==0) {
+        /* Startup script should be set before calling Tcl_AppInit */
+        Tcl_SetStartupScript(vfsinitscript,NULL);
+      }
+    }
+    ::practcl::cputs zvfsboot "    TclSetPreInitScript([::practcl::tcl_to_c $preinitscript])\;"
+    ::practcl::cputs zvfsboot "  \x7D else \x7B"
+    ::practcl::cputs zvfsboot "    TclSetPreInitScript([::practcl::tcl_to_c {
+foreach path {../tcl} {
+  set p  [file join $path library init.tcl]
+  if {[file exists [file join $path library init.tcl]]} {
+    set ::tcl_library [file normalize [file join $path library]]
+    break
+  }
+}
+foreach path {
+  ../tk
+} {
+  if {[file exists [file join $path library tk.tcl]]} {
+    set ::tk_library [file normalize [file join $path library]]
+    break
+  }
+}
+}])\;"
+    ::practcl::cputs zvfsboot "  \x7D"
+    ::practcl::cputs zvfsboot "  return TCL_OK;"
+
+    if {[$PROJECT define get TEACUP_OS] eq "windows"} {
+      set header {int %mainhook%(int *argc, TCHAR ***argv)}
+    } else {
+      set header {int %mainhook%(int *argc, char ***argv)}
+    }
+    $PROJECT c_function  [string map $map $header] [string map $map $zvfsboot]
+
+    practcl::cputs appinit "int %mainfunc%(Tcl_Interp *interp) \x7B"
+
+  # Build AppInit()
+  set appinit {}
+  practcl::cputs appinit {
+  if ((Tcl_Init)(interp) == TCL_ERROR) {
+      return TCL_ERROR;
+  }
+}
+    set main_init_script {}
+
+    foreach {statpkg info} $statpkglist {
+      set initfunc {}
+      if {[dict exists $info initfunc]} {
+        set initfunc [dict get $info initfunc]
+      }
+      if {$initfunc eq {}} {
+        set initfunc [string totitle ${statpkg}]_Init
+      }
+      if {![dict exists $info version]} {
+        error "$statpkg HAS NO VERSION"
+      }
+      # We employ a NULL to prevent the package system from thinking the
+      # package is actually loaded into the interpreter
+      $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
+      set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
+      append main_init_script \n [list set ::kitpkg(${statpkg}) $script]
+      if {[dict get $info autoload]} {
+        ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
+        ::practcl::cputs appinit "  Tcl_StaticPackage(interp,\"$statpkg\",$initfunc,NULL)\;"
+      } else {
+        ::practcl::cputs appinit "\n  Tcl_StaticPackage(NULL,\"$statpkg\",$initfunc,NULL)\;"
+        append main_init_script \n $script
+      }
+    }
+    append main_init_script \n {
+if {[file exists [file join $::SRCDIR packages.tcl]]} {
+  #In a wrapped exe, we don't go out to the environment
+  set dir $::SRCDIR
+  source [file join $::SRCDIR packages.tcl]
+}
+# Specify a user-specific startup file to invoke if the application
+# is run interactively.  Typically the startup file is "~/.apprc"
+# where "app" is the name of the application.  If this line is deleted
+# then no user-specific startup file will be run under any conditions.
+}
+    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
+    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $main_init_script]);"
+    practcl::cputs appinit {  return TCL_OK;}
+    $PROJECT c_function [string map $map "int %mainfunc%(Tcl_Interp *interp)"] [string map $map $appinit]
+  }
+
   method Collate_Source CWD {
     set name [my define get name]
     # Assume a static shell
@@ -4069,6 +4171,8 @@ char *
       puts [list BUILDING KIT FOR OS $os]
     }
     set TCLOBJ [$PROJECT project TCLCORE]
+    ::practcl::toolset select $TCLOBJ
+
     set TCLSRCDIR [$TCLOBJ define get srcdir]
     set PKG_OBJS {}
     foreach item [$PROJECT link list core.library] {
@@ -4216,7 +4320,7 @@ oo::class create ::practcl::distribution {
         return $sandbox
       }
     }
-    set sandbox [file normalize [file join $::CWD .. $pkg]]
+    set sandbox [file normalize [file join $::CWD ..]]
     my define set sandbox $sandbox
     return $sandbox
   }
@@ -4232,43 +4336,12 @@ oo::class create ::practcl::distribution {
     return $srcdir
   }
 
-  method ScmSelect {} {
-    if {[my define exists scm]} {
-      return [my define get scm]
-    }
-    set srcdir [my SrcDir]
-    set classprefix ::practcl::distribution.
-    if {[file exists $srcdir]} {
-      foreach class [::info commands ${classprefix}*] {
-        if {[$class claim_path $srcdir]} {
-          oo::objdefine [self] mixin $class
-          my define set scm [string range $class [string length ::practcl::distribution.] end]
-        }
-      }
-    }
-    foreach class [::info commands ${classprefix}*] {
-      if {[$class claim_object [self]]} {
-        oo::objdefine [self] mixin $class
-        my define set scm [string range $class [string length ::practcl::distribution.] end]
-      }
-    }
-    if {[my define get scm] eq {} && [my define exists file_url]} {
-      set class
-    }
-
-    if {[my define get scm] eq {}} {
-      error "No SCM selected"
-    }
-    return [my define get scm]
-  }
-
   method ScmTag    {} {}
   method ScmClone  {} {}
   method ScmUnpack {} {}
   method ScmUpdate {} {}
 
-  method unpack {} {
-    my ScmSelect
+  method Unpack {} {
     set srcdir [my SrcDir]
     if {[file exists $srcdir]} {
       return
@@ -4285,14 +4358,66 @@ oo::class create ::practcl::distribution {
     }
     my ScmUnpack
   }
-
-  method update {} {
-    my ScmSelect
-    my ScmUpdate
-  }
 }
 
 oo::objdefine ::practcl::distribution {
+
+  method Sandbox {object} {
+    if {[$object define exists sandbox]} {
+      return [$object define get sandbox]
+    }
+    if {[$object organ project] ni {::noop {}}} {
+      set sandbox [$object <project> define get sandbox]
+      if {$sandbox ne {}} {
+        $object define set sandbox $sandbox
+        return $sandbox
+      }
+    }
+    set pkg [$object define get name]
+    set sandbox [file normalize [file join $::CWD ..]]
+    $object define set sandbox $sandbox
+    return $sandbox
+  }
+
+  method select object {
+    if {[$object define exists scm]} {
+      return [$object define get scm]
+    }
+
+    set pkg [$object define get name]
+    if {[$object define get srcdir] ne {}} {
+      set srcdir [$object define get srcdir]
+    } else {
+      set srcdir [file join [my Sandbox $object] $pkg]
+      $object define set srcdir $srcdir
+    }
+
+    set classprefix ::practcl::distribution.
+    if {[file exists $srcdir]} {
+      foreach class [::info commands ${classprefix}*] {
+        if {[$class claim_path $srcdir]} {
+          $object mixin distribution $class
+          $object define set scm [string range $class [string length ::practcl::distribution.] end]
+          return [$object define get scm]
+        }
+      }
+    }
+    foreach class [::info commands ${classprefix}*] {
+      if {[$class claim_object $object]} {
+        $object mixin distribution $class
+        $object define set scm [string range $class [string length ::practcl::distribution.] end]
+        return [$object define get scm]
+      }
+    }
+    if {[$object define get scm] eq {} && [$object define exists file_url]} {
+      set class ::practcl::distribution.snapshot
+      $object define set scm snapshot
+      $object mixin distribution $class
+      return [$object define get scm]
+    }
+    error "Cannot determine source distribution method"
+  }
+
   method claim_path path {
     return false
   }
@@ -4485,6 +4610,7 @@ oo::objdefine ::practcl::distribution.fossil {
 
   # Check for markers in the metadata
   method claim_object obj {
+    puts [list [self] claim_object obj: $obj]
     set path [$obj define get srcdir]
     if {[my claim_path $path]} {
       return true
@@ -4622,6 +4748,12 @@ oo::class create ::practcl::subproject {
   }
 
   method sources {} {}
+
+  method unpack {} {
+    ::practcl::distribution select [self]
+    my Unpack
+    ::practcl::toolset select [self]
+  }
 }
 
 ###
@@ -4730,7 +4862,7 @@ oo::class create ::practcl::subproject.sak {
 # A binary package
 ###
 oo::class create ::practcl::subproject.binary {
-  superclass ::practcl::subproject ::practcl::autoconf
+  superclass ::practcl::subproject
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -4743,75 +4875,6 @@ oo::class create ::practcl::subproject.binary {
 
   method compile-products {} {}
 
-  method NmakeOpts {} {
-    set opts {}
-    set builddir [file normalize [my define get builddir]]
-
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] ..]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts TCLDIR=[file normalize $TCLSRCDIR]
-      #--with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] ..]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      #lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-      lappend opts TKDIR=[file normalize $TKSRCDIR]
-    }
-    return $opts
-  }
-
-  method ConfigureOpts {} {
-    set opts {}
-    set builddir [my define get builddir]
-    if {[my define get broken_destroot 0]} {
-      set PREFIX [my <project> define get prefix_broken_destdir]
-    } else {
-      set PREFIX [my <project> define get prefix]
-    }
-    if {[my <project> define get CONFIG_SITE] != {}} {
-      lappend opts --host=[my <project> define get HOST]
-    }
-    lappend opts --with-tclsh=[info nameofexecutable]
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-    }
-    lappend opts {*}[my define get config_opts]
-    if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX
-    }
-    if {[my define get debug 0]} {
-      lappend opts --enable-symbols=true
-    }
-    #--exec_prefix=$PREFIX
-    #if {$::tcl_platform(platform) eq "windows"} {
-    #  lappend opts --disable-64bit
-    #}
-    if {[my define get static 1]} {
-      lappend opts --disable-shared
-      #--disable-stubs
-      #
-    } else {
-      lappend opts --enable-shared
-    }
-    return $opts
-  }
 
   method ComputeInstall {} {
     if {[my define exists install]} {
@@ -4870,6 +4933,7 @@ oo::class create ::practcl::subproject.binary {
         dict set result $pkg_name initfunc $initfunc
         set version [my define get version]
         if {$version eq {}} {
+          my unpack
           set info [my config.sh]
           set version [dict get $info version]
           set pl {}
@@ -4906,6 +4970,7 @@ oo::class create ::practcl::subproject.binary {
     set PWD $::CWD
     cd $PWD
     my unpack
+
     set srcdir [file normalize [my SrcDir]]
     my Collate_Source $PWD
 
@@ -4961,6 +5026,7 @@ oo::class create ::practcl::subproject.binary {
   method Configure {} {
     cd $::CWD
     my unpack
+    ::practcl::toolset select [self]
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir
@@ -5167,7 +5233,6 @@ oo::class create ::practcl::subproject.core {
     }
     set sandbox [my Sandbox]
     set debug [my define get debug 0]
-    puts [list [self] NAME $pkg debug $debug]
     if {$debug} {
       set srcdir [file join [my Sandbox] $pkg.debug]
     } else {
@@ -5248,6 +5313,11 @@ oo::class create ::practcl::tool {
   }
 
   method LocalLoad {} {}
+
+  method unpack {} {
+    ::practcl::distribution select [self]
+    my Unpack
+  }
 }
 
 oo::class create ::practcl::tool.source {
@@ -5268,6 +5338,15 @@ oo::class create ::practcl::tool.source {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
+}
+
+oo::class create ::practcl::tool.tea {
+  superclass ::practcl::tool ::practcl::subproject.binary
+
+  method present {} {
+    return [expr {![catch {package require [my define get pkg_name [my define get name]]}]}]
+  }
+
 }
 
 ###
@@ -5293,9 +5372,14 @@ set ::auto_index(::practcl::LOCAL) {
   ::practcl::LOCAL add_tool kettle {
     tag trunk class tool.source fossil_url http://fossil.etoyoc.com/fossil/kettle
   }
+  ::practcl::LOCAL add_tool tclvfs {
+    tag trunk class tool.tea
+    fossil_url http://fossil.etoyoc.com/fossil/tclvfs
+  }
   ::practcl::LOCAL add_tool critcl {
     tag master class tool.source
     git_url http://github.com/andreas-kupries/critcl
+    modules lib
   }
   ::practcl::LOCAL add_tool odie {
     tag trunk class tool.source

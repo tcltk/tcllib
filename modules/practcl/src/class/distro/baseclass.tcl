@@ -21,7 +21,7 @@ oo::class create ::practcl::distribution {
         return $sandbox
       }
     }
-    set sandbox [file normalize [file join $::CWD .. $pkg]]
+    set sandbox [file normalize [file join $::CWD ..]]
     my define set sandbox $sandbox
     return $sandbox
   }
@@ -37,43 +37,12 @@ oo::class create ::practcl::distribution {
     return $srcdir
   }
 
-  method ScmSelect {} {
-    if {[my define exists scm]} {
-      return [my define get scm]
-    }
-    set srcdir [my SrcDir]
-    set classprefix ::practcl::distribution.
-    if {[file exists $srcdir]} {
-      foreach class [::info commands ${classprefix}*] {
-        if {[$class claim_path $srcdir]} {
-          oo::objdefine [self] mixin $class
-          my define set scm [string range $class [string length ::practcl::distribution.] end]
-        }
-      }
-    }
-    foreach class [::info commands ${classprefix}*] {
-      if {[$class claim_object [self]]} {
-        oo::objdefine [self] mixin $class
-        my define set scm [string range $class [string length ::practcl::distribution.] end]
-      }
-    }
-    if {[my define get scm] eq {} && [my define exists file_url]} {
-      set class
-    }
-
-    if {[my define get scm] eq {}} {
-      error "No SCM selected"
-    }
-    return [my define get scm]
-  }
-
   method ScmTag    {} {}
   method ScmClone  {} {}
   method ScmUnpack {} {}
   method ScmUpdate {} {}
 
-  method unpack {} {
-    my ScmSelect
+  method Unpack {} {
     set srcdir [my SrcDir]
     if {[file exists $srcdir]} {
       return
@@ -90,14 +59,66 @@ oo::class create ::practcl::distribution {
     }
     my ScmUnpack
   }
-
-  method update {} {
-    my ScmSelect
-    my ScmUpdate
-  }
 }
 
 oo::objdefine ::practcl::distribution {
+
+  method Sandbox {object} {
+    if {[$object define exists sandbox]} {
+      return [$object define get sandbox]
+    }
+    if {[$object organ project] ni {::noop {}}} {
+      set sandbox [$object <project> define get sandbox]
+      if {$sandbox ne {}} {
+        $object define set sandbox $sandbox
+        return $sandbox
+      }
+    }
+    set pkg [$object define get name]
+    set sandbox [file normalize [file join $::CWD ..]]
+    $object define set sandbox $sandbox
+    return $sandbox
+  }
+
+  method select object {
+    if {[$object define exists scm]} {
+      return [$object define get scm]
+    }
+
+    set pkg [$object define get name]
+    if {[$object define get srcdir] ne {}} {
+      set srcdir [$object define get srcdir]
+    } else {
+      set srcdir [file join [my Sandbox $object] $pkg]
+      $object define set srcdir $srcdir
+    }
+
+    set classprefix ::practcl::distribution.
+    if {[file exists $srcdir]} {
+      foreach class [::info commands ${classprefix}*] {
+        if {[$class claim_path $srcdir]} {
+          $object mixin distribution $class
+          $object define set scm [string range $class [string length ::practcl::distribution.] end]
+          return [$object define get scm]
+        }
+      }
+    }
+    foreach class [::info commands ${classprefix}*] {
+      if {[$class claim_object $object]} {
+        $object mixin distribution $class
+        $object define set scm [string range $class [string length ::practcl::distribution.] end]
+        return [$object define get scm]
+      }
+    }
+    if {[$object define get scm] eq {} && [$object define exists file_url]} {
+      set class ::practcl::distribution.snapshot
+      $object define set scm snapshot
+      $object mixin distribution $class
+      return [$object define get scm]
+    }
+    error "Cannot determine source distribution method"
+  }
+
   method claim_path path {
     return false
   }
