@@ -1,6 +1,6 @@
 set here [file dirname [file normalize [file join [pwd] [info script]]]]
 
-set version 0.8
+set version 0.9a0
 set module [file tail $here]
 
 set fout [open [file join $here [file tail $module].tcl] w]
@@ -44,9 +44,9 @@ foreach file {
   makeutil.tcl
   {class metaclass.tcl}
 
-  {class build baseclass.tcl}
-  {class build gcc.tcl}
-  {class build msvc.tcl}
+  {class toolset baseclass.tcl}
+  {class toolset gcc.tcl}
+  {class toolset msvc.tcl}
 
   {class target.tcl}
 
@@ -54,7 +54,7 @@ foreach file {
 
   {class product baseclass.tcl}
   {class product dynamic.tcl}
-
+  {class product critcl.tcl}
 
   {class module.tcl}
   {class autoconf.tcl}

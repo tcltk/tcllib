@@ -9,5 +9,5 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
-package ifneeded practcl 0.8 [list source [file join $dir practcl.tcl]]
+package ifneeded practcl 0.9a0 [list source [file join $dir practcl.tcl]]
 

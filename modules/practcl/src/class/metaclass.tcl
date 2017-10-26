@@ -1,23 +1,11 @@
-
-
 ::oo::class create ::practcl::metaclass {
   superclass ::oo::object
-
-  method script script {
-    eval $script
-  }
-
-  method source filename {
-    source $filename
-  }
-
-  method initialize {} {}
 
   method define {submethod args} {
     my variable define
     switch $submethod {
       dump {
-	return [array get define]
+        return [array get define]
       }
       add {
         set field [lindex $args 0]
@@ -90,18 +78,8 @@
     return $object
   }
 
-  method organ {{stub all}} {
-    my variable organs
-    if {![info exists organs]} {
-      return {}
-    }
-    if { $stub eq "all" } {
-      return $organs
-    }
-    if {[dict exists $organs $stub]} {
-      return [dict get $organs $stub]
-    }
-  }
+  method initialize {} {}
+
 
   method link {command args} {
     my variable links
@@ -158,6 +136,50 @@
     }
   }
 
+  method mixin {slot classname} {
+    my variable mixinslot
+    set class {}
+    set map [list @slot@ $slot @name@ $classname]
+    foreach pattern [split [string map $map {
+      @name@
+      @slot@.@name@
+      ::practcl::@name@
+      ::practcl::@slot@.@name@
+      ::practcl::@slot@*@name@
+      ::practcl::*@name@*
+    }] \n] {
+      set pattern [string trim $pattern]
+      set matches [info commands $pattern]
+      if {![llength $matches]} continue
+      set class [lindex $matches 0]
+      break
+    }
+    dict set mixinslot $slot $class
+    set mixins {}
+    foreach {s c} $mixinslot {
+      if {$c eq {}} continue
+      lappend mixins $c
+    }
+    oo::objdefine [self] mixin {*}$mixins
+  }
+
+  method organ {{stub all}} {
+    my variable organs
+    if {![info exists organs]} {
+      return {}
+    }
+    if { $stub eq "all" } {
+      return $organs
+    }
+    if {[dict exists $organs $stub]} {
+      return [dict get $organs $stub]
+    }
+  }
+
+  method script script {
+    eval $script
+  }
+
   method select {} {
     my variable define
     set class {}
@@ -181,5 +203,9 @@
       ::oo::objdefine [self] $define(oodefine)
       unset define(oodefine)
     }
+  }
+
+  method source filename {
+    source $filename
   }
 }

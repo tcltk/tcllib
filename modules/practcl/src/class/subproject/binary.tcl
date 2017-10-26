@@ -3,7 +3,7 @@
 # A binary package
 ###
 oo::class create ::practcl::subproject.binary {
-  superclass ::practcl::subproject ::practcl::autoconf
+  superclass ::practcl::subproject
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -16,75 +16,6 @@ oo::class create ::practcl::subproject.binary {
 
   method compile-products {} {}
 
-  method NmakeOpts {} {
-    set opts {}
-    set builddir [file normalize [my define get builddir]]
-
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] ..]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts TCLDIR=[file normalize $TCLSRCDIR]
-      #--with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] ..]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      #lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-      lappend opts TKDIR=[file normalize $TKSRCDIR]
-    }
-    return $opts
-  }
-
-  method ConfigureOpts {} {
-    set opts {}
-    set builddir [my define get builddir]
-    if {[my define get broken_destroot 0]} {
-      set PREFIX [my <project> define get prefix_broken_destdir]
-    } else {
-      set PREFIX [my <project> define get prefix]
-    }
-    if {[my <project> define get CONFIG_SITE] != {}} {
-      lappend opts --host=[my <project> define get HOST]
-    }
-    lappend opts --with-tclsh=[info nameofexecutable]
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-    }
-    lappend opts {*}[my define get config_opts]
-    if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX
-    }
-    if {[my define get debug 0]} {
-      lappend opts --enable-symbols=true
-    }
-    #--exec_prefix=$PREFIX
-    #if {$::tcl_platform(platform) eq "windows"} {
-    #  lappend opts --disable-64bit
-    #}
-    if {[my define get static 1]} {
-      lappend opts --disable-shared
-      #--disable-stubs
-      #
-    } else {
-      lappend opts --enable-shared
-    }
-    return $opts
-  }
 
   method ComputeInstall {} {
     if {[my define exists install]} {
@@ -143,6 +74,7 @@ oo::class create ::practcl::subproject.binary {
         dict set result $pkg_name initfunc $initfunc
         set version [my define get version]
         if {$version eq {}} {
+          my unpack
           set info [my config.sh]
           set version [dict get $info version]
           set pl {}
@@ -179,6 +111,7 @@ oo::class create ::practcl::subproject.binary {
     set PWD $::CWD
     cd $PWD
     my unpack
+
     set srcdir [file normalize [my SrcDir]]
     my Collate_Source $PWD
 
@@ -234,6 +167,7 @@ oo::class create ::practcl::subproject.binary {
   method Configure {} {
     cd $::CWD
     my unpack
+    ::practcl::toolset select [self]
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir

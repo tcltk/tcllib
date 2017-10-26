@@ -1,6 +1,6 @@
 
 ::oo::class create ::practcl::project {
-  superclass ::practcl::module ::practcl::autoconf
+  superclass ::practcl::module
 
   constructor args {
     my variable define
@@ -29,7 +29,7 @@
       }
     }
     array set define $contents
-    my select
+    ::practcl::toolset select [self]
     my initialize
   }
 
@@ -103,35 +103,6 @@
       return $obj
     }
     ${obj} {*}$args
-  }
-
-  method select {} {
-    next
-    ###
-    # Select the toolset to use for this project
-    ###
-    my variable define
-    set class {}
-    if {[info exists define(toolset)]} {
-      if {[info command $define(toolset)] ne {}} {
-        set class $define(toolset)
-      } elseif {[info command ::practcl::$define(toolset)] ne {}} {
-        set class ::practcl::$define(toolset)
-      } else {
-        switch $define(toolset) {
-          default {
-            set class ::practcl::build.gcc
-          }
-        }
-      }
-    } else {
-      if {[info exists ::env(VisualStudioVersion)]} {
-        set class ::practcl::build.msvc
-      } else {
-        set class ::practcl::build.gcc
-      }
-    }
-    ::oo::objdefine [self] mixin $class
   }
 
   method tool {pkg args} {
