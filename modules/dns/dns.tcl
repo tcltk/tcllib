@@ -15,6 +15,7 @@
 # Support added for RFC1886 - DNS Extensions to support IP version 6
 # Support added for RFC2782 - DNS RR for specifying the location of services
 # Support added for RFC1995 - Incremental Zone Transfer in DNS
+# Support added for RFC7858 - DNS over Transport Layer Security
 #
 # TODO:
 #  - When using tcp we should make better use of the open connection and
@@ -48,6 +49,12 @@ namespace eval ::dns {
             search     {}
             nameserver {localhost}
             loglevel   warn
+            usetls     0
+            cafile     ""
+            cadir      ""
+        }
+        if {[file exists /etc/ssl/certs/ca-certificates.crt]} {
+            set options(cafile) /etc/ssl/certs/ca-certificates.crt
         }
         variable log [logger::init dns]
         ${log}::setlevel $options(loglevel)
@@ -155,6 +162,20 @@ proc ::dns::configure {args} {
                     ${log}::setlevel $options(loglevel)
                 }
             }
+            -cafile {
+                if {$cget} {
+                    return $options(cafile)
+                } else {
+                    set options(cafile) [Pop args 1]
+                }
+            }
+            -cadir {
+                if {$cget} {
+                    return $options(cadir)
+                } else {
+                    set options(cadir) [Pop args 1]
+                }
+            }
             --    { Pop args ; break }
             default {
                 set opts [join [lsort [array names options]] ", -"]
@@ -202,6 +223,9 @@ proc ::dns::resolve {query args} {
     set state(-port)       $options(port);      # default namerservers port
     set state(-search)     $options(search);    # domain search list
     set state(-protocol)   $options(protocol);  # which protocol udp/tcp
+    set state(-usetls)     $options(usetls);    # use RFC7858 privacy
+    set state(-cafile)     $options(cafile);    # certificate authority file
+    set state(-cadir)      $options(cadir);     # certificate authority dir
 
     # Handle DNS URL's
     if {[string match "dns:*" $query]} {
@@ -209,7 +233,7 @@ proc ::dns::resolve {query args} {
         foreach {opt value} [uri::split $query] {
             if {$value != {} && [info exists state(-$opt)]} {
                 set state(-$opt) $value
-            }   
+            }
         }
         set state(query) $URI(query)
         ${log}::debug "parsed query: $query"
@@ -220,6 +244,9 @@ proc ::dns::resolve {query args} {
             -n* - ns -
             -ser* { set state(-nameserver) [Pop args 1] }
             -po*  { set state(-port) [Pop args 1] }
+            -usetls { set state(-usetls) [Pop args 1] }
+            -cafile { set state(-cafile) [Pop args 1] }
+            -cadir { set state(-cadir) [Pop args 1] }
             -ti*  { set state(-timeout) [Pop args 1] }
             -co*  { set state(-command) [Pop args 1] }
             -cl*  { set state(-class) [Pop args 1] }
@@ -243,6 +270,14 @@ proc ::dns::resolve {query args} {
         return -code error "no nameserver specified"
     }
 
+    if {$state(-usetls)} {
+        package require tls
+        set state(-protocol) "tcp"
+        if {$state(-port) == $options(port)} {
+            set state(-port) 853
+        }
+    }
+
     if {$state(-protocol) == "udp"} {
         if {[llength [package provide ceptcl]] == 0 \
                 && [llength [package provide udp]] == 0} {
@@ -250,7 +285,7 @@ proc ::dns::resolve {query args} {
                 get ceptcl or tcludp"
         }
     }
-    
+
     # Check for reverse lookups
     if {[regexp {^(?:\d{0,3}\.){3}\d{0,3}$} $state(query)]} {
         set addr [lreverse [split $state(query) .]]
@@ -683,15 +718,51 @@ proc ::dns::TcpConnected {token s} {
 	return
     }
 
+    if {$state(-usetls)} {
+        tls::import $s -server false -request 1 \
+            -cadir $state(-cadir) \
+            -cafile $state(-cafile) \
+            -ssl2 false -ssl3 false -tls1 true \
+            -command [list ::dns::TlsCallback $token]
+        if {[catch {tls::handshake $s} err]} {
+            Finish $token $err
+            return
+        }
+    }
+
     fconfigure $s -blocking 0 -translation binary -buffering none
 
     # For TCP the message must be prefixed with a 16bit length field.
     set req [binary format S [string length $state(request)]]
     append req $state(request)
 
-    puts -nonewline $s $req
-
     fileevent $s readable [list [namespace current]::TcpEvent $token]
+    puts -nonewline $s $req
+}
+
+proc ::dns::TlsCallback {token cmd channel args} {
+    variable log
+    variable $token
+    upvar 0 $token state
+    switch -exact -- $cmd {
+        info {
+            foreach {major minor message} $args break
+            ${log}::debug "TLS: $major/$minor $message"
+        }
+        verify {
+            foreach {depth cert status error} $args break
+            lappend state(certChain) \
+                [list depth $depth status $status error $error cert $cert]
+            return $status
+        }
+        error {
+            return -code error "tls error: $args"
+        }
+        default {
+            return -code error "unexpected message type \"$cmd\" in TLS callback"
+        }
+    }
+    return 1
 }
 
 # -------------------------------------------------------------------------
@@ -828,6 +899,7 @@ proc ::dns::TcpEvent {token} {
         ${log}::debug "Event error: $result"
         Finish $token "error reading data: $result"
     } elseif { [string length $result] >= 0 } {
+        ${log}::debug "read [string length $result] bytes for $token"
         if {[catch {
             # Handle incomplete reads - check the size and keep reading.
             if {![info exists state(size)]} {
@@ -1408,7 +1480,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns 1.3.5
+package provide dns 1.4.0
 
 # -------------------------------------------------------------------------
 # Local Variables:
