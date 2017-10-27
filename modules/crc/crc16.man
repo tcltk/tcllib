@@ -32,15 +32,15 @@ for the most common cases.
 [list_begin definitions]
 
 [call [cmd ::crc::crc16] [opt "-format [arg format]"] \
-  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg -- message]]
 [call [cmd ::crc::crc16] [opt "-format [arg format]"] \
   [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
 [call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] \
-  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg -- message]]
 [call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] \
   [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
 [call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
-  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg -- message]]
 [call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
   [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
 
@@ -104,7 +104,13 @@ implementations.
 
 [def "--"]
 
-Terminate option processing.
+Terminate option processing. Please note that using the option
+termination flag is important when processing data from parameters. If
+the binary data looks like one of the options given above then the
+data will be read as an option if this marker is not included.
+
+Always use the [arg --] option termination flag before giving the data
+argument.
 
 [list_end]
 
@@ -112,19 +118,19 @@ Terminate option processing.
 
 [para]
 [example {
-% crc::crc16 "Hello, World!"
+% crc::crc16 -- "Hello, World!"
 64077
 }]
 
 [para]
 [example {
-% crc::crc-ccitt "Hello, World!"
+% crc::crc-ccitt -- "Hello, World!"
 26586
 }]
 
 [para]
 [example {
-% crc::crc16 -format 0x%X "Hello, World!"
+% crc::crc16 -format 0x%X -- "Hello, World!"
 0xFA4D
 }]
 
