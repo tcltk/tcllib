@@ -15,7 +15,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.2
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 testing {
     useLocal dns.tcl dns
