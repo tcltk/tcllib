@@ -1440,7 +1440,7 @@ proc ::uri::SplitDns {uri} {
         # Handle the nameserver specification
         if {[string match "//*" $uri]} {
             set uri [string range $uri 2 end]
-            array set tmp [GetHostPort uri]
+            array set tmp [GetUPHP uri]
             set parts(nameserver) $tmp(host)
             set parts(port) $tmp(port)
         }
