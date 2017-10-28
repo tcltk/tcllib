@@ -1,3 +1,10 @@
+2017-10-28  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: allow unsetting basic auth information
+	* autoproxy.test: added basic tests of the package options
+	* autoproxy.man: update documentation for "configure -basic --"
+	Bumped to version 1.5.4 given new option.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
