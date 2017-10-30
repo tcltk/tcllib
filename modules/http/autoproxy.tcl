@@ -1,4 +1,4 @@
-# autoproxy.tcl - Copyright (C) 2002-2008 Pat Thoyts <patthoyts@users.sf.net>
+# autoproxy.tcl - Copyright (C) 2002-2008, 2017 Pat Thoyts <patthoyts@users.sf.net>
 #
 # On Unix the standard for identifying the local HTTP proxy server
 # seems to be to use the environment variable http_proxy or ftp_proxy and
@@ -534,7 +534,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.5.4
+package provide autoproxy 1.6
 
 # -------------------------------------------------------------------------
 #

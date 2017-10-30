@@ -1,4 +1,4 @@
-# crc16.tcl -- Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+# crc16.tcl -- Copyright (C) 2002, 2017 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Cyclic Redundancy Check - this is a Tcl implementation of a general
 # table-driven CRC implementation. This code should be able to generate
@@ -292,7 +292,7 @@ proc ::crc::crc-32 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide crc16 1.1.2
+package provide crc16 1.1.3
 
 # -------------------------------------------------------------------------
 #
