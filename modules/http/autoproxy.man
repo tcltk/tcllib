@@ -1,4 +1,5 @@
-[manpage_begin autoproxy n 1.5.4]
+[vset VERSION 1.6]
+[manpage_begin autoproxy n [vset VERSION]]
 [see_also http(n)]
 [keywords authentication]
 [keywords http]
@@ -8,7 +9,7 @@
 [category  Networking]
 [require Tcl 8.2]
 [require http [opt 2.0]]
-[require autoproxy [opt 1.5.4]]
+[require autoproxy [opt [vset VERSION]]]
 [description]
 [para]
 
