@@ -1,4 +1,5 @@
-[manpage_begin autoproxy n 1.5.3]
+[vset VERSION 1.6]
+[manpage_begin autoproxy n [vset VERSION]]
 [see_also http(n)]
 [keywords authentication]
 [keywords http]
@@ -8,7 +9,7 @@
 [category  Networking]
 [require Tcl 8.2]
 [require http [opt 2.0]]
-[require autoproxy [opt 1.5.3]]
+[require autoproxy [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -123,6 +124,9 @@ dialog to the user to request the additional information.
 [opt_def -basic]
 Following options are for configuring the Basic authentication
 scheme parameters. See [sectref "Basic Authentication"].
+To unset the proxy authentication information retained from a previous
+call of this function either "--" or no additional parameters can be
+supplied. This will remove the existing authentication information.
 
 [list_end]
 
@@ -145,7 +149,12 @@ The username required to authenticate with the configured proxy.
 [opt_def "-password" "password"]
 The password required for the username specified.
 [opt_def "-realm" "realm"]
-This option is not used.
+This option is not used by this package but may be used in requesting
+authentication details from the user.
+[opt_def "--"]
+The end-of-options indicator may be used alone to unset any
+authentication details currently enabled.
+
 [list_end]
 
 [section "EXAMPLES"]

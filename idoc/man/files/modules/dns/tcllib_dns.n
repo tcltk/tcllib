@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_dns\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
-.TH "dns" n 1\&.3\&.5 tcllib "Domain Name Service"
+.TH "dns" n 1\&.4\&.0 tcllib "Domain Name Service"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ dns \- Tcl Domain Name Service Client
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdns  ?1\&.3\&.5?\fR
+package require \fBdns  ?1\&.4\&.0?\fR
 .sp
 \fB::dns::resolve\fR \fIquery\fR ?\fIoptions\fR?
 .sp
@@ -325,7 +325,12 @@ connections\&. If you wish to use UDP you will need to have the
 \fBtcludp\fR package installed and have a version that
 correctly handles binary data (> 1\&.0\&.4)\&.
 This is available at \fIhttp://tcludp\&.sourceforge\&.net/\fR\&.
-If the \fBudp\fR package is present then UDP will be used by default\&.
+If the \fBudp\fR package is present then UDP will be used by
+default\&.
+.PP
+\fINote:\fR The package supports DNS over TLS (RFC 7858) for
+enhanced privacy of DNS queries\&. Using this feature requires
+the TLS package\&.
 .SH COMMANDS
 .TP
 \fB::dns::resolve\fR \fIquery\fR ?\fIoptions\fR?
@@ -368,6 +373,25 @@ act upon your request\&. Normally set to \fItrue\fR\&.
 \fB-command\fR \fIprocname\fR
 Set a procedure to be called upon request completion\&. The procedure
 will be passed the token as its only argument\&.
+.TP
+\fB-usetls\fR \fIboolean\fR
+Set the \fItrue\fR to use DNS over TLS\&. This will force the use of
+TCP and change the default port to 853\&. Certificate validation is
+required so a source of trusted certificate authority certificates
+must be provided using \fI-cafile\fR or \fI-cadir\fR\&.
+.TP
+\fB-cafile\fR \fIfilepath\fR
+Specify a file containing a collection of trusted certificate
+authority certficates\&. See the \fBupdate-ca-certificates\fR command
+manual page for details or the \fB-CAfile\fR option help from
+\fBopenssl\fR\&.
+.TP
+\fB-cadir\fR \fIdirpath\fR
+Specify a directory containing trusted certificate authority
+certificates\&. This must be provided if \fB-cafile\fR is not
+specified for certificate validation to work when \fB-usetls\fR is
+enabled\&. See the \fBopenssl\fR documentation for the required
+structure of this directory\&.
 .RE
 .sp
 .TP
@@ -400,6 +424,14 @@ Set the default timeout value for DNS lookups\&. Default is 30 seconds\&.
 Set the log level used for emitting diagnostic messages from this
 package\&. The default is \fIwarn\fR\&. See the \fBlog\fR package
 for details of the available levels\&.
+.TP
+\fB-cafile\fR \fIfilepath\fR
+Set the default file path to be used for the \fB-cafile\fR
+option to \fBdns::resolve\fR\&.
+.TP
+\fB-cadir\fR \fIdirpath\fR
+Set the default directory path to be used for the \fB-cadir\fR
+option to \fBdns::resolve\fR\&.
 .RE
 .sp
 .TP
@@ -487,6 +519,19 @@ localhost
 % dns::cleanup $tok
 
 .CE
+.PP
+Using DNS over TLS (RFC 7858):
+.CS
+
+
+% set tok [dns::resolve www\&.tcl\&.tk -nameserver dns-tls\&.bitwiseshift\&.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates\&.crt]
+::dns::12
+% dns::wait $tok
+ok
+% dns::address $tok
+104\&.25\&.119\&.118 104\&.25\&.120\&.118
+
+.CE
 .SH REFERENCES
 .IP [1]
 Mockapetris, P\&., "Domain Names - Concepts and Facilities",
@@ -513,6 +558,11 @@ RFC 2782, February 2000,
 Ohta, M\&. "Incremental Zone Transfer in DNS",
 RFC 1995, August 1996,
 (\fIhttp://www\&.ietf\&.org/rfc/rfc1995\&.txt\fR)
+.IP [7]
+Hu, Z\&., etc al\&.
+"Specification for DNS over Transport Layer Security (TLS)",
+RFC 7858, May 2016,
+(\fIhttp://www\&.ietf\&.org/rfc/rfc7858\&.txt\fR)
 .PP
 .SH AUTHORS
 Pat Thoyts
@@ -526,7 +576,7 @@ package and/or documentation\&.
 .SH "SEE ALSO"
 resolver(5)
 .SH KEYWORDS
-DNS, domain name service, resolver, rfc 1034, rfc 1035, rfc 1886
+DNS, domain name service, resolver, rfc 1034, rfc 1035, rfc 1886, rfc 7858
 .SH CATEGORY
 Networking
 .SH COPYRIGHT

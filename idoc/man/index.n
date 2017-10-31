@@ -6554,6 +6554,12 @@ nettool
 \fBfiles/modules/processman/processman\&.n\fR
 processman
 .RE
+odielib
+.RS
+.TP
+\fBfiles/modules/tool-ui/tool-ui\&.n\fR
+tool-ui
+.RE
 on-idle
 .RS
 .TP
@@ -8651,6 +8657,12 @@ rfc 6455
 \fBfiles/modules/websocket/websocket\&.n\fR
 websocket
 .RE
+rfc 7858
+.RS
+.TP
+\fBfiles/modules/dns/tcllib_dns\&.n\fR
+dns
+.RE
 rfc3501
 .RS
 .TP
@@ -9743,6 +9755,12 @@ tallying
 \fBfiles/modules/counter/counter\&.n\fR
 counter
 .RE
+tao
+.RS
+.TP
+\fBfiles/modules/tool-ui/tool-ui\&.n\fR
+tool-ui
+.RE
 tape archive
 .RS
 .TP
@@ -9811,6 +9829,9 @@ oo::util
 .TP
 \fBfiles/modules/tool/tool\&.n\fR
 tool
+.TP
+\fBfiles/modules/tool-ui/tool-ui\&.n\fR
+tool-ui
 .TP
 \fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
 tool::dict_ensemble
