@@ -18,7 +18,7 @@ support {
     use sha1/sha1.tcl           sha1
 }
 testing {
-    useLocal index.tcl tool
+    useLocal tool.tcl tool
 }
 
 # -------------------------------------------------------------------------
