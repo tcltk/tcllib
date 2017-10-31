@@ -274,9 +274,9 @@ test comm-6.0 {secured communication via tls package} hastls {
 	-keyfile  [tcllibPath devtools/receiver.key] \
 	-certfile [tcllibPath devtools/receiver.crt] \
 	-cafile   [tcllibPath devtools/ca.crt] \
-	-ssl2 1    \
-	-ssl3 1    \
-	-tls1 0    \
+	-ssl2 0    \
+	-ssl3 0    \
+	-tls1 1    \
 	-require 1
     comm::comm new BAR -socketcmd tls::socket -listen 1
 
@@ -291,9 +291,9 @@ test comm-6.0 {secured communication via tls package} hastls {
 	     -keyfile  [tcllibPath devtools/transmitter.key] \
 	     -certfile [tcllibPath devtools/transmitter.crt] \
 	     -cafile   [tcllibPath devtools/ca.crt] \
-	     -ssl2 1    \
-	     -ssl3 1    \
-	     -tls1 0    \
+	     -ssl2 0    \
+	     -ssl3 0    \
+	     -tls1 1    \
 	     -require 1]
     set FOO [::comm::comm send [slave] {
 	comm::comm new FOO -socketcmd tls::socket -listen 1

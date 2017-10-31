@@ -27,6 +27,6 @@ or a web backend.
 Sean Woods
 
 [vset CATEGORY tool-ui]
-[include scripts/feedback.inc]
+[include ../doctools2base/include/feedback.inc]
 
 [manpage_end]

@@ -210,9 +210,9 @@ proc ::dialog::setup {type cookie {ssl 0}} {
 		-keyfile  $devtools/transmitter.key \
 		-certfile $devtools/transmitter.crt \
 		-cafile   $devtools/ca.crt \
-		-ssl2 1    \
-		-ssl3 1    \
-		-tls1 0    \
+		-ssl2 0    \
+		-ssl3 0    \
+		-tls1 1    \
 		-require 1
 
 	    proc Server {} {

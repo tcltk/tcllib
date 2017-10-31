@@ -1,4 +1,4 @@
-# crc16.tcl -- Copyright (C) 2002 Pat Thoyts <patthoyts@users.sourceforge.net>
+# crc16.tcl -- Copyright (C) 2002, 2017 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Cyclic Redundancy Check - this is a Tcl implementation of a general
 # table-driven CRC implementation. This code should be able to generate
@@ -235,7 +235,7 @@ proc ::crc::crc {args} {
                 if {[string compare $option "--"] == 0} { Pop args; break }
                 set options [join [lsort [array names opts]] ", -"]
                 return -code error "bad option $option:\
-                       must be one of -$options"
+                       must be one of -$options or -- to indicate end of options"
             }
         }
         Pop args
@@ -262,7 +262,7 @@ proc ::crc::crc {args} {
         if {[llength $args] != 1} {
             return -code error "wrong \# args: should be\
                    \"crc16 ?-format string? ?-seed value? ?-impl procname?\
-                   -file name | data\""
+                   -file name | -- data\""
         }
         set r [$opts(impl) [lindex $args 0] $opts(seed)]
     }
@@ -292,7 +292,7 @@ proc ::crc::crc-32 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide crc16 1.1.2
+package provide crc16 1.1.3
 
 # -------------------------------------------------------------------------
 #
