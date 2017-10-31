@@ -22,7 +22,7 @@
 # version 1.0.1: correction in pdf-lognormal and cdf-lognormal
 # version 1.1:   added test-Tukey-range and test-Dunnett
 
-package require Tcl 8.4
+package require Tcl 8.5 ; # 8.5+ feature in test-anovo-F: **-operator
 package provide math::statistics 1.1.1
 package require math
 
