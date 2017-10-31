@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'autoproxy\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "autoproxy" n 1\&.5\&.3 tcllib "HTTP protocol helper modules"
+.TH "autoproxy" n 1\&.6 tcllib "HTTP protocol helper modules"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ package require \fBTcl  8\&.2\fR
 .sp
 package require \fBhttp  ?2\&.0?\fR
 .sp
-package require \fBautoproxy  ?1\&.5\&.3?\fR
+package require \fBautoproxy  ?1\&.6?\fR
 .sp
 \fB::autoproxy::init\fR
 .sp
@@ -415,6 +415,9 @@ dialog to the user to request the additional information\&.
 \fB-basic\fR
 Following options are for configuring the Basic authentication
 scheme parameters\&. See \fBBasic Authentication\fR\&.
+To unset the proxy authentication information retained from a previous
+call of this function either "--" or no additional parameters can be
+supplied\&. This will remove the existing authentication information\&.
 .PP
 .SH "BASIC AUTHENTICATION"
 Basic is the simplest and most commonly use HTTP proxy authentication
@@ -434,7 +437,12 @@ The username required to authenticate with the configured proxy\&.
 The password required for the username specified\&.
 .TP
 \fB-realm\fR realm
-This option is not used\&.
+This option is not used by this package but may be used in requesting
+authentication details from the user\&.
+.TP
+\fB--\fR
+The end-of-options indicator may be used alone to unset any
+authentication details currently enabled\&.
 .PP
 .SH EXAMPLES
 .PP
