@@ -762,6 +762,21 @@ tclbench: A benchmarking suite for Tcl and Tk} ]
 }
 
 
+test yaml-21.1 "explicit_tags float" -body {
+    set y {!!float 123}
+    yaml::yaml2dict $y
+} -result {123.0}
+
+test yaml-21.2 "explicit_tags float" -body {
+    set y {!!float 123.0}
+    yaml::yaml2dict $y
+} -result {123.0}
+
+test yaml-21.2 "explicit_tags float" -body {
+    set y {!!float 123_0}
+    yaml::yaml2dict $y
+} -returnCodes error -result {expected floating-point number but got "123_0"}
+
 
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
