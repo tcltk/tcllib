@@ -1,4 +1,4 @@
-# autoproxy.tcl - Copyright (C) 2002-2008 Pat Thoyts <patthoyts@users.sf.net>
+# autoproxy.tcl - Copyright (C) 2002-2008, 2017 Pat Thoyts <patthoyts@users.sf.net>
 #
 # On Unix the standard for identifying the local HTTP proxy server
 # seems to be to use the environment variable http_proxy or ftp_proxy and
@@ -311,6 +311,7 @@ proc ::autoproxy::configure:basic {arglist} {
             -u* { set opts(user) $value}
             -p* { set opts(passwd) $value}
             -r* { set opts(realm) $value}
+            --  { break }
             default {
                 return -code error "invalid option \"$opt\": must be one of\
                      -username or -password or -realm"
@@ -326,10 +327,14 @@ proc ::autoproxy::configure:basic {arglist} {
         set opts(passwd) [lindex $r 1]
     }
 
-    # Store the encoded string to avoid re-encoding all the time.
-    set options(basic) [list "Proxy-Authorization" \
-                            [concat "Basic" \
-                                 [base64::encode $opts(user):$opts(passwd)]]]
+    if {$opts(user) eq ""} {
+        set options(basic) ""
+    } else {
+        # Store the encoded string to avoid re-encoding all the time.
+        set options(basic) [list "Proxy-Authorization" \
+                                [concat "Basic" \
+                                     [base64::encode $opts(user):$opts(passwd)]]]
+    }
     return
 }
 
@@ -529,7 +534,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.5.3
+package provide autoproxy 1.6
 
 # -------------------------------------------------------------------------
 #

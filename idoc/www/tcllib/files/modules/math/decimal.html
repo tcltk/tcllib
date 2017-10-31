@@ -94,7 +94,7 @@
 </head>
 <!-- Generated from file 'decimal.man' by tcllib/doctools with format 'html'
    -->
-<!-- Copyright &copy; 2011 Mark Alston &lt;mark at beernut dot com&gt;
+<!-- Copyright &amp;copy; 2011 Mark Alston &amp;lt;mark at beernut dot com&amp;gt;
    -->
 <!-- math::decimal.n
    -->
@@ -196,13 +196,13 @@ to learn how to work with it and to see the difference between using this
 package and sticking with expr. Consult the API section of
 this man page for information about individual procedures.</p>
 <pre class="doctools_example">
-    package require decimal
+    package require math::decimal
     # Various operations on two numbers.
     # We first convert them to decimal format.
     set a [::math::decimal::fromstr 8.2]
     set b [::math::decimal::fromstr .2]
-    # Then we perform our operations. Here we multiply
-    set c [::math::decimal::* $a $b]
+    # Then we perform our operations. Here we add
+    set c [::math::decimal::+ $a $b]
     # Finally we convert back to string format for presentation to the user.
     puts [::math::decimal::tostr $c] ; # =&gt; will output 8.4
     # Other examples
@@ -318,7 +318,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key773">decimal</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key288">tcl</a></p>
+<p><a href="../../../../index.html#key774">decimal</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key288">tcl</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
