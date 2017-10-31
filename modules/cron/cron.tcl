@@ -5,6 +5,7 @@
 ###
 #
 # Author: Sean Woods (for T&E Solutions)
+package require Tcl 8.6 ;# See coroutine
 package require coroutine
 package require dicttool
 ::namespace eval ::cron {}
