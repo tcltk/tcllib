@@ -10,7 +10,7 @@
 #
 # RCS: @(#) $Id: calculus.tcl,v 1.15 2008/10/08 03:30:48 andreas_kupries Exp $
 
-package require Tcl 8.4
+package require Tcl 8.5;# lrepeat
 package require math::interpolate
 package provide math::calculus 0.8.1
 

@@ -17,7 +17,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2.1
 
 support {
@@ -36,7 +36,8 @@ log::lvSuppress notice
 # -------------------------------------------------------------------------
 
 namespace eval ::math::calculus::test {
-
+# From here on we are in a namespace.
+    
 namespace import ::tcltest::test
 namespace import ::math::calculus::*
 
@@ -58,7 +59,8 @@ proc matchNumbers {expected actual} {
     return $match
 }
 
-customMatch numbers matchNumbers
+# customMatch does not do namespaced command resolution, provide the FQN.
+customMatch numbers ::math::calculus::test::matchNumbers
 
 #
 # Simple test functions - exact result predictable!
@@ -603,7 +605,8 @@ proc matchNumbers {expected actual} {
    return $match
 }
 
-customMatch numbers matchNumbers
+# customMatch does not do namespaced command resolution, provide the FQN.
+customMatch numbers ::math::calculus::test::matchNumbers
 
 proc ::f1 {x} {expr {1.0-$x}}
 proc ::f2 {x} {expr {1.0-$x*$x}}

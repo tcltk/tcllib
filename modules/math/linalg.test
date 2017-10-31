@@ -21,7 +21,7 @@ if {$regular==1} then {
                 [file dirname [file dirname [file join [pwd] [info script]]]] \
                 devtools testutilities.tcl]
 
-    testsNeedTcl     8.4
+    testsNeedTcl     8.5
     testsNeedTcltest 2.1
 
     support {
@@ -47,6 +47,7 @@ namespace import -force ::math::linearalgebra::*
 
 set prec $::tcl_precision
 if {![package vsatisfies [package provide Tcl] 8.5]} {
+    # 8.4 or less - Remove, 8.5+ required already
     set ::tcl_precision 17
 } else {
     set ::tcl_precision 0
