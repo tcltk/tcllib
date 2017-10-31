@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.9
+package provide ldap 1.9.1
 
 namespace eval ldap {
 
@@ -534,11 +534,10 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""} \
             "Unexpected LDAP response"
     }
 
-
     # Initiate the TLS socket setup
-    set cmd [tls::import $conn(sock) 
-                         -cafile $cafile -certfile $certfile -keyfile $keyfile \
-                         -request 1 -server 0 -require $verify -ssl2 no -ssl3 no ]
+    set cmd [list tls::import $conn(sock) \
+		 -cafile $cafile -certfile $certfile -keyfile $keyfile \
+		 -request 1 -server 0 -require $verify_cert -ssl2 no -ssl3 no ]
     
     if {$sni_servername ne ""} {
 	lappend cmd -servername $sni_servername

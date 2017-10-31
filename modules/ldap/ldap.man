@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ldap n 1.9]
+[vset VERSION 1.9.1]
+[manpage_begin ldap n [vset VERSION]]
 [keywords {directory access}]
 [keywords internet]
 [keywords ldap]
@@ -15,7 +16,7 @@
 [titledesc {LDAP client}]
 [category  Networking]
 [require Tcl 8.4]
-[require ldap [opt 1.9]]
+[require ldap [opt [vset VERSION]]]
 [description]
 [para]
 
