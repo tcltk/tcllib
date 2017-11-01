@@ -28,6 +28,7 @@
         dict set contents $field [dict get $rawcontents $field]
       }
     }
+    my graft module [self]
     array set define $contents
     ::practcl::toolset select [self]
     my initialize
@@ -95,6 +96,7 @@
   method linktype {} {
     return project
   }
+
 
   # Exercise the methods of a sub-object
   method project {pkg args} {

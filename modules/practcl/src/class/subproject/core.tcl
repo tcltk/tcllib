@@ -4,9 +4,9 @@ oo::class create ::practcl::subproject.core {
 
   # On the windows platform MinGW must build
   # from the platform directory in the source repo
-  method BuildDir {PWD} {
-    return [my define get localsrcdir]
-  }
+  #method BuildDir {PWD} {
+  #  return [my define get localsrcdir]
+  #}
 
   method Configure {} {
     if {[my define get USEMSVC 0]} {
@@ -16,7 +16,7 @@ oo::class create ::practcl::subproject.core {
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
     puts [list PKG [my define get name] CONFIGURE {*}$opts]
-    cd $localsrcdir
+    cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
@@ -43,6 +43,8 @@ oo::class create ::practcl::subproject.core {
   method go {} {
     set name [my define get name]
     set os [my <project> define get TEACUP_OS]
+    ::practcl::distribution select [self]
+
     my ComputeInstall
     set srcdir [my SrcDir]
     my define add include_dir [file join $srcdir generic]

@@ -49,15 +49,10 @@ foreach file {
   {class toolset msvc.tcl}
 
   {class target.tcl}
-
   {class object.tcl}
-
-  {class product baseclass.tcl}
-  {class product dynamic.tcl}
-  {class product critcl.tcl}
-
+  {class dynamic.tcl}
+  {class product.tcl}
   {class module.tcl}
-  {class autoconf.tcl}
 
   {class project baseclass.tcl}
   {class project library.tcl}

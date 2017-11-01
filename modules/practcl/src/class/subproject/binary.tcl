@@ -14,8 +14,7 @@ oo::class create ::practcl::subproject.binary {
     }
   }
 
-  method compile-products {} {}
-
+  method project-compile-products {} {}
 
   method ComputeInstall {} {
     if {[my define exists install]} {
@@ -61,7 +60,7 @@ oo::class create ::practcl::subproject.binary {
     }
   }
 
-  method static-packages {} {
+  method project-static-packages {} {
     if {![my define get static 0]} {
       return {}
     }
@@ -89,7 +88,7 @@ oo::class create ::practcl::subproject.binary {
       }
     }
     foreach item [my link list subordinate] {
-      foreach {pkg info} [$item static-packages] {
+      foreach {pkg info} [$item project-static-packages] {
         dict set result $pkg $info
       }
     }
@@ -202,7 +201,7 @@ oo::class create ::practcl::subproject.binary {
     }
 
     set opts [my ConfigureOpts]
-    puts [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
