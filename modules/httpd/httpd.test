@@ -25,7 +25,7 @@ support {
   use cron/cron.tcl cron
   use oodialect/oodialect.tcl oo::dialect
   use oometa/oometa.tcl oo::meta
-  use tool/index.tcl tool
+  use tool/tool.tcl tool
 }
 
 testing {
