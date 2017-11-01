@@ -2,6 +2,9 @@
 # Bits stolen from fileutil
 ###
 proc ::practcl::cat fname {
+    if {![file exists $fname]} {
+       return
+    }
     set fname [open $fname r]
     set data [read $fname]
     close $fname

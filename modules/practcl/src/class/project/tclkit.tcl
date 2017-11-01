@@ -9,14 +9,14 @@
     ###
     set statpkglist {}
     foreach cobj [list {*}${PKG_OBJS} $PROJECT] {
-      foreach {pkg info} [$cobj static-packages] {
+      foreach {pkg info} [$cobj project-static-packages] {
         dict set statpkglist $pkg $info
       }
     }
-    foreach {ofile info} [${PROJECT} compile-products] {
+    foreach {ofile info} [${PROJECT} project-compile-products] {
       if {![dict exists $info object]} continue
       set cobj [dict get $info object]
-      foreach {pkg info} [$cobj static-packages] {
+      foreach {pkg info} [$cobj project-static-packages] {
         dict set statpkglist $pkg $info
       }
     }
@@ -101,7 +101,7 @@ if {[file exists {%vfs_tk_library%}]} {
     if {[$PROJECT define get tip_430 0]} {
       ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
     } else {
-      ::practcl::cputs zvfsboot {  Odie_Zipfs_Init(NULL);}
+      ::practcl::cputs zvfsboot {  Odie_Zipfs_C_Init(NULL);}
       ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
     }
     ::practcl::cputs zvfsboot {
@@ -195,6 +195,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
   }
 
   method Collate_Source CWD {
+    next $CWD
     set name [my define get name]
     # Assume a static shell
     if {[my define exists SHARED_BUILD]} {
