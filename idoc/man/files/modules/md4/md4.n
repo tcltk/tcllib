@@ -2,7 +2,7 @@
 '\" Generated from file 'md4\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md4" n 1\&.0\&.6 tcllib "MD4 Message-Digest Algorithm"
+.TH "md4" n 1\&.0\&.7 tcllib "MD4 Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ md4 \- MD4 Message-Digest Algorithm
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBmd4  ?1\&.0\&.6?\fR
+package require \fBmd4  ?1\&.0\&.7?\fR
 .sp
 \fB::md4::md4\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp
@@ -417,6 +417,14 @@ Please report such in the category \fImd4\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
+.PP
+When proposing code changes, please provide \fIunified diffs\fR,
+i\&.e the output of \fBdiff -u\fR\&.
+.PP
+Note further that \fIattachments\fR are strongly preferred over
+inlined patches\&. Attachments can be made by going to the \fBEdit\fR
+form of the ticket immediately after its creation, and then using the
+left-most button in the secondary navigation bar\&.
 .SH "SEE ALSO"
 md5, sha1
 .SH KEYWORDS
