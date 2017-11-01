@@ -6,13 +6,12 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.5
+testsNeedTcl     8.6 ;# tailcall in oo::meta
 testsNeedTcltest 2
-
-testsNeed TclOO 1
+testsNeed        TclOO
 
 testing {
-  useLocal oometa.tcl oo::meta
+  useLocal oometa.tcl   oo::meta
   useLocal oooption.tcl oo::option
 }
 
