@@ -205,7 +205,7 @@ proc ::coroutine::util::gets {args} {
 }
 
 
-proc ::coroutine::util::gets_safety {chan limit varname} {
+proc ::coroutine::util::gets_safety {chan limit varname {timeout 120000}} {
     # Process arguments.
     # Acceptable syntax:
     # * gets CHAN ?VARNAME?
@@ -227,7 +227,7 @@ proc ::coroutine::util::gets_safety {chan limit varname} {
 	    }
 
 	    if {[::chan blocked $chan]} {
-	  set timeoutevent [::after 120000 [list [info coroutine] timeout]]
+	  set timeoutevent [::after $timeout [list [info coroutine] timeout]]
 		::chan event $chan readable [list [info coroutine] readable]
 		set event [yield]
 		if {$event eq "timeout"} {

@@ -3,7 +3,7 @@
   superclass ::practcl::toolset
 
   method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
-    set objext [my define get OBJEXT .o]
+    set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
     set OBJECTS {}
     set result {}
@@ -105,7 +105,7 @@ method build-Makefile {path PROJECT} {
   set path $proj(builddir)
   cd $path
   set includedir .
-  set objext [my define get OBJEXT .o]
+  set objext [my define get OBJEXT o]
 
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]

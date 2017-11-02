@@ -4,7 +4,7 @@
 
 
   method clean {PATH} {
-    set objext [my define get OBJEXT .o]
+    set objext [my define get OBJEXT o]
     foreach {ofile info} [my project-compile-products] {
       if {[file exists [file join $PATH objs $ofile].${objext}]} {
         file delete [file join $PATH objs $ofile].${objext}
