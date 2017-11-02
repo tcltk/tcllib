@@ -20,6 +20,7 @@ support {
 
   use dns/ip.tcl ip
   use nettool/nettool.tcl nettool
+  use coroutine/coroutine.tcl coroutine
 
   use dicttool/dicttool.tcl dicttool
   use cron/cron.tcl cron
@@ -49,7 +50,7 @@ proc ::httpd::test::send {port text} {
   set reply($sock) {}
   chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
   chan event $sock readable [list ::httpd::test::get_reply $sock]
-  
+
   set headers {}
   set body {}
   set read_headers 1
@@ -58,15 +59,18 @@ proc ::httpd::test::send {port text} {
       if { $line eq {} } {
         set read_headers 0
       } else {
-        append headers $line \n
+        append headers $line \x0d\x0a
       }
     } else {
-      append body $line \n
+      append body $line \x0d\x0a
     }
   }
-  append headers "Content-Type: text/plain" \n
-  append headers "Content-Length: [string length $body]" \n
-  puts $sock "$headers\n$body"
+  append headers "Content-Type: text/plain" \x0d\x0a
+  append headers "Content-Length: [string length $body]" \x0d\x0a
+  puts $sock $headers
+  puts $sock \x0d\x0a
+  puts $sock $body
+  puts $sock \x0d\x0a
   flush $sock
   while {$reply($sock) eq {}} {
     update
@@ -91,29 +95,24 @@ proc ::httpd::test::get_reply {sock} {
 ###
 # Build the reply class
 ###
-tool::class create ::httpd::test::reply {  
-  superclass ::httpd::reply 
-  
-  method error {code {msg {}}} {
+tool::class create ::httpd::test::reply {
+  superclass ::httpd::reply
+  method error {code {msg {}} {errorInfo {}}} {
+    my query_headers set HTTP_ERROR $code
     my reset
-    my variable data error_codes
-    if {![info exists data(url)]} {
-      set data(url) {}
-    }
+    my variable error_codes
+    set qheaders [my query_headers dump]
     if {![info exists error_codes($code)]} {
       set errorstring "Unknown Error Code"
     } else {
       set errorstring $error_codes($code)
     }
+    dict with qheaders {}
     my reply_headers replace {}
     my reply_headers set Status: "$code $errorstring"
-    my reply_headers set Content-Type: {text/plain}
+    my reply_headers set Content-Type: text/plain
     my puts "
-$code $errorstring
-Got the error $code $errorstring
-
-while trying to obtain $data(url)
-"
+$code $errorstring"
   }
 
   method reset {} {
@@ -121,7 +120,7 @@ while trying to obtain $data(url)
     my reply_headers replace {Status: {200 OK} Content-Type: text/plain}
     set reply_body {}
   }
-  
+
   method content {} {
     my reset
     switch [my query_headers get REQUEST_URI] {
@@ -182,7 +181,7 @@ The programmer asked me to die this way
       chan copy $reply_chan $chan
       catch {close $reply_chan}
     }
-    chan flush $chan    
+    chan flush $chan
     my destroy
   }
 }
@@ -192,7 +191,7 @@ The programmer asked me to die this way
 ###
 tool::class create httpd::test::app {
   superclass ::httpd::server
-  
+
   property reply_class ::httpd::test::reply
 }
 
@@ -244,12 +243,9 @@ THIS ONE ALONE IS MINE
 }] } {HTTP/1.0 500 Server Internal Error
 Content-Type: text/plain
 Connection: close
-Content-length: 89
+Content-length: 25
 
-500 Server Internal Error
-Got the error 500 Server Internal Error
-
-while trying to obtain}
+500 Server Internal Error}
 
 set checkreply [subst {HTTP/1.0 200 OK
 Content-Type: text/plain
