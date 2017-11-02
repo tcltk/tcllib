@@ -3,7 +3,7 @@
 # to compile and/or installed other packages
 ###
 oo::class create ::practcl::tool {
-  superclass ::practcl::object ::practcl::distribution
+  superclass ::practcl::object
 
   method critcl args {
     if {![info exists critcl]} {
@@ -15,6 +15,25 @@ oo::class create ::practcl::tool {
     cd $srcdir
     ::pratcl::dotclexec $critcl {*}$args
     cd $PWD
+  }
+
+  method select {} {
+    my variable define
+    set class {}
+    if {[info exists define(class)]} {
+      if {[info command $define(class)] ne {}} {
+        set class $define(class)
+      } elseif {[info command ::practcl::$define(class)] ne {}} {
+        set class ::practcl::$define(class)
+      } else {
+        switch $define(class) {
+          default {
+            set class ::practcl::object
+          }
+        }
+      }
+    }
+    my morph $class
   }
 
   method SourceRoot {} {
@@ -98,6 +117,15 @@ oo::class create ::practcl::tool.tea {
 
 }
 
+oo::class create ::practcl::tool.core {
+  superclass ::practcl::tool ::practcl::subproject.core
+
+  method present {} {
+    return [expr {![catch {package require [my define get pkg_name [my define get name]]}]}]
+  }
+
+}
+
 ###
 # Create an object to represent the local environment
 ###
@@ -105,9 +133,11 @@ set ::practcl::MAIN ::practcl::LOCAL
 # Defer the creation of the ::pratcl::LOCAL object until it is called
 # in order to allow packages to
 set ::auto_index(::practcl::LOCAL) {
-  puts "Building LOCAL"
   ::practcl::project create ::practcl::LOCAL
   ::practcl::LOCAL define set [::practcl::local_os]
+  ::practcl::LOCAL define set prefix [file normalize [file join ~ tcl]]
+  ::practcl::LOCAL define set LOCAL 1
+
   # Until something better comes along, use ::practcl::LOCAL
   # as our main project
   # Add tclconfig as a project of record
@@ -133,5 +163,13 @@ set ::auto_index(::practcl::LOCAL) {
   ::practcl::LOCAL add_tool odie {
     tag trunk class tool.source
     fossil_url http://fossil.etoyoc.com/fossil/odie
+  }
+  ::practcl::LOCAL add_tool tcl {
+    tag release class tool.core
+    fossil_url http://core.tcl.tk/tcl
+  }
+  ::practcl::LOCAL add_tool tk {
+    tag release class tool.core
+    fossil_url http://core.tcl.tk/tcl
   }
 }

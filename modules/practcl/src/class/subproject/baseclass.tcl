@@ -1,5 +1,5 @@
 oo::class create ::practcl::subproject {
-  superclass ::practcl::object ::practcl::distribution
+  superclass ::practcl::module
 
   method child which {
     switch $which {
@@ -13,19 +13,9 @@ oo::class create ::practcl::subproject {
 
   method compile {} {}
 
-  method critcl args {
-    if {![info exists critcl]} {
-      ::pratcl::LOCAL tool critcl load
-      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
-    }
-    set srcdir [my SourceRoot]
-    set PWD [pwd]
-    cd $srcdir
-    ::pratcl::dotclexec $critcl {*}$args
-    cd $PWD
-  }
 
   method go {} {
+    ::practcl::distribution select [self]
     set name [my define get name]
     set srcdir [my SrcDir]
     my define set localsrcdir $srcdir

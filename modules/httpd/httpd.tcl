@@ -90,40 +90,27 @@ package provide httpd 4.0.1
     # socket back to ourselves.)
     ###
     chan configure $sock -translation {crlf crlf} -blocking 0 -buffering line
-    my variable MimeHeadersSock
-    set MimeHeadersSock($sock) {}
-    set MimeHeadersSock($sock.done) {}
-    chan event $sock readable [namespace code [list my HttpHeaderLine $sock]]
-    vwait [my varname MimeHeadersSock]_$sock.done
-    ###
-    # Return our buffer
-    ###
-    return $MimeHeadersSock($sock)
-  }
-
-  method HttpHeaderLine {sock} {
-    my variable MimeHeadersSock
-    if {[chan eof $sock]} {
-      # Socket closed... die
-      tailcall my destroy
-    }
     try {
-      gets $sock line
-      if {$line eq {}} {
-        set [my varname MimeHeadersSock]_$sock.done 1
-        chan event $sock readable {}
-      } else {
-        append MimeHeadersSock($sock) $line \n
+      while 1 {
+        set readCount [::coroutine::util::gets_safety $sock 4096 line]
+        if {[string trim $line] eq {}} break
+        append result $line \n
       }
     } trap {POSIX EBUSY} {err info} {
       # Happens...
     } on error {err info} {
       puts "ERROR $err"
       puts [dict print $info]
+      tailcall my destroy
     }
+    ###
+    # Return our buffer
+    ###
+    return $result
   }
 
   method MimeParse mimetext {
+    set data(mimeorder) {}
     foreach line [split $mimetext \n] {
       # This regexp picks up
       # key: value
@@ -377,7 +364,7 @@ For deeper understanding:
       my variable chan
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set length [my query_headers get CONTENT_LENGTH]
-      set postdata [read $chan $length]
+      set postdata [::coroutine::util::read $chan $length]
     }
     return $postdata
   }
@@ -432,9 +419,8 @@ For deeper understanding:
 
 ###
 # A simplistic web server, with a few caveats:
-# 1) It only really understands "GET" style queries.
-# 2) It is not hardened in any way against malicious attacks
-# 3) By default it will only listen on localhost
+# 1) It is not hardened in any way against malicious attacks
+# 2) By default it will only listen on localhost
 ###
 ::tool::define ::httpd::server {
 
@@ -480,6 +466,7 @@ For deeper understanding:
   }
 
   method Connect {uuid sock ip} {
+    chan event $sock readable {}
     my counter url_hit
     set line {}
     try {

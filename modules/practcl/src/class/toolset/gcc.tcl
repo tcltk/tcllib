@@ -3,100 +3,114 @@
   superclass ::practcl::toolset
 
   method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
-  set EXTERN_OBJS {}
-  set OBJECTS {}
-  set result {}
-  set builddir [$PROJECT define get builddir]
-  file mkdir [file join $builddir objs]
-  set debug [$PROJECT define get debug 0]
-  if {$CPPCOMPILE eq {}} {
-    set CPPCOMPILE $COMPILE
-  }
-  set task [${PROJECT} compile-products]
-  ###
-  # Compile the C sources
-  ###
-  foreach {ofile info} $task {
-    dict set task $ofile done 0
-    if {[dict exists $info external] && [dict get $info external]==1} {
-      dict set task $ofile external 1
-    } else {
-      dict set task $ofile external 0
+    set objext [my define get OBJEXT o]
+    set EXTERN_OBJS {}
+    set OBJECTS {}
+    set result {}
+    set builddir [$PROJECT define get builddir]
+    file mkdir [file join $builddir objs]
+    set debug [$PROJECT define get debug 0]
+    if {$CPPCOMPILE eq {}} {
+      set CPPCOMPILE $COMPILE
     }
-    if {[dict exists $info library]} {
-      dict set task $ofile done 1
-      continue
-    }
-    # Products with no cfile aren't compiled
-    if {![dict exists $info cfile] || [set cfile [dict get $info cfile]] eq {}} {
-      dict set task $ofile done 1
-      continue
-    }
-    set cfile [dict get $info cfile]
-    set ofilename [file join $builddir objs [file tail $ofile]]
-    if {$debug} {
-      set ofilename [file join $builddir objs [file rootname [file tail $ofile]].debug.o]
-    }
-    dict set task $ofile filename $ofilename
-    if {[file exists $ofilename] && [file mtime $ofilename]>[file mtime $cfile]} {
-      lappend result $ofilename
-      dict set task $ofile done 1
-      continue
-    }
-    if {![dict exist $info command]} {
-      if {[file extension $cfile] in {.c++ .cpp}} {
-        set cmd $CPPCOMPILE
-      } else {
-        set cmd $COMPILE
-      }
-      if {[dict exists $info extra]} {
-        append cmd " [dict get $info extra]"
-      }
-      append cmd " -c $cfile"
-      append cmd " -o $ofilename"
-      dict set task $ofile command $cmd
-    }
-  }
-  set completed 0
-  while {$completed==0} {
-    set completed 1
-    foreach {ofile info} $task {
-      set waiting {}
-      if {[dict exists $info done] && [dict get $info done]} continue
-      if {[dict exists $info depend]} {
-        foreach file [dict get $info depend] {
-          if {[dict exists $task $file command] && [dict exists $task $file done] && [dict get $task $file done] != 1} {
-            set waiting $file
-            break
-          }
-        }
-      }
-      if {$waiting ne {}} {
-        set completed 0
-        puts "$ofile waiting for $waiting"
+    set task {}
+    ###
+    # Compile the C sources
+    ###
+    ::practcl::debug ### COMPILE PRODUCTS
+    foreach {ofile info} [${PROJECT} project-compile-products] {
+      ::practcl::debug $ofile $info
+      if {[dict exists $info library]} {
+        #dict set task $ofile done 1
         continue
       }
-      if {[dict exists $info command]} {
-        set cmd [dict get $info command]
-        puts "$cmd"
-        exec {*}$cmd >&@ stdout
+      # Products with no cfile aren't compiled
+      if {![dict exists $info cfile] || [set cfile [dict get $info cfile]] eq {}} {
+        #dict set task $ofile done 1
+        continue
       }
-      lappend result [dict get $info filename]
-      dict set task $ofile done 1
+      set ofile [file rootname $ofile]
+      dict set task $ofile done 0
+      if {[dict exists $info external] && [dict get $info external]==1} {
+        dict set task $ofile external 1
+      } else {
+        dict set task $ofile external 0
+      }
+      set cfile [dict get $info cfile]
+      if {$debug} {
+        set ofilename [file join $builddir objs [file rootname [file tail $ofile]].debug.${objext}]
+      } else {
+        set ofilename [file join $builddir objs [file tail $ofile]].${objext}
+      }
+      dict set task $ofile source $cfile
+      dict set task $ofile objfile $ofilename
+      if {![dict exist $info command]} {
+        if {[file extension $cfile] in {.c++ .cpp}} {
+          set cmd $CPPCOMPILE
+        } else {
+          set cmd $COMPILE
+        }
+        if {[dict exists $info extra]} {
+          append cmd " [dict get $info extra]"
+        }
+        append cmd " -c $cfile"
+        append cmd " -o $ofilename"
+        dict set task $ofile command $cmd
+      }
     }
+    set completed 0
+    while {$completed==0} {
+      set completed 1
+      foreach {ofile info} $task {
+        set waiting {}
+        if {[dict exists $info done] && [dict get $info done]} continue
+        ::practcl::debug COMPILING $ofile $info
+        set filename [dict get $info objfile]
+        if {[file exists $filename] && [file mtime $filename]>[file mtime [dict get $info source]]} {
+          lappend result $filename
+          dict set task $ofile done 1
+          continue
+        }
+        if {[dict exists $info depend]} {
+          foreach file [dict get $info depend] {
+            if {[dict exists $task $file command] && [dict exists $task $file done] && [dict get $task $file done] != 1} {
+              set waiting $file
+              break
+            }
+          }
+        }
+        if {$waiting ne {}} {
+          set completed 0
+          puts "$ofile waiting for $waiting"
+          continue
+        }
+        if {[dict exists $info command]} {
+          set cmd [dict get $info command]
+          puts "$cmd"
+          exec {*}$cmd >&@ stdout
+        }
+        if {[file exists $filename]} {
+          lappend result $filename
+          dict set task $ofile done 1
+          continue
+        }
+        error "Failed to produce $filename"
+      }
+    }
+    return $result
   }
-  return $result
-}
 
 method build-Makefile {path PROJECT} {
   array set proj [$PROJECT define dump]
   set path $proj(builddir)
   cd $path
   set includedir .
+  set objext [my define get OBJEXT o]
+
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(srcdir) generic]]]
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -113,16 +127,17 @@ method build-Makefile {path PROJECT} {
   ::practcl::cputs result "${NAME}_COMPILE = \$(CC) \$(CFLAGS) \$(PKG_CFLAGS) \$(${NAME}_DEFS) \$(${NAME}_INCLUDES) \$(INCLUDES) \$(AM_CPPFLAGS) \$(CPPFLAGS) \$(AM_CFLAGS)"
   ::practcl::cputs result "${NAME}_CPPCOMPILE = \$(CXX) \$(CFLAGS) \$(PKG_CFLAGS) \$(${NAME}_DEFS) \$(${NAME}_INCLUDES) \$(INCLUDES) \$(AM_CPPFLAGS) \$(CPPFLAGS) \$(AM_CFLAGS)"
 
-  foreach {ofile info} [$PROJECT compile-products] {
+  foreach {ofile info} [$PROJECT project-compile-products] {
     dict set products $ofile $info
+    set fname [file rootname ${ofile}].${objext}
     if {[dict exists $info library]} {
 lappend libraries $ofile
 continue
     }
     if {[dict exists $info depend]} {
-      ::practcl::cputs result "\n${ofile}: [dict get $info depend]"
+      ::practcl::cputs result "\n${fname}: [dict get $info depend]"
     } else {
-      ::practcl::cputs result "\n${ofile}:"
+      ::practcl::cputs result "\n${fname}:"
     }
     set cfile [dict get $info cfile]
     if {[file extension $cfile] in {.c++ .cpp}} {
@@ -194,7 +209,7 @@ method build-library {outfile PROJECT} {
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) xlib]]]
     lappend includedir [::practcl::file_relative $path [file normalize $proj(TK_BIN_DIR)]]
   }
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -314,7 +329,7 @@ method build-tclsh {outfile PROJECT} {
   set TCLSRCDIR [$TCLOBJ define get srcdir]
 
   set includedir .
-  foreach include [$TCLOBJ generate-include-directory] {
+  foreach include [$TCLOBJ toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -328,7 +343,7 @@ method build-tclsh {outfile PROJECT} {
     lappend includedir [::practcl::file_relative $path [file normalize $TKSRCDIR]]
   }
 
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -393,54 +408,41 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
   if {[$PROJECT define get TEACUP_OS] ne "macosx"} {
     append cmd " -static "
   }
-  if {$debug} {
-    if {$os eq "windows"} {
-      append cmd " -L${TCL(src_dir)}/win -ltcl86g"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/win -ltk86g"
-      }
-    } else {
-      append cmd " -L${TCL(src_dir)}/unix -ltcl86g"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/unix -ltk86g"
-      }
+  if {$debug && $os eq "windows"} {
+    append cmd " -L${TCL(src_dir)}/win -ltcl86g"
+    if {[$PROJECT define get static_tk]} {
+      append cmd " -L${TK(src_dir)}/win -ltk86g"
     }
   } else {
-    append cmd " $TCL(build_lib_spec)"
+    append cmd "\n $TCL(build_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd " $TK(build_lib_spec)"
+      append cmd  "\n $TK(build_lib_spec)"
     }
   }
   foreach obj $PKG_OBJS {
-    append cmd " [$obj linker-products $config($obj)]"
+    append cmd "\n [$obj linker-products $config($obj)] "
   }
-  append cmd " $TCL(libs) "
+  append cmd "\n $TCL(libs) "
   if {[$PROJECT define get static_tk]} {
-    append cmd " $TK(libs)"
+    append cmd "\n $TK(libs) "
   }
   foreach obj $PKG_OBJS {
-    append cmd " [$obj linker-external $config($obj)]"
+    append cmd "\n [$obj linker-external $config($obj)]"
   }
-  if {$debug} {
-    if {$os eq "windows"} {
-      append cmd " -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
-      }
-    } else {
-      append cmd " -L${TCL(src_dir)}/unix ${TCL(stub_lib_flag)}"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/unix ${TK(stub_lib_flag)}"
-      }
+  if {$debug && $os eq "windows"} {
+    append cmd "\n -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
+    if {[$PROJECT define get static_tk]} {
+      append cmd "\n -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
     }
   } else {
-    append cmd " $TCL(build_stub_lib_spec)"
+    append cmd "\n $TCL(build_stub_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd " $TK(build_stub_lib_spec)"
+      append cmd "\n $TK(build_stub_lib_spec)"
     }
   }
-  append cmd " -o $outfile $LDFLAGS_CONSOLE"
+  append cmd "\n -o $outfile $LDFLAGS_CONSOLE"
   puts "LINK: $cmd"
-  exec {*}$cmd >&@ stdout
+  exec {*}[string map [list "\n" " "] $cmd] >&@ stdout
 }
+
 }

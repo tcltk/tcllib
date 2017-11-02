@@ -1,6 +1,7 @@
 
 
 oo::class create ::practcl::distribution.git {
+  superclass ::practcl::distribution
 
   method ScmTag {} {
     if {[my define exists scm_tag]} {
