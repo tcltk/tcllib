@@ -93,6 +93,17 @@ oo::class create ::practcl::toolset {
     return $defs
   }
 
+  method critcl args {
+    if {![info exists critcl]} {
+      ::pratcl::LOCAL tool critcl load
+      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
+    }
+    set srcdir [my SourceRoot]
+    set PWD [pwd]
+    cd $srcdir
+    ::pratcl::dotclexec $critcl {*}$args
+    cd $PWD
+  }
 
   method NmakeOpts {} {
     set opts {}
@@ -129,6 +140,7 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
+    noop {
     if {[my <project> define exists tclsrcdir]} {
       ###
       # On Windows we are probably running under MSYS, which doesn't deal with
@@ -142,6 +154,7 @@ oo::class create ::practcl::toolset {
       set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
       set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
       lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
+    }
     }
     lappend opts {*}[my define get config_opts]
     if {![regexp -- "--prefix" $opts]} {

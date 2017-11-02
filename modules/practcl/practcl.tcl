@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.9a0
+package provide practcl 0.10
 namespace eval ::practcl {}
 
 ###
@@ -791,6 +791,9 @@ proc ::practcl::de_shell {data} {
 # Bits stolen from fileutil
 ###
 proc ::practcl::cat fname {
+    if {![file exists $fname]} {
+       return
+    }
     set fname [open $fname r]
     set data [read $fname]
     close $fname
@@ -1314,6 +1317,54 @@ proc ::practcl::target {name info} {
     }
   }
 
+  method morph classname {
+    my variable define
+    if {$classname ne {}} {
+      set map [list @name@ $classname]
+      foreach pattern [split [string map $map {
+        @name@
+        ::practcl::@name@
+        ::practcl::project.@name@
+        ::practcl::subproject.@name@
+        ::practcl::tool.@name@
+        ::practcl::*@name@
+        ::practcl::*@name@*
+      }] \n] {
+        set pattern [string trim $pattern]
+        set matches [info commands $pattern]
+        if {![llength $matches]} continue
+        set class [lindex $matches 0]
+        break
+      }
+      set mixinslot {}
+      foreach {slot pattern} {
+        distribution ::practcl::distribution*
+        product      ::practcl::product*
+        toolset      ::practcl::toolset*
+      } {
+        if {[string match $pattern $class]} {
+           set mixinslot $slot
+           break
+        }
+      }
+      if {$mixinslot ne {}} {
+        my mixin $mixinslot $class
+      } elseif {[info command $class] ne {}} {
+        if {[info object class [self]] ne $class} {
+          ::oo::objdefine [self] class $class
+          ::practcl::debug [self] morph $class
+           my define set class $class
+        }
+      } else {
+        error "[self] Could not detect class for $classname"
+      }
+    }
+    if {[::info exists define(oodefine)]} {
+      ::oo::objdefine [self] $define(oodefine)
+      unset define(oodefine)
+    }
+  }
+
   method mixin {slot classname} {
     my variable mixinslot
     set class {}
@@ -1332,6 +1383,7 @@ proc ::practcl::target {name info} {
       set class [lindex $matches 0]
       break
     }
+    ::practcl::debug [self] mixin $slot $class
     dict set mixinslot $slot $class
     set mixins {}
     foreach {s c} $mixinslot {
@@ -1360,26 +1412,13 @@ proc ::practcl::target {name info} {
 
   method select {} {
     my variable define
-    set class {}
     if {[info exists define(class)]} {
-      if {[info command $define(class)] ne {}} {
-        set class $define(class)
-      } elseif {[info command ::practcl::$define(class)] ne {}} {
-        set class ::practcl::$define(class)
-      } else {
-        switch $define(class) {
-          default {
-            set class ::practcl::object
-          }
-        }
+      my morph $define(class)
+    } else {
+      if {[::info exists define(oodefine)]} {
+        ::oo::objdefine [self] $define(oodefine)
+        unset define(oodefine)
       }
-    }
-    if {$class ne {}} {
-      ::oo::objdefine [self] class $class
-    }
-    if {[::info exists define(oodefine)]} {
-      ::oo::objdefine [self] $define(oodefine)
-      unset define(oodefine)
     }
   }
 
@@ -1489,6 +1528,17 @@ oo::class create ::practcl::toolset {
     return $defs
   }
 
+  method critcl args {
+    if {![info exists critcl]} {
+      ::pratcl::LOCAL tool critcl load
+      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
+    }
+    set srcdir [my SourceRoot]
+    set PWD [pwd]
+    cd $srcdir
+    ::pratcl::dotclexec $critcl {*}$args
+    cd $PWD
+  }
 
   method NmakeOpts {} {
     set opts {}
@@ -1525,6 +1575,7 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
+    noop {
     if {[my <project> define exists tclsrcdir]} {
       ###
       # On Windows we are probably running under MSYS, which doesn't deal with
@@ -1538,6 +1589,7 @@ oo::class create ::practcl::toolset {
       set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
       set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
       lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
+    }
     }
     lappend opts {*}[my define get config_opts]
     if {![regexp -- "--prefix" $opts]} {
@@ -1601,100 +1653,114 @@ oo::objdefine ::practcl::toolset {
   superclass ::practcl::toolset
 
   method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
-  set EXTERN_OBJS {}
-  set OBJECTS {}
-  set result {}
-  set builddir [$PROJECT define get builddir]
-  file mkdir [file join $builddir objs]
-  set debug [$PROJECT define get debug 0]
-  if {$CPPCOMPILE eq {}} {
-    set CPPCOMPILE $COMPILE
-  }
-  set task [${PROJECT} compile-products]
-  ###
-  # Compile the C sources
-  ###
-  foreach {ofile info} $task {
-    dict set task $ofile done 0
-    if {[dict exists $info external] && [dict get $info external]==1} {
-      dict set task $ofile external 1
-    } else {
-      dict set task $ofile external 0
+    set objext [my define get OBJEXT o]
+    set EXTERN_OBJS {}
+    set OBJECTS {}
+    set result {}
+    set builddir [$PROJECT define get builddir]
+    file mkdir [file join $builddir objs]
+    set debug [$PROJECT define get debug 0]
+    if {$CPPCOMPILE eq {}} {
+      set CPPCOMPILE $COMPILE
     }
-    if {[dict exists $info library]} {
-      dict set task $ofile done 1
-      continue
-    }
-    # Products with no cfile aren't compiled
-    if {![dict exists $info cfile] || [set cfile [dict get $info cfile]] eq {}} {
-      dict set task $ofile done 1
-      continue
-    }
-    set cfile [dict get $info cfile]
-    set ofilename [file join $builddir objs [file tail $ofile]]
-    if {$debug} {
-      set ofilename [file join $builddir objs [file rootname [file tail $ofile]].debug.o]
-    }
-    dict set task $ofile filename $ofilename
-    if {[file exists $ofilename] && [file mtime $ofilename]>[file mtime $cfile]} {
-      lappend result $ofilename
-      dict set task $ofile done 1
-      continue
-    }
-    if {![dict exist $info command]} {
-      if {[file extension $cfile] in {.c++ .cpp}} {
-        set cmd $CPPCOMPILE
-      } else {
-        set cmd $COMPILE
-      }
-      if {[dict exists $info extra]} {
-        append cmd " [dict get $info extra]"
-      }
-      append cmd " -c $cfile"
-      append cmd " -o $ofilename"
-      dict set task $ofile command $cmd
-    }
-  }
-  set completed 0
-  while {$completed==0} {
-    set completed 1
-    foreach {ofile info} $task {
-      set waiting {}
-      if {[dict exists $info done] && [dict get $info done]} continue
-      if {[dict exists $info depend]} {
-        foreach file [dict get $info depend] {
-          if {[dict exists $task $file command] && [dict exists $task $file done] && [dict get $task $file done] != 1} {
-            set waiting $file
-            break
-          }
-        }
-      }
-      if {$waiting ne {}} {
-        set completed 0
-        puts "$ofile waiting for $waiting"
+    set task {}
+    ###
+    # Compile the C sources
+    ###
+    ::practcl::debug ### COMPILE PRODUCTS
+    foreach {ofile info} [${PROJECT} project-compile-products] {
+      ::practcl::debug $ofile $info
+      if {[dict exists $info library]} {
+        #dict set task $ofile done 1
         continue
       }
-      if {[dict exists $info command]} {
-        set cmd [dict get $info command]
-        puts "$cmd"
-        exec {*}$cmd >&@ stdout
+      # Products with no cfile aren't compiled
+      if {![dict exists $info cfile] || [set cfile [dict get $info cfile]] eq {}} {
+        #dict set task $ofile done 1
+        continue
       }
-      lappend result [dict get $info filename]
-      dict set task $ofile done 1
+      set ofile [file rootname $ofile]
+      dict set task $ofile done 0
+      if {[dict exists $info external] && [dict get $info external]==1} {
+        dict set task $ofile external 1
+      } else {
+        dict set task $ofile external 0
+      }
+      set cfile [dict get $info cfile]
+      if {$debug} {
+        set ofilename [file join $builddir objs [file rootname [file tail $ofile]].debug.${objext}]
+      } else {
+        set ofilename [file join $builddir objs [file tail $ofile]].${objext}
+      }
+      dict set task $ofile source $cfile
+      dict set task $ofile objfile $ofilename
+      if {![dict exist $info command]} {
+        if {[file extension $cfile] in {.c++ .cpp}} {
+          set cmd $CPPCOMPILE
+        } else {
+          set cmd $COMPILE
+        }
+        if {[dict exists $info extra]} {
+          append cmd " [dict get $info extra]"
+        }
+        append cmd " -c $cfile"
+        append cmd " -o $ofilename"
+        dict set task $ofile command $cmd
+      }
     }
+    set completed 0
+    while {$completed==0} {
+      set completed 1
+      foreach {ofile info} $task {
+        set waiting {}
+        if {[dict exists $info done] && [dict get $info done]} continue
+        ::practcl::debug COMPILING $ofile $info
+        set filename [dict get $info objfile]
+        if {[file exists $filename] && [file mtime $filename]>[file mtime [dict get $info source]]} {
+          lappend result $filename
+          dict set task $ofile done 1
+          continue
+        }
+        if {[dict exists $info depend]} {
+          foreach file [dict get $info depend] {
+            if {[dict exists $task $file command] && [dict exists $task $file done] && [dict get $task $file done] != 1} {
+              set waiting $file
+              break
+            }
+          }
+        }
+        if {$waiting ne {}} {
+          set completed 0
+          puts "$ofile waiting for $waiting"
+          continue
+        }
+        if {[dict exists $info command]} {
+          set cmd [dict get $info command]
+          puts "$cmd"
+          exec {*}$cmd >&@ stdout
+        }
+        if {[file exists $filename]} {
+          lappend result $filename
+          dict set task $ofile done 1
+          continue
+        }
+        error "Failed to produce $filename"
+      }
+    }
+    return $result
   }
-  return $result
-}
 
 method build-Makefile {path PROJECT} {
   array set proj [$PROJECT define dump]
   set path $proj(builddir)
   cd $path
   set includedir .
+  set objext [my define get OBJEXT o]
+
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(srcdir) generic]]]
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -1711,16 +1777,17 @@ method build-Makefile {path PROJECT} {
   ::practcl::cputs result "${NAME}_COMPILE = \$(CC) \$(CFLAGS) \$(PKG_CFLAGS) \$(${NAME}_DEFS) \$(${NAME}_INCLUDES) \$(INCLUDES) \$(AM_CPPFLAGS) \$(CPPFLAGS) \$(AM_CFLAGS)"
   ::practcl::cputs result "${NAME}_CPPCOMPILE = \$(CXX) \$(CFLAGS) \$(PKG_CFLAGS) \$(${NAME}_DEFS) \$(${NAME}_INCLUDES) \$(INCLUDES) \$(AM_CPPFLAGS) \$(CPPFLAGS) \$(AM_CFLAGS)"
 
-  foreach {ofile info} [$PROJECT compile-products] {
+  foreach {ofile info} [$PROJECT project-compile-products] {
     dict set products $ofile $info
+    set fname [file rootname ${ofile}].${objext}
     if {[dict exists $info library]} {
 lappend libraries $ofile
 continue
     }
     if {[dict exists $info depend]} {
-      ::practcl::cputs result "\n${ofile}: [dict get $info depend]"
+      ::practcl::cputs result "\n${fname}: [dict get $info depend]"
     } else {
-      ::practcl::cputs result "\n${ofile}:"
+      ::practcl::cputs result "\n${fname}:"
     }
     set cfile [dict get $info cfile]
     if {[file extension $cfile] in {.c++ .cpp}} {
@@ -1792,7 +1859,7 @@ method build-library {outfile PROJECT} {
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) xlib]]]
     lappend includedir [::practcl::file_relative $path [file normalize $proj(TK_BIN_DIR)]]
   }
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -1912,7 +1979,7 @@ method build-tclsh {outfile PROJECT} {
   set TCLSRCDIR [$TCLOBJ define get srcdir]
 
   set includedir .
-  foreach include [$TCLOBJ generate-include-directory] {
+  foreach include [$TCLOBJ toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -1926,7 +1993,7 @@ method build-tclsh {outfile PROJECT} {
     lappend includedir [::practcl::file_relative $path [file normalize $TKSRCDIR]]
   }
 
-  foreach include [$PROJECT generate-include-directory] {
+  foreach include [$PROJECT toolset-include-directory] {
     set cpath [::practcl::file_relative $path [file normalize $include]]
     if {$cpath ni $includedir} {
       lappend includedir $cpath
@@ -1991,56 +2058,43 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
   if {[$PROJECT define get TEACUP_OS] ne "macosx"} {
     append cmd " -static "
   }
-  if {$debug} {
-    if {$os eq "windows"} {
-      append cmd " -L${TCL(src_dir)}/win -ltcl86g"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/win -ltk86g"
-      }
-    } else {
-      append cmd " -L${TCL(src_dir)}/unix -ltcl86g"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/unix -ltk86g"
-      }
+  if {$debug && $os eq "windows"} {
+    append cmd " -L${TCL(src_dir)}/win -ltcl86g"
+    if {[$PROJECT define get static_tk]} {
+      append cmd " -L${TK(src_dir)}/win -ltk86g"
     }
   } else {
-    append cmd " $TCL(build_lib_spec)"
+    append cmd "\n $TCL(build_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd " $TK(build_lib_spec)"
+      append cmd  "\n $TK(build_lib_spec)"
     }
   }
   foreach obj $PKG_OBJS {
-    append cmd " [$obj linker-products $config($obj)]"
+    append cmd "\n [$obj linker-products $config($obj)] "
   }
-  append cmd " $TCL(libs) "
+  append cmd "\n $TCL(libs) "
   if {[$PROJECT define get static_tk]} {
-    append cmd " $TK(libs)"
+    append cmd "\n $TK(libs) "
   }
   foreach obj $PKG_OBJS {
-    append cmd " [$obj linker-external $config($obj)]"
+    append cmd "\n [$obj linker-external $config($obj)]"
   }
-  if {$debug} {
-    if {$os eq "windows"} {
-      append cmd " -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
-      }
-    } else {
-      append cmd " -L${TCL(src_dir)}/unix ${TCL(stub_lib_flag)}"
-      if {[$PROJECT define get static_tk]} {
-        append cmd " -L${TK(src_dir)}/unix ${TK(stub_lib_flag)}"
-      }
+  if {$debug && $os eq "windows"} {
+    append cmd "\n -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
+    if {[$PROJECT define get static_tk]} {
+      append cmd "\n -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
     }
   } else {
-    append cmd " $TCL(build_stub_lib_spec)"
+    append cmd "\n $TCL(build_stub_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd " $TK(build_stub_lib_spec)"
+      append cmd "\n $TK(build_stub_lib_spec)"
     }
   }
-  append cmd " -o $outfile $LDFLAGS_CONSOLE"
+  append cmd "\n -o $outfile $LDFLAGS_CONSOLE"
   puts "LINK: $cmd"
-  exec {*}$cmd >&@ stdout
+  exec {*}[string map [list "\n" " "] $cmd] >&@ stdout
 }
+
 }
 
 ###
@@ -2153,17 +2207,18 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     array set define [$parent child define]
     array set links {}
     if {[llength $args]==1 && [file exists [lindex $args 0]]} {
-      my InitializeSourceFile [lindex $args 0]
+      my define set filename [lindex $args 0]
+      ::practcl::product select [self]
     } elseif {[llength $args] == 1} {
       set data  [uplevel 1 [list subst [lindex $args 0]]]
       array set define $data
       my select
-      my initialize
     } else {
       array set define [uplevel 1 [list subst $args]]
       my select
-      my initialize
     }
+    my initialize
+
   }
 
 
@@ -2175,57 +2230,10 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     my define add include_dir {*}$args
   }
 
-  method Collate_Source CWD {}
-
-
   method child {method} {
     return {}
   }
 
-  method InitializeSourceFile filename {
-    my define set filename $filename
-    set class {}
-    switch [file extension $filename] {
-      .tcl {
-        set class ::practcl::dynamic
-      }
-      .h {
-        set class ::practcl::cheader
-      }
-      .c {
-        set class ::practcl::csource
-      }
-      .ini {
-        switch [file tail $filename] {
-          module.ini {
-            set class ::practcl::module
-          }
-          library.ini {
-            set class ::practcl::subproject
-          }
-        }
-      }
-      .so -
-      .dll -
-      .dylib -
-      .a {
-        set class ::practcl::clibrary
-      }
-    }
-    if {$class ne {}} {
-      oo::objdefine [self] class $class
-      my initialize
-    }
-  }
-
-  method add args {
-    my variable links
-    set object [::practcl::object new [self] {*}$args]
-    foreach linktype [$object linktype] {
-      lappend links($linktype) $object
-    }
-    return $object
-  }
 
   method go {} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
@@ -2238,558 +2246,30 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     ::practcl::debug [list /[self] [self method] [self class]]
   }
 
-  method code {section body} {
-    my variable code
-    ::practcl::cputs code($section) $body
-  }
-
-  method Ofile filename {
-    set lpath [my <module> define get localpath]
-    if {$lpath eq {}} {
-      set lpath [my <module> define get name]
-    }
-    return ${lpath}_[file rootname [file tail $filename]].o
-  }
-
-  method compile-products {} {
-    set filename [my define get filename]
-    set result {}
-    if {$filename ne {}} {
-      if {[my define exists ofile]} {
-        set ofile [my define get ofile]
-      } else {
-        set ofile [my Ofile $filename]
-        my define set ofile $ofile
-      }
-      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
-    }
-    foreach item [my link list subordinate] {
-      lappend result {*}[$item compile-products]
-    }
-    return $result
-  }
-
-  method generate-include-directory {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result [my define get include_dir]
-    foreach obj [my link list product] {
-      foreach path [$obj generate-include-directory] {
-        lappend result $path
-      }
-    }
-    return $result
-  }
-
-  method generate-debug {{spaces {}}} {
-    set result {}
-    ::practcl::cputs result "$spaces[list [self] [list class [info object class [self]] filename [my define get filename]] links [my link list]]"
-    foreach item [my link list subordinate] {
-      practcl::cputs result [$item generate-debug "$spaces  "]
-    }
-    return $result
-  }
-
-  # Empty template methods
-  method generate-cheader {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cfunct cstruct methods tcltype tclprocs
-    set result {}
-    if {[info exists code(header)]} {
-      ::practcl::cputs result $code(header)
-    }
-    foreach obj [my link list product] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} continue
-      set dat [$obj generate-cheader]
-      if {[string length [string trim $dat]]} {
-        ::practcl::cputs result "/* BEGIN [$obj define get filename] generate-cheader */"
-        ::practcl::cputs result $dat
-        ::practcl::cputs result "/* END [$obj define get filename] generate-cheader */"
-      }
-    }
-    ::practcl::debug [list cfunct [info exists cfunct]]
-    if {[info exists cfunct]} {
-      foreach {funcname info} $cfunct {
-        if {[dict get $info public]} continue
-        ::practcl::cputs result "[dict get $info header]\;"
-      }
-    }
-    ::practcl::debug [list tclprocs [info exists tclprocs]]
-    if {[info exists tclprocs]} {
-      foreach {name info} $tclprocs {
-        if {[dict exists $info header]} {
-          ::practcl::cputs result "[dict get $info header]\;"
-        }
-      }
-    }
-    ::practcl::debug [list methods [info exists methods] [my define get cclass]]
-    if {[info exists code(global)]} {
-      ::practcl::cputs result $code(global)
-    }
-    if {[info exists methods]} {
-      set thisclass [my define get cclass]
-      foreach {name info} $methods {
-        if {[dict exists $info header]} {
-          ::practcl::cputs result "[dict get $info header]\;"
-        }
-      }
-      # Add the initializer wrapper for the class
-      ::practcl::cputs result "static int ${thisclass}_OO_Init(Tcl_Interp *interp)\;"
-    }
-    return $result
-  }
-
-  method generate-public-define {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code
-    set result {}
-    if {[info exists code(public-define)]} {
-      ::practcl::cputs result $code(public-define)
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-define]
-    }
-    return $result
-  }
-
-  method generate-public-macro {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code
-    set result {}
-    if {[info exists code(public-macro)]} {
-      ::practcl::cputs result $code(public-macro)
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-macro]
-    }
-    return $result
-  }
-
-  method generate-public-typedef {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cstruct
-    set result {}
-    if {[info exists code(public-typedef)]} {
-      ::practcl::cputs result $code(public-typedef)
-    }
-    if {[info exists cstruct]} {
-      # Add defintion for native c data structures
-      foreach {name info} $cstruct {
-        if {[dict get $info public]==0} continue
-        ::practcl::cputs result "typedef struct $name ${name}\;"
-        if {[dict exists $info aliases]} {
-          foreach n [dict get $info aliases] {
-            ::practcl::cputs result "typedef struct $name ${n}\;"
-          }
-        }
-      }
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-typedef]
-    }
-    return $result
-  }
-
-  method generate-private-typedef {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cstruct
-    set result {}
-    if {[info exists code(private-typedef)]} {
-      ::practcl::cputs result $code(private-typedef)
-    }
-    if {[info exists cstruct]} {
-      # Add defintion for native c data structures
-      foreach {name info} $cstruct {
-        if {[dict get $info public]==1} continue
-        ::practcl::cputs result "typedef struct $name ${name}\;"
-        if {[dict exists $info aliases]} {
-          foreach n [dict get $info aliases] {
-            ::practcl::cputs result "typedef struct $name ${n}\;"
-          }
-        }
-      }
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-private-typedef]
-    }
-    return $result
-  }
-
-  method generate-public-structure {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cstruct
-    set result {}
-    if {[info exists code(public-structure)]} {
-      ::practcl::cputs result $code(public-structure)
-    }
-    if {[info exists cstruct]} {
-      foreach {name info} $cstruct {
-        if {[dict get $info public]==0} continue
-        if {[dict exists $info comment]} {
-          ::practcl::cputs result [dict get $info comment]
-        }
-        ::practcl::cputs result "struct $name \{[dict get $info body]\}\;"
-      }
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-structure]
-    }
-    return $result
-  }
 
 
-  method generate-private-structure {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cstruct
-    set result {}
-    if {[info exists code(private-structure)]} {
-      ::practcl::cputs result $code(private-structure)
-    }
-    if {[info exists cstruct]} {
-      foreach {name info} $cstruct {
-        if {[dict get $info public]==1} continue
-        if {[dict exists $info comment]} {
-          ::practcl::cputs result [dict get $info comment]
-        }
-        ::practcl::cputs result "struct $name \{[dict get $info body]\}\;"
-      }
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-private-structure]
-    }
-    return $result
-  }
-
-  method generate-public-headers {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code tcltype
-    set result {}
-    if {[info exists code(public-header)]} {
-      ::practcl::cputs result $code(public-header)
-    }
-    if {[info exists tcltype]} {
-      foreach {type info} $tcltype {
-        if {![dict exists $info cname]} {
-          set cname [string tolower ${type}]_tclobjtype
-          dict set tcltype $type cname $cname
-        } else {
-          set cname [dict get $info cname]
-        }
-        ::practcl::cputs result "extern const Tcl_ObjType $cname\;"
-      }
-    }
-    if {[info exists code(public)]} {
-      ::practcl::cputs result $code(public)
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-headers]
-    }
-    return $result
-  }
-
-  method generate-stub-function {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cfunct tcltype
-    set result {}
-    foreach mod [my link list product] {
-      foreach {funct def} [$mod generate-stub-function] {
-        dict set result $funct $def
-      }
-    }
-    if {[info exists cfunct]} {
-      foreach {funcname info} $cfunct {
-        if {![dict get $info export]} continue
-        dict set result $funcname [dict get $info header]
-      }
-    }
-    return $result
-  }
-
-  method generate-public-function {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cfunct tcltype
-    set result {}
-
-    if {[my define get initfunc] ne {}} {
-      ::practcl::cputs result "int [my define get initfunc](Tcl_Interp *interp);"
-    }
-    if {[info exists cfunct]} {
-      foreach {funcname info} $cfunct {
-        if {![dict get $info public]} continue
-        ::practcl::cputs result "[dict get $info header]\;"
-      }
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-public-function]
-    }
-    return $result
-  }
-
-  method generate-public-includes {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set includes {}
-    foreach item [my define get public-include] {
-      if {$item ni $includes} {
-        lappend includes $item
-      }
-    }
-    foreach mod [my link list product] {
-      foreach item [$mod generate-public-includes] {
-        if {$item ni $includes} {
-          lappend includes $item
-        }
-      }
-    }
-    return $includes
-  }
-  method generate-public-verbatim {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set includes {}
-    foreach item [my define get public-verbatim] {
-      if {$item ni $includes} {
-        lappend includes $item
-      }
-    }
-    foreach mod [my link list subordinate] {
-      foreach item [$mod generate-public-verbatim] {
-        if {$item ni $includes} {
-          lappend includes $item
-        }
-      }
-    }
-    return $includes
-  }
-  ###
-  # This methods generates the contents of an amalgamated .h file
-  # which describes the public API of this module
-  ###
-  method generate-h {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    set includes [my generate-public-includes]
-    foreach inc $includes {
-      if {[string index $inc 0] ni {< \"}} {
-        ::practcl::cputs result "#include \"$inc\""
-      } else {
-        ::practcl::cputs result "#include $inc"
-      }
-    }
-
-    foreach method {
-      generate-public-define
-      generate-public-macro
-      generate-public-typedef
-      generate-public-structure
-    } {
-      ::practcl::cputs result "/* BEGIN SECTION $method */"
-      ::practcl::cputs result [my $method]
-      ::practcl::cputs result "/* END SECTION $method */"
-    }
-
-    foreach file [my generate-public-verbatim] {
-      ::practcl::cputs result "/* BEGIN $file */"
-      ::practcl::cputs result [::practcl::cat $file]
-      ::practcl::cputs result "/* END $file */"
-    }
-
-    foreach method {
-      generate-public-headers
-      generate-public-function
-    } {
-      ::practcl::cputs result "/* BEGIN SECTION $method */"
-      ::practcl::cputs result [my $method]
-      ::practcl::cputs result "/* END SECTION $method */"
-    }
-    return $result
-  }
-
-  method IncludeAdd {headervar args} {
-    upvar 1 $headervar headers
-    foreach inc $args {
-      if {[string index $inc 0] ni {< \"}} {
-        set inc "\"$inc\""
-      }
-      if {$inc ni $headers} {
-        lappend headers $inc
-      }
-    }
-  }
-
-  ###
-  # This methods generates the contents of an amalgamated .c file
-  # which implements the loader for a batch of tools
-  ###
-  method generate-c {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {
-/* This file was generated by practcl */
-    }
-    set includes {}
-
-    foreach mod [my link list product] {
-      # Signal modules to formulate final implementation
-      $mod go
-    }
-    set headers {}
-
-    my IncludeAdd headers <tcl.h> <tclOO.h>
-    if {[my define get tk 0]} {
-      my IncludeAdd headers <tk.h>
-    }
-    if {[my define get output_h] ne {}} {
-      my IncludeAdd headers [my define get output_h]
-    }
-    my IncludeAdd headers {*}[my define get include]
-
-    foreach mod [my link list dynamic] {
-      my IncludeAdd headers {*}[$mod define get include]
-    }
-    foreach inc $headers {
-      ::practcl::cputs result "#include $inc"
-    }
-    foreach {method} {
-      generate-cheader
-      generate-private-typedef
-      generate-private-structure
-      generate-cstruct
-      generate-constant
-      generate-cfunct
-      generate-tcl_c_api
-    } {
-      set dat [my $method]
-      if {[string length [string trim $dat]]} {
-        ::practcl::cputs result "/* BEGIN $method [my define get filename] */"
-        ::practcl::cputs result $dat
-        ::practcl::cputs result "/* END $method [my define get filename] */"
-      }
-    }
-    ::practcl::debug [list /[self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    return $result
-  }
 
 
-  method generate-loader {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    if {[my define get initfunc] eq {}} return
-    ::practcl::cputs result  "
-extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
-    ::practcl::cputs result  {
-  /* Initialise the stubs tables. */
-  #ifdef USE_TCL_STUBS
-    if (Tcl_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;
-    if (TclOOInitializeStubs(interp, "1.0") == NULL) return TCL_ERROR;
-}
-    if {[my define get tk 0]} {
-      ::practcl::cputs result  {    if (Tk_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;}
-    }
-    ::practcl::cputs result {  #endif}
-    set TCLINIT [my generate-tcl-pre]
-    if {[string length $TCLINIT]} {
-      ::practcl::cputs result "  if(Tcl_Eval(interp,[::practcl::tcl_to_c $TCLINIT])) return TCL_ERROR ;"
-    }
-    foreach item [my link list product] {
-      if {[$item define get output_c] ne {}} {
-        ::practcl::cputs result [$item generate-cinit-external]
-      } else {
-        ::practcl::cputs result [$item generate-cinit]
-      }
-    }
-    set TCLINIT [my generate-tcl-post]
-    if {[string length $TCLINIT]} {
-      ::practcl::cputs result "  if(Tcl_Eval(interp,[::practcl::tcl_to_c $TCLINIT])) return TCL_ERROR ;"
-    }
-    if {[my define exists pkg_name]} {
-      ::practcl::cputs result  "    if (Tcl_PkgProvide(interp, \"[my define get pkg_name [my define get name]]\" , \"[my define get pkg_vers [my define get version]]\" )) return TCL_ERROR\;"
-    }
-    ::practcl::cputs result  "  return TCL_OK\;\n\}\n"
-    return $result
-  }
 
-  ###
-  # This methods generates any Tcl script file
-  # which is required to pre-initialize the C library
-  ###
-  method generate-tcl-pre {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    my variable code
-    if {[info exists code(tcl)]} {
-      set result [::practcl::_tagblock $code(tcl) tcl [my define get filename]]
-    }
-    if {[info exists code(tcl-pre)]} {
-      set result [::practcl::_tagblock $code(tcl) tcl [my define get filename]]
-    }
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-tcl-pre]
-    }
-    return $result
-  }
-
-  method generate-tcl-post {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    my variable code
-    if {[info exists code(tcl-post)]} {
-      set result [::practcl::_tagblock $code(tcl-post) tcl [my define get filename]]
-    }
-    foreach mod [my link list product] {
-      ::practcl::cputs result [$mod generate-tcl-post]
-    }
-    return $result
-  }
-
-  method static-packages {} {
-    set result [my define get static_packages]
-    set initfunc [my define get initfunc]
-    if {$initfunc ne {}} {
-      set pkg_name [my define get pkg_name]
-      if {$pkg_name ne {}} {
-        dict set result $pkg_name initfunc $initfunc
-        dict set result $pkg_name version [my define get version [my define get pkg_vers]]
-        dict set result $pkg_name autoload [my define get autoload 0]
-      }
-    }
-    foreach item [my link list subordinate] {
-      foreach {pkg info} [$item static-packages] {
-        dict set result $pkg $info
-      }
-    }
-    return $result
-  }
-
-  method target {method args} {
-    switch $method {
-      is_unix { return [expr {$::tcl_platform(platform) eq "unix"}] }
-    }
-  }
 }
 
 ###
 # END: class object.tcl
 ###
 ###
-# START: class product baseclass.tcl
+# START: class dynamic.tcl
 ###
 
-::oo::class create ::practcl::product {
-  superclass ::practcl::object
+###
+# Dynamic blocks do not generate their own .c files,
+# instead the contribute to the amalgamation
+# of the main library file
+###
+::oo::class create ::practcl::dynamic {
 
-  method linktype {} {
-    return {subordinate product}
-  }
-
-  method include header {
-    my define add include $header
-  }
+  ###
+  # Parser functions
+  ###
 
   method cstructure {name definition {argdat {}}} {
     my variable cstruct
@@ -2802,432 +2282,10 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     }
   }
 
-  method generate-cinit {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code
-    set result {}
-    if {[info exists code(cinit)]} {
-      ::practcl::cputs result $code(cinit)
-    }
-    if {[my define get initfunc] ne {}} {
-      ::practcl::cputs result "  if([my define get initfunc](interp)!=TCL_OK) return TCL_ERROR\;"
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach obj [my link list product] {
-      ::practcl::cputs result [$obj generate-cinit]
-    }
-    return $result
-  }
-}
-
-###
-# Flesh out several trivial varieties of product
-###
-::oo::class create ::practcl::cheader {
-  superclass ::practcl::product
-
-  method compile-products {} {}
-  method generate-cinit {} {}
-}
-
-::oo::class create ::practcl::csource {
-  superclass ::practcl::product
-}
-
-::oo::class create ::practcl::clibrary {
-  superclass ::practcl::product
-
-  method linker-products {configdict} {
-    return [my define get filename]
+  method include header {
+    my define add include $header
   }
 
-}
-
-###
-# END: class product baseclass.tcl
-###
-###
-# START: class product dynamic.tcl
-###
-
-###
-# Dynamic blocks do not generate their own .c files,
-# instead the contribute to the amalgamation
-# of the main library file
-###
-::oo::class create ::practcl::dynamic {
-  superclass ::practcl::product
-
-  # Retrieve any additional source files required
-
-  method compile-products {} {
-    set filename [my define get output_c]
-    set result {}
-    if {$filename ne {}} {
-      if {[my define exists ofile]} {
-        set ofile [my define get ofile]
-      } else {
-        set ofile [my Ofile $filename]
-        my define set ofile $ofile
-      }
-      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]]]
-    } else {
-      set filename [my define get cfile]
-      if {$filename ne {}} {
-        if {[my define exists ofile]} {
-          set ofile [my define get ofile]
-        } else {
-          set ofile [my Ofile $filename]
-          my define set ofile $ofile
-        }
-        lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]]]
-      }
-    }
-    foreach item [my link list subordinate] {
-      lappend result {*}[$item compile-products]
-    }
-    return $result
-  }
-
-  method implement path {
-    my go
-    my Collate_Source $path
-    if {[my define get output_c] eq {}} return
-    set filename [file join $path [my define get output_c]]
-    my define set cfile $filename
-    set fout [open $filename w]
-    puts $fout [my generate-c]
-    if {[my define get initfunc] ne {}} {
-      puts $fout "extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \x7B"
-      puts $fout [my generate-cinit]
-      if {[my define get pkg_name] ne {}} {
-        puts $fout "   Tcl_PkgProvide(interp, \"[my define get pkg_name]\", \"[my define get pkg_vers]\");"
-      }
-      puts $fout "  return TCL_OK\;"
-      puts $fout "\x7D"
-    }
-    close $fout
-  }
-
-  method initialize {} {
-    set filename [my define get filename]
-    if {$filename eq {}} {
-      return
-    }
-    if {[my define get name] eq {}} {
-      my define set name [file tail [file rootname $filename]]
-    }
-    if {[my define get localpath] eq {}} {
-      my define set localpath [my <module> define get localpath]_[my define get name]
-    }
-    ::source $filename
-  }
-
-  method linktype {} {
-    return {subordinate product dynamic}
-  }
-
-  ###
-  # Populate const static data structures
-  ###
-  method generate-cstruct {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cstruct methods tcltype
-    set result {}
-    if {[info exists code(struct)]} {
-      ::practcl::cputs result $code(struct)
-    }
-    foreach obj [my link list dynamic] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} continue
-      ::practcl::cputs result [$obj generate-cstruct]
-    }
-    return $result
-  }
-
-  method generate-constant {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    my variable code cstruct methods tcltype
-    if {[info exists code(constant)]} {
-      ::practcl::cputs result "/* [my define get filename] CONSTANT */"
-      ::practcl::cputs result $code(constant)
-    }
-    if {[info exists cstruct]} {
-      foreach {name info} $cstruct {
-        set map {}
-        lappend map @NAME@ $name
-        lappend map @MACRO@ GET[string toupper $name]
-
-        if {[dict exists $info deleteproc]} {
-          lappend map @DELETEPROC@ [dict get $info deleteproc]
-        } else {
-          lappend map @DELETEPROC@ NULL
-        }
-        if {[dict exists $info cloneproc]} {
-          lappend map @CLONEPROC@ [dict get $info cloneproc]
-        } else {
-          lappend map @CLONEPROC@ NULL
-        }
-        ::practcl::cputs result [string map $map {
-const static Tcl_ObjectMetadataType @NAME@DataType = {
-  TCL_OO_METADATA_VERSION_CURRENT,
-  "@NAME@",
-  @DELETEPROC@,
-  @CLONEPROC@
-};
-#define @MACRO@(OBJCONTEXT) (@NAME@ *) Tcl_ObjectGetMetadata(OBJCONTEXT,&@NAME@DataType)
-}]
-      }
-    }
-    if {[info exists tcltype]} {
-      foreach {type info} $tcltype {
-        dict with info {}
-        ::practcl::cputs result "const Tcl_ObjType $cname = \{\n .name=\"$type\",\n .freeIntRepProc = &${freeproc},\n  .dupIntRepProc = &${dupproc},\n  .updateStringProc = &${updatestringproc},\n  .setFromAnyProc = &${setfromanyproc}\n\}\;"
-      }
-    }
-
-    if {[info exists methods]} {
-      set mtypes {}
-      foreach {name info} $methods {
-        set callproc   [dict get $info callproc]
-        set methodtype [dict get $info methodtype]
-        if {$methodtype in $mtypes} continue
-        lappend mtypes $methodtype
-        ###
-        # Build the data struct for this method
-        ###
-        ::practcl::cputs result "const static Tcl_MethodType $methodtype = \{"
-        ::practcl::cputs result "  .version = TCL_OO_METADATA_VERSION_CURRENT,\n  .name = \"$name\",\n  .callProc = $callproc,"
-        if {[dict exists $info deleteproc]} {
-          set deleteproc [dict get $info deleteproc]
-        } else {
-          set deleteproc NULL
-        }
-        if {$deleteproc ni { {} NULL }} {
-          ::practcl::cputs result "  .deleteProc = $deleteproc,"
-        } else {
-          ::practcl::cputs result "  .deleteProc = NULL,"
-        }
-        if {[dict exists $info cloneproc]} {
-          set cloneproc [dict get $info cloneproc]
-        } else {
-          set cloneproc NULL
-        }
-        if {$cloneproc ni { {} NULL }} {
-          ::practcl::cputs result "  .cloneProc = $cloneproc\n\}\;"
-        } else {
-          ::practcl::cputs result "  .cloneProc = NULL\n\}\;"
-        }
-        dict set methods $name methodtype $methodtype
-      }
-    }
-    foreach obj [my link list dynamic] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} continue
-      ::practcl::cputs result [$obj generate-constant]
-    }
-    return $result
-  }
-
-  ###
-  # Generate code that provides subroutines called by
-  # Tcl API methods
-  ###
-  method generate-cfunct {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code cfunct
-    set result {}
-    if {[info exists code(funct)]} {
-      ::practcl::cputs result $code(funct)
-    }
-    if {[info exists cfunct]} {
-      foreach {funcname info} $cfunct {
-        ::practcl::cputs result "/* $funcname */"
-        if {[dict get $info inline] && [dict get $info public]} {
-          ::practcl::cputs result "\ninline [dict get $info header]\{[dict get $info body]\}"
-        } else {
-          ::practcl::cputs result "\n[dict get $info header]\{[dict get $info body]\}"
-        }
-      }
-    }
-    foreach obj [my link list dynamic] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} {
-        continue
-      }
-      ::practcl::cputs result [$obj generate-cfunct]
-    }
-    return $result
-  }
-
-  ###
-  # Generate code that provides implements Tcl API
-  # calls
-  ###
-  method generate-tcl_c_api {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    my variable code methods tclprocs
-    set result {}
-    if {[info exists code(method)]} {
-      ::practcl::cputs result $code(method)
-    }
-
-    if {[info exists tclprocs]} {
-      foreach {name info} $tclprocs {
-        if {![dict exists $info body]} continue
-        set callproc [dict get $info callproc]
-        set header [dict get $info header]
-        set body [dict get $info body]
-        ::practcl::cputs result "/* Tcl Proc $name */"
-        ::practcl::cputs result "${header} \{${body}\}"
-      }
-    }
-
-
-    if {[info exists methods]} {
-      set thisclass [my define get cclass]
-      foreach {name info} $methods {
-        if {![dict exists $info body]} continue
-        set callproc [dict get $info callproc]
-        set header [dict get $info header]
-        set body [dict get $info body]
-        ::practcl::cputs result "/* OO Method $thisclass $name */"
-        ::practcl::cputs result "${header} \{${body}\}"
-      }
-      # Build the OO_Init function
-      ::practcl::cputs result "/* Loader for $thisclass */"
-      ::practcl::cputs result "static int ${thisclass}_OO_Init(Tcl_Interp *interp) \{"
-      ::practcl::cputs result [string map [list @CCLASS@ $thisclass @TCLCLASS@ [my define get class]] {
-  /*
-  ** Build the "@TCLCLASS@" class
-  */
-  Tcl_Obj* nameObj;		/* Name of a class or method being looked up */
-  Tcl_Object curClassObject;  /* Tcl_Object representing the current class */
-  Tcl_Class curClass;		/* Tcl_Class representing the current class */
-
-  /*
-   * Find the "@TCLCLASS@" class, and attach an 'init' method to it.
-   */
-
-  nameObj = Tcl_NewStringObj("@TCLCLASS@", -1);
-  Tcl_IncrRefCount(nameObj);
-  if ((curClassObject = Tcl_GetObjectFromObj(interp, nameObj)) == NULL) {
-      Tcl_DecrRefCount(nameObj);
-      return TCL_ERROR;
-  }
-  Tcl_DecrRefCount(nameObj);
-  curClass = Tcl_GetObjectAsClass(curClassObject);
-}]
-      if {[dict exists $methods constructor]} {
-        set mtype [dict get $methods constructor methodtype]
-        ::practcl::cputs result [string map [list @MTYPE@ $mtype] {
-  /* Attach the constructor to the class */
-  Tcl_ClassSetConstructor(interp, curClass, Tcl_NewMethod(interp, curClass, NULL, 1, &@MTYPE@, NULL));
-    }]
-      }
-      foreach {name info} $methods {
-        dict with info {}
-        if {$name in {constructor destructor}} continue
-        ::practcl::cputs result [string map [list @NAME@ $name @MTYPE@ $methodtype] {
-  nameObj=Tcl_NewStringObj("@NAME@",-1);
-  Tcl_NewMethod(interp, curClass, nameObj, 1, &@MTYPE@, (ClientData) NULL);
-  Tcl_DecrRefCount(nameObj);
-}]
-        if {[dict exists $info aliases]} {
-          foreach alias [dict get $info aliases] {
-            if {[dict exists $methods $alias]} continue
-            ::practcl::cputs result [string map [list @NAME@ $alias @MTYPE@ $methodtype] {
-  nameObj=Tcl_NewStringObj("@NAME@",-1);
-  Tcl_NewMethod(interp, curClass, nameObj, 1, &@MTYPE@, (ClientData) NULL);
-  Tcl_DecrRefCount(nameObj);
-}]
-          }
-        }
-      }
-      ::practcl::cputs result "  return TCL_OK\;\n\}\n"
-    }
-    foreach obj [my link list dynamic] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} continue
-      ::practcl::cputs result [$obj generate-tcl_c_api]
-    }
-    return $result
-  }
-
-  method generate-cinit-external {} {
-    if {[my define get initfunc] eq {}} {
-      return "/*  [my define get filename] declared not initfunc */"
-    }
-    return "  if([my define get initfunc](interp)) return TCL_ERROR\;"
-  }
-
-  ###
-  # Generate code that runs when the package/module is
-  # initialized into the interpreter
-  ###
-  method generate-cinit {} {
-    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    set result {}
-    my variable code methods tclprocs
-    if {[info exists code(nspace)]} {
-      ::practcl::cputs result "  \{\n    Tcl_Namespace *modPtr;"
-      foreach nspace $code(nspace) {
-        ::practcl::cputs result [string map [list @NSPACE@ $nspace] {
-    modPtr=Tcl_FindNamespace(interp,"@NSPACE@",NULL,TCL_NAMESPACE_ONLY);
-    if(!modPtr) {
-      modPtr = Tcl_CreateNamespace(interp, "@NSPACE@", NULL, NULL);
-    }
-}]
-      }
-      ::practcl::cputs result "  \}"
-    }
-    if {[info exists code(tclinit)]} {
-      ::practcl::cputs result $code(tclinit)
-    }
-    if {[info exists code(cinit)]} {
-      ::practcl::cputs result $code(cinit)
-    }
-    if {[info exists code(initfuncts)]} {
-      foreach func $code(initfuncts) {
-        ::practcl::cputs result "  if (${func}(interp) != TCL_OK) return TCL_ERROR\;"
-      }
-    }
-    if {[info exists tclprocs]} {
-      foreach {name info} $tclprocs {
-        set map [list @NAME@ $name @CALLPROC@ [dict get $info callproc]]
-        ::practcl::cputs result [string map $map {  Tcl_CreateObjCommand(interp,"@NAME@",(Tcl_ObjCmdProc *)@CALLPROC@,NULL,NULL);}]
-        if {[dict exists $info aliases]} {
-          foreach alias [dict get $info aliases] {
-            set map [list @NAME@ $alias @CALLPROC@ [dict get $info callproc]]
-            ::practcl::cputs result [string map $map {  Tcl_CreateObjCommand(interp,"@NAME@",(Tcl_ObjCmdProc *)@CALLPROC@,NULL,NULL);}]
-          }
-        }
-      }
-    }
-
-    if {[info exists code(nspace)]} {
-      ::practcl::cputs result "  \{\n    Tcl_Namespace *modPtr;"
-      foreach nspace $code(nspace) {
-        ::practcl::cputs result [string map [list @NSPACE@ $nspace] {
-    modPtr=Tcl_FindNamespace(interp,"@NSPACE@",NULL,TCL_NAMESPACE_ONLY);
-    Tcl_CreateEnsemble(interp, modPtr->fullName, modPtr, TCL_ENSEMBLE_PREFIX);
-    Tcl_Export(interp, modPtr, "[a-z]*", 1);
-}]
-      }
-      ::practcl::cputs result "  \}"
-    }
-    set result [::practcl::_tagblock $result c [my define get filename]]
-    foreach obj [my link list product] {
-      # Exclude products that will generate their own C files
-      if {[$obj define get output_c] ne {}} {
-        ::practcl::cputs result [$obj generate-cinit-external]
-      } else {
-        ::practcl::cputs result [$obj generate-cinit]
-      }
-    }
-    return $result
-  }
 
   method c_header body {
     my variable code
@@ -3335,9 +2393,413 @@ $body"
     dict set tclprocs $name body $body
   }
 
-  method go {} {
+  method tcltype {name argdat} {
+    my variable tcltype
+    foreach {f v} $argdat {
+      dict set tcltype $name $f $v
+    }
+    if {![dict exists tcltype $name cname]} {
+      dict set tcltype $name cname [string tolower $name]_tclobjtype
+    }
+    lappend map @NAME@ $name
+    set info [dict get $tcltype $name]
+    foreach {f v} $info {
+      lappend map @[string toupper $f]@ $v
+    }
+    foreach {func fpat template} {
+      freeproc         {@Name@Obj_freeIntRepProc}       {void @FNAME@(Tcl_Obj *objPtr)}
+      dupproc          {@Name@Obj_dupIntRepProc}        {void @FNAME@(Tcl_Obj *srcPtr,Tcl_Obj *dupPtr)}
+      updatestringproc {@Name@Obj_updateStringRepProc} {void @FNAME@(Tcl_Obj *objPtr)}
+      setfromanyproc   {@Name@Obj_setFromAnyProc}       {int @FNAME@(Tcl_Interp *interp,Tcl_Obj *objPtr)}
+    } {
+      if {![dict exists $info $func]} {
+        error "$name does not define $func"
+      }
+      set body [dict get $info $func]
+      # We were given a function name to call
+      if {[llength $body] eq 1} continue
+      set fname [string map [list @Name@ [string totitle $name]] $fpat]
+      my c_function [string map [list @FNAME@ $fname] $template] [string map $map $body]
+      dict set tcltype $name $func $fname
+    }
+  }
+
+  ###
+  # Module interactions
+  ###
+
+
+  method project-compile-products {} {
+    set filename [my define get output_c]
+    set result {}
+    if {$filename ne {}} {
+      ::practcl::debug [self] [self class] [self method] project-compile-products $filename
+
+      if {[my define exists ofile]} {
+        set ofile [my define get ofile]
+      } else {
+        set ofile [my Ofile $filename]
+        my define set ofile $ofile
+      }
+      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]]]
+    } else {
+      set filename [my define get cfile]
+      if {$filename ne {}} {
+        ::practcl::debug [self] [self class] [self method] project-compile-products $filename
+        if {[my define exists ofile]} {
+          set ofile [my define get ofile]
+        } else {
+          set ofile [my Ofile $filename]
+          my define set ofile $ofile
+        }
+        lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]]]
+      }
+    }
+    foreach item [my link list subordinate] {
+      lappend result {*}[$item project-compile-products]
+    }
+    return $result
+  }
+
+
+  method implement path {
+    my go
+    my Collate_Source $path
+    if {[my define get output_c] eq {}} return
+    set filename [file join $path [my define get output_c]]
+    ::practcl::debug [self] [my define get filename] WANTS TO GENERATE $filename
+    my define set cfile $filename
+    set fout [open $filename w]
+    puts $fout [my generate-c]
+    if {[my define get initfunc] ne {}} {
+      puts $fout "extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \x7B"
+      puts $fout [my generate-loader-module]
+      if {[my define get pkg_name] ne {}} {
+        puts $fout "   Tcl_PkgProvide(interp, \"[my define get pkg_name]\", \"[my define get pkg_vers]\");"
+      }
+      puts $fout "  return TCL_OK\;"
+      puts $fout "\x7D"
+    }
+    close $fout
+  }
+
+
+
+  ###
+  # Practcl internals
+  ###
+
+  method initialize {} {
+    set filename [my define get filename]
+    if {$filename eq {}} {
+      return
+    }
+    if {[my define get name] eq {}} {
+      my define set name [file tail [file rootname $filename]]
+    }
+    if {[my define get localpath] eq {}} {
+      my define set localpath [my <module> define get localpath]_[my define get name]
+    }
+    ::source $filename
+  }
+
+  method linktype {} {
+    return {subordinate product dynamic}
+  }
+
+  method generate-cfile-constant {} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
-    next
+    set result {}
+    my variable code cstruct methods tcltype
+    if {[info exists code(constant)]} {
+      ::practcl::cputs result "/* [my define get filename] CONSTANT */"
+      ::practcl::cputs result $code(constant)
+    }
+    if {[info exists cstruct]} {
+      foreach {name info} $cstruct {
+        set map {}
+        lappend map @NAME@ $name
+        lappend map @MACRO@ GET[string toupper $name]
+
+        if {[dict exists $info deleteproc]} {
+          lappend map @DELETEPROC@ [dict get $info deleteproc]
+        } else {
+          lappend map @DELETEPROC@ NULL
+        }
+        if {[dict exists $info cloneproc]} {
+          lappend map @CLONEPROC@ [dict get $info cloneproc]
+        } else {
+          lappend map @CLONEPROC@ NULL
+        }
+        ::practcl::cputs result [string map $map {
+const static Tcl_ObjectMetadataType @NAME@DataType = {
+  TCL_OO_METADATA_VERSION_CURRENT,
+  "@NAME@",
+  @DELETEPROC@,
+  @CLONEPROC@
+};
+#define @MACRO@(OBJCONTEXT) (@NAME@ *) Tcl_ObjectGetMetadata(OBJCONTEXT,&@NAME@DataType)
+}]
+      }
+    }
+    if {[info exists tcltype]} {
+      foreach {type info} $tcltype {
+        dict with info {}
+        ::practcl::cputs result "const Tcl_ObjType $cname = \{\n .name=\"$type\",\n .freeIntRepProc = &${freeproc},\n  .dupIntRepProc = &${dupproc},\n  .updateStringProc = &${updatestringproc},\n  .setFromAnyProc = &${setfromanyproc}\n\}\;"
+      }
+    }
+
+    if {[info exists methods]} {
+      set mtypes {}
+      foreach {name info} $methods {
+        set callproc   [dict get $info callproc]
+        set methodtype [dict get $info methodtype]
+        if {$methodtype in $mtypes} continue
+        lappend mtypes $methodtype
+        ###
+        # Build the data struct for this method
+        ###
+        ::practcl::cputs result "const static Tcl_MethodType $methodtype = \{"
+        ::practcl::cputs result "  .version = TCL_OO_METADATA_VERSION_CURRENT,\n  .name = \"$name\",\n  .callProc = $callproc,"
+        if {[dict exists $info deleteproc]} {
+          set deleteproc [dict get $info deleteproc]
+        } else {
+          set deleteproc NULL
+        }
+        if {$deleteproc ni { {} NULL }} {
+          ::practcl::cputs result "  .deleteProc = $deleteproc,"
+        } else {
+          ::practcl::cputs result "  .deleteProc = NULL,"
+        }
+        if {[dict exists $info cloneproc]} {
+          set cloneproc [dict get $info cloneproc]
+        } else {
+          set cloneproc NULL
+        }
+        if {$cloneproc ni { {} NULL }} {
+          ::practcl::cputs result "  .cloneProc = $cloneproc\n\}\;"
+        } else {
+          ::practcl::cputs result "  .cloneProc = NULL\n\}\;"
+        }
+        dict set methods $name methodtype $methodtype
+      }
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      ::practcl::cputs result [$obj generate-cfile-constant]
+    }
+    return $result
+  }
+
+  method generate-cfile-header {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct cstruct methods tcltype tclprocs
+    set result {}
+    if {[info exists code(header)]} {
+      ::practcl::cputs result $code(header)
+    }
+    ::practcl::debug [list cfunct [info exists cfunct]]
+    if {[info exists cfunct]} {
+      foreach {funcname info} $cfunct {
+        if {[dict get $info public]} continue
+        ::practcl::cputs result "[dict get $info header]\;"
+      }
+    }
+    ::practcl::debug [list tclprocs [info exists tclprocs]]
+    if {[info exists tclprocs]} {
+      foreach {name info} $tclprocs {
+        if {[dict exists $info header]} {
+          ::practcl::cputs result "[dict get $info header]\;"
+        }
+      }
+    }
+    ::practcl::debug [list methods [info exists methods] [my define get cclass]]
+    if {[info exists methods]} {
+      set thisclass [my define get cclass]
+      foreach {name info} $methods {
+        if {[dict exists $info header]} {
+          ::practcl::cputs result "[dict get $info header]\;"
+        }
+      }
+      # Add the initializer wrapper for the class
+      ::practcl::cputs result "static int ${thisclass}_OO_Init(Tcl_Interp *interp)\;"
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      set dat [$obj generate-cfile-header]
+      if {[string length [string trim $dat]]} {
+        ::practcl::cputs result "/* BEGIN [$obj define get filename] generate-cfile-header */"
+        ::practcl::cputs result $dat
+        ::practcl::cputs result "/* END [$obj define get filename] generate-cfile-header */"
+      }
+    }
+    return $result
+  }
+
+  ###
+  # Generate code that provides implements Tcl API
+  # calls
+  ###
+  method generate-cfile-tclapi {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code methods tclprocs
+    set result {}
+    if {[info exists code(method)]} {
+      ::practcl::cputs result $code(method)
+    }
+
+    if {[info exists tclprocs]} {
+      foreach {name info} $tclprocs {
+        if {![dict exists $info body]} continue
+        set callproc [dict get $info callproc]
+        set header [dict get $info header]
+        set body [dict get $info body]
+        ::practcl::cputs result "/* Tcl Proc $name */"
+        ::practcl::cputs result "${header} \{${body}\}"
+      }
+    }
+
+
+    if {[info exists methods]} {
+      set thisclass [my define get cclass]
+      foreach {name info} $methods {
+        if {![dict exists $info body]} continue
+        set callproc [dict get $info callproc]
+        set header [dict get $info header]
+        set body [dict get $info body]
+        ::practcl::cputs result "/* OO Method $thisclass $name */"
+        ::practcl::cputs result "${header} \{${body}\}"
+      }
+      # Build the OO_Init function
+      ::practcl::cputs result "/* Loader for $thisclass */"
+      ::practcl::cputs result "static int ${thisclass}_OO_Init(Tcl_Interp *interp) \{"
+      ::practcl::cputs result [string map [list @CCLASS@ $thisclass @TCLCLASS@ [my define get class]] {
+  /*
+  ** Build the "@TCLCLASS@" class
+  */
+  Tcl_Obj* nameObj;		/* Name of a class or method being looked up */
+  Tcl_Object curClassObject;  /* Tcl_Object representing the current class */
+  Tcl_Class curClass;		/* Tcl_Class representing the current class */
+
+  /*
+   * Find the "@TCLCLASS@" class, and attach an 'init' method to it.
+   */
+
+  nameObj = Tcl_NewStringObj("@TCLCLASS@", -1);
+  Tcl_IncrRefCount(nameObj);
+  if ((curClassObject = Tcl_GetObjectFromObj(interp, nameObj)) == NULL) {
+      Tcl_DecrRefCount(nameObj);
+      return TCL_ERROR;
+  }
+  Tcl_DecrRefCount(nameObj);
+  curClass = Tcl_GetObjectAsClass(curClassObject);
+}]
+      if {[dict exists $methods constructor]} {
+        set mtype [dict get $methods constructor methodtype]
+        ::practcl::cputs result [string map [list @MTYPE@ $mtype] {
+  /* Attach the constructor to the class */
+  Tcl_ClassSetConstructor(interp, curClass, Tcl_NewMethod(interp, curClass, NULL, 1, &@MTYPE@, NULL));
+    }]
+      }
+      foreach {name info} $methods {
+        dict with info {}
+        if {$name in {constructor destructor}} continue
+        ::practcl::cputs result [string map [list @NAME@ $name @MTYPE@ $methodtype] {
+  nameObj=Tcl_NewStringObj("@NAME@",-1);
+  Tcl_NewMethod(interp, curClass, nameObj, 1, &@MTYPE@, (ClientData) NULL);
+  Tcl_DecrRefCount(nameObj);
+}]
+        if {[dict exists $info aliases]} {
+          foreach alias [dict get $info aliases] {
+            if {[dict exists $methods $alias]} continue
+            ::practcl::cputs result [string map [list @NAME@ $alias @MTYPE@ $methodtype] {
+  nameObj=Tcl_NewStringObj("@NAME@",-1);
+  Tcl_NewMethod(interp, curClass, nameObj, 1, &@MTYPE@, (ClientData) NULL);
+  Tcl_DecrRefCount(nameObj);
+}]
+          }
+        }
+      }
+      ::practcl::cputs result "  return TCL_OK\;\n\}\n"
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      ::practcl::cputs result [$obj generate-cfile-tclapi]
+    }
+    return $result
+  }
+
+  ###
+  # Generate code that runs when the package/module is
+  # initialized into the interpreter
+  ###
+  method generate-loader-module {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    my variable code methods tclprocs
+    if {[info exists code(nspace)]} {
+      ::practcl::cputs result "  \{\n    Tcl_Namespace *modPtr;"
+      foreach nspace $code(nspace) {
+        ::practcl::cputs result [string map [list @NSPACE@ $nspace] {
+    modPtr=Tcl_FindNamespace(interp,"@NSPACE@",NULL,TCL_NAMESPACE_ONLY);
+    if(!modPtr) {
+      modPtr = Tcl_CreateNamespace(interp, "@NSPACE@", NULL, NULL);
+    }
+}]
+      }
+      ::practcl::cputs result "  \}"
+    }
+    if {[info exists code(tclinit)]} {
+      ::practcl::cputs result $code(tclinit)
+    }
+    if {[info exists code(cinit)]} {
+      ::practcl::cputs result $code(cinit)
+    }
+    if {[info exists code(initfuncts)]} {
+      foreach func $code(initfuncts) {
+        ::practcl::cputs result "  if (${func}(interp) != TCL_OK) return TCL_ERROR\;"
+      }
+    }
+    if {[info exists tclprocs]} {
+      foreach {name info} $tclprocs {
+        set map [list @NAME@ $name @CALLPROC@ [dict get $info callproc]]
+        ::practcl::cputs result [string map $map {  Tcl_CreateObjCommand(interp,"@NAME@",(Tcl_ObjCmdProc *)@CALLPROC@,NULL,NULL);}]
+        if {[dict exists $info aliases]} {
+          foreach alias [dict get $info aliases] {
+            set map [list @NAME@ $alias @CALLPROC@ [dict get $info callproc]]
+            ::practcl::cputs result [string map $map {  Tcl_CreateObjCommand(interp,"@NAME@",(Tcl_ObjCmdProc *)@CALLPROC@,NULL,NULL);}]
+          }
+        }
+      }
+    }
+
+    if {[info exists code(nspace)]} {
+      ::practcl::cputs result "  \{\n    Tcl_Namespace *modPtr;"
+      foreach nspace $code(nspace) {
+        ::practcl::cputs result [string map [list @NSPACE@ $nspace] {
+    modPtr=Tcl_FindNamespace(interp,"@NSPACE@",NULL,TCL_NAMESPACE_ONLY);
+    Tcl_CreateEnsemble(interp, modPtr->fullName, modPtr, TCL_ENSEMBLE_PREFIX);
+    Tcl_Export(interp, modPtr, "[a-z]*", 1);
+}]
+      }
+      ::practcl::cputs result "  \}"
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} {
+        ::practcl::cputs result [$obj generate-loader-external]
+      } else {
+        ::practcl::cputs result [$obj generate-loader-module]
+      }
+    }
+    return $result
+  }
+
+  method Collate_Source CWD {
     my variable methods code cstruct tclprocs
     if {[info exists methods]} {
       ::practcl::debug [self] methods [my define get cclass]
@@ -3378,7 +2840,6 @@ $body"
         }
       }
     }
-    ::practcl::debug [list /[self] [self method] [self class]]
   }
 
   # Once an object marks itself as some
@@ -3386,54 +2847,685 @@ $body"
   # it into something else
   method select {} {}
 
+}
 
-  method tcltype {name argdat} {
-    my variable tcltype
-    foreach {f v} $argdat {
-      dict set tcltype $name $f $v
-    }
-    if {![dict exists tcltype $name cname]} {
-      dict set tcltype $name cname [string tolower $name]_tclobjtype
-    }
-    lappend map @NAME@ $name
-    set info [dict get $tcltype $name]
-    foreach {f v} $info {
-      lappend map @[string toupper $f]@ $v
-    }
-    foreach {func fpat template} {
-      freeproc         {@Name@Obj_freeIntRepProc}       {void @FNAME@(Tcl_Obj *objPtr)}
-      dupproc          {@Name@Obj_dupIntRepProc}        {void @FNAME@(Tcl_Obj *srcPtr,Tcl_Obj *dupPtr)}
-      updatestringproc {@Name@Obj_updateStringRepProc} {void @FNAME@(Tcl_Obj *objPtr)}
-      setfromanyproc   {@Name@Obj_setFromAnyProc}       {int @FNAME@(Tcl_Interp *interp,Tcl_Obj *objPtr)}
-    } {
-      if {![dict exists $info $func]} {
-        error "$name does not define $func"
+
+
+###
+# END: class dynamic.tcl
+###
+###
+# START: class product.tcl
+###
+
+::oo::class create ::practcl::product {
+
+
+  method code {section body} {
+    my variable code
+    ::practcl::cputs code($section) $body
+  }
+
+  method Collate_Source CWD {}
+
+  method project-compile-products {} {
+    set result {}
+    noop {
+    set filename [my define get filename]
+    if {$filename ne {}} {
+      ::practcl::debug [self] [self class] [self method] project-compile-products $filename
+      if {[my define exists ofile]} {
+        set ofile [my define get ofile]
+      } else {
+        set ofile [my Ofile $filename]
+        my define set ofile $ofile
       }
-      set body [dict get $info $func]
-      # We were given a function name to call
-      if {[llength $body] eq 1} continue
-      set fname [string map [list @Name@ [string totitle $name]] $fpat]
-      my c_function [string map [list @FNAME@ $fname] $template] [string map $map $body]
-      dict set tcltype $name $func $fname
+      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
+    }
+    }
+    foreach item [my link list subordinate] {
+      lappend result {*}[$item project-compile-products]
+    }
+    return $result
+  }
+
+  method generate-debug {{spaces {}}} {
+    set result {}
+    ::practcl::cputs result "$spaces[list [self] [list class [info object class [self]] filename [my define get filename]] links [my link list]]"
+    foreach item [my link list subordinate] {
+      practcl::cputs result [$item generate-debug "$spaces  "]
+    }
+    return $result
+  }
+
+  method generate-cfile-constant {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    my variable code cstruct methods tcltype
+    if {[info exists code(constant)]} {
+      ::practcl::cputs result "/* [my define get filename] CONSTANT */"
+      ::practcl::cputs result $code(constant)
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      ::practcl::cputs result [$obj generate-cfile-constant]
+    }
+    return $result
+  }
+
+  ###
+  # Populate const static data structures
+  ###
+  method generate-cfile-public-structure {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cstruct methods tcltype
+    set result {}
+    if {[info exists code(struct)]} {
+      ::practcl::cputs result $code(struct)
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      ::practcl::cputs result [$obj generate-cfile-public-structure]
+    }
+    return $result
+  }
+
+  method generate-cfile-header {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct cstruct methods tcltype tclprocs
+    set result {}
+    if {[info exists code(header)]} {
+      ::practcl::cputs result $code(header)
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      set dat [$obj generate-cfile-header]
+      if {[string length [string trim $dat]]} {
+        ::practcl::cputs result "/* BEGIN [$obj define get filename] generate-cfile-header */"
+        ::practcl::cputs result $dat
+        ::practcl::cputs result "/* END [$obj define get filename] generate-cfile-header */"
+      }
+    }
+    return $result
+  }
+
+  method generate-cfile-global {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct cstruct methods tcltype tclprocs
+    set result {}
+    if {[info exists code(global)]} {
+      ::practcl::cputs result $code(global)
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      set dat [$obj generate-cfile-global]
+      if {[string length [string trim $dat]]} {
+        ::practcl::cputs result "/* BEGIN [$obj define get filename] generate-cfile-global */"
+        ::practcl::cputs result $dat
+        ::practcl::cputs result "/* END [$obj define get filename] generate-cfile-global */"
+      }
+    }
+    return $result
+  }
+
+  method generate-cfile-private-typedef {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cstruct
+    set result {}
+    if {[info exists code(private-typedef)]} {
+      ::practcl::cputs result $code(private-typedef)
+    }
+    if {[info exists cstruct]} {
+      # Add defintion for native c data structures
+      foreach {name info} $cstruct {
+        if {[dict get $info public]==1} continue
+        ::practcl::cputs result "typedef struct $name ${name}\;"
+        if {[dict exists $info aliases]} {
+          foreach n [dict get $info aliases] {
+            ::practcl::cputs result "typedef struct $name ${n}\;"
+          }
+        }
+      }
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-cfile-private-typedef]
+    }
+    return $result
+  }
+
+  method generate-cfile-private-structure {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cstruct
+    set result {}
+    if {[info exists code(private-structure)]} {
+      ::practcl::cputs result $code(private-structure)
+    }
+    if {[info exists cstruct]} {
+      foreach {name info} $cstruct {
+        if {[dict get $info public]==1} continue
+        if {[dict exists $info comment]} {
+          ::practcl::cputs result [dict get $info comment]
+        }
+        ::practcl::cputs result "struct $name \{[dict get $info body]\}\;"
+      }
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-cfile-private-structure]
+    }
+    return $result
+  }
+
+
+  ###
+  # Generate code that provides subroutines called by
+  # Tcl API methods
+  ###
+  method generate-cfile-functions {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct
+    set result {}
+    if {[info exists code(funct)]} {
+      ::practcl::cputs result $code(funct)
+    }
+    if {[info exists cfunct]} {
+      foreach {funcname info} $cfunct {
+        ::practcl::cputs result "/* $funcname */"
+        if {[dict get $info inline] && [dict get $info public]} {
+          ::practcl::cputs result "\ninline [dict get $info header]\{[dict get $info body]\}"
+        } else {
+          ::practcl::cputs result "\n[dict get $info header]\{[dict get $info body]\}"
+        }
+      }
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} {
+        continue
+      }
+      ::practcl::cputs result [$obj generate-cfile-functions]
+    }
+    return $result
+  }
+
+  ###
+  # Generate code that provides implements Tcl API
+  # calls
+  ###
+  method generate-cfile-tclapi {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code methods tclprocs
+    set result {}
+    if {[info exists code(method)]} {
+      ::practcl::cputs result $code(method)
+    }
+    foreach obj [my link list product] {
+      # Exclude products that will generate their own C files
+      if {[$obj define get output_c] ne {}} continue
+      ::practcl::cputs result [$obj generate-cfile-tclapi]
+    }
+    return $result
+  }
+
+
+  method generate-hfile-public-define {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code
+    set result {}
+    if {[info exists code(public-define)]} {
+      ::practcl::cputs result $code(public-define)
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-define]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-macro {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code
+    set result {}
+    if {[info exists code(public-macro)]} {
+      ::practcl::cputs result $code(public-macro)
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-macro]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-typedef {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cstruct
+    set result {}
+    if {[info exists code(public-typedef)]} {
+      ::practcl::cputs result $code(public-typedef)
+    }
+    if {[info exists cstruct]} {
+      # Add defintion for native c data structures
+      foreach {name info} $cstruct {
+        if {[dict get $info public]==0} continue
+        ::practcl::cputs result "typedef struct $name ${name}\;"
+        if {[dict exists $info aliases]} {
+          foreach n [dict get $info aliases] {
+            ::practcl::cputs result "typedef struct $name ${n}\;"
+          }
+        }
+      }
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-typedef]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-structure {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cstruct
+    set result {}
+    if {[info exists code(public-structure)]} {
+      ::practcl::cputs result $code(public-structure)
+    }
+    if {[info exists cstruct]} {
+      foreach {name info} $cstruct {
+        if {[dict get $info public]==0} continue
+        if {[dict exists $info comment]} {
+          ::practcl::cputs result [dict get $info comment]
+        }
+        ::practcl::cputs result "struct $name \{[dict get $info body]\}\;"
+      }
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-structure]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-headers {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code tcltype
+    set result {}
+    if {[info exists code(public-header)]} {
+      ::practcl::cputs result $code(public-header)
+    }
+    if {[info exists tcltype]} {
+      foreach {type info} $tcltype {
+        if {![dict exists $info cname]} {
+          set cname [string tolower ${type}]_tclobjtype
+          dict set tcltype $type cname $cname
+        } else {
+          set cname [dict get $info cname]
+        }
+        ::practcl::cputs result "extern const Tcl_ObjType $cname\;"
+      }
+    }
+    if {[info exists code(public)]} {
+      ::practcl::cputs result $code(public)
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-headers]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-function {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct tcltype
+    set result {}
+
+    if {[my define get initfunc] ne {}} {
+      ::practcl::cputs result "int [my define get initfunc](Tcl_Interp *interp);"
+    }
+    if {[info exists cfunct]} {
+      foreach {funcname info} $cfunct {
+        if {![dict get $info public]} continue
+        ::practcl::cputs result "[dict get $info header]\;"
+      }
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-hfile-public-function]
+    }
+    return $result
+  }
+
+  method generate-hfile-public-includes {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set includes {}
+    foreach item [my define get public-include] {
+      if {$item ni $includes} {
+        lappend includes $item
+      }
+    }
+    foreach mod [my link list product] {
+      foreach item [$mod generate-hfile-public-includes] {
+        if {$item ni $includes} {
+          lappend includes $item
+        }
+      }
+    }
+    return $includes
+  }
+
+  method generate-hfile-public-verbatim {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set includes {}
+    foreach item [my define get public-verbatim] {
+      if {$item ni $includes} {
+        lappend includes $item
+      }
+    }
+    foreach mod [my link list subordinate] {
+      foreach item [$mod generate-hfile-public-verbatim] {
+        if {$item ni $includes} {
+          lappend includes $item
+        }
+      }
+    }
+    return $includes
+  }
+
+  method generate-loader-external {} {
+    if {[my define get initfunc] eq {}} {
+      return "/*  [my define get filename] declared not initfunc */"
+    }
+    return "  if([my define get initfunc](interp)) return TCL_ERROR\;"
+  }
+
+  method generate-loader-module {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code
+    set result {}
+    if {[info exists code(cinit)]} {
+      ::practcl::cputs result $code(cinit)
+    }
+    if {[my define get initfunc] ne {}} {
+      ::practcl::cputs result "  if([my define get initfunc](interp)!=TCL_OK) return TCL_ERROR\;"
+    }
+    set result [::practcl::_tagblock $result c [my define get filename]]
+    foreach item [my link list product] {
+      if {[$item define get output_c] ne {}} {
+        ::practcl::cputs result [$item generate-loader-external]
+      } else {
+        ::practcl::cputs result [$item generate-loader-module]
+      }
+    }
+    return $result
+  }
+
+  method generate-stub-function {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    my variable code cfunct tcltype
+    set result {}
+    foreach mod [my link list product] {
+      foreach {funct def} [$mod generate-stub-function] {
+        dict set result $funct $def
+      }
+    }
+    if {[info exists cfunct]} {
+      foreach {funcname info} $cfunct {
+        if {![dict get $info export]} continue
+        dict set result $funcname [dict get $info header]
+      }
+    }
+    return $result
+  }
+
+
+  method IncludeAdd {headervar args} {
+    upvar 1 $headervar headers
+    foreach inc $args {
+      if {[string index $inc 0] ni {< \"}} {
+        set inc "\"$inc\""
+      }
+      if {$inc ni $headers} {
+        lappend headers $inc
+      }
+    }
+  }
+
+  method generate-tcl-loader {} {
+    set result {}
+    set PKGINIT [my define get pkginit]
+    set PKG_NAME [my define get name [my define get pkg_name]]
+    set PKG_VERSION [my define get pkg_vers [my define get version]]
+    if {[string is true [my define get SHARED_BUILD 0]]} {
+      set LIBFILE [my define get libfile]
+      ::practcl::cputs result [string map \
+        [list @LIBFILE@ $LIBFILE @PKGINIT@ $PKGINIT @PKG_NAME@ $PKG_NAME @PKG_VERSION@ $PKG_VERSION] {
+# Shared Library Style
+load [file join [file dirname [file join [pwd] [info script]]] @LIBFILE@] @PKGINIT@
+package provide @PKG_NAME@ @PKG_VERSION@
+}]
+    } else {
+      ::practcl::cputs result [string map \
+      [list @PKGINIT@ $PKGINIT @PKG_NAME@ $PKG_NAME @PKG_VERSION@ $PKG_VERSION] {
+# Tclkit Style
+load {} @PKGINIT@
+package provide @PKG_NAME@ @PKG_VERSION@
+}]
+    }
+    return $result
+  }
+
+  ###
+  # This methods generates any Tcl script file
+  # which is required to pre-initialize the C library
+  ###
+  method generate-tcl-pre {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    my variable code
+    if {[info exists code(tcl)]} {
+      set result [::practcl::_tagblock $code(tcl) tcl [my define get filename]]
+    }
+    if {[info exists code(tcl-pre)]} {
+      set result [::practcl::_tagblock $code(tcl) tcl [my define get filename]]
+    }
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-tcl-pre]
+    }
+    return $result
+  }
+
+  method generate-tcl-post {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    my variable code
+    if {[info exists code(tcl-post)]} {
+      set result [::practcl::_tagblock $code(tcl-post) tcl [my define get filename]]
+    }
+    foreach mod [my link list product] {
+      ::practcl::cputs result [$mod generate-tcl-post]
+    }
+    return $result
+  }
+
+
+  method linktype {} {
+    return {subordinate product}
+  }
+
+  method Ofile filename {
+    set lpath [my <module> define get localpath]
+    if {$lpath eq {}} {
+      set lpath [my <module> define get name]
+    }
+    return ${lpath}_[file rootname [file tail $filename]]
+  }
+
+  ###
+  # Methods called by the master project
+  ###
+
+  method project-static-packages {} {
+    set result [my define get static_packages]
+    set initfunc [my define get initfunc]
+    if {$initfunc ne {}} {
+      set pkg_name [my define get pkg_name]
+      if {$pkg_name ne {}} {
+        dict set result $pkg_name initfunc $initfunc
+        dict set result $pkg_name version [my define get version [my define get pkg_vers]]
+        dict set result $pkg_name autoload [my define get autoload 0]
+      }
+    }
+    foreach item [my link list subordinate] {
+      foreach {pkg info} [$item project-static-packages] {
+        dict set result $pkg $info
+      }
+    }
+    return $result
+  }
+
+  ###
+  # Methods called by the toolset
+  ###
+
+  method toolset-include-directory {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result [my define get include_dir]
+    foreach obj [my link list product] {
+      foreach path [$obj toolset-include-directory] {
+        lappend result $path
+      }
+    }
+    return $result
+  }
+
+  method target {method args} {
+    switch $method {
+      is_unix { return [expr {$::tcl_platform(platform) eq "unix"}] }
+    }
+  }
+
+}
+
+oo::objdefine ::practcl::product {
+  method select {object} {
+    set class [$object define get class]
+    set mixin [$object define get product]
+    if {$class eq {} && $mixin eq {}} {
+      set filename [$object define get filename]
+      if {$filename ne {} && [file exists $filename]} {
+        switch [file extension $filename] {
+          .tcl {
+            set mixin ::practcl::product.dynamic
+          }
+          .h {
+            set mixin ::practcl::product.cheader
+          }
+          .c {
+            set mixin ::practcl::product.csource
+          }
+          .ini {
+            switch [file tail $filename] {
+              module.ini {
+                set class ::practcl::module
+              }
+              library.ini {
+                set class ::practcl::subproject
+              }
+            }
+          }
+          .so -
+          .dll -
+          .dylib -
+          .a {
+            set mixin ::practcl::product.clibrary
+          }
+        }
+      }
+    }
+    if {$class ne {}} {
+      $object morph $class
+    }
+    if {$mixin ne {}} {
+      $object mixin product $mixin
     }
   }
 }
 
+###
+# Flesh out several trivial varieties of product
+###
+::oo::class create ::practcl::product.cheader {
+  superclass ::practcl::product
 
+  method project-compile-products {} {}
+  method generate-loader-module {} {}
+}
 
-###
-# END: class product dynamic.tcl
-###
-###
-# START: class product critcl.tcl
-###
-::oo::class create ::practcl::product.critcl {
-  superclass ::practcl::product.dynamic
+::oo::class create ::practcl::product.csource {
+  superclass ::practcl::product
+
+  method project-compile-products {} {
+    set result {}
+    set filename [my define get filename]
+    if {$filename ne {}} {
+      ::practcl::debug [self] [self class] [self method] project-compile-products $filename
+      if {[my define exists ofile]} {
+        set ofile [my define get ofile]
+      } else {
+        set ofile [my Ofile $filename]
+        my define set ofile $ofile
+      }
+      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
+    }
+    foreach item [my link list subordinate] {
+      lappend result {*}[$item project-compile-products]
+    }
+    return $result
+  }
+}
+
+::oo::class create ::practcl::product.clibrary {
+  superclass ::practcl::product
+
+  method linker-products {configdict} {
+    return [my define get filename]
+  }
 
 }
 
+::oo::class create ::practcl::product.dynamic {
+  superclass ::practcl::dynamic ::practcl::product
+
+  method initialize {} {
+    set filename [my define get filename]
+    if {$filename eq {}} {
+      return
+    }
+    if {[my define get name] eq {}} {
+      my define set name [file tail [file rootname $filename]]
+    }
+    if {[my define get localpath] eq {}} {
+      my define set localpath [my <module> define get localpath]_[my define get name]
+    }
+    ::source $filename
+    if {[my define get output_c] ne {}} {
+      # Turn into a module if we have an output_c file
+      my morph ::practcl::module
+    }
+  }
+}
+
+::oo::class create ::practcl::product.critcl {
+  superclass ::practcl::dynamic ::practcl::product
+}
+
+
 ###
-# END: class product critcl.tcl
+# END: class product.tcl
 ###
 ###
 # START: class module.tcl
@@ -3445,7 +3537,16 @@ $body"
 # a tcl extension, or a compiled in segment of a custom shell/app
 ###
 ::oo::class create ::practcl::module {
-  superclass ::practcl::dynamic
+  superclass ::practcl::object ::practcl::product.dynamic
+
+  method add args {
+    my variable links
+    set object [::practcl::object new [self] {*}$args]
+    foreach linktype [$object linktype] {
+      lappend links($linktype) $object
+    }
+    return $object
+  }
 
   method child which {
     switch $which {
@@ -3455,6 +3556,136 @@ $body"
     }
   }
 
+ ###
+  # This methods generates the contents of an amalgamated .c file
+  # which implements the loader for a batch of tools
+  ###
+  method generate-c {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {
+/* This file was generated by practcl */
+    }
+    set includes {}
+
+    foreach mod [my link list product] {
+      # Signal modules to formulate final implementation
+      $mod go
+    }
+    set headers {}
+
+    my IncludeAdd headers <tcl.h> <tclOO.h>
+    if {[my define get tk 0]} {
+      my IncludeAdd headers <tk.h>
+    }
+    if {[my define get output_h] ne {}} {
+      my IncludeAdd headers [my define get output_h]
+    }
+    my IncludeAdd headers {*}[my define get include]
+
+    foreach mod [my link list dynamic] {
+      my IncludeAdd headers {*}[$mod define get include]
+    }
+    foreach inc $headers {
+      ::practcl::cputs result "#include $inc"
+    }
+    foreach {method} {
+      generate-cfile-header
+      generate-cfile-private-typedef
+      generate-cfile-private-structure
+      generate-cfile-public-structure
+      generate-cfile-constant
+      generate-cfile-global
+      generate-cfile-functions
+      generate-cfile-tclapi
+    } {
+      set dat [my $method]
+      if {[string length [string trim $dat]]} {
+        ::practcl::cputs result "/* BEGIN $method [my define get filename] */"
+        ::practcl::cputs result $dat
+        ::practcl::cputs result "/* END $method [my define get filename] */"
+      }
+    }
+    ::practcl::debug [list /[self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    return $result
+  }
+
+
+  ###
+  # This methods generates the contents of an amalgamated .h file
+  # which describes the public API of this module
+  ###
+  method generate-h {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    set includes [my generate-hfile-public-includes]
+    foreach inc $includes {
+      if {[string index $inc 0] ni {< \"}} {
+        ::practcl::cputs result "#include \"$inc\""
+      } else {
+        ::practcl::cputs result "#include $inc"
+      }
+    }
+
+    foreach method {
+      generate-hfile-public-define
+      generate-hfile-public-macro
+      generate-hfile-public-typedef
+      generate-hfile-public-structure
+    } {
+      ::practcl::cputs result "/* BEGIN SECTION $method */"
+      ::practcl::cputs result [my $method]
+      ::practcl::cputs result "/* END SECTION $method */"
+    }
+
+    foreach file [my generate-hfile-public-verbatim] {
+      ::practcl::cputs result "/* BEGIN $file */"
+      ::practcl::cputs result [::practcl::cat $file]
+      ::practcl::cputs result "/* END $file */"
+    }
+
+    foreach method {
+      generate-hfile-public-headers
+      generate-hfile-public-function
+    } {
+      ::practcl::cputs result "/* BEGIN SECTION $method */"
+      ::practcl::cputs result [my $method]
+      ::practcl::cputs result "/* END SECTION $method */"
+    }
+    return $result
+  }
+
+  method generate-loader {} {
+    ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
+    set result {}
+    if {[my define get initfunc] eq {}} return
+    ::practcl::cputs result  "
+extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
+    ::practcl::cputs result  {
+  /* Initialise the stubs tables. */
+  #ifdef USE_TCL_STUBS
+    if (Tcl_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;
+    if (TclOOInitializeStubs(interp, "1.0") == NULL) return TCL_ERROR;
+}
+    if {[my define get tk 0]} {
+      ::practcl::cputs result  {    if (Tk_InitStubs(interp, "8.6", 0)==NULL) return TCL_ERROR;}
+    }
+    ::practcl::cputs result {  #endif}
+    set TCLINIT [my generate-tcl-pre]
+    if {[string length [string trim $TCLINIT]]} {
+      ::practcl::cputs result "  if(interp) {\nif(Tcl_Eval(interp,[::practcl::tcl_to_c $TCLINIT])) return TCL_ERROR;\n  }"
+    }
+    ::practcl::cputs result [my generate-loader-module]
+
+    set TCLINIT [my generate-tcl-post]
+    if {[string length [string trim $TCLINIT]]} {
+      ::practcl::cputs result "  if(interp) {\nif(Tcl_Eval(interp,[::practcl::tcl_to_c $TCLINIT])) return TCL_ERROR;\n }"
+    }
+    if {[my define exists pkg_name]} {
+      ::practcl::cputs result  "    if (Tcl_PkgProvide(interp, \"[my define get pkg_name [my define get name]]\" , \"[my define get pkg_vers [my define get version]]\" )) return TCL_ERROR\;"
+    }
+    ::practcl::cputs result  "  return TCL_OK\;\n\}\n"
+    return $result
+  }
   method initialize {} {
     set filename [my define get filename]
     if {$filename eq {}} {
@@ -3466,6 +3697,7 @@ $body"
     if {[my define get localpath] eq {}} {
       my define set localpath [my <project> define get name]_[my define get name]
     }
+    my graft module [self]
     ::practcl::debug [self] SOURCE $filename
     my source $filename
   }
@@ -3473,15 +3705,39 @@ $body"
   method implement path {
     my go
     my Collate_Source $path
+    set errs {}
     foreach item [my link list dynamic] {
-      if {[catch {$item implement $path} err]} {
-        puts "Skipped $item: $err"
+      if {[catch {$item implement $path} err errdat]} {
+        lappend errs "Skipped $item: [$item define get filename] $err"
+        if {[dict exists $errdat -errorinfo]} {
+          lappend errs [dict get $errdat -errorinfo]
+        } else {
+          lappend errs $errdat
+        }
       }
     }
     foreach item [my link list module] {
-      if {[catch {$item implement $path} err]} {
-        puts "Skipped $item: $err"
+      if {[catch {$item implement $path} err errdat]} {
+        lappend errs "Skipped $item: [$item define get filename] $err"
+        if {[dict exists $errdat -errorinfo]} {
+          lappend errs [dict get $errdat -errorinfo]
+        } else {
+          lappend errs $errdat
+        }
       }
+    }
+    if {[llength $errs]} {
+      set fout [open [file join $::CWD practcl-err.log] w]
+      puts $fout "*** ERRORS ***"
+      puts $fout
+      foreach {item trace} $errs {
+        puts $fout "###\n# ERROR\n###\n$item"
+        puts $fout "###\n# TRACE\n###\n$trace"
+      }
+      puts $fout "*** DEBUG INFO ***"
+      puts $fout $::DEBUG_INFO
+      close $fout
+      exit 1
     }
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
     set filename [my define get output_c]
@@ -3507,14 +3763,6 @@ $body"
 
 ###
 # END: class module.tcl
-###
-###
-# START: class autoconf.tcl
-###
-
-
-###
-# END: class autoconf.tcl
 ###
 ###
 # START: class project baseclass.tcl
@@ -3549,6 +3797,7 @@ $body"
         dict set contents $field [dict get $rawcontents $field]
       }
     }
+    my graft module [self]
     array set define $contents
     ::practcl::toolset select [self]
     my initialize
@@ -3617,6 +3866,7 @@ $body"
     return project
   }
 
+
   # Exercise the methods of a sub-object
   method project {pkg args} {
     set obj [namespace current]::PROJECT.$pkg
@@ -3647,12 +3897,13 @@ $body"
 
 
   method clean {PATH} {
-    foreach {ofile info} [my compile-products] {
-      if {[file exists [file join $PATH objs $ofile]]} {
-        file delete [file join $PATH objs $ofile]
+    set objext [my define get OBJEXT o]
+    foreach {ofile info} [my project-compile-products] {
+      if {[file exists [file join $PATH objs $ofile].${objext}]} {
+        file delete [file join $PATH objs $ofile].${objext}
       }
     }
-    foreach ofile [glob -nocomplain [file join $PATH *.o]] {
+    foreach ofile [glob -nocomplain [file join $PATH *.${objext}]] {
       file delete $ofile
     }
     foreach ofile [glob -nocomplain [file join $PATH objs *]] {
@@ -3665,42 +3916,20 @@ $body"
     my implement $PATH
   }
 
-  method compile-products {} {
+  method project-compile-products {} {
     set result {}
     foreach item [my link list subordinate] {
-      lappend result {*}[$item compile-products]
+      lappend result {*}[$item project-compile-products]
     }
     set filename [my define get output_c]
     if {$filename ne {}} {
-      set ofile [file rootname [file tail $filename]]_main.o
+      ::practcl::debug [self] [self class] [self method] project-compile-products $filename
+      set ofile [file rootname [file tail $filename]]_main
       lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]]]
     }
     return $result
   }
 
-  method generate-tcl-loader {} {
-    set result {}
-    set PKGINIT [my define get pkginit]
-    set PKG_NAME [my define get name [my define get pkg_name]]
-    set PKG_VERSION [my define get pkg_vers [my define get version]]
-    if {[string is true [my define get SHARED_BUILD 0]]} {
-      set LIBFILE [my define get libfile]
-      ::practcl::cputs result [string map \
-        [list @LIBFILE@ $LIBFILE @PKGINIT@ $PKGINIT @PKG_NAME@ $PKG_NAME @PKG_VERSION@ $PKG_VERSION] {
-# Shared Library Style
-load [file join [file dirname [file join [pwd] [info script]]] @LIBFILE@] @PKGINIT@
-package provide @PKG_NAME@ @PKG_VERSION@
-}]
-    } else {
-      ::practcl::cputs result [string map \
-      [list @PKGINIT@ $PKGINIT @PKG_NAME@ $PKG_NAME @PKG_VERSION@ $PKG_VERSION] {
-# Tclkit Style
-load {} @PKGINIT@
-package provide @PKG_NAME@ @PKG_VERSION@
-}]
-    }
-    return $result
-  }
 
   method go {} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
@@ -3751,95 +3980,47 @@ package provide @PKG_NAME@ @PKG_VERSION@
     ::practcl::debug [list /[self] [self method] [self class] -- [my define get filename] [info object class [self]]]
   }
 
-  method implement path {
-    my go
-    my Collate_Source $path
-    foreach item [my link list dynamic] {
-      if {[catch {$item implement $path} err]} {
-        puts "Skipped $item: $err"
-      }
-    }
-    foreach item [my link list module] {
-      if {[catch {$item implement $path} err]} {
-        puts "Skipped $item: $err"
-      }
-    }
-    set cout [open [file join $path [my define get output_c]] w]
-    puts $cout [subst {/*
-** This file is generated by the [info script] script
-** any changes will be overwritten the next time it is run
-*/}]
-    puts $cout [my generate-c]
-    puts $cout [my generate-loader]
-    close $cout
-
-    set macro HAVE_[string toupper [file rootname [my define get output_h]]]_H
-    set hout [open [file join $path [my define get output_h]] w]
-    puts $hout [subst {/*
-** This file is generated by the [info script] script
-** any changes will be overwritten the next time it is run
-*/}]
-    puts $hout "#ifndef ${macro}"
-    puts $hout "#define ${macro} 1"
-    puts $hout [my generate-h]
-    puts $hout "#endif"
-    close $hout
-
-    set output_tcl [my define get output_tcl]
-    if {$output_tcl ne {}} {
-      set tclout [open [file join $path [my define get output_tcl]] w]
-      puts $tclout "###
-# This file is generated by the [info script] script
-# any changes will be overwritten the next time it is run
-###"
-      puts $tclout [my generate-tcl-pre]
-      puts $tclout [my generate-tcl-loader]
-      puts $tclout [my generate-tcl-post]
-      close $tclout
-    }
-  }
 
   method generate-decls {pkgname path} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
     set outfile [file join $path/$pkgname.decls]
 
-  ###
-  # Build the decls file
-  ###
-  set fout [open $outfile w]
-  puts $fout [subst {###
+    ###
+    # Build the decls file
+    ## #
+    set fout [open $outfile w]
+    puts $fout [subst {###
   # $outfile
   #
   # This file was generated by [info script]
   ###
 
-  library $pkgname
-  interface $pkgname
-  }]
+library $pkgname
+interface $pkgname
+}]
 
-  ###
-  # Generate list of functions
-  ###
-  set stubfuncts [my generate-stub-function]
-  set thisline {}
-  set functcount 0
-  foreach {func header} $stubfuncts {
-    puts $fout [list declare [incr functcount] $header]
-  }
-  puts $fout [list export "int [my define get initfunc](Tcl_Inter *interp)"]
-  puts $fout [list export "char *[string totitle [my define get name]]_InitStubs(Tcl_Inter *interp, char *version, int exact)"]
+    ###
+    # Generate list of functions
+    ###
+    set stubfuncts [my generate-stub-function]
+    set thisline {}
+    set functcount 0
+    foreach {func header} $stubfuncts {
+      puts $fout [list declare [incr functcount] $header]
+    }
+    puts $fout [list export "int [my define get initfunc](Tcl_Inter *interp)"]
+    puts $fout [list export "char *[string totitle [my define get name]]_InitStubs(Tcl_Inter *interp, char *version, int exact)"]
 
-  close $fout
+    close $fout
 
-  ###
-  # Build [package]Decls.h
-  ###
-  set hout [open [file join $path ${pkgname}Decls.h] w]
+    ###
+    # Build [package]Decls.h
+    ###
+    set hout [open [file join $path ${pkgname}Decls.h] w]
+    close $hout
 
-  close $hout
-
-  set cout [open [file join $path ${pkgname}StubInit.c] w]
-puts $cout [string map [list %pkgname% $pkgname %PkgName% [string totitle $pkgname]] {
+    set cout [open [file join $path ${pkgname}StubInit.c] w]
+    puts $cout [string map [list %pkgname% $pkgname %PkgName% [string totitle $pkgname]] {
 #ifndef USE_TCL_STUBS
 #define USE_TCL_STUBS
 #endif
@@ -3848,10 +4029,10 @@ puts $cout [string map [list %pkgname% $pkgname %PkgName% [string totitle $pkgna
 #include "tcl.h"
 #include "%pkgname%.h"
 
- /*
- ** Ensure that Tdom_InitStubs is built as an exported symbol.  The other stub
- ** functions should be built as non-exported symbols.
- */
+/*
+** Ensure that Tdom_InitStubs is built as an exported symbol.  The other stub
+** functions should be built as non-exported symbols.
+*/
 
 #undef TCL_STORAGE_CLASS
 #define TCL_STORAGE_CLASS DLLEXPORT
@@ -3891,7 +4072,79 @@ char *
   return actualVersion;
 }
 }]
-  close $cout
+    close $cout
+  }
+
+  method implement path {
+    my go
+    my Collate_Source $path
+    set errs {}
+    foreach item [my link list dynamic] {
+      if {[catch {$item implement $path} err errdat]} {
+        lappend errs "Skipped $item: [$item define get filename] $err"
+        if {[dict exists $errdat -errorinfo]} {
+          lappend errs [dict get $errdat -errorinfo]
+        } else {
+          lappend errs $errdat
+        }
+      }
+    }
+    foreach item [my link list module] {
+      if {[catch {$item implement $path} err errdat]} {
+        lappend errs "Skipped $item: [$item define get filename] $err"
+        if {[dict exists $errdat -errorinfo]} {
+          lappend errs [dict get $errdat -errorinfo]
+        } else {
+          lappend errs $errdat
+        }
+      }
+    }
+    if {[llength $errs]} {
+      set fout [open [file join $::CWD practcl-err.log] w]
+      puts $fout "*** ERRORS ***"
+      puts $fout
+      foreach {item trace} $errs {
+        puts $fout "###\n# ERROR\n###$item"
+        puts $fout "###\n# TRACE\n###$trace"
+      }
+      puts $fout "*** DEBUG INFO ***"
+      puts $fout $::DEBUG_INFO
+      close $fout
+      exit 1
+    }
+    set cout [open [file join $path [my define get output_c]] w]
+    puts $cout [subst {/*
+** This file is generated by the [info script] script
+** any changes will be overwritten the next time it is run
+*/}]
+    puts $cout [my generate-c]
+    puts $cout [my generate-loader]
+    close $cout
+
+    set macro HAVE_[string toupper [file rootname [my define get output_h]]]_H
+    set hout [open [file join $path [my define get output_h]] w]
+    puts $hout [subst {/*
+** This file is generated by the [info script] script
+** any changes will be overwritten the next time it is run
+*/}]
+    puts $hout "#ifndef ${macro}"
+    puts $hout "#define ${macro} 1"
+    puts $hout [my generate-h]
+    puts $hout "#endif"
+    close $hout
+
+    set output_tcl [my define get output_tcl]
+    if {$output_tcl ne {}} {
+      set tclout [open [file join $path [my define get output_tcl]] w]
+      puts $tclout "###
+# This file is generated by the [info script] script
+# any changes will be overwritten the next time it is run
+###"
+      puts $tclout [my generate-tcl-pre]
+      puts $tclout [my generate-tcl-loader]
+      puts $tclout [my generate-tcl-post]
+      close $tclout
+    }
   }
 
   # Backward compadible call
@@ -3966,14 +4219,14 @@ char *
     ###
     set statpkglist {}
     foreach cobj [list {*}${PKG_OBJS} $PROJECT] {
-      foreach {pkg info} [$cobj static-packages] {
+      foreach {pkg info} [$cobj project-static-packages] {
         dict set statpkglist $pkg $info
       }
     }
-    foreach {ofile info} [${PROJECT} compile-products] {
+    foreach {ofile info} [${PROJECT} project-compile-products] {
       if {![dict exists $info object]} continue
       set cobj [dict get $info object]
-      foreach {pkg info} [$cobj static-packages] {
+      foreach {pkg info} [$cobj project-static-packages] {
         dict set statpkglist $pkg $info
       }
     }
@@ -4058,7 +4311,7 @@ if {[file exists {%vfs_tk_library%}]} {
     if {[$PROJECT define get tip_430 0]} {
       ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
     } else {
-      ::practcl::cputs zvfsboot {  Odie_Zipfs_Init(NULL);}
+      ::practcl::cputs zvfsboot {  Odie_Zipfs_C_Init(NULL);}
       ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
     }
     ::practcl::cputs zvfsboot {
@@ -4152,6 +4405,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
   }
 
   method Collate_Source CWD {
+    next $CWD
     set name [my define get name]
     # Assume a static shell
     if {[my define exists SHARED_BUILD]} {
@@ -4435,6 +4689,7 @@ oo::objdefine ::practcl::distribution {
 
 oo::class create ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
+
   method ScmUnpack {} {
     set srcdir [my SrcDir]
     if {[file exists [file join $srcdir .download]]} {
@@ -4462,7 +4717,7 @@ oo::class create ::practcl::distribution.snapshot {
         ::practcl::tcllib_require tcl::transform::zlib
         ::practcl::tcllib_require tar
         set fh [::open $archive]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+        fconfigure $fh -encoding binary -translation lf -eofchar {}
         ::tcl::transform::zlib $fh
       }
     }
@@ -4631,6 +4886,7 @@ oo::objdefine ::practcl::distribution.fossil {
 
 
 oo::class create ::practcl::distribution.git {
+  superclass ::practcl::distribution
 
   method ScmTag {} {
     if {[my define exists scm_tag]} {
@@ -4698,7 +4954,7 @@ oo::objdefine ::practcl::distribution.git {
 # START: class subproject baseclass.tcl
 ###
 oo::class create ::practcl::subproject {
-  superclass ::practcl::object ::practcl::distribution
+  superclass ::practcl::module
 
   method child which {
     switch $which {
@@ -4712,19 +4968,9 @@ oo::class create ::practcl::subproject {
 
   method compile {} {}
 
-  method critcl args {
-    if {![info exists critcl]} {
-      ::pratcl::LOCAL tool critcl load
-      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
-    }
-    set srcdir [my SourceRoot]
-    set PWD [pwd]
-    cd $srcdir
-    ::pratcl::dotclexec $critcl {*}$args
-    cd $PWD
-  }
 
   method go {} {
+    ::practcl::distribution select [self]
     set name [my define get name]
     set srcdir [my SrcDir]
     my define set localsrcdir $srcdir
@@ -4873,8 +5119,7 @@ oo::class create ::practcl::subproject.binary {
     }
   }
 
-  method compile-products {} {}
-
+  method project-compile-products {} {}
 
   method ComputeInstall {} {
     if {[my define exists install]} {
@@ -4920,7 +5165,7 @@ oo::class create ::practcl::subproject.binary {
     }
   }
 
-  method static-packages {} {
+  method project-static-packages {} {
     if {![my define get static 0]} {
       return {}
     }
@@ -4948,7 +5193,7 @@ oo::class create ::practcl::subproject.binary {
       }
     }
     foreach item [my link list subordinate] {
-      foreach {pkg info} [$item static-packages] {
+      foreach {pkg info} [$item project-static-packages] {
         dict set result $pkg $info
       }
     }
@@ -5061,7 +5306,7 @@ oo::class create ::practcl::subproject.binary {
     }
 
     set opts [my ConfigureOpts]
-    puts [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -5167,9 +5412,9 @@ oo::class create ::practcl::subproject.core {
 
   # On the windows platform MinGW must build
   # from the platform directory in the source repo
-  method BuildDir {PWD} {
-    return [my define get localsrcdir]
-  }
+  #method BuildDir {PWD} {
+  #  return [my define get localsrcdir]
+  #}
 
   method Configure {} {
     if {[my define get USEMSVC 0]} {
@@ -5179,7 +5424,7 @@ oo::class create ::practcl::subproject.core {
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
     puts [list PKG [my define get name] CONFIGURE {*}$opts]
-    cd $localsrcdir
+    cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
@@ -5206,6 +5451,8 @@ oo::class create ::practcl::subproject.core {
   method go {} {
     set name [my define get name]
     set os [my <project> define get TEACUP_OS]
+    ::practcl::distribution select [self]
+
     my ComputeInstall
     set srcdir [my SrcDir]
     my define add include_dir [file join $srcdir generic]
@@ -5254,7 +5501,7 @@ oo::class create ::practcl::subproject.core {
 # to compile and/or installed other packages
 ###
 oo::class create ::practcl::tool {
-  superclass ::practcl::object ::practcl::distribution
+  superclass ::practcl::object
 
   method critcl args {
     if {![info exists critcl]} {
@@ -5266,6 +5513,25 @@ oo::class create ::practcl::tool {
     cd $srcdir
     ::pratcl::dotclexec $critcl {*}$args
     cd $PWD
+  }
+
+  method select {} {
+    my variable define
+    set class {}
+    if {[info exists define(class)]} {
+      if {[info command $define(class)] ne {}} {
+        set class $define(class)
+      } elseif {[info command ::practcl::$define(class)] ne {}} {
+        set class ::practcl::$define(class)
+      } else {
+        switch $define(class) {
+          default {
+            set class ::practcl::object
+          }
+        }
+      }
+    }
+    my morph $class
   }
 
   method SourceRoot {} {
@@ -5349,6 +5615,15 @@ oo::class create ::practcl::tool.tea {
 
 }
 
+oo::class create ::practcl::tool.core {
+  superclass ::practcl::tool ::practcl::subproject.core
+
+  method present {} {
+    return [expr {![catch {package require [my define get pkg_name [my define get name]]}]}]
+  }
+
+}
+
 ###
 # Create an object to represent the local environment
 ###
@@ -5356,9 +5631,11 @@ set ::practcl::MAIN ::practcl::LOCAL
 # Defer the creation of the ::pratcl::LOCAL object until it is called
 # in order to allow packages to
 set ::auto_index(::practcl::LOCAL) {
-  puts "Building LOCAL"
   ::practcl::project create ::practcl::LOCAL
   ::practcl::LOCAL define set [::practcl::local_os]
+  ::practcl::LOCAL define set prefix [file normalize [file join ~ tcl]]
+  ::practcl::LOCAL define set LOCAL 1
+
   # Until something better comes along, use ::practcl::LOCAL
   # as our main project
   # Add tclconfig as a project of record
@@ -5384,6 +5661,14 @@ set ::auto_index(::practcl::LOCAL) {
   ::practcl::LOCAL add_tool odie {
     tag trunk class tool.source
     fossil_url http://fossil.etoyoc.com/fossil/odie
+  }
+  ::practcl::LOCAL add_tool tcl {
+    tag release class tool.core
+    fossil_url http://core.tcl.tk/tcl
+  }
+  ::practcl::LOCAL add_tool tk {
+    tag release class tool.core
+    fossil_url http://core.tcl.tk/tcl
   }
 }
 

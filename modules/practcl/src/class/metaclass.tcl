@@ -136,6 +136,54 @@
     }
   }
 
+  method morph classname {
+    my variable define
+    if {$classname ne {}} {
+      set map [list @name@ $classname]
+      foreach pattern [split [string map $map {
+        @name@
+        ::practcl::@name@
+        ::practcl::project.@name@
+        ::practcl::subproject.@name@
+        ::practcl::tool.@name@
+        ::practcl::*@name@
+        ::practcl::*@name@*
+      }] \n] {
+        set pattern [string trim $pattern]
+        set matches [info commands $pattern]
+        if {![llength $matches]} continue
+        set class [lindex $matches 0]
+        break
+      }
+      set mixinslot {}
+      foreach {slot pattern} {
+        distribution ::practcl::distribution*
+        product      ::practcl::product*
+        toolset      ::practcl::toolset*
+      } {
+        if {[string match $pattern $class]} {
+           set mixinslot $slot
+           break
+        }
+      }
+      if {$mixinslot ne {}} {
+        my mixin $mixinslot $class
+      } elseif {[info command $class] ne {}} {
+        if {[info object class [self]] ne $class} {
+          ::oo::objdefine [self] class $class
+          ::practcl::debug [self] morph $class
+           my define set class $class
+        }
+      } else {
+        error "[self] Could not detect class for $classname"
+      }
+    }
+    if {[::info exists define(oodefine)]} {
+      ::oo::objdefine [self] $define(oodefine)
+      unset define(oodefine)
+    }
+  }
+
   method mixin {slot classname} {
     my variable mixinslot
     set class {}
@@ -154,6 +202,7 @@
       set class [lindex $matches 0]
       break
     }
+    ::practcl::debug [self] mixin $slot $class
     dict set mixinslot $slot $class
     set mixins {}
     foreach {s c} $mixinslot {
@@ -182,26 +231,13 @@
 
   method select {} {
     my variable define
-    set class {}
     if {[info exists define(class)]} {
-      if {[info command $define(class)] ne {}} {
-        set class $define(class)
-      } elseif {[info command ::practcl::$define(class)] ne {}} {
-        set class ::practcl::$define(class)
-      } else {
-        switch $define(class) {
-          default {
-            set class ::practcl::object
-          }
-        }
+      my morph $define(class)
+    } else {
+      if {[::info exists define(oodefine)]} {
+        ::oo::objdefine [self] $define(oodefine)
+        unset define(oodefine)
       }
-    }
-    if {$class ne {}} {
-      ::oo::objdefine [self] class $class
-    }
-    if {[::info exists define(oodefine)]} {
-      ::oo::objdefine [self] $define(oodefine)
-      unset define(oodefine)
     }
   }
 

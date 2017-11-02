@@ -1,6 +1,7 @@
 
 oo::class create ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
+
   method ScmUnpack {} {
     set srcdir [my SrcDir]
     if {[file exists [file join $srcdir .download]]} {
@@ -28,7 +29,7 @@ oo::class create ::practcl::distribution.snapshot {
         ::practcl::tcllib_require tcl::transform::zlib
         ::practcl::tcllib_require tar
         set fh [::open $archive]
-	fconfigure $fh -encoding binary -translation lf -eofchar {}
+        fconfigure $fh -encoding binary -translation lf -eofchar {}
         ::tcl::transform::zlib $fh
       }
     }
