@@ -90,7 +90,7 @@ proc ::coroutine::util::global {args} {
 
     set cmd [list upvar "#1"]
     foreach var $args {
-	lappend cmd $var $var 
+	lappend cmd $var $var
     }
     tailcall {*}$cmd
 }
@@ -152,7 +152,7 @@ proc ::coroutine::util::update {{what {}}} {
     }
     yield
     return
-} 
+}
 
 # - -- --- ----- -------- -------------
 
@@ -176,7 +176,7 @@ proc ::coroutine::util::gets {args} {
     }
 
     # Loop until we have a complete line. Yield to the event loop
-    # where necessary. During 
+    # where necessary. During
     set blocking [::chan configure $chan -blocking]
     while {1} {
         ::chan configure $chan -blocking 0
@@ -211,7 +211,7 @@ proc ::coroutine::util::gets_safety {chan limit varname} {
     # * gets CHAN ?VARNAME?
 
     # Loop until we have a complete line. Yield to the event loop
-    # where necessary. During 
+    # where necessary. During
     set blocking [::chan configure $chan -blocking]
     upvar 1 $varname line
     try {
@@ -225,10 +225,15 @@ proc ::coroutine::util::gets_safety {chan limit varname} {
 	    } on error {result opts} {
 		return -code $result -options $opts
 	    }
-    
+
 	    if {[::chan blocked $chan]} {
-		::chan event $chan readable [list [info coroutine]]
-		yield
+	  set timeoutevent [::after 120000 [list [info coroutine] timeout]]
+		::chan event $chan readable [list [info coroutine] readable]
+		set event [yield]
+		if {$event eq "timeout"} {
+		  error "Connection Timed Out"
+		}
+		::after cancel $timeoutevent
 		::chan event $chan readable {}
 	    } else {
 		return $result
@@ -363,7 +368,7 @@ proc ::coroutine::util::await args {
     set choice [yield]
 
     foreach varName $args {
-	#checker exclude warnShadowVar 
+	#checker exclude warnShadowVar
         upvar 1 $varName var
         trace remove variable var write $callback
     }
@@ -386,7 +391,7 @@ proc ::coroutine::util::AWaitSignal {coroutine var index op} {
     set fullvar $var
     if {$index ne ""} { append fullvar ($index) }
     $coroutine $fullvar
-} 
+}
 
 # # ## ### ##### ######## #############
 ## Internal (package specific) commands
