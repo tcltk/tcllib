@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.9a0
+package provide practcl 0.10
 namespace eval ::practcl {}
 
 ###
@@ -1653,7 +1653,7 @@ oo::objdefine ::practcl::toolset {
   superclass ::practcl::toolset
 
   method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
-    set objext [my define get OBJEXT .o]
+    set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
     set OBJECTS {}
     set result {}
@@ -1755,7 +1755,7 @@ method build-Makefile {path PROJECT} {
   set path $proj(builddir)
   cd $path
   set includedir .
-  set objext [my define get OBJEXT .o]
+  set objext [my define get OBJEXT o]
 
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]
@@ -3897,7 +3897,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 
 
   method clean {PATH} {
-    set objext [my define get OBJEXT .o]
+    set objext [my define get OBJEXT o]
     foreach {ofile info} [my project-compile-products] {
       if {[file exists [file join $PATH objs $ofile].${objext}]} {
         file delete [file join $PATH objs $ofile].${objext}
