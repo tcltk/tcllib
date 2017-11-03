@@ -367,10 +367,15 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     set windres [$PROJECT define get RC windres]
     set RSOBJ [file join $path build tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
+    set RCMAN [${PROJECT} define get kit_manifest_file]
+
     set cmd [list $windres -o $RSOBJ -DSTATIC_BUILD --include [::practcl::file_relative $path [file join $TCLSRC generic]]]
     if {[$PROJECT define get static_tk]} {
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TKSRCDIR win rc wish.rc]
+      }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
@@ -380,11 +385,16 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TCLSRCDIR tclsh.rc]
       }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TCLOBJ define get builddir] tclsh.exe.manifest]
+      }
     }
     foreach item [${PROJECT} define get resource_include] {
       lappend cmd --include [::practcl::file_relative $path [file normalize $item]]
     }
-    lappend cmd $RCSRC
+    lappend cmd [file tail $RCSRC]
+    file copy -force $RCSRC [file join $path [file tail $RCSRC]]
+    file copy -force $RCMAN [file join $path [file tail $RCMAN]]    
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ
     set LDFLAGS_CONSOLE {-mconsole -pipe -static-libgcc}

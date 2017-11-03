@@ -126,18 +126,16 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       cd $srcdir
       if {[file exists [file join $srcdir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $srcdir debug all
         } else {
           ::practcl::domake.tcl $srcdir all
         }
       } else {
         if {[file exists [file join $srcdir makefile.vc]]} {
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } elseif {[file exists [file join $srcdir win makefile.vc]]} {
           cd [file join $srcdir win]
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } else {
           error "No make.tcl or makefile.vc found for project $name"
@@ -151,7 +149,7 @@ oo::class create ::practcl::subproject.binary {
         my Configure
       }
       if {[file exists [file join $builddir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $builddir debug all
         } else {
           ::practcl::domake.tcl $builddir all
@@ -244,7 +242,7 @@ oo::class create ::practcl::subproject.binary {
       } elseif {[my define get broken_destroot 0] == 0} {
         # Most modern TEA projects understand DESTROOT in the makefile
         puts "[self] VFS INSTALL $DEST (TEA)"
-        ::practcl::domake $builddir install DESTDIR=$DEST
+        ::practcl::domake $builddir install DESTDIR=[::practcl::file_relative $builddir $DEST]
       } else {
         # But some require us to do an install into a fictitious filesystem
         # and then extract the gooey parts within.

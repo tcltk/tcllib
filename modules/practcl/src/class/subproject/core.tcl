@@ -7,7 +7,15 @@ oo::class create ::practcl::subproject.core {
   #method BuildDir {PWD} {
   #  return [my define get localsrcdir]
   #}
-
+  method BuildDir {PWD} {
+    set name [my define get name]
+    set debug [my define get debug 0]
+    if {$debug} {
+      return [my define get builddir [file join $PWD $name]]
+    } else {
+      return [my define get builddir [file join $PWD $name]]
+    }
+  }
   method Configure {} {
     if {[my define get USEMSVC 0]} {
       return

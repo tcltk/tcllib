@@ -140,25 +140,19 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
-    noop {
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
+    set obj [my <project> project TCLCORE]
+    if {$obj ne {}} {
+      lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
     }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-    }
+    if {[my define get tk 0]} {
+      set obj [my <project> project tk]
+      if {$obj ne {}} {
+        lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+      }
     }
     lappend opts {*}[my define get config_opts]
     if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX
+      lappend opts --prefix=$PREFIX --exec-prefix=$PREFIX
     }
     if {[my define get debug 0]} {
       lappend opts --enable-symbols=true

@@ -328,8 +328,16 @@ if {$::tcl_platform(platform) eq "windows"} {
 proc ::practcl::msys_to_tclpath msyspath {
   return [exec sh -c "cd $msyspath ; pwd -W"]
 }
+proc ::practcl::tcl_to_myspath tclpath {
+  set path [file normalize $tclpath]
+  return "/[string index $path 0][string range $path 2 end]"
+  #return [exec sh -c "cd $tclpath ; pwd"]
+}
 } else {
 proc ::practcl::msys_to_tclpath msyspath {
+  return [file normalize $msyspath]
+}
+proc ::practcl::tcl_to_myspath msyspath {
   return [file normalize $msyspath]
 }
 }
