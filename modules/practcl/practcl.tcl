@@ -426,8 +426,16 @@ if {$::tcl_platform(platform) eq "windows"} {
 proc ::practcl::msys_to_tclpath msyspath {
   return [exec sh -c "cd $msyspath ; pwd -W"]
 }
+proc ::practcl::tcl_to_myspath tclpath {
+  set path [file normalize $tclpath]
+  return "/[string index $path 0][string range $path 2 end]"
+  #return [exec sh -c "cd $tclpath ; pwd"]
+}
 } else {
 proc ::practcl::msys_to_tclpath msyspath {
+  return [file normalize $msyspath]
+}
+proc ::practcl::tcl_to_myspath msyspath {
   return [file normalize $msyspath]
 }
 }
@@ -1575,25 +1583,19 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
-    noop {
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
+    set obj [my <project> project TCLCORE]
+    if {$obj ne {}} {
+      lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
     }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-    }
+    if {[my define get tk 0]} {
+      set obj [my <project> project tk]
+      if {$obj ne {}} {
+        lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+      }
     }
     lappend opts {*}[my define get config_opts]
     if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX
+      lappend opts --prefix=$PREFIX --exec-prefix=$PREFIX
     }
     if {[my define get debug 0]} {
       lappend opts --enable-symbols=true
@@ -2017,10 +2019,15 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     set windres [$PROJECT define get RC windres]
     set RSOBJ [file join $path build tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
+    set RCMAN [${PROJECT} define get kit_manifest_file]
+
     set cmd [list $windres -o $RSOBJ -DSTATIC_BUILD --include [::practcl::file_relative $path [file join $TCLSRC generic]]]
     if {[$PROJECT define get static_tk]} {
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TKSRCDIR win rc wish.rc]
+      }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
@@ -2030,11 +2037,16 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TCLSRCDIR tclsh.rc]
       }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TCLOBJ define get builddir] tclsh.exe.manifest]
+      }
     }
     foreach item [${PROJECT} define get resource_include] {
       lappend cmd --include [::practcl::file_relative $path [file normalize $item]]
     }
-    lappend cmd $RCSRC
+    lappend cmd [file tail $RCSRC]
+    file copy -force $RCSRC [file join $path [file tail $RCSRC]]
+    file copy -force $RCMAN [file join $path [file tail $RCMAN]]    
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ
     set LDFLAGS_CONSOLE {-mconsole -pipe -static-libgcc}
@@ -5231,18 +5243,16 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       cd $srcdir
       if {[file exists [file join $srcdir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $srcdir debug all
         } else {
           ::practcl::domake.tcl $srcdir all
         }
       } else {
         if {[file exists [file join $srcdir makefile.vc]]} {
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } elseif {[file exists [file join $srcdir win makefile.vc]]} {
           cd [file join $srcdir win]
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } else {
           error "No make.tcl or makefile.vc found for project $name"
@@ -5256,7 +5266,7 @@ oo::class create ::practcl::subproject.binary {
         my Configure
       }
       if {[file exists [file join $builddir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $builddir debug all
         } else {
           ::practcl::domake.tcl $builddir all
@@ -5349,7 +5359,7 @@ oo::class create ::practcl::subproject.binary {
       } elseif {[my define get broken_destroot 0] == 0} {
         # Most modern TEA projects understand DESTROOT in the makefile
         puts "[self] VFS INSTALL $DEST (TEA)"
-        ::practcl::domake $builddir install DESTDIR=$DEST
+        ::practcl::domake $builddir install DESTDIR=[::practcl::file_relative $builddir $DEST]
       } else {
         # But some require us to do an install into a fictitious filesystem
         # and then extract the gooey parts within.
@@ -5415,7 +5425,15 @@ oo::class create ::practcl::subproject.core {
   #method BuildDir {PWD} {
   #  return [my define get localsrcdir]
   #}
-
+  method BuildDir {PWD} {
+    set name [my define get name]
+    set debug [my define get debug 0]
+    if {$debug} {
+      return [my define get builddir [file join $PWD $name]]
+    } else {
+      return [my define get builddir [file join $PWD $name]]
+    }
+  }
   method Configure {} {
     if {[my define get USEMSVC 0]} {
       return
