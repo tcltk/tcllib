@@ -194,13 +194,13 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       return
     }
-    if {[file exists [file join $builddir practcl.log]]} {
-      file delete [file join $builddir practcl.log]
+    if {[file exists [file join $builddir autoconf.log]]} {
+      file delete [file join $builddir autoconf.log]
     }
     if {![file exists [file join $srcdir configure]]} {
       if {[file exists [file join $srcdir autogen.sh]]} {
         cd $srcdir
-        catch {exec sh autogen.sh >>& [file join $builddir practcl.log]}
+        catch {exec sh autogen.sh >>& [file join $builddir autoconf.log]}
         cd $::CWD
       }
     }
@@ -223,11 +223,12 @@ oo::class create ::practcl::subproject.binary {
 
     set opts [my ConfigureOpts]
     ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::log   [file join $builddir autoconf.log] [list  CONFIGURE {*}$opts]
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
-    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir practcl.log]}
+    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }
 

@@ -2,12 +2,11 @@
 # Create an object to represent the local environment
 ###
 set ::practcl::MAIN ::practcl::LOCAL
-# Defer the creation of the ::pratcl::LOCAL object until it is called
+# Defer the creation of the ::practcl::LOCAL object until it is called
 # in order to allow packages to
 set ::auto_index(::practcl::LOCAL) {
   ::practcl::project create ::practcl::LOCAL
   ::practcl::LOCAL define set [::practcl::local_os]
-  ::practcl::LOCAL define set prefix [file normalize [file join ~ tcl]]
   ::practcl::LOCAL define set LOCAL 1
 
   # Until something better comes along, use ::practcl::LOCAL

@@ -343,7 +343,10 @@ proc ::practcl::local_os {} {
   dict set result userhome $userhome
   # Load user preferences
   if {[file exists [file join $userhome practcl.rc]]} {
-    set dat [::practcl::cat [file join $userhome practcl.rc]]
+    set dat [::practcl::read_rc_file [file join $userhome practcl.rc]]
+    foreach {f v} $dat {
+      dict set result $f $v
+    }
   }
   if {![dict exists $result prefix]} {
     dict set result prefix   $userhome
@@ -449,7 +452,7 @@ proc ::practcl::tcllib_require {pkg args} {
   if {[catch [list ::package require $pkg {*}$args] err]==0} {
     return $err
   }
-  ::practcl::LOCAL tool tcllib load
+  ::practcl::LOCAL tool tcllib env-load
   uplevel #0 [list ::package require $pkg {*}$args]
 }
 
@@ -737,7 +740,6 @@ proc ::practcl::_tagblock {text {style tcl} {note {}}} {
   return $output
 }
 
-
 proc ::practcl::de_shell {data} {
   set values {}
   foreach flag {DEFS TCL_DEFS TK_DEFS} {
@@ -803,10 +805,23 @@ proc ::practcl::cat fname {
     if {![file exists $fname]} {
        return
     }
-    set fname [open $fname r]
-    set data [read $fname]
-    close $fname
+    set fin [open $fname r]
+    set data [read $fin]
+    close $fin
     return $data
+}
+
+proc ::practcl::log {fname comment} {
+  set fname [file normalize $fname]
+  if {[info exists ::practcl::logchan($fname)]} {
+    set fout $::practcl::logchan($fname)
+    after cancel $::practcl::logevent($fname)
+  } else {
+    set fout [open $fname a]  
+  }
+  puts $fout $comment
+  # Defer close until idle
+  set ::practcl::logevent($fname) [after idle "close $fout ; unset ::practcl::logchan($fname)"]
 }
 
 proc ::practcl::file_lexnormalize {sp} {
@@ -1535,13 +1550,13 @@ oo::class create ::practcl::toolset {
 
   method critcl args {
     if {![info exists critcl]} {
-      ::pratcl::LOCAL tool critcl load
-      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
+      ::practcl::LOCAL tool critcl env-load
+      set critcl [file join [::practcl::LOCAL tool critcl define get srcdir] main.tcl
     }
     set srcdir [my SourceRoot]
     set PWD [pwd]
     cd $srcdir
-    ::pratcl::dotclexec $critcl {*}$args
+    ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
 
@@ -1580,14 +1595,21 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
-    set obj [my <project> tclcore]
-    if {$obj ne {}} {
-      lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-    }
-    if {[my define get tk 0]} {
-      set obj [my <project> tkcore]
+    if {![my <project> define get LOCAL 0]} {
+      set obj [my <project> tclcore]
       if {$obj ne {}} {
-        lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+      }
+      if {[my define get tk 0]} {
+        set obj [my <project> tkcore]
+        if {$obj ne {}} {
+          lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        }
+      }
+    } else {
+      lappend opts --with-tcl=[file join $PREFIX lib]
+      if {[my define get tk 0]} {
+        lappend opts --with-tk=[file join $PREFIX lib]
       }
     }
     lappend opts {*}[my define get config_opts]
@@ -1927,7 +1949,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 method build-tclsh {outfile PROJECT} {
   puts " BUILDING STATIC TCLSH "
-  set TCLOBJ [$PROJECT project tclcore]
+  set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
   foreach item [$PROJECT link list core.library] {
@@ -1942,7 +1964,7 @@ method build-tclsh {outfile PROJECT} {
   }
   array set TCL [$TCLOBJ config.sh]
 
-  set TKOBJ  [$PROJECT project tkcore]
+  set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
     set TKOBJ ::noop
     $PROJECT define set static_tk 0
@@ -3735,16 +3757,15 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       }
     }
     if {[llength $errs]} {
-      set fout [open [file join $::CWD practcl-err.log] w]
-      puts $fout "*** ERRORS ***"
-      puts $fout
+      set logfile [file join $::CWD practcl.log]      
+      ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
-        puts $fout "###\n# ERROR\n###\n$item"
-        puts $fout "###\n# TRACE\n###\n$trace"
+        ::practcl::log $logfile "###\n# ERROR\n###\n$item"
+       ::practcl::log $logfile "###\n# TRACE\n###\n$trace"
       }
-      puts $fout "*** DEBUG INFO ***"
-      puts $fout $::DEBUG_INFO
-      close $fout
+      ::practcl::log $logfile "*** DEBUG INFO ***"
+      ::practcl::log $logfile $::DEBUG_INFO
+      puts stderr "Errors saved to $logfile"
       exit 1
     }
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
@@ -4190,16 +4211,15 @@ char *
       }
     }
     if {[llength $errs]} {
-      set fout [open [file join $::CWD practcl-err.log] w]
-      puts $fout "*** ERRORS ***"
-      puts $fout
+      set logfile [file join $::CWD practcl.log]      
+      ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
-        puts $fout "###\n# ERROR\n###$item"
-        puts $fout "###\n# TRACE\n###$trace"
+        ::practcl::log $logfile "###\n# ERROR\n###$item"
+        ::practcl::log $logfile "###\n# TRACE\n###$trace"
       }
-      puts $fout "*** DEBUG INFO ***"
-      puts $fout $::DEBUG_INFO
-      close $fout
+      ::practcl::log $logfile "*** DEBUG INFO ***"
+      ::practcl::log $logfile $::DEBUG_INFO
+      puts stderr "Errors saved to $logfile"
       exit 1
     }
     set cout [open [file join $path [my define get output_c]] w]
@@ -4572,7 +4592,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       # The Tclconfig project maintains a mirror of the version
       # released with the Tcl core
       my define set tip_430 0
-      ::practcl::LOCAL tool odie load
+      ::practcl::LOCAL tool odie unpack
       set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
       my add [file join $COMPATSRCROOT compat zipfs zipfs.tcl]
     }
@@ -4955,7 +4975,6 @@ oo::objdefine ::practcl::distribution.fossil {
 
   # Check for markers in the metadata
   method claim_object obj {
-    puts [list [self] claim_object obj: $obj]
     set path [$obj define get srcdir]
     if {[my claim_path $path]} {
       return true
@@ -5169,7 +5188,8 @@ oo::class create ::practcl::subproject.source {
   }
   
   method env-present {} {
-    return [file exists [my define get srcdir]]
+    set path [my define get srcdir]
+    return [file exists $path]
   }
   
   method linktype {} {
@@ -5220,11 +5240,11 @@ oo::class create ::practcl::subproject.kettle {
   method kettle {path args} {
     my variable kettle
     if {![info exists kettle]} {
-      ::pratcl::LOCAL tool kettle load
-      set kettle [file join [::pratcl::LOCAL tool kettle define get srcdir] kettle]
+      ::practcl::LOCAL tool kettle env-load
+      set kettle [file join [::practcl::LOCAL tool kettle define get srcdir] kettle]
     }
     set srcdir [my SourceRoot]
-    ::pratcl::dotclexec $kettle -f [file join $srcdir build.tcl] {*}$args
+    ::practcl::dotclexec $kettle -f [file join $srcdir build.tcl] {*}$args
   }
 
   method install DEST {
@@ -5238,7 +5258,7 @@ oo::class create ::practcl::subproject.critcl {
   method install DEST {
     my critcl -pkg [my define get name]
     set srcdir [my SourceRoot]
-    ::pratcl::copyDir [file join $srcdir [my define get name]] [file join $DEST lib [my define get name]]
+    ::practcl::copyDir [file join $srcdir [my define get name]] [file join $DEST lib [my define get name]]
   }
 }
 
@@ -5246,6 +5266,13 @@ oo::class create ::practcl::subproject.critcl {
 oo::class create ::practcl::subproject.sak {
   superclass ::practcl::subproject
 
+  method env-bootstrap {} {
+    set LibraryRoot [file join [my define get srcdir] [my define get module_root modules]]
+    if {[file exists $LibraryRoot] && $LibraryRoot ni $::auto_path} {
+      set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
+    }
+  }
+  
   method env-install {} {
     ###
     # Handle teapot installs
@@ -5259,6 +5286,11 @@ oo::class create ::practcl::subproject.sak {
       -html -html-path [file join $prefix doc html $pkg] \
       -pkg-path [file join $prefix lib $pkg]  \
       -no-nroff -no-wait -no-gui 
+  }
+  
+  method env-present {} {
+    set path [my define get srcdir]
+    return [file exists $path]
   }
   
   method install DEST {
@@ -5478,13 +5510,13 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       return
     }
-    if {[file exists [file join $builddir practcl.log]]} {
-      file delete [file join $builddir practcl.log]
+    if {[file exists [file join $builddir autoconf.log]]} {
+      file delete [file join $builddir autoconf.log]
     }
     if {![file exists [file join $srcdir configure]]} {
       if {[file exists [file join $srcdir autogen.sh]]} {
         cd $srcdir
-        catch {exec sh autogen.sh >>& [file join $builddir practcl.log]}
+        catch {exec sh autogen.sh >>& [file join $builddir autoconf.log]}
         cd $::CWD
       }
     }
@@ -5507,11 +5539,12 @@ oo::class create ::practcl::subproject.binary {
 
     set opts [my ConfigureOpts]
     ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::log   [file join $builddir autoconf.log] [list  CONFIGURE {*}$opts]
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
-    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir practcl.log]}
+    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }
 
@@ -5628,7 +5661,7 @@ oo::class create ::practcl::subproject.core {
     set opts [my ConfigureOpts]
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
-    puts [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::debug [self] CONFIGURE {*}$opts
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -5652,11 +5685,15 @@ oo::class create ::practcl::subproject.core {
     lappend opts --disable-shared
     return $opts
   }
+
+  method env-bootstrap {} {}
   
   method env-present {} {
-    return 0
+    set PREFIX [my <project> define get prefix]
+    set name [my define get name]
+    set fname [file join $PREFIX lib ${name}Config.sh]
+    return [file exists $fname]
   }
-  
 
   method env-install {} {
     my unpack
@@ -5732,12 +5769,11 @@ oo::class create ::practcl::subproject.core {
 # Create an object to represent the local environment
 ###
 set ::practcl::MAIN ::practcl::LOCAL
-# Defer the creation of the ::pratcl::LOCAL object until it is called
+# Defer the creation of the ::practcl::LOCAL object until it is called
 # in order to allow packages to
 set ::auto_index(::practcl::LOCAL) {
   ::practcl::project create ::practcl::LOCAL
   ::practcl::LOCAL define set [::practcl::local_os]
-  ::practcl::LOCAL define set prefix [file normalize [file join ~ tcl]]
   ::practcl::LOCAL define set LOCAL 1
 
   # Until something better comes along, use ::practcl::LOCAL

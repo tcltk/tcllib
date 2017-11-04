@@ -124,7 +124,8 @@ oo::class create ::practcl::subproject.source {
   }
   
   method env-present {} {
-    return [file exists [my define get srcdir]]
+    set path [my define get srcdir]
+    return [file exists $path]
   }
   
   method linktype {} {
@@ -175,11 +176,11 @@ oo::class create ::practcl::subproject.kettle {
   method kettle {path args} {
     my variable kettle
     if {![info exists kettle]} {
-      ::pratcl::LOCAL tool kettle load
-      set kettle [file join [::pratcl::LOCAL tool kettle define get srcdir] kettle]
+      ::practcl::LOCAL tool kettle env-load
+      set kettle [file join [::practcl::LOCAL tool kettle define get srcdir] kettle]
     }
     set srcdir [my SourceRoot]
-    ::pratcl::dotclexec $kettle -f [file join $srcdir build.tcl] {*}$args
+    ::practcl::dotclexec $kettle -f [file join $srcdir build.tcl] {*}$args
   }
 
   method install DEST {
@@ -193,7 +194,7 @@ oo::class create ::practcl::subproject.critcl {
   method install DEST {
     my critcl -pkg [my define get name]
     set srcdir [my SourceRoot]
-    ::pratcl::copyDir [file join $srcdir [my define get name]] [file join $DEST lib [my define get name]]
+    ::practcl::copyDir [file join $srcdir [my define get name]] [file join $DEST lib [my define get name]]
   }
 }
 
@@ -201,6 +202,13 @@ oo::class create ::practcl::subproject.critcl {
 oo::class create ::practcl::subproject.sak {
   superclass ::practcl::subproject
 
+  method env-bootstrap {} {
+    set LibraryRoot [file join [my define get srcdir] [my define get module_root modules]]
+    if {[file exists $LibraryRoot] && $LibraryRoot ni $::auto_path} {
+      set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
+    }
+  }
+  
   method env-install {} {
     ###
     # Handle teapot installs
@@ -214,6 +222,11 @@ oo::class create ::practcl::subproject.sak {
       -html -html-path [file join $prefix doc html $pkg] \
       -pkg-path [file join $prefix lib $pkg]  \
       -no-nroff -no-wait -no-gui 
+  }
+  
+  method env-present {} {
+    set path [my define get srcdir]
+    return [file exists $path]
   }
   
   method install DEST {

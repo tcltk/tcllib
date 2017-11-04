@@ -272,7 +272,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       # The Tclconfig project maintains a mirror of the version
       # released with the Tcl core
       my define set tip_430 0
-      ::practcl::LOCAL tool odie load
+      ::practcl::LOCAL tool odie unpack
       set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
       my add [file join $COMPATSRCROOT compat zipfs zipfs.tcl]
     }

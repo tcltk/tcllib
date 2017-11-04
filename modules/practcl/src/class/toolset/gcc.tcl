@@ -278,7 +278,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 method build-tclsh {outfile PROJECT} {
   puts " BUILDING STATIC TCLSH "
-  set TCLOBJ [$PROJECT project tclcore]
+  set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
   foreach item [$PROJECT link list core.library] {
@@ -293,7 +293,7 @@ method build-tclsh {outfile PROJECT} {
   }
   array set TCL [$TCLOBJ config.sh]
 
-  set TKOBJ  [$PROJECT project tkcore]
+  set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
     set TKOBJ ::noop
     $PROJECT define set static_tk 0
