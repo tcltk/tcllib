@@ -5161,6 +5161,10 @@ oo::class create ::practcl::subproject {
 
   method sources {} {}
 
+  method update {} {
+    my ScmUpdate
+  }
+  
   method unpack {} {
     ::practcl::distribution select [self]
     my Unpack
