@@ -7,15 +7,7 @@ oo::class create ::practcl::subproject.core {
   #method BuildDir {PWD} {
   #  return [my define get localsrcdir]
   #}
-  method BuildDir {PWD} {
-    set name [my define get name]
-    set debug [my define get debug 0]
-    if {$debug} {
-      return [my define get builddir [file join $PWD $name]]
-    } else {
-      return [my define get builddir [file join $PWD $name]]
-    }
-  }
+
   method Configure {} {
     if {[my define get USEMSVC 0]} {
       return
@@ -47,7 +39,34 @@ oo::class create ::practcl::subproject.core {
     lappend opts --disable-shared
     return $opts
   }
+  
+  method env-present {} {
+    return 0
+  }
+  
 
+  method env-install {} {
+    my unpack
+    set os [::practcl::local_os]
+    switch [my define get name] {
+      tcl {
+        set options [::practcl::platform::tcl_core_options $os]
+      }
+      tk {
+        set options [::practcl::platform::tk_core_options $os]
+      }
+      default {
+        set options {}
+      }
+    }
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    lappend options --prefix $prefix --exec-prefix $prefix
+    my define set config_opts $options
+    my go
+    my compile
+    ::practcl::domake [my define get builddir] install
+  }
+  
   method go {} {
     set name [my define get name]
     set os [my <project> define get TEACUP_OS]

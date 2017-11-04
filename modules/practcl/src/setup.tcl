@@ -17,3 +17,4 @@ foreach path {.. ../.. ../../..} {
   if {$tcllib_path ne {}} break
 }
 namespace eval ::practcl {}
+namespace eval ::practcl::OBJECT {}

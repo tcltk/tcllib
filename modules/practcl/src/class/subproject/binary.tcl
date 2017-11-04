@@ -4,6 +4,7 @@
 ###
 oo::class create ::practcl::subproject.binary {
   superclass ::practcl::subproject
+  
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -12,6 +13,24 @@ oo::class create ::practcl::subproject.binary {
     } else {
       ::practcl::domake $builddir clean
     }
+  }
+  
+ method env-install {} {
+    ###
+    # Handle tea installs
+    ###
+    set pkg [my define get pkg_name [my define get name]]
+    set os [::practcl::local_os]
+    my define set os $os
+    my unpack
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set srcdir [my define get srcdir]
+    lappend options --prefix $prefix --exec-prefix $prefix
+    my define set config_opts $options
+    my go
+    my clean
+    my compile
+    ::practcl::domake [my define get builddir] install
   }
 
   method project-compile-products {} {}
@@ -98,10 +117,14 @@ oo::class create ::practcl::subproject.binary {
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
+    set project [my organ project]
+    if {[$project define get LOCAL 0]} {
+      return [my define get builddir [file join $PWD local $name]]
+    }
     if {$debug} {
-      return [my define get builddir [file join $PWD pkg.debug.$name]]
+      return [my define get builddir [file join $PWD debug $name]]
     } else {
-      return [my define get builddir [file join $PWD pkg.$name]]
+      return [my define get builddir [file join $PWD pkg $name]]
     }
   }
 
@@ -276,6 +299,11 @@ oo::class create ::practcl::subproject.binary {
     }
     cd $pwd
   }
+}
+
+oo::class create ::practcl::subproject.tea {
+  superclass ::practcl::subproject.binary
+
 }
 
 oo::class create ::practcl::subproject.library {

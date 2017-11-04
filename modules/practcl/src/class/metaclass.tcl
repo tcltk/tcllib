@@ -1,6 +1,10 @@
 ::oo::class create ::practcl::metaclass {
   superclass ::oo::object
 
+  method _MorphPatterns {} {
+    return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}
+  }
+  
   method define {submethod args} {
     my variable define
     switch $submethod {
@@ -140,15 +144,7 @@
     my variable define
     if {$classname ne {}} {
       set map [list @name@ $classname]
-      foreach pattern [split [string map $map {
-        @name@
-        ::practcl::@name@
-        ::practcl::project.@name@
-        ::practcl::subproject.@name@
-        ::practcl::tool.@name@
-        ::practcl::*@name@
-        ::practcl::*@name@*
-      }] \n] {
+      foreach pattern [string map $map [my _MorphPatterns]] {
         set pattern [string trim $pattern]
         set matches [info commands $pattern]
         if {![llength $matches]} continue

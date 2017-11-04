@@ -7,6 +7,10 @@
 ::oo::class create ::practcl::module {
   superclass ::practcl::object ::practcl::product.dynamic
 
+  method _MorphPatterns {} {
+    return {{@name@} {::practcl::module.@name@} ::practcl::module}
+  }
+  
   method add args {
     my variable links
     set object [::practcl::object new [self] {*}$args]
