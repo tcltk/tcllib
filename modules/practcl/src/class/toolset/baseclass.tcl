@@ -140,12 +140,12 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
-    set obj [my <project> project TCLCORE]
+    set obj [my <project> tclcore]
     if {$obj ne {}} {
       lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
     }
     if {[my define get tk 0]} {
-      set obj [my <project> project tk]
+      set obj [my <project> tkcore]
       if {$obj ne {}} {
         lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
       }
@@ -170,7 +170,7 @@ oo::class create ::practcl::toolset {
     }
     return $opts
   }
-
+  
   #method unpack {} {
   #  ::practcl::distribution select [self]
   #  my Unpack

@@ -214,7 +214,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     } else {
       puts [list BUILDING KIT FOR OS $os]
     }
-    set TCLOBJ [$PROJECT project TCLCORE]
+    set TCLOBJ [$PROJECT tclcore]
     ::practcl::toolset select $TCLOBJ
 
     set TCLSRCDIR [$TCLOBJ define get srcdir]

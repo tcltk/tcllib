@@ -278,7 +278,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 method build-tclsh {outfile PROJECT} {
   puts " BUILDING STATIC TCLSH "
-  set TCLOBJ [$PROJECT project TCLCORE]
+  set TCLOBJ [$PROJECT project tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
   foreach item [$PROJECT link list core.library] {
@@ -293,7 +293,7 @@ method build-tclsh {outfile PROJECT} {
   }
   array set TCL [$TCLOBJ config.sh]
 
-  set TKOBJ  [$PROJECT project tk]
+  set TKOBJ  [$PROJECT project tkcore]
   if {[info command $TKOBJ] eq {}} {
     set TKOBJ ::noop
     $PROJECT define set static_tk 0
@@ -393,8 +393,12 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
       lappend cmd --include [::practcl::file_relative $path [file normalize $item]]
     }
     lappend cmd [file tail $RCSRC]
-    file copy -force $RCSRC [file join $path [file tail $RCSRC]]
-    file copy -force $RCMAN [file join $path [file tail $RCMAN]]    
+    if {![file exists [file join $path [file tail $RCSRC]]]} {
+      file copy -force $RCSRC [file join $path [file tail $RCSRC]]
+    }
+    if {![file exists [file join $path [file tail $RCMAN]]]} {
+      file copy -force $RCMAN [file join $path [file tail $RCMAN]]
+    }
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ
     set LDFLAGS_CONSOLE {-mconsole -pipe -static-libgcc}

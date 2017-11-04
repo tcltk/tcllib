@@ -20,11 +20,18 @@
       dict set cstruct $name public 1
     }
   }
-
+  
   method include header {
     my define add include $header
   }
 
+  method include_dir args {
+    my define add include_dir {*}$args
+  }
+
+  method include_directory args {
+    my define add include_dir {*}$args
+  }
 
   method c_header body {
     my variable code
