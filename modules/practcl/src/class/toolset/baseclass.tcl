@@ -95,13 +95,13 @@ oo::class create ::practcl::toolset {
 
   method critcl args {
     if {![info exists critcl]} {
-      ::pratcl::LOCAL tool critcl load
-      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
+      ::practcl::LOCAL tool critcl env-load
+      set critcl [file join [::practcl::LOCAL tool critcl define get srcdir] main.tcl
     }
     set srcdir [my SourceRoot]
     set PWD [pwd]
     cd $srcdir
-    ::pratcl::dotclexec $critcl {*}$args
+    ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
 
@@ -140,14 +140,21 @@ oo::class create ::practcl::toolset {
       lappend opts --host=[my <project> define get HOST]
     }
     lappend opts --with-tclsh=[info nameofexecutable]
-    set obj [my <project> tclcore]
-    if {$obj ne {}} {
-      lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-    }
-    if {[my define get tk 0]} {
-      set obj [my <project> tkcore]
+    if {![my <project> define get LOCAL 0]} {
+      set obj [my <project> tclcore]
       if {$obj ne {}} {
-        lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+      }
+      if {[my define get tk 0]} {
+        set obj [my <project> tkcore]
+        if {$obj ne {}} {
+          lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        }
+      }
+    } else {
+      lappend opts --with-tcl=[file join $PREFIX lib]
+      if {[my define get tk 0]} {
+        lappend opts --with-tk=[file join $PREFIX lib]
       }
     }
     lappend opts {*}[my define get config_opts]

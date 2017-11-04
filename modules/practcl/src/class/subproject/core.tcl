@@ -15,7 +15,7 @@ oo::class create ::practcl::subproject.core {
     set opts [my ConfigureOpts]
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
-    puts [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::debug [self] CONFIGURE {*}$opts
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -39,11 +39,15 @@ oo::class create ::practcl::subproject.core {
     lappend opts --disable-shared
     return $opts
   }
+
+  method env-bootstrap {} {}
   
   method env-present {} {
-    return 0
+    set PREFIX [my <project> define get prefix]
+    set name [my define get name]
+    set fname [file join $PREFIX lib ${name}Config.sh]
+    return [file exists $fname]
   }
-  
 
   method env-install {} {
     my unpack

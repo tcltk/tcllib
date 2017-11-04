@@ -5,10 +5,23 @@ proc ::practcl::cat fname {
     if {![file exists $fname]} {
        return
     }
-    set fname [open $fname r]
-    set data [read $fname]
-    close $fname
+    set fin [open $fname r]
+    set data [read $fin]
+    close $fin
     return $data
+}
+
+proc ::practcl::log {fname comment} {
+  set fname [file normalize $fname]
+  if {[info exists ::practcl::logchan($fname)]} {
+    set fout $::practcl::logchan($fname)
+    after cancel $::practcl::logevent($fname)
+  } else {
+    set fout [open $fname a]  
+  }
+  puts $fout $comment
+  # Defer close until idle
+  set ::practcl::logevent($fname) [after idle "close $fout ; unset ::practcl::logchan($fname)"]
 }
 
 proc ::practcl::file_lexnormalize {sp} {
