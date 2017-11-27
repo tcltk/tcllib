@@ -16,6 +16,7 @@ oo::class create ::practcl::subproject.core {
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
     ::practcl::debug [self] CONFIGURE {*}$opts
+    file mkdir $builddir
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -41,7 +42,7 @@ oo::class create ::practcl::subproject.core {
   }
 
   method env-bootstrap {} {}
-  
+
   method env-present {} {
     set PREFIX [my <project> define get prefix]
     set name [my define get name]
@@ -70,7 +71,7 @@ oo::class create ::practcl::subproject.core {
     my compile
     ::practcl::domake [my define get builddir] install
   }
-  
+
   method go {} {
     set name [my define get name]
     set os [my <project> define get TEACUP_OS]

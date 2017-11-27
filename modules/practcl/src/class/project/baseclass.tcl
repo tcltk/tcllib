@@ -5,7 +5,7 @@
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::project.@name@} {::practcl::project}}
   }
-  
+
   constructor args {
     my variable define
     if {[llength $args] == 1} {
@@ -89,12 +89,12 @@
     $obj go
     return $obj
   }
-  
+
   method build-tclcore {} {
     set os [my define get TEACUP_OS]
     set tcl_config_opts [::practcl::platform::tcl_core_options $os]
     set tk_config_opts  [::practcl::platform::tk_core_options $os]
-  
+
     lappend tcl_config_opts --prefix [my define get prefix] --exec-prefix [my define get prefix]
     set tclobj [my tclcore]
     if {[my define get debug 0]} {
@@ -104,7 +104,7 @@
     $tclobj define set config_opts $tcl_config_opts
     $tclobj go
     $tclobj compile
-  
+
     set _TclSrcDir [$tclobj define get localsrcdir]
     my define set tclsrcdir $_TclSrcDir
 
@@ -117,7 +117,7 @@
     $tkobj define set config_opts $tk_config_opts
     $tkobj compile
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -167,7 +167,7 @@
     my graft tclcore $obj
     return $obj
   }
-  
+
   method tkcore {} {
     if {[set obj [my organ tkcore]] ne {}} {
       return $obj
@@ -188,7 +188,7 @@
     my graft tkcore $obj
     return $obj
   }
-  
+
   method tool {pkg args} {
     set obj ::practcl::OBJECT::TOOL.$pkg
     if {[llength $args]==0} {

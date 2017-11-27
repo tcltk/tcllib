@@ -811,17 +811,31 @@ proc ::practcl::cat fname {
     return $data
 }
 
-proc ::practcl::log {fname comment} {
-  set fname [file normalize $fname]
-  if {[info exists ::practcl::logchan($fname)]} {
-    set fout $::practcl::logchan($fname)
-    after cancel $::practcl::logevent($fname)
-  } else {
-    set fout [open $fname a]  
-  }
-  puts $fout $comment
-  # Defer close until idle
-  set ::practcl::logevent($fname) [after idle "close $fout ; unset ::practcl::logchan($fname)"]
+proc ::practcl::grep {pattern {files {}}} {
+    set result [list]
+    if {[llength $files] == 0} {
+	      # read from stdin
+    	  set lnum 0
+	      while {[gets stdin line] >= 0} {
+	          incr lnum
+    	      if {[regexp -- $pattern $line]} {
+		            lappend result "${lnum}:${line}"
+	          }
+    	  }
+    } else {
+	      foreach filename $files {
+            set file [open $filename r]
+            set lnum 0
+            while {[gets $file line] >= 0} {
+                incr lnum
+                if {[regexp -- $pattern $line]} {
+                    lappend result "${filename}:${lnum}:${line}"
+                }
+            }
+            close $file
+    	  }
+    }
+    return $result
 }
 
 proc ::practcl::file_lexnormalize {sp} {
@@ -921,7 +935,18 @@ proc ::practcl::file_relative {base dst} {
     return $dst
 }
 
-
+proc ::practcl::log {fname comment} {
+  set fname [file normalize $fname]
+  if {[info exists ::practcl::logchan($fname)]} {
+    set fout $::practcl::logchan($fname)
+    after cancel $::practcl::logevent($fname)
+  } else {
+    set fout [open $fname a]
+  }
+  puts $fout $comment
+  # Defer close until idle
+  set ::practcl::logevent($fname) [after idle "close $fout ; unset ::practcl::logchan($fname)"]
+}
 
 ###
 # END: fileutil.tcl
@@ -3537,6 +3562,12 @@ oo::objdefine ::practcl::product {
     if {[my define get localpath] eq {}} {
       my define set localpath [my <module> define get localpath]_[my define get name]
     }
+    # Future Development:
+    # Scan source file to see if it is encoded in criticl or practcl notation
+    #set thisline {}
+    #foreach line [split [::practcl::cat $filename] \n] {
+    #
+    #}
     ::source $filename
     if {[my define get output_c] ne {}} {
       # Turn into a module if we have an output_c file
@@ -3803,7 +3834,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::project.@name@} {::practcl::project}}
   }
-  
+
   constructor args {
     my variable define
     if {[llength $args] == 1} {
@@ -3887,12 +3918,12 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     $obj go
     return $obj
   }
-  
+
   method build-tclcore {} {
     set os [my define get TEACUP_OS]
     set tcl_config_opts [::practcl::platform::tcl_core_options $os]
     set tk_config_opts  [::practcl::platform::tk_core_options $os]
-  
+
     lappend tcl_config_opts --prefix [my define get prefix] --exec-prefix [my define get prefix]
     set tclobj [my tclcore]
     if {[my define get debug 0]} {
@@ -3902,7 +3933,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     $tclobj define set config_opts $tcl_config_opts
     $tclobj go
     $tclobj compile
-  
+
     set _TclSrcDir [$tclobj define get localsrcdir]
     my define set tclsrcdir $_TclSrcDir
 
@@ -3915,7 +3946,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     $tkobj define set config_opts $tk_config_opts
     $tkobj compile
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -3965,7 +3996,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     my graft tclcore $obj
     return $obj
   }
-  
+
   method tkcore {} {
     if {[set obj [my organ tkcore]] ne {}} {
       return $obj
@@ -3986,7 +4017,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     my graft tkcore $obj
     return $obj
   }
-  
+
   method tool {pkg args} {
     set obj ::practcl::OBJECT::TOOL.$pkg
     if {[llength $args]==0} {
@@ -5666,6 +5697,7 @@ oo::class create ::practcl::subproject.core {
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
     ::practcl::debug [self] CONFIGURE {*}$opts
+    file mkdir $builddir
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -5691,7 +5723,7 @@ oo::class create ::practcl::subproject.core {
   }
 
   method env-bootstrap {} {}
-  
+
   method env-present {} {
     set PREFIX [my <project> define get prefix]
     set name [my define get name]
@@ -5720,7 +5752,7 @@ oo::class create ::practcl::subproject.core {
     my compile
     ::practcl::domake [my define get builddir] install
   }
-  
+
   method go {} {
     set name [my define get name]
     set os [my <project> define get TEACUP_OS]
@@ -5802,6 +5834,9 @@ set ::auto_index(::practcl::LOCAL) {
     git_url http://github.com/andreas-kupries/critcl
     modules lib
   } {
+    method env-bootstrap {} {
+      package require critcl::app
+    }
     method env-install {} {
       my unpack
       set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
