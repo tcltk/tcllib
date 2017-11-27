@@ -31,6 +31,9 @@ set ::auto_index(::practcl::LOCAL) {
     git_url http://github.com/andreas-kupries/critcl
     modules lib
   } {
+    method env-bootstrap {} {
+      package require critcl::app
+    }
     method env-install {} {
       my unpack
       set prefix [my <project> define get prefix [file join [file normalize ~] tcl]]
