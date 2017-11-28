@@ -244,7 +244,10 @@ proc ::practcl::local_os {} {
   dict set result userhome $userhome
   # Load user preferences
   if {[file exists [file join $userhome practcl.rc]]} {
-    set dat [::practcl::cat [file join $userhome practcl.rc]]
+    set dat [::practcl::read_rc_file [file join $userhome practcl.rc]]
+    foreach {f v} $dat {
+      dict set result $f $v
+    }
   }
   if {![dict exists $result prefix]} {
     dict set result prefix   $userhome
@@ -328,8 +331,16 @@ if {$::tcl_platform(platform) eq "windows"} {
 proc ::practcl::msys_to_tclpath msyspath {
   return [exec sh -c "cd $msyspath ; pwd -W"]
 }
+proc ::practcl::tcl_to_myspath tclpath {
+  set path [file normalize $tclpath]
+  return "/[string index $path 0][string range $path 2 end]"
+  #return [exec sh -c "cd $tclpath ; pwd"]
+}
 } else {
 proc ::practcl::msys_to_tclpath msyspath {
+  return [file normalize $msyspath]
+}
+proc ::practcl::tcl_to_myspath msyspath {
   return [file normalize $msyspath]
 }
 }
@@ -342,7 +353,7 @@ proc ::practcl::tcllib_require {pkg args} {
   if {[catch [list ::package require $pkg {*}$args] err]==0} {
     return $err
   }
-  ::practcl::LOCAL tool tcllib load
+  ::practcl::LOCAL tool tcllib env-load
   uplevel #0 [list ::package require $pkg {*}$args]
 }
 
@@ -629,7 +640,6 @@ proc ::practcl::_tagblock {text {style tcl} {note {}}} {
   }
   return $output
 }
-
 
 proc ::practcl::de_shell {data} {
   set values {}

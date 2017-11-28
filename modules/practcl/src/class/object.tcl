@@ -23,19 +23,9 @@
 
   }
 
-
-  method include_dir args {
-    my define add include_dir {*}$args
-  }
-
-  method include_directory args {
-    my define add include_dir {*}$args
-  }
-
   method child {method} {
     return {}
   }
-
 
   method go {} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
@@ -47,10 +37,4 @@
     }
     ::practcl::debug [list /[self] [self method] [self class]]
   }
-
-
-
-
-
-
 }
