@@ -207,16 +207,15 @@ char *
       }
     }
     if {[llength $errs]} {
-      set fout [open [file join $::CWD practcl-err.log] w]
-      puts $fout "*** ERRORS ***"
-      puts $fout
+      set logfile [file join $::CWD practcl.log]      
+      ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
-        puts $fout "###\n# ERROR\n###$item"
-        puts $fout "###\n# TRACE\n###$trace"
+        ::practcl::log $logfile "###\n# ERROR\n###$item"
+        ::practcl::log $logfile "###\n# TRACE\n###$trace"
       }
-      puts $fout "*** DEBUG INFO ***"
-      puts $fout $::DEBUG_INFO
-      close $fout
+      ::practcl::log $logfile "*** DEBUG INFO ***"
+      ::practcl::log $logfile $::DEBUG_INFO
+      puts stderr "Errors saved to $logfile"
       exit 1
     }
     set cout [open [file join $path [my define get output_c]] w]

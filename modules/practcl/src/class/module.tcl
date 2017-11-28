@@ -7,6 +7,10 @@
 ::oo::class create ::practcl::module {
   superclass ::practcl::object ::practcl::product.dynamic
 
+  method _MorphPatterns {} {
+    return {{@name@} {::practcl::module.@name@} ::practcl::module}
+  }
+  
   method add args {
     my variable links
     set object [::practcl::object new [self] {*}$args]
@@ -195,16 +199,15 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       }
     }
     if {[llength $errs]} {
-      set fout [open [file join $::CWD practcl-err.log] w]
-      puts $fout "*** ERRORS ***"
-      puts $fout
+      set logfile [file join $::CWD practcl.log]      
+      ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
-        puts $fout "###\n# ERROR\n###\n$item"
-        puts $fout "###\n# TRACE\n###\n$trace"
+        ::practcl::log $logfile "###\n# ERROR\n###\n$item"
+       ::practcl::log $logfile "###\n# TRACE\n###\n$trace"
       }
-      puts $fout "*** DEBUG INFO ***"
-      puts $fout $::DEBUG_INFO
-      close $fout
+      ::practcl::log $logfile "*** DEBUG INFO ***"
+      ::practcl::log $logfile $::DEBUG_INFO
+      puts stderr "Errors saved to $logfile"
       exit 1
     }
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]

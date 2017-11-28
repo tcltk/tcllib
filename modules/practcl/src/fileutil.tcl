@@ -5,10 +5,37 @@ proc ::practcl::cat fname {
     if {![file exists $fname]} {
        return
     }
-    set fname [open $fname r]
-    set data [read $fname]
-    close $fname
+    set fin [open $fname r]
+    set data [read $fin]
+    close $fin
     return $data
+}
+
+proc ::practcl::grep {pattern {files {}}} {
+    set result [list]
+    if {[llength $files] == 0} {
+	      # read from stdin
+    	  set lnum 0
+	      while {[gets stdin line] >= 0} {
+	          incr lnum
+    	      if {[regexp -- $pattern $line]} {
+		            lappend result "${lnum}:${line}"
+	          }
+    	  }
+    } else {
+	      foreach filename $files {
+            set file [open $filename r]
+            set lnum 0
+            while {[gets $file line] >= 0} {
+                incr lnum
+                if {[regexp -- $pattern $line]} {
+                    lappend result "${filename}:${lnum}:${line}"
+                }
+            }
+            close $file
+    	  }
+    }
+    return $result
 }
 
 proc ::practcl::file_lexnormalize {sp} {
@@ -108,4 +135,15 @@ proc ::practcl::file_relative {base dst} {
     return $dst
 }
 
-
+proc ::practcl::log {fname comment} {
+  set fname [file normalize $fname]
+  if {[info exists ::practcl::logchan($fname)]} {
+    set fout $::practcl::logchan($fname)
+    after cancel $::practcl::logevent($fname)
+  } else {
+    set fout [open $fname a]
+  }
+  puts $fout $comment
+  # Defer close until idle
+  set ::practcl::logevent($fname) [after idle "close $fout ; unset ::practcl::logchan($fname)"]
+}
