@@ -2115,7 +2115,7 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
   append cmd " $OBJECTS"
   append cmd " $EXTERN_OBJS"
   if {$debug && $os eq "windows"} {
-    #append cmd " -static"
+    append cmd " -static"
     append cmd " -L${TCL(src_dir)}/win -ltcl86g"
     if {[$PROJECT define get static_tk]} {
       append cmd " -L${TK(src_dir)}/win -ltk86g"
