@@ -21,7 +21,7 @@
         set ofile [my Ofile $filename]
         my define set ofile $ofile
       }
-      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
+      lappend result $ofile [list cfile $filename include [my define get include]  extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
     }
     }
     foreach item [my link list subordinate] {
