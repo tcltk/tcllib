@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.10
+package provide practcl 0.10.1
 namespace eval ::practcl {}
 
 ###
@@ -381,6 +381,10 @@ proc ::practcl::local_os {} {
 # Detect local platform
 ###
 proc ::practcl::config.tcl {path} {
+   return [read_configuration $path]
+}
+
+proc ::practcl::read_configuration {path} {
   dict set result buildpath $path
   set result [local_os]
   set OS [dict get $result TEACUP_OS]
@@ -1234,7 +1238,7 @@ proc ::practcl::target {name info} {
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}
   }
-  
+
   method define {submethod args} {
     my variable define
     switch $submethod {
@@ -1406,7 +1410,7 @@ proc ::practcl::target {name info} {
     }
     if {[::info exists define(oodefine)]} {
       ::oo::objdefine [self] $define(oodefine)
-      unset define(oodefine)
+      #unset define(oodefine)
     }
   }
 
@@ -1462,7 +1466,7 @@ proc ::practcl::target {name info} {
     } else {
       if {[::info exists define(oodefine)]} {
         ::oo::objdefine [self] $define(oodefine)
-        unset define(oodefine)
+        #unset define(oodefine)
       }
     }
   }
@@ -1488,6 +1492,10 @@ oo::class create ::practcl::toolset {
   # find or fake a key/value list describing this project
   ###
   method config.sh {} {
+    return [my read_configuration]
+  }
+
+  method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
       return $conf_result
@@ -1504,7 +1512,7 @@ oo::class create ::practcl::toolset {
     set filename [file join $builddir config.tcl]
     # Project uses the practcl template. Use the leavings from autoconf
     if {[file exists $filename]} {
-      set dat [::practcl::config.tcl $builddir]
+      set dat [::practcl::read_configuration $builddir]
       foreach {item value} [::practcl::sort_dict $dat] {
         dict set result $item $value
       }
@@ -1619,16 +1627,25 @@ oo::class create ::practcl::toolset {
     if {[my <project> define get CONFIG_SITE] != {}} {
       lappend opts --host=[my <project> define get HOST]
     }
+    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
     if {![my <project> define get LOCAL 0]} {
       set obj [my <project> tclcore]
       if {$obj ne {}} {
-        lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        if {$inside_msys} {
+          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        } else {
+          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+        }
       }
       if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
-          lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          if {$inside_msys} {
+            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tk=[file normalize [$obj define get builddir]]
+          }
         }
       }
     } else {
@@ -1657,7 +1674,7 @@ oo::class create ::practcl::toolset {
     }
     return $opts
   }
-  
+
   #method unpack {} {
   #  ::practcl::distribution select [self]
   #  my Unpack
@@ -1986,7 +2003,7 @@ method build-tclsh {outfile PROJECT} {
       lappend PKG_OBJS $item
     }
   }
-  array set TCL [$TCLOBJ config.sh]
+  array set TCL [$TCLOBJ read_configuration]
 
   set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
@@ -1994,7 +2011,7 @@ method build-tclsh {outfile PROJECT} {
     $PROJECT define set static_tk 0
   } else {
     ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ config.sh]
+    array set TK  [$TKOBJ read_configuration]
     set do_tk [$TKOBJ define get static]
     $PROJECT define set static_tk $do_tk
     $PROJECT define set tk $do_tk
@@ -2018,7 +2035,7 @@ method build-tclsh {outfile PROJECT} {
   set EXTERN_OBJS {}
   foreach obj $PKG_OBJS {
     $obj compile
-    set config($obj) [$obj config.sh]
+    set config($obj) [$obj read_configuration]
   }
   set os [$PROJECT define get TEACUP_OS]
   set TCLSRCDIR [$TCLOBJ define get srcdir]
@@ -5377,7 +5394,7 @@ oo::class create ::practcl::subproject.sak {
 ###
 oo::class create ::practcl::subproject.binary {
   superclass ::practcl::subproject
-  
+
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -5387,7 +5404,7 @@ oo::class create ::practcl::subproject.binary {
       ::practcl::domake $builddir clean
     }
   }
-  
+
  method env-install {} {
     ###
     # Handle tea installs
@@ -5466,7 +5483,7 @@ oo::class create ::practcl::subproject.binary {
         set version [my define get version]
         if {$version eq {}} {
           my unpack
-          set info [my config.sh]
+          set info [my read_configuration]
           set version [dict get $info version]
           set pl {}
           if {[dict exists $info patch_level]} {

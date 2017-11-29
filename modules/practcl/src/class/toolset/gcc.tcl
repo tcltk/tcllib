@@ -290,7 +290,7 @@ method build-tclsh {outfile PROJECT} {
       lappend PKG_OBJS $item
     }
   }
-  array set TCL [$TCLOBJ config.sh]
+  array set TCL [$TCLOBJ read_configuration]
 
   set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
@@ -298,7 +298,7 @@ method build-tclsh {outfile PROJECT} {
     $PROJECT define set static_tk 0
   } else {
     ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ config.sh]
+    array set TK  [$TKOBJ read_configuration]
     set do_tk [$TKOBJ define get static]
     $PROJECT define set static_tk $do_tk
     $PROJECT define set tk $do_tk
@@ -322,7 +322,7 @@ method build-tclsh {outfile PROJECT} {
   set EXTERN_OBJS {}
   foreach obj $PKG_OBJS {
     $obj compile
-    set config($obj) [$obj config.sh]
+    set config($obj) [$obj read_configuration]
   }
   set os [$PROJECT define get TEACUP_OS]
   set TCLSRCDIR [$TCLOBJ define get srcdir]

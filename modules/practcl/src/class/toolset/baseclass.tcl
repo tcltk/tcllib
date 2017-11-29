@@ -8,6 +8,10 @@ oo::class create ::practcl::toolset {
   # find or fake a key/value list describing this project
   ###
   method config.sh {} {
+    return [my read_configuration]
+  }
+
+  method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
       return $conf_result
@@ -24,7 +28,7 @@ oo::class create ::practcl::toolset {
     set filename [file join $builddir config.tcl]
     # Project uses the practcl template. Use the leavings from autoconf
     if {[file exists $filename]} {
-      set dat [::practcl::config.tcl $builddir]
+      set dat [::practcl::read_configuration $builddir]
       foreach {item value} [::practcl::sort_dict $dat] {
         dict set result $item $value
       }
@@ -139,16 +143,25 @@ oo::class create ::practcl::toolset {
     if {[my <project> define get CONFIG_SITE] != {}} {
       lappend opts --host=[my <project> define get HOST]
     }
+    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
     if {![my <project> define get LOCAL 0]} {
       set obj [my <project> tclcore]
       if {$obj ne {}} {
-        lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        if {$inside_msys} {
+          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        } else {
+          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+        }
       }
       if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
-          lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          if {$inside_msys} {
+            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tk=[file normalize [$obj define get builddir]]
+          }
         }
       }
     } else {
@@ -177,7 +190,7 @@ oo::class create ::practcl::toolset {
     }
     return $opts
   }
-  
+
   #method unpack {} {
   #  ::practcl::distribution select [self]
   #  my Unpack

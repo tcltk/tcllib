@@ -282,6 +282,10 @@ proc ::practcl::local_os {} {
 # Detect local platform
 ###
 proc ::practcl::config.tcl {path} {
+   return [read_configuration $path]
+}
+
+proc ::practcl::read_configuration {path} {
   dict set result buildpath $path
   set result [local_os]
   set OS [dict get $result TEACUP_OS]
