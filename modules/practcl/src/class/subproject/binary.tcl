@@ -4,7 +4,7 @@
 ###
 oo::class create ::practcl::subproject.binary {
   superclass ::practcl::subproject
-  
+
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -14,7 +14,7 @@ oo::class create ::practcl::subproject.binary {
       ::practcl::domake $builddir clean
     }
   }
-  
+
  method env-install {} {
     ###
     # Handle tea installs
@@ -93,7 +93,7 @@ oo::class create ::practcl::subproject.binary {
         set version [my define get version]
         if {$version eq {}} {
           my unpack
-          set info [my config.sh]
+          set info [my read_configuration]
           set version [dict get $info version]
           set pl {}
           if {[dict exists $info patch_level]} {
