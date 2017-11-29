@@ -2,7 +2,7 @@
 ::oo::class create ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
-  method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
+  method build-compile-sources {PROJECT COMPILE CPPCOMPILE INCLUDES} {
     set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
     set OBJECTS {}
@@ -10,9 +10,7 @@
     set builddir [$PROJECT define get builddir]
     file mkdir [file join $builddir objs]
     set debug [$PROJECT define get debug 0]
-    if {$CPPCOMPILE eq {}} {
-      set CPPCOMPILE $COMPILE
-    }
+
     set task {}
     ###
     # Compile the C sources
@@ -53,6 +51,7 @@
         if {[dict exists $info extra]} {
           append cmd " [dict get $info extra]"
         }
+        append cmd " $INCLUDES"
         append cmd " -c $cfile"
         append cmd " -o $ofilename"
         dict set task $ofile command $cmd
@@ -232,16 +231,16 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
       set COMPILECPP $COMPILE
     }
   } else {
-    set COMPILE "$proj(CC) $proj(CFLAGS) $defs $INCLUDES "
+    set COMPILE "$proj(CC) $proj(CFLAGS) $defs"
 
     if {[info exists proc(CXX)]} {
-      set COMPILECPP "$proj(CXX) $defs $INCLUDES $proj(CFLAGS) $defs"
+      set COMPILECPP "$proj(CXX) $defs $proj(CFLAGS)"
     } else {
       set COMPILECPP $COMPILE
     }
   }
 
-  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP]
+  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP $INCLUDES]
 
   set map {}
   lappend map %LIBRARY_NAME% $proj(name)
@@ -353,13 +352,13 @@ method build-tclsh {outfile PROJECT} {
   set INCLUDES  "-I[join $includedir " -I"]"
   if {$debug} {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_debug) -ggdb \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   } else {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_optimize) \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   }
   append COMPILE " " $defs
-  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE]
+  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE $INCLUDES]
 
   set TCLSRC [file normalize $TCLSRCDIR]
 
