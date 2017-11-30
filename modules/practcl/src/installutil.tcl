@@ -150,7 +150,7 @@ lappend ::PATHSTACK $dir
       set pkg [file tail $teapath]
       append buffer [list set pkg $pkg]
       append buffer {
-set pkginstall [file join $::g(HOME) teapot $pkg]
+set pkginstall [file join $::tcl_teapot $pkg]
 if {![file exists $pkginstall]} {
   installDir [file join $dir teapot $pkg] $pkginstall
 }
