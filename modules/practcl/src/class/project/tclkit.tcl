@@ -306,6 +306,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     }
 
     set fout [open [file join $vfspath packages.tcl] w]
+    puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
 set ::PKGIDXFILE [info script]
 set dir [file dirname $::PKGIDXFILE]
@@ -314,8 +315,9 @@ if {$::tcl_platform(platform) eq "windows"} {
 } else {
   set ::g(HOME) [file normalize ~/tcl]
 }
-lappend ::auto_path [file join $::g(HOME) teapot]
+set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
 }
+    puts $fout {lappend ::auto_path $::tcl_teapot}
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
     set EXEEXT [my define get EXEEXT]
     set tclkit_bare [my define get tclkit_bare]
