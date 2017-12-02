@@ -1082,7 +1082,7 @@ proc ::practcl::_pkgindex_path_subdir {path} {
 # Index all paths given as though they will end up in the same
 # virtual file system
 ###
-proc ::practcl::pkgindex_path args {
+proc ::practcl::pkgindex_path {args} {
   set stack {}
   set buffer {
 lappend ::PATHSTACK $dir
@@ -1106,16 +1106,6 @@ lappend ::PATHSTACK $dir
     }
     set path_indexed($base) 1
     set path_indexed([file join $base boot tcl]) 1
-    foreach teapath [glob -nocomplain [file join $base teapot *]] {
-      set pkg [file tail $teapath]
-      append buffer [list set pkg $pkg]
-      append buffer {
-set pkginstall [file join $::tcl_teapot $pkg]
-if {![file exists $pkginstall]} {
-  installDir [file join $dir teapot $pkg] $pkginstall
-}
-}
-    }
     foreach path $paths {
       if {$path_indexed($path)} continue
       set thisdir [file_relative $base $path]
@@ -4706,11 +4696,9 @@ if {$::tcl_platform(platform) eq "windows"} {
   set ::g(HOME) [file normalize ~/tcl]
 }
 set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+lappend ::auto_path $::tcl_teapot
 }
-    puts $fout {lappend ::auto_path $::tcl_teapot}
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
-    set EXEEXT [my define get EXEEXT]
-    set tclkit_bare [my define get tclkit_bare]
     set buffer [::practcl::pkgindex_path $vfspath]
     puts $fout $buffer
     puts $fout {
@@ -4719,7 +4707,22 @@ foreach {pkg script} [array get ::kitpkg] {
   eval $script
 }
 }
+    puts $fout {
+###
+# Cache binary packages distributed as dynamic libraries in a known location
+###
+foreach teapath [glob -nocomplain [file join $dir teapot $::tcl_teapot_profile *]] {
+  set pkg [file tail $teapath]
+  set pkginstall [file join $::tcl_teapot $pkg]
+  if {![file exists $pkginstall]} {
+    installDir $teapath $pkginstall
+  }
+}
+}
     close $fout
+
+    set EXEEXT [my define get EXEEXT]
+    set tclkit_bare [my define get tclkit_bare]
     ::practcl::mkzip ${exename}${EXEEXT} $tclkit_bare $vfspath
     if { [my define get TEACUP_OS] ne "windows" } {
       file attributes ${exename}${EXEEXT} -permissions a+x

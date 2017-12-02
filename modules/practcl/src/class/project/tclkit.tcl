@@ -316,11 +316,9 @@ if {$::tcl_platform(platform) eq "windows"} {
   set ::g(HOME) [file normalize ~/tcl]
 }
 set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+lappend ::auto_path $::tcl_teapot
 }
-    puts $fout {lappend ::auto_path $::tcl_teapot}
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
-    set EXEEXT [my define get EXEEXT]
-    set tclkit_bare [my define get tclkit_bare]
     set buffer [::practcl::pkgindex_path $vfspath]
     puts $fout $buffer
     puts $fout {
@@ -329,7 +327,22 @@ foreach {pkg script} [array get ::kitpkg] {
   eval $script
 }
 }
+    puts $fout {
+###
+# Cache binary packages distributed as dynamic libraries in a known location
+###
+foreach teapath [glob -nocomplain [file join $dir teapot $::tcl_teapot_profile *]] {
+  set pkg [file tail $teapath]
+  set pkginstall [file join $::tcl_teapot $pkg]
+  if {![file exists $pkginstall]} {
+    installDir $teapath $pkginstall
+  }
+}
+}
     close $fout
+
+    set EXEEXT [my define get EXEEXT]
+    set tclkit_bare [my define get tclkit_bare]
     ::practcl::mkzip ${exename}${EXEEXT} $tclkit_bare $vfspath
     if { [my define get TEACUP_OS] ne "windows" } {
       file attributes ${exename}${EXEEXT} -permissions a+x
