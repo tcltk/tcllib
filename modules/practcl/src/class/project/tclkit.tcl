@@ -63,24 +63,22 @@
     set mainscript [$PROJECT define get main.tcl main.tcl]
     set vfsroot    [$PROJECT define get vfsroot "[$PROJECT define get ZIPFS_VOLUME]app"]
     set vfs_main "${vfsroot}/${mainscript}"
-    set vfs_tcl_library "${vfsroot}/boot/tcl"
-    set vfs_tk_library "${vfsroot}/boot/tk"
 
     set map {}
     foreach var {
-      vfsroot mainhook mainfunc vfs_main vfs_tcl_library vfs_tk_library
+      vfsroot mainhook mainfunc vfs_main
     } {
       dict set map %${var}% [set $var]
     }
     set preinitscript {
-set ::odie(boot_vfs) {%vfsroot%}
-set ::SRCDIR {%vfsroot%}
-if {[file exists {%vfs_tcl_library%}]} {
-  set ::tcl_library {%vfs_tcl_library%}
+set ::odie(boot_vfs) %vfsroot%
+set ::SRCDIR $::odie(boot_vfs)
+if {[file exists [file join %vfsroot% tcl_library init.tcl]]} {
+  set ::tcl_library [file join %vfsroot% tcl_library]
   set ::auto_path {}
 }
-if {[file exists {%vfs_tk_library%}]} {
-  set ::tk_library {%vfs_tk_library%}
+if {[file exists [file join %vfsroot% tk_library tk.tcl]]} {
+  set ::tk_library [file join %vfsroot% tk_library]
 }
 } ; # Preinitscript
 
@@ -98,12 +96,10 @@ if {[file exists {%vfs_tk_library%}]} {
     # We have to initialize the virtual filesystem before calling
     # Tcl_Init().  Otherwise, Tcl_Init() will not be able to find
     # its startup script files.
-    if {[$PROJECT define get tip_430 0]} {
-      ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
-    } else {
-      ::practcl::cputs zvfsboot {  Odie_Zipfs_C_Init(NULL);}
-      ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
+    if {![$PROJECT define get tip_430 0]} {
+      ::practcl::cputs zvfsboot {  TclZipfs_Init(NULL);}
     }
+    ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"app\", NULL)) \x7B "
     ::practcl::cputs zvfsboot {
       Tcl_Obj *vfsinitscript;
       vfsinitscript=Tcl_NewStringObj("%vfs_main%",-1);
@@ -150,7 +146,11 @@ foreach path {
   if ((Tcl_Init)(interp) == TCL_ERROR) {
       return TCL_ERROR;
   }
+
 }
+    if {![$PROJECT define get tip_430 0]} {
+      ::practcl::cputs appinit {  TclZipfs_Init(interp);}
+    }
     set main_init_script {}
 
     foreach {statpkg info} $statpkglist {
@@ -274,7 +274,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       my define set tip_430 0
       ::practcl::LOCAL tool odie unpack
       set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
-      my add [file join $COMPATSRCROOT compat zipfs zipfs.tcl]
+      my add class csource ofile tclZipFs.o filename [file join $COMPATSRCROOT compat tclZipFs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
     my define add include_dir [file join $TCLSRCDIR generic]
@@ -294,7 +294,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       set name  [$item define get name]
       set libsrcdir [$item define get srcdir]
       if {[file exists [file join $libsrcdir library]]} {
-        ::practcl::copyDir [file join $libsrcdir library] [file join $vfspath boot $name]
+        ::practcl::copyDir [file join $libsrcdir library] [file join $vfspath ${name}_library]
       }
     }
     # Assume the user will populate the VFS path
@@ -306,6 +306,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     }
 
     set fout [open [file join $vfspath packages.tcl] w]
+    puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
 set ::PKGIDXFILE [info script]
 set dir [file dirname $::PKGIDXFILE]
@@ -314,11 +315,10 @@ if {$::tcl_platform(platform) eq "windows"} {
 } else {
   set ::g(HOME) [file normalize ~/tcl]
 }
-lappend ::auto_path [file join $::g(HOME) teapot]
+set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+lappend ::auto_path $::tcl_teapot
 }
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
-    set EXEEXT [my define get EXEEXT]
-    set tclkit_bare [my define get tclkit_bare]
     set buffer [::practcl::pkgindex_path $vfspath]
     puts $fout $buffer
     puts $fout {
@@ -327,7 +327,22 @@ foreach {pkg script} [array get ::kitpkg] {
   eval $script
 }
 }
+    puts $fout {
+###
+# Cache binary packages distributed as dynamic libraries in a known location
+###
+foreach teapath [glob -nocomplain [file join $dir teapot $::tcl_teapot_profile *]] {
+  set pkg [file tail $teapath]
+  set pkginstall [file join $::tcl_teapot $pkg]
+  if {![file exists $pkginstall]} {
+    installDir $teapath $pkginstall
+  }
+}
+}
     close $fout
+
+    set EXEEXT [my define get EXEEXT]
+    set tclkit_bare [my define get tclkit_bare]
     ::practcl::mkzip ${exename}${EXEEXT} $tclkit_bare $vfspath
     if { [my define get TEACUP_OS] ne "windows" } {
       file attributes ${exename}${EXEEXT} -permissions a+x

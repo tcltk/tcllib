@@ -1,6 +1,6 @@
 set here [file dirname [file normalize [file join [pwd] [info script]]]]
 
-set version 0.10
+set version 0.10.1
 set module [file tail $here]
 
 set fout [open [file join $here [file tail $module].tcl] w]

@@ -4,7 +4,7 @@ oo::class create ::practcl::subproject {
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -40,6 +40,16 @@ oo::class create ::practcl::subproject {
     if {[dict exists $configdict PRACTCL_PKG_LIBS]} {
       return [dict get $configdict PRACTCL_PKG_LIBS]
     }
+    if {[dict exists $configdict LIBS]} {
+      return [dict get $configdict LIBS]
+    }
+  }
+
+  method linker-extra {configdict} {
+    if {[dict exists $configdict PRACTCL_LINKER_EXTRA]} {
+      return [dict get $configdict PRACTCL_LINKER_EXTRA]
+    }
+    return {}
   }
 
   ###
@@ -47,7 +57,7 @@ oo::class create ::practcl::subproject {
   # possibly built and used internally by this Practcl
   # process
   ###
-  
+
   ###
   # Load the facility into the interpreter
   ###
@@ -67,7 +77,7 @@ oo::class create ::practcl::subproject {
   method env-install {} {
     my unpack
   }
-  
+
   ###
   # Do whatever is necessary to get the tool
   # into the local environment
@@ -83,7 +93,7 @@ oo::class create ::practcl::subproject {
     my env-bootstrap
     set loaded 1
   }
-  
+
   ###
   # Check if tool is available for load/already loaded
   ###
@@ -100,7 +110,7 @@ oo::class create ::practcl::subproject {
   method update {} {
     my ScmUpdate
   }
-  
+
   method unpack {} {
     ::practcl::distribution select [self]
     my Unpack
@@ -126,12 +136,12 @@ oo::class create ::practcl::subproject.source {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
-  
+
   method env-present {} {
     set path [my define get srcdir]
     return [file exists $path]
   }
-  
+
   method linktype {} {
     return {subordinate package source}
   }
@@ -146,7 +156,7 @@ oo::class create ::practcl::subproject.teapot {
     set pkg [my define get pkg_name [my define get name]]
     package require $pkg
   }
-  
+
   method env-install {} {
     set pkg [my define get pkg_name [my define get name]]
     set download [my <project> define get download]
@@ -155,7 +165,7 @@ oo::class create ::practcl::subproject.teapot {
     ::practcl::tcllib_require zipfile::decode
     ::zipfile::decode::unzipfile [file join $download $pkg.zip] [file join $prefix lib $pkg]
   }
-  
+
   method env-present {} {
     set pkg [my define get pkg_name [my define get name]]
     if {[catch [list package require $pkg]]} {
@@ -212,7 +222,7 @@ oo::class create ::practcl::subproject.sak {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
-  
+
   method env-install {} {
     ###
     # Handle teapot installs
@@ -225,14 +235,14 @@ oo::class create ::practcl::subproject.sak {
       -apps -app-path [file join $prefix apps] \
       -html -html-path [file join $prefix doc html $pkg] \
       -pkg-path [file join $prefix lib $pkg]  \
-      -no-nroff -no-wait -no-gui 
+      -no-nroff -no-wait -no-gui
   }
-  
+
   method env-present {} {
     set path [my define get srcdir]
     return [file exists $path]
   }
-  
+
   method install DEST {
     ###
     # Handle teapot installs
