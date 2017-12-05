@@ -8,6 +8,10 @@ oo::class create ::practcl::toolset {
   # find or fake a key/value list describing this project
   ###
   method config.sh {} {
+    return [my read_configuration]
+  }
+
+  method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
       return $conf_result
@@ -24,7 +28,7 @@ oo::class create ::practcl::toolset {
     set filename [file join $builddir config.tcl]
     # Project uses the practcl template. Use the leavings from autoconf
     if {[file exists $filename]} {
-      set dat [::practcl::config.tcl $builddir]
+      set dat [::practcl::read_configuration $builddir]
       foreach {item value} [::practcl::sort_dict $dat] {
         dict set result $item $value
       }
@@ -53,6 +57,9 @@ oo::class create ::practcl::toolset {
     }
     foreach {field dat} [::practcl::read_Makefile $filename] {
       dict set result $field $dat
+    }
+    if {![dict exists $result PRACTCL_PKG_LIBS] && [dict exists $result LIBS]} {
+      dict set result PRACTCL_PKG_LIBS [dict get $result LIBS]
     }
     set conf_result $result
     cd $PWD
@@ -95,13 +102,13 @@ oo::class create ::practcl::toolset {
 
   method critcl args {
     if {![info exists critcl]} {
-      ::pratcl::LOCAL tool critcl load
-      set critcl [file join [::pratcl::LOCAL tool critcl define get srcdir] main.tcl
+      ::practcl::LOCAL tool critcl env-load
+      set critcl [file join [::practcl::LOCAL tool critcl define get srcdir] main.tcl
     }
     set srcdir [my SourceRoot]
     set PWD [pwd]
     cd $srcdir
-    ::pratcl::dotclexec $critcl {*}$args
+    ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
 
@@ -139,26 +146,36 @@ oo::class create ::practcl::toolset {
     if {[my <project> define get CONFIG_SITE] != {}} {
       lappend opts --host=[my <project> define get HOST]
     }
+    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
-    noop {
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir]]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts --with-tcl=$TCLSRCDIR --with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir]]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-    }
+    if {![my <project> define get LOCAL 0]} {
+      set obj [my <project> tclcore]
+      if {$obj ne {}} {
+        if {$inside_msys} {
+          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        } else {
+          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+        }
+      }
+      if {[my define get tk 0]} {
+        set obj [my <project> tkcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tk=[file normalize [$obj define get builddir]]
+          }
+        }
+      }
+    } else {
+      lappend opts --with-tcl=[file join $PREFIX lib]
+      if {[my define get tk 0]} {
+        lappend opts --with-tk=[file join $PREFIX lib]
+      }
     }
     lappend opts {*}[my define get config_opts]
     if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX
+      lappend opts --prefix=$PREFIX --exec-prefix=$PREFIX
     }
     if {[my define get debug 0]} {
       lappend opts --enable-symbols=true

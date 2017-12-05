@@ -21,7 +21,7 @@
         set ofile [my Ofile $filename]
         my define set ofile $ofile
       }
-      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
+      lappend result $ofile [list cfile $filename include [my define get include]  extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
     }
     }
     foreach item [my link list subordinate] {
@@ -652,6 +652,12 @@ oo::objdefine ::practcl::product {
     if {[my define get localpath] eq {}} {
       my define set localpath [my <module> define get localpath]_[my define get name]
     }
+    # Future Development:
+    # Scan source file to see if it is encoded in criticl or practcl notation
+    #set thisline {}
+    #foreach line [split [::practcl::cat $filename] \n] {
+    #
+    #}
     ::source $filename
     if {[my define get output_c] ne {}} {
       # Turn into a module if we have an output_c file

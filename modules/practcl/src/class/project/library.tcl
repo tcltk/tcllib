@@ -207,16 +207,15 @@ char *
       }
     }
     if {[llength $errs]} {
-      set fout [open [file join $::CWD practcl-err.log] w]
-      puts $fout "*** ERRORS ***"
-      puts $fout
+      set logfile [file join $::CWD practcl.log]
+      ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
-        puts $fout "###\n# ERROR\n###$item"
-        puts $fout "###\n# TRACE\n###$trace"
+        ::practcl::log $logfile "###\n# ERROR\n###$item"
+        ::practcl::log $logfile "###\n# TRACE\n###$trace"
       }
-      puts $fout "*** DEBUG INFO ***"
-      puts $fout $::DEBUG_INFO
-      close $fout
+      ::practcl::log $logfile "*** DEBUG INFO ***"
+      ::practcl::log $logfile $::DEBUG_INFO
+      puts stderr "Errors saved to $logfile"
       exit 1
     }
     set cout [open [file join $path [my define get output_c]] w]
@@ -295,7 +294,7 @@ char *
   }
 
 
-  method shared_library {} {
+  method shared_library {{filename {}}} {
     set name [string tolower [my define get name [my define get pkg_name]]]
     set NAME [string toupper $name]
     set version [my define get version [my define get pkg_vers]]
@@ -305,6 +304,19 @@ char *
     lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
     lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
     set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]][my define get SHLIB_SUFFIX]
+    return $outfile
+  }
+
+  method static_library {{filename {}}} {
+    set name [string tolower [my define get name [my define get pkg_name]]]
+    set NAME [string toupper $name]
+    set version [my define get version [my define get pkg_vers]]
+    set map {}
+    lappend map %LIBRARY_NAME% $name
+    lappend map %LIBRARY_VERSION% $version
+    lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
+    lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
+    set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]].a
     return $outfile
   }
 }

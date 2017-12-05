@@ -15,7 +15,8 @@ oo::class create ::practcl::subproject.core {
     set opts [my ConfigureOpts]
     set builddir [file normalize [my define get builddir]]
     set localsrcdir [file normalize [my define get localsrcdir]]
-    puts [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::debug [self] CONFIGURE {*}$opts
+    file mkdir $builddir
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
@@ -38,6 +39,37 @@ oo::class create ::practcl::subproject.core {
     #--exec_prefix=$PREFIX
     lappend opts --disable-shared
     return $opts
+  }
+
+  method env-bootstrap {} {}
+
+  method env-present {} {
+    set PREFIX [my <project> define get prefix]
+    set name [my define get name]
+    set fname [file join $PREFIX lib ${name}Config.sh]
+    return [file exists $fname]
+  }
+
+  method env-install {} {
+    my unpack
+    set os [::practcl::local_os]
+    switch [my define get name] {
+      tcl {
+        set options [::practcl::platform::tcl_core_options $os]
+      }
+      tk {
+        set options [::practcl::platform::tk_core_options $os]
+      }
+      default {
+        set options {}
+      }
+    }
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    lappend options --prefix $prefix --exec-prefix $prefix
+    my define set config_opts $options
+    my go
+    my compile
+    ::practcl::domake [my define get builddir] install
   }
 
   method go {} {
