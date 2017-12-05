@@ -1219,6 +1219,8 @@ compiled Tcl extension.  See
 [para]
 Michael Doyle <miked@eolas.com> has code that implements the Tcl-DP
 RPC interface using standard Tcl sockets, much like [package comm].
+The DpTcl package is available at
+[uri http://chiselapp.com/user/gwlester/repository/DpTcl].
 
 [para]
 Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
