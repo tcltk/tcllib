@@ -207,7 +207,7 @@ char *
       }
     }
     if {[llength $errs]} {
-      set logfile [file join $::CWD practcl.log]      
+      set logfile [file join $::CWD practcl.log]
       ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
         ::practcl::log $logfile "###\n# ERROR\n###$item"
@@ -294,7 +294,7 @@ char *
   }
 
 
-  method shared_library {} {
+  method shared_library {{filename {}}} {
     set name [string tolower [my define get name [my define get pkg_name]]]
     set NAME [string toupper $name]
     set version [my define get version [my define get pkg_vers]]
@@ -304,6 +304,19 @@ char *
     lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
     lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
     set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]][my define get SHLIB_SUFFIX]
+    return $outfile
+  }
+
+  method static_library {{filename {}}} {
+    set name [string tolower [my define get name [my define get pkg_name]]]
+    set NAME [string toupper $name]
+    set version [my define get version [my define get pkg_vers]]
+    set map {}
+    lappend map %LIBRARY_NAME% $name
+    lappend map %LIBRARY_VERSION% $version
+    lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
+    lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
+    set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]].a
     return $outfile
   }
 }

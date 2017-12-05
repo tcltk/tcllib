@@ -38,6 +38,10 @@
     my initialize
   }
 
+  method add_object object {
+    my link object $object
+  }
+
   method add_project {pkg info {oodefine {}}} {
     ::practcl::debug [self] add_project $pkg $info
     set os [my define get TEACUP_OS]

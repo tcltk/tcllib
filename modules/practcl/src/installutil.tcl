@@ -122,7 +122,7 @@ proc ::practcl::_pkgindex_path_subdir {path} {
 # Index all paths given as though they will end up in the same
 # virtual file system
 ###
-proc ::practcl::pkgindex_path args {
+proc ::practcl::pkgindex_path {args} {
   set stack {}
   set buffer {
 lappend ::PATHSTACK $dir
@@ -146,16 +146,6 @@ lappend ::PATHSTACK $dir
     }
     set path_indexed($base) 1
     set path_indexed([file join $base boot tcl]) 1
-    foreach teapath [glob -nocomplain [file join $base teapot *]] {
-      set pkg [file tail $teapath]
-      append buffer [list set pkg $pkg]
-      append buffer {
-set pkginstall [file join $::g(HOME) teapot $pkg]
-if {![file exists $pkginstall]} {
-  installDir [file join $dir teapot $pkg] $pkginstall
-}
-}
-    }
     foreach path $paths {
       if {$path_indexed($path)} continue
       set thisdir [file_relative $base $path]

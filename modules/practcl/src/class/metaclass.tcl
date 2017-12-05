@@ -4,7 +4,7 @@
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}
   }
-  
+
   method define {submethod args} {
     my variable define
     switch $submethod {
@@ -176,7 +176,7 @@
     }
     if {[::info exists define(oodefine)]} {
       ::oo::objdefine [self] $define(oodefine)
-      unset define(oodefine)
+      #unset define(oodefine)
     }
   }
 
@@ -232,7 +232,7 @@
     } else {
       if {[::info exists define(oodefine)]} {
         ::oo::objdefine [self] $define(oodefine)
-        unset define(oodefine)
+        #unset define(oodefine)
       }
     }
   }

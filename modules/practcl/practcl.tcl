@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.10
+package provide practcl 0.10.1
 namespace eval ::practcl {}
 
 ###
@@ -381,6 +381,10 @@ proc ::practcl::local_os {} {
 # Detect local platform
 ###
 proc ::practcl::config.tcl {path} {
+   return [read_configuration $path]
+}
+
+proc ::practcl::read_configuration {path} {
   dict set result buildpath $path
   set result [local_os]
   set OS [dict get $result TEACUP_OS]
@@ -1078,7 +1082,7 @@ proc ::practcl::_pkgindex_path_subdir {path} {
 # Index all paths given as though they will end up in the same
 # virtual file system
 ###
-proc ::practcl::pkgindex_path args {
+proc ::practcl::pkgindex_path {args} {
   set stack {}
   set buffer {
 lappend ::PATHSTACK $dir
@@ -1102,16 +1106,6 @@ lappend ::PATHSTACK $dir
     }
     set path_indexed($base) 1
     set path_indexed([file join $base boot tcl]) 1
-    foreach teapath [glob -nocomplain [file join $base teapot *]] {
-      set pkg [file tail $teapath]
-      append buffer [list set pkg $pkg]
-      append buffer {
-set pkginstall [file join $::g(HOME) teapot $pkg]
-if {![file exists $pkginstall]} {
-  installDir [file join $dir teapot $pkg] $pkginstall
-}
-}
-    }
     foreach path $paths {
       if {$path_indexed($path)} continue
       set thisdir [file_relative $base $path]
@@ -1234,7 +1228,7 @@ proc ::practcl::target {name info} {
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}
   }
-  
+
   method define {submethod args} {
     my variable define
     switch $submethod {
@@ -1406,7 +1400,7 @@ proc ::practcl::target {name info} {
     }
     if {[::info exists define(oodefine)]} {
       ::oo::objdefine [self] $define(oodefine)
-      unset define(oodefine)
+      #unset define(oodefine)
     }
   }
 
@@ -1462,7 +1456,7 @@ proc ::practcl::target {name info} {
     } else {
       if {[::info exists define(oodefine)]} {
         ::oo::objdefine [self] $define(oodefine)
-        unset define(oodefine)
+        #unset define(oodefine)
       }
     }
   }
@@ -1488,6 +1482,10 @@ oo::class create ::practcl::toolset {
   # find or fake a key/value list describing this project
   ###
   method config.sh {} {
+    return [my read_configuration]
+  }
+
+  method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
       return $conf_result
@@ -1504,7 +1502,7 @@ oo::class create ::practcl::toolset {
     set filename [file join $builddir config.tcl]
     # Project uses the practcl template. Use the leavings from autoconf
     if {[file exists $filename]} {
-      set dat [::practcl::config.tcl $builddir]
+      set dat [::practcl::read_configuration $builddir]
       foreach {item value} [::practcl::sort_dict $dat] {
         dict set result $item $value
       }
@@ -1533,6 +1531,9 @@ oo::class create ::practcl::toolset {
     }
     foreach {field dat} [::practcl::read_Makefile $filename] {
       dict set result $field $dat
+    }
+    if {![dict exists $result PRACTCL_PKG_LIBS] && [dict exists $result LIBS]} {
+      dict set result PRACTCL_PKG_LIBS [dict get $result LIBS]
     }
     set conf_result $result
     cd $PWD
@@ -1619,16 +1620,25 @@ oo::class create ::practcl::toolset {
     if {[my <project> define get CONFIG_SITE] != {}} {
       lappend opts --host=[my <project> define get HOST]
     }
+    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
     if {![my <project> define get LOCAL 0]} {
       set obj [my <project> tclcore]
       if {$obj ne {}} {
-        lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        if {$inside_msys} {
+          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        } else {
+          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+        }
       }
       if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
-          lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          if {$inside_msys} {
+            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tk=[file normalize [$obj define get builddir]]
+          }
         }
       }
     } else {
@@ -1657,7 +1667,7 @@ oo::class create ::practcl::toolset {
     }
     return $opts
   }
-  
+
   #method unpack {} {
   #  ::practcl::distribution select [self]
   #  my Unpack
@@ -1698,7 +1708,7 @@ oo::objdefine ::practcl::toolset {
 ::oo::class create ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
-  method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
+  method build-compile-sources {PROJECT COMPILE CPPCOMPILE INCLUDES} {
     set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
     set OBJECTS {}
@@ -1706,9 +1716,7 @@ oo::objdefine ::practcl::toolset {
     set builddir [$PROJECT define get builddir]
     file mkdir [file join $builddir objs]
     set debug [$PROJECT define get debug 0]
-    if {$CPPCOMPILE eq {}} {
-      set CPPCOMPILE $COMPILE
-    }
+
     set task {}
     ###
     # Compile the C sources
@@ -1749,6 +1757,7 @@ oo::objdefine ::practcl::toolset {
         if {[dict exists $info extra]} {
           append cmd " [dict get $info extra]"
         }
+        append cmd " $INCLUDES"
         append cmd " -c $cfile"
         append cmd " -o $ofilename"
         dict set task $ofile command $cmd
@@ -1928,16 +1937,16 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
       set COMPILECPP $COMPILE
     }
   } else {
-    set COMPILE "$proj(CC) $proj(CFLAGS) $defs $INCLUDES "
+    set COMPILE "$proj(CC) $proj(CFLAGS) $defs"
 
     if {[info exists proc(CXX)]} {
-      set COMPILECPP "$proj(CXX) $defs $INCLUDES $proj(CFLAGS) $defs"
+      set COMPILECPP "$proj(CXX) $defs $proj(CFLAGS)"
     } else {
       set COMPILECPP $COMPILE
     }
   }
 
-  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP]
+  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP $INCLUDES]
 
   set map {}
   lappend map %LIBRARY_NAME% $proj(name)
@@ -1987,7 +1996,7 @@ method build-tclsh {outfile PROJECT} {
       lappend PKG_OBJS $item
     }
   }
-  array set TCL [$TCLOBJ config.sh]
+  array set TCL [$TCLOBJ read_configuration]
 
   set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
@@ -1995,7 +2004,7 @@ method build-tclsh {outfile PROJECT} {
     $PROJECT define set static_tk 0
   } else {
     ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ config.sh]
+    array set TK  [$TKOBJ read_configuration]
     set do_tk [$TKOBJ define get static]
     $PROJECT define set static_tk $do_tk
     $PROJECT define set tk $do_tk
@@ -2019,7 +2028,7 @@ method build-tclsh {outfile PROJECT} {
   set EXTERN_OBJS {}
   foreach obj $PKG_OBJS {
     $obj compile
-    set config($obj) [$obj config.sh]
+    set config($obj) [$obj read_configuration]
   }
   set os [$PROJECT define get TEACUP_OS]
   set TCLSRCDIR [$TCLOBJ define get srcdir]
@@ -2049,13 +2058,13 @@ method build-tclsh {outfile PROJECT} {
   set INCLUDES  "-I[join $includedir " -I"]"
   if {$debug} {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_debug) -ggdb \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   } else {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_optimize) \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   }
   append COMPILE " " $defs
-  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE]
+  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE $INCLUDES]
 
   set TCLSRC [file normalize $TCLSRCDIR]
 
@@ -2147,13 +2156,20 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     }
   }
   foreach obj $PKG_OBJS {
+    puts [list Checking $obj for external dependencies]
     foreach item [$obj linker-external $config($obj)] {
+      puts [list $obj adds $item]
       if {[string range $item 0 1] eq "-l" && $item in $LIBS } continue
       lappend LIBS $item
     }
   }
   append cmd " ${LIBS}"
-
+  foreach obj $PKG_OBJS {
+    puts [list Checking $obj for additional link items]
+    foreach item [$obj linker-extra $config($obj)] {
+      append cmd $item
+    }
+  }
   if {$debug && $os eq "windows"} {
     append cmd " -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
     if {[$PROJECT define get static_tk]} {
@@ -2954,7 +2970,7 @@ const static Tcl_ObjectMetadataType @NAME@DataType = {
         set ofile [my Ofile $filename]
         my define set ofile $ofile
       }
-      lappend result $ofile [list cfile $filename extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
+      lappend result $ofile [list cfile $filename include [my define get include]  extra [my define get extra] external [string is true -strict [my define get external]] object [self]]
     }
     }
     foreach item [my link list subordinate] {
@@ -3890,6 +3906,10 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     my initialize
   }
 
+  method add_object object {
+    my link object $object
+  }
+
   method add_project {pkg info {oodefine {}}} {
     ::practcl::debug [self] add_project $pkg $info
     set os [my define get TEACUP_OS]
@@ -4265,7 +4285,7 @@ char *
       }
     }
     if {[llength $errs]} {
-      set logfile [file join $::CWD practcl.log]      
+      set logfile [file join $::CWD practcl.log]
       ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
         ::practcl::log $logfile "###\n# ERROR\n###$item"
@@ -4352,7 +4372,7 @@ char *
   }
 
 
-  method shared_library {} {
+  method shared_library {{filename {}}} {
     set name [string tolower [my define get name [my define get pkg_name]]]
     set NAME [string toupper $name]
     set version [my define get version [my define get pkg_vers]]
@@ -4362,6 +4382,19 @@ char *
     lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
     lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
     set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]][my define get SHLIB_SUFFIX]
+    return $outfile
+  }
+
+  method static_library {{filename {}}} {
+    set name [string tolower [my define get name [my define get pkg_name]]]
+    set NAME [string toupper $name]
+    set version [my define get version [my define get pkg_vers]]
+    set map {}
+    lappend map %LIBRARY_NAME% $name
+    lappend map %LIBRARY_VERSION% $version
+    lappend map %LIBRARY_VERSION_NODOTS% [string map {. {}} $version]
+    lappend map %LIBRARY_PREFIX% [my define getnull libprefix]
+    set outfile [string map $map [my define get PRACTCL_NAME_LIBRARY]].a
     return $outfile
   }
 }
@@ -4437,24 +4470,22 @@ char *
     set mainscript [$PROJECT define get main.tcl main.tcl]
     set vfsroot    [$PROJECT define get vfsroot "[$PROJECT define get ZIPFS_VOLUME]app"]
     set vfs_main "${vfsroot}/${mainscript}"
-    set vfs_tcl_library "${vfsroot}/boot/tcl"
-    set vfs_tk_library "${vfsroot}/boot/tk"
 
     set map {}
     foreach var {
-      vfsroot mainhook mainfunc vfs_main vfs_tcl_library vfs_tk_library
+      vfsroot mainhook mainfunc vfs_main
     } {
       dict set map %${var}% [set $var]
     }
     set preinitscript {
-set ::odie(boot_vfs) {%vfsroot%}
-set ::SRCDIR {%vfsroot%}
-if {[file exists {%vfs_tcl_library%}]} {
-  set ::tcl_library {%vfs_tcl_library%}
+set ::odie(boot_vfs) %vfsroot%
+set ::SRCDIR $::odie(boot_vfs)
+if {[file exists [file join %vfsroot% tcl_library init.tcl]]} {
+  set ::tcl_library [file join %vfsroot% tcl_library]
   set ::auto_path {}
 }
-if {[file exists {%vfs_tk_library%}]} {
-  set ::tk_library {%vfs_tk_library%}
+if {[file exists [file join %vfsroot% tk_library tk.tcl]]} {
+  set ::tk_library [file join %vfsroot% tk_library]
 }
 } ; # Preinitscript
 
@@ -4472,12 +4503,10 @@ if {[file exists {%vfs_tk_library%}]} {
     # We have to initialize the virtual filesystem before calling
     # Tcl_Init().  Otherwise, Tcl_Init() will not be able to find
     # its startup script files.
-    if {[$PROJECT define get tip_430 0]} {
-      ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
-    } else {
-      ::practcl::cputs zvfsboot {  Odie_Zipfs_C_Init(NULL);}
-      ::practcl::cputs zvfsboot "  if(!Odie_Zipfs_Mount(NULL, archive, \"%vfsroot%\", NULL)) \x7B "
+    if {![$PROJECT define get tip_430 0]} {
+      ::practcl::cputs zvfsboot {  TclZipfs_Init(NULL);}
     }
+    ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"app\", NULL)) \x7B "
     ::practcl::cputs zvfsboot {
       Tcl_Obj *vfsinitscript;
       vfsinitscript=Tcl_NewStringObj("%vfs_main%",-1);
@@ -4524,7 +4553,11 @@ foreach path {
   if ((Tcl_Init)(interp) == TCL_ERROR) {
       return TCL_ERROR;
   }
+
 }
+    if {![$PROJECT define get tip_430 0]} {
+      ::practcl::cputs appinit {  TclZipfs_Init(interp);}
+    }
     set main_init_script {}
 
     foreach {statpkg info} $statpkglist {
@@ -4648,7 +4681,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       my define set tip_430 0
       ::practcl::LOCAL tool odie unpack
       set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
-      my add [file join $COMPATSRCROOT compat zipfs zipfs.tcl]
+      my add class csource ofile tclZipFs.o filename [file join $COMPATSRCROOT compat tclZipFs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
     my define add include_dir [file join $TCLSRCDIR generic]
@@ -4668,7 +4701,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       set name  [$item define get name]
       set libsrcdir [$item define get srcdir]
       if {[file exists [file join $libsrcdir library]]} {
-        ::practcl::copyDir [file join $libsrcdir library] [file join $vfspath boot $name]
+        ::practcl::copyDir [file join $libsrcdir library] [file join $vfspath ${name}_library]
       }
     }
     # Assume the user will populate the VFS path
@@ -4680,6 +4713,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     }
 
     set fout [open [file join $vfspath packages.tcl] w]
+    puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
 set ::PKGIDXFILE [info script]
 set dir [file dirname $::PKGIDXFILE]
@@ -4688,11 +4722,10 @@ if {$::tcl_platform(platform) eq "windows"} {
 } else {
   set ::g(HOME) [file normalize ~/tcl]
 }
-lappend ::auto_path [file join $::g(HOME) teapot]
+set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+lappend ::auto_path $::tcl_teapot
 }
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
-    set EXEEXT [my define get EXEEXT]
-    set tclkit_bare [my define get tclkit_bare]
     set buffer [::practcl::pkgindex_path $vfspath]
     puts $fout $buffer
     puts $fout {
@@ -4701,7 +4734,22 @@ foreach {pkg script} [array get ::kitpkg] {
   eval $script
 }
 }
+    puts $fout {
+###
+# Cache binary packages distributed as dynamic libraries in a known location
+###
+foreach teapath [glob -nocomplain [file join $dir teapot $::tcl_teapot_profile *]] {
+  set pkg [file tail $teapath]
+  set pkginstall [file join $::tcl_teapot $pkg]
+  if {![file exists $pkginstall]} {
+    installDir $teapath $pkginstall
+  }
+}
+}
     close $fout
+
+    set EXEEXT [my define get EXEEXT]
+    set tclkit_bare [my define get tclkit_bare]
     ::practcl::mkzip ${exename}${EXEEXT} $tclkit_bare $vfspath
     if { [my define get TEACUP_OS] ne "windows" } {
       file attributes ${exename}${EXEEXT} -permissions a+x
@@ -5122,7 +5170,7 @@ oo::class create ::practcl::subproject {
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -5158,6 +5206,16 @@ oo::class create ::practcl::subproject {
     if {[dict exists $configdict PRACTCL_PKG_LIBS]} {
       return [dict get $configdict PRACTCL_PKG_LIBS]
     }
+    if {[dict exists $configdict LIBS]} {
+      return [dict get $configdict LIBS]
+    }
+  }
+
+  method linker-extra {configdict} {
+    if {[dict exists $configdict PRACTCL_LINKER_EXTRA]} {
+      return [dict get $configdict PRACTCL_LINKER_EXTRA]
+    }
+    return {}
   }
 
   ###
@@ -5165,7 +5223,7 @@ oo::class create ::practcl::subproject {
   # possibly built and used internally by this Practcl
   # process
   ###
-  
+
   ###
   # Load the facility into the interpreter
   ###
@@ -5185,7 +5243,7 @@ oo::class create ::practcl::subproject {
   method env-install {} {
     my unpack
   }
-  
+
   ###
   # Do whatever is necessary to get the tool
   # into the local environment
@@ -5201,7 +5259,7 @@ oo::class create ::practcl::subproject {
     my env-bootstrap
     set loaded 1
   }
-  
+
   ###
   # Check if tool is available for load/already loaded
   ###
@@ -5218,7 +5276,7 @@ oo::class create ::practcl::subproject {
   method update {} {
     my ScmUpdate
   }
-  
+
   method unpack {} {
     ::practcl::distribution select [self]
     my Unpack
@@ -5244,12 +5302,12 @@ oo::class create ::practcl::subproject.source {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
-  
+
   method env-present {} {
     set path [my define get srcdir]
     return [file exists $path]
   }
-  
+
   method linktype {} {
     return {subordinate package source}
   }
@@ -5264,7 +5322,7 @@ oo::class create ::practcl::subproject.teapot {
     set pkg [my define get pkg_name [my define get name]]
     package require $pkg
   }
-  
+
   method env-install {} {
     set pkg [my define get pkg_name [my define get name]]
     set download [my <project> define get download]
@@ -5273,7 +5331,7 @@ oo::class create ::practcl::subproject.teapot {
     ::practcl::tcllib_require zipfile::decode
     ::zipfile::decode::unzipfile [file join $download $pkg.zip] [file join $prefix lib $pkg]
   }
-  
+
   method env-present {} {
     set pkg [my define get pkg_name [my define get name]]
     if {[catch [list package require $pkg]]} {
@@ -5330,7 +5388,7 @@ oo::class create ::practcl::subproject.sak {
       set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
     }
   }
-  
+
   method env-install {} {
     ###
     # Handle teapot installs
@@ -5343,14 +5401,14 @@ oo::class create ::practcl::subproject.sak {
       -apps -app-path [file join $prefix apps] \
       -html -html-path [file join $prefix doc html $pkg] \
       -pkg-path [file join $prefix lib $pkg]  \
-      -no-nroff -no-wait -no-gui 
+      -no-nroff -no-wait -no-gui
   }
-  
+
   method env-present {} {
     set path [my define get srcdir]
     return [file exists $path]
   }
-  
+
   method install DEST {
     ###
     # Handle teapot installs
@@ -5378,7 +5436,7 @@ oo::class create ::practcl::subproject.sak {
 ###
 oo::class create ::practcl::subproject.binary {
   superclass ::practcl::subproject
-  
+
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -5388,7 +5446,7 @@ oo::class create ::practcl::subproject.binary {
       ::practcl::domake $builddir clean
     }
   }
-  
+
  method env-install {} {
     ###
     # Handle tea installs
@@ -5467,7 +5525,7 @@ oo::class create ::practcl::subproject.binary {
         set version [my define get version]
         if {$version eq {}} {
           my unpack
-          set info [my config.sh]
+          set info [my read_configuration]
           set version [dict get $info version]
           set pl {}
           if {[dict exists $info patch_level]} {
