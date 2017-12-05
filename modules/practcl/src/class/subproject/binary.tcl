@@ -4,6 +4,7 @@
 ###
 oo::class create ::practcl::subproject.binary {
   superclass ::practcl::subproject
+
   method clean {} {
     set builddir [file normalize [my define get builddir]]
     if {![file exists $builddir]} return
@@ -12,6 +13,24 @@ oo::class create ::practcl::subproject.binary {
     } else {
       ::practcl::domake $builddir clean
     }
+  }
+
+ method env-install {} {
+    ###
+    # Handle tea installs
+    ###
+    set pkg [my define get pkg_name [my define get name]]
+    set os [::practcl::local_os]
+    my define set os $os
+    my unpack
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set srcdir [my define get srcdir]
+    lappend options --prefix $prefix --exec-prefix $prefix
+    my define set config_opts $options
+    my go
+    my clean
+    my compile
+    ::practcl::domake [my define get builddir] install
   }
 
   method project-compile-products {} {}
@@ -74,7 +93,7 @@ oo::class create ::practcl::subproject.binary {
         set version [my define get version]
         if {$version eq {}} {
           my unpack
-          set info [my config.sh]
+          set info [my read_configuration]
           set version [dict get $info version]
           set pl {}
           if {[dict exists $info patch_level]} {
@@ -98,10 +117,14 @@ oo::class create ::practcl::subproject.binary {
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
+    set project [my organ project]
+    if {[$project define get LOCAL 0]} {
+      return [my define get builddir [file join $PWD local $name]]
+    }
     if {$debug} {
-      return [my define get builddir [file join $PWD pkg.debug.$name]]
+      return [my define get builddir [file join $PWD debug $name]]
     } else {
-      return [my define get builddir [file join $PWD pkg.$name]]
+      return [my define get builddir [file join $PWD pkg $name]]
     }
   }
 
@@ -126,18 +149,16 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       cd $srcdir
       if {[file exists [file join $srcdir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $srcdir debug all
         } else {
           ::practcl::domake.tcl $srcdir all
         }
       } else {
         if {[file exists [file join $srcdir makefile.vc]]} {
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } elseif {[file exists [file join $srcdir win makefile.vc]]} {
           cd [file join $srcdir win]
-          puts "Building in [pwd]"
           ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
         } else {
           error "No make.tcl or makefile.vc found for project $name"
@@ -151,7 +172,7 @@ oo::class create ::practcl::subproject.binary {
         my Configure
       }
       if {[file exists [file join $builddir make.tcl]]} {
-        if {[my define get debug 1]} {
+        if {[my define get debug 0]} {
           ::practcl::domake.tcl $builddir debug all
         } else {
           ::practcl::domake.tcl $builddir all
@@ -173,13 +194,13 @@ oo::class create ::practcl::subproject.binary {
     if {[my define get USEMSVC 0]} {
       return
     }
-    if {[file exists [file join $builddir practcl.log]]} {
-      file delete [file join $builddir practcl.log]
+    if {[file exists [file join $builddir autoconf.log]]} {
+      file delete [file join $builddir autoconf.log]
     }
     if {![file exists [file join $srcdir configure]]} {
       if {[file exists [file join $srcdir autogen.sh]]} {
         cd $srcdir
-        catch {exec sh autogen.sh >>& [file join $builddir practcl.log]}
+        catch {exec sh autogen.sh >>& [file join $builddir autoconf.log]}
         cd $::CWD
       }
     }
@@ -202,11 +223,12 @@ oo::class create ::practcl::subproject.binary {
 
     set opts [my ConfigureOpts]
     ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::log   [file join $builddir autoconf.log] [list  CONFIGURE {*}$opts]
     cd $builddir
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
-    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir practcl.log]}
+    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }
 
@@ -244,7 +266,7 @@ oo::class create ::practcl::subproject.binary {
       } elseif {[my define get broken_destroot 0] == 0} {
         # Most modern TEA projects understand DESTROOT in the makefile
         puts "[self] VFS INSTALL $DEST (TEA)"
-        ::practcl::domake $builddir install DESTDIR=$DEST
+        ::practcl::domake $builddir install DESTDIR=[::practcl::file_relative $builddir $DEST]
       } else {
         # But some require us to do an install into a fictitious filesystem
         # and then extract the gooey parts within.
@@ -278,6 +300,11 @@ oo::class create ::practcl::subproject.binary {
     }
     cd $pwd
   }
+}
+
+oo::class create ::practcl::subproject.tea {
+  superclass ::practcl::subproject.binary
+
 }
 
 oo::class create ::practcl::subproject.library {

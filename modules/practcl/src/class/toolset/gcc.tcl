@@ -2,7 +2,7 @@
 ::oo::class create ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
-  method build-compile-sources {PROJECT COMPILE {CPPCOMPILE {}}} {
+  method build-compile-sources {PROJECT COMPILE CPPCOMPILE INCLUDES} {
     set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
     set OBJECTS {}
@@ -10,9 +10,7 @@
     set builddir [$PROJECT define get builddir]
     file mkdir [file join $builddir objs]
     set debug [$PROJECT define get debug 0]
-    if {$CPPCOMPILE eq {}} {
-      set CPPCOMPILE $COMPILE
-    }
+
     set task {}
     ###
     # Compile the C sources
@@ -53,6 +51,7 @@
         if {[dict exists $info extra]} {
           append cmd " [dict get $info extra]"
         }
+        append cmd " $INCLUDES"
         append cmd " -c $cfile"
         append cmd " -o $ofilename"
         dict set task $ofile command $cmd
@@ -232,16 +231,16 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
       set COMPILECPP $COMPILE
     }
   } else {
-    set COMPILE "$proj(CC) $proj(CFLAGS) $defs $INCLUDES "
+    set COMPILE "$proj(CC) $proj(CFLAGS) $defs"
 
     if {[info exists proc(CXX)]} {
-      set COMPILECPP "$proj(CXX) $defs $INCLUDES $proj(CFLAGS) $defs"
+      set COMPILECPP "$proj(CXX) $defs $proj(CFLAGS)"
     } else {
       set COMPILECPP $COMPILE
     }
   }
 
-  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP]
+  set products [my build-compile-sources $PROJECT $COMPILE $COMPILECPP $INCLUDES]
 
   set map {}
   lappend map %LIBRARY_NAME% $proj(name)
@@ -278,7 +277,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 method build-tclsh {outfile PROJECT} {
   puts " BUILDING STATIC TCLSH "
-  set TCLOBJ [$PROJECT project TCLCORE]
+  set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
   foreach item [$PROJECT link list core.library] {
@@ -291,15 +290,15 @@ method build-tclsh {outfile PROJECT} {
       lappend PKG_OBJS $item
     }
   }
-  array set TCL [$TCLOBJ config.sh]
+  array set TCL [$TCLOBJ read_configuration]
 
-  set TKOBJ  [$PROJECT project tk]
+  set TKOBJ  [$PROJECT tkcore]
   if {[info command $TKOBJ] eq {}} {
     set TKOBJ ::noop
     $PROJECT define set static_tk 0
   } else {
     ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ config.sh]
+    array set TK  [$TKOBJ read_configuration]
     set do_tk [$TKOBJ define get static]
     $PROJECT define set static_tk $do_tk
     $PROJECT define set tk $do_tk
@@ -323,7 +322,7 @@ method build-tclsh {outfile PROJECT} {
   set EXTERN_OBJS {}
   foreach obj $PKG_OBJS {
     $obj compile
-    set config($obj) [$obj config.sh]
+    set config($obj) [$obj read_configuration]
   }
   set os [$PROJECT define get TEACUP_OS]
   set TCLSRCDIR [$TCLOBJ define get srcdir]
@@ -353,13 +352,13 @@ method build-tclsh {outfile PROJECT} {
   set INCLUDES  "-I[join $includedir " -I"]"
   if {$debug} {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_debug) -ggdb \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   } else {
       set COMPILE "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_optimize) \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+$TCL(cflags_warning) $TCL(extra_cflags)"
   }
   append COMPILE " " $defs
-  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE]
+  lappend OBJECTS {*}[my build-compile-sources $PROJECT $COMPILE $COMPILE $INCLUDES]
 
   set TCLSRC [file normalize $TCLSRCDIR]
 
@@ -367,10 +366,15 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
     set windres [$PROJECT define get RC windres]
     set RSOBJ [file join $path build tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
+    set RCMAN [${PROJECT} define get kit_manifest_file]
+
     set cmd [list $windres -o $RSOBJ -DSTATIC_BUILD --include [::practcl::file_relative $path [file join $TCLSRC generic]]]
     if {[$PROJECT define get static_tk]} {
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TKSRCDIR win rc wish.rc]
+      }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
@@ -380,69 +384,108 @@ $TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
         set RCSRC [file join $TCLSRCDIR tclsh.rc]
       }
+      if {$RCMAN eq {} || ![file exists $RCMAN]} {
+        set RCMAN [file join [$TCLOBJ define get builddir] tclsh.exe.manifest]
+      }
     }
     foreach item [${PROJECT} define get resource_include] {
       lappend cmd --include [::practcl::file_relative $path [file normalize $item]]
     }
-    lappend cmd $RCSRC
+    lappend cmd [file tail $RCSRC]
+    if {![file exists [file join $path [file tail $RCSRC]]]} {
+      file copy -force $RCSRC [file join $path [file tail $RCSRC]]
+    }
+    if {![file exists [file join $path [file tail $RCMAN]]]} {
+      file copy -force $RCMAN [file join $path [file tail $RCMAN]]
+    }
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ
-    set LDFLAGS_CONSOLE {-mconsole -pipe -static-libgcc}
-    set LDFLAGS_WINDOW  {-mwindows -pipe -static-libgcc}
-  } else {
-    set LDFLAGS_CONSOLE {}
-    set LDFLAGS_WINDOW  {}
   }
   puts "***"
+  set cmd "$TCL(cc)"
   if {$debug} {
-    set cmd "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_debug) \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+   append cmd " $TCL(cflags_debug)"
   } else {
-    set cmd "$TCL(cc) $TCL(shlib_cflags) $TCL(cflags_optimize) \
-$TCL(cflags_warning) $TCL(extra_cflags) $INCLUDES"
+   append cmd " $TCL(cflags_optimize)"
   }
+  append cmd " $TCL(ld_flags)"
+  if {$debug} {
+   append cmd " $TCL(ldflags_debug)"
+  } else {
+   append cmd " $TCL(ldflags_optimize)"
+  }
+
   append cmd " $OBJECTS"
-  append cmd " $EXTERN_OBJS "
-  # On OSX it is impossibly to generate a completely static
-  # executable
-  if {[$PROJECT define get TEACUP_OS] ne "macosx"} {
-    append cmd " -static "
-  }
+  append cmd " $EXTERN_OBJS"
   if {$debug && $os eq "windows"} {
+    append cmd " -static"
     append cmd " -L${TCL(src_dir)}/win -ltcl86g"
     if {[$PROJECT define get static_tk]} {
       append cmd " -L${TK(src_dir)}/win -ltk86g"
     }
   } else {
-    append cmd "\n $TCL(build_lib_spec)"
+    append cmd " $TCL(build_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd  "\n $TK(build_lib_spec)"
+      append cmd  " $TK(build_lib_spec)"
     }
   }
   foreach obj $PKG_OBJS {
-    append cmd "\n [$obj linker-products $config($obj)] "
+    append cmd " [$obj linker-products $config($obj)]"
   }
-  append cmd "\n $TCL(libs) "
+  set LIBS {}
+  foreach item $TCL(libs) {
+    if {[string range $item 0 1] eq "-l" && $item in $LIBS } continue
+    lappend LIBS $item
+  }
   if {[$PROJECT define get static_tk]} {
-    append cmd "\n $TK(libs) "
+    foreach item $TK(libs) {
+      if {[string range $item 0 1] eq "-l" && $item in $LIBS } continue
+      lappend LIBS $item
+    }
+  }
+  if {[info exists TCL(extra_libs)]} {
+    foreach item $TCL(extra_libs) {
+      if {[string range $item 0 1] eq "-l" && $item in $LIBS } continue
+      lappend LIBS $item
+    }
   }
   foreach obj $PKG_OBJS {
-    append cmd "\n [$obj linker-external $config($obj)]"
+    puts [list Checking $obj for external dependencies]
+    foreach item [$obj linker-external $config($obj)] {
+      puts [list $obj adds $item]
+      if {[string range $item 0 1] eq "-l" && $item in $LIBS } continue
+      lappend LIBS $item
+    }
+  }
+  append cmd " ${LIBS}"
+  foreach obj $PKG_OBJS {
+    puts [list Checking $obj for additional link items]
+    foreach item [$obj linker-extra $config($obj)] {
+      append cmd $item
+    }
   }
   if {$debug && $os eq "windows"} {
-    append cmd "\n -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
+    append cmd " -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
     if {[$PROJECT define get static_tk]} {
-      append cmd "\n -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
+      append cmd " -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
     }
   } else {
-    append cmd "\n $TCL(build_stub_lib_spec)"
+    append cmd " $TCL(build_stub_lib_spec)"
     if {[$PROJECT define get static_tk]} {
-      append cmd "\n $TK(build_stub_lib_spec)"
+      append cmd " $TK(build_stub_lib_spec)"
     }
   }
-  append cmd "\n -o $outfile $LDFLAGS_CONSOLE"
+  if {[info exists TCL(cc_search_flags)]} {
+    append cmd " $TCL(cc_search_flags)"
+  }
+  append cmd " -o $outfile "
+  if {$os eq "windows"} {
+    set LDFLAGS_CONSOLE {-mconsole -pipe -static-libgcc}
+    set LDFLAGS_WINDOW  {-mwindows -pipe -static-libgcc}
+    append cmd " $LDFLAGS_CONSOLE"
+  }
   puts "LINK: $cmd"
-  exec {*}[string map [list "\n" " "] $cmd] >&@ stdout
+  exec {*}[string map [list "\n" " " "  " " "] $cmd] >&@ stdout
 }
 
 }
