@@ -1005,7 +1005,9 @@ proc ::practcl::_pkgindex_directory {path} {
         set version [lindex $line 3]
         break
       }
-      append buffer "package ifneeded $package $version \[list source \[file join \$dir [file tail $file]\]\]" \n
+      if {[string trim $version] ne {}} {
+        append buffer "package ifneeded $package $version \[list source \[file join \$dir [file tail $file]\]\]" \n
+      }
     }
     foreach file [glob -nocomplain $path/*.tcl] {
       if { [file tail $file] == "version_info.tcl" } continue
