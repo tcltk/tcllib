@@ -5136,7 +5136,7 @@ oo::class create ::practcl::distribution.git {
     }
     set srcdir [my SrcDir]
     set tag [my ScmTag]
-    ::practcl::doexec_in $srcdir git pull $tag
+    ::practcl::doexec_in $srcdir git pull
     cd $CWD
   }
 
