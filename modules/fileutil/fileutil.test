@@ -21,11 +21,11 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5 ;# See fumagic.testsupport
 testsNeedTcltest 1.0
 
 support {
-    useTcllibFile fumagic/fumagic.testsupport
+    useTcllibFile fumagic/fumagic.testsupport ;# 8.5+ (dict, apply)
     use           cmdline/cmdline.tcl cmdline
 }
 testing {

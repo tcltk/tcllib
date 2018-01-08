@@ -972,40 +972,8 @@ proc ::websocket::Receiver { sock } {
     # If the FIN bit is set, process the frame.
     if { $header & 0x8000 } {
 	${log}::debug "Received $len bytes long $type final fragment from $dst"
-	switch $opcode {
-	    1 {
-		# Text: decode and notify handler
-		Push $sock text \
-		    [encoding convertfrom utf-8 $Connection(read:msg)]
-	    }
-	    2 {
-		# Binary: notify handler, no decoding
-		Push $sock binary $Connection(read:msg)
-	    }
-	    8 {
-		# Close: decode, notify handler and close frame.
-		if { [string length $Connection(read:msg)] >= 2 } {
-		    binary scan [string range $Connection(read:msg) 0 1] Su \
-			reason
-		    set msg [encoding convertfrom utf-8 \
-				 [string range $Connection(read:msg) 2 end]]
-		    close $sock $reason $msg
-		} else {
-		    close $sock 
-		}
-		return
-	    }
-	    9 {
-		# Ping: send pong back and notify handler since this
-		# might contain some data.
-		send $sock 10 $Connection(read:msg)
-		Push $sock ping $Connection(read:msg)
-	    }
-	    10 {
-		Push $sock pong $Connection(read:msg)
-	    }
-	}
 
+    set msgToPush $Connection(read:msg)
 	# Prepare for next frame.
 	if { $opcode < 8 } {
 	    # Reinitialise
@@ -1018,6 +986,41 @@ proc ::websocket::Receiver { sock } {
 		set Connection(read:mode) ""
 	    }
 	}
+
+    switch $opcode {
+	    1 {
+		# Text: decode and notify handler
+		Push $sock text \
+		    [encoding convertfrom utf-8 $msgToPush]
+	    }
+	    2 {
+		# Binary: notify handler, no decoding
+		Push $sock binary $msgToPush
+	    }
+	    8 {
+		# Close: decode, notify handler and close frame.
+		if { [string length $msgToPush] >= 2 } {
+		    binary scan [string range $msgToPush) 0 1] Su \
+			reason
+		    set msg [encoding convertfrom utf-8 \
+				 [string range $msgToPush 2 end]]
+		    close $sock $reason $msg
+		} else {
+		    close $sock
+		}
+		return
+	    }
+	    9 {
+		# Ping: send pong back and notify handler since this
+		# might contain some data.
+		send $sock 10 $msgToPush
+		Push $sock ping $msgToPush
+	    }
+	    10 {
+		Push $sock pong $msgToPush
+	    }
+	}
+
     } else {
 	${log}::debug "Received $len long $type fragment from $dst"
     }
@@ -1751,4 +1754,4 @@ proc ::websocket::ThrowError {msg args} {
 	$msg;
 }
 
-package provide websocket 1.4
+package provide websocket 1.4.1

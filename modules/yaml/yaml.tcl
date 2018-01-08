@@ -13,7 +13,7 @@
 #
 
 package require Tcl 8.5
-package provide yaml 0.3.10
+package provide yaml 0.4
 package require cmdline
 package require huddle 0.1.7
 
@@ -48,6 +48,7 @@ namespace eval ::yaml {
         types {timestamp int float null true false}
         composer {
             !!binary ::yaml::_composeBinary
+	    !!float  ::yaml::_composeFloat
         }
         parsers {
             timestamp ::yaml::_parseTimestamp
@@ -245,6 +246,10 @@ proc ::yaml::_composeTags {tag value} {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
     }
     return  [huddle wrap $pair]
+}
+
+proc ::yaml::_composeFloat {value} {
+    return [list !!float [expr {double($value)}]]
 }
 
 proc ::yaml::_composeBinary {value} {

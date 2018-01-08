@@ -36,7 +36,7 @@ support {
   use oodialect/oodialect.tcl oo::dialect
   use oometa/oometa.tcl oo::meta
   use sha1/sha1.tcl sha1
-  use tool/index.tcl tool
+  use tool/tool.tcl tool
 }
 
 testing {

@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'crc16\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002, Pat Thoyts
+'\" Copyright (c) 2002, 2017, Pat Thoyts
 '\"
-.TH "crc16" n 1\&.1\&.2 tcllib "Cyclic Redundancy Checks"
+.TH "crc16" n 1\&.1\&.3 tcllib "Cyclic Redundancy Checks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,17 +276,17 @@ crc16 \- Perform a 16bit Cyclic Redundancy Check
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcrc16  ?1\&.1\&.2?\fR
+package require \fBcrc16  ?1\&.1\&.3?\fR
 .sp
-\fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .sp
 \fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .sp
-\fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .sp
 \fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .sp
-\fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .sp
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .sp
@@ -301,15 +301,15 @@ checksums and this package can handle all of them\&. Defaults are set up
 for the most common cases\&.
 .SH COMMANDS
 .TP
-\fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .TP
 \fB::crc::crc16\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .TP
-\fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .TP
 \fB::crc::crc-ccitt\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 .TP
-\fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fImessage\fR
+\fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? \fB--\fR \fImessage\fR
 .TP
 \fB::crc::xmodem\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? ?-implementation \fIprocname\fR? -filename \fIfile\fR
 The command takes either string data or a file name and returns a checksum
@@ -359,14 +359,19 @@ additional commands have been provided that make use of these
 implementations\&.
 .TP
 --
-Terminate option processing\&.
+Terminate option processing\&. Please note that using the option
+termination flag is important when processing data from parameters\&. If
+the binary data looks like one of the options given above then the
+data will be read as an option if this marker is not included\&.
+Always use the \fI--\fR option termination flag before giving the data
+argument\&.
 .PP
 .SH EXAMPLES
 .PP
 .CS
 
 
-% crc::crc16 "Hello, World!"
+% crc::crc16 -- "Hello, World!"
 64077
 
 .CE
@@ -374,7 +379,7 @@ Terminate option processing\&.
 .CS
 
 
-% crc::crc-ccitt "Hello, World!"
+% crc::crc-ccitt -- "Hello, World!"
 26586
 
 .CE
@@ -382,7 +387,7 @@ Terminate option processing\&.
 .CS
 
 
-% crc::crc16 -format 0x%X "Hello, World!"
+% crc::crc16 -format 0x%X -- "Hello, World!"
 0xFA4D
 
 .CE
@@ -403,6 +408,14 @@ Please report such in the category \fIcrc\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
+.PP
+When proposing code changes, please provide \fIunified diffs\fR,
+i\&.e the output of \fBdiff -u\fR\&.
+.PP
+Note further that \fIattachments\fR are strongly preferred over
+inlined patches\&. Attachments can be made by going to the \fBEdit\fR
+form of the ticket immediately after its creation, and then using the
+left-most button in the secondary navigation bar\&.
 .SH "SEE ALSO"
 cksum(n), crc32(n), sum(n)
 .SH KEYWORDS
@@ -411,6 +424,6 @@ checksum, cksum, crc, crc16, crc32, cyclic redundancy check, data integrity, sec
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002, Pat Thoyts
+Copyright (c) 2002, 2017, Pat Thoyts
 
 .fi

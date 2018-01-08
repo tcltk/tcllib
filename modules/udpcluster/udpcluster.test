@@ -12,21 +12,24 @@ set testutilsscript [file join \
 source $testutilsscript
 
 package require tcltest
-testsNeedTcl     8.5
+testsNeedTcl     8.6 ; # See coroutine (required by cron)
 testsNeedTcltest 1.0
+testsNeed        udp
 
 set ::WHOAMI Main
 
 support {
-      use dicttool/dicttool.tcl        dicttool
-      use comm/comm.tcl       comm
-      use dns/ip.tcl          ip
-      use nettool/nettool.tcl nettool
-      use cron/cron.tcl       cron
-      use uuid/uuid.tcl       uuid
-      use interp/interp.tcl   interp
-      use log/logger.tcl      logger
-      use md5/md5x.tcl        md5
+    use dicttool/dicttool.tcl   dicttool
+    use snit/snit2.tcl          snit ;# Required by comm
+    use comm/comm.tcl           comm
+    use dns/ip.tcl              ip
+    use nettool/nettool.tcl     nettool
+    use coroutine/coroutine.tcl coroutine ;# Required by cron
+    use cron/cron.tcl           cron
+    use uuid/uuid.tcl           uuid
+    use interp/interp.tcl       interp
+    use log/logger.tcl          logger
+    use md5/md5x.tcl            md5
 }
 testing {
     useLocal udpcluster.tcl udpcluster
@@ -38,38 +41,43 @@ testing {
 interp create server
 interp eval server [list set testutilsscript $testutilsscript]
 interp eval server {
-  source $testutilsscript
-  set ::WHOAMI Server
+    source $testutilsscript
+    set ::WHOAMI Server
 
-  package require tcltest
-  testsNeedTcl     8.5
-  testsNeedTcltest 1.0
-  
-  support {
-      use dicttool/dicttool.tcl        dicttool
-      use comm/comm.tcl       comm
-      use dns/ip.tcl          ip
-      use nettool/nettool.tcl nettool
-      use cron/cron.tcl       cron
-      use uuid/uuid.tcl       uuid
-      use interp/interp.tcl   interp
-      use log/logger.tcl      logger
-      use md5/md5x.tcl        md5
-  }
-  testing {
-      use udpcluster/udpcluster.tcl udpcluster
-  }
-  set ::cluster::local_pid SERVER
-  #set ::cluster::config(debug) 1
-  ::cluster::publish nns@[::cluster::macid] {}
-  update
+    package require  tcltest
+    testsNeedTcl     8.6
+    testsNeedTcltest 1.0
+    testsNeed        udp
+    
+    support {
+	use dicttool/dicttool.tcl   dicttool
+	use snit/snit2.tcl          snit ;# Required by comm
+	use comm/comm.tcl           comm
+	use dns/ip.tcl              ip
+	use nettool/nettool.tcl     nettool
+	use coroutine/coroutine.tcl coroutine ;# Required by cron
+	use cron/cron.tcl           cron
+	use uuid/uuid.tcl           uuid
+	use interp/interp.tcl       interp
+	use log/logger.tcl          logger
+	use md5/md5x.tcl            md5
+    }
+    testing {
+	use udpcluster/udpcluster.tcl udpcluster
+    }
+    set ::cluster::local_pid SERVER
+    #set ::cluster::config(debug) 1
+    ::cluster::publish nns@[::cluster::macid] {}
+    update
 }
+
 set ::cluster::local_pid MAIN
 set macid [::cluster::macid]
 set myport [::nettool::allocate_port 10000]
 
 ::cluster::ping nns@$macid
 set data [::cluster::search *]
+
 test cluster-comm-1.0 {Publish service - NNS} {
   dict exists $data nns@[::cluster::macid]
 } {1}
@@ -120,37 +128,40 @@ test cluster-comm-2.4 {Modify a service} {
 interp create otherclient
 interp eval otherclient [list set testutilsscript $testutilsscript]
 interp eval otherclient {
-  source $testutilsscript
-  set ::WHOAMI Other
+    source $testutilsscript
+    set ::WHOAMI Other
   
-  package require tcltest
-  testsNeedTcl     8
-  testsNeedTcltest 1.0
+    package require tcltest
+    testsNeedTcl     8.6
+    testsNeedTcltest 1.0
+    testsNeed        udp
   
-  support {
-     use dicttool/dicttool.tcl        dicttool
-      use comm/comm.tcl comm 
-      use dns/ip.tcl          ip
-      use nettool/nettool.tcl nettool
-      use cron/cron.tcl cron
-      use uuid/uuid.tcl uuid
-      use interp/interp.tcl   interp
-      use log/logger.tcl      logger
-      use md5/md5x.tcl        md5
-  }
-  testing {
-      use udpcluster/udpcluster.tcl udpcluster
-  }
+    support {
+	use dicttool/dicttool.tcl   dicttool
+	use snit/snit2.tcl          snit ;# Required by comm
+	use comm/comm.tcl           comm
+	use dns/ip.tcl              ip
+	use nettool/nettool.tcl     nettool
+	use coroutine/coroutine.tcl coroutine ;# Required by cron
+	use cron/cron.tcl           cron
+	use uuid/uuid.tcl           uuid
+	use interp/interp.tcl       interp
+	use log/logger.tcl          logger
+	use md5/md5x.tcl            md5
+    }
+    testing {
+	use udpcluster/udpcluster.tcl udpcluster
+    }
 
-  ###
-  # Cheat and let this server know the server is local
-  ###
-  set macid [::cluster::macid]
-  set myport [::nettool::allocate_port 10000]
-  #set ::cluster::config(debug) 1
-  set url other@$macid
-  ::comm::comm new $url -port $myport -local 0 -listen 1
-  ::cluster::publish $url [list port $myport protocol comm class comm]
+    ###
+    # Cheat and let this server know the server is local
+    ###
+    set macid [::cluster::macid]
+    set myport [::nettool::allocate_port 10000]
+    #set ::cluster::config(debug) 1
+    set url other@$macid
+    ::comm::comm new $url -port $myport -local 0 -listen 1
+    ::cluster::publish $url [list port $myport protocol comm class comm]
 }
 
 #set ::cluster::config(debug) 1

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html><head>
 <title>autoproxy - HTTP protocol helper modules</title>
 <style type="text/css"><!--
@@ -105,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">autoproxy(n) 1.5.3 tcllib &quot;HTTP protocol helper modules&quot;</h1>
+<h1 class="doctools_title">autoproxy(n) 1.6 tcllib &quot;HTTP protocol helper modules&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>autoproxy - Automatic HTTP proxy usage and authentication</p>
 </div>
@@ -133,7 +134,7 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">http <span class="opt">?2.0?</span></b></li>
-<li>package require <b class="pkgname">autoproxy <span class="opt">?1.5.3?</span></b></li>
+<li>package require <b class="pkgname">autoproxy <span class="opt">?1.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::autoproxy::init</b></a></li>
@@ -249,7 +250,10 @@ insufficient authentication details. This can be used to present a
 dialog to the user to request the additional information.</p></dd>
 <dt><b class="option">-basic</b></dt>
 <dd><p>Following options are for configuring the Basic authentication
-scheme parameters. See <span class="sectref"><a href="#section5">Basic Authentication</a></span>.</p></dd>
+scheme parameters. See <span class="sectref"><a href="#section5">Basic Authentication</a></span>.
+To unset the proxy authentication information retained from a previous
+call of this function either &quot;--&quot; or no additional parameters can be
+supplied. This will remove the existing authentication information.</p></dd>
 </dl>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Basic Authentication</a></h2>
@@ -267,7 +271,11 @@ separated by a colon. This encoded text is prefixed with the word
 <dt><b class="option">-password</b> password</dt>
 <dd><p>The password required for the username specified.</p></dd>
 <dt><b class="option">-realm</b> realm</dt>
-<dd><p>This option is not used.</p></dd>
+<dd><p>This option is not used by this package but may be used in requesting
+authentication details from the user.</p></dd>
+<dt><b class="option">--</b></dt>
+<dd><p>The end-of-options indicator may be used alone to unset any
+authentication details currently enabled.</p></dd>
 </dl>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">EXAMPLES</a></h2>
@@ -313,12 +321,18 @@ Please report such in the category <em>http :: autoproxy</em> of the
 <a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
+<p>When proposing code changes, please provide <em>unified diffs</em>,
+i.e the output of <b class="const">diff -u</b>.</p>
+<p>Note further that <em>attachments</em> are strongly preferred over
+inlined patches. Attachments can be made by going to the <b class="const">Edit</b>
+form of the ticket immediately after its creation, and then using the
+left-most button in the secondary navigation bar.</p>
 </div>
 <div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
 <p>http(n)</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key395">authentication</a>, <a href="../../../../index.html#key447">http</a>, <a href="../../../../index.html#key834">proxy</a></p>
+<p><a href="../../../../index.html#key395">authentication</a>, <a href="../../../../index.html#key447">http</a>, <a href="../../../../index.html#key835">proxy</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
