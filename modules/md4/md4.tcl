@@ -9,7 +9,6 @@
 # -------------------------------------------------------------------------
 
 package require Tcl 8.2;                # tcl minimum version
-catch {package require md4c 1.0};       # tcllib critcl alternative
 
 # @mdgen EXCLUDE: md4c.tcl
 
@@ -552,7 +551,6 @@ proc ::md4::hmac {args} {
 }
 
 # -------------------------------------------------------------------------
-
 # Try and load a compiled extension to help.
 namespace eval ::md4 {
     variable e {}
@@ -560,7 +558,7 @@ namespace eval ::md4 {
     unset e
 }
 
-package provide md4 1.0.6
+package provide md4 1.0.7
 
 # -------------------------------------------------------------------------
 # Local Variables:

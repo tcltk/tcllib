@@ -10,9 +10,9 @@ package require httpd 4.0
 
 namespace eval ::scgi {}
 
-tool::class create ::scgi::reply {  
+tool::class create ::scgi::reply {
   superclass ::httpd::reply
-  
+
   ###
   # A modified dispatch method from a standard HTTP reply
   # Unlike in HTTP, our headers were spoon fed to use from
@@ -35,7 +35,7 @@ tool::class create ::scgi::reply {
       my output
     }
   }
-  
+
   method EncodeStatus {status} {
     return "Status: $status"
   }
@@ -47,15 +47,15 @@ tool::class create scgi::app {
   property socket buffersize   32768
   property socket blocking     0
   property socket translation  {binary binary}
-  
+
   property reply_class ::scgi::reply
-  
+
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
     # send a "go to hell" message
     ###
-    if {[my validation Blocked_IP $sock $ip]} {
+    if {[my Validate_Connection $sock $ip]} {
       catch {close $sock}
       return
     }
@@ -68,7 +68,7 @@ tool::class create scgi::app {
         -translation {binary binary} \
         -buffersize 4096 \
         -buffering none
-    
+
       # Read the SCGI request on byte at a time until we reach a ":"
       set size {}
       while 1 {
@@ -88,10 +88,10 @@ tool::class create scgi::app {
       dict with query {}
       if {[llength $reply]} {
         if {[dict exists $reply class]} {
-          set class [dict get $reply class]          
+          set class [dict get $reply class]
         } else {
           set class [my cget reply_class]
-        }  
+        }
         set pageobj [$class create [namespace current]::reply::[::tool::uuid_short] [self]]
         if {[dict exists $reply mixin]} {
           oo::objdefine $pageobj mixin [dict get $reply mixin]

@@ -15,7 +15,7 @@ namespace eval httpd::content {}
 # by the dispatcher
 ###
 ::tool::define ::httpd::content::file {
-  
+
   method FileName {} {
     set uri [string trimleft [my query_headers get REQUEST_URI] /]
     set path [my query_headers get path]
@@ -38,8 +38,8 @@ namespace eval httpd::content {}
     }
     return {}
   }
-  
-  
+
+
   method DirectoryListing {local_file} {
     my puts "<HTML><BODY><TABLE>"
     foreach file [glob -nocomplain [file join $local_file *]] {
@@ -47,7 +47,7 @@ namespace eval httpd::content {}
     }
     my puts "</TABLE></BODY></HTML>"
   }
-  
+
   method dispatch {newsock datastate} {
     # No need to process the rest of the headers
     my variable chan dipatched_time
@@ -102,7 +102,7 @@ namespace eval httpd::content {}
         set tmltxt  [::fileutil::cat $local_file]
         set headers [my query_headers dump]
         dict with headers {}
-        my puts [subst $tmltxt]        
+        my puts [subst $tmltxt]
       }
       default {
         ###
@@ -144,7 +144,7 @@ namespace eval httpd::content {}
       append result "Content-length: [string length $reply_body]" \n \n
       append result $reply_body
       chan puts -nonewline $chan $result
-      chan flush $chan    
+      chan flush $chan
       my destroy
     } else {
       ###
@@ -175,7 +175,7 @@ namespace eval httpd::content {}
     # return {localhost 8016 /some/path}
     error unimplemented
   }
-  
+
   method content {} {
     my variable sock chan
     set sockinfo [my scgi_info]
@@ -188,11 +188,11 @@ namespace eval httpd::content {}
     # Add a few headers that SCGI needs
     #my query_headers set SERVER_NAME [my <server> cget server_name]
     my query_headers set SCRIPT_NAME $scgiscript
-    my query_headers set SCGI 1.0    
+    my query_headers set SCGI 1.0
     #my query_headers set SERVER_PORT [my <server> port_listening]
     #set ::env(SCRIPT_NAME) $scgiscript
-      ::puts {HEADERS} 
-      foreach {field element} [my query_headers dump] { 
+      ::puts {HEADERS}
+      foreach {field element} [my query_headers dump] {
         ::puts [list $field $element]
       }
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -218,7 +218,7 @@ namespace eval httpd::content {}
     #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     chan event $sock readable [namespace code {my output}]
   }
-  
+
   method DoOutput {} {
     my variable chan sock
     chan event $chan writable {}
@@ -230,7 +230,6 @@ namespace eval httpd::content {}
       return
     }
     set replyhead [my HttpHeaders $sock]
-    puts [list REPLY HEADERS $replyhead]
     set replydat  [my MimeParse $replyhead]
     ###
     # Convert the Status: header from the SCGI service to
@@ -277,7 +276,7 @@ namespace eval httpd::content {}
     # return {localhost 8016 /some/path}
     error unimplemented
   }
-  
+
   method content {} {
     my variable chan sock rawrequest
     set sockinfo [my proxy_info]
@@ -286,7 +285,7 @@ namespace eval httpd::content {}
     }
     lassign $sockinfo proxyhost proxyport proxyscript
     set sock [::socket $proxyhost $proxyport]
-    
+
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
 
@@ -308,7 +307,7 @@ namespace eval httpd::content {}
     chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
     chan event $sock readable [namespace code {my output}]
   }
-  
+
   method DoOutput {} {
     my variable chan sock
     chan event $chan writable {}
@@ -324,7 +323,7 @@ namespace eval httpd::content {}
     set replystatus [gets $sock]
     set replyhead [my HttpHeaders $sock]
     set replydat  [my MimeParse $replyhead]
-    
+
     ###
     # Pass along the status line and MIME headers
     ###
@@ -357,19 +356,19 @@ namespace eval httpd::content {}
   array template
   option doc_root {default {}}
   variable url_patterns {}
-  
+
   method add_uri {pattern info} {
     my variable url_patterns
     dict set url_patterns $pattern $info
   }
-  
+
   method PrefixNormalize prefix {
     set prefix [string trimright $prefix /]
     set prefix [string trimright $prefix *]
     set prefix [string trimright $prefix /]
     return $prefix
   }
-  
+
   method dispatch {data} {
     set reply $data
     set uri [dict get $data REQUEST_PATH]
@@ -396,7 +395,7 @@ namespace eval httpd::content {}
     }
     return {}
   }
-  
+
   method TemplateSearch page {
     set doc_root [my cget doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {

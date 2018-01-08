@@ -9,4 +9,5 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.6]} {return}
-package ifneeded tool 0.6.1 [list source [file join $dir index.tcl]]
+package ifneeded tool 0.7 [list source [file join $dir tool.tcl]]
+

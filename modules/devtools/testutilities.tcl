@@ -69,29 +69,40 @@ proc testsNeedTcltest {version} {
     return -code return
 }
 
-proc testsNeed {name version} {
+proc testsNeed {name {version {}}} {
     # This command ensures that a minimum version of package <name> is
     # used to run the tests in the calling testsuite. If the minimum
     # is not met by the active interpreter we forcibly bail out of the
     # testsuite calling the command. The command has to be called
     # immediately after loading the utilities.
 
-    if {[catch {
-	package require $name $version
-    }]} {
+    if {$version != {}} {
+	if {[catch {
+	    package require $name $version
+	}]} {
+	    puts "    Aborting the tests found in \"[file tail [info script]]\""
+	    puts "    Requiring at least \"$name $version\", package not found."
+	    
+	    return -code return
+	}
+
+	if {[package vsatisfies [package present $name] $version]} return
+
 	puts "    Aborting the tests found in \"[file tail [info script]]\""
-	puts "    Requiring at least $name $version, package not found."
+	puts "    Requiring at least \"$name $version\", have [package present $name]."
 
+	# This causes a 'return' in the calling scope.
 	return -code return
+    } else {
+	if {[catch {
+	    package require $name
+	}]} {
+	    puts "    Aborting the tests found in \"[file tail [info script]]\""
+	    puts "    Requiring \"$name\", package not found."
+	    
+	    return -code return
+	}
     }
-
-    if {[package vsatisfies [package present $name] $version]} return
-
-    puts "    Aborting the tests found in \"[file tail [info script]]\""
-    puts "    Requiring at least $name $version, have [package present $name]."
-
-    # This causes a 'return' in the calling scope.
-    return -code return
 }
 
 # ### ### ### ######### ######### #########
