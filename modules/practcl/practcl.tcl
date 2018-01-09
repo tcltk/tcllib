@@ -1005,7 +1005,9 @@ proc ::practcl::_pkgindex_directory {path} {
         set version [lindex $line 3]
         break
       }
-      append buffer "package ifneeded $package $version \[list source \[file join \$dir [file tail $file]\]\]" \n
+      if {[string trim $version] ne {}} {
+        append buffer "package ifneeded $package $version \[list source \[file join \$dir [file tail $file]\]\]" \n
+      }
     }
     foreach file [glob -nocomplain $path/*.tcl] {
       if { [file tail $file] == "version_info.tcl" } continue
@@ -5132,9 +5134,10 @@ oo::class create ::practcl::distribution.git {
     if {[my ScmUnpack]} {
       return
     }
+    set CWD [pwd]
     set srcdir [my SrcDir]
     set tag [my ScmTag]
-    ::practcl::doexec_in $srcdir git pull $tag
+    ::practcl::doexec_in $srcdir git pull
     cd $CWD
   }
 
