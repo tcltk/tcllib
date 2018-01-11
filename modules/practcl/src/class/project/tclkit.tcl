@@ -274,7 +274,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       my define set tip_430 0
       ::practcl::LOCAL tool odie unpack
       set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
-      my add class csource ofile tclZipFs.o filename [file join $COMPATSRCROOT compat tclZipFs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
+      my add class csource ofile tclZipfs.o filename [file join $COMPATSRCROOT compat tclZipfs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
     my define add include_dir [file join $TCLSRCDIR generic]
