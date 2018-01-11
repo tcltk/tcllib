@@ -55,10 +55,10 @@ oo::class create ::practcl::subproject.core {
     set os [::practcl::local_os]
     switch [my define get name] {
       tcl {
-        set options [::practcl::platform::tcl_core_options $os]
+        set options [::practcl::platform::tcl_core_options [dict get $os TEACUP_OS]]
       }
       tk {
-        set options [::practcl::platform::tk_core_options $os]
+        set options [::practcl::platform::tk_core_options  [dict get $os TEACUP_OS]]
       }
       default {
         set options {}
@@ -67,6 +67,7 @@ oo::class create ::practcl::subproject.core {
     set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
     lappend options --prefix $prefix --exec-prefix $prefix
     my define set config_opts $options
+    puts [list [self] OS [dict get $os TEACUP_OS] options $options]
     my go
     my compile
     ::practcl::domake [my define get builddir] install
