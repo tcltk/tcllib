@@ -30,3 +30,4 @@ package ifneeded math::decimal           1.0.3 [list source [file join $dir deci
 package ifneeded math::geometry          1.2.3 [list source [file join $dir geometry.tcl]]
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]
+package ifneeded math::PCA               1.0   [list source [file join $dir pca.tcl]]
