@@ -272,8 +272,8 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       # The Tclconfig project maintains a mirror of the version
       # released with the Tcl core
       my define set tip_430 0
-      ::practcl::LOCAL tool odie unpack
-      set COMPATSRCROOT [::practcl::LOCAL tool odie define get srcdir]
+      ::practcl::LOCAL tool tclconfig unpack
+      set COMPATSRCROOT [::practcl::LOCAL tool tclconfig define get srcdir]
       my add class csource ofile tclZipfs.o filename [file join $COMPATSRCROOT compat tclZipfs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
