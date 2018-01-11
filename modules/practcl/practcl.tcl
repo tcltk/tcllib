@@ -1519,6 +1519,14 @@ oo::class create ::practcl::toolset {
         if {[string match ${name}_* $field]} {
           set field [string range $field $l end]
         }
+        switch $field {
+          version {
+            dict set result pkg_vers $dat
+          }
+          lib_file {
+            set field libfile
+          }
+        }
         dict set result $field $dat
       }
       set conf_result $result
