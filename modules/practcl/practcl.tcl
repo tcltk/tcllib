@@ -4514,9 +4514,14 @@ if {[file exists [file join %vfsroot% tk_library tk.tcl]]} {
     # Tcl_Init().  Otherwise, Tcl_Init() will not be able to find
     # its startup script files.
     if {![$PROJECT define get tip_430 0]} {
+      # Add declarations of functions that tip430 puts in the stub files
+      $PROJECT code header {
+int TclZipfs_Init(Tcl_Interp *interp);
+int TclZipfs_Mount(Tcl_Interp *interp, const char *mntpt, const char *zipname, const char *passwd);
+}
       ::practcl::cputs zvfsboot {  TclZipfs_Init(NULL);}
     }
-    ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, archive, \"app\", NULL)) \x7B "
+    ::practcl::cputs zvfsboot "  if(!TclZipfs_Mount(NULL, \"/app\", archive, NULL)) \x7B "
     ::practcl::cputs zvfsboot {
       Tcl_Obj *vfsinitscript;
       vfsinitscript=Tcl_NewStringObj("%vfs_main%",-1);
