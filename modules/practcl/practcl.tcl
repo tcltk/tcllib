@@ -3,7 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide practcl 0.10.1
+package provide practcl 0.11
 namespace eval ::practcl {}
 
 ###
@@ -1181,37 +1181,24 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
 # START: makeutil.tcl
 ###
 ###
-# Make facilities
+# Backward compatible Make facilities
+# These were used early in development and are consdiered deprecated
 ###
 
 proc ::practcl::trigger {args} {
-  foreach name $args {
-    if {[dict exists $::make_objects $name]} {
-      [dict get $::make_objects $name] triggers
-    }
+  ::practcl::LOCAL target trigger {*}$args
+  foreach {name obj} [::practcl::LOCAL target objects] {
+    set ::make($name) [$obj do]
   }
 }
 
 proc ::practcl::depends {args} {
-  foreach name $args {
-    if {[dict exists $::make_objects $name]} {
-      [dict get $::make_objects $name] check
-    }
-  }
+  ::practcl::LOCAL target depends {*}$args
 }
 
-proc ::practcl::target {name info} {
-  set obj [::practcl::target_obj new $name $info]
-  dict set ::make_objects $name $obj
-  if {[dict exists $info aliases]} {
-    foreach item [dict get $info aliases] {
-      if {![dict exists $::make_objects $item]} {
-        dict set ::make_objects $item $obj
-      }
-    }
-  }
+proc ::practcl::target {name info {action {}}} {
+  set obj [::practcl::LOCAL target add $name $info $action]
   set ::make($name) 0
-  set ::trigger($name) 0
   set filename [$obj define get filename]
   if {$filename ne {}} {
     set ::target($name) $filename
@@ -2227,15 +2214,21 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 ::oo::class create ::practcl::target_obj {
   superclass ::practcl::metaclass
 
-  constructor {name info} {
+  constructor {module_object name info {action_body {}}} {
     my variable define triggered domake
     set triggered 0
     set domake 0
     set define(name) $name
-    set data  [uplevel 2 [list subst $info]]
-    array set define $data
+    set define(action) {}
+    array set define $info
     my select
     my initialize
+    foreach {stub obj} [$module_object child organs] {
+      my graft $stub $obj
+    }
+    if {$action_body ne {}} {
+      set define(action) $action_body
+    }
   }
 
   method do {} {
@@ -2251,10 +2244,11 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     if {[info exists needs_make]} {
       return $needs_make
     }
+    set make_objects [my <module> target objects]
     set needs_make 0
     foreach item [my define get depends] {
-      if {![dict exists $::make_objects $item]} continue
-      set depobj [dict get $::make_objects $item]
+      if {![dict exists $make_objects $item]} continue
+      set depobj [dict get $make_objects $item]
       if {$depobj eq [self]} {
         puts "WARNING [self] depends on itself"
         continue
@@ -2278,9 +2272,11 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       return $domake
     }
     set triggered 1
+    set make_objects [my <module> target objects]
+
     foreach item [my define get depends] {
-      if {![dict exists $::make_objects $item]} continue
-      set depobj [dict get $::make_objects $item]
+      if {![dict exists $make_objects $item]} continue
+      set depobj [dict get $make_objects $item]
       if {$depobj eq [self]} {
         puts "WARNING [self] triggers itself"
         continue
@@ -2291,11 +2287,8 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
         }
       }
     }
-    if {[info exists ::make($define(name))] && $::make($define(name))} {
-      return
-    }
-    set ::make($define(name)) 1
-    ::practcl::trigger {*}[my define get triggers]
+    set domake 1
+    my <module> target trigger {*}[my define get triggers]
   }
 }
 
@@ -3657,7 +3650,89 @@ oo::objdefine ::practcl::product {
     }
     return $object
   }
-
+  
+  ###
+  # Target handling
+  ###
+  method target {command args} {
+    my variable target_object
+    if {![info exists target_object]} {
+      set target_object {}
+    }
+    switch $command {
+      objects {
+        return $target_object
+      }
+      object {
+        set name [lindex $args 0]
+        if {[dict exists $target_object $name]} {
+          return [dict get $target_object $name]
+        }
+        return {}
+      }
+      trigger {
+        puts [list [self] target trigger $args]
+        foreach name $args {
+          if {[dict exists $target_object $name]} {
+            puts [list TRIGGERING [dict exists $target_object $name]]
+            [dict get $target_object $name] triggers
+          }
+        }
+      }
+      depends {
+        foreach name $args {
+          if {[dict exists $target_object $name]} {
+            [dict get $target_object $name] check
+          }
+        }
+      }
+      filename {
+        set name [lindex $args 0]
+        if {[dict exists $target_object $name]} {
+          return [[dict get $target_object $name] define get filename]
+        }
+      }
+      add {
+        set name [lindex $args 0]
+        set info [uplevel 2 [list subst [lindex $args 1]]]
+        set body [lindex $args 2]
+        
+        set nspace [namespace current]
+        if {[dict exist $target_object $name]} {
+          set obj [dict get $$target_object $name]
+        } else {
+          set obj [::practcl::target_obj new [self] $name $info $body]
+          dict set target_object $name $obj
+          dict set target_make $name 0
+          dict set target_trigger $name 0
+        }
+        if {[dict exists $info aliases]} {
+          foreach item [dict get $info aliases] {
+            if {![dict exists $target_object $item]} {
+              dict set target_object $item $obj
+            }
+          }
+        }
+        return $obj
+      }
+      todo {
+         foreach {name obj} $target_object {
+          if {[$obj do]} {
+            lappend result $name
+          }
+        }       
+      }
+      do {
+        global CWD SRCDIR project SANDBOX
+        foreach {name obj} $target_object {
+          if {[$obj do]} {
+            eval [$obj define get action]
+          }
+        }
+      }
+    }
+  }
+  
   method child which {
     switch $which {
       organs {
