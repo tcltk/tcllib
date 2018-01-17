@@ -2,15 +2,21 @@
 ::oo::class create ::practcl::target_obj {
   superclass ::practcl::metaclass
 
-  constructor {name info} {
+  constructor {module_object name info {action_body {}}} {
     my variable define triggered domake
     set triggered 0
     set domake 0
     set define(name) $name
-    set data  [uplevel 2 [list subst $info]]
-    array set define $data
+    set define(action) {}
+    array set define $info
     my select
     my initialize
+    foreach {stub obj} [$module_object child organs] {
+      my graft $stub $obj
+    }
+    if {$action_body ne {}} {
+      set define(action) $action_body
+    }
   }
 
   method do {} {
@@ -26,10 +32,11 @@
     if {[info exists needs_make]} {
       return $needs_make
     }
+    set make_objects [my <module> target objects]
     set needs_make 0
     foreach item [my define get depends] {
-      if {![dict exists $::make_objects $item]} continue
-      set depobj [dict get $::make_objects $item]
+      if {![dict exists $make_objects $item]} continue
+      set depobj [dict get $make_objects $item]
       if {$depobj eq [self]} {
         puts "WARNING [self] depends on itself"
         continue
@@ -53,9 +60,11 @@
       return $domake
     }
     set triggered 1
+    set make_objects [my <module> target objects]
+
     foreach item [my define get depends] {
-      if {![dict exists $::make_objects $item]} continue
-      set depobj [dict get $::make_objects $item]
+      if {![dict exists $make_objects $item]} continue
+      set depobj [dict get $make_objects $item]
       if {$depobj eq [self]} {
         puts "WARNING [self] triggers itself"
         continue
@@ -66,10 +75,7 @@
         }
       }
     }
-    if {[info exists ::make($define(name))] && $::make($define(name))} {
-      return
-    }
-    set ::make($define(name)) 1
-    ::practcl::trigger {*}[my define get triggers]
+    set domake 1
+    my <module> target trigger {*}[my define get triggers]
   }
 }

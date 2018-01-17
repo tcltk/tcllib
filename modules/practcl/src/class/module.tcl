@@ -19,7 +19,89 @@
     }
     return $object
   }
-
+  
+  ###
+  # Target handling
+  ###
+  method target {command args} {
+    my variable target_object
+    if {![info exists target_object]} {
+      set target_object {}
+    }
+    switch $command {
+      objects {
+        return $target_object
+      }
+      object {
+        set name [lindex $args 0]
+        if {[dict exists $target_object $name]} {
+          return [dict get $target_object $name]
+        }
+        return {}
+      }
+      trigger {
+        puts [list [self] target trigger $args]
+        foreach name $args {
+          if {[dict exists $target_object $name]} {
+            puts [list TRIGGERING [dict exists $target_object $name]]
+            [dict get $target_object $name] triggers
+          }
+        }
+      }
+      depends {
+        foreach name $args {
+          if {[dict exists $target_object $name]} {
+            [dict get $target_object $name] check
+          }
+        }
+      }
+      filename {
+        set name [lindex $args 0]
+        if {[dict exists $target_object $name]} {
+          return [[dict get $target_object $name] define get filename]
+        }
+      }
+      add {
+        set name [lindex $args 0]
+        set info [uplevel 2 [list subst [lindex $args 1]]]
+        set body [lindex $args 2]
+        
+        set nspace [namespace current]
+        if {[dict exist $target_object $name]} {
+          set obj [dict get $$target_object $name]
+        } else {
+          set obj [::practcl::target_obj new [self] $name $info $body]
+          dict set target_object $name $obj
+          dict set target_make $name 0
+          dict set target_trigger $name 0
+        }
+        if {[dict exists $info aliases]} {
+          foreach item [dict get $info aliases] {
+            if {![dict exists $target_object $item]} {
+              dict set target_object $item $obj
+            }
+          }
+        }
+        return $obj
+      }
+      todo {
+         foreach {name obj} $target_object {
+          if {[$obj do]} {
+            lappend result $name
+          }
+        }       
+      }
+      do {
+        global CWD SRCDIR project SANDBOX
+        foreach {name obj} $target_object {
+          if {[$obj do]} {
+            eval [$obj define get action]
+          }
+        }
+      }
+    }
+  }
+  
   method child which {
     switch $which {
       organs {
