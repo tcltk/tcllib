@@ -1126,12 +1126,7 @@ set ::PATHSTACK [lrange $::PATHSTACK 0 end-1]
   return $buffer
 }
 
-###
-# topic: 64319f4600fb63c82b2258d908f9d066
-# description: Script to build the VFS file system
-###
 proc ::practcl::installDir {d1 d2} {
-
   puts [format {%*sCreating %s} [expr {4 * [info level]}] {} [file tail $d2]]
   file delete -force -- $d2
   file mkdir $d2
@@ -1163,13 +1158,27 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   #}
   #file delete -force -- $d2
   file mkdir $d2
-
-  foreach ftail [glob -directory $d1 -nocomplain -tails *] {
-    set f [file join $d1 $ftail]
-    if {[file isdirectory $f] && [string compare CVS $ftail]} {
-      copyDir $f [file join $d2 $ftail] 0
-    } elseif {[file isfile $f]} {
-      file copy -force $f [file join $d2 $ftail]
+  if {[file isfile $d1]} {
+    file copy -force $d1 $d2
+    set ftail [file tail $d1]
+    if {$::tcl_platform(platform) eq {unix}} {
+      file attributes [file join $d2 $ftail] -permissions 0644
+    } else {
+      file attributes [file join $d2 $ftail] -readonly 1
+    }
+  } else {
+    foreach ftail [glob -directory $d1 -nocomplain -tails *] {
+      set f [file join $d1 $ftail]
+      if {[file isdirectory $f] && [string compare CVS $ftail]} {
+        copyDir $f [file join $d2 $ftail] 0
+      } elseif {[file isfile $f]} {
+        file copy -force $f [file join $d2 $ftail]
+        if {$::tcl_platform(platform) eq {unix}} {
+          file attributes [file join $d2 $ftail] -permissions 0644
+        } else {
+          file attributes [file join $d2 $ftail] -readonly 1
+        }
+      }
     }
   }
 }
@@ -3660,6 +3669,46 @@ oo::objdefine ::practcl::product {
       set target_object {}
     }
     switch $command {
+      pkginfo {
+        ###
+        # Build local variables needed for install
+        ###
+        set result {}
+        set dat [my define dump]
+        set PKG_DIR [dict get $dat name][dict get $dat version]
+        dict set result PKG_DIR $PKG_DIR
+        dict with dat {}
+        if {![info exists DESTDIR]} {
+          set DESTDIR {}
+        }
+        foreach {field value} $dat {
+          switch $field {
+            includedir -
+            mandir -
+            datadir -
+            libdir -
+            libfile -
+            name -
+            output_tcl -
+            version -
+            authors -
+            license -
+            requires {
+              dict set result $field $value
+            }
+            TEA_PLATFORM {
+              dict set result platform $value
+            }
+            TEACUP_OS {
+              dict set result os $value
+            }
+            TEACUP_PROFILE {
+              dict set result profile $value
+            }
+          }
+        }
+        return $result
+      }
       objects {
         return $target_object
       }
@@ -3694,7 +3743,7 @@ oo::objdefine ::practcl::product {
       }
       add {
         set name [lindex $args 0]
-        set info [uplevel 2 [list subst [lindex $args 1]]]
+        set info [uplevel #0 [list subst [lindex $args 1]]]
         set body [lindex $args 2]
         
         set nspace [namespace current]
@@ -4419,11 +4468,6 @@ char *
   # Backward compadible call
   method generate-make path {
     my build-Makefile $path [self]
-  }
-
-  method install-headers {} {
-    set result {}
-    return $result
   }
 
   method linktype {} {

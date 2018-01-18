@@ -29,6 +29,46 @@
       set target_object {}
     }
     switch $command {
+      pkginfo {
+        ###
+        # Build local variables needed for install
+        ###
+        set result {}
+        set dat [my define dump]
+        set PKG_DIR [dict get $dat name][dict get $dat version]
+        dict set result PKG_DIR $PKG_DIR
+        dict with dat {}
+        if {![info exists DESTDIR]} {
+          set DESTDIR {}
+        }
+        foreach {field value} $dat {
+          switch $field {
+            includedir -
+            mandir -
+            datadir -
+            libdir -
+            libfile -
+            name -
+            output_tcl -
+            version -
+            authors -
+            license -
+            requires {
+              dict set result $field $value
+            }
+            TEA_PLATFORM {
+              dict set result platform $value
+            }
+            TEACUP_OS {
+              dict set result os $value
+            }
+            TEACUP_PROFILE {
+              dict set result profile $value
+            }
+          }
+        }
+        return $result
+      }
       objects {
         return $target_object
       }
@@ -63,7 +103,7 @@
       }
       add {
         set name [lindex $args 0]
-        set info [uplevel 2 [list subst [lindex $args 1]]]
+        set info [uplevel #0 [list subst [lindex $args 1]]]
         set body [lindex $args 2]
         
         set nspace [namespace current]
