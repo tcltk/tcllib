@@ -258,11 +258,6 @@ char *
     my build-Makefile $path [self]
   }
 
-  method install-headers {} {
-    set result {}
-    return $result
-  }
-
   method linktype {} {
     return library
   }
