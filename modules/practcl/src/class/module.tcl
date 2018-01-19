@@ -20,19 +20,23 @@
     return $object
   }
   
+  
+  method install-headers args {}
+  
   ###
   # Target handling
   ###
-  method target {command args} {
-    my variable target_object
-    if {![info exists target_object]} {
-      set target_object {}
+  method make {command args} {
+    my variable make_object
+    if {![info exists make_object]} {
+      set make_object {}
     }
     switch $command {
       pkginfo {
         ###
         # Build local variables needed for install
         ###
+        package require platform
         set result {}
         set dat [my define dump]
         set PKG_DIR [dict get $dat name][dict get $dat version]
@@ -41,6 +45,9 @@
         if {![info exists DESTDIR]} {
           set DESTDIR {}
         }
+        dict set result profile [::platform::identify]
+        dict set result os $::tcl_platform(os)
+        dict set result platform $::tcl_platform(platform)
         foreach {field value} $dat {
           switch $field {
             includedir -
@@ -65,67 +72,78 @@
             TEACUP_PROFILE {
               dict set result profile $value
             }
+            TEACUP_ZIPFILE {
+              dict set result zipfile $value
+            }
           }
+        }
+        if {![dict exists $result zipfile]} {
+          dict set result zipfile "[dict get $result name]-[dict get $result version]-[dict get $result profile].zip"
         }
         return $result
       }
       objects {
-        return $target_object
+        return $make_object
       }
       object {
         set name [lindex $args 0]
-        if {[dict exists $target_object $name]} {
-          return [dict get $target_object $name]
+        if {[dict exists $make_object $name]} {
+          return [dict get $make_object $name]
         }
         return {}
       }
+      reset {
+        foreach {name obj} $make_object {
+          $obj reset
+        }
+      }
       trigger {
-        puts [list [self] target trigger $args]
-        foreach name $args {
-          if {[dict exists $target_object $name]} {
-            puts [list TRIGGERING [dict exists $target_object $name]]
-            [dict get $target_object $name] triggers
+        foreach {name obj} $make_object {
+          if {$name in $args} {
+            $obj triggers
           }
         }
       }
       depends {
-        foreach name $args {
-          if {[dict exists $target_object $name]} {
-            [dict get $target_object $name] check
+        foreach {name obj} $make_object {
+          if {$name in $args} {
+            $obj check
           }
         }
       }
       filename {
         set name [lindex $args 0]
-        if {[dict exists $target_object $name]} {
-          return [[dict get $target_object $name] define get filename]
+        if {[dict exists $make_object $name]} {
+          return [[dict get $make_object $name] define get filename]
         }
       }
+      task -
+      target -
       add {
         set name [lindex $args 0]
         set info [uplevel #0 [list subst [lindex $args 1]]]
         set body [lindex $args 2]
         
         set nspace [namespace current]
-        if {[dict exist $target_object $name]} {
-          set obj [dict get $$target_object $name]
+        if {[dict exist $make_object $name]} {
+          set obj [dict get $$make_object $name]
         } else {
-          set obj [::practcl::target_obj new [self] $name $info $body]
-          dict set target_object $name $obj
+          set obj [::practcl::make_obj new [self] $name $info $body]
+          dict set make_object $name $obj
           dict set target_make $name 0
           dict set target_trigger $name 0
         }
         if {[dict exists $info aliases]} {
           foreach item [dict get $info aliases] {
-            if {![dict exists $target_object $item]} {
-              dict set target_object $item $obj
+            if {![dict exists $make_object $item]} {
+              dict set make_object $item $obj
             }
           }
         }
         return $obj
       }
       todo {
-         foreach {name obj} $target_object {
+         foreach {name obj} $make_object {
           if {[$obj do]} {
             lappend result $name
           }
@@ -133,7 +151,7 @@
       }
       do {
         global CWD SRCDIR project SANDBOX
-        foreach {name obj} $target_object {
+        foreach {name obj} $make_object {
           if {[$obj do]} {
             eval [$obj define get action]
           }
