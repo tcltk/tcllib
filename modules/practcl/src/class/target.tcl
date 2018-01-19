@@ -1,5 +1,5 @@
 
-::oo::class create ::practcl::target_obj {
+::oo::class create ::practcl::make_obj {
   superclass ::practcl::metaclass
 
   constructor {module_object name info {action_body {}}} {
@@ -32,7 +32,7 @@
     if {[info exists needs_make]} {
       return $needs_make
     }
-    set make_objects [my <module> target objects]
+    set make_objects [my <module> make objects]
     set needs_make 0
     foreach item [my define get depends] {
       if {![dict exists $make_objects $item]} continue
@@ -46,21 +46,43 @@
       }
     }
     if {!$needs_make} {
-      set filename [my define get filename]
-      if {$filename ne {} && ![file exists $filename]} {
-        set needs_make 1
+      foreach filename [my output] {
+        if {$filename ne {} && ![file exists $filename]} {
+          set needs_make 1
+        }
       }
     }
     return $needs_make
   }
+  
+  method output {} {
+    set result {}
+    set filename [my define get filename]
+    if {$filename ne {}} {
+      lappend result $filename
+    }
+    foreach filename [my define get files] {
+      if {$filename ne {}} {
+        lappend result $filename
+      }
+    }
+    return $result
+  }
 
+  method reset {} {
+    my variable triggered domake needs_make
+    set triggerd 0
+    set domake 0
+    set needs_make 0
+  }
+  
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {
       return $domake
     }
     set triggered 1
-    set make_objects [my <module> target objects]
+    set make_objects [my <module> make objects]
 
     foreach item [my define get depends] {
       if {![dict exists $make_objects $item]} continue
@@ -76,6 +98,6 @@
       }
     }
     set domake 1
-    my <module> target trigger {*}[my define get triggers]
+    my <module> make trigger {*}[my define get triggers]
   }
 }

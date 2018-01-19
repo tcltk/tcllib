@@ -2,6 +2,249 @@
 ::oo::class create ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
+  method Autoconf {} {
+    ###
+    # Re-run autoconf for this project
+    # Not a good idea in practice... but in the right hands it can be useful
+    ###
+    set pwd [pwd]
+    set srcdir [file normalize [my define get srcdir]]
+    cd $srcdir
+    foreach template {configure.ac configure.in} {
+      set input [file join $srcdir $template]
+      if {[file exists $input]} {
+        puts "autoconf -f $input > [file join $srcdir configure]"
+        exec autoconf -f $input > [file join $srcdir configure]
+      }
+    }
+    cd $pwd
+  }
+  
+  method BuildDir {PWD} {
+    set name [my define get name]
+    set debug [my define get debug 0]
+    if {[my <project> define get LOCAL 0]} {
+      return [my define get builddir [file join $PWD local $name]]
+    }
+    if {$debug} {
+      return [my define get builddir [file join $PWD debug $name]]
+    } else {
+      return [my define get builddir [file join $PWD pkg $name]]
+    }
+  }
+  
+  method ConfigureOpts {} {
+    set opts {}
+    set builddir [my define get builddir]
+ 
+    if {[my define get broken_destroot 0]} {
+      set PREFIX [my <project> define get prefix_broken_destdir]
+    } else {
+      set PREFIX [my <project> define get prefix]
+    }
+    switch [my define get name] {
+      tcl {
+        set opts [::practcl::platform::tcl_core_options [my <project> define get TEACUP_OS]]
+      }
+      tk {
+        set opts [::practcl::platform::tk_core_options  [my <project> define get TEACUP_OS]]
+      }
+    }
+    if {[my <project> define get CONFIG_SITE] != {}} {
+      lappend opts --host=[my <project> define get HOST]
+    }
+    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
+    lappend opts --with-tclsh=[info nameofexecutable]
+    if {![my <project> define get LOCAL 0]} {
+      set obj [my <project> tclcore]
+      if {$obj ne {}} {
+        if {$inside_msys} {
+          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+        } else {
+          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+        }
+      }
+      if {[my define get tk 0]} {
+        set obj [my <project> tkcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tk=[file normalize [$obj define get builddir]]
+          }
+        }
+      }
+    } else {
+      lappend opts --with-tcl=[file join $PREFIX lib]
+      if {[my define get tk 0]} {
+        lappend opts --with-tk=[file join $PREFIX lib]
+      }
+    }
+
+    lappend opts {*}[my define get config_opts]
+    if {![regexp -- "--prefix" $opts]} {
+      lappend opts --prefix=$PREFIX --exec-prefix=$PREFIX
+    }
+    if {[my define get debug 0]} {
+      lappend opts --enable-symbols=true
+    }
+    #--exec_prefix=$PREFIX
+    #if {$::tcl_platform(platform) eq "windows"} {
+    #  lappend opts --disable-64bit
+    #}
+    if {[my define get static 1]} {
+      lappend opts --disable-shared
+      #--disable-stubs
+      #
+    } else {
+      lappend opts --enable-shared
+    }
+    return $opts
+  }
+  
+  # Detect what directory contains the Makefile template
+  method MakeDir {srcdir} {
+    set localsrcdir $srcdir
+    if {[file exists [file join $srcdir generic]]} {
+      my define add include_dir [file join $srcdir generic]
+    }
+    set os [my <project> define get TEACUP_OS]
+    switch $os {
+      windows {
+        if {[file exists [file join $srcdir win]]} {
+          my define add include_dir [file join $srcdir win]
+        }
+        if {[file exists [file join $srcdir win Makefile.in]]} {
+          set localsrcdir [file join $srcdir win]
+        }
+      }
+      default {
+        if {[file exists [file join $srcdir $os]]} {
+          my define add include_dir [file join $srcdir $os]
+        }
+        if {[file exists [file join $srcdir unix]]} {
+          my define add include_dir [file join $srcdir unix]
+        }
+        if {[file exists [file join $srcdir $os Makefile.in]]} {
+          set localsrcdir [file join $srcdir $os]
+        } elseif {[file exists [file join $srcdir unix Makefile.in]]} {
+          set localsrcdir [file join $srcdir unix]
+        }
+      }
+    }
+    return $localsrcdir
+  }
+  
+  method make-autodetect {} {
+    set srcdir [my define get srcdir]
+    set localsrcdir [my define get localsrcdir]
+    if {$srcdir eq $localsrcdir} {
+      if {![file exists [file join $srcdir tclconfig install-sh]]} {
+        # ensure we have tclconfig with all of the trimmings
+        set teapath {}
+        if {[file exists [file join $srcdir .. tclconfig install-sh]]} {
+          set teapath [file join $srcdir .. tclconfig]
+        } else {
+          set tclConfigObj [::practcl::LOCAL tool tclconfig]
+          $tclConfigObj load
+          set teapath [$tclConfigObj define get srcdir]
+        }
+        set teapath [file normalize $teapath]
+        #file mkdir [file join $srcdir tclconfig]
+        if {[catch {file link -symbolic [file join $srcdir tclconfig] $teapath}]} {
+          ::practcl::copyDir [file join $teapath] [file join $srcdir tclconfig]
+        }
+      }
+    }
+    set builddir [my define get builddir]
+    file mkdir $builddir
+    if {![file exists [file join $localsrcdir configure]]} {
+      if {[file exists [file join $localsrcdir autogen.sh]]} {
+        cd $localsrcdir
+        catch {exec sh autogen.sh >>& [file join $builddir autoconf.log]}
+        cd $::CWD
+      }
+    }
+    set opts [my ConfigureOpts]
+    if {[file exists [file join $builddir autoconf.log]]} {
+      file delete [file join $builddir autoconf.log]
+    }
+    ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
+    ::practcl::log   [file join $builddir autoconf.log] [list  CONFIGURE {*}$opts]
+    cd $builddir
+    if {[my <project> define get CONFIG_SITE] ne {}} {
+      set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
+    }
+    catch {exec sh [file join $localsrcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
+    cd $::CWD
+  }
+  
+  method make-clean {} {
+    set builddir [file normalize [my define get builddir]]
+    catch {::practcl::domake $builddir clean}
+  }
+  
+  method make-compile {} {
+    set name [my define get name]
+    set srcdir [my define get srcdir]
+    if {[my define get static 1]} {
+      puts "BUILDING Static $name $srcdir"
+    } else {
+      puts "BUILDING Dynamic $name $srcdir"
+    }
+    cd $::CWD
+    set builddir [file normalize [my define get builddir]]
+    file mkdir $builddir
+    if {![file exists [file join $builddir Makefile]]} {
+      my Configure
+    }
+    if {[file exists [file join $builddir make.tcl]]} {
+      if {[my define get debug 0]} {
+        ::practcl::domake.tcl $builddir debug all
+      } else {
+        ::practcl::domake.tcl $builddir all
+      }
+    } else {
+      ::practcl::domake $builddir all
+    }
+  }
+  
+  method make-install DEST {
+    set PWD [pwd]
+    set builddir [my define get builddir]
+    if {[my <project> define get LOCAL 0] || $DEST eq {}} {
+      if {[file exists [file join $builddir make.tcl]]} {
+        puts "[self] Local INSTALL (Practcl)"
+        ::practcl::domake.tcl $builddir install
+      } else {[my define get broken_destroot 0] == 0} {
+        puts "[self] Local INSTALL (TEA)"
+        ::practcl::domake $builddir install
+      }
+    } else {
+      if {[file exists [file join $builddir make.tcl]]} {
+        # Practcl builds can inject right to where we need them
+        puts "[self] VFS INSTALL $DEST (Practcl)"
+        ::practcl::domake.tcl $builddir install-package $DEST
+      } elseif {[my define get broken_destroot 0] == 0} {
+        # Most modern TEA projects understand DESTROOT in the makefile
+        puts "[self] VFS INSTALL $DEST (TEA)"
+        ::practcl::domake $builddir install DESTDIR=[::practcl::file_relative $builddir $DEST]
+      } else {
+        # But some require us to do an install into a fictitious filesystem
+        # and then extract the gooey parts within.
+        # (*cough*) TkImg
+        set PREFIX [my <project> define get prefix]
+        set BROKENROOT [::practcl::msys_to_tclpath [my <project> define get prefix_broken_destdir]]
+        file delete -force $BROKENROOT
+        file mkdir $BROKENROOT
+        ::practcl::domake $builddir $install
+        ::practcl::copyDir $BROKENROOT  [file join $DEST [string trimleft $PREFIX /]]
+        file delete -force $BROKENROOT
+      }
+    }
+    cd $PWD
+  }
+  
   method build-compile-sources {PROJECT COMPILE CPPCOMPILE INCLUDES} {
     set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
