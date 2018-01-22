@@ -18,8 +18,10 @@ proc ::sak::readme::usage {} {
     exit 1
 }
 
-proc ::sak::readme::run {} {
+proc ::sak::readme::run {theformat} {
     global package_name package_version
+
+    set pname [string totitle $package_name]
 
     getpackage struct::set      struct/sets.tcl
     getpackage struct::matrix   struct/matrix.tcl
@@ -33,9 +35,11 @@ proc ::sak::readme::run {} {
     foreach {trunk   tuid} [sak::review::Leaf          trunk]   break ;# rid + uuid
     foreach {release ruid} [sak::review::YoungestOfTag release] break ;# datetime+uuid
 
-    sak::review::AllParentsAfter $trunk $tuid $release $ruid -> rid uuid {
-	sak::review::FileSet $rid -> path action {
-	    lappend modifiedm [lindex [file split $path] 1]
+    sak::review::AllParentsAfter $trunk $tuid $release $ruid -> rid uuid numparents {
+	if {$numparents < 2} {
+	    sak::review::FileSet $rid -> path action {
+		lappend modifiedm [lindex [file split $path] 1]
+	    }
 	}
     }
     set modifiedm [lsort -unique $modifiedm]
@@ -60,16 +64,24 @@ proc ::sak::readme::run {} {
     struct::matrix NEW ; NEW add columns 4 ; # module, package, version, notes
     struct::matrix CHG ; CHG add columns 5 ; # module, package, old/new version, notes
     struct::matrix ICH ; ICH add columns 5 ; # module, package, old/new version, notes
-    struct::matrix CNT ; CNT add columns 5;
+    struct::matrix CNT ; CNT add columns 5 ; # overview, counters
+    struct::matrix LEG ; LEG add columns 3 ; # legend, fixed
+
+    LEG add row {Change Details Comments}
+    LEG add row {Major API {__incompatible__ API changes}}
+    LEG add row {Minor EF  {Extended functionality, API}}
+    LEG add row {{}    I   {Major rewrite, but no API change}}
+    LEG add row {Patch B   {Bug fixes}}
+    LEG add row {{}    EX  {New examples}}
+    LEG add row {{}    P   {Performance enhancement}}
+    LEG add row {None  T   {Testsuite changes}}
+    LEG add row {{}    D   {Documentation updates}}
+    
     set UCH {}
 
     NEW add row {Module Package {New Version} Comments}
-
-    CHG add row [list {} {} "$package_name $old_version" "$package_name $package_version" {}]
-    CHG add row {Module Package {Old Version} {New Version} Comments}
-
-    ICH add row [list {} {} "$package_name $old_version" "$package_name $package_version" {}]
-    ICH add row {Module Package {Old Version} {New Version} Comments}
+    CHG add row [list Module Package "From $old_version" "To $package_version" Comments]
+    ICH add row [list Module Package "From $old_version" "To $package_version" Comments]
 
     set newp {} ; set chgp {} ; set ichp {}
     set newm {} ; set chgm {} ; set ichm {} ; set uchm {}
@@ -180,6 +192,8 @@ proc ::sak::readme::run {} {
 
     # .... process the matrices and others results, make them presentable ...
 
+    CNT add row {{} {} {} {} {}}
+    
     set newp [llength [lsort -uniq $newp]]
     set newm [llength [lsort -uniq $newm]]
     if {$newp} {
@@ -206,35 +220,31 @@ proc ::sak::readme::run {} {
 
     CNT add row [list $np {packages, total} in $nm {modules, total}]
 
-    Header Overview
-    puts ""
-    if {[CNT rows] > 0} {
-	puts [Indent "    " [Detrail [CNT format 2string]]]
+    Table CNT Overview {
+	CNT delete row 0 ; # strip title row
+    } {}
+    
+    Table LEG Legend {
+	Sep LEG - 1
+    } {
     }
-    puts ""
 
-    if {[NEW rows] > 1} {
-	Header "New in $package_name $package_version"
-	puts ""
+    Table NEW "New in $pname $package_version" {
 	Sep NEW - [Clean NEW 1 0]
-	puts [Indent "    " [Detrail [NEW format 2string]]]
-	puts ""
+    } {
+	SepMD NEW {} [Clean NEW 1 0]
     }
 
-    if {[CHG rows] > 2} {
-	Header "Changes from $package_name $old_version to $package_version"
-	puts ""
-	Sep CHG - [Clean CHG 2 0]
-	puts [Indent "    " [Detrail [CHG format 2string]]]
-	puts ""
+    Table CHG "Changes from $pname $old_version to $package_version" {
+	Sep CHG - [Clean CHG 1 0]
+    } {
+	SepMD CHG {} [lrange [Clean CHG 1 0] 1 end-1]
     }
 
-    if {[ICH rows] > 2} {
-	Header "Invisible changes (documentation, testsuites)"
-	puts ""
-	Sep ICH - [Clean ICH 2 0]
-	puts [Indent "    " [Detrail [ICH format 2string]]]
-	puts ""
+    Table ICH "Invisible changes (documentation, testsuites)" {
+	Sep ICH - [Clean ICH 1 0]
+    } {
+	SepMD ICH {} [lrange [Clean ICH 1 0] 1 end-1]
     }
 
     if {[llength $UCH]} {
@@ -243,9 +253,6 @@ proc ::sak::readme::run {} {
 	puts [Indent "    " [textutil::adjust::adjust \
 				 [join [lsort -dict $UCH] {, }] -length 64]]
     }
-
-    variable legend
-    puts $legend
 
     if {![llength $issues]} return
 
@@ -267,6 +274,36 @@ proc ::sak::readme::run {} {
     puts stderr [=red "Issues found ([llength $issues])"]
     puts stderr "  Please run \"./sak.tcl review\" to resolve,"
     puts stderr "  then run \"./sak.tcl readme\" again."
+    return
+}
+
+proc ::sak::readme::Table {obj title {pretxt {}} {premd {}}} {
+    upvar 1 theformat theformat
+    if {[$obj rows] < 2} return
+    Header $title
+
+    puts ""
+    switch -exact -- $theformat {
+	txt {
+	    uplevel 1 $pretxt
+	    puts [Indent "    " [Detrail [$obj format 2string]]]
+	}
+	md {
+	    uplevel 1 $premd
+	    # Header row, then separator, then the remainder.
+	    puts |[join [$obj get row 0] |]|
+	    puts |[join [lrepeat [$obj columns] ---] |]|
+	    set n [$obj rows]
+	    for {set i 1} {$i < $n} {incr i} {
+		puts |[join [$obj get row $i] |]|
+	    }
+	}
+	default {
+	    error "Bad format"
+	    exit 1
+	}
+    }
+    puts ""
     return
 }
 
@@ -341,7 +378,6 @@ proc ::sak::readme::Clean {m start col} {
 }
 
 proc ::sak::readme::Sep {m char marks} {
-
     #puts stderr "$m = $marks"
 
     set n [$m columns]
@@ -349,6 +385,18 @@ proc ::sak::readme::Sep {m char marks} {
     for {set i 0} {$i < $n} {incr i} {
 	lappend sep [string repeat $char [expr {2+[$m columnwidth $i]}]]
     }
+
+    foreach k [linsert [lsort -decreasing -integer -uniq $marks] 0 end] {
+	$m insert row $k $sep
+    }
+    return
+}
+
+proc ::sak::readme::SepMD {m char marks} {
+    #puts stderr "$m = $marks"
+
+    set n [$m columns]
+    set sep [lreplace [lrepeat $n {}] end end $char]
 
     foreach k [linsert [lsort -decreasing -integer -uniq $marks] 0 end] {
 	$m insert row $k $sep
@@ -426,22 +474,6 @@ proc ::sak::readme::loadoldv {fname} {
 # ###
 
 namespace eval ::sak::readme {
-    variable legend {
-Legend  Change  Details Comments
-        ------  ------- ---------
-        Major   API:    ** incompatible ** API changes.
-
-        Minor   EF :    Extended functionality, API.
-                I  :    Major rewrite, but no API change
-
-        Patch   B  :    Bug fixes.
-                EX :    New examples.
-                P  :    Performance enhancement.
-
-        None    T  :    Testsuite changes.
-                D  :    Documentation updates.
-    }
-
     variable review {}
 }
 

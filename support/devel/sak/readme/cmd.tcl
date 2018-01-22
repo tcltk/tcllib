@@ -14,12 +14,25 @@ set raw  0
 set log  0
 set stem {}
 set tclv {}
+set format txt
+
+while {[llength $argv]} {
+    switch -exact -- [set o [lindex $argv 0]] {
+	-md {
+	    set argv [lrange $argv 1 end]
+	    set format md
+	}
+	default {
+	    sak::readme::usage
+	}
+    }
+}
 
 if {[llength $argv]} {
     sak::readme::usage
 }
 
-sak::readme::run
+sak::readme::run $format
 
 ##
 # ###
