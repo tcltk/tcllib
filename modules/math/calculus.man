@@ -1,4 +1,4 @@
-[vset VERSION 0.8.1]
+[vset VERSION 0.8.2]
 [manpage_begin math::calculus n [vset VERSION]]
 [see_also romberg]
 [keywords calculus]
