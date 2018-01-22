@@ -232,7 +232,7 @@ proc ::sak::readme::run {theformat} {
     Table NEW "New in $pname $package_version" {
 	Sep NEW - [Clean NEW 1 0]
     } {
-	SepMD NEW {} [Clean NEW 1 0]
+	SepMD NEW {} [lrange [Clean NEW 1 0] 1 end-1]
     }
 
     Table CHG "Changes from $pname $old_version to $package_version" {
