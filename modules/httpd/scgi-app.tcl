@@ -132,4 +132,4 @@ tool::class create scgi::app {
   }
 }
 
-package provide scgi::app 0.1
+package provide scgi::app 0.2

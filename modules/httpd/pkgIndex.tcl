@@ -8,6 +8,6 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
   
-package ifneeded scgi::app 0.1 [list source [file join $dir scgi-app.tcl]]
+package ifneeded scgi::app 0.2 [list source [file join $dir scgi-app.tcl]]
 package ifneeded httpd 4.0.1 [list source [file join $dir httpd.tcl]]
 package ifneeded httpd::content 4.0.1 [list source [file join $dir content.tcl]]
