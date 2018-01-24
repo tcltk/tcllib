@@ -69,6 +69,7 @@ Changes from Tcllib 1.18 to 1.19
                        httpd::content              4.0         4.0.1     B I
                        scgi::app                   0.1         0.2       B T
     ------------------ --------------------------- ----------- --------- --------------
+    inifile            ini                         0.3         0.3.1     B D
     json               json                        1.3.3       1.3.4     B D T
     ldap               ldap                        1.8         1.9.2     B D T
     ------------------ --------------------------- ----------- --------- --------------
@@ -187,7 +188,7 @@ Unchanged
     grammar::me::cpu, grammar::me::cpu::core,
     grammar::me::cpu::gasm, grammar::me::tcl, grammar::me::util,
     grammar::peg, grammar::peg::interp, hook, html, htmlparse,
-    http::wget, http::wget, huddle::json, ident, imap4, inifile,
+    http::wget, http::wget, huddle::json, ident, imap4,
     interp, interp::delegate::method, interp::delegate::proc, irc,
     javascript, jpeg, json::write, lambda, ldapx, log, logger,
     logger::appender, logger::utils, map::geocode::nominatim,
