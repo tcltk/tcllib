@@ -131,6 +131,7 @@ Invisible changes (documentation, testsuites)
 |docstrip|docstrip::util|1.3.1|1.3.1|D|
 |doctools2idx|doctools::idx|2|2|---|
 |doctools2toc|doctools::toc|2|2|---|
+|ldap|ldapx|0.2.5|0.2.5|D|
 |markdown|Markdown|1.0|1.0|D T|
 ||||||
 |math|math::bigfloat|1.2.2|1.2.2|T|
@@ -186,7 +187,7 @@ Unchanged
     grammar::peg, grammar::peg::interp, hook, html, htmlparse,
     http::wget, http::wget, huddle::json, ident, imap4,
     interp, interp::delegate::method, interp::delegate::proc, irc,
-    javascript, jpeg, json::write, lambda, ldapx, log, logger,
+    javascript, jpeg, json::write, lambda, log, logger,
     logger::appender, logger::utils, map::geocode::nominatim,
     map::slippy, map::slippy::cache, map::slippy::fetcher, mapproj,
     math, math::bignum, math::calculus::symdiff,
