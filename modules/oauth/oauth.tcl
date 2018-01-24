@@ -1,4 +1,4 @@
-# !/bin/sh
+#!/bin/sh
 # the next line will restart with tclsh wherever it is \
 exec tclsh "$0" "$@"
 
@@ -25,7 +25,7 @@ exec tclsh "$0" "$@"
 #  TODO: create online documentation
 
 package require Tcl 8.5
-package provide oauth 1
+package provide oauth 1.0.1
 
 package require http
 package require tls
@@ -125,7 +125,7 @@ proc ::oauth::config {args} {
 #             oauth_timestamp="1318622958", 
 #             oauth_token="370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb", 
 #             oauth_version="1.0"
-proc ::oauth::header {baseURL {postQuery ""}} {
+proc ::oauth::header {baseURL {postQuery {}}} {
     variable oauth
 
     if {$oauth(-signmethod) eq ""} {
@@ -155,35 +155,31 @@ proc ::oauth::header {baseURL {postQuery ""}} {
     lappend paramList "oauth_timestamp=$timestamp"
     lappend paramList "oauth_token=$oauth(-accesstoken)"
     lappend paramList "oauth_version=$oauth(-oauthversion)"
-    
-    if {$postQuery eq {}} {
-	set url [lindex [split $baseURL {?}] 0]
-	set queryString [lindex [split $baseURL {?}] 1]
-	foreach argument [split $queryString {&}] {
-	    lappend paramList $argument
-	}
-	set httpMethod {GET}
-    } else {
-	set url $baseURL
-	set httpMethod {POST}
-    }
 
-    foreach parameter $paramList {
-	set key [lindex [split $parameter {=}] 0]
-	set value [join [lrange [split $parameter {=}] 1 end] {=}]
-	lappend header "${key}=\"${value}\""
+    set header $paramList
+
+    if {$postQuery eq {}} {
+	lassign [Split $baseURL ?] url queryString
+	set httpMethod GET
+    } else {
+	set url         $baseURL
+	set queryString $postQuery
+	set httpMethod POST
     }
-    set paramString [join [lsort -dictionary $paramList] {&}]
+    lappend paramList {*}[split $queryString &]
+
+    set headerQ [QuoteValues $header]
+    set paramString [join [lsort -dictionary $paramList] &]
     
     lappend baseList $httpMethod
     lappend baseList [PercentEncode $url]
     lappend baseList [PercentEncode $paramString]
-    set signString [join $baseList {&}]
+    set signString [join $baseList &]
     
     set signKey "[PercentEncode $oauth(-consumersecret)]&[PercentEncode $oauth(-accesstokensecret)]"
     set signature [base64::encode [sha1::hmac -bin -key $signKey $signString]]
 
-    lappend header "oauth_signature=\"[PercentEncode $signature]\""
+    lappend headerQ "oauth_signature=\"[PercentEncode $signature]\""
     if {$oauth(-debug) == 1} {
 	puts {oauth::header: Authorization Oauth}
 	foreach line $header {
@@ -191,7 +187,7 @@ proc ::oauth::header {baseURL {postQuery ""}} {
 	}
 	puts "\nBaseString: $signString"
     }
-    return "Authorization [list [concat OAuth [join [lsort -dictionary $header] {, }]]]"
+    return "Authorization [list [concat OAuth [join [lsort -dictionary $headerQ] {, }]]]"
 }
 
 # query --
@@ -200,13 +196,13 @@ proc ::oauth::header {baseURL {postQuery ""}} {
 # Arguments:
 #       baseURL     api host URL with ?arguments if it's a GET request
 #       postQuery   POST query if it's a POST query
-# Result:
+# Result:
 #       The result will be list with 2 arguments.
 #       The first argument is an array with the http's header
 #       and the second one is JSON data received from the server. The header is
 #       very important because it reports your rest API limit and will
 #       inform you if you can get your account suspended.
-proc ::oauth::query {baseURL {postQuery ""}} {
+proc ::oauth::query {baseURL {postQuery {}}} {
     variable oauth
     if {$oauth(-consumerkey) eq ""} {
 	Error "ERROR: please define your consumer key.\
@@ -229,15 +225,15 @@ proc ::oauth::query {baseURL {postQuery ""}} {
 	    BAD ACCESS-TOKEN-SECRET
     }
     if {$postQuery eq ""} {
-	set url [lindex [split $baseURL {?}] 0]
-	set queryString [join [lrange [split $baseURL {?}] 1 end] {?}]
-	set httpMethod {GET}
+	lassign [Split $baseURL ?] url queryString
+	set httpMethod GET
     } else {
 	set url $baseURL
-	set httpMethod {POST}
+	set queryString $postQuery
+	set httpMethod POST
     }
     
-    if {$httpMethod eq {GET}} {
+    if {$httpMethod eq "GET"} {
 	if {$queryString ne {}} {
 	    append url ? $queryString
 	}
@@ -246,12 +242,10 @@ proc ::oauth::query {baseURL {postQuery ""}} {
 	set requestBody $queryString
     }
     if {$queryString ne {}} {
-	set headerURL ${url}?${queryString}
+	set header [header $url $queryString]
     } else {
-	set headerURL $url
+	set header [header $url]
     }
-
-    set header [header $headerURL]
 
     http::config \
 	-proxyhost $oauth(-proxyhost) \
@@ -273,6 +267,25 @@ proc ::oauth::query {baseURL {postQuery ""}} {
     return $result
 }
 
+# QuoteValues --
+#    Add double-quotes around all values in the parameter string
+#    and return a list of modified parameter assignments.
+proc ::oauth::QuoteValues {params} {
+    set tmp {}
+    foreach parameter $header {
+	lassign [Split $parameter =] key value
+	lappend tmp "${key}=\"${value}\""
+    }
+    return $tmp
+}
+
+# Split -
+#	Split the string on the first separator
+#       and return both parts as a list.
+proc ::oauth::Split {string sep} {
+    regexp "{^(\[^${sep}\]+)${sep}(.*)\$" $string -> key value
+    list $key $value
+}
 
 # PercentEncode --
 #       Encoding process in http://tools.ietf.org/html/rfc3986#section-2.1
