@@ -130,7 +130,7 @@ namespace eval math::exact {
 #	the second is a list of the semantic values of the tokens. The
 #	two sublists are the same length.
 
-proc math::exact::Lexer {expression} {
+proc ::math::exact::Lexer {expression} {
     set start 0
     set tokens {}
     set values {}
@@ -191,7 +191,7 @@ proc math::exact::Lexer {expression} {
 # Results:
 #	Returns the first argument
 
-proc math::exact::K {a b} {return $a}
+proc ::math::exact::K {a b} {return $a}
 
 # math::exact::exactexpr --
 #
@@ -209,7 +209,7 @@ proc math::exact::K {a b} {return $a}
 # user of a real will [ref] the object when storing it in a variable and
 # [unref] it again when the variable goes out of scope or is overwritten.
 
-proc math::exact::exactexpr {expr} {
+proc ::math::exact::exactexpr {expr} {
     variable parser
     set result [$parser parse {*}[Lexer $expr] \
 		    [dict create \
@@ -257,7 +257,7 @@ proc math::exact::exactexpr {expr} {
 # Results:
 #	Returns the gcd
 
-proc math::exact::gcd {a args} {
+proc ::math::exact::gcd {a args} {
     foreach b $args {
 	if {$a > $b} {
 	    set t $b; set b $a; set a $t
@@ -281,7 +281,7 @@ proc math::exact::gcd {a args} {
 # Results:
 #	Returns the transpose
 
-proc math::exact::trans {x} {
+proc ::math::exact::trans {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
@@ -298,7 +298,7 @@ proc math::exact::trans {x} {
 # Results:
 #	Returns the determinant.
 
-proc math::exact::determinant {x} {
+proc ::math::exact::determinant {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
@@ -319,7 +319,7 @@ proc math::exact::determinant {x} {
 # Notes:
 #	The reverse is well defined even for singular matrices.
 
-proc math::exact::reverse {x} {
+proc ::math::exact::reverse {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
@@ -336,7 +336,7 @@ proc math::exact::reverse {x} {
 # Results:
 #	Returns 1 if both components are even, 0 otherwise.
 
-proc math::exact::veven {x} {
+proc ::math::exact::veven {x} {
     lassign $x a b
     return [expr {($a % 2 == 0) && ($b % 2 == 0)}]
 }
@@ -351,7 +351,7 @@ proc math::exact::veven {x} {
 # Results:
 #	Returns 1 if all components are even, 0 otherwise.
 
-proc math::exact::meven {x} {
+proc ::math::exact::meven {x} {
     lassign $x a b
     return [expr {[veven $a] && [veven $b]}]
 }
@@ -366,7 +366,7 @@ proc math::exact::meven {x} {
 # Results:
 #	Returns 1 if all components are even, 0 otherwise
 
-proc math::exact::teven {x} {
+proc ::math::exact::teven {x} {
     lassign $x a b
     return [expr {[meven $a] && [meven $b]}]
 }
@@ -381,7 +381,7 @@ proc math::exact::teven {x} {
 # Results:
 #	Returns the scaled vector
 
-proc math::exact::vhalf {x} {
+proc ::math::exact::vhalf {x} {
     lassign $x a b
     tailcall list [expr {$a / 2}] [expr {$b / 2}]
 }
@@ -396,7 +396,7 @@ proc math::exact::vhalf {x} {
 # Results:
 #	Returns the scaled matrix
 
-proc math::exact::mhalf {x} {
+proc ::math::exact::mhalf {x} {
     lassign $x a b
     tailcall list [vhalf $a] [vhalf $b]
 }
@@ -411,7 +411,7 @@ proc math::exact::mhalf {x} {
 # Results:
 #	Returns the scaled tensor
 
-proc math::exact::thalf {x} {
+proc ::math::exact::thalf {x} {
     lassign $x a b
     tailcall list [mhalf $a] [mhalf $b]
 }
@@ -426,7 +426,7 @@ proc math::exact::thalf {x} {
 # Results:
 #	Returns the scaled vector
 
-proc math::exact::vscale {x} {
+proc ::math::exact::vscale {x} {
     while {[veven $x]} {
 	set x [vhalf $x]
     }
@@ -444,7 +444,7 @@ proc math::exact::vscale {x} {
 # Results:
 #	Returns the scaled matrix
 
-proc math::exact::mscale {x} {
+proc ::math::exact::mscale {x} {
     while {[meven $x]} {
 	set x [mhalf $x]
     }
@@ -462,7 +462,7 @@ proc math::exact::mscale {x} {
 # Results:
 #	Returns the scaled tensor
 
-proc math::exact::tscale {x} {
+proc ::math::exact::tscale {x} {
     while {[teven $x]} {
 	set x [thalf $x]
     }
@@ -479,7 +479,7 @@ proc math::exact::tscale {x} {
 # Results:
 #	Returns the scaled vector
 
-proc math::exact::vreduce {x} {
+proc ::math::exact::vreduce {x} {
     lassign $x a b
     set g [gcd $a $b]
     tailcall list [expr {$a / $g}] [expr {$b / $g}]
@@ -500,7 +500,7 @@ proc math::exact::vreduce {x} {
 # was constructed by pre- or post-multiplying a series of sign and digit
 # matrices.
 
-proc math::exact::mreduce {x} {
+proc ::math::exact::mreduce {x} {
     lassign $x ab cd
     lassign $ab a b
     lassign $cd c d
@@ -525,7 +525,7 @@ proc math::exact::mreduce {x} {
 # constructed by absorbing a digit matrix into a tensor that was already
 # in lowest terms.
 
-proc math::exact::treduce {x} {
+proc ::math::exact::treduce {x} {
     lassign $x abcd efgh
     lassign $abcd ab cd
     lassign $ab a b
@@ -554,7 +554,7 @@ proc math::exact::treduce {x} {
 # Results:
 #	Returns the vector sum
 
-proc math::exact::vadd {x y} {
+proc ::math::exact::vadd {x y} {
     lmap p $x q $y {expr {$p + $q}}
 }
 
@@ -569,7 +569,7 @@ proc math::exact::vadd {x y} {
 # Results:
 #	Returns the matrix sum
 
-proc math::exact::madd {A B} {
+proc ::math::exact::madd {A B} {
     lmap x $A y $B {
 	lmap p $x q $y {expr {$p + $q}}
     }
@@ -586,7 +586,7 @@ proc math::exact::madd {A B} {
 # Results:
 #	Returns the tensor sum
 
-proc math::exact::tadd {U V} {
+proc ::math::exact::tadd {U V} {
     lmap A $U B $V {
 	lmap x $A y $B {
 	    lmap p $x q $y {expr {$p + $q}}
@@ -605,7 +605,7 @@ proc math::exact::tadd {U V} {
 # Results:
 #	Returns the product vector
 
-proc math::exact::mdotv {A x} {
+proc ::math::exact::mdotv {A x} {
     lassign $A ab cd
     lassign $ab a b
     lassign $cd c d
@@ -624,7 +624,7 @@ proc math::exact::mdotv {A x} {
 # Results:
 #	Returns the matrix product
 
-proc math::exact::mdotm {A B} {
+proc ::math::exact::mdotm {A B} {
     lassign $B x y
     tailcall list [mdotv $A $x] [mdotv $A $y]
 }
@@ -640,7 +640,7 @@ proc math::exact::mdotm {A B} {
 # Results:
 #	Returns the product tensor
 
-proc math::exact::mdott {A T} {
+proc ::math::exact::mdott {A T} {
     lassign $T B C
     tailcall list [mdotm $A $B] [mdotm $A $C]
 }
@@ -656,7 +656,7 @@ proc math::exact::mdott {A T} {
 # Results:
 #	Returns the product matrix
 
-proc math::exact::trightv {T v} {
+proc ::math::exact::trightv {T v} {
     lassign $T m n
     tailcall list [mdotv $m $v] [mdotv $n $v]
 }
@@ -672,7 +672,7 @@ proc math::exact::trightv {T v} {
 # Results:
 #	Returns the product tensor
 
-proc math::exact::trightm {T A} {
+proc ::math::exact::trightm {T A} {
     lassign $T m n
     tailcall list [mdotm $m $A] [mdotm $n $A]
 }
@@ -688,7 +688,7 @@ proc math::exact::trightm {T A} {
 # Results:
 #	Returns the product matrix
 
-proc math::exact::tleftv {T v} {
+proc ::math::exact::tleftv {T v} {
     tailcall trightv [trans $T] $v
 }
 
@@ -703,7 +703,7 @@ proc math::exact::tleftv {T v} {
 # Results:
 #	Returns the product tensor
 
-proc math::exact::tleftm {T A} {
+proc ::math::exact::tleftm {T A} {
     tailcall trans [trightm [trans $T] $A]
 }
 
@@ -734,7 +734,7 @@ proc math::exact::tleftm {T A} {
 # operands, which are known to be of like sign
 # If the quotient a/b is infinite, the result is the sign of a.
 
-proc math::exact::sign {v} {
+proc ::math::exact::sign {v} {
     lassign $v a b
     if {$a < 0} {
 	if {$b <= 0} {
@@ -769,7 +769,7 @@ proc math::exact::sign {v} {
 # Results:
 #	1 if the vector refines, 0 otherwise.
 
-proc math::exact::vrefines {v} {
+proc ::math::exact::vrefines {v} {
     return [expr {[sign $v] != 0}]
 }
 
@@ -783,7 +783,7 @@ proc math::exact::vrefines {v} {
 # Results:
 #	1 if the matrix refines, 0 otherwise.
 
-proc math::exact::mrefines {A} {
+proc ::math::exact::mrefines {A} {
     lassign $A v w
     set a [sign $v]
     set b [sign $w]
@@ -800,7 +800,7 @@ proc math::exact::mrefines {A} {
 # Results:
 #	1 if the tensor refines, 0 otherwise.
 
-proc math::exact::trefines {T} {
+proc ::math::exact::trefines {T} {
     lassign $T vw xy
     lassign $vw v w
     lassign $xy x y
@@ -821,7 +821,7 @@ proc math::exact::trefines {T} {
 # Returns:
 #	The result of the comparison.
 
-proc math::exact::vlessv {v w} {
+proc ::math::exact::vlessv {v w} {
     expr {[determinant [list $v $w]] < 0}
 }
 
@@ -836,7 +836,7 @@ proc math::exact::vlessv {v w} {
 # Results:
 #	Returns 1 if m < x, 0 otherwise
 
-proc math::exact::mlessv {m x} {
+proc ::math::exact::mlessv {m x} {
     lassign $m v w
     expr {[vlessv $v $x] && [vlessv $w $x]}
 }
@@ -852,7 +852,7 @@ proc math::exact::mlessv {m x} {
 # Results:
 #	Returns 1 if m < n, 0 otherwise
 
-proc math::exact::mlessm {m n} {
+proc ::math::exact::mlessm {m n} {
     lassign $n v w
     expr {[mlessv $m $v] && [mlessv $m $w]}
 }
@@ -868,7 +868,7 @@ proc math::exact::mlessm {m n} {
 # Results:
 #	Returns 1 if the intervals are disjoint, 0 otherwise
 
-proc math::exact::mdisjointm {m n} {
+proc ::math::exact::mdisjointm {m n} {
     expr {[mlessm $m $n] || [mlessm $n $m]}
 }
 
@@ -884,7 +884,7 @@ proc math::exact::mdisjointm {m n} {
 #	Returns the floating point number in scientific notation, with no
 #	digits to the left of the decimal point.
 
-proc math::exact::mAsFloat {m} {
+proc ::math::exact::mAsFloat {m} {
 
     # Special case: If a number is exact, the determinant is zero.
 
@@ -929,12 +929,13 @@ proc math::exact::mAsFloat {m} {
 #
 #	Returns the empty string if a number is entirely undetermined.
 
-proc math::exact::scientificNotation {m} {
+proc ::math::exact::scientificNotation {m} {
+    variable iszer
     set n 0
     while {1} {
 	if {[vrefines [mdotv [reverse $m] {1 0}]]} {
 	    return {}
-	} elseif {[mrefines [mdotm $math::exact::iszer $m]]} {
+	} elseif {[mrefines [mdotm $iszer $m]]} {
 	    return [linsert [mantissa $m] 0 $n]
 	} else {
 	    set m [mdotm {{1 0} {0 10}} $m]
@@ -955,7 +956,7 @@ proc math::exact::scientificNotation {m} {
 # Results:
 #	Returns a list of digits
 
-proc math::exact::mantissa {m} {
+proc ::math::exact::mantissa {m} {
     set retval {}
     set done 0
     while {!$done} {
@@ -988,7 +989,7 @@ proc math::exact::mantissa {m} {
 #		       whose remaining elements are the digits of the
 #		       significand.
 
-proc math::exact::eFormat {expAndDigits} {
+proc ::math::exact::eFormat {expAndDigits} {
 
     # An empty sequence of digits is an indeterminate number
 
@@ -1047,7 +1048,7 @@ proc math::exact::eFormat {expAndDigits} {
 #	Returns the quotient in E format.  Nonzero/zero == Infinity,
 #	0/0 == NaN.
 
-proc math::exact::showRat {v} {
+proc ::math::exact::showRat {v} {
     lassign $v p q
     if {$p != 0 || $q != 0} {
 	return [format %e [expr {double($p)/double($q)}]]
@@ -1066,7 +1067,7 @@ proc math::exact::showRat {v} {
 # Results:
 #	Returns a string representing the interval in E format.
 
-proc math::exact::showInterval {m} {
+proc ::math::exact::showInterval {m} {
     lassign $m v w
     return "\[[showRat $w] .. [showRat $v]\]"
 }
@@ -1082,7 +1083,7 @@ proc math::exact::showInterval {m} {
 #	Returns a string containing the left and right matrices of the
 #	tensor, each represented as an interval.
 
-proc math::exact::showTensor {t} {
+proc ::math::exact::showTensor {t} {
     lassign $t m n
     return [list [showInterval $m] [showInterval $n]]
 }
@@ -2695,7 +2696,7 @@ oo::class create math::exact::Tstrict {
 #	transformations. For example, (1 - u**2) / (1 + u**2)
 #	could be constructed as [opreal {{{-1 1} {0 0}} {{0 0} {1 1}}} $u $u]
 
-proc math::exact::opreal {op x y {kludge {}}} {
+proc ::math::exact::opreal {op x y {kludge {}}} {
     # split x and y into sign and magnitude
     $x ref; $y ref
     lassign [$x getSignAndMagnitude] sx mx
@@ -2722,10 +2723,10 @@ proc math::exact::opreal {op x y {kludge {}}} {
 # Results:
 #	Returns x+y, x-y, x*y or x/y as requested.
 
-proc math::exact::+real {a b} { variable tadd; return [opreal $tadd $a $b] }
-proc math::exact::-real {a b} { variable tsub; return [opreal $tsub $a $b] }
-proc math::exact::*real {a b} { variable tmul; return [opreal $tmul $a $b] }
-proc math::exact::/real {a b} { variable tdiv; return [opreal $tdiv $a $b] }
+proc ::math::exact::+real {a b} { variable tadd; return [opreal $tadd $a $b] }
+proc ::math::exact::-real {a b} { variable tsub; return [opreal $tsub $a $b] }
+proc ::math::exact::*real {a b} { variable tmul; return [opreal $tmul $a $b] }
+proc ::math::exact::/real {a b} { variable tdiv; return [opreal $tdiv $a $b] }
 
 # real --
 #
@@ -2741,7 +2742,7 @@ proc math::exact::/real {a b} { variable tdiv; return [opreal $tdiv $a $b] }
 # Consumer with respect to its argument and a Constructor with respect to
 # its result.
 
-proc math::exact::function::real {x} {
+proc ::math::exact::function::real {x} {
     tailcall $x asReal
 }
 
@@ -2788,7 +2789,7 @@ oo::class create math::exact::SqrtWorker {
 # The number may be rational or real. There is a special optimization used
 # if the number is rational
 
-proc math::exact::function::sqrt {x} {
+proc ::math::exact::function::sqrt {x} {
     tailcall $x sqrt
 }
 
@@ -2862,7 +2863,7 @@ oo::class create math::exact::ExpWorker {
 # This procedure is a Consumer with respect to its argument and a
 # Constructor with respect to its result, returning a zero-ref object.
 
-proc math::exact::function::exp {x} {
+proc ::math::exact::function::exp {x} {
     variable ::math::exact::iszer
     variable ::math::exact::tmul
 
@@ -2957,7 +2958,7 @@ oo::class create math::exact::LogWorker {
 # This procedure is a Consumer with respect to its argument and a Constructor
 # with respect to its result, returning a zero-ref object.
 
-proc math::exact::function::log {x} {
+proc ::math::exact::function::log {x} {
     variable ::math::exact::ispos
     variable ::math::exact::isneg
     variable ::math::exact::idpos
@@ -3060,7 +3061,7 @@ oo::class create math::exact::TanWorker {
 # This procedure is a Consumer with respect to its argument and a Constructor
 # with respect to its result, returning a zero-ref object.
 
-proc math::exact::function::tan {x} {
+proc ::math::exact::function::tan {x} {
     variable ::math::exact::iszer
 
     # If |x| < 1, then we use Potts's formula for the tangent.
@@ -3101,7 +3102,7 @@ proc math::exact::function::tan {x} {
 # This procedure is a Consumer with respect to its argument and a Constructor
 # with respect to its result, returning a zero-ref object.
 
-proc math::exact::function::sin {x} {
+proc ::math::exact::function::sin {x} {
     $x ref
     set tanxover2 [tan [$x applyM {{1 0} {0 2}}]]
     $x unref
@@ -3120,7 +3121,7 @@ proc math::exact::function::sin {x} {
 # This procedure is a Consumer with respect to its argument and a Constructor
 # with respect to its result, returning a zero-ref object.
 
-proc math::exact::function::cos {x} {
+proc ::math::exact::function::cos {x} {
     $x ref
     set tanxover2 [tan [$x applyM {{1 0} {0 2}}]]
     $x unref
@@ -3189,7 +3190,7 @@ oo::class create math::exact::AtanWorker {
 # This function is a Consumer with respect to its argument and a Constructor
 # with respect to its result, returning a 0-reference object.
 
-proc math::exact::atanS0 {x} {
+proc ::math::exact::atanS0 {x} {
     return [opreal {{{1 2} {1 0}} {{-1 0} {-1 2}}} $x [AtanWorker new $x]]
 }
 
@@ -3208,7 +3209,7 @@ proc math::exact::atanS0 {x} {
 #
 # atan(1/0) is undefined and may cause an infinite loop.
 
-proc math::exact::function::atan {x} {
+proc ::math::exact::function::atan {x} {
 
     # TODO - find p/q close to the real number x - can be done by
     #        getting a few digits - and do
@@ -3260,7 +3261,7 @@ proc math::exact::function::atan {x} {
 # that range INCLUDING AT THE ENDPOINTS, it may fail and give an infinite
 # loop or stack overflow.
 
-proc math::exact::asinreal {x} {
+proc ::math::exact::asinreal {x} {
     variable iszer
     variable pi
 
@@ -3293,7 +3294,7 @@ interp alias {} math::exact::function::asin {} math::exact::asinreal
 # that range INCLUDING AT THE ENDPOINTS, it may fail and give an infinite
 # loop or stack overflow.
 
-proc math::exact::acosreal {x} {
+proc ::math::exact::acosreal {x} {
     variable iszer
     variable pi
     # Potts's formula doesn't work here - it's singular at zero,
@@ -3326,21 +3327,21 @@ interp alias {} math::exact::function::acos {} math::exact::acosreal
 # The three functions are well defined over all the finite reals, but
 # are ill-behaved at infinity.
 
-proc math::exact::sinhreal {x} {
+proc ::math::exact::sinhreal {x} {
     set expx [function::exp $x]
     return [opreal {{{1 0} {0 1}} {{0 1} {-1 0}}} $expx $expx]
 }
 
 interp alias {} math::exact::function::sinh {} math::exact::sinhreal
 
-proc math::exact::coshreal {x} {
+proc ::math::exact::coshreal {x} {
     set expx [function::exp $x]
     return [opreal {{{1 0} {0 1}} {{0 1} {1 0}}} $expx $expx]
 }
 
 interp alias {} math::exact::function::cosh {} math::exact::coshreal
 
-proc math::exact::tanhreal {x} {
+proc ::math::exact::tanhreal {x} {
     set expx [function::exp $x]
     return [opreal {{{1 1} {0 0}} {{0 0} {-1 1}}} $expx $expx]
 }
@@ -3365,7 +3366,7 @@ interp alias {} math::exact::function::tanh {} math::exact::tanhreal
 # is singular). atanh is defined over (-1..1) (NOT the endpoints of the
 # interval.)
 
-proc math::exact::asinhreal {x} {
+proc ::math::exact::asinhreal {x} {
     # domain (-Inf .. Inf)
     # asinh(x) = log(x + sqrt(x**2 + 1))
     $x ref
@@ -3379,7 +3380,7 @@ proc math::exact::asinhreal {x} {
 
 interp alias {} math::exact::function::asinh {} math::exact::asinhreal
 
-proc math::exact::acoshreal {x} {
+proc ::math::exact::acoshreal {x} {
     # domain (1 .. Inf)
     # asinh(x) = log(x + sqrt(x**2 - 1))
     $x ref
@@ -3393,7 +3394,7 @@ proc math::exact::acoshreal {x} {
 
 interp alias {} math::exact::function::acosh {} math::exact::acoshreal
 
-proc math::exact::atanhreal {x} {
+proc ::math::exact::atanhreal {x} {
     # domain (-1 .. 1)
     variable sinf
     #atanh(x) = log(Sinf[x])/2
@@ -3557,12 +3558,12 @@ oo::class create math::exact::Sqrtrat {
 	}
 	set d [expr {2*($b-$a) + $c}]
 	if {$d >= 0} {
-	    next $math::exact::dneg
+	    next $::math::exact::dneg
 	    set a_ [expr {4 * $a}]
 	    set b_ $d
 	    set c_ $c
 	} else {
-	    next $math::exact::dpos
+	    next $::math::exact::dpos
 	    set a_ [expr {-$d}]
 	    set b_ [expr {4 * $b}]
 	    set c_ $c
@@ -3608,7 +3609,7 @@ oo::class create math::exact::Sqrtrat {
 # This procedure is a Consumer with respect to its arguments and a
 # Constructor with respect to its result, returning a zero-ref object.
 
-proc math::exact::rat**int {a b n} {
+proc ::math::exact::rat**int {a b n} {
     if {$n < 0} {
 	return [V new [list [expr {$b**(-$n)}] [expr {$a**(-$n)}]]]
     } elseif {$n > 0} {
@@ -3636,7 +3637,7 @@ proc math::exact::rat**int {a b n} {
 #
 # This procedure is a Constructor with respect to its result
 
-proc math::exact::rat**rat {a b m n} {
+proc ::math::exact::rat**rat {a b m n} {
 
     # It would be attractive to special case this, but the real mechanism
     # works as well for the moment.
@@ -3773,7 +3774,7 @@ oo::class create math::exact::PowWorker {
 # This procedure is a Consumer with respect to its arguments and a
 # Constructor with respect to its result, returning a zero-ref object.
 
-proc math::exact::real**int {b e} {
+proc ::math::exact::real**int {b e} {
 
     # Handle a negative power by raising the reciprocal of the base to
     # a positive power
@@ -3817,7 +3818,7 @@ proc math::exact::real**int {b e} {
 # This procedure is a Consumer with respect to its arguments and a
 # Constructor with respect to its result, returning a zero-ref object.
 
-proc math::exact::real**rat {b m n} {
+proc ::math::exact::real**rat {b m n} {
 
     variable isneg
     variable ispos
@@ -3908,7 +3909,7 @@ proc math::exact::real**rat {b m n} {
 #
 #	Returns pi as an exact real
 
-proc math::exact::function::pi {} {
+proc ::math::exact::function::pi {} {
     variable ::math::exact::pi
     return $pi
 }
@@ -3917,7 +3918,7 @@ proc math::exact::function::pi {} {
 #
 #	Returns e as an exact real
 
-proc math::exact::function::e {} {
+proc ::math::exact::function::e {} {
     variable ::math::exact::e
     return $e
 }
@@ -3946,7 +3947,7 @@ proc math::exact::function::e {} {
 #
 # This function is not decidable if it is not decidable whether x is finite.
 
-proc math::exact::signum1 {x} {
+proc ::math::exact::signum1 {x} {
     variable ispos
     variable isneg
     variable iszer
@@ -3984,7 +3985,7 @@ proc math::exact::signum1 {x} {
 # to know whether a given value has an absolute value less than a given
 # tolerance.
 
-proc math::exact::abs1 {x} {
+proc ::math::exact::abs1 {x} {
     variable iszer
     while 1 {
 	if {[$x refinesM $iszer]} {
@@ -3997,7 +3998,7 @@ proc math::exact::abs1 {x} {
     }
 }
 
-namespace eval math::exact {
+namespace eval ::math::exact {
 
     # Constant vectors, matrices and tensors
 
@@ -4054,6 +4055,6 @@ namespace eval math::exact {
     namespace export exactexpr abs1 signum1
 }
 
-package provide math::exact 1.0
+package provide math::exact 1.0.1
 
 #-----------------------------------------------------------------------
