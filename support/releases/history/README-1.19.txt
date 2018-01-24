@@ -73,6 +73,7 @@ Changes from Tcllib 1.18 to 1.19
     ldap               ldap                        1.8         1.9.1     B D T
     ------------------ --------------------------- ----------- --------- --------------
     math               math::calculus              0.8.1       0.8.2     B T
+                       math::exact                 1.0         1.0.1     B D T
                        math::geometry              1.1.3       1.2.3     B D EF I T
                        math::interpolate           1.1         1.1.1     B T
                        math::linearalgebra         1.1.5       1.1.6     B T
@@ -192,7 +193,7 @@ Unchanged
     logger::appender, logger::utils, map::geocode::nominatim,
     map::slippy, map::slippy::cache, map::slippy::fetcher, mapproj,
     math, math::bignum, math::calculus::symdiff,
-    math::complexnumbers, math::constants, math::exact,
+    math::complexnumbers, math::constants,
     math::fourier, math::fuzzy, math::machineparameters,
     math::optimize, math::polynomials, math::rationalfunctions,
     math::roman, md5crypt, mime, multiplexer, nameserv,
