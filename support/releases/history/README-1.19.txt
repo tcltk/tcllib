@@ -83,6 +83,7 @@ Changes from Tcllib 1.18 to 1.19
     ------------------ --------------------------- ----------- --------- --------------
     md4                md4                         1.0.6       1.0.7     B D
     nettool            nettool                     0.5.1       0.5.2     B
+    oauth              oauth                       1           1.0.1     B D
     oodialect          oo::dialect                 0.3         0.3.1     B I
     ------------------ --------------------------- ----------- --------- --------------
     oometa             oo::meta                    0.4.1       0.7.1     B EF T
@@ -200,7 +201,7 @@ Unchanged
     math::optimize, math::polynomials, math::rationalfunctions,
     math::roman, md5crypt, mime, multiplexer, nameserv,
     nameserv::auto, nameserv::common, nameserv::server, namespacex,
-    ncgi, nmea, nntp, oauth, oo::util, otp,
+    ncgi, nmea, nntp, oo::util, otp,
     page::analysis::peg::emodes, page::analysis::peg::minimize,
     page::analysis::peg::reachable, page::analysis::peg::realizable,
     page::compiler::peg::mecpu, page::config::peg,
