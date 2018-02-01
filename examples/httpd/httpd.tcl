@@ -112,11 +112,6 @@ tool::class create ::docserver::server {
 tool::define ::docserver::dynamic {
 
   method content {} {
-    puts [list [self] running [self class] [self method]]
-    my reset
-    my variable chan
-    my request parse [my HttpHeaders $chan]
-    
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<TABLE width=100%>"
     foreach {f v} [my request dump] {
@@ -137,9 +132,6 @@ tool::define ::docserver::upload {
   superclass ::docserver::dynamic
   
   method content {} {
-    puts [list [self] running [self class] [self method]]
-    my reset
-
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<TABLE width=100%>"
     set FORMDAT [my FormData]

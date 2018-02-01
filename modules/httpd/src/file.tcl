@@ -59,7 +59,6 @@
   }
 
   method content {} {
-    my reset
     ###
     # When delivering static content, allow web caches to save
     ###

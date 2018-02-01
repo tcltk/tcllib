@@ -28,7 +28,6 @@
     ###
     # Convert our query headers into netstring format.
     ###
-    my request parse [my HttpHeaders $chan]
     if {![my request exists Content-Length]} {
       set length 0
     } else {
