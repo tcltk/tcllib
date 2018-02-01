@@ -1,8 +1,8 @@
-# doctoc.tcl --
+# import.tcl --
 #
 #	Importing indices into other formats.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -70,7 +70,7 @@ snit::type ::doctools::toc::import {
 
 	set     configuration [$myconfig get]
 	lappend configuration user   $::tcl_platform(user)
-	lappend configuraton  format [$plugin plugin]
+	lappend configuration format [$plugin plugin]
 
 	return [$plugin do import $text $configuration]
     }
@@ -187,5 +187,5 @@ snit::type ::doctools::toc::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::import 0.1
+package provide doctools::toc::import 0.2
 return
