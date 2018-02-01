@@ -30,6 +30,7 @@ proc ::fossil args {
 tool::class create httpd::content::fossil_root {
 
   method content {} {
+    my reset
     my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
     global recipe
     my puts "<UL>"
@@ -83,7 +84,7 @@ tool::class create httpd::content::fossil_node_scgi {
       }
       set mport [my <server> port_listening]
       set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
- 
+
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd
@@ -101,11 +102,11 @@ tool::class create httpd::content::fossil_node_scgi {
 
 tool::class create ::docserver::server {
   superclass ::httpd::server
-  
+
   method log args {
     puts [list {*}$args]
   }
-  
+
 }
 
 tool::define ::docserver::dynamic {
@@ -114,11 +115,11 @@ tool::define ::docserver::dynamic {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<TABLE width=100%>"
     foreach {f v} [my request dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"        
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
     }
     my puts "<tr><td colspan=10><hr></td></tr>"
     foreach {f v} [my http_info dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"        
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
     }
     my puts "<tr><th>File Size</th><td>[my http_info get CONTENT_LENGTH]</td></tr>"
     my puts </TABLE>
@@ -129,17 +130,17 @@ tool::define ::docserver::dynamic {
 
 tool::define ::docserver::upload {
   superclass ::docserver::dynamic
-  
+
   method content {} {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<TABLE width=100%>"
     set FORMDAT [my FormData]
     foreach {f v} [my FormData] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"        
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
     }
     my puts "<tr><td colspan=10><hr></td></tr>"
     foreach {f v} [my http_info dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"        
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
     }
     my puts "<tr><td colspan=10><hr></td></tr>"
     foreach part [dict getnull $FORMDAT MIME_PARTS] {
@@ -153,7 +154,6 @@ tool::define ::docserver::upload {
     my puts </TABLE>
     my puts </BODY></HTML>
   }
-
 }
 
 set opts [::tool::args_to_options {*}$argv]
@@ -185,5 +185,7 @@ appmain add_uri /fossil [list mixin httpd::content::fossil_root {*}$fossilopts]
 appmain add_uri /fossil/* [list mixin httpd::content::fossil_node_scgi {*}$fossilopts]
 appmain add_uri /upload [list mixin ::docserver::upload]
 appmain add_uri /dynamic [list mixin ::docserver::dynamic]
+appmain add_uri /listen [list mixin ::docserver::listen]
+appmain add_uri /send   [list mixin ::docserver::send]
 puts [list LISTENING]
 tool::main

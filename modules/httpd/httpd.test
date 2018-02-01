@@ -60,33 +60,28 @@ proc ::httpd::test::compare {actual correct} {
 	return $result
 }
 
-proc ::httpd::test::send {port text} {
+proc ::httpd::test::send {port http headers body} {
   set sock [socket localhost $port]
   variable reply
   set reply($sock) {}
-  chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+  chan configure $sock -translation {crlf crlf} -blocking 0 -buffering full -buffersize 4096
   chan event $sock readable [list ::httpd::test::get_reply $sock]
 
-  set headers {}
-  set body {}
-  set read_headers 1
-  foreach line [split $text \n] {
-    if {$read_headers} {
-      if { $line eq {} } {
-        set read_headers 0
-      } else {
-        append headers $line \x0d\x0a
-      }
-    } else {
-      append body $line \x0d\x0a
-    }
-  }
-  append headers "Content-Type: text/plain" \x0d\x0a
-  append headers "Content-Length: [string length $body]" \x0d\x0a
-  puts $sock $headers
-  puts $sock \x0d\x0a
-  puts $sock $body
-  puts $sock \x0d\x0a
+	puts $sock $http
+	if {[string length $body]} {
+		if {![dict exists $headers Content-Type]} {
+			dict set headers Content_Type text/plain
+		}
+		dict set headers Content-Length [string length $body]
+	}
+	foreach {f v} $headers {
+		puts $sock "${f}: $v"
+	}
+	if {[string length $body]} {
+		puts $sock {}
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+		puts -nonewline $sock $body
+	}
   flush $sock
   while {$reply($sock) eq {}} {
     update
@@ -167,7 +162,7 @@ tool::define ::test::content.error {
 		error {The programmer asked me to die this way}
 	}
 }
- 
+
 
 tool::define ::httpd::test::reply {
 	superclass ::httpd::reply ::test::content.echo
@@ -190,46 +185,38 @@ TESTAPP add_uri /error [list mixin ::test::content.error]
 
 test httpd-client-0001 {Do an echo request} {
 
-set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0
-
-THIS IS MY CODE}]
+set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS IS MY CODE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
 Content-Type: text/plain
 Connection: close
-Content-Length: 17
+Content-Length: 15
 
-THIS IS MY CODE} 
+THIS IS MY CODE}
 } {}
 
 test httpd-client-0002 {Do another echo request} {
-set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0
-
-THOUGH THERE ARE MANY LIKE IT}]
+set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
 Content-Type: text/plain
 Connection: close
-Content-Length: 31
+Content-Length: 29
 
 THOUGH THERE ARE MANY LIKE IT}
 } {}
 
 test httpd-client-0003 {Do another echo request} {
-set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0
-
-THIS ONE ALONE IS MINE}]
+set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
 Content-Type: text/plain
 Connection: close
-Content-Length: 24
+Content-Length: 22
 
 THIS ONE ALONE IS MINE}
 }  {}
 
 test httpd-client-0004 {URL Generates Error} {
 
-set reply [::httpd::test::send 10001 {POST /error HTTP/1.0
-
-THIS ONE ALONE IS MINE}]
+set reply [::httpd::test::send 10001 {POST /error HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 
 ::httpd::test::compare $reply {HTTP/1.0 500 Server Internal Error
 Content-Type: text/plain
@@ -247,9 +234,7 @@ Content-Length: 10
 [clock seconds]}]
 
 test httpd-client-0005 {URL Different output with a different request} {
-set reply [::httpd::test::send 10001 {POST /time HTTP/1.0
-
-THIS ONE ALONE IS MINE}]
+set reply [::httpd::test::send 10001 {POST /time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
@@ -260,11 +245,11 @@ set checkreply "HTTP/1.0 200 OK
 Content-Type: text/plain
 Connection: close
 Content-Length: [string length $replyfile]
+
 $replyfile"
 
 test httpd-client-0006 {Return a file} {
-set reply [::httpd::test::send 10001 {GET /file HTTP/1.0
-}]
+set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
