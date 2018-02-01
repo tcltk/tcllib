@@ -912,16 +912,20 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
     chan configure $chan  -translation {binary binary}
-    if {![info exists reply_file] || [string length $reply_body]} {
+    if {![info exists reply_file]} {
       ###
       # Return dynamic content
       ###
-      set reply_body [string trim $reply_body]
-      my reply set Content-Length [string length $reply_body]
-      append result [my reply output]
-      append result $reply_body
-      chan puts -nonewline $chan $result
-      chan flush $chan
+      if {![info exists reply_body]} {
+        append result [my reply output]        
+      } else {
+        set reply_body [string trim $reply_body]
+        my reply set Content-Length [string length $reply_body]
+        append result [my reply output] \n
+        append result $reply_body
+        chan puts -nonewline $chan $result
+        chan flush $chan
+      }
       my destroy
     } else {
       ###
@@ -929,7 +933,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       set size [file size $reply_file]
       my reply set Content-Length $size
-      append result [my reply output]
+      append result [my reply output] \n
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       chan configure $reply_chan  -translation {binary binary}
