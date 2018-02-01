@@ -2,7 +2,7 @@
 # Define the reply class
 ###
 ::tool::define ::httpd::reply {
-  
+
   property reply_headers_default {
     Status {200 OK}
     Content-Size 0
@@ -183,12 +183,12 @@ For deeper understanding:
   method EncodeStatus {status} {
     return "HTTP/1.0 $status"
   }
-  
+
   method output {} {
     my variable chan
     chan event $chan writable [namespace code {my DoOutput}]
   }
-  
+
   ###
   # Output the result or error to the channel
   # and destroy this object
@@ -331,7 +331,7 @@ For deeper understanding:
     }
     return $result
   }
-  
+
   method PostData {length} {
     my variable postdata
     # Run this only once
@@ -341,8 +341,6 @@ For deeper understanding:
     set postdata {}
     if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
-      # Advance 1 line break
-      set postdata [::coroutine::util::read $chan 2]
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
     }
@@ -369,12 +367,12 @@ For deeper understanding:
       set request [my MimeParse [lindex $args 0]]
     }
   }
-  
+
   dictobj reply reply {
     output {
       set result {}
       if {![dict exists $reply Status]} {
-        set status {200 OK} 
+        set status {200 OK}
       } else {
         set status [dict get $reply Status]
       }
@@ -387,8 +385,8 @@ For deeper understanding:
       return $result
     }
   }
-  
-  
+
+
   ###
   # Reset the result
   ###
