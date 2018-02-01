@@ -65,11 +65,11 @@
     # suite, when we are opening a blocking channel on the other side of the
     # socket back to ourselves.)
     ###
-    chan configure $sock -translation {crlf crlf} -blocking 0 -buffering line
+    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     try {
       while 1 {
         set readCount [::coroutine::util::gets_safety $sock 4096 line]
-        if {[string trim $line] eq {}} break
+        if {$readCount==0} break
         append result $line \n
       }
     } trap {POSIX EBUSY} {err info} {
@@ -93,11 +93,16 @@
     chan configure $chan -translation {auto crlf} -buffering line
     set dispatched_time [clock seconds]
     try {
-      # Dispatch to the URL implementation.
+      # Initialize the reply
+      my reset
+      # Process the incoming MIME headers
+      set rawrequest [my HttpHeaders $chan]
+      my request parse $rawrequest
+      # Invoke the URL implementation.
       my content
     } on error {err info} {
       dict print $info
-      #puts stderr $::errorInfo
+      puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -118,7 +123,6 @@
   }
 
   method error {code {msg {}} {errorInfo {}}} {
-    puts [list [self] ERROR $code $msg]
     my http_info set HTTP_ERROR $code
     my reset
     my variable error_codes
@@ -201,7 +205,7 @@ For deeper understanding:
       set result {}
       if {${length} > 0} {
         my reply set Content-Length [string length $reply_body]
-        append result [my reply output]
+        append result [my reply output] \n
         append result $reply_body
       } else {
         append result [my reply output]
@@ -321,6 +325,7 @@ For deeper understanding:
     # such that CONTENT_LENGTH is always first
     ###
     set result {}
+    dict set result Content-Length 0
     foreach {key} $data(mimeorder) {
       dict set result $key $data(mime,$key)
     }
@@ -336,6 +341,8 @@ For deeper understanding:
     set postdata {}
     if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
+      # Advance 1 line break
+      set postdata [::coroutine::util::read $chan 2]
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
     }
@@ -357,42 +364,6 @@ For deeper understanding:
     append reply_body $line \n
   }
 
-  #method request::_preamble {} {
-  #  my variable request
-  #}
-  #method request::property which {
-  #   tailcall ::mime::getproperty $request $which
-  #}
-  #method request::initalize args {
-  #  if {[info exists request] && $request ne {}} {
-  #    catch {::mime::finalize $request}
-  #  }
-  #  set request [::mime::initialize {*}$args]
-  #  # Set the content size in http_info
-  #  set size [::mime::getproperty $request size]
-  #  my http_info set CONTENT_LENGTH $size
-  #}
-  #method request::parse string {
-  #  if {[info exists request] && $request ne {}} {
-  #    catch {::mime::finalize $request}
-  #  }
-  #  foreach {f v} [my MimeParse $string] {
-  #    dict set request
-  #  }
-  #  set request [::mime::initialize -string $string]
-  #  # Set the content size in http_info
-  #  set size [::mime::getproperty $request size]
-  #  my http_info set CONTENT_LENGTH $size
-  #}
-  #method request::finalize {} {
-  #  if {[info exists request] && $request ne {}} {
-  #    catch {::mime::finalize $request}
-  #  }
-  #}
-  #method request::default args {
-  #  tailcall ::mime::$method $request {*}$args
-  #}
-  #
   dictobj request request {
     parse {
       set request [my MimeParse [lindex $args 0]]
@@ -412,7 +383,7 @@ For deeper understanding:
         if {$f in {Status}} continue
         append result "[string trimright $f :]: $v\n"
       }
-      append result \n
+      #append result \n
       return $result
     }
   }
