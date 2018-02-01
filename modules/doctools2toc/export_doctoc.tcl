@@ -10,7 +10,7 @@
 # RCS: @(#) $Id: export_doctoc.tcl,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # This package is a plugin for the doctools::toc v2 system.  It takes
-# the list serialization of a table of contens and produces text in
+# the list serialization of a table of contents and produces text in
 # doctoc format.
 
 # ### ### ### ######### ######### #########
