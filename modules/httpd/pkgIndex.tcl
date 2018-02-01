@@ -7,7 +7,7 @@
 # in response to "package require" commands.  When this
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
-  
-package ifneeded scgi::app 0.1 [list source [file join $dir scgi-app.tcl]]
-package ifneeded httpd 4.0.1 [list source [file join $dir httpd.tcl]]
-package ifneeded httpd::content 4.0.1 [list source [file join $dir content.tcl]]
+
+if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+package ifneeded httpd 4.1.0 [list source [file join $dir httpd.tcl]]
+
