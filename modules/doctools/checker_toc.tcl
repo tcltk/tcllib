@@ -72,7 +72,7 @@ global state
 # division	|			| -> division
 # --------------+-----------------------+----------------------
 # contents	| division_start	| -> end, PUSH division
-# division	|			| -> divison, PUSH division
+# division	|			| -> division, PUSH division
 # end		|			| PUSH division
 # --------------+-----------------------+----------------------
 # division	| division_end		| POP (-> division / -> end)

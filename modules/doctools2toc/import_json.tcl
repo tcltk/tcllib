@@ -66,7 +66,7 @@ proc import {text configuration} {
     # canonical toc serializations, because our underlying JSON parser
     # automatically merges them, by taking only the last found
     # definition. I.e. of two or more definitions for a key X the last
-    # overwrites all previous occurences.
+    # overwrites all previous occurrences.
     return [doctools::toc::structure canonicalize [json::json2dict $text]]
 }
 

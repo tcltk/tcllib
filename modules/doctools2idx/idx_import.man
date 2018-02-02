@@ -1,5 +1,6 @@
+[vset VERSION 0.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::idx::import n 0.1]
+[manpage_begin doctools::idx::import n [vset VERSION]]
 [keywords conversion]
 [keywords docidx]
 [keywords documentation]
@@ -13,11 +14,11 @@
 [keywords plugin]
 [keywords reference]
 [keywords url]
-[copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2009-2018 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Importing keyword indices}]
 [category  {Documentation tools}]
-[require doctools::idx::import [opt 0.1]]
+[require doctools::idx::import [opt [vset VERSION]]]
 [require Tcl 8.4]
 [require doctools::config]
 [require doctools::idx::structure]
@@ -211,7 +212,7 @@ changing it.
 
 Note that while the user can set the predefined configuration
 variables [const user] and [const format] doing so will have no
-effect, these values will be internally overriden when invoking an
+effect, these values will be internally overridden when invoking an
 import plugin.
 
 [call [arg objectName] [method {config unset}] [arg pattern]...]

@@ -55,6 +55,12 @@ Changes from Tcllib 1.18 to 1.19
 ||doctools::idx|1.0.5|1.0.7|B D T|
 ||doctools::toc|1.1.4|1.1.6|B D T|
 ||||||
+|doctools2idx|doctools::idx::export|0.1|0.2|B|
+||doctools::idx::import|0.1|0.2|B|
+||||||
+|doctools2toc|doctools::toc::export|0.1|0.2|B|
+||doctools::toc::import|0.1|0.2|B|
+||||||
 |fileutil|fileutil|1.15|1.16|B T|
 ||fileutil::decode|0.2|0.2.1|B|
 ||||||
@@ -72,6 +78,7 @@ Changes from Tcllib 1.18 to 1.19
 |inifile|ini|0.3|0.3.1|B D|
 |json|json|1.3.3|1.3.4|B D T|
 |ldap|ldap|1.8|1.9.2|B D T|
+|markdown|Markdown|1.0|1.1|D EF T|
 ||||||
 |math|math::calculus|0.8.1|0.8.2|B T|
 ||math::exact|1.0|1.0.1|B D T|
@@ -133,7 +140,6 @@ Invisible changes (documentation, testsuites)
 |doctools2idx|doctools::idx|2|2|---|
 |doctools2toc|doctools::toc|2|2|---|
 |ldap|ldapx|0.2.5|0.2.5|D|
-|markdown|Markdown|1.0|1.0|D T|
 ||||||
 |math|math::bigfloat|1.2.2|1.2.2|T|
 ||math::bigfloat|2.0.2|2.0.2|T|
@@ -161,10 +167,10 @@ Unchanged
     debug::heartbeat, debug::timestamp, des, docstrip,
     doctools::changelog, doctools::config, doctools::cvs,
     doctools::html, doctools::html::cssdefaults,
-    doctools::idx::export, doctools::idx::export::docidx,
+    doctools::idx::export::docidx,
     doctools::idx::export::html, doctools::idx::export::json,
     doctools::idx::export::nroff, doctools::idx::export::text,
-    doctools::idx::export::wiki, doctools::idx::import,
+    doctools::idx::export::wiki, 
     doctools::idx::import::docidx, doctools::idx::import::json,
     doctools::idx::parse, doctools::idx::structure,
     doctools::msgcat, doctools::msgcat::idx::c,
@@ -173,10 +179,10 @@ Unchanged
     doctools::msgcat::toc::de, doctools::msgcat::toc::en,
     doctools::msgcat::toc::fr, doctools::nroff::man_macros,
     doctools::paths, doctools::tcl::parse, doctools::text,
-    doctools::toc::export, doctools::toc::export::doctoc,
+    doctools::toc::export::doctoc,
     doctools::toc::export::html, doctools::toc::export::json,
     doctools::toc::export::nroff, doctools::toc::export::text,
-    doctools::toc::export::wiki, doctools::toc::import,
+    doctools::toc::export::wiki, 
     doctools::toc::import::doctoc, doctools::toc::import::json,
     doctools::toc::parse, doctools::toc::structure, dtplite, exif,
     fileutil::multi, fileutil::multi::op, fileutil::traverse, ftp,

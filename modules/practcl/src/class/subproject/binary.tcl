@@ -11,7 +11,7 @@ oo::class create ::practcl::subproject.binary {
     if {[file exists [file join $builddir make.tcl]]} {
       ::practcl::domake.tcl $builddir clean
     } else {
-      ::practcl::domake $builddir clean
+      catch {::practcl::domake $builddir clean}
     }
   }
 
