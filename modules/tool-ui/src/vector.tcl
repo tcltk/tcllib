@@ -39,7 +39,7 @@
   
   method Value_Store value {
     my variable local_array internalvalue displayvalue
-    if {[::tool::is_null $value]} {
+    if {[::tool::is_null $value] || $value eq "0"} {
       set internalvalue {}
       set displayvalue {}
       return
