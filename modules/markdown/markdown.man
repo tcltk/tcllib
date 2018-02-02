@@ -1,9 +1,11 @@
+[vset VERSION 1.1]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin markdown n 1.0]
+[manpage_begin markdown n [vset VERSION]]
 [moddesc   {Markdown to HTML Converter}]
 [titledesc {Converts Markdown text to HTML}]
 [category  {Text processing}]
 [require Tcl 8.5]
+[require Markdown [vset VERSION]]
 [require textutil [opt 0.8]]
 [description]
 
@@ -15,6 +17,35 @@ Markdown annotated text into HMTL.
 
 This command takes in a block of Markdown text, and returns a block
 of HTML.
+
+[para] The converter supports two types of syntax highlighting for
+fenced code blocks: highlighting via a registered converter
+(see [cmd ::Markdown::register]), or pure JavaScript highlighting,
+e.g. via "highlight.js", where the language specifier used in the
+markup is set as CSS class of the "code" element in the returned markup.
+
+[call [cmd ::Markdown::register] [arg "langspec"] [arg "converter"]]
+
+Register a language specific converter for prettifying a code block
+(e.g. syntax highlighting).  Markdown supports fenced code blocks with
+an optional language specifier (e.g. "tcl"). When the markdown parser
+processes such a code block and a converter for the specified langspec
+is registered, the converter is called with the raw code block as
+argument. The converter is supposed to return the markup of the code
+block as result. The specified converter can be an arbitrary Tcl
+command, the raw text block is added as last argument upon invocation.
+
+[call [cmd ::Markdown::get_lang_counter]]
+
+Return a dict of language specifier and number of occurrences in
+fenced code blocks. This function can be used e.g. to detect, whether
+some CSS or JavaScript headers should be included for rendering
+without the need of postprocessing the rendered result.
+
+[call [cmd ::Markdown::reset_lang_counter]]
+
+Reset the language counters.
+
 [list_end]
 
 [vset CATEGORY textutil]

@@ -413,6 +413,36 @@ test mdtest-1.9 {OAUL: "* * *" line after unordered list} -body {
     <hr/>
 }
 
+test mdtest-1.10 {fenced code block without language specifier} -body {
+    
+    convert {
+	Here comes a generic example:
+	
+	```
+	set x 1
+	```
+    }
+} -result {
+    <p>Here comes a generic example:</p>
+    
+    <pre class='code'><code>set x 1</code></pre>
+}
+
+test mdtest-1.11 {fenced code block with language specifier} -body {
+    
+    convert {
+	Here comes a Tcl example:
+	
+	```tcl
+	set x 1
+	```
+    }
+} -result {
+    <p>Here comes a Tcl example:</p>
+    
+    <pre class='code'><code class='tcl'>set x 1</code></pre>
+}
+
 #-------------------------------------------------------------------------
 # Cleanup
 

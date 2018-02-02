@@ -161,20 +161,20 @@ The result of the method is the empty string.
 
 This method returns the handle of the parent for the element
 identified by its handle [arg id], or the empty string if [arg id]
-refered to the root element.
+referred to the root element.
 
 [call [arg objectName] [method next] [arg id]]
 
 This method returns the handle of the right sibling for the element
 identified by its handle [arg id], or the handle of the parent if the
-element has no right sibling, or the empty string if [arg id] refered
+element has no right sibling, or the empty string if [arg id] referred
 to the root element.
 
 [call [arg objectName] [method prev] [arg id]]
 
 This method returns the handle of the left sibling for the element
 identified by its handle [arg id], or the handle of the parent if the
-element has no left sibling, or the empty string if [arg id] refered
+element has no left sibling, or the empty string if [arg id] referred
 to the root element.
 
 [call [arg objectName] [method child] [arg id] [arg label] [opt [arg ...]]]
