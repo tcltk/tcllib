@@ -151,13 +151,13 @@ them. For fetching data this package analyses the requested URL/URI and
 then dispatches it to the appropriate package (<b class="package"><a href="../../../../index.html#key447">http</a></b>, <b class="package"><a href="../ftp/ftp.html">ftp</a></b>, ...) for
 actual retrieval.  Currently these commands are defined for the schemes
 <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>,
-<i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#key31">file</a></i>.  The package <b class="package">uri::urn</b> adds scheme <i class="term"><a href="../../../../index.html#key581">urn</a></i>.</p>
+<i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#key31">file</a></i>.  The package <b class="package">uri::urn</b> adds scheme <i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
 <p>Second, it provides regular expressions
 for a number of <b class="const">registered</b> URL/URI schemes. Registered
 schemes are currently <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i>, <i class="term"><a href="../../../../index.html#key31">file</a></i>,
 <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key534">gopher</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>,
 <i class="term"><a href="../../../../index.html#key532">wais</a></i> and <i class="term"><a href="../../../../index.html#key530">prospero</a></i>.  The package <b class="package">uri::urn</b> adds scheme
-<i class="term"><a href="../../../../index.html#key581">urn</a></i>.</p>
+<i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
 <p>The commands of the package conform to
 RFC 3986 (<a href="https://www.rfc-editor.org/rfc/rfc3986.txt">https://www.rfc-editor.org/rfc/rfc3986.txt</a>),
 with the exception of a loophole arising from RFC 1630 and described
@@ -276,7 +276,7 @@ and  <b class="cmd">Join[string totitle &lt;scheme&gt;]</b> respectively.</p>
 (the latter subject to the availability of a suitable package with a <b class="cmd">geturl</b> command).  In contrast, to extend the command <b class="cmd">uri::resolve</b> to a new scheme, the command itself must be modified.</p>
 <p>To extend the range of schemes for which pattern information is
 available, use the command <b class="cmd">uri::register</b>.</p>
-<p>An example of a package that provides both commands and pattern information for a new scheme is <b class="package">uri::urn</b>, which adds scheme <i class="term"><a href="../../../../index.html#key581">urn</a></i>.</p>
+<p>An example of a package that provides both commands and pattern information for a new scheme is <b class="package">uri::urn</b>, which adds scheme <i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">QUIRK OPTIONS</a></h2>
 <p>The value of a &quot;quirk option&quot; is boolean: the value <b class="const">false</b> requests conformance with RFC 3986, while <b class="const">true</b> requests use of the quirk.  Use command <b class="cmd">uri::setQuirkOption</b> to access the values of quirk options.</p>

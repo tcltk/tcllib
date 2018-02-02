@@ -400,7 +400,7 @@ Each error element will be a list containing six strings describing an
 error in detail\&. The strings will be
 .RS
 .IP [1]
-The path of the file the error occured in\&. This may be empty\&.
+The path of the file the error occurred in\&. This may be empty\&.
 .IP [2]
 The range of the token the error was found at\&. This range is a
 two-element list containing the offset of the first and last character

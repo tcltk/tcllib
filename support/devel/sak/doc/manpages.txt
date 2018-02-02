@@ -193,6 +193,7 @@ modules/math/math.man
 modules/math/math_geometry.man
 modules/math/numtheory.man
 modules/math/optimize.man
+modules/math/pca.man
 modules/math/polynomials.man
 modules/math/qcomplex.man
 modules/math/rational_funcs.man

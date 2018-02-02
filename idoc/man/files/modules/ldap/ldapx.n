@@ -829,6 +829,7 @@ transaction extension provided by OpenLDAP 2\&.3 and later\&.
 	}
 	$e destroy
     }
+    c destroy
 
     l disconnect
     l destroy
