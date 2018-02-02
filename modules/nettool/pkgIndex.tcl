@@ -8,4 +8,8 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded nettool 0.5.1 [list source [file join $dir nettool.tcl]]
+if {![package vsatisfies [package provide Tcl] 8.5]} {return}
+# Backward compatible alias
+package ifneeded nettool::available_ports 0.1 {package require nettool ; package provide nettool::available_ports 0.1}
+package ifneeded nettool 0.5.2 [list source [file join $dir nettool.tcl]]
+

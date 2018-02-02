@@ -1,4 +1,4 @@
-::namespace eval ::nettool {}
+if {$::tcl_platform(platform) eq "unix" && $genus eq "macosx"} {
 
 ###
 # topic: 825cd25953c2cc896a96006b7f454e00
@@ -44,13 +44,13 @@ proc ::nettool::cpuinfo args {
     dict set cpuinfo cpus     [exec sysctl -n hw.ncpu]
     # Normalize to MB
     dict set cpuinfo memory   [expr {[exec sysctl -n hw.memsize] / 1048576}]
-    
+
     dict set cpuinfo vendor   [exec sysctl -n machdep.cpu.vendor]
     dict set cpuinfo brand    [exec sysctl -n machdep.cpu.brand_string]
-    
+
     dict set cpuinfo model    [exec sysctl -n machdep.cpu.model]
     dict set cpuinfo speed    [expr {[exec sysctl -n hw.cpufrequency]/1000000}]
-    
+
     dict set cpuinfo family   [exec sysctl -n machdep.cpu.family]
     dict set cpuinfo stepping [exec sysctl -n machdep.cpu.stepping]
     dict set cpuinfo features [exec sysctl -n machdep.cpu.features]
@@ -110,7 +110,7 @@ proc ::nettool::hwid_list {} {
       set cached_data {}
     } else {
       set cached_data $hwlist
-      
+
     }
   }
   set serial {}
@@ -155,7 +155,7 @@ proc ::nettool::hwid_list {} {
 ###
 proc ::nettool::init {} {
   unset -nocomplain [namespace current]::cpuinfo
-  
+
 }
 
 ###
@@ -198,7 +198,7 @@ proc ::nettool::network_list {} {
     set addr [dict get $info inet:]
     set mask [dict get $info netmask:]
     set addri [::ip::toInteger $addr]
-    lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $mask] -ipv4]    
+    lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $mask] -ipv4]
   }
   return $result
 }
@@ -229,4 +229,5 @@ proc ::nettool::status {} {
 
 proc ::nettool::user_data_root {appname} {
   return [file join $::env(HOME) Library {Application Support} $appname]
+}
 }
