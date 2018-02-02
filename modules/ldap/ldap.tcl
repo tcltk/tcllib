@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.9.1
+package provide ldap 1.9.2
 
 namespace eval ldap {
 
@@ -768,8 +768,12 @@ proc ldap::MessageReceiver {handle} {
                     set conn(pdu,partial) 1
                     append conn(pdu,received) $type
                 }
-                }
-            eof {
+	    }
+	    partial {
+		# See ticket https://core.tcl.tk/tcllib/tktview/c247ed5db42e373470bf8a6302717e76eb3c6106
+		return
+	    }
+	    eof {
                 CleanupWaitingMessages $handle
                 set conn(lastError) "Server closed connection"
                 catch {close $conn(sock)}
@@ -780,12 +784,11 @@ proc ldap::MessageReceiver {handle} {
                 set bytes $type[read $conn(sock)]
                 binary scan $bytes h* values
                 set conn(lastError) [format \
-                    "Error reading SEQUENCE response for handle %s : %s : %s" $handle $code $values]
+					 "Error reading SEQUENCE response for handle %s : %s : %s" $handle $code $values]
                 return
-                }
+	    }
         }
     }
-
 
     # fetch the length
     if {[::info exists conn(pdu,length)] && $conn(pdu,length) >= 0} {
