@@ -161,7 +161,7 @@
 <li><a href="#8"><b class="cmd">option</b> <i class="arg">namespec</i> <span class="opt">?<i class="arg">options...</i>?</span></a></li>
 <li><a href="#9"><b class="cmd">constructor</b> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#10"><b class="cmd">destructor</b> <i class="arg">body</i></a></li>
-<li><a href="#11"><b class="cmd"><a href="../../../../index.html#key596">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></li>
+<li><a href="#11"><b class="cmd"><a href="../../../../index.html#key597">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></li>
 <li><a href="#12"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <b class="const">to</b> <i class="arg">comp</i> <span class="opt">?<b class="const">as</b> <i class="arg">target</i>?</span></a></li>
 <li><a href="#13"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <b class="const">using</b> <i class="arg">pattern</i></a></li>
 <li><a href="#14"><b class="cmd">delegate</b> <b class="const">method</b> <b class="const">*</b> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <span class="opt">?<b class="const">using</b> <i class="arg">pattern</i>?</span> <span class="opt">?<b class="const">except</b> <i class="arg">exceptions</i>?</span></a></li>
@@ -557,7 +557,7 @@ defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
-<dt><a name="11"><b class="cmd"><a href="../../../../index.html#key596">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></dt>
+<dt><a name="11"><b class="cmd"><a href="../../../../index.html#key597">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></dt>
 <dd><p>Defines a new Tcl procedure in the type's namespace.</p>
 <p>The defined proc differs from a normal Tcl proc in that all type
 variables are automatically visible.  The proc can access
@@ -1718,7 +1718,7 @@ widgets.</p>
         property mood happy
     }
 </pre>
-<p>Within a macro, the commands <b class="cmd">variable</b> and <b class="cmd"><a href="../../../../index.html#key596">proc</a></b> refer to
+<p>Within a macro, the commands <b class="cmd">variable</b> and <b class="cmd"><a href="../../../../index.html#key597">proc</a></b> refer to
 the Snit type-definition commands, not the standard Tcl commands.  To
 get the standard Tcl commands, use <b class="cmd">_variable</b> and <b class="cmd">_proc</b>.</p>
 <p>Because a single slave interpreter is used for compiling all Snit
@@ -1935,7 +1935,7 @@ validation type command.  A validation type is simply an
 object that has a <b class="method">validate</b> method; the <b class="method">validate</b>
 method must take one argument, a value, return the value if it is
 valid, and throw an error with <b class="cmd">-errorcode</b> INVALID if the
-value is invalid.  This can be done with a simple <b class="cmd"><a href="../../../../index.html#key596">proc</a></b>.  For
+value is invalid.  This can be done with a simple <b class="cmd"><a href="../../../../index.html#key597">proc</a></b>.  For
 example, the <b class="cmd">snit::boolean</b> validate type could have been
 implemented like this:</p>
 <pre class="doctools_example">    proc ::snit::boolean {&quot;validate&quot; value} {
@@ -2074,7 +2074,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key241">BWidget</a>, <a href="../../../../index.html#key237">C++</a>, <a href="../../../../index.html#key244">Incr Tcl</a>, <a href="../../../../index.html#key803">Snit</a>, <a href="../../../../index.html#key242">adaptors</a>, <a href="../../../../index.html#key240">class</a>, <a href="../../../../index.html#key239">mega widget</a>, <a href="../../../../index.html#key243">object</a>, <a href="../../../../index.html#key236">object oriented</a>, <a href="../../../../index.html#key117">type</a>, <a href="../../../../index.html#key235">widget</a>, <a href="../../../../index.html#key238">widget adaptors</a></p>
+<p><a href="../../../../index.html#key241">BWidget</a>, <a href="../../../../index.html#key237">C++</a>, <a href="../../../../index.html#key244">Incr Tcl</a>, <a href="../../../../index.html#key804">Snit</a>, <a href="../../../../index.html#key242">adaptors</a>, <a href="../../../../index.html#key240">class</a>, <a href="../../../../index.html#key239">mega widget</a>, <a href="../../../../index.html#key243">object</a>, <a href="../../../../index.html#key236">object oriented</a>, <a href="../../../../index.html#key117">type</a>, <a href="../../../../index.html#key235">widget</a>, <a href="../../../../index.html#key238">widget adaptors</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

@@ -209,6 +209,7 @@
 [item modules/math/linalg.man                  math::linearalgebra     {Linear Algebra}]
 [item modules/math/numtheory.man               math::numtheory         {Number Theory}]
 [item modules/math/optimize.man                math::optimize          {Optimisation routines}]
+[item modules/math/pca.man                     math::PCA               {Package for Principal Component Analysis}]
 [item modules/math/polynomials.man             math::polynomials       {Polynomial functions}]
 [item modules/math/rational_funcs.man          math::rationalfunctions {Polynomial functions}]
 [item modules/math/roman.man                   math::roman             {Tools for creating and manipulating roman numerals}]

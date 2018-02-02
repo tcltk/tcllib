@@ -819,6 +819,9 @@ tcllib
 \fBmath::optimize\fR
 \fIfiles/modules/math/optimize\&.n\fR: Optimisation routines
 .TP
+\fBmath::PCA\fR
+\fIfiles/modules/math/pca\&.n\fR: Package for Principal Component Analysis
+.TP
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
 .TP

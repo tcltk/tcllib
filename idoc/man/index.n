@@ -5843,6 +5843,9 @@ math::linearalgebra
 \fBfiles/modules/math/optimize\&.n\fR
 math::optimize
 .TP
+\fBfiles/modules/math/pca\&.n\fR
+math::PCA
+.TP
 \fBfiles/modules/math/polynomials\&.n\fR
 math::polynomials
 .TP
@@ -7240,6 +7243,12 @@ patching
 .TP
 \fBfiles/modules/rcs/rcs\&.n\fR
 rcs
+.RE
+PCA
+.RS
+.TP
+\fBfiles/modules/math/pca\&.n\fR
+math::PCA
 .RE
 PEG
 .RS
@@ -9488,6 +9497,9 @@ counter
 \fBfiles/modules/math/math\&.n\fR
 math
 .TP
+\fBfiles/modules/math/pca\&.n\fR
+math::PCA
+.TP
 \fBfiles/modules/math/statistics\&.n\fR
 math::statistics
 .RE
@@ -9784,6 +9796,9 @@ math::bignum
 .TP
 \fBfiles/modules/math/decimal\&.n\fR
 math::decimal
+.TP
+\fBfiles/modules/math/pca\&.n\fR
+math::PCA
 .RE
 Tcl module
 .RS
