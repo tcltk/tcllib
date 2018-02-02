@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.3.1
+# Package oo::dialect 0.3.2
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -156,17 +156,20 @@ proc ::oo::dialect::DefineThunk {target args} {
 
 proc ::oo::dialect::Canonical {namespace NSpace class} {
   namespace upvar $namespace cname cname
-  if {[string match ::* $class]} {
-    return $class
-  }
+  #if {[string match ::* $class]} {
+  #  return $class
+  #}
   if {[info exists cname($class)]} {
     return $cname($class)
   }
   if {[info exists ::oo::dialect::cname($class)]} {
     return $::oo::dialect::cname($class)
   }
+  if {[info exists ::oo::dialect::cname(${NSpace}::${class})]} {
+    return $::oo::dialect::cname(${NSpace}::${class})
+  }
   foreach item [list "${NSpace}::$class" "::$class"] {
-    if {[info command $item] ne {}} {
+    if {[info commands $item] ne {}} {
       return $item
     }
   }
@@ -201,11 +204,12 @@ proc ::oo::dialect::Aliases {namespace args} {
   set NSpace [join [lrange [split $class ::] 1 end-2] ::]
   set cname($class) $class
   foreach name $args {
-    set alias $name
-    #set alias [NSNormalize $NSpace $name]
+    set cname($name) $class
+    #set alias $name
+    set alias [NSNormalize $NSpace $name]
     # Add a local metaclass reference
-    set cname($alias) $class
     if {![info exists ::oo::dialect::cname($alias)]} {
+      lappend ::oo::dialect::aliases($class) $alias
       ##
       # Add a global reference, first come, first served
       ##
@@ -250,6 +254,11 @@ proc ::oo::dialect::SuperClass {namespace args} {
     }
     $define [self] $definitionScript
   }
+  method aliases {} {
+    if {[info exists ::oo::dialect::aliases([self])]} {
+      return $::oo::dialect::aliases([self])
+    }
+  }
 }
 
-package provide oo::dialect 0.3.1
+package provide oo::dialect 0.3.3
