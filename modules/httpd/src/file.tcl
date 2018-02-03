@@ -35,15 +35,24 @@
     set path [my http_info get path]
     set prefix [my http_info get prefix]
     set fname [string range $uri [string length $prefix] end]
-    my puts "<HTML><HEAD><TITLE>Listing of /$fname</TITLE></HEAD><BODY>"
-    my puts "Listing contents of /$fname"
+    my puts "<HTML><HEAD><TITLE>Listing of /$fname/</TITLE></HEAD><BODY>"
+    my puts "Path: $path<br>"
+    my puts "Prefs: $prefix</br>"
+    my puts "URI: $uri</br>"
+    my puts "Listing contents of /$fname/"
     my puts "<TABLE>"
-    set updir [file dirname $fname]
-    if {$updir ne {}} {
-      my puts "<TR><TD><a href=\"/$updir\">..</a></TD><TD></TD></TR>"
+    if {$prefix ni {/ {}}} {
+      set updir [file dirname $prefix]
+      if {$updir ne {}} {
+        my puts "<TR><TD><a href=\"/$updir\">..</a></TD><TD></TD></TR>"
+      }
     }
     foreach file [glob -nocomplain [file join $local_file *]] {
-      my puts "<TR><TD><a href=\"[file join / $fname [file tail $file]]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
+      if {[file isdirectory $file]} {
+        my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]/</a></TD><TD></TD></TR>"
+      } else {
+        my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
+      }
     }
     my puts "</TABLE></BODY></HTML>"
   }
@@ -127,7 +136,7 @@
       # Return dynamic content
       ###
       if {![info exists reply_body]} {
-        append result [my reply output]        
+        append result [my reply output]
       } else {
         set reply_body [string trim $reply_body]
         my reply set Content-Length [string length $reply_body]
