@@ -175,7 +175,7 @@ proc ::cluster::sleep args {
 proc ::cluster::TCPAccept {sock host port} {
   variable tcl_connection
   set coroname [namespace current]::CORO[incr tcl_connection]
-  set coro [coroutine $coroname ::apply [list {sock ip} {
+  set coro [coroutine $coroname ::apply [list {sock} {
     yield [info coroutine]
     set packet {}
     chan configure $sock -translation {crlf crlf} -buffering line -blocking 0
@@ -194,7 +194,7 @@ proc ::cluster::TCPAccept {sock host port} {
       catch {chan flush $sock}
       catch {chan close $sock}
     }
-  } [namespace current]] $sock $ip]
+  } [namespace current]] $sock]
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
