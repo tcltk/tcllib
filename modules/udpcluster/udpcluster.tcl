@@ -173,28 +173,17 @@ proc ::cluster::sleep args {
 }
 
 proc ::cluster::TCPAccept {sock host port} {
-  variable tcl_connection
-  set coroname [namespace current]::CORO[incr tcl_connection]
-  set coro [coroutine $coroname ::apply [list {sock} {
-    yield [info coroutine]
-    set packet {}
-    chan configure $sock -translation {crlf crlf} -buffering line -blocking 0
-    try {
-      set readCount [::coroutine::util::gets_safety $sock 65535 packet]
-      if {![string is ascii $packet]} return
-      if {![::info complete $packet]} return
-      if {[catch {::cluster::Directory {*}$packet} reply errdat]} {
-        chan puts $sock [list $reply $errdat]
-      } else {
-        chan puts $sock [list $reply {}]
-      }
-    } on error {err errdat} {
-      puts stderr $err
-    } finally {
-      catch {chan flush $sock}
-      catch {chan close $sock}
-    }
-  } [namespace current]] $sock]
+  chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
+  set packet [chan gets $sock]
+  if {![string is ascii $packet]} return
+  if {![::info complete $packet]} return
+  if {[catch {Directory {*}$packet} reply errdat]} {
+    chan puts $sock [list $reply $errdat]
+  } else {
+    chan puts $sock [list $reply {}]
+  }
+  chan flush $sock
+  chan close $sock
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
@@ -467,30 +456,14 @@ proc ::cluster::log args {
   broadcast LOG {*}$args
 }
 
-proc ::cluster::force_entry {rawname info} {
-  variable hardcodedata
-  set hardcodedata($rawname) $info
-  set rcpt [cname $rawname]
-  set hardcodedata($rcpt) $info
-}
-
 ###
 # topic: 2c04e58c7f93798f9a5ed31a7f5779ab
 ###
 proc ::cluster::resolve {rawname} {
   variable ptpdata
-  variable hardcodedata
-  if {[::info exists hardcodedata($rawname)]} {
-    return $hardcodedata($rawname)
-  }
-
-  set rcpt [cname $rawname]
-  if {[::info exists hardcodedata($rcpt)]} {
-    return $hardcodedata($rcpt)
-  }
   set self [self]
+  set rcpt [cname $rawname]
   set ipaddr {}
-
   if {[::info exists ptpdata($rcpt)] && [dict exists $ptpdata($rcpt) macid] && [dict get $ptpdata($rcpt) macid] eq $self} {
     set ipaddr 127.0.0.1
   } elseif {[::info exists ptpdata($rcpt)] && [dict exists $ptpdata($rcpt) ipaddr] && [dict exists $ptpdata($rcpt) updated]} {
@@ -681,7 +654,7 @@ namespace eval ::cluster {
   # See: RFC3692 and http://www.iana.org
   variable discovery_group 224.0.0.200
   variable local_port {}
-  variable local_macid [lindex [::nettool::mac_list] 0]
+  variable local_macid [lindex [lsort [::nettool::mac_list]] 0]
   variable local_pid   [::uuid::uuid generate]
 }
 
