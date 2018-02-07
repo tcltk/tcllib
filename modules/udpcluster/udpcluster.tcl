@@ -11,7 +11,7 @@ package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
 package require uuid
 package require cron 2.0
-package require nettool 0.5.1
+package require nettool 0.5.2
 package require udp
 package require dicttool
 
@@ -141,7 +141,7 @@ proc ::cluster::listen {} {
     return $broadcast_sock
   }
 
-  variable discovery_port   
+  variable discovery_port
   # Open a local discovery port to catch non-IP traffic
   variable discovery_group
   set broadcast_sock [udp_open $discovery_port reuse]
@@ -173,28 +173,17 @@ proc ::cluster::sleep args {
 }
 
 proc ::cluster::TCPAccept {sock host port} {
-  variable tcl_connection
-  set coroname [namespace current]::CORO[incr tcl_connection]
-  set coro [coroutine $coroname ::apply [list {uuid sock ip} {
-    yield [info coroutine]
-    set packet {}
-    chan configure $sock -translation {crlf crlf} -buffering line -blocking 0
-    try {
-      set readCount [::coroutine::util::gets_safety $sock 65535 packet]
-      if {![string is ascii $packet]} return
-      if {![::info complete $packet]} return
-      if {[catch {::cluster::Directory {*}$packet} reply errdat]} {
-        chan puts $sock [list $reply $errdat]   
-      } else {
-        chan puts $sock [list $reply {}]
-      }
-    } on error {err errdat} {
-      puts stderr $err
-    } finally {
-      catch {chan flush $sock}
-      catch {chan close $sock}
-    }
-  } [namespace current]] $uuid $sock $ip]
+  chan configure $sock -translation {crlf crlf} -buffering line -blocking 1
+  set packet [chan gets $sock]
+  if {![string is ascii $packet]} return
+  if {![::info complete $packet]} return
+  if {[catch {Directory {*}$packet} reply errdat]} {
+    chan puts $sock [list $reply $errdat]
+  } else {
+    chan puts $sock [list $reply {}]
+  }
+  chan flush $sock
+  chan close $sock
 }
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
@@ -234,13 +223,13 @@ proc ::cluster::UDPPacket sock {
       return
     }
   }
-  
+
   set now [clock seconds]
   set serviceurl  [lindex $packet 2]
   set serviceinfo [lindex $packet 3]
   set ::cluster::ping_recv($serviceurl) $now
   UDPPortInfo $serviceurl $messagetype $serviceinfo
-  
+
   if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
     # Ignore attempts to overwrite locally managed services from the network
     return
@@ -251,7 +240,7 @@ proc ::cluster::UDPPacket sock {
   dict set serviceinfo ipaddr [lindex $peer 0]
   dict set serviceinfo updated $now
   set messageinfo [lrange $packet 4 end]
-  
+
   switch -- $messagetype {
     -SERVICE {
       if {![::info exists ptpdata($serviceurl)]} {
@@ -384,7 +373,7 @@ proc ::cluster::publish {url infodict} {
 proc ::cluster::heartbeat {} {
   variable ptpdata
   variable config
-  
+
   _Winnow
   ###
   # Broadcast the status of our local services
@@ -548,7 +537,7 @@ proc ::cluster::throw {service command args} {
 ###
 proc ::cluster::search pattern {
   _Winnow
-  set result {}  
+  set result {}
   variable ptpdata
   foreach {service dat} [array get ptpdata $pattern] {
     foreach {field value} $dat {
@@ -577,7 +566,7 @@ proc ::cluster::is_local pattern {
 }
 
 proc ::cluster::search_local pattern {
-  set result {}  
+  set result {}
   variable local_data
   foreach {service dat} [array get local_data $pattern] {
     foreach {field value} $dat {
@@ -612,7 +601,7 @@ proc ::cluster::_Winnow {} {
   variable ptpdata
   variable config
   variable local_data
-  
+
   set now [clock seconds]
   foreach {item info} [array get ptpdata] {
     set remove 0
@@ -665,8 +654,8 @@ namespace eval ::cluster {
   # See: RFC3692 and http://www.iana.org
   variable discovery_group 224.0.0.200
   variable local_port {}
-  variable local_macid [lindex [::nettool::mac_list] 0]
+  variable local_macid [lindex [lsort [::nettool::mac_list]] 0]
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide udpcluster 0.3.2
+package provide udpcluster 0.3.3

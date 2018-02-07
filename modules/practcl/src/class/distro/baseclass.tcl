@@ -6,6 +6,16 @@
 ###
 oo::class create ::practcl::distribution {
 
+  method scm_info {} {
+    return {
+      scm  None
+      hash {}
+      maxdate {}
+      tags {}
+      isodate {}
+    }
+  }
+  
   method DistroMixIn {} {
     my define set scm none
   }

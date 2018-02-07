@@ -4,7 +4,12 @@ oo::class create ::practcl::subproject {
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
   }
-
+  
+  
+  method BuildDir {PWD} {
+    return [my define get srcdir]
+  }
+  
   method child which {
     switch $which {
       organs {
@@ -21,9 +26,8 @@ oo::class create ::practcl::subproject {
   method go {} {
     ::practcl::distribution select [self]
     set name [my define get name]
-    set srcdir [my SrcDir]
-    my define set localsrcdir $srcdir
-    my define add include_dir [file join $srcdir generic]
+    my define set builddir [my BuildDir [my define get masterpath]]
+    my define set builddir [my BuildDir [my define get masterpath]]
     my sources
   }
 

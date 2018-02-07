@@ -33,6 +33,28 @@ proc ::cron::task {command args} {
       }
       return $::cron::processTable($process)
     }
+    frequency {
+      set process [lindex $args 0]
+      set time [lindex $args 1]
+      if {![info exists ::cron::processTable($process)]} return
+      dict with ::cron::processTable($process) {
+        set now [clock_step [current_time]]
+        set frequency [expr {0+$time}]
+        if {$scheduled>($now+$time)} {
+          dict set ::cron::processTable($process) scheduled [expr {$now+$time}]
+        }
+      }
+    }
+    sleep {
+      set process [lindex $args 0]
+      set time [lindex $args 1]
+      if {![info exists ::cron::processTable($process)]} return
+      dict with ::cron::processTable($process) {
+        set now [clock_step [current_time]]
+        set frequency 0
+        set scheduled [expr {$now+$time}]
+      }
+    }
     create -
     set {
       set process [lindex $args 0]
@@ -80,7 +102,7 @@ proc ::cron::at args {
     command $command \
     scheduled $scheduled \
     coroutine {}
-  
+
   if {$::cron::trace > 1} {
     puts [list ::cron::task info $process - > [::cron::task info $process]]
   }
@@ -172,9 +194,8 @@ proc ::cron::object_coroutine {objname coroutine {info {}}} {
   task set $coroutine \
     {*}$info \
     object $objname \
-    coroutine $coroutine \
+    coroutine $coroutine
 
-  ::cron::wake NEW
   return $coroutine
 }
 
@@ -235,12 +256,23 @@ proc ::cron::clock_set newtime {
   uplevel #0 {::cron::do_one_event CLOCK_ADVANCE}
 }
 
+proc ::cron::once_in_a_while body {
+  set script {set _eventid_ $::cron::current_event}
+  append script $body
+  # Add a safety to allow this while to only execute once per call
+  append script {if {$_eventid_==$::cron::current_event} yield}
+  uplevel 1 [list while 1 $body]
+}
+
 proc ::cron::sleep ms {
   if {$::cron::trace > 1} {
     puts [list ::cron::sleep $ms [info coroutine]]
   }
-  
+
   set coro [info coroutine]
+  # When the clock is being externally
+  # controlled, advance the clock when
+  # a sleep is called
   variable time
   if {$time >= 0 && $coro eq {}} {
     ::cron::clock_set [expr {$time+$ms}]
@@ -254,20 +286,23 @@ proc ::cron::sleep ms {
     if {$::cron::trace} {
       puts "::cron::sleep $ms $coro"
     }
-    task set $eventid scheduled $end coroutine $coro
+    # Mark as running
+    task set $eventid scheduled $end coroutine $coro running 1
     ::cron::wake WAKE_IN_CORO
-    yield
+    yield 2
     while {$end >= $mnow} {
       if {$::cron::trace} {
         puts "::cron::sleep $ms $coro (loop)"
       }
       set mnow [current_time]
-      yield
+      yield 2
     }
+    # Mark as not running to resume idle computation
+    task set $eventid running 0
     if {$::cron::trace} {
       puts "/::cron::sleep $ms $coro"
     }
-  } else {  
+  } else {
     set eventid [incr ::cron::eventcount]
     set var ::cron::event_#$eventid
     set $var 0
@@ -301,8 +336,10 @@ proc ::cron::runTasksCoro {} {
   variable coroutine_object
   variable coroutine_busy
   variable nextevent
-  
+  variable current_event
+
   while 1 {
+    incr current_event
     set lastevent 0
     set now [current_time]
     # Wake me up in 5 minute intervals, just out of principle
@@ -354,17 +391,13 @@ proc ::cron::runTasksCoro {} {
     }
     foreach task $tasks {
       dict set processTable($task) lastrun $now
-      if {[dict exists processTable($task) running] && [dict set processTable($task) running]} {
-        if {$::cron::trace} {
-          puts "Process: $task is stuck"
-        }
-        continue
-      }
+      if {[dict exists processTable($task) foreground] && [dict set processTable($task) foreground]} continue
+      if {[dict exists processTable($task) running] && [dict set processTable($task) running]} continue
       if {$::cron::trace > 2} {
         puts [list RUNNING $task [task info $task]]
       }
-      dict set processTable($task) running 1
       set coro [dict getnull $processTable($task) coroutine]
+      dict set processTable($task) running 1
       set command [dict getnull $processTable($task) command]
       if {$command eq {} && $coro eq {}} {
         # Task has nothing to do. Slot it for destruction
@@ -378,7 +411,7 @@ proc ::cron::runTasksCoro {} {
           if {$command eq {} || ($object ne {} && [info command $object] eq {})} {
             lappend cancellist $task
             dict set processTable($task) running 0
-            continue            
+            continue
           }
           if {$::cron::trace} {
             puts [list RESTARTING $task - coroutine $coro - with $command]
@@ -463,7 +496,7 @@ proc ::cron::runTasksCoro {} {
       if {$::cron::trace > 1} {
         puts "NEXT EVENT $delay - NEXT TASK $nexttask"
       }
-      yield $delay      
+      yield $delay
     }
   }
 }
@@ -476,26 +509,13 @@ proc ::cron::wake {{who ???}} {
   if {$::cron::trace} {
     puts "::cron::wake $who"
   }
-  if {$who eq "PANIC"} {
-    # Cron is overdue and may be stuck
-    set ::cron::busy 0
-    set ::cron::panic_event {}
-  }
-  if {$::cron::busy && $::cron::panic_event eq {}} {
-    if {$::cron::trace} {
-      puts "CRON BUSY... RESCHEDULING PANIC"
-    }
-    after cancel $::cron::panic_event
-    set ::cron::panic_event [after 120000 {::cron::wake PANIC}]
-    return
-  }
   if {$::cron::busy} {
     return
   }
   after cancel $::cron::next_event
   set ::cron::next_event [after idle [list ::cron::do_one_event $who]]
 }
-  
+
 proc ::cron::do_one_event {{who ???}} {
   if {$::cron::trace} {
     puts "::cron::do_one_event $who"
@@ -503,8 +523,6 @@ proc ::cron::do_one_event {{who ???}} {
   after cancel $::cron::next_event
   set now [current_time]
   set ::cron::busy 1
-  after cancel $::cron::panic_event
-  set ::cron::panic_event [after 120000 {::cron::wake PANIC}]
   while {$::cron::busy} {
     if {[info command ::cron::COROUTINE] eq {}} {
       ::coroutine ::cron::COROUTINE ::cron::runTasksCoro
@@ -576,11 +594,10 @@ namespace eval ::cron {
   variable busy 0
   variable next_event {}
   variable trace 0
-  variable event_loops
+  variable current_event
   variable time -1
-  variable panic_event {}
-  if {![info exists event_loops]} {
-    set event_loops 0
+  if {![info exists current_event]} {
+    set current_event 0
   }
   if {![info exists ::cron::loops]} {
     array set ::cron::loops {
@@ -593,5 +610,5 @@ namespace eval ::cron {
 }
 
 ::cron::wake STARTUP
-package provide cron 2.0
+package provide cron 2.1
 

@@ -166,12 +166,7 @@ set ::PATHSTACK [lrange $::PATHSTACK 0 end-1]
   return $buffer
 }
 
-###
-# topic: 64319f4600fb63c82b2258d908f9d066
-# description: Script to build the VFS file system
-###
 proc ::practcl::installDir {d1 d2} {
-
   puts [format {%*sCreating %s} [expr {4 * [info level]}] {} [file tail $d2]]
   file delete -force -- $d2
   file mkdir $d2
@@ -203,13 +198,27 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   #}
   #file delete -force -- $d2
   file mkdir $d2
-
-  foreach ftail [glob -directory $d1 -nocomplain -tails *] {
-    set f [file join $d1 $ftail]
-    if {[file isdirectory $f] && [string compare CVS $ftail]} {
-      copyDir $f [file join $d2 $ftail] 0
-    } elseif {[file isfile $f]} {
-      file copy -force $f [file join $d2 $ftail]
+  if {[file isfile $d1]} {
+    file copy -force $d1 $d2
+    set ftail [file tail $d1]
+    if {$::tcl_platform(platform) eq {unix}} {
+      file attributes [file join $d2 $ftail] -permissions 0644
+    } else {
+      file attributes [file join $d2 $ftail] -readonly 1
+    }
+  } else {
+    foreach ftail [glob -directory $d1 -nocomplain -tails *] {
+      set f [file join $d1 $ftail]
+      if {[file isdirectory $f] && [string compare CVS $ftail]} {
+        copyDir $f [file join $d2 $ftail] 0
+      } elseif {[file isfile $f]} {
+        file copy -force $f [file join $d2 $ftail]
+        if {$::tcl_platform(platform) eq {unix}} {
+          file attributes [file join $d2 $ftail] -permissions 0644
+        } else {
+          file attributes [file join $d2 $ftail] -readonly 1
+        }
+      }
     }
   }
 }

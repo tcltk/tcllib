@@ -1,4 +1,17 @@
 ###
+# Amalgamated package for httpd
+# Do not edit directly, tweak the source in src/ and rerun
+# build.tcl
+###
+package require Tcl 8.6
+package provide httpd 4.1.0
+namespace eval ::httpd {}
+set ::httpd::version 4.1.0
+
+###
+# START: core.tcl
+###
+###
 # Author: Sean Woods, yoda@etoyoc.com
 ##
 # Adapted from the "minihttpd.tcl" file distributed with Tclhttpd
@@ -14,25 +27,41 @@ package require uri
 package require cron
 package require coroutine
 package require tool
-package require oo::dialect
+package require mime
+package require fileutil
+package require websocket
+###
+# Standard library of HTTP/SCGI content
+# Each of these classes are intended to be mixed into
+# either an HTTPD or SCGI reply
+###
+package require Markdown
+package require fileutil::magic::filetype
+namespace eval httpd::content {}
 
 namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-set ::httpd::version 4.0.1
-package provide httpd 4.0.1
 
+
+###
+# END: core.tcl
+###
+###
+# START: reply.tcl
+###
 ###
 # Define the reply class
 ###
 ::tool::define ::httpd::reply {
 
   property reply_headers_default {
-    Status: {200 OK}
-    Content-Type: {text/html; charset=ISO-8859-1}
-    Cache-Control: {no-cache}
-    Connection: close
+    Status {200 OK}
+    Content-Size 0
+    Content-Type {text/html; charset=ISO-8859-1}
+    Cache-Control {no-cache}
+    Connection close
   }
 
   array error_codes {
@@ -89,11 +118,11 @@ package provide httpd 4.0.1
     # suite, when we are opening a blocking channel on the other side of the
     # socket back to ourselves.)
     ###
-    chan configure $sock -translation {crlf crlf} -blocking 0 -buffering line
+    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     try {
       while 1 {
         set readCount [::coroutine::util::gets_safety $sock 4096 line]
-        if {[string trim $line] eq {}} break
+        if {$readCount==0} break
         append result $line \n
       }
     } trap {POSIX EBUSY} {err info} {
@@ -109,90 +138,31 @@ package provide httpd 4.0.1
     return $result
   }
 
-  method MimeParse mimetext {
-    set data(mimeorder) {}
-    foreach line [split $mimetext \n] {
-      # This regexp picks up
-      # key: value
-      # MIME headers.  MIME headers may be continue with a line
-      # that starts with spaces or a tab
-      if {[string length [string trim $line]]==0} break
-      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
-        # The following allows something to
-        # recreate the headers exactly
-        lappend data(headerlist) $key $value
-        # The rest of this makes it easier to pick out
-        # headers from the data(mime,headername) array
-        #set key [string tolower $key]
-        if {[info exists data(mime,$key)]} {
-          append data(mime,$key) ,$value
-        } else {
-          set data(mime,$key) $value
-          lappend data(mimeorder) $key
-        }
-        set data(key) $key
-      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
-        # Are there really continuation lines in the spec?
-        if {[info exists data(key)]} {
-          append data(mime,$data(key)) " " $value
-        } else {
-          my error 400 "INVALID HTTP HEADER FORMAT: $line"
-          tailcall my output
-        }
-      } else {
-        my error 400 "INVALID HTTP HEADER FORMAT: $line"
-        tailcall my output
-      }
-    }
-    ###
-    # To make life easier for our SCGI implementation rig things
-    # such that CONTENT_LENGTH is always first
-    ###
-    set result {
-      CONTENT_LENGTH 0
-    }
-    foreach {key} $data(mimeorder) {
-      switch $key {
-        Content-Length {
-          dict set result CONTENT_LENGTH $data(mime,$key)
-        }
-        Content-Type {
-          dict set result CONTENT_TYPE $data(mime,$key)
-        }
-        default {
-          dict set result HTTP_[string map {"-" "_"} [string toupper $key]] $data(mime,$key)
-        }
-      }
-    }
-    return $result
-  }
-
   method dispatch {newsock datastate} {
-    my query_headers replace $datastate
+    my http_info replace $datastate
     my variable chan rawrequest dipatched_time
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
     set dispatched_time [clock seconds]
     try {
-      if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
-        set rawrequest [my HttpHeaders $chan]
-        foreach {field value} [my MimeParse $rawrequest] {
-          my query_headers set $field $value
-        }
-      }
-      # Dispatch to the URL implementation.
+      # Initialize the reply
+      my reset
+      # Process the incoming MIME headers
+      set rawrequest [my HttpHeaders $chan]
+      my request parse $rawrequest
+      # Invoke the URL implementation.
       my content
     } on error {err info} {
       dict print $info
-      #puts stderr $::errorInfo
+      puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
     }
   }
 
-  dictobj query_headers query_headers {
+  dictobj http_info http_info {
     initialize {
       CONTENT_LENGTH 0
     }
@@ -204,28 +174,21 @@ package provide httpd 4.0.1
       return "[string length $result]:$result,"
     }
   }
-  dictobj reply_headers reply_headers {
-    initialize {
-      Content-Type: {text/html; charset=ISO-8859-1}
-      Connection: close
-    }
-  }
 
   method error {code {msg {}} {errorInfo {}}} {
-    puts [list [self] ERROR $code $msg]
-    my query_headers set HTTP_ERROR $code
+    my http_info set HTTP_ERROR $code
     my reset
     my variable error_codes
-    set qheaders [my query_headers dump]
+    set qheaders [my http_info dump]
     if {![info exists error_codes($code)]} {
       set errorstring "Unknown Error Code"
     } else {
       set errorstring $error_codes($code)
     }
     dict with qheaders {}
-    my reply_headers replace {}
-    my reply_headers set Status: "$code $errorstring"
-    my reply_headers set Content-Type: {text/html; charset=ISO-8859-1}
+    my reply replace {}
+    my reply set Status "$code $errorstring"
+    my reply set Content-Type {text/html; charset=ISO-8859-1}
     my puts "
 <HTML>
 <HEAD>
@@ -278,6 +241,7 @@ For deeper understanding:
     my variable chan
     chan event $chan writable [namespace code {my DoOutput}]
   }
+
   ###
   # Output the result or error to the channel
   # and destroy this object
@@ -285,33 +249,23 @@ For deeper understanding:
   method DoOutput {} {
     my variable reply_body chan
     chan event $chan writable {}
-
     catch {
       chan configure $chan  -translation {binary binary}
-      set headers [my reply_headers dump]
-      if {[dict exists $headers Status:]} {
-        set result "[my EncodeStatus [dict get $headers Status:]]\n"
-      } else {
-        set result "[my EncodeStatus {505 Internal Error}]\n"
-      }
-      foreach {key value} $headers {
-        # Ignore Status and Content-length, if given
-        if {$key in {Status: Content-length:}} continue
-        append result "$key $value" \n
-      }
       ###
       # Return dynamic content
       ###
-      #set reply_body [string trim $reply_body]
       set length [string length $reply_body]
+      set result {}
       if {${length} > 0} {
-        append result "Content-length: [string length $reply_body]" \n \n
+        my reply set Content-Length [string length $reply_body]
+        append result [my reply output] \n
         append result $reply_body
       } else {
-        append result \n
+        append result [my reply output]
       }
       chan puts -nonewline $chan $result
-    }
+    } err
+    puts $err
     my destroy
   }
 
@@ -323,18 +277,46 @@ For deeper understanding:
   }
 
   method FormData {} {
-    my variable formdata
+    my variable chan formdata rawrequest
     # Run this only once
     if {[info exists formdata]} {
       return $formdata
     }
-    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
-      set body [my PostData]
-      switch [my query_headers get CONTENT_TYPE] {
+    set rawrequest [my HttpHeaders $chan]
+    my request parse $rawrequest
+    if {![my request exists Content-Length]} {
+      set length 0
+    } else {
+      set length [my request get Content-Length]
+    }
+    set formdata {}
+    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
+      set rawtype [my request get Content-Type]
+      if {[string toupper [string range $rawtype 0 8]] ne "MULTIPART"} {
+        set type $rawtype
+      } else {
+        set type multipart
+      }
+      switch $type {
+        multipart {
+          ###
+          # Ok, Multipart MIME is troublesome, farm out the parsing to a dedicated tool
+          ###
+          set body $rawrequest
+          append body \n [my PostData $length]
+          set token [::mime::initialize -string $body]
+          foreach item [::mime::getheader $token -names] {
+            dict set formdata $item [::mime::getheader $token $item]
+          }
+          foreach item {content encoding params parts size} {
+            dict set formdata MIME_[string toupper $item] [::mime::getproperty $token $item]
+          }
+          dict set formdata MIME_TOKEN $token
+        }
         application/x-www-form-urlencoded {
           # These foreach loops are structured this way to ensure there are matched
           # name/value pairs.  Sometimes query data gets garbled.
-
+          set body [my PostData $length]
           set result {}
           foreach pair [split $body "&"] {
             foreach {name value} [split $pair "="] {
@@ -344,7 +326,7 @@ For deeper understanding:
         }
       }
     } else {
-      foreach pair [split [my query_headers getnull QUERY_STRING] "&"] {
+      foreach pair [split [my http_info getnull QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }
@@ -353,17 +335,66 @@ For deeper understanding:
     return $formdata
   }
 
-  method PostData {} {
+  ###
+  # Minimalist MIME Header Parser
+  ###
+  method MimeParse mimetext {
+    set data(mimeorder) {}
+    foreach line [split $mimetext \n] {
+      # This regexp picks up
+      # key: value
+      # MIME headers.  MIME headers may be continue with a line
+      # that starts with spaces or a tab
+      if {[string length [string trim $line]]==0} break
+      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
+        # The following allows something to
+        # recreate the headers exactly
+        lappend data(headerlist) $key $value
+        # The rest of this makes it easier to pick out
+        # headers from the data(mime,headername) array
+        #set key [string tolower $key]
+        if {[info exists data(mime,$key)]} {
+          append data(mime,$key) ,$value
+        } else {
+          set data(mime,$key) $value
+          lappend data(mimeorder) $key
+        }
+        set data(key) $key
+      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
+        # Are there really continuation lines in the spec?
+        if {[info exists data(key)]} {
+          append data(mime,$data(key)) " " $value
+        } else {
+          my error 400 "INVALID HTTP HEADER FORMAT: $line"
+          tailcall my output
+        }
+      } else {
+        my error 400 "INVALID HTTP HEADER FORMAT: $line"
+        tailcall my output
+      }
+    }
+    ###
+    # To make life easier for our SCGI implementation rig things
+    # such that CONTENT_LENGTH is always first
+    ###
+    set result {}
+    dict set result Content-Length 0
+    foreach {key} $data(mimeorder) {
+      dict set result $key $data(mime,$key)
+    }
+    return $result
+  }
+
+  method PostData {length} {
     my variable postdata
     # Run this only once
     if {[info exists postdata]} {
       return $postdata
     }
     set postdata {}
-    if {[my query_headers get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-      set length [my query_headers get CONTENT_LENGTH]
       set postdata [::coroutine::util::read $chan $length]
     }
     return $postdata
@@ -384,14 +415,39 @@ For deeper understanding:
     append reply_body $line \n
   }
 
+  dictobj request request {
+    parse {
+      set request [my MimeParse [lindex $args 0]]
+    }
+  }
+
+  dictobj reply reply {
+    output {
+      set result {}
+      if {![dict exists $reply Status]} {
+        set status {200 OK}
+      } else {
+        set status [dict get $reply Status]
+      }
+      set result "[my EncodeStatus $status]\n"
+      foreach {f v} $reply {
+        if {$f in {Status}} continue
+        append result "[string trimright $f :]: $v\n"
+      }
+      #append result \n
+      return $result
+    }
+  }
+
+
   ###
   # Reset the result
   ###
   method reset {} {
     my variable reply_body
-    my reply_headers replace [my meta cget reply_headers_default]
-    my reply_headers set Server: [my <server> cget server_string]
-    my reply_headers set Date: [my timestamp]
+    my reply replace [my meta cget reply_headers_default]
+    my reply set Server [my <server> cget server_string]
+    my reply set Date [my timestamp]
     set reply_body {}
   }
 
@@ -418,21 +474,31 @@ For deeper understanding:
 }
 
 ###
-# A simplistic web server, with a few caveats:
-# 1) It is not hardened in any way against malicious attacks
-# 2) By default it will only listen on localhost
+# END: reply.tcl
 ###
+###
+# START: server.tcl
+###
+###
+# An httpd server with a template engine
+# and a shim to insert URL domains
+###
+
 ::tool::define ::httpd::server {
 
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
   option server_string [list default: [list TclHttpd $::httpd::version]]
   option server_name [list default: [list [info hostname]]]
-
+  option doc_root {default {}}
+  
   property socket buffersize   32768
   property socket translation  {auto crlf}
   property reply_class ::httpd::reply
 
+  array template
+  variable url_patterns {}
+  
   constructor {args} {
     my configure {*}$args
     my start
@@ -442,6 +508,11 @@ For deeper understanding:
     my stop
   }
 
+  method add_uri {pattern info} {
+    my variable url_patterns
+    dict set url_patterns $pattern $info
+  }
+  
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -457,15 +528,12 @@ For deeper understanding:
       -translation {auto crlf} \
       -buffering line
 
-    set coro [coroutine [namespace current]::CORO$uuid ::apply [list {uuid sock ip} {
-      yield [info coroutine]
-      tailcall my Connect $uuid $sock $ip
-    } [namespace current]] $uuid $sock $ip]
-
+    set coro [coroutine [namespace current]::CORO$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
     chan event $sock readable $coro
   }
 
   method Connect {uuid sock ip} {
+    yield [info coroutine]
     chan event $sock readable {}
     my counter url_hit
     set line {}
@@ -478,7 +546,11 @@ For deeper understanding:
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
       if {[dict get $uriinfo host] eq {}} {
-        dict set query HTTP_HOST [info hostname]
+        if {$ip eq "127.0.0.1"} {
+          dict set query HTTP_HOST localhost
+        } else {
+          dict set query HTTP_HOST [info hostname]
+        }
       } else {
         dict set query HTTP_HOST [dict get $uriinfo host]
       }
@@ -559,14 +631,33 @@ For deeper understanding:
   }
 
   ###
-  # REPLACE ME:
-  # This method should perform any transformations
-  # or setup to the page object based on headers/state/etc
-  # If all is well, return 200. Any other code will be interpreted
-  # as an error
+  # Route a request to the appropriate handler
   ###
   method dispatch {data} {
-    return $data
+    set reply $data
+    set uri [dict get $data REQUEST_PATH]
+    # Search from longest pattern to shortest
+    my variable url_patterns
+    foreach {pattern info} $url_patterns {
+      if {[string match ${pattern} /$uri]} {
+        set reply [dict merge $data $info]
+        if {![dict exists $reply prefix]} {
+          dict set reply prefix [my PrefixNormalize $pattern]
+        }
+        return $reply
+      }
+    }
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {}} {
+      ###
+      # Fall back to doc_root handling
+      ###
+      dict set reply prefix {}
+      dict set reply path $doc_root
+      dict set reply mixin httpd::content::file
+      return $reply
+    }
+    return {}
   }
 
   method log args {
@@ -578,6 +669,13 @@ For deeper understanding:
     return $port_listening
   }
 
+  method PrefixNormalize prefix {
+    set prefix [string trimright $prefix /]
+    set prefix [string trimright $prefix *]
+    set prefix [string trimright $prefix /]
+    return $prefix
+  }
+  
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -669,3 +767,473 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     return 0
   }
 }
+
+###
+# Provide a backward compadible alias
+###
+::tool::define ::httpd::server::dispatch {
+    superclass ::httpd::server
+}
+###
+# END: server.tcl
+###
+###
+# START: dispatch.tcl
+###
+
+###
+# END: dispatch.tcl
+###
+###
+# START: file.tcl
+###
+
+###
+# Class to deliver Static content
+# When utilized, this class is fed a local filename
+# by the dispatcher
+###
+::tool::define ::httpd::content::file {
+
+  method FileName {} {
+    set uri [string trimleft [my http_info get REQUEST_URI] /]
+    set path [my http_info get path]
+    set prefix [my http_info get prefix]
+    set fname [string range $uri [string length $prefix] end]
+    if {$fname in "{} index.html index.md index"} {
+      return $path
+    }
+    if {[file exists [file join $path $fname]]} {
+      return [file join $path $fname]
+    }
+    if {[file exists [file join $path $fname.md]]} {
+      return [file join $path $fname.md]
+    }
+    if {[file exists [file join $path $fname.html]]} {
+      return [file join $path $fname.html]
+    }
+    if {[file exists [file join $path $fname.tml]]} {
+      return [file join $path $fname.tml]
+    }
+    return {}
+  }
+
+
+  method DirectoryListing {local_file} {
+    set uri [string trimleft [my http_info get REQUEST_URI] /]
+    set path [my http_info get path]
+    set prefix [my http_info get prefix]
+    set fname [string range $uri [string length $prefix] end]
+    my puts "<HTML><HEAD><TITLE>Listing of /$fname/</TITLE></HEAD><BODY>"
+    my puts "Path: $path<br>"
+    my puts "Prefs: $prefix</br>"
+    my puts "URI: $uri</br>"
+    my puts "Listing contents of /$fname/"
+    my puts "<TABLE>"
+    if {$prefix ni {/ {}}} {
+      set updir [file dirname $prefix]
+      if {$updir ne {}} {
+        my puts "<TR><TD><a href=\"/$updir\">..</a></TD><TD></TD></TR>"
+      }
+    }
+    foreach file [glob -nocomplain [file join $local_file *]] {
+      if {[file isdirectory $file]} {
+        my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]/</a></TD><TD></TD></TR>"
+      } else {
+        my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
+      }
+    }
+    my puts "</TABLE></BODY></HTML>"
+  }
+
+  method dispatch {newsock datastate} {
+    # No need to process the rest of the headers
+    my variable chan dipatched_time
+    set dispatched_time [clock seconds]
+    my http_info replace $datastate
+    set chan $newsock
+    my content
+    my output
+  }
+
+  method content {} {
+    ###
+    # When delivering static content, allow web caches to save
+    ###
+    my reply set Cache-Control {max-age=3600}
+    my variable reply_file
+    set local_file [my FileName]
+    if {$local_file eq {} || ![file exist $local_file]} {
+      my <server> log httpNotFound [my http_info get REQUEST_URI]
+       tailcall my error 404 {Not Found}
+    }
+    if {[file isdirectory $local_file]} {
+      ###
+      # Produce an index page
+      ###
+      set idxfound 0
+      foreach name {
+        index.html
+        index.tml
+        index.md
+      } {
+        if {[file exists [file join $local_file $name]]} {
+          set idxfound 1
+          set local_file [file join $local_file $name]
+          break
+        }
+      }
+      if {!$idxfound} {
+        tailcall my DirectoryListing $local_file
+      }
+    }
+    switch [file extension $local_file] {
+      .md {
+        package require Markdown
+        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        set mdtxt  [::fileutil::cat $local_file]
+        my puts [::Markdown::convert $mdtxt]
+      }
+      .tml {
+        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        set tmltxt  [::fileutil::cat $local_file]
+        set headers [my http_info dump]
+        dict with headers {}
+        my puts [subst $tmltxt]
+      }
+      default {
+        ###
+        # Assume we are returning a binary file
+        ###
+        my reply set Content-Type [::fileutil::magic::filetype $local_file]
+        set reply_file $local_file
+      }
+    }
+  }
+
+  ###
+  # Output the result or error to the channel
+  # and destroy this object
+  ###
+  method DoOutput {} {
+    my variable chan
+    chan event $chan writable {}
+    my variable reply_body reply_file reply_chan chan
+    chan configure $chan  -translation {binary binary}
+    if {![info exists reply_file]} {
+      ###
+      # Return dynamic content
+      ###
+      if {![info exists reply_body]} {
+        append result [my reply output]
+      } else {
+        set reply_body [string trim $reply_body]
+        my reply set Content-Length [string length $reply_body]
+        append result [my reply output] \n
+        append result $reply_body
+        chan puts -nonewline $chan $result
+        chan flush $chan
+      }
+      my destroy
+    } else {
+      ###
+      # Return a stream of data from a file
+      ###
+      set size [file size $reply_file]
+      my reply set Content-Length $size
+      append result [my reply output] \n
+      chan puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      chan configure $reply_chan  -translation {binary binary}
+      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
+    }
+  }
+}
+
+###
+# END: file.tcl
+###
+###
+# START: scgi.tcl
+###
+###
+# Return data from an SCGI process
+###
+::tool::define ::httpd::content::scgi {
+
+  method scgi_info {} {
+    ###
+    # This method should check if a process is launched
+    # or launch it if needed, and return a list of
+    # HOST PORT SCRIPT_NAME
+    ###
+    # return {localhost 8016 /some/path}
+    error unimplemented
+  }
+
+  method content {} {
+    my variable sock chan
+    set sockinfo [my scgi_info]
+    if {$sockinfo eq {}} {
+      my error 404 {Not Found}
+      return
+    }
+    lassign $sockinfo scgihost scgiport scgiscript
+    set sock [::socket $scgihost $scgiport]
+    
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    ###
+    # Convert our query headers into netstring format.
+    ###
+    if {![my request exists Content-Length]} {
+      set length 0
+    } else {
+      set length [my request get Content-Length]
+    }
+    set block {}
+    append block CONTENT_LENGTH \x00 $length \x00
+    append block SCGI \x00 1.0 \x00
+    append block SCRIPT_NAME \x00 $scgiscript \x00
+    set info {}
+    foreach {f v} [my http_info dump] {
+      dict set info $f $v
+    }
+    foreach {f v} [my request dump] {
+      if {[string range $f 0 3] ne "HTTP"} {
+        set f HTTP_[string toupper $f]
+      }
+      dict set info $f $v 
+    }
+    foreach {f v} $info {
+      if {$f in {CONTENT_LENGTH HTTP_STATUS}} continue
+      append block [string toupper $f] \x00 $v \x00
+    }
+    chan puts -nonewline $sock "[string length $block]:$block,"
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $chan $sock -size $length
+    }
+    chan flush $sock
+    ###
+    # Wake this object up after the SCGI process starts to respond
+    ###
+    #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    chan event $sock readable [namespace code {my output}]
+  }
+  
+  method output {} {
+    if {[my http_info getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+    }
+    my variable sock chan
+    set replyhead [my HttpHeaders $sock]
+    set replydat  [my MimeParse $replyhead]
+    if {![dict exists $replydat CONTENT_LENGTH]} {
+      set length 0
+    } else {
+      set length [dict get $replydat CONTENT_LENGTH]
+    }
+    ###
+    # Convert the Status: header from the SCGI service to
+    # a standard service reply line from a web server, but
+    # otherwise spit out the rest of the headers verbatim
+    ###
+    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
+    }
+  }
+  ###
+  # Todo: Shorten this to a http->SCGI header formatter
+  # And eliminate the duplicate implementation
+  ###
+  method MimeParse mimetext {
+    set data(mimeorder) {}
+    foreach line [split $mimetext \n] {
+      # This regexp picks up
+      # key: value
+      # MIME headers.  MIME headers may be continue with a line
+      # that starts with spaces or a tab
+      if {[string length [string trim $line]]==0} break
+      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
+        # The following allows something to
+        # recreate the headers exactly
+        lappend data(headerlist) $key $value
+        # The rest of this makes it easier to pick out
+        # headers from the data(mime,headername) array
+        #set key [string tolower $key]
+        if {[info exists data(mime,$key)]} {
+          append data(mime,$key) ,$value
+        } else {
+          set data(mime,$key) $value
+          lappend data(mimeorder) $key
+        }
+        set data(key) $key
+      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
+        # Are there really continuation lines in the spec?
+        if {[info exists data(key)]} {
+          append data(mime,$data(key)) " " $value
+        } else {
+          my error 400 "INVALID HTTP HEADER FORMAT: $line"
+          tailcall my output
+        }
+      } else {
+        my error 400 "INVALID HTTP HEADER FORMAT: $line"
+        tailcall my output
+      }
+    }
+    ###
+    # To make life easier for our SCGI implementation rig things
+    # such that CONTENT_LENGTH is always first
+    ###
+    set result {
+      CONTENT_LENGTH 0
+    }
+    foreach {key} $data(mimeorder) {
+      switch $key {
+        Content-Length {
+          dict set result CONTENT_LENGTH $data(mime,$key)
+        }
+        Content-Type {
+          dict set result CONTENT_TYPE $data(mime,$key)
+        }
+        default {
+          dict set result HTTP_[string map {"-" "_"} [string toupper $key]] $data(mime,$key)
+        }
+      }
+    }
+    return $result
+  }
+}
+
+###
+# END: scgi.tcl
+###
+###
+# START: proxy.tcl
+###
+
+# Act as a proxy server
+::tool::define ::httpd::content::proxy {
+
+  method proxy_info {} {
+    ###
+    # This method should check if a process is launched
+    # or launch it if needed, and return a list of
+    # HOST PORT PROXYURI
+    ###
+    # return {localhost 8016 /some/path}
+    error unimplemented
+  }
+
+  method content {} {
+    my variable chan sock rawrequest
+    set sockinfo [my proxy_info]
+    if {$sockinfo eq {}} {
+      tailcall my error 404 {Not Found}
+    }
+    lassign $sockinfo proxyhost proxyport proxyscript
+    set sock [::socket $proxyhost $proxyport]
+
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+
+    # Pass along our modified METHOD URI PROTO
+    chan puts $sock "$proxyscript"
+    # Pass along the headers as we saw them
+    chan puts $sock $rawrequest
+    set length [my http_info get CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $chan $sock -size $length
+    }
+    chan flush $sock
+    ###
+    # Wake this object up after the proxied process starts to respond
+    ###
+    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
+    chan event $sock readable [namespace code {my output}]
+  }
+
+  method DoOutput {} {
+    my variable chan sock
+    chan event $chan writable {}
+    if {![info exists sock] || [my http_info getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+      return
+    }
+    set length 0
+    chan configure $sock -translation {crlf crlf} -blocking 1
+    set replystatus [gets $sock]
+    set replyhead [my HttpHeaders $sock]
+    set replydat  [my MimeParse $replyhead]
+
+    ###
+    # Pass along the status line and MIME headers
+    ###
+    set replybuffer "$replystatus\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    set length [dict get $replydat CONTENT_LENGTH]
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      my destroy
+    }
+  }
+}
+###
+# END: proxy.tcl
+###
+###
+# START: websocket.tcl
+###
+###
+# Upgrade a connection to a websocket
+###
+::tool::define ::httpd::content::websocket {
+    
+}
+###
+# END: websocket.tcl
+###
+
+namespace eval ::httpd {
+    namespace export *
+}
+
