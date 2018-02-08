@@ -27,14 +27,11 @@ fundimentals needed for a full service website.
 [para]
 
 
-[section Class ::httpd::server]
 [include src/server.man]
 
 
-[section Class ::httpd::reply]
 [include src/reply.man]
 
-[section Class ::httpd::content]
 [include src/content.man]
 
 [section AUTHORS]

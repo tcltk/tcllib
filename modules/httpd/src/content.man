@@ -1,3 +1,4 @@
+[section {Class ::httpd::content}]
 
 The httpd module includes several ready to use implementations of content mixins
 for common use cases. Options are passed in to the [cmd add_uri] method of the server.
