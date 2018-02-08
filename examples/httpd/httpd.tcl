@@ -6,9 +6,7 @@ set DIR [file dirname [file normalize [info script]]]
 set DEMOROOT [file join $DIR htdocs]
 set tcllibroot  [file normalize [file join $DIR .. ..]]
 set auto_path [linsert $auto_path 0 [file normalize [file join $tcllibroot modules]]]
-package require httpd
-package require httpd::content
-
+package require httpd 4.1
 ###
 # This script creates two toplevel domains:
 # * Hosting the tcllib embedded documentation as static content
@@ -67,8 +65,8 @@ tool::class create httpd::content::fossil_node_scgi {
 
   superclass httpd::content::scgi
   method scgi_info {} {
-    set uri    [my query_headers get REQUEST_URI]
-    set prefix [my query_headers get prefix]
+    set uri    [my http_info get REQUEST_URI]
+    set prefix [my http_info get prefix]
     set module [lindex [split $uri /] 2]
     file mkdir ~/tmp
     if {![info exists ::fossil_process($module)]} {
@@ -86,7 +84,7 @@ tool::class create httpd::content::fossil_node_scgi {
       }
       set mport [my <server> port_listening]
       set cmd [list [::fossil] server $dbfile --port $port --localhost --scgi 2>~/tmp/$module.err >~/tmp/$module.log]
- 
+
       dict set ::fossil_process($module) port $port
       dict set ::fossil_process($module) handle $handle
       dict set ::fossil_process($module) cmd $cmd
@@ -100,115 +98,64 @@ tool::class create httpd::content::fossil_node_scgi {
     }
     return [list localhost $port $SCRIPT_NAME]
   }
-
-  method content {} {
-    my variable sock chan
-    set sockinfo [my scgi_info]
-    if {$sockinfo eq {}} {
-      my error 404 {Not Found}
-      return
-    }
-    lassign $sockinfo scgihost scgiport scgiscript
-    set sock [::socket $scgihost $scgiport]
-    # Add a few headers that SCGI needs
-    my query_headers set SCRIPT_NAME $scgiscript
-    my query_headers set SCGI 1.0    
-
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    ###
-    # Convert our query headers into netstring format. Note that
-    # MimeParse as already rigged it such that CONTENT_LENGTH is first
-    # and always populated (even if zero), per SCGI requirements
-    ###
-    set block [my query_headers netstring]
-    puts -nonewline $sock $block
-    set length [my query_headers get CONTENT_LENGTH]
-    if {$length} {
-      ###
-      # Send any POST/PUT/etc content
-      ###
-      chan copy $chan $sock -size $length
-    }
-    chan flush $sock
-    ###
-    # Wake this object up after the SCGI process starts to respond
-    ###
-    #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
-    chan event $sock readable [namespace code {my output}]
-  }
-  
-  method dispatch {newsock datastate} {
-    my query_headers replace $datastate
-    my variable chan rawrequest dipatched_time
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
-    try {
-      set rawrequest [my HttpHeaders $chan]
-      foreach {field value} [my MimeParse $rawrequest] {
-        my query_headers set $field $value
-      }
-      # Dispatch to the URL implementation.
-      my content
-    } on error {err info} {
-      dict print $info
-      #puts stderr $::errorInfo
-      my error 500 $err
-    } finally {
-      my output
-    }
-  }
-  
-  method output {} {
-    if {[my query_headers getnull HTTP_ERROR] ne {}} {
-      ###
-      # If something croaked internally, handle this page as a normal reply
-      ###
-      next
-    }
-    my variable sock chan
-    set replyhead [my HttpHeaders $sock]
-    set replydat  [my MimeParse $replyhead]
-    ###
-    # Convert the Status: header from the SCGI service to
-    # a standard service reply line from a web server, but
-    # otherwise spit out the rest of the headers verbatim
-    ###
-    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
-    append replybuffer $replyhead
-    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
-    puts $chan $replybuffer
-    ###
-    # Output the body
-    ###
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    set length [dict get $replydat CONTENT_LENGTH]
-    if {$length} {
-      ###
-      # Send any POST/PUT/etc content
-      ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
-    }
-  }
-
 }
 
 tool::class create ::docserver::server {
-  superclass ::httpd::server::dispatch ::httpd::server
-  
+  superclass ::httpd::server
 
   method log args {
     puts [list {*}$args]
   }
-  
+
 }
+
+tool::define ::docserver::dynamic {
+
+  method content {} {
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<TABLE width=100%>"
+    foreach {f v} [my request dump] {
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
+    }
+    my puts "<tr><td colspan=10><hr></td></tr>"
+    foreach {f v} [my http_info dump] {
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
+    }
+    my puts "<tr><th>File Size</th><td>[my http_info get CONTENT_LENGTH]</td></tr>"
+    my puts </TABLE>
+    my puts </BODY></HTML>
+  }
+
+}
+
+tool::define ::docserver::upload {
+  superclass ::docserver::dynamic
+
+  method content {} {
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<TABLE width=100%>"
+    set FORMDAT [my FormData]
+    foreach {f v} [my FormData] {
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
+    }
+    my puts "<tr><td colspan=10><hr></td></tr>"
+    foreach {f v} [my http_info dump] {
+        my puts "<tr><th>$f</th><td>$v</td></tr>"
+    }
+    my puts "<tr><td colspan=10><hr></td></tr>"
+    foreach part [dict getnull $FORMDAT MIME_PARTS] {
+      my puts "<tr><td colspan=10><hr></td></tr>"
+      foreach f [::mime::getheader $part -names] {
+        my puts "<tr><th>$f</th><td>[mime::getheader $part $f]</td></tr>"
+      }
+      my puts "<tr><td colspan=10>[::mime::getbody $part -decode]</td></tr>"
+    }
+    my puts "<tr><th>File Size</th><td>[my http_info get CONTENT_LENGTH]</td></tr>"
+    my puts </TABLE>
+    my puts </BODY></HTML>
+  }
+}
+
 set opts [::tool::args_to_options {*}$argv]
 set serveropts {}
 set optinfo [::docserver::server meta getnull option]
@@ -236,5 +183,9 @@ puts "Fossil Options: $fossilopts"
 appmain add_uri /tcllib* [list mixin httpd::content::file path [file join $tcllibroot embedded www]]
 appmain add_uri /fossil [list mixin httpd::content::fossil_root {*}$fossilopts]
 appmain add_uri /fossil/* [list mixin httpd::content::fossil_node_scgi {*}$fossilopts]
+appmain add_uri /upload [list mixin ::docserver::upload]
+appmain add_uri /dynamic [list mixin ::docserver::dynamic]
+appmain add_uri /listen [list mixin ::docserver::listen]
+appmain add_uri /send   [list mixin ::docserver::send]
 puts [list LISTENING]
 tool::main

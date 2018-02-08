@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'udpcluster\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "udpcluster" n 0\&.3 tcllib "Lightweight UDP based tool for cluster node discovery"
+.TH "udpcluster" n 0\&.3\&.3 tcllib "Lightweight UDP based tool for cluster node discovery"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,6 +276,8 @@ udpcluster \- UDP Peer-to-Peer cluster
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBudpcluster  ?0\&.3\&.3?\fR
+.sp
 package require \fBip \fR
 .sp
 package require \fBnettool \fR
@@ -354,6 +356,6 @@ name service, server
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

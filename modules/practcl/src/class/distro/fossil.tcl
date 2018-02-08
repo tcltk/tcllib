@@ -2,6 +2,15 @@
 oo::class create ::practcl::distribution.fossil {
   superclass ::practcl::distribution
 
+  method scm_info {} {
+    set info [next]
+    dict set info scm fossil
+    foreach {field value} [::practcl::fossil_status [my define get srcdir]] {
+      dict set info $field $value
+    }
+    return $info
+  }
+  
   # Clone the source
   method ScmClone  {} {
     set srcdir [my SrcDir]

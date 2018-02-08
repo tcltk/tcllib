@@ -3,7 +3,7 @@
 [manpage_begin nettool n [vset PACKAGE_VERSION]]
 [keywords {nettool}]
 [keywords {odie}]
-[copyright {2015 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2015-2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {nettool}]
 [titledesc {Tools for networked applications}]
 [category  System]

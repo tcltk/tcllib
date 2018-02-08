@@ -152,6 +152,7 @@ modules/hook/hook.man
 modules/html/html.man
 modules/htmlparse/htmlparse.man
 modules/http/autoproxy.man
+modules/httpd/httpd.man
 modules/ident/ident.man
 modules/imap4/imap4.man
 modules/inifile/ini.man

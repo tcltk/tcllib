@@ -30,7 +30,7 @@ oo::class create ::practcl::subproject.binary {
     my go
     my clean
     my compile
-    ::practcl::domake [my define get builddir] install
+    my make-install {}
   }
 
   method project-compile-products {} {}
@@ -65,6 +65,7 @@ oo::class create ::practcl::subproject.binary {
 
   method go {} {
     next
+    ::practcl::distribution select [self]
     my ComputeInstall
     my define set builddir [my BuildDir [my define get masterpath]]
   }
@@ -117,8 +118,7 @@ oo::class create ::practcl::subproject.binary {
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
-    set project [my organ project]
-    if {[$project define get LOCAL 0]} {
+    if {[my <project> define get LOCAL 0]} {
       return [my define get builddir [file join $PWD local $name]]
     }
     if {$debug} {
@@ -133,10 +133,10 @@ oo::class create ::practcl::subproject.binary {
     set PWD $::CWD
     cd $PWD
     my unpack
-
     set srcdir [file normalize [my SrcDir]]
+    set localsrcdir [my MakeDir $srcdir]
+    my define set localsrcdir $localsrcdir
     my Collate_Source $PWD
-
     ###
     # Build a starter VFS for both Tcl and wish
     ###
@@ -146,41 +146,7 @@ oo::class create ::practcl::subproject.binary {
     } else {
       puts "BUILDING Dynamic $name $srcdir"
     }
-    if {[my define get USEMSVC 0]} {
-      cd $srcdir
-      if {[file exists [file join $srcdir make.tcl]]} {
-        if {[my define get debug 0]} {
-          ::practcl::domake.tcl $srcdir debug all
-        } else {
-          ::practcl::domake.tcl $srcdir all
-        }
-      } else {
-        if {[file exists [file join $srcdir makefile.vc]]} {
-          ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
-        } elseif {[file exists [file join $srcdir win makefile.vc]]} {
-          cd [file join $srcdir win]
-          ::practcl::doexec nmake -f makefile.vc INSTALLDIR=[my <project> define get installdir]  {*}[my NmakeOpts] release
-        } else {
-          error "No make.tcl or makefile.vc found for project $name"
-        }
-      }
-    } else {
-      cd $::CWD
-      set builddir [file normalize [my define get builddir]]
-      file mkdir $builddir
-      if {![file exists [file join $builddir Makefile]]} {
-        my Configure
-      }
-      if {[file exists [file join $builddir make.tcl]]} {
-        if {[my define get debug 0]} {
-          ::practcl::domake.tcl $builddir debug all
-        } else {
-          ::practcl::domake.tcl $builddir all
-        }
-      } else {
-        ::practcl::domake $builddir all
-      }
-    }
+    my make-compile
     cd $PWD
   }
 
@@ -191,45 +157,7 @@ oo::class create ::practcl::subproject.binary {
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir
-    if {[my define get USEMSVC 0]} {
-      return
-    }
-    if {[file exists [file join $builddir autoconf.log]]} {
-      file delete [file join $builddir autoconf.log]
-    }
-    if {![file exists [file join $srcdir configure]]} {
-      if {[file exists [file join $srcdir autogen.sh]]} {
-        cd $srcdir
-        catch {exec sh autogen.sh >>& [file join $builddir autoconf.log]}
-        cd $::CWD
-      }
-    }
-    if {![file exists [file join $srcdir tclconfig install-sh]]} {
-      # ensure we have tclconfig with all of the trimmings
-      set teapath {}
-      if {[file exists [file join $srcdir .. tclconfig install-sh]]} {
-        set teapath [file join $srcdir .. tclconfig]
-      } else {
-        set tclConfigObj [::practcl::LOCAL tool tclconfig]
-        $tclConfigObj load
-        set teapath [$tclConfigObj define get srcdir]
-      }
-      set teapath [file normalize $teapath]
-      #file mkdir [file join $srcdir tclconfig]
-      if {[catch {file link -symbolic [file join $srcdir tclconfig] $teapath}]} {
-        ::practcl::copyDir [file join $teapath] [file join $srcdir tclconfig]
-      }
-    }
-
-    set opts [my ConfigureOpts]
-    ::practcl::debug [list PKG [my define get name] CONFIGURE {*}$opts]
-    ::practcl::log   [file join $builddir autoconf.log] [list  CONFIGURE {*}$opts]
-    cd $builddir
-    if {[my <project> define get CONFIG_SITE] ne {}} {
-      set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
-    }
-    catch {exec sh [file join $srcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
-    cd $::CWD
+    my make-autodetect
   }
 
   method install DEST {
@@ -252,53 +180,8 @@ oo::class create ::practcl::subproject.binary {
       }
     }
     my compile
-    if {[my define get USEMSVC 0]} {
-      set srcdir [my define get srcdir]
-      cd $srcdir
-      puts "[self] VFS INSTALL $DEST"
-      ::practcl::doexec nmake -f makefile.vc INSTALLDIR=$DEST {*}[my NmakeOpts] install
-    } else {
-      set builddir [my define get builddir]
-      if {[file exists [file join $builddir make.tcl]]} {
-        # Practcl builds can inject right to where we need them
-        puts "[self] VFS INSTALL $DEST (Practcl)"
-        ::practcl::domake.tcl $builddir install-package $DEST
-      } elseif {[my define get broken_destroot 0] == 0} {
-        # Most modern TEA projects understand DESTROOT in the makefile
-        puts "[self] VFS INSTALL $DEST (TEA)"
-        ::practcl::domake $builddir install DESTDIR=[::practcl::file_relative $builddir $DEST]
-      } else {
-        # But some require us to do an install into a fictitious filesystem
-        # and then extract the gooey parts within.
-        # (*cough*) TkImg
-        set PREFIX [my <project> define get prefix]
-        set BROKENROOT [::practcl::msys_to_tclpath [my <project> define get prefix_broken_destdir]]
-        file delete -force $BROKENROOT
-        file mkdir $BROKENROOT
-        ::practcl::domake $builddir $install
-        ::practcl::copyDir $BROKENROOT  [file join $DEST [string trimleft $PREFIX /]]
-        file delete -force $BROKENROOT
-      }
-    }
+    my make-install $DEST
     cd $PWD
-  }
-
-  method Autoconf {} {
-    ###
-    # Re-run autoconf for this project
-    # Not a good idea in practice... but in the right hands it can be useful
-    ###
-    set pwd [pwd]
-    set srcdir [file normalize [my define get srcdir]]
-    cd $srcdir
-    foreach template {configure.ac configure.in} {
-      set input [file join $srcdir $template]
-      if {[file exists $input]} {
-        puts "autoconf -f $input > [file join $srcdir configure]"
-        exec autoconf -f $input > [file join $srcdir configure]
-      }
-    }
-    cd $pwd
   }
 }
 

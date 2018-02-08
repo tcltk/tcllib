@@ -9845,6 +9845,9 @@ oo::util
 \fBfiles/modules/tool/tool\&.n\fR
 tool
 .TP
+\fBfiles/modules/httpd/httpd\&.n\fR
+tool
+.TP
 \fBfiles/modules/tool-ui/tool-ui\&.n\fR
 tool-ui
 .TP
@@ -11524,6 +11527,12 @@ doctools::tcl::parse
 .TP
 \fBfiles/modules/wip/wip\&.n\fR
 wip
+.RE
+WWW
+.RS
+.TP
+\fBfiles/modules/httpd/httpd\&.n\fR
+tool
 .RE
 www
 .RS

@@ -10,7 +10,24 @@ oo::class create ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
-
+  
+  method BuildDir {PWD} {
+    set name [my define get name]
+    set debug [my define get debug 0]
+    if {[my <project> define get LOCAL 0]} {
+      return [my define get builddir [file join $PWD local $name]]
+    }
+    if {$debug} {
+      return [my define get builddir [file join $PWD debug $name]]
+    } else {
+      return [my define get builddir [file join $PWD pkg $name]]
+    }
+  }
+  
+  method MakeDir {srcdir} {
+    return $srcdir
+  }
+  
   method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
@@ -119,93 +136,8 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-
-  method NmakeOpts {} {
-    set opts {}
-    set builddir [file normalize [my define get builddir]]
-
-    if {[my <project> define exists tclsrcdir]} {
-      ###
-      # On Windows we are probably running under MSYS, which doesn't deal with
-      # spaces in filename well
-      ###
-      set TCLSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] ..]]]
-      set TCLGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tclsrcdir] .. generic]]]
-      lappend opts TCLDIR=[file normalize $TCLSRCDIR]
-      #--with-tclinclude=$TCLGENERIC
-    }
-    if {[my <project> define exists tksrcdir]} {
-      set TKSRCDIR  [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] ..]]]
-      set TKGENERIC [::practcl::file_relative [file normalize $builddir] [file normalize [file join $::CWD [my <project> define get tksrcdir] .. generic]]]
-      #lappend opts --with-tk=$TKSRCDIR --with-tkinclude=$TKGENERIC
-      lappend opts TKDIR=[file normalize $TKSRCDIR]
-    }
-    return $opts
-  }
-
-  method ConfigureOpts {} {
-    set opts {}
-    set builddir [my define get builddir]
-    if {[my define get broken_destroot 0]} {
-      set PREFIX [my <project> define get prefix_broken_destdir]
-    } else {
-      set PREFIX [my <project> define get prefix]
-    }
-    if {[my <project> define get CONFIG_SITE] != {}} {
-      lappend opts --host=[my <project> define get HOST]
-    }
-    set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
-    lappend opts --with-tclsh=[info nameofexecutable]
-    if {![my <project> define get LOCAL 0]} {
-      set obj [my <project> tclcore]
-      if {$obj ne {}} {
-        if {$inside_msys} {
-          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-        } else {
-          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
-        }
-      }
-      if {[my define get tk 0]} {
-        set obj [my <project> tkcore]
-        if {$obj ne {}} {
-          if {$inside_msys} {
-            lappend opts --with-tk=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-          } else {
-            lappend opts --with-tk=[file normalize [$obj define get builddir]]
-          }
-        }
-      }
-    } else {
-      lappend opts --with-tcl=[file join $PREFIX lib]
-      if {[my define get tk 0]} {
-        lappend opts --with-tk=[file join $PREFIX lib]
-      }
-    }
-    lappend opts {*}[my define get config_opts]
-    if {![regexp -- "--prefix" $opts]} {
-      lappend opts --prefix=$PREFIX --exec-prefix=$PREFIX
-    }
-    if {[my define get debug 0]} {
-      lappend opts --enable-symbols=true
-    }
-    #--exec_prefix=$PREFIX
-    #if {$::tcl_platform(platform) eq "windows"} {
-    #  lappend opts --disable-64bit
-    #}
-    if {[my define get static 1]} {
-      lappend opts --disable-shared
-      #--disable-stubs
-      #
-    } else {
-      lappend opts --enable-shared
-    }
-    return $opts
-  }
-
-  #method unpack {} {
-  #  ::practcl::distribution select [self]
-  #  my Unpack
-  #}
+  
+  method make-autodetect {} {}
 }
 
 
