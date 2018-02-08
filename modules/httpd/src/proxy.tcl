@@ -1,6 +1,6 @@
 
 # Act as a proxy server
-::tool::define ::httpd::content::proxy {
+::tool::define ::httpd::content.proxy {
 
   method proxy_info {} {
     ###
