@@ -23,6 +23,7 @@
     if {$sockinfo eq {}} {
       tailcall my error 404 {Not Found}
     }
+
     lassign $sockinfo proxyhost proxyport proxyscript
     set sock [::socket $proxyhost $proxyport]
 

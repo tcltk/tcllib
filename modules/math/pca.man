@@ -115,7 +115,7 @@ this distance is based on the normalised vectors.)
 [list_end]
 
 
-[call [cmd "\$pca qstatistic"] [arg observation] [opt option]
+[call [cmd "\$pca qstatistic"] [arg observation] [opt option]]
 Return the Q statistic, basically the square of the distance, for the given observation.
 
 [list_begin arguments]
