@@ -30,7 +30,6 @@ proc ::fossil args {
 tool::class create httpd::content.fossil_root {
 
   method content {} {
-    my reset
     my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
     global recipe
     my puts "<UL>"

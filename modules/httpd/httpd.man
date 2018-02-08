@@ -35,17 +35,42 @@ for opening the socket and providing the initial connection negotiation.
 Build a new server object. [opt port] is the port to listen on
 
 [call method [cmd add_uri] [arg pattern] [arg dict]]
-Set the hander for a URI pattern
+Set the hander for a URI pattern. Information given in the [arg dict] is stored
+in the data structure the [cmd dispatch] method uses. If a field called
+[arg mixin] is given, that class will be mixed into the reply object immediately
+after construction.
 
 [call method [cmd connect] [arg sock] [arg ip] [arg port]]
 
-Reply to an open socket.
+Reply to an open socket. This method builds a coroutine to manage the remainder
+of the connection. The coroutine's operations are driven by the [cmd Connect] method.
 
 [call method [cmd Connect] [arg uuid] [arg sock] [arg ip]]
 
+This method reads HTTP headers, and then consults the [cmd dispatch] method to
+determine if the request is valid, and/or what kind of reply to generate. Under
+normal cases, an object of class [cmd ::http::reply] is created.
+
+Fields the server are looking for in particular are:
+
+[list_begin fields]
+
+class: A class to use instead of the server's own [arg reply_class]
+
+mixin: A class to be mixed into the new object after construction.
+
+[list_end]
+All other fields are passed along to the [cmd http_info] structure of the
+reply object.
+
+After the class is created and the mixin is mixed in, the server invokes the
+reply objects [cmd dispatch] method. This action passes control of the socket to
+the reply object. The reply object manages the rest of the transaction, including
+closing the socket.
+
 [call method [cmd counter] [arg which]]
 
-Increment an internal counter
+Increment an internal counter.
 
 [call method [cmd CheckTimeout]]
 
@@ -53,16 +78,8 @@ Check open connections for a time out event.
 
 [call method [cmd dispatch] [arg header_dict]]
 
-Given a key/value list of information, generate a "reply"
-object, configure  that object, and mix in any data required to
-implement a proper reply.
-
-On failure, this method sends either a 404 or 505 reply, depending
-on whether a reply could not be mapped at all, or if the object
-returns an error.
-
-The contents of [arg header_dict] are the MIME headers and possibly
-POST contents of the request.
+Given a key/value list of information, return a data structure describing how
+the server should reply.
 
 [call method [cmd log] [arg args]]
 
@@ -112,47 +129,373 @@ address.
 A class which shephards a request through the process of generating a
 reply.
 
+The socket associated with the reply is available at all times as the [arg chan]
+variable.
+
+The process of generating a reply begins with an [cmd httpd::server] generating a
+[cmd http::class] object, mixing in a set of behaviors and then invoking the reply
+object's [cmd dispatch] method.
+
+In normal operations the [cmd dispatch] method:
+
+1. Invokes the [cmd reset] method for the object to populate default headers.
+
+2. Invokes the [cmd HttpHeaders] method to stream the MIME headers out of the socket
+
+3. Invokes the [cmd request parse] method to convert the stream of MIME headers into a
+dict that can be read via the [cmd request] method.
+
+4. Stores the raw stream of MIME headers in the [arg rawrequest] variable of the object.
+
+5. Invokes the [cmd content] method for the object, generating an call to the [cmd error]
+method if an exception is raised.
+
+6. Invokes the [cmd output] method for the object
+
+[list_begin data_structure]
+
+The [cmd http::reply] class and its derivatives maintain several variables as dictionaries
+internally. Access to these dictionaries is managed through a dedicated ensemble. The
+ensemble implements most of the same behaviors as the [cmd dict] command. Each
+ensemble implements the following methods above and beyond (or modifying) those:
+
+[list_begin methods]
+
+[call method [cmd add] [arg field] [arg element]]
+
+Add [arg element] to a list stored in [arg field], but only if it is not already present om the list.
+
+[call method [cmd dump]]
+
+Return the current contents of the data structure as a key/value list.
+
+[call method [cmd get] [arg field]]
+
+Return the value of the field [arg field], or an empty string if it does not exist.
+
+[call method [cmd reset]]
+
+Return a key/value list of the default contents for this data structure.
+
+[call method [cmd remove] [arg field] [arg element]]
+
+Remove all instances of [arg element] from the list stored in [arg field].
+
+[call method [cmd replace] [arg keyvaluelist]]
+
+Replace the internal dict with the contents of [arg keyvaluelist]
+
+[call method [cmd reset]]
+
+Replace the internal dict with the default state.
+
+[call method [cmd set] [arg field] [arg value]]
+
+Set the value of [arg field] to [arg value].
+
+[list_end]
+
+[call data_structure [cmd http_info]]
+
+Manages HTTP headers passed in by the server.
+
+Ensemble Methods:
+
+[list_begin methods]
+
+[call method [cmd netstring]]
+
+Return the contents of this data structure as a netstring encoded block.
+
+[list_end]
+
+[call data_structure [cmd request]]
+
+Managed data from MIME headers of the request.
+
+[list_begin methods]
+
+[call method [cmd parse] [arg string]]
+
+Replace the contents of the data structure with information encoded in a MIME
+formatted block of text ([arg string]).
+
+[list end]
+
+[call data_structure [cmd reply]]
+
+Manage the headers sent in the reply.
+
+
+[list_begin methods]
+
+[call method [cmd output]]
+
+Return the contents of this data structure as a MIME encoded block appropriate
+for an HTTP response.
+
+[list_end]
+
+[list_end]
+
+
 [list_begin methods]
 [call method [cmd close]]
 
 Terminate the transaction, and close the socket.
-[list_end]
+
+[call method [cmd HttpHeaders] [arg sock] [arg ?debug?]]
+
+Stream MIME headers from the socket [arg sock], stopping at an empty line. Returns
+the stream as a block of text.
+
+[call method [cmd dispatch] [arg newsock] [arg datastate]]
+
+Take over control of the socket [arg newsock], and store that as the [arg chan] variable
+for the object. This method runs through all of the steps of reading HTTP headers, generating
+content, and closing the connection. (See class writetup).
+
+[call method [cmd error] [arg code] [arg ?message?] [arg ?errorInfo?]]
+
+Generate an error message of the specified [arg code], and display the [arg message] as the
+reason for the exception. [arg errorInfo] is passed in from calls, but how or if it should be
+displayed is a prerogative of the developer.
+
+[call method [cmd content]]
+
+Generate the content for the reply. This method is intended to be replaced by the mixin.
+
+Developers have the option of streaming output to a buffer via the [cmd puts] method of the
+reply, or simply populating the [arg reply_body] variable of the object.
+If both [arg reply_file] and [arg reply_body] have values, [arg ]
+The information returned by the [cmd content] method is not interpreted in any way.
+
+If an exception is thrown (via the [cmd error] command in Tcl, for example) the caller will
+auto-generate a 505 {Internal Error} message.
+
+A typical implementation of [cmd content] look like:
+
 [example {
-src/reply.tcl:  method HttpHeaders {sock {debug {}}} {
-src/reply.tcl:  method MimeParse mimetext {
-src/reply.tcl:  method dispatch {newsock datastate} {
-src/reply.tcl:  method error {code {msg {}} {errorInfo {}}} {
-src/reply.tcl:  method content {} {
-src/reply.tcl:  method EncodeStatus {status} {
-src/reply.tcl:  method output {} {
-src/reply.tcl:  method DoOutput {} {
-src/reply.tcl:  method Url_Decode data {
-src/reply.tcl:  method FormData {} {
-src/reply.tcl:  method PostData {} {
-src/reply.tcl:  method TransferComplete args {
-src/reply.tcl:  method puts line {
-src/reply.tcl:  method reset {} {
-src/reply.tcl:  method timeOutCheck {} {
-src/reply.tcl:  method timestamp {} {
 
-src/file.tcl:::tool::define ::httpd::content::file {
-src/file.tcl:  method FileName {} {
-src/file.tcl:  method DirectoryListing {local_file} {
-src/file.tcl:  method dispatch {newsock datastate} {
-src/file.tcl:  method content {} {
-src/file.tcl:  method DoOutput {} {
+tool::define ::test::content.file {
+	superclass ::httpd::content.file
+	# Return a file
+	# Note: this is using the content.file mixin which looks for the reply_file variable
+	# and will auto-compute the Content-Type
+	method content {} {
+	  my reset
+    set doc_root [my http_info get doc_root]
+    my variable reply_file
+    set reply_file [file join $doc_root index.html]
+	}
+}
+tool::define ::test::content.time {
+  # Return the current system time
+	method content {} {
+		my variable reply_body
+    my reply set Content-Type text/plain
+		set reply_body [clock seconds]
+	}
+}
+tool::define ::test::content.echo {
+	method content {} {
+		my variable reply_body
+    my reply set Content-Type [my request get Content-Type]
+		set reply_body [my PostData [my request get Content-Length]]
+	}
+}
+tool::define ::test::content.form_handler {
+	method content {} {
+	  set form [my FormData]
+	  my reply set Content-Type {text/html; charset=UTF-8}
+    my puts "<HTML><HEADER><TITLE>My Dynamic Page</TITLE></HEADER>"
+    my puts "<BODY>"
+    my puts "You Sent<p>"
+    my puts "<TABLE>"
+    foreach {f v} $form {
+      my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
+    }
+    my puts "</TABLE><p>"
+    my puts "Send some info:<p>"
+    my puts "<FORM action=/[my http_info get REQUEST_PATH] method POST>"
+    my puts "<TABLE>"
+    foreach field {name rank serial_number} {
+      set line "<TR><TH>$field</TH><TD><input name=\"$field\" "
+      if {[dict exists $form $field]} {
+        append line " value=\"[dict get $form $field]\"""
+      }
+      append line " /></TD></TR>"
+      my puts $line
+    }
+    my puts "</TABLE>"
+    my puts "</BODY></HTML>"
+	}
+}
 
-src/proxy.tcl:::tool::define ::httpd::content::proxy {
-src/proxy.tcl:  method proxy_info {} {
-src/proxy.tcl:  method content {} {
-src/proxy.tcl:  method DoOutput {} {
-
-
-src/scgi.tcl:::tool::define ::httpd::content::scgi {
-src/scgi.tcl:  method scgi_info {} {
-src/scgi.tcl:  method content {} {
-src/scgi.tcl:  method DoOutput {} {
 }]
+
+[call method [cmd EncodeStatus] [arg status]]
+
+Formulate a standard HTTP status header from he string provided.
+
+[call method FormData]
+
+For GET requests, converts the QUERY_DATA header into a key/value list.
+
+For POST requests, reads the Post data and converts that information to
+a key/value list for application/x-www-form-urlencoded posts. For multipart
+posts, it composites all of the MIME headers of the post to a singular key/value
+list, and provides MIME_* information as computed by the [cmd mime] package, including
+the MIME_TOKEN, which can be fed back into the mime package to read out the contents.
+
+[call method MimeParse [arg mimetext]]
+
+Converts a block of mime encoded text to a key/value list. If an exception is encountered,
+the method will generate its own call to the [cmd error] method, and immediately invoke
+the [cmd output] method to produce an error code and close the connection.
+
+[call method [cmd output]]
+
+Schedules a call to [cmd DoOutput] when [arg chan] becomes writeable
+
+[call method [cmd DoOutput]]
+
+Generates the the HTTP reply, and streams that reply back across [arg chan].
+
+[call method PostData [arg length]]
+
+Stream [arg length] bytes from the [arg chan] socket, but only of the request is a
+POST or PUSH. Returns an empty string otherwise.
+
+[call method [cmd puts] [arg string]]
+
+Appends the value of [arg string] to the end of [arg reply_body], as well as a trailing newline
+character.
+
+[call method [cmd reset]]
+
+Clear the contents of the [arg reply_body] variable, and reset all headers in the [cmd reply]
+structure back to the defaults for this object.
+
+[call method [cmd timeOutCheck]]
+
+Called from the [cmd http::server] object which spawned this reply. Checks to see
+if too much time has elapsed while waiting for data or generating a reply, and issues
+a timeout error to the request if it has, as well as destroy the object and close the
+[arg chan] socket.
+
+[call method [cmd timestamp]]
+
+Return the current system time in the format: [example {%a, %d %b %Y %T %Z}]
+
+[call method [cmd TransferComplete] [arg args]]
+
+Intended to be invoked from [cmd chan copy] as a callback. This closes every channel
+fed to it on the command line, and then destroys the object.
+
+[example {
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
+    }
+}]
+
+[call method [cmd Url_Decode] [arg string]]
+
+De-httpizes a string.
+
+[list_end]
+
+[section Class ::httpd::content]
+
+The httpd module includes several ready to use implementations of content mixins
+for common use cases. Options are passed in to the [cmd add_uri] method of the server.
+
+[section class ::httpd::content.file]
+
+An implementation to deliver files from the local file system.
+
+[list_begin options]
+
+[call option [cmd path]]
+
+The root directory on the local file system to be exposed via http.
+
+[call option [cmd prefix]]
+
+The prefix of the URI portion to ignore when calculating relative file paths.
+[list_end]
+
+[section Class ::httpd::content.proxy]
+
+An implementation to relay requests to another HTTP server, and relay
+the results back across the request channel.
+
+[list_begin methods]
+[call method proxy_info]
+
+Mandatory method to be replaced by the end user. If needed, activates the
+process to proxy, and then returns a list of three values:
+
+[arg proxyhost] - The hostname where the proxy is located
+
+[arg proxyport] - The port to connect to
+
+[arg proxyscript] - A pre-amble block of text to send prior to the mirrored request
+
+[list_end]
+
+[section Class ::httpd::content.scgi]
+
+An implementation to relay requests to a server listening on a socket
+expecting SCGI encoded requests, and relay
+the results back across the request channel.
+
+[list_begin methods]
+[call method scgi_info]
+
+Mandatory method to be replaced by the end user. If needed, activates the
+process to proxy, and then returns a list of three values:
+
+[arg scgihost] - The hostname where the scgi listener is located
+
+[arg scgiport] - The port to connect to
+
+[arg scgiscript] - The contents of the [arg SCRIPT_NAME] header to be sent
+
+[list_end]
+
+[section Class ::httpd::content.websocket]
+
+A placeholder for a future implementation to manage requests that can expect to be
+promoted to a Websocket. Currently it is an empty class.
+
+[section SCGI Server Functions]
+
+The HTTP module also provides an SCGI server implementation, as well as an HTTP
+implementation. To use the SCGI functions, create an object of the [cmd http::server.scgi]
+class instead of the [http::server] class.
+
+[section Class ::httpd::reply.scgi]
+
+An modified [cmd http::reply] implementation that understands how to deal with
+netstring encoded headers.
+
+[section Class ::httpd::server.scgi]
+
+A modified [cmd http::server] which is tailored to replying to request according to
+the SCGI standard instead of the HTTP standard.
 
 [section AUTHORS]
 Sean Woods

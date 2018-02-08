@@ -77,7 +77,7 @@
     return $result
   }
 
-  property HttpHeaders_Default {} {
+  method HttpHeaders_Default {} {
     return {Status {200 OK}
 Content-Size 0
 Content-Type {text/html; charset=UTF-8}
@@ -229,8 +229,6 @@ For deeper understanding:
     if {[info exists formdata]} {
       return $formdata
     }
-    set rawrequest [my HttpHeaders $chan]
-    my request parse $rawrequest
     if {![my request exists Content-Length]} {
       set length 0
     } else {
