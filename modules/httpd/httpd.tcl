@@ -129,7 +129,7 @@ namespace eval ::scgi {}
     return $result
   }
 
-  property HttpHeaders_Default {} {
+  method HttpHeaders_Default {} {
     return {Status {200 OK}
 Content-Size 0
 Content-Type {text/html; charset=UTF-8}
@@ -281,8 +281,6 @@ For deeper understanding:
     if {[info exists formdata]} {
       return $formdata
     }
-    set rawrequest [my HttpHeaders $chan]
-    my request parse $rawrequest
     if {![my request exists Content-Length]} {
       set length 0
     } else {
@@ -1281,6 +1279,11 @@ tool::define ::httpd::server.scgi {
 
 # Act as a proxy server
 ::tool::define ::httpd::content.proxy {
+  # Options:
+  # proxy_host - Hostname to proxy
+  # proxy_port - Port on hostname to proxy
+  # proxy_script - Block of text to stream before sending the request
+  ###
 
   method proxy_info {} {
     ###

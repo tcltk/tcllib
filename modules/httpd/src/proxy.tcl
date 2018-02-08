@@ -1,6 +1,11 @@
 
 # Act as a proxy server
 ::tool::define ::httpd::content.proxy {
+  # Options:
+  # proxy_host - Hostname to proxy
+  # proxy_port - Port on hostname to proxy
+  # proxy_script - Block of text to stream before sending the request
+  ###
 
   method proxy_info {} {
     ###
