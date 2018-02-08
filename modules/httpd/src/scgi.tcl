@@ -169,7 +169,7 @@
   }
 }
 
-tool::class create ::httpd::reply.scgi {
+tool::define ::httpd::reply.scgi {
   superclass ::httpd::reply
 
   ###
@@ -201,7 +201,7 @@ tool::class create ::httpd::reply.scgi {
       my content
     } on error {err info} {
       #puts stderr $::errorInfo
-      my error 500 $err
+      my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
     }
@@ -215,7 +215,7 @@ tool::class create ::httpd::reply.scgi {
 ###
 # Act as an  SCGI Server
 ###
-tool::class create ::httpd::server.scgi {
+tool::define ::httpd::server.scgi {
   superclass ::httpd::server
 
   property socket buffersize   32768

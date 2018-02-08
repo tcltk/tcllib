@@ -153,7 +153,7 @@ Connection close}
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      dict print $info
+      #dict print $info
       #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
@@ -187,7 +187,7 @@ Connection close}
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
-    my reply set Content-Type {text/html; charset=ISO-8859-1}
+    my reply set Content-Type {text/html; charset=UTF-8}
     my puts "
 <HTML>
 <HEAD>
@@ -897,12 +897,12 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     switch [file extension $local_file] {
       .md {
         package require Markdown
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set mdtxt  [::fileutil::cat $local_file]
         my puts [::Markdown::convert $mdtxt]
       }
       .tml {
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
         set headers [my http_info dump]
         dict with headers {}
@@ -1134,7 +1134,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   }
 }
 
-tool::class create ::httpd::reply.scgi {
+tool::define ::httpd::reply.scgi {
   superclass ::httpd::reply
 
   ###
@@ -1166,7 +1166,7 @@ tool::class create ::httpd::reply.scgi {
       my content
     } on error {err info} {
       #puts stderr $::errorInfo
-      my error 500 $err
+      my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
     }
@@ -1180,7 +1180,7 @@ tool::class create ::httpd::reply.scgi {
 ###
 # Act as an  SCGI Server
 ###
-tool::class create ::httpd::server.scgi {
+tool::define ::httpd::server.scgi {
   superclass ::httpd::server
 
   property socket buffersize   32768
