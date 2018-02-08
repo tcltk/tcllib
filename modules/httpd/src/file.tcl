@@ -101,12 +101,12 @@
     switch [file extension $local_file] {
       .md {
         package require Markdown
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set mdtxt  [::fileutil::cat $local_file]
         my puts [::Markdown::convert $mdtxt]
       }
       .tml {
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
         set headers [my http_info dump]
         dict with headers {}

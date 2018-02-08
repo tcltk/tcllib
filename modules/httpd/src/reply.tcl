@@ -101,7 +101,7 @@ Connection close}
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      dict print $info
+      #dict print $info
       #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
@@ -135,7 +135,7 @@ Connection close}
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
-    my reply set Content-Type {text/html; charset=ISO-8859-1}
+    my reply set Content-Type {text/html; charset=UTF-8}
     my puts "
 <HTML>
 <HEAD>
