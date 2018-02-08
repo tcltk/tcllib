@@ -1,0 +1,291 @@
+
+<!DOCTYPE html><html><head>
+<title>tool - Tcl Web Server</title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.doctools_title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.doctools_section, LI.doctools_subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.doctools_example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.doctools_synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.doctools_syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.doctools_requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<!-- Generated from file 'httpd.man' by tcllib/doctools with format 'html'
+   -->
+<!-- Copyright &amp;copy; 2018 Sean Woods &amp;lt;yoda@etoyoc.com&amp;gt;
+   -->
+<!-- tool.n
+   -->
+<body><hr> [
+   <a href="../../../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
+| <a href="../../../toc.html">Table Of Contents</a>
+| <a href="../../../../index.html">Keyword Index</a>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
+<div class="doctools">
+<h1 class="doctools_title">tool(n) 4.1.0 tcllib &quot;Tcl Web Server&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
+<p>tool - A TclOO based update to tclhttpd</p>
+</div>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Class</a></li>
+<li class="doctools_section"><a href="#section3">Class</a></li>
+<li class="doctools_section"><a href="#section4">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#keywords">Keywords</a></li>
+<li class="doctools_section"><a href="#category">Category</a></li>
+<li class="doctools_section"><a href="#copyright">Copyright</a></li>
+</ul>
+</div>
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_requirements">
+<li>package require <b class="pkgname">Tcl 8.6</b></li>
+<li>package require <b class="pkgname">httpd <span class="opt">?4.1.0?</span></b></li>
+<li>package require <b class="pkgname">sha1</b></li>
+<li>package require <b class="pkgname">dicttool</b></li>
+<li>package require <b class="pkgname">oo::meta</b></li>
+<li>package require <b class="pkgname">oo::dialect</b></li>
+<li>package require <b class="pkgname">tool</b></li>
+<li>package require <b class="pkgname">coroutine</b></li>
+<li>package require <b class="pkgname">fileutil</b></li>
+<li>package require <b class="pkgname">fileutil::magic::filetype</b></li>
+<li>package require <b class="pkgname">websocket</b></li>
+<li>package require <b class="pkgname">mime</b></li>
+<li>package require <b class="pkgname">cron</b></li>
+<li>package require <b class="pkgname">uri</b></li>
+</ul>
+<ul class="doctools_syntax">
+<li><a href="#1">constructor ?port <span class="opt">?port?</span>? ?myaddr <span class="opt">?ipaddr?</span>|all? ?server_string <span class="opt">?string?</span>? ?server_name <span class="opt">?string?</span>?</a></li>
+<li><a href="#2">method <b class="cmd">add_uri</b> <i class="arg">pattern</i> <i class="arg">dict</i></a></li>
+<li><a href="#3">method <b class="cmd">connect</b> <i class="arg">sock</i> <i class="arg">ip</i> <i class="arg">port</i></a></li>
+<li><a href="#4">method <b class="cmd">Connect</b> <i class="arg">uuid</i> <i class="arg">sock</i> <i class="arg">ip</i></a></li>
+<li><a href="#5">method <b class="cmd"><a href="../counter/counter.html">counter</a></b> <i class="arg">which</i></a></li>
+<li><a href="#6">method <b class="cmd">CheckTimeout</b></a></li>
+<li><a href="#7">method <b class="cmd">dispatch</b> <i class="arg">header_dict</i></a></li>
+<li><a href="#8">method <b class="cmd"><a href="../log/log.html">log</a></b> <i class="arg">args</i></a></li>
+<li><a href="#9">method <b class="cmd">port_listening</b></a></li>
+<li><a href="#10">method <b class="cmd">PrefixNormalize</b> <i class="arg">prefix</i></a></li>
+<li><a href="#11">method <b class="cmd">start</b></a></li>
+<li><a href="#12">method <b class="cmd">stop</b></a></li>
+<li><a href="#13">method <b class="cmd">template</b> <i class="arg">page</i></a></li>
+<li><a href="#14">method <b class="cmd">TemplateSearch</b> <i class="arg">page</i></a></li>
+<li><a href="#15">method <b class="cmd">Validate_Connection</b> <i class="arg">sock</i> <i class="arg">ip</i></a></li>
+<li><a href="#16">method <b class="cmd">close</b></a></li>
+</ul>
+</div>
+</div>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
+<p>This module implements a web server, suitable for embedding in an
+application. The server is object oriented, and contains all of the
+fundimentals needed for a full service website.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Class</a></h2>
+<p>This class is the root object of the webserver. It is responsible
+for opening the socket and providing the initial connection negotiation.</p>
+<dl class="doctools_definitions">
+<dt><a name="1">constructor ?port <span class="opt">?port?</span>? ?myaddr <span class="opt">?ipaddr?</span>|all? ?server_string <span class="opt">?string?</span>? ?server_name <span class="opt">?string?</span>?</a></dt>
+<dd><p>Build a new server object. <span class="opt">?port?</span> is the port to listen on</p></dd>
+<dt><a name="2">method <b class="cmd">add_uri</b> <i class="arg">pattern</i> <i class="arg">dict</i></a></dt>
+<dd><p>Set the hander for a URI pattern</p></dd>
+<dt><a name="3">method <b class="cmd">connect</b> <i class="arg">sock</i> <i class="arg">ip</i> <i class="arg">port</i></a></dt>
+<dd><p>Reply to an open socket.</p></dd>
+<dt><a name="4">method <b class="cmd">Connect</b> <i class="arg">uuid</i> <i class="arg">sock</i> <i class="arg">ip</i></a></dt>
+<dd></dd>
+<dt><a name="5">method <b class="cmd"><a href="../counter/counter.html">counter</a></b> <i class="arg">which</i></a></dt>
+<dd><p>Increment an internal counter</p></dd>
+<dt><a name="6">method <b class="cmd">CheckTimeout</b></a></dt>
+<dd><p>Check open connections for a time out event.</p></dd>
+<dt><a name="7">method <b class="cmd">dispatch</b> <i class="arg">header_dict</i></a></dt>
+<dd><p>Given a key/value list of information, generate a &quot;reply&quot;
+object, configure  that object, and mix in any data required to
+implement a proper reply.
+On failure, this method sends either a 404 or 505 reply, depending
+on whether a reply could not be mapped at all, or if the object
+returns an error.
+The contents of <i class="arg">header_dict</i> are the MIME headers and possibly
+POST contents of the request.</p></dd>
+<dt><a name="8">method <b class="cmd"><a href="../log/log.html">log</a></b> <i class="arg">args</i></a></dt>
+<dd><p>Log an event. The input for args is free form. This method is intended
+to be replaced by the user, and is a noop for a stock http::server object.</p></dd>
+<dt><a name="9">method <b class="cmd">port_listening</b></a></dt>
+<dd><p>Return the actual port that httpd is listening on.</p></dd>
+<dt><a name="10">method <b class="cmd">PrefixNormalize</b> <i class="arg">prefix</i></a></dt>
+<dd><p>For the stock version, trim trailing /'s and *'s from a prefix. This
+method can be replaced by the end user to perform any other transformations
+needed for the application.</p></dd>
+<dt><a name="11">method <b class="cmd">start</b></a></dt>
+<dd><p>Open the socket listener.</p></dd>
+<dt><a name="12">method <b class="cmd">stop</b></a></dt>
+<dd><p>Shut off the socket listener, and destroy any pending replies.</p></dd>
+<dt><a name="13">method <b class="cmd">template</b> <i class="arg">page</i></a></dt>
+<dd><p>Return a template for the string <i class="arg">page</i></p></dd>
+<dt><a name="14">method <b class="cmd">TemplateSearch</b> <i class="arg">page</i></a></dt>
+<dd><p>Perform a search for the template that best matches <i class="arg">page</i>. This
+can include local file searches, in-memory structures, or even
+database lookups. The stock implementation simply looks for files
+with a .tml or .html extension in the <span class="opt">?doc_root?</span> directory.</p></dd>
+<dt><a name="15">method <b class="cmd">Validate_Connection</b> <i class="arg">sock</i> <i class="arg">ip</i></a></dt>
+<dd><p>Given a socket and an ip address, return true if this connection should
+be terminated, or false if it should be allowed to continue. The stock
+implementation always returns 0. This is intended for applications to
+be able to implement black lists and/or provide security based on IP
+address.</p></dd>
+</dl>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Class</a></h2>
+<p>A class which shephards a request through the process of generating a
+reply.</p>
+<dl class="doctools_definitions">
+<dt><a name="16">method <b class="cmd">close</b></a></dt>
+<dd><p>Terminate the transaction, and close the socket.</p></dd>
+</dl>
+<pre class="doctools_example">
+src/reply.tcl:  method HttpHeaders {sock {debug {}}}
+src/reply.tcl:  method MimeParse mimetext
+src/reply.tcl:  method dispatch {newsock datastate}
+src/reply.tcl:  method error {code {msg {}} {errorInfo {}}}
+src/reply.tcl:  method content {}
+src/reply.tcl:  method EncodeStatus {status}
+src/reply.tcl:  method output {}
+src/reply.tcl:  method DoOutput {}
+src/reply.tcl:  method Url_Decode data
+src/reply.tcl:  method FormData {}
+src/reply.tcl:  method PostData {}
+src/reply.tcl:  method TransferComplete args
+src/reply.tcl:  method puts line
+src/reply.tcl:  method reset {}
+src/reply.tcl:  method timeOutCheck {}
+src/reply.tcl:  method timestamp {}
+src/file.tcl:::tool::define ::httpd::content::file
+src/file.tcl:  method FileName {}
+src/file.tcl:  method DirectoryListing {local_file}
+src/file.tcl:  method dispatch {newsock datastate}
+src/file.tcl:  method content {}
+src/file.tcl:  method DoOutput {}
+src/proxy.tcl:::tool::define ::httpd::content::proxy
+src/proxy.tcl:  method proxy_info {}
+src/proxy.tcl:  method content {}
+src/proxy.tcl:  method DoOutput {}
+src/scgi.tcl:::tool::define ::httpd::content::scgi
+src/scgi.tcl:  method scgi_info {}
+src/scgi.tcl:  method content {}
+src/scgi.tcl:  method DoOutput {}
+</pre>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">AUTHORS</a></h2>
+<p>Sean Woods</p>
+</div>
+<div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
+<p>This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+Please report such in the category <em>network</em> of the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.</p>
+<p>When proposing code changes, please provide <em>unified diffs</em>,
+i.e the output of <b class="const">diff -u</b>.</p>
+<p>Note further that <em>attachments</em> are strongly preferred over
+inlined patches. Attachments can be made by going to the <b class="const">Edit</b>
+form of the ticket immediately after its creation, and then using the
+left-most button in the secondary navigation bar.</p>
+</div>
+<div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key704">TclOO</a>, <a href="../../../../index.html#key705">WWW</a></p>
+</div>
+<div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
+<p>Utility</p>
+</div>
+<div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
+<p>Copyright &copy; 2018 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
+</div>
+</div></body></html>

@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'nettool\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2015-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
 .TH "nettool" n 0\&.5\&.2 tcllib "nettool"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -455,6 +455,6 @@ nettool, odie
 System
 .SH COPYRIGHT
 .nf
-Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2015-2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

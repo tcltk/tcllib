@@ -30,13 +30,13 @@ New in Tcllib 1.19
 |---|---|---|---|
 |defer|defer|1||
 |math|math::PCA|1.0||
-|practcl|practcl|0.10.1||
+|practcl|practcl|0.11||
 |||||
 |pt|pt::rde::nx|1.1.1.0||
 ||pt::tclparam::configuration::nx|1.0.1||
 |||||
-|tool-ui|tool-ui|0.2||
-|udpcluster|udpcluster|0.3.2||
+|tool-ui|tool-ui|0.2.1||
+|udpcluster|udpcluster|0.3.3||
 
 Changes from Tcllib 1.18 to 1.19
 ================================
@@ -45,7 +45,7 @@ Changes from Tcllib 1.18 to 1.19
 |---|---|---|---|---|
 |coroutine|coroutine|1.1.3|1.2|B D EF|
 |crc|crc16|1.1.2|1.1.3|B D|
-|cron|cron|1.2.1|2.0|API B D EF T|
+|cron|cron|1.2.1|2.1|API B D EF T|
 |dicttool|dicttool|1.0|1.1|D EF|
 ||||||
 |dns|dns|1.3.5|1.4.0|D EF T|
@@ -71,9 +71,9 @@ Changes from Tcllib 1.18 to 1.19
 ||||||
 |http|autoproxy|1.5.3|1.6|D EF T|
 ||||||
-|httpd|httpd|4.0|4.0.1|B I T|
-||httpd::content|4.0|4.0.1|B I|
-||scgi::app|0.1|0.2|B T|
+|httpd|httpd|4.0|4.1|B EF I T|
+||httpd::content|4.0||Removed|
+||scgi::app|0.1||Removed|
 ||||||
 |inifile|ini|0.3|0.3.1|B D|
 |json|json|1.3.3|1.3.4|B D T|
@@ -89,17 +89,17 @@ Changes from Tcllib 1.18 to 1.19
 ||math::statistics|1.0|1.1.1|B D EF T|
 ||||||
 |md4|md4|1.0.6|1.0.7|B D|
-|nettool|nettool|0.5.1|0.5.2|B|
+|nettool|nettool|0.5.1|0.5.2|B I|
 |oauth|oauth|1|1.0.1|B D|
-|oodialect|oo::dialect|0.3|0.3.1|B I|
+|oodialect|oo::dialect|0.3|0.3.3|B I T|
 ||||||
 |oometa|oo::meta|0.4.1|0.7.1|B EF T|
 ||oo::option|0.3|0.3.1|B|
 ||||||
 |pki|pki|0.6|0.10|B D EF T|
 ||||||
-|processman|odie::processman|0.3|0.4|EF|
-||processman|0.3|0.4|B EF|
+|processman|odie::processman|0.3|0.5|EF|
+||processman|0.3|0.5|B EF|
 ||||||
 |pt|pt::pgen|1.0.3|1.1|EF|
 |rest|rest|1.0.2|1.3.1|D EF I|
