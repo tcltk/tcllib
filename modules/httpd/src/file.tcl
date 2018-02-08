@@ -4,7 +4,7 @@
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-::tool::define ::httpd::content::file {
+::tool::define ::httpd::content.file {
 
   method FileName {} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]

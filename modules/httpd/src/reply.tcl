@@ -3,14 +3,6 @@
 ###
 ::tool::define ::httpd::reply {
 
-  property reply_headers_default {
-    Status {200 OK}
-    Content-Size 0
-    Content-Type {text/html; charset=ISO-8859-1}
-    Cache-Control {no-cache}
-    Connection close
-  }
-
   array error_codes {
     200 {Data follows}
     204 {No Content}
@@ -85,6 +77,14 @@
     return $result
   }
 
+  property HttpHeaders_Default {} {
+    return {Status {200 OK}
+Content-Size 0
+Content-Type {text/html; charset=UTF-8}
+Cache-Control {no-cache}
+Connection close}
+  }
+
   method dispatch {newsock datastate} {
     my http_info replace $datastate
     my variable chan rawrequest dipatched_time
@@ -102,7 +102,7 @@
       my content
     } on error {err info} {
       dict print $info
-      puts stderr $::errorInfo
+      #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -392,7 +392,7 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my reply replace [my meta cget reply_headers_default]
+    my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
     set reply_body {}

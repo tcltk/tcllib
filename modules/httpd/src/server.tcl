@@ -10,14 +10,14 @@
   option server_string [list default: [list TclHttpd $::httpd::version]]
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
-  
+
   property socket buffersize   32768
   property socket translation  {auto crlf}
   property reply_class ::httpd::reply
 
   array template
   variable url_patterns {}
-  
+
   constructor {args} {
     my configure {*}$args
     my start
@@ -31,7 +31,7 @@
     my variable url_patterns
     dict set url_patterns $pattern $info
   }
-  
+
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -41,12 +41,7 @@
       catch {close $sock}
       return
     }
-    set uuid [::tool::uuid_short]
-    chan configure $sock \
-      -blocking 0 \
-      -translation {auto crlf} \
-      -buffering line
-
+    set uuid [my Uuid_Generate]
     set coro [coroutine [namespace current]::CORO$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
     chan event $sock readable $coro
   }
@@ -54,6 +49,12 @@
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
+
+    chan configure $sock \
+      -blocking 0 \
+      -translation {auto crlf} \
+      -buffering line
+
     my counter url_hit
     set line {}
     try {
@@ -103,7 +104,7 @@
           dict with query {}
           set body [subst [my template notfound]]
           chan puts $sock "Content-length: [string length $body]"
-          chan puts $sock
+          chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
           puts stderr "FAILED ON 404: $err"
@@ -114,16 +115,17 @@
       }
     } on error {err errdat} {
       try {
-        puts stderr [dict print $errdat]
-        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR"
+        #puts stderr [dict print $errdat]
+        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR - server 119"
         dict with query {}
         set body [subst [my template internal_error]]
         chan puts $sock "Content-length: [string length $body]"
-        chan puts $sock
+        chan puts $sock {}
         chan puts $sock $body
         my log HttpError $line
       } on error {err errdat} {
-        puts stderr "FAILED ON 505: $::errorInfo"
+        my log HttpFatal $::errorInfo
+        #puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}
         catch {destroy $pageobj}
@@ -173,7 +175,7 @@
       ###
       dict set reply prefix {}
       dict set reply path $doc_root
-      dict set reply mixin httpd::content::file
+      dict set reply mixin httpd::content.file
       return $reply
     }
     return {}
@@ -194,7 +196,7 @@
     set prefix [string trimright $prefix /]
     return $prefix
   }
-  
+
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -207,7 +209,7 @@
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    puts [list [self] listening on $port $myaddr]
+    my log [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
@@ -275,6 +277,11 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
         }
       }
     }
+  }
+
+  method Uuid_Generate {} {
+    my variable next_uuid
+    return [incr next_uuid]
   }
 
   ###
