@@ -1,3 +1,5 @@
+[section {Class ::httpd::server}]
+
 This class is the root object of the webserver. It is responsible
 for opening the socket and providing the initial connection negotiation.
 

@@ -1,3 +1,5 @@
+[section {Class ::httpd::reply}]
+
 A class which shephards a request through the process of generating a
 reply.
 
