@@ -163,10 +163,12 @@ proc ::irc::connection { args } {
 	    if { [llength $args] == 0 } {
 		return [array get config]
 	    } elseif { [llength $args] == 1 } {
+		set key [lindex $args 0]
 		return $config($key)
 	    } elseif { [llength $args] > 2 } {
 		error "wrong # args: should be \"config key ?val?\""
 	    }
+	    # llength $args == 2
 	    set key [lindex $args 0]
 	    set value [lindex $args 1]
             if { $key == "debug" } {
