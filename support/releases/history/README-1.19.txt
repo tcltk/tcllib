@@ -31,7 +31,7 @@ New in Tcllib 1.19
     math         math::PCA                         1.0
     practcl      practcl                           0.11
     ------------ --------------------------------- ------------- ----------
-    pt           pt::rde::nx                       1.1.1.0
+    pt           pt::rde::nx                       1.1.1.1
                  pt::tclparam::configuration::nx   1.0.1
     ------------ --------------------------------- ------------- ----------
     tool-ui      tool-ui                           0.2.1
@@ -152,6 +152,7 @@ Invisible changes (documentation, testsuites)
                        md5                2.0.7       2.0.7     T
     ------------------ ------------------ ----------- --------- ----------
     pop3               pop3               1.9         1.9       T
+    pt                 pt::rde::oo        1.1         1.1       I
     ------------------ ------------------ ----------- --------- ----------
     try                throw              1           1         D
                        try                1           1         D
@@ -234,7 +235,7 @@ Unchanged
     pt::peg::import, pt::peg::import::json, pt::peg::import::peg,
     pt::peg::interp, pt::peg::op, pt::peg::to::container,
     pt::peg::to::cparam, pt::peg::to::json, pt::peg::to::param,
-    pt::peg::to::peg, pt::peg::to::tclparam, pt::rde, pt::rde::oo,
+    pt::peg::to::peg, pt::peg::to::tclparam, pt::rde
     pt::tclparam::configuration::snit,
     pt::tclparam::configuration::tcloo, pt::util, rc4, rcs, report,
     resolv, ripemd128, ripemd160, S3, SASL, SASL::NTLM, SASL::SCRAM,

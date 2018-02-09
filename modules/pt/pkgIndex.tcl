@@ -56,7 +56,7 @@ package ifneeded pt::rde::oo  1.1 [list source [file join $dir pt_rdengine_oo.tc
 
 # Note: The last two numbers are the rde::nx version itself. The
 # preceding version information is the rde::oo version it is based on.
-package ifneeded pt::rde::nx  1.1.1.0 [list source [file join $dir pt_rdengine_nx.tcl]]
+package ifneeded pt::rde::nx  1.1.1.1 [list source [file join $dir pt_rdengine_nx.tcl]]
 
 
 # PEG grammar specification, as CONTAINER
