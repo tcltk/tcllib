@@ -773,12 +773,12 @@ snit::type ::pt::rde_tcl {
 	# point of the mismatch instead, with the message containing
 	# the expected character.
 
-	set myok [expr {$tok eq $lex}]
-
-	if {$myok} {
+	if {$tok eq $lex} {
+	    set myok 1
 	    set myloc $last
 	    set myerror {}
 	} else {
+	    set myok 0
 	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    incr myloc -1
 	}
@@ -807,11 +807,12 @@ snit::type ::pt::rde_tcl {
 	# Note what is needle versus hay. The token, i.e. the string
 	# of allowed characters is the hay in which the current
 	# character is looked, making it the needle.
-	set myok [expr {[string first $mycurrent $tok] >= 0}]
 
-	if {$myok} {
+	if {[string first $mycurrent $tok] >= 0} {
+	    set myok 1
 	    set myerror {}
 	} else {
+	    set myok 0
 	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    incr myloc -1
 	}
@@ -835,10 +836,11 @@ snit::type ::pt::rde_tcl {
 	}
 	set mycurrent [string index $mytoken $myloc]
 
-	set myok [expr {$tok eq $mycurrent}]
-	if {$myok} {
+	if {$tok eq $mycurrent} {
+	    set myok 1
 	    set myerror {}
 	} else {
+	    set myok 0
 	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    incr myloc -1
 	}
@@ -862,13 +864,12 @@ snit::type ::pt::rde_tcl {
 	}
 	set mycurrent [string index $mytoken $myloc]
 
-	set myok [expr {
-			([string compare $toks $mycurrent] <= 0) &&
-			([string compare $mycurrent $toke] <= 0)
-		    }] ; # {}
-	if {$myok} {
+	if {([string compare $toks $mycurrent] <= 0) &&
+	    ([string compare $mycurrent $toke] <= 0)} {
+	    set myok 1
 	    set myerror {}
 	} else {
+	    set myok 0
 	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    incr myloc -1
 	}
