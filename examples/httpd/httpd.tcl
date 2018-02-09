@@ -27,10 +27,9 @@ proc ::fossil args {
   return [exec ${::fossil_exe} {*}$args]
 }
 
-tool::class create httpd::content::fossil_root {
+tool::class create httpd::content.fossil_root {
 
   method content {} {
-    my reset
     my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
     global recipe
     my puts "<UL>"
@@ -61,9 +60,9 @@ tool::class create httpd::content::fossil_root {
 #
 # --Sean "The Hypnotoad" Woods
 ###
-tool::class create httpd::content::fossil_node_scgi {
+tool::class create httpd::content.fossil_node_scgi {
 
-  superclass httpd::content::scgi
+  superclass httpd::content.scgi
   method scgi_info {} {
     set uri    [my http_info get REQUEST_URI]
     set prefix [my http_info get prefix]
@@ -166,7 +165,7 @@ foreach {f v} $opts {
 }
 puts $serveropts
 set fossilopts {}
-set optinfo [::httpd::content::fossil_root meta getnull option]
+set optinfo [::httpd::content.fossil_root meta getnull option]
 foreach {f v} $opts {
   if {[dict exists $optinfo $f]} {
     dict set fossilopts $f $v
@@ -180,9 +179,9 @@ puts "Fossil Options: $fossilopts"
 
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
-appmain add_uri /tcllib* [list mixin httpd::content::file path [file join $tcllibroot embedded www]]
-appmain add_uri /fossil [list mixin httpd::content::fossil_root {*}$fossilopts]
-appmain add_uri /fossil/* [list mixin httpd::content::fossil_node_scgi {*}$fossilopts]
+appmain add_uri /tcllib* [list mixin httpd::content.file path [file join $tcllibroot embedded www]]
+appmain add_uri /fossil [list mixin httpd::content.fossil_root {*}$fossilopts]
+appmain add_uri /fossil/* [list mixin httpd::content.fossil_node_scgi {*}$fossilopts]
 appmain add_uri /upload [list mixin ::docserver::upload]
 appmain add_uri /dynamic [list mixin ::docserver::dynamic]
 appmain add_uri /listen [list mixin ::docserver::listen]

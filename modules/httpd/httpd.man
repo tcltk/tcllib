@@ -23,138 +23,16 @@
 [require uri]
 [description]
 [para]
+
 This module implements a web server, suitable for embedding in an
 application. The server is object oriented, and contains all of the
-fundimentals needed for a full service website.
+fundamentals needed for a full service website.
+
 [para]
 
-[section Class ::httpd::server]
-This class is the root object of the webserver. It is responsible
-for opening the socket and providing the initial connection negotiation.
-
-[list_begin definitions]
-[call constructor ?port [opt port]? ?myaddr [opt ipaddr]|all? ?server_string [opt string]? ?server_name [opt string]?]
-Build a new server object. [opt port] is the port to listen on
-
-[call method [cmd add_uri] [arg pattern] [arg dict]]
-Set the hander for a URI pattern
-
-[call method [cmd connect] [arg sock] [arg ip] [arg port]]
-
-Reply to an open socket.
-
-[call method [cmd Connect] [arg uuid] [arg sock] [arg ip]]
-
-[call method [cmd counter] [arg which]]
-
-Increment an internal counter
-
-[call method [cmd CheckTimeout]]
-
-Check open connections for a time out event.
-
-[call method [cmd dispatch] [arg header_dict]]
-
-Given a key/value list of information, generate a "reply"
-object, configure  that object, and mix in any data required to
-implement a proper reply.
-
-On failure, this method sends either a 404 or 505 reply, depending
-on whether a reply could not be mapped at all, or if the object
-returns an error.
-
-The contents of [arg header_dict] are the MIME headers and possibly
-POST contents of the request.
-
-[call method [cmd log] [arg args]]
-
-Log an event. The input for args is free form. This method is intended
-to be replaced by the user, and is a noop for a stock http::server object.
-
-[call method [cmd port_listening]]
-
-Return the actual port that httpd is listening on.
-
-[call method [cmd PrefixNormalize] [arg prefix]]
-
-For the stock version, trim trailing /'s and *'s from a prefix. This
-method can be replaced by the end user to perform any other transformations
-needed for the application.
-
-[call method [cmd start]]
-
-Open the socket listener.
-
-[call method [cmd stop]]
-
-Shut off the socket listener, and destroy any pending replies.
-
-[call method [cmd template] [arg page]]
-
-Return a template for the string [arg page]
-
-[call method [cmd TemplateSearch] [arg page]]
-
-Perform a search for the template that best matches [arg page]. This
-can include local file searches, in-memory structures, or even
-database lookups. The stock implementation simply looks for files
-with a .tml or .html extension in the [opt doc_root] directory.
-
-[call method [cmd Validate_Connection] [arg sock] [arg ip]]
-
-Given a socket and an ip address, return true if this connection should
-be terminated, or false if it should be allowed to continue. The stock
-implementation always returns 0. This is intended for applications to
-be able to implement black lists and/or provide security based on IP
-address.
-
-[list_end]
-
-[section Class ::httpd::reply]
-A class which shephards a request through the process of generating a
-reply.
-
-[list_begin definitions]
-[call method [cmd close]]
-
-Terminate the transaction, and close the socket.
-[list_end]
-[example {
-src/reply.tcl:  method HttpHeaders {sock {debug {}}}
-src/reply.tcl:  method MimeParse mimetext
-src/reply.tcl:  method dispatch {newsock datastate}
-src/reply.tcl:  method error {code {msg {}} {errorInfo {}}}
-src/reply.tcl:  method content {}
-src/reply.tcl:  method EncodeStatus {status}
-src/reply.tcl:  method output {}
-src/reply.tcl:  method DoOutput {}
-src/reply.tcl:  method Url_Decode data
-src/reply.tcl:  method FormData {}
-src/reply.tcl:  method PostData {}
-src/reply.tcl:  method TransferComplete args
-src/reply.tcl:  method puts line
-src/reply.tcl:  method reset {}
-src/reply.tcl:  method timeOutCheck {}
-src/reply.tcl:  method timestamp {}
-
-src/file.tcl:::tool::define ::httpd::content::file
-src/file.tcl:  method FileName {}
-src/file.tcl:  method DirectoryListing {local_file}
-src/file.tcl:  method dispatch {newsock datastate}
-src/file.tcl:  method content {}
-src/file.tcl:  method DoOutput {}
-
-src/proxy.tcl:::tool::define ::httpd::content::proxy
-src/proxy.tcl:  method proxy_info {}
-src/proxy.tcl:  method content {}
-src/proxy.tcl:  method DoOutput {}
-
-
-src/scgi.tcl:::tool::define ::httpd::content::scgi
-src/scgi.tcl:  method scgi_info {}
-src/scgi.tcl:  method content {}
-src/scgi.tcl:  method DoOutput {}
-}]
+[include src/server.man]
+[include src/reply.man]
+[include src/content.man]
 
 [section AUTHORS]
 Sean Woods

@@ -56,14 +56,6 @@ namespace eval ::scgi {}
 ###
 ::tool::define ::httpd::reply {
 
-  property reply_headers_default {
-    Status {200 OK}
-    Content-Size 0
-    Content-Type {text/html; charset=ISO-8859-1}
-    Cache-Control {no-cache}
-    Connection close
-  }
-
   array error_codes {
     200 {Data follows}
     204 {No Content}
@@ -138,6 +130,14 @@ namespace eval ::scgi {}
     return $result
   }
 
+  method HttpHeaders_Default {} {
+    return {Status {200 OK}
+Content-Size 0
+Content-Type {text/html; charset=UTF-8}
+Cache-Control {no-cache}
+Connection close}
+  }
+
   method dispatch {newsock datastate} {
     my http_info replace $datastate
     my variable chan rawrequest dipatched_time
@@ -154,8 +154,8 @@ namespace eval ::scgi {}
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      dict print $info
-      puts stderr $::errorInfo
+      #dict print $info
+      #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -188,7 +188,7 @@ namespace eval ::scgi {}
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
-    my reply set Content-Type {text/html; charset=ISO-8859-1}
+    my reply set Content-Type {text/html; charset=UTF-8}
     my puts "
 <HTML>
 <HEAD>
@@ -282,8 +282,6 @@ For deeper understanding:
     if {[info exists formdata]} {
       return $formdata
     }
-    set rawrequest [my HttpHeaders $chan]
-    my request parse $rawrequest
     if {![my request exists Content-Length]} {
       set length 0
     } else {
@@ -445,7 +443,7 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my reply replace [my meta cget reply_headers_default]
+    my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
     set reply_body {}
@@ -491,14 +489,14 @@ For deeper understanding:
   option server_string [list default: [list TclHttpd $::httpd::version]]
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
-  
+
   property socket buffersize   32768
   property socket translation  {auto crlf}
   property reply_class ::httpd::reply
 
   array template
   variable url_patterns {}
-  
+
   constructor {args} {
     my configure {*}$args
     my start
@@ -512,7 +510,7 @@ For deeper understanding:
     my variable url_patterns
     dict set url_patterns $pattern $info
   }
-  
+
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -522,12 +520,7 @@ For deeper understanding:
       catch {close $sock}
       return
     }
-    set uuid [::tool::uuid_short]
-    chan configure $sock \
-      -blocking 0 \
-      -translation {auto crlf} \
-      -buffering line
-
+    set uuid [my Uuid_Generate]
     set coro [coroutine [namespace current]::CORO$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
     chan event $sock readable $coro
   }
@@ -535,6 +528,12 @@ For deeper understanding:
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
+
+    chan configure $sock \
+      -blocking 0 \
+      -translation {auto crlf} \
+      -buffering line
+
     my counter url_hit
     set line {}
     try {
@@ -584,7 +583,7 @@ For deeper understanding:
           dict with query {}
           set body [subst [my template notfound]]
           chan puts $sock "Content-length: [string length $body]"
-          chan puts $sock
+          chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
           puts stderr "FAILED ON 404: $err"
@@ -595,16 +594,17 @@ For deeper understanding:
       }
     } on error {err errdat} {
       try {
-        puts stderr [dict print $errdat]
-        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR"
+        #puts stderr [dict print $errdat]
+        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR - server 119"
         dict with query {}
         set body [subst [my template internal_error]]
         chan puts $sock "Content-length: [string length $body]"
-        chan puts $sock
+        chan puts $sock {}
         chan puts $sock $body
         my log HttpError $line
       } on error {err errdat} {
-        puts stderr "FAILED ON 505: $::errorInfo"
+        my log HttpFatal $::errorInfo
+        #puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}
         catch {destroy $pageobj}
@@ -654,7 +654,7 @@ For deeper understanding:
       ###
       dict set reply prefix {}
       dict set reply path $doc_root
-      dict set reply mixin httpd::content::file
+      dict set reply mixin httpd::content.file
       return $reply
     }
     return {}
@@ -675,7 +675,7 @@ For deeper understanding:
     set prefix [string trimright $prefix /]
     return $prefix
   }
-  
+
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -688,7 +688,7 @@ For deeper understanding:
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    puts [list [self] listening on $port $myaddr]
+    my log [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
@@ -758,6 +758,11 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
   }
 
+  method Uuid_Generate {} {
+    my variable next_uuid
+    return [incr next_uuid]
+  }
+
   ###
   # Return true if this IP address is blocked
   # The socket will be closed immediately after returning
@@ -774,6 +779,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ::tool::define ::httpd::server::dispatch {
     superclass ::httpd::server
 }
+
 ###
 # END: server.tcl
 ###
@@ -793,7 +799,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-::tool::define ::httpd::content::file {
+::tool::define ::httpd::content.file {
 
   method FileName {} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]
@@ -890,12 +896,12 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     switch [file extension $local_file] {
       .md {
         package require Markdown
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set mdtxt  [::fileutil::cat $local_file]
         my puts [::Markdown::convert $mdtxt]
       }
       .tml {
-        my reply set Content-Type {text/html; charset=ISO-8859-1}
+        my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
         set headers [my http_info dump]
         dict with headers {}
@@ -959,7 +965,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ###
 # Return data from an SCGI process
 ###
-::tool::define ::httpd::content::scgi {
+::tool::define ::httpd::content.scgi {
 
   method scgi_info {} {
     ###
@@ -980,7 +986,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
     lassign $sockinfo scgihost scgiport scgiscript
     set sock [::socket $scgihost $scgiport]
-    
+
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     ###
@@ -1003,7 +1009,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       if {[string range $f 0 3] ne "HTTP"} {
         set f HTTP_[string toupper $f]
       }
-      dict set info $f $v 
+      dict set info $f $v
     }
     foreach {f v} $info {
       if {$f in {CONTENT_LENGTH HTTP_STATUS}} continue
@@ -1023,7 +1029,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     chan event $sock readable [namespace code {my output}]
   }
-  
+
   method output {} {
     if {[my http_info getnull HTTP_ERROR] ne {}} {
       ###
@@ -1127,6 +1133,144 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   }
 }
 
+tool::define ::httpd::reply.scgi {
+  superclass ::httpd::reply
+
+  ###
+  # A modified dispatch method from a standard HTTP reply
+  # Unlike in HTTP, our headers were spoon fed to use from
+  # the server
+  ###
+  method dispatch {newsock datastate} {
+    my http_info replace $datastate
+    my variable chan rawrequest dipatched_time
+    set chan $newsock
+    chan event $chan readable {}
+    chan configure $chan -translation {auto crlf} -buffering line
+    set dispatched_time [clock seconds]
+    try {
+      # Dispatch to the URL implementation.
+      # Convert SCGI headers to mime-ish equivilients
+      my reset
+      foreach {f v} $datastate {
+        switch $f {
+          CONTENT_LENGTH {
+            my request set Content-Length $v
+          }
+          default {
+            my request set $f $v
+          }
+        }
+      }
+      my content
+    } on error {err info} {
+      #puts stderr $::errorInfo
+      my error 500 $err [dict get $info -errorinfo]
+    } finally {
+      my output
+    }
+  }
+
+  method EncodeStatus {status} {
+    return "Status: $status"
+  }
+}
+
+###
+# Act as an  SCGI Server
+###
+tool::define ::httpd::server.scgi {
+  superclass ::httpd::server
+
+  property socket buffersize   32768
+  property socket blocking     0
+  property socket translation  {binary binary}
+
+  property reply_class ::httpd::reply.scgi
+
+  method Connect {uuid sock ip} {
+    yield [info coroutine]
+    chan event $sock readable {}
+    chan configure $sock \
+        -blocking 1 \
+        -translation {binary binary} \
+        -buffersize 4096 \
+        -buffering none
+    my counter url_hit
+    try {
+      # Read the SCGI request on byte at a time until we reach a ":"
+      dict set query REQUEST_URI /
+      dict set query REMOTE_ADDR     $ip
+      set size {}
+      while 1 {
+        set char [::coroutine::util::read $sock 1]
+        if {[chan eof $sock]} {
+          catch {close $sock}
+          return
+        }
+        if {$char eq ":"} break
+        append size $char
+      }
+      # With length in hand, read the netstring encoded headers
+      set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
+      chan configure $sock -blocking 0 -buffersize 4096 -buffering full
+      foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
+        dict set query $f $v
+      }
+      if {![dict exists $query REQUEST_PATH]} {
+        set uri [dict get $query REQUEST_URI]
+        set uriinfo [::uri::split $uri]
+        dict set query REQUEST_PATH    [dict get $uriinfo path]
+      }
+      set reply [my dispatch $query]
+      dict with query {}
+      if {[llength $reply]} {
+        if {[dict exists $reply class]} {
+          set class [dict get $reply class]
+        } else {
+          set class [my cget reply_class]
+        }
+        set pageobj [$class create [namespace current]::reply$uuid [self]]
+        if {[dict exists $reply mixin]} {
+          oo::objdefine $pageobj mixin [dict get $reply mixin]
+        }
+        $pageobj dispatch $sock $reply
+        my log HttpAccess $REQUEST_URI
+      } else {
+        try {
+          my log HttpMissing $REQUEST_URI
+          puts $sock "Status: 404 NOT FOUND"
+          dict with query {}
+          set body [subst [my template notfound]]
+          puts $sock "Content-length: [string length $body]"
+          puts $sock {}
+          puts $sock $body
+        } on error {err errdat} {
+          puts stderr "FAILED ON 404: $err"
+        } finally {
+          catch {close $sock}
+        }
+      }
+    } on error {err errdat} {
+      try {
+        #puts stderr $::errorInfo
+        puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
+        dict with query {}
+        set body [subst [my template internal_error]]
+        puts $sock "Content-length: [string length $body]"
+        puts $sock {}
+        puts $sock $body
+        my log HttpError $REQUEST_URI
+      } on error {err errdat} {
+        my log HttpFatal $::errorInfo
+        #puts stderr "FAILED ON 505: $err $::errorInfo"
+      } finally {
+        catch {close $sock}
+      }
+    }
+  }
+}
+
 ###
 # END: scgi.tcl
 ###
@@ -1135,7 +1279,12 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ###
 
 # Act as a proxy server
-::tool::define ::httpd::content::proxy {
+::tool::define ::httpd::content.proxy {
+  # Options:
+  # proxy_host - Hostname to proxy
+  # proxy_port - Port on hostname to proxy
+  # proxy_script - Block of text to stream before sending the request
+  ###
 
   method proxy_info {} {
     ###
@@ -1217,6 +1366,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
   }
 }
+
 ###
 # END: proxy.tcl
 ###
@@ -1226,9 +1376,10 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ###
 # Upgrade a connection to a websocket
 ###
-::tool::define ::httpd::content::websocket {
-    
+::tool::define ::httpd::content.websocket {
+
 }
+
 ###
 # END: websocket.tcl
 ###
