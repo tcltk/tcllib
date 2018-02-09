@@ -3,14 +3,6 @@
 ###
 ::tool::define ::httpd::reply {
 
-  property reply_headers_default {
-    Status {200 OK}
-    Content-Size 0
-    Content-Type {text/html; charset=ISO-8859-1}
-    Cache-Control {no-cache}
-    Connection close
-  }
-
   array error_codes {
     200 {Data follows}
     204 {No Content}
@@ -85,6 +77,14 @@
     return $result
   }
 
+  method HttpHeaders_Default {} {
+    return {Status {200 OK}
+Content-Size 0
+Content-Type {text/html; charset=UTF-8}
+Cache-Control {no-cache}
+Connection close}
+  }
+
   method dispatch {newsock datastate} {
     my http_info replace $datastate
     my variable chan rawrequest dipatched_time
@@ -101,8 +101,8 @@
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      dict print $info
-      puts stderr $::errorInfo
+      #dict print $info
+      #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -135,7 +135,7 @@
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
-    my reply set Content-Type {text/html; charset=ISO-8859-1}
+    my reply set Content-Type {text/html; charset=UTF-8}
     my puts "
 <HTML>
 <HEAD>
@@ -229,8 +229,6 @@ For deeper understanding:
     if {[info exists formdata]} {
       return $formdata
     }
-    set rawrequest [my HttpHeaders $chan]
-    my request parse $rawrequest
     if {![my request exists Content-Length]} {
       set length 0
     } else {
@@ -392,7 +390,7 @@ For deeper understanding:
   ###
   method reset {} {
     my variable reply_body
-    my reply replace [my meta cget reply_headers_default]
+    my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
     set reply_body {}
