@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'ldapx\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Pierre David <pdav@users\&.sourceforge\&.net>
+'\" Copyright (c) 2006-2018 Pierre David <pdav@users\&.sourceforge\&.net>
 '\"
-.TH "ldapx" n 0\&.2\&.5 tcllib "LDAP extended object interface"
+.TH "ldapx" n 1\&.1 tcllib "LDAP extended object interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ ldapx \- LDAP extended object interface
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBldapx  ?1\&.0?\fR
+package require \fBldapx  ?1\&.1?\fR
 .sp
 \fIe\fR \fBreset\fR
 .sp
@@ -987,6 +987,6 @@ directory access, internet, ldap, ldap client, ldif, protocol, rfc 2251, rfc 284
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Pierre David <pdav@users\&.sourceforge\&.net>
+Copyright (c) 2006-2018 Pierre David <pdav@users\&.sourceforge\&.net>
 
 .fi
