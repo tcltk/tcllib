@@ -116,10 +116,10 @@
 <li class="doctools_section"><a href="#section7">Reply Method Ensemble: reply</a></li>
 <li class="doctools_section"><a href="#section8">Reply Methods</a></li>
 <li class="doctools_section"><a href="#section9">Class ::httpd::content</a></li>
-<li class="doctools_section"><a href="#section10">class</a></li>
-<li class="doctools_section"><a href="#section11">Class</a></li>
-<li class="doctools_section"><a href="#section12">Class</a></li>
-<li class="doctools_section"><a href="#section13">Class</a></li>
+<li class="doctools_section"><a href="#section10">Class ::httpd::content.file</a></li>
+<li class="doctools_section"><a href="#section11">Class ::httpd::content.proxy</a></li>
+<li class="doctools_section"><a href="#section12">Class ::httpd::content.scgi</a></li>
+<li class="doctools_section"><a href="#section13">Class ::httpd::content.websocket</a></li>
 <li class="doctools_section"><a href="#section14">SCGI Server Functions</a></li>
 <li class="doctools_section"><a href="#section15">Class ::httpd::reply.scgi</a></li>
 <li class="doctools_section"><a href="#section16">Class ::httpd::server.scgi</a></li>
@@ -478,7 +478,7 @@ fed to it on the command line, and then destroys the object.</p>
 <p>The httpd module includes several ready to use implementations of content mixins
 for common use cases. Options are passed in to the <b class="cmd">add_uri</b> method of the server.</p>
 </div>
-<div id="section10" class="doctools_section"><h2><a name="section10">class</a></h2>
+<div id="section10" class="doctools_section"><h2><a name="section10">Class ::httpd::content.file</a></h2>
 <p>An implementation to deliver files from the local file system.</p>
 <dl class="doctools_definitions">
 <dt><a name="44">option <b class="cmd">path</b></a></dt>
@@ -487,7 +487,7 @@ for common use cases. Options are passed in to the <b class="cmd">add_uri</b> me
 <dd><p>The prefix of the URI portion to ignore when calculating relative file paths.</p></dd>
 </dl>
 </div>
-<div id="section11" class="doctools_section"><h2><a name="section11">Class</a></h2>
+<div id="section11" class="doctools_section"><h2><a name="section11">Class ::httpd::content.proxy</a></h2>
 <p>An implementation to relay requests to another HTTP server, and relay
 the results back across the request channel.</p>
 <dl class="doctools_definitions">
@@ -499,7 +499,7 @@ process to proxy, and then returns a list of three values:
 <i class="arg">proxyscript</i> - A pre-amble block of text to send prior to the mirrored request</p></dd>
 </dl>
 </div>
-<div id="section12" class="doctools_section"><h2><a name="section12">Class</a></h2>
+<div id="section12" class="doctools_section"><h2><a name="section12">Class ::httpd::content.scgi</a></h2>
 <p>An implementation to relay requests to a server listening on a socket
 expecting SCGI encoded requests, and relay
 the results back across the request channel.</p>
@@ -512,7 +512,7 @@ process to proxy, and then returns a list of three values:
 <i class="arg">scgiscript</i> - The contents of the <i class="arg">SCRIPT_NAME</i> header to be sent</p></dd>
 </dl>
 </div>
-<div id="section13" class="doctools_section"><h2><a name="section13">Class</a></h2>
+<div id="section13" class="doctools_section"><h2><a name="section13">Class ::httpd::content.websocket</a></h2>
 <p>A placeholder for a future implementation to manage requests that can expect to be
 promoted to a Websocket. Currently it is an empty class.</p>
 </div>

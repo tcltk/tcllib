@@ -720,7 +720,7 @@ De-httpizes a string\&.
 .SH "CLASS ::HTTPD::CONTENT"
 The httpd module includes several ready to use implementations of content mixins
 for common use cases\&. Options are passed in to the \fBadd_uri\fR method of the server\&.
-.SH CLASS
+.SH "CLASS ::HTTPD::CONTENT\&.FILE"
 An implementation to deliver files from the local file system\&.
 .TP
 option \fBpath\fR
@@ -729,7 +729,7 @@ The root directory on the local file system to be exposed via http\&.
 option \fBprefix\fR
 The prefix of the URI portion to ignore when calculating relative file paths\&.
 .PP
-.SH CLASS
+.SH "CLASS ::HTTPD::CONTENT\&.PROXY"
 An implementation to relay requests to another HTTP server, and relay
 the results back across the request channel\&.
 .TP
@@ -740,7 +740,7 @@ process to proxy, and then returns a list of three values:
 \fIproxyport\fR - The port to connect to
 \fIproxyscript\fR - A pre-amble block of text to send prior to the mirrored request
 .PP
-.SH CLASS
+.SH "CLASS ::HTTPD::CONTENT\&.SCGI"
 An implementation to relay requests to a server listening on a socket
 expecting SCGI encoded requests, and relay
 the results back across the request channel\&.
@@ -752,7 +752,7 @@ process to proxy, and then returns a list of three values:
 \fIscgiport\fR - The port to connect to
 \fIscgiscript\fR - The contents of the \fISCRIPT_NAME\fR header to be sent
 .PP
-.SH CLASS
+.SH "CLASS ::HTTPD::CONTENT\&.WEBSOCKET"
 A placeholder for a future implementation to manage requests that can expect to be
 promoted to a Websocket\&. Currently it is an empty class\&.
 .SH "SCGI SERVER FUNCTIONS"
