@@ -77,7 +77,10 @@ Changes from Tcllib 1.18 to 1.19
 ||||||
 |inifile|ini|0.3|0.3.1|B D|
 |json|json|1.3.3|1.3.4|B D T|
+||||||
 |ldap|ldap|1.8|1.9.2|B D T|
+||ldapx|1.0|1.1|B D T|
+||||||
 |markdown|Markdown|1.0|1.1|D EF T|
 ||||||
 |math|math::calculus|0.8.1|0.8.2|B T|
@@ -139,7 +142,6 @@ Invisible changes (documentation, testsuites)
 |docstrip|docstrip::util|1.3.1|1.3.1|D|
 |doctools2idx|doctools::idx|2|2|---|
 |doctools2toc|doctools::toc|2|2|---|
-|ldap|ldapx|0.2.5|0.2.5|D|
 ||||||
 |math|math::bigfloat|1.2.2|1.2.2|T|
 ||math::bigfloat|2.0.2|2.0.2|T|
