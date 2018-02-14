@@ -41,40 +41,41 @@ Invokes the [cmd output] method for the object
 
 The [cmd http::reply] class and its derivatives maintain several variables as dictionaries
 internally. Access to these dictionaries is managed through a dedicated ensemble. The
-ensemble implements most of the same behaviors as the [cmd dict] command. Each
-ensemble implements the following methods above and beyond (or modifying) those:
+ensemble implements most of the same behaviors as the [cmd dict] command.
+
+Each ensemble implements the following methods above, beyond, or modifying standard dicts:
 
 [list_begin definitions]
 
-[call method [cmd add] [arg field] [arg element]]
+[call method [cmd ENSEMBLE::add] [arg field] [arg element]]
 
 Add [arg element] to a list stored in [arg field], but only if it is not already present om the list.
 
-[call method [cmd dump]]
+[call method [cmd ENSEMBLE::dump]]
 
 Return the current contents of the data structure as a key/value list.
 
-[call method [cmd get] [arg field]]
+[call method [cmd ENSEMBLE::get] [arg field]]
 
 Return the value of the field [arg field], or an empty string if it does not exist.
 
-[call method [cmd reset]]
+[call method [cmd ENSEMBLE::reset]]
 
 Return a key/value list of the default contents for this data structure.
 
-[call method [cmd remove] [arg field] [arg element]]
+[call method [cmd ENSEMBLE::remove] [arg field] [arg element]]
 
 Remove all instances of [arg element] from the list stored in [arg field].
 
-[call method [cmd replace] [arg keyvaluelist]]
+[call method [cmd ENSEMBLE::replace] [arg keyvaluelist]]
 
 Replace the internal dict with the contents of [arg keyvaluelist]
 
-[call method [cmd reset]]
+[call method [cmd ENSEMBLE::reset]]
 
 Replace the internal dict with the default state.
 
-[call method [cmd set] [arg field] [arg value]]
+[call method [cmd ENSEMBLE::set] [arg field] [arg value]]
 
 Set the value of [arg field] to [arg value].
 
@@ -88,7 +89,7 @@ Ensemble Methods:
 
 [list_begin definitions]
 
-[call method [cmd netstring]]
+[call method [cmd http_info::netstring]]
 
 Return the contents of this data structure as a netstring encoded block.
 
@@ -100,7 +101,7 @@ Managed data from MIME headers of the request.
 
 [list_begin definitions]
 
-[call method [cmd parse] [arg string]]
+[call method  [cmd request::parse] [arg string]]
 
 Replace the contents of the data structure with information encoded in a MIME
 formatted block of text ([arg string]).
@@ -114,7 +115,7 @@ Manage the headers sent in the reply.
 
 [list_begin definitions]
 
-[call method [cmd output]]
+[call method [cmd reply::output]]
 
 Return the contents of this data structure as a MIME encoded block appropriate
 for an HTTP response.
