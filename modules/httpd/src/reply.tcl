@@ -321,10 +321,40 @@ For deeper understanding:
     ###
     # To make life easier for our SCGI implementation rig things
     # such that CONTENT_LENGTH is always first
+    # Also map all headers specified in rfc2616 to their canonical case
     ###
     set result {}
     dict set result Content-Length 0
     foreach {key} $data(mimeorder) {
+      switch [string tolower $key] {
+        content-length {
+          set key Content-Length
+        }
+        content-encoding {
+          set key Content-Encoding
+        }
+        content-language {
+          set key Content-Language
+        }
+        content-location {
+          set key Content-Location
+        }
+        content-md5 {
+          set key Content-MD5
+        }
+        content-range {
+          set key Content-Range
+        }
+        content-type {
+          set key Content-Type
+        }
+        expires {
+          set key Expires
+        }
+        last-modified {
+          set key Last-Modified
+        }
+      }
       dict set result $key $data(mime,$key)
     }
     return $result
