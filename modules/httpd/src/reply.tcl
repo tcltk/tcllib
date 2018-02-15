@@ -360,7 +360,42 @@ For deeper understanding:
     append reply_body $line \n
   }
 
+  method RequestFind {field} {
+    my variable request
+    if {[dict exists $request $field]} {
+      return $field
+    }
+    foreach item [dict gets $request] {
+      if {[string tolower $item] eq [string tolower $field]} {
+        return $item
+      }
+    }
+    return $field
+  }
+
   dictobj request request {
+    field {
+      tailcall my RequestFind [lindex $args 0]
+    }
+    get {
+      set field [my RequestFind [lindex $args 0]]
+      if {![dict exists $request $field]} {
+        return {}
+      }
+      tailcall dict get $request $field
+    }
+    getnull {
+      set field [my RequestFind [lindex $args 0]]
+      if {![dict exists $request $field]} {
+        return {}
+      }
+      tailcall dict get $request $field
+
+    }
+    exists {
+      set field [my RequestFind [lindex $args 0]]
+      tailcall dict exists $request $field
+    }
     parse {
       set request [my MimeParse [lindex $args 0]]
     }
