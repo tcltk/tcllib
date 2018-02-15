@@ -222,7 +222,7 @@ tool::define ::httpd::server.scgi {
           puts $sock "Status: 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          puts $sock "Content-length: [string length $body]"
+          puts $sock "Content-Length: [string length $body]"
           puts $sock {}
           puts $sock $body
         } on error {err errdat} {
@@ -237,7 +237,7 @@ tool::define ::httpd::server.scgi {
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]
-        puts $sock "Content-length: [string length $body]"
+        puts $sock "Content-Length: [string length $body]"
         puts $sock {}
         puts $sock $body
         my log HttpError $REQUEST_URI

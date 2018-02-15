@@ -616,7 +616,7 @@ For deeper understanding:
           chan puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          chan puts $sock "Content-length: [string length $body]"
+          chan puts $sock "Content-Length: [string length $body]"
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
@@ -632,7 +632,7 @@ For deeper understanding:
         chan puts $sock "HTTP/1.0 505 INTERNAL ERROR - server 119"
         dict with query {}
         set body [subst [my template internal_error]]
-        chan puts $sock "Content-length: [string length $body]"
+        chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
         my log HttpError $line
@@ -1220,7 +1220,7 @@ tool::define ::httpd::server.scgi {
           puts $sock "Status: 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          puts $sock "Content-length: [string length $body]"
+          puts $sock "Content-Length: [string length $body]"
           puts $sock {}
           puts $sock $body
         } on error {err errdat} {
@@ -1235,7 +1235,7 @@ tool::define ::httpd::server.scgi {
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]
-        puts $sock "Content-length: [string length $body]"
+        puts $sock "Content-Length: [string length $body]"
         puts $sock {}
         puts $sock $body
         my log HttpError $REQUEST_URI
