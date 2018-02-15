@@ -103,7 +103,7 @@
           chan puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          chan puts $sock "Content-length: [string length $body]"
+          chan puts $sock "Content-Length: [string length $body]"
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
@@ -119,7 +119,7 @@
         chan puts $sock "HTTP/1.0 505 INTERNAL ERROR - server 119"
         dict with query {}
         set body [subst [my template internal_error]]
-        chan puts $sock "Content-length: [string length $body]"
+        chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
         my log HttpError $line
