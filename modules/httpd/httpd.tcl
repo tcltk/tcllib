@@ -3,9 +3,9 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide httpd 4.1.0
+package provide httpd 4.1.1
 namespace eval ::httpd {}
-set ::httpd::version 4.1.0
+set ::httpd::version 4.1.1
 
 ###
 # START: core.tcl
@@ -412,7 +412,42 @@ For deeper understanding:
     append reply_body $line \n
   }
 
+  method RequestFind {field} {
+    my variable request
+    if {[dict exists $request $field]} {
+      return $field
+    }
+    foreach item [dict gets $request] {
+      if {[string tolower $item] eq [string tolower $field]} {
+        return $item
+      }
+    }
+    return $field
+  }
+
   dictobj request request {
+    field {
+      tailcall my RequestFind [lindex $args 0]
+    }
+    get {
+      set field [my RequestFind [lindex $args 0]]
+      if {![dict exists $request $field]} {
+        return {}
+      }
+      tailcall dict get $request $field
+    }
+    getnull {
+      set field [my RequestFind [lindex $args 0]]
+      if {![dict exists $request $field]} {
+        return {}
+      }
+      tailcall dict get $request $field
+
+    }
+    exists {
+      set field [my RequestFind [lindex $args 0]]
+      tailcall dict exists $request $field
+    }
     parse {
       set request [my MimeParse [lindex $args 0]]
     }
@@ -991,27 +1026,32 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     ###
     # Convert our query headers into netstring format.
     ###
-    if {![my request exists Content-Length]} {
-      set length 0
-    } else {
-      set length [my request get Content-Length]
-    }
-    set block {}
-    append block CONTENT_LENGTH \x00 $length \x00
-    append block SCGI \x00 1.0 \x00
-    append block SCRIPT_NAME \x00 $scgiscript \x00
-    set info {}
+
+    set info {CONTENT_LENGTH 0 SCGI 1.0}
+    dict set info SCRIPT_NAME $scgiscript
     foreach {f v} [my http_info dump] {
       dict set info $f $v
     }
-    foreach {f v} [my request dump] {
-      if {[string range $f 0 3] ne "HTTP"} {
-        set f HTTP_[string toupper $f]
+    foreach {fo v} [my request dump] {
+      set f $fo
+      switch [string tolower $fo] {
+        content-length {
+          set f CONTENT_LENGTH
+        }
+        content-type {
+          set f CONTENT_TYPE
+        }
+        default {
+          if {[string range $f 0 3] ne "HTTP" && $f ne "CONTENT_TYPE"} {
+            set f HTTP_[string map {- _} [string toupper $f]]
+          }
+        }
       }
       dict set info $f $v
     }
+    set length [dict get $info CONTENT_LENGTH]
+    set block {}
     foreach {f v} $info {
-      if {$f in {CONTENT_LENGTH HTTP_STATUS}} continue
       append block [string toupper $f] \x00 $v \x00
     }
     chan puts -nonewline $sock "[string length $block]:$block,"
@@ -1039,17 +1079,17 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     my variable sock chan
     set replyhead [my HttpHeaders $sock]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat CONTENT_LENGTH]} {
+    if {![dict exists $replydat Content-Length]} {
       set length 0
     } else {
-      set length [dict get $replydat CONTENT_LENGTH]
+      set length [dict get $replydat Content-Length]
     }
     ###
     # Convert the Status: header from the SCGI service to
     # a standard service reply line from a web server, but
     # otherwise spit out the rest of the headers verbatim
     ###
-    set replybuffer "HTTP/1.1 [dict get $replydat HTTP_STATUS]\n"
+    set replybuffer "HTTP/1.1 [dict get $replydat Status]\n"
     append replybuffer $replyhead
     chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     puts $chan $replybuffer
@@ -1068,67 +1108,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       chan flush $chan
       my destroy
     }
-  }
-  ###
-  # Todo: Shorten this to a http->SCGI header formatter
-  # And eliminate the duplicate implementation
-  ###
-  method MimeParse mimetext {
-    set data(mimeorder) {}
-    foreach line [split $mimetext \n] {
-      # This regexp picks up
-      # key: value
-      # MIME headers.  MIME headers may be continue with a line
-      # that starts with spaces or a tab
-      if {[string length [string trim $line]]==0} break
-      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
-        # The following allows something to
-        # recreate the headers exactly
-        lappend data(headerlist) $key $value
-        # The rest of this makes it easier to pick out
-        # headers from the data(mime,headername) array
-        #set key [string tolower $key]
-        if {[info exists data(mime,$key)]} {
-          append data(mime,$key) ,$value
-        } else {
-          set data(mime,$key) $value
-          lappend data(mimeorder) $key
-        }
-        set data(key) $key
-      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
-        # Are there really continuation lines in the spec?
-        if {[info exists data(key)]} {
-          append data(mime,$data(key)) " " $value
-        } else {
-          my error 400 "INVALID HTTP HEADER FORMAT: $line"
-          tailcall my output
-        }
-      } else {
-        my error 400 "INVALID HTTP HEADER FORMAT: $line"
-        tailcall my output
-      }
-    }
-    ###
-    # To make life easier for our SCGI implementation rig things
-    # such that CONTENT_LENGTH is always first
-    ###
-    set result {
-      CONTENT_LENGTH 0
-    }
-    foreach {key} $data(mimeorder) {
-      switch $key {
-        Content-Length {
-          dict set result CONTENT_LENGTH $data(mime,$key)
-        }
-        Content-Type {
-          dict set result CONTENT_TYPE $data(mime,$key)
-        }
-        default {
-          dict set result HTTP_[string map {"-" "_"} [string toupper $key]] $data(mime,$key)
-        }
-      }
-    }
-    return $result
   }
 }
 
@@ -1301,6 +1280,7 @@ tool::define ::httpd::server.scgi {
     if {$sockinfo eq {}} {
       tailcall my error 404 {Not Found}
     }
+
     lassign $sockinfo proxyhost proxyport proxyscript
     set sock [::socket $proxyhost $proxyport]
 
