@@ -112,7 +112,7 @@ if {[string equal $tcl_platform(platform) "windows"]
             HMODULE hLib;
             LPFNUUIDCREATE lpfnUuidCreate = NULL;
 
-            hLib = LoadLibrary(_T("rpcrt4.dll"));
+            hLib = LoadLibraryA(("rpcrt4.dll"));
             if (hLib)
                 lpfnUuidCreate = (LPFNUUIDCREATE)
                     GetProcAddress(hLib, "UuidCreate");
