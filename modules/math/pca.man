@@ -1,5 +1,6 @@
+[vset VERSION 1.0]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::PCA n 1.0]
+[manpage_begin math::PCA n [vset VERSION]]
 [keywords PCA]
 [keywords statistics]
 [keywords math]
@@ -8,7 +9,8 @@
 [titledesc {Package for Principal Component Analysis}]
 [category  Mathematics]
 [require Tcl [opt 8.6]]
-[require math::linearalgebra 1.0]
+[require math::pca [opt [vset VERSION]]]
+[require math::linearalgebra 1]
 
 [description]
 [para]
@@ -115,7 +117,7 @@ this distance is based on the normalised vectors.)
 [list_end]
 
 
-[call [cmd "\$pca qstatistic"] [arg observation] [opt option]
+[call [cmd "\$pca qstatistic"] [arg observation] [opt option]]
 Return the Q statistic, basically the square of the distance, for the given observation.
 
 [list_begin arguments]

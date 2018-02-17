@@ -2,8 +2,7 @@
 # Generic answers that can be answered on most if not all unix platforms
 ###
 
-::namespace eval ::nettool {}
-
+if {$::tcl_platform(platform) eq "unix"} {
 ###
 # topic: 825cd25953c2cc896a96006b7f454e00
 # title: Return pairings of MAC numbers to IP addresses on the local network
@@ -20,4 +19,4 @@ proc ::nettool::arp_table {} {
   }
   return $result
 }
-
+}

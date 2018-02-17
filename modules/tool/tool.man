@@ -3,9 +3,10 @@
 [keywords TOOL]
 [copyright {2015 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Standardized OO Framework for development}]
-[titledesc {Dictionary Tools}]
-[category Utility]
+[titledesc {TclOO Library (TOOL) Framework}]
+[category TclOO]
 [keywords TclOO]
+[keywords framework]
 [require Tcl 8.6]
 [require sha1]
 [require dicttool]
@@ -126,7 +127,7 @@ objects for classes which are descendents of this class.
 [list_end]
 
 [section {Public Object Methods}]
- 
+
 The TOOL object mother of all classes defines several methods to enforces consistent
 behavior throughout the framework.
 
@@ -228,7 +229,7 @@ Computes the default value for an option. See [package tool::option_handling].
 [section AUTHORS]
 Sean Woods
 
-[vset CATEGORY tool]
+[vset CATEGORY tcloo]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
 

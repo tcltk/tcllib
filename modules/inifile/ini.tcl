@@ -10,7 +10,7 @@
 # 
 # RCS: @(#) $Id: ini.tcl,v 1.17 2012/01/05 21:04:55 andreas_kupries Exp $
 
-package provide inifile 0.3
+package provide inifile 0.3.1
 
 namespace eval ini {
     variable nexthandle  0
@@ -57,21 +57,17 @@ proc ::ini::open {ini args} {
 
     ::set fh ini$nexthandle
     ::set tmp [::open $ini $mode]
-    fconfigure $tmp -translation crlf
-    if {[info exists enc]} {
-	if {[catch {
-	    fconfigure $tmp -encoding $enc
-	} msg]} {
-	    ::close $tmp
-	    return -code error $msg
-	}
-    }
-
     namespace eval ::ini::$fh {
         variable data;     array set data     {}
         variable comments; array set comments {}
         variable sections; array set sections {}
     }
+    fconfigure $tmp -translation crlf
+    if {[info exists enc]} {
+	::ini::_setfileenc $tmp $enc
+	::set ::ini::${fh}::enc     $enc
+    }
+
     ::set ::ini::${fh}::channel $tmp
     ::set ::ini::${fh}::file    [_normalize $ini]
     ::set ::ini::${fh}::mode    $mode
@@ -105,6 +101,7 @@ proc ::ini::commit {fh} {
     variable ::ini::${fh}::channel
     variable ::ini::${fh}::file
     variable ::ini::${fh}::mode
+    variable ::ini::${fh}::enc
     variable commentchar
 
     if { $mode == "r" } {
@@ -114,9 +111,13 @@ proc ::ini::commit {fh} {
     }
     ::close $channel
     ::set channel [::open $file w]
+    if {[info exists enc]} {
+	::ini::_setfileenc $channel $enc
+    }
     ::set char $commentchar
     #seek $channel 0 start
     foreach sec [array names sections] {
+	variable ::ini::${fh}::enc
 	if { [info exists comments($sec)] } {
 	    puts $channel "$char [join $comments($sec) "\n$char "]\n"
 	}
@@ -126,12 +127,18 @@ proc ::ini::commit {fh} {
 	    if {[info exists comments($sec\000$key)]} {
 		puts $channel "$char [join $comments($sec\000$key) "\n$char "]"
 	    }
+	    if {[info exists enc]} {
+		::ini::_setfileenc $channel $enc
+	    }
 	    puts $channel "$key=$data($sec\000$key)"
 	}
 	puts $channel ""
     }
     ::close $channel
     ::set channel [::open $file r+]
+    if {[info exists enc]} {
+	::ini::_setfileenc $channel $enc
+    }
     return
 }
 
@@ -212,6 +219,15 @@ proc ::ini::_exists {fh sec args} {
         }
     }
     return
+}
+
+proc ::ini::_setfileenc {fh enc} {
+    if {[catch {
+	fconfigure $fh -encoding $enc
+    } msg]} {
+	catch { ::close $fh }
+	return -code error $msg
+    }
 }
 
 # internal command to check validity of a handle
@@ -396,6 +412,10 @@ proc ::ini::revert {fh} {
         array set data     {}
         array set comments {}
         array set sections {}
+    }
+    variable ::ini::${fh}::enc
+    if {[info exists enc]} {
+	::ini::_setfileenc $fh $enc
     }
     if { ![string match "w*" $mode] } {
         _loadfile $fh

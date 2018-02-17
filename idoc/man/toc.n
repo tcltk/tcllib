@@ -819,6 +819,9 @@ tcllib
 \fBmath::optimize\fR
 \fIfiles/modules/math/optimize\&.n\fR: Optimisation routines
 .TP
+\fBmath::PCA\fR
+\fIfiles/modules/math/pca\&.n\fR: Package for Principal Component Analysis
+.TP
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
 .TP
@@ -905,6 +908,9 @@ tcllib
 .TP
 \fBoo::util\fR
 \fIfiles/modules/ooutil/ooutil\&.n\fR: Utility commands for TclOO
+.TP
+\fBoometa\fR
+\fIfiles/modules/oometa/oometa\&.n\fR: oo::meta A data registry for classess
 .TP
 \fBotp\fR
 \fIfiles/modules/otp/otp\&.n\fR: One-Time Passwords
@@ -1420,7 +1426,10 @@ tcllib
 \fIfiles/modules/tiff/tiff\&.n\fR: TIFF reading, writing, and querying and manipulation of meta data
 .TP
 \fBtool\fR
-\fIfiles/modules/tool/tool\&.n\fR: Dictionary Tools
+\fIfiles/modules/tool/tool\&.n\fR: TclOO Library (TOOL) Framework
+.TP
+\fBtool\fR
+\fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
 .TP
 \fBtool-ui\fR
 \fIfiles/modules/tool-ui/tool-ui\&.n\fR: Abstractions to allow Tao to express Native Tk, HTML5, and Tao-Layout interfaces

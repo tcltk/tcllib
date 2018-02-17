@@ -13,7 +13,7 @@
 #
 
 package require Tcl 8.5
-package provide yaml 0.4
+package provide yaml 0.4.1
 package require cmdline
 package require huddle 0.1.7
 
@@ -102,13 +102,14 @@ namespace eval ::yaml {
 ####################
 
 proc ::yaml::yaml2dict {args} {
+    variable data
     _getOption $args
 
     set result [_parseBlockNode]
 
     set a [huddle get_stripped $result]
 
-    if {$yaml::data(validate)} {
+    if {$data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
 
@@ -116,10 +117,11 @@ proc ::yaml::yaml2dict {args} {
 }
 
 proc ::yaml::yaml2huddle {args} {
+    variable data
     _getOption $args
 
     set result [_parseBlockNode]
-    if {$yaml::data(validate)} {
+    if {$data(validate)} {
         set result [string map "{\n} {\\n}" $result]
     }
     return $result
@@ -236,12 +238,13 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
 # Scalar/Block Composers
 #########################
 proc ::yaml::_composeTags {tag value} {
+    variable composer
     if {$tag eq ""} {return $value}
     set value [huddle get_stripped $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
-    } elseif {[info exists yaml::composer($tag)]} {
-        set pair [$yaml::composer($tag) $value]
+    } elseif {[info exists composer($tag)]} {
+        set pair [$composer($tag) $value]
     } else {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
     }
@@ -267,12 +270,15 @@ proc ::yaml::_composePlain {value} {
 }
 
 proc ::yaml::_toType {value} {
+    variable data
+    variable parsers
+    variable fixed
     if {$value eq ""} {return [list !!str ""]}
 
     set lowerval [string tolower $value]
-    foreach {type} $yaml::data(types) {
-        if {[info exists yaml::parsers($type)]} {
-            set pair [$yaml::parsers($type) $value]
+    foreach {type} $data(types) {
+        if {[info exists parsers($type)]} {
+            set pair [$parsers($type) $value]
             if {$pair ne ""} {return $pair}
             continue
         }
@@ -293,9 +299,9 @@ proc ::yaml::_toType {value} {
             }
             default {
                 # !!null !!true !!false
-                if {[info exists yaml::fixed($type:Group)] \
-                 && [lsearch $yaml::fixed($type:Group) $lowerval] >= 0} {
-                    set value $yaml::fixed($type:Value)
+                if {[info exists fixed($type:Group)] \
+                 && [lsearch $fixed($type:Group) $lowerval] >= 0} {
+                    set value $fixed($type:Value)
                     return [list !!$type $value]
                 }
             }
@@ -398,7 +404,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
             }
             "*" { ; # alias node
                 set alias [_getToken]
-                if {$yaml::data(validate)} {
+                if {$data(validate)} {
                     set status "ALIAS"
                     set value *$alias
                 } else {
@@ -630,7 +636,7 @@ proc ::yaml::_parsePlainScalarInBlock {base {loop 0}} {
             append lb "\n"
         }
         set lb [string range $lb 1 end]
-        if {!$yaml::data(finished)} {
+        if {!$data(finished)} {
             _setpos $fpos
         }
         if {$start == $data(start)} {
@@ -1100,11 +1106,12 @@ proc ::yaml::_getAnchor {anchor} {
 }
 
 proc ::yaml::_getErrorMessage {ID {p1 ""}} {
+    variable errors
     set num [_getLineNum]
     if {$p1 != ""} {
-        return "line($num): [subst -nobackslashes -nocommands $yaml::errors($ID)]"
+        return "line($num): [subst -nobackslashes -nocommands $errors($ID)]"
     } else {
-        return "line($num): $yaml::errors($ID)"
+        return "line($num): $errors($ID)"
     }
 }
 
@@ -1120,7 +1127,8 @@ proc ::yaml::_getIndent {line} {
 ################
 
 proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
-    set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
+    variable _dumpIndent
+    set nextoff "$offset[string repeat { } $_dumpIndent]"
     switch -- [huddle type $data] {
         "string" {
             set data [huddle get_stripped $data]

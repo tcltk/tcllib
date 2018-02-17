@@ -1,5 +1,6 @@
+[vset VERSION 0.6.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin irc n 0.6.1]
+[manpage_begin irc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
 [keywords irc]
@@ -7,7 +8,7 @@
 [titledesc {Create IRC connection and interface.}]
 [category  Networking]
 [require Tcl]
-[require irc [opt 0.6.1]]
+[require irc [opt [vset VERSION]]]
 [description]
 
 This package provides low-level commands to deal with the IRC protocol

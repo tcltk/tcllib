@@ -1,0 +1,824 @@
+'\"
+'\" Generated from file 'httpd\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
+'\"
+.TH "tool" n 4\&.1\&.1 tcllib "Tcl Web Server"
+.\" The -*- nroff -*- definitions below are for supplemental macros used
+.\" in Tcl/Tk manual entries.
+.\"
+.\" .AP type name in/out ?indent?
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS ?type? ?name?
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .CS
+.\"	Begin code excerpt.
+.\"
+.\" .CE
+.\"	End code excerpt.
+.\"
+.\" .VS ?version? ?br?
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.  The first argument is ignored and used for recording
+.\"	the version when the .VS was added, so that the sidebars can be
+.\"	found and removed when they reach a certain age.  If another argument
+.\"	is present, then a line break is forced before starting the sidebar.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+.\" .SO ?manpage?
+.\"	Start of list of standard options for a Tk widget. The manpage
+.\"	argument defines where to look up the standard options; if
+.\"	omitted, defaults to "options". The options follow on successive
+.\"	lines, in three columns separated by tabs.
+.\"
+.\" .SE
+.\"	End of list of standard options for a Tk widget.
+.\"
+.\" .OP cmdName dbName dbClass
+.\"	Start of description of a specific option.  cmdName gives the
+.\"	option's name as specified in the class command, dbName gives
+.\"	the option's name in the option database, and dbClass gives
+.\"	the option's class in the option database.
+.\"
+.\" .UL arg1 arg2
+.\"	Print arg1 underlined, then print arg2 normally.
+.\"
+.\" .QW arg1 ?arg2?
+.\"	Print arg1 in quotes, then arg2 normally (for trailing punctuation).
+.\"
+.\" .PQ arg1 ?arg2?
+.\"	Print an open parenthesis, arg1 in quotes, then arg2 normally
+.\"	(for trailing punctuation) and then a closing parenthesis.
+.\"
+.\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
+.if t .wh -1.3i ^B
+.nr ^l \n(.l
+.ad b
+.\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ta \\n()Au \\n()Bu
+.ie !"\\$3"" \{\
+\&\\$1 \\fI\\$2\\fP (\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+.\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+.AS Tcl_Interp Tcl_CreateInterp in/out
+.\"	# BS - start boxed text
+.\"	# ^y = starting y location
+.\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+.\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+.\"	# VS - start vertical sidebar
+.\"	# ^Y = starting y location
+.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.if !"\\$2"" .br
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+.\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+.\"	# Special macro to handle page bottom:  finish off current
+.\"	# box/sidebar if in box/sidebar mode, then invoked standard
+.\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+.\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+.\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp
+..
+.\"	# SO - start of list of standard options
+.de SO
+'ie '\\$1'' .ds So \\fBoptions\\fR
+'el .ds So \\fB\\$1\\fR
+.SH "STANDARD OPTIONS"
+.LP
+.nf
+.ta 5.5c 11c
+.ft B
+..
+.\"	# SE - end of list of standard options
+.de SE
+.fi
+.ft R
+.LP
+See the \\*(So manual entry for details on the standard options.
+..
+.\"	# OP - start of full description for a single option
+.de OP
+.LP
+.nf
+.ta 4c
+Command-Line Name:	\\fB\\$1\\fR
+Database Name:	\\fB\\$2\\fR
+Database Class:	\\fB\\$3\\fR
+.fi
+.IP
+..
+.\"	# CS - begin code excerpt
+.de CS
+.RS
+.nf
+.ta .25i .5i .75i 1i
+..
+.\"	# CE - end code excerpt
+.de CE
+.fi
+.RE
+..
+.\"	# UL - underline word
+.de UL
+\\$1\l'|0\(ul'\\$2
+..
+.\"	# QW - apply quotation marks to word
+.de QW
+.ie '\\*(lq'"' ``\\$1''\\$2
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\$2
+..
+.\"	# PQ - apply parens and quotation marks to word
+.de PQ
+.ie '\\*(lq'"' (``\\$1''\\$2)\\$3
+.\"" fix emacs highlighting
+.el (\\*(lq\\$1\\*(rq\\$2)\\$3
+..
+.\"	# QR - quoted range
+.de QR
+.ie '\\*(lq'"' ``\\$1''\\-``\\$2''\\$3
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\-\\*(lq\\$2\\*(rq\\$3
+..
+.\"	# MT - "empty" string
+.de MT
+.QW ""
+..
+.BS
+.SH NAME
+tool \- A TclOO and coroutine based web server
+.SH SYNOPSIS
+package require \fBTcl  8\&.6\fR
+.sp
+package require \fBhttpd  ?4\&.1\&.1?\fR
+.sp
+package require \fBsha1 \fR
+.sp
+package require \fBdicttool \fR
+.sp
+package require \fBoo::meta \fR
+.sp
+package require \fBoo::dialect \fR
+.sp
+package require \fBtool \fR
+.sp
+package require \fBcoroutine \fR
+.sp
+package require \fBfileutil \fR
+.sp
+package require \fBfileutil::magic::filetype \fR
+.sp
+package require \fBwebsocket \fR
+.sp
+package require \fBmime \fR
+.sp
+package require \fBcron \fR
+.sp
+package require \fBuri \fR
+.sp
+package require \fBMarkdown \fR
+.sp
+constructor ?port ?port?? ?myaddr ?ipaddr?|all? ?server_string ?string?? ?server_name ?string??
+.sp
+method \fBadd_uri\fR \fIpattern\fR \fIdict\fR
+.sp
+method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
+.sp
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+.sp
+method \fBcounter\fR \fIwhich\fR
+.sp
+method \fBCheckTimeout\fR
+.sp
+method \fBdispatch\fR \fIheader_dict\fR
+.sp
+method \fBlog\fR \fIargs\fR
+.sp
+method \fBport_listening\fR
+.sp
+method \fBPrefixNormalize\fR \fIprefix\fR
+.sp
+method \fBstart\fR
+.sp
+method \fBstop\fR
+.sp
+method \fBtemplate\fR \fIpage\fR
+.sp
+method \fBTemplateSearch\fR \fIpage\fR
+.sp
+method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
+.sp
+method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
+.sp
+method \fBENSEMBLE::dump\fR
+.sp
+method \fBENSEMBLE::get\fR \fIfield\fR
+.sp
+method \fBENSEMBLE::reset\fR
+.sp
+method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
+.sp
+method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
+.sp
+method \fBENSEMBLE::reset\fR
+.sp
+method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
+.sp
+method \fBhttp_info::netstring\fR
+.sp
+method \fBrequest::parse\fR \fIstring\fR
+.sp
+method \fBreply::output\fR
+.sp
+method \fBclose\fR
+.sp
+method \fBHttpHeaders\fR \fIsock\fR \fI?debug?\fR
+.sp
+method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
+.sp
+method \fBerror\fR \fIcode\fR \fI?message?\fR \fI?errorInfo?\fR
+.sp
+method \fBcontent\fR
+.sp
+method \fBEncodeStatus\fR \fIstatus\fR
+.sp
+method FormData
+.sp
+method MimeParse \fImimetext\fR
+.sp
+method \fBoutput\fR
+.sp
+method \fBDoOutput\fR
+.sp
+method PostData \fIlength\fR
+.sp
+method \fBputs\fR \fIstring\fR
+.sp
+method \fBreset\fR
+.sp
+method \fBtimeOutCheck\fR
+.sp
+method \fBtimestamp\fR
+.sp
+method \fBTransferComplete\fR \fIargs\fR
+.sp
+method \fBUrl_Decode\fR \fIstring\fR
+.sp
+method cgi_info
+.sp
+option \fBpath\fR
+.sp
+option \fBprefix\fR
+.sp
+method proxy_info
+.sp
+method scgi_info
+.sp
+.BE
+.SH DESCRIPTION
+.PP
+This module implements a web server, suitable for embedding in an
+application\&. The server is object oriented, and contains all of the
+fundamentals needed for a full service website\&.
+.PP
+.SH "MINIMAL EXAMPLE"
+Starting a web service requires starting a class of type
+\fBhttpd::server\fR, and providing that server with one or more URIs
+to service, and \fBhttpd::reply\fR derived classes to generate them\&.
+.CS
+
+
+tool::define ::reply\&.hello {
+  method content {} {
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<h1>Hello World!</h1>"
+    my puts </BODY></HTML>
+  }
+}
+::docserver::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1
+HTTPD add_uri /* [list mixin reply\&.hello]
+
+.CE
+.SH "CLASS ::HTTPD::SERVER"
+This class is the root object of the webserver\&. It is responsible
+for opening the socket and providing the initial connection negotiation\&.
+.TP
+constructor ?port ?port?? ?myaddr ?ipaddr?|all? ?server_string ?string?? ?server_name ?string??
+Build a new server object\&. ?port? is the port to listen on
+.TP
+method \fBadd_uri\fR \fIpattern\fR \fIdict\fR
+Set the hander for a URI pattern\&. Information given in the \fIdict\fR is stored
+in the data structure the \fBdispatch\fR method uses\&. If a field called
+\fImixin\fR is given, that class will be mixed into the reply object immediately
+after construction\&.
+.TP
+method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
+Reply to an open socket\&. This method builds a coroutine to manage the remainder
+of the connection\&. The coroutine's operations are driven by the \fBConnect\fR method\&.
+.TP
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+This method reads HTTP headers, and then consults the \fBdispatch\fR method to
+determine if the request is valid, and/or what kind of reply to generate\&. Under
+normal cases, an object of class \fB::http::reply\fR is created\&.
+Fields the server are looking for in particular are:
+class: A class to use instead of the server's own \fIreply_class\fR
+mixin: A class to be mixed into the new object after construction\&.
+All other fields are passed along to the \fBhttp_info\fR structure of the
+reply object\&.
+After the class is created and the mixin is mixed in, the server invokes the
+reply objects \fBdispatch\fR method\&. This action passes control of the socket to
+the reply object\&. The reply object manages the rest of the transaction, including
+closing the socket\&.
+.TP
+method \fBcounter\fR \fIwhich\fR
+Increment an internal counter\&.
+.TP
+method \fBCheckTimeout\fR
+Check open connections for a time out event\&.
+.TP
+method \fBdispatch\fR \fIheader_dict\fR
+Given a key/value list of information, return a data structure describing how
+the server should reply\&.
+.TP
+method \fBlog\fR \fIargs\fR
+Log an event\&. The input for args is free form\&. This method is intended
+to be replaced by the user, and is a noop for a stock http::server object\&.
+.TP
+method \fBport_listening\fR
+Return the actual port that httpd is listening on\&.
+.TP
+method \fBPrefixNormalize\fR \fIprefix\fR
+For the stock version, trim trailing /'s and *'s from a prefix\&. This
+method can be replaced by the end user to perform any other transformations
+needed for the application\&.
+.TP
+method \fBstart\fR
+Open the socket listener\&.
+.TP
+method \fBstop\fR
+Shut off the socket listener, and destroy any pending replies\&.
+.TP
+method \fBtemplate\fR \fIpage\fR
+Return a template for the string \fIpage\fR
+.TP
+method \fBTemplateSearch\fR \fIpage\fR
+Perform a search for the template that best matches \fIpage\fR\&. This
+can include local file searches, in-memory structures, or even
+database lookups\&. The stock implementation simply looks for files
+with a \&.tml or \&.html extension in the ?doc_root? directory\&.
+.TP
+method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
+Given a socket and an ip address, return true if this connection should
+be terminated, or false if it should be allowed to continue\&. The stock
+implementation always returns 0\&. This is intended for applications to
+be able to implement black lists and/or provide security based on IP
+address\&.
+.PP
+.SH "CLASS ::HTTPD::REPLY"
+A class which shephards a request through the process of generating a
+reply\&.
+The socket associated with the reply is available at all times as the \fIchan\fR
+variable\&.
+The process of generating a reply begins with an \fBhttpd::server\fR generating a
+\fBhttp::class\fR object, mixing in a set of behaviors and then invoking the reply
+object's \fBdispatch\fR method\&.
+In normal operations the \fBdispatch\fR method:
+.IP [1]
+Invokes the \fBreset\fR method for the object to populate default headers\&.
+.IP [2]
+Invokes the \fBHttpHeaders\fR method to stream the MIME headers out of the socket
+.IP [3]
+Invokes the \fBrequest parse\fR method to convert the stream of MIME headers into a
+dict that can be read via the \fBrequest\fR method\&.
+.IP [4]
+Stores the raw stream of MIME headers in the \fIrawrequest\fR variable of the object\&.
+.IP [5]
+Invokes the \fBcontent\fR method for the object, generating an call to the \fBerror\fR
+method if an exception is raised\&.
+.IP [6]
+Invokes the \fBoutput\fR method for the object
+.PP
+.PP
+.SH "REPLY METHOD ENSEMBLES"
+The \fBhttp::reply\fR class and its derivatives maintain several variables as dictionaries
+internally\&. Access to these dictionaries is managed through a dedicated ensemble\&. The
+ensemble implements most of the same behaviors as the \fBdict\fR command\&.
+Each ensemble implements the following methods above, beyond, or modifying standard dicts:
+.TP
+method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
+Add \fIelement\fR to a list stored in \fIfield\fR, but only if it is not already present om the list\&.
+.TP
+method \fBENSEMBLE::dump\fR
+Return the current contents of the data structure as a key/value list\&.
+.TP
+method \fBENSEMBLE::get\fR \fIfield\fR
+Return the value of the field \fIfield\fR, or an empty string if it does not exist\&.
+.TP
+method \fBENSEMBLE::reset\fR
+Return a key/value list of the default contents for this data structure\&.
+.TP
+method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
+Remove all instances of \fIelement\fR from the list stored in \fIfield\fR\&.
+.TP
+method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
+Replace the internal dict with the contents of \fIkeyvaluelist\fR
+.TP
+method \fBENSEMBLE::reset\fR
+Replace the internal dict with the default state\&.
+.TP
+method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
+Set the value of \fIfield\fR to \fIvalue\fR\&.
+.PP
+.SH "REPLY METHOD ENSEMBLE: HTTP_INFO"
+Manages HTTP headers passed in by the server\&.
+Ensemble Methods:
+.TP
+method \fBhttp_info::netstring\fR
+Return the contents of this data structure as a netstring encoded block\&.
+.PP
+.SH "REPLY METHOD ENSEMBLE: REQUEST"
+Managed data from MIME headers of the request\&.
+.TP
+method \fBrequest::parse\fR \fIstring\fR
+Replace the contents of the data structure with information encoded in a MIME
+formatted block of text (\fIstring\fR)\&.
+.PP
+.SH "REPLY METHOD ENSEMBLE: REPLY"
+Manage the headers sent in the reply\&.
+.TP
+method \fBreply::output\fR
+Return the contents of this data structure as a MIME encoded block appropriate
+for an HTTP response\&.
+.PP
+.SH "REPLY METHODS"
+.TP
+method \fBclose\fR
+Terminate the transaction, and close the socket\&.
+.TP
+method \fBHttpHeaders\fR \fIsock\fR \fI?debug?\fR
+Stream MIME headers from the socket \fIsock\fR, stopping at an empty line\&. Returns
+the stream as a block of text\&.
+.TP
+method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
+Take over control of the socket \fInewsock\fR, and store that as the \fIchan\fR variable
+for the object\&. This method runs through all of the steps of reading HTTP headers, generating
+content, and closing the connection\&. (See class writetup)\&.
+.TP
+method \fBerror\fR \fIcode\fR \fI?message?\fR \fI?errorInfo?\fR
+Generate an error message of the specified \fIcode\fR, and display the \fImessage\fR as the
+reason for the exception\&. \fIerrorInfo\fR is passed in from calls, but how or if it should be
+displayed is a prerogative of the developer\&.
+.TP
+method \fBcontent\fR
+Generate the content for the reply\&. This method is intended to be replaced by the mixin\&.
+Developers have the option of streaming output to a buffer via the \fBputs\fR method of the
+reply, or simply populating the \fIreply_body\fR variable of the object\&.
+The information returned by the \fBcontent\fR method is not interpreted in any way\&.
+If an exception is thrown (via the \fBerror\fR command in Tcl, for example) the caller will
+auto-generate a 505 {Internal Error} message\&.
+A typical implementation of \fBcontent\fR look like:
+.CS
+
+
+
+tool::define ::test::content\&.file {
+	superclass ::httpd::content\&.file
+	# Return a file
+	# Note: this is using the content\&.file mixin which looks for the reply_file variable
+	# and will auto-compute the Content-Type
+	method content {} {
+	  my reset
+    set doc_root [my http_info get doc_root]
+    my variable reply_file
+    set reply_file [file join $doc_root index\&.html]
+	}
+}
+tool::define ::test::content\&.time {
+  # return the current system time
+	method content {} {
+		my variable reply_body
+    my reply set Content-Type text/plain
+		set reply_body [clock seconds]
+	}
+}
+tool::define ::test::content\&.echo {
+	method content {} {
+		my variable reply_body
+    my reply set Content-Type [my request get Content-Type]
+		set reply_body [my PostData [my request get Content-Length]]
+	}
+}
+tool::define ::test::content\&.form_handler {
+	method content {} {
+	  set form [my FormData]
+	  my reply set Content-Type {text/html; charset=UTF-8}
+    my puts "<HTML><HEADER><TITLE>My Dynamic Page</TITLE></HEADER>"
+    my puts "<BODY>"
+    my puts "You Sent<p>"
+    my puts "<TABLE>"
+    foreach {f v} $form {
+      my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
+    }
+    my puts "</TABLE><p>"
+    my puts "Send some info:<p>"
+    my puts "<FORM action=/[my http_info get REQUEST_PATH] method POST>"
+    my puts "<TABLE>"
+    foreach field {name rank serial_number} {
+      set line "<TR><TH>$field</TH><TD><input name=\\"$field\\" "
+      if {[dict exists $form $field]} {
+        append line " value=\\"[dict get $form $field]\\"""
+      }
+      append line " /></TD></TR>"
+      my puts $line
+    }
+    my puts "</TABLE>"
+    my puts "</BODY></HTML>"
+	}
+}
+
+
+.CE
+.TP
+method \fBEncodeStatus\fR \fIstatus\fR
+Formulate a standard HTTP status header from he string provided\&.
+.TP
+method FormData
+For GET requests, converts the QUERY_DATA header into a key/value list\&.
+For POST requests, reads the Post data and converts that information to
+a key/value list for application/x-www-form-urlencoded posts\&. For multipart
+posts, it composites all of the MIME headers of the post to a singular key/value
+list, and provides MIME_* information as computed by the \fBmime\fR package, including
+the MIME_TOKEN, which can be fed back into the mime package to read out the contents\&.
+.TP
+method MimeParse \fImimetext\fR
+Converts a block of mime encoded text to a key/value list\&. If an exception is encountered,
+the method will generate its own call to the \fBerror\fR method, and immediately invoke
+the \fBoutput\fR method to produce an error code and close the connection\&.
+.TP
+method \fBoutput\fR
+Schedules a call to \fBDoOutput\fR when \fIchan\fR becomes writeable
+.TP
+method \fBDoOutput\fR
+Generates the the HTTP reply, and streams that reply back across \fIchan\fR\&.
+.TP
+method PostData \fIlength\fR
+Stream \fIlength\fR bytes from the \fIchan\fR socket, but only of the request is a
+POST or PUSH\&. Returns an empty string otherwise\&.
+.TP
+method \fBputs\fR \fIstring\fR
+Appends the value of \fIstring\fR to the end of \fIreply_body\fR, as well as a trailing newline
+character\&.
+.TP
+method \fBreset\fR
+Clear the contents of the \fIreply_body\fR variable, and reset all headers in the \fBreply\fR
+structure back to the defaults for this object\&.
+.TP
+method \fBtimeOutCheck\fR
+Called from the \fBhttp::server\fR object which spawned this reply\&. Checks to see
+if too much time has elapsed while waiting for data or generating a reply, and issues
+a timeout error to the request if it has, as well as destroy the object and close the
+\fIchan\fR socket\&.
+.TP
+method \fBtimestamp\fR
+Return the current system time in the format:
+.CS
+
+%a, %d %b %Y %T %Z
+.CE
+.TP
+method \fBTransferComplete\fR \fIargs\fR
+Intended to be invoked from \fBchan copy\fR as a callback\&. This closes every channel
+fed to it on the command line, and then destroys the object\&.
+.CS
+
+
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+    } else {
+      catch {close $sock}
+      chan flush $chan
+      my destroy
+    }
+
+.CE
+.TP
+method \fBUrl_Decode\fR \fIstring\fR
+De-httpizes a string\&.
+.PP
+.SH "CLASS ::HTTPD::CONTENT"
+The httpd module includes several ready to use implementations of content mixins
+for common use cases\&. Options are passed in to the \fBadd_uri\fR method of the server\&.
+.SH "CLASS ::HTTPD::CONTENT\&.CGI"
+An implementation to relay requests to process which will accept post data
+streamed in vie stdin, and sent a reply streamed to stdout\&.
+.TP
+method cgi_info
+Mandatory method to be replaced by the end user\&. If needed, activates the
+process to proxy, and then returns a list of three values:
+\fIexec\fR - The arguments to send to exec to fire off the responding process, minus the stdin/stdout redirection\&.
+.PP
+.SH "CLASS ::HTTPD::CONTENT\&.FILE"
+An implementation to deliver files from the local file system\&.
+.TP
+option \fBpath\fR
+The root directory on the local file system to be exposed via http\&.
+.TP
+option \fBprefix\fR
+The prefix of the URI portion to ignore when calculating relative file paths\&.
+.PP
+.SH "CLASS ::HTTPD::CONTENT\&.PROXY"
+An implementation to relay requests to another HTTP server, and relay
+the results back across the request channel\&.
+.TP
+method proxy_info
+Mandatory method to be replaced by the end user\&. If needed, activates the
+process to proxy, and then returns a list of three values:
+\fIproxyhost\fR - The hostname where the proxy is located
+\fIproxyport\fR - The port to connect to
+\fIproxyscript\fR - A pre-amble block of text to send prior to the mirrored request
+.PP
+.SH "CLASS ::HTTPD::CONTENT\&.SCGI"
+An implementation to relay requests to a server listening on a socket
+expecting SCGI encoded requests, and relay
+the results back across the request channel\&.
+.TP
+method scgi_info
+Mandatory method to be replaced by the end user\&. If needed, activates the
+process to proxy, and then returns a list of three values:
+\fIscgihost\fR - The hostname where the scgi listener is located
+\fIscgiport\fR - The port to connect to
+\fIscgiscript\fR - The contents of the \fISCRIPT_NAME\fR header to be sent
+.PP
+.SH "CLASS ::HTTPD::CONTENT\&.WEBSOCKET"
+A placeholder for a future implementation to manage requests that can expect to be
+promoted to a Websocket\&. Currently it is an empty class\&.
+.SH "SCGI SERVER FUNCTIONS"
+The HTTP module also provides an SCGI server implementation, as well as an HTTP
+implementation\&. To use the SCGI functions, create an object of the \fBhttp::server\&.scgi\fR
+class instead of the \fBhttp::server\fR class\&.
+.SH "CLASS ::HTTPD::REPLY\&.SCGI"
+An modified \fBhttp::reply\fR implementation that understands how to deal with
+netstring encoded headers\&.
+.SH "CLASS ::HTTPD::SERVER\&.SCGI"
+A modified \fBhttp::server\fR which is tailored to replying to request according to
+the SCGI standard instead of the HTTP standard\&.
+.SH AUTHORS
+Sean Woods
+.SH "BUGS, IDEAS, FEEDBACK"
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
+Please report such in the category \fInetwork\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
+.PP
+When proposing code changes, please provide \fIunified diffs\fR,
+i\&.e the output of \fBdiff -u\fR\&.
+.PP
+Note further that \fIattachments\fR are strongly preferred over
+inlined patches\&. Attachments can be made by going to the \fBEdit\fR
+form of the ticket immediately after its creation, and then using the
+left-most button in the secondary navigation bar\&.
+.SH KEYWORDS
+TclOO, WWW, http, httpd, httpserver, services
+.SH CATEGORY
+Networking
+.SH COPYRIGHT
+.nf
+Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
+
+.fi

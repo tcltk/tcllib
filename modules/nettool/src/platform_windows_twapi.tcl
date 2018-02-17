@@ -1,4 +1,5 @@
-package require twapi
+if {$::tcl_platform(platform) eq "windows" && ![catch {package require twapi}]} {
+# TWAPI Based implementation
 
 ::namespace eval ::nettool {}
 
@@ -27,16 +28,7 @@ proc ::nettool::hwaddr_to_ipaddr args {
   return [::twapi::hwaddr_to_ipaddr {*}$args]
 }
 
-###
-# topic: dd2e2c0810cea69909399808f2a68949
-# title: Return a list of unique hardware ids
-###
-proc ::nettool::hwid_list {} {
-  # Use the serial number on the hard drive
-  catch {exec {*}[auto_execok vol] c:} voldat
-  set num [lindex [lindex [split $voldat \n] end] end]
-  return 0x[string map {- {}} $num]
-}
+
 
 if {[info command ::twapi::get_netif_indices] ne {}} {
 ###
@@ -53,12 +45,11 @@ proc ::nettool::if_list {} {
 # title: Return list of mac numbers for this computer (primary first)
 ###
 proc ::nettool::mac_list {} {
-  
   set result {}
   foreach iface [::twapi::get_netif_indices] {
     foreach {field value} [::twapi::get_netif_info $iface -physicaladdress] {
       if { $value eq {} } continue
-      lappend result [string map {- :} $value] 
+      lappend result [string map {- :} $value]
     }
   }
   return $result
@@ -75,7 +66,7 @@ proc ::nettool::network_list {} {
       foreach {addr ifindx netmask broadcast reamsize} $element break;
       set mask [::ip::maskToInt $netmask]
       set addri [::ip::toInteger $addr]
-      lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $netmask] -ipv4]    
+      lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $netmask] -ipv4]
     }
   }
   return [lsort -unique $result]
@@ -90,7 +81,7 @@ proc ::nettool::if_list {} {
 
 if {[info commands ::twapi::get_network_adapter_info] ne {}} {
 proc ::nettool::mac_list {} {
-  
+
   set result {}
   foreach iface [if_list] {
     set dat [::twapi::get_network_adapter_info $iface -physicaladdress]
@@ -101,7 +92,7 @@ proc ::nettool::mac_list {} {
   }
   return $result
 }
-  
+
 proc ::nettool::network_list {} {
   set result {}
   foreach iface [if_list] {
@@ -122,20 +113,6 @@ proc ::nettool::network_list {} {
 }
 }
 
-
-###
-# topic: 92ebbfa155883ad41c37d3f843392be4
-# title: Return list of broadcast addresses for local networks
-###
-proc ::nettool::broadcast_list {} {
-  set result {}
-  lappend result 127.0.0.1
-  foreach net [network_list] {
-    if {$net in {224.0.0.0/4 127.0.0.0/8}} continue
-    lappend result [::ip::broadcastAddress $net]
-  }
-  return [lsort -unique -dictionary $result]
-}
 ###
 # topic: 417672d3f31b80d749588365af88baf6
 # title: Return list of ip addresses for this computer (primary first)
@@ -149,13 +126,21 @@ proc ::nettool::ip_list {} {
 }
 } elseif {[info commands ::twapi::get_system_ipaddrs] ne {}} {
 # They changed commands names on me...
+if {[catch {::twapi::get_system_ipaddrs -version 4}]} {
+# THEY CHANGED THE API ON ME!
+proc ::nettool::ip_list {} {
+  set result [::twapi::get_system_ipaddrs -ipversion 4]
+  ldelete result 127.0.0.1
+  return $result
+}
+} else {
 proc ::nettool::ip_list {} {
   set result [::twapi::get_system_ipaddrs -version 4]
   ldelete result 127.0.0.1
   return $result
 }
 }
-
+}
 
 
 proc ::nettool::status {} {
@@ -180,8 +165,4 @@ proc ::nettool::status {} {
   dict set result load [expr {$usage/$cpus}]
   dict set result uptime [::twapi::get_system_uptime]
 }
-
-proc ::nettool::user_data_root {appname} {
-  return [file join $::env(APPDATA) $appname]
 }
-package provide nettool::platform::windows 0.2

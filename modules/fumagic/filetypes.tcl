@@ -4,7 +4,7 @@
 #	generated from /usr/share/misc/magic.mime. Limited output,
 #	but only mime-types, i.e. standardized.
 #
-# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
+# Copyright (c) 2016-2017 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
 # Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
@@ -27,7 +27,7 @@
 ## Requirements.
 
 package require Tcl 8.6
-package require fileutil::magic::rt    ; # We need the runtime core.
+package require fileutil::magic::rt 2   ; # We need the runtime core v2.
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -94,7 +94,7 @@ proc ::fileutil::magic::filetype::tests {} {
     return
 }
 
-package provide fileutil::magic::filetype 1.2.0
+package provide fileutil::magic::filetype 2.0
 # The actual recognizer is the command below.
 
 ##

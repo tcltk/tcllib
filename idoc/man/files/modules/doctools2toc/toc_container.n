@@ -461,18 +461,18 @@ The result of the method is the empty string\&.
 \fIobjectName\fR \fBup\fR \fIid\fR
 This method returns the handle of the parent for the element
 identified by its handle \fIid\fR, or the empty string if \fIid\fR
-refered to the root element\&.
+referred to the root element\&.
 .TP
 \fIobjectName\fR \fBnext\fR \fIid\fR
 This method returns the handle of the right sibling for the element
 identified by its handle \fIid\fR, or the handle of the parent if the
-element has no right sibling, or the empty string if \fIid\fR refered
+element has no right sibling, or the empty string if \fIid\fR referred
 to the root element\&.
 .TP
 \fIobjectName\fR \fBprev\fR \fIid\fR
 This method returns the handle of the left sibling for the element
 identified by its handle \fIid\fR, or the handle of the parent if the
-element has no left sibling, or the empty string if \fIid\fR refered
+element has no left sibling, or the empty string if \fIid\fR referred
 to the root element\&.
 .TP
 \fIobjectName\fR \fBchild\fR \fIid\fR \fIlabel\fR ?\fI\&.\&.\&.\fR?

@@ -116,7 +116,7 @@ set semantics [string trimright \
 
 set tests [file join [file dirname [info script]] me_cpucore.testsuite]
 
-catch {memory validate on}
+#catch {memory validate on}
 
 set impl tcl
 set usec [time {source $tests} 1]

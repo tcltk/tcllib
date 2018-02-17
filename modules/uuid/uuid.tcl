@@ -111,7 +111,6 @@ if {[string equal $tcl_platform(platform) "windows"]
             UUID uuid = {0};
             HMODULE hLib;
             LPFNUUIDCREATE lpfnUuidCreate = NULL;
-
             hLib = LoadLibraryA(("rpcrt4.dll"));
             if (hLib)
                 lpfnUuidCreate = (LPFNUUIDCREATE)
@@ -229,7 +228,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid 1.0.5
+package provide uuid 1.0.6
 
 # -------------------------------------------------------------------------
 # Local variables:
