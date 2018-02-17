@@ -116,6 +116,7 @@ Changes from Tcllib 1.18 to 1.19
     tool               tool                        0.5         0.7       B D EF T
     units              units                       2.1.1       2.2.1     B EF T
     uri                uri                         1.2.6       1.2.7     B D T
+    uuid               uuid                        1.0.5       1.0.6     B
     valtype            valtype::iban               1.5         1.7       D EF T
     ------------------ --------------------------- ----------- --------- --------------
     virtchannel_base   tcl::chan::memchan          1.0.3       1.0.4     B D T
@@ -272,7 +273,7 @@ Unchanged
     transfer::data::destination, transfer::data::source,
     transfer::receiver, transfer::transmitter, treeql, uevent,
     uevent::onidle, unicode, unicode::data, uri::urn, uuencode,
-    uuid, valtype::common, valtype::creditcard::amex,
+    valtype::common, valtype::creditcard::amex,
     valtype::creditcard::discover, valtype::creditcard::mastercard,
     valtype::creditcard::visa, valtype::gs1::ean13, valtype::imei,
     valtype::isbn, valtype::luhn, valtype::luhn5, valtype::usnpi,
