@@ -272,7 +272,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tool \- Dictionary Tools
+tool \- TclOO Library (TOOL) Framework
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
@@ -524,7 +524,7 @@ Sean Woods
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fItool\fR of the
+Please report such in the category \fItcloo\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
@@ -537,9 +537,9 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
-TOOL, TclOO
+TOOL, TclOO, framework
 .SH CATEGORY
-Utility
+TclOO
 .SH COPYRIGHT
 .nf
 Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>

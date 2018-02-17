@@ -138,7 +138,7 @@ proc tsdump {ser} {
 
 set tests [file join [file dirname [info script]] me_util.testsuite]
 
-catch {memory validate on}
+#catch {memory validate on}
 
 TestAccelDo struct::tree impl {
     # The global variable 'impl' is part of the public API the

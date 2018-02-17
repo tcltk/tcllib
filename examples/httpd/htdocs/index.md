@@ -20,3 +20,11 @@ Internal documentation for httpd:
     * [File handler](content.file.md)
     * [SCGI handler](content.scgi.md)
     * [Proxy handler](content.proxy.md)
+
+_Upload Test_
+
+<form action=/upload method="POST" enctype="multipart/form-data">
+<input name=path />
+<input type="file" name=filename />
+<input type=submit />
+</form>

@@ -443,6 +443,12 @@ proc gd-gen-archives {} {
             puts "    Bzipped tarball (${package_nv}.tar.bz2)..."
             exec tar cf - ${package_nv} | bzip2 > ${package_nv}.tar.bz2
         }
+
+	set xz [auto_execok xz]
+        if {$xz != {}} {
+            puts "    Xzipped tarball (${package_nv}.tar.xz)..."
+            exec tar cf - ${package_nv} | xz > ${package_nv}.tar.xz
+        }
     }
 
     set zip [auto_execok zip]

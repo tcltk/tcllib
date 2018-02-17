@@ -615,10 +615,10 @@ The \fItype\fR of a reference can be one of two values,
 .TP
 \fBmanpage\fR
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for\&.
+referring to one of the documents the index was made for\&.
 .TP
 \fBurl\fR
-The identifier of the reference is interpreted as an url, refering to
+The identifier of the reference is interpreted as an url, referring to
 some external location, like a website, etc\&.
 .RE
 .RE

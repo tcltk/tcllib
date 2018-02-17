@@ -6,38 +6,165 @@ package require cron 2.0
 
 ::namespace eval ::processman {}
 
-if { $::tcl_platform(platform) eq "windows" } {
-  package require twapi
-} else {
-  ###
-  # Try to utilize C level utilities that are bundled
-  # with either TclX or Odielib
-  ###
-  if [catch {package require odielibc}] {
-    catch {package require Tclx}
+###
+# Attempt to locate some C - API helpers
+###
+set ::processman::api tcl
+foreach {command package api} {
+  {::twapi::process_exists} twapi    twapi
+  umask                     tclx     tclx
+  subprocess_exists         tclextra tclextra
+  {}                        odielibc tclextra
+} {
+  if {[info commands $command] ne {}} {
+    set ::processman::api $api
+    break
   }
-  if {[info commands subprocess_exists] eq {}} {
-    proc ::processman::subprocess_exists pid {
-      set dat [exec ps]
-      foreach line [split $dat \n] {
-        if {![scan $line "%d %s" thispid rest]} continue
-        if { $thispid eq $pid} {
-          return $thispid
+  if {![catch {package require $package}]} {
+    set ::processman::api $api
+    break
+  }
+}
+
+switch $api {
+tclx {
+proc ::processman::kill_subprocess pid {
+  catch {::kill $pid}
+}
+}
+tclextra {
+proc ::processman::kill_subprocess pid {
+  catch {::kill_subprocess $pid}
+}
+
+}
+twapi {
+  
+proc ::processman::priority {id level} {
+  foreach pid [PIDLIST $id] {
+    switch $level {
+      background {
+        if  {[catch {twapi::set_priority_class $pid 0x00104000} err]} {
+          puts "BG Mode failed - $err"
+          twapi::set_priority_class $pid 0x00004000
         }
       }
-      return 0
-    }
-  }
-  if {[info commands kill_subprocess] eq {}} {
-    proc ::processman::kill_subprocess pid {
-      catch {exec kill $pid}
+      low {
+        twapi::set_priority_class $pid 0x00004000
+      }
+      high {
+        twapi::set_priority_class $pid 0x00000020
+      }
+      default {
+        twapi::set_priority_class $pid 0x00008000
+      }
     }
   }
 }
-if {[info commands harvest_zombies] eq {}} {
-  proc ::processman::harvest_zombies args {
+proc ::processman::killexe name {
+  set pids [twapi::get_process_ids -name $name.exe]
+  foreach pid $pids {
+    # Catch the error in case process does not exist any more
+    if {[catch {twapi::end_process $pid} err]} {
+      puts $err
+    }
+  }
+  #catch {exec taskkill /F /IM $name.exe} err
+  #puts $err
+}
+proc ::processman::kill_subprocess pid {
+  if {[catch {::twapi::end_process $pid} err]} {
+    puts $err
   }
 }
+proc ::processman::subprocess_exists pid {
+  return [::twapi::process_exists $pid]
+}
+proc ::processman::keep_machine_awake {truefalse} {
+  if {[string is true -strict $truefalse]} {
+    twapi::SetThreadExecutionState 0x80000040
+  } else {
+    twapi::SetThreadExecutionState 0x00000000
+  }
+}
+}
+default {}
+}
+
+###
+# Create fallback implementations for functions we don't have a
+# C API call for
+###
+
+proc ::processman::fallback {name arglist body} {
+  if {[info commands ::${name}] eq {} && [info commands ::processman::${name}] eq {} } {
+    ::proc ::processman::${name} $arglist $body
+  }
+
+}
+
+# title: Keep the machine from going to sleep
+::processman::fallback keep_machine_awake {truefalse} {
+}
+
+::processman::fallback killexe name {
+  if {[catch {exec killall -9 $name} err]} {
+    puts $err
+  }
+  harvest_zombies
+}
+
+###
+# title: Detect a running process
+# usage: subprocess_exists PID
+# description:
+#  Returns true if PID is running. If PID is an integer
+#  it is interpreted as Process Id from the operating system.
+#  Otherwise it is assumed to be a handle previously registered
+#  with the processman package
+###
+::processman::fallback subprocess_exists pid {
+  set dat [exec ps]
+  foreach line [split $dat \n] {
+    if {![scan $line "%d %s" thispid rest]} continue
+    if { $thispid eq $pid} {
+      return $thispid
+    }
+  }
+  return 0
+}
+
+# title: Changes priority of task
+::processman::fallback priority {id level} {
+  if {$::tcl_platform(platform) eq "windows"} {
+    return
+  }
+  foreach pid [PIDLIST $id] {
+    switch $level {
+      background {
+        exec renice -n 20 -p $pid
+      }
+      low {
+        exec renice -n 10 -p $pid
+      }
+      high {
+        exec renice -n -5 -p $pid
+      }
+      default {
+        exec renice -n 0 -p $pid
+      }
+    }
+  }
+}
+
+::processman::fallback kill_subprocess pid {
+  catch {exec kill $pid}
+}
+
+::processman::fallback harvest_zombies args {
+}
+
+
 
 ###
 # topic: a0cdb7503872cd302756c732956cd5c3
@@ -72,6 +199,17 @@ proc ::processman::find_exe name {
   return $f
 }
 
+proc ::processman::PIDLIST id {
+  variable process_list
+  if {[string is integer -strict $id]} {
+    return $id
+  }
+  if {[dict exists $process_list $id]} {
+    return [dict get $process_list $id]
+  }
+  return {}
+}
+
 ###
 # topic: ac021b1116f0c1d5e3319d9f333f0c89
 # title: Kill a process
@@ -80,19 +218,13 @@ proc ::processman::kill id {
   variable process_list
   variable process_binding
   global tcl_platform
-
-  if {![dict exists $process_list $id]} {
-    return
+  foreach pid [PIDLIST $id] {
+    kill_subprocess $pid
   }
-  foreach pid [dict get $process_list $id] {
-    if { $tcl_platform(platform) eq "unix" } {
-      catch {kill_subprocess $pid}
-    } elseif { $tcl_platform(platform) eq "windows" } {
-      catch {::twapi::end_process $pid}
-    }
+  if {![string is integer $id]} {
+    dict set process_list $id {}
+    dict unset process_binding $id
   }
-  dict set process_list $id {}
-  dict unset process_binding $id
   harvest_zombies
 }
 
@@ -112,26 +244,6 @@ proc ::processman::kill_all {} {
 }
 
 ###
-# topic: 17a9014236425560140ba62bbb2745a8
-# title: Kill a process
-###
-proc ::processman::killexe name {
-  if {$::tcl_platform(platform) eq "windows" } {
-    set pids [twapi::get_process_ids -name $name.exe]
-    foreach pid $pids {
-        # Catch the error in case process does not exist any more
-        catch {twapi::end_process $pid}
-    }
-    #catch {exec taskkill /F /IM $name.exe} err
-    puts $err
-  } else {
-    catch {exec killall -9 $name} err
-    ##puts $err
-  }
-  harvest_zombies
-}
-
-###
 # topic: 02406b2a7edd05c887554384ad2db41f
 # title: Issue a command when process {$id} exits
 ###
@@ -142,57 +254,6 @@ proc ::processman::onexit {id cmd} {
     return
   }
   dict set process_binding $id $cmd
-}
-
-###
-# topic: ee784ae29e5b66867a30428b3095dc65
-# title: Changes priority of task
-###
-proc ::processman::priority {id level} {
-  variable process_list
-
-  set pid [running $id]
-  if {![string is integer $pid]} {
-    set pid 0
-  }
-  if {!$pid} {
-    return
-  }
-  if { $::tcl_platform(platform) eq "windows" } {
-    package require twapi
-    switch $level {
-      background {
-        if  {[catch {twapi::set_priority_class $pid 0x00104000} err]} {
-          puts "BG Mode failed - $err"
-          twapi::set_priority_class $pid 0x00004000
-        }
-      }
-      low {
-        twapi::set_priority_class $pid 0x00004000
-      }
-      high {
-        twapi::set_priority_class $pid 0x00000020
-      }
-      default {
-        twapi::set_priority_class $pid 0x00008000
-      }
-    }
-  } else {
-    switch $level {
-      background {
-        exec renice -n 20 -p $pid
-      }
-      low {
-        exec renice -n 10 -p $pid
-      }
-      high {
-        exec renice -n -5 -p $pid
-      }
-      default {
-        exec renice -n 0 -p $pid
-      }
-    }
-  }
 }
 
 ###
@@ -233,14 +294,8 @@ proc ::processman::running id {
     set pidlist $id
   }
   foreach pid $pidlist {
-    if { $::tcl_platform(platform) eq "windows" } {
-      if {[::twapi::process_exists $pid]} {
-        return $pid
-      }
-    } else {
-      if {[subprocess_exists $pid]} {
-        return $pid
-      }
+    if {[subprocess_exists $pid]} {
+      return $pid
     }
   }
   return 0
@@ -285,5 +340,5 @@ if {![info exists process_binding]} {
 
 ::cron::every processman 60 ::processman::events
 
-package provide odie::processman 0.4
-package provide processman 0.4
+package provide odie::processman 0.5
+package provide processman 0.5

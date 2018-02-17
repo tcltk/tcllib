@@ -27,6 +27,13 @@ proc ::nettool::busy {} {}
 proc ::nettool::cpuinfo {} {}
 
 ###
+# Clear discovered info
+###
+proc ::nettool::discover {} {
+  unset -nocomplain ::nettool::ipinfo ::nettool::macinfo
+}
+
+###
 # topic: 58295f2544f43827e855d09dc3ee625a
 ###
 proc ::nettool::diskless_client {} {
@@ -91,8 +98,3 @@ proc ::nettool::platform {} {
 proc ::nettool::user_data_root {appname} {
   return [file join $::env(HOME) .$appname]
 }
-
-###
-# Provide empty implementations
-###
-

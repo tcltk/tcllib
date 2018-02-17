@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'markdown\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "markdown" n 1\&.0 tcllib "Markdown to HTML Converter"
+.TH "markdown" n 1\&.1 tcllib "Markdown to HTML Converter"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,17 @@ markdown \- Converts Markdown text to HTML
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBMarkdown  1\&.1\fR
+.sp
 package require \fBtextutil  ?0\&.8?\fR
 .sp
 \fB::Markdown::convert\fR \fImarkdown\fR
+.sp
+\fB::Markdown::register\fR \fIlangspec\fR \fIconverter\fR
+.sp
+\fB::Markdown::get_lang_counter\fR
+.sp
+\fB::Markdown::reset_lang_counter\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -287,6 +295,31 @@ Markdown annotated text into HMTL\&.
 \fB::Markdown::convert\fR \fImarkdown\fR
 This command takes in a block of Markdown text, and returns a block
 of HTML\&.
+.sp
+The converter supports two types of syntax highlighting for
+fenced code blocks: highlighting via a registered converter
+(see \fB::Markdown::register\fR), or pure JavaScript highlighting,
+e\&.g\&. via "highlight\&.js", where the language specifier used in the
+markup is set as CSS class of the "code" element in the returned markup\&.
+.TP
+\fB::Markdown::register\fR \fIlangspec\fR \fIconverter\fR
+Register a language specific converter for prettifying a code block
+(e\&.g\&. syntax highlighting)\&.  Markdown supports fenced code blocks with
+an optional language specifier (e\&.g\&. "tcl")\&. When the markdown parser
+processes such a code block and a converter for the specified langspec
+is registered, the converter is called with the raw code block as
+argument\&. The converter is supposed to return the markup of the code
+block as result\&. The specified converter can be an arbitrary Tcl
+command, the raw text block is added as last argument upon invocation\&.
+.TP
+\fB::Markdown::get_lang_counter\fR
+Return a dict of language specifier and number of occurrences in
+fenced code blocks\&. This function can be used e\&.g\&. to detect, whether
+some CSS or JavaScript headers should be included for rendering
+without the need of postprocessing the rendered result\&.
+.TP
+\fB::Markdown::reset_lang_counter\fR
+Reset the language counters\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

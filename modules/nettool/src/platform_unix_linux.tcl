@@ -1,4 +1,4 @@
-::namespace eval ::nettool {}
+if {$::tcl_platform(platform) eq "unix" && $genus eq "linux"} {
 
 ###
 # topic: 92ebbfa155883ad41c37d3f843392be4
@@ -52,13 +52,13 @@ proc ::nettool::cpuinfo args {
           dict set cpuinfo stepping $value
         }
         vendor_id {
-          dict set cpuinfo vendor $value          
+          dict set cpuinfo vendor $value
         }
         {model name} {
-          dict set cpuinfo brand $value                    
+          dict set cpuinfo brand $value
         }
         {cpu MHz} {
-          dict set cpuinfo speed $value          
+          dict set cpuinfo speed $value
         }
         flags {
           dict set cpuinfo features $value
@@ -169,7 +169,7 @@ proc ::nettool::network_list {} {
     set addr [dict get $info ipv4 addr:]
     set mask [dict get $info ipv4 Mask:]
     set addri [::ip::toInteger $addr]
-    lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $mask] -ipv4]    
+    lappend result [ip::nativeToPrefix [list [expr {$addri & $mask}] $mask] -ipv4]
   }
   return $result
 }
@@ -183,7 +183,7 @@ proc ::nettool::status {} {
   dict set result load_average    [lrange $dat 0 2]
   set cpus [cpuinfo cpus].0
   dict set result load [expr {[lindex $dat 0]/$cpus}]
-  
+
   set processes [split [lindex $dat 3] /]
   dict set result processes_running [lindex $processes 0]
   dict set result processes_total [lindex $processes 1]
@@ -221,4 +221,4 @@ proc ::nettool::uptime_report {} {
 }
 
 unset -nocomplain ::nettool::cpuinfo
-
+}
