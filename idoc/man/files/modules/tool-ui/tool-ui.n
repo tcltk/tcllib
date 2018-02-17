@@ -306,9 +306,9 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
-TclOO, odielib, tao
+TclOO
 .SH CATEGORY
-Object System
+TclOO
 .SH COPYRIGHT
 .nf
 Copyright (c) 2014-2018 Sean Woods <yoda@etoyoc\&.com>
