@@ -108,32 +108,34 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">tool(n) 4.1.0 tcllib &quot;Tcl Web Server&quot;</h1>
+<h1 class="doctools_title">tool(n) 4.1.1 tcllib &quot;Tcl Web Server&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
-<p>tool - A TclOO based update to tclhttpd</p>
+<p>tool - A TclOO and coroutine based web server</p>
 </div>
 <div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Class ::httpd::server</a></li>
-<li class="doctools_section"><a href="#section3">Class ::httpd::reply</a></li>
-<li class="doctools_section"><a href="#section4">Reply Method Ensembles</a></li>
-<li class="doctools_section"><a href="#section5">Reply Method Ensemble: http_info</a></li>
-<li class="doctools_section"><a href="#section6">Reply Method Ensemble: request</a></li>
-<li class="doctools_section"><a href="#section7">Reply Method Ensemble: reply</a></li>
-<li class="doctools_section"><a href="#section8">Reply Methods</a></li>
-<li class="doctools_section"><a href="#section9">Class ::httpd::content</a></li>
-<li class="doctools_section"><a href="#section10">Class ::httpd::content.file</a></li>
-<li class="doctools_section"><a href="#section11">Class ::httpd::content.proxy</a></li>
-<li class="doctools_section"><a href="#section12">Class ::httpd::content.scgi</a></li>
-<li class="doctools_section"><a href="#section13">Class ::httpd::content.websocket</a></li>
-<li class="doctools_section"><a href="#section14">SCGI Server Functions</a></li>
-<li class="doctools_section"><a href="#section15">Class ::httpd::reply.scgi</a></li>
-<li class="doctools_section"><a href="#section16">Class ::httpd::server.scgi</a></li>
-<li class="doctools_section"><a href="#section17">AUTHORS</a></li>
-<li class="doctools_section"><a href="#section18">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">Minimal Example</a></li>
+<li class="doctools_section"><a href="#section3">Class ::httpd::server</a></li>
+<li class="doctools_section"><a href="#section4">Class ::httpd::reply</a></li>
+<li class="doctools_section"><a href="#section5">Reply Method Ensembles</a></li>
+<li class="doctools_section"><a href="#section6">Reply Method Ensemble: http_info</a></li>
+<li class="doctools_section"><a href="#section7">Reply Method Ensemble: request</a></li>
+<li class="doctools_section"><a href="#section8">Reply Method Ensemble: reply</a></li>
+<li class="doctools_section"><a href="#section9">Reply Methods</a></li>
+<li class="doctools_section"><a href="#section10">Class ::httpd::content</a></li>
+<li class="doctools_section"><a href="#section11">Class ::httpd::content.cgi</a></li>
+<li class="doctools_section"><a href="#section12">Class ::httpd::content.file</a></li>
+<li class="doctools_section"><a href="#section13">Class ::httpd::content.proxy</a></li>
+<li class="doctools_section"><a href="#section14">Class ::httpd::content.scgi</a></li>
+<li class="doctools_section"><a href="#section15">Class ::httpd::content.websocket</a></li>
+<li class="doctools_section"><a href="#section16">SCGI Server Functions</a></li>
+<li class="doctools_section"><a href="#section17">Class ::httpd::reply.scgi</a></li>
+<li class="doctools_section"><a href="#section18">Class ::httpd::server.scgi</a></li>
+<li class="doctools_section"><a href="#section19">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section20">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -143,7 +145,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">httpd <span class="opt">?4.1.0?</span></b></li>
+<li>package require <b class="pkgname">httpd <span class="opt">?4.1.1?</span></b></li>
 <li>package require <b class="pkgname">sha1</b></li>
 <li>package require <b class="pkgname">dicttool</b></li>
 <li>package require <b class="pkgname">oo::meta</b></li>
@@ -156,6 +158,7 @@
 <li>package require <b class="pkgname">mime</b></li>
 <li>package require <b class="pkgname">cron</b></li>
 <li>package require <b class="pkgname">uri</b></li>
+<li>package require <b class="pkgname">Markdown</b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1">constructor ?port <span class="opt">?port?</span>? ?myaddr <span class="opt">?ipaddr?</span>|all? ?server_string <span class="opt">?string?</span>? ?server_name <span class="opt">?string?</span>?</a></li>
@@ -173,17 +176,17 @@
 <li><a href="#13">method <b class="cmd">template</b> <i class="arg">page</i></a></li>
 <li><a href="#14">method <b class="cmd">TemplateSearch</b> <i class="arg">page</i></a></li>
 <li><a href="#15">method <b class="cmd">Validate_Connection</b> <i class="arg">sock</i> <i class="arg">ip</i></a></li>
-<li><a href="#16">method <b class="cmd">add</b> <i class="arg">field</i> <i class="arg">element</i></a></li>
-<li><a href="#17">method <b class="cmd">dump</b></a></li>
-<li><a href="#18">method <b class="cmd">get</b> <i class="arg">field</i></a></li>
-<li><a href="#19">method <b class="cmd">reset</b></a></li>
-<li><a href="#20">method <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">field</i> <i class="arg">element</i></a></li>
-<li><a href="#21">method <b class="cmd">replace</b> <i class="arg">keyvaluelist</i></a></li>
-<li><a href="#22">method <b class="cmd">reset</b></a></li>
-<li><a href="#23">method <b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">field</i> <i class="arg">value</i></a></li>
-<li><a href="#24">method <b class="cmd">netstring</b></a></li>
-<li><a href="#25">method <b class="cmd">parse</b> <i class="arg">string</i></a></li>
-<li><a href="#26">method <b class="cmd">output</b></a></li>
+<li><a href="#16">method <b class="cmd">ENSEMBLE::add</b> <i class="arg">field</i> <i class="arg">element</i></a></li>
+<li><a href="#17">method <b class="cmd">ENSEMBLE::dump</b></a></li>
+<li><a href="#18">method <b class="cmd">ENSEMBLE::get</b> <i class="arg">field</i></a></li>
+<li><a href="#19">method <b class="cmd">ENSEMBLE::reset</b></a></li>
+<li><a href="#20">method <b class="cmd">ENSEMBLE::remove</b> <i class="arg">field</i> <i class="arg">element</i></a></li>
+<li><a href="#21">method <b class="cmd">ENSEMBLE::replace</b> <i class="arg">keyvaluelist</i></a></li>
+<li><a href="#22">method <b class="cmd">ENSEMBLE::reset</b></a></li>
+<li><a href="#23">method <b class="cmd">ENSEMBLE::set</b> <i class="arg">field</i> <i class="arg">value</i></a></li>
+<li><a href="#24">method <b class="cmd">http_info::netstring</b></a></li>
+<li><a href="#25">method <b class="cmd">request::parse</b> <i class="arg">string</i></a></li>
+<li><a href="#26">method <b class="cmd">reply::output</b></a></li>
 <li><a href="#27">method <b class="cmd">close</b></a></li>
 <li><a href="#28">method <b class="cmd">HttpHeaders</b> <i class="arg">sock</i> <i class="arg">?debug?</i></a></li>
 <li><a href="#29">method <b class="cmd">dispatch</b> <i class="arg">newsock</i> <i class="arg">datastate</i></a></li>
@@ -198,13 +201,14 @@
 <li><a href="#38">method <b class="cmd">puts</b> <i class="arg">string</i></a></li>
 <li><a href="#39">method <b class="cmd">reset</b></a></li>
 <li><a href="#40">method <b class="cmd">timeOutCheck</b></a></li>
-<li><a href="#41">method <b class="cmd"><a href="../../../../index.html#key711">timestamp</a></b></a></li>
+<li><a href="#41">method <b class="cmd"><a href="../../../../index.html#key714">timestamp</a></b></a></li>
 <li><a href="#42">method <b class="cmd">TransferComplete</b> <i class="arg">args</i></a></li>
 <li><a href="#43">method <b class="cmd">Url_Decode</b> <i class="arg">string</i></a></li>
-<li><a href="#44">option <b class="cmd">path</b></a></li>
-<li><a href="#45">option <b class="cmd"><a href="../../../../index.html#key693">prefix</a></b></a></li>
-<li><a href="#46">method proxy_info</a></li>
-<li><a href="#47">method scgi_info</a></li>
+<li><a href="#44">method cgi_info</a></li>
+<li><a href="#45">option <b class="cmd">path</b></a></li>
+<li><a href="#46">option <b class="cmd"><a href="../../../../index.html#key695">prefix</a></b></a></li>
+<li><a href="#47">method proxy_info</a></li>
+<li><a href="#48">method scgi_info</a></li>
 </ul>
 </div>
 </div>
@@ -213,7 +217,23 @@
 application. The server is object oriented, and contains all of the
 fundamentals needed for a full service website.</p>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Class ::httpd::server</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Minimal Example</a></h2>
+<p>Starting a web service requires starting a class of type
+<b class="cmd">httpd::server</b>, and providing that server with one or more URIs
+to service, and <b class="cmd">httpd::reply</b> derived classes to generate them.</p>
+<pre class="doctools_example">
+tool::define ::reply.hello {
+  method content {} {
+    my puts &quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;IRM Dispatch Server&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;&quot;
+    my puts &quot;&lt;h1&gt;Hello World!&lt;/h1&gt;&quot;
+    my puts &lt;/BODY&gt;&lt;/HTML&gt;
+  }
+}
+::docserver::server create HTTPD port 8015 myaddr 127.0.0.1
+HTTPD add_uri /* [list mixin reply.hello]
+</pre>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Class ::httpd::server</a></h2>
 <p>This class is the root object of the webserver. It is responsible
 for opening the socket and providing the initial connection negotiation.</p>
 <dl class="doctools_definitions">
@@ -275,7 +295,7 @@ be able to implement black lists and/or provide security based on IP
 address.</p></dd>
 </dl>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">Class ::httpd::reply</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Class ::httpd::reply</a></h2>
 <p>A class which shephards a request through the process of generating a
 reply.
 The socket associated with the reply is available at all times as the <i class="arg">chan</i>
@@ -295,55 +315,55 @@ method if an exception is raised.</p></li>
 <li><p>Invokes the <b class="cmd">output</b> method for the object</p></li>
 </ol>
 </div>
-<div id="section4" class="doctools_section"><h2><a name="section4">Reply Method Ensembles</a></h2>
+<div id="section5" class="doctools_section"><h2><a name="section5">Reply Method Ensembles</a></h2>
 <p>The <b class="cmd">http::reply</b> class and its derivatives maintain several variables as dictionaries
 internally. Access to these dictionaries is managed through a dedicated ensemble. The
-ensemble implements most of the same behaviors as the <b class="cmd"><a href="../../../../index.html#key713">dict</a></b> command. Each
-ensemble implements the following methods above and beyond (or modifying) those:</p>
+ensemble implements most of the same behaviors as the <b class="cmd"><a href="../../../../index.html#key716">dict</a></b> command.
+Each ensemble implements the following methods above, beyond, or modifying standard dicts:</p>
 <dl class="doctools_definitions">
-<dt><a name="16">method <b class="cmd">add</b> <i class="arg">field</i> <i class="arg">element</i></a></dt>
+<dt><a name="16">method <b class="cmd">ENSEMBLE::add</b> <i class="arg">field</i> <i class="arg">element</i></a></dt>
 <dd><p>Add <i class="arg">element</i> to a list stored in <i class="arg">field</i>, but only if it is not already present om the list.</p></dd>
-<dt><a name="17">method <b class="cmd">dump</b></a></dt>
+<dt><a name="17">method <b class="cmd">ENSEMBLE::dump</b></a></dt>
 <dd><p>Return the current contents of the data structure as a key/value list.</p></dd>
-<dt><a name="18">method <b class="cmd">get</b> <i class="arg">field</i></a></dt>
+<dt><a name="18">method <b class="cmd">ENSEMBLE::get</b> <i class="arg">field</i></a></dt>
 <dd><p>Return the value of the field <i class="arg">field</i>, or an empty string if it does not exist.</p></dd>
-<dt><a name="19">method <b class="cmd">reset</b></a></dt>
+<dt><a name="19">method <b class="cmd">ENSEMBLE::reset</b></a></dt>
 <dd><p>Return a key/value list of the default contents for this data structure.</p></dd>
-<dt><a name="20">method <b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">field</i> <i class="arg">element</i></a></dt>
+<dt><a name="20">method <b class="cmd">ENSEMBLE::remove</b> <i class="arg">field</i> <i class="arg">element</i></a></dt>
 <dd><p>Remove all instances of <i class="arg">element</i> from the list stored in <i class="arg">field</i>.</p></dd>
-<dt><a name="21">method <b class="cmd">replace</b> <i class="arg">keyvaluelist</i></a></dt>
+<dt><a name="21">method <b class="cmd">ENSEMBLE::replace</b> <i class="arg">keyvaluelist</i></a></dt>
 <dd><p>Replace the internal dict with the contents of <i class="arg">keyvaluelist</i></p></dd>
-<dt><a name="22">method <b class="cmd">reset</b></a></dt>
+<dt><a name="22">method <b class="cmd">ENSEMBLE::reset</b></a></dt>
 <dd><p>Replace the internal dict with the default state.</p></dd>
-<dt><a name="23">method <b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">field</i> <i class="arg">value</i></a></dt>
+<dt><a name="23">method <b class="cmd">ENSEMBLE::set</b> <i class="arg">field</i> <i class="arg">value</i></a></dt>
 <dd><p>Set the value of <i class="arg">field</i> to <i class="arg">value</i>.</p></dd>
 </dl>
 </div>
-<div id="section5" class="doctools_section"><h2><a name="section5">Reply Method Ensemble: http_info</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Reply Method Ensemble: http_info</a></h2>
 <p>Manages HTTP headers passed in by the server.
 Ensemble Methods:</p>
 <dl class="doctools_definitions">
-<dt><a name="24">method <b class="cmd">netstring</b></a></dt>
+<dt><a name="24">method <b class="cmd">http_info::netstring</b></a></dt>
 <dd><p>Return the contents of this data structure as a netstring encoded block.</p></dd>
 </dl>
 </div>
-<div id="section6" class="doctools_section"><h2><a name="section6">Reply Method Ensemble: request</a></h2>
+<div id="section7" class="doctools_section"><h2><a name="section7">Reply Method Ensemble: request</a></h2>
 <p>Managed data from MIME headers of the request.</p>
 <dl class="doctools_definitions">
-<dt><a name="25">method <b class="cmd">parse</b> <i class="arg">string</i></a></dt>
+<dt><a name="25">method <b class="cmd">request::parse</b> <i class="arg">string</i></a></dt>
 <dd><p>Replace the contents of the data structure with information encoded in a MIME
 formatted block of text (<i class="arg">string</i>).</p></dd>
 </dl>
 </div>
-<div id="section7" class="doctools_section"><h2><a name="section7">Reply Method Ensemble: reply</a></h2>
+<div id="section8" class="doctools_section"><h2><a name="section8">Reply Method Ensemble: reply</a></h2>
 <p>Manage the headers sent in the reply.</p>
 <dl class="doctools_definitions">
-<dt><a name="26">method <b class="cmd">output</b></a></dt>
+<dt><a name="26">method <b class="cmd">reply::output</b></a></dt>
 <dd><p>Return the contents of this data structure as a MIME encoded block appropriate
 for an HTTP response.</p></dd>
 </dl>
 </div>
-<div id="section8" class="doctools_section"><h2><a name="section8">Reply Methods</a></h2>
+<div id="section9" class="doctools_section"><h2><a name="section9">Reply Methods</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="27">method <b class="cmd">close</b></a></dt>
 <dd><p>Terminate the transaction, and close the socket.</p></dd>
@@ -454,7 +474,7 @@ structure back to the defaults for this object.</p></dd>
 if too much time has elapsed while waiting for data or generating a reply, and issues
 a timeout error to the request if it has, as well as destroy the object and close the
 <i class="arg">chan</i> socket.</p></dd>
-<dt><a name="41">method <b class="cmd"><a href="../../../../index.html#key711">timestamp</a></b></a></dt>
+<dt><a name="41">method <b class="cmd"><a href="../../../../index.html#key714">timestamp</a></b></a></dt>
 <dd><p>Return the current system time in the format:</p>
 <pre class="doctools_example">%a, %d %b %Y %T %Z</pre>
 </dd>
@@ -483,24 +503,34 @@ fed to it on the command line, and then destroys the object.</p>
 <dd><p>De-httpizes a string.</p></dd>
 </dl>
 </div>
-<div id="section9" class="doctools_section"><h2><a name="section9">Class ::httpd::content</a></h2>
+<div id="section10" class="doctools_section"><h2><a name="section10">Class ::httpd::content</a></h2>
 <p>The httpd module includes several ready to use implementations of content mixins
 for common use cases. Options are passed in to the <b class="cmd">add_uri</b> method of the server.</p>
 </div>
-<div id="section10" class="doctools_section"><h2><a name="section10">Class ::httpd::content.file</a></h2>
+<div id="section11" class="doctools_section"><h2><a name="section11">Class ::httpd::content.cgi</a></h2>
+<p>An implementation to relay requests to process which will accept post data
+streamed in vie stdin, and sent a reply streamed to stdout.</p>
+<dl class="doctools_definitions">
+<dt><a name="44">method cgi_info</a></dt>
+<dd><p>Mandatory method to be replaced by the end user. If needed, activates the
+process to proxy, and then returns a list of three values:
+<i class="arg">exec</i> - The arguments to send to exec to fire off the responding process, minus the stdin/stdout redirection.</p></dd>
+</dl>
+</div>
+<div id="section12" class="doctools_section"><h2><a name="section12">Class ::httpd::content.file</a></h2>
 <p>An implementation to deliver files from the local file system.</p>
 <dl class="doctools_definitions">
-<dt><a name="44">option <b class="cmd">path</b></a></dt>
+<dt><a name="45">option <b class="cmd">path</b></a></dt>
 <dd><p>The root directory on the local file system to be exposed via http.</p></dd>
-<dt><a name="45">option <b class="cmd"><a href="../../../../index.html#key693">prefix</a></b></a></dt>
+<dt><a name="46">option <b class="cmd"><a href="../../../../index.html#key695">prefix</a></b></a></dt>
 <dd><p>The prefix of the URI portion to ignore when calculating relative file paths.</p></dd>
 </dl>
 </div>
-<div id="section11" class="doctools_section"><h2><a name="section11">Class ::httpd::content.proxy</a></h2>
+<div id="section13" class="doctools_section"><h2><a name="section13">Class ::httpd::content.proxy</a></h2>
 <p>An implementation to relay requests to another HTTP server, and relay
 the results back across the request channel.</p>
 <dl class="doctools_definitions">
-<dt><a name="46">method proxy_info</a></dt>
+<dt><a name="47">method proxy_info</a></dt>
 <dd><p>Mandatory method to be replaced by the end user. If needed, activates the
 process to proxy, and then returns a list of three values:
 <i class="arg">proxyhost</i> - The hostname where the proxy is located
@@ -508,12 +538,12 @@ process to proxy, and then returns a list of three values:
 <i class="arg">proxyscript</i> - A pre-amble block of text to send prior to the mirrored request</p></dd>
 </dl>
 </div>
-<div id="section12" class="doctools_section"><h2><a name="section12">Class ::httpd::content.scgi</a></h2>
+<div id="section14" class="doctools_section"><h2><a name="section14">Class ::httpd::content.scgi</a></h2>
 <p>An implementation to relay requests to a server listening on a socket
 expecting SCGI encoded requests, and relay
 the results back across the request channel.</p>
 <dl class="doctools_definitions">
-<dt><a name="47">method scgi_info</a></dt>
+<dt><a name="48">method scgi_info</a></dt>
 <dd><p>Mandatory method to be replaced by the end user. If needed, activates the
 process to proxy, and then returns a list of three values:
 <i class="arg">scgihost</i> - The hostname where the scgi listener is located
@@ -521,27 +551,27 @@ process to proxy, and then returns a list of three values:
 <i class="arg">scgiscript</i> - The contents of the <i class="arg">SCRIPT_NAME</i> header to be sent</p></dd>
 </dl>
 </div>
-<div id="section13" class="doctools_section"><h2><a name="section13">Class ::httpd::content.websocket</a></h2>
+<div id="section15" class="doctools_section"><h2><a name="section15">Class ::httpd::content.websocket</a></h2>
 <p>A placeholder for a future implementation to manage requests that can expect to be
 promoted to a Websocket. Currently it is an empty class.</p>
 </div>
-<div id="section14" class="doctools_section"><h2><a name="section14">SCGI Server Functions</a></h2>
+<div id="section16" class="doctools_section"><h2><a name="section16">SCGI Server Functions</a></h2>
 <p>The HTTP module also provides an SCGI server implementation, as well as an HTTP
 implementation. To use the SCGI functions, create an object of the <b class="cmd">http::server.scgi</b>
 class instead of the <b class="cmd">http::server</b> class.</p>
 </div>
-<div id="section15" class="doctools_section"><h2><a name="section15">Class ::httpd::reply.scgi</a></h2>
+<div id="section17" class="doctools_section"><h2><a name="section17">Class ::httpd::reply.scgi</a></h2>
 <p>An modified <b class="cmd">http::reply</b> implementation that understands how to deal with
 netstring encoded headers.</p>
 </div>
-<div id="section16" class="doctools_section"><h2><a name="section16">Class ::httpd::server.scgi</a></h2>
+<div id="section18" class="doctools_section"><h2><a name="section18">Class ::httpd::server.scgi</a></h2>
 <p>A modified <b class="cmd">http::server</b> which is tailored to replying to request according to
 the SCGI standard instead of the HTTP standard.</p>
 </div>
-<div id="section17" class="doctools_section"><h2><a name="section17">AUTHORS</a></h2>
+<div id="section19" class="doctools_section"><h2><a name="section19">AUTHORS</a></h2>
 <p>Sean Woods</p>
 </div>
-<div id="section18" class="doctools_section"><h2><a name="section18">Bugs, Ideas, Feedback</a></h2>
+<div id="section20" class="doctools_section"><h2><a name="section20">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>network</em> of the
@@ -556,10 +586,10 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key704">TclOO</a>, <a href="../../../../index.html#key705">WWW</a></p>
+<p><a href="../../../../index.html#key588">TclOO</a>, <a href="../../../../index.html#key707">WWW</a>, <a href="../../../../index.html#key447">http</a>, <a href="../../../../index.html#key706">httpd</a>, <a href="../../../../index.html#key708">httpserver</a>, <a href="../../../../index.html#key613">services</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
-<p>Utility</p>
+<p>Networking</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2018 Sean Woods &lt;yoda@etoyoc.com&gt;</p>

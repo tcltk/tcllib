@@ -1,6 +1,6 @@
 set here [file dirname [file normalize [file join [pwd] [info script]]]]
 
-set version 4.1.0
+set version 4.1.1
 set tclversion 8.6
 set module [file tail $here]
 
@@ -33,7 +33,7 @@ foreach file {
   file.tcl
   scgi.tcl
   proxy.tcl
-  websocket.tcl  
+  websocket.tcl
 } {
   lappend loaded $file
   set fin [open [file join $here src $file] r]

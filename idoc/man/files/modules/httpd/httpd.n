@@ -2,7 +2,7 @@
 '\" Generated from file 'httpd\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "tool" n 4\&.1\&.0 tcllib "Tcl Web Server"
+.TH "tool" n 4\&.1\&.1 tcllib "Tcl Web Server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,11 +272,11 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tool \- A TclOO based update to tclhttpd
+tool \- A TclOO and coroutine based web server
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBhttpd  ?4\&.1\&.0?\fR
+package require \fBhttpd  ?4\&.1\&.1?\fR
 .sp
 package require \fBsha1 \fR
 .sp
@@ -301,6 +301,8 @@ package require \fBmime \fR
 package require \fBcron \fR
 .sp
 package require \fBuri \fR
+.sp
+package require \fBMarkdown \fR
 .sp
 constructor ?port ?port?? ?myaddr ?ipaddr?|all? ?server_string ?string?? ?server_name ?string??
 .sp
@@ -332,27 +334,27 @@ method \fBTemplateSearch\fR \fIpage\fR
 .sp
 method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
 .sp
-method \fBadd\fR \fIfield\fR \fIelement\fR
+method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
 .sp
-method \fBdump\fR
+method \fBENSEMBLE::dump\fR
 .sp
-method \fBget\fR \fIfield\fR
+method \fBENSEMBLE::get\fR \fIfield\fR
 .sp
-method \fBreset\fR
+method \fBENSEMBLE::reset\fR
 .sp
-method \fBremove\fR \fIfield\fR \fIelement\fR
+method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
 .sp
-method \fBreplace\fR \fIkeyvaluelist\fR
+method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
 .sp
-method \fBreset\fR
+method \fBENSEMBLE::reset\fR
 .sp
-method \fBset\fR \fIfield\fR \fIvalue\fR
+method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
 .sp
-method \fBnetstring\fR
+method \fBhttp_info::netstring\fR
 .sp
-method \fBparse\fR \fIstring\fR
+method \fBrequest::parse\fR \fIstring\fR
 .sp
-method \fBoutput\fR
+method \fBreply::output\fR
 .sp
 method \fBclose\fR
 .sp
@@ -388,6 +390,8 @@ method \fBTransferComplete\fR \fIargs\fR
 .sp
 method \fBUrl_Decode\fR \fIstring\fR
 .sp
+method cgi_info
+.sp
 option \fBpath\fR
 .sp
 option \fBprefix\fR
@@ -403,6 +407,24 @@ This module implements a web server, suitable for embedding in an
 application\&. The server is object oriented, and contains all of the
 fundamentals needed for a full service website\&.
 .PP
+.SH "MINIMAL EXAMPLE"
+Starting a web service requires starting a class of type
+\fBhttpd::server\fR, and providing that server with one or more URIs
+to service, and \fBhttpd::reply\fR derived classes to generate them\&.
+.CS
+
+
+tool::define ::reply\&.hello {
+  method content {} {
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<h1>Hello World!</h1>"
+    my puts </BODY></HTML>
+  }
+}
+::docserver::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1
+HTTPD add_uri /* [list mixin reply\&.hello]
+
+.CE
 .SH "CLASS ::HTTPD::SERVER"
 This class is the root object of the webserver\&. It is responsible
 for opening the socket and providing the initial connection negotiation\&.
@@ -506,51 +528,51 @@ Invokes the \fBoutput\fR method for the object
 .SH "REPLY METHOD ENSEMBLES"
 The \fBhttp::reply\fR class and its derivatives maintain several variables as dictionaries
 internally\&. Access to these dictionaries is managed through a dedicated ensemble\&. The
-ensemble implements most of the same behaviors as the \fBdict\fR command\&. Each
-ensemble implements the following methods above and beyond (or modifying) those:
+ensemble implements most of the same behaviors as the \fBdict\fR command\&.
+Each ensemble implements the following methods above, beyond, or modifying standard dicts:
 .TP
-method \fBadd\fR \fIfield\fR \fIelement\fR
+method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
 Add \fIelement\fR to a list stored in \fIfield\fR, but only if it is not already present om the list\&.
 .TP
-method \fBdump\fR
+method \fBENSEMBLE::dump\fR
 Return the current contents of the data structure as a key/value list\&.
 .TP
-method \fBget\fR \fIfield\fR
+method \fBENSEMBLE::get\fR \fIfield\fR
 Return the value of the field \fIfield\fR, or an empty string if it does not exist\&.
 .TP
-method \fBreset\fR
+method \fBENSEMBLE::reset\fR
 Return a key/value list of the default contents for this data structure\&.
 .TP
-method \fBremove\fR \fIfield\fR \fIelement\fR
+method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
 Remove all instances of \fIelement\fR from the list stored in \fIfield\fR\&.
 .TP
-method \fBreplace\fR \fIkeyvaluelist\fR
+method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
 Replace the internal dict with the contents of \fIkeyvaluelist\fR
 .TP
-method \fBreset\fR
+method \fBENSEMBLE::reset\fR
 Replace the internal dict with the default state\&.
 .TP
-method \fBset\fR \fIfield\fR \fIvalue\fR
+method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
 Set the value of \fIfield\fR to \fIvalue\fR\&.
 .PP
 .SH "REPLY METHOD ENSEMBLE: HTTP_INFO"
 Manages HTTP headers passed in by the server\&.
 Ensemble Methods:
 .TP
-method \fBnetstring\fR
+method \fBhttp_info::netstring\fR
 Return the contents of this data structure as a netstring encoded block\&.
 .PP
 .SH "REPLY METHOD ENSEMBLE: REQUEST"
 Managed data from MIME headers of the request\&.
 .TP
-method \fBparse\fR \fIstring\fR
+method \fBrequest::parse\fR \fIstring\fR
 Replace the contents of the data structure with information encoded in a MIME
 formatted block of text (\fIstring\fR)\&.
 .PP
 .SH "REPLY METHOD ENSEMBLE: REPLY"
 Manage the headers sent in the reply\&.
 .TP
-method \fBoutput\fR
+method \fBreply::output\fR
 Return the contents of this data structure as a MIME encoded block appropriate
 for an HTTP response\&.
 .PP
@@ -720,6 +742,15 @@ De-httpizes a string\&.
 .SH "CLASS ::HTTPD::CONTENT"
 The httpd module includes several ready to use implementations of content mixins
 for common use cases\&. Options are passed in to the \fBadd_uri\fR method of the server\&.
+.SH "CLASS ::HTTPD::CONTENT\&.CGI"
+An implementation to relay requests to process which will accept post data
+streamed in vie stdin, and sent a reply streamed to stdout\&.
+.TP
+method cgi_info
+Mandatory method to be replaced by the end user\&. If needed, activates the
+process to proxy, and then returns a list of three values:
+\fIexec\fR - The arguments to send to exec to fire off the responding process, minus the stdin/stdout redirection\&.
+.PP
 .SH "CLASS ::HTTPD::CONTENT\&.FILE"
 An implementation to deliver files from the local file system\&.
 .TP
@@ -783,9 +814,9 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
-TclOO, WWW
+TclOO, WWW, http, httpd, httpserver, services
 .SH CATEGORY
-Utility
+Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>

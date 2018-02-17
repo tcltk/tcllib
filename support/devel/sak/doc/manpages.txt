@@ -222,6 +222,7 @@ modules/nns/nns_server.man
 modules/nntp/nntp.man
 modules/ntp/ntp_time.man
 modules/oauth/oauth.man
+modules/oometa/oometa.man
 modules/ooutil/ooutil.man
 modules/otp/otp.man
 modules/page/page_intro.man

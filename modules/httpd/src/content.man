@@ -3,6 +3,21 @@
 The httpd module includes several ready to use implementations of content mixins
 for common use cases. Options are passed in to the [cmd add_uri] method of the server.
 
+[section {Class ::httpd::content.cgi}]
+
+An implementation to relay requests to process which will accept post data
+streamed in vie stdin, and sent a reply streamed to stdout.
+
+[list_begin definitions]
+[call method cgi_info]
+
+Mandatory method to be replaced by the end user. If needed, activates the
+process to proxy, and then returns a list of three values:
+
+[arg exec] - The arguments to send to exec to fire off the responding process, minus the stdin/stdout redirection.
+
+[list_end]
+
 [section {Class ::httpd::content.file}]
 
 An implementation to deliver files from the local file system.
