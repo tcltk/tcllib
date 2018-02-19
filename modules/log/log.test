@@ -364,6 +364,31 @@ test log-13.3 {log error} {
     set msg
 } {bad level "e": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
+test log-13.4 {logsubst variable} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {logging<$logdata>}
+    set _log_
+} {error logging<buz>}
+
+test log-13.5 {logsubst command} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {logging<[set logdata]>}
+    set _log_
+} {error logging<buz>}
+
+test log-13.6 {logsubst escape} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {1\n2}
+    set _log_
+} {error 1 error 2}
+
+test log-13.7 {logeval evaluation error} {
+    set level [catch {::log::logsubst er {[error q]} } msg]
+    list $level $msg
+} {1 q}
 
 set lastlevel warning
 foreach level {alert critical debug error emergency info notice warning} {

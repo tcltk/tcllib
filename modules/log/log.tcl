@@ -7,7 +7,7 @@
 # See the file license.terms.
 
 package require Tcl 8
-package provide log 1.3
+package provide log 1.4
 
 # ### ### ### ######### ######### #########
 
@@ -814,6 +814,48 @@ proc ::log::logError {text} {
     log error $text
 }
 
+# log::logsubst --
+#
+#	Log a message with command and variable substitution in the caller
+#	scope. The substitutions are only executed in the log case for
+#	performance reasons. Any substitution errors rise a command error.
+#
+# Arguments:
+#	level	The level of the message.
+#	text	The message to log.
+#
+# Side Effects:
+#	See above.
+#
+# Results:
+#	None.
+
+proc ::log::logsubst {level text} {
+    variable cmdMap
+
+    if {[lvIsSuppressed $level]} {
+	# Ignore messages for suppressed levels.
+	return
+    }
+
+    set level [lv2longform $level]
+
+    set cmd $cmdMap($level)
+    if {$cmd == {}} {
+	# Ignore messages for levels without a command
+	return
+    }
+    
+    set text [uplevel 1 subst $text]
+
+    # Delegate actual logging to the command.
+    # Handle multi-line messages correctly.
+
+    foreach line [split $text \n] {
+	eval [linsert $cmd end $level $line]
+    }
+    return
+}
 
 # log::Puts --
 #
