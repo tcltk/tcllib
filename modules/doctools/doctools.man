@@ -442,7 +442,7 @@ The value for this parameter has to be a list of triples specifying
 cross-reference information. This information is used by the engine to
 create more hyperlinks. Each triple is a list containing a pattern,
 symbolic filename and fragment reference, in this order. If a pattern
-is specified multiple times the last occurence of the pattern will be
+is specified multiple times the last occurrence of the pattern will be
 used.
 
 [para]

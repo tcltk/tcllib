@@ -1,5 +1,6 @@
+[vset VERSION 4.1.1]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin httpd n 4.0.2]
+[manpage_begin tool n [vset VERSION]]
 [keywords WWW]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Tcl Web Server}]
@@ -11,6 +12,7 @@
 [keywords httpserver]
 [keywords services]
 [require Tcl 8.6]
+[require httpd [opt [vset VERSION]]]
 [require sha1]
 [require dicttool]
 [require oo::meta]
@@ -26,16 +28,18 @@
 [require Markdown]
 [description]
 [para]
+
 This module implements a web server, suitable for embedding in an
 application. The server is object oriented, and contains all of the
-fundimentals needed for a full service website.
+fundamentals needed for a full service website.
+
 [para]
 
 [section {Minimal Example}]
 
-Starting a web service requires starting a class of type [cmd httpd::server], and providing
-that server with one or more URIs to service, and [cmd httpd::reply] derived classes to
-generate them.
+Starting a web service requires starting a class of type
+[cmd httpd::server], and providing that server with one or more URIs
+to service, and [cmd httpd::reply] derived classes to generate them.
 
 [example {
 tool::define ::reply.hello {
@@ -50,10 +54,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 }]
 
 [include src/server.man]
-
-
 [include src/reply.man]
-
 [include src/content.man]
 
 [section AUTHORS]

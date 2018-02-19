@@ -4,7 +4,7 @@ Description: This package is intended to be a collection of
     Tcl packages that provide utility functions useful to a
     large collection of Tcl programmers.
 Rights: BSD
-Version: 1.18
+Version: 1.19
 URL: http://core.tcl.tk/tcllib
 Architecture: tcl
 Contributor:  <jeffh at activestate dot com>

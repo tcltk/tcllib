@@ -1345,6 +1345,8 @@ compiled Tcl extension\&.  See
 .PP
 Michael Doyle <miked@eolas\&.com> has code that implements the Tcl-DP
 RPC interface using standard Tcl sockets, much like \fBcomm\fR\&.
+The DpTcl package is available at
+\fIhttp://chiselapp\&.com/user/gwlester/repository/DpTcl\fR\&.
 .PP
 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net> uses
 \fBcomm\fR and has built a simple nameserver as part of his Pool

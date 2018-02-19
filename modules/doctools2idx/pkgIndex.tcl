@@ -11,8 +11,8 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 
 package ifneeded doctools::idx                 2   [list source [file join $dir container.tcl]]
 
-package ifneeded doctools::idx::export         0.1 [list source [file join $dir export.tcl]]
-package ifneeded doctools::idx::import         0.1 [list source [file join $dir import.tcl]]
+package ifneeded doctools::idx::export         0.2 [list source [file join $dir export.tcl]]
+package ifneeded doctools::idx::import         0.2 [list source [file join $dir import.tcl]]
 
 package ifneeded doctools::idx::export::docidx 0.1 [list source [file join $dir export_docidx.tcl]]
 package ifneeded doctools::idx::export::html   0.2 [list source [file join $dir export_html.tcl]]

@@ -78,7 +78,7 @@ global nextId     ; set       nextId     0      ; # Counter for environment gene
 global currentId  ; set       currentId  {}     ; # Id of current environment in 'pEnv'
 global currentEnv ; array set currentEnv {}     ; # Current environment, expanded form.
 global contexts   ; set       contexts   [list] ; # Stack of saved environments.
-global off        ; set off   1                 ; # Supression of plain text in some places.
+global off        ; set off   1                 ; # Suppression of plain text in some places.
 
 ################################################################
 # Management of the current context.

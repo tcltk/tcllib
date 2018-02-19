@@ -1,7 +1,7 @@
 #
 # Extended object interface to entries in LDAP directories or LDIF files.
 #
-# (c) 2006 Pierre David (pdav@users.sourceforge.net)
+# (c) 2006-2018 Pierre David (pdav@users.sourceforge.net)
 #
 # $Id: ldapx.tcl,v 1.12 2008/02/07 21:19:39 pdav Exp $
 #
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 1.0
+package provide ldapx 1.1
 
 ##############################################################################
 # LDAPENTRY object type
@@ -1549,10 +1549,10 @@ snit::type ::ldapx::ldif {
 
 	    } elseif {[regexp {^[ \t]} $line]} then {
 		#
-		# Continuation line
+		# Continuation line. Remove the continuation character.
 		#
 
-		append prev [string trim $line]
+		append prev [string range $line 1 end]
 
 	    } elseif {[regexp {^-$} $line]} then {
 		#

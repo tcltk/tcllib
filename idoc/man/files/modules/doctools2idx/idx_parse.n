@@ -400,7 +400,7 @@ Each error element will be a list containing six strings describing an
 error in detail\&. The strings will be
 .RS
 .IP [1]
-The path of the file the error occured in\&. This may be empty\&.
+The path of the file the error occurred in\&. This may be empty\&.
 .IP [2]
 The range of the token the error was found at\&. This range is a
 two-element list containing the offset of the first and last character
@@ -496,10 +496,10 @@ The \fItype\fR of a reference can be one of two values,
 .TP
 \fBmanpage\fR
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for\&.
+referring to one of the documents the index was made for\&.
 .TP
 \fBurl\fR
-The identifier of the reference is interpreted as an url, refering to
+The identifier of the reference is interpreted as an url, referring to
 some external location, like a website, etc\&.
 .RE
 .RE

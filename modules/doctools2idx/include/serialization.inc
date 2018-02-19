@@ -65,10 +65,10 @@ The [term type] of a reference can be one of two values,
 [list_begin definitions][comment {-- types --}]
 [def [const manpage]]
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for.
+referring to one of the documents the index was made for.
 
 [def [const url]]
-The identifier of the reference is interpreted as an url, refering to
+The identifier of the reference is interpreted as an url, referring to
 some external location, like a website, etc.
 
 [list_end][comment {-- types --}]

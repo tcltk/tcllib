@@ -1,5 +1,6 @@
+[vset VERSION 2.0]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::filetype n 1.2.0]
+[manpage_begin fileutil::magic::filetype n [vset VERSION]]
 [see_also file(1)]
 [see_also fileutil]
 [see_also magic(5)]
@@ -11,7 +12,7 @@
 [titledesc {Procedures implementing file-type recognition}]
 [category  {Programming tools}]
 [require Tcl 8.6]
-[require fileutil::magic::filetype [opt 1.2.0]]
+[require fileutil::magic::filetype [opt [vset VERSION]]]
 [description]
 [para]
 

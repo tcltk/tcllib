@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.3
+package provide rest 1.3.1
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \
@@ -109,11 +109,11 @@ proc ::rest::DetermineMethod {cv} {
 	# TODO: Quoted literal.
 	regexp {^([^ ]+).*$} $cmd -> cmd
     }
+    set cmd [namespace tail $cmd]    
+    if {$cmd eq "simple"} { set cmd get }
     if {$cmd ni {get delete head post put patch}} {
 	return -code error "Unable to determine rest::simple method, found \"$cmd\". Please specify it explicitly."
     }
-    set cmd [namespace tail $cmd]    
-    if {$cmd eq "simple"} { set cmd get }
     #puts >>>|$cmd|
     dict set config method $cmd
     return

@@ -549,7 +549,7 @@ test htmlparse-11.0 {metachar callback} {
 
 set tests [file join [file dirname [info script]] htmlparse.tree_testsuite]
 
-catch {memory validate on}
+#catch {memory validate on}
 
 TestAccelDo struct::tree impl {
     # The global variable 'impl' is part of the public API the

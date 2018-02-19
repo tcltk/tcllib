@@ -106,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">markdown(n) 1.0 tcllib &quot;Markdown to HTML Converter&quot;</h1>
+<h1 class="doctools_title">markdown(n) 1.1 tcllib &quot;Markdown to HTML Converter&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>markdown - Converts Markdown text to HTML</p>
 </div>
@@ -123,10 +123,14 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
+<li>package require <b class="pkgname">Markdown 1.1</b></li>
 <li>package require <b class="pkgname">textutil <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::Markdown::convert</b> <i class="arg">markdown</i></a></li>
+<li><a href="#2"><b class="cmd">::Markdown::register</b> <i class="arg">langspec</i> <i class="arg">converter</i></a></li>
+<li><a href="#3"><b class="cmd">::Markdown::get_lang_counter</b></a></li>
+<li><a href="#4"><b class="cmd">::Markdown::reset_lang_counter</b></a></li>
 </ul>
 </div>
 </div>
@@ -136,7 +140,28 @@ Markdown annotated text into HMTL.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::Markdown::convert</b> <i class="arg">markdown</i></a></dt>
 <dd><p>This command takes in a block of Markdown text, and returns a block
-of HTML.</p></dd>
+of HTML.</p>
+<p>The converter supports two types of syntax highlighting for
+fenced code blocks: highlighting via a registered converter
+(see <b class="cmd">::Markdown::register</b>), or pure JavaScript highlighting,
+e.g. via &quot;highlight.js&quot;, where the language specifier used in the
+markup is set as CSS class of the &quot;code&quot; element in the returned markup.</p></dd>
+<dt><a name="2"><b class="cmd">::Markdown::register</b> <i class="arg">langspec</i> <i class="arg">converter</i></a></dt>
+<dd><p>Register a language specific converter for prettifying a code block
+(e.g. syntax highlighting).  Markdown supports fenced code blocks with
+an optional language specifier (e.g. &quot;tcl&quot;). When the markdown parser
+processes such a code block and a converter for the specified langspec
+is registered, the converter is called with the raw code block as
+argument. The converter is supposed to return the markup of the code
+block as result. The specified converter can be an arbitrary Tcl
+command, the raw text block is added as last argument upon invocation.</p></dd>
+<dt><a name="3"><b class="cmd">::Markdown::get_lang_counter</b></a></dt>
+<dd><p>Return a dict of language specifier and number of occurrences in
+fenced code blocks. This function can be used e.g. to detect, whether
+some CSS or JavaScript headers should be included for rendering
+without the need of postprocessing the rendered result.</p></dd>
+<dt><a name="4"><b class="cmd">::Markdown::reset_lang_counter</b></a></dt>
+<dd><p>Reset the language counters.</p></dd>
 </dl>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>

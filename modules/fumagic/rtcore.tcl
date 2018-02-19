@@ -2,7 +2,7 @@
 #
 #	Runtime core for file type recognition engines written in pure Tcl.
 #
-# Copyright (c) 2016      Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
+# Copyright (c) 2016-2017 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
 # Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
@@ -844,5 +844,5 @@ proc ::fileutil::magic::rt::Init {} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide fileutil::magic::rt 1.2.0
+package provide fileutil::magic::rt 2.0
 # EOF
