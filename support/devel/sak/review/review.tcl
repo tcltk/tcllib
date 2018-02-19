@@ -60,39 +60,46 @@ proc ::sak::review::Scan {} {
 
     foreach {trunk   tuid} [Leaf          trunk]   break ;# rid + uuid
     foreach {release ruid} [YoungestOfTag release] break ;# datetime + uuid
-    AllParentsAfter $trunk $tuid $release $ruid -> rid uuid {
+    AllParentsAfter $trunk $tuid $release $ruid -> rid uuid numparents {
 	Next ; Progress " $rid"
 
-	set d [Description $rid]
-	Progress " D"
+	if {$numparents > 1} {
+	    Progress " SKIP"
+	} else {
+	    # Consider only commits with one parent, i.e. non-merges,
+	    # as possible contributors to modules and packages.
+	    
+	    set d [Description $rid]
+	    Progress " D"
 
-	# Determine file set, split by modules, then generate a package of
-	# uuid, description and filtered files per modules touched.
+	    # Determine file set, split by modules, then generate a package of
+	    # uuid, description and filtered files per modules touched.
 
-	array set fs {}
+	    array set fs {}
 
-	FileSet $rid -> path action {
-	    Progress .
+	    FileSet $rid -> path action {
+		Progress .
 
-	    set px [file split $path]
-	    set themodule [lindex $px 1]
-	    lappend modifiedm $themodule
-	    lappend cm($themodule) $d
+		set px [file split $path]
+		set themodule [lindex $px 1]
+		lappend modifiedm $themodule
+		lappend cm($themodule) $d
 
-	    # ignore files in modules/
-	    if {[llength $px] < 3} continue
+		# ignore files in modules/
+		if {[llength $px] < 3} continue
 
-	    #puts $themodule||$rid||$action|$px|
+		#puts $themodule||$rid||$action|$px|
 
-	    lappend fs($themodule) [file join {*}[lrange $px 2 end]]
-	    lappend pt($themodule) [file join {*}[lrange $px 2 end]]
+		lappend fs($themodule) [file join {*}[lrange $px 2 end]]
+		lappend pt($themodule) [file join {*}[lrange $px 2 end]]
+	    }
+
+	    foreach {m files} [array get fs] {
+		set str \[htts://core.tcl.tk/tcllib/info/$uuid\]\n$d\n\n[join [lsort -dict $files] \n]
+		lappend rm($m) $str
+	    }
+	    unset fs
 	}
-
-	foreach {m files} [array get fs] {
-	    set str \[$uuid\]\n$d\n\n[join [lsort -dict $files] \n]
-	    lappend rm($m) $str
-	}
-	unset fs
     }
 
     Next
@@ -325,14 +332,15 @@ proc ::sak::review::Description {rid} {
     }]]
 }
 
-proc ::sak::review::AllParentsAfter {rid ruid cut cutuid _ rv uv script} {
-    upvar 1 $rv therev $uv theuid
+proc ::sak::review::AllParentsAfter {rid ruid cut cutuid _ rv uv nv script} {
+    upvar 1 $rv therev $uv theuid $nv thenump
 
     array set rev {}
     set rev($rid) .
     lappend front $rid
 
     # Initial run, for the starting revision.
+    set thenump [llength [AllParents $rid]]
     set therev $rid
     set theuid $ruid
     uplevel 1 $script
@@ -365,6 +373,7 @@ proc ::sak::review::AllParentsAfter {rid ruid cut cutuid _ rv uv script} {
 	    set rev($pid) .
 	    lappend front $pid
 
+	    set thenump [llength [AllParents $pid]]
 	    set therev $pid
 	    set theuid $uuid
 	    uplevel 1 $script
@@ -382,6 +391,18 @@ proc ::sak::review::Parents {rid cut} {
 	AND   plink.pid = blob.rid
 	AND   plink.pid = event.objid
 	AND   event.mtime > @cutoff@
+	;
+    }]] \n
+}
+
+proc ::sak::review::AllParents {rid} {
+    lappend map @rid@    $rid
+    split [F [string map $map {
+	SELECT pid, blob.uuid, event.mtime, datetime(event.mtime)
+	FROM  plink, blob, event
+	WHERE plink.cid   = @rid@
+	AND   plink.pid = blob.rid
+	AND   plink.pid = event.objid
 	;
     }]] \n
 }

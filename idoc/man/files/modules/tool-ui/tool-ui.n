@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'tool-ui\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2014 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2014-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "tool-ui" n 0\&.1 tcllib "Tao User Interface (TaoUI)"
+.TH "tool-ui" n 0\&.2\&.1 tcllib "Tao User Interface (TaoUI)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,6 +276,8 @@ tool-ui \- Abstractions to allow Tao to express Native Tk, HTML5, and Tao-Layout
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
+package require \fBtool-ui  ?0\&.2\&.1?\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -304,11 +306,11 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
-TclOO, odielib, tao
+TclOO
 .SH CATEGORY
-Object System
+TclOO
 .SH COPYRIGHT
 .nf
-Copyright (c) 2014 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2014-2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

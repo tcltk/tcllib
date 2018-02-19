@@ -1,5 +1,6 @@
+[vset VERSION 2.0]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::magic::rt n 1.2.0]
+[manpage_begin fileutil::magic::rt n [vset VERSION]]
 [see_also file(1)]
 [see_also fileutil]
 [see_also magic(5)]
@@ -12,7 +13,7 @@
 [titledesc {Runtime core for file type recognition engines written in pure Tcl}]
 [category  {Programming tools}]
 [require Tcl 8.5]
-[require fileutil::magic::rt [opt 1.2.0]]
+[require fileutil::magic::rt [opt [vset VERSION]]]
 [description]
 [para]
 

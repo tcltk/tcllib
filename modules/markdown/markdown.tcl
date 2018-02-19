@@ -56,6 +56,30 @@ namespace eval Markdown {
         return [apply_templates markdown]
     }
 
+    #
+    # Register a language specific converter. This converter can be
+    # used for fenced code blocks to transform the code block into a
+    # prettified HTML.
+    #
+    proc register {lang_specifier converter} {
+	set ::Markdown::converter($lang_specifier) $converter
+    }
+
+    #
+    # Return a dict (attribute value pairs) of language specifiers and
+    # the number of occurrences as they were used in fenced code blocks.
+    #
+    proc get_lang_counter {} {
+	return [array get ::Markdown::lang_counter]
+    }
+
+    #
+    # Reset the language counters of fenced code blocks.
+    #
+    proc reset_lang_counter {} {
+	array unset ::Markdown::lang_counter
+    }
+
     ## \private
     proc collect_references {markdown_var} {
         upvar $markdown_var markdown
@@ -112,7 +136,7 @@ namespace eval Markdown {
         while {$index < $no_lines} {
             set line [lindex $lines $index]
 
-            switch -regexp $line {
+            switch -regexp -matchvar matches -- $line {
                 {^\s*$} {
                     # EMPTY LINES
                     if {![regexp {^\s*$} [lindex $lines [expr $index - 1]]]} {
@@ -231,15 +255,34 @@ namespace eval Markdown {
 
                     append result <pre><code> $code_result \n </code></pre>
                 }
-                {^(?:(?:`{3,})|(?:~{3,}))(?:\{?\S+\}?)?\s*$} {
+                {^(?:(?:`{3,})|(?:~{3,}))\{?(\S+)?\}?\s*$} {
                     # FENCED CODE BLOCKS
                     set code_result {}
-
                     if {[string index $line 0] eq {`}} {
                         set end_match {^`{3,}\s*$}
                     } else {
                         set end_match {^~{3,}\s*$}
                     }
+		    #
+		    # A language specifier might be provided
+		    # immediately after the leading delimiters.
+		    #
+		    #     ```tcl
+		    #
+		    # The language specifier is used for two purposes:
+		    # a) As a CSS class name 
+		    #    (useful e.g. for highlight.js)
+		    # b) As a name for a source code to HTML converter.
+		    #    When such a converter is registered,
+		    #    the codeblock will be sent through this converter.
+		    #
+		    set lang_specifier [string tolower [lindex $matches end]]
+		    if {$lang_specifier ne ""} {
+			set code_CCS_class " class='$lang_specifier'"
+			incr ::Markdown::lang_counter($lang_specifier)
+		    } else {
+			set code_CCS_class ""
+		    }
 
                     while {$index < $no_lines} {
                         incr index
@@ -251,12 +294,26 @@ namespace eval Markdown {
                             break
                         }
 
-                        lappend code_result [html_escape $line]
+                        lappend code_result $line
                     }
                     set code_result [join $code_result \n]
 
-                    append result <pre><code> $code_result </code></pre>
+		    #
+		    # If there is a converter registered, apply it on
+		    # the resulting snippet.
+		    #
+		    if {[info exists ::Markdown::converter($lang_specifier)]} {
+			set code_result [{*}$::Markdown::converter($lang_specifier) $code_result]
+		    } else {
+                        set code_result [html_escape $code_result]
                 }
+                    append result \
+			"<pre class='code'>" \
+			<code$code_CCS_class> \
+			$code_result \
+			</code></pre>
+                }
+		
                 {^[ ]{0,3}(?:\*|-|\+) |^[ ]{0,3}\d+\. } {
                     # LISTS
                     set list_result {}
@@ -751,5 +808,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.0
+package provide Markdown 1.1
 

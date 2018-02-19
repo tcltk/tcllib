@@ -13,7 +13,7 @@
 # document.
 
 # Attributes in the nodes, except root provide location information,
-# i.e. refering from there in the input the information is coming from
+# i.e. referring from there in the input the information is coming from
 # (human-readable output: line/col for end of token, offset start/end
 # for range covered by token.
 

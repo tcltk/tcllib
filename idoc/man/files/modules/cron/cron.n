@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'cron\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "cron" n 2\&.0 tcllib "cron"
+.TH "cron" n 2\&.1 tcllib "cron"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ cron \- Tool for automating the period callback of commands
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcron  ?2\&.0?\fR
+package require \fBcron  ?2\&.1?\fR
 .sp
 \fB::cron::at\fR \fI?processname?\fR \fItimecode\fR \fIcommand\fR
 .sp
@@ -500,6 +500,6 @@ cron, odie
 System
 .SH COPYRIGHT
 .nf
-Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

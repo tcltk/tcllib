@@ -254,7 +254,7 @@ same error.</p>
 <div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
 <p>More than one <b class="cmd">comm</b> channel (or <em>listener</em>) can be created
 in each Tcl interpreter.  This allows flexibility to create full and
-restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key685">hook</a></i> scripts are specific
+restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key688">hook</a></i> scripts are specific
 to the channel they are defined against.</p>
 <dl class="doctools_definitions">
 <dt><a name="5"><b class="cmd">::comm::comm new</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">name value ...</i>?</span></a></dt>
@@ -415,7 +415,7 @@ instance.  See the <i class="term">lost</i> callback below.</p>
 <p>This is a mechanism for setting hooks for particular events:</p>
 <dl class="doctools_definitions">
 <dt><a name="13"><b class="cmd">::comm::comm hook</b> <i class="arg">event</i> <span class="opt">?<b class="const">+</b>?</span> <span class="opt">?<i class="arg">script</i>?</span></a></dt>
-<dd><p>This uses a syntax similar to Tk's <b class="cmd"><a href="../../../../index.html#key719">bind</a></b> command.  Prefixing
+<dd><p>This uses a syntax similar to Tk's <b class="cmd"><a href="../../../../index.html#key725">bind</a></b> command.  Prefixing
 <i class="arg">script</i> with a <b class="const">+</b> causes the new script to be appended.
 Without this, a new <i class="arg">script</i> replaces any existing script.  When
 invoked without a script, no change is made.  In all cases, the new
@@ -1011,7 +1011,9 @@ you use Tcl8.0p1 (or Tcl7.6p2).</p>
 compiled Tcl extension.  See
 <a href="http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html">http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html</a>.</p>
 <p>Michael Doyle &lt;miked@eolas.com&gt; has code that implements the Tcl-DP
-RPC interface using standard Tcl sockets, much like <b class="package">comm</b>.</p>
+RPC interface using standard Tcl sockets, much like <b class="package">comm</b>.
+The DpTcl package is available at
+<a href="http://chiselapp.com/user/gwlester/repository/DpTcl">http://chiselapp.com/user/gwlester/repository/DpTcl</a>.</p>
 <p>Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt; uses
 <b class="package">comm</b> and has built a simple nameserver as part of his Pool
 library.  See <a href="http://www.purl.org/net/akupries/soft/pool/index.htm">http://www.purl.org/net/akupries/soft/pool/index.htm</a>.</p>

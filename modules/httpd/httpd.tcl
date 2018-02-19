@@ -3,6 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
+package require Tcl 8.6
 package provide httpd 4.1.1
 namespace eval ::httpd {}
 set ::httpd::version 4.1.1
@@ -1394,6 +1395,6 @@ tool::define ::httpd::server.scgi {
 ###
 
 namespace eval ::httpd {
-  namespace export *
+    namespace export *
 }
 

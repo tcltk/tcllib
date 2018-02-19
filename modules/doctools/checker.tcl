@@ -312,7 +312,7 @@ proc description {} {
 }
 
 # Storage for (sub)section ids to enable checking for ambigous
-# identificaton. The ids on this level are logical names. The backends
+# identification. The ids on this level are logical names. The backends
 # are given physical names (via counters).
 global sect   ; # Map of logical -> physical ids
 global sectt  ; # Map of logical -> section title

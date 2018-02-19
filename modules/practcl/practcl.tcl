@@ -3,6 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
+package require Tcl 8.5
 package provide practcl 0.11
 namespace eval ::practcl {}
 
@@ -1764,7 +1765,6 @@ oo::objdefine ::practcl::toolset {
         set opts [::practcl::platform::tk_core_options  [my <project> define get TEACUP_OS]]
       }
     }
-    puts [list [self] ConfigureOpts [my <project> define get HOST]]
     if {[my <project> define get CONFIG_SITE] != {}} {
       lappend opts --host=[my <project> define get HOST]
     }
@@ -1890,13 +1890,6 @@ oo::objdefine ::practcl::toolset {
     if {[my <project> define get CONFIG_SITE] ne {}} {
       set ::env(CONFIG_SITE) [my <project> define get CONFIG_SITE]
     }
-    puts [list [my define get name]]
-    puts [list builddir: $builddir]
-    puts [list srcdir: $srcdir]
-    puts [list localsrcdir: $localsrcdir]
-    puts [list HOST [my <project> define get HOST]]
-    puts [list HOST [my <project> define get HOST]]
-    puts [list OPTIONS: $opts]
     catch {exec sh [file join $localsrcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }

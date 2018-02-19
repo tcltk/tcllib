@@ -274,6 +274,8 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tclrep/machineparameters \- Compute double precision machine parameters\&.
 .SH SYNOPSIS
+package require \fBTcl  8\&.4\fR
+.sp
 package require \fBsnit \fR
 .sp
 package require \fBmath::machineparameters  0\&.1\fR

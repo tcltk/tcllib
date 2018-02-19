@@ -19,7 +19,7 @@ package ifneeded math::bigfloat          1.2.2 [list source [file join $dir bigf
 package ifneeded math::machineparameters 0.1   [list source [file join $dir machineparameters.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
-package ifneeded math::calculus          0.8.1 [list source [file join $dir calculus.tcl]]
+package ifneeded math::calculus          0.8.2 [list source [file join $dir calculus.tcl]]
 # statistics depends on linearalgebra (for multi-variate linear regression).
 package ifneeded math::statistics        1.1.1 [list source [file join $dir statistics.tcl]]
 package ifneeded math::linearalgebra     1.1.6 [list source [file join $dir linalg.tcl]]
@@ -28,6 +28,7 @@ package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigf
 package ifneeded math::numtheory         1.1   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
 package ifneeded math::geometry          1.2.3 [list source [file join $dir geometry.tcl]]
+
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
-package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]
+package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]
 package ifneeded math::PCA               1.0   [list source [file join $dir pca.tcl]]

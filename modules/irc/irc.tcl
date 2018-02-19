@@ -33,10 +33,12 @@ proc ::irc::config { args } {
     if { [llength $args] == 0 } {
         return [array get config]
     } elseif { [llength $args] == 1 } {
+	set key [lindex $args 0]
         return $config($key)
     } elseif { [llength $args] > 2 } {
         error "wrong # args: should be \"config key ?val?\""
     }
+    # llength $args == 2
     set key [lindex $args 0]
     set value [lindex $args 1]
     foreach ns [namespace children] {
@@ -47,7 +49,6 @@ proc ::irc::config { args } {
     }
     set config($key) $value
 }
-
 
 # ::irc::connections --
 #
@@ -162,10 +163,12 @@ proc ::irc::connection { args } {
 	    if { [llength $args] == 0 } {
 		return [array get config]
 	    } elseif { [llength $args] == 1 } {
+		set key [lindex $args 0]
 		return $config($key)
 	    } elseif { [llength $args] > 2 } {
 		error "wrong # args: should be \"config key ?val?\""
 	    }
+	    # llength $args == 2
 	    set key [lindex $args 0]
 	    set value [lindex $args 1]
             if { $key == "debug" } {
@@ -518,6 +521,6 @@ proc ::irc::connection { args } {
 
 # -------------------------------------------------------------------------
 
-package provide irc 0.6.1
+package provide irc 0.6.2
 
 # -------------------------------------------------------------------------

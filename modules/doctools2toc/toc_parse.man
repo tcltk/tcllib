@@ -135,7 +135,7 @@ error in detail. The strings will be
 
 [list_begin enumerated]
 [enum]
-The path of the file the error occured in. This may be empty.
+The path of the file the error occurred in. This may be empty.
 
 [enum]
 The range of the token the error was found at. This range is a

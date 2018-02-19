@@ -24,6 +24,12 @@ testing {
 ::tcltest::testConstraint tcl8.4only \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
 
+::tcltest::testConstraint tcl8.5only \
+    [expr {
+	   ![package vsatisfies [package provide Tcl] 8.6] &&
+	   [package vsatisfies [package provide Tcl] 8.5]
+       }]
+
 # -------------------------------------------------------------------------
 
 test profiler-1.0 {profiler::init redirects the proc command} {
@@ -295,6 +301,7 @@ test profiler-7.1 {sortFunctions} {
     set result
 } "unknown statistic \"\": should be calls, compileTime, exclusiveRuntime,\
 nonCompileTime, totalRuntime, avgExclusiveRuntime, or avgRuntime"
+
 test profiler-7.2 {sortFunctions} tcl8.4only {
     set c [interp create]
     interp alias $c parentSet {} set
@@ -314,7 +321,8 @@ test profiler-7.2 {sortFunctions} tcl8.4only {
     interp delete $c
     set result
 } [list [list ::bar 1] [list ::foo 2]]
-test profiler-7.2-85 {sortFunctions} tcl8.5plus {
+
+test profiler-7.2-85 {sortFunctions} tcl8.5only {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -333,6 +341,27 @@ test profiler-7.2-85 {sortFunctions} tcl8.5plus {
     interp delete $c
     set result
 } [list [list ::tcl::clock::scan 0] [list ::tcl::clock::format 0] [list ::tcl::clock::add 0] [list ::bar 1] [list ::foo 2]]
+
+test profiler-7.2-86 {sortFunctions} tcl8.6plus {
+    set c [interp create]
+    interp alias $c parentSet {} set
+    set result [$c eval {
+	set auto_path [parentSet auto_path]
+	package require profiler
+	profiler::init
+	proc ::foo {} {
+	    set foobar 0
+	}
+	proc ::bar {} {
+	    set foobar 1
+	}
+	foo; foo; bar;
+	profiler::sortFunctions calls
+    }]
+    interp delete $c
+    set result
+} [list [list ::bar 1] [list ::foo 2]]
+
 test profiler-7.3 {sortFunctions} {
     set c [interp create]
     interp alias $c parentSet {} set

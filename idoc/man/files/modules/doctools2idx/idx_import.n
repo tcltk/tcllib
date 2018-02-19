@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'idx_import\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx::import" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::idx::import" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,7 +274,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::import \- Importing keyword indices
 .SH SYNOPSIS
-package require \fBdoctools::idx::import  ?0\&.1?\fR
+package require \fBdoctools::idx::import  ?0\&.2?\fR
 .sp
 package require \fBTcl  8\&.4\fR
 .sp
@@ -505,7 +505,7 @@ changing it\&.
 .sp
 Note that while the user can set the predefined configuration
 variables \fBuser\fR and \fBformat\fR doing so will have no
-effect, these values will be internally overriden when invoking an
+effect, these values will be internally overridden when invoking an
 import plugin\&.
 .TP
 \fIobjectName\fR \fBconfig unset\fR \fIpattern\fR\&.\&.\&.
@@ -708,10 +708,10 @@ The \fItype\fR of a reference can be one of two values,
 .TP
 \fBmanpage\fR
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for\&.
+referring to one of the documents the index was made for\&.
 .TP
 \fBurl\fR
-The identifier of the reference is interpreted as an url, refering to
+The identifier of the reference is interpreted as an url, referring to
 some external location, like a website, etc\&.
 .RE
 .RE
@@ -753,6 +753,6 @@ conversion, docidx, documentation, import, index, json, keyword index, manpage, 
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

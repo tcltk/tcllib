@@ -1,12 +1,13 @@
 ###
 # oodialect.tcl
 #
-# Copyright (c) 2015 Sean Woods, Donald K Fellows
+# Copyright (c) 2015-2018 Sean Woods
+# Copyright (c) 2015 Donald K Fellows
 #
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.3.2
+# Package oo::dialect 0.3.3
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate

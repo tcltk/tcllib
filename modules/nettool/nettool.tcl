@@ -3,6 +3,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
+package require Tcl 8.5
 package provide nettool 0.5.2
 namespace eval ::nettool {}
 set ::nettool::version 0.5.2
@@ -1803,7 +1804,7 @@ proc ::nettool::status {} {
 ###
 
 namespace eval ::nettool {
-  namespace export *
+    namespace export *
 }
 ###
 # Perform any one-time discovery we might need

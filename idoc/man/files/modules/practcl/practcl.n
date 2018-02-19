@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'practcl\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "practcl" n 0\&.1 tcllib "The The Proper Rational API for C to Tool Command Language Module"
+.TH "practcl" n 0\&.11 tcllib "The The Proper Rational API for C to Tool Command Language Module"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ practcl \- The Practcl Module
 .SH SYNOPSIS
 package require \fBTclOO  1\&.0\fR
 .sp
-package require \fBpractcl  0\&.1\fR
+package require \fBpractcl  0\&.11\fR
 .sp
 \fBCPUTS\fR \fIvarname\fR \fIbody\fR ?\fIbody\fR\&.\&.\&.?
 .sp
@@ -357,6 +357,6 @@ practcl
 TclOO
 .SH COPYRIGHT
 .nf
-Copyright (c) 2016 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi
