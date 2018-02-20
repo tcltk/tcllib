@@ -390,6 +390,29 @@ test log-13.7 {logeval evaluation error} {
     list $level $msg
 } {1 q}
 
+test log-13.8 {logeval no var subst on no log} {
+    set _log_ [list]
+    set testvar 1
+    trace add variable testvar read {lappend _log_}
+    # This fires
+    ::log::logsubst er {$testvar}
+    # This does not fire
+    lappend _log_ T1
+    ::log::logsubst crit {$testvar}
+    trace remove variable testvar read {lappend _log_}
+    unset testvar
+    set _log_
+} {testvar {} read error 1 T1}
+
+test log-13.9 {logeval no command subst on no log} {
+    set mylog [list]
+    # This fires
+    ::log::logsubst er {<[lappend mylog Test1]>}
+    # This does not fire
+    ::log::logsubst crit {<[lappend mylog Test2]>}
+    set mylog
+} {Test1}
+
 set lastlevel warning
 foreach level {alert critical debug error emergency info notice warning} {
     test log-14.0.$level {log::Puts} {
