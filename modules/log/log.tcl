@@ -846,7 +846,7 @@ proc ::log::logsubst {level text} {
 	return
     }
     
-    set text [uplevel 1 subst $text]
+    set text [uplevel 1 [list subst $text]]
 
     # Delegate actual logging to the command.
     # Handle multi-line messages correctly.
