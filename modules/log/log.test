@@ -385,12 +385,18 @@ test log-13.6 {logsubst escape} {
     set _log_
 } {error 1 error 2}
 
-test log-13.7 {logeval evaluation error} {
+test log-13.7 {logsubst list} {
+    set _log_ [list]
+    ::log::logsubst er {1 \{2}
+    set _log_
+} {error 1\ \{2}
+
+test log-13.8 {logeval evaluation error} {
     set level [catch {::log::logsubst er {[error q]} } msg]
     list $level $msg
 } {1 q}
 
-test log-13.8 {logeval no var subst on no log} {
+test log-13.9 {logeval no var subst on no log} {
     set _log_ [list]
     set testvar 1
     trace add variable testvar read {lappend _log_}
@@ -404,7 +410,7 @@ test log-13.8 {logeval no var subst on no log} {
     set _log_
 } {testvar {} read error 1 T1}
 
-test log-13.9 {logeval no command subst on no log} {
+test log-13.10 {logeval no command subst on no log} {
     set mylog [list]
     # This fires
     ::log::logsubst er {<[lappend mylog Test1]>}
