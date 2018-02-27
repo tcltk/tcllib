@@ -17,7 +17,7 @@
     if {[dict isnull $info widget]} {
       dict set result widget boolean
     }
-    return $result 
+    return $result
   }
 
   method Value_Export value {
@@ -43,7 +43,7 @@
   method Range {} {
     return [my cget range]
   }
-  
+
   method Value_Import value {
     if { $value in {NULL {}} } {
       return [my cget default]
@@ -51,7 +51,7 @@
     return $value
   }
 
-  
+
   method Value_Interpret value {
     if { $value in {NULL {}} } {
       return [my cget default]
@@ -106,7 +106,7 @@
     }
     return $result
   }
-  
+
   method Value_Import value {
     if {[::tool::is_null $value]} {
       return {}
@@ -118,7 +118,7 @@
     }
     return $newvalue
   }
-  
+
   method Value_Display  value {
     if {[::tool::is_null $value]} {
       return {}
@@ -142,7 +142,7 @@
     real:    1
   }
   option format {default %g}
-  
+
   method datatype_inferences info {
     set result {}
     if {[dict isnull $info storage]} {
@@ -178,7 +178,7 @@
     ranged:  1
     match: {$datatype in {percent percentage %}}
   }
-  
+
   method Value_Interpret value {
     if {[::tool::is_null $value]} {
       return [my cget default]
@@ -192,7 +192,7 @@
     }
     return $value
   }
-  
+
   method Range {} {
     return {0.0 100.0}
   }
@@ -209,7 +209,7 @@
   # When displaying on a scale, get
   # to the nearest 0.05
   option divisions {default 0}
-  
+
   method Value_Interpret value {
     if {[::tool::is_null $value]} {
       return [my cget default]
@@ -223,7 +223,7 @@
     }
     return $value
   }
-  
+
   method Range {} {
     return {0.0 1.0}
   }
@@ -232,10 +232,10 @@
 # title: A value which stores a physical quantity that can be expressed in multiple units
 ::tool::ui::datatype register physics {
   superclass real
-  
+
   option delimeter {default "*"}
   option units {}
-  
+
   method unit_info {specinfo} {
     my variable system_units system_options
     set result {}
@@ -255,7 +255,7 @@
     }
     return $result
   }
-  
+
   method datatype_inferences specinfo {
     set result {}
     set widget [dict getnull $specinfo widget]
@@ -271,7 +271,7 @@
     }
     return $result
   }
-  
+
   method Value_Store value {
     my variable irm_value user_value user_units system_units displayvalue internalvalue
     if {![info exists system_units]} {
@@ -304,7 +304,7 @@
       set displayvalue [my Value_Display $internalvalue]
     }
   }
-  
+
   method Value_Get {} {
     my variable irm_value user_value user_units
     if {[::tool::is_null $irm_value]} {
@@ -325,12 +325,12 @@
     if {[llength $value]<2 || [lindex $value 1] eq {}} {
       return $value
     }
-    if {[lindex $value 2] eq "$system_units" || [lindex $value 0] eq [lindex $value 1]} {
+    if {[lindex $value 2] eq "$system_units" || [lindex $value 0]==[lindex $value 1]} {
       return "[lindex $value 0] $system_units"
     }
     return "[lindex $value 1] [lindex $value 2] ([lindex $value 0] ${system_units})"
   }
-  
+
   method Value_Interpret newvalue {
     if { $newvalue in {NULL {}} } {
       return [my cget default]
@@ -353,7 +353,7 @@
     }
     set irm_value [::siground::signif [::units::convert $human_value $system_units] 6]
     set user_quantity [::siground::signif [lindex $human_value 0] 6]
-    if {$irm_value eq $user_quantity} {
+    if {$irm_value == $user_quantity} {
       return [lindex $human_value 0]
     }
     return [list $irm_value {*}$human_value]
@@ -362,14 +362,14 @@
 
 ::tool::ui::datatype register volume {
   superclass physics
-  
+
   meta set physics units: m^3
   meta set physics options:  {liters gallons m^3}
 }
 
 ::tool::ui::datatype register length {
   superclass physics
-  
+
   meta set physics units: meter
   meta set physics options:  {meter feet inch mile km mm cm}
 }
@@ -377,28 +377,28 @@
 ::tool::ui::datatype register flow {
   superclass physics
 
-  meta set physics units: liter/second
-  meta set physics options:  {liter/second gallon/minute}
+  meta set physics units: liters/second
+  meta set physics options:  {liters/second gallons/minute}
 
 }
 
 ::tool::ui::datatype register power {
   superclass physics
-  
+
   meta set physics units: watt
   meta set physics options:  {watt kw hp}
 }
 
 ::tool::ui::datatype register temperature {
   superclass physics
-  
+
   meta set physics units: celsius
   meta set physics options:  {kelvin celsius farhenheit}
 }
 
 ::tool::ui::datatype register kelvin {
   superclass physics
-  
+
   meta set physics units: kelvin
   meta set physics options:  {kelvin celsius farhenheit}
   method Value_Display value {
@@ -410,7 +410,7 @@
     if {[llength $value]<2 || [lindex $value 1] eq {}} {
       return "$value ( [::siground::signif [::units::convert [list $value $system_units] celsius] 4]${degsym}C)"
     }
-    if {[lindex $value 2] eq "$system_units" || [lindex $value 0] eq [lindex $value 1]} {
+    if {[lindex $value 2] eq "$system_units" || [lindex $value 0] == [lindex $value 1]} {
       set value [lindex $value 1]
       return "$value ( [::siground::signif [::units::convert [list $value $system_units] celsius] 4]${degsym}C)"
     }
