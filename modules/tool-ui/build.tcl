@@ -1,6 +1,6 @@
 set here [file dirname [file normalize [file join [pwd] [info script]]]]
 
-set version 0.2.1
+set version 0.2.2
 set tclversion 8.6
 set module [file tail $here]
 
