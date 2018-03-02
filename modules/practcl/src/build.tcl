@@ -1,10 +1,11 @@
-set here [file dirname [file normalize [file join [pwd] [info script]]]]
+set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
+set moddir [file dirname $srcdir]
 
 set version 0.11
 set tclversion 8.5
-set module [file tail $here]
+set module [file tail $moddir]
 
-set fout [open [file join $here [file tail $module].tcl] w]
+set fout [open [file join $moddir [file tail $module].tcl] w]
 fconfigure $fout -translation lf
 dict set map %module% $module
 dict set map %version% $version
@@ -33,8 +34,8 @@ foreach {omod files} {
   httpwget wget.tcl
 } {
   foreach fname $files {
-    set file [file join $here .. $omod $fname]
-    set fin [open [file join $here src $file] r]
+    set file [file join $moddir .. $omod $fname]
+    set fin [open $file r]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
     puts $fout [read $fin]
     close $fin
@@ -77,7 +78,7 @@ foreach file {
 
 } {
   lappend loaded $file
-  set fin [open [file join $here src {*}$file] r]
+  set fin [open [file join $srcdir {*}$file] r]
   puts $fout "###\n# START: [file join $file]\n###"
   puts $fout [read $fin]
   close $fin
@@ -96,7 +97,7 @@ close $fout
 ###
 # Build our pkgIndex.tcl file
 ###
-set fout [open [file join $here pkgIndex.tcl] w]
+set fout [open [file join $moddir pkgIndex.tcl] w]
 fconfigure $fout -translation lf
 puts $fout [string map $map {###
     if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
