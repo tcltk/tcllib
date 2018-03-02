@@ -1,8 +1,9 @@
-set here [file dirname [file normalize [file join [pwd] [info script]]]]
+set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
+set moddir [file dirname $srcdir]
 
 set version 0.5.2
 set tclversion 8.5
-set module [file tail $here]
+set module [file tail $moddir]
 
 dict set map %module% $module
 dict set map %version% $version
@@ -36,7 +37,7 @@ for {set x 0} {$x < 65536} {incr x} {
 }
 package require dicttool
 package require csv
-set fin [open [file join $here src service-names-port-numbers.csv] r]
+set fin [open [file join $srcdir service-names-port-numbers.csv] r]
 set headers [gets $fin]
 set thisline {}
 while {[gets $fin line]>=0} {
@@ -64,7 +65,7 @@ while {[gets $fin line]>=0} {
 }
 close $fin
 
-set fout [open [file join $here available_ports.tcl] w]
+set fout [open [file join $moddir available_ports.tcl] w]
 puts $fout {
 namespace eval ::nettool {
   set blocks {}
@@ -93,7 +94,7 @@ if { $startport } {
 }
 close $fout
 
-set fout [open [file join $here [file tail $module].tcl] w]
+set fout [open [file join $moddir [file tail $module].tcl] w]
 puts $fout [string map $map {###
     # Amalgamated package for %module%
     # Do not edit directly, tweak the source in src/ and rerun
@@ -107,6 +108,7 @@ puts $fout [string map $map {###
 
 # Track what files we have included so far
 set loaded {}
+lappend loaded build.tcl
 # These files must be loaded in a particular order
 foreach file {
   core.tcl
@@ -120,7 +122,7 @@ foreach file {
   platform_windows_twapi.tcl
 } {
   lappend loaded $file
-  set fin [open [file join $here src $file] r]
+  set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
   puts $fout [read $fin]
   close $fin
@@ -128,10 +130,10 @@ foreach file {
 }
 
 # These files can be loaded in any order
-foreach file [glob [file join $here src *.tcl]] {
+foreach file [glob [file join $srcdir *.tcl]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file
-  set fin [open [file join $here src $file] r]
+  set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
   puts $fout [read $fin]
   close $fin
@@ -154,7 +156,7 @@ close $fout
 ###
 # Build our pkgIndex.tcl file
 ###
-set fout [open [file join $here pkgIndex.tcl] w]
+set fout [open [file join $moddir pkgIndex.tcl] w]
 puts $fout [string map $map {
     if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
     # Backward compatible alias
