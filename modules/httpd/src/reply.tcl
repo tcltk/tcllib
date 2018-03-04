@@ -335,44 +335,45 @@ For deeper understanding:
     set result {}
     dict set result Content-Length 0
     foreach {key} $data(mimeorder) {
+      set ckey $key
       switch [string tolower $key] {
         content-length {
-          set key Content-Length
+          set ckey Content-Length
         }
         content-encoding {
-          set key Content-Encoding
+          set ckey Content-Encoding
         }
         content-language {
-          set key Content-Language
+          set ckey Content-Language
         }
         content-location {
-          set key Content-Location
+          set ckey Content-Location
         }
         content-md5 {
-          set key Content-MD5
+          set ckey Content-MD5
         }
         content-range {
-          set key Content-Range
+          set ckey Content-Range
         }
         content-type {
-          set key Content-Type
+          set ckey Content-Type
         }
         expires {
-          set key Expires
+          set ckey Expires
         }
         last-modified {
-          set key Last-Modified
+          set ckey Last-Modified
         }
         cookie {
-          set key COOKIE
+          set ckey COOKIE
         }
         referer -
         referrer {
           # Standard misspelling in the RFC
-          set key Referer
+          set ckey Referer
         }
       }
-      dict set result $key $data(mime,$key)
+      dict set result $ckey $data(mime,$key)
     }
     return $result
   }
