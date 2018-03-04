@@ -1195,7 +1195,7 @@ tool::define ::httpd::reply.scgi {
       #puts stderr $::errorInfo
       my error 500 $err [dict get $info -errorinfo]
     } finally {
-      my output
+      #my output
     }
   }
 
