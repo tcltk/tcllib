@@ -78,7 +78,9 @@
       ###
       next
     }
-    my variable sock chan
+    my variable sock chan dispatched_time
+    set stime [clock milliseconds]
+    set dtime [expr {$stime-$dispatched_time}]
     set replyhead [my HttpHeaders $sock]
     set replydat  [my MimeParse $replyhead]
     if {![dict exists $replydat Content-Length]} {
@@ -100,6 +102,7 @@
     ###
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    my log HttpAccess {}
     if {$length} {
       ###
       # Send any POST/PUT/etc content
@@ -123,11 +126,10 @@ tool::define ::httpd::reply.scgi {
   ###
   method dispatch {newsock datastate} {
     my http_info replace $datastate
-    my variable chan rawrequest dipatched_time
+    my variable chan rawrequest dispatched_time
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
     try {
       # Dispatch to the URL implementation.
       # Convert SCGI headers to mime-ish equivilients

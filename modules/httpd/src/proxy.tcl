@@ -78,6 +78,7 @@
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
     set length [dict get $replydat CONTENT_LENGTH]
+    my log HttpAccess {}
     if {$length} {
       ###
       # Send any POST/PUT/etc content

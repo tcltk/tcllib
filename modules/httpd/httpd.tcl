@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.1.1
+package provide httpd 4.1.2
 namespace eval ::httpd {}
-set ::httpd::version 4.1.1
+set ::httpd::version 4.1.2
 
 ###
 # START: core.tcl
@@ -76,7 +76,8 @@ namespace eval ::scgi {}
   }
 
   constructor {ServerObj args} {
-    my variable chan
+    my variable chan dispatched_time
+    set dispatched_time [clock milliseconds]
     oo::objdefine [self] forward <server> $ServerObj
     foreach {field value} [::oo::meta::args_to_options {*}$args] {
       my meta set config $field: $value
@@ -140,11 +141,10 @@ Connection close}
 
   method dispatch {newsock datastate} {
     my http_info replace $datastate
-    my variable chan rawrequest dipatched_time
+    my variable chan rawrequest
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
     try {
       # Initialize the reply
       my reset
@@ -237,6 +237,12 @@ For deeper understanding:
     return "HTTP/1.0 $status"
   }
 
+  method log {type {info {}}} {
+    my variable dispatched_time
+    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] cookie: [my request get COOKIE] referrer: [my request get Referer] user-agent: [my request get User-Agent] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
+
+  }
+
   method output {} {
     my variable chan
     chan event $chan writable [namespace code {my DoOutput}]
@@ -249,7 +255,7 @@ For deeper understanding:
   method DoOutput {} {
     my variable reply_body chan
     chan event $chan writable {}
-    catch {
+    try {
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -264,9 +270,12 @@ For deeper understanding:
         append result [my reply output]
       }
       chan puts -nonewline $chan $result
-    } err
-    puts $err
-    my destroy
+      my log HttpAccess {}
+    } on error {err info} {
+      my log HttpError {error: $err}
+    } finally {
+      my destroy
+    }
   }
 
   method Url_Decode data {
@@ -407,6 +416,14 @@ For deeper understanding:
         last-modified {
           set key Last-Modified
         }
+        cookie {
+          set key COOKIE
+        }
+        referer -
+        referrer {
+          # Standard misspelling in the RFC
+          set key Referer
+        }
       }
       dict set result $key $data(mime,$key)
     }
@@ -448,7 +465,7 @@ For deeper understanding:
     if {[dict exists $request $field]} {
       return $field
     }
-    foreach item [dict gets $request] {
+    foreach item [dict keys $request] {
       if {[string tolower $item] eq [string tolower $field]} {
         return $item
       }
@@ -518,8 +535,8 @@ For deeper understanding:
   # Return true of this class as waited too long to respond
   ###
   method timeOutCheck {} {
-    my variable dipatched_time
-    if {([clock seconds]-$dipatched_time)>30} {
+    my variable dispatched_time
+    if {([clock seconds]-$dispatched_time)>30} {
       ###
       # Something has lasted over 2 minutes. Kill this
       ###
@@ -623,7 +640,7 @@ For deeper understanding:
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
       puts stderr $err
-      my log HttpError $line
+      my log HttpError $ip $line
       catch {close $sock}
       return
     }
@@ -640,10 +657,10 @@ For deeper understanding:
           oo::objdefine $pageobj mixin [dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
-        my log HttpAccess $line
+        #my log HttpAccess $ip $line
       } else {
         try {
-          my log HttpMissing $line
+          my log HttpMissing $ip $line
           chan puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
@@ -666,9 +683,9 @@ For deeper understanding:
         chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
-        my log HttpError $line
+        my log HttpError $ip $line
       } on error {err errdat} {
-        my log HttpFatal $::errorInfo
+        my log HttpFatal $ip $::errorInfo
         #puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}
@@ -919,8 +936,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 
   method dispatch {newsock datastate} {
     # No need to process the rest of the headers
-    my variable chan dipatched_time
-    set dispatched_time [clock seconds]
+    my variable chan
     my http_info replace $datastate
     set chan $newsock
     my content
@@ -991,6 +1007,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
     chan configure $chan  -translation {binary binary}
+    my log HttpAccess {}
     if {![info exists reply_file]} {
       ###
       # Return dynamic content
@@ -1107,7 +1124,9 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       next
     }
-    my variable sock chan
+    my variable sock chan dispatched_time
+    set stime [clock milliseconds]
+    set dtime [expr {$stime-$dispatched_time}]
     set replyhead [my HttpHeaders $sock]
     set replydat  [my MimeParse $replyhead]
     if {![dict exists $replydat Content-Length]} {
@@ -1129,6 +1148,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     ###
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    my log HttpAccess {}
     if {$length} {
       ###
       # Send any POST/PUT/etc content
@@ -1152,11 +1172,10 @@ tool::define ::httpd::reply.scgi {
   ###
   method dispatch {newsock datastate} {
     my http_info replace $datastate
-    my variable chan rawrequest dipatched_time
+    my variable chan rawrequest dispatched_time
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
     try {
       # Dispatch to the URL implementation.
       # Convert SCGI headers to mime-ish equivilients
@@ -1366,6 +1385,7 @@ tool::define ::httpd::server.scgi {
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
     set length [dict get $replydat CONTENT_LENGTH]
+    my log HttpAccess {}
     if {$length} {
       ###
       # Send any POST/PUT/etc content

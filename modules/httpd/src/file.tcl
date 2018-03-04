@@ -59,8 +59,7 @@
 
   method dispatch {newsock datastate} {
     # No need to process the rest of the headers
-    my variable chan dipatched_time
-    set dispatched_time [clock seconds]
+    my variable chan
     my http_info replace $datastate
     set chan $newsock
     my content
@@ -131,6 +130,7 @@
     chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
     chan configure $chan  -translation {binary binary}
+    my log HttpAccess {}
     if {![info exists reply_file]} {
       ###
       # Return dynamic content

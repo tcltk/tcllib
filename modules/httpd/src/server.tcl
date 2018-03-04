@@ -79,7 +79,7 @@
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
       puts stderr $err
-      my log HttpError $line
+      my log HttpError $ip $line
       catch {close $sock}
       return
     }
@@ -96,10 +96,10 @@
           oo::objdefine $pageobj mixin [dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
-        my log HttpAccess $line
+        #my log HttpAccess $ip $line
       } else {
         try {
-          my log HttpMissing $line
+          my log HttpMissing $ip $line
           chan puts $sock "HTTP/1.0 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
@@ -122,9 +122,9 @@
         chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
-        my log HttpError $line
+        my log HttpError $ip $line
       } on error {err errdat} {
-        my log HttpFatal $::errorInfo
+        my log HttpFatal $ip $::errorInfo
         #puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}

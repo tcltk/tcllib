@@ -23,7 +23,8 @@
   }
 
   constructor {ServerObj args} {
-    my variable chan
+    my variable chan dispatched_time
+    set dispatched_time [clock milliseconds]
     oo::objdefine [self] forward <server> $ServerObj
     foreach {field value} [::oo::meta::args_to_options {*}$args] {
       my meta set config $field: $value
@@ -87,11 +88,10 @@ Connection close}
 
   method dispatch {newsock datastate} {
     my http_info replace $datastate
-    my variable chan rawrequest dipatched_time
+    my variable chan rawrequest
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
     try {
       # Initialize the reply
       my reset
@@ -184,6 +184,12 @@ For deeper understanding:
     return "HTTP/1.0 $status"
   }
 
+  method log {type {info {}}} {
+    my variable dispatched_time
+    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] cookie: [my request get COOKIE] referrer: [my request get Referer] user-agent: [my request get User-Agent] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
+
+  }
+
   method output {} {
     my variable chan
     chan event $chan writable [namespace code {my DoOutput}]
@@ -196,7 +202,7 @@ For deeper understanding:
   method DoOutput {} {
     my variable reply_body chan
     chan event $chan writable {}
-    catch {
+    try {
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -211,9 +217,12 @@ For deeper understanding:
         append result [my reply output]
       }
       chan puts -nonewline $chan $result
-    } err
-    puts $err
-    my destroy
+      my log HttpAccess {}
+    } on error {err info} {
+      my log HttpError {error: $err}
+    } finally {
+      my destroy
+    }
   }
 
   method Url_Decode data {
@@ -354,6 +363,14 @@ For deeper understanding:
         last-modified {
           set key Last-Modified
         }
+        cookie {
+          set key COOKIE
+        }
+        referer -
+        referrer {
+          # Standard misspelling in the RFC
+          set key Referer
+        }
       }
       dict set result $key $data(mime,$key)
     }
@@ -395,7 +412,7 @@ For deeper understanding:
     if {[dict exists $request $field]} {
       return $field
     }
-    foreach item [dict gets $request] {
+    foreach item [dict keys $request] {
       if {[string tolower $item] eq [string tolower $field]} {
         return $item
       }
@@ -465,8 +482,8 @@ For deeper understanding:
   # Return true of this class as waited too long to respond
   ###
   method timeOutCheck {} {
-    my variable dipatched_time
-    if {([clock seconds]-$dipatched_time)>30} {
+    my variable dispatched_time
+    if {([clock seconds]-$dispatched_time)>30} {
       ###
       # Something has lasted over 2 minutes. Kill this
       ###
