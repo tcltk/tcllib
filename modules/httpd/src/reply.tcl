@@ -126,7 +126,7 @@ For deeper understanding:
 
   method log {type {info {}}} {
     my variable dispatched_time
-    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] cookie: [my request get COOKIE] referrer: [my request get Referer] user-agent: [my request get User-Agent] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
+    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
 
   }
 
@@ -159,6 +159,7 @@ For deeper understanding:
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     } on error {err info} {
+      puts stderr "ERROR [dict get $info -errorinfo]"
       my log HttpError {error: $err}
     } finally {
       my destroy

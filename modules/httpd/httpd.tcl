@@ -24,17 +24,13 @@ set ::httpd::version 4.2.0
 ###
 
 package require uri
+package require dns
 package require cron
 package require coroutine
 package require tool
 package require mime
 package require fileutil
 package require websocket
-###
-# Standard library of HTTP/SCGI content
-# Each of these classes are intended to be mixed into
-# either an HTTPD or SCGI reply
-###
 package require Markdown
 package require fileutil::magic::filetype
 namespace eval httpd::content {}
@@ -334,7 +330,7 @@ For deeper understanding:
 
   method log {type {info {}}} {
     my variable dispatched_time
-    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] cookie: [my request get COOKIE] referrer: [my request get Referer] user-agent: [my request get User-Agent] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
+    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
 
   }
 
@@ -367,6 +363,7 @@ For deeper understanding:
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     } on error {err info} {
+      puts stderr "ERROR [dict get $info -errorinfo]"
       my log HttpError {error: $err}
     } finally {
       my destroy
@@ -576,6 +573,7 @@ For deeper understanding:
   option server_string [list default: [list TclHttpd $::httpd::version]]
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
+  option reverse_dns {type boolean default 0}
 
   property socket buffersize   32768
   property socket translation  {auto crlf}
@@ -626,12 +624,13 @@ For deeper understanding:
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       dict set query REMOTE_ADDR     $ip
+      dict set query REMOTE_HOST     [my HostName $ip]
       dict set query REQUEST_METHOD  [lindex $line 0]
       set uriinfo [::uri::split [lindex $line 1]]
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query REMOTE_IP  $ip
+      dict set query DOCUMENT_ROOT   [my cget doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
@@ -742,7 +741,7 @@ For deeper understanding:
         return $reply
       }
     }
-    set doc_root [my cget doc_root]
+    set doc_root [dict get $reply DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
       # Fall back to doc_root handling
@@ -753,6 +752,16 @@ For deeper understanding:
       return $reply
     }
     return {}
+  }
+
+  method HostName ipaddr {
+    if {![my cget reverse_dns]} {
+      return $ipaddr
+    }
+    set t [::dns::resolve $ipaddr]
+    set result [::dns::name $t]
+    ::dns::cleanup $t
+    return $result
   }
 
   method log args {
