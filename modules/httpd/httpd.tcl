@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.1.2
+package provide httpd 4.2.0
 namespace eval ::httpd {}
-set ::httpd::version 4.1.2
+set ::httpd::version 4.2.0
 
 ###
 # START: core.tcl
@@ -43,18 +43,7 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-
-
-###
-# END: core.tcl
-###
-###
-# START: reply.tcl
-###
-###
-# Define the reply class
-###
-::tool::define ::httpd::reply {
+tool::define ::httpd::mime {
 
   array error_codes {
     200 {Data follows}
@@ -73,30 +62,6 @@ namespace eval ::scgi {}
     503 {Service Unavailable}
     504 {Service Temporarily Unavailable}
     505 {Internal Server Error}
-  }
-
-  constructor {ServerObj args} {
-    my variable chan dispatched_time
-    set dispatched_time [clock milliseconds]
-    oo::objdefine [self] forward <server> $ServerObj
-    foreach {field value} [::oo::meta::args_to_options {*}$args] {
-      my meta set config $field: $value
-    }
-  }
-
-  ###
-  # clean up on exit
-  ###
-  destructor {
-    my close
-  }
-
-  method close {} {
-    my variable chan
-    if {[info exists chan] && $chan ne {}} {
-      catch {flush $chan}
-      catch {close $chan}
-    }
   }
 
   method HttpHeaders {sock {debug {}}} {
@@ -139,18 +104,148 @@ Cache-Control {no-cache}
 Connection close}
   }
 
+
+  ###
+  # Minimalist MIME Header Parser
+  ###
+  method MimeParse mimetext {
+    set data(mimeorder) {}
+    foreach line [split $mimetext \n] {
+      # This regexp picks up
+      # key: value
+      # MIME headers.  MIME headers may be continue with a line
+      # that starts with spaces or a tab
+      if {[string length [string trim $line]]==0} break
+      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
+        # The following allows something to
+        # recreate the headers exactly
+        lappend data(headerlist) $key $value
+        # The rest of this makes it easier to pick out
+        # headers from the data(mime,headername) array
+        #set key [string tolower $key]
+        if {[info exists data(mime,$key)]} {
+          append data(mime,$key) ,$value
+        } else {
+          set data(mime,$key) $value
+          lappend data(mimeorder) $key
+        }
+        set data(key) $key
+      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
+        # Are there really continuation lines in the spec?
+        if {[info exists data(key)]} {
+          append data(mime,$data(key)) " " $value
+        } else {
+          error "INVALID HTTP HEADER FORMAT: $line"
+        }
+      } else {
+        error "INVALID HTTP HEADER FORMAT: $line"
+      }
+    }
+    ###
+    # To make life easier for our SCGI implementation rig things
+    # such that CONTENT_LENGTH is always first
+    # Also map all headers specified in rfc2616 to their canonical case
+    ###
+    set result {}
+    dict set result Content-Length 0
+    foreach {key} $data(mimeorder) {
+      set ckey $key
+      switch [string tolower $key] {
+        content-length {
+          set ckey Content-Length
+        }
+        content-encoding {
+          set ckey Content-Encoding
+        }
+        content-language {
+          set ckey Content-Language
+        }
+        content-location {
+          set ckey Content-Location
+        }
+        content-md5 {
+          set ckey Content-MD5
+        }
+        content-range {
+          set ckey Content-Range
+        }
+        content-type {
+          set ckey Content-Type
+        }
+        expires {
+          set ckey Expires
+        }
+        last-modified {
+          set ckey Last-Modified
+        }
+        cookie {
+          set ckey COOKIE
+        }
+        referer -
+        referrer {
+          # Standard misspelling in the RFC
+          set ckey Referer
+        }
+      }
+      dict set result $ckey $data(mime,$key)
+    }
+    return $result
+  }
+
+  method Url_Decode data {
+    regsub -all {\+} $data " " data
+    regsub -all {([][$\\])} $data {\\\1} data
+    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
+    return [subst $data]
+  }
+}
+
+###
+# END: core.tcl
+###
+###
+# START: reply.tcl
+###
+###
+# Define the reply class
+###
+::tool::define ::httpd::reply {
+  superclass ::httpd::mime
+
+  constructor {ServerObj args} {
+    my variable chan dispatched_time
+    set dispatched_time [clock milliseconds]
+    oo::objdefine [self] forward <server> $ServerObj
+    foreach {field value} [::oo::meta::args_to_options {*}$args] {
+      my meta set config $field: $value
+    }
+  }
+
+  ###
+  # clean up on exit
+  ###
+  destructor {
+    my close
+  }
+
+  method close {} {
+    my variable chan
+    if {[info exists chan] && $chan ne {}} {
+      catch {flush $chan}
+      catch {close $chan}
+    }
+  }
+
   method dispatch {newsock datastate} {
     my http_info replace $datastate
-    my variable chan rawrequest
+    my request replace  [dict get $datastate http]
+    my variable chan
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
     try {
       # Initialize the reply
       my reset
-      # Process the incoming MIME headers
-      set rawrequest [my HttpHeaders $chan]
-      my request parse $rawrequest
       # Invoke the URL implementation.
       my content
     } on error {err info} {
@@ -278,23 +373,16 @@ For deeper understanding:
     }
   }
 
-  method Url_Decode data {
-    regsub -all {\+} $data " " data
-    regsub -all {([][$\\])} $data {\\\1} data
-    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
-    return [subst $data]
-  }
-
   method FormData {} {
-    my variable chan formdata rawrequest
+    my variable chan formdata
     # Run this only once
     if {[info exists formdata]} {
       return $formdata
     }
-    if {![my request exists Content-Length]} {
+    if {![my request exists CONTENT_LENGTH]} {
       set length 0
     } else {
-      set length [my request get Content-Length]
+      set length [my request get CONTENT_LENGTH]
     }
     set formdata {}
     if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
@@ -309,7 +397,7 @@ For deeper understanding:
           ###
           # Ok, Multipart MIME is troublesome, farm out the parsing to a dedicated tool
           ###
-          set body $rawrequest
+          set body [my http_info get mimetxt]
           append body \n [my PostData $length]
           set token [::mime::initialize -string $body]
           foreach item [::mime::getheader $token -names] {
@@ -340,95 +428,6 @@ For deeper understanding:
       }
     }
     return $formdata
-  }
-
-  ###
-  # Minimalist MIME Header Parser
-  ###
-  method MimeParse mimetext {
-    set data(mimeorder) {}
-    foreach line [split $mimetext \n] {
-      # This regexp picks up
-      # key: value
-      # MIME headers.  MIME headers may be continue with a line
-      # that starts with spaces or a tab
-      if {[string length [string trim $line]]==0} break
-      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
-        # The following allows something to
-        # recreate the headers exactly
-        lappend data(headerlist) $key $value
-        # The rest of this makes it easier to pick out
-        # headers from the data(mime,headername) array
-        #set key [string tolower $key]
-        if {[info exists data(mime,$key)]} {
-          append data(mime,$key) ,$value
-        } else {
-          set data(mime,$key) $value
-          lappend data(mimeorder) $key
-        }
-        set data(key) $key
-      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
-        # Are there really continuation lines in the spec?
-        if {[info exists data(key)]} {
-          append data(mime,$data(key)) " " $value
-        } else {
-          my error 400 "INVALID HTTP HEADER FORMAT: $line"
-          tailcall my output
-        }
-      } else {
-        my error 400 "INVALID HTTP HEADER FORMAT: $line"
-        tailcall my output
-      }
-    }
-    ###
-    # To make life easier for our SCGI implementation rig things
-    # such that CONTENT_LENGTH is always first
-    # Also map all headers specified in rfc2616 to their canonical case
-    ###
-    set result {}
-    dict set result Content-Length 0
-    foreach {key} $data(mimeorder) {
-      set ckey $key
-      switch [string tolower $key] {
-        content-length {
-          set ckey Content-Length
-        }
-        content-encoding {
-          set ckey Content-Encoding
-        }
-        content-language {
-          set ckey Content-Language
-        }
-        content-location {
-          set ckey Content-Location
-        }
-        content-md5 {
-          set ckey Content-MD5
-        }
-        content-range {
-          set ckey Content-Range
-        }
-        content-type {
-          set ckey Content-Type
-        }
-        expires {
-          set ckey Expires
-        }
-        last-modified {
-          set ckey Last-Modified
-        }
-        cookie {
-          set ckey COOKIE
-        }
-        referer -
-        referrer {
-          # Standard misspelling in the RFC
-          set ckey Referer
-        }
-      }
-      dict set result $ckey $data(mime,$key)
-    }
-    return $result
   }
 
   method PostData {length} {
@@ -498,7 +497,11 @@ For deeper understanding:
       tailcall dict exists $request $field
     }
     parse {
-      set request [my MimeParse [lindex $args 0]]
+      if {[catch {my MimeParse [lindex $args 0]} result]} {
+        my error 400 $result
+        tailcall my output
+      }
+      set request $result
     }
   }
 
@@ -566,6 +569,7 @@ For deeper understanding:
 ###
 
 ::tool::define ::httpd::server {
+  superclass ::httpd::mime
 
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
@@ -627,16 +631,7 @@ For deeper understanding:
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      if {[dict get $uriinfo host] eq {}} {
-        if {$ip eq "127.0.0.1"} {
-          dict set query HTTP_HOST localhost
-        } else {
-          dict set query HTTP_HOST [info hostname]
-        }
-      } else {
-        dict set query HTTP_HOST [dict get $uriinfo host]
-      }
-      dict set query HTTP_CLIENT_IP  $ip
+      dict set query REMOTE_IP  $ip
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
@@ -646,6 +641,18 @@ For deeper understanding:
       return
     }
     try {
+      set mimetxt [my HttpHeaders $sock]
+      dict set query mimetxt $mimetxt
+      foreach {f v} [my MimeParse $mimetxt] {
+        set fld [string toupper [string map {- _} $f]]
+        if {$fld in {CONTENT_LENGTH CONTENT_TYPE}} {
+          set qfld $fld
+        } else {
+          set qfld HTTP_$fld
+        }
+        dict set query $qfld $v
+        dict set query http $fld $v
+      }
       set reply [my dispatch $query]
       if {[llength $reply]} {
         if {[dict exists $reply class]} {
@@ -669,7 +676,7 @@ For deeper understanding:
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err"
+          puts stderr "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {chan close $sock}
           catch {destroy $pageobj}
@@ -717,13 +724,18 @@ For deeper understanding:
   # Route a request to the appropriate handler
   ###
   method dispatch {data} {
-    set reply $data
+    set reply {}
+    foreach {f v} $data {
+      dict set reply $f $v
+    }
     set uri [dict get $data REQUEST_PATH]
     # Search from longest pattern to shortest
     my variable url_patterns
     foreach {pattern info} $url_patterns {
       if {[string match ${pattern} /$uri]} {
-        set reply [dict merge $data $info]
+        foreach {f v} $info {
+          dict set reply $f $v
+        }
         if {![dict exists $reply prefix]} {
           dict set reply prefix [my PrefixNormalize $pattern]
         }
@@ -933,15 +945,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       }
     }
     my puts "</TABLE></BODY></HTML>"
-  }
-
-  method dispatch {newsock datastate} {
-    # No need to process the rest of the headers
-    my variable chan
-    my http_info replace $datastate
-    set chan $newsock
-    my content
-    my output
   }
 
   method content {} {
@@ -1166,40 +1169,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 tool::define ::httpd::reply.scgi {
   superclass ::httpd::reply
 
-  ###
-  # A modified dispatch method from a standard HTTP reply
-  # Unlike in HTTP, our headers were spoon fed to use from
-  # the server
-  ###
-  method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my variable chan rawrequest dispatched_time
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-    try {
-      # Dispatch to the URL implementation.
-      # Convert SCGI headers to mime-ish equivilients
-      my reset
-      foreach {f v} $datastate {
-        switch $f {
-          CONTENT_LENGTH {
-            my request set Content-Length $v
-          }
-          default {
-            my request set $f $v
-          }
-        }
-      }
-      my content
-    } on error {err info} {
-      #puts stderr $::errorInfo
-      my error 500 $err [dict get $info -errorinfo]
-    } finally {
-      #my output
-    }
-  }
-
   method EncodeStatus {status} {
     return "Status: $status"
   }
@@ -1245,6 +1214,11 @@ tool::define ::httpd::server.scgi {
       chan configure $sock -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query $f $v
+        if {$f in {CONTENT_LENGTH CONTENT_TYPE}} {
+          dict set query http $f $v
+        } elseif {[string range $f 0 4] eq "HTTP_"} {
+          dict set query http [string range $f 5 end] $v
+        }
       }
       if {![dict exists $query REQUEST_PATH]} {
         set uri [dict get $query REQUEST_URI]
@@ -1282,7 +1256,7 @@ tool::define ::httpd::server.scgi {
       }
     } on error {err errdat} {
       try {
-        #puts stderr $::errorInfo
+        puts stderr $::errorInfo
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]

@@ -30,4 +30,159 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
+tool::define ::httpd::mime {
 
+  array error_codes {
+    200 {Data follows}
+    204 {No Content}
+    302 {Found}
+    304 {Not Modified}
+    400 {Bad Request}
+    401 {Authorization Required}
+    403 {Permission denied}
+    404 {Not Found}
+    408 {Request Timeout}
+    411 {Length Required}
+    419 {Expectation Failed}
+    500 {Server Internal Error}
+    501 {Server Busy}
+    503 {Service Unavailable}
+    504 {Service Temporarily Unavailable}
+    505 {Internal Server Error}
+  }
+
+  method HttpHeaders {sock {debug {}}} {
+    set result {}
+    ###
+    # Set up a channel event to stream the data from the socket line by
+    # line. When a blank line is read, the HttpHeaderLine method will send
+    # a flag which will terminate the vwait.
+    #
+    # We do this rather than entering blocking mode to prevent the process
+    # from locking up if it's starved for input. (Or in the case of the test
+    # suite, when we are opening a blocking channel on the other side of the
+    # socket back to ourselves.)
+    ###
+    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    try {
+      while 1 {
+        set readCount [::coroutine::util::gets_safety $sock 4096 line]
+        if {$readCount==0} break
+        append result $line \n
+      }
+    } trap {POSIX EBUSY} {err info} {
+      # Happens...
+    } on error {err info} {
+      puts "ERROR $err"
+      puts [dict print $info]
+      tailcall my destroy
+    }
+    ###
+    # Return our buffer
+    ###
+    return $result
+  }
+
+  method HttpHeaders_Default {} {
+    return {Status {200 OK}
+Content-Size 0
+Content-Type {text/html; charset=UTF-8}
+Cache-Control {no-cache}
+Connection close}
+  }
+
+
+  ###
+  # Minimalist MIME Header Parser
+  ###
+  method MimeParse mimetext {
+    set data(mimeorder) {}
+    foreach line [split $mimetext \n] {
+      # This regexp picks up
+      # key: value
+      # MIME headers.  MIME headers may be continue with a line
+      # that starts with spaces or a tab
+      if {[string length [string trim $line]]==0} break
+      if {[regexp {^([^ :]+):[ 	]*(.*)} $line dummy key value]} {
+        # The following allows something to
+        # recreate the headers exactly
+        lappend data(headerlist) $key $value
+        # The rest of this makes it easier to pick out
+        # headers from the data(mime,headername) array
+        #set key [string tolower $key]
+        if {[info exists data(mime,$key)]} {
+          append data(mime,$key) ,$value
+        } else {
+          set data(mime,$key) $value
+          lappend data(mimeorder) $key
+        }
+        set data(key) $key
+      } elseif {[regexp {^[ 	]+(.*)}  $line dummy value]} {
+        # Are there really continuation lines in the spec?
+        if {[info exists data(key)]} {
+          append data(mime,$data(key)) " " $value
+        } else {
+          error "INVALID HTTP HEADER FORMAT: $line"
+        }
+      } else {
+        error "INVALID HTTP HEADER FORMAT: $line"
+      }
+    }
+    ###
+    # To make life easier for our SCGI implementation rig things
+    # such that CONTENT_LENGTH is always first
+    # Also map all headers specified in rfc2616 to their canonical case
+    ###
+    set result {}
+    dict set result Content-Length 0
+    foreach {key} $data(mimeorder) {
+      set ckey $key
+      switch [string tolower $key] {
+        content-length {
+          set ckey Content-Length
+        }
+        content-encoding {
+          set ckey Content-Encoding
+        }
+        content-language {
+          set ckey Content-Language
+        }
+        content-location {
+          set ckey Content-Location
+        }
+        content-md5 {
+          set ckey Content-MD5
+        }
+        content-range {
+          set ckey Content-Range
+        }
+        content-type {
+          set ckey Content-Type
+        }
+        expires {
+          set ckey Expires
+        }
+        last-modified {
+          set ckey Last-Modified
+        }
+        cookie {
+          set ckey COOKIE
+        }
+        referer -
+        referrer {
+          # Standard misspelling in the RFC
+          set ckey Referer
+        }
+      }
+      dict set result $ckey $data(mime,$key)
+    }
+    return $result
+  }
+
+  method Url_Decode data {
+    regsub -all {\+} $data " " data
+    regsub -all {([][$\\])} $data {\\\1} data
+    regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
+    return [subst $data]
+  }
+}
