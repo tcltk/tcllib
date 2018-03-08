@@ -4,6 +4,7 @@
 ###
 
 ::tool::define ::httpd::server {
+  superclass ::httpd::mime
 
   option port  {default: auto}
   option myaddr {default: 127.0.0.1}
@@ -65,16 +66,7 @@
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      if {[dict get $uriinfo host] eq {}} {
-        if {$ip eq "127.0.0.1"} {
-          dict set query HTTP_HOST localhost
-        } else {
-          dict set query HTTP_HOST [info hostname]
-        }
-      } else {
-        dict set query HTTP_HOST [dict get $uriinfo host]
-      }
-      dict set query HTTP_CLIENT_IP  $ip
+      dict set query REMOTE_IP  $ip
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
@@ -84,6 +76,18 @@
       return
     }
     try {
+      set mimetxt [my HttpHeaders $sock]
+      dict set query mimetxt $mimetxt
+      foreach {f v} [my MimeParse $mimetxt] {
+        set fld [string toupper [string map {- _} $f]]
+        if {$fld in {CONTENT_LENGTH CONTENT_TYPE}} {
+          set qfld $fld
+        } else {
+          set qfld HTTP_$fld
+        }
+        dict set query $qfld $v
+        dict set query http $fld $v
+      }
       set reply [my dispatch $query]
       if {[llength $reply]} {
         if {[dict exists $reply class]} {
@@ -107,7 +111,7 @@
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err"
+          puts stderr "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {chan close $sock}
           catch {destroy $pageobj}
@@ -155,13 +159,18 @@
   # Route a request to the appropriate handler
   ###
   method dispatch {data} {
-    set reply $data
+    set reply {}
+    foreach {f v} $data {
+      dict set reply $f $v
+    }
     set uri [dict get $data REQUEST_PATH]
     # Search from longest pattern to shortest
     my variable url_patterns
     foreach {pattern info} $url_patterns {
       if {[string match ${pattern} /$uri]} {
-        set reply [dict merge $data $info]
+        foreach {f v} $info {
+          dict set reply $f $v
+        }
         if {![dict exists $reply prefix]} {
           dict set reply prefix [my PrefixNormalize $pattern]
         }

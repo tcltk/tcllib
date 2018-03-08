@@ -57,15 +57,6 @@
     my puts "</TABLE></BODY></HTML>"
   }
 
-  method dispatch {newsock datastate} {
-    # No need to process the rest of the headers
-    my variable chan
-    my http_info replace $datastate
-    set chan $newsock
-    my content
-    my output
-  }
-
   method content {} {
     ###
     # When delivering static content, allow web caches to save

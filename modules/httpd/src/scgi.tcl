@@ -119,40 +119,6 @@
 tool::define ::httpd::reply.scgi {
   superclass ::httpd::reply
 
-  ###
-  # A modified dispatch method from a standard HTTP reply
-  # Unlike in HTTP, our headers were spoon fed to use from
-  # the server
-  ###
-  method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my variable chan rawrequest dispatched_time
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-    try {
-      # Dispatch to the URL implementation.
-      # Convert SCGI headers to mime-ish equivilients
-      my reset
-      foreach {f v} $datastate {
-        switch $f {
-          CONTENT_LENGTH {
-            my request set Content-Length $v
-          }
-          default {
-            my request set $f $v
-          }
-        }
-      }
-      my content
-    } on error {err info} {
-      #puts stderr $::errorInfo
-      my error 500 $err [dict get $info -errorinfo]
-    } finally {
-      #my output
-    }
-  }
-
   method EncodeStatus {status} {
     return "Status: $status"
   }
@@ -198,6 +164,11 @@ tool::define ::httpd::server.scgi {
       chan configure $sock -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query $f $v
+        if {$f in {CONTENT_LENGTH CONTENT_TYPE}} {
+          dict set query http $f $v
+        } elseif {[string range $f 0 4] eq "HTTP_"} {
+          dict set query http [string range $f 5 end] $v
+        }
       }
       if {![dict exists $query REQUEST_PATH]} {
         set uri [dict get $query REQUEST_URI]
@@ -235,7 +206,7 @@ tool::define ::httpd::server.scgi {
       }
     } on error {err errdat} {
       try {
-        #puts stderr $::errorInfo
+        puts stderr $::errorInfo
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]

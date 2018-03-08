@@ -184,8 +184,8 @@ tool::define ::test::content.time {
 tool::define ::test::content.echo {
 	method content {} {
 		my variable reply_body
-    my reply set Content-Type [my request get Content-Type]
-		set reply_body [my PostData [my request get Content-Length]]
+    my reply set Content-Type [my request get CONTENT_TYPE]
+		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 	}
 }
 tool::define ::test::content.form_handler {

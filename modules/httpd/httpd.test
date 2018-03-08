@@ -70,6 +70,9 @@ proc ::httpd::test::send {port http headers body} {
   chan event $sock readable [list ::httpd::test::get_reply $sock]
 
 	puts $sock $http
+	if {![dict exists $headers Host]} {
+	  dict set headers Host localhost
+	}
 	if {[string length $body]} {
 		if {![dict exists $headers Content-Type]} {
 			dict set headers Content_Type text/plain
@@ -79,8 +82,8 @@ proc ::httpd::test::send {port http headers body} {
 	foreach {f v} $headers {
 		puts $sock "${f}: $v"
 	}
+  puts $sock {}
 	if {[string length $body]} {
-		puts $sock {}
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
 		puts -nonewline $sock $body
 	}
@@ -147,7 +150,7 @@ tool::define ::httpd::reply {
 tool::define ::test::content.echo {
 	method content {} {
 		my variable reply_body
-		set reply_body [my PostData [my request get Content-Length]]
+		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 		#puts [list REPLY BODY WAS $reply_body]
 	}
 }
@@ -300,27 +303,15 @@ proc ::scgi::encode_request {headers body info} {
   return "[string length $result]:$result,"
 }
 
-proc ::scgi::test::send {port text} {
+proc ::scgi::test::send {port headers body} {
   set sock [socket localhost $port]
   variable reply
   set reply($sock) {}
+  if {![dict exists $headers HOST]} {
+    dict set headers HOST localhost
+  }
   chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
   chan event $sock readable [list ::scgi::test::get_reply $sock]
-
-  set headers {}
-  set body {}
-  set read_headers 1
-  foreach line [split $text \n] {
-    if {$read_headers} {
-      if { $line eq {} } {
-        set read_headers 0
-      } else {
-        append headers $line \n
-      }
-    } else {
-      append body $line \n
-    }
-  }
   set block [::scgi::encode_request $headers $body {}]
   puts -nonewline $sock $block
   flush $sock
@@ -382,10 +373,7 @@ TESTAPP add_uri /error [list mixin ::test::content.error]
 
 test scgi-client-0001 {Do an echo request} {
 
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THIS IS MY CODE}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS IS MY CODE}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -396,10 +384,7 @@ THIS IS MY CODE}
 } {}
 
 test scgi-client-0002 {Do another echo request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THOUGH THERE ARE MANY LIKE IT}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST REQUEST_URI /echo} {THOUGH THERE ARE MANY LIKE IT}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -410,10 +395,7 @@ THOUGH THERE ARE MANY LIKE IT}
 } {}
 
 test scgi-client-0003 {Do another echo request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THIS ONE ALONE IS MINE}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS ONE ALONE IS MINE}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -425,11 +407,7 @@ THIS ONE ALONE IS MINE}
 
 test scgi-client-0004 {URL Generates Error} {
 
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /error
-
-THIS ONE ALONE IS MINE
-}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST REQUEST_URI /error} {THIS ONE ALONE IS MINE}]
 
 set checkreply {Status: 500 Server Internal Error
 Content-Type: text/plain
@@ -449,10 +427,7 @@ Content-Length: *
 [clock seconds]}]
 
 test scgi-client-0005 {URL Different output with a different request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /time
-
-THIS ONE ALONE IS MINE}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD POST REQUEST_URI /time} {THIS ONE ALONE IS MINE}]
 
 ::httpd::test::compare $reply $checkreply
 } {}
@@ -460,10 +435,9 @@ THIS ONE ALONE IS MINE}]
 set fin [open [file join $DEMOROOT pkgIndex.tcl] r]
 set checkfile [read $fin]
 close $fin
+
 test scgi-client-0006 {Return a file} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /file
-}]
+set reply [::scgi::test::send 10001 {REQUEST_METHOD GET REQUEST_URI /file} {}]
 
 set checkreply "Status: 200 OK
 Content-Type: text/plain
@@ -473,8 +447,6 @@ Content-Length: [string length $checkfile]
 $checkfile"
 ::httpd::test::compare $reply $checkreply
 } {}
-
-
 
 # -------------------------------------------------------------------------
 
