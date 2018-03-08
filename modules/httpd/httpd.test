@@ -285,15 +285,17 @@ proc ::scgi::encode_request {headers body info} {
   set outdict [dict merge $outdict $server_block $info]
   dict set outdict PWD [pwd]
   foreach {key value} $headers {
-    switch $key {
-      SCRIPT_NAME -
-      REQUEST_METHOD -
-      REQUEST_URI {
-        dict set outdict $key $value
-      }
-      default {
-        dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
-      }
+    if {$key in {
+      DOCUMENT_ROOT
+      HTTPS
+      PATH
+      REQUEST_METHOD REQUEST_URI
+      REMOTE_HOST REMOTE_ADDR REMOTE_PORT
+      SCRIPT_NAME
+    } || [string range $key 0 5] eq "HTTP_"} {
+      dict set outdict $key $value
+    } else {
+      dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
     }
   }
   set result {}
@@ -310,6 +312,9 @@ proc ::scgi::test::send {port headers body} {
   if {![dict exists $headers HOST]} {
     dict set headers HOST localhost
   }
+  dict set headers REMOTE_IP 127.0.0.1
+  dict set headers REMOTE_HOST localhost
+
   chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
   chan event $sock readable [list ::scgi::test::get_reply $sock]
   set block [::scgi::encode_request $headers $body {}]

@@ -11,6 +11,7 @@
   option server_string [list default: [list TclHttpd $::httpd::version]]
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
+  option reverse_dns {type boolean default 0}
 
   property socket buffersize   32768
   property socket translation  {auto crlf}
@@ -61,12 +62,13 @@
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       dict set query REMOTE_ADDR     $ip
+      dict set query REMOTE_HOST     [my HostName $ip]
       dict set query REQUEST_METHOD  [lindex $line 0]
       set uriinfo [::uri::split [lindex $line 1]]
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query REMOTE_IP  $ip
+      dict set query DOCUMENT_ROOT   [my cget doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
     } on error {err errdat} {
@@ -177,7 +179,7 @@
         return $reply
       }
     }
-    set doc_root [my cget doc_root]
+    set doc_root [dict get $reply DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
       # Fall back to doc_root handling
@@ -188,6 +190,16 @@
       return $reply
     }
     return {}
+  }
+
+  method HostName ipaddr {
+    if {![my cget reverse_dns]} {
+      return $ipaddr
+    }
+    set t [::dns::resolve $ipaddr]
+    set result [::dns::name $t]
+    ::dns::cleanup $t
+    return $result
   }
 
   method log args {

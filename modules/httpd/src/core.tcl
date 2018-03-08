@@ -11,17 +11,13 @@
 ###
 
 package require uri
+package require dns
 package require cron
 package require coroutine
 package require tool
 package require mime
 package require fileutil
 package require websocket
-###
-# Standard library of HTTP/SCGI content
-# Each of these classes are intended to be mixed into
-# either an HTTPD or SCGI reply
-###
 package require Markdown
 package require fileutil::magic::filetype
 namespace eval httpd::content {}
