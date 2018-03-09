@@ -181,4 +181,37 @@ Connection close}
     regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
     return [subst $data]
   }
+
+  method Url_PathCheck {urlsuffix} {
+    set pathlist ""
+    foreach part  [split $urlsuffix /] {
+      if {[string length $part] == 0} {
+        # It is important *not* to "continue" here and skip
+        # an empty component because it could be the last thing,
+        # /a/b/c/
+        # which indicates a directory.  In this case you want
+        # Auth_Check to recurse into the directory in the last step.
+      }
+      set part [Url_Decode $part]
+    	# Disallow Mac and UNIX path separators in components
+	    # Windows drive-letters are bad, too
+ 	    if {[regexp [/\\:] $part]} {
+  	    error "URL components cannot include \ or :"
+	    }
+	    switch -- $part {
+	      .  { }
+    	  .. {
+          set len [llength $pathlist]
+          if {[incr len -1] < 0} {
+            error "URL out of range"
+          }
+          set pathlist [lrange $pathlist 0 [incr len -1]]
+        }
+        default {
+          lappend pathlist $part
+        }
+      }
+    }
+    return $pathlist
+  }
 }

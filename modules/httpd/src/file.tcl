@@ -29,7 +29,6 @@
     return {}
   }
 
-
   method DirectoryListing {local_file} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]
     set path [my http_info get path]

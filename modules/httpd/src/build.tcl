@@ -33,6 +33,7 @@ foreach file {
   server.tcl
   dispatch.tcl
   file.tcl
+  cgi.tcl
   scgi.tcl
   proxy.tcl
   websocket.tcl

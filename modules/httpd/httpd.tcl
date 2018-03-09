@@ -194,6 +194,39 @@ Connection close}
     regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
     return [subst $data]
   }
+
+  method Url_PathCheck {urlsuffix} {
+    set pathlist ""
+    foreach part  [split $urlsuffix /] {
+      if {[string length $part] == 0} {
+        # It is important *not* to "continue" here and skip
+        # an empty component because it could be the last thing,
+        # /a/b/c/
+        # which indicates a directory.  In this case you want
+        # Auth_Check to recurse into the directory in the last step.
+      }
+      set part [Url_Decode $part]
+    	# Disallow Mac and UNIX path separators in components
+	    # Windows drive-letters are bad, too
+ 	    if {[regexp [/\\:] $part]} {
+  	    error "URL components cannot include \ or :"
+	    }
+	    switch -- $part {
+	      .  { }
+    	  .. {
+          set len [llength $pathlist]
+          if {[incr len -1] < 0} {
+            error "URL out of range"
+          }
+          set pathlist [lrange $pathlist 0 [incr len -1]]
+        }
+        default {
+          lappend pathlist $part
+        }
+      }
+    }
+    return $pathlist
+  }
 }
 
 ###
@@ -928,7 +961,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     return {}
   }
 
-
   method DirectoryListing {local_file} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]
     set path [my http_info get path]
@@ -1053,6 +1085,267 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 
 ###
 # END: file.tcl
+###
+###
+# START: cgi.tcl
+###
+proc ::fossil args {
+  if {![info exists ::fossil_exe]} {
+    set ::fossil_exe fossil
+  }
+  if {[llength $args]==0} {
+    return $::fossil_exe
+  }
+  return [exec ${::fossil_exe} {*}$args]
+}
+
+::tool::define ::httpd::content.cgi {
+
+  variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
+
+  method Cgi_Executable {script} {
+    if {[string tolower [file extension $script]] eq ".exe"} {
+      return $script
+    }
+    my variable exename
+    set ext [file extension $script]
+    if {$ext eq {}} {
+      set which [file tail $script]
+    } else {
+      if {[dict exists exename $ext]} {
+        return [dict get $exename $ext]
+      }
+      switch $ext {
+        .pl {
+          set which perl
+        }
+        .py {
+          set which python
+        }
+        .php {
+          set which php
+        }
+        .fossil - .fos {
+          set which fossil
+        }
+        default {
+          set which tcl
+        }
+      }
+      if {[dict exists exename $which]} {
+        set result [dict get $exename $which]
+        dict set exename $ext $result
+        return $result
+      }
+    }
+    if {[dict exists exename $which]} {
+      return [dict get $exename $which]
+    }
+    if {$which eq "tcl"} {
+      if {[my cget tcl_exe] ne {}} {
+        dict set exename $which [my cget tcl_exe]
+      } else {
+        dict set exename $which [info nameofexecutable]
+      }
+    } else {
+      if {[my cget ${which}_exe] ne {}} {
+        dict set exename $which [my cget ${which}_exe]
+      } elseif {"$::tcl_platform(platform)" == "windows"} {
+        dict set exename $which $which.exe
+      } else {
+        dict set exename $which $which
+      }
+    }
+    set result [dict get $exename $which]
+    if {$ext ne {}} {
+      dict set exename $ext $result
+    }
+    return $result
+  }
+
+  method FileName {} {
+    set uri [string trimleft [my http_info get REQUEST_URI] /]
+    set path [my http_info get path]
+    set prefix [my http_info get prefix]
+
+    set fname [string range $uri [string length $prefix] end]
+    if {[file exists [file join $path $fname]]} {
+      return [file join $path $fname]
+    }
+    if {[file exists [file join $path $fname.fossil]]} {
+      return [file join $path $fname.fossil]
+    }
+    if {[file exists [file join $path $fname.fos]]} {
+      return [file join $path $fname.fos]
+    }
+    if {[file extension $fname] in {.exe .cgi .tcl .pl .py .php}} {
+      return $fname
+    }
+    return {}
+  }
+
+  method CgiExec {execname script arglist} {
+    if { $::tcl_platform(platform) eq "windows"} {
+      if {[file extension $script] eq ".exe"} {
+        return [open "|[list $script] $arglist" r+]
+      } else {
+        if {$execname eq {}} {
+          set execname [my Cgi_Executable $script]
+        }
+        return [open "|[list $execname $script] $arglist" r+]
+      }
+    } else {
+      if {$execname eq {}} {
+        return [open "|[list $script] $arglist 2>@1" r+]
+      } else {
+        return [open "|[list $execname $script] $arglist 2>@1" r+]
+      }
+    }
+    error "CGI Not supported"
+  }
+
+  method content {} {
+    ###
+    # When delivering static content, allow web caches to save
+    ###
+    my reply set Cache-Control {max-age=3600}
+    my variable reply_file pipe chan
+    set local_file [my FileName]
+    if {$local_file eq {} || ![file exist $local_file]} {
+      my <server> log httpNotFound [my http_info get REQUEST_URI]
+       tailcall my error 404 {Not Found}
+    }
+    if {[file isdirectory $local_file]} {
+      ###
+      # Produce an index page... or error
+      ###
+      tailcall my DirectoryListing $local_file
+    }
+
+    set verbatim {
+      CONTENT_LENGTH CONTENT_TYPE QUERY_STRING REMOTE_USER AUTH_TYPE
+      REQUEST_METHOD REMOTE_ADDR REMOTE_HOST REQUEST_URI REQUEST_PATH
+      REQUEST_VERSION  DOCUMENT_ROOT QUERY_STRING REQUEST_RAW
+      GATEWAY_INTERFACE SERVER_PORT SERVER_HTTPS_PORT
+      SERVER_NAME  SERVER_SOFTWARE SERVER_PROTOCOL
+    }
+    foreach item $verbatim {
+      set ::env($item) {}
+    }
+    foreach item [array names ::env HTTP_*] {
+      set ::env($item) {}
+    }
+    set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
+    set ::env(SERVER_PROTOCOL) HTTP/1.0
+    set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
+    set ::env(PATH_TRANSLATED) $local_file
+    set ::env(HOME) $::env(DOCUMENT_ROOT)
+    foreach {f v} [my http_info dump] {
+      if {$f in $verbatim} {
+        set ::env($f) $v
+      }
+    }
+  	set arglist $::env(QUERY_STRING)
+    set pwd [pwd]
+    try {
+      cd [file dirname $local_file]
+      foreach {f v} [my request dump] {
+        if {$f in $verbatim} {
+          set ::env($f) $v
+        } else {
+          set ::env(HTTP_$f) $v
+        }
+      }
+      if {[file extension $local_file] in {.fossil .fos}} {
+        if {[file exists $local_file.cgi]} {
+          set fout [open $local_file.cgi w]
+          puts $fout "#!/usr/bin/fossil"
+          puts $fout "repository: $local_file"
+          close $fout
+        }
+        set EXE [my Cgi_Executable fossil]
+      } else {
+        set EXE [my Cgi_Executable $local_file]
+      }
+      set pipe [my CgiExec $EXE $local_file $arglist]
+      chan configure $pipe -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      if {$::env(CONTENT_LENGTH)>0} {
+        chan copy $chan $pipe -size $::env(CONTENT_LENGTH) -command [info coroutine]
+        yield
+      }
+      chan flush $pipe
+      chan event $pipe readable [info coroutine]
+      yield
+      chan event $pipe readable {}
+      my DoOutput
+    } on error {err errinfo} {
+      puts stderr [dict get $errinfo -errorinfo]
+      my error 500 $err [dict get $errinfo -errorinfo]
+    } finally {
+      cd $pwd
+    }
+  }
+
+  method output {} {
+  }
+
+  method DoOutput {} {
+    if {[my http_info getnull HTTP_ERROR] ne {}} {
+      ###
+      # If something croaked internally, handle this page as a normal reply
+      ###
+      next
+    }
+    my variable pipe chan dispatched_time
+    set stime [clock milliseconds]
+    set dtime [expr {$stime-$dispatched_time}]
+    set replyhead [my HttpHeaders $pipe]
+    set replydat  [my MimeParse $replyhead]
+    if {![dict exists $replydat Content-Length]} {
+      set length 0
+    } else {
+      set length [dict get $replydat Content-Length]
+    }
+    ###
+    # Convert the Status: header from the SCGI service to
+    # a standard service reply line from a web server, but
+    # otherwise spit out the rest of the headers verbatim
+    ###
+    set replybuffer "HTTP/1.0 200 OK\n"
+    append replybuffer $replyhead
+    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    puts $chan $replybuffer
+    ###
+    # Output the body
+    ###
+    chan configure $pipe -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    my log HttpAccess {}
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $pipe $chan -command [namespace code [list my TransferComplete $pipe]]
+    } else {
+      catch {close $pipe}
+      chan flush $chan
+      my destroy
+    }
+  }
+
+  ###
+  # For most CGI applications a directory list is vorboten
+  ###
+  method DirectoryListing {local_file} {
+    tailcall my error 403 {Not Allowed}
+  }
+
+}
+
+
+###
+# END: cgi.tcl
 ###
 ###
 # START: scgi.tcl
