@@ -1,4 +1,6 @@
 
+
+
 ###
 # Class to deliver Static content
 # When utilized, this class is fed a local filename
@@ -57,9 +59,6 @@
   }
 
   method content {} {
-    ###
-    # When delivering static content, allow web caches to save
-    ###
     my reply set Cache-Control {max-age=3600}
     my variable reply_file
     set local_file [my FileName]
@@ -67,7 +66,7 @@
       my <server> log httpNotFound [my http_info get REQUEST_URI]
        tailcall my error 404 {Not Found}
     }
-    if {[file isdirectory $local_file]} {
+    if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
       # Produce an index page
       ###
@@ -125,16 +124,21 @@
       ###
       # Return dynamic content
       ###
-      if {![info exists reply_body]} {
-        append result [my reply output]
-      } else {
-        set reply_body [string trim $reply_body]
+      chan configure $chan  -translation {binary binary}
+      ###
+      # Return dynamic content
+      ###
+      set length [string length $reply_body]
+      set result {}
+      if {${length} > 0} {
         my reply set Content-Length [string length $reply_body]
         append result [my reply output] \n
         append result $reply_body
-        chan puts -nonewline $chan $result
-        chan flush $chan
+      } else {
+        append result [my reply output]
       }
+      chan puts -nonewline $chan $result
+      my log HttpAccess {}
     } else {
       ###
       # Return a stream of data from a file
@@ -149,6 +153,5 @@
       yield
     }
     my destroy
-
   }
 }

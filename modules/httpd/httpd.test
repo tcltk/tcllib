@@ -196,14 +196,14 @@ set DIR [file dirname [file normalize [info script]]]
 set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
-TESTAPP add_uri /     [list mixin ::test::content.echo]
-TESTAPP add_uri /echo [list mixin ::test::content.echo]
-TESTAPP add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTAPP add_uri /time [list mixin ::test::content.time]
-TESTAPP add_uri /error [list mixin ::test::content.error]
+TESTAPP uri add /     [list mixin ::test::content.echo]
+TESTAPP uri add /echo [list mixin ::test::content.echo]
+TESTAPP uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTAPP uri add /time [list mixin ::test::content.time]
+TESTAPP uri add /error [list mixin ::test::content.error]
 
 # Catch all
-#TESTAPP add_uri * [list mixin httpd::content.echo]
+#TESTAPP uri add * [list mixin httpd::content.echo]
 
 test httpd-client-0001 {Do an echo request} {
 
@@ -290,13 +290,13 @@ tool::define ::test::content.proxy {
 
 
 ::httpd::server create TESTPROXY port 10002
-TESTAPP   add_uri /proxy*     [list mixin ::test::content.proxy proxy_port [TESTPROXY port_listening]]
+TESTAPP   uri add /proxy*     [list mixin ::test::content.proxy proxy_port [TESTPROXY port_listening]]
 
-TESTPROXY add_uri /     [list mixin ::test::content.echo]
-TESTPROXY add_uri /echo [list mixin ::test::content.echo]
-TESTPROXY add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTPROXY add_uri /time [list mixin ::test::content.time]
-TESTPROXY add_uri /error [list mixin ::test::content.error]
+TESTPROXY uri add /     [list mixin ::test::content.echo]
+TESTPROXY uri add /echo [list mixin ::test::content.echo]
+TESTPROXY uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTPROXY uri add /time [list mixin ::test::content.time]
+TESTPROXY uri add /error [list mixin ::test::content.error]
 
 test httpd-proxy-0001 {Do an echo request} {
 
@@ -373,7 +373,7 @@ set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 # -------------------------------------------------------------------------
 # cgi
 
-TESTAPP add_uri /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
+TESTAPP uri add /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
 
 set fout [open [file join $DIR test.tcl] w]
 puts $fout {#!/usr/bin/tclsh
@@ -514,11 +514,11 @@ tool::class create scgi::test::app {
 
 scgi::test::app create TESTSCGI port 10003
 
-TESTSCGI add_uri /     [list mixin ::test::content.echo]
-TESTSCGI add_uri /echo [list mixin ::test::content.echo]
-TESTSCGI add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTSCGI add_uri /time [list mixin ::test::content.time]
-TESTSCGI add_uri /error [list mixin ::test::content.error]
+TESTSCGI uri add /     [list mixin ::test::content.echo]
+TESTSCGI uri add /echo [list mixin ::test::content.echo]
+TESTSCGI uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTSCGI uri add /time [list mixin ::test::content.time]
+TESTSCGI uri add /error [list mixin ::test::content.error]
 
 test scgi-client-0001 {Do an echo request} {
 

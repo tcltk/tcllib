@@ -29,11 +29,6 @@
     my stop
   }
 
-  method add_uri {pattern info} {
-    my variable url_patterns
-    dict set url_patterns $pattern $info
-  }
-
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -168,20 +163,23 @@
     foreach {f v} $data {
       dict set reply $f $v
     }
-    set uri [dict get $data REQUEST_PATH]
-    # Search from longest pattern to shortest
-    my variable url_patterns
-    foreach {pattern info} $url_patterns {
-      if {[string match ${pattern} /$uri]} {
-        foreach {f v} $info {
-          dict set reply $f $v
-        }
-        if {![dict exists $reply prefix]} {
-          dict set reply prefix [my PrefixNormalize $pattern]
-        }
-        return $reply
+    set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
+    set uri   [dict get $data REQUEST_PATH]
+
+    foreach {host pattern info} [my uri patterns] {
+      if {![string match $host $vhost]} continue
+      if {![string match $pattern /$uri]} continue
+      foreach {f v} $info {
+        dict set reply $f $v
       }
+      if {![dict exists $reply prefix]} {
+         dict set reply prefix [my PrefixNormalize $pattern]
+      }
+      return $reply
     }
+    ###
+    # Fallback to docroot handling
+    ###
     set doc_root [dict get $reply DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
@@ -299,6 +297,41 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 </BODY>
 </HTML>
         }
+      }
+    }
+  }
+
+  method uri::patterns {} {
+    my variable url_patterns url_stream
+    if {![info exists url_stream]} {
+      set url_stream {}
+      foreach {host hostpat} $url_patterns {
+        foreach {pattern info} $hostpat {
+          lappend url_stream $host $pattern $info
+        }
+      }
+    }
+    return $url_stream
+  }
+
+  method uri::add args {
+    my variable url_patterns url_stream
+    unset -nocomplain url_stream
+    switch [llength $args] {
+      2 {
+        set vhosts *
+        lassign $args patterns info
+      }
+      3 {
+        lassign $args vhosts patterns info
+      }
+      default {
+        error "Usage: add_url ?vhosts? prefix info"
+      }
+    }
+    foreach vhost $vhosts {
+      foreach pattern $patterns {
+        dict set url_patterns $vhost $pattern $info
       }
     }
   }
