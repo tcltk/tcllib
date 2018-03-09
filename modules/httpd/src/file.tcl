@@ -135,7 +135,6 @@
         chan puts -nonewline $chan $result
         chan flush $chan
       }
-      my destroy
     } else {
       ###
       # Return a stream of data from a file
@@ -146,7 +145,10 @@
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       chan configure $reply_chan  -translation {binary binary}
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
+      chan copy $reply_chan $chan -command [info coroutine]
+      yield
     }
+    my destroy
+
   }
 }

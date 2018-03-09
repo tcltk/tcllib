@@ -71,8 +71,9 @@
       dict set query DOCUMENT_ROOT   [my cget doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
+      dict set query SERVER_PORT     [my port_listening]
     } on error {err errdat} {
-      puts stderr $err
+      my debug [dict get $errdat -errorinfo]
       my log HttpError $ip $line
       catch {close $sock}
       return
@@ -113,7 +114,7 @@
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err [dict get $errdat -errorinfo]"
+          my debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {chan close $sock}
           catch {destroy $pageobj}
@@ -156,6 +157,8 @@
       }
     }
   }
+
+  method debug args {}
 
   ###
   # Route a request to the appropriate handler

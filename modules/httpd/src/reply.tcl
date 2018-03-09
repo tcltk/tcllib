@@ -41,8 +41,7 @@
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      #dict print $info
-      #puts stderr $::errorInfo
+      my <server> debug [dict get $info -errorinfo]
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -132,7 +131,10 @@ For deeper understanding:
 
   method output {} {
     my variable chan
-    chan event $chan writable [namespace code {my DoOutput}]
+    chan event $chan writable [info coroutine]
+    yield
+    chan event $chan writable {}
+    my DoOutput
   }
 
   ###
@@ -159,7 +161,7 @@ For deeper understanding:
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     } on error {err info} {
-      puts stderr "ERROR [dict get $info -errorinfo]"
+      my <server> debug [dict get $info -errorinfo]
       my log HttpError {error: $err}
     } finally {
       my destroy
