@@ -278,8 +278,7 @@ Connection close}
       # Invoke the URL implementation.
       my content
     } on error {err info} {
-      #dict print $info
-      #puts stderr $::errorInfo
+      my <server> debug [dict get $info -errorinfo]
       my error 500 $err [dict get $info -errorinfo]
     } finally {
       my output
@@ -369,7 +368,10 @@ For deeper understanding:
 
   method output {} {
     my variable chan
-    chan event $chan writable [namespace code {my DoOutput}]
+    chan event $chan writable [info coroutine]
+    yield
+    chan event $chan writable {}
+    my DoOutput
   }
 
   ###
@@ -396,7 +398,7 @@ For deeper understanding:
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     } on error {err info} {
-      puts stderr "ERROR [dict get $info -errorinfo]"
+      my <server> debug [dict get $info -errorinfo]
       my log HttpError {error: $err}
     } finally {
       my destroy
@@ -666,8 +668,9 @@ For deeper understanding:
       dict set query DOCUMENT_ROOT   [my cget doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
+      dict set query SERVER_PORT     [my port_listening]
     } on error {err errdat} {
-      puts stderr $err
+      my debug [dict get $errdat -errorinfo]
       my log HttpError $ip $line
       catch {close $sock}
       return
@@ -708,7 +711,7 @@ For deeper understanding:
           chan puts $sock {}
           chan puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err [dict get $errdat -errorinfo]"
+          my debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {chan close $sock}
           catch {destroy $pageobj}
@@ -751,6 +754,8 @@ For deeper understanding:
       }
     }
   }
+
+  method debug args {}
 
   ###
   # Route a request to the appropriate handler
@@ -1067,7 +1072,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
         chan puts -nonewline $chan $result
         chan flush $chan
       }
-      my destroy
     } else {
       ###
       # Return a stream of data from a file
@@ -1078,8 +1082,11 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       chan configure $reply_chan  -translation {binary binary}
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
+      chan copy $reply_chan $chan -command [info coroutine]
+      yield
     }
+    my destroy
+
   }
 }
 
@@ -1089,19 +1096,28 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ###
 # START: cgi.tcl
 ###
-proc ::fossil args {
-  if {![info exists ::fossil_exe]} {
-    set ::fossil_exe fossil
-  }
-  if {[llength $args]==0} {
-    return $::fossil_exe
-  }
-  return [exec ${::fossil_exe} {*}$args]
-}
-
-::tool::define ::httpd::content.cgi {
-
+::tool::define ::httpd::content.exec {
   variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
+
+  method CgiExec {execname script arglist} {
+    if { $::tcl_platform(platform) eq "windows"} {
+      if {[file extension $script] eq ".exe"} {
+        return [open "|[list $script] $arglist" r+]
+      } else {
+        if {$execname eq {}} {
+          set execname [my Cgi_Executable $script]
+        }
+        return [open "|[list $execname $script] $arglist" r+]
+      }
+    } else {
+      if {$execname eq {}} {
+        return [open "|[list $script] $arglist 2>@1" r+]
+      } else {
+        return [open "|[list $execname $script] $arglist 2>@1" r+]
+      }
+    }
+    error "CGI Not supported"
+  }
 
   method Cgi_Executable {script} {
     if {[string tolower [file extension $script]] eq ".exe"} {
@@ -1162,6 +1178,10 @@ proc ::fossil args {
     }
     return $result
   }
+}
+
+::tool::define ::httpd::content.cgi {
+  superclass ::httpd::content.exec
 
   method FileName {} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]
@@ -1182,26 +1202,6 @@ proc ::fossil args {
       return $fname
     }
     return {}
-  }
-
-  method CgiExec {execname script arglist} {
-    if { $::tcl_platform(platform) eq "windows"} {
-      if {[file extension $script] eq ".exe"} {
-        return [open "|[list $script] $arglist" r+]
-      } else {
-        if {$execname eq {}} {
-          set execname [my Cgi_Executable $script]
-        }
-        return [open "|[list $execname $script] $arglist" r+]
-      }
-    } else {
-      if {$execname eq {}} {
-        return [open "|[list $script] $arglist 2>@1" r+]
-      } else {
-        return [open "|[list $execname $script] $arglist 2>@1" r+]
-      }
-    }
-    error "CGI Not supported"
   }
 
   method content {} {
@@ -1237,8 +1237,6 @@ proc ::fossil args {
     }
     set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
     set ::env(SERVER_PROTOCOL) HTTP/1.0
-    set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
-    set ::env(PATH_TRANSLATED) $local_file
     set ::env(HOME) $::env(DOCUMENT_ROOT)
     foreach {f v} [my http_info dump] {
       if {$f in $verbatim} {
@@ -1256,18 +1254,21 @@ proc ::fossil args {
           set ::env(HTTP_$f) $v
         }
       }
+      set script_file $local_file
       if {[file extension $local_file] in {.fossil .fos}} {
-        if {[file exists $local_file.cgi]} {
+        if {![file exists $local_file.cgi]} {
           set fout [open $local_file.cgi w]
           puts $fout "#!/usr/bin/fossil"
           puts $fout "repository: $local_file"
           close $fout
         }
+        set script_file $local_file.cgi
         set EXE [my Cgi_Executable fossil]
       } else {
         set EXE [my Cgi_Executable $local_file]
       }
-      set pipe [my CgiExec $EXE $local_file $arglist]
+      set ::env(PATH_TRANSLATED) $script_file
+      set pipe [my CgiExec $EXE $script_file $arglist]
       chan configure $pipe -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       if {$::env(CONTENT_LENGTH)>0} {
@@ -1280,7 +1281,7 @@ proc ::fossil args {
       chan event $pipe readable {}
       my DoOutput
     } on error {err errinfo} {
-      puts stderr [dict get $errinfo -errorinfo]
+      my <server> debug [dict get $errinfo -errorinfo]
       my error 500 $err [dict get $errinfo -errorinfo]
     } finally {
       cd $pwd
@@ -1326,12 +1327,12 @@ proc ::fossil args {
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $pipe $chan -command [namespace code [list my TransferComplete $pipe]]
-    } else {
-      catch {close $pipe}
-      chan flush $chan
-      my destroy
+      chan copy $pipe $chan -command [info coroutine]
+      yield
     }
+    catch {close $pipe}
+    chan flush $chan
+    my destroy
   }
 
   ###
@@ -1340,9 +1341,7 @@ proc ::fossil args {
   method DirectoryListing {local_file} {
     tailcall my error 403 {Not Allowed}
   }
-
 }
-
 
 ###
 # END: cgi.tcl
@@ -1413,7 +1412,8 @@ proc ::fossil args {
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chan $sock -size $length
+      chan copy $chan $sock -size $length -command [info coroutine]
+      yield
     }
     chan flush $sock
     ###
@@ -1459,12 +1459,12 @@ proc ::fossil args {
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
+      chan copy $sock $chan -command [info coroutine]
+      yield
     }
+    catch {close $sock}
+    chan flush $chan
+    my destroy
   }
 }
 
@@ -1551,14 +1551,14 @@ tool::define ::httpd::server.scgi {
           puts $sock {}
           puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err"
+          my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {close $sock}
         }
       }
     } on error {err errdat} {
       try {
-        puts stderr $::errorInfo
+        my <server> debug [dict get $errdat -errorinfo]
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]
@@ -1567,8 +1567,8 @@ tool::define ::httpd::server.scgi {
         puts $sock $body
         my log HttpError $REQUEST_URI
       } on error {err errdat} {
-        my log HttpFatal $::errorInfo
-        #puts stderr "FAILED ON 505: $err $::errorInfo"
+        my log HttpFatal [dict get $errdat -errorinfo]
+        my <server> debug "Failed on 505: [dict get $errdat -errorinfo]""
       } finally {
         catch {close $sock}
       }
@@ -1582,95 +1582,101 @@ tool::define ::httpd::server.scgi {
 ###
 # START: proxy.tcl
 ###
-
-# Act as a proxy server
+###
+# Return data from an proxy process
+###
 ::tool::define ::httpd::content.proxy {
-  # Options:
-  # proxy_host - Hostname to proxy
-  # proxy_port - Port on hostname to proxy
-  # proxy_script - Block of text to stream before sending the request
-  ###
+  superclass ::httpd::content.exec
 
-  method proxy_info {} {
+  method proxy_channel {} {
     ###
-    # This method should check if a process is launched
-    # or launch it if needed, and return a list of
-    # HOST PORT PROXYURI
+    # This method returns a channel to the
+    # proxied socket/stdout/etc
     ###
-    # return {localhost 8016 /some/path}
     error unimplemented
   }
 
-  method content {} {
-    my variable chan sock rawrequest
-    set sockinfo [my proxy_info]
-    if {$sockinfo eq {}} {
-      tailcall my error 404 {Not Found}
-    }
-
-    lassign $sockinfo proxyhost proxyport proxyscript
-    set sock [::socket $proxyhost $proxyport]
-
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
-
-    # Pass along our modified METHOD URI PROTO
-    chan puts $sock "$proxyscript"
-    # Pass along the headers as we saw them
-    chan puts $sock $rawrequest
-    set length [my http_info get CONTENT_LENGTH]
-    if {$length} {
-      ###
-      # Send any POST/PUT/etc content
-      ###
-      chan copy $chan $sock -size $length
-    }
-    chan flush $sock
-    ###
-    # Wake this object up after the proxied process starts to respond
-    ###
-    chan configure $sock -translation {auto crlf} -blocking 1 -buffering line
-    chan event $sock readable [namespace code {my output}]
+  method proxy_path {} {
+    set uri [string trimleft [my http_info get REQUEST_URI] /]
+    set prefix [my http_info get prefix]
+    return /[string range $uri [string length $prefix] end]
   }
 
-  method DoOutput {} {
-    my variable chan sock
-    chan event $chan writable {}
-    if {![info exists sock] || [my http_info getnull HTTP_ERROR] ne {}} {
-      ###
-      # If something croaked internally, handle this page as a normal reply
-      ###
-      next
-      return
-    }
-    set length 0
-    chan configure $sock -translation {crlf crlf} -blocking 1
-    set replystatus [gets $sock]
-    set replyhead [my HttpHeaders $sock]
-    set replydat  [my MimeParse $replyhead]
+  method dispatch {newsock datastate} {
+    my http_info replace $datastate
+    my request replace  [dict get $datastate http]
+    my variable sock chan dispatched_time
+    set chan $newsock
+    try {
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+      # Initialize the reply
+      my reset
+      # Invoke the URL implementation.
+      set sock [my proxy_channel]
+      chan event $sock writable [info coroutine]
+      yield
+      chan event $sock writable {}
+      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+      puts $sock "[my http_info get REQUEST_METHOD] [my proxy_path]"
+      puts $sock [my http_info get mimetxt]
+      set length [my http_info get CONTENT_LENGTH]
+      if {$length} {
+        ###
+        # Send any POST/PUT/etc content
+        ###
+        chan copy $chan $sock -size $length -command [info coroutine]
+        yield
+      }
 
-    ###
-    # Pass along the status line and MIME headers
-    ###
-    set replybuffer "$replystatus\n"
-    append replybuffer $replyhead
-    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
-    chan puts $chan $replybuffer
-    ###
-    # Output the body
-    ###
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    set length [dict get $replydat CONTENT_LENGTH]
-    my log HttpAccess {}
-    if {$length} {
+      chan flush $sock
+      set readCount [::coroutine::util::gets_safety $sock 4096 reply_status]
+      set reply_status
+      chan event $sock readable {}
+      set statusline []
+      set stime [clock milliseconds]
+      set dtime [expr {$stime-$dispatched_time}]
+      set replyhead [my HttpHeaders $sock]
+      set replydat  [my MimeParse $replyhead]
+      if {![dict exists $replydat Content-Length]} {
+        set length 0
+      } else {
+        set length [dict get $replydat Content-Length]
+      }
       ###
-      # Send any POST/PUT/etc content
+      # Convert the Status: header from the proxy service to
+      # a standard service reply line from a web server, but
+      # otherwise spit out the rest of the headers verbatim
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      my destroy
+      set replybuffer "$reply_status\n"
+      append replybuffer $replyhead
+      chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+      puts $chan $replybuffer
+      ###
+      # Output the body
+      ###
+      chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      my log HttpAccess {}
+      if {$length} {
+        ###
+        # Send any POST/PUT/etc content
+        ###
+        chan copy $sock $chan -command [info coroutine]
+        yield
+      }
+      catch {chan flush $chan}
+      catch {close $chan}
+    } on error {err info} {
+      my <server> debug [dict get $info -errorinfo]
+      my error 500 $err [dict get $info -errorinfo]
+      my output
+    } finally {
+      catch {chan flush $sock}
+      catch {close $sock}
     }
+    my destroy
   }
 }
 

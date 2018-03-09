@@ -61,7 +61,8 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chan $sock -size $length
+      chan copy $chan $sock -size $length -command [info coroutine]
+      yield
     }
     chan flush $sock
     ###
@@ -107,12 +108,12 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
+      chan copy $sock $chan -command [info coroutine]
+      yield
     }
+    catch {close $sock}
+    chan flush $chan
+    my destroy
   }
 }
 
@@ -199,14 +200,14 @@ tool::define ::httpd::server.scgi {
           puts $sock {}
           puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err"
+          my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
           catch {close $sock}
         }
       }
     } on error {err errdat} {
       try {
-        puts stderr $::errorInfo
+        my <server> debug [dict get $errdat -errorinfo]
         puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]
@@ -215,8 +216,8 @@ tool::define ::httpd::server.scgi {
         puts $sock $body
         my log HttpError $REQUEST_URI
       } on error {err errdat} {
-        my log HttpFatal $::errorInfo
-        #puts stderr "FAILED ON 505: $err $::errorInfo"
+        my log HttpFatal [dict get $errdat -errorinfo]
+        my <server> debug "Failed on 505: [dict get $errdat -errorinfo]""
       } finally {
         catch {close $sock}
       }

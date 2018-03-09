@@ -27,7 +27,7 @@ proc ::fossil args {
   return [exec ${::fossil_exe} {*}$args]
 }
 
-tool::class create httpd::content.fossil_root {
+tool::define httpd::content.fossil_root {
 
   method content {} {
     my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
@@ -44,23 +44,57 @@ tool::class create httpd::content.fossil_root {
   }
 }
 
-###
-# This driver for fossil is not a standard SCGI module
-# it's more or less cargo culted from a working prototype
-# developed for the GORT project. You'll note it does some
-# things that are non-standard for SCGI, and that's to work
-# around quirks in Fossil SCGI implementation.
-#
-# (Either that or my reading of SCGI specs is way, way off.
-# I'm 75% sure I'm doing something wrong.)
-#
-# Actually, according to DRH we should really be using CGI
-# because that is better supported. So until we get the
-# CGI functions fleshed out, here's FOSSIL...
-#
-# --Sean "The Hypnotoad" Woods
-###
-tool::class create httpd::content.fossil_node_scgi {
+
+tool::define httpd::content.fossil_node_proxy {
+
+  superclass httpd::content.proxy
+
+  method FileName {} {
+    set uri    [my http_info get REQUEST_URI]
+    set prefix [my http_info get prefix]
+    set module [lindex [split $uri /] 2]
+    if {![info exists ::fossil_process($module)]} {
+      set dbfiles [::fossil-list]
+      foreach file [lsort -dictionary $dbfiles]  {
+        dict set result [file rootname [file tail $file]] $file
+      }
+      if {![dict exists $result $module]} {
+        return {}
+      }
+      set dbfile [dict get $result $module]
+      if {![file exists $dbfile]} {
+        return {}
+      }
+      set ::fossil_process($module) $dbfile
+    }
+    return [list $module $::fossil_process($module)]
+  }
+
+  method proxy_path {} {
+    set uri [string trimleft [my http_info get REQUEST_URI] /]
+    set prefix [my http_info get prefix]
+    set module [lindex [split $uri /] 1]
+    set path /[string range $uri [string length $prefix/$module] end]
+    return $path
+  }
+
+  method proxy_channel {} {
+    ###
+    # This method returns a channel to the
+    # proxied socket/stdout/etc
+    ###
+    lassign [my FileName] module dbfile
+    set EXE [my Cgi_Executable fossil]
+    set baseurl http://[my http_info get HTTP_HOST][my http_info get prefix]/$module
+    if { $::tcl_platform(platform) eq "windows"} {
+      return [open "|fossil.exe http $dbfile -baseurl $baseurl" r+]
+    } else {
+      return [open "|fossil http $dbfile -baseurl $baseurl 2>@1" r+]
+    }
+  }
+}
+
+tool::define httpd::content.fossil_node_scgi {
 
   superclass httpd::content.scgi
   method scgi_info {} {
@@ -174,17 +208,14 @@ foreach {f v} $opts {
 if {[dict exists $opts fossil]} {
   set ::fossil_exe [dict get $opts fossil]
 }
-puts "Server Options: $serveropts"
-puts "Fossil Options: $fossilopts"
-
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
 appmain add_uri /tcllib* [list mixin httpd::content.file path [file join $tcllibroot embedded www]]
 appmain add_uri /fossil [list mixin httpd::content.fossil_root {*}$fossilopts]
-appmain add_uri /fossil/* [list mixin httpd::content.fossil_node_scgi {*}$fossilopts]
+appmain add_uri /fossil/* [list mixin httpd::content.fossil_node_proxy {*}$fossilopts]
 appmain add_uri /upload [list mixin ::docserver::upload]
 appmain add_uri /dynamic [list mixin ::docserver::dynamic]
 appmain add_uri /listen [list mixin ::docserver::listen]
 appmain add_uri /send   [list mixin ::docserver::send]
-puts [list LISTENING]
+puts [list LISTENING on [appmain port_listening]]
 tool::main

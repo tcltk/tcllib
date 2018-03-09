@@ -287,12 +287,11 @@ fed to it on the command line, and then destroys the object.
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
+      chan copy $sock $chan -command [info coroutine]
+      yield
     }
+    catch {close $sock}
+    chan flush $chan
 }]
 
 [call method [cmd Url_Decode] [arg string]]
