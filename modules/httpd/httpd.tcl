@@ -626,11 +626,6 @@ For deeper understanding:
     my stop
   }
 
-  method add_uri {pattern info} {
-    my variable url_patterns
-    dict set url_patterns $pattern $info
-  }
-
   method connect {sock ip port} {
     ###
     # If an IP address is blocked
@@ -765,20 +760,23 @@ For deeper understanding:
     foreach {f v} $data {
       dict set reply $f $v
     }
-    set uri [dict get $data REQUEST_PATH]
-    # Search from longest pattern to shortest
-    my variable url_patterns
-    foreach {pattern info} $url_patterns {
-      if {[string match ${pattern} /$uri]} {
-        foreach {f v} $info {
-          dict set reply $f $v
-        }
-        if {![dict exists $reply prefix]} {
-          dict set reply prefix [my PrefixNormalize $pattern]
-        }
-        return $reply
+    set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
+    set uri   [dict get $data REQUEST_PATH]
+
+    foreach {host pattern info} [my uri patterns] {
+      if {![string match $host $vhost]} continue
+      if {![string match $pattern /$uri]} continue
+      foreach {f v} $info {
+        dict set reply $f $v
       }
+      if {![dict exists $reply prefix]} {
+         dict set reply prefix [my PrefixNormalize $pattern]
+      }
+      return $reply
     }
+    ###
+    # Fallback to docroot handling
+    ###
     set doc_root [dict get $reply DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
@@ -900,6 +898,41 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
   }
 
+  method uri::patterns {} {
+    my variable url_patterns url_stream
+    if {![info exists url_stream]} {
+      set url_stream {}
+      foreach {host hostpat} $url_patterns {
+        foreach {pattern info} $hostpat {
+          lappend url_stream $host $pattern $info
+        }
+      }
+    }
+    return $url_stream
+  }
+
+  method uri::add args {
+    my variable url_patterns url_stream
+    unset -nocomplain url_stream
+    switch [llength $args] {
+      2 {
+        set vhosts *
+        lassign $args patterns info
+      }
+      3 {
+        lassign $args vhosts patterns info
+      }
+      default {
+        error "Usage: add_url ?vhosts? prefix info"
+      }
+    }
+    foreach vhost $vhosts {
+      foreach pattern $patterns {
+        dict set url_patterns $vhost $pattern $info
+      }
+    }
+  }
+
   method Uuid_Generate {} {
     my variable next_uuid
     return [incr next_uuid]
@@ -935,6 +968,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 ###
 # START: file.tcl
 ###
+
+
 
 ###
 # Class to deliver Static content
@@ -994,9 +1029,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   }
 
   method content {} {
-    ###
-    # When delivering static content, allow web caches to save
-    ###
     my reply set Cache-Control {max-age=3600}
     my variable reply_file
     set local_file [my FileName]
@@ -1004,7 +1036,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       my <server> log httpNotFound [my http_info get REQUEST_URI]
        tailcall my error 404 {Not Found}
     }
-    if {[file isdirectory $local_file]} {
+    if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
       # Produce an index page
       ###
@@ -1062,16 +1094,21 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       # Return dynamic content
       ###
-      if {![info exists reply_body]} {
-        append result [my reply output]
-      } else {
-        set reply_body [string trim $reply_body]
+      chan configure $chan  -translation {binary binary}
+      ###
+      # Return dynamic content
+      ###
+      set length [string length $reply_body]
+      set result {}
+      if {${length} > 0} {
         my reply set Content-Length [string length $reply_body]
         append result [my reply output] \n
         append result $reply_body
-        chan puts -nonewline $chan $result
-        chan flush $chan
+      } else {
+        append result [my reply output]
       }
+      chan puts -nonewline $chan $result
+      my log HttpAccess {}
     } else {
       ###
       # Return a stream of data from a file
@@ -1086,7 +1123,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       yield
     }
     my destroy
-
   }
 }
 

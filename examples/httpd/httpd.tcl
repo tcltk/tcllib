@@ -210,12 +210,12 @@ if {[dict exists $opts fossil]} {
 }
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
-appmain add_uri /tcllib* [list mixin httpd::content.file path [file join $tcllibroot embedded www]]
-appmain add_uri /fossil [list mixin httpd::content.fossil_root {*}$fossilopts]
-appmain add_uri /fossil/* [list mixin httpd::content.fossil_node_proxy {*}$fossilopts]
-appmain add_uri /upload [list mixin ::docserver::upload]
-appmain add_uri /dynamic [list mixin ::docserver::dynamic]
-appmain add_uri /listen [list mixin ::docserver::listen]
-appmain add_uri /send   [list mixin ::docserver::send]
+appmain uri add /tcllib* [list mixin httpd::content.file path [file join $tcllibroot embedded www]]
+appmain uri add /fossil [list mixin httpd::content.fossil_root {*}$fossilopts]
+appmain uri add /fossil/* [list mixin httpd::content.fossil_node_proxy {*}$fossilopts]
+appmain uri add /upload [list mixin ::docserver::upload]
+appmain uri add /dynamic [list mixin ::docserver::dynamic]
+appmain uri add /listen [list mixin ::docserver::listen]
+appmain uri add /send   [list mixin ::docserver::send]
 puts [list LISTENING on [appmain port_listening]]
 tool::main
