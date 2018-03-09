@@ -174,7 +174,10 @@ tool::define ::test::content.error {
 		error {The programmer asked me to die this way}
 	}
 }
+tool::define ::test::content.cgi {
+	superclass ::httpd::content.cgi
 
+}
 
 tool::define ::httpd::test::reply {
 	superclass ::httpd::reply ::test::content.echo
@@ -192,6 +195,25 @@ TESTAPP add_uri /echo [list mixin ::test::content.echo]
 TESTAPP add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
 TESTAPP add_uri /time [list mixin ::test::content.time]
 TESTAPP add_uri /error [list mixin ::test::content.error]
+TESTAPP add_uri /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
+
+set fout [open [file join $DIR test.tcl] w]
+puts $fout {#!/usr/bin/tclsh
+
+if {$::env(CONTENT_LENGTH) > 0} {
+  puts stdout "Content-Type: $::env(CONTENT_TYPE)"
+  set dat [read stdin $::env(CONTENT_LENGTH)]
+} else {
+  puts stdout "Content-Type: text/plain"
+  set dat "Hi!"
+}
+append dat "\nCONTENT_LENGTH $::env(CONTENT_LENGTH)"
+puts stdout "Content-Length: [string length $dat]"
+puts stdout {}
+puts stdout $dat
+exit 0
+}
+close $fout
 # Catch all
 #TESTAPP add_uri * [list mixin httpd::content.echo]
 
@@ -265,8 +287,25 @@ set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
+test httpd-client-0001 {CGI Post} {
 
+set reply [::httpd::test::send 10001 {POST /cgi-bin/test.tcl HTTP/1.0} {} {THIS IS MY CODE}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Content-Type: text/plain
+Content-Length: *
 
+THIS IS MY CODE}
+} {}
+
+test httpd-client-0002 {CGI Get} {
+
+set reply [::httpd::test::send 10001 {GET /cgi-bin/test.tcl HTTP/1.0} {} {}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Content-Type: text/plain
+Content-Length: *
+
+Hi!}
+} {}
 
 # -------------------------------------------------------------------------
 namespace eval ::scgi {}
