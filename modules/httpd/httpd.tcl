@@ -260,8 +260,11 @@ Connection close}
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
-      catch {flush $chan}
-      catch {close $chan}
+      catch {chan event $chan readable {}}
+      catch {chan event $chan writable {}}
+      catch {chan flush $chan}
+      catch {chan close $chan}
+      set chan {}
     }
   }
 
@@ -1589,7 +1592,9 @@ tool::define ::httpd::server.scgi {
         } on error {err errdat} {
           my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
-          catch {close $sock}
+          catch {chan event readable $sock {}}
+          catch {chan event writeable $sock {}}
+          catch {chan close $sock}
         }
       }
     } on error {err errdat} {
@@ -1606,7 +1611,9 @@ tool::define ::httpd::server.scgi {
         my log HttpFatal [dict get $errdat -errorinfo]
         my <server> debug "Failed on 505: [dict get $errdat -errorinfo]""
       } finally {
-        catch {close $sock}
+        catch {chan event readable $sock {}}
+        catch {chan event writeable $sock {}}
+        catch {chan close $sock}
       }
     }
   }
@@ -1702,15 +1709,20 @@ tool::define ::httpd::server.scgi {
         chan copy $sock $chan -command [info coroutine]
         yield
       }
+      catch {chan event $chan readable {}}
+      catch {chan event $chan writable {}}
       catch {chan flush $chan}
-      catch {close $chan}
+      catch {chan close $chan}
+      set chan {}
     } on error {err info} {
       my <server> debug [dict get $info -errorinfo]
       my error 500 $err [dict get $info -errorinfo]
       my output
     } finally {
+      catch {chan event $sock readable {}}
+      catch {chan event $sock writable {}}
       catch {chan flush $sock}
-      catch {close $sock}
+      catch {chan close $sock}
     }
     my destroy
   }

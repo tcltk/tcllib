@@ -23,8 +23,11 @@
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
-      catch {flush $chan}
-      catch {close $chan}
+      catch {chan event $chan readable {}}
+      catch {chan event $chan writable {}}
+      catch {chan flush $chan}
+      catch {chan close $chan}
+      set chan {}
     }
   }
 
