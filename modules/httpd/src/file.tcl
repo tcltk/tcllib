@@ -64,7 +64,7 @@
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
       my <server> log httpNotFound [my http_info get REQUEST_URI]
-       tailcall my error 404 {Not Found}
+       tailcall my error 404 {File Not Found}
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
