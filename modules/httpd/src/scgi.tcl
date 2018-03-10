@@ -202,7 +202,9 @@ tool::define ::httpd::server.scgi {
         } on error {err errdat} {
           my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
-          catch {close $sock}
+          catch {chan event readable $sock {}}
+          catch {chan event writeable $sock {}}
+          catch {chan close $sock}
         }
       }
     } on error {err errdat} {
@@ -219,7 +221,9 @@ tool::define ::httpd::server.scgi {
         my log HttpFatal [dict get $errdat -errorinfo]
         my <server> debug "Failed on 505: [dict get $errdat -errorinfo]""
       } finally {
-        catch {close $sock}
+        catch {chan event readable $sock {}}
+        catch {chan event writeable $sock {}}
+        catch {chan close $sock}
       }
     }
   }
