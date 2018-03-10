@@ -702,7 +702,7 @@ For deeper understanding:
       } else {
         try {
           my log HttpMissing $ip $line
-          chan puts $sock "HTTP/1.0 404 NOT FOUND"
+          chan puts $sock "HTTP/1.0 404 NOT FOUND - 105"
           dict with query {}
           set body [subst [my template notfound]]
           chan puts $sock "Content-Length: [string length $body]"
@@ -726,7 +726,7 @@ For deeper understanding:
         chan puts $sock $body
         my log HttpError $ip $line
       } on error {err errdat} {
-        my log HttpFatal $ip $::errorInfo
+        my log HttpFatal $ip [dict get $errdat -errorinfo]
         #puts stderr "FAILED ON 505: $::errorInfo"
       } finally {
         catch {chan close $sock}
@@ -1037,7 +1037,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
       my <server> log httpNotFound [my http_info get REQUEST_URI]
-       tailcall my error 404 {Not Found}
+       tailcall my error 404 {File Not Found}
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
@@ -1608,7 +1608,7 @@ tool::define ::httpd::server.scgi {
         puts $sock $body
         my log HttpError $REQUEST_URI
       } on error {err errdat} {
-        my log HttpFatal [dict get $errdat -errorinfo]
+        my log HttpFatal [my http_info get REMOTE_ADDR] [dict get $errdat -errorinfo]
         my <server> debug "Failed on 505: [dict get $errdat -errorinfo]""
       } finally {
         catch {chan event readable $sock {}}
