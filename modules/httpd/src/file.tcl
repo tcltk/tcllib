@@ -1,6 +1,3 @@
-
-
-
 ###
 # Class to deliver Static content
 # When utilized, this class is fed a local filename
@@ -138,7 +135,7 @@
         append result [my reply output]
       }
       chan puts -nonewline $chan $result
-      my log HttpAccess {}
+      my TransferComplete $chan
     } else {
       ###
       # Return a stream of data from a file
@@ -149,9 +146,19 @@
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       chan configure $reply_chan  -translation {binary binary}
-      chan copy $reply_chan $chan -command [info coroutine]
-      yield
+      ###
+      # Send any POST/PUT/etc content
+      # Note, we are terminating the coroutine at this point
+      # and using the file event to wake the object back up
+      #
+      # We *could*:
+      # chan copy $sock $chan -command [info coroutine]
+      # yield
+      #
+      # But in the field this pegs the CPU for long transfers and locks
+      # up the process
+      ###
+      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
     }
-    my destroy
   }
 }
