@@ -28,23 +28,33 @@ namespace eval ::scgi {}
 
 tool::define ::httpd::mime {
 
-  array error_codes {
-    200 {Data follows}
-    204 {No Content}
-    302 {Found}
-    304 {Not Modified}
-    400 {Bad Request}
-    401 {Authorization Required}
-    403 {Permission denied}
-    404 {Not Found}
-    408 {Request Timeout}
-    411 {Length Required}
-    419 {Expectation Failed}
-    500 {Server Internal Error}
-    501 {Server Busy}
-    503 {Service Unavailable}
-    504 {Service Temporarily Unavailable}
-    505 {Internal Server Error}
+  method http_code_string code {
+    set codes {
+      200 {Data follows}
+      204 {No Content}
+      301 {Moved Permanently}
+      302 {Found}
+      303 {Moved Temporarily}
+      304 {Not Modified}
+      307 {Moved Permanently}
+      308 {Moved Temporarily}
+      400 {Bad Request}
+      401 {Authorization Required}
+      403 {Permission denied}
+      404 {Not Found}
+      408 {Request Timeout}
+      411 {Length Required}
+      419 {Expectation Failed}
+      500 {Server Internal Error}
+      501 {Server Busy}
+      503 {Service Unavailable}
+      504 {Service Temporarily Unavailable}
+      505 {HTTP Version Not Supported}
+    }
+    if {[dict exists $codes $code]} {
+      return [dict get $codes $code]
+    }
+    return {Unknown Http Code}
   }
 
   method HttpHeaders {sock {debug {}}} {
@@ -86,7 +96,6 @@ Content-Type {text/html; charset=UTF-8}
 Cache-Control {no-cache}
 Connection close}
   }
-
 
   ###
   # Minimalist MIME Header Parser
@@ -214,4 +223,17 @@ Connection close}
     }
     return $pathlist
   }
+
+
+  method wait {mode sock} {
+    if {[info coroutine] eq {}} {
+      chan event $sock $mode [list set ::httpd::lock_$sock $mode]
+      vwait ::httpd::lock_$sock
+    } else {
+      chan event $sock $mode [info coroutine]
+      yield
+    }
+    chan event $sock $mode {}
+  }
+
 }

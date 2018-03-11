@@ -12,6 +12,7 @@
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
   option reverse_dns {type boolean default 0}
+  option doc_ttl {type integer desc {Number of seconds for cache} default 3600}
 
   property socket buffersize   32768
   property socket translation  {auto crlf}
@@ -118,7 +119,7 @@
     } on error {err errdat} {
       try {
         #puts stderr [dict print $errdat]
-        chan puts $sock "HTTP/1.0 505 INTERNAL ERROR - server 119"
+        chan puts $sock "HTTP/1.0 500 INTERNAL ERROR - server 119"
         dict with query {}
         set body [subst [my template internal_error]]
         chan puts $sock "Content-Length: [string length $body]"
@@ -127,7 +128,7 @@
         my log HttpError $ip $line
       } on error {err errdat} {
         my log HttpFatal $ip [dict get $errdat -errorinfo]
-        #puts stderr "FAILED ON 505: $::errorInfo"
+        #puts stderr "FAILED ON 500: $::errorInfo"
       } finally {
         catch {chan close $sock}
         catch {destroy $pageobj}
@@ -174,6 +175,9 @@
       }
       if {![dict exists $reply prefix]} {
          dict set reply prefix [my PrefixNormalize $pattern]
+      }
+      if {![dict exists $reply TTL]} {
+         dict set reply TTL [my cget doc_ttl]
       }
       return $reply
     }
@@ -273,16 +277,29 @@
       return [::fileutil::cat [file join $doc_root $page.html]]
     }
     switch $page {
+      redirect {
+return {
+<HTML>
+<HEAD><TITLE>$HTTP_STATUS</TITLE></HEAD>
+<BODY>
+The page you are looking for: <b>${REQUEST_URI}</b> has moved.
+<p>
+If your browser does not automatically load the new location, it is
+<a href=\"$msg\">$msg</a>
+</BODY>
+</HTML>
+}
+      }
       internal_error {
         return {
 <HTML>
-<HEAD><TITLE>505: Internal Server Error</TITLE></HEAD>
+<HEAD><TITLE>$HTTP_STATUSr</TITLE></HEAD>
 <BODY>
 Error serving <b>${REQUEST_URI}</b>:
 <p>
-The server encountered an internal server error
+The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
-$::errorInfo
+$errorInfo
 </code></pre>
 </BODY>
 </HTML>
@@ -291,7 +308,7 @@ $::errorInfo
       notfound {
         return {
 <HTML>
-<HEAD><TITLE>404: Page Not Found</TITLE></HEAD>
+<HEAD><TITLE>$HTTP_STATUS</TITLE></HEAD>
 <BODY>
 The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
 </BODY>

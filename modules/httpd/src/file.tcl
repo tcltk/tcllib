@@ -56,7 +56,6 @@
   }
 
   method content {} {
-    my reply set Cache-Control {max-age=3600}
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
@@ -112,53 +111,61 @@
   # and destroy this object
   ###
   method DoOutput {} {
-    my variable chan
-    chan event $chan writable {}
     my variable reply_body reply_file reply_chan chan
-    chan configure $chan  -translation {binary binary}
-    my log HttpAccess {}
     if {![info exists reply_file]} {
       ###
-      # Return dynamic content
+      # There is no reply file, return treat this as a normal dynamic file
       ###
-      chan configure $chan  -translation {binary binary}
-      ###
-      # Return dynamic content
-      ###
-      set length [string length $reply_body]
-      set result {}
-      if {${length} > 0} {
-        my reply set Content-Length [string length $reply_body]
-        append result [my reply output] \n
-        append result $reply_body
-      } else {
-        append result [my reply output]
+      my wait writable $chan
+      try {
+        chan configure $chan  -translation {binary binary}
+        ###
+        # Return dynamic content
+        ###
+        set length [string length $reply_body]
+        set result {}
+        if {${length} > 0} {
+          my reply set Content-Length [string length $reply_body]
+          append result [my reply output] \n
+          append result $reply_body
+        } else {
+          append result [my reply output]
+        }
+        my CacheResult $result
+        chan puts -nonewline $chan $result
+        my log HttpAccess {}
+      } on error {err info} {
+        my <server> debug [dict get $info -errorinfo]
+        my log HttpError {error: $err}
+      } finally {
+        my destroy
       }
-      chan puts -nonewline $chan $result
-      my TransferComplete $chan
-    } else {
-      ###
-      # Return a stream of data from a file
-      ###
-      set size [file size $reply_file]
-      my reply set Content-Length $size
-      append result [my reply output] \n
-      chan puts -nonewline $chan $result
-      set reply_chan [open $reply_file r]
-      chan configure $reply_chan  -translation {binary binary}
-      ###
-      # Send any POST/PUT/etc content
-      # Note, we are terminating the coroutine at this point
-      # and using the file event to wake the object back up
-      #
-      # We *could*:
-      # chan copy $sock $chan -command [info coroutine]
-      # yield
-      #
-      # But in the field this pegs the CPU for long transfers and locks
-      # up the process
-      ###
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
     }
+    chan event $chan writable {}
+    chan configure $chan  -translation {binary binary}
+    my log HttpAccess {}
+    ###
+    # Return a stream of data from a file
+    ###
+    set size [file size $reply_file]
+    my reply set Content-Length $size
+    append result [my reply output] \n
+    chan puts -nonewline $chan $result
+    set reply_chan [open $reply_file r]
+    chan configure $reply_chan  -translation {binary binary}
+    ###
+    # Send any POST/PUT/etc content
+    # Note, we are terminating the coroutine at this point
+    # and using the file event to wake the object back up
+    #
+    # We *could*:
+    # chan copy $sock $chan -command [info coroutine]
+    # yield
+    #
+    # But in the field this pegs the CPU for long transfers and locks
+    # up the process
+    ###
+    chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
+
   }
 }

@@ -33,6 +33,15 @@ testing {
   useLocal httpd.tcl httpd
 }
 
+# Set to true for debugging and traces
+set ::DEBUG 0
+
+proc DEBUG args {
+  if {$::DEBUG} {
+    uplevel 1 $args
+  }
+}
+
 # -------------------------------------------------------------------------
 
 namespace eval ::httpd {}
@@ -110,11 +119,9 @@ proc ::httpd::test::get_reply {sock} {
 tool::define ::httpd::server {
   method log args {}
 
-  # Uncomment for debugging
-  #method debug args {
-  #  puts stderr $args
-  #}
-
+  ::DEBUG method debug args {
+    puts stderr $args
+  }
 }
 
 
@@ -138,13 +145,8 @@ tool::define ::httpd::reply {
   method error {code {msg {}} {errorInfo {}}} {
     my http_info set HTTP_ERROR $code
     my reset
-    my variable error_codes
+    set errorstring [my http_code_string $code]
     set qheaders [my http_info dump]
-    if {![info exists error_codes($code)]} {
-      set errorstring "Unknown Error Code"
-    } else {
-      set errorstring $error_codes($code)
-    }
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
@@ -205,6 +207,7 @@ TESTAPP uri add /error [list mixin ::test::content.error]
 # Catch all
 #TESTAPP uri add * [list mixin httpd::content.echo]
 
+::DEBUG puts httpd-client-0001
 test httpd-client-0001 {Do an echo request} {
 
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS IS MY CODE}]
@@ -216,6 +219,7 @@ Content-Length: *
 THIS IS MY CODE}
 } {}
 
+::DEBUG puts httpd-client-0002
 test httpd-client-0002 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -226,6 +230,7 @@ Content-Length: 29
 THOUGH THERE ARE MANY LIKE IT}
 } {}
 
+::DEBUG puts httpd-client-0003
 test httpd-client-0003 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -236,6 +241,7 @@ Content-Length: *
 THIS ONE ALONE IS MINE}
 }  {}
 
+::DEBUG puts httpd-client-0004
 test httpd-client-0004 {URL Generates Error} {
 
 set reply [::httpd::test::send 10001 {POST /error HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
@@ -255,6 +261,7 @@ Content-Length: *
 
 [clock seconds]}]
 
+::DEBUG puts httpd-client-0005
 test httpd-client-0005 {URL Different output with a different request} {
 set reply [::httpd::test::send 10001 {POST /time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply $checkreply
@@ -270,6 +277,7 @@ Content-Length: [string length $replyfile]
 
 $replyfile"
 
+::DEBUG puts httpd-client-0006
 test httpd-client-0006 {Return a file} {
 set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
@@ -298,6 +306,7 @@ TESTPROXY uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
 TESTPROXY uri add /time [list mixin ::test::content.time]
 TESTPROXY uri add /error [list mixin ::test::content.error]
 
+::DEBUG puts httpd-proxy-0001
 test httpd-proxy-0001 {Do an echo request} {
 
 set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THIS IS MY CODE}]
@@ -309,6 +318,7 @@ Content-Length: *
 THIS IS MY CODE}
 } {}
 
+::DEBUG puts httpd-proxy-0002
 test httpd-proxy-0002 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -319,6 +329,7 @@ Content-Length: 29
 THOUGH THERE ARE MANY LIKE IT}
 } {}
 
+::DEBUG puts httpd-proxy-0003
 test httpd-proxy-0003 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -329,6 +340,7 @@ Content-Length: *
 THIS ONE ALONE IS MINE}
 }  {}
 
+::DEBUG puts httpd-proxy-0004
 test httpd-proxy-0004 {URL Generates Error} {
 
 set reply [::httpd::test::send 10001 {POST /proxy/error HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
@@ -348,6 +360,7 @@ Content-Length: *
 
 [clock seconds]}]
 
+::DEBUG puts httpd-proxy-0005
 test httpd-proxy-0005 {URL Different output with a different request} {
 set reply [::httpd::test::send 10001 {POST /proxy/time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply $checkreply
@@ -363,6 +376,7 @@ Content-Length: [string length $replyfile]
 
 $replyfile"
 
+::DEBUG puts httpd-proxy-0006
 test httpd-proxy-0006 {Return a file} {
 set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
@@ -378,6 +392,7 @@ TESTAPP uri add /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
 set fout [open [file join $DIR test.tcl] w]
 puts $fout {#!/usr/bin/tclsh
 
+puts stdout "Status: 200 OK"
 if {$::env(CONTENT_LENGTH) > 0} {
   puts stdout "Content-Type: $::env(CONTENT_TYPE)"
   set dat [read stdin $::env(CONTENT_LENGTH)]
@@ -385,7 +400,6 @@ if {$::env(CONTENT_LENGTH) > 0} {
   puts stdout "Content-Type: text/plain"
   set dat "Hi!"
 }
-append dat "\nCONTENT_LENGTH $::env(CONTENT_LENGTH)"
 puts stdout "Content-Length: [string length $dat]"
 puts stdout {}
 puts stdout $dat
@@ -393,20 +407,24 @@ exit 0
 }
 close $fout
 
+::DEBUG puts httpd-cgi-0001
 test httpd-cgi-0001 {CGI Post} {
 
 set reply [::httpd::test::send 10001 {POST /cgi-bin/test.tcl HTTP/1.0} {} {THIS IS MY CODE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
+Status: 200 OK
 Content-Type: text/plain
 Content-Length: *
 
 THIS IS MY CODE}
 } {}
 
+::DEBUG puts httpd-cgi-0002
 test httpd-cgi-0002 {CGI Get} {
 
 set reply [::httpd::test::send 10001 {GET /cgi-bin/test.tcl HTTP/1.0} {} {}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
+Status: 200 OK
 Content-Type: text/plain
 Content-Length: *
 
@@ -520,6 +538,7 @@ TESTSCGI uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
 TESTSCGI uri add /time [list mixin ::test::content.time]
 TESTSCGI uri add /error [list mixin ::test::content.error]
 
+::DEBUG puts scgi-client-0001
 test scgi-client-0001 {Do an echo request} {
 
 set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS IS MY CODE}]
@@ -532,6 +551,7 @@ THIS IS MY CODE}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0002
 test scgi-client-0002 {Do another echo request} {
 set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THOUGH THERE ARE MANY LIKE IT}]
 set checkreply {Status: 200 OK
@@ -543,6 +563,7 @@ THOUGH THERE ARE MANY LIKE IT}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0003
 test scgi-client-0003 {Do another echo request} {
 set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS ONE ALONE IS MINE}]
 set checkreply {Status: 200 OK
@@ -554,6 +575,7 @@ THIS ONE ALONE IS MINE}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0004
 test scgi-client-0004 {URL Generates Error} {
 
 set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /error} {THIS ONE ALONE IS MINE}]
@@ -575,6 +597,7 @@ Content-Length: *
 
 [clock seconds]}]
 
+::DEBUG puts scgi-client-0005
 test scgi-client-0005 {URL Different output with a different request} {
 set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /time} {THIS ONE ALONE IS MINE}]
 
@@ -585,6 +608,7 @@ set fin [open [file join $DEMOROOT pkgIndex.tcl] r]
 set checkfile [read $fin]
 close $fin
 
+::DEBUG puts scgi-client-0006
 test scgi-client-0006 {Return a file} {
 set reply [::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}]
 
@@ -596,6 +620,8 @@ Content-Length: [string length $checkfile]
 $checkfile"
 ::httpd::test::compare $reply $checkreply
 } {}
+
+::DEBUG puts all-tests-finished
 
 # -------------------------------------------------------------------------
 
