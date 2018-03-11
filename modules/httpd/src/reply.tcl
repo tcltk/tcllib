@@ -146,7 +146,7 @@ For deeper understanding:
   ###
   method DoOutput {} {
     my variable reply_body chan
-    chan event $chan writable {}
+    catch {chan event $chan writable {}}
     try {
       chan configure $chan  -translation {binary binary}
       ###

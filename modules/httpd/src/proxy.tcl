@@ -82,20 +82,16 @@
         chan copy $sock $chan -command [info coroutine]
         yield
       }
+    } on error {err info} {
+      # If something goes wrong, for now just log the
+      # result and move on
+      my <server> debug [dict get $info -errorinfo]
+    } finally {
       catch {chan event $chan readable {}}
       catch {chan event $chan writable {}}
       catch {chan flush $chan}
       catch {chan close $chan}
       set chan {}
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-      my error 500 $err [dict get $info -errorinfo]
-      my output
-    } finally {
-      catch {chan event $sock readable {}}
-      catch {chan event $sock writable {}}
-      catch {chan flush $sock}
-      catch {chan close $sock}
     }
     my destroy
   }
