@@ -113,26 +113,26 @@
       if {$length} {
         ###
         # Send any POST/PUT/etc content
+        # Note, we are terminating the coroutine at this point
+        # and using the file event to wake the object back up
+        #
+        # We *could*:
+        # chan copy $sock $chan -command [info coroutine]
+        # yield
+        #
+        # But in the field this pegs the CPU for long transfers and locks
+        # up the process
         ###
-        chan copy $sock $chan -command [info coroutine]
-        yield
+        chan copy $sock $chan -command [namespace code [list my TransferComplete $sock $chan]]
+      } else {
+        my TransferComplete $sock $chan
       }
     } on error {err info} {
       # If something goes wrong, for now just log the
       # result and move on
       my <server> debug [dict get $info -errorinfo]
-    } finally {
-      catch {chan event $sock readable {}}
-      catch {chan event $sock writable {}}
-      catch {chan flush $sock}
-      catch {chan close $sock}
-      catch {chan event $chan readable {}}
-      catch {chan event $chan writable {}}
-      catch {chan flush $chan}
-      catch {chan close $chan}
-      set chan {}
+      my TransferComplete $sock $chan
     }
-    my destroy
   }
 }
 

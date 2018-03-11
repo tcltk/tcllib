@@ -244,8 +244,13 @@ For deeper understanding:
   }
 
   method TransferComplete args {
+    my variable chan
+    set chan {}
     foreach c $args {
-      catch {close $c}
+      catch {chan event $c readable {}}
+      catch {chan event $c writable {}}
+      catch {chan flush $c}
+      catch {chan close $c}
     }
     my destroy
   }
