@@ -33,9 +33,9 @@ foreach file {
   server.tcl
   dispatch.tcl
   file.tcl
+  proxy.tcl
   cgi.tcl
   scgi.tcl
-  proxy.tcl
   websocket.tcl
 } {
   lappend loaded $file

@@ -20,6 +20,8 @@
     my close
   }
 
+  method CacheResult data {}
+
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -38,6 +40,7 @@
     set chan $newsock
     chan event $chan readable {}
     chan configure $chan -translation {auto crlf} -buffering line
+
     try {
       # Initialize the reply
       my reset
@@ -47,7 +50,7 @@
       my <server> debug [dict get $info -errorinfo]
       my error 500 $err [dict get $info -errorinfo]
     } finally {
-      my output
+      my DoOutput
     }
   }
 
@@ -67,44 +70,26 @@
   method error {code {msg {}} {errorInfo {}}} {
     my http_info set HTTP_ERROR $code
     my reset
-    my variable error_codes
     set qheaders [my http_info dump]
-    if {![info exists error_codes($code)]} {
-      set errorstring "Unknown Error Code"
-    } else {
-      set errorstring $error_codes($code)
-    }
+    set HTTP_STATUS "$code [my http_code_string $code]"
     dict with qheaders {}
     my reply replace {}
-    my reply set Status "$code $errorstring"
+    my reply set Status $HTTP_STATUS
     my reply set Content-Type {text/html; charset=UTF-8}
-    my puts "
-<HTML>
-<HEAD>
-<TITLE>$code $errorstring</TITLE>
-</HEAD>
-<BODY>"
-    if {$msg eq {}} {
-      my puts "
-Got the error <b>$code $errorstring</b>
-<p>
-while trying to obtain $REQUEST_URI
-      "
-    } else {
-      my puts "
-Guru meditation #[clock seconds]
-<p>
-The server encountered an internal error:
-<p>
-<pre>$msg</pre>
-<p>
-For deeper understanding:
-<p>
-<pre>$errorInfo</pre>
-"
+
+    switch $code {
+      301 - 302 - 303 - 307 - 308 {
+        my reply set Location $msg
+        set template [my <server> template redirect]
+      }
+      404 {
+        set template [my <server> template notfound]
+      }
+      default {
+        set template [my <server> template internal_error]
+      }
     }
-    my puts "</BODY>
-</HTML>"
+    my puts [subst $template]
   }
 
 
@@ -132,21 +117,13 @@ For deeper understanding:
 
   }
 
-  method output {} {
-    my variable chan
-    chan event $chan writable [info coroutine]
-    yield
-    chan event $chan writable {}
-    my DoOutput
-  }
-
   ###
   # Output the result or error to the channel
   # and destroy this object
   ###
   method DoOutput {} {
     my variable reply_body chan
-    catch {chan event $chan writable {}}
+    my wait writable $chan
     try {
       chan configure $chan  -translation {binary binary}
       ###
@@ -161,6 +138,7 @@ For deeper understanding:
       } else {
         append result [my reply output]
       }
+      my CacheResult $result
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     } on error {err info} {
@@ -302,7 +280,7 @@ For deeper understanding:
     parse {
       if {[catch {my MimeParse [lindex $args 0]} result]} {
         my error 400 $result
-        tailcall my output
+        tailcall my DoOutput
       }
       set request $result
     }
@@ -335,6 +313,10 @@ For deeper understanding:
     my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
+    set TTL [my http_info getnull TTL]
+    if {[string is integer $TTL] && $TTL > 0} {
+      my reply set Cache-Control "max-age=$TTL"
+    }
     set reply_body {}
   }
 
@@ -347,8 +329,8 @@ For deeper understanding:
       ###
       # Something has lasted over 2 minutes. Kill this
       ###
-      my error 505 {Operation Timed out}
-      my output
+      my error 408 {Request Timed out}
+      my DoOutput
     }
   }
 

@@ -155,7 +155,7 @@ reply, or simply populating the [arg reply_body] variable of the object.
 The information returned by the [cmd content] method is not interpreted in any way.
 
 If an exception is thrown (via the [cmd error] command in Tcl, for example) the caller will
-auto-generate a 505 {Internal Error} message.
+auto-generate a 500 {Internal Error} message.
 
 A typical implementation of [cmd content] look like:
 
@@ -238,10 +238,6 @@ Converts a block of mime encoded text to a key/value list. If an exception is en
 the method will generate its own call to the [cmd error] method, and immediately invoke
 the [cmd output] method to produce an error code and close the connection.
 
-[call method [cmd output]]
-
-Schedules a call to [cmd DoOutput] when [arg chan] becomes writeable
-
 [call method [cmd DoOutput]]
 
 Generates the the HTTP reply, and streams that reply back across [arg chan].
@@ -287,7 +283,7 @@ fed to it on the command line, and then destroys the object.
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -command [info coroutine]
+      chan copy $sock $chan -size $SIZE -command [info coroutine]
       yield
     }
     catch {close $sock}
