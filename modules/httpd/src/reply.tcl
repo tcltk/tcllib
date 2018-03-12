@@ -129,8 +129,9 @@
   ###
   method DoOutput {} {
     my variable reply_body chan
-    my wait writable $chan
-    try {
+    if {$chan eq {}} return
+    catch {
+      my wait writable $chan
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -147,12 +148,8 @@
       my CacheResult $result
       chan puts -nonewline $chan $result
       my log HttpAccess {}
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-      my log HttpError [list error: $err]
-    } finally {
-      my destroy
     }
+    my destroy
   }
 
   method FormData {} {

@@ -104,6 +104,7 @@ namespace eval ::httpd::coro {}
         }
         set pageobj [$class create ::httpd::object::$uuid [self]]
         if {[dict exists $reply mixin]} {
+          #puts [list $pageobj MIXIN {*}[dict get $reply mixin]]
           oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
@@ -121,7 +122,7 @@ namespace eval ::httpd::coro {}
       my debug [list error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log HttpError $ip [list error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {
-      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR - server 119"
+      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR"
       dict with query {}
       set body [subst [my template internal_error]]
       chan puts $sock "Content-Length: [string length $body]"

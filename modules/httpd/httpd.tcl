@@ -396,8 +396,9 @@ Connection close}
   ###
   method DoOutput {} {
     my variable reply_body chan
-    my wait writable $chan
-    try {
+    if {$chan eq {}} return
+    catch {
+      my wait writable $chan
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -414,12 +415,8 @@ Connection close}
       my CacheResult $result
       chan puts -nonewline $chan $result
       my log HttpAccess {}
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-      my log HttpError [list error: $err]
-    } finally {
-      my destroy
     }
+    my destroy
   }
 
   method FormData {} {
@@ -729,6 +726,7 @@ namespace eval ::httpd::coro {}
         }
         set pageobj [$class create ::httpd::object::$uuid [self]]
         if {[dict exists $reply mixin]} {
+          #puts [list $pageobj MIXIN {*}[dict get $reply mixin]]
           oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
@@ -746,7 +744,7 @@ namespace eval ::httpd::coro {}
       my debug [list error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log HttpError $ip [list error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {
-      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR - server 119"
+      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR"
       dict with query {}
       set body [subst [my template internal_error]]
       chan puts $sock "Content-Length: [string length $body]"
@@ -1109,7 +1107,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
       my <server> log httpNotFound [my http_info get REQUEST_URI]
-      tailcall my error 404 {File Not Found}
+      my error 404 {File Not Found}
+      tailcall my DoOutput
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
@@ -1161,12 +1160,13 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   ###
   method DoOutput {} {
     my variable reply_body reply_file reply_chan chan
+    if {$chan eq {}} return
     if {![info exists reply_file]} {
       ###
       # There is no reply file, return treat this as a normal dynamic file
       ###
-      my wait writable $chan
-      try {
+      catch {
+        my wait writable $chan
         chan configure $chan  -translation {binary binary}
         ###
         # Return dynamic content
@@ -1183,39 +1183,35 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
         my CacheResult $result
         chan puts -nonewline $chan $result
         my log HttpAccess {}
-      } on error {err info} {
-        my <server> debug [dict get $info -errorinfo]
-        my log HttpError [list error: $err]
-      } finally {
-        tailcall my destroy
       }
+      my destroy
+    } else {
+      my wait writable $chan
+      chan configure $chan  -translation {binary binary}
+      my log HttpAccess {}
+      ###
+      # Return a stream of data from a file
+      ###
+      set size [file size $reply_file]
+      my reply set Content-Length $size
+      append result [my reply output] \n
+      chan puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      chan configure $reply_chan  -translation {binary binary}
+      ###
+      # Send any POST/PUT/etc content
+      # Note, we are terminating the coroutine at this point
+      # and using the file event to wake the object back up
+      #
+      # We *could*:
+      # chan copy $sock $chan -command [info coroutine]
+      # yield
+      #
+      # But in the field this pegs the CPU for long transfers and locks
+      # up the process
+      ###
+      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
     }
-    chan event $chan writable {}
-    chan configure $chan  -translation {binary binary}
-    my log HttpAccess {}
-    ###
-    # Return a stream of data from a file
-    ###
-    set size [file size $reply_file]
-    my reply set Content-Length $size
-    append result [my reply output] \n
-    chan puts -nonewline $chan $result
-    set reply_chan [open $reply_file r]
-    chan configure $reply_chan  -translation {binary binary}
-    ###
-    # Send any POST/PUT/etc content
-    # Note, we are terminating the coroutine at this point
-    # and using the file event to wake the object back up
-    #
-    # We *could*:
-    # chan copy $sock $chan -command [info coroutine]
-    # yield
-    #
-    # But in the field this pegs the CPU for long transfers and locks
-    # up the process
-    ###
-    chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
-
   }
 }
 
@@ -1389,7 +1385,14 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     # Initialize the reply
     my reset
     # Invoke the URL implementation.
-    set sock [my proxy_channel]
+    if {[catch {my proxy_channel} sock errdat]} {
+      my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
+    if {$sock eq {}} {
+      my error 404 {Not Found}
+      tailcall my DoOutput
+    }
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
@@ -1436,7 +1439,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
       my <server> log httpNotFound [my http_info get REQUEST_URI]
-       tailcall my error 404 {Not Found}
+      my error 404 {Not Found}
+      tailcall my DoOutput
     }
     if {[file isdirectory $local_file]} {
       ###
@@ -1550,7 +1554,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   # For most CGI applications a directory list is vorboten
   ###
   method DirectoryListing {local_file} {
-    tailcall my error 403 {Not Allowed}
+    my error 403 {Not Allowed}
+    tailcall my DoOutput
   }
 }
 
@@ -1584,6 +1589,10 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
     lassign $sockinfo scgihost scgiport scgiscript
     my http_info set SCRIPT_NAME $scgiscript
+    if {![string is integer $scgiport]} {
+      my error 404 {Not Found}
+      tailcall my DoOutput
+    }
     return [::socket $scgihost $scgiport]
   }
 
