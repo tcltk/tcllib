@@ -1074,6 +1074,10 @@ proc ::practcl::_pkgindex_directory {path} {
 
 proc ::practcl::_pkgindex_path_subdir {path} {
   set result {}
+  if {[file exists [file join $path src build.tcl]]} {
+    # Tool style module, don't dive into subdirectories
+    return {}
+  }
   foreach subpath [glob -nocomplain [file join $path *]] {
     if {[file isdirectory $subpath]} {
       lappend result $subpath {*}[_pkgindex_path_subdir $subpath]
