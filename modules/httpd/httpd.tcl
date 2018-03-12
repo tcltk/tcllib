@@ -729,7 +729,7 @@ namespace eval ::httpd::coro {}
         }
         set pageobj [$class create ::httpd::object::$uuid [self]]
         if {[dict exists $reply mixin]} {
-          oo::objdefine $pageobj mixin [dict get $reply mixin]
+          oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
         #my log HttpAccess $ip $line
@@ -803,6 +803,9 @@ namespace eval ::httpd::coro {}
       }
       return $reply
     }
+    return [my DocDefault $reply]
+  }
+  method DocDefault {reply} {
     ###
     # Fallback to docroot handling
     ###
@@ -1211,7 +1214,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     # But in the field this pegs the CPU for long transfers and locks
     # up the process
     ###
-    my log ChanEventCopy [list [self class] [self method]]
     chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
 
   }
@@ -1333,7 +1335,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
     chan puts $chanb [my http_info get mimetxt]
     set length [my http_info get CONTENT_LENGTH]
-    # Light off another coroutine
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -1374,10 +1375,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my log ChanEventCopy [list [self class] [self method]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
-      #[namespace code [list my TransferComplete $chana $chanb]]
     }
   }
 
@@ -1611,7 +1610,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       # Send any POST/PUT/etc content
       ###
-      my log ChanEventCopy [list [self class] [self method]]
       chan copy $chana $chanb -size $length -command [info coroutine]
     } else {
       chan flush $chanb
@@ -1646,8 +1644,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my log ChanEventCopy [list [self class] [self method]]
-      #chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
     }

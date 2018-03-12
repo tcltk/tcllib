@@ -163,7 +163,6 @@
     # But in the field this pegs the CPU for long transfers and locks
     # up the process
     ###
-    my log ChanEventCopy [list [self class] [self method]]
     chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
 
   }

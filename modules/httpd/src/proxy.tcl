@@ -108,7 +108,6 @@
     chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
     chan puts $chanb [my http_info get mimetxt]
     set length [my http_info get CONTENT_LENGTH]
-    # Light off another coroutine
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -149,10 +148,8 @@
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my log ChanEventCopy [list [self class] [self method]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
-      #[namespace code [list my TransferComplete $chana $chanb]]
     }
   }
 
