@@ -192,7 +192,7 @@ tool::define ::test::content.form_handler {
 	method content {} {
 	  set form [my FormData]
 	  my reply set Content-Type {text/html; charset=UTF-8}
-    my puts "<HTML><HEADER><TITLE>My Dynamic Page</TITLE></HEADER>"
+    my puts [my html header {My Dynamic Page}]
     my puts "<BODY>"
     my puts "You Sent<p>"
     my puts "<TABLE>"
@@ -212,7 +212,7 @@ tool::define ::test::content.form_handler {
       my puts $line
     }
     my puts "</TABLE>"
-    my puts "</BODY></HTML>"
+    my puts [my html footer]
 	}
 }
 

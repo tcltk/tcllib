@@ -33,10 +33,7 @@
     set path [my http_info get path]
     set prefix [my http_info get prefix]
     set fname [string range $uri [string length $prefix] end]
-    my puts "<HTML><HEAD><TITLE>Listing of /$fname/</TITLE></HEAD><BODY>"
-    my puts "Path: $path<br>"
-    my puts "Prefs: $prefix</br>"
-    my puts "URI: $uri</br>"
+    my puts [my html header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
     my puts "<TABLE>"
     if {$prefix ni {/ {}}} {
@@ -52,7 +49,8 @@
         my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
       }
     }
-    my puts "</TABLE></BODY></HTML>"
+    my puts "</TABLE>"
+    my puts [my html footer]
   }
 
   method content {} {
@@ -60,7 +58,7 @@
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
       my <server> log httpNotFound [my http_info get REQUEST_URI]
-       tailcall my error 404 {File Not Found}
+      tailcall my error 404 {File Not Found}
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
@@ -136,9 +134,9 @@
         my log HttpAccess {}
       } on error {err info} {
         my <server> debug [dict get $info -errorinfo]
-        my log HttpError {error: $err}
+        my log HttpError [list error: $err]
       } finally {
-        my destroy
+        tailcall my destroy
       }
     }
     chan event $chan writable {}
@@ -165,6 +163,7 @@
     # But in the field this pegs the CPU for long transfers and locks
     # up the process
     ###
+    my log ChanEventCopy [list [self class] [self method]]
     chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
 
   }

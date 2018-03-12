@@ -2,6 +2,9 @@
 # An httpd server with a template engine
 # and a shim to insert URL domains
 ###
+namespace eval ::httpd::object {}
+namespace eval ::httpd::coro {}
+
 
 ::tool::define ::httpd::server {
   superclass ::httpd::mime
@@ -40,7 +43,7 @@
       return
     }
     set uuid [my Uuid_Generate]
-    set coro [coroutine [namespace current]::CORO$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
+    set coro [coroutine ::httpd::coro::$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
     chan event $sock readable $coro
   }
 
@@ -57,6 +60,7 @@
     set line {}
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
+      dict set query UUID $uuid
       dict set query REMOTE_ADDR     $ip
       dict set query REMOTE_HOST     [my HostName $ip]
       dict set query REQUEST_METHOD  [lindex $line 0]
@@ -74,8 +78,12 @@
       catch {close $sock}
       return
     }
+    if {[catch {my HttpHeaders $sock} mimetxt]} {
+      my log HttpFatal $ip $mimetxt
+      catch {chan close $sock}
+      return
+    }
     try {
-      set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
       foreach {f v} [my MimeParse $mimetxt] {
         set fld [string toupper [string map {- _} $f]]
@@ -94,45 +102,34 @@
         } else {
           set class [my cget reply_class]
         }
-        set pageobj [$class create [namespace current]::reply$uuid [self]]
+        set pageobj [$class create ::httpd::object::$uuid [self]]
         if {[dict exists $reply mixin]} {
           oo::objdefine $pageobj mixin [dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
         #my log HttpAccess $ip $line
       } else {
-        try {
-          my log HttpMissing $ip $line
-          chan puts $sock "HTTP/1.0 404 NOT FOUND - 105"
-          dict with query {}
-          set body [subst [my template notfound]]
-          chan puts $sock "Content-Length: [string length $body]"
-          chan puts $sock {}
-          chan puts $sock $body
-        } on error {err errdat} {
-          my debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
-        } finally {
-          catch {chan close $sock}
-          catch {destroy $pageobj}
-        }
-      }
-    } on error {err errdat} {
-      try {
-        #puts stderr [dict print $errdat]
-        chan puts $sock "HTTP/1.0 500 INTERNAL ERROR - server 119"
+        my log HttpMissing $ip $line
+        chan puts $sock "HTTP/1.0 404 NOT FOUND - 105"
         dict with query {}
-        set body [subst [my template internal_error]]
+        set body [subst [my template notfound]]
         chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
-        my log HttpError $ip $line
-      } on error {err errdat} {
-        my log HttpFatal $ip [dict get $errdat -errorinfo]
-        #puts stderr "FAILED ON 500: $::errorInfo"
-      } finally {
-        catch {chan close $sock}
-        catch {destroy $pageobj}
       }
+    } on error {err errdat} {
+      my debug [list error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log HttpError $ip [list error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {
+      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR - server 119"
+      dict with query {}
+      set body [subst [my template internal_error]]
+      chan puts $sock "Content-Length: [string length $body]"
+      chan puts $sock {}
+      chan puts $sock $body
+      }
+      catch {chan close $sock}
+      catch {$pageobj destroy}
     }
   }
 
@@ -279,40 +276,31 @@
     switch $page {
       redirect {
 return {
-<HTML>
-<HEAD><TITLE>$HTTP_STATUS</TITLE></HEAD>
-<BODY>
+[my html header "$HTTP_STATUS"]
 The page you are looking for: <b>${REQUEST_URI}</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
-</BODY>
-</HTML>
+[my html footer]
 }
       }
       internal_error {
         return {
-<HTML>
-<HEAD><TITLE>$HTTP_STATUSr</TITLE></HEAD>
-<BODY>
+[my html header "$HTTP_STATUS"]
 Error serving <b>${REQUEST_URI}</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
 $errorInfo
 </code></pre>
-</BODY>
-</HTML>
+[my html footer]
         }
       }
       notfound {
         return {
-<HTML>
-<HEAD><TITLE>$HTTP_STATUS</TITLE></HEAD>
-<BODY>
+[my html header "$HTTP_STATUS"]
 The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
-</BODY>
-</HTML>
+[my html footer]
         }
       }
     }
@@ -354,8 +342,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
   }
 
   method Uuid_Generate {} {
-    my variable next_uuid
-    return [incr next_uuid]
+    return [::uuid::uuid generate]
   }
 
   ###

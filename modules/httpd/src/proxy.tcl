@@ -103,23 +103,29 @@
   }
 
   method ProxyRequest {chana chanb} {
-    my wait writable $chanb
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan event $chanb writable {}
+    my log ProxyRequest {}
     chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
     chan puts $chanb [my http_info get mimetxt]
     set length [my http_info get CONTENT_LENGTH]
+    # Light off another coroutine
     if {$length} {
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
       chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+    } else {
+      chan flush $chanb
+      chan event $chanb readable [info coroutine]
     }
-    chan flush $chanb
+    yield
   }
 
-  method ProxyReply {chana chanb} {
+  method ProxyReply {chana chanb args} {
+    my log ProxyReply [list args $args]
+    chan event $chana readable {}
     set readCount [::coroutine::util::gets_safety $chana 4096 reply_status]
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
@@ -129,34 +135,24 @@
       set length [dict get $replydat Content-Length]
     }
     ###
-    # Convert the Status: header from the proxy service to
-    # a standard service reply line from a web server, but
-    # otherwise spit out the rest of the headers verbatim
+    # Read the first incoming line as the HTTP reply status
+    # Return the rest of the headers verbatim
     ###
     set replybuffer "$reply_status\n"
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    ###
-    # Output the body
-    ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my log SendReply [list length $length]
     if {$length} {
       ###
-      # Send any POST/PUT/etc content
-      # Note, we are terminating the coroutine at this point
-      # and using the file event to wake the object back up
-      #
-      # We *could*:
-      # chan copy $chana $chanb -command [info coroutine]
-      # yield
-      #
-      # But in the field this pegs the CPU for long transfers and locks
-      # up the process
+      # Output the body
       ###
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      my log ChanEventCopy [list [self class] [self method]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
+      #[namespace code [list my TransferComplete $chana $chanb]]
     }
   }
 
@@ -165,21 +161,16 @@
     my request replace  [dict get $datastate http]
     my variable sock chan
     set chan $newsock
-    try {
-      chan configure $chan -translation {auto crlf} -buffering line
-      # Initialize the reply
-      my reset
-      # Invoke the URL implementation.
-      set sock [my proxy_channel]
-      my ProxyRequest $chan $sock
-      my ProxyReply $sock $chan
-      my log HttpAccess {}
-    } on error {err info} {
-      # If something goes wrong, for now just log the
-      # result and move on
-      my <server> debug [dict get $info -errorinfo]
-    } finally {
-      my TransferComplete $sock $chan
-    }
+    chan configure $chan -translation {auto crlf} -buffering line
+    # Initialize the reply
+    my reset
+    # Invoke the URL implementation.
+    set sock [my proxy_channel]
+    my log HttpAccess {}
+    chan event $sock writable [info coroutine]
+    yield
+    my ProxyRequest $chan $sock
+    my ProxyReply   $sock $chan
+    my TransferComplete $chan $sock
   }
 }

@@ -2,7 +2,7 @@
 # Return data from an SCGI process
 ###
 ::tool::define ::httpd::content.scgi {
-  superclass ::httpd::content.cgi
+  superclass ::httpd::content.proxy
 
   method scgi_info {} {
     ###
@@ -26,29 +26,12 @@
   }
 
   method ProxyRequest {chana chanb} {
-    my wait writable $chanb
+    chan event $chanb writable {}
+    my log ProxyRequest {}
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-
     set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my http_info get SCRIPT_NAME]]
     foreach {f v} [my http_info dump] {
-      dict set info $f $v
-    }
-    foreach {fo v} [my request dump] {
-      set f $fo
-      switch [string tolower $fo] {
-        content-length {
-          set f CONTENT_LENGTH
-        }
-        content-type {
-          set f CONTENT_TYPE
-        }
-        default {
-          if {[string range $f 0 3] ne "HTTP" && $f ne "CONTENT_TYPE"} {
-            set f HTTP_[string map {- _} [string toupper $f]]
-          }
-        }
-      }
       dict set info $f $v
     }
     set length [dict get $info CONTENT_LENGTH]
@@ -57,14 +40,54 @@
       append block [string toupper $f] \x00 $v \x00
     }
     chan puts -nonewline $chanb "[string length $block]:$block,"
+    # Light off another coroutine
+    #set cmd [list coroutine [my CoroName] {*}[namespace code [list my ProxyReply $chanb $chana]]]
     if {$length} {
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
+      my log ChanEventCopy [list [self class] [self method]]
+      chan copy $chana $chanb -size $length -command [info coroutine]
+    } else {
+      chan flush $chanb
+      chan event $chanb readable [info coroutine]
+    }
+    yield
+  }
+
+  method ProxyReply {chana chanb args} {
+    my log ProxyReply [list args $args]
+    chan event $chana readable {}
+    set replyhead [my HttpHeaders $chana]
+    set replydat  [my MimeParse $replyhead]
+    if {![dict exists $replydat Content-Length]} {
+      set length 0
+    } else {
+      set length [dict get $replydat Content-Length]
+    }
+    ###
+    # Convert the Status: header from the CGI process to
+    # a standard service reply line from a web server, but
+    # otherwise spit out the rest of the headers verbatim
+    ###
+    set replybuffer "HTTP/1.0 [dict get $replydat Status]\n"
+    append replybuffer $replyhead
+    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan puts $chanb $replybuffer
+    my log SendReply [list length $length]
+    if {$length} {
+      ###
+      # Output the body
+      ###
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      my log ChanEventCopy [list [self class] [self method]]
+      #chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
     }
-    chan flush $chanb
   }
 }
 

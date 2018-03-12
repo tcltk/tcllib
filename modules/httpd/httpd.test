@@ -122,6 +122,10 @@ tool::define ::httpd::server {
   ::DEBUG method debug args {
     puts stderr $args
   }
+
+  ::DEBUG method log args {
+    puts stdout $args
+  }
 }
 
 
