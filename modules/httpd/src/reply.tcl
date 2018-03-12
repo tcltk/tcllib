@@ -4,6 +4,8 @@
 ::tool::define ::httpd::reply {
   superclass ::httpd::mime
 
+  variable transfer_complete 0
+
   constructor {ServerObj args} {
     my variable chan dispatched_time
     set dispatched_time [clock milliseconds]
@@ -100,11 +102,9 @@
   # and can tweak the headers via "meta put header_reply"
   ###
   method content {} {
-    my puts "<HTML>"
-    my puts "<BODY>"
+    my puts [my html header {Hello World!}]
     my puts "<H1>HELLO WORLD!</H1>"
-    my puts "</BODY>"
-    my puts "</HTML>"
+    my puts [my html footer]
   }
 
   method EncodeStatus {status} {
@@ -115,6 +115,12 @@
     my variable dispatched_time
     my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
 
+  }
+
+  method CoroName {} {
+    if {[info coroutine] eq {}} {
+      return ::httpd::object::[my http_info get UUID]
+    }
   }
 
   ###
@@ -143,7 +149,7 @@
       my log HttpAccess {}
     } on error {err info} {
       my <server> debug [dict get $info -errorinfo]
-      my log HttpError {error: $err}
+      my log HttpError [list error: $err]
     } finally {
       my destroy
     }
@@ -222,7 +228,9 @@
   }
 
   method TransferComplete args {
-    my variable chan
+    my variable chan transfer_complete
+    set transfer_complete 1
+    my log TransferComplete
     set chan {}
     foreach c $args {
       catch {chan event $c readable {}}

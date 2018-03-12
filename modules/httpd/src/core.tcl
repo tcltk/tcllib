@@ -19,6 +19,7 @@ package require mime
 package require fileutil
 package require websocket
 package require Markdown
+package require uuid
 package require fileutil::magic::filetype
 namespace eval httpd::content {}
 
@@ -27,6 +28,21 @@ namespace eval ::httpd {}
 namespace eval ::scgi {}
 
 tool::define ::httpd::mime {
+
+
+  method html::header {{title {}} args} {
+    set result {}
+    append result "<HTML><HEAD>"
+    if {$title ne {}} {
+      append result "<TITLE>$title</TITLE>"
+    }
+    append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    append result "</HEAD><BODY>"
+    return $result
+  }
+  method html::footer {args} {
+    return "</BODY></HTML>"
+  }
 
   method http_code_string code {
     set codes {
@@ -70,18 +86,10 @@ tool::define ::httpd::mime {
     # socket back to ourselves.)
     ###
     chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
-    try {
-      while 1 {
-        set readCount [::coroutine::util::gets_safety $sock 4096 line]
-        if {$readCount==0} break
-        append result $line \n
-      }
-    } trap {POSIX EBUSY} {err info} {
-      # Happens...
-    } on error {err info} {
-      puts "ERROR $err"
-      puts [dict print $info]
-      tailcall my destroy
+    while 1 {
+      set readCount [::coroutine::util::gets_safety $sock 4096 line]
+      if {$readCount==0} break
+      append result $line \n
     }
     ###
     # Return our buffer
