@@ -162,7 +162,14 @@
     # Initialize the reply
     my reset
     # Invoke the URL implementation.
-    set sock [my proxy_channel]
+    if {[catch {my proxy_channel} sock errdat]} {
+      my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
+    if {$sock eq {}} {
+      my error 404 {Not Found}
+      tailcall my DoOutput
+    }
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield

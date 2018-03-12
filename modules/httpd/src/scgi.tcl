@@ -22,6 +22,10 @@
     }
     lassign $sockinfo scgihost scgiport scgiscript
     my http_info set SCRIPT_NAME $scgiscript
+    if {![string is integer $scgiport]} {
+      my error 404 {Not Found}
+      tailcall my DoOutput
+    }
     return [::socket $scgihost $scgiport]
   }
 
