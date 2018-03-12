@@ -48,7 +48,6 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      my log ChanEventCopy [list [self class] [self method]]
       chan copy $chana $chanb -size $length -command [info coroutine]
     } else {
       chan flush $chanb
@@ -83,8 +82,6 @@
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my log ChanEventCopy [list [self class] [self method]]
-      #chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
       chan copy $chana $chanb -size $length -command [info coroutine]
       yield
     }

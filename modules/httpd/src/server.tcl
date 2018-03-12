@@ -104,7 +104,7 @@ namespace eval ::httpd::coro {}
         }
         set pageobj [$class create ::httpd::object::$uuid [self]]
         if {[dict exists $reply mixin]} {
-          oo::objdefine $pageobj mixin [dict get $reply mixin]
+          oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
         }
         $pageobj dispatch $sock $reply
         #my log HttpAccess $ip $line
@@ -178,6 +178,9 @@ namespace eval ::httpd::coro {}
       }
       return $reply
     }
+    return [my DocDefault $reply]
+  }
+  method DocDefault {reply} {
     ###
     # Fallback to docroot handling
     ###
