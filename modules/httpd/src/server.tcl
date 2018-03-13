@@ -5,7 +5,6 @@
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
 
-
 ::tool::define ::httpd::server {
   superclass ::httpd::mime
 
@@ -72,18 +71,7 @@ namespace eval ::httpd::coro {}
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
       dict set query SERVER_PORT     [my port_listening]
-    } on error {err errdat} {
-      my debug [dict get $errdat -errorinfo]
-      my log HttpError $ip $line
-      catch {close $sock}
-      return
-    }
-    if {[catch {my HttpHeaders $sock} mimetxt]} {
-      my log HttpFatal $ip $mimetxt
-      catch {chan close $sock}
-      return
-    }
-    try {
+      set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
       foreach {f v} [my MimeParse $mimetxt] {
         set fld [string toupper [string map {- _} $f]]
@@ -96,41 +84,38 @@ namespace eval ::httpd::coro {}
         dict set query http $fld $v
       }
       set reply [my dispatch $query]
-      if {[llength $reply]} {
-        if {[dict exists $reply class]} {
-          set class [dict get $reply class]
-        } else {
-          set class [my cget reply_class]
-        }
-        set pageobj [$class create ::httpd::object::$uuid [self]]
-        if {[dict exists $reply mixin]} {
-          #puts [list $pageobj MIXIN {*}[dict get $reply mixin]]
-          oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
-        }
-        $pageobj dispatch $sock $reply
-        #my log HttpAccess $ip $line
-      } else {
-        my log HttpMissing $ip $line
-        chan puts $sock "HTTP/1.0 404 NOT FOUND - 105"
-        dict with query {}
-        set body [subst [my template notfound]]
-        chan puts $sock "Content-Length: [string length $body]"
-        chan puts $sock {}
-        chan puts $sock $body
-      }
     } on error {err errdat} {
-      my debug [list error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log HttpError $ip [list error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {
-      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR"
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
+      catch {chan close $sock}
+      return
+    }
+    if {[llength $reply]==0} {
+      my log BadLocation $uuid $query
+      chan puts $sock "HTTP/1.0 404 NOT FOUND"
       dict with query {}
-      set body [subst [my template internal_error]]
+      set body [string trim [subst [my template notfound]]]
       chan puts $sock "Content-Length: [string length $body]"
       chan puts $sock {}
       chan puts $sock $body
+      chan close $sock
+      return
+    }
+    try {
+      if {[dict exists $reply class]} {
+        set class [dict get $reply class]
+      } else {
+        set class [my cget reply_class]
       }
-      catch {chan close $sock}
+      set pageobj [$class create ::httpd::object::$uuid [self]]
+      if {[dict exists $reply mixin]} {
+        oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
+      }
+      $pageobj dispatch $sock $reply
+    } on error {err errdat} {
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {$pageobj destroy}
+      catch {chan close $sock}
     }
   }
 

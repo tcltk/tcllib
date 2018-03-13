@@ -34,6 +34,7 @@
     set chan $newsock
     chan event $chan readable {}
     try {
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
       chan puts -nonewline $chan [my http_info get CACHE_DATA]

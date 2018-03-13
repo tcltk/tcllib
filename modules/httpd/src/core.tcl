@@ -75,6 +75,7 @@ tool::define ::httpd::mime {
 
   method HttpHeaders {sock {debug {}}} {
     set result {}
+    set LIMIT 8192
     ###
     # Set up a channel event to stream the data from the socket line by
     # line. When a blank line is read, the HttpHeaderLine method will send
@@ -90,6 +91,9 @@ tool::define ::httpd::mime {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       if {$readCount==0} break
       append result $line \n
+      if {[string length $result] > $LIMIT} {
+        error {Headers too large}
+      }
     }
     ###
     # Return our buffer

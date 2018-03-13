@@ -88,6 +88,7 @@ tool::define ::httpd::mime {
 
   method HttpHeaders {sock {debug {}}} {
     set result {}
+    set LIMIT 8192
     ###
     # Set up a channel event to stream the data from the socket line by
     # line. When a blank line is read, the HttpHeaderLine method will send
@@ -103,6 +104,9 @@ tool::define ::httpd::mime {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       if {$readCount==0} break
       append result $line \n
+      if {[string length $result] > $LIMIT} {
+        error {Headers too large}
+      }
     }
     ###
     # Return our buffer
@@ -274,7 +278,8 @@ Connection close}
   variable transfer_complete 0
 
   constructor {ServerObj args} {
-    my variable chan dispatched_time
+    my variable chan dispatched_time uuid
+    set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
     oo::objdefine [self] forward <server> $ServerObj
     foreach {field value} [::oo::meta::args_to_options {*}$args] {
@@ -303,21 +308,19 @@ Connection close}
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my request replace  [dict get $datastate http]
-    my variable chan
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-
     try {
-      # Initialize the reply
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable chan
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
       my reset
       # Invoke the URL implementation.
       my content
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-      my error 500 $err [dict get $info -errorinfo]
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
     } finally {
       my DoOutput
     }
@@ -379,9 +382,8 @@ Connection close}
   }
 
   method log {type {info {}}} {
-    my variable dispatched_time
-    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
-
+    my variable dispatched_time uuid
+    my <server> log $type $uuid $info
   }
 
   method CoroName {} {
@@ -627,7 +629,6 @@ Connection close}
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
 
-
 ::tool::define ::httpd::server {
   superclass ::httpd::mime
 
@@ -694,18 +695,7 @@ namespace eval ::httpd::coro {}
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
       dict set query SERVER_PORT     [my port_listening]
-    } on error {err errdat} {
-      my debug [dict get $errdat -errorinfo]
-      my log HttpError $ip $line
-      catch {close $sock}
-      return
-    }
-    if {[catch {my HttpHeaders $sock} mimetxt]} {
-      my log HttpFatal $ip $mimetxt
-      catch {chan close $sock}
-      return
-    }
-    try {
+      set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
       foreach {f v} [my MimeParse $mimetxt] {
         set fld [string toupper [string map {- _} $f]]
@@ -718,41 +708,38 @@ namespace eval ::httpd::coro {}
         dict set query http $fld $v
       }
       set reply [my dispatch $query]
-      if {[llength $reply]} {
-        if {[dict exists $reply class]} {
-          set class [dict get $reply class]
-        } else {
-          set class [my cget reply_class]
-        }
-        set pageobj [$class create ::httpd::object::$uuid [self]]
-        if {[dict exists $reply mixin]} {
-          #puts [list $pageobj MIXIN {*}[dict get $reply mixin]]
-          oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
-        }
-        $pageobj dispatch $sock $reply
-        #my log HttpAccess $ip $line
-      } else {
-        my log HttpMissing $ip $line
-        chan puts $sock "HTTP/1.0 404 NOT FOUND - 105"
-        dict with query {}
-        set body [subst [my template notfound]]
-        chan puts $sock "Content-Length: [string length $body]"
-        chan puts $sock {}
-        chan puts $sock $body
-      }
     } on error {err errdat} {
-      my debug [list error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log HttpError $ip [list error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {
-      chan puts $sock "HTTP/1.0 500 INTERNAL ERROR"
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
+      catch {chan close $sock}
+      return
+    }
+    if {[llength $reply]==0} {
+      my log BadLocation $uuid $query
+      chan puts $sock "HTTP/1.0 404 NOT FOUND"
       dict with query {}
-      set body [subst [my template internal_error]]
+      set body [string trim [subst [my template notfound]]]
       chan puts $sock "Content-Length: [string length $body]"
       chan puts $sock {}
       chan puts $sock $body
+      chan close $sock
+      return
+    }
+    try {
+      if {[dict exists $reply class]} {
+        set class [dict get $reply class]
+      } else {
+        set class [my cget reply_class]
       }
-      catch {chan close $sock}
+      set pageobj [$class create ::httpd::object::$uuid [self]]
+      if {[dict exists $reply mixin]} {
+        oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
+      }
+      $pageobj dispatch $sock $reply
+    } on error {err errdat} {
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {$pageobj destroy}
+      catch {chan close $sock}
     }
   }
 
@@ -1030,6 +1017,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     set chan $newsock
     chan event $chan readable {}
     try {
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
       chan puts -nonewline $chan [my http_info get CACHE_DATA]
@@ -1106,7 +1094,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my <server> log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my http_info get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -1154,39 +1142,29 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     }
   }
 
-  ###
-  # Output the result or error to the channel
-  # and destroy this object
-  ###
-  method DoOutput {} {
-    my variable reply_body reply_file reply_chan chan
+  method dispatch {newsock datastate} {
+    try {
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable reply_body reply_file reply_chan chan
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+
+      my reset
+      # Invoke the URL implementation.
+      my content
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
     if {$chan eq {}} return
+    my wait writable $chan
     if {![info exists reply_file]} {
-      ###
-      # There is no reply file, return treat this as a normal dynamic file
-      ###
-      catch {
-        my wait writable $chan
-        chan configure $chan  -translation {binary binary}
-        ###
-        # Return dynamic content
-        ###
-        set length [string length $reply_body]
-        set result {}
-        if {${length} > 0} {
-          my reply set Content-Length [string length $reply_body]
-          append result [my reply output] \n
-          append result $reply_body
-        } else {
-          append result [my reply output]
-        }
-        my CacheResult $result
-        chan puts -nonewline $chan $result
-        my log HttpAccess {}
-      }
-      my destroy
-    } else {
-      my wait writable $chan
+      tailcall my DoOutput
+    }
+    try {
       chan configure $chan  -translation {binary binary}
       my log HttpAccess {}
       ###
@@ -1197,6 +1175,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       append result [my reply output] \n
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
+      my log SendReply [list length $size]
       chan configure $reply_chan  -translation {binary binary}
       ###
       # Send any POST/PUT/etc content
@@ -1211,6 +1190,8 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       # up the process
       ###
       chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
+    } on error {err errdat} {
+      my TransferComplete $reply_chan $chan
     }
   }
 }
@@ -1371,20 +1352,27 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
+    } else {
+      my TransferComplete $chana $chanb
     }
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my request replace  [dict get $datastate http]
-    my variable sock chan
-    set chan $newsock
-    chan configure $chan -translation {auto crlf} -buffering line
-    # Initialize the reply
-    my reset
-    # Invoke the URL implementation.
+    try {
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable sock chan
+      set chan $newsock
+      chan configure $chan -translation {auto crlf} -buffering line
+      # Initialize the reply
+      my reset
+      # Invoke the URL implementation.
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
     if {[catch {my proxy_channel} sock errdat]} {
       my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
       tailcall my DoOutput
@@ -1398,7 +1386,6 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     yield
     my ProxyRequest $chan $sock
     my ProxyReply   $sock $chan
-    my TransferComplete $chan $sock
   }
 }
 
@@ -1438,7 +1425,7 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my <server> log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my http_info get REQUEST_URI]
       my error 404 {Not Found}
       tailcall my DoOutput
     }
@@ -1545,8 +1532,9 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
+    } else {
+      my TransferComplete $chana $chanb
     }
   }
 
@@ -1653,8 +1641,9 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
+    } else {
+      my TransferComplete $chan $chanb
     }
   }
 }

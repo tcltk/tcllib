@@ -148,20 +148,27 @@
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
+    } else {
+      my TransferComplete $chana $chanb
     }
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my request replace  [dict get $datastate http]
-    my variable sock chan
-    set chan $newsock
-    chan configure $chan -translation {auto crlf} -buffering line
-    # Initialize the reply
-    my reset
-    # Invoke the URL implementation.
+    try {
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable sock chan
+      set chan $newsock
+      chan configure $chan -translation {auto crlf} -buffering line
+      # Initialize the reply
+      my reset
+      # Invoke the URL implementation.
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
     if {[catch {my proxy_channel} sock errdat]} {
       my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
       tailcall my DoOutput
@@ -175,6 +182,5 @@
     yield
     my ProxyRequest $chan $sock
     my ProxyReply   $sock $chan
-    my TransferComplete $chan $sock
   }
 }

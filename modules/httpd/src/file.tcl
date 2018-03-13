@@ -57,7 +57,7 @@
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my <server> log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my http_info get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -105,39 +105,29 @@
     }
   }
 
-  ###
-  # Output the result or error to the channel
-  # and destroy this object
-  ###
-  method DoOutput {} {
-    my variable reply_body reply_file reply_chan chan
+  method dispatch {newsock datastate} {
+    try {
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable reply_body reply_file reply_chan chan
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+
+      my reset
+      # Invoke the URL implementation.
+      my content
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
     if {$chan eq {}} return
+    my wait writable $chan
     if {![info exists reply_file]} {
-      ###
-      # There is no reply file, return treat this as a normal dynamic file
-      ###
-      catch {
-        my wait writable $chan
-        chan configure $chan  -translation {binary binary}
-        ###
-        # Return dynamic content
-        ###
-        set length [string length $reply_body]
-        set result {}
-        if {${length} > 0} {
-          my reply set Content-Length [string length $reply_body]
-          append result [my reply output] \n
-          append result $reply_body
-        } else {
-          append result [my reply output]
-        }
-        my CacheResult $result
-        chan puts -nonewline $chan $result
-        my log HttpAccess {}
-      }
-      my destroy
-    } else {
-      my wait writable $chan
+      tailcall my DoOutput
+    }
+    try {
       chan configure $chan  -translation {binary binary}
       my log HttpAccess {}
       ###
@@ -148,6 +138,7 @@
       append result [my reply output] \n
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
+      my log SendReply [list length $size]
       chan configure $reply_chan  -translation {binary binary}
       ###
       # Send any POST/PUT/etc content
@@ -162,6 +153,8 @@
       # up the process
       ###
       chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
+    } on error {err errdat} {
+      my TransferComplete $reply_chan $chan
     }
   }
 }
