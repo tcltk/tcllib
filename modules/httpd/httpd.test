@@ -119,6 +119,25 @@ proc ::httpd::test::get_reply {sock} {
 tool::define ::httpd::server {
   method log args {}
 
+
+  method TemplateSearch page {
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
+      return [::fileutil::cat [file join $doc_root $page.tml]]
+    }
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
+      return [::fileutil::cat [file join $doc_root $page.html]]
+    }
+    switch $page {
+      redirect {
+        return {404 Not Found}
+      }
+      internal_error {
+        return {500 Server Internal Error}
+      }
+    }
+  }
+
   ::DEBUG method debug args {
     puts stderr $args
   }

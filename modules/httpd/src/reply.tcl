@@ -7,7 +7,8 @@
   variable transfer_complete 0
 
   constructor {ServerObj args} {
-    my variable chan dispatched_time
+    my variable chan dispatched_time uuid
+    set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
     oo::objdefine [self] forward <server> $ServerObj
     foreach {field value} [::oo::meta::args_to_options {*}$args] {
@@ -36,21 +37,19 @@
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my request replace  [dict get $datastate http]
-    my variable chan
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-
     try {
-      # Initialize the reply
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my variable chan
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
       my reset
       # Invoke the URL implementation.
       my content
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-      my error 500 $err [dict get $info -errorinfo]
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
     } finally {
       my DoOutput
     }
@@ -112,9 +111,8 @@
   }
 
   method log {type {info {}}} {
-    my variable dispatched_time
-    my <server> log $type [expr {[clock milliseconds]-$dispatched_time}]ms [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]] $info
-
+    my variable dispatched_time uuid
+    my <server> log $type $uuid $info
   }
 
   method CoroName {} {

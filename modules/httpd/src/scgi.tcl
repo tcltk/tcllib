@@ -86,8 +86,9 @@
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [info coroutine]
-      yield
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
+    } else {
+      my TransferComplete $chan $chanb
     }
   }
 }
