@@ -163,7 +163,7 @@
     }
     set formdata {}
     if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
-      set rawtype [my request get Content-Type]
+      set rawtype [my request get CONTENT_TYPE]
       if {[string toupper [string range $rawtype 0 8]] ne "MULTIPART"} {
         set type $rawtype
       } else {
