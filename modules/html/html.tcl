@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.4.4
+package provide html 1.4.5
 
 namespace eval ::html {
 
@@ -582,7 +582,7 @@ proc ::html::author {author} {
 # ::html::tagParam
 #
 #	Return a name, value string for the tag parameters.
-#	The values come from "hard-wired" values in the 
+#	The values come from "hard-wired" values in the
 #	param agrument, or from the defaults set with html::init.
 #
 # Arguments:
@@ -1235,7 +1235,7 @@ proc ::html::mailto {email {subject {}}} {
 #	set via html::init
 #
 # Arguments:
-#	args	Font parameters.  
+#	args	Font parameters.
 #
 # Results:
 #	HTML
@@ -1342,7 +1342,7 @@ proc ::html::extractParam {param key {varName ""}} {
 	upvar $varName result
     }
     ::set ws " \t\n\r"
- 
+
     # look for name=value combinations.  Either (') or (") are valid delimeters
     ::if {
       [regsub -nocase [format {.*%s[%s]*=[%s]*"([^"]*).*} $key $ws $ws] $param {\1} value] ||
@@ -1355,7 +1355,7 @@ proc ::html::extractParam {param key {varName ""}} {
     # now look for valueless names
     # I should strip out name=value pairs, so we don't end up with "name"
     # inside the "value" part of some other key word - some day
-	
+
     ::set bad \[^a-zA-Z\]+
     ::if {[regexp -nocase  "$bad$key$bad" -$param-]} {
 	return 1
@@ -1392,7 +1392,26 @@ proc ::html::urlParent {url} {
 
 proc ::html::html_entities {s} {
     variable entities
-    return [string map $entities $s]
+    set text [string map $entities $s]
+    if {[string is ascii $text]} {
+      return $text
+    }
+    # Escape unicode characters
+    set N [string length $text]
+    set c 0
+    set buffer $result
+    set result {}
+    for {set x 0} {$x < $N} {incr x} {
+      set char [string index $buffer $x]
+      set code [scan $char %c]
+      if {$code>255} {
+        append result "&#$code\;"
+      } else {
+        append result $char
+      }
+    }
+    return $result
+  }
 }
 
 # ::html::nl2br --
@@ -1504,3 +1523,4 @@ proc ::html::js-clear {} {
     catch { unset page(js) }
     return
 }
+
