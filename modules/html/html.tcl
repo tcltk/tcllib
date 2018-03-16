@@ -1394,7 +1394,7 @@ proc ::html::html_entities {s} {
     variable entities
     set text [string map $entities $s]
     if {[string is ascii $text]} {
-      return $text
+        return $text
     }
     # Escape unicode characters
     set N [string length $text]
@@ -1402,16 +1402,15 @@ proc ::html::html_entities {s} {
     set buffer $result
     set result {}
     for {set x 0} {$x < $N} {incr x} {
-      set char [string index $buffer $x]
-      set code [scan $char %c]
-      if {$code>255} {
-        append result "&#$code\;"
-      } else {
-        append result $char
-      }
+        set char [string index $buffer $x]
+        set code [scan $char %c]
+        if {$code>255} {
+            append result "&#$code\;"
+        } else {
+            append result $char
+        }
     }
     return $result
-  }
 }
 
 # ::html::nl2br --
