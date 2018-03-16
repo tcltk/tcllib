@@ -1392,22 +1392,21 @@ proc ::html::urlParent {url} {
 
 proc ::html::html_entities {s} {
     variable entities
-    set text [string map $entities $s]
-    if {[string is ascii $text]} {
+    ::set text [string map $entities $s]
+    ::if {[string is ascii $text]} {
         return $text
     }
     # Escape unicode characters
-    set N [string length $text]
-    set c 0
-    set buffer $result
-    set result {}
-    for {set x 0} {$x < $N} {incr x} {
-        set char [string index $buffer $x]
-        set code [scan $char %c]
-        if {$code>255} {
-            append result "&#$code\;"
+    ::set N [string length $text]
+    ::set c 0
+    ::set result {}
+    ::for {::set x 0} {$x < $N} {::incr x} {
+        ::set char [string index $text $x]
+        ::set code [::scan $char %c]
+        ::if {$code>255} {
+            ::append result "&#$code\;"
         } else {
-            append result $char
+            ::append result $char
         }
     }
     return $result
