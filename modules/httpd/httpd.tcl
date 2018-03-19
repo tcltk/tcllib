@@ -599,12 +599,14 @@ Connection close}
   ###
   method timeOutCheck {} {
     my variable dispatched_time
-    if {([clock seconds]-$dispatched_time)>30} {
+    if {([clock seconds]-$dispatched_time)>120} {
       ###
       # Something has lasted over 2 minutes. Kill this
       ###
-      my error 408 {Request Timed out}
-      my DoOutput
+      catch {
+        my error 408 {Request Timed out}
+        my DoOutput
+      }
     }
   }
 
@@ -639,6 +641,7 @@ namespace eval ::httpd::coro {}
   option doc_root {default {}}
   option reverse_dns {type boolean default 0}
   option doc_ttl {type integer desc {Number of seconds for cache} default 3600}
+  option configuration_file {type filename default {}}
 
   property socket buffersize   32768
   property socket translation  {auto crlf}
@@ -752,7 +755,7 @@ namespace eval ::httpd::coro {}
   # Clean up any process that has gone out for lunch
   ###
   method CheckTimeout {} {
-    foreach obj [info commands [namespace current]::reply::*] {
+    foreach obj [info commands ::httpd::object::*] {
       try {
         $obj timeOutCheck
       } on error {} {
@@ -833,11 +836,18 @@ namespace eval ::httpd::coro {}
     return $prefix
   }
 
+  method source {filename} {
+    source $filename
+  }
+
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
 
     my variable socklist port_listening
+    if {[my cget configuration_file] ne {}} {
+      source [my cget configuration_file]
+    }
     set port [my cget port]
     if { $port in {auto {}} } {
       package require nettool

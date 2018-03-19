@@ -328,12 +328,14 @@
   ###
   method timeOutCheck {} {
     my variable dispatched_time
-    if {([clock seconds]-$dispatched_time)>30} {
+    if {([clock seconds]-$dispatched_time)>120} {
       ###
       # Something has lasted over 2 minutes. Kill this
       ###
-      my error 408 {Request Timed out}
-      my DoOutput
+      catch {
+        my error 408 {Request Timed out}
+        my DoOutput
+      }
     }
   }
 
