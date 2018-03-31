@@ -311,7 +311,16 @@ Connection close}
     try {
       my http_info replace $datastate
       my request replace  [dict get $datastate http]
-      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my log Dispatched [dict create \
+       REMOTE_ADDR [my http_info get REMOTE_ADDR] \
+       REMOTE_HOST [my http_info get REMOTE_HOST] \
+       COOKIE [my request get COOKIE] \
+       REFERER [my request get REFERER] \
+       USER_AGENT [my request get USER_AGENT] \
+       REQUEST_URI [my http_info get REQUEST_URI] \
+       HTTP_HOST [my http_info getnull HTTP_HOST] \
+       SESSION [my http_info getnull SESSION] \
+      ]
       my variable chan
       set chan $newsock
       chan event $chan readable {}
@@ -712,6 +721,7 @@ namespace eval ::httpd::coro {}
       }
       set reply [my dispatch $query]
     } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan close $sock}
@@ -736,10 +746,14 @@ namespace eval ::httpd::coro {}
       }
       set pageobj [$class create ::httpd::object::$uuid [self]]
       if {[dict exists $reply mixin]} {
-        oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
+        $pageobj mixin {*}[dict get $reply mixin]
+      }
+      if {[dict exists $reply organ]} {
+        $pageobj graft {*}[dict get $reply organ]
       }
       $pageobj dispatch $sock $reply
     } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {$pageobj destroy}
       catch {chan close $sock}
@@ -855,7 +869,7 @@ namespace eval ::httpd::coro {}
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    my log [list [self] listening on $port $myaddr]
+    my debug [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
@@ -1027,7 +1041,16 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     set chan $newsock
     chan event $chan readable {}
     try {
-      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my log Dispatched [dict create \
+       REMOTE_ADDR [my http_info get REMOTE_ADDR] \
+       REMOTE_HOST [my http_info get REMOTE_HOST] \
+       COOKIE [my request get COOKIE] \
+       REFERER [my request get REFERER] \
+       USER_AGENT [my request get USER_AGENT] \
+       REQUEST_URI [my http_info get REQUEST_URI] \
+       HTTP_HOST [my http_info getnull HTTP_HOST] \
+       SESSION [my http_info getnull SESSION] \
+      ]
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
       chan puts -nonewline $chan [my http_info get CACHE_DATA]
@@ -1156,7 +1179,16 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     try {
       my http_info replace $datastate
       my request replace  [dict get $datastate http]
-      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my log Dispatched [dict create \
+       REMOTE_ADDR [my http_info get REMOTE_ADDR] \
+       REMOTE_HOST [my http_info get REMOTE_HOST] \
+       COOKIE [my request get COOKIE] \
+       REFERER [my request get REFERER] \
+       USER_AGENT [my request get USER_AGENT] \
+       REQUEST_URI [my http_info get REQUEST_URI] \
+       HTTP_HOST [my http_info getnull HTTP_HOST] \
+       SESSION [my http_info getnull SESSION] \
+      ]
       my variable reply_body reply_file reply_chan chan
       set chan $newsock
       chan event $chan readable {}
@@ -1372,7 +1404,16 @@ The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
     try {
       my http_info replace $datastate
       my request replace  [dict get $datastate http]
-      my log Dispatched [dict create ip: [my http_info get REMOTE_ADDR] host: [my http_info get REMOTE_HOST] cookie: [my request get COOKIE] referrer: [my request get REFERER] user-agent: [my request get USER_AGENT] uri: [my http_info get REQUEST_URI] host: [my http_info getnull HTTP_HOST]]
+      my log Dispatched [dict create \
+       REMOTE_ADDR [my http_info get REMOTE_ADDR] \
+       REMOTE_HOST [my http_info get REMOTE_HOST] \
+       COOKIE [my request get COOKIE] \
+       REFERER [my request get REFERER] \
+       USER_AGENT [my request get USER_AGENT] \
+       REQUEST_URI [my http_info get REQUEST_URI] \
+       HTTP_HOST [my http_info getnull HTTP_HOST] \
+       SESSION [my http_info getnull SESSION] \
+      ]
       my variable sock chan
       set chan $newsock
       chan configure $chan -translation {auto crlf} -buffering line
