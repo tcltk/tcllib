@@ -86,6 +86,7 @@ namespace eval ::httpd::coro {}
       }
       set reply [my dispatch $query]
     } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan close $sock}
@@ -110,10 +111,14 @@ namespace eval ::httpd::coro {}
       }
       set pageobj [$class create ::httpd::object::$uuid [self]]
       if {[dict exists $reply mixin]} {
-        oo::objdefine $pageobj mixin {*}[dict get $reply mixin]
+        $pageobj mixin {*}[dict get $reply mixin]
+      }
+      if {[dict exists $reply organ]} {
+        $pageobj graft {*}[dict get $reply organ]
       }
       $pageobj dispatch $sock $reply
     } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {$pageobj destroy}
       catch {chan close $sock}
@@ -229,7 +234,7 @@ namespace eval ::httpd::coro {}
     }
     set port_listening $port
     set myaddr [my cget myaddr]
-    my log [list [self] listening on $port $myaddr]
+    my debug [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
       foreach ip $myaddr {
