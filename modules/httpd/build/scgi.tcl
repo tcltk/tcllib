@@ -192,9 +192,9 @@ tool::define ::httpd::server.scgi {
         chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
-        my log HttpError $REQUEST_URI
+        my log HttpError [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
       } on error {err errdat} {
-        my log HttpFatal [my http_info get REMOTE_ADDR] [dict get $errdat -errorinfo]
+        my log HttpFatal [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
         my <server> debug "Failed on 500: [dict get $errdat -errorinfo]""
       } finally {
         catch {chan event readable $sock {}}

@@ -14,7 +14,6 @@ namespace eval ::httpd::coro {}
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
   option reverse_dns {type boolean default 0}
-  option doc_ttl {type integer desc {Number of seconds for cache} default 3600}
   option configuration_file {type filename default {}}
 
   property socket buffersize   32768
@@ -164,9 +163,6 @@ namespace eval ::httpd::coro {}
       }
       if {![dict exists $reply prefix]} {
          dict set reply prefix [my PrefixNormalize $pattern]
-      }
-      if {![dict exists $reply TTL]} {
-         dict set reply TTL [my cget doc_ttl]
       }
       return $reply
     }

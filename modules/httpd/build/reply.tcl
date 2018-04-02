@@ -23,8 +23,6 @@
     my close
   }
 
-  method CacheResult data {}
-
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -152,7 +150,6 @@
       } else {
         append result [my reply output]
       }
-      my CacheResult $result
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     }
@@ -325,10 +322,6 @@
     my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
-    set TTL [my http_info getnull TTL]
-    if {[string is integer $TTL] && $TTL > 0} {
-      my reply set Cache-Control "max-age=$TTL"
-    }
     set reply_body {}
   }
 
