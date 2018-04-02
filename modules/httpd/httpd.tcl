@@ -294,8 +294,6 @@ Connection close}
     my close
   }
 
-  method CacheResult data {}
-
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -423,7 +421,6 @@ Connection close}
       } else {
         append result [my reply output]
       }
-      my CacheResult $result
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     }
@@ -596,10 +593,6 @@ Connection close}
     my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> cget server_string]
     my reply set Date [my timestamp]
-    set TTL [my http_info getnull TTL]
-    if {[string is integer $TTL] && $TTL > 0} {
-      my reply set Cache-Control "max-age=$TTL"
-    }
     set reply_body {}
   }
 
@@ -649,7 +642,6 @@ namespace eval ::httpd::coro {}
   option server_name [list default: [list [info hostname]]]
   option doc_root {default {}}
   option reverse_dns {type boolean default 0}
-  option doc_ttl {type integer desc {Number of seconds for cache} default 3600}
   option configuration_file {type filename default {}}
 
   property socket buffersize   32768
@@ -799,9 +791,6 @@ namespace eval ::httpd::coro {}
       }
       if {![dict exists $reply prefix]} {
          dict set reply prefix [my PrefixNormalize $pattern]
-      }
-      if {![dict exists $reply TTL]} {
-         dict set reply TTL [my cget doc_ttl]
       }
       return $reply
     }
@@ -1798,9 +1787,9 @@ tool::define ::httpd::server.scgi {
         chan puts $sock "Content-Length: [string length $body]"
         chan puts $sock {}
         chan puts $sock $body
-        my log HttpError $REQUEST_URI
+        my log HttpError [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
       } on error {err errdat} {
-        my log HttpFatal [my http_info get REMOTE_ADDR] [dict get $errdat -errorinfo]
+        my log HttpFatal [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
         my <server> debug "Failed on 500: [dict get $errdat -errorinfo]""
       } finally {
         catch {chan event readable $sock {}}
