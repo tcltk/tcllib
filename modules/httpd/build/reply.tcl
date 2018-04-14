@@ -62,6 +62,53 @@
     }
   }
 
+  method html_css {} {
+    set result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    append result \n {<style media="screen" type="text/css">
+body {
+	background:  url(images/etoyoc-circuit-tile.gif) repeat;
+	font-family: serif;
+	color:#000066;
+	font-size: 12pt;
+}
+</style>}
+  }
+
+  method html_header {title args} {
+    set result {}
+    uplevel 1 {
+set is_localhost [expr {[lindex [split [my http_info getnull HTTP_HOST] :] 0] eq "localhost"}]
+if {$is_localhost} {
+  set fossil_root /fossil
+} else {
+  set fossil_root http://fossil.etoyoc.com/fossil
+}
+    }
+    append result "<HTML><HEAD>"
+    if {$title ne {}} {
+      append result "<TITLE>$title</TITLE>"
+    }
+    append result [my html_css]
+    append result "</HEAD><BODY>"
+    append result \n {<div id="top-menu">}
+    if {[dict exists $args banner]} {
+      append result "<img src=\"[dict get $args banner]\">"
+    } else {
+      append result {<img src="/images/etoyoc-banner.jpg">}
+    }
+    append result {</div>}
+    if {[dict exists $args sideimg]} {
+      append result "\n<div name=\"sideimg\"><img align=right src=\"[dict get $args sideimg]\" width=25%></div>"
+    }
+    append result {<div id="content">}
+    return $result
+  }
+
+  method html_footer {args} {
+    set result {</div><div id="footer">}
+    append result {</div></BODY></HTML>}
+  }
+
   dictobj http_info http_info {
     initialize {
       CONTENT_LENGTH 0
@@ -108,9 +155,9 @@
   # and can tweak the headers via "meta put header_reply"
   ###
   method content {} {
-    my puts [my html header {Hello World!}]
+    my puts [my html_header {Hello World!}]
     my puts "<H1>HELLO WORLD!</H1>"
-    my puts [my html footer]
+    my puts [my html_footer]
   }
 
   method EncodeStatus {status} {
