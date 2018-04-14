@@ -106,6 +106,7 @@
   }
 
   method dispatch {newsock datastate} {
+    my variable reply_body reply_file reply_chan chan
     try {
       my http_info replace $datastate
       my request replace  [dict get $datastate http]
@@ -119,7 +120,6 @@
        HTTP_HOST [my http_info getnull HTTP_HOST] \
        SESSION [my http_info getnull SESSION] \
       ]
-      my variable reply_body reply_file reply_chan chan
       set chan $newsock
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line
