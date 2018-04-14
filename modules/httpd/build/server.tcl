@@ -109,12 +109,29 @@ namespace eval ::httpd::coro {}
         set class [my cget reply_class]
       }
       set pageobj [$class create ::httpd::object::$uuid [self]]
-      if {[dict exists $reply mixin]} {
-        $pageobj mixin {*}[dict get $reply mixin]
+      if {[dict exists $reply mixinmap]} {
+        set mixinmap [dict get $reply mixinmap]
+      } else {
+        set mixinmap {}
       }
+      if {[dict exists $reply mixin]} {
+        dict set mixinmap reply [dict get $reply mixin]
+      }
+      foreach item [dict keys $reply MIXIN_*] {
+        set slot [string range $reply 6 end]
+        dict set mixinmap [string tolower $slot] [dict get $reply $item]
+      }
+      $pageobj mixinmap {*}$mixinmap
       if {[dict exists $reply organ]} {
         $pageobj graft {*}[dict get $reply organ]
       }
+    } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {$pageobj destroy}
+      catch {chan close $sock}
+    }
+    try {
       $pageobj dispatch $sock $reply
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -179,7 +196,7 @@ namespace eval ::httpd::coro {}
       ###
       dict set reply prefix {}
       dict set reply path $doc_root
-      dict set reply mixin httpd::content.file
+      dict set reply mixinmap reply httpd::content.file
       return $reply
     }
     return {}
@@ -275,7 +292,7 @@ namespace eval ::httpd::coro {}
       redirect {
 return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>${REQUEST_URI}</b> has moved.
+The page you are looking for: <b>[my http_info get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -285,7 +302,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html header "$HTTP_STATUS"]
-Error serving <b>${REQUEST_URI}</b>:
+Error serving <b>[my http_info get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -297,7 +314,7 @@ $errorInfo
       notfound {
         return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>${REQUEST_URI}</b> does not exist.
+The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exist.
 [my html footer]
         }
       }
