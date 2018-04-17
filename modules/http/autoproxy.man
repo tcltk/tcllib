@@ -1,4 +1,4 @@
-[vset VERSION 1.6]
+[vset VERSION 1.7]
 [manpage_begin autoproxy n [vset VERSION]]
 [see_also http(n)]
 [keywords authentication]
