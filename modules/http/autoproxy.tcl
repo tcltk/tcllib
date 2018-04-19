@@ -550,18 +550,23 @@ proc ::autoproxy::tls_socket {args} {
     upvar state state
 
     if {$options(tls_package) eq "twapi"} {
+        # With twapi::tls_socket, state may not be available on
+        # an async connect until negotiation is completed.
+        set state(tls_status) ""
         set security_context [fconfigure $s -context]
-        set cert [twapi::sspi_remote_cert $security_context]
-        set cert_info [twapi::cert_info $cert]
-        twapi::cert_release $cert
-        dict set state(tls_status) issuer [dict get $cert_info -issuer]
-        dict set state(tls_status) subject [dict get $cert_info -subject]
-        dict set state(tls_status) notBefore [dict get $cert_info -start]
-        dict set state(tls_status) notAfter [dict get $cert_info -end]
-        # Note: binary encode hex was not available in older Tcl, use twapi::hex
-        dict set state(tls_status) serial [twapi::hex [dict get $cert_info -serialnumber]]
-        # TBD - dict set state(tls_status) cipher
-        # TBD - dict set state(tls_status) sbits
+        if {$security_context ne ""} {
+            set cert [twapi::sspi_remote_cert $security_context]
+            set cert_info [twapi::cert_info $cert]
+            twapi::cert_release $cert
+            dict set state(tls_status) issuer [dict get $cert_info -issuer]
+            dict set state(tls_status) subject [dict get $cert_info -subject]
+            dict set state(tls_status) notBefore [dict get $cert_info -start]
+            dict set state(tls_status) notAfter [dict get $cert_info -end]
+            # Note: binary encode hex was not available in older Tcl, use twapi::hex
+            dict set state(tls_status) serial [twapi::hex [dict get $cert_info -serialnumber]]
+            # TBD - dict set state(tls_status) cipher
+            # TBD - dict set state(tls_status) sbits
+        }
     } else {
         tls::handshake $s
         set state(tls_status) [tls::status $s]
