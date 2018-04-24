@@ -45,3 +45,13 @@
     }
   }
 }
+
+::tool::define ::httpd::content.template {
+
+  method content {} {
+    if {[my http_info getnull HTTP_STATUS] ne {}} {
+      my reply set Status [my http_info getnull HTTP_STATUS]
+    }
+    my puts [subst [my <server> template [my http_info get template]]]
+  }
+}
