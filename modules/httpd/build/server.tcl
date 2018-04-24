@@ -165,27 +165,10 @@ namespace eval ::httpd::coro {}
   # Route a request to the appropriate handler
   ###
   method dispatch {data} {
-    set reply {}
-    foreach {f v} $data {
-      dict set reply $f $v
-    }
-    set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
-    set uri   [dict get $data REQUEST_PATH]
-
-    foreach {host pattern info} [my uri patterns] {
-      if {![string match $host $vhost]} continue
-      if {![string match $pattern /$uri]} continue
-      foreach {f v} $info {
-        dict set reply $f $v
-      }
-      if {![dict exists $reply prefix]} {
-         dict set reply prefix [my PrefixNormalize $pattern]
-      }
-      return $reply
-    }
-    return [my DocDefault $reply]
+    return [my Dispatch_Default $data]
   }
-  method DocDefault {reply} {
+
+  method Dispatch_Default {reply} {
     ###
     # Fallback to docroot handling
     ###
@@ -214,6 +197,36 @@ namespace eval ::httpd::coro {}
 
   method log args {
     # Do nothing for now
+  }
+
+  method plugin {slot {class {}}} {
+    if {$class eq {}} {
+      set class ::httpd::plugin.$slot
+    }
+    if {[info command $class] eq {}} {
+      error "Class $class for plugin $slot does not exist"
+    }
+    my mixinmap $slot $class
+    my variable mixinmap
+
+    ###
+    # Perform action on load
+    ###
+    eval [$class meta getnull plugin load:]
+
+    ###
+    # rebuild the dispatch method
+    ###
+    set body "try \{"
+    foreach {slot class} $mixinmap {
+      append body "# SLOT $slot"
+      append body \n [$class meta getnull plugin dispatch:]
+    }
+    append body \n {  return [my Dispatch_Default $data]}
+    append body "\} on error \{err errdat\} \{"
+    append body {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
+    append body "\}"
+    oo::objdefine [self] method dispatch data $body
   }
 
   method port_listening {} {
@@ -321,40 +334,6 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     }
   }
 
-  method uri::patterns {} {
-    my variable url_patterns url_stream
-    if {![info exists url_stream]} {
-      set url_stream {}
-      foreach {host hostpat} $url_patterns {
-        foreach {pattern info} $hostpat {
-          lappend url_stream $host $pattern $info
-        }
-      }
-    }
-    return $url_stream
-  }
-
-  method uri::add args {
-    my variable url_patterns url_stream
-    unset -nocomplain url_stream
-    switch [llength $args] {
-      2 {
-        set vhosts *
-        lassign $args patterns info
-      }
-      3 {
-        lassign $args vhosts patterns info
-      }
-      default {
-        error "Usage: add_url ?vhosts? prefix info"
-      }
-    }
-    foreach vhost $vhosts {
-      foreach pattern $patterns {
-        dict set url_patterns $vhost $pattern $info
-      }
-    }
-  }
 
   method Uuid_Generate {} {
     return [::uuid::uuid generate]

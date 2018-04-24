@@ -34,22 +34,26 @@
     }
   }
 
+  method Log_Dispatched {} {
+    my log Dispatched [dict create \
+     REMOTE_ADDR [my http_info get REMOTE_ADDR] \
+     REMOTE_HOST [my http_info get REMOTE_HOST] \
+     COOKIE [my request get COOKIE] \
+     REFERER [my request get REFERER] \
+     USER_AGENT [my request get USER_AGENT] \
+     REQUEST_URI [my http_info get REQUEST_URI] \
+     HTTP_HOST [my http_info getnull HTTP_HOST] \
+     SESSION [my http_info getnull SESSION] \
+    ]
+  }
+
   method dispatch {newsock datastate} {
+    my http_info replace $datastate
+    my request replace  [dict getnull $datastate http]
+    my Log_Dispatched
+    my variable chan
+    set chan $newsock
     try {
-      my http_info replace $datastate
-      my request replace  [dict get $datastate http]
-      my log Dispatched [dict create \
-       REMOTE_ADDR [my http_info get REMOTE_ADDR] \
-       REMOTE_HOST [my http_info get REMOTE_HOST] \
-       COOKIE [my request get COOKIE] \
-       REFERER [my request get REFERER] \
-       USER_AGENT [my request get USER_AGENT] \
-       REQUEST_URI [my http_info get REQUEST_URI] \
-       HTTP_HOST [my http_info getnull HTTP_HOST] \
-       SESSION [my http_info getnull SESSION] \
-      ]
-      my variable chan
-      set chan $newsock
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line
       my reset

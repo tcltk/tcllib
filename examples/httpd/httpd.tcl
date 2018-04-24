@@ -137,7 +137,7 @@ tool::class create ::docserver::server {
   superclass ::httpd::server
 
   method log args {
-    puts [list {*}$args]
+    #puts [list {*}$args]
   }
 
 }
@@ -210,6 +210,7 @@ if {[dict exists $opts fossil]} {
 }
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
+appmain plugin basic_url ::httpd::plugin.dict_dispatch
 appmain uri add /tcllib* [list mixin httpd::content.file path [file join $tcllibroot embedded www]]
 appmain uri add /fossil [list mixin httpd::content.fossil_root {*}$fossilopts]
 appmain uri add /fossil/* [list mixin httpd::content.fossil_node_proxy {*}$fossilopts]
