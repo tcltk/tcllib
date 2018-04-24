@@ -762,6 +762,7 @@ namespace eval ::httpd::coro {}
         dict set query $qfld $v
         dict set query http $fld $v
       }
+      my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -864,6 +865,8 @@ namespace eval ::httpd::coro {}
     return {}
   }
 
+  method Headers_Process varname {}
+
   method HostName ipaddr {
     if {![my cget reverse_dns]} {
       return $ipaddr
@@ -898,14 +901,34 @@ namespace eval ::httpd::coro {}
     ###
     set body "try \{"
     foreach {slot class} $mixinmap {
-      append body "# SLOT $slot"
-      append body \n [$class meta getnull plugin dispatch:]
+      set script [$class meta getnull plugin dispatch:]
+      if {[string length $script]} {
+        append body "# SLOT $slot"
+        append body \n $script
+      }
     }
     append body \n {  return [my Dispatch_Default $data]}
     append body "\} on error \{err errdat\} \{"
     append body {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body "\}"
     oo::objdefine [self] method dispatch data $body
+
+    ###
+    # rebuild the Headers_Process method
+    ###
+    set body "try \{"
+    append body "  upvar 1 \$varname query"
+    foreach {slot class} $mixinmap {
+      set script [$class meta getnull plugin headers:]
+      if {[string length $script]} {
+        append body "# SLOT $slot"
+        append body \n $script
+      }
+    }
+    append body "\} on error \{err errdat\} \{"
+    append body {  puts [list HEADERS ERROR [dict get $errdat -errorinfo]] ; return {}}
+    append body "\}"
+    oo::objdefine [self] method Headers_Process varname $body
   }
 
   method port_listening {} {
@@ -1852,6 +1875,11 @@ tool::define ::httpd::plugin {
   # Define a code snippet to run on plugin load
   ###
   meta set plugin load: {}
+
+  ###
+  # Define a code snippet to run within the object's Headers_Process method
+  ###
+  meta set plugin headers: {}
 
   ###
   # Define a code snippet to run within the object's dispatch method
