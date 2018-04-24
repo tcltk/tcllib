@@ -762,6 +762,7 @@ namespace eval ::httpd::coro {}
         dict set query $qfld $v
         dict set query http $fld $v
       }
+      dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
@@ -773,14 +774,10 @@ namespace eval ::httpd::coro {}
     }
     if {[llength $reply]==0} {
       my log BadLocation $uuid $query
-      chan puts $sock "HTTP/1.0 404 NOT FOUND"
-      dict with query {}
-      set body [string trim [subst [my template notfound]]]
-      chan puts $sock "Content-Length: [string length $body]"
-      chan puts $sock {}
-      chan puts $sock $body
-      chan close $sock
-      return
+      my log BadLocation $uuid $query
+      dict set query HTTP_STATUS 404
+      dict set query template notfound
+      dict set query mixinmap reply ::httpd::content.template
     }
     try {
       if {[dict exists $reply class]} {
@@ -899,35 +896,35 @@ namespace eval ::httpd::coro {}
     ###
     # rebuild the dispatch method
     ###
-    set body "try \{"
+    set body "\n try \{"
     foreach {slot class} $mixinmap {
       set script [$class meta getnull plugin dispatch:]
       if {[string length $script]} {
-        append body "# SLOT $slot"
+        append body \n "# SLOT $slot"
         append body \n $script
       }
     }
     append body \n {  return [my Dispatch_Default $data]}
-    append body "\} on error \{err errdat\} \{"
-    append body {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
-    append body "\}"
+    append body \n "\} on error \{err errdat\} \{"
+    append body \n {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
+    append body \n "\}"
     oo::objdefine [self] method dispatch data $body
 
     ###
     # rebuild the Headers_Process method
     ###
-    set body "try \{"
-    append body "  upvar 1 \$varname query"
+    set body "\n try \{"
+    append body \n "  upvar 1 \$varname query"
     foreach {slot class} $mixinmap {
       set script [$class meta getnull plugin headers:]
       if {[string length $script]} {
-        append body "# SLOT $slot"
+        append body \n "# SLOT $slot"
         append body \n $script
       }
     }
-    append body "\} on error \{err errdat\} \{"
-    append body {  puts [list HEADERS ERROR [dict get $errdat -errorinfo]] ; return {}}
-    append body "\}"
+    append body \n "\} on error \{err errdat\} \{"
+    append body \n {  puts [list HEADERS ERROR [dict get $errdat -errorinfo]] ; return {}}
+    append body \n "\}"
     oo::objdefine [self] method Headers_Process varname $body
   }
 
@@ -1036,7 +1033,6 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     }
   }
 
-
   method Uuid_Generate {} {
     return [::uuid::uuid generate]
   }
@@ -1109,6 +1105,16 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     } finally {
       my TransferComplete $chan
     }
+  }
+}
+
+::tool::define ::httpd::content.template {
+
+  method content {} {
+    if {[my http_info getnull HTTP_STATUS] ne {}} {
+      my reply set Status [my http_info getnull HTTP_STATUS]
+    }
+    my puts [subst [my <server> template [my http_info get template]]]
   }
 }
 
