@@ -80,14 +80,6 @@ body {
 
   method html_header {title args} {
     set result {}
-    uplevel 1 {
-set is_localhost [expr {[lindex [split [my http_info getnull HTTP_HOST] :] 0] eq "localhost"}]
-if {$is_localhost} {
-  set fossil_root /fossil
-} else {
-  set fossil_root http://fossil.etoyoc.com/fossil
-}
-    }
     append result "<HTML><HEAD>"
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
