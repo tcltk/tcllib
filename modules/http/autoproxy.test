@@ -26,6 +26,7 @@ set proxy_port 54566
 proc packageReset {} {
     array set ::autoproxy::options {
         authProc "" basic "" no_proxy "" proxy_host "" proxy_port ""
+        tls_package tls
     }
 }
 
@@ -197,7 +198,7 @@ test autoproxy-2.0.1 "autoproxy::tls_socket (twapi) with proxy" -constraints {
 } -setup {
     packageReset
     package require http
-    autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port
+    autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port -tls_package twapi
 } -body {
     http::register https 443 autoproxy::tls_socket
     set tok [http::geturl https://www.example.com]
@@ -225,7 +226,7 @@ test autoproxy-2.1.1 "autoproxy::tls_socket (twapi) without proxy" -constraints 
 } -setup {
     packageReset
     package require http
-    autoproxy::configure -proxy_host "" -proxy_port $proxy_port
+    autoproxy::configure -proxy_host "" -proxy_port $proxy_port -tls_package twapi
 } -body {
     http::register https 443 autoproxy::tls_socket
     set tok [http::geturl https://www.example.com]
