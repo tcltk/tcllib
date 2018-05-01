@@ -178,11 +178,10 @@ test autoproxy-1.2.4.2 "autoproxy::configure -tls_package dummy" -setup {
     autoproxy::configure -tls_package dummy
 } -result "Invalid TLS package option 'dummy'. Must be 'tls' or 'twapi'" -returnCodes error
 
-test autoproxy-2.0.0 "autoproxy::tls_socket (tls) with proxy" -setup {
-    packageReset
-} -constraints {
+test autoproxy-2.0.0 "autoproxy::tls_socket (tls) with proxy" -constraints {
     have_tls
 } -setup {
+    packageReset
     package require http
     autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port
 } -body {
@@ -193,11 +192,10 @@ test autoproxy-2.0.0 "autoproxy::tls_socket (tls) with proxy" -setup {
     http::cleanup $tok
 } -result ok
 
-test autoproxy-2.0.1 "autoproxy::tls_socket (twapi) with proxy" -setup {
-    packageReset
-} -constraints {
+test autoproxy-2.0.1 "autoproxy::tls_socket (twapi) with proxy" -constraints {
     have_twapi
 } -setup {
+    packageReset
     package require http
     autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port
 } -body {
@@ -208,11 +206,10 @@ test autoproxy-2.0.1 "autoproxy::tls_socket (twapi) with proxy" -setup {
     http::cleanup $tok
 } -result ok
 
-test autoproxy-2.1.0 "autoproxy::tls_socket (tls) without proxy" -setup {
-    packageReset
-} -constraints {
+test autoproxy-2.1.0 "autoproxy::tls_socket (tls) without proxy" -constraints {
     have_tls
 } -setup {
+    packageReset
     package require http
     autoproxy::configure -proxy_host "" -proxy_port $proxy_port
 } -body {
@@ -223,11 +220,10 @@ test autoproxy-2.1.0 "autoproxy::tls_socket (tls) without proxy" -setup {
     http::cleanup $tok
 } -result ok
 
-test autoproxy-2.1.1 "autoproxy::tls_socket (twapi) without proxy" -setup {
-    packageReset
-} -constraints {
+test autoproxy-2.1.1 "autoproxy::tls_socket (twapi) without proxy" -constraints {
     have_twapi
 } -setup {
+    packageReset
     package require http
     autoproxy::configure -proxy_host "" -proxy_port $proxy_port
 } -body {
