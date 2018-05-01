@@ -2,12 +2,15 @@ source [file join \
             [file dirname [file dirname [file join [pwd] [info script]]]] \
             devtools testutilities.tcl]
 
-testsNeedTcl  8.2
+testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
 # Constraints depending on package availability
-tcltest::testConstraint have_tls [expr ![catch {package require tls}]]
-tcltest::testConstraint have_twapi [expr ![catch {package require twapi}]]
+tcltest::testConstraint have_tls   [expr {![catch {package require tls}]}]
+tcltest::testConstraint have_twapi [expr {![catch {package require twapi}]}]
+
+puts "- have_tls   = [expr {![catch {package require tls}]}]"
+puts "- have_twapi = [expr {![catch {package require twapi}]}]"
 
 # uri and base64
 

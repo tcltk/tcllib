@@ -7,7 +7,7 @@
 [moddesc   {HTTP protocol helper modules}]
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [category  Networking]
-[require Tcl 8.2]
+[require Tcl 8.5]
 [require http [opt 2.0]]
 [require autoproxy [opt [vset VERSION]]]
 [description]
@@ -38,11 +38,7 @@ and http_proxy_pass. This package attempts to deal with all these
 schemes. It will do it's best to get the required parameters from the
 environment or registry and if it fails can be reconfigured.
 
-[para]
-
-[emph "The following section only applies to use of the [cmd tls] package for TLS support and does not apply if autoproxy is configured to use other packages for TLS via the [cmd -tls_package] configuration option."]
-
-[include ../common-text/tls-security-notes.inc]
+[include autoproxy-tls-security-notes.inc]
 
 [section "COMMANDS"]
 
