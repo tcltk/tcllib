@@ -30,7 +30,7 @@ namespace eval ::scgi {}
 tool::define ::httpd::mime {
 
 
-  method html::header {{title {}} args} {
+  method html_header {{title {}} args} {
     set result {}
     append result "<HTML><HEAD>"
     if {$title ne {}} {
@@ -40,7 +40,7 @@ tool::define ::httpd::mime {
     append result "</HEAD><BODY>"
     return $result
   }
-  method html::footer {args} {
+  method html_footer {args} {
     return "</BODY></HTML>"
   }
 
@@ -88,7 +88,7 @@ tool::define ::httpd::mime {
     ###
     chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     while 1 {
-      set readCount [::coroutine::util::gets_safety $sock 4096 line]
+      set readCount [::coroutine::util::gets_safety $sock $LIMIT line]
       if {$readCount==0} break
       append result $line \n
       if {[string length $result] > $LIMIT} {

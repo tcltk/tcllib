@@ -87,7 +87,7 @@ namespace eval ::httpd::coro {}
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
-      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan close $sock}
