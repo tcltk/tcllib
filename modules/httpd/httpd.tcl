@@ -1151,7 +1151,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     set path [my http_info get path]
     set prefix [my http_info get prefix]
     set fname [string range $uri [string length $prefix] end]
-    my puts [my html header "Listing of /$fname/"]
+    my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
     my puts "<TABLE>"
     if {$prefix ni {/ {}}} {
@@ -1168,7 +1168,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       }
     }
     my puts "</TABLE>"
-    my puts [my html footer]
+    my puts [my html_footer]
   }
 
   method content {} {
@@ -1188,6 +1188,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
         index.html
         index.tml
         index.md
+        content.htm
       } {
         if {[file exists [file join $local_file $name]]} {
           set idxfound 1

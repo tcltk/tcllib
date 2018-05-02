@@ -33,7 +33,7 @@
     set path [my http_info get path]
     set prefix [my http_info get prefix]
     set fname [string range $uri [string length $prefix] end]
-    my puts [my html header "Listing of /$fname/"]
+    my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
     my puts "<TABLE>"
     if {$prefix ni {/ {}}} {
@@ -50,7 +50,7 @@
       }
     }
     my puts "</TABLE>"
-    my puts [my html footer]
+    my puts [my html_footer]
   }
 
   method content {} {
@@ -70,6 +70,7 @@
         index.html
         index.tml
         index.md
+        content.htm
       } {
         if {[file exists [file join $local_file $name]]} {
           set idxfound 1
