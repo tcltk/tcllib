@@ -314,8 +314,9 @@ though we are careful not to evaluate remote user input\&. There are
 many other well tested and security audited programs that can be used
 as mail servers for internet connected hosts\&.
 .SH "TLS SECURITY CONSIDERATIONS"
-This package uses the \fBTLS\fR package to handle the security
-for \fBhttps\fR urls and other socket connections\&.
+.PP
+This package uses the \fBTLS\fR package to handle the
+security for \fBhttps\fR urls and other socket connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of

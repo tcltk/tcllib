@@ -287,8 +287,9 @@ the Simple Authentication and Security Layer (SASL)\&.
 Please read the documentation for package \fBsasl\fR
 for details\&.
 .SH "TLS SECURITY CONSIDERATIONS"
-This package uses the \fBTLS\fR package to handle the security
-for \fBhttps\fR urls and other socket connections\&.
+.PP
+This package uses the \fBTLS\fR package to handle the
+security for \fBhttps\fR urls and other socket connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of
