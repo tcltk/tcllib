@@ -343,8 +343,9 @@ server, and then providing a Tcl API to access the LDAP protocol
 commands\&.  All server errors are returned as Tcl errors (thrown) which
 must be caught with the Tcl \fBcatch\fR command\&.
 .SH "TLS SECURITY CONSIDERATIONS"
-This package uses the \fBTLS\fR package to handle the security
-for \fBhttps\fR urls and other socket connections\&.
+.PP
+This package uses the \fBTLS\fR package to handle the
+security for \fBhttps\fR urls and other socket connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of
