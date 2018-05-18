@@ -25,7 +25,7 @@ exec tclsh "$0" "$@"
 #  TODO: create online documentation
 
 package require Tcl 8.5
-package provide oauth 1.0.1
+package provide oauth 1.0.2
 
 package require http
 package require tls
@@ -272,7 +272,7 @@ proc ::oauth::query {baseURL {postQuery {}}} {
 #    and return a list of modified parameter assignments.
 proc ::oauth::QuoteValues {params} {
     set tmp {}
-    foreach parameter $header {
+    foreach parameter $params {
 	lassign [Split $parameter =] key value
 	lappend tmp "${key}=\"${value}\""
     }
@@ -283,7 +283,7 @@ proc ::oauth::QuoteValues {params} {
 #	Split the string on the first separator
 #       and return both parts as a list.
 proc ::oauth::Split {string sep} {
-    regexp "{^(\[^${sep}\]+)${sep}(.*)\$" $string -> key value
+    regexp "\{^(\[^${sep}\]+)${sep}(.*)\$" $string -> key value
     list $key $value
 }
 
