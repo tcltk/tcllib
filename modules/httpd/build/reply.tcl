@@ -94,7 +94,7 @@ body {
     }
     append result {</div>}
     if {[dict exists $args sideimg]} {
-      append result "\n<div name=\"sideimg\"><img align=right src=\"[dict get $args sideimg]\" width=25%></div>"
+      append result "\n<div name=\"sideimg\"><img align=right src=\"[dict get $args sideimg]\"></div>"
     }
     append result {<div id="content">}
     return $result

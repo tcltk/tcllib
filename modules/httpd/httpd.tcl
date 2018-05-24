@@ -365,7 +365,7 @@ body {
     }
     append result {</div>}
     if {[dict exists $args sideimg]} {
-      append result "\n<div name=\"sideimg\"><img align=right src=\"[dict get $args sideimg]\" width=25%></div>"
+      append result "\n<div name=\"sideimg\"><img align=right src=\"[dict get $args sideimg]\"></div>"
     }
     append result {<div id="content">}
     return $result
@@ -918,6 +918,23 @@ namespace eval ::httpd::coro {}
     append body \n {  puts [list HEADERS ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
     oo::objdefine [self] method Headers_Process varname $body
+
+    ###
+    # rebuild the Threads_Start method
+    ###
+    set body "\n try \{"
+    foreach {slot class} $mixinmap {
+      set script [$class meta getnull plugin thread:]
+      if {[string length $script]} {
+        append body \n "# SLOT $slot"
+        append body \n $script
+      }
+    }
+    append body \n "\} on error \{err errdat\} \{"
+    append body \n {  puts [list THREAD START ERROR [dict get $errdat -errorinfo]] ; return {}}
+    append body \n "\}"
+    oo::objdefine [self] method Thread_start {} $body
+
   }
 
   method port_listening {} {
@@ -961,6 +978,7 @@ namespace eval ::httpd::coro {}
       lappend socklist [socket -server [namespace code [list my connect]] $port]
     }
     ::cron::every [self] 120 [namespace code {my CheckTimeout}]
+    my Thread_start
   }
 
   method stop {} {
@@ -1024,6 +1042,8 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       }
     }
   }
+
+  method Thread_start {} {}
 
   method Uuid_Generate {} {
     return [::uuid::uuid generate]
@@ -1889,6 +1909,13 @@ tool::define ::httpd::plugin {
   # Define a code snippet to run within the object's writes a local config file
   ###
   meta set plugin local_config: {}
+
+  ###
+  # When after all the plugins are loaded
+  # allow specially configured ones to light off a thread
+  ###
+  meta set plugin thread: {}
+
 }
 
 ###
