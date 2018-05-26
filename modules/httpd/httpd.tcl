@@ -1924,13 +1924,13 @@ tool::define ::httpd::plugin {
 ###
 tool::define ::httpd::plugin.dict_dispatch {
   meta set plugin dispatch: {
-    if {[my Dispatch_Dict $data buffer]} {
-      return $buffer
+    set reply [my Dispatch_Dict $data]
+    if {[dict size $reply]} {
+      return $reply
     }
   }
 
-  method Dispatch_Dict {data varname} {
-    upvar 1 $varname buffer
+  method Dispatch_Dict {data} {
     set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
     set uri   [dict get $data REQUEST_PATH]
 
@@ -1941,9 +1941,9 @@ tool::define ::httpd::plugin.dict_dispatch {
       foreach {f v} $info {
         dict set buffer $f $v
       }
-      return 1
+      return $buffer
     }
-    return 0
+    return {}
   }
 
   method uri::patterns {} {

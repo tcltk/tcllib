@@ -216,7 +216,7 @@
       if {[file exists [file join $builddir make.tcl]]} {
         puts "[self] Local INSTALL (Practcl)"
         ::practcl::domake.tcl $builddir install
-      } else {[my define get broken_destroot 0] == 0} {
+      } elseif {[my define get broken_destroot 0] == 0} {
         puts "[self] Local INSTALL (TEA)"
         ::practcl::domake $builddir install
       }
