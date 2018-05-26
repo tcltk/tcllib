@@ -116,9 +116,11 @@ oo::class create ::practcl::subproject {
   }
 
   method unpack {} {
+    cd $::CWD
     ::practcl::distribution select [self]
     my Unpack
     ::practcl::toolset select [self]
+    cd $::CWD
   }
 }
 
