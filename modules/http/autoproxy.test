@@ -2,8 +2,15 @@ source [file join \
             [file dirname [file dirname [file join [pwd] [info script]]]] \
             devtools testutilities.tcl]
 
-testsNeedTcl  8.2
+testsNeedTcl     8.5
 testsNeedTcltest 2.0
+
+# Constraints depending on package availability
+tcltest::testConstraint have_tls   [expr {![catch {package require tls}]}]
+tcltest::testConstraint have_twapi [expr {![catch {package require twapi}]}]
+
+puts "- have_tls   = [expr {![catch {package require tls}]}]"
+puts "- have_twapi = [expr {![catch {package require twapi}]}]"
 
 # uri and base64
 
@@ -11,10 +18,15 @@ testing {
     useLocal autoproxy.tcl autoproxy
 }
 
+# May need to change these to your proxy
+set proxy_host 147.135.210.114
+set proxy_port 54566
+
 # Clear the autoproxy package state for each test
 proc packageReset {} {
     array set ::autoproxy::options {
         authProc "" basic "" no_proxy "" proxy_host "" proxy_port ""
+        tls_package tls
     }
 }
 
@@ -146,6 +158,82 @@ test autoproxy-1.2.3 "autoproxy::configure -basic reset (2)" -setup {
     autoproxy::configure -basic
     autoproxy::cget -basic
 } -result {}
+
+test autoproxy-1.2.4.0 "autoproxy::configure -tls_package tls" -setup {
+    packageReset
+} -body {
+    autoproxy::configure -tls_package tls
+    autoproxy::cget -tls_package
+} -result tls
+
+test autoproxy-1.2.4.1 "autoproxy::configure -tls_package twapi" -setup {
+    packageReset
+} -body {
+    autoproxy::configure -tls_package twapi
+    autoproxy::cget -tls_package
+} -result twapi
+
+test autoproxy-1.2.4.2 "autoproxy::configure -tls_package dummy" -setup {
+    packageReset
+} -body {
+    autoproxy::configure -tls_package dummy
+} -result "Invalid TLS package option 'dummy'. Must be 'tls' or 'twapi'" -returnCodes error
+
+test autoproxy-2.0.0 "autoproxy::tls_socket (tls) with proxy" -constraints {
+    have_tls
+} -setup {
+    packageReset
+    package require http
+    autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port
+} -body {
+    http::register https 443 autoproxy::tls_socket
+    set tok [http::geturl https://www.example.com]
+    http::status $tok
+} -cleanup {
+    http::cleanup $tok
+} -result ok
+
+test autoproxy-2.0.1 "autoproxy::tls_socket (twapi) with proxy" -constraints {
+    have_twapi
+} -setup {
+    packageReset
+    package require http
+    autoproxy::configure -proxy_host $proxy_host -proxy_port $proxy_port -tls_package twapi
+} -body {
+    http::register https 443 autoproxy::tls_socket
+    set tok [http::geturl https://www.example.com]
+    http::status $tok
+} -cleanup {
+    http::cleanup $tok
+} -result ok
+
+test autoproxy-2.1.0 "autoproxy::tls_socket (tls) without proxy" -constraints {
+    have_tls
+} -setup {
+    packageReset
+    package require http
+    autoproxy::configure -proxy_host "" -proxy_port $proxy_port
+} -body {
+    http::register https 443 autoproxy::tls_socket
+    set tok [http::geturl https://www.example.com]
+    http::status $tok
+} -cleanup {
+    http::cleanup $tok
+} -result ok
+
+test autoproxy-2.1.1 "autoproxy::tls_socket (twapi) without proxy" -constraints {
+    have_twapi
+} -setup {
+    packageReset
+    package require http
+    autoproxy::configure -proxy_host "" -proxy_port $proxy_port -tls_package twapi
+} -body {
+    http::register https 443 autoproxy::tls_socket
+    set tok [http::geturl https://www.example.com]
+    http::status $tok
+} -cleanup {
+    http::cleanup $tok
+} -result ok
 
 testsuiteCleanup
 

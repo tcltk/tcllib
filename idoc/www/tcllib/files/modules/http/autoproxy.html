@@ -106,7 +106,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">autoproxy(n) 1.6 tcllib &quot;HTTP protocol helper modules&quot;</h1>
+<h1 class="doctools_title">autoproxy(n) 1.7 tcllib &quot;HTTP protocol helper modules&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>autoproxy - Automatic HTTP proxy usage and authentication</p>
 </div>
@@ -132,9 +132,9 @@
 <div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
-<li>package require <b class="pkgname">Tcl 8.2</b></li>
+<li>package require <b class="pkgname">Tcl 8.5</b></li>
 <li>package require <b class="pkgname">http <span class="opt">?2.0?</span></b></li>
-<li>package require <b class="pkgname">autoproxy <span class="opt">?1.6?</span></b></li>
+<li>package require <b class="pkgname">autoproxy <span class="opt">?1.7?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::autoproxy::init</b></a></li>
@@ -167,8 +167,13 @@ schemes. It will do it's best to get the required parameters from the
 environment or registry and if it fails can be reconfigured.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the security
-for <b class="const">https</b> urls and other socket connections.</p>
+<p><em>Note</em> This section only applies if TLS support is provided
+by the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package.
+It does not apply when <b class="package">autoproxy</b> was configured to use some
+other package which can provide the same (i.e <b class="package">twapi</b>), via
+the <b class="option">-tls_package</b> configuration option.</p>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
 this package itself however.
@@ -206,13 +211,15 @@ See <span class="sectref"><a href="#section4">OPTIONS</a></span>.</p></dd>
 the use of the CONNECT HTTP command to open a link through the proxy
 to the target machine. This function hides the details. For use with
 the http package see <b class="cmd">tls_socket</b>.</p>
-<p>The <i class="arg">args</i> list may contain any of the <b class="package"><a href="../../../../index.html#key331">tls</a></b> package options but
+<p>The <i class="arg">args</i> list may contain any of the options
+supported by the specific TLS package that is in use but
 must end with the host and port as the last two items.</p></dd>
 <dt><a name="5"><b class="cmd">::autoproxy::tunnel_connect</b> <i class="arg">args</i></a></dt>
 <dd><p>Connect to a target host throught a proxy. This uses the same CONNECT
 HTTP command as the <b class="cmd">tls_connect</b> but does not promote the link
 security once the connection is established.</p>
-<p>The <i class="arg">args</i> list may contain any of the <b class="package"><a href="../../../../index.html#key331">tls</a></b> package options but
+<p>The <i class="arg">args</i> list may contain any of the options
+supported by the specific TLS package that is in use but
 must end with the host and port as the last two items.</p>
 <p>Note that many proxy servers will permit CONNECT calls to a limited
 set of ports - typically only port 443 (the secure HTTP port).</p></dd>
@@ -254,6 +261,10 @@ scheme parameters. See <span class="sectref"><a href="#section5">Basic Authentic
 To unset the proxy authentication information retained from a previous
 call of this function either &quot;--&quot; or no additional parameters can be
 supplied. This will remove the existing authentication information.</p></dd>
+<dt><b class="option">-tls_package</b> packagename</dt>
+<dd><p>This option may be used to configure the Tcl package to use for
+TLS support. Valid package names are <b class="const">tls</b> (default)
+and <b class="const">twapi</b>.</p></dd>
 </dl>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Basic Authentication</a></h2>

@@ -83,6 +83,10 @@ object as its result, with the keys formatted as JSON strings.
 [list_end]
 [para]
 
+[section RELATED]
+
+To parse json, instead of writing it, see package [package json].
+
 [vset CATEGORY json]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

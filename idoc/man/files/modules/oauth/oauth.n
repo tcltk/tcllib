@@ -294,8 +294,9 @@ for communication with \fIoauth\fR [http://oauth\&.net] APIs\&.
 This current version of the package supports the Oauth 1\&.0 Protocol,
 as specified in \fIRFC 5849\fR [http://tools\&.ietf\&.org/rfc/rfc5849\&.txt]\&.
 .SH "TLS SECURITY CONSIDERATIONS"
-This package uses the \fBTLS\fR package to handle the security
-for \fBhttps\fR urls and other socket connections\&.
+.PP
+This package uses the \fBTLS\fR package to handle the
+security for \fBhttps\fR urls and other socket connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of

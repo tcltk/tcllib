@@ -1,3 +1,9 @@
+2018-02-20 Harald Oehlmann <oehhar@sourceforge.net>
+
+	* log.tcl: [RFE 19607f927b]: Add command log::logeval
+	* log.man: to optimize expensive log message construction.
+	* log.test: Bumped package version to 1.4
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

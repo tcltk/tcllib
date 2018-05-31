@@ -344,6 +344,8 @@ formatted for JSON, and returns them as a properly formatted JSON
 object as its result, with the keys formatted as JSON strings\&.
 .PP
 .PP
+.SH RELATED
+To parse json, instead of writing it, see package \fBjson\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.

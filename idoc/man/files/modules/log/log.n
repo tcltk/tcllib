@@ -2,7 +2,7 @@
 '\" Generated from file 'log\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2001-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "log" n 1\&.3 tcllib "Logging facility"
+.TH "log" n 1\&.4 tcllib "Logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ log \- Procedures to log messages of libraries and applications\&.
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBlog  ?1\&.3?\fR
+package require \fBlog  ?1\&.4?\fR
 .sp
 \fB::log::levels\fR
 .sp
@@ -315,6 +315,8 @@ package require \fBlog  ?1\&.3?\fR
 \fB::log::logarray\fR \fIlevel\fR \fIarrayvar\fR ?\fIpattern\fR?
 .sp
 \fB::log::loghex\fR \fIlevel\fR \fItext\fR \fIdata\fR
+.sp
+\fB::log::logsubst\fR \fIlevel\fR \fImsg\fR
 .sp
 \fB::log::logMsg\fR \fItext\fR
 .sp
@@ -507,6 +509,18 @@ none was specified\&.
 Like \fB::log::log\fR, but assumes that \fIdata\fR contains binary
 data\&. It converts this into a mixed hex/ascii representation before
 writing them to the log\&.
+.TP
+\fB::log::logsubst\fR \fIlevel\fR \fImsg\fR
+Like \fB::log::log\fR, but \fImsg\fR may contain substitutions and variable references, which are evaluated in the caller scope first\&.
+The purpose of this command is to avoid overhead in the non-logging case, if the log message building is expensive\&.
+Any substitution errors raise an error in the command execution\&.
+The following example shows an xml text representation, which is only generated in debug mode:
+.CS
+
+
+    log::logsubst debug {XML of node $node is '[$node toXml]'}
+
+.CE
 .TP
 \fB::log::logMsg\fR \fItext\fR
 Convenience wrapper around \fB::log::log\fR\&.
