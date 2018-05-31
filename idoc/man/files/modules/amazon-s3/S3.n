@@ -1614,8 +1614,9 @@ each moving on to the next unstarted task as it finishes each\&.
 This is still being designed, and it is intended primarily
 to be run on Amazon's Elastic Compute Cloud\&.
 .SH "TLS SECURITY CONSIDERATIONS"
-This package uses the \fBTLS\fR package to handle the security
-for \fBhttps\fR urls and other socket connections\&.
+.PP
+This package uses the \fBTLS\fR package to handle the
+security for \fBhttps\fR urls and other socket connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of

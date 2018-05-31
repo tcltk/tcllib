@@ -42,7 +42,15 @@ proc ::uuid::generate_tcl_machinfo {} {
   lappend machinfo [info hostname]; # spatial unique id (poor)
   lappend machinfo [pid];           # additional entropy
   lappend machinfo [array get ::tcl_platform]
-  if {[catch {package require nettool}]} {
+
+  ###
+  # If we have /dev/urandom just stream 128 bits from that
+  ###
+  if {[file exists /dev/urandom]} {
+    set fin [open /dev/urandom r]
+    set machinfo [read $fin 128]
+    close $fin
+  } elseif {[catch {package require nettool}]} {
     # More spatial information -- better than hostname.
     # bug 1150714: opening a server socket may raise a warning messagebox
     #   with WinXP firewall, using ipconfig will return all IP addresses
@@ -57,7 +65,7 @@ proc ::uuid::generate_tcl_machinfo {} {
       } r
       lappend machinfo $r
     }
-  
+
     if {[package provide Tk] != {}} {
       lappend machinfo [winfo pointerxy .]
       lappend machinfo [winfo id .]
@@ -78,23 +86,23 @@ proc ::uuid::generate_tcl_machinfo {} {
 proc ::uuid::generate_tcl {} {
     package require md5 2
     variable uid
-    
+
     set tok [md5::MD5Init]
-    md5::MD5Update $tok [incr uid];      # package incrementing counter 
+    md5::MD5Update $tok [incr uid];      # package incrementing counter
     foreach string [generate_tcl_machinfo] {
       md5::MD5Update $tok $string
     }
     set r [md5::MD5Final $tok]
     binary scan $r c* r
-    
+
     # 3.4: set uuid versioning fields
     lset r 8 [expr {([lindex $r 8] & 0x3F) | 0x80}]
     lset r 6 [expr {([lindex $r 6] & 0x0F) | 0x40}]
-    
+
     return [binary format c* $r]
 }
 
-if {[string equal $tcl_platform(platform) "windows"] 
+if {[string equal $tcl_platform(platform) "windows"]
         && [package provide critcl] != {}} {
     namespace eval uuid {
         critcl::ccode {

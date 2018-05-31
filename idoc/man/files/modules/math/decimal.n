@@ -405,8 +405,8 @@ this man page for information about individual procedures\&.
     puts [::math::decimal::tostr $c] ; # => will output 8\&.0
 
     # Why bother using this instead of simply expr?
-    puts 8\&.399999999999999 ; # => will output 8\&.399999999999999
-    puts 7\&.999999999999999 ; # => will output 7\&.999999999999999
+    puts [expr {8\&.2 + \&.2}] ; # => will output 8\&.399999999999999
+    puts [expr {8\&.2 - \&.2}] ; # => will output 7\&.999999999999999
     # See http://speleotrove\&.com/decimal to learn more about why this happens\&.
 
 .CE

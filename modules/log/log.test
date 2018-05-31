@@ -364,6 +364,60 @@ test log-13.3 {log error} {
     set msg
 } {bad level "e": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
+test log-13.4 {logsubst variable} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {logging<$logdata>}
+    set _log_
+} {error logging<buz>}
+
+test log-13.5 {logsubst command} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {logging<[set logdata]>}
+    set _log_
+} {error logging<buz>}
+
+test log-13.6 {logsubst escape} {
+    set _log_ [list]
+    set logdata buz
+    ::log::logsubst er {1\n2}
+    set _log_
+} {error 1 error 2}
+
+test log-13.7 {logsubst list} {
+    set _log_ [list]
+    ::log::logsubst er {1 \{2}
+    set _log_
+} {error 1\ \{2}
+
+test log-13.8 {logeval evaluation error} {
+    set level [catch {::log::logsubst er {[error q]} } msg]
+    list $level $msg
+} {1 q}
+
+test log-13.9 {logeval no var subst on no log} {
+    set _log_ [list]
+    set testvar 1
+    trace add variable testvar read {lappend _log_}
+    # This fires
+    ::log::logsubst er {$testvar}
+    # This does not fire
+    lappend _log_ T1
+    ::log::logsubst crit {$testvar}
+    trace remove variable testvar read {lappend _log_}
+    unset testvar
+    set _log_
+} {testvar {} read error 1 T1}
+
+test log-13.10 {logeval no command subst on no log} {
+    set mylog [list]
+    # This fires
+    ::log::logsubst er {<[lappend mylog Test1]>}
+    # This does not fire
+    ::log::logsubst crit {<[lappend mylog Test2]>}
+    set mylog
+} {Test1}
 
 set lastlevel warning
 foreach level {alert critical debug error emergency info notice warning} {

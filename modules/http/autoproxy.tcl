@@ -20,6 +20,7 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 
+package require Tcl 8.5 ;# ni/in operators
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
@@ -34,6 +35,7 @@ namespace eval ::autoproxy {
             no_proxy   {}
             basic      {}
             authProc   {}
+            tls_package tls
         }
     }
 
@@ -62,6 +64,7 @@ proc ::autoproxy::cget {option} {
         -no*      { set options(no_proxy) }
         -basic    { set options(basic) }
         -authProc { set options(authProc) }
+        -tls_package { set options(tls_package) }
         default {
             set err [join [lsort [array names options]] ", -"]
             return -code error "bad option \"$option\":\
@@ -100,6 +103,13 @@ proc ::autoproxy::configure {args} {
             -no*      { set options(no_proxy) [Pop args 1] }
             -basic    { Pop args; configure:basic $args ; break }
             -authProc { set options(authProc) [Pop args 1] }
+            -tls_package {
+                set tls_package [Pop args 1]
+                if {$tls_package ni {tls twapi}} {
+                    error "Invalid TLS package option '$tls_package'. Must be 'tls' or 'twapi'"
+                }
+                set options(tls_package) $tls_package
+            }
             --        { Pop args; break }
             default {
                 set opts [join [lsort [array names options]] ", -"]
@@ -384,16 +394,29 @@ proc ::autoproxy::filter {host} {
 #
 proc ::autoproxy::tls_connect {args} {
     variable options
+    set peersubject [lindex $args end-1]
     if {[string length $options(proxy_host)] > 0} {
         set s [eval [linsert $args 0 tunnel_connect]]
         fconfigure $s -blocking 1 -buffering none -translation binary
         if {[string equal "-async" [lindex $args end-2]]} {
-            eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s]
+            if {$options(tls_package) eq "twapi"} {
+                set s [eval [linsert [lrange $args 0 end-3] 0 ::twapi::starttls $s -peersubject $peersubject]]
+            } else {
+                eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s]
+            }
         } else {
-            eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s]
+            if {$options(tls_package) eq "twapi"} {
+                set s [eval [linsert [lrange $args 0 end-2] 0 ::twapi::starttls $s -peersubject $peersubject]]
+            } else {
+                eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s]
+            }
         }
     } else {
-        set s [eval [linsert $args 0 ::tls::socket]]
+        if {$options(tls_package) eq "twapi"} {
+            set s [eval [linsert $args 0 ::twapi::tls_socket]]
+        } else {
+            set s [eval [linsert $args 0 ::tls::socket]]
+        }
     }
     return $s
 }
@@ -526,15 +549,36 @@ proc ::autoproxy::tls_socket {args} {
 
     # record the tls connection status in the http state array.
     upvar state state
-    tls::handshake $s
-    set state(tls_status) [tls::status $s]
+
+    if {$options(tls_package) eq "twapi"} {
+        # With twapi::tls_socket, state may not be available on
+        # an async connect until negotiation is completed.
+        set state(tls_status) ""
+        set security_context [fconfigure $s -context]
+        if {$security_context ne ""} {
+            set cert [twapi::sspi_remote_cert $security_context]
+            set cert_info [twapi::cert_info $cert]
+            twapi::cert_release $cert
+            dict set state(tls_status) issuer [dict get $cert_info -issuer]
+            dict set state(tls_status) subject [dict get $cert_info -subject]
+            dict set state(tls_status) notBefore [dict get $cert_info -start]
+            dict set state(tls_status) notAfter [dict get $cert_info -end]
+            # Note: binary encode hex was not available in older Tcl, use twapi::hex
+            dict set state(tls_status) serial [twapi::hex [dict get $cert_info -serialnumber]]
+            # TBD - dict set state(tls_status) cipher
+            # TBD - dict set state(tls_status) sbits
+        }
+    } else {
+        tls::handshake $s
+        set state(tls_status) [tls::status $s]
+    }
 
     return $s
 }
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy 1.6
+package provide autoproxy 1.7
 
 # -------------------------------------------------------------------------
 #
