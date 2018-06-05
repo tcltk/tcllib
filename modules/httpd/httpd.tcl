@@ -34,6 +34,7 @@ package require websocket
 package require Markdown
 package require uuid
 package require fileutil::magic::filetype
+
 namespace eval httpd::content {}
 
 namespace eval ::url {}
@@ -754,11 +755,14 @@ namespace eval ::httpd::coro {}
         dict set query $qfld $v
         dict set query http $fld $v
       }
-      dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
+      if {[string match 127.* $ip]} {
+        dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
+      }
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
       my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      puts [dict get $errdat -errorinfo]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan close $sock}
@@ -901,7 +905,6 @@ namespace eval ::httpd::coro {}
     append body \n {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
     oo::objdefine [self] method dispatch data $body
-
     ###
     # rebuild the Headers_Process method
     ###
@@ -1933,7 +1936,6 @@ tool::define ::httpd::plugin.dict_dispatch {
   method Dispatch_Dict {data} {
     set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
     set uri   [dict get $data REQUEST_PATH]
-
     foreach {host pattern info} [my uri patterns] {
       if {![string match $host $vhost]} continue
       if {![string match $pattern $uri]} continue
@@ -1985,6 +1987,117 @@ tool::define ::httpd::plugin.dict_dispatch {
     }
   }
 }
+
+tool::define ::httpd::reply.memchan {
+  superclass ::httpd::reply
+
+  method output {} {
+    my variable reply_body
+    return $reply_body
+  }
+
+  method DoOutput {} {}
+
+  method close {} {
+    # Neuter the channel closing mechanism we need the channel to stay alive
+    # until the reader sucks out the info
+  }
+}
+
+
+tool::define ::httpd::plugin.local_memchan {
+
+  meta set plugin load: {
+package require tcl::chan::events
+package require tcl::chan::memchan
+  }
+
+  method local_memchan {command args} {
+    my variable sock_to_coro
+    switch $command {
+      geturl {
+        ###
+        # Hook to allow a local process to ask for data without a socket
+        ###
+        set uuid [my Uuid_Generate]
+        set ip 127.0.0.1
+        set sock [::tcl::chan::memchan]
+        set output [coroutine ::httpd::coro::$uuid {*}[namespace code [list my Connect_Local $uuid $sock GET {*}$args]]]
+        return $output
+      }
+      default {
+        error "Valid: connect geturl"
+      }
+    }
+  }
+
+  ###
+  # A modified connection method that passes simple GET request to an object
+  # and pulls data directly from the reply_body data variable in the object
+  #
+  # Needed because memchan is bidirectional, and we can't seem to communicate that
+  # the server is one side of the link and the reply is another
+  ###
+  method Connect_Local {uuid sock args} {
+    chan event $sock readable {}
+
+    chan configure $sock \
+      -blocking 0 \
+      -translation {auto crlf} \
+      -buffering line
+    set ip 127.0.0.1
+    dict set query UUID $uuid
+    dict set query HTTP_HOST       localhost
+    dict set query REMOTE_ADDR     127.0.0.1
+    dict set query REMOTE_HOST     localhost
+    dict set query LOCALHOST 1
+    my counter url_hit
+
+    dict set query REQUEST_METHOD  [lindex $args 0]
+    set uriinfo [::uri::split [lindex $args 1]]
+    dict set query REQUEST_URI     [lindex $args 1]
+    dict set query REQUEST_PATH    [dict get $uriinfo path]
+    dict set query REQUEST_VERSION [lindex [split [lindex $args end] /] end]
+    dict set query DOCUMENT_ROOT   [my cget doc_root]
+    dict set query QUERY_STRING    [dict get $uriinfo query]
+    dict set query REQUEST_RAW     $args
+    dict set query SERVER_PORT     [my port_listening]
+    my Headers_Process query
+    set reply [my dispatch $query]
+
+    if {[llength $reply]==0} {
+      my log BadLocation $uuid $query
+      my log BadLocation $uuid $query
+      dict set query HTTP_STATUS 404
+      dict set query template notfound
+      dict set query mixinmap reply ::httpd::content.template
+    }
+
+    set class ::httpd::reply.memchan
+    set pageobj [$class create ::httpd::object::$uuid [self]]
+    if {[dict exists $reply mixinmap]} {
+      set mixinmap [dict get $reply mixinmap]
+    } else {
+      set mixinmap {}
+    }
+    if {[dict exists $reply mixin]} {
+      dict set mixinmap reply [dict get $reply mixin]
+    }
+    foreach item [dict keys $reply MIXIN_*] {
+      set slot [string range $reply 6 end]
+      dict set mixinmap [string tolower $slot] [dict get $reply $item]
+    }
+    $pageobj mixinmap {*}$mixinmap
+    if {[dict exists $reply organ]} {
+      $pageobj graft {*}[dict get $reply organ]
+    }
+    $pageobj dispatch $sock $reply
+    set output [$pageobj output]
+    catch {$pageobj destroy}
+    return $output
+  }
+}
+
 
 ###
 # END: plugin.tcl

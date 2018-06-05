@@ -83,7 +83,9 @@ namespace eval ::httpd::coro {}
         dict set query $qfld $v
         dict set query http $fld $v
       }
-      dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
+      if {[string match 127.* $ip]} {
+        dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
+      }
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
@@ -230,7 +232,6 @@ namespace eval ::httpd::coro {}
     append body \n {  puts [list DISPATCH ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
     oo::objdefine [self] method dispatch data $body
-
     ###
     # rebuild the Headers_Process method
     ###

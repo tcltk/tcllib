@@ -27,6 +27,9 @@ support {
   use oodialect/oodialect.tcl oo::dialect
   use oometa/oometa.tcl oo::meta
   use tool/tool.tcl tool
+  use virtchannel_core/core.tcl tcl::chan::core
+  use virtchannel_core/events.tcl tcl::chan::events
+  use virtchannel_base/memchan.tcl tcl::chan::memchan
 }
 
 testing {
@@ -221,6 +224,7 @@ set DIR [file dirname [file normalize [info script]]]
 set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
+TESTAPP plugin dict_dispatch
 TESTAPP uri add /     [list mixin ::test::content.echo]
 TESTAPP uri add /echo [list mixin ::test::content.echo]
 TESTAPP uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
@@ -322,7 +326,7 @@ tool::define ::test::content.proxy {
 
 ::httpd::server create TESTPROXY port 10002
 TESTAPP   uri add /proxy*     [list mixin ::test::content.proxy proxy_port [TESTPROXY port_listening]]
-
+TESTPROXY plugin dict_dispatch
 TESTPROXY uri add /     [list mixin ::test::content.echo]
 TESTPROXY uri add /echo [list mixin ::test::content.echo]
 TESTPROXY uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
@@ -409,6 +413,7 @@ set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 
 # -------------------------------------------------------------------------
 # cgi
+TESTAPP plugin local_memchan
 
 TESTAPP uri add /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
 
@@ -454,6 +459,14 @@ Content-Length: *
 Hi!}
 } {}
 
+###
+# Test the local geturl method
+###
+set now [clock seconds]
+set dat [TESTAPP local_memchan geturl /time]
+test httpd-memchan-0001 {Memchan GET} {
+  TESTAPP local_memchan geturl /time
+} $now
 
 # -------------------------------------------------------------------------
 namespace eval ::scgi {}
@@ -554,7 +567,7 @@ tool::class create scgi::test::app {
 }
 
 scgi::test::app create TESTSCGI port 10003
-
+TESTSCGI plugin dict_dispatch
 TESTSCGI uri add /     [list mixin ::test::content.echo]
 TESTSCGI uri add /echo [list mixin ::test::content.echo]
 TESTSCGI uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
