@@ -550,7 +550,7 @@ oo::class create ::pt::rde::oo {
 	}
 	$mystackmark push [$mystackast size]
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -591,7 +591,7 @@ oo::class create ::pt::rde::oo {
 	}
 	$mystackast trim* $mark
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -634,7 +634,7 @@ oo::class create ::pt::rde::oo {
 	}
 	$mystackast trim* [$mystackmark peek]
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return

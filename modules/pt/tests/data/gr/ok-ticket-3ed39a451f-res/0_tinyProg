@@ -1,0 +1,1 @@
+CmdSeq 0 15 {Cmd 0 5 {AssignCmd 0 5 {Name 0 0} {ASSIGNMENT 1 4} {Exp 5 5 {Operand 5 5}}}} {Cmd 8 13 {AssignCmd 8 13 {Name 8 8} {ASSIGNMENT 9 12} {Exp 13 13 {Operand 13 13}}}}
