@@ -190,8 +190,8 @@ proc ::pt::peg::op::CallMode {callers mv} {
 
 proc ::pt::peg::op::minimize {container} {
     flatten           $container
-    drop unreachable  $container
     drop unrealizable $container
+    drop unreachable  $container
     flatten           $container
     optmodes          $container
     dechain           $container
