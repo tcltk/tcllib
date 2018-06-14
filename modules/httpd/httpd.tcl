@@ -103,7 +103,7 @@ tool::define ::httpd::mime {
     chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
     while 1 {
       set readCount [::coroutine::util::gets_safety $sock $LIMIT line]
-      if {$readCount==0} break
+      if {$readCount<=0} break
       append result $line \n
       if {[string length $result] > $LIMIT} {
         error {Headers too large}
@@ -762,7 +762,6 @@ namespace eval ::httpd::coro {}
       set reply [my dispatch $query]
     } on error {err errdat} {
       my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      puts [dict get $errdat -errorinfo]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan close $sock}
