@@ -304,15 +304,15 @@ proc ::pt::peg::op::Realizable {pe op arguments} {
 
 	    return [tcl::mathfunc::max {*}$arguments]
 	}
-	x - * - + - ? - & - ! {
+	x - + - & - ! {
 	    # All other operators are realizable if and only if all
 	    # its children are realizable.
 
 	    return [tcl::mathfunc::min {*}$arguments]
 	}
 	default {
-	    # The terminals and special forms are realizable by
-	    # definition.
+	    # Terminals, special forms, Kleene closure (*), and
+	    # optionals (?) are realizable by definition.
 	    return 1
 	}
     }
