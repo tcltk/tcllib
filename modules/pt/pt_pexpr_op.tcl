@@ -69,7 +69,7 @@ proc ::pt::pe::op::Drop {dropset pe op arguments} {
 	} else {
 	    return $pe
 	}
-    }
+    } 
 
     switch -exact -- $op {
 	/ - x - * - + - ? - & - ! {
@@ -84,8 +84,12 @@ proc ::pt::pe::op::Drop {dropset pe op arguments} {
 		return [pt::pe epsilon]
 	    } elseif {[llength $newarg] < [llength $arguments]} {
 		# Some removed, construct a new expression
-		set pe [list $op {*}$newarg]
-	    } ; # None removed, no change.
+		 if {$op eq "/"} {
+		     set pe [list $op {*}$newarg]
+		 } else {
+		     set pe [pt::pe epsilon]
+		 }
+	     } ; # None removed, no change.
 	}
     }
 
