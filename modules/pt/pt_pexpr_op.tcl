@@ -82,7 +82,7 @@ proc ::pt::pe::op::Drop {dropset pe op arguments} {
 	    if {![llength $newarg]} {
 		# Nothing remained, drop the whole expression
 		return [pt::pe epsilon]
-	    } elseif {[llength $newarg] < [llength $argument]} {
+	    } elseif {[llength $newarg] < [llength $arguments]} {
 		# Some removed, construct a new expression
 		set pe [list $op {*}$newarg]
 	    } ; # None removed, no change.
