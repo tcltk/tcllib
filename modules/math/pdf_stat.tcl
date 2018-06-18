@@ -29,7 +29,7 @@ namespace eval ::math::statistics {
 	    random-gamma random-poisson random-chisquare random-students-t random-beta \
 	    random-weibull random-gumbel random-pareto random-cauchy \
 	    incompleteGamma incompleteBeta \
-	    estimate-pareto empirical-distribution
+	    estimate-pareto empirical-distribution bootstrap
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -1990,6 +1990,38 @@ proc ::math::statistics::empirical-distribution { values } {
     }
 
     return $distribution
+}
+
+
+# bootstrap --
+#     Return samples according to the "bootstrap" method
+#
+# Arguments:
+#     data           List of data from which to construct the new sample or samples
+#     sampleSize     Number of values to draw for each sample
+#     numberSamples  Number of samples (defaults to 1)
+#
+# Result:
+#     Either a list of "sampleSize" values (if only one sample is required) or
+#     a list of "numberSamples" each of which is a list of "sampleSize" values.
+#
+proc ::math::statistics::bootstrap {data sampleSize {numberSamples 1}} {
+    if { $numberSamples > 1 } {
+        set samples {}
+        for {set i 0} {$i < $numberSamples} {incr i} {
+            lappend samples [bootstrap $data $sampleSize 1]
+        }
+        return $samples
+
+    } else {
+        set sample     {}
+        set numberData [llength $data]
+        for {set i 0} {$i < $sampleSize} {incr i} {
+            set idx [expr {int(rand() * $numberData)}]
+            lappend sample [lindex $data $idx]
+        }
+        return $sample
+    }
 }
 
 

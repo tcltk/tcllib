@@ -1133,5 +1133,71 @@ test "Dunnet-test-1.1" "Dunnett test" -body {
     set indications
 } -result {1 0 0}
 
+#
+# Bootstrap method to create new samples
+#
+test "Bootstrap-1.1" "Bootstrap - construct a single sample" -body {
+    set data {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20}
+
+    set sample [::math::statistics::bootstrap $data 10]
+    #
+    # Check the sample
+    #
+    set numberOkay 0
+    foreach value $sample {
+        incr numberOkay [expr {$value in $data}]
+    }
+
+    set result [list [llength $sample] $numberOkay]
+} -result {10 10}
+
+test "Bootstrap-1.2" "Bootstrap - variation in a single sample" -body {
+    set data 0
+    for {set i 0} {$i < 100} {incr i} {
+        lappend data $i
+    }
+
+    set sample [::math::statistics::bootstrap $data 10]
+    #
+    # It is improbable that all values are the same
+    #
+    set numberInHalf1 0
+    set numberInHalf2 0
+    set halfData1 [lrange $data  0 49]
+    set halfData2 [lrange $data 50 99]
+    foreach value $sample {
+        incr numberInHalf1 [expr {$value in $halfData1}]
+        incr numberInHalf2 [expr {$value in $halfData2}]
+    }
+
+    set result [list [expr {$numberInHalf1 > 0}] [expr {$numberInHalf2 > 0}]]
+} -result {1 1}
+
+test "Bootstrap-1.3" "Bootstrap - list of samples" -body {
+    set data 0
+    for {set i 0} {$i < 100} {incr i} {
+        lappend data $i
+    }
+
+    set sampleSize    10
+    set numberSamples 20
+    set samples [::math::statistics::bootstrap $data $sampleSize $numberSamples]
+
+    set result 1
+
+    if { [llength $samples] != $numberSamples } {
+        set result 0
+    }
+
+    foreach sample $samples {
+        if { [llength $sample] != $sampleSize } {
+            set result 0
+        }
+    }
+
+    set result
+} -result 1
+
+
 # End of test cases
 testsuiteCleanup

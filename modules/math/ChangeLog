@@ -1,4 +1,18 @@
-2018-07-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
+2018-06-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry_circle.tcl: New source file with circle procedures
+	* geometry.tcl: Added [source] statement for the new file, bumped version to 1.3.0
+	* math_geometry.man: Description of the new procedures
+	* geometry.test: Tests for the new procefures
+	* pkgIndex.tcl: Version of math::geometry
+
+2018-01-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf_stat.tcl: Add a new procedure, bootstrap
+	* statistics.test: Add tests for the bootstrap procedure
+	* statistics.man: Add description of the bootstrap procedure
+	* statistics.tcl: Change the version number for the statistics package (1.2.0)
+	* pkgIndex.tcl: Change the version number for the statistics package
+
+2018-01-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* pca.tcl: New package PCA, principal components analysis
 	* pca.man: DoOcumentation for the PCA package
 	* pca.test: Tests for the PCA package
