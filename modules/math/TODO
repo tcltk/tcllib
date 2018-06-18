@@ -1,5 +1,24 @@
 This file records outstanding actions for the math module
 
+dd. 17 june 2018
+- Factor out the backward rotation in the intersection routines for circles
+- Add a normalisation routine for vectors
+- Add routines to construct a perpendicular vector and line
+- Add a routine to return the perpendicular bisector of a line segment
+- Add routines to deal with triangles (incircle, circumcircle)
+- Add various other geometrical procs
+
+- Add documentation of the new procs
+
+dd. 12 june 2018
+- Create a complex number based on modulus and argument
+
+dd. 24 january 2018
+- Implement plot positions for ranking in statistics package
+- Implement a bootstrap method for selecting "new" samples
+- Implement maximum likelihood methods for various distributions
+  (exponential, normal and binomial are simple enough). Partly esthetical.
+
 dd. 29 may 2017
 - Implement Kronecker symbol (extension of Jacobi symbol)
 

@@ -4,7 +4,7 @@ source [file join \
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-testsNeedTcl     8.6
+testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
 support {
@@ -264,7 +264,7 @@ test approximation-1.3 "Approximate an observation, get the Q statistic" -match 
     }
 } -result 0.001123022217614874
 
-test approximation-1.3 "Approximate an observation, get the corrected Q statistic" -match numbers -setup {
+test approximation-1.4 "Approximate an observation, get the corrected Q statistic" -match numbers -setup {
     set pca [::math::PCA::createPCA $data]
 } -body {
     $pca using 2
@@ -286,4 +286,3 @@ test approximation-2.1 "Approximate all original data (actually reconstruct)" -m
         $pca destroy
     }
 } -result $data
-
