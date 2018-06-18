@@ -23,7 +23,7 @@
 # version 1.1:   added test-Tukey-range and test-Dunnett
 
 package require Tcl 8.5 ; # 8.5+ feature in test-anovo-F: **-operator
-package provide math::statistics 1.1.1
+package provide math::statistics 1.2.0
 package require math
 
 if {![llength [info commands ::lrepeat]]} {

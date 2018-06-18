@@ -7,7 +7,12 @@ source [file join \
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
+testsNeed tls
 
+support {
+    use sha1/sha1.tcl     sha1
+    use base64/base64.tcl base64
+}
 testing {
     useLocal oauth.tcl oauth
 }
