@@ -2,6 +2,7 @@
 # Return data from an SCGI process
 ###
 ::tool::define ::httpd::content.scgi {
+  superclass ::httpd::content.proxy
 
   method scgi_info {} {
     ###
@@ -13,42 +14,28 @@
     error unimplemented
   }
 
-  method content {} {
-    my variable sock chan
+  method proxy_channel {} {
     set sockinfo [my scgi_info]
     if {$sockinfo eq {}} {
       my error 404 {Not Found}
-      return
+      tailcall my DoOutput
     }
     lassign $sockinfo scgihost scgiport scgiscript
-    set sock [::socket $scgihost $scgiport]
-
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    ###
-    # Convert our query headers into netstring format.
-    ###
-
-    set info {CONTENT_LENGTH 0 SCGI 1.0}
-    dict set info SCRIPT_NAME $scgiscript
-    foreach {f v} [my http_info dump] {
-      dict set info $f $v
+    my http_info set SCRIPT_NAME $scgiscript
+    if {![string is integer $scgiport]} {
+      my error 404 {Not Found}
+      tailcall my DoOutput
     }
-    foreach {fo v} [my request dump] {
-      set f $fo
-      switch [string tolower $fo] {
-        content-length {
-          set f CONTENT_LENGTH
-        }
-        content-type {
-          set f CONTENT_TYPE
-        }
-        default {
-          if {[string range $f 0 3] ne "HTTP" && $f ne "CONTENT_TYPE"} {
-            set f HTTP_[string map {- _} [string toupper $f]]
-          }
-        }
-      }
+    return [::socket $scgihost $scgiport]
+  }
+
+  method ProxyRequest {chana chanb} {
+    chan event $chanb writable {}
+    my log ProxyRequest {}
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my http_info get SCRIPT_NAME]]
+    foreach {f v} [my http_info dump] {
       dict set info $f $v
     }
     set length [dict get $info CONTENT_LENGTH]
@@ -56,30 +43,27 @@
     foreach {f v} $info {
       append block [string toupper $f] \x00 $v \x00
     }
-    chan puts -nonewline $sock "[string length $block]:$block,"
+    chan puts -nonewline $chanb "[string length $block]:$block,"
+    # Light off another coroutine
+    #set cmd [list coroutine [my CoroName] {*}[namespace code [list my ProxyReply $chanb $chana]]]
     if {$length} {
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chan $sock -size $length
+      chan copy $chana $chanb -size $length -command [info coroutine]
+    } else {
+      chan flush $chanb
+      chan event $chanb readable [info coroutine]
     }
-    chan flush $sock
-    ###
-    # Wake this object up after the SCGI process starts to respond
-    ###
-    #chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
-    chan event $sock readable [namespace code {my output}]
+    yield
   }
 
-  method output {} {
-    if {[my http_info getnull HTTP_ERROR] ne {}} {
-      ###
-      # If something croaked internally, handle this page as a normal reply
-      ###
-      next
-    }
-    my variable sock chan
-    set replyhead [my HttpHeaders $sock]
+  method ProxyReply {chana chanb args} {
+    my log ProxyReply [list args $args]
+    chan event $chana readable {}
+    set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
     if {![dict exists $replydat Content-Length]} {
       set length 0
@@ -87,69 +71,30 @@
       set length [dict get $replydat Content-Length]
     }
     ###
-    # Convert the Status: header from the SCGI service to
+    # Convert the Status: header from the CGI process to
     # a standard service reply line from a web server, but
     # otherwise spit out the rest of the headers verbatim
     ###
-    set replybuffer "HTTP/1.1 [dict get $replydat Status]\n"
+    set replybuffer "HTTP/1.0 [dict get $replydat Status]\n"
     append replybuffer $replyhead
-    chan configure $chan -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
-    puts $chan $replybuffer
-    ###
-    # Output the body
-    ###
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan puts $chanb $replybuffer
+    my log SendReply [list length $length]
     if {$length} {
       ###
-      # Send any POST/PUT/etc content
+      # Output the body
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
+      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
     } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
+      my TransferComplete $chan $chanb
     }
   }
 }
 
 tool::define ::httpd::reply.scgi {
   superclass ::httpd::reply
-
-  ###
-  # A modified dispatch method from a standard HTTP reply
-  # Unlike in HTTP, our headers were spoon fed to use from
-  # the server
-  ###
-  method dispatch {newsock datastate} {
-    my http_info replace $datastate
-    my variable chan rawrequest dipatched_time
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-    set dispatched_time [clock seconds]
-    try {
-      # Dispatch to the URL implementation.
-      # Convert SCGI headers to mime-ish equivilients
-      my reset
-      foreach {f v} $datastate {
-        switch $f {
-          CONTENT_LENGTH {
-            my request set Content-Length $v
-          }
-          default {
-            my request set $f $v
-          }
-        }
-      }
-      my content
-    } on error {err info} {
-      #puts stderr $::errorInfo
-      my error 500 $err [dict get $info -errorinfo]
-    } finally {
-      my output
-    }
-  }
 
   method EncodeStatus {status} {
     return "Status: $status"
@@ -196,6 +141,11 @@ tool::define ::httpd::server.scgi {
       chan configure $sock -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query $f $v
+        if {$f in {CONTENT_LENGTH CONTENT_TYPE}} {
+          dict set query http $f $v
+        } elseif {[string range $f 0 4] eq "HTTP_"} {
+          dict set query http [string range $f 5 end] $v
+        }
       }
       if {![dict exists $query REQUEST_PATH]} {
         set uri [dict get $query REQUEST_URI]
@@ -219,33 +169,37 @@ tool::define ::httpd::server.scgi {
       } else {
         try {
           my log HttpMissing $REQUEST_URI
-          puts $sock "Status: 404 NOT FOUND"
+          chan puts $sock "Status: 404 NOT FOUND"
           dict with query {}
           set body [subst [my template notfound]]
-          puts $sock "Content-Length: [string length $body]"
-          puts $sock {}
-          puts $sock $body
+          chan puts $sock "Content-Length: [string length $body]"
+          chan puts $sock {}
+          chan puts $sock $body
         } on error {err errdat} {
-          puts stderr "FAILED ON 404: $err"
+          my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
         } finally {
-          catch {close $sock}
+          catch {chan event readable $sock {}}
+          catch {chan event writeable $sock {}}
+          catch {chan close $sock}
         }
       }
     } on error {err errdat} {
       try {
-        #puts stderr $::errorInfo
-        puts $sock "Status: 505 INTERNAL ERROR - scgi 298"
+        my <server> debug [dict get $errdat -errorinfo]
+        chan puts $sock "Status: 500 INTERNAL ERROR - scgi 298"
         dict with query {}
         set body [subst [my template internal_error]]
-        puts $sock "Content-Length: [string length $body]"
-        puts $sock {}
-        puts $sock $body
-        my log HttpError $REQUEST_URI
+        chan puts $sock "Content-Length: [string length $body]"
+        chan puts $sock {}
+        chan puts $sock $body
+        my log HttpError [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
       } on error {err errdat} {
-        my log HttpFatal $::errorInfo
-        #puts stderr "FAILED ON 505: $err $::errorInfo"
+        my log HttpFatal [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
+        my <server> debug "Failed on 500: [dict get $errdat -errorinfo]""
       } finally {
-        catch {close $sock}
+        catch {chan event readable $sock {}}
+        catch {chan event writeable $sock {}}
+        catch {chan close $sock}
       }
     }
   }

@@ -1,4 +1,3 @@
-
 ###
 # Class to deliver Static content
 # When utilized, this class is fed a local filename
@@ -29,16 +28,12 @@
     return {}
   }
 
-
   method DirectoryListing {local_file} {
     set uri [string trimleft [my http_info get REQUEST_URI] /]
     set path [my http_info get path]
     set prefix [my http_info get prefix]
     set fname [string range $uri [string length $prefix] end]
-    my puts "<HTML><HEAD><TITLE>Listing of /$fname/</TITLE></HEAD><BODY>"
-    my puts "Path: $path<br>"
-    my puts "Prefs: $prefix</br>"
-    my puts "URI: $uri</br>"
+    my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
     my puts "<TABLE>"
     if {$prefix ni {/ {}}} {
@@ -54,31 +49,19 @@
         my puts "<TR><TD><a href=\"[file join / $uri [file tail $file]]\">[file tail $file]</a></TD><TD>[file size $file]</TD></TR>"
       }
     }
-    my puts "</TABLE></BODY></HTML>"
-  }
-
-  method dispatch {newsock datastate} {
-    # No need to process the rest of the headers
-    my variable chan dipatched_time
-    set dispatched_time [clock seconds]
-    my http_info replace $datastate
-    set chan $newsock
-    my content
-    my output
+    my puts "</TABLE>"
+    my puts [my html_footer]
   }
 
   method content {} {
-    ###
-    # When delivering static content, allow web caches to save
-    ###
-    my reply set Cache-Control {max-age=3600}
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my <server> log httpNotFound [my http_info get REQUEST_URI]
-       tailcall my error 404 {Not Found}
+      my log httpNotFound [my http_info get REQUEST_URI]
+      my error 404 {File Not Found}
+      tailcall my DoOutput
     }
-    if {[file isdirectory $local_file]} {
+    if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
       ###
       # Produce an index page
       ###
@@ -87,6 +70,7 @@
         index.html
         index.tml
         index.md
+        content.htm
       } {
         if {[file exists [file join $local_file $name]]} {
           set idxfound 1
@@ -122,31 +106,31 @@
     }
   }
 
-  ###
-  # Output the result or error to the channel
-  # and destroy this object
-  ###
-  method DoOutput {} {
-    my variable chan
-    chan event $chan writable {}
+  method dispatch {newsock datastate} {
     my variable reply_body reply_file reply_chan chan
-    chan configure $chan  -translation {binary binary}
+    try {
+      my http_info replace $datastate
+      my request replace  [dict get $datastate http]
+      my Log_Dispatched
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+
+      my reset
+      # Invoke the URL implementation.
+      my content
+    } on error {err errdat} {
+      my error 500 $err [dict get $errdat -errorinfo]
+      tailcall my DoOutput
+    }
+    if {$chan eq {}} return
+    my wait writable $chan
     if {![info exists reply_file]} {
-      ###
-      # Return dynamic content
-      ###
-      if {![info exists reply_body]} {
-        append result [my reply output]
-      } else {
-        set reply_body [string trim $reply_body]
-        my reply set Content-Length [string length $reply_body]
-        append result [my reply output] \n
-        append result $reply_body
-        chan puts -nonewline $chan $result
-        chan flush $chan
-      }
-      my destroy
-    } else {
+      tailcall my DoOutput
+    }
+    try {
+      chan configure $chan  -translation {binary binary}
+      my log HttpAccess {}
       ###
       # Return a stream of data from a file
       ###
@@ -155,8 +139,23 @@
       append result [my reply output] \n
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
+      my log SendReply [list length $size]
       chan configure $reply_chan  -translation {binary binary}
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan]]
+      ###
+      # Send any POST/PUT/etc content
+      # Note, we are terminating the coroutine at this point
+      # and using the file event to wake the object back up
+      #
+      # We *could*:
+      # chan copy $sock $chan -command [info coroutine]
+      # yield
+      #
+      # But in the field this pegs the CPU for long transfers and locks
+      # up the process
+      ###
+      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
+    } on error {err errdat} {
+      my TransferComplete $reply_chan $chan
     }
   }
 }

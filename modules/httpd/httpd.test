@@ -27,10 +27,22 @@ support {
   use oodialect/oodialect.tcl oo::dialect
   use oometa/oometa.tcl oo::meta
   use tool/tool.tcl tool
+  use virtchannel_core/core.tcl tcl::chan::core
+  use virtchannel_core/events.tcl tcl::chan::events
+  use virtchannel_base/memchan.tcl tcl::chan::memchan
 }
 
 testing {
   useLocal httpd.tcl httpd
+}
+
+# Set to true for debugging and traces
+set ::DEBUG 0
+
+proc DEBUG args {
+  if {$::DEBUG} {
+    uplevel 1 $args
+  }
 }
 
 # -------------------------------------------------------------------------
@@ -70,6 +82,9 @@ proc ::httpd::test::send {port http headers body} {
   chan event $sock readable [list ::httpd::test::get_reply $sock]
 
 	puts $sock $http
+	if {![dict exists $headers Host]} {
+	  dict set headers Host localhost
+	}
 	if {[string length $body]} {
 		if {![dict exists $headers Content-Type]} {
 			dict set headers Content_Type text/plain
@@ -79,8 +94,8 @@ proc ::httpd::test::send {port http headers body} {
 	foreach {f v} $headers {
 		puts $sock "${f}: $v"
 	}
+  puts $sock {}
 	if {[string length $body]} {
-		puts $sock {}
     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
 		puts -nonewline $sock $body
 	}
@@ -106,6 +121,33 @@ proc ::httpd::test::get_reply {sock} {
 
 tool::define ::httpd::server {
   method log args {}
+
+
+  method TemplateSearch page {
+    set doc_root [my cget doc_root]
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
+      return [::fileutil::cat [file join $doc_root $page.tml]]
+    }
+    if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
+      return [::fileutil::cat [file join $doc_root $page.html]]
+    }
+    switch $page {
+      redirect {
+        return {404 Not Found}
+      }
+      internal_error {
+        return {500 Server Internal Error}
+      }
+    }
+  }
+
+  ::DEBUG method debug args {
+    puts stderr $args
+  }
+
+  ::DEBUG method log args {
+    puts stdout $args
+  }
 }
 
 
@@ -129,13 +171,8 @@ tool::define ::httpd::reply {
   method error {code {msg {}} {errorInfo {}}} {
     my http_info set HTTP_ERROR $code
     my reset
-    my variable error_codes
+    set errorstring [my http_code_string $code]
     set qheaders [my http_info dump]
-    if {![info exists error_codes($code)]} {
-      set errorstring "Unknown Error Code"
-    } else {
-      set errorstring $error_codes($code)
-    }
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
@@ -147,7 +184,7 @@ tool::define ::httpd::reply {
 tool::define ::test::content.echo {
 	method content {} {
 		my variable reply_body
-		set reply_body [my PostData [my request get Content-Length]]
+		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 		#puts [list REPLY BODY WAS $reply_body]
 	}
 }
@@ -171,7 +208,10 @@ tool::define ::test::content.error {
 		error {The programmer asked me to die this way}
 	}
 }
+tool::define ::test::content.cgi {
+	superclass ::httpd::content.cgi
 
+}
 
 tool::define ::httpd::test::reply {
 	superclass ::httpd::reply ::test::content.echo
@@ -184,14 +224,17 @@ set DIR [file dirname [file normalize [info script]]]
 set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
-TESTAPP add_uri /     [list mixin ::test::content.echo]
-TESTAPP add_uri /echo [list mixin ::test::content.echo]
-TESTAPP add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTAPP add_uri /time [list mixin ::test::content.time]
-TESTAPP add_uri /error [list mixin ::test::content.error]
-# Catch all
-#TESTAPP add_uri * [list mixin httpd::content.echo]
+TESTAPP plugin dict_dispatch
+TESTAPP uri add /     [list mixin ::test::content.echo]
+TESTAPP uri add /echo [list mixin ::test::content.echo]
+TESTAPP uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTAPP uri add /time [list mixin ::test::content.time]
+TESTAPP uri add /error [list mixin ::test::content.error]
 
+# Catch all
+#TESTAPP uri add * [list mixin httpd::content.echo]
+
+::DEBUG puts httpd-client-0001
 test httpd-client-0001 {Do an echo request} {
 
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS IS MY CODE}]
@@ -203,6 +246,7 @@ Content-Length: *
 THIS IS MY CODE}
 } {}
 
+::DEBUG puts httpd-client-0002
 test httpd-client-0002 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -213,6 +257,7 @@ Content-Length: 29
 THOUGH THERE ARE MANY LIKE IT}
 } {}
 
+::DEBUG puts httpd-client-0003
 test httpd-client-0003 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply {HTTP/1.0 200 OK
@@ -223,6 +268,7 @@ Content-Length: *
 THIS ONE ALONE IS MINE}
 }  {}
 
+::DEBUG puts httpd-client-0004
 test httpd-client-0004 {URL Generates Error} {
 
 set reply [::httpd::test::send 10001 {POST /error HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
@@ -242,6 +288,7 @@ Content-Length: *
 
 [clock seconds]}]
 
+::DEBUG puts httpd-client-0005
 test httpd-client-0005 {URL Different output with a different request} {
 set reply [::httpd::test::send 10001 {POST /time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
 ::httpd::test::compare $reply $checkreply
@@ -257,13 +304,169 @@ Content-Length: [string length $replyfile]
 
 $replyfile"
 
+::DEBUG puts httpd-client-0006
 test httpd-client-0006 {Return a file} {
 set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
 
+# -------------------------------------------------------------------------
+# Test proxies
 
+tool::define ::test::content.proxy {
+	superclass ::httpd::content.proxy
+
+
+  method proxy_channel {} {
+    return [::socket localhost [my http_info get proxy_port]]
+  }
+}
+
+
+::httpd::server create TESTPROXY port 10002
+TESTAPP   uri add /proxy*     [list mixin ::test::content.proxy proxy_port [TESTPROXY port_listening]]
+TESTPROXY plugin dict_dispatch
+TESTPROXY uri add /     [list mixin ::test::content.echo]
+TESTPROXY uri add /echo [list mixin ::test::content.echo]
+TESTPROXY uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTPROXY uri add /time [list mixin ::test::content.time]
+TESTPROXY uri add /error [list mixin ::test::content.error]
+
+::DEBUG puts httpd-proxy-0001
+test httpd-proxy-0001 {Do an echo request} {
+
+set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THIS IS MY CODE}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+THIS IS MY CODE}
+} {}
+
+::DEBUG puts httpd-proxy-0002
+test httpd-proxy-0002 {Do another echo request} {
+set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+Content-Length: 29
+
+THOUGH THERE ARE MANY LIKE IT}
+} {}
+
+::DEBUG puts httpd-proxy-0003
+test httpd-proxy-0003 {Do another echo request} {
+set reply [::httpd::test::send 10001 {POST /proxy/echo HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+THIS ONE ALONE IS MINE}
+}  {}
+
+::DEBUG puts httpd-proxy-0004
+test httpd-proxy-0004 {URL Generates Error} {
+
+set reply [::httpd::test::send 10001 {POST /proxy/error HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
+
+::httpd::test::compare $reply {HTTP/1.0 500 Server Internal Error
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+500 Server Internal Error}
+} {}
+
+set checkreply [subst {HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+[clock seconds]}]
+
+::DEBUG puts httpd-proxy-0005
+test httpd-proxy-0005 {URL Different output with a different request} {
+set reply [::httpd::test::send 10001 {POST /proxy/time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
+::httpd::test::compare $reply $checkreply
+} {}
+
+set fin [open [file join $DEMOROOT pkgIndex.tcl] r]
+set replyfile [read $fin]
+close $fin
+set checkreply "HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+Content-Length: [string length $replyfile]
+
+$replyfile"
+
+::DEBUG puts httpd-proxy-0006
+test httpd-proxy-0006 {Return a file} {
+set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
+::httpd::test::compare $reply $checkreply
+} {}
+
+
+
+# -------------------------------------------------------------------------
+# cgi
+TESTAPP plugin local_memchan
+
+TESTAPP uri add /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
+
+set fout [open [file join $DIR test.tcl] w]
+puts $fout {#!/usr/bin/tclsh
+
+puts stdout "Status: 200 OK"
+if {$::env(CONTENT_LENGTH) > 0} {
+  puts stdout "Content-Type: $::env(CONTENT_TYPE)"
+  set dat [read stdin $::env(CONTENT_LENGTH)]
+} else {
+  puts stdout "Content-Type: text/plain"
+  set dat "Hi!"
+}
+puts stdout "Content-Length: [string length $dat]"
+puts stdout {}
+puts stdout $dat
+exit 0
+}
+close $fout
+
+::DEBUG puts httpd-cgi-0001
+test httpd-cgi-0001 {CGI Post} {
+
+set reply [::httpd::test::send 10001 {POST /cgi-bin/test.tcl HTTP/1.0} {} {THIS IS MY CODE}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Status: 200 OK
+Content-Type: text/plain
+Content-Length: *
+
+THIS IS MY CODE}
+} {}
+
+::DEBUG puts httpd-cgi-0002
+test httpd-cgi-0002 {CGI Get} {
+
+set reply [::httpd::test::send 10001 {GET /cgi-bin/test.tcl HTTP/1.0} {} {}]
+::httpd::test::compare $reply {HTTP/1.0 200 OK
+Status: 200 OK
+Content-Type: text/plain
+Content-Length: *
+
+Hi!}
+} {}
+
+###
+# Test the local geturl method
+###
+set now [clock seconds]
+set dat [TESTAPP local_memchan geturl /time]
+test httpd-memchan-0001 {Memchan GET} {
+  TESTAPP local_memchan geturl /time
+} $now
 
 # -------------------------------------------------------------------------
 namespace eval ::scgi {}
@@ -282,15 +485,17 @@ proc ::scgi::encode_request {headers body info} {
   set outdict [dict merge $outdict $server_block $info]
   dict set outdict PWD [pwd]
   foreach {key value} $headers {
-    switch $key {
-      SCRIPT_NAME -
-      REQUEST_METHOD -
-      REQUEST_URI {
-        dict set outdict $key $value
-      }
-      default {
-        dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
-      }
+    if {$key in {
+      DOCUMENT_ROOT
+      HTTPS
+      PATH
+      REQUEST_METHOD REQUEST_URI
+      REMOTE_HOST REMOTE_ADDR REMOTE_PORT
+      SCRIPT_NAME
+    } || [string range $key 0 5] eq "HTTP_"} {
+      dict set outdict $key $value
+    } else {
+      dict set outdict HTTP_[string map {"-" "_"} [string toupper $key]] $value
     }
   }
   set result {}
@@ -300,27 +505,18 @@ proc ::scgi::encode_request {headers body info} {
   return "[string length $result]:$result,"
 }
 
-proc ::scgi::test::send {port text} {
+proc ::scgi::test::send {port headers body} {
   set sock [socket localhost $port]
   variable reply
   set reply($sock) {}
+  if {![dict exists $headers HOST]} {
+    dict set headers HOST localhost
+  }
+  dict set headers REMOTE_IP 127.0.0.1
+  dict set headers REMOTE_HOST localhost
+
   chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
   chan event $sock readable [list ::scgi::test::get_reply $sock]
-
-  set headers {}
-  set body {}
-  set read_headers 1
-  foreach line [split $text \n] {
-    if {$read_headers} {
-      if { $line eq {} } {
-        set read_headers 0
-      } else {
-        append headers $line \n
-      }
-    } else {
-      append body $line \n
-    }
-  }
   set block [::scgi::encode_request $headers $body {}]
   puts -nonewline $sock $block
   flush $sock
@@ -361,8 +557,6 @@ tool::class create ::scgi::test::reply {
   }
 }
 
-TESTAPP destroy
-
 ###
 # Build the server
 ###
@@ -372,20 +566,18 @@ tool::class create scgi::test::app {
   property reply_class ::scgi::test::reply
 }
 
-scgi::test::app create TESTAPP port 10001
+scgi::test::app create TESTSCGI port 10003
+TESTSCGI plugin dict_dispatch
+TESTSCGI uri add /     [list mixin ::test::content.echo]
+TESTSCGI uri add /echo [list mixin ::test::content.echo]
+TESTSCGI uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
+TESTSCGI uri add /time [list mixin ::test::content.time]
+TESTSCGI uri add /error [list mixin ::test::content.error]
 
-TESTAPP add_uri /     [list mixin ::test::content.echo]
-TESTAPP add_uri /echo [list mixin ::test::content.echo]
-TESTAPP add_uri /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTAPP add_uri /time [list mixin ::test::content.time]
-TESTAPP add_uri /error [list mixin ::test::content.error]
-
+::DEBUG puts scgi-client-0001
 test scgi-client-0001 {Do an echo request} {
 
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THIS IS MY CODE}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS IS MY CODE}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -395,11 +587,9 @@ THIS IS MY CODE}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0002
 test scgi-client-0002 {Do another echo request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THOUGH THERE ARE MANY LIKE IT}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THOUGH THERE ARE MANY LIKE IT}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -409,11 +599,9 @@ THOUGH THERE ARE MANY LIKE IT}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0003
 test scgi-client-0003 {Do another echo request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /echo
-
-THIS ONE ALONE IS MINE}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /echo} {THIS ONE ALONE IS MINE}]
 set checkreply {Status: 200 OK
 Content-Type: text/plain
 Connection: close
@@ -423,13 +611,10 @@ THIS ONE ALONE IS MINE}
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts scgi-client-0004
 test scgi-client-0004 {URL Generates Error} {
 
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /error
-
-THIS ONE ALONE IS MINE
-}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /error} {THIS ONE ALONE IS MINE}]
 
 set checkreply {Status: 500 Server Internal Error
 Content-Type: text/plain
@@ -448,11 +633,9 @@ Content-Length: *
 
 [clock seconds]}]
 
+::DEBUG puts scgi-client-0005
 test scgi-client-0005 {URL Different output with a different request} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /time
-
-THIS ONE ALONE IS MINE}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /time} {THIS ONE ALONE IS MINE}]
 
 ::httpd::test::compare $reply $checkreply
 } {}
@@ -460,10 +643,10 @@ THIS ONE ALONE IS MINE}]
 set fin [open [file join $DEMOROOT pkgIndex.tcl] r]
 set checkfile [read $fin]
 close $fin
+
+::DEBUG puts scgi-client-0006
 test scgi-client-0006 {Return a file} {
-set reply [::scgi::test::send 10001 {REQUEST_METHOD POST
-REQUEST_URI /file
-}]
+set reply [::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}]
 
 set checkreply "Status: 200 OK
 Content-Type: text/plain
@@ -474,7 +657,7 @@ $checkfile"
 ::httpd::test::compare $reply $checkreply
 } {}
 
-
+::DEBUG puts all-tests-finished
 
 # -------------------------------------------------------------------------
 

@@ -113,8 +113,13 @@ proc ::practcl::_pkgindex_directory {path} {
 
 proc ::practcl::_pkgindex_path_subdir {path} {
   set result {}
+  if {[file exists [file join $path src build.tcl]]} {
+    # Tool style module, don't dive into subdirectories
+    return $path
+  }
   foreach subpath [glob -nocomplain [file join $path *]] {
     if {[file isdirectory $subpath]} {
+      if {[file tail $subpath] eq "build" && [file exists [file join $subpath build.tcl]]} continue
       lappend result $subpath {*}[_pkgindex_path_subdir $subpath]
     }
   }
@@ -128,14 +133,34 @@ proc ::practcl::pkgindex_path {args} {
   set stack {}
   set buffer {
 lappend ::PATHSTACK $dir
+set IDXPATH [lindex $::PATHSTACK end]
   }
+  set preindexed {}
   foreach base $args {
     set base [file normalize $base]
     set paths {}
     foreach dir [glob -nocomplain [file join $base *]] {
-      if {[file tail $dir] eq "teapot"} continue
+      set thisdir [file tail $dir]
+      if {$thisdir eq "teapot"} continue
+      if {$thisdir eq "pkgs"} {
+        foreach subdir [glob -nocomplain [file join $dir *]] {
+          set thissubdir [file tail $subdir]
+          set skip 0
+          foreach file {pkgIndex.tcl tclIndex} {
+            if {[file exists [file join $subdir $file]]} {
+              set skip 1
+              append buffer "set dir \[file join \$::IDXPATH [list $thisdir] [list $thissubdir]\] \; "
+              append buffer "source \[file join \$dir ${file}\]" \n
+            }
+          }
+          if {$skip} continue
+          lappend paths {*}[::practcl::_pkgindex_path_subdir $subdir]
+        }
+        continue
+      }
       lappend paths $dir {*}[::practcl::_pkgindex_path_subdir $dir]
     }
+    append buffer ""
     set i    [string length  $base]
     # Build a list of all of the paths
     if {[llength $paths]} {

@@ -219,7 +219,12 @@ proc ::cron::object_destroy {objname} {
 ###
 proc ::cron::run process {
   variable processTable
-  dict set processTable($process) lastrun 0
+  set mnow [clock_step [current_time]]
+  if {[dict exists processTable($process) scheduled] && [dict exists processTable($process) scheduled]>0} {
+    dict set processTable($process) scheduled [expr {$mnow-1000}]
+  } else {
+    dict set processTable($process) lastrun 0
+  }
   ::cron::wake PROCESS
 }
 
