@@ -623,14 +623,12 @@ proc ::smtp::initialize {args} {
     # Iterate through servers until one accepts a connection (and responds
     # nicely).
    
-    set index 0 
-    foreach server $options(-servers) {
+    foreach server $options(-servers) port $options(-ports) {
+        if {$server == ""} continue
+
 	set state(readable) 0
-        if {[llength $options(-ports)] >= $index} {
-            set port [lindex $options(-ports) $index]
-        } else {
-            set port 25
-        }
+        if {$port == ""} { set port 25 }
+        
         if {$options(-debug)} {
             puts stderr "Trying $server..."
             flush stderr
@@ -674,7 +672,6 @@ proc ::smtp::initialize {args} {
         if {$r != {}} {
             return $r
         }
-        incr index
     }
 
     # None of the servers accepted our connection, so close everything up and
@@ -1500,7 +1497,7 @@ proc ::smtp::boolean {value} {
 
 # -------------------------------------------------------------------------
 
-package provide smtp 1.4.5
+package provide smtp 1.4.6
 
 # -------------------------------------------------------------------------
 # Local variables:
