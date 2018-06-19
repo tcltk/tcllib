@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin smtp n 1.4.5]
+[vset VERSION 1.4.6]
+[manpage_begin smtp n [vset VERSION]]
 [see_also ftp]
 [see_also http]
 [see_also mime]
@@ -10,7 +11,7 @@
 [category  Networking]
 [require Tcl]
 [require mime [opt 1.5.4]]
-[require smtp [opt 1.4.5]]
+[require smtp [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -31,9 +32,19 @@ of options and their associated values.  The recognized options are:
 
 A list of SMTP servers. The default is [const localhost].
 
+[para] If multiple servers are specified they are tried in sequence.
+
+Note that the [option -ports] are iterated over in tandem with the
+servers. If there are not enough ports for the number of servers the
+default port (see below) is used. If there are more ports than servers
+the superfluous ports are ignored.
+
 [def [option -ports]]
 
 A list of SMTP ports. The default is [const 25].
+
+[para] See option [option -servers] above regardig the behaviour for
+then multiple servers and ports are specified.
 
 [def [option -client]]
 
