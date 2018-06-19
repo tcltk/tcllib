@@ -4,12 +4,12 @@ oo::class create ::practcl::subproject {
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
   }
-  
-  
+
+
   method BuildDir {PWD} {
     return [my define get srcdir]
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -116,9 +116,11 @@ oo::class create ::practcl::subproject {
   }
 
   method unpack {} {
+    cd $::CWD
     ::practcl::distribution select [self]
     my Unpack
     ::practcl::toolset select [self]
+    cd $::CWD
   }
 }
 
@@ -259,5 +261,14 @@ oo::class create ::practcl::subproject.sak {
       -pkg-path [file join $DEST $prefix lib $pkg]  \
       -no-examples -no-html -no-nroff \
       -no-wait -no-gui -no-apps
+  }
+
+  method install-module {DEST args} {
+    set pkg [my define get pkg_name [my define get name]]
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set pkgpath [file join $prefix lib $pkg]
+    foreach module $args {
+      ::practcl::installDir [file join $pkgpath $module] [file join $DEST $module]
+    }
   }
 }
