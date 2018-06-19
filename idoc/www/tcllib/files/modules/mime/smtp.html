@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">smtp(n) 1.4.5 tcllib &quot;smtp client&quot;</h1>
+<h1 class="doctools_title">smtp(n) 1.5 tcllib &quot;smtp client&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>smtp - Client-side tcl implementation of the smtp protocol</p>
 </div>
@@ -133,7 +133,7 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl</b></li>
 <li>package require <b class="pkgname">mime <span class="opt">?1.5.4?</span></b></li>
-<li>package require <b class="pkgname">smtp <span class="opt">?1.4.5?</span></b></li>
+<li>package require <b class="pkgname">smtp <span class="opt">?1.5?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::smtp::sendmessage</b> <i class="arg">token</i> <i class="arg">option</i>...</a></li>
@@ -150,9 +150,16 @@ represented by <i class="arg">token</i> to an SMTP server. <i class="arg">option
 of options and their associated values.  The recognized options are:</p>
 <dl class="doctools_definitions">
 <dt><b class="option">-servers</b></dt>
-<dd><p>A list of SMTP servers. The default is <b class="const">localhost</b>.</p></dd>
+<dd><p>A list of SMTP servers. The default is <b class="const">localhost</b>.</p>
+<p>If multiple servers are specified they are tried in sequence.
+Note that the <b class="option">-ports</b> are iterated over in tandem with the
+servers. If there are not enough ports for the number of servers the
+default port (see below) is used. If there are more ports than servers
+the superfluous ports are ignored.</p></dd>
 <dt><b class="option">-ports</b></dt>
-<dd><p>A list of SMTP ports. The default is <b class="const">25</b>.</p></dd>
+<dd><p>A list of SMTP ports. The default is <b class="const">25</b>.</p>
+<p>See option <b class="option">-servers</b> above regardig the behaviour for
+then multiple servers and ports are specified.</p></dd>
 <dt><b class="option">-client</b></dt>
 <dd><p>The name to use as our hostname when connecting to the server. By
 default this is either localhost if one of the servers is localhost,
@@ -177,6 +184,12 @@ value (the -header option may occur zero or more times).</p></dd>
 <dt><b class="option">-usetls</b></dt>
 <dd><p>This package supports the RFC 3207 TLS extension (3) by default provided the
 tls package is available. You can turn this off with this boolean option.</p></dd>
+<dt><b class="option">-tlsimport</b></dt>
+<dd><p>This boolean flag is <b class="const">false</b> by default.
+When this flag is set the package will import TLS on a sucessfully
+opened channel. This is needed for connections using native TLS
+negotiation instead of <b class="const">STARTTLS</b>. The <b class="package"><a href="../../../../index.html#key331">tls</a></b> package
+is automatically required when needed.</p></dd>
 <dt><b class="option">-tlspolicy</b></dt>
 <dd><p>This option lets you specify a command to be called if an error occurs
 during TLS setup. The command is called with the SMTP code and diagnostic

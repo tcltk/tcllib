@@ -2,7 +2,7 @@
 '\" Generated from file 'smtp\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 1999-2000 Marshall T\&. Rose and others
 '\"
-.TH "smtp" n 1\&.4\&.5 tcllib "smtp client"
+.TH "smtp" n 1\&.5 tcllib "smtp client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl \fR
 .sp
 package require \fBmime  ?1\&.5\&.4?\fR
 .sp
-package require \fBsmtp  ?1\&.4\&.5?\fR
+package require \fBsmtp  ?1\&.5?\fR
 .sp
 \fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR\&.\&.\&.
 .sp
@@ -296,9 +296,18 @@ of options and their associated values\&.  The recognized options are:
 .TP
 \fB-servers\fR
 A list of SMTP servers\&. The default is \fBlocalhost\fR\&.
+.sp
+If multiple servers are specified they are tried in sequence\&.
+Note that the \fB-ports\fR are iterated over in tandem with the
+servers\&. If there are not enough ports for the number of servers the
+default port (see below) is used\&. If there are more ports than servers
+the superfluous ports are ignored\&.
 .TP
 \fB-ports\fR
 A list of SMTP ports\&. The default is \fB25\fR\&.
+.sp
+See option \fB-servers\fR above regardig the behaviour for
+then multiple servers and ports are specified\&.
 .TP
 \fB-client\fR
 The name to use as our hostname when connecting to the server\&. By
@@ -330,6 +339,13 @@ value (the -header option may occur zero or more times)\&.
 \fB-usetls\fR
 This package supports the RFC 3207 TLS extension (3) by default provided the
 tls package is available\&. You can turn this off with this boolean option\&.
+.TP
+\fB-tlsimport\fR
+This boolean flag is \fBfalse\fR by default\&.
+When this flag is set the package will import TLS on a sucessfully
+opened channel\&. This is needed for connections using native TLS
+negotiation instead of \fBSTARTTLS\fR\&. The \fBtls\fR package
+is automatically required when needed\&.
 .TP
 \fB-tlspolicy\fR
 This option lets you specify a command to be called if an error occurs
