@@ -9863,9 +9863,6 @@ tool
 \fBfiles/modules/httpd/httpd\&.n\fR
 tool
 .TP
-\fBfiles/modules/tool-ui/tool-ui\&.n\fR
-tool-ui
-.TP
 \fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
 tool::dict_ensemble
 .RE
