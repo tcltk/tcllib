@@ -450,7 +450,7 @@ whose error code starts with &quot;S3 socket&quot; will be returned in the
 dictionary as <b class="option">error</b>, <b class="option">errorInfo</b>, and <b class="option">errorCode</b>.
 If a foreground call is made (i.e., <b class="option">resultvar</b> is not provided),
 and this option is not provided or is set to <i class="arg">throw</i>, then
-<b class="cmd"><a href="../../../../index.html#key161">error</a></b> will be invoked instead.</p></dd>
+<b class="cmd"><a href="../../../../index.html#error">error</a></b> will be invoked instead.</p></dd>
 </dl>
 <p>Once the call to <b class="cmd">S3::REST</b> completes, a new dict is returned,
 either in the <i class="arg">resultvar</i> or as the result of execution. This dict is
@@ -1248,10 +1248,10 @@ This is still being designed, and it is intended primarily
 to be run on Amazon's Elastic Compute Cloud.</p>
 </div>
 <div id="section9" class="doctools_section"><h2><a name="section9">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -1259,8 +1259,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -1284,7 +1284,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key523">amazon</a>, <a href="../../../../index.html#key524">cloud</a>, <a href="../../../../index.html#key522">s3</a></p>
+<p><a href="../../../../index.html#amazon">amazon</a>, <a href="../../../../index.html#cloud">cloud</a>, <a href="../../../../index.html#s3">s3</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

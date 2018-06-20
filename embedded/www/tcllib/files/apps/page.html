@@ -330,7 +330,7 @@ arguments it specifies are:</p>
 <p>We have five predefined plugins:</p>
 <dl class="doctools_definitions">
 <dt><em>peg</em></dt>
-<dd><p>Interprets the input as a parsing expression grammar (<i class="term"><a href="../../../index.html#key6">PEG</a></i>) and
+<dd><p>Interprets the input as a parsing expression grammar (<i class="term"><a href="../../../index.html#peg">PEG</a></i>) and
 generates a tree representation for it. Both the syntax of PEGs and
 the structure of the tree representation are explained in their own
 manpages.</p></dd>
@@ -343,7 +343,7 @@ the writer plugin <em>ser</em>, using the package
 <b class="package"><a href="../modules/grammar_peg/peg.html">grammar::peg</a></b>.</p></dd>
 <dt><em>lemon</em></dt>
 <dd><p>Interprets the input as a grammar specification as understood by
-Richard Hipp's <i class="term"><a href="../../../index.html#key193">LEMON</a></i> parser generator and generates a tree
+Richard Hipp's <i class="term"><a href="../../../index.html#lemon">LEMON</a></i> parser generator and generates a tree
 representation for it. Both the input syntax and the structure of the
 tree representation are explained in their own manpages.</p></dd>
 <dt><em>treeser</em></dt>
@@ -369,13 +369,13 @@ and generates an indented textual representation of all nodes, their
 parental relationships, and their attribute information.</p></dd>
 <dt><em>peg</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar and writes it out as a PEG. The
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar and writes it out as a PEG. The
 result is nicely formatted and partially simplified (strings as
 sequences of characters). A pretty printer in essence, but can also be
 used to obtain a canonical representation of the input grammar.</p></dd>
 <dt><em>tpc</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar and writes out Tcl code defining a
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar and writes out Tcl code defining a
 package which defines a <b class="package"><a href="../modules/grammar_peg/peg.html">grammar::peg</a></b> object containing the
 grammar when it is loaded into an interpreter.</p></dd>
 <dt><em>hb</em></dt>
@@ -384,11 +384,11 @@ statements which define stat expression and grammar rules. The code
 making the result a package is left out.</p></dd>
 <dt><em>ser</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar, transforms it internally into a
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar, transforms it internally into a
 <b class="package"><a href="../modules/grammar_peg/peg.html">grammar::peg</a></b> object and writes out its serialization.</p></dd>
 <dt><em>me</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar and writes out Tcl code defining a
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar and writes out Tcl code defining a
 package which implements a memoizing recursive descent parser based on
 the match engine (ME) provided by the package <b class="package">grammar::mengine</b>.</p></dd>
 </dl></dd>
@@ -399,12 +399,12 @@ the match engine (ME) provided by the package <b class="package">grammar::mengin
 <dl class="doctools_definitions">
 <dt><em>reach</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar. It determines which nonterminal
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar. It determines which nonterminal
 symbols and rules are reachable from start-symbol/expression. All
 nonterminal symbols which were not reached are removed.</p></dd>
 <dt><em>use</em></dt>
 <dd><p>Assumes that the incoming data structure is a tree representation of a
-<i class="term"><a href="../../../index.html#key6">PEG</a></i> or other other grammar. It determines which nonterminal
+<i class="term"><a href="../../../index.html#peg">PEG</a></i> or other other grammar. It determines which nonterminal
 symbols and rules are able to generate a <em>finite</em> sequences of
 terminal symbols (in the sense for a Context Free Grammar). All
 nonterminal symbols which were not deemed useful in this sense are
@@ -462,7 +462,7 @@ left-most button in the secondary navigation bar.</p>
 <p>page::pluginmgr</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../index.html#key189">parser generator</a>, <a href="../../../index.html#key192">text processing</a></p>
+<p><a href="../../../index.html#parser_generator">parser generator</a>, <a href="../../../index.html#text_processing">text processing</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Page Parser Generator</p>

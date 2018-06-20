@@ -144,13 +144,13 @@
 them to either actively connect to a counterpart, or to passively wait
 for a connection from said counterpart.
 I.e. any object created by this packages is always in one of two
-complementary modes, called <i class="term"><a href="../../../../index.html#key621">active</a></i> (the object initiates the
-connection) and <i class="term"><a href="../../../../index.html#key622">passive</a></i> (the object receives the connection).</p>
+complementary modes, called <i class="term"><a href="../../../../index.html#active">active</a></i> (the object initiates the
+connection) and <i class="term"><a href="../../../../index.html#passive">passive</a></i> (the object receives the connection).</p>
 <p>Of the two objects in a connecting pair one has to be configured for
-<i class="term"><a href="../../../../index.html#key621">active</a></i> mode, and the other then has to be configured for
-<i class="term"><a href="../../../../index.html#key622">passive</a></i> mode. This establishes which of the two partners
-connects to whom (the <i class="term"><a href="../../../../index.html#key621">active</a></i> to the other), or, who is waiting
-on whom (the <i class="term"><a href="../../../../index.html#key622">passive</a></i> on the other).
+<i class="term"><a href="../../../../index.html#active">active</a></i> mode, and the other then has to be configured for
+<i class="term"><a href="../../../../index.html#passive">passive</a></i> mode. This establishes which of the two partners
+connects to whom (the <i class="term"><a href="../../../../index.html#active">active</a></i> to the other), or, who is waiting
+on whom (the <i class="term"><a href="../../../../index.html#passive">passive</a></i> on the other).
 Note that this is completely independent of the direction of any data
 transmission using the connection after it has been established.
 An active object can, after establishing the connection, either
@@ -163,7 +163,7 @@ same after the waiting for its partner has ended.</p>
 <dt><a name="1"><b class="cmd">transfer::connect</b> <i class="arg">objectName</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
 <dd><p>This command creates a new connection object with an associated Tcl
 command whose name is <i class="arg">objectName</i>.
-This <i class="term"><a href="../../../../index.html#key243">object</a></i> command is explained in full detail in the sections
+This <i class="term"><a href="../../../../index.html#object">object</a></i> command is explained in full detail in the sections
 <span class="sectref"><a href="#subsection2">Object command</a></span> and <span class="sectref"><a href="#subsection3">Object methods</a></span>. The set of
 supported <i class="arg">options</i> is explained in section <span class="sectref"><a href="#subsection4">Options</a></span>.</p>
 <p>The object command will be created under the current namespace if the
@@ -188,9 +188,9 @@ specifications.</p></dd>
 <dl class="doctools_definitions">
 <dt><a name="3"><i class="arg">objectName</i> <b class="method">destroy</b></a></dt>
 <dd><p>This method destroys the object.
-This is safe to do for an <i class="term"><a href="../../../../index.html#key621">active</a></i> object when a connection has
+This is safe to do for an <i class="term"><a href="../../../../index.html#active">active</a></i> object when a connection has
 been started, as the completion callback is synchronous.
-For a <i class="term"><a href="../../../../index.html#key622">passive</a></i> object currently waiting for its partner to
+For a <i class="term"><a href="../../../../index.html#passive">passive</a></i> object currently waiting for its partner to
 establish the connection however this is not safe and will cause
 errors later on, when the connection setup completes and tries to
 access the now missing data structures of the destroyed object.</p></dd>
@@ -202,11 +202,11 @@ the socket over which data can be transfered.</p>
 <p>The detailed behaviour of the method depends on the configured
 mode.</p>
 <dl class="doctools_definitions">
-<dt><i class="term"><a href="../../../../index.html#key621">active</a></i></dt>
+<dt><i class="term"><a href="../../../../index.html#active">active</a></i></dt>
 <dd><p>The connection setup is done synchronously. The object waits until the
 connection is established. The method returns the empty string as its
 result.</p></dd>
-<dt><i class="term"><a href="../../../../index.html#key622">passive</a></i></dt>
+<dt><i class="term"><a href="../../../../index.html#passive">passive</a></i></dt>
 <dd><p>The connection setup is done asynchronously. The method returns
 immediately after a listening socket has been set up. The connection
 will be established in the background.
@@ -247,12 +247,12 @@ the TCP port on which the listening socket is opened to await the
 connection from the partner.</p></dd>
 </dl></dd>
 <dt><b class="option">-host</b> <i class="arg">hostname-or-ipaddr</i></dt>
-<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#key621">active</a></i> mode,
-either by name or ip-address. An object configured for <i class="term"><a href="../../../../index.html#key622">passive</a></i>
+<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#active">active</a></i> mode,
+either by name or ip-address. An object configured for <i class="term"><a href="../../../../index.html#passive">passive</a></i>
 mode ignores this option.</p></dd>
 <dt><b class="option">-port</b> <i class="arg">int</i></dt>
-<dd><p>For <i class="term"><a href="../../../../index.html#key621">active</a></i> mode this option specifies the port the object is
-expected to connect to. For <i class="term"><a href="../../../../index.html#key622">passive</a></i> mode however it is the port
+<dd><p>For <i class="term"><a href="../../../../index.html#active">active</a></i> mode this option specifies the port the object is
+expected to connect to. For <i class="term"><a href="../../../../index.html#passive">passive</a></i> mode however it is the port
 where the object creates the listening socket waiting for a
 connection. It defaults to <b class="const">0</b>, which allows the OS to choose
 the actual port to listen on.</p></dd>
@@ -262,7 +262,7 @@ socket. The default is to use the builtin <b class="cmd">::socket</b>. Any
 compatible with that command is allowed.</p>
 <p>The envisioned main use is the specfication of <b class="cmd">tls::socket</b>. I.e.
 this option allows the creation of secure transfer channels, without
-making this package explicitly dependent on the <b class="package"><a href="../../../../index.html#key331">tls</a></b> package.</p>
+making this package explicitly dependent on the <b class="package"><a href="../../../../index.html#tls">tls</a></b> package.</p>
 <p>See also section <span class="sectref"><a href="#section3">Secure connections</a></span>.</p></dd>
 <dt><b class="option">-encoding</b> encodingname</dt>
 <dd></dd>
@@ -278,7 +278,7 @@ before the callback is invoked (See method <b class="method">connect</b>).</p></
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Secure connections</a></h2>
 <p>One way to secure connections made by objects of this package is to
-require the package <b class="package"><a href="../../../../index.html#key331">tls</a></b> and then configure the option
+require the package <b class="package"><a href="../../../../index.html#tls">tls</a></b> and then configure the option
 <b class="option">-socketcmd</b> to force the use of command <b class="cmd">tls::socket</b> to
 open the socket.</p>
 <pre class="doctools_example">
@@ -291,10 +291,10 @@ open the socket.</p>
 </pre>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -302,8 +302,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -327,7 +327,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key621">active</a>, <a href="../../../../index.html#key63">channel</a>, <a href="../../../../index.html#key620">connection</a>, <a href="../../../../index.html#key622">passive</a>, <a href="../../../../index.html#key357">secure</a>, <a href="../../../../index.html#key360">ssl</a>, <a href="../../../../index.html#key331">tls</a>, <a href="../../../../index.html#key62">transfer</a></p>
+<p><a href="../../../../index.html#active">active</a>, <a href="../../../../index.html#channel">channel</a>, <a href="../../../../index.html#connection">connection</a>, <a href="../../../../index.html#passive">passive</a>, <a href="../../../../index.html#secure">secure</a>, <a href="../../../../index.html#ssl">ssl</a>, <a href="../../../../index.html#tls">tls</a>, <a href="../../../../index.html#transfer">transfer</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Transfer module</p>
