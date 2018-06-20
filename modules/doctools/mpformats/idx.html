@@ -66,7 +66,9 @@ proc Ref {r l} {
 }
 
 proc F {text} {
-    return [string toupper [string index $text 0]]
+    # Keep only alphanumeric, take first, uppercase
+    # Returns nothing if input has no alphanumeric characters.
+    return [string toupper [string index [regsub -all {[^a-zA-Z0-9]} $text {}] 0]]
 }
 
 proc LoadKwid {} {
@@ -147,7 +149,7 @@ proc Navbar {} {
 
     set nav {}
     foreach c [lsort -dict [array names ch]] {
-	set ref c[incr cnt]
+	set ref c[F $c];#[incr cnt]
 	set ch($c) $ref
 	lappend nav [ALink $ref $c]
     }
@@ -168,7 +170,17 @@ proc Keys {} {
     global key
     upvar 1 lines lines
     set lc {}
-    foreach k [lsort -dict [array names key]] {
+    set kwlist {}
+
+    # For a good display we sort keywords in dictionary order.
+    # We ignore their leading non-alphanumeric characters.
+    set kwlist {}
+    foreach kw [array names key] {
+       set kwx [string trim [regsub -all {^[^a-zA-Z0-9]+} $kw {}]]
+       lappend kwlist [list $kwx $kw]
+    }
+    foreach item [lsort -index 0 -dict $kwlist] {
+       foreach {_ k} $item break
 	set c [F $k] ; if {$lc != $c} { Section $c ; set lc $c }
 	BeginKey   $k
 	References $k
@@ -244,14 +256,18 @@ proc SetAnchor {text} {
     return [markup "<a name=[Anchor $text]> $text </a>"]
 }
 
+proc A {text} {
+    set anchor [regsub -all {[^a-zA-Z0-9]} [string tolower $text] {_}]
+    set anchor [regsub -all {__+} $anchor _]
+    return $anchor
+}
+
 proc Anchor {text} {
-    global kwid cnt
+    global kwid
     if {[info exists kwid($text)]} {
 	return "\"$kwid($text)\""
     }
-    set anchor key$cnt
-    incr cnt
-    return "\"$anchor\""
+    return "\"[A $text]\""
 }
 
 proc Row {} {

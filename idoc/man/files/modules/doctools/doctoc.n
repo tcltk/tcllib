@@ -2,7 +2,7 @@
 '\" Generated from file 'doctoc\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::toc" n 1\&.1\&.6 tcllib "Documentation tools"
+.TH "doctools::toc" n 1\&.1\&.7 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools::toc \- doctoc - Processing tables of contents
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools::toc  ?1\&.1\&.6?\fR
+package require \fBdoctools::toc  ?1\&.1\&.7?\fR
 .sp
 \fB::doctools::toc::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp

@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.0.7]
+[vset PACKAGE_VERSION 1.0.8]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx n [vset PACKAGE_VERSION]]
 [see_also docidx_intro]

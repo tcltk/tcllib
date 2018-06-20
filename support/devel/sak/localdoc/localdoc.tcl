@@ -54,20 +54,8 @@ proc ::sak::localdoc::run {} {
     # Put the saved main page back into place, early.
     file rename e_index.html embedded/index.html
 
-    file delete -force idoc
-    file mkdir idoc/man
-    file mkdir idoc/www
-
-    puts "Generating manpages (installation)..."
-    set     config $baseconfig
-    lappend config -exclude {*/doctools/tests/*}
-    lappend config -exclude {*/support/*}
-    lappend config -ext n
-    lappend config -o idoc/man
-    lappend config nroff .
-
-    dtplite::do $config
-
+    run-idoc-man $baseconfig
+	
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
@@ -82,6 +70,29 @@ proc ::sak::localdoc::run {} {
     set mods [string map $map [fileutil::cat support/devel/sak/doc/toc_mods.txt]]
     set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
 
+    run-idoc-www $baseconfig $toc $nav $cats $mods $apps
+    run-embedded $baseconfig $toc $nav $cats $mods $apps
+    return
+}
+
+proc ::sak::localdoc::run-idoc-man {baseconfig} {
+    file delete -force idoc
+    file mkdir idoc/man
+    file mkdir idoc/www
+
+    puts "Generating manpages (installation)..."
+    set     config $baseconfig
+    lappend config -exclude {*/doctools/tests/*}
+    lappend config -exclude {*/support/*}
+    lappend config -ext n
+    lappend config -o idoc/man
+    lappend config nroff .
+
+    dtplite::do $config
+    return
+}
+
+proc ::sak::localdoc::run-idoc-www {baseconfig toc nav cats mods apps} {
     puts "Generating HTML (installation)... Pass 1, draft..."
     set     config $baseconfig
     lappend config -exclude  {*/doctools/tests/*} 
@@ -99,7 +110,10 @@ proc ::sak::localdoc::run {} {
 
     puts "Generating HTML (installation)... Pass 2, resolving cross-references..."
     dtplite::do $config
+    return
+}
 
+proc ::sak::localdoc::run-embedded {baseconfig toc nav cats mods apps} {
     puts "Generating HTML (online)... Pass 1, draft..."
     set     config $baseconfig
     lappend config -exclude  {*/doctools/tests/*} 

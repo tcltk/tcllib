@@ -91,8 +91,15 @@ proc ::sak::doc::auto::saveKeywordIndex {kv nv} {
     TagsBegin
     Tag+ index_begin [list {Keyword Index} {}]
 
-    # Handle the keywords in dictionary order for nice display.
-    foreach kw [lsort -dict [array names kwic]] {
+    # For a good display we sort keywords in dictionary order.
+    # We ignore their leading non-alphanumeric characters.
+    set kwlist {}
+    foreach kw [array names kwic] {
+	set kwx [string trim [regsub -all {^[^a-zA-Z0-9]+} $kw {}]]
+	lappend kwlist [list $kwx $kw]
+    }
+    foreach item [lsort -index 0 -dict $kwlist] {
+	foreach {_ kw} $item break
 	set tmp [Sortable $kwic($kw) name max _]
 
 	Tag+ key [list $kw]

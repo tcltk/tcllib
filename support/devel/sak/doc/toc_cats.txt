@@ -456,7 +456,7 @@
 [item modules/units/units.man                units                    {unit conversion}]
 [item modules/yaml/yaml.man                  yaml                     {YAML Format Encoder/Decoder}]
 [division_end]
-[division_start Utilites]
+[division_start Utilities]
 [item modules/dicttool/dicttool.man dicttool {Dictionary Tools}]
 [division_end]
 [division_start Utility]
