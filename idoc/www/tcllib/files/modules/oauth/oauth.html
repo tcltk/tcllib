@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">oauth(n) 1.0.1 tcllib &quot;oauth&quot;</h1>
+<h1 class="doctools_title">oauth(n) 1.0.2 tcllib &quot;oauth&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>oauth - oauth API base signature</p>
 </div>
@@ -129,7 +129,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">oauth <span class="opt">?1.0.1?</span></b></li>
+<li>package require <b class="pkgname">oauth <span class="opt">?1.0.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::oauth::config</b></a></li>
@@ -146,10 +146,10 @@ This current version of the package supports the Oauth 1.0 Protocol,
 as specified in <a href="http://tools.ietf.org/rfc/rfc5849.txt">RFC 5849</a>.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -157,8 +157,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -310,7 +310,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key846">RFC 2718</a>, <a href="../../../../index.html#key847">RFC 5849</a>, <a href="../../../../index.html#key848">oauth</a>, <a href="../../../../index.html#key849">twitter</a></p>
+<p><a href="../../../../index.html#rfc_2718">RFC 2718</a>, <a href="../../../../index.html#rfc_5849">RFC 5849</a>, <a href="../../../../index.html#oauth">oauth</a>, <a href="../../../../index.html#twitter">twitter</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

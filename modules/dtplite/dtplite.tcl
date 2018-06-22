@@ -1,6 +1,6 @@
 # -*- tcl -*- \
 # @@ Meta Begin
-# Application dtplite 1.2
+# Application dtplite 1.3.1
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -19,7 +19,7 @@
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.3
+package provide dtplite 1.3.1
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -1185,7 +1185,9 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     variable format
 
     if {[string equal $format null]} return
-    Write [At .tocdoc] $text
+
+    #Print stdout "Writing toc (base) .${ftoc}doc ..."
+    Write [At .${ftoc}doc] $text
 
     set ft [Output $ftoc]
 
@@ -1202,7 +1204,9 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
 
     foreach {k v} $map {toc map $k $v}
 
+    Print stdout "Writing toc ($format) $ft ..."
     Write [At $ft] [toc format $text]
+
     toc destroy
     return
 }
@@ -1277,11 +1281,17 @@ proc ::dtplite::IdxExtractMeta {{start 0}} {
 		set kdup($kx) .
 	    }
 	    if {[info exist kwid($k)]} continue
-	    set kwid($k) key$start
+	    set kwid($k) [IdxAnchor $k]
 	    incr start
 	}
     }
     return [list $start [array get keys]]
+}
+
+proc ::dtplite::IdxAnchor {text} {
+    set anchor [regsub -all {[^a-zA-Z0-9]} [string tolower $text] {_}]
+    set anchor [regsub -all {__+} $anchor _]
+    return $anchor
 }
 
 proc ::dtplite::IdxItem {f meta} {
@@ -1300,7 +1310,15 @@ proc ::dtplite::IdxGenerate {desc data} {
     TagsBegin
     Tag+ index_begin [list {Keyword Index} $desc]
 
-    foreach k [lsort -dict [array names keys]] {
+    # For a good display we sort keywords in dictionary order.
+    # We ignore their leading non-alphanumeric characters.
+    set kwlist {}
+    foreach kw [array names keys] {
+	set kwx [string trim [regsub -all {^[^a-zA-Z0-9]+} $kw {}]]
+	lappend kwlist [list $kwx $kw]
+    }
+    foreach item [lsort -index 0 -dict $kwlist] {
+	foreach {_ k} $item break
 	IdxAlign mxf $keys($k)
 
 	Tag+ key [list $k]
@@ -1321,6 +1339,7 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     if {[string equal $format null]} return
     if {![HaveKeywords]} return
 
+    #Print stdout "Writing index (base) .idxdoc ..."
     Write [At .idxdoc] $text
 
     set fi [Output $findex]
@@ -1334,7 +1353,9 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     StyleSetup    idx $findex
     XrefSetupKwid idx
 
+    Print stdout "Writing index ($format) $fi ..."
     Write [At $fi] [idx format $text]
+
     idx destroy
     return
 }

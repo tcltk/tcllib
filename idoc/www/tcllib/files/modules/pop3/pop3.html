@@ -154,10 +154,10 @@ Tcl errors (thrown) which must be caught with the Tcl <b class="cmd">catch</b>
 command.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -165,8 +165,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -197,7 +197,7 @@ The default is <b class="const">retr</b>. See <b class="cmd">::pop3::retrieve</b
 information.</p></dd>
 <dt><b class="option">-socketcmd</b> cmdprefix</dt>
 <dd><p>This option allows the user to overide the use of the builtin
-<b class="cmd"><a href="../../../../index.html#key353">socket</a></b> command with any API-compatible command. The envisioned
+<b class="cmd"><a href="../../../../index.html#socket">socket</a></b> command with any API-compatible command. The envisioned
 main use is the securing of the new connection via SSL, through the
 specification of the command <b class="cmd">tls::socket</b>. This command is
 specially recognized as well, changing the default port of the
@@ -304,7 +304,7 @@ the socket.</p></dd>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Secure mail transfer</a></h2>
 <p>A pop3 connection can be secured with SSL/TLS by requiring the package
-<b class="package"><a href="../../../../index.html#key331">TLS</a></b> and then using either the option <b class="option">-socketcmd</b> or
+<b class="package"><a href="../../../../index.html#tls">TLS</a></b> and then using either the option <b class="option">-socketcmd</b> or
 the option <b class="option">-stls</b> of the command <b class="cmd">pop3::open</b>.
 The first method, option <b class="option">-socketcmd</b>, will force the use
 of the <b class="cmd">tls::socket</b> command when opening the connection. This is
@@ -347,7 +347,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key335">email</a>, <a href="../../../../index.html#key330">mail</a>, <a href="../../../../index.html#key446">pop</a>, <a href="../../../../index.html#key445">pop3</a>, <a href="../../../../index.html#key444">rfc 1939</a>, <a href="../../../../index.html#key357">secure</a>, <a href="../../../../index.html#key360">ssl</a>, <a href="../../../../index.html#key331">tls</a></p>
+<p><a href="../../../../index.html#email">email</a>, <a href="../../../../index.html#mail">mail</a>, <a href="../../../../index.html#pop">pop</a>, <a href="../../../../index.html#pop3">pop3</a>, <a href="../../../../index.html#rfc_1939">rfc 1939</a>, <a href="../../../../index.html#secure">secure</a>, <a href="../../../../index.html#ssl">ssl</a>, <a href="../../../../index.html#tls">tls</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

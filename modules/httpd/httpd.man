@@ -53,9 +53,9 @@ tool::define ::reply.hello {
 HTTPD add_uri /* [list mixin reply.hello]
 }]
 
-[include src/server.man]
-[include src/reply.man]
-[include src/content.man]
+[include build/server.man]
+[include build/reply.man]
+[include build/content.man]
 
 [section AUTHORS]
 Sean Woods
