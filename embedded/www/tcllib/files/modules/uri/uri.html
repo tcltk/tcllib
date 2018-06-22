@@ -148,16 +148,16 @@
 <p>First, it provides a number of
 commands for manipulating URLs/URIs and fetching data specified by
 them. For fetching data this package analyses the requested URL/URI and
-then dispatches it to the appropriate package (<b class="package"><a href="../../../../index.html#key447">http</a></b>, <b class="package"><a href="../ftp/ftp.html">ftp</a></b>, ...) for
+then dispatches it to the appropriate package (<b class="package"><a href="../../../../index.html#http">http</a></b>, <b class="package"><a href="../ftp/ftp.html">ftp</a></b>, ...) for
 actual retrieval.  Currently these commands are defined for the schemes
-<i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>,
-<i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#key31">file</a></i>.  The package <b class="package">uri::urn</b> adds scheme <i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
+<i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>,
+<i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#file">file</a></i>.  The package <b class="package">uri::urn</b> adds scheme <i class="term"><a href="../../../../index.html#urn">urn</a></i>.</p>
 <p>Second, it provides regular expressions
 for a number of <b class="const">registered</b> URL/URI schemes. Registered
-schemes are currently <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i>, <i class="term"><a href="../../../../index.html#key31">file</a></i>,
-<i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key534">gopher</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>,
-<i class="term"><a href="../../../../index.html#key532">wais</a></i> and <i class="term"><a href="../../../../index.html#key530">prospero</a></i>.  The package <b class="package">uri::urn</b> adds scheme
-<i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
+schemes are currently <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i>, <i class="term"><a href="../../../../index.html#file">file</a></i>,
+<i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#gopher">gopher</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>,
+<i class="term"><a href="../../../../index.html#wais">wais</a></i> and <i class="term"><a href="../../../../index.html#prospero">prospero</a></i>.  The package <b class="package">uri::urn</b> adds scheme
+<i class="term"><a href="../../../../index.html#urn">urn</a></i>.</p>
 <p>The commands of the package conform to
 RFC 3986 (<a href="https://www.rfc-editor.org/rfc/rfc3986.txt">https://www.rfc-editor.org/rfc/rfc3986.txt</a>),
 with the exception of a loophole arising from RFC 1630 and described
@@ -169,15 +169,15 @@ URI against which it is resolved. RFC 3986 recommends avoiding this usage.</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">uri::setQuirkOption</b> <i class="arg">option</i> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
 <dd><p><b class="cmd">uri::setQuirkOption</b> is an accessor command for a number of &quot;quirk options&quot;.
-The command has the same semantics as the command <b class="cmd"><a href="../../../../index.html#key301">set</a></b>: when called with one argument it reads an existing value; with two arguments it writes a new value.  The value of a &quot;quirk option&quot; is boolean: the value <b class="const">false</b> requests conformance with RFC 3986, while <b class="const">true</b> requests use of the quirk.  See section <span class="sectref"><a href="#section5">QUIRK OPTIONS</a></span> for discussion of the different options and their purpose.</p></dd>
+The command has the same semantics as the command <b class="cmd"><a href="../../../../index.html#set">set</a></b>: when called with one argument it reads an existing value; with two arguments it writes a new value.  The value of a &quot;quirk option&quot; is boolean: the value <b class="const">false</b> requests conformance with RFC 3986, while <b class="const">true</b> requests use of the quirk.  See section <span class="sectref"><a href="#section5">QUIRK OPTIONS</a></span> for discussion of the different options and their purpose.</p></dd>
 <dt><a name="2"><b class="cmd">uri::split</b> <i class="arg">url</i> <span class="opt">?<i class="arg">defaultscheme</i>?</span></a></dt>
 <dd><p><b class="cmd">uri::split</b> takes a <i class="arg">url</i>, decodes it and then returns a
 list of key/value pairs suitable for <b class="cmd">array set</b> containing the
 constituents of the <i class="arg">url</i>. If the scheme is missing from the <i class="arg">url</i>
 it defaults to the value of <i class="arg">defaultscheme</i> if it was specified,
-or <i class="term"><a href="../../../../index.html#key447">http</a></i> else. Currently the schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>,
-<i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i> and
-<i class="term"><a href="../../../../index.html#key31">file</a></i> are supported by the package itself.
+or <i class="term"><a href="../../../../index.html#http">http</a></i> else. Currently the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>,
+<i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i> and
+<i class="term"><a href="../../../../index.html#file">file</a></i> are supported by the package itself.
 See section <span class="sectref"><a href="#section4">EXTENDING</a></span> on how to expand that range.</p>
 <p>The set of constituents of a URL (= the set of keys in the returned
 dictionary) is dependent on the scheme of the URL. The only key which
@@ -200,14 +200,14 @@ schemes the constituents and their keys are known:</p>
 <dd><p>Either <b class="const">message-id</b> or <b class="const">newsgroup-name</b>.</p></dd>
 </dl>
 <p>For discussion of the boolean <b class="const">pbare</b> see options <em>NoInitialSlash</em> and <em>NoExtraKeys</em> in <span class="sectref"><a href="#section5">QUIRK OPTIONS</a></span>.</p>
-<p>The constituents are returned as slices of the argument <i class="arg">url</i>, without removal of percent-encoding (&quot;url-encoding&quot;) or other adaptations.  Notably, on Windows&reg; the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#key31">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p></dd>
+<p>The constituents are returned as slices of the argument <i class="arg">url</i>, without removal of percent-encoding (&quot;url-encoding&quot;) or other adaptations.  Notably, on Windows&reg; the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#file">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p></dd>
 <dt><a name="3"><b class="cmd">uri::join</b> <span class="opt">?<i class="arg">key</i> <i class="arg">value</i>?</span>...</a></dt>
 <dd><p><b class="cmd">uri::join</b> takes a list of key/value pairs (generated by
 <b class="cmd">uri::split</b>, for example) and returns the canonical URL they
-represent. Currently the schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>,
-<i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#key31">file</a></i>
+represent. Currently the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>,
+<i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i> and <i class="term"><a href="../../../../index.html#file">file</a></i>
 are supported by the package itself. See section <span class="sectref"><a href="#section4">EXTENDING</a></span> on how to expand that range.</p>
-<p>The arguments are expected to be slices of a valid URL, with percent-encoding (&quot;url-encoding&quot;) and any other necessary adaptations.  Notably, on Windows the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#key31">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p></dd>
+<p>The arguments are expected to be slices of a valid URL, with percent-encoding (&quot;url-encoding&quot;) and any other necessary adaptations.  Notably, on Windows the <b class="const">path</b> in scheme <i class="term"><a href="../../../../index.html#file">file</a></i> is not a valid local filename.  See <span class="sectref"><a href="#section6">EXAMPLES</a></span> for more information.</p></dd>
 <dt><a name="4"><b class="cmd">uri::resolve</b> <i class="arg">base</i> <i class="arg">url</i></a></dt>
 <dd><p><b class="cmd">uri::resolve</b> resolves the specified <i class="arg">url</i> relative to
 <i class="arg">base</i>, in conformance with RFC 3986. In other words: a
@@ -215,7 +215,7 @@ non-relative <i class="arg">url</i> is returned
 unchanged, whereas for a relative <i class="arg">url</i> the missing parts are
 taken from <i class="arg">base</i> and prepended to it. The result of this
 operation is returned. For an empty <i class="arg">url</i> the result is
-<i class="arg">base</i>, without its URI fragment (if any).  The command is available for schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, and <i class="term"><a href="../../../../index.html#key31">file</a></i>.</p></dd>
+<i class="arg">base</i>, without its URI fragment (if any).  The command is available for schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, and <i class="term"><a href="../../../../index.html#file">file</a></i>.</p></dd>
 <dt><a name="5"><b class="cmd">uri::isrelative</b> <i class="arg">url</i></a></dt>
 <dd><p><b class="cmd">uri::isrelative</b> determines whether the specified <i class="arg">url</i> is
 absolute or relative.  The command is available for a <i class="arg">url</i> of any scheme.</p></dd>
@@ -231,7 +231,7 @@ provides a <b class="cmd">geturl</b>-command in the namespace of the same name a
 the package itself. This command is called with the given <i class="arg">url</i>
 and all given <i class="arg">options</i>. Currently <b class="cmd">geturl</b> does not handle
 any options itself.</p>
-<p><em>Note:</em> <i class="term"><a href="../../../../index.html#key31">file</a></i>-URLs are an exception to the rule
+<p><em>Note:</em> <i class="term"><a href="../../../../index.html#file">file</a></i>-URLs are an exception to the rule
 described above. They are handled internally.</p>
 <p>It is not possible to specify results of the command. They depend on
 the <b class="cmd">geturl</b>-command for the scheme the request was dispatched to.</p></dd>
@@ -240,7 +240,7 @@ the <b class="cmd">geturl</b>-command for the scheme the request was dispatched 
 canonical form of a URI is one where relative path specifications,
 i.e. &quot;.&quot; and &quot;..&quot;, have been resolved.  The command is available for all
 URI schemes that have <b class="cmd">uri::split</b> and <b class="cmd">uri::join</b> commands. The command
-returns a canonicalized URI if the URI scheme has a <b class="const">path</b> component (i.e. <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, and <i class="term"><a href="../../../../index.html#key31">file</a></i>).  For schemes that have <b class="cmd">uri::split</b> and <b class="cmd">uri::join</b> commands but no <b class="const">path</b> component (i.e. <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, and <i class="term">ldaps</i>), the command returns the <i class="arg">uri</i> unchanged.</p></dd>
+returns a canonicalized URI if the URI scheme has a <b class="const">path</b> component (i.e. <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, and <i class="term"><a href="../../../../index.html#file">file</a></i>).  For schemes that have <b class="cmd">uri::split</b> and <b class="cmd">uri::join</b> commands but no <b class="const">path</b> component (i.e. <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, and <i class="term">ldaps</i>), the command returns the <i class="arg">uri</i> unchanged.</p></dd>
 <dt><a name="8"><b class="cmd">uri::register</b> <i class="arg">schemeList</i> <i class="arg">script</i></a></dt>
 <dd><p><b class="cmd">uri::register</b> registers the first element of <i class="arg">schemeList</i> as
 a new scheme and the remaining elements as aliases for this scheme. It
@@ -260,9 +260,9 @@ variable <b class="variable">url</b> whose contents are a regular expression to
 recognize URLs of that scheme. Additional variables may contain
 regular expressions for parts of URLs for that scheme.</p>
 <p>The variable <b class="variable">uri::schemes</b> contains a list of all registered
-schemes. Currently these are <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, <i class="term"><a href="../../../../index.html#key130">ldap</a></i>, <i class="term">ldaps</i>, <i class="term"><a href="../../../../index.html#key31">file</a></i>,
-<i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, <i class="term"><a href="../../../../index.html#key534">gopher</a></i>, <i class="term"><a href="../../../../index.html#key537">mailto</a></i>, <i class="term"><a href="../../../../index.html#key535">news</a></i>,
-<i class="term"><a href="../../../../index.html#key532">wais</a></i> and <i class="term"><a href="../../../../index.html#key530">prospero</a></i>.</p>
+schemes. Currently these are <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, <i class="term"><a href="../../../../index.html#ldap">ldap</a></i>, <i class="term">ldaps</i>, <i class="term"><a href="../../../../index.html#file">file</a></i>,
+<i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, <i class="term"><a href="../../../../index.html#gopher">gopher</a></i>, <i class="term"><a href="../../../../index.html#mailto">mailto</a></i>, <i class="term"><a href="../../../../index.html#news">news</a></i>,
+<i class="term"><a href="../../../../index.html#wais">wais</a></i> and <i class="term"><a href="../../../../index.html#prospero">prospero</a></i>.</p>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">EXTENDING</a></h2>
 <p>Extending the range of schemes supported by <b class="cmd">uri::split</b> and
@@ -276,7 +276,7 @@ and  <b class="cmd">Join[string totitle &lt;scheme&gt;]</b> respectively.</p>
 (the latter subject to the availability of a suitable package with a <b class="cmd">geturl</b> command).  In contrast, to extend the command <b class="cmd">uri::resolve</b> to a new scheme, the command itself must be modified.</p>
 <p>To extend the range of schemes for which pattern information is
 available, use the command <b class="cmd">uri::register</b>.</p>
-<p>An example of a package that provides both commands and pattern information for a new scheme is <b class="package">uri::urn</b>, which adds scheme <i class="term"><a href="../../../../index.html#key582">urn</a></i>.</p>
+<p>An example of a package that provides both commands and pattern information for a new scheme is <b class="package">uri::urn</b>, which adds scheme <i class="term"><a href="../../../../index.html#urn">urn</a></i>.</p>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">QUIRK OPTIONS</a></h2>
 <p>The value of a &quot;quirk option&quot; is boolean: the value <b class="const">false</b> requests conformance with RFC 3986, while <b class="const">true</b> requests use of the quirk.  Use command <b class="cmd">uri::setQuirkOption</b> to access the values of quirk options.</p>
@@ -285,10 +285,10 @@ specification changes, and for adding useful features that are not included
 in RFC specifications.  The following quirk options are currently defined:</p>
 <dl class="doctools_definitions">
 <dt><em>NoInitialSlash</em></dt>
-<dd><p>This quirk option concerns the leading character of <b class="const">path</b> (if non-empty) in the schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, and <i class="term"><a href="../../../../index.html#key294">ftp</a></i>.</p>
-<p>RFC 3986 defines <b class="const">path</b> in an absolute URI to have an initial &quot;/&quot;, unless the value of <b class="const">path</b> is the empty string. For the scheme <i class="term"><a href="../../../../index.html#key31">file</a></i>, all versions of package <b class="package">uri</b> follow this rule.  The quirk option <em>NoInitialSlash</em> does not apply to scheme <i class="term"><a href="../../../../index.html#key31">file</a></i>.</p>
-<p>For the schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, and <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, versions of <b class="package">uri</b> before 1.2.7 define the <b class="const">path</b> <em>NOT</em> to include an initial &quot;/&quot;.  When the quirk option <em>NoInitialSlash</em> is <b class="const">true</b> (the default), this behavior is also used in version 1.2.7.  To use instead values of <b class="const">path</b> as defined by RFC 3986, set this quirk option to <b class="const">false</b>.</p>
-<p>This setting does not affect RFC 3986 conformance.  If <em>NoInitialSlash</em> is <b class="const">true</b>, then the value of <b class="const">path</b> in the schemes <i class="term"><a href="../../../../index.html#key447">http</a></i>, <i class="term"><a href="../../../../index.html#key531">https</a></i>, or <i class="term"><a href="../../../../index.html#key294">ftp</a></i>, cannot distinguish between URIs in which the full &quot;RFC 3986 path&quot; is the empty string &quot;&quot; or a single slash &quot;/&quot; respectively.  The missing information is recorded in an additional <b class="cmd">uri::split</b> key <b class="const">pbare</b>.</p>
+<dd><p>This quirk option concerns the leading character of <b class="const">path</b> (if non-empty) in the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, and <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>.</p>
+<p>RFC 3986 defines <b class="const">path</b> in an absolute URI to have an initial &quot;/&quot;, unless the value of <b class="const">path</b> is the empty string. For the scheme <i class="term"><a href="../../../../index.html#file">file</a></i>, all versions of package <b class="package">uri</b> follow this rule.  The quirk option <em>NoInitialSlash</em> does not apply to scheme <i class="term"><a href="../../../../index.html#file">file</a></i>.</p>
+<p>For the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, and <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, versions of <b class="package">uri</b> before 1.2.7 define the <b class="const">path</b> <em>NOT</em> to include an initial &quot;/&quot;.  When the quirk option <em>NoInitialSlash</em> is <b class="const">true</b> (the default), this behavior is also used in version 1.2.7.  To use instead values of <b class="const">path</b> as defined by RFC 3986, set this quirk option to <b class="const">false</b>.</p>
+<p>This setting does not affect RFC 3986 conformance.  If <em>NoInitialSlash</em> is <b class="const">true</b>, then the value of <b class="const">path</b> in the schemes <i class="term"><a href="../../../../index.html#http">http</a></i>, <i class="term"><a href="../../../../index.html#https">https</a></i>, or <i class="term"><a href="../../../../index.html#ftp">ftp</a></i>, cannot distinguish between URIs in which the full &quot;RFC 3986 path&quot; is the empty string &quot;&quot; or a single slash &quot;/&quot; respectively.  The missing information is recorded in an additional <b class="cmd">uri::split</b> key <b class="const">pbare</b>.</p>
 <p>The boolean <b class="const">pbare</b> is defined when quirk options <em>NoInitialSlash</em> and <em>NoExtraKeys</em> have values <b class="const">true</b> and <b class="const">false</b> respectively.  In this case, if the value of <b class="const">path</b> is the empty string &quot;&quot;, <b class="const">pbare</b> is <b class="const">true</b> if the full &quot;RFC 3986 path&quot; is &quot;&quot;, and <b class="const">pbare</b> is <b class="const">false</b> if the full &quot;RFC 3986 path&quot; is &quot;/&quot;.</p>
 <p>Using this quirk option <em>NoInitialSlash</em> is a matter of preference.</p></dd>
 <dt><em>NoExtraKeys</em></dt>
@@ -296,9 +296,9 @@ in RFC specifications.  The following quirk options are currently defined:</p>
 <p>If the quirk option <em>NoExtraKeys</em> is <b class="const">false</b> (the default), command <b class="cmd">uri::split</b> returns an additional key <b class="const">pbare</b>, and the commands comply with RFC 3986. If the quirk option <em>NoExtraKeys</em> is <b class="const">true</b>, the key <b class="const">pbare</b> is not defined and there is not full conformance with RFC 3986.</p>
 <p>Using the quirk option <em>NoExtraKeys</em> is <em>NOT</em> recommended, because if set to <b class="const">true</b> it will reduce conformance with RFC 3986.  The option is included only for compatibility with code, written for earlier versions of <b class="package">uri</b>, that needs values of <b class="const">path</b> without a leading &quot;/&quot;, <em>AND ALSO</em> cannot tolerate unexpected keys in the results of <b class="cmd">uri::split</b>.</p></dd>
 <dt><em>HostAsDriveLetter</em></dt>
-<dd><p>When handling the scheme <i class="term"><a href="../../../../index.html#key31">file</a></i> on the
+<dd><p>When handling the scheme <i class="term"><a href="../../../../index.html#file">file</a></i> on the
 Windows platform, versions of <b class="package">uri</b> before 1.2.7
-use the <b class="const">host</b> field to represent a Windows drive letter and the colon that follows it, and the <b class="const">path</b> field to represent the filename path after the colon.  Such URIs are invalid, and are not recognized by any RFC. When the quirk option <em>HostAsDriveLetter</em> is <b class="const">true</b>, this behavior is also used in version 1.2.7.  To use <i class="term"><a href="../../../../index.html#key31">file</a></i> URIs on Windows that conform to RFC 3986, set this quirk option to <b class="const">false</b> (the default).</p>
+use the <b class="const">host</b> field to represent a Windows drive letter and the colon that follows it, and the <b class="const">path</b> field to represent the filename path after the colon.  Such URIs are invalid, and are not recognized by any RFC. When the quirk option <em>HostAsDriveLetter</em> is <b class="const">true</b>, this behavior is also used in version 1.2.7.  To use <i class="term"><a href="../../../../index.html#file">file</a></i> URIs on Windows that conform to RFC 3986, set this quirk option to <b class="const">false</b> (the default).</p>
 <p>Using this quirk is <em>NOT</em> recommended, because if set to <b class="const">true</b> it will cause the <b class="package">uri</b> commands to expect and produce invalid URIs.  The option is included only for compatibility with legacy code.</p></dd>
 <dt><em>RemoveDoubleSlashes</em></dt>
 <dd><p>When a URI is canonicalized by <b class="cmd">uri::canonicalize</b>, its <b class="const">path</b> is normalized by removal of segments &quot;.&quot; and &quot;..&quot;.  RFC 3986 does not mandate
@@ -339,8 +339,8 @@ the removal of empty segments &quot;&quot; (i.e. the merger of double slashes, w
 </div>
 </div>
 <div id="section6" class="doctools_section"><h2><a name="section6">EXAMPLES</a></h2>
-<p>A Windows&reg; local filename such as &quot;<b class="const">C:\Other Files\startup.txt</b>&quot; is not suitable for use as the <b class="const">path</b> element of a URI in the scheme <i class="term"><a href="../../../../index.html#key31">file</a></i>.</p>
-<p>The Tcl command <b class="cmd">file normalize</b> will convert the backslashes to forward slashes.  To generate a valid <b class="const">path</b> for the scheme <i class="term"><a href="../../../../index.html#key31">file</a></i>, the normalized filename must be prepended with &quot;<b class="const">/</b>&quot;, and then any characters that do not match the <b class="cmd">regexp</b> bracket expression</p>
+<p>A Windows&reg; local filename such as &quot;<b class="const">C:\Other Files\startup.txt</b>&quot; is not suitable for use as the <b class="const">path</b> element of a URI in the scheme <i class="term"><a href="../../../../index.html#file">file</a></i>.</p>
+<p>The Tcl command <b class="cmd">file normalize</b> will convert the backslashes to forward slashes.  To generate a valid <b class="const">path</b> for the scheme <i class="term"><a href="../../../../index.html#file">file</a></i>, the normalized filename must be prepended with &quot;<b class="const">/</b>&quot;, and then any characters that do not match the <b class="cmd">regexp</b> bracket expression</p>
 <pre class="doctools_example">
     [a-zA-Z0-9$_.+!*'(,)?:@&amp;=-]
 </pre>
@@ -374,7 +374,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key536">fetching information</a>, <a href="../../../../index.html#key31">file</a>, <a href="../../../../index.html#key294">ftp</a>, <a href="../../../../index.html#key534">gopher</a>, <a href="../../../../index.html#key447">http</a>, <a href="../../../../index.html#key531">https</a>, <a href="../../../../index.html#key130">ldap</a>, <a href="../../../../index.html#key537">mailto</a>, <a href="../../../../index.html#key535">news</a>, <a href="../../../../index.html#key530">prospero</a>, <a href="../../../../index.html#key540">rfc 1630</a>, <a href="../../../../index.html#key538">rfc 2255</a>, <a href="../../../../index.html#key541">rfc 2396</a>, <a href="../../../../index.html#key533">rfc 3986</a>, <a href="../../../../index.html#key529">uri</a>, <a href="../../../../index.html#key246">url</a>, <a href="../../../../index.html#key532">wais</a>, <a href="../../../../index.html#key539">www</a></p>
+<p><a href="../../../../index.html#fetching_information">fetching information</a>, <a href="../../../../index.html#file">file</a>, <a href="../../../../index.html#ftp">ftp</a>, <a href="../../../../index.html#gopher">gopher</a>, <a href="../../../../index.html#http">http</a>, <a href="../../../../index.html#https">https</a>, <a href="../../../../index.html#ldap">ldap</a>, <a href="../../../../index.html#mailto">mailto</a>, <a href="../../../../index.html#news">news</a>, <a href="../../../../index.html#prospero">prospero</a>, <a href="../../../../index.html#rfc_1630">rfc 1630</a>, <a href="../../../../index.html#rfc_2255">rfc 2255</a>, <a href="../../../../index.html#rfc_2396">rfc 2396</a>, <a href="../../../../index.html#rfc_3986">rfc 3986</a>, <a href="../../../../index.html#uri">uri</a>, <a href="../../../../index.html#url">url</a>, <a href="../../../../index.html#wais">wais</a>, <a href="../../../../index.html#www">www</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

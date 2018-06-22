@@ -372,8 +372,6 @@ method FormData
 .sp
 method MimeParse \fImimetext\fR
 .sp
-method \fBoutput\fR
-.sp
 method \fBDoOutput\fR
 .sp
 method PostData \fIlength\fR
@@ -601,7 +599,7 @@ Developers have the option of streaming output to a buffer via the \fBputs\fR me
 reply, or simply populating the \fIreply_body\fR variable of the object\&.
 The information returned by the \fBcontent\fR method is not interpreted in any way\&.
 If an exception is thrown (via the \fBerror\fR command in Tcl, for example) the caller will
-auto-generate a 505 {Internal Error} message\&.
+auto-generate a 500 {Internal Error} message\&.
 A typical implementation of \fBcontent\fR look like:
 .CS
 
@@ -630,15 +628,15 @@ tool::define ::test::content\&.time {
 tool::define ::test::content\&.echo {
 	method content {} {
 		my variable reply_body
-    my reply set Content-Type [my request get Content-Type]
-		set reply_body [my PostData [my request get Content-Length]]
+    my reply set Content-Type [my request get CONTENT_TYPE]
+		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 	}
 }
 tool::define ::test::content\&.form_handler {
 	method content {} {
 	  set form [my FormData]
 	  my reply set Content-Type {text/html; charset=UTF-8}
-    my puts "<HTML><HEADER><TITLE>My Dynamic Page</TITLE></HEADER>"
+    my puts [my html header {My Dynamic Page}]
     my puts "<BODY>"
     my puts "You Sent<p>"
     my puts "<TABLE>"
@@ -658,7 +656,7 @@ tool::define ::test::content\&.form_handler {
       my puts $line
     }
     my puts "</TABLE>"
-    my puts "</BODY></HTML>"
+    my puts [my html footer]
 	}
 }
 
@@ -680,9 +678,6 @@ method MimeParse \fImimetext\fR
 Converts a block of mime encoded text to a key/value list\&. If an exception is encountered,
 the method will generate its own call to the \fBerror\fR method, and immediately invoke
 the \fBoutput\fR method to produce an error code and close the connection\&.
-.TP
-method \fBoutput\fR
-Schedules a call to \fBDoOutput\fR when \fIchan\fR becomes writeable
 .TP
 method \fBDoOutput\fR
 Generates the the HTTP reply, and streams that reply back across \fIchan\fR\&.
@@ -727,12 +722,11 @@ fed to it on the command line, and then destroys the object\&.
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $sock $chan -command [namespace code [list my TransferComplete $sock]]
-    } else {
-      catch {close $sock}
-      chan flush $chan
-      my destroy
+      chan copy $sock $chan -size $SIZE -command [info coroutine]
+      yield
     }
+    catch {close $sock}
+    chan flush $chan
 
 .CE
 .TP

@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.5
-package provide practcl 0.11
+package provide practcl 0.11.1
 namespace eval ::practcl {}
 
 ###
@@ -1074,8 +1074,13 @@ proc ::practcl::_pkgindex_directory {path} {
 
 proc ::practcl::_pkgindex_path_subdir {path} {
   set result {}
+  if {[file exists [file join $path src build.tcl]]} {
+    # Tool style module, don't dive into subdirectories
+    return $path
+  }
   foreach subpath [glob -nocomplain [file join $path *]] {
     if {[file isdirectory $subpath]} {
+      if {[file tail $subpath] eq "build" && [file exists [file join $subpath build.tcl]]} continue
       lappend result $subpath {*}[_pkgindex_path_subdir $subpath]
     }
   }
@@ -1089,14 +1094,34 @@ proc ::practcl::pkgindex_path {args} {
   set stack {}
   set buffer {
 lappend ::PATHSTACK $dir
+set IDXPATH [lindex $::PATHSTACK end]
   }
+  set preindexed {}
   foreach base $args {
     set base [file normalize $base]
     set paths {}
     foreach dir [glob -nocomplain [file join $base *]] {
-      if {[file tail $dir] eq "teapot"} continue
+      set thisdir [file tail $dir]
+      if {$thisdir eq "teapot"} continue
+      if {$thisdir eq "pkgs"} {
+        foreach subdir [glob -nocomplain [file join $dir *]] {
+          set thissubdir [file tail $subdir]
+          set skip 0
+          foreach file {pkgIndex.tcl tclIndex} {
+            if {[file exists [file join $subdir $file]]} {
+              set skip 1
+              append buffer "set dir \[file join \$::IDXPATH [list $thisdir] [list $thissubdir]\] \; "
+              append buffer "source \[file join \$dir ${file}\]" \n
+            }
+          }
+          if {$skip} continue
+          lappend paths {*}[::practcl::_pkgindex_path_subdir $subdir]
+        }
+        continue
+      }
       lappend paths $dir {*}[::practcl::_pkgindex_path_subdir $dir]
     }
+    append buffer ""
     set i    [string length  $base]
     # Build a list of all of the paths
     if {[llength $paths]} {
@@ -1734,7 +1759,7 @@ oo::objdefine ::practcl::toolset {
     }
     cd $pwd
   }
-  
+
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
@@ -1747,11 +1772,11 @@ oo::objdefine ::practcl::toolset {
       return [my define get builddir [file join $PWD pkg $name]]
     }
   }
-  
+
   method ConfigureOpts {} {
     set opts {}
     set builddir [my define get builddir]
- 
+
     if {[my define get broken_destroot 0]} {
       set PREFIX [my <project> define get prefix_broken_destdir]
     } else {
@@ -1816,7 +1841,7 @@ oo::objdefine ::practcl::toolset {
     }
     return $opts
   }
-  
+
   # Detect what directory contains the Makefile template
   method MakeDir {srcdir} {
     set localsrcdir $srcdir
@@ -1849,7 +1874,7 @@ oo::objdefine ::practcl::toolset {
     }
     return $localsrcdir
   }
-  
+
   method make-autodetect {} {
     set srcdir [my define get srcdir]
     set localsrcdir [my define get localsrcdir]
@@ -1893,12 +1918,12 @@ oo::objdefine ::practcl::toolset {
     catch {exec sh [file join $localsrcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }
-  
+
   method make-clean {} {
     set builddir [file normalize [my define get builddir]]
     catch {::practcl::domake $builddir clean}
   }
-  
+
   method make-compile {} {
     set name [my define get name]
     set srcdir [my define get srcdir]
@@ -1923,7 +1948,7 @@ oo::objdefine ::practcl::toolset {
       ::practcl::domake $builddir all
     }
   }
-  
+
   method make-install DEST {
     set PWD [pwd]
     set builddir [my define get builddir]
@@ -1931,7 +1956,7 @@ oo::objdefine ::practcl::toolset {
       if {[file exists [file join $builddir make.tcl]]} {
         puts "[self] Local INSTALL (Practcl)"
         ::practcl::domake.tcl $builddir install
-      } else {[my define get broken_destroot 0] == 0} {
+      } elseif {[my define get broken_destroot 0] == 0} {
         puts "[self] Local INSTALL (TEA)"
         ::practcl::domake $builddir install
       }
@@ -1959,7 +1984,7 @@ oo::objdefine ::practcl::toolset {
     }
     cd $PWD
   }
-  
+
   method build-compile-sources {PROJECT COMPILE CPPCOMPILE INCLUDES} {
     set objext [my define get OBJEXT o]
     set EXTERN_OBJS {}
@@ -2376,10 +2401,13 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
   append cmd " $OBJECTS"
   append cmd " $EXTERN_OBJS"
   if {$debug && $os eq "windows"} {
-    append cmd " -static"
-    append cmd " -L${TCL(src_dir)}/win -ltcl86g"
+    ###
+    # There is bug in the core's autoconf and the value for
+    # tcl_build_lib_spec does not have the 'g' suffix
+    ###
+    append cmd " -L[file dirname $TCL(build_stub_lib_path)] -ltcl86g"
     if {[$PROJECT define get static_tk]} {
-      append cmd " -L${TK(src_dir)}/win -ltk86g"
+      append cmd " -L[file dirname $TK(build_stub_lib_path)] -ltk86g"
     }
   } else {
     append cmd " $TCL(build_lib_spec)"
@@ -2423,9 +2451,9 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
   }
   if {$debug && $os eq "windows"} {
-    append cmd " -L${TCL(src_dir)}/win ${TCL(stub_lib_flag)}"
+    append cmd " -L[file dirname $TCL(build_stub_lib_path)] ${TCL(stub_lib_flag)}"
     if {[$PROJECT define get static_tk]} {
-      append cmd " -L${TK(src_dir)}/win ${TK(stub_lib_flag)}"
+      append cmd " -L[file dirname $TK(build_stub_lib_path)] ${TK(stub_lib_flag)}"
     }
   } else {
     append cmd " $TCL(build_stub_lib_spec)"
@@ -5733,12 +5761,12 @@ oo::class create ::practcl::subproject {
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
   }
-  
-  
+
+
   method BuildDir {PWD} {
     return [my define get srcdir]
   }
-  
+
   method child which {
     switch $which {
       organs {
@@ -5845,9 +5873,11 @@ oo::class create ::practcl::subproject {
   }
 
   method unpack {} {
+    cd $::CWD
     ::practcl::distribution select [self]
     my Unpack
     ::practcl::toolset select [self]
+    cd $::CWD
   }
 }
 
@@ -5988,6 +6018,15 @@ oo::class create ::practcl::subproject.sak {
       -pkg-path [file join $DEST $prefix lib $pkg]  \
       -no-examples -no-html -no-nroff \
       -no-wait -no-gui -no-apps
+  }
+
+  method install-module {DEST args} {
+    set pkg [my define get pkg_name [my define get name]]
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set pkgpath [file join $prefix lib $pkg]
+    foreach module $args {
+      ::practcl::installDir [file join $pkgpath $module] [file join $DEST $module]
+    }
   }
 }
 

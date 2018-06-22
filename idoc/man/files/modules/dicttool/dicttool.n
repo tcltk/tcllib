@@ -368,7 +368,7 @@ left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
 dict
 .SH CATEGORY
-Utilites
+Utilities
 .SH COPYRIGHT
 .nf
 Copyright (c) 2017 Sean Woods <yoda@etoyoc\&.com>

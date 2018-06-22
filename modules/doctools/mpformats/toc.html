@@ -4,7 +4,7 @@
 #
 # Engine to convert a doctoc document into HTML.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 # Freely redistributable.
 #
 ######################################################################
@@ -73,14 +73,21 @@ proc fmt_toc_end       {}           {
     }
     return $text
 }
+
+proc Anchor {text} {
+    set anchor [regsub -all {[^a-zA-Z0-9]} [string tolower $text] {_}]
+    set anchor [regsub -all {__+} $anchor _]
+    return $anchor
+}
+
 proc fmt_division_start {title symfile} {
     global maintable ; set maintable 0
-
-    if {$symfile == ""} {
-	return \n[markup <dl><dt>]$title[markup <dd>]
-    } else {
-	return \n[markup <dl><dt>][markup "<a href=\"[dt_fmap $symfile]\">"]$title[markup </a><dd>]
+    
+    if {$symfile ne ""} {
+	set title [markup "<a href=\"[dt_fmap $symfile]\">"]$title[markup </a>]
     }
+
+    return \n[markup "<dl><dt><a name='[Anchor $title]'>"]$title[markup <dd>]
 }
 proc fmt_division_end   {}           {
     global firstitem ; set firstitem 1
@@ -102,7 +109,7 @@ proc fmt_item          {file label desc} {
 	append text [markup "<tr class=\"#doctools_tocodd\"  >"]\n
     }
     set even [expr {1-$even}]
-    append text [markup "<td class=\"#doctools_tocleft\" >"][markup "<a href=\"[dt_fmap $file]\">"]$label[tag/ a][tag/ td]\n
+    append text [markup "<td class=\"#doctools_tocleft\" >"][markup "<a name='[Anchor $label]'><a href=\"[dt_fmap $file]\">"]$label[tag/ a][tag/ td]\n
     append text [markup "<td class=\"#doctools_tocright\">"]${desc}[tag /td]\n
     append text [tag/ tr]\n
     return $text
