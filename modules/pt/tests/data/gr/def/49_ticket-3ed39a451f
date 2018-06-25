@@ -1,4 +1,5 @@
-PEG Tiny (CmdSeq) 
+PEG Tiny (Proc)
+        Proc            <- CmdSeq !. ;
  	CmdSeq 		<- Cmd SEMICOLON (Cmd SEMICOLON)*;
 	Cmd 		<- Skip ((IfCmd / RepeatCmd / AssignCmd / ReadCmd / WriteCmd)) Skip;
 	IfCmd 		<- 'if' Exp 'then' CmdSeq ('else' CmdSeq)? 'end';
