@@ -275,9 +275,7 @@ math::PCA \- Package for Principal Component Analysis
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.6?\fR
 .sp
-package require \fBmath::pca  ?1\&.0?\fR
-.sp
-package require \fBmath::linearalgebra  1\fR
+package require \fBmath::linearalgebra  1\&.0\fR
 .sp
 \fB::math::PCA::createPCA\fR \fIdata\fR ?args?
 .sp

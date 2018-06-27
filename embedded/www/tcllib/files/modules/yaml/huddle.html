@@ -154,12 +154,12 @@
 <li><a href="#26"><b class="cmd">huddle wrap</b> <i class="arg">tag</i> <i class="arg">src</i></a></li>
 <li><a href="#27"><b class="cmd">huddle call</b> <i class="arg">tag</i> <i class="arg">command</i> <i class="arg">args</i></a></li>
 <li><a href="#28"><b class="cmd">huddle addType</b> <i class="arg">callback</i></a></li>
-<li><a href="#29"><b class="cmd"><a href="../../../../index.html#key544">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#29"><b class="cmd"><a href="../../../../index.html#callback">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
 <li><a href="#30"><b class="cmd">setting</b></a></li>
 <li><a href="#31"><b class="cmd">get_sub</b> <i class="arg">src</i> <i class="arg">key</i></a></li>
 <li><a href="#32"><b class="cmd">strip</b> <i class="arg">src</i></a></li>
-<li><a href="#33"><b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
-<li><a href="#34"><b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
+<li><a href="#33"><b class="cmd"><a href="../../../../index.html#set">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
+<li><a href="#34"><b class="cmd"><a href="../../../../index.html#remove">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></li>
 </ul>
 </div>
 </div>
@@ -187,7 +187,7 @@ limitation:
   - cannot discribe aliases from a node to other node.
 </pre>
 <p>The <b class="package">huddle</b> package returns
-data as a Tcl <b class="cmd"><a href="../../../../index.html#key716">dict</a></b>.  Either the <b class="package"><a href="../../../../index.html#key716">dict</a></b> package or Tcl 8.5 is
+data as a Tcl <b class="cmd"><a href="../../../../index.html#dict">dict</a></b>.  Either the <b class="package"><a href="../../../../index.html#dict">dict</a></b> package or Tcl 8.5 is
 required for use.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
@@ -390,7 +390,7 @@ To see &quot;Additional Type&quot;.</p>
 <div id="section3" class="doctools_section"><h2><a name="section3">TYPE CALLBACK</a></h2>
 <p>The definition of callback for user-type.</p>
 <dl class="doctools_definitions">
-<dt><a name="29"><b class="cmd"><a href="../../../../index.html#key544">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dt><a name="29"><b class="cmd"><a href="../../../../index.html#callback">callback</a></b> <i class="arg">command</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
 <dd><dl class="doctools_options">
 <dt><b class="option">command</b></dt>
 <dd><p>huddle subcomand which is needed to reply by the callback.</p></dd>
@@ -418,9 +418,9 @@ To see &quot;Additional Type&quot;.</p>
 </dl></dd>
 <dt><a name="32"><b class="cmd">strip</b> <i class="arg">src</i></a></dt>
 <dd><p>returns stripped node contents. if the type has child nodes, every node must be stripped.</p></dd>
-<dt><a name="33"><b class="cmd"><a href="../../../../index.html#key301">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
+<dt><a name="33"><b class="cmd"><a href="../../../../index.html#set">set</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
 <dd><p>sets a sub-node from the tagged-content, and returns self.</p></dd>
-<dt><a name="34"><b class="cmd"><a href="../../../../index.html#key228">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
+<dt><a name="34"><b class="cmd"><a href="../../../../index.html#remove">remove</a></b> <i class="arg">src</i> <i class="arg">key</i> <i class="arg">value</i></a></dt>
 <dd><p>removes a sub-node from the tagged-content, and returns self.</p></dd>
 </dl>
 <p><b class="cmd">strip</b> must be defined at all types.
@@ -616,7 +616,7 @@ left-most button in the secondary navigation bar.</p>
 <p><a href="yaml.html">yaml</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key205">data exchange</a>, <a href="../../../../index.html#key204">exchange format</a>, <a href="../../../../index.html#key595">huddle</a>, <a href="../../../../index.html#key206">json</a>, <a href="../../../../index.html#key26">parsing</a>, <a href="../../../../index.html#key192">text processing</a>, <a href="../../../../index.html#key596">yaml</a></p>
+<p><a href="../../../../index.html#data_exchange">data exchange</a>, <a href="../../../../index.html#exchange_format">exchange format</a>, <a href="../../../../index.html#huddle">huddle</a>, <a href="../../../../index.html#json">json</a>, <a href="../../../../index.html#parsing">parsing</a>, <a href="../../../../index.html#text_processing">text processing</a>, <a href="../../../../index.html#yaml">yaml</a></p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2008-2011 KATO Kanryu &lt;kanryu6@users.sourceforge.net&gt;<br>

@@ -1555,4 +1555,6 @@ namespace eval ::math::geometry {
 	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
 }
 
-package provide math::geometry 1.2.3
+source [file join [file dirname [info script]] geometry_circle.tcl]
+
+package provide math::geometry 1.3.0

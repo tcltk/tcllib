@@ -41,6 +41,24 @@ if { [info commands lmap] eq {} } {
     }
 }
 
+#
+# Custom matching procedure:
+# Expect an accuracy of at least four decimals
+#
+proc matchNumbers {expected actual} {
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 1.0e-4} {
+            set match 0
+            break
+        }
+    }
+    return $match
+}
+
+customMatch numbers matchNumbers
+
+
 # -------------------------------------------------------------------------
 
 ###
@@ -648,6 +666,228 @@ test geometry-20.4 {geometry::areaPolygon, self-intersecting polygon} {
 test geometry-20.0 {geometry::areaPolygon} {
     math::geometry::areaPolygon {-10 -10 10 -10 10 10 -10 10}
 } 400.0
+
+
+##
+# circle procedures
+##
+
+# circle construction
+test circle-0.1 {construct circle} -body {
+    set circle [::math::geometry::circle {1.0 2.0} 3.0]
+} -result {1.0 2.0 3.0}
+
+test circle-0.2 {construct circle from two points} -body {
+    set circle [::math::geometry::circleTwoPoints {1.0 0.0} {-1.0 0.0}]
+} -result {0.0 0.0 1.0}
+
+test circle-0.3 {construct circle from two points (2)} -body {
+    set circle [::math::geometry::circleTwoPoints {0.0 1.0} {0.0 -1.0}]
+} -result {0.0 0.0 1.0}
+
+# points inside/outside circles
+test circle-1.0 {point in circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set point  [::math::geometry::p 0.0 0.0]
+
+    ::math::geometry::pointInsideCircle $point $circle
+} -result 1
+
+test circle-1.1 {point outside circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set point  [::math::geometry::p 5.0 0.0]
+
+    ::math::geometry::pointInsideCircle $point $circle
+} -result 0
+
+test circle-1.2 {point on circle edge} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set point  [::math::geometry::p -2.0 0.0]
+
+    ::math::geometry::pointInsideCircle $point $circle
+} -result 1
+
+# lines intersecting circles
+test circle-2.0 {line through circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {0.0 -10.0 0.0 10.0}
+
+    ::math::geometry::lineIntersectsCircle $line $circle
+} -result 1
+
+test circle-2.1 {line not through circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {10.0 -10.0 10.0 10.0}
+
+    ::math::geometry::lineIntersectsCircle $line $circle
+} -result 0
+
+test circle-2.2 {line on edge of circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {-2.0 -10.0 -2.0 10.0}
+
+    ::math::geometry::lineIntersectsCircle $line $circle
+} -result 1
+
+# line segment intersecting circle
+test circle-3.0 {line segment intersecting circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {0.0 -10.0 0.0 10.0}
+
+    ::math::geometry::lineSegmentIntersectsCircle $line $circle
+} -result 1
+
+test circle-3.1 {line segment outside circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {0.0 5.0 0.0 10.0}
+
+    ::math::geometry::lineSegmentIntersectsCircle $line $circle
+} -result 0
+
+test circle-3.2 {line segment completely inside circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {1.0 0.0 1.0 1.0}
+
+    ::math::geometry::lineSegmentIntersectsCircle $line $circle
+} -result 0
+
+test circle-3.3 {line segment touching circle} -body {
+    set circle [::math::geometry::circle {1.0 0.0} 3.0]
+    set line   {-2.0 0.0 -5.0 0.0}
+
+    ::math::geometry::lineIntersectsCircle $line $circle
+} -result 1
+
+#
+# Private procedures
+#
+
+test circlePrivate-1.1 {intersect vertical line with circle (two points)} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 5.0]
+    set line   {3.0 4.0 3.0 -4.0}
+
+    ::math::geometry::IntersectionVerticalLineCircle $line $circle
+} -result {{3.0 4.0} {3.0 -4.0}}
+
+test circlePrivate-1.2 {intersect vertical line with circle (two points, version 2)} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 5.0]
+    set line   {3.0 40.0 3.0 -40.0}
+
+    ::math::geometry::IntersectionVerticalLineCircle $line $circle
+} -result {{3.0 4.0} {3.0 -4.0}}
+
+test circlePrivate-1.2 {intersect vertical line with circle (one point)} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 5.0]
+    set line   {5.0 40.0 5.0 -40.0}
+
+    ::math::geometry::IntersectionVerticalLineCircle $line $circle
+} -result {5.0 0.0}
+
+test circlePrivate-1.2 {intersect vertical line with circle (no points)} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 5.0]
+    set line   {15.0 40.0 15.0 -40.0}
+
+    ::math::geometry::IntersectionVerticalLineCircle $line $circle
+} -result {}
+
+# Coordinates: sqrt(3)/2
+test circlePrivate-2.1 {intersect two circles (two points)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 1.0]
+    set circle2 [::math::geometry::circle {1.0 0.0} 1.0]
+
+    concat {*}[::math::geometry::IntersectionCircleCircle $circle1 $circle2]
+} -result {0.5 0.8660254 0.5 -0.8660254} -match numbers
+
+test circlePrivate-2.2 {intersect two circles (one point right)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 5.0]
+    set circle2 [::math::geometry::circle {10.0 0.0} 5.0]
+
+    ::math::geometry::IntersectionCircleCircle $circle1 $circle2
+} -result {5.0 0.0}
+
+test circlePrivate-2.3 {intersect two circles (one point left)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 5.0]
+    set circle2 [::math::geometry::circle {5.0 0.0} 10.0]
+
+    ::math::geometry::IntersectionCircleCircle $circle1 $circle2
+} -result {-5.0 0.0}
+
+test circlePrivate-2.4 {intersect two circles (no points)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 5.0]
+    set circle2 [::math::geometry::circle {15.0 0.0} 5.0]
+
+    ::math::geometry::IntersectionCircleCircle $circle1 $circle2
+} -result {}
+
+test circlePrivate-2.4 {intersect two concentric circles} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 5.0]
+    set circle2 [::math::geometry::circle {0.0 0.0} 7.0]
+
+    ::math::geometry::IntersectionCircleCircle $circle1 $circle2
+} -result {}
+
+#
+# Intersection procedures
+#
+test circleIntersect-1.1 {intersect a vertical line and a circle (two points)} -body {
+    set line   {0.0 0.0 0.0 5.0}
+    set circle [::math::geometry::circle {0.0 0.0} 7.0]
+
+    concat {*}[::math::geometry::intersectionLineWithCircle $line $circle]
+} -result {0.0 7.0  0.0 -7.0} -match numbers
+
+# Coordinates in answer: 7*sqrt(2)/2
+test circleIntersect-1.2 {intersect a diagonal line and a circle (two points)} -body {
+    set line   {-5.0 -5.0 5.0 5.0}
+    set circle [::math::geometry::circle {0.0 0.0} 7.0]
+
+    concat {*}[::math::geometry::intersectionLineWithCircle $line $circle]
+} -result {4.94975 4.94975  -4.94975 -4.94975} -match numbers
+
+test circleIntersect-1.3 {intersect a horizontal line and a circle (one point)} -body {
+    set line   {-5.0 5.0 5.0 5.0}
+    set circle [::math::geometry::circle {0.0 0.0} 5.0]
+
+    concat {*}[::math::geometry::intersectionLineWithCircle $line $circle]
+} -result {0.0 5.0} -match numbers
+
+
+test circleIntersect-2.1 {intersect two circles, arranged horizontally (two points)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 1.0]
+    set circle2 [::math::geometry::circle {1.0 0.0} 1.0]
+
+    concat {*}[::math::geometry::intersectionCircleWithCircle $circle1 $circle2]
+} -result {0.5 0.8660254 0.5 -0.8660254} -match numbers
+
+test circleIntersect-2.2 {intersect two circles, arranged vertically (two points)} -body {
+    set circle1 [::math::geometry::circle {0.0 0.0} 1.0]
+    set circle2 [::math::geometry::circle {0.0 1.0} 1.0]
+
+    concat {*}[::math::geometry::intersectionCircleWithCircle $circle1 $circle2]
+} -result {-0.8660254 0.5 0.8660254 0.5} -match numbers
+
+
+test circleTangent-1.1 {tangent lines to a circle} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 1.0]
+    set point  [::math::geometry::p 1.0 1.0]
+
+    concat {*}[::math::geometry::tangentLinesToCircle $point $circle]
+} -result {1.0 1.0 0.0 1.0  1.0 1.0 1.0 0.0} -match numbers
+
+test circleTangent-1.2 {tangent lines to a circle - point at circumference} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 1.0]
+    set point  [::math::geometry::p 0.0 1.0]
+
+    concat {*}[::math::geometry::tangentLinesToCircle $point $circle]
+} -result {0.0 1.0 1.0 1.0} -match numbers
+
+test circleTangent-1.3 {tangent lines to a circle - point inside the circle} -body {
+    set circle [::math::geometry::circle {0.0 0.0} 1.0]
+    set point  [::math::geometry::p 0.5 0.5]
+
+    concat {*}[::math::geometry::tangentLinesToCircle $point $circle]
+} -result {} -match numbers
+
 
 ###
 testsuiteCleanup

@@ -355,7 +355,6 @@ modules/textutil/trim.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
-modules/tool-ui/tool-ui.man
 modules/tool/meta.man
 modules/tool/tool.man
 modules/tool/tool_dict_ensemble.man
