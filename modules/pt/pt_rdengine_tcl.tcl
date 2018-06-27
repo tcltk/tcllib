@@ -538,7 +538,7 @@ snit::type ::pt::rde_tcl {
 	}
 	$mystackmark push [$mystackast size]
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -579,7 +579,7 @@ snit::type ::pt::rde_tcl {
 	}
 	$mystackast trim* $mark
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return
@@ -622,7 +622,7 @@ snit::type ::pt::rde_tcl {
 	}
 	$mystackast trim* [$mystackmark peek]
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 
 	debug.pt/rdengine {[InstReturn]}
 	return
