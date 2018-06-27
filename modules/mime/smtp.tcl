@@ -101,6 +101,8 @@ if {[catch {package require Trf  2.0}]} {
 #                          some reason. Return 'insecure' to continue with
 #                          normal SMTP or 'secure' to close the connection and
 #                          try another server.
+#             -tlsimport   after a succesfull socket command, import tls on
+#                          channel - used for native smtps negotiation
 #             -username    These are needed if your SMTP server requires
 #             -password    authentication.
 #
@@ -129,6 +131,7 @@ proc ::smtp::sendmessage {part args} {
     set ports [list 25]
     set tlsP 1
     set tlspolicy {}
+    set tlsimport 0
     set username {}
     set password {}
 
@@ -154,6 +157,7 @@ proc ::smtp::sendmessage {part args} {
             -queue      {set queueP [boolean $value]}
             -usetls     {set tlsP   [boolean $value]}
             -tlspolicy  {set tlspolicy $value}
+            -tlsimport  {set tlsimport [boolean $value]}
 	    -maxsecs    {set maxsecs [expr {$value < 0 ? 0 : $value}]}
             -header {
                 if {[llength $value] != 2} {
@@ -421,7 +425,7 @@ proc ::smtp::sendmessage {part args} {
 		                -maxsecs $maxsecs -usetls $tlsP \
                                 -multiple $bccP -queue $queueP \
                                 -servers $servers -ports $ports \
-                                -tlspolicy $tlspolicy \
+                                -tlspolicy $tlspolicy -tlsimport $tlsimport \
                                 -username $username -password $password]
 
     if {![string match "::smtp::*" $token]} {
@@ -595,6 +599,8 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #                          the request (one port per server-- defaults to 25).
 #             -usetls      A boolean to indicate we will use TLS if possible.
 #             -tlspolicy   Command called if TLS setup fails.
+#             -tlsimport   after a succesfull socket command, import tls on
+#                          channel - used for native smtps negotiation
 #             -username    These provide the authentication information 
 #             -password    to be used if needed by the SMTP server.
 #
@@ -616,6 +622,7 @@ proc ::smtp::initialize {args} {
     array set options [list -debug 0 -client localhost -multiple 1 \
                             -maxsecs 120 -queue 0 -servers localhost \
                             -ports 25 -usetls 1 -tlspolicy {} \
+                            -tlsimport 0 \
                             -username {} -password {}]
     array set options $args
     set state(options) [array get options]
@@ -623,14 +630,12 @@ proc ::smtp::initialize {args} {
     # Iterate through servers until one accepts a connection (and responds
     # nicely).
    
-    set index 0 
-    foreach server $options(-servers) {
+    foreach server $options(-servers) port $options(-ports) {
+        if {$server == ""} continue
+
 	set state(readable) 0
-        if {[llength $options(-ports)] >= $index} {
-            set port [lindex $options(-ports) $index]
-        } else {
-            set port 25
-        }
+        if {$port == ""} { set port 25 }
+        
         if {$options(-debug)} {
             puts stderr "Trying $server..."
             flush stderr
@@ -642,6 +647,10 @@ proc ::smtp::initialize {args} {
 
         if {[set code [catch {
             set state(sd) [socket -async $server $port]
+            if { $options(-tlsimport) } {
+                package require tls
+                tls::import $state(sd)
+            }
             fconfigure $state(sd) -blocking off -translation binary
             fileevent $state(sd) readable [list ::smtp::readable $token]
         } result]]} {
@@ -674,7 +683,6 @@ proc ::smtp::initialize {args} {
         if {$r != {}} {
             return $r
         }
-        incr index
     }
 
     # None of the servers accepted our connection, so close everything up and
@@ -685,6 +693,8 @@ proc ::smtp::initialize {args} {
 }
 
 # If we cannot load the tls package, ignore the error
+# Result value is a Tcl return code, not a bool.
+# 0 == OK
 proc ::smtp::load_tls {} {
     set r [catch {package require tls}]
     if {$r} {set ::errorInfo ""}
@@ -744,7 +754,7 @@ proc ::smtp::initialize_ehlo {token} {
         if {($options(-usetls)) && ![info exists state(tls)] \
                 && (([lsearch $response(args) STARTTLS] >= 0)
                     || ([lsearch $response(args) TLS] >= 0))} {
-            if {![load_tls]} {
+            if {[load_tls] == 0} {
                 set state(tls) 0
                 if {![catch {smtp::talk $token 300 STARTTLS} resp]} {
                     array set starttls $resp
@@ -760,8 +770,8 @@ proc ::smtp::initialize_ehlo {token} {
                         return [initialize_ehlo $token]
                     } else {
                         # Call a TLS client policy proc here
-                        #  returns secure close and try another server.
-                        #  returns insecure continue on current socket
+                        #  returns secure   - close and try another server.
+                        #  returns insecure - continue on current socket
                         set policy insecure
                         if {$options(-tlspolicy) != {}} {
                             catch {
@@ -1500,7 +1510,7 @@ proc ::smtp::boolean {value} {
 
 # -------------------------------------------------------------------------
 
-package provide smtp 1.4.5
+package provide smtp 1.5
 
 # -------------------------------------------------------------------------
 # Local variables:

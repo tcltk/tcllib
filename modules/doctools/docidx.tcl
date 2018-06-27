@@ -2,7 +2,7 @@
 #
 #	Implementation of docidx objects for Tcl.
 #
-# Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -959,4 +959,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 1.0.7
+package provide doctools::idx 1.0.8

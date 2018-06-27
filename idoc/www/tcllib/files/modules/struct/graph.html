@@ -209,14 +209,14 @@ elements, called <i class="term">nodes</i> and <i class="term">arcs</i> respecti
 with a relation (&quot;connectivity&quot;) that places a general structure upon
 the nodes and arcs.</p>
 <p>Each arc is connected to two nodes, one of which is called the
-<i class="term"><a href="../../../../index.html#key437">source</a></i> and the other the <i class="term">target</i>. This imposes a
+<i class="term"><a href="../../../../index.html#source">source</a></i> and the other the <i class="term">target</i>. This imposes a
 direction upon the arc, which is said to go from the source to the
 target. It is allowed that source and target of an arc are the same
-node. Such an arc is called a <i class="term"><a href="../../../../index.html#key458">loop</a></i>.
+node. Such an arc is called a <i class="term"><a href="../../../../index.html#loop">loop</a></i>.
 Whenever a node is either the source or target of an arc both are said
-to be <i class="term"><a href="../../../../index.html#key486">adjacent</a></i>. This extends into a relation between nodes,
+to be <i class="term"><a href="../../../../index.html#adjacent">adjacent</a></i>. This extends into a relation between nodes,
 i.e. if two nodes are connected through at least one arc they are said
-to be <i class="term"><a href="../../../../index.html#key486">adjacent</a></i> too.</p>
+to be <i class="term"><a href="../../../../index.html#adjacent">adjacent</a></i> too.</p>
 <p>Each node can be the source and target for any number of arcs. The
 former are called the <i class="term">outgoing arcs</i> of the node, the latter
 the <i class="term">incoming arcs</i> of the node. The number of arcs in either
@@ -225,7 +225,7 @@ node.</p>
 <p>In addition to maintaining the node and arc relationships, this graph
 implementation allows any number of named <i class="term">attributes</i> to be
 associated with the graph itself, and each node or arc.</p>
-<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#key327">struct</a></b> has
+<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#struct">struct</a></b> has
 been changed to version 2.0, due to backward incompatible changes in
 the API of this module. Please read the section
 <span class="sectref"><a href="#section2">Changes for 2.0</a></span> for a full list of all changes,
@@ -660,7 +660,7 @@ consistency requirement for the serialization.</p></li>
 non-presence means that the arc in question has no weight associated
 with it.</p>
 <p><em>Note:</em> This information is new, compared to the
-serialization of <b class="package"><a href="../../../../index.html#key305">graph</a></b> 2.3 and earlier. By making it an
+serialization of <b class="package"><a href="../../../../index.html#graph">graph</a></b> 2.3 and earlier. By making it an
 optional element the new format is maximally compatible with the
 old. This means that any graph not using weights will generate a
 serialization which is still understood by the older graph package. A
@@ -783,7 +783,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key486">adjacent</a>, <a href="../../../../index.html#key474">arc</a>, <a href="../../../../index.html#key623">cgraph</a>, <a href="../../../../index.html#key476">degree</a>, <a href="../../../../index.html#key461">edge</a>, <a href="../../../../index.html#key305">graph</a>, <a href="../../../../index.html#key458">loop</a>, <a href="../../../../index.html#key490">neighbour</a>, <a href="../../../../index.html#key464">node</a>, <a href="../../../../index.html#key109">serialization</a>, <a href="../../../../index.html#key481">subgraph</a>, <a href="../../../../index.html#key465">vertex</a></p>
+<p><a href="../../../../index.html#adjacent">adjacent</a>, <a href="../../../../index.html#arc">arc</a>, <a href="../../../../index.html#cgraph">cgraph</a>, <a href="../../../../index.html#degree">degree</a>, <a href="../../../../index.html#edge">edge</a>, <a href="../../../../index.html#graph">graph</a>, <a href="../../../../index.html#loop">loop</a>, <a href="../../../../index.html#neighbour">neighbour</a>, <a href="../../../../index.html#node">node</a>, <a href="../../../../index.html#serialization">serialization</a>, <a href="../../../../index.html#subgraph">subgraph</a>, <a href="../../../../index.html#vertex">vertex</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>

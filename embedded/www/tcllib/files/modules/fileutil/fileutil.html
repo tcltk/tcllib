@@ -201,7 +201,7 @@ all if all the tests pass.</p>
 <dd><p><b class="cmd">file isdirectory</b></p></dd>
 </dl></dd>
 <dt><a name="4"><b class="cmd">::fileutil::cat</b> (<span class="opt">?<i class="arg">options</i>?</span> <i class="arg">file</i>)...</a></dt>
-<dd><p>A tcl implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#key314">cat</a></b> command.  Returns the
+<dd><p>A tcl implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#cat">cat</a></b> command.  Returns the
 contents of the specified file(s). The arguments are files to read,
 with interspersed options configuring the process. If there are
 problems reading any of the files, an error will occur, and no data
@@ -267,7 +267,7 @@ file.</p>
 <p>If the executed command throws an error the <i class="arg">file</i> is not changed.</p>
 <p>The command accepts the same options as <b class="cmd">::fileutil::cat</b>.</p></dd>
 <dt><a name="11"><b class="cmd">::fileutil::fileType</b> <i class="arg">filename</i></a></dt>
-<dd><p>An implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#key31">file</a></b> command, which uses
+<dd><p>An implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#file">file</a></b> command, which uses
 various heuristics to guess the type of a file.  Returns a list
 specifying as much type information as can be determined about the
 file, from most general (eg, &quot;binary&quot; or &quot;text&quot;) to most specific (eg,
@@ -282,7 +282,7 @@ zip, compressed tar, audio wave, audio mpeg, and link. It further
 detects doctools, doctoc, and docidx documentation files, and
 tklib diagrams.</p></dd>
 <dt><a name="12"><b class="cmd">::fileutil::find</b> <span class="opt">?<i class="arg">basedir</i> <span class="opt">?<i class="arg">filtercmd</i>?</span>?</span></a></dt>
-<dd><p>An implementation of the unix command <b class="syscmd"><a href="../../../../index.html#key634">find</a></b>. Adapted from the
+<dd><p>An implementation of the unix command <b class="syscmd"><a href="../../../../index.html#find">find</a></b>. Adapted from the
 Tcler's Wiki. Takes at most two arguments, the path to the directory
 to start searching from and a command to use to evaluate interest in
 each file. The path defaults to &quot;<b class="file">.</b>&quot;, i.e. the current
@@ -327,7 +327,7 @@ line. The return value of this command is the result of the last
 invocation of the script <i class="arg">cmd</i> or the empty string if the file was
 empty.</p></dd>
 <dt><a name="15"><b class="cmd">::fileutil::grep</b> <i class="arg">pattern</i> <span class="opt">?<i class="arg">files</i>?</span></a></dt>
-<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key316">grep</a></b>. Adapted from the Tcler's Wiki. The
+<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#grep">grep</a></b>. Adapted from the Tcler's Wiki. The
 first argument defines the <i class="arg">pattern</i> to search for. This is
 followed by a list of <i class="arg">files</i> to search through. The list is
 optional and <b class="const">stdin</b> will be used if it is missing. The result
@@ -378,7 +378,7 @@ it. Before adding the <i class="arg">jail</i> prefix the <i class="arg">path</i>
 normalized to prevent the caller from using <b class="const">..</b> segments in
 <i class="arg">path</i> to escape the jail.</p></dd>
 <dt><a name="21"><b class="cmd">::fileutil::touch</b> <span class="opt">?<b class="option">-a</b>?</span> <span class="opt">?<b class="option">-c</b>?</span> <span class="opt">?<b class="option">-m</b>?</span> <span class="opt">?<b class="option">-r</b> <i class="arg">ref_file</i>?</span> <span class="opt">?<b class="option">-t</b> <i class="arg">time</i>?</span> <i class="arg">filename</i> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
-<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key317">touch</a></b>. Alter the atime and mtime of the
+<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#touch">touch</a></b>. Alter the atime and mtime of the
 specified files. If <b class="option">-c</b>, do not create files if they do not
 already exist. If <b class="option">-r</b>, use the atime and mtime from
 <i class="arg">ref_file</i>. If <b class="option">-t</b>, use the integer clock value
@@ -529,7 +529,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key314">cat</a>, <a href="../../../../index.html#key115">file utilities</a>, <a href="../../../../index.html#key316">grep</a>, <a href="../../../../index.html#key315">temp file</a>, <a href="../../../../index.html#key313">test</a>, <a href="../../../../index.html#key317">touch</a>, <a href="../../../../index.html#key117">type</a></p>
+<p><a href="../../../../index.html#cat">cat</a>, <a href="../../../../index.html#file_utilities">file utilities</a>, <a href="../../../../index.html#grep">grep</a>, <a href="../../../../index.html#temp_file">temp file</a>, <a href="../../../../index.html#test">test</a>, <a href="../../../../index.html#touch">touch</a>, <a href="../../../../index.html#type">type</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

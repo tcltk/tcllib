@@ -2,12 +2,10 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: doctoc.tcl,v 1.22 2010/06/08 19:13:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -965,4 +963,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.6
+package provide doctools::toc 1.1.7
