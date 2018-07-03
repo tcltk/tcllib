@@ -193,7 +193,7 @@ proc ::pt::peg::op::minimize {container} {
     drop unrealizable $container
     drop unreachable  $container
     flatten           $container
-    optmodes          $container
+    modeopt           $container
     dechain           $container
     return
 }
