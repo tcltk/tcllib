@@ -1,0 +1,64 @@
+# -*- tcl -*-
+# Testsuite for pt::peg::op.
+
+test pt-peg-op-set:${setimpl}-1.0 {op minimize, wrong#args} -body {
+    pt::peg::op::minimize 
+} -returnCodes error -result {wrong # args: should be "pt::peg::op::minimize container"}
+
+# -------------------------------------------------------------------------
+# minimize
+
+set n 0
+foreach {inStart inRulesSet outStart outRulesSet} {
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    epsilon {}
+    {n S}
+    {
+     	S {is {n A} mode leaf}
+     	A {is {t a} mode void}
+    }
+    {n S} {
+	S {is {n A} mode leaf}
+     	A {is {t a} mode void}
+    }
+} {
+    test pt-pe-op-set:${setimpl}-2.$n {op minimize, expected} -setup {
+	pt::peg::container ::In deserialize \
+	    [list pt::grammar::peg [list rules $inRulesSet start $inStart]]
+	pt::peg::container ::Expected deserialize \
+	    [list pt::grammar::peg [list rules $outRulesSet start $outStart]]
+    } -body {
+	pt::peg::op::minimize ::In
+	# puts stderr [::In serialize]
+	# puts stderr [::Expected serialize]
+	pt::peg equal [::In serialize] [::Expected serialize]
+    } -result 1 -cleanup {
+	::In destroy
+	::Expected destroy
+    }
+    incr n
+}
+
+
+
+
+if {0} {
+    set n 0
+    foreach {in expected} {
+	{* {x {x {n A}}}}                    {* {n A}}
+	{* {/ {/ {n A}}}}                    {* {n A}}
+	{x {t a} {x {t b} dot {t y}} {t z}}  {x {t a} {t b} dot {t y} {t z}}
+	{/ {t a} {/ {t b} dot {t y}} {t z}}  {/ {t a} {t b} dot {t y} {t z}}
+	{x {t a} {t b}}                      {x {t a} {t b}}
+	{/ {t a} {t b}}                      {/ {t a} {t b}}
+    } {
+	test pt-pe-op-set:${setimpl}-7.$n {op flatten} -body {
+	    pt::pe::op flatten $data
+	} -result $expected
+	incr n
+    }
+}
+
