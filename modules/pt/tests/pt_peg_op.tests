@@ -41,24 +41,3 @@ foreach {inStart inRulesSet outStart outRulesSet} {
     }
     incr n
 }
-
-
-
-
-if {0} {
-    set n 0
-    foreach {in expected} {
-	{* {x {x {n A}}}}                    {* {n A}}
-	{* {/ {/ {n A}}}}                    {* {n A}}
-	{x {t a} {x {t b} dot {t y}} {t z}}  {x {t a} {t b} dot {t y} {t z}}
-	{/ {t a} {/ {t b} dot {t y}} {t z}}  {/ {t a} {t b} dot {t y} {t z}}
-	{x {t a} {t b}}                      {x {t a} {t b}}
-	{/ {t a} {t b}}                      {/ {t a} {t b}}
-    } {
-	test pt-pe-op-set:${setimpl}-7.$n {op flatten} -body {
-	    pt::pe::op flatten $data
-	} -result $expected
-	incr n
-    }
-}
-
