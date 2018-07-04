@@ -1,20 +1,139 @@
 # -*- tcl -*-
 # Testsuite for pt::peg::op.
 
-test pt-peg-op-set:${setimpl}-1.0 {op minimize, wrong#args} -body {
-    pt::peg::op::minimize 
-} -returnCodes error -result {wrong # args: should be "pt::peg::op::minimize container"}
+test pt-peg-op-set:${setimpl}-0.0 {op 'flatten', wrong#args} -body {
+    pt::peg::op flatten
+} -returnCodes error -result {wrong # args: should be "pt::peg::op flatten container"}
+
+test pt-peg-op-set:${setimpl}-0.1 {op 'drop unrealizable', wrong#args} -body {
+    pt::peg::op drop unrealizable
+} -returnCodes error -result {wrong # args: should be "pt::peg::op drop unrealizable container"}
+
+
+test pt-peg-op-set:${setimpl}-0.2 {op 'minimize', wrong#args} -body {
+    pt::peg::op minimize 
+} -returnCodes error -result {wrong # args: should be "pt::peg::op minimize container"}
+
+
+proc sl {v} {
+    regsub -all -line {^\s*#.*$} $v {}
+}
+
+proc TestTransformation {op data setImpl} {
+    set debug 0
+    append bodyScript [list {*}::pt::peg::op::$op ::In] \;
+    if {$debug} {
+	append bodyScript "puts stderr \[::In serialize\]" \;
+	append bodyScript "puts stderr \[::Expected serialize\]" \;
+    }
+    append bodyScript "pt::peg equal \[::In serialize\] \[::Expected serialize\]" \;
+    set n 1
+    foreach {inStart inRulesSet outStart outRulesSet} [sl $data] {
+	set testLabel "pt-peg-op-set:${setImpl}-[join $op -].$n"
+	if {$debug} {
+	    puts stderr >>>>$testLabel<<<<
+	}
+	test $testLabel "OP '$op' vs. expected" -setup {
+	    pt::peg::container ::In deserialize \
+		[list pt::grammar::peg [list rules $inRulesSet start $inStart]]
+	    pt::peg::container ::Expected deserialize \
+		[list pt::grammar::peg [list rules $outRulesSet start $outStart]]
+	} -body $bodyScript -result 1 -cleanup {
+	    ::In destroy
+	    ::Expected destroy
+	}
+	incr n
+    }
+}
+
+# -------------------------------------------------------------------------
+# flatten
+
+TestTransformation flatten {
+    # --- stays as-is #1
+    epsilon {}
+    epsilon {}
+    # --- stays as-is #2
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t a} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t a} mode value}
+    }
+    # --- flatten start expr and rules: sequence
+    {x {n S}} {
+	S {is {x {n A}} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+} $setimpl
+
+# -------------------------------------------------------------------------
+# drop realizable
+
+TestTransformation "drop unrealizable" {
+    # (1) stays as-is
+    epsilon {}
+    epsilon {}
+    # (2) S <-- X; X <-- X; => epsilon
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n X} mode value}
+    }
+    epsilon {}
+    # (3) S <-- X?; X <-- X; => S <-- epsilon
+    {n S} {
+	S {is {? {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is epsilon mode value}
+    }
+    # (4) S <-- X*; X <-- X; => S <-- epsilon
+    {n S} {
+	S {is {* {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is epsilon mode value}
+    }
+    # (5) S <-- X 'y'; X <-- X; => epsilon
+    {n S} {
+	S {is {x {n X} {t y}} mode value}
+	X {is {n X} mode value}
+    }
+    epsilon {}
+    # (6) S <-- X / 'y'; X <-- X; => S <-- 'y' (unflattened!)
+    {n S} {
+	S {is {/ {n X} {t y}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is {/ {t y}} mode value}
+    }
+} $setimpl
+
+
 
 # -------------------------------------------------------------------------
 # minimize
 
-set n 0
-foreach {inStart inRulesSet outStart outRulesSet} {
+TestTransformation minimize {
+    # --- stays as-is
+    epsilon {}
+    epsilon {}
+    # --- minimize away
     {n S} {
 	S {is {n A} mode value}
 	A {is {n A} mode value}
     }
     epsilon {}
+    # --- already minimal
     {n S}
     {
      	S {is {n A} mode leaf}
@@ -24,20 +143,14 @@ foreach {inStart inRulesSet outStart outRulesSet} {
 	S {is {n A} mode leaf}
      	A {is {t a} mode void}
     }
-} {
-    test pt-pe-op-set:${setimpl}-2.$n {op minimize, expected} -setup {
-	pt::peg::container ::In deserialize \
-	    [list pt::grammar::peg [list rules $inRulesSet start $inStart]]
-	pt::peg::container ::Expected deserialize \
-	    [list pt::grammar::peg [list rules $outRulesSet start $outStart]]
-    } -body {
-	pt::peg::op::minimize ::In
-	# puts stderr [::In serialize]
-	# puts stderr [::Expected serialize]
-	pt::peg equal [::In serialize] [::Expected serialize]
-    } -result 1 -cleanup {
-	::In destroy
-	::Expected destroy
+    # --- realizable *before* reachable
+    {n S}
+    {
+     	S {is {/ {x {n A} {n B}} {t a}} mode value}
+     	A {is {x {t a} {n A}} mode value}
+	B {is {t a} mode leaf}
     }
-    incr n
-}
+    {n S} {
+	S {is {t a} mode leaf}
+    }
+} $setimpl
