@@ -65,30 +65,26 @@ proc ::pt::pe::op::Drop {dropset pe op arguments} {
     if {$op eq "n"} {
 	lassign $arguments symbol
 	if {[struct::set contains $dropset $symbol]} {
-	    return @@
-	} else {
-	    return $pe
+	    set pe @@
 	}
-    }
-
-    switch -exact -- $op {
-	/ - x - * - + - ? - & - ! {
-	    set newarg {}
-	    foreach a $arguments {
-		if {$a eq "@@"} continue
-		lappend newarg $a
-	    }
-
-	    if {![llength $newarg]} {
-		# Nothing remained, drop the whole expression
-		return [pt::pe epsilon]
-	    } elseif {[llength $newarg] < [llength $argument]} {
-		# Some removed, construct a new expression
+    } elseif {$op in {/ x * + ? & !}} {
+	set newarg {}
+	foreach a $arguments {
+	    if {$a eq "@@"} continue
+	    lappend newarg $a
+	}
+	if {![llength $newarg]} {
+	    # Nothing remained, drop the whole expression
+	    set pe [pt::pe epsilon]
+	} elseif {[llength $newarg] < [llength $arguments]} {
+	    # Some removed, construct a new expression
+	    if {$op eq "/"} {
 		set pe [list $op {*}$newarg]
-	    } ; # None removed, no change.
-	}
+	    } else {
+		set pe @@
+	    }
+	} ; # None removed, no change.
     }
-
     return $pe
 }
 
