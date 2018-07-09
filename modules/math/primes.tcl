@@ -158,6 +158,10 @@ proc ::math::numtheory::primeFactors {number} {
 
     while { $number > 1 } {
         set p [lindex $primes $idx]
+        if {$p == {}} {
+            lappend factors $number
+            break
+        }
         if { $number % $p == 0 } {
             lappend factors $p
             set number [expr {$number/$p}]
