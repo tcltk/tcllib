@@ -1,12 +1,37 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.8
-set module [file tail $moddir]
+set version 0.1
+set module clay
 
 set fout [open [file join $moddir ${module}.tcl] w]
 dict set map %module% $module
 dict set map %version% $version
+
+puts $fout [string map $map {
+###
+# clay.tcl
+#
+# Copyright (c) 2015-2018 Sean Woods
+# Copyright (c) 2015 Donald K Fellows
+#
+# BSD License
+###
+# @@ Meta Begin
+# Package %module% %version%
+# Meta platform     tcl
+# Meta summary      A utility for defining a domain specific language for TclOO systems
+# Meta description  This package allows developers to generate
+# Meta description  domain specific languages to describe TclOO
+# Meta description  classes and objects.
+# Meta category     TclOO
+# Meta subject      metaclasses
+# Meta require      {Tcl 8.6}
+# Meta author       Sean Woods
+# Meta author       Donald K. Fellows
+# Meta license      BSD
+# @@ Meta End
+}]
 
 puts $fout [string map $map {###
 # Amalgamated package for %module%
@@ -16,24 +41,19 @@ puts $fout [string map $map {###
 package provide %module% %version%
 namespace eval ::%module% {}
 }]
-if {$module ne "tool"} {
-  puts $fout [string map $map {::tool::module push %module%}]
-}
+
 
 # Track what files we have included so far
 set loaded {}
-lappend loaded build.tcl
+lappend loaded build.tcl test.tcl
 
 # These files must be loaded in a particular order
 foreach file {
   core.tcl
-  uuid.tcl
-  ensemble.tcl
+  procs.tcl
   metaclass.tcl
-  object.tcl
-  option.tcl
-  event.tcl
-  pipeline.tcl
+  ensemble.tcl
+  class.tcl
 } {
   lappend loaded $file
   set fin [open [file join $srcdir $file] r]
@@ -76,6 +96,19 @@ puts $fout [string map $map {# Tcl package index file, version 1.1
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+}]
+puts $fout [string map $map {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
+
 close $fout
+
+###
+# Generate the test script
+###
+source [file join $srcdir procs.tcl]
+set fout [open [file join $moddir $module.test] w]
+puts $fout [source [file join $srcdir test.tcl]]
+close $fout
+
+

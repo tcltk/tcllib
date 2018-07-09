@@ -3,8 +3,7 @@ package require dicttool
 package require TclOO
 package require sha1
 #package require cron 2.0
-package require oo::meta 0.5.1
-package require oo::dialect
+package require clay
 
 ::oo::dialect::create ::tool
 ::namespace eval ::tool {}

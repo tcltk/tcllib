@@ -5,26 +5,33 @@
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
 
-::tool::define ::httpd::server {
+::clay::define ::httpd::server {
   superclass ::httpd::mime
 
-  option port  {default: auto}
-  option myaddr {default: 127.0.0.1}
-  option server_string [list default: [list TclHttpd $::httpd::version]]
-  option server_name [list default: [list [info hostname]]]
-  option doc_root {default {}}
-  option reverse_dns {type boolean default 0}
-  option configuration_file {type filename default {}}
+  clay set server/ port auto
+  clay set server/ myaddr 127.0.0.1
+  clay set server/ string [list TclHttpd $::httpd::version]
+  clay set server/ name [info hostname]
+  clay set server/ doc_root {}
+  clay set server/ reverse_dns 0
+  clay set server/ configuration_file {}
 
-  property socket buffersize   32768
-  property socket translation  {auto crlf}
-  property reply_class ::httpd::reply
+  clay set socket/ buffersize   32768
+  clay set socket/ translation  {auto crlf}
+  clay set reply_class ::httpd::reply
 
-  array template
-  variable url_patterns {}
+  Array template
+  Dict url_patterns {}
 
   constructor {args} {
-    my configure {*}$args
+    if {[llength $args]==1} {
+      set arglist [lindex $args 0]
+    } else {
+      set arglist $args
+    }
+    foreach {var val} $arglist {
+      my clay set server/ $var $val
+    }
     my start
   }
 
@@ -67,7 +74,7 @@ namespace eval ::httpd::coro {}
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query DOCUMENT_ROOT   [my cget doc_root]
+      dict set query DOCUMENT_ROOT   [my clay get server/ doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
       dict set query SERVER_PORT     [my port_listening]
@@ -95,35 +102,32 @@ namespace eval ::httpd::coro {}
       catch {chan close $sock}
       return
     }
-    if {[llength $reply]==0} {
+    if {[dict size $reply]==0} {
       my log BadLocation $uuid $query
       my log BadLocation $uuid $query
       dict set query HTTP_STATUS 404
       dict set query template notfound
-      dict set query mixinmap reply ::httpd::content.template
+      dict set query mixin reply ::httpd::content.template
     }
     try {
       if {[dict exists $reply class]} {
         set class [dict get $reply class]
       } else {
-        set class [my cget reply_class]
+        set class [my clay get reply_class]
       }
       set pageobj [$class create ::httpd::object::$uuid [self]]
-      if {[dict exists $reply mixinmap]} {
-        set mixinmap [dict get $reply mixinmap]
+      if {[dict exists $reply mixin]} {
+        set mixinmap [dict get $reply mixin]
       } else {
         set mixinmap {}
-      }
-      if {[dict exists $reply mixin]} {
-        dict set mixinmap reply [dict get $reply mixin]
       }
       foreach item [dict keys $reply MIXIN_*] {
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixinmap {*}$mixinmap
-      if {[dict exists $reply organ]} {
-        $pageobj graft {*}[dict get $reply organ]
+      $pageobj mixin {*}$mixinmap
+      if {[dict exists $reply delegate]} {
+        $pageobj delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -179,7 +183,7 @@ namespace eval ::httpd::coro {}
       ###
       dict set reply prefix {}
       dict set reply path $doc_root
-      dict set reply mixinmap reply httpd::content.file
+      dict set reply mixin reply httpd::content.file
       return $reply
     }
     return {}
@@ -188,7 +192,7 @@ namespace eval ::httpd::coro {}
   method Headers_Process varname {}
 
   method HostName ipaddr {
-    if {![my cget reverse_dns]} {
+    if {![my clay get server/ reverse_dns]} {
       return $ipaddr
     }
     set t [::dns::resolve $ipaddr]
@@ -208,20 +212,21 @@ namespace eval ::httpd::coro {}
     if {[info command $class] eq {}} {
       error "Class $class for plugin $slot does not exist"
     }
-    my mixinmap $slot $class
+    my mixin $slot $class
     my variable mixinmap
 
     ###
     # Perform action on load
     ###
-    eval [$class meta getnull plugin load:]
+    set script [$class clay search plugin/ load]
+    eval $script
 
     ###
     # rebuild the dispatch method
     ###
     set body "\n try \{"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin dispatch:]
+      set script [$class clay search plugin/ dispatch]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -238,7 +243,7 @@ namespace eval ::httpd::coro {}
     set body "\n try \{"
     append body \n "  upvar 1 \$varname query"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin headers:]
+      set script [$class clay search plugin/ headers]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -254,7 +259,7 @@ namespace eval ::httpd::coro {}
     ###
     set body "\n try \{"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin thread:]
+      set script [$class clay search plugin/ thread]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -264,7 +269,6 @@ namespace eval ::httpd::coro {}
     append body \n {  puts [list THREAD START ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
     oo::objdefine [self] method Thread_start {} $body
-
   }
 
   method port_listening {} {
@@ -288,16 +292,16 @@ namespace eval ::httpd::coro {}
     namespace eval [namespace current]::reply {}
 
     my variable socklist port_listening
-    if {[my cget configuration_file] ne {}} {
-      source [my cget configuration_file]
+    if {[my clay get server/ configuration_file] ne {}} {
+      source [my clay get server/ configuration_file]
     }
-    set port [my cget port]
+    set port [my clay get server/ port]
     if { $port in {auto {}} } {
       package require nettool
       set port [::nettool::allocate_port 8015]
     }
     set port_listening $port
-    set myaddr [my cget myaddr]
+    set myaddr [my clay get server/ myaddr]
     my debug [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
@@ -322,6 +326,12 @@ namespace eval ::httpd::coro {}
     ::cron::cancel [self]
   }
 
+  Ensemble SubObject::db {} {
+    return [namespace current]::Sqlite_db
+  }
+  Ensemble SubObject::default {} {
+    return [namespace current]::$method
+  }
 
   method template page {
     my variable template
@@ -333,7 +343,7 @@ namespace eval ::httpd::coro {}
   }
 
   method TemplateSearch page {
-    set doc_root [my cget doc_root]
+    set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
       return [::fileutil::cat [file join $doc_root $page.tml]]
     }
@@ -344,7 +354,7 @@ namespace eval ::httpd::coro {}
       redirect {
 return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my http_info get REQUEST_URI]</b> has moved.
+The page you are looking for: <b>[my clay get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -354,7 +364,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html header "$HTTP_STATUS"]
-Error serving <b>[my http_info get REQUEST_URI]</b>:
+Error serving <b>[my clay get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -366,7 +376,7 @@ $errorInfo
       notfound {
         return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exist.
+The page you are looking for: <b>[my clay get REQUEST_URI]</b> does not exist.
 [my html footer]
         }
       }
@@ -392,6 +402,6 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # Provide a backward compadible alias
 ###
-::tool::define ::httpd::server::dispatch {
+::clay::define ::httpd::server::dispatch {
     superclass ::httpd::server
 }

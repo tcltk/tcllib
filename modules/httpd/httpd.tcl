@@ -27,7 +27,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require tool
+package require clay
 package require mime
 package require fileutil
 package require websocket
@@ -41,7 +41,7 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-tool::define ::httpd::mime {
+clay::define ::httpd::mime {
 
 
   method html_header {{title {}} args} {
@@ -273,18 +273,19 @@ Connection close}
 ###
 # Define the reply class
 ###
-::tool::define ::httpd::reply {
+::clay::define ::httpd::reply {
   superclass ::httpd::mime
 
   variable transfer_complete 0
+  clay set CONTENT_LENGTH 0
 
   constructor {ServerObj args} {
     my variable chan dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
-    oo::objdefine [self] forward <server> $ServerObj
-    foreach {field value} [::oo::meta::args_to_options {*}$args] {
-      my meta set config $field: $value
+    my delegate <server> $ServerObj
+    foreach {field value} [::clay::args_to_options {*}$args] {
+      my clay set config $field: $value
     }
   }
 
@@ -308,19 +309,19 @@ Connection close}
 
   method Log_Dispatched {} {
     my log Dispatched [dict create \
-     REMOTE_ADDR [my http_info get REMOTE_ADDR] \
-     REMOTE_HOST [my http_info get REMOTE_HOST] \
-     COOKIE [my request get COOKIE] \
-     REFERER [my request get REFERER] \
-     USER_AGENT [my request get USER_AGENT] \
-     REQUEST_URI [my http_info get REQUEST_URI] \
-     HTTP_HOST [my http_info getnull HTTP_HOST] \
-     SESSION [my http_info getnull SESSION] \
+     REMOTE_ADDR [my clay get REMOTE_ADDR] \
+     REMOTE_HOST [my clay get REMOTE_HOST] \
+     COOKIE [my request getnull COOKIE] \
+     REFERER [my request getnull REFERER] \
+     USER_AGENT [my request getnull USER_AGENT] \
+     REQUEST_URI [my clay get REQUEST_URI] \
+     HTTP_HOST [my clay get HTTP_HOST] \
+     SESSION [my clay get SESSION] \
     ]
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
+    my clay replace $datastate
     my request replace  [dict getnull $datastate http]
     my Log_Dispatched
     my variable chan
@@ -377,23 +378,10 @@ body {
     append result {</div></BODY></HTML>}
   }
 
-  dictobj http_info http_info {
-    initialize {
-      CONTENT_LENGTH 0
-    }
-    netstring {
-      set result {}
-      foreach {name value} $%VARNAME% {
-        append result $name \x00 $value \x00
-      }
-      return "[string length $result]:$result,"
-    }
-  }
-
   method error {code {msg {}} {errorInfo {}}} {
-    my http_info set HTTP_ERROR $code
+    my clay set  HTTP_ERROR $code
     my reset
-    set qheaders [my http_info dump]
+    set qheaders [my clay dump]
     set HTTP_STATUS "$code [my http_code_string $code]"
     dict with qheaders {}
     my reply replace {}
@@ -439,7 +427,7 @@ body {
 
   method CoroName {} {
     if {[info coroutine] eq {}} {
-      return ::httpd::object::[my http_info get UUID]
+      return ::httpd::object::[my clay get UUID]
     }
   }
 
@@ -483,7 +471,7 @@ body {
       set length [my request get CONTENT_LENGTH]
     }
     set formdata {}
-    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
       set rawtype [my request get CONTENT_TYPE]
       if {[string toupper [string range $rawtype 0 8]] ne "MULTIPART"} {
         set type $rawtype
@@ -495,7 +483,7 @@ body {
           ###
           # Ok, Multipart MIME is troublesome, farm out the parsing to a dedicated tool
           ###
-          set body [my http_info get mimetxt]
+          set body [my clay get mimetxt]
           append body \n [my PostData $length]
           set token [::mime::initialize -string $body]
           foreach item [::mime::getheader $token -names] {
@@ -519,7 +507,7 @@ body {
         }
       }
     } else {
-      foreach pair [split [my http_info getnull QUERY_STRING] "&"] {
+      foreach pair [split [my clay get QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }
@@ -535,7 +523,7 @@ body {
       return $postdata
     }
     set postdata {}
-    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
@@ -578,56 +566,106 @@ body {
     return $field
   }
 
-  dictobj request request {
-    field {
-      tailcall my RequestFind [lindex $args 0]
-    }
-    get {
-      set field [my RequestFind [lindex $args 0]]
-      if {![dict exists $request $field]} {
-        return {}
-      }
-      tailcall dict get $request $field
-    }
-    getnull {
-      set field [my RequestFind [lindex $args 0]]
-      if {![dict exists $request $field]} {
-        return {}
-      }
-      tailcall dict get $request $field
 
-    }
-    exists {
-      set field [my RequestFind [lindex $args 0]]
-      tailcall dict exists $request $field
-    }
-    parse {
-      if {[catch {my MimeParse [lindex $args 0]} result]} {
-        my error 400 $result
-        tailcall my DoOutput
+  Dict request {}
+
+  method request {subcommand args} {
+    my variable request
+    switch $subcommand {
+      dump {
+        return $request
       }
-      set request $result
+      field {
+        tailcall my RequestFind [lindex $args 0]
+      }
+      get {
+        set field [my RequestFind [lindex $args 0]]
+        if {![dict exists $request $field]} {
+          return {}
+        }
+        tailcall dict get $request $field
+      }
+      getnull {
+        set field [my RequestFind [lindex $args 0]]
+        if {![dict exists $request $field]} {
+          return {}
+        }
+        tailcall dict get $request $field
+
+      }
+      exists {
+        set field [my RequestFind [lindex $args 0]]
+        tailcall dict exists $request $field
+      }
+      parse {
+        if {[catch {my MimeParse [lindex $args 0]} result]} {
+          my error 400 $result
+          tailcall my DoOutput
+        }
+        set request $result
+      }
+      replace {
+        set request [lindex $args 0]
+      }
+      set {
+        dict set request {*}$args
+      }
+      default {
+        error "Unknown command $subcommand. Valid: field, get, getnull, exists, parse, replace, set"
+      }
     }
   }
 
-  dictobj reply reply {
-    output {
-      set result {}
-      if {![dict exists $reply Status]} {
-        set status {200 OK}
-      } else {
-        set status [dict get $reply Status]
+  Dict reply {}
+
+  method reply {subcommand args} {
+    my variable reply
+    switch $subcommand {
+      dump {
+        return $reply
       }
-      set result "[my EncodeStatus $status]\n"
-      foreach {f v} $reply {
-        if {$f in {Status}} continue
-        append result "[string trimright $f :]: $v\n"
+      exists {
+        return [dict exists $reply {*}$args]
       }
-      #append result \n
-      return $result
+      get -
+      getnull {
+        return [dict getnull $reply {*}$args]
+      }
+      replace {
+        set reply [my HttpHeaders_Default]
+        if {[llength $args]==1} {
+          foreach {f v} [lindex $args 0] {
+            dict set reply $f $v
+          }
+        } else {
+          foreach {f v} $args {
+            dict set reply $f $v
+          }
+        }
+      }
+      output {
+        set result {}
+        if {![dict exists $reply Status]} {
+          set status {200 OK}
+        } else {
+          set status [dict get $reply Status]
+        }
+        set result "[my EncodeStatus $status]\n"
+        foreach {f v} $reply {
+          if {$f in {Status}} continue
+          append result "[string trimright $f :]: $v\n"
+        }
+        #append result \n
+        return $result
+      }
+      set {
+        dict set reply {*}$args
+      }
+      default {
+        error "Unknown command $subcommand. Valid: exists, get, getnull, output, replace, set"
+      }
     }
   }
-
 
   ###
   # Reset the result
@@ -635,7 +673,7 @@ body {
   method reset {} {
     my variable reply_body
     my reply replace    [my HttpHeaders_Default]
-    my reply set Server [my <server> cget server_string]
+    my reply set Server [my <server> clay get server/ string]
     my reply set Date [my timestamp]
     set reply_body {}
   }
@@ -677,26 +715,38 @@ body {
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
 
-::tool::define ::httpd::server {
+::clay::define ::httpd::server {
   superclass ::httpd::mime
 
-  option port  {default: auto}
-  option myaddr {default: 127.0.0.1}
-  option server_string [list default: [list TclHttpd $::httpd::version]]
-  option server_name [list default: [list [info hostname]]]
-  option doc_root {default {}}
-  option reverse_dns {type boolean default 0}
-  option configuration_file {type filename default {}}
+  clay set server/ port auto
+  clay set server/ myaddr 127.0.0.1
+  clay set server/ string [list TclHttpd $::httpd::version]
+  clay set server/ name [info hostname]
+  clay set server/ doc_root {}
+  clay set server/ reverse_dns 0
+  clay set server/ configuration_file {}
 
-  property socket buffersize   32768
-  property socket translation  {auto crlf}
-  property reply_class ::httpd::reply
+  clay set socket/ buffersize   32768
+  clay set socket/ translation  {auto crlf}
+  clay set reply_class ::httpd::reply
 
-  array template
-  variable url_patterns {}
+  Array template
+  Dict url_patterns {}
 
   constructor {args} {
-    my configure {*}$args
+    if {[llength $args]==1} {
+      set arglist [lindex $args 0]
+    } else {
+      set arglist $args
+    }
+    foreach {var val} $arglist {
+      my clay set server/ $var $val
+    }
+    #my variable meta
+    #puts $clay
+    #puts [list [self] clay get server/ configuration_file]
+    #puts [my clay get server/ configuration_file]
+    #puts [list CALLING START]
     my start
   }
 
@@ -739,7 +789,7 @@ namespace eval ::httpd::coro {}
       dict set query REQUEST_URI     [lindex $line 1]
       dict set query REQUEST_PATH    [dict get $uriinfo path]
       dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query DOCUMENT_ROOT   [my cget doc_root]
+      dict set query DOCUMENT_ROOT   [my clay get server/ doc_root]
       dict set query QUERY_STRING    [dict get $uriinfo query]
       dict set query REQUEST_RAW     $line
       dict set query SERVER_PORT     [my port_listening]
@@ -767,35 +817,32 @@ namespace eval ::httpd::coro {}
       catch {chan close $sock}
       return
     }
-    if {[llength $reply]==0} {
+    if {[dict size $reply]==0} {
       my log BadLocation $uuid $query
       my log BadLocation $uuid $query
       dict set query HTTP_STATUS 404
       dict set query template notfound
-      dict set query mixinmap reply ::httpd::content.template
+      dict set query mixin reply ::httpd::content.template
     }
     try {
       if {[dict exists $reply class]} {
         set class [dict get $reply class]
       } else {
-        set class [my cget reply_class]
+        set class [my clay get reply_class]
       }
       set pageobj [$class create ::httpd::object::$uuid [self]]
-      if {[dict exists $reply mixinmap]} {
-        set mixinmap [dict get $reply mixinmap]
+      if {[dict exists $reply mixin]} {
+        set mixinmap [dict get $reply mixin]
       } else {
         set mixinmap {}
-      }
-      if {[dict exists $reply mixin]} {
-        dict set mixinmap reply [dict get $reply mixin]
       }
       foreach item [dict keys $reply MIXIN_*] {
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixinmap {*}$mixinmap
-      if {[dict exists $reply organ]} {
-        $pageobj graft {*}[dict get $reply organ]
+      $pageobj mixin {*}$mixinmap
+      if {[dict exists $reply delegate]} {
+        $pageobj delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -851,7 +898,7 @@ namespace eval ::httpd::coro {}
       ###
       dict set reply prefix {}
       dict set reply path $doc_root
-      dict set reply mixinmap reply httpd::content.file
+      dict set reply mixin reply httpd::content.file
       return $reply
     }
     return {}
@@ -860,7 +907,7 @@ namespace eval ::httpd::coro {}
   method Headers_Process varname {}
 
   method HostName ipaddr {
-    if {![my cget reverse_dns]} {
+    if {![my clay get server/ reverse_dns]} {
       return $ipaddr
     }
     set t [::dns::resolve $ipaddr]
@@ -880,20 +927,21 @@ namespace eval ::httpd::coro {}
     if {[info command $class] eq {}} {
       error "Class $class for plugin $slot does not exist"
     }
-    my mixinmap $slot $class
+    my mixin $slot $class
     my variable mixinmap
 
     ###
     # Perform action on load
     ###
-    eval [$class meta getnull plugin load:]
+    set script [$class clay search plugin/ load]
+    eval $script
 
     ###
     # rebuild the dispatch method
     ###
     set body "\n try \{"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin dispatch:]
+      set script [$class clay search plugin/ dispatch]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -910,7 +958,7 @@ namespace eval ::httpd::coro {}
     set body "\n try \{"
     append body \n "  upvar 1 \$varname query"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin headers:]
+      set script [$class clay search plugin/ headers]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -926,7 +974,7 @@ namespace eval ::httpd::coro {}
     ###
     set body "\n try \{"
     foreach {slot class} $mixinmap {
-      set script [$class meta getnull plugin thread:]
+      set script [$class clay search plugin/ thread]
       if {[string length $script]} {
         append body \n "# SLOT $slot"
         append body \n $script
@@ -936,7 +984,6 @@ namespace eval ::httpd::coro {}
     append body \n {  puts [list THREAD START ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
     oo::objdefine [self] method Thread_start {} $body
-
   }
 
   method port_listening {} {
@@ -960,16 +1007,16 @@ namespace eval ::httpd::coro {}
     namespace eval [namespace current]::reply {}
 
     my variable socklist port_listening
-    if {[my cget configuration_file] ne {}} {
-      source [my cget configuration_file]
+    if {[my clay get server/ configuration_file] ne {}} {
+      source [my clay get server/ configuration_file]
     }
-    set port [my cget port]
+    set port [my clay get server/ port]
     if { $port in {auto {}} } {
       package require nettool
       set port [::nettool::allocate_port 8015]
     }
     set port_listening $port
-    set myaddr [my cget myaddr]
+    set myaddr [my clay get server/ myaddr]
     my debug [list [self] listening on $port $myaddr]
 
     if {$myaddr ni {all any * {}}} {
@@ -994,6 +1041,12 @@ namespace eval ::httpd::coro {}
     ::cron::cancel [self]
   }
 
+  Ensemble SubObject::db {} {
+    return [namespace current]::Sqlite_db
+  }
+  Ensemble SubObject::default {} {
+    return [namespace current]::$method
+  }
 
   method template page {
     my variable template
@@ -1005,7 +1058,7 @@ namespace eval ::httpd::coro {}
   }
 
   method TemplateSearch page {
-    set doc_root [my cget doc_root]
+    set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
       return [::fileutil::cat [file join $doc_root $page.tml]]
     }
@@ -1016,7 +1069,7 @@ namespace eval ::httpd::coro {}
       redirect {
 return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my http_info get REQUEST_URI]</b> has moved.
+The page you are looking for: <b>[my clay get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -1026,7 +1079,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html header "$HTTP_STATUS"]
-Error serving <b>[my http_info get REQUEST_URI]</b>:
+Error serving <b>[my clay get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -1038,7 +1091,7 @@ $errorInfo
       notfound {
         return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exist.
+The page you are looking for: <b>[my clay get REQUEST_URI]</b> does not exist.
 [my html footer]
         }
       }
@@ -1064,7 +1117,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # Provide a backward compadible alias
 ###
-::tool::define ::httpd::server::dispatch {
+::clay::define ::httpd::server::dispatch {
     superclass ::httpd::server
 }
 
@@ -1074,7 +1127,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # START: dispatch.tcl
 ###
-::tool::define ::httpd::content.redirect {
+::clay::define ::httpd::content.redirect {
 
   method reset {} {
     ###
@@ -1083,10 +1136,10 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     my variable reply_body
     set reply_body {}
     my reply replace    [my HttpHeaders_Default]
-    my reply set Server [my <server> cget server_string]
-    set msg [my http_info get LOCATION]
-    my reply set Location [my http_info get LOCATION]
-    set code  [my http_info getnull REDIRECT_CODE]
+    my reply set Server [my <server> clay get server/ string]
+    set msg [my clay get LOCATION]
+    my reply set Location [my clay get LOCATION]
+    set code  [my clay get REDIRECT_CODE]
     if {$code eq {}} {
       set code 301
     }
@@ -1095,16 +1148,16 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 
   method content {} {
     set template [my <server> template redirect]
-    set msg [my http_info get LOCATION]
+    set msg [my clay get LOCATION]
     set HTTP_STATUS [my reply get Status]
     my puts [subst $msg]
   }
 }
 
-::tool::define ::httpd::content.cache {
+::clay::define ::httpd::content.cache {
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
+    my clay replace $datastate
     my request replace  [dict get $datastate http]
     my variable chan
     set chan $newsock
@@ -1113,7 +1166,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       my Log_Dispatched
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
-      chan puts -nonewline $chan [my http_info get CACHE_DATA]
+      chan puts -nonewline $chan [my clay get CACHE_DATA]
     } on error {err info} {
       my <server> debug [dict get $info -errorinfo]
     } finally {
@@ -1122,13 +1175,13 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   }
 }
 
-::tool::define ::httpd::content.template {
+::clay::define ::httpd::content.template {
 
   method content {} {
-    if {[my http_info getnull HTTP_STATUS] ne {}} {
-      my reply set Status [my http_info getnull HTTP_STATUS]
+    if {[my clay get HTTP_STATUS] ne {}} {
+      my reply set Status [my clay get HTTP_STATUS]
     }
-    my puts [subst [my <server> template [my http_info get template]]]
+    my puts [subst [my <server> template [my clay get template]]]
   }
 }
 
@@ -1143,12 +1196,12 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-::tool::define ::httpd::content.file {
+::clay::define ::httpd::content.file {
 
   method FileName {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     if {$fname in "{} index.html index.md index"} {
       return $path
@@ -1169,9 +1222,9 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   }
 
   method DirectoryListing {local_file} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
@@ -1197,7 +1250,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my clay get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -1232,7 +1285,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
-        set headers [my http_info dump]
+        set headers [my clay dump]
         dict with headers {}
         my puts [subst $tmltxt]
       }
@@ -1249,7 +1302,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   method dispatch {newsock datastate} {
     my variable reply_body reply_file reply_chan chan
     try {
-      my http_info replace $datastate
+      my clay replace $datastate
       my request replace  [dict get $datastate http]
       my Log_Dispatched
       set chan $newsock
@@ -1306,7 +1359,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # START: proxy.tcl
 ###
-::tool::define ::httpd::content.exec {
+::clay::define ::httpd::content.exec {
   variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
 
   method CgiExec {execname script arglist} {
@@ -1368,14 +1421,14 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       return [dict get $exename $which]
     }
     if {$which eq "tcl"} {
-      if {[my cget tcl_exe] ne {}} {
-        dict set exename $which [my cget tcl_exe]
+      if {[my clay get tcl_exe] ne {}} {
+        dict set exename $which [my clay get tcl_exe]
       } else {
         dict set exename $which [info nameofexecutable]
       }
     } else {
-      if {[my cget ${which}_exe] ne {}} {
-        dict set exename $which [my cget ${which}_exe]
+      if {[my clay get ${which}_exe] ne {}} {
+        dict set exename $which [my clay get ${which}_exe]
       } elseif {"$::tcl_platform(platform)" == "windows"} {
         dict set exename $which $which.exe
       } else {
@@ -1393,7 +1446,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # Return data from an proxy process
 ###
-::tool::define ::httpd::content.proxy {
+::clay::define ::httpd::content.proxy {
   superclass ::httpd::content.exec
 
   method proxy_channel {} {
@@ -1405,17 +1458,17 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   }
 
   method proxy_path {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set prefix [my clay get prefix]
     return /[string range $uri [string length $prefix] end]
   }
 
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
-    chan puts $chanb [my http_info get mimetxt]
-    set length [my http_info get CONTENT_LENGTH]
+    chan puts $chanb "[my clay get REQUEST_METHOD] [my proxy_path]"
+    chan puts $chanb [my clay get mimetxt]
+    set length [my clay get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -1464,7 +1517,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 
   method dispatch {newsock datastate} {
     try {
-      my http_info replace $datastate
+      my clay replace $datastate
       my request replace  [dict get $datastate http]
       my Log_Dispatched
       my variable sock chan
@@ -1499,13 +1552,13 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # START: cgi.tcl
 ###
-::tool::define ::httpd::content.cgi {
+::clay::define ::httpd::content.cgi {
   superclass ::httpd::content.proxy
 
   method FileName {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
 
     set fname [string range $uri [string length $prefix] end]
     if {[file exists [file join $path $fname]]} {
@@ -1529,7 +1582,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my clay get REQUEST_URI]
       my error 404 {Not Found}
       tailcall my DoOutput
     }
@@ -1553,10 +1606,10 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     foreach item [array names ::env HTTP_*] {
       set ::env($item) {}
     }
-    set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
+    set ::env(SCRIPT_NAME) [my clay get REQUEST_PATH]
     set ::env(SERVER_PROTOCOL) HTTP/1.0
     set ::env(HOME) $::env(DOCUMENT_ROOT)
-    foreach {f v} [my http_info dump] {
+    foreach {f v} [my clay dump] {
       if {$f in $verbatim} {
         set ::env($f) $v
       }
@@ -1593,7 +1646,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    set length [my http_info get CONTENT_LENGTH]
+    set length [my clay get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -1660,7 +1713,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
 ###
 # Return data from an SCGI process
 ###
-::tool::define ::httpd::content.scgi {
+::clay::define ::httpd::content.scgi {
   superclass ::httpd::content.proxy
 
   method scgi_info {} {
@@ -1680,7 +1733,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
       tailcall my DoOutput
     }
     lassign $sockinfo scgihost scgiport scgiscript
-    my http_info set SCRIPT_NAME $scgiscript
+    my clay set  SCRIPT_NAME $scgiscript
     if {![string is integer $scgiport]} {
       my error 404 {Not Found}
       tailcall my DoOutput
@@ -1693,8 +1746,8 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
     my log ProxyRequest {}
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-    set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my http_info get SCRIPT_NAME]]
-    foreach {f v} [my http_info dump] {
+    set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my clay get SCRIPT_NAME]]
+    foreach {f v} [my clay dump] {
       dict set info $f $v
     }
     set length [dict get $info CONTENT_LENGTH]
@@ -1752,7 +1805,7 @@ The page you are looking for: <b>[my http_info get REQUEST_URI]</b> does not exi
   }
 }
 
-tool::define ::httpd::reply.scgi {
+::clay::define ::httpd::reply.scgi {
   superclass ::httpd::reply
 
   method EncodeStatus {status} {
@@ -1763,14 +1816,18 @@ tool::define ::httpd::reply.scgi {
 ###
 # Act as an  SCGI Server
 ###
-tool::define ::httpd::server.scgi {
+::clay::define ::httpd::server.scgi {
   superclass ::httpd::server
 
-  property socket buffersize   32768
-  property socket blocking     0
-  property socket translation  {binary binary}
+  clay set socket/ buffersize   32768
+  clay set socket/ blocking     0
+  clay set socket/ translation  {binary binary}
 
-  property reply_class ::httpd::reply.scgi
+  clay set reply_class ::httpd::reply.scgi
+
+  method debug args {
+    puts $args
+  }
 
   method Connect {uuid sock ip} {
     yield [info coroutine]
@@ -1812,54 +1869,58 @@ tool::define ::httpd::server.scgi {
         dict set query REQUEST_PATH    [dict get $uriinfo path]
       }
       set reply [my dispatch $query]
-      dict with query {}
-      if {[llength $reply]} {
-        if {[dict exists $reply class]} {
-          set class [dict get $reply class]
-        } else {
-          set class [my cget reply_class]
-        }
-        set pageobj [$class create [namespace current]::reply$uuid [self]]
-        if {[dict exists $reply mixin]} {
-          oo::objdefine $pageobj mixin [dict get $reply mixin]
-        }
-        $pageobj dispatch $sock $reply
-        my log HttpAccess $REQUEST_URI
+    } on error {err errdat} {
+      my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
+      catch {chan event readable $sock {}}
+      catch {chan event writeable $sock {}}
+      catch {chan close $sock}
+      return
+    }
+    if {[dict size $reply]==0} {
+      my log BadLocation $uuid $query
+      dict set query HTTP_STATUS 404
+      dict set query template notfound
+      dict set query mixin reply ::httpd::content.template
+    }
+    try {
+      if {[dict exists $reply class]} {
+        set class [dict get $reply class]
       } else {
-        try {
-          my log HttpMissing $REQUEST_URI
-          chan puts $sock "Status: 404 NOT FOUND"
-          dict with query {}
-          set body [subst [my template notfound]]
-          chan puts $sock "Content-Length: [string length $body]"
-          chan puts $sock {}
-          chan puts $sock $body
-        } on error {err errdat} {
-          my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
-        } finally {
-          catch {chan event readable $sock {}}
-          catch {chan event writeable $sock {}}
-          catch {chan close $sock}
-        }
+        set class [my clay get reply_class]
+      }
+      set pageobj [$class create ::httpd::object::$uuid [self]]
+      if {[dict exists $reply mixin]} {
+        set mixinmap [dict get $reply mixin]
+      } else {
+        set mixinmap {}
+      }
+      foreach item [dict keys $reply MIXIN_*] {
+        set slot [string range $reply 6 end]
+        dict set mixinmap [string tolower $slot] [dict get $reply $item]
+      }
+      $pageobj mixin {*}$mixinmap
+      if {[dict exists $reply delegate]} {
+        $pageobj delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
-      try {
-        my <server> debug [dict get $errdat -errorinfo]
-        chan puts $sock "Status: 500 INTERNAL ERROR - scgi 298"
-        dict with query {}
-        set body [subst [my template internal_error]]
-        chan puts $sock "Content-Length: [string length $body]"
-        chan puts $sock {}
-        chan puts $sock $body
-        my log HttpError [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
-      } on error {err errdat} {
-        my log HttpFatal [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
-        my <server> debug "Failed on 500: [dict get $errdat -errorinfo]""
-      } finally {
-        catch {chan event readable $sock {}}
-        catch {chan event writeable $sock {}}
-        catch {chan close $sock}
-      }
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {$pageobj destroy}
+      catch {chan event readable $sock {}}
+      catch {chan event writeable $sock {}}
+      catch {chan close $sock}
+      return
+    }
+    try {
+      $pageobj dispatch $sock $reply
+    } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {$pageobj destroy}
+      catch {chan close $sock}
+      return
     }
   }
 }
@@ -1873,7 +1934,7 @@ tool::define ::httpd::server.scgi {
 ###
 # Upgrade a connection to a websocket
 ###
-::tool::define ::httpd::content.websocket {
+::clay::define ::httpd::content.websocket {
 
 }
 
@@ -1886,7 +1947,7 @@ tool::define ::httpd::server.scgi {
 ###
 # httpd plugin template
 ###
-tool::define ::httpd::plugin {
+::clay::define ::httpd::plugin {
   ###
   # Any options will be saved to the local config file
   # to allow threads to pull up a snapshot of the object' configuration
@@ -1895,28 +1956,28 @@ tool::define ::httpd::plugin {
   ###
   # Define a code snippet to run on plugin load
   ###
-  meta set plugin load: {}
+  clay set plugin/ load {}
 
   ###
   # Define a code snippet to run within the object's Headers_Process method
   ###
-  meta set plugin headers: {}
+  clay set plugin/ headers {}
 
   ###
   # Define a code snippet to run within the object's dispatch method
   ###
-  meta set plugin dispatch: {}
+  clay set plugin/ dispatch {}
 
   ###
   # Define a code snippet to run within the object's writes a local config file
   ###
-  meta set plugin local_config: {}
+  clay set plugin/ local_config {}
 
   ###
   # When after all the plugins are loaded
   # allow specially configured ones to light off a thread
   ###
-  meta set plugin thread: {}
+  clay set plugin/ thread {}
 
 }
 
@@ -1924,8 +1985,8 @@ tool::define ::httpd::plugin {
 # A rudimentary plugin that dispatches URLs from a dict
 # data structure
 ###
-tool::define ::httpd::plugin.dict_dispatch {
-  meta set plugin dispatch: {
+::clay::define ::httpd::plugin.dict_dispatch {
+  clay set plugin/ dispatch {
     set reply [my Dispatch_Dict $data]
     if {[dict size $reply]} {
       return $reply
@@ -1947,7 +2008,7 @@ tool::define ::httpd::plugin.dict_dispatch {
     return {}
   }
 
-  method uri::patterns {} {
+  Ensemble uri::patterns {} {
     my variable url_patterns url_stream
     if {![info exists url_stream]} {
       set url_stream {}
@@ -1960,7 +2021,7 @@ tool::define ::httpd::plugin.dict_dispatch {
     return $url_stream
   }
 
-  method uri::add args {
+  Ensemble uri::add args {
     my variable url_patterns url_stream
     unset -nocomplain url_stream
     switch [llength $args] {
@@ -1987,7 +2048,7 @@ tool::define ::httpd::plugin.dict_dispatch {
   }
 }
 
-tool::define ::httpd::reply.memchan {
+::clay::define ::httpd::reply.memchan {
   superclass ::httpd::reply
 
   method output {} {
@@ -2004,9 +2065,9 @@ tool::define ::httpd::reply.memchan {
 }
 
 
-tool::define ::httpd::plugin.local_memchan {
+::clay::define ::httpd::plugin.local_memchan {
 
-  meta set plugin load: {
+  clay set plugin/ load {
 package require tcl::chan::events
 package require tcl::chan::memchan
   }
@@ -2057,7 +2118,7 @@ package require tcl::chan::memchan
     dict set query REQUEST_URI     [lindex $args 1]
     dict set query REQUEST_PATH    [dict get $uriinfo path]
     dict set query REQUEST_VERSION [lindex [split [lindex $args end] /] end]
-    dict set query DOCUMENT_ROOT   [my cget doc_root]
+    dict set query DOCUMENT_ROOT   [my clay get server/ doc_root]
     dict set query QUERY_STRING    [dict get $uriinfo query]
     dict set query REQUEST_RAW     $args
     dict set query SERVER_PORT     [my port_listening]
@@ -2069,26 +2130,23 @@ package require tcl::chan::memchan
       my log BadLocation $uuid $query
       dict set query HTTP_STATUS 404
       dict set query template notfound
-      dict set query mixinmap reply ::httpd::content.template
+      dict set query mixin reply ::httpd::content.template
     }
 
     set class ::httpd::reply.memchan
     set pageobj [$class create ::httpd::object::$uuid [self]]
-    if {[dict exists $reply mixinmap]} {
-      set mixinmap [dict get $reply mixinmap]
+    if {[dict exists $reply mixin]} {
+      set mixinmap [dict get $reply mixin]
     } else {
       set mixinmap {}
-    }
-    if {[dict exists $reply mixin]} {
-      dict set mixinmap reply [dict get $reply mixin]
     }
     foreach item [dict keys $reply MIXIN_*] {
       set slot [string range $reply 6 end]
       dict set mixinmap [string tolower $slot] [dict get $reply $item]
     }
-    $pageobj mixinmap {*}$mixinmap
-    if {[dict exists $reply organ]} {
-      $pageobj graft {*}[dict get $reply organ]
+    $pageobj mixin {*}$mixinmap
+    if {[dict exists $reply delegate]} {
+      $pageobj delegate {*}[dict get $reply delegate]
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]

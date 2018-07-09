@@ -11,16 +11,16 @@ testsNeed        TclOO 1
 
 
 support {
-    use oodialect/oodialect.tcl oo::dialect
     use dicttool/dicttool.tcl   dicttool
+    use clay/clay.tcl           clay
     use cron/cron.tcl           cron
-    use oometa/oometa.tcl       oo::meta
+    use uuid/uuid.tcl           uuid
     use sha1/sha1.tcl           sha1
 }
-testing {
-    useLocal tool.tcl tool
-}
-
+#testing {
+#    useLocal tool.tcl tool
+#}
+source tool.tcl
 # -------------------------------------------------------------------------
 
 ###
@@ -104,7 +104,7 @@ tool::class create OptionClass2 {
   option color {default: blue}
 }
 
-OptionClass create ObjectOptionTest1 
+OptionClass create ObjectOptionTest1
 OptionClass create ObjectOptionTest2 bodystyle wagon transmission standard
 OptionClass2 create ObjectOptionTest3
 OptionClass2 create ObjectOptionTest4 bodystyle SUV transmission cvt color white
@@ -113,19 +113,19 @@ OptionClass2 create ObjectOptionTest4 bodystyle SUV transmission cvt color white
 # Property ignores options
 ###
 test tool-options-001 {Simple property queries} {
-  ObjectOptionTest1 meta cget color
+  ObjectOptionTest1 clay cget color
 } green
 
 test tool-options-002 {Simple property queries} {
-  ObjectOptionTest2 meta cget color
+  ObjectOptionTest2 clay cget color
 } green
 
 test tool-options-003 {Simple property queries} {
-  ObjectOptionTest3 meta cget color
+  ObjectOptionTest3 clay cget color
 } green
 
 test tool-options-004 {Simple property queries} {
-  ObjectOptionTest4 meta cget color
+  ObjectOptionTest4 clay cget color
 } green
 
 ###
@@ -151,7 +151,11 @@ test tool-options-008 {Simple property queries} {
 # Tests with options in an object changing class
 ###
 test tool-options-009 {Simple property queries} {
-  ObjectOptionTest3 meta cget mass
+  ObjectOptionTest3 clay get const/ mass
+} 1400kg
+
+test tool-options-009a {Simple property queries via cget} {
+  ObjectOptionTest3 cget mass
 } 1400kg
 
 ObjectOptionTest3 morph OptionClass
@@ -161,17 +165,17 @@ test tool-options-010 {Simple property queries} {
 } blue
 # The "color" property on the other hand should revert
 test tool-options-011 {Simple property queries} {
-  ObjectOptionTest3 meta cget color
+  ObjectOptionTest3 clay cget color
 } green
 # The "mass" property on the other hand should revert
 test tool-options-012 {Simple property queries} {
-  ObjectOptionTest3 meta cget mass
+  ObjectOptionTest3 clay cget mass
 } 1200kg
 
 # Change a OptionClass to a OptionClass2
 
 test tool-options-013 {Simple property queries} {
-  ObjectOptionTest2 meta cget mass
+  ObjectOptionTest2 clay cget mass
 } 1200kg
 
 ObjectOptionTest2 morph OptionClass2
@@ -181,7 +185,7 @@ test tool-options-014 {Simple property queries} {
 } blue
 
 test tool-options-015 {Simple property queries} {
-  ObjectOptionTest2 meta cget mass
+  ObjectOptionTest2 clay cget mass
 } 1400kg
 
 # When changing back, the set option remains
@@ -191,14 +195,14 @@ test tool-options-016 {Simple property queries} {
 } blue
 
 test tool-options-017 {Simple property queries} {
-  ObjectOptionTest2 meta cget mass
+  ObjectOptionTest2 clay cget mass
 } 1200kg
 
 
 tool::class create ArrayEnsembleClass {
   # Burned in defaults
-  meta branchset define {
-    color: pink
+  array define {
+    color pink
   }
 
   array_ensemble define define {
@@ -284,7 +288,7 @@ test tool-ensemble-013 {Test array reset} {
 
 tool::class create DictEnsembleClass {
   # Burned in defaults
-  meta branchset define {
+  Dict define {
     color: pink
   }
 
@@ -373,8 +377,8 @@ test tool-ensemble-013 {Test array reset} {
 
 
 test tool-option_class-001 {Test option class} {
-  ObjectOptionTest1 meta get option master
-} {default: ::noop class: organ widget: label set-command: {my graft %field% %value%} get-command: {my organ %field%}}
+  ObjectOptionTest1 clay get option/ master
+} {default ::noop class organ widget label set-command {my graft %field% %value%} get-command {my organ %field%}}
 
 proc GNDN args {
   return $args
@@ -416,13 +420,13 @@ tool::class create WidgetClass {
     }
     next {*}$args
   }
-  
+
   constructor {TkPath args} {
     my variable hull
     set hull $TkPath
     my graft hull $TkPath
   }
-    
+
   method tkalias tkname {
     set oldname $tkname
     my variable tkalias
@@ -469,7 +473,7 @@ DummyClass create ::DbObj
 OrganClass create OrganObject db ::DbObj
 test tool-constructor-args-001 {Test that organs passed as options map correctly} {
   OrganObject organ db
-} {::DbObj} 
+} {::DbObj}
 test tool-constructor-args-002 {Test that organs passed as options map correctly} {
   OrganObject cget db
 } {::DbObj}
@@ -551,9 +555,21 @@ tool::define NestedClassF {
 
 NestedClassC create NestedObjectC
 
-test tool-ensemble-001 {Test that an ensemble can access [next] even if no object of the ancestor class have been instantiated} {
-  NestedObjectC do family
-} {::NestedClassA ::NestedClassB ::NestedClassC}
+test tool-ensemble-000 {Test that classes are inherited in the right order} {
+  NestedObjectC clay ancestors
+} {::NestedClassC ::NestedClassB ::tool::object ::NestedClassA ::oo::object}
+
+###
+# This test is invalid now. Method ensembles are now generated dynamically per object
+###
+#test tool-ensemble-001 {Test that an ensemble can access [next] even if no object of the ancestor class have been instantiated} {
+#  NestedObjectC do family
+#} {::NestedClassA ::NestedClassB ::NestedClassC}
+test tool-ensemble-001 {Test that [next] fails inside of an ensemble because they are defined per-object} \
+  -body {NestedObjectC do family} \
+  -returnCodes {error} -result "no next method implementation"
+
+puts [list NestedObjectC clay get method_ensemble/]
 
 test tool-ensemble-002 {Test that a later ensemble definition trumps a more primitive one} {
   NestedObjectC do whop
@@ -579,12 +595,12 @@ test tool-ensemble-005 {Test that ensembles follow the same rules for inheritanc
 ###
 tool::define MixinMainClass {
   variable mainvar unchanged
-  
+
   method test::which {} {
     my variable mainvar
     return $mainvar
   }
-  
+
   method test::main args {
     puts [list this is main $method $args]
   }
@@ -593,35 +609,31 @@ tool::define MixinMainClass {
 
 tool::define MixinTool {
   variable toolvar unchanged.mixin
-  meta set mixin unmap-script: {
-my test untool $class
-  }
-  meta set mixin map-script: {
-my test tool $class
-  }
-  meta set mixin name: {Generic Tool}
-  
-  method test::untool class { 
+  clay set mixin/ unmap-script {my test untool $class}
+  clay set mixin/ map-script {my test tool $class}
+  clay set mixin/ name {Generic Tool}
+
+  method test::untool class {
     my variable toolvar mainvar
     set mainvar {}
-    set toolvar {} 
+    set toolvar {}
   }
-  
+
   method test::tool class {
     my variable toolvar mainvar
-    set mainvar [$class meta get mixin name:] 
-    set toolvar [$class meta get mixin name:] 
+    set mainvar [$class clay get mixin/ name]
+    set toolvar [$class clay get mixin/ name]
   }
 }
 
 tool::define MixinToolA {
   superclass MixinTool
-  meta set mixin name: {Tool A}
+  clay set mixin/ name {Tool A}
 }
 
 tool::define MixinToolB {
   superclass MixinTool
-  meta set mixin name: {Tool B}
+  clay set mixin/ name {Tool B}
 
   method test_newfunc {} {
     return "B"
@@ -652,317 +664,6 @@ mixintest mixinmap tool {}
 test tool-mixinmap-001 {Test object prior to mixins} {
   mixintest test which
 } {}
-
-###
-# Coroutine tests
-###
-tool::define coro_example {
-  
-  dict_ensemble coro_a_info coro_a_info {
-    initialize {
-      restart 0
-      phase 0
-      loop  0
-      event 0
-      idle  0
-    }
-  }
-  
-  coroutine coro_a {
-    my coro_a_info merge {
-      phase 0
-      loop  0
-      event 0
-      idle  0
-    }
-    yield [info coroutine]
-    while 1 {
-      my coro_a_info incr phase
-      my coro_a_info set  loop 0
-      while 1 {
-        if {[my $coro next event]} {
-          my coro_a_info incr idle
-          yield
-          continue
-        }
-        my coro_a_info set last_event $event
-        my coro_a_info incr loop
-        my coro_a_info incr event
-        switch [lindex $event 0] {
-          phase {
-            break
-          }
-          quit {
-            return
-          }
-          b {
-            my coro_b send [lrange $event 1 end]
-          }
-        }
-      }
-    }
-  }
-  
-  dict_ensemble coro_b_info coro_b_info {
-    initialize {
-      restart 0
-      phase 0
-      loop  0
-      event 0
-      idle  0
-    }
-  }
-  
-  coroutine coro_b {
-    my coro_b_info merge {
-      phase 0
-      loop  0
-      event 0
-      idle  0
-    }
-    yield [info coroutine]
-
-    while 1 {
-      my coro_b_info incr phase
-      my coro_b_info set  loop 0
-      while 1 {
-        if {[my $coro next event]} {
-          my coro_b_info incr idle
-          yield
-          continue
-        }
-        my coro_b_info incr loop
-        my coro_b_info incr event
-        switch [lindex $event 0] {
-          phase break
-          quit return
-          a {
-            my coro_a [lrange $event 1 end]
-          }
-        }
-      }
-    }
-  }
-  
-
-  dict_ensemble coro_yodawg_info coro_yodawg_info {
-    initialize {
-      restart 0
-      phase 0
-      loop  0
-      event 0
-      idle  0
-      yodawg  0
-    }
-  }
-  
-  coroutine coro_yodawg {
-    my coro_yodawg_info merge {
-      phase 0
-      loop  0
-      event 0
-      idle  0
-      yodawg  0
-      iloop 0
-    }
-    yield [info coroutine]
-
-    while 1 {
-      my coro_yodawg_info incr phase
-      my coro_yodawg_info set  loop 0
-      while 1 {
-        if {[my $coro next event]} {
-          my coro_yodawg_info incr idle
-          yield
-          continue
-        }
-        my coro_yodawg_info set last_event $event
-        my coro_yodawg_info incr loop
-        my coro_yodawg_info incr event
-        switch [lindex $event 0] {
-          phase break
-          quit {
-            return
-          }
-          yodawg {
-            my coro_yodawg_info incr yodawg
-            if {[my coro_yodawg_info get yodawg] <32} {
-              my coro_yodawg yodawg
-              yield
-            }
-          }
-          iloop {
-            my coro_yodawg_info incr iloop
-          }
-        }
-      }
-    }
-  }
-}
-
-set obj [coro_example new]
-$obj coro_a none
-test tool-coroutine-001-00 {Test coroutine } {
-  $obj coro_a_info get restart
-} 0
-test tool-coroutine-001-01 {Test coroutine } {
-  $obj coro_a_info get loop
-} 1
-$obj coro_a none
-test tool-coroutine-001-02 {Test coroutine } {
-  $obj coro_a_info get loop
-} 2
-$obj coro_a none
-test tool-coroutine-001-03 {Test coroutine } {
-  $obj coro_a_info get loop
-} 3
-$obj coro_a phase
-test tool-coroutine-002-01 {Test coroutine } {
-  $obj coro_a_info get loop
-} 0
-test tool-coroutine-002-02 {Test coroutine } {
-  $obj coro_a_info get phase
-} 2
-
-###
-# Start both coroutines over
-$obj coro_a restart
-$obj coro_b restart
-
-test tool-coroutine-003-01-A {Test coroutine } {
-  $obj coro_a_info get phase
-} 0
-test tool-coroutine-003-01-B {Test coroutine } {
-  $obj coro_a_info get loop
-} 0
-test tool-coroutine-003-01-C {Test coroutine } {
-  $obj coro_a_info get phase
-} 0
-test tool-coroutine-003-01-D {Test coroutine } {
-  $obj coro_b_info get loop
-} 0
-
-
-$obj coro_a b
-###
-# Test coroutines calling coroutines
-test tool-coroutine-003-02-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 1
-test tool-coroutine-003-02-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 1
-
-$obj coro_b a
-###
-# Test coroutines calling coroutines
-# Note: Each call to each other coroutine can only happen
-# once per "send"
-###
-test tool-coroutine-003-03-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 1
-test tool-coroutine-003-03-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 2
-
-###
-# Rig the coroutine to call itself back from the other coroutine
-###
-$obj coro_b a b
-###
-# Test coroutines calling coroutines
-test tool-coroutine-003-04-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 2
-test tool-coroutine-003-04-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 3
-
-# We should see A update in the background
-$obj coro_b loop
-test tool-coroutine-003-05-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 3
-test tool-coroutine-003-05-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 5
-
-# Now only B advances
-$obj coro_b loop
-test tool-coroutine-003-05-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 3
-test tool-coroutine-003-05-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 6
-
-# Now only A advances
-$obj coro_a loop
-test tool-coroutine-003-06-A {Test coroutine } {
-  $obj coro_a_info get loop
-} 4
-test tool-coroutine-003-06-B {Test coroutine } {
-  $obj coro_b_info get loop
-} 6
-
-###
-# Test a malformed coroutine that calls itself
-# The safety mechanism should allow the event to re-schedule itself
-# but only once per call, and only execute once per call
-###
-test tool-coroutine-yodawg-00 {Test coroutine - yodawg } {
-  $obj coro_yodawg running
-} 0
-
-$obj coro_yodawg yodawg
-test tool-coroutine-yodawg-01 {Test coroutine - yodawg } {
-  $obj coro_yodawg_info get yodawg
-} 1
-$obj coro_yodawg
-test tool-coroutine-yodawg-02 {Test coroutine - yodawg } {
-  $obj coro_yodawg_info get yodawg
-} 2
-$obj coro_yodawg yodawg
-$obj coro_yodawg yodawg
-test tool-coroutine-yodawg-03 {Test coroutine - yodawg } {
-  $obj coro_yodawg_info get yodawg
-} 4
-for {set x 1} {$x < 32} {incr x} {
-  $obj coro_yodawg iloop
-  set a [$obj coro_yodawg_info get yodawg]
-  set levent [$obj coro_yodawg_info get last_event]
-  set iloop [$obj coro_yodawg_info get iloop]
-  if {$a > 32} break
-  test tool-coroutine-yodawg-03-yd-$x {Test coroutine - yodawg } {
-    set a
-  } [expr {4+$x}]
-  test tool-coroutine-yodawg-03-le-$x {Test coroutine - yodawg } {
-    set levent
-  } yodawg
-  # The iloop should *ALSO* be running side-by-side with the yodawg
-  # However, not until the first three yodawg events are processed
-  # in the queue
-  if {$x > 3} {
-    test tool-coroutine-yodawg-03-il-$x {Test coroutine - yodawg } {
-      set iloop
-    } [expr {$x-3}]
-  }
-}
-###
-# With the yodawgs resolved we should now
-# be processing events in order once more
-# Add one more event
-#
-# NOTE the lagging iloop events do catch up
-###
-$obj coro_yodawg end
-test tool-coroutine-yodawg-03-iloop-count {Test coroutine - yodawg } {
-  $obj coro_yodawg_info get iloop
-} $x
-test tool-coroutine-yodawg-03-endevent {Test coroutine - yodawg } {
-  $obj coro_yodawg_info get last_event
-} end
 
 # -------------------------------------------------------------------------
 

@@ -1,18 +1,19 @@
 ###
 # Define the reply class
 ###
-::tool::define ::httpd::reply {
+::clay::define ::httpd::reply {
   superclass ::httpd::mime
 
   variable transfer_complete 0
+  clay set CONTENT_LENGTH 0
 
   constructor {ServerObj args} {
     my variable chan dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
-    oo::objdefine [self] forward <server> $ServerObj
-    foreach {field value} [::oo::meta::args_to_options {*}$args] {
-      my meta set config $field: $value
+    my delegate <server> $ServerObj
+    foreach {field value} [::clay::args_to_options {*}$args] {
+      my clay set config $field: $value
     }
   }
 
@@ -36,19 +37,19 @@
 
   method Log_Dispatched {} {
     my log Dispatched [dict create \
-     REMOTE_ADDR [my http_info get REMOTE_ADDR] \
-     REMOTE_HOST [my http_info get REMOTE_HOST] \
-     COOKIE [my request get COOKIE] \
-     REFERER [my request get REFERER] \
-     USER_AGENT [my request get USER_AGENT] \
-     REQUEST_URI [my http_info get REQUEST_URI] \
-     HTTP_HOST [my http_info getnull HTTP_HOST] \
-     SESSION [my http_info getnull SESSION] \
+     REMOTE_ADDR [my clay get REMOTE_ADDR] \
+     REMOTE_HOST [my clay get REMOTE_HOST] \
+     COOKIE [my request getnull COOKIE] \
+     REFERER [my request getnull REFERER] \
+     USER_AGENT [my request getnull USER_AGENT] \
+     REQUEST_URI [my clay get REQUEST_URI] \
+     HTTP_HOST [my clay get HTTP_HOST] \
+     SESSION [my clay get SESSION] \
     ]
   }
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
+    my clay replace $datastate
     my request replace  [dict getnull $datastate http]
     my Log_Dispatched
     my variable chan
@@ -105,23 +106,10 @@ body {
     append result {</div></BODY></HTML>}
   }
 
-  dictobj http_info http_info {
-    initialize {
-      CONTENT_LENGTH 0
-    }
-    netstring {
-      set result {}
-      foreach {name value} $%VARNAME% {
-        append result $name \x00 $value \x00
-      }
-      return "[string length $result]:$result,"
-    }
-  }
-
   method error {code {msg {}} {errorInfo {}}} {
-    my http_info set HTTP_ERROR $code
+    my clay set  HTTP_ERROR $code
     my reset
-    set qheaders [my http_info dump]
+    set qheaders [my clay dump]
     set HTTP_STATUS "$code [my http_code_string $code]"
     dict with qheaders {}
     my reply replace {}
@@ -148,7 +136,7 @@ body {
   # REPLACE ME:
   # This method is the "meat" of your application.
   # It writes to the result buffer via the "puts" method
-  # and can tweak the headers via "meta put header_reply"
+  # and can tweak the headers via "clay put header_reply"
   ###
   method content {} {
     my puts [my html_header {Hello World!}]
@@ -167,7 +155,7 @@ body {
 
   method CoroName {} {
     if {[info coroutine] eq {}} {
-      return ::httpd::object::[my http_info get UUID]
+      return ::httpd::object::[my clay get UUID]
     }
   }
 
@@ -211,7 +199,7 @@ body {
       set length [my request get CONTENT_LENGTH]
     }
     set formdata {}
-    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
       set rawtype [my request get CONTENT_TYPE]
       if {[string toupper [string range $rawtype 0 8]] ne "MULTIPART"} {
         set type $rawtype
@@ -223,7 +211,7 @@ body {
           ###
           # Ok, Multipart MIME is troublesome, farm out the parsing to a dedicated tool
           ###
-          set body [my http_info get mimetxt]
+          set body [my clay get mimetxt]
           append body \n [my PostData $length]
           set token [::mime::initialize -string $body]
           foreach item [::mime::getheader $token -names] {
@@ -247,7 +235,7 @@ body {
         }
       }
     } else {
-      foreach pair [split [my http_info getnull QUERY_STRING] "&"] {
+      foreach pair [split [my clay get QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }
@@ -263,7 +251,7 @@ body {
       return $postdata
     }
     set postdata {}
-    if {[my http_info get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
@@ -306,56 +294,106 @@ body {
     return $field
   }
 
-  dictobj request request {
-    field {
-      tailcall my RequestFind [lindex $args 0]
-    }
-    get {
-      set field [my RequestFind [lindex $args 0]]
-      if {![dict exists $request $field]} {
-        return {}
-      }
-      tailcall dict get $request $field
-    }
-    getnull {
-      set field [my RequestFind [lindex $args 0]]
-      if {![dict exists $request $field]} {
-        return {}
-      }
-      tailcall dict get $request $field
 
-    }
-    exists {
-      set field [my RequestFind [lindex $args 0]]
-      tailcall dict exists $request $field
-    }
-    parse {
-      if {[catch {my MimeParse [lindex $args 0]} result]} {
-        my error 400 $result
-        tailcall my DoOutput
+  Dict request {}
+
+  method request {subcommand args} {
+    my variable request
+    switch $subcommand {
+      dump {
+        return $request
       }
-      set request $result
+      field {
+        tailcall my RequestFind [lindex $args 0]
+      }
+      get {
+        set field [my RequestFind [lindex $args 0]]
+        if {![dict exists $request $field]} {
+          return {}
+        }
+        tailcall dict get $request $field
+      }
+      getnull {
+        set field [my RequestFind [lindex $args 0]]
+        if {![dict exists $request $field]} {
+          return {}
+        }
+        tailcall dict get $request $field
+
+      }
+      exists {
+        set field [my RequestFind [lindex $args 0]]
+        tailcall dict exists $request $field
+      }
+      parse {
+        if {[catch {my MimeParse [lindex $args 0]} result]} {
+          my error 400 $result
+          tailcall my DoOutput
+        }
+        set request $result
+      }
+      replace {
+        set request [lindex $args 0]
+      }
+      set {
+        dict set request {*}$args
+      }
+      default {
+        error "Unknown command $subcommand. Valid: field, get, getnull, exists, parse, replace, set"
+      }
     }
   }
 
-  dictobj reply reply {
-    output {
-      set result {}
-      if {![dict exists $reply Status]} {
-        set status {200 OK}
-      } else {
-        set status [dict get $reply Status]
+  Dict reply {}
+
+  method reply {subcommand args} {
+    my variable reply
+    switch $subcommand {
+      dump {
+        return $reply
       }
-      set result "[my EncodeStatus $status]\n"
-      foreach {f v} $reply {
-        if {$f in {Status}} continue
-        append result "[string trimright $f :]: $v\n"
+      exists {
+        return [dict exists $reply {*}$args]
       }
-      #append result \n
-      return $result
+      get -
+      getnull {
+        return [dict getnull $reply {*}$args]
+      }
+      replace {
+        set reply [my HttpHeaders_Default]
+        if {[llength $args]==1} {
+          foreach {f v} [lindex $args 0] {
+            dict set reply $f $v
+          }
+        } else {
+          foreach {f v} $args {
+            dict set reply $f $v
+          }
+        }
+      }
+      output {
+        set result {}
+        if {![dict exists $reply Status]} {
+          set status {200 OK}
+        } else {
+          set status [dict get $reply Status]
+        }
+        set result "[my EncodeStatus $status]\n"
+        foreach {f v} $reply {
+          if {$f in {Status}} continue
+          append result "[string trimright $f :]: $v\n"
+        }
+        #append result \n
+        return $result
+      }
+      set {
+        dict set reply {*}$args
+      }
+      default {
+        error "Unknown command $subcommand. Valid: exists, get, getnull, output, replace, set"
+      }
     }
   }
-
 
   ###
   # Reset the result
@@ -363,7 +401,7 @@ body {
   method reset {} {
     my variable reply_body
     my reply replace    [my HttpHeaders_Default]
-    my reply set Server [my <server> cget server_string]
+    my reply set Server [my <server> clay get server/ string]
     my reply set Date [my timestamp]
     set reply_body {}
   }

@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require tool
+package require clay
 package require mime
 package require fileutil
 package require websocket
@@ -28,7 +28,7 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-tool::define ::httpd::mime {
+clay::define ::httpd::mime {
 
 
   method html_header {{title {}} args} {

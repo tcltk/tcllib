@@ -3,12 +3,12 @@
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-::tool::define ::httpd::content.file {
+::clay::define ::httpd::content.file {
 
   method FileName {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     if {$fname in "{} index.html index.md index"} {
       return $path
@@ -29,9 +29,9 @@
   }
 
   method DirectoryListing {local_file} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
@@ -57,7 +57,7 @@
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my clay get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -92,7 +92,7 @@
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
-        set headers [my http_info dump]
+        set headers [my clay dump]
         dict with headers {}
         my puts [subst $tmltxt]
       }
@@ -109,7 +109,7 @@
   method dispatch {newsock datastate} {
     my variable reply_body reply_file reply_chan chan
     try {
-      my http_info replace $datastate
+      my clay replace $datastate
       my request replace  [dict get $datastate http]
       my Log_Dispatched
       set chan $newsock

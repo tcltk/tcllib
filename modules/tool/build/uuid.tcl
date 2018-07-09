@@ -1,6 +1,6 @@
 ::namespace eval ::tool {}
 
-proc ::tool::is_null value {
+proc ::clay::is_null value {
   return [expr {$value in {{} NULL}}]
 }
 

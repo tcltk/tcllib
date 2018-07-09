@@ -7,7 +7,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.3.3
+# Package oo::dialect 0.3.4
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -20,9 +20,6 @@
 # Meta author       Donald K. Fellows
 # Meta license      BSD
 # @@ Meta End
-
-package require TclOO
-
 namespace eval ::oo::dialect {
   namespace export create
 }
@@ -79,13 +76,13 @@ proc ::oo::dialect::create {name {parent ""}} {
   	  ::namespace export dynamic_methods
   	  ::namespace import -force ${parent}::dynamic_methods
   	} $NSPACE] $pnspace
-	
+
     apply [list parent {
   	  ::namespace import -force ${parent}::define::*
   	  ::namespace export *
   	} ${NSPACE}::define] $pnspace
       set ANCESTORS [list ${pnspace}::object]
-  }  
+  }
   ###
   # Build our dialect template functions
   ###
@@ -95,7 +92,7 @@ proc ::oo::dialect::create {name {parent ""}} {
 	# a dialect to create a class from DEFINE
 	###
   set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
-    if {[info commands $class] eq {}} {      
+    if {[info commands $class] eq {}} {
 	    %NSPACE%::class create $class {*}${args}
     } else {
 	    ::oo::dialect::Define %NSPACE% $class {*}${args}
@@ -133,13 +130,11 @@ proc ::oo::dialect::create {name {parent ""}} {
       # Put MOACish stuff in here
     }
   }]
-  if {[info exists ::oo::meta::core_classes]} {
-    if { "${NSPACE}::class" ni $::oo::meta::core_classes } {
-      lappend ::oo::meta::core_classes "${NSPACE}::class"
-    }
-    if { "${NSPACE}::object" ni $::oo::meta::core_classes } {
-      lappend ::oo::meta::core_classes "${NSPACE}::object"
-    }
+  if { "${NSPACE}::class" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::class"
+  }
+  if { "${NSPACE}::object" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::object"
   }
 }
 
@@ -262,4 +257,8 @@ proc ::oo::dialect::SuperClass {namespace args} {
   }
 }
 
-package provide oo::dialect 0.3.3
+namespace eval ::oo::dialect {
+  variable core_classes {::oo::class ::oo::object}
+}
+
+package provide oo::dialect 0.3.4

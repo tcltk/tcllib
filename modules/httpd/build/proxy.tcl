@@ -1,4 +1,4 @@
-::tool::define ::httpd::content.exec {
+::clay::define ::httpd::content.exec {
   variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
 
   method CgiExec {execname script arglist} {
@@ -60,14 +60,14 @@
       return [dict get $exename $which]
     }
     if {$which eq "tcl"} {
-      if {[my cget tcl_exe] ne {}} {
-        dict set exename $which [my cget tcl_exe]
+      if {[my clay get tcl_exe] ne {}} {
+        dict set exename $which [my clay get tcl_exe]
       } else {
         dict set exename $which [info nameofexecutable]
       }
     } else {
-      if {[my cget ${which}_exe] ne {}} {
-        dict set exename $which [my cget ${which}_exe]
+      if {[my clay get ${which}_exe] ne {}} {
+        dict set exename $which [my clay get ${which}_exe]
       } elseif {"$::tcl_platform(platform)" == "windows"} {
         dict set exename $which $which.exe
       } else {
@@ -85,7 +85,7 @@
 ###
 # Return data from an proxy process
 ###
-::tool::define ::httpd::content.proxy {
+::clay::define ::httpd::content.proxy {
   superclass ::httpd::content.exec
 
   method proxy_channel {} {
@@ -97,17 +97,17 @@
   }
 
   method proxy_path {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set prefix [my clay get prefix]
     return /[string range $uri [string length $prefix] end]
   }
 
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
-    chan puts $chanb [my http_info get mimetxt]
-    set length [my http_info get CONTENT_LENGTH]
+    chan puts $chanb "[my clay get REQUEST_METHOD] [my proxy_path]"
+    chan puts $chanb [my clay get mimetxt]
+    set length [my clay get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -156,7 +156,7 @@
 
   method dispatch {newsock datastate} {
     try {
-      my http_info replace $datastate
+      my clay replace $datastate
       my request replace  [dict get $datastate http]
       my Log_Dispatched
       my variable sock chan

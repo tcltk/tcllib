@@ -1,4 +1,4 @@
-::tool::define ::httpd::content.redirect {
+::clay::define ::httpd::content.redirect {
 
   method reset {} {
     ###
@@ -7,10 +7,10 @@
     my variable reply_body
     set reply_body {}
     my reply replace    [my HttpHeaders_Default]
-    my reply set Server [my <server> cget server_string]
-    set msg [my http_info get LOCATION]
-    my reply set Location [my http_info get LOCATION]
-    set code  [my http_info getnull REDIRECT_CODE]
+    my reply set Server [my <server> clay get server/ string]
+    set msg [my clay get LOCATION]
+    my reply set Location [my clay get LOCATION]
+    set code  [my clay get REDIRECT_CODE]
     if {$code eq {}} {
       set code 301
     }
@@ -19,16 +19,16 @@
 
   method content {} {
     set template [my <server> template redirect]
-    set msg [my http_info get LOCATION]
+    set msg [my clay get LOCATION]
     set HTTP_STATUS [my reply get Status]
     my puts [subst $msg]
   }
 }
 
-::tool::define ::httpd::content.cache {
+::clay::define ::httpd::content.cache {
 
   method dispatch {newsock datastate} {
-    my http_info replace $datastate
+    my clay replace $datastate
     my request replace  [dict get $datastate http]
     my variable chan
     set chan $newsock
@@ -37,7 +37,7 @@
       my Log_Dispatched
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
-      chan puts -nonewline $chan [my http_info get CACHE_DATA]
+      chan puts -nonewline $chan [my clay get CACHE_DATA]
     } on error {err info} {
       my <server> debug [dict get $info -errorinfo]
     } finally {
@@ -46,12 +46,12 @@
   }
 }
 
-::tool::define ::httpd::content.template {
+::clay::define ::httpd::content.template {
 
   method content {} {
-    if {[my http_info getnull HTTP_STATUS] ne {}} {
-      my reply set Status [my http_info getnull HTTP_STATUS]
+    if {[my clay get HTTP_STATUS] ne {}} {
+      my reply set Status [my clay get HTTP_STATUS]
     }
-    my puts [subst [my <server> template [my http_info get template]]]
+    my puts [subst [my <server> template [my clay get template]]]
   }
 }
