@@ -436,7 +436,8 @@ pkgIndex utilpkg
 % \begin{tcl}
 %<*man,utilman>
 %<man>[manpage_begin docstrip n 1.2]
-%<utilman>[manpage_begin docstrip_util n 1.3]
+%<utilman>[vset VERSION 1.3.1]
+%<utilman>[manpage_begin docstrip_util n [vset VERSION]]
 %<man>[see_also docstrip_util]
 %<utilman>[see_also docstrip]
 %<utilman>[see_also doctools]
@@ -496,7 +497,7 @@ pkgIndex utilpkg
 %<utilpkg>package provide docstrip::util 1.3.1
 %<idx>package ifneeded docstrip::util 1.3.1\
 %<idx>  [list source [file join $dir docstrip_util.tcl]]
-%<utilman>[require docstrip::util [opt 1.3]]
+%<utilman>[require docstrip::util [opt [vset VERSION]]]
 % \end{tcl}
 % This ends the interleaved parts of the headers.
 % 
