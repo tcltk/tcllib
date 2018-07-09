@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Utility commands operating on parsing expressions.
 
@@ -320,7 +320,8 @@ proc ::pt::peg::op::Realizable {pe op arguments} {
 
 proc ::pt::peg::op::drop::unrealizable {container} {
 
-    set     all [$container nonterminals]
+    #set     all [$container nonterminals]
+    set     all [::pt::peg::op reachable $container]
     lappend all {} ; # marker for start expression.
 
     set unrealizable \
