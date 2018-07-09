@@ -1,12 +1,12 @@
-##
+## 
 ## This is the file `numtheory.tcl',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-##
+## 
 ## The original source files were:
-##
-## numtheory.dtx  (with options: `pkg')
-##
+## 
+## numtheory.dtx  (with options: `pkg pkg_common')
+## 
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -77,6 +77,6 @@ proc ::math::numtheory::isprime {n args} {
 # Add the additional procedures
 #
 source [file join [file dirname [info script]] primes.tcl]
-##
-##
+## 
+## 
 ## End of file `numtheory.tcl'.
