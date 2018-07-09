@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.9.2]
+[vset VERSION 1.10]
 [manpage_begin ldap n [vset VERSION]]
 [keywords {directory access}]
 [keywords internet]
@@ -30,7 +30,36 @@ server, and then providing a Tcl API to access the LDAP protocol
 commands.  All server errors are returned as Tcl errors (thrown) which
 must be caught with the Tcl [cmd catch] command.
 
-[include ../common-text/tls-security-notes.inc]
+[section {TLS Security Considerations}]
+
+[para] This package uses the [package TLS] package to handle the
+security for [const LDAPS] connections.
+
+[para] Policy decisions like the set of protocols to support and what
+ciphers to use are not the responsibility of [package TLS], nor of
+this package itself however.
+
+Such decisions are the responsibility of whichever application is
+using the package, and are likely influenced by the set of servers
+the application will talk to as well.
+
+[para] For example, in light of the recent
+[uri http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html \
+{POODLE attack}] discovered by Google many servers will disable support
+for the SSLv3 protocol.
+
+To handle this change the applications using [package TLS] must be
+patched, and not this package, nor [package TLS] itself.
+
+Such a patch may be as simple as generally activating [const tls1]
+support, as shown in the example below.
+
+[example {
+    ldap::tlsoptions -tls1 1 -ssl2 0 -ssl3 0 ;# forcibly activate support for the TLS1 protocol
+
+    ... your own application code ...
+}]
+
 
 [section COMMANDS]
 
@@ -48,7 +77,99 @@ specified it will default to [const 389].
 The command blocks until the connection has been established, or
 establishment definitely failed.
 
-[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]] [opt [arg verify_cert]] [opt [arg sni_servername]]]
+[call [cmd ::ldap::tlsoptions] [cmd reset]]
+
+This command resets TLS options to default values. It returns the
+set of options.
+Using this command is incompatible with the obsolete
+form of [cmd ::ldap::secure_connect] and [cmd ::ldap_starttls].
+
+[call [cmd ::ldap::tlsoptions] [opt "[arg opt1] [arg val1]"] [opt "[arg opt2] [arg val2]"] ...]
+
+This commands adds one or more options to some value, and may be used
+more than one time in order to add options in several steps.  A complete
+description of options may be found in the [package tls] package
+documentation. Valid options and values are:
+
+[list_begin options]
+[opt_def {-cadir} directory  ]
+
+Provide the directory containing the CA certificates.
+No default.
+
+[opt_def {-cafile} file]
+
+Provide the CA file.
+No default.
+
+[opt_def {-cipher} string]
+
+Provide the cipher suites to use.
+No default.
+
+[opt_def {-dhparams} file]
+
+Provide a Diffie-Hellman parameters file.
+No default.
+
+[opt_def {-request} boolean]
+
+Request a certificate from peer during SSL handshake.
+Default: true.
+
+[opt_def {-require} boolean]
+
+Require a valid certificate from peer during SSL handshake. If this is
+set to true then -request must also be set to true.
+Default: false
+
+[opt_def {-servername} host]
+
+Only available if the OpenSSL library the TLS package is linked against
+supports the TLS hostname extension for 'Server Name Indication'
+(SNI). Use to name the logical host we are talking to and expecting a
+certificate for.
+No default.
+
+[opt_def {-ssl2} bool]
+
+Enable use of SSL v2.
+Default: false
+
+[opt_def {-ssl3} bool]
+
+Enable use of SSL v3.
+Default: false
+
+[opt_def {-tls1} bool]
+
+Enable use of TLS v1
+Default: true
+
+[opt_def {-tls1.1} bool]
+
+Enable use of TLS v1.1
+Default: true
+
+[opt_def {-tls1.2} bool]
+
+Enable use of TLS v1.2
+Default: true
+
+[list_end]
+[para]
+
+This command returns the current set of TLS options and values.
+In particular, one may use this command without any arguments to get
+the current set of options.
+
+[para]
+
+Using this command is incompatible with the obsolete
+form of [cmd ::ldap::secure_connect] and [cmd ::ldap_starttls]
+(see below).
+
+[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]]]
 
 Like [cmd ::ldap::connect], except that the created connection is
 secured by SSL. The port defaults to [const 636].  This command
@@ -58,8 +179,23 @@ command will fail.
 
 [para]
 
+TLS options are specified with [cmd ::ldap::tlsoptions].
+
+[para]
+
 The command blocks until the connection has been established, or
 establishment definitely failed.
+
+
+[call [cmd ::ldap::secure_connect] [arg host] [opt [arg port]] [opt [arg verify_cert]] [opt [arg sni_servername]]]
+
+Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+([arg verify_cert] and [arg sni_servername]) and arguments to [cmd ::tls::init]
+(from package [package tls]) for example to setup defaults for trusted
+certificates. Prefer the above form (without the [arg verify_cert] and
+[arg sni_servername] parameters) and set TLS options with
+[cmd ::ldap::tlsoptions].
 
 [para]
 
@@ -71,22 +207,33 @@ hostname for Server Name Indication in the TLS handshake.
 
 Use [cmd ::tls::init] to setup defaults for trusted certificates.
 
-[example {
-    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
-}]
-
 [para]
 
 TLS supports different protocol levels. In common use are the versions 1.0, 1.1 and 1.2.
 By default all those versions are offered. If you need to modify the acceptable
-protocols, you can change the ::ldap::tlsProtocols list.
+protocols, you can change the ::ldap::tlsProtocols list (deprecated).
 
 [call [cmd ::ldap::disconnect] [arg handle]]
 
 Closes the ldap connection refered to by the token
 [arg handle]. Returns the empty string as its result.
 
+[call [cmd ::ldap::starttls] [arg handle]]
+
+Start TLS negotiation on the connection denoted by [arg handle],
+with TLS parameters set with [cmd ::ldap::tlsoptions].
+
 [call [cmd ::ldap::starttls] [arg handle] [opt [arg cafile]] [opt [arg certfile]] [opt [arg keyfile]] [opt [arg verify_cert]] [opt [arg sni_servername]]]
+
+Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+([arg cafile], [arg certfile], [arg keyfile], [arg verify_cert]
+and [arg sni_servername]) and arguments to [cmd ::tls::init]
+(from package [package tls]).
+Prefer the above form (without specific TLS arguments)
+and set TLS options with [cmd ::ldap::tlsoptions].
+
+[para]
 
 Start TLS negotiation on the connection denoted by [arg handle].
 
@@ -413,6 +560,13 @@ This command returns all currently existing ldap connection handles.
 This command returns 1 if the ldap connection [arg handle] used TLS/SSL for
 connection via [cmd ldap::secure_connect] or completed [cmd ldap::starttls], 0 otherwise.
 
+[call [cmd ::ldap::info] [cmd tlsstatus] [arg handle] ]
+
+This command returns the current security status of an TLS secured
+channel. The result is a list of key-value pairs describing the connected
+peer (see the [package TLS] package documentation for the returned values).
+If the connection is not secured with TLS, an empty list is returned.
+
 [call [cmd ::ldap::info] [cmd saslmechanisms] [arg handle]]
 
 Return the supported SASL mechanisms advertised by the server. Only valid in a
@@ -503,7 +657,7 @@ code.
 }]
 [para]
 
-And a another example, a simple query, and processing the
+And another example, a simple query, and processing the
 results.
 
 [para]
