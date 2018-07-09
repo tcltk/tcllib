@@ -21,8 +21,9 @@ support {
     use fileutil/fileutil.tcl  fileutil ; # For tests/common
     use snit/snit.tcl          snit
 
-    use pt/pt_pegrammar.tcl pt::peg
+    use pt/pt_pegrammar.tcl     pt::peg
     use pt/pt_peg_container.tcl pt::peg::container
+    use pt/pt_pexpr_op.tcl      pt::pe::op
 
     source [localPath tests/common]
 }

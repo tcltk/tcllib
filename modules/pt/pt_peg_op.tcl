@@ -139,7 +139,7 @@ proc ::pt::peg::op::modeopt {container} {
 
     set changed [$container nonterminals]
     while {[llength $changed]} {
-puts <$changed>
+	#puts <$changed>
 	set scan $changed
 	set changed {}
 
@@ -147,7 +147,7 @@ puts <$changed>
 	    # Rule 1
 	    if {![llength $calls($sym)] &&
 		($mode($sym) eq "value")} {
-puts (1)$sym
+		#puts (1)$sym
 		set mode($sym) leaf
 	    }
 
