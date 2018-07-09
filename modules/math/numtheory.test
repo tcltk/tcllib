@@ -1,12 +1,12 @@
-##
+## 
 ## This is the file `numtheory.test',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-##
+## 
 ## The original source files were:
-##
-## numtheory.dtx  (with options: `test')
-##
+## 
+## numtheory.dtx  (with options: `test test_common')
+## 
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -16,9 +16,14 @@
 source [file join\
   [file dirname [file dirname [file join [pwd] [info script]]]]\
   devtools testutilities.tcl]
+
 testsNeedTcl     8.5
-testsNeedTcltest 2
-testing {useLocal numtheory.tcl math::numtheory}
+testsNeedTcltest 2.1
+
+testing {
+    useLocal numtheory.tcl math::numtheory
+}
+
 test prime_trialdivision-1 "Trial division of 1" -body {
    ::math::numtheory::prime_trialdivision 1
 } -returnCodes 2 -result 0
@@ -202,8 +207,7 @@ test isprime-2.0 "PRNG tweak" -setup {
       rename _orig_Miller--Rabin Miller--Rabin
    }
 }
-
 testsuiteCleanup
-##
-##
+## 
+## 
 ## End of file `numtheory.test'.
