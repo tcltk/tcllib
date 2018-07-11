@@ -3,6 +3,7 @@
 proc ::clay::ensemble_methodbody {ensemble einfo} {
   set default standard
   set preamble {}
+  set eswitch {}
   if {[dict exists $einfo default]} {
     set emethodinfo [dict get $einfo default]
     set arglist     [dict getnull $emethodinfo arglist]

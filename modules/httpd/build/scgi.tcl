@@ -188,9 +188,9 @@
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixin {*}$mixinmap
+      $pageobj clay mixinmap {*}$mixinmap
       if {[dict exists $reply delegate]} {
-        $pageobj delegate {*}[dict get $reply delegate]
+        $pageobj clay delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]

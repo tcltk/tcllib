@@ -8,6 +8,10 @@ package require dicttool
 package require oo::dialect
 package provide oo::meta 0.7.2
 
+namespace eval ::oo::meta {
+  set dirty_classes {}
+}
+
 proc ::oo::meta::args_to_dict args {
   if {[llength $args]==1} {
     return [lindex $args 0]

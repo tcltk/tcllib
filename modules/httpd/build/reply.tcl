@@ -11,7 +11,7 @@
     my variable chan dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
-    my delegate <server> $ServerObj
+    my clay delegate <server> $ServerObj
     foreach {field value} [::clay::args_to_options {*}$args] {
       my clay set config $field: $value
     }

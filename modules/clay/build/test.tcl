@@ -400,17 +400,17 @@ proc ::foo::fakeobject {a b} {
 }
 
 ::clay::object create TEST
-TEST delegate funct ::foo::fakeobject
+TEST clay delegate funct ::foo::fakeobject
 test oo-object-delegate-001 {Test object delegation} {
-  ::TEST delegate
+  ::TEST clay delegate
 } {<class> ::clay::object <funct> ::foo::fakeobject}
 
 test oo-object-delegate-002 {Test object delegation} {
-  ::TEST delegate funct
+  ::TEST clay delegate funct
 } {::foo::fakeobject}
 
 test oo-object-delegate-002a {Test object delegation} {
-  ::TEST delegate <funct>
+  ::TEST clay delegate <funct>
 } {::foo::fakeobject}
 
 test oo-object-delegate-003 {Test object delegation} {
@@ -817,13 +817,13 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 set OBJ [::TEST::thing new]
 test clay-mixin-a-0001 {Test that prior to a mixin an ensemble doesn't exist} -body {
   $OBJ which color
-} -returnCodes error -result {unknown method "which": must be clay, delegate, destroy, do, forward, mixin or source}
+} -returnCodes error -result {unknown method "which": must be clay, destroy or do}
 
 test clay-mixin-a-0002 {Test and standard method from an ancestor} {
   $OBJ do this really cool thing
 } {I did this really cool thing}
 
-$OBJ mixin species ::TEST::animal
+$OBJ clay mixinmap species ::TEST::animal
 test clay-mixin-b-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
@@ -841,7 +841,7 @@ test clay-mixin-b-0004 {Test that mixins resolve in the correct order} {
 ###
 # Replacing a mixin replaces the behaviors
 ###
-$OBJ mixin species ::TEST::vegetable
+$OBJ clay mixinmap species ::TEST::vegetable
 test clay-mixin-c-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
@@ -858,7 +858,7 @@ test clay-mixin-c-0004 {Test that mixins resolve in the correct order} {
 
 ###
 # Replacing a mixin
-$OBJ mixin species ::TEST::species.cat
+$OBJ clay mixinmap species ::TEST::species.cat
 test clay-mixin-e-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
@@ -872,7 +872,7 @@ test clay-mixin-e-0004 {Test that clay data follows the rules of inheritence and
   $OBJ clay ancestors
 } {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
 
-$OBJ mixin coloring ::TEST::coloring.calico
+$OBJ clay mixinmap coloring ::TEST::coloring.calico
 test clay-mixin-f-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {calico}
@@ -969,7 +969,7 @@ test clay-class-dict-0002 {Test that variables declared in the class definition 
   constructor {} {
     set mysub [namespace current]::sub
     ::TEST::organelle create $mysub
-    my delegate sub $mysub
+    my clay delegate sub $mysub
   }
 }
 
@@ -989,7 +989,7 @@ test clay-delegation-0001 {Test an array driven ensemble} {
 
   Ensemble myensemble {pattern args} {
     set ensemble [self method]
-    set emap [my Ensemble_Map $ensemble]
+    set emap [my clay ensemble_map $ensemble]
     set mlist [dict keys $emap [string tolower $pattern]]
     if {[llength $mlist] != 1} {
       error "Couldn't figure out what to do with $pattern"
@@ -1022,11 +1022,11 @@ test clay-delegation-0001 {Test an array driven ensemble} {
 set OBJA [::clay::object new]
 set OBJB [::clay::object new]
 
-$OBJA mixin \
+$OBJA clay mixinmap \
   core ::TEST::with_ensemble \
   friends ::TEST::with_ensemble.dance
 
-$OBJB mixin \
+$OBJB clay mixinmap \
   core ::TEST::with_ensemble \
   friends ::TEST::with_ensemble.cannot_dance
 }

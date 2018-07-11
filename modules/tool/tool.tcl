@@ -1305,7 +1305,7 @@ proc ::tool::object_destroy objname {
         lappend classlist $class
       }
     }
-    my Meta_Mixin {*}$classlist
+    my Clay_Mixin {*}$classlist
 
     foreach {slot classes} $args {
       foreach class $classes {
@@ -1332,9 +1332,9 @@ proc ::tool::object_destroy objname {
     return $mixinmap
   }
 
-  method clay {submethod args} {
+method clay {submethod args} {
     my variable clay claycache clayorder
-    if {![info exists meta]} {set clay {}}
+    if {![info exists clay]} {set clay {}}
     if {![info exists claycache]} {set claycache {}}
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
@@ -1342,6 +1342,12 @@ proc ::tool::object_destroy objname {
     switch $submethod {
       ancestors {
         return $clayorder
+      }
+      branchset {
+        set path [::clay::path [lrange $args 1 end-1]]
+        foreach {f v} [lindex $args $end] {
+          dict set clay {*}$path [string trim $f :/-] $v
+        }
       }
       cget {
         # Leaf searches return one data field at a time
@@ -1365,6 +1371,14 @@ proc ::tool::object_destroy objname {
             dict set claycache {*}$args $value
             return $value
           }
+          if {[llength $args]==1} {
+            set field [lindex $args 0]
+            if {[$class clay exists public/ option/ ${field}/ default]} {
+              set value [$class clay get public/ option/ ${field}/ default]
+              dict set claycache {*}$args $value
+              return $value
+            }
+          }
         }
         return {}
       }
@@ -1373,7 +1387,7 @@ proc ::tool::object_destroy objname {
         set result $clay
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
-          set result [::clay::dictmerge $result [$class clay dump]]
+          ::clay::dictmerge result [$class clay dump]
         }
         return $result
       }
@@ -1404,11 +1418,14 @@ proc ::tool::object_destroy objname {
       getnull -
       get {
         set leaf [expr {[string index [lindex $args end] end] ne "/"}]
+        #puts [list [self] clay get {*}$args (leaf: $leaf)]
         if {$leaf} {
+          #puts [list EXISTS: (clay) [dict exists $clay {*}$args]]
           if {[dict exists $clay {*}$args]} {
             return [dict get $clay {*}$args]
           }
           # Search in our local cache
+          #puts [list EXISTS: (claycache) [dict exists $claycache {*}$args]]
           if {[dict exists $claycache {*}$args]} {
             return [dict get $claycache {*}$args]
           }
@@ -1429,7 +1446,7 @@ proc ::tool::object_destroy objname {
           }
           # Search in the in our list of classes for an answer
           foreach class $clayorder {
-            set result [::clay::dictmerge $result [$class clay get {*}$args]]
+            ::clay::dictmerge result [$class clay get {*}$args]
           }
           return $result
         }
@@ -1454,10 +1471,15 @@ proc ::tool::object_destroy objname {
         }
       }
       merge {
-        ::clay::dictmerge clay {*}$args
+        foreach arg $args {
+          ::clay::dictmerge clay {*}$arg
+        }
       }
       mixin {
-        my Meta_Mixin {*}$args
+        my Clay_Mixin {*}$args
+      }
+      replace {
+        set clay [lindex $args 0]
       }
       source {
         if {[dict exists $clay {*}$args]} {
@@ -1471,7 +1493,8 @@ proc ::tool::object_destroy objname {
         return {}
       }
       set {
-        dict set clay {*}$args
+        #puts [list [self] clay SET {*}$args]
+        ::clay::dictmerge clay {*}$args
       }
       default {
         dict $submethod clay {*}$args
@@ -1479,8 +1502,7 @@ proc ::tool::object_destroy objname {
     }
   }
 
-
-  method Meta_Mixin args {
+  method Clay_Mixin args {
     ###
     # Mix in the class
     ###
@@ -1855,6 +1877,65 @@ package provide tool::pipeline 0.1
 ###
 # START: class.tcl
 ###
+::clay::define ::tool::class {
+  method clay {submethod args} {
+    my variable clay
+    if {![info exists clay]} {
+      set clay {}
+    }
+    switch $submethod {
+      ancestors {
+        tailcall ::clay::ancestors [self]
+      }
+      branchset {
+        set value [lindex $args end]
+        set path [::clay::path {*}[lrange $args 0 end-1]]
+        ::clay::dictmerge clay {*}$path $value
+      }
+      exists {
+        set path [::clay::leaf {*}$args]
+        if {![info exists clay]} {
+          return 0
+        }
+        return [dict exists $clay {*}$path]
+      }
+      dump {
+        return $clay
+      }
+      getnull -
+      get {
+        if {[llength $args]==0} {
+          return $clay
+        }
+        if {![dict exists $clay {*}$args]} {
+          return {}
+        }
+        tailcall dict get $clay {*}$args
+      }
+      merge {
+        foreach arg $args {
+          ::clay::dictmerge clay {*}$arg
+        }
+      }
+      search {
+        foreach aclass [::clay::ancestors [self]] {
+          if {[$aclass clay exists {*}$args]} {
+            return [$aclass clay get {*}$args]
+          }
+        }
+      }
+      set {
+        #puts [list [self] clay SET {*}$args]
+        set value [lindex $args end]
+        set path [::clay::leaf {*}[lrange $args 0 end-1]]
+        ::clay::dictmerge clay {*}$path $value
+      }
+      default {
+        dict $submethod clay {*}$args
+      }
+    }
+  }
+}
 
 ###
 # END: class.tcl

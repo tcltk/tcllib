@@ -436,7 +436,7 @@
         lappend classlist $class
       }
     }
-    my Meta_Mixin {*}$classlist
+    my Clay_Mixin {*}$classlist
 
     foreach {slot classes} $args {
       foreach class $classes {
@@ -463,9 +463,9 @@
     return $mixinmap
   }
 
-  method clay {submethod args} {
+method clay {submethod args} {
     my variable clay claycache clayorder
-    if {![info exists meta]} {set clay {}}
+    if {![info exists clay]} {set clay {}}
     if {![info exists claycache]} {set claycache {}}
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
@@ -473,6 +473,12 @@
     switch $submethod {
       ancestors {
         return $clayorder
+      }
+      branchset {
+        set path [::clay::path [lrange $args 1 end-1]]
+        foreach {f v} [lindex $args $end] {
+          dict set clay {*}$path [string trim $f :/-] $v
+        }
       }
       cget {
         # Leaf searches return one data field at a time
@@ -496,6 +502,14 @@
             dict set claycache {*}$args $value
             return $value
           }
+          if {[llength $args]==1} {
+            set field [lindex $args 0]
+            if {[$class clay exists public/ option/ ${field}/ default]} {
+              set value [$class clay get public/ option/ ${field}/ default]
+              dict set claycache {*}$args $value
+              return $value
+            }
+          }
         }
         return {}
       }
@@ -504,7 +518,7 @@
         set result $clay
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
-          set result [::clay::dictmerge $result [$class clay dump]]
+          ::clay::dictmerge result [$class clay dump]
         }
         return $result
       }
@@ -535,11 +549,14 @@
       getnull -
       get {
         set leaf [expr {[string index [lindex $args end] end] ne "/"}]
+        #puts [list [self] clay get {*}$args (leaf: $leaf)]
         if {$leaf} {
+          #puts [list EXISTS: (clay) [dict exists $clay {*}$args]]
           if {[dict exists $clay {*}$args]} {
             return [dict get $clay {*}$args]
           }
           # Search in our local cache
+          #puts [list EXISTS: (claycache) [dict exists $claycache {*}$args]]
           if {[dict exists $claycache {*}$args]} {
             return [dict get $claycache {*}$args]
           }
@@ -560,7 +577,7 @@
           }
           # Search in the in our list of classes for an answer
           foreach class $clayorder {
-            set result [::clay::dictmerge $result [$class clay get {*}$args]]
+            ::clay::dictmerge result [$class clay get {*}$args]
           }
           return $result
         }
@@ -585,10 +602,15 @@
         }
       }
       merge {
-        ::clay::dictmerge clay {*}$args
+        foreach arg $args {
+          ::clay::dictmerge clay {*}$arg
+        }
       }
       mixin {
-        my Meta_Mixin {*}$args
+        my Clay_Mixin {*}$args
+      }
+      replace {
+        set clay [lindex $args 0]
       }
       source {
         if {[dict exists $clay {*}$args]} {
@@ -602,7 +624,8 @@
         return {}
       }
       set {
-        dict set clay {*}$args
+        #puts [list [self] clay SET {*}$args]
+        ::clay::dictmerge clay {*}$args
       }
       default {
         dict $submethod clay {*}$args
@@ -610,8 +633,7 @@
     }
   }
 
-
-  method Meta_Mixin args {
+  method Clay_Mixin args {
     ###
     # Mix in the class
     ###

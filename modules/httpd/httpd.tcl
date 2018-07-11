@@ -283,7 +283,7 @@ Connection close}
     my variable chan dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
-    my delegate <server> $ServerObj
+    my clay delegate <server> $ServerObj
     foreach {field value} [::clay::args_to_options {*}$args] {
       my clay set config $field: $value
     }
@@ -408,7 +408,7 @@ body {
   # REPLACE ME:
   # This method is the "meat" of your application.
   # It writes to the result buffer via the "puts" method
-  # and can tweak the headers via "meta put header_reply"
+  # and can tweak the headers via "clay put header_reply"
   ###
   method content {} {
     my puts [my html_header {Hello World!}]
@@ -742,11 +742,6 @@ namespace eval ::httpd::coro {}
     foreach {var val} $arglist {
       my clay set server/ $var $val
     }
-    #my variable meta
-    #puts $clay
-    #puts [list [self] clay get server/ configuration_file]
-    #puts [my clay get server/ configuration_file]
-    #puts [list CALLING START]
     my start
   }
 
@@ -840,9 +835,9 @@ namespace eval ::httpd::coro {}
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixin {*}$mixinmap
+      $pageobj clay mixinmap {*}$mixinmap
       if {[dict exists $reply delegate]} {
-        $pageobj delegate {*}[dict get $reply delegate]
+        $pageobj clay delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -927,7 +922,7 @@ namespace eval ::httpd::coro {}
     if {[info command $class] eq {}} {
       error "Class $class for plugin $slot does not exist"
     }
-    my mixin $slot $class
+    my clay mixinmap $slot $class
     my variable mixinmap
 
     ###
@@ -1900,9 +1895,9 @@ The page you are looking for: <b>[my clay get REQUEST_URI]</b> does not exist.
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixin {*}$mixinmap
+      $pageobj clay mixinmap {*}$mixinmap
       if {[dict exists $reply delegate]} {
-        $pageobj delegate {*}[dict get $reply delegate]
+        $pageobj clay delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -2144,9 +2139,9 @@ package require tcl::chan::memchan
       set slot [string range $reply 6 end]
       dict set mixinmap [string tolower $slot] [dict get $reply $item]
     }
-    $pageobj mixin {*}$mixinmap
+    $pageobj clay mixinmap {*}$mixinmap
     if {[dict exists $reply delegate]} {
-      $pageobj delegate {*}[dict get $reply delegate]
+      $pageobj clay delegate {*}[dict get $reply delegate]
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]

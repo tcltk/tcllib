@@ -125,9 +125,9 @@ namespace eval ::httpd::coro {}
         set slot [string range $reply 6 end]
         dict set mixinmap [string tolower $slot] [dict get $reply $item]
       }
-      $pageobj mixin {*}$mixinmap
+      $pageobj clay mixinmap {*}$mixinmap
       if {[dict exists $reply delegate]} {
-        $pageobj delegate {*}[dict get $reply delegate]
+        $pageobj clay delegate {*}[dict get $reply delegate]
       }
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -212,7 +212,7 @@ namespace eval ::httpd::coro {}
     if {[info command $class] eq {}} {
       error "Class $class for plugin $slot does not exist"
     }
-    my mixin $slot $class
+    my clay mixinmap $slot $class
     my variable mixinmap
 
     ###
