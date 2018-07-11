@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.8
+set version 0.7
 set module [file tail $moddir]
 
 set fout [open [file join $moddir ${module}.tcl] w]
@@ -30,7 +30,6 @@ foreach file {
   uuid.tcl
   ensemble.tcl
   metaclass.tcl
-  object.tcl
   option.tcl
   event.tcl
   pipeline.tcl

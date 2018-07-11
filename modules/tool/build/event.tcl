@@ -32,7 +32,7 @@ proc ::tool::event::cancel {self {task *}} {
 proc ::tool::event::generate {self event args} {
   set wholist [Notification_list $self $event]
   if {$wholist eq {}} return
-  set dictargs [::clay::args_to_options {*}$args]
+  set dictargs [::oo::meta::args_to_options {*}$args]
   set info $dictargs
   set strict 0
   set debug 0

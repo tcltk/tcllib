@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------
-# TITLE:
+# TITLE: 
 #    tool.tcl
 #
 # PROJECT:
@@ -18,23 +18,12 @@ namespace eval ::tool {}
 namespace eval ::tool::define {}
 proc ::tool::define::array {name {values {}}} {
   set class [current_class]
-  set name [string trimright $name :/]
-  if {![$class clay exists public/ array/ $name/]} {
-    $class clay set public/ array/ $name/ {}
+  set name [string trimright $name :]:
+  if {![::oo::meta::info $class exists array $name]} {
+    ::oo::meta::info $class set array $name {}
   }
   foreach {var val} $values {
-    $class clay set public/ array/ $name/ $var $val
-  }
-}
-
-proc ::tool::define::Dict {name {values {}}} {
-  set class [current_class]
-  set name [string trimright $name :/]
-  if {![$class clay exists public/ dict/ $name/]} {
-    $class clay set public/ dict/ $name/ {}
-  }
-  foreach {var val} $values {
-    $class clay set public/ dict/ $name/ $var $val
+    ::oo::meta::info $class set array $name: $var $val
   }
 }
 
@@ -43,7 +32,7 @@ proc ::tool::define::Dict {name {values {}}} {
 ###
 proc ::tool::define::component {name info} {
   set class [current_class]
-  $class clay set public/ delegate/ [string trim $name :/]/ $info
+  ::oo::meta::info $class branchset component $name $info
 }
 
 ###
@@ -52,9 +41,6 @@ proc ::tool::define::component {name info} {
 ###
 proc ::tool::define::constructor {arglist rawbody} {
   set body {
-my variable clay claycache
-set clay {}
-set claycache {}
 ::tool::object_create [self] [info object class [self]]
 # Initialize public variables and options
 my InitializePublic
@@ -74,16 +60,7 @@ my initialize
 ###
 proc ::tool::define::class_method {name arglist body} {
   set class [current_class]
-  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
-}
-
-proc ::tool::define::clay {args} {
-  ::set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
-    $class clay {*}$args
-  } else {
-    $class clay set {*}$args
-  }
+  ::oo::meta::info $class set class_typemethod $name: [list $arglist $body]
 }
 
 ###
@@ -103,56 +80,6 @@ set DestroyEvent 1
   ::oo::define [current_class] destructor $body
 }
 
-proc ::tool::define::meta {args} {
-  ::set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
-    $class clay {*}$args
-  } else {
-    $class clay set {*}$args
-  }
-}
-
-# title: Define an option for the class
-###
-proc ::tool::define::option {name args} {
-  set class [current_class]
-  set dictargs {default {}}
-  foreach {var val} [::clay::args_to_dict {*}$args] {
-    dict set dictargs [string trim $var -:] $val
-  }
-  set name [string trimleft $name -:]
-  ###
-  # Option Class handling
-  ###
-  set optclass [string trim [dict getnull $dictargs class] :/]
-  if {$optclass ne {}} {
-    # Consult the global option_classes data structure for template fields
-    foreach {f v} [dict getnull $::tool::option_classes $optclass] {
-      if {![dict exists $dictargs $f]} {
-        dict set dictargs $f $v
-      }
-    }
-    if {$optclass eq "variable"} {
-      $class clay set public/ variable/ $name [dict getnull $dictargs default]
-    }
-  }
-  $class clay set public/ option/ ${name}/ $dictargs
-}
-
-# title: Define a class of options
-# description:
-#    Option classes are a template of properties that other
-#    options can inherit.
-###
-proc ::tool::define::option_class {name args} {
-  set class [current_class]
-  set dictargs {default {}}
-  set name [string trimleft $name -:]
-  foreach {var val} [::clay::args_to_dict {*}$args] {
-    dict set ::tool::option_classes $name $var $val
-  }
-}
-
 ###
 # topic: 8bcae430f1eda4ccdb96daedeeea3bd409c6bb7a
 # description: Add properties and option handling
@@ -162,16 +89,16 @@ proc ::tool::define::property args {
   switch [llength $args] {
     2 {
       set type const
-      set property [string trimleft [lindex $args 0] :/-]
+      set property [string trimleft [lindex $args 0] :]
       set value [lindex $args 1]
-      $class clay set $type/ $property $value
+      ::oo::meta::info $class set $type $property: $value
       return
     }
     3 {
       set type     [lindex $args 0]
-      set property [string trimleft [lindex $args 1] :/-]
+      set property [string trimleft [lindex $args 1] :]
       set value    [lindex $args 2]
-      $class clay set $type/ $property $value
+      ::oo::meta::info $class set $type $property: $value
       return
     }
     default {
@@ -180,6 +107,7 @@ property name type valuedict
 OR property name value"
     }
   }
+  ::oo::meta::info $class set {*}$args
 }
 
 ###
@@ -194,8 +122,9 @@ OR property name value"
 ###
 proc ::tool::define::variable {name {default {}}} {
   set class [current_class]
-  set name [string trimright $name :-/]
-  $class clay set public/ variable/ $name $default
+  set name [string trimright $name :]
+  ::oo::meta::info $class set variable $name: $default
+  ::oo::define $class variable $name
 }
 
 ###
@@ -226,8 +155,10 @@ proc ::tool::args_to_options args {
 # topic: a92cd258900010f656f4c6e7dbffae57
 ###
 proc ::tool::dynamic_methods class {
+  ::oo::meta::rebuild $class
+  set metadata [::oo::meta::metadata $class]
   foreach command [info commands [namespace current]::dynamic_methods_*] {
-    $command $class
+    $command $class $metadata
   }
 }
 
@@ -285,18 +216,11 @@ proc ::tool::dynamic_arguments {ensemble method arglist args} {
 ###
 # topic: b88add196bb63abccc44639db5e5eae1
 ###
-proc ::tool::dynamic_methods_class {thisclass} {
-  set methods {}
-  foreach aclass [::clay::ancestors $thisclass] {
-    set mdata  [$aclass clay get class_typemethod/]
-    foreach {method info} $mdata {
-      set method [string trimright $method :/-]
-      if {$method in $methods} continue
-      lappend methods $method
-      set arglist [dict getnull $info arglist]
-      set body    [dict getnull $info body]
-      ::oo::objdefine $thisclass method $method $arglist $body
-    }
+proc ::tool::dynamic_methods_class {thisclass metadata} {
+  foreach {method info} [dict getnull $metadata class_typemethod] {
+    lassign $info arglist body
+    set method [string trimright $method :]
+    ::oo::objdefine $thisclass method $method $arglist $body
   }
 }
 
@@ -381,3 +305,329 @@ proc ::tool::object_destroy objname {
     unset -nocomplain ${varname}($objname)
   }
 }
+
+#-------------------------------------------------------------------------
+# Option Handling Mother of all Classes
+
+# tool::object
+#
+# This class is inherited by all classes that have options.
+#
+
+::tool::define ::tool::object {
+  # Put MOACish stuff in here
+  variable signals_pending create
+  variable organs {}
+  variable mixins {}
+  variable mixinmap {}
+  variable DestroyEvent 0
+
+  constructor args {
+    my Config_merge [::tool::args_to_options {*}$args]
+  }
+  
+  destructor {}
+    
+  method ancestors {{reverse 0}} {
+    set result [::oo::meta::ancestors [info object class [self]]]
+    if {$reverse} {
+      return [lreverse $result]
+    }
+    return $result
+  }
+  
+  method DestroyEvent {} {
+    my variable DestroyEvent
+    return $DestroyEvent
+  }
+  
+  ###
+  # title: Forward a method
+  ###
+  method forward {method args} {
+    oo::objdefine [self] forward $method {*}$args
+  }
+  
+  ###
+  # title: Direct a series of sub-functions to a seperate object
+  ###
+  method graft args {
+    my variable organs
+    if {[llength $args] == 1} {
+      error "Need two arguments"
+    }
+    set object {}
+    foreach {stub object} $args {
+      if {$stub eq "class"} {
+        # Force class to always track the object's current class
+        set obj [info object class [self]]
+      }
+      dict set organs $stub $object
+      oo::objdefine [self] forward <${stub}> $object
+      oo::objdefine [self] export <${stub}>
+    }
+    return $object
+  }
+  
+  # Called after all options and public variables are initialized
+  method initialize {} {}
+  
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
+  method InitializePublic {} {
+    my variable config meta
+    if {![info exists meta]} {
+      set meta {}
+    }
+    if {![info exists config]} {
+      set config {}
+    }
+    my ClassPublicApply {}
+  }
+  
+  class_method info {which} {
+    my variable cache
+    if {![info exists cache($which)]} {
+      set cache($which) {}
+      switch $which {
+        public {
+          dict set cache(public) variable [my meta branchget variable]
+          dict set cache(public) array [my meta branchget array]
+          set optinfo [my meta getnull option]
+          dict set cache(public) option_info $optinfo
+          foreach {var info} [dict getnull $cache(public) option_info] {
+            if {[dict exists $info aliases:]} {
+              foreach alias [dict exists $info aliases:] {
+                dict set cache(public) option_canonical $alias $var
+              }
+            }
+            set getcmd [dict getnull $info default-command:]
+            if {$getcmd ne {}} {
+              dict set cache(public) option_default_command $var $getcmd
+            } else {
+              dict set cache(public) option_default_value $var [dict getnull $info default:]
+            }
+            dict set cache(public) option_canonical $var $var
+          }
+        }
+      }
+    }
+    return $cache($which)
+  }
+  
+  ###
+  # Incorporate the class's variables, arrays, and options
+  ###
+  method ClassPublicApply class {
+    my variable config
+    set integrate 0
+    if {$class eq {}} {
+      set class [info object class [self]]      
+    } else {
+      set integrate 1
+    }
+    set public [$class info public]
+    foreach {var value} [dict getnull $public variable] {
+      if { $var in {meta config} } continue
+      my variable $var
+      if {![info exists $var]} {
+        set $var $value
+      }
+    }
+    foreach {var value} [dict getnull $public array] {
+      if { $var eq {meta config} } continue
+      my variable $var
+      foreach {f v} $value {
+        if {![array exists ${var}($f)]} {
+          set ${var}($f) $v
+        }
+      }
+    }
+    set dat [dict getnull $public option_info]
+    if {$integrate} {
+      my meta rmerge [list option $dat]
+    }
+    my variable option_canonical
+    array set option_canonical [dict getnull $public option_canonical]
+    set dictargs {}
+    foreach {var getcmd} [dict getnull $public option_default_command] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
+      }
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var [{*}[string map [list %field% $var %self% [namespace which my]] $getcmd]]
+    }
+    foreach {var value} [dict getnull $public option_default_value] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
+      }
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var $value
+    }
+    ###
+    # Apply all inputs with special rules
+    ###
+    foreach {field val} $dictargs {
+      if {[dict exists $config $field]} continue
+      set script [dict getnull $dat $field set-command:]
+      dict set config $field $val
+      if {$script ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
+      }
+    }
+  }
+  
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
+  method mixin args {
+    ###
+    # Mix in the class
+    ###
+    my variable mixins
+    set prior $mixins
+
+    set mixins $args
+    ::oo::objdefine [self] mixin {*}$args
+    ###
+    # Build a compsite map of all ensembles defined by the object's current
+    # class as well as all of the classes being mixed in
+    ###
+    set emap [::tool::ensemble_build_map [::info object class [self]] {*}[lreverse $args]]
+    set body [::tool::ensemble_methods $emap]
+    oo::objdefine [self] $body
+    foreach class $args {
+      if {$class ni $prior} {
+        my meta mixin $class
+      }
+      my ClassPublicApply $class
+    }
+    foreach class $prior {
+      if {$class ni $mixins } { 
+        my meta mixout $class
+      }
+    }
+  }
+
+  method mixinmap args { 
+    my variable mixinmap
+    set priorlist {}
+    foreach {slot classes} $args {
+      if {[dict exists $mixinmap $slot]} {
+        lappend priorlist {*}[dict get $mixinmap $slot]  
+        foreach class [dict get $mixinmap $slot] {
+          if {$class ni $classes && [$class meta exists mixin unmap-script:]} {
+            if {[catch [$class meta get mixin unmap-script:] err errdat]} {
+              puts stderr "[self] MIXIN ERROR POPPING $class:\n[dict get $errdat -errorinfo]"
+            }
+          }
+        }
+      }
+      dict set mixinmap $slot $classes
+    }
+    my Recompute_Mixins
+    foreach {slot classes} $args {
+      foreach class $classes {
+        if {$class ni $priorlist && [$class meta exists mixin map-script:]} {
+          if {[catch [$class meta get mixin map-script:] err errdat]} {
+            puts stderr "[self] MIXIN ERROR PUSHING $class:\n[dict get $errdat -errorinfo]"
+          }
+        }
+      }
+    }
+    foreach {slot classes} $mixinmap {
+      foreach class $classes {
+        if {[$class meta exists mixin react-script:]} {
+          if {[catch [$class meta get mixin react-script:] err errdat]} {
+            puts stderr "[self] MIXIN ERROR REACTING $class:\n[dict get $errdat -errorinfo]"
+          }
+        }
+      }
+    }
+  }
+
+  method debug_mixinmap {} {
+    my variable mixinmap
+    return $mixinmap
+  }
+
+  method Recompute_Mixins {} {
+    my variable mixinmap
+    set classlist {}
+    foreach {item class} $mixinmap {
+      if {$class ne {}} {
+        lappend classlist $class
+      }
+    }
+    my mixin {*}$classlist
+  }
+  
+  method morph newclass {
+    if {$newclass eq {}} return
+    set class [string trimleft [info object class [self]]]
+    set newclass [string trimleft $newclass :]
+    if {[info command ::$newclass] eq {}} {
+      error "Class $newclass does not exist"
+    }
+    if { $class ne $newclass } {
+      my Morph_leave
+      my variable mixins
+      oo::objdefine [self] class ::${newclass}
+      my graft class ::${newclass}
+      # Reapply mixins
+      my mixin {*}$mixins
+      my InitializePublic
+      my Morph_enter
+    }
+  }
+
+  ###
+  # Commands to perform as this object transitions out of the present class
+  ###
+  method Morph_leave {} {}
+  ###
+  # Commands to perform as this object transitions into this class as a new class
+  ###
+  method Morph_enter {} {}
+  
+  ###
+  # title: List which objects are forwarded as organs
+  ###
+  method organ {{stub all}} {
+    my variable organs
+    if {![info exists organs]} {
+      return {}
+    }
+    if { $stub eq "all" } {
+      return $organs
+    }
+    return [dict getnull $organs $stub]
+  }
+}
+
+
