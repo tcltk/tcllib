@@ -266,7 +266,7 @@ proc ::cron::once_in_a_while body {
   append script $body
   # Add a safety to allow this while to only execute once per call
   append script {if {$_eventid_==$::cron::current_event} yield}
-  uplevel 1 [list while 1 $body]
+  uplevel 1 [list while 1 $script]
 }
 
 proc ::cron::sleep ms {
