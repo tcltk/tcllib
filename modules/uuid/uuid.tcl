@@ -48,7 +48,7 @@ proc ::uuid::generate_tcl_machinfo {} {
   ###
   if {[file exists /dev/urandom]} {
     set fin [open /dev/urandom r]
-    set machinfo [read $fin 128]
+    set machinfo [binary encode base64 [read $fin 128]]
     close $fin
   } elseif {[catch {package require nettool}]} {
     # More spatial information -- better than hostname.
