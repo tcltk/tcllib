@@ -12,23 +12,21 @@ puts $fout [string map $map {
 ###
 # clay.tcl
 #
-# Copyright (c) 2015-2018 Sean Woods
-# Copyright (c) 2015 Donald K Fellows
+# Copyright (c) 2018 Sean Woods
 #
 # BSD License
 ###
 # @@ Meta Begin
 # Package %module% %version%
 # Meta platform     tcl
-# Meta summary      A utility for defining a domain specific language for TclOO systems
-# Meta description  This package allows developers to generate
-# Meta description  domain specific languages to describe TclOO
-# Meta description  classes and objects.
+# Meta summary      A minimalist framework for complex TclOO development
+# Meta description  This package introduces the method "clay" to both oo::object
+# Meta description  and oo::class which facilitate complex interactions between objects
+# Meta description  and their ancestor and mixed in classes.
 # Meta category     TclOO
-# Meta subject      metaclasses
+# Meta subject      framework
 # Meta require      {Tcl 8.6}
 # Meta author       Sean Woods
-# Meta author       Donald K. Fellows
 # Meta license      BSD
 # @@ Meta End
 }]
@@ -51,9 +49,10 @@ lappend loaded build.tcl test.tcl
 foreach file {
   core.tcl
   procs.tcl
+  class.tcl
+  object.tcl
   metaclass.tcl
   ensemble.tcl
-  class.tcl
 } {
   lappend loaded $file
   set fin [open [file join $srcdir $file] r]

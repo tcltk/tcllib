@@ -68,91 +68,6 @@
     }
   }
 
-
-  method meta {submethod args} {
-    my variable meta
-    if {![info exists meta]} {
-      set meta {}
-    }
-    switch $submethod {
-      dump {
-        return $meta
-      }
-      add {
-        set field [lindex $args 0]
-        if {![dict exists $meta $field]} {
-          dict set meta $field {}
-        }
-        foreach arg [lrange $args 1 end] {
-          if {$arg ni [dict get $meta $field]} {
-            dict lappend meta $field $arg
-          }
-        }
-        return [dict get $meta $field]
-      }
-      remove {
-        set field [lindex $args 0]
-        if {![dict exists meta $field]} {
-          return
-        }
-        set rlist [lrange $args 1 end]
-        set olist [dict get $meta $field]
-        set nlist {}
-        foreach arg $olist {
-          if {$arg in $rlist} continue
-          lappend nlist $arg
-        }
-        dict set meta $field $nlist
-        return $nlist
-      }
-      exists {
-        return [dict exists $meta {*}$args]
-      }
-      getnull -
-      get {
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
-        }
-        return {}
-      }
-      cget {
-        set field [lindex $args 0]
-        if {[dict exists $meta $field]} {
-          return [dict get $meta $field]
-        }
-        return [lindex $args 1]
-      }
-      set {
-        if {[llength $args]==1} {
-          foreach {field value} $args {
-            dict set meta [string trimright $field :]: $value
-          }
-        } else {
-          set field [lindex $args end-1]
-          set value [lindex $args end]
-          dict set meta {*}[lrange $args 0 end-2] [string trimright $field :]: $value
-        }
-      }
-      default {
-        error "Valid: add cget dump exists get getnull remove set"
-      }
-    }
-  }
-  
-  method graft args {
-    my variable organs
-    if {[llength $args] == 1} {
-      error "Need two arguments"
-    }
-    set object {}
-    foreach {stub object} $args {
-      dict set organs $stub $object
-      oo::objdefine [self] forward <${stub}> $object
-      oo::objdefine [self] export <${stub}>
-    }
-    return $object
-  }
-
   method initialize {} {}
 
 
@@ -234,7 +149,7 @@
         }
       }
       if {$mixinslot ne {}} {
-        my mixin $mixinslot $class
+        my clay mixin $mixinslot $class
       } elseif {[info command $class] ne {}} {
         if {[info object class [self]] ne $class} {
           ::oo::objdefine [self] class $class
@@ -251,9 +166,7 @@
     }
   }
 
-  method mixin {slot classname} {
-    my variable mixinslot
-    set class {}
+  method Practcl_Mixin_Pattern {slot classname} {
     set map [list @slot@ $slot @name@ $classname]
     foreach pattern [split [string map $map {
       @name@
@@ -266,9 +179,13 @@
       set pattern [string trim $pattern]
       set matches [info commands $pattern]
       if {![llength $matches]} continue
-      set class [lindex $matches 0]
-      break
+      return [lindex $matches 0]
     }
+  }
+
+  method mixin {slot classname} {
+    my variable mixinslot
+    set class [my Practcl_Mixin_Pattern $slot $classname]
     ::practcl::debug [self] mixin $slot $class
     dict set mixinslot $slot $class
     set mixins {}
@@ -277,19 +194,6 @@
       lappend mixins $c
     }
     oo::objdefine [self] mixin {*}$mixins
-  }
-
-  method organ {{stub all}} {
-    my variable organs
-    if {![info exists organs]} {
-      return {}
-    }
-    if { $stub eq "all" } {
-      return $organs
-    }
-    if {[dict exists $organs $stub]} {
-      return [dict get $organs $stub]
-    }
   }
 
   method script script {

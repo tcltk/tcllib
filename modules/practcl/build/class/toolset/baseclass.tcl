@@ -10,7 +10,7 @@ oo::class create ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
-  
+
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
@@ -23,11 +23,11 @@ oo::class create ::practcl::toolset {
       return [my define get builddir [file join $PWD pkg $name]]
     }
   }
-  
+
   method MakeDir {srcdir} {
     return $srcdir
   }
-  
+
   method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
@@ -136,7 +136,7 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-  
+
   method make-autodetect {} {}
 }
 
@@ -153,12 +153,12 @@ oo::objdefine ::practcl::toolset {
     }
     set class [$object define get toolset]
     if {$class ne {}} {
-      $object mixin toolset $class
+      $object clay mixinmap toolset [my Practcl_Mixin_Pattern toolset $class]
     } else {
       if {[info exists ::env(VisualStudioVersion)]} {
-        $object mixin toolset ::practcl::toolset.msvc
+        $object clay mixinmap toolset ::practcl::toolset.msvc
       } else {
-        $object mixin toolset ::practcl::toolset.gcc
+        $object clay mixinmap toolset ::practcl::toolset.gcc
       }
     }
   }

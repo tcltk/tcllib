@@ -15,7 +15,7 @@ oo::class create ::practcl::distribution {
       isodate {}
     }
   }
-  
+
   method DistroMixIn {} {
     my define set scm none
   }
@@ -24,7 +24,7 @@ oo::class create ::practcl::distribution {
     if {[my define exists sandbox]} {
       return [my define get sandbox]
     }
-    if {[my organ project] ni {::noop {}}} {
+    if {[my clay delegate project] ni {::noop {}}} {
       set sandbox [my <project> define get sandbox]
       if {$sandbox ne {}} {
         my define set sandbox $sandbox
@@ -77,7 +77,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define exists sandbox]} {
       return [$object define get sandbox]
     }
-    if {[$object organ project] ni {::noop {}}} {
+    if {[$object clay delegate project] ni {::noop {}}} {
       set sandbox [$object <project> define get sandbox]
       if {$sandbox ne {}} {
         $object define set sandbox $sandbox
@@ -107,7 +107,7 @@ oo::objdefine ::practcl::distribution {
     if {[file exists $srcdir]} {
       foreach class [::info commands ${classprefix}*] {
         if {[$class claim_path $srcdir]} {
-          $object mixin distribution $class
+          $object clay mixinmap distribution $class
           $object define set scm [string range $class [string length ::practcl::distribution.] end]
           return [$object define get scm]
         }
@@ -115,7 +115,7 @@ oo::objdefine ::practcl::distribution {
     }
     foreach class [::info commands ${classprefix}*] {
       if {[$class claim_object $object]} {
-        $object mixin distribution $class
+        $object clay mixinmap distribution $class
         $object define set scm [string range $class [string length ::practcl::distribution.] end]
         return [$object define get scm]
       }
@@ -123,7 +123,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define get scm] eq {} && [$object define exists file_url]} {
       set class ::practcl::distribution.snapshot
       $object define set scm snapshot
-      $object mixin distribution $class
+      $object clay mixinmap distribution $class
       return [$object define get scm]
     }
     error "Cannot determine source distribution method"

@@ -764,8 +764,8 @@ test clay-object-clay-a-0005 {Test the clay ancestors function} {
 test clay-object-clay-a-0006 {Test the clay ancestors function} {
   $OBJ2 clay ancestors
 } {::TEST::myclass ::clay::object ::oo::object}
-test clay-object-clay-a-0007 {Test the clay source function} {
-  $OBJ2 clay source flavor
+test clay-object-clay-a-0007 {Test the clay provenance  function} {
+  $OBJ2 clay provenance  flavor
 } ::TEST::myclass
 
 ###
@@ -776,7 +776,7 @@ test clay-object-clay-a-0008 {Test that object local setting override the class}
   $OBJ2 clay get color
 } purple
 test clay-object-clay-a-0009 {Test that object local setting override the class} {
-  $OBJ2 clay source color
+  $OBJ2 clay provenance  color
 } self
 
 ::clay::define ::TEST::myclasse {
@@ -811,16 +811,16 @@ set OBJ3 [::TEST::myclasse new {}]
 test clay-object-clay-b-0001 {Test that objects of the class get properties} {
   $OBJ3 clay get color
 } blue
-test clay-object-clay-b-0002 {Test the clay source function} {
-  $OBJ3 clay source color
+test clay-object-clay-b-0002 {Test the clay provenance  function} {
+  $OBJ3 clay provenance  color
 } ::TEST::myclasse
 test clay-object-clay-b-0003 {Test that objects of the class get properties} {
   $OBJ3 clay get flavor
 } strawberry
-test clay-object-clay-b-0004 {Test the clay source function} {
-  $OBJ3 clay source flavor
+test clay-object-clay-b-0004 {Test the clay provenance  function} {
+  $OBJ3 clay provenance  flavor
 } ::TEST::myclass
-test clay-object-clay-b-0005 {Test the clay source function} {
+test clay-object-clay-b-0005 {Test the clay provenance  function} {
   $OBJ3 clay ancestors
 } {::TEST::myclasse ::TEST::myclass ::clay::object ::oo::object}
 
@@ -1004,7 +1004,7 @@ test clay-mixin-f-0004 {Test that clay data follows the rules of inheritence and
 } {::TEST::coloring.calico ::TEST::species.cat ::TEST::thing ::clay::object ::TEST::animal ::oo::object}
 
 test clay-mixin-f-0005 {Test that clay data from a mixin works} {
-  $OBJ clay source color
+  $OBJ clay provenance  color
 } {::TEST::coloring.calico}
 
 ###

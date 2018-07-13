@@ -161,3 +161,91 @@ proc ::clay::object_destroy objname {
 }
 
 
+# clay::object
+#
+# This class is inherited by all classes that have options.
+#
+::clay::define ::clay::object {
+  Variable organs {}
+  Variable clay {}
+  Variable mixinmap {}
+  Variable claycache {}
+  Variable DestroyEvent 0
+
+  method Evolve {} {
+    my Ensembles_Rebuild
+  }
+
+  method Ensembles_Rebuild {} {
+    my variable clayorder clay claycache
+    set claycache {}
+    set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
+    if {[info exists clay]} {
+      set emap [dict getnull $clay method_ensemble/]
+    } else {
+      set emap {}
+    }
+    if {$::clay::trace>2} {
+      puts "Rebuilding Ensembles"
+    }
+    foreach class $clayorder {
+      foreach {var value} [$class clay get public/ variable/] {
+        set var [string trim $var :/]
+        if { $var in {clay} } continue
+        my variable $var
+        if {![info exists $var]} {
+          if {$::clay::trace>2} {puts [list initialize variable $var $value]}
+          set $var $value
+        }
+      }
+      foreach {var value} [$class clay get public/ dict/] {
+        set var [string trim $var :/]
+        my variable $var
+        if {![info exists $var]} { set $var {} }
+        foreach {f v} $value {
+          if {![dict exists ${var} $f]} {
+            if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
+            dict set ${var} $f $v
+          }
+        }
+      }
+      foreach {var value} [$class clay get public/ array/] {
+        set var [string trim $var :/]
+        if { $var eq {clay} } continue
+        my variable $var
+        if {![info exists $var]} { array set $var {} }
+        foreach {f v} $value {
+          if {![array exists ${var}($f)]} {
+            if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
+            set ${var}($f) $v
+          }
+        }
+      }
+      ###
+      # Build a compsite map of all ensembles defined by the object's current
+      # class as well as all of the classes being mixed in
+      ###
+      foreach {mensemble einfo} [$class clay get method_ensemble/] {
+        set ensemble [string trim $mensemble :/]
+        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
+
+        foreach {method info} $einfo {
+          dict set info source $class
+          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
+          dict set emap $ensemble $method $info
+        }
+      }
+    }
+    foreach {ensemble einfo} $emap {
+      #if {[dict exists $einfo _body]} continue
+      set body [::clay::ensemble_methodbody $ensemble $einfo]
+      if {$::clay::trace>2} {
+        set rawbody $body
+        set body {puts [list [self] <object> [self method]]}
+        append body \n $rawbody
+      }
+      oo::objdefine [self] method $ensemble {{method default} args} $body
+    }
+  }
+}
+

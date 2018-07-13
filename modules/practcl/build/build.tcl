@@ -32,6 +32,7 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
+  clay {build/procs.tcl build/class.tcl build/object.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]

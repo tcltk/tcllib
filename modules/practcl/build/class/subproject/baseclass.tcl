@@ -12,7 +12,7 @@ oo::class create ::practcl::subproject {
 
   method child which {
     switch $which {
-      organs {
+      delegate {
 	# A library can be a project, it can be a module. Any
 	# subordinate modules will indicate their existance
         return [list project [self] module [self]]

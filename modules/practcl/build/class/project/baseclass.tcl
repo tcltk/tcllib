@@ -32,7 +32,7 @@
         dict set contents $field [dict get $rawcontents $field]
       }
     }
-    my graft module [self]
+    my clay delegate module [self]
     array set define $contents
     ::practcl::toolset select [self]
     my initialize
@@ -124,7 +124,7 @@
 
   method child which {
     switch $which {
-      organs {
+      delegate {
 	# A library can be a project, it can be a module. Any
 	# subordinate modules will indicate their existance
         return [list project [self] module [self]]
@@ -148,19 +148,19 @@
 
 
   method tclcore {} {
-    if {[info commands [set obj [my organ tclcore]]] ne {}} {
+    if {[info commands [set obj [my clay delegate tclcore]]] ne {}} {
       return $obj
     }
     if {[info commands [set obj [my project TCLCORE]]] ne {}} {
-      my graft tclcore $obj
+      my clay delegate tclcore $obj
       return $obj
     }
     if {[info commands [set obj [my project tcl]]] ne {}} {
-      my graft tclcore $obj
+      my clay delegate tclcore $obj
       return $obj
     }
     if {[info commands [set obj [my tool tcl]]] ne {}} {
-      my graft tclcore $obj
+      my clay delegate tclcore $obj
       return $obj
     }
     # Provide a fallback
@@ -168,20 +168,20 @@
       tag release class subproject.core
       fossil_url http://core.tcl.tk/tcl
     }]
-    my graft tclcore $obj
+    my clay delegate tclcore $obj
     return $obj
   }
 
   method tkcore {} {
-    if {[set obj [my organ tkcore]] ne {}} {
+    if {[set obj [my clay delegate tkcore]] ne {}} {
       return $obj
     }
-    if {[set obj [my project tk]] ne {}} {
-      my graft tkcore $obj
+    if {[set obj [my clay delegate tk]] ne {}} {
+      my clay delegate tkcore $obj
       return $obj
     }
     if {[set obj [my tool tk]] ne {}} {
-      my graft tkcore $obj
+      my clay delegate tkcore $obj
       return $obj
     }
     # Provide a fallback
@@ -189,7 +189,7 @@
       tag release class tool.core
       fossil_url http://core.tcl.tk/tk
     }]
-    my graft tkcore $obj
+    my clay delegate tkcore $obj
     return $obj
   }
 

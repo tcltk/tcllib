@@ -3,9 +3,9 @@
 
   constructor {parent args} {
     my variable links define
-    set organs [$parent child organs]
-    my graft {*}$organs
-    array set define $organs
+    set delegates [$parent child delegate]
+    my clay delegate {*}$delegates
+    array set define $delegates
     array set define [$parent child define]
     array set links {}
     if {[llength $args]==1 && [file exists [lindex $args 0]]} {

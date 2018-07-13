@@ -10,7 +10,7 @@
   method _MorphPatterns {} {
     return {{@name@} {::practcl::module.@name@} ::practcl::module}
   }
-  
+
   method add args {
     my variable links
     set object [::practcl::object new [self] {*}$args]
@@ -19,10 +19,10 @@
     }
     return $object
   }
-  
-  
+
+
   method install-headers args {}
-  
+
   ###
   # Target handling
   ###
@@ -123,7 +123,7 @@
         set name [lindex $args 0]
         set info [uplevel #0 [list subst [lindex $args 1]]]
         set body [lindex $args 2]
-        
+
         set nspace [namespace current]
         if {[dict exist $make_object $name]} {
           set obj [dict get $$make_object $name]
@@ -147,7 +147,7 @@
           if {[$obj do]} {
             lappend result $name
           }
-        }       
+        }
       }
       do {
         global CWD SRCDIR project SANDBOX
@@ -159,10 +159,10 @@
       }
     }
   }
-  
+
   method child which {
     switch $which {
-      organs {
+      delegate {
         return [list project [my define get project] module [self]]
       }
     }
@@ -339,7 +339,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       }
     }
     if {[llength $errs]} {
-      set logfile [file join $::CWD practcl.log]      
+      set logfile [file join $::CWD practcl.log]
       ::practcl::log $logfile "*** ERRORS ***"
       foreach {item trace} $errs {
         ::practcl::log $logfile "###\n# ERROR\n###\n$item"
