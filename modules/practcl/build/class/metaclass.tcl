@@ -68,6 +68,10 @@
     }
   }
 
+  method graft args {
+    return [my clay delegate {*}$args]
+  }
+
   method initialize {} {}
 
 
@@ -149,7 +153,7 @@
         }
       }
       if {$mixinslot ne {}} {
-        my clay mixin $mixinslot $class
+        my mixin $mixinslot $class
       } elseif {[info command $class] ne {}} {
         if {[info object class [self]] ne $class} {
           ::oo::objdefine [self] class $class
@@ -166,7 +170,9 @@
     }
   }
 
-  method Practcl_Mixin_Pattern {slot classname} {
+  method mixin {slot classname} {
+    my variable mixinslot
+    set class {}
     set map [list @slot@ $slot @name@ $classname]
     foreach pattern [split [string map $map {
       @name@
@@ -179,13 +185,9 @@
       set pattern [string trim $pattern]
       set matches [info commands $pattern]
       if {![llength $matches]} continue
-      return [lindex $matches 0]
+      set class [lindex $matches 0]
+      break
     }
-  }
-
-  method mixin {slot classname} {
-    my variable mixinslot
-    set class [my Practcl_Mixin_Pattern $slot $classname]
     ::practcl::debug [self] mixin $slot $class
     dict set mixinslot $slot $class
     set mixins {}
@@ -194,6 +196,10 @@
       lappend mixins $c
     }
     oo::objdefine [self] mixin {*}$mixins
+  }
+
+  method organ args {
+    return [my clay delegate {*}$args]
   }
 
   method script script {

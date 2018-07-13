@@ -5,5 +5,3 @@ package require oo::dialect
 
 ::namespace eval ::clay {}
 ::namespace eval ::clay::classes {}
-
-set ::clay::trace 0

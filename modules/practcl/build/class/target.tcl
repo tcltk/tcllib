@@ -11,7 +11,9 @@
     array set define $info
     my select
     my initialize
-    my clay delegate {*}[$module_object child delegate]
+    foreach {stub obj} [$module_object child organs] {
+      my graft $stub $obj
+    }
     if {$action_body ne {}} {
       set define(action) $action_body
     }
@@ -52,7 +54,7 @@
     }
     return $needs_make
   }
-
+  
   method output {} {
     set result {}
     set filename [my define get filename]
@@ -73,7 +75,7 @@
     set domake 0
     set needs_make 0
   }
-
+  
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {

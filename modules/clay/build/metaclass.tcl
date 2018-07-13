@@ -166,9 +166,7 @@ proc ::clay::object_destroy objname {
 # This class is inherited by all classes that have options.
 #
 ::clay::define ::clay::object {
-  Variable organs {}
   Variable clay {}
-  Variable mixinmap {}
   Variable claycache {}
   Variable DestroyEvent 0
 

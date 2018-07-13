@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.5
-package provide practcl 0.11.1
+package provide practcl 0.12
 namespace eval ::practcl {}
 
 ###
@@ -71,6 +71,9 @@ proc ::http::wget {url destfile {verbose 1}} {
 ###
 # START: clay/build/procs.tcl
 ###
+::namespace eval ::clay {}
+set ::clay::trace 0
+
 ###
 # Global utilities
 ###
@@ -524,22 +527,18 @@ oo::define oo::object {
         return {}
       }
       delegate {
-        my variable delegate
-        if {![info exists delegate]} {
-          set delegate {}
-        }
-        if {![dict exists delegate <class>]} {
-          dict set delegate <class> [info object class [self]]
+        if {![dict exists $clay delegate/ <class>]} {
+          dict set clay delegate/ <class> [info object class [self]]
         }
         if {[llength $args]==0} {
-          return $delegate
+          return [dict get $clay delegate/]
         }
         if {[llength $args]==1} {
           set stub <[string trim [lindex $args 0] <>]>
-          if {![dict exists $delegate $stub]} {
+          if {![dict exists $clay delegate/ $stub]} {
             return {}
           }
-          return [dict get $delegate $stub]
+          return [dict get $clay delegate/ $stub]
         }
         if {([llength $args] % 2)} {
           error "Usage: delegate
@@ -550,7 +549,7 @@ oo::define oo::object {
         }
         foreach {stub object} $args {
           set stub <[string trim $stub <>]>
-          dict set delegate $stub $object
+          dict set clay delegate/ $stub $object
           oo::objdefine [self] forward ${stub} $object
           oo::objdefine [self] export ${stub}
         }
@@ -738,27 +737,19 @@ oo::define oo::object {
         }
       }
       mixinmap {
-        my variable mixinmap
-        set priorlist {}
         foreach {slot classes} $args {
-          dict set mixinmap $slot $classes
+          dict set clay mixin/ $slot $classes
         }
-
+        set claycache {}
         set classlist {}
-        foreach {item class} $mixinmap {
+        foreach {item class} [my clay get mixin/] {
           if {$class ne {}} {
             lappend classlist $class
           }
         }
         my clay mixin {*}$classlist
       }
-      replace {
-        set clay [lindex $args 0]
-      }
-      script {
-        source [lindex $args 0]
-      }
-      source {
+      provenance {
         if {[dict exists $clay {*}$args]} {
           return self
         }
@@ -768,6 +759,12 @@ oo::define oo::object {
           }
         }
         return {}
+      }
+      replace {
+        set clay [lindex $args 0]
+      }
+      source {
+        source [lindex $args 0]
       }
       set {
         #puts [list [self] clay SET {*}$args]
@@ -2036,6 +2033,10 @@ proc ::practcl::target {name info {action {}}} {
     }
   }
 
+  method graft args {
+    return [my clay delegate {*}$args]
+  }
+
   method initialize {} {}
 
 
@@ -2117,7 +2118,7 @@ proc ::practcl::target {name info {action {}}} {
         }
       }
       if {$mixinslot ne {}} {
-        my clay mixin $mixinslot $class
+        my mixin $mixinslot $class
       } elseif {[info command $class] ne {}} {
         if {[info object class [self]] ne $class} {
           ::oo::objdefine [self] class $class
@@ -2134,7 +2135,9 @@ proc ::practcl::target {name info {action {}}} {
     }
   }
 
-  method Practcl_Mixin_Pattern {slot classname} {
+  method mixin {slot classname} {
+    my variable mixinslot
+    set class {}
     set map [list @slot@ $slot @name@ $classname]
     foreach pattern [split [string map $map {
       @name@
@@ -2147,13 +2150,9 @@ proc ::practcl::target {name info {action {}}} {
       set pattern [string trim $pattern]
       set matches [info commands $pattern]
       if {![llength $matches]} continue
-      return [lindex $matches 0]
+      set class [lindex $matches 0]
+      break
     }
-  }
-
-  method mixin {slot classname} {
-    my variable mixinslot
-    set class [my Practcl_Mixin_Pattern $slot $classname]
     ::practcl::debug [self] mixin $slot $class
     dict set mixinslot $slot $class
     set mixins {}
@@ -2162,6 +2161,10 @@ proc ::practcl::target {name info {action {}}} {
       lappend mixins $c
     }
     oo::objdefine [self] mixin {*}$mixins
+  }
+
+  method organ args {
+    return [my clay delegate {*}$args]
   }
 
   method script script {
@@ -2203,7 +2206,7 @@ oo::class create ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
-
+  
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
@@ -2216,11 +2219,11 @@ oo::class create ::practcl::toolset {
       return [my define get builddir [file join $PWD pkg $name]]
     }
   }
-
+  
   method MakeDir {srcdir} {
     return $srcdir
   }
-
+  
   method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
@@ -2329,7 +2332,7 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-
+  
   method make-autodetect {} {}
 }
 
@@ -2346,12 +2349,12 @@ oo::objdefine ::practcl::toolset {
     }
     set class [$object define get toolset]
     if {$class ne {}} {
-      $object clay mixinmap toolset [my Practcl_Mixin_Pattern toolset $class]
+      $object mixin toolset $class
     } else {
       if {[info exists ::env(VisualStudioVersion)]} {
-        $object clay mixinmap toolset ::practcl::toolset.msvc
+        $object mixin toolset ::practcl::toolset.msvc
       } else {
-        $object clay mixinmap toolset ::practcl::toolset.gcc
+        $object mixin toolset ::practcl::toolset.gcc
       }
     }
   }
@@ -3242,7 +3245,9 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     array set define $info
     my select
     my initialize
-    my clay delegate {*}[$module_object child delegate]
+    foreach {stub obj} [$module_object child organs] {
+      my graft $stub $obj
+    }
     if {$action_body ne {}} {
       set define(action) $action_body
     }
@@ -3283,7 +3288,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     return $needs_make
   }
-
+  
   method output {} {
     set result {}
     set filename [my define get filename]
@@ -3304,7 +3309,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     set domake 0
     set needs_make 0
   }
-
+  
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {
@@ -3342,9 +3347,9 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 
   constructor {parent args} {
     my variable links define
-    set delegates [$parent child delegate]
-    my clay delegate {*}$delegates
-    array set define $delegates
+    set organs [$parent child organs]
+    my clay delegate {*}$organs
+    array set define $organs
     array set define [$parent child define]
     array set links {}
     if {[llength $args]==1 && [file exists [lindex $args 0]]} {
@@ -4582,7 +4587,7 @@ oo::objdefine ::practcl::product {
       $object morph $class
     }
     if {$mixin ne {}} {
-      $object clay mixinmap product $mixin
+      $object mixin product $mixin
     }
   }
 }
@@ -4832,7 +4837,8 @@ oo::objdefine ::practcl::product {
 
   method child which {
     switch $which {
-      delegate {
+      delegate -
+      organs {
         return [list project [my define get project] module [self]]
       }
     }
@@ -5082,7 +5088,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
         dict set contents $field [dict get $rawcontents $field]
       }
     }
-    my clay delegate module [self]
+    my graft module [self]
     array set define $contents
     ::practcl::toolset select [self]
     my initialize
@@ -5174,7 +5180,8 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 
   method child which {
     switch $which {
-      delegate {
+      delegate -
+      organs {
 	# A library can be a project, it can be a module. Any
 	# subordinate modules will indicate their existance
         return [list project [self] module [self]]
@@ -5198,19 +5205,19 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 
 
   method tclcore {} {
-    if {[info commands [set obj [my clay delegate tclcore]]] ne {}} {
+    if {[info commands [set obj [my organ tclcore]]] ne {}} {
       return $obj
     }
     if {[info commands [set obj [my project TCLCORE]]] ne {}} {
-      my clay delegate tclcore $obj
+      my graft tclcore $obj
       return $obj
     }
     if {[info commands [set obj [my project tcl]]] ne {}} {
-      my clay delegate tclcore $obj
+      my graft tclcore $obj
       return $obj
     }
     if {[info commands [set obj [my tool tcl]]] ne {}} {
-      my clay delegate tclcore $obj
+      my graft tclcore $obj
       return $obj
     }
     # Provide a fallback
@@ -5218,20 +5225,20 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       tag release class subproject.core
       fossil_url http://core.tcl.tk/tcl
     }]
-    my clay delegate tclcore $obj
+    my graft tclcore $obj
     return $obj
   }
 
   method tkcore {} {
-    if {[set obj [my clay delegate tkcore]] ne {}} {
+    if {[set obj [my organ tkcore]] ne {}} {
       return $obj
     }
-    if {[set obj [my clay delegate tk]] ne {}} {
-      my clay delegate tkcore $obj
+    if {[set obj [my project tk]] ne {}} {
+      my graft tkcore $obj
       return $obj
     }
     if {[set obj [my tool tk]] ne {}} {
-      my clay delegate tkcore $obj
+      my graft tkcore $obj
       return $obj
     }
     # Provide a fallback
@@ -5239,7 +5246,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
       tag release class tool.core
       fossil_url http://core.tcl.tk/tk
     }]
-    my clay delegate tkcore $obj
+    my graft tkcore $obj
     return $obj
   }
 
@@ -5974,7 +5981,7 @@ oo::class create ::practcl::distribution {
       isodate {}
     }
   }
-
+  
   method DistroMixIn {} {
     my define set scm none
   }
@@ -5983,7 +5990,7 @@ oo::class create ::practcl::distribution {
     if {[my define exists sandbox]} {
       return [my define get sandbox]
     }
-    if {[my clay delegate project] ni {::noop {}}} {
+    if {[my organ project] ni {::noop {}}} {
       set sandbox [my <project> define get sandbox]
       if {$sandbox ne {}} {
         my define set sandbox $sandbox
@@ -6036,7 +6043,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define exists sandbox]} {
       return [$object define get sandbox]
     }
-    if {[$object clay delegate project] ni {::noop {}}} {
+    if {[$object organ project] ni {::noop {}}} {
       set sandbox [$object <project> define get sandbox]
       if {$sandbox ne {}} {
         $object define set sandbox $sandbox
@@ -6066,7 +6073,7 @@ oo::objdefine ::practcl::distribution {
     if {[file exists $srcdir]} {
       foreach class [::info commands ${classprefix}*] {
         if {[$class claim_path $srcdir]} {
-          $object clay mixinmap distribution $class
+          $object mixin distribution $class
           $object define set scm [string range $class [string length ::practcl::distribution.] end]
           return [$object define get scm]
         }
@@ -6074,7 +6081,7 @@ oo::objdefine ::practcl::distribution {
     }
     foreach class [::info commands ${classprefix}*] {
       if {[$class claim_object $object]} {
-        $object clay mixinmap distribution $class
+        $object mixin distribution $class
         $object define set scm [string range $class [string length ::practcl::distribution.] end]
         return [$object define get scm]
       }
@@ -6082,7 +6089,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define get scm] eq {} && [$object define exists file_url]} {
       set class ::practcl::distribution.snapshot
       $object define set scm snapshot
-      $object clay mixinmap distribution $class
+      $object mixin distribution $class
       return [$object define get scm]
     }
     error "Cannot determine source distribution method"
@@ -6392,7 +6399,8 @@ oo::class create ::practcl::subproject {
 
   method child which {
     switch $which {
-      delegate {
+      delegate -
+      organs {
 	# A library can be a project, it can be a module. Any
 	# subordinate modules will indicate their existance
         return [list project [self] module [self]]

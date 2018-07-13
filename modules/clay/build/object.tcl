@@ -15,6 +15,9 @@ oo::define oo::object {
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
     }
+    if {$::clay::trace > 1} {
+      puts [list [info object class [self]] / [self] clay $submethod {*}$args]
+    }
     switch $submethod {
       ancestors {
         return $clayorder
@@ -53,22 +56,18 @@ oo::define oo::object {
         return {}
       }
       delegate {
-        my variable delegate
-        if {![info exists delegate]} {
-          set delegate {}
-        }
-        if {![dict exists delegate <class>]} {
-          dict set delegate <class> [info object class [self]]
+        if {![dict exists $clay delegate/ <class>]} {
+          dict set clay delegate/ <class> [info object class [self]]
         }
         if {[llength $args]==0} {
-          return $delegate
+          return [dict get $clay delegate/]
         }
         if {[llength $args]==1} {
           set stub <[string trim [lindex $args 0] <>]>
-          if {![dict exists $delegate $stub]} {
+          if {![dict exists $clay delegate/ $stub]} {
             return {}
           }
-          return [dict get $delegate $stub]
+          return [dict get $clay delegate/ $stub]
         }
         if {([llength $args] % 2)} {
           error "Usage: delegate
@@ -79,7 +78,7 @@ oo::define oo::object {
         }
         foreach {stub object} $args {
           set stub <[string trim $stub <>]>
-          dict set delegate $stub $object
+          dict set clay delegate/ $stub $object
           oo::objdefine [self] forward ${stub} $object
           oo::objdefine [self] export ${stub}
         }
@@ -267,14 +266,12 @@ oo::define oo::object {
         }
       }
       mixinmap {
-        my variable mixinmap
-        set priorlist {}
         foreach {slot classes} $args {
-          dict set mixinmap $slot $classes
+          dict set clay mixin/ $slot $classes
         }
-
+        set claycache {}
         set classlist {}
-        foreach {item class} $mixinmap {
+        foreach {item class} [my clay get mixin/] {
           if {$class ne {}} {
             lappend classlist $class
           }

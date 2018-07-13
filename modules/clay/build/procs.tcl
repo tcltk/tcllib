@@ -1,3 +1,6 @@
+::namespace eval ::clay {}
+set ::clay::trace 0
+
 ###
 # Global utilities
 ###

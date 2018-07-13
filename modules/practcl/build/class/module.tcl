@@ -162,7 +162,8 @@
 
   method child which {
     switch $which {
-      delegate {
+      delegate -
+      organs {
         return [list project [my define get project] module [self]]
       }
     }
