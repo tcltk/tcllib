@@ -5,9 +5,9 @@
 # [ok] drop unrealizable
 # [ok] flatten
 # [ok] minimize
+# [ok] called
 
 # TODO
-# [..] called
 # [..] dechain
 # [..] modeopt
 # [..] reachable
@@ -77,6 +77,45 @@ proc TestTransformation {op data setImpl} {
 	incr n
     }
 }
+
+# -------------------------------------------------------------------------
+# op: called
+
+set n 0
+foreach {inStart inRulesSet expectedSym} [sl {
+    # --- 
+    epsilon {}
+    {{} {}}
+    # ---
+    {n S} {
+	S {is {x {t A} {* {n SYM}} {t B} {n OTHER} {n SYM}} mode value}
+	A {is {n A} mode value}
+    }
+    {{} S A A S {SYM OTHER}}
+    # --- 
+    {n S} {
+	S {is {x {t A} {t B}} mode value}
+	A {is {t a} mode value}
+	B {is {t b} mode value}
+    }
+    {{} S A {} B {} S {}}
+    # --- 
+    {n S} {
+	S {is {epsilon} mode value}
+    }
+    {{} S S {}}
+}] {
+    test pt-peg-op-set:${setimpl}-called.$n {op called} -setup {
+	pt::peg::container ::In       deserialize [g $inStart  $inRulesSet]
+    } -body {
+	set r [pt::peg::op called ::In]
+	dict filter $r key {*}[lsort [dict keys $r]]
+    } -cleanup {
+	::In destroy
+    } -result $expectedSym
+    incr n
+}
+unset n
 
 # -------------------------------------------------------------------------
 # op: flatten
