@@ -3,5 +3,8 @@ package require TclOO
 package require uuid
 package require oo::dialect
 
+::oo::dialect::create ::clay
+
 ::namespace eval ::clay {}
 ::namespace eval ::clay::classes {}
+::namespace eval ::clay::define {}

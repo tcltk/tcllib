@@ -7,7 +7,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package clay 0.1
+# Package clay 0.2
 # Meta platform     tcl
 # Meta summary      A minimalist framework for complex TclOO development
 # Meta description  This package introduces the method "clay" to both oo::object
@@ -25,7 +25,7 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide clay 0.1
+package provide clay 0.2
 namespace eval ::clay {}
 
 ###
@@ -36,10 +36,11 @@ package require TclOO
 package require uuid
 package require oo::dialect
 
+::oo::dialect::create ::clay
+
 ::namespace eval ::clay {}
 ::namespace eval ::clay::classes {}
-
-set ::clay::trace 0
+::namespace eval ::clay::define {}
 
 ###
 # END: core.tcl
@@ -47,6 +48,9 @@ set ::clay::trace 0
 ###
 # START: procs.tcl
 ###
+::namespace eval ::clay {}
+set ::clay::trace 0
+
 ###
 # Global utilities
 ###
@@ -151,7 +155,7 @@ proc ::clay::args_to_dict args {
 proc ::clay::args_to_options args {
   set result {}
   foreach {var val} [args_to_dict {*}$args] {
-    lappend result [string trimright [string trimleft $var -] :] $val
+    lappend result [string trim $var -:] $val
   }
   return $result
 }
@@ -459,9 +463,6 @@ oo::define oo::object {
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
     }
-    if {$::clay::trace > 1} {
-      puts [list [info object class [self]] / [self] clay $submethod {*}$args]
-    }
     switch $submethod {
       ancestors {
         return $clayorder
@@ -710,17 +711,23 @@ oo::define oo::object {
         }
       }
       mixinmap {
-        foreach {slot classes} $args {
-          dict set clay mixin/ $slot $classes
-        }
-        set claycache {}
-        set classlist {}
-        foreach {item class} [my clay get mixin/] {
-          if {$class ne {}} {
-            lappend classlist $class
+        if {[llength $args]==0} {
+          return [my clay get mixin/]
+        } elseif {[llength $args]==1} {
+          return [my clay get mixin/ [lindex $args 0]]
+        } else {
+          foreach {slot classes} $args {
+            dict set clay mixin/ $slot $classes
           }
+          set claycache {}
+          set classlist {}
+          foreach {item class} [my clay get mixin/] {
+            if {$class ne {}} {
+              lappend classlist $class
+            }
+          }
+          my clay mixin {*}$classlist
         }
-        my clay mixin {*}$classlist
       }
       provenance {
         if {[dict exists $clay {*}$args]} {
@@ -773,11 +780,6 @@ oo::define oo::object {
 #    clay(n): Implementation File
 #
 #-------------------------------------------------------------------------
-
-namespace eval ::clay {}
-namespace eval ::clay::define {}
-
-::oo::dialect::create ::clay
 
 
 proc ::clay::dynamic_methods class {

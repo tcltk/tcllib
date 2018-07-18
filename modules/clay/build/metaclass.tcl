@@ -10,11 +10,6 @@
 #
 #-------------------------------------------------------------------------
 
-namespace eval ::clay {}
-namespace eval ::clay::define {}
-
-::oo::dialect::create ::clay
-
 
 proc ::clay::dynamic_methods class {
   foreach command [info commands [namespace current]::dynamic_methods_*] {

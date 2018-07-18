@@ -15,9 +15,6 @@ oo::define oo::object {
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
     }
-    if {$::clay::trace > 1} {
-      puts [list [info object class [self]] / [self] clay $submethod {*}$args]
-    }
     switch $submethod {
       ancestors {
         return $clayorder
@@ -266,17 +263,23 @@ oo::define oo::object {
         }
       }
       mixinmap {
-        foreach {slot classes} $args {
-          dict set clay mixin/ $slot $classes
-        }
-        set claycache {}
-        set classlist {}
-        foreach {item class} [my clay get mixin/] {
-          if {$class ne {}} {
-            lappend classlist $class
+        if {[llength $args]==0} {
+          return [my clay get mixin/]
+        } elseif {[llength $args]==1} {
+          return [my clay get mixin/ [lindex $args 0]]
+        } else {
+          foreach {slot classes} $args {
+            dict set clay mixin/ $slot $classes
           }
+          set claycache {}
+          set classlist {}
+          foreach {item class} [my clay get mixin/] {
+            if {$class ne {}} {
+              lappend classlist $class
+            }
+          }
+          my clay mixin {*}$classlist
         }
-        my clay mixin {*}$classlist
       }
       provenance {
         if {[dict exists $clay {*}$args]} {

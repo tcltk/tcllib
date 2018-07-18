@@ -105,7 +105,7 @@ proc ::clay::args_to_dict args {
 proc ::clay::args_to_options args {
   set result {}
   foreach {var val} [args_to_dict {*}$args] {
-    lappend result [string trimright [string trimleft $var -] :] $val
+    lappend result [string trim $var -:] $val
   }
   return $result
 }

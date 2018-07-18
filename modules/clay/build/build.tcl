@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.1
+set version 0.2
 set module clay
 
 set fout [open [file join $moddir ${module}.tcl] w]

@@ -813,6 +813,9 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
     return purr
   }
 }
+test clay-object-0001 {Test than an object is created when clay::define is invoked} {
+  info commands ::TEST::mood.happy
+} ::TEST::mood.happy
 
 set OBJ [::TEST::thing new]
 test clay-mixin-a-0001 {Test that prior to a mixin an ensemble doesn't exist} -body {
