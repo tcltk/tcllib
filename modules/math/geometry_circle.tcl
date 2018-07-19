@@ -294,7 +294,7 @@ proc ::math::geometry::intersectionCircleWithCircle {circle1 circle2} {
 
     set distance [distance $centre1 $centre2]
 
-    if { $distance > $margin*$radius1 } { ;# Rather arbitrary margin
+    if { $distance > 0.5*$margin*($radius1+$radius2) } { ;# Rather arbitrary margin
         set vector   [s* [expr {1.0/$distance}] [- $centre2 $centre1]]
     } else {
         return {} ;# Bit of a hack: either the circles are concentric and have different
