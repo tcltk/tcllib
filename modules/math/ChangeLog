@@ -1,3 +1,9 @@
+2018-07-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* trig.tcl: Implementation of (additional) trigonometric functions - package math::trig
+	* trig.test: Trst for the (additional) trigonometric functions
+	* trig.man: Documentation for the (additional) trigonometric functions
+	* pkgIndex.tcl: Add the new package
+
 2018-07-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* math_geometry.man: Describe the new criterium
 
