@@ -6,12 +6,12 @@
 # [ok] flatten
 # [ok] minimize
 # [ok] called
+# [ok] realizable
+# [ok] reachable
 
 # TODO
 # [..] dechain
 # [..] modeopt
-# [..] reachable
-# [..] realizable
 
 # -------------------------------------------------------------------------
 # Basic syntax
@@ -171,6 +171,84 @@ TestTransformation flatten {
     }
 } $setimpl
 
+
+# -------------------------------------------------------------------------
+# op: realizable
+
+set n 0
+foreach {inStart inRulesSet expectedSym} [sl {
+    # --- just start expression
+    epsilon {}
+    {{}}
+    # -- all realizable, incl. start expression
+    {n S} {
+	S {is {n X} mode value}
+	X {is {t x} mode leaf}
+    }
+    {{} S X}
+    # -- not even start expression
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n X} mode value}
+    }
+    {}
+    # -- not even start expression
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n X} mode value}
+    }
+    {}
+    # -- X is unrealizable
+    {n S} {
+	S {is {? {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {{} S}
+    # -- X is unrealizable
+    {n S} {
+	S {is {/ {n X} {t y}} mode value}
+	X {is {n X} mode value}
+    }
+    {{} S}
+    # --  X <- 'A' 'B' X / 'C' X 'A'; X is unrealizable
+    {n S} {
+	S {is {/ {n X} {t y}} mode value}
+	X {is {/ {x {t A} {t B} {n X}} {x {t C} {n X} {t A}}} mode value}
+    }
+    {{} S}
+    # --  X <- 'A' 'B' X / 'C' X 'A' / 'x'; X *is* realizable
+    {n S} {
+	S {is {/ {n X} {t y}} mode value}
+	X {is {/ {x {t A} {t B} {n X}} {x {t C} {n X} {t A}} {t x}} mode value}
+    }
+    {{} S X}
+    # -- E is unrealizable
+    {n S} {
+	S {is {/ {x {n B} {t b}} {x {n C} {t c}} {x {n E} {t e}}} mode value}
+	B {is {/ {x {n B} {t b}} {t b}} mode value}
+	C {is {/ {x {n C} {t c}} {t c}} mode value}
+	E {is {x {n E} {t e}} mode value}
+    }
+    {{} B C S}
+    # -- S remains realizable (*)
+    {n S} {
+	S {is {* {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {{} S}
+}] {
+    test pt-peg-op-set:${setimpl}-realizable.$n {op realizable} -setup {
+	pt::peg::container ::In deserialize [g $inStart  $inRulesSet]
+    } -body {
+	lsort [pt::peg::op realizable ::In]
+    } -cleanup {
+	::In destroy
+    } -result $expectedSym
+    incr n
+}
+unset n
+
+
 # -------------------------------------------------------------------------
 # op: drop unrealizable
 
@@ -216,8 +294,45 @@ TestTransformation "drop unrealizable" {
     }
 } $setimpl
 
+
 # -------------------------------------------------------------------------
-# op: drop unrealizable
+# op: reachable
+
+set n 0
+foreach {inStart inRulesSet expectedSym} [sl {
+    # --- none
+    epsilon {}
+    {}
+    # -- D is not reachable
+    {n S} {
+	S {is {/ {x {n B} {t b}} {x {n C} {t c}} {x {n E} {t e}}} mode value}
+	B {is {/ {x {n B} {t b}} {t b}} mode value}
+	C {is {/ {x {n C} {t c}} {t c}} mode value}
+	D {is {/ {x {n B} {t d}} {x {n C} {t d}} {t d}} mode value}
+	E {is {x {n E} {t e}} mode value}
+    }
+    {B C E S}
+    # -- all reachable
+    {n S} {
+     	S {is {/ {x {n A} {n B}} {t a}} mode value}
+     	A {is {x {t a} {n A}} mode value}
+	B {is {t a} mode leaf}
+    }
+    {A B S}
+}] {
+    test pt-peg-op-set:${setimpl}-reachable.$n {op reachable} -setup {
+	pt::peg::container ::In deserialize [g $inStart  $inRulesSet]
+    } -body {
+	lsort [pt::peg::op reachable ::In]
+    } -cleanup {
+	::In destroy
+    } -result $expectedSym
+    incr n
+}
+unset n
+
+# -------------------------------------------------------------------------
+# op: drop unreachable
 
 TestTransformation "drop unreachable" {
     # (1) stays as-is
