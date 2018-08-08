@@ -19,6 +19,7 @@
 foreach op {
     called
     dechain
+    dechain2
     flatten
     minimize
     modeopt
@@ -358,6 +359,185 @@ TestTransformation "drop unreachable" {
 } $setimpl
 
 # -------------------------------------------------------------------------
+# op: dechain2
+
+TestTransformation dechain2 {
+    # --- stays as-is
+    epsilon {}
+    epsilon {}
+    # --- basic chain:  A <- B <- C (leaf) <- c |> A <- c
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {t c} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {t c} mode value}
+	B {is {t c} mode value}
+	C {is {t c} mode value}
+    }
+    # --- basic cycle:  A <- B <- A
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n A} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n A} mode value}
+	B {is {n B} mode value}
+    }
+    # --- basic (indirect) cycle:  A <- B <- C <- A
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {n A} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n A} mode value}
+	B {is {n B} mode value}
+	C {is {n C} mode value}
+    }
+    # --- basic chain plus renaming for self-recursive leaves
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {x {n C} {t c}} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {x {n A} {t c}} mode value}
+	B {is {x {n B} {t c}} mode value}
+	C {is {x {n C} {t c}} mode value}
+    }
+    # --- start expression: {} <- Z <- S <- s |> {} <- Z <- s
+    {n Z} {
+	Z {is {n S} mode value}
+    	S {is {t s} mode value}
+    }
+    {n Z} {
+	Z {is {t s} mode value}
+    	S {is {t s} mode value}
+    }
+    # --- broken chain #1 (undefined leaves?)
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+    }
+    # --- broken chain #2 (undefined leaves?)
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
+    }
+    # --- intermittents
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {x {n X} {t c}} mode value}
+	X {is {n Y} mode value}
+	Y {is {n Z} mode value}
+	Z {is {x {n Z} {t z}} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {x {n X} {t c}} mode value}
+	B {is {x {n X} {t c}} mode value}
+	C {is {x {n X} {t c}} mode value}
+	X {is {x {n X} {t z}} mode value}
+	Y {is {x {n Y} {t z}} mode value}
+	Z {is {x {n Z} {t z}} mode value}
+    }
+    # --- incompat modes #1 
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode void}
+	B {is {n C} mode void}
+	C {is {t c} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {n C} mode void}
+	B {is {n C} mode void}
+	C {is {t c} mode value}
+    }
+
+} $setimpl
+
+# exit
+
+# -------------------------------------------------------------------------
+# op: dechain (legacy; broken)
+
+TestTransformation dechain {
+    # --- direct cycles (untouched)
+    # {n A} {
+    # 	A {is {n A} mode value}
+    # }
+    # {n A} {
+    # 	A {is {n A} mode value}
+    # }
+    # --- indirect cycles (turn into a unit-recursive, but unrealizable rule)
+    # {n A} {
+    # 	A {is {n B} mode value}
+    # 	B {is {n C} mode value}
+    # 	C {is {n A} mode value}
+    # }
+    # {n A} {
+    # 	A {is {n A} mode value}
+    # }
+    # --- (multi-)chain rules are not processed
+    {n A} {
+	A {is {/ {n B} {t a}} mode value}
+	B {is {/ {n C} {t b}} mode value}
+	C {is {/ {n A} {t c}} mode value}
+    }
+    {n A} {
+	A {is {/ {n B} {t a}} mode value}
+	B {is {/ {n C} {t b}} mode value}
+	C {is {/ {n A} {t c}} mode value}
+    }
+    # --- stays as-is
+    epsilon {}
+    epsilon {}
+    # ---
+    # X     Z      dechain notes
+    # value value| yes    | value is passed
+    # {n S} {
+    # 	S {is {n Z} mode value}
+    # 	Z {is {t z} mode value}
+    # }
+    # {n Z} {
+    # 	S {is {n Z} mode value}
+    # 	Z {is {t z} mode value}
+    # }
+    # ---
+    # {x {n S} {t s}} {
+    # 	S {is {n Z} mode value}
+    # 	Z {is {t z} mode value}
+    # }
+    # {x {n S} {t s}} {
+    # 	S {is {t z} mode value}
+    # 	Z {is {t z} mode value}
+    # }
+} $setimpl
+
+# -------------------------------------------------------------------------
 # op: minimize
 
 TestTransformation minimize {
@@ -390,6 +570,18 @@ TestTransformation minimize {
     {n S} {
 	S {is {t a} mode leaf}
     }
+    # --- direct cycle
+    {n A} {
+	A {is {n A} mode value}
+    }
+    epsilon {}
+    # --- indirect cycle
+    {n A} {
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {n A} mode value}
+    }
+    epsilon {}
 } $setimpl
 
 # -------------------------------------------------------------------------

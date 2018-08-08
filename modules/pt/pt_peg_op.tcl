@@ -17,7 +17,7 @@ package require struct::set    ; # Set operations (symbol sets)
 namespace eval ::pt::peg::op {
     namespace export \
 	flatten called reachable realizable \
-	dechain drop modeopt minimize
+	dechain drop modeopt minimize dechain2
 
     namespace ensemble create
 
@@ -58,6 +58,47 @@ proc ::pt::peg::op::called {container} {
     }
 
     return $dict
+}
+
+
+proc ::pt::peg::op::dechain2 {container} {
+
+    set changed 1
+    while {$changed} {
+	
+	set chainPairs [dict create]
+	set rules [$container rules]
+	array set modes [$container modes]
+	
+	set changed 0
+	foreach {symbol rule} $rules {
+	    lassign $rule op caller
+	    if {$op ne "n"} continue
+	    if {$caller eq $symbol} continue; # self-recursive: A <- A
+	    dict set chainPairs $caller $symbol
+	}
+	
+	set changed [dict size $chainPairs]
+	if {$changed} {
+	    dict for {called caller} $chainPairs {
+		# TODO: check the modes interaction ...
+		if {$called in [$container nonterminals] &&
+		    !(($modes($caller) ne "value") &&
+		      (($modes($caller) ne "void") ||
+		       ($modes($called) ne "void")))} {
+		    
+		    $container rule $caller \
+			[pt::pe::op rename $called $caller \
+			     [$container rule $called]]
+		    
+		} else {
+		    incr changed -1
+		}
+	    }
+	}
+    }
+    
+    return
 }
 
 proc ::pt::peg::op::dechain {container} {
@@ -194,7 +235,7 @@ proc ::pt::peg::op::minimize {container} {
     drop unreachable  $container
     flatten           $container
     modeopt           $container
-    dechain           $container
+    dechain2          $container
     return
 }
 
