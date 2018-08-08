@@ -52,7 +52,7 @@ proc g {s r} {
 
 proc TestTransformation {op data setImpl} {
     # Convert operation and data table into series of test cases
-    set debug 0
+    set debug 1
     # Note, the `op` changes the container (here ::In) in-place.
     append bodyScript [list {*}::pt::peg::op::$op ::In] \;
     if {$debug} {
@@ -582,6 +582,21 @@ TestTransformation minimize {
 	C {is {n A} mode value}
     }
     epsilon {}
+    # --- dechaining creates unreachable and unrealisable rules; here: B, C, Y, Z
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {x {n X} {t c}} mode value}
+	X {is {n Y} mode value}
+	Y {is {n Z} mode value}
+	Z {is {x {t z}} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {x {n X} {t c}} mode value}
+	X {is {t z} mode leaf}
+    }
 } $setimpl
 
 # -------------------------------------------------------------------------

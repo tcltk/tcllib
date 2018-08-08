@@ -231,11 +231,12 @@ proc ::pt::peg::op::CallMode {callers mv} {
 
 proc ::pt::peg::op::minimize {container} {
     flatten           $container
+    modeopt           $container; # for dechaining
+    dechain2          $container
     drop unrealizable $container
     drop unreachable  $container
+    modeopt           $container;
     flatten           $container
-    modeopt           $container
-    dechain2          $container
     return
 }
 
