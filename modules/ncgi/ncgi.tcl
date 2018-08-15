@@ -815,7 +815,7 @@ proc ::ncgi::header {{type text/html} args} {
 #	parameters.  Given the above example, the return value is
 #	{
 #		value
-#		{param value param2 value param3 value3}
+#		{param value param2 value2 param3 value3}
 #	}
 
 proc ::ncgi::parseMimeValue {value} {
@@ -827,11 +827,10 @@ proc ::ncgi::parseMimeValue {value} {
             set key [string trim [string tolower $key]]
             set val [string trim $val]
             # Allow single as well as double quotes
-            if {[regexp -- {^["']} $val quote]} { ;# need a " for balance
-                if {[regexp -- ^${quote}(\[^$quote\]*)$quote $val x val2]} {
-                    # Trim quotes and any extra crap after close quote
-                    set val $val2
-                }
+            if {[regexp -- {^(['"])(.*)\1} $val x quote val2]} { ; # need a " for balance
+               # Trim quotes and any extra crap after close quote
+               # remove quoted quotation marks
+               set val [string map {\\" "\"" \\' "\'"} $val2]
             }
             lappend paramList $key $val
 	}

@@ -578,6 +578,14 @@ test ncgi-13.6 {ncgi::parseMimeValue} {
     ncgi::parseMimeValue "text/html; charset=\"iso-8859-1\"morecrap"
 } {text/html {charset iso-8859-1}}
 
+test ncgi-13.7 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue {test/test; foo="bar\"baz\""}
+} {test/test {foo bar\"baz\"}}
+
+test ncgi-13.8 {ncgi::parseMimeValue} {
+    ncgi::parseMimeValue {test/test; foo=""}
+} {test/test {foo {}}}
+
 
 test ncgi-14.1 {ncgi::multipart} {
     catch {ncgi::multipart "application/x-www-urlencoded" name=val+ue} err
