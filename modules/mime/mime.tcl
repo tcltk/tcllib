@@ -666,7 +666,7 @@ proc ::mime::parsepart {token} {
         }
 
          if {!$blankP && [string match *\r $line]} {
-             set line [string range $line 0 [expr {$x - 2}]]
+             set line [string range $line 0 $x-2]]
              if {$x == 1} {
                  set blankP 1
              }
