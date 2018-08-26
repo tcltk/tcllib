@@ -23,6 +23,8 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
+package require tcl::chan::memchan
+
 package provide mime 1.6
 
 if {[catch {package require Trf 2.0}]} {
@@ -1782,6 +1784,7 @@ proc ::mime::copymessageaux {token channel} {
 
     array set header $state(header)
 
+    set result {}
     if {$state(version) ne {}} {
         puts $channel "MIME-Version: $state(version)"
     }
@@ -1791,9 +1794,9 @@ proc ::mime::copymessageaux {token channel} {
         }
     }
     if {
-	!$state(canonicalP)
-	&&
-	[set encoding $state(encoding)] ne {}
+		!$state(canonicalP)
+		&&
+		[set encoding $state(encoding)] ne {}
     } {
         puts $channel "Content-Transfer-Encoding: $encoding"
     }
@@ -1811,6 +1814,7 @@ proc ::mime::copymessageaux {token channel} {
     set converter {}
     set encoding {}
     if {$state(value) ne "parts"} {
+        #TODO: the path is not covered by tests
         puts $channel {}
 
         if {$state(canonicalP)} {
@@ -1924,6 +1928,20 @@ proc ::mime::copymessageaux {token channel} {
 
                 default {
                     # Note RFC 2046: See buildmessageaux for details.
+                    #
+                    # The boundary delimiter MUST occur at the
+                    # beginning of a line, i.e., following a CRLF, and
+                    # the initial CRLF is considered to be attached to
+                    # the boundary delimiter line rather than part of
+                    # the preceding part.
+                    #
+                    # - The above means that the CRLF before $boundary
+                    #   is needed per the RFC, and the parts must not
+                    #   have a closing CRLF of their own. See Tcllib bug
+                    #   1213527, and patch 1254934 for the problems when
+                    #   both file/string brnaches added CRLF after the
+                    #   body parts.
+
 
                     foreach part $state(parts) {
                         puts $channel \n--$boundary
@@ -2025,205 +2043,15 @@ proc ::mime::buildmessage {token} {
 # Results:
 #       Returns the message that has been built up in memory.
 
-proc ::mime::buildmessageaux {token} {
-    # FRINK: nocheck
-    variable $token
-    upvar 0 $token state
-
-    array set header $state(header)
-
-    set result {}
-    if {$state(version) ne {}} {
-        append result "MIME-Version: $state(version)\r\n"
-    }
-    foreach lower $state(lowerL) mixed $state(mixedL) {
-        foreach value $header($lower) {
-            append result "$mixed: $value\r\n"
-        }
-    }
-    if {
-	!$state(canonicalP) \
-	&&
-	[set encoding $state(encoding)] ne {}
-    } {
-        append result "Content-Transfer-Encoding: $encoding\r\n"
-    }
-
-    append result "Content-Type: $state(content)"
-    set boundary {}
-    foreach {k v} $state(params) {
-        if {$k eq "boundary"} {
-            set boundary $v
-        }
-
-        append result ";\r\n              $k=\"$v\""
-    }
-
-    set converter {}
-    set encoding {}
-    if {$state(value) ne "parts"} {
-        #TODO: the path is not covered by tests
-        append result \r\n
-
-        if {$state(canonicalP)} {
-            if {[set encoding $state(encoding)] eq {}} {
-                set encoding [encoding $token]
-            }
-            if {$encoding ne {}} {
-                append result "Content-Transfer-Encoding: $encoding\r\n"
-            }
-            switch -- $encoding {
-                base64
-                    -
-                quoted-printable {
-                    set converter $encoding
-                }
-                7bit - 8bit - binary - {} {
-                    # Bugfix for [#477088]
-                    # Go ahead
-                }
-                default {
-                    error "Can't handle content encoding \"$encoding\""
-                }
-            }
-        }
-    } elseif {
-	[string match multipart/* $state(content)]
-	&&
-	$boundary eq {}
-    } {
-        # we're doing everything in one pass...
-        set key [clock seconds]$token[info hostname][array get state]
-        set seqno 8
-        while {[incr seqno -1] >= 0} {
-            set key [md5 -- $key]
-        }
-        set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
-
-        append result ";\r\n              boundary=\"$boundary\"\r\n"
-    } else {
-        append result \r\n
-    }
-
-    if {[info exists state(error)]} {
-        unset state(error)
-    }
-
-    switch -- $state(value) {
-        file {
-            set closeP 1
-            if {[info exists state(root)]} {
-                # FRINK: nocheck
-                variable $state(root)
-                upvar 0 $state(root) root
-
-                if {[info exists root(fd)]} {
-                    set fd $root(fd)
-                    set closeP 0
-                } else {
-                    set fd [set state(fd) [open $state(file) RDONLY]]
-                }
-                set size $state(count)
-            } else {
-                set fd [set state(fd) [open $state(file) RDONLY]]
-                set size -1 ;# Read until EOF
-            }
-            seek $fd $state(offset) start
-            if {$closeP} {
-                fconfigure $fd -translation binary
-            }
-
-            append result \r\n
-
-            while {$size != 0 && ![eof $fd]} {
-                if {$size < 0 || $size > 32766} {
-                    set X [read $fd 32766]
-                } else {
-                    set X [read $fd $size]
-                }
-                if {$size > 0} {
-                    set size [expr {$size - [string length $X]}]
-                }
-                if {$converter ne {}} {
-                    append result [$converter -mode encode -- $X]
-                } else {
-                    append result $X
-                }
-            }
-
-            if {$closeP} {
-                catch {close $state(fd)}
-                unset state(fd)
-            }
-        }
-
-        parts {
-            if {
-		![info exists state(root)]
-		&&
-		[info exists state(file)]
-	    } {
-                set state(fd) [open $state(file) RDONLY]
-                fconfigure $state(fd) -translation binary
-            }
-
-            switch -glob -- $state(content) {
-                message/* {
-                    append result "\r\n"
-                    foreach part $state(parts) {
-                        append result [buildmessage $part]
-                        break
-                    }
-                }
-
-                default {
-                    # Note RFC 2046:
-                    #
-                    # The boundary delimiter MUST occur at the
-                    # beginning of a line, i.e., following a CRLF, and
-                    # the initial CRLF is considered to be attached to
-                    # the boundary delimiter line rather than part of
-                    # the preceding part.
-                    #
-                    # - The above means that the CRLF before $boundary
-                    #   is needed per the RFC, and the parts must not
-                    #   have a closing CRLF of their own. See Tcllib bug
-                    #   1213527, and patch 1254934 for the problems when
-                    #   both file/string brnaches added CRLF after the
-                    #   body parts.
-
-                    foreach part $state(parts) {
-                        append result "\r\n--$boundary\r\n"
-                        append result [buildmessage $part]
-                    }
-                    append result "\r\n--$boundary--\r\n"
-                }
-            }
-
-            if {[info exists state(fd)]} {
-                catch {close $state(fd)}
-                unset state(fd)
-            }
-        }
-
-        string {
-            append result \r\n
-
-            if {$converter ne {}} {
-                append result [$converter -mode encode -- $state(string)]
-            } else {
-                append result $state(string)
-            }
-        }
-        default {
-            error "Unknown value \"$state(value)\""
-        }
-    }
-
-    if {[info exists state(error)]} {
-        error $state(error)
-    }
-    return $result
+proc ::mime::buildmessageaux token {
+	set chan [tcl::chan::memchan]
+	chan configure $chan -translation crlf
+	copymessageaux $token $chan
+	seek $chan 0
+	chan configure $chan -translation binary
+	set res [read $chan]
+	close $chan
+	return $res
 }
 
 # ::mime::encoding --
