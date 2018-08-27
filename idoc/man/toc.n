@@ -837,6 +837,9 @@ tcllib
 \fBmath::statistics\fR
 \fIfiles/modules/math/statistics\&.n\fR: Basic statistical functions and procedures
 .TP
+\fBmath::trig\fR
+\fIfiles/modules/math/trig\&.n\fR: Trigonometric anf hyperbolic functions
+.TP
 \fBmd4\fR
 \fIfiles/modules/md4/md4\&.n\fR: MD4 Message-Digest Algorithm
 .TP

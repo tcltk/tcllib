@@ -123,22 +123,22 @@ Returns a dict describing [arg process]. See [cmd {::cron::task set}] for a desc
 [para]
 If [arg process] does not exist, it is created. Options Include:
 [list_begin definitions]
-[cmd command]
+[def [cmd command]]
 If [cmd coroutine] is black, a global command which implements this process. If [cmd coroutine] is not
 black, the command to invoke to create or recreate the coroutine.
-[cmd coroutine]
+[def [cmd coroutine]]
 The name of the coroutine (if any) which implements this process.
-[cmd frequency]
+[def [cmd frequency]]
 If -1, this process is terminated after the next event. If 0 this process should be called during every
 idle event. If positive, this process should generate events periodically. The frequency is an interger number
 of milleseconds between events.
 
-[cmd object]
+[def [cmd object]]
 The object associated with this process or coroutine.
-[cmd scheduled]
+[def [cmd scheduled]]
 If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
 If zero, and the [cmd frequency] is also zero, this process is called every idle loop.
-[cmd running]
+[def [cmd running]]
 A boolean flag. If true it indicates the process never returned or yielded during the event loop,
 and will not be called again until it does so.
 [list_end]

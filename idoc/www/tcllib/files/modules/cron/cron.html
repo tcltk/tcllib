@@ -237,23 +237,23 @@ set $var 0
 <dt><a name="10"><b class="cmd">::cron::task set</b> <i class="arg">process</i> <i class="arg">field</i> <i class="arg">value</i> <i class="arg">?field...?</i> <i class="arg">?value...?</i></a></dt>
 <dd><p>If <i class="arg">process</i> does not exist, it is created. Options Include:</p>
 <dl class="doctools_definitions">
-<b class="cmd"><a href="../../../../index.html#command">command</a></b>
-If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is black, a global command which implements this process. If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is not
-black, the command to invoke to create or recreate the coroutine.
-<b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b>
-The name of the coroutine (if any) which implements this process.
-<b class="cmd">frequency</b>
-If -1, this process is terminated after the next event. If 0 this process should be called during every
+<dt><b class="cmd"><a href="../../../../index.html#command">command</a></b></dt>
+<dd><p>If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is black, a global command which implements this process. If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is not
+black, the command to invoke to create or recreate the coroutine.</p></dd>
+<dt><b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b></dt>
+<dd><p>The name of the coroutine (if any) which implements this process.</p></dd>
+<dt><b class="cmd">frequency</b></dt>
+<dd><p>If -1, this process is terminated after the next event. If 0 this process should be called during every
 idle event. If positive, this process should generate events periodically. The frequency is an interger number
-of milleseconds between events.
-<b class="cmd"><a href="../../../../index.html#object">object</a></b>
-The object associated with this process or coroutine.
-<b class="cmd">scheduled</b>
-If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
-If zero, and the <b class="cmd">frequency</b> is also zero, this process is called every idle loop.
-<b class="cmd"><a href="../../../../index.html#running">running</a></b>
-A boolean flag. If true it indicates the process never returned or yielded during the event loop,
-and will not be called again until it does so.
+of milleseconds between events.</p></dd>
+<dt><b class="cmd"><a href="../../../../index.html#object">object</a></b></dt>
+<dd><p>The object associated with this process or coroutine.</p></dd>
+<dt><b class="cmd">scheduled</b></dt>
+<dd><p>If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
+If zero, and the <b class="cmd">frequency</b> is also zero, this process is called every idle loop.</p></dd>
+<dt><b class="cmd"><a href="../../../../index.html#running">running</a></b></dt>
+<dd><p>A boolean flag. If true it indicates the process never returned or yielded during the event loop,
+and will not be called again until it does so.</p></dd>
 </dl></dd>
 <dt><a name="11"><b class="cmd">::cron::wake</b> <i class="arg">?who?</i></a></dt>
 <dd><p>Wake up cron, and arrange for its event loop to be run during the next Idle cycle.</p>

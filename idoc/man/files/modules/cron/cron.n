@@ -423,20 +423,26 @@ Returns a dict describing \fIprocess\fR\&. See \fB::cron::task set\fR for a desc
 .sp
 If \fIprocess\fR does not exist, it is created\&. Options Include:
 .RS
+.TP
 \fBcommand\fR
 If \fBcoroutine\fR is black, a global command which implements this process\&. If \fBcoroutine\fR is not
 black, the command to invoke to create or recreate the coroutine\&.
+.TP
 \fBcoroutine\fR
 The name of the coroutine (if any) which implements this process\&.
+.TP
 \fBfrequency\fR
 If -1, this process is terminated after the next event\&. If 0 this process should be called during every
 idle event\&. If positive, this process should generate events periodically\&. The frequency is an interger number
 of milleseconds between events\&.
+.TP
 \fBobject\fR
 The object associated with this process or coroutine\&.
+.TP
 \fBscheduled\fR
 If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event\&.
 If zero, and the \fBfrequency\fR is also zero, this process is called every idle loop\&.
+.TP
 \fBrunning\fR
 A boolean flag\&. If true it indicates the process never returned or yielded during the event loop,
 and will not be called again until it does so\&.
