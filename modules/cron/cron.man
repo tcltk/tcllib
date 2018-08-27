@@ -130,13 +130,13 @@ black, the command to invoke to create or recreate the coroutine.
 The name of the coroutine (if any) which implements this process.
 [def [cmd frequency]]
 If -1, this process is terminated after the next event. If 0 this process should be called during every
-idle event. If positive, this process should generate events periodically. The frequency is an interger number
-of milleseconds between events.
+idle event. If positive, this process should generate events periodically. The frequency is an integer number
+of milliseconds between events.
 
 [def [cmd object]]
 The object associated with this process or coroutine.
 [def [cmd scheduled]]
-If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
+If non-zero, the absolute time from the epoch (in milliseconds) that this process will trigger an event.
 If zero, and the [cmd frequency] is also zero, this process is called every idle loop.
 [def [cmd running]]
 A boolean flag. If true it indicates the process never returned or yielded during the event loop,
@@ -155,15 +155,15 @@ Several utility commands are provided that are used internally within cron and f
 testing cron, but may or may not be useful in the general cases.
 [list_begin definitions]
 
-[call [cmd ::cron::clock_step] [arg milleseconds]]
+[call [cmd ::cron::clock_step] [arg milliseconds]]
 [para]
 Return a clock time absolute to the epoch which falls on the next
-border between one second and the next for the value of [arg milleseconds]
+border between one second and the next for the value of [arg milliseconds]
 
-[call [cmd ::cron::clock_delay] [arg milleseconds]]
+[call [cmd ::cron::clock_delay] [arg milliseconds]]
 [para]
 Return a clock time absolute to the epoch which falls on the next
-border between one second and the next [arg milleseconds] in the future.
+border between one second and the next [arg milliseconds] in the future.
 
 [call [cmd ::cron::clock_sleep] [arg seconds] [arg ?offset?]]
 [para]
@@ -176,7 +176,7 @@ the final time to before or after the second would flip.
 Sets the internal clock for cron. This command will advance the time in 100ms
 increment, triggering events, until the internal time catches up with [arg newtime].
 [para]
-[arg newtime] is expressed in absolute milleseconds since the beginning of the epoch.
+[arg newtime] is expressed in absolute milliseconds since the beginning of the epoch.
 
 
 [list_end]
