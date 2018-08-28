@@ -506,7 +506,7 @@ error command) if the value is invalid\&.
 The switched layer also keeps track of the options current
 values, so that a \fBset-\fBoption\fR\fR procedure is called
 only when the corresponding option value passed as parameter is
-different from the current value (see  data members
+different from the current value (see \fB-option\fR data members
 description)\&.
 .TP
 \fB-option\fR
@@ -543,9 +543,10 @@ In this case, the manufacturer's name is stored at the switched
 layer level (this is why the set-manufacturer procedure has nothing to
 do) and later retrieved in the printData procedure\&.
 .TP
+\fBcomplete\fR
 .sp
-The  data member (not to be confused with
-the \fBcomplete\fR procedure) is a boolean\&.
+The \fBcomplete\fR data member (not to be confused with the
+\fBcomplete\fR procedure) is a boolean\&.
 Its initial value is \fBfalse\fR and it is set to \fBtrue\fR at
 the very end of the switched \fBcomplete\fR procedure\&.
 It becomes useful when some options should be set at construction time
