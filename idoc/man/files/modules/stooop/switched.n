@@ -509,8 +509,9 @@ only when the corresponding option value passed as parameter is
 different from the current value (see  data members
 description)\&.
 .TP
+\fB-option\fR
 .sp
-The  data member is an options current value\&.
+The \fB-option\fR data member is an options current value\&.
 There is one for each option listed in the options procedure\&. It is a
 read-only value which the switched layer checks against when an option
 is changed\&.

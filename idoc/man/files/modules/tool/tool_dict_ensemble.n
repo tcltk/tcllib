@@ -276,7 +276,7 @@ tool::dict_ensemble \- Dictionary Tools
 .SH SYNOPSIS
 package require \fBtool  ?0\&.4\&.2?\fR
 .sp
-\fIobject\fR \fIensemble\fR \fBadd\fR \fIfield\fR
+\fIobject\fR \fIensemble\fR \fBadd\fR \fIfield\fR \fIvalue\fR \fIvalue \&.\&.\&.\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -285,8 +285,7 @@ The \fBdict_ensemble\fR command is a keyword added by \fBtool\fR\&. It defines
 a public variable (stored as a dict), and an access function to manipulated and
 access the values stored in that dict\&.
 .TP
-\fIobject\fR \fIensemble\fR \fBadd\fR \fIfield\fR
-] \fIvalue\fR \fIvalue \&.\&.\&.\fR]
+\fIobject\fR \fIensemble\fR \fBadd\fR \fIfield\fR \fIvalue\fR \fIvalue \&.\&.\&.\fR
 Adds elements to a list maintained with the \fIfield\fR leaf of the dict maintained
 my this ensemble\&.
 Declares a variable \fIname\fR which will be initialized as an array, populated with \fIcontents\fR for objects of this class, as well as any

@@ -222,7 +222,7 @@ callback and permits you to verify a local mailbox and accept mail for
 a local user address during RCPT command handling. To reject mail,
 throw an error as above. The error message is ignored.
 
-[def "[cmd deliverMIME] callback"]]
+[def "[cmd deliverMIME] callback"]
 
 The deliverMIME callback is called once a mail message has been
 successfully passed to the server. A mime token is constructed from

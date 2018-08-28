@@ -140,7 +140,7 @@ This method provides the following additional commands:
 [call [cmd {oo::object method meta cget}] [opt [arg field]] [opt [arg ...]] [arg field]]
 
 Attempts to locate a singlar leaf, and return its value. For single option lookups, this
-is faster than [cmd {my meta getnull}] [opt [arg field]] [opt [arg ...]] [arg field]], because
+is faster than [cmd {my meta getnull}] [opt [arg field]] [opt [arg ...]] [arg field], because
 it performs a search instead directly instead of producing the recursive merge product
 between the class metadata, the local [emph meta] variable, and THEN performing the search.
 

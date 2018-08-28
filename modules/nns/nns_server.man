@@ -80,7 +80,7 @@ their meaning can be found in section [sectref OPTIONS].
 [call [cmd ::nameserv::server::configure] [option -option]]
 
 In this form the command is an alias for
-"[cmd ::nameserv::server::cget] [option -option]]".
+"[cmd ::nameserv::server::cget] [option -option]".
 
 The list of supported options and their meaning can be found in
 section [sectref OPTIONS].

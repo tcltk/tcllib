@@ -227,7 +227,7 @@ The following set of procedures needs to be defined to provide support for a new
    [def [arg "Name"]]
       Name of the argument
    [def [arg "IsOptional"]]
-      If true (=[const 1]) the argument is optional which should be indicated by the generated string (for example by putting the argument into brackets {[]} or into question marks '?'):
+      If true (=[const 1]) the argument is optional which should be indicated by the generated string (for example by putting the argument into brackets {[lb][rb]} or into question marks '?'):
       [example_begin]gen(TXT,ArgumentString) mtype 1 0 string -> [emph {"[mtype]"}][example_end]
    [def [arg "IsNamed"]]
       If true (=[const 1]) an argument is a named argument (option). The generated string should in this case contain the argument/option name, followed by the argument itself:

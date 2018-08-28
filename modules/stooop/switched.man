@@ -268,9 +268,9 @@ only when the corresponding option value passed as parameter is
 different from the current value (see [variable -option] data members
 description).
 
-[def [variable -option]]
+[def [var -option]]
 
-[para] The [variable -option] data member is an options current value.
+[para] The [var -option] data member is an options current value.
 
 There is one for each option listed in the options procedure. It is a
 read-only value which the switched layer checks against when an option

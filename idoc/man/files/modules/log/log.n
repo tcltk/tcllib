@@ -433,12 +433,10 @@ both levels have the same priority\&. 1 signals that level1 has higher
 priority than level2\&.
 .TP
 \fB::log::lvSuppress\fR \fIlevel\fR {\fIsuppress\fR 1}
-]
 (Un)suppresses the output of messages having the specified
 level\&. Unique abbreviations for the level are allowed here too\&.
 .TP
 \fB::log::lvSuppressLE\fR \fIlevel\fR {\fIsuppress\fR 1}
-]
 (Un)suppresses the output of messages having the specified level or
 one of lesser priority\&. Unique abbreviations for the level are allowed
 here too\&.
