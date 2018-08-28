@@ -161,7 +161,7 @@ A typical implementation of [cmd content] look like:
 
 [example {
 
-tool::define ::test::content.file {
+clay::define ::test::content.file {
 	superclass ::httpd::content.file
 	# Return a file
 	# Note: this is using the content.file mixin which looks for the reply_file variable
@@ -173,7 +173,7 @@ tool::define ::test::content.file {
     set reply_file [file join $doc_root index.html]
 	}
 }
-tool::define ::test::content.time {
+clay::define ::test::content.time {
   # return the current system time
 	method content {} {
 		my variable reply_body
@@ -181,14 +181,14 @@ tool::define ::test::content.time {
 		set reply_body [clock seconds]
 	}
 }
-tool::define ::test::content.echo {
+clay::define ::test::content.echo {
 	method content {} {
 		my variable reply_body
     my reply set Content-Type [my request get CONTENT_TYPE]
 		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 	}
 }
-tool::define ::test::content.form_handler {
+clay::define ::test::content.form_handler {
 	method content {} {
 	  set form [my FormData]
 	  my reply set Content-Type {text/html; charset=UTF-8}
