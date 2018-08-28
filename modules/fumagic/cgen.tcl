@@ -29,7 +29,7 @@ package require Tcl 8.4
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
 
-package provide fileutil::magic::cgen 1.2.0
+package provide fileutil::magic::cgen 1.3.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -153,6 +153,8 @@ proc ::fileutil::magic::cgen::tree_el {tree node} {
     foreach name {type} {
 	set $name [$tree get $node $name]
     }
+
+    puts stderr [list frlaalm [$tree getall $node]]
 
     # Recursively creates and annotates a node for the specified
     # tests, and its sub-tests (args).
@@ -559,9 +561,13 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 	    append result ${indent}\}\n
 	}
 	T {
+	    set desc [$tree get $node desc]
+	    if {$desc ne {}} {
+		append result "${indent}emit [list $desc]\n"
+	    }
 	    set o [GenerateOffset $tree $node]
 	    set mod [$tree get $node mod]
-	    append result "${indent}T $o\n"
+	    append result "${indent}T $o [list $mod]\n"
 	}
 	Root {
 	    foreach child [$tree children $node] {
@@ -597,15 +603,6 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 		    }
 
 		    set val [$tree get $child val]
-
-		    if {[string match 0* $val]} {
-			set val 0o$val
-		    }
-
-		    # get value in binary form, then back to numeric
-		    # this avoids problems with sign, as both values are
-		    # [binary scan]-converted identically
-		    binary scan [binary format $scan $val] $scan val
 
 		    if {[info exists lastval] && $lastval != $val} {
 			LessIndent

@@ -34,7 +34,7 @@ package require fileutil::magic::rt   ; # Runtime (typemap)
 package require struct::list          ; # lrepeat.
 package require struct::tree          ; #
 
-package provide fileutil::magic::cfront 1.2.0
+package provide fileutil::magic::cfront 1.3.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -402,17 +402,27 @@ proc ::fileutil::magic::cfront::parsetypemod {tree node} {
 
 
 proc ::fileutil::magic::cfront::parsetypenummod {tree node} {
+    variable typemap
     # For numeric types, $mod is an operator and $mand is a number
     set line [$tree get $node line]
+    set type [$tree get $node type]
     set cursor [$tree get $node cursor]
     if {[regexp -start $cursor {\A([-&|^+*/%=])} $line match mod]} {
 	advance [string length $match]
 	$tree set $node mod $mod
 	# {to do} {parse floats?}
-	$tree set $node mand [parseint $tree $node] ; # mod operand
+	set mand [parseint $tree $node] ; # mod operand
+	if {[info exists typemap($type)]} {
+	    lassign $typemap($type) dummy scan
+
+	    # the modifier for a numeric type is a number of the same
+	    # type
+	    binary scan [binary format $scan $mand] $scan mand
+	}
+	$tree set $node mand $mand 
     } else {
 	$tree set $node mod {}
-	$tree set $node mand {} 
+	$tree set $node mand {}
     }
 }
 
@@ -498,6 +508,7 @@ proc ::fileutil::magic::cfront::parsetest {tree node} {
     variable types_numeric_all
     variable types_string
     variable types_verbatim
+    variable typemap
     set type [$tree get $node type]
     if {$type in $types_verbatim} {
 	parsetestverbatim $tree $node
@@ -562,7 +573,14 @@ proc ::fileutil::magic::cfront::parsetest {tree node} {
 		break
 	    }
 	}
-	$tree set $node val [$parsecmd $tree $node]
+	set val [$parsecmd $tree $node]
+	set scan [lindex $typemap([$tree get $node type]) 1]
+
+	# get value in binary form, then back to numeric
+	# this avoids problems with sign, as both values are
+	# [binary scan]-converted identically
+	binary scan [binary format $scan $val] $scan val
+	$tree set $node val $val 
     } else {
 	parseerror {don't know how to parse the test or this type}
     }

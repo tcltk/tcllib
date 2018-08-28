@@ -27,7 +27,7 @@
 ## Requirements.
 
 package require Tcl 8.6
-package require fileutil::magic::rt 2   ; # We need the runtime core v2.
+package require fileutil::magic::rt 3-
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -1056,7 +1056,8 @@ variable named {
 	37
 		{mach-o {U 37 mach-o-cpu [O 0]
 	
-	T [O [I 8 ubelong 0 + 0 0]]
+	emit {\b:}
+	T [O [I 8 ubelong 0 + 0 0]] {}
 	
 	if {[N belong [O 0] 0 0 {} {} x {}]} {
 		>
@@ -1525,7 +1526,7 @@ variable named {
 			emit {\b, split ROM}
 		<
 	}
-	} sega-master-system-rom-header {switch [Nv byte [O 15] 0 & 240] {
+	} sega-master-system-rom-header {switch [Nv byte [O 15] 0 & -16] {
 		48 {
 			>
 				emit {Sega Master System}
@@ -1571,7 +1572,47 @@ variable named {
 		<
 	}
 	
-	switch [Nv byte [O 14] 0 & 240] {
+	switch [Nv byte [O 14] 0 & -16] {
+		-128 {
+			>
+				emit 8
+			<
+		}
+		-112 {
+			>
+				emit 9
+			<
+		}
+		-96 {
+			>
+				emit 10
+			<
+		}
+		-80 {
+			>
+				emit 11
+			<
+		}
+		-64 {
+			>
+				emit 12
+			<
+		}
+		-48 {
+			>
+				emit 13
+			<
+		}
+		-32 {
+			>
+				emit 14
+			<
+		}
+		-16 {
+			>
+				emit 15
+			<
+		}
 		0 {
 			>
 				if {[N leshort [O 12] 0 0 {} {} x {}]} {
@@ -1617,49 +1658,9 @@ variable named {
 				emit 7
 			<
 		}
-		-128 {
-			>
-				emit 8
-			<
-		}
-		-112 {
-			>
-				emit 9
-			<
-		}
-		-96 {
-			>
-				emit 10
-			<
-		}
-		-80 {
-			>
-				emit 11
-			<
-		}
-		-64 {
-			>
-				emit 12
-			<
-		}
-		-48 {
-			>
-				emit 13
-			<
-		}
-		-32 {
-			>
-				emit 14
-			<
-		}
-		-16 {
-			>
-				emit 15
-			<
-		}
 	}
 	
-	if {[N byte [O 14] 0 0 & 240 != 0]} {
+	if {[N byte [O 14] 0 0 & -16 != 0]} {
 		>
 			if {[N leshort [O 12] 0 0 {} {} x {}]} {
 				>
@@ -1826,7 +1827,7 @@ variable named {
 		<
 	}
 	
-	switch [Nv leshort [O 0] 0 & 64512] {
+	switch [Nv leshort [O 0] 0 & -1024] {
 		0 {
 			>
 				emit 0
@@ -2838,7 +2839,22 @@ variable named {
 	}
 	}}
 	73
-		{elf-mips {switch [Nv lelong [O 0] 0 & 4026531840] {
+		{elf-mips {switch [Nv lelong [O 0] 0 & -268435456] {
+		-2147483648 {
+			>
+				emit {MIPS64 rel2}
+			<
+		}
+		-1879048192 {
+			>
+				emit {MIPS32 rel6}
+			<
+		}
+		-1610612736 {
+			>
+				emit {MIPS64 rel6}
+			<
+		}
 		0 {
 			>
 				emit MIPS-I
@@ -2877,21 +2893,6 @@ variable named {
 		1879048192 {
 			>
 				emit {MIPS32 rel2}
-			<
-		}
-		-2147483648 {
-			>
-				emit {MIPS64 rel2}
-			<
-		}
-		-1879048192 {
-			>
-				emit {MIPS32 rel6}
-			<
-		}
-		-1610612736 {
-			>
-				emit {MIPS64 rel6}
 			<
 		}
 	}
@@ -2979,9 +2980,9 @@ variable named {
 		}
 	}
 	
-	if {[N byte [O 7] 0 0 {} {} == 202]} {
+	if {[N byte [O 7] 0 0 {} {} == -54]} {
 		>
-			if {[N leshort [O 16] 0 0 {} {} == 65025]} {
+			if {[N leshort [O 16] 0 0 {} {} == -511]} {
 				>
 					emit executable,
 					mime application/x-executable
@@ -2991,7 +2992,7 @@ variable named {
 		<
 	}
 	
-	if {[N leshort [O 16] 0 0 {} {} & 65280]} {
+	if {[N leshort [O 16] 0 0 {} {} & -256]} {
 		>
 			emit processor-specific,
 		<
@@ -3003,6 +3004,91 @@ variable named {
 	}
 	
 	switch [Nv leshort [O 18] 0 {} {}] {
+		-32233 {
+			>
+				emit {Ubicom IP2xxx (unofficial),}
+			<
+		}
+		-31630 {
+			>
+				emit {OpenRISC (obsolete),}
+			<
+		}
+		-28635 {
+			>
+				emit {Cygnus PowerPC (unofficial),}
+			<
+		}
+		-28634 {
+			>
+				emit {Alpha (unofficial),}
+			<
+		}
+		-28607 {
+			>
+				emit {Cygnus M32R (unofficial),}
+			<
+		}
+		-28544 {
+			>
+				emit {Cygnus V850 (unofficial),}
+			<
+		}
+		-23664 {
+			>
+				emit {IBM S/390 (obsolete),}
+			<
+		}
+		-21561 {
+			>
+				emit {Old Xtensa (unofficial),}
+			<
+		}
+		-21179 {
+			>
+				emit {xstormy16 (unofficial),}
+			<
+		}
+		-17749 {
+			>
+				emit {Old MicroBlaze (unofficial),,}
+			<
+		}
+		-16657 {
+			>
+				emit {Cygnus MN10300 (unofficial),}
+			<
+		}
+		-8531 {
+			>
+				emit {Cygnus MN10200 (unofficial),}
+			<
+		}
+		-4083 {
+			>
+				emit {Toshiba MeP (unofficial),}
+			<
+		}
+		-336 {
+			>
+				emit {Renesas M32C (unofficial),}
+			<
+		}
+		-326 {
+			>
+				emit {Vitesse IQ2000 (unofficial),}
+			<
+		}
+		-325 {
+			>
+				emit {NIOS (unofficial),}
+			<
+		}
+		-275 {
+			>
+				emit {Moxie (unofficial),}
+			<
+		}
 		0 {
 			>
 				emit {no machine,}
@@ -3230,7 +3316,7 @@ variable named {
 				emit ARM,
 				if {[N byte [O 4] 0 0 {} {} == 1]} {
 					>
-						switch [Nv lelong [O 36] 0 & 4278190080] {
+						switch [Nv lelong [O 36] 0 & -16777216] {
 							67108864 {
 								>
 									emit EABI4
@@ -4010,91 +4096,6 @@ variable named {
 		30326 {
 			>
 				emit {Cygnus D30V (unofficial),}
-			<
-		}
-		-32233 {
-			>
-				emit {Ubicom IP2xxx (unofficial),}
-			<
-		}
-		-31630 {
-			>
-				emit {OpenRISC (obsolete),}
-			<
-		}
-		-28635 {
-			>
-				emit {Cygnus PowerPC (unofficial),}
-			<
-		}
-		-28634 {
-			>
-				emit {Alpha (unofficial),}
-			<
-		}
-		-28607 {
-			>
-				emit {Cygnus M32R (unofficial),}
-			<
-		}
-		-28544 {
-			>
-				emit {Cygnus V850 (unofficial),}
-			<
-		}
-		-23664 {
-			>
-				emit {IBM S/390 (obsolete),}
-			<
-		}
-		-21561 {
-			>
-				emit {Old Xtensa (unofficial),}
-			<
-		}
-		-21179 {
-			>
-				emit {xstormy16 (unofficial),}
-			<
-		}
-		-17749 {
-			>
-				emit {Old MicroBlaze (unofficial),,}
-			<
-		}
-		-16657 {
-			>
-				emit {Cygnus MN10300 (unofficial),}
-			<
-		}
-		-8531 {
-			>
-				emit {Cygnus MN10200 (unofficial),}
-			<
-		}
-		-4083 {
-			>
-				emit {Toshiba MeP (unofficial),}
-			<
-		}
-		-336 {
-			>
-				emit {Renesas M32C (unofficial),}
-			<
-		}
-		-326 {
-			>
-				emit {Vitesse IQ2000 (unofficial),}
-			<
-		}
-		-325 {
-			>
-				emit {NIOS (unofficial),}
-			<
-		}
-		-275 {
-			>
-				emit {Moxie (unofficial),}
 			<
 		}
 	}
@@ -5190,25 +5191,25 @@ variable named {
 	} partition-entry {if {[N ubyte [O 4] 0 0 {} {} > 0]} {
 		>
 			emit {\b; partition}
-			if {[N leshort [O 64] 0 0 {} {} == 43605]} {
+			if {[N leshort [O 64] 0 0 {} {} == -21931]} {
 				>
 					emit 1
 				<
 			}
 	
-			if {[N leshort [O 48] 0 0 {} {} == 43605]} {
+			if {[N leshort [O 48] 0 0 {} {} == -21931]} {
 				>
 					emit 2
 				<
 			}
 	
-			if {[N leshort [O 32] 0 0 {} {} == 43605]} {
+			if {[N leshort [O 32] 0 0 {} {} == -21931]} {
 				>
 					emit 3
 				<
 			}
 	
-			if {[N leshort [O 16] 0 0 {} {} == 43605]} {
+			if {[N leshort [O 16] 0 0 {} {} == -21931]} {
 				>
 					emit 4
 				<
@@ -5349,7 +5350,7 @@ variable named {
 		<
 	}
 	
-	if {[N leshort [O 510] 0 0 {} {} == 43605]} {
+	if {[N leshort [O 510] 0 0 {} {} == -21931]} {
 		>
 			emit {(DOS/MBR boot sector)}
 		<
@@ -5370,7 +5371,7 @@ variable named {
 	81
 		{swf-details {if {[S string [O 0] 0 {} {} eq F]} {
 		>
-			if {[N byte [O 8] 0 0 & 253 == 8]} {
+			if {[N byte [O 8] 0 0 & -3 == 8]} {
 				>
 					emit {Macromedia Flash data}
 					if {[N byte [O 3] 0 0 {} {} x {}]} {
@@ -5383,7 +5384,7 @@ variable named {
 				<
 			}
 	
-			if {[N byte [O 8] 0 0 & 254 == 16]} {
+			if {[N byte [O 8] 0 0 & -2 == 16]} {
 				>
 					emit {Macromedia Flash data}
 					if {[N byte [O 3] 0 0 {} {} x {}]} {
@@ -5409,7 +5410,7 @@ variable named {
 				<
 			}
 	
-			if {[N beshort [O 8] 0 0 & 65415 == 8192]} {
+			if {[N beshort [O 8] 0 0 & -121 == 8192]} {
 				>
 					emit {Macromedia Flash data}
 					if {[N byte [O 3] 0 0 {} {} x {}]} {
@@ -5422,7 +5423,7 @@ variable named {
 				<
 			}
 	
-			if {[N beshort [O 8] 0 0 & 65504 == 12288]} {
+			if {[N beshort [O 8] 0 0 & -32 == 12288]} {
 				>
 					emit {Macromedia Flash data}
 					if {[N byte [O 3] 0 0 {} {} x {}]} {
@@ -5718,7 +5719,8 @@ variable named {
 				<
 			}
 	
-			T [O [I 56 long 0 + 0 0]]
+			emit {\b: }
+			T [O [I 56 long 0 + 0 0]] {}
 	
 		<
 	}
@@ -6697,6 +6699,31 @@ variable named {
 	
 	U 111 tiff_entry [O 2]
 	} tiff_entry {switch [Nv leshort [O 0] 0 {} {}] {
+		-32104 {
+			>
+				if {[S string [O [I 8 ulelong 0 + 0 0]] 0 {} {} x {}]} {
+					>
+						emit {\b, copyright=%s}
+					<
+				}
+	
+				U 111 tiff_entry [O 12]
+	
+			<
+		}
+		-30871 {
+			>
+				U 111 tiff_entry [O 12]
+	
+			<
+		}
+		-30683 {
+			>
+				emit {\b, GPS-Data}
+				U 111 tiff_entry [O 12]
+	
+			<
+		}
 		254 {
 			>
 				U 111 tiff_entry [O 12]
@@ -6755,61 +6782,6 @@ variable named {
 					>
 						emit {\b, compression=}
 						switch [Nv leshort [O 8] 0 {} {}] {
-							1 {
-								>
-									emit {\bnone}
-								<
-							}
-							2 {
-								>
-									emit {\bhuffman}
-								<
-							}
-							3 {
-								>
-									emit {\bbi-level group 3}
-								<
-							}
-							4 {
-								>
-									emit {\bbi-level group 4}
-								<
-							}
-							5 {
-								>
-									emit {\bLZW}
-								<
-							}
-							6 {
-								>
-									emit {\bJPEG (old)}
-								<
-							}
-							7 {
-								>
-									emit {\bJPEG}
-								<
-							}
-							8 {
-								>
-									emit {\bdeflate}
-								<
-							}
-							9 {
-								>
-									emit {\bJBIG, ITU-T T.85}
-								<
-							}
-							10 {
-								>
-									emit {\bJBIG, ITU-T T.43}
-								<
-							}
-							32766 {
-								>
-									emit {\bNeXT RLE 2-bit}
-								<
-							}
 							-32763 {
 								>
 									emit {\bPackBits (Macintosh RLE)}
@@ -6863,6 +6835,61 @@ variable named {
 							-30823 {
 								>
 									emit {\bNikon NEF Compressed}
+								<
+							}
+							1 {
+								>
+									emit {\bnone}
+								<
+							}
+							2 {
+								>
+									emit {\bhuffman}
+								<
+							}
+							3 {
+								>
+									emit {\bbi-level group 3}
+								<
+							}
+							4 {
+								>
+									emit {\bbi-level group 4}
+								<
+							}
+							5 {
+								>
+									emit {\bLZW}
+								<
+							}
+							6 {
+								>
+									emit {\bJPEG (old)}
+								<
+							}
+							7 {
+								>
+									emit {\bJPEG}
+								<
+							}
+							8 {
+								>
+									emit {\bdeflate}
+								<
+							}
+							9 {
+								>
+									emit {\bJBIG, ITU-T T.85}
+								<
+							}
+							10 {
+								>
+									emit {\bJBIG, ITU-T T.43}
+								<
+							}
+							32766 {
+								>
+									emit {\bNeXT RLE 2-bit}
 								<
 							}
 						}
@@ -7160,31 +7187,6 @@ variable named {
 		}
 		532 {
 			>
-				U 111 tiff_entry [O 12]
-	
-			<
-		}
-		-32104 {
-			>
-				if {[S string [O [I 8 ulelong 0 + 0 0]] 0 {} {} x {}]} {
-					>
-						emit {\b, copyright=%s}
-					<
-				}
-	
-				U 111 tiff_entry [O 12]
-	
-			<
-		}
-		-30871 {
-			>
-				U 111 tiff_entry [O 12]
-	
-			<
-		}
-		-30683 {
-			>
-				emit {\b, GPS-Data}
 				U 111 tiff_entry [O 12]
 	
 			<
@@ -8501,7 +8503,7 @@ variable named {
 				if {[S string [O 4] 0 {} {} eq Exif]} {
 					>
 						emit {\b, Exif Standard: [}
-						T [O 10]
+						T [O 10] r
 	
 						if {[S string [O 10] 0 {} {} x {}]} {
 							>
@@ -8526,16 +8528,16 @@ variable named {
 		}
 	}
 	
-	if {[N beshort [O 0] 0 0 & 65504 == 65504]} {
+	if {[N beshort [O 0] 0 0 & -32 == -32]} {
 		>
 			U 120 jpeg_segment [O [I 2 ubeshort 0 + 0 2]]
 	
 		<
 	}
 	
-	if {[N beshort [O 0] 0 0 & 65488 == 65488]} {
+	if {[N beshort [O 0] 0 0 & -48 == -48]} {
 		>
-			if {[N beshort [O 0] 0 0 & 65504 != 65504]} {
+			if {[N beshort [O 0] 0 0 & -32 != -32]} {
 				>
 					U 120 jpeg_segment [O [I 2 ubeshort 0 + 0 2]]
 	
@@ -9542,7 +9544,7 @@ variable named {
 			<
 		}
 	}
-	} mach-o-be {if {[N byte [O 0] 0 0 {} {} == 207]} {
+	} mach-o-be {if {[N byte [O 0] 0 0 {} {} == -49]} {
 		>
 			emit 64-bit
 		<
@@ -9857,7 +9859,7 @@ variable named {
 		<
 	}
 	
-	if {[N byte [O 73] 0 0 {} {} & 128]} {
+	if {[N byte [O 73] 0 0 {} {} & -128]} {
 		>
 			emit {\b, locked}
 		<
@@ -9954,7 +9956,7 @@ variable named {
 	if {[N ubelong [O 83] 0 0 {} {} != 0]} {
 		>
 			emit {\b }
-			T [O 128]
+			T [O 128] {}
 	
 		<
 	}
@@ -9976,7 +9978,7 @@ variable named {
 			if {[N ubequad [O [I 83 ubeshort 0 + 0 128]] 0 0 {} {} x {}]} {
 				>
 					emit {resource }
-					T [R [O -8]]
+					T [R [O -8]] {}
 	
 				<
 			}
@@ -10739,7 +10741,7 @@ variable named {
 						>
 							if {[N ubyte [O 12] 0 0 {} {} < 4]} {
 								>
-									if {[N lefloat [O 17] 0 0 {} {} > 0.0001]} {
+									if {[N lefloat [O 17] 0 0 {} {} > 9.999999747378752e-5]} {
 										>
 											emit {DIY-Thermocam raw data}
 										<
@@ -11026,7 +11028,7 @@ variable named {
 		<
 	}
 	
-	if {[N leshort [O 510] 0 0 {} {} == 43605]} {
+	if {[N leshort [O 510] 0 0 {} {} == -21931]} {
 		>
 			emit {\b, boot code}
 		<
@@ -11209,7 +11211,8 @@ variable named {
 	
 	if {[N ubelong [O [I 12 ulelong 0 + 0 0]] 0 0 {} {} == 2303741511]} {
 		>
-			T [R [O -4]]
+			emit {\b with}
+			T [R [O -4]] {}
 	
 		<
 	}
@@ -11380,17 +11383,7 @@ variable named {
 		{pgp {switch [Nv byte [O 0] 0 {} {}] {
 		48 {
 			>
-				switch [Nv byte [O 1] 0 & 192] {
-					0 {
-						>
-							emit {Unused [0%x]}
-						<
-					}
-					64 {
-						>
-							emit {User Attribute}
-						<
-					}
+				switch [Nv byte [O 1] 0 & -64] {
 					-128 {
 						>
 							emit {Sym. Encrypted and Integrity Protected Data}
@@ -11399,6 +11392,16 @@ variable named {
 					-64 {
 						>
 							emit {Modification Detection Code}
+						<
+					}
+					0 {
+						>
+							emit {Unused [0%x]}
+						<
+					}
+					64 {
+						>
+							emit {User Attribute}
 						<
 					}
 				}
@@ -11487,17 +11490,7 @@ variable named {
 		}
 		119 {
 			>
-				switch [Nv byte [O 1] 0 & 192] {
-					0 {
-						>
-							emit Reserved
-						<
-					}
-					64 {
-						>
-							emit {Public-Key Encrypted Session Key}
-						<
-					}
+				switch [Nv byte [O 1] 0 & -64] {
 					-128 {
 						>
 							emit Signature
@@ -11508,23 +11501,23 @@ variable named {
 							emit {Symmetric-Key Encrypted Session Key}
 						<
 					}
+					0 {
+						>
+							emit Reserved
+						<
+					}
+					64 {
+						>
+							emit {Public-Key Encrypted Session Key}
+						<
+					}
 				}
 	
 			<
 		}
 		120 {
 			>
-				switch [Nv byte [O 1] 0 & 192] {
-					0 {
-						>
-							emit {One-Pass Signature}
-						<
-					}
-					64 {
-						>
-							emit Secret-Key
-						<
-					}
+				switch [Nv byte [O 1] 0 & -64] {
 					-128 {
 						>
 							emit Public-Key
@@ -11535,23 +11528,23 @@ variable named {
 							emit Secret-Subkey
 						<
 					}
+					0 {
+						>
+							emit {One-Pass Signature}
+						<
+					}
+					64 {
+						>
+							emit Secret-Key
+						<
+					}
 				}
 	
 			<
 		}
 		121 {
 			>
-				switch [Nv byte [O 1] 0 & 192] {
-					0 {
-						>
-							emit {Compressed Data}
-						<
-					}
-					64 {
-						>
-							emit {Symmetrically Encrypted Data}
-						<
-					}
+				switch [Nv byte [O 1] 0 & -64] {
 					-128 {
 						>
 							emit Marker
@@ -11562,23 +11555,23 @@ variable named {
 							emit {Literal Data}
 						<
 					}
+					0 {
+						>
+							emit {Compressed Data}
+						<
+					}
+					64 {
+						>
+							emit {Symmetrically Encrypted Data}
+						<
+					}
 				}
 	
 			<
 		}
 		122 {
 			>
-				switch [Nv byte [O 1] 0 & 192] {
-					0 {
-						>
-							emit Trust
-						<
-					}
-					64 {
-						>
-							emit {User ID}
-						<
-					}
+				switch [Nv byte [O 1] 0 & -64] {
 					-128 {
 						>
 							emit Public-Subkey
@@ -11587,6 +11580,16 @@ variable named {
 					-64 {
 						>
 							emit {Unused [z%x]}
+						<
+					}
+					0 {
+						>
+							emit Trust
+						<
+					}
+					64 {
+						>
+							emit {User ID}
 						<
 					}
 				}
@@ -12756,7 +12759,7 @@ variable named {
 	
 	if {[S string [O 0] 0 {} {} eq VP8]} {
 		>
-			if {[N byte [O 11] 0 0 {} {} == 157]} {
+			if {[N byte [O 11] 0 0 {} {} == -99]} {
 				>
 					if {[N byte [O 12] 0 0 {} {} == 1]} {
 						>
@@ -12775,7 +12778,7 @@ variable named {
 										<
 									}
 	
-									switch [Nv leshort [O 14] 0 & 49152] {
+									switch [Nv leshort [O 14] 0 & -16384] {
 										0 {
 											>
 												emit {\b [none]}
@@ -12810,15 +12813,15 @@ variable named {
 										}
 									}
 	
-									switch [Nv byte [O 15] 0 & 128] {
-										0 {
-											>
-												emit {\b, YUV color}
-											<
-										}
+									switch [Nv byte [O 15] 0 & -128] {
 										-128 {
 											>
 												emit {\b, bad color specification}
+											<
+										}
+										0 {
+											>
+												emit {\b, YUV color}
 											<
 										}
 									}
@@ -12855,7 +12858,7 @@ variable named {
 		<
 	}
 	
-	switch [Nv byte [O 4] 0 & 240] {
+	switch [Nv byte [O 4] 0 & -16] {
 		0 {
 			>
 				emit uncompressed)
@@ -12873,7 +12876,7 @@ variable named {
 		}
 	}
 	
-	if {[N byte [O 4] 0 0 & 240 > 32]} {
+	if {[N byte [O 4] 0 0 & -16 > 32]} {
 		>
 			emit {unknown subformat, flag: %d>>4)}
 		<
@@ -13528,7 +13531,7 @@ variable named {
 		<
 	}
 	
-	T [O [I 128 ubelong 0 + 0 0]]
+	T [O [I 128 ubelong 0 + 0 0]] {}
 	
 	if {[N ubelong [O 136] 0 0 {} {} x {}]} {
 		>
@@ -13542,7 +13545,7 @@ variable named {
 		<
 	}
 	
-	T [O [I 136 ubelong 0 + 0 0]]
+	T [O [I 136 ubelong 0 + 0 0]] {}
 	
 	if {[N ubelong [O 144] 0 0 {} {} != 0]} {
 		>
@@ -13990,6 +13993,208 @@ variable named {
 }
 proc analyze {} {
 	switch [Nv leshort 0 0 {} {}] {
+		-13230 {
+			>
+				emit {RLE image data,}
+				if {[N leshort 6 0 0 {} {} x {}]} {
+					>
+						emit {%d x}
+					<
+				}
+	
+				if {[N leshort 8 0 0 {} {} x {}]} {
+					>
+						emit %d
+					<
+				}
+	
+				if {[N leshort 2 0 0 {} {} > 0]} {
+					>
+						emit {\b, lower left corner: %d}
+					<
+				}
+	
+				if {[N leshort 4 0 0 {} {} > 0]} {
+					>
+						emit {\b, lower right corner: %d}
+					<
+				}
+	
+				if {[N byte 10 0 0 & 1 == 1]} {
+					>
+						emit {\b, clear first}
+					<
+				}
+	
+				if {[N byte 10 0 0 & 2 == 2]} {
+					>
+						emit {\b, no background}
+					<
+				}
+	
+				if {[N byte 10 0 0 & 4 == 4]} {
+					>
+						emit {\b, alpha channel}
+					<
+				}
+	
+				if {[N byte 10 0 0 & 8 == 8]} {
+					>
+						emit {\b, comment}
+					<
+				}
+	
+				if {[N byte 11 0 0 {} {} > 0]} {
+					>
+						emit {\b, %d color channels}
+					<
+				}
+	
+				if {[N byte 12 0 0 {} {} > 0]} {
+					>
+						emit {\b, %d bits per pixel}
+					<
+				}
+	
+				if {[N byte 13 0 0 {} {} > 0]} {
+					>
+						emit {\b, %d color map channels}
+					<
+				}
+	
+			<
+		}
+		-5536 {
+			>
+				emit {ARJ archive data}
+				mime application/x-arj
+				if {[N byte 5 0 0 {} {} x {}]} {
+					>
+						emit {\b, v%d,}
+					<
+				}
+	
+				if {[N byte 8 0 0 {} {} & 4]} {
+					>
+						emit multi-volume,
+					<
+				}
+	
+				if {[N byte 8 0 0 {} {} & 16]} {
+					>
+						emit slash-switched,
+					<
+				}
+	
+				if {[N byte 8 0 0 {} {} & 32]} {
+					>
+						emit backup,
+					<
+				}
+	
+				if {[S string 34 0 {} {} x {}]} {
+					>
+						emit {original name: %s,}
+					<
+				}
+	
+				switch [Nv byte 7 0 {} {}] {
+					0 {
+						>
+							emit {os: MS-DOS}
+						<
+					}
+					1 {
+						>
+							emit {os: PRIMOS}
+						<
+					}
+					2 {
+						>
+							emit {os: Unix}
+						<
+					}
+					3 {
+						>
+							emit {os: Amiga}
+						<
+					}
+					4 {
+						>
+							emit {os: Macintosh}
+						<
+					}
+					5 {
+						>
+							emit {os: OS/2}
+						<
+					}
+					6 {
+						>
+							emit {os: Apple ][ GS}
+						<
+					}
+					7 {
+						>
+							emit {os: Atari ST}
+						<
+					}
+					8 {
+						>
+							emit {os: NeXT}
+						<
+					}
+					9 {
+						>
+							emit {os: VAX/VMS}
+						<
+					}
+				}
+	
+				if {[N byte 3 0 0 {} {} > 0]} {
+					>
+						emit %d\]
+					<
+				}
+	
+			<
+		}
+		-5247 {
+			>
+				emit {PRCS packaged project}
+			<
+		}
+		-155 {
+			>
+				emit {old 16-bit-int little-endian archive}
+				if {[S string 2 0 {} {} eq __.SYMDEF]} {
+					>
+						emit {random library}
+					<
+				}
+	
+			<
+			>
+				emit x.out
+				if {[S string 2 0 {} {} eq __.SYMDEF]} {
+					>
+						emit randomized
+					<
+				}
+	
+				if {[N byte 0 0 0 {} {} x {}]} {
+					>
+						emit archive
+					<
+				}
+	
+			<
+		}
+		-147 {
+			>
+				emit {very old 16-bit-int little-endian archive}
+			<
+		}
 		257 {
 			>
 				if {[N ulelong 68 0 0 {} {} != 88]} {
@@ -14456,7 +14661,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 28 0 0 {} {} & 128]} {
+				if {[N byte 28 0 0 {} {} & -128]} {
 					>
 						emit byte-swapped
 					<
@@ -14474,7 +14679,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N leshort 30 0 0 {} {} ^ 49152]} {
+				if {[N leshort 30 0 0 {} {} ^ -16384]} {
 					>
 						emit pre-SysV
 					<
@@ -14486,7 +14691,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N leshort 30 0 0 {} {} & 32768]} {
+				if {[N leshort 30 0 0 {} {} & -32768]} {
 					>
 						emit V3.0
 					<
@@ -14932,180 +15137,549 @@ proc analyze {} {
 	
 			<
 		}
-		-13230 {
+	}
+	
+	switch [Nv beshort 0 0 {} {}] {
+		-32768 {
 			>
-				emit {RLE image data,}
-				if {[N leshort 6 0 0 {} {} x {}]} {
+				if {[S string [I 2 ubeshort 0 - 0 2] 0 {} {} eq (c)CRI]} {
 					>
-						emit {%d x}
+						emit {CRI ADX ADPCM audio}
+						if {[N byte 18 0 0 {} {} x {}]} {
+							>
+								emit v%u
+							<
+						}
+	
+						switch [Nv byte 4 0 {} {}] {
+							2 {
+								>
+									emit {\b, pre-set prediction coefficients}
+								<
+							}
+							3 {
+								>
+									emit {\b, standard ADX}
+								<
+							}
+							4 {
+								>
+									emit {\b, exponential scale}
+								<
+							}
+							5 {
+								>
+									emit {\b, AHX}
+								<
+							}
+						}
+	
+						if {[N belong 8 0 0 {} {} x {}]} {
+							>
+								emit {\b, %u Hz}
+							<
+						}
+	
+						switch [Nv byte 18 0 {} {}] {
+							3 {
+								>
+									if {[N beshort 2 0 0 {} {} > 43]} {
+										>
+											if {[N belong 24 0 0 {} {} != 0]} {
+												>
+													emit {\b, looping}
+												<
+											}
+	
+										<
+									}
+	
+								<
+							}
+							4 {
+								>
+									if {[N beshort 2 0 0 {} {} > 55]} {
+										>
+											if {[N belong 36 0 0 {} {} != 0]} {
+												>
+													emit {\b, looping}
+												<
+											}
+	
+										<
+									}
+	
+								<
+							}
+						}
+	
+						if {[N byte 19 0 0 & 8 == 8]} {
+							>
+								emit {\b, encrypted}
+							<
+						}
+	
 					<
 				}
 	
-				if {[N leshort 8 0 0 {} {} x {}]} {
+			<
+			>
+				emit {lif file}
+			<
+		}
+		-32760 {
+			>
+				if {[S string 6 0 {} {} eq BS93]} {
 					>
-						emit %d
+						emit {Lynx homebrew cartridge}
+						if {[N beshort 2 0 0 {} {} x {}]} {
+							>
+								emit {\b, RAM start $%04x}
+							<
+						}
+	
+						mime application/x-atari-lynx-rom
 					<
 				}
 	
-				if {[N leshort 2 0 0 {} {} > 0]} {
+				if {[S string 6 0 {} {} eq LYNX]} {
 					>
-						emit {\b, lower left corner: %d}
-					<
-				}
+						emit {Lynx cartridge}
+						if {[N beshort 2 0 0 {} {} x {}]} {
+							>
+								emit {\b, RAM start $%04x}
+							<
+						}
 	
-				if {[N leshort 4 0 0 {} {} > 0]} {
-					>
-						emit {\b, lower right corner: %d}
-					<
-				}
-	
-				if {[N byte 10 0 0 & 1 == 1]} {
-					>
-						emit {\b, clear first}
-					<
-				}
-	
-				if {[N byte 10 0 0 & 2 == 2]} {
-					>
-						emit {\b, no background}
-					<
-				}
-	
-				if {[N byte 10 0 0 & 4 == 4]} {
-					>
-						emit {\b, alpha channel}
-					<
-				}
-	
-				if {[N byte 10 0 0 & 8 == 8]} {
-					>
-						emit {\b, comment}
-					<
-				}
-	
-				if {[N byte 11 0 0 {} {} > 0]} {
-					>
-						emit {\b, %d color channels}
-					<
-				}
-	
-				if {[N byte 12 0 0 {} {} > 0]} {
-					>
-						emit {\b, %d bits per pixel}
-					<
-				}
-	
-				if {[N byte 13 0 0 {} {} > 0]} {
-					>
-						emit {\b, %d color map channels}
+						mime application/x-atari-lynx-rom
 					<
 				}
 	
 			<
 		}
-		-5536 {
+		-31486 {
 			>
-				emit {ARJ archive data}
-				mime application/x-arj
-				if {[N byte 5 0 0 {} {} x {}]} {
-					>
-						emit {\b, v%d,}
-					<
-				}
-	
-				if {[N byte 8 0 0 {} {} & 4]} {
-					>
-						emit multi-volume,
-					<
-				}
-	
-				if {[N byte 8 0 0 {} {} & 16]} {
-					>
-						emit slash-switched,
-					<
-				}
-	
-				if {[N byte 8 0 0 {} {} & 32]} {
-					>
-						emit backup,
-					<
-				}
-	
-				if {[S string 34 0 {} {} x {}]} {
-					>
-						emit {original name: %s,}
-					<
-				}
-	
-				switch [Nv byte 7 0 {} {}] {
+				emit {GPG encrypted data}
+				mime {text/PGP # encoding: data}
+			<
+		}
+		-30875 {
+			>
+				emit {disk quotas file}
+			<
+		}
+		-30771 {
+			>
+				emit {OS9/6809 module:}
+				switch [Nv byte 6 0 & 15] {
 					0 {
 						>
-							emit {os: MS-DOS}
+							emit non-executable
 						<
 					}
 					1 {
 						>
-							emit {os: PRIMOS}
+							emit {machine language}
 						<
 					}
 					2 {
 						>
-							emit {os: Unix}
+							emit {BASIC I-code}
 						<
 					}
 					3 {
 						>
-							emit {os: Amiga}
+							emit {Pascal P-code}
 						<
 					}
 					4 {
 						>
-							emit {os: Macintosh}
+							emit {C I-code}
 						<
 					}
 					5 {
 						>
-							emit {os: OS/2}
+							emit {COBOL I-code}
 						<
 					}
 					6 {
 						>
-							emit {os: Apple ][ GS}
-						<
-					}
-					7 {
-						>
-							emit {os: Atari ST}
-						<
-					}
-					8 {
-						>
-							emit {os: NeXT}
-						<
-					}
-					9 {
-						>
-							emit {os: VAX/VMS}
+							emit {Fortran I-code}
 						<
 					}
 				}
 	
-				if {[N byte 3 0 0 {} {} > 0]} {
+				switch [Nv byte 6 0 & -16] {
+					-64 {
+						>
+							emit {system module}
+						<
+					}
+					-48 {
+						>
+							emit {file manager}
+						<
+					}
+					-32 {
+						>
+							emit {device driver}
+						<
+					}
+					-16 {
+						>
+							emit {device descriptor}
+						<
+					}
+					16 {
+						>
+							emit {program executable}
+						<
+					}
+					32 {
+						>
+							emit subroutine
+						<
+					}
+					48 {
+						>
+							emit multi-module
+						<
+					}
+					64 {
+						>
+							emit {data module}
+						<
+					}
+				}
+	
+			<
+		}
+		-27392 {
+			>
+				emit {PGP key security ring}
+				mime application/x-pgp-keyring
+			<
+		}
+		-27391 {
+			>
+				emit {PGP key security ring}
+				mime application/x-pgp-keyring
+			<
+		}
+		-26110 {
+			>
+				emit {Zebra Metafile graphic}
+				switch [Nv leshort 2 0 {} {}] {
+					1 {
+						>
+							emit {(version 1.x)}
+						<
+					}
+					2 {
+						>
+							emit {(version 1.1x or 1.2x)}
+						<
+					}
+					3 {
+						>
+							emit {(version 1.49)}
+						<
+					}
+					4 {
+						>
+							emit {(version 1.50)}
+						<
+					}
+				}
+	
+				if {[S string 4 0 {} {} x {}]} {
 					>
-						emit %d\]
+						emit {(comment = %s)}
 					<
 				}
 	
 			<
 		}
-		-5247 {
+		-23040 {
 			>
-				emit {PRCS packaged project}
+				emit {PGP encrypted data}
+				mime {text/PGP # encoding: armored data}
+			<
+		}
+		-21928 {
+			>
+				emit {floppy image data (IBM SaveDskF, old)}
+			<
+		}
+		-21927 {
+			>
+				emit {floppy image data (IBM SaveDskF)}
+			<
+		}
+		-21926 {
+			>
+				emit {floppy image data (IBM SaveDskF, compressed)}
+			<
+		}
+		-21267 {
+			>
+				emit {Java serialization data}
+				if {[N beshort 2 0 0 {} {} > 4]} {
+					>
+						emit {\b, version %d}
+					<
+				}
+	
+			<
+		}
+		-8185 {
+			>
+				emit {amd 29k coff archive}
+			<
+		}
+		-7408 {
+			>
+				emit {Amiga Workbench}
+				if {[N beshort 2 0 0 {} {} == 1]} {
+					>
+						switch [Nv byte 48 0 {} {}] {
+							1 {
+								>
+									emit {disk icon}
+								<
+							}
+							2 {
+								>
+									emit {drawer icon}
+								<
+							}
+							3 {
+								>
+									emit {tool icon}
+								<
+							}
+							4 {
+								>
+									emit {project icon}
+								<
+							}
+							5 {
+								>
+									emit {garbage icon}
+								<
+							}
+							6 {
+								>
+									emit {device icon}
+								<
+							}
+							7 {
+								>
+									emit {kickstart icon}
+								<
+							}
+							8 {
+								>
+									emit {workbench application icon}
+								<
+							}
+						}
+	
+					<
+				}
+	
+				if {[N beshort 2 0 0 {} {} > 1]} {
+					>
+						emit {icon, vers. %d}
+					<
+				}
+	
+			<
+		}
+		-1279 {
+			>
+				emit {QDOS object}
+				if {[S pstring 2 0 {} {} x {}]} {
+					>
+						emit '%s'
+					<
+				}
+	
+			<
+		}
+		-511 {
+			>
+				emit {MySQL table definition file}
+				if {[N byte 2 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+				switch [Nv byte 3 0 {} {}] {
+					0 {
+						>
+							emit {\b, type UNKNOWN}
+						<
+					}
+					1 {
+						>
+							emit {\b, type DIAM_ISAM}
+						<
+					}
+					2 {
+						>
+							emit {\b, type HASH}
+						<
+					}
+					3 {
+						>
+							emit {\b, type MISAM}
+						<
+					}
+					4 {
+						>
+							emit {\b, type PISAM}
+						<
+					}
+					5 {
+						>
+							emit {\b, type RMS_ISAM}
+						<
+					}
+					6 {
+						>
+							emit {\b, type HEAP}
+						<
+					}
+					7 {
+						>
+							emit {\b, type ISAM}
+						<
+					}
+					8 {
+						>
+							emit {\b, type MRG_ISAM}
+						<
+					}
+					9 {
+						>
+							emit {\b, type MYISAM}
+						<
+					}
+					10 {
+						>
+							emit {\b, type MRG_MYISAM}
+						<
+					}
+					11 {
+						>
+							emit {\b, type BERKELEY_DB}
+						<
+					}
+					12 {
+						>
+							emit {\b, type INNODB}
+						<
+					}
+					13 {
+						>
+							emit {\b, type GEMINI}
+						<
+					}
+					14 {
+						>
+							emit {\b, type NDBCLUSTER}
+						<
+					}
+					15 {
+						>
+							emit {\b, type EXAMPLE_DB}
+						<
+					}
+					16 {
+						>
+							emit {\b, type CSV_DB}
+						<
+					}
+					17 {
+						>
+							emit {\b, type FEDERATED_DB}
+						<
+					}
+					18 {
+						>
+							emit {\b, type BLACKHOLE_DB}
+						<
+					}
+					19 {
+						>
+							emit {\b, type PARTITION_DB}
+						<
+					}
+					20 {
+						>
+							emit {\b, type BINLOG}
+						<
+					}
+					21 {
+						>
+							emit {\b, type SOLID}
+						<
+					}
+					22 {
+						>
+							emit {\b, type PBXT}
+						<
+					}
+					23 {
+						>
+							emit {\b, type TABLE_FUNCTION}
+						<
+					}
+					24 {
+						>
+							emit {\b, type MEMCACHE}
+						<
+					}
+					25 {
+						>
+							emit {\b, type FALCON}
+						<
+					}
+					26 {
+						>
+							emit {\b, type MARIA}
+						<
+					}
+					27 {
+						>
+							emit {\b, type PERFORMANCE_SCHEMA}
+						<
+					}
+					127 {
+						>
+							emit {\b, type DEFAULT}
+						<
+					}
+				}
+	
+				if {[N ulong 51 0 0 {} {} x {}]} {
+					>
+						emit {\b, MySQL version %d}
+					<
+				}
+	
+			<
+		}
+		-508 {
+			>
+				emit {structured file}
 			<
 		}
 		-155 {
 			>
-				emit {old 16-bit-int little-endian archive}
+				emit {old 16-bit-int big-endian archive}
 				if {[S string 2 0 {} {} eq __.SYMDEF]} {
 					>
 						emit {random library}
@@ -15113,30 +15687,101 @@ proc analyze {} {
 				}
 	
 			<
-			>
-				emit x.out
-				if {[S string 2 0 {} {} eq __.SYMDEF]} {
-					>
-						emit randomized
-					<
-				}
-	
-				if {[N byte 0 0 0 {} {} x {}]} {
-					>
-						emit archive
-					<
-				}
-	
-			<
 		}
 		-147 {
 			>
-				emit {very old 16-bit-int little-endian archive}
+				emit {very old 16-bit-int big-endian archive}
 			<
 		}
-	}
+		-40 {
+			>
+				emit {JPEG image data}
+				mime image/jpeg
+				ext jpeg/jpg/jpe/jfif
+				if {[S string 6 0 {} {} eq JFIF]} {
+					>
+						emit {\b, JFIF standard}
+						if {[N byte 11 0 0 {} {} x {}]} {
+							>
+								emit {\b %d.}
+							<
+						}
 	
-	switch [Nv beshort 0 0 {} {}] {
+						if {[N byte 12 0 0 {} {} x {}]} {
+							>
+								emit {\b%02d}
+							<
+						}
+	
+						switch [Nv byte 13 0 {} {}] {
+							0 {
+								>
+									emit {\b, aspect ratio}
+								<
+							}
+							1 {
+								>
+									emit {\b, resolution (DPI)}
+								<
+							}
+							2 {
+								>
+									emit {\b, resolution (DPCM)}
+								<
+							}
+						}
+	
+						if {[N beshort 14 0 0 {} {} x {}]} {
+							>
+								emit {\b, density %dx}
+							<
+						}
+	
+						if {[N beshort 16 0 0 {} {} x {}]} {
+							>
+								emit {\b%d}
+							<
+						}
+	
+						if {[N beshort 4 0 0 {} {} x {}]} {
+							>
+								emit {\b, segment length %d}
+							<
+						}
+	
+						if {[N byte 18 0 0 {} {} != 0]} {
+							>
+								emit {\b, thumbnail %dx}
+								if {[N byte 19 0 0 {} {} x {}]} {
+									>
+										emit {\b%d}
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+				if {[S string 6 0 {} {} eq Exif]} {
+					>
+						emit {\b, Exif standard: [}
+						T 12 r
+	
+						if {[S string 12 0 {} {} x {}]} {
+							>
+								emit {\b]}
+							<
+						}
+	
+					<
+				}
+	
+				U 120 jpeg_segment [I 4 ubeshort 0 + 0 4]
+	
+			<
+		}
 		1 {
 			>
 				switch [Nv beshort 2 0 {} {}] {
@@ -16330,7 +16975,7 @@ proc analyze {} {
 		2057 {
 			>
 				emit {Bentley/Intergraph MicroStation}
-				if {[N byte 2 0 0 {} {} == 254]} {
+				if {[N byte 2 0 0 {} {} == -2]} {
 					>
 						if {[N beshort 4 0 0 {} {} == 6144]} {
 							>
@@ -16347,17 +16992,7 @@ proc analyze {} {
 			>
 				emit {ATSC A/52 aka AC-3 aka Dolby Digital stream,}
 				mime audio/vnd.dolby.dd-raw
-				switch [Nv byte 4 0 & 192] {
-					0 {
-						>
-							emit {48 kHz,}
-						<
-					}
-					64 {
-						>
-							emit {44.1 kHz,}
-						<
-					}
+				switch [Nv byte 4 0 & -64] {
 					-128 {
 						>
 							emit {32 kHz,}
@@ -16366,6 +17001,16 @@ proc analyze {} {
 					-64 {
 						>
 							emit {reserved frequency,}
+						<
+					}
+					0 {
+						>
+							emit {48 kHz,}
+						<
+					}
+					64 {
+						>
+							emit {44.1 kHz,}
 						<
 					}
 				}
@@ -16420,7 +17065,51 @@ proc analyze {} {
 					<
 				}
 	
-				switch [Nv byte 6 0 & 224] {
+				switch [Nv byte 6 0 & -32] {
+					-128 {
+						>
+							emit {2 front/1 rear,}
+							if {[N byte 6 0 0 & 4 == 4]} {
+								>
+									emit {LFE on,}
+								<
+							}
+	
+						<
+					}
+					-96 {
+						>
+							emit {3 front/1 rear,}
+							if {[N byte 6 0 0 & 1 == 1]} {
+								>
+									emit {LFE on,}
+								<
+							}
+	
+						<
+					}
+					-64 {
+						>
+							emit {2 front/2 rear,}
+							if {[N byte 6 0 0 & 4 == 4]} {
+								>
+									emit {LFE on,}
+								<
+							}
+	
+						<
+					}
+					-32 {
+						>
+							emit {3 front/2 rear,}
+							if {[N byte 6 0 0 & 1 == 1]} {
+								>
+									emit {LFE on,}
+								<
+							}
+	
+						<
+					}
 					0 {
 						>
 							emit {1+1 front,}
@@ -16481,50 +17170,6 @@ proc analyze {} {
 						>
 							emit {3 front/0 rear,}
 							if {[N byte 6 0 0 & 4 == 4]} {
-								>
-									emit {LFE on,}
-								<
-							}
-	
-						<
-					}
-					-128 {
-						>
-							emit {2 front/1 rear,}
-							if {[N byte 6 0 0 & 4 == 4]} {
-								>
-									emit {LFE on,}
-								<
-							}
-	
-						<
-					}
-					-96 {
-						>
-							emit {3 front/1 rear,}
-							if {[N byte 6 0 0 & 1 == 1]} {
-								>
-									emit {LFE on,}
-								<
-							}
-	
-						<
-					}
-					-64 {
-						>
-							emit {2 front/2 rear,}
-							if {[N byte 6 0 0 & 4 == 4]} {
-								>
-									emit {LFE on,}
-								<
-							}
-	
-						<
-					}
-					-32 {
-						>
-							emit {3 front/2 rear,}
-							if {[N byte 6 0 0 & 1 == 1]} {
 								>
 									emit {LFE on,}
 								<
@@ -16927,7 +17572,7 @@ proc analyze {} {
 		19196 {
 			>
 				emit {OS9/68K module:}
-				if {[N byte 20 0 0 & 128 == 128]} {
+				if {[N byte 20 0 0 & -128 == -128]} {
 					>
 						emit re-entrant
 					<
@@ -17435,655 +18080,13 @@ proc analyze {} {
 				emit {RDI Acoustic Doppler Current Profiler (ADCP)}
 			<
 		}
-		-32768 {
-			>
-				if {[S string [I 2 ubeshort 0 - 0 2] 0 {} {} eq (c)CRI]} {
-					>
-						emit {CRI ADX ADPCM audio}
-						if {[N byte 18 0 0 {} {} x {}]} {
-							>
-								emit v%u
-							<
-						}
-	
-						switch [Nv byte 4 0 {} {}] {
-							2 {
-								>
-									emit {\b, pre-set prediction coefficients}
-								<
-							}
-							3 {
-								>
-									emit {\b, standard ADX}
-								<
-							}
-							4 {
-								>
-									emit {\b, exponential scale}
-								<
-							}
-							5 {
-								>
-									emit {\b, AHX}
-								<
-							}
-						}
-	
-						if {[N belong 8 0 0 {} {} x {}]} {
-							>
-								emit {\b, %u Hz}
-							<
-						}
-	
-						switch [Nv byte 18 0 {} {}] {
-							3 {
-								>
-									if {[N beshort 2 0 0 {} {} > 43]} {
-										>
-											if {[N belong 24 0 0 {} {} != 0]} {
-												>
-													emit {\b, looping}
-												<
-											}
-	
-										<
-									}
-	
-								<
-							}
-							4 {
-								>
-									if {[N beshort 2 0 0 {} {} > 55]} {
-										>
-											if {[N belong 36 0 0 {} {} != 0]} {
-												>
-													emit {\b, looping}
-												<
-											}
-	
-										<
-									}
-	
-								<
-							}
-						}
-	
-						if {[N byte 19 0 0 & 8 == 8]} {
-							>
-								emit {\b, encrypted}
-							<
-						}
-	
-					<
-				}
-	
-			<
-			>
-				emit {lif file}
-			<
-		}
-		-32760 {
-			>
-				if {[S string 6 0 {} {} eq BS93]} {
-					>
-						emit {Lynx homebrew cartridge}
-						if {[N beshort 2 0 0 {} {} x {}]} {
-							>
-								emit {\b, RAM start $%04x}
-							<
-						}
-	
-						mime application/x-atari-lynx-rom
-					<
-				}
-	
-				if {[S string 6 0 {} {} eq LYNX]} {
-					>
-						emit {Lynx cartridge}
-						if {[N beshort 2 0 0 {} {} x {}]} {
-							>
-								emit {\b, RAM start $%04x}
-							<
-						}
-	
-						mime application/x-atari-lynx-rom
-					<
-				}
-	
-			<
-		}
-		-31486 {
-			>
-				emit {GPG encrypted data}
-				mime {text/PGP # encoding: data}
-			<
-		}
-		-30875 {
-			>
-				emit {disk quotas file}
-			<
-		}
-		-30771 {
-			>
-				emit {OS9/6809 module:}
-				switch [Nv byte 6 0 & 15] {
-					0 {
-						>
-							emit non-executable
-						<
-					}
-					1 {
-						>
-							emit {machine language}
-						<
-					}
-					2 {
-						>
-							emit {BASIC I-code}
-						<
-					}
-					3 {
-						>
-							emit {Pascal P-code}
-						<
-					}
-					4 {
-						>
-							emit {C I-code}
-						<
-					}
-					5 {
-						>
-							emit {COBOL I-code}
-						<
-					}
-					6 {
-						>
-							emit {Fortran I-code}
-						<
-					}
-				}
-	
-				switch [Nv byte 6 0 & 240] {
-					16 {
-						>
-							emit {program executable}
-						<
-					}
-					32 {
-						>
-							emit subroutine
-						<
-					}
-					48 {
-						>
-							emit multi-module
-						<
-					}
-					64 {
-						>
-							emit {data module}
-						<
-					}
-					-64 {
-						>
-							emit {system module}
-						<
-					}
-					-48 {
-						>
-							emit {file manager}
-						<
-					}
-					-32 {
-						>
-							emit {device driver}
-						<
-					}
-					-16 {
-						>
-							emit {device descriptor}
-						<
-					}
-				}
-	
-			<
-		}
-		-27392 {
-			>
-				emit {PGP key security ring}
-				mime application/x-pgp-keyring
-			<
-		}
-		-27391 {
-			>
-				emit {PGP key security ring}
-				mime application/x-pgp-keyring
-			<
-		}
-		-26110 {
-			>
-				emit {Zebra Metafile graphic}
-				switch [Nv leshort 2 0 {} {}] {
-					1 {
-						>
-							emit {(version 1.x)}
-						<
-					}
-					2 {
-						>
-							emit {(version 1.1x or 1.2x)}
-						<
-					}
-					3 {
-						>
-							emit {(version 1.49)}
-						<
-					}
-					4 {
-						>
-							emit {(version 1.50)}
-						<
-					}
-				}
-	
-				if {[S string 4 0 {} {} x {}]} {
-					>
-						emit {(comment = %s)}
-					<
-				}
-	
-			<
-		}
-		-23040 {
-			>
-				emit {PGP encrypted data}
-				mime {text/PGP # encoding: armored data}
-			<
-		}
-		-21928 {
-			>
-				emit {floppy image data (IBM SaveDskF, old)}
-			<
-		}
-		-21927 {
-			>
-				emit {floppy image data (IBM SaveDskF)}
-			<
-		}
-		-21926 {
-			>
-				emit {floppy image data (IBM SaveDskF, compressed)}
-			<
-		}
-		-21267 {
-			>
-				emit {Java serialization data}
-				if {[N beshort 2 0 0 {} {} > 4]} {
-					>
-						emit {\b, version %d}
-					<
-				}
-	
-			<
-		}
-		-8185 {
-			>
-				emit {amd 29k coff archive}
-			<
-		}
-		-7408 {
-			>
-				emit {Amiga Workbench}
-				if {[N beshort 2 0 0 {} {} == 1]} {
-					>
-						switch [Nv byte 48 0 {} {}] {
-							1 {
-								>
-									emit {disk icon}
-								<
-							}
-							2 {
-								>
-									emit {drawer icon}
-								<
-							}
-							3 {
-								>
-									emit {tool icon}
-								<
-							}
-							4 {
-								>
-									emit {project icon}
-								<
-							}
-							5 {
-								>
-									emit {garbage icon}
-								<
-							}
-							6 {
-								>
-									emit {device icon}
-								<
-							}
-							7 {
-								>
-									emit {kickstart icon}
-								<
-							}
-							8 {
-								>
-									emit {workbench application icon}
-								<
-							}
-						}
-	
-					<
-				}
-	
-				if {[N beshort 2 0 0 {} {} > 1]} {
-					>
-						emit {icon, vers. %d}
-					<
-				}
-	
-			<
-		}
-		-1279 {
-			>
-				emit {QDOS object}
-				if {[S pstring 2 0 {} {} x {}]} {
-					>
-						emit '%s'
-					<
-				}
-	
-			<
-		}
-		-511 {
-			>
-				emit {MySQL table definition file}
-				if {[N byte 2 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-				switch [Nv byte 3 0 {} {}] {
-					0 {
-						>
-							emit {\b, type UNKNOWN}
-						<
-					}
-					1 {
-						>
-							emit {\b, type DIAM_ISAM}
-						<
-					}
-					2 {
-						>
-							emit {\b, type HASH}
-						<
-					}
-					3 {
-						>
-							emit {\b, type MISAM}
-						<
-					}
-					4 {
-						>
-							emit {\b, type PISAM}
-						<
-					}
-					5 {
-						>
-							emit {\b, type RMS_ISAM}
-						<
-					}
-					6 {
-						>
-							emit {\b, type HEAP}
-						<
-					}
-					7 {
-						>
-							emit {\b, type ISAM}
-						<
-					}
-					8 {
-						>
-							emit {\b, type MRG_ISAM}
-						<
-					}
-					9 {
-						>
-							emit {\b, type MYISAM}
-						<
-					}
-					10 {
-						>
-							emit {\b, type MRG_MYISAM}
-						<
-					}
-					11 {
-						>
-							emit {\b, type BERKELEY_DB}
-						<
-					}
-					12 {
-						>
-							emit {\b, type INNODB}
-						<
-					}
-					13 {
-						>
-							emit {\b, type GEMINI}
-						<
-					}
-					14 {
-						>
-							emit {\b, type NDBCLUSTER}
-						<
-					}
-					15 {
-						>
-							emit {\b, type EXAMPLE_DB}
-						<
-					}
-					16 {
-						>
-							emit {\b, type CSV_DB}
-						<
-					}
-					17 {
-						>
-							emit {\b, type FEDERATED_DB}
-						<
-					}
-					18 {
-						>
-							emit {\b, type BLACKHOLE_DB}
-						<
-					}
-					19 {
-						>
-							emit {\b, type PARTITION_DB}
-						<
-					}
-					20 {
-						>
-							emit {\b, type BINLOG}
-						<
-					}
-					21 {
-						>
-							emit {\b, type SOLID}
-						<
-					}
-					22 {
-						>
-							emit {\b, type PBXT}
-						<
-					}
-					23 {
-						>
-							emit {\b, type TABLE_FUNCTION}
-						<
-					}
-					24 {
-						>
-							emit {\b, type MEMCACHE}
-						<
-					}
-					25 {
-						>
-							emit {\b, type FALCON}
-						<
-					}
-					26 {
-						>
-							emit {\b, type MARIA}
-						<
-					}
-					27 {
-						>
-							emit {\b, type PERFORMANCE_SCHEMA}
-						<
-					}
-					127 {
-						>
-							emit {\b, type DEFAULT}
-						<
-					}
-				}
-	
-				if {[N ulong 51 0 0 {} {} x {}]} {
-					>
-						emit {\b, MySQL version %d}
-					<
-				}
-	
-			<
-		}
-		-508 {
-			>
-				emit {structured file}
-			<
-		}
-		-155 {
-			>
-				emit {old 16-bit-int big-endian archive}
-				if {[S string 2 0 {} {} eq __.SYMDEF]} {
-					>
-						emit {random library}
-					<
-				}
-	
-			<
-		}
-		-147 {
-			>
-				emit {very old 16-bit-int big-endian archive}
-			<
-		}
-		-40 {
-			>
-				emit {JPEG image data}
-				mime image/jpeg
-				ext jpeg/jpg/jpe/jfif
-				if {[S string 6 0 {} {} eq JFIF]} {
-					>
-						emit {\b, JFIF standard}
-						if {[N byte 11 0 0 {} {} x {}]} {
-							>
-								emit {\b %d.}
-							<
-						}
-	
-						if {[N byte 12 0 0 {} {} x {}]} {
-							>
-								emit {\b%02d}
-							<
-						}
-	
-						switch [Nv byte 13 0 {} {}] {
-							0 {
-								>
-									emit {\b, aspect ratio}
-								<
-							}
-							1 {
-								>
-									emit {\b, resolution (DPI)}
-								<
-							}
-							2 {
-								>
-									emit {\b, resolution (DPCM)}
-								<
-							}
-						}
-	
-						if {[N beshort 14 0 0 {} {} x {}]} {
-							>
-								emit {\b, density %dx}
-							<
-						}
-	
-						if {[N beshort 16 0 0 {} {} x {}]} {
-							>
-								emit {\b%d}
-							<
-						}
-	
-						if {[N beshort 4 0 0 {} {} x {}]} {
-							>
-								emit {\b, segment length %d}
-							<
-						}
-	
-						if {[N byte 18 0 0 {} {} != 0]} {
-							>
-								emit {\b, thumbnail %dx}
-								if {[N byte 19 0 0 {} {} x {}]} {
-									>
-										emit {\b%d}
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-				if {[S string 6 0 {} {} eq Exif]} {
-					>
-						emit {\b, Exif standard: [}
-						T 12
-	
-						if {[S string 12 0 {} {} x {}]} {
-							>
-								emit {\b]}
-							<
-						}
-	
-					<
-				}
-	
-				U 120 jpeg_segment [I 4 ubeshort 0 + 0 4]
-	
-			<
-		}
 	}
 	
 	if {[N ubyte 0 0 0 {} {} > 0]} {
 		>
 			if {[N ubyte 0 0 0 {} {} < 9]} {
 				>
-					if {[N belong 16 0 0 & 4261474544 == 12336]} {
+					if {[N belong 16 0 0 & -33492752 == 12336]} {
 						>
 							if {[N ubyte 0 0 0 {} {} < 10]} {
 								>
@@ -18310,6 +18313,858 @@ proc analyze {} {
 	}
 	
 	switch [Nv belong 0 0 {} {}] {
+		-2147479551 {
+			>
+				emit {AmigaOS outline tag}
+			<
+		}
+		-2017063670 {
+			>
+				emit {python 2.0 byte-compiled}
+			<
+		}
+		-1991489968 {
+			>
+				if {[N belong 4 0 0 {} {} == 218765834]} {
+					>
+					<
+				}
+	
+				if {[N belong 12 0 0 {} {} == 0]} {
+					>
+						emit {Lytro Light Field Picture}
+					<
+				}
+	
+				if {[N belong 8 0 0 {} {} x {}]} {
+					>
+						emit {\b, version %d}
+					<
+				}
+	
+			<
+		}
+		-1728153892 {
+			>
+				if {[N ubeshort 4 0 0 {} {} < 10]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N ubeshort 6 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, 32 bit big-endian}
+							<
+						}
+	
+						U 15 apt-cache-32bit-be 0
+	
+					<
+				}
+	
+				if {[N ubyte 4 0 0 {} {} > 9]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N ubyte 5 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, big-endian}
+							<
+						}
+	
+						U 15 apt-cache-be 0
+	
+					<
+				}
+	
+			<
+		}
+		-1722938102 {
+			>
+				emit {python 1.5/1.6 byte-compiled}
+			<
+		}
+		-1643377398 {
+			>
+				emit {python 3.3 byte-compiled}
+			<
+		}
+		-1374734174 {
+			>
+				if {[N belong 12 0 0 {} {} == 1048576]} {
+					>
+						if {[N belong [I 8 ubelong 0 + 0 28] 0 0 {} {} == -1036804291]} {
+							>
+								emit {Nintendo GameCube embedded disc image:}
+								U 51 nintendo-gcn-disc-common [I 8 ubelong 0 + 0 0]
+	
+								mime application/x-gamecube-rom
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		-1275982582 {
+			>
+				emit {python 2.5 byte-compiled}
+			<
+		}
+		-1195374706 {
+			>
+				emit {Linux kernel}
+				if {[S string 483 0 {} {} eq Loading]} {
+					>
+						emit {version 1.3.79 or older}
+					<
+				}
+	
+				if {[S string 489 0 {} {} eq Loading]} {
+					>
+						emit {from prehistoric times}
+					<
+				}
+	
+			<
+			>
+				emit Linux
+				if {[N belong 486 0 0 {} {} == 1162627923]} {
+					>
+						emit {ELKS Kernel}
+					<
+				}
+	
+				if {[N belong 486 0 0 {} {} != 1162627923]} {
+					>
+						emit {style boot sector}
+					<
+				}
+	
+			<
+		}
+		-1161903941 {
+			>
+				emit {IRIX N32 core dump}
+				if {[N belong 4 0 0 {} {} == 1]} {
+					>
+						emit of
+					<
+				}
+	
+				if {[S string 16 0 {} {} > \0]} {
+					>
+						emit '%s'
+					<
+				}
+	
+			<
+		}
+		-1059131379 {
+			>
+				emit {GStreamer binary registry}
+				if {[S string 4 0 {} {} x {}]} {
+					>
+						emit {\b, version %s}
+					<
+				}
+	
+			<
+		}
+		-1040441407 {
+			>
+				emit {Common Trace Format (CTF) trace data (BE)}
+			<
+		}
+		-976170042 {
+			>
+				emit {DOS EPS Binary File}
+				mime image/x-eps
+				if {[N long 4 0 0 {} {} > 0]} {
+					>
+						emit {Postscript starts at byte %d}
+						if {[N long 8 0 0 {} {} > 0]} {
+							>
+								emit {length %d}
+								if {[N long 12 0 0 {} {} > 0]} {
+									>
+										emit {Metafile starts at byte %d}
+										if {[N long 16 0 0 {} {} > 0]} {
+											>
+												emit {length %d}
+											<
+										}
+	
+									<
+								}
+	
+								if {[N long 20 0 0 {} {} > 0]} {
+									>
+										emit {TIFF starts at byte %d}
+										if {[N long 24 0 0 {} {} > 0]} {
+											>
+												emit {length %d}
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+			>
+				emit {DOS EPS Binary File}
+				if {[N long 4 0 0 {} {} > 0]} {
+					>
+						emit {Postscript starts at byte %d}
+						if {[N long 8 0 0 {} {} > 0]} {
+							>
+								emit {length %d}
+								if {[N long 12 0 0 {} {} > 0]} {
+									>
+										emit {Metafile starts at byte %d}
+										if {[N long 16 0 0 {} {} > 0]} {
+											>
+												emit {length %d}
+											<
+										}
+	
+									<
+								}
+	
+								if {[N long 20 0 0 {} {} > 0]} {
+									>
+										emit {TIFF starts at byte %d}
+										if {[N long 24 0 0 {} {} > 0]} {
+											>
+												emit {length %d}
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		-951729837 {
+			>
+				emit GEOS
+				switch [Nv byte 40 0 {} {}] {
+					1 {
+						>
+							emit executable
+						<
+					}
+					2 {
+						>
+							emit VMFile
+						<
+					}
+					3 {
+						>
+							emit binary
+						<
+					}
+					4 {
+						>
+							emit {directory label}
+						<
+					}
+				}
+	
+				if {[N byte 40 0 0 {} {} < 1]} {
+					>
+						emit unknown
+					<
+				}
+	
+				if {[N byte 40 0 0 {} {} > 4]} {
+					>
+						emit unknown
+					<
+				}
+	
+				if {[S string 4 0 {} {} > \0]} {
+					>
+						emit {\b, name "%s"}
+					<
+				}
+	
+			<
+		}
+		-938869246 {
+			>
+				emit {Bentley/Intergraph MicroStation DGN vector CAD}
+			<
+		}
+		-889275714 {
+			>
+				if {[N belong 4 0 0 {} {} > 30]} {
+					>
+						emit {compiled Java class data,}
+						if {[N beshort 6 0 0 {} {} x {}]} {
+							>
+								emit {version %d.}
+							<
+						}
+	
+						if {[N beshort 4 0 0 {} {} x {}]} {
+							>
+								emit {\b%d}
+							<
+						}
+	
+						switch [Nv belong 4 0 {} {}] {
+							46 {
+								>
+									emit {(Java 1.2)}
+								<
+							}
+							47 {
+								>
+									emit {(Java 1.3)}
+								<
+							}
+							48 {
+								>
+									emit {(Java 1.4)}
+								<
+							}
+							49 {
+								>
+									emit {(Java 1.5)}
+								<
+							}
+							50 {
+								>
+									emit {(Java 1.6)}
+								<
+							}
+							51 {
+								>
+									emit {(Java 1.7)}
+								<
+							}
+							52 {
+								>
+									emit {(Java 1.8)}
+								<
+							}
+						}
+	
+						mime application/x-java-applet
+					<
+				}
+	
+			<
+			>
+				if {[N belong 4 0 0 {} {} == 1]} {
+					>
+						emit {Mach-O universal binary with 1 architecture:}
+						U 37 mach-o 8
+	
+						mime application/x-mach-binary
+					<
+				}
+	
+				if {[N belong 4 0 0 {} {} > 1]} {
+					>
+						if {[N belong 4 0 0 {} {} < 20]} {
+							>
+								emit {Mach-O universal binary with %d architectures:}
+								U 37 mach-o 8
+	
+								mime application/x-mach-binary
+							<
+						}
+	
+						switch [Nv belong 4 0 {} {}] {
+							2 {
+								>
+									U 37 mach-o 28
+	
+								<
+							}
+							3 {
+								>
+									U 37 mach-o 48
+	
+								<
+							}
+							4 {
+								>
+									U 37 mach-o 68
+	
+								<
+							}
+							5 {
+								>
+									U 37 mach-o 88
+	
+								<
+							}
+							6 {
+								>
+									U 37 mach-o 108
+	
+								<
+							}
+						}
+	
+					<
+				}
+	
+			<
+		}
+		-889270259 {
+			>
+				emit {JAR compressed with pack200,}
+				if {[N byte 5 0 0 {} {} x {}]} {
+					>
+						emit {version %d.}
+					<
+				}
+	
+				if {[N byte 4 0 0 {} {} x {}]} {
+					>
+						emit {\b%d}
+						mime application/x-java-pack200
+					<
+				}
+	
+			<
+			>
+				emit {JAR compressed with pack200,}
+				if {[N byte 5 0 0 {} {} x {}]} {
+					>
+						emit {version %d.}
+					<
+				}
+	
+				if {[N byte 4 0 0 {} {} x {}]} {
+					>
+						emit {\b%d}
+						mime application/x-java-pack200
+					<
+				}
+	
+			<
+		}
+		-825307442 {
+			>
+				emit {Java JCE KeyStore}
+				mime application/x-java-jce-keystore
+			<
+		}
+		-804389139 {
+			>
+				if {[N byte [R [I 8 ubelong 0 + 0 0]] 0 0 {} {} x {}]} {
+					>
+						if {[N byte [R [I 12 ubelong 0 + 0 0]] 0 0 {} {} x {}]} {
+							>
+								if {[N belong 20 0 0 {} {} > 1]} {
+									>
+										emit {Device Tree Blob version %d}
+										if {[N belong 4 0 0 {} {} x {}]} {
+											>
+												emit {\b, size=%d}
+											<
+										}
+	
+										if {[N belong 20 0 0 {} {} > 1]} {
+											>
+												if {[N belong 28 0 0 {} {} x {}]} {
+													>
+														emit {\b, boot CPU=%d}
+													<
+												}
+	
+											<
+										}
+	
+										if {[N belong 20 0 0 {} {} > 2]} {
+											>
+												if {[N belong 32 0 0 {} {} x {}]} {
+													>
+														emit {\b, string block size=%d}
+													<
+												}
+	
+											<
+										}
+	
+										if {[N belong 20 0 0 {} {} > 16]} {
+											>
+												if {[N belong 36 0 0 {} {} x {}]} {
+													>
+														emit {\b, DT structure block size=%d}
+													<
+												}
+	
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		-772666102 {
+			>
+				emit {python 2.6 byte-compiled}
+			<
+		}
+		-559043264 {
+			>
+				emit {IRIX 64-bit core dump}
+				if {[N belong 4 0 0 {} {} == 1]} {
+					>
+						emit of
+					<
+				}
+	
+				if {[S string 16 0 {} {} > \0]} {
+					>
+						emit '%s'
+					<
+				}
+	
+			<
+		}
+		-559043152 {
+			>
+				emit {IRIX core dump}
+				if {[N belong 4 0 0 {} {} == 1]} {
+					>
+						emit of
+					<
+				}
+	
+				if {[S string 16 0 {} {} > \0]} {
+					>
+						emit '%s'
+					<
+				}
+	
+			<
+		}
+		-559039810 {
+			>
+				emit {IRIX Parallel Arena}
+				if {[N belong 8 0 0 {} {} > 0]} {
+					>
+						emit {- version %d}
+					<
+				}
+	
+			<
+		}
+		-364936773 {
+			>
+				emit {Conary changeset data}
+			<
+		}
+		-307499301 {
+			>
+				emit RPM
+				mime application/x-rpm
+				if {[N byte 4 0 0 {} {} x {}]} {
+					>
+						emit v%d
+					<
+				}
+	
+				if {[N byte 5 0 0 {} {} x {}]} {
+					>
+						emit {\b.%d}
+					<
+				}
+	
+				switch [Nv beshort 6 0 {} {}] {
+					0 {
+						>
+							emit bin
+							switch [Nv beshort 8 0 {} {}] {
+								1 {
+									>
+										emit i386/x86_64
+									<
+								}
+								2 {
+									>
+										emit Alpha/Sparc64
+									<
+								}
+								3 {
+									>
+										emit Sparc
+									<
+								}
+								4 {
+									>
+										emit MIPS
+									<
+								}
+								5 {
+									>
+										emit PowerPC
+									<
+								}
+								6 {
+									>
+										emit 68000
+									<
+								}
+								7 {
+									>
+										emit SGI
+									<
+								}
+								8 {
+									>
+										emit RS6000
+									<
+								}
+								9 {
+									>
+										emit IA64
+									<
+								}
+								10 {
+									>
+										emit Sparc64
+									<
+								}
+								11 {
+									>
+										emit MIPSel
+									<
+								}
+								12 {
+									>
+										emit ARM
+									<
+								}
+								13 {
+									>
+										emit MiNT
+									<
+								}
+								14 {
+									>
+										emit S/390
+									<
+								}
+								15 {
+									>
+										emit S/390x
+									<
+								}
+								16 {
+									>
+										emit PowerPC64
+									<
+								}
+								17 {
+									>
+										emit SuperH
+									<
+								}
+								18 {
+									>
+										emit Xtensa
+									<
+								}
+								255 {
+									>
+										emit noarch
+									<
+								}
+							}
+	
+						<
+					}
+					1 {
+						>
+							emit src
+						<
+					}
+				}
+	
+			<
+		}
+		-302060034 {
+			>
+				emit {Sun 'jks' Java Keystore File data}
+			<
+		}
+		-301200118 {
+			>
+				emit {python 3.4 byte-compiled}
+			<
+		}
+		-249691108 {
+			>
+				emit {magic binary file for file(1) cmd}
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {(version %d) (big endian)}
+					<
+				}
+	
+			<
+		}
+		-86111232 {
+			>
+				emit {Mac OS X Code Requirement}
+				if {[N belong 8 0 0 {} {} == 1]} {
+					>
+						emit (opExpr)
+					<
+				}
+	
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {- %d bytes}
+					<
+				}
+	
+			<
+		}
+		-86111231 {
+			>
+				emit {Mac OS X Code Requirement Set}
+				if {[N belong 8 0 0 {} {} > 1]} {
+					>
+						emit {containing %d items}
+					<
+				}
+	
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {- %d bytes}
+					<
+				}
+	
+			<
+		}
+		-86111230 {
+			>
+				emit {Mac OS X Code Directory}
+				if {[N belong 8 0 0 {} {} x {}]} {
+					>
+						emit {version %x}
+					<
+				}
+	
+				if {[N belong 12 0 0 {} {} > 0]} {
+					>
+						emit {flags 0x%x}
+					<
+				}
+	
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {- %d bytes}
+					<
+				}
+	
+			<
+		}
+		-86111040 {
+			>
+				emit {Mac OS X Detached Code Signature (non-executable)}
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {- %d bytes}
+					<
+				}
+	
+			<
+		}
+		-86111039 {
+			>
+				emit {Mac OS X Detached Code Signature}
+				if {[N belong 8 0 0 {} {} > 1]} {
+					>
+						emit {(%d elements)}
+					<
+				}
+	
+				if {[N belong 4 0 0 {} {} x {}]} {
+					>
+						emit {- %d bytes}
+					<
+				}
+	
+			<
+		}
+		-17957139 {
+			>
+				emit {Java KeyStore}
+				mime application/x-java-keystore
+			<
+		}
+		-12432129 {
+			>
+				emit {WRAptor packer (c64)}
+			<
+		}
+		-12169394 {
+			>
+				emit {DOS code page font data collection}
+			<
+		}
+		-11534511 {
+			>
+				emit {JPEG 2000 codestream}
+			<
+		}
+		-65536 {
+			>
+				if {[N belong 24 0 0 {} {} == 0]} {
+					>
+						if {[N belong 28 0 0 {} {} == 0]} {
+							>
+								if {[N belong 32792 0 0 {} {} == 1562156707]} {
+									>
+										emit {Nintendo Wii SDK disc image:}
+										U 51 nintendo-gcn-disc-common 32768
+	
+									<
+								}
+	
+								if {[N belong 32796 0 0 {} {} == -1036804291]} {
+									>
+										emit {Nintendo GameCube SDK disc image:}
+										U 51 nintendo-gcn-disc-common 32768
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
 		1 {
 			>
 				if {[N byte 4 0 0 & 31 == 7]} {
@@ -18620,7 +19475,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 84 0 0 {} {} & 2147483648]} {
+				if {[N belong 84 0 0 {} {} & -2147483648]} {
 					>
 						emit executable
 					<
@@ -19651,7 +20506,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 8 0 0 {} {} & 2147483648]} {
+				if {[N belong 8 0 0 {} {} & -2147483648]} {
 					>
 						emit {save fp regs}
 					<
@@ -19680,7 +20535,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 8 0 0 {} {} & 2147483648]} {
+				if {[N belong 8 0 0 {} {} & -2147483648]} {
 					>
 						emit {save fp regs}
 					<
@@ -19715,7 +20570,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 8 0 0 {} {} & 2147483648]} {
+				if {[N belong 8 0 0 {} {} & -2147483648]} {
 					>
 						emit {save fp regs}
 					<
@@ -19750,7 +20605,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 8 0 0 {} {} & 2147483648]} {
+				if {[N belong 8 0 0 {} {} & -2147483648]} {
 					>
 						emit {save fp regs}
 					<
@@ -21125,858 +21980,6 @@ proc analyze {} {
 	
 			<
 		}
-		-2147479551 {
-			>
-				emit {AmigaOS outline tag}
-			<
-		}
-		-2017063670 {
-			>
-				emit {python 2.0 byte-compiled}
-			<
-		}
-		-1991489968 {
-			>
-				if {[N belong 4 0 0 {} {} == 218765834]} {
-					>
-					<
-				}
-	
-				if {[N belong 12 0 0 {} {} == 0]} {
-					>
-						emit {Lytro Light Field Picture}
-					<
-				}
-	
-				if {[N belong 8 0 0 {} {} x {}]} {
-					>
-						emit {\b, version %d}
-					<
-				}
-	
-			<
-		}
-		-1728153892 {
-			>
-				if {[N ubeshort 4 0 0 {} {} < 10]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N ubeshort 6 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, 32 bit big-endian}
-							<
-						}
-	
-						U 15 apt-cache-32bit-be 0
-	
-					<
-				}
-	
-				if {[N ubyte 4 0 0 {} {} > 9]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N ubyte 5 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, big-endian}
-							<
-						}
-	
-						U 15 apt-cache-be 0
-	
-					<
-				}
-	
-			<
-		}
-		-1722938102 {
-			>
-				emit {python 1.5/1.6 byte-compiled}
-			<
-		}
-		-1643377398 {
-			>
-				emit {python 3.3 byte-compiled}
-			<
-		}
-		-1374734174 {
-			>
-				if {[N belong 12 0 0 {} {} == 1048576]} {
-					>
-						if {[N belong [I 8 ubelong 0 + 0 28] 0 0 {} {} == 3258163005]} {
-							>
-								emit {Nintendo GameCube embedded disc image:}
-								U 51 nintendo-gcn-disc-common [I 8 ubelong 0 + 0 0]
-	
-								mime application/x-gamecube-rom
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		-1275982582 {
-			>
-				emit {python 2.5 byte-compiled}
-			<
-		}
-		-1195374706 {
-			>
-				emit {Linux kernel}
-				if {[S string 483 0 {} {} eq Loading]} {
-					>
-						emit {version 1.3.79 or older}
-					<
-				}
-	
-				if {[S string 489 0 {} {} eq Loading]} {
-					>
-						emit {from prehistoric times}
-					<
-				}
-	
-			<
-			>
-				emit Linux
-				if {[N belong 486 0 0 {} {} == 1162627923]} {
-					>
-						emit {ELKS Kernel}
-					<
-				}
-	
-				if {[N belong 486 0 0 {} {} != 1162627923]} {
-					>
-						emit {style boot sector}
-					<
-				}
-	
-			<
-		}
-		-1161903941 {
-			>
-				emit {IRIX N32 core dump}
-				if {[N belong 4 0 0 {} {} == 1]} {
-					>
-						emit of
-					<
-				}
-	
-				if {[S string 16 0 {} {} > \0]} {
-					>
-						emit '%s'
-					<
-				}
-	
-			<
-		}
-		-1059131379 {
-			>
-				emit {GStreamer binary registry}
-				if {[S string 4 0 {} {} x {}]} {
-					>
-						emit {\b, version %s}
-					<
-				}
-	
-			<
-		}
-		-1040441407 {
-			>
-				emit {Common Trace Format (CTF) trace data (BE)}
-			<
-		}
-		-976170042 {
-			>
-				emit {DOS EPS Binary File}
-				mime image/x-eps
-				if {[N long 4 0 0 {} {} > 0]} {
-					>
-						emit {Postscript starts at byte %d}
-						if {[N long 8 0 0 {} {} > 0]} {
-							>
-								emit {length %d}
-								if {[N long 12 0 0 {} {} > 0]} {
-									>
-										emit {Metafile starts at byte %d}
-										if {[N long 16 0 0 {} {} > 0]} {
-											>
-												emit {length %d}
-											<
-										}
-	
-									<
-								}
-	
-								if {[N long 20 0 0 {} {} > 0]} {
-									>
-										emit {TIFF starts at byte %d}
-										if {[N long 24 0 0 {} {} > 0]} {
-											>
-												emit {length %d}
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-			>
-				emit {DOS EPS Binary File}
-				if {[N long 4 0 0 {} {} > 0]} {
-					>
-						emit {Postscript starts at byte %d}
-						if {[N long 8 0 0 {} {} > 0]} {
-							>
-								emit {length %d}
-								if {[N long 12 0 0 {} {} > 0]} {
-									>
-										emit {Metafile starts at byte %d}
-										if {[N long 16 0 0 {} {} > 0]} {
-											>
-												emit {length %d}
-											<
-										}
-	
-									<
-								}
-	
-								if {[N long 20 0 0 {} {} > 0]} {
-									>
-										emit {TIFF starts at byte %d}
-										if {[N long 24 0 0 {} {} > 0]} {
-											>
-												emit {length %d}
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		-951729837 {
-			>
-				emit GEOS
-				switch [Nv byte 40 0 {} {}] {
-					1 {
-						>
-							emit executable
-						<
-					}
-					2 {
-						>
-							emit VMFile
-						<
-					}
-					3 {
-						>
-							emit binary
-						<
-					}
-					4 {
-						>
-							emit {directory label}
-						<
-					}
-				}
-	
-				if {[N byte 40 0 0 {} {} < 1]} {
-					>
-						emit unknown
-					<
-				}
-	
-				if {[N byte 40 0 0 {} {} > 4]} {
-					>
-						emit unknown
-					<
-				}
-	
-				if {[S string 4 0 {} {} > \0]} {
-					>
-						emit {\b, name "%s"}
-					<
-				}
-	
-			<
-		}
-		-938869246 {
-			>
-				emit {Bentley/Intergraph MicroStation DGN vector CAD}
-			<
-		}
-		-889275714 {
-			>
-				if {[N belong 4 0 0 {} {} > 30]} {
-					>
-						emit {compiled Java class data,}
-						if {[N beshort 6 0 0 {} {} x {}]} {
-							>
-								emit {version %d.}
-							<
-						}
-	
-						if {[N beshort 4 0 0 {} {} x {}]} {
-							>
-								emit {\b%d}
-							<
-						}
-	
-						switch [Nv belong 4 0 {} {}] {
-							46 {
-								>
-									emit {(Java 1.2)}
-								<
-							}
-							47 {
-								>
-									emit {(Java 1.3)}
-								<
-							}
-							48 {
-								>
-									emit {(Java 1.4)}
-								<
-							}
-							49 {
-								>
-									emit {(Java 1.5)}
-								<
-							}
-							50 {
-								>
-									emit {(Java 1.6)}
-								<
-							}
-							51 {
-								>
-									emit {(Java 1.7)}
-								<
-							}
-							52 {
-								>
-									emit {(Java 1.8)}
-								<
-							}
-						}
-	
-						mime application/x-java-applet
-					<
-				}
-	
-			<
-			>
-				if {[N belong 4 0 0 {} {} == 1]} {
-					>
-						emit {Mach-O universal binary with 1 architecture:}
-						U 37 mach-o 8
-	
-						mime application/x-mach-binary
-					<
-				}
-	
-				if {[N belong 4 0 0 {} {} > 1]} {
-					>
-						if {[N belong 4 0 0 {} {} < 20]} {
-							>
-								emit {Mach-O universal binary with %d architectures:}
-								U 37 mach-o 8
-	
-								mime application/x-mach-binary
-							<
-						}
-	
-						switch [Nv belong 4 0 {} {}] {
-							2 {
-								>
-									U 37 mach-o 28
-	
-								<
-							}
-							3 {
-								>
-									U 37 mach-o 48
-	
-								<
-							}
-							4 {
-								>
-									U 37 mach-o 68
-	
-								<
-							}
-							5 {
-								>
-									U 37 mach-o 88
-	
-								<
-							}
-							6 {
-								>
-									U 37 mach-o 108
-	
-								<
-							}
-						}
-	
-					<
-				}
-	
-			<
-		}
-		-889270259 {
-			>
-				emit {JAR compressed with pack200,}
-				if {[N byte 5 0 0 {} {} x {}]} {
-					>
-						emit {version %d.}
-					<
-				}
-	
-				if {[N byte 4 0 0 {} {} x {}]} {
-					>
-						emit {\b%d}
-						mime application/x-java-pack200
-					<
-				}
-	
-			<
-			>
-				emit {JAR compressed with pack200,}
-				if {[N byte 5 0 0 {} {} x {}]} {
-					>
-						emit {version %d.}
-					<
-				}
-	
-				if {[N byte 4 0 0 {} {} x {}]} {
-					>
-						emit {\b%d}
-						mime application/x-java-pack200
-					<
-				}
-	
-			<
-		}
-		-825307442 {
-			>
-				emit {Java JCE KeyStore}
-				mime application/x-java-jce-keystore
-			<
-		}
-		-804389139 {
-			>
-				if {[N byte [R [I 8 ubelong 0 + 0 0]] 0 0 {} {} x {}]} {
-					>
-						if {[N byte [R [I 12 ubelong 0 + 0 0]] 0 0 {} {} x {}]} {
-							>
-								if {[N belong 20 0 0 {} {} > 1]} {
-									>
-										emit {Device Tree Blob version %d}
-										if {[N belong 4 0 0 {} {} x {}]} {
-											>
-												emit {\b, size=%d}
-											<
-										}
-	
-										if {[N belong 20 0 0 {} {} > 1]} {
-											>
-												if {[N belong 28 0 0 {} {} x {}]} {
-													>
-														emit {\b, boot CPU=%d}
-													<
-												}
-	
-											<
-										}
-	
-										if {[N belong 20 0 0 {} {} > 2]} {
-											>
-												if {[N belong 32 0 0 {} {} x {}]} {
-													>
-														emit {\b, string block size=%d}
-													<
-												}
-	
-											<
-										}
-	
-										if {[N belong 20 0 0 {} {} > 16]} {
-											>
-												if {[N belong 36 0 0 {} {} x {}]} {
-													>
-														emit {\b, DT structure block size=%d}
-													<
-												}
-	
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		-772666102 {
-			>
-				emit {python 2.6 byte-compiled}
-			<
-		}
-		-559043264 {
-			>
-				emit {IRIX 64-bit core dump}
-				if {[N belong 4 0 0 {} {} == 1]} {
-					>
-						emit of
-					<
-				}
-	
-				if {[S string 16 0 {} {} > \0]} {
-					>
-						emit '%s'
-					<
-				}
-	
-			<
-		}
-		-559043152 {
-			>
-				emit {IRIX core dump}
-				if {[N belong 4 0 0 {} {} == 1]} {
-					>
-						emit of
-					<
-				}
-	
-				if {[S string 16 0 {} {} > \0]} {
-					>
-						emit '%s'
-					<
-				}
-	
-			<
-		}
-		-559039810 {
-			>
-				emit {IRIX Parallel Arena}
-				if {[N belong 8 0 0 {} {} > 0]} {
-					>
-						emit {- version %d}
-					<
-				}
-	
-			<
-		}
-		-364936773 {
-			>
-				emit {Conary changeset data}
-			<
-		}
-		-307499301 {
-			>
-				emit RPM
-				mime application/x-rpm
-				if {[N byte 4 0 0 {} {} x {}]} {
-					>
-						emit v%d
-					<
-				}
-	
-				if {[N byte 5 0 0 {} {} x {}]} {
-					>
-						emit {\b.%d}
-					<
-				}
-	
-				switch [Nv beshort 6 0 {} {}] {
-					0 {
-						>
-							emit bin
-							switch [Nv beshort 8 0 {} {}] {
-								1 {
-									>
-										emit i386/x86_64
-									<
-								}
-								2 {
-									>
-										emit Alpha/Sparc64
-									<
-								}
-								3 {
-									>
-										emit Sparc
-									<
-								}
-								4 {
-									>
-										emit MIPS
-									<
-								}
-								5 {
-									>
-										emit PowerPC
-									<
-								}
-								6 {
-									>
-										emit 68000
-									<
-								}
-								7 {
-									>
-										emit SGI
-									<
-								}
-								8 {
-									>
-										emit RS6000
-									<
-								}
-								9 {
-									>
-										emit IA64
-									<
-								}
-								10 {
-									>
-										emit Sparc64
-									<
-								}
-								11 {
-									>
-										emit MIPSel
-									<
-								}
-								12 {
-									>
-										emit ARM
-									<
-								}
-								13 {
-									>
-										emit MiNT
-									<
-								}
-								14 {
-									>
-										emit S/390
-									<
-								}
-								15 {
-									>
-										emit S/390x
-									<
-								}
-								16 {
-									>
-										emit PowerPC64
-									<
-								}
-								17 {
-									>
-										emit SuperH
-									<
-								}
-								18 {
-									>
-										emit Xtensa
-									<
-								}
-								255 {
-									>
-										emit noarch
-									<
-								}
-							}
-	
-						<
-					}
-					1 {
-						>
-							emit src
-						<
-					}
-				}
-	
-			<
-		}
-		-302060034 {
-			>
-				emit {Sun 'jks' Java Keystore File data}
-			<
-		}
-		-301200118 {
-			>
-				emit {python 3.4 byte-compiled}
-			<
-		}
-		-249691108 {
-			>
-				emit {magic binary file for file(1) cmd}
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {(version %d) (big endian)}
-					<
-				}
-	
-			<
-		}
-		-86111232 {
-			>
-				emit {Mac OS X Code Requirement}
-				if {[N belong 8 0 0 {} {} == 1]} {
-					>
-						emit (opExpr)
-					<
-				}
-	
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {- %d bytes}
-					<
-				}
-	
-			<
-		}
-		-86111231 {
-			>
-				emit {Mac OS X Code Requirement Set}
-				if {[N belong 8 0 0 {} {} > 1]} {
-					>
-						emit {containing %d items}
-					<
-				}
-	
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {- %d bytes}
-					<
-				}
-	
-			<
-		}
-		-86111230 {
-			>
-				emit {Mac OS X Code Directory}
-				if {[N belong 8 0 0 {} {} x {}]} {
-					>
-						emit {version %x}
-					<
-				}
-	
-				if {[N belong 12 0 0 {} {} > 0]} {
-					>
-						emit {flags 0x%x}
-					<
-				}
-	
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {- %d bytes}
-					<
-				}
-	
-			<
-		}
-		-86111040 {
-			>
-				emit {Mac OS X Detached Code Signature (non-executable)}
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {- %d bytes}
-					<
-				}
-	
-			<
-		}
-		-86111039 {
-			>
-				emit {Mac OS X Detached Code Signature}
-				if {[N belong 8 0 0 {} {} > 1]} {
-					>
-						emit {(%d elements)}
-					<
-				}
-	
-				if {[N belong 4 0 0 {} {} x {}]} {
-					>
-						emit {- %d bytes}
-					<
-				}
-	
-			<
-		}
-		-17957139 {
-			>
-				emit {Java KeyStore}
-				mime application/x-java-keystore
-			<
-		}
-		-12432129 {
-			>
-				emit {WRAptor packer (c64)}
-			<
-		}
-		-12169394 {
-			>
-				emit {DOS code page font data collection}
-			<
-		}
-		-11534511 {
-			>
-				emit {JPEG 2000 codestream}
-			<
-		}
-		-65536 {
-			>
-				if {[N belong 24 0 0 {} {} == 0]} {
-					>
-						if {[N belong 28 0 0 {} {} == 0]} {
-							>
-								if {[N belong 32792 0 0 {} {} == 1562156707]} {
-									>
-										emit {Nintendo Wii SDK disc image:}
-										U 51 nintendo-gcn-disc-common 32768
-	
-									<
-								}
-	
-								if {[N belong 32796 0 0 {} {} == 3258163005]} {
-									>
-										emit {Nintendo GameCube SDK disc image:}
-										U 51 nintendo-gcn-disc-common 32768
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
 	}
 	
 	if {[S search 0 0 {} 8192 eq (input,]} {
@@ -22015,6 +22018,45 @@ proc analyze {} {
 	}
 	
 	switch [Nv short 0 0 {} {}] {
+		-21846 {
+			>
+				emit {SoftQuad DESC or font file binary}
+				if {[N short 2 0 0 {} {} > 0]} {
+					>
+						emit {- version %d}
+					<
+				}
+	
+			<
+		}
+		-16166 {
+			>
+				emit {Compiled PSI (v2) data}
+				if {[S string 3 0 {} {} > \0]} {
+					>
+						emit (%s)
+					<
+				}
+	
+			<
+		}
+		-16162 {
+			>
+				emit {Compiled PSI (v1) data}
+			<
+		}
+		-14479 {
+			>
+				emit {byte-swapped cpio archive}
+				mime {application/x-cpio # encoding: swapped}
+			<
+		}
+		-13563 {
+			>
+				emit {huf output}
+				mime application/octet-stream
+			<
+		}
 		256 {
 			>
 				if {[S search 2 0 {} 9 eq \0\0]} {
@@ -22535,6 +22577,21 @@ proc analyze {} {
 			>
 				emit {VISX image file}
 				switch [Nv byte 2 0 {} {}] {
+					-126 {
+						>
+							emit (graph)
+						<
+					}
+					-125 {
+						>
+							emit {(adjacency graph)}
+						<
+					}
+					-124 {
+						>
+							emit {(adjacency graph library)}
+						<
+					}
 					0 {
 						>
 							emit (zero)
@@ -22645,21 +22702,6 @@ proc analyze {} {
 							emit {(bit vector)}
 						<
 					}
-					-126 {
-						>
-							emit (graph)
-						<
-					}
-					-125 {
-						>
-							emit {(adjacency graph)}
-						<
-					}
-					-124 {
-						>
-							emit {(adjacency graph library)}
-						<
-					}
 				}
 	
 				if {[S string 2 0 {} {} eq .VISIX]} {
@@ -22679,45 +22721,6 @@ proc analyze {} {
 			>
 				emit {cpio archive}
 				mime application/x-cpio
-			<
-		}
-		-21846 {
-			>
-				emit {SoftQuad DESC or font file binary}
-				if {[N short 2 0 0 {} {} > 0]} {
-					>
-						emit {- version %d}
-					<
-				}
-	
-			<
-		}
-		-16166 {
-			>
-				emit {Compiled PSI (v2) data}
-				if {[S string 3 0 {} {} > \0]} {
-					>
-						emit (%s)
-					<
-				}
-	
-			<
-		}
-		-16162 {
-			>
-				emit {Compiled PSI (v1) data}
-			<
-		}
-		-14479 {
-			>
-				emit {byte-swapped cpio archive}
-				mime {application/x-cpio # encoding: swapped}
-			<
-		}
-		-13563 {
-			>
-				emit {huf output}
-				mime application/octet-stream
 			<
 		}
 	}
@@ -23296,6 +23299,477 @@ proc analyze {} {
 	}
 	
 	switch [Nv lelong 0 0 {} {}] {
+		-2147417760 {
+			>
+				emit {MDEC video stream,}
+				if {[N leshort 16 0 0 {} {} x {}]} {
+					>
+						emit %dx
+					<
+				}
+	
+				if {[N leshort 18 0 0 {} {} x {}]} {
+					>
+						emit {\b%d}
+					<
+				}
+	
+			<
+		}
+		-1728153892 {
+			>
+				if {[N uleshort 4 0 0 {} {} < 10]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N uleshort 6 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, 32 bit little-endian}
+							<
+						}
+	
+						U 15 apt-cache-32bit-be 0
+	
+					<
+				}
+	
+				if {[N ubyte 4 0 0 {} {} > 9]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N ubyte 5 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, little-endian}
+							<
+						}
+	
+						U 15 apt-cache-be 0
+	
+					<
+				}
+	
+			<
+		}
+		-1700603645 {
+			>
+				emit {Keepass password database}
+				switch [Nv lelong 4 0 {} {}] {
+					-1253311643 {
+						>
+							emit {1.x KDB}
+							if {[N lelong 48 0 0 {} {} > 0]} {
+								>
+									emit {\b, %d groups}
+								<
+							}
+	
+							if {[N lelong 52 0 0 {} {} > 0]} {
+								>
+									emit {\b, %d entries}
+								<
+							}
+	
+							switch [Nv lelong 8 0 & 15] {
+								1 {
+									>
+										emit {\b, SHA-256}
+									<
+								}
+								2 {
+									>
+										emit {\b, AES}
+									<
+								}
+								4 {
+									>
+										emit {\b, RC4}
+									<
+								}
+								8 {
+									>
+										emit {\b, Twofish}
+									<
+								}
+							}
+	
+							if {[N lelong 120 0 0 {} {} > 0]} {
+								>
+									emit {\b, %d key transformation rounds}
+								<
+							}
+	
+						<
+					}
+					-1253311641 {
+						>
+							emit {2.x KDBX}
+						<
+					}
+				}
+	
+			<
+		}
+		-1641380927 {
+			>
+				emit {Unreal Engine Package,}
+				if {[N leshort 4 0 0 {} {} x {}]} {
+					>
+						emit {version: %i}
+					<
+				}
+	
+				if {[N lelong 12 0 0 {} {} != 0]} {
+					>
+						emit {\b, names: %i}
+					<
+				}
+	
+				if {[N lelong 28 0 0 {} {} != 0]} {
+					>
+						emit {\b, imports: %i}
+					<
+				}
+	
+				if {[N lelong 20 0 0 {} {} != 0]} {
+					>
+						emit {\b, exports: %i}
+					<
+				}
+	
+			<
+		}
+		-1456779524 {
+			>
+				emit {Linux Software RAID}
+				if {[N lelong 4 0 0 {} {} x {}]} {
+					>
+						emit {version 1.1 (%d)}
+					<
+				}
+	
+				U 129 linuxraid 0
+	
+			<
+		}
+		-1324630015 {
+			>
+				switch [Nv lelong 4 0 {} {}] {
+					0 {
+						>
+							emit {Nintendo GameCube disc image (GCZ format)}
+							mime application/x-gamecube-rom
+						<
+					}
+					1 {
+						>
+							emit {Nintendo Wii disc image (GCZ format)}
+							mime application/x-wii-rom
+						<
+					}
+				}
+	
+				if {[D 4]} {
+					>
+						emit {Nintendo GameCube/Wii disc image (GCZ format)}
+					<
+				}
+	
+			<
+		}
+		-1040441407 {
+			>
+				emit {Common Trace Format (CTF) trace data (LE)}
+			<
+		}
+		-681629056 {
+			>
+				emit {Cineon image data}
+				if {[N belong 200 0 0 {} {} > 0]} {
+					>
+						emit {\b, %d x}
+					<
+				}
+	
+				if {[N belong 204 0 0 {} {} > 0]} {
+					>
+						emit %d
+					<
+				}
+	
+			<
+		}
+		-570294007 {
+			>
+				emit {locale archive}
+				if {[N lelong 24 0 0 {} {} x {}]} {
+					>
+						emit {%d strings}
+					<
+				}
+	
+			<
+		}
+		-332356553 {
+			>
+				emit {Zstandard dictionary}
+				mime application/x-zstd-dictionary
+				if {[N lelong 4 0 0 {} {} x {}]} {
+					>
+						emit {(ID %u)}
+					<
+				}
+	
+			<
+		}
+		-316211398 {
+			>
+				emit {Android sparse image}
+				if {[N leshort 4 0 0 {} {} x {}]} {
+					>
+						emit {\b, version: %d}
+					<
+				}
+	
+				if {[N leshort 6 0 0 {} {} x {}]} {
+					>
+						emit {\b.%d}
+					<
+				}
+	
+				if {[N lelong 16 0 0 {} {} x {}]} {
+					>
+						emit {\b, Total of %d}
+					<
+				}
+	
+				if {[N lelong 12 0 0 {} {} x {}]} {
+					>
+						emit {\b %d-byte output blocks in}
+					<
+				}
+	
+				if {[N lelong 20 0 0 {} {} x {}]} {
+					>
+						emit {\b %d input chunks.}
+					<
+				}
+	
+			<
+		}
+		-249691108 {
+			>
+				emit {magic binary file for file(1) cmd}
+				if {[N lelong 4 0 0 {} {} x {}]} {
+					>
+						emit {(version %d) (little endian)}
+					<
+				}
+	
+			<
+		}
+		-109248628 {
+			>
+				emit {SE Linux policy}
+				if {[N lelong 16 0 0 {} {} x {}]} {
+					>
+						emit v%d
+					<
+				}
+	
+				if {[N lelong 20 0 0 {} {} == 1]} {
+					>
+						emit MLS
+					<
+				}
+	
+				if {[N lelong 24 0 0 {} {} x {}]} {
+					>
+						emit {%d symbols}
+					<
+				}
+	
+				if {[N lelong 28 0 0 {} {} x {}]} {
+					>
+						emit {%d ocons}
+					<
+				}
+	
+			<
+			>
+				emit {SE Linux policy}
+				if {[N lelong 16 0 0 {} {} x {}]} {
+					>
+						emit v%d
+					<
+				}
+	
+				if {[N lelong 20 0 0 {} {} == 1]} {
+					>
+						emit MLS
+					<
+				}
+	
+				if {[N lelong 24 0 0 {} {} x {}]} {
+					>
+						emit {%d symbols}
+					<
+				}
+	
+				if {[N lelong 28 0 0 {} {} x {}]} {
+					>
+						emit {%d ocons}
+					<
+				}
+	
+			<
+			>
+				emit {SE Linux policy}
+				if {[N lelong 16 0 0 {} {} x {}]} {
+					>
+						emit v%d
+					<
+				}
+	
+				if {[N lelong 20 0 0 {} {} == 1]} {
+					>
+						emit MLS
+					<
+				}
+	
+				if {[N lelong 24 0 0 {} {} x {}]} {
+					>
+						emit {%d symbols}
+					<
+				}
+	
+				if {[N lelong 28 0 0 {} {} x {}]} {
+					>
+						emit {%d ocons}
+					<
+				}
+	
+			<
+		}
+		-109248625 {
+			>
+				emit {SE Linux modular policy}
+				if {[N lelong 4 0 0 {} {} x {}]} {
+					>
+						emit {version %d,}
+					<
+				}
+	
+				if {[N lelong 8 0 0 {} {} x {}]} {
+					>
+						emit {%d sections,}
+						if {[N lelong [I 12 ulelong 0 + 0 0] 0 0 {} {} == -109248627]} {
+							>
+								if {[N lelong [I 12 ulelong 0 + 0 27] 0 0 {} {} x {}]} {
+									>
+										emit {mod version %d,}
+									<
+								}
+	
+								switch [Nv lelong [I 12 ulelong 0 + 0 31] 0 {} {}] {
+									0 {
+										>
+											emit {Not MLS,}
+										<
+									}
+									1 {
+										>
+											emit MLS,
+										<
+									}
+								}
+	
+								switch [Nv lelong [I 12 ulelong 0 + 0 23] 0 {} {}] {
+									1 {
+										>
+											emit base
+										<
+									}
+									2 {
+										>
+											if {[S string [I 12 ulelong 0 + 0 47] 0 {} {} > \0]} {
+												>
+													emit {module name %s}
+												<
+											}
+	
+										<
+									}
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		-47205086 {
+			>
+				emit {Zstandard compressed data (v0.2)}
+				mime application/x-zstd
+			<
+		}
+		-47205085 {
+			>
+				emit {Zstandard compressed data (v0.3)}
+				mime application/x-zstd
+			<
+		}
+		-47205084 {
+			>
+				emit {Zstandard compressed data (v0.4)}
+				mime application/x-zstd
+			<
+		}
+		-47205083 {
+			>
+				emit {Zstandard compressed data (v0.5)}
+				mime application/x-zstd
+			<
+		}
+		-47205082 {
+			>
+				emit {Zstandard compressed data (v0.6)}
+				mime application/x-zstd
+			<
+		}
+		-47205081 {
+			>
+				emit {Zstandard compressed data (v0.7)}
+				mime application/x-zstd
+				U 50 zstd-dictionary-id 4
+	
+			<
+		}
+		-47205080 {
+			>
+				emit {Zstandard compressed data (v0.8+)}
+				mime application/x-zstd
+				U 50 zstd-dictionary-id 4
+	
+			<
+		}
+		-21555 {
+			>
+				emit {MLSSA datafile,}
+				if {[N leshort 4 0 0 {} {} x {}]} {
+					>
+						emit {algorithm %d,}
+					<
+				}
+	
+				if {[N lelong 10 0 0 {} {} x {}]} {
+					>
+						emit {%d samples}
+					<
+				}
+	
+			<
+		}
 		1 {
 			>
 				if {[N lelong 4 0 0 {} {} == 100]} {
@@ -23673,7 +24147,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N leshort 30 0 0 {} {} & 32768]} {
+				if {[N leshort 30 0 0 {} {} & -32768]} {
 					>
 						emit V3.0
 					<
@@ -24989,7 +25463,7 @@ proc analyze {} {
 		453186358 {
 			>
 				emit {L	Netboot image,}
-				if {[N lelong 4 0 0 & 4294967040 == 0]} {
+				if {[N lelong 4 0 0 & -256 == 0]} {
 					>
 						switch [Nv lelong 4 0 & 256] {
 							0 {
@@ -25007,7 +25481,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N lelong 4 0 0 & 4294967040 != 0]} {
+				if {[N lelong 4 0 0 & -256 != 0]} {
 					>
 						emit {unknown mode}
 					<
@@ -25305,477 +25779,6 @@ proc analyze {} {
 				if {[N byte 36 0 0 {} {} x {}]} {
 					>
 						emit {\b.%d}
-					<
-				}
-	
-			<
-		}
-		-2147417760 {
-			>
-				emit {MDEC video stream,}
-				if {[N leshort 16 0 0 {} {} x {}]} {
-					>
-						emit %dx
-					<
-				}
-	
-				if {[N leshort 18 0 0 {} {} x {}]} {
-					>
-						emit {\b%d}
-					<
-				}
-	
-			<
-		}
-		-1728153892 {
-			>
-				if {[N uleshort 4 0 0 {} {} < 10]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N uleshort 6 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, 32 bit little-endian}
-							<
-						}
-	
-						U 15 apt-cache-32bit-be 0
-	
-					<
-				}
-	
-				if {[N ubyte 4 0 0 {} {} > 9]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N ubyte 5 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, little-endian}
-							<
-						}
-	
-						U 15 apt-cache-be 0
-	
-					<
-				}
-	
-			<
-		}
-		-1700603645 {
-			>
-				emit {Keepass password database}
-				switch [Nv lelong 4 0 {} {}] {
-					-1253311643 {
-						>
-							emit {1.x KDB}
-							if {[N lelong 48 0 0 {} {} > 0]} {
-								>
-									emit {\b, %d groups}
-								<
-							}
-	
-							if {[N lelong 52 0 0 {} {} > 0]} {
-								>
-									emit {\b, %d entries}
-								<
-							}
-	
-							switch [Nv lelong 8 0 & 15] {
-								1 {
-									>
-										emit {\b, SHA-256}
-									<
-								}
-								2 {
-									>
-										emit {\b, AES}
-									<
-								}
-								4 {
-									>
-										emit {\b, RC4}
-									<
-								}
-								8 {
-									>
-										emit {\b, Twofish}
-									<
-								}
-							}
-	
-							if {[N lelong 120 0 0 {} {} > 0]} {
-								>
-									emit {\b, %d key transformation rounds}
-								<
-							}
-	
-						<
-					}
-					-1253311641 {
-						>
-							emit {2.x KDBX}
-						<
-					}
-				}
-	
-			<
-		}
-		-1641380927 {
-			>
-				emit {Unreal Engine Package,}
-				if {[N leshort 4 0 0 {} {} x {}]} {
-					>
-						emit {version: %i}
-					<
-				}
-	
-				if {[N lelong 12 0 0 {} {} != 0]} {
-					>
-						emit {\b, names: %i}
-					<
-				}
-	
-				if {[N lelong 28 0 0 {} {} != 0]} {
-					>
-						emit {\b, imports: %i}
-					<
-				}
-	
-				if {[N lelong 20 0 0 {} {} != 0]} {
-					>
-						emit {\b, exports: %i}
-					<
-				}
-	
-			<
-		}
-		-1456779524 {
-			>
-				emit {Linux Software RAID}
-				if {[N lelong 4 0 0 {} {} x {}]} {
-					>
-						emit {version 1.1 (%d)}
-					<
-				}
-	
-				U 129 linuxraid 0
-	
-			<
-		}
-		-1324630015 {
-			>
-				switch [Nv lelong 4 0 {} {}] {
-					0 {
-						>
-							emit {Nintendo GameCube disc image (GCZ format)}
-							mime application/x-gamecube-rom
-						<
-					}
-					1 {
-						>
-							emit {Nintendo Wii disc image (GCZ format)}
-							mime application/x-wii-rom
-						<
-					}
-				}
-	
-				if {[D 4]} {
-					>
-						emit {Nintendo GameCube/Wii disc image (GCZ format)}
-					<
-				}
-	
-			<
-		}
-		-1040441407 {
-			>
-				emit {Common Trace Format (CTF) trace data (LE)}
-			<
-		}
-		-681629056 {
-			>
-				emit {Cineon image data}
-				if {[N belong 200 0 0 {} {} > 0]} {
-					>
-						emit {\b, %d x}
-					<
-				}
-	
-				if {[N belong 204 0 0 {} {} > 0]} {
-					>
-						emit %d
-					<
-				}
-	
-			<
-		}
-		-570294007 {
-			>
-				emit {locale archive}
-				if {[N lelong 24 0 0 {} {} x {}]} {
-					>
-						emit {%d strings}
-					<
-				}
-	
-			<
-		}
-		-332356553 {
-			>
-				emit {Zstandard dictionary}
-				mime application/x-zstd-dictionary
-				if {[N lelong 4 0 0 {} {} x {}]} {
-					>
-						emit {(ID %u)}
-					<
-				}
-	
-			<
-		}
-		-316211398 {
-			>
-				emit {Android sparse image}
-				if {[N leshort 4 0 0 {} {} x {}]} {
-					>
-						emit {\b, version: %d}
-					<
-				}
-	
-				if {[N leshort 6 0 0 {} {} x {}]} {
-					>
-						emit {\b.%d}
-					<
-				}
-	
-				if {[N lelong 16 0 0 {} {} x {}]} {
-					>
-						emit {\b, Total of %d}
-					<
-				}
-	
-				if {[N lelong 12 0 0 {} {} x {}]} {
-					>
-						emit {\b %d-byte output blocks in}
-					<
-				}
-	
-				if {[N lelong 20 0 0 {} {} x {}]} {
-					>
-						emit {\b %d input chunks.}
-					<
-				}
-	
-			<
-		}
-		-249691108 {
-			>
-				emit {magic binary file for file(1) cmd}
-				if {[N lelong 4 0 0 {} {} x {}]} {
-					>
-						emit {(version %d) (little endian)}
-					<
-				}
-	
-			<
-		}
-		-109248628 {
-			>
-				emit {SE Linux policy}
-				if {[N lelong 16 0 0 {} {} x {}]} {
-					>
-						emit v%d
-					<
-				}
-	
-				if {[N lelong 20 0 0 {} {} == 1]} {
-					>
-						emit MLS
-					<
-				}
-	
-				if {[N lelong 24 0 0 {} {} x {}]} {
-					>
-						emit {%d symbols}
-					<
-				}
-	
-				if {[N lelong 28 0 0 {} {} x {}]} {
-					>
-						emit {%d ocons}
-					<
-				}
-	
-			<
-			>
-				emit {SE Linux policy}
-				if {[N lelong 16 0 0 {} {} x {}]} {
-					>
-						emit v%d
-					<
-				}
-	
-				if {[N lelong 20 0 0 {} {} == 1]} {
-					>
-						emit MLS
-					<
-				}
-	
-				if {[N lelong 24 0 0 {} {} x {}]} {
-					>
-						emit {%d symbols}
-					<
-				}
-	
-				if {[N lelong 28 0 0 {} {} x {}]} {
-					>
-						emit {%d ocons}
-					<
-				}
-	
-			<
-			>
-				emit {SE Linux policy}
-				if {[N lelong 16 0 0 {} {} x {}]} {
-					>
-						emit v%d
-					<
-				}
-	
-				if {[N lelong 20 0 0 {} {} == 1]} {
-					>
-						emit MLS
-					<
-				}
-	
-				if {[N lelong 24 0 0 {} {} x {}]} {
-					>
-						emit {%d symbols}
-					<
-				}
-	
-				if {[N lelong 28 0 0 {} {} x {}]} {
-					>
-						emit {%d ocons}
-					<
-				}
-	
-			<
-		}
-		-109248625 {
-			>
-				emit {SE Linux modular policy}
-				if {[N lelong 4 0 0 {} {} x {}]} {
-					>
-						emit {version %d,}
-					<
-				}
-	
-				if {[N lelong 8 0 0 {} {} x {}]} {
-					>
-						emit {%d sections,}
-						if {[N lelong [I 12 ulelong 0 + 0 0] 0 0 {} {} == 4185718669]} {
-							>
-								if {[N lelong [I 12 ulelong 0 + 0 27] 0 0 {} {} x {}]} {
-									>
-										emit {mod version %d,}
-									<
-								}
-	
-								switch [Nv lelong [I 12 ulelong 0 + 0 31] 0 {} {}] {
-									0 {
-										>
-											emit {Not MLS,}
-										<
-									}
-									1 {
-										>
-											emit MLS,
-										<
-									}
-								}
-	
-								switch [Nv lelong [I 12 ulelong 0 + 0 23] 0 {} {}] {
-									1 {
-										>
-											emit base
-										<
-									}
-									2 {
-										>
-											if {[S string [I 12 ulelong 0 + 0 47] 0 {} {} > \0]} {
-												>
-													emit {module name %s}
-												<
-											}
-	
-										<
-									}
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		-47205086 {
-			>
-				emit {Zstandard compressed data (v0.2)}
-				mime application/x-zstd
-			<
-		}
-		-47205085 {
-			>
-				emit {Zstandard compressed data (v0.3)}
-				mime application/x-zstd
-			<
-		}
-		-47205084 {
-			>
-				emit {Zstandard compressed data (v0.4)}
-				mime application/x-zstd
-			<
-		}
-		-47205083 {
-			>
-				emit {Zstandard compressed data (v0.5)}
-				mime application/x-zstd
-			<
-		}
-		-47205082 {
-			>
-				emit {Zstandard compressed data (v0.6)}
-				mime application/x-zstd
-			<
-		}
-		-47205081 {
-			>
-				emit {Zstandard compressed data (v0.7)}
-				mime application/x-zstd
-				U 50 zstd-dictionary-id 4
-	
-			<
-		}
-		-47205080 {
-			>
-				emit {Zstandard compressed data (v0.8+)}
-				mime application/x-zstd
-				U 50 zstd-dictionary-id 4
-	
-			<
-		}
-		-21555 {
-			>
-				emit {MLSSA datafile,}
-				if {[N leshort 4 0 0 {} {} x {}]} {
-					>
-						emit {algorithm %d,}
-					<
-				}
-	
-				if {[N lelong 10 0 0 {} {} x {}]} {
-					>
-						emit {%d samples}
 					<
 				}
 	
@@ -26617,7 +26620,141 @@ proc analyze {} {
 		<
 	}
 	
-	switch [Nv belong 0 0 & 4294967040] {
+	switch [Nv belong 0 0 & -256] {
+		-2063526912 {
+			>
+				emit {cisco IOS microcode}
+				if {[S string 7 0 {} {} > \0]} {
+					>
+						emit {for '%s'}
+					<
+				}
+	
+			<
+		}
+		-2063480064 {
+			>
+				emit {cisco IOS experimental microcode}
+				if {[S string 7 0 {} {} > \0]} {
+					>
+						emit {for '%s'}
+					<
+				}
+	
+			<
+		}
+		-16907008 {
+			>
+				emit {MySQL ISAM index file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+			<
+		}
+		-16906752 {
+			>
+				emit {MySQL ISAM compressed data file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+			<
+		}
+		-16906496 {
+			>
+				emit {MySQL MyISAM index file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+				if {[N beshort 14 0 0 {} {} x {}]} {
+					>
+						emit {\b, %d key parts}
+					<
+				}
+	
+				if {[N beshort 16 0 0 {} {} x {}]} {
+					>
+						emit {\b, %d unique key parts}
+					<
+				}
+	
+				if {[N byte 18 0 0 {} {} x {}]} {
+					>
+						emit {\b, %d keys}
+					<
+				}
+	
+				if {[N bequad 28 0 0 {} {} x {}]} {
+					>
+						emit {\b, %lld records}
+					<
+				}
+	
+				if {[N bequad 36 0 0 {} {} x {}]} {
+					>
+						emit {\b, %lld deleted records}
+					<
+				}
+	
+			<
+		}
+		-16906240 {
+			>
+				emit {MySQL MyISAM compressed data file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+			<
+		}
+		-16905984 {
+			>
+				emit {MySQL Maria index file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+			<
+		}
+		-16905728 {
+			>
+				emit {MySQL Maria compressed data file}
+				if {[N byte 3 0 0 {} {} x {}]} {
+					>
+						emit {Version %d}
+					<
+				}
+	
+			<
+		}
+		-16905216 {
+			>
+				if {[S string 4 0 {} {} eq MACF]} {
+					>
+						emit {MySQL Maria control file}
+						if {[N byte 3 0 0 {} {} x {}]} {
+							>
+								emit {Version %d}
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
 		256 {
 			>
 				switch [Nv byte 3 0 {} {}] {
@@ -26627,9 +26764,9 @@ proc analyze {} {
 							mime video/mpeg4-generic
 							if {[N belong 5 0 0 {} {} == 437]} {
 								>
-									if {[N byte 9 0 0 {} {} & 128]} {
+									if {[N byte 9 0 0 {} {} & -128]} {
 										>
-											switch [Nv byte 10 0 & 240] {
+											switch [Nv byte 10 0 & -16] {
 												16 {
 													>
 														emit {\b, video}
@@ -26655,7 +26792,7 @@ proc analyze {} {
 										<
 									}
 	
-									switch [Nv byte 9 0 & 248] {
+									switch [Nv byte 9 0 & -8] {
 										8 {
 											>
 												emit {\b, video}
@@ -26682,101 +26819,6 @@ proc analyze {} {
 							}
 	
 							switch [Nv byte 4 0 {} {}] {
-								1 {
-									>
-										emit {\b, simple @ L1}
-									<
-								}
-								2 {
-									>
-										emit {\b, simple @ L2}
-									<
-								}
-								3 {
-									>
-										emit {\b, simple @ L3}
-									<
-								}
-								4 {
-									>
-										emit {\b, simple @ L0}
-									<
-								}
-								17 {
-									>
-										emit {\b, simple scalable @ L1}
-									<
-								}
-								18 {
-									>
-										emit {\b, simple scalable @ L2}
-									<
-								}
-								33 {
-									>
-										emit {\b, core @ L1}
-									<
-								}
-								34 {
-									>
-										emit {\b, core @ L2}
-									<
-								}
-								50 {
-									>
-										emit {\b, main @ L2}
-									<
-								}
-								51 {
-									>
-										emit {\b, main @ L3}
-									<
-								}
-								53 {
-									>
-										emit {\b, main @ L4}
-									<
-								}
-								66 {
-									>
-										emit {\b, n-bit @ L2}
-									<
-								}
-								81 {
-									>
-										emit {\b, scalable texture @ L1}
-									<
-								}
-								97 {
-									>
-										emit {\b, simple face animation @ L1}
-									<
-								}
-								98 {
-									>
-										emit {\b, simple face animation @ L2}
-									<
-								}
-								99 {
-									>
-										emit {\b, simple face basic animation @ L1}
-									<
-								}
-								100 {
-									>
-										emit {\b, simple face basic animation @ L2}
-									<
-								}
-								113 {
-									>
-										emit {\b, basic animation text @ L1}
-									<
-								}
-								114 {
-									>
-										emit {\b, basic animation text @ L2}
-									<
-								}
 								-127 {
 									>
 										emit {\b, hybrid @ L1}
@@ -26972,6 +27014,101 @@ proc analyze {} {
 										emit {\b, FGS @ L5}
 									<
 								}
+								1 {
+									>
+										emit {\b, simple @ L1}
+									<
+								}
+								2 {
+									>
+										emit {\b, simple @ L2}
+									<
+								}
+								3 {
+									>
+										emit {\b, simple @ L3}
+									<
+								}
+								4 {
+									>
+										emit {\b, simple @ L0}
+									<
+								}
+								17 {
+									>
+										emit {\b, simple scalable @ L1}
+									<
+								}
+								18 {
+									>
+										emit {\b, simple scalable @ L2}
+									<
+								}
+								33 {
+									>
+										emit {\b, core @ L1}
+									<
+								}
+								34 {
+									>
+										emit {\b, core @ L2}
+									<
+								}
+								50 {
+									>
+										emit {\b, main @ L2}
+									<
+								}
+								51 {
+									>
+										emit {\b, main @ L3}
+									<
+								}
+								53 {
+									>
+										emit {\b, main @ L4}
+									<
+								}
+								66 {
+									>
+										emit {\b, n-bit @ L2}
+									<
+								}
+								81 {
+									>
+										emit {\b, scalable texture @ L1}
+									<
+								}
+								97 {
+									>
+										emit {\b, simple face animation @ L1}
+									<
+								}
+								98 {
+									>
+										emit {\b, simple face animation @ L2}
+									<
+								}
+								99 {
+									>
+										emit {\b, simple face basic animation @ L1}
+									<
+								}
+								100 {
+									>
+										emit {\b, simple face basic animation @ L2}
+									<
+								}
+								113 {
+									>
+										emit {\b, basic animation text @ L1}
+									<
+								}
+								114 {
+									>
+										emit {\b, basic animation text @ L2}
+									<
+								}
 							}
 	
 						<
@@ -27017,17 +27154,7 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 17 0 & 240] {
-											64 {
-												>
-													emit {\b@HL}
-												<
-											}
-											96 {
-												>
-													emit {\b@H-14}
-												<
-											}
+										switch [Nv byte 17 0 & -16] {
 											-128 {
 												>
 													emit {\b@ML}
@@ -27036,6 +27163,16 @@ proc analyze {} {
 											-96 {
 												>
 													emit {\b@LL}
+												<
+											}
+											64 {
+												>
+													emit {\b@HL}
+												<
+											}
+											96 {
+												>
+													emit {\b@H-14}
 												<
 											}
 										}
@@ -27120,17 +27257,7 @@ proc analyze {} {
 															}
 														}
 	
-														switch [Nv byte 145 0 & 240] {
-															64 {
-																>
-																	emit {\b@HL}
-																<
-															}
-															96 {
-																>
-																	emit {\b@H-14}
-																<
-															}
+														switch [Nv byte 145 0 & -16] {
 															-128 {
 																>
 																	emit {\b@ML}
@@ -27139,6 +27266,16 @@ proc analyze {} {
 															-96 {
 																>
 																	emit {\b@LL}
+																<
+															}
+															64 {
+																>
+																	emit {\b@HL}
+																<
+															}
+															96 {
+																>
+																	emit {\b@H-14}
 																<
 															}
 														}
@@ -27225,17 +27362,7 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 81 0 & 240] {
-											64 {
-												>
-													emit {\b@HL}
-												<
-											}
-											96 {
-												>
-													emit {\b@H-14}
-												<
-											}
+										switch [Nv byte 81 0 & -16] {
 											-128 {
 												>
 													emit {\b@ML}
@@ -27244,6 +27371,16 @@ proc analyze {} {
 											-96 {
 												>
 													emit {\b@LL}
+												<
+											}
+											64 {
+												>
+													emit {\b@HL}
+												<
+											}
+											96 {
+												>
+													emit {\b@H-14}
 												<
 											}
 										}
@@ -27287,11 +27424,11 @@ proc analyze {} {
 								}
 							}
 	
-							switch [Nv belong 4 0 & 4294967040] {
+							switch [Nv belong 4 0 & -256] {
 								167802880 {
 									>
 										emit {\b, 160x120}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 4:3}
 											<
@@ -27302,7 +27439,7 @@ proc analyze {} {
 								251699200 {
 									>
 										emit {\b, 240x160}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 4:3}
 											<
@@ -27313,7 +27450,7 @@ proc analyze {} {
 								335605760 {
 									>
 										emit {\b, 320x240}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 4:3}
 											<
@@ -27324,7 +27461,7 @@ proc analyze {} {
 								671211520 {
 									>
 										emit {\b, LD-TV 640P}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 4:3}
 											<
@@ -27335,7 +27472,7 @@ proc analyze {} {
 								805453824 {
 									>
 										emit {\b, PAL Capture}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 4:3}
 											<
@@ -27346,7 +27483,7 @@ proc analyze {} {
 								1342188800 {
 									>
 										emit {\b, SD-TV 1280I}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 16:9}
 											<
@@ -27357,7 +27494,7 @@ proc analyze {} {
 								2013542400 {
 									>
 										emit {\b, HD-TV 1920P}
-										if {[N byte 7 0 0 & 240 == 16]} {
+										if {[N byte 7 0 0 & -16 == 16]} {
 											>
 												emit {\b, 16:9}
 											<
@@ -27367,7 +27504,7 @@ proc analyze {} {
 								}
 							}
 	
-							switch [Nv beshort 4 0 & 65520] {
+							switch [Nv beshort 4 0 & -16] {
 								5632 {
 									>
 										emit {\b, CIF}
@@ -27385,7 +27522,7 @@ proc analyze {} {
 											576 {
 												>
 													emit {\b PAL 625}
-													switch [Nv byte 7 0 & 240] {
+													switch [Nv byte 7 0 & -16] {
 														32 {
 															>
 																emit {\b, 4:3}
@@ -27407,7 +27544,17 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 7 0 & 240] {
+										switch [Nv byte 7 0 & -16] {
+											-128 {
+												>
+													emit {\b, PAL 4:3}
+												<
+											}
+											-64 {
+												>
+													emit {\b, NTSC 4:3}
+												<
+											}
 											32 {
 												>
 													emit {\b, 4:3}
@@ -27421,16 +27568,6 @@ proc analyze {} {
 											64 {
 												>
 													emit {\b, 11:5}
-												<
-											}
-											-128 {
-												>
-													emit {\b, PAL 4:3}
-												<
-											}
-											-64 {
-												>
-													emit {\b, NTSC 4:3}
 												<
 											}
 										}
@@ -27453,7 +27590,7 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 7 0 & 240] {
+										switch [Nv byte 7 0 & -16] {
 											32 {
 												>
 													emit {\b, 4:3}
@@ -27489,7 +27626,17 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 7 0 & 240] {
+										switch [Nv byte 7 0 & -16] {
+											-128 {
+												>
+													emit {\b, PAL 4:3}
+												<
+											}
+											-64 {
+												>
+													emit {\b, NTSC 4:3}
+												<
+											}
 											32 {
 												>
 													emit {\b, 4:3}
@@ -27503,16 +27650,6 @@ proc analyze {} {
 											64 {
 												>
 													emit {\b, 11:5}
-												<
-											}
-											-128 {
-												>
-													emit {\b, PAL 4:3}
-												<
-											}
-											-64 {
-												>
-													emit {\b, NTSC 4:3}
 												<
 											}
 										}
@@ -27535,7 +27672,7 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 7 0 & 240] {
+										switch [Nv byte 7 0 & -16] {
 											32 {
 												>
 													emit {\b, 4:3}
@@ -27612,9 +27749,9 @@ proc analyze {} {
 						>
 							emit {MPEG sequence, v4}
 							mime video/mpeg4-generic
-							if {[N byte 4 0 0 {} {} & 128]} {
+							if {[N byte 4 0 0 {} {} & -128]} {
 								>
-									switch [Nv byte 5 0 & 240] {
+									switch [Nv byte 5 0 & -16] {
 										16 {
 											>
 												emit {\b, video (missing profile header)}
@@ -27640,7 +27777,7 @@ proc analyze {} {
 								<
 							}
 	
-							switch [Nv byte 4 0 & 248] {
+							switch [Nv byte 4 0 & -8] {
 								8 {
 									>
 										emit {\b, video (missing profile header)}
@@ -27737,13 +27874,13 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 3 0 0 {} {} & 128]} {
+				if {[N byte 3 0 0 {} {} & -128]} {
 					>
 						emit (PAL)
 					<
 				}
 	
-				if {[N byte 3 0 0 {} {} ^ 128]} {
+				if {[N byte 3 0 0 {} {} ^ -128]} {
 					>
 						emit (NTSC)
 					<
@@ -27751,183 +27888,14 @@ proc analyze {} {
 	
 			<
 		}
-		-2063526912 {
-			>
-				emit {cisco IOS microcode}
-				if {[S string 7 0 {} {} > \0]} {
-					>
-						emit {for '%s'}
-					<
-				}
-	
-			<
-		}
-		-2063480064 {
-			>
-				emit {cisco IOS experimental microcode}
-				if {[S string 7 0 {} {} > \0]} {
-					>
-						emit {for '%s'}
-					<
-				}
-	
-			<
-		}
-		-16907008 {
-			>
-				emit {MySQL ISAM index file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-			<
-		}
-		-16906752 {
-			>
-				emit {MySQL ISAM compressed data file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-			<
-		}
-		-16906496 {
-			>
-				emit {MySQL MyISAM index file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-				if {[N beshort 14 0 0 {} {} x {}]} {
-					>
-						emit {\b, %d key parts}
-					<
-				}
-	
-				if {[N beshort 16 0 0 {} {} x {}]} {
-					>
-						emit {\b, %d unique key parts}
-					<
-				}
-	
-				if {[N byte 18 0 0 {} {} x {}]} {
-					>
-						emit {\b, %d keys}
-					<
-				}
-	
-				if {[N bequad 28 0 0 {} {} x {}]} {
-					>
-						emit {\b, %lld records}
-					<
-				}
-	
-				if {[N bequad 36 0 0 {} {} x {}]} {
-					>
-						emit {\b, %lld deleted records}
-					<
-				}
-	
-			<
-		}
-		-16906240 {
-			>
-				emit {MySQL MyISAM compressed data file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-			<
-		}
-		-16905984 {
-			>
-				emit {MySQL Maria index file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-			<
-		}
-		-16905728 {
-			>
-				emit {MySQL Maria compressed data file}
-				if {[N byte 3 0 0 {} {} x {}]} {
-					>
-						emit {Version %d}
-					<
-				}
-	
-			<
-		}
-		-16905216 {
-			>
-				if {[S string 4 0 {} {} eq MACF]} {
-					>
-						emit {MySQL Maria control file}
-						if {[N byte 3 0 0 {} {} x {}]} {
-							>
-								emit {Version %d}
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
 	}
 	
-	switch [Nv beshort 0 0 & 65534] {
+	switch [Nv beshort 0 0 & -2] {
 		-30 {
 			>
 				emit {MPEG ADTS, layer III,  v2.5}
 				mime audio/mpeg
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {\b,   8 kbps}
-						<
-					}
-					32 {
-						>
-							emit {\b,  16 kbps}
-						<
-					}
-					48 {
-						>
-							emit {\b,  24 kbps}
-						<
-					}
-					64 {
-						>
-							emit {\b,  32 kbps}
-						<
-					}
-					80 {
-						>
-							emit {\b,  40 kbps}
-						<
-					}
-					96 {
-						>
-							emit {\b,  48 kbps}
-						<
-					}
-					112 {
-						>
-							emit {\b,  56 kbps}
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {\b,  64 kbps}
@@ -27961,6 +27929,41 @@ proc analyze {} {
 					-32 {
 						>
 							emit {\b, 160 kbps}
+						<
+					}
+					16 {
+						>
+							emit {\b,   8 kbps}
+						<
+					}
+					32 {
+						>
+							emit {\b,  16 kbps}
+						<
+					}
+					48 {
+						>
+							emit {\b,  24 kbps}
+						<
+					}
+					64 {
+						>
+							emit {\b,  32 kbps}
+						<
+					}
+					80 {
+						>
+							emit {\b,  40 kbps}
+						<
+					}
+					96 {
+						>
+							emit {\b,  48 kbps}
+						<
+					}
+					112 {
+						>
+							emit {\b,  56 kbps}
 						<
 					}
 				}
@@ -27983,17 +27986,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28002,6 +27995,16 @@ proc analyze {} {
 					-64 {
 						>
 							emit {\b, Monaural}
+						<
+					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
 						<
 					}
 				}
@@ -28012,42 +28015,7 @@ proc analyze {} {
 			>
 				emit {MPEG ADTS, layer III, v2}
 				mime audio/mpeg
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {\b,   8 kbps}
-						<
-					}
-					32 {
-						>
-							emit {\b,  16 kbps}
-						<
-					}
-					48 {
-						>
-							emit {\b,  24 kbps}
-						<
-					}
-					64 {
-						>
-							emit {\b,  32 kbps}
-						<
-					}
-					80 {
-						>
-							emit {\b,  40 kbps}
-						<
-					}
-					96 {
-						>
-							emit {\b,  48 kbps}
-						<
-					}
-					112 {
-						>
-							emit {\b,  56 kbps}
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {\b,  64 kbps}
@@ -28083,6 +28051,41 @@ proc analyze {} {
 							emit {\b, 160 kbps}
 						<
 					}
+					16 {
+						>
+							emit {\b,   8 kbps}
+						<
+					}
+					32 {
+						>
+							emit {\b,  16 kbps}
+						<
+					}
+					48 {
+						>
+							emit {\b,  24 kbps}
+						<
+					}
+					64 {
+						>
+							emit {\b,  32 kbps}
+						<
+					}
+					80 {
+						>
+							emit {\b,  40 kbps}
+						<
+					}
+					96 {
+						>
+							emit {\b,  48 kbps}
+						<
+					}
+					112 {
+						>
+							emit {\b,  56 kbps}
+						<
+					}
 				}
 	
 				switch [Nv byte 2 0 & 12] {
@@ -28103,17 +28106,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28122,6 +28115,16 @@ proc analyze {} {
 					-64 {
 						>
 							emit {\b, Monaural}
+						<
+					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
 						<
 					}
 				}
@@ -28132,42 +28135,7 @@ proc analyze {} {
 			>
 				emit {MPEG ADTS, layer II, v2}
 				mime audio/mpeg
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {\b,   8 kbps}
-						<
-					}
-					32 {
-						>
-							emit {\b,  16 kbps}
-						<
-					}
-					48 {
-						>
-							emit {\b,  24 kbps}
-						<
-					}
-					64 {
-						>
-							emit {\b,  32 kbps}
-						<
-					}
-					80 {
-						>
-							emit {\b,  40 kbps}
-						<
-					}
-					96 {
-						>
-							emit {\b,  48 kbps}
-						<
-					}
-					112 {
-						>
-							emit {\b,  56 kbps}
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {\b,  64 kbps}
@@ -28203,6 +28171,41 @@ proc analyze {} {
 							emit {\b, 160 kbps}
 						<
 					}
+					16 {
+						>
+							emit {\b,   8 kbps}
+						<
+					}
+					32 {
+						>
+							emit {\b,  16 kbps}
+						<
+					}
+					48 {
+						>
+							emit {\b,  24 kbps}
+						<
+					}
+					64 {
+						>
+							emit {\b,  32 kbps}
+						<
+					}
+					80 {
+						>
+							emit {\b,  40 kbps}
+						<
+					}
+					96 {
+						>
+							emit {\b,  48 kbps}
+						<
+					}
+					112 {
+						>
+							emit {\b,  56 kbps}
+						<
+					}
 				}
 	
 				switch [Nv byte 2 0 & 12] {
@@ -28223,17 +28226,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28244,6 +28237,16 @@ proc analyze {} {
 							emit {\b, Monaural}
 						<
 					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
+						<
+					}
 				}
 	
 			<
@@ -28252,42 +28255,7 @@ proc analyze {} {
 			>
 				emit {MPEG ADTS, layer I, v2}
 				mime audio/mpeg
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {\b,  32 kbps}
-						<
-					}
-					32 {
-						>
-							emit {\b,  48 kbps}
-						<
-					}
-					48 {
-						>
-							emit {\b,  56 kbps}
-						<
-					}
-					64 {
-						>
-							emit {\b,  64 kbps}
-						<
-					}
-					80 {
-						>
-							emit {\b,  80 kbps}
-						<
-					}
-					96 {
-						>
-							emit {\b,  96 kbps}
-						<
-					}
-					112 {
-						>
-							emit {\b, 112 kbps}
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {\b, 128 kbps}
@@ -28323,6 +28291,41 @@ proc analyze {} {
 							emit {\b, 256 kbps}
 						<
 					}
+					16 {
+						>
+							emit {\b,  32 kbps}
+						<
+					}
+					32 {
+						>
+							emit {\b,  48 kbps}
+						<
+					}
+					48 {
+						>
+							emit {\b,  56 kbps}
+						<
+					}
+					64 {
+						>
+							emit {\b,  64 kbps}
+						<
+					}
+					80 {
+						>
+							emit {\b,  80 kbps}
+						<
+					}
+					96 {
+						>
+							emit {\b,  96 kbps}
+						<
+					}
+					112 {
+						>
+							emit {\b, 112 kbps}
+						<
+					}
 				}
 	
 				switch [Nv byte 2 0 & 12] {
@@ -28343,17 +28346,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28364,55 +28357,23 @@ proc analyze {} {
 							emit {\b, Monaural}
 						<
 					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
+						<
+					}
 				}
 	
 			<
 		}
 		-6 {
 			>
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {MPEG ADTS, layer III, v1,  32 kbps}
-							mime audio/mpeg
-						<
-					}
-					32 {
-						>
-							emit {MPEG ADTS, layer III, v1,  40 kbps}
-							mime audio/mpeg
-						<
-					}
-					48 {
-						>
-							emit {MPEG ADTS, layer III, v1,  48 kbps}
-							mime audio/mpeg
-						<
-					}
-					64 {
-						>
-							emit {MPEG ADTS, layer III, v1,  56 kbps}
-							mime audio/mpeg
-						<
-					}
-					80 {
-						>
-							emit {MPEG ADTS, layer III, v1,  64 kbps}
-							mime audio/mpeg
-						<
-					}
-					96 {
-						>
-							emit {MPEG ADTS, layer III, v1,  80 kbps}
-							mime audio/mpeg
-						<
-					}
-					112 {
-						>
-							emit {MPEG ADTS, layer III, v1,  96 kbps}
-							mime audio/mpeg
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {MPEG ADTS, layer III, v1, 112 kbps}
@@ -28455,6 +28416,48 @@ proc analyze {} {
 							mime audio/mpeg
 						<
 					}
+					16 {
+						>
+							emit {MPEG ADTS, layer III, v1,  32 kbps}
+							mime audio/mpeg
+						<
+					}
+					32 {
+						>
+							emit {MPEG ADTS, layer III, v1,  40 kbps}
+							mime audio/mpeg
+						<
+					}
+					48 {
+						>
+							emit {MPEG ADTS, layer III, v1,  48 kbps}
+							mime audio/mpeg
+						<
+					}
+					64 {
+						>
+							emit {MPEG ADTS, layer III, v1,  56 kbps}
+							mime audio/mpeg
+						<
+					}
+					80 {
+						>
+							emit {MPEG ADTS, layer III, v1,  64 kbps}
+							mime audio/mpeg
+						<
+					}
+					96 {
+						>
+							emit {MPEG ADTS, layer III, v1,  80 kbps}
+							mime audio/mpeg
+						<
+					}
+					112 {
+						>
+							emit {MPEG ADTS, layer III, v1,  96 kbps}
+							mime audio/mpeg
+						<
+					}
 				}
 	
 				switch [Nv byte 2 0 & 12] {
@@ -28475,17 +28478,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28496,6 +28489,16 @@ proc analyze {} {
 							emit {\b, Monaural}
 						<
 					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
+						<
+					}
 				}
 	
 			<
@@ -28504,42 +28507,7 @@ proc analyze {} {
 			>
 				emit {MPEG ADTS, layer II, v1}
 				mime audio/mpeg
-				switch [Nv byte 2 0 & 240] {
-					16 {
-						>
-							emit {\b,  32 kbps}
-						<
-					}
-					32 {
-						>
-							emit {\b,  48 kbps}
-						<
-					}
-					48 {
-						>
-							emit {\b,  56 kbps}
-						<
-					}
-					64 {
-						>
-							emit {\b,  64 kbps}
-						<
-					}
-					80 {
-						>
-							emit {\b,  80 kbps}
-						<
-					}
-					96 {
-						>
-							emit {\b,  96 kbps}
-						<
-					}
-					112 {
-						>
-							emit {\b, 112 kbps}
-						<
-					}
+				switch [Nv byte 2 0 & -16] {
 					-128 {
 						>
 							emit {\b, 128 kbps}
@@ -28575,6 +28543,41 @@ proc analyze {} {
 							emit {\b, 384 kbps}
 						<
 					}
+					16 {
+						>
+							emit {\b,  32 kbps}
+						<
+					}
+					32 {
+						>
+							emit {\b,  48 kbps}
+						<
+					}
+					48 {
+						>
+							emit {\b,  56 kbps}
+						<
+					}
+					64 {
+						>
+							emit {\b,  64 kbps}
+						<
+					}
+					80 {
+						>
+							emit {\b,  80 kbps}
+						<
+					}
+					96 {
+						>
+							emit {\b,  96 kbps}
+						<
+					}
+					112 {
+						>
+							emit {\b, 112 kbps}
+						<
+					}
 				}
 	
 				switch [Nv byte 2 0 & 12] {
@@ -28595,17 +28598,7 @@ proc analyze {} {
 					}
 				}
 	
-				switch [Nv byte 3 0 & 192] {
-					0 {
-						>
-							emit {\b, Stereo}
-						<
-					}
-					64 {
-						>
-							emit {\b, JntStereo}
-						<
-					}
+				switch [Nv byte 3 0 & -64] {
 					-128 {
 						>
 							emit {\b, 2x Monaural}
@@ -28614,6 +28607,16 @@ proc analyze {} {
 					-64 {
 						>
 							emit {\b, Monaural}
+						<
+					}
+					0 {
+						>
+							emit {\b, Stereo}
+						<
+					}
+					64 {
+						>
+							emit {\b, JntStereo}
 						<
 					}
 				}
@@ -28625,7 +28628,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq ADIF]} {
 		>
 			emit {MPEG ADIF, AAC}
-			if {[N byte 4 0 0 {} {} & 128]} {
+			if {[N byte 4 0 0 {} {} & -128]} {
 				>
 					if {[N byte 13 0 0 {} {} & 16]} {
 						>
@@ -28669,7 +28672,7 @@ proc analyze {} {
 						<
 					}
 	
-					if {[N byte 4 0 0 {} {} & 128]} {
+					if {[N byte 4 0 0 {} {} & -128]} {
 						>
 							emit {\b, Copyrighted}
 						<
@@ -28690,7 +28693,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 4 0 0 {} {} ^ 128]} {
+			if {[N byte 4 0 0 {} {} ^ -128]} {
 				>
 					if {[N byte 4 0 0 {} {} & 16]} {
 						>
@@ -28753,7 +28756,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N beshort 0 0 0 & 65526 == 65520]} {
+	if {[N beshort 0 0 0 & -10 == -16]} {
 		>
 			emit {MPEG ADTS, AAC}
 			if {[N byte 1 0 0 {} {} & 8]} {
@@ -28765,7 +28768,7 @@ proc analyze {} {
 			if {[N byte 1 0 0 {} {} ^ 8]} {
 				>
 					emit {\b, v4}
-					if {[N byte 2 0 0 {} {} & 192]} {
+					if {[N byte 2 0 0 {} {} & -64]} {
 						>
 							emit {\b LTP}
 						<
@@ -28774,7 +28777,12 @@ proc analyze {} {
 				<
 			}
 	
-			switch [Nv byte 2 0 & 192] {
+			switch [Nv byte 2 0 & -64] {
+				-128 {
+					>
+						emit {\b SSR}
+					<
+				}
 				0 {
 					>
 						emit {\b Main}
@@ -28783,11 +28791,6 @@ proc analyze {} {
 				64 {
 					>
 						emit {\b LC}
-					<
-				}
-				-128 {
-					>
-						emit {\b SSR}
 					<
 				}
 			}
@@ -28898,10 +28901,10 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N beshort 0 0 0 & 65504 == 22240]} {
+	if {[N beshort 0 0 0 & -32 == 22240]} {
 		>
 			emit {MPEG-4 LOAS}
-			if {[N byte 3 0 0 & 224 == 64]} {
+			if {[N byte 3 0 0 & -32 == 64]} {
 				>
 					switch [Nv byte 4 0 & 60] {
 						4 {
@@ -28936,7 +28939,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 3 0 0 & 192 == 0]} {
+			if {[N byte 3 0 0 & -64 == 0]} {
 				>
 					switch [Nv byte 4 0 & 120] {
 						8 {
@@ -29046,7 +29049,7 @@ proc analyze {} {
 		}
 	}
 	
-	if {[N belong 0 0 0 & 4284481296 == 1195376656]} {
+	if {[N belong 0 0 0 & -10486000 == 1195376656]} {
 		>
 			if {[N byte 188 0 0 {} {} == 71]} {
 				>
@@ -29433,52 +29436,6 @@ proc analyze {} {
 	}
 	
 	switch [Nv bequad 0 0 {} {}] {
-		11259375 {
-			>
-				emit {Erlang DETS file}
-			<
-		}
-		2566813404 {
-			>
-				if {[N ubeshort 8 0 0 {} {} < 10]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N beshort 10 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, 64 bit big-endian}
-							<
-						}
-	
-						U 15 apt-cache-64bit-be 0
-	
-					<
-				}
-	
-			<
-		}
-		65677417116533018 {
-			>
-				emit {UCL compressed data}
-			<
-		}
-		1315192064904724480 {
-			>
-				emit {Nintendo 64 ROM image (wordswapped)}
-				mime application/x-n64-rom
-			<
-		}
-		3999266915158593280 {
-			>
-				emit {Nintendo 64 ROM image (V64)}
-				mime application/x-n64-rom
-			<
-		}
-		4616813591155179520 {
-			>
-				emit {Nintendo 64 ROM image (32-bit byteswapped)}
-				mime application/x-n64-rom
-			<
-		}
 		-9207870847048482801 {
 			>
 				emit {Nintendo 64 ROM image}
@@ -29549,7 +29506,7 @@ proc analyze {} {
 		}
 		-5199405631432697327 {
 			>
-				if {[N bequad 8 0 0 {} {} == 11983515692459535757]} {
+				if {[N bequad 8 0 0 {} {} == -6463228381250015859]} {
 					>
 						emit {Windows Television DVR Media}
 					<
@@ -29599,6 +29556,52 @@ proc analyze {} {
 					<
 				}
 	
+			<
+		}
+		11259375 {
+			>
+				emit {Erlang DETS file}
+			<
+		}
+		2566813404 {
+			>
+				if {[N ubeshort 8 0 0 {} {} < 10]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N beshort 10 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, 64 bit big-endian}
+							<
+						}
+	
+						U 15 apt-cache-64bit-be 0
+	
+					<
+				}
+	
+			<
+		}
+		65677417116533018 {
+			>
+				emit {UCL compressed data}
+			<
+		}
+		1315192064904724480 {
+			>
+				emit {Nintendo 64 ROM image (wordswapped)}
+				mime application/x-n64-rom
+			<
+		}
+		3999266915158593280 {
+			>
+				emit {Nintendo 64 ROM image (V64)}
+				mime application/x-n64-rom
+			<
+		}
+		4616813591155179520 {
+			>
+				emit {Nintendo 64 ROM image (32-bit byteswapped)}
+				mime application/x-n64-rom
 			<
 		}
 	}
@@ -29764,6 +29767,37 @@ proc analyze {} {
 	}
 	
 	switch [Nv long 0 0 {} {}] {
+		-1042103351 {
+			>
+				emit {SPSS Portable File}
+				if {[S string 40 0 {} {} x {}]} {
+					>
+						emit %s
+					<
+				}
+	
+			<
+		}
+		-762612112 {
+			>
+				emit {CLISP memory image data, other endian}
+			<
+		}
+		-97271666 {
+			>
+				emit {SunPC 4.0 Hard Disk}
+			<
+		}
+		-1 {
+			>
+				if {[N belong [R 0] 0 0 {} {} == -1432791706]} {
+					>
+						emit {Xilinx RAW bitstream (.BIN)}
+					<
+				}
+	
+			<
+		}
 		262 {
 			>
 				emit {68k Blit mpx/mux executable}
@@ -30162,37 +30196,6 @@ proc analyze {} {
 				emit {CLISP memory image data}
 			<
 		}
-		-1042103351 {
-			>
-				emit {SPSS Portable File}
-				if {[S string 40 0 {} {} x {}]} {
-					>
-						emit %s
-					<
-				}
-	
-			<
-		}
-		-762612112 {
-			>
-				emit {CLISP memory image data, other endian}
-			<
-		}
-		-97271666 {
-			>
-				emit {SunPC 4.0 Hard Disk}
-			<
-		}
-		-1 {
-			>
-				if {[N belong [R 0] 0 0 {} {} == 2862175590]} {
-					>
-						emit {Xilinx RAW bitstream (.BIN)}
-					<
-				}
-	
-			<
-		}
 	}
 	
 	if {[S search 0 0 t 1 eq FiLeStArTfIlEsTaRt]} {
@@ -30312,7 +30315,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq package0]} {
 		>
 			emit {Newton package, NOS 1.x,}
-			if {[N belong 12 0 0 {} {} & 2147483648]} {
+			if {[N belong 12 0 0 {} {} & -2147483648]} {
 				>
 					emit AutoRemove,
 				<
@@ -30354,7 +30357,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq package1]} {
 		>
 			emit {Newton package, NOS 2.x,}
-			if {[N belong 12 0 0 {} {} & 2147483648]} {
+			if {[N belong 12 0 0 {} {} & -2147483648]} {
 				>
 					emit AutoRemove,
 				<
@@ -30409,7 +30412,7 @@ proc analyze {} {
 				}
 			}
 	
-			if {[N belong 12 0 0 {} {} & 2147483648]} {
+			if {[N belong 12 0 0 {} {} & -2147483648]} {
 				>
 					emit AutoRemove,
 				<
@@ -30511,7 +30514,7 @@ proc analyze {} {
 		<
 	}
 	
-	switch [Nv belong 0 0 & 4278255615] {
+	switch [Nv belong 0 0 & -16711681] {
 		1442840576 {
 			>
 				if {[S regex 1 0 s {} eq ^\[0-9\]]} {
@@ -30564,7 +30567,22 @@ proc analyze {} {
 			if {[S string 6 0 {} {} eq 00]} {
 				>
 					emit {\b}
-					switch [Nv byte 8 0 & 240] {
+					switch [Nv byte 8 0 & -16] {
+						-128 {
+							>
+								emit {\b, root type: uid (CORRUPT)}
+							<
+						}
+						-96 {
+							>
+								emit {\b, root type: array}
+							<
+						}
+						-48 {
+							>
+								emit {\b, root type: dictionary}
+							<
+						}
 						0 {
 							>
 								emit {\b}
@@ -30618,21 +30636,6 @@ proc analyze {} {
 								emit {\b, root type: unicode string}
 							<
 						}
-						-128 {
-							>
-								emit {\b, root type: uid (CORRUPT)}
-							<
-						}
-						-96 {
-							>
-								emit {\b, root type: array}
-							<
-						}
-						-48 {
-							>
-								emit {\b, root type: dictionary}
-							<
-						}
 					}
 	
 				<
@@ -30653,7 +30656,7 @@ proc analyze {} {
 			if {[N byte 0 0 0 {} {} < 5]} {
 				>
 					emit {\b}
-					if {[N byte 13 0 0 {} {} == 129]} {
+					if {[N byte 13 0 0 {} {} == -127]} {
 						>
 							emit {\b}
 							if {[N ubeshort 14 0 0 {} {} x {}]} {
@@ -30683,7 +30686,7 @@ proc analyze {} {
 			if {[N byte 0 0 0 {} {} < 5]} {
 				>
 					emit {\b}
-					if {[N byte 13 0 0 {} {} == 129]} {
+					if {[N byte 13 0 0 {} {} == -127]} {
 						>
 							emit {\b}
 							if {[N uleshort 14 0 0 {} {} x {}]} {
@@ -30812,7 +30815,7 @@ proc analyze {} {
 								<
 							}
 	
-							if {[N beshort 492 0 0 {} {} == 65496]} {
+							if {[N beshort 492 0 0 {} {} == -40]} {
 								>
 									emit (JPEG)
 								<
@@ -30882,24 +30885,6 @@ proc analyze {} {
 	}
 	
 	switch [Nv lequad 0 0 {} {}] {
-		2566813404 {
-			>
-				if {[N uleshort 8 0 0 {} {} < 10]} {
-					>
-						emit {APT cache data, version %u}
-						if {[N leshort 10 0 0 {} {} x {}]} {
-							>
-								emit {\b.%u, 64 bit little-endian}
-							<
-						}
-	
-						U 15 apt-cache-64bit-be 0
-	
-					<
-				}
-	
-			<
-		}
 		-9121646941414855425 {
 			>
 				emit {LLVM indexed profile data,}
@@ -30983,6 +30968,24 @@ proc analyze {} {
 				if {[N byte [R 0] 0 0 {} {} x {}]} {
 					>
 						emit {version %d}
+					<
+				}
+	
+			<
+		}
+		2566813404 {
+			>
+				if {[N uleshort 8 0 0 {} {} < 10]} {
+					>
+						emit {APT cache data, version %u}
+						if {[N leshort 10 0 0 {} {} x {}]} {
+							>
+								emit {\b.%u, 64 bit little-endian}
+							<
+						}
+	
+						U 15 apt-cache-64bit-be 0
+	
 					<
 				}
 	
@@ -31193,7 +31196,7 @@ proc analyze {} {
 		<
 	}
 	
-	switch [Nv lelong 0 0 & 2155937791] {
+	switch [Nv lelong 0 0 & -2139029505] {
 		538 {
 			>
 				emit {ARC archive data, uncompressed}
@@ -31376,7 +31379,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 0 0 0 & 4294959104 == 1996431360]} {
+	if {[N belong 0 0 0 & -8192 == 1996431360]} {
 		>
 			emit {CDC Codec archive data}
 		<
@@ -32040,7 +32043,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 0 0 0 & 4278190079 == 436421733]} {
+	if {[N belong 0 0 0 & -16777217 == 436421733]} {
 		>
 			emit {BTS archive data}
 		<
@@ -32136,7 +32139,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 0 0 0 & 4294963200 == 1396846592]} {
+	if {[N belong 0 0 0 & -4096 == 1396846592]} {
 		>
 			emit {SBX archive data}
 		<
@@ -32262,13 +32265,13 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 0 0 0 & 4294963440 == 1297285120]} {
+	if {[N belong 0 0 0 & -3856 == 1297285120]} {
 		>
 			emit {MSXiE archive data}
 		<
 	}
 	
-	switch [Nv belong 0 0 & 4294967280] {
+	switch [Nv belong 0 0 & -16] {
 		0 {
 			>
 				if {[N beshort 4 0 0 {} {} == 2569]} {
@@ -32624,7 +32627,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq PAQ]} {
 		>
 			emit {PAQ archive data}
-			if {[N byte 3 0 0 & 240 == 48]} {
+			if {[N byte 3 0 0 & -16 == 48]} {
 				>
 					if {[N byte 3 0 0 {} {} x {}]} {
 						>
@@ -32651,6 +32654,11 @@ proc analyze {} {
 	}
 	
 	switch [Nv leshort 2 0 {} {}] {
+		-5536 {
+			>
+				emit {ARJ archive data}
+			<
+		}
 		14336 {
 			>
 				emit {BS image,}
@@ -32674,14 +32682,9 @@ proc analyze {} {
 	
 			<
 		}
-		-5536 {
-			>
-				emit {ARJ archive data}
-			<
-		}
 	}
 	
-	if {[N belong 0 0 0 & 4294902012 == 1212219392]} {
+	if {[N belong 0 0 0 & -65284 == 1212219392]} {
 		>
 			emit {HA archive data}
 			if {[N leshort 2 0 0 {} {} == 1]} {
@@ -33391,14 +33394,14 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} == 51966]} {
+			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} == -13570]} {
 				>
 					emit {Java archive data (JAR)}
 					mime application/java-archive
 				<
 			}
 	
-			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} != 51966]} {
+			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} != -13570]} {
 				>
 					if {[S string 26 0 {} {} ne \x8\0\0\0mimetype]} {
 						>
@@ -33420,7 +33423,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} != 51966]} {
+			if {[N leshort [I 26 uleshort 0 + 0 30] 0 0 {} {} != -13570]} {
 				>
 					if {[S string 26 0 {} {} ne \x8\0\0\0mimetype]} {
 						>
@@ -33473,7 +33476,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 20 0 0 {} {} == 4257523676]} {
+	if {[N lelong 20 0 0 {} {} == -37443620]} {
 		>
 			emit {Zoo archive data}
 			if {[N byte 4 0 0 {} {} > 48]} {
@@ -33506,7 +33509,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N lelong 42 0 0 {} {} == 4257523676]} {
+			if {[N lelong 42 0 0 {} {} == -37443620]} {
 				>
 					emit {\b,}
 					if {[N byte 70 0 0 {} {} > 0]} {
@@ -33783,7 +33786,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N leshort 5 0 0 {} {} & 32768]} {
+			if {[N leshort 5 0 0 {} {} & -32768]} {
 				>
 					emit {\b, solid}
 				<
@@ -34083,7 +34086,8 @@ proc analyze {} {
 	
 			if {[S search 3592 0 {} 7776 eq \x55\xAA]} {
 				>
-					T [R -512]
+					emit {\b; contains}
+					T [R -512] {}
 	
 				<
 			}
@@ -34420,7 +34424,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N beshort 12 0 0 & 32768 > 0]} {
+			if {[N beshort 12 0 0 & -32768 > 0]} {
 				>
 					emit SMPTE
 				<
@@ -34471,7 +34475,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq EMOD]} {
 		>
 			emit {Extended MOD sound data,}
-			if {[N byte 4 0 0 & 240 x {}]} {
+			if {[N byte 4 0 0 & -16 x {}]} {
 				>
 					emit {version %d}
 				<
@@ -34974,7 +34978,7 @@ proc analyze {} {
 			if {[N byte 4 0 0 {} {} x {}]} {
 				>
 					emit {\b.%d}
-					if {[N byte 5 0 0 {} {} & 128]} {
+					if {[N byte 5 0 0 {} {} & -128]} {
 						>
 							emit {\b, unsynchronized frames}
 						<
@@ -35001,7 +35005,8 @@ proc analyze {} {
 				<
 			}
 	
-			T [I 6 ubeid3 0 + 0 10]
+			emit {\b, contains:}
+			T [I 6 ubeid3 0 + 0 10] {}
 	
 		<
 	}
@@ -35253,14 +35258,14 @@ proc analyze {} {
 		>
 			emit {Yamaha TX Wave}
 			switch [Nv byte 22 0 {} {}] {
-				73 {
-					>
-						emit looped
-					<
-				}
 				-55 {
 					>
 						emit non-looped
+					<
+				}
+				73 {
+					>
+						emit looped
 					<
 				}
 			}
@@ -36167,7 +36172,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq MP+]} {
 		>
 			emit {Musepack audio (MP+)}
-			if {[N byte 3 0 0 {} {} == 255]} {
+			if {[N byte 3 0 0 {} {} == -1]} {
 				>
 					emit {\b, SV pre8}
 				<
@@ -36182,7 +36187,12 @@ proc analyze {} {
 				7 {
 					>
 						emit {\b, SV 7}
-						switch [Nv byte 3 0 & 240] {
+						switch [Nv byte 3 0 & -16] {
+							-16 {
+								>
+									emit {\b.15}
+								<
+							}
 							0 {
 								>
 									emit {\b.0}
@@ -36193,39 +36203,9 @@ proc analyze {} {
 									emit {\b.1}
 								<
 							}
-							-16 {
-								>
-									emit {\b.15}
-								<
-							}
 						}
 	
-						switch [Nv byte 10 0 & 240] {
-							0 {
-								>
-									emit {\b, no profile}
-								<
-							}
-							16 {
-								>
-									emit {\b, profile 'Unstable/Experimental'}
-								<
-							}
-							80 {
-								>
-									emit {\b, quality 0}
-								<
-							}
-							96 {
-								>
-									emit {\b, quality 1}
-								<
-							}
-							112 {
-								>
-									emit {\b, quality 2 (Telephone)}
-								<
-							}
+						switch [Nv byte 10 0 & -16] {
 							-128 {
 								>
 									emit {\b, quality 3 (Thumb)}
@@ -36264,6 +36244,31 @@ proc analyze {} {
 							-16 {
 								>
 									emit {\b, quality 10}
+								<
+							}
+							0 {
+								>
+									emit {\b, no profile}
+								<
+							}
+							16 {
+								>
+									emit {\b, profile 'Unstable/Experimental'}
+								<
+							}
+							80 {
+								>
+									emit {\b, quality 0}
+								<
+							}
+							96 {
+								>
+									emit {\b, quality 1}
+								<
+							}
+							112 {
+								>
+									emit {\b, quality 2 (Telephone)}
 								<
 							}
 						}
@@ -36677,7 +36682,7 @@ proc analyze {} {
 	
 	if {[S string 0 0 {} {} eq ZBOT]} {
 		>
-			if {[N byte 4 0 0 {} {} == 197]} {
+			if {[N byte 4 0 0 {} {} == -59]} {
 				>
 					emit {GVOX Encore music, version < 5.0}
 				<
@@ -36749,7 +36754,8 @@ proc analyze {} {
 											emit {%d Bytes}
 											if {[S string [I [R -8] ulelong 0 + 0 0] 0 {} {} eq RIFF]} {
 												>
-													T [R -4]
+													emit {\b}
+													T [R -4] {}
 	
 												<
 											}
@@ -36773,7 +36779,7 @@ proc analyze {} {
 	
 	if {[S string 0 0 {} {} eq GDM]} {
 		>
-			if {[N byte 3 0 0 {} {} == 254]} {
+			if {[N byte 3 0 0 {} {} == -2]} {
 				>
 					emit {General Digital Music.}
 				<
@@ -36987,7 +36993,7 @@ proc analyze {} {
 	
 			if {[N byte 46 0 0 {} {} == 26]} {
 				>
-					if {[N byte 3 0 0 {} {} == 254]} {
+					if {[N byte 3 0 0 {} {} == -2]} {
 						>
 							emit {Farandole Tracker Song}
 							if {[N byte 49 0 0 / 16 x {}]} {
@@ -37208,242 +37214,6 @@ proc analyze {} {
 	}
 	
 	switch [Nv byte 0 0 {} {}] {
-		0 {
-			>
-				if {[N ubyte 1 0 0 {} {} > 0]} {
-					>
-						if {[N ubyte 1 0 0 {} {} < 64]} {
-							>
-								if {[N ubelong 2 0 0 {} {} > 520093696]} {
-									>
-										if {[N byte 74 0 0 {} {} == 0]} {
-											>
-												if {[N byte 82 0 0 {} {} == 0]} {
-													>
-														switch [Nv ubeshort 122 0 {} {}] {
-															0 {
-																>
-																	U 136 mac-bin 0
-	
-																<
-															}
-															33153 {
-																>
-																	U 136 mac-bin 0
-	
-																<
-															}
-														}
-	
-													<
-												}
-	
-												if {[N ubeshort 122 0 0 {} {} == 33409]} {
-													>
-														U 136 mac-bin 0
-	
-													<
-												}
-	
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-			>
-				if {[S string 12 0 {} {} eq \x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x40\x00]} {
-					>
-						emit {Soundtrakker 128 ST2 music,}
-						if {[S string 1 0 {} {} x {}]} {
-							>
-								emit {name: %s}
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		4 {
-			>
-				if {[N beshort 10 0 0 {} {} == 4064]} {
-					>
-						if {[N belong 12 0 0 {} {} == 4044423150]} {
-							>
-								if {[N beshort 520 0 0 {} {} == 256]} {
-									>
-										if {[N byte 522 0 0 {} {} == 15]} {
-											>
-												if {[N bequad 524 0 0 {} {} == 18773704704]} {
-													>
-														if {[N byte 91 0 0 {} {} == 2]} {
-															>
-																if {[N belong 84 0 0 {} {} x {}]} {
-																	>
-																		emit {Nintendo amiibo NFC dump - amiibo ID: %08X-}
-																	<
-																}
-	
-																if {[N belong 88 0 0 {} {} x {}]} {
-																	>
-																		emit {\b%08X}
-																	<
-																}
-	
-															<
-														}
-	
-													<
-												}
-	
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		32 {
-			>
-				if {[N leshort 1 0 0 {} {} == 7]} {
-					>
-						if {[N byte 118 0 0 {} {} == 32]} {
-							>
-								if {[N leshort 119 0 0 {} {} == 117]} {
-									>
-										emit {TomTom activity file, v7}
-										if {[N leldate 8 0 0 {} {} x {}]} {
-											>
-												emit (%s,
-											<
-										}
-	
-										if {[N byte 3 0 0 {} {} x {}]} {
-											>
-												emit {device firmware %d.}
-											<
-										}
-	
-										if {[N byte 4 0 0 {} {} x {}]} {
-											>
-												emit {\b%d.}
-											<
-										}
-	
-										if {[N byte 5 0 0 {} {} x {}]} {
-											>
-												emit {\b%d,}
-											<
-										}
-	
-										if {[N leshort 6 0 0 {} {} x {}]} {
-											>
-												emit {product ID %04d)}
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		38 {
-			>
-				if {[S regex 16 0 s {} eq ^\[0-78\]\[0-9.\]\{4\}]} {
-					>
-						emit {Sendmail frozen configuration}
-						if {[S string 16 0 {} {} > \0]} {
-							>
-								emit {- version %s}
-							<
-						}
-	
-						ext fc
-					<
-				}
-	
-			<
-		}
-		97 {
-			>
-				if {[S search [R 1] 0 b 5 eq \x64]} {
-					>
-						if {[S search [R 1] 0 b 8 eq \x5f\x81\x44]} {
-							>
-								if {[S search [R 64] 0 b 64 eq \x5f\x81\x49\x01\x03\x5f\x81\x3d\x01]} {
-									>
-										if {[N byte [R 0] 0 0 {} {} x {}]} {
-											>
-												emit {TAP 3.%d Batch (TD.57, Transferred Account)}
-											<
-										}
-	
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-			>
-				if {[S search [R 1] 0 b 8 eq \x5f\x29\x01\x02\x5f\x25\x01]} {
-					>
-						if {[N byte [R 0] 0 0 {} {} x {}]} {
-							>
-								emit {NRT 2.%d (TD.35, Near Real Time Roaming Data Exchange)}
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
-		98 {
-			>
-				if {[S search 2 0 b 8 eq \x5f\x81\x44]} {
-					>
-						if {[S search [R 64] 0 b 64 eq \x5f\x81\x49\x01\x03\x5f\x81\x3d\x01]} {
-							>
-								if {[N byte [R 0] 0 0 {} {} x {}]} {
-									>
-										emit {TAP 3.%d Notification (TD.57, Transferred Account)}
-									<
-								}
-	
-							<
-						}
-	
-					<
-				}
-	
-			<
-		}
 		-128 {
 			>
 				if {[N uleshort 1 0 0 {} {} < 1022]} {
@@ -37794,6 +37564,242 @@ proc analyze {} {
 						if {[N uleshort 1 0 0 {} {} > 32768]} {
 							>
 								emit {MSX-BASIC program}
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		0 {
+			>
+				if {[N ubyte 1 0 0 {} {} > 0]} {
+					>
+						if {[N ubyte 1 0 0 {} {} < 64]} {
+							>
+								if {[N ubelong 2 0 0 {} {} > 520093696]} {
+									>
+										if {[N byte 74 0 0 {} {} == 0]} {
+											>
+												if {[N byte 82 0 0 {} {} == 0]} {
+													>
+														switch [Nv ubeshort 122 0 {} {}] {
+															0 {
+																>
+																	U 136 mac-bin 0
+	
+																<
+															}
+															33153 {
+																>
+																	U 136 mac-bin 0
+	
+																<
+															}
+														}
+	
+													<
+												}
+	
+												if {[N ubeshort 122 0 0 {} {} == 33409]} {
+													>
+														U 136 mac-bin 0
+	
+													<
+												}
+	
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+			>
+				if {[S string 12 0 {} {} eq \x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x40\x00]} {
+					>
+						emit {Soundtrakker 128 ST2 music,}
+						if {[S string 1 0 {} {} x {}]} {
+							>
+								emit {name: %s}
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		4 {
+			>
+				if {[N beshort 10 0 0 {} {} == 4064]} {
+					>
+						if {[N belong 12 0 0 {} {} == -250544146]} {
+							>
+								if {[N beshort 520 0 0 {} {} == 256]} {
+									>
+										if {[N byte 522 0 0 {} {} == 15]} {
+											>
+												if {[N bequad 524 0 0 {} {} == 18773704704]} {
+													>
+														if {[N byte 91 0 0 {} {} == 2]} {
+															>
+																if {[N belong 84 0 0 {} {} x {}]} {
+																	>
+																		emit {Nintendo amiibo NFC dump - amiibo ID: %08X-}
+																	<
+																}
+	
+																if {[N belong 88 0 0 {} {} x {}]} {
+																	>
+																		emit {\b%08X}
+																	<
+																}
+	
+															<
+														}
+	
+													<
+												}
+	
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		32 {
+			>
+				if {[N leshort 1 0 0 {} {} == 7]} {
+					>
+						if {[N byte 118 0 0 {} {} == 32]} {
+							>
+								if {[N leshort 119 0 0 {} {} == 117]} {
+									>
+										emit {TomTom activity file, v7}
+										if {[N leldate 8 0 0 {} {} x {}]} {
+											>
+												emit (%s,
+											<
+										}
+	
+										if {[N byte 3 0 0 {} {} x {}]} {
+											>
+												emit {device firmware %d.}
+											<
+										}
+	
+										if {[N byte 4 0 0 {} {} x {}]} {
+											>
+												emit {\b%d.}
+											<
+										}
+	
+										if {[N byte 5 0 0 {} {} x {}]} {
+											>
+												emit {\b%d,}
+											<
+										}
+	
+										if {[N leshort 6 0 0 {} {} x {}]} {
+											>
+												emit {product ID %04d)}
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		38 {
+			>
+				if {[S regex 16 0 s {} eq ^\[0-78\]\[0-9.\]\{4\}]} {
+					>
+						emit {Sendmail frozen configuration}
+						if {[S string 16 0 {} {} > \0]} {
+							>
+								emit {- version %s}
+							<
+						}
+	
+						ext fc
+					<
+				}
+	
+			<
+		}
+		97 {
+			>
+				if {[S search [R 1] 0 b 5 eq \x64]} {
+					>
+						if {[S search [R 1] 0 b 8 eq \x5f\x81\x44]} {
+							>
+								if {[S search [R 64] 0 b 64 eq \x5f\x81\x49\x01\x03\x5f\x81\x3d\x01]} {
+									>
+										if {[N byte [R 0] 0 0 {} {} x {}]} {
+											>
+												emit {TAP 3.%d Batch (TD.57, Transferred Account)}
+											<
+										}
+	
+									<
+								}
+	
+							<
+						}
+	
+					<
+				}
+	
+			<
+			>
+				if {[S search [R 1] 0 b 8 eq \x5f\x29\x01\x02\x5f\x25\x01]} {
+					>
+						if {[N byte [R 0] 0 0 {} {} x {}]} {
+							>
+								emit {NRT 2.%d (TD.35, Near Real Time Roaming Data Exchange)}
+							<
+						}
+	
+					<
+				}
+	
+			<
+		}
+		98 {
+			>
+				if {[S search 2 0 b 8 eq \x5f\x81\x44]} {
+					>
+						if {[S search [R 64] 0 b 64 eq \x5f\x81\x49\x01\x03\x5f\x81\x3d\x01]} {
+							>
+								if {[N byte [R 0] 0 0 {} {} x {}]} {
+									>
+										emit {TAP 3.%d Notification (TD.57, Transferred Account)}
+									<
+								}
+	
 							<
 						}
 	
@@ -38525,13 +38531,13 @@ proc analyze {} {
 		65799 {
 			>
 				emit {a.out SunOS mc68010}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38548,13 +38554,13 @@ proc analyze {} {
 		65800 {
 			>
 				emit {a.out SunOS mc68010 pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38571,7 +38577,7 @@ proc analyze {} {
 		65803 {
 			>
 				emit {a.out SunOS mc68010 demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 4096]} {
 							>
@@ -38594,7 +38600,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38611,13 +38617,13 @@ proc analyze {} {
 		131335 {
 			>
 				emit {a.out SunOS mc68020}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38634,13 +38640,13 @@ proc analyze {} {
 		131336 {
 			>
 				emit {a.out SunOS mc68020 pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38657,7 +38663,7 @@ proc analyze {} {
 		131339 {
 			>
 				emit {a.out SunOS mc68020 demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 4096]} {
 							>
@@ -38680,7 +38686,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38697,13 +38703,13 @@ proc analyze {} {
 		196871 {
 			>
 				emit SPARC
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38715,7 +38721,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 36 0 0 {} {} == 3020947457]} {
+				if {[N belong 36 0 0 {} {} == -1274019839]} {
 					>
 						emit {(uses shared libs)}
 					<
@@ -38724,13 +38730,13 @@ proc analyze {} {
 			<
 			>
 				emit {a.out SunOS SPARC}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38747,13 +38753,13 @@ proc analyze {} {
 		196872 {
 			>
 				emit {SPARC pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38765,7 +38771,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 36 0 0 {} {} == 3020947457]} {
+				if {[N belong 36 0 0 {} {} == -1274019839]} {
 					>
 						emit {(uses shared libs)}
 					<
@@ -38774,13 +38780,13 @@ proc analyze {} {
 			<
 			>
 				emit {a.out SunOS SPARC pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38797,7 +38803,7 @@ proc analyze {} {
 		196875 {
 			>
 				emit {SPARC demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 4096]} {
 							>
@@ -38820,7 +38826,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -38832,7 +38838,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N belong 36 0 0 {} {} == 3020947457]} {
+				if {[N belong 36 0 0 {} {} == -1274019839]} {
 					>
 						emit {(uses shared libs)}
 					<
@@ -38841,7 +38847,7 @@ proc analyze {} {
 			<
 			>
 				emit {a.out SunOS SPARC demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 4096]} {
 							>
@@ -38864,7 +38870,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -39419,6 +39425,11 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq KF]} {
 		>
 			switch [Nv belong 2 0 {} {}] {
+				-201293819 {
+					>
+						emit {Kompas drawing 5.9R01.003}
+					<
+				}
 				83886087 {
 					>
 						emit {Kompas drawing 7.0}
@@ -39530,11 +39541,6 @@ proc analyze {} {
 				1543540741 {
 					>
 						emit {Kompas drawing 5.11R03}
-					<
-				}
-				-201293819 {
-					>
-						emit {Kompas drawing 5.9R01.003}
 					<
 				}
 			}
@@ -40326,7 +40332,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq \037\235]} {
 		>
 			emit {compress'd data}
-			if {[N byte 2 0 0 & 128 > 0]} {
+			if {[N byte 2 0 0 & -128 > 0]} {
 				>
 					emit {block compressed}
 				<
@@ -40589,7 +40595,7 @@ proc analyze {} {
 			emit {lzop compressed data}
 			if {[N beshort 9 0 0 {} {} < 2368]} {
 				>
-					if {[N byte 9 0 0 & 240 == 0]} {
+					if {[N byte 9 0 0 & -16 == 0]} {
 						>
 							emit {- version 0.}
 						<
@@ -40677,7 +40683,7 @@ proc analyze {} {
 	
 			if {[N beshort 9 0 0 {} {} > 2361]} {
 				>
-					switch [Nv byte 9 0 & 240] {
+					switch [Nv byte 9 0 & -16] {
 						0 {
 							>
 								emit {- version 0.}
@@ -40856,13 +40862,13 @@ proc analyze {} {
 				0 {
 					>
 						emit {LZMA compressed data,}
-						if {[N lequad 5 0 0 {} {} == 18446744073709551615]} {
+						if {[N lequad 5 0 0 {} {} == -1]} {
 							>
 								emit streamed
 							<
 						}
 	
-						if {[N lequad 5 0 0 {} {} != 18446744073709551615]} {
+						if {[N lequad 5 0 0 {} {} != -1]} {
 							>
 								emit {non-streamed, size %lld}
 							<
@@ -40874,13 +40880,13 @@ proc analyze {} {
 					>
 						emit {LZMA compressed data,}
 						mime application/x-lzma
-						if {[N lequad 5 0 0 {} {} == 18446744073709551615]} {
+						if {[N lequad 5 0 0 {} {} == -1]} {
 							>
 								emit streamed
 							<
 						}
 	
-						if {[N lequad 5 0 0 {} {} != 18446744073709551615]} {
+						if {[N lequad 5 0 0 {} {} != -1]} {
 							>
 								emit {non-streamed, size %lld}
 							<
@@ -40920,9 +40926,9 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 0 0 0 & 4294967280 == 407710288]} {
+	if {[N lelong 0 0 0 & -16 == 407710288]} {
 		>
-			T [I 4 ulelong 0 + 0 8]
+			T [I 4 ulelong 0 + 0 8] {}
 	
 		<
 	}
@@ -40983,7 +40989,7 @@ proc analyze {} {
 				>
 					if {[N byte 0 0 0 & 15 == 8]} {
 						>
-							if {[N byte 0 0 0 & 128 == 0]} {
+							if {[N byte 0 0 0 & -128 == 0]} {
 								>
 									emit {zlib compressed data}
 									mime application/zlib
@@ -41166,10 +41172,10 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N bequad 260 0 0 {} {} == 14910686532989681675]} {
+	if {[N bequad 260 0 0 {} {} == -3536057540719869941]} {
 		>
 			emit {Game Boy ROM image}
-			if {[N byte 323 0 0 & 128 == 128]} {
+			if {[N byte 323 0 0 & -128 == -128]} {
 				>
 					if {[S string 308 0 {} {} > \0]} {
 						>
@@ -41180,7 +41186,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 323 0 0 & 128 != 128]} {
+			if {[N byte 323 0 0 & -128 != -128]} {
 				>
 					if {[S string 308 0 {} {} > \0]} {
 						>
@@ -41201,13 +41207,13 @@ proc analyze {} {
 				>
 					if {[N byte 326 0 0 {} {} == 3]} {
 						>
-							if {[N byte 323 0 0 & 128 == 128]} {
+							if {[N byte 323 0 0 & -128 == -128]} {
 								>
 									emit {[SGB+CGB]}
 								<
 							}
 	
-							if {[N byte 323 0 0 & 128 != 128]} {
+							if {[N byte 323 0 0 & -128 != -128]} {
 								>
 									emit {[SGB]}
 								<
@@ -41218,7 +41224,7 @@ proc analyze {} {
 	
 					if {[N byte 326 0 0 {} {} != 3]} {
 						>
-							switch [Nv byte 323 0 & 192] {
+							switch [Nv byte 323 0 & -64] {
 								-128 {
 									>
 										emit {[CGB]}
@@ -41243,6 +41249,26 @@ proc analyze {} {
 			}
 	
 			switch [Nv byte 327 0 {} {}] {
+				-4 {
+					>
+						emit {[Pocket Camera]}
+					<
+				}
+				-3 {
+					>
+						emit {[Bandai TAMA5]}
+					<
+				}
+				-2 {
+					>
+						emit {[Hudson HuC-3]}
+					<
+				}
+				-1 {
+					>
+						emit {[Hudson HuC-1]}
+					<
+				}
 				0 {
 					>
 						emit {[ROM ONLY]}
@@ -41351,26 +41377,6 @@ proc analyze {} {
 				30 {
 					>
 						emit {[MBC5+RUMBLE+SRAM+BATT]}
-					<
-				}
-				-4 {
-					>
-						emit {[Pocket Camera]}
-					<
-				}
-				-3 {
-					>
-						emit {[Bandai TAMA5]}
-					<
-				}
-				-2 {
-					>
-						emit {[Hudson HuC-3]}
-					<
-				}
-				-1 {
-					>
-						emit {[Hudson HuC-1]}
 					<
 				}
 			}
@@ -41576,7 +41582,7 @@ proc analyze {} {
 	
 	if {[S string 640 0 {} {} eq EAGN]} {
 		>
-			if {[N beshort 8 0 0 {} {} == 43707]} {
+			if {[N beshort 8 0 0 {} {} == -21829]} {
 				>
 					emit {Sega Mega Drive / Genesis ROM image (SMD format):}
 					U 51 sega-genesis-smd-header 0
@@ -41590,7 +41596,7 @@ proc analyze {} {
 	
 	if {[S string 640 0 {} {} eq EAMG]} {
 		>
-			if {[N beshort 8 0 0 {} {} == 43707]} {
+			if {[N beshort 8 0 0 {} {} == -21829]} {
 				>
 					emit {Sega Mega Drive / Genesis ROM image (SMD format):}
 					U 51 sega-genesis-smd-header 0
@@ -41715,6 +41721,12 @@ proc analyze {} {
 	}
 	
 	switch [Nv bequad 192 0 {} {}] {
+		-4008115836254384158 {
+			>
+				emit {Nintendo DS Slot-2 ROM image (PassMe)}
+				mime application/x-nintendo-ds-rom
+			<
+		}
 		2666041169113948705 {
 			>
 				emit {Nintendo DS ROM image}
@@ -41766,13 +41778,13 @@ proc analyze {} {
 	
 						if {[N lequad 16384 0 0 {} {} != 0]} {
 							>
-								if {[N lequad 16384 0 0 {} {} == 16717325532512902911]} {
+								if {[N lequad 16384 0 0 {} {} == -1729418541196648705]} {
 									>
 										emit (decrypted)
 									<
 								}
 	
-								if {[N lequad 16384 0 0 {} {} != 16717325532512902911]} {
+								if {[N lequad 16384 0 0 {} {} != -1729418541196648705]} {
 									>
 										if {[N lequad 4096 0 0 {} {} == 0]} {
 											>
@@ -41795,12 +41807,6 @@ proc analyze {} {
 					<
 				}
 	
-			<
-		}
-		-4008115836254384158 {
-			>
-				emit {Nintendo DS Slot-2 ROM image (PassMe)}
-				mime application/x-nintendo-ds-rom
 			<
 		}
 	}
@@ -41826,7 +41832,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 31 0 0 {} {} == 255]} {
+			if {[N byte 31 0 0 {} {} == -1]} {
 				>
 					emit {(debug mode enabled)}
 				<
@@ -42323,7 +42329,7 @@ proc analyze {} {
 	
 							if {[N lelong 4 0 0 {} {} > 3]} {
 								>
-									if {[N byte 23 0 0 {} {} & 128]} {
+									if {[N byte 23 0 0 {} {} & -128]} {
 										>
 											emit NoCPUShutdown
 										<
@@ -42481,7 +42487,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 28 0 0 {} {} == 3258163005]} {
+	if {[N belong 28 0 0 {} {} == -1036804291]} {
 		>
 			emit {Nintendo GameCube disc image:}
 			U 51 nintendo-gcn-disc-common 0
@@ -42551,7 +42557,7 @@ proc analyze {} {
 				>
 					if {[N byte 8 0 0 {} {} == 1]} {
 						>
-							if {[N belong 32796 0 0 {} {} == 3258163005]} {
+							if {[N belong 32796 0 0 {} {} == -1036804291]} {
 								>
 									emit {Nintendo GameCube disc image (CISO format):}
 									U 51 nintendo-gcn-disc-common 32768
@@ -42583,7 +42589,7 @@ proc analyze {} {
 			switch [Nv belong 8 0 {} {}] {
 				1 {
 					>
-						if {[N belong 84 0 0 {} {} == 3258163005]} {
+						if {[N belong 84 0 0 {} {} == -1036804291]} {
 							>
 								emit {Nintendo GameCube disc image (WDFv1 format):}
 								U 51 nintendo-gcn-disc-common 56
@@ -42605,7 +42611,7 @@ proc analyze {} {
 				}
 				2 {
 					>
-						if {[N belong [I 12 ubelong 0 + 0 28] 0 0 {} {} == 3258163005]} {
+						if {[N belong [I 12 ubelong 0 + 0 28] 0 0 {} {} == -1036804291]} {
 							>
 								emit {Nintendo GameCube disc image (WDFv2 format):}
 								U 51 nintendo-gcn-disc-common [I 12 ubelong 0 + 0 0]
@@ -44528,7 +44534,7 @@ proc analyze {} {
 		}
 	}
 	
-	if {[N leshort 18 0 0 {} {} == 60011]} {
+	if {[N leshort 18 0 0 {} {} == -5525]} {
 		>
 			emit {old-fs dump file (16-bit, assuming PDP-11 endianness),}
 			if {[N medate 2 0 0 {} {} x {}]} {
@@ -44598,6 +44604,11 @@ proc analyze {} {
 						>
 							emit {Dyalog APL}
 							switch [Nv byte 1 0 {} {}] {
+								-128 {
+									>
+										emit DDB
+									<
+								}
 								0 {
 									>
 										emit aplcore
@@ -44642,15 +44653,15 @@ proc analyze {} {
 											}
 										}
 	
-										switch [Nv byte 7 0 & 136] {
-											0 {
-												>
-													emit big-endian
-												<
-											}
+										switch [Nv byte 7 0 & -120] {
 											-128 {
 												>
 													emit little-endian
+												<
+											}
+											0 {
+												>
+													emit big-endian
 												<
 											}
 										}
@@ -44755,11 +44766,6 @@ proc analyze {} {
 								25 {
 									>
 										emit {external workspace}
-									<
-								}
-								-128 {
-									>
-										emit DDB
 									<
 								}
 							}
@@ -44893,6 +44899,16 @@ proc analyze {} {
 			}
 	
 			switch [Nv byte 7 0 {} {}] {
+				-54 {
+					>
+						emit {(Cafe OS)}
+					<
+				}
+				-1 {
+					>
+						emit (embedded)
+					<
+				}
 				0 {
 					>
 						emit (SYSV)
@@ -44988,16 +45004,6 @@ proc analyze {} {
 						emit (ARM)
 					<
 				}
-				-54 {
-					>
-						emit {(Cafe OS)}
-					<
-				}
-				-1 {
-					>
-						emit (embedded)
-					<
-				}
 			}
 	
 			strength *2
@@ -45069,7 +45075,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N beshort 508 0 0 {} {} == 55998]} {
+	if {[N beshort 508 0 0 {} {} == -9538]} {
 		>
 			if {[N long 504 0 0 {} {} > 0]} {
 				>
@@ -45238,7 +45244,8 @@ proc analyze {} {
 	
 							if {[S search 535 0 {} 17 eq \x55\xAA]} {
 								>
-									T [R -512]
+									emit {\b; contains}
+									T [R -512] {}
 	
 								<
 							}
@@ -45254,7 +45261,7 @@ proc analyze {} {
 	
 	if {[S string 0 0 {} {} eq DOSEMU\0]} {
 		>
-			if {[N leshort 638 0 0 {} {} == 43605]} {
+			if {[N leshort 638 0 0 {} {} == -21931]} {
 				>
 					if {[N ubyte 19 0 0 {} {} == 128]} {
 						>
@@ -45279,7 +45286,8 @@ proc analyze {} {
 										<
 									}
 	
-									T 128
+									emit {\b; contains}
+									T 128 {}
 	
 								<
 							}
@@ -45298,7 +45306,8 @@ proc analyze {} {
 			emit {Norton Utilities disc image data}
 			if {[S search 509 0 {} 1026 eq \x55\xAA\xeb]} {
 				>
-					T [R -1]
+					emit {\b; contains}
+					T [R -1] {}
 	
 				<
 			}
@@ -45325,7 +45334,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {DOS/MBR boot sector}
 				<
@@ -46182,7 +46191,7 @@ proc analyze {} {
 	
 				if {[S string 3 0 {} {} ne IHISK]} {
 					>
-						if {[N belong 0 0 0 {} {} != 3099592590]} {
+						if {[N belong 0 0 0 {} {} != -1195374706]} {
 							>
 								if {[S string 514 0 {} {} ne HdrS]} {
 									>
@@ -48359,7 +48368,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N lelong 512 0 0 {} {} == 2186691927]} {
+				if {[N lelong 512 0 0 {} {} == -2108275369]} {
 					>
 						emit {\b, BSD disklabel}
 					<
@@ -49630,7 +49639,8 @@ proc analyze {} {
 	
 																				if {[N ulelong 600 0 0 & 37008 == 37008]} {
 																					>
-																						T [R -92]
+																						emit {\b; contains}
+																						T [R -92] {}
 	
 																					<
 																				}
@@ -50846,7 +50856,7 @@ proc analyze {} {
 		}
 	}
 	
-	if {[N leshort 1080 0 0 {} {} == 61267]} {
+	if {[N leshort 1080 0 0 {} {} == -4269]} {
 		>
 			emit Linux
 			if {[N lelong 1100 0 0 {} {} x {}]} {
@@ -50988,7 +50998,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 1024 0 0 {} {} == 4076150800]} {
+	if {[N lelong 1024 0 0 {} {} == -218816496]} {
 		>
 			emit {F2FS filesystem}
 			if {[N belong 1132 0 0 {} {} x {}]} {
@@ -51147,7 +51157,7 @@ proc analyze {} {
 	if {[S string 19 0 {} {} eq \320\002\360\003\0\011\0\1\0]} {
 		>
 			emit {DOS floppy 360k}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {\b, DOS/MBR hard disk boot sector}
 				<
@@ -51159,7 +51169,7 @@ proc analyze {} {
 	if {[S string 19 0 {} {} eq \240\005\371\003\0\011\0\2\0]} {
 		>
 			emit {DOS floppy 720k}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {\b, DOS/MBR hard disk boot sector}
 				<
@@ -51171,7 +51181,7 @@ proc analyze {} {
 	if {[S string 19 0 {} {} eq \100\013\360\011\0\022\0\2\0]} {
 		>
 			emit {DOS floppy 1440k}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {\b, DOS/MBR hard disk boot sector}
 				<
@@ -51183,7 +51193,7 @@ proc analyze {} {
 	if {[S string 19 0 {} {} eq \240\005\371\005\0\011\0\2\0]} {
 		>
 			emit {DOS floppy 720k, IBM}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {\b, DOS/MBR hard disk boot sector}
 				<
@@ -51195,7 +51205,7 @@ proc analyze {} {
 	if {[S string 19 0 {} {} eq \100\013\371\005\0\011\0\2\0]} {
 		>
 			emit {DOS floppy 1440k, mkdosfs}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {\b, DOS/MBR hard disk boot sector}
 				<
@@ -53275,13 +53285,13 @@ proc analyze {} {
 				emit {FreeBSD/i386 compact demand paged}
 				if {[N lelong 20 0 0 {} {} < 4096]} {
 					>
-						if {[N byte 3 0 0 & 192 & 128]} {
+						if {[N byte 3 0 0 & -64 & -128]} {
 							>
 								emit {shared library}
 							<
 						}
 	
-						switch [Nv byte 3 0 & 192] {
+						switch [Nv byte 3 0 & -64] {
 							0 {
 								>
 									emit object
@@ -53299,15 +53309,15 @@ proc analyze {} {
 	
 				if {[N lelong 20 0 0 {} {} > 4095]} {
 					>
-						switch [Nv byte 3 0 & 128] {
-							0 {
-								>
-									emit executable
-								<
-							}
+						switch [Nv byte 3 0 & -128] {
 							-128 {
 								>
 									emit {dynamically linked executable}
+								<
+							}
+							0 {
+								>
+									emit executable
 								<
 							}
 						}
@@ -53328,13 +53338,13 @@ proc analyze {} {
 				emit FreeBSD/i386
 				if {[N lelong 20 0 0 {} {} < 4096]} {
 					>
-						if {[N byte 3 0 0 & 192 & 128]} {
+						if {[N byte 3 0 0 & -64 & -128]} {
 							>
 								emit {shared library}
 							<
 						}
 	
-						switch [Nv byte 3 0 & 192] {
+						switch [Nv byte 3 0 & -64] {
 							0 {
 								>
 									emit object
@@ -53352,15 +53362,15 @@ proc analyze {} {
 	
 				if {[N lelong 20 0 0 {} {} > 4095]} {
 					>
-						switch [Nv byte 3 0 & 128] {
-							0 {
-								>
-									emit executable
-								<
-							}
+						switch [Nv byte 3 0 & -128] {
 							-128 {
 								>
 									emit {dynamically linked executable}
+								<
+							}
+							0 {
+								>
+									emit executable
 								<
 							}
 						}
@@ -53381,13 +53391,13 @@ proc analyze {} {
 				emit {FreeBSD/i386 pure}
 				if {[N lelong 20 0 0 {} {} < 4096]} {
 					>
-						if {[N byte 3 0 0 & 192 & 128]} {
+						if {[N byte 3 0 0 & -64 & -128]} {
 							>
 								emit {shared library}
 							<
 						}
 	
-						switch [Nv byte 3 0 & 192] {
+						switch [Nv byte 3 0 & -64] {
 							0 {
 								>
 									emit object
@@ -53405,15 +53415,15 @@ proc analyze {} {
 	
 				if {[N lelong 20 0 0 {} {} > 4095]} {
 					>
-						switch [Nv byte 3 0 & 128] {
-							0 {
-								>
-									emit executable
-								<
-							}
+						switch [Nv byte 3 0 & -128] {
 							-128 {
 								>
 									emit {dynamically linked executable}
+								<
+							}
+							0 {
+								>
+									emit executable
 								<
 							}
 						}
@@ -53434,13 +53444,13 @@ proc analyze {} {
 				emit {FreeBSD/i386 demand paged}
 				if {[N lelong 20 0 0 {} {} < 4096]} {
 					>
-						if {[N byte 3 0 0 & 192 & 128]} {
+						if {[N byte 3 0 0 & -64 & -128]} {
 							>
 								emit {shared library}
 							<
 						}
 	
-						switch [Nv byte 3 0 & 192] {
+						switch [Nv byte 3 0 & -64] {
 							0 {
 								>
 									emit object
@@ -53458,15 +53468,15 @@ proc analyze {} {
 	
 				if {[N lelong 20 0 0 {} {} > 4095]} {
 					>
-						switch [Nv byte 3 0 & 128] {
-							0 {
-								>
-									emit executable
-								<
-							}
+						switch [Nv byte 3 0 & -128] {
 							-128 {
 								>
 									emit {dynamically linked executable}
+								<
+							}
+							0 {
+								>
+									emit executable
 								<
 							}
 						}
@@ -55511,7 +55521,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lequad 8 0 0 {} {} == 12370772899469655308]} {
+	if {[N lequad 8 0 0 {} {} == -6075971174239896308]} {
 		>
 			emit {Vulkan trace file, little-endian}
 			if {[N leshort 0 0 0 {} {} x {}]} {
@@ -55523,7 +55533,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N bequad 8 0 0 {} {} == 12370772899469655308]} {
+	if {[N bequad 8 0 0 {} {} == -6075971174239896308]} {
 		>
 			emit {Vulkan trace file, big-endian}
 			if {[N beshort 0 0 0 {} {} x {}]} {
@@ -58220,14 +58230,14 @@ proc analyze {} {
 		>
 			emit {Atari ST STAD bitmap image data (hor)}
 			switch [Nv byte 5 0 {} {}] {
-				0 {
-					>
-						emit {(white background)}
-					<
-				}
 				-1 {
 					>
 						emit {(black background)}
+					<
+				}
+				0 {
+					>
+						emit {(white background)}
 					<
 				}
 			}
@@ -58239,14 +58249,14 @@ proc analyze {} {
 		>
 			emit {Atari ST STAD bitmap image data (vert)}
 			switch [Nv byte 5 0 {} {}] {
-				0 {
-					>
-						emit {(white background)}
-					<
-				}
 				-1 {
 					>
 						emit {(black background)}
+					<
+				}
+				0 {
+					>
+						emit {(white background)}
 					<
 				}
 			}
@@ -59359,7 +59369,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 99 0 0 & 128 == 128]} {
+			if {[N byte 99 0 0 & -128 == -128]} {
 				>
 					emit {\b, tiling present}
 				<
@@ -59420,24 +59430,7 @@ proc analyze {} {
 				}
 			}
 	
-			switch [Nv byte 100 0 & 128] {
-				0 {
-					>
-						emit {\b, long header}
-						if {[N belong 102 0 0 + 1 x {}]} {
-							>
-								emit {\b, %x}
-							<
-						}
-	
-						if {[N belong 106 0 0 + 1 x {}]} {
-							>
-								emit {\bx%x}
-							<
-						}
-	
-					<
-				}
+			switch [Nv byte 100 0 & -128] {
 				-128 {
 					>
 						emit {\b, short header}
@@ -59450,6 +59443,23 @@ proc analyze {} {
 						if {[N beshort 104 0 0 + 1 x {}]} {
 							>
 								emit {\bx%d}
+							<
+						}
+	
+					<
+				}
+				0 {
+					>
+						emit {\b, long header}
+						if {[N belong 102 0 0 + 1 x {}]} {
+							>
+								emit {\b, %x}
+							<
+						}
+	
+						if {[N belong 106 0 0 + 1 x {}]} {
+							>
+								emit {\bx%x}
 							<
 						}
 	
@@ -60054,7 +60064,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N leshort 0 0 0 & 65532 == 38400]} {
+	if {[N leshort 0 0 0 & -4 == -27136]} {
 		>
 			emit {little endian ispell}
 			switch [Nv byte 0 0 {} {}] {
@@ -60172,7 +60182,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N beshort 0 0 0 & 65532 == 38400]} {
+	if {[N beshort 0 0 0 & -4 == -27136]} {
 		>
 			emit {big endian ispell}
 			switch [Nv byte 1 0 {} {}] {
@@ -60467,7 +60477,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N beshort 45 0 0 {} {} == 65362]} {
+	if {[N beshort 45 0 0 {} {} == -174]} {
 		>
 		<
 	}
@@ -60928,7 +60938,7 @@ proc analyze {} {
 	if {[S string 514 0 {} {} eq HdrS]} {
 		>
 			emit {Linux kernel}
-			if {[N leshort 510 0 0 {} {} == 43605]} {
+			if {[N leshort 510 0 0 {} {} == -21931]} {
 				>
 					emit {x86 boot executable}
 					if {[N leshort 518 0 0 {} {} > 511]} {
@@ -61047,11 +61057,6 @@ proc analyze {} {
 				>
 					emit {x86 boot sector}
 					switch [Nv belong 514 0 {} {}] {
-						142 {
-							>
-								emit {of a kernel from the dawn of time!}
-							<
-						}
 						-1869686604 {
 							>
 								emit {version 0.99-1.1.42}
@@ -61060,6 +61065,11 @@ proc analyze {} {
 						-1869686600 {
 							>
 								emit {for memtest86}
+							<
+						}
+						142 {
+							>
+								emit {of a kernel from the dawn of time!}
 							<
 						}
 					}
@@ -61126,6 +61136,11 @@ proc analyze {} {
 					}
 	
 					switch [Nv belong 514 0 {} {}] {
+						-1869686655 {
+							>
+								emit {version 1.1.43-1.1.45}
+							<
+						}
 						364020173 {
 							>
 								if {[N belong 2702 0 0 {} {} == 1437227610]} {
@@ -61164,11 +61179,6 @@ proc analyze {} {
 									<
 								}
 	
-							<
-						}
-						-1869686655 {
-							>
-								emit {version 1.1.43-1.1.45}
 							<
 						}
 					}
@@ -61279,7 +61289,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 0 0 0 & 4278190335 == 3271557353]} {
+	if {[N lelong 0 0 0 & -16776961 == -1023409943]} {
 		>
 			emit {Linux-Dev86 executable, headerless}
 			if {[S string 5 0 {} {} eq .]} {
@@ -61296,7 +61306,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 0 0 0 & 4278255615 == 67109633]} {
+	if {[N lelong 0 0 0 & -16711681 == 67109633]} {
 		>
 			emit {Linux-8086 executable}
 			if {[N byte 2 0 0 & 1 != 0]} {
@@ -61346,7 +61356,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 2 0 0 & 128 != 0]} {
+			if {[N byte 2 0 0 & -128 != 0]} {
 				>
 					emit {\b, A_TOVLY}
 				<
@@ -61935,7 +61945,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 4096 0 0 {} {} == 2838187772]} {
+	if {[N lelong 4096 0 0 {} {} == -1456779524]} {
 		>
 			emit {Linux Software RAID}
 			if {[N lelong 4100 0 0 {} {} x {}]} {
@@ -62255,7 +62265,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N lelong 0 0 0 & 4294967294 == 4277009102]} {
+	if {[N lelong 0 0 0 & -2 == -17958194]} {
 		>
 			emit Mach-O
 			U 135 mach-o-be 0
@@ -62265,7 +62275,15 @@ proc analyze {} {
 		<
 	}
 	
-	switch [Nv belong 0 0 & 4294967294] {
+	switch [Nv belong 0 0 & -2] {
+		-17958194 {
+			>
+				emit Mach-O
+				mime application/x-mach-binary
+				U 135 mach-o-be 0
+	
+			<
+		}
 		931071618 {
 			>
 				emit {SQLite Write-Ahead Log,}
@@ -62275,14 +62293,6 @@ proc analyze {} {
 						emit {version %d}
 					<
 				}
-	
-			<
-		}
-		-17958194 {
-			>
-				emit Mach-O
-				mime application/x-mach-binary
-				U 135 mach-o-be 0
 	
 			<
 		}
@@ -62430,6 +62440,53 @@ proc analyze {} {
 	}
 	
 	switch [Nv beshort 1024 0 {} {}] {
+		-11561 {
+			>
+				emit {Macintosh MFS data}
+				if {[N beshort 0 0 0 {} {} == 19531]} {
+					>
+						emit (bootable)
+					<
+				}
+	
+				if {[N beshort 1034 0 0 {} {} & -32768]} {
+					>
+						emit (locked)
+					<
+				}
+	
+				if {[N beldate 1026 0 0 - 2082844800 x {}]} {
+					>
+						emit {created: %s,}
+					<
+				}
+	
+				if {[N beldate 1030 0 0 - 2082844800 > 0]} {
+					>
+						emit {last backup: %s,}
+					<
+				}
+	
+				if {[N belong 1044 0 0 {} {} x {}]} {
+					>
+						emit {block size: %d,}
+					<
+				}
+	
+				if {[N beshort 1042 0 0 {} {} x {}]} {
+					>
+						emit {number of blocks: %d,}
+					<
+				}
+	
+				if {[S pstring 1060 0 {} {} x {}]} {
+					>
+						emit {volume name: %s}
+					<
+				}
+	
+			<
+		}
 		16964 {
 			>
 				if {[N ubeshort 1038 0 0 {} {} == 3]} {
@@ -62443,7 +62500,7 @@ proc analyze {} {
 									<
 								}
 	
-								if {[N beshort 1034 0 0 {} {} & 32768]} {
+								if {[N beshort 1034 0 0 {} {} & -32768]} {
 									>
 										emit (locked)
 									<
@@ -62552,19 +62609,19 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N bedate [R 18] 0 0 - 2082844800 x {}]} {
+				if {[N bedate [R 18] 0 0 - -20352 x {}]} {
 					>
 						emit {last modified: %s,}
 					<
 				}
 	
-				if {[N bedate [R 22] 0 0 - 2082844800 > 0]} {
+				if {[N bedate [R 22] 0 0 - -20352 > 0]} {
 					>
 						emit {last backup: %s,}
 					<
 				}
 	
-				if {[N bedate [R 26] 0 0 - 2082844800 > 0]} {
+				if {[N bedate [R 26] 0 0 - -20352 > 0]} {
 					>
 						emit {last checked: %s,}
 					<
@@ -62585,53 +62642,6 @@ proc analyze {} {
 				if {[N belong [R 46] 0 0 {} {} x {}]} {
 					>
 						emit {free blocks: %d}
-					<
-				}
-	
-			<
-		}
-		-11561 {
-			>
-				emit {Macintosh MFS data}
-				if {[N beshort 0 0 0 {} {} == 19531]} {
-					>
-						emit (bootable)
-					<
-				}
-	
-				if {[N beshort 1034 0 0 {} {} & 32768]} {
-					>
-						emit (locked)
-					<
-				}
-	
-				if {[N beldate 1026 0 0 - 2082844800 x {}]} {
-					>
-						emit {created: %s,}
-					<
-				}
-	
-				if {[N beldate 1030 0 0 - 2082844800 > 0]} {
-					>
-						emit {last backup: %s,}
-					<
-				}
-	
-				if {[N belong 1044 0 0 {} {} x {}]} {
-					>
-						emit {block size: %d,}
-					<
-				}
-	
-				if {[N beshort 1042 0 0 {} {} x {}]} {
-					>
-						emit {number of blocks: %d,}
-					<
-				}
-	
-				if {[S pstring 1060 0 {} {} x {}]} {
-					>
-						emit {volume name: %s}
 					<
 				}
 	
@@ -64146,6 +64156,16 @@ proc analyze {} {
 							}
 	
 							switch [Nv leshort [I 60 ulelong 0 + 0 4] 0 {} {}] {
+								-31132 {
+									>
+										emit x86-64
+									<
+								}
+								-16146 {
+									>
+										emit MSIL
+									<
+								}
 								332 {
 									>
 										emit {Intel 80386}
@@ -64229,16 +64249,6 @@ proc analyze {} {
 								3772 {
 									>
 										emit {EFI byte code}
-									<
-								}
-								-31132 {
-									>
-										emit x86-64
-									<
-								}
-								-16146 {
-									>
-										emit MSIL
 									<
 								}
 							}
@@ -64427,6 +64437,11 @@ proc analyze {} {
 						>
 							emit {\b, NE}
 							switch [Nv byte [I 60 ulelong 0 + 0 54] 0 {} {}] {
+								-127 {
+									>
+										emit {for MS-DOS, Phar Lap DOS extender}
+									<
+								}
 								1 {
 									>
 										emit {for OS/2 1.x}
@@ -64452,11 +64467,6 @@ proc analyze {} {
 										emit {for Borland Operating System Services}
 									<
 								}
-								-127 {
-									>
-										emit {for MS-DOS, Phar Lap DOS extender}
-									<
-								}
 							}
 	
 							if {[D [I 60 ulelong 0 + 0 54]]} {
@@ -64470,7 +64480,7 @@ proc analyze {} {
 								<
 							}
 	
-							switch [Nv leshort [I 60 ulelong 0 + 0 12] 0 & 32771] {
+							switch [Nv leshort [I 60 ulelong 0 + 0 12] 0 & -32765] {
 								-32767 {
 									>
 										emit (driver)
@@ -65188,7 +65198,7 @@ proc analyze {} {
 			>
 				if {[S string 0 0 {} {} ne \xb8\xc0\x07\x8e]} {
 					>
-						if {[N lelong 1 0 0 & 4294967294 == 567102718]} {
+						if {[N lelong 1 0 0 & -2 == 567102718]} {
 							>
 								emit {COM executable (32-bit COMBOOT}
 								switch [Nv lelong 1 0 {} {}] {
@@ -65357,7 +65367,7 @@ proc analyze {} {
 	
 	if {[S string 7 0 {} {} eq \xcd\x21]} {
 		>
-			if {[N byte 0 0 0 {} {} != 184]} {
+			if {[N byte 0 0 0 {} {} != -72]} {
 				>
 					emit {COM executable for DOS}
 				<
@@ -66338,13 +66348,13 @@ proc analyze {} {
 	if {[S string 0 0 b {} eq ISc(]} {
 		>
 			emit {InstallShield Cabinet archive data}
-			if {[N byte 5 0 0 & 240 == 96]} {
+			if {[N byte 5 0 0 & -16 == 96]} {
 				>
 					emit {version 6,}
 				<
 			}
 	
-			if {[N byte 5 0 0 & 240 != 96]} {
+			if {[N byte 5 0 0 & -16 != 96]} {
 				>
 					emit {version 4/5,}
 				<
@@ -66631,7 +66641,8 @@ proc analyze {} {
 														<
 													}
 	
-													T 128
+													emit {\b; }
+													T 128 {}
 	
 												<
 											}
@@ -66955,7 +66966,7 @@ proc analyze {} {
 	if {[S string 0 0 b {} eq KSSX]} {
 		>
 			emit {KSS music file v1.20}
-			if {[N byte 14 0 0 & 239 == 0]} {
+			if {[N byte 14 0 0 & -17 == 0]} {
 				>
 					switch [Nv byte 15 0 & 64] {
 						0 {
@@ -68243,13 +68254,13 @@ proc analyze {} {
 		8782087 {
 			>
 				emit {a.out NetBSD/i386}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68283,13 +68294,13 @@ proc analyze {} {
 		8782088 {
 			>
 				emit {a.out NetBSD/i386 pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68306,7 +68317,7 @@ proc analyze {} {
 		8782091 {
 			>
 				emit {a.out NetBSD/i386 demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -68329,7 +68340,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68363,13 +68374,13 @@ proc analyze {} {
 		8847623 {
 			>
 				emit {a.out NetBSD/m68k}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68403,13 +68414,13 @@ proc analyze {} {
 		8847624 {
 			>
 				emit {a.out NetBSD/m68k pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68426,7 +68437,7 @@ proc analyze {} {
 		8847627 {
 			>
 				emit {a.out NetBSD/m68k demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 8192]} {
 							>
@@ -68449,7 +68460,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68483,13 +68494,13 @@ proc analyze {} {
 		8913159 {
 			>
 				emit {a.out NetBSD/m68k4k}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68523,13 +68534,13 @@ proc analyze {} {
 		8913160 {
 			>
 				emit {a.out NetBSD/m68k4k pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68546,7 +68557,7 @@ proc analyze {} {
 		8913163 {
 			>
 				emit {a.out NetBSD/m68k4k demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 4096]} {
 							>
@@ -68569,7 +68580,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68603,13 +68614,13 @@ proc analyze {} {
 		8978695 {
 			>
 				emit {a.out NetBSD/ns32532}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68643,13 +68654,13 @@ proc analyze {} {
 		8978696 {
 			>
 				emit {a.out NetBSD/ns32532 pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68666,7 +68677,7 @@ proc analyze {} {
 		8978699 {
 			>
 				emit {a.out NetBSD/ns32532 demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -68689,7 +68700,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68723,13 +68734,13 @@ proc analyze {} {
 		9044231 {
 			>
 				emit {a.out NetBSD/SPARC}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68763,13 +68774,13 @@ proc analyze {} {
 		9044232 {
 			>
 				emit {a.out NetBSD/SPARC pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68786,7 +68797,7 @@ proc analyze {} {
 		9044235 {
 			>
 				emit {a.out NetBSD/SPARC demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 8192]} {
 							>
@@ -68809,7 +68820,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68843,13 +68854,13 @@ proc analyze {} {
 		9109767 {
 			>
 				emit {a.out NetBSD/pmax}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -68883,13 +68894,13 @@ proc analyze {} {
 		9109768 {
 			>
 				emit {a.out NetBSD/pmax pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68906,7 +68917,7 @@ proc analyze {} {
 		9109771 {
 			>
 				emit {a.out NetBSD/pmax demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -68929,7 +68940,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -68963,13 +68974,13 @@ proc analyze {} {
 		9175303 {
 			>
 				emit {a.out NetBSD/vax 1k}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -69003,13 +69014,13 @@ proc analyze {} {
 		9175304 {
 			>
 				emit {a.out NetBSD/vax 1k pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69026,7 +69037,7 @@ proc analyze {} {
 		9175307 {
 			>
 				emit {a.out NetBSD/vax 1k demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -69049,7 +69060,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69100,13 +69111,13 @@ proc analyze {} {
 		9306375 {
 			>
 				emit {a.out NetBSD/mips}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -69140,13 +69151,13 @@ proc analyze {} {
 		9306376 {
 			>
 				emit {a.out NetBSD/mips pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69163,7 +69174,7 @@ proc analyze {} {
 		9306379 {
 			>
 				emit {a.out NetBSD/mips demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N belong 20 0 0 {} {} < 8192]} {
 							>
@@ -69186,7 +69197,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69220,13 +69231,13 @@ proc analyze {} {
 		9371911 {
 			>
 				emit {a.out NetBSD/arm32}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -69260,13 +69271,13 @@ proc analyze {} {
 		9371912 {
 			>
 				emit {a.out NetBSD/arm32 pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69283,7 +69294,7 @@ proc analyze {} {
 		9371915 {
 			>
 				emit {a.out NetBSD/arm32 demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -69306,7 +69317,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69351,13 +69362,13 @@ proc analyze {} {
 		9830663 {
 			>
 				emit {a.out NetBSD/vax 4k}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						if {[N byte 0 0 0 {} {} & 64]} {
 							>
@@ -69391,13 +69402,13 @@ proc analyze {} {
 		9830664 {
 			>
 				emit {a.out NetBSD/vax 4k pure}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						emit {dynamically linked executable}
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69414,7 +69425,7 @@ proc analyze {} {
 		9830667 {
 			>
 				emit {a.out NetBSD/vax 4k demand paged}
-				if {[N byte 0 0 0 {} {} & 128]} {
+				if {[N byte 0 0 0 {} {} & -128]} {
 					>
 						if {[N lelong 20 0 0 {} {} < 4096]} {
 							>
@@ -69437,7 +69448,7 @@ proc analyze {} {
 					<
 				}
 	
-				if {[N byte 0 0 0 {} {} ^ 128]} {
+				if {[N byte 0 0 0 {} {} ^ -128]} {
 					>
 						emit executable
 					<
@@ -69646,7 +69657,7 @@ proc analyze {} {
 				}
 			}
 	
-			switch [Nv belong 0 0 & 4227858432] {
+			switch [Nv belong 0 0 & -67108864] {
 				67108864 {
 					>
 						emit {\b, CPU}
@@ -70090,13 +70101,18 @@ proc analyze {} {
 							}
 						}
 	
-						if {[N leshort 16 0 0 {} {} & 65280]} {
+						if {[N leshort 16 0 0 {} {} & -256]} {
 							>
 								emit processor-specific,
 							<
 						}
 	
 						switch [Nv leshort 18 0 {} {}] {
+							-28634 {
+								>
+									emit Alpha,
+								<
+							}
 							0 {
 								>
 									emit {no machine,}
@@ -70182,11 +70198,6 @@ proc analyze {} {
 									emit PowerPC,
 								<
 							}
-							-28634 {
-								>
-									emit Alpha,
-								<
-							}
 						}
 	
 						switch [Nv lelong 20 0 {} {}] {
@@ -70253,13 +70264,18 @@ proc analyze {} {
 							}
 						}
 	
-						if {[N beshort 16 0 0 {} {} & 65280]} {
+						if {[N beshort 16 0 0 {} {} & -256]} {
 							>
 								emit processor-specific,
 							<
 						}
 	
 						switch [Nv beshort 18 0 {} {}] {
+							-28634 {
+								>
+									emit Alpha,
+								<
+							}
 							0 {
 								>
 									emit {no machine,}
@@ -70363,11 +70379,6 @@ proc analyze {} {
 							36 {
 								>
 									emit {cisco 12000,}
-								<
-							}
-							-28634 {
-								>
-									emit Alpha,
 								<
 							}
 						}
@@ -70964,7 +70975,7 @@ proc analyze {} {
 	
 	if {[S string 60 0 {} {} eq libr]} {
 		>
-			if {[N beshort 32 0 0 & 65470 == 0]} {
+			if {[N beshort 32 0 0 & -66 == 0]} {
 				>
 					if {[S string 0 0 {} {} > \0]} {
 						>
@@ -71005,7 +71016,7 @@ proc analyze {} {
 	if {[N beshort 0 0 0 & 4095 == 2766]} {
 		>
 			emit PARIX
-			switch [Nv byte 0 0 & 240] {
+			switch [Nv byte 0 0 & -16] {
 				-128 {
 					>
 						emit T800
@@ -71793,6 +71804,11 @@ proc analyze {} {
 					}
 	
 					switch [Nv byte 20 0 {} {}] {
+						-1 {
+							>
+								emit {unknown format,}
+							<
+						}
 						0 {
 							>
 								emit bitmap,
@@ -71891,11 +71907,6 @@ proc analyze {} {
 						20 {
 							>
 								emit {RGB color 16,}
-							<
-						}
-						-1 {
-							>
-								emit {unknown format,}
 							<
 						}
 					}
@@ -72035,7 +72046,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 142 0 0 {} {} == 210]} {
+			if {[N byte 142 0 0 {} {} == -46]} {
 				>
 					emit .
 				<
@@ -72112,7 +72123,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 271 0 0 {} {} == 210]} {
+			if {[N byte 271 0 0 {} {} == -46]} {
 				>
 					emit .
 				<
@@ -72189,7 +72200,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 399 0 0 {} {} == 210]} {
+			if {[N byte 399 0 0 {} {} == -46]} {
 				>
 					emit .
 				<
@@ -72266,7 +72277,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 527 0 0 {} {} == 210]} {
+			if {[N byte 527 0 0 {} {} == -46]} {
 				>
 					emit .
 				<
@@ -72343,7 +72354,7 @@ proc analyze {} {
 				<
 			}
 	
-			if {[N byte 1039 0 0 {} {} == 210]} {
+			if {[N byte 1039 0 0 {} {} == -46]} {
 				>
 					emit .
 				<
@@ -74918,7 +74929,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N belong 3 0 0 {} {} == 2219836710]} {
+	if {[N belong 3 0 0 {} {} == -2075130586]} {
 		>
 			emit {PCP archive}
 			if {[N byte 7 0 0 {} {} x {}]} {
@@ -75747,7 +75758,7 @@ proc analyze {} {
 	if {[S string 0 0 {} {} eq :)\n]} {
 		>
 			emit {Smile binary data}
-			if {[N byte 3 0 0 & 240 x {}]} {
+			if {[N byte 3 0 0 & -16 x {}]} {
 				>
 					emit {version %d:}
 				<
@@ -76761,7 +76772,8 @@ proc analyze {} {
 			emit {Panasonic channel list DataBase}
 			if {[S string 126 0 {} {} eq SQLite\ format\ 3]} {
 				>
-					T [R -15]
+					emit {\b; contains}
+					T [R -15] {}
 	
 				<
 			}
@@ -78205,7 +78217,7 @@ proc analyze {} {
 				}
 			}
 	
-			switch [Nv belong 1 0 & 4294967040] {
+			switch [Nv belong 1 0 & -256] {
 				29696 {
 					>
 						emit {Ta Horng}
@@ -80225,16 +80237,6 @@ proc analyze {} {
 			}
 	
 			switch [Nv byte 48 0 {} {}] {
-				115 {
-					>
-						emit {device: TI-83+,}
-					<
-				}
-				116 {
-					>
-						emit {device: TI-73,}
-					<
-				}
 				-120 {
 					>
 						emit {device: TI-92+,}
@@ -80243,6 +80245,16 @@ proc analyze {} {
 				-104 {
 					>
 						emit {device: TI-89,}
+					<
+				}
+				115 {
+					>
+						emit {device: TI-83+,}
+					<
+				}
+				116 {
+					>
+						emit {device: TI-73,}
 					<
 				}
 			}
@@ -82019,11 +82031,6 @@ proc analyze {} {
 		>
 			emit {MS Outlook Express DBX file}
 			switch [Nv byte 4 0 {} {}] {
-				48 {
-					>
-						emit {\b, offline database}
-					<
-				}
 				-59 {
 					>
 						emit {\b, message database}
@@ -82037,6 +82044,11 @@ proc analyze {} {
 				-57 {
 					>
 						emit {\b, account information}
+					<
+				}
+				48 {
+					>
+						emit {\b, offline database}
 					<
 				}
 			}
@@ -82601,7 +82613,7 @@ proc analyze {} {
 		<
 	}
 	
-	if {[N leshort 0 0 0 & 65278 == 0]} {
+	if {[N leshort 0 0 0 & -258 == 0]} {
 		>
 			if {[N ulelong 4 0 0 & 4244635136 == 0]} {
 				>
@@ -84451,15 +84463,15 @@ proc analyze {} {
 				<
 			}
 	
-			switch [Nv leshort 6 0 & 32768] {
-				0 {
-					>
-						emit 6502,
-					<
-				}
+			switch [Nv leshort 6 0 & -32768] {
 				-32768 {
 					>
 						emit 65816,
+					<
+				}
+				0 {
+					>
+						emit 6502,
 					<
 				}
 			}
