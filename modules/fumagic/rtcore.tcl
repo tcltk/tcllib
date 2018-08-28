@@ -126,6 +126,9 @@ namespace eval ::fileutil::magic::rt {
     namespace export file_start result
     namespace export emit ext mime new offset strength \
 	D Nv N O S Nvx Nx Sx L R T I U < >
+
+    namespace eval _ {}
+
 }
 
 
@@ -256,8 +259,13 @@ proc ::fileutil::magic::rt::mime value {
 }
 
 
-# level #1 of a coroutine
 proc ::fileutil::magic::rt::new {finfo chan named tests} {
+    coroutine _::[info cmdcount] [list [
+	namespace which coro]] $finfo $chan $named $tests
+}
+
+# level #1 of a coroutine
+proc ::fileutil::magic::rt::coro {finfo chan named tests} {
     array set cache {}	    ; # Cache of fetched and decoded numeric
 			    ; # values.
 
@@ -293,6 +301,8 @@ proc ::fileutil::magic::rt::new {finfo chan named tests} {
     set typematch(0) 0
 
     yield [info coroutine]
+    yield $class
+
     if {[string length $strbuf] == 0} {
 	yield [list 0 empty {} {}]
     } else {
