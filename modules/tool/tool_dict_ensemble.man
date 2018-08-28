@@ -15,7 +15,7 @@ a public variable (stored as a dict), and an access function to manipulated and
 access the values stored in that dict.
 [list_begin definitions]
 
-[call [emph object] [arg ensemble] [cmd add] [arg field]]] [arg value] [arg {value ...}]]
+[call [emph object] [arg ensemble] [cmd add] [arg field] [arg value] [arg {value ...}]]
 
 Adds elements to a list maintained with the [arg field] leaf of the dict maintained
 my this ensemble.

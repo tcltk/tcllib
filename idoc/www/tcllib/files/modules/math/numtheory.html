@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html><head>
 <title>math::numtheory - Tcl Math Library</title>
 <style type="text/css"><!--
@@ -107,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::numtheory(n) 1.0 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::numtheory(n) 1.1.1 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::numtheory - Number Theory</p>
 </div>
@@ -126,24 +127,26 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.5?</span></b></li>
-<li>package require <b class="pkgname">math::numtheory <span class="opt">?1.0?</span></b></li>
+<li>package require <b class="pkgname">math::numtheory <span class="opt">?1.1.1?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">math::numtheory::isprime</b> <i class="arg">N</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></li>
 <li><a href="#2"><b class="cmd">math::numtheory::firstNprimes</b> <i class="arg">N</i></a></li>
 <li><a href="#3"><b class="cmd">math::numtheory::primesLowerThan</b> <i class="arg">N</i></a></li>
 <li><a href="#4"><b class="cmd">math::numtheory::primeFactors</b> <i class="arg">N</i></a></li>
-<li><a href="#5"><b class="cmd">math::numtheory::uniquePrimeFactors</b> <i class="arg">N</i></a></li>
-<li><a href="#6"><b class="cmd">math::numtheory::factors</b> <i class="arg">N</i></a></li>
-<li><a href="#7"><b class="cmd">math::numtheory::totient</b> <i class="arg">N</i></a></li>
-<li><a href="#8"><b class="cmd">math::numtheory::moebius</b> <i class="arg">N</i></a></li>
-<li><a href="#9"><b class="cmd">math::numtheory::legendre</b> <i class="arg">a</i> <i class="arg">p</i></a></li>
-<li><a href="#10"><b class="cmd">math::numtheory::jacobi</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
-<li><a href="#11"><b class="cmd">math::numtheory::gcd</b> <i class="arg">m</i> <i class="arg">n</i></a></li>
-<li><a href="#12"><b class="cmd">math::numtheory::lcm</b> <i class="arg">m</i> <i class="arg">n</i></a></li>
-<li><a href="#13"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></li>
-<li><a href="#14"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></li>
-<li><a href="#15"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></li>
+<li><a href="#5"><b class="cmd">math::numtheory::primesLowerThan</b> <i class="arg">N</i></a></li>
+<li><a href="#6"><b class="cmd">math::numtheory::primeFactors</b> <i class="arg">N</i></a></li>
+<li><a href="#7"><b class="cmd">math::numtheory::uniquePrimeFactors</b> <i class="arg">N</i></a></li>
+<li><a href="#8"><b class="cmd">math::numtheory::factors</b> <i class="arg">N</i></a></li>
+<li><a href="#9"><b class="cmd">math::numtheory::totient</b> <i class="arg">N</i></a></li>
+<li><a href="#10"><b class="cmd">math::numtheory::moebius</b> <i class="arg">N</i></a></li>
+<li><a href="#11"><b class="cmd">math::numtheory::legendre</b> <i class="arg">a</i> <i class="arg">p</i></a></li>
+<li><a href="#12"><b class="cmd">math::numtheory::jacobi</b> <i class="arg">a</i> <i class="arg">b</i></a></li>
+<li><a href="#13"><b class="cmd">math::numtheory::gcd</b> <i class="arg">m</i> <i class="arg">n</i></a></li>
+<li><a href="#14"><b class="cmd">math::numtheory::lcm</b> <i class="arg">m</i> <i class="arg">n</i></a></li>
+<li><a href="#15"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></li>
+<li><a href="#16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></li>
+<li><a href="#17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></li>
 </ul>
 </div>
 </div>
@@ -196,32 +199,44 @@ a slight bias to prime numbers.</p>
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number to be factorised</p></dd>
 </dl></dd>
-<dt><a name="5"><b class="cmd">math::numtheory::uniquePrimeFactors</b> <i class="arg">N</i></a></dt>
+<dt><a name="5"><b class="cmd">math::numtheory::primesLowerThan</b> <i class="arg">N</i></a></dt>
+<dd><p>Return the prime numbers lower/equal to N</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">N</i> (in)</dt>
+<dd><p>Maximum number to consider</p></dd>
+</dl></dd>
+<dt><a name="6"><b class="cmd">math::numtheory::primeFactors</b> <i class="arg">N</i></a></dt>
+<dd><p>Return a list of the prime numbers in the number N</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">N</i> (in)</dt>
+<dd><p>Number to be factorised</p></dd>
+</dl></dd>
+<dt><a name="7"><b class="cmd">math::numtheory::uniquePrimeFactors</b> <i class="arg">N</i></a></dt>
 <dd><p>Return a list of the <em>unique</em> prime numbers in the number N</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number to be factorised</p></dd>
 </dl></dd>
-<dt><a name="6"><b class="cmd">math::numtheory::factors</b> <i class="arg">N</i></a></dt>
+<dt><a name="8"><b class="cmd">math::numtheory::factors</b> <i class="arg">N</i></a></dt>
 <dd><p>Return a list of all <em>unique</em> factors in the number N, including 1 and N itself</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number to be factorised</p></dd>
 </dl></dd>
-<dt><a name="7"><b class="cmd">math::numtheory::totient</b> <i class="arg">N</i></a></dt>
+<dt><a name="9"><b class="cmd">math::numtheory::totient</b> <i class="arg">N</i></a></dt>
 <dd><p>Evaluate the Euler totient function for the number N (number of numbers
 relatively prime to N)</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number in question</p></dd>
 </dl></dd>
-<dt><a name="8"><b class="cmd">math::numtheory::moebius</b> <i class="arg">N</i></a></dt>
+<dt><a name="10"><b class="cmd">math::numtheory::moebius</b> <i class="arg">N</i></a></dt>
 <dd><p>Evaluate the Moebius function for the number N</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number in question</p></dd>
 </dl></dd>
-<dt><a name="9"><b class="cmd">math::numtheory::legendre</b> <i class="arg">a</i> <i class="arg">p</i></a></dt>
+<dt><a name="11"><b class="cmd">math::numtheory::legendre</b> <i class="arg">a</i> <i class="arg">p</i></a></dt>
 <dd><p>Evaluate the Legendre symbol (a/p)</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">a</i> (in)</dt>
@@ -229,7 +244,7 @@ relatively prime to N)</p>
 <dt>integer <i class="arg">p</i> (in)</dt>
 <dd><p>Lower number in the symbol (must be non-zero)</p></dd>
 </dl></dd>
-<dt><a name="10"><b class="cmd">math::numtheory::jacobi</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
+<dt><a name="12"><b class="cmd">math::numtheory::jacobi</b> <i class="arg">a</i> <i class="arg">b</i></a></dt>
 <dd><p>Evaluate the Jacobi symbol (a/b)</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">a</i> (in)</dt>
@@ -237,7 +252,7 @@ relatively prime to N)</p>
 <dt>integer <i class="arg">b</i> (in)</dt>
 <dd><p>Lower number in the symbol (must be odd)</p></dd>
 </dl></dd>
-<dt><a name="11"><b class="cmd">math::numtheory::gcd</b> <i class="arg">m</i> <i class="arg">n</i></a></dt>
+<dt><a name="13"><b class="cmd">math::numtheory::gcd</b> <i class="arg">m</i> <i class="arg">n</i></a></dt>
 <dd><p>Return the greatest common divisor of <i class="term">m</i> and <i class="term">n</i></p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">m</i> (in)</dt>
@@ -245,7 +260,7 @@ relatively prime to N)</p>
 <dt>integer <i class="arg">n</i> (in)</dt>
 <dd><p>Second number</p></dd>
 </dl></dd>
-<dt><a name="12"><b class="cmd">math::numtheory::lcm</b> <i class="arg">m</i> <i class="arg">n</i></a></dt>
+<dt><a name="14"><b class="cmd">math::numtheory::lcm</b> <i class="arg">m</i> <i class="arg">n</i></a></dt>
 <dd><p>Return the lowest common multiple of <i class="term">m</i> and <i class="term">n</i></p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">m</i> (in)</dt>
@@ -253,19 +268,19 @@ relatively prime to N)</p>
 <dt>integer <i class="arg">n</i> (in)</dt>
 <dd><p>Second number</p></dd>
 </dl></dd>
-<dt><a name="13"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></dt>
+<dt><a name="15"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the formula by Gauss.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number in question</p></dd>
 </dl></dd>
-<dt><a name="14"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></dt>
+<dt><a name="16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
 <dd><p>Number in question</p></dd>
 </dl></dd>
-<dt><a name="15"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></dt>
+<dt><a name="17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the modified formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
@@ -288,7 +303,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key782">number theory</a>, <a href="../../../../index.html#key783">prime</a></p>
+<p><a href="../../../../index.html#number_theory">number theory</a>, <a href="../../../../index.html#prime">prime</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>

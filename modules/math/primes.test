@@ -1,3 +1,18 @@
+## 
+## This is the file `primes.test',
+## generated with the SAK utility
+## (sak docstrip/regen).
+## 
+## The original source files were:
+## 
+## numtheory.dtx  (with options: `test_primes test_common')
+## 
+## In other words:
+## **************************************
+## * This Source is not the True Source *
+## **************************************
+## the true source is the file from which this one was generated.
+##
 # -*- tcl -*-
 # primes.test --
 #    Additional test cases for the ::math::numtheory package
@@ -8,9 +23,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-        [file dirname [file dirname [file join [pwd] [info script]]]] \
-        devtools testutilities.tcl]
+source [file join\
+  [file dirname [file dirname [file join [pwd] [info script]]]]\
+  devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2.1
@@ -18,6 +33,7 @@ testsNeedTcltest 2.1
 support {
     useLocal math.tcl math
 }
+
 testing {
     useLocal numtheory.tcl math::numtheory
 }
@@ -77,6 +93,18 @@ test prime-factors-3 "Prime factors 2900" -match equalLists -body {
 test prime-factors-4 "Unique prime factors 2900" -match equalLists -body {
     ::math::numtheory::uniquePrimeFactors 2900
 } -result {2 5 29}
+
+test prime-factors-5 "Prime factors 964" -match equalLists -body {
+    ::math::numtheory::primeFactors 964
+} -result {2 2 241}
+
+test prime-factors-6 "Prime factors 960" -match equalLists -body {
+    ::math::numtheory::primeFactors 960
+} -result {2 2 2 2 2 2 3 5}
+
+test prime-factors-7 "Prime factors 914" -match equalLists -body {
+    ::math::numtheory::primeFactors 914
+} -result {2 457}
 
 test totient-1 "Totient 15" -body {
     ::math::numtheory::totient 15
@@ -159,3 +187,7 @@ test number-primes "Exercise prime estimators" -match equalLists -body {
     set estimate3 [::math::numtheory::numberPrimesLegendreModified 1000]
     set result [list [expr {int($estimate1)}] [expr {int($estimate2)}] [expr {int($estimate3)}]]
 } -result {144 169 171}
+testsuiteCleanup
+## 
+## 
+## End of file `primes.test'.

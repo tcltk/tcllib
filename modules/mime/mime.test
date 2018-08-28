@@ -16,7 +16,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 1.0-
 
 support {
     # This code loads md5x, i.e. md5 v2. Proper testing should do one
@@ -261,7 +261,7 @@ test mime-4.3 {mime::decode data that might come from an MUA} {
 } "I'm the \" message with some new lines but with some extra space, too."
 
 test mime-4.4 {Test qp_encode with non-US_ASCCI characters.} {
-    set str1 "Test de caractères accentués : â î é ç et quelques contrôles \"\[|\]()\""
+    set str1 "Test de caractÃ¨res accentuÃ©s : Ã¢ Ã® Ã© Ã§ et quelques contrÃ´les \"\[|\]()\""
     mime::qp_encode $str1
 } "Test de caract=E8res accentu=E9s : =E2 =EE =E9 =E7 et quelques contr=F4le=\ns =22=5B=7C=5D()=22"
 
@@ -281,22 +281,22 @@ test mime-4.6 {Test qp_encode with softbreak} {
 
 
 test mime-5.1 {Test word_encode with quoted-printable method} {
-    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué"
+    mime::word_encode iso8859-1 quoted-printable "Test de contrÃ´le effectuÃ©"
 } "=?ISO-8859-1?Q?Test_de_contr=F4le_effectu=E9?="
 
 test mime-5.2 {Test word_encode with base64 method} {
-    mime::word_encode iso8859-1 base64 "Test de contrôle effectué"
+    mime::word_encode iso8859-1 base64 "Test de contrÃ´le effectuÃ©"
 } "=?ISO-8859-1?B?VGVzdCBkZSBjb250cvRsZSBlZmZlY3R16Q==?="
 
 test mime-5.3 {Test encode+decode with quoted-printable method} {
-    set enc [mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué"]
+    set enc [mime::word_encode iso8859-1 quoted-printable "Test de contrÃ´le effectuÃ©"]
     mime::word_decode $enc
-} {iso8859-1 quoted-printable {Test de contrôle effectué}}
+} {iso8859-1 quoted-printable {Test de contrÃ´le effectuÃ©}}
 
 test mime-5.4 {Test encode+decode with base64 method} {
-    set enc [mime::word_encode iso8859-1 base64 "Test de contrôle effectué"]
+    set enc [mime::word_encode iso8859-1 base64 "Test de contrÃ´le effectuÃ©"]
     mime::word_decode $enc
-} {iso8859-1 base64 {Test de contrôle effectué}}
+} {iso8859-1 base64 {Test de contrÃ´le effectuÃ©}}
 
 test mime-5.5 {Test decode with lowercase quoted-printable method} {
 	mime::word_decode "=?ISO-8859-1?q?Test_lowercase_q?="
@@ -307,13 +307,13 @@ test mime-5.6 {Test decode with lowercase base64 method} {
 } {iso8859-1 base64 {Test lowercase b}}
 
 test mime-5.7 {Test word_encode with quoted-printable method across encoded word boundaries} {
-    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué" -maxlength 31
+    mime::word_encode iso8859-1 quoted-printable "Test de contrÃ´le effectuÃ©" -maxlength 31
 } "=?ISO-8859-1?Q?Test_de_contr?=
  =?ISO-8859-1?Q?=F4le_effectu?=
  =?ISO-8859-1?Q?=E9?="
 
 test mime-5.8 {Test word_encode with quoted-printable method across encoded word boundaries} {
-    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué" -maxlength 32
+    mime::word_encode iso8859-1 quoted-printable "Test de contrÃ´le effectuÃ©" -maxlength 32
 } "=?ISO-8859-1?Q?Test_de_contr?=
  =?ISO-8859-1?Q?=F4le_effectu?=
  =?ISO-8859-1?Q?=E9?="
@@ -438,7 +438,7 @@ test mime-6.1 {Test field_decode (from RFC 2047, part 8)} {
 
 test mime-6.2 {Test field_decode (from RFC 2047, part 8)} {
     mime::field_decode {=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>}
-} {Patrik Fältström <paf@nada.kth.se>}
+} {Patrik FÃ¤ltstrÃ¶m <paf@nada.kth.se>}
 
 test mime-6.3 {Test field_decode (from RFC 2047, part 8)} {
     mime::field_decode {=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
@@ -474,7 +474,7 @@ foreach {n encoded expected} {
 }
 
 foreach {bug n encoded expected} {
-    764702 1 "(=?utf-8?Q?H=C3=BCrz?=)" "(Hürz)"
+    764702 1 "(=?utf-8?Q?H=C3=BCrz?=)" "(HÃ¼rz)"
 } {
     test mime-7.$n "Test field_decode (from SF Tcllib bug $bug)" {
 	mime::field_decode $encoded
@@ -602,6 +602,22 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
     set parts [mime::getproperty $token parts]
     mime::getheader [lindex $parts end] Remote-MTA
 } 53.24.282.150
+
+# -------------------------------------------------------------------------
+
+
+test mime-13.0 {
+    issue a16b1095974e071d
+} {
+    set msg "MIME-Version: 1.0
+Content-Type: text/plain\r
+\r
+so plain
+"
+
+    set tok [mime::initialize -string $msg]
+	mime::getbody $tok
+} "so plain\n"
 
 # -------------------------------------------------------------------------
 

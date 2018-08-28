@@ -361,6 +361,8 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::kernel-density\fR \fIdata\fR opt \fI-option value\fR \&.\&.\&.
 .sp
+\fB::math::statistics::bootstrap\fR \fIdata\fR \fIsampleSize\fR ?numberSamples?
+.sp
 \fB::math::statistics::tstat\fR \fIdof\fR ?alpha?
 .sp
 \fB::math::statistics::mv-wls\fR \fIwt1\fR \fIweights_and_values\fR
@@ -838,7 +840,6 @@ list \fIargs\fR
 \fB::math::statistics::quantiles\fR \fIdata\fR \fIconfidence\fR
 Return the quantiles for a given set of data
 .RS
-.sp
 .TP
 list \fIdata\fR
 - List of raw data values
@@ -1175,7 +1176,6 @@ list \fIsample_b\fR
 .RE
 .TP
 \fB::math::statistics::kernel-density\fR \fIdata\fR opt \fI-option value\fR \&.\&.\&.
-]
 Return the density function based on kernel density estimation\&. The procedure is controlled by
 a small set of options, each of which is given a reasonable default\&.
 .sp
@@ -1208,6 +1208,22 @@ which the density is returned (default: mean +/- 3*standard deviation)
 Kernel to be used (One of: gaussian, cosine,
 epanechnikov, uniform, triangular, biweight, logistic; default: gaussian)
 .RE
+.RE
+.TP
+\fB::math::statistics::bootstrap\fR \fIdata\fR \fIsampleSize\fR ?numberSamples?
+Create a subsample or subsamples from a given list of data\&. The data in the samples are chosen
+from this list - multiples may occur\&. If there is only one subsample, the sample itself
+is returned (as a list of "sampleSize" values), otherwise a list of samples is returned\&.
+.RS
+.TP
+list \fIdata\fR
+List of values to chose from
+.TP
+int \fIsampleSize\fR
+Number of values per sample
+.TP
+int \fInumberSamples\fR
+Number of samples (default: 1)
 .RE
 .PP
 .SH "MULTIVARIATE LINEAR REGRESSION"

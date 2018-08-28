@@ -170,10 +170,10 @@ many other well tested and security audited programs that can be used
 as mail servers for internet connected hosts.</p>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -181,8 +181,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -212,13 +212,13 @@ usage.</p>
 <p>As the server code uses <b class="cmd">fileevent</b>(n) handlers to process the
 input on sockets you will need to run the event loop. This means
 either you should be running from within <b class="syscmd">wish</b>(1) or you
-should <b class="cmd"><a href="../../../../index.html#key419">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
+should <b class="cmd"><a href="../../../../index.html#vwait">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
 set when the server is stopped.</p></dd>
 <dt><a name="2"><b class="cmd">::smtpd::stop</b></a></dt>
 <dd><p>Halt the server and release the listening socket. If the server has
 not been started then this command does nothing.
 The <b class="variable">::smtpd::stopped</b> variable is set for use with
-<b class="cmd"><a href="../../../../index.html#key419">vwait</a></b>(n).</p>
+<b class="cmd"><a href="../../../../index.html#vwait">vwait</a></b>(n).</p>
 <p>It should be noted that stopping the server does not disconnect any
 currently active sessions as these are operating over an independent
 channel. Only explicitly tracking and closing these sessions, or
@@ -300,8 +300,7 @@ callback and permits you to verify a local mailbox and accept mail for
 a local user address during RCPT command handling. To reject mail,
 throw an error as above. The error message is ignored.</p></dd>
 <dt><b class="cmd">deliverMIME</b> callback</dt>
-<dd><p>]
-The deliverMIME callback is called once a mail message has been
+<dd><p>The deliverMIME callback is called once a mail message has been
 successfully passed to the server. A mime token is constructed from
 the sender, recipients and data and the users procedure it called with
 this single argument. When the call returns, the mime token is cleaned
@@ -336,7 +335,7 @@ recipient has yet been defined.</p></dd>
 <dl class="doctools_definitions">
 <dt><b class="variable">::smtpd::stopped</b></dt>
 <dd><p>This variable is set to <b class="const">true</b> during the <b class="cmd">::smtpd::stop</b>
-command to permit the use of the <b class="cmd"><a href="../../../../index.html#key419">vwait</a></b>(n) command.</p></dd>
+command to permit the use of the <b class="cmd"><a href="../../../../index.html#vwait">vwait</a></b>(n) command.</p></dd>
 </dl>
 </div>
 <div id="section7" class="doctools_section"><h2><a name="section7">AUTHOR</a></h2>
@@ -363,7 +362,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key329">rfc 2821</a>, <a href="../../../../index.html#key332">rfc 821</a>, <a href="../../../../index.html#key613">services</a>, <a href="../../../../index.html#key337">smtp</a>, <a href="../../../../index.html#key679">smtpd</a>, <a href="../../../../index.html#key353">socket</a>, <a href="../../../../index.html#key419">vwait</a></p>
+<p><a href="../../../../index.html#rfc_2821">rfc 2821</a>, <a href="../../../../index.html#rfc_821">rfc 821</a>, <a href="../../../../index.html#services">services</a>, <a href="../../../../index.html#smtp">smtp</a>, <a href="../../../../index.html#smtpd">smtpd</a>, <a href="../../../../index.html#socket">socket</a>, <a href="../../../../index.html#vwait">vwait</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

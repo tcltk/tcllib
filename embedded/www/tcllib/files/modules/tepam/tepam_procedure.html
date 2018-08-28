@@ -260,9 +260,9 @@ tepam::procedure <b class="function">{display message}</b> {} {}</pre>
 }</pre>
 </dd>
 </dl>
-<p>The commands <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> as well as <b class="cmd">argument_dialogbox</b> are exported from the namespace <b class="namespace">tepam</b>. To use these commands without the <b class="namespace">tepam::</b> namespace prefix, it is sufficient to import them into the main namespace:</p>
+<p>The commands <b class="cmd"><a href="../../../../index.html#procedure">procedure</a></b> as well as <b class="cmd">argument_dialogbox</b> are exported from the namespace <b class="namespace">tepam</b>. To use these commands without the <b class="namespace">tepam::</b> namespace prefix, it is sufficient to import them into the main namespace:</p>
 <pre class="doctools_example"><b class="cmd">namespace import tepam::*</b>
-<b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> {display_message} {
+<b class="cmd"><a href="../../../../index.html#procedure">procedure</a></b> {display_message} {
    -args {
       ...</pre>
 <div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Procedure Attributes</a></h3>
@@ -346,7 +346,7 @@ in the NAME section of a generated procedure manual page.</p></dd>
 <dd><p>This is the simplest form of an argument name: An argument whose name is not starting with '-' is an <em>unnamed argument</em>. The parameter provided during a procedure call will be assigned to a variable with the name <em>&lt;Name&gt;</em>.</p>
 <pre class="doctools_example">tepam::procedure {print_string} {
    -args {
-      {<b class="cmd"><a href="../../../../index.html#key248">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
+      {<b class="cmd"><a href="../../../../index.html#text">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
    }
 } {
    puts <b class="cmd">$text</b>
@@ -710,7 +710,7 @@ tepam::procedure my_proc {
 <pre class="doctools_example">my_proc <b class="cmd">-n1 N1 -n2 N2 &quot;-&gt;&quot; &quot;&lt;-&quot;</b>
 <em>-&gt; my_proc: Argument '-&gt;' not known</em>
 set U1 &quot;-&gt;&quot;
-my_proc -n1 N1 -n2 N2 $U1 U2}]
+my_proc <b class="cmd">-n1 N1 -n2 N2 $U1 U2</b>
 my_proc: Argument '-&gt;' not known</pre>
 <p>The '--' flag allows separating unambiguously the unnamed arguments from the named arguments. All data after the '--' flag will be considered as unnamed argument:</p>
 <pre class="doctools_example">my_proc <b class="cmd">-n1 N1 -n2 N2 -- &quot;-&gt;&quot; &quot;&lt;-&quot;</b>
@@ -787,7 +787,7 @@ display_message -mtype Warning &quot;It is 7:00&quot;
 <p><a href="tepam_introduction.html">tepam(n)</a>, <a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key774">argument integrity</a>, <a href="../../../../index.html#key775">argument validation</a>, <a href="../../../../index.html#key773">arguments</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key772">subcommand</a></p>
+<p><a href="../../../../index.html#argument_integrity">argument integrity</a>, <a href="../../../../index.html#argument_validation">argument validation</a>, <a href="../../../../index.html#arguments">arguments</a>, <a href="../../../../index.html#procedure">procedure</a>, <a href="../../../../index.html#subcommand">subcommand</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>

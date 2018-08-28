@@ -1,12 +1,12 @@
-##
+## 
 ## This is the file `numtheory.tcl',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-##
+## 
 ## The original source files were:
-##
-## numtheory.dtx  (with options: `pkg')
-##
+## 
+## numtheory.dtx  (with options: `pkg pkg_common')
+## 
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -17,7 +17,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 package require Tcl 8.5
-package provide math::numtheory 1.1
+package provide math::numtheory 1.1.1
 namespace eval ::math::numtheory {
    namespace export isprime
 }
@@ -77,6 +77,6 @@ proc ::math::numtheory::isprime {n args} {
 # Add the additional procedures
 #
 source [file join [file dirname [info script]] primes.tcl]
-##
-##
+## 
+## 
 ## End of file `numtheory.tcl'.

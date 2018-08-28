@@ -203,6 +203,7 @@ modules/math/romberg.man
 modules/math/special.man
 modules/math/statistics.man
 modules/math/symdiff.man
+modules/math/trig.man
 modules/md4/md4.man
 modules/md5/md5.man
 modules/md5crypt/md5crypt.man
@@ -355,7 +356,6 @@ modules/textutil/trim.man
 modules/tie/tie.man
 modules/tie/tie_std.man
 modules/tiff/tiff.man
-modules/tool-ui/tool-ui.man
 modules/tool/meta.man
 modules/tool/tool.man
 modules/tool/tool_dict_ensemble.man

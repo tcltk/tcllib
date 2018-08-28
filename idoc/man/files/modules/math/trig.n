@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file 'tool-ui\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2014-2018 Sean Woods <yoda@etoyoc\&.com>
+'\" Generated from file 'trig\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2018 Arjen Markus
 '\"
-.TH "tool-ui" n 0\&.2\&.1 tcllib "Tao User Interface (TaoUI)"
+.TH "math::trig" n 1\&.0\&.0 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,28 +272,269 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tool-ui \- Abstractions to allow Tao to express Native Tk, HTML5, and Tao-Layout interfaces
+math::trig \- Trigonometric anf hyperbolic functions
 .SH SYNOPSIS
-package require \fBTcl  8\&.6\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBtool-ui  ?0\&.2\&.1?\fR
+package require \fBmath::trig  1\&.0\&.0\fR
+.sp
+\fB::math::trig::radian_reduced\fR \fIangle\fR
+.sp
+\fB::math::trig::degree_reduced\fR \fIangle\fR
+.sp
+\fB::math::trig::cosec\fR \fIangle\fR
+.sp
+\fB::math::trig::sec\fR \fIangle\fR
+.sp
+\fB::math::trig::cotan\fR \fIangle\fR
+.sp
+\fB::math::trig::acosec\fR \fIvalue\fR
+.sp
+\fB::math::trig::asec\fR \fIvalue\fR
+.sp
+\fB::math::trig::acotan\fR \fIvalue\fR
+.sp
+\fB::math::trig::cosech\fR \fIvalue\fR
+.sp
+\fB::math::trig::sech\fR \fIvalue\fR
+.sp
+\fB::math::trig::cotanh\fR \fIvalue\fR
+.sp
+\fB::math::trig::asinh\fR \fIvalue\fR
+.sp
+\fB::math::trig::acosh\fR \fIvalue\fR
+.sp
+\fB::math::trig::atanh\fR \fIvalue\fR
+.sp
+\fB::math::trig::acosech\fR \fIvalue\fR
+.sp
+\fB::math::trig::asech\fR \fIvalue\fR
+.sp
+\fB::math::trig::acotanh\fR \fIvalue\fR
+.sp
+\fB::math::trig::sind\fR \fIangle\fR
+.sp
+\fB::math::trig::cosd\fR \fIangle\fR
+.sp
+\fB::math::trig::tand\fR \fIangle\fR
+.sp
+\fB::math::trig::cosecd\fR \fIangle\fR
+.sp
+\fB::math::trig::secd\fR \fIangle\fR
+.sp
+\fB::math::trig::cotand\fR \fIangle\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtool-ui\fR package to allows Tao to express Native Tk, HTML5, and Tao-Layout interfaces\&.
+The \fImath::trig\fR package defines a set of trigonomic and hyperbolic functions
+and their inverses\&. In addition it defines versions of the trigonomic functions
+that take arguments in degrees instead of radians\&.
 .PP
-Code in this module returns only text and list values\&. It should not rely on the presence of Tk
-or a web backend\&.
-.SH COMMANDS
+For easy use these functions may be imported into the \fItcl::mathfunc\fR namespace,
+so that they can be used directly in the \fIexpr\fR command\&.
+.SH FUNCTIONS
+The functions \fIradian_reduced\fR and \fIdegree_reduced\fR return a reduced angle, in
+respectively radians and degrees, in the intervals [0, 2pi) and [0, 360):
+.TP
+\fB::math::trig::radian_reduced\fR \fIangle\fR
+Return the equivalent angle in the interval [0, 2pi)\&.
+.RS
+.TP
+float \fIangle\fR
+Angle (in radians)
+.RE
+.TP
+\fB::math::trig::degree_reduced\fR \fIangle\fR
+Return the equivalent angle in the interval [0, 360)\&.
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
 .PP
-.SH REFERENCES
-.SH AUTHORS
-Sean Woods
+The following trigonomic functions are defined in addition to the ones defined
+in the \fIexpr\fR command:
+.TP
+\fB::math::trig::cosec\fR \fIangle\fR
+Calculate the cosecant of the angle (1/cos(angle))
+.RS
+.TP
+float \fIangle\fR
+Angle (in radians)
+.RE
+.TP
+\fB::math::trig::sec\fR \fIangle\fR
+Calculate the secant of the angle (1/sin(angle))
+.RS
+.TP
+float \fIangle\fR
+Angle (in radians)
+.RE
+.TP
+\fB::math::trig::cotan\fR \fIangle\fR
+Calculate the cotangent of the angle (1/tan(angle))
+.RS
+.TP
+float \fIangle\fR
+Angle (in radians)
+.RE
+.PP
+For these functions also the inverses are defined:
+.TP
+\fB::math::trig::acosec\fR \fIvalue\fR
+Calculate the arc cosecant of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::asec\fR \fIvalue\fR
+Calculate the arc secant of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::acotan\fR \fIvalue\fR
+Calculate the arc cotangent of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.PP
+The following hyperbolic and inverse hyperbolic functions are defined:
+.TP
+\fB::math::trig::cosech\fR \fIvalue\fR
+Calculate the hyperbolic cosecant of the value (1/sinh(value))
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::sech\fR \fIvalue\fR
+Calculate the hyperbolic secant of the value (1/cosh(value))
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::cotanh\fR \fIvalue\fR
+Calculate the hyperbolic cotangent of the value (1/tanh(value))
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::asinh\fR \fIvalue\fR
+Calculate the arc hyperbolic sine of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::acosh\fR \fIvalue\fR
+Calculate the arc hyperbolic cosine of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::atanh\fR \fIvalue\fR
+Calculate the arc hyperbolic tangent of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::acosech\fR \fIvalue\fR
+Calculate the arc hyperbolic cosecant of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::asech\fR \fIvalue\fR
+Calculate the arc hyperbolic secant of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.TP
+\fB::math::trig::acotanh\fR \fIvalue\fR
+Calculate the arc hyperbolic cotangent of the value
+.RS
+.TP
+float \fIvalue\fR
+Value of the argument
+.RE
+.PP
+The following versions of the common trigonometric functions and their
+inverses are defined:
+.TP
+\fB::math::trig::sind\fR \fIangle\fR
+Calculate the sine of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
+.TP
+\fB::math::trig::cosd\fR \fIangle\fR
+Calculate the cosine of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in radians)
+.RE
+.TP
+\fB::math::trig::tand\fR \fIangle\fR
+Calculate the cotangent of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
+.TP
+\fB::math::trig::cosecd\fR \fIangle\fR
+Calculate the cosecant of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
+.TP
+\fB::math::trig::secd\fR \fIangle\fR
+Calculate the secant of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
+.TP
+\fB::math::trig::cotand\fR \fIangle\fR
+Calculate the cotangent of the angle (in degrees)
+.RS
+.TP
+float \fIangle\fR
+Angle (in degrees)
+.RE
+.PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fItool-ui\fR of the
+Please report such in the category \fImath :: trig\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
@@ -306,11 +547,11 @@ inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
 .SH KEYWORDS
-TclOO
+math, trigonometry
 .SH CATEGORY
-TclOO
+Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2014-2018 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2018 Arjen Markus
 
 .fi

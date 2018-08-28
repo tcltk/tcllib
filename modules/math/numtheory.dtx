@@ -1,11 +1,11 @@
 % 
 % \iffalse
 % 
-%<*pkg>
+%<*pkg_common>
 %% Copyright (c) 2010 by Lars Hellstrom.  All rights reserved.
 %% See the file "license.terms" for information on usage and redistribution
 %% of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-%</pkg>
+%</pkg_common>
 %<*driver>
 \documentclass{tclldoc}
 \usepackage{amsmath,amsfonts}
@@ -40,43 +40,122 @@ package require Tcl 8.5
 % so we require 8.5. There are (as yet) no explicit 8.5-isms in the 
 % code, however.
 % \begin{tcl}
-package provide math::numtheory 1.0
+package provide math::numtheory 1.1.1
 namespace eval ::math::numtheory {
    namespace export isprime
 }
 %</pkg>
 % \end{tcl}
+% Additional procedures are placed into a separate file primes.tcl,
+% sourced from the primary.
+% \begin{tcl}
+%<*pkg_primes>
+# primes.tcl --
+#     Provide additional procedures for the number theory package
+#
+namespace eval ::math::numtheory {
+    variable primes {2 3 5 7 11 13 17}
+    variable nextPrimeCandidate 19
+    variable nextPrimeIncrement  1 ;# Examine numbers 6n+1 and 6n+5
+
+    namespace export firstNprimes primesLowerThan primeFactors uniquePrimeFactors factors \
+                     totient moebius legendre jacobi gcd lcm \
+                     numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified
+}
+
+%</pkg_primes>
+% \end{tcl}
 % \setnamespace{math::numtheory}
 % 
 % \Tcl lib has its own test file boilerplate.
+% We require tcltest 2.1 to allow the definition of a custom matcher
+% comparing lists of integers
 % \begin{tcl}
-%<*test>
+%<*test_primes>
+# -*- tcl -*-
+# primes.test --
+#    Additional test cases for the ::math::numtheory package
+#
+# Note:
+#    The tests assume tcltest 2.1, in order to compare
+#    list of integer results
+
+# -------------------------------------------------------------------------
+
+%</test_primes>
+%<*test_common>
 source [file join\
   [file dirname [file dirname [file join [pwd] [info script]]]]\
   devtools testutilities.tcl]
+
 testsNeedTcl     8.5
-testsNeedTcltest 2
-testing {useLocal numtheory.tcl math::numtheory}
-%</test>
+testsNeedTcltest 2.1
+
+%</test_common>
+%<*test_primes>
+support {
+    useLocal math.tcl math
+}
+
+%</test_primes>
+%<*test_common>
+testing {
+    useLocal numtheory.tcl math::numtheory
+}
+
+%</test_common>
+% \end{tcl}
+% and a bit more for the additional tests. This is where tcltest 2.1
+% is required
+% \begin{tcl}
+%<*test_primes>
+proc matchLists { expected actual } {
+   set match 1
+   foreach a $actual e $expected {
+      if { $a != $e } {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+customMatch equalLists matchLists
+
+%</test_primes>
 % \end{tcl}
 % 
 % And the same is true for the manpage.
 % \begin{tcl}
 %<*man>
-[manpage_begin math::numtheory n 1.0]
+[comment {
+    __Attention__ This document is a generated file.
+    It is not the true source.
+    The true source is
+
+        numtheory.dtx
+
+    To make changes edit the true source, and then use
+    
+        sak.tcl docstrip/regen modules/math
+
+    to update all generated files.
+}]
+[vset VERSION 1.1.1]
+[manpage_begin math::numtheory n [vset VERSION]]
+[keywords {number theory}]
+[keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\ 
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc   {Tcl Math Library}]
 [titledesc {Number Theory}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::numtheory [opt 1.0]]
+[require math::numtheory [opt [vset VERSION]]]
 
 [description]
 [para]
-This package is for collecting various number-theoretic operations, 
-though at the moment it only provides that of testing whether an 
-integer is a prime.
+This package is for collecting various number-theoretic operations, with
+a slight bias to prime numbers.
 
 [list_begin definitions]
 %</man>
@@ -85,7 +164,7 @@ integer is a prime.
 % 
 % \section{Primes}
 % 
-% The first (and so far only) operation provided is |isprime|, which 
+% The first operation provided is |isprime|, which 
 % tests if an integer is a prime.
 % \begin{tcl}
 %<*man>
@@ -121,6 +200,217 @@ integer is a prime.
     default for [arg repetitions] is 4.
   [list_end]
   Unknown options are silently ignored.
+
+%</man>
+% \end{tcl}
+% Then we have |firstNprimes|, which returns a list containing
+% the first |n| primes.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::firstNprimes] [arg N]]
+Return the first N primes
+
+[list_begin arguments]
+[arg_def integer N in]
+Number of primes to return
+[list_end]
+
+[call [cmd math::numtheory::primesLowerThan] [arg N]]
+Return the prime numbers lower/equal to N
+
+[list_begin arguments]
+[arg_def integer N in]
+Maximum number to consider
+[list_end]
+
+[call [cmd math::numtheory::primeFactors] [arg N]]
+Return a list of the prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+%</man>
+% \end{tcl}
+% Similarly |primesLowerThan| returns a list of the prime numbers
+% which are less than |n|, or equal to it.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::primesLowerThan] [arg N]]
+Return the prime numbers lower/equal to N
+
+[list_begin arguments]
+[arg_def integer N in]
+Maximum number to consider
+[list_end]
+
+%</man>
+% \end{tcl}
+% Then |primeFactors| returns the list of the prime numbers in |n|.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::primeFactors] [arg N]]
+Return a list of the prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+%</man>
+% \end{tcl}
+% And |uniquePrimeFactors| does the same, with duplicates removed.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::uniquePrimeFactors] [arg N]]
+Return a list of the [emph unique] prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+%</man>
+% \end{tcl}
+% |factors| returns all factors of |n|, not just just primes.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::factors] [arg N]]
+Return a list of all [emph unique] factors in the number N, including 1 and N itself
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
+[list_end]
+
+%</man>
+% \end{tcl}
+% |totient| computes the Euler totient for |n|
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::totient] [arg N]]
+Evaluate the Euler totient function for the number N (number of numbers
+relatively prime to N)
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+%</man>
+% \end{tcl}
+% |moebius| computes the Moebious function on |n|.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::moebius] [arg N]]
+Evaluate the Moebius function for the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+%</man>
+% \end{tcl}
+% |legendre| computes the Legendre symbol (|a/p|).
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::legendre] [arg a] [arg p]]
+Evaluate the Legendre symbol (a/p)
+
+[list_begin arguments]
+[arg_def integer a in]
+Upper number in the symbol
+[arg_def integer p in]
+Lower number in the symbol (must be non-zero)
+[list_end]
+
+%</man>
+% \end{tcl}
+% |jacobi| compute the Jacobi symbol (|a/p|).
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::jacobi] [arg a] [arg b]]
+Evaluate the Jacobi symbol (a/b)
+
+[list_begin arguments]
+[arg_def integer a in]
+Upper number in the symbol
+[arg_def integer b in]
+Lower number in the symbol (must be odd)
+[list_end]
+
+%</man>
+% \end{tcl}
+% |gcd| computes the greatest common divisor of |n| and |m|.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::gcd] [arg m] [arg n]]
+Return the greatest common divisor of [term m] and [term n]
+
+[list_begin arguments]
+[arg_def integer m in]
+First number
+[arg_def integer n in]
+Second number
+[list_end]
+
+%</man>
+% \end{tcl}
+% |lcm| computes the least common multiple of |n| and |m|.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::lcm] [arg m] [arg n]]
+Return the lowest common multiple of [term m] and [term n]
+
+[list_begin arguments]
+[arg_def integer m in]
+First number
+[arg_def integer n in]
+Second number
+[list_end]
+
+%</man>
+% \end{tcl}
+% |numberPrimesGauss| estimates the number of primes below |n|
+% using a formula by Gauss.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::numberPrimesGauss] [arg N]]
+Estimate the number of primes according the formula by Gauss.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+%</man>
+% \end{tcl}
+% |numberPrimesLegendre| estimates the number of primes below |n|
+% using a formula by Legendre.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::numberPrimesLegendre] [arg N]]
+Estimate the number of primes according the formula by Legendre.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
+
+%</man>
+% \end{tcl}
+% |numberPrimesLegendreModified| estimates the number of primes below
+% |n| using Legendre's modified formula.
+% \begin{tcl}
+%<*man>
+[call [cmd math::numtheory::numberPrimesLegendreModified] [arg N]]
+Estimate the number of primes according the modified formula by Legendre.
+
+[list_begin arguments]
+[arg_def integer N in]
+Number in question
+[list_end]
 
 %</man>
 % \end{tcl}
@@ -737,6 +1027,10 @@ proc ::math::numtheory::isprime {n args} {
 %   \begin{tcl}
     return on
 }
+
+# Add the additional procedures
+#
+source [file join [file dirname [info script]] primes.tcl]
 %</pkg>
 %   \end{tcl}
 %   
@@ -878,6 +1172,591 @@ test isprime-2.0 "PRNG tweak" -setup {
 %   \end{tcl}
 % \end{proc}
 % 
+% \section {Add-ons}
+%
+% A number of additional functions around factoring numbers
+%
+% \begin{tcl}
+%<*pkg_primes>
+# ComputeNextPrime --
+#     Determine the next prime
+#
+# Arguments:
+#     None
+#
+# Result:
+#     None
+#
+# Side effects:
+#     One prime added to the list of primes
+#
+# Note:
+#     Using a true sieve of Erathostenes might be faster, but
+#     this does work. Even computing the first ten thousand
+#     does not seem to be slow.
+#
+proc ::math::numtheory::ComputeNextPrime {} {
+    variable primes
+    variable nextPrimeCandidate
+    variable nextPrimeIncrement
+
+    while {1} {
+        #
+        # Test the current candidate
+        #
+        set sqrtCandidate [expr {sqrt($nextPrimeCandidate)}]
+
+        set isprime 1
+        foreach p $primes {
+            if { $p > $sqrtCandidate } {
+                break
+            }
+            if { $nextPrimeCandidate % $p == 0 } {
+                set isprime 0
+                break
+            }
+        }
+
+        if { $isprime } {
+            lappend primes $nextPrimeCandidate
+        }
+
+        #
+        # In any case get the next candidate
+        #
+        if { $nextPrimeIncrement == 1 } {
+            set nextPrimeIncrement 5
+            set nextPrimeCandidate [expr {$nextPrimeCandidate + 4}]
+        } else {
+            set nextPrimeIncrement 1
+            set nextPrimeCandidate [expr {$nextPrimeCandidate + 2}]
+        }
+
+        if { $isprime } {
+            break
+        }
+    }
+}
+
+# firstNprimes --
+#     Return the first N primes
+#
+# Arguments:
+#     number           Number of primes to return
+#
+# Result:
+#     List of the first $number primes
+#
+proc ::math::numtheory::firstNprimes {number} {
+    variable primes
+
+    while { [llength $primes] < $number } {
+        ComputeNextPrime
+    }
+
+    return [lrange $primes 0 [expr {$number-1}]]
+}
+
+# primesLowerThan --
+#     Return the primes lower than some threshold
+#
+# Arguments:
+#     threshold        Threshold for the primes
+#
+# Result:
+#     List of primes lower/equal to the threshold
+#
+proc ::math::numtheory::primesLowerThan {threshold} {
+    variable primes
+
+    while { [lindex $primes end] < $threshold } {
+        ComputeNextPrime
+    }
+
+    set n 0
+    foreach p $primes {
+        if { $p > $threshold } {
+            break
+        } else {
+            incr n
+        }
+    }
+    return [lrange $primes 0 [expr {$n-1}]]
+}
+
+# primeFactors --
+#     Determine the prime factors of a number
+#
+# Arguments:
+#     number           Number to factorise
+#
+# Result:
+#     List of prime factors
+#
+proc ::math::numtheory::primeFactors {number} {
+    variable primes
+
+    #
+    # Make sure we have enough primes
+    #
+    primesLowerThan [expr {sqrt($number)}]
+
+    set factors {}
+
+    set idx 0
+
+    while { $number > 1 } {
+        set p [lindex $primes $idx]
+        if {$p == {}} {
+            lappend factors $number
+            break
+        }
+        if { $number % $p == 0 } {
+            lappend factors $p
+            set number [expr {$number/$p}]
+        } else {
+            incr idx
+        }
+    }
+
+    return $factors
+}
+
+# uniquePrimeFactors --
+#     Determine the unique prime factors of a number
+#
+# Arguments:
+#     number           Number to factorise
+#
+# Result:
+#     List of unique prime factors
+#
+proc ::math::numtheory::uniquePrimeFactors {number} {
+    return [lsort -unique -integer [primeFactors $number]]
+}
+
+# totient --
+#     Evaluate the Euler totient function for a number
+#
+# Arguments:
+#     number           Number in question
+#
+# Result:
+#     Totient of the given number (number of numbers
+#     relatively prime to the number)
+#
+proc ::math::numtheory::totient {number} {
+    set factors [uniquePrimeFactors $number]
+
+    set totient 1
+
+    foreach f $factors {
+        set totient [expr {$totient * ($f-1)}]
+    }
+
+    return $totient
+}
+
+# factors --
+#     Return all (unique) factors of a number
+#
+# Arguments:
+#     number           Number in question
+#
+# Result:
+#     List of factors including 1 and the number itself
+#
+# Note:
+#     The algorithm for constructing the power set was taken from
+#     wiki.tcl.tk/2877 (algorithm subsets2b).
+#
+proc ::math::numtheory::factors {number} {
+    set factors [primeFactors $number]
+
+    #
+    # Iterate over the power set of this list
+    #
+    set result [list 1 $number]
+    for {set n 1} {$n < [llength $factors]} {incr n} {
+        set subsets [list [list]]
+        foreach f $factors {
+            foreach subset $subsets {
+                lappend subset $f
+                if {[llength $subset] == $n} {
+                    lappend result [Product $subset]
+                } else {
+                    lappend subsets $subset
+                }
+            }
+        }
+    }
+    return [lsort -unique -integer $result]
+}
+
+# Product --
+#     Auxiliary function: return the product of a list of numbers
+#
+# Arguments:
+#     list           List of numbers
+#
+# Result:
+#     The product of all the numbers
+#
+proc ::math::numtheory::Product {list} {
+    set product 1
+    foreach e $list {
+        set product [expr {$product * $e}]
+    }
+    return $product
+}
+
+# moebius --
+#     Return the value of the Moebius function for "number"
+#
+# Arguments:
+#     number         Number in question
+#
+# Result:
+#     The product of all the numbers
+#
+proc ::math::numtheory::moebius {number} {
+    if { $number < 1 } {
+        return -code error "The number must be positive"
+    }
+    if { $number == 1 } {
+        return 1
+    }
+
+    set primefactors [primeFactors $number]
+    if { [llength $primefactors] != [llength [lsort -unique -integer $primefactors]] } {
+        return 0
+    } else {
+        return [expr {(-1)**([llength $primefactors]%2)}]
+    }
+}
+
+# legendre --
+#     Return the value of the Legendre symbol (a/p)
+#
+# Arguments:
+#     a              Upper number in the symbol
+#     p              Lower number in the symbol
+#
+# Result:
+#     The Legendre symbol
+#
+proc ::math::numtheory::legendre {a p} {
+    if { $p == 0 } {
+        return -code error "The number p must be non-zero"
+    }
+
+    if { $a % $p == 0 } {
+        return 0
+    }
+
+    #
+    # Just take the brute force route
+    # (Negative values of a present a small problem, but only a small one)
+    #
+    while { $a < 0 } {
+        set a [expr {$p + $a}]
+    }
+
+    set legendre -1
+    for {set n 1} {$n < $p} {incr n} {
+        if { $n**2 % $p == $a } {
+            set legendre 1
+            break
+        }
+    }
+
+    return $legendre
+}
+
+# jacobi --
+#     Return the value of the Jacobi symbol (a/b)
+#
+# Arguments:
+#     a              Upper number in the symbol
+#     b              Lower number in the symbol
+#
+# Result:
+#     The Jacobi symbol
+#
+# Note:
+#     Implementation adopted from the Wiki - http://wiki.tcl.tk/36990
+#     encoded by rmelton 9/25/12
+#     Further references:
+#     http://en.wikipedia.org/wiki/Jacobi_symbol
+#     http://2000clicks.com/mathhelp/NumberTh27JacobiSymbolAlgorithm.aspx
+#
+proc ::math::numtheory::jacobi {a b} {
+    if { $b<=0 || ($b&1)==0 } {
+        return 0;
+    }
+
+    set j 1
+    if {$a<0} {
+        set a [expr {0-$a}]
+        set j [expr {0-$j}]
+    }
+    while {$a != 0} {
+        while {($a&1) == 0} {
+            ##/* Process factors of 2: Jacobi(2,b)=-1 if b=3,5 (mod 8) */
+            set a [expr {$a>>1}]
+            if {(($b & 7)==3) || (($b & 7)==5)} {
+                set j [expr {0-$j}]
+            }
+        }
+        ##/* Quadratic reciprocity: Jacobi(a,b)=-Jacobi(b,a) if a=3,b=3 (mod 4) */
+        lassign [list $a $b] b a
+        if {(($a & 3)==3) && (($b & 3)==3)} {
+            set j [expr {0-$j}]
+        }
+        set a [expr {$a % $b}]
+    }
+    if {$b==1} {
+        return $j
+    } else {
+        return 0
+    }
+}
+
+# gcd --
+#     Return the greatest common divisor of two numbers n and m
+#
+# Arguments:
+#     n              First number
+#     m              Second number
+#
+# Result:
+#     The greatest common divisor
+#
+proc ::math::numtheory::gcd {n m} {
+    #
+    # Apply Euclid's good old algorithm
+    #
+    if { $n > $m } {
+        set t $n
+        set n $m
+        set m $t
+    }
+
+    while { $n > 0 } {
+        set r [expr {$m % $n}]
+        set m $n
+        set n $r
+    }
+
+    return $m
+}
+
+# lcm --
+#     Return the lowest common multiple of two numbers n and m
+#
+# Arguments:
+#     n              First number
+#     m              Second number
+#
+# Result:
+#     The lowest common multiple
+#
+proc ::math::numtheory::lcm {n m} {
+    set gcd [gcd $n $m]
+    return [expr {$n*$m/$gcd}]
+}
+
+# numberPrimesGauss --
+#     Return the approximate number of primes lower than the given value based on the formula by Gauss
+#
+# Arguments:
+#     limit            The limit for the largest prime to be included in the estimate
+#
+# Returns:
+#     Approximate number of primes
+#
+proc ::math::numtheory::numberPrimesGauss {limit} {
+    if { $limit <= 1 } {
+        return -code error "The limit must be larger than 1"
+    }
+    expr {$limit / log($limit)}
+}
+
+# numberPrimesLegendre --
+#     Return the approximate number of primes lower than the given value based on the formula by Legendre
+#
+# Arguments:
+#     limit            The limit for the largest prime to be included in the estimate
+#
+# Returns:
+#     Approximate number of primes
+#
+proc ::math::numtheory::numberPrimesLegendre {limit} {
+    if { $limit <= 1 } {
+        return -code error "The limit must be larger than 1"
+    }
+    expr {$limit / (log($limit) - 1.0)}
+}
+
+# numberPrimesLegendreModified --
+#     Return the approximate number of primes lower than the given value based on the
+#     modified formula by Legendre
+#
+# Arguments:
+#     limit            The limit for the largest prime to be included in the estimate
+#
+# Returns:
+#     Approximate number of primes
+#
+proc ::math::numtheory::numberPrimesLegendreModified {limit} {
+    if { $limit <= 1 } {
+        return -code error "The limit must be larger than 1"
+    }
+    expr {$limit / (log($limit) - 1.08366)}
+}
+%</pkg_primes>
+%\end{tcl}
+% \begin{tcl}
+%<*test_primes>
+test first-few-primes-1 "First 10 primes" -match equalLists -body {
+    ::math::numtheory::firstNprimes 10
+} -result {2 3 5 7 11 13 17 19 23 29}
+
+test first-few-primes-2 "First 12 primes" -match equalLists -body {
+    ::math::numtheory::firstNprimes 12
+} -result {2 3 5 7 11 13 17 19 23 29 31 37}
+
+test first-few-primes-3 "First 20 primes" -match equalLists -body {
+    ::math::numtheory::firstNprimes 20
+} -result {2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71}
+
+test primes-lower-than-1 "Primes lower/equal 101" -match equalLists -body {
+    ::math::numtheory::primesLowerThan 101
+} -result {2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101}
+
+test primes-lower-than-2 "Primes lower/equal 2" -match equalLists -body {
+    ::math::numtheory::primesLowerThan 2
+} -result {2}
+
+test primes-lower-than-3 "Primes lower/equal 4" -match equalLists -body {
+    ::math::numtheory::primesLowerThan 4
+} -result {2 3}
+
+test primes-lower-than-4 "Primes lower/equal 102" -match equalLists -body {
+    ::math::numtheory::primesLowerThan 102
+} -result {2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101}
+
+test prime-factors-1 "Prime factors 100" -match equalLists -body {
+    ::math::numtheory::primeFactors 100
+} -result {2 2 5 5}
+
+test prime-factors-2 "Unique prime factors 100" -match equalLists -body {
+    ::math::numtheory::uniquePrimeFactors 100
+} -result {2 5}
+
+test prime-factors-3 "Prime factors 2900" -match equalLists -body {
+    ::math::numtheory::primeFactors 2900
+} -result {2 2 5 5 29}
+
+test prime-factors-4 "Unique prime factors 2900" -match equalLists -body {
+    ::math::numtheory::uniquePrimeFactors 2900
+} -result {2 5 29}
+
+test prime-factors-5 "Prime factors 964" -match equalLists -body {
+    ::math::numtheory::primeFactors 964
+} -result {2 2 241}
+
+test prime-factors-6 "Prime factors 960" -match equalLists -body {
+    ::math::numtheory::primeFactors 960
+} -result {2 2 2 2 2 2 3 5}
+
+test prime-factors-7 "Prime factors 914" -match equalLists -body {
+    ::math::numtheory::primeFactors 914
+} -result {2 457}
+
+test totient-1 "Totient 15" -body {
+    ::math::numtheory::totient 15
+} -result 8
+
+test totient-2 "Totient 30" -body {
+    ::math::numtheory::totient 30
+} -result 8
+
+test totient-3 "Totient 35" -body {
+    ::math::numtheory::totient 35
+} -result 24
+
+test totient-4 "Totient 105" -body {
+    ::math::numtheory::totient 105
+} -result 48
+
+test factors-1 "All factors 30" -match equalLists -body {
+    ::math::numtheory::factors 30
+} -result {1 2 3 5 6 10 15 30}
+
+test factors-1 "All factors 128" -match equalLists -body {
+    ::math::numtheory::factors 128
+} -result {1 2 4 8 16 32 64 128}
+
+test factors-1 "All factors 250" -match equalLists -body {
+    ::math::numtheory::factors 250
+} -result {1 2 5 10 25 50 125 250}
+
+test moebius-1 "Moebius for first 19 numbers" -match equalLists -body {
+    set result {}
+    for {set n 1} {$n < 20} {incr n} {
+        lappend result [::math::numtheory::moebius $n]
+    }
+    set result
+} -result {1 -1 -1 0 -1 1 -1 0 0 1 -1 0 -1 1 1 0 -1 0 -1}
+
+test legendre-1 "Legendre symbol (-1/3)" -body {
+    ::math::numtheory::legendre -1 3
+} -result -1
+test legendre-2 "Legendre symbol (-3/7)" -body {
+    ::math::numtheory::legendre -3 7
+} -result 1
+
+test jacobi-1 "Jacobi symbol (6/7)" -body {
+    ::math::numtheory::jacobi 6 7
+} -result -1
+
+test jacobi-2 "Jacobi symbol (6/9)" -body {
+    ::math::numtheory::jacobi 6 9
+} -result 0
+
+test jacobi-3 "Jacobi symbol (3/11)" -body {
+    ::math::numtheory::jacobi 3 11
+} -result 1
+
+test gcd-1 "Greatest common divisor 2 and 3" -body {
+    ::math::numtheory::gcd 2 3
+} -result 1
+
+test gcd-2 "Greatest common divisor 20 and 12" -body {
+    ::math::numtheory::gcd 20 12
+} -result 4
+
+test gcd-3 "Greatest common divisor 600 and 125" -body {
+    ::math::numtheory::gcd 600 125
+} -result 25
+
+test lcm-1 "Lowest common multiple 3 and 4" -body {
+    ::math::numtheory::lcm 3 4
+} -result 12
+
+test lcm-2 "Lowest common multiple 12 and 20" -body {
+    ::math::numtheory::lcm 12 20
+} -result 60
+
+test number-primes "Exercise prime estimators" -match equalLists -body {
+    set estimate1 [::math::numtheory::numberPrimesGauss 1000]
+    set estimate2 [::math::numtheory::numberPrimesLegendre 1000]
+    set estimate3 [::math::numtheory::numberPrimesLegendreModified 1000]
+    set result [list [expr {int($estimate1)}] [expr {int($estimate2)}] [expr {int($estimate3)}]]
+} -result {144 169 171}
+%</test_primes>
+%\end{tcl}
 % 
 % \section*{Closings}
 % 
@@ -885,13 +1764,14 @@ test isprime-2.0 "PRNG tweak" -setup {
 %<*man>
 [list_end]
 
-[keywords {number theory} prime]
+[vset CATEGORY {math :: numtheory}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
 %</man>
 % \end{tcl}
 % 
 % \begin{tcl}
-%<test>testsuiteCleanup
+%<test_common>testsuiteCleanup
 % \end{tcl}
 % 
 % 

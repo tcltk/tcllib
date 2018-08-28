@@ -1,0 +1,244 @@
+# -*- tcl -*-
+# Testsuite for pt::peg::op.
+
+# [ok] drop unreachable
+# [ok] drop unrealizable
+# [ok] flatten
+# [ok] minimize
+
+# TODO
+# [..] called
+# [..] dechain
+# [..] modeopt
+# [..] reachable
+# [..] realizable
+
+# -------------------------------------------------------------------------
+# Basic syntax
+
+foreach op {
+    called
+    dechain
+    flatten
+    minimize
+    modeopt
+    reachable
+    realizable
+    {drop unreachable}
+    {drop unrealizable}
+} {
+    test pt-peg-op-set:${setimpl}-${op}-0.0 "$op, wrong#args, not enough" -body {
+	pt::peg::op {*}$op
+    } -returnCodes error -result "wrong # args: should be \"pt::peg::op $op container\""
+
+    test pt-peg-op-set:${setimpl}-${op}-0.1 "$op, wrong#args, too many" -body {
+	pt::peg::op {*}$op Container X
+    } -returnCodes error -result "wrong # args: should be \"pt::peg::op $op container\""
+}
+
+# -------------------------------------------------------------------------
+# General support for testing transforms
+
+proc sl {v} {
+    # Remove comment lines
+    regsub -all -line {^\s*#.*$} $v {}
+}
+
+proc g {s r} {
+    # quick constructor of a grammar value
+    return [list pt::grammar::peg [list rules $r start $s]]
+}
+
+proc TestTransformation {op data setImpl} {
+    # Convert operation and data table into series of test cases
+    set debug 0
+    # Note, the `op` changes the container (here ::In) in-place.
+    append bodyScript [list {*}::pt::peg::op::$op ::In] \;
+    if {$debug} {
+	append bodyScript "puts stderr \[::In       serialize\]" \;
+	append bodyScript "puts stderr \[::Expected serialize\]" \;
+    }
+    # After the op, when all is well, the content of ::In should be
+    # the same as ::Expected.
+    append bodyScript "pt::peg equal \[::In serialize\] \[::Expected serialize\]" \;
+    set n 1
+    foreach {inStart inRulesSet outStart outRulesSet} [sl $data] {
+	set testLabel "pt-peg-op-set:${setImpl}-[join $op -]-$n"
+	if {$debug} {
+	    puts stderr >>>>$testLabel<<<<
+	}
+	test $testLabel "OP '$op' vs. expected" -setup {
+	    pt::peg::container ::In       deserialize [g $inStart  $inRulesSet]
+	    pt::peg::container ::Expected deserialize [g $outStart $outRulesSet]
+	} -body $bodyScript -result 1 -cleanup {
+	    ::In       destroy
+	    ::Expected destroy
+	}
+	incr n
+    }
+}
+
+# -------------------------------------------------------------------------
+# op: flatten
+
+TestTransformation flatten {
+    # --- stays as-is #1
+    epsilon {}
+    epsilon {}
+    # --- stays as-is #2
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t a} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t a} mode value}
+    }
+    # --- flatten start expr and rules: single-element sequences
+    {x {n S}} {
+	S {is {x {n A}} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    # --- flatten start expr and rules: single-element choices
+    {/ {n S}} {
+	S {is {/ {n A}} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    # --- flatten start expr and rules: nested sequences
+    {x {n S}} {
+	S {is {x {n A} {x {n A} {n A}}} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {n A} {n A}} mode value}
+	A {is {n A} mode value}
+    }
+    # --- flatten start expr and rules: nested choices
+    {x {n S}} {
+	S {is {/ {n A} {/ {n A} {n A}}} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {/ {n A} {n A} {n A}} mode value}
+	A {is {n A} mode value}
+    }
+} $setimpl
+
+# -------------------------------------------------------------------------
+# op: drop unrealizable
+
+TestTransformation "drop unrealizable" {
+    # (1) stays as-is
+    epsilon {}
+    epsilon {}
+    # (2) S <-- X; X <-- X; => epsilon
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n X} mode value}
+    }
+    epsilon {}
+    # (3) S <-- X?; X <-- X; => S <-- epsilon
+    {n S} {
+	S {is {? {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is epsilon mode value}
+    }
+    # (4) S <-- X*; X <-- X; => S <-- epsilon
+    {n S} {
+	S {is {* {n X}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is epsilon mode value}
+    }
+    # (5) S <-- X 'y'; X <-- X; => epsilon
+    {n S} {
+	S {is {x {n X} {t y}} mode value}
+	X {is {n X} mode value}
+    }
+    epsilon {}
+    # (6) S <-- X / 'y'; X <-- X; => S <-- 'y' (unflattened!)
+    {n S} {
+	S {is {/ {n X} {t y}} mode value}
+	X {is {n X} mode value}
+    }
+    {n S} {
+	S {is {/ {t y}} mode value}
+    }
+} $setimpl
+
+# -------------------------------------------------------------------------
+# op: drop unrealizable
+
+TestTransformation "drop unreachable" {
+    # (1) stays as-is
+    epsilon {}
+    epsilon {}
+    # S <-- a; A <-- a ==> S <-- a (A not reachable, dropped)
+    {n S} {
+     	S {is {t a} mode leaf}
+     	A {is {t a} mode void}
+    }
+    {n S} {
+     	S {is {t a} mode leaf}
+    }
+    # S <-- a; A <-- B; B <-- a ==> A, B unreachable, dropped
+    {n S} {
+     	S {is {t a} mode leaf}
+     	A {is {n B} mode void}
+     	B {is {t a} mode void}
+    }
+    {n S} {
+     	S {is {t a} mode leaf}
+    }
+} $setimpl
+
+# -------------------------------------------------------------------------
+# op: minimize
+
+TestTransformation minimize {
+    # --- stays as-is
+    epsilon {}
+    epsilon {}
+    # --- minimize away (unrealizable)
+    # S <-- A; A <-- A
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    epsilon {}
+    # --- already minimal
+    {n S} {
+     	S {is {n A} mode leaf}
+     	A {is {t a} mode void}
+    }
+    {n S} {
+	S {is {n A} mode leaf}
+     	A {is {t a} mode void}
+    }
+    # --- drop unrealizable *before* unreachable
+    # S <-- AB / a; A <-- aA; B <-- a
+    {n S} {
+     	S {is {/ {x {n A} {n B}} {t a}} mode value}
+     	A {is {x {t a} {n A}} mode value}
+	B {is {t a} mode leaf}
+    }
+    {n S} {
+	S {is {t a} mode leaf}
+    }
+} $setimpl
+
+# -------------------------------------------------------------------------
+rename sl {}
+rename g {}
+rename TestTransformation {}

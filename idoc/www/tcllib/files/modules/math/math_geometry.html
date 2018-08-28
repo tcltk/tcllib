@@ -94,7 +94,7 @@
 </head>
 <!-- Generated from file 'math_geometry.man' by tcllib/doctools with format 'html'
    -->
-<!-- Copyright &amp;copy; 2001 by Ideogramic ApS and other parties   -- Copyright &amp;copy; 2004 by Arjen Markus   -- Copyright &amp;copy; 2010 by Andreas Kupries   -- Copyright &amp;copy; 2010 by Kevin Kenny
+<!-- Copyright &amp;copy; 2001 by Ideogramic ApS and other parties   -- Copyright &amp;copy; 2010 by Andreas Kupries   -- Copyright &amp;copy; 2010 by Kevin Kenny   -- Copyright &amp;copy; 2018 by Arjen Markus
    -->
 <!-- math::geometry.n
    -->
@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::geometry(n) 1.2.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::geometry(n) 1.3.0 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::geometry - Geometrical computations</p>
 </div>
@@ -129,7 +129,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.5?</span></b></li>
-<li>package require <b class="pkgname">math::geometry <span class="opt">?1.2.3?</span></b></li>
+<li>package require <b class="pkgname">math::geometry <span class="opt">?1.3.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::math::geometry::+</b> <i class="arg">point1</i> <i class="arg">point2</i></a></li>
@@ -172,6 +172,14 @@
 <li><a href="#38"><b class="cmd">::math::geometry::reflect</b> <i class="arg">angle</i> <i class="arg">polyline</i></a></li>
 <li><a href="#39"><b class="cmd">::math::geometry::degToRad</b> <i class="arg">angle</i></a></li>
 <li><a href="#40"><b class="cmd">::math::geometry::radToDeg</b> <i class="arg">angle</i></a></li>
+<li><a href="#41"><b class="cmd">::math::geometry::circle</b> <i class="arg">centre</i> <i class="arg">radius</i></a></li>
+<li><a href="#42"><b class="cmd">::math::geometry::circleTwoPoints</b> <i class="arg">point1</i> <i class="arg">point2</i></a></li>
+<li><a href="#43"><b class="cmd">::math::geometry::pointInsideCircle</b> <i class="arg">point</i> <i class="arg">circle</i></a></li>
+<li><a href="#44"><b class="cmd">::math::geometry::lineIntersectsCircle</b> <i class="arg">line</i> <i class="arg">circle</i></a></li>
+<li><a href="#45"><b class="cmd">::math::geometry::lineSegmentIntersectsCircle</b> <i class="arg">segment</i> <i class="arg">circle</i></a></li>
+<li><a href="#46"><b class="cmd">::math::geometry::intersectionLineWithCircle</b> <i class="arg">line</i> <i class="arg">circle</i></a></li>
+<li><a href="#47"><b class="cmd">::math::geometry::intersectionCircleWithCircle</b> <i class="arg">circle1</i> <i class="arg">circle2</i></a></li>
+<li><a href="#48"><b class="cmd">::math::geometry::tangentLinesToCircle</b> <i class="arg">point</i> <i class="arg">circle</i></a></li>
 </ul>
 </div>
 </div>
@@ -203,6 +211,8 @@ the polyline is closed (if the first and last points do not coincide,
 the missing segment is automatically added).</p></li>
 <li><p><em>point set</em> - again a list of an even number of coordinates, but
 the points are regarded without any ordering.</p></li>
+<li><p><em>circle</em> - a list of three numbers, the first two are the coordinates of the
+centre and the third is the radius.</p></li>
 </ul>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">PROCEDURES</a></h2>
@@ -526,6 +536,84 @@ polygon.</p>
 <dt>list <i class="arg">angle</i></dt>
 <dd><p>Angle in radians</p></dd>
 </dl></dd>
+<dt><a name="41"><b class="cmd">::math::geometry::circle</b> <i class="arg">centre</i> <i class="arg">radius</i></a></dt>
+<dd><p>Convenience procedure to create a circle from a point and a radius.</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">centre</i></dt>
+<dd><p>Coordinates of the circle centre</p></dd>
+<dt>list <i class="arg">radius</i></dt>
+<dd><p>Radius of the circle</p></dd>
+</dl></dd>
+<dt><a name="42"><b class="cmd">::math::geometry::circleTwoPoints</b> <i class="arg">point1</i> <i class="arg">point2</i></a></dt>
+<dd><p>Convenience procedure to create a circle from two points on its circumference
+The centre is the point between the two given points, the radius is half the
+distance between them.</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">point1</i></dt>
+<dd><p>First point</p></dd>
+<dt>list <i class="arg">point2</i></dt>
+<dd><p>Second point</p></dd>
+</dl></dd>
+<dt><a name="43"><b class="cmd">::math::geometry::pointInsideCircle</b> <i class="arg">point</i> <i class="arg">circle</i></a></dt>
+<dd><p>Determine if the given point is inside the circle or on the circumference (1)
+or outside (0).</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">point</i></dt>
+<dd><p>Point to be checked</p></dd>
+<dt>list <i class="arg">circle</i></dt>
+<dd><p>Circle that may or may not contain the point</p></dd>
+</dl></dd>
+<dt><a name="44"><b class="cmd">::math::geometry::lineIntersectsCircle</b> <i class="arg">line</i> <i class="arg">circle</i></a></dt>
+<dd><p>Determine if the given line intersects the circle or touches it (1)
+or does not (0).</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">line</i></dt>
+<dd><p>Line to be checked</p></dd>
+<dt>list <i class="arg">circle</i></dt>
+<dd><p>Circle that may or may not be intersected</p></dd>
+</dl></dd>
+<dt><a name="45"><b class="cmd">::math::geometry::lineSegmentIntersectsCircle</b> <i class="arg">segment</i> <i class="arg">circle</i></a></dt>
+<dd><p>Determine if the given line segment intersects the circle or touches it (1)
+or does not (0).</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">segment</i></dt>
+<dd><p>Line segment to be checked</p></dd>
+<dt>list <i class="arg">circle</i></dt>
+<dd><p>Circle that may or may not be intersected</p></dd>
+</dl></dd>
+<dt><a name="46"><b class="cmd">::math::geometry::intersectionLineWithCircle</b> <i class="arg">line</i> <i class="arg">circle</i></a></dt>
+<dd><p>Determine the points at which the given line intersects the circle. There can
+be zero, one or two points. (If the line touches the circle or is close to it,
+then one point is returned. An arbitrary margin of 1.0e-10 times the radius
+is used to determine this situation.)</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">line</i></dt>
+<dd><p>Line to be checked</p></dd>
+<dt>list <i class="arg">circle</i></dt>
+<dd><p>Circle that may or may not be intersected</p></dd>
+</dl></dd>
+<dt><a name="47"><b class="cmd">::math::geometry::intersectionCircleWithCircle</b> <i class="arg">circle1</i> <i class="arg">circle2</i></a></dt>
+<dd><p>Determine the points at which the given two circles intersect. There can
+be zero, one or two points. (If the two circles touch the circle or are very close,
+then one point is returned. An arbitrary margin of 1.0e-10 times the mean of the radii of
+the two circles is used to determine this situation.)</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">circle1</i></dt>
+<dd><p>First circle</p></dd>
+<dt>list <i class="arg">circle2</i></dt>
+<dd><p>Second circle</p></dd>
+</dl></dd>
+<dt><a name="48"><b class="cmd">::math::geometry::tangentLinesToCircle</b> <i class="arg">point</i> <i class="arg">circle</i></a></dt>
+<dd><p>Determine the tangent lines from the given point to the circle. There can
+be zero, one or two lines. (If the point is on the cirucmference or very close to
+the circle, then one line is returned. An arbitrary margin of 1.0e-10 times the
+radius of the circle is used to determine this situation.)</p>
+<dl class="doctools_arguments">
+<dt>list <i class="arg">point</i></dt>
+<dd><p>Point in question</p></dd>
+<dt>list <i class="arg">circle</i></dt>
+<dd><p>Circle to which the tangent lines are to be determined</p></dd>
+</dl></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">References</a></h2>
@@ -550,15 +638,15 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key587">angle</a>, <a href="../../../../index.html#key480">distance</a>, <a href="../../../../index.html#key585">line</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key584">plane geometry</a>, <a href="../../../../index.html#key586">point</a></p>
+<p><a href="../../../../index.html#angle">angle</a>, <a href="../../../../index.html#distance">distance</a>, <a href="../../../../index.html#line">line</a>, <a href="../../../../index.html#math">math</a>, <a href="../../../../index.html#plane_geometry">plane geometry</a>, <a href="../../../../index.html#point">point</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2001 by Ideogramic ApS and other parties<br>
-Copyright &copy; 2004 by Arjen Markus<br>
 Copyright &copy; 2010 by Andreas Kupries<br>
-Copyright &copy; 2010 by Kevin Kenny</p>
+Copyright &copy; 2010 by Kevin Kenny<br>
+Copyright &copy; 2018 by Arjen Markus</p>
 </div>
 </div></body></html>

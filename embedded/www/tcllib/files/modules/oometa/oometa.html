@@ -125,7 +125,7 @@
 <li><a href="#3"><b class="cmd">oo::meta::info branchset</b> <span class="opt">?<i class="arg">key...</i>?</span> <i class="arg">key</i> <i class="arg">value</i></a></li>
 <li><a href="#4"><b class="cmd">oo::meta::info dump</b> <i class="arg">class</i></a></li>
 <li><a href="#5"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd">is</b> <i class="arg">type</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
-<li><a href="#6"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd"><a href="../../../../index.html#key543">merge</a></b> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">...</i>?</span></a></li>
+<li><a href="#6"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd"><a href="../../../../index.html#merge">merge</a></b> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">...</i>?</span></a></li>
 <li><a href="#7"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd">rebuild</b></a></li>
 <li><a href="#8"><b class="cmd">oo::meta::metadata</b> <i class="arg">class</i></a></li>
 <li><a href="#9"><b class="cmd">oo::define meta</b></a></li>
@@ -209,7 +209,7 @@ puts [::oo::meta::info $myclass is true constant mammal]
 &gt; 1
 </pre>
 </dd>
-<dt><a name="6"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd"><a href="../../../../index.html#key543">merge</a></b> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
+<dt><a name="6"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd"><a href="../../../../index.html#merge">merge</a></b> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">dict</i>?</span> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
 <dd><p>Combines all of the arguments into a single dict, which is then stored as the new
 local representation for this class.</p></dd>
 <dt><a name="7"><b class="cmd">oo::meta::info</b> <i class="arg">class</i> <b class="cmd">rebuild</b></a></dt>
@@ -237,7 +237,7 @@ produce a local picture of metadata.
 This method provides the following additional commands:</p></dd>
 <dt><a name="12"><b class="cmd">oo::object method meta cget</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i></a></dt>
 <dd><p>Attempts to locate a singlar leaf, and return its value. For single option lookups, this
-is faster than <b class="cmd">my meta getnull</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i>], because
+is faster than <b class="cmd">my meta getnull</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i>, because
 it performs a search instead directly instead of producing the recursive merge product
 between the class metadata, the local <em>meta</em> variable, and THEN performing the search.</p></dd>
 </dl>
@@ -257,7 +257,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key589">TOOL</a>, <a href="../../../../index.html#key588">TclOO</a></p>
+<p><a href="../../../../index.html#tool">TOOL</a>, <a href="../../../../index.html#tcloo">TclOO</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>TclOO</p>

@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Utility commands operating on parsing expressions.
 
@@ -139,7 +139,7 @@ proc ::pt::peg::op::modeopt {container} {
 
     set changed [$container nonterminals]
     while {[llength $changed]} {
-puts <$changed>
+	#puts <$changed>
 	set scan $changed
 	set changed {}
 
@@ -147,7 +147,7 @@ puts <$changed>
 	    # Rule 1
 	    if {![llength $calls($sym)] &&
 		($mode($sym) eq "value")} {
-puts (1)$sym
+		#puts (1)$sym
 		set mode($sym) leaf
 	    }
 
@@ -190,10 +190,10 @@ proc ::pt::peg::op::CallMode {callers mv} {
 
 proc ::pt::peg::op::minimize {container} {
     flatten           $container
-    drop unreachable  $container
     drop unrealizable $container
+    drop unreachable  $container
     flatten           $container
-    optmodes          $container
+    modeopt           $container
     dechain           $container
     return
 }
@@ -304,15 +304,15 @@ proc ::pt::peg::op::Realizable {pe op arguments} {
 
 	    return [tcl::mathfunc::max {*}$arguments]
 	}
-	x - * - + - ? - & - ! {
+	x - + - & - ! {
 	    # All other operators are realizable if and only if all
 	    # its children are realizable.
 
 	    return [tcl::mathfunc::min {*}$arguments]
 	}
 	default {
-	    # The terminals and special forms are realizable by
-	    # definition.
+	    # Terminals, special forms, Kleene closure (*), and
+	    # optionals (?) are realizable by definition.
 	    return 1
 	}
     }
@@ -320,7 +320,8 @@ proc ::pt::peg::op::Realizable {pe op arguments} {
 
 proc ::pt::peg::op::drop::unrealizable {container} {
 
-    set     all [$container nonterminals]
+    #set     all [$container nonterminals]
+    set     all [::pt::peg::op reachable $container]
     lappend all {} ; # marker for start expression.
 
     set unrealizable \
@@ -373,5 +374,5 @@ namespace eval ::pt::peg::op {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg::op 1.0.1
+package provide pt::peg::op 1.0.2
 return

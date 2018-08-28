@@ -265,12 +265,12 @@ error command) if the value is invalid.
 [para] The switched layer also keeps track of the options current
 values, so that a [method set-[option option]] procedure is called
 only when the corresponding option value passed as parameter is
-different from the current value (see [variable -option] data members
+different from the current value (see [var -option] data members
 description).
 
-[def [variable -option]]
+[def [var -option]]
 
-[para] The [variable -option] data member is an options current value.
+[para] The [var -option] data member is an options current value.
 
 There is one for each option listed in the options procedure. It is a
 read-only value which the switched layer checks against when an option
@@ -301,10 +301,10 @@ proc car::printData {this} {
 layer level (this is why the set-manufacturer procedure has nothing to
 do) and later retrieved in the printData procedure.
 
-[def [variable complete]]
+[def [var complete]]
 
-[para] The [variable complete] data member (not to be confused with
-the [method complete] procedure) is a boolean.
+[para] The [var complete] data member (not to be confused with the
+[method complete] procedure) is a boolean.
 
 Its initial value is [const false] and it is set to [const true] at
 the very end of the switched [method complete] procedure.

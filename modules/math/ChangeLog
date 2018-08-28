@@ -1,3 +1,15 @@
+2018-07-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* trig.tcl: Implementation of (additional) trigonometric functions - package math::trig
+	* trig.test: Trst for the (additional) trigonometric functions
+	* trig.man: Documentation for the (additional) trigonometric functions
+	* pkgIndex.tcl: Add the new package
+
+2018-07-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* math_geometry.man: Describe the new criterium
+
+2018-06-23  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry_circle.tcl: Use the mean radius as criterium for touching circles (suggestion Andreas Kupries)
+
 2018-06-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry_circle.tcl: New source file with circle procedures
 	* geometry.tcl: Added [source] statement for the new file, bumped version to 1.3.0

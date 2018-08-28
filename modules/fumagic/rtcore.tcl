@@ -2,9 +2,9 @@
 #
 #	Runtime core for file type recognition engines written in pure Tcl.
 #
-# Copyright (c) 2016-2017 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
 # Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2016-2018 Poor Yorick     <tk.tcl.core.tcllib@pooryorick.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,17 +21,17 @@
 #
 #####
 
-#TODO  {
-#    {Required Functionality} {
-#	{implement full offset language} {
+# TODO
+#    Required Functionality
+#	implement full offset language}
 #	    done
 #
 #	    by pooryorick
 #
 #	    time {2016 06}
-#	}
 #
-#	{implement pstring (pascal string, blerk)} {
+#
+#	implement pstring (pascal string)
 #	    done
 #
 #	    by pooryorick
@@ -39,35 +39,68 @@
 #	    time {2016 06}
 #}
 #
-#	{implement regex form (blerk!)} {
+#	implement regex form
 #	    done
 #
 #	    by pooryorick
 #
 #	    time {2016 06}
-#	}
-
-#	{implement string qualifiers} {
+#
+#
+#	implement string qualifiers
 #	    done
 #	    
 #	    by pooryorick
 #
 #	    time {2016 06}
-#	}
 #
-#	{finish implementing the indirect type}
+#	implement correct handling of date types
 #
-#	{Maybe distinguish between binary and text tests, like file(n)}
+#	finish implementing the indirect type} 
+#	    done
+#
+#	    by pooryorick
+#
+#	    2018 08
+#
+#	Maybe distinguish between binary and text tests, like file(n)
+#
+#	    done
+#
+#	    by pooryorick
+#
+#	    2018 08
 #	
-#	{process and use strength directives}
+#	process and use strength directives
+#
+#	    done
+#
+#	    by pooryorick
+#
+#	    2018 08
+#
+#	handle the "indirect" type
+#
+#	    done
+#
+#	    by pooryorick
+#
+#	    2018 08
+#
 #
 #    }
 #}
+
+
+
 
 # ### ### ### ######### ######### #########
 ## Requirements
 
 package require Tcl 8.5
+
+
+
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -87,46 +120,87 @@ namespace eval ::fileutil::magic::rt {
 
     variable regexdefaultlen 4096
 
-    # Runtime state.
-
-    variable cursor 0      ; # The current offset
-    variable fd     {}     ; # Channel to file under scrutiny
-    variable found 0       ; # Whether the last test produced a match
-    variable lfound {}     ; # For each level, whether a match was found
-    variable level 0
-    variable strbuf {}     ; # Input cache [*].
-    variable cache         ; # Cache of fetched and decoded numeric
-    array set cache {}	   ; # values.
-    variable result {}     ; # Accumulated recognition result.
-    variable extracted     ; # The value extracted for inspection
-    variable  last         ; # Behind last fetch locations,
-    array set last {}      ; # per nesting level.
-    variable weight 0      ; # The weight of the current part. 
-                           ; # Basically string length of the contributing of
-			   ; # the potentially-matching part.
-
-    variable weighttotal 0 ; # The aggregate weight of the matching components of
-			   ; # the current test.
-
     # [*] The vast majority of magic strings are in the first 4k of the file.
 
     # Export APIs (full public, recognizer public)
-    namespace export open close file_start result
-    namespace export emit ext mime offset Nv N S Nvx Nx Sx L R I resultv U < >
+    namespace export file_start result
+    namespace export emit ext mime new offset strength \
+	D Nv N O S Nvx Nx Sx L R T I U < >
 }
+
+
+
 
 # ### ### ### ######### ######### #########
 ## Public API, general use.
 
+
 proc ::fileutil::magic::rt::> {} {
-    variable level
+    upvar #1 cursors cursors depth depth found found \
+	level level lfound lfound strengths strengths \
+	typematch typematch useful useful virtual virtual
+    set prevlevel $level
     incr level
+    incr depth
+    set cursors($level) $cursors($prevlevel)
+    set strengths($level) 0
+    set useful($level) 0
+    set virtual($level) $virtual($prevlevel)
+    set found 0
+    dict set lfound $level 0
+    return
 }
 
+
 proc ::fileutil::magic::rt::< {} {
-    variable level
+    upvar #1 class class ext ext found found level level mime mime \
+	result result strengths strengths typematch typematch useful useful
+
+    if {$level == 1 && [llength $result]} {
+	set leveln $level
+	set weight 0
+	while {$leveln >= 0} {
+	    set weight [
+		expr {$weight + $useful($leveln) + $strengths($leveln) + $typematch($leveln)}]
+	    incr leveln -1
+	}
+
+	foreach item $result[set result {}] {
+	    set item [lmap {-> x ->} [regexp -all -inline \
+		{(.+?)([[:punct:]][[:space:]]+|[:,+]*$)} $item[set item {}]] {
+
+		regsub {"(.*)"} $x {\1} x
+		regsub {'(.*)'} $x {\1} x
+		regsub {\((.*)\)} $x {\1} x
+		regsub {\{(.*)\}} $x {\1} x
+		regsub {<(.*)>} $x {\1} x
+		regsub {\[(.*)\]} $x {\1} x
+		regsub {[[:space:]][[:space:]]+} $x { } x
+
+		string trim $x
+	    }]
+	    lappend result {*}$item
+	}
+
+	yield [list $weight $result $mime $ext]
+	set result {}
+    }
+
+    # $useful holds weight of the match at each level, Each weight is
+    # basically length of the match.
+    set useful($level) 0
+    set strengths($level) 0
+
     incr level -1
+
+    if {$level == 0} {
+	set ext {}
+	set found 0
+	set mime {}
+	set depth 0
+    }
 }
+
 
 proc ::fileutil::magic::rt::classify {data} {
     set bin_rx {[\x00-\x08\x0b\x0e-\x1f]}
@@ -137,45 +211,20 @@ proc ::fileutil::magic::rt::classify {data} {
     }
 }
 
-proc ::fileutil::magic::rt::mime value {
-    upvar 1 mime mime
-    set mime $value
+proc ::fileutil::magic::rt::executable {} {
+    upvar #1 finfo finfo
+    if {![dict exists $finfo mode]} {
+	return 0
+    }
+    expr {([dict get $finfo mode] & 0o111) > 0} 
 }
+
 
 proc ::fileutil::magic::rt::ext value {
-    upvar 1 ext ext
-    set ext $value
+    upvar #1 ext ext
+    set ext [split $value /]
 }
 
-
-# open the file to be scanned
-proc ::fileutil::magic::rt::open {file} {
-    variable result {}
-    variable extracted {} 
-    variable strbuf
-    variable fd
-    variable cache
-
-    set fd [::open $file]
-    ::fconfigure $fd -translation binary
-        
-    # fill the string cache
-    set strbuf [::read $fd 4096]
-	set class [classify $strbuf]
-
-    # clear the fetch cache
-    catch {unset cache}
-    array set cache {}
-
-    return $fd
-}
-
-
-proc ::fileutil::magic::rt::close {} {
-    variable fd
-    ::close $fd
-    return
-}
 
 # mark the start of a magic file in debugging
 proc ::fileutil::magic::rt::file_start {name} {
@@ -183,44 +232,113 @@ proc ::fileutil::magic::rt::file_start {name} {
 }
 
 
-# return the emitted result
-proc ::fileutil::magic::rt::result {{msg {}}} {
-    variable lfound {}
-    variable found
-    variable result
-    variable weight
-    variable weighttotal
-    if {$msg ne {}} {emit $msg}
-    set res [list $found $weighttotal $result]
-    set found 0
-    set weight 0
-    set weighttotal 0
-    set result {}
-    return -code return $res 
+proc ::fileutil::magic::rt::message msg {
+    upvar #1 finfo finfo
+    set ranges [regexp -all -inline -indices {\$\{([^\}]*)\}} $msg]
+    foreach {orange irange} $ranges {
+	lassign $irange first last
+	set sub [string range $msg $first $last] 
+
+	if {[regexp {^x\?([^:]*?):(.*)$} $sub -> tmsg fmsg]} {
+	    set part [expr {[executable] ? $tmsg : $fmsg}]
+	    set msg [string replace $msg[set line {}] {*}$orange $part]
+	} else {
+	    parseerror error [list {unrecognized variable in description}] 
+	}
+    }
+    return $msg
 }
 
-proc ::fileutil::magic::rt::resultv {{msg {}}} {
-    try result on return result {
-	return $result
-    }
+
+proc ::fileutil::magic::rt::mime value {
+    upvar #1 mime mime
+    set mime [split [message $value] /]
 }
+
+
+# level #1 of a coroutine
+proc ::fileutil::magic::rt::new {finfo chan named tests} {
+    array set cache {}	    ; # Cache of fetched and decoded numeric
+			    ; # values.
+
+    ::fconfigure $chan -translation binary
+
+    # fill the string cache
+    set strbuf [::read $chan 4096]  ; # Input cache [*].
+    set class [classify $strbuf]    ; # text or binary
+
+    # clear the fetch cache
+    catch {unset cache}
+    array set cache {}
+
+    set depth 0		; # depth of the current branch
+    set ext {}
+    set extracted {}    ; # The value extracted for inspection
+    set found 1		; # Whether the last test produced a match
+    set level 0
+    set lfound {}	; # For each level, whether a match was found
+    dict set lfound 0 1
+    set mime {}
+    set result {}	; # The accumulated recognition result that is
+			; # in progress.
+
+    array unset cursors	; # the offset just after the last matching bytes,
+			; # per nesting level.
+
+    array unset strengths ; #strengths at each level
+
+    set virtual(0) 0	; # the virtual start of the file at each level
+
+    set strengths(0) 0
+    set typematch(0) 0
+
+    yield [info coroutine]
+    if {[string length $strbuf] == 0} {
+	yield [list 0 empty {} {}]
+    } else {
+	{*}$tests
+    }
+    rename [info coroutine] {}
+    return -code break
+}
+
+proc ::fileutil::magic::rt::strength {expr} {
+    upvar #1 level level strengths strengths
+    upvar 0 strengths($level) strength
+    # this expr must not be braced
+    set strength [expr double($strength) $expr]
+}
+
+proc ::fileutil::magic::rt::use {named file name} {
+    if [dict exists $named $file $name] {
+	set script [dict get $named $file $name]
+    } else {
+	dict for {file1 val} $named {
+	    if {[dict exists $val $name]} {
+		set script [dict get $val $name]
+		break
+	    }
+	}
+    }
+    if {![info exists script]} {
+	return -code error [list {name not found} $file $name]
+    }
+    return $script
+}
+
+
 
 # ### ### ### ######### ######### #########
 ## Public API, for use by a recognizer.
 
+
 # emit a description 
 proc ::fileutil::magic::rt::emit msg {
-    variable found
-    variable lfound
-    variable level
+    upvar #1 extracted extracted found found level level lfound lfound \
+	result result
     variable maxpstring
-    variable extracted
-    variable result
-    variable weight
-    variable weighttotal
     set found 1
     dict set lfound $level 1
-    incr weighttotal $weight
 
     #set map [list \
     #    \\b "" \
@@ -252,6 +370,9 @@ proc ::fileutil::magic::rt::emit msg {
 
     # Assumption: [regexp] leaves $msg untouched if it fails
     regexp {\A(\b|\\b)?(.*)$} $msg match b msg
+
+    set msg [message $msg[set msg {}]]
+
     if {$b ne {} && [llength $result]} {
 	lset result end [lindex $result end]$msg
     } else {
@@ -260,54 +381,56 @@ proc ::fileutil::magic::rt::emit msg {
     return
 }
 
-proc ::fileutil::magic::rt::Nv {type offset compinvert mod mand} {
+proc ::fileutil::magic::rt::D offset {
+    upvar #1 found found
+    expr {!$found}
+}
+
+proc ::fileutil::magic::rt::I {offset it ioi ioo iir io} {
+    # Handling of base locations specified indirectly through the
+    # contents of the inspected file.
+    upvar #1 level level
     variable typemap
-    variable extracted
-    variable weight
+    foreach {size scan} $typemap($it) break
 
-    # unpack the type characteristics
-    foreach {size scan} $typemap($type) break
+    set offset [Fetch $offset $size $scan]
 
-    # fetch the numeric field from the file
-    set extracted [Fetch $offset $size $scan]
-
-    if {$compinvert && $extracted ne {}} {
-	set extracted [expr ~$extracted]
-    }
-    if {$mod ne {} && $extracted ne {}} {
-	# there's a mask to be applied
-	set extracted [expr $extracted $mod $mand]
+    if {[catch {expr {$offset + 0}}]} {
+	return [expr {-1 * 2 ** 128}]
     }
 
-    ::fileutil::magic::rt::Debug {puts stderr "NV $type $offset $mod: $extracted"}
-    set weight [string length $extracted]
-    return $extracted
+    if {$ioi && ![catch {$offset + 0}]} {
+	set offset [expr {~$offset}]
+    }
+
+    if {$iir} {
+	set io [Fetch [expr {$offset + $io}] $size $scan]
+    }
+
+    if {$ioo ne {}} {
+	# no bracing this expression
+	set offset [expr $offset $ioo $io]
+    }
+    return $offset
 }
 
-proc ::fileutil::magic::rt::use {named file name} {
-    if [dict exists $named $file $name] {
-	set script [dict get $named $file $name]
-    } else {
-	dict for {file val} $named {
-	    if {[dict exists $val $name]} {
-		set script [dict get $val $name]
-		break
-	    }
-	}
-    }
-    if {![info exists script]} {
-	return -code error [list {name not found} $file $name]
-    }
-    return $script
+
+proc ::fileutil::magic::rt::L newlevel {
+    upvar #1 level level
+    set level $newlevel
+    # Regenerate level information in the calling context.
+    return
 }
+
 
 # Numeric - get bytes of $type at $offset and $compare to $val
 # qual might be a mask
 proc ::fileutil::magic::rt::N {
     type offset testinvert compinvert mod mand comp val} {
+
+    upvar #1 class class cursors cursors extracted extracted level level \
+	typematch typematch useful useful
     variable typemap
-    variable extracted
-    variable weight
 
     # unpack the type characteristics
     foreach {size scan} $typemap($type) break
@@ -323,14 +446,18 @@ proc ::fileutil::magic::rt::N {
 	# From jpeg:
 	    ## Next, show thumbnail info, if it exists:
 	    #>>18    byte        !0      \b, thumbnail %dx
+	#
+	# pyk 2018-08-16:
+	#    Not necessarily.  The failure to extract might cause the rule to
+	#    be skipped.  Consider doing something different here.
 	set extracted 0
     }
 
-    # Would moving this before the fetch an optimisation ? The
+    # Would moving this before the fetch be an optimisation ? The
     # tradeoff is that we give up filling the cache, and it is unclear
     # how often that value would be used. -- Profile!
     if {$comp eq {x}} {
-	set weight 0
+	set useful($level) 0
 	# anything matches - don't care
 	if {$testinvert} {
 	    return 0
@@ -339,17 +466,8 @@ proc ::fileutil::magic::rt::N {
 	}
     }
 
-    if {[string match $scan *me]} {
-	set data [me4 $data]
-	set scan I 
-    }
-    # get value in binary form, then back to numeric
-    # this avoids problems with sign, as both values are
-    # [binary scan]-converted identically (see [treegen1])
-    binary scan [binary format $scan $val] $scan val
-
     if {$compinvert && $extracted ne {}} {
-	set extracted [expr ~$extracted]
+	set extracted [expr -$extracted]
     }
 
     # perform comparison
@@ -373,7 +491,13 @@ proc ::fileutil::magic::rt::N {
 	}
     }
     # Do this last to minimize shimmering
-    set weight [string length $extracted]
+    set useful($level) [string length $extracted]
+
+    if {$class eq {binary}} {
+	set typematch($level)  1
+    } else {
+	set typematch($level)  0
+    }
 
     ::fileutil::magic::rt::Debug {
 	puts stderr "numeric $type: $val $t$comp $extracted / $mod - $c"
@@ -386,19 +510,68 @@ proc ::fileutil::magic::rt::N {
     }
 }
 
+
+proc ::fileutil::magic::rt::Nv {type offset compinvert mod mand} {
+    upvar #1 class class cursors cursors extracted extracted level level \
+	offsets offsets useful useful
+    variable typemap
+
+    set offsets($level) $offset
+
+    # unpack the type characteristics
+    foreach {size scan} $typemap($type) break
+
+    # fetch the numeric field from the file
+    set extracted [Fetch $offset $size $scan]
+
+    if {$compinvert && $extracted ne {}} {
+	set extracted [expr ~$extracted]
+    }
+    if {$mod ne {} && $extracted ne {}} {
+	# there's a mask to be applied
+	set extracted [expr $extracted $mod $mand]
+    }
+
+    if {$class eq {binary}} {
+	set typematch($level)  1
+    } else {
+	set typematch($level)  0
+    }
+
+    ::fileutil::magic::rt::Debug {puts stderr "NV $type $offset $mod: $extracted"}
+    set useful($level) [string length $extracted]
+    return $extracted
+}
+
+
+proc ::fileutil::magic::rt::O offset {
+    # Handling of offset locations specified relative to the offset
+    # last field one level up.
+    upvar #1 offsets offsets level level
+    upvar 0 offsets([expr {$level -1}]) base
+    return [expr {$base + $offset}]
+}
+
+
+proc ::fileutil::magic::rt::R offset {
+    # Handling of offset locations specified relative to the cursor one level
+    # up.
+    upvar #1 cursors cursors level level
+    upvar 0 cursors([expr {$level -1}]) cursor
+    return [expr {$cursor + $offset}]
+}
+
+
 proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
-    variable cursor
-    variable extracted
-    variable fd
-    variable level
-    variable lfound
+    upvar #1 cursors cursors extracted extracted level level \
+	lfound lfound useful useful
     variable maxstring
     variable regexdefaultlen
-    variable weight
+
+    upvar 0 cursors($level) cursor useful($level) used
+    set cursor $offset
 
     # $compinvert is currently ignored for strings
-
-    set weight [string length $val]
 
     switch $type {
 	pstring {
@@ -414,21 +587,29 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 	    }
 	    lassign [dict get {B {b 1} H {S 2} h {s 2} L {I 4} l {i 4}} $ptype] scan slength
 	    set length [GetString $offset $slength]
-	    set offset $cursor 
-	    binary scan $length ${scan}u length
-	    if {$vincluded} {
-		set length [expr {$length - $slength}]
+	    incr offset $slength
+	    incr cursor $slength
+	    set scanu ${scan}u
+	    if {[binary scan $length $scanu length2]} {
+		if {$vincluded} {
+		    set length2 [expr {$length2 - $slength}]
+		}
+		set extracted [GetString $offset $length2]
+		incr cursor [string length $extracted]
+		    array get cursors]]
+		set c [Smatch $val $comp $extracted $mod]
+	    } else {
+		set c 0
 	    }
-	    set extracted [GetString $offset $length]
-	    set c [Smatch $val $comp $extracted $mod]
 	}
 	regex {
 	    if {$mand eq {}} {
 		set mand $regexdefaultlen 
 	    }
 	    set extracted [GetString $offset $mand]
-	    if {[regexp $val $extracted match]} {
-		set weight [string length $match]
+	    if {[regexp -indices $val $extracted match indices]} {
+		incr cursor [lindex $indices 1]
+		set used [string length $match]
 	        set c 1
 	    } else {
 	        set c 0
@@ -437,8 +618,9 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 	search {
 	    set limit $mand
 	    set extracted [GetString $offset $limit]
-	    if {[string first $val $extracted] >= 0} {
-		set weight [string length $val]
+	    if {[set offset2 [string first $val $extracted]] >= 0} {
+		set cursor [expr {$offset + $offset2 + [string length $val]}]
+		set used [string length $val]
 		set c 1
 	    } else {
 		set c 0
@@ -450,14 +632,18 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 	} default {
 	    # get the string and compare it
 	    switch $type bestring16 - lestring16 {
-		set extracted [GetString $offset $maxstring]
-		set extracted [string range $extracted 0 1]
+		set extracted [GetString $offset [
+		    expr {2 * [string length $val]}]]
 		switch $type bestring16 {
-		    binary scan $extracted Su extracted
+		    binary scan $extracted Su* extracted
 		} lestring16 {
-		    binary scan $extracted Su extracted
+		    binary scan $extracted su* extracted
 		}
-		set extracted [format %c $extracted]
+
+		foreach ordinal $extracted[set extracted {}] {
+		    append extracted [format %c $ordinal]
+		}
+
 	    } default {
 		# If $val is 0, give [emit] something to work with .
 		if {$val eq  "\0"} {
@@ -466,6 +652,7 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
 		    set extracted [GetString $offset [string length $val]]
 		}
 	    }
+	    incr cursor [string length $extracted]
 	    set c [Smatch $val $comp $extracted $mod]
 	}
     }
@@ -484,10 +671,11 @@ proc ::fileutil::magic::rt::S {type offset testinvert mod mand comp val} {
     }
 }
 
+
 proc ::fileutil::magic::rt::Smatch {val op string mod} {
-    variable weight
+    upvar #1 class class level level typematch typematch useful useful 
     if {$op eq {x}} {
-	set weight 0
+	set useful($level) 0
 	return 1
     }
 
@@ -536,6 +724,12 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
 	set val [string tolower $val[set val {}]]
     }
 
+    if {$class eq {binary} || {b} in $mod} {
+	set typematch($level)  0
+    } else {
+	set typematch($level)  1
+    }
+
     set string [string range $string  0 [string length $val]-1]
 
     # The remaining code may assume that $string and $val have the same length
@@ -575,126 +769,61 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
     if {$op in {!= ne}} {
 	set res [expr {!$res}]
     }
-    set weight [string length $val]
+    # use the extracted value here, not val, because in the case of
+    # inequalities the extra information has weight
+    set useful($level) [string length $string]
     return $res
 }
 
-proc ::fileutil::magic::rt::Nvx {type offset compinvert mod mand} {
-    variable typemap
-    variable extracted
-    variable last
-    variable weight
-    variable level
 
-    # unpack the type characteristics
-    foreach {size scan} $typemap($type) break
-    set last($level) [expr {$offset + $size}]
-
-    set extracted [Nv $type $offset $compinvert $mod $mand]
-
-    ::fileutil::magic::rt::Debug {puts stderr "NVx $type $offset $extracted $mod $mand"}
-    return $extracted
-}
-
-# Numeric - get bytes of $type at $offset and $compare to $val
-# qual might be a mask
-proc ::fileutil::magic::rt::Nx {
-    type offset testinvert compinvert mod mand comp val} {
-
-    variable cursor
-    variable typemap
-    variable extracted
-    variable last
-    variable level
-    variable weight
-
-    set res [N $type $offset $testinvert $compinvert $mod $mand $comp $val]
-
-    ::fileutil::magic::rt::Debug {
-	puts stderr "Nx numeric $type: $val $comp $extracted / $qual - $c"
+proc ::fileutil::magic::rt::T {offset mod} {
+    upvar #1 cursors cursors level level offsets offsets tests tests \
+	virtual virtual
+    if {{r} in $mod} {
+	set offset [expr {$cursors($level) + $offset}]
     }
-    set last($level) $cursor
-    return $res
-}
-
-proc ::fileutil::magic::rt::Sx {
-    type offset testinvert mod mand comp val} {
-    variable cursor
-    variable extracted
-    variable fd
-    variable last
-    variable level
-    variable weight
-
-    set res [S $type $offset $testinvert $mod $mand $comp $val]
-    set last($level) $cursor
-    return $res
-}
-proc ::fileutil::magic::rt::L {newlevel} {
-    variable level $newlevel
-    # Regenerate level information in the calling context.
-    return
-}
-
-proc ::fileutil::magic::rt::I {offset it ioi ioo iir io} {
-    # Handling of base locations specified indirectly through the
-    # contents of the inspected file.
-    variable typemap
-    foreach {size scan} $typemap($it) break
-    if {$iir} {
-	# To do:  this can't be right.
-	set io [Fetch [expr $offset + $io] $size $scan]
-    }
-    set data [Fetch $offset $size $scan]
-
-    if {$ioi && [string is double -strict $data]} {
-	set data [expr {~$data}]
-    }
-    if {$ioo ne {} && [string is double -strict $data]} {
-	set data [expr $data $ioo $io]
-    }
-    if {![string is double -strict $data]} {
-	set data -1
-    }
-    return $data
-}
-
-proc ::fileutil::magic::rt::R base {
-    # Handling of base locations specified relative to the end of the
-    # last field one level above.
-
-    variable last   ; # Remembered locations.
-    variable level  ; # The level to get data from.
-    return [expr {$last([expr {$level-1}]) + $base}]
+    set newvirtual [expr {$virtual($level) + $offset}]
+    >
+	set virtual($level) $newvirtual
+	{*}$tests
+    <
 }
 
 
-proc ::fileutil::magic::rt::U {file name} {
-    upvar named named
+proc ::fileutil::magic::rt::U {file name offset} {
+    upvar #1 level level named named offsets offsets
     set script [use $named $file $name]
-    tailcall ::try $script
+    set offsets($level) $offset
+    >
+	::try $script
+    <
 }
+
+
 
 # ### ### ### ######### ######### #########
 ## Internal. Retrieval of the data used in comparisons.
 
+
 # fetch and cache a numeric value from the file
 proc ::fileutil::magic::rt::Fetch {where what scan} {
-    variable cache
-    variable cursor
-    variable extracted
-    variable strbuf
-    variable fd
+    upvar #1 cache cache chan chan cursors cursors extracted extracted \
+	level level offsets offsets strbuf strbuf virtual virtual
 
-    # Avoid [seek] errors
+    set where [expr {$virtual($level) + $where}]
+    set offsets($level) $where 
+
+    # A negative offset means that an attempt to extract an indirect offset failed
     if {$where < 0} {
-	set where 0
+	return {}
     }
     # {to do} id3 length
-    if {![info exists cache($where,$what,$scan)]} {
-	::seek $fd $where
-	set data [::read $fd $what]
-	incr cursor [string length $data]
+    if {[info exists cache($where,$what,$scan)]} {
+	lassign $cache($where,$what,$scan) extracted cursor
+    } else {
+	::seek $chan $where
+	set data [::read $chan $what]
+	set cursor [expr {$where + [string length $data]}]
 	set extracted [rtscan $data $scan]
 	set cache($where,$what,$scan) [list $extracted $cursor]
 
@@ -702,12 +831,58 @@ proc ::fileutil::magic::rt::Fetch {where what scan} {
 	# know the short and byte data as well. Should put them into
 	# the cache. -- Profile: How often does such an overlap truly
 	# happen ?
-
-    } else {
-	lassign $cache($where,$what,$scan) extracted cursor
     }
+    set cursors($level) $cursor 
     return $extracted
 }
+
+
+proc ::fileutil::magic::rt::GetString {offset len} {
+    upvar #1 chan chan level level strbuf strbuf offsets offsets \
+	virtual virtual
+    # We have the first 1k of the file cached
+
+    set offsets($level) $offset
+    set offset [expr {$virtual($level) + $offset}]
+    set end [expr {$offset + $len - 1}]
+    if {$end < [string length $strbuf]} {
+        # in the string cache, copy the requested part.
+	try {
+	    set string [::string range $strbuf $offset $end]
+	} on error {tres topts} {
+	    lassign [dict get $topts -errorcode] TCL VALUE INDEX
+	    if {$TCL eq {TCL} && $VALUE eq {VALUE} && $INDEX eq {INDEX}} {
+		set string {}
+	    } else {
+		return -options $topts $tres
+	    }
+	}
+    } else {
+	# an unusual one, move to the offset and read directly from
+	# the file.
+	::seek $chan $offset
+	try {
+	    # maybe offset is out of bounds
+	    set string [::read $chan $len]
+	} on error {tres topts} {
+	    lassign [dict get $topts -errorcode] TCL VALUE INDEX
+	    if {$TCL eq {TCL} && $VALUE eq {VALUE} && $INDEX eq {INDEX}} {
+		set string {}
+	    } else {
+		return -options $topts $tres
+	    }
+	}
+    }
+    return $string
+}
+
+
+proc ::fileutil::magic::rt::me4 data {
+	binary scan $data a4 chars
+	set data [binary format a4 [lindex $chars 1] [
+	lindex $chars 0] [lindex $chars 3] [lindex $chars 2]]
+}
+
 
 proc ::fileutil::magic::rt::rtscan {data scan} {
     if {$scan eq {me}} {
@@ -719,31 +894,7 @@ proc ::fileutil::magic::rt::rtscan {data scan} {
     return $numeric
 }
 
-proc ::fileutil::magic::rt::me4 data {
-	binary scan $data a4 chars
-	set data [binary format a4 [lindex $chars 1] [
-	lindex $chars 0] [lindex $chars 3] [lindex $chars 2]]
-}
 
-proc ::fileutil::magic::rt::GetString {offset len} {
-    variable cursor
-    # We have the first 1k of the file cached
-    variable strbuf
-    variable fd
-
-    set end [expr {$offset + $len - 1}]
-    if {$end < 4096} {
-	# in the string cache, copy the requested part.
-	set string [::string range $strbuf $offset $end]
-    } else {
-	# an unusual one, move to the offset and read directly from
-	# the file.
-	::seek $fd $offset
-	set string [::read $fd $len]
-    }
-    set cursor [expr {$offset + [string length $string]}]
-    return $string
-}
 
 # ### ### ### ######### ######### #########
 ## Internal, debugging.
@@ -765,84 +916,94 @@ if {!$::fileutil::magic::rt::debug} {
     }
 }
 
+
+
 # ### ### ### ######### ######### #########
-## Initialize constants
+## Initializ package
 
-namespace eval ::fileutil::magic::rt {
-    # maps magic typenames to field characteristics: size (#byte),
-    # binary scan format
-
-    variable typemap
-}
 
 proc ::fileutil::magic::rt::Init {} {
     variable typemap
     global tcl_platform
 
-    # Set the definitions for all types which have their endianess
-    # explicitly specified n their name.
+    # map magic typenames to field characteristics: size (#byte),
 
-    array set typemap {
-	byte    {1 c}
-	beshort {2 S}
-	leshort {2 s}
+    # Types without explicit endianess assume/use 'native' byteorder.
+    # We also put in special forms for the compiler, so that it can use short
+    # names for the native-endian types as well.
+
+    # {to do} {Is ldate done correctly in the procedure?  What is its byte
+    # order anyway?  Native?}
+    
+    foreach {type sig} {
+	bedate  {4 S}
 	bedouble {8 Q}
+	befloat {4 R}
+	beid3 {4 n}
+	beldate {4 I}
 	belong  {4 I}
-	lelong  {4 i}
-	bedate  {4 S}  ledate   {4 s}
-	beldate {4 I}  leldate  {4 i}
-	bedouble {8 Q}
 	beqdate {8 W}
 	beqldate {8 W}
+	beqwdate {8 W}
+	beqldate {8 W}
 	bequad {8 W} 
+	beshort {2 S}
+	bestring16 {2 S}
+	byte    {1 c}
+	date {4 n}
+	double {8 d}
+	float {4 f}
+	ldate {4 n}
+	ledate   {4 n}
 	ledouble {8 q}
+	leid3 {4 nu}
+	lefloat {4 f}
+	leldate  {4 i}
+	lelong  {4 i}
 	leqdate {8 w}
 	leqldate {8 w}
 	lequad {8 w}
-	lequad {8 w} 
 	leqwdate {8 w}
-	medate  {4 me}
-	melong  {4 me}
-	meldate  {4 me}
+	leshort {2 s}
 	lestring16 {2 s}
-	bestring16 {2 S}
-
-	long  {4 Q} date  {4 Q} ldate {4 Q}
-	short {2 Y} quad {8 W} 
+	long  {4 n}
+	medate  {4 me}
+	meldate  {4 me}
+	melong  {4 me}
+	qdate {8 m}
+	qdate {8 n}
+	qldata {8 m}
+	quad {8 m} 
+	qwdate {8 m}
+	short {2 t}
+    } {
+	set typemap($type) $sig
+	lassign $sig size scan
+	set typemap(u$type) [list $size ${scan}u]
     }
-
-    # Now set the definitions for the types without explicit
-    # endianess. They assume/use 'native' byteorder. We also put in
-    # special forms for the compiler, so that it can use short names
-    # for the native-endian types as well.
 
     # generate short form names
     foreach {n v} [array get typemap] {
 	foreach {len scan} $v break
-	#puts stderr "Adding $scan - [list $len $scan]"
 	set typemap($scan) [list $len $scan]
     }
 
-    # The special Q and Y short forms are incorrect, correct now to
-    # use the proper native endianess.
+    # Add the special Q and Y short forms using the proper native endianess.
 
-    # {to do} {Is ldate done correctly in the procedure?  What is its byte
-    # order anyway?  Native?}
-
-    if {$tcl_platform(byteOrder) eq "littleEndian"} {
-	array set typemap {Q {4 i} Y {2 s}
-	    short {2 s} long {4 i} quad {8 w}
-	}
+    if {$tcl_platform(byteOrder) eq {littleEndian}} {
+	array set typemap {Q {4 i} Y {2 s} quad {8 w}}
     } else {
-	array set typemap {Q {4 I} Y {2 S}
-	    short {2 S} long {4 I} quad {8 W}
-	}
+	array set typemap {Q {4 I} Y {2 S} quad {8 W}}
     }
 }
 
 ::fileutil::magic::rt::Init
+
+
+
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide fileutil::magic::rt 2.0
+package provide fileutil::magic::rt 3.0
+
 # EOF

@@ -129,10 +129,10 @@
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1">tool::define <b class="cmd">class_method</b> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
-<li><a href="#2">tool::define <b class="cmd"><a href="../../../../index.html#key37">array</a></b> <i class="arg">name</i> <i class="arg">contents</i></a></li>
+<li><a href="#2">tool::define <b class="cmd"><a href="../../../../index.html#array">array</a></b> <i class="arg">name</i> <i class="arg">contents</i></a></li>
 <li><a href="#3">tool::define <b class="cmd">array_ensemble</b> <i class="arg">methodname</i> <i class="arg">varname</i> <span class="opt">?cases?</span></a></li>
 <li><a href="#4">tool::define <b class="cmd">dict_ensemble</b> <i class="arg">methodname</i> <i class="arg">varname</i> <span class="opt">?cases?</span></a></li>
-<li><a href="#5">tool::define <b class="cmd"><a href="../../../../index.html#key373">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
+<li><a href="#5">tool::define <b class="cmd"><a href="../../../../index.html#method">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#6">tool::define <b class="cmd">option</b> <i class="arg">name</i> <i class="arg">dictopts</i></a></li>
 <li><a href="#7">tool::define <b class="cmd">property</b> <span class="opt">?branch?</span> <i class="arg">field</i> <i class="arg">value</i></a></li>
 <li><a href="#8">tool::define <b class="cmd">variable</b> <i class="arg">name</i> <i class="arg">value</i></a></li>
@@ -195,7 +195,7 @@ the new keywords are only available via calls to <em>tool::class create</em> or 
 <dt><a name="1">tool::define <b class="cmd">class_method</b> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
 <dd><p>Defines a method for the class object itself. This method will be passed on to descendents of the class,
 unlike <b class="cmd">self method</b>.</p></dd>
-<dt><a name="2">tool::define <b class="cmd"><a href="../../../../index.html#key37">array</a></b> <i class="arg">name</i> <i class="arg">contents</i></a></dt>
+<dt><a name="2">tool::define <b class="cmd"><a href="../../../../index.html#array">array</a></b> <i class="arg">name</i> <i class="arg">contents</i></a></dt>
 <dd><p>Declares a variable <i class="arg">name</i> which will be initialized as an array, populated with <i class="arg">contents</i> for objects of this class, as well as any
 objects for classes which are descendents of this class.</p></dd>
 <dt><a name="3">tool::define <b class="cmd">array_ensemble</b> <i class="arg">methodname</i> <i class="arg">varname</i> <span class="opt">?cases?</span></a></dt>
@@ -210,10 +210,10 @@ and will not be expressed as a method for the ensemble.</p></dd>
 overlaid on top of the standard template. See <b class="package"><a href="tool_dict_ensemble.html">tool::dict_ensemble</a></b>.</p>
 <p>One method name is reserved: <b class="cmd">initialize</b>. <b class="cmd">initialize</b> Declares the initial values to be populated in the array, as a key/value list,
 and will not be expressed as a method for the ensemble.</p></dd>
-<dt><a name="5">tool::define <b class="cmd"><a href="../../../../index.html#key373">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
+<dt><a name="5">tool::define <b class="cmd"><a href="../../../../index.html#method">method</a></b> <i class="arg">methodname</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
 <dd><p>If <i class="arg">methodname</i> contains ::, the method is considered to be
 part of a method ensemble. See <b class="package">tool::method_ensembles</b>. Otherwise
-this command behaves exactly like the standard <b class="namespace">oo::define</b> <b class="cmd"><a href="../../../../index.html#key373">method</a></b>
+this command behaves exactly like the standard <b class="namespace">oo::define</b> <b class="cmd"><a href="../../../../index.html#method">method</a></b>
 command.</p></dd>
 <dt><a name="6">tool::define <b class="cmd">option</b> <i class="arg">name</i> <i class="arg">dictopts</i></a></dt>
 <dd><p>Declares an option. <i class="arg">dictopts</i> is a key/value list defining parameters for the option. See <b class="package">tool::option_handling</b>.</p>
@@ -338,7 +338,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key589">TOOL</a>, <a href="../../../../index.html#key588">TclOO</a>, <a href="../../../../index.html#key786">framework</a></p>
+<p><a href="../../../../index.html#tool">TOOL</a>, <a href="../../../../index.html#tcloo">TclOO</a>, <a href="../../../../index.html#framework">framework</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>TclOO</p>

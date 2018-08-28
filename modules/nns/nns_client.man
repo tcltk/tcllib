@@ -136,7 +136,7 @@ their meaning can be found in section [sectref OPTIONS].
 [call [cmd ::nameserv::configure] [option -option]]
 
 In this form the command is an alias for
-"[cmd ::nameserv::cget] [option -option]]".
+"[cmd ::nameserv::cget] [option -option]".
 
 The list of supported options and their meaning can be found in
 section [sectref OPTIONS].

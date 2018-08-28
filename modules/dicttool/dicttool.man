@@ -3,7 +3,7 @@
 [keywords dict]
 [copyright {2017 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Extensions to the standard "dict" command}]
-[category Utilites]
+[category Utilities]
 [titledesc {Dictionary Tools}]
 [require Tcl 8.5]
 [description]

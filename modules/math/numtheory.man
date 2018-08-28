@@ -1,4 +1,18 @@
-[manpage_begin math::numtheory n 1.0]
+[comment {
+    __Attention__ This document is a generated file.
+    It is not the true source.
+    The true source is
+
+        numtheory.dtx
+
+    To make changes edit the true source, and then use
+
+        sak.tcl docstrip/regen modules/math
+
+    to update all generated files.
+}]
+[vset VERSION 1.1.1]
+[manpage_begin math::numtheory n [vset VERSION]]
 [keywords {number theory}]
 [keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\
@@ -7,7 +21,7 @@
 [titledesc {Number Theory}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::numtheory [opt 1.0]]
+[require math::numtheory [opt [vset VERSION]]]
 
 [description]
 [para]
@@ -54,6 +68,22 @@ Return the first N primes
 [list_begin arguments]
 [arg_def integer N in]
 Number of primes to return
+[list_end]
+
+[call [cmd math::numtheory::primesLowerThan] [arg N]]
+Return the prime numbers lower/equal to N
+
+[list_begin arguments]
+[arg_def integer N in]
+Maximum number to consider
+[list_end]
+
+[call [cmd math::numtheory::primeFactors] [arg N]]
+Return a list of the prime numbers in the number N
+
+[list_begin arguments]
+[arg_def integer N in]
+Number to be factorised
 [list_end]
 
 [call [cmd math::numtheory::primesLowerThan] [arg N]]

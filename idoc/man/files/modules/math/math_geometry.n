@@ -1,11 +1,11 @@
 '\"
 '\" Generated from file 'math_geometry\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2001 by Ideogramic ApS and other parties
-'\" Copyright (c) 2004 by Arjen Markus
 '\" Copyright (c) 2010 by Andreas Kupries
 '\" Copyright (c) 2010 by Kevin Kenny
+'\" Copyright (c) 2018 by Arjen Markus
 '\"
-.TH "math::geometry" n 1\&.2\&.2 tcllib "Tcl Math Library"
+.TH "math::geometry" n 1\&.3\&.0 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ math::geometry \- Geometrical computations
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::geometry  ?1\&.2\&.3?\fR
+package require \fBmath::geometry  ?1\&.3\&.0?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp
@@ -361,6 +361,22 @@ package require \fBmath::geometry  ?1\&.2\&.3?\fR
 .sp
 \fB::math::geometry::radToDeg\fR \fIangle\fR
 .sp
+\fB::math::geometry::circle\fR \fIcentre\fR \fIradius\fR
+.sp
+\fB::math::geometry::circleTwoPoints\fR \fIpoint1\fR \fIpoint2\fR
+.sp
+\fB::math::geometry::pointInsideCircle\fR \fIpoint\fR \fIcircle\fR
+.sp
+\fB::math::geometry::lineIntersectsCircle\fR \fIline\fR \fIcircle\fR
+.sp
+\fB::math::geometry::lineSegmentIntersectsCircle\fR \fIsegment\fR \fIcircle\fR
+.sp
+\fB::math::geometry::intersectionLineWithCircle\fR \fIline\fR \fIcircle\fR
+.sp
+\fB::math::geometry::intersectionCircleWithCircle\fR \fIcircle1\fR \fIcircle2\fR
+.sp
+\fB::math::geometry::tangentLinesToCircle\fR \fIpoint\fR \fIcircle\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -399,6 +415,9 @@ the missing segment is automatically added)\&.
 .IP \(bu
 \fIpoint set\fR - again a list of an even number of coordinates, but
 the points are regarded without any ordering\&.
+.IP \(bu
+\fIcircle\fR - a list of three numbers, the first two are the coordinates of the
+centre and the third is the radius\&.
 .PP
 .SH PROCEDURES
 The package defines the following public procedures:
@@ -857,6 +876,108 @@ Convert from radians to degrees
 list \fIangle\fR
 Angle in radians
 .RE
+.TP
+\fB::math::geometry::circle\fR \fIcentre\fR \fIradius\fR
+Convenience procedure to create a circle from a point and a radius\&.
+.RS
+.TP
+list \fIcentre\fR
+Coordinates of the circle centre
+.TP
+list \fIradius\fR
+Radius of the circle
+.RE
+.TP
+\fB::math::geometry::circleTwoPoints\fR \fIpoint1\fR \fIpoint2\fR
+Convenience procedure to create a circle from two points on its circumference
+The centre is the point between the two given points, the radius is half the
+distance between them\&.
+.RS
+.TP
+list \fIpoint1\fR
+First point
+.TP
+list \fIpoint2\fR
+Second point
+.RE
+.TP
+\fB::math::geometry::pointInsideCircle\fR \fIpoint\fR \fIcircle\fR
+Determine if the given point is inside the circle or on the circumference (1)
+or outside (0)\&.
+.RS
+.TP
+list \fIpoint\fR
+Point to be checked
+.TP
+list \fIcircle\fR
+Circle that may or may not contain the point
+.RE
+.TP
+\fB::math::geometry::lineIntersectsCircle\fR \fIline\fR \fIcircle\fR
+Determine if the given line intersects the circle or touches it (1)
+or does not (0)\&.
+.RS
+.TP
+list \fIline\fR
+Line to be checked
+.TP
+list \fIcircle\fR
+Circle that may or may not be intersected
+.RE
+.TP
+\fB::math::geometry::lineSegmentIntersectsCircle\fR \fIsegment\fR \fIcircle\fR
+Determine if the given line segment intersects the circle or touches it (1)
+or does not (0)\&.
+.RS
+.TP
+list \fIsegment\fR
+Line segment to be checked
+.TP
+list \fIcircle\fR
+Circle that may or may not be intersected
+.RE
+.TP
+\fB::math::geometry::intersectionLineWithCircle\fR \fIline\fR \fIcircle\fR
+Determine the points at which the given line intersects the circle\&. There can
+be zero, one or two points\&. (If the line touches the circle or is close to it,
+then one point is returned\&. An arbitrary margin of 1\&.0e-10 times the radius
+is used to determine this situation\&.)
+.RS
+.TP
+list \fIline\fR
+Line to be checked
+.TP
+list \fIcircle\fR
+Circle that may or may not be intersected
+.RE
+.TP
+\fB::math::geometry::intersectionCircleWithCircle\fR \fIcircle1\fR \fIcircle2\fR
+Determine the points at which the given two circles intersect\&. There can
+be zero, one or two points\&. (If the two circles touch the circle or are very close,
+then one point is returned\&. An arbitrary margin of 1\&.0e-10 times the mean of the radii of
+the two circles is used to determine this situation\&.)
+.RS
+.TP
+list \fIcircle1\fR
+First circle
+.TP
+list \fIcircle2\fR
+Second circle
+.RE
+.TP
+\fB::math::geometry::tangentLinesToCircle\fR \fIpoint\fR \fIcircle\fR
+Determine the tangent lines from the given point to the circle\&. There can
+be zero, one or two lines\&. (If the point is on the cirucmference or very close to
+the circle, then one line is returned\&. An arbitrary margin of 1\&.0e-10 times the
+radius of the circle is used to determine this situation\&.)
+.RS
+.TP
+list \fIpoint\fR
+Point in question
+.TP
+list \fIcircle\fR
+Circle to which the tangent lines are to be determined
+.RE
 .PP
 .SH REFERENCES
 .IP [1]
@@ -888,8 +1009,8 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2001 by Ideogramic ApS and other parties
-Copyright (c) 2004 by Arjen Markus
 Copyright (c) 2010 by Andreas Kupries
 Copyright (c) 2010 by Kevin Kenny
+Copyright (c) 2018 by Arjen Markus
 
 .fi

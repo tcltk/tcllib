@@ -1,3 +1,21 @@
+## 
+## This is the file `primes.tcl',
+## generated with the SAK utility
+## (sak docstrip/regen).
+## 
+## The original source files were:
+## 
+## numtheory.dtx  (with options: `pkg_primes pkg_common')
+## 
+## In other words:
+## **************************************
+## * This Source is not the True Source *
+## **************************************
+## the true source is the file from which this one was generated.
+##
+# Copyright (c) 2010 by Lars Hellstrom.  All rights reserved.
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # primes.tcl --
 #     Provide additional procedures for the number theory package
 #
@@ -140,6 +158,10 @@ proc ::math::numtheory::primeFactors {number} {
 
     while { $number > 1 } {
         set p [lindex $primes $idx]
+        if {$p == {}} {
+            lappend factors $number
+            break
+        }
         if { $number % $p == 0 } {
             lappend factors $p
             set number [expr {$number/$p}]
@@ -443,3 +465,6 @@ proc ::math::numtheory::numberPrimesLegendreModified {limit} {
     }
     expr {$limit / (log($limit) - 1.08366)}
 }
+## 
+## 
+## End of file `primes.tcl'.

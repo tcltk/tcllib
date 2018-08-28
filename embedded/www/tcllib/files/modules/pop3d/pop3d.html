@@ -240,7 +240,7 @@ has to be provided by the command prefix is described in section
 <dt><b class="option">-socket</b> <i class="arg">command</i></dt>
 <dd><p>Defines a <i class="arg">command</i> prefix to call for opening the listening socket.
 This can be used to make the pop3 server listen on a SSL socket
-as provided by the <b class="package"><a href="../../../../index.html#key331">tls</a></b> package, see the command <b class="cmd">tls::socket</b>.</p></dd>
+as provided by the <b class="package"><a href="../../../../index.html#tls">tls</a></b> package, see the command <b class="cmd">tls::socket</b>.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Authentication</a></h2>
@@ -268,8 +268,7 @@ as returned by the <b class="method">lookup</b> method of the authentication
 command, see section <span class="sectref"><a href="#section3">Authentication</a></span>.</p>
 <dl class="doctools_definitions">
 <dt><a name="14"><i class="arg">storageCmd</i> <b class="method">dele</b> <i class="arg">mbox</i> <i class="arg">msgList</i></a></dt>
-<dd><p>]
-Deletes the messages whose numeric ids are contained in the
+<dd><p>Deletes the messages whose numeric ids are contained in the
 <i class="arg">msgList</i> from the mailbox specified via <i class="arg">mbox</i>.</p></dd>
 <dt><a name="15"><i class="arg">storageCmd</i> <b class="method">lock</b> <i class="arg">mbox</i></a></dt>
 <dd><p>This method locks the specified mailbox for use by a single connection
@@ -299,7 +298,7 @@ pop3 connection.</p></dd>
 <p>The option <b class="option">-socket</b> (see <span class="sectref"><a href="#section2">Options</a></span>) enables users of
 the package to override how the server opens its listening socket.
 The envisioned main use is the specification of the <b class="cmd">tls::socket</b>
-command, see package <b class="package"><a href="../../../../index.html#key331">tls</a></b>, to secure the communication.</p>
+command, see package <b class="package"><a href="../../../../index.html#tls">tls</a></b>, to secure the communication.</p>
 <pre class="doctools_example">
 	package require tls
 	tls::init \\
@@ -329,7 +328,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key680">network</a>, <a href="../../../../index.html#key445">pop3</a>, <a href="../../../../index.html#key133">protocol</a>, <a href="../../../../index.html#key444">rfc 1939</a>, <a href="../../../../index.html#key357">secure</a>, <a href="../../../../index.html#key360">ssl</a>, <a href="../../../../index.html#key331">tls</a></p>
+<p><a href="../../../../index.html#internet">internet</a>, <a href="../../../../index.html#network">network</a>, <a href="../../../../index.html#pop3">pop3</a>, <a href="../../../../index.html#protocol">protocol</a>, <a href="../../../../index.html#rfc_1939">rfc 1939</a>, <a href="../../../../index.html#secure">secure</a>, <a href="../../../../index.html#ssl">ssl</a>, <a href="../../../../index.html#tls">tls</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

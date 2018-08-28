@@ -287,7 +287,7 @@ Paths onto which this server will listen for incoming connections
 should be declared using <b class="cmd">::websocket::live</b>.</p></dd>
 <dt><a name="4"><b class="cmd">::websocket::live</b> <i class="arg">sock</i> <i class="arg">path</i> <i class="arg">cb</i> <span class="opt">?<i class="arg">proto</i>?</span></a></dt>
 <dd><p>This procedure registers callbacks that will be performed on a
-WebSocket compliant server registered with <b class="cmd">::websocket::server</b>]
+WebSocket compliant server registered with <b class="cmd">::websocket::server</b>
 whenever a client connects to a matching path and protocol. 
 <i class="arg">sock</i> is the listening socket of the websocket compliant server
 declared using <b class="cmd">::websocket::server</b>.  <i class="arg">path</i> is a glob-style
@@ -455,10 +455,10 @@ vwait forever
 </pre>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">TLS Security Considerations</a></h2>
-<p>This package uses the <b class="package"><a href="../../../../index.html#key331">TLS</a></b> package to handle the
+<p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
 security for <b class="const">https</b> urls and other socket connections.</p>
 <p>Policy decisions like the set of protocols to support and what
-ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key331">TLS</a></b>, nor of
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
 Such decisions are the responsibility of whichever application is
 using the package, and are likely influenced by the set of servers
@@ -466,8 +466,8 @@ the application will talk to as well.</p>
 <p>For example, in light of the recent
 <a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
 for the SSLv3 protocol.
-To handle this change the applications using <b class="package"><a href="../../../../index.html#key331">TLS</a></b> must be
-patched, and not this package, nor <b class="package"><a href="../../../../index.html#key331">TLS</a></b> itself.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#tls">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#tls">TLS</a></b> itself.
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
@@ -491,10 +491,10 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="see-also" class="doctools_section"><h2><a name="see-also">See Also</a></h2>
-<p><a href="../../../../index.html#key447">http</a></p>
+<p><a href="../../../../index.html#http">http</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key447">http</a>, <a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key295">net</a>, <a href="../../../../index.html#key448">rfc 6455</a></p>
+<p><a href="../../../../index.html#http">http</a>, <a href="../../../../index.html#internet">internet</a>, <a href="../../../../index.html#net">net</a>, <a href="../../../../index.html#rfc_6455">rfc 6455</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

@@ -328,7 +328,6 @@ Otherwise the group A is split up into groups of one element - this is due to an
 [call [cmd ::math::statistics::quantiles] [arg data] [arg confidence]]
 Return the quantiles for a given set of data
 [list_begin arguments]
-[para]
 [arg_def list data] - List of raw data values
 [para]
 [arg_def float confidence] - Confidence level (0.95 or 0.99 for instance) or a list of confidence levels.
@@ -1535,7 +1534,7 @@ puts "Plot the data as function of \"time\" and against each other"
 ::math::statistics::plot-xydata .plot2 $data1 $data2
 
 puts "Correlation coefficient:"
-puts [lb]::math::statistics::corr $data1 $data2]
+puts [lb]::math::statistics::corr $data1 $data2[rb]
 
 pause 2
 puts "Plot histograms"
@@ -1559,7 +1558,7 @@ print-histogram $histogram_data $limits
 
 puts "Autocorrelation function:"
 set  autoc [lb]::math::statistics::autocorr $data1[rb]
-puts [lb]::math::statistics::map $autoc {[lb]format "%.2f" $x]}[rb]
+puts [lb]::math::statistics::map $autoc {[lb]format "%.2f" $x[rb]}[rb]
 puts "Cross-correlation function:"
 set  crossc [lb]::math::statistics::crosscorr $data1 $data2[rb]
 puts [lb]::math::statistics::map $crossc {[lb]format "%.2f" $x[rb]}[rb]

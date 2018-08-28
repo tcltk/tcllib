@@ -837,6 +837,9 @@ tcllib
 \fBmath::statistics\fR
 \fIfiles/modules/math/statistics\&.n\fR: Basic statistical functions and procedures
 .TP
+\fBmath::trig\fR
+\fIfiles/modules/math/trig\&.n\fR: Trigonometric anf hyperbolic functions
+.TP
 \fBmd4\fR
 \fIfiles/modules/md4/md4\&.n\fR: MD4 Message-Digest Algorithm
 .TP
@@ -1430,9 +1433,6 @@ tcllib
 .TP
 \fBtool\fR
 \fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
-.TP
-\fBtool-ui\fR
-\fIfiles/modules/tool-ui/tool-ui\&.n\fR: Abstractions to allow Tao to express Native Tk, HTML5, and Tao-Layout interfaces
 .TP
 \fBtool::dict_ensemble\fR
 \fIfiles/modules/tool/tool_dict_ensemble\&.n\fR: Dictionary Tools

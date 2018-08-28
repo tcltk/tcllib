@@ -138,7 +138,7 @@ not missing tags.  Optional, defaults to 'no variable'.
 [list_end]
 
 [list_begin definitions]
-[para]
+
 [def [emph "Interface to the command prefix"]]
 
 In normal mode the parser will invoke the command prefix with four

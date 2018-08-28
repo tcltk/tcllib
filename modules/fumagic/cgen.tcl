@@ -29,7 +29,7 @@ package require Tcl 8.4
 package require fileutil::magic::rt ; # Runtime core, for Access to the typemap
 package require struct::list        ; # Our data structures.
 
-package provide fileutil::magic::cgen 1.2.0
+package provide fileutil::magic::cgen 1.3.0
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -57,6 +57,10 @@ namespace eval ::fileutil::magic::cgen {
     variable offsetskey {
 	type o rel ind ir it ioi ioo iir io compinvert mod mand
     }
+
+    variable indent {}
+    variable indents {}
+    variable innamed 0
 }
 
 
@@ -92,6 +96,34 @@ namespace eval ::fileutil::magic::cgen {
 # - common prefix strings will have to be guarded against, by
 #   sorting string values, then sorting the tests in reverse length order.
 
+
+proc ::fileutil::magic::cgen::LessIndent {} {
+    variable indent
+    variable indents
+    set size [expr {[string length $indent] - 1}]
+    if {[dict exists $indents $size]} {
+	set indent [dict get $indents $size]
+    } else {
+	set indent [string repeat \t $size]
+	dict set indents $size $indent
+    }
+    return
+}
+
+proc ::fileutil::magic::cgen::MoreIndent {} {
+    variable indent
+    variable indents
+    set size [expr {[string length $indent] + 1}]
+    if {[dict exists $indents $size]} {
+        set indent [dict get $indents $size]
+    } else {
+        set indent [string repeat \t $size]
+        dict set indents $size $indent
+    }
+    return
+}
+
+
 proc ::fileutil::magic::cgen::path {tree} {
     # Annotates the tree. In each node we store the path from the root
     # to this node, as list of nodes, with the current node the last
@@ -122,6 +154,8 @@ proc ::fileutil::magic::cgen::tree_el {tree node} {
 	set $name [$tree get $node $name]
     }
 
+    puts stderr [list frlaalm [$tree getall $node]]
+
     # Recursively creates and annotates a node for the specified
     # tests, and its sub-tests (args).
 
@@ -132,21 +166,27 @@ proc ::fileutil::magic::cgen::tree_el {tree node} {
     switch -glob -- $type {
    	*byte* -
 	*double* -
+	*float* -
    	*short* -
    	*long* -
 	*quad* -
    	*date* {
    	    $tree set $node otype N
    	}
-   	clear - default - search - regex - *string* {
+   	clear - search - regex - *string* {
    	    $tree set $node otype S
    	}
 	name {
-	    puts [list cromble otype [$tree getall $node]]
 	    $tree set $node otype A
 	}
 	use {
 	    $tree set $node otype U
+	}
+	default {
+	    $tree set $node otype D
+	}
+	indirect {
+	    $tree set $node otype T
 	}
    	default {
    	    puts stderr "Unknown type: '$type'"
@@ -173,10 +213,6 @@ proc ::fileutil::magic::cgen::2tree {tree} {
     #optStr $tree root
     puts stderr "Script contains [llength [$tree children root]] discriminators"
     path $tree
-
-    # Decoding the offsets, determination if we have to handle
-    # relative offsets, and where. The less, the better.
-    Offsets $tree
 
     return $tree
 }
@@ -250,7 +286,12 @@ proc ::fileutil::magic::cgen::isNum {tree node} {
 }
 
 proc ::fileutil::magic::cgen::switchNSort {tree n1 n2} {
-    return [expr {[$tree get $n1 val] - [$tree get $n1 val]}]
+
+    # deal with the fact that [lsort] barfs if the result is larger than 32
+    # bits
+    set val1 [$tree get $n1 val]
+    set val2 [$tree get $n2 val]
+    expr {$val1 > $val2 ? 1 : $val1 < $val2 ? -1 : 0}
 }
 
 proc ::fileutil::magic::cgen::optNum {tree node} {
@@ -322,54 +363,6 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
     }
 }
 
-proc ::fileutil::magic::cgen::Offsets {tree} {
-
-    # Indicator if a node has to save field location information for
-    # relative addressing. The 'kill' attribute is an accumulated
-    # 'save' over the whole subtree. It will be used to determine when
-    # level information was destroyed by subnodes and has to be
-    # regenerated at the current level.
-
-    $tree walk root -type dfs node {
-	$tree set $node kill 0
-	if {[$tree get $node otype] ne {Root} &&
-	    ([$tree get $node rel] || [$tree get $node ir])} {
-	    $tree set $node save 1
-	} else {
-	    $tree set $node save 0
-	}
-    }
-
-    # We walk from the leafs up to the root, synthesizing the data
-    # needed, as we go.
-    $tree walk root -type dfs -order post node {
-	if {$node eq {root}} continue
-
-	# If the current node's parent is a switch, and the node has
-	# to save, then the switch has to save. Because the current
-	# node is not relevant during code generation anymore, the
-	# switch is.
-
-	if {[$tree get $node save]} {
-	    # We save, therefore we kill.
-	    $tree set $node kill 1
-	    if {[$tree get [$tree parent $node] otype] eq {Switch}} {
-		$tree set [$tree parent $node] save 1
-	    }
-	} else {
-	    # We don't save i.e. kill, but we may inherit it from
-	    # children which kill.
-
-	    foreach c [$tree children $node] {
-		if {[$tree get $c kill]} {
-		    $tree set $node kill 1
-		    break
-		}
-	    }
-	}
-    }
-}
-
 
 # Useful when debugging
 proc ::fileutil::magic::cgen::stack {tree node} {
@@ -425,7 +418,7 @@ proc ::fileutil::magic::cgen::treedump {tree} {
 	}
 
 	if {[$tree keyexists $node otype]} {
-	    append result " " [$tree get $node otype]/[$tree get $node save]
+	    append result " " [$tree get $node otype]
 	}
 
 	if {$depth == 1} {
@@ -450,40 +443,46 @@ proc ::fileutil::magic::cgen::treedump {tree} {
 }
 
 proc ::fileutil::magic::cgen::treegen {tree node} {
+    variable indent
+    variable innamed
     variable ::fileutil::magic::rt::typemap
 
     set result {} 
     set otype [$tree get $node otype]
     set level [$tree get $node level]
 
-    set indent \n[string repeat \t [expr {$level > 0 ? $level-1 : 0}]]
-
     # Generate code for each node per its type.
 
     switch $otype {
 	A {
-	    set file [$tree get $node file]
-	    set val [$tree get $node val]
-	    if {[dict exists named $file$val]} {
-		return -code error [list {name already exists} $file $val]
+	    incr innamed
+	    try  {
+		set file [$tree get $node file]
+		set val [$tree get $node val]
+		if {[dict exists named $file$val]} {
+		    return -code error [list {name already exists} $file $val]
+		}
+		set aresult {}
+		foreach child [$tree children $node] {
+		    lappend aresult [treegen $tree $child]
+		}
+		set named [$tree get root named]
+		dict set named $file $val [join $aresult \n]
+		$tree set root named $named
+		return
+	    } finally {
+		incr innamed -1
 	    }
-	    set aresult {}
-	    foreach child [$tree children $node] {
-		lappend aresult [treegen $tree $child]
-	    }
-	    set named [$tree get root named]
-	    dict set named $file $val [join $aresult \n]
-	    $tree set root named $named
-	    return
 	}
 	U {
 	    set file [$tree get $node file]
 	    set val [$tree get $node val]
-	    append result "U [list $file] [list $val]\n" 
+	    # generateOffset is expanded via subsitution
+	    append result "${indent}U [list $file] [list $val] [
+		GenerateOffset $tree $node]\n" 
 	}
-	N -
-	S {
-	    set names {type mod mand testinvert compinvert comp val desc kill save path}
+	N - S - D {
+	    set names {type mod mand testinvert compinvert comp val desc path}
 	    foreach name $names {
 		set $name [$tree get $node $name]
 	    }
@@ -496,54 +495,79 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 		set val [list $val]
 	    }
 
-	    if {$otype eq {N}} {
-		if {$kill} {
-		    # We have to save field data for relative adressing under this
-		    # leaf.
-		    set type [list Nx $type]
-		} else {
-		    # Regular fetching of information.
+	    switch $otype {
+		N {
 		    set type [list N $type]
+		    # $type and $o are expanded via substitution 
+		    append result "${indent}if \{\[$type $o [list $testinvert] [
+			list $compinvert] [list $mod] [list $mand] [
+			list $comp] $val\]\} \{\n"
+			MoreIndent
+			append result "${indent}>\n"
 		}
-		# $type and $o are expanded via substitution 
-		append result "${indent}if \{\[$type $o [list $testinvert] [
-		    list $compinvert] [list $mod] [list $mand] [
-		    list $comp] $val\]\} \{>\n"
-	    } elseif {$otype eq {S}} {
-		switch $comp {
-		    == {set comp eq}
-		    != {set comp ne}
-		}
-		if {$kill} {
-		    set type [list Sx $type]
-		} else {
+		S {
+		    switch $comp {
+			== {set comp eq}
+			!= {set comp ne}
+		    }
+
 		    set type [list S $type]
+
+		    append result "${indent}if \{\[$type $o [list $testinvert] [
+			list $mod] [list $mand] [list $comp] $val\]\} \{\n"
+			MoreIndent
+			append result "${indent}>\n"
 		}
-		append result "${indent}if \{\[$type $o [list $testinvert] [
-		    list $mod] [list $mand] [list $comp] $val\]\} \{>\n"
+
+		D {
+		    set type [list D]
+		    append result "${indent}if \{\[$type $o]\} \{\n" 
+			MoreIndent
+			append result "${indent}>\n"
+
+		}
 	    }
 
-	    if {[$tree isleaf $node] && $desc ne {}} {
-		append result "${indent}emit [list $desc]"
-	    } else {
-		if {$desc ne {}} {
+	    MoreIndent
+
+		if {[$tree isleaf $node] && $desc ne {}} {
 		    append result "${indent}emit [list $desc]\n"
+		} else {
+		    if {$desc ne {}} {
+			append result "${indent}emit [list $desc]\n"
+		    }
+		    foreach child [$tree children $node] {
+			append result [treegen $tree $child]\n
+		    }
+		    #append result "\nreturn \$result"
 		}
-		foreach child [$tree children $node] {
-		    append result [treegen $tree $child]
+
+		if {[$tree keyexists $node ext_mime]} {
+		    append result "${indent}mime [list [$tree get $node ext_mime]]\n"
 		}
-		#append result "\nreturn \$result"
-	    }
 
-	    if {[$tree keyexists $node ext_mime]} {
-		append result "${indent}mime [$tree get $node ext_mime]\n"
-	    }
+		if {[$tree keyexists $node ext_ext]} {
+		    append result "${indent}ext [list [$tree get $node ext_ext]]\n"
+		}
 
-	    if {[$tree keyexists $node ext_ext]} {
-		append result "${indent}ext [$tree get $node ext_ext]\n"
-	    }
+		if {[$tree keyexists $node ext_strength]} {
+		    append result "${indent}strength [list [$tree get $node ext_strength]]\n"
+		}
 
-	    append result "\n<\}\n"
+	    LessIndent
+
+	    append result ${indent}<\n
+	    LessIndent
+	    append result ${indent}\}\n
+	}
+	T {
+	    set desc [$tree get $node desc]
+	    if {$desc ne {}} {
+		append result "${indent}emit [list $desc]\n"
+	    }
+	    set o [GenerateOffset $tree $node]
+	    set mod [$tree get $node mod]
+	    append result "${indent}T $o [list $mod]\n"
 	}
 	Root {
 	    foreach child [$tree children $node] {
@@ -554,59 +578,82 @@ proc ::fileutil::magic::cgen::treegen {tree node} {
 	    }
 	}
 	Switch {
-	    set names {o type compinvert mod mand kill save}
+	    set names {o type compinvert mod mand}
 	    foreach name $names {
 		set $name [$tree get $node $name]
 	    }
 	    set o [GenerateOffset $tree $node]
 
-	    if {$kill} {
-		set fetch Nvx
-	    } else {
-		set fetch Nv
-	    }
+	    set fetch Nv
 
 	    append fetch " $type $o [list $compinvert] [list $mod] [list $mand]"
-	    append result "${indent}switch -- \[$fetch\] "
+	    append result "${indent}switch \[$fetch\] \{\n"
 
-	    set scan [lindex $typemap($type) 1]
+	    MoreIndent
 
-	    set ckilled 0
-	    foreach child [$tree children $node] {
-		# See ::fileutil::magic::rt::rtscan
-		if {$scan eq {me}} {
-		    set scan I
-		}
+		set scan [lindex $typemap($type) 1]
 
-		# get value in binary form, then back to numeric
-		# this avoids problems with sign, as both values are
-		# [binary scan]-converted identically
-		binary scan [binary format $scan [$tree get $child val]] $scan val
+		foreach child [lsort -command [
+		    list ::fileutil::magic::cgen::switchNSort $tree] [
+			$tree children $node]] {
 
-		append result "$val \{>;"
-
-		set desc [$tree get $child desc]
-		if {[$tree isleaf $child] && $desc ne {}} {
-		    append result "emit [list [$tree get $child desc]]"
-		} else {
-		    if {$desc ne {}} {
-			append result "emit [list [$tree get $child desc]]\n"
+		    # See ::fileutil::magic::rt::rtscan
+		    if {$scan eq {me}} {
+			set scan I
 		    }
-		    foreach grandchild [$tree children $child] {
-			append result [treegen $tree $grandchild]
+
+		    set val [$tree get $child val]
+
+		    if {[info exists lastval] && $lastval != $val} {
+			LessIndent
+			append result "${indent}\}\n"
+		    } 
+
+		    if {![info exists lastval] || $lastval != $val} {
+			append result "${indent}$val \{\n"
+			MoreIndent
 		    }
-		}
-		if {[$tree keyexists $child ext_mime]} {
-		    append result "${indent}mime [$tree get $child ext_mime]\n"
+
+		    append result "${indent}>\n"
+
+		    MoreIndent
+
+			set desc [$tree get $child desc]
+
+			# emit, mime, and ext come first so that they are
+			# picked up when child nodes produce results
+
+			if {$desc ne {}} {
+			    append result "${indent}emit [list $desc]\n"
+			}
+
+			if {[$tree keyexists $child ext_mime]} {
+			    append result "${indent}mime [list [
+				$tree get $child ext_mime]]\n"
+			}
+
+			if {[$tree keyexists $child ext_ext]} {
+			    append result "${indent}ext [list [
+				$tree get $child ext_ext]]\n"
+			}
+
+			if {![$tree isleaf $child]} {
+			    foreach grandchild [$tree children $child] {
+				append result [treegen $tree $grandchild]\n
+			    }
+			}
+		    LessIndent
+
+		    append result "${indent}<\n"
+
+		    set lastval $val
 		}
 
-		if {[$tree keyexists $child ext_ext]} {
-		    append result "${indent}ext [$tree get $child ext_ext]\n"
-		}
+	    LessIndent
+	    append result "${indent}\}\n"
 
-		append result ";<\} "
-	    }
-	    append result "\n"
+	    LessIndent
+	    append result "${indent}\}\n"
 	}
     }
     return $result
@@ -624,6 +671,8 @@ proc ::fileutil::magic::cgen::GenerateOffset {tree node} {
     # relative indirect relative: &(&45.s+1) -> [R [I [R 45] s + 0 1]]
     # relative indirect relative: &(&45.s+(1)) -> [R [I [R 45] s + 1 1]]
 
+    variable innamed
+
     foreach v {o rel ind ir it ioi iir ioo io} {
 	set $v [$tree get $node $v]
     }
@@ -636,6 +685,14 @@ proc ::fileutil::magic::cgen::GenerateOffset {tree node} {
 	if {$ir} {set o "\[R $o]"}
 	set o "\[I $o [list $it] [list $ioi] [list $ioo] [list $iir] [list $io]\]"
     }
+
+    # spec
+    #   named instance direct offsets are relative to the offset of the
+    #   previous matched entry
+    if {$innamed} {
+	set o "\[O $o]"
+    }
+
     if {$rel} {
 	set o "\[R $o\]"
     }

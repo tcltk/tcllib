@@ -205,7 +205,7 @@ should be declared using [cmd ::websocket::live].
 [call [cmd ::websocket::live] [arg sock] [arg path] [arg cb] [opt [arg proto]]]
 
 This procedure registers callbacks that will be performed on a
-WebSocket compliant server registered with [cmd ::websocket::server]]
+WebSocket compliant server registered with [cmd ::websocket::server]
 whenever a client connects to a matching path and protocol. 
 [arg sock] is the listening socket of the websocket compliant server
 declared using [cmd ::websocket::server].  [arg path] is a glob-style
