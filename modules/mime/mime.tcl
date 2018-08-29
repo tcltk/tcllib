@@ -1410,10 +1410,7 @@ proc ::mime::getheader {token {key {}}} {
 
 	    switch $lower {
 		content-transfer-encoding {
-		    if {$res eq {}} {
-			error "key $key not in header"
-		    }
-		    set res [getTransferEncoding $token]
+		    return [getTransferEncoding $token]
 		}
 		content-type {
 		    return [list [getContentType $token]]
@@ -1499,21 +1496,6 @@ proc ::mime::setheader {token key value args} {
     array set options $args
 
     set lower [string tolower $key]
-    if {!$internal} {
-	switch -- $lower {
-	    content-md5
-		-
-	    content-type
-		-
-	    content-transfer-encoding
-		-
-	    mime-version {
-		error "key $key may not be set"
-	    }
-	    default {# Skip key}
-	}
-    }
-
     array set header $state(header)
     if {[set x [lsearch -exact $state(lowerL) $lower]] < 0} {
         #TODO: this code path is not tested
@@ -1529,18 +1511,37 @@ proc ::mime::setheader {token key value args} {
         set result $header($lower)
     }
     switch -- $options(-mode) {
-        append {
-            lappend header($lower) $value
-        }
-
+	append - write {
+	    if {!$internal} {
+		switch -- $lower {
+		    content-md5
+			-
+		    content-type
+			-
+		    content-transfer-encoding
+			-
+		    mime-version {
+			set values [getheader $token $lower]
+			if {$value ni $values} {
+			    error "key $key may not be set"
+			}
+		    }
+		    default {# Skip key}
+		}
+	    }
+	    switch -- $options(-mode) {
+		append {
+		    lappend header($lower) $value
+		}
+		write {
+		    set header($lower) [list $value]
+		}
+	    }
+	}
         delete {
             unset header($lower)
             set state(lowerL) [lreplace $state(lowerL) $x $x]
             set state(mixedL) [lreplace $state(mixedL) $x $x]
-        }
-
-        write {
-            set header($lower) [list $value]
         }
 
         default {
