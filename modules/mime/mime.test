@@ -53,9 +53,8 @@ test mime-2.2 {Generate a multi-part MIME message} {
     set tok1 [initialize -canonical "Text/plain" -string "jack and jill"]
     set tok2 [initialize -canonical "Text/plain" -string "james"]
     set bigTok [mime::initialize -canonical Multipart/MyType \
-	    -param [list MyParam foo] \
-	    -param [list boundary bndry] \
-	    -header [list Content-Description "Test Multipart"] \
+	    -params [list MyParam foo boundary bndry] \
+	    -headers [list Content-Description "Test Multipart"] \
 	    -parts [list $tok1 $tok2]]
     set msg [mime::buildmessage $bigTok]
     # The generated message is predictable except for the Content-ID
@@ -653,6 +652,47 @@ so plain
     set tok [mime::initialize -string $msg]
 	mime::getbody $tok
 } "so plain\n"
+
+# -------------------------------------------------------------------------
+test mime-14.0 {Bug 1825092} {
+    set in [makeFile {From h  Sat Oct 20 17:58:49 2007
+Return-Path: <sw>
+Message-ID: <17849372.3849122@fooooooooo.de>
+From: Somwhere <sw>
+MIME-Version: 1.0
+To: Here <h>
+Subject: test
+Content-Type: multipart/mixed;
+ boundary="------------090305080603000703000106"
+
+This is a multi-part message in MIME format.
+--------------090305080603000703000106
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+
+XXX
+
+--------------090305080603000703000106
+Content-Disposition: attachment;
+ filename="a0036.dss"
+Content-Transfer-Encoding: base64
+Content-Type: application/octet-stream;
+ name="a0036.dss"
+
+BGRzcwEAAQABAAAAYQAAAAAAAAAAAAAAAAAAACQAAAD+//7/+/8wNzA2MTYwODE1MjQwNzA2
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
+--------------090305080603000703000106--
+} mail_part]
+	
+    set token [mime::initialize -canonical text/plain -headers {To {Here <h>}} -string hello]
+    set headers [mime::getheader $token]
+	set parsed [mime::parseaddress hostname fakedomain.fake [lindex [mime::getheader $token to] 0]] 
+    file delete $in
+    list [llength $parsed] [lindex $parsed 0]
+} [list 1 [list address h@fakedomain.fake comment {} domain {} error {} \
+	friendly Here group {} local h memberP 0 phrase Here \
+	proper {Here <h@fakedomain.fake>} route {}]]
+
 
 # -------------------------------------------------------------------------
 
