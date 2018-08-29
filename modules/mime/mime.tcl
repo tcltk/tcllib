@@ -69,10 +69,10 @@ if {[catch {package require Trf 2.0}]} {
 #
 #     canonicalP: input is in its canonical form
 #     content: type/subtype
-#     params: seralized array of key/value pairs (keys are lower-case)
+#     params: dictionary (keys are lower-case)
 #     encoding: transfer encoding
 #     version: MIME-version
-#     header: serialized array of key/value pairs (keys are lower-case)
+#     header: dicttionary (keys are lower-case)
 #     lowerL: list of header keys, lower-case
 #     mixedL: list of header keys, mixed-case
 #     value: either "file", "parts", or "string"
@@ -1211,13 +1211,13 @@ proc ::mime::finalize {token args} {
 #   If mime::getproperty is invoked with the name of a specific
 #   property, then the corresponding value is returned; instead, if
 #   -names is specified, a list of all properties is returned;
-#   otherwise, a serialized array of properties and values is returned.
+#   otherwise, a dictionary of properties is returned.
 #
 # Arguments:
 #       token      The MIME token to parse.
 #       property   One of 'content', 'encoding', 'params', 'parts', and
-#                  'size'. Defaults to returning a serialized array of
-#                  properties and values.
+#                  'size'. Defaults to returning a dictionary of
+#                  properties.
 #
 # Results:
 #       Returns the properties of a MIME part
@@ -1364,7 +1364,7 @@ proc ::mime::getContentType token {
 #    If mime::getheader is invoked with the name of a specific key, then
 #    a list containing the corresponding value(s) is returned; instead,
 #    if -names is specified, a list of all keys is returned; otherwise, a
-#    serialized array of keys and values is returned. Note that when a
+#    dictionary is returned. Note that when a
 #    key is specified (e.g., "Subject"), the list returned usually
 #    contains exactly one string; however, some keys (e.g., "Received")
 #    often occur more than once in the header, accordingly the list
@@ -2358,9 +2358,14 @@ proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
     # be munged by EBCDIC gateways, and special Tcl characters "[\]{}
     # with =xx sequence
 
-    regsub -all -- \
-        {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF]} \
-        $string {[format =%02X [scan "\\&" %c]]} string
+    if {$encoded_word} {
+        # Special processing for encoded words (RFC 2047)
+        set regexp {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF\x09\x5F\x3F]}
+	lappend mapChars { } _
+    } else {
+        set regexp {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF]}
+    }
+    regsub -all -- $regexp $string {[format =%02X [scan "\\&" %c]]} string
 
     # Replace the format commands with their result
 
@@ -2368,12 +2373,8 @@ proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
 
     # soft/hard newlines and other
     # Funky cases for SMTP compatibility
-    set mapChars [
-        list " \n" =20\n \t\n =09\n \n\.\n \=2E\n "\nFrom " "\n=46rom "]
-    if {$encoded_word} {
-        # Special processing for encoded words (RFC 2047)
-        lappend mapChars { } _
-    }
+    lappend mapChars " \n" =20\n \t\n =09\n \n\.\n =2E\n "\nFrom " "\n=46rom "
+
     set string [string map $mapChars $string]
 
     # Break long lines - ugh
@@ -2470,10 +2471,10 @@ proc ::mime::qp_decode {string {encoded_word 0}} {
 #       generated!
 #
 #       mime::parseaddress takes a string containing one or more 822-style
-#       address specifications and returns a list of serialized arrays, one
-#       element for each address specified in the argument.
+#       address specifications and returns a list of dictionaries, for each
+#       address specified in the argument.
 #
-#    Each serialized array contains these properties:
+#    Each dictionary contains these properties:
 #
 #       property    value
 #       ========    =====
@@ -2495,7 +2496,7 @@ proc ::mime::qp_decode {string {encoded_word 0}} {
 #    string        The address string to parse
 #
 # Results:
-#    Returns a list of serialized arrays, one element for each address
+#    Returns a list of dictionaries, one element for each address
 #       specified in the argument.
 
 proc ::mime::parseaddress {string} {
@@ -2529,7 +2530,7 @@ proc ::mime::parseaddress {string} {
 #
 #       mime::parseaddressaux does the actually parsing for mime::parseaddress
 #
-#    Each serialized array contains these properties:
+#    Each dictionary contains these properties:
 #
 #       property    value
 #       ========    =====
@@ -2548,12 +2549,12 @@ proc ::mime::parseaddress {string} {
 #    Note that one or more of these properties may be empty.
 #
 # Arguments:
-#       token         The MIME token to work from.
+#    token         The MIME token to work from.
 #    string        The address string to parse
 #
 # Results:
-#    Returns a list of serialized arrays, one element for each address
-#       specified in the argument.
+#    Returns a list of dictionaries, one for each address specified in the
+#    argument.
 
 proc ::mime::parseaddressaux {token string} {
     # FRINK: nocheck

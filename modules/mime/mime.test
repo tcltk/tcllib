@@ -272,12 +272,47 @@ test mime-4.5 {Test qp_encode with softbreak} {
 } "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca=
 bcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
 
+
 test mime-4.6 {Test qp_encode with softbreak} {
     set str1 [string repeat abc 40]
     mime::qp_encode $str1 0 1
 } [string repeat abc 40]
 
 
+test mime-4.7 {Test qp_encode/decode in encoded_word mode} {
+    set enc [mime::qp_encode "jack and jill went up the hill" 1]
+    mime::qp_decode $enc 1
+} "jack and jill went up the hill"
+
+
+test mime-4.8 {Test qp_encode in encoded_word mode with equal signs} {
+    mime::qp_encode "1and1=2" 1
+} "1and1=3D2"
+
+test mime-4.9 {Test qp_encode in encoded_word mode with tabs and spaces} {
+    mime::qp_encode "1 and 1 =\t2" 1
+} "1_and_1_=3D=092"
+
+
+test mime-4.10 {Test qp_encode in encoded_word mode with underscores} {
+    mime::qp_encode "2003_06_30" 1
+} "2003=5F06=5F30"
+
+
+test mime-4.11 {Test qp_encode in encoded_word mode with underscores and spaces} {
+    mime::qp_encode "2003_06_30 is 30 June 2003" 1
+} "2003=5F06=5F30_is_30_June_2003"
+
+
+test mime-4.12 {Test qp_encode in encoded_word mode with question marks} {
+    mime::qp_encode "How long is a piece of string ?" 1
+} "How_long_is_a_piece_of_string_=3F"
+
+
+test mime-4.13 {Test qp_encode in no_softbreak mode} {
+    mime::qp_encode "This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility" 0 1
+} "This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility"
+ 
 
 
 test mime-5.1 {Test word_encode with quoted-printable method} {
@@ -412,9 +447,9 @@ test mime-5.41 {Test word_encode with maxlength to short for method quoted-print
 } "maxlength 17 too short for chosen charset and encoding"
 
 test mime-5.42 {Test word_encode with maxlength on the limit for quoted_printable and an unquoted character} {
-   catch {mime::word_encode iso8859-1 quoted-printable "_" -maxlength 18} errmsg
+   catch {mime::word_encode iso8859-1 quoted-printable "_" -maxlength 20} errmsg
    set errmsg
-} "=?ISO-8859-1?Q?_?="
+} "=?ISO-8859-1?Q?=5F?="
 
 test mime-5.43 {Test word_encode with maxlength to short for method quoted_printable and a character to be quoted} {
    catch {mime::word_encode iso8859-1 quoted-printable "=" -maxlength 18} errmsg
