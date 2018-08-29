@@ -417,6 +417,8 @@ proc ::mime::initializeaux {token args} {
 
     set state(cid) 0
 
+    set userheader 0
+
     set argc [llength $args]
     for {set argx 0} {$argx < $argc} {incr argx} {
         set option [lindex $args $argx]
@@ -444,7 +446,9 @@ proc ::mime::initializeaux {token args} {
             }
 
             -encoding {
-                switch -- [set state(encoding) [string tolower $value]] {
+		set value [string tolower $value[set value {}]]
+
+                switch -- $value {
                     7bit - 8bit - binary - quoted-printable - base64 {
                     }
 
@@ -452,6 +456,7 @@ proc ::mime::initializeaux {token args} {
                         error "unknown value for -encoding $state(encoding)"
                     }
                 }
+                set state(encoding) [string tolower $value]
             }
 
             -header {
@@ -472,6 +477,8 @@ proc ::mime::initializeaux {token args} {
                     lappend state(lowerL) $lower
                     lappend state(mixedL) $mixed
                 }
+
+		set userheader 1
 
                 array set header $state(header)
                 lappend header($lower) [lindex $value 1]
@@ -572,7 +579,6 @@ proc ::mime::initializeaux {token args} {
         }
 
         set state(version) 1.0
-
         return
     }
 
@@ -582,7 +588,7 @@ proc ::mime::initializeaux {token args} {
     if {$state(encoding) ne {}} {
         error "-encoding requires -canonical"
     }
-    if {$state(header) ne {}} {
+    if {$userheader} {
         error "-header requires -canonical"
     }
     if {[info exists state(parts)]} {
@@ -1323,6 +1329,31 @@ proc ::mime::getsize {token} {
     return $size
 }
 
+
+proc ::mime::getContentType token {
+    variable $token
+    upvar 0 $token state
+    set boundary {}
+    set res $state(content)
+    foreach {k v} $state(params) {
+	set boundary $v
+        append res ";\n              $k=\"$v\""
+    }
+    if {([string match multipart/* $state(content)]) \
+        && ($boundary eq {})} {
+        # we're doing everything in one pass...
+        set key [clock seconds]$token[info hostname][array get state]
+        set seqno 8
+        while {[incr seqno -1] >= 0} {
+            set key [md5 -- $key]
+        }
+        set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
+
+        append res ";\n              boundary=\"$boundary\""
+    }
+    return $res
+}
+
 # ::mime::getheader --
 #
 #    mime::getheader returns the header of a MIME part.
@@ -1356,9 +1387,17 @@ proc ::mime::getheader {token {key {}}} {
     switch -- $key {
         {} {
             set result {}
+	    lappend result MIME-Version $state(version)
             foreach lower $state(lowerL) mixed $state(mixedL) {
-                lappend result $mixed $header($lower)
+		foreach value $header($lower) {
+		    lappend result $mixed $value 
+		}
             }
+	    set tencoding [getTransferEncoding $token]
+	    if {$tencoding ne {}} {
+		lappend result Content-Transfer-Encoding $tencoding
+	    }
+	    lappend result Content-Type [getContentType $token]
             return $result
         }
 
@@ -1367,14 +1406,58 @@ proc ::mime::getheader {token {key {}}} {
         }
 
         default {
-            set lower [string tolower [set mixed $key]]
+            set lower [string tolower $key]
 
-            if {![info exists header($lower)]} {
-                error "key $mixed not in header"
-            }
-            return $header($lower)
+	    switch $lower {
+		content-transfer-encoding {
+		    if {$res eq {}} {
+			error "key $key not in header"
+		    }
+		    set res [getTransferEncoding $token]
+		}
+		content-type {
+		    return [list [getContentType $token]]
+		}
+		mime-version {
+		    return [list $state(version)]
+		}
+		default {
+		    if {![info exists header($lower)]} {
+			error "key $key not in header"
+		    }
+		    return $header($lower)
+		}
+	    }
         }
     }
+}
+
+
+proc ::mime::getTransferEncoding token {
+    variable $token
+    upvar 0 $token state
+    set res {}
+    if {[set encoding $state(encoding)] eq {}} {
+	set encoding [encoding $token]
+    }
+    if {$encoding ne {}} {
+	set res $encoding
+    }
+    switch -- $encoding {
+	base64
+	    -
+	quoted-printable {
+	    set converter $encoding
+	}
+	7bit - 8bit - binary - {} {
+	    # Bugfix for [#477088], also [#539952]
+	    # Go ahead
+	}
+	default {
+	    error "Can't handle content encoding \"$encoding\""
+	}
+    }
+    return $res
 }
 
 # ::mime::setheader --
@@ -1408,23 +1491,27 @@ proc ::mime::getheader {token {key {}}} {
 
 proc ::mime::setheader {token key value args} {
     # FRINK: nocheck
+    variable internal
     variable $token
     upvar 0 $token state
 
     array set options [list -mode write]
     array set options $args
 
-    switch -- [set lower [string tolower $key]] {
-        content-md5
-            -
-        content-type
-            -
-        content-transfer-encoding
-            -
-        mime-version {
-            error "key $key may not be set"
-        }
-        default {# Skip key}
+    set lower [string tolower $key]
+    if {!$internal} {
+	switch -- $lower {
+	    content-md5
+		-
+	    content-type
+		-
+	    content-transfer-encoding
+		-
+	    mime-version {
+		error "key $key may not be set"
+	    }
+	    default {# Skip key}
+	}
     }
 
     array set header $state(header)
@@ -1785,38 +1872,19 @@ proc ::mime::copymessageaux {token channel} {
     array set header $state(header)
 
     set result {}
-    if {$state(version) ne {}} {
-        puts $channel "MIME-Version: $state(version)"
-    }
-    foreach lower $state(lowerL) mixed $state(mixedL) {
-        foreach value $header($lower) {
-            puts $channel "$mixed: $value"
-        }
-    }
-    if {
-		!$state(canonicalP)
-		&&
-		[set encoding $state(encoding)] ne {}
-    } {
-        puts $channel "Content-Transfer-Encoding: $encoding"
+    foreach {mixed value} [getheader $token] {
+	puts $channel "$mixed: $value"
     }
 
-    puts -nonewline $channel "Content-Type: $state(content)"
-    set boundary {}
     foreach {k v} $state(params) {
         if {$k eq "boundary"} {
             set boundary $v
         }
-
-        puts -nonewline $channel ";\n              $k=\"$v\""
     }
 
     set converter {}
     set encoding {}
     if {$state(value) ne "parts"} {
-        #TODO: the path is not covered by tests
-        puts $channel {}
-
         if {$state(canonicalP)} {
             if {[set encoding $state(encoding)] eq {}} {
                 set encoding [encoding $token]
@@ -1850,8 +1918,6 @@ proc ::mime::copymessageaux {token channel} {
         set boundary "----- =_[string trim [base64 -mode encode -- $key]]"
 
         puts $channel ";\n              boundary=\"$boundary\""
-    } else {
-        puts $channel {}
     }
 
     if {[info exists state(error)]} {
@@ -3861,3 +3927,6 @@ proc ::mime::field_decode {field} {
     unset encList encAliasList
 
 } ::mime}
+
+
+variable ::mime::internal 0
