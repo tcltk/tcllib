@@ -419,7 +419,9 @@ proc ::mime::initializeaux {token args} {
     set state(encoding) {}
     set state(version) 1.0
 
+    set state(bodyparsed) 0
     set state(header) {}
+    set state(headerparsed) 0
     set state(lowerL) {}
     set state(mixedL) {}
 
@@ -449,8 +451,8 @@ proc ::mime::initializeaux {token args} {
                 if {[llength $value] % 2} {
 		    error [list -params expects a dictionary]
                 }
-		foreach {pkey pvalue} $value {
-		    set lower [string tolower [set mixed $pkey]]
+		foreach {mixed pvalue} $value {
+		    set lower [string tolower $mixed]
 		    if {[info exists params($lower)]} {
 			error "the $mixed parameter may be specified at most once"
 		    }
@@ -480,16 +482,16 @@ proc ::mime::initializeaux {token args} {
 		}
 		set userheader 1
                 if {[llength $value] % 2} {
-                    error [list -headers expects a key/valu pairs]
+                    error [list -headers expects a dictionary]
                 }
 
-		foreach {hkey hvalue} $value {
-		    set lower [string tolower [set mixed [lindex $value 0]]]
+		foreach {mixed hvalue} $value {
+		    set lower [string tolower $mixed]
 		    if {$lower eq "content-type"} {
-			error "use -canonical instead of -headers $hvalue"
+			error "use -canonical instead of -headers $hkey $mixed"
 		    }
 		    if {$lower eq "content-transfer-encoding"} {
-			error "use -encoding instead of -headers $hvalue"
+			error "use -encoding instead of -headers $hkey $mixed"
 		    }
 		    if {$lower in {content-md5 mime-version}} {
 			error "don't go there..."
@@ -560,7 +562,8 @@ proc ::mime::initializeaux {token args} {
         error "specify exactly one of -file, -parts, or -string"
     }
 
-    if {[set state(canonicalP) [info exists state(content)]] || [info exists state(parts)]} {
+    if {[set state(canonicalP) [
+	expr {[info exists state(content)] || [info exists state(parts)]}]]} {
 
 	if {![info exists state(content)]} {
 	    set state(content) multipart/mixed
@@ -632,38 +635,17 @@ proc ::mime::initializeaux {token args} {
             fconfigure $state(fd) -translation binary
         }
     }
-
-    set code [catch {mime::parsepart $token} result]
-    set ecode $errorCode
-    set einfo $errorInfo
-
-    if {$fileP} {
-        if {!$openP} {
-            unset state(root)
-            catch {close $state(fd)}
-        }
-        unset state(fd)
-    }
-
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# ::mime::parsepart --
-#
-#       Parses the MIME headers and attempts to break up the message
-#       into its various parts, creating a MIME token for each part.
-#
-# Arguments:
-#       token  The MIME token to parse.
-#
-# Results:
-#       Throws an error if it has problems parsing the MIME token,
-#       otherwise it just sets up the appropriate variables.
-
-proc ::mime::parsepart {token} {
+proc ::mime::parseheader token {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    if {$state(canonicalP) || $state(headerparsed)} {
+	return
+    }
+    set state(headerparsed) 1
+    upvar 0 state(last) last
 
     if {[set fileP [info exists state(file)]]} {
         seek $state(fd) [set pos $state(offset)] start
@@ -674,14 +656,14 @@ proc ::mime::parsepart {token} {
 
     set vline {}
     while 1 {
-        set blankP 0
-        if {$fileP} {
-            if {($pos > $last) || ([set x [gets $state(fd) line]] <= 0)} {
-                set blankP 1
-            } else {
-                incr pos [expr {$x + 1}]
-            }
-        } else {
+	set blankP 0
+	if {$fileP} {
+	    if {($pos > $last) || ([set x [gets $state(fd) line]] <= 0)} {
+		set blankP 1
+	    } else {
+		incr pos [expr {$x + 1}]
+	    }
+	} else {
 	    if {$state(lines.current) >= $state(lines.count)} {
 		set blankP 1
 		set line {}
@@ -691,14 +673,14 @@ proc ::mime::parsepart {token} {
 		set x [string length $line]
 		if {$x == 0} {set blankP 1}
 	    }
-        }
+	}
 
-         if {!$blankP && [string match *\r $line]} {
-             set line [string range $line 0 $x-2]]
-             if {$x == 1} {
-                 set blankP 1
-             }
-         }
+	if {!$blankP && [string match *\r $line]} {
+	    set line [string range $line 0 $x-2]
+	    if {$x == 1} {
+		set blankP 1
+	    }
+	}
 
         if {!$blankP && (
 	    [string first { } $line] == 0
@@ -727,6 +709,7 @@ proc ::mime::parsepart {token} {
             error "improper line in header: $vline"
         }
         set value [string trim [string range $vline [expr {$x + 1}] end]]
+
         switch -- [set lower [string tolower $mixed]] {
             content-type {
                 if {[info exists state(content)]} {
@@ -775,12 +758,56 @@ proc ::mime::parsepart {token} {
         }
         set vline $line
     }
+}
 
+proc ::mime::parsepart token {
+    variable $token
+    upvar 0 $token state
+    if {$state(canonicalP) || $state(bodyparsed)} {
+	return
+    }
+    set state(bodyparsed) 1
+    global errorCode errorInfo
+    set code [catch {mime::parsepartaux $token} result]
+    set ecode $errorCode
+    set einfo $errorInfo
+
+    if {[info exists state(file)]} {
+        if {![info exists state(root)]} {
+            unset state(root)
+            catch {close $state(fd)}
+        }
+	unset state(fd)
+    }
+
+    return -code $code -errorinfo $einfo -errorcode $ecode $result
+}
+
+# ::mime::parsepart --
+#
+#       Parses the MIME headers and attempts to break up the message
+#       into its various parts, creating a MIME token for each part.
+#
+# Arguments:
+#       token  The MIME token to parse.
+#
+# Results:
+#       Throws an error if it has problems parsing the MIME token,
+#       otherwise it just sets up the appropriate variables.
+
+proc ::mime::parsepartaux token {
+    # FRINK: nocheck
+    variable $token
+    upvar 0 $token state
+    upvar 0 state(last) last
+
+    parseheader $token
     if {![info exists state(content)]} {
         set state(content) text/plain
         set state(params) [list charset us-ascii]
     }
 
+    set fileP [info exists state(file)]
     if {![string match multipart/* $state(content)]} {
         if {$fileP} {
             set x [tell $state(fd)]
@@ -983,25 +1010,30 @@ proc ::mime::parsepart {token} {
                     mime::initializeaux $child \
                         -file $state(file) -root $state(root) \
                         -offset $start -count $count
+		    parsepart $child
                 }]} {
                     set nochild 1
                     set state(parts) [lrange $state(parts) 0 end-1]
-                } } else {
+                } 
+	    } else {
                 mime::initializeaux $child \
                     -file $state(file) -root $state(root) \
                     -offset $start -count $count
+		parsepart $child
             }
             seek $state(fd) [set start $pos] start
         } else {
             if {$forceoctet} {
                 if {[catch {
                     mime::initializeaux $child -lineslist $start
+		    parsepart $child
                 }]} {
                     set nochild 1
                     set state(parts) [lrange $state(parts) 0 end-1]
                 }
             } else {
                 mime::initializeaux $child -lineslist $start
+		parsepart $child
             }
             set start {}
         }
@@ -1246,6 +1278,7 @@ proc ::mime::getproperty {token {property {}}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    parsepart $token
 
     switch -- $property {
         {} {
@@ -1402,6 +1435,7 @@ proc ::mime::getheader {token {key {}}} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    parseheader $token
 
     array set header $state(header)
     switch -- $key {
@@ -1511,6 +1545,7 @@ proc ::mime::setheader {token key value args} {
     variable internal
     variable $token
     upvar 0 $token state
+    parseheader $token
 
     array set options [list -mode write]
     array set options $args
@@ -1614,6 +1649,7 @@ proc ::mime::getbody {token args} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    parsepart $token
 
     set decode 0
     if {[set pos [lsearch -exact $args -decode]] >= 0} {
@@ -1889,6 +1925,7 @@ proc ::mime::copymessageaux {token channel} {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+    parsepart $token
 
     array set header $state(header)
 
@@ -2135,7 +2172,7 @@ proc ::mime::buildmessageaux token {
 #       Returns the encoding of the message (the null string, base64,
 #       or quoted-printable).
 
-proc ::mime::encoding {token} {
+proc ::mime::encoding token {
     # FRINK: nocheck
     variable $token
     upvar 0 $token state

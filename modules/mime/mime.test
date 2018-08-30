@@ -2,7 +2,7 @@
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
-# generates output for errors.  No output means no errors were found.
+# genere totes output for errors.  No output means no errors were found.
 #
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
@@ -157,7 +157,8 @@ part3
 } {part1 part2 part3}
 
 test mime-3.3 {Try to parse a totally invalid message} {
-    catch {mime::initialize -string "blah"} err0
+	set token [mime::initialize -string "blah"]
+    catch {mime::getheader $token} err0
     set err0
 } {improper line in header: blah}
 
@@ -181,7 +182,8 @@ test mime-3.5 {Try to parse a MIME message with no newline between headers and d
 Content-Type: foobar
 data without newline}
 
-    catch {mime::initialize -string $msg2} err2
+    set token [mime::initialize -string $msg2]
+    catch {mime::getheader $token} err2
     set err2
 } {improper line in header: data without newline}
 
@@ -202,8 +204,7 @@ Content-Type: text/plain\r
 foo}"
 
 test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
-    set tok [mime::initialize -file \
-		 [file join $tcltest::testsDirectory badmail1.txt]]
+    set tok [mime::initialize -file $tcltest::testsDirectory/badmail1.txt]
 
     set res {}
     set ctok [lindex [mime::getproperty $tok parts] 0]
@@ -688,47 +689,45 @@ so plain
 } "so plain\n"
 
 # -------------------------------------------------------------------------
-test mime-14.0 {Bug 1825092} {
-    set in [makeFile {From h  Sat Oct 20 17:58:49 2007
-Return-Path: <sw>
-Message-ID: <17849372.3849122@fooooooooo.de>
-From: Somwhere <sw>
-MIME-Version: 1.0
-To: Here <h>
-Subject: test
-Content-Type: multipart/mixed;
- boundary="------------090305080603000703000106"
 
-This is a multi-part message in MIME format.
---------------090305080603000703000106
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-
-XXX
-
---------------090305080603000703000106
-Content-Disposition: attachment;
- filename="a0036.dss"
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream;
- name="a0036.dss"
-
-BGRzcwEAAQABAAAAYQAAAAAAAAAAAAAAAAAAACQAAAD+//7/+/8wNzA2MTYwODE1MjQwNzA2
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
---------------090305080603000703000106--
-} mail_part]
-	
-    set token [mime::initialize -canonical text/plain -headers {To {Here <h>}} -string hello]
-    set headers [mime::getheader $token]
-	set parsed [mime::parseaddress hostname fakedomain.fake [lindex [mime::getheader $token to] 0]] 
-    file delete $in
+test mime-14.0 {
+	hostname argument to parseaddress
+} {
+	set parsed [mime::parseaddress hostname fakedomain.fake {Here <h>}] 
     list [llength $parsed] [lindex $parsed 0]
 } [list 1 [list address h@fakedomain.fake comment {} domain {} error {} \
 	friendly Here group {} local h memberP 0 phrase Here \
 	proper {Here <h@fakedomain.fake>} route {}]]
 
 
+
+test mime-14.1 {
+	special characters in local part
+} {
+	set parsed [mime::parseaddress hostname fakedomain.fake foo<>bar@grill.com]
+    list [llength $parsed] [lindex $parsed 0]
+} [list 1 [list address {} comment {} domain {} \
+	error {expecting mailbox in local-part (found >)} friendly foo group {} \
+	local {} memberP 0 phrase foo proper {foo <>} route {}]]
+
+
 # -------------------------------------------------------------------------
+
+
+test mime-15.0 {
+} {
+    set msg "MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=\"something\"\r
+\r
+so plain
+"
+
+    set tok [mime::initialize -string $msg]
+	mime::getheader $tok
+} [list MIME-Version 1.0 Content-Type \
+	"multipart/mixed;\n              boundary=\"something\""]
+
+
 
 testsuiteCleanup
 return
