@@ -560,7 +560,11 @@ proc ::mime::initializeaux {token args} {
         error "specify exactly one of -file, -parts, or -string"
     }
 
-    if {[set state(canonicalP) [info exists state(content)]]} {
+    if {[set state(canonicalP) [info exists state(content)]] || [info exists state(parts)]} {
+
+	if {![info exists state(content)]} {
+	    set state(content) multipart/mixed
+	}
         switch -- $state(value) {
             file {
                 set state(offset) 0
@@ -609,9 +613,6 @@ proc ::mime::initializeaux {token args} {
     }
     if {$userheader} {
         error "-header requires -canonical"
-    }
-    if {[info exists state(parts)]} {
-        error "-parts requires -canonical"
     }
 
     if {[set fileP [info exists state(file)]]} {

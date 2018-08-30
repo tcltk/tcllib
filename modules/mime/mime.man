@@ -38,14 +38,24 @@ Creates a MIME part and returns a token representing it.
 
 [item]
 
-If the [option -canonical] option is present, then the body is in
-canonical (raw) form and is found by consulting either the
+If the [option -canonical] option is present the body is already well-formed
+according to the provided [arg type/subtype].
 
-[option -file], [option -string], or [option -parts] option.
+If [option -file] is provided, the body of the message is read from the specified file.
 
-[option -headers] is a dictionary of headers, with possibly redundant keys that might specify for example, [const Content-Type].
+If [option -string] is provided, the accompanying value is the body of the message.
 
-[option -params] is a dictionary of parameters, with possibly redundant keys that might specify, for example [const Content-Disposition].
+If [option -parts] is provided, the media type is [const multipart] and the
+tokens in the provided list, which were retuned from previous calls to
+[call [cmd ::mime::initialize]],  are used to produce the message body.  If
+[option -canonical] is not provided, the default value of
+[const multipart/mixed] is used.
+
+[option -headers] is a dictionary of headers, with possibly redundant keys that
+might specify for example, [const Content-Type].
+
+[option -params] is a dictionary of parameters, with possibly redundant keys
+that might specify, for example [const Content-Disposition].
 
 [para]
 
@@ -55,7 +65,7 @@ Also, [option -encoding], if present, specifies the
 
 [item]
 
-If the [option -canonical] option is not present, then the MIME part
+If the [option -canonical] option is not present, the MIME part
 contained in either the [option -file] or the [option -string] option
 is parsed, dynamically generating subordinates as appropriate.
 
@@ -78,7 +88,7 @@ subordinates should also be destroyed. The default value is
 
 Returns a string or a list of strings containing the
 properties of a MIME part. If the command is invoked with the name of
-a specific property, then the corresponding value is returned;
+a specific property, the corresponding value is returned;
 instead, if [option -names] is specified, a list of all properties is
 returned; otherwise, a serialized array of properties and values is
 returned.
@@ -117,7 +127,7 @@ Returns the header of a MIME part as a dictionary with possibly-redundant keys.
 
 [para]
 
-If [arg key] is provided, then a list of values of matching names, without
+If [arg key] is provided, a list of values of matching names, without
 regard to case, is returned.
 
 [para]
@@ -168,7 +178,7 @@ part represented by [arg token] in canonical form.
 
 [para]
 
-If the [option -command] option is present, then it is repeatedly
+If the [option -command] option is present, it is repeatedly
 invoked with a fragment of the body as this:
 
 [example {
@@ -203,7 +213,7 @@ is propagated upwards by [cmd ::mime::getbody].
 
 [para]
 
-If the [option -command] option is absent, then the return value of
+If the [option -command] option is absent, the return value of
 [cmd ::mime::getbody] is a string containing the MIME part's entire
 body.
 

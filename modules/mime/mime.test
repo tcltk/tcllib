@@ -81,6 +81,40 @@ james\r
 " $msg] [regexp "boundary=\"bndry\"" $msg] [regexp "myparam=\"foo\"" $msg]
 } {1 1 1}
 
+
+
+test mime-2.3 {Generate a multi-part MIME message} {
+    set tok1 [initialize -canonical "Text/plain" -string "jack and jill"]
+    set tok2 [initialize -canonical "Text/plain" -string "james"]
+    set bigTok [mime::initialize \
+	    -params [list MyParam foo boundary bndry] \
+	    -headers [list Content-Description "Test Multipart"] \
+	    -parts [list $tok1 $tok2]]
+    set msg [mime::buildmessage $bigTok]
+    # The generated message is predictable except for the Content-ID
+    list [regexp "MIME-Version: 1.0\r
+Content-Description: Test Multipart\r
+Content-ID: \[^\n]+\r
+Content-Type: multipart/mixed;\r
+              \[^\n]+;\r
+              \[^\n]+\r
+\r
+--bndry\r
+MIME-Version: 1.0\r
+Content-ID: \[^\n]+\r
+Content-Type: text/plain\r
+\r
+jack and jill\r
+--bndry\r
+MIME-Version: 1.0\r
+Content-ID: \[^\n]+\r
+Content-Type: text/plain\r
+\r
+james\r
+--bndry--\r
+" $msg] [regexp "boundary=\"bndry\"" $msg] [regexp "myparam=\"foo\"" $msg]
+} {1 1 1}
+
 test mime-3.1 {Parse a MIME message} {
     set msg {MIME-Version: 1.0
 Content-Type: Text/plain
