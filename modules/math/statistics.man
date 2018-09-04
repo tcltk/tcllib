@@ -6,7 +6,7 @@
 [moddesc {Tcl Math Library}]
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
-[require Tcl 8.4]
+[require Tcl 8.5]
 [require math::statistics [vset VERSION]]
 [description]
 [para]
@@ -617,6 +617,54 @@ is returned (as a list of "sampleSize" values), otherwise a list of samples is r
 [arg_def list data]           List of values to chose from
 [arg_def int sampleSize]      Number of values per sample
 [arg_def int numberSamples]   Number of samples (default: 1)
+[list_end]
+
+[call [cmd ::math::statistics::wasserstein-distance] [arg prob1] [arg prob2]]
+Compute the Wasserstein distance or earth mover's distance for two equidstantly spaced histograms
+or probability densities. The histograms need not to be normalised to sum to one,
+but they must have the same number of entries.
+[nl]
+Note: the histograms are assumed to be based on the same equidistant intervals.
+As the bounds are not passed, the value is expressed in the length of the intervals.
+
+[list_begin arguments]
+[arg_def list prob1]          List of values for the first histogram/probability density
+[arg_def list prob2]          List of values for the second histogram/probability density
+[list_end]
+
+[call [cmd ::math::statistics::kl-divergence] [arg prob1] [arg prob2]]
+Compute the Kullback-Leibler (KL) divergence for two equidstantly spaced histograms
+or probability densities. The histograms need not to be normalised to sum to one,
+but they must have the same number of entries.
+[nl]
+Note: the histograms are assumed to be based on the same equidistant intervals.
+As the bounds are not passed, the value is expressed in the length of the intervals.
+[nl]
+Note also that the KL divergence is not symmetric and that the second histogram
+should not contain zeroes in places where the first histogram has non-zero values.
+
+[list_begin arguments]
+[arg_def list prob1]          List of values for the first histogram/probability density
+[arg_def list prob2]          List of values for the second histogram/probability density
+[list_end]
+
+[call [cmd ::math::statistics::logistic-model] [arg xdata] [arg ydata]]
+Estimate the coefficients of the logistic model that fits the data best. The data consist
+of independent x-values and the outcome 0 or 1 for each of the x-values. The result
+can be used to estimate the probability that a certain x-value gives 1.
+
+[list_begin arguments]
+[arg_def list xdata]          List of values for which the success (1) or failure (0) is known
+[arg_def list ydata]          List of successes or failures corresponding to each value in [term xdata].
+[list_end]
+
+[call [cmd ::math::statistics::logistic-probability] [arg coeffs] [arg x]]
+Calculate the probability of success for the value [term x] given the coefficients of the
+logistic model.
+
+[list_begin arguments]
+[arg_def list coeffs]         List of coefficients as determine by the [cmd logistic-model] command
+[arg_def float x]             X-value for which the probability needs to be determined
 [list_end]
 
 [list_end]

@@ -1,5 +1,11 @@
 This file records outstanding actions for the math module
 
+dd. 4 september 2018
+- Implement a "typical profile" for timeseries and determining residuals
+  (Plus perhaps a notion of outliers)
+- Implement detection of extreme values/periods with extreme values
+
+
 dd. 17 june 2018
 - Factor out the backward rotation in the intersection routines for circles
 - Add a normalisation routine for vectors

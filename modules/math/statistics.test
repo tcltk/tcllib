@@ -18,6 +18,7 @@ testsNeedTcltest 2.1
 support {
     useLocal math.tcl math
     useLocal linalg.tcl math::linearalgebra
+    useLocal optimize.tcl math::optimize
 }
 testing {
     useLocal statistics.tcl math::statistics
@@ -1197,6 +1198,153 @@ test "Bootstrap-1.3" "Bootstrap - list of samples" -body {
 
     set result
 } -result 1
+
+
+#
+# Tests for Wasserstein distance and KL divergence
+#
+# Tests for error conditions
+#
+test "Wasserstein-1.1" "Error: lengths differ" -body {
+    set distance [::math::statistics::wasserstein-distance {0 1} {1 0 0 0}]
+} -returnCodes 1 -result {Lengths of the probability histograms must be the same}
+
+#
+# Check the symmetry for arbitrary histograms
+#
+test "Wasserstein-1.2" "Test symmetry" -body {
+    set okay 1
+    for {set i 0} {$i < 10} {incr i} {
+        set histogram1 {}
+        set histogram2 {}
+        for {set j 0} {$j < 3*($i+1)} {incr j} {
+            lappend histogram1 [expr {rand()}]
+            lappend histogram2 [expr {rand()}]
+        }
+
+        set distance1 [::math::statistics::wasserstein-distance $histogram1 $histogram2]
+        set distance2 [::math::statistics::wasserstein-distance $histogram2 $histogram1]
+
+        if { abs($distance1-$distance2) > 1.0e-6 } {
+            set okay 0
+        }
+    }
+
+    return $okay
+
+} -result 1
+
+#
+# Check the non-negativity for arbitrary histograms
+#
+test "Wasserstein-1.3" "Test non-negativity" -body {
+    set okay 1
+    for {set i 0} {$i < 10} {incr i} {
+        set histogram1 {}
+        set histogram2 {}
+        for {set j 0} {$j < 3*($i+1)} {incr j} {
+            lappend histogram1 [expr {rand()}]
+            lappend histogram2 [expr {rand()}]
+        }
+
+        set distance1 [::math::statistics::wasserstein-distance $histogram1 $histogram2]
+
+        if { $distance1 < 0.0 } {
+            set okay 0
+        }
+    }
+
+    return $okay
+
+} -result 1
+
+#
+# Check the non-normalised histograms
+#
+test "Wasserstein-1.4" "Test non-normalised histograms" -match tolerant -body {
+    return [list [::math::statistics::wasserstein-distance {2 0 0} {0 0 0.5}]  \
+                 [::math::statistics::wasserstein-distance {1 0 0} {0 0 0.25}] ]
+} -result {2.0 2.0}
+
+#
+# Check arbitrarily extended histograms
+#
+test "Wasserstein-1.5" "Test extended histograms" -match tolerant -body {
+    return [list [::math::statistics::wasserstein-distance {1 0 0}     {0 0 1}]     \
+                 [::math::statistics::wasserstein-distance {0 0 1 0 0} {0 0 0 0 1}] \
+                 [::math::statistics::wasserstein-distance {1 0 0 0 0} {0 0 1 0 0}] ]
+} -result {2.0 2.0 2.0}
+
+#
+# Check numerical results
+#
+test "Wasserstein-1.6" "Test numerical results" -match tolerant -body {
+    return [list [::math::statistics::wasserstein-distance {1 0 0}     {0 0.5 0.5}]             \
+                 [::math::statistics::wasserstein-distance {1 0 0 0 0} {0 0 0 0.5 0.5}]         \
+                 [::math::statistics::wasserstein-distance {1 0 0 0 0} {0 0.25 0.25 0.25 0.25}] ]
+} -result {1.5 3.5 2.5}
+
+#
+# Tests for error conditions
+#
+test "KL-divergence-1.1" "Error: lengths differ" -body {
+    set distance [::math::statistics::kl-divergence {0 1} {1 0 0 0}]
+} -returnCodes 1 -result {Lengths of the two probability histograms must be the same}
+
+test "KL-divergence-1.2" "Error: unmatched zeroes" -body {
+    set distance [::math::statistics::kl-divergence {0.3 0.3 0.4} {1 0 0}]
+} -returnCodes 1 -result {Second probability histogram contains unmatched zeroes}
+
+
+test "KL-divergence-1.3" "Matched zeroes should be accepted" -match tolerant -body {
+    set distance [::math::statistics::kl-divergence {0.3 0.3 0.4 0} {0.7 0.2 0.1 0}]
+} -returnCodes 0 -result 0.42196792
+
+#
+# Tests for equal histograms (not all normalised)
+#
+test "KL-divergence-1.4" "Equal histograms give zero divergence" -body {
+    set distance [::math::statistics::kl-divergence {0.3 0.3 0.4} {0.3 0.3 0.4}]
+} -result 0.0
+
+test "KL-divergence-1.5" "Non-normalised but equal histograms give zero divergence" -body {
+    set distance [::math::statistics::kl-divergence {0.3 0.3 0.4} {0.6 0.6 0.8}]
+} -result 0.0
+
+#
+# Numerical tests - note: the expected values were taken from the implementation
+#                         No independent source found
+#
+test "KL-divergence-1.6" "Shifted histograms" -match tolerant -body {
+    set distance [::math::statistics::kl-divergence {1.0e-8 0.3 0.3 0.3 0.1} {0.3 0.3 0.3 0.1 1.0e-8}]
+} -result 1.9413931
+
+test "KL-divergence-1.7" "Arbitrary histograms" -match tolerant -body {
+    set distance [::math::statistics::kl-divergence {0.4 0.2 0.3 0.1} {0.1 0.1 0.7 0.1}]
+} -result 0.4389578
+
+
+#
+# Tests for logistic regression
+#
+set xdata {0.50 0.75 1.00 1.25 1.50 1.75 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 4.00 4.25 4.50 4.75 5.00 5.50}
+set ydata {0    0    0    0    0    0    1    0    1    0    1    0    1    0    1    1    1    1    1    1   }
+
+test "Logit-regression-1.0" "Logistic regression - coefficients" -match tolerant -body {
+    set coeffs [::math::statistics::logistic-model $xdata $ydata]
+} -result {-4.07679035286303 1.5045982920571572}
+
+test "Logit-regression-1.1" "Logistic regression - probabilities" -match tolerant -body {
+    set coeffs [::math::statistics::logistic-model $xdata $ydata]
+
+    set probabilities {}
+    foreach x {1 2 3 4 5} {
+        lappend probabilities [::math::statistics::logistic-probability $coeffs $x]
+    }
+
+    return $probabilities
+
+} -result {0.07094967663389527 0.2558609520815849 0.6075450376084848 0.8745281239093334 0.9691176473773739}
 
 
 # End of test cases
