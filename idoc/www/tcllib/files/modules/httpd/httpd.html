@@ -393,7 +393,7 @@ tool::define ::test::content.file {
 	# and will auto-compute the Content-Type
 	method content {} {
 	  my reset
-    set doc_root [my http_info get doc_root]
+    set doc_root [my clay get doc_root]
     my variable reply_file
     set reply_file [file join $doc_root index.html]
 	}
@@ -426,7 +426,7 @@ tool::define ::test::content.form_handler {
     }
     my puts &quot;&lt;/TABLE&gt;&lt;p&gt;&quot;
     my puts &quot;Send some info:&lt;p&gt;&quot;
-    my puts &quot;&lt;FORM action=/[my http_info get REQUEST_PATH] method POST&gt;&quot;
+    my puts &quot;&lt;FORM action=/[my request get REQUEST_PATH] method POST&gt;&quot;
     my puts &quot;&lt;TABLE&gt;&quot;
     foreach field {name rank serial_number} {
       set line &quot;&lt;TR&gt;&lt;TH&gt;$field&lt;/TH&gt;&lt;TD&gt;&lt;input name=\&quot;$field\&quot; &quot;

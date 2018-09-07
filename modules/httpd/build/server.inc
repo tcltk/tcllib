@@ -30,7 +30,7 @@ class: A class to use instead of the server's own [arg reply_class]
 
 mixin: A class to be mixed into the new object after construction.
 
-All other fields are passed along to the [cmd http_info] structure of the
+All other fields are passed along to the [cmd clay] structure of the
 reply object.
 
 After the class is created and the mixin is mixed in, the server invokes the

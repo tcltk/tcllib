@@ -20,13 +20,37 @@ oo::define oo::class {
       }
       getnull -
       get {
-        if {[llength $args]==0} {
-          return $clay
+        set path $args
+        set leaf [expr {[string index [lindex $path end] end] ne "/"}]
+        set clayorder [::clay::ancestors [self]]
+        #puts [list [self] clay get {*}$path (leaf: $leaf)]
+        if {$leaf} {
+          #puts [list EXISTS: (clay) [dict exists $clay {*}$path]]
+          if {[dict exists $clay {*}$path]} {
+            return [dict get $clay {*}$path]
+          }
+          #puts [list Search in the in our list of classes for an answer]
+          foreach class $clayorder {
+            if {$class eq [self]} continue
+            if {[$class clay exists {*}$path]} {
+              set value [$class clay get {*}$path]
+              return $value
+            }
+          }
+        } else {
+          set result {}
+          # Leaf searches return one data field at a time
+          # Search in our local dict
+          # Search in the in our list of classes for an answer
+          foreach class [lreverse $clayorder] {
+            if {$class eq [self]} continue
+            ::clay::dictmerge result [$class clay get {*}$path]
+          }
+          if {[dict exists $clay {*}$path]} {
+            ::clay::dictmerge result [dict get $clay {*}$path]
+          }
+          return $result
         }
-        if {![dict exists $clay {*}$args]} {
-          return {}
-        }
-        tailcall dict get $clay {*}$args
       }
       merge {
         foreach arg $args {

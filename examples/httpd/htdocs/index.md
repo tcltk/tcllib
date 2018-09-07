@@ -4,6 +4,7 @@ Your test server works!
 * [Tcllib's fossil repo (hosted via SCGI)](/fossil)
 * [Standard Markdown Example Page](example.md)
 * [Static HTML Page](html_static_page.html)
+* [Template HTML Page](header.tml)
 
 A locally served image:
 ![Locally Served Image](/tcllib/image/arch_core_container.png "Core Container")

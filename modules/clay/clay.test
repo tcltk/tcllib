@@ -70,18 +70,52 @@ test dictmerge-0007 {Branches are merged}  {
   dict get $foo bar/ baz/ bang/
 } {color blue flavor strawberry}
 
-::clay::dictmerge foo {public/ {option/ {color {type color} flavor {sense taste}}}}
-::clay::dictmerge foo {public/ {option/ {format {default ascii}}}}
+::clay::dictmerge foo {option/ {color {type color} flavor {sense taste}}}
+::clay::dictmerge foo {option/ {format {default ascii}}}
 
 test dictmerge-0008 {Whole dicts are merged}  {
-  dict get $foo public/ option/ color
+  dict get $foo option/ color
 } {type color}
 test dictmerge-0009 {Whole dicts are merged}  {
-  dict get $foo public/ option/ flavor
+  dict get $foo option/ flavor
 } {sense taste}
 test dictmerge-0010 {Whole dicts are merged}  {
-  dict get $foo public/ option/ format
+  dict get $foo option/ format
 } {default ascii}
+
+###
+# Tests for the httpd module
+###
+test dictmerge-0010 {Test that leaves are merged properly}
+set bar {}
+::clay::dictmerge bar {
+   proxy/ {port 10101 host myhost.localhost}
+}
+::clay::dictmerge bar {
+   mimetxt {Host: localhost
+Content_Type: text/plain
+Content-Length: 15
+}
+   http {HTTP_HOST {} CONTENT_LENGTH 15 HOST localhost CONTENT_TYPE text/plain UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e REMOTE_ADDR 127.0.0.1 REMOTE_HOST 127.0.0.1 REQUEST_METHOD POST REQUEST_URI /echo REQUEST_PATH echo REQUEST_VERSION 1.0 DOCUMENT_ROOT {} QUERY_STRING {} REQUEST_RAW {POST /echo HTTP/1.0} SERVER_PORT 10001 SERVER_NAME 127.0.0.1 SERVER_PROTOCOL HTTP/1.1 SERVER_SOFTWARE {TclHttpd 4.2.0} LOCALHOST 0} UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e uriinfo {fragment {} port {} path echo scheme http host {} query {} pbare 0 pwd {} user {}}
+   mixin {reply ::test::content.echo}
+   prefix /echo
+   proxy_port 10010
+   proxy/ {host localhost}
+}
+
+test dictmerge-0011 {Whole dicts are merged}  {
+  dict get $bar proxy_port
+} {10010}
+
+test dictmerge-0012 {Whole dicts are merged}  {
+  dict get $bar http CONTENT_LENGTH
+} 15
+test dictmerge-0013 {Whole dicts are merged}  {
+  dict get $bar proxy/ host
+} localhost
+test dictmerge-0014 {Whole dicts are merged}  {
+  dict get $bar proxy/ port
+} 10101
 
 
 # -------------------------------------------------------------------------
@@ -801,7 +835,7 @@ test clay-class-clay-0003 {Test that a clay statement is recorded in the object 
 } blue
 test clay-class-clay-0004 {Test that clay statements from the ancestors of this class are not present (we handle them seperately in objects)} {
   ::TEST::myclasse clay get flavor
-} {}
+} {strawberry}
 
 
 ###
@@ -1024,7 +1058,7 @@ test clay-mixin-f-0005 {Test that clay data from a mixin works} {
 
 set OBJ [::TEST::has_var new]
 test clay-class-variable-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get public/ variable/ my_variable
+  $OBJ clay get variable/ my_variable
 } {10}
 
 test clay-class-variable-0002 {Test that variables declared in the class definition are initialized} {
@@ -1045,7 +1079,7 @@ test clay-class-variable-0002 {Test that variables declared in the class definit
 
 set OBJ [::TEST::has_array new]
 test clay-class-array-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get public/ array/
+  $OBJ clay get array/
 } {my_array/ {timeout 10}}
 
 test clay-class-arrau-0002 {Test that variables declared in the class definition are initialized} {
@@ -1066,7 +1100,7 @@ test clay-class-arrau-0002 {Test that variables declared in the class definition
 
 set OBJ [::TEST::has_dict new]
 test clay-class-dict-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get public/ dict/
+  $OBJ clay get dict/
 } {my_dict/ {timeout 10}}
 
 test clay-class-dict-0002 {Test that variables declared in the class definition are initialized} {
@@ -1160,6 +1194,240 @@ test clay-dynamic-ensemble-0003 {Test ensemble with static method} {
 test clay-dynamic-ensemble-0004 {Test ensemble with static method} {
   $OBJB myensemble dance
 } {0}
+
+
+###
+# Class method testing
+###
+
+clay::class create WidgetClass {
+  class_method working {} {
+    return {Works}
+  }
+
+  class_method unknown args {
+    set tkpath [lindex $args 0]
+    if {[string index $tkpath 0] eq "."} {
+      set obj [my new $tkpath {*}[lrange $args 1 end]]
+      $obj tkalias $tkpath
+      return $tkpath
+    }
+    next {*}$args
+  }
+
+  constructor {TkPath args} {
+    my variable hull
+    set hull $TkPath
+    my clay delegate hull $TkPath
+  }
+
+  method tkalias tkname {
+    set oldname $tkname
+    my variable tkalias
+    set tkalias $tkname
+    set self [self]
+    set hullwidget [::info object namespace $self]::tkwidget
+    my clay delegate tkwidget $hullwidget
+    #rename ::$tkalias $hullwidget
+    my clay delegate hullwidget $hullwidget
+    #::tool::object_rename [self] ::$tkalias
+    rename [self] ::$tkalias
+    #my Hull_Bind $tkname
+    return $hullwidget
+  }
+}
+
+test tool-class-method-000 {Test that class methods actually work...} {
+  WidgetClass working
+} {Works}
+
+test tool-class-method-001 {Test Tk style creator} {
+  WidgetClass .foo
+  .foo clay delegate hull
+} {.foo}
+
+::clay::define WidgetNewClass {
+  superclass WidgetClass
+}
+
+test tool-class-method-002 {Test Tk style creator inherited by morph} {
+  WidgetNewClass .bar
+  .bar clay delegate hull
+} {.bar}
+
+
+
+###
+# Test ensemble inheritence
+###
+clay::define NestedClassA {
+  Ensemble do::family {} {
+    return NestedClassA
+  }
+  Ensemble do::something {} {
+    return A
+  }
+  Ensemble do::whop {} {
+    return A
+  }
+}
+clay::define NestedClassB {
+  superclass NestedClassA
+  Ensemble do::family {} {
+    set r [next family]
+    lappend r NestedClassB
+    return $r
+  }
+  Ensemble do::whop {} {
+    return B
+  }
+}
+clay::define NestedClassC {
+  superclass NestedClassB
+
+  Ensemble do::somethingelse {} {
+    return C
+  }
+}
+clay::define NestedClassD {
+  superclass NestedClassB
+
+  Ensemble do::somethingelse {} {
+    return D
+  }
+}
+
+clay::define NestedClassE {
+  superclass NestedClassD NestedClassC
+}
+
+clay::define NestedClassF {
+  superclass NestedClassC NestedClassD
+}
+
+NestedClassC create NestedObjectC
+
+###
+# These tests no longer work because method ensembles are now dynamically
+# generated by object, that are not attached to the class anymore
+#
+####
+#test tool-ensemble-001 {Test that an ensemble can access [next] even if no object of the ancestor class have been instantiated} {
+#  NestedObjectC do family
+#} {::NestedClassA ::NestedClassB ::NestedClassC}
+
+test tool-ensemble-002 {Test that a later ensemble definition trumps a more primitive one} {
+  NestedObjectC do whop
+} {B}
+test tool-ensemble-003 {Test that an ensemble definitions in an ancestor carry over} {
+  NestedObjectC do something
+} {A}
+
+NestedClassE create NestedObjectE
+NestedClassF create NestedObjectF
+
+
+test tool-ensemble-004 {Test that ensembles follow the same rules for inheritance as methods} {
+  NestedObjectE do somethingelse
+} {D}
+
+test tool-ensemble-005 {Test that ensembles follow the same rules for inheritance as methods} {
+  NestedObjectF do somethingelse
+} {C}
+
+###
+# Set of tests to exercise the mixinmap system
+###
+clay::define MixinMainClass {
+  Variable mainvar unchanged
+
+  Ensemble test::which {} {
+    my variable mainvar
+    return $mainvar
+  }
+
+  Ensemble test::main args {
+    puts [list this is main $method $args]
+  }
+
+}
+
+set mixoutscript {my test untool $class}
+set mixinscript {my test tool $class}
+clay::define MixinTool {
+  Variable toolvar unchanged.mixin
+  clay set mixin/ unmap-script $mixoutscript
+  clay set mixin/ map-script $mixinscript
+  clay set mixin/ name {Generic Tool}
+
+  Ensemble test::untool class {
+    my variable toolvar mainvar
+    set mainvar {}
+    set toolvar {}
+  }
+
+  Ensemble test::tool class {
+    my variable toolvar mainvar
+    set mainvar [$class clay get mixin/ name]
+    set toolvar [$class clay get mixin/ name]
+  }
+}
+
+clay::define MixinToolA {
+  superclass MixinTool
+
+  clay set mixin/ name {Tool A}
+}
+
+clay::define MixinToolB {
+  superclass MixinTool
+
+  clay set mixin/ name {Tool B}
+
+  method test_newfunc {} {
+    return "B"
+  }
+}
+
+test tool-mixinspec-001 {Test application of mixin specs} {
+  MixinTool clay get mixin/ map-script
+} $mixinscript
+
+test tool-mixinspec-002 {Test application of mixin specs} {
+  MixinToolA clay get mixin/ map-script
+} $mixinscript
+
+test tool-mixinspec-003 {Test application of mixin specs} {
+  MixinToolB clay get mixin/ map-script
+} $mixinscript
+
+
+MixinMainClass create mixintest
+
+test tool-mixinmap-001 {Test object prior to mixins} {
+  mixintest test which
+} {unchanged}
+
+mixintest clay mixinmap tool MixinToolA
+test tool-mixinmap-002 {Test mixin map script ran} {
+  mixintest test which
+} {Tool A}
+
+mixintest clay mixinmap tool MixinToolB
+
+test tool-mixinmap-003 {Test mixin map script ran} {
+  mixintest test which
+} {Tool B}
+
+test tool-mixinmap-003 {Test mixin map script ran} {
+  mixintest test_newfunc
+} {B}
+
+mixintest clay mixinmap tool {}
+test tool-mixinmap-004 {Test object prior to mixins} {
+  mixintest test which
+} {}
+
 
 testsuiteCleanup
 

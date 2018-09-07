@@ -19,16 +19,14 @@ proc ::clay::dynamic_methods class {
 
 proc ::clay::dynamic_methods_class {thisclass} {
   set methods {}
-  foreach aclass [::clay::ancestors $thisclass] {
-    set mdata  [$aclass clay get class_typemethod/]
-    foreach {method info} $mdata {
-      set method [string trimright $method :/-]
-      if {$method in $methods} continue
-      lappend methods $method
-      set arglist [dict getnull $info arglist]
-      set body    [dict getnull $info body]
-      ::oo::objdefine $thisclass method $method $arglist $body
-    }
+  set mdata [$thisclass clay get class_typemethod/]
+  foreach {method info} $mdata {
+    set method [string trimright $method :/-]
+    if {$method in $methods} continue
+    lappend methods $method
+    set arglist [dict getnull $info arglist]
+    set body    [dict getnull $info body]
+    ::oo::objdefine $thisclass method $method $arglist $body
   }
 }
 
@@ -39,10 +37,10 @@ proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]/
   if {![$class clay exists array/ $name]} {
-    $class clay set public/ array/ $name {}
+    $class clay set array/ $name {}
   }
   foreach {var val} $values {
-    $class clay set public/ array/ $name $var $val
+    $class clay set array/ $name $var $val
   }
 }
 
@@ -66,7 +64,7 @@ my variable DestroyEvent
 set DestroyEvent 0
 ::clay::object_create [self] [info object class [self]]
 # Initialize public variables and options
-my Ensembles_Rebuild
+my InitializePublic
   }
   append body $rawbody
   set class [current_class]
@@ -112,10 +110,10 @@ proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]/
   if {![$class clay exists dict/ $name]} {
-    $class clay set public/ dict/ $name {}
+    $class clay set dict/ $name {}
   }
   foreach {var val} $values {
-    $class clay set public/ dict/ $name $var $val
+    $class clay set dict/ $name $var $val
   }
 }
 
@@ -132,14 +130,14 @@ proc ::clay::define::Dict {name {values {}}} {
 proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
-  $class clay set public/ variable/ $name $default
+  $class clay set variable/ $name $default
   #::oo::define $class variable $name
 }
 
 proc ::clay::object_create {objname {class {}}} {
-  if {$::clay::trace>0} {
-    puts [list $objname CREATE]
-  }
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
 }
 
 proc ::clay::object_rename {object newname} {
@@ -165,55 +163,15 @@ proc ::clay::object_destroy objname {
   Variable claycache {}
   Variable DestroyEvent 0
 
-  method Evolve {} {
-    my Ensembles_Rebuild
-  }
-
-  method Ensembles_Rebuild {} {
+  method InitializePublic {} {
+    next
     my variable clayorder clay claycache
-    set claycache {}
-    set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
     if {[info exists clay]} {
       set emap [dict getnull $clay method_ensemble/]
     } else {
       set emap {}
     }
-    if {$::clay::trace>2} {
-      puts "Rebuilding Ensembles"
-    }
-    foreach class $clayorder {
-      foreach {var value} [$class clay get public/ variable/] {
-        set var [string trim $var :/]
-        if { $var in {clay} } continue
-        my variable $var
-        if {![info exists $var]} {
-          if {$::clay::trace>2} {puts [list initialize variable $var $value]}
-          set $var $value
-        }
-      }
-      foreach {var value} [$class clay get public/ dict/] {
-        set var [string trim $var :/]
-        my variable $var
-        if {![info exists $var]} { set $var {} }
-        foreach {f v} $value {
-          if {![dict exists ${var} $f]} {
-            if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
-            dict set ${var} $f $v
-          }
-        }
-      }
-      foreach {var value} [$class clay get public/ array/] {
-        set var [string trim $var :/]
-        if { $var eq {clay} } continue
-        my variable $var
-        if {![info exists $var]} { array set $var {} }
-        foreach {f v} $value {
-          if {![array exists ${var}($f)]} {
-            if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
-            set ${var}($f) $v
-          }
-        }
-      }
+    foreach class [lreverse $clayorder] {
       ###
       # Build a compsite map of all ensembles defined by the object's current
       # class as well as all of the classes being mixed in

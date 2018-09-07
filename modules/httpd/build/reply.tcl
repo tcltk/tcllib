@@ -4,8 +4,21 @@
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
 
-  variable transfer_complete 0
-  clay set CONTENT_LENGTH 0
+  Variable transfer_complete 0
+
+  Dict reply {}
+
+  Dict request {
+    CONTENT_LENGTH 0
+    COOKIE {}
+    HTTP_HOST {}
+    REFERER {}
+    REQUEST_URI {}
+    REMOTE_ADDR {}
+    REMOTE_HOST {}
+    USER_AGENT {}
+    SESSION {}
+  }
 
   constructor {ServerObj args} {
     my variable chan dispatched_time uuid
@@ -37,24 +50,22 @@
 
   method Log_Dispatched {} {
     my log Dispatched [dict create \
-     REMOTE_ADDR [my clay get REMOTE_ADDR] \
-     REMOTE_HOST [my clay get REMOTE_HOST] \
-     COOKIE [my request getnull COOKIE] \
-     REFERER [my request getnull REFERER] \
-     USER_AGENT [my request getnull USER_AGENT] \
-     REQUEST_URI [my clay get REQUEST_URI] \
-     HTTP_HOST [my clay get HTTP_HOST] \
-     SESSION [my clay get SESSION] \
+     REMOTE_ADDR [my request get REMOTE_ADDR] \
+     REMOTE_HOST [my request get REMOTE_HOST] \
+     COOKIE [my request get COOKIE] \
+     REFERER [my request get REFERER] \
+     USER_AGENT [my request get USER_AGENT] \
+     REQUEST_URI [my request get REQUEST_URI] \
+     HTTP_HOST [my request get HTTP_HOST] \
+     SESSION [my request get SESSION] \
     ]
   }
 
   method dispatch {newsock datastate} {
-    my clay replace $datastate
-    my request replace  [dict getnull $datastate http]
-    my Log_Dispatched
     my variable chan
     set chan $newsock
     try {
+      my request dispatch $datastate
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line
       my reset
@@ -193,13 +204,9 @@ body {
     if {[info exists formdata]} {
       return $formdata
     }
-    if {![my request exists CONTENT_LENGTH]} {
-      set length 0
-    } else {
-      set length [my request get CONTENT_LENGTH]
-    }
+    set length [my request get CONTENT_LENGTH]
     set formdata {}
-    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my request get REQUEST_METHOD] in {"POST" "PUSH"}} {
       set rawtype [my request get CONTENT_TYPE]
       if {[string toupper [string range $rawtype 0 8]] ne "MULTIPART"} {
         set type $rawtype
@@ -251,7 +258,7 @@ body {
       return $postdata
     }
     set postdata {}
-    if {[my clay get REQUEST_METHOD] in {"POST" "PUSH"}} {
+    if {[my request get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
       chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
@@ -294,14 +301,29 @@ body {
     return $field
   }
 
-
-  Dict request {}
-
   method request {subcommand args} {
     my variable request
     switch $subcommand {
       dump {
         return $request
+      }
+      dispatch {
+        set request [my clay get dict/ request]
+        foreach datastate $args {
+          foreach {f v} $datastate {
+            if {[string index $f end] eq "/"} {
+              my clay merge $f $v
+            } else {
+              my clay set $f $v
+            }
+            if {$f eq "http"} {
+              foreach {ff vf} $v {
+                dict set request $ff $vf
+              }
+            }
+          }
+        }
+        my Log_Dispatched
       }
       field {
         tailcall my RequestFind [lindex $args 0]
@@ -319,7 +341,6 @@ body {
           return {}
         }
         tailcall dict get $request $field
-
       }
       exists {
         set field [my RequestFind [lindex $args 0]]
@@ -343,8 +364,6 @@ body {
       }
     }
   }
-
-  Dict reply {}
 
   method reply {subcommand args} {
     my variable reply

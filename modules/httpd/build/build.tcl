@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 4.2.0
+set version 4.3
 set tclversion 8.6
 set module [file tail $moddir]
 

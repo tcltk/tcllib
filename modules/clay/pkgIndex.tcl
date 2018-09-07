@@ -11,5 +11,8 @@
 if {![package vsatisfies [package provide Tcl] 8.6]} {return}
 
 
-package ifneeded clay 0.2 [list source [file join $dir clay.tcl]]
+package ifneeded clay 0.3 [list source [file join $dir clay.tcl]]
+
+
+package ifneeded oo::meta 0.8 [list source [file join $dir clay.tcl]]
 

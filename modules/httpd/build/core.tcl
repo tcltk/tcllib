@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require clay
+package require clay 0.3
 package require mime
 package require fileutil
 package require websocket
@@ -108,6 +108,16 @@ Content-Size 0
 Content-Type {text/html; charset=UTF-8}
 Cache-Control {no-cache}
 Connection close}
+  }
+
+  method HttpServerHeaders {} {
+    return {
+      CONTENT_LENGTH CONTENT_TYPE QUERY_STRING REMOTE_USER AUTH_TYPE
+      REQUEST_METHOD REMOTE_ADDR REMOTE_HOST REQUEST_URI REQUEST_PATH
+      REQUEST_VERSION  DOCUMENT_ROOT QUERY_STRING REQUEST_RAW
+      GATEWAY_INTERFACE SERVER_PORT SERVER_HTTPS_PORT
+      SERVER_NAME  SERVER_SOFTWARE SERVER_PROTOCOL
+    }
   }
 
   ###

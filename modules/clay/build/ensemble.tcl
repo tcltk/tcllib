@@ -62,9 +62,9 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
 
 ::proc ::clay::define::Ensemble {rawmethod arglist body} {
   set class [current_class]
-  if {$::clay::trace>2} {
-    puts [list $class Ensemble $rawmethod $arglist $body]
-  }
+  #if {$::clay::trace>2} {
+  #  puts [list $class Ensemble $rawmethod $arglist $body]
+  #}
   set mlist [split $rawmethod "::"]
   set ensemble [string trim [lindex $mlist 0] :/]
   set mensemble ${ensemble}/

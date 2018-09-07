@@ -1,4 +1,4 @@
-::namespace eval ::clay {}
+
 set ::clay::trace 0
 
 ###
@@ -326,5 +326,6 @@ proc ::clay::uuid_generate args {
 }
 
 namespace eval ::clay {
+  variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }

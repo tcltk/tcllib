@@ -48,8 +48,8 @@
   }
 
   method Dispatch_Dict {data} {
-    set vhost [lindex [split [dict get $data HTTP_HOST] :] 0]
-    set uri   [dict get $data REQUEST_PATH]
+    set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
+    set uri   [dict get $data http REQUEST_PATH]
     foreach {host pattern info} [my uri patterns] {
       if {![string match $host $vhost]} continue
       if {![string match $pattern $uri]} continue
@@ -161,28 +161,29 @@ package require tcl::chan::memchan
       -buffering line
     set ip 127.0.0.1
     dict set query UUID $uuid
-    dict set query HTTP_HOST       localhost
-    dict set query REMOTE_ADDR     127.0.0.1
-    dict set query REMOTE_HOST     localhost
-    dict set query LOCALHOST 1
+    dict set query http UUID $uuid
+    dict set query http HTTP_HOST       localhost
+    dict set query http REMOTE_ADDR     127.0.0.1
+    dict set query http REMOTE_HOST     localhost
+    dict set query http LOCALHOST 1
     my counter url_hit
 
-    dict set query REQUEST_METHOD  [lindex $args 0]
+    dict set query http REQUEST_METHOD  [lindex $args 0]
     set uriinfo [::uri::split [lindex $args 1]]
-    dict set query REQUEST_URI     [lindex $args 1]
-    dict set query REQUEST_PATH    [dict get $uriinfo path]
-    dict set query REQUEST_VERSION [lindex [split [lindex $args end] /] end]
-    dict set query DOCUMENT_ROOT   [my clay get server/ doc_root]
-    dict set query QUERY_STRING    [dict get $uriinfo query]
-    dict set query REQUEST_RAW     $args
-    dict set query SERVER_PORT     [my port_listening]
+    dict set query http REQUEST_URI     [lindex $args 1]
+    dict set query http REQUEST_PATH    [dict get $uriinfo path]
+    dict set query http REQUEST_VERSION [lindex [split [lindex $args end] /] end]
+    dict set query http DOCUMENT_ROOT   [my clay get server/ doc_root]
+    dict set query http QUERY_STRING    [dict get $uriinfo query]
+    dict set query http REQUEST_RAW     $args
+    dict set query http SERVER_PORT     [my port_listening]
     my Headers_Process query
     set reply [my dispatch $query]
 
     if {[llength $reply]==0} {
       my log BadLocation $uuid $query
       my log BadLocation $uuid $query
-      dict set query HTTP_STATUS 404
+      dict set query http HTTP_STATUS 404
       dict set query template notfound
       dict set query mixin reply ::httpd::content.template
     }

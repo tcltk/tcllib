@@ -50,7 +50,7 @@ clay::define httpd::content.fossil_node_proxy {
   superclass httpd::content.proxy
 
   method FileName {} {
-    set uri    [my clay get REQUEST_URI]
+    set uri    [my request get REQUEST_URI]
     set prefix [my clay get prefix]
     set module [lindex [split $uri /] 2]
     if {![info exists ::fossil_process($module)]} {
@@ -71,7 +71,7 @@ clay::define httpd::content.fossil_node_proxy {
   }
 
   method proxy_path {} {
-    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_URI] /]
     set prefix [my clay get prefix]
     set module [lindex [split $uri /] 1]
     set path /[string range $uri [string length $prefix/$module] end]
@@ -85,7 +85,7 @@ clay::define httpd::content.fossil_node_proxy {
     ###
     lassign [my FileName] module dbfile
     set EXE [my Cgi_Executable fossil]
-    set baseurl http://[my clay get HTTP_HOST][my clay get prefix]/$module
+    set baseurl http://[my request get HTTP_HOST][my clay get prefix]/$module
     if { $::tcl_platform(platform) eq "windows"} {
       return [open "|fossil.exe http $dbfile -baseurl $baseurl" r+]
     } else {
@@ -98,7 +98,7 @@ clay::define httpd::content.fossil_node_scgi {
 
   superclass httpd::content.scgi
   method scgi_info {} {
-    set uri    [my clay get REQUEST_URI]
+    set uri    [my request get REQUEST_URI]
     set prefix [my clay get prefix]
     set module [lindex [split $uri /] 2]
     file mkdir ~/tmp
@@ -154,7 +154,7 @@ clay::define httpd::content.fossil_node_scgi {
     foreach {f v} [my clay dump] {
         my puts "<tr><th>$f</th><td>$v</td></tr>"
     }
-    my puts "<tr><th>File Size</th><td>[my clay get CONTENT_LENGTH]</td></tr>"
+    my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
     my puts </TABLE>
     my puts </BODY></HTML>
   }
@@ -183,7 +183,7 @@ clay::define httpd::content.fossil_node_scgi {
       }
       my puts "<tr><td colspan=10>[::mime::getbody $part -decode]</td></tr>"
     }
-    my puts "<tr><th>File Size</th><td>[my clay get CONTENT_LENGTH]</td></tr>"
+    my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
     my puts </TABLE>
     my puts </BODY></HTML>
   }

@@ -6,7 +6,7 @@
 ::clay::define ::httpd::content.file {
 
   method FileName {} {
-    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
@@ -29,7 +29,7 @@
   }
 
   method DirectoryListing {local_file} {
-    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
@@ -57,7 +57,7 @@
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my clay get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -92,7 +92,7 @@
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
-        set headers [my clay dump]
+        set headers [my request dump]
         dict with headers {}
         my puts [subst $tmltxt]
       }
@@ -109,9 +109,7 @@
   method dispatch {newsock datastate} {
     my variable reply_body reply_file reply_chan chan
     try {
-      my clay replace $datastate
-      my request replace  [dict get $datastate http]
-      my Log_Dispatched
+      my request dispatch $datastate
       set chan $newsock
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line

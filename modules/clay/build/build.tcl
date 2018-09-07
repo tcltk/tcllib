@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.2
+set version 0.3
 set module clay
 
 set fout [open [file join $moddir ${module}.tcl] w]
@@ -100,11 +100,19 @@ puts $fout [string map $map {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 
+#package ifneeded oo::meta 0.8 {package require %module% %version ; package provide oo::meta 0.8}
+#package ifneeded oo::option 0.4 {package require %module% %version ; package provide oo::option 0.4}
+
+puts $fout [string map $map {
+package ifneeded oo::meta 0.8 [list source [file join $dir %module%.tcl]]
+}]
+
 close $fout
 
 ###
 # Generate the test script
 ###
+namespace eval ::clay {}
 source [file join $srcdir procs.tcl]
 set fout [open [file join $moddir $module.test] w]
 puts $fout [source [file join $srcdir test.tcl]]

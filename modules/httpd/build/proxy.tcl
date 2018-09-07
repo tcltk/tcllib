@@ -97,7 +97,7 @@
   }
 
   method proxy_path {} {
-    set uri [string trimleft [my clay get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_URI] /]
     set prefix [my clay get prefix]
     return /[string range $uri [string length $prefix] end]
   }
@@ -105,9 +105,10 @@
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan puts $chanb "[my clay get REQUEST_METHOD] [my proxy_path]"
+    chan puts $chanb "[my request get REQUEST_METHOD] [my proxy_path]"
+    set mimetxt [my clay get mimetxt]
     chan puts $chanb [my clay get mimetxt]
-    set length [my clay get CONTENT_LENGTH]
+    set length [my request get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
@@ -156,9 +157,7 @@
 
   method dispatch {newsock datastate} {
     try {
-      my clay replace $datastate
-      my request replace  [dict get $datastate http]
-      my Log_Dispatched
+      my request dispatch $datastate
       my variable sock chan
       set chan $newsock
       chan configure $chan -translation {auto crlf} -buffering line

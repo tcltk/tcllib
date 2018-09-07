@@ -15,6 +15,8 @@ namespace eval ::httpd::coro {}
   clay set server/ doc_root {}
   clay set server/ reverse_dns 0
   clay set server/ configuration_file {}
+  clay set server/ protocol {HTTP/1.1}
+  clay set server/ name     {127.0.0.1}
 
   clay set socket/ buffersize   32768
   clay set socket/ translation  {auto crlf}
@@ -66,20 +68,10 @@ namespace eval ::httpd::coro {}
     set line {}
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
-      dict set query UUID $uuid
-      dict set query REMOTE_ADDR     $ip
-      dict set query REMOTE_HOST     [my HostName $ip]
-      dict set query REQUEST_METHOD  [lindex $line 0]
-      set uriinfo [::uri::split [lindex $line 1]]
-      dict set query REQUEST_URI     [lindex $line 1]
-      dict set query REQUEST_PATH    [dict get $uriinfo path]
-      dict set query REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query DOCUMENT_ROOT   [my clay get server/ doc_root]
-      dict set query QUERY_STRING    [dict get $uriinfo query]
-      dict set query REQUEST_RAW     $line
-      dict set query SERVER_PORT     [my port_listening]
       set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
+      dict set query http HTTP_HOST {}
+      dict set query http CONTENT_LENGTH 0
       foreach {f v} [my MimeParse $mimetxt] {
         set fld [string toupper [string map {- _} $f]]
         if {$fld in {CONTENT_LENGTH CONTENT_TYPE}} {
@@ -87,11 +79,33 @@ namespace eval ::httpd::coro {}
         } else {
           set qfld HTTP_$fld
         }
-        dict set query $qfld $v
-        dict set query http $fld $v
+        dict set query http $qfld $v
       }
+      dict set query UUID $uuid
+      dict set query http UUID $uuid
+      dict set query http REMOTE_ADDR     $ip
+      dict set query http REMOTE_HOST     [my HostName $ip]
+      dict set query http REQUEST_METHOD  [lindex $line 0]
+      set uriinfo [::uri::split [lindex $line 1]]
+      dict set query uriinfo $uriinfo
+      dict set query http REQUEST_URI     [lindex $line 1]
+      dict set query http REQUEST_PATH    [dict get $uriinfo path]
+      dict set query http REQUEST_VERSION [lindex [split [lindex $line end] /] end]
+      dict set query http DOCUMENT_ROOT   [my clay get server/ doc_root]
+      dict set query http QUERY_STRING    [dict get $uriinfo query]
+      dict set query http REQUEST_RAW     $line
+      dict set query http SERVER_PORT     [my port_listening]
+      dict set query http SERVER_NAME     [my clay get server/ name]
+      dict set query http SERVER_PROTOCOL [my clay get server/ protocol]
+      dict set query http SERVER_SOFTWARE [my clay get server/ string]
+      # REMOTE_USER AUTH_TYPE
+      # GATEWAY_INTERFACE
+      # SERVER_HTTPS_PORT
+      #SERVER_NAME
+      #SERVER_SOFTWARE
+
       if {[string match 127.* $ip]} {
-        dict set query LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
+        dict set query http LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
       }
       my Headers_Process query
       set reply [my dispatch $query]
@@ -105,7 +119,7 @@ namespace eval ::httpd::coro {}
     if {[dict size $reply]==0} {
       my log BadLocation $uuid $query
       my log BadLocation $uuid $query
-      dict set query HTTP_STATUS 404
+      dict set query http HTTP_STATUS 404
       dict set query template notfound
       dict set query mixin reply ::httpd::content.template
     }
@@ -176,7 +190,7 @@ namespace eval ::httpd::coro {}
     ###
     # Fallback to docroot handling
     ###
-    set doc_root [dict get $reply DOCUMENT_ROOT]
+    set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {}} {
       ###
       # Fall back to doc_root handling
@@ -213,7 +227,7 @@ namespace eval ::httpd::coro {}
       error "Class $class for plugin $slot does not exist"
     }
     my clay mixinmap $slot $class
-    set mixinmap [my clay get mixin/]
+    set mixinmap [my clay get mixin]
 
     ###
     # Perform action on load
@@ -252,6 +266,7 @@ namespace eval ::httpd::coro {}
     append body \n "\} on error \{err errdat\} \{"
     append body \n {  puts [list HEADERS ERROR [dict get $errdat -errorinfo]] ; return {}}
     append body \n "\}"
+
     oo::objdefine [self] method Headers_Process varname $body
 
     ###
@@ -354,7 +369,7 @@ namespace eval ::httpd::coro {}
       redirect {
 return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my clay get REQUEST_URI]</b> has moved.
+The page you are looking for: <b>[my request get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -364,7 +379,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html header "$HTTP_STATUS"]
-Error serving <b>[my clay get REQUEST_URI]</b>:
+Error serving <b>[my request get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -376,7 +391,7 @@ $errorInfo
       notfound {
         return {
 [my html header "$HTTP_STATUS"]
-The page you are looking for: <b>[my clay get REQUEST_URI]</b> does not exist.
+The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist.
 [my html footer]
         }
       }

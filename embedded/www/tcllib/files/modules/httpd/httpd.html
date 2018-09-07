@@ -112,7 +112,7 @@
 <li class="doctools_section"><a href="#section3">Class ::httpd::server</a></li>
 <li class="doctools_section"><a href="#section4">Class ::httpd::reply</a></li>
 <li class="doctools_section"><a href="#section5">Reply Method Ensembles</a></li>
-<li class="doctools_section"><a href="#section6">Reply Method Ensemble: http_info</a></li>
+<li class="doctools_section"><a href="#section6">Reply Method Ensemble: clay</a></li>
 <li class="doctools_section"><a href="#section7">Reply Method Ensemble: request</a></li>
 <li class="doctools_section"><a href="#section8">Reply Method Ensemble: reply</a></li>
 <li class="doctools_section"><a href="#section9">Reply Methods</a></li>
@@ -384,7 +384,7 @@ tool::define ::test::content.file {
 	# and will auto-compute the Content-Type
 	method content {} {
 	  my reset
-    set doc_root [my http_info get doc_root]
+    set doc_root [my clay get doc_root]
     my variable reply_file
     set reply_file [file join $doc_root index.html]
 	}
@@ -417,7 +417,7 @@ tool::define ::test::content.form_handler {
     }
     my puts &quot;&lt;/TABLE&gt;&lt;p&gt;&quot;
     my puts &quot;Send some info:&lt;p&gt;&quot;
-    my puts &quot;&lt;FORM action=/[my http_info get REQUEST_PATH] method POST&gt;&quot;
+    my puts &quot;&lt;FORM action=/[my request get REQUEST_PATH] method POST&gt;&quot;
     my puts &quot;&lt;TABLE&gt;&quot;
     foreach field {name rank serial_number} {
       set line &quot;&lt;TR&gt;&lt;TH&gt;$field&lt;/TH&gt;&lt;TD&gt;&lt;input name=\&quot;$field\&quot; &quot;

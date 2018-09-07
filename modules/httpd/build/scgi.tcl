@@ -35,7 +35,7 @@
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
     set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my clay get SCRIPT_NAME]]
-    foreach {f v} [my clay dump] {
+    foreach {f v} [my request dump] {
       dict set info $f $v
     }
     set length [dict get $info CONTENT_LENGTH]
@@ -128,8 +128,10 @@
     my counter url_hit
     try {
       # Read the SCGI request on byte at a time until we reach a ":"
-      dict set query REQUEST_URI /
-      dict set query REMOTE_ADDR     $ip
+      dict set query http HTTP_HOST {}
+      dict set query http CONTENT_LENGTH 0
+      dict set query http REQUEST_URI /
+      dict set query http REMOTE_ADDR $ip
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]
@@ -144,21 +146,16 @@
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
       chan configure $sock -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
-        dict set query $f $v
-        if {$f in {CONTENT_LENGTH CONTENT_TYPE}} {
-          dict set query http $f $v
-        } elseif {[string range $f 0 4] eq "HTTP_"} {
-          dict set query http [string range $f 5 end] $v
-        }
+        dict set query http $f $v
       }
-      if {![dict exists $query REQUEST_PATH]} {
-        set uri [dict get $query REQUEST_URI]
+      if {![dict exists $query http REQUEST_PATH]} {
+        set uri [dict get $query http REQUEST_URI]
         set uriinfo [::uri::split $uri]
-        dict set query REQUEST_PATH    [dict get $uriinfo path]
+        dict set query http REQUEST_PATH    [dict get $uriinfo path]
       }
       set reply [my dispatch $query]
     } on error {err errdat} {
-      my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my debug [list uri: [dict getnull $query http REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
       catch {chan event readable $sock {}}
@@ -168,7 +165,7 @@
     }
     if {[dict size $reply]==0} {
       my log BadLocation $uuid $query
-      dict set query HTTP_STATUS 404
+      dict set query http HTTP_STATUS 404
       dict set query template notfound
       dict set query mixin reply ::httpd::content.template
     }

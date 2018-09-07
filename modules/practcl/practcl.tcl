@@ -738,11 +738,11 @@ oo::define oo::object {
       }
       mixinmap {
         foreach {slot classes} $args {
-          dict set clay mixin/ $slot $classes
+          dict set clay mixin $slot $classes
         }
         set claycache {}
         set classlist {}
-        foreach {item class} [my clay get mixin/] {
+        foreach {item class} [my clay get mixin] {
           if {$class ne {}} {
             lappend classlist $class
           }
@@ -2206,7 +2206,7 @@ oo::class create ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
-  
+
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
@@ -2219,11 +2219,11 @@ oo::class create ::practcl::toolset {
       return [my define get builddir [file join $PWD pkg $name]]
     }
   }
-  
+
   method MakeDir {srcdir} {
     return $srcdir
   }
-  
+
   method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
@@ -2332,7 +2332,7 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-  
+
   method make-autodetect {} {}
 }
 
@@ -3119,11 +3119,11 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     return $srcdir
   }
 
-  
+
   # Do nothing
   method make-autodetect {} {
   }
-  
+
   method make-clean {} {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -3131,7 +3131,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     catch {::practcl::doexec nmake -f makefile.vc clean}
     cd $PWD
   }
-  
+
   method make-compile {} {
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -3157,7 +3157,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       }
     }
   }
-  
+
   method make-install DEST {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -3186,7 +3186,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     cd $PWD
   }
-  
+
   # Detect what directory contains the Makefile template
   method MakeDir {srcdir} {
     set localsrcdir $srcdir
@@ -3201,7 +3201,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     return $localsrcdir
   }
-  
+
   method NmakeOpts {} {
     set opts {}
     set builddir [file normalize [my define get builddir]]
@@ -3288,7 +3288,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     return $needs_make
   }
-  
+
   method output {} {
     set result {}
     set filename [my define get filename]
@@ -3309,7 +3309,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     set domake 0
     set needs_make 0
   }
-  
+
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {
@@ -3411,7 +3411,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       dict set cstruct $name public 1
     }
   }
-  
+
   method include header {
     my define add include $header
   }
@@ -5981,7 +5981,7 @@ oo::class create ::practcl::distribution {
       isodate {}
     }
   }
-  
+
   method DistroMixIn {} {
     my define set scm none
   }
@@ -6182,7 +6182,7 @@ oo::class create ::practcl::distribution.fossil {
     }
     return $info
   }
-  
+
   # Clone the source
   method ScmClone  {} {
     set srcdir [my SrcDir]

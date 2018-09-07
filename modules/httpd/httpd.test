@@ -246,6 +246,7 @@ Content-Length: *
 THIS IS MY CODE}
 } {}
 
+
 ::DEBUG puts httpd-client-0002
 test httpd-client-0002 {Do another echo request} {
 set reply [::httpd::test::send 10001 {POST /echo HTTP/1.0} {} {THOUGH THERE ARE MANY LIKE IT}]
@@ -310,13 +311,11 @@ set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
-
 # -------------------------------------------------------------------------
 # Test proxies
 
 clay::define ::test::content.proxy {
 	superclass ::httpd::content.proxy
-
 
   method proxy_channel {} {
     return [::socket localhost [my clay get proxy_port]]
@@ -408,8 +407,6 @@ test httpd-proxy-0006 {Return a file} {
 set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
-
-
 
 # -------------------------------------------------------------------------
 # cgi
@@ -587,6 +584,7 @@ Content-Length: *
 THIS IS MY CODE}
 ::httpd::test::compare $reply $checkreply
 } {}
+
 
 ::DEBUG puts scgi-client-0002
 test scgi-client-0002 {Do another echo request} {
