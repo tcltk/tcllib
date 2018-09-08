@@ -30,24 +30,29 @@ namespaces.
 
 [call [cmd {::namespacex info allchildren}] [arg namespace]]
 
-This command returns a list containing the names of all child
+Returns a list containing the names of all child
 namespaces in the specified [arg namespace] and its children. The
 names are all fully qualified.
 
 [call [cmd {::namespacex info allvars}] [arg namespace]]
 
-This command returns a list containing the names of all variables in
+Returns a list containing the names of all variables in
 the specified [arg namespace] and its children. The names are all
 relative to [arg namespace], and [emph not] fully qualified.
 
 [call [cmd {::namespacex info vars}] [arg namespace] [opt [arg pattern]]]
 
-This command returns a list containing the names of all variables in
+Returns a list containing the names of all variables in
 the specified [arg namespace].
+
+[call [cmd {::namespacex normalize}] [arg namespace]]
+
+Returns the absolute name of [arg namespace], which is resolved relative
+to the namespace of the caller, with all unneeded colon characters removed.
 
 [call [cmd {::namespacex state get}] [arg namespace]]
 
-This command returns a dictionary holding the names and values of all
+Returns a dictionary holding the names and values of all
 variables in the specified [arg namespace] and its child namespaces.
 
 [para]
@@ -56,7 +61,7 @@ and [emph not] fully qualified.
 
 [call [cmd {::namespacex state set}] [arg namespace] [arg dict]]
 
-This command takes a dictionary holding the names and values for a set
+Takes a dictionary holding the names and values for a set
 of variables and replaces the current state of the specified
 [arg namespace] and its child namespaces with this state.
 
@@ -64,10 +69,17 @@ The result of the command is the empty string.
 
 [call [cmd {::namespacex state drop}] [arg namespace]]
 
-This command unsets all variables in the specified [arg namespace] and
+Unsets all variables in the specified [arg namespace] and
 its child namespaces.
 
 The result of the command is the empty string.
+
+
+[call [cmd {::namespacex strip}] [arg namespace] [arg namespaces]]
+
+Each item in [arg namespaces] must be the absolute normalized name of a child
+namespace of [arg prefix].  Returns the corresponding list of relative names of
+child namespaces.
 
 [list_end]
 [manpage_end]

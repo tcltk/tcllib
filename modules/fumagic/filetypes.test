@@ -64,7 +64,7 @@ test fumagic.filetype-1.4 {test simple binary} {
     set res [catch {fileutil::magic::filetype $f} msg]
     removeBinFile
     list $res $msg
-} {0 {{} {} {}}}
+} {0 {binary {} {}}}
 
 
 test fumagic.filetype-1.5 {test elf executable} {
@@ -80,7 +80,7 @@ test fumagic.filetype-1.6 {test simple text} {
     set res [catch {fileutil::magic::filetype $f} msg]
     removeTextFile
     list $res $msg
-} {0 {{} {} {}}}
+} {0 {text {} {}}}
 
 
 test fumagic.filetype-1.7 {test script file} {
@@ -206,7 +206,7 @@ test fumagic.filetype-1.19 {test binary gravity_wave_data_frame} {
     set res [catch {fileutil::magic::filetype $f} msg]
     removeIgwdFile
     list $res $msg
-} {0 {{} {} {}}}
+} {0 {binary {} {}}}
 
 
 test fumagic.filetype-1.20 {test binary compressed bzip} {
@@ -278,6 +278,7 @@ test fumagic.filetype-1.25.1 {
             ::fileutil::magic::rt::new $finfo $chan \
 		$::fileutil::magic::filetype::named [
         	list [namespace which ::fileutil::magic::filetype::analyze]]]
+	set class [$coro]
         while 1 {
             lassign [$coro] weight result mimetype ext 
             dict update matches $weight weight {

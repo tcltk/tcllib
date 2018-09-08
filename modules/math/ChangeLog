@@ -1,3 +1,9 @@
+2018-08-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Source stat_wasserstein.tcl and stat_logit.tcl - for new commands
+	* statistics.test: Add corresponding tests
+	* statistics.man: Add description of these commands
+	* pkgIndex.tcl: Bump the version to 1.3.0
+
 2018-07-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* trig.tcl: Implementation of (additional) trigonometric functions - package math::trig
 	* trig.test: Trst for the (additional) trigonometric functions

@@ -15,7 +15,7 @@
 package require Tcl 8.5  ; # namespace ensembles, {*}
 
 namespace eval ::namespacex {
-    namespace export add hook info state
+    namespace export add hook info normalize strip state
     namespace ensemble create
 
     namespace eval hook {
@@ -183,17 +183,19 @@ proc ::namespacex::hook::Handle {handler old args} {
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: Info - Visible API
 
-proc ::namespacex::info::allvars {ns} {
-    if {![string match {::*} $ns]} { set ns ::$ns }
+
+proc ::namespacex::info::allvars ns {
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result [::info vars ${ns}::*]
     foreach cns [allchildren $ns] {
 	lappend result {*}[::info vars ${cns}::*]
     }
-    return [Strip $ns $result]
+    return [[namespace parent] strip $ns $result]
 }
 
-proc ::namespacex::info::allchildren {ns} {
-    if {![string match {::*} $ns]} { set ns ::$ns }
+
+proc ::namespacex::info::allchildren ns {
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result [list]
     foreach cns [::namespace children $ns] {
 	lappend result {*}[allchildren $cns]
@@ -202,15 +204,29 @@ proc ::namespacex::info::allchildren {ns} {
     return $result
 }
 
+
 proc ::namespacex::info::vars {ns {pattern *}} {
-    return [Strip $ns [::info vars ${ns}::$pattern]]
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
+    return [[namespace parent] strip $ns [::info vars ${ns}::$pattern]]
 }
 
-proc ::namespacex::info::Strip {ns itemlist} {
+
+# this implementation avoids string operations
+proc ::namespacex::normalize ns {
+    if {[uplevel 1 [list ::namespace exists $ns]]} {
+	return [uplevel 1 [list namespace eval $ns {namespace current}]]
+    }
+    if {![string match ::* $ns]} {
+	set ns [uplevel 1 {namespace current}]::$ns
+    }
+    regsub {::+} $ns :: ns
+    return $ns
+}
+
+
+proc ::namespacex::strip {ns itemlist} {
     set n [string length $ns]
-    if {![string match {::*} $ns]} {
-	incr n 4
-    } else {
+    if {$ns ne {::}} {
 	incr n 2
     }
 
@@ -221,17 +237,19 @@ proc ::namespacex::info::Strip {ns itemlist} {
     return $result
 }
 
+
+
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: State - Visible API
 
-proc ::namespacex::state::drop {ns} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+proc ::namespacex::state::drop ns {
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     namespace eval $ns [list ::unset {*}[::namespacex info allvars $ns]]
     return
 }
 
-proc ::namespacex::state::get {ns} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+proc ::namespacex::state::get ns {
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result {}
     foreach v [::namespacex info allvars $ns] {
 	namespace upvar $ns $v value
@@ -241,12 +259,13 @@ proc ::namespacex::state::get {ns} {
 }
 
 proc ::namespacex::state::set {ns state} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     # Inlined 'state drop'.
     namespace eval $ns [list ::unset  {*}[::namespacex info allvars $ns]]
     namespace eval $ns [list variable {*}$state]
     return
 }
+
 
 # # ## ### ##### ######## ############# ######################
 ## Ready
