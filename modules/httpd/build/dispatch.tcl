@@ -8,9 +8,9 @@
     set reply_body {}
     my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> clay get server/ string]
-    set msg [my request get LOCATION]
-    my reply set Location [my request get LOCATION]
-    set code  [my request get REDIRECT_CODE]
+    set msg [my clay get LOCATION]
+    my reply set Location [my clay get LOCATION]
+    set code  [my clay get REDIRECT_CODE]
     if {$code eq {}} {
       set code 301
     }
@@ -19,7 +19,7 @@
 
   method content {} {
     set template [my <server> template redirect]
-    set msg [my request get LOCATION]
+    set msg [my clay get LOCATION]
     set HTTP_STATUS [my reply get Status]
     my puts [subst $msg]
   }

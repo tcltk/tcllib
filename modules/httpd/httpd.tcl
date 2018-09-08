@@ -334,9 +334,9 @@ Connection close}
     my log Dispatched [dict create \
      REMOTE_ADDR [my request get REMOTE_ADDR] \
      REMOTE_HOST [my request get REMOTE_HOST] \
-     COOKIE [my request get COOKIE] \
-     REFERER [my request get REFERER] \
-     USER_AGENT [my request get USER_AGENT] \
+     COOKIE [my request get HTTP_COOKIE] \
+     REFERER [my request get HTTP_REFERER] \
+     USER_AGENT [my request get HTTP_USER_AGENT] \
      REQUEST_URI [my request get REQUEST_URI] \
      HTTP_HOST [my request get HTTP_HOST] \
      SESSION [my request get SESSION] \
@@ -809,6 +809,7 @@ namespace eval ::httpd::coro {}
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
+      dict set query mixin style [my clay get server/ style]
       dict set query http HTTP_HOST {}
       dict set query http CONTENT_LENGTH 0
       foreach {f v} [my MimeParse $mimetxt] {
@@ -929,7 +930,7 @@ namespace eval ::httpd::coro {}
     ###
     # Fallback to docroot handling
     ###
-    set doc_root [my clay get server/ doc_root]
+    set doc_root [dict getnull $reply http DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
       # Fall back to doc_root handling
@@ -941,6 +942,10 @@ namespace eval ::httpd::coro {}
     }
     return {}
   }
+
+  method Dispatch_Local data {}
+
+  method Headers_Local {varname} {}
 
   method Headers_Process varname {}
 
@@ -978,6 +983,11 @@ namespace eval ::httpd::coro {}
     # rebuild the dispatch method
     ###
     set body "\n try \{"
+    append body \n {
+  set reply [my Dispatch_Local $data]
+  if {[dict size $reply]} {return $reply}
+}
+
     foreach {slot class} $mixinmap {
       set script [$class clay search plugin/ dispatch]
       if {[string length $script]} {
@@ -995,6 +1005,7 @@ namespace eval ::httpd::coro {}
     ###
     set body "\n try \{"
     append body \n "  upvar 1 \$varname query"
+    append body \n {  my Headers_Local query}
     foreach {slot class} $mixinmap {
       set script [$class clay search plugin/ headers]
       if {[string length $script]} {
@@ -1176,9 +1187,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     set reply_body {}
     my reply replace    [my HttpHeaders_Default]
     my reply set Server [my <server> clay get server/ string]
-    set msg [my request get LOCATION]
-    my reply set Location [my request get LOCATION]
-    set code  [my request get REDIRECT_CODE]
+    set msg [my clay get LOCATION]
+    my reply set Location [my clay get LOCATION]
+    set code  [my clay get REDIRECT_CODE]
     if {$code eq {}} {
       set code 301
     }
@@ -1187,7 +1198,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 
   method content {} {
     set template [my <server> template redirect]
-    set msg [my request get LOCATION]
+    set msg [my clay get LOCATION]
     set HTTP_STATUS [my reply get Status]
     my puts [subst $msg]
   }

@@ -192,7 +192,7 @@ clay::define ::test::content.file {
 	superclass ::httpd::content.file
 	method content {} {
 	  my reset
-    set doc_root [my clay get doc_root]
+    set doc_root [my request get DOCUMENT_ROOT]
     my variable reply_file
     set reply_file [file join $doc_root pkgIndex.tcl]
 	}

@@ -168,7 +168,7 @@ clay::define ::test::content.file {
 	# and will auto-compute the Content-Type
 	method content {} {
 	  my reset
-    set doc_root [my clay get doc_root]
+    set doc_root [my request get DOCUMENT_ROOT]
     my variable reply_file
     set reply_file [file join $doc_root index.html]
 	}

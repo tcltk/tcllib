@@ -70,6 +70,7 @@ namespace eval ::httpd::coro {}
       set readCount [::coroutine::util::gets_safety $sock 4096 line]
       set mimetxt [my HttpHeaders $sock]
       dict set query mimetxt $mimetxt
+      dict set query mixin style [my clay get server/ style]
       dict set query http HTTP_HOST {}
       dict set query http CONTENT_LENGTH 0
       foreach {f v} [my MimeParse $mimetxt] {
@@ -190,7 +191,7 @@ namespace eval ::httpd::coro {}
     ###
     # Fallback to docroot handling
     ###
-    set doc_root [my clay get server/ doc_root]
+    set doc_root [dict getnull $reply http DOCUMENT_ROOT]
     if {$doc_root ne {}} {
       ###
       # Fall back to doc_root handling
@@ -202,6 +203,10 @@ namespace eval ::httpd::coro {}
     }
     return {}
   }
+
+  method Dispatch_Local data {}
+
+  method Headers_Local {varname} {}
 
   method Headers_Process varname {}
 
@@ -239,6 +244,11 @@ namespace eval ::httpd::coro {}
     # rebuild the dispatch method
     ###
     set body "\n try \{"
+    append body \n {
+  set reply [my Dispatch_Local $data]
+  if {[dict size $reply]} {return $reply}
+}
+
     foreach {slot class} $mixinmap {
       set script [$class clay search plugin/ dispatch]
       if {[string length $script]} {
@@ -256,6 +266,7 @@ namespace eval ::httpd::coro {}
     ###
     set body "\n try \{"
     append body \n "  upvar 1 \$varname query"
+    append body \n {  my Headers_Local query}
     foreach {slot class} $mixinmap {
       set script [$class clay search plugin/ headers]
       if {[string length $script]} {
