@@ -55,7 +55,7 @@
      COOKIE [my request get HTTP_COOKIE] \
      REFERER [my request get HTTP_REFERER] \
      USER_AGENT [my request get HTTP_USER_AGENT] \
-     REQUEST_URI [my request get HTTP_REQUEST_URI] \
+     REQUEST_URI [my request get REQUEST_URI] \
      HTTP_HOST [my request get HTTP_HOST] \
      SESSION [my request get SESSION] \
     ]

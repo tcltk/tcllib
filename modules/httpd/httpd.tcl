@@ -337,7 +337,7 @@ Connection close}
      COOKIE [my request get HTTP_COOKIE] \
      REFERER [my request get HTTP_REFERER] \
      USER_AGENT [my request get HTTP_USER_AGENT] \
-     REQUEST_URI [my request get HTTP_REQUEST_URI] \
+     REQUEST_URI [my request get REQUEST_URI] \
      HTTP_HOST [my request get HTTP_HOST] \
      SESSION [my request get SESSION] \
     ]
@@ -863,7 +863,6 @@ namespace eval ::httpd::coro {}
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
-      puts [dict get $errdat -errorinfo]
       my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
