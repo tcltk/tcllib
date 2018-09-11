@@ -55,6 +55,40 @@ namespace eval ::httpd::coro {}
     chan event $sock readable $coro
   }
 
+  method ServerHeaders {ip http_request mimetxt} {
+    set result {}
+    dict set result HTTP_HOST {}
+    dict set result CONTENT_LENGTH 0
+    foreach {f v} [my MimeParse $mimetxt] {
+      set fld [string toupper [string map {- _} $f]]
+      if {$fld in {CONTENT_LENGTH CONTENT_TYPE}} {
+        set qfld $fld
+      } else {
+        set qfld HTTP_$fld
+      }
+      dict set result $qfld $v
+    }
+    dict set result REMOTE_ADDR     $ip
+    dict set result REMOTE_HOST     [my HostName $ip]
+    dict set result REQUEST_METHOD  [lindex $http_request 0]
+    set uriinfo [::uri::split [lindex $http_request 1]]
+    dict set result uriinfo $uriinfo
+    dict set result REQUEST_URI     [lindex $http_request 1]
+    dict set result REQUEST_PATH    [dict get $uriinfo path]
+    dict set result REQUEST_VERSION [lindex [split [lindex $http_request end] /] end]
+    dict set result DOCUMENT_ROOT   [my clay get server/ doc_root]
+    dict set result QUERY_STRING    [dict get $uriinfo query]
+    dict set result REQUEST_RAW     $http_request
+    dict set result SERVER_PORT     [my port_listening]
+    dict set result SERVER_NAME     [my clay get server/ name]
+    dict set result SERVER_PROTOCOL [my clay get server/ protocol]
+    dict set result SERVER_SOFTWARE [my clay get server/ string]
+    if {[string match 127.* $ip]} {
+      dict set result LOCALHOST [expr {[lindex [split [dict getnull $result HTTP_HOST] :] 0] eq "localhost"}]
+    }
+    return $result
+  }
+
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
@@ -67,47 +101,12 @@ namespace eval ::httpd::coro {}
     my counter url_hit
     set line {}
     try {
-      set readCount [::coroutine::util::gets_safety $sock 4096 line]
+      set readCount [::coroutine::util::gets_safety $sock 4096 http_request]
       set mimetxt [my HttpHeaders $sock]
+      dict set query UUID $uuid
       dict set query mimetxt $mimetxt
       dict set query mixin style [my clay get server/ style]
-      dict set query http HTTP_HOST {}
-      dict set query http CONTENT_LENGTH 0
-      foreach {f v} [my MimeParse $mimetxt] {
-        set fld [string toupper [string map {- _} $f]]
-        if {$fld in {CONTENT_LENGTH CONTENT_TYPE}} {
-          set qfld $fld
-        } else {
-          set qfld HTTP_$fld
-        }
-        dict set query http $qfld $v
-      }
-      dict set query UUID $uuid
-      dict set query http UUID $uuid
-      dict set query http REMOTE_ADDR     $ip
-      dict set query http REMOTE_HOST     [my HostName $ip]
-      dict set query http REQUEST_METHOD  [lindex $line 0]
-      set uriinfo [::uri::split [lindex $line 1]]
-      dict set query uriinfo $uriinfo
-      dict set query http REQUEST_URI     [lindex $line 1]
-      dict set query http REQUEST_PATH    [dict get $uriinfo path]
-      dict set query http REQUEST_VERSION [lindex [split [lindex $line end] /] end]
-      dict set query http DOCUMENT_ROOT   [my clay get server/ doc_root]
-      dict set query http QUERY_STRING    [dict get $uriinfo query]
-      dict set query http REQUEST_RAW     $line
-      dict set query http SERVER_PORT     [my port_listening]
-      dict set query http SERVER_NAME     [my clay get server/ name]
-      dict set query http SERVER_PROTOCOL [my clay get server/ protocol]
-      dict set query http SERVER_SOFTWARE [my clay get server/ string]
-      # REMOTE_USER AUTH_TYPE
-      # GATEWAY_INTERFACE
-      # SERVER_HTTPS_PORT
-      #SERVER_NAME
-      #SERVER_SOFTWARE
-
-      if {[string match 127.* $ip]} {
-        dict set query http LOCALHOST [expr {[lindex [split [dict getnull $query HTTP_HOST] :] 0] eq "localhost"}]
-      }
+      dict set query http [my ServerHeaders $ip $http_request $mimetxt]
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
@@ -125,32 +124,7 @@ namespace eval ::httpd::coro {}
       dict set query mixin reply ::httpd::content.template
     }
     try {
-      if {[dict exists $reply class]} {
-        set class [dict get $reply class]
-      } else {
-        set class [my clay get reply_class]
-      }
-      set pageobj [$class create ::httpd::object::$uuid [self]]
-      if {[dict exists $reply mixin]} {
-        set mixinmap [dict get $reply mixin]
-      } else {
-        set mixinmap {}
-      }
-      foreach item [dict keys $reply MIXIN_*] {
-        set slot [string range $reply 6 end]
-        dict set mixinmap [string tolower $slot] [dict get $reply $item]
-      }
-      $pageobj clay mixinmap {*}$mixinmap
-      if {[dict exists $reply delegate]} {
-        $pageobj clay delegate {*}[dict get $reply delegate]
-      }
-    } on error {err errdat} {
-      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
-      catch {chan close $sock}
-    }
-    try {
+      set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
       $pageobj dispatch $sock $reply
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -184,6 +158,10 @@ namespace eval ::httpd::coro {}
   # Route a request to the appropriate handler
   ###
   method dispatch {data} {
+    set reply [my Dispatch_Local $data]
+    if {[dict size $reply]} {
+      return $reply
+    }
     return [my Dispatch_Default $data]
   }
 

@@ -155,19 +155,8 @@
     }
   }
 
-  method dispatch {newsock datastate} {
-    try {
-      my request dispatch $datastate
-      my variable sock chan
-      set chan $newsock
-      chan configure $chan -translation {auto crlf} -buffering line
-      # Initialize the reply
-      my reset
-      # Invoke the URL implementation.
-    } on error {err errdat} {
-      my error 500 $err [dict get $errdat -errorinfo]
-      tailcall my DoOutput
-    }
+  method Dispatch {} {
+    my variable sock chan
     if {[catch {my proxy_channel} sock errdat]} {
       my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
       tailcall my DoOutput

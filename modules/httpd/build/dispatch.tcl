@@ -27,12 +27,9 @@
 
 ::clay::define ::httpd::content.cache {
 
-  method dispatch {newsock datastate} {
+  method Dispatch {} {
     my variable chan
-    set chan $newsock
-    chan event $chan readable {}
     try {
-      my request dispatch $datastate
       my wait writable $chan
       chan configure $chan  -translation {binary binary}
       chan puts -nonewline $chan [my clay get cache/ data]

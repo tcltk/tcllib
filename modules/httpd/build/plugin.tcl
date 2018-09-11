@@ -48,48 +48,25 @@
   }
 
   method Dispatch_Dict {data} {
+    my variable url_patterns
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
     set uri   [dict get $data http REQUEST_PATH]
-    foreach {host pattern info} [my uri patterns] {
+    foreach {host hostpat} $url_patterns {
       if {![string match $host $vhost]} continue
-      if {![string match $pattern $uri]} continue
-      set buffer $data
-      foreach {f v} $info {
-        dict set buffer $f $v
+      foreach {pattern info} $hostpat {
+        if {![string match $pattern $uri]} continue
+        set buffer $data
+        foreach {f v} $info {
+          dict set buffer $f $v
+        }
+        return $buffer
       }
-      return $buffer
     }
     return {}
   }
 
-  Ensemble uri::patterns {} {
-    my variable url_patterns url_stream
-    if {![info exists url_stream]} {
-      set url_stream {}
-      foreach {host hostpat} $url_patterns {
-        foreach {pattern info} $hostpat {
-          lappend url_stream $host $pattern $info
-        }
-      }
-    }
-    return $url_stream
-  }
-
-  Ensemble uri::add args {
-    my variable url_patterns url_stream
-    unset -nocomplain url_stream
-    switch [llength $args] {
-      2 {
-        set vhosts *
-        lassign $args patterns info
-      }
-      3 {
-        lassign $args vhosts patterns info
-      }
-      default {
-        error "Usage: add_url ?vhosts? prefix info"
-      }
-    }
+  Ensemble uri::add {vhosts patterns info} {
+    my variable url_patterns
     foreach vhost $vhosts {
       foreach pattern $patterns {
         set data $info
@@ -99,6 +76,21 @@
         dict set url_patterns $vhost [string trimleft $pattern /] $data
       }
     }
+  }
+
+  Ensemble uri::direct {vhosts patterns info body} {
+    my variable url_patterns url_stream
+    set body {}
+    if {[dict exists $info superclass]} {
+      append body \n "superclass {*}[dict get $info superclass]"
+      dict unset info superclass
+    }
+    append body \n [list method content {} $body]
+    set class [namespace current]::${vhosts}/${patterns}
+    set class [string map $class {* %} $class]
+    ::clay::define $class $body
+    dict set info mixin content $class
+    my uri add $vhosts $patterns $info
   }
 }
 

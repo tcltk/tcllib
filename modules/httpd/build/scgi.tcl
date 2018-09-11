@@ -1,8 +1,16 @@
 ###
 # Return data from an SCGI process
 ###
+::clay::define ::httpd::protocol.scgi {
+
+  method EncodeStatus {status} {
+    return "Status: $status"
+  }
+}
+
 ::clay::define ::httpd::content.scgi {
   superclass ::httpd::content.proxy
+
 
   method scgi_info {} {
     ###
@@ -93,14 +101,6 @@
   }
 }
 
-::clay::define ::httpd::reply.scgi {
-  superclass ::httpd::reply
-
-  method EncodeStatus {status} {
-    return "Status: $status"
-  }
-}
-
 ###
 # Act as an  SCGI Server
 ###
@@ -110,8 +110,6 @@
   clay set socket/ buffersize   32768
   clay set socket/ blocking     0
   clay set socket/ translation  {binary binary}
-
-  clay set reply_class ::httpd::reply.scgi
 
   method debug args {
     puts $args
@@ -170,40 +168,15 @@
       dict set query mixin reply ::httpd::content.template
     }
     try {
-      if {[dict exists $reply class]} {
-        set class [dict get $reply class]
-      } else {
-        set class [my clay get reply_class]
-      }
-      set pageobj [$class create ::httpd::object::$uuid [self]]
-      if {[dict exists $reply mixin]} {
-        set mixinmap [dict get $reply mixin]
-      } else {
-        set mixinmap {}
-      }
-      foreach item [dict keys $reply MIXIN_*] {
-        set slot [string range $reply 6 end]
-        dict set mixinmap [string tolower $slot] [dict get $reply $item]
-      }
-      $pageobj clay mixinmap {*}$mixinmap
-      if {[dict exists $reply delegate]} {
-        $pageobj clay delegate {*}[dict get $reply delegate]
-      }
+      set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
+      dict set reply mixin protocol ::httpd::protocol.scgi
+      $pageobj dispatch $sock $reply
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       catch {$pageobj destroy}
       catch {chan event readable $sock {}}
       catch {chan event writeable $sock {}}
-      catch {chan close $sock}
-      return
-    }
-    try {
-      $pageobj dispatch $sock $reply
-    } on error {err errdat} {
-      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
       catch {chan close $sock}
       return
     }

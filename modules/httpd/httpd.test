@@ -122,7 +122,6 @@ proc ::httpd::test::get_reply {sock} {
 clay::define ::httpd::server {
   method log args {}
 
-
   method TemplateSearch page {
     set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -136,7 +135,7 @@ clay::define ::httpd::server {
         return {404 Not Found}
       }
       internal_error {
-        return {500 Server Internal Error}
+        return {500 Server Internal Error\nTrace:\n$errorInfo}
       }
     }
   }
@@ -225,14 +224,14 @@ set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
 TESTAPP plugin dict_dispatch
-TESTAPP uri add /     [list mixin {reply ::test::content.echo}]
-TESTAPP uri add /echo [list mixin {reply ::test::content.echo}]
-TESTAPP uri add /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
-TESTAPP uri add /time [list mixin {reply ::test::content.time}]
-TESTAPP uri add /error [list mixin {replyy ::test::content.error}]
+TESTAPP uri add * /     [list mixin {reply ::test::content.echo}]
+TESTAPP uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTAPP uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTAPP uri add * /time [list mixin {reply ::test::content.time}]
+TESTAPP uri add * /error [list mixin {replyy ::test::content.error}]
 
 # Catch all
-#TESTAPP uri add * [list mixin {reply httpd::content.echo}]
+#TESTAPP uri add * * [list mixin {reply httpd::content.echo}]
 
 ::DEBUG puts httpd-client-0001
 test httpd-client-0001 {Do an echo request} {
@@ -245,7 +244,6 @@ Content-Length: *
 
 THIS IS MY CODE}
 } {}
-
 
 ::DEBUG puts httpd-client-0002
 test httpd-client-0002 {Do another echo request} {
@@ -324,13 +322,13 @@ clay::define ::test::content.proxy {
 
 
 ::httpd::server create TESTPROXY port 10002
-TESTAPP   uri add /proxy*     [list mixin {reply ::test::content.proxy} proxy_port [TESTPROXY port_listening]]
+TESTAPP   uri add * /proxy*     [list mixin {reply ::test::content.proxy} proxy_port [TESTPROXY port_listening]]
 TESTPROXY plugin dict_dispatch
-TESTPROXY uri add /     [list mixin {reply ::test::content.echo}]
-TESTPROXY uri add /echo [list mixin {reply ::test::content.echo}]
-TESTPROXY uri add /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
-TESTPROXY uri add /time [list mixin {reply ::test::content.time}]
-TESTPROXY uri add /error [list mixin {reply ::test::content.error}]
+TESTPROXY uri add * /     [list mixin {reply ::test::content.echo}]
+TESTPROXY uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTPROXY uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTPROXY uri add * /time [list mixin {reply ::test::content.time}]
+TESTPROXY uri add * /error [list mixin {reply ::test::content.error}]
 
 ::DEBUG puts httpd-proxy-0001
 test httpd-proxy-0001 {Do an echo request} {
@@ -412,7 +410,7 @@ set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 # cgi
 TESTAPP plugin local_memchan
 
-TESTAPP uri add /cgi-bin* [list mixin {reply ::test::content.cgi} path $::DEMOROOT]
+TESTAPP uri add * /cgi-bin* [list mixin {reply ::test::content.cgi} path $::DEMOROOT]
 
 set fout [open [file join $DIR test.tcl] w]
 puts $fout {#!/usr/bin/tclsh
@@ -545,7 +543,7 @@ namespace eval ::scgi {
 # Build the reply class
 ###
 ::clay::define ::scgi::test::reply {
-  superclass ::httpd::reply.scgi
+  superclass ::httpd::reply
 
   method reset {} {
     my variable reply_body
@@ -566,11 +564,11 @@ namespace eval ::scgi {
 puts [list ::test::content.file [info commands ::test::content.file]]
 scgi::test::app create TESTSCGI port 10003
 TESTSCGI plugin dict_dispatch
-TESTSCGI uri add /     [list mixin {reply ::test::content.echo}]
-TESTSCGI uri add /echo [list mixin {reply ::test::content.echo}]
-TESTSCGI uri add /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
-TESTSCGI uri add /time [list mixin {reply ::test::content.time}]
-TESTSCGI uri add /error [list mixin {reply ::test::content.error}]
+TESTSCGI uri add * /     [list mixin {reply ::test::content.echo}]
+TESTSCGI uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTSCGI uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTSCGI uri add * /time [list mixin {reply ::test::content.time}]
+TESTSCGI uri add * /error [list mixin {reply ::test::content.error}]
 
 ::DEBUG puts scgi-client-0001
 test scgi-client-0001 {Do an echo request} {

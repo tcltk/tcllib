@@ -106,14 +106,9 @@
     }
   }
 
-  method dispatch {newsock datastate} {
+  method Dispatch {} {
     my variable reply_body reply_file reply_chan chan
     try {
-      my request dispatch $datastate
-      set chan $newsock
-      chan event $chan readable {}
-      chan configure $chan -translation {auto crlf} -buffering line
-
       my reset
       # Invoke the URL implementation.
       my content
