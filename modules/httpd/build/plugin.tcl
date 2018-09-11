@@ -80,15 +80,16 @@
 
   Ensemble uri::direct {vhosts patterns info body} {
     my variable url_patterns url_stream
-    set body {}
+    set cbody {}
     if {[dict exists $info superclass]} {
-      append body \n "superclass {*}[dict get $info superclass]"
+      append cbody \n "superclass {*}[dict get $info superclass]"
       dict unset info superclass
     }
-    append body \n [list method content {} $body]
+    append cbody \n [list method content {} $body]
+
     set class [namespace current]::${vhosts}/${patterns}
-    set class [string map $class {* %} $class]
-    ::clay::define $class $body
+    set class [string map {* %} $class]
+    ::clay::define $class $cbody
     dict set info mixin content $class
     my uri add $vhosts $patterns $info
   }

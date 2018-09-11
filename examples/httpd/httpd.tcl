@@ -27,24 +27,6 @@ proc ::fossil args {
   return [exec ${::fossil_exe} {*}$args]
 }
 
-clay::define httpd::content.fossil_root {
-
-  method content {} {
-    my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
-    global recipe
-    my puts "<UL>"
-    set dbfiles [::fossil-list]
-    foreach file [lsort -dictionary $dbfiles]  {
-      dict set result [file rootname [file tail $file]] $file
-    }
-    foreach {module dbfile} [lsort -dictionary -stride 2 $result] {
-      my puts "<li><a HREF=/fossil/$module>$module</a>"
-    }
-    my puts {</UL></BODY></HTML>}
-  }
-}
-
-
 clay::define httpd::content.fossil_node_proxy {
 
   superclass httpd::content.proxy
@@ -136,58 +118,15 @@ clay::define httpd::content.fossil_node_scgi {
 ::clay::define ::docserver::server {
   superclass ::httpd::server
 
+  method debug args {
+    puts [list DEBUG {*}$args]
+  }
   method log args {
-    #puts [list {*}$args]
+    puts [list LOG {*}$args]
   }
 
 }
 
-::clay::define ::docserver::dynamic {
-
-  method content {} {
-    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
-    my puts "<TABLE width=100%>"
-    foreach {f v} [my request dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"
-    }
-    my puts "<tr><td colspan=10><hr></td></tr>"
-    foreach {f v} [my clay dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"
-    }
-    my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
-    my puts </TABLE>
-    my puts </BODY></HTML>
-  }
-
-}
-
-::clay::define ::docserver::upload {
-  superclass ::docserver::dynamic
-
-  method content {} {
-    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
-    my puts "<TABLE width=100%>"
-    set FORMDAT [my FormData]
-    foreach {f v} [my FormData] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"
-    }
-    my puts "<tr><td colspan=10><hr></td></tr>"
-    foreach {f v} [my clay dump] {
-        my puts "<tr><th>$f</th><td>$v</td></tr>"
-    }
-    my puts "<tr><td colspan=10><hr></td></tr>"
-    foreach part [dict getnull $FORMDAT MIME_PARTS] {
-      my puts "<tr><td colspan=10><hr></td></tr>"
-      foreach f [::mime::getheader $part -names] {
-        my puts "<tr><th>$f</th><td>[mime::getheader $part $f]</td></tr>"
-      }
-      my puts "<tr><td colspan=10>[::mime::getbody $part -decode]</td></tr>"
-    }
-    my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
-    my puts </TABLE>
-    my puts </BODY></HTML>
-  }
-}
 set serveropts [::httpd::server clay get server/]
 foreach {f v}  [::clay::args_to_options {*}$::argv] {
   if {[dict exists $serveropts $f]} {
@@ -200,12 +139,58 @@ if {[dict exists $serveropts fossil]} {
 
 ::docserver::server create appmain doc_root $DEMOROOT {*}$argv
 appmain plugin basic_url ::httpd::plugin.dict_dispatch
-appmain uri add /tcllib* [list mixin {reply httpd::content.file} path [file join $tcllibroot embedded www]]
-appmain uri add /fossil [list mixin {reply httpd::content.fossil_root}]
-appmain uri add /fossil/* [list mixin {reply httpd::content.fossil_node_proxy}]
-appmain uri add /upload [list mixin {reply ::docserver::upload}]
-appmain uri add /dynamic [list mixin {reply ::docserver::dynamic}]
-appmain uri add /listen [list mixin {reply ::docserver::listen}]
-appmain uri add /send   [list mixin {reply ::docserver::send}]
+appmain uri add * /tcllib* [list mixin {reply httpd::content.file} path [file join $tcllibroot embedded www]]
+appmain uri direct * /fossil {} {
+  my puts "<HTML><HEAD><TITLE>Local Fossil Repositories</TITLE></HEAD><BODY>"
+  global recipe
+  my puts "<UL>"
+  set dbfiles [::fossil-list]
+  foreach file [lsort -dictionary $dbfiles]  {
+    dict set result [file rootname [file tail $file]] $file
+  }
+  foreach {module dbfile} [lsort -dictionary -stride 2 $result] {
+    my puts "<li><a HREF=/fossil/$module>$module</a>"
+  }
+  my puts {</UL></BODY></HTML>}
+}
+appmain uri add * /fossil/* [list mixin {reply httpd::content.fossil_node_proxy}]
+appmain uri direct * /upload {} {
+  my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+  my puts "<TABLE width=100%>"
+  set FORMDAT [my FormData]
+  foreach {f v} [my FormData] {
+      my puts "<tr><th>$f</th><td>$v</td></tr>"
+  }
+  my puts "<tr><td colspan=10><hr></td></tr>"
+  foreach {f v} [my clay dump] {
+      my puts "<tr><th>$f</th><td>$v</td></tr>"
+  }
+  my puts "<tr><td colspan=10><hr></td></tr>"
+  foreach part [dict getnull $FORMDAT MIME_PARTS] {
+    my puts "<tr><td colspan=10><hr></td></tr>"
+    foreach f [::mime::getheader $part -names] {
+      my puts "<tr><th>$f</th><td>[mime::getheader $part $f]</td></tr>"
+    }
+    my puts "<tr><td colspan=10>[::mime::getbody $part -decode]</td></tr>"
+  }
+  my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
+  my puts </TABLE>
+  my puts </BODY></HTML>
+}
+appmain uri direct * /dynamic {} {
+  my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+  my puts "<TABLE width=100%>"
+  foreach {f v} [my request dump] {
+    my puts "<tr><th>$f</th><td>$v</td></tr>"
+  }
+  my puts "<tr><td colspan=10><hr></td></tr>"
+  foreach {f v} [my clay dump] {
+    my puts "<tr><th>$f</th><td>$v</td></tr>"
+  }
+  my puts "<tr><th>File Size</th><td>[my request get CONTENT_LENGTH]</td></tr>"
+  my puts </TABLE>
+  my puts </BODY></HTML>
+}
+
 puts [list LISTENING on [appmain port_listening]]
 cron::main

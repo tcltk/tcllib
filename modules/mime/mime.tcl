@@ -26,7 +26,7 @@ package require Tcl 8.5
 package require tcl::chan::memchan
 package require sha256
 
-package provide mime 1.6
+package provide mime 1.7
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -844,7 +844,7 @@ proc ::mime::parsepartaux token {
                 }]} {
                     set nochild 1
                     set state(parts) [lrange $state(parts) 0 end-1]
-                } 
+                }
 	    } else {
                 mime::initializeaux $child \
                     -file $state(file) -root $state(root) \
@@ -1388,7 +1388,7 @@ proc ::mime::header::parse token {
             }
 
             default {
-		setinternal $token $mixed $value -mode append 
+		setinternal $token $mixed $value -mode append
             }
         }
 
@@ -1737,7 +1737,7 @@ proc ::mime::header::set_ {token key value args} {
 			    } {
 				dict set params boundary [boundary]
 			    }
-			} 
+			}
 			default {
 			    #carry on
 			}
@@ -2272,7 +2272,7 @@ proc ::mime::copymessageaux {token channel} {
 #       token      The MIME token to parse.
 #
 # Results:
-#       The message. 
+#       The message.
 
 proc ::mime::buildmessage token {
     global errorCode errorInfo
@@ -2859,7 +2859,7 @@ proc ::mime::parseaddressaux {token string} {
                 }
                 set friendly $note
             }
-            
+
             if {
 		$friendly eq {}
 		&&
@@ -3731,7 +3731,7 @@ proc ::mime::parsedatetime {value property} {
 proc ::mime::uniqueID {} {
     set id [base64 -mode encode -- [
 	sha2::sha256 -bin [expr {rand()}][pid][clock clicks][array get state]]]
-    return $id 
+    return $id
 }
 
 

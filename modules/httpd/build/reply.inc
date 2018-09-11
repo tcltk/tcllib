@@ -192,7 +192,7 @@ clay::define ::test::content.form_handler {
 	method content {} {
 	  set form [my FormData]
 	  my reply set Content-Type {text/html; charset=UTF-8}
-    my puts [my html header {My Dynamic Page}]
+    my puts [my html_header {My Dynamic Page}]
     my puts "<BODY>"
     my puts "You Sent<p>"
     my puts "<TABLE>"

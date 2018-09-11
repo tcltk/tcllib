@@ -357,31 +357,31 @@ namespace eval ::httpd::coro {}
     switch $page {
       redirect {
 return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 The page you are looking for: <b>[my request get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
-[my html footer]
+[my html_footer]
 }
       }
       internal_error {
         return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 Error serving <b>[my request get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
 $errorInfo
 </code></pre>
-[my html footer]
+[my html_footer]
         }
       }
       notfound {
         return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist.
-[my html footer]
+[my html_footer]
         }
       }
     }

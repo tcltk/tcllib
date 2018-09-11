@@ -862,6 +862,7 @@ namespace eval ::httpd::coro {}
       dict set query http [my ServerHeaders $ip $http_request $mimetxt]
       my Headers_Process query
       set reply [my dispatch $query]
+      puts [list REPLY $reply]
     } on error {err errdat} {
       my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -1110,31 +1111,31 @@ namespace eval ::httpd::coro {}
     switch $page {
       redirect {
 return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 The page you are looking for: <b>[my request get REQUEST_URI]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
-[my html footer]
+[my html_footer]
 }
       }
       internal_error {
         return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 Error serving <b>[my request get REQUEST_URI]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
 $errorInfo
 </code></pre>
-[my html footer]
+[my html_footer]
         }
       }
       notfound {
         return {
-[my html header "$HTTP_STATUS"]
+[my html_header "$HTTP_STATUS"]
 The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist.
-[my html footer]
+[my html_footer]
         }
       }
     }
@@ -1977,8 +1978,10 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
     set uri   [dict get $data http REQUEST_PATH]
     foreach {host hostpat} $url_patterns {
+      puts [list HOST $vhost | $host [string match $host $vhost]]
       if {![string match $host $vhost]} continue
       foreach {pattern info} $hostpat {
+        puts [list URI $uri | $pattern [string match $pattern $uri]]
         if {![string match $pattern $uri]} continue
         set buffer $data
         foreach {f v} $info {
@@ -2005,15 +2008,16 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 
   Ensemble uri::direct {vhosts patterns info body} {
     my variable url_patterns url_stream
-    set body {}
+    set cbody {}
     if {[dict exists $info superclass]} {
-      append body \n "superclass {*}[dict get $info superclass]"
+      append cbody \n "superclass {*}[dict get $info superclass]"
       dict unset info superclass
     }
-    append body \n [list method content {} $body]
+    append cbody \n [list method content {} $body]
+
     set class [namespace current]::${vhosts}/${patterns}
-    set class [string map $class {* %} $class]
-    ::clay::define $class $body
+    set class [string map {* %} $class]
+    ::clay::define $class $cbody
     dict set info mixin content $class
     my uri add $vhosts $patterns $info
   }
