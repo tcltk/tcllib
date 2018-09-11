@@ -119,10 +119,10 @@ clay::define httpd::content.fossil_node_scgi {
   superclass ::httpd::server
 
   method debug args {
-    puts [list DEBUG {*}$args]
+    #puts [list DEBUG {*}$args]
   }
   method log args {
-    puts [list LOG {*}$args]
+    #puts [list LOG {*}$args]
   }
 
 }

@@ -43,8 +43,8 @@ namespace eval ::httpd::coro {}
 
   method connect {sock ip port} {
     ###
-    # If an IP address is blocked
-    # send a "go to hell" message
+    # If an IP address is blocked drop the
+    # connection
     ###
     if {[my Validate_Connection $sock $ip]} {
       catch {close $sock}
@@ -125,7 +125,7 @@ namespace eval ::httpd::coro {}
     }
     try {
       set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
-      $pageobj dispatch $sock $reply
+      tailcall $pageobj dispatch $sock $reply
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]

@@ -796,8 +796,8 @@ namespace eval ::httpd::coro {}
 
   method connect {sock ip port} {
     ###
-    # If an IP address is blocked
-    # send a "go to hell" message
+    # If an IP address is blocked drop the
+    # connection
     ###
     if {[my Validate_Connection $sock $ip]} {
       catch {close $sock}
@@ -862,7 +862,6 @@ namespace eval ::httpd::coro {}
       dict set query http [my ServerHeaders $ip $http_request $mimetxt]
       my Headers_Process query
       set reply [my dispatch $query]
-      puts [list REPLY $reply]
     } on error {err errdat} {
       my debug [list uri: [dict getnull $query REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -879,7 +878,7 @@ namespace eval ::httpd::coro {}
     }
     try {
       set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
-      $pageobj dispatch $sock $reply
+      tailcall $pageobj dispatch $sock $reply
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
@@ -1978,10 +1977,8 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
     set uri   [dict get $data http REQUEST_PATH]
     foreach {host hostpat} $url_patterns {
-      puts [list HOST $vhost | $host [string match $host $vhost]]
       if {![string match $host $vhost]} continue
       foreach {pattern info} $hostpat {
-        puts [list URI $uri | $pattern [string match $pattern $uri]]
         if {![string match $pattern $uri]} continue
         set buffer $data
         foreach {f v} $info {
