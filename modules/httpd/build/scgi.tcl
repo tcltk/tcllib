@@ -60,11 +60,12 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
+      #chan copy $chana $chanb -size $length -command [info coroutine]
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -73,11 +74,6 @@
     chan event $chana readable {}
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
     ###
     # Convert the Status: header from the CGI process to
     # a standard service reply line from a web server, but
@@ -87,16 +83,14 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
+    if {[dict exists $replydat Content-Length]} {
+      set length [dict get $replydat Content-Length]
       ###
       # Output the body
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chan $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 }

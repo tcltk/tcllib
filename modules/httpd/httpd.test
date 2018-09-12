@@ -132,13 +132,17 @@ clay::define ::httpd::server {
     }
     switch $page {
       redirect {
+        return {300 Redirect}
+      }
+      notfound {
         return {404 Not Found}
       }
       internal_error {
-        return {500 Server Internal Error\nTrace:\n$errorInfo}
+        return {500 Server Internal Error}
       }
     }
   }
+
 
   ::DEBUG method debug args {
     puts stderr $args
@@ -307,6 +311,19 @@ $replyfile"
 test httpd-client-0006 {Return a file} {
 set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
+} {}
+
+::DEBUG puts httpd-client-0007
+test httpd-client-0007 {URL Generates Not Found} {
+
+set reply [::httpd::test::send 10001 {POST /doesnotexist HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
+
+::httpd::test::compare $reply {HTTP/1.0 404 Not Found
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+404 Not Found}
 } {}
 
 # -------------------------------------------------------------------------

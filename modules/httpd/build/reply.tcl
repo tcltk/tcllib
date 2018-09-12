@@ -63,40 +63,41 @@
 
   method dispatch {newsock datastate} {
     my variable chan request
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-
-    if {[dict exists $datastate mixin]} {
-      set mixinmap [dict get $datastate mixin]
-    } else {
-      set mixinmap {}
-    }
-    foreach item [dict keys $datastate MIXIN_*] {
-      set slot [string range $item 6 end]
-      dict set mixinmap [string tolower $slot] [dict get $datastate $item]
-    }
-    my clay mixinmap {*}$mixinmap
-    if {[dict exists $datastate delegate]} {
-      my clay delegate {*}[dict get $datastate delegate]
-    }
-    my reset
-    set request [my clay get dict/ request]
-    foreach {f v} $datastate {
-      if {[string index $f end] eq "/"} {
-        my clay merge $f $v
+    try {
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+      if {[dict exists $datastate mixin]} {
+        set mixinmap [dict get $datastate mixin]
       } else {
-        my clay set $f $v
+        set mixinmap {}
       }
-      if {$f eq "http"} {
-        foreach {ff vf} $v {
-          dict set request $ff $vf
+      foreach item [dict keys $datastate MIXIN_*] {
+        set slot [string range $item 6 end]
+        dict set mixinmap [string tolower $slot] [dict get $datastate $item]
+      }
+      my clay mixinmap {*}$mixinmap
+      if {[dict exists $datastate delegate]} {
+        my clay delegate {*}[dict get $datastate delegate]
+      }
+      my reset
+      set request [my clay get dict/ request]
+      foreach {f v} $datastate {
+        if {[string index $f end] eq "/"} {
+          my clay merge $f $v
+        } else {
+          my clay set $f $v
+        }
+        if {$f eq "http"} {
+          foreach {ff vf} $v {
+            dict set request $ff $vf
+          }
         }
       }
-    }
-    my Session_Load
-    my Log_Dispatched
-    if {[catch {my Dispatch} err errdat]} {
+      my Session_Load
+      my Log_Dispatched
+      my Dispatch
+    } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
     }

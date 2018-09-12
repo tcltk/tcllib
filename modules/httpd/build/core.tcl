@@ -30,6 +30,60 @@ namespace eval ::scgi {}
 
 clay::define ::httpd::mime {
 
+  method ChannelCopy {in out args} {
+    dict set info chunk     4096
+    dict set info size      -1
+    foreach {f v} $args {
+      dict set info [string trim $f -] $v
+    }
+    set total     [dict get $info size]
+    set chunksize [dict get $info chunk]
+    dict set info coroutine [info coroutine]
+    if {$total>0 && $chunksize>$total} {
+        set chunksize $total
+    }
+    dict set info process   [self method]
+    dict set info chunk     $chunksize
+    dict set info in        $in
+    dict set info out       $out
+    dict set info sofar     0
+    dict set info complete  0
+    chan copy $in $out \
+        -size $chunksize \
+        -command [namespace code [list my ChannelCopyEvent $info]]
+    while 1 {
+      set code [yield]
+      if {![dict exists $code process]} break
+      if {[dict get $code process] ne [self method]} {
+        error "Subroutine [self method] interrupted"
+      }
+      if {![dict exists $code complete]} break
+      if {[dict get $code complete]==1} break
+    }
+  }
+  method ChannelCopyEvent {info {bytes 0} {error {}}} {
+    dict with info {
+      if {[string length $error] || [chan eof $in]} {
+        set compete 1
+        dict set info error $error
+      }
+      if {$size>=0} {
+        incr sofar $bytes
+        set remaining [expr {$size-$sofar}]
+        if {$remaining <= 0} {
+          set complete 1
+        } elseif {$chunk > $remaining} {
+          set chunk $remaining
+        }
+      }
+    }
+    if {[dict get $info complete]==0} {
+      chan copy $in $out \
+        -size $chunk \
+        -command [namespace code [list my [self method] $info]]
+    }
+    tailcall $coroutine $info
+  }
 
   method html_header {{title {}} args} {
     set result {}

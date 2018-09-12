@@ -92,14 +92,11 @@ namespace eval ::httpd::coro {}
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
-
     chan configure $sock \
       -blocking 0 \
       -translation {auto crlf} \
       -buffering line
-
     my counter url_hit
-    set line {}
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 http_request]
       set mimetxt [my HttpHeaders $sock]
@@ -117,21 +114,14 @@ namespace eval ::httpd::coro {}
       return
     }
     if {[dict size $reply]==0} {
+      set reply $query
       my log BadLocation $uuid $query
-      my log BadLocation $uuid $query
-      dict set query http HTTP_STATUS 404
-      dict set query template notfound
-      dict set query mixin reply ::httpd::content.template
+      dict set reply http HTTP_STATUS {404 Not Found}
+      dict set reply template notfound
+      dict set reply mixin reply ::httpd::content.template
     }
-    try {
-      set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
-      tailcall $pageobj dispatch $sock $reply
-    } on error {err errdat} {
-      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
-      catch {chan close $sock}
-    }
+    set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
+    tailcall $pageobj dispatch $sock $reply
   }
 
   method counter which {

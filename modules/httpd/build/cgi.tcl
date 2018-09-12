@@ -90,13 +90,12 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
-
   }
 
 
@@ -126,9 +125,7 @@
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 

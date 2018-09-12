@@ -115,11 +115,11 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -129,11 +129,7 @@
     set readCount [::coroutine::util::gets_safety $chana 4096 reply_status]
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
+
     ###
     # Read the first incoming line as the HTTP reply status
     # Return the rest of the headers verbatim
@@ -142,16 +138,14 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
+    if {[dict exists $replydat Content-Length]} {
+      set length [dict get $replydat Content-Length]
       ###
       # Output the body
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 
@@ -168,7 +162,11 @@
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
-    my ProxyRequest $chan $sock
-    my ProxyReply   $sock $chan
+    try {
+      my ProxyRequest $chan $sock
+      my ProxyReply   $sock $chan
+    } finally {
+      my TransferComplete $chan $sock
+    }
   }
 }

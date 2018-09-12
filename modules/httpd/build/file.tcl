@@ -133,21 +133,9 @@
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       my log SendReply [list length $size]
-      chan configure $reply_chan  -translation {binary binary}
-      ###
-      # Send any POST/PUT/etc content
-      # Note, we are terminating the coroutine at this point
-      # and using the file event to wake the object back up
-      #
-      # We *could*:
-      # chan copy $sock $chan -command [info coroutine]
-      # yield
-      #
-      # But in the field this pegs the CPU for long transfers and locks
-      # up the process
-      ###
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
-    } on error {err errdat} {
+      chan configure $reply_chan -translation {binary binary}
+      my ChannelCopy $reply_chan $chan -size $size
+    } finally {
       my TransferComplete $reply_chan $chan
     }
   }

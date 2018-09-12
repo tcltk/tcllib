@@ -43,6 +43,60 @@ namespace eval ::scgi {}
 
 clay::define ::httpd::mime {
 
+  method ChannelCopy {in out args} {
+    dict set info chunk     4096
+    dict set info size      -1
+    foreach {f v} $args {
+      dict set info [string trim $f -] $v
+    }
+    set total     [dict get $info size]
+    set chunksize [dict get $info chunk]
+    dict set info coroutine [info coroutine]
+    if {$total>0 && $chunksize>$total} {
+        set chunksize $total
+    }
+    dict set info process   [self method]
+    dict set info chunk     $chunksize
+    dict set info in        $in
+    dict set info out       $out
+    dict set info sofar     0
+    dict set info complete  0
+    chan copy $in $out \
+        -size $chunksize \
+        -command [namespace code [list my ChannelCopyEvent $info]]
+    while 1 {
+      set code [yield]
+      if {![dict exists $code process]} break
+      if {[dict get $code process] ne [self method]} {
+        error "Subroutine [self method] interrupted"
+      }
+      if {![dict exists $code complete]} break
+      if {[dict get $code complete]==1} break
+    }
+  }
+  method ChannelCopyEvent {info {bytes 0} {error {}}} {
+    dict with info {
+      if {[string length $error] || [chan eof $in]} {
+        set compete 1
+        dict set info error $error
+      }
+      if {$size>=0} {
+        incr sofar $bytes
+        set remaining [expr {$size-$sofar}]
+        if {$remaining <= 0} {
+          set complete 1
+        } elseif {$chunk > $remaining} {
+          set chunk $remaining
+        }
+      }
+    }
+    if {[dict get $info complete]==0} {
+      chan copy $in $out \
+        -size $chunk \
+        -command [namespace code [list my [self method] $info]]
+    }
+    tailcall $coroutine $info
+  }
 
   method html_header {{title {}} args} {
     set result {}
@@ -345,40 +399,41 @@ Connection close}
 
   method dispatch {newsock datastate} {
     my variable chan request
-    set chan $newsock
-    chan event $chan readable {}
-    chan configure $chan -translation {auto crlf} -buffering line
-
-    if {[dict exists $datastate mixin]} {
-      set mixinmap [dict get $datastate mixin]
-    } else {
-      set mixinmap {}
-    }
-    foreach item [dict keys $datastate MIXIN_*] {
-      set slot [string range $item 6 end]
-      dict set mixinmap [string tolower $slot] [dict get $datastate $item]
-    }
-    my clay mixinmap {*}$mixinmap
-    if {[dict exists $datastate delegate]} {
-      my clay delegate {*}[dict get $datastate delegate]
-    }
-    my reset
-    set request [my clay get dict/ request]
-    foreach {f v} $datastate {
-      if {[string index $f end] eq "/"} {
-        my clay merge $f $v
+    try {
+      set chan $newsock
+      chan event $chan readable {}
+      chan configure $chan -translation {auto crlf} -buffering line
+      if {[dict exists $datastate mixin]} {
+        set mixinmap [dict get $datastate mixin]
       } else {
-        my clay set $f $v
+        set mixinmap {}
       }
-      if {$f eq "http"} {
-        foreach {ff vf} $v {
-          dict set request $ff $vf
+      foreach item [dict keys $datastate MIXIN_*] {
+        set slot [string range $item 6 end]
+        dict set mixinmap [string tolower $slot] [dict get $datastate $item]
+      }
+      my clay mixinmap {*}$mixinmap
+      if {[dict exists $datastate delegate]} {
+        my clay delegate {*}[dict get $datastate delegate]
+      }
+      my reset
+      set request [my clay get dict/ request]
+      foreach {f v} $datastate {
+        if {[string index $f end] eq "/"} {
+          my clay merge $f $v
+        } else {
+          my clay set $f $v
+        }
+        if {$f eq "http"} {
+          foreach {ff vf} $v {
+            dict set request $ff $vf
+          }
         }
       }
-    }
-    my Session_Load
-    my Log_Dispatched
-    if {[catch {my Dispatch} err errdat]} {
+      my Session_Load
+      my Log_Dispatched
+      my Dispatch
+    } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
     }
@@ -845,14 +900,11 @@ namespace eval ::httpd::coro {}
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
-
     chan configure $sock \
       -blocking 0 \
       -translation {auto crlf} \
       -buffering line
-
     my counter url_hit
-    set line {}
     try {
       set readCount [::coroutine::util::gets_safety $sock 4096 http_request]
       set mimetxt [my HttpHeaders $sock]
@@ -870,21 +922,14 @@ namespace eval ::httpd::coro {}
       return
     }
     if {[dict size $reply]==0} {
+      set reply $query
       my log BadLocation $uuid $query
-      my log BadLocation $uuid $query
-      dict set query http HTTP_STATUS 404
-      dict set query template notfound
-      dict set query mixin reply ::httpd::content.template
+      dict set reply http HTTP_STATUS {404 Not Found}
+      dict set reply template notfound
+      dict set reply mixin reply ::httpd::content.template
     }
-    try {
-      set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
-      tailcall $pageobj dispatch $sock $reply
-    } on error {err errdat} {
-      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
-      catch {chan close $sock}
-    }
+    set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
+    tailcall $pageobj dispatch $sock $reply
   }
 
   method counter which {
@@ -1363,21 +1408,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       my log SendReply [list length $size]
-      chan configure $reply_chan  -translation {binary binary}
-      ###
-      # Send any POST/PUT/etc content
-      # Note, we are terminating the coroutine at this point
-      # and using the file event to wake the object back up
-      #
-      # We *could*:
-      # chan copy $sock $chan -command [info coroutine]
-      # yield
-      #
-      # But in the field this pegs the CPU for long transfers and locks
-      # up the process
-      ###
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
-    } on error {err errdat} {
+      chan configure $reply_chan -translation {binary binary}
+      my ChannelCopy $reply_chan $chan -size $size
+    } finally {
       my TransferComplete $reply_chan $chan
     }
   }
@@ -1506,11 +1539,11 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -1520,11 +1553,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     set readCount [::coroutine::util::gets_safety $chana 4096 reply_status]
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
+
     ###
     # Read the first incoming line as the HTTP reply status
     # Return the rest of the headers verbatim
@@ -1533,16 +1562,14 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
+    if {[dict exists $replydat Content-Length]} {
+      set length [dict get $replydat Content-Length]
       ###
       # Output the body
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 
@@ -1559,8 +1586,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
-    my ProxyRequest $chan $sock
-    my ProxyReply   $sock $chan
+    try {
+      my ProxyRequest $chan $sock
+      my ProxyReply   $sock $chan
+    } finally {
+      my TransferComplete $chan $sock
+    }
   }
 }
 
@@ -1662,13 +1693,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
-
   }
 
 
@@ -1698,9 +1728,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 
@@ -1781,11 +1809,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
+      #chan copy $chana $chanb -size $length -command [info coroutine]
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -1794,11 +1823,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan event $chana readable {}
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
     ###
     # Convert the Status: header from the CGI process to
     # a standard service reply line from a web server, but
@@ -1808,16 +1832,14 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
+    if {[dict exists $replydat Content-Length]} {
+      set length [dict get $replydat Content-Length]
       ###
       # Output the body
       ###
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chan $chanb
+      my ChannelCopy $chana $chanb -size $length
     }
   }
 }
