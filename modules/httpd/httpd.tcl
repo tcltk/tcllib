@@ -44,59 +44,45 @@ namespace eval ::scgi {}
 clay::define ::httpd::mime {
 
   method ChannelCopy {in out args} {
-    dict set info chunk     4096
-    dict set info size      -1
+    set chunk 4096
+    set size -1
     foreach {f v} $args {
-      dict set info [string trim $f -] $v
+      set [string trim $f -] $v
     }
-    set total     [dict get $info size]
-    set chunksize [dict get $info chunk]
     dict set info coroutine [info coroutine]
-    if {$total>0 && $chunksize>$total} {
-        set chunksize $total
+    if {$size>0 && $chunk>$size} {
+        set chunk $size
     }
-    dict set info process   [self method]
-    dict set info chunk     $chunksize
-    dict set info in        $in
-    dict set info out       $out
-    dict set info sofar     0
-    dict set info complete  0
-    chan copy $in $out \
-        -size $chunksize \
-        -command [namespace code [list my ChannelCopyEvent $info]]
+    set bytes 0
+    set sofar 0
+    set method [self method]
     while 1 {
-      set code [yield]
-      if {![dict exists $code process]} break
-      if {[dict get $code process] ne [self method]} {
-        error "Subroutine [self method] interrupted"
-      }
-      if {![dict exists $code complete]} break
-      if {[dict get $code complete]==1} break
-    }
-  }
-  method ChannelCopyEvent {info {bytes 0} {error {}}} {
-    dict with info {
-      if {[string length $error] || [chan eof $in]} {
-        set compete 1
-        dict set info error $error
-      }
+      set command {}
+      set error {}
       if {$size>=0} {
         incr sofar $bytes
         set remaining [expr {$size-$sofar}]
         if {$remaining <= 0} {
-          set complete 1
+          break
         } elseif {$chunk > $remaining} {
           set chunk $remaining
         }
       }
+      lassign [yieldto chan copy $in $out -size $chunk \
+        -command [list [info coroutine] $method]] \
+        command bytes error
+      if {$command ne $method} {
+        error "Subroutine $method interrupted"
+      }
+      if {[string length $error]} {
+        error $error
+      }
+      if {[chan eof $in]} {
+        break
+      }
     }
-    if {[dict get $info complete]==0} {
-      chan copy $in $out \
-        -size $chunk \
-        -command [namespace code [list my [self method] $info]]
-    }
-    tailcall $coroutine $info
   }
+
 
   method html_header {{title {}} args} {
     set result {}
@@ -434,6 +420,9 @@ Connection close}
       my Log_Dispatched
       my Dispatch
     } on error {err errdat} {
+      puts [list ERROR ***]
+      puts [dict get $errdat -errorinfo]
+      puts [list ***]
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
     }
