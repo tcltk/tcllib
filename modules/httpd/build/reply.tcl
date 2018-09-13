@@ -98,9 +98,6 @@
       my Log_Dispatched
       my Dispatch
     } on error {err errdat} {
-      puts [list ERROR ***]
-      puts [dict get $errdat -errorinfo]
-      puts [list ***]
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
     }

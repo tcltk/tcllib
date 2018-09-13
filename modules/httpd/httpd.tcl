@@ -420,9 +420,6 @@ Connection close}
       my Log_Dispatched
       my Dispatch
     } on error {err errdat} {
-      puts [list ERROR ***]
-      puts [dict get $errdat -errorinfo]
-      puts [list ***]
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
     }
@@ -1397,8 +1394,11 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       my log SendReply [list length $size]
-      chan configure $reply_chan -translation {binary binary}
-      my ChannelCopy $reply_chan $chan -size $size
+      ###
+      # Output the file contents. With no -size flag, channel will copy until EOF
+      ###
+      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      my ChannelCopy $reply_chan $chan -chunk 4096
     } finally {
       my TransferComplete $reply_chan $chan
     }
@@ -1551,15 +1551,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    if {[dict exists $replydat Content-Length]} {
-      set length [dict get $replydat Content-Length]
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my ChannelCopy $chana $chanb -size $length
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 
   method Dispatch {} {
@@ -1710,15 +1707,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my ChannelCopy $chana $chanb -size $length
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 
   ###
@@ -1821,15 +1815,12 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    if {[dict exists $replydat Content-Length]} {
-      set length [dict get $replydat Content-Length]
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my ChannelCopy $chana $chanb -size $length
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 }
 

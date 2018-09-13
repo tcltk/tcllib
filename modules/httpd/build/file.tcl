@@ -133,8 +133,11 @@
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       my log SendReply [list length $size]
-      chan configure $reply_chan -translation {binary binary}
-      my ChannelCopy $reply_chan $chan -size $size
+      ###
+      # Output the file contents. With no -size flag, channel will copy until EOF
+      ###
+      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      my ChannelCopy $reply_chan $chan -chunk 4096
     } finally {
       my TransferComplete $reply_chan $chan
     }

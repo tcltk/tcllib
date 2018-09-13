@@ -83,15 +83,12 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    if {[dict exists $replydat Content-Length]} {
-      set length [dict get $replydat Content-Length]
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      my ChannelCopy $chana $chanb -size $length
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 }
 
