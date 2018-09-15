@@ -1,11 +1,15 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
+source [file join $moddir .. doctools docbuild.tcl]
+::docbuild::object create AutoDoc
+
 set version 0.12
 set tclversion 8.5
 set module [file tail $moddir]
+set filename $module
 
-set fout [open [file join $moddir [file tail $module].tcl] w]
+set fout [open [file join $moddir $filename.tcl] w]
 fconfigure $fout -translation lf
 dict set map %module% $module
 dict set map %version% $version
@@ -36,10 +40,10 @@ foreach {omod files} {
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]
-    set fin [open $file r]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
-    puts $fout [read $fin]
-    close $fin
+    set content [::docbuild::cat [file join $moddir .. $omod $fname]]
+    #AutoDoc scan_text $content
+    puts $fout $content
     puts $fout "###\n# END: [file join $omod $fname]\n###"
   }
 }
@@ -79,10 +83,10 @@ foreach file {
 
 } {
   lappend loaded $file
-  set fin [open [file join $srcdir {*}$file] r]
   puts $fout "###\n# START: [file join $file]\n###"
-  puts $fout [read $fin]
-  close $fin
+  set content [::docbuild::cat [file join $srcdir {*}$file]]
+  AutoDoc scan_text $content
+  puts $fout $content
   puts $fout "###\n# END: [file join $file]\n###"
 }
 
@@ -105,3 +109,10 @@ puts $fout [string map $map {###
     package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
+
+set manout [open [file join $moddir $filename.man] w]
+puts $manout [AutoDoc manpage \
+  header [string map $map [::docbuild::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::docbuild::cat [file join $srcdir footer.txt]]] \
+]
+close $manout

@@ -71,7 +71,7 @@ proc ::http::wget {url destfile {verbose 1}} {
 ###
 # START: clay/build/procs.tcl
 ###
-::namespace eval ::clay {}
+
 set ::clay::trace 0
 
 ###
@@ -178,7 +178,7 @@ proc ::clay::args_to_dict args {
 proc ::clay::args_to_options args {
   set result {}
   foreach {var val} [args_to_dict {*}$args] {
-    lappend result [string trimright [string trimleft $var -] :] $val
+    lappend result [string trim $var -:] $val
   }
   return $result
 }
@@ -399,6 +399,7 @@ proc ::clay::uuid_generate args {
 }
 
 namespace eval ::clay {
+  variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }
 
@@ -430,13 +431,37 @@ oo::define oo::class {
       }
       getnull -
       get {
-        if {[llength $args]==0} {
-          return $clay
+        set path $args
+        set leaf [expr {[string index [lindex $path end] end] ne "/"}]
+        set clayorder [::clay::ancestors [self]]
+        #puts [list [self] clay get {*}$path (leaf: $leaf)]
+        if {$leaf} {
+          #puts [list EXISTS: (clay) [dict exists $clay {*}$path]]
+          if {[dict exists $clay {*}$path]} {
+            return [dict get $clay {*}$path]
+          }
+          #puts [list Search in the in our list of classes for an answer]
+          foreach class $clayorder {
+            if {$class eq [self]} continue
+            if {[$class clay exists {*}$path]} {
+              set value [$class clay get {*}$path]
+              return $value
+            }
+          }
+        } else {
+          set result {}
+          # Leaf searches return one data field at a time
+          # Search in our local dict
+          # Search in the in our list of classes for an answer
+          foreach class [lreverse $clayorder] {
+            if {$class eq [self]} continue
+            ::clay::dictmerge result [$class clay get {*}$path]
+          }
+          if {[dict exists $clay {*}$path]} {
+            ::clay::dictmerge result [dict get $clay {*}$path]
+          }
+          return $result
         }
-        if {![dict exists $clay {*}$args]} {
-          return {}
-        }
-        tailcall dict get $clay {*}$args
       }
       merge {
         foreach arg $args {
@@ -480,14 +505,12 @@ oo::define oo::object {
   # well as to that of its class
   ###
   method clay {submethod args} {
-    my variable clay claycache clayorder
+    my variable clay claycache clayorder config option_canonical
     if {![info exists clay]} {set clay {}}
     if {![info exists claycache]} {set claycache {}}
+    if {![info exists config]} {set config {}}
     if {![info exists clayorder] || [llength $clayorder]==0} {
       set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
-    }
-    if {$::clay::trace > 1} {
-      puts [list [info object class [self]] / [self] clay $submethod {*}$args]
     }
     switch $submethod {
       ancestors {
@@ -496,6 +519,15 @@ oo::define oo::object {
       cget {
         # Leaf searches return one data field at a time
         # Search in our local dict
+        if {[llength $args]==1} {
+          set field [string trim [lindex $args 0] -:/]
+          if {[info exists option_canonical($field)]} {
+            set field $option_canonical($field)
+          }
+          if {[dict exists $config $field]} {
+            return [dict get $config $field]
+          }
+        }
         if {[dict exists $clay {*}$args]} {
           return [dict get $clay {*}$args]
         }
@@ -514,14 +546,6 @@ oo::define oo::object {
             set value [$class clay get const/ {*}$args]
             dict set claycache {*}$args $value
             return $value
-          }
-          if {[llength $args]==1} {
-            set field [lindex $args 0]
-            if {[$class clay exists public/ option/ ${field}/ default]} {
-              set value [$class clay get public/ option/ ${field}/ default]
-              dict set claycache {*}$args $value
-              return $value
-            }
           }
         }
         return {}
@@ -561,6 +585,7 @@ oo::define oo::object {
         foreach class $clayorder {
           ::clay::dictmerge result [$class clay dump]
         }
+        ::clay::dictmerge result $clay
         return $result
       }
       ensemble_map {
@@ -600,8 +625,9 @@ oo::define oo::object {
         }
         eval $buffer
       }
-      evolve {
-        my Evolve
+      evolve -
+      initialize {
+        my InitializePublic
       }
       exists {
         # Leaf searches return one data field at a time
@@ -656,12 +682,13 @@ oo::define oo::object {
           set result {}
           # Leaf searches return one data field at a time
           # Search in our local dict
-          if {[dict exists $clay {*}$args]} {
-            set result [dict get $clay {*}$args]
-          }
+
           # Search in the in our list of classes for an answer
-          foreach class $clayorder {
+          foreach class [lreverse $clayorder] {
             ::clay::dictmerge result [$class clay get {*}$args]
+          }
+          if {[dict exists $clay {*}$args]} {
+            ::clay::dictmerge result [dict get $clay {*}$args]
           }
           return $result
         }
@@ -702,7 +729,7 @@ oo::define oo::object {
         set newmap $args
         foreach class $prior {
           if {$class ni $newmixin} {
-            set script [$class clay search mixin/ unmap-script]
+            set script [$class clay get mixin/ unmap-script]
             if {[string length $script]} {
               if {[catch $script err errdat]} {
                 puts stderr "[self] MIXIN ERROR POPPING $class:\n[dict get $errdat -errorinfo]"
@@ -715,10 +742,10 @@ oo::define oo::object {
         # Build a compsite map of all ensembles defined by the object's current
         # class as well as all of the classes being mixed in
         ###
-        my Evolve
+        my InitializePublic
         foreach class $newmixin {
           if {$class ni $prior} {
-            set script [$class clay search mixin/ map-script]
+            set script [$class clay get mixin/ map-script]
             if {[string length $script]} {
               if {[catch $script err errdat]} {
                 puts stderr "[self] MIXIN ERROR PUSHING $class:\n[dict get $errdat -errorinfo]"
@@ -737,17 +764,27 @@ oo::define oo::object {
         }
       }
       mixinmap {
-        foreach {slot classes} $args {
-          dict set clay mixin $slot $classes
+        my variable clay
+        if {![dict exists $clay mixin]} {
+          dict set clay mixin {}
         }
-        set claycache {}
-        set classlist {}
-        foreach {item class} [my clay get mixin] {
-          if {$class ne {}} {
-            lappend classlist $class
+        if {[llength $args]==0} {
+          return [dict get $clay mixin]
+        } elseif {[llength $args]==1} {
+          return [dict getnull $clay mixin [lindex $args 0]]
+        } else {
+          foreach {slot classes} $args {
+            dict set clay mixin $slot $classes
           }
+          set claycache {}
+          set classlist {}
+          foreach {item class} [dict get $clay mixin] {
+            if {$class ne {}} {
+              lappend classlist $class
+            }
+          }
+          my clay mixin {*}$classlist
         }
-        my clay mixin {*}$classlist
       }
       provenance {
         if {[dict exists $clay {*}$args]} {
@@ -768,6 +805,7 @@ oo::define oo::object {
       }
       set {
         #puts [list [self] clay SET {*}$args]
+        set claycache {}
         ::clay::dictmerge clay {*}$args
       }
       default {
@@ -779,7 +817,84 @@ oo::define oo::object {
   ###
   # React to a mixin
   ###
-  method Evolve {} {}
+  method InitializePublic {} {
+    my variable clayorder clay claycache config option_canonical
+    set claycache {}
+    set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
+    if {![info exists config]} {
+      set config {}
+    }
+    foreach {var value} [my clay get variable/] {
+      set var [string trim $var :/]
+      if { $var in {clay} } continue
+      my variable $var
+      if {![info exists $var]} {
+        if {$::clay::trace>2} {puts [list initialize variable $var $value]}
+        set $var $value
+      }
+    }
+    foreach {var value} [my clay get dict/] {
+      set var [string trim $var :/]
+      my variable $var
+      if {![info exists $var]} {
+        set $var {}
+      }
+      foreach {f v} $value {
+        if {![dict exists ${var} $f]} {
+          if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
+          dict set ${var} $f $v
+        }
+      }
+    }
+    foreach {var value} [my clay get dict/] {
+      set var [string trim $var :/]
+      foreach {f v} [my clay get $var/] {
+        if {![dict exists ${var} $f]} {
+          if {$::clay::trace>2} {puts [list initialize dict (from const) $var $f $v]}
+          dict set ${var} $f $v
+        }
+      }
+    }
+    foreach {var value} [my clay get array/] {
+      set var [string trim $var :/]
+      if { $var eq {clay} } continue
+      my variable $var
+      if {![info exists $var]} { array set $var {} }
+      foreach {f v} $value {
+        if {![array exists ${var}($f)]} {
+          if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
+          set ${var}($f) $v
+        }
+      }
+    }
+    foreach {var value} [my clay get array/] {
+      set var [string trim $var :/]
+      foreach {f v} [my clay get $var/] {
+        if {![array exists ${var}($f)]} {
+          if {$::clay::trace>2} {puts [list initialize array (from const) $var\($f\) $v]}
+          set ${var}($f) $v
+        }
+      }
+    }
+    foreach {field info} [my clay get option/] {
+      set field [string trim $field -/:]
+      foreach alias [dict getnull $info aliases] {
+        set option_canonical($alias) $field
+      }
+      if {[dict exists $config $field]} continue
+      set getcmd [dict getnull $info default-command]
+      if {$getcmd ne {}} {
+        set value [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
+      } else {
+        set value [dict getnull $info default]
+      }
+      dict set config $field $value
+      set setcmd [dict getnull $info set-command]
+      if {$setcmd ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
+      }
+    }
+  }
 }
 
 
@@ -2206,7 +2321,7 @@ oo::class create ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
-
+  
   method BuildDir {PWD} {
     set name [my define get name]
     set debug [my define get debug 0]
@@ -2219,11 +2334,11 @@ oo::class create ::practcl::toolset {
       return [my define get builddir [file join $PWD pkg $name]]
     }
   }
-
+  
   method MakeDir {srcdir} {
     return $srcdir
   }
-
+  
   method read_configuration {} {
     my variable conf_result
     if {[info exists conf_result]} {
@@ -2332,7 +2447,7 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-
+  
   method make-autodetect {} {}
 }
 
@@ -3119,11 +3234,11 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     return $srcdir
   }
 
-
+  
   # Do nothing
   method make-autodetect {} {
   }
-
+  
   method make-clean {} {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -3131,7 +3246,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     catch {::practcl::doexec nmake -f makefile.vc clean}
     cd $PWD
   }
-
+  
   method make-compile {} {
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -3157,7 +3272,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       }
     }
   }
-
+  
   method make-install DEST {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -3186,7 +3301,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     cd $PWD
   }
-
+  
   # Detect what directory contains the Makefile template
   method MakeDir {srcdir} {
     set localsrcdir $srcdir
@@ -3201,7 +3316,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     return $localsrcdir
   }
-
+  
   method NmakeOpts {} {
     set opts {}
     set builddir [file normalize [my define get builddir]]
@@ -3288,7 +3403,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     return $needs_make
   }
-
+  
   method output {} {
     set result {}
     set filename [my define get filename]
@@ -3309,7 +3424,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     set domake 0
     set needs_make 0
   }
-
+  
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {
@@ -3411,7 +3526,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       dict set cstruct $name public 1
     }
   }
-
+  
   method include header {
     my define add include $header
   }
@@ -5981,7 +6096,7 @@ oo::class create ::practcl::distribution {
       isodate {}
     }
   }
-
+  
   method DistroMixIn {} {
     my define set scm none
   }
@@ -6182,7 +6297,7 @@ oo::class create ::practcl::distribution.fossil {
     }
     return $info
   }
-
+  
   # Clone the source
   method ScmClone  {} {
     set srcdir [my SrcDir]

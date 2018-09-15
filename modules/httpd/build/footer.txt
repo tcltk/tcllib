@@ -3,4 +3,3 @@ Sean Woods
 
 [vset CATEGORY network]
 [include ../doctools2base/include/feedback.inc]
-[manpage_end]

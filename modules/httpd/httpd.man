@@ -103,6 +103,7 @@ HTTPD add_uri /* [list mixin reply.hello]
  support the SCGI module
 
 
+
 [section {Class  ::httpd::reply}]
 [list_begin definitions]
 
@@ -483,6 +484,7 @@ HTTPD add_uri /* [list mixin reply.hello]
  [list_end]
 
 
+
 [section {Class  ::httpd::server}]
 [list_begin definitions]
 
@@ -669,9 +671,11 @@ HTTPD add_uri /* [list mixin reply.hello]
  for opening the socket and providing the initial connection negotiation.
 
 
+
 [section {Class  ::httpd::server::dispatch}]
 
  Provide a backward compadible alias
+
 
 
 [section {Class  ::httpd::content.redirect}]
@@ -684,6 +688,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 
 [list_end]
 
+
 [section {Class  ::httpd::content.cache}]
 [list_begin definitions]
 
@@ -691,12 +696,14 @@ HTTPD add_uri /* [list mixin reply.hello]
 
 [list_end]
 
+
 [section {Class  ::httpd::content.template}]
 [list_begin definitions]
 
 [call method [cmd content]]
 
 [list_end]
+
 
 [section {Class  ::httpd::content.file}]
 [list_begin definitions]
@@ -719,6 +726,7 @@ HTTPD add_uri /* [list mixin reply.hello]
  by the dispatcher
 
 
+
 [section {Class  ::httpd::content.exec}]
 [list_begin definitions]
 
@@ -728,6 +736,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 [call method [cmd Cgi_Executable] [arg script]]
 
 [list_end]
+
 
 [section {Class  ::httpd::content.proxy}]
 [list_begin definitions]
@@ -749,6 +758,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 [list_end]
 
  Return data from an proxy process
+
 
 
 [section {Class  ::httpd::content.cgi}]
@@ -773,6 +783,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 
 [list_end]
 
+
 [section {Class  ::httpd::protocol.scgi}]
 [list_begin definitions]
 
@@ -781,6 +792,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 [list_end]
 
  Return data from an SCGI process
+
 
 
 [section {Class  ::httpd::content.scgi}]
@@ -799,6 +811,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 
 [list_end]
 
+
 [section {Class  ::httpd::server.scgi}]
 [list_begin definitions]
 
@@ -812,14 +825,17 @@ HTTPD add_uri /* [list mixin reply.hello]
  Act as an  SCGI Server
 
 
+
 [section {Class  ::httpd::content.websocket}]
 
  Upgrade a connection to a websocket
 
 
+
 [section {Class  ::httpd::plugin}]
 
  httpd plugin template
+
 
 
 [section {Class  ::httpd::plugin.dict_dispatch}]
@@ -844,6 +860,7 @@ HTTPD add_uri /* [list mixin reply.hello]
  data structure
 
 
+
 [section {Class  ::httpd::reply.memchan}]
 [list_begin definitions]
 
@@ -856,6 +873,7 @@ HTTPD add_uri /* [list mixin reply.hello]
 [call method [cmd close]]
 
 [list_end]
+
 
 [section {Class  ::httpd::plugin.local_memchan}]
 [list_begin definitions]
@@ -874,10 +892,12 @@ HTTPD add_uri /* [list mixin reply.hello]
 
 [list_end]
 
+
 [section AUTHORS]
 Sean Woods
 
 [vset CATEGORY network]
 [include ../doctools2base/include/feedback.inc]
+
 [manpage_end]
 
