@@ -1,6 +1,8 @@
 ###
-# An httpd server with a template engine
-# and a shim to insert URL domains
+# An httpd server with a template engine and a shim to insert URL domains.
+#
+# This class is the root object of the webserver. It is responsible
+# for opening the socket and providing the initial connection negotiation.
 ###
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
@@ -16,7 +18,6 @@ namespace eval ::httpd::coro {}
   clay set server/ reverse_dns 0
   clay set server/ configuration_file {}
   clay set server/ protocol {HTTP/1.1}
-  clay set server/ name     {127.0.0.1}
 
   clay set socket/ buffersize   32768
   clay set socket/ translation  {auto crlf}
@@ -25,7 +26,17 @@ namespace eval ::httpd::coro {}
   Array template
   Dict url_patterns {}
 
-  constructor {args} {
+  constructor {
+  {args {
+    port        {default auto      comment {Port to listen on}}
+    myaddr      {default 127.0.0.1 comment {IP address to listen on. "all" means all}}
+    string      {default auto      comment {Value for SERVER_SOFTWARE in HTTP headers}}
+    name        {default auto      comment {Value for SERVER_NAME in HTTP headers. Defaults to [info hostname]}}
+    doc_root    {default {}        comment {File path to serve.}}
+    reverse_dns {default 0         comment {Perform reverse DNS to convert IPs into hostnames}}
+    configuration_file {default {} comment {Configuration file to load into server namespace}}
+    protocol    {default {HTTP/1.1} comment {Value for SERVER_PROTOCOL in HTTP headers}}
+  }}} {
     if {[llength $args]==1} {
       set arglist [lindex $args 0]
     } else {
@@ -41,6 +52,10 @@ namespace eval ::httpd::coro {}
     my stop
   }
 
+  ###
+  # Reply to an open socket. This method builds a coroutine to manage the remainder
+  # of the connection. The coroutine's operations are driven by the [cmd Connect] method.
+  ###
   method connect {sock ip port} {
     ###
     # If an IP address is blocked drop the
@@ -89,6 +104,15 @@ namespace eval ::httpd::coro {}
     return $result
   }
 
+  ###
+  # This method reads HTTP headers, and then consults the [cmd dispatch] method to
+  # determine if the request is valid, and/or what kind of reply to generate. Under
+  # normal cases, an object of class [cmd ::http::reply] is created, and that class's
+  # [cmd dispatch] method.
+  # This action passes control of the socket to
+  # the reply object. The reply object manages the rest of the transaction, including
+  # closing the socket.
+  ###
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
@@ -124,13 +148,14 @@ namespace eval ::httpd::coro {}
     tailcall $pageobj dispatch $sock $reply
   }
 
+  # Increment an internal counter.
   method counter which {
     my variable counters
     incr counters($which)
   }
 
   ###
-  # Clean up any process that has gone out for lunch
+  # Check open connections for a time out event.
   ###
   method CheckTimeout {} {
     foreach obj [info commands ::httpd::object::*] {
@@ -145,7 +170,8 @@ namespace eval ::httpd::coro {}
   method debug args {}
 
   ###
-  # Route a request to the appropriate handler
+  # Given a key/value list of information, return a data structure describing how
+  # the server should reply.
   ###
   method dispatch {data} {
     set reply [my Dispatch_Local $data]
@@ -155,6 +181,11 @@ namespace eval ::httpd::coro {}
     return [my Dispatch_Default $data]
   }
 
+  ###
+  # Method dispatch method of last resort before returning a 404 NOT FOUND error.
+  # The default behavior is to look for a file in [emph DOCUMENT_ROOT] which
+  # matches the query.
+  ###
   method Dispatch_Default {reply} {
     ###
     # Fallback to docroot handling
@@ -172,12 +203,31 @@ namespace eval ::httpd::coro {}
     return {}
   }
 
+  ###
+  # Method dispatch method invoked prior to invoking methods implemented by plugins.
+  # If this method returns a non-empty dictionary, that structure will be passed to
+  # the reply. The default is an empty implementation.
+  ###
   method Dispatch_Local data {}
 
+  ###
+  # Introspect and possibly modify a data structure destined for a reply. This
+  # method is invoked before invoking Header methods implemented by plugins.
+  # The default implementation is empty.
+  ###
   method Headers_Local {varname} {}
 
+  ###
+  # Introspect and possibly modify a data structure destined for a reply. This
+  # method is built dynamically by the [cmd plugin] method.
+  ###
   method Headers_Process varname {}
 
+  ###
+  # Convert an ip address to a host name. If the server/ reverse_dns flag
+  # is false, this method simply returns the IP address back.
+  # Internally, this method uses the [emph dns] module from tcllib.
+  ###
   method HostName ipaddr {
     if {![my clay get server/ reverse_dns]} {
       return $ipaddr
@@ -188,10 +238,28 @@ namespace eval ::httpd::coro {}
     return $result
   }
 
+  ###
+  # Log an event. The input for args is free form. This method is intended
+  # to be replaced by the user, and is a noop for a stock http::server object.
+  ###
   method log args {
     # Do nothing for now
   }
 
+  ###
+  # Incorporate behaviors from a plugin.
+  # This method dynamically rebuilds the [cmd Dispatch] and [cmd Headers]
+  # method. For every plugin, the server looks for the following entries in
+  # [emph "clay plugin/"]:
+  # [para]
+  # [emph load] - A script to invoke in the server's namespace during the [cmd plugin] method invokation.
+  # [para]
+  # [emph dispatch] - A script to stitch into the server's [cmd Dispatch] method.
+  # [para]
+  # [emph headers] - A script to stitch into the server's [cmd Headers] method.
+  # [para]
+  # [emph thread] - A script to stitch into the server's [cmd Thread_start] method.
+  ###
   method plugin {slot {class {}}} {
     if {$class eq {}} {
       set class ::httpd::plugin.$slot
@@ -265,11 +333,15 @@ namespace eval ::httpd::coro {}
     oo::objdefine [self] method Thread_start {} $body
   }
 
+  # Return the actual port that httpd is listening on.
   method port_listening {} {
     my variable port_listening
     return $port_listening
   }
 
+  # For the stock version, trim trailing /'s and *'s from a prefix. This
+  # method can be replaced by the end user to perform any other transformations
+  # needed for the application.
   method PrefixNormalize prefix {
     set prefix [string trimright $prefix /]
     set prefix [string trimright $prefix *]
@@ -281,6 +353,7 @@ namespace eval ::httpd::coro {}
     source $filename
   }
 
+  # Open the socket listener.
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -309,6 +382,7 @@ namespace eval ::httpd::coro {}
     my Thread_start
   }
 
+  # Shut off the socket listener, and destroy any pending replies.
   method stop {} {
     my variable socklist
     if {[info exists socklist]} {
@@ -327,6 +401,7 @@ namespace eval ::httpd::coro {}
     return [namespace current]::$method
   }
 
+  # Return a template for the string [arg page]
   method template page {
     my variable template
     if {[info exists template($page)]} {
@@ -336,6 +411,10 @@ namespace eval ::httpd::coro {}
     return $template($page)
   }
 
+  # Perform a search for the template that best matches [arg page]. This
+  # can include local file searches, in-memory structures, or even
+  # database lookups. The stock implementation simply looks for files
+  # with a .tml or .html extension in the [opt doc_root] directory.
   method TemplateSearch page {
     set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -377,16 +456,29 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
   }
 
+  ###
+  # Built by the [cmd plugin] method. Called by the [cmd start] method. Intended
+  # to allow plugins to spawn worker threads.
+  ###
   method Thread_start {} {}
 
+  ###
+  # Generate a GUUID. Used to ensure every request has a unique ID.
+  # The default implementation is:
+  # [example {
+  #   return [::uuid::uuid generate]
+  # }]
+  ###
   method Uuid_Generate {} {
     return [::uuid::uuid generate]
   }
 
   ###
-  # Return true if this IP address is blocked
-  # The socket will be closed immediately after returning
-  # This handler is welcome to send a polite error message
+  # Given a socket and an ip address, return true if this connection should
+  # be terminated, or false if it should be allowed to continue. The stock
+  # implementation always returns 0. This is intended for applications to
+  # be able to implement black lists and/or provide security based on IP
+  # address.
   ###
   method Validate_Connection {sock ip} {
     return 0

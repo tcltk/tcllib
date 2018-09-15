@@ -161,7 +161,9 @@ Connection close}
   }
 
   ###
-  # Minimalist MIME Header Parser
+  # Converts a block of mime encoded text to a key/value list. If an exception is encountered,
+  # the method will generate its own call to the [cmd error] method, and immediately invoke
+  # the [cmd output] method to produce an error code and close the connection.
   ###
   method MimeParse mimetext {
     set data(mimeorder) {}
@@ -247,6 +249,7 @@ Connection close}
     return $result
   }
 
+  # De-httpizes a string.
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data

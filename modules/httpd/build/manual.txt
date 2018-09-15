@@ -1,0 +1,51 @@
+[vset VERSION %version%]
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin %module% n [vset VERSION]]
+[keywords WWW]
+[copyright {2018 Sean Woods <yoda@etoyoc.com>}]
+[moddesc   {Tcl Web Server}]
+[titledesc {A TclOO and coroutine based web server}]
+[category  Networking]
+[keywords TclOO]
+[keywords http]
+[keywords httpd]
+[keywords httpserver]
+[keywords services]
+[require Tcl 8.6]
+[require httpd [opt [vset VERSION]]]
+[require uuid]
+[require clay]
+[require coroutine]
+[require fileutil]
+[require fileutil::magic::filetype]
+[require websocket]
+[require mime]
+[require cron]
+[require uri]
+[require Markdown]
+[description]
+[para]
+
+This module implements a web server, suitable for embedding in an
+application. The server is object oriented, and contains all of the
+fundamentals needed for a full service website.
+
+[para]
+
+[section {Minimal Example}]
+
+Starting a web service requires starting a class of type
+[cmd httpd::server], and providing that server with one or more URIs
+to service, and [cmd httpd::reply] derived classes to generate them.
+
+[example {
+tool::define ::reply.hello {
+  method content {} {
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<h1>Hello World!</h1>"
+    my puts </BODY></HTML>
+  }
+}
+::docserver::server create HTTPD port 8015 myaddr 127.0.0.1
+HTTPD add_uri /* [list mixin reply.hello]
+}]

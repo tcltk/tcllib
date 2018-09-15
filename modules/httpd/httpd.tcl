@@ -174,7 +174,9 @@ Connection close}
   }
 
   ###
-  # Minimalist MIME Header Parser
+  # Converts a block of mime encoded text to a key/value list. If an exception is encountered,
+  # the method will generate its own call to the [cmd error] method, and immediately invoke
+  # the [cmd output] method to produce an error code and close the connection.
   ###
   method MimeParse mimetext {
     set data(mimeorder) {}
@@ -260,6 +262,7 @@ Connection close}
     return $result
   }
 
+  # De-httpizes a string.
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data
@@ -321,7 +324,224 @@ Connection close}
 # START: reply.tcl
 ###
 ###
-# Define the reply class
+# A class which shephards a request through the process of generating a
+# reply.
+#
+# The socket associated with the reply is available at all times as the [arg chan]
+# variable.
+#
+# The process of generating a reply begins with an [cmd httpd::server] generating a
+# [cmd http::class] object, mixing in a set of behaviors and then invoking the reply
+# object's [cmd dispatch] method.
+#
+# In normal operations the [cmd dispatch] method:
+#
+# [list_begin enumerated]
+#
+# [enum]
+# Invokes the [cmd reset] method for the object to populate default headers.
+#
+# [enum]
+# Invokes the [cmd HttpHeaders] method to stream the MIME headers out of the socket
+#
+# [enum]
+# Invokes the [cmd {request parse}] method to convert the stream of MIME headers into a
+# dict that can be read via the [cmd request] method.
+#
+# [enum]
+# Stores the raw stream of MIME headers in the [arg rawrequest] variable of the object.
+#
+# [enum]
+# Invokes the [cmd content] method for the object, generating an call to the [cmd error]
+# method if an exception is raised.
+#
+# [enum]
+# Invokes the [cmd output] method for the object
+# [list_end]
+#
+# [para]
+#
+# [section {Reply Method Ensembles}]
+#
+# The [cmd http::reply] class and its derivatives maintain several variables as dictionaries
+# internally. Access to these dictionaries is managed through a dedicated ensemble. The
+# ensemble implements most of the same behaviors as the [cmd dict] command.
+#
+# Each ensemble implements the following methods above, beyond, or modifying standard dicts:
+#
+# [list_begin definitions]
+#
+# [call method [cmd ENSEMBLE::add] [arg field] [arg element]]
+#
+# Add [arg element] to a list stored in [arg field], but only if it is not already present om the list.
+#
+# [call method [cmd ENSEMBLE::dump]]
+#
+# Return the current contents of the data structure as a key/value list.
+#
+# [call method [cmd ENSEMBLE::get] [arg field]]
+#
+# Return the value of the field [arg field], or an empty string if it does not exist.
+#
+# [call method [cmd ENSEMBLE::reset]]
+#
+# Return a key/value list of the default contents for this data structure.
+#
+# [call method [cmd ENSEMBLE::remove] [arg field] [arg element]]
+#
+# Remove all instances of [arg element] from the list stored in [arg field].
+#
+# [call method [cmd ENSEMBLE::replace] [arg keyvaluelist]]
+#
+# Replace the internal dict with the contents of [arg keyvaluelist]
+#
+# [call method [cmd ENSEMBLE::reset]]
+#
+# Replace the internal dict with the default state.
+#
+# [call method [cmd ENSEMBLE::set] [arg field] [arg value]]
+#
+# Set the value of [arg field] to [arg value].
+#
+# [list_end]
+#
+# [section {Reply Method Ensemble: http_info}]
+#
+# Manages HTTP headers passed in by the server.
+#
+# Ensemble Methods:
+#
+# [list_begin definitions]
+#
+# [call method [cmd http_info::netstring]]
+#
+# Return the contents of this data structure as a netstring encoded block.
+#
+# [list_end]
+#
+# [section {Reply Method Ensemble: request}]
+#
+# Managed data from MIME headers of the request.
+#
+# [list_begin definitions]
+#
+# [call method  [cmd request::parse] [arg string]]
+#
+# Replace the contents of the data structure with information encoded in a MIME
+# formatted block of text ([arg string]).
+#
+# [list_end]
+#
+# [section {Reply Method Ensemble: reply}]
+#
+# Manage the headers sent in the reply.
+#
+#
+# [list_begin definitions]
+#
+# [call method [cmd reply::output]]
+#
+# Return the contents of this data structure as a MIME encoded block appropriate
+# for an HTTP response.
+#
+# [list_end]
+#
+# [section {Reply Methods}]
+#
+# [list_begin definitions]
+# [call method [cmd close]]
+#
+# Terminate the transaction, and close the socket.
+#
+# [call method [cmd HttpHeaders] [arg sock] [arg ?debug?]]
+#
+# Stream MIME headers from the socket [arg sock], stopping at an empty line. Returns
+# the stream as a block of text.
+#
+# [call method [cmd dispatch] [arg newsock] [arg datastate]]
+#
+# Take over control of the socket [arg newsock], and store that as the [arg chan] variable
+# for the object. This method runs through all of the steps of reading HTTP headers, generating
+# content, and closing the connection. (See class writetup).
+#
+# [call method [cmd error] [arg code] [arg ?message?] [arg ?errorInfo?]]
+#
+# Generate an error message of the specified [arg code], and display the [arg message] as the
+# reason for the exception. [arg errorInfo] is passed in from calls, but how or if it should be
+# displayed is a prerogative of the developer.
+#
+# [call method [cmd content]]
+#
+# Generate the content for the reply. This method is intended to be replaced by the mixin.
+#
+# Developers have the option of streaming output to a buffer via the [cmd puts] method of the
+# reply, or simply populating the [arg reply_body] variable of the object.
+# The information returned by the [cmd content] method is not interpreted in any way.
+#
+# If an exception is thrown (via the [cmd error] command in Tcl, for example) the caller will
+# auto-generate a 500 {Internal Error} message.
+#
+# A typical implementation of [cmd content] look like:
+#
+# [example {
+#
+# clay::define ::test::content.file {
+# 	superclass ::httpd::content.file
+# 	# Return a file
+# 	# Note: this is using the content.file mixin which looks for the reply_file variable
+# 	# and will auto-compute the Content-Type
+# 	method content {} {
+# 	  my reset
+#     set doc_root [my request get DOCUMENT_ROOT]
+#     my variable reply_file
+#     set reply_file [file join $doc_root index.html]
+# 	}
+# }
+# clay::define ::test::content.time {
+#   # return the current system time
+# 	method content {} {
+# 		my variable reply_body
+#     my reply set Content-Type text/plain
+# 		set reply_body [clock seconds]
+# 	}
+# }
+# clay::define ::test::content.echo {
+# 	method content {} {
+# 		my variable reply_body
+#     my reply set Content-Type [my request get CONTENT_TYPE]
+# 		set reply_body [my PostData [my request get CONTENT_LENGTH]]
+# 	}
+# }
+# clay::define ::test::content.form_handler {
+# 	method content {} {
+# 	  set form [my FormData]
+# 	  my reply set Content-Type {text/html; charset=UTF-8}
+#     my puts [my html_header {My Dynamic Page}]
+#     my puts "<BODY>"
+#     my puts "You Sent<p>"
+#     my puts "<TABLE>"
+#     foreach {f v} $form {
+#       my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
+#     }
+#     my puts "</TABLE><p>"
+#     my puts "Send some info:<p>"
+#     my puts "<FORM action=/[my request get REQUEST_PATH] method POST>"
+#     my puts "<TABLE>"
+#     foreach field {name rank serial_number} {
+#       set line "<TR><TH>$field</TH><TD><input name=\"$field\" "
+#       if {[dict exists $form $field]} {
+#         append line " value=\"[dict get $form $field]\"""
+#       }
+#       append line " /></TD></TR>"
+#       my puts $line
+#     }
+#     my puts "</TABLE>"
+#     my puts [my html footer]
+# 	}
+# }
+#
+# }]
+# [list_end]
 ###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
@@ -359,6 +579,9 @@ Connection close}
     my close
   }
 
+  ###
+  # Close channels opened by this object
+  ###
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -370,6 +593,9 @@ Connection close}
     }
   }
 
+  ###
+  # Record a dispatch event
+  ###
   method Log_Dispatched {} {
     my log Dispatched [dict create \
      REMOTE_ADDR [my request get REMOTE_ADDR] \
@@ -383,6 +609,20 @@ Connection close}
     ]
   }
 
+  ###
+  # Accept the handoff from the server object of the socket
+  # [enph newsock] and feed it the state [emph datastate]
+  #
+  # Fields the [emph datastate] are looking for in particular are:
+  #
+  # mixin: A key/value list of slots and classes to be mixed into the
+  # object prior to invoking [cmd Dispatch].
+  #
+  # http: A key/value list of values to populate the object's [emph request]
+  # ensemble
+  #
+  # All other fields are passed along to the [emph clay] structure of the object.
+  ###
   method dispatch {newsock datastate} {
     my variable chan request
     try {
@@ -507,6 +747,9 @@ body {
     my puts [my html_footer]
   }
 
+  ###
+  # Formulate a standard HTTP status header from he string provided.
+  ###
   method EncodeStatus {status} {
     return "HTTP/1.0 $status"
   }
@@ -523,8 +766,8 @@ body {
   }
 
   ###
-  # Output the result or error to the channel
-  # and destroy this object
+  # Generates the the HTTP reply, streams that reply back across [arg chan],
+  # and destroys the object.
   ###
   method DoOutput {} {
     my variable reply_body chan
@@ -550,6 +793,15 @@ body {
     my destroy
   }
 
+  ###
+  # For GET requests, converts the QUERY_DATA header into a key/value list.
+  #
+  # For POST requests, reads the Post data and converts that information to
+  # a key/value list for application/x-www-form-urlencoded posts. For multipart
+  # posts, it composites all of the MIME headers of the post to a singular key/value
+  # list, and provides MIME_* information as computed by the [cmd mime] package, including
+  # the MIME_TOKEN, which can be fed back into the mime package to read out the contents.
+  ###
   method FormData {} {
     my variable chan formdata
     # Run this only once
@@ -603,6 +855,8 @@ body {
     return $formdata
   }
 
+  # Stream [arg length] bytes from the [arg chan] socket, but only of the request is a
+  # POST or PUSH. Returns an empty string otherwise.
   method PostData {length} {
     my variable postdata
     # Run this only once
@@ -621,6 +875,27 @@ body {
   # Manage session data
   method Session_Load {} {}
 
+
+
+  # Intended to be invoked from [cmd {chan copy}] as a callback. This closes every channel
+  # fed to it on the command line, and then destroys the object.
+  #
+  # [example {
+  #     ###
+  #     # Output the body
+  #     ###
+  #     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+  #     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+  #     if {$length} {
+  #       ###
+  #       # Send any POST/PUT/etc content
+  #       ###
+  #       chan copy $sock $chan -size $SIZE -command [info coroutine]
+  #       yield
+  #     }
+  #     catch {close $sock}
+  #     chan flush $chan
+  # }]
   method TransferComplete args {
     my variable chan transfer_complete
     set transfer_complete 1
@@ -635,9 +910,8 @@ body {
     my destroy
   }
 
-  ###
-  # Append to the result buffer
-  ###
+  # Appends the value of [arg string] to the end of [arg reply_body], as well as a trailing newline
+  # character.
   method puts line {
     my variable reply_body
     append reply_body $line \n
@@ -751,9 +1025,8 @@ body {
     }
   }
 
-  ###
-  # Reset the result
-  ###
+  # Clear the contents of the [arg reply_body] variable, and reset all headers in the [cmd reply]
+  # structure back to the defaults for this object.
   method reset {} {
     my variable reply_body
     my reply replace    [my HttpHeaders_Default]
@@ -762,9 +1035,10 @@ body {
     set reply_body {}
   }
 
-  ###
-  # Return true of this class as waited too long to respond
-  ###
+  # Called from the [cmd http::server] object which spawned this reply. Checks to see
+  # if too much time has elapsed while waiting for data or generating a reply, and issues
+  # a timeout error to the request if it has, as well as destroy the object and close the
+  # [arg chan] socket.
   method timeOutCheck {} {
     my variable dispatched_time
     if {([clock seconds]-$dispatched_time)>120} {
@@ -779,7 +1053,7 @@ body {
   }
 
   ###
-  # Return a timestamp
+  # Return the current system time in the format: [example {%a, %d %b %Y %T %Z}]
   ###
   method timestamp {} {
     return [clock format [clock seconds] -format {%a, %d %b %Y %T %Z}]
@@ -793,8 +1067,10 @@ body {
 # START: server.tcl
 ###
 ###
-# An httpd server with a template engine
-# and a shim to insert URL domains
+# An httpd server with a template engine and a shim to insert URL domains.
+#
+# This class is the root object of the webserver. It is responsible
+# for opening the socket and providing the initial connection negotiation.
 ###
 namespace eval ::httpd::object {}
 namespace eval ::httpd::coro {}
@@ -810,7 +1086,6 @@ namespace eval ::httpd::coro {}
   clay set server/ reverse_dns 0
   clay set server/ configuration_file {}
   clay set server/ protocol {HTTP/1.1}
-  clay set server/ name     {127.0.0.1}
 
   clay set socket/ buffersize   32768
   clay set socket/ translation  {auto crlf}
@@ -819,7 +1094,17 @@ namespace eval ::httpd::coro {}
   Array template
   Dict url_patterns {}
 
-  constructor {args} {
+  constructor {
+  {args {
+    port        {default auto      comment {Port to listen on}}
+    myaddr      {default 127.0.0.1 comment {IP address to listen on. "all" means all}}
+    string      {default auto      comment {Value for SERVER_SOFTWARE in HTTP headers}}
+    name        {default auto      comment {Value for SERVER_NAME in HTTP headers. Defaults to [info hostname]}}
+    doc_root    {default {}        comment {File path to serve.}}
+    reverse_dns {default 0         comment {Perform reverse DNS to convert IPs into hostnames}}
+    configuration_file {default {} comment {Configuration file to load into server namespace}}
+    protocol    {default {HTTP/1.1} comment {Value for SERVER_PROTOCOL in HTTP headers}}
+  }}} {
     if {[llength $args]==1} {
       set arglist [lindex $args 0]
     } else {
@@ -835,6 +1120,10 @@ namespace eval ::httpd::coro {}
     my stop
   }
 
+  ###
+  # Reply to an open socket. This method builds a coroutine to manage the remainder
+  # of the connection. The coroutine's operations are driven by the [cmd Connect] method.
+  ###
   method connect {sock ip port} {
     ###
     # If an IP address is blocked drop the
@@ -883,6 +1172,15 @@ namespace eval ::httpd::coro {}
     return $result
   }
 
+  ###
+  # This method reads HTTP headers, and then consults the [cmd dispatch] method to
+  # determine if the request is valid, and/or what kind of reply to generate. Under
+  # normal cases, an object of class [cmd ::http::reply] is created, and that class's
+  # [cmd dispatch] method.
+  # This action passes control of the socket to
+  # the reply object. The reply object manages the rest of the transaction, including
+  # closing the socket.
+  ###
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
@@ -918,13 +1216,14 @@ namespace eval ::httpd::coro {}
     tailcall $pageobj dispatch $sock $reply
   }
 
+  # Increment an internal counter.
   method counter which {
     my variable counters
     incr counters($which)
   }
 
   ###
-  # Clean up any process that has gone out for lunch
+  # Check open connections for a time out event.
   ###
   method CheckTimeout {} {
     foreach obj [info commands ::httpd::object::*] {
@@ -939,7 +1238,8 @@ namespace eval ::httpd::coro {}
   method debug args {}
 
   ###
-  # Route a request to the appropriate handler
+  # Given a key/value list of information, return a data structure describing how
+  # the server should reply.
   ###
   method dispatch {data} {
     set reply [my Dispatch_Local $data]
@@ -949,6 +1249,11 @@ namespace eval ::httpd::coro {}
     return [my Dispatch_Default $data]
   }
 
+  ###
+  # Method dispatch method of last resort before returning a 404 NOT FOUND error.
+  # The default behavior is to look for a file in [emph DOCUMENT_ROOT] which
+  # matches the query.
+  ###
   method Dispatch_Default {reply} {
     ###
     # Fallback to docroot handling
@@ -966,12 +1271,31 @@ namespace eval ::httpd::coro {}
     return {}
   }
 
+  ###
+  # Method dispatch method invoked prior to invoking methods implemented by plugins.
+  # If this method returns a non-empty dictionary, that structure will be passed to
+  # the reply. The default is an empty implementation.
+  ###
   method Dispatch_Local data {}
 
+  ###
+  # Introspect and possibly modify a data structure destined for a reply. This
+  # method is invoked before invoking Header methods implemented by plugins.
+  # The default implementation is empty.
+  ###
   method Headers_Local {varname} {}
 
+  ###
+  # Introspect and possibly modify a data structure destined for a reply. This
+  # method is built dynamically by the [cmd plugin] method.
+  ###
   method Headers_Process varname {}
 
+  ###
+  # Convert an ip address to a host name. If the server/ reverse_dns flag
+  # is false, this method simply returns the IP address back.
+  # Internally, this method uses the [emph dns] module from tcllib.
+  ###
   method HostName ipaddr {
     if {![my clay get server/ reverse_dns]} {
       return $ipaddr
@@ -982,10 +1306,28 @@ namespace eval ::httpd::coro {}
     return $result
   }
 
+  ###
+  # Log an event. The input for args is free form. This method is intended
+  # to be replaced by the user, and is a noop for a stock http::server object.
+  ###
   method log args {
     # Do nothing for now
   }
 
+  ###
+  # Incorporate behaviors from a plugin.
+  # This method dynamically rebuilds the [cmd Dispatch] and [cmd Headers]
+  # method. For every plugin, the server looks for the following entries in
+  # [emph "clay plugin/"]:
+  # [para]
+  # [emph load] - A script to invoke in the server's namespace during the [cmd plugin] method invokation.
+  # [para]
+  # [emph dispatch] - A script to stitch into the server's [cmd Dispatch] method.
+  # [para]
+  # [emph headers] - A script to stitch into the server's [cmd Headers] method.
+  # [para]
+  # [emph thread] - A script to stitch into the server's [cmd Thread_start] method.
+  ###
   method plugin {slot {class {}}} {
     if {$class eq {}} {
       set class ::httpd::plugin.$slot
@@ -1059,11 +1401,15 @@ namespace eval ::httpd::coro {}
     oo::objdefine [self] method Thread_start {} $body
   }
 
+  # Return the actual port that httpd is listening on.
   method port_listening {} {
     my variable port_listening
     return $port_listening
   }
 
+  # For the stock version, trim trailing /'s and *'s from a prefix. This
+  # method can be replaced by the end user to perform any other transformations
+  # needed for the application.
   method PrefixNormalize prefix {
     set prefix [string trimright $prefix /]
     set prefix [string trimright $prefix *]
@@ -1075,6 +1421,7 @@ namespace eval ::httpd::coro {}
     source $filename
   }
 
+  # Open the socket listener.
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -1103,6 +1450,7 @@ namespace eval ::httpd::coro {}
     my Thread_start
   }
 
+  # Shut off the socket listener, and destroy any pending replies.
   method stop {} {
     my variable socklist
     if {[info exists socklist]} {
@@ -1121,6 +1469,7 @@ namespace eval ::httpd::coro {}
     return [namespace current]::$method
   }
 
+  # Return a template for the string [arg page]
   method template page {
     my variable template
     if {[info exists template($page)]} {
@@ -1130,6 +1479,10 @@ namespace eval ::httpd::coro {}
     return $template($page)
   }
 
+  # Perform a search for the template that best matches [arg page]. This
+  # can include local file searches, in-memory structures, or even
+  # database lookups. The stock implementation simply looks for files
+  # with a .tml or .html extension in the [opt doc_root] directory.
   method TemplateSearch page {
     set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -1171,16 +1524,29 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
   }
 
+  ###
+  # Built by the [cmd plugin] method. Called by the [cmd start] method. Intended
+  # to allow plugins to spawn worker threads.
+  ###
   method Thread_start {} {}
 
+  ###
+  # Generate a GUUID. Used to ensure every request has a unique ID.
+  # The default implementation is:
+  # [example {
+  #   return [::uuid::uuid generate]
+  # }]
+  ###
   method Uuid_Generate {} {
     return [::uuid::uuid generate]
   }
 
   ###
-  # Return true if this IP address is blocked
-  # The socket will be closed immediately after returning
-  # This handler is welcome to send a polite error message
+  # Given a socket and an ip address, return true if this connection should
+  # be terminated, or false if it should be allowed to continue. The stock
+  # implementation always returns 0. This is intended for applications to
+  # be able to implement black lists and/or provide security based on IP
+  # address.
   ###
   method Validate_Connection {sock ip} {
     return 0
@@ -1974,6 +2340,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
   }
 
+  ###
+  # Implementation of the dispatcher
+  ###
   method Dispatch_Dict {data} {
     my variable url_patterns
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
@@ -1992,6 +2361,8 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     return {}
   }
 
+  ###
+  #
   Ensemble uri::add {vhosts patterns info} {
     my variable url_patterns
     foreach vhost $vhosts {

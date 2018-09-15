@@ -47,6 +47,9 @@
     }
   }
 
+  ###
+  # Implementation of the dispatcher
+  ###
   method Dispatch_Dict {data} {
     my variable url_patterns
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
@@ -65,6 +68,8 @@
     return {}
   }
 
+  ###
+  #
   Ensemble uri::add {vhosts patterns info} {
     my variable url_patterns
     foreach vhost $vhosts {

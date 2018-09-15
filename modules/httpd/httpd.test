@@ -672,7 +672,7 @@ $checkfile"
 } {}
 
 ::DEBUG puts all-tests-finished
-
+file delete [file join $DIR test.tcl]
 # -------------------------------------------------------------------------
 
 testsuiteCleanup
