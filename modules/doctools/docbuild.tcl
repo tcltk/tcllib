@@ -58,12 +58,70 @@ oo::class create ::docbuild::object {
   }
 
   method comment block {
-    return [dict create comment $block]
+    set count 0
+    set field description
+    set result [dict create description {}]
+    foreach line [split $block \n] {
+      set line [string trim $line]
+      set fwidx [string first " " $line]
+      set firstword [string range $line 0 [expr {$fwidx-1}]]
+      if {[string index $firstword end] eq ":"} {
+        set field [string trim $firstword -]
+        switch $field {
+          desc {
+            set field description
+          }
+        }
+        set line [string range $line [expr {$fwidx+1}] end]
+      }
+      dict append result $field "$line\n"
+    }
+    return $result
+  }
+
+  ###
+  # Process an oo::objdefine call that modifies the class object
+  # itself
+  ####
+  method keyword.Class {resultvar commentblock name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result class $name]} {
+      set info [dict get $result class $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    set commentblock {}
+    foreach line [split $body \n] {
+      append thisline $line \n
+      if {![info complete $thisline]} continue
+      set thisline [string trim $thisline]
+      if {[string index $thisline 0] eq "#"} {
+        append commentblock [string trimleft $thisline #] \n
+        set thisline {}
+        continue
+      }
+      set cmd [string trim [lindex $thisline 0] ":"]
+      switch $cmd {
+        method -
+        Ensemble {
+          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          set commentblock {}
+        }
+      }
+      set thisline {}
+    }
+    dict set result class $name $info
   }
 
   method keyword.class {resultvar commentblock name body} {
     upvar 1 $resultvar result
-    set info [my comment $commentblock]
+    set name [string trim $name :]
+    if {[dict exists $result class $name]} {
+      set info [dict get $result class $name]
+    } else {
+      set info [my comment $commentblock]
+    }
     set commentblock {}
     foreach line [split $body \n] {
       append thisline $line \n
@@ -80,6 +138,10 @@ oo::class create ::docbuild::object {
           dict set info ancestors [lrange $thisline 1 end]
           set commentblock {}
         }
+        class_method {
+          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          set commentblock {}
+        }
         destructor -
         constructor {
           my keyword.method info $commentblock {*}[lrange $thisline 0 end-1]
@@ -94,6 +156,25 @@ oo::class create ::docbuild::object {
       set thisline {}
     }
     dict set result class $name $info
+  }
+
+  method keyword.class_method {resultvar commentblock name args} {
+    upvar 1 $resultvar result
+    set info [my comment $commentblock]
+    switch [llength $args] {
+      1 {
+        set arglist [lindex $args 0]
+      }
+      0 {
+        set arglist dictargs
+        #set body [lindex $args 0]
+      }
+      default {error "could not interpret method $name {*}$args"}
+    }
+    if {![dict exists $info arglist]} {
+      dict set info arglist [my arglist $arglist]
+    }
+    dict set result class_method [string trim $name :] $info
   }
 
   method keyword.method {resultvar commentblock name args} {
@@ -142,17 +223,19 @@ oo::class create ::docbuild::object {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
-        if {
-          # Handle an if statement
-          foreach {expr body} [lrange $thisline 1 end] {
-
-
-          }
-        }
+        Proc -
         proc {
           set procinfo [my keyword.proc $commentblock {*}[lrange $thisline 1 end]]
           dict set info proc [string trim [lindex $thisline 1] :] $procinfo
           set commentblock {}
+        }
+        oo::objdefine {
+          if {[llength $thisline]==3} {
+            lassign $thisline tcmd name body
+            my keyword.Class info $commentblock $name $body
+          } else {
+            puts "Warning: bare oo::define in library"
+          }
         }
         oo::define {
           if {[llength $thisline]==3} {
@@ -174,6 +257,14 @@ oo::class create ::docbuild::object {
           my keyword.class info $commentblock $name $body
           set commentblock {}
         }
+        default {
+          if {[lindex [split $cmd ::] end] eq "define"} {
+            lassign $thisline tcmd name body
+            my keyword.class info $commentblock $name $body
+            set commentblock {}
+          }
+          set commentblock {}
+        }
       }
       set thisline {}
     }
@@ -192,14 +283,14 @@ oo::class create ::docbuild::object {
           set mandatory  1
           dict with arginfo {}
           if {$mandatory==0} {
-            append line " ?"
+            append line " \[opt \""
           } else {
             append line " "
           }
           if {$positional} {
             append line "\[arg $argname"
           } else {
-            append line "\[opt $argname"
+            append line "\[option $argname"
             if {[dict exists $arginfo type]} {
               append line " \[cmd [dict get $arginfo type]\]"
             } else {
@@ -209,16 +300,16 @@ oo::class create ::docbuild::object {
           append line "\]"
           if {$mandatory==0} {
             if {[dict exists $arginfo default]} {
-              append line " \[emph \"[dict get $arginfo default]\"\]"
+              append line " \[const \"[dict get $arginfo default]\"\]"
             }
-            append line "?"
+            append line "\"\]"
           }
         }
       }
       append line \]
       putb result $line
-      if {[dict exists $minfo comment]} {
-        putb result [dict get $minfo comment]
+      if {[dict exists $minfo description]} {
+        putb result [dict get $minfo description]
       }
     }
     putb result {[list_end]}
@@ -227,8 +318,71 @@ oo::class create ::docbuild::object {
 
   method section.class {class_name class_info} {
     set result {}
-    putb result "\[section \{Class  $class_name\}\]"
+    putb result "\[subsection \{Class  $class_name\}\]"
+    if {[dict exists $class_info ancestors]} {
+      set line "\[emph \"ancestors\"\]:"
+      foreach {c} [dict get $class_info ancestors] {
+        append line " \[class [string trim $c :]\]"
+      }
+      putb result $line
+      putb result {[para]}
+    }
+    dict for {f v} $class_info {
+      if {$f in {class_method method description ancestors}} continue
+      putb result "\[emph \"$f\"\]: $v"
+      putb result {[para]}
+    }
+    if {[dict exists $class_info description]} {
+      putb result [dict get $class_info description]
+      putb result {[para]}
+    }
+    if {[dict exists $class_info class_method]} {
+      putb result "\[class \{Class Methods\}\]"
+      #putb result "Methods on the class object itself."
+      putb result {[list_begin definitions]}
+      dict for {method minfo} [dict get $class_info class_method] {
+        putb result {}
+        set line "\[call method \[cmd $method\]"
+        if {[dict exists $minfo arglist]} {
+          dict for {argname arginfo} [dict get $minfo arglist] {
+            set positional 1
+            set mandatory  1
+            dict with arginfo {}
+            if {$mandatory==0} {
+              append line " \[opt \""
+            } else {
+              append line " "
+            }
+            if {$positional} {
+              append line "\[arg $argname"
+            } else {
+              append line "\[option $argname"
+              if {[dict exists $arginfo type]} {
+                append line " \[method [dict get $arginfo type]\]"
+              } else {
+                append line " \[method $argname\]"
+              }
+            }
+            append line "\]"
+            if {$mandatory==0} {
+              if {[dict exists $arginfo default]} {
+                append line " \[const \"[dict get $arginfo default]\"\]"
+              }
+              append line "\"\]"
+            }
+          }
+        }
+        append line \]
+        putb result $line
+        if {[dict exists $minfo description]} {
+          putb result [dict get $minfo description]
+        }
+      }
+      putb result {[list_end]}
+      putb result {[para]}
+    }
     if {[dict exists $class_info method]} {
+      putb result "\[class {Methods}\]"
       putb result {[list_begin definitions]}
       dict for {method minfo} [dict get $class_info method] {
         putb result {}
@@ -239,7 +393,7 @@ oo::class create ::docbuild::object {
             set mandatory  1
             dict with arginfo {}
             if {$mandatory==0} {
-              append line " ?"
+              append line " \[opt \""
             } else {
               append line " "
             }
@@ -248,30 +402,28 @@ oo::class create ::docbuild::object {
             } else {
               append line "\[opt $argname"
               if {[dict exists $arginfo type]} {
-                append line " \[cmd [dict get $arginfo type]\]"
+                append line " \[method [dict get $arginfo type]\]"
               } else {
-                append line " \[cmd $argname\]"
+                append line " \[method $argname\]"
               }
             }
             append line "\]"
             if {$mandatory==0} {
               if {[dict exists $arginfo default]} {
-                append line " \[emph \"[dict get $arginfo default]\"\]"
+                append line " \[const \"[dict get $arginfo default]\"\]"
               }
-              append line "?"
+              append line "\"\]"
             }
           }
         }
         append line \]
         putb result $line
-        if {[dict exists $minfo comment]} {
-          putb result [dict get $minfo comment]
+        if {[dict exists $minfo description]} {
+          putb result [dict get $minfo description]
         }
       }
       putb result {[list_end]}
-    }
-    if {[dict exists $class_info comment]} {
-      putb result [dict get $class_info comment]
+      putb result {[para]}
     }
     return $result
   }
@@ -289,14 +441,15 @@ oo::class create ::docbuild::object {
           putb result [my section.command $sec_info]
         }
         class {
+          putb result "\[section Classes\]"
           dict for {class_name class_info} $sec_info {
             putb result [my section.class $class_name $class_info]
           }
         }
         default {
           putb result "\[section [list $sec_type $sec_name]\]"
-          if {[dict exists $sec_info comment]} {
-            putb result [dict get $sec_info comment]
+          if {[dict exists $sec_info description]} {
+            putb result [dict get $sec_info description]
           }
         }
       }

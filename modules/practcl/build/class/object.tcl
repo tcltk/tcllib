@@ -1,3 +1,6 @@
+###
+# A generic Practcl object
+###
 ::oo::class create ::practcl::object {
   superclass ::practcl::metaclass
 

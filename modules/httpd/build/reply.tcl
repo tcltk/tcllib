@@ -286,17 +286,16 @@
 
   ###
   # Accept the handoff from the server object of the socket
-  # [enph newsock] and feed it the state [emph datastate]
-  #
+  # [emph newsock] and feed it the state [emph datastate].
   # Fields the [emph datastate] are looking for in particular are:
-  #
-  # mixin: A key/value list of slots and classes to be mixed into the
+  # [para]
+  # * [const mixin] - A key/value list of slots and classes to be mixed into the
   # object prior to invoking [cmd Dispatch].
-  #
-  # http: A key/value list of values to populate the object's [emph request]
+  # [para]
+  # * [const http] - A key/value list of values to populate the object's [emph request]
   # ensemble
-  #
-  # All other fields are passed along to the [emph clay] structure of the object.
+  # [para]
+  # All other fields are passed along to the [method clay] structure of the object.
   ###
   method dispatch {newsock datastate} {
     my variable chan request

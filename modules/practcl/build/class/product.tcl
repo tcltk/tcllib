@@ -1,6 +1,7 @@
-
-::oo::class create ::practcl::product {
-
+###
+# A deliverable for the build system
+###
+::clay::define ::practcl::product {
 
   method code {section body} {
     my variable code
