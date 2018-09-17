@@ -1,0 +1,5 @@
+[section AUTHORS]
+Sean Woods
+
+[vset CATEGORY oo]
+[include ../doctools2base/include/feedback.inc]

@@ -1,0 +1,30 @@
+[vset VERSION %version%]
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin %module% n [vset VERSION]]
+[keywords oo]
+[copyright {2018 Sean Woods <yoda@etoyoc.com>}]
+[moddesc   {Clay Framework}]
+[titledesc {A minimalist framework for large scale OO Projects}]
+[category  {Programming tools}]
+[keywords TclOO]
+[require Tcl 8.6]
+[require uuid]
+[require oo::dialect]
+[description]
+The Clay framework is the successor to the Tool framework.
+
+[section {Improvements over Tool}]
+Clay introduces several improvements over the prior attempt at creating a framework for
+Tcllib.
+[para]
+Tool introduced many methods to the underlying metaclass to legislate interactions,
+and did so in a way that looked like ordinary methods. For Clay, all framework interactions
+are through a single method [method clay].
+[para]
+Tool stored data in a variety of variables, and did so in a way that was indistiguishable
+from application code. For clay all data is stored in a single variable [var clay].
+[para]
+Tool relied on a global data structure provided by the [package oo::meta] module. This
+data structure was constantly being overwritten/flushed/recalculated as classes were
+modified. Clay uses live interactions with class methods to achieve those same interactions,
+without requireing an external module or a global data structure.
