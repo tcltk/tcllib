@@ -1303,7 +1303,6 @@ oo::class create ::clay::doctool {  constructor {} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
     if {[dict exists $info ensemble]} {
-      puts [list [dict get $info ensemble]]
       dict for {method minfo} [dict get $info ensemble] {
         dict set result method "\"${name} $method\"" $minfo
       }

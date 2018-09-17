@@ -50,7 +50,12 @@ oo::define oo::object {
   # }
   # leaf {arglist {path {mandatory 1 positional 1 repeating 1}} description {A modified get which is tailored to pull only leaf elements}}
   # merge {arglist {dict {mandatory 1 positional 1 repeating 1}} description {Recursively merge the dictionaries given into the object's local clay storage.}}
-  # mixin {arglist {class {mandatory 1 positional 1 repeating 1}} description {Mix in one or more classes into the object.}}
+  # mixin {arglist {class {mandatory 1 positional 1 repeating 1}} description {
+  # Perform [lb]oo::objdefine [lb]self[rb] mixin[rb] on this object, with a few additional rules:
+  #   Prior to the call, for any class was previously mixed in, but not in the new result, execute the script registered to mixin/ unmap-script (if given.)
+  #   For all new classes, that were not present prior to this call, after the native TclOO mixin is invoked, execute the script registered to mixin/ map-script (if given.)
+  #   Fall all classes that are now present and “mixed in”, execute the script registered to mixin/ react-script (if given.)
+  # }}
   # mixinmap {
   #   arglist {stub {mandatory 0 positional 1} classes {mandatory 0 positional 1}}
   #   description {With no arguments returns the map of stubs and classes mixed into the current object. When only stub is given,

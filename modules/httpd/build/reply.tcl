@@ -12,142 +12,22 @@
 # In normal operations the [cmd dispatch] method:
 #
 # [list_begin enumerated]
-#
 # [enum]
 # Invokes the [cmd reset] method for the object to populate default headers.
-#
 # [enum]
 # Invokes the [cmd HttpHeaders] method to stream the MIME headers out of the socket
-#
 # [enum]
 # Invokes the [cmd {request parse}] method to convert the stream of MIME headers into a
 # dict that can be read via the [cmd request] method.
-#
 # [enum]
 # Stores the raw stream of MIME headers in the [arg rawrequest] variable of the object.
-#
 # [enum]
 # Invokes the [cmd content] method for the object, generating an call to the [cmd error]
 # method if an exception is raised.
-#
 # [enum]
 # Invokes the [cmd output] method for the object
 # [list_end]
-#
 # [para]
-#
-# [section {Reply Method Ensembles}]
-#
-# The [cmd http::reply] class and its derivatives maintain several variables as dictionaries
-# internally. Access to these dictionaries is managed through a dedicated ensemble. The
-# ensemble implements most of the same behaviors as the [cmd dict] command.
-#
-# Each ensemble implements the following methods above, beyond, or modifying standard dicts:
-#
-# [list_begin definitions]
-#
-# [call method [cmd ENSEMBLE::add] [arg field] [arg element]]
-#
-# Add [arg element] to a list stored in [arg field], but only if it is not already present om the list.
-#
-# [call method [cmd ENSEMBLE::dump]]
-#
-# Return the current contents of the data structure as a key/value list.
-#
-# [call method [cmd ENSEMBLE::get] [arg field]]
-#
-# Return the value of the field [arg field], or an empty string if it does not exist.
-#
-# [call method [cmd ENSEMBLE::reset]]
-#
-# Return a key/value list of the default contents for this data structure.
-#
-# [call method [cmd ENSEMBLE::remove] [arg field] [arg element]]
-#
-# Remove all instances of [arg element] from the list stored in [arg field].
-#
-# [call method [cmd ENSEMBLE::replace] [arg keyvaluelist]]
-#
-# Replace the internal dict with the contents of [arg keyvaluelist]
-#
-# [call method [cmd ENSEMBLE::reset]]
-#
-# Replace the internal dict with the default state.
-#
-# [call method [cmd ENSEMBLE::set] [arg field] [arg value]]
-#
-# Set the value of [arg field] to [arg value].
-#
-# [list_end]
-#
-# [section {Reply Method Ensemble: http_info}]
-#
-# Manages HTTP headers passed in by the server.
-#
-# Ensemble Methods:
-#
-# [list_begin definitions]
-#
-# [call method [cmd http_info::netstring]]
-#
-# Return the contents of this data structure as a netstring encoded block.
-#
-# [list_end]
-#
-# [section {Reply Method Ensemble: request}]
-#
-# Managed data from MIME headers of the request.
-#
-# [list_begin definitions]
-#
-# [call method  [cmd request::parse] [arg string]]
-#
-# Replace the contents of the data structure with information encoded in a MIME
-# formatted block of text ([arg string]).
-#
-# [list_end]
-#
-# [section {Reply Method Ensemble: reply}]
-#
-# Manage the headers sent in the reply.
-#
-#
-# [list_begin definitions]
-#
-# [call method [cmd reply::output]]
-#
-# Return the contents of this data structure as a MIME encoded block appropriate
-# for an HTTP response.
-#
-# [list_end]
-#
-# [section {Reply Methods}]
-#
-# [list_begin definitions]
-# [call method [cmd close]]
-#
-# Terminate the transaction, and close the socket.
-#
-# [call method [cmd HttpHeaders] [arg sock] [arg ?debug?]]
-#
-# Stream MIME headers from the socket [arg sock], stopping at an empty line. Returns
-# the stream as a block of text.
-#
-# [call method [cmd dispatch] [arg newsock] [arg datastate]]
-#
-# Take over control of the socket [arg newsock], and store that as the [arg chan] variable
-# for the object. This method runs through all of the steps of reading HTTP headers, generating
-# content, and closing the connection. (See class writetup).
-#
-# [call method [cmd error] [arg code] [arg ?message?] [arg ?errorInfo?]]
-#
-# Generate an error message of the specified [arg code], and display the [arg message] as the
-# reason for the exception. [arg errorInfo] is passed in from calls, but how or if it should be
-# displayed is a prerogative of the developer.
-#
-# [call method [cmd content]]
-#
-# Generate the content for the reply. This method is intended to be replaced by the mixin.
 #
 # Developers have the option of streaming output to a buffer via the [cmd puts] method of the
 # reply, or simply populating the [arg reply_body] variable of the object.
@@ -216,7 +96,6 @@
 # }
 #
 # }]
-# [list_end]
 ###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
