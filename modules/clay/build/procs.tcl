@@ -1,6 +1,3 @@
-
-set ::clay::trace 0
-
 ###
 # Global utilities
 ###
@@ -66,6 +63,7 @@ proc ::putb {buffername args} {
   }
 }
 namespace eval ::clay {}
+set ::clay::trace 0
 
 proc ::clay::ancestors args {
   set result {}

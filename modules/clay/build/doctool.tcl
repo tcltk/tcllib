@@ -1,72 +1,3 @@
-
-###
-# clay.tcl
-#
-# Copyright (c) 2018 Sean Woods
-#
-# BSD License
-###
-# @@ Meta Begin
-# Package clay 0.3
-# Meta platform     tcl
-# Meta summary      A minimalist framework for complex TclOO development
-# Meta description  This package introduces the method "clay" to both oo::object
-# Meta description  and oo::class which facilitate complex interactions between objects
-# Meta description  and their ancestor and mixed in classes.
-# Meta category     TclOO
-# Meta subject      framework
-# Meta require      {Tcl 8.6}
-# Meta author       Sean Woods
-# Meta license      BSD
-# @@ Meta End
-
-###
-# Amalgamated package for clay
-# Do not edit directly, tweak the source in src/ and rerun
-# build.tcl
-###
-package provide clay 0.3
-namespace eval ::clay {}
-
-###
-# START: core.tcl
-###
-###
-# END: core.tcl
-###
-###
-# START: procs.tcl
-###
-###
-# END: procs.tcl
-###
-###
-# START: class.tcl
-###
-###
-# END: class.tcl
-###
-###
-# START: object.tcl
-###
-###
-# END: object.tcl
-###
-###
-# START: metaclass.tcl
-###
-###
-# END: metaclass.tcl
-###
-###
-# START: ensemble.tcl
-###
-###
-# END: ensemble.tcl
-###
-###
-# START: doctool.tcl
-###
 namespace eval ::clay {}
 
 ###
@@ -567,14 +498,5 @@ oo::class create ::clay::doctool {
     }
     close $fin
   }
-}
-
-
-###
-# END: doctool.tcl
-###
-
-namespace eval ::clay {
-  namespace export *
 }
 

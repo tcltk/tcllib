@@ -1,5 +1,5 @@
 [comment {-*- practcl -*-}]
-[vset VERSION 0.12]
+[vset VERSION 0.13]
 [manpage_begin practcl n [vset VERSION]]
 [keywords practcl]
 [copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
@@ -14,6 +14,12 @@ Tcl code that requires custom Tcl types and TclOO objects.
 
 [section {Commands}]
 [list_begin definitions]
+
+[call proc [cmd practcl::cat] [arg fname]]
+
+
+[call proc [cmd putb] [arg buffername] [opt "[arg args]"]]
+
 
 [call proc [cmd Proc] [arg name] [arg arglist] [arg body]]
 
@@ -153,14 +159,11 @@ suppressed
 [call proc [cmd practcl::de_shell] [arg data]]
 
 
-[call proc [cmd practcl::cat] [arg fname]]
-
-Bits stolen from fileutil
-
-
-
-
 [call proc [cmd practcl::grep] [arg pattern] [opt "[arg files] [const ""]"]]
+
+grep
+
+
 
 
 [call proc [cmd practcl::file_lexnormalize] [arg sp]]
@@ -216,6 +219,61 @@ virtual file system
 [list_end]
 
 [section Classes]
+[subsection {Class  clay::doctool}]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd constructor]]
+
+
+[call method [cmd arglist] [arg arglist]]
+
+
+[call method [cmd comment] [arg block]]
+
+
+[call method [cmd keyword.Class] [arg resultvar] [arg commentblock] [arg name] [arg body]]
+
+Process an oo::objdefine call that modifies the class object
+itself
+
+
+
+
+[call method [cmd keyword.class] [arg resultvar] [arg commentblock] [arg name] [arg body]]
+
+
+[call method [cmd keyword.class_method] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
+
+
+[call method [cmd keyword.method] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
+
+
+[call method [cmd keyword.proc] [arg commentblock] [arg name] [arg arglist] [arg body]]
+
+
+[call method [cmd reset]]
+
+
+[call method [cmd section.command] [arg procinfo]]
+
+
+[call method [cmd section.class] [arg class_name] [arg class_info]]
+
+
+[call method [cmd manpage] [opt "[arg args]"]]
+
+
+[call method [cmd scan_text] [arg text]]
+
+
+[call method [cmd scan_file] [arg filename]]
+
+[list_end]
+[para]
+
 [subsection {Class  practcl::metaclass}]
 [emph "ancestors"]: [class oo::object]
 [para]

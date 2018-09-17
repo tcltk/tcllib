@@ -1,8 +1,10 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-source [file join $moddir .. doctools docbuild.tcl]
-::docbuild::object create AutoDoc
+if {[catch {package require clay 0.3}]} {
+  source [file join $moddir .. clay build doctool.tcl]
+}
+::clay::doctool create AutoDoc
 set version 4.3
 set tclversion 8.6
 set module [file tail $moddir]
@@ -44,7 +46,7 @@ foreach file {
 } {
   lappend loaded $file
   puts $fout "###\n# START: [file tail $file]\n###"
-  set content [::docbuild::cat [file join $srcdir $file]]
+  set content [::clay::cat [file join $srcdir $file]]
   AutoDoc scan_text $content
   puts $fout $content
   puts $fout "###\n# END: [file tail $file]\n###"
@@ -55,7 +57,7 @@ foreach file [glob [file join $srcdir *.tcl]] {
   lappend loaded $file
   set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
-  set content [::docbuild::cat [file join $srcdir $file]]
+  set content [::clay::cat [file join $srcdir $file]]
   AutoDoc scan_text $content
   puts $fout $content
   puts $fout "###\n# END: [file tail $file]\n###"
@@ -81,7 +83,7 @@ close $fout
 
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
-  header [string map $map [::docbuild::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::docbuild::cat [file join $srcdir footer.txt]]] \
+  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout

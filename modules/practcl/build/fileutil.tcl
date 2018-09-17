@@ -1,16 +1,11 @@
 ###
 # Bits stolen from fileutil
 ###
-proc ::practcl::cat fname {
-    if {![file exists $fname]} {
-       return
-    }
-    set fin [open $fname r]
-    set data [read $fin]
-    close $fin
-    return $data
-}
 
+
+###
+# grep
+###
 proc ::practcl::grep {pattern {files {}}} {
     set result [list]
     if {[llength $files] == 0} {

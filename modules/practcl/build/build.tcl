@@ -1,11 +1,12 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
+if {[catch {package require clay 0.3}]} {
+  source [file join $$moddir .. clay build doctool.tcl]
+}
+::clay::doctool create AutoDoc
 
-source [file join $moddir .. doctools docbuild.tcl]
-::docbuild::object create AutoDoc
-
-set version 0.12
-set tclversion 8.5
+set version 0.13
+set tclversion 8.6
 set module [file tail $moddir]
 set filename $module
 
@@ -14,17 +15,17 @@ fconfigure $fout -translation lf
 dict set map %module% $module
 dict set map %version% $version
 dict set map %tclversion% $tclversion
-dict set map {    } {}
-dict set map "\t" {    }
+#dict set map {    } {}
+#dict set map "\t" {    }
 
 puts $fout [string map $map {###
-    # Amalgamated package for %module%
-    # Do not edit directly, tweak the source in src/ and rerun
-    # build.tcl
-    ###
-    package require Tcl %tclversion%
-    package provide %module% %version%
-    namespace eval ::%module% {}
+# Amalgamated package for %module%
+# Do not edit directly, tweak the source in src/ and rerun
+# build.tcl
+###
+package require Tcl %tclversion%
+package provide %module% %version%
+namespace eval ::%module% {}
 }]
 
 # Track what files we have included so far
@@ -36,12 +37,12 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
-  clay {build/procs.tcl build/class.tcl build/object.tcl}
+  clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
-    set content [::docbuild::cat [file join $moddir .. $omod $fname]]
+    set content [::clay::cat [file join $moddir .. $omod $fname]]
     #AutoDoc scan_text $content
     puts $fout $content
     puts $fout "###\n# END: [file join $omod $fname]\n###"
@@ -50,6 +51,7 @@ foreach {omod files} {
 
 foreach file {
   setup.tcl
+  docbuild.tcl
   buildutil.tcl
   fileutil.tcl
   installutil.tcl
@@ -84,12 +86,11 @@ foreach file {
 } {
   lappend loaded $file
   puts $fout "###\n# START: [file join $file]\n###"
-  set content [::docbuild::cat [file join $srcdir {*}$file]]
+  set content [::clay::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
   puts $fout $content
   puts $fout "###\n# END: [file join $file]\n###"
 }
-
 
 # Provide some cleanup and our final package provide
 puts $fout [string map $map {
@@ -112,7 +113,7 @@ close $fout
 
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
-  header [string map $map [::docbuild::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::docbuild::cat [file join $srcdir footer.txt]]] \
+  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout
