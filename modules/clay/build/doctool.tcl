@@ -14,6 +14,41 @@ proc ::clay::cat fname {
 }
 
 ###
+# Strip the global comments from tcl code. Used to
+# prevent the documentation markup comments from clogging
+# up files intended for distribution in machine readable format.
+###
+proc ::clay::docstrip text {
+  set result {}
+  foreach line [split $text \n] {
+    append thisline $line \n
+    if {![info complete $thisline]} continue
+    set outline $thisline
+    set thisline {}
+    if {[string trim $outline] eq {}} {
+      continue
+    }
+    if {[string index [string trim $outline] 0] eq "#"} continue
+    set cmd [string trim [lindex $outline 0] :]
+    if {$cmd eq "namespace" && [lindex $outline 1] eq "eval"} {
+      append result [list {*}[lrange $outline 0 end-1] [docstrip [lindex $outline end]]] \n
+      continue
+    }
+    if {[string match "*::define" $cmd] && [llength $outline]==3} {
+      append result [list {*}[lrange $outline 0 end-1] [docstrip [lindex $outline end]]] \n
+      continue
+    }
+    if {$cmd eq "oo::class" && [lindex $outline 1] eq "create"} {
+      append result [list {*}[lrange $outline 0 end-1] [docstrip [lindex $outline end]]] \n
+      continue
+    }
+    append result $outline
+  }
+  return $result
+}
+
+
+###
 # Append a line of text to a variable. Optionally apply a string mapping.
 # arglist:
 #   map {mandatory 0 positional 1}
@@ -37,13 +72,32 @@ proc ::putb {buffername args} {
 ###
 # Tool for build scripts to dynamically generate manual files from comments
 # in source code files
+# example:
+# set authors {
+#   {John Doe} {jdoe@illustrious.edu}
+#   {Tom RichardHarry} {tomdickharry@illustrius.edu}
+# }
+# # Create the object
+# ::clay::doctool create AutoDoc
+# set fout [open [file join $moddir module.tcl] w]
+# foreach file [glob [file join $srcdir *.tcl]] {
+#   set content [::clay::cat [file join $srcdir $file]]
+#    # Scan the file
+#    AutoDoc scan_text $content
+#    # Strip the comments from the distribution
+#    puts $fout [::clay::docstrip $content]
+# }
+# # Write out the manual page
+# set manout [open [file join $moddir module.man] w]
+# dict set arglist header [string map $modmap [::clay::cat [file join $srcdir manual.txt]]]
+# dict set arglist footer [string map $modmap [::clay::cat [file join $srcdir footer.txt]]]
+# dict set arglist authors $authors
+# puts $manout [AutoDoc manpage {*}$arglist]
+# close $manout
 ###
 oo::class create ::clay::doctool {
   constructor {} {
-    my variable coro
-    set coro [info object namespace [self]]::coro
-    oo::objdefine [self] forward coro $coro
-    coroutine $coro {*}[namespace code {my reset}]
+    my reset
   }
 
   ###
@@ -56,11 +110,10 @@ oo::class create ::clay::doctool {
   # are [const positional], [const mandatory], and whether they have a
   # [const default] value.
   # [para]
-  # [example {
+  # example:
   #   my arglist {a b {c 10}}
   #
   #   > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
-  # }]
   ###
   method arglist {arglist} {
     set result [dict create]
@@ -110,7 +163,7 @@ oo::class create ::clay::doctool {
   # all subsequent lines are appended to a dictionary field of that name.
   # If no fields are given, all of the text is appended to the [const description]
   # field.
-  # Example:
+  # example:
   # my comment {Does something cool}
   # > description {Does something cool}
   #
@@ -131,14 +184,14 @@ oo::class create ::clay::doctool {
     set field description
     set result [dict create description {}]
     foreach line [split $block \n] {
-      set line [string trim $line]
-      set fwidx [string first " " $line]
+      set sline [string trim $line]
+      set fwidx [string first " " $sline]
       if {$fwidx < 0} {
-        set firstword [string range $line 0 end]
+        set firstword [string range $sline 0 end]
         set restline {}
       } else {
-        set firstword [string range $line 0 [expr {$fwidx-1}]]
-        set restline [string range $line [expr {$fwidx+1}] end]
+        set firstword [string range $sline 0 [expr {$fwidx-1}]]
+        set restline [string range $sline [expr {$fwidx+1}] end]
       }
       if {[string index $firstword end] eq ":"} {
         set field [string tolower [string trim $firstword -:]]
@@ -192,6 +245,9 @@ oo::class create ::clay::doctool {
     dict set result class $name $info
   }
 
+  ###
+  # Process an oo::define, clay::define, etc statement.
+  ###
   method keyword.class {resultvar commentblock name body} {
     upvar 1 $resultvar result
     set name [string trim $name :]
@@ -236,44 +292,65 @@ oo::class create ::clay::doctool {
     dict set result class $name $info
   }
 
+  ###
+  # Process a statement for a clay style class method
+  ###
   method keyword.class_method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
-    switch [llength $args] {
-      1 {
-        set arglist [lindex $args 0]
+    if {[dict exists $info ensemble]} {
+      dict for {method minfo} [dict get $info ensemble] {
+        dict set result class_method "${name} $method" $minfo
       }
-      0 {
-        set arglist dictargs
-        #set body [lindex $args 0]
+    } else {
+      switch [llength $args] {
+        1 {
+          set arglist [lindex $args 0]
+        }
+        0 {
+          set arglist dictargs
+          #set body [lindex $args 0]
+        }
+        default {error "could not interpret method $name {*}$args"}
       }
-      default {error "could not interpret method $name {*}$args"}
+      if {![dict exists $info arglist]} {
+        dict set info arglist [my arglist $arglist]
+      }
+      dict set result class_method [string trim $name :] $info
     }
-    if {![dict exists $info arglist]} {
-      dict set info arglist [my arglist $arglist]
-    }
-    dict set result class_method [string trim $name :] $info
   }
 
+  ###
+  # Process a statement for a tcloo style object method
+  ###
   method keyword.method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
-    switch [llength $args] {
-      1 {
-        set arglist [lindex $args 0]
+    if {[dict exists $info ensemble]} {
+      dict for {method minfo} [dict get $info ensemble] {
+        dict set result method "\"${name} $method\"" $minfo
       }
-      0 {
-        set arglist dictargs
-        #set body [lindex $args 0]
+    } else {
+      switch [llength $args] {
+        1 {
+          set arglist [lindex $args 0]
+        }
+        0 {
+          set arglist dictargs
+          #set body [lindex $args 0]
+        }
+        default {error "could not interpret method $name {*}$args"}
       }
-      default {error "could not interpret method $name {*}$args"}
+      if {![dict exists $info arglist]} {
+        dict set info arglist [my arglist $arglist]
+      }
+      dict set result method "\"[split [string trim $name :] ::]\"" $info
     }
-    if {![dict exists $info arglist]} {
-      dict set info arglist [my arglist $arglist]
-    }
-    dict set result method [string trim $name :] $info
   }
 
+  ###
+  # Process a proc statement
+  ###
   method keyword.proc {commentblock name arglist body} {
     set info [my comment $commentblock]
     if {![dict exists $info arglist]} {
@@ -282,7 +359,24 @@ oo::class create ::clay::doctool {
     return $info
   }
 
+  ###
+  # Reset the state of the object and its embedded coroutine
+  ###
   method reset {} {
+    my variable coro
+    set coro [info object namespace [self]]::coro
+    oo::objdefine [self] forward coro $coro
+    if {[info command $coro] ne {}} {
+      rename $coro {}
+    }
+    coroutine $coro {*}[namespace code {my Main}]
+  }
+
+  ###
+  # Main body of the embedded coroutine for the object
+  ###
+  method Main {} {
+
     my variable info
     set info [dict create]
     yield [info coroutine]
@@ -348,6 +442,9 @@ oo::class create ::clay::doctool {
     }
   }
 
+  ###
+  # Generate the manual page text for a method or proc
+  ###
   method section.method {keyword method minfo} {
     set result {}
     set line "\[call $keyword \[cmd $method\]"
@@ -355,6 +452,7 @@ oo::class create ::clay::doctool {
       dict for {argname arginfo} [dict get $minfo arglist] {
         set positional 1
         set mandatory  1
+        set repeating 0
         dict with arginfo {}
         if {$mandatory==0} {
           append line " \[opt \""
@@ -364,12 +462,13 @@ oo::class create ::clay::doctool {
         if {$positional} {
           append line "\[arg $argname"
         } else {
-          append line "\[option $argname"
+          append line "\[option \"$argname"
           if {[dict exists $arginfo type]} {
-            append line " \[method [dict get $arginfo type]\]"
+            append line " \[emph [dict get $arginfo type]\]"
           } else {
-            append line " \[method $argname\]"
+            append line " \[emph value\]"
           }
+          append line "\""
         }
         append line "\]"
         if {$mandatory==0} {
@@ -377,6 +476,9 @@ oo::class create ::clay::doctool {
             append line " \[const \"[dict get $arginfo default]\"\]"
           }
           append line "\"\]"
+        }
+        if {$repeating} {
+          append line " \[opt \[option \"$argname...\"\]\]"
         }
       }
     }
@@ -386,11 +488,14 @@ oo::class create ::clay::doctool {
       putb result [dict get $minfo description]
     }
     if {[dict exists $minfo example]} {
-      putb result "\[example [list [dict get $minfo example]]\]"
+      putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
     }
     return $result
   }
 
+  ###
+  # Generate the manual page text for a class
+  ###
   method section.class {class_name class_info} {
     set result {}
     putb result "\[subsection \{Class  $class_name\}\]"
@@ -437,6 +542,9 @@ oo::class create ::clay::doctool {
     return $result
   }
 
+  ###
+  # Generate the manual page text for the commands section
+  ###
   method section.command {procinfo} {
     set result {}
     putb result "\[section \{Commands\}\]"
@@ -448,11 +556,23 @@ oo::class create ::clay::doctool {
     return $result
   }
 
+  ###
+  # Generate the manual page. Returns the completed text suitable for saving in .man file.
+  # The header argument is a block of doctools text to go in before the machine generated
+  # section. footer is a block of doctools text to go in after the machine generated
+  # section. authors is a list of individual authors and emails in the form of AUTHOR EMAIL ?AUTHOR EMAIL?...
+  #
+  # arglist:
+  #   header {mandatory 0 positional 0}
+  #   footer {mandatory 0 positional 0}
+  #   authors {mandatory 0 positional 0 type list}
+  ###
   method manpage args {
     my variable info map
     set result {}
     set header {}
     set footer {}
+    set authors {}
     dict with args {}
     putb result $header
     dict for {sec_type sec_info} $info {
@@ -474,11 +594,18 @@ oo::class create ::clay::doctool {
         }
       }
     }
+    if {[llength $authors]} {
+      putb result {[section AUTHORS]}
+      foreach {name email} $authors {
+        putb result "$name \[uri mailto:$email\]\[para\]"
+      }
+    }
     putb result $footer
     putb result {[manpage_end]}
     return $result
   }
 
+  # Scan a block of text
   method scan_text {text} {
     my variable linecount coro
     set linecount 0
@@ -488,6 +615,7 @@ oo::class create ::clay::doctool {
     }
   }
 
+  # Scan a file of text
   method scan_file {filename} {
     my variable linecount coro
     set fin [open $filename r]

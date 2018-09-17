@@ -10,10 +10,13 @@ source [file join $srcdir doctool.tcl]
 set fout [open [file join $moddir ${filename}.tcl] w]
 dict set modmap %module% $module
 dict set modmap %version% $version
+dict set modmap %license% BSD
+dict set modmap %filename% $filename
 
-puts $fout [string map $modmap {
-###
-# clay.tcl
+set authors {{Sean Woods} {<yoda@etoyoc.com>}}
+
+puts $fout [string map $modmap {###
+# %filename%.tcl
 #
 # Copyright (c) 2018 Sean Woods
 #
@@ -28,15 +31,17 @@ puts $fout [string map $modmap {
 # Meta description  and their ancestor and mixed in classes.
 # Meta category     TclOO
 # Meta subject      framework
-# Meta require      {Tcl 8.6}
-# Meta author       Sean Woods
-# Meta license      BSD
+# Meta require      {Tcl 8.6}}]
+foreach {name email} $authors {
+  puts $fout   "# Meta author       $name"
+}
+puts $fout [string map $modmap {# Meta license      %license%
 # @@ Meta End
 }]
 
 puts $fout [string map $modmap {###
 # Amalgamated package for %module%
-# Do not edit directly, tweak the source in src/ and rerun
+# Do not edit directly, tweak the source in build/ and rerun
 # build.tcl
 ###
 package provide %module% %version%
@@ -58,9 +63,10 @@ foreach file {
   ensemble.tcl
 } {
   lappend loaded $file
-  puts $fout "###\n# START: [file tail $file]\n###"
   set content [::clay::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
+  puts $fout "###\n# START: [file tail $file]\n###"
+  puts $fout [::clay::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
@@ -70,7 +76,7 @@ foreach file [lsort -dictionary [glob [file join $srcdir *.tcl]]] {
   set content [::clay::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
   puts $fout "###\n# START: [file tail $file]\n###"
-  puts $fout $content
+  puts $fout [::clay::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 
@@ -119,10 +125,10 @@ source [file join $srcdir procs.tcl]
 set fout [open [file join $moddir $filename.test] w]
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
-puts [list MAP $modmap]
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
   header [string map $modmap [::clay::cat [file join $srcdir manual.txt]]] \
+  authors $authors \
   footer [string map $modmap [::clay::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout

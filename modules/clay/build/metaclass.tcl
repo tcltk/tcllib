@@ -163,6 +163,9 @@ proc ::clay::object_destroy objname {
   Variable claycache {}
   Variable DestroyEvent 0
 
+  ###
+  # Instantiate variables and build ensemble methods.
+  ###
   method InitializePublic {} {
     next
     my variable clayorder clay claycache

@@ -1,12 +1,67 @@
 oo::define oo::object {
 
   ###
-  # title: Provide access to clay data
-  # format: markdown
   # description:
-  # The *clay* method allows an object access
+  # The [method clay] method allows an object access
   # to a combination of its own clay data as
   # well as to that of its class
+  # ensemble:
+  # ancestors {
+  #   arglist {}
+  #   description {Return the class this object belongs to, all classes mixed into this object, and all ancestors of those classes in search order.}
+  # }
+  # cget {
+  #   arglist {field {mandatory 1 positional 1}}
+  #   description {
+  # Pull a value from either the object's clay structure or one of its constituent classes that matches the field name.
+  # The order of search us:
+  # [para] 1. The as a value in local dict variable config
+  # [para] 2. The as a value in local dict variable clay
+  # [para] 3. As a leaf in any ancestor as a root of the clay tree
+  # [para] 4. As a leaf in any ancestor under the const/ branch of the clay tree
+  #   }
+  # }
+  # delegate {
+  #   arglist {stub {mandatory 0 positional 1} object {mandatory 0 positional 1}}
+  #   description {
+  # Introspect or control method delegation. With no arguments, the method will return a
+  # key/value list of stubs and objects. With just the [arg stub] argument, the method will
+  # return the object (if any) attached to the stub. With a [arg stub] and an [arg object]
+  # this command will forward all calls to the method [arg stub] to the [arg object].
+  # }
+  # }
+  # dump { arglist {} description {Return a complete dump of this object's clay data, as well as the data from all constituent classes recursively blended in.}}
+  # ensemble_map {arglist {} description {Return a dictionary describing the method ensembles to be assembled for this object}}
+  # eval {arglist {script {mandatory 1 positional 1}} description {Evaluated a script in the namespace of this object}}
+  # evolve {arglist {} description {Trigger the [method InitializePublic] private method}}
+  # exists {arglist {path {mandatory 1 positional 1 repeating 1}} description {Returns 1 if [emph path] exists in either the object's clay data. Values greater than one indicate the element exists in one of the object's constituent classes. A value of zero indicates the path could not be found.}}
+  # flush {arglist {} description {Wipe any caches built by the clay implementation}}
+  # forward {arglist {method {positional 1 mandatory 1} object {positional 1 mandatory 1}} description {A convenience wrapper for
+  # [example {oo::objdefine [self] forward {*}$args}]
+  # }
+  # }
+  # get {arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   description {Pull a chunk of data from the clay system. If the last element of [emph path] is a branch (ends in a slash /),
+  #   returns a recursive merge of all data from this object and it's constituent classes of the data in that branch.
+  #   If the last element is a leaf, search this object for a matching leaf, or search all  constituent classes for a matching
+  #   leaf and return the first value found.
+  #   If no value is found, returns an empty string.
+  # }
+  # }
+  # leaf {arglist {path {mandatory 1 positional 1 repeating 1}} description {A modified get which is tailored to pull only leaf elements}}
+  # merge {arglist {dict {mandatory 1 positional 1 repeating 1}} description {Recursively merge the dictionaries given into the object's local clay storage.}}
+  # mixin {arglist {class {mandatory 1 positional 1 repeating 1}} description {Mix in one or more classes into the object.}}
+  # mixinmap {
+  #   arglist {stub {mandatory 0 positional 1} classes {mandatory 0 positional 1}}
+  #   description {With no arguments returns the map of stubs and classes mixed into the current object. When only stub is given,
+  #  returns the classes mixed in on that stub. When stub and classlist given, replace the classes currently on that stub with the given
+  #  classes and invoke clay mixin on the new matrix of mixed in classes.
+  # }
+  # }
+  # provenance {arglist {path {mandatory 1 positional 1 repeating 1}} description {Return either [const self] if that path exists in the current object, or return the first class (if any) along the clay search path which contains that element.}}
+  # replace {arglist {dictionary {mandatory 1 positional 1}} description {Replace the contents of the internal clay storage with the dictionary given.}}
+  # source {arglist {filename {mandatory 1 positional 1}} description {Source the given filename within the object's namespace}}
+  # set {arglist {path {mandatory 1 positional 1 repeating 1} value {mandatory 1 postional 1}} description {Merge the conents of [const value] with the object's clay storage at [const path].}}
   ###
   method clay {submethod args} {
     my variable clay claycache clayorder config option_canonical
@@ -319,7 +374,7 @@ oo::define oo::object {
   }
 
   ###
-  # React to a mixin
+  # Instantiate variables. Called on object creation and during clay mixin.
   ###
   method InitializePublic {} {
     my variable clayorder clay claycache config option_canonical
