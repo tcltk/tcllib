@@ -52,12 +52,12 @@ proc g {s r} {
 
 proc TestTransformation {op data setImpl} {
     # Convert operation and data table into series of test cases
-    set debug 1
+    set debug 0
     # Note, the `op` changes the container (here ::In) in-place.
     append bodyScript [list {*}::pt::peg::op::$op ::In] \;
     if {$debug} {
-	append bodyScript "puts stderr \[::In       serialize\]" \;
-	append bodyScript "puts stderr \[::Expected serialize\]" \;
+	append bodyScript "puts stderr \"ASIS \[::In       serialize\]\"" \;
+	append bodyScript "puts stderr \"TOBE \[::Expected serialize\]\"" \;
     }
     # After the op, when all is well, the content of ::In should be
     # the same as ::Expected.
@@ -365,7 +365,17 @@ TestTransformation dechain2 {
     # --- stays as-is
     epsilon {}
     epsilon {}
-    # --- basic chain:  A <- B <- C (leaf) <- c |> A <- c
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {t b} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode value}
+	B {is {t b} mode value}
+    }
+    # --- basic chain:  A <- B <- C (leaf) <- c |> A <- C (leaf) <- c
     {n S} {
     	S {is {x {n A} {t s}} mode value}
 	A {is {n B} mode value}
@@ -374,8 +384,8 @@ TestTransformation dechain2 {
     }
     {n S} {
     	S {is {x {n A} {t s}} mode value}
-	A {is {t c} mode value}
-	B {is {t c} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
 	C {is {t c} mode value}
     }
     # --- basic cycle:  A <- B <- A
@@ -386,8 +396,8 @@ TestTransformation dechain2 {
     }
     {n S} {
     	S {is {x {n A} {t s}} mode value}
-	A {is {n A} mode value}
-	B {is {n B} mode value}
+	A {is {n B} mode value}
+	B {is {n A} mode value}
     }
     # --- basic (indirect) cycle:  A <- B <- C <- A
     {n S} {
@@ -398,9 +408,9 @@ TestTransformation dechain2 {
     }
     {n S} {
     	S {is {x {n A} {t s}} mode value}
-	A {is {n A} mode value}
-	B {is {n B} mode value}
-	C {is {n C} mode value}
+	A {is {n B} mode value}
+	B {is {n C} mode value}
+	C {is {n A} mode value}
     }
     # --- basic chain plus renaming for self-recursive leaves
     {n S} {
@@ -411,19 +421,33 @@ TestTransformation dechain2 {
     }
     {n S} {
     	S {is {x {n A} {t s}} mode value}
-	A {is {x {n A} {t c}} mode value}
-	B {is {x {n B} {t c}} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
 	C {is {x {n C} {t c}} mode value}
     }
+    # {n S} {
+    # 	S {is {x {n A} {t s}} mode value}
+    # 	A {is {x {n A} {t c}} mode value}
+    # 	B {is {x {n B} {t c}} mode value}
+    # 	C {is {x {n C} {t c}} mode value}
+    # }
     # --- start expression: {} <- Z <- S <- s |> {} <- Z <- s
     {n Z} {
 	Z {is {n S} mode value}
     	S {is {t s} mode value}
     }
     {n Z} {
-	Z {is {t s} mode value}
+	Z {is {n S} mode value}
     	S {is {t s} mode value}
     }
+    # --- TODO: start expression: {} <- Z <- S (leaf) <- s |> {} <- S <- s
+    # {n Z} {
+    # 	Z {is {n S} mode value}
+    # 	S {is {t s} mode value}
+    # }
+    # {n S} {
+    # 	S {is {t s} mode value}
+    # }
     # --- broken chain #1 (undefined leaves?)
     {n S} {
     	S {is {x {n A} {t s}} mode value}
@@ -455,15 +479,24 @@ TestTransformation dechain2 {
 	Z {is {x {n Z} {t z}} mode value}
     }
     {n S} {
-	S {is {x {n A} {t s}} mode value}
-	A {is {x {n X} {t c}} mode value}
-	B {is {x {n X} {t c}} mode value}
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
 	C {is {x {n X} {t c}} mode value}
-	X {is {x {n X} {t z}} mode value}
-	Y {is {x {n Y} {t z}} mode value}
+	X {is {n Z} mode value}
+	Y {is {n Z} mode value}
 	Z {is {x {n Z} {t z}} mode value}
     }
-    # --- incompat modes #1 
+    # {n S} {
+    # 	S {is {x {n A} {t s}} mode value}
+    # 	A {is {x {n X} {t c}} mode value}
+    # 	B {is {x {n X} {t c}} mode value}
+    # 	C {is {x {n X} {t c}} mode value}
+    # 	X {is {x {n X} {t z}} mode value}
+    # 	Y {is {x {n Y} {t z}} mode value}
+    # 	Z {is {x {n Z} {t z}} mode value}
+    # }
+    # --- incompat modes #1a
     {n S} {
     	S {is {x {n A} {t s}} mode value}
 	A {is {n B} mode void}
@@ -476,7 +509,128 @@ TestTransformation dechain2 {
 	B {is {n C} mode void}
 	C {is {t c} mode value}
     }
-
+    # --- incompat modes #1b
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode void}
+	B {is {n C} mode value}
+	C {is {t c} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {t s}} mode value}
+	A {is {n B} mode void}
+	B {is {n C} mode value}
+	C {is {t c} mode value}
+    }
+    # X <- Z
+    #
+    # X     Z      dechain notes
+    # value value| yes    | value is passed
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n Z} mode value}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    # X     Z      dechain notes
+    # leaf  value| no     | generated value was discarded, inlined doesn't. Z may be implied void
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    # value leaf | yes    | value is passed
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n Z} mode value}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    # value void | yes    | X is implied void
+    {n S} {
+	S {is {n X} mode value}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n Z} mode value}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    # leaf  leaf | no     | s.a.
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    # leaf  void | no     | s.a.
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n X} mode leaf}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    # void  value| no     | X drops value, inline doesn't
+    {n S} {
+	S {is {n X} mode void}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n X} mode void}
+	X {is {n Z} mode value}
+	Z {is {t z} mode value}
+    }
+    # void  leaf | no     | s.a.
+    {n S} {
+	S {is {n X} mode void}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n X} mode void}
+	X {is {n Z} mode leaf}
+	Z {is {t z} mode value}
+    }
+    # void  void | yes    |
+    {n S} {
+	S {is {n X} mode void}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n Z} mode void}
+	X {is {n Z} mode void}
+	Z {is {t z} mode value}
+    }
+    {n S} {
+	S {is {n S} mode value}
+    }
+    {n S} {
+	S {is {n S} mode value}
+    }
 } $setimpl
 
 # exit
@@ -582,7 +736,7 @@ TestTransformation minimize {
 	C {is {n A} mode value}
     }
     epsilon {}
-    # --- dechaining creates unreachable and unrealisable rules; here: B, C, Y, Z
+    # --- dechaining creates unreachable and unrealisable rules; here: B, Y
     {n S} {
     	S {is {x {n A} {t s}} mode value}
 	A {is {n B} mode value}
@@ -593,10 +747,17 @@ TestTransformation minimize {
 	Z {is {x {t z}} mode leaf}
     }
     {n S} {
-	S {is {x {n A} {t s}} mode value}
-	A {is {x {n X} {t c}} mode value}
-	X {is {t z} mode leaf}
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n C} mode value}
+	C {is {x {n X} {t c}} mode value}
+	X {is {n Z} mode value}
+	Z {is {t z} mode leaf}
     }
+    # {n S} {
+    # 	S {is {x {n A} {t s}} mode value}
+    # 	A {is {x {n X} {t c}} mode value}
+    # 	X {is {t z} mode leaf}
+    # }
 } $setimpl
 
 # -------------------------------------------------------------------------
