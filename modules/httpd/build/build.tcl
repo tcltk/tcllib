@@ -1,14 +1,20 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 4.2.0
+if {[catch {package require clay 0.3}]} {
+  source [file join $moddir .. clay build doctool.tcl]
+}
+::clay::doctool create AutoDoc
+set version 4.3
 set tclversion 8.6
 set module [file tail $moddir]
+set filename $module
 
-set fout [open [file join $moddir ${module}.tcl] w]
+set fout [open [file join $moddir ${filename}.tcl] w]
 dict set map %module% $module
 dict set map %version% $version
 dict set map %tclversion% $tclversion
+dict set map %filename% $filename
 dict set map {    } {} ;# strip indentation
 dict set map "\t" {    } ;# reduce indentation (see cleanup)
 
@@ -39,10 +45,10 @@ foreach file {
   websocket.tcl
 } {
   lappend loaded $file
-  set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
-  puts $fout [read $fin]
-  close $fin
+  set content [::clay::cat [file join $srcdir $file]]
+  AutoDoc scan_text $content
+  puts $fout $content
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
@@ -51,8 +57,9 @@ foreach file [glob [file join $srcdir *.tcl]] {
   lappend loaded $file
   set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
-  puts $fout [read $fin]
-  close $fin
+  set content [::clay::cat [file join $srcdir $file]]
+  AutoDoc scan_text $content
+  puts $fout $content
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 
@@ -73,3 +80,10 @@ puts $fout [string map $map {
     package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
+
+set manout [open [file join $moddir $filename.man] w]
+puts $manout [AutoDoc manpage \
+  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
+]
+close $manout

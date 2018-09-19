@@ -14,6 +14,7 @@ testsNeed TclOO 1
 support {
   use cmdline/cmdline.tcl cmdline
   use fileutil/fileutil.tcl fileutil
+  use uuid/uuid.tcl uuid
   use sha1/sha1.tcl sha1
   use uri/uri.tcl uri
   use ncgi/ncgi.tcl ncgi
@@ -24,9 +25,7 @@ support {
 
   use dicttool/dicttool.tcl dicttool
   use cron/cron.tcl cron
-  use oodialect/oodialect.tcl oo::dialect
-  use oometa/oometa.tcl oo::meta
-  use tool/tool.tcl tool
+  use clay/clay.tcl clay
   use virtchannel_core/core.tcl tcl::chan::core
   use virtchannel_core/events.tcl tcl::chan::events
   use virtchannel_base/memchan.tcl tcl::chan::memchan
@@ -38,6 +37,7 @@ testing {
 
 # Set to true for debugging and traces
 set ::DEBUG 0
+set ::clay::debug $::DEBUG
 
 proc DEBUG args {
   if {$::DEBUG} {
@@ -119,12 +119,11 @@ proc ::httpd::test::get_reply {sock} {
 }
 
 
-tool::define ::httpd::server {
+clay::define ::httpd::server {
   method log args {}
 
-
   method TemplateSearch page {
-    set doc_root [my cget doc_root]
+    set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
       return [::fileutil::cat [file join $doc_root $page.tml]]
     }
@@ -133,6 +132,9 @@ tool::define ::httpd::server {
     }
     switch $page {
       redirect {
+        return {300 Redirect}
+      }
+      notfound {
         return {404 Not Found}
       }
       internal_error {
@@ -140,6 +142,7 @@ tool::define ::httpd::server {
       }
     }
   }
+
 
   ::DEBUG method debug args {
     puts stderr $args
@@ -154,7 +157,7 @@ tool::define ::httpd::server {
 ###
 # Modify the reply class to return plain text
 ###
-tool::define ::httpd::reply {
+clay::define ::httpd::reply {
 
   method HttpHeaders_Default {} {
     return {Status {200 OK}
@@ -169,10 +172,10 @@ tool::define ::httpd::reply {
   }
 
   method error {code {msg {}} {errorInfo {}}} {
-    my http_info set HTTP_ERROR $code
+    my clay set HTTP_ERROR $code
     my reset
     set errorstring [my http_code_string $code]
-    set qheaders [my http_info dump]
+    set qheaders [my clay dump]
     dict with qheaders {}
     my reply replace {}
     my reply set Status "$code $errorstring"
@@ -181,39 +184,39 @@ tool::define ::httpd::reply {
   }
 }
 
-tool::define ::test::content.echo {
+clay::define ::test::content.echo {
 	method content {} {
 		my variable reply_body
 		set reply_body [my PostData [my request get CONTENT_LENGTH]]
 		#puts [list REPLY BODY WAS $reply_body]
 	}
 }
-tool::define ::test::content.file {
+clay::define ::test::content.file {
 	superclass ::httpd::content.file
 	method content {} {
 	  my reset
-    set doc_root [my http_info get doc_root]
+    set doc_root [my request get DOCUMENT_ROOT]
     my variable reply_file
     set reply_file [file join $doc_root pkgIndex.tcl]
 	}
 }
-tool::define ::test::content.time {
+clay::define ::test::content.time {
 	method content {} {
 		my variable reply_body
 		set reply_body [clock seconds]
 	}
 }
-tool::define ::test::content.error {
+clay::define ::test::content.error {
 	method content {} {
 		error {The programmer asked me to die this way}
 	}
 }
-tool::define ::test::content.cgi {
+clay::define ::test::content.cgi {
 	superclass ::httpd::content.cgi
 
 }
 
-tool::define ::httpd::test::reply {
+clay::define ::httpd::test::reply {
 	superclass ::httpd::reply ::test::content.echo
 }
 
@@ -225,14 +228,14 @@ set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
 TESTAPP plugin dict_dispatch
-TESTAPP uri add /     [list mixin ::test::content.echo]
-TESTAPP uri add /echo [list mixin ::test::content.echo]
-TESTAPP uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTAPP uri add /time [list mixin ::test::content.time]
-TESTAPP uri add /error [list mixin ::test::content.error]
+TESTAPP uri add * /     [list mixin {reply ::test::content.echo}]
+TESTAPP uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTAPP uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTAPP uri add * /time [list mixin {reply ::test::content.time}]
+TESTAPP uri add * /error [list mixin {replyy ::test::content.error}]
 
 # Catch all
-#TESTAPP uri add * [list mixin httpd::content.echo]
+#TESTAPP uri add * * [list mixin {reply httpd::content.echo}]
 
 ::DEBUG puts httpd-client-0001
 test httpd-client-0001 {Do an echo request} {
@@ -310,28 +313,39 @@ set reply [::httpd::test::send 10001 {GET /file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
+::DEBUG puts httpd-client-0007
+test httpd-client-0007 {URL Generates Not Found} {
+
+set reply [::httpd::test::send 10001 {POST /doesnotexist HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
+
+::httpd::test::compare $reply {HTTP/1.0 404 Not Found
+Content-Type: text/plain
+Connection: close
+Content-Length: *
+
+404 Not Found}
+} {}
 
 # -------------------------------------------------------------------------
 # Test proxies
 
-tool::define ::test::content.proxy {
+clay::define ::test::content.proxy {
 	superclass ::httpd::content.proxy
 
-
   method proxy_channel {} {
-    return [::socket localhost [my http_info get proxy_port]]
+    return [::socket localhost [my clay get proxy_port]]
   }
 }
 
 
 ::httpd::server create TESTPROXY port 10002
-TESTAPP   uri add /proxy*     [list mixin ::test::content.proxy proxy_port [TESTPROXY port_listening]]
+TESTAPP   uri add * /proxy*     [list mixin {reply ::test::content.proxy} proxy_port [TESTPROXY port_listening]]
 TESTPROXY plugin dict_dispatch
-TESTPROXY uri add /     [list mixin ::test::content.echo]
-TESTPROXY uri add /echo [list mixin ::test::content.echo]
-TESTPROXY uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTPROXY uri add /time [list mixin ::test::content.time]
-TESTPROXY uri add /error [list mixin ::test::content.error]
+TESTPROXY uri add * /     [list mixin {reply ::test::content.echo}]
+TESTPROXY uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTPROXY uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTPROXY uri add * /time [list mixin {reply ::test::content.time}]
+TESTPROXY uri add * /error [list mixin {reply ::test::content.error}]
 
 ::DEBUG puts httpd-proxy-0001
 test httpd-proxy-0001 {Do an echo request} {
@@ -409,13 +423,11 @@ set reply [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 ::httpd::test::compare $reply $checkreply
 } {}
 
-
-
 # -------------------------------------------------------------------------
 # cgi
 TESTAPP plugin local_memchan
 
-TESTAPP uri add /cgi-bin* [list mixin ::test::content.cgi path $::DEMOROOT]
+TESTAPP uri add * /cgi-bin* [list mixin {reply ::test::content.cgi} path $::DEMOROOT]
 
 set fout [open [file join $DIR test.tcl] w]
 puts $fout {#!/usr/bin/tclsh
@@ -547,8 +559,8 @@ namespace eval ::scgi {
 ###
 # Build the reply class
 ###
-tool::class create ::scgi::test::reply {
-  superclass ::httpd::reply.scgi
+::clay::define ::scgi::test::reply {
+  superclass ::httpd::reply
 
   method reset {} {
     my variable reply_body
@@ -560,19 +572,20 @@ tool::class create ::scgi::test::reply {
 ###
 # Build the server
 ###
-tool::class create scgi::test::app {
+::clay::define scgi::test::app {
   superclass ::httpd::server.scgi
 
-  property reply_class ::scgi::test::reply
+  clay set reply_class ::scgi::test::reply
 }
 
+puts [list ::test::content.file [info commands ::test::content.file]]
 scgi::test::app create TESTSCGI port 10003
 TESTSCGI plugin dict_dispatch
-TESTSCGI uri add /     [list mixin ::test::content.echo]
-TESTSCGI uri add /echo [list mixin ::test::content.echo]
-TESTSCGI uri add /file [list mixin ::test::content.file doc_root $::DEMOROOT]
-TESTSCGI uri add /time [list mixin ::test::content.time]
-TESTSCGI uri add /error [list mixin ::test::content.error]
+TESTSCGI uri add * /     [list mixin {reply ::test::content.echo}]
+TESTSCGI uri add * /echo [list mixin {reply ::test::content.echo}]
+TESTSCGI uri add * /file [list mixin {reply ::test::content.file} doc_root $::DEMOROOT]
+TESTSCGI uri add * /time [list mixin {reply ::test::content.time}]
+TESTSCGI uri add * /error [list mixin {reply ::test::content.error}]
 
 ::DEBUG puts scgi-client-0001
 test scgi-client-0001 {Do an echo request} {
@@ -586,6 +599,7 @@ Content-Length: *
 THIS IS MY CODE}
 ::httpd::test::compare $reply $checkreply
 } {}
+
 
 ::DEBUG puts scgi-client-0002
 test scgi-client-0002 {Do another echo request} {
@@ -658,7 +672,7 @@ $checkfile"
 } {}
 
 ::DEBUG puts all-tests-finished
-
+file delete [file join $DIR test.tcl]
 # -------------------------------------------------------------------------
 
 testsuiteCleanup

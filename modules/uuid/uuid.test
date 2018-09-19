@@ -9,7 +9,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 testing {
     useLocal uuid.tcl uuid
@@ -61,18 +61,18 @@ foreach impl [implementations] {
     test uuid-1.0-$impl "uuid requires args" {
         list [catch {uuid::uuid} msg]
     } {1}
-    
+
     test uuid-1.1-$impl "uuid generate should create a 36 char string uuid" {
         list [catch {string length [uuid::uuid generate]} msg] $msg
     } {0 36}
-    
+
     test uuid-1.2-$impl "uuid comparison of uuid with self should be true" {
         list [catch {
             set a [uuid::uuid generate]
             uuid::uuid equal $a $a
         } msg] $msg
     } {0 1}
-    
+
     test uuid-1.3-$impl "uuid comparison of two different\
         uuids should be false" {
         list [catch {
@@ -81,7 +81,7 @@ foreach impl [implementations] {
             uuid::uuid equal $a $b
         } msg] $msg
     } {0 0}
-    
+
     reset_implementation
 }
 

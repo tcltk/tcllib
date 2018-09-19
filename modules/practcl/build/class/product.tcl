@@ -1,6 +1,7 @@
-
+###
+# A deliverable for the build system
+###
 ::oo::class create ::practcl::product {
-
 
   method code {section body} {
     my variable code

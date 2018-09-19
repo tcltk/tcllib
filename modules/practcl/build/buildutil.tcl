@@ -3,15 +3,21 @@
 ###
 
 ###
+# Generate a proc if no command already exists by that name
+###
+proc Proc {name arglist body} {
+  if {[info command $name] ne {}} return
+  proc $name $arglist $body
+}
+
+###
 # A command to do nothing. A handy way of
 # negating an instruction without
 # having to comment it completely out.
 # It's also a handy attachment point for
 # an object to be named later
 ###
-if {[info command ::noop] eq {}} {
-  proc ::noop args {}
-}
+Proc ::noop args {}
 
 proc ::practcl::debug args {
   #puts $args
@@ -101,6 +107,21 @@ proc ::practcl::os {} {
   return [${::practcl::MAIN} define get TEACUP_OS]
 }
 
+###
+# Build a zipfile. On tcl8.6 this invokes the native Zip implementation
+# on older interpreters this invokes zip via exec
+###
+proc ::practcl::mkzip {exename barekit vfspath} {
+  ::practcl::tcllib_require zipfile::mkzip
+  ::zipfile::mkzip::mkzip $exename -runtime $barekit -directory $vfspath
+}
+###
+# Dictionary sort a key/value list. Needed because pre tcl8.6
+# does not have [emph {lsort -stride 2}]
+###
+proc ::practcl::sort_dict list {
+  return [::lsort -stride 2 -dictionary $list]
+}
 if {[::package vcompare $::tcl_version 8.6] < 0} {
   # Approximate ::zipfile::mkzip with exec calls
   proc ::practcl::mkzip {exename barekit vfspath} {
@@ -127,15 +148,9 @@ if {[::package vcompare $::tcl_version 8.6] < 0} {
     }
     return $result
   }
-} else {
-  proc ::practcl::mkzip {exename barekit vfspath} {
-    ::practcl::tcllib_require zipfile::mkzip
-    ::zipfile::mkzip::mkzip $exename -runtime $barekit -directory $vfspath
-  }
-  proc ::practcl::sort_dict list {
-    return [::lsort -stride 2 -dictionary $list]
-  }
 }
+
+
 
 proc ::practcl::local_os {} {
   # If we have already run this command, return
