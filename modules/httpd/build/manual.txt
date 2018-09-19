@@ -39,13 +39,32 @@ Starting a web service requires starting a class of type
 to service, and [cmd httpd::reply] derived classes to generate them.
 
 [example {
-tool::define ::reply.hello {
+oo::class create ::reply.hello {
   method content {} {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<h1>Hello World!</h1>"
     my puts </BODY></HTML>
   }
 }
-::docserver::server create HTTPD port 8015 myaddr 127.0.0.1
-HTTPD add_uri /* [list mixin reply.hello]
+::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
+HTTPD plugin dispatch httpd::server::dispatch
+HTTPD uri add * /hello [list mixin reply.hello]
+}]
+
+The bare module does have facilities to hose a files from a file system. Files that end in a .tml will be substituted in the style of Tclhttpd:
+
+[example {
+<!-- hello.tml -->
+[my html_header {Hello World!}]
+Your Server is running.
+<p>
+The time is now [clock format [clock seconds]]
+[my html_footer]
+}]
+
+A complete example of an httpd server is in the /examples directory of Tcllib. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies.
+
+[example {
+cd ~/tcl/sandbox/tcllib
+tclsh examples/httpd.tcl
 }]

@@ -269,15 +269,30 @@ fundamentals needed for a full service website.</p>
 <b class="cmd">httpd::server</b>, and providing that server with one or more URIs
 to service, and <b class="cmd">httpd::reply</b> derived classes to generate them.</p>
 <pre class="doctools_example">
-tool::define ::reply.hello {
+oo::class create ::reply.hello {
   method content {} {
 my puts &quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;IRM Dispatch Server&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;&quot;
 my puts &quot;&lt;h1&gt;Hello World!&lt;/h1&gt;&quot;
 my puts &lt;/BODY&gt;&lt;/HTML&gt;
   }
 }
-::docserver::server create HTTPD port 8015 myaddr 127.0.0.1
-HTTPD add_uri /* [list mixin reply.hello]
+::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
+HTTPD plugin dispatch httpd::server::dispatch
+HTTPD uri add * /hello [list mixin reply.hello]
+</pre>
+<p>The bare module does have facilities to hose a files from a file system. Files that end in a .tml will be substituted in the style of Tclhttpd:</p>
+<pre class="doctools_example">
+&lt;!-- hello.tml --&gt;
+[my html_header {Hello World!}]
+Your Server is running.
+&lt;p&gt;
+The time is now [clock format [clock seconds]]
+[my html_footer]
+</pre>
+<p>A complete example of an httpd server is in the /examples directory of Tcllib. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies.</p>
+<pre class="doctools_example">
+cd ~/tcl/sandbox/tcllib
+tclsh examples/httpd.tcl
 </pre>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Classes</a></h2>
