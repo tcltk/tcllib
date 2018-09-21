@@ -80,7 +80,7 @@ proc ::pt::peg::op::dechain2 {container} {
 			[dict keys $chainPairs] \
 			[dict values $chainPairs]]
 
-	if {$ends eq ""} {
+	if {[struct::set empty $ends]} {
 	    # stop, given a cycle
 	    break
 	}
@@ -206,7 +206,7 @@ proc ::pt::peg::op::modeopt {container} {
 	    if {($callmode eq "void") &&
 		($mode($sym) ne "void")} {
 
-puts (2)$sym
+		#puts (2)$sym
 		set mode($sym) void
 
 		# This change may change calling context and this call

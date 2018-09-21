@@ -8,10 +8,8 @@
 # [ok] called
 # [ok] realizable
 # [ok] reachable
-
-# TODO
-# [..] dechain
-# [..] modeopt
+# [ok] dechain
+# [ok] modeopt
 
 # -------------------------------------------------------------------------
 # Basic syntax
@@ -633,63 +631,146 @@ TestTransformation dechain2 {
     }
 } $setimpl
 
-# exit
-
 # -------------------------------------------------------------------------
-# op: dechain (legacy; broken)
+# op: modeopt
 
-TestTransformation dechain {
-    # --- direct cycles (untouched)
-    # {n A} {
-    # 	A {is {n A} mode value}
-    # }
-    # {n A} {
-    # 	A {is {n A} mode value}
-    # }
-    # --- indirect cycles (turn into a unit-recursive, but unrealizable rule)
-    # {n A} {
-    # 	A {is {n B} mode value}
-    # 	B {is {n C} mode value}
-    # 	C {is {n A} mode value}
-    # }
-    # {n A} {
-    # 	A {is {n A} mode value}
-    # }
-    # --- (multi-)chain rules are not processed
-    {n A} {
-	A {is {/ {n B} {t a}} mode value}
-	B {is {/ {n C} {t b}} mode value}
-	C {is {/ {n A} {t c}} mode value}
-    }
-    {n A} {
-	A {is {/ {n B} {t a}} mode value}
-	B {is {/ {n C} {t b}} mode value}
-	C {is {/ {n A} {t c}} mode value}
-    }
+TestTransformation modeopt {
     # --- stays as-is
     epsilon {}
     epsilon {}
-    # ---
-    # X     Z      dechain notes
-    # value value| yes    | value is passed
-    # {n S} {
-    # 	S {is {n Z} mode value}
-    # 	Z {is {t z} mode value}
-    # }
-    # {n Z} {
-    # 	S {is {n Z} mode value}
-    # 	Z {is {t z} mode value}
-    # }
-    # ---
-    # {x {n S} {t s}} {
-    # 	S {is {n Z} mode value}
-    # 	Z {is {t z} mode value}
-    # }
-    # {x {n S} {t s}} {
-    # 	S {is {t z} mode value}
-    # 	Z {is {t z} mode value}
-    # }
+    # --- cycle
+    # S <-- A; A <-- A
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n A} mode value}
+    }
+    # -- undefined (deferred) symbol: B
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n B} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {n B} mode value}
+    }
+    # --- rule 1
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t A} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {t A} mode leaf}
+    }
+    # --- rule 1
+    {n S} {
+	S {is {n A} mode value}
+	A {is {x {t A} {n B}} mode value}
+	B {is {t b} mode value}
+    }
+    {n S} {
+	S {is {n A} mode value}
+	A {is {x {t A} {n B}} mode value}
+	B {is {t b} mode leaf}
+    }
+    # --- rule 2 (no opt)
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
+	C {is {t c} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode value}
+	B {is {n C} mode value}
+	C {is {t c} mode leaf}
+    }
+    # --- rule 2 (void)
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode void}
+	B {is {n C} mode void}
+	C {is {t c} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode void}
+	B {is {n C} mode void}
+	C {is {t c} mode void}
+    }
+    # --- rule 2 (leaf)
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode leaf}
+	C {is {t c} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode leaf}
+	C {is {t c} mode void}
+    }
+    # --- rule 2 (mixed)
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode void}
+	C {is {t c} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode void}
+	C {is {t c} mode void}
+    }
+    # --- rule 2 (mixed, no opt)
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode value}
+	C {is {t c} mode leaf}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode value}
+	C {is {t c} mode leaf}
+    }
+    # --- rule 1: applies, rule 2: n/a
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode value}
+	C {is {t c} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode value}
+	C {is {t c} mode leaf}
+    }
+    # --- rule 1: applies, rule 2: applies
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode leaf}
+	C {is {t c} mode value}
+    }
+    {n S} {
+	S {is {x {n A} {n B}} mode value}
+	A {is {n C} mode leaf}
+	B {is {n C} mode leaf}
+	C {is {t c} mode void}
+    }
 } $setimpl
+
+
 
 # -------------------------------------------------------------------------
 # op: minimize
