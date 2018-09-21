@@ -1,3 +1,2 @@
 [vset CATEGORY dict]
 [include ../doctools2base/include/feedback.inc]
-[manpage_end]

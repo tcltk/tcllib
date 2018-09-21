@@ -1,6 +1,7 @@
 
-<div class='fossil-doc' data-title='dicttool - Extensions to the standard "dict" command'>
-<style>
+<!DOCTYPE html><html><head>
+<title>dicttool - Extensions to the standard &quot;dict&quot; command</title>
+<style type="text/css"><!--
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -89,17 +90,16 @@
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
-</style>
- <hr> [
-   <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
- ] <hr>
-<div class="doctools">
-<h1 class="doctools_title">dicttool(n) 1.0 tcllib &quot;Extensions to the standard &quot;dict&quot; command&quot;</h1>
+--></style>
+</head>
+<!-- Generated from file 'dicttool.man' by tcllib/doctools with format 'html'
+   -->
+<!-- Copyright &amp;copy; 2018 Sean Woods &amp;lt;yoda@etoyoc.com&amp;gt;
+   -->
+<!-- dicttool.n
+   -->
+<body><div class="doctools">
+<h1 class="doctools_title">dicttool(n) 1.2 dicttool &quot;Extensions to the standard &quot;dict&quot; command&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>dicttool - Dictionary Tools</p>
 </div>
@@ -108,7 +108,9 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">Commands</a></li>
+<li class="doctools_section"><a href="#section3">AUTHORS</a></li>
+<li class="doctools_section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -120,12 +122,25 @@
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
-<li><a href="#2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
-<li><a href="#3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></li>
-<li><a href="#4"><b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></li>
-<li><a href="#5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></li>
-<li><a href="#6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></li>
+<li><a href="#1">proc <b class="cmd">PROC</b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i> <span class="opt">?<i class="arg">ninja</i> <b class="const"></b>?</span></a></li>
+<li><a href="#2">proc <b class="cmd">noop</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#3">proc <b class="cmd">putb</b> <span class="opt">?<i class="arg">map</i>?</span> <i class="arg">text</i></a></li>
+<li><a href="#4">proc <b class="cmd">tcl::dict::getnull</b> <i class="arg">dictionary</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></li>
+<li><a href="#5">proc <b class="cmd">tcl::dict::is_dict</b> <i class="arg">d</i></a></li>
+<li><a href="#6">proc <b class="cmd">dicttool::is_branch</b> <i class="arg">dict</i> <i class="arg">path</i></a></li>
+<li><a href="#7">proc <b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></li>
+<li><a href="#8">proc <b class="cmd">dicttool::_dictputb</b> <i class="arg">level</i> <i class="arg">varname</i> <i class="arg">dict</i></a></li>
+<li><a href="#9">proc <b class="cmd">dicttool::sanitize</b> <i class="arg">dict</i></a></li>
+<li><a href="#10">proc <b class="cmd">dicttool::_sanitizeb</b> <i class="arg">path</i> <i class="arg">varname</i> <i class="arg">dict</i></a></li>
+<li><a href="#11">proc <b class="cmd">dicttool::canonical</b> <i class="arg">rawpath</i></a></li>
+<li><a href="#12">proc <b class="cmd">dicttool::storage</b> <i class="arg">rawpath</i></a></li>
+<li><a href="#13">proc <b class="cmd">dicttool::dictset</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#14">proc <b class="cmd">dicttool::dictmerge</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#15">proc <b class="cmd">dicttool::merge</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#16">proc <b class="cmd">tcl::dict::isnull</b> <i class="arg">dictionary</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#17">proc <b class="cmd">ladd</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></li>
+<li><a href="#18">proc <b class="cmd">ldelete</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></li>
+<li><a href="#19">proc <b class="cmd">lrandom</b> <i class="arg">list</i></a></li>
 </ul>
 </div>
 </div>
@@ -134,51 +149,215 @@
 commands. In addition, the package also defines several &quot;creature comfort&quot; list commands as well.
 Each command checks to see if a command already exists of the same name before adding itself,
 just in case any of these slip into the core.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command will add a new instance of each element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
-is not already present.</p></dd>
-<dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command will add a delete all instances of each element in <i class="arg">args</i> from <i class="arg">varname</i>.</p></dd>
-<dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
-<dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
-list instead of throwing an error.</p></dd>
-<dt><a name="4"><b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></dt>
-<dd><p>This command will produce a string representation of <i class="arg">dict</i>, with each nested branch on
-a newline, and indented with two spaces for every level.</p></dd>
-<dt><a name="5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></dt>
-<dd><p>This command will return true if <i class="arg">value</i> can be interpreted as a dict. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep.</p></dd>
-<dt><a name="6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></dt>
-<dd><p>Return a dict which is the product of a recursive merge of all of the arguments. Unlike <b class="cmd">dict merge</b>,
-this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further.</p>
+<dt><a name="1">proc <b class="cmd">PROC</b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i> <span class="opt">?<i class="arg">ninja</i> <b class="const"></b>?</span></a></dt>
+<dd><p>Because many features in this package may be added as
+ commands to future tcl cores, or be provided in binary
+ form by packages, I need a declaritive way of saying
+ <em>Create this command if there isn't one already</em>.
+ The <em>ninja</em> argument is a script to execute if the
+ command is created by this mechanism.</p></dd>
+<dt><a name="2">proc <b class="cmd">noop</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><p>Perform a noop. Useful in prototyping for commenting out blocks
+ of code without actually having to comment them out. It also makes
+ a handy default for method delegation if a delegate has not been
+ assigned yet.</p></dd>
+<dt><a name="3">proc <b class="cmd">putb</b> <span class="opt">?<i class="arg">map</i>?</span> <i class="arg">text</i></a></dt>
+<dd><p>Append a line of text to a variable. Optionally apply a string mapping.</p></dd>
+<dt><a name="4">proc <b class="cmd">tcl::dict::getnull</b> <i class="arg">dictionary</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></dt>
+<dd><p>If the path (given by the list of elements) exists, return that value.
+ Otherwise return an empty string. Designed to replace</p>
 <pre class="doctools_example">
-set items [dict merge {
-  option {color {default: green}}
-} {
-  option {fruit {default: mango}}
-} {
-  option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
-}]
-puts [dicttool::print $items]
-</pre>
-<p>Prints the following result:</p>
-<pre class="doctools_example">
-option {
-  color {
-    default: blue
-  }
-  fruit {
-    widget: select
-    values: {mango apple cherry grape}
-  }
-}
+ if {[dict exists $dictionary {*}$args]} {
+   return [dict get $dictionary {*}$args]
+ } else {
+   return {}
+ }
+ </pre>
+<p>Example:</p>
+<pre class="doctools_example"> set value [dict getnull $arglist $option]
 </pre>
 </dd>
+<dt><a name="5">proc <b class="cmd">tcl::dict::is_dict</b> <i class="arg">d</i></a></dt>
+<dd><p>Test if value is a dict.</p>
+<p>This command is added to the <b class="function">dict</b> ensemble as <b class="function">dict is_dict</b></p></dd>
+<dt><a name="6">proc <b class="cmd">dicttool::is_branch</b> <i class="arg">dict</i> <i class="arg">path</i></a></dt>
+<dd><p>Return true if the element  with the value 
+ is a dict.  is given as a list to descend into sub-dicts of
+ the current dict.
+ The rules are as follows:</p>
+<ol class="doctools_enumerated">
+ 
+<li><p>If the last character of the last element of  is a colon (:)
+ return false</p></li>
+<li><p>If the last character of the last element of  is a slash (/)
+ return true</p></li>
+<li><p>If a sub-element if  named <b class="const">.info</b> is present return true</p></li>
+</ol>
+<p>This command is added to the <b class="function">dict</b> ensemble as <b class="function">dicttool::is_branch</b></p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; set mydict {sub/ {sub/ {field {A block of text}}}
+ &gt; dicttool::is_branch $mydict sub/
+ 1
+ &gt; dicttool::is_branch $mydict {sub/ sub/}
+ 1
+ &gt; dicttool::is_branch $mydict {sub/ sub/ field}
+ 0
+</pre>
+</dd>
+<dt><a name="7">proc <b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></dt>
+<dd><p>Output a dictionary as an indented stream of
+ data suitable for output to the screen. The system uses
+ the rules for <b class="function">dicttool::is_branch</b> to determine if
+ an value in a dictionary is a leaf or a branch.</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; set mydict {sub/ {sub/ {field {A block of text}}}
+ &gt; dicttool::print $mydict
+ sub/ {
+   sub/ {
+     field {A block of text}
+   }
+ }
+</pre>
+</dd>
+<dt><a name="8">proc <b class="cmd">dicttool::_dictputb</b> <i class="arg">level</i> <i class="arg">varname</i> <i class="arg">dict</i></a></dt>
+<dd><p>Helper function for ::dicttool::print
+ Formats the string representation for a dictionary element within
+ a human readable stream of lines, and determines if it needs to call itself
+ with further indentation to express a sub-branch</p></dd>
+<dt><a name="9">proc <b class="cmd">dicttool::sanitize</b> <i class="arg">dict</i></a></dt>
+<dd><p>Output a dictionary removing any . entries added by <b class="function">dicttool::merge</b></p></dd>
+<dt><a name="10">proc <b class="cmd">dicttool::_sanitizeb</b> <i class="arg">path</i> <i class="arg">varname</i> <i class="arg">dict</i></a></dt>
+<dd><p>Helper function for ::dicttool::sanitize
+ Formats the string representation for a dictionary element within
+ a human readable stream of lines, and determines if it needs to call itself
+ with further indentation to express a sub-branch</p></dd>
+<dt><a name="11">proc <b class="cmd">dicttool::canonical</b> <i class="arg">rawpath</i></a></dt>
+<dd><p>Return the path as a canonical path for dicttool
+ with all branch keys
+ ending in a / and the final element ending in a /
+ if the final element in the path ended in a /
+ This command will also break arguments up if they
+ contain /.</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; dicttool::canonical foo bar baz bang
+ foo/ bar/ baz/ bang
+ &gt; dicttool::canonical foo bar baz bang/
+ foo/ bar/ baz/ bang/
+ &gt; dicttool::canonical foo bar baz bang:
+ foo/ bar/ baz/ bang
+ &gt; dicttool::canonical foo/bar/baz bang:
+ foo/ bar/ baz/ bang
+ &gt; dicttool::canonical foo/bar/baz/bang
+ foo/ bar/ baz/ bang
+</pre>
+</dd>
+<dt><a name="12">proc <b class="cmd">dicttool::storage</b> <i class="arg">rawpath</i></a></dt>
+<dd><p>Return the path as a storage path for dicttool
+ with all branch terminators removed.
+ This command will also break arguments up if they
+ contain /.</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; dicttool::storage foo bar baz bang
+ foo bar baz bang
+ &gt; dicttool::storage foo bar baz bang/
+ foo bar baz bang
+ &gt; dicttool::storage foo bar baz bang:
+ foo bar baz bang
+ &gt; dicttool::storage foo/bar/baz bang:
+ foo bar baz bang
+ &gt; dicttool::storage foo/bar/baz/bang
+ foo bar baz bang
+</pre>
+</dd>
+<dt><a name="13">proc <b class="cmd">dicttool::dictset</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><p>Set an element with a recursive dictionary,
+ marking all branches on the way down to the
+ final element.
+ If the value does not exists in the nested dictionary
+ it is added as a leaf. If the value already exists as a branch
+ the value given is merged if the value is a valid dict. If the
+ incoming value is not a valid dict, the value overrides the value
+ stored, and the value is treated as a leaf from then on.</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; set r {}
+ &gt; ::dicttool::dictset r option color default Green
+ . 1 option {. 1 color {. 1 default Green}}
+ &gt; ::dicttool::dictset r option {Something not dictlike}
+ . 1 option {Something not dictlike}
+ # Note that if the value is not a dict, and you try to force it to be
+ # an error with be thrown on the merge
+ &gt; ::dicttool::dictset r option color default Blue
+ missing value to go with key
+</pre>
+</dd>
+<dt><a name="14">proc <b class="cmd">dicttool::dictmerge</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><p>A recursive form of dict merge, intended for modifying variables in place.</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; set mydict {sub/ {sub/ {description {a block of text}}}}
+ &gt; ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
+ &gt; dicttool::print $mydict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+</pre>
+</dd>
+<dt><a name="15">proc <b class="cmd">dicttool::merge</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><p>A recursive form of dict merge</p>
+<p>A routine to recursively dig through dicts and merge
+ adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/</p>
+<p>Example:</p>
+<pre class="doctools_example"> &gt; set mydict {sub/ {sub/ {description {a block of text}}}}
+ &gt; set odict [dicttool::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
+ &gt; dicttool::print $odict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+</pre>
+</dd>
+<dt><a name="16">proc <b class="cmd">tcl::dict::isnull</b> <i class="arg">dictionary</i> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dd><p>Returns true if the path specified by args either does not exist,
+ if exists and contains an empty string or the value of NULL or null.</p>
+<p>This function is added to the global dict ensemble as <b class="function">dict isnull</b></p></dd>
+<dt><a name="17">proc <b class="cmd">ladd</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></dt>
+<dd><p>Add elements to a list if that are not already present in the list.
+ As a side effect, if variable  does not exists,
+ create it as an empty list.</p>
+<p>Example:</p>
+<pre class="doctools_example"> ladd contents foo bar
+ puts $contents
+ &gt; foo bar
+ ladd contents foo bar baz bang
+ puts $contents
+ &gt; foo bar baz bang
+</pre>
+</dd>
+<dt><a name="18">proc <b class="cmd">ldelete</b> <i class="arg">varname</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></dt>
+<dd><p>Delete all instances of the elements given from a list contained in .
+ If the variable does exist this is a noop.</p>
+<p>Example:</p>
+<pre class="doctools_example"> set contents {foo bar baz bang foo foo foo}
+ ldelete contents foo
+ puts $contents
+ &gt; bar baz bang
+</pre>
+</dd>
+<dt><a name="19">proc <b class="cmd">lrandom</b> <i class="arg">list</i></a></dt>
+<dd><p>Return a random element from</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section3" class="doctools_section"><h2><a name="section3">AUTHORS</a></h2>
+<p>Sean Woods <a href="mailto:<yoda@etoyoc.com>">mailto:&lt;yoda@etoyoc.com&gt;</a></p>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>dict</em> of the
@@ -193,12 +372,12 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#dict">dict</a></p>
+<p>dict</p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Utilities</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2017 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
+<p>Copyright &copy; 2018 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
 </div>
-</div>
+</div></body></html>

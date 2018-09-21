@@ -1,10 +1,12 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-if {[catch {package require clay 0.3}]} {
-  source [file join $moddir .. clay build doctool.tcl]
+if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
+  source [file join $moddir .. practcl build doctool.tcl]
+} else {
+  package require practcl 0.13
 }
-::clay::doctool create AutoDoc
+::practcl::doctool create AutoDoc
 set version 4.3
 set tclversion 8.6
 set module [file tail $moddir]
@@ -19,21 +21,21 @@ dict set map {    } {} ;# strip indentation
 dict set map "\t" {    } ;# reduce indentation (see cleanup)
 
 puts $fout [string map $map {###
-    # Amalgamated package for %module%
-    # Do not edit directly, tweak the source in src/ and rerun
-    # build.tcl
-    ###
-    package require Tcl %tclversion%
-    package provide %module% %version%
-    namespace eval ::%module% {}
-    set ::%module%::version %version%
+# Amalgamated package for %module%
+# Do not edit directly, tweak the source in src/ and rerun
+# build.tcl
+###
+package require Tcl %tclversion%
+package provide %module% %version%
+namespace eval ::%module% {}
+set ::%module%::version %version%
 }]
 
 # Track what files we have included so far
 set loaded {}
 lappend loaded build.tcl cgi.tcl
 # These files must be loaded in a particular order
-foreach file {
+foreach {file} {
   core.tcl
   reply.tcl
   server.tcl
@@ -43,23 +45,25 @@ foreach file {
   cgi.tcl
   scgi.tcl
   websocket.tcl
+  plugin.tcl
 } {
   lappend loaded $file
   puts $fout "###\n# START: [file tail $file]\n###"
-  set content [::clay::cat [file join $srcdir $file]]
+  set content [::practcl::cat [file join $srcdir $file]]
   AutoDoc scan_text $content
-  puts $fout $content
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
 foreach file [glob [file join $srcdir *.tcl]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file
+  puts "EXTRA $file"
   set fin [open [file join $srcdir $file] r]
   puts $fout "###\n# START: [file tail $file]\n###"
-  set content [::clay::cat [file join $srcdir $file]]
+  set content [::practcl::cat [file join $srcdir $file]]
   AutoDoc scan_text $content
-  puts $fout $content
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 
@@ -76,14 +80,14 @@ close $fout
 ###
 set fout [open [file join $moddir pkgIndex.tcl] w]
 puts $fout [string map $map {
-    if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
-    package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
+if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
+package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
 
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
-  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
+  header [string map $map [::practcl::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::practcl::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout

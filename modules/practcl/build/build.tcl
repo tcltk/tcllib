@@ -1,9 +1,8 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
-if {[catch {package require clay 0.3}]} {
-  source [file join $$moddir .. clay build doctool.tcl]
-}
-::clay::doctool create AutoDoc
+source [file join $srcdir doctool.tcl]
+
+::practcl::doctool create AutoDoc
 
 set version 0.13
 set tclversion 8.6
@@ -37,20 +36,20 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
-  dicttool dicttool.tcl
+  dicttool {build/core.tcl build/dict.tcl build/list.tcl}
   clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
-    set content [::clay::cat [file join $moddir .. $omod $fname]]
+    set content [::practcl::cat [file join $moddir .. $omod $fname]]
     #AutoDoc scan_text $content
-    puts $fout $content
+    puts $fout [::practcl::docstrip $content]
     puts $fout "###\n# END: [file join $omod $fname]\n###"
   }
 }
 
-foreach file {
+foreach {file} {
   setup.tcl
   docbuild.tcl
   buildutil.tcl
@@ -87,9 +86,9 @@ foreach file {
 } {
   lappend loaded $file
   puts $fout "###\n# START: [file join $file]\n###"
-  set content [::clay::cat [file join $srcdir {*}$file]]
+  set content [::practcl::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
-  puts $fout $content
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file join $file]\n###"
 }
 
@@ -107,14 +106,26 @@ close $fout
 set fout [open [file join $moddir pkgIndex.tcl] w]
 fconfigure $fout -translation lf
 puts $fout [string map $map {###
-    if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
-    package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
+if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
+package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
 
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
-  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
+  header [string map $map [::practcl::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::practcl::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout
+
+if {[file exists [file join $moddir .. .. apps dtplite]]} {
+  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
+    -o $moddir \
+    html [file join $moddir $filename.man]
+  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
+    -o [file join $moddir .. .. embedded www tcllib files modules $module] \
+    html [file join $moddir $filename.man]
+  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
+    -o [file join $moddir .. .. idoc www tcllib files modules $module] \
+    html [file join $moddir $filename.man]
+}

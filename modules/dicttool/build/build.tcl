@@ -4,8 +4,12 @@ set moddir [file dirname $srcdir]
 set version 1.2
 set module dicttool
 set filename dicttool
-source [file join $srcdir .. .. clay build doctool.tcl]
-::clay::doctool create AutoDoc
+if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
+  source [file join $moddir .. practcl build doctool.tcl]
+} else {
+  package require practcl 0.13
+}
+::practcl::doctool create AutoDoc
 
 set fout [open [file join $moddir ${filename}.tcl] w]
 dict set modmap %module% $module
@@ -25,13 +29,14 @@ puts $fout [string map $modmap {###
 # @@ Meta Begin
 # Package %module% %version%
 # Meta platform     tcl
-# Meta summary      A minimalist framework for complex TclOO development
-# Meta description  This package introduces the method "clay" to both oo::object
-# Meta description  and oo::class which facilitate complex interactions between objects
-# Meta description  and their ancestor and mixed in classes.
-# Meta category     TclOO
-# Meta subject      framework
-# Meta require      {Tcl 8.6}}]
+# Meta summary      Enhancements to the dict command to support recursive merging
+# Meta description  This package adds several list commands and dict commands which
+# Meta description  developers find themselves implementing over and over again.
+# Meta description  In addition it provides tools to manage recursive dicts in a
+# Meta description  clean (and thoroughly regression tested) format.
+# Meta category     dict
+# Meta subject      dict
+# Meta require      {Tcl 8.5}}]
 foreach {name email} $authors {
   puts $fout   "# Meta author       $name"
 }
@@ -58,20 +63,20 @@ foreach file {
   core.tcl
 } {
   lappend loaded $file
-  set content [::clay::cat [file join $srcdir {*}$file]]
+  set content [::practcl::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
   puts $fout "###\n# START: [file tail $file]\n###"
-  puts $fout [::clay::docstrip $content]
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 # These files can be loaded in any order
 foreach file [lsort -dictionary [glob [file join $srcdir *.tcl]]] {
   if {[file tail $file] in $loaded} continue
   lappend loaded $file
-  set content [::clay::cat [file join $srcdir {*}$file]]
+  set content [::practcl::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
   puts $fout "###\n# START: [file tail $file]\n###"
-  puts $fout [::clay::docstrip $content]
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file tail $file]\n###"
 }
 
@@ -97,7 +102,7 @@ puts $fout [string map $modmap {# Tcl package index file, version 1.1
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 }]
 puts $fout [string map $modmap {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
@@ -114,8 +119,16 @@ puts $fout [source [file join $srcdir test.tcl]]
 close $fout
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage \
-  header [string map $modmap [::clay::cat [file join $srcdir manual.txt]]] \
+  header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]] \
   authors $authors \
-  footer [string map $modmap [::clay::cat [file join $srcdir footer.txt]]] \
+  footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]] \
 ]
 close $manout
+if {[file exists [file join $moddir .. .. apps dtplite]]} {
+  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
+    -o [file join $moddir .. .. embedded www tcllib files modules $module] \
+    html [file join $moddir $filename.man]
+  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
+    -o [file join $moddir .. .. idoc www tcllib files modules $module] \
+    html [file join $moddir $filename.man]
+}

@@ -8,13 +8,14 @@
 # @@ Meta Begin
 # Package dicttool 1.2
 # Meta platform     tcl
-# Meta summary      A minimalist framework for complex TclOO development
-# Meta description  This package introduces the method "clay" to both oo::object
-# Meta description  and oo::class which facilitate complex interactions between objects
-# Meta description  and their ancestor and mixed in classes.
-# Meta category     TclOO
-# Meta subject      framework
-# Meta require      {Tcl 8.6}
+# Meta summary      Enhancements to the dict command to support recursive merging
+# Meta description  This package adds several list commands and dict commands which
+# Meta description  developers find themselves implementing over and over again.
+# Meta description  In addition it provides tools to manage recursive dicts in a
+# Meta description  clean (and thoroughly regression tested) format.
+# Meta category     dict
+# Meta subject      dict
+# Meta require      {Tcl 8.5}
 # Meta author       Sean Woods
 # Meta license      BSD
 # @@ Meta End
@@ -30,7 +31,8 @@ namespace eval ::dicttool {}
 ###
 # START: core.tcl
 ###
-namespace eval ::dicttool {}
+namespace eval ::dicttool {
+}
 proc ::PROC {name arglist body {ninja {}}} {
   if {[info commands $name] ne {}} return
   proc $name $arglist $body
@@ -160,7 +162,7 @@ proc ::dicttool::storage {rawpath} {
 proc ::dicttool::dictset {varname args} {
   upvar 1 $varname result
   if {[llength $args] < 2} {
-    error "Usage: ?path...? path value\nor\n{path ...} value"
+    error "Usage: ?path...? path value"
   } elseif {[llength $args]==2} {
     set rawpath [lindex $args 0]
   } else {
