@@ -37,6 +37,7 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
+  dicttool dicttool.tcl
   clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
 } {
   foreach fname $files {

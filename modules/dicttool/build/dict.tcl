@@ -1,62 +1,17 @@
 ###
-# dicttool.tcl
-#
-# Copyright (c) 2018 Sean Woods
-#
-# BSD License
-###
-# @@ Meta Begin
-# Package dicttool 1.2
-# Meta platform     tcl
-# Meta summary      A minimalist framework for complex TclOO development
-# Meta description  This package introduces the method "clay" to both oo::object
-# Meta description  and oo::class which facilitate complex interactions between objects
-# Meta description  and their ancestor and mixed in classes.
-# Meta category     TclOO
-# Meta subject      framework
-# Meta require      {Tcl 8.6}
-# Meta author       Sean Woods
-# Meta license      BSD
-# @@ Meta End
-
-###
-# Amalgamated package for dicttool
-# Do not edit directly, tweak the source in build/ and rerun
-# build.tcl
-###
-package provide dicttool 1.2
-namespace eval ::dicttool {}
-
-###
-# START: core.tcl
-###
-namespace eval ::dicttool {}
-proc ::PROC {name arglist body {ninja {}}} {
-  if {[info commands $name] ne {}} return
-  proc $name $arglist $body
-  eval $ninja
-}
-PROC ::noop args {}
-PROC ::putb {buffername args} {
-  upvar 1 $buffername buffer
-  switch [llength $args] {
-    1 {
-      append buffer [lindex $args 0] \n
-    }
-    2 {
-      append buffer [string map {*}$args] \n
-    }
-    default {
-      error "usage: putb buffername ?map? string"
-    }
-  }
-}
-
-###
-# END: core.tcl
-###
-###
-# START: dict.tcl
+# If the path (given by the list of elements) exists, return that value.
+# Otherwise return an empty string. Designed to replace [example {
+# if {[dict exists $dictionary {*}$args]} {
+#   return [dict get $dictionary {*}$args]
+# } else {
+#   return {}
+# }
+# }]
+# example:
+# set value [dict getnull $arglist $option]
+# arglist:
+# dictionary {mandatory 1 positional 1}
+# element {mandatory 0 positional 1 repeating 1}
 ###
 PROC ::tcl::dict::getnull {dictionary args} {
   if {[exists $dictionary {*}$args]} {
@@ -66,6 +21,13 @@ PROC ::tcl::dict::getnull {dictionary args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
 }
+
+
+###
+# Test if value is a dict.
+# [para]
+# This command is added to the [command dict] ensemble as [command {dict is_dict}]
+###
 PROC ::tcl::dict::is_dict { d } {
   # is it a dict, or can it be treated like one?
   if {[catch {dict size $d} err]} {
@@ -77,6 +39,34 @@ PROC ::tcl::dict::is_dict { d } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
 }
+
+###
+# Return true if the element [variable path] with the value [variable dict]
+# is a dict. [variable path] is given as a list to descend into sub-dicts of
+# the current dict.
+# The rules are as follows:
+# [list_begin enumerated]
+# [enum]
+# If the last character of the last element of [variable path] is a colon (:)
+# return false
+# [enum]
+# If the last character of the last element of [variable path] is a slash (/)
+# return true
+# [enum]
+# If a sub-element if [variable path] named [const .info] is present return true
+# [end_list]
+# [para]
+# [para]
+# This command is added to the [command dict] ensemble as [command {dict is_branch}]
+# example:
+# > set mydict {sub/ {sub/ {field {A block of text}}}
+# > dict is_branch $mydict sub/
+# 1
+# > dict is_branch $mydict {sub/ sub/}
+# 1
+# > dict is_branch $mydict {sub/ sub/ field}
+# 0
+###
 PROC ::tcl::dict::is_branch { dict path } {
   ::set field [lindex $path end]
   if {[::string index $field end] eq ":"} {
@@ -93,6 +83,23 @@ PROC ::tcl::dict::is_branch { dict path } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_branch ::tcl::dict::is_branch]
 }
+
+###
+# Output a dictionary as an indented stream of
+# data suitable for output to the screen. The system uses
+# the rules for [command {dict is_branch}] to determine if
+# an value in a dictionary is a leaf or a branch.
+# [para]
+# This command is added to the [command dict] ensemble as [command {dict print}]
+# example:
+# > set mydict {sub/ {sub/ {field {A block of text}}}
+# > dict print $mydict
+# sub/ {
+#   sub/ {
+#     field {A block of text}
+#   }
+# }
+###
 PROC ::tcl::dict::print {dict} {
   ::set result {}
   ::set level -1
@@ -102,6 +109,13 @@ PROC ::tcl::dict::print {dict} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] print ::tcl::dict::print]
 }
+
+###
+# Helper function for ::tcl::dict::print
+# Formats the string representation for a dictionary element within
+# a human readable stream of lines, and determines if it needs to call itself
+# with further indentation to express a sub-branch
+###
 proc ::dicttool::_dictputb {level varname dict} {
   upvar 1 $varname result
   incr level
@@ -116,6 +130,10 @@ proc ::dicttool::_dictputb {level varname dict} {
     }
   }
 }
+
+###
+# Output a dictionary removing any . entries added by [command {dict rmerge}]
+###
 PROC ::tcl::dict::sanitize {dict} {
   ::set result {}
   ::set level -1
@@ -125,6 +143,13 @@ PROC ::tcl::dict::sanitize {dict} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] sanitize ::tcl::dict::sanitize]
 }
+
+###
+# Helper function for ::tcl::dict::print
+# Formats the string representation for a dictionary element within
+# a human readable stream of lines, and determines if it needs to call itself
+# with further indentation to express a sub-branch
+###
 proc ::dicttool::_sanitizeb {path varname dict} {
   upvar 1 $varname result
   dict for {field value} $dict {
@@ -136,6 +161,7 @@ proc ::dicttool::_sanitizeb {path varname dict} {
     }
   }
 }
+
 proc ::dicttool::canonical {rawpath} {
   set path {}
   set tail [string index $rawpath end]
@@ -153,6 +179,7 @@ proc ::dicttool::canonical {rawpath} {
     return [lreplace $path end end [string trim [lindex $path end] /]]
   }
 }
+
 proc ::dicttool::storage {rawpath} {
   set isleafvar 0
   set path {}
@@ -166,6 +193,7 @@ proc ::dicttool::storage {rawpath} {
   }
   return $path
 }
+
 proc ::dicttool::dictset {varname args} {
   upvar 1 $varname result
   if {[llength $args] < 2} {
@@ -195,6 +223,20 @@ proc ::dicttool::dictset {varname args} {
   }
   return $result
 }
+
+###
+# A recursive form of dict merge, intended for modifying variables in place.
+# example:
+# > set mydict {sub/ {sub/ {description {a block of text}}}}
+# > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
+# > dict print $mydict
+# sub/ {
+#   sub/ {
+#     description {a block of text}
+#     field {another block of text}
+#   }
+# }
+###
 proc ::dicttool::dictmerge {varname args} {
   upvar 1 $varname result
   set dot .
@@ -222,6 +264,7 @@ proc ::dicttool::dictmerge {varname args} {
   }
   return $result
 }
+
 PROC ::tcl::dict::rmerge {args} {
   ###
   # The result of a merge is always a dict with branches
@@ -266,6 +309,27 @@ PROC ::tcl::dict::rmerge {args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
+
+
+
+###
+# A recursive form of dict merge
+# [para]
+# A routine to recursively dig through dicts and merge
+# adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+# [para]
+# This command is added to the [command dict] ensemble as [command {dict rmerge}]
+# example:
+# > set mydict {sub/ {sub/ {description {a block of text}}}}
+# > set odict [dict rmerge $mydict {sub/ {sub/ {field {another block of text}}}}]
+# > dict print $odict
+# sub/ {
+#   sub/ {
+#     description {a block of text}
+#     field {another block of text}
+#   }
+# }
+###
 PROC ::tcl::dict::rmerge {a args} {
   ::set result $a
   # Merge b into a, and handle nested dicts appropriately
@@ -291,6 +355,11 @@ PROC ::tcl::dict::rmerge {a args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
+
+###
+# Returns true if the path specified by args either does not exist,
+# if exists and contains an empty string or the value of NULL or null.
+###
 PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}
   return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
@@ -298,47 +367,3 @@ PROC ::tcl::dict::isnull {dictionary args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
 }
-
-###
-# END: dict.tcl
-###
-###
-# START: list.tcl
-###
-PROC ::ladd {varname args} {
-  upvar 1 $varname var
-  if ![info exists var] {
-      set var {}
-  }
-  foreach item $args {
-    if {$item in $var} continue
-    lappend var $item
-  }
-  return $var
-}
-PROC ::ldelete {varname args} {
-  upvar 1 $varname var
-  if ![info exists var] {
-      return
-  }
-  foreach item [lsort -unique $args] {
-    while {[set i [lsearch $var $item]]>=0} {
-      set var [lreplace $var $i $i]
-    }
-  }
-  return $var
-}
-PROC ::lrandom list {
-  set len [llength $list]
-  set idx [expr int(rand()*$len)]
-  return [lindex $list $idx]
-}
-
-###
-# END: list.tcl
-###
-
-namespace eval ::dicttool {
-  namespace export *
-}
-

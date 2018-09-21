@@ -123,11 +123,6 @@ $A <counter> value
 
 [section {Commands}]
 [list_begin definitions]
-[call proc [cmd putb] [opt "[arg map]"] [arg text]]
-
- Append a line of text to a variable. Optionally apply a string mapping.
-
-
 [call proc [cmd clay::ancestors] [opt "[arg args]"]]
 
 
@@ -135,18 +130,6 @@ $A <counter> value
 
 
 [call proc [cmd clay::args_to_options] [opt "[arg args]"]]
-
-
-[call proc [cmd clay::dictmerge] [arg varname] [opt "[arg args]"]]
-
-
-[call proc [cmd clay::_dictmerge] [arg a] [arg b]]
-
-
-[call proc [cmd clay::dictputb] [arg dict]]
-
-
-[call proc [cmd clay::_dictputb] [arg leaf] [arg level] [arg varname] [arg dict]]
 
 
 [call proc [cmd clay::dynamic_arguments] [arg ensemble] [arg method] [arg arglist] [opt "[arg args]"]]
@@ -255,6 +238,11 @@ $A <counter> value
 
 
 
+[call proc [cmd putb] [opt "[arg map]"] [arg text]]
+
+ Append a line of text to a variable. Optionally apply a string mapping.
+
+
 [list_end]
 
 [section Classes]
@@ -269,12 +257,26 @@ Return this class and all ancestors in search order.
 [call method [cmd "clay dump"]]
 Return a complete dump of this object's clay data, but only this object's clay data.
 
-[call method [cmd "clay get"] [arg path] [opt [option "path..."]]]
+[call method [cmd "clay find"] [arg path] [opt [option "path..."]]]
 
-     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch (ends in a slash /),
+     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch,
      returns a recursive merge of all data from this object and it's constituent classes of the data in that branch.
      If the last element is a leaf, search this object for a matching leaf, or search all  constituent classes for a matching
      leaf and return the first value found.
+     If no value is found, returns an empty string.
+     If a branch is returned the topmost . entry is omitted.
+   
+
+[call method [cmd "clay get"] [arg path] [opt [option "path..."]]]
+
+     Pull a chunk of data from the class's clay system.
+     If no value is found, returns an empty string.
+     If a branch is returned the topmost . entry is omitted.
+   
+
+[call method [cmd "clay GET"] [arg path] [opt [option "path..."]]]
+
+     Pull a chunk of data from the class's clay system.
      If no value is found, returns an empty string.
    
 
@@ -308,7 +310,8 @@ Return the class this object belongs to, all classes mixed into this object, and
  [para] 1. The as a value in local dict variable config
  [para] 2. The as a value in local dict variable clay
  [para] 3. As a leaf in any ancestor as a root of the clay tree
- [para] 4. As a leaf in any ancestor under the const/ branch of the clay tree
+ [para] 4. As a leaf in any ancestor as [const const] [emph field]
+ [para] 5. As a leaf in any ancestor as [const option] [emph field] [const default]
    
 
 [call method [cmd "clay delegate"] [opt "[arg stub]"] [opt "[arg object]"]]

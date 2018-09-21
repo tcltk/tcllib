@@ -14,10 +14,11 @@ package require dicttool
 package require TclOO
 package require sha1
 #package require cron 2.0
-package require oo::meta 0.5.1
+package require oo::meta 0.6
 package require oo::dialect
+package require clay
 
-::oo::dialect::create ::tool
+::oo::dialect::create ::tool ::clay
 ::namespace eval ::tool {}
 set ::tool::trace 0
 
@@ -186,21 +187,15 @@ if {![info exists ::tool::dirty_classes]} {
 # include a notifier to tool
 ###
 proc ::oo::meta::rebuild args {
-  foreach class $args {
-    if {$class ni $::oo::meta::dirty_classes} {
-      lappend ::oo::meta::dirty_classes $class
-    }
-    if {$class ni $::tool::dirty_classes} {
-      lappend ::tool::dirty_classes $class
-    }
-  }
 }
 
 proc ::tool::ensemble_build_map args {
   set emap {}
   foreach thisclass $args {
-    foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
+    foreach {ensemble einfo} [$thisclass clay get method_ensemble] {
+      if {$ensemble eq {.}} continue
       foreach {submethod subinfo} $einfo {
+        if {$submethod eq {.}} continue
         dict set emap $ensemble $submethod $subinfo
       }
     }
@@ -208,123 +203,54 @@ proc ::tool::ensemble_build_map args {
   return $emap
 }
 
-proc ::tool::ensemble_methods emap {
-  set result {}
-  foreach {ensemble einfo} $emap {
-    #set einfo [dict getnull $einfo method_ensemble $ensemble]
-    set eswitch {}
-    set default standard
-    if {[dict exists $einfo default:]} {
-      set emethodinfo [dict get $einfo default:]
-      set arglist     [lindex $emethodinfo 0]
-      set realbody    [lindex $emethodinfo 1]
-      if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
-        set body {}
-      } else {
-        set body "\n      ::tool::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
-      }
-      append body "\n      " [string trim $realbody] "      \n"
-      set default $body
-      dict unset einfo default:
-    }
-    set methodlist {}
-    foreach item [dict keys $einfo] {
-      lappend methodlist [string trimright $item :]
-    }
-    set methodlist  [lsort -dictionary -unique $methodlist]
-    foreach {submethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-      if {$submethod in {"_preamble:" "default:"}} continue
-      set submethod [string trimright $submethod :]
-      lassign $esubmethodinfo arglist realbody
-      if {[string length [string trim $realbody]] eq {}} {
-        dict set eswitch $submethod {}
-      } else {
-        if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
-          set body {}
-        } else {
-          set body "\n      ::tool::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
-        }
-        append body "\n      " [string trim $realbody] "      \n"
-        dict set eswitch $submethod $body
-      }
-    }
-    if {![dict exists $eswitch <list>]} {
-      dict set eswitch <list> {return $methodlist}
-    }
-    if {$default=="standard"} {
-      set default "error \"unknown method $ensemble \$method. Valid: \$methodlist\""
-    }
-    dict set eswitch default $default
-    set mbody {}    
-    if {[dict exists $einfo _preamble:]} {
-      append mbody [lindex [dict get $einfo _preamble:] 1] \n
-    }
-    append mbody \n [list set methodlist $methodlist]
-    append mbody \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
-    append mbody \n {return -options $opts $result}
-    append result \n [list method $ensemble {{method default} args} $mbody]    
-  }
-  return $result
-}
-
-###
-# topic: fb8d74e9c08db81ee6f1275dad4d7d6f
-###
-proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
-  variable trace
-  set ensembledict {}
-  foreach dclass $::tool::dirty_classes {
-    foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
-      if {$dclass in $cancestors} {
-        unset -nocomplain ::tool::obj_ensemble_cache($cclass)
-      }
-    }
-  }
-  set ::tool::dirty_classes {}
-  ###
-  # Only go through the motions for classes that have a locally defined
-  # ensemble method implementation
-  ###
-  foreach aclass [::oo::meta::ancestors $thisclass] {
-    if {[info exists ::tool::obj_ensemble_cache($aclass)]} continue
-    set emap [::tool::ensemble_build_map $aclass]
-    set body [::tool::ensemble_methods $emap]
-    oo::define $aclass $body
-    # Define a property for this ensemble for introspection
-    foreach {ensemble einfo} $emap {
-      ::oo::meta::info $aclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
-    }
-    set ::tool::obj_ensemble_cache($aclass) 1
-  }
-}
-
 ###
 # topic: ec9ca249b75e2667ad5bcb2f7cd8c568
 # title: Define an ensemble method for this agent
 ###
-::proc ::tool::define::method {rawmethod args} {
+::proc ::tool::define::method {rawmethod args}  {
   set class [current_class]
   set mlist [split $rawmethod "::"]
-  if {[llength $mlist]==1} {
-    ###
-    # Simple method, needs no parsing
-    ###
-    set method $rawmethod
-    ::oo::define $class method $rawmethod {*}$args
-    return
-  }
-  set ensemble [lindex $mlist 0]
-  set method [join [lrange $mlist 2 end] "::"]
+  set ensemble [string trim [lindex $mlist 0] :/]
   switch [llength $args] {
     1 {
-      ::oo::meta::info $class set method_ensemble $ensemble $method: [list dictargs [lindex $args 0]]
+      set arglist args
+      set body [lindex $args 0]
     }
     2 {
-      ::oo::meta::info $class set method_ensemble $ensemble $method: $args
+      lassign $args arglist body
     }
     default {
-      error "Usage: method NAME ARGLIST BODY"
+      error "Usage: method NAME?::SUBMETHOD? ?arglist? body"
     }
+  }
+  set mensemble ${ensemble}/
+  if {[llength $mlist]==1} {
+    ::oo::define $class method $rawmethod $arglist $body
+    return
+  }
+  if {[lindex $mlist 1] in "_body"} {
+    set method _body
+    ###
+    # Simple method, needs no parsing, but we do need to record we have one
+    ###
+    $class clay set method_ensemble/ $mensemble _body [dict create arglist $arglist body $body]
+    if {$::clay::trace>2} {
+      puts [list $class clay set method_ensemble/ $mensemble _body ...]
+    }
+    set method $rawmethod
+    if {$::clay::trace>2} {
+      puts [list $class Ensemble $rawmethod $arglist $body]
+      set rawbody $body
+      set body {puts [list [self] $class [self method]]}
+      append body \n $rawbody
+    }
+    ::oo::define $class method $rawmethod $arglist $body
+    return
+  }
+  set method [join [lrange $mlist 2 end] "::"]
+  $class clay set method_ensemble/ $mensemble [string trim $method :/] [dict create arglist $arglist body $body]
+  if {$::clay::trace>2} {
+    puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
   }
 }
 
@@ -338,12 +264,17 @@ proc ::tool::define::dictobj args {
 proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
-  
-  set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
-  set initial [dict getnull $cases initialize]
+  set methodname [string trim $methodname /:-]
+  set methoddata [$class clay get method_ensemble $methodname]
+  set initial [dict remove [dict getnull $cases initialize] .]
+
+  ::clay::define::Dict $varname $initial
   variable $varname $initial
-  foreach {name body} $CASES {
-    dict set methoddata $name: [list args $body]
+
+  dict for {name body} $CASES {
+    if {$name eq {.}} continue
+    set name [string trim $name :/-]
+    dict set methoddata $name  [dict create arglist args body $body]
   }
   set template [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
     _preamble {} {
@@ -370,14 +301,16 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
       dict set %VARNAME% $field $result
     }
     initial {} {
-      return [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
+      set result [my meta branchget %VARNAME%]
+      ::dicttool::dictmerge result {%INITIAL%}
+      return [dict remove $result .]
     }
     reset {} {
-      set %VARNAME% [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
-      return $%VARNAME%
+      set %VARNAME% [my meta branchget %VARNAME%]
+      return [dict remove [::dicttool::dictmerge %VARNAME% {%INITIAL%}] .]
     }
     dump {} {
-      return $%VARNAME%
+      return [dict remove $%VARNAME% .]
     }
     append args {
       return [dict $method %VARNAME% {*}$args]
@@ -404,24 +337,28 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
     }
     rmerge args {
       set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
-      return $%VARNAME%  
+      return $%VARNAME%
     }
     merge args {
-      set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
+      ::dicttool::dictmerge %VARNAME% {*}$args
       return $%VARNAME%
     }
     replace args {
-      set %VARNAME% [dict rmerge $%VARNAME% {%INITIAL%} {*}$args]
+      set %VARNAME% {%INITIAL%}
+      ::dicttool::dictmerge %VARNAME% {*}$args
+      return $%VARNAME%
     }
     default args {
       return [dict $method $%VARNAME% {*}$args]
     }
   }]
   foreach {name arglist body} $template {
-    if {[dict exists $methoddata $name:]} continue
-    dict set methoddata $name: [list $arglist $body]
+    if {$name eq {.}} continue
+    set name [string trim $name :/-]
+    if {[dict exists $methoddata $name]} continue
+    dict set methoddata $name [dict create arglist $arglist body $body]
   }
-  ::oo::meta::info $class set method_ensemble $methodname $methoddata
+  $class clay set method_ensemble $methodname $methoddata
 }
 
 proc ::tool::define::arrayobj args {
@@ -435,8 +372,8 @@ proc ::tool::define::arrayobj args {
 proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
-  set initial [dict getnull $cases initialize]
-  array $varname $initial
+  set initial [dict remove [dict getnull $cases initialize] .]
+  ::clay::define::Array $varname $initial
 
   set map [list %CLASS% $class %METHOD% $methodname %VARNAME% $varname %CASES% $CASES %INITIAL% $initial]
 
@@ -445,7 +382,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     if {[info exists %VARNAME%($field)]} {
       return $%VARNAME%($field)
     }
-    return [my meta getnull %VARNAME% $field:]
+    return [dict remove [my meta getnull %VARNAME% $field:] .]
   }]
   ::oo::define $class method _${methodname}Exists {field} [string map $map {
     my variable %VARNAME%
@@ -454,19 +391,35 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     return [my meta exists %VARNAME% $field:]
   }]
-  set methoddata [::oo::meta::info $class set array_ensemble $methodname: $varname]
-  
-  set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
-  foreach {name body} $CASES {
-    dict set methoddata $name: [list args $body]
-  } 
+
+  set methodname [string trim $methodname /:-]
+  set methoddata [$class clay get method_ensemble/ $methodname/]
+  dict for {name body} $CASES {
+    if {$name eq {.}} continue
+    set name [string trim $name :/-]
+    dict set methoddata $name  [dict create arglist args body $body]
+  }
   set template  [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
     _preamble {} {
       my variable %VARNAME%
     }
     reset {} {
       ::array unset %VARNAME% *
-      foreach {field value} [my meta getnull %VARNAME%] {
+      foreach {var value} [my clay get array/ %VARNAME%/] {
+        set var [string trim $var :/-]
+        if {![array exists %VARNAME%($var)]} {
+          if {$::clay::trace>2} {puts [list initialize array %VARNAME%\($var\) $value]}
+          set %VARNAME%($var) $value
+        }
+      }
+      foreach {var value} [my clay get %VARNAME%/] {
+        set var [string trim $var :/-]
+        if {![array exists %VARNAME%($var)]} {
+          if {$::clay::trace>2} {puts [list initialize array %VARNAME%\($var\) $value]}
+          set %VARNAME%($var) $value
+        }
+      }
+      dict for {field value} [dict remove [my meta getnull %VARNAME%] .] {
         set %VARNAME%([string trimright $field :]) $value
       }
       ::array set %VARNAME% {%INITIAL%}
@@ -504,13 +457,13 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     dump {} {
       set result {}
-      foreach {var val} [my meta getnull %VARNAME%] {
+      dict for {var val} [my meta getnull %VARNAME%] {
         dict set result [string trimright $var :] $val
       }
       foreach {var val} [lsort -dictionary -stride 2 [array get %VARNAME%]] {
         dict set result [string trimright $var :] $val
       }
-      return $result
+      return [dict remove $result .]
     }
     exists args {
       set field [string trimright [lindex $args 0] :]
@@ -518,7 +471,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     getnull args {
       set field [string trimright [lindex $args 0] :]
-      set data [my _%METHOD%Get $field]      
+      set data [my _%METHOD%Get $field]
     }
     get field {
       set field [string trimright $field :]
@@ -526,7 +479,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     set args {
       set field [string trimright [lindex $args 0] :]
-      ::set %VARNAME%($field) {*}[lrange $args 1 end]        
+      ::set %VARNAME%($field) {*}[lrange $args 1 end]
     }
     append args {
       set field [string trimright [lindex $args 0] :]
@@ -563,11 +516,15 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
       return [array $method %VARNAME% {*}$args]
     }
   }]
+
   foreach {name arglist body} $template {
-    if {[dict exists $methoddata $name:]} continue
-    dict set methoddata $name: [list $arglist $body]
+    if {$name eq {.}} continue
+    set name [string trim $name :/-]
+    if {[dict exists $methoddata $name]} continue
+    dict set methoddata $name [dict create arglist $arglist body $body]
   }
-  ::oo::meta::info $class set method_ensemble $methodname $methoddata
+  #puts [list $class $methodname/ $methoddata]
+  $class clay set method_ensemble/ $methodname/ $methoddata
 }
 
 
@@ -578,7 +535,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
 # START: metaclass.tcl
 ###
 #-------------------------------------------------------------------------
-# TITLE: 
+# TITLE:
 #    tool.tcl
 #
 # PROJECT:
@@ -595,15 +552,8 @@ namespace eval ::tool {}
 # New OO Keywords for TOOL
 ###
 namespace eval ::tool::define {}
-proc ::tool::define::array {name {values {}}} {
-  set class [current_class]
-  set name [string trimright $name :]:
-  if {![::oo::meta::info $class exists array $name]} {
-    ::oo::meta::info $class set array $name {}
-  }
-  foreach {var val} $values {
-    ::oo::meta::info $class set array $name: $var $val
-  }
+proc ::tool::define::array args {
+  ::clay::define::Array {*}${args}
 }
 
 ###
@@ -611,7 +561,7 @@ proc ::tool::define::array {name {values {}}} {
 ###
 proc ::tool::define::component {name info} {
   set class [current_class]
-  ::oo::meta::info $class branchset component $name $info
+  $class clay set component/ $name $info
 }
 
 ###
@@ -634,15 +584,6 @@ my initialize
 }
 
 ###
-# topic: 7a5c7e04989704eef117ff3c9dd88823
-# title: Specify the a method for the class object itself, instead of for objects of the class
-###
-proc ::tool::define::class_method {name arglist body} {
-  set class [current_class]
-  ::oo::meta::info $class set class_typemethod $name: [list $arglist $body]
-}
-
-###
 # topic: 4cb3696bf06d1e372107795de7fe1545
 # title: Specify the destructor for a class
 ###
@@ -659,6 +600,15 @@ set DestroyEvent 1
   ::oo::define [current_class] destructor $body
 }
 
+proc ::tool::define::meta {args} {
+  set class [current_class]
+  if {[lindex $args 0] in "cget set branchset"} {
+    ::oo::meta::info $class {*}$args
+  } else {
+    ::oo::meta::info $class set {*}$args
+  }
+}
+
 ###
 # topic: 8bcae430f1eda4ccdb96daedeeea3bd409c6bb7a
 # description: Add properties and option handling
@@ -670,14 +620,14 @@ proc ::tool::define::property args {
       set type const
       set property [string trimleft [lindex $args 0] :]
       set value [lindex $args 1]
-      ::oo::meta::info $class set $type $property: $value
+      $class clay set $type/ $property $value
       return
     }
     3 {
-      set type     [lindex $args 0]
+      set type     [string trim [lindex $args 0] /]
       set property [string trimleft [lindex $args 1] :]
       set value    [lindex $args 2]
-      ::oo::meta::info $class set $type $property: $value
+      $class clay set $type/ $property $value
       return
     }
     default {
@@ -686,7 +636,7 @@ property name type valuedict
 OR property name value"
     }
   }
-  ::oo::meta::info $class set {*}$args
+  $class clay set {*}$args
 }
 
 ###
@@ -699,11 +649,9 @@ OR property name value"
 #    Variables registered in the variable property are also initialized
 #    (if missing) when the object changes class via the [emph morph] method.
 ###
-proc ::tool::define::variable {name {default {}}} {
+proc ::tool::define::variable args {
   set class [current_class]
-  set name [string trimright $name :]
-  ::oo::meta::info $class set variable $name: $default
-  ::oo::define $class variable $name
+  ::clay::define::Variable {*}$args
 }
 
 ###
@@ -735,9 +683,11 @@ proc ::tool::args_to_options args {
 ###
 proc ::tool::dynamic_methods class {
   ::oo::meta::rebuild $class
-  set metadata [::oo::meta::metadata $class]
+  foreach command [info commands ::clay::dynamic_methods_*] {
+    $command $class
+  }
   foreach command [info commands [namespace current]::dynamic_methods_*] {
-    $command $class $metadata
+    $command $class
   }
 }
 
@@ -789,17 +739,6 @@ proc ::tool::dynamic_arguments {ensemble method arglist args} {
       uplevel 1 [list set [lindex $argdef 0] [lindex $args $idx]]
     }
     incr idx
-  }
-}
-
-###
-# topic: b88add196bb63abccc44639db5e5eae1
-###
-proc ::tool::dynamic_methods_class {thisclass metadata} {
-  foreach {method info} [dict getnull $metadata class_typemethod] {
-    lassign $info arglist body
-    set method [string trimright $method :]
-    ::oo::objdefine $thisclass method $method $arglist $body
   }
 }
 
@@ -894,6 +833,8 @@ proc ::tool::object_destroy objname {
 #
 
 ::tool::define ::tool::object {
+  superclass ::clay::object
+
   # Put MOACish stuff in here
   variable signals_pending create
   variable organs {}
@@ -904,9 +845,9 @@ proc ::tool::object_destroy objname {
   constructor args {
     my Config_merge [::tool::args_to_options {*}$args]
   }
-  
+
   destructor {}
-    
+
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
     if {$reverse} {
@@ -914,166 +855,29 @@ proc ::tool::object_destroy objname {
     }
     return $result
   }
-  
+
   method DestroyEvent {} {
     my variable DestroyEvent
     return $DestroyEvent
   }
-  
+
   ###
   # title: Forward a method
   ###
   method forward {method args} {
     oo::objdefine [self] forward $method {*}$args
   }
-  
+
   ###
   # title: Direct a series of sub-functions to a seperate object
   ###
   method graft args {
-    my variable organs
-    if {[llength $args] == 1} {
-      error "Need two arguments"
-    }
-    set object {}
-    foreach {stub object} $args {
-      if {$stub eq "class"} {
-        # Force class to always track the object's current class
-        set obj [info object class [self]]
-      }
-      dict set organs $stub $object
-      oo::objdefine [self] forward <${stub}> $object
-      oo::objdefine [self] export <${stub}>
-    }
-    return $object
+    my clay delegate {*}$args
   }
-  
+
   # Called after all options and public variables are initialized
   method initialize {} {}
-  
-  ###
-  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
-  # description:
-  #    Provide a default value for all options and
-  #    publically declared variables, and locks the
-  #    pipeline mutex to prevent signal processing
-  #    while the contructor is still running.
-  #    Note, by default an odie object will ignore
-  #    signals until a later call to <i>my lock remove pipeline</i>
-  ###
-  ###
-  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
-  # description:
-  #    Provide a default value for all options and
-  #    publically declared variables, and locks the
-  #    pipeline mutex to prevent signal processing
-  #    while the contructor is still running.
-  #    Note, by default an odie object will ignore
-  #    signals until a later call to <i>my lock remove pipeline</i>
-  ###
-  method InitializePublic {} {
-    my variable config meta
-    if {![info exists meta]} {
-      set meta {}
-    }
-    if {![info exists config]} {
-      set config {}
-    }
-    my ClassPublicApply {}
-  }
-  
-  class_method info {which} {
-    my variable cache
-    if {![info exists cache($which)]} {
-      set cache($which) {}
-      switch $which {
-        public {
-          dict set cache(public) variable [my meta branchget variable]
-          dict set cache(public) array [my meta branchget array]
-          set optinfo [my meta getnull option]
-          dict set cache(public) option_info $optinfo
-          foreach {var info} [dict getnull $cache(public) option_info] {
-            if {[dict exists $info aliases:]} {
-              foreach alias [dict exists $info aliases:] {
-                dict set cache(public) option_canonical $alias $var
-              }
-            }
-            set getcmd [dict getnull $info default-command:]
-            if {$getcmd ne {}} {
-              dict set cache(public) option_default_command $var $getcmd
-            } else {
-              dict set cache(public) option_default_value $var [dict getnull $info default:]
-            }
-            dict set cache(public) option_canonical $var $var
-          }
-        }
-      }
-    }
-    return $cache($which)
-  }
-  
-  ###
-  # Incorporate the class's variables, arrays, and options
-  ###
-  method ClassPublicApply class {
-    my variable config
-    set integrate 0
-    if {$class eq {}} {
-      set class [info object class [self]]      
-    } else {
-      set integrate 1
-    }
-    set public [$class info public]
-    foreach {var value} [dict getnull $public variable] {
-      if { $var in {meta config} } continue
-      my variable $var
-      if {![info exists $var]} {
-        set $var $value
-      }
-    }
-    foreach {var value} [dict getnull $public array] {
-      if { $var eq {meta config} } continue
-      my variable $var
-      foreach {f v} $value {
-        if {![array exists ${var}($f)]} {
-          set ${var}($f) $v
-        }
-      }
-    }
-    set dat [dict getnull $public option_info]
-    if {$integrate} {
-      my meta rmerge [list option $dat]
-    }
-    my variable option_canonical
-    array set option_canonical [dict getnull $public option_canonical]
-    set dictargs {}
-    foreach {var getcmd} [dict getnull $public option_default_command] {
-      if {[dict getnull $dat $var class:] eq "organ"} {
-        if {[my organ $var] ne {}} continue
-      }
-      if {[dict exists $config $var]} continue
-      dict set dictargs $var [{*}[string map [list %field% $var %self% [namespace which my]] $getcmd]]
-    }
-    foreach {var value} [dict getnull $public option_default_value] {
-      if {[dict getnull $dat $var class:] eq "organ"} {
-        if {[my organ $var] ne {}} continue
-      }
-      if {[dict exists $config $var]} continue
-      dict set dictargs $var $value
-    }
-    ###
-    # Apply all inputs with special rules
-    ###
-    foreach {field val} $dictargs {
-      if {[dict exists $config $field]} continue
-      set script [dict getnull $dat $field set-command:]
-      dict set config $field $val
-      if {$script ne {}} {
-        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
-      }
-    }
-  }
-  
+
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -1085,87 +889,13 @@ proc ::tool::object_destroy objname {
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
   method mixin args {
-    ###
-    # Mix in the class
-    ###
-    my variable mixins
-    set prior $mixins
-
-    set mixins $args
-    ::oo::objdefine [self] mixin {*}$args
-    ###
-    # Build a compsite map of all ensembles defined by the object's current
-    # class as well as all of the classes being mixed in
-    ###
-    set emap [::tool::ensemble_build_map [::info object class [self]] {*}[lreverse $args]]
-    set body [::tool::ensemble_methods $emap]
-    oo::objdefine [self] $body
-    foreach class $args {
-      if {$class ni $prior} {
-        my meta mixin $class
-      }
-      my ClassPublicApply $class
-    }
-    foreach class $prior {
-      if {$class ni $mixins } { 
-        my meta mixout $class
-      }
-    }
+    my clay mixin {*}$args
   }
 
-  method mixinmap args { 
-    my variable mixinmap
-    set priorlist {}
-    foreach {slot classes} $args {
-      if {[dict exists $mixinmap $slot]} {
-        lappend priorlist {*}[dict get $mixinmap $slot]  
-        foreach class [dict get $mixinmap $slot] {
-          if {$class ni $classes && [$class meta exists mixin unmap-script:]} {
-            if {[catch [$class meta get mixin unmap-script:] err errdat]} {
-              puts stderr "[self] MIXIN ERROR POPPING $class:\n[dict get $errdat -errorinfo]"
-            }
-          }
-        }
-      }
-      dict set mixinmap $slot $classes
-    }
-    my Recompute_Mixins
-    foreach {slot classes} $args {
-      foreach class $classes {
-        if {$class ni $priorlist && [$class meta exists mixin map-script:]} {
-          if {[catch [$class meta get mixin map-script:] err errdat]} {
-            puts stderr "[self] MIXIN ERROR PUSHING $class:\n[dict get $errdat -errorinfo]"
-          }
-        }
-      }
-    }
-    foreach {slot classes} $mixinmap {
-      foreach class $classes {
-        if {[$class meta exists mixin react-script:]} {
-          if {[catch [$class meta get mixin react-script:] err errdat]} {
-            puts stderr "[self] MIXIN ERROR REACTING $class:\n[dict get $errdat -errorinfo]"
-          }
-        }
-      }
-    }
+  method mixinmap args {
+    my clay mixinmap {*}$args
   }
 
-  method debug_mixinmap {} {
-    my variable mixinmap
-    return $mixinmap
-  }
-
-  method Recompute_Mixins {} {
-    my variable mixinmap
-    set classlist {}
-    foreach {item class} $mixinmap {
-      if {$class ne {}} {
-        lappend classlist $class
-      }
-    }
-    my mixin {*}$classlist
-  }
-  
   method morph newclass {
     if {$newclass eq {}} return
     set class [string trimleft [info object class [self]]]
@@ -1175,7 +905,7 @@ proc ::tool::object_destroy objname {
     }
     if { $class ne $newclass } {
       my Morph_leave
-      my variable mixins
+      set mixins [info object mixins [self]]
       oo::objdefine [self] class ::${newclass}
       my graft class ::${newclass}
       # Reapply mixins
@@ -1193,19 +923,15 @@ proc ::tool::object_destroy objname {
   # Commands to perform as this object transitions into this class as a new class
   ###
   method Morph_enter {} {}
-  
+
   ###
   # title: List which objects are forwarded as organs
   ###
   method organ {{stub all}} {
-    my variable organs
-    if {![info exists organs]} {
-      return {}
+    if {$stub eq "all"} {
+      return [my clay delegate]
     }
-    if { $stub eq "all" } {
-      return $organs
-    }
-    return [dict getnull $organs $stub]
+    return [my clay delegate $stub]
   }
 }
 
@@ -1221,29 +947,33 @@ proc ::tool::object_destroy objname {
 # topic: 68aa446005235a0632a10e2a441c0777
 # title: Define an option for the class
 ###
-proc ::tool::define::option {name args} {
+proc ::tool::define::option {field args} {
   set class [current_class]
-  set dictargs {default: {}}
-  foreach {var val} [::oo::meta::args_to_dict {*}$args] {
-    dict set dictargs [string trimright [string trimleft $var -] :]: $val
+  set field [string trimleft $field -/:]
+  set properties {default {}}
+  foreach {f v} [::clay::args_to_dict {*}$args] {
+    dict set properties [string trim $f -/:] $v
   }
-  set name [string trimleft $name -]
-
+  foreach {f v} [$class clay get option/ $field] {
+    if {![dict exists $properties $f]} {
+      dict set properties $f $v
+    }
+  }
   ###
   # Option Class handling
   ###
-  set optclass [dict getnull $dictargs class:]
+  set optclass [dict getnull $properties class]
   if {$optclass ne {}} {
-    foreach {f v} [::oo::meta::info $class getnull option_class $optclass] {
-      if {![dict exists $dictargs $f]} {
-        dict set dictargs $f $v
+    foreach {f v} [dict getnull $::clay::option_class $optclass] {
+      if {![dict exists $properties $f]} {
+        dict set properties $f $v
       }
     }
     if {$optclass eq "variable"} {
-      variable $name [dict getnull $dictargs default:]
+      $class clay set variable/ $field [dict getnull $properties default]
     }
   }
-  ::oo::meta::info $class branchset option $name $dictargs
+  $class clay set option/ $field $properties
 }
 
 ###
@@ -1255,12 +985,10 @@ proc ::tool::define::option {name args} {
 ###
 proc ::tool::define::option_class {name args} {
   set class [current_class]
-  set dictargs {default {}}
+  set name [string trimleft $name -:/]
   foreach {var val} [::oo::meta::args_to_dict {*}$args] {
-    dict set dictargs [string trimleft $var -] $val
+    dict set ::clay::option_class $name [string trimleft $var -:/] $val
   }
-  set name [string trimleft $name -]
-  ::oo::meta::info $class branchset option_class $name $dictargs
 }
 
 ::tool::define ::tool::object {
@@ -1269,8 +997,8 @@ proc ::tool::define::option_class {name args} {
 
   option_class organ {
     widget label
-    set-command {my graft %field% %value%}
-    get-command {my organ %field%}
+    set-command {my clay delegate %field% %value%}
+    get-command {my clay delegate %field%}
   }
 
   option_class variable {
@@ -1278,7 +1006,7 @@ proc ::tool::define::option_class {name args} {
     set-command {my variable %field% ; set %field% %value%}
     get-command {my variable %field% ; set %field%}
   }
-  
+
   dict_ensemble config config {
     get {
       return [my Config_get {*}$args]
@@ -1326,9 +1054,9 @@ proc ::tool::define::option_class {name args} {
     if {[llength $args]} {
       return [lindex $args 0]
     }
-    return [my meta cget $field] 
+    return [my meta cget $field]
   }
-  
+
   ###
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
@@ -1336,10 +1064,9 @@ proc ::tool::define::option_class {name args} {
     my variable config option_canonical
     set rawlist $dictargs
     set dictargs {}
-    set dat [my meta getnull option]
+    set dat [my clay get option/]
     foreach {field val} $rawlist {
-      set field [string trimleft $field -]
-      set field [string trimright $field :]
+      set field [string trimleft $field -/:]
       if {[info exists option_canonical($field)]} {
         set field $option_canonical($field)
       }
@@ -1349,7 +1076,7 @@ proc ::tool::define::option_class {name args} {
     # Validate all inputs
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field validate-command:]
+      set script [dict getnull $dat $field validate-command]
       if {$script ne {}} {
         dict set dictargs $field [eval [string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]]
       }
@@ -1358,7 +1085,7 @@ proc ::tool::define::option_class {name args} {
     # Apply all inputs with special rules
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field set-command:]
+      set script [dict getnull $dat $field set-command]
       dict set config $field $val
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
@@ -1366,20 +1093,21 @@ proc ::tool::define::option_class {name args} {
     }
     return $dictargs
   }
-  
+
   method Config_set args {
     set dictargs [::tool::args_to_options {*}$args]
     set dat [my Config_merge $dictargs]
     my Config_triggers $dat
   }
-  
+
   ###
   # topic: 543c936485189593f0b9ed79b5d5f2c0
   ###
   method Config_triggers dictargs {
-    set dat [my meta getnull option]
+    set dat [my clay get option/]
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field post-command:]
+      set field [string trim $field /]
+      set script [dict getnull $dat $field post-command]
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       }
@@ -1387,12 +1115,12 @@ proc ::tool::define::option_class {name args} {
   }
 
   method Option_Default field {
-    set info [my meta getnull option $field]
-    set getcmd [dict getnull $info default-command:]
+    set info [my clay get option/ $field]
+    set getcmd [dict getnull $info default-command]
     if {$getcmd ne {}} {
       return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
     } else {
-      return [dict getnull $info default:]
+      return [dict getnull $info default]
     }
   }
 }
@@ -1670,15 +1398,18 @@ package provide tool::pipeline 0.1
 ###
 proc ::tool::define::coroutine {name corobody} {
   set class [current_class]
-  ::oo::meta::info $class set method_ensemble ${name} _preamble: [list {} [string map [list %coroname% $name] {
+  set methodname $name
+  set methodname [string trim $methodname /:-]
+
+  $class clay set method_ensemble/ $methodname/ _preamble [list arglist {} body [string map [list %coroname% $name] {
     my variable coro_queue coro_lock
     set coro %coroname%
     set coroname [info object namespace [self]]::%coroname%
   }]]
-  ::oo::meta::info $class set method_ensemble ${name} coroutine: {{} {
+  $class clay set method_ensemble/ $methodname/ coroutine {arglist {} body {
     return $coroutine
   }}
-  ::oo::meta::info $class set method_ensemble ${name} restart: {{} {
+  $class clay set method_ensemble/ $methodname/ restart {arglist {} body {
     # Don't allow a coroutine to kill itself
     if {[info coroutine] eq $coroname} return
     if {[info commands $coroname] ne {}} {
@@ -1688,7 +1419,7 @@ proc ::tool::define::coroutine {name corobody} {
     ::coroutine $coroname {*}[namespace code [list my $coro main]]
     ::cron::object_coroutine [self] $coroname
   }}
-  ::oo::meta::info $class set method_ensemble ${name} kill: {{} {
+  $class clay set method_ensemble/ $methodname/ kill {arglist {} body {
     # Don't allow a coroutine to kill itself
     if {[info coroutine] eq $coroname} return
     if {[info commands $coroname] ne {}} {
@@ -1696,12 +1427,12 @@ proc ::tool::define::coroutine {name corobody} {
     }
   }}
 
-  ::oo::meta::info $class set method_ensemble ${name} main: [list {} $corobody]
+  $class clay set method_ensemble/ $methodname/ main [list arglist {} body $corobody]
 
-  ::oo::meta::info $class set method_ensemble ${name} clear: {{} {
+  $class clay set method_ensemble/ $methodname/ clear {arglist {} body {
     set coro_queue($coroname) {}
   }}
-  ::oo::meta::info $class set method_ensemble ${name} next: {{eventvar} {
+  $class clay set method_ensemble/ $methodname/ next {arglist {eventvar} body {
     upvar 1 [lindex $args 0] event
     if {![info exists coro_queue($coroname)]} {
       return 1
@@ -1713,8 +1444,8 @@ proc ::tool::define::coroutine {name corobody} {
     set coro_queue($coroname) [lrange $coro_queue($coroname) 1 end]
     return 0
   }}
-  
-  ::oo::meta::info $class set method_ensemble ${name} peek: {{eventvar} {
+
+  $class clay set method_ensemble/ $methodname/ peek {arglist {eventvar} body {
     upvar 1 [lindex $args 0] event
     if {![info exists coro_queue($coroname)]} {
       return 1
@@ -1726,7 +1457,7 @@ proc ::tool::define::coroutine {name corobody} {
     return 0
   }}
 
-  ::oo::meta::info $class set method_ensemble ${name} running: {{} {
+  $class clay set method_ensemble/ $methodname/ running {arglist {} body {
     if {[info commands $coroname] eq {}} {
       return 0
     }
@@ -1738,8 +1469,8 @@ proc ::tool::define::coroutine {name corobody} {
     }
     return 0
   }}
-  
-  ::oo::meta::info $class set method_ensemble ${name} send: {args {
+
+  $class clay set method_ensemble/ $methodname/ send {arglist args body {
     lappend coro_queue($coroname) $args
     if {[info coroutine] eq $coroname} {
       return
@@ -1754,7 +1485,7 @@ proc ::tool::define::coroutine {name corobody} {
       yield
     }
   }}
-  ::oo::meta::info $class set method_ensemble ${name} default: {args {my [self method] send $method {*}$args}}
+  $class clay set method_ensemble/ $methodname/ default {arglist args body {my [self method] send $method {*}$args}}
 
 }
 

@@ -8,7 +8,13 @@ source [file join \
 
 testsNeedTcl     8.6 ;# tailcall in oo::meta
 testsNeedTcltest 2
-testsNeed        TclOO
+
+support {
+    use oodialect/oodialect.tcl oo::dialect
+    use dicttool/dicttool.tcl   dicttool
+    use cron/cron.tcl           cron
+    use clay/clay.tcl           clay
+}
 
 testing {
   useLocal oometa.tcl   oo::meta
@@ -20,9 +26,9 @@ testing {
 
 oo::class create foo {
   meta set const color: blue
-  
+
   constructor args {
-    my _staticInit
+    my InitializePublic
     my configure {*}$args
   }
 }
@@ -36,6 +42,18 @@ oo::class create bar {
   }
 }
 
+test oo-class-meta-001.a {Test accessing properties} {
+  oo::meta::info foo get const color:
+} blue
+
+test oo-class-meta-001.b {Test accessing properties} {
+  foo clay get const color
+} blue
+
+test oo-class-meta-001.c {Test accessing properties} {
+  foo meta get const color
+} blue
+
 test oo-class-meta-001 {Test accessing properties} {
   foo meta get const color:
 } blue
@@ -48,6 +66,28 @@ test oo-class-meta-003 {Test accessing properties} {
   bar meta get const shape:
 } oval
 
+test oo-class-meta-004 {Test accessing properties with old paths} {
+  oo::meta::claypath option
+} {option/}
+test oo-class-meta-005 {Test accessing properties with old paths} {
+  oo::meta::claypath option color
+} {option/ color}
+test oo-class-meta-006 {Test accessing properties with old paths} {
+  oo::meta::claypath option color label
+} {option/ color label}
+
+test oo-class-meta-007 {Test accessing properties with old paths} {
+  bar meta get option
+} {color {default green label Color}}
+
+test oo-class-meta-007.a {Test accessing properties with old paths} {
+  bar clay get option
+} {color {. 1 default green label Color}}
+
+test oo-class-meta-008 {Test accessing properties with old paths} {
+  oo::meta::info bar get option
+} {color {default green label Color}}
+
 bar create cheers color pink
 # Pulling the meta data from const will return
 # the value specified in the class
@@ -59,13 +99,15 @@ test oo-object-meta-001 {Test accessing properties} {
 # definition
 test oo-object-meta-001a {Test accessing properties} {
   cheers meta cget color
-} green
+} blue
+# meta cget prefers a constant
 # pink - Meta CGET is no longer connected to the local object's config
 
 # With or without the trailing :
 test oo-object-meta-001b {Test accessing properties} {
   cheers meta cget color:
-} green
+} blue
+# meta cget prefers a constant
 # pink - Meta CGET is no longer connected to the local object's config
 
 # And using the local cget
@@ -86,14 +128,6 @@ test  oo-object-meta-004 {Test accessing properties} {
   moes meta get const color:
 } blue
 
-test  oo-object-meta-004a {Test accessing properties} {
-  moes cget color
-} green
-
-test  oo-object-meta-004a {Test accessing properties} {
-  moes cget color:
-} green
-
 test  oo-object-meta-005 {Test accessing properties} {
   moes meta get const shape:
 } oval
@@ -101,6 +135,8 @@ test  oo-object-meta-005 {Test accessing properties} {
 test  oo-object-meta-006 {Test accessing properties} {
   moes cget color
 } green
+# Used to return blue. Now the implementation populates options
+# at object creation
 
 test  oo-object-meta-007 {Test the CGET retrieves a property if an option doesn't exist} {
   moes cget shape
@@ -127,31 +163,31 @@ test oo-modobject-meta-001 {Test the accessing of properties of an instance of a
 
 test obj-meta-for-001 {Test object meta for} {
   set output {}
-  moes meta for {key value} option {
+  moes meta for {key value} option/ {
     lappend output $key $value
   }
   set output
-} {color {label: Color default: green}}
+} {color {default green label Color}}
 
-test obj-meta-with-001 {Test object meta with} {
+test obj-meta-with-002 {Test object meta with} {
   set result {}
-  moes meta with option {}
+  moes meta with option/ {}
   set color
-} {label: Color default: green}
+} {default green label Color}
 
 test class-meta-for-001 {Test class meta for} {
   set output {}
-  bar meta for {key value} option {
+  bar meta for {key value} option/ {
     lappend output $key $value
   }
   set output
-} {color {label: Color default: green}}
+} {color {default green label Color}}
 
-test class-meta-with-001 {Test class meta with} {
+test class-meta-with-002 {Test class meta with} {
   set result {}
-  bar meta with option {}
+  bar meta with option/ {}
   set color
-} {label: Color default: green}
+} {default green label Color}
 
 # -------------------------------------------------------------------------
 
@@ -159,12 +195,48 @@ test class-meta-with-001 {Test class meta with} {
 
 oo::class create baz {
   superclass ::bar
-  meta set option color default: purple  
+  option color {
+    default purple
+  }
 }
+
+##
+# This test fails:
+# It returns: {color {default green label Color}}
+#
+#test oo-class-meta-009 {Test accessing properties with old paths} {
+#  baz meta get option
+#} {color {default purple label Color}}
+
+test oo-class-meta-009a {Test accessing properties with old paths} {
+  baz clay get option/
+} {color {. 1 default purple}}
+
+test oo-class-meta-009b {Test accessing properties with old paths} {
+  baz clay find option color
+} {default green label Color}
+
+test oo-class-meta-009c {Test accessing properties with old paths} {
+  baz clay get option color
+} {default purple}
+
+test oo-class-meta-009d {Test accessing properties with old paths} {
+  baz clay find option
+} {color {. 1 default purple label Color}}
 
 test obj-meta-recursive-1 {Test that meta set works with recursive dicts} {
   set result {}
   baz meta get option color default:
+} {purple}
+
+test obj-meta-recursive-1a {Test that meta set works with recursive dicts} {
+  set result {}
+  baz clay get option/ color default
+} {purple}
+
+test obj-meta-recursive-1b {Test that meta set works with recursive dicts} {
+  set result {}
+  baz clay find option/ color default
 } {purple}
 
 test obj-meta-recursive-2 {Test that meta set works with recursive dicts} {
@@ -172,35 +244,47 @@ test obj-meta-recursive-2 {Test that meta set works with recursive dicts} {
   baz meta get option color label:
 } {Color}
 
+test obj-meta-recursive-2a {Test that meta set works with recursive dicts} {
+  set result {}
+  baz clay find option color label
+} {Color}
+
+test obj-meta-recursive-3 {Test that meta set works with recursive dicts} {
+  set result {}
+  baz meta get option color label:
+} {Color}
+
+test obj-meta-recursive-3a {Test that meta set works with recursive dicts} {
+  set result {}
+  baz clay find option color label
+} {Color}
 
 ###
 # New test, of mixins
 ###
 oo::class create mixin-test-A {
   meta set const color: blue
-  meta set field {
-    pkey {name: {Primary Key} type: integer}
-    name {name: {Unit Name} type: string}
-    typefield {name: {Type Field} type: integer}
-  }
+  meta branchset field pkey {name: {Primary Key} type: integer}
+  meta branchset field name {name: {Unit Name} type: string}
+  meta branchset field typefield {name: {Type Field} type: integer}
+
   constructor args {
-    my _staticInit
+    my InitializePublic
     my configure {*}$args
   }
 }
 
 oo::class create mixin-test-B {
   meta set const shape: oval
-  meta set field {
-    location {name: {Location} type: vector}
-    typefield {name: {Type Field} type: custom}
-  }
+  meta branchset field location {name: {Location} type: vector}
+  meta branchset field typefield {name: {Type Field} type: custom}
+
   option color {
     label Color
     default green
   }
   constructor args {
-    my _staticInit
+    my InitializePublic
     my configure {*}$args
   }
 }
@@ -214,7 +298,7 @@ test obj-mixin-001 {Test that meta prior to meta mixin we don't have a color} {
 MTB meta mixin mixin-test-A
 test obj-mixin-002 {Test that prior to meta mixin we don't have a color} {
   MTB meta exists const color:
-} 1
+} 3
 test obj-mixin-002 {Test that after meta mixin we do have a color} {
   MTB meta get const color:
 } blue
@@ -227,6 +311,7 @@ test obj-mixin-004 {Test that after meta mixin we can access the field dict's lo
 test obj-mixin-005 {Test that mixed in data overrides conflicting local data} {
   MTB meta get field typefield type:
 } integer
+
 testsuiteCleanup
 
 # Local variables:

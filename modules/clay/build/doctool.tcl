@@ -47,7 +47,6 @@ proc ::clay::docstrip text {
   return $result
 }
 
-
 ###
 # Append a line of text to a variable. Optionally apply a string mapping.
 # arglist:

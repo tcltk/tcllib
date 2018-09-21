@@ -181,7 +181,7 @@ proc ::clay::args_to_options args {
   return $result
 }
 
-proc ::clay::dictmerge {varname args} {
+proc ::dicttool::dictmerge {varname args} {
   upvar 1 $varname result
   if {![info exists result]} {
     set result {}
@@ -453,17 +453,17 @@ oo::define oo::class {
           # Search in the in our list of classes for an answer
           foreach class [lreverse $clayorder] {
             if {$class eq [self]} continue
-            ::clay::dictmerge result [$class clay get {*}$path]
+            ::dicttool::dictmerge result [$class clay get {*}$path]
           }
           if {[dict exists $clay {*}$path]} {
-            ::clay::dictmerge result [dict get $clay {*}$path]
+            ::dicttool::dictmerge result [dict get $clay {*}$path]
           }
           return $result
         }
       }
       merge {
         foreach arg $args {
-          ::clay::dictmerge clay {*}$arg
+          ::dicttool::dictmerge clay {*}$arg
         }
       }
       search {
@@ -477,7 +477,7 @@ oo::define oo::class {
         #puts [list [self] clay SET {*}$args]
         set value [lindex $args end]
         set path [::clay::leaf {*}[lrange $args 0 end-1]]
-        ::clay::dictmerge clay {*}$path $value
+        ::dicttool::dictmerge clay {*}$path $value
       }
       default {
         dict $submethod clay {*}$args
@@ -581,9 +581,9 @@ oo::define oo::object {
         set result $clay
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
-          ::clay::dictmerge result [$class clay dump]
+          ::dicttool::dictmerge result [$class clay dump]
         }
-        ::clay::dictmerge result $clay
+        ::dicttool::dictmerge result $clay
         return $result
       }
       ensemble_map {
@@ -683,10 +683,10 @@ oo::define oo::object {
 
           # Search in the in our list of classes for an answer
           foreach class [lreverse $clayorder] {
-            ::clay::dictmerge result [$class clay get {*}$args]
+            ::dicttool::dictmerge result [$class clay get {*}$args]
           }
           if {[dict exists $clay {*}$args]} {
-            ::clay::dictmerge result [dict get $clay {*}$args]
+            ::dicttool::dictmerge result [dict get $clay {*}$args]
           }
           return $result
         }
@@ -712,7 +712,7 @@ oo::define oo::object {
       }
       merge {
         foreach arg $args {
-          ::clay::dictmerge clay {*}$arg
+          ::dicttool::dictmerge clay {*}$arg
         }
       }
       mixin {
@@ -727,7 +727,7 @@ oo::define oo::object {
         set newmap $args
         foreach class $prior {
           if {$class ni $newmixin} {
-            set script [$class clay get mixin/ unmap-script]
+            set script [$class clay find mixin unmap-script]
             if {[string length $script]} {
               if {[catch $script err errdat]} {
                 puts stderr "[self] MIXIN ERROR POPPING $class:\n[dict get $errdat -errorinfo]"
@@ -743,7 +743,7 @@ oo::define oo::object {
         my InitializePublic
         foreach class $newmixin {
           if {$class ni $prior} {
-            set script [$class clay get mixin/ map-script]
+            set script [$class clay find mixin map-script]
             if {[string length $script]} {
               if {[catch $script err errdat]} {
                 puts stderr "[self] MIXIN ERROR PUSHING $class:\n[dict get $errdat -errorinfo]"
@@ -804,7 +804,7 @@ oo::define oo::object {
       set {
         #puts [list [self] clay SET {*}$args]
         set claycache {}
-        ::clay::dictmerge clay {*}$args
+        ::dicttool::dictmerge clay {*}$args
       }
       default {
         dict $submethod clay {*}$args

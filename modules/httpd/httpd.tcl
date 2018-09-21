@@ -1214,7 +1214,7 @@ namespace eval ::httpd::coro {}
       error "Class $class for plugin $slot does not exist"
     }
     my clay mixinmap $slot $class
-    set mixinmap [my clay get mixin]
+    set mixinmap [my clay mixinmap]
 
     ###
     # Perform action on load
