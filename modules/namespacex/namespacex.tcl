@@ -214,10 +214,10 @@ proc ::namespacex::info::vars {ns {pattern *}} {
 # this implementation avoids string operations
 proc ::namespacex::normalize ns {
     if {[uplevel 1 [list ::namespace exists $ns]]} {
-	return [uplevel 1 [list namespace eval $ns {namespace current}]]
+	return [uplevel 1 [list namespace eval $ns {::namespace current}]]
     }
     if {![string match ::* $ns]} {
-	set ns [uplevel 1 {namespace current}]::$ns
+	set ns [uplevel 1 {::namespace current}]::$ns
     }
     regsub {::+} $ns :: ns
     return $ns
