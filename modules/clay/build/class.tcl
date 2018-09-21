@@ -75,23 +75,8 @@ oo::define oo::class {
       dump {
         return $clay
       }
-      getnull -
-      get {
-        if {![info exists clay]} {
-          return {}
-        }
-        set path [::dicttool::storage $args]
-        if {![dict exists $clay {*}$path]} {
-          return {}
-        }
-        if {[dict exists $clay {*}$path .]} {
-          return [dict remove [dict get $clay {*}$path] .]
-        } else {
-          return [dict get $clay {*}$path]
-        }
-      }
-      GET {
-        if {![info exists clay]} {
+      dget {
+         if {![info exists clay]} {
           return {}
         }
         set path [::dicttool::storage $args]
@@ -99,6 +84,20 @@ oo::define oo::class {
           return {}
         }
         return [dict get $clay {*}$path]
+      }
+      getnull -
+      get {
+        if {![info exists clay]} {
+          return {}
+        }
+        set path [::dicttool::storage $args]
+        if {[dict exists $clay {*}$path .]} {
+          return [::dicttool::sanitize [dict get $clay {*}$path]]
+        }
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
+        }
+        return {}
       }
       find {
         set path [::dicttool::storage $args]
@@ -115,7 +114,7 @@ oo::define oo::class {
           }
           if {[$class clay exists {*}$path]} {
             # Found a leaf. Return that value immediately
-            return [$class clay GET {*}$path]
+            return [$class clay get {*}$path]
           }
         }
         if {!$found} {
@@ -126,9 +125,9 @@ oo::define oo::class {
         # Search in our local dict
         # Search in the in our list of classes for an answer
         foreach class [lreverse $clayorder] {
-          ::dicttool::dictmerge result [$class clay GET {*}$path]
+          ::dicttool::dictmerge result [$class clay dget {*}$path]
         }
-        return [dict remove $result .]
+        return [::dicttool::sanitize $result]
       }
       merge {
         foreach arg $args {

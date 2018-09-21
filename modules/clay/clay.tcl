@@ -224,23 +224,8 @@ oo::define oo::class {  method clay {submethod args} {
       dump {
         return $clay
       }
-      getnull -
-      get {
-        if {![info exists clay]} {
-          return {}
-        }
-        set path [::dicttool::storage $args]
-        if {![dict exists $clay {*}$path]} {
-          return {}
-        }
-        if {[dict exists $clay {*}$path .]} {
-          return [dict remove [dict get $clay {*}$path] .]
-        } else {
-          return [dict get $clay {*}$path]
-        }
-      }
-      GET {
-        if {![info exists clay]} {
+      dget {
+         if {![info exists clay]} {
           return {}
         }
         set path [::dicttool::storage $args]
@@ -248,6 +233,20 @@ oo::define oo::class {  method clay {submethod args} {
           return {}
         }
         return [dict get $clay {*}$path]
+      }
+      getnull -
+      get {
+        if {![info exists clay]} {
+          return {}
+        }
+        set path [::dicttool::storage $args]
+        if {[dict exists $clay {*}$path .]} {
+          return [::dicttool::sanitize [dict get $clay {*}$path]]
+        }
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
+        }
+        return {}
       }
       find {
         set path [::dicttool::storage $args]
@@ -264,7 +263,7 @@ oo::define oo::class {  method clay {submethod args} {
           }
           if {[$class clay exists {*}$path]} {
             # Found a leaf. Return that value immediately
-            return [$class clay GET {*}$path]
+            return [$class clay get {*}$path]
           }
         }
         if {!$found} {
@@ -275,9 +274,9 @@ oo::define oo::class {  method clay {submethod args} {
         # Search in our local dict
         # Search in the in our list of classes for an answer
         foreach class [lreverse $clayorder] {
-          ::dicttool::dictmerge result [$class clay GET {*}$path]
+          ::dicttool::dictmerge result [$class clay dget {*}$path]
         }
-        return [dict remove $result .]
+        return [::dicttool::sanitize $result]
       }
       merge {
         foreach arg $args {
@@ -404,13 +403,13 @@ oo::define oo::object {  method clay {submethod args} {
       ensemble_map {
         set ensemble [lindex $args 0]
         my variable claycache
-        set mensemble [string trim $ensemble :/]/
+        set mensemble [string trim $ensemble :/]
         if {[dict exists $claycache method_ensemble $mensemble]} {
-          return [dict sanitize [dict get $claycache method_ensemble $mensemble]]
+          return [dicttool::sanitize [dict get $claycache method_ensemble $mensemble]]
         }
-        set emap [my clay get method_ensemble $mensemble]
+        set emap [my clay dget method_ensemble $mensemble]
         dict set claycache method_ensemble $mensemble $emap
-        return [dict sanitize $emap]
+        return [dicttool::sanitize $emap]
       }
       eval {
         set script [lindex $args 0]
@@ -470,76 +469,109 @@ oo::define oo::object {  method clay {submethod args} {
       forward {
         oo::objdefine [self] forward {*}$args
       }
-      getnull -
-      get {
+      dget {
+        # Search in our local cache
         set path [::dicttool::storage $args]
+        #if {[dict exists $claycache {*}$path]} {
+        #  return [dict get $claycache {*}$path]
+        #}
         if {[dict exists $clay {*}$path .]} {
-          if {[dict exists $claycache {*}$path .]} {
-            return [dict remove [dict get $claycache {*}$path] .]
-          }
-          if {[dict exists $claycache {*}$path]} {
-            return [dict get $claycache {*}$path]
-          }
           # Path is a branch
           set result {}
           foreach class [lreverse $clayorder] {
             if {[$class clay exists {*}$path .]} {
-              set value [$class clay get {*}$path]
+              set value [$class clay dget {*}$path]
               ::dicttool::dictmerge result $value
             }
           }
           ::dicttool::dictmerge result [dict get $clay {*}$path]
           dict set claycache {*}$path $result
-          return [dict remove $result .]
-        } else {
+          return $result
+        } elseif {[dict exists $clay {*}$path]} {
           # Path is a leaf
-          if {[dict exists $clay {*}$path]} {
-            return [dict get $clay {*}$path]
-          }
-          # Search in our local cache
-          if {[dict exists $claycache {*}$path]} {
-            return [dict get $claycache {*}$path]
-          }
-          # Search in the in our list of classes for an answer
-          set found 0
-          set result {}
-          foreach class $clayorder {
-            if {[$class clay exists {*}$path .]} {
-              set found 1
-              break
-            }
-            if {[$class clay exists {*}$path]} {
-              set result [$class clay get {*}$path]
-              dict set claycache {*}$path $result
-              return $result
-            }
-          }
-          set result {}
-          if {$found} {
-            foreach class [lreverse $clayorder] {
-              if {[$class clay exists {*}$path .]} {
-                set value [$class clay get {*}$path]
-                ::dicttool::dictmerge result $value
-              }
-            }
-          }
-          dict set claycache {*}$path $result
-          return [dict remove $result .]
+          return [dict get $clay {*}$path]
         }
+        # Search in the in our list of classes for an answer
+        set found 0
+        foreach class $clayorder {
+          if {[$class clay exists {*}$path .]} {
+            set found 1
+            break
+          }
+          if {[$class clay exists {*}$path]} {
+            # Found a leaf.
+            set result [$class clay get {*}$path]
+            dict set claycache {*}$path $result
+            return $result
+          }
+        }
+        set result {}
+        if {$found} {
+          # One of our ancestors has this as a branch
+          # Do a recursive merge across all classes
+          foreach class [lreverse $clayorder] {
+            if {[$class clay exists {*}$path .]} {
+              set value [$class clay dget {*}$path]
+              ::dicttool::dictmerge result $value
+            }
+          }
+        }
+        dict set claycache {*}$path $result
+        return $result
+      }
+      getnull -
+      get {
+        set path [::dicttool::storage $args]
+        if {[dict exists $claycache {*}$path .]} {
+          return [::dicttool::sanitize [dict get $claycache {*}$path]]
+        }
+        if {[dict exists $claycache {*}$path]} {
+          return [dict get $claycache {*}$path]
+        }
+        if {[dict exists $clay {*}$path] && ![dict exists $clay {*}$path .]} {
+          # Path is a leaf
+          return [dict get $clay {*}$path]
+        }
+        set found 0
+        set branch [dict exists $clay {*}$path .]
+        foreach class $clayorder {
+          if {[$class clay exists {*}$path .]} {
+            set found 1
+            break
+          }
+          if {!$branch && [$class clay exists {*}$path]} {
+            set result [$class clay dget {*}$path]
+            dict set claycache {*}$path $result
+            return $result
+          }
+        }
+        # Path is a branch
+        set result {}
+        foreach class [lreverse $clayorder] {
+          if {[$class clay exists {*}$path .]} {
+            set value [$class clay dget {*}$path]
+            ::dicttool::dictmerge result $value
+          }
+        }
+        if {[dict exists $clay {*}$path .]} {
+          ::dicttool::dictmerge result [dict get $clay {*}$path]
+        }
+        dict set claycache {*}$path $result
+        return [dicttool::sanitize $result]
       }
       leaf {
         # Leaf searches return one data field at a time
         # Search in our local dict
         set path [::dicttool::storage $args]
         if {[dict exists $clay {*}$path .]} {
-          return [dict sanitize [dict get $clay {*}$path]]
+          return [dicttool::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
         }
         # Search in our local cache
         if {[dict exists $claycache {*}$path .]} {
-          return [dict sanitize [dict get $claycache {*}$path]]
+          return [dicttool::sanitize [dict get $claycache {*}$path]]
         }
         if {[dict exists $claycache {*}$path]} {
           return [dict get $claycache {*}$path]
@@ -658,10 +690,13 @@ oo::define oo::object {  method clay {submethod args} {
     my variable clayorder clay claycache config option_canonical
     set claycache {}
     set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
+    if {![info exists clay]} {
+      set clay {}
+    }
     if {![info exists config]} {
       set config {}
     }
-    dict for {var value} [my clay get variable/] {
+    dict for {var value} [my clay get variable] {
       if { $var in {. clay} } continue
       set var [string trim $var :/]
       my variable $var
@@ -765,12 +800,10 @@ proc ::clay::dynamic_methods_class {thisclass} {
 }
 proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists array/ $name]} {
-    $class clay set array/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set array $name . 1
   foreach {var val} $values {
-    $class clay set array/ $name $var $val
+    $class clay set array/ $name/ $var: $val
   }
 }
 proc ::clay::define::component {name info} {
@@ -817,18 +850,16 @@ set DestroyEvent 1
 }
 proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists dict/ $name]} {
-    $class clay set dict/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set dict $name . 1
   foreach {var val} $values {
-    $class clay set dict/ $name $var $val
+    $class clay set dict/ $name/ $var: $val
   }
 }
 proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
-  $class clay set variable/ $name $default
+  $class clay set variable $name: $default
   #::oo::define $class variable $name
 }
 proc ::clay::object_create {objname {class {}}} {

@@ -62,7 +62,7 @@ test {%test%} {Test ::dicttool::canonical with %pattern% = %output%} {
 putb result {
 dict set r foo/ bar/ baz 1
 dict set s foo/ bar/ baz 0
-set t [dict rmerge $r $s]
+set t [dicttool::merge $r $s]
 
 test rmerge-0001 {Test that the root is marked as a branch} {
   dict get $t foo bar baz
@@ -124,19 +124,19 @@ test dictmerge-0008 {Test that leaf foo/bar/bang is now a branch} {
 } 1
 
 test branch-0001 {Test that foo/ is a branch} {
-  dict is_branch $r foo/
+  dicttool::is_branch $r foo/
 } 1
 test branch-0002 {Test that foo is a branch} {
-  dict is_branch $r foo
+  dicttool::is_branch $r foo
 } 1
 test branch-0003 {Test that foo/bar/ is a branch} {
-  dict is_branch $r {foo/ bar/}
+  dicttool::is_branch $r {foo/ bar/}
 } 1
 test branch-0004 {Test that foo bar is not branch} {
-  dict is_branch $r {foo bar}
+  dicttool::is_branch $r {foo bar}
 } 1
 test branch-0004 {Test that foo/ bar is not branch} {
-  dict is_branch $r {foo/ bar}
+  dicttool::is_branch $r {foo/ bar}
 } 0
 }
 
@@ -161,7 +161,7 @@ foreach {path isbranch} {
     dict set map %test% [format "test-branch-%04d" [incr test]]
     putb result $map {
 test {%test%} {Test that %mpath% %head%%item%%tail% is_branch = %isbranch%} {
-  dict is_branch $r {%mpath% %head%%item%%tail%}
+  dicttool::is_branch $r {%mpath% %head%%item%%tail%}
 } %isbranch%
 }
   }
@@ -221,7 +221,7 @@ test oometa-0008 {Un-Sanitized output} {
 } {. 1 color {. 1 default green label Color}}
 
 test oometa-0009 {Sanitize} {
-  dict sanitize $foo
+  dicttool::sanitize $foo
 } {color {default green label Color}}
 }
 

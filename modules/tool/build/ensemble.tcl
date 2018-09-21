@@ -158,7 +158,7 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
       }
     }
     rmerge args {
-      set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
+      set %VARNAME% [dicttool::merge $%VARNAME% {*}$args]
       return $%VARNAME%
     }
     merge args {

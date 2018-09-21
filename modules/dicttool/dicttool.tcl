@@ -77,21 +77,18 @@ PROC ::tcl::dict::is_dict { d } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
 }
-PROC ::tcl::dict::is_branch { dict path } {
-  ::set field [lindex $path end]
-  if {[::string index $field end] eq ":"} {
-    ::return 0
+PROC ::dicttool::is_branch { dict path } {
+  set field [lindex $path end]
+  if {[string index $field end] eq ":"} {
+    return 0
   }
-  if {[::string index $field 0] eq "."} {
-    ::return 0
+  if {[string index $field 0] eq "."} {
+    return 0
   }
-  if {[::string index $field end] eq "/"} {
-    ::return 1
+  if {[string index $field end] eq "/"} {
+    return 1
   }
-  ::return [exists $dict {*}$path .]
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] is_branch ::tcl::dict::is_branch]
+  return [dict exists $dict {*}$path .]
 }
 PROC ::tcl::dict::print {dict} {
   ::set result {}
@@ -107,7 +104,7 @@ proc ::dicttool::_dictputb {level varname dict} {
   incr level
   dict for {field value} $dict {
     if {$field eq "."} continue
-    if {[::tcl::dict::is_branch $dict $field]} {
+    if {[dicttool::is_branch $dict $field]} {
       putb result "[string repeat "  " $level]$field \{"
       _dictputb $level result $value
       putb result "[string repeat "  " $level]\}"
@@ -116,20 +113,17 @@ proc ::dicttool::_dictputb {level varname dict} {
     }
   }
 }
-PROC ::tcl::dict::sanitize {dict} {
+PROC ::dicttool::sanitize {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_sanitizeb {} result $dict
   return $result
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] sanitize ::tcl::dict::sanitize]
 }
 proc ::dicttool::_sanitizeb {path varname dict} {
   upvar 1 $varname result
   dict for {field value} $dict {
     if {$field eq "."} continue
-    if {[::tcl::dict::is_branch $dict $field]} {
+    if {[dicttool::is_branch $dict $field]} {
       _sanitizeb [list {*}$path $field] result $value
     } else {
       dict set result {*}$path $field $value
@@ -189,7 +183,7 @@ proc ::dicttool::dictset {varname args} {
     }
   }
   if {[dict is_dict $value] && [dict exists $result {*}$dpath $dot]} {
-    dict set result {*}$dpath [::dict rmerge [dict get $result {*}$dpath] $value]
+    dict set result {*}$dpath [::dicttool::merge [dict get $result {*}$dpath] $value]
   } else {
     dict set result {*}$dpath $value
   }
@@ -203,17 +197,17 @@ proc ::dicttool::dictmerge {varname args} {
   foreach dict $args {
     dict for {f v} $dict {
       set field [string trim $f :/]
-      set bbranch [::tcl::dict::is_branch $dict $f]
+      set bbranch [dicttool::is_branch $dict $f]
       if {![dict exists $result $field]} {
         dict set result $field $v
         if {$bbranch} {
-          dict set result $field [dict rmerge $v]
+          dict set result $field [dicttool::merge $v]
         } else {
           dict set result $field $v
         }
       } elseif {[dict exists $result $field $dot]} {
         if {$bbranch} {
-          dict set result $field [dict rmerge [dict get $result $field] $v]
+          dict set result $field [dicttool::merge [dict get $result $field] $v]
         } else {
           dict set result $field $v
         }
@@ -222,36 +216,36 @@ proc ::dicttool::dictmerge {varname args} {
   }
   return $result
 }
-PROC ::tcl::dict::rmerge {args} {
+PROC ::dicttool::merge {args} {
   ###
   # The result of a merge is always a dict with branches
   ###
-  ::set dot .
-  ::set one [string is true 1]
-  set result $dot $one
-  ::set argument 0
-  ::foreach b $args {
+  set dot .
+  set one [string is true 1]
+  dict set result $dot $one
+  set argument 0
+  foreach b $args {
     # Merge b into a, and handle nested dicts appropriately
-    if {![is_dict $b]} {
+    if {![dict is_dict $b]} {
       error "Element $b is not a dictionary"
     }
-    for { k v } $b {
+    dict for { k v } $b {
       if {$k eq $dot} {
-        set result $dot $one
+        dict set result $dot $one
         continue
       }
-      ::set bbranch [is_branch $b $k]
-      ::set field [string trim $k /:]
-      if { ![exists $result $field] } {
+      set bbranch [is_branch $b $k]
+      set field [string trim $k /:]
+      if { ![dict exists $result $field] } {
         if {$bbranch} {
-          dict set result $field [rmerge $v]
+          dict set result $field [merge $v]
         } else {
           dict set result $field $v
         }
       } else {
-        ::set abranch [exists $result $field $dot]
+        set abranch [dict exists $result $field $dot]
         if {$abranch && $bbranch} {
-          dict set result $field [rmerge [dict get $result $field] $v]
+          dict set result $field [merge [dict get $result $field] $v]
         } else {
           dict set result $field $v
           if {$bbranch} {
@@ -262,34 +256,6 @@ PROC ::tcl::dict::rmerge {args} {
     }
   }
   return $result
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
-}
-PROC ::tcl::dict::rmerge {a args} {
-  ::set result $a
-  # Merge b into a, and handle nested dicts appropriately
-  ::foreach b $args {
-    for { k v } $b {
-      if {![::tcl::dict::is_branch $b $k]} {
-        set result $k $v
-      } elseif { [dict exists $result $k] } {
-        # key exists in a and b?  let's see if both values are dicts
-        # both are dicts, so merge the dicts
-        if { [is_branch [get $result $k]] && [is_branch $v] } {
-          set result $k [rmerge [get $result $k] $v]
-        } else {
-          set result $k $v
-        }
-      } else {
-        set result $k $v
-      }
-    }
-  }
-  return $result
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}

@@ -453,7 +453,7 @@ oo::define oo::class {
           # Search in the in our list of classes for an answer
           foreach class [lreverse $clayorder] {
             if {$class eq [self]} continue
-            ::dicttool::dictmerge result [$class clay get {*}$path]
+            ::dicttool::dictmerge result [$class clay dget {*}$path]
           }
           if {[dict exists $clay {*}$path]} {
             ::dicttool::dictmerge result [dict get $clay {*}$path]
@@ -683,7 +683,7 @@ oo::define oo::object {
 
           # Search in the in our list of classes for an answer
           foreach class [lreverse $clayorder] {
-            ::dicttool::dictmerge result [$class clay get {*}$args]
+            ::dicttool::dictmerge result [$class clay dget {*}$args]
           }
           if {[dict exists $clay {*}$args]} {
             ::dicttool::dictmerge result [dict get $clay {*}$args]

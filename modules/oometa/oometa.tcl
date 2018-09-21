@@ -175,16 +175,16 @@ proc oo::meta::info {class submethod args} {
     }
     for -
     map {
-      set info [dict sanitize [$class clay find {*}[lrange $args 1 end-1]]]
+      set info [dicttool::sanitize [$class clay find {*}[lrange $args 1 end-1]]]
       uplevel 1 [list ::dict $submethod [lindex $args 0] $info [lindex $args end]]
     }
     with {
       upvar 1 TEMPVAR info
-      set info [dict sanitize [$class clay dump]]
+      set info [dicttool::sanitize [$class clay dump]]
       return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
     }
     branchget {
-      return [dict sanitize [$class clay get $args]]
+      return [dicttool::sanitize [$class clay get $args]]
     }
     branchset {
       #$class clay set {*}$args
@@ -198,7 +198,7 @@ proc oo::meta::info {class submethod args} {
     getnull {
       set result [$class clay get {*}${args}]
       if {[llength $args]==1} {
-        return [dict sanitize $result]
+        return [dicttool::sanitize $result]
       }
       return $result
     }
@@ -209,7 +209,7 @@ proc oo::meta::info {class submethod args} {
       $class clay merge {*}${args}
     }
     dump {
-      return [dict sanitize [$class clay dump]]
+      return [dicttool::sanitize [$class clay dump]]
     }
     default {
       error "Unknown method $submethod. Valid: branchget branchset cget for is with"
@@ -247,7 +247,7 @@ oo::define oo::class {
     switch $submethod {
       branchget {
         set path [oo::meta::clay_branch {*}$args]
-        return [dict sanitize [my clay get $path]]
+        return [dicttool::sanitize [my clay get $path]]
       }
       branchset {
         set path [oo::meta::clay_branch {*}[lrange $args 0 end-1]]
@@ -291,7 +291,7 @@ oo::define oo::class {
       for -
       map {
         set path [::dicttool::storage [lrange $args 1 end-1]]
-        set info  [dict sanitize [my clay find {*}$path]]
+        set info  [dicttool::sanitize [my clay find {*}$path]]
         tailcall ::dict $submethod [lindex $args 0] $info [lindex $args end]
       }
       is {
@@ -302,7 +302,7 @@ oo::define oo::class {
       get {
         set result [my clay find {*}$args]
         if {[llength $args]==1} {
-          return [dict sanitize $result]
+          return [dicttool::sanitize $result]
         }
         return $result
       }
@@ -314,7 +314,7 @@ oo::define oo::class {
       }
       with {
         upvar 1 TEMPVAR info
-        set info [dict sanitize [my clay find {*}[lrange $args 0 end-1]]]
+        set info [dicttool::sanitize [my clay find {*}[lrange $args 0 end-1]]]
         tailcall ::dict with TEMPVAR [lindex $args end]
       }
       default {
@@ -337,7 +337,7 @@ oo::define oo::object {
     set class [::info object class [self object]]
     switch $submethod {
       branchget {
-        return [dict sanitize [my clay get {*}$args]]
+        return [dicttool::sanitize [my clay get {*}$args]]
       }
       branchset {
         #my clay set {*}$args
@@ -379,7 +379,7 @@ oo::define oo::object {
         return {}
       }
       dump {
-        return [dict sanitize [my clay dump]]
+        return [dicttool::sanitize [my clay dump]]
       }
       exists {
         return [my clay exists {*}$args]
@@ -387,7 +387,7 @@ oo::define oo::object {
       for -
       map {
         set path [::dicttool::storage [lrange $args 1 end-1]]
-        set info  [dict sanitize [my clay get {*}$path]]
+        set info  [dicttool::sanitize [my clay get {*}$path]]
         tailcall ::dict $submethod [lindex $args 0] $info [lindex $args end]
       }
       get - getnull {
@@ -408,7 +408,7 @@ oo::define oo::object {
       }
       with {
         upvar 1 TEMPVAR info
-        set info [dict sanitize [my clay get {*}[lrange $args 0 end-1]]]
+        set info [dicttool::sanitize [my clay get {*}[lrange $args 0 end-1]]]
         tailcall ::dict with TEMPVAR [lindex $args end]
       }
       default {

@@ -66,7 +66,7 @@ test {test-storage-0004} {Test ::dicttool::canonical with foo/ bar/ . = foo bar 
 
 dict set r foo/ bar/ baz 1
 dict set s foo/ bar/ baz 0
-set t [dict rmerge $r $s]
+set t [dicttool::merge $r $s]
 
 test rmerge-0001 {Test that the root is marked as a branch} {
   dict get $t foo bar baz
@@ -128,139 +128,139 @@ test dictmerge-0008 {Test that leaf foo/bar/bang is now a branch} {
 } 1
 
 test branch-0001 {Test that foo/ is a branch} {
-  dict is_branch $r foo/
+  dicttool::is_branch $r foo/
 } 1
 test branch-0002 {Test that foo is a branch} {
-  dict is_branch $r foo
+  dicttool::is_branch $r foo
 } 1
 test branch-0003 {Test that foo/bar/ is a branch} {
-  dict is_branch $r {foo/ bar/}
+  dicttool::is_branch $r {foo/ bar/}
 } 1
 test branch-0004 {Test that foo bar is not branch} {
-  dict is_branch $r {foo bar}
+  dicttool::is_branch $r {foo bar}
 } 1
 test branch-0004 {Test that foo/ bar is not branch} {
-  dict is_branch $r {foo/ bar}
+  dicttool::is_branch $r {foo/ bar}
 } 0
 
 
 test {test-branch-0001} {Test that  foo is_branch = 1} {
-  dict is_branch $r { foo}
+  dicttool::is_branch $r { foo}
 } 1
 
 
 test {test-branch-0002} {Test that  foo: is_branch = 0} {
-  dict is_branch $r { foo:}
+  dicttool::is_branch $r { foo:}
 } 0
 
 
 test {test-branch-0003} {Test that  foo/ is_branch = 1} {
-  dict is_branch $r { foo/}
+  dicttool::is_branch $r { foo/}
 } 1
 
 
 test {test-branch-0004} {Test that  .foo is_branch = 0} {
-  dict is_branch $r { .foo}
+  dicttool::is_branch $r { .foo}
 } 0
 
 
 test {test-branch-0005} {Test that foo bar is_branch = 1} {
-  dict is_branch $r {foo bar}
+  dicttool::is_branch $r {foo bar}
 } 1
 
 
 test {test-branch-0006} {Test that foo bar: is_branch = 0} {
-  dict is_branch $r {foo bar:}
+  dicttool::is_branch $r {foo bar:}
 } 0
 
 
 test {test-branch-0007} {Test that foo bar/ is_branch = 1} {
-  dict is_branch $r {foo bar/}
+  dicttool::is_branch $r {foo bar/}
 } 1
 
 
 test {test-branch-0008} {Test that foo .bar is_branch = 0} {
-  dict is_branch $r {foo .bar}
+  dicttool::is_branch $r {foo .bar}
 } 0
 
 
 test {test-branch-0009} {Test that foo bar baz is_branch = 0} {
-  dict is_branch $r {foo bar baz}
+  dicttool::is_branch $r {foo bar baz}
 } 0
 
 
 test {test-branch-0010} {Test that foo bar baz: is_branch = 0} {
-  dict is_branch $r {foo bar baz:}
+  dicttool::is_branch $r {foo bar baz:}
 } 0
 
 
 test {test-branch-0011} {Test that foo bar baz/ is_branch = 1} {
-  dict is_branch $r {foo bar baz/}
+  dicttool::is_branch $r {foo bar baz/}
 } 1
 
 
 test {test-branch-0012} {Test that foo bar .baz is_branch = 0} {
-  dict is_branch $r {foo bar .baz}
+  dicttool::is_branch $r {foo bar .baz}
 } 0
 
 
 test {test-branch-0013} {Test that foo bar bing is_branch = 0} {
-  dict is_branch $r {foo bar bing}
+  dicttool::is_branch $r {foo bar bing}
 } 0
 
 
 test {test-branch-0014} {Test that foo bar bing: is_branch = 0} {
-  dict is_branch $r {foo bar bing:}
+  dicttool::is_branch $r {foo bar bing:}
 } 0
 
 
 test {test-branch-0015} {Test that foo bar bing/ is_branch = 1} {
-  dict is_branch $r {foo bar bing/}
+  dicttool::is_branch $r {foo bar bing/}
 } 1
 
 
 test {test-branch-0016} {Test that foo bar .bing is_branch = 0} {
-  dict is_branch $r {foo bar .bing}
+  dicttool::is_branch $r {foo bar .bing}
 } 0
 
 
 test {test-branch-0017} {Test that foo bar bang is_branch = 1} {
-  dict is_branch $r {foo bar bang}
+  dicttool::is_branch $r {foo bar bang}
 } 1
 
 
 test {test-branch-0018} {Test that foo bar bang: is_branch = 0} {
-  dict is_branch $r {foo bar bang:}
+  dicttool::is_branch $r {foo bar bang:}
 } 0
 
 
 test {test-branch-0019} {Test that foo bar bang/ is_branch = 1} {
-  dict is_branch $r {foo bar bang/}
+  dicttool::is_branch $r {foo bar bang/}
 } 1
 
 
 test {test-branch-0020} {Test that foo bar .bang is_branch = 0} {
-  dict is_branch $r {foo bar .bang}
+  dicttool::is_branch $r {foo bar .bang}
 } 0
 
 
 test {test-branch-0021} {Test that foo bar bang whoop is_branch = 0} {
-  dict is_branch $r {foo bar bang whoop}
+  dicttool::is_branch $r {foo bar bang whoop}
 } 0
 
 
 test {test-branch-0022} {Test that foo bar bang whoop: is_branch = 0} {
-  dict is_branch $r {foo bar bang whoop:}
+  dicttool::is_branch $r {foo bar bang whoop:}
 } 0
 
 
 test {test-branch-0023} {Test that foo bar bang whoop/ is_branch = 1} {
-  dict is_branch $r {foo bar bang whoop/}
+  dicttool::is_branch $r {foo bar bang whoop/}
 } 1
 
 
 test {test-branch-0024} {Test that foo bar bang .whoop is_branch = 0} {
-  dict is_branch $r {foo bar bang .whoop}
+  dicttool::is_branch $r {foo bar bang .whoop}
 } 0
 
 
@@ -317,7 +317,7 @@ test oometa-0008 {Un-Sanitized output} {
 } {. 1 color {. 1 default green label Color}}
 
 test oometa-0009 {Sanitize} {
-  dict sanitize $foo
+  dicttool::sanitize $foo
 } {color {default green label Color}}
 
 

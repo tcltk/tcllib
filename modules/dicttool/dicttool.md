@@ -30,7 +30,7 @@ a newline, and indented with two spaces for every level.
 This command will return true if *value* can be interpreted as a dict. The command operates in
 such a way as to not force an existing dict representation to shimmer into another internal rep.
 
-#### dict rmerge *args*
+#### dicttool::merge *args*
 
 Return a dict which is the product of a recursive merge of all of the arguments. Unlike **dict merge**,
 this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which

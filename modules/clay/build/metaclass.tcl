@@ -36,12 +36,10 @@ proc ::clay::dynamic_methods_class {thisclass} {
 ###
 proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists array/ $name]} {
-    $class clay set array/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set array $name . 1
   foreach {var val} $values {
-    $class clay set array/ $name $var $val
+    $class clay set array/ $name/ $var: $val
   }
 }
 
@@ -109,12 +107,10 @@ set DestroyEvent 1
 
 proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists dict/ $name]} {
-    $class clay set dict/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set dict $name . 1
   foreach {var val} $values {
-    $class clay set dict/ $name $var $val
+    $class clay set dict/ $name/ $var: $val
   }
 }
 
@@ -131,7 +127,7 @@ proc ::clay::define::Dict {name {values {}}} {
 proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
-  $class clay set variable/ $name $default
+  $class clay set variable $name: $default
   #::oo::define $class variable $name
 }
 

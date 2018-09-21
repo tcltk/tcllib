@@ -968,7 +968,15 @@ test clay-class-variable-0001 {Test that the parser injected the right value in 
   $OBJ clay get variable/ my_variable
 } {10}
 
-test clay-class-variable-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-variable-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay get variable
+} {clay {} claycache {} DestroyEvent 0 my_variable 10}
+
+test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget variable
+} {. 1 clay {} claycache {} DestroyEvent 0 my_variable 10}
+
+test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
 } 10
 
@@ -986,12 +994,43 @@ test clay-class-variable-0002 {Test that variables declared in the class definit
 
 set OBJ [::TEST::has_array new]
 test clay-class-array-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get array/
-} {my_array {. 1 timeout 10}}
+  $OBJ clay get array
+} {my_array {timeout 10}}
 
-test clay-class-arrau-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-array-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget array
+} {. 1 my_array {. 1 timeout 10}}
+
+test clay-class-array-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_array timeout
 } 10
+
+::clay::define ::TEST::has_more_array {
+  superclass ::TEST::has_array
+  Array my_array {color blue}
+}
+test clay-class-array-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
+  ::TEST::has_more_array clay get array
+} {my_array {color blue}}
+test clay-class-array-0009 {Test that the parser injected the right value in the right place for clay to catch it} {
+  ::TEST::has_more_array clay find array
+} {my_array {timeout 10 color blue}}
+
+set BOBJ [::TEST::has_more_array new]
+test clay-class-array-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay get array
+} {my_array {timeout 10 color blue}}
+
+test clay-class-array-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay dget array
+} {. 1 my_array {. 1 timeout 10 color blue}}
+
+test clay-class-arrau-0006 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_array timeout
+} 10
+test clay-class-arrau-0007 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_array color
+} blue
 
 ###
 # Test dict initialization
@@ -1007,12 +1046,38 @@ test clay-class-arrau-0002 {Test that variables declared in the class definition
 
 set OBJ [::TEST::has_dict new]
 test clay-class-dict-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get dict/
-} {my_dict {. 1 timeout 10}}
+  $OBJ clay get dict
+} {my_dict {timeout 10}}
 
-test clay-class-dict-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-dict-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget dict
+} {. 1 my_dict {. 1 timeout 10}}
+
+test clay-class-dict-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_dict timeout
 } 10
+
+::clay::define ::TEST::has_more_dict {
+  superclass ::TEST::has_dict
+  Dict my_dict {color blue}
+}
+set BOBJ [::TEST::has_more_dict new]
+
+test clay-class-dict-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay get dict
+} {my_dict {timeout 10 color blue}}
+
+test clay-class-dict-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay dget dict
+} {. 1 my_dict {. 1 timeout 10 color blue}}
+
+test clay-class-dict-0006 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_dict timeout
+} 10
+
+test clay-class-dict-0007 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_dict color
+} blue
 
 ###
 # Test object delegation

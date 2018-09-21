@@ -82,7 +82,7 @@ test oo-class-meta-007 {Test accessing properties with old paths} {
 
 test oo-class-meta-007.a {Test accessing properties with old paths} {
   bar clay get option
-} {color {. 1 default green label Color}}
+} {color {default green label Color}}
 
 test oo-class-meta-008 {Test accessing properties with old paths} {
   oo::meta::info bar get option
@@ -210,7 +210,7 @@ oo::class create baz {
 
 test oo-class-meta-009a {Test accessing properties with old paths} {
   baz clay get option/
-} {color {. 1 default purple}}
+} {color {default purple}}
 
 test oo-class-meta-009b {Test accessing properties with old paths} {
   baz clay find option color
@@ -222,7 +222,7 @@ test oo-class-meta-009c {Test accessing properties with old paths} {
 
 test oo-class-meta-009d {Test accessing properties with old paths} {
   baz clay find option
-} {color {. 1 default purple label Color}}
+} {color {default purple label Color}}
 
 test obj-meta-recursive-1 {Test that meta set works with recursive dicts} {
   set result {}
