@@ -86,25 +86,20 @@ PROC ::dicttool::is_branch { dict path } {
 # data suitable for output to the screen. The system uses
 # the rules for [command {dicttool::is_branch}] to determine if
 # an value in a dictionary is a leaf or a branch.
-# [para]
-# This command is added to the [command dict] ensemble as [command {dict print}]
 # example:
 # > set mydict {sub/ {sub/ {field {A block of text}}}
-# > dict print $mydict
+# > dicttool::print $mydict
 # sub/ {
 #   sub/ {
 #     field {A block of text}
 #   }
 # }
 ###
-PROC ::tcl::dict::print {dict} {
+PROC ::dicttool::print {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_dictputb $level result $dict
   return $result
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] print ::tcl::dict::print]
 }
 
 ###
@@ -223,7 +218,7 @@ proc ::dicttool::dictset {varname args} {
 # example:
 # > set mydict {sub/ {sub/ {description {a block of text}}}}
 # > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
-# > dict print $mydict
+# > dicttool::print $mydict
 # sub/ {
 #   sub/ {
 #     description {a block of text}
@@ -269,7 +264,7 @@ proc ::dicttool::dictmerge {varname args} {
 # example:
 # > set mydict {sub/ {sub/ {description {a block of text}}}}
 # > set odict [dicttool::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
-# > dict print $odict
+# > dicttool::print $odict
 # sub/ {
 #   sub/ {
 #     description {a block of text}

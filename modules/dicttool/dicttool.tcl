@@ -90,14 +90,11 @@ PROC ::dicttool::is_branch { dict path } {
   }
   return [dict exists $dict {*}$path .]
 }
-PROC ::tcl::dict::print {dict} {
+PROC ::dicttool::print {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_dictputb $level result $dict
   return $result
-} {
-  namespace ensemble configure dict -map [dict replace\
-      [namespace ensemble configure dict -map] print ::tcl::dict::print]
 }
 proc ::dicttool::_dictputb {level varname dict} {
   upvar 1 $varname result

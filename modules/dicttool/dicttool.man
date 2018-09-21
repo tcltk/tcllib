@@ -62,7 +62,7 @@ just in case any of these slip into the core.
 
 [para]Example: [example { > set mydict {sub/ {sub/ {description {a block of text}}}}
  > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
- > dict print $mydict
+ > dicttool::print $mydict
  sub/ {
    sub/ {
      description {a block of text}

@@ -132,7 +132,7 @@
 <li><a href="#1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
 <li><a href="#2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
 <li><a href="#3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></li>
-<li><a href="#4"><b class="cmd">dict print</b> <i class="arg">dict</i></a></li>
+<li><a href="#4"><b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></li>
 <li><a href="#5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></li>
 <li><a href="#6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></li>
 </ul>
@@ -152,7 +152,7 @@ is not already present.</p></dd>
 <dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
 <dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
 list instead of throwing an error.</p></dd>
-<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">dict</i></a></dt>
+<dt><a name="4"><b class="cmd">dicttool::print</b> <i class="arg">dict</i></a></dt>
 <dd><p>This command will produce a string representation of <i class="arg">dict</i>, with each nested branch on
 a newline, and indented with two spaces for every level.</p></dd>
 <dt><a name="5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></dt>
@@ -170,7 +170,7 @@ set items [dict merge {
 } {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
-puts [dict print $items]
+puts [dicttool::print $items]
 </pre>
 <p>Prints the following result:</p>
 <pre class="doctools_example">
