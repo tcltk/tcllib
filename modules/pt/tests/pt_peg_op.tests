@@ -108,7 +108,9 @@ foreach {inStart inRulesSet expectedSym} [sl {
 	pt::peg::container ::In       deserialize [g $inStart  $inRulesSet]
     } -body {
 	set r [pt::peg::op called ::In]
-	dict filter $r key {*}[lsort [dict keys $r]]
+	dict filter $r script {key val} {
+	    ::tcl::mathop::in $key [lsort [dict keys $r]]
+	}
     } -cleanup {
 	::In destroy
     } -result $expectedSym
@@ -385,6 +387,23 @@ TestTransformation dechain2 {
 	A {is {n C} mode value}
 	B {is {n C} mode value}
 	C {is {t c} mode value}
+    }
+    # --- longer chain
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	E {is {t e} mode leaf}
+	A {is {n B} mode value}
+	D {is {n E} mode value}
+	B {is {n C} mode value}
+	C {is {n D} mode value}
+    }
+    {n S} {
+    	S {is {x {n A} {t s}} mode value}
+	A {is {n E} mode value}
+	B {is {n D} mode value}
+	C {is {n E} mode value}
+	D {is {n E} mode value}
+	E {is {t e} mode leaf}
     }
     # --- basic cycle:  A <- B <- A
     {n S} {
