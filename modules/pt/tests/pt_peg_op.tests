@@ -1,5 +1,6 @@
 # -*- tcl -*-
 # Testsuite for pt::peg::op.
+# Copyright (c) 2018 Stefan Sobernig <stefan.sobernig@wu.ac.at>
 
 # [ok] drop unreachable
 # [ok] drop unrealizable

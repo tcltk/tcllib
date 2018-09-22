@@ -1,5 +1,6 @@
 # -*- tcl -*-
 # Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2018 Stefan Sobernig <stefan.sobernig@wu.ac.at>
 
 # Utility commands operating on parsing expressions.
 
