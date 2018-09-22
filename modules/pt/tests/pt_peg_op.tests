@@ -17,7 +17,6 @@
 foreach op {
     called
     dechain
-    dechain2
     flatten
     minimize
     modeopt
@@ -359,9 +358,9 @@ TestTransformation "drop unreachable" {
 } $setimpl
 
 # -------------------------------------------------------------------------
-# op: dechain2
+# op: dechain
 
-TestTransformation dechain2 {
+TestTransformation dechain {
     # --- stays as-is
     epsilon {}
     epsilon {}

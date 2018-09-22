@@ -17,7 +17,7 @@ package require struct::set    ; # Set operations (symbol sets)
 namespace eval ::pt::peg::op {
     namespace export \
 	flatten called reachable realizable \
-	dechain drop modeopt minimize dechain2
+	drop modeopt minimize dechain
 
     namespace ensemble create
 
@@ -60,8 +60,7 @@ proc ::pt::peg::op::called {container} {
     return $dict
 }
 
-
-proc ::pt::peg::op::dechain2 {container} {
+proc ::pt::peg::op::dechain {container} {
 
     set changed 1
     while {$changed} {
@@ -107,60 +106,6 @@ proc ::pt::peg::op::dechain2 {container} {
 	}
     }
     
-    return
-}
-
-proc ::pt::peg::op::dechain {container} {
-
-    # Simplify all symbols which just chain to a different symbol by
-    # inlining the called symbol in its callers. This works if and
-    # only the modes match properly.
-
-    # X     Z      dechain notes
-    # value value| yes    | value is passed
-    # value leaf | yes    | value is passed
-    # value void | yes    | X is implied void
-    # leaf  value| no     | generated value was discarded, inlined doesn't. Z may be implied void
-    # leaf  leaf | no     | s.a.
-    # leaf  void | no     | s.a.
-    # void  value| no     | X drops value, inline doesn't
-    # void  leaf | no     | s.a.
-    # void  void | yes    |
-
-    array set caller [Invert [called $container]]
-    # caller = array (x -> list(caller-of-x))
-    array set mode [$container modes]
-    # mode = array (x -> mode-of-x)
-
-    set changed 1
-    while {$changed} {
-	set changed 0
-	foreach {symbol rule} [$container rules] {
-	    # Ignore regular operators and terminals
-	    if {[lindex $rule 0] ne "n"} continue
-	    set called [lindex $rule 1]
-
-	    # Ignore chains where mode changes form a barrier.
-	    if {
-		($mode($symbol) ne "value") &&
-		(($mode($symbol) ne "void") ||
-		 ($mode($called) ne "void"))
-	    } continue
-
-	    # We have the chain symbol -> called.
-	    # Replace all users of 'symbol' with 'called'
-
-	    foreach user $caller($symbol) {
-		$container rule $user \
-		    [pt::pe::op rename $symbol $called \
-			 [$container rule $user]]
-	    }
-
-	    set changed 1
-	    array set caller [Invert [called $container]]
-	}
-    }
-
     return
 }
 
@@ -241,7 +186,7 @@ proc ::pt::peg::op::CallMode {callers mv} {
 proc ::pt::peg::op::minimize {container} {
     flatten           $container
     modeopt           $container; # for dechaining
-    dechain2          $container
+    dechain           $container
     drop unrealizable $container
     drop unreachable  $container
     modeopt           $container;
