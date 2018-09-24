@@ -1,6 +1,3 @@
-[vset VERSION %version%]
-[comment {-*- tcl -*- doctools manpage}]
-[manpage_begin %module% n [vset VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Clay Framework}]

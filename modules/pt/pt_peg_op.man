@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[vset VERSION 1.0.2]
+[vset VERSION 1.1.0]
 [manpage_begin pt_peg_op i [vset VERSION]]
 [include include/module.inc]
 [titledesc {Parser Tools PE Grammar Utility Operations}]

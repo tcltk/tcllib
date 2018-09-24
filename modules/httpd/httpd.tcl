@@ -7,7 +7,6 @@ package require Tcl 8.6
 package provide httpd 4.3
 namespace eval ::httpd {}
 set ::httpd::version 4.3
-
 ###
 # START: core.tcl
 ###
@@ -1900,7 +1899,7 @@ package require tcl::chan::memchan
 # END: plugin.tcl
 ###
 
-namespace eval ::httpd {
-    namespace export *
-}
+    namespace eval ::httpd {
+	namespace export *
+    }
 

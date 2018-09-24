@@ -11,13 +11,13 @@ set filename $module
 
 set fout [open [file join $moddir $filename.tcl] w]
 fconfigure $fout -translation lf
-dict set map %module% $module
-dict set map %version% $version
-dict set map %tclversion% $tclversion
-#dict set map {    } {}
-#dict set map "\t" {    }
+dict set modmap %module% $module
+dict set modmap %version% $version
+dict set modmap %tclversion% $tclversion
+#dict set modmap {    } {}
+#dict set modmap "\t" {    }
 
-puts $fout [string map $map {###
+puts $fout [string map $modmap {###
 # Amalgamated package for %module%
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
@@ -93,7 +93,7 @@ foreach {file} {
 }
 
 # Provide some cleanup and our final package provide
-puts $fout [string map $map {
+puts $fout [string map $modmap {
 namespace eval ::%module% {
   namespace export *
 }
@@ -105,27 +105,16 @@ close $fout
 ###
 set fout [open [file join $moddir pkgIndex.tcl] w]
 fconfigure $fout -translation lf
-puts $fout [string map $map {###
+puts $fout [string map $modmap {###
 if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
 
 set manout [open [file join $moddir $filename.man] w]
-puts $manout [AutoDoc manpage \
-  header [string map $map [::practcl::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::practcl::cat [file join $srcdir footer.txt]]] \
+puts $manout [AutoDoc manpage map $modmap \
+  header [::practcl::cat [file join $srcdir manual.txt]] \
+  footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout
 
-if {[file exists [file join $moddir .. .. apps dtplite]]} {
-  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
-    -o $moddir \
-    html [file join $moddir $filename.man]
-  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
-    -o [file join $moddir .. .. embedded www tcllib files modules $module] \
-    html [file join $moddir $filename.man]
-  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
-    -o [file join $moddir .. .. idoc www tcllib files modules $module] \
-    html [file join $moddir $filename.man]
-}

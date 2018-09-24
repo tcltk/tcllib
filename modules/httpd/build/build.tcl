@@ -13,14 +13,12 @@ set module [file tail $moddir]
 set filename $module
 
 set fout [open [file join $moddir ${filename}.tcl] w]
-dict set map %module% $module
-dict set map %version% $version
-dict set map %tclversion% $tclversion
-dict set map %filename% $filename
-dict set map {    } {} ;# strip indentation
-dict set map "\t" {    } ;# reduce indentation (see cleanup)
+dict set modmap  %module% $module
+dict set modmap  %version% $version
+dict set modmap  %tclversion% $tclversion
+dict set modmap  %filename% $filename
 
-puts $fout [string map $map {###
+puts $fout [string map $modmap {###
 # Amalgamated package for %module%
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
@@ -28,8 +26,7 @@ puts $fout [string map $map {###
 package require Tcl %tclversion%
 package provide %module% %version%
 namespace eval ::%module% {}
-set ::%module%::version %version%
-}]
+set ::%module%::version %version%}]
 
 # Track what files we have included so far
 set loaded {}
@@ -68,7 +65,7 @@ foreach file [glob [file join $srcdir *.tcl]] {
 }
 
 # Provide some cleanup and our final package provide
-puts $fout [string map $map {
+puts $fout [string map $modmap {
     namespace eval ::%module% {
 	namespace export *
     }
@@ -79,15 +76,15 @@ close $fout
 # Build our pkgIndex.tcl file
 ###
 set fout [open [file join $moddir pkgIndex.tcl] w]
-puts $fout [string map $map {
+puts $fout [string map $modmap {
 if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
 
 set manout [open [file join $moddir $filename.man] w]
-puts $manout [AutoDoc manpage \
-  header [string map $map [::practcl::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::practcl::cat [file join $srcdir footer.txt]]] \
+puts $manout [AutoDoc manpage map $modmap \
+  header [::practcl::cat [file join $srcdir manual.txt]] \
+  footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout

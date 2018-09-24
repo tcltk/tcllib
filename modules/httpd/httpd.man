@@ -1,6 +1,3 @@
-[vset VERSION 4.3]
-[comment {-*- tcl -*- doctools manpage}]
-[manpage_begin httpd n [vset VERSION]]
 [keywords WWW]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Tcl Web Server}]
@@ -41,9 +38,9 @@ to service, and [cmd httpd::reply] derived classes to generate them.
 [example {
 oo::class create ::reply.hello {
   method content {} {
-my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
-my puts "<h1>Hello World!</h1>"
-my puts </BODY></HTML>
+    my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
+    my puts "<h1>Hello World!</h1>"
+    my puts </BODY></HTML>
   }
 }
 ::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
