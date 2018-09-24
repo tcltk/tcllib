@@ -2,7 +2,7 @@
 '\" Generated from file 'httpd\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "tool" n 4\&.1\&.1 tcllib "Tcl Web Server"
+.TH "httpd" n 4\&.3 tcllib "Tcl Web Server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,21 +272,15 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tool \- A TclOO and coroutine based web server
+httpd \- A TclOO and coroutine based web server
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBhttpd  ?4\&.1\&.1?\fR
+package require \fBhttpd  ?1\&.7?\fR
 .sp
-package require \fBsha1 \fR
+package require \fBuuid \fR
 .sp
-package require \fBdicttool \fR
-.sp
-package require \fBoo::meta \fR
-.sp
-package require \fBoo::dialect \fR
-.sp
-package require \fBtool \fR
+package require \fBclay \fR
 .sp
 package require \fBcoroutine \fR
 .sp
@@ -304,79 +298,73 @@ package require \fBuri \fR
 .sp
 package require \fBMarkdown \fR
 .sp
-constructor ?port ?port?? ?myaddr ?ipaddr?|all? ?server_string ?string?? ?server_name ?string??
+method \fBChannelCopy\fR \fIin\fR \fIout\fR ?\fIargs\fR?
 .sp
-method \fBadd_uri\fR \fIpattern\fR \fIdict\fR
+method \fBhtml_header\fR ?\fItitle\fR \fB\fR? ?\fIargs\fR?
 .sp
-method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
+method \fBhtml_footer\fR ?\fIargs\fR?
 .sp
-method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+method \fBhttp_code_string\fR \fIcode\fR
 .sp
-method \fBcounter\fR \fIwhich\fR
+method \fBHttpHeaders\fR \fIsock\fR ?\fIdebug\fR \fB\fR?
 .sp
-method \fBCheckTimeout\fR
+method \fBHttpHeaders_Default\fR
 .sp
-method \fBdispatch\fR \fIheader_dict\fR
+method \fBHttpServerHeaders\fR
 .sp
-method \fBlog\fR \fIargs\fR
+method \fBMimeParse\fR \fImimetext\fR
 .sp
-method \fBport_listening\fR
+method \fBUrl_Decode\fR \fIdata\fR
 .sp
-method \fBPrefixNormalize\fR \fIprefix\fR
+method \fBUrl_PathCheck\fR \fIurlsuffix\fR
 .sp
-method \fBstart\fR
+method \fBwait\fR \fImode\fR \fIsock\fR
 .sp
-method \fBstop\fR
+method \fBconstructor\fR \fIServerObj\fR ?\fIargs\fR?
 .sp
-method \fBtemplate\fR \fIpage\fR
-.sp
-method \fBTemplateSearch\fR \fIpage\fR
-.sp
-method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
-.sp
-method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
-.sp
-method \fBENSEMBLE::dump\fR
-.sp
-method \fBENSEMBLE::get\fR \fIfield\fR
-.sp
-method \fBENSEMBLE::reset\fR
-.sp
-method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
-.sp
-method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
-.sp
-method \fBENSEMBLE::reset\fR
-.sp
-method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
-.sp
-method \fBhttp_info::netstring\fR
-.sp
-method \fBrequest::parse\fR \fIstring\fR
-.sp
-method \fBreply::output\fR
+method \fBdestructor\fR ?\fIdictargs\fR?
 .sp
 method \fBclose\fR
 .sp
-method \fBHttpHeaders\fR \fIsock\fR \fI?debug?\fR
+method \fBLog_Dispatched\fR
 .sp
 method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
 .sp
-method \fBerror\fR \fIcode\fR \fI?message?\fR \fI?errorInfo?\fR
+method \fBDispatch\fR
+.sp
+method \fBhtml_css\fR
+.sp
+method \fBhtml_header\fR \fItitle\fR ?\fIargs\fR?
+.sp
+method \fBhtml_footer\fR ?\fIargs\fR?
+.sp
+method \fBerror\fR \fIcode\fR ?\fImsg\fR \fB\fR? ?\fIerrorInfo\fR \fB\fR?
 .sp
 method \fBcontent\fR
 .sp
 method \fBEncodeStatus\fR \fIstatus\fR
 .sp
-method FormData
+method \fBlog\fR \fItype\fR ?\fIinfo\fR \fB\fR?
 .sp
-method MimeParse \fImimetext\fR
+method \fBCoroName\fR
 .sp
 method \fBDoOutput\fR
 .sp
-method PostData \fIlength\fR
+method \fBFormData\fR
 .sp
-method \fBputs\fR \fIstring\fR
+method \fBPostData\fR \fIlength\fR
+.sp
+method \fBSession_Load\fR
+.sp
+method \fBTransferComplete\fR ?\fIargs\fR?
+.sp
+method \fBputs\fR \fIline\fR
+.sp
+method \fBRequestFind\fR \fIfield\fR
+.sp
+method \fBrequest\fR \fIsubcommand\fR ?\fIargs\fR?
+.sp
+method \fBreply\fR \fIsubcommand\fR ?\fIargs\fR?
 .sp
 method \fBreset\fR
 .sp
@@ -384,19 +372,131 @@ method \fBtimeOutCheck\fR
 .sp
 method \fBtimestamp\fR
 .sp
-method \fBTransferComplete\fR \fIargs\fR
+method \fBconstructor\fR \fIargs\fR ?\fIport\fR \fBauto\fR? ?\fImyaddr\fR \fB127\&.0\&.0\&.1\fR? ?\fIstring\fR \fBauto\fR? ?\fIname\fR \fBauto\fR? ?\fIdoc_root\fR \fB\fR? ?\fIreverse_dns\fR \fB0\fR? ?\fIconfiguration_file\fR \fB\fR? ?\fIprotocol\fR \fBHTTP/1\&.1\fR?
 .sp
-method \fBUrl_Decode\fR \fIstring\fR
+method \fBdestructor\fR ?\fIdictargs\fR?
 .sp
-method cgi_info
+method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
 .sp
-option \fBpath\fR
+method \fBServerHeaders\fR \fIip\fR \fIhttp_request\fR \fImimetxt\fR
 .sp
-option \fBprefix\fR
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
 .sp
-method proxy_info
+method \fBcounter\fR \fIwhich\fR
 .sp
-method scgi_info
+method \fBCheckTimeout\fR
+.sp
+method \fBdebug\fR ?\fIargs\fR?
+.sp
+method \fBdispatch\fR \fIdata\fR
+.sp
+method \fBDispatch_Default\fR \fIreply\fR
+.sp
+method \fBDispatch_Local\fR \fIdata\fR
+.sp
+method \fBHeaders_Local\fR \fIvarname\fR
+.sp
+method \fBHeaders_Process\fR \fIvarname\fR
+.sp
+method \fBHostName\fR \fIipaddr\fR
+.sp
+method \fBlog\fR ?\fIargs\fR?
+.sp
+method \fBplugin\fR \fIslot\fR ?\fIclass\fR \fB\fR?
+.sp
+method \fBport_listening\fR
+.sp
+method \fBPrefixNormalize\fR \fIprefix\fR
+.sp
+method \fBsource\fR \fIfilename\fR
+.sp
+method \fBstart\fR
+.sp
+method \fBstop\fR
+.sp
+method \fBSubObject {} db\fR
+.sp
+method \fBSubObject {} default\fR
+.sp
+method \fBtemplate\fR \fIpage\fR
+.sp
+method \fBTemplateSearch\fR \fIpage\fR
+.sp
+method \fBThread_start\fR
+.sp
+method \fBUuid_Generate\fR
+.sp
+method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
+.sp
+method \fBreset\fR
+.sp
+method \fBcontent\fR
+.sp
+method \fBDispatch\fR
+.sp
+method \fBcontent\fR
+.sp
+method \fBFileName\fR
+.sp
+method \fBDirectoryListing\fR \fIlocal_file\fR
+.sp
+method \fBcontent\fR
+.sp
+method \fBDispatch\fR
+.sp
+method \fBCgiExec\fR \fIexecname\fR \fIscript\fR \fIarglist\fR
+.sp
+method \fBCgi_Executable\fR \fIscript\fR
+.sp
+method \fBproxy_channel\fR
+.sp
+method \fBproxy_path\fR
+.sp
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.sp
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.sp
+method \fBDispatch\fR
+.sp
+method \fBFileName\fR
+.sp
+method \fBproxy_channel\fR
+.sp
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.sp
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.sp
+method \fBDirectoryListing\fR \fIlocal_file\fR
+.sp
+method \fBEncodeStatus\fR \fIstatus\fR
+.sp
+method \fBscgi_info\fR
+.sp
+method \fBproxy_channel\fR
+.sp
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.sp
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.sp
+method \fBdebug\fR ?\fIargs\fR?
+.sp
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+.sp
+method \fBDispatch_Dict\fR \fIdata\fR
+.sp
+method \fBuri {} add\fR \fIvhosts\fR \fIpatterns\fR \fIinfo\fR
+.sp
+method \fBuri {} direct\fR \fIvhosts\fR \fIpatterns\fR \fIinfo\fR \fIbody\fR
+.sp
+method \fBoutput\fR
+.sp
+method \fBDoOutput\fR
+.sp
+method \fBclose\fR
+.sp
+method \fBlocal_memchan\fR \fIcommand\fR ?\fIargs\fR?
+.sp
+method \fBConnect_Local\fR \fIuuid\fR \fIsock\fR ?\fIargs\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -412,93 +512,73 @@ to service, and \fBhttpd::reply\fR derived classes to generate them\&.
 .CS
 
 
-tool::define ::reply\&.hello {
+oo::class create ::reply\&.hello {
   method content {} {
     my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
     my puts "<h1>Hello World!</h1>"
     my puts </BODY></HTML>
   }
 }
-::docserver::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1
-HTTPD add_uri /* [list mixin reply\&.hello]
+::httpd::server create HTTPD port 8015 myaddr 127\&.0\&.0\&.1 doc_root ~/htdocs
+HTTPD plugin dispatch httpd::server::dispatch
+HTTPD uri add * /hello [list mixin reply\&.hello]
 
 .CE
-.SH "CLASS ::HTTPD::SERVER"
-This class is the root object of the webserver\&. It is responsible
-for opening the socket and providing the initial connection negotiation\&.
-.TP
-constructor ?port ?port?? ?myaddr ?ipaddr?|all? ?server_string ?string?? ?server_name ?string??
-Build a new server object\&. ?port? is the port to listen on
-.TP
-method \fBadd_uri\fR \fIpattern\fR \fIdict\fR
-Set the hander for a URI pattern\&. Information given in the \fIdict\fR is stored
-in the data structure the \fBdispatch\fR method uses\&. If a field called
-\fImixin\fR is given, that class will be mixed into the reply object immediately
-after construction\&.
-.TP
-method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
-Reply to an open socket\&. This method builds a coroutine to manage the remainder
-of the connection\&. The coroutine's operations are driven by the \fBConnect\fR method\&.
-.TP
-method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
-This method reads HTTP headers, and then consults the \fBdispatch\fR method to
-determine if the request is valid, and/or what kind of reply to generate\&. Under
-normal cases, an object of class \fB::http::reply\fR is created\&.
-Fields the server are looking for in particular are:
-class: A class to use instead of the server's own \fIreply_class\fR
-mixin: A class to be mixed into the new object after construction\&.
-All other fields are passed along to the \fBhttp_info\fR structure of the
-reply object\&.
-After the class is created and the mixin is mixed in, the server invokes the
-reply objects \fBdispatch\fR method\&. This action passes control of the socket to
-the reply object\&. The reply object manages the rest of the transaction, including
-closing the socket\&.
-.TP
-method \fBcounter\fR \fIwhich\fR
-Increment an internal counter\&.
-.TP
-method \fBCheckTimeout\fR
-Check open connections for a time out event\&.
-.TP
-method \fBdispatch\fR \fIheader_dict\fR
-Given a key/value list of information, return a data structure describing how
-the server should reply\&.
-.TP
-method \fBlog\fR \fIargs\fR
-Log an event\&. The input for args is free form\&. This method is intended
-to be replaced by the user, and is a noop for a stock http::server object\&.
-.TP
-method \fBport_listening\fR
-Return the actual port that httpd is listening on\&.
-.TP
-method \fBPrefixNormalize\fR \fIprefix\fR
-For the stock version, trim trailing /'s and *'s from a prefix\&. This
-method can be replaced by the end user to perform any other transformations
-needed for the application\&.
-.TP
-method \fBstart\fR
-Open the socket listener\&.
-.TP
-method \fBstop\fR
-Shut off the socket listener, and destroy any pending replies\&.
-.TP
-method \fBtemplate\fR \fIpage\fR
-Return a template for the string \fIpage\fR
-.TP
-method \fBTemplateSearch\fR \fIpage\fR
-Perform a search for the template that best matches \fIpage\fR\&. This
-can include local file searches, in-memory structures, or even
-database lookups\&. The stock implementation simply looks for files
-with a \&.tml or \&.html extension in the ?doc_root? directory\&.
-.TP
-method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
-Given a socket and an ip address, return true if this connection should
-be terminated, or false if it should be allowed to continue\&. The stock
-implementation always returns 0\&. This is intended for applications to
-be able to implement black lists and/or provide security based on IP
-address\&.
+The bare module does have facilities to hose a files from a file system\&. Files that end in a \&.tml will be substituted in the style of Tclhttpd:
+.CS
+
+
+<!-- hello\&.tml -->
+[my html_header {Hello World!}]
+Your Server is running\&.
+<p>
+The time is now [clock format [clock seconds]]
+[my html_footer]
+
+.CE
+A complete example of an httpd server is in the /examples directory of Tcllib\&. It also show how to dispatch URIs to other processes via SCGI and HTTP proxies\&.
+.CS
+
+
+cd ~/tcl/sandbox/tcllib
+tclsh examples/httpd\&.tcl
+
+.CE
+.SH CLASSES
+.SS "CLASS  HTTPD::MIME"
 .PP
-.SH "CLASS ::HTTPD::REPLY"
+\fBMethods\fR
+.TP
+method \fBChannelCopy\fR \fIin\fR \fIout\fR ?\fIargs\fR?
+.TP
+method \fBhtml_header\fR ?\fItitle\fR \fB\fR? ?\fIargs\fR?
+.TP
+method \fBhtml_footer\fR ?\fIargs\fR?
+.TP
+method \fBhttp_code_string\fR \fIcode\fR
+.TP
+method \fBHttpHeaders\fR \fIsock\fR ?\fIdebug\fR \fB\fR?
+.TP
+method \fBHttpHeaders_Default\fR
+.TP
+method \fBHttpServerHeaders\fR
+.TP
+method \fBMimeParse\fR \fImimetext\fR
+Converts a block of mime encoded text to a key/value list\&. If an exception is encountered,
+the method will generate its own call to the \fBerror\fR method, and immediately invoke
+the \fBoutput\fR method to produce an error code and close the connection\&.
+.TP
+method \fBUrl_Decode\fR \fIdata\fR
+De-httpizes a string\&.
+.TP
+method \fBUrl_PathCheck\fR \fIurlsuffix\fR
+.TP
+method \fBwait\fR \fImode\fR \fIsock\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::REPLY"
+\fIancestors\fR: \fBhttpd::mime\fR
+.PP
 A class which shephards a request through the process of generating a
 reply\&.
 The socket associated with the reply is available at all times as the \fIchan\fR
@@ -523,78 +603,6 @@ method if an exception is raised\&.
 Invokes the \fBoutput\fR method for the object
 .PP
 .PP
-.SH "REPLY METHOD ENSEMBLES"
-The \fBhttp::reply\fR class and its derivatives maintain several variables as dictionaries
-internally\&. Access to these dictionaries is managed through a dedicated ensemble\&. The
-ensemble implements most of the same behaviors as the \fBdict\fR command\&.
-Each ensemble implements the following methods above, beyond, or modifying standard dicts:
-.TP
-method \fBENSEMBLE::add\fR \fIfield\fR \fIelement\fR
-Add \fIelement\fR to a list stored in \fIfield\fR, but only if it is not already present om the list\&.
-.TP
-method \fBENSEMBLE::dump\fR
-Return the current contents of the data structure as a key/value list\&.
-.TP
-method \fBENSEMBLE::get\fR \fIfield\fR
-Return the value of the field \fIfield\fR, or an empty string if it does not exist\&.
-.TP
-method \fBENSEMBLE::reset\fR
-Return a key/value list of the default contents for this data structure\&.
-.TP
-method \fBENSEMBLE::remove\fR \fIfield\fR \fIelement\fR
-Remove all instances of \fIelement\fR from the list stored in \fIfield\fR\&.
-.TP
-method \fBENSEMBLE::replace\fR \fIkeyvaluelist\fR
-Replace the internal dict with the contents of \fIkeyvaluelist\fR
-.TP
-method \fBENSEMBLE::reset\fR
-Replace the internal dict with the default state\&.
-.TP
-method \fBENSEMBLE::set\fR \fIfield\fR \fIvalue\fR
-Set the value of \fIfield\fR to \fIvalue\fR\&.
-.PP
-.SH "REPLY METHOD ENSEMBLE: HTTP_INFO"
-Manages HTTP headers passed in by the server\&.
-Ensemble Methods:
-.TP
-method \fBhttp_info::netstring\fR
-Return the contents of this data structure as a netstring encoded block\&.
-.PP
-.SH "REPLY METHOD ENSEMBLE: REQUEST"
-Managed data from MIME headers of the request\&.
-.TP
-method \fBrequest::parse\fR \fIstring\fR
-Replace the contents of the data structure with information encoded in a MIME
-formatted block of text (\fIstring\fR)\&.
-.PP
-.SH "REPLY METHOD ENSEMBLE: REPLY"
-Manage the headers sent in the reply\&.
-.TP
-method \fBreply::output\fR
-Return the contents of this data structure as a MIME encoded block appropriate
-for an HTTP response\&.
-.PP
-.SH "REPLY METHODS"
-.TP
-method \fBclose\fR
-Terminate the transaction, and close the socket\&.
-.TP
-method \fBHttpHeaders\fR \fIsock\fR \fI?debug?\fR
-Stream MIME headers from the socket \fIsock\fR, stopping at an empty line\&. Returns
-the stream as a block of text\&.
-.TP
-method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
-Take over control of the socket \fInewsock\fR, and store that as the \fIchan\fR variable
-for the object\&. This method runs through all of the steps of reading HTTP headers, generating
-content, and closing the connection\&. (See class writetup)\&.
-.TP
-method \fBerror\fR \fIcode\fR \fI?message?\fR \fI?errorInfo?\fR
-Generate an error message of the specified \fIcode\fR, and display the \fImessage\fR as the
-reason for the exception\&. \fIerrorInfo\fR is passed in from calls, but how or if it should be
-displayed is a prerogative of the developer\&.
-.TP
-method \fBcontent\fR
-Generate the content for the reply\&. This method is intended to be replaced by the mixin\&.
 Developers have the option of streaming output to a buffer via the \fBputs\fR method of the
 reply, or simply populating the \fIreply_body\fR variable of the object\&.
 The information returned by the \fBcontent\fR method is not interpreted in any way\&.
@@ -605,68 +613,118 @@ A typical implementation of \fBcontent\fR look like:
 
 
 
-tool::define ::test::content\&.file {
-	superclass ::httpd::content\&.file
-	# Return a file
-	# Note: this is using the content\&.file mixin which looks for the reply_file variable
-	# and will auto-compute the Content-Type
-	method content {} {
-	  my reset
-    set doc_root [my clay get doc_root]
-    my variable reply_file
-    set reply_file [file join $doc_root index\&.html]
-	}
-}
-tool::define ::test::content\&.time {
-  # return the current system time
-	method content {} {
-		my variable reply_body
-    my reply set Content-Type text/plain
-		set reply_body [clock seconds]
-	}
-}
-tool::define ::test::content\&.echo {
-	method content {} {
-		my variable reply_body
-    my reply set Content-Type [my request get CONTENT_TYPE]
-		set reply_body [my PostData [my request get CONTENT_LENGTH]]
-	}
-}
-tool::define ::test::content\&.form_handler {
-	method content {} {
-	  set form [my FormData]
-	  my reply set Content-Type {text/html; charset=UTF-8}
-    my puts [my html header {My Dynamic Page}]
-    my puts "<BODY>"
-    my puts "You Sent<p>"
-    my puts "<TABLE>"
-    foreach {f v} $form {
-      my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
-    }
-    my puts "</TABLE><p>"
-    my puts "Send some info:<p>"
-    my puts "<FORM action=/[my request get REQUEST_PATH] method POST>"
-    my puts "<TABLE>"
-    foreach field {name rank serial_number} {
-      set line "<TR><TH>$field</TH><TD><input name=\\"$field\\" "
-      if {[dict exists $form $field]} {
-        append line " value=\\"[dict get $form $field]\\"""
-      }
-      append line " /></TD></TR>"
-      my puts $line
-    }
-    my puts "</TABLE>"
-    my puts [my html footer]
-	}
-}
+ clay::define ::test::content\&.file {
+ 	superclass ::httpd::content\&.file
+ 	# Return a file
+ 	# Note: this is using the content\&.file mixin which looks for the reply_file variable
+ 	# and will auto-compute the Content-Type
+ 	method content {} {
+ 	  my reset
+     set doc_root [my request get DOCUMENT_ROOT]
+     my variable reply_file
+     set reply_file [file join $doc_root index\&.html]
+ 	}
+ }
+ clay::define ::test::content\&.time {
+   # return the current system time
+ 	method content {} {
+ 		my variable reply_body
+     my reply set Content-Type text/plain
+ 		set reply_body [clock seconds]
+ 	}
+ }
+ clay::define ::test::content\&.echo {
+ 	method content {} {
+ 		my variable reply_body
+     my reply set Content-Type [my request get CONTENT_TYPE]
+ 		set reply_body [my PostData [my request get CONTENT_LENGTH]]
+ 	}
+ }
+ clay::define ::test::content\&.form_handler {
+ 	method content {} {
+ 	  set form [my FormData]
+ 	  my reply set Content-Type {text/html; charset=UTF-8}
+     my puts [my html_header {My Dynamic Page}]
+     my puts "<BODY>"
+     my puts "You Sent<p>"
+     my puts "<TABLE>"
+     foreach {f v} $form {
+       my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
+     }
+     my puts "</TABLE><p>"
+     my puts "Send some info:<p>"
+     my puts "<FORM action=/[my request get REQUEST_PATH] method POST>"
+     my puts "<TABLE>"
+     foreach field {name rank serial_number} {
+       set line "<TR><TH>$field</TH><TD><input name=\\"$field\\" "
+       if {[dict exists $form $field]} {
+         append line " value=\\"[dict get $form $field]\\"""
+       }
+       append line " /></TD></TR>"
+       my puts $line
+     }
+     my puts "</TABLE>"
+     my puts [my html footer]
+ 	}
+ }
 
 
 .CE
+.PP
+\fBMethods\fR
+.TP
+method \fBconstructor\fR \fIServerObj\fR ?\fIargs\fR?
+.TP
+method \fBdestructor\fR ?\fIdictargs\fR?
+clean up on exit
+.TP
+method \fBclose\fR
+Close channels opened by this object
+.TP
+method \fBLog_Dispatched\fR
+Record a dispatch event
+.TP
+method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
+Accept the handoff from the server object of the socket
+\fInewsock\fR and feed it the state \fIdatastate\fR\&.
+Fields the \fIdatastate\fR are looking for in particular are:
+.sp
+* \fBmixin\fR - A key/value list of slots and classes to be mixed into the
+object prior to invoking \fBDispatch\fR\&.
+.sp
+* \fBhttp\fR - A key/value list of values to populate the object's \fIrequest\fR
+ensemble
+.sp
+All other fields are passed along to the \fBclay\fR structure of the object\&.
+.TP
+method \fBDispatch\fR
+.TP
+method \fBhtml_css\fR
+.TP
+method \fBhtml_header\fR \fItitle\fR ?\fIargs\fR?
+.TP
+method \fBhtml_footer\fR ?\fIargs\fR?
+.TP
+method \fBerror\fR \fIcode\fR ?\fImsg\fR \fB\fR? ?\fIerrorInfo\fR \fB\fR?
+.TP
+method \fBcontent\fR
+REPLACE ME:
+This method is the "meat" of your application\&.
+It writes to the result buffer via the "puts" method
+and can tweak the headers via "clay put header_reply"
 .TP
 method \fBEncodeStatus\fR \fIstatus\fR
 Formulate a standard HTTP status header from he string provided\&.
 .TP
-method FormData
+method \fBlog\fR \fItype\fR ?\fIinfo\fR \fB\fR?
+.TP
+method \fBCoroName\fR
+.TP
+method \fBDoOutput\fR
+Generates the the HTTP reply, streams that reply back across \fIchan\fR,
+and destroys the object\&.
+.TP
+method \fBFormData\fR
 For GET requests, converts the QUERY_DATA header into a key/value list\&.
 For POST requests, reads the Post data and converts that information to
 a key/value list for application/x-www-form-urlencoded posts\&. For multipart
@@ -674,21 +732,45 @@ posts, it composites all of the MIME headers of the post to a singular key/value
 list, and provides MIME_* information as computed by the \fBmime\fR package, including
 the MIME_TOKEN, which can be fed back into the mime package to read out the contents\&.
 .TP
-method MimeParse \fImimetext\fR
-Converts a block of mime encoded text to a key/value list\&. If an exception is encountered,
-the method will generate its own call to the \fBerror\fR method, and immediately invoke
-the \fBoutput\fR method to produce an error code and close the connection\&.
-.TP
-method \fBDoOutput\fR
-Generates the the HTTP reply, and streams that reply back across \fIchan\fR\&.
-.TP
-method PostData \fIlength\fR
+method \fBPostData\fR \fIlength\fR
 Stream \fIlength\fR bytes from the \fIchan\fR socket, but only of the request is a
 POST or PUSH\&. Returns an empty string otherwise\&.
 .TP
-method \fBputs\fR \fIstring\fR
+method \fBSession_Load\fR
+Manage session data
+.TP
+method \fBTransferComplete\fR ?\fIargs\fR?
+Intended to be invoked from \fBchan copy\fR as a callback\&. This closes every channel
+fed to it on the command line, and then destroys the object\&.
+.CS
+
+
+     ###
+     # Output the body
+     ###
+     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+     if {$length} {
+       ###
+       # Send any POST/PUT/etc content
+       ###
+       chan copy $sock $chan -size $SIZE -command [info coroutine]
+       yield
+     }
+     catch {close $sock}
+     chan flush $chan
+
+.CE
+.TP
+method \fBputs\fR \fIline\fR
 Appends the value of \fIstring\fR to the end of \fIreply_body\fR, as well as a trailing newline
 character\&.
+.TP
+method \fBRequestFind\fR \fIfield\fR
+.TP
+method \fBrequest\fR \fIsubcommand\fR ?\fIargs\fR?
+.TP
+method \fBreply\fR \fIsubcommand\fR ?\fIargs\fR?
 .TP
 method \fBreset\fR
 Clear the contents of the \fIreply_body\fR variable, and reset all headers in the \fBreply\fR
@@ -706,90 +788,308 @@ Return the current system time in the format:
 
 %a, %d %b %Y %T %Z
 .CE
+.PP
+.PP
+.SS "CLASS  HTTPD::SERVER"
+\fIancestors\fR: \fBhttpd::mime\fR
+.PP
+.PP
+\fBMethods\fR
 .TP
-method \fBTransferComplete\fR \fIargs\fR
-Intended to be invoked from \fBchan copy\fR as a callback\&. This closes every channel
-fed to it on the command line, and then destroys the object\&.
+method \fBconstructor\fR \fIargs\fR ?\fIport\fR \fBauto\fR? ?\fImyaddr\fR \fB127\&.0\&.0\&.1\fR? ?\fIstring\fR \fBauto\fR? ?\fIname\fR \fBauto\fR? ?\fIdoc_root\fR \fB\fR? ?\fIreverse_dns\fR \fB0\fR? ?\fIconfiguration_file\fR \fB\fR? ?\fIprotocol\fR \fBHTTP/1\&.1\fR?
+.TP
+method \fBdestructor\fR ?\fIdictargs\fR?
+.TP
+method \fBconnect\fR \fIsock\fR \fIip\fR \fIport\fR
+Reply to an open socket\&. This method builds a coroutine to manage the remainder
+of the connection\&. The coroutine's operations are driven by the \fBConnect\fR method\&.
+.TP
+method \fBServerHeaders\fR \fIip\fR \fIhttp_request\fR \fImimetxt\fR
+.TP
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+This method reads HTTP headers, and then consults the \fBdispatch\fR method to
+determine if the request is valid, and/or what kind of reply to generate\&. Under
+normal cases, an object of class \fB::http::reply\fR is created, and that class's
+\fBdispatch\fR method\&.
+This action passes control of the socket to
+the reply object\&. The reply object manages the rest of the transaction, including
+closing the socket\&.
+.TP
+method \fBcounter\fR \fIwhich\fR
+Increment an internal counter\&.
+.TP
+method \fBCheckTimeout\fR
+Check open connections for a time out event\&.
+.TP
+method \fBdebug\fR ?\fIargs\fR?
+.TP
+method \fBdispatch\fR \fIdata\fR
+Given a key/value list of information, return a data structure describing how
+the server should reply\&.
+.TP
+method \fBDispatch_Default\fR \fIreply\fR
+Method dispatch method of last resort before returning a 404 NOT FOUND error\&.
+The default behavior is to look for a file in \fIDOCUMENT_ROOT\fR which
+matches the query\&.
+.TP
+method \fBDispatch_Local\fR \fIdata\fR
+Method dispatch method invoked prior to invoking methods implemented by plugins\&.
+If this method returns a non-empty dictionary, that structure will be passed to
+the reply\&. The default is an empty implementation\&.
+.TP
+method \fBHeaders_Local\fR \fIvarname\fR
+Introspect and possibly modify a data structure destined for a reply\&. This
+method is invoked before invoking Header methods implemented by plugins\&.
+The default implementation is empty\&.
+.TP
+method \fBHeaders_Process\fR \fIvarname\fR
+Introspect and possibly modify a data structure destined for a reply\&. This
+method is built dynamically by the \fBplugin\fR method\&.
+.TP
+method \fBHostName\fR \fIipaddr\fR
+Convert an ip address to a host name\&. If the server/ reverse_dns flag
+is false, this method simply returns the IP address back\&.
+Internally, this method uses the \fIdns\fR module from tcllib\&.
+.TP
+method \fBlog\fR ?\fIargs\fR?
+Log an event\&. The input for args is free form\&. This method is intended
+to be replaced by the user, and is a noop for a stock http::server object\&.
+.TP
+method \fBplugin\fR \fIslot\fR ?\fIclass\fR \fB\fR?
+Incorporate behaviors from a plugin\&.
+This method dynamically rebuilds the \fBDispatch\fR and \fBHeaders\fR
+method\&. For every plugin, the server looks for the following entries in
+\fIclay plugin/\fR:
+.sp
+\fIload\fR - A script to invoke in the server's namespace during the \fBplugin\fR method invokation\&.
+.sp
+\fIdispatch\fR - A script to stitch into the server's \fBDispatch\fR method\&.
+.sp
+\fIheaders\fR - A script to stitch into the server's \fBHeaders\fR method\&.
+.sp
+\fIthread\fR - A script to stitch into the server's \fBThread_start\fR method\&.
+.TP
+method \fBport_listening\fR
+Return the actual port that httpd is listening on\&.
+.TP
+method \fBPrefixNormalize\fR \fIprefix\fR
+For the stock version, trim trailing /'s and *'s from a prefix\&. This
+method can be replaced by the end user to perform any other transformations
+needed for the application\&.
+.TP
+method \fBsource\fR \fIfilename\fR
+.TP
+method \fBstart\fR
+Open the socket listener\&.
+.TP
+method \fBstop\fR
+Shut off the socket listener, and destroy any pending replies\&.
+.TP
+method \fBSubObject {} db\fR
+.TP
+method \fBSubObject {} default\fR
+.TP
+method \fBtemplate\fR \fIpage\fR
+Return a template for the string \fIpage\fR
+.TP
+method \fBTemplateSearch\fR \fIpage\fR
+Perform a search for the template that best matches \fIpage\fR\&. This
+can include local file searches, in-memory structures, or even
+database lookups\&. The stock implementation simply looks for files
+with a \&.tml or \&.html extension in the ?doc_root? directory\&.
+.TP
+method \fBThread_start\fR
+Built by the \fBplugin\fR method\&. Called by the \fBstart\fR method\&. Intended
+to allow plugins to spawn worker threads\&.
+.TP
+method \fBUuid_Generate\fR
+Generate a GUUID\&. Used to ensure every request has a unique ID\&.
+The default implementation is:
 .CS
 
 
-    ###
-    # Output the body
-    ###
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    if {$length} {
-      ###
-      # Send any POST/PUT/etc content
-      ###
-      chan copy $sock $chan -size $SIZE -command [info coroutine]
-      yield
-    }
-    catch {close $sock}
-    chan flush $chan
+   return [::uuid::uuid generate]
 
 .CE
 .TP
-method \fBUrl_Decode\fR \fIstring\fR
-De-httpizes a string\&.
+method \fBValidate_Connection\fR \fIsock\fR \fIip\fR
+Given a socket and an ip address, return true if this connection should
+be terminated, or false if it should be allowed to continue\&. The stock
+implementation always returns 0\&. This is intended for applications to
+be able to implement black lists and/or provide security based on IP
+address\&.
 .PP
-.SH "CLASS ::HTTPD::CONTENT"
-The httpd module includes several ready to use implementations of content mixins
-for common use cases\&. Options are passed in to the \fBadd_uri\fR method of the server\&.
-.SH "CLASS ::HTTPD::CONTENT\&.CGI"
-An implementation to relay requests to process which will accept post data
-streamed in vie stdin, and sent a reply streamed to stdout\&.
-.TP
-method cgi_info
-Mandatory method to be replaced by the end user\&. If needed, activates the
-process to proxy, and then returns a list of three values:
-\fIexec\fR - The arguments to send to exec to fire off the responding process, minus the stdin/stdout redirection\&.
 .PP
-.SH "CLASS ::HTTPD::CONTENT\&.FILE"
-An implementation to deliver files from the local file system\&.
-.TP
-option \fBpath\fR
-The root directory on the local file system to be exposed via http\&.
-.TP
-option \fBprefix\fR
-The prefix of the URI portion to ignore when calculating relative file paths\&.
+.SS "CLASS  HTTPD::SERVER::DISPATCH"
+\fIancestors\fR: \fBhttpd::server\fR
 .PP
-.SH "CLASS ::HTTPD::CONTENT\&.PROXY"
-An implementation to relay requests to another HTTP server, and relay
-the results back across the request channel\&.
-.TP
-method proxy_info
-Mandatory method to be replaced by the end user\&. If needed, activates the
-process to proxy, and then returns a list of three values:
-\fIproxyhost\fR - The hostname where the proxy is located
-\fIproxyport\fR - The port to connect to
-\fIproxyscript\fR - A pre-amble block of text to send prior to the mirrored request
+Provide a backward compadible alias
 .PP
-.SH "CLASS ::HTTPD::CONTENT\&.SCGI"
-An implementation to relay requests to a server listening on a socket
-expecting SCGI encoded requests, and relay
-the results back across the request channel\&.
-.TP
-method scgi_info
-Mandatory method to be replaced by the end user\&. If needed, activates the
-process to proxy, and then returns a list of three values:
-\fIscgihost\fR - The hostname where the scgi listener is located
-\fIscgiport\fR - The port to connect to
-\fIscgiscript\fR - The contents of the \fISCRIPT_NAME\fR header to be sent
+.SS "CLASS  HTTPD::CONTENT\&.REDIRECT"
 .PP
-.SH "CLASS ::HTTPD::CONTENT\&.WEBSOCKET"
-A placeholder for a future implementation to manage requests that can expect to be
-promoted to a Websocket\&. Currently it is an empty class\&.
-.SH "SCGI SERVER FUNCTIONS"
-The HTTP module also provides an SCGI server implementation, as well as an HTTP
-implementation\&. To use the SCGI functions, create an object of the \fBhttp::server\&.scgi\fR
-class instead of the \fBhttp::server\fR class\&.
-.SH "CLASS ::HTTPD::REPLY\&.SCGI"
-An modified \fBhttp::reply\fR implementation that understands how to deal with
-netstring encoded headers\&.
-.SH "CLASS ::HTTPD::SERVER\&.SCGI"
-A modified \fBhttp::server\fR which is tailored to replying to request according to
-the SCGI standard instead of the HTTP standard\&.
+\fBMethods\fR
+.TP
+method \fBreset\fR
+.TP
+method \fBcontent\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.CACHE"
+.PP
+\fBMethods\fR
+.TP
+method \fBDispatch\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.TEMPLATE"
+.PP
+\fBMethods\fR
+.TP
+method \fBcontent\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.FILE"
+Class to deliver Static content
+When utilized, this class is fed a local filename
+by the dispatcher
+.PP
+\fBMethods\fR
+.TP
+method \fBFileName\fR
+.TP
+method \fBDirectoryListing\fR \fIlocal_file\fR
+.TP
+method \fBcontent\fR
+.TP
+method \fBDispatch\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.EXEC"
+.PP
+\fBMethods\fR
+.TP
+method \fBCgiExec\fR \fIexecname\fR \fIscript\fR \fIarglist\fR
+.TP
+method \fBCgi_Executable\fR \fIscript\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.PROXY"
+\fIancestors\fR: \fBhttpd::content\&.exec\fR
+.PP
+Return data from an proxy process
+.PP
+\fBMethods\fR
+.TP
+method \fBproxy_channel\fR
+.TP
+method \fBproxy_path\fR
+.TP
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.TP
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.TP
+method \fBDispatch\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.CGI"
+\fIancestors\fR: \fBhttpd::content\&.proxy\fR
+.PP
+.PP
+\fBMethods\fR
+.TP
+method \fBFileName\fR
+.TP
+method \fBproxy_channel\fR
+.TP
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.TP
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.TP
+method \fBDirectoryListing\fR \fIlocal_file\fR
+For most CGI applications a directory list is vorboten
+.PP
+.PP
+.SS "CLASS  HTTPD::PROTOCOL\&.SCGI"
+Return data from an SCGI process
+.PP
+\fBMethods\fR
+.TP
+method \fBEncodeStatus\fR \fIstatus\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.SCGI"
+\fIancestors\fR: \fBhttpd::content\&.proxy\fR
+.PP
+.PP
+\fBMethods\fR
+.TP
+method \fBscgi_info\fR
+.TP
+method \fBproxy_channel\fR
+.TP
+method \fBProxyRequest\fR \fIchana\fR \fIchanb\fR
+.TP
+method \fBProxyReply\fR \fIchana\fR \fIchanb\fR ?\fIargs\fR?
+.PP
+.PP
+.SS "CLASS  HTTPD::SERVER\&.SCGI"
+\fIancestors\fR: \fBhttpd::server\fR
+.PP
+Act as an  SCGI Server
+.PP
+\fBMethods\fR
+.TP
+method \fBdebug\fR ?\fIargs\fR?
+.TP
+method \fBConnect\fR \fIuuid\fR \fIsock\fR \fIip\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::CONTENT\&.WEBSOCKET"
+Upgrade a connection to a websocket
+.PP
+.SS "CLASS  HTTPD::PLUGIN"
+httpd plugin template
+.PP
+.SS "CLASS  HTTPD::PLUGIN\&.DICT_DISPATCH"
+A rudimentary plugin that dispatches URLs from a dict
+data structure
+.PP
+\fBMethods\fR
+.TP
+method \fBDispatch_Dict\fR \fIdata\fR
+Implementation of the dispatcher
+.TP
+method \fBuri {} add\fR \fIvhosts\fR \fIpatterns\fR \fIinfo\fR
+.TP
+method \fBuri {} direct\fR \fIvhosts\fR \fIpatterns\fR \fIinfo\fR \fIbody\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::REPLY\&.MEMCHAN"
+\fIancestors\fR: \fBhttpd::reply\fR
+.PP
+.PP
+\fBMethods\fR
+.TP
+method \fBoutput\fR
+.TP
+method \fBDoOutput\fR
+.TP
+method \fBclose\fR
+.PP
+.PP
+.SS "CLASS  HTTPD::PLUGIN\&.LOCAL_MEMCHAN"
+.PP
+\fBMethods\fR
+.TP
+method \fBlocal_memchan\fR \fIcommand\fR ?\fIargs\fR?
+.TP
+method \fBConnect_Local\fR \fIuuid\fR \fIsock\fR ?\fIargs\fR?
+A modified connection method that passes simple GET request to an object
+and pulls data directly from the reply_body data variable in the object
+Needed because memchan is bidirectional, and we can't seem to communicate that
+the server is one side of the link and the reply is another
+.PP
+.PP
 .SH AUTHORS
 Sean Woods
 .SH "BUGS, IDEAS, FEEDBACK"

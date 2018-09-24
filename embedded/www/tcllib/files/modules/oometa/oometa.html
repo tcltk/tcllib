@@ -185,7 +185,7 @@ the following:</p></dd>
 <pre class="doctools_example">
 ::oo::meta::info $myclass set option color {default: green widget: colorselect}
 puts [::oo::meta::info $myclass get option color]
-&gt; {default: green widget: color}
+&gt; {default green widget color}
 puts [::oo::meta::info $myclass branchget option color]
 &gt; {default green widget color}
 </pre>
@@ -237,7 +237,7 @@ produce a local picture of metadata.
 This method provides the following additional commands:</p></dd>
 <dt><a name="12"><b class="cmd">oo::object method meta cget</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i></a></dt>
 <dd><p>Attempts to locate a singlar leaf, and return its value. For single option lookups, this
-is faster than <b class="cmd">my meta getnull</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i>, because
+is faster than <b class="cmd">my meta getnull</b> <span class="opt">?<i class="arg">field</i>?</span> <span class="opt">?<i class="arg">...</i>?</span> <i class="arg">field</i>], because
 it performs a search instead directly instead of producing the recursive merge product
 between the class metadata, the local <em>meta</em> variable, and THEN performing the search.</p></dd>
 </dl>

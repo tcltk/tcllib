@@ -1,7 +1,6 @@
 
-<!DOCTYPE html><html><head>
-<title>httpd - Tcl Web Server</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='httpd - Tcl Web Server'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -90,16 +89,17 @@
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<!-- Generated from file 'httpd.man' by tcllib/doctools with format 'html'
-   -->
-<!-- Copyright &amp;copy; 2018 Sean Woods &amp;lt;yoda@etoyoc.com&amp;gt;
-   -->
-<!-- httpd.n
-   -->
-<body><div class="doctools">
-<h1 class="doctools_title">httpd(n) 4.3 httpd &quot;Tcl Web Server&quot;</h1>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
+| <a href="../../../toc.html">Table Of Contents</a>
+| <a href="../../../../index.html">Keyword Index</a>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
+<div class="doctools">
+<h1 class="doctools_title">httpd(n) 4.3 tcllib &quot;Tcl Web Server&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>httpd - A TclOO and coroutine based web server</p>
 </div>
@@ -143,7 +143,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">httpd <span class="opt">?4.3?</span></b></li>
+<li>package require <b class="pkgname">httpd <span class="opt">?1.7?</span></b></li>
 <li>package require <b class="pkgname">uuid</b></li>
 <li>package require <b class="pkgname">clay</b></li>
 <li>package require <b class="pkgname">coroutine</b></li>
@@ -176,10 +176,10 @@
 <li><a href="#18">method <b class="cmd">html_css</b></a></li>
 <li><a href="#19">method <b class="cmd">html_header</b> <i class="arg">title</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
 <li><a href="#20">method <b class="cmd">html_footer</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
-<li><a href="#21">method <b class="cmd">error</b> <i class="arg">code</i> <span class="opt">?<i class="arg">msg</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">errorInfo</i> <b class="const"></b>?</span></a></li>
+<li><a href="#21">method <b class="cmd"><a href="../../../../index.html#error">error</a></b> <i class="arg">code</i> <span class="opt">?<i class="arg">msg</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">errorInfo</i> <b class="const"></b>?</span></a></li>
 <li><a href="#22">method <b class="cmd">content</b></a></li>
 <li><a href="#23">method <b class="cmd">EncodeStatus</b> <i class="arg">status</i></a></li>
-<li><a href="#24">method <b class="cmd">log</b> <i class="arg">type</i> <span class="opt">?<i class="arg">info</i> <b class="const"></b>?</span></a></li>
+<li><a href="#24">method <b class="cmd"><a href="../log/log.html">log</a></b> <i class="arg">type</i> <span class="opt">?<i class="arg">info</i> <b class="const"></b>?</span></a></li>
 <li><a href="#25">method <b class="cmd">CoroName</b></a></li>
 <li><a href="#26">method <b class="cmd">DoOutput</b></a></li>
 <li><a href="#27">method <b class="cmd">FormData</b></a></li>
@@ -192,26 +192,26 @@
 <li><a href="#34">method <b class="cmd">reply</b> <i class="arg">subcommand</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
 <li><a href="#35">method <b class="cmd">reset</b></a></li>
 <li><a href="#36">method <b class="cmd">timeOutCheck</b></a></li>
-<li><a href="#37">method <b class="cmd">timestamp</b></a></li>
+<li><a href="#37">method <b class="cmd"><a href="../../../../index.html#timestamp">timestamp</a></b></a></li>
 <li><a href="#38">method <b class="cmd">constructor</b> <i class="arg">args</i> <span class="opt">?<i class="arg">port</i> <b class="const">auto</b>?</span> <span class="opt">?<i class="arg">myaddr</i> <b class="const">127.0.0.1</b>?</span> <span class="opt">?<i class="arg">string</i> <b class="const">auto</b>?</span> <span class="opt">?<i class="arg">name</i> <b class="const">auto</b>?</span> <span class="opt">?<i class="arg">doc_root</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">reverse_dns</i> <b class="const">0</b>?</span> <span class="opt">?<i class="arg">configuration_file</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">protocol</i> <b class="const">HTTP/1.1</b>?</span></a></li>
 <li><a href="#39">method <b class="cmd">destructor</b> <span class="opt">?<i class="arg">dictargs</i>?</span></a></li>
 <li><a href="#40">method <b class="cmd">connect</b> <i class="arg">sock</i> <i class="arg">ip</i> <i class="arg">port</i></a></li>
 <li><a href="#41">method <b class="cmd">ServerHeaders</b> <i class="arg">ip</i> <i class="arg">http_request</i> <i class="arg">mimetxt</i></a></li>
 <li><a href="#42">method <b class="cmd">Connect</b> <i class="arg">uuid</i> <i class="arg">sock</i> <i class="arg">ip</i></a></li>
-<li><a href="#43">method <b class="cmd">counter</b> <i class="arg">which</i></a></li>
+<li><a href="#43">method <b class="cmd"><a href="../counter/counter.html">counter</a></b> <i class="arg">which</i></a></li>
 <li><a href="#44">method <b class="cmd">CheckTimeout</b></a></li>
-<li><a href="#45">method <b class="cmd">debug</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#45">method <b class="cmd"><a href="../debug/debug.html">debug</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
 <li><a href="#46">method <b class="cmd">dispatch</b> <i class="arg">data</i></a></li>
 <li><a href="#47">method <b class="cmd">Dispatch_Default</b> <i class="arg">reply</i></a></li>
 <li><a href="#48">method <b class="cmd">Dispatch_Local</b> <i class="arg">data</i></a></li>
 <li><a href="#49">method <b class="cmd">Headers_Local</b> <i class="arg">varname</i></a></li>
 <li><a href="#50">method <b class="cmd">Headers_Process</b> <i class="arg">varname</i></a></li>
 <li><a href="#51">method <b class="cmd">HostName</b> <i class="arg">ipaddr</i></a></li>
-<li><a href="#52">method <b class="cmd">log</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
-<li><a href="#53">method <b class="cmd">plugin</b> <i class="arg">slot</i> <span class="opt">?<i class="arg">class</i> <b class="const"></b>?</span></a></li>
+<li><a href="#52">method <b class="cmd"><a href="../log/log.html">log</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#53">method <b class="cmd"><a href="../../../../index.html#plugin">plugin</a></b> <i class="arg">slot</i> <span class="opt">?<i class="arg">class</i> <b class="const"></b>?</span></a></li>
 <li><a href="#54">method <b class="cmd">port_listening</b></a></li>
 <li><a href="#55">method <b class="cmd">PrefixNormalize</b> <i class="arg">prefix</i></a></li>
-<li><a href="#56">method <b class="cmd">source</b> <i class="arg">filename</i></a></li>
+<li><a href="#56">method <b class="cmd"><a href="../../../../index.html#source">source</a></b> <i class="arg">filename</i></a></li>
 <li><a href="#57">method <b class="cmd">start</b></a></li>
 <li><a href="#58">method <b class="cmd">stop</b></a></li>
 <li><a href="#59">method <b class="cmd">SubObject {} db</b></a></li>
@@ -246,7 +246,7 @@
 <li><a href="#88">method <b class="cmd">proxy_channel</b></a></li>
 <li><a href="#89">method <b class="cmd">ProxyRequest</b> <i class="arg">chana</i> <i class="arg">chanb</i></a></li>
 <li><a href="#90">method <b class="cmd">ProxyReply</b> <i class="arg">chana</i> <i class="arg">chanb</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
-<li><a href="#91">method <b class="cmd">debug</b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
+<li><a href="#91">method <b class="cmd"><a href="../debug/debug.html">debug</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></li>
 <li><a href="#92">method <b class="cmd">Connect</b> <i class="arg">uuid</i> <i class="arg">sock</i> <i class="arg">ip</i></a></li>
 <li><a href="#93">method <b class="cmd">Dispatch_Dict</b> <i class="arg">data</i></a></li>
 <li><a href="#94">method <b class="cmd">uri {} add</b> <i class="arg">vhosts</i> <i class="arg">patterns</i> <i class="arg">info</i></a></li>
@@ -271,9 +271,9 @@ to service, and <b class="cmd">httpd::reply</b> derived classes to generate them
 <pre class="doctools_example">
 oo::class create ::reply.hello {
   method content {} {
-my puts &quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;IRM Dispatch Server&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;&quot;
-my puts &quot;&lt;h1&gt;Hello World!&lt;/h1&gt;&quot;
-my puts &lt;/BODY&gt;&lt;/HTML&gt;
+    my puts &quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;IRM Dispatch Server&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;&quot;
+    my puts &quot;&lt;h1&gt;Hello World!&lt;/h1&gt;&quot;
+    my puts &lt;/BODY&gt;&lt;/HTML&gt;
   }
 }
 ::httpd::server create HTTPD port 8015 myaddr 127.0.0.1 doc_root ~/htdocs
@@ -315,7 +315,7 @@ tclsh examples/httpd.tcl
 <dd></dd>
 <dt><a name="8">method <b class="cmd">MimeParse</b> <i class="arg">mimetext</i></a></dt>
 <dd><p>Converts a block of mime encoded text to a key/value list. If an exception is encountered,
- the method will generate its own call to the <b class="cmd">error</b> method, and immediately invoke
+ the method will generate its own call to the <b class="cmd"><a href="../../../../index.html#error">error</a></b> method, and immediately invoke
  the <b class="cmd">output</b> method to produce an error code and close the connection.</p></dd>
 <dt><a name="9">method <b class="cmd">Url_Decode</b> <i class="arg">data</i></a></dt>
 <dd><p>De-httpizes a string.</p></dd>
@@ -342,14 +342,14 @@ tclsh examples/httpd.tcl
 <li><p>Invokes the <b class="cmd">request parse</b> method to convert the stream of MIME headers into a
  dict that can be read via the <b class="cmd">request</b> method.</p></li>
 <li><p>Stores the raw stream of MIME headers in the <i class="arg">rawrequest</i> variable of the object.</p></li>
-<li><p>Invokes the <b class="cmd">content</b> method for the object, generating an call to the <b class="cmd">error</b>
+<li><p>Invokes the <b class="cmd">content</b> method for the object, generating an call to the <b class="cmd"><a href="../../../../index.html#error">error</a></b>
  method if an exception is raised.</p></li>
 <li><p>Invokes the <b class="cmd">output</b> method for the object</p></li>
 </ol>
 <p>Developers have the option of streaming output to a buffer via the <b class="cmd">puts</b> method of the
  reply, or simply populating the <i class="arg">reply_body</i> variable of the object.
  The information returned by the <b class="cmd">content</b> method is not interpreted in any way.
- If an exception is thrown (via the <b class="cmd">error</b> command in Tcl, for example) the caller will
+ If an exception is thrown (via the <b class="cmd"><a href="../../../../index.html#error">error</a></b> command in Tcl, for example) the caller will
  auto-generate a 500 {Internal Error} message.
  A typical implementation of <b class="cmd">content</b> look like:</p>
 <pre class="doctools_example">
@@ -435,7 +435,7 @@ tclsh examples/httpd.tcl
 <dd></dd>
 <dt><a name="20">method <b class="cmd">html_footer</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
 <dd></dd>
-<dt><a name="21">method <b class="cmd">error</b> <i class="arg">code</i> <span class="opt">?<i class="arg">msg</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">errorInfo</i> <b class="const"></b>?</span></a></dt>
+<dt><a name="21">method <b class="cmd"><a href="../../../../index.html#error">error</a></b> <i class="arg">code</i> <span class="opt">?<i class="arg">msg</i> <b class="const"></b>?</span> <span class="opt">?<i class="arg">errorInfo</i> <b class="const"></b>?</span></a></dt>
 <dd></dd>
 <dt><a name="22">method <b class="cmd">content</b></a></dt>
 <dd><p>REPLACE ME:
@@ -444,7 +444,7 @@ tclsh examples/httpd.tcl
  and can tweak the headers via &quot;clay put header_reply&quot;</p></dd>
 <dt><a name="23">method <b class="cmd">EncodeStatus</b> <i class="arg">status</i></a></dt>
 <dd><p>Formulate a standard HTTP status header from he string provided.</p></dd>
-<dt><a name="24">method <b class="cmd">log</b> <i class="arg">type</i> <span class="opt">?<i class="arg">info</i> <b class="const"></b>?</span></a></dt>
+<dt><a name="24">method <b class="cmd"><a href="../log/log.html">log</a></b> <i class="arg">type</i> <span class="opt">?<i class="arg">info</i> <b class="const"></b>?</span></a></dt>
 <dd></dd>
 <dt><a name="25">method <b class="cmd">CoroName</b></a></dt>
 <dd></dd>
@@ -456,7 +456,7 @@ tclsh examples/httpd.tcl
  For POST requests, reads the Post data and converts that information to
  a key/value list for application/x-www-form-urlencoded posts. For multipart
  posts, it composites all of the MIME headers of the post to a singular key/value
- list, and provides MIME_* information as computed by the <b class="cmd">mime</b> package, including
+ list, and provides MIME_* information as computed by the <b class="cmd"><a href="../mime/mime.html">mime</a></b> package, including
  the MIME_TOKEN, which can be fed back into the mime package to read out the contents.</p></dd>
 <dt><a name="28">method <b class="cmd">PostData</b> <i class="arg">length</i></a></dt>
 <dd><p>Stream <i class="arg">length</i> bytes from the <i class="arg">chan</i> socket, but only of the request is a
@@ -500,7 +500,7 @@ tclsh examples/httpd.tcl
  if too much time has elapsed while waiting for data or generating a reply, and issues
  a timeout error to the request if it has, as well as destroy the object and close the
  <i class="arg">chan</i> socket.</p></dd>
-<dt><a name="37">method <b class="cmd">timestamp</b></a></dt>
+<dt><a name="37">method <b class="cmd"><a href="../../../../index.html#timestamp">timestamp</a></b></a></dt>
 <dd><p>Return the current system time in the format:</p>
 <pre class="doctools_example">%a, %d %b %Y %T %Z</pre>
 </dd>
@@ -527,11 +527,11 @@ tclsh examples/httpd.tcl
  This action passes control of the socket to
  the reply object. The reply object manages the rest of the transaction, including
  closing the socket.</p></dd>
-<dt><a name="43">method <b class="cmd">counter</b> <i class="arg">which</i></a></dt>
+<dt><a name="43">method <b class="cmd"><a href="../counter/counter.html">counter</a></b> <i class="arg">which</i></a></dt>
 <dd><p>Increment an internal counter.</p></dd>
 <dt><a name="44">method <b class="cmd">CheckTimeout</b></a></dt>
 <dd><p>Check open connections for a time out event.</p></dd>
-<dt><a name="45">method <b class="cmd">debug</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dt><a name="45">method <b class="cmd"><a href="../debug/debug.html">debug</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
 <dd></dd>
 <dt><a name="46">method <b class="cmd">dispatch</b> <i class="arg">data</i></a></dt>
 <dd><p>Given a key/value list of information, return a data structure describing how
@@ -550,20 +550,20 @@ tclsh examples/httpd.tcl
  The default implementation is empty.</p></dd>
 <dt><a name="50">method <b class="cmd">Headers_Process</b> <i class="arg">varname</i></a></dt>
 <dd><p>Introspect and possibly modify a data structure destined for a reply. This
- method is built dynamically by the <b class="cmd">plugin</b> method.</p></dd>
+ method is built dynamically by the <b class="cmd"><a href="../../../../index.html#plugin">plugin</a></b> method.</p></dd>
 <dt><a name="51">method <b class="cmd">HostName</b> <i class="arg">ipaddr</i></a></dt>
 <dd><p>Convert an ip address to a host name. If the server/ reverse_dns flag
  is false, this method simply returns the IP address back.
  Internally, this method uses the <em>dns</em> module from tcllib.</p></dd>
-<dt><a name="52">method <b class="cmd">log</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dt><a name="52">method <b class="cmd"><a href="../log/log.html">log</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
 <dd><p>Log an event. The input for args is free form. This method is intended
  to be replaced by the user, and is a noop for a stock http::server object.</p></dd>
-<dt><a name="53">method <b class="cmd">plugin</b> <i class="arg">slot</i> <span class="opt">?<i class="arg">class</i> <b class="const"></b>?</span></a></dt>
+<dt><a name="53">method <b class="cmd"><a href="../../../../index.html#plugin">plugin</a></b> <i class="arg">slot</i> <span class="opt">?<i class="arg">class</i> <b class="const"></b>?</span></a></dt>
 <dd><p>Incorporate behaviors from a plugin.
  This method dynamically rebuilds the <b class="cmd">Dispatch</b> and <b class="cmd">Headers</b>
  method. For every plugin, the server looks for the following entries in
  <em>clay plugin/</em>:</p>
-<p><em>load</em> - A script to invoke in the server's namespace during the <b class="cmd">plugin</b> method invokation.</p>
+<p><em>load</em> - A script to invoke in the server's namespace during the <b class="cmd"><a href="../../../../index.html#plugin">plugin</a></b> method invokation.</p>
 <p><em>dispatch</em> - A script to stitch into the server's <b class="cmd">Dispatch</b> method.</p>
 <p><em>headers</em> - A script to stitch into the server's <b class="cmd">Headers</b> method.</p>
 <p><em>thread</em> - A script to stitch into the server's <b class="cmd">Thread_start</b> method.</p></dd>
@@ -573,7 +573,7 @@ tclsh examples/httpd.tcl
 <dd><p>For the stock version, trim trailing /'s and *'s from a prefix. This
  method can be replaced by the end user to perform any other transformations
  needed for the application.</p></dd>
-<dt><a name="56">method <b class="cmd">source</b> <i class="arg">filename</i></a></dt>
+<dt><a name="56">method <b class="cmd"><a href="../../../../index.html#source">source</a></b> <i class="arg">filename</i></a></dt>
 <dd></dd>
 <dt><a name="57">method <b class="cmd">start</b></a></dt>
 <dd><p>Open the socket listener.</p></dd>
@@ -591,7 +591,7 @@ tclsh examples/httpd.tcl
  database lookups. The stock implementation simply looks for files
  with a .tml or .html extension in the <span class="opt">?doc_root?</span> directory.</p></dd>
 <dt><a name="63">method <b class="cmd">Thread_start</b></a></dt>
-<dd><p>Built by the <b class="cmd">plugin</b> method. Called by the <b class="cmd">start</b> method. Intended
+<dd><p>Built by the <b class="cmd"><a href="../../../../index.html#plugin">plugin</a></b> method. Called by the <b class="cmd">start</b> method. Intended
  to allow plugins to spawn worker threads.</p></dd>
 <dt><a name="64">method <b class="cmd">Uuid_Generate</b></a></dt>
 <dd><p>Generate a GUUID. Used to ensure every request has a unique ID.
@@ -720,7 +720,7 @@ tclsh examples/httpd.tcl
 <p>Act as an  SCGI Server</p>
 <p><b class="class">Methods</b></p>
 <dl class="doctools_definitions">
-<dt><a name="91">method <b class="cmd">debug</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
+<dt><a name="91">method <b class="cmd"><a href="../debug/debug.html">debug</a></b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
 <dd></dd>
 <dt><a name="92">method <b class="cmd">Connect</b> <i class="arg">uuid</i> <i class="arg">sock</i> <i class="arg">ip</i></a></dt>
 <dd></dd>
@@ -788,7 +788,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p>TclOO, WWW, http, httpd, httpserver, services</p>
+<p><a href="../../../../index.html#tcloo">TclOO</a>, <a href="../../../../index.html#www">WWW</a>, <a href="../../../../index.html#http">http</a>, <a href="../../../../index.html#httpd">httpd</a>, <a href="../../../../index.html#httpserver">httpserver</a>, <a href="../../../../index.html#services">services</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>
@@ -796,4 +796,4 @@ left-most button in the secondary navigation bar.</p>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2018 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
 </div>
-</div></body></html>
+</div>

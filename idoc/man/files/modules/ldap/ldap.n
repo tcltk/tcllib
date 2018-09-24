@@ -4,7 +4,7 @@
 '\" Copyright (c) 2004 Jochen Loewer <loewerj@web\&.de>
 '\" Copyright (c) 2006 Michael Schlenker <mic42@users\&.sourceforge\&.net>
 '\"
-.TH "ldap" n 1\&.9\&.2 tcllib "LDAP client"
+.TH "ldap" n 1\&.10 tcllib "LDAP client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,13 +278,21 @@ ldap \- LDAP client
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBldap  ?1\&.9\&.2?\fR
+package require \fBldap  ?1\&.10?\fR
 .sp
 \fB::ldap::connect\fR \fIhost\fR ?\fIport\fR?
+.sp
+\fB::ldap::tlsoptions\fR \fBreset\fR
+.sp
+\fB::ldap::tlsoptions\fR ?\fIopt1\fR \fIval1\fR? ?\fIopt2\fR \fIval2\fR? \&.\&.\&.
+.sp
+\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR?
 .sp
 \fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 .sp
 \fB::ldap::disconnect\fR \fIhandle\fR
+.sp
+\fB::ldap::starttls\fR \fIhandle\fR
 .sp
 \fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
 .sp
@@ -324,6 +332,8 @@ package require \fBldap  ?1\&.9\&.2?\fR
 .sp
 \fB::ldap::info\fR \fBtls\fR \fIhandle\fR
 .sp
+\fB::ldap::info\fR \fBtlsstatus\fR \fIhandle\fR
+.sp
 \fB::ldap::info\fR \fBsaslmechanisms\fR \fIhandle\fR
 .sp
 \fB::ldap::info\fR \fBcontrol\fR \fIhandle\fR
@@ -345,7 +355,7 @@ must be caught with the Tcl \fBcatch\fR command\&.
 .SH "TLS SECURITY CONSIDERATIONS"
 .PP
 This package uses the \fBTLS\fR package to handle the
-security for \fBhttps\fR urls and other socket connections\&.
+security for \fBLDAPS\fR connections\&.
 .PP
 Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of \fBTLS\fR, nor of
@@ -364,8 +374,7 @@ support, as shown in the example below\&.
 .CS
 
 
-    package require tls
-    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ldap::tlsoptions -tls1 1 -ssl2 0 -ssl3 0 ;# forcibly activate support for the TLS1 protocol
 
     \&.\&.\&. your own application code \&.\&.\&.
 
@@ -381,37 +390,128 @@ specified it will default to \fB389\fR\&.
 The command blocks until the connection has been established, or
 establishment definitely failed\&.
 .TP
-\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
+\fB::ldap::tlsoptions\fR \fBreset\fR
+This command resets TLS options to default values\&. It returns the
+set of options\&.
+Using this command is incompatible with the obsolete
+form of \fB::ldap::secure_connect\fR and \fB::ldap_starttls\fR\&.
+.TP
+\fB::ldap::tlsoptions\fR ?\fIopt1\fR \fIval1\fR? ?\fIopt2\fR \fIval2\fR? \&.\&.\&.
+This commands adds one or more options to some value, and may be used
+more than one time in order to add options in several steps\&.  A complete
+description of options may be found in the \fBtls\fR package
+documentation\&. Valid options and values are:
+.RS
+.TP
+\fB-cadir\fR directory
+Provide the directory containing the CA certificates\&.
+No default\&.
+.TP
+\fB-cafile\fR file
+Provide the CA file\&.
+No default\&.
+.TP
+\fB-cipher\fR string
+Provide the cipher suites to use\&.
+No default\&.
+.TP
+\fB-dhparams\fR file
+Provide a Diffie-Hellman parameters file\&.
+No default\&.
+.TP
+\fB-request\fR boolean
+Request a certificate from peer during SSL handshake\&.
+Default: true\&.
+.TP
+\fB-require\fR boolean
+Require a valid certificate from peer during SSL handshake\&. If this is
+set to true then -request must also be set to true\&.
+Default: false
+.TP
+\fB-servername\fR host
+Only available if the OpenSSL library the TLS package is linked against
+supports the TLS hostname extension for 'Server Name Indication'
+(SNI)\&. Use to name the logical host we are talking to and expecting a
+certificate for\&.
+No default\&.
+.TP
+\fB-ssl2\fR bool
+Enable use of SSL v2\&.
+Default: false
+.TP
+\fB-ssl3\fR bool
+Enable use of SSL v3\&.
+Default: false
+.TP
+\fB-tls1\fR bool
+Enable use of TLS v1
+Default: true
+.TP
+\fB-tls1\&.1\fR bool
+Enable use of TLS v1\&.1
+Default: true
+.TP
+\fB-tls1\&.2\fR bool
+Enable use of TLS v1\&.2
+Default: true
+.RE
+.sp
+This command returns the current set of TLS options and values\&.
+In particular, one may use this command without any arguments to get
+the current set of options\&.
+.sp
+Using this command is incompatible with the obsolete
+form of \fB::ldap::secure_connect\fR and \fB::ldap_starttls\fR
+(see below)\&.
+.TP
+\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR?
 Like \fB::ldap::connect\fR, except that the created connection is
 secured by SSL\&. The port defaults to \fB636\fR\&.  This command
 depends on the availability of the package \fBTLS\fR, which is a
 SSL binding for Tcl\&. If \fBTLS\fR is not available, then this
 command will fail\&.
 .sp
+TLS options are specified with \fB::ldap::tlsoptions\fR\&.
+.sp
 The command blocks until the connection has been established, or
 establishment definitely failed\&.
+.TP
+\fB::ldap::secure_connect\fR \fIhost\fR ?\fIport\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
+Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+(\fIverify_cert\fR and \fIsni_servername\fR) and arguments to \fB::tls::init\fR
+(from package \fBtls\fR) for example to setup defaults for trusted
+certificates\&. Prefer the above form (without the \fIverify_cert\fR and
+\fIsni_servername\fR parameters) and set TLS options with
+\fB::ldap::tlsoptions\fR\&.
 .sp
 If \fIverify_cert\fR is set to 1, the default, this checks the server certificate against
 the known hosts\&. If \fIsni_servername\fR is set, the given hostname is used as the
 hostname for Server Name Indication in the TLS handshake\&.
 .sp
 Use \fB::tls::init\fR to setup defaults for trusted certificates\&.
-.CS
-
-
-    tls::init -cadir /etc/ssl/certs/ca-certificates\&.crt
-
-.CE
 .sp
 TLS supports different protocol levels\&. In common use are the versions 1\&.0, 1\&.1 and 1\&.2\&.
 By default all those versions are offered\&. If you need to modify the acceptable
-protocols, you can change the ::ldap::tlsProtocols list\&.
+protocols, you can change the ::ldap::tlsProtocols list (deprecated)\&.
 .TP
 \fB::ldap::disconnect\fR \fIhandle\fR
 Closes the ldap connection refered to by the token
 \fIhandle\fR\&. Returns the empty string as its result\&.
 .TP
+\fB::ldap::starttls\fR \fIhandle\fR
+Start TLS negotiation on the connection denoted by \fIhandle\fR,
+with TLS parameters set with \fB::ldap::tlsoptions\fR\&.
+.TP
 \fB::ldap::starttls\fR \fIhandle\fR ?\fIcafile\fR? ?\fIcertfile\fR? ?\fIkeyfile\fR? ?\fIverify_cert\fR? ?\fIsni_servername\fR?
+Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+(\fIcafile\fR, \fIcertfile\fR, \fIkeyfile\fR, \fIverify_cert\fR
+and \fIsni_servername\fR) and arguments to \fB::tls::init\fR
+(from package \fBtls\fR)\&.
+Prefer the above form (without specific TLS arguments)
+and set TLS options with \fB::ldap::tlsoptions\fR\&.
+.sp
 Start TLS negotiation on the connection denoted by \fIhandle\fR\&.
 You need to set at least the \fIcafile\fR argument to a file with trusted certificates, if \fIverify_cert\fR is 1, which is the default\&.
 The \fIsni_servername\fR can be used to signal a different hostname during the TLS handshake\&.
@@ -678,6 +778,12 @@ This command returns all currently existing ldap connection handles\&.
 This command returns 1 if the ldap connection \fIhandle\fR used TLS/SSL for
 connection via \fBldap::secure_connect\fR or completed \fBldap::starttls\fR, 0 otherwise\&.
 .TP
+\fB::ldap::info\fR \fBtlsstatus\fR \fIhandle\fR
+This command returns the current security status of an TLS secured
+channel\&. The result is a list of key-value pairs describing the connected
+peer (see the \fBTLS\fR package documentation for the returned values)\&.
+If the connection is not secured with TLS, an empty list is returned\&.
+.TP
 \fB::ldap::info\fR \fBsaslmechanisms\fR \fIhandle\fR
 Return the supported SASL mechanisms advertised by the server\&. Only valid in a
 bound state (anonymous or other)\&.
@@ -758,7 +864,7 @@ code\&.
 
 .CE
 .PP
-And a another example, a simple query, and processing the
+And another example, a simple query, and processing the
 results\&.
 .PP
 .CS

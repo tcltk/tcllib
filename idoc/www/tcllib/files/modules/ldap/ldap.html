@@ -108,7 +108,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">ldap(n) 1.9.2 tcllib &quot;LDAP client&quot;</h1>
+<h1 class="doctools_title">ldap(n) 1.10 tcllib &quot;LDAP client&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ldap - LDAP client</p>
 </div>
@@ -130,35 +130,40 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">ldap <span class="opt">?1.9.2?</span></b></li>
+<li>package require <b class="pkgname">ldap <span class="opt">?1.10?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::ldap::connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
-<li><a href="#2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
-<li><a href="#3"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></li>
-<li><a href="#4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
-<li><a href="#5"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
-<li><a href="#6"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
-<li><a href="#7"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></li>
-<li><a href="#8"><b class="cmd">::ldap::search</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></li>
-<li><a href="#9"><b class="cmd">::ldap::searchInit</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></li>
-<li><a href="#10"><b class="cmd">::ldap::searchNext</b> <i class="arg">handle</i></a></li>
-<li><a href="#11"><b class="cmd">::ldap::searchEnd</b> <i class="arg">handle</i></a></li>
-<li><a href="#12"><b class="cmd">::ldap::modify</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></li>
-<li><a href="#13"><b class="cmd">::ldap::modifyMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrValToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></li>
-<li><a href="#14"><b class="cmd">::ldap::add</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
-<li><a href="#15"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
-<li><a href="#16"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></li>
-<li><a href="#17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></li>
-<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#ip">ip</a></b> <i class="arg">handle</i></a></li>
-<li><a href="#19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
-<li><a href="#20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
-<li><a href="#21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
-<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#tls">tls</a></b> <i class="arg">handle</i></a></li>
-<li><a href="#23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></li>
-<li><a href="#24"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></li>
-<li><a href="#25"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></li>
-<li><a href="#26"><b class="cmd">::ldap::info</b> <b class="cmd">whoami</b> <i class="arg">handle</i></a></li>
+<li><a href="#2"><b class="cmd">::ldap::tlsoptions</b> <b class="cmd">reset</b></a></li>
+<li><a href="#3"><b class="cmd">::ldap::tlsoptions</b> <span class="opt">?<i class="arg">opt1</i> <i class="arg">val1</i>?</span> <span class="opt">?<i class="arg">opt2</i> <i class="arg">val2</i>?</span> ...</a></li>
+<li><a href="#4"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
+<li><a href="#5"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
+<li><a href="#6"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></li>
+<li><a href="#7"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i></a></li>
+<li><a href="#8"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></li>
+<li><a href="#9"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
+<li><a href="#10"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></li>
+<li><a href="#11"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></li>
+<li><a href="#12"><b class="cmd">::ldap::search</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></li>
+<li><a href="#13"><b class="cmd">::ldap::searchInit</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></li>
+<li><a href="#14"><b class="cmd">::ldap::searchNext</b> <i class="arg">handle</i></a></li>
+<li><a href="#15"><b class="cmd">::ldap::searchEnd</b> <i class="arg">handle</i></a></li>
+<li><a href="#16"><b class="cmd">::ldap::modify</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></li>
+<li><a href="#17"><b class="cmd">::ldap::modifyMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrValToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></li>
+<li><a href="#18"><b class="cmd">::ldap::add</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
+<li><a href="#19"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
+<li><a href="#20"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></li>
+<li><a href="#21"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></li>
+<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#ip">ip</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#23"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
+<li><a href="#24"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
+<li><a href="#25"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
+<li><a href="#26"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#tls">tls</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#27"><b class="cmd">::ldap::info</b> <b class="cmd">tlsstatus</b> <i class="arg">handle</i></a></li>
+<li><a href="#28"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></li>
+<li><a href="#29"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#30"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></li>
+<li><a href="#31"><b class="cmd">::ldap::info</b> <b class="cmd">whoami</b> <i class="arg">handle</i></a></li>
 </ul>
 </div>
 </div>
@@ -173,7 +178,7 @@ must be caught with the Tcl <b class="cmd">catch</b> command.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">TLS Security Considerations</a></h2>
 <p>This package uses the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package to handle the
-security for <b class="const">https</b> urls and other socket connections.</p>
+security for <b class="const">LDAPS</b> connections.</p>
 <p>Policy decisions like the set of protocols to support and what
 ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, nor of
 this package itself however.
@@ -188,8 +193,7 @@ patched, and not this package, nor <b class="package"><a href="../../../../index
 Such a patch may be as simple as generally activating <b class="const">tls1</b>
 support, as shown in the example below.</p>
 <pre class="doctools_example">
-    package require tls
-    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ldap::tlsoptions -tls1 1 -ssl2 0 -ssl3 0 ;# forcibly activate support for the TLS1 protocol
     ... your own application code ...
 </pre>
 </div>
@@ -202,34 +206,108 @@ support, as shown in the example below.</p>
 specified it will default to <b class="const">389</b>.</p>
 <p>The command blocks until the connection has been established, or
 establishment definitely failed.</p></dd>
-<dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
+<dt><a name="2"><b class="cmd">::ldap::tlsoptions</b> <b class="cmd">reset</b></a></dt>
+<dd><p>This command resets TLS options to default values. It returns the
+set of options.
+Using this command is incompatible with the obsolete
+form of <b class="cmd">::ldap::secure_connect</b> and <b class="cmd">::ldap_starttls</b>.</p></dd>
+<dt><a name="3"><b class="cmd">::ldap::tlsoptions</b> <span class="opt">?<i class="arg">opt1</i> <i class="arg">val1</i>?</span> <span class="opt">?<i class="arg">opt2</i> <i class="arg">val2</i>?</span> ...</a></dt>
+<dd><p>This commands adds one or more options to some value, and may be used
+more than one time in order to add options in several steps.  A complete
+description of options may be found in the <b class="package"><a href="../../../../index.html#tls">tls</a></b> package
+documentation. Valid options and values are:</p>
+<dl class="doctools_options">
+<dt><b class="option">-cadir</b> directory</dt>
+<dd><p>Provide the directory containing the CA certificates.
+No default.</p></dd>
+<dt><b class="option">-cafile</b> file</dt>
+<dd><p>Provide the CA file.
+No default.</p></dd>
+<dt><b class="option">-cipher</b> string</dt>
+<dd><p>Provide the cipher suites to use.
+No default.</p></dd>
+<dt><b class="option">-dhparams</b> file</dt>
+<dd><p>Provide a Diffie-Hellman parameters file.
+No default.</p></dd>
+<dt><b class="option">-request</b> boolean</dt>
+<dd><p>Request a certificate from peer during SSL handshake.
+Default: true.</p></dd>
+<dt><b class="option">-require</b> boolean</dt>
+<dd><p>Require a valid certificate from peer during SSL handshake. If this is
+set to true then -request must also be set to true.
+Default: false</p></dd>
+<dt><b class="option">-servername</b> host</dt>
+<dd><p>Only available if the OpenSSL library the TLS package is linked against
+supports the TLS hostname extension for 'Server Name Indication'
+(SNI). Use to name the logical host we are talking to and expecting a
+certificate for.
+No default.</p></dd>
+<dt><b class="option">-ssl2</b> bool</dt>
+<dd><p>Enable use of SSL v2.
+Default: false</p></dd>
+<dt><b class="option">-ssl3</b> bool</dt>
+<dd><p>Enable use of SSL v3.
+Default: false</p></dd>
+<dt><b class="option">-tls1</b> bool</dt>
+<dd><p>Enable use of TLS v1
+Default: true</p></dd>
+<dt><b class="option">-tls1.1</b> bool</dt>
+<dd><p>Enable use of TLS v1.1
+Default: true</p></dd>
+<dt><b class="option">-tls1.2</b> bool</dt>
+<dd><p>Enable use of TLS v1.2
+Default: true</p></dd>
+</dl>
+<p>This command returns the current set of TLS options and values.
+In particular, one may use this command without any arguments to get
+the current set of options.</p>
+<p>Using this command is incompatible with the obsolete
+form of <b class="cmd">::ldap::secure_connect</b> and <b class="cmd">::ldap_starttls</b>
+(see below).</p></dd>
+<dt><a name="4"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::ldap::connect</b>, except that the created connection is
 secured by SSL. The port defaults to <b class="const">636</b>.  This command
 depends on the availability of the package <b class="package"><a href="../../../../index.html#tls">TLS</a></b>, which is a
 SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#tls">TLS</a></b> is not available, then this
 command will fail.</p>
+<p>TLS options are specified with <b class="cmd">::ldap::tlsoptions</b>.</p>
 <p>The command blocks until the connection has been established, or
-establishment definitely failed.</p>
+establishment definitely failed.</p></dd>
+<dt><a name="5"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
+<dd><p>Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+(<i class="arg">verify_cert</i> and <i class="arg">sni_servername</i>) and arguments to <b class="cmd">::tls::init</b>
+(from package <b class="package"><a href="../../../../index.html#tls">tls</a></b>) for example to setup defaults for trusted
+certificates. Prefer the above form (without the <i class="arg">verify_cert</i> and
+<i class="arg">sni_servername</i> parameters) and set TLS options with
+<b class="cmd">::ldap::tlsoptions</b>.</p>
 <p>If <i class="arg">verify_cert</i> is set to 1, the default, this checks the server certificate against
 the known hosts. If <i class="arg">sni_servername</i> is set, the given hostname is used as the 
 hostname for Server Name Indication in the TLS handshake.</p>
 <p>Use <b class="cmd">::tls::init</b> to setup defaults for trusted certificates.</p>
-<pre class="doctools_example">
-    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
-</pre>
 <p>TLS supports different protocol levels. In common use are the versions 1.0, 1.1 and 1.2.
 By default all those versions are offered. If you need to modify the acceptable
-protocols, you can change the ::ldap::tlsProtocols list.</p></dd>
-<dt><a name="3"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></dt>
+protocols, you can change the ::ldap::tlsProtocols list (deprecated).</p></dd>
+<dt><a name="6"><b class="cmd">::ldap::disconnect</b> <i class="arg">handle</i></a></dt>
 <dd><p>Closes the ldap connection refered to by the token
 <i class="arg">handle</i>. Returns the empty string as its result.</p></dd>
-<dt><a name="4"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
-<dd><p>Start TLS negotiation on the connection denoted by <i class="arg">handle</i>.
+<dt><a name="7"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i></a></dt>
+<dd><p>Start TLS negotiation on the connection denoted by <i class="arg">handle</i>,
+with TLS parameters set with <b class="cmd">::ldap::tlsoptions</b>.</p></dd>
+<dt><a name="8"><b class="cmd">::ldap::starttls</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">cafile</i>?</span> <span class="opt">?<i class="arg">certfile</i>?</span> <span class="opt">?<i class="arg">keyfile</i>?</span> <span class="opt">?<i class="arg">verify_cert</i>?</span> <span class="opt">?<i class="arg">sni_servername</i>?</span></a></dt>
+<dd><p>Note: this form of the command is deprecated, since TLS options had
+to be specified with a combination of parameters to this command
+(<i class="arg">cafile</i>, <i class="arg">certfile</i>, <i class="arg">keyfile</i>, <i class="arg">verify_cert</i>
+and <i class="arg">sni_servername</i>) and arguments to <b class="cmd">::tls::init</b>
+(from package <b class="package"><a href="../../../../index.html#tls">tls</a></b>).
+Prefer the above form (without specific TLS arguments)
+and set TLS options with <b class="cmd">::ldap::tlsoptions</b>.</p>
+<p>Start TLS negotiation on the connection denoted by <i class="arg">handle</i>.
 You need to set at least the <i class="arg">cafile</i> argument to a file with trusted certificates, if <i class="arg">verify_cert</i> is 1, which is the default.
 The <i class="arg">sni_servername</i> can be used to signal a different hostname during the TLS handshake.
 The announced protocols are determined in the same way as <b class="cmd">::ldap::secure_connect</b>.
 You can specify a TLS client certificate with the <i class="arg">certfile</i> and <i class="arg">keyfile</i> options.</p></dd>
-<dt><a name="5"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
+<dt><a name="9"><b class="cmd">::ldap::bind</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
 <dd><p>This command authenticates the ldap connection refered to by the token
 in <i class="arg">handle</i>, with a user name and associated password. It blocks
 until a response from the ldap server arrives. Its result is the empty
@@ -239,18 +317,18 @@ are not specified.
 By leaving out <i class="arg">name</i> and <i class="arg">passwd</i> you can make an anonymous bind to
 the ldap server.
 You can issue <b class="cmd">::ldap::bind</b> again to bind with different credentials.</p></dd>
-<dt><a name="6"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
+<dt><a name="10"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
 <dd><p>This command uses SASL authentication mechanisms to do a multistage bind.
 Its otherwise identical to the standard <b class="cmd">::ldap::bind</b>.
 This feature is currently experimental and subject to change. See the documentation
 for the <b class="package"><a href="../sasl/sasl.html">SASL</a></b> and the &quot;<b class="file">SASL.txt</b>&quot; in the tcllib CVS repository for
 details how to setup and use SASL with openldap.</p></dd>
-<dt><a name="7"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></dt>
+<dt><a name="11"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command asks the ldap server to release the last bind done for
 the connection refered to by the token in <i class="arg">handle</i>.
 The <i class="arg">handle</i> is invalid after the unbind, as the server closes the connection.
 So this is effectivly just a more polite disconnect operation.</p></dd>
-<dt><a name="8"><b class="cmd">::ldap::search</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
+<dt><a name="12"><b class="cmd">::ldap::search</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
 <dd><p>This command performs a LDAP search below the <i class="arg">baseObject</i> tree
 using a complex LDAP search expression <i class="arg">filterString</i> and returns
 the specified <i class="arg">attributes</i> of all matching objects (DNs). If the
@@ -268,7 +346,7 @@ attribute names. In other words, it is in the form</p>
     {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 </pre>
 </dd>
-<dt><a name="9"><b class="cmd">::ldap::searchInit</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
+<dt><a name="13"><b class="cmd">::ldap::searchInit</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
 <dd><p>This command initiates a LDAP search below the <i class="arg">baseObject</i> tree
 using a complex LDAP search expression <i class="arg">filterString</i>.
 The search gets the specified <i class="arg">attributes</i> of all matching objects (DNs).
@@ -313,7 +391,7 @@ The default is to retrieve attribute names and values.</p></dd>
 The caller can than decide to follow those references and query other LDAP servers for
 further results.</p></dd>
 </dl></dd>
-<dt><a name="10"><b class="cmd">::ldap::searchNext</b> <i class="arg">handle</i></a></dt>
+<dt><a name="14"><b class="cmd">::ldap::searchNext</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the next entry from a LDAP search initiated
 by <b class="cmd">::ldap::searchInit</b>. It returns only after a new result is received
 or when no further results are available, but takes care to keep
@@ -326,14 +404,14 @@ list of attributes and values, under the format:</p>
 </pre>
 <p>The <b class="cmd">::ldap::searchNext</b> command returns an empty list at the
 end of the search.</p></dd>
-<dt><a name="11"><b class="cmd">::ldap::searchEnd</b> <i class="arg">handle</i></a></dt>
+<dt><a name="15"><b class="cmd">::ldap::searchEnd</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command terminates a LDAP search initiated
 by <b class="cmd">::ldap::searchInit</b>. It also cleans up
 the internal state so a new search can be initiated.
 If the client has not yet received all results, the client
 sends an ABANDON message to inform the server that no
 further results for the previous search should to be sent.</p></dd>
-<dt><a name="12"><b class="cmd">::ldap::modify</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></dt>
+<dt><a name="16"><b class="cmd">::ldap::modify</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></dt>
 <dd><p>This command modifies the object <i class="arg">dn</i> on the ldap server we are
 connected to via <i class="arg">handle</i>. It replaces attributes with new values,
 deletes attributes, and adds new attributes with new values.
@@ -357,7 +435,7 @@ values are the values for the new attributes.</p></dd>
 </dl>
 <p>The command blocks until all modifications have completed. Its result
 is the empty string.</p></dd>
-<dt><a name="13"><b class="cmd">::ldap::modifyMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrValToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></dt>
+<dt><a name="17"><b class="cmd">::ldap::modifyMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValToReplace</i> <span class="opt">?<i class="arg">attrValToDelete</i>?</span> <span class="opt">?<i class="arg">attrValToAdd</i>?</span></a></dt>
 <dd><p>This command modifies the object <i class="arg">dn</i> on the ldap server we are
 connected to via <i class="arg">handle</i>. It replaces attributes with new values,
 deletes attributes, and adds new attributes with new values.
@@ -382,14 +460,14 @@ will be deleted.</p></dd>
 </dl>
 <p>The command blocks until all modifications have completed. Its result
 is the empty string.</p></dd>
-<dt><a name="14"><b class="cmd">::ldap::add</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></dt>
+<dt><a name="18"><b class="cmd">::ldap::add</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></dt>
 <dd><p>This command creates a new object using the specified <i class="arg">dn</i>. The
 attributes of the new object are set to the values in the list
 <i class="arg">attrValueTuples</i>.
 Multiple valuated attributes may be specified using multiple tuples.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="15"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></dt>
+<dt><a name="19"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></dt>
 <dd><p>This command is the preferred one to create
 a new object using the specified <i class="arg">dn</i>. The
 attributes of the new object are set to the values in the dictionary
@@ -397,12 +475,12 @@ attributes of the new object are set to the values in the dictionary
 Each tuple is a list containing multiple values.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="16"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></dt>
+<dt><a name="20"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></dt>
 <dd><p>This command removes the object specified by <i class="arg">dn</i>, and all its
 attributes from the server.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></dt>
+<dt><a name="21"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></dt>
 <dd><p>This command moves or copies the object specified by <i class="arg">dn</i>
 to a new location in the tree of object. This location is
 specified by <i class="arg">newrdn</i>, a <em>relative</em> designation,
@@ -416,29 +494,34 @@ the tree. If this argument is given, the argument <i class="arg">deleteOld</i>
 must be specified also.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#ip">ip</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#ip">ip</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the IP address of the remote LDAP server the handle is connected to.</p></dd>
-<dt><a name="19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></dt>
+<dt><a name="23"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.
 If no bind was done or it failed, a 0 is returned.</p></dd>
-<dt><a name="20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></dt>
+<dt><a name="24"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the username used in the bind operation if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.
 If no bound was done or it failed, an empty string is returned.</p></dd>
-<dt><a name="21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></dt>
+<dt><a name="25"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></dt>
 <dd><p>This command returns all currently existing ldap connection handles.</p></dd>
-<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#tls">tls</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="26"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#tls">tls</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if the ldap connection <i class="arg">handle</i> used TLS/SSL for
 connection via <b class="cmd">ldap::secure_connect</b> or completed <b class="cmd">ldap::starttls</b>, 0 otherwise.</p></dd>
-<dt><a name="23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></dt>
+<dt><a name="27"><b class="cmd">::ldap::info</b> <b class="cmd">tlsstatus</b> <i class="arg">handle</i></a></dt>
+<dd><p>This command returns the current security status of an TLS secured
+channel. The result is a list of key-value pairs describing the connected
+peer (see the <b class="package"><a href="../../../../index.html#tls">TLS</a></b> package documentation for the returned values).
+If the connection is not secured with TLS, an empty list is returned.</p></dd>
+<dt><a name="28"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></dt>
 <dd><p>Return the supported SASL mechanisms advertised by the server. Only valid in a
 bound state (anonymous or other).</p></dd>
-<dt><a name="24"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="29"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>Return the supported controls advertised by the server as a list of OIDs. Only valid in a bound state.
 This is currently experimental and subject to change.</p></dd>
-<dt><a name="25"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></dt>
+<dt><a name="30"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></dt>
 <dd><p>Returns the supported LDAP extensions as list of OIDs. Only valid in a bound state.
 This is currently experimental and subject to change.</p></dd>
-<dt><a name="26"><b class="cmd">::ldap::info</b> <b class="cmd">whoami</b> <i class="arg">handle</i></a></dt>
+<dt><a name="31"><b class="cmd">::ldap::info</b> <b class="cmd">whoami</b> <i class="arg">handle</i></a></dt>
 <dd><p>Returns authzId for the current connection. This implements the RFC 4532
 protocol extension.</p></dd>
 </dl>
@@ -486,7 +569,7 @@ code.</p>
     ldap::unbind     $handle
     ldap::disconnect $handle
 </pre>
-<p>And a another example, a simple query, and processing the
+<p>And another example, a simple query, and processing the
 results.</p>
 <pre class="doctools_example">
     package require ldap
