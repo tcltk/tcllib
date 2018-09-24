@@ -840,7 +840,6 @@ list \fIargs\fR
 \fB::math::statistics::quantiles\fR \fIdata\fR \fIconfidence\fR
 Return the quantiles for a given set of data
 .RS
-.sp
 .TP
 list \fIdata\fR
 - List of raw data values

@@ -348,7 +348,7 @@ their meaning can be found in section \fBOPTIONS\fR\&.
 .TP
 \fB::nameserv::server::configure\fR \fB-option\fR
 In this form the command is an alias for
-"\fB::nameserv::server::cget\fR \fB-option\fR]"\&.
+"\fB::nameserv::server::cget\fR \fB-option\fR"\&.
 The list of supported options and their meaning can be found in
 section \fBOPTIONS\fR\&.
 .TP

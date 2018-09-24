@@ -148,9 +148,11 @@ the package <b class="package"><a href="cgen.html">fileutil::magic::cgen</a></b>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::fileutil::magic::cfront::compile</b> <i class="arg">path</i>...</a></dt>
-<dd><p>This command takes the paths of one or more files and directories and
-compiles all the files, and the files in all the directories into a
-single recognizer for all the file types specified in these files.</p>
+<dd><p>This command takes the paths of one or more files and directories and compiles
+all the files, and the files in all the directories into a single analyzer for
+all the file types specified in these files.  It returns a list whose first
+item is a list per-file dictionaries of analyzer scripts and whose second item
+is a list of analyzer commands.</p>
 <p>All the files have to be in the format specified by magic(5).</p>
 <p>The result of the command is a Tcl script containing the generated
 recognizer.</p></dd>

@@ -21,9 +21,10 @@
 # version 1.0:   added test-anova-F
 # version 1.0.1: correction in pdf-lognormal and cdf-lognormal
 # version 1.1:   added test-Tukey-range and test-Dunnett
+# version 1.3:   added wasserstein-distance, kl-divergence and logit regression
 
 package require Tcl 8.5 ; # 8.5+ feature in test-anovo-F: **-operator
-package provide math::statistics 1.2.0
+package provide math::statistics 1.3.0
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
@@ -1794,6 +1795,8 @@ source [file join [file dirname [info script]] mvlinreg.tcl]
 source [file join [file dirname [info script]] kruskal.tcl]
 source [file join [file dirname [info script]] wilcoxon.tcl]
 source [file join [file dirname [info script]] stat_kernel.tcl]
+source [file join [file dirname [info script]] stat_wasserstein.tcl]
+source [file join [file dirname [info script]] stat_logit.tcl]
 
 #
 # Define the tables

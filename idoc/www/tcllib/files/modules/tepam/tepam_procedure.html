@@ -719,7 +719,7 @@ tepam::procedure my_proc {
 <pre class="doctools_example">my_proc <b class="cmd">-n1 N1 -n2 N2 &quot;-&gt;&quot; &quot;&lt;-&quot;</b>
 <em>-&gt; my_proc: Argument '-&gt;' not known</em>
 set U1 &quot;-&gt;&quot;
-my_proc -n1 N1 -n2 N2 $U1 U2}]
+my_proc <b class="cmd">-n1 N1 -n2 N2 $U1 U2</b>
 my_proc: Argument '-&gt;' not known</pre>
 <p>The '--' flag allows separating unambiguously the unnamed arguments from the named arguments. All data after the '--' flag will be considered as unnamed argument:</p>
 <pre class="doctools_example">my_proc <b class="cmd">-n1 N1 -n2 N2 -- &quot;-&gt;&quot; &quot;&lt;-&quot;</b>

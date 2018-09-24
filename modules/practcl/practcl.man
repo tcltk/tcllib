@@ -1,5 +1,5 @@
 [comment {-*- practcl -*-}]
-[vset VERSION 0.11]
+[vset VERSION 0.13]
 [manpage_begin practcl n [vset VERSION]]
 [keywords practcl]
 [copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
@@ -12,52 +12,1459 @@
 The Practcl module is a tool for integrating large modules for C API
 Tcl code that requires custom Tcl types and TclOO objects.
 
-[section COMMANDS]
+[section {Commands}]
 [list_begin definitions]
 
-[call [cmd CPUTS] [arg varname] [arg body] [opt [arg body]...]]
-Appends blocks of text to a buffer. This command tries to reduce the number
-of line breaks between bodies.
+[call proc [cmd practcl::cat] [arg fname]]
 
-[call [cmd practcl::_isdirectory] [arg path]]
-Returns true if [arg path] is a directory, using the test 
+
+[call proc [cmd putb] [arg buffername] [opt "[arg args]"]]
+
+
+[call proc [cmd Proc] [arg name] [arg arglist] [arg body]]
+
+Generate a proc if no command already exists by that name
+
+
+
+
+[call proc [cmd noop] [opt "[arg args]"]]
+
+A command to do nothing. A handy way of
+negating an instruction without
+having to comment it completely out.
+It's also a handy attachment point for
+an object to be named later
+
+
+
+
+[call proc [cmd practcl::debug] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::doexec] [opt "[arg args]"]]
+
+Drop in a static copy of Tcl
+
+
+
+
+[call proc [cmd practcl::doexec_in] [arg path] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::dotclexec] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::domake] [arg path] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::domake.tcl] [arg path] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::fossil] [arg path] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::fossil_status] [arg dir]]
+
+
+[call proc [cmd practcl::os]]
+
+
+[call proc [cmd practcl::mkzip] [arg exename] [arg barekit] [arg vfspath]]
+
+Build a zipfile. On tcl8.6 this invokes the native Zip implementation
+on older interpreters this invokes zip via exec
+
+
+
+
+[call proc [cmd practcl::sort_dict] [arg list]]
+
+Dictionary sort a key/value list. Needed because pre tcl8.6
+does not have [emph {lsort -stride 2}]
+
+
+
+
+[call proc [cmd practcl::local_os]]
+
+
+[call proc [cmd practcl::config.tcl] [arg path]]
+
+Detect local platform
+
+
+
+
+[call proc [cmd practcl::read_configuration] [arg path]]
+
+
+[call proc [cmd practcl::tcllib_require] [arg pkg] [opt "[arg args]"]]
+Try to load  a package, and failing that
+retrieve tcllib
+
+
+
+[call proc [cmd practcl::platform::tcl_core_options] [arg os]]
+
+
+[call proc [cmd practcl::platform::tk_core_options] [arg os]]
+
+
+[call proc [cmd practcl::read_rc_file] [arg filename] [opt "[arg localdat] [const ""]"]]
+
+Read a stylized key/value list stored in a file
+
+
+
+
+[call proc [cmd practcl::read_sh_subst] [arg line] [arg info]]
+
+
+
+[call proc [cmd practcl::read_sh_file] [arg filename] [opt "[arg localdat] [const ""]"]]
+
+
+
+[call proc [cmd practcl::read_Config.sh] [arg filename]]
+
+A simpler form of read_sh_file tailored
+to pulling data from (tcl|tk)Config.sh
+
+
+
+
+[call proc [cmd practcl::read_Makefile] [arg filename]]
+
+A simpler form of read_sh_file tailored
+to pulling data from a Makefile
+
+
+
+
+[call proc [cmd practcl::cputs] [arg varname] [opt "[arg args]"]]
+Append arguments to a buffer
+The command works like puts in that each call will also insert
+a line feed. Unlike puts, blank links in the interstitial are
+suppressed
+
+
+
+[call proc [cmd practcl::tcl_to_c] [arg body]]
+
+
+[call proc [cmd practcl::_tagblock] [arg text] [opt "[arg style] [const "tcl"]"] [opt "[arg note] [const ""]"]]
+
+
+[call proc [cmd practcl::de_shell] [arg data]]
+
+
+[call proc [cmd practcl::grep] [arg pattern] [opt "[arg files] [const ""]"]]
+
+grep
+
+
+
+
+[call proc [cmd practcl::file_lexnormalize] [arg sp]]
+
+
+[call proc [cmd practcl::file_relative] [arg base] [arg dst]]
+
+
+[call proc [cmd practcl::log] [arg fname] [arg comment]]
+
+
+[call proc [cmd practcl::_isdirectory] [arg name]]
+
+Installer tools
+
+
+
+
+[call proc [cmd practcl::_pkgindex_directory] [arg path]]
+
+Return true if the pkgindex file contains
+any statement other than "package ifneeded"
+and/or if any package ifneeded loads a DLL
+
+
+
+
+[call proc [cmd practcl::_pkgindex_path_subdir] [arg path]]
+
+
+[call proc [cmd practcl::pkgindex_path] [opt "[arg args]"]]
+
+Index all paths given as though they will end up in the same
+virtual file system
+
+
+
+
+[call proc [cmd practcl::installDir] [arg d1] [arg d2]]
+
+
+[call proc [cmd practcl::copyDir] [arg d1] [arg d2] [opt "[arg toplevel] [const "1"]"]]
+
+
+[call proc [cmd practcl::trigger] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::depends] [opt "[arg args]"]]
+
+
+[call proc [cmd practcl::target] [arg name] [arg info] [opt "[arg action] [const ""]"]]
 
 [list_end]
 
+[section Classes]
+[subsection {Class  clay::doctool}]
+
+[para]
+[class {Methods}]
 [list_begin definitions]
-[call [cmd practcl::object] [arg "parent"] [opt [arg "keyvaluelist"]]]
+
+[call method [cmd constructor]]
+
+
+[call method [cmd arglist] [arg arglist]]
+
+
+[call method [cmd comment] [arg block]]
+
+
+[call method [cmd keyword.Class] [arg resultvar] [arg commentblock] [arg name] [arg body]]
+
+Process an oo::objdefine call that modifies the class object
+itself
+
+
+
+
+[call method [cmd keyword.class] [arg resultvar] [arg commentblock] [arg name] [arg body]]
+
+
+[call method [cmd keyword.class_method] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
+
+
+[call method [cmd keyword.method] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
+
+
+[call method [cmd keyword.proc] [arg commentblock] [arg name] [arg arglist] [arg body]]
+
+
+[call method [cmd reset]]
+
+
+[call method [cmd section.command] [arg procinfo]]
+
+
+[call method [cmd section.class] [arg class_name] [arg class_info]]
+
+
+[call method [cmd manpage] [opt "[arg args]"]]
+
+
+[call method [cmd scan_text] [arg text]]
+
+
+[call method [cmd scan_file] [arg filename]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::metaclass}]
+[emph "ancestors"]: [class oo::object]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd _MorphPatterns]]
+
+
+[call method [cmd define] [arg submethod] [opt "[arg args]"]]
+
+
+[call method [cmd graft] [opt "[arg args]"]]
+
+
+[call method [cmd initialize]]
+
+
+[call method [cmd link] [arg command] [opt "[arg args]"]]
+
+
+[call method [cmd morph] [arg classname]]
+
+
+[call method [cmd mixin] [arg slot] [arg classname]]
+
+
+[call method [cmd organ] [opt "[arg args]"]]
+
+
+[call method [cmd script] [arg script]]
+
+
+[call method [cmd select]]
+
+
+[call method [cmd source] [arg filename]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::toolset}]
+
+Ancestor-less class intended to be a mixin
+which defines a family of build related behaviors
+that are modified when targetting either gcc or msvc
+
+
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd select] [arg object]]
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd config.sh]]
+
+find or fake a key/value list describing this project
+
+
+
+
+[call method [cmd BuildDir] [arg PWD]]
+
+
+[call method [cmd MakeDir] [arg srcdir]]
+
+
+[call method [cmd read_configuration]]
+
+
+[call method [cmd build-cflags] [arg PROJECT] [arg DEFS] [arg namevar] [arg versionvar] [arg defsvar]]
+method DEFS
+This method populates 4 variables:
+name - The name of the package
+version - The version of the package
+defs - C flags passed to the compiler
+includedir - A list of paths to feed to the compiler for finding headers
+
+
+
+
+[call method [cmd critcl] [opt "[arg args]"]]
+
+
+[call method [cmd make-autodetect]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::toolset.gcc}]
+[emph "ancestors"]: [class practcl::toolset]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd Autoconf]]
+
+
+[call method [cmd BuildDir] [arg PWD]]
+
+
+[call method [cmd ConfigureOpts]]
+
+
+[call method [cmd MakeDir] [arg srcdir]]
+Detect what directory contains the Makefile template
+
+
+
+[call method [cmd make-autodetect]]
+
+
+[call method [cmd make-clean]]
+
+
+[call method [cmd make-compile]]
+
+
+[call method [cmd make-install] [arg DEST]]
+
+
+[call method [cmd build-compile-sources] [arg PROJECT] [arg COMPILE] [arg CPPCOMPILE] [arg INCLUDES]]
+
+
+[call method [cmd build-Makefile] [arg path] [arg PROJECT]]
+
+
+[call method [cmd build-library] [arg outfile] [arg PROJECT]]
+
+Produce a static or dynamic library
+
+
+
+
+[call method [cmd build-tclsh] [arg outfile] [arg PROJECT]]
+
+Produce a static executable
+
+
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::toolset.msvc}]
+[emph "ancestors"]: [class practcl::toolset]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd BuildDir] [arg PWD]]
+MSVC always builds in the source directory
+
+
+
+[call method [cmd make-autodetect]]
+Do nothing
+
+
+
+[call method [cmd make-clean]]
+
+
+[call method [cmd make-compile]]
+
+
+[call method [cmd make-install] [arg DEST]]
+
+
+[call method [cmd MakeDir] [arg srcdir]]
+Detect what directory contains the Makefile template
+
+
+
+[call method [cmd NmakeOpts]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::make_obj}]
+[emph "ancestors"]: [class practcl::metaclass]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd constructor] [arg module_object] [arg name] [arg info] [opt "[arg action_body] [const ""]"]]
+
+
+[call method [cmd do]]
+
+
+[call method [cmd check]]
+
+
+[call method [cmd output]]
+
+
+[call method [cmd reset]]
+
+
+[call method [cmd triggers]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::object}]
+[emph "ancestors"]: [class practcl::metaclass]
+[para]
 
 A generic Practcl object
 
-[call [cmd practcl::library] [opt [arg "keyvaluelist"]]]
 
-A Practcl object representing a library container
 
-[call [cmd practcl::exe] [opt [arg "keyvaluelist"]]]
+[para]
+[class {Methods}]
+[list_begin definitions]
 
-A Practcl object representing a wrapped executable
+[call method [cmd constructor] [arg parent] [opt "[arg args]"]]
 
-[call [cmd practcl::product] [arg "parent"] [opt [arg "keyvaluelist"]]]
 
-A Practcl object representing a compiled product
+[call method [cmd child] [arg method]]
 
-[call [cmd practcl::cheader] [arg "parent"] [opt [arg "keyvaluelist"]]]
 
-A Practcl object representing an externally generated c header
+[call method [cmd go]]
 
-[call [cmd practcl::csource] [arg "parent"] [opt [arg "keyvaluelist"]]]
-
-A Practcl object representing an externally generated c source file
-
-[call [cmd practcl::module] [arg "parent"] [opt [arg "keyvaluelist"]]]
-
-A Practcl object representing a dynamically generated C/H/Tcl suite
-
-[call [cmd practcl::submodule] [arg "parent"] [opt [arg "keyvaluelist"]]]
-
-A Practcl object representing a dynamically generated C/H/Tcl suite, subordinate to a module
 [list_end]
+[para]
+
+[subsection {Class  practcl::dynamic}]
+
+Dynamic blocks do not generate their own .c files,
+instead the contribute to the amalgamation
+of the main library file
+
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd cstructure] [arg name] [arg definition] [opt "[arg argdat] [const ""]"]]
+
+Parser functions
+
+
+
+
+[call method [cmd include] [arg header]]
+
+
+[call method [cmd include_dir] [opt "[arg args]"]]
+
+
+[call method [cmd include_directory] [opt "[arg args]"]]
+
+
+[call method [cmd c_header] [arg body]]
+
+
+[call method [cmd c_code] [arg body]]
+
+
+[call method [cmd c_function] [arg header] [arg body] [opt "[arg info] [const ""]"]]
+
+
+[call method [cmd c_tcloomethod] [arg name] [arg body] [opt "[arg arginfo] [const ""]"]]
+
+
+[call method [cmd cmethod] [arg name] [arg body] [opt "[arg arginfo] [const ""]"]]
+Alias to classic name
+
+
+
+[call method [cmd c_tclproc_nspace] [arg nspace]]
+
+
+[call method [cmd c_tclcmd] [arg name] [arg body] [opt "[arg arginfo] [const ""]"]]
+
+
+[call method [cmd c_tclproc_raw] [arg name] [arg body] [opt "[arg arginfo] [const ""]"]]
+Alias to classic name
+
+
+
+[call method [cmd tcltype] [arg name] [arg argdat]]
+
+
+[call method [cmd project-compile-products]]
+
+Module interactions
+
+
+
+
+[call method [cmd implement] [arg path]]
+
+
+[call method [cmd initialize]]
+
+Practcl internals
+
+
+
+
+[call method [cmd linktype]]
+
+
+[call method [cmd generate-cfile-constant]]
+
+
+[call method [cmd generate-cfile-header]]
+
+
+[call method [cmd generate-cfile-tclapi]]
+
+Generate code that provides implements Tcl API
+calls
+
+
+
+
+[call method [cmd generate-loader-module]]
+
+Generate code that runs when the package/module is
+initialized into the interpreter
+
+
+
+
+[call method [cmd Collate_Source] [arg CWD]]
+
+
+[call method [cmd select]]
+Once an object marks itself as some
+flavor of dynamic, stop trying to morph
+it into something else
+
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product}]
+
+A deliverable for the build system
+
+
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd select] [arg object]]
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd code] [arg section] [arg body]]
+
+
+[call method [cmd Collate_Source] [arg CWD]]
+
+
+[call method [cmd project-compile-products]]
+
+
+[call method [cmd generate-debug] [opt "[arg spaces] [const ""]"]]
+
+
+[call method [cmd generate-cfile-constant]]
+
+
+[call method [cmd generate-cfile-public-structure]]
+
+Populate const static data structures
+
+
+
+
+[call method [cmd generate-cfile-header]]
+
+
+[call method [cmd generate-cfile-global]]
+
+
+[call method [cmd generate-cfile-private-typedef]]
+
+
+[call method [cmd generate-cfile-private-structure]]
+
+
+[call method [cmd generate-cfile-functions]]
+
+Generate code that provides subroutines called by
+Tcl API methods
+
+
+
+
+[call method [cmd generate-cfile-tclapi]]
+
+Generate code that provides implements Tcl API
+calls
+
+
+
+
+[call method [cmd generate-hfile-public-define]]
+
+
+[call method [cmd generate-hfile-public-macro]]
+
+
+[call method [cmd generate-hfile-public-typedef]]
+
+
+[call method [cmd generate-hfile-public-structure]]
+
+
+[call method [cmd generate-hfile-public-headers]]
+
+
+[call method [cmd generate-hfile-public-function]]
+
+
+[call method [cmd generate-hfile-public-includes]]
+
+
+[call method [cmd generate-hfile-public-verbatim]]
+
+
+[call method [cmd generate-loader-external]]
+
+
+[call method [cmd generate-loader-module]]
+
+
+[call method [cmd generate-stub-function]]
+
+
+[call method [cmd IncludeAdd] [arg headervar] [opt "[arg args]"]]
+
+
+[call method [cmd generate-tcl-loader]]
+
+
+[call method [cmd generate-tcl-pre]]
+
+This methods generates any Tcl script file
+which is required to pre-initialize the C library
+
+
+
+
+[call method [cmd generate-tcl-post]]
+
+
+[call method [cmd linktype]]
+
+
+[call method [cmd Ofile] [arg filename]]
+
+
+[call method [cmd project-static-packages]]
+
+Methods called by the master project
+
+
+
+
+[call method [cmd toolset-include-directory]]
+
+Methods called by the toolset
+
+
+
+
+[call method [cmd target] [arg method] [opt "[arg args]"]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product.cheader}]
+[emph "ancestors"]: [class practcl::product]
+[para]
+
+Flesh out several trivial varieties of product
+
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd project-compile-products]]
+
+
+[call method [cmd generate-loader-module]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product.csource}]
+[emph "ancestors"]: [class practcl::product]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd project-compile-products]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product.clibrary}]
+[emph "ancestors"]: [class practcl::product]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd linker-products] [arg configdict]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product.dynamic}]
+[emph "ancestors"]: [class practcl::dynamic] [class practcl::product]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd initialize]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::product.critcl}]
+[emph "ancestors"]: [class practcl::dynamic] [class practcl::product]
+[para]
+
+[para]
+
+[subsection {Class  practcl::module}]
+[emph "ancestors"]: [class practcl::object] [class practcl::product.dynamic]
+[para]
+
+In the end, all C code must be loaded into a module
+This will either be a dynamically loaded library implementing
+a tcl extension, or a compiled in segment of a custom shell/app
+
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd _MorphPatterns]]
+
+
+[call method [cmd add] [opt "[arg args]"]]
+
+
+[call method [cmd install-headers] [opt "[arg args]"]]
+
+
+[call method [cmd make] [arg command] [opt "[arg args]"]]
+
+Target handling
+
+
+
+
+[call method [cmd child] [arg which]]
+
+
+[call method [cmd generate-c]]
+
+This methods generates the contents of an amalgamated .c file
+which implements the loader for a batch of tools
+
+
+
+
+[call method [cmd generate-h]]
+
+This methods generates the contents of an amalgamated .h file
+which describes the public API of this module
+
+
+
+
+[call method [cmd generate-loader]]
+
+
+[call method [cmd initialize]]
+
+
+[call method [cmd implement] [arg path]]
+
+
+[call method [cmd linktype]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::project}]
+[emph "ancestors"]: [class practcl::module]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd _MorphPatterns]]
+
+
+[call method [cmd constructor] [opt "[arg args]"]]
+
+
+[call method [cmd add_object] [arg object]]
+
+
+[call method [cmd add_project] [arg pkg] [arg info] [opt "[arg oodefine] [const ""]"]]
+
+
+[call method [cmd add_tool] [arg pkg] [arg info] [opt "[arg oodefine] [const ""]"]]
+
+
+[call method [cmd build-tclcore]]
+
+
+[call method [cmd child] [arg which]]
+
+
+[call method [cmd linktype]]
+
+
+[call method [cmd project] [arg pkg] [opt "[arg args]"]]
+Exercise the methods of a sub-object
+
+
+
+[call method [cmd tclcore]]
+
+
+[call method [cmd tkcore]]
+
+
+[call method [cmd tool] [arg pkg] [opt "[arg args]"]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::library}]
+[emph "ancestors"]: [class practcl::project]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd clean] [arg PATH]]
+
+
+[call method [cmd project-compile-products]]
+
+
+[call method [cmd go]]
+
+
+[call method [cmd generate-decls] [arg pkgname] [arg path]]
+
+
+[call method [cmd implement] [arg path]]
+
+
+[call method [cmd generate-make] [arg path]]
+Backward compadible call
+
+
+
+[call method [cmd linktype]]
+
+
+[call method [cmd package-ifneeded] [opt "[arg args]"]]
+Create a "package ifneeded"
+Args are a list of aliases for which this package will answer to
+
+
+
+[call method [cmd shared_library] [opt "[arg filename] [const ""]"]]
+
+
+[call method [cmd static_library] [opt "[arg filename] [const ""]"]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::tclkit}]
+[emph "ancestors"]: [class practcl::library]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd build-tclkit_main] [arg PROJECT] [arg PKG_OBJS]]
+
+
+[call method [cmd Collate_Source] [arg CWD]]
+
+
+[call method [cmd wrap] [arg PWD] [arg exename] [arg vfspath] [opt "[arg args]"]]
+Wrap an executable
+
+
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::distribution}]
+
+Standalone class to manage code distribution
+This class is intended to be mixed into another class
+(Thus the lack of ancestors)
+
+
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd Sandbox] [arg object]]
+
+
+[call method [cmd select] [arg object]]
+
+
+[call method [cmd claim_path] [arg path]]
+
+
+[call method [cmd claim_object] [arg object]]
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd scm_info]]
+
+
+[call method [cmd DistroMixIn]]
+
+
+[call method [cmd Sandbox]]
+
+
+[call method [cmd SrcDir]]
+
+
+[call method [cmd ScmTag]]
+
+
+[call method [cmd ScmClone]]
+
+
+[call method [cmd ScmUnpack]]
+
+
+[call method [cmd ScmUpdate]]
+
+
+[call method [cmd Unpack]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::distribution.snapshot}]
+[emph "ancestors"]: [class practcl::distribution]
+[para]
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd claim_path] [arg path]]
+
+
+[call method [cmd claim_object] [arg object]]
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd ScmUnpack]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::distribution.fossil}]
+[emph "ancestors"]: [class practcl::distribution]
+[para]
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd claim_path] [arg path]]
+Check for markers in the source root
+
+
+
+[call method [cmd claim_object] [arg obj]]
+Check for markers in the metadata
+
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd scm_info]]
+
+
+[call method [cmd ScmClone]]
+Clone the source
+
+
+
+[call method [cmd ScmTag]]
+
+
+[call method [cmd ScmUnpack]]
+
+
+[call method [cmd ScmUpdate]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::distribution.git}]
+[emph "ancestors"]: [class practcl::distribution]
+[para]
+
+[para]
+[class {Class Methods}]
+[list_begin definitions]
+
+[call method [cmd claim_path] [arg path]]
+
+
+[call method [cmd claim_object] [arg obj]]
+
+[list_end]
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd ScmTag]]
+
+
+[call method [cmd ScmUnpack]]
+
+
+[call method [cmd ScmUpdate]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject}]
+[emph "ancestors"]: [class practcl::module]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd _MorphPatterns]]
+
+
+[call method [cmd BuildDir] [arg PWD]]
+
+
+[call method [cmd child] [arg which]]
+
+
+[call method [cmd compile]]
+
+
+[call method [cmd go]]
+
+
+[call method [cmd install] [opt "[arg args]"]]
+Install project into the local build system
+
+
+
+[call method [cmd linktype]]
+
+
+[call method [cmd linker-products] [arg configdict]]
+
+
+[call method [cmd linker-external] [arg configdict]]
+
+
+[call method [cmd linker-extra] [arg configdict]]
+
+
+[call method [cmd env-bootstrap]]
+
+Methods for packages/tools that can be downloaded
+possibly built and used internally by this Practcl
+process
+
+
+Load the facility into the interpreter
+
+
+
+
+[call method [cmd env-exec]]
+
+Return a file path that exec can call
+
+
+
+
+[call method [cmd env-install]]
+
+Install the tool into the local environment
+
+
+
+
+[call method [cmd env-load]]
+
+Do whatever is necessary to get the tool
+into the local environment
+
+
+
+
+[call method [cmd env-present]]
+
+Check if tool is available for load/already loaded
+
+
+
+
+[call method [cmd sources]]
+
+
+[call method [cmd update]]
+
+
+[call method [cmd unpack]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.source}]
+[emph "ancestors"]: [class practcl::subproject] [class practcl::library]
+[para]
+
+A project which the kit compiles and integrates
+the source for itself
+
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd env-bootstrap]]
+
+
+[call method [cmd env-present]]
+
+
+[call method [cmd linktype]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.teapot}]
+[emph "ancestors"]: [class practcl::subproject]
+[para]
+a copy from the teapot
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd env-bootstrap]]
+
+
+[call method [cmd env-install]]
+
+
+[call method [cmd env-present]]
+
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.kettle}]
+[emph "ancestors"]: [class practcl::subproject]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd kettle] [arg path] [opt "[arg args]"]]
+
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.critcl}]
+[emph "ancestors"]: [class practcl::subproject]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.sak}]
+[emph "ancestors"]: [class practcl::subproject]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd env-bootstrap]]
+
+
+[call method [cmd env-install]]
+
+
+[call method [cmd env-present]]
+
+
+[call method [cmd install] [arg DEST]]
+
+
+[call method [cmd install-module] [arg DEST] [opt "[arg args]"]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.binary}]
+[emph "ancestors"]: [class practcl::subproject]
+[para]
+
+A binary package
+
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd clean]]
+
+
+[call method [cmd env-install]]
+
+
+[call method [cmd project-compile-products]]
+
+
+[call method [cmd ComputeInstall]]
+
+
+[call method [cmd go]]
+
+
+[call method [cmd linker-products] [arg configdict]]
+
+
+[call method [cmd project-static-packages]]
+
+
+[call method [cmd BuildDir] [arg PWD]]
+
+
+[call method [cmd compile]]
+
+
+[call method [cmd Configure]]
+
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.tea}]
+[emph "ancestors"]: [class practcl::subproject.binary]
+[para]
+
+[para]
+
+[subsection {Class  practcl::subproject.library}]
+[emph "ancestors"]: [class practcl::subproject.binary] [class practcl::library]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.external}]
+[emph "ancestors"]: [class practcl::subproject.binary]
+[para]
+An external library
+
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd install] [arg DEST]]
+
+[list_end]
+[para]
+
+[subsection {Class  practcl::subproject.core}]
+[emph "ancestors"]: [class practcl::subproject.binary]
+[para]
+
+[para]
+[class {Methods}]
+[list_begin definitions]
+
+[call method [cmd env-bootstrap]]
+
+
+[call method [cmd env-present]]
+
+
+[call method [cmd env-install]]
+
+
+[call method [cmd go]]
+
+
+[call method [cmd linktype]]
+
+[list_end]
+[para]
 
 [vset CATEGORY practcl]
 [include ../doctools2base/include/feedback.inc]
+
 [manpage_end]
+

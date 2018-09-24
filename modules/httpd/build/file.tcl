@@ -3,12 +3,12 @@
 # When utilized, this class is fed a local filename
 # by the dispatcher
 ###
-::tool::define ::httpd::content.file {
+::clay::define ::httpd::content.file {
 
   method FileName {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my request get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     if {$fname in "{} index.html index.md index"} {
       return $path
@@ -29,9 +29,9 @@
   }
 
   method DirectoryListing {local_file} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my request get REQUEST_URI] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
     my puts [my html_header "Listing of /$fname/"]
     my puts "Listing contents of /$fname/"
@@ -57,7 +57,7 @@
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_URI]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -92,7 +92,7 @@
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
         set tmltxt  [::fileutil::cat $local_file]
-        set headers [my http_info dump]
+        set headers [my request dump]
         dict with headers {}
         my puts [subst $tmltxt]
       }
@@ -106,16 +106,9 @@
     }
   }
 
-  method dispatch {newsock datastate} {
+  method Dispatch {} {
     my variable reply_body reply_file reply_chan chan
     try {
-      my http_info replace $datastate
-      my request replace  [dict get $datastate http]
-      my Log_Dispatched
-      set chan $newsock
-      chan event $chan readable {}
-      chan configure $chan -translation {auto crlf} -buffering line
-
       my reset
       # Invoke the URL implementation.
       my content
@@ -140,21 +133,12 @@
       chan puts -nonewline $chan $result
       set reply_chan [open $reply_file r]
       my log SendReply [list length $size]
-      chan configure $reply_chan  -translation {binary binary}
       ###
-      # Send any POST/PUT/etc content
-      # Note, we are terminating the coroutine at this point
-      # and using the file event to wake the object back up
-      #
-      # We *could*:
-      # chan copy $sock $chan -command [info coroutine]
-      # yield
-      #
-      # But in the field this pegs the CPU for long transfers and locks
-      # up the process
+      # Output the file contents. With no -size flag, channel will copy until EOF
       ###
-      chan copy $reply_chan $chan -command [namespace code [list my TransferComplete $reply_chan $chan]]
-    } on error {err errdat} {
+      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      my ChannelCopy $reply_chan $chan -chunk 4096
+    } finally {
       my TransferComplete $reply_chan $chan
     }
   }

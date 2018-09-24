@@ -5876,6 +5876,9 @@ math::rationalfunctions
 \fBfiles/modules/math/special\&.n\fR
 math::special
 .TP
+\fBfiles/modules/math/trig\&.n\fR
+math::trig
+.TP
 \fBfiles/modules/simulation/annealing\&.n\fR
 simulation::annealing
 .TP
@@ -11008,6 +11011,12 @@ TreeQL
 .TP
 \fBfiles/modules/treeql/treeql\&.n\fR
 treeql
+.RE
+trigonometry
+.RS
+.TP
+\fBfiles/modules/math/trig\&.n\fR
+math::trig
 .RE
 trimming
 .RS

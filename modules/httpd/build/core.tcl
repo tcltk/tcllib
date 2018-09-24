@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require tool
+package require clay 0.3
 package require mime
 package require fileutil
 package require websocket
@@ -28,7 +28,47 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-tool::define ::httpd::mime {
+clay::define ::httpd::mime {
+
+  method ChannelCopy {in out args} {
+    set chunk 4096
+    set size -1
+    foreach {f v} $args {
+      set [string trim $f -] $v
+    }
+    dict set info coroutine [info coroutine]
+    if {$size>0 && $chunk>$size} {
+        set chunk $size
+    }
+    set bytes 0
+    set sofar 0
+    set method [self method]
+    while 1 {
+      set command {}
+      set error {}
+      if {$size>=0} {
+        incr sofar $bytes
+        set remaining [expr {$size-$sofar}]
+        if {$remaining <= 0} {
+          break
+        } elseif {$chunk > $remaining} {
+          set chunk $remaining
+        }
+      }
+      lassign [yieldto chan copy $in $out -size $chunk \
+        -command [list [info coroutine] $method]] \
+        command bytes error
+      if {$command ne $method} {
+        error "Subroutine $method interrupted"
+      }
+      if {[string length $error]} {
+        error $error
+      }
+      if {[chan eof $in]} {
+        break
+      }
+    }
+  }
 
 
   method html_header {{title {}} args} {
@@ -110,8 +150,20 @@ Cache-Control {no-cache}
 Connection close}
   }
 
+  method HttpServerHeaders {} {
+    return {
+      CONTENT_LENGTH CONTENT_TYPE QUERY_STRING REMOTE_USER AUTH_TYPE
+      REQUEST_METHOD REMOTE_ADDR REMOTE_HOST REQUEST_URI REQUEST_PATH
+      REQUEST_VERSION  DOCUMENT_ROOT QUERY_STRING REQUEST_RAW
+      GATEWAY_INTERFACE SERVER_PORT SERVER_HTTPS_PORT
+      SERVER_NAME  SERVER_SOFTWARE SERVER_PROTOCOL
+    }
+  }
+
   ###
-  # Minimalist MIME Header Parser
+  # Converts a block of mime encoded text to a key/value list. If an exception is encountered,
+  # the method will generate its own call to the [cmd error] method, and immediately invoke
+  # the [cmd output] method to produce an error code and close the connection.
   ###
   method MimeParse mimetext {
     set data(mimeorder) {}
@@ -197,6 +249,7 @@ Connection close}
     return $result
   }
 
+  # De-httpizes a string.
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data

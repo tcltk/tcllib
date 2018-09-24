@@ -1,8 +1,16 @@
 ###
 # Return data from an SCGI process
 ###
-::tool::define ::httpd::content.scgi {
+::clay::define ::httpd::protocol.scgi {
+
+  method EncodeStatus {status} {
+    return "Status: $status"
+  }
+}
+
+::clay::define ::httpd::content.scgi {
   superclass ::httpd::content.proxy
+
 
   method scgi_info {} {
     ###
@@ -21,7 +29,7 @@
       tailcall my DoOutput
     }
     lassign $sockinfo scgihost scgiport scgiscript
-    my http_info set SCRIPT_NAME $scgiscript
+    my clay set  SCRIPT_NAME $scgiscript
     if {![string is integer $scgiport]} {
       my error 404 {Not Found}
       tailcall my DoOutput
@@ -34,8 +42,8 @@
     my log ProxyRequest {}
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-    set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my http_info get SCRIPT_NAME]]
-    foreach {f v} [my http_info dump] {
+    set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my clay get SCRIPT_NAME]]
+    foreach {f v} [my request dump] {
       dict set info $f $v
     }
     set length [dict get $info CONTENT_LENGTH]
@@ -52,11 +60,12 @@
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
+      #chan copy $chana $chanb -size $length -command [info coroutine]
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -65,11 +74,6 @@
     chan event $chana readable {}
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
     ###
     # Convert the Status: header from the CGI process to
     # a standard service reply line from a web server, but
@@ -79,39 +83,28 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chan $chanb
-    }
-  }
-}
-
-tool::define ::httpd::reply.scgi {
-  superclass ::httpd::reply
-
-  method EncodeStatus {status} {
-    return "Status: $status"
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 }
 
 ###
 # Act as an  SCGI Server
 ###
-tool::define ::httpd::server.scgi {
+::clay::define ::httpd::server.scgi {
   superclass ::httpd::server
 
-  property socket buffersize   32768
-  property socket blocking     0
-  property socket translation  {binary binary}
+  clay set socket/ buffersize   32768
+  clay set socket/ blocking     0
+  clay set socket/ translation  {binary binary}
 
-  property reply_class ::httpd::reply.scgi
+  method debug args {
+    puts $args
+  }
 
   method Connect {uuid sock ip} {
     yield [info coroutine]
@@ -124,8 +117,10 @@ tool::define ::httpd::server.scgi {
     my counter url_hit
     try {
       # Read the SCGI request on byte at a time until we reach a ":"
-      dict set query REQUEST_URI /
-      dict set query REMOTE_ADDR     $ip
+      dict set query http HTTP_HOST {}
+      dict set query http CONTENT_LENGTH 0
+      dict set query http REQUEST_URI /
+      dict set query http REMOTE_ADDR $ip
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]
@@ -140,67 +135,41 @@ tool::define ::httpd::server.scgi {
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
       chan configure $sock -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
-        dict set query $f $v
-        if {$f in {CONTENT_LENGTH CONTENT_TYPE}} {
-          dict set query http $f $v
-        } elseif {[string range $f 0 4] eq "HTTP_"} {
-          dict set query http [string range $f 5 end] $v
-        }
+        dict set query http $f $v
       }
-      if {![dict exists $query REQUEST_PATH]} {
-        set uri [dict get $query REQUEST_URI]
+      if {![dict exists $query http REQUEST_PATH]} {
+        set uri [dict get $query http REQUEST_URI]
         set uriinfo [::uri::split $uri]
-        dict set query REQUEST_PATH    [dict get $uriinfo path]
+        dict set query http REQUEST_PATH    [dict get $uriinfo path]
       }
       set reply [my dispatch $query]
-      dict with query {}
-      if {[llength $reply]} {
-        if {[dict exists $reply class]} {
-          set class [dict get $reply class]
-        } else {
-          set class [my cget reply_class]
-        }
-        set pageobj [$class create [namespace current]::reply$uuid [self]]
-        if {[dict exists $reply mixin]} {
-          oo::objdefine $pageobj mixin [dict get $reply mixin]
-        }
-        $pageobj dispatch $sock $reply
-        my log HttpAccess $REQUEST_URI
-      } else {
-        try {
-          my log HttpMissing $REQUEST_URI
-          chan puts $sock "Status: 404 NOT FOUND"
-          dict with query {}
-          set body [subst [my template notfound]]
-          chan puts $sock "Content-Length: [string length $body]"
-          chan puts $sock {}
-          chan puts $sock $body
-        } on error {err errdat} {
-          my <server> debug "FAILED ON 404: $err [dict get $errdat -errorinfo]"
-        } finally {
-          catch {chan event readable $sock {}}
-          catch {chan event writeable $sock {}}
-          catch {chan close $sock}
-        }
-      }
     } on error {err errdat} {
-      try {
-        my <server> debug [dict get $errdat -errorinfo]
-        chan puts $sock "Status: 500 INTERNAL ERROR - scgi 298"
-        dict with query {}
-        set body [subst [my template internal_error]]
-        chan puts $sock "Content-Length: [string length $body]"
-        chan puts $sock {}
-        chan puts $sock $body
-        my log HttpError [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
-      } on error {err errdat} {
-        my log HttpFatal [list error [my http_info get REMOTE_ADDR] errorinfo [dict get $errdat -errorinfo]]
-        my <server> debug "Failed on 500: [dict get $errdat -errorinfo]""
-      } finally {
-        catch {chan event readable $sock {}}
-        catch {chan event writeable $sock {}}
-        catch {chan close $sock}
-      }
+      my debug [list uri: [dict getnull $query http REQUEST_URI] ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {chan puts $sock "HTTP/1.0 400 Bad Request (The data is invalid)"}
+      catch {chan event readable $sock {}}
+      catch {chan event writeable $sock {}}
+      catch {chan close $sock}
+      return
+    }
+    if {[dict size $reply]==0} {
+      my log BadLocation $uuid $query
+      dict set query http HTTP_STATUS 404
+      dict set query template notfound
+      dict set query mixin reply ::httpd::content.template
+    }
+    try {
+      set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
+      dict set reply mixin protocol ::httpd::protocol.scgi
+      $pageobj dispatch $sock $reply
+    } on error {err errdat} {
+      my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
+      catch {$pageobj destroy}
+      catch {chan event readable $sock {}}
+      catch {chan event writeable $sock {}}
+      catch {chan close $sock}
+      return
     }
   }
 }

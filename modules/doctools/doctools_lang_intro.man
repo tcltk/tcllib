@@ -120,16 +120,6 @@ Given the above a less minimal example of a document is
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb][cmd {copyright {YEAR AUTHOR}}][rb]
 [lb][cmd {titledesc TITLE}][rb]
 [lb][cmd {moddesc   MODULE_TITLE}][rb]
@@ -143,16 +133,6 @@ Remember that the whitespace is optional. The document
 
 [example {
     [manpage_begin NAME SECTION VERSION]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
     [vset CATEGORY doctools]
@@ -173,16 +153,6 @@ command.
 [example_begin]
 [lb][cmd {comment { ... }}][rb]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb]copyright {YEAR AUTHOR}[rb]
 [lb]titledesc TITLE[rb]
 [lb]moddesc   MODULE_TITLE[rb][lb][cmd {comment { ... }}][rb]
@@ -197,16 +167,6 @@ command.
 
 In the simple examples of the last section we fudged a bit regarding
 the markup actually allowed to be used before the [cmd manpage_begin]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 command opening the document.
 
 [para]
@@ -220,16 +180,6 @@ is possible to write
 [lb][cmd {include FILE}][rb]
 [lb][cmd {vset VAR VALUE}][rb]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb]description[rb]
 [lb]manpage_end[rb]
 [example_end]
@@ -240,16 +190,6 @@ structure. I.e. for example in the header as well.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb][cmd {include FILE}][rb]
 [lb][cmd {vset VAR VALUE}][rb]
 [lb]description[rb]
@@ -259,16 +199,6 @@ structure. I.e. for example in the header as well.
 The only restriction [cmd include] has to obey is that the contents of
 the included file must be valid at the place of the inclusion. I.e. a
 file included before [cmd manpage_begin] may contain only the
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 templating commands [cmd vset] and [cmd include], a file included in
 the header may contain only header commands, etc.
 
@@ -295,16 +225,6 @@ paragraph automatically ends at [cmd manpage_end].
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb][cmd para][rb]
@@ -334,16 +254,6 @@ paragraphs within sections.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb][cmd {section {Section A}}][rb]
@@ -371,16 +281,6 @@ paragraphs within subsections.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb]section {Section A}[rb]
@@ -456,7 +356,7 @@ item command ([cmd call]), and our ability to nest them.
 
 [example_begin]
   ...
-  [lb]call [lb][cmd {cmd arg_def}][rb] [lb][cmd {arg type}][rb] [lb][cmd {arg name}][rb]] [lb][cmd opt] [lb][cmd {arg mode}][rb][rb][rb]
+  [lb]call [lb][cmd {cmd arg_def}][rb] [lb][cmd {arg type}][rb] [lb][cmd {arg name}][rb] [lb][cmd opt] [lb][cmd {arg mode}][rb][rb][rb]
 
   Text structure. List element. Argument list. Automatically closes the
   previous list element. Specifies the data-[lb][cmd {arg type}][rb] of the described
@@ -521,16 +421,6 @@ documents.
 
 All the cross-reference commands can occur anywhere in the document
 between [cmd manpage_begin] and [cmd manpage_end]. As such the writer
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
 can choose whether she wants to have them at the beginning of the
 body, or at its end, maybe near the place a keyword is actually
 defined by the main content, or considers them as meta data which

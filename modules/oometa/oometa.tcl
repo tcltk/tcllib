@@ -5,11 +5,11 @@
 ###
 package require Tcl 8.6 ;# tailcall
 package require dicttool
-package provide oo::meta 0.7.1
+package require oo::dialect
+package provide oo::meta 0.7.2
 
 namespace eval ::oo::meta {
-  variable dirty_classes {}
-  variable core_classes {::oo::class ::oo::object}
+  set dirty_classes {}
 }
 
 proc ::oo::meta::args_to_dict args {
@@ -28,7 +28,6 @@ proc ::oo::meta::args_to_options args {
 }
 
 proc ::oo::meta::ancestors class {
-  variable core_classes
   set class [::oo::meta::normalize $class]
   set core_result {}
   set queue $class
@@ -39,7 +38,7 @@ proc ::oo::meta::ancestors class {
     set tqueue $queue
     set queue {}
     foreach qclass $tqueue {
-      if {$qclass in $core_classes} {
+      if {$qclass in $::oo::dialect::core_classes} {
         if {$qclass ni $core_result} {
           lappend core_result $qclass
         }
@@ -182,7 +181,7 @@ proc oo::meta::info {class submethod args} {
     }
     default {
       set info [metadata $class]
-      return [::dict $submethod $info {*}$args] 
+      return [::dict $submethod $info {*}$args]
     }
   }
 }
@@ -220,8 +219,8 @@ proc ::oo::meta::metadata {class {force 0}} {
       }
       if {![::info exists ::oo::meta::local_property($dclass)]} continue
       if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
-        if {$dclass ni $::oo::meta::core_classes} {
-          lappend ::oo::meta::core_classes $dclass
+        if {$dclass ni $::oo::dialect::core_classes} {
+          lappend ::oo::dialect::core_classes $dclass
         }
       }
     }
@@ -496,7 +495,7 @@ oo::define oo::object {
           lappend mdata [::oo::meta::metadata $mclass]
         }
         set info [dict rmerge {*}$mdata $meta]
-        return [dict $submethod $info {*}$args] 
+        return [dict $submethod $info {*}$args]
       }
     }
   }

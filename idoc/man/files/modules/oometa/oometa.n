@@ -424,7 +424,7 @@ This method provides the following additional commands:
 .TP
 \fBoo::object method meta cget\fR ?\fIfield\fR? ?\fI\&.\&.\&.\fR? \fIfield\fR
 Attempts to locate a singlar leaf, and return its value\&. For single option lookups, this
-is faster than \fBmy meta getnull\fR ?\fIfield\fR? ?\fI\&.\&.\&.\fR? \fIfield\fR], because
+is faster than \fBmy meta getnull\fR ?\fIfield\fR? ?\fI\&.\&.\&.\fR? \fIfield\fR, because
 it performs a search instead directly instead of producing the recursive merge product
 between the class metadata, the local \fImeta\fR variable, and THEN performing the search\&.
 .PP

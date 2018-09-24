@@ -1,10 +1,13 @@
+###
+# A generic Practcl object
+###
 ::oo::class create ::practcl::object {
   superclass ::practcl::metaclass
 
   constructor {parent args} {
     my variable links define
     set organs [$parent child organs]
-    my graft {*}$organs
+    my clay delegate {*}$organs
     array set define $organs
     array set define [$parent child define]
     array set links {}

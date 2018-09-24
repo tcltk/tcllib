@@ -1,26 +1,31 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
+if {[catch {package require clay 0.3}]} {
+  source [file join $$moddir .. clay build doctool.tcl]
+}
+::clay::doctool create AutoDoc
 
-set version 0.11.1
-set tclversion 8.5
+set version 0.13
+set tclversion 8.6
 set module [file tail $moddir]
+set filename $module
 
-set fout [open [file join $moddir [file tail $module].tcl] w]
+set fout [open [file join $moddir $filename.tcl] w]
 fconfigure $fout -translation lf
 dict set map %module% $module
 dict set map %version% $version
 dict set map %tclversion% $tclversion
-dict set map {    } {}
-dict set map "\t" {    }
+#dict set map {    } {}
+#dict set map "\t" {    }
 
 puts $fout [string map $map {###
-    # Amalgamated package for %module%
-    # Do not edit directly, tweak the source in src/ and rerun
-    # build.tcl
-    ###
-    package require Tcl %tclversion%
-    package provide %module% %version%
-    namespace eval ::%module% {}
+# Amalgamated package for %module%
+# Do not edit directly, tweak the source in src/ and rerun
+# build.tcl
+###
+package require Tcl %tclversion%
+package provide %module% %version%
+namespace eval ::%module% {}
 }]
 
 # Track what files we have included so far
@@ -32,19 +37,21 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
+  clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]
-    set fin [open $file r]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
-    puts $fout [read $fin]
-    close $fin
+    set content [::clay::cat [file join $moddir .. $omod $fname]]
+    #AutoDoc scan_text $content
+    puts $fout $content
     puts $fout "###\n# END: [file join $omod $fname]\n###"
   }
 }
 
 foreach file {
   setup.tcl
+  docbuild.tcl
   buildutil.tcl
   fileutil.tcl
   installutil.tcl
@@ -78,13 +85,12 @@ foreach file {
 
 } {
   lappend loaded $file
-  set fin [open [file join $srcdir {*}$file] r]
   puts $fout "###\n# START: [file join $file]\n###"
-  puts $fout [read $fin]
-  close $fin
+  set content [::clay::cat [file join $srcdir {*}$file]]
+  AutoDoc scan_text $content
+  puts $fout $content
   puts $fout "###\n# END: [file join $file]\n###"
 }
-
 
 # Provide some cleanup and our final package provide
 puts $fout [string map $map {
@@ -104,3 +110,10 @@ puts $fout [string map $map {###
     package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
+
+set manout [open [file join $moddir $filename.man] w]
+puts $manout [AutoDoc manpage \
+  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
+  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
+]
+close $manout
