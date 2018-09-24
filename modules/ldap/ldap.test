@@ -256,6 +256,13 @@ test ldap-28.0 {check wrong num args for ldap::disconnect
 } -returnCodes {error} \
   -result [tcltest::wrongNumArgs {ldap::disconnect} \
 	{handle} 0 ]
+
+test ldap-29.0 {check invalid TLS option
+} -body {
+    ldap::tlsoptions -foo bar
+} -returnCodes {error} \
+    -result {invalid TLS option '-foo'}
+
 # -------------------------------------------------------------------------
 # Handling of string representation of filters (RFC 4515):
 # -------------------------------------------------------------------------
