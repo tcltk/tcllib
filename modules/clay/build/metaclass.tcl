@@ -19,8 +19,9 @@ proc ::clay::dynamic_methods class {
 
 proc ::clay::dynamic_methods_class {thisclass} {
   set methods {}
-  set mdata [$thisclass clay get class_typemethod/]
+  set mdata [$thisclass clay find class_typemethod]
   foreach {method info} $mdata {
+    if {$method eq {.}} continue
     set method [string trimright $method :/-]
     if {$method in $methods} continue
     lappend methods $method
@@ -35,12 +36,10 @@ proc ::clay::dynamic_methods_class {thisclass} {
 ###
 proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists array/ $name]} {
-    $class clay set array/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set array $name . 1
   foreach {var val} $values {
-    $class clay set array/ $name $var $val
+    $class clay set array/ $name/ $var: $val
   }
 }
 
@@ -108,12 +107,10 @@ set DestroyEvent 1
 
 proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
-  set name [string trim $name :/]/
-  if {![$class clay exists dict/ $name]} {
-    $class clay set dict/ $name {}
-  }
+  set name [string trim $name :/]
+  #$class clay set dict $name . 1
   foreach {var val} $values {
-    $class clay set dict/ $name $var $val
+    $class clay set dict/ $name/ $var: $val
   }
 }
 
@@ -130,7 +127,7 @@ proc ::clay::define::Dict {name {values {}}} {
 proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
-  $class clay set variable/ $name $default
+  $class clay set variable $name: $default
   #::oo::define $class variable $name
 }
 
@@ -170,7 +167,7 @@ proc ::clay::object_destroy objname {
     next
     my variable clayorder clay claycache
     if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble/]
+      set emap [dict getnull $clay method_ensemble]
     } else {
       set emap {}
     }
@@ -179,11 +176,13 @@ proc ::clay::object_destroy objname {
       # Build a compsite map of all ensembles defined by the object's current
       # class as well as all of the classes being mixed in
       ###
-      foreach {mensemble einfo} [$class clay get method_ensemble/] {
+      dict for {mensemble einfo} [$class clay get method_ensemble] {
+        if {$mensemble eq {.}} continue
         set ensemble [string trim $mensemble :/]
         if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
 
-        foreach {method info} $einfo {
+        dict for {method info} $einfo {
+          if {$method eq {.}} continue
           dict set info source $class
           if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
           dict set emap $ensemble $method $info

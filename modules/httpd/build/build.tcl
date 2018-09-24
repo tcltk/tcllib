@@ -26,8 +26,7 @@ puts $fout [string map $modmap {###
 package require Tcl %tclversion%
 package provide %module% %version%
 namespace eval ::%module% {}
-set ::%module%::version %version%
-}]
+set ::%module%::version %version%}]
 
 # Track what files we have included so far
 set loaded {}

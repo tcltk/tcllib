@@ -1,7 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin dicttool n 1.0]
+[vset PACKAGE_VERSION 1.2]
+[manpage_begin dicttool n [vset PACKAGE_VERSION]]
 [keywords dict]
-[copyright {2017 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Extensions to the standard "dict" command}]
 [category Utilities]
 [titledesc {Dictionary Tools}]
@@ -13,64 +14,272 @@ commands. In addition, the package also defines several "creature comfort" list 
 Each command checks to see if a command already exists of the same name before adding itself,
 just in case any of these slip into the core.
 
+[section {Commands}]
 [list_begin definitions]
-[call [cmd ladd] [arg varname] [arg args]]
+[call proc [cmd PROC] [arg name] [arg arglist] [arg body] [opt "[arg ninja] [const ""]"]]
 
-This command will add a new instance of each element in [arg args] to [arg varname], but only if that element
-is not already present.
+ Because many features in this package may be added as
+ commands to future tcl cores, or be provided in binary
+ form by packages, I need a declaritive way of saying
+ [emph {Create this command if there isn't one already}].
+ The [emph ninja] argument is a script to execute if the
+ command is created by this mechanism.
 
-[call [cmd ldelete] [arg varname] [arg args]]
 
-This command will add a delete all instances of each element in [arg args] from [arg varname].
 
-[call [cmd {dict getnull}] [arg args]]
 
-Operates like [cmd {dict get}], however if the key [arg args] does not exist, it returns an empty
-list instead of throwing an error.
+[call proc [cmd noop] [opt "[arg args]"]]
 
-[call [cmd {dict print}] [arg dict]]
+ Perform a noop. Useful in prototyping for commenting out blocks
+ of code without actually having to comment them out. It also makes
+ a handy default for method delegation if a delegate has not been
+ assigned yet.
 
-This command will produce a string representation of [arg dict], with each nested branch on
-a newline, and indented with two spaces for every level.
 
-[call [cmd {dict is_dict}] [arg value]]
 
-This command will return true if [arg value] can be interpreted as a dict. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep.
+[call proc [cmd putb] [opt "[arg map]"] [arg text]]
 
-[call [cmd rmerge] [arg args]]
+ Append a line of text to a variable. Optionally apply a string mapping.
 
-Return a dict which is the product of a recursive merge of all of the arguments. Unlike [cmd {dict merge}],
-this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further.
 
-[example {
+[call proc [cmd tcl::dict::getnull] [arg dictionary] [opt "[arg element]"] [opt [option "element..."]]]
 
-set items [dict merge {
-  option {color {default: green}}
-} {
-  option {fruit {default: mango}}
-} {
-  option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
-}]
-puts [dict print $items]
+ If the path (given by the list of elements) exists, return that value.
+ Otherwise return an empty string. Designed to replace [example {
+ if {[dict exists $dictionary {*}$args]} {
+   return [dict get $dictionary {*}$args]
+ } else {
+   return {}
+ }
+ }]
+
+[para]Example: [example { set value [dict getnull $arglist $option]
 }]
 
-Prints the following result:
-[example {
-option {
-  color {
-    default: blue
-  }
-  fruit {
-    widget: select
-    values: {mango apple cherry grape}
-  }
-}
+[call proc [cmd tcl::dict::is_dict] [arg d]]
+
+ Test if value is a dict.
+ [para]
+ This command is added to the [fun dict] ensemble as [fun {dict is_dict}]
+
+
+
+
+[call proc [cmd dicttool::is_branch] [arg dict] [arg path]]
+
+ Return true if the element [variable path] with the value [variable dict]
+ is a dict. [variable path] is given as a list to descend into sub-dicts of
+ the current dict.
+ The rules are as follows:
+ [list_begin enumerated]
+ [enum]
+ If the last character of the last element of [variable path] is a colon (:)
+ return false
+ [enum]
+ If the last character of the last element of [variable path] is a slash (/)
+ return true
+ [enum]
+ If a sub-element if [variable path] named [const .info] is present return true
+ [list_end]
+ [para]
+ [para]
+ This command is added to the [fun dict] ensemble as [fun {dicttool::is_branch}]
+
+[para]Example: [example \ >\ set\ mydict\ \{sub/\ \{sub/\ \{field\ \{A\ block\ of\ text\}\}\}\n\ >\ dicttool::is_branch\ \$mydict\ sub/\n\ 1\n\ >\ dicttool::is_branch\ \$mydict\ \{sub/\ sub/\}\n\ 1\n\ >\ dicttool::is_branch\ \$mydict\ \{sub/\ sub/\ field\}\n\ 0\n\n\n]
+
+[call proc [cmd dicttool::print] [arg dict]]
+
+ Output a dictionary as an indented stream of
+ data suitable for output to the screen. The system uses
+ the rules for [fun {dicttool::is_branch}] to determine if
+ an value in a dictionary is a leaf or a branch.
+
+[para]Example: [example \ >\ set\ mydict\ \{sub/\ \{sub/\ \{field\ \{A\ block\ of\ text\}\}\}\n\ >\ dicttool::print\ \$mydict\n\ sub/\ \{\n\ \ \ sub/\ \{\n\ \ \ \ \ field\ \{A\ block\ of\ text\}\n\ \ \ \}\n\ \}\n\n\n]
+
+[call proc [cmd dicttool::_dictputb] [arg level] [arg varname] [arg dict]]
+
+ Helper function for ::dicttool::print
+ Formats the string representation for a dictionary element within
+ a human readable stream of lines, and determines if it needs to call itself
+ with further indentation to express a sub-branch
+
+
+
+
+[call proc [cmd dicttool::sanitize] [arg dict]]
+
+ Output a dictionary removing any . entries added by [fun {dicttool::merge}]
+
+
+
+
+[call proc [cmd dicttool::_sanitizeb] [arg path] [arg varname] [arg dict]]
+
+ Helper function for ::dicttool::sanitize
+ Formats the string representation for a dictionary element within
+ a human readable stream of lines, and determines if it needs to call itself
+ with further indentation to express a sub-branch
+
+
+
+
+[call proc [cmd dicttool::canonical] [arg rawpath]]
+
+ Return the path as a canonical path for dicttool
+ with all branch keys
+ ending in a / and the final element ending in a /
+ if the final element in the path ended in a /
+ This command will also break arguments up if they
+ contain /.
+
+[para]Example: [example { > dicttool::canonical foo bar baz bang
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo bar baz bang/
+ foo/ bar/ baz/ bang/
+ > dicttool::canonical foo bar baz bang:
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo/bar/baz bang:
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo/bar/baz/bang
+ foo/ bar/ baz/ bang
+
+
 }]
+
+[call proc [cmd dicttool::storage] [arg rawpath]]
+
+ Return the path as a storage path for dicttool
+ with all branch terminators removed.
+ This command will also break arguments up if they
+ contain /.
+
+[para]Example: [example { > dicttool::storage foo bar baz bang
+ foo bar baz bang
+ > dicttool::storage foo bar baz bang/
+ foo bar baz bang
+ > dicttool::storage foo bar baz bang:
+ foo bar baz bang
+ > dicttool::storage foo/bar/baz bang:
+ foo bar baz bang
+ > dicttool::storage foo/bar/baz/bang
+ foo bar baz bang
+
+
+}]
+
+[call proc [cmd dicttool::dictset] [arg varname] [opt "[arg args]"]]
+
+ Set an element with a recursive dictionary,
+ marking all branches on the way down to the
+ final element.
+ If the value does not exists in the nested dictionary
+ it is added as a leaf. If the value already exists as a branch
+ the value given is merged if the value is a valid dict. If the
+ incoming value is not a valid dict, the value overrides the value
+ stored, and the value is treated as a leaf from then on.
+
+[para]Example: [example { > set r {}
+ > ::dicttool::dictset r option color default Green
+ . 1 option {. 1 color {. 1 default Green}}
+ > ::dicttool::dictset r option {Something not dictlike}
+ . 1 option {Something not dictlike}
+ # Note that if the value is not a dict, and you try to force it to be
+ # an error with be thrown on the merge
+ > ::dicttool::dictset r option color default Blue
+ missing value to go with key
+
+
+}]
+
+[call proc [cmd dicttool::dictmerge] [arg varname] [opt "[arg args]"]]
+
+ A recursive form of dict merge, intended for modifying variables in place.
+
+[para]Example: [example { > set mydict {sub/ {sub/ {description {a block of text}}}}
+ > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
+ > dicttool::print $mydict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+
+
+}]
+
+[call proc [cmd dicttool::merge] [opt "[arg args]"]]
+
+ A recursive form of dict merge
+ [para]
+ A routine to recursively dig through dicts and merge
+ adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+
+[para]Example: [example { > set mydict {sub/ {sub/ {description {a block of text}}}}
+ > set odict [dicttool::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
+ > dicttool::print $odict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+
+
+}]
+
+[call proc [cmd tcl::dict::isnull] [arg dictionary] [opt "[arg args]"]]
+
+ Returns true if the path specified by args either does not exist,
+ if exists and contains an empty string or the value of NULL or null.
+ [para]
+ This function is added to the global dict ensemble as [fun {dict isnull}]
+
+
+
+
+[call proc [cmd ladd] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
+
+ Add elements to a list if that are not already present in the list.
+ As a side effect, if variable [variable varname] does not exists,
+ create it as an empty list.
+
+[para]Example: [example { ladd contents foo bar
+ puts $contents
+ > foo bar
+ ladd contents foo bar baz bang
+ puts $contents
+ > foo bar baz bang
+
+
+}]
+
+[call proc [cmd ldelete] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
+
+ Delete all instances of the elements given from a list contained in [variable varname].
+ If the variable does exist this is a noop.
+
+[para]Example: [example { set contents {foo bar baz bang foo foo foo}
+ ldelete contents foo
+ puts $contents
+ > bar baz bang
+
+
+}]
+
+[call proc [cmd lrandom] [arg list]]
+
+ Return a random element from [variable list]
+
+
+
 
 [list_end]
 
+[section AUTHORS]
+Sean Woods [uri mailto:<yoda@etoyoc.com>][para]
 [vset CATEGORY dict]
 [include ../doctools2base/include/feedback.inc]
+
 [manpage_end]
+

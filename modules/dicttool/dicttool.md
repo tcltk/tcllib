@@ -20,7 +20,7 @@ This command will add a delete all instances of each element in *args* from *var
 Operates like **dict get**, however if the key *args* does not exist, it returns an empty
 list instead of throwing an error.
 
-#### dict print *dict*
+#### dicttool::print *dict*
 
 This command will produce a string representation of *dict*, with each nested branch on
 a newline, and indented with two spaces for every level.
@@ -30,7 +30,7 @@ a newline, and indented with two spaces for every level.
 This command will return true if *value* can be interpreted as a dict. The command operates in
 such a way as to not force an existing dict representation to shimmer into another internal rep.
 
-#### dict rmerge *args*
+#### dicttool::merge *args*
 
 Return a dict which is the product of a recursive merge of all of the arguments. Unlike **dict merge**,
 this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
@@ -44,7 +44,7 @@ set items [dict merge {
 } {
   option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
 }]
-puts [dict print $items]
+puts [dicttool::print $items]
 </code></pre>
 
 

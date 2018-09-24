@@ -1,6 +1,6 @@
-[comment {-*- clay -*-}]
-[vset VERSION 0.3]
-[manpage_begin  clay  n 0.3]
+[comment {-*- tcl -*- doctools manpage}]
+[vset PACKAGE_VERSION 0.3]
+[manpage_begin clay n [vset PACKAGE_VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Clay Framework}]
@@ -123,11 +123,6 @@ $A <counter> value
 
 [section {Commands}]
 [list_begin definitions]
-[call proc [cmd putb] [opt "[arg map]"] [arg text]]
-
- Append a line of text to a variable. Optionally apply a string mapping.
-
-
 [call proc [cmd clay::ancestors] [opt "[arg args]"]]
 
 
@@ -135,18 +130,6 @@ $A <counter> value
 
 
 [call proc [cmd clay::args_to_options] [opt "[arg args]"]]
-
-
-[call proc [cmd clay::dictmerge] [arg varname] [opt "[arg args]"]]
-
-
-[call proc [cmd clay::_dictmerge] [arg a] [arg b]]
-
-
-[call proc [cmd clay::dictputb] [arg dict]]
-
-
-[call proc [cmd clay::_dictputb] [arg leaf] [arg level] [arg varname] [arg dict]]
 
 
 [call proc [cmd clay::dynamic_arguments] [arg ensemble] [arg method] [arg arglist] [opt "[arg args]"]]
@@ -239,22 +222,6 @@ $A <counter> value
 [call proc [cmd clay::define::Ensemble] [arg rawmethod] [arg arglist] [arg body]]
 
 
-[call proc [cmd clay::cat] [arg fname]]
-
- Concatenate a file
-
-
-
-
-[call proc [cmd clay::docstrip] [arg text]]
-
- Strip the global comments from tcl code. Used to
- prevent the documentation markup comments from clogging
- up files intended for distribution in machine readable format.
-
-
-
-
 [list_end]
 
 [section Classes]
@@ -269,12 +236,26 @@ Return this class and all ancestors in search order.
 [call method [cmd "clay dump"]]
 Return a complete dump of this object's clay data, but only this object's clay data.
 
-[call method [cmd "clay get"] [arg path] [opt [option "path..."]]]
+[call method [cmd "clay find"] [arg path] [opt [option "path..."]]]
 
-     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch (ends in a slash /),
+     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch,
      returns a recursive merge of all data from this object and it's constituent classes of the data in that branch.
      If the last element is a leaf, search this object for a matching leaf, or search all  constituent classes for a matching
      leaf and return the first value found.
+     If no value is found, returns an empty string.
+     If a branch is returned the topmost . entry is omitted.
+   
+
+[call method [cmd "clay get"] [arg path] [opt [option "path..."]]]
+
+     Pull a chunk of data from the class's clay system.
+     If no value is found, returns an empty string.
+     If a branch is returned the topmost . entry is omitted.
+   
+
+[call method [cmd "clay GET"] [arg path] [opt [option "path..."]]]
+
+     Pull a chunk of data from the class's clay system.
      If no value is found, returns an empty string.
    
 
@@ -308,7 +289,8 @@ Return the class this object belongs to, all classes mixed into this object, and
  [para] 1. The as a value in local dict variable config
  [para] 2. The as a value in local dict variable clay
  [para] 3. As a leaf in any ancestor as a root of the clay tree
- [para] 4. As a leaf in any ancestor under the const/ branch of the clay tree
+ [para] 4. As a leaf in any ancestor as [const const] [emph field]
+ [para] 5. As a leaf in any ancestor as [const option] [emph field] [const default]
    
 
 [call method [cmd "clay delegate"] [opt "[arg stub]"] [opt "[arg object]"]]
@@ -406,180 +388,6 @@ Merge the conents of [const value] with the object's clay storage at [const path
 
  Instantiate variables and build ensemble methods.
 
-
-
-
-[list_end]
-[para]
-
-[subsection {Class  clay::doctool}]
-[example {{ set authors {
-   {John Doe} {jdoe@illustrious.edu}
-   {Tom RichardHarry} {tomdickharry@illustrius.edu}
- }
- # Create the object
- ::clay::doctool create AutoDoc
- set fout [open [file join $moddir module.tcl] w]
- foreach file [glob [file join $srcdir *.tcl]] {
-   set content [::clay::cat [file join $srcdir $file]]
-    # Scan the file
-    AutoDoc scan_text $content
-    # Strip the comments from the distribution
-    puts $fout [::clay::docstrip $content]
- }
- # Write out the manual page
- set manout [open [file join $moddir module.man] w]
- dict set arglist header [string map $modmap [::clay::cat [file join $srcdir manual.txt]]]
- dict set arglist footer [string map $modmap [::clay::cat [file join $srcdir footer.txt]]]
- dict set arglist authors $authors
- puts $manout [AutoDoc manpage {*}$arglist]
- close $manout
-
-
-}}]
-[para]
-
- Tool for build scripts to dynamically generate manual files from comments
- in source code files
-
-[para]
-[class {Methods}]
-[list_begin definitions]
-[call method [cmd "constructor"]]
-
-
-[call method [cmd "arglist"] [arg arglist]]
-
- Process an argument list into an informational dict.
- This method also understands non-positional
- arguments expressed in the notation of Tip 471
- [uri https://core.tcl-lang.org/tips/doc/trunk/tip/479.md].
- [para]
- The output will be a dictionary of all of the fields and whether the fields
- are [const positional], [const mandatory], and whether they have a
- [const default] value.
- [para]
-
-[para]Example: [example {   my arglist {a b {c 10}}
-
-   > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
-
-
-}]
-
-[call method [cmd "comment"] [arg block]]
-
- Convert a block of comments into an informational dictionary.
- If lines in the comment start with a single word ending in a colon,
- all subsequent lines are appended to a dictionary field of that name.
- If no fields are given, all of the text is appended to the [const description]
- field.
-
-[para]Example: [example { my comment {Does something cool}
- > description {Does something cool}
-
- my comment {
- title : Something really cool
- author : Sean Woods
- author : John Doe
- description :
- This does something really cool!
- }
- > description {This does something really cool!}
-   title {Something really cool}
-   author {Sean Woods
-   John Doe}
-
-
-}]
-
-[call method [cmd "keyword.Class"] [arg resultvar] [arg commentblock] [arg name] [arg body]]
-
- Process an oo::objdefine call that modifies the class object
- itself
-
-
-
-
-[call method [cmd "keyword.class"] [arg resultvar] [arg commentblock] [arg name] [arg body]]
-
- Process an oo::define, clay::define, etc statement.
-
-
-
-
-[call method [cmd "keyword.class_method"] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
-
- Process a statement for a clay style class method
-
-
-
-
-[call method [cmd "keyword.method"] [arg resultvar] [arg commentblock] [arg name] [opt "[arg args]"]]
-
- Process a statement for a tcloo style object method
-
-
-
-
-[call method [cmd "keyword.proc"] [arg commentblock] [arg name] [arg arglist] [arg body]]
-
- Process a proc statement
-
-
-
-
-[call method [cmd "reset"]]
-
- Reset the state of the object and its embedded coroutine
-
-
-
-
-[call method [cmd "Main"]]
-
- Main body of the embedded coroutine for the object
-
-
-
-
-[call method [cmd "section.method"] [arg keyword] [arg method] [arg minfo]]
-
- Generate the manual page text for a method or proc
-
-
-
-
-[call method [cmd "section.class"] [arg class_name] [arg class_info]]
-
- Generate the manual page text for a class
-
-
-
-
-[call method [cmd "section.command"] [arg procinfo]]
-
- Generate the manual page text for the commands section
-
-
-
-
-[call method [cmd "manpage"] [opt "[option "header [emph value]"]"] [opt "[option "footer [emph value]"]"] [opt "[option "authors [emph list]"]"]]
-
- Generate the manual page. Returns the completed text suitable for saving in .man file.
- The header argument is a block of doctools text to go in before the machine generated
- section. footer is a block of doctools text to go in after the machine generated
- section. authors is a list of individual authors and emails in the form of AUTHOR EMAIL ?AUTHOR EMAIL?...
-
-
-
-[call method [cmd "scan_text"] [arg text]]
- Scan a block of text
-
-
-
-[call method [cmd "scan_file"] [arg filename]]
- Scan a file of text
 
 
 
