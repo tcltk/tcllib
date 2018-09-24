@@ -2,29 +2,33 @@
 # topic: 68aa446005235a0632a10e2a441c0777
 # title: Define an option for the class
 ###
-proc ::tool::define::option {name args} {
+proc ::tool::define::option {field args} {
   set class [current_class]
-  set dictargs {default: {}}
-  foreach {var val} [::oo::meta::args_to_dict {*}$args] {
-    dict set dictargs [string trimright [string trimleft $var -] :]: $val
+  set field [string trimleft $field -/:]
+  set properties {default {}}
+  foreach {f v} [::clay::args_to_dict {*}$args] {
+    dict set properties [string trim $f -/:] $v
   }
-  set name [string trimleft $name -]
-
+  foreach {f v} [$class clay get option/ $field] {
+    if {![dict exists $properties $f]} {
+      dict set properties $f $v
+    }
+  }
   ###
   # Option Class handling
   ###
-  set optclass [dict getnull $dictargs class:]
+  set optclass [dict getnull $properties class]
   if {$optclass ne {}} {
-    foreach {f v} [::oo::meta::info $class getnull option_class $optclass] {
-      if {![dict exists $dictargs $f]} {
-        dict set dictargs $f $v
+    foreach {f v} [dict getnull $::clay::option_class $optclass] {
+      if {![dict exists $properties $f]} {
+        dict set properties $f $v
       }
     }
     if {$optclass eq "variable"} {
-      variable $name [dict getnull $dictargs default:]
+      $class clay set variable/ $field [dict getnull $properties default]
     }
   }
-  ::oo::meta::info $class branchset option $name $dictargs
+  $class clay set option/ $field $properties
 }
 
 ###
@@ -36,12 +40,10 @@ proc ::tool::define::option {name args} {
 ###
 proc ::tool::define::option_class {name args} {
   set class [current_class]
-  set dictargs {default {}}
+  set name [string trimleft $name -:/]
   foreach {var val} [::oo::meta::args_to_dict {*}$args] {
-    dict set dictargs [string trimleft $var -] $val
+    dict set ::clay::option_class $name [string trimleft $var -:/] $val
   }
-  set name [string trimleft $name -]
-  ::oo::meta::info $class branchset option_class $name $dictargs
 }
 
 ::tool::define ::tool::object {
@@ -50,8 +52,8 @@ proc ::tool::define::option_class {name args} {
 
   option_class organ {
     widget label
-    set-command {my graft %field% %value%}
-    get-command {my organ %field%}
+    set-command {my clay delegate %field% %value%}
+    get-command {my clay delegate %field%}
   }
 
   option_class variable {
@@ -59,7 +61,7 @@ proc ::tool::define::option_class {name args} {
     set-command {my variable %field% ; set %field% %value%}
     get-command {my variable %field% ; set %field%}
   }
-  
+
   dict_ensemble config config {
     get {
       return [my Config_get {*}$args]
@@ -107,9 +109,9 @@ proc ::tool::define::option_class {name args} {
     if {[llength $args]} {
       return [lindex $args 0]
     }
-    return [my meta cget $field] 
+    return [my meta cget $field]
   }
-  
+
   ###
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
@@ -117,10 +119,9 @@ proc ::tool::define::option_class {name args} {
     my variable config option_canonical
     set rawlist $dictargs
     set dictargs {}
-    set dat [my meta getnull option]
+    set dat [my clay get option/]
     foreach {field val} $rawlist {
-      set field [string trimleft $field -]
-      set field [string trimright $field :]
+      set field [string trimleft $field -/:]
       if {[info exists option_canonical($field)]} {
         set field $option_canonical($field)
       }
@@ -130,7 +131,7 @@ proc ::tool::define::option_class {name args} {
     # Validate all inputs
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field validate-command:]
+      set script [dict getnull $dat $field validate-command]
       if {$script ne {}} {
         dict set dictargs $field [eval [string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]]
       }
@@ -139,7 +140,7 @@ proc ::tool::define::option_class {name args} {
     # Apply all inputs with special rules
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field set-command:]
+      set script [dict getnull $dat $field set-command]
       dict set config $field $val
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
@@ -147,20 +148,21 @@ proc ::tool::define::option_class {name args} {
     }
     return $dictargs
   }
-  
+
   method Config_set args {
     set dictargs [::tool::args_to_options {*}$args]
     set dat [my Config_merge $dictargs]
     my Config_triggers $dat
   }
-  
+
   ###
   # topic: 543c936485189593f0b9ed79b5d5f2c0
   ###
   method Config_triggers dictargs {
-    set dat [my meta getnull option]
+    set dat [my clay get option/]
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field post-command:]
+      set field [string trim $field /]
+      set script [dict getnull $dat $field post-command]
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       }
@@ -168,12 +170,12 @@ proc ::tool::define::option_class {name args} {
   }
 
   method Option_Default field {
-    set info [my meta getnull option $field]
-    set getcmd [dict getnull $info default-command:]
+    set info [my clay get option/ $field]
+    set getcmd [dict getnull $info default-command]
     if {$getcmd ne {}} {
       return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
     } else {
-      return [dict getnull $info default:]
+      return [dict getnull $info default]
     }
   }
 }

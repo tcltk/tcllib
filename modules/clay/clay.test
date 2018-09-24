@@ -12,8 +12,8 @@ testsNeed        TclOO 1
 
 support {
     use uuid/uuid.tcl uuid
+    use dicttool/dicttool.tcl dicttool
     use oodialect/oodialect.tcl oo::dialect
-
 }
 testing {
     useLocal clay.tcl clay
@@ -21,101 +21,6 @@ testing {
 
 
 set ::clay::trace 0
-
-
-# -------------------------------------------------------------------------
-# dictmerge Testing
-unset -nocomplain foo
-test dictmerge-0001 {Invoking dictmerge with empty args on a non existent variable create an empty variable} {
-  ::clay::dictmerge foo
-  set foo
-} {}
-
-unset -nocomplain foo
-::clay::dictmerge foo bar/ baz/ bell/ bang
-test dictmerge-0002 {For new entries dictmerge is essentially a set} {
-  dict get $foo bar/ baz/ bell/
-} {bang}
-
-::clay::dictmerge foo bar/ baz/ boom/ bang
-test dictmerge-0003 {For entries that do exist a zipper merge is performed} {
-  dict get $foo bar/ baz/ bell/
-} {bang}
-test dictmerge-0004 {For entries that do exist a zipper merge is performed} {
-  dict get $foo bar/ baz/ boom/
-} {bang}
-
-::clay::dictmerge foo bar/ baz/ bop {color green flavor strawberry}
-test dictmerge-0005 {Leaves are replaced even if they look like a dict} {
-  dict get $foo bar/ baz/ bop
-} {color green flavor strawberry}
-
-::clay::dictmerge foo bar/ baz/ bop {color yellow}
-test dictmerge-0006 {Leaves are replaced even if they look like a dict} {
-  dict get $foo bar/ baz/ bop
-} {color yellow}
-
-::clay::dictmerge foo bar/ baz/ bang/ {color green flavor strawberry}
-test dictmerge-0005 {Branches are merged} {
-  dict get $foo bar/ baz/ bang/
-} {color green flavor strawberry}
-
-::clay::dictmerge foo bar/ baz/ bang/ color yellow
-test dictmerge-0006 {Branches are merged}  {
-  dict get $foo bar/ baz/ bang/
-} {color yellow flavor strawberry}
-
-::clay::dictmerge foo bar/ baz/ bang/ {color blue}
-test dictmerge-0007 {Branches are merged}  {
-  dict get $foo bar/ baz/ bang/
-} {color blue flavor strawberry}
-
-::clay::dictmerge foo {option/ {color {type color} flavor {sense taste}}}
-::clay::dictmerge foo {option/ {format {default ascii}}}
-
-test dictmerge-0008 {Whole dicts are merged}  {
-  dict get $foo option/ color
-} {type color}
-test dictmerge-0009 {Whole dicts are merged}  {
-  dict get $foo option/ flavor
-} {sense taste}
-test dictmerge-0010 {Whole dicts are merged}  {
-  dict get $foo option/ format
-} {default ascii}
-
-###
-# Tests for the httpd module
-###
-test dictmerge-0010 {Test that leaves are merged properly}
-set bar {}
-::clay::dictmerge bar {
-   proxy/ {port 10101 host myhost.localhost}
-}
-::clay::dictmerge bar {
-   mimetxt {Host: localhost
-Content_Type: text/plain
-Content-Length: 15
-}
-   http {HTTP_HOST {} CONTENT_LENGTH 15 HOST localhost CONTENT_TYPE text/plain UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e REMOTE_ADDR 127.0.0.1 REMOTE_HOST 127.0.0.1 REQUEST_METHOD POST REQUEST_URI /echo REQUEST_PATH echo REQUEST_VERSION 1.0 DOCUMENT_ROOT {} QUERY_STRING {} REQUEST_RAW {POST /echo HTTP/1.0} SERVER_PORT 10001 SERVER_NAME 127.0.0.1 SERVER_PROTOCOL HTTP/1.1 SERVER_SOFTWARE {TclHttpd 4.2.0} LOCALHOST 0} UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e uriinfo {fragment {} port {} path echo scheme http host {} query {} pbare 0 pwd {} user {}}
-   mixin {reply ::test::content.echo}
-   prefix /echo
-   proxy_port 10010
-   proxy/ {host localhost}
-}
-
-test dictmerge-0011 {Whole dicts are merged}  {
-  dict get $bar proxy_port
-} {10010}
-
-test dictmerge-0012 {Whole dicts are merged}  {
-  dict get $bar http CONTENT_LENGTH
-} 15
-test dictmerge-0013 {Whole dicts are merged}  {
-  dict get $bar proxy/ host
-} localhost
-test dictmerge-0014 {Whole dicts are merged}  {
-  dict get $bar proxy/ port
-} 10101
 
 
 # -------------------------------------------------------------------------
@@ -835,8 +740,10 @@ test clay-class-clay-0003 {Test that a clay statement is recorded in the object 
 } blue
 test clay-class-clay-0004 {Test that clay statements from the ancestors of this class are not present (we handle them seperately in objects)} {
   ::TEST::myclasse clay get flavor
+} {}
+test clay-class-clay-0005 {Test that clay statements from the ancestors of this class are found with the FIND method} {
+  ::TEST::myclasse clay find flavor
 } {strawberry}
-
 
 ###
 # Test that properties reach objects
@@ -1061,7 +968,15 @@ test clay-class-variable-0001 {Test that the parser injected the right value in 
   $OBJ clay get variable/ my_variable
 } {10}
 
-test clay-class-variable-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-variable-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay get variable
+} {clay {} claycache {} DestroyEvent 0 my_variable 10}
+
+test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget variable
+} {. 1 clay {} claycache {} DestroyEvent 0 my_variable 10}
+
+test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
 } 10
 
@@ -1079,12 +994,43 @@ test clay-class-variable-0002 {Test that variables declared in the class definit
 
 set OBJ [::TEST::has_array new]
 test clay-class-array-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get array/
-} {my_array/ {timeout 10}}
+  $OBJ clay get array
+} {my_array {timeout 10}}
 
-test clay-class-arrau-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-array-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget array
+} {. 1 my_array {. 1 timeout 10}}
+
+test clay-class-array-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_array timeout
 } 10
+
+::clay::define ::TEST::has_more_array {
+  superclass ::TEST::has_array
+  Array my_array {color blue}
+}
+test clay-class-array-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
+  ::TEST::has_more_array clay get array
+} {my_array {color blue}}
+test clay-class-array-0009 {Test that the parser injected the right value in the right place for clay to catch it} {
+  ::TEST::has_more_array clay find array
+} {my_array {timeout 10 color blue}}
+
+set BOBJ [::TEST::has_more_array new]
+test clay-class-array-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay get array
+} {my_array {timeout 10 color blue}}
+
+test clay-class-array-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay dget array
+} {. 1 my_array {. 1 timeout 10 color blue}}
+
+test clay-class-arrau-0006 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_array timeout
+} 10
+test clay-class-arrau-0007 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_array color
+} blue
 
 ###
 # Test dict initialization
@@ -1100,12 +1046,38 @@ test clay-class-arrau-0002 {Test that variables declared in the class definition
 
 set OBJ [::TEST::has_dict new]
 test clay-class-dict-0001 {Test that the parser injected the right value in the right place for clay to catch it} {
-  $OBJ clay get dict/
-} {my_dict/ {timeout 10}}
+  $OBJ clay get dict
+} {my_dict {timeout 10}}
 
-test clay-class-dict-0002 {Test that variables declared in the class definition are initialized} {
+test clay-class-dict-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $OBJ clay dget dict
+} {. 1 my_dict {. 1 timeout 10}}
+
+test clay-class-dict-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_dict timeout
 } 10
+
+::clay::define ::TEST::has_more_dict {
+  superclass ::TEST::has_dict
+  Dict my_dict {color blue}
+}
+set BOBJ [::TEST::has_more_dict new]
+
+test clay-class-dict-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay get dict
+} {my_dict {timeout 10 color blue}}
+
+test clay-class-dict-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $BOBJ clay dget dict
+} {. 1 my_dict {. 1 timeout 10 color blue}}
+
+test clay-class-dict-0006 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_dict timeout
+} 10
+
+test clay-class-dict-0007 {Test that variables declared in the class definition are initialized} {
+  $BOBJ get_my_dict color
+} blue
 
 ###
 # Test object delegation
@@ -1368,8 +1340,8 @@ clay::define MixinTool {
 
   Ensemble test::tool class {
     my variable toolvar mainvar
-    set mainvar [$class clay get mixin/ name]
-    set toolvar [$class clay get mixin/ name]
+    set mainvar [$class clay get mixin name]
+    set toolvar [$class clay get mixin name]
   }
 }
 
@@ -1390,15 +1362,19 @@ clay::define MixinToolB {
 }
 
 test tool-mixinspec-001 {Test application of mixin specs} {
-  MixinTool clay get mixin/ map-script
+  MixinTool clay get mixin map-script
 } $mixinscript
 
 test tool-mixinspec-002 {Test application of mixin specs} {
-  MixinToolA clay get mixin/ map-script
-} $mixinscript
+  MixinToolA clay get mixin map-script
+} {}
 
 test tool-mixinspec-003 {Test application of mixin specs} {
-  MixinToolB clay get mixin/ map-script
+  MixinToolA clay find mixin map-script
+} $mixinscript
+
+test tool-mixinspec-004 {Test application of mixin specs} {
+  MixinToolB clay find mixin map-script
 } $mixinscript
 
 

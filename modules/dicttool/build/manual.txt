@@ -1,0 +1,12 @@
+[keywords dict]
+[copyright {2018 Sean Woods <yoda@etoyoc.com>}]
+[moddesc   {Extensions to the standard "dict" command}]
+[category Utilities]
+[titledesc {Dictionary Tools}]
+[require Tcl 8.5]
+[description]
+[para]
+The [package dicttool] package enhances the standard [emph dict] command with several new
+commands. In addition, the package also defines several "creature comfort" list commands as well.
+Each command checks to see if a command already exists of the same name before adding itself,
+just in case any of these slip into the core.

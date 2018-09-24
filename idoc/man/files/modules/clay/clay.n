@@ -280,21 +280,11 @@ package require \fBuuid \fR
 .sp
 package require \fBoo::dialect \fR
 .sp
-proc \fBputb\fR ?\fImap\fR? \fItext\fR
-.sp
 proc \fBclay::ancestors\fR ?\fIargs\fR?
 .sp
 proc \fBclay::args_to_dict\fR ?\fIargs\fR?
 .sp
 proc \fBclay::args_to_options\fR ?\fIargs\fR?
-.sp
-proc \fBclay::dictmerge\fR \fIvarname\fR ?\fIargs\fR?
-.sp
-proc \fBclay::_dictmerge\fR \fIa\fR \fIb\fR
-.sp
-proc \fBclay::dictputb\fR \fIdict\fR
-.sp
-proc \fBclay::_dictputb\fR \fIleaf\fR \fIlevel\fR \fIvarname\fR \fIdict\fR
 .sp
 proc \fBclay::dynamic_arguments\fR \fIensemble\fR \fImethod\fR \fIarglist\fR ?\fIargs\fR?
 .sp
@@ -344,15 +334,15 @@ proc \fBclay::ensemble_methodbody\fR \fIensemble\fR \fIeinfo\fR
 .sp
 proc \fBclay::define::Ensemble\fR \fIrawmethod\fR \fIarglist\fR \fIbody\fR
 .sp
-proc \fBclay::cat\fR \fIfname\fR
-.sp
-proc \fBclay::docstrip\fR \fItext\fR
-.sp
 method \fBclay ancestors\fR
 .sp
 method \fBclay dump\fR
 .sp
+method \fBclay find\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
+.sp
 method \fBclay get\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
+.sp
+method \fBclay GET\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
 .sp
 method \fBclay merge\fR \fIdict\fR ?\fBdict\&.\&.\&.\fR?
 .sp
@@ -403,38 +393,6 @@ method \fBclay set\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR? \fIvalue\fR
 method \fBInitializePublic\fR
 .sp
 method \fBInitializePublic\fR
-.sp
-method \fBconstructor\fR
-.sp
-method \fBarglist\fR \fIarglist\fR
-.sp
-method \fBcomment\fR \fIblock\fR
-.sp
-method \fBkeyword\&.Class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
-.sp
-method \fBkeyword\&.class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
-.sp
-method \fBkeyword\&.class_method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
-.sp
-method \fBkeyword\&.method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
-.sp
-method \fBkeyword\&.proc\fR \fIcommentblock\fR \fIname\fR \fIarglist\fR \fIbody\fR
-.sp
-method \fBreset\fR
-.sp
-method \fBMain\fR
-.sp
-method \fBsection\&.method\fR \fIkeyword\fR \fImethod\fR \fIminfo\fR
-.sp
-method \fBsection\&.class\fR \fIclass_name\fR \fIclass_info\fR
-.sp
-method \fBsection\&.command\fR \fIprocinfo\fR
-.sp
-method \fBmanpage\fR ?\fBheader \fIvalue\fR\fR? ?\fBfooter \fIvalue\fR\fR? ?\fBauthors \fIlist\fR\fR?
-.sp
-method \fBscan_text\fR \fItext\fR
-.sp
-method \fBscan_file\fR \fIfilename\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -553,22 +511,11 @@ $A <counter> value
 .CE
 .SH COMMANDS
 .TP
-proc \fBputb\fR ?\fImap\fR? \fItext\fR
-Append a line of text to a variable\&. Optionally apply a string mapping\&.
-.TP
 proc \fBclay::ancestors\fR ?\fIargs\fR?
 .TP
 proc \fBclay::args_to_dict\fR ?\fIargs\fR?
 .TP
 proc \fBclay::args_to_options\fR ?\fIargs\fR?
-.TP
-proc \fBclay::dictmerge\fR \fIvarname\fR ?\fIargs\fR?
-.TP
-proc \fBclay::_dictmerge\fR \fIa\fR \fIb\fR
-.TP
-proc \fBclay::dictputb\fR \fIdict\fR
-.TP
-proc \fBclay::_dictputb\fR \fIleaf\fR \fIlevel\fR \fIvarname\fR \fIdict\fR
 .TP
 proc \fBclay::dynamic_arguments\fR \fIensemble\fR \fImethod\fR \fIarglist\fR ?\fIargs\fR?
 .TP
@@ -626,14 +573,6 @@ proc \fBclay::object_destroy\fR \fIobjname\fR
 proc \fBclay::ensemble_methodbody\fR \fIensemble\fR \fIeinfo\fR
 .TP
 proc \fBclay::define::Ensemble\fR \fIrawmethod\fR \fIarglist\fR \fIbody\fR
-.TP
-proc \fBclay::cat\fR \fIfname\fR
-Concatenate a file
-.TP
-proc \fBclay::docstrip\fR \fItext\fR
-Strip the global comments from tcl code\&. Used to
-prevent the documentation markup comments from clogging
-up files intended for distribution in machine readable format\&.
 .PP
 .SH CLASSES
 .SS "CLASS  OO::CLASS"
@@ -646,11 +585,21 @@ Return this class and all ancestors in search order\&.
 method \fBclay dump\fR
 Return a complete dump of this object's clay data, but only this object's clay data\&.
 .TP
-method \fBclay get\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
-Pull a chunk of data from the clay system\&. If the last element of \fIpath\fR is a branch (ends in a slash /),
+method \fBclay find\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
+Pull a chunk of data from the clay system\&. If the last element of \fIpath\fR is a branch,
 returns a recursive merge of all data from this object and it's constituent classes of the data in that branch\&.
 If the last element is a leaf, search this object for a matching leaf, or search all  constituent classes for a matching
 leaf and return the first value found\&.
+If no value is found, returns an empty string\&.
+If a branch is returned the topmost \&. entry is omitted\&.
+.TP
+method \fBclay get\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
+Pull a chunk of data from the class's clay system\&.
+If no value is found, returns an empty string\&.
+If a branch is returned the topmost \&. entry is omitted\&.
+.TP
+method \fBclay GET\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
+Pull a chunk of data from the class's clay system\&.
 If no value is found, returns an empty string\&.
 .TP
 method \fBclay merge\fR \fIdict\fR ?\fBdict\&.\&.\&.\fR?
@@ -683,7 +632,9 @@ The order of search us:
 .sp
 3\&. As a leaf in any ancestor as a root of the clay tree
 .sp
-4\&. As a leaf in any ancestor under the const/ branch of the clay tree
+4\&. As a leaf in any ancestor as \fBconst\fR \fIfield\fR
+.sp
+5\&. As a leaf in any ancestor as \fBoption\fR \fIfield\fR \fBdefault\fR
 .TP
 method \fBclay delegate\fR ?\fIstub\fR? ?\fIobject\fR?
 Introspect or control method delegation\&. With no arguments, the method will return a
@@ -764,137 +715,6 @@ This class is inherited by all classes that have options\&.
 .TP
 method \fBInitializePublic\fR
 Instantiate variables and build ensemble methods\&.
-.PP
-.PP
-.SS "CLASS  CLAY::DOCTOOL"
-.CS
-
-{ set authors {
-   {John Doe} {jdoe@illustrious\&.edu}
-   {Tom RichardHarry} {tomdickharry@illustrius\&.edu}
- }
- # Create the object
- ::clay::doctool create AutoDoc
- set fout [open [file join $moddir module\&.tcl] w]
- foreach file [glob [file join $srcdir *\&.tcl]] {
-   set content [::clay::cat [file join $srcdir $file]]
-    # Scan the file
-    AutoDoc scan_text $content
-    # Strip the comments from the distribution
-    puts $fout [::clay::docstrip $content]
- }
- # Write out the manual page
- set manout [open [file join $moddir module\&.man] w]
- dict set arglist header [string map $modmap [::clay::cat [file join $srcdir manual\&.txt]]]
- dict set arglist footer [string map $modmap [::clay::cat [file join $srcdir footer\&.txt]]]
- dict set arglist authors $authors
- puts $manout [AutoDoc manpage {*}$arglist]
- close $manout
-
-
-}
-.CE
-.PP
-Tool for build scripts to dynamically generate manual files from comments
-in source code files
-.PP
-\fBMethods\fR
-.TP
-method \fBconstructor\fR
-.TP
-method \fBarglist\fR \fIarglist\fR
-Process an argument list into an informational dict\&.
-This method also understands non-positional
-arguments expressed in the notation of Tip 471
-\fIhttps://core\&.tcl-lang\&.org/tips/doc/trunk/tip/479\&.md\fR\&.
-.sp
-The output will be a dictionary of all of the fields and whether the fields
-are \fBpositional\fR, \fBmandatory\fR, and whether they have a
-\fBdefault\fR value\&.
-.sp
-.sp
-Example:
-.CS
-
-   my arglist {a b {c 10}}
-
-   > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
-
-
-
-.CE
-.TP
-method \fBcomment\fR \fIblock\fR
-Convert a block of comments into an informational dictionary\&.
-If lines in the comment start with a single word ending in a colon,
-all subsequent lines are appended to a dictionary field of that name\&.
-If no fields are given, all of the text is appended to the \fBdescription\fR
-field\&.
-.sp
-Example:
-.CS
-
- my comment {Does something cool}
- > description {Does something cool}
-
- my comment {
- title : Something really cool
- author : Sean Woods
- author : John Doe
- description :
- This does something really cool!
- }
- > description {This does something really cool!}
-   title {Something really cool}
-   author {Sean Woods
-   John Doe}
-
-
-
-.CE
-.TP
-method \fBkeyword\&.Class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
-Process an oo::objdefine call that modifies the class object
-itself
-.TP
-method \fBkeyword\&.class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
-Process an oo::define, clay::define, etc statement\&.
-.TP
-method \fBkeyword\&.class_method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
-Process a statement for a clay style class method
-.TP
-method \fBkeyword\&.method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
-Process a statement for a tcloo style object method
-.TP
-method \fBkeyword\&.proc\fR \fIcommentblock\fR \fIname\fR \fIarglist\fR \fIbody\fR
-Process a proc statement
-.TP
-method \fBreset\fR
-Reset the state of the object and its embedded coroutine
-.TP
-method \fBMain\fR
-Main body of the embedded coroutine for the object
-.TP
-method \fBsection\&.method\fR \fIkeyword\fR \fImethod\fR \fIminfo\fR
-Generate the manual page text for a method or proc
-.TP
-method \fBsection\&.class\fR \fIclass_name\fR \fIclass_info\fR
-Generate the manual page text for a class
-.TP
-method \fBsection\&.command\fR \fIprocinfo\fR
-Generate the manual page text for the commands section
-.TP
-method \fBmanpage\fR ?\fBheader \fIvalue\fR\fR? ?\fBfooter \fIvalue\fR\fR? ?\fBauthors \fIlist\fR\fR?
-Generate the manual page\&. Returns the completed text suitable for saving in \&.man file\&.
-The header argument is a block of doctools text to go in before the machine generated
-section\&. footer is a block of doctools text to go in after the machine generated
-section\&. authors is a list of individual authors and emails in the form of AUTHOR EMAIL ?AUTHOR EMAIL?\&.\&.\&.
-.TP
-method \fBscan_text\fR \fItext\fR
-Scan a block of text
-.TP
-method \fBscan_file\fR \fIfilename\fR
-Scan a file of text
 .PP
 .PP
 .SH AUTHORS

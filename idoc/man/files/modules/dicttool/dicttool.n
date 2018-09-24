@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'dicttool\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2017 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "dicttool" n 1\&.0 tcllib "Extensions to the standard "dict" command"
+.TH "dicttool" n 1\&.2 tcllib "Extensions to the standard "dict" command"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,17 +276,43 @@ dicttool \- Dictionary Tools
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-\fBladd\fR \fIvarname\fR \fIargs\fR
+proc \fBPROC\fR \fIname\fR \fIarglist\fR \fIbody\fR ?\fIninja\fR \fB\fR?
 .sp
-\fBldelete\fR \fIvarname\fR \fIargs\fR
+proc \fBnoop\fR ?\fIargs\fR?
 .sp
-\fBdict getnull\fR \fIargs\fR
+proc \fBputb\fR ?\fImap\fR? \fItext\fR
 .sp
-\fBdict print\fR \fIdict\fR
+proc \fBtcl::dict::getnull\fR \fIdictionary\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
 .sp
-\fBdict is_dict\fR \fIvalue\fR
+proc \fBtcl::dict::is_dict\fR \fId\fR
 .sp
-\fBrmerge\fR \fIargs\fR
+proc \fBdicttool::is_branch\fR \fIdict\fR \fIpath\fR
+.sp
+proc \fBdicttool::print\fR \fIdict\fR
+.sp
+proc \fBdicttool::_dictputb\fR \fIlevel\fR \fIvarname\fR \fIdict\fR
+.sp
+proc \fBdicttool::sanitize\fR \fIdict\fR
+.sp
+proc \fBdicttool::_sanitizeb\fR \fIpath\fR \fIvarname\fR \fIdict\fR
+.sp
+proc \fBdicttool::canonical\fR \fIrawpath\fR
+.sp
+proc \fBdicttool::storage\fR \fIrawpath\fR
+.sp
+proc \fBdicttool::dictset\fR \fIvarname\fR ?\fIargs\fR?
+.sp
+proc \fBdicttool::dictmerge\fR \fIvarname\fR ?\fIargs\fR?
+.sp
+proc \fBdicttool::merge\fR ?\fIargs\fR?
+.sp
+proc \fBtcl::dict::isnull\fR \fIdictionary\fR ?\fIargs\fR?
+.sp
+proc \fBladd\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+.sp
+proc \fBldelete\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+.sp
+proc \fBlrandom\fR \fIlist\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -295,60 +321,287 @@ The \fBdicttool\fR package enhances the standard \fIdict\fR command with several
 commands\&. In addition, the package also defines several "creature comfort" list commands as well\&.
 Each command checks to see if a command already exists of the same name before adding itself,
 just in case any of these slip into the core\&.
+.SH COMMANDS
 .TP
-\fBladd\fR \fIvarname\fR \fIargs\fR
-This command will add a new instance of each element in \fIargs\fR to \fIvarname\fR, but only if that element
-is not already present\&.
+proc \fBPROC\fR \fIname\fR \fIarglist\fR \fIbody\fR ?\fIninja\fR \fB\fR?
+Because many features in this package may be added as
+commands to future tcl cores, or be provided in binary
+form by packages, I need a declaritive way of saying
+\fICreate this command if there isn't one already\fR\&.
+The \fIninja\fR argument is a script to execute if the
+command is created by this mechanism\&.
 .TP
-\fBldelete\fR \fIvarname\fR \fIargs\fR
-This command will add a delete all instances of each element in \fIargs\fR from \fIvarname\fR\&.
+proc \fBnoop\fR ?\fIargs\fR?
+Perform a noop\&. Useful in prototyping for commenting out blocks
+of code without actually having to comment them out\&. It also makes
+a handy default for method delegation if a delegate has not been
+assigned yet\&.
 .TP
-\fBdict getnull\fR \fIargs\fR
-Operates like \fBdict get\fR, however if the key \fIargs\fR does not exist, it returns an empty
-list instead of throwing an error\&.
+proc \fBputb\fR ?\fImap\fR? \fItext\fR
+Append a line of text to a variable\&. Optionally apply a string mapping\&.
 .TP
-\fBdict print\fR \fIdict\fR
-This command will produce a string representation of \fIdict\fR, with each nested branch on
-a newline, and indented with two spaces for every level\&.
-.TP
-\fBdict is_dict\fR \fIvalue\fR
-This command will return true if \fIvalue\fR can be interpreted as a dict\&. The command operates in
-such a way as to not force an existing dict representation to shimmer into another internal rep\&.
-.TP
-\fBrmerge\fR \fIargs\fR
-Return a dict which is the product of a recursive merge of all of the arguments\&. Unlike \fBdict merge\fR,
-this command descends into all of the levels of a dict\&. Dict keys which end in a : indicate a leaf, which
-will be interpreted as a literal value, and not descended into further\&.
+proc \fBtcl::dict::getnull\fR \fIdictionary\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+If the path (given by the list of elements) exists, return that value\&.
+Otherwise return an empty string\&. Designed to replace
 .CS
 
 
-
-set items [dict merge {
-  option {color {default: green}}
-} {
-  option {fruit {default: mango}}
-} {
-  option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
-}]
-puts [dict print $items]
+ if {[dict exists $dictionary {*}$args]} {
+   return [dict get $dictionary {*}$args]
+ } else {
+   return {}
+ }
 
 .CE
-.IP
-Prints the following result:
+.sp
+Example:
 .CS
 
-
-option {
-  color {
-    default: blue
-  }
-  fruit {
-    widget: select
-    values: {mango apple cherry grape}
-  }
-}
+ set value [dict getnull $arglist $option]
 
 .CE
+.TP
+proc \fBtcl::dict::is_dict\fR \fId\fR
+Test if value is a dict\&.
+.sp
+This command is added to the \fBdict\fR ensemble as \fBdict is_dict\fR
+.TP
+proc \fBdicttool::is_branch\fR \fIdict\fR \fIpath\fR
+Return true if the element  with the value
+is a dict\&.  is given as a list to descend into sub-dicts of
+the current dict\&.
+The rules are as follows:
+.RS
+.IP [1]
+If the last character of the last element of  is a colon (:)
+return false
+.IP [2]
+If the last character of the last element of  is a slash (/)
+return true
+.IP [3]
+If a sub-element if  named \fB\&.info\fR is present return true
+.RE
+.sp
+.sp
+This command is added to the \fBdict\fR ensemble as \fBdicttool::is_branch\fR
+.sp
+Example:
+.CS
+
+ > set mydict {sub/ {sub/ {field {A block of text}}}
+ > dicttool::is_branch $mydict sub/
+ 1
+ > dicttool::is_branch $mydict {sub/ sub/}
+ 1
+ > dicttool::is_branch $mydict {sub/ sub/ field}
+ 0
+
+
+
+.CE
+.TP
+proc \fBdicttool::print\fR \fIdict\fR
+Output a dictionary as an indented stream of
+data suitable for output to the screen\&. The system uses
+the rules for \fBdicttool::is_branch\fR to determine if
+an value in a dictionary is a leaf or a branch\&.
+.sp
+Example:
+.CS
+
+ > set mydict {sub/ {sub/ {field {A block of text}}}
+ > dicttool::print $mydict
+ sub/ {
+   sub/ {
+     field {A block of text}
+   }
+ }
+
+
+
+.CE
+.TP
+proc \fBdicttool::_dictputb\fR \fIlevel\fR \fIvarname\fR \fIdict\fR
+Helper function for ::dicttool::print
+Formats the string representation for a dictionary element within
+a human readable stream of lines, and determines if it needs to call itself
+with further indentation to express a sub-branch
+.TP
+proc \fBdicttool::sanitize\fR \fIdict\fR
+Output a dictionary removing any \&. entries added by \fBdicttool::merge\fR
+.TP
+proc \fBdicttool::_sanitizeb\fR \fIpath\fR \fIvarname\fR \fIdict\fR
+Helper function for ::dicttool::sanitize
+Formats the string representation for a dictionary element within
+a human readable stream of lines, and determines if it needs to call itself
+with further indentation to express a sub-branch
+.TP
+proc \fBdicttool::canonical\fR \fIrawpath\fR
+Return the path as a canonical path for dicttool
+with all branch keys
+ending in a / and the final element ending in a /
+if the final element in the path ended in a /
+This command will also break arguments up if they
+contain /\&.
+.sp
+Example:
+.CS
+
+ > dicttool::canonical foo bar baz bang
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo bar baz bang/
+ foo/ bar/ baz/ bang/
+ > dicttool::canonical foo bar baz bang:
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo/bar/baz bang:
+ foo/ bar/ baz/ bang
+ > dicttool::canonical foo/bar/baz/bang
+ foo/ bar/ baz/ bang
+
+
+
+.CE
+.TP
+proc \fBdicttool::storage\fR \fIrawpath\fR
+Return the path as a storage path for dicttool
+with all branch terminators removed\&.
+This command will also break arguments up if they
+contain /\&.
+.sp
+Example:
+.CS
+
+ > dicttool::storage foo bar baz bang
+ foo bar baz bang
+ > dicttool::storage foo bar baz bang/
+ foo bar baz bang
+ > dicttool::storage foo bar baz bang:
+ foo bar baz bang
+ > dicttool::storage foo/bar/baz bang:
+ foo bar baz bang
+ > dicttool::storage foo/bar/baz/bang
+ foo bar baz bang
+
+
+
+.CE
+.TP
+proc \fBdicttool::dictset\fR \fIvarname\fR ?\fIargs\fR?
+Set an element with a recursive dictionary,
+marking all branches on the way down to the
+final element\&.
+If the value does not exists in the nested dictionary
+it is added as a leaf\&. If the value already exists as a branch
+the value given is merged if the value is a valid dict\&. If the
+incoming value is not a valid dict, the value overrides the value
+stored, and the value is treated as a leaf from then on\&.
+.sp
+Example:
+.CS
+
+ > set r {}
+ > ::dicttool::dictset r option color default Green
+ \&. 1 option {\&. 1 color {\&. 1 default Green}}
+ > ::dicttool::dictset r option {Something not dictlike}
+ \&. 1 option {Something not dictlike}
+ # Note that if the value is not a dict, and you try to force it to be
+ # an error with be thrown on the merge
+ > ::dicttool::dictset r option color default Blue
+ missing value to go with key
+
+
+
+.CE
+.TP
+proc \fBdicttool::dictmerge\fR \fIvarname\fR ?\fIargs\fR?
+A recursive form of dict merge, intended for modifying variables in place\&.
+.sp
+Example:
+.CS
+
+ > set mydict {sub/ {sub/ {description {a block of text}}}}
+ > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
+ > dicttool::print $mydict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+
+
+
+.CE
+.TP
+proc \fBdicttool::merge\fR ?\fIargs\fR?
+A recursive form of dict merge
+.sp
+A routine to recursively dig through dicts and merge
+adapted from http://stevehavelka\&.com/tcl-dict-operation-nested-merge/
+.sp
+Example:
+.CS
+
+ > set mydict {sub/ {sub/ {description {a block of text}}}}
+ > set odict [dicttool::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
+ > dicttool::print $odict
+ sub/ {
+   sub/ {
+     description {a block of text}
+     field {another block of text}
+   }
+ }
+
+
+
+.CE
+.TP
+proc \fBtcl::dict::isnull\fR \fIdictionary\fR ?\fIargs\fR?
+Returns true if the path specified by args either does not exist,
+if exists and contains an empty string or the value of NULL or null\&.
+.sp
+This function is added to the global dict ensemble as \fBdict isnull\fR
+.TP
+proc \fBladd\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+Add elements to a list if that are not already present in the list\&.
+As a side effect, if variable  does not exists,
+create it as an empty list\&.
+.sp
+Example:
+.CS
+
+ ladd contents foo bar
+ puts $contents
+ > foo bar
+ ladd contents foo bar baz bang
+ puts $contents
+ > foo bar baz bang
+
+
+
+.CE
+.TP
+proc \fBldelete\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+Delete all instances of the elements given from a list contained in \&.
+If the variable does exist this is a noop\&.
+.sp
+Example:
+.CS
+
+ set contents {foo bar baz bang foo foo foo}
+ ldelete contents foo
+ puts $contents
+ > bar baz bang
+
+
+
+.CE
+.TP
+proc \fBlrandom\fR \fIlist\fR
+Return a random element from
+.PP
+.SH AUTHORS
+Sean Woods \fImailto:<yoda@etoyoc\&.com>\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -371,6 +624,6 @@ dict
 Utilities
 .SH COPYRIGHT
 .nf
-Copyright (c) 2017 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 
 .fi

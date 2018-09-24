@@ -276,7 +276,7 @@ practcl \- The Practcl Module
 .SH SYNOPSIS
 package require \fBTclOO  1\&.0\fR
 .sp
-package require \fBpractcl  0\&.13\fR
+package require \fBpractcl  1\&.4\&.3\fR
 .sp
 proc \fBProc\fR \fIname\fR \fIarglist\fR \fIbody\fR
 .sp

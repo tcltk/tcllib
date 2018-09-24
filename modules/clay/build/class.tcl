@@ -14,16 +14,32 @@ oo::define oo::class {
   #   arglist {}
   #   description {Return a complete dump of this object's clay data, but only this object's clay data.}
   # }
-  # get {
+  # find {
   #   arglist {path {mandatory 1 positional 1 repeating 1}}
   #   description {
-  #     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch (ends in a slash /),
+  #     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch,
   #     returns a recursive merge of all data from this object and it's constituent classes of the data in that branch.
   #     If the last element is a leaf, search this object for a matching leaf, or search all  constituent classes for a matching
   #     leaf and return the first value found.
   #     If no value is found, returns an empty string.
+  #     If a branch is returned the topmost . entry is omitted.
   #   }
   # }
+  # get {
+  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   description {
+  #     Pull a chunk of data from the class's clay system.
+  #     If no value is found, returns an empty string.
+  #     If a branch is returned the topmost . entry is omitted.
+  #   }
+  # }
+  # GET {
+  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   description {
+  #     Pull a chunk of data from the class's clay system.
+  #     If no value is found, returns an empty string.
+  #   }
+  #}
   # merge {
   #   arglist {dict {mandatory 1 positional 1 repeating 1}}
   #   description {Recursively merge the dictionaries given into the object's local clay storage.}
@@ -51,52 +67,71 @@ oo::define oo::class {
         tailcall ::clay::ancestors [self]
       }
       exists {
-        set path [::clay::leaf {*}$args]
         if {![info exists clay]} {
           return 0
         }
-        return [dict exists $clay {*}$path]
+        return [dict exists $clay {*}[::dicttool::storage $args]]
       }
       dump {
         return $clay
       }
+      dget {
+         if {![info exists clay]} {
+          return {}
+        }
+        set path [::dicttool::storage $args]
+        if {![dict exists $clay {*}$path]} {
+          return {}
+        }
+        return [dict get $clay {*}$path]
+      }
       getnull -
       get {
-        set path $args
-        set leaf [expr {[string index [lindex $path end] end] ne "/"}]
-        set clayorder [::clay::ancestors [self]]
-        #puts [list [self] clay get {*}$path (leaf: $leaf)]
-        if {$leaf} {
-          #puts [list EXISTS: (clay) [dict exists $clay {*}$path]]
-          if {[dict exists $clay {*}$path]} {
-            return [dict get $clay {*}$path]
-          }
-          #puts [list Search in the in our list of classes for an answer]
-          foreach class $clayorder {
-            if {$class eq [self]} continue
-            if {[$class clay exists {*}$path]} {
-              set value [$class clay get {*}$path]
-              return $value
-            }
-          }
-        } else {
-          set result {}
-          # Leaf searches return one data field at a time
-          # Search in our local dict
-          # Search in the in our list of classes for an answer
-          foreach class [lreverse $clayorder] {
-            if {$class eq [self]} continue
-            ::clay::dictmerge result [$class clay get {*}$path]
-          }
-          if {[dict exists $clay {*}$path]} {
-            ::clay::dictmerge result [dict get $clay {*}$path]
-          }
-          return $result
+        if {![info exists clay]} {
+          return {}
         }
+        set path [::dicttool::storage $args]
+        if {[dict exists $clay {*}$path .]} {
+          return [::dicttool::sanitize [dict get $clay {*}$path]]
+        }
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
+        }
+        return {}
+      }
+      find {
+        set path [::dicttool::storage $args]
+        if {![info exists clay]} {
+          set clay {}
+        }
+        set clayorder [::clay::ancestors [self]]
+        set found 0
+        foreach class $clayorder {
+          if {[$class clay exists {*}$path .]} {
+            # Found a branch break
+            set found 1
+            break
+          }
+          if {[$class clay exists {*}$path]} {
+            # Found a leaf. Return that value immediately
+            return [$class clay get {*}$path]
+          }
+        }
+        if {!$found} {
+          return {}
+        }
+        set result {}
+        # Leaf searches return one data field at a time
+        # Search in our local dict
+        # Search in the in our list of classes for an answer
+        foreach class [lreverse $clayorder] {
+          ::dicttool::dictmerge result [$class clay dget {*}$path]
+        }
+        return [::dicttool::sanitize $result]
       }
       merge {
         foreach arg $args {
-          ::clay::dictmerge clay {*}$arg
+          ::dicttool::dictmerge clay {*}$arg
         }
       }
       search {
@@ -107,10 +142,7 @@ oo::define oo::class {
         }
       }
       set {
-        #puts [list [self] clay SET {*}$args]
-        set value [lindex $args end]
-        set path [::clay::leaf {*}[lrange $args 0 end-1]]
-        ::clay::dictmerge clay {*}$path $value
+        ::dicttool::dictset clay {*}$args
       }
       default {
         dict $submethod clay {*}$args

@@ -7,7 +7,6 @@ package require Tcl 8.6
 package provide httpd 4.3
 namespace eval ::httpd {}
 set ::httpd::version 4.3
-
 ###
 # START: core.tcl
 ###
@@ -889,7 +888,7 @@ namespace eval ::httpd::coro {
       error "Class $class for plugin $slot does not exist"
     }
     my clay mixinmap $slot $class
-    set mixinmap [my clay get mixin]
+    set mixinmap [my clay mixinmap]
 
     ###
     # Perform action on load

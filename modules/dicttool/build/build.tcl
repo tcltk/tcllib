@@ -1,9 +1,9 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.3
-set module clay
-set filename clay
+set version 1.2
+set module dicttool
+set filename dicttool
 if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
   source [file join $moddir .. practcl build doctool.tcl]
 } else {
@@ -29,13 +29,14 @@ puts $fout [string map $modmap {###
 # @@ Meta Begin
 # Package %module% %version%
 # Meta platform     tcl
-# Meta summary      A minimalist framework for complex TclOO development
-# Meta description  This package introduces the method "clay" to both oo::object
-# Meta description  and oo::class which facilitate complex interactions between objects
-# Meta description  and their ancestor and mixed in classes.
-# Meta category     TclOO
-# Meta subject      framework
-# Meta require      {Tcl 8.6}}]
+# Meta summary      Enhancements to the dict command to support recursive merging
+# Meta description  This package adds several list commands and dict commands which
+# Meta description  developers find themselves implementing over and over again.
+# Meta description  In addition it provides tools to manage recursive dicts in a
+# Meta description  clean (and thoroughly regression tested) format.
+# Meta category     dict
+# Meta subject      dict
+# Meta require      {Tcl 8.5}}]
 foreach {name email} $authors {
   puts $fout   "# Meta author       $name"
 }
@@ -60,11 +61,6 @@ lappend loaded build.tcl test.tcl
 # These files must be loaded in a particular order
 foreach file {
   core.tcl
-  procs.tcl
-  class.tcl
-  object.tcl
-  metaclass.tcl
-  ensemble.tcl
 } {
   lappend loaded $file
   set content [::practcl::cat [file join $srcdir {*}$file]]
@@ -106,19 +102,18 @@ puts $fout [string map $modmap {# Tcl package index file, version 1.1
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-if {![package vsatisfies [package provide Tcl] 8.6]} {return}
+if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 }]
 puts $fout [string map $modmap {
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
-
 close $fout
 
 ###
 # Generate the test script
 ###
 namespace eval ::clay {}
-source [file join $srcdir procs.tcl]
+source [file join $srcdir core.tcl]
 set fout [open [file join $moddir $filename.test] w]
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
@@ -129,4 +124,3 @@ puts $manout [AutoDoc manpage map $modmap \
   footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout
-

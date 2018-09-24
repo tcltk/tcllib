@@ -117,3 +117,4 @@ puts $manout [AutoDoc manpage map $modmap \
   footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout
+

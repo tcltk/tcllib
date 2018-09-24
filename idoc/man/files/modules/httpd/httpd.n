@@ -276,7 +276,7 @@ httpd \- A TclOO and coroutine based web server
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBhttpd  ?4\&.3?\fR
+package require \fBhttpd  ?1\&.7?\fR
 .sp
 package require \fBuuid \fR
 .sp
