@@ -99,7 +99,7 @@
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">ldapx(n) 1.1 tcllib &quot;LDAP extended object interface&quot;</h1>
+<h1 class="doctools_title">ldapx(n) 1.2 tcllib &quot;LDAP extended object interface&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>ldapx - LDAP extended object interface</p>
 </div>
@@ -146,7 +146,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">ldapx <span class="opt">?1.1?</span></b></li>
+<li>package require <b class="pkgname">ldapx <span class="opt">?1.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><i class="arg">e</i> <b class="method">reset</b></a></li>
@@ -173,7 +173,7 @@
 <li><a href="#22"><i class="arg">ce</i> <b class="method">change</b> <span class="opt">?<i class="arg">new</i>?</span></a></li>
 <li><a href="#23"><i class="arg">ce</i> <b class="method">diff</b> <i class="arg">new</i> <span class="opt">?<i class="arg">old</i>?</span></a></li>
 <li><a href="#24"><i class="arg">la</i> <b class="method">error</b> <span class="opt">?<i class="arg">newmsg</i>?</span></a></li>
-<li><a href="#25"><i class="arg">la</i> <b class="method">connect</b> <i class="arg">url</i> <span class="opt">?<i class="arg">binddn</i>?</span> <span class="opt">?<i class="arg">bindpw</i>?</span></a></li>
+<li><a href="#25"><i class="arg">la</i> <b class="method">connect</b> <i class="arg">url</i> <span class="opt">?<i class="arg">binddn</i>?</span> <span class="opt">?<i class="arg">bindpw</i>?</span> <span class="opt">?<i class="arg">starttls</i>?</span></a></li>
 <li><a href="#26"><i class="arg">la</i> <b class="method">disconnect</b></a></li>
 <li><a href="#27"><i class="arg">la</i> <b class="method">traverse</b> <i class="arg">base</i> <i class="arg">filter</i> <i class="arg">attrs</i> <i class="arg">entry</i> <i class="arg">body</i></a></li>
 <li><a href="#28"><i class="arg">la</i> <b class="method">search</b> <i class="arg">base</i> <i class="arg">filter</i> <i class="arg">attrs</i></a></li>
@@ -454,7 +454,21 @@ time). The option <b class="option">-utf8</b> works exactly as with the
 </dl>
 </div>
 <div id="subsection8" class="doctools_subsection"><h3><a name="subsection8">Ldap Options</a></h3>
-<p>A first set of options of the <b class="class">ldap</b> class is used during
+<p>Options are configured on <b class="class">ldap</b> instances using the <b class="cmd">configure</b>
+method.</p>
+<p>The first option is used for TLS parameters:</p>
+<dl class="doctools_options">
+    
+<dt><b class="option">-tlsoptions</b> <i class="arg">list</i></dt>
+<dd><p>Specify the set of TLS options to use when connecting to the
+	LDAP server (see the <b class="cmd">connect</b> method). For the list of
+	valid options, see the <b class="package"><a href="ldap.html">LDAP</a></b> package documentation.</p>
+<p>The default is <b class="const">-request 1 -require 1 -ssl2 no -ssl3 no -tls1 yes -tls1.1 yes -tls1.2 yes</b>.</p>
+<p>Example:</p>
+<pre class="doctools_example">$l configure -tlsoptions {-request yes -require yes}</pre>
+</dd>
+</dl>
+<p>A set of options of the <b class="class">ldap</b> class is used during
 search operations (methods <b class="method">traverse</b>, <b class="method">search</b> and
 <b class="method">read</b>, see below).</p>
 <dl class="doctools_options">
@@ -513,13 +527,20 @@ in the directory:</p>
 	last call to a <b class="class">ldap</b> class method. If the optional
 	argument <i class="arg">newmsg</i> is supplied, it becomes the last
 	error message.</p></dd>
-<dt><a name="25"><i class="arg">la</i> <b class="method">connect</b> <i class="arg">url</i> <span class="opt">?<i class="arg">binddn</i>?</span> <span class="opt">?<i class="arg">bindpw</i>?</span></a></dt>
+<dt><a name="25"><i class="arg">la</i> <b class="method">connect</b> <i class="arg">url</i> <span class="opt">?<i class="arg">binddn</i>?</span> <span class="opt">?<i class="arg">bindpw</i>?</span> <span class="opt">?<i class="arg">starttls</i>?</span></a></dt>
 <dd><p>This method connects to the LDAP server using given URL
 	(which can be of the form <a href="ldap://host:port">ldap://host:port</a> or
 	<a href="ldaps://host:port">ldaps://host:port</a>). If an optional <i class="arg">binddn</i>
 	argument is given together with the <i class="arg">bindpw</i> argument,
 	the <b class="method">connect</b> binds to the LDAP server using the
-	specified DN and password.</p></dd>
+	specified DN and password.</p>
+<p>If the <i class="arg">starttls</i> argument is given a true value (<b class="const">1</b>,
+	<b class="const">yes</b>, etc.) and the URL uses the <a href="ldap://">ldap://</a> scheme,
+	a TLS negotiation is initiated with the newly created connection,
+	before LDAP binding.
+	Default value: <b class="const">no</b>.</p>
+<p>This method returns 1 if connection was successful, or 0 if an
+	error occurred (use the <b class="cmd"><a href="../../../../index.html#error">error</a></b> method to get the message).</p></dd>
 <dt><a name="26"><i class="arg">la</i> <b class="method">disconnect</b></a></dt>
 <dd><p>This method disconnects (and unbinds, if necessary) from
 	the LDAP server.</p></dd>
@@ -563,11 +584,12 @@ in the directory:</p>
 <pre class="doctools_example">
     package require ldapx
     #
-    # Connects to the LDAP directory
+    # Connects to the LDAP directory using StartTLS
     #
     ::ldapx::ldap create l
+    l configure -tlsoptions {-cadir /etc/ssl/certs -request yes -require yes}
     set url &quot;ldap://server.mycomp.com&quot;
-    if {! [l connect $url &quot;cn=admin,o=mycomp&quot; &quot;mypasswd&quot;]} then {
+    if {! [l connect $url &quot;cn=admin,o=mycomp&quot; &quot;mypasswd&quot; yes]} then {
 	puts stderr &quot;error: [l error]&quot;
 	exit 1
     }

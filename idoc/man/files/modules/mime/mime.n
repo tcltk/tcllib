@@ -272,31 +272,31 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-mime \- Manipulation of MIME body parts
+mime \- Manipulation of Internet messages
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
 package require \fBmime  ?1\&.6?\fR
 .sp
-\fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR ?\fB-param\fR {\fIkey value\fR}\&.\&.\&.? ?\fB-encoding\fR \fIvalue\fR? ?\fB-header\fR {\fIkey value\fR}\&.\&.\&.?? (\fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR {\fItoken1\fR \&.\&.\&. \fItokenN\fR})
+\fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR? ?\fB-params\fR \fIdictionary\fR? ?\fB-encoding\fR \fIvalue\fR? ?\fB-headers\fR \fIdictionary\fR? ?(\fB-chan\fR \fIname\fR | \fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR \fIparts\fR)?
+.sp
+\fB::mime::body\fR \fItoken\fR ?\fB-decode\fR? ?\fB-blocksize\fR \fIoctets\fR?"
+.sp
+\fB::mime::datetime\fR (\fItime\fR | \fB-now\fR) \fIproperty\fR
 .sp
 \fB::mime::finalize\fR \fItoken\fR ?\fB-subordinates\fR \fBall\fR | \fBdynamic\fR | \fBnone\fR?
 .sp
-\fB::mime::getproperty\fR \fItoken\fR ?\fIproperty\fR | \fB-names\fR?
+\fB::mime::header\fR \fBserialize\fR \fIvalue\fR \fIparameters\fR
 .sp
-\fB::mime::getheader\fR \fItoken\fR ?\fIkey\fR | \fB-names\fR?
+\fB::mime::header\fR \fBget\fR \fItoken\fR ?\fIkey\fR | \fB-names\fR?
 .sp
-\fB::mime::setheader\fR \fItoken\fR \fIkey value\fR ?\fB-mode\fR \fBwrite\fR | \fBappend\fR | \fBdelete\fR?
+\fB::mime::header\fR \fBset\fR \fItoken\fR \fIname value\fR ?\fIparameters\fR ?\fB-mode\fR \fBwrite\fR | \fBappend\fR | \fBdelete\fR??
 .sp
-\fB::mime::getbody\fR \fItoken\fR ?\fB-decode\fR? ?\fB-command\fR \fIcallback\fR ?\fB-blocksize\fR \fIoctets\fR??
+\fB::mime::property\fR \fItoken\fR ?\fIname\fR | \fB-names\fR?
 .sp
-\fB::mime::copymessage\fR \fItoken\fR \fIchannel\fR
+\fB::mime::serialize\fR \fItoken\fR ?\fB-chan\fR \fIchannel\fR?
 .sp
-\fB::mime::buildmessage\fR \fItoken\fR
-.sp
-\fB::mime::parseaddress\fR \fIstring\fR
-.sp
-\fB::mime::parsedatetime\fR (\fIstring\fR | \fB-now\fR) \fIproperty\fR
+\fB::mime::parseaddress\fR \fIaddresses\fR
 .sp
 \fB::mime::mapencoding\fR \fIencoding_name\fR
 .sp
@@ -305,208 +305,32 @@ package require \fBmime  ?1\&.6?\fR
 .BE
 .SH DESCRIPTION
 .PP
-The \fBmime\fR library package provides the commands to create and
-manipulate MIME body parts\&.
+Provides commands to create and manipulate Internet messages\&.
 .TP
-\fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR ?\fB-param\fR {\fIkey value\fR}\&.\&.\&.? ?\fB-encoding\fR \fIvalue\fR? ?\fB-header\fR {\fIkey value\fR}\&.\&.\&.?? (\fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR {\fItoken1\fR \&.\&.\&. \fItokenN\fR})
-This command creates a MIME part and returns a token representing it\&.
-.RS
-.IP \(bu
-If the \fB-canonical\fR option is present, then the body is in
-canonical (raw) form and is found by consulting either the
-\fB-file\fR, \fB-string\fR, or \fB-parts\fR option\&.
+\fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR? ?\fB-params\fR \fIdictionary\fR? ?\fB-encoding\fR \fIvalue\fR? ?\fB-headers\fR \fIdictionary\fR? ?(\fB-chan\fR \fIname\fR | \fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR \fIparts\fR)?
+Parses a message and returns a token for the message\&.  One of \fB-chan\fR, \fB-file\fR, or \fB-string\fR must be provided as the source of the input\&.  If \fB-canonical\fR is provided the input is the body only and is already formatted according to
+the provided \fItype/subtype\fR, and therefore should not be parsed\&.  If \fIparts\fR is provided it is a list of tokens for messages that comprise a \fBmultipart/mixed\fR message body\&.  \fB-params\fR is a multidict (a dictionary where the keys may not be unique)
+of parameters for the \fBContent-Type\fR header\&.  \fB-headers\fR is a multidict of headers\&.
 .sp
-In addition, both the \fB-param\fR and \fB-header\fR options may
-occur zero or more times to specify \fBContent-Type\fR parameters
-(e\&.g\&., \fBcharset\fR) and header keyword/values (e\&.g\&.,
-\fBContent-Disposition\fR), respectively\&.
+\fB-encoding\fR sets the \fBContent-Transfer-Encoding\fR\&.
+.TP
+\fB::mime::body\fR \fItoken\fR ?\fB-decode\fR? ?\fB-blocksize\fR \fIoctets\fR?"
+Returns as a string in canonical form the body of the message corresponding to
+\fItoken\fR\&.
 .sp
-Also, \fB-encoding\fR, if present, specifies the
-\fBContent-Transfer-Encoding\fR when copying the body\&.
-.IP \(bu
-If the \fB-canonical\fR option is not present, then the MIME part
-contained in either the \fB-file\fR or the \fB-string\fR option
-is parsed, dynamically generating subordinates as appropriate\&.
-.RE
-.TP
-\fB::mime::finalize\fR \fItoken\fR ?\fB-subordinates\fR \fBall\fR | \fBdynamic\fR | \fBnone\fR?
-This command destroys the MIME part represented by \fItoken\fR\&. It
-returns an empty string\&.
+If \fB-blocksize\fR is provided, returns a command that itself returns up to
+the next \fIoctets\fR of the message each time it's called, and returns a code
+of \fBbreak\fR when finished, deleting itself as well\&.  If \fIoctets\fR is
+the empty string, a default value is used\&.  Pauses the current coroutine as
+needed to wait for input\&.
 .sp
-If the \fB-subordinates\fR option is present, it specifies which
-subordinates should also be destroyed\&. The default value is
-\fBdynamic\fR, destroying all subordinates which were created by
-\fB::mime::initialize\fR together with the containing body part\&.
+\fB-decode\fR converts the message body from the character set it is encoded
+in\&.
 .TP
-\fB::mime::getproperty\fR \fItoken\fR ?\fIproperty\fR | \fB-names\fR?
-This command returns a string or a list of strings containing the
-properties of a MIME part\&. If the command is invoked with the name of
-a specific property, then the corresponding value is returned;
-instead, if \fB-names\fR is specified, a list of all properties is
-returned; otherwise, a serialized array of properties and values is
-returned\&.
+\fB::mime::datetime\fR (\fItime\fR | \fB-now\fR) \fIproperty\fR
+Returns the \fIproperty\fR of \fItime\fR, which 822-style date-time value\&.
 .sp
-The possible properties are:
-.RS
-.TP
-\fBcontent\fR
-The type/subtype describing the content
-.TP
-\fBencoding\fR
-The "Content-Transfer-Encoding"
-.TP
-\fBparams\fR
-A list of "Content-Type" parameters
-.TP
-\fBparts\fR
-A list of tokens for the part's subordinates\&.  This property is
-present only if the MIME part has subordinates\&.
-.TP
-\fBsize\fR
-The approximate size of the content (unencoded)
-.RE
-.TP
-\fB::mime::getheader\fR \fItoken\fR ?\fIkey\fR | \fB-names\fR?
-This command returns the header of a MIME part, as a list of strings\&.
-.sp
-A header consists of zero or more key/value pairs\&. Each value is a
-list containing one or more strings\&.
-.sp
-If this command is invoked with the name of a specific \fIkey\fR, then
-a list containing the corresponding value(s) is returned; instead, if
--names is specified, a list of all keys is returned; otherwise, a
-serialized array of keys and values is returned\&. Note that when a key
-is specified (e\&.g\&., "Subject"), the list returned usually contains
-exactly one string; however, some keys (e\&.g\&., "Received") often occur
-more than once in the header, accordingly the list returned usually
-contains more than one string\&.
-.TP
-\fB::mime::setheader\fR \fItoken\fR \fIkey value\fR ?\fB-mode\fR \fBwrite\fR | \fBappend\fR | \fBdelete\fR?
-This command writes, appends to, or deletes the \fIvalue\fR associated
-with a \fIkey\fR in the header\&. It returns a list of strings
-containing the previous value associated with the key\&.
-.sp
-The value for \fB-mode\fR is one of:
-.RS
-.TP
-\fBwrite\fR
-The \fIkey\fR/\fIvalue\fR is either created or overwritten (the default)\&.
-.TP
-\fBappend\fR
-A new \fIvalue\fR is appended for the \fIkey\fR (creating it as necessary)\&.
-.TP
-\fBdelete\fR
-All values associated with the key are removed (the \fIvalue\fR
-parameter is ignored)\&.
-.RE
-.TP
-\fB::mime::getbody\fR \fItoken\fR ?\fB-decode\fR? ?\fB-command\fR \fIcallback\fR ?\fB-blocksize\fR \fIoctets\fR??
-This command returns a string containing the body of the leaf MIME
-part represented by \fItoken\fR in canonical form\&.
-.sp
-If the \fB-command\fR option is present, then it is repeatedly
-invoked with a fragment of the body as this:
-.CS
-
-
-  uplevel #0 $callback [list "data" $fragment]
-
-.CE
-.sp
-(The \fB-blocksize\fR option, if present, specifies the maximum
-size of each fragment passed to the callback\&.)
-.sp
-When the end of the body is reached, the callback is invoked as:
-.CS
-
-
-    uplevel #0 $callback "end"
-
-.CE
-.sp
-Alternatively, if an error occurs, the callback is invoked as:
-.CS
-
-
-    uplevel #0 $callback [list "error" reason]
-
-.CE
-.sp
-Regardless, the return value of the final invocation of the callback
-is propagated upwards by \fB::mime::getbody\fR\&.
-.sp
-If the \fB-command\fR option is absent, then the return value of
-\fB::mime::getbody\fR is a string containing the MIME part's entire
-body\&.
-.sp
-If the option \fB-decode\fR is absent the return value computed
-above is returned as is\&. This means that it will be in the charset
-specified for the token and not the usual utf-8\&.
-If the option \fB-decode\fR is present however the command will use
-the charset information associated with the token to convert the
-string from its encoding into utf-8 before returning it\&.
-.TP
-\fB::mime::copymessage\fR \fItoken\fR \fIchannel\fR
-This command copies the MIME represented by \fItoken\fR part to the
-specified \fIchannel\fR\&. The command operates synchronously, and uses
-fileevent to allow asynchronous operations to proceed
-independently\&. It returns an empty string\&.
-.TP
-\fB::mime::buildmessage\fR \fItoken\fR
-This command returns the MIME part represented by \fItoken\fR as a
-string\&.  It is similar to \fB::mime::copymessage\fR, only it returns
-the data as a return string instead of writing to a channel\&.
-.TP
-\fB::mime::parseaddress\fR \fIstring\fR
-This command takes a string containing one or more 822-style address
-specifications and returns a list of serialized arrays, one element
-for each address specified in the argument\&. If the string contains
-more than one address they will be separated by commas\&.
-.sp
-Each serialized array contains the properties below\&. Note that one or
-more of these properties may be empty\&.
-.RS
-.TP
-\fBaddress\fR
-local@domain
-.TP
-\fBcomment\fR
-822-style comment
-.TP
-\fBdomain\fR
-the domain part (rhs)
-.TP
-\fBerror\fR
-non-empty on a parse error
-.TP
-\fBgroup\fR
-this address begins a group
-.TP
-\fBfriendly\fR
-user-friendly rendering
-.TP
-\fBlocal\fR
-the local part (lhs)
-.TP
-\fBmemberP\fR
-this address belongs to a group
-.TP
-\fBphrase\fR
-the phrase part
-.TP
-\fBproper\fR
-822-style address specification
-.TP
-\fBroute\fR
-822-style route specification (obsolete)
-.RE
-.TP
-\fB::mime::parsedatetime\fR (\fIstring\fR | \fB-now\fR) \fIproperty\fR
-This command takes a string containing an 822-style date-time
-specification and returns the specified property as a serialized
-array\&.
-.sp
-The list of properties and their ranges are:
+Available properties and their ranges are:
 .RS
 .TP
 \fBhour\fR
@@ -555,13 +379,132 @@ Sun, Mon, \&.\&.\&., Sat
 -720 \&.\&. 720 (minutes east of GMT)
 .RE
 .TP
+\fB::mime::finalize\fR \fItoken\fR ?\fB-subordinates\fR \fBall\fR | \fBdynamic\fR | \fBnone\fR?
+Destroys the message corresponding to \fItoken\fR and
+returns the empty string\&.
+.sp
+\fB-subordinates\fR specifies which messages
+comprising the body should also be destroyed\&.  The default value is
+\fBdynamic\fR, which destroys all component messages that were created by
+\fB::mime::initialize\fR\&.
+.TP
+\fB::mime::header\fR \fBserialize\fR \fIvalue\fR \fIparameters\fR
+Serialize a header\&.
+.TP
+\fB::mime::header\fR \fBget\fR \fItoken\fR ?\fIkey\fR | \fB-names\fR?
+Returns the header of a message as a multidict
+where each value is a list containing the header value and any parameters for
+that value\&.
+.sp
+If \fIname\fR is provided returns a list of values for that name, without
+regard to case\&.
+.sp
+If \fB-names\fR is provided, returns a list of all header names\&.
+.TP
+\fB::mime::header\fR \fBset\fR \fItoken\fR \fIname value\fR ?\fIparameters\fR ?\fB-mode\fR \fBwrite\fR | \fBappend\fR | \fBdelete\fR??
+If \fBappend\fR is provided, creates a new header named \fIname\fR with the
+value of \fIvalue\fR is added\&.
+If \fBwrite\fR is provided, deletes any existing headers whose names match
+\fIkey\fR and then creates a new header named \fIkey\fR with the value of
+\fIvalue\fR\&.
+If \fBdelete\fR is provided, deletes any existing header having a name that matches
+\fIkey\fR\&.
+\fIparameters\fR is a dictionary of parameters for the header\&.
+Returns a list of strings containing the previous value associated with the
+key\&.
+.sp
+The value for \fB-mode\fR is one of:
+.RS
+.TP
+\fBwrite\fR
+The \fIkey\fR/\fIvalue\fR is either created or overwritten (the default)\&.
+.TP
+\fBappend\fR
+Appends a new \fIkey\fR/\fIvalue\fR\&.
+.TP
+\fBdelete\fR
+Removes all values associated with the key\&.  \fIvalue\fR is ignored\&.
+.RE
+.TP
+\fB::mime::property\fR \fItoken\fR ?\fIname\fR | \fB-names\fR?
+Returns a dictionary of message properties\&.  If \fIname\fR is provided, only
+the corresponding value is returned\&.  If \fB-names\fR is provided, a list
+of all property names is returned\&.
+.sp
+properties:
+.RS
+.TP
+\fBcontent\fR
+The type/subtype of the content
+.TP
+\fBencoding\fR
+The "Content-Transfer-Encoding"
+.TP
+\fBparams\fR
+A list of "Content-Type" parameters
+.TP
+\fBparts\fR
+A list of tokens for messages that should comprise a multipart body\&.  Only exists if
+there are any such messages\&.
+.TP
+\fBsize\fR
+The approximate size of the unencoded content\&.
+.RE
+.TP
+\fB::mime::serialize\fR \fItoken\fR ?\fB-chan\fR \fIchannel\fR?
+Return the serialization of the message corresponding to \fItoken\fR\&.  If
+\fB-chan\fR is provided, write the message to \fIchannel\fR and return the
+empty string\&.  Pauses the current coroutine as needed to wait for input to
+become available\&.
+.TP
+\fB::mime::parseaddress\fR \fIaddresses\fR
+Returns a list of describing the comma-separated 822-style \fIaddresses\fR\&.
+.sp
+Each dictionary contains the following keys, whose values may be the empty
+string:
+.RS
+.TP
+\fBaddress\fR
+local@domain
+.TP
+\fBcomment\fR
+822-style comment
+.TP
+\fBdomain\fR
+the domain part (rhs)
+.TP
+\fBerror\fR
+non-empty on a parse error
+.TP
+\fBgroup\fR
+this address begins a group
+.TP
+\fBfriendly\fR
+user-friendly rendering
+.TP
+\fBlocal\fR
+the local part (lhs)
+.TP
+\fBmemberP\fR
+this address belongs to a group
+.TP
+\fBphrase\fR
+the phrase part
+.TP
+\fBproper\fR
+822-style address specification
+.TP
+\fBroute\fR
+822-style route specification (obsolete)
+.RE
+.TP
 \fB::mime::mapencoding\fR \fIencoding_name\fR
-This commansd maps tcl encodings onto the proper names for their MIME
+Maps Tcl encodings onto the proper names for their MIME
 charset type\&.  This is only done for encodings whose charset types
 were known\&.  The remaining encodings return "" for now\&.
 .TP
 \fB::mime::reversemapencoding\fR \fIcharset_type\fR
-This command maps MIME charset types onto tcl encoding names\&.  Those
+Maps MIME charset types onto tcl encoding names\&.  Those
 that are unknown return ""\&.
 .PP
 .SH "KNOWN BUGS"

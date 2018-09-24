@@ -1,7 +1,6 @@
 
-<!DOCTYPE html><html><head>
-<title>clay - Clay Framework</title>
-<style type="text/css"><!--
+<div class='fossil-doc' data-title='clay - Clay Framework'>
+<style>
     HTML {
 	background: 	#FFFFFF;
 	color: 		black;
@@ -90,16 +89,17 @@
 	margin-bottom: 	1em;
 	border-bottom:	1px solid black;
     }
---></style>
-</head>
-<!-- Generated from file 'clay.man' by tcllib/doctools with format 'html'
-   -->
-<!-- Copyright &amp;copy; 2018 Sean Woods &amp;lt;yoda@etoyoc.com&amp;gt;
-   -->
-<!-- clay.n
-   -->
-<body><div class="doctools">
-<h1 class="doctools_title">clay(n) 0.3 clay &quot;Clay Framework&quot;</h1>
+</style>
+ <hr> [
+   <a href="../../../../toc.html">Main Table Of Contents</a>
+| <a href="../../../toc.html">Table Of Contents</a>
+| <a href="../../../../index.html">Keyword Index</a>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
+<div class="doctools">
+<h1 class="doctools_title">clay(n) 0.3 tcllib &quot;Clay Framework&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>clay - A minimalist framework for large scale OO Projects</p>
 </div>
@@ -202,7 +202,7 @@
 <li><a href="#62">method <b class="cmd">InitializePublic</b></a></li>
 <li><a href="#63">method <b class="cmd">constructor</b></a></li>
 <li><a href="#64">method <b class="cmd">arglist</b> <i class="arg">arglist</i></a></li>
-<li><a href="#65">method <b class="cmd">comment</b> <i class="arg">block</i></a></li>
+<li><a href="#65">method <b class="cmd"><a href="../../../../index.html#comment">comment</a></b> <i class="arg">block</i></a></li>
 <li><a href="#66">method <b class="cmd">keyword.Class</b> <i class="arg">resultvar</i> <i class="arg">commentblock</i> <i class="arg">name</i> <i class="arg">body</i></a></li>
 <li><a href="#67">method <b class="cmd">keyword.class</b> <i class="arg">resultvar</i> <i class="arg">commentblock</i> <i class="arg">name</i> <i class="arg">body</i></a></li>
 <li><a href="#68">method <b class="cmd">keyword.class_method</b> <i class="arg">resultvar</i> <i class="arg">commentblock</i> <i class="arg">name</i> <span class="opt">?<i class="arg">args</i>?</span></a></li>
@@ -213,7 +213,7 @@
 <li><a href="#73">method <b class="cmd">section.method</b> <i class="arg">keyword</i> <i class="arg">method</i> <i class="arg">minfo</i></a></li>
 <li><a href="#74">method <b class="cmd">section.class</b> <i class="arg">class_name</i> <i class="arg">class_info</i></a></li>
 <li><a href="#75">method <b class="cmd">section.command</b> <i class="arg">procinfo</i></a></li>
-<li><a href="#76">method <b class="cmd">manpage</b> <span class="opt">?<b class="option">header <em>value</em></b>?</span> <span class="opt">?<b class="option">footer <em>value</em></b>?</span> <span class="opt">?<b class="option">authors <em>list</em></b>?</span></a></li>
+<li><a href="#76">method <b class="cmd"><a href="../../../../index.html#manpage">manpage</a></b> <span class="opt">?<b class="option">header <em>value</em></b>?</span> <span class="opt">?<b class="option">footer <em>value</em></b>?</span> <span class="opt">?<b class="option">authors <em>list</em></b>?</span></a></li>
 <li><a href="#77">method <b class="cmd">scan_text</b> <i class="arg">text</i></a></li>
 <li><a href="#78">method <b class="cmd">scan_file</b> <i class="arg">filename</i></a></li>
 </ul>
@@ -532,7 +532,7 @@ $A &lt;counter&gt; value
    &gt; a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
 </pre>
 </dd>
-<dt><a name="65">method <b class="cmd">comment</b> <i class="arg">block</i></a></dt>
+<dt><a name="65">method <b class="cmd"><a href="../../../../index.html#comment">comment</a></b> <i class="arg">block</i></a></dt>
 <dd><p>Convert a block of comments into an informational dictionary.
  If lines in the comment start with a single word ending in a colon,
  all subsequent lines are appended to a dictionary field of that name.
@@ -575,7 +575,7 @@ $A &lt;counter&gt; value
 <dd><p>Generate the manual page text for a class</p></dd>
 <dt><a name="75">method <b class="cmd">section.command</b> <i class="arg">procinfo</i></a></dt>
 <dd><p>Generate the manual page text for the commands section</p></dd>
-<dt><a name="76">method <b class="cmd">manpage</b> <span class="opt">?<b class="option">header <em>value</em></b>?</span> <span class="opt">?<b class="option">footer <em>value</em></b>?</span> <span class="opt">?<b class="option">authors <em>list</em></b>?</span></a></dt>
+<dt><a name="76">method <b class="cmd"><a href="../../../../index.html#manpage">manpage</a></b> <span class="opt">?<b class="option">header <em>value</em></b>?</span> <span class="opt">?<b class="option">footer <em>value</em></b>?</span> <span class="opt">?<b class="option">authors <em>list</em></b>?</span></a></dt>
 <dd><p>Generate the manual page. Returns the completed text suitable for saving in .man file.
  The header argument is a block of doctools text to go in before the machine generated
  section. footer is a block of doctools text to go in after the machine generated
@@ -605,7 +605,7 @@ form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar.</p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p>TclOO, oo</p>
+<p><a href="../../../../index.html#tcloo">TclOO</a>, <a href="../../../../index.html#oo">oo</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
@@ -613,4 +613,4 @@ left-most button in the secondary navigation bar.</p>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2018 Sean Woods &lt;yoda@etoyoc.com&gt;</p>
 </div>
-</div></body></html>
+</div>

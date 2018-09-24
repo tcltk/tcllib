@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBmath::statistics  1\fR
 .sp
@@ -362,6 +362,14 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::kernel-density\fR \fIdata\fR opt \fI-option value\fR \&.\&.\&.
 .sp
 \fB::math::statistics::bootstrap\fR \fIdata\fR \fIsampleSize\fR ?numberSamples?
+.sp
+\fB::math::statistics::wasserstein-distance\fR \fIprob1\fR \fIprob2\fR
+.sp
+\fB::math::statistics::kl-divergence\fR \fIprob1\fR \fIprob2\fR
+.sp
+\fB::math::statistics::logistic-model\fR \fIxdata\fR \fIydata\fR
+.sp
+\fB::math::statistics::logistic-probability\fR \fIcoeffs\fR \fIx\fR
 .sp
 \fB::math::statistics::tstat\fR \fIdof\fR ?alpha?
 .sp
@@ -1224,6 +1232,66 @@ Number of values per sample
 .TP
 int \fInumberSamples\fR
 Number of samples (default: 1)
+.RE
+.TP
+\fB::math::statistics::wasserstein-distance\fR \fIprob1\fR \fIprob2\fR
+Compute the Wasserstein distance or earth mover's distance for two equidstantly spaced histograms
+or probability densities\&. The histograms need not to be normalised to sum to one,
+but they must have the same number of entries\&.
+.sp
+Note: the histograms are assumed to be based on the same equidistant intervals\&.
+As the bounds are not passed, the value is expressed in the length of the intervals\&.
+.RS
+.TP
+list \fIprob1\fR
+List of values for the first histogram/probability density
+.TP
+list \fIprob2\fR
+List of values for the second histogram/probability density
+.RE
+.TP
+\fB::math::statistics::kl-divergence\fR \fIprob1\fR \fIprob2\fR
+Compute the Kullback-Leibler (KL) divergence for two equidstantly spaced histograms
+or probability densities\&. The histograms need not to be normalised to sum to one,
+but they must have the same number of entries\&.
+.sp
+Note: the histograms are assumed to be based on the same equidistant intervals\&.
+As the bounds are not passed, the value is expressed in the length of the intervals\&.
+.sp
+Note also that the KL divergence is not symmetric and that the second histogram
+should not contain zeroes in places where the first histogram has non-zero values\&.
+.RS
+.TP
+list \fIprob1\fR
+List of values for the first histogram/probability density
+.TP
+list \fIprob2\fR
+List of values for the second histogram/probability density
+.RE
+.TP
+\fB::math::statistics::logistic-model\fR \fIxdata\fR \fIydata\fR
+Estimate the coefficients of the logistic model that fits the data best\&. The data consist
+of independent x-values and the outcome 0 or 1 for each of the x-values\&. The result
+can be used to estimate the probability that a certain x-value gives 1\&.
+.RS
+.TP
+list \fIxdata\fR
+List of values for which the success (1) or failure (0) is known
+.TP
+list \fIydata\fR
+List of successes or failures corresponding to each value in \fIxdata\fR\&.
+.RE
+.TP
+\fB::math::statistics::logistic-probability\fR \fIcoeffs\fR \fIx\fR
+Calculate the probability of success for the value \fIx\fR given the coefficients of the
+logistic model\&.
+.RS
+.TP
+list \fIcoeffs\fR
+List of coefficients as determine by the \fBlogistic-model\fR command
+.TP
+float \fIx\fR
+X-value for which the probability needs to be determined
 .RE
 .PP
 .SH "MULTIVARIATE LINEAR REGRESSION"

@@ -127,9 +127,11 @@
 <li><a href="#5"><b class="cmd">::namespacex info allchildren</b> <i class="arg">namespace</i></a></li>
 <li><a href="#6"><b class="cmd">::namespacex info allvars</b> <i class="arg">namespace</i></a></li>
 <li><a href="#7"><b class="cmd">::namespacex info vars</b> <i class="arg">namespace</i> <span class="opt">?<i class="arg">pattern</i>?</span></a></li>
-<li><a href="#8"><b class="cmd">::namespacex state get</b> <i class="arg">namespace</i></a></li>
-<li><a href="#9"><b class="cmd">::namespacex state set</b> <i class="arg">namespace</i> <i class="arg">dict</i></a></li>
-<li><a href="#10"><b class="cmd">::namespacex state drop</b> <i class="arg">namespace</i></a></li>
+<li><a href="#8"><b class="cmd">::namespacex normalize</b> <i class="arg">namespace</i></a></li>
+<li><a href="#9"><b class="cmd">::namespacex state get</b> <i class="arg">namespace</i></a></li>
+<li><a href="#10"><b class="cmd">::namespacex state set</b> <i class="arg">namespace</i> <i class="arg">dict</i></a></li>
+<li><a href="#11"><b class="cmd">::namespacex state drop</b> <i class="arg">namespace</i></a></li>
+<li><a href="#12"><b class="cmd">::namespacex strip</b> <i class="arg">namespace</i> <i class="arg">namespaces</i></a></li>
 </ul>
 </div>
 </div>
@@ -148,30 +150,37 @@ namespaces.</p>
 <dt><a name="4"><b class="cmd">::namespacex hook next</b> <i class="arg">arg</i>...</a></dt>
 <dd></dd>
 <dt><a name="5"><b class="cmd">::namespacex info allchildren</b> <i class="arg">namespace</i></a></dt>
-<dd><p>This command returns a list containing the names of all child
+<dd><p>Returns a list containing the names of all child
 namespaces in the specified <i class="arg">namespace</i> and its children. The
 names are all fully qualified.</p></dd>
 <dt><a name="6"><b class="cmd">::namespacex info allvars</b> <i class="arg">namespace</i></a></dt>
-<dd><p>This command returns a list containing the names of all variables in
+<dd><p>Returns a list containing the names of all variables in
 the specified <i class="arg">namespace</i> and its children. The names are all
 relative to <i class="arg">namespace</i>, and <em>not</em> fully qualified.</p></dd>
 <dt><a name="7"><b class="cmd">::namespacex info vars</b> <i class="arg">namespace</i> <span class="opt">?<i class="arg">pattern</i>?</span></a></dt>
-<dd><p>This command returns a list containing the names of all variables in
+<dd><p>Returns a list containing the names of all variables in
 the specified <i class="arg">namespace</i>.</p></dd>
-<dt><a name="8"><b class="cmd">::namespacex state get</b> <i class="arg">namespace</i></a></dt>
-<dd><p>This command returns a dictionary holding the names and values of all
+<dt><a name="8"><b class="cmd">::namespacex normalize</b> <i class="arg">namespace</i></a></dt>
+<dd><p>Returns the absolute name of <i class="arg">namespace</i>, which is resolved relative
+to the namespace of the caller, with all unneeded colon characters removed.</p></dd>
+<dt><a name="9"><b class="cmd">::namespacex state get</b> <i class="arg">namespace</i></a></dt>
+<dd><p>Returns a dictionary holding the names and values of all
 variables in the specified <i class="arg">namespace</i> and its child namespaces.</p>
 <p>Note that the names are all relative to <i class="arg">namespace</i>,
 and <em>not</em> fully qualified.</p></dd>
-<dt><a name="9"><b class="cmd">::namespacex state set</b> <i class="arg">namespace</i> <i class="arg">dict</i></a></dt>
-<dd><p>This command takes a dictionary holding the names and values for a set
+<dt><a name="10"><b class="cmd">::namespacex state set</b> <i class="arg">namespace</i> <i class="arg">dict</i></a></dt>
+<dd><p>Takes a dictionary holding the names and values for a set
 of variables and replaces the current state of the specified
 <i class="arg">namespace</i> and its child namespaces with this state.
 The result of the command is the empty string.</p></dd>
-<dt><a name="10"><b class="cmd">::namespacex state drop</b> <i class="arg">namespace</i></a></dt>
-<dd><p>This command unsets all variables in the specified <i class="arg">namespace</i> and
+<dt><a name="11"><b class="cmd">::namespacex state drop</b> <i class="arg">namespace</i></a></dt>
+<dd><p>Unsets all variables in the specified <i class="arg">namespace</i> and
 its child namespaces.
 The result of the command is the empty string.</p></dd>
+<dt><a name="12"><b class="cmd">::namespacex strip</b> <i class="arg">namespace</i> <i class="arg">namespaces</i></a></dt>
+<dd><p>Each item in <i class="arg">namespaces</i> must be the absolute normalized name of a child
+namespace of <i class="arg">prefix</i>.  Returns the corresponding list of relative names of
+child namespaces.</p></dd>
 </dl>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
