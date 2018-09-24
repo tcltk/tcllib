@@ -1,9 +1,8 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
-if {[catch {package require clay 0.3}]} {
-  source [file join $$moddir .. clay build doctool.tcl]
-}
-::clay::doctool create AutoDoc
+source [file join $srcdir doctool.tcl]
+
+::practcl::doctool create AutoDoc
 
 set version 0.13
 set tclversion 8.6
@@ -12,13 +11,13 @@ set filename $module
 
 set fout [open [file join $moddir $filename.tcl] w]
 fconfigure $fout -translation lf
-dict set map %module% $module
-dict set map %version% $version
-dict set map %tclversion% $tclversion
-#dict set map {    } {}
-#dict set map "\t" {    }
+dict set modmap %module% $module
+dict set modmap %version% $version
+dict set modmap %tclversion% $tclversion
+#dict set modmap {    } {}
+#dict set modmap "\t" {    }
 
-puts $fout [string map $map {###
+puts $fout [string map $modmap {###
 # Amalgamated package for %module%
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
@@ -37,19 +36,20 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
+  dicttool {build/core.tcl build/dict.tcl build/list.tcl}
   clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]
     puts $fout "###\n# START: [file join $omod $fname]\n###"
-    set content [::clay::cat [file join $moddir .. $omod $fname]]
+    set content [::practcl::cat [file join $moddir .. $omod $fname]]
     #AutoDoc scan_text $content
-    puts $fout $content
+    puts $fout [::practcl::docstrip $content]
     puts $fout "###\n# END: [file join $omod $fname]\n###"
   }
 }
 
-foreach file {
+foreach {file} {
   setup.tcl
   docbuild.tcl
   buildutil.tcl
@@ -86,14 +86,14 @@ foreach file {
 } {
   lappend loaded $file
   puts $fout "###\n# START: [file join $file]\n###"
-  set content [::clay::cat [file join $srcdir {*}$file]]
+  set content [::practcl::cat [file join $srcdir {*}$file]]
   AutoDoc scan_text $content
-  puts $fout $content
+  puts $fout [::practcl::docstrip $content]
   puts $fout "###\n# END: [file join $file]\n###"
 }
 
 # Provide some cleanup and our final package provide
-puts $fout [string map $map {
+puts $fout [string map $modmap {
 namespace eval ::%module% {
   namespace export *
 }
@@ -105,15 +105,15 @@ close $fout
 ###
 set fout [open [file join $moddir pkgIndex.tcl] w]
 fconfigure $fout -translation lf
-puts $fout [string map $map {###
-    if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
-    package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
+puts $fout [string map $modmap {###
+if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
+package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]
 }]
 close $fout
 
 set manout [open [file join $moddir $filename.man] w]
-puts $manout [AutoDoc manpage \
-  header [string map $map [::clay::cat [file join $srcdir manual.txt]]] \
-  footer [string map $map [::clay::cat [file join $srcdir footer.txt]]] \
+puts $manout [AutoDoc manpage map $modmap \
+  header [::practcl::cat [file join $srcdir manual.txt]] \
+  footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout

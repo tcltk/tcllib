@@ -11,18 +11,6 @@ set ::httpd::version 4.3
 ###
 # START: core.tcl
 ###
-###
-# Author: Sean Woods, yoda@etoyoc.com
-##
-# Adapted from the "minihttpd.tcl" file distributed with Tclhttpd
-#
-# The working elements have been updated to operate as a TclOO object
-# running with Tcl 8.6+. Global variables and hard coded tables are
-# now resident with the object, allowing this server to be more easily
-# embedded another program, as well as be adapted and extended to
-# support the SCGI module
-###
-
 package require uri
 package require dns
 package require cron
@@ -34,15 +22,15 @@ package require websocket
 package require Markdown
 package require uuid
 package require fileutil::magic::filetype
-
-namespace eval httpd::content {}
-
-namespace eval ::url {}
-namespace eval ::httpd {}
-namespace eval ::scgi {}
-
+namespace eval httpd::content {
+}
+namespace eval ::url {
+}
+namespace eval ::httpd {
+}
+namespace eval ::scgi {
+}
 clay::define ::httpd::mime {
-
   method ChannelCopy {in out args} {
     set chunk 4096
     set size -1
@@ -82,8 +70,6 @@ clay::define ::httpd::mime {
       }
     }
   }
-
-
   method html_header {{title {}} args} {
     set result {}
     append result "<HTML><HEAD>"
@@ -97,7 +83,6 @@ clay::define ::httpd::mime {
   method html_footer {args} {
     return "</BODY></HTML>"
   }
-
   method http_code_string code {
     set codes {
       200 {Data follows}
@@ -126,7 +111,6 @@ clay::define ::httpd::mime {
     }
     return {Unknown Http Code}
   }
-
   method HttpHeaders {sock {debug {}}} {
     set result {}
     set LIMIT 8192
@@ -154,7 +138,6 @@ clay::define ::httpd::mime {
     ###
     return $result
   }
-
   method HttpHeaders_Default {} {
     return {Status {200 OK}
 Content-Size 0
@@ -162,7 +145,6 @@ Content-Type {text/html; charset=UTF-8}
 Cache-Control {no-cache}
 Connection close}
   }
-
   method HttpServerHeaders {} {
     return {
       CONTENT_LENGTH CONTENT_TYPE QUERY_STRING REMOTE_USER AUTH_TYPE
@@ -172,12 +154,6 @@ Connection close}
       SERVER_NAME  SERVER_SOFTWARE SERVER_PROTOCOL
     }
   }
-
-  ###
-  # Converts a block of mime encoded text to a key/value list. If an exception is encountered,
-  # the method will generate its own call to the [cmd error] method, and immediately invoke
-  # the [cmd output] method to produce an error code and close the connection.
-  ###
   method MimeParse mimetext {
     set data(mimeorder) {}
     foreach line [split $mimetext \n] {
@@ -261,15 +237,12 @@ Connection close}
     }
     return $result
   }
-
-  # De-httpizes a string.
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data
     regsub -all {%([0-9a-fA-F][0-9a-fA-F])} $data  {[format %c 0x\1]} data
     return [subst $data]
   }
-
   method Url_PathCheck {urlsuffix} {
     set pathlist ""
     foreach part  [split $urlsuffix /] {
@@ -302,8 +275,6 @@ Connection close}
     }
     return $pathlist
   }
-
-
   method wait {mode sock} {
     if {[info coroutine] eq {}} {
       chan event $sock $mode [list set ::httpd::lock_$sock $mode]
@@ -314,7 +285,6 @@ Connection close}
     }
     chan event $sock $mode {}
   }
-
 }
 
 ###
@@ -323,112 +293,10 @@ Connection close}
 ###
 # START: reply.tcl
 ###
-###
-# A class which shephards a request through the process of generating a
-# reply.
-#
-# The socket associated with the reply is available at all times as the [arg chan]
-# variable.
-#
-# The process of generating a reply begins with an [cmd httpd::server] generating a
-# [cmd http::class] object, mixing in a set of behaviors and then invoking the reply
-# object's [cmd dispatch] method.
-#
-# In normal operations the [cmd dispatch] method:
-#
-# [list_begin enumerated]
-# [enum]
-# Invokes the [cmd reset] method for the object to populate default headers.
-# [enum]
-# Invokes the [cmd HttpHeaders] method to stream the MIME headers out of the socket
-# [enum]
-# Invokes the [cmd {request parse}] method to convert the stream of MIME headers into a
-# dict that can be read via the [cmd request] method.
-# [enum]
-# Stores the raw stream of MIME headers in the [arg rawrequest] variable of the object.
-# [enum]
-# Invokes the [cmd content] method for the object, generating an call to the [cmd error]
-# method if an exception is raised.
-# [enum]
-# Invokes the [cmd output] method for the object
-# [list_end]
-# [para]
-#
-# Developers have the option of streaming output to a buffer via the [cmd puts] method of the
-# reply, or simply populating the [arg reply_body] variable of the object.
-# The information returned by the [cmd content] method is not interpreted in any way.
-#
-# If an exception is thrown (via the [cmd error] command in Tcl, for example) the caller will
-# auto-generate a 500 {Internal Error} message.
-#
-# A typical implementation of [cmd content] look like:
-#
-# [example {
-#
-# clay::define ::test::content.file {
-# 	superclass ::httpd::content.file
-# 	# Return a file
-# 	# Note: this is using the content.file mixin which looks for the reply_file variable
-# 	# and will auto-compute the Content-Type
-# 	method content {} {
-# 	  my reset
-#     set doc_root [my request get DOCUMENT_ROOT]
-#     my variable reply_file
-#     set reply_file [file join $doc_root index.html]
-# 	}
-# }
-# clay::define ::test::content.time {
-#   # return the current system time
-# 	method content {} {
-# 		my variable reply_body
-#     my reply set Content-Type text/plain
-# 		set reply_body [clock seconds]
-# 	}
-# }
-# clay::define ::test::content.echo {
-# 	method content {} {
-# 		my variable reply_body
-#     my reply set Content-Type [my request get CONTENT_TYPE]
-# 		set reply_body [my PostData [my request get CONTENT_LENGTH]]
-# 	}
-# }
-# clay::define ::test::content.form_handler {
-# 	method content {} {
-# 	  set form [my FormData]
-# 	  my reply set Content-Type {text/html; charset=UTF-8}
-#     my puts [my html_header {My Dynamic Page}]
-#     my puts "<BODY>"
-#     my puts "You Sent<p>"
-#     my puts "<TABLE>"
-#     foreach {f v} $form {
-#       my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
-#     }
-#     my puts "</TABLE><p>"
-#     my puts "Send some info:<p>"
-#     my puts "<FORM action=/[my request get REQUEST_PATH] method POST>"
-#     my puts "<TABLE>"
-#     foreach field {name rank serial_number} {
-#       set line "<TR><TH>$field</TH><TD><input name=\"$field\" "
-#       if {[dict exists $form $field]} {
-#         append line " value=\"[dict get $form $field]\"""
-#       }
-#       append line " /></TD></TR>"
-#       my puts $line
-#     }
-#     my puts "</TABLE>"
-#     my puts [my html footer]
-# 	}
-# }
-#
-# }]
-###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
-
   Variable transfer_complete 0
-
   Dict reply {}
-
   Dict request {
     CONTENT_LENGTH 0
     COOKIE {}
@@ -440,7 +308,6 @@ Connection close}
     USER_AGENT {}
     SESSION {}
   }
-
   constructor {ServerObj args} {
     my variable chan dispatched_time uuid
     set uuid [namespace tail [self]]
@@ -450,17 +317,9 @@ Connection close}
       my clay set config $field: $value
     }
   }
-
-  ###
-  # clean up on exit
-  ###
   destructor {
     my close
   }
-
-  ###
-  # Close channels opened by this object
-  ###
   method close {} {
     my variable chan
     if {[info exists chan] && $chan ne {}} {
@@ -471,10 +330,6 @@ Connection close}
       set chan {}
     }
   }
-
-  ###
-  # Record a dispatch event
-  ###
   method Log_Dispatched {} {
     my log Dispatched [dict create \
      REMOTE_ADDR [my request get REMOTE_ADDR] \
@@ -487,20 +342,6 @@ Connection close}
      SESSION [my request get SESSION] \
     ]
   }
-
-  ###
-  # Accept the handoff from the server object of the socket
-  # [emph newsock] and feed it the state [emph datastate].
-  # Fields the [emph datastate] are looking for in particular are:
-  # [para]
-  # * [const mixin] - A key/value list of slots and classes to be mixed into the
-  # object prior to invoking [cmd Dispatch].
-  # [para]
-  # * [const http] - A key/value list of values to populate the object's [emph request]
-  # ensemble
-  # [para]
-  # All other fields are passed along to the [method clay] structure of the object.
-  ###
   method dispatch {newsock datastate} {
     my variable chan request
     try {
@@ -542,13 +383,11 @@ Connection close}
       my DoOutput
     }
   }
-
   method Dispatch {} {
     # Invoke the URL implementation.
     my content
     my DoOutput
   }
-
   method html_css {} {
     set result "<link rel=\"stylesheet\" href=\"/style.css\">"
     append result \n {<style media="screen" type="text/css">
@@ -560,7 +399,6 @@ body {
 }
 </style>}
   }
-
   method html_header {title args} {
     set result {}
     append result "<HTML><HEAD>"
@@ -582,12 +420,10 @@ body {
     append result {<div id="content">}
     return $result
   }
-
   method html_footer {args} {
     set result {</div><div id="footer">}
     append result {</div></BODY></HTML>}
   }
-
   method error {code {msg {}} {errorInfo {}}} {
     my clay set  HTTP_ERROR $code
     my reset
@@ -611,42 +447,23 @@ body {
     }
     my puts [subst $template]
   }
-
-
-  ###
-  # REPLACE ME:
-  # This method is the "meat" of your application.
-  # It writes to the result buffer via the "puts" method
-  # and can tweak the headers via "clay put header_reply"
-  ###
   method content {} {
     my puts [my html_header {Hello World!}]
     my puts "<H1>HELLO WORLD!</H1>"
     my puts [my html_footer]
   }
-
-  ###
-  # Formulate a standard HTTP status header from he string provided.
-  ###
   method EncodeStatus {status} {
     return "HTTP/1.0 $status"
   }
-
   method log {type {info {}}} {
     my variable dispatched_time uuid
     my <server> log $type $uuid $info
   }
-
   method CoroName {} {
     if {[info coroutine] eq {}} {
       return ::httpd::object::[my clay get UUID]
     }
   }
-
-  ###
-  # Generates the the HTTP reply, streams that reply back across [arg chan],
-  # and destroys the object.
-  ###
   method DoOutput {} {
     my variable reply_body chan
     if {$chan eq {}} return
@@ -670,16 +487,6 @@ body {
     }
     my destroy
   }
-
-  ###
-  # For GET requests, converts the QUERY_DATA header into a key/value list.
-  #
-  # For POST requests, reads the Post data and converts that information to
-  # a key/value list for application/x-www-form-urlencoded posts. For multipart
-  # posts, it composites all of the MIME headers of the post to a singular key/value
-  # list, and provides MIME_* information as computed by the [cmd mime] package, including
-  # the MIME_TOKEN, which can be fed back into the mime package to read out the contents.
-  ###
   method FormData {} {
     my variable chan formdata
     # Run this only once
@@ -732,9 +539,6 @@ body {
     }
     return $formdata
   }
-
-  # Stream [arg length] bytes from the [arg chan] socket, but only of the request is a
-  # POST or PUSH. Returns an empty string otherwise.
   method PostData {length} {
     my variable postdata
     # Run this only once
@@ -749,31 +553,7 @@ body {
     }
     return $postdata
   }
-
-  # Manage session data
   method Session_Load {} {}
-
-
-
-  # Intended to be invoked from [cmd {chan copy}] as a callback. This closes every channel
-  # fed to it on the command line, and then destroys the object.
-  #
-  # [example {
-  #     ###
-  #     # Output the body
-  #     ###
-  #     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-  #     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-  #     if {$length} {
-  #       ###
-  #       # Send any POST/PUT/etc content
-  #       ###
-  #       chan copy $sock $chan -size $SIZE -command [info coroutine]
-  #       yield
-  #     }
-  #     catch {close $sock}
-  #     chan flush $chan
-  # }]
   method TransferComplete args {
     my variable chan transfer_complete
     set transfer_complete 1
@@ -787,14 +567,10 @@ body {
     }
     my destroy
   }
-
-  # Appends the value of [arg string] to the end of [arg reply_body], as well as a trailing newline
-  # character.
   method puts line {
     my variable reply_body
     append reply_body $line \n
   }
-
   method RequestFind {field} {
     my variable request
     if {[dict exists $request $field]} {
@@ -807,7 +583,6 @@ body {
     }
     return $field
   }
-
   method request {subcommand args} {
     my variable request
     switch $subcommand {
@@ -853,7 +628,6 @@ body {
       }
     }
   }
-
   method reply {subcommand args} {
     my variable reply
     switch $subcommand {
@@ -902,9 +676,6 @@ body {
       }
     }
   }
-
-  # Clear the contents of the [arg reply_body] variable, and reset all headers in the [cmd reply]
-  # structure back to the defaults for this object.
   method reset {} {
     my variable reply_body
     my reply replace    [my HttpHeaders_Default]
@@ -912,11 +683,6 @@ body {
     my reply set Date [my timestamp]
     set reply_body {}
   }
-
-  # Called from the [cmd http::server] object which spawned this reply. Checks to see
-  # if too much time has elapsed while waiting for data or generating a reply, and issues
-  # a timeout error to the request if it has, as well as destroy the object and close the
-  # [arg chan] socket.
   method timeOutCheck {} {
     my variable dispatched_time
     if {([clock seconds]-$dispatched_time)>120} {
@@ -929,10 +695,6 @@ body {
       }
     }
   }
-
-  ###
-  # Return the current system time in the format: [example {%a, %d %b %Y %T %Z}]
-  ###
   method timestamp {} {
     return [clock format [clock seconds] -format {%a, %d %b %Y %T %Z}]
   }
@@ -944,18 +706,12 @@ body {
 ###
 # START: server.tcl
 ###
-###
-# An httpd server with a template engine and a shim to insert URL domains.
-#
-# This class is the root object of the webserver. It is responsible
-# for opening the socket and providing the initial connection negotiation.
-###
-namespace eval ::httpd::object {}
-namespace eval ::httpd::coro {}
-
+namespace eval ::httpd::object {
+}
+namespace eval ::httpd::coro {
+}
 ::clay::define ::httpd::server {
   superclass ::httpd::mime
-
   clay set server/ port auto
   clay set server/ myaddr 127.0.0.1
   clay set server/ string [list TclHttpd $::httpd::version]
@@ -964,14 +720,11 @@ namespace eval ::httpd::coro {}
   clay set server/ reverse_dns 0
   clay set server/ configuration_file {}
   clay set server/ protocol {HTTP/1.1}
-
   clay set socket/ buffersize   32768
   clay set socket/ translation  {auto crlf}
   clay set reply_class ::httpd::reply
-
   Array template
   Dict url_patterns {}
-
   constructor {
   {args {
     port        {default auto      comment {Port to listen on}}
@@ -993,15 +746,9 @@ namespace eval ::httpd::coro {}
     }
     my start
   }
-
   destructor {
     my stop
   }
-
-  ###
-  # Reply to an open socket. This method builds a coroutine to manage the remainder
-  # of the connection. The coroutine's operations are driven by the [cmd Connect] method.
-  ###
   method connect {sock ip port} {
     ###
     # If an IP address is blocked drop the
@@ -1015,7 +762,6 @@ namespace eval ::httpd::coro {}
     set coro [coroutine ::httpd::coro::$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
     chan event $sock readable $coro
   }
-
   method ServerHeaders {ip http_request mimetxt} {
     set result {}
     dict set result HTTP_HOST {}
@@ -1049,16 +795,6 @@ namespace eval ::httpd::coro {}
     }
     return $result
   }
-
-  ###
-  # This method reads HTTP headers, and then consults the [cmd dispatch] method to
-  # determine if the request is valid, and/or what kind of reply to generate. Under
-  # normal cases, an object of class [cmd ::http::reply] is created, and that class's
-  # [cmd dispatch] method.
-  # This action passes control of the socket to
-  # the reply object. The reply object manages the rest of the transaction, including
-  # closing the socket.
-  ###
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
@@ -1093,16 +829,10 @@ namespace eval ::httpd::coro {}
     set pageobj [::httpd::reply create ::httpd::object::$uuid [self]]
     tailcall $pageobj dispatch $sock $reply
   }
-
-  # Increment an internal counter.
   method counter which {
     my variable counters
     incr counters($which)
   }
-
-  ###
-  # Check open connections for a time out event.
-  ###
   method CheckTimeout {} {
     foreach obj [info commands ::httpd::object::*] {
       try {
@@ -1112,13 +842,7 @@ namespace eval ::httpd::coro {}
       }
     }
   }
-
   method debug args {}
-
-  ###
-  # Given a key/value list of information, return a data structure describing how
-  # the server should reply.
-  ###
   method dispatch {data} {
     set reply [my Dispatch_Local $data]
     if {[dict size $reply]} {
@@ -1126,12 +850,6 @@ namespace eval ::httpd::coro {}
     }
     return [my Dispatch_Default $data]
   }
-
-  ###
-  # Method dispatch method of last resort before returning a 404 NOT FOUND error.
-  # The default behavior is to look for a file in [emph DOCUMENT_ROOT] which
-  # matches the query.
-  ###
   method Dispatch_Default {reply} {
     ###
     # Fallback to docroot handling
@@ -1148,32 +866,9 @@ namespace eval ::httpd::coro {}
     }
     return {}
   }
-
-  ###
-  # Method dispatch method invoked prior to invoking methods implemented by plugins.
-  # If this method returns a non-empty dictionary, that structure will be passed to
-  # the reply. The default is an empty implementation.
-  ###
   method Dispatch_Local data {}
-
-  ###
-  # Introspect and possibly modify a data structure destined for a reply. This
-  # method is invoked before invoking Header methods implemented by plugins.
-  # The default implementation is empty.
-  ###
   method Headers_Local {varname} {}
-
-  ###
-  # Introspect and possibly modify a data structure destined for a reply. This
-  # method is built dynamically by the [cmd plugin] method.
-  ###
   method Headers_Process varname {}
-
-  ###
-  # Convert an ip address to a host name. If the server/ reverse_dns flag
-  # is false, this method simply returns the IP address back.
-  # Internally, this method uses the [emph dns] module from tcllib.
-  ###
   method HostName ipaddr {
     if {![my clay get server/ reverse_dns]} {
       return $ipaddr
@@ -1183,29 +878,9 @@ namespace eval ::httpd::coro {}
     ::dns::cleanup $t
     return $result
   }
-
-  ###
-  # Log an event. The input for args is free form. This method is intended
-  # to be replaced by the user, and is a noop for a stock http::server object.
-  ###
   method log args {
     # Do nothing for now
   }
-
-  ###
-  # Incorporate behaviors from a plugin.
-  # This method dynamically rebuilds the [cmd Dispatch] and [cmd Headers]
-  # method. For every plugin, the server looks for the following entries in
-  # [emph "clay plugin/"]:
-  # [para]
-  # [emph load] - A script to invoke in the server's namespace during the [cmd plugin] method invokation.
-  # [para]
-  # [emph dispatch] - A script to stitch into the server's [cmd Dispatch] method.
-  # [para]
-  # [emph headers] - A script to stitch into the server's [cmd Headers] method.
-  # [para]
-  # [emph thread] - A script to stitch into the server's [cmd Thread_start] method.
-  ###
   method plugin {slot {class {}}} {
     if {$class eq {}} {
       set class ::httpd::plugin.$slot
@@ -1278,28 +953,19 @@ namespace eval ::httpd::coro {}
     append body \n "\}"
     oo::objdefine [self] method Thread_start {} $body
   }
-
-  # Return the actual port that httpd is listening on.
   method port_listening {} {
     my variable port_listening
     return $port_listening
   }
-
-  # For the stock version, trim trailing /'s and *'s from a prefix. This
-  # method can be replaced by the end user to perform any other transformations
-  # needed for the application.
   method PrefixNormalize prefix {
     set prefix [string trimright $prefix /]
     set prefix [string trimright $prefix *]
     set prefix [string trimright $prefix /]
     return $prefix
   }
-
   method source {filename} {
     source $filename
   }
-
-  # Open the socket listener.
   method start {} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
@@ -1327,8 +993,6 @@ namespace eval ::httpd::coro {}
     ::cron::every [self] 120 [namespace code {my CheckTimeout}]
     my Thread_start
   }
-
-  # Shut off the socket listener, and destroy any pending replies.
   method stop {} {
     my variable socklist
     if {[info exists socklist]} {
@@ -1339,15 +1003,12 @@ namespace eval ::httpd::coro {}
     set socklist {}
     ::cron::cancel [self]
   }
-
   Ensemble SubObject::db {} {
     return [namespace current]::Sqlite_db
   }
   Ensemble SubObject::default {} {
     return [namespace current]::$method
   }
-
-  # Return a template for the string [arg page]
   method template page {
     my variable template
     if {[info exists template($page)]} {
@@ -1356,11 +1017,6 @@ namespace eval ::httpd::coro {}
     set template($page) [my TemplateSearch $page]
     return $template($page)
   }
-
-  # Perform a search for the template that best matches [arg page]. This
-  # can include local file searches, in-memory structures, or even
-  # database lookups. The stock implementation simply looks for files
-  # with a .tml or .html extension in the [opt doc_root] directory.
   method TemplateSearch page {
     set doc_root [my clay get server/ doc_root]
     if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
@@ -1401,39 +1057,14 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       }
     }
   }
-
-  ###
-  # Built by the [cmd plugin] method. Called by the [cmd start] method. Intended
-  # to allow plugins to spawn worker threads.
-  ###
   method Thread_start {} {}
-
-  ###
-  # Generate a GUUID. Used to ensure every request has a unique ID.
-  # The default implementation is:
-  # [example {
-  #   return [::uuid::uuid generate]
-  # }]
-  ###
   method Uuid_Generate {} {
     return [::uuid::uuid generate]
   }
-
-  ###
-  # Given a socket and an ip address, return true if this connection should
-  # be terminated, or false if it should be allowed to continue. The stock
-  # implementation always returns 0. This is intended for applications to
-  # be able to implement black lists and/or provide security based on IP
-  # address.
-  ###
   method Validate_Connection {sock ip} {
     return 0
   }
 }
-
-###
-# Provide a backward compadible alias
-###
 ::clay::define ::httpd::server::dispatch {
     superclass ::httpd::server
 }
@@ -1445,7 +1076,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 # START: dispatch.tcl
 ###
 ::clay::define ::httpd::content.redirect {
-
   method reset {} {
     ###
     # Inject the location into the HTTP headers
@@ -1462,7 +1092,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     my reply set Status [list $code [my http_code_string $code]]
   }
-
   method content {} {
     set template [my <server> template redirect]
     set msg [my clay get LOCATION]
@@ -1470,9 +1099,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my puts [subst $msg]
   }
 }
-
 ::clay::define ::httpd::content.cache {
-
   method Dispatch {} {
     my variable chan
     try {
@@ -1486,9 +1113,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
   }
 }
-
 ::clay::define ::httpd::content.template {
-
   method content {} {
     if {[my request get HTTP_STATUS] ne {}} {
       my reply set Status [my request get HTTP_STATUS]
@@ -1503,13 +1128,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 # START: file.tcl
 ###
-###
-# Class to deliver Static content
-# When utilized, this class is fed a local filename
-# by the dispatcher
-###
 ::clay::define ::httpd::content.file {
-
   method FileName {} {
     set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
@@ -1532,7 +1151,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     return {}
   }
-
   method DirectoryListing {local_file} {
     set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
@@ -1557,7 +1175,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my puts "</TABLE>"
     my puts [my html_footer]
   }
-
   method content {} {
     my variable reply_file
     set local_file [my FileName]
@@ -1610,7 +1227,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       }
     }
   }
-
   method Dispatch {} {
     my variable reply_body reply_file reply_chan chan
     try {
@@ -1657,7 +1273,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 ::clay::define ::httpd::content.exec {
   variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
-
   method CgiExec {execname script arglist} {
     if { $::tcl_platform(platform) eq "windows"} {
       if {[file extension $script] eq ".exe"} {
@@ -1677,7 +1292,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     error "CGI Not supported"
   }
-
   method Cgi_Executable {script} {
     if {[string tolower [file extension $script]] eq ".exe"} {
       return $script
@@ -1738,13 +1352,8 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     return $result
   }
 }
-
-###
-# Return data from an proxy process
-###
 ::clay::define ::httpd::content.proxy {
   superclass ::httpd::content.exec
-
   method proxy_channel {} {
     ###
     # This method returns a channel to the
@@ -1752,13 +1361,11 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     ###
     error unimplemented
   }
-
   method proxy_path {} {
     set uri [string trimleft [my request get REQUEST_URI] /]
     set prefix [my clay get prefix]
     return /[string range $uri [string length $prefix] end]
   }
-
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
@@ -1779,7 +1386,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan event $chanb readable [info coroutine]
     yield
   }
-
   method ProxyReply {chana chanb args} {
     my log ProxyReply [list args $args]
     chan event $chana readable {}
@@ -1802,7 +1408,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
-
   method Dispatch {} {
     my variable sock chan
     if {[catch {my proxy_channel} sock errdat]} {
@@ -1833,7 +1438,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 ::clay::define ::httpd::content.cgi {
   superclass ::httpd::content.proxy
-
   method FileName {} {
     set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
@@ -1854,7 +1458,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     return {}
   }
-
   method proxy_channel {} {
     ###
     # When delivering static content, allow web caches to save
@@ -1912,7 +1515,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     cd $pwd
     return $pipe
   }
-
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
@@ -1930,8 +1532,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan event $chanb readable [info coroutine]
     yield
   }
-
-
   method ProxyReply {chana chanb args} {
     my log ProxyReply [list args $args]
     chan event $chana readable {}
@@ -1958,10 +1558,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
-
-  ###
-  # For most CGI applications a directory list is vorboten
-  ###
   method DirectoryListing {local_file} {
     my error 403 {Not Allowed}
     tailcall my DoOutput
@@ -1974,20 +1570,13 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 # START: scgi.tcl
 ###
-###
-# Return data from an SCGI process
-###
 ::clay::define ::httpd::protocol.scgi {
-
   method EncodeStatus {status} {
     return "Status: $status"
   }
 }
-
 ::clay::define ::httpd::content.scgi {
   superclass ::httpd::content.proxy
-
-
   method scgi_info {} {
     ###
     # This method should check if a process is launched
@@ -1997,7 +1586,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     # return {localhost 8016 /some/path}
     error unimplemented
   }
-
   method proxy_channel {} {
     set sockinfo [my scgi_info]
     if {$sockinfo eq {}} {
@@ -2012,7 +1600,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     return [::socket $scgihost $scgiport]
   }
-
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
@@ -2044,7 +1631,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     chan event $chanb readable [info coroutine]
     yield
   }
-
   method ProxyReply {chana chanb args} {
     my log ProxyReply [list args $args]
     chan event $chana readable {}
@@ -2067,21 +1653,14 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my ChannelCopy $chana $chanb -chunk 4096
   }
 }
-
-###
-# Act as an  SCGI Server
-###
 ::clay::define ::httpd::server.scgi {
   superclass ::httpd::server
-
   clay set socket/ buffersize   32768
   clay set socket/ blocking     0
   clay set socket/ translation  {binary binary}
-
   method debug args {
     puts $args
   }
-
   method Connect {uuid sock ip} {
     yield [info coroutine]
     chan event $sock readable {}
@@ -2156,11 +1735,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 # START: websocket.tcl
 ###
-###
-# Upgrade a connection to a websocket
-###
 ::clay::define ::httpd::content.websocket {
-
 }
 
 ###
@@ -2169,47 +1744,13 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ###
 # START: plugin.tcl
 ###
-###
-# httpd plugin template
-###
 ::clay::define ::httpd::plugin {
-  ###
-  # Any options will be saved to the local config file
-  # to allow threads to pull up a snapshot of the object' configuration
-  ###
-
-  ###
-  # Define a code snippet to run on plugin load
-  ###
   clay set plugin/ load {}
-
-  ###
-  # Define a code snippet to run within the object's Headers_Process method
-  ###
   clay set plugin/ headers {}
-
-  ###
-  # Define a code snippet to run within the object's dispatch method
-  ###
   clay set plugin/ dispatch {}
-
-  ###
-  # Define a code snippet to run within the object's writes a local config file
-  ###
   clay set plugin/ local_config {}
-
-  ###
-  # When after all the plugins are loaded
-  # allow specially configured ones to light off a thread
-  ###
   clay set plugin/ thread {}
-
 }
-
-###
-# A rudimentary plugin that dispatches URLs from a dict
-# data structure
-###
 ::clay::define ::httpd::plugin.dict_dispatch {
   clay set plugin/ dispatch {
     set reply [my Dispatch_Dict $data]
@@ -2217,10 +1758,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       return $reply
     }
   }
-
-  ###
-  # Implementation of the dispatcher
-  ###
   method Dispatch_Dict {data} {
     my variable url_patterns
     set vhost [lindex [split [dict get $data http HTTP_HOST] :] 0]
@@ -2238,9 +1775,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     }
     return {}
   }
-
-  ###
-  #
   Ensemble uri::add {vhosts patterns info} {
     my variable url_patterns
     foreach vhost $vhosts {
@@ -2253,7 +1787,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       }
     }
   }
-
   Ensemble uri::direct {vhosts patterns info body} {
     my variable url_patterns url_stream
     set cbody {}
@@ -2270,31 +1803,23 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my uri add $vhosts $patterns $info
   }
 }
-
 ::clay::define ::httpd::reply.memchan {
   superclass ::httpd::reply
-
   method output {} {
     my variable reply_body
     return $reply_body
   }
-
   method DoOutput {} {}
-
   method close {} {
     # Neuter the channel closing mechanism we need the channel to stay alive
     # until the reader sucks out the info
   }
 }
-
-
 ::clay::define ::httpd::plugin.local_memchan {
-
   clay set plugin/ load {
 package require tcl::chan::events
 package require tcl::chan::memchan
   }
-
   method local_memchan {command args} {
     my variable sock_to_coro
     switch $command {
@@ -2313,14 +1838,6 @@ package require tcl::chan::memchan
       }
     }
   }
-
-  ###
-  # A modified connection method that passes simple GET request to an object
-  # and pulls data directly from the reply_body data variable in the object
-  #
-  # Needed because memchan is bidirectional, and we can't seem to communicate that
-  # the server is one side of the link and the reply is another
-  ###
   method Connect_Local {uuid sock args} {
     chan event $sock readable {}
 
@@ -2379,12 +1896,11 @@ package require tcl::chan::memchan
   }
 }
 
-
 ###
 # END: plugin.tcl
 ###
 
-namespace eval ::httpd {
-    namespace export *
-}
+    namespace eval ::httpd {
+	namespace export *
+    }
 

@@ -35,9 +35,12 @@ package require TclOO
 package require uuid
 package require oo::dialect
 ::oo::dialect::create ::clay
-::namespace eval ::clay {}
-::namespace eval ::clay::classes {}
-::namespace eval ::clay::define {}
+::namespace eval ::clay {
+}
+::namespace eval ::clay::classes {
+}
+::namespace eval ::clay::define {
+}
 
 ###
 # END: core.tcl
@@ -102,7 +105,8 @@ proc ::putb {buffername args} {
     }
   }
 }
-namespace eval ::clay {}
+namespace eval ::clay {
+}
 set ::clay::trace 0
 proc ::clay::ancestors args {
   set result {}
@@ -340,7 +344,8 @@ proc ::clay::NSNormalize qualname {
 proc ::clay::uuid_generate args {
   return [uuid::uuid generate]
 }
-namespace eval ::clay {  variable option_class {}
+namespace eval ::clay {
+  variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }
 
@@ -350,7 +355,8 @@ namespace eval ::clay {  variable option_class {}
 ###
 # START: class.tcl
 ###
-oo::define oo::class {  method clay {submethod args} {
+oo::define oo::class {
+  method clay {submethod args} {
     my variable clay
     if {![info exists clay]} {
       set clay {}
@@ -434,7 +440,8 @@ oo::define oo::class {  method clay {submethod args} {
 ###
 # START: object.tcl
 ###
-oo::define oo::object {  method clay {submethod args} {
+oo::define oo::object {
+  method clay {submethod args} {
     my variable clay claycache clayorder config option_canonical
     if {![info exists clay]} {set clay {}}
     if {![info exists claycache]} {set claycache {}}
@@ -930,7 +937,8 @@ proc ::clay::object_destroy objname {
   }
   ::cron::object_destroy $objname
 }
-::clay::define ::clay::object {  Variable clay {}
+::clay::define ::clay::object {
+  Variable clay {}
   Variable claycache {}
   Variable DestroyEvent 0
   method InitializePublic {} {
@@ -976,7 +984,8 @@ proc ::clay::object_destroy objname {
 ###
 # START: ensemble.tcl
 ###
-::namespace eval ::clay::define {}
+::namespace eval ::clay::define {
+}
 proc ::clay::ensemble_methodbody {ensemble einfo} {
   set default standard
   set preamble {}
@@ -1076,7 +1085,8 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
 ###
 # START: doctool.tcl
 ###
-namespace eval ::clay {}
+namespace eval ::clay {
+}
 proc ::clay::cat fname {
     if {![file exists $fname]} {
        return
@@ -1128,7 +1138,8 @@ proc ::putb {buffername args} {
     }
   }
 }
-oo::class create ::clay::doctool {  constructor {} {
+oo::class create ::clay::doctool {
+  constructor {} {
     my reset
   }
   method arglist {arglist} {
