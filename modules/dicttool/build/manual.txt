@@ -1,5 +1,3 @@
-[comment {-*- tcl -*- doctools manpage}]
-[manpage_begin %module% n %version%]
 [keywords dict]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Extensions to the standard "dict" command}]

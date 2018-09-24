@@ -568,13 +568,19 @@ oo::class create ::practcl::doctool {
   #   authors {mandatory 0 positional 0 type list}
   ###
   method manpage args {
-    my variable info map
+    my variable info
+    set map {%version% 0.0 %module% {Your_Module_Here}}
     set result {}
     set header {}
     set footer {}
     set authors {}
     dict with args {}
-    putb result $header
+    dict set map %keyword% comment
+    putb result $map {[%keyword% {-*- tcl -*- doctools manpage}]
+[vset PACKAGE_VERSION %version%]
+[manpage_begin %module% n [vset PACKAGE_VERSION]]}
+    putb result $map $header
+
     dict for {sec_type sec_info} $info {
       switch $sec_type {
         proc {

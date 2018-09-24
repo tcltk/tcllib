@@ -1,3 +1,6 @@
+[comment {-*- tcl -*- doctools manpage}]
+[vset PACKAGE_VERSION 0.3]
+[manpage_begin clay n [vset PACKAGE_VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Clay Framework}]

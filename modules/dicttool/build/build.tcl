@@ -118,17 +118,9 @@ set fout [open [file join $moddir $filename.test] w]
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
 set manout [open [file join $moddir $filename.man] w]
-puts $manout [AutoDoc manpage \
-  header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]] \
+puts $manout [AutoDoc manpage map $modmap \
+  header [::practcl::cat [file join $srcdir manual.txt]] \
   authors $authors \
-  footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]] \
+  footer [::practcl::cat [file join $srcdir footer.txt]] \
 ]
 close $manout
-if {[file exists [file join $moddir .. .. apps dtplite]]} {
-  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
-    -o [file join $moddir .. .. embedded www tcllib files modules $module] \
-    html [file join $moddir $filename.man]
-  exec [info nameofexecutable] [file join $moddir .. .. apps dtplite] -module $module \
-    -o [file join $moddir .. .. idoc www tcllib files modules $module] \
-    html [file join $moddir $filename.man]
-}

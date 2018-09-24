@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin dicttool n 1.2]
+[vset PACKAGE_VERSION 1.2]
+[manpage_begin dicttool n [vset PACKAGE_VERSION]]
 [keywords dict]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Extensions to the standard "dict" command}]
