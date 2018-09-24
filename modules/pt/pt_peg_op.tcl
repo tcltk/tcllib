@@ -1,5 +1,6 @@
 # -*- tcl -*-
 # Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2018 Stefan Sobernig <stefan.sobernig@wu.ac.at>
 
 # Utility commands operating on parsing expressions.
 
@@ -17,7 +18,7 @@ package require struct::set    ; # Set operations (symbol sets)
 namespace eval ::pt::peg::op {
     namespace export \
 	flatten called reachable realizable \
-	dechain drop modeopt minimize
+	drop modeopt minimize dechain
 
     namespace ensemble create
 
@@ -62,55 +63,50 @@ proc ::pt::peg::op::called {container} {
 
 proc ::pt::peg::op::dechain {container} {
 
-    # Simplify all symbols which just chain to a different symbol by
-    # inlining the called symbol in its callers. This works if and
-    # only the modes match properly.
-
-    # X     Z      dechain notes
-    # value value| yes    | value is passed
-    # value leaf | yes    | value is passed
-    # value void | yes    | X is implied void
-    # leaf  value| no     | generated value was discarded, inlined doesn't. Z may be implied void
-    # leaf  leaf | no     | s.a.
-    # leaf  void | no     | s.a.
-    # void  value| no     | X drops value, inline doesn't
-    # void  leaf | no     | s.a.
-    # void  void | yes    |
-
-    array set caller [Invert [called $container]]
-    # caller = array (x -> list(caller-of-x))
-    array set mode [$container modes]
-    # mode = array (x -> mode-of-x)
-
     set changed 1
     while {$changed} {
+	
+	set chainPairs [dict create]
+	set rules [$container rules]
+	array set modes [$container modes]
 	set changed 0
-	foreach {symbol rule} [$container rules] {
-	    # Ignore regular operators and terminals
-	    if {[lindex $rule 0] ne "n"} continue
-	    set called [lindex $rule 1]
+	foreach {caller rule} $rules {
+	    lassign $rule op called
+	    if {$op ne "n"} continue
+	    dict set chainPairs $called $caller
+	}
 
-	    # Ignore chains where mode changes form a barrier.
-	    if {
-		($mode($symbol) ne "value") &&
-		(($mode($symbol) ne "void") ||
-		 ($mode($called) ne "void"))
-	    } continue
+	set ends [struct::set difference \
+			[dict keys $chainPairs] \
+			[dict values $chainPairs]]
 
-	    # We have the chain symbol -> called.
-	    # Replace all users of 'symbol' with 'called'
+	if {[struct::set empty $ends]} {
+	    # stop, given a cycle
+	    break
+	}
 
-	    foreach user $caller($symbol) {
-		$container rule $user \
-		    [pt::pe::op rename $symbol $called \
-			 [$container rule $user]]
+	set chainPairs [dict remove $chainPairs {*}$ends]
+	set changed [dict size $chainPairs]
+	
+	if {$changed} {
+	    
+	    dict for {called caller} $chainPairs {
+
+		if {$called in [$container nonterminals]
+		    && !(($modes($caller) ne "value") &&
+		    (($modes($caller) ne "void") ||
+		     ![info exists modes($called)] ||
+		     ($modes($called) ne "void")))} {
+		    
+       		    $container rule $caller [$container rule $called]
+		    
+		} else {
+		    incr changed -1
+		}
 	    }
-
-	    set changed 1
-	    array set caller [Invert [called $container]]
 	}
     }
-
+    
     return
 }
 
@@ -156,7 +152,7 @@ proc ::pt::peg::op::modeopt {container} {
 	    if {($callmode eq "void") &&
 		($mode($sym) ne "void")} {
 
-puts (2)$sym
+		#puts (2)$sym
 		set mode($sym) void
 
 		# This change may change calling context and this call
@@ -190,11 +186,12 @@ proc ::pt::peg::op::CallMode {callers mv} {
 
 proc ::pt::peg::op::minimize {container} {
     flatten           $container
+    modeopt           $container; # for dechaining
+    dechain           $container
     drop unrealizable $container
     drop unreachable  $container
+    modeopt           $container;
     flatten           $container
-    modeopt           $container
-    dechain           $container
     return
 }
 
@@ -374,5 +371,5 @@ namespace eval ::pt::peg::op {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg::op 1.0.2
+package provide pt::peg::op 1.1.0
 return
