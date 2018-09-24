@@ -1,4 +1,4 @@
-[vset VERSION 1.1]
+[vset VERSION 1.2]
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: ldapx.man,v 1.14 2009/01/29 06:16:19 andreas_kupries Exp $}]
 [manpage_begin ldapx n [vset VERSION]]
@@ -408,7 +408,28 @@ An instance of the [class ldap] class keeps the following data:
 
 [subsection {Ldap Options}]
 
-A first set of options of the [class ldap] class is used during
+Options are configured on [class ldap] instances using the [cmd configure]
+method.
+
+[para]
+
+The first option is used for TLS parameters:
+
+[list_begin options]
+    [opt_def -tlsoptions [arg list]]
+
+	Specify the set of TLS options to use when connecting to the
+	LDAP server (see the [cmd connect] method). For the list of
+	valid options, see the [package LDAP] package documentation.
+	[para]
+	The default is [const {-request 1 -require 1 -ssl2 no -ssl3 no -tls1 yes -tls1.1 yes -tls1.2 yes}].
+	[para]
+	Example:
+	[para]
+[example {$l configure -tlsoptions {-request yes -require yes}}]
+[list_end]
+
+A set of options of the [class ldap] class is used during
 search operations (methods [method traverse], [method search] and
 [method read], see below).
 
@@ -484,6 +505,7 @@ in the directory:
 
 [list_end]
 
+
 [subsection {Ldap Methods}]
 
 [list_begin definitions]
@@ -494,7 +516,7 @@ in the directory:
 	argument [arg newmsg] is supplied, it becomes the last
 	error message.
 
-    [call [arg la] [method connect] [arg url] [opt [arg binddn]] [opt [arg bindpw]]]
+    [call [arg la] [method connect] [arg url] [opt [arg binddn]] [opt [arg bindpw]] [opt [arg starttls]]]
 
 	This method connects to the LDAP server using given URL
 	(which can be of the form [uri ldap://host:port] or
@@ -502,6 +524,20 @@ in the directory:
 	argument is given together with the [arg bindpw] argument,
 	the [method connect] binds to the LDAP server using the
 	specified DN and password.
+
+	[para]
+
+	If the [arg starttls] argument is given a true value ([const 1],
+	[const yes], etc.) and the URL uses the [uri ldap://] scheme,
+	a TLS negotiation is initiated with the newly created connection,
+	before LDAP binding.
+
+	Default value: [const no].
+
+	[para]
+
+	This method returns 1 if connection was successful, or 0 if an
+	error occurred (use the [cmd error] method to get the message).
 
     [call [arg la] [method disconnect]]
 
@@ -562,12 +598,13 @@ in the directory:
     package require ldapx
 
     #
-    # Connects to the LDAP directory
+    # Connects to the LDAP directory using StartTLS
     #
 
     ::ldapx::ldap create l
+    l configure -tlsoptions {-cadir /etc/ssl/certs -request yes -require yes}
     set url "ldap://server.mycomp.com"
-    if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
+    if {! [l connect $url "cn=admin,o=mycomp" "mypasswd" yes]} then {
 	puts stderr "error: [l error]"
 	exit 1
     }

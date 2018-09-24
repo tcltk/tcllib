@@ -44,11 +44,13 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.9.2
+package provide ldap 1.10
 
 namespace eval ldap {
 
     namespace export    connect secure_connect  \
+			starttls                \
+			tlsoptions              \
                         disconnect              \
                         bind unbind             \
                         bindSASL                \
@@ -117,6 +119,49 @@ namespace eval ldap {
         80  other
     }
 
+    # TLS options for secure_connect and starttls
+    # (see tcltls documentation, function tls::import)
+    variable validTLSOptions
+    set validTLSOptions {
+	-cadir
+	-cafile
+	-certfile
+	-cipher
+	-command
+	-dhparams
+	-keyfile
+	-model
+	-password
+	-request
+	-require
+	-server
+	-servername
+	-ssl2
+	-ssl3
+	-tls1
+	-tls1.1
+	-tls1.2
+    }
+
+    # Default TLS options for secure_connect and starttls
+    variable defaultTLSOptions
+    array set defaultTLSOptions {
+	-request 1
+	-require 1
+	-ssl2    no
+	-ssl3    no
+	-tls1	 yes
+	-tls1.1	 yes
+	-tls1.2	 yes
+    }
+
+    variable curTLSOptions
+    array set curTLSOptions [array get defaultTLSOptions]
+
+    # are we using the old interface (TLSMode = "compatible") or the
+    # new one (TLSMode = "integrated")
+    variable TLSMode
+    set TLSMode "compatible"
 }
 
 
@@ -249,6 +294,30 @@ proc ldap::info_tls {args} {
 		"\"[lindex $args 0]\" is not a ldap connection handle"
    }
    return $conn(tls)
+}
+
+#-----------------------------------------------------------------------------
+#   return the TLS connection status
+#
+#-----------------------------------------------------------------------------
+
+proc ldap::info_tlsstatus {args} {
+   if {[llength $args] != 1} {
+   	return -code error \
+	       "Wrong # of arguments. Usage: ldap::info tlsstatus handle"
+   }
+   CheckHandle [lindex $args 0]
+   upvar #0 [lindex $args 0] conn
+   if {![::info exists conn(tls)]} {
+   	return -code error \
+		"\"[lindex $args 0]\" is not a ldap connection handle"
+   }
+   if {$conn(tls)} then {
+       set r [::tls::status $conn(sock)]
+   } else {
+       set r {}
+   }
+   return $r
 }
 
 proc ldap::info_saslmechanisms {args} {
@@ -392,58 +461,104 @@ proc ldap::connect { host {port 389} } {
 }
 
 #-----------------------------------------------------------------------------
+#    tlsoptions
+#
+#-----------------------------------------------------------------------------
+proc ldap::tlsoptions {args} {
+    variable curTLSOptions
+    variable validTLSOptions
+    variable defaultTLSOptions
+    variable TLSMode
+
+    if {$args eq "reset"} then {
+	array set curTLSOptions [array get defaultTLSOptions]
+    } else {
+	foreach {opt val} $args {
+	    if {$opt in $validTLSOptions} then {
+		set curTLSOptions($opt) $val
+	    } else {
+		return -code error "invalid TLS option '$opt'"
+	    }
+	}
+    }
+    set TLSMode "integrated"
+    return [array get curTLSOptions]
+}
+
+#-----------------------------------------------------------------------------
 #    secure_connect
 #
 #-----------------------------------------------------------------------------
-proc ldap::secure_connect { host {port 636} {verify_cert 1} {sni_servername ""}} {
+proc ldap::secure_connect { host {port 636} {verify_cert ""} {sni_servername ""}} {
 
     variable tlsProtocols
+    variable curTLSOptions
+    variable TLSMode
 
     package require tls
 
     #------------------------------------------------------------------
+    #   set options
+    #------------------------------------------------------------------
+
+    if {$TLSMode eq "compatible"} then {
+	#
+	# Compatible with old mode. Build a TLS socket with appropriate
+	# parameters, without changing any other parameter which may
+	# have been set by a previous call to tls::init (as specified
+	# in the ldap.tcl manpage).
+	#
+	if {$verify_cert eq ""} then {
+	    set verify_cert 1
+	}
+	set cmd [list tls::socket -request 1 -require $verify_cert \
+				  -ssl2 no -ssl3 no]
+	if {$sni_servername ne ""} {
+	    lappend cmd -servername $sni_servername
+	}
+
+	# The valid ones depend on the server and openssl version,
+	# tls::ciphers all tells it in the error message, but offers no
+	# nice introspection.
+	foreach {proto active} $tlsProtocols {
+	    lappend cmd $proto $active
+	}
+
+	lappend cmd $host $port
+    } else {
+	#
+	# New, integrated mode. Use only parameters set with
+	# ldap::tlsoptions to build the socket.
+	#
+
+	if {$verify_cert ne "" || $sni_servername ne ""} then {
+	    return -code error "verify_cert/sni_servername: incompatible with the use of tlsoptions"
+	}
+
+	set cmd [list tls::socket {*}[array get curTLSOptions] $host $port]
+    }
+
+    #------------------------------------------------------------------
     #   connect via TCP/IP
     #------------------------------------------------------------------
-    set cmd [list tls::socket -request 1 -require $verify_cert \
-                              -ssl2 no -ssl3 no]
-    if {$sni_servername ne ""} {
-	lappend cmd -servername $sni_servername
-    }
-
-    # The valid ones depend on the server and openssl version,
-    # tls::ciphers all tells it in the error message, but offers no
-    # nice introspection.
-    foreach {proto active} $tlsProtocols {
-	lappend cmd $proto $active
-    }
-    lappend cmd $host $port
 
     set sock [eval $cmd]
-
-    fconfigure $sock -blocking no -translation binary -buffering full
 
     #------------------------------------------------------------------
     #   Run the TLS handshake
     #
     #------------------------------------------------------------------
-    set retry 0
-    while {1} {
-        if {$retry > 20} {
-            close $sock
-            return -code error "too long retry to setup SSL connection"
-        }
-        if {[catch { tls::handshake $sock } err]} {
-            if {[string match "*resource temporarily unavailable*" $err]} {
-                after 50
-                incr retry
-            } else {
-                close $sock
-                return -code error $err
-            }
-        } else {
-            break
-        }
+    
+    # run the handshake in synchronous I/O mode
+    fconfigure $sock -blocking yes -translation binary -buffering full
+
+    if {[catch { tls::handshake $sock } err]} {
+	close $sock
+	return -code error $err
     }
+
+    # from now on, run in asynchronous I/O mode
+    fconfigure $sock -blocking no -translation binary -buffering full
 
     #--------------------------------------
     #   initialize connection array
@@ -473,13 +588,61 @@ proc ldap::secure_connect { host {port 636} {verify_cert 1} {sni_servername ""}}
 #
 #------------------------------------------------------------------------------
 proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""} \
-                     {verify_cert 1} {sni_servername ""}} {
+                     {verify_cert ""} {sni_servername ""}} {
+    variable tlsProtocols
+    variable curTLSOptions
+    variable TLSMode
+
     CheckHandle $handle
 
     upvar #0 $handle conn
 
-    variable tlsProtocols
-    
+    #------------------------------------------------------------------
+    #   set options
+    #------------------------------------------------------------------
+
+    if {$TLSMode eq "compatible"} then {
+	#
+	# Compatible with old mode. Build a TLS socket with appropriate
+	# parameters, without changing any other parameter which may
+	# have been set by a previous call to tls::init (as specified
+	# in the ldap.tcl manpage).
+	#
+	if {$verify_cert eq ""} then {
+	    set verify_cert 1
+	}
+	set cmd [list tls::import $conn(sock) \
+		     -cafile $cafile -certfile $certfile -keyfile $keyfile \
+		     -request 1 -server 0 -require $verify_cert \
+		     -ssl2 no -ssl3 no ]
+	if {$sni_servername ne ""} {
+	    lappend cmd -servername $sni_servername
+	}
+
+	# The valid ones depend on the server and openssl version,
+	# tls::ciphers all tells it in the error message, but offers no
+	# nice introspection.
+	foreach {proto active} $tlsProtocols {
+	    lappend cmd $proto $active
+	}
+    } else {
+	#
+	# New, integrated mode. Use only parameters set with
+	# ldap::tlsoptions to build the socket.
+	#
+
+	if {$cafile ne "" || $certfile ne "" || $keyfile ne "" ||
+		$verify_cert ne "" || $sni_servername ne ""} then {
+	    return -code error "cafile/certfile/keyfile/verify_cert/sni_servername: incompatible with the use of tlsoptions"
+	}
+
+	set cmd [list tls::import $conn(sock) {*}[array get curTLSOptions]]
+    }
+
+    #------------------------------------------------------------------
+    #   check handle
+    #------------------------------------------------------------------
+
     if {$conn(tls)} {
         return -code error \
             "Cannot StartTLS on connection, TLS already running"
@@ -535,17 +698,6 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""} \
     }
 
     # Initiate the TLS socket setup
-    set cmd [list tls::import $conn(sock) \
-		 -cafile $cafile -certfile $certfile -keyfile $keyfile \
-		 -request 1 -server 0 -require $verify_cert -ssl2 no -ssl3 no ]
-    
-    if {$sni_servername ne ""} {
-	lappend cmd -servername $sni_servername
-    }
-
-    foreach {proto active} $tlsProtocols {
-	lappend cmd $proto $active
-    }
 
     eval $cmd
 

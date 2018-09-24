@@ -1,7 +1,7 @@
 #
 # Extended object interface to entries in LDAP directories or LDIF files.
 #
-# (c) 2006-2018 Pierre David (pdav@users.sourceforge.net)
+# (c) 2006-2018 Pierre David (pdagog@gmail.com)
 #
 # $Id: ldapx.tcl,v 1.12 2008/02/07 21:19:39 pdav Exp $
 #
@@ -13,9 +13,9 @@ package require Tcl 8.4
 package require snit		;# tcllib
 package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
-package require ldap 1.6	;# tcllib, low level code for LDAP directories
+package require ldap 1.10	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 1.1
+package provide ldapx 1.2
 
 ##############################################################################
 # LDAPENTRY object type
@@ -851,6 +851,8 @@ snit::type ::ldapx::ldap {
     option -timelimit	 -default 0
     option -attrsonly	 -default 0
 
+    option -tlsoptions  -default {}
+
     component translator
     delegate option -utf8 to translator
 
@@ -906,7 +908,7 @@ snit::type ::ldapx::ldap {
 
     # Connect to the LDAP directory, and binds to it if needed
 
-    method connect {url {binddn {}} {bindpw {}}} {
+    method connect {url {binddn {}} {bindpw {}} {starttls no}} {
 
 	array set comp [::uri::split $url "ldap"]
 
@@ -914,6 +916,10 @@ snit::type ::ldapx::ldap {
 	    $self error "Invalid host in URL '$url'"
 	    return 0
 	}
+
+	# use ::ldap with integrated TLS mode
+	::ldap::tlsoptions reset
+	::ldap::tlsoptions {*}$options(-tlsoptions)
 
 	set scheme $comp(scheme)
 	if {! [::info exists connect_defaults($scheme)]} then {
@@ -932,6 +938,12 @@ snit::type ::ldapx::ldap {
 	    return 0
 	}
 
+	if {$starttls && [string equal $scheme "ldap"]} then {
+	    if {[Check $selfns {::ldap::starttls $channel}]} then {
+		return 0
+	    }
+	}
+
 	if {$binddn eq ""} then {
 	    set bind 0
 	} else {
@@ -942,7 +954,7 @@ snit::type ::ldapx::ldap {
 	}
 	return 1
     }
-
+    
     # Disconnect from the LDAP directory
 
     method disconnect {} {
