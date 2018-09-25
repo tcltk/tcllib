@@ -33,13 +33,23 @@ namespace eval ::dicttool {}
 ###
 namespace eval ::dicttool {
 }
-proc ::PROC {name arglist body {ninja {}}} {
+namespace eval ::tcllib {
+}
+proc ::tcllib::PROC {name arglist body {ninja {}}} {
   if {[info commands $name] ne {}} return
   proc $name $arglist $body
   eval $ninja
 }
-PROC ::noop args {}
-PROC ::putb {buffername args} {
+if {[info commands ::PROC] eq {}} {
+  namespace eval ::tcllib { namespace export PROC }
+  namespace eval :: { namespace import ::tcllib::PROC }
+}
+proc ::tcllib::noop args {}
+if {[info commands ::noop] eq {}} {
+  namespace eval ::tcllib { namespace export noop }
+  namespace eval :: { namespace import ::tcllib::noop }
+}
+proc ::tcllib::putb {buffername args} {
   upvar 1 $buffername buffer
   switch [llength $args] {
     1 {
@@ -52,6 +62,10 @@ PROC ::putb {buffername args} {
       error "usage: putb buffername ?map? string"
     }
   }
+}
+if {[info command ::putb] eq {}} {
+  namespace eval ::tcllib { namespace export putb }
+  namespace eval :: { namespace import ::tcllib::putb }
 }
 
 ###
@@ -79,7 +93,7 @@ PROC ::tcl::dict::is_dict { d } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
 }
-PROC ::dicttool::is_branch { dict path } {
+::tcllib::PROC ::dicttool::is_branch { dict path } {
   set field [lindex $path end]
   if {[string index $field end] eq ":"} {
     return 0
@@ -92,13 +106,13 @@ PROC ::dicttool::is_branch { dict path } {
   }
   return [dict exists $dict {*}$path .]
 }
-PROC ::dicttool::print {dict} {
+::tcllib::PROC ::dicttool::print {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_dictputb $level result $dict
   return $result
 }
-proc ::dicttool::_dictputb {level varname dict} {
+::tcllib::PROC ::dicttool::_dictputb {level varname dict} {
   upvar 1 $varname result
   incr level
   dict for {field value} $dict {
@@ -112,7 +126,7 @@ proc ::dicttool::_dictputb {level varname dict} {
     }
   }
 }
-PROC ::dicttool::sanitize {dict} {
+proc ::dicttool::sanitize {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_sanitizeb {} result $dict
@@ -215,7 +229,7 @@ proc ::dicttool::dictmerge {varname args} {
   }
   return $result
 }
-PROC ::dicttool::merge {args} {
+proc ::dicttool::merge {args} {
   ###
   # The result of a merge is always a dict with branches
   ###
@@ -256,7 +270,7 @@ PROC ::dicttool::merge {args} {
   }
   return $result
 }
-PROC ::tcl::dict::isnull {dictionary args} {
+::tcllib::PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}
   return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
 } {
@@ -270,7 +284,7 @@ PROC ::tcl::dict::isnull {dictionary args} {
 ###
 # START: list.tcl
 ###
-PROC ::ladd {varname args} {
+::tcllib::PROC ::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -281,7 +295,7 @@ PROC ::ladd {varname args} {
   }
   return $var
 }
-PROC ::ldelete {varname args} {
+::tcllib::PROC ::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -293,7 +307,7 @@ PROC ::ldelete {varname args} {
   }
   return $var
 }
-PROC ::lrandom list {
+::tcllib::PROC ::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]

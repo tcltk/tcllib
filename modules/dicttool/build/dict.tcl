@@ -67,7 +67,7 @@ PROC ::tcl::dict::is_dict { d } {
 # > dicttool::is_branch $mydict {sub/ sub/ field}
 # 0
 ###
-PROC ::dicttool::is_branch { dict path } {
+::tcllib::PROC ::dicttool::is_branch { dict path } {
   set field [lindex $path end]
   if {[string index $field end] eq ":"} {
     return 0
@@ -95,7 +95,7 @@ PROC ::dicttool::is_branch { dict path } {
 #   }
 # }
 ###
-PROC ::dicttool::print {dict} {
+::tcllib::PROC ::dicttool::print {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_dictputb $level result $dict
@@ -108,7 +108,7 @@ PROC ::dicttool::print {dict} {
 # a human readable stream of lines, and determines if it needs to call itself
 # with further indentation to express a sub-branch
 ###
-proc ::dicttool::_dictputb {level varname dict} {
+::tcllib::PROC ::dicttool::_dictputb {level varname dict} {
   upvar 1 $varname result
   incr level
   dict for {field value} $dict {
@@ -126,7 +126,7 @@ proc ::dicttool::_dictputb {level varname dict} {
 ###
 # Output a dictionary removing any . entries added by [fun {dicttool::merge}]
 ###
-PROC ::dicttool::sanitize {dict} {
+proc ::dicttool::sanitize {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_sanitizeb {} result $dict
@@ -328,7 +328,7 @@ proc ::dicttool::dictmerge {varname args} {
 #   }
 # }
 ###
-PROC ::dicttool::merge {args} {
+proc ::dicttool::merge {args} {
   ###
   # The result of a merge is always a dict with branches
   ###
@@ -375,7 +375,7 @@ PROC ::dicttool::merge {args} {
 # [para]
 # This function is added to the global dict ensemble as [fun {dict isnull}]
 ###
-PROC ::tcl::dict::isnull {dictionary args} {
+::tcllib::PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}
   return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
 } {
