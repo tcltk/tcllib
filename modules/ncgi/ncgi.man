@@ -149,10 +149,12 @@ that has some descriptive information first, and the actual form value
 second.  The descriptive information is list of header names and
 values that describe the content.
 
+
 [call [cmd ::ncgi::nvlist]]
 
 This returns all the query data as a name, value list.  In the case of
 multipart/form-data, the values are structured as described in
+
 
 [cmd ::ncgi::multipart].
 
@@ -162,6 +164,7 @@ This returns all names found in the query data, as a list.
 
 [cmd ::ncgi::multipart].
 
+
 [call [cmd ::ncgi::parse]]
 
 This reads and decodes the CGI values from the environment.  The CGI
@@ -169,16 +172,33 @@ values are obtained later with the [cmd ::ncgi::value] procedure.  IF
 a CGI value is repeated, then you should use [cmd ::ncgi::valueList]
 to get the complete list of values.
 
+
 [call [cmd ::ncgi::parseMimeValue] [arg value]]
 
-This decodes the Content-Type and other MIME headers that have the
+Decodes the Content-Type and other MIME headers that have the
 form of "primary value; param=val; p2=v2" It returns a list, where the
 first element is the primary value, and the second element is a list
 of parameter names and values.
 
+
+[call [cmd ::ncgi::post]]
+
+Returns the parsed post data as a multidict.
+
+
+[call [cmd ::ncgi::poststring]]
+
+Returns the raw post data.
+
 [call [cmd ::ncgi::query]]
 
-This returns the raw query data.
+Returns the parsed query data as a multidict.
+
+
+[call [cmd ::ncgi::querystring]]
+
+Returns the raw query data.
+
 
 [call [cmd ::ncgi::redirect] [arg url]]
 
@@ -186,6 +206,7 @@ Generate a response that causes a 302 redirect by the Web server.  The
 [arg url] is the new URL that is the target of the redirect.  The URL
 will be qualified with the current server and current directory, if
 necessary, to convert it into a full URL.
+
 
 [call [cmd ::ncgi::reset] [arg {query type}]]
 
@@ -195,6 +216,7 @@ module so it does not try to read standard input or use environment
 variables to get its data.  If neither [arg query] or [arg type] are
 specified, then the [package ncgi] module will look in the standard
 CGI environment for its data.
+
 
 [call [cmd ::ncgi::setCookie] [arg args]]
 
@@ -213,6 +235,7 @@ called in order for the cookie to be returned properly.  The
 [def "[option -domain] [arg {domain restriction}]"]
 [list_end]
 
+
 [call [cmd ::ncgi::setDefaultValue] [arg {key defvalue}]]
 
 Set a CGI value if it does not already exists.  This affects future
@@ -221,10 +244,12 @@ calls to [cmd ::ncgi::value] (but not future calls to
 [cmd ::ncgi::nvlist]).  If the CGI value already is present, then this
 procedure has no side effects.
 
+
 [call [cmd ::ncgi::setDefaultValueList] [arg {key defvaluelist}]]
 
 Like [cmd ::ncgi::setDefaultValue] except that the value already has
 list structure to represent multiple checkboxes or a multi-selection.
+
 
 [call [cmd ::ncgi::setValue] [arg {key value}]]
 
@@ -232,14 +257,17 @@ Set a CGI value, overriding whatever was present in the CGI
 environment already.  This affects future calls to [cmd ::ncgi::value]
 (but not future calls to [cmd ::ncgi::nvlist]).
 
+
 [call [cmd ::ncgi::setValueList] [arg {key valuelist}]]
 
 Like [cmd ::ncgi::setValue] except that the value already has list
 structure to represent multiple checkboxes or a multi-selection.
 
+
 [call [cmd ::ncgi::type]]
 
 Returns the Content-Type of the current CGI values.
+
 
 [call [cmd ::ncgi::urlStub] [opt [arg url]]]
 
@@ -248,6 +276,7 @@ If [arg url] is specified, then it defines the URL for the current
 session.  That value will be returned by future calls to
 
 [cmd ::ncgi::urlStub]
+
 
 [call [cmd ::ncgi::value] [arg key] [opt [arg default]]]
 
@@ -266,6 +295,7 @@ called, then [cmd ::ncgi::value] returns a Tcl list value and
 multipart/form-data, this procedure just returns the value of the form
 element.  If you want the meta-data associated with each form value,
 then use [cmd ::ncgi::valueList].
+
 
 [call [cmd ::ncgi::valueList] [arg key] [opt [arg default]]]
 

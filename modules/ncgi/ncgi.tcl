@@ -5,6 +5,7 @@
 # Copyright (c) 2000 Ajuba Solutions.
 # Copyright (c) 2012 Richard Hipp, Andreas Kupries
 # Copyright (c) 2013-2014 Andreas Kupries
+# Copyright (c) 2018 Poor Yorick 
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -13,7 +14,7 @@
 # Please note that Don Libes' has a "cgi.tcl" that implements version 1.0
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
 # (it doesn't use the ::cgi:: namespace) and has a wealth of procedures for
-# generating HTML.  In contract, the package provided here is primarly
+# generating HTML.  In contrast, the package provided here is primarly
 # concerned with processing input to CGI programs.  I have tried to mirror his
 # API's where possible.  So, ncgi::input is equivalent to cgi_input, and so
 # on.  There are also some different APIs for accessing values (ncgi::list,
@@ -30,7 +31,7 @@ package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 package require uri
 
-package provide ncgi 1.4.3
+package provide ncgi 1.5.0
 
 namespace eval ::ncgi {
 
@@ -43,6 +44,15 @@ namespace eval ::ncgi {
     # This is the content-type which affects how the query is parsed
 
     variable contenttype
+
+    if {[info exists env(CONTENT_LENGTH)] && [
+	string length $env(CONTENT_LENGTH)] != 0} {
+	variable content_length [expr {$env(CONTENT_LENGTH)}]
+    }
+
+    if {[info exists ::env(REQUEST_METHOD)]} {
+	variable method [string tolower $::env(REQUEST_METHOD)]
+    }
 
     # value is an array of parsed query data.  Each array element is a list
     # of values, and the array index is the form element name.
@@ -97,11 +107,49 @@ namespace eval ::ncgi {
     # I don't like importing, but this makes everything show up in 
     # pkgIndex.tcl
 
-    namespace export reset urlStub query type decode encode
+    namespace export method reset urlStub query type decode encode
     namespace export nvlist parse input value valueList names
     namespace export setValue setValueList setDefaultValue setDefaultValueList
     namespace export empty import importAll importFile redirect header
     namespace export parseMimeValue multipart cookie setCookie
+}
+
+
+proc ::ncgi::post {} {
+    set type [type]
+    switch -glob $type {
+	{} -
+	text/xml* -
+	application/x-www-form-urlencoded* -
+	application/x-www-urlencoded* {
+	    return [urlencoded [poststring]]
+	}
+	multipart/* {
+	    return [multipart $type [poststring]]
+	}
+	default {
+	    return -code error "Unknown Content-Type: $type"
+	}
+    }
+}
+
+
+proc ::ncgi::poststring {} {
+    global env
+    variable content_length
+    variable method
+    variable post
+    if {![info exists post]} {
+	if {([info exists method] && $method eq {post})
+	    && [info exist content_length]
+	} {
+	    fconfigure stdin -translation binary -encoding binary
+	    set post [read stdin $env(CONTENT_LENGTH)]
+	} else {
+	    set post {}
+	}
+    }
+    return $post
 }
 
 # ::ncgi::reset
@@ -123,12 +171,13 @@ namespace eval ::ncgi {
 #	Resets the cached query data and wipes any environment variables
 #	associated with CGI inputs (like QUERY_STRING)
 
-proc ::ncgi::reset {args} {
+proc ::ncgi::reset args {
     global env
     variable _tmpfiles
     variable query
     variable contenttype
     variable cookieOutput
+    variable post
 
     # array unset _tmpfiles -- Not a Tcl 8.2 idiom
     unset _tmpfiles ; array set _tmpfiles {}
@@ -145,9 +194,23 @@ proc ::ncgi::reset {args} {
 	if {[info exists contenttype]} {
 	    unset contenttype
 	}
+	if {[info exists post]} {
+	    unset post
+	}
     } else {
-	set query [lindex $args 0]
-	set contenttype [lindex $args 1]
+	set contenttype {}
+	set post {}
+	set query {}
+	dict for {opt val} $args {
+	    switch $opt {
+		contenttype - post - query {
+		    set $opt $val
+		}
+		default {
+		    error [list {unknown reset option} $opt]
+		}
+	    }
+	}
     }
 }
 
@@ -180,44 +243,6 @@ proc ::ncgi::urlStub {{url {}}} {
     }
 }
 
-# ::ncgi::query
-#
-#	This reads the query data from the appropriate location, which depends
-#	on if it is a POST or GET request.
-#
-# Arguments:
-#	none
-#
-# Results:
-#	The raw query data.
-
-proc ::ncgi::query {} {
-    global env
-    variable query
-
-    if {[info exists query]} {
-	# This ensures you can call ncgi::query more than once,
-	# and that you can use it with ncgi::reset
-	return $query
-    }
-
-    set query ""
-    if {[info exists env(REQUEST_METHOD)]} {
-	if {$env(REQUEST_METHOD) == "GET"} {
-	    if {[info exists env(QUERY_STRING)]} {
-		set query $env(QUERY_STRING)
-	    }
-	} elseif {$env(REQUEST_METHOD) == "POST"} {
-	    if {[info exists env(CONTENT_LENGTH)] &&
-		    [string length $env(CONTENT_LENGTH)] != 0} {
- 		## added by Steve Cassidy to try to fix binary file upload
- 		fconfigure stdin -translation binary -encoding binary
-		set query [read stdin $env(CONTENT_LENGTH)]
-	    }
-	}
-    }
-    return $query
-}
 
 # ::ncgi::type
 #
@@ -343,55 +368,14 @@ proc ::ncgi::names {} {
 
 proc ::ncgi::nvlist {} {
     set query [query]
-    set type  [type]
-    switch -glob -- $type {
-	"" -
+    set post [post]
+    return [dict merge $query $post]
+    switch -glob -- [type] {
+	{} -
 	text/xml* -
 	application/x-www-form-urlencoded* -
-	application/x-www-urlencoded* {
-	    set result {}
-
-	    # Any whitespace at the beginning or end of urlencoded data is not
-	    # considered to be part of that data, so we trim it off.  One special
-	    # case in which post data is preceded by a \n occurs when posting
-	    # with HTTPS in Netscape.
-
-	    foreach {x} [split [string trim $query] &] {
-		# Turns out you might not get an = sign,
-		# especially with <isindex> forms.
-
-		set pos [string first = $x]
-		set len [string length $x]
-
-		if { $pos>=0 } {
-		    if { $pos == 0 } { # if the = is at the beginning ...
-		        if { $len>1 } { 
-                            # ... and there is something to the right ...
-		            set varname anonymous
-		            set val [string range $x 1 end]
-		        } else { 
-                            # ... otherwise, all we have is an =
-		            set varname anonymous
-		            set val ""
-		        }
-		    } elseif { $pos==[expr {$len-1}] } { 
-                        # if the = is at the end ...
-		        set varname [string range $x 0 [expr {$pos-1}]]
-			set val ""
-		    } else {
-		        set varname [string range $x 0 [expr {$pos-1}]]
-		        set val [string range $x [expr {$pos+1}] end]
-		    }
-		} else { # no = was found ...
-		    set varname anonymous
-		    set val $x
-		}		
-		lappend result [decode $varname] [decode $val]
-	    }
-	    return $result
-	}
+	application/x-www-urlencoded*  -
 	multipart/* {
-	    return [multipart $type $query]
 	}
 	default {
 	    return -code error "Unknown Content-Type: $type"
@@ -430,6 +414,8 @@ proc ::ncgi::parse {} {
     return $varlist
 } 
 
+
+
 # ::ncgi::input
 #
 #	Like ncgi::parse, but with Don Libes cgi.tcl semantics.
@@ -451,7 +437,7 @@ proc ::ncgi::input {{fakeinput {}} {fakecookie {}}} {
 	unset value
     }
     if {[string length $fakeinput]} {
-	ncgi::reset $fakeinput
+	ncgi::reset query $fakeinput
     }
     foreach {name val} [nvlist] {
 	set exists [info exists value($name)]
@@ -472,6 +458,93 @@ proc ::ncgi::input {{fakeinput {}} {fakecookie {}}} {
     }
     return $varlist
 } 
+
+
+# ::ncgi::query
+#
+#	Parses the query part of the URI
+#
+proc ::ncgi::query {} {
+    urlencoded [querystring]
+}
+
+
+# ::ncgi::urlencoded
+#
+#	Parses $data as a url-encoded query and returns a multidict containing
+#	the query.
+#
+proc ::ncgi::urlencoded query {
+    set result {}
+
+    # Any whitespace at the beginning or end of urlencoded data is not
+    # considered to be part of that data, so we trim it off.  One special
+    # case in which post data is preceded by a \n occurs when posting
+    # with HTTPS in Netscape.
+    foreach x [split [string trim $query] &] {
+	# Turns out you might not get an = sign,
+	# especially with <isindex> forms.
+
+	set pos [string first = $x]
+	set len [string length $x]
+
+	if { $pos>=0 } {
+	    if { $pos == 0 } { # if the = is at the beginning ...
+		if { $len>1 } { 
+		    # ... and there is something to the right ...
+		    set varname anonymous
+		    set val [string range $x 1 end]
+		} else { 
+		    # ... otherwise, all we have is an =
+		    set varname anonymous
+		    set val ""
+		}
+	    } elseif { $pos==[expr {$len-1}] } { 
+		# if the = is at the end ...
+		set varname [string range $x 0 [expr {$pos-1}]]
+		set val ""
+	    } else {
+		set varname [string range $x 0 [expr {$pos-1}]]
+		set val [string range $x [expr {$pos+1}] end]
+	    }
+	} else { # no = was found ...
+	    set varname anonymous
+	    set val $x
+	}		
+	lappend result [decode $varname] [decode $val]
+    }
+    return $result
+}
+
+
+# ::ncgi::querystring
+#
+#	This reads the query data from the appropriate location, which depends
+#	on if it is a POST or GET request.
+#
+# Arguments:
+#	none
+#
+# Results:
+#	The raw query data.
+
+proc ::ncgi::querystring {} {
+    global env
+    variable query
+
+    if {[info exists query]} {
+	# This ensures you can call ncgi::query more than once,
+	# and that you can use it with ncgi::reset
+	return $query
+    }
+
+    set query {} 
+    if {[info exists env(QUERY_STRING)]} {
+	set query $env(QUERY_STRING)
+    }
+    return $query
+}
+
 
 # ::ncgi::value
 #
