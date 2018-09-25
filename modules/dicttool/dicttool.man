@@ -16,7 +16,7 @@ just in case any of these slip into the core.
 
 [section {Commands}]
 [list_begin definitions]
-[call proc [cmd PROC] [arg name] [arg arglist] [arg body] [opt "[arg ninja] [const ""]"]]
+[call proc [cmd tcllib::PROC] [arg name] [arg arglist] [arg body] [opt "[arg ninja] [const ""]"]]
 
  Because many features in this package may be added as
  commands to future tcl cores, or be provided in binary
@@ -28,7 +28,7 @@ just in case any of these slip into the core.
 
 
 
-[call proc [cmd noop] [opt "[arg args]"]]
+[call proc [cmd tcllib::noop] [opt "[arg args]"]]
 
  Perform a noop. Useful in prototyping for commenting out blocks
  of code without actually having to comment them out. It also makes
@@ -37,7 +37,7 @@ just in case any of these slip into the core.
 
 
 
-[call proc [cmd putb] [opt "[arg map]"] [arg text]]
+[call proc [cmd tcllib::putb] [opt "[arg map]"] [arg text]]
 
  Append a line of text to a variable. Optionally apply a string mapping.
 

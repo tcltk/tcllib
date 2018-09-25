@@ -13,7 +13,7 @@
 # puts $contents
 # > foo bar baz bang
 ###
-PROC ::ladd {varname args} {
+::tcllib::PROC ::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -37,7 +37,7 @@ PROC ::ladd {varname args} {
 # puts $contents
 # > bar baz bang
 ###
-PROC ::ldelete {varname args} {
+::tcllib::PROC ::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -53,7 +53,7 @@ PROC ::ldelete {varname args} {
 ###
 # Return a random element from [variable list]
 ###
-PROC ::lrandom list {
+::tcllib::PROC ::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]

@@ -394,6 +394,7 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        tcllib::PROC -
         PROC -
         Proc -
         proc {
