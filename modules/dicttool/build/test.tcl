@@ -23,39 +23,33 @@ putb result {
 ###
 }
 set test 0
-foreach {pattern output} {
-  {foo bar baz} {foo/ bar/ baz}
-  {foo bar baz/} {foo/ bar/ baz/}
-  {foo bar .}   {foo/ bar}
-  {foo/ bar/ .} {foo/ bar}
-  {foo . bar . baz .} {foo/ bar/ baz}
-
+  foreach {pattern canonical storage} {
+    {foo bar baz}       {foo/ bar/ baz}         {foo bar baz}
+    {foo bar baz/}      {foo/ bar/ baz/}        {foo bar baz}
+    {foo bar .}         {foo/ bar}              {foo bar .}
+    {foo/ bar/ .}       {foo/ bar}              {foo bar .}
+    {foo . bar . baz .} {foo/ bar/ baz}         {foo . bar . baz .}
+    {foo bar baz bat:}  {foo/ bar/ baz/ bat:}   {foo bar baz bat:}
+    {foo:}              {foo:}                  {foo:}
+    {foo/bar/baz/bat:}  {foo/ bar/ baz/ bat:}   {foo bar baz bat:}
 } {
     dict set map %pattern% $pattern
-    dict set map %output% $output
-    dict set map %test% [format "test-canonical-%04d" [incr test]]
+    dict set map %canonical% $canonical
+    dict set map %storage% $storage
+    incr test
+    noop {
+    dict set map %test% [format "test-canonical-%04d" $test]
     putb result $map {
-test {%test%} {Test ::dicttool::canonical with %pattern% = %output%} {
+test {%test%} {Test ::dicttool::canonical with %pattern%} {
   dicttool::canonical {%pattern%}
-} {%output%}
+} {%canonical%}
 }
-}
-
-
-set test 0
-foreach {pattern output} {
-  {foo bar baz} {foo bar baz}
-  {foo bar baz/} {foo bar baz}
-  {foo bar .}   {foo bar .}
-  {foo/ bar/ .} {foo bar .}
-} {
-    dict set map %pattern% $pattern
-    dict set map %output% $output
-    dict set map %test% [format "test-storage-%04d" [incr test]]
+    }
+    dict set map %test% [format "test-storage-%04d" $test]
     putb result $map {
-test {%test%} {Test ::dicttool::canonical with %pattern% = %output%} {
+test {%test%} {Test ::dicttool::storage with %pattern%} {
   dicttool::storage {%pattern%}
-} {%output%}
+} {%storage%}
 }
 }
 
@@ -195,9 +189,9 @@ test oometa-0002 {Invoking dictmerge with empty args on a non existent variable 
 } Color
 
 unset -nocomplain foo
-set foo {. 1}
-::dicttool::dictmerge foo {. 1 color {. 1 default green label Color}}
-::dicttool::dictmerge foo {. 1 color {. 1 default purple}}
+set foo {. {}}
+::dicttool::dictmerge foo {. {} color {. {} default green label Color}}
+::dicttool::dictmerge foo {. {} color {. {} default purple}}
 test oometa-0003 {Recursive merge problem from oometa/clay find} {
   dict get $foo color default
 } purple
@@ -206,9 +200,9 @@ test oometa-0004 {Recursive merge problem from oometa/clay find} {
 } Color
 
 unset -nocomplain foo
-set foo {. 1}
-::dicttool::dictmerge foo {. 1 color {. 1 default purple}}
-::dicttool::dictmerge foo {. 1 color {. 1 default green label Color}}
+set foo {. {}}
+::dicttool::dictmerge foo {. {} color {. {} default purple}}
+::dicttool::dictmerge foo {. {} color {. {} default green label Color}}
 test oometa-0005 {Recursive merge problem from oometa/clay find} {
   dict get $foo color default
 } green
@@ -218,7 +212,7 @@ test oometa-0006 {Recursive merge problem from oometa/clay find} {
 
 test oometa-0008 {Un-Sanitized output} {
   set foo
-} {. 1 color {. 1 default green label Color}}
+} {. {} color {. {} default green label Color}}
 
 test oometa-0009 {Sanitize} {
   dicttool::sanitize $foo
@@ -233,10 +227,11 @@ unset -nocomplain foo
 test clay-0001 {Invoking dictmerge with empty args on a non existent variable create an empty variable} {
   ::dicttool::dictmerge foo
   set foo
-} {. 1}
+} {. {}}
 
 unset -nocomplain foo
-::dicttool::dictset foo bar/ baz/ bell/ bang
+::dicttool::dictset foo bar/ baz/ bell bang
+
 test clay-0002 {For new entries dictmerge is essentially a set} {
   dict get $foo bar baz bell
 } {bang}
@@ -249,6 +244,7 @@ test clay-0004 {For entries that do exist a zipper merge is performed} {
 } {bang}
 
 ::dicttool::dictset foo bar/ baz/ bop {color green flavor strawberry}
+
 test clay-0005 {Leaves are replaced even if they look like a dict} {
   dict get $foo bar baz bop
 } {color green flavor strawberry}
@@ -259,19 +255,47 @@ test clay-0006 {Leaves are replaced even if they look like a dict} {
 } {color yellow}
 
 ::dicttool::dictset foo bar/ baz/ bang/ {color green flavor strawberry}
-test clay-0007 {Branches are merged} {
+test clay-0007a {Branches are merged} {
   dict get $foo bar baz bang
-} {. 1 color green flavor strawberry}
+} {. {} color green flavor strawberry}
 
 ::dicttool::dictset foo bar/ baz/ bang/ color yellow
-test clay-0008 {Branches are merged}  {
+test clay-0007b {Branches are merged}  {
   dict get $foo bar baz bang
-} {. 1 color yellow flavor strawberry}
+} {. {} color yellow flavor strawberry}
 
 ::dicttool::dictset foo bar/ baz/ bang/ {color blue}
-test clay-0009 {Branches are merged}  {
+test clay-0007c {Branches are merged}  {
   dict get $foo bar baz bang
-} {. 1 color blue flavor strawberry}
+} {. {} color blue flavor strawberry}
+
+::dicttool::dictset foo bar/ baz/ bang/ shape: {Sort of round}
+test clay-0007d {Branches are merged} {
+  dict get $foo bar baz bang
+} {. {} color blue flavor strawberry shape: {Sort of round}}
+
+::dicttool::dictset foo bar/ baz/ bang/ color yellow
+test clay-0007e {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color yellow flavor strawberry shape: {Sort of round}}
+
+::dicttool::dictset foo bar/ baz/ bang/ {color blue}
+test clay-0007f {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color blue flavor strawberry shape: {Sort of round}}
+
+::dicttool::dictset foo dict my_var 10
+::dicttool::dictset foo dict my_other_var 9
+
+test clay-0007g {Branches are merged}  {
+  dict get $foo dict
+} {. {} my_var 10 my_other_var 9}
+
+::dicttool::dictset foo dict/ my_other_other_var 8
+test clay-0007h {Branches are merged}  {
+  dict get $foo dict
+} {. {} my_var 10 my_other_var 9 my_other_other_var 8}
+
 
 ::dicttool::dictmerge foo {option/ {color {type color} flavor {sense taste}}}
 ::dicttool::dictmerge foo {option/ {format {default ascii}}}

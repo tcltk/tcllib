@@ -68,7 +68,7 @@ Returns a dict representation of the element at [emph args], but with any traili
 [example {
 ::oo::meta::info $myclass set option color {default: green widget: colorselect}
 puts [::oo::meta::info $myclass get option color]
-> {default green widget color}
+> {default: green widget: color}
 puts [::oo::meta::info $myclass branchget option color]
 > {default green widget color}
 }]

@@ -13,7 +13,7 @@
 # dictionary {mandatory 1 positional 1}
 # element {mandatory 0 positional 1 repeating 1}
 ###
-PROC ::tcl::dict::getnull {dictionary args} {
+::tcllib::PROC ::tcl::dict::getnull {dictionary args} {
   if {[exists $dictionary {*}$args]} {
     get $dictionary {*}$args
   }
@@ -28,7 +28,7 @@ PROC ::tcl::dict::getnull {dictionary args} {
 # [para]
 # This command is added to the [fun dict] ensemble as [fun {dict is_dict}]
 ###
-PROC ::tcl::dict::is_dict { d } {
+::tcllib::PROC ::tcl::dict::is_dict { d } {
   # is it a dict, or can it be treated like one?
   if {[catch {dict size $d} err]} {
     #::set ::errorInfo {}
@@ -38,6 +38,38 @@ PROC ::tcl::dict::is_dict { d } {
 } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
+}
+
+###
+# A routine to recursively dig through dicts and merge
+# adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+###
+::tcllib::PROC ::tcl::dict::rmerge {args} {
+  ::set result [dict create . {}]
+  # Merge b into a, and handle nested dicts appropriately
+  ::foreach b $args {
+    for { k v } $b {
+      ::set field [string trim $k :/]
+      if {![::dicttool::is_branch $b $k]} {
+        # Element names that end in ":" are assumed to be literals
+        set result $k $v
+      } elseif { [exists $result $k] } {
+        # key exists in a and b?  let's see if both values are dicts
+        # both are dicts, so merge the dicts
+        if { [is_dict [get $result $k]] && [is_dict $v] } {
+          set result $k [rmerge [get $result $k] $v]
+        } else {
+          set result $k $v
+        }
+      } else {
+        set result $k $v
+      }
+    }
+  }
+  return $result
+} {
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
 }
 
 ###
@@ -152,57 +184,20 @@ proc ::dicttool::_sanitizeb {path varname dict} {
 }
 
 ###
-# Return the path as a canonical path for dicttool
-# with all branch keys
-# ending in a / and the final element ending in a /
-# if the final element in the path ended in a /
-# This command will also break arguments up if they
-# contain /.
-# example:
-# > dicttool::canonical foo bar baz bang
-# foo/ bar/ baz/ bang
-# > dicttool::canonical foo bar baz bang/
-# foo/ bar/ baz/ bang/
-# > dicttool::canonical foo bar baz bang:
-# foo/ bar/ baz/ bang
-# > dicttool::canonical foo/bar/baz bang:
-# foo/ bar/ baz/ bang
-# > dicttool::canonical foo/bar/baz/bang
-# foo/ bar/ baz/ bang
-###
-proc ::dicttool::canonical {rawpath} {
-  set path {}
-  set tail [string index $rawpath end]
-  foreach element $rawpath {
-    set items [split [string trim $element /] /]
-    foreach item $items {
-      if {$item eq {}} continue
-      if {$item eq {.}} continue
-      lappend path [string trim ${item} :]/
-    }
-  }
-  if {$tail eq {/}} {
-    return $path
-  } else {
-    return [lreplace $path end end [string trim [lindex $path end] /]]
-  }
-}
-
-###
 # Return the path as a storage path for dicttool
 # with all branch terminators removed.
 # This command will also break arguments up if they
 # contain /.
 # example:
-# > dicttool::storage foo bar baz bang
+# > dicttool::storage {foo bar baz bang}
 # foo bar baz bang
-# > dicttool::storage foo bar baz bang/
+# > dicttool::storage {foo bar baz bang/}
 # foo bar baz bang
-# > dicttool::storage foo bar baz bang:
-# foo bar baz bang
-# > dicttool::storage foo/bar/baz bang:
-# foo bar baz bang
-# > dicttool::storage foo/bar/baz/bang
+# > dicttool::storage {foo bar baz bang:}
+# foo bar baz bang:
+# > dicttool::storage {foo/bar/baz bang:}
+# foo bar baz bang:
+# > dicttool::storage {foo/bar/baz/bang}
 # foo bar baz bang
 ###
 proc ::dicttool::storage {rawpath} {
@@ -213,7 +208,7 @@ proc ::dicttool::storage {rawpath} {
     set items [split [string trim $element /] /]
     foreach item $items {
       if {$item eq {}} continue
-      lappend path [string trim ${item} :/]
+      lappend path $item
     }
   }
   return $path
@@ -231,9 +226,9 @@ proc ::dicttool::storage {rawpath} {
 # example:
 # > set r {}
 # > ::dicttool::dictset r option color default Green
-# . 1 option {. 1 color {. 1 default Green}}
+# . {} option {. {} color {. {} default Green}}
 # > ::dicttool::dictset r option {Something not dictlike}
-# . 1 option {Something not dictlike}
+# . {} option {Something not dictlike}
 # # Note that if the value is not a dict, and you try to force it to be
 # # an error with be thrown on the merge
 # > ::dicttool::dictset r option color default Blue
@@ -249,24 +244,30 @@ proc ::dicttool::dictset {varname args} {
     set rawpath  [lrange $args 0 end-1]
   }
   set value [lindex $args end]
-  set path [canonical $rawpath]
+  set path [storage $rawpath]
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   set dpath {}
-  foreach item $path {
+  foreach item [lrange $path 0 end-1] {
     set field $item
     lappend dpath [string trim $item /]
-    if {[string index $item end] eq "/"} {
-      dict set result {*}$dpath $dot $one
-    }
+    dict set result {*}$dpath $dot $one
   }
-  if {[dict is_dict $value] && [dict exists $result {*}$dpath $dot]} {
-    dict set result {*}$dpath [::dicttool::merge [dict get $result {*}$dpath] $value]
-  } else {
-    dict set result {*}$dpath $value
+  set field [lindex $rawpath end]
+  set ext   [string index $field end]
+  if {$ext eq {:} || ![dict is_dict $value]} {
+    dict set result {*}$path $value
+    return
   }
-  return $result
+  if {$ext eq {/} && ![dict exists $result {*}$path $dot]} {
+    dict set result {*}$path $dot $one
+  }
+  if {[dict exists $result {*}$path $dot]} {
+    dict set result {*}$path [::dicttool::merge [dict get $result {*}$path] $value]
+    return
+  }
+  dict set result {*}$path $value
 }
 
 ###
@@ -285,11 +286,11 @@ proc ::dicttool::dictset {varname args} {
 proc ::dicttool::dictmerge {varname args} {
   upvar 1 $varname result
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   foreach dict $args {
     dict for {f v} $dict {
-      set field [string trim $f :/]
+      set field [string trim $f /]
       set bbranch [dicttool::is_branch $dict $f]
       if {![dict exists $result $field]} {
         dict set result $field $v
@@ -333,7 +334,7 @@ proc ::dicttool::merge {args} {
   # The result of a merge is always a dict with branches
   ###
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   set argument 0
   foreach b $args {
@@ -347,7 +348,7 @@ proc ::dicttool::merge {args} {
         continue
       }
       set bbranch [is_branch $b $k]
-      set field [string trim $k /:]
+      set field [string trim $k /]
       if { ![dict exists $result $field] } {
         if {$bbranch} {
           dict set result $field [merge $v]

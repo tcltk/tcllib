@@ -16,8 +16,12 @@ namespace eval ::tool {}
 # New OO Keywords for TOOL
 ###
 namespace eval ::tool::define {}
-proc ::tool::define::array args {
-  ::clay::define::Array {*}${args}
+proc ::tool::define::array {name {values {}}} {
+  set class [current_class]
+  set name [string trimright $name :]
+  dict for {f v} $values {
+    $class clay set array $name $f $v
+  }
 }
 
 ###
@@ -25,7 +29,7 @@ proc ::tool::define::array args {
 ###
 proc ::tool::define::component {name info} {
   set class [current_class]
-  $class clay set component/ $name $info
+  ::oo::meta::info $class branchset component $name $info
 }
 
 ###
@@ -48,6 +52,14 @@ my initialize
 }
 
 ###
+# topic: 7a5c7e04989704eef117ff3c9dd88823
+# title: Specify the a method for the class object itself, instead of for objects of the class
+###
+proc ::tool::define::class_method {name arglist body} {
+  set class [current_class]
+  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
+}
+###
 # topic: 4cb3696bf06d1e372107795de7fe1545
 # title: Specify the destructor for a class
 ###
@@ -64,15 +76,6 @@ set DestroyEvent 1
   ::oo::define [current_class] destructor $body
 }
 
-proc ::tool::define::meta {args} {
-  set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
-    ::oo::meta::info $class {*}$args
-  } else {
-    ::oo::meta::info $class set {*}$args
-  }
-}
-
 ###
 # topic: 8bcae430f1eda4ccdb96daedeeea3bd409c6bb7a
 # description: Add properties and option handling
@@ -84,14 +87,14 @@ proc ::tool::define::property args {
       set type const
       set property [string trimleft [lindex $args 0] :]
       set value [lindex $args 1]
-      $class clay set $type/ $property $value
+      ::oo::meta::info $class set $type $property: $value
       return
     }
     3 {
-      set type     [string trim [lindex $args 0] /]
+      set type     [lindex $args 0]
       set property [string trimleft [lindex $args 1] :]
       set value    [lindex $args 2]
-      $class clay set $type/ $property $value
+      ::oo::meta::info $class set $type $property: $value
       return
     }
     default {
@@ -100,7 +103,7 @@ property name type valuedict
 OR property name value"
     }
   }
-  $class clay set {*}$args
+  ::oo::meta::info $class set {*}$args
 }
 
 ###
@@ -113,9 +116,11 @@ OR property name value"
 #    Variables registered in the variable property are also initialized
 #    (if missing) when the object changes class via the [emph morph] method.
 ###
-proc ::tool::define::variable args {
+proc ::tool::define::variable {name {default {}}} {
   set class [current_class]
-  ::clay::define::Variable {*}$args
+  set name [string trimright $name :]
+  ::oo::meta::info $class set variable $name: $default
+  ::oo::define $class variable $name
 }
 
 ###
@@ -147,11 +152,9 @@ proc ::tool::args_to_options args {
 ###
 proc ::tool::dynamic_methods class {
   ::oo::meta::rebuild $class
-  foreach command [info commands ::clay::dynamic_methods_*] {
-    $command $class
-  }
+  set metadata [::oo::meta::metadata $class]
   foreach command [info commands [namespace current]::dynamic_methods_*] {
-    $command $class
+    $command $class $metadata
   }
 }
 
@@ -203,6 +206,23 @@ proc ::tool::dynamic_arguments {ensemble method arglist args} {
       uplevel 1 [list set [lindex $argdef 0] [lindex $args $idx]]
     }
     incr idx
+  }
+}
+
+###
+# topic: b88add196bb63abccc44639db5e5eae1
+###
+proc ::tool::dynamic_methods_class {thisclass metadata} {
+  set methods {}
+  set mdata [$thisclass clay find class_typemethod]
+  foreach {method info} $mdata {
+    if {$method eq {.}} continue
+    set method [string trimright $method :/-]
+    if {$method in $methods} continue
+    lappend methods $method
+    set arglist [dict getnull $info arglist]
+    set body    [dict getnull $info body]
+    ::oo::objdefine $thisclass method $method $arglist $body
   }
 }
 
@@ -297,8 +317,6 @@ proc ::tool::object_destroy objname {
 #
 
 ::tool::define ::tool::object {
-  superclass ::clay::object
-
   # Put MOACish stuff in here
   variable signals_pending create
   variable organs {}
@@ -336,7 +354,9 @@ proc ::tool::object_destroy objname {
   # title: Direct a series of sub-functions to a seperate object
   ###
   method graft args {
-    my clay delegate {*}$args
+    my variable organs
+    set organs [my clay delegate {*}$args]
+    return $organs
   }
 
   # Called after all options and public variables are initialized
@@ -352,12 +372,188 @@ proc ::tool::object_destroy objname {
   #    Note, by default an odie object will ignore
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
+  method InitializePublic {} {
+    my variable clay config meta clayorder claycache
+    set claycache {}
+    set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
+    if {![info exists clay]} {
+      set clay {}
+    }
+    if {![info exists meta]} {
+      set meta {}
+    }
+    if {![info exists config]} {
+      set config {}
+    }
+    dict for {var value} [my clay get variable] {
+      if { $var in {. clay} } continue
+      set var [string trim $var :/]
+      my variable $var
+      if {![info exists $var]} {
+        if {$::clay::trace>2} {puts [list initialize variable $var $value]}
+        set $var $value
+      }
+    }
+    dict for {var value} [my clay get dict] {
+      if { $var in {. clay} } continue
+      set var [string trim $var :/]
+      my variable $var
+      if {![info exists $var]} {
+        set $var {}
+      }
+      foreach {f v} [my clay get $var] {
+        if {![dict exists ${var} $f]} {
+          if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
+          dict set ${var} $f $v
+        }
+      }
+      foreach {f v} $value {
+        if {![dict exists ${var} $f]} {
+          if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
+          dict set ${var} $f $v
+        }
+      }
+    }
+    foreach {var value} [my clay get array] {
+      if { $var in {. clay} } continue
+      set var [string trim $var :/]
+      if { $var eq {clay} } continue
+      my variable $var
+      if {![info exists $var]} { array set $var {} }
+      foreach {f v} [my clay get $var] {
+        if {![array exists ${var}($f)]} {
+          set ${var}($f) $v
+        }
+      }
+      foreach {f v} $value {
+        if {![array exists ${var}($f)]} {
+          if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
+          set ${var}($f) $v
+        }
+      }
+    }
+    my variable option_canonical option_getcmd option_getcmd
+    foreach {field info} [my clay get option] {
+      if { $field in {. clay} } continue
+      set field [string trim $field -/:]
+      foreach alias [dict getnull $info aliases] {
+        set option_canonical($alias) $field
+      }
+      if {[dict getnull $info class] eq "organ"} {
+        if {[my clay delegate $field] ne {}} continue
+      } else {
+        if {[dict exists $config $field]} continue
+      }
+      set getcmd [dict getnull $info get-command]
+      if {$getcmd ne {}} {
+        set option_getcmd($field) [string map [list %field% $field %self% [namespace which my]] $getcmd]
+      }
+      set dfltcmd [dict getnull $info default-command]
+      if {$dfltcmd ne {}} {
+        set value [{*}[string map [list %field% $field %self% [namespace which my]] $dfltcmd]]
+      } else {
+        set value [dict getnull $info default]
+      }
+      if {[dict getnull $info class] eq "organ"} {
+        my clay delegate $field $value
+      }
+      dict set config $field $value
+      set setcmd [dict getnull $info set-command]
+      if {$setcmd ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
+      }
+    }
+    ###
+    # Rebuild ensemble methods
+    ###
+    my variable clayorder clay claycache
+    if {[info exists clay]} {
+      set emap [dict getnull $clay method_ensemble]
+    } else {
+      set emap {}
+    }
+    foreach class [lreverse $clayorder] {
+      ###
+      # Build a compsite map of all ensembles defined by the object's current
+      # class as well as all of the classes being mixed in
+      ###
+      dict for {mensemble einfo} [$class clay get method_ensemble] {
+        if {$mensemble eq {.}} continue
+        set ensemble [string trim $mensemble :/]
+        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
+
+        dict for {method info} $einfo {
+          if {$method eq {.}} continue
+          dict set info source $class
+          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
+          dict set emap $ensemble $method $info
+        }
+      }
+    }
+    foreach {ensemble einfo} $emap {
+      #if {[dict exists $einfo _body]} continue
+      set body [::clay::ensemble_methodbody $ensemble $einfo]
+      if {$::clay::trace>2} {
+        set rawbody $body
+        set body {puts [list [self] <object> [self method]]}
+        append body \n $rawbody
+      }
+      oo::objdefine [self] method $ensemble {{method default} args} $body
+    }
+  }
+
+  ###
+  # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
+  # description:
+  #    Provide a default value for all options and
+  #    publically declared variables, and locks the
+  #    pipeline mutex to prevent signal processing
+  #    while the contructor is still running.
+  #    Note, by default an odie object will ignore
+  #    signals until a later call to <i>my lock remove pipeline</i>
+  ###
   method mixin args {
+    ###
+    # Mix in the class
+    ###
+    my variable mixins
+    set mixins $args
     my clay mixin {*}$args
   }
 
   method mixinmap args {
-    my clay mixinmap {*}$args
+    set result [my clay mixinmap {*}$args]
+    if {[llength $args]>1} {
+      my variable mixinmap
+      set mixinmap [my clay mixinmap]
+    }
+    return $result
+  }
+
+  method debug_mixinmap {} {
+    my variable mixinmap
+    return $mixinmap
+  }
+
+  method Recompute_Mixins {} {
+    my variable mixinmap
+    set classlist {}
+    foreach {item class} $mixinmap {
+      if {$class ne {}} {
+        lappend classlist $class
+      }
+    }
+    my mixin {*}$classlist
   }
 
   method morph newclass {
@@ -369,7 +565,7 @@ proc ::tool::object_destroy objname {
     }
     if { $class ne $newclass } {
       my Morph_leave
-      set mixins [info object mixins [self]]
+      my variable mixins
       oo::objdefine [self] class ::${newclass}
       my graft class ::${newclass}
       # Reapply mixins
@@ -392,10 +588,13 @@ proc ::tool::object_destroy objname {
   # title: List which objects are forwarded as organs
   ###
   method organ {{stub all}} {
-    if {$stub eq "all"} {
-      return [my clay delegate]
+    my variable organs
+    set organs [my clay delegate]
+    if { $stub eq "all" } {
+      return $organs
     }
-    return [my clay delegate $stub]
+    set stub <[string trim $stub <>]>
+    return [dict getnull $organs $stub]
   }
 }
 

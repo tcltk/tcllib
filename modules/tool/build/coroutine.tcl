@@ -1,17 +1,14 @@
 proc ::tool::define::coroutine {name corobody} {
   set class [current_class]
-  set methodname $name
-  set methodname [string trim $methodname /:-]
-
-  $class clay set method_ensemble/ $methodname/ _preamble [list arglist {} body [string map [list %coroname% $name] {
+  ::oo::meta::info $class set method_ensemble ${name} _preamble [list {} [string map [list %coroname% $name] {
     my variable coro_queue coro_lock
     set coro %coroname%
     set coroname [info object namespace [self]]::%coroname%
   }]]
-  $class clay set method_ensemble/ $methodname/ coroutine {arglist {} body {
+  ::oo::meta::info $class set method_ensemble ${name} coroutine {arglist {} body {
     return $coroutine
   }}
-  $class clay set method_ensemble/ $methodname/ restart {arglist {} body {
+  ::oo::meta::info $class set method_ensemble ${name} restart {arglist {} body {
     # Don't allow a coroutine to kill itself
     if {[info coroutine] eq $coroname} return
     if {[info commands $coroname] ne {}} {
@@ -21,7 +18,7 @@ proc ::tool::define::coroutine {name corobody} {
     ::coroutine $coroname {*}[namespace code [list my $coro main]]
     ::cron::object_coroutine [self] $coroname
   }}
-  $class clay set method_ensemble/ $methodname/ kill {arglist {} body {
+  ::oo::meta::info $class set method_ensemble ${name} kill {arglist {} body {
     # Don't allow a coroutine to kill itself
     if {[info coroutine] eq $coroname} return
     if {[info commands $coroname] ne {}} {
@@ -29,12 +26,12 @@ proc ::tool::define::coroutine {name corobody} {
     }
   }}
 
-  $class clay set method_ensemble/ $methodname/ main [list arglist {} body $corobody]
+  ::oo::meta::info $class set method_ensemble ${name} main [list arglist {} body $corobody]
 
-  $class clay set method_ensemble/ $methodname/ clear {arglist {} body {
+  ::oo::meta::info $class set method_ensemble ${name} clear {arglist {} body {
     set coro_queue($coroname) {}
   }}
-  $class clay set method_ensemble/ $methodname/ next {arglist {eventvar} body {
+  ::oo::meta::info $class set method_ensemble ${name} next {arglist {eventvar} body {
     upvar 1 [lindex $args 0] event
     if {![info exists coro_queue($coroname)]} {
       return 1
@@ -47,7 +44,7 @@ proc ::tool::define::coroutine {name corobody} {
     return 0
   }}
 
-  $class clay set method_ensemble/ $methodname/ peek {arglist {eventvar} body {
+  ::oo::meta::info $class set method_ensemble ${name} peek {arglist {eventvar} body {
     upvar 1 [lindex $args 0] event
     if {![info exists coro_queue($coroname)]} {
       return 1
@@ -59,7 +56,7 @@ proc ::tool::define::coroutine {name corobody} {
     return 0
   }}
 
-  $class clay set method_ensemble/ $methodname/ running {arglist {} body {
+  ::oo::meta::info $class set method_ensemble ${name} running {arglist {} body {
     if {[info commands $coroname] eq {}} {
       return 0
     }
@@ -72,7 +69,7 @@ proc ::tool::define::coroutine {name corobody} {
     return 0
   }}
 
-  $class clay set method_ensemble/ $methodname/ send {arglist args body {
+  ::oo::meta::info $class set method_ensemble ${name} send {arglist args body {
     lappend coro_queue($coroname) $args
     if {[info coroutine] eq $coroname} {
       return
@@ -87,6 +84,6 @@ proc ::tool::define::coroutine {name corobody} {
       yield
     }
   }}
-  $class clay set method_ensemble/ $methodname/ default {arglist args body {my [self method] send $method {*}$args}}
+  ::oo::meta::info $class set method_ensemble ${name} default {arglist args body {my [self method] send $method {*}$args}}
 
 }

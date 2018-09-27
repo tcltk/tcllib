@@ -65,6 +65,14 @@ just in case any of these slip into the core.
 
 
 
+[call proc [cmd tcl::dict::rmerge] [opt "[arg args]"]]
+
+ A routine to recursively dig through dicts and merge
+ adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+
+
+
+
 [call proc [cmd dicttool::is_branch] [arg dict] [arg path]]
 
  Return true if the element [variable path] with the value [variable dict]
@@ -123,29 +131,6 @@ just in case any of these slip into the core.
 
 
 
-[call proc [cmd dicttool::canonical] [arg rawpath]]
-
- Return the path as a canonical path for dicttool
- with all branch keys
- ending in a / and the final element ending in a /
- if the final element in the path ended in a /
- This command will also break arguments up if they
- contain /.
-
-[para]Example: [example { > dicttool::canonical foo bar baz bang
- foo/ bar/ baz/ bang
- > dicttool::canonical foo bar baz bang/
- foo/ bar/ baz/ bang/
- > dicttool::canonical foo bar baz bang:
- foo/ bar/ baz/ bang
- > dicttool::canonical foo/bar/baz bang:
- foo/ bar/ baz/ bang
- > dicttool::canonical foo/bar/baz/bang
- foo/ bar/ baz/ bang
-
-
-}]
-
 [call proc [cmd dicttool::storage] [arg rawpath]]
 
  Return the path as a storage path for dicttool
@@ -153,15 +138,15 @@ just in case any of these slip into the core.
  This command will also break arguments up if they
  contain /.
 
-[para]Example: [example { > dicttool::storage foo bar baz bang
+[para]Example: [example { > dicttool::storage {foo bar baz bang}
  foo bar baz bang
- > dicttool::storage foo bar baz bang/
+ > dicttool::storage {foo bar baz bang/}
  foo bar baz bang
- > dicttool::storage foo bar baz bang:
- foo bar baz bang
- > dicttool::storage foo/bar/baz bang:
- foo bar baz bang
- > dicttool::storage foo/bar/baz/bang
+ > dicttool::storage {foo bar baz bang:}
+ foo bar baz bang:
+ > dicttool::storage {foo/bar/baz bang:}
+ foo bar baz bang:
+ > dicttool::storage {foo/bar/baz/bang}
  foo bar baz bang
 
 
@@ -180,9 +165,9 @@ just in case any of these slip into the core.
 
 [para]Example: [example { > set r {}
  > ::dicttool::dictset r option color default Green
- . 1 option {. 1 color {. 1 default Green}}
+ . {} option {. {} color {. {} default Green}}
  > ::dicttool::dictset r option {Something not dictlike}
- . 1 option {Something not dictlike}
+ . {} option {Something not dictlike}
  # Note that if the value is not a dict, and you try to force it to be
  # an error with be thrown on the merge
  > ::dicttool::dictset r option color default Blue

@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.3
+set version 0.4
 set module clay
 set filename clay
 if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {

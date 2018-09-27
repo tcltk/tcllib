@@ -70,7 +70,14 @@ oo::define oo::class {
         if {![info exists clay]} {
           return 0
         }
-        return [dict exists $clay {*}[::dicttool::storage $args]]
+        set path [::dicttool::storage $args]
+        if {[dict exists $clay {*}$path]} {
+          return 1
+        }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return 1
+        }
+        return 0
       }
       dump {
         return $clay
@@ -80,10 +87,17 @@ oo::define oo::class {
           return {}
         }
         set path [::dicttool::storage $args]
-        if {![dict exists $clay {*}$path]} {
-          return {}
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
         }
-        return [dict get $clay {*}$path]
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
+        }
+        return {}
+      }
+      is_branch {
+        set path [::dicttool::storage $args]
+        return [dict exists $clay {*}$path .]
       }
       getnull -
       get {
@@ -91,11 +105,17 @@ oo::define oo::class {
           return {}
         }
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          return $clay
+        }
         if {[dict exists $clay {*}$path .]} {
           return [::dicttool::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
+        }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
         }
         return {}
       }
@@ -106,6 +126,13 @@ oo::define oo::class {
         }
         set clayorder [::clay::ancestors [self]]
         set found 0
+        if {[llength $path]==0} {
+          set result [dict create . {}]
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          return [::dicttool::sanitize $result]
+        }
         foreach class $clayorder {
           if {[$class clay exists {*}$path .]} {
             # Found a branch break
@@ -115,6 +142,9 @@ oo::define oo::class {
           if {[$class clay exists {*}$path]} {
             # Found a leaf. Return that value immediately
             return [$class clay get {*}$path]
+          }
+          if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+            return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
           }
         }
         if {!$found} {
@@ -143,6 +173,9 @@ oo::define oo::class {
       }
       set {
         ::dicttool::dictset clay {*}$args
+      }
+      unset {
+        dict unset clay {*}$args
       }
       default {
         dict $submethod clay {*}$args

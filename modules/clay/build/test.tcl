@@ -857,7 +857,7 @@ test clay-class-variable-0002 {Test that the parser injected the right value in 
 
 test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget variable
-} {. 1 clay {} claycache {} DestroyEvent 0 my_variable 10}
+} {. {} clay {} claycache {} DestroyEvent 0 my_variable 10}
 
 test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
@@ -882,7 +882,7 @@ test clay-class-array-0001 {Test that the parser injected the right value in the
 
 test clay-class-array-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget array
-} {. 1 my_array {. 1 timeout 10}}
+} {. {} my_array {. {} timeout 10}}
 
 test clay-class-array-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_array timeout
@@ -895,6 +895,7 @@ test clay-class-array-0003 {Test that variables declared in the class definition
 test clay-class-array-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
   ::TEST::has_more_array clay get array
 } {my_array {color blue}}
+
 test clay-class-array-0009 {Test that the parser injected the right value in the right place for clay to catch it} {
   ::TEST::has_more_array clay find array
 } {my_array {timeout 10 color blue}}
@@ -906,7 +907,7 @@ test clay-class-array-0004 {Test that the parser injected the right value in the
 
 test clay-class-array-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget array
-} {. 1 my_array {. 1 timeout 10 color blue}}
+} {. {} my_array {. {} timeout 10 color blue}}
 
 test clay-class-arrau-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_array timeout
@@ -934,7 +935,7 @@ test clay-class-dict-0001 {Test that the parser injected the right value in the 
 
 test clay-class-dict-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget dict
-} {. 1 my_dict {. 1 timeout 10}}
+} {. {} my_dict {. {} timeout 10}}
 
 test clay-class-dict-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_dict timeout
@@ -952,7 +953,7 @@ test clay-class-dict-0004 {Test that the parser injected the right value in the 
 
 test clay-class-dict-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget dict
-} {. 1 my_dict {. 1 timeout 10 color blue}}
+} {. {} my_dict {. {} timeout 10 color blue}}
 
 test clay-class-dict-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_dict timeout

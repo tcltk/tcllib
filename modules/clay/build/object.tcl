@@ -235,6 +235,16 @@ oo::define oo::object {
       dget {
         # Search in our local cache
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          # Do a full dump of clay data
+          set result {}
+          # Search in the in our list of classes for an answer
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          ::dicttool::dictmerge result $clay
+          return $result
+        }
         #if {[dict exists $claycache {*}$path]} {
         #  return [dict get $claycache {*}$path]
         #}
@@ -285,6 +295,16 @@ oo::define oo::object {
       getnull -
       get {
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          # Do a full dump of clay data
+          set result {}
+          # Search in the in our list of classes for an answer
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          ::dicttool::dictmerge result $clay
+          return [::dicttool::sanitize $result]
+        }
         if {[dict exists $claycache {*}$path .]} {
           return [::dicttool::sanitize [dict get $claycache {*}$path]]
         }
@@ -486,16 +506,6 @@ oo::define oo::object {
         }
       }
     }
-    foreach {var value} [my clay get dict/] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
-      foreach {f v} [my clay get $var/] {
-        if {![dict exists ${var} $f]} {
-          if {$::clay::trace>2} {puts [list initialize dict (from const) $var $f $v]}
-          dict set ${var} $f $v
-        }
-      }
-    }
     foreach {var value} [my clay get array/] {
       if { $var in {. clay} } continue
       set var [string trim $var :/]
@@ -505,16 +515,6 @@ oo::define oo::object {
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
           if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
-          set ${var}($f) $v
-        }
-      }
-    }
-    foreach {var value} [my clay get array/] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
-      foreach {f v} [my clay get $var/] {
-        if {![array exists ${var}($f)]} {
-          if {$::clay::trace>2} {puts [list initialize array (from const) $var\($f\) $v]}
           set ${var}($f) $v
         }
       }
