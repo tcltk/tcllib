@@ -204,9 +204,8 @@ Serialize a header.
 
 [call [cmd ::mime::header] [cmd get] [arg token] [opt "[arg key] | [option -names]"]]
 
-Returns the header of a message as a multidict
-where each value is a list containing the header value and any parameters for
-that value.
+Returns the header of a message as a multidict where each value is a list
+containing the header value and a dictionary parameters for that header.
 
 
 [para]
@@ -297,11 +296,14 @@ The approximate size of the unencoded content.
 [list_end]
 
 
-[call [cmd ::mime::serialize] [arg token] [opt "[option -chan] [arg channel]"]]
+[call [cmd ::mime::serialize] [arg token] [opt [option -level]] [
+    opt "[option -chan] [arg channel]"]]
 
 Return the serialization of the message corresponding to [arg token].  If
 [option -chan] is provided, write the message to [arg channel] and return the
-empty string.  Pauses the current coroutine as needed to wait for input to
+empty string.  If [option -level] is provided, indicates the level of the part
+in the message hierarchy.  The [const MIME-Version] header is only included at
+level [const 0].  Yields from the current coroutine as needed to wait for input to
 become available.
 
 
