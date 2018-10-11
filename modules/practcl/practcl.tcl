@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide practcl 0.13
+package provide practcl 0.14
 namespace eval ::practcl {}
 
 ###
@@ -59,13 +59,23 @@ proc ::http::wget {url destfile {verbose 1}} {
 ###
 namespace eval ::dicttool {
 }
-proc ::PROC {name arglist body {ninja {}}} {
+namespace eval ::tcllib {
+}
+proc ::tcllib::PROC {name arglist body {ninja {}}} {
   if {[info commands $name] ne {}} return
   proc $name $arglist $body
   eval $ninja
 }
-PROC ::noop args {}
-PROC ::putb {buffername args} {
+if {[info commands ::PROC] eq {}} {
+  namespace eval ::tcllib { namespace export PROC }
+  namespace eval :: { namespace import ::tcllib::PROC }
+}
+proc ::tcllib::noop args {}
+if {[info commands ::noop] eq {}} {
+  namespace eval ::tcllib { namespace export noop }
+  namespace eval :: { namespace import ::tcllib::noop }
+}
+proc ::tcllib::putb {buffername args} {
   upvar 1 $buffername buffer
   switch [llength $args] {
     1 {
@@ -79,6 +89,10 @@ PROC ::putb {buffername args} {
     }
   }
 }
+if {[info command ::putb] eq {}} {
+  namespace eval ::tcllib { namespace export putb }
+  namespace eval :: { namespace import ::tcllib::putb }
+}
 
 ###
 # END: dicttool/build/core.tcl
@@ -86,7 +100,7 @@ PROC ::putb {buffername args} {
 ###
 # START: dicttool/build/dict.tcl
 ###
-PROC ::tcl::dict::getnull {dictionary args} {
+::tcllib::PROC ::tcl::dict::getnull {dictionary args} {
   if {[exists $dictionary {*}$args]} {
     get $dictionary {*}$args
   }
@@ -94,7 +108,7 @@ PROC ::tcl::dict::getnull {dictionary args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
 }
-PROC ::tcl::dict::is_dict { d } {
+::tcllib::PROC ::tcl::dict::is_dict { d } {
   # is it a dict, or can it be treated like one?
   if {[catch {dict size $d} err]} {
     #::set ::errorInfo {}
@@ -105,7 +119,34 @@ PROC ::tcl::dict::is_dict { d } {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
 }
-PROC ::dicttool::is_branch { dict path } {
+::tcllib::PROC ::tcl::dict::rmerge {args} {
+  ::set result [dict create . {}]
+  # Merge b into a, and handle nested dicts appropriately
+  ::foreach b $args {
+    for { k v } $b {
+      ::set field [string trim $k :/]
+      if {![::dicttool::is_branch $b $k]} {
+        # Element names that end in ":" are assumed to be literals
+        set result $k $v
+      } elseif { [exists $result $k] } {
+        # key exists in a and b?  let's see if both values are dicts
+        # both are dicts, so merge the dicts
+        if { [is_dict [get $result $k]] && [is_dict $v] } {
+          set result $k [rmerge [get $result $k] $v]
+        } else {
+          set result $k $v
+        }
+      } else {
+        set result $k $v
+      }
+    }
+  }
+  return $result
+} {
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
+}
+::tcllib::PROC ::dicttool::is_branch { dict path } {
   set field [lindex $path end]
   if {[string index $field end] eq ":"} {
     return 0
@@ -118,13 +159,13 @@ PROC ::dicttool::is_branch { dict path } {
   }
   return [dict exists $dict {*}$path .]
 }
-PROC ::dicttool::print {dict} {
+::tcllib::PROC ::dicttool::print {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_dictputb $level result $dict
   return $result
 }
-proc ::dicttool::_dictputb {level varname dict} {
+::tcllib::PROC ::dicttool::_dictputb {level varname dict} {
   upvar 1 $varname result
   incr level
   dict for {field value} $dict {
@@ -138,7 +179,7 @@ proc ::dicttool::_dictputb {level varname dict} {
     }
   }
 }
-PROC ::dicttool::sanitize {dict} {
+proc ::dicttool::sanitize {dict} {
   ::set result {}
   ::set level -1
   ::dicttool::_sanitizeb {} result $dict
@@ -155,23 +196,6 @@ proc ::dicttool::_sanitizeb {path varname dict} {
     }
   }
 }
-proc ::dicttool::canonical {rawpath} {
-  set path {}
-  set tail [string index $rawpath end]
-  foreach element $rawpath {
-    set items [split [string trim $element /] /]
-    foreach item $items {
-      if {$item eq {}} continue
-      if {$item eq {.}} continue
-      lappend path [string trim ${item} :]/
-    }
-  }
-  if {$tail eq {/}} {
-    return $path
-  } else {
-    return [lreplace $path end end [string trim [lindex $path end] /]]
-  }
-}
 proc ::dicttool::storage {rawpath} {
   set isleafvar 0
   set path {}
@@ -180,7 +204,7 @@ proc ::dicttool::storage {rawpath} {
     set items [split [string trim $element /] /]
     foreach item $items {
       if {$item eq {}} continue
-      lappend path [string trim ${item} :/]
+      lappend path $item
     }
   }
   return $path
@@ -195,33 +219,39 @@ proc ::dicttool::dictset {varname args} {
     set rawpath  [lrange $args 0 end-1]
   }
   set value [lindex $args end]
-  set path [canonical $rawpath]
+  set path [storage $rawpath]
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   set dpath {}
-  foreach item $path {
+  foreach item [lrange $path 0 end-1] {
     set field $item
     lappend dpath [string trim $item /]
-    if {[string index $item end] eq "/"} {
-      dict set result {*}$dpath $dot $one
-    }
+    dict set result {*}$dpath $dot $one
   }
-  if {[dict is_dict $value] && [dict exists $result {*}$dpath $dot]} {
-    dict set result {*}$dpath [::dicttool::merge [dict get $result {*}$dpath] $value]
-  } else {
-    dict set result {*}$dpath $value
+  set field [lindex $rawpath end]
+  set ext   [string index $field end]
+  if {$ext eq {:} || ![dict is_dict $value]} {
+    dict set result {*}$path $value
+    return
   }
-  return $result
+  if {$ext eq {/} && ![dict exists $result {*}$path $dot]} {
+    dict set result {*}$path $dot $one
+  }
+  if {[dict exists $result {*}$path $dot]} {
+    dict set result {*}$path [::dicttool::merge [dict get $result {*}$path] $value]
+    return
+  }
+  dict set result {*}$path $value
 }
 proc ::dicttool::dictmerge {varname args} {
   upvar 1 $varname result
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   foreach dict $args {
     dict for {f v} $dict {
-      set field [string trim $f :/]
+      set field [string trim $f /]
       set bbranch [dicttool::is_branch $dict $f]
       if {![dict exists $result $field]} {
         dict set result $field $v
@@ -241,12 +271,12 @@ proc ::dicttool::dictmerge {varname args} {
   }
   return $result
 }
-PROC ::dicttool::merge {args} {
+proc ::dicttool::merge {args} {
   ###
   # The result of a merge is always a dict with branches
   ###
   set dot .
-  set one [string is true 1]
+  set one {}
   dict set result $dot $one
   set argument 0
   foreach b $args {
@@ -260,7 +290,7 @@ PROC ::dicttool::merge {args} {
         continue
       }
       set bbranch [is_branch $b $k]
-      set field [string trim $k /:]
+      set field [string trim $k /]
       if { ![dict exists $result $field] } {
         if {$bbranch} {
           dict set result $field [merge $v]
@@ -282,7 +312,7 @@ PROC ::dicttool::merge {args} {
   }
   return $result
 }
-PROC ::tcl::dict::isnull {dictionary args} {
+::tcllib::PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}
   return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
 } {
@@ -296,7 +326,7 @@ PROC ::tcl::dict::isnull {dictionary args} {
 ###
 # START: dicttool/build/list.tcl
 ###
-PROC ::ladd {varname args} {
+::tcllib::PROC ::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -307,7 +337,7 @@ PROC ::ladd {varname args} {
   }
   return $var
 }
-PROC ::ldelete {varname args} {
+::tcllib::PROC ::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -319,7 +349,7 @@ PROC ::ldelete {varname args} {
   }
   return $var
 }
-PROC ::lrandom list {
+::tcllib::PROC ::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]
@@ -336,13 +366,9 @@ namespace eval ::clay {
 set ::clay::trace 0
 proc ::clay::ancestors args {
   set result {}
-  set queue {}
-  foreach class [lreverse $args] {
-    lappend queue $class
-  }
-
-  # Rig things such that that the top superclasses
-  # are evaluated first
+  set queue  [lreverse $args]
+  set result $queue
+  set metaclasses {}
   while {[llength $queue]} {
     set tqueue $queue
     set queue {}
@@ -359,6 +385,7 @@ proc ::clay::ancestors args {
       }
     }
   }
+  lappend result {*}$metaclasses
   return $result
 }
 proc ::clay::args_to_dict args {
@@ -507,7 +534,14 @@ oo::define oo::class {
         if {![info exists clay]} {
           return 0
         }
-        return [dict exists $clay {*}[::dicttool::storage $args]]
+        set path [::dicttool::storage $args]
+        if {[dict exists $clay {*}$path]} {
+          return 1
+        }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return 1
+        }
+        return 0
       }
       dump {
         return $clay
@@ -517,10 +551,17 @@ oo::define oo::class {
           return {}
         }
         set path [::dicttool::storage $args]
-        if {![dict exists $clay {*}$path]} {
-          return {}
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
         }
-        return [dict get $clay {*}$path]
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
+        }
+        return {}
+      }
+      is_branch {
+        set path [::dicttool::storage $args]
+        return [dict exists $clay {*}$path .]
       }
       getnull -
       get {
@@ -528,11 +569,17 @@ oo::define oo::class {
           return {}
         }
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          return $clay
+        }
         if {[dict exists $clay {*}$path .]} {
           return [::dicttool::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
+        }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
         }
         return {}
       }
@@ -543,6 +590,13 @@ oo::define oo::class {
         }
         set clayorder [::clay::ancestors [self]]
         set found 0
+        if {[llength $path]==0} {
+          set result [dict create . {}]
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          return [::dicttool::sanitize $result]
+        }
         foreach class $clayorder {
           if {[$class clay exists {*}$path .]} {
             # Found a branch break
@@ -552,6 +606,9 @@ oo::define oo::class {
           if {[$class clay exists {*}$path]} {
             # Found a leaf. Return that value immediately
             return [$class clay get {*}$path]
+          }
+          if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+            return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
           }
         }
         if {!$found} {
@@ -580,6 +637,9 @@ oo::define oo::class {
       }
       set {
         ::dicttool::dictset clay {*}$args
+      }
+      unset {
+        dict unset clay {*}$args
       }
       default {
         dict $submethod clay {*}$args
@@ -761,6 +821,16 @@ oo::define oo::object {
       dget {
         # Search in our local cache
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          # Do a full dump of clay data
+          set result {}
+          # Search in the in our list of classes for an answer
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          ::dicttool::dictmerge result $clay
+          return $result
+        }
         #if {[dict exists $claycache {*}$path]} {
         #  return [dict get $claycache {*}$path]
         #}
@@ -811,6 +881,16 @@ oo::define oo::object {
       getnull -
       get {
         set path [::dicttool::storage $args]
+        if {[llength $path]==0} {
+          # Do a full dump of clay data
+          set result {}
+          # Search in the in our list of classes for an answer
+          foreach class $clayorder {
+            ::dicttool::dictmerge result [$class clay dump]
+          }
+          ::dicttool::dictmerge result $clay
+          return [::dicttool::sanitize $result]
+        }
         if {[dict exists $claycache {*}$path .]} {
           return [::dicttool::sanitize [dict get $claycache {*}$path]]
         }
@@ -945,7 +1025,7 @@ oo::define oo::object {
               lappend classlist $class
             }
           }
-          my clay mixin {*}$classlist
+          my clay mixin {*}[lreverse $classlist]
         }
       }
       provenance {
@@ -1008,16 +1088,6 @@ oo::define oo::object {
         }
       }
     }
-    foreach {var value} [my clay get dict/] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
-      foreach {f v} [my clay get $var/] {
-        if {![dict exists ${var} $f]} {
-          if {$::clay::trace>2} {puts [list initialize dict (from const) $var $f $v]}
-          dict set ${var} $f $v
-        }
-      }
-    }
     foreach {var value} [my clay get array/] {
       if { $var in {. clay} } continue
       set var [string trim $var :/]
@@ -1027,16 +1097,6 @@ oo::define oo::object {
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
           if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
-          set ${var}($f) $v
-        }
-      }
-    }
-    foreach {var value} [my clay get array/] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
-      foreach {f v} [my clay get $var/] {
-        if {![array exists ${var}($f)]} {
-          if {$::clay::trace>2} {puts [list initialize array (from const) $var\($f\) $v]}
           set ${var}($f) $v
         }
       }
@@ -1095,11 +1155,508 @@ namespace eval ::practcl::OBJECT {
 # END: setup.tcl
 ###
 ###
-# START: docbuild.tcl
+# START: doctool.tcl
 ###
+namespace eval ::practcl {
+}
+proc ::practcl::cat fname {
+    if {![file exists $fname]} {
+       return
+    }
+    set fin [open $fname r]
+    set data [read $fin]
+    close $fin
+    return $data
+}
+proc ::practcl::docstrip text {
+  set result {}
+  foreach line [split $text \n] {
+    append thisline $line \n
+    if {![info complete $thisline]} continue
+    set outline $thisline
+    set thisline {}
+    if {[string trim $outline] eq {}} {
+      continue
+    }
+    if {[string index [string trim $outline] 0] eq "#"} continue
+    set cmd [string trim [lindex $outline 0] :]
+    if {$cmd eq "namespace" && [lindex $outline 1] eq "eval"} {
+      append result [list {*}[lrange $outline 0 end-1]] " " \{ \n [docstrip [lindex $outline end]]\} \n
+      continue
+    }
+    if {[string match "*::define" $cmd] && [llength $outline]==3} {
+      append result [list {*}[lrange $outline 0 end-1]] " " \{ \n [docstrip [lindex $outline end]]\} \n
+      continue
+    }
+    if {$cmd eq "oo::class" && [lindex $outline 1] eq "create"} {
+      append result [list {*}[lrange $outline 0 end-1]] " " \{ \n [docstrip [lindex $outline end]]\} \n
+      continue
+    }
+    append result $outline
+  }
+  return $result
+}
+proc ::putb {buffername args} {
+  upvar 1 $buffername buffer
+  switch [llength $args] {
+    1 {
+      append buffer [lindex $args 0] \n
+    }
+    2 {
+      append buffer [string map {*}$args] \n
+    }
+    default {
+      error "usage: putb buffername ?map? string"
+    }
+  }
+}
+oo::class create ::practcl::doctool {
+  constructor {} {
+    my reset
+  }
+  method arglist {arglist} {
+    set result [dict create]
+    foreach arg $arglist {
+      set name [lindex $arg 0]
+      dict set result $name positional 1
+      dict set result $name mandatory  1
+      if {$name in {args dictargs}} {
+        switch [llength $arg] {
+          1 {
+            dict set result $name mandatory 0
+          }
+          2 {
+            dict for {optname optinfo} [lindex $arg 1] {
+              set optname [string trim $optname -:]
+              dict set result $optname {positional 1 mandatory 0}
+              dict for {f v} $optinfo {
+                dict set result $optname [string trim $f -:] $v
+              }
+            }
+          }
+          default {
+            error "Bad argument"
+          }
+        }
+      } else {
+        switch [llength $arg] {
+          1 {
+            dict set result $name mandatory 1
+          }
+          2 {
+            dict set result $name mandatory 0
+            dict set result $name default   [lindex $arg 1]
+          }
+          default {
+            error "Bad argument"
+          }
+        }
+      }
+    }
+    return $result
+  }
+  method comment block {
+    set count 0
+    set field description
+    set result [dict create description {}]
+    foreach line [split $block \n] {
+      set sline [string trim $line]
+      set fwidx [string first " " $sline]
+      if {$fwidx < 0} {
+        set firstword [string range $sline 0 end]
+        set restline {}
+      } else {
+        set firstword [string range $sline 0 [expr {$fwidx-1}]]
+        set restline [string range $sline [expr {$fwidx+1}] end]
+      }
+      if {[string index $firstword end] eq ":"} {
+        set field [string tolower [string trim $firstword -:]]
+        switch $field {
+          desc {
+            set field description
+          }
+        }
+        if {[string length $restline]} {
+          dict append result $field "$restline\n"
+        }
+      } else {
+        dict append result $field "$line\n"
+      }
+    }
+    return $result
+  }
+  method keyword.Class {resultvar commentblock name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result class $name]} {
+      set info [dict get $result class $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    set commentblock {}
+    foreach line [split $body \n] {
+      append thisline $line \n
+      if {![info complete $thisline]} continue
+      set thisline [string trim $thisline]
+      if {[string index $thisline 0] eq "#"} {
+        append commentblock [string trimleft $thisline #] \n
+        set thisline {}
+        continue
+      }
+      set cmd [string trim [lindex $thisline 0] ":"]
+      switch $cmd {
+        method -
+        Ensemble {
+          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          set commentblock {}
+        }
+      }
+      set thisline {}
+    }
+    dict set result class $name $info
+  }
+  method keyword.class {resultvar commentblock name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result class $name]} {
+      set info [dict get $result class $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    set commentblock {}
+    foreach line [split $body \n] {
+      append thisline $line \n
+      if {![info complete $thisline]} continue
+      set thisline [string trim $thisline]
+      if {[string index $thisline 0] eq "#"} {
+        append commentblock [string trimleft $thisline #] \n
+        set thisline {}
+        continue
+      }
+      set cmd [string trim [lindex $thisline 0] ":"]
+      switch $cmd {
+        superclass {
+          dict set info ancestors [lrange $thisline 1 end]
+          set commentblock {}
+        }
+        class_method {
+          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          set commentblock {}
+        }
+        destructor -
+        constructor {
+          my keyword.method info $commentblock {*}[lrange $thisline 0 end-1]
+          set commentblock {}
+        }
+        method -
+        Ensemble {
+          my keyword.method info $commentblock  {*}[lrange $thisline 1 end-1]
+          set commentblock {}
+        }
+      }
+      set thisline {}
+    }
+    dict set result class $name $info
+  }
+  method keyword.class_method {resultvar commentblock name args} {
+    upvar 1 $resultvar result
+    set info [my comment $commentblock]
+    if {[dict exists $info ensemble]} {
+      dict for {method minfo} [dict get $info ensemble] {
+        dict set result class_method "${name} $method" $minfo
+      }
+    } else {
+      switch [llength $args] {
+        1 {
+          set arglist [lindex $args 0]
+        }
+        0 {
+          set arglist dictargs
+          #set body [lindex $args 0]
+        }
+        default {error "could not interpret method $name {*}$args"}
+      }
+      if {![dict exists $info arglist]} {
+        dict set info arglist [my arglist $arglist]
+      }
+      dict set result class_method [string trim $name :] $info
+    }
+  }
+  method keyword.method {resultvar commentblock name args} {
+    upvar 1 $resultvar result
+    set info [my comment $commentblock]
+    if {[dict exists $info ensemble]} {
+      dict for {method minfo} [dict get $info ensemble] {
+        dict set result method "\"${name} $method\"" $minfo
+      }
+    } else {
+      switch [llength $args] {
+        1 {
+          set arglist [lindex $args 0]
+        }
+        0 {
+          set arglist dictargs
+          #set body [lindex $args 0]
+        }
+        default {error "could not interpret method $name {*}$args"}
+      }
+      if {![dict exists $info arglist]} {
+        dict set info arglist [my arglist $arglist]
+      }
+      dict set result method "\"[split [string trim $name :] ::]\"" $info
+    }
+  }
+  method keyword.proc {commentblock name arglist} {
+    set info [my comment $commentblock]
+    if {![dict exists $info arglist]} {
+      dict set info arglist [my arglist $arglist]
+    }
+    return $info
+  }
+  method reset {} {
+    my variable coro
+    set coro [info object namespace [self]]::coro
+    oo::objdefine [self] forward coro $coro
+    if {[info command $coro] ne {}} {
+      rename $coro {}
+    }
+    coroutine $coro {*}[namespace code {my Main}]
+  }
+  method Main {} {
+
+    my variable info
+    set info [dict create]
+    yield [info coroutine]
+    set thisline {}
+    set commentblock {}
+    set linec 0
+    while 1 {
+      set line [yield]
+      append thisline $line \n
+      if {![info complete $thisline]} continue
+      set thisline [string trim $thisline]
+      if {[string index $thisline 0] eq "#"} {
+        append commentblock [string trimleft $thisline #] \n
+        set thisline {}
+        continue
+      }
+      set cmd [string trim [lindex $thisline 0] ":"]
+      switch $cmd {
+        tcllib::PROC -
+        PROC -
+        Proc -
+        proc {
+          set procinfo [my keyword.proc $commentblock {*}[lrange $thisline 1 2]]
+          dict set info proc [string trim [lindex $thisline 1] :] $procinfo
+          set commentblock {}
+        }
+        oo::objdefine {
+          if {[llength $thisline]==3} {
+            lassign $thisline tcmd name body
+            my keyword.Class info $commentblock $name $body
+          } else {
+            puts "Warning: bare oo::define in library"
+          }
+        }
+        oo::define {
+          if {[llength $thisline]==3} {
+            lassign $thisline tcmd name body
+            my keyword.class info $commentblock $name $body
+          } else {
+            puts "Warning: bare oo::define in library"
+          }
+        }
+        tao::define -
+        clay::define -
+        tool::define {
+          lassign $thisline tcmd name body
+          my keyword.class info $commentblock $name $body
+          set commentblock {}
+        }
+        oo::class {
+          lassign $thisline tcmd mthd name body
+          my keyword.class info $commentblock $name $body
+          set commentblock {}
+        }
+        default {
+          if {[lindex [split $cmd ::] end] eq "define"} {
+            lassign $thisline tcmd name body
+            my keyword.class info $commentblock $name $body
+            set commentblock {}
+          }
+          set commentblock {}
+        }
+      }
+      set thisline {}
+    }
+  }
+  method section.method {keyword method minfo} {
+    set result {}
+    set line "\[call $keyword \[cmd $method\]"
+    if {[dict exists $minfo arglist]} {
+      dict for {argname arginfo} [dict get $minfo arglist] {
+        set positional 1
+        set mandatory  1
+        set repeating 0
+        dict with arginfo {}
+        if {$mandatory==0} {
+          append line " \[opt \""
+        } else {
+          append line " "
+        }
+        if {$positional} {
+          append line "\[arg $argname"
+        } else {
+          append line "\[option \"$argname"
+          if {[dict exists $arginfo type]} {
+            append line " \[emph [dict get $arginfo type]\]"
+          } else {
+            append line " \[emph value\]"
+          }
+          append line "\""
+        }
+        append line "\]"
+        if {$mandatory==0} {
+          if {[dict exists $arginfo default]} {
+            append line " \[const \"[dict get $arginfo default]\"\]"
+          }
+          append line "\"\]"
+        }
+        if {$repeating} {
+          append line " \[opt \[option \"$argname...\"\]\]"
+        }
+      }
+    }
+    append line \]
+    putb result $line
+    if {[dict exists $minfo description]} {
+      putb result [dict get $minfo description]
+    }
+    if {[dict exists $minfo example]} {
+      putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
+    return $result
+  }
+  method section.class {class_name class_info} {
+    set result {}
+    putb result "\[subsection \{Class  $class_name\}\]"
+    if {[dict exists $class_info ancestors]} {
+      set line "\[emph \"ancestors\"\]:"
+      foreach {c} [dict get $class_info ancestors] {
+        append line " \[class [string trim $c :]\]"
+      }
+      putb result $line
+      putb result {[para]}
+    }
+    dict for {f v} $class_info {
+      if {$f in {class_method method description ancestors example}} continue
+      putb result "\[emph \"$f\"\]: $v"
+      putb result {[para]}
+    }
+    if {[dict exists $class_info example]} {
+      putb result "\[example \{[list [dict get $class_info example]]\}\]"
+      putb result {[para]}
+    }
+    if {[dict exists $class_info description]} {
+      putb result [dict get $class_info description]
+      putb result {[para]}
+    }
+    if {[dict exists $class_info class_method]} {
+      putb result "\[class \{Class Methods\}\]"
+      #putb result "Methods on the class object itself."
+      putb result {[list_begin definitions]}
+      dict for {method minfo} [dict get $class_info class_method] {
+        putb result [my section.method classmethod $method $minfo]
+      }
+      putb result {[list_end]}
+      putb result {[para]}
+    }
+    if {[dict exists $class_info method]} {
+      putb result "\[class {Methods}\]"
+      putb result {[list_begin definitions]}
+      dict for {method minfo} [dict get $class_info method] {
+        putb result [my section.method method $method $minfo]
+      }
+      putb result {[list_end]}
+      putb result {[para]}
+    }
+    return $result
+  }
+  method section.command {procinfo} {
+    set result {}
+    putb result "\[section \{Commands\}\]"
+    putb result {[list_begin definitions]}
+    dict for {method minfo} $procinfo {
+      putb result [my section.method proc $method $minfo]
+    }
+    putb result {[list_end]}
+    return $result
+  }
+  method manpage args {
+    my variable info
+    set map {%version% 0.0 %module% {Your_Module_Here}}
+    set result {}
+    set header {}
+    set footer {}
+    set authors {}
+    dict with args {}
+    dict set map %keyword% comment
+    putb result $map {[%keyword% {-*- tcl -*- doctools manpage}]
+[vset PACKAGE_VERSION %version%]
+[manpage_begin %module% n [vset PACKAGE_VERSION]]}
+    putb result $map $header
+
+    dict for {sec_type sec_info} $info {
+      switch $sec_type {
+        proc {
+          putb result [my section.command $sec_info]
+        }
+        class {
+          putb result "\[section Classes\]"
+          dict for {class_name class_info} $sec_info {
+            putb result [my section.class $class_name $class_info]
+          }
+        }
+        default {
+          putb result "\[section [list $sec_type $sec_name]\]"
+          if {[dict exists $sec_info description]} {
+            putb result [dict get $sec_info description]
+          }
+        }
+      }
+    }
+    if {[llength $authors]} {
+      putb result {[section AUTHORS]}
+      foreach {name email} $authors {
+        putb result "$name \[uri mailto:$email\]\[para\]"
+      }
+    }
+    putb result $footer
+    putb result {[manpage_end]}
+    return $result
+  }
+  method scan_text {text} {
+    my variable linecount coro
+    set linecount 0
+    foreach line [split $text \n] {
+      incr linecount
+      $coro $line
+    }
+  }
+  method scan_file {filename} {
+    my variable linecount coro
+    set fin [open $filename r]
+    set linecount 0
+    while {[gets $fin line]>=0} {
+      incr linecount
+      $coro $line
+    }
+    close $fin
+  }
+}
 
 ###
-# END: docbuild.tcl
+# END: doctool.tcl
 ###
 ###
 # START: buildutil.tcl

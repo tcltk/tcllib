@@ -4,7 +4,7 @@ source [file join $srcdir doctool.tcl]
 
 ::practcl::doctool create AutoDoc
 
-set version 0.13
+set version 0.14
 set tclversion 8.6
 set module [file tail $moddir]
 set filename $module
@@ -51,7 +51,7 @@ foreach {omod files} {
 
 foreach {file} {
   setup.tcl
-  docbuild.tcl
+  doctool.tcl
   buildutil.tcl
   fileutil.tcl
   installutil.tcl
