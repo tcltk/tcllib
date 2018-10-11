@@ -439,7 +439,7 @@ oo::define oo::object {
               lappend classlist $class
             }
           }
-          my clay mixin {*}$classlist
+          my clay mixin {*}[lreverse $classlist]
         }
       }
       provenance {

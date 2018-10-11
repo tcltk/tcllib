@@ -3,13 +3,9 @@ set ::clay::trace 0
 
 proc ::clay::ancestors args {
   set result {}
-  set queue {}
-  foreach class [lreverse $args] {
-    lappend queue $class
-  }
-
-  # Rig things such that that the top superclasses
-  # are evaluated first
+  set queue  [lreverse $args]
+  set result $queue
+  set metaclasses {}
   while {[llength $queue]} {
     set tqueue $queue
     set queue {}
@@ -26,6 +22,7 @@ proc ::clay::ancestors args {
       }
     }
   }
+  lappend result {*}$metaclasses
   return $result
 }
 

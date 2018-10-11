@@ -161,7 +161,6 @@ test oodialect-aliasing-003 {Testing aliase method on class} {
   ::test1::a aliases
 } {::test1::A}
 
-
 test oodialect-ancestry-003 {Testing heritage} {
   ::clay::ancestors ::test1::f
 } {::test1::f ::test1::a ::bravo::object ::alpha::object ::oo::object}
@@ -812,6 +811,11 @@ test clay-mixin-e-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-e-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+###
+# Test modified 2018-10-10
+# clay::ancestors now rigged to descend into all classes depth-first
+# and then place metaclasses at the end of the search
+###
 test clay-mixin-e-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
 } {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
@@ -826,9 +830,15 @@ test clay-mixin-f-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-f-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+
+###
+# Test modified 2018-10-10
+# clay::ancestors now rigged to descend into all classes depth-first
+# and then place metaclasses at the end of the search
+###
 test clay-mixin-f-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::coloring.calico ::TEST::species.cat ::TEST::thing ::clay::object ::TEST::animal ::oo::object}
+} {::TEST::species.cat ::TEST::coloring.calico ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
 
 test clay-mixin-f-0005 {Test that clay data from a mixin works} {
   $OBJ clay provenance  color

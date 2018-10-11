@@ -46,7 +46,7 @@ proc ::clay::define::Array {name {values {}}} {
 ###
 # topic: 710a93168e4ba7a971d3dbb8a3e7bcbc
 ###
-proc ::clay::define::component {name info} {
+proc ::clay::define::Component {name info} {
   set class [current_class]
   foreach {field value} $info {
     $class clay set component/ [string trim $name :/]/ $field $value
@@ -81,7 +81,7 @@ proc ::clay::define::class_method {name arglist body} {
 
 proc ::clay::define::clay {args} {
   set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
+  if {[lindex $args 0] in "cget set"} {
     $class clay {*}$args
   } else {
     $class clay set {*}$args
@@ -182,6 +182,10 @@ proc ::clay::object_destroy objname {
 
         dict for {method info} $einfo {
           if {$method eq {.}} continue
+          if {![dict is_dict $info]} {
+            puts [list WARNING: class: $class method: $method not dict: $info]
+            continue
+          }
           dict set info source $class
           if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
           dict set emap $ensemble $method $info

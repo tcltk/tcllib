@@ -8,7 +8,7 @@ source [file join \
 
 testsNeedTcl     8.6 ;# tailcall in oo::meta
 testsNeedTcltest 2
-testsNeed        TclOO
+testsNeed        TclOO 1
 
 support {
     use oodialect/oodialect.tcl oo::dialect

@@ -105,7 +105,7 @@ proc oo::meta::_to_dicttool {path varname dict} {
     if {$field eq "."} continue
     if {[dicttool::is_branch $dict $field]} {
       dict set result {*}$path $field . {}
-      to_dicttool [list {*}$path $field] result $value
+      _to_dicttool [list {*}$path $field] result $value
     } else {
       dict set result {*}$path [string trim $field :] $value
     }
@@ -270,7 +270,11 @@ noop {
     }
     get -
     getnull {
-      return [$class clay find {*}$args]
+      if {![$class clay exists {*}$args]} {
+        return [$class clay find {*}[lrange $args 0 end-1] [lindex $args end]:]
+      } else {
+        return [$class clay find {*}$args]
+      }
     }
     default {
       set info [metadata $class]
@@ -456,9 +460,15 @@ oo::define oo::class {
         set value [lindex $args end]
         if {![dict is_dict $value] || [string index $field end] eq ":"} {
           my clay set {*}$path [string trim $field :/] $value
-        } else {
-          my clay set {*}$path [string trim $field :/] [::oo::meta::to_dicttool $value]
+          return
         }
+        if {[llength [dict keys $value *:]]} {
+          dict for {f v} $value {
+            my clay set {*}$path [string trim $field :/] [string trim $f :] $value
+          }
+          return
+        }
+        my clay set {*}$path [string trim $field :/] [::oo::meta::to_dicttool $value]
       }
       with {
         set path [::dicttool::storage [lrange $args 0 end-1]]
@@ -583,25 +593,26 @@ oo::define oo::object {
         if {[dict exists $meta {*}$args]} {
           return [dict get $meta {*}$args]
         }
-        if {[dict exists $meta {*}$path]} {
-          return [dict get $meta {*}$path]
+        set dpath [lrange $path 0 end-1]
+        set field [string trim [lindex $path end] :]
+        if {![my clay exists {*}$dpath $field]} {
+          puts [list [self] META [::dicttool::print  [my clay dump]]]
+          puts [list [self] meta get $path]
+          #puts [[self] meta get $path]
+          puts [list [self] meta get $args]
+          #puts [[self] meta get $args]
+          error "key \"$args\" not known in metadata"
         }
-        if {![my clay exists {*}$path]} {
-          if {![my clay exists {*}$args]} {
-            puts [list [self] META [::dicttool::print  [my clay dump]]]
-            puts [list [self] meta get $path]
-            puts [list [self] meta get $args]
-            error "key \"$args\" not known in metadata"
-          }
-          return [my clay get {*}$args]
-        }
-        return [my clay get {*}$path]
+        return [my clay get {*}$dpath $field]
       }
       getnull {
         if {[dict exists $meta {*}$args]} {
           return [dict get $meta {*}$args]
         }
-        return [my clay get {*}args]
+        set path [::dicttool::storage $args]
+        set dpath [lrange $path 0 end-1]
+        set field [string trim [lindex $path end] :]
+        return [my clay get {*}$dpath $field]
       }
       branchget {
         set result {}
