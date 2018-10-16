@@ -7,7 +7,7 @@ if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
   package require practcl 0.13
 }
 ::practcl::doctool create AutoDoc
-set version 4.3
+set version 4.3.1
 set tclversion 8.6
 set module [file tail $moddir]
 set filename $module

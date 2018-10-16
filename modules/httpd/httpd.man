@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 4.3]
+[vset PACKAGE_VERSION 4.3.1]
 [manpage_begin httpd n [vset PACKAGE_VERSION]]
 [keywords WWW]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
@@ -12,7 +12,6 @@
 [keywords httpserver]
 [keywords services]
 [require Tcl 8.6]
-[require httpd [opt [vset VERSION]]]
 [require uuid]
 [require clay]
 [require coroutine]
@@ -72,6 +71,10 @@ tclsh examples/httpd.tcl
 [section Classes]
 [subsection {Class  httpd::mime}]
 
+ A metaclass for MIME handling behavior across a live socket
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -79,6 +82,9 @@ tclsh examples/httpd.tcl
 
 
 [call method [cmd "html_header"] [opt "[arg title] [const ""]"] [opt "[arg args]"]]
+
+ Returns a block of HTML
+
 
 
 [call method [cmd "html_footer"] [opt "[arg args]"]]
@@ -223,6 +229,28 @@ tclsh examples/httpd.tcl
 
 
 
+[para]
+[class {Delegate}]
+[list_begin definitions]
+[call delegate [cmd <server>]]The server object which spawned this reply
+
+[list_end]
+[para]
+[class {Variable}]
+[list_begin definitions]
+[call variable [cmd reply]]
+ A dictionary which will converted into the MIME headers of the reply
+
+
+
+
+[call variable [cmd request]]
+ A dictionary containing the SCGI transformed HTTP headers for the request
+
+
+
+
+[list_end]
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -403,6 +431,14 @@ tclsh examples/httpd.tcl
 [emph "ancestors"]: [class httpd::mime]
 [para]
 
+[para]
+[class {Variable}]
+[list_begin definitions]
+[call variable [cmd template]]
+
+[call variable [cmd url_patterns]]
+
+[list_end]
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -680,6 +716,12 @@ tclsh examples/httpd.tcl
 
 [subsection {Class  httpd::content.exec}]
 
+[para]
+[class {Variable}]
+[list_begin definitions]
+[call variable [cmd exename]]
+
+[list_end]
 [para]
 [class {Methods}]
 [list_begin definitions]

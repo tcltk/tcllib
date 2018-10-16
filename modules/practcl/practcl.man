@@ -318,6 +318,9 @@ Converts a XXX.sh file into a series of Tcl variables
 
 }]
 
+[call method [cmd "keyword.Annotation"] [arg resulvar] [arg commentblock] [arg type] [arg name] [arg body]]
+
+
 [call method [cmd "keyword.Class"] [arg resultvar] [arg commentblock] [arg name] [arg body]]
 
  Process an oo::objdefine call that modifies the class object
@@ -373,6 +376,9 @@ Converts a XXX.sh file into a series of Tcl variables
  Generate the manual page text for a method or proc
 
 
+
+
+[call method [cmd "section.annotation"] [arg type] [arg name] [arg info]]
 
 
 [call method [cmd "section.class"] [arg class_name] [arg class_info]]

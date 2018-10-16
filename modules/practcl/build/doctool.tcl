@@ -209,6 +209,20 @@ oo::class create ::practcl::doctool {
     return $result
   }
 
+  method keyword.Annotation {resultvar commentblock type name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result $type $name]} {
+      set info [dict get $result $type $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    foreach {f v} $body {
+      dict set info $f $v
+    }
+    dict set result $type $name $info
+  }
+
   ###
   # Process an oo::objdefine call that modifies the class object
   # itself
@@ -233,6 +247,28 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
+        variable -
+        Variable {
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list type scaler default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
         method -
         Ensemble {
           my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
@@ -267,6 +303,29 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          puts [list keyword.Annotation $cmd $thisline]
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
+        variable -
+        Variable {
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
         superclass {
           dict set info ancestors [lrange $thisline 1 end]
           set commentblock {}
@@ -494,6 +553,17 @@ oo::class create ::practcl::doctool {
     return $result
   }
 
+  method section.annotation {type name iinfo} {
+    set result "\[call $type \[cmd $name\]\]"
+    if {[dict exists $iinfo description]} {
+      putb result [dict get $iinfo description]
+    }
+    if {[dict exists $iinfo example]} {
+      putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
+    return $result
+  }
+
   ###
   # Generate the manual page text for a class
   ###
@@ -509,7 +579,7 @@ oo::class create ::practcl::doctool {
       putb result {[para]}
     }
     dict for {f v} $class_info {
-      if {$f in {class_method method description ancestors example}} continue
+      if {$f in {class_method method description ancestors example option variable delegate}} continue
       putb result "\[emph \"$f\"\]: $v"
       putb result {[para]}
     }
@@ -519,6 +589,17 @@ oo::class create ::practcl::doctool {
     }
     if {[dict exists $class_info description]} {
       putb result [dict get $class_info description]
+      putb result {[para]}
+    }
+    dict for {f v} $class_info {
+      if {$f ni {option variable delegate}} continue
+      putb result "\[class \{[string totitle $f]\}\]"
+      #putb result "Methods on the class object itself."
+      putb result {[list_begin definitions]}
+      dict for {item iinfo} [dict get $class_info $f] {
+        putb result [my section.annotation $f $item $iinfo]
+      }
+      putb result {[list_end]}
       putb result {[para]}
     }
     if {[dict exists $class_info class_method]} {

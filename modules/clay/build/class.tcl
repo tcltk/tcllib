@@ -66,6 +66,12 @@ oo::define oo::class {
       ancestors {
         tailcall ::clay::ancestors [self]
       }
+      branch {
+        set path [::dicttool::storage $args]
+        if {![dict exists $clay {*}$path .]} {
+          dict set clay {*}$path . {}
+        }
+      }
       exists {
         if {![info exists clay]} {
           return 0

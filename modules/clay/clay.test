@@ -980,11 +980,11 @@ test clay-class-variable-0001 {Test that the parser injected the right value in 
 
 test clay-class-variable-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay get variable
-} {clay {} claycache {} DestroyEvent 0 my_variable 10}
+} {DestroyEvent 0 my_variable 10}
 
 test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget variable
-} {. {} clay {} claycache {} DestroyEvent 0 my_variable 10}
+} {. {} DestroyEvent 0 my_variable 10}
 
 test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
@@ -1043,6 +1043,32 @@ test clay-class-arrau-0007 {Test that variables declared in the class definition
   $BOBJ get_my_array color
 } blue
 
+::clay::define ::TEST::has_empty_array {
+  Array my_array {}
+
+  method my_array_exists {} {
+    my variable my_array
+    return [info exists my_array]
+  }
+  method get {field} {
+    my variable my_array
+    return $my_array($field)
+  }
+  method set {field value} {
+    my variable my_array
+    set my_array($field) $value
+  }
+}
+
+test clay-class-array-0008 {Test that an declaration of an array with no values produces and empty array} {
+  set COBJ [::TEST::has_empty_array new]
+  $COBJ my_array_exists
+} 1
+
+test clay-class-array-0009 {Test that an declaration of an array with no values produces and empty array} {
+  $COBJ set test "A random value"
+  $COBJ get test
+} {A random value}
 ###
 # Test dict initialization
 ###
@@ -1051,8 +1077,12 @@ test clay-class-arrau-0007 {Test that variables declared in the class definition
 
   method get_my_dict {args} {
     my variable my_dict
+    if {[llength $args]==0} {
+      return $my_dict
+    }
     return [dict get $my_dict {*}$args]
   }
+
 }
 
 set OBJ [::TEST::has_dict new]
@@ -1067,6 +1097,11 @@ test clay-class-dict-0002 {Test that the parser injected the right value in the 
 test clay-class-dict-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_dict timeout
 } 10
+
+test clay-class-dict-0004 {Test that an empty dict is annotated} {
+  $OBJ clay get dict
+} {my_dict {timeout 10}}
+
 
 ::clay::define ::TEST::has_more_dict {
   superclass ::TEST::has_dict
@@ -1089,6 +1124,28 @@ test clay-class-dict-0006 {Test that variables declared in the class definition 
 test clay-class-dict-0007 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_dict color
 } blue
+
+::clay::define ::TEST::has_empty_dict {
+  Dict my_empty_dict {}
+
+  method get_my_empty_dict {args} {
+    my variable my_empty_dict
+    if {[llength $args]==0} {
+      return $my_empty_dict
+    }
+    return [dict get $my_empty_dict {*}$args]
+  }
+}
+
+set COBJ [::TEST::has_empty_dict new]
+
+test clay-class-dict-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $COBJ clay dget dict
+} {my_empty_dict {. {}}}
+
+test clay-class-dict-0009 {Test that an empty dict is initialized} {
+  $COBJ get_my_empty_dict
+} {}
 
 ###
 # Test object delegation

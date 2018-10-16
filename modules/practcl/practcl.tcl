@@ -530,6 +530,12 @@ oo::define oo::class {
       ancestors {
         tailcall ::clay::ancestors [self]
       }
+      branch {
+        set path [::dicttool::storage $args]
+        if {![dict exists $clay {*}$path .]} {
+          dict set clay {*}$path . {}
+        }
+      }
       exists {
         if {![info exists clay]} {
           return 0
@@ -666,6 +672,12 @@ oo::define oo::object {
     switch $submethod {
       ancestors {
         return $clayorder
+      }
+      branch {
+        set path [::dicttool::storage $args]
+        if {![dict exists $clay {*}$path .]} {
+          dict set clay {*}$path . {}
+        }
       }
       cget {
         # Leaf searches return one data field at a time
@@ -1082,6 +1094,7 @@ oo::define oo::object {
         set $var {}
       }
       foreach {f v} $value {
+        if {$f eq "."} continue
         if {![dict exists ${var} $f]} {
           if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
           dict set ${var} $f $v
@@ -1096,6 +1109,7 @@ oo::define oo::object {
       if {![info exists $var]} { array set $var {} }
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
+          if {$f eq "."} continue
           if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
           set ${var}($f) $v
         }
@@ -1122,6 +1136,10 @@ oo::define oo::object {
     }
   }
 }
+oo::class clay branch array
+oo::class clay branch mixin
+oo::class clay branch option
+oo::class clay branch dict clay
 
 ###
 # END: clay/build/object.tcl
@@ -1285,6 +1303,19 @@ oo::class create ::practcl::doctool {
     }
     return $result
   }
+  method keyword.Annotation {resulvar commentblock type name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result $type $name]} {
+      set info [dict get $result $type $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    foreach {f v} $body {
+      dict set info $f $v
+    }
+    dict set result $type $name $info
+  }
   method keyword.Class {resultvar commentblock name body} {
     upvar 1 $resultvar result
     set name [string trim $name :]
@@ -1305,6 +1336,21 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          puts [list keyword.Annotation $cmd $thisline]
+          my keyword.Annotation info $commentblock option {*}[lrange $thisline 1 end-1]
+        }
+        variable -
+        Dict -
+        Array -
+        Variable {
+          my keyword.Annotation info $commentblock variable {*}[lrange $thisline 1 end-1]
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate {*}[lrange $thisline 1 end-1]
+        }
         method -
         Ensemble {
           my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
@@ -1335,6 +1381,20 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          my keyword.Annotation info $commentblock option {*}[lrange $thisline 1 end-1]
+        }
+        variable -
+        Dict -
+        Array -
+        Variable {
+          my keyword.Annotation info $commentblock variable {*}[lrange $thisline 1 end-1]
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate {*}[lrange $thisline 1 end-1]
+        }
         superclass {
           dict set info ancestors [lrange $thisline 1 end]
           set commentblock {}
@@ -1537,6 +1597,16 @@ oo::class create ::practcl::doctool {
     }
     return $result
   }
+  method section.annotation {type name info} {
+    set result {}
+    set line "\[call $type \[cmd $name\]\]"
+    if {[dict exists $minfo description]} {
+      putb result [dict get $minfo description]
+    }
+    if {[dict exists $minfo example]} {
+      putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
+  }
   method section.class {class_name class_info} {
     set result {}
     putb result "\[subsection \{Class  $class_name\}\]"
@@ -1560,6 +1630,20 @@ oo::class create ::practcl::doctool {
     if {[dict exists $class_info description]} {
       putb result [dict get $class_info description]
       putb result {[para]}
+    }
+    foreach {type} {
+      option variable delegate
+    } {
+      if {[dict exists $class_info $type]} {
+        putb result "\[class \{Options\}\]"
+        #putb result "Methods on the class object itself."
+        putb result {[list_begin definitions]}
+        dict for {item iinfo} [dict get $class_info $type] {
+          putb result [my section.annotation $type $item $iiinfo]
+        }
+        putb result {[list_end]}
+        putb result {[para]}
+      }
     }
     if {[dict exists $class_info class_method]} {
       putb result "\[class \{Class Methods\}\]"

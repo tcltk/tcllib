@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require clay 0.3
+package require clay 0.5
 package require mime
 package require fileutil
 package require websocket
@@ -28,7 +28,11 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
+###
+# A metaclass for MIME handling behavior across a live socket
+###
 clay::define ::httpd::mime {
+
 
   method ChannelCopy {in out args} {
     set chunk 4096
@@ -70,17 +74,23 @@ clay::define ::httpd::mime {
     }
   }
 
-
+  ###
+  # Returns a block of HTML
   method html_header {{title {}} args} {
     set result {}
-    append result "<HTML><HEAD>"
+    append result "<!DOCTYPE html>\n<HTML><HEAD>"
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
     }
-    append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    if {[dict exists $args stylesheet]} {
+      append result "<link rel=\"stylesheet\" href=\"[dict get $args stylesheet]\">"
+    } else {
+      append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    }
     append result "</HEAD><BODY>"
     return $result
   }
+
   method html_footer {args} {
     return "</BODY></HTML>"
   }

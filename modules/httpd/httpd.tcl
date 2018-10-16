@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.3
+package provide httpd 4.3.1
 namespace eval ::httpd {}
-set ::httpd::version 4.3
+set ::httpd::version 4.3.1
 ###
 # START: core.tcl
 ###
@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require clay 0.3
+package require clay 0.5
 package require mime
 package require fileutil
 package require websocket
@@ -71,11 +71,15 @@ clay::define ::httpd::mime {
   }
   method html_header {{title {}} args} {
     set result {}
-    append result "<HTML><HEAD>"
+    append result "<!DOCTYPE html>\n<HTML><HEAD>"
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
     }
-    append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    if {[dict exists $args stylesheet]} {
+      append result "<link rel=\"stylesheet\" href=\"[dict get $args stylesheet]\">"
+    } else {
+      append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    }
     append result "</HEAD><BODY>"
     return $result
   }
@@ -294,7 +298,9 @@ Connection close}
 ###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
-  Variable transfer_complete 0
+  Delegate <server> {
+    description {The server object which spawned this reply}
+  }
   Dict reply {}
   Dict request {
     CONTENT_LENGTH 0
@@ -554,8 +560,6 @@ body {
   }
   method Session_Load {} {}
   method TransferComplete args {
-    my variable chan transfer_complete
-    set transfer_complete 1
     my log TransferComplete
     set chan {}
     foreach c $args {
@@ -1133,7 +1137,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
-    if {$fname in "{} index.html index.md index"} {
+    if {$fname in "{} index.html index.md index index.tml"} {
       return $path
     }
     if {[file exists [file join $path $fname]]} {

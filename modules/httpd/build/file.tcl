@@ -10,7 +10,7 @@
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
-    if {$fname in "{} index.html index.md index"} {
+    if {$fname in "{} index.html index.md index index.tml"} {
       return $path
     }
     if {[file exists [file join $path $fname]]} {

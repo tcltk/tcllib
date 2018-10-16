@@ -37,16 +37,18 @@ proc ::clay::dynamic_methods_class {thisclass} {
 proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]
-  #$class clay set array $name . 1
+  $class clay branch array $name
   dict for {var val} $values {
     $class clay set array/ $name $var $val
   }
 }
 
 ###
-# topic: 710a93168e4ba7a971d3dbb8a3e7bcbc
+# An annotation that objects of this class interact with delegated
+# methods. The annotation is intended to be a dictionary, and the
+# only reserved key is [emph {description}], a human readable description.
 ###
-proc ::clay::define::Component {name info} {
+proc ::clay::define::Delegate {name info} {
   set class [current_class]
   foreach {field value} $info {
     $class clay set component/ [string trim $name :/]/ $field $value
@@ -81,7 +83,7 @@ proc ::clay::define::class_method {name arglist body} {
 
 proc ::clay::define::clay {args} {
   set class [current_class]
-  if {[lindex $args 0] in "cget set"} {
+  if {[lindex $args 0] in "cget set branch"} {
     $class clay {*}$args
   } else {
     $class clay set {*}$args
@@ -108,6 +110,7 @@ set DestroyEvent 1
 proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]
+  $class clay branch dict $name
   foreach {var val} $values {
     $class clay set dict/ $name/ $var $val
   }
@@ -127,7 +130,6 @@ proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
   $class clay set variable/ $name $default
-  #::oo::define $class variable $name
 }
 
 proc ::clay::object_create {objname {class {}}} {
@@ -155,8 +157,11 @@ proc ::clay::object_destroy objname {
 # This class is inherited by all classes that have options.
 #
 ::clay::define ::clay::object {
-  Variable clay {}
-  Variable claycache {}
+  clay branch array
+  clay branch mixin
+  clay branch option
+  clay branch dict clay
+
   Variable DestroyEvent 0
 
   ###

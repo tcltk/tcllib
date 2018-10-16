@@ -81,6 +81,12 @@ oo::define oo::object {
       ancestors {
         return $clayorder
       }
+      branch {
+        set path [::dicttool::storage $args]
+        if {![dict exists $clay {*}$path .]} {
+          dict set clay {*}$path . {}
+        }
+      }
       cget {
         # Leaf searches return one data field at a time
         # Search in our local dict
@@ -500,6 +506,7 @@ oo::define oo::object {
         set $var {}
       }
       foreach {f v} $value {
+        if {$f eq "."} continue
         if {![dict exists ${var} $f]} {
           if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
           dict set ${var} $f $v
@@ -514,6 +521,7 @@ oo::define oo::object {
       if {![info exists $var]} { array set $var {} }
       foreach {f v} $value {
         if {![array exists ${var}($f)]} {
+          if {$f eq "."} continue
           if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
           set ${var}($f) $v
         }
@@ -540,4 +548,9 @@ oo::define oo::object {
     }
   }
 }
+
+oo::class clay branch array
+oo::class clay branch mixin
+oo::class clay branch option
+oo::class clay branch dict clay
 
