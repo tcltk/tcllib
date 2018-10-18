@@ -4,7 +4,7 @@ source [file join $srcdir doctool.tcl]
 
 ::practcl::doctool create AutoDoc
 
-set version 0.14
+set version 0.14.1
 set tclversion 8.6
 set module [file tail $moddir]
 set filename $module

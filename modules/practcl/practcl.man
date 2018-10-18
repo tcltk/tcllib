@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.14]
+[vset PACKAGE_VERSION 0.14.1]
 [manpage_begin practcl n [vset PACKAGE_VERSION]]
 [keywords practcl]
 [copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
