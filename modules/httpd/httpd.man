@@ -448,7 +448,7 @@ tclsh examples/httpd.tcl
 [call method [cmd "destructor"] [opt "[arg dictargs]"]]
 
 
-[call method [cmd "connect"] [arg sock] [arg ip] [arg port]]
+[call method [cmd "connect"] [opt "[arg args]"]]
 
  Reply to an open socket. This method builds a coroutine to manage the remainder
  of the connection. The coroutine's operations are driven by the [cmd Connect] method.
@@ -459,7 +459,7 @@ tclsh examples/httpd.tcl
 [call method [cmd "ServerHeaders"] [arg ip] [arg http_request] [arg mimetxt]]
 
 
-[call method [cmd "Connect"] [arg uuid] [arg sock] [arg ip]]
+[call method [cmd "Connect"] [arg uuid] [arg sock] [arg ip] [opt "[arg info] [const ""]"]]
 
  This method reads HTTP headers, and then consults the [cmd dispatch] method to
  determine if the request is valid, and/or what kind of reply to generate. Under
@@ -580,7 +580,7 @@ tclsh examples/httpd.tcl
 [call method [cmd "source"] [arg filename]]
 
 
-[call method [cmd "start"]]
+[call method [cmd "start"] [opt "[arg portlist] [const ""]"]]
  Open the socket listener.
 
 
@@ -843,7 +843,7 @@ tclsh examples/httpd.tcl
 [call method [cmd "debug"] [opt "[arg args]"]]
 
 
-[call method [cmd "Connect"] [arg uuid] [arg sock] [arg ip]]
+[call method [cmd "Connect"] [arg uuid] [arg sock] [arg ip] [opt "[arg info] [const ""]"]]
 
 
 [list_end]

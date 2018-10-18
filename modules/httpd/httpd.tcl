@@ -747,12 +747,23 @@ namespace eval ::httpd::coro {
     foreach {var val} $arglist {
       my clay set server/ $var $val
     }
-    my start
   }
   destructor {
     my stop
   }
-  method connect {sock ip port} {
+  method connect args {
+    switch [llength $args] {
+      3 {
+        set info {}
+        lassign $args sock ip port
+      }
+      4 {
+        lassign $args info sock ip port
+      }
+      default {
+        error "Usage: [self method] ?info? sock ip port"
+      }
+    }
     ###
     # If an IP address is blocked drop the
     # connection
@@ -762,7 +773,7 @@ namespace eval ::httpd::coro {
       return
     }
     set uuid [my Uuid_Generate]
-    set coro [coroutine ::httpd::coro::$uuid {*}[namespace code [list my Connect $uuid $sock $ip]]]
+    set coro [coroutine ::httpd::coro::$uuid {*}[namespace code [list my Connect $uuid $sock $ip $info]]]
     chan event $sock readable $coro
   }
   method ServerHeaders {ip http_request mimetxt} {
@@ -798,7 +809,7 @@ namespace eval ::httpd::coro {
     }
     return $result
   }
-  method Connect {uuid sock ip} {
+  method Connect {uuid sock ip {info {}}} {
     yield [info coroutine]
     chan event $sock readable {}
     chan configure $sock \
@@ -813,6 +824,9 @@ namespace eval ::httpd::coro {
       dict set query mimetxt $mimetxt
       dict set query mixin style [my clay get server/ style]
       dict set query http [my ServerHeaders $ip $http_request $mimetxt]
+      foreach {f v} $info {
+        dict set query http $f $v
+      }
       my Headers_Process query
       set reply [my dispatch $query]
     } on error {err errdat} {
@@ -969,30 +983,53 @@ namespace eval ::httpd::coro {
   method source {filename} {
     source $filename
   }
-  method start {} {
+  method start {{portlist {}}} {
     # Build a namespace to contain replies
     namespace eval [namespace current]::reply {}
-
     my variable socklist port_listening
     if {[my clay get server/ configuration_file] ne {}} {
       source [my clay get server/ configuration_file]
     }
-    set port [my clay get server/ port]
-    if { $port in {auto {}} } {
-      package require nettool
-      set port [::nettool::allocate_port 8015]
-    }
-    set port_listening $port
-    set myaddr [my clay get server/ myaddr]
-    my debug [list [self] listening on $port $myaddr]
-
-    if {$myaddr ni {all any * {}}} {
-      foreach ip $myaddr {
-        lappend socklist [socket -server [namespace code [list my connect]] -myaddr $ip $port]
+    if {[llength $portlist]==0} {
+      set port [my clay get server/ port]
+      if {$port in {{} auto}} {
+        set port [::nettool::allocate_port 8015]
       }
-    } else {
-      lappend socklist [socket -server [namespace code [list my connect]] $port]
+      set info {}
+      dict set info SERVER_PORT $port
+      set myaddr [my clay get server/ myaddr]
+      if {$myaddr ni {all any * {}}} {
+        dict set info SERVER_IP $myaddr
+      }
+      lappend portlist $info
     }
+    foreach info $portlist {
+      if {[dict exists $info SERVER_SSL] && [dict get $info SERVER_SSL]} {
+        package require tls
+        set cmd ::tls::socket
+        set opts {-tls1 1 -ssl2 0 -ssl3 0}
+      } else {
+        set cmd ::socket
+        set opts {}
+      }
+      if {![dict exists $info SERVER_PORT] || [dict get $info SERVER_PORT] in {{} auto}} {
+        package require nettool
+        dict set info SERVER_PORT [::nettool::allocate_port 8015]
+      }
+      if {[dict exists $info SERVER_IP] && [llength [dict get $info SERVER_IP]]} {
+        foreach ip [dict get $info SERVER_IP] {
+          puts [list $cmd -server [namespace code [list my connect $info]] {*}$opts -myaddr $ip [dict get $info SERVER_PORT]]
+          lappend socklist [$cmd -server [namespace code [list my connect $info]] {*}$opts -myaddr $ip [dict get $info SERVER_PORT]]
+          lappend port_listening $info
+        }
+      } else {
+        puts [list $cmd -server [namespace code [list my connect $info]] {*}$opts  [dict get $info SERVER_PORT]]
+        lappend socklist [$cmd -server [namespace code [list my connect $info]] {*}$opts [dict get $info SERVER_PORT]]
+        lappend port_listening $info
+      }
+    }
+    my debug [list [self] listening on $port_listening]
+
     ::cron::every [self] 120 [namespace code {my CheckTimeout}]
     my Thread_start
   }
@@ -1664,7 +1701,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
   method debug args {
     puts $args
   }
-  method Connect {uuid sock ip} {
+  method Connect {uuid sock ip {info {}}} {
     yield [info coroutine]
     chan event $sock readable {}
     chan configure $sock \
@@ -1679,6 +1716,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       dict set query http CONTENT_LENGTH 0
       dict set query http REQUEST_URI /
       dict set query http REMOTE_ADDR $ip
+      foreach {f v} $info {
+        dict set query http $f $v
+      }
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]

@@ -192,5 +192,30 @@ appmain uri direct * /dynamic {} {
   my puts </BODY></HTML>
 }
 
+set portlist {}
+set info {}
+if {[dict exists $serveropts myaddr]} {
+  dict set info SERVER_IP [dict get $serveropts myaddr]
+}
+if {[dict exists $serveropts port]} {
+  dict set info SERVER_PORT [dict get $serveropts port]
+  lappend portlist $info
+} else {
+  dict set info SERVER_PORT auto
+  lappend portlist $info
+}
+if {![catch {package require tls}]} {
+  dict set info SERVER_SSL 1
+  if {[dict exists $serveropts port_ssl]} {
+    dict set info SERVER_PORT [dict get $serveropts port_ssl]
+    lappend portlist $info
+  } else {
+    dict set info SERVER_PORT auto
+    lappend portlist $info
+  }
+}
+puts $portlist
+appmain start $portlist
+
 puts [list LISTENING on [appmain port_listening]]
 cron::main

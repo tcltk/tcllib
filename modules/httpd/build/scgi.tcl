@@ -106,7 +106,7 @@
     puts $args
   }
 
-  method Connect {uuid sock ip} {
+  method Connect {uuid sock ip {info {}}} {
     yield [info coroutine]
     chan event $sock readable {}
     chan configure $sock \
@@ -121,6 +121,9 @@
       dict set query http CONTENT_LENGTH 0
       dict set query http REQUEST_URI /
       dict set query http REMOTE_ADDR $ip
+      foreach {f v} $info {
+        dict set query http $f $v
+      }
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]

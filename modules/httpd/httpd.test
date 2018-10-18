@@ -227,6 +227,7 @@ set DIR [file dirname [file normalize [info script]]]
 set ::DEMOROOT $DIR
 
 ::httpd::server create TESTAPP port 10001
+TESTAPP start
 TESTAPP plugin dict_dispatch
 TESTAPP uri add * /     [list mixin {reply ::test::content.echo}]
 TESTAPP uri add * /echo [list mixin {reply ::test::content.echo}]
@@ -337,9 +338,9 @@ clay::define ::test::content.proxy {
   }
 }
 
-
 ::httpd::server create TESTPROXY port 10002
-TESTAPP   uri add * /proxy*     [list mixin {reply ::test::content.proxy} proxy_port [TESTPROXY port_listening]]
+TESTPROXY start
+TESTAPP   uri add * /proxy*     [list mixin {reply ::test::content.proxy} proxy_port 10002]
 TESTPROXY plugin dict_dispatch
 TESTPROXY uri add * /     [list mixin {reply ::test::content.echo}]
 TESTPROXY uri add * /echo [list mixin {reply ::test::content.echo}]
@@ -580,6 +581,7 @@ namespace eval ::scgi {
 
 puts [list ::test::content.file [info commands ::test::content.file]]
 scgi::test::app create TESTSCGI port 10003
+TESTSCGI start
 TESTSCGI plugin dict_dispatch
 TESTSCGI uri add * /     [list mixin {reply ::test::content.echo}]
 TESTSCGI uri add * /echo [list mixin {reply ::test::content.echo}]
