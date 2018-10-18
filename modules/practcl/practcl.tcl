@@ -1303,7 +1303,7 @@ oo::class create ::practcl::doctool {
     }
     return $result
   }
-  method keyword.Annotation {resulvar commentblock type name body} {
+  method keyword.Annotation {resultvar commentblock type name body} {
     upvar 1 $resultvar result
     set name [string trim $name :]
     if {[dict exists $result $type $name]} {
@@ -1338,18 +1338,25 @@ oo::class create ::practcl::doctool {
       switch $cmd {
         Option -
         option {
-          puts [list keyword.Annotation $cmd $thisline]
-          my keyword.Annotation info $commentblock option {*}[lrange $thisline 1 end-1]
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
         }
         variable -
-        Dict -
-        Array -
         Variable {
-          my keyword.Annotation info $commentblock variable {*}[lrange $thisline 1 end-1]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list type scaler default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
         }
         Componant -
         Delegate {
-          my keyword.Annotation info $commentblock delegate {*}[lrange $thisline 1 end-1]
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
         }
         method -
         Ensemble {
@@ -1383,17 +1390,26 @@ oo::class create ::practcl::doctool {
       switch $cmd {
         Option -
         option {
-          my keyword.Annotation info $commentblock option {*}[lrange $thisline 1 end-1]
+          puts [list keyword.Annotation $cmd $thisline]
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
         }
         variable -
-        Dict -
-        Array -
         Variable {
-          my keyword.Annotation info $commentblock variable {*}[lrange $thisline 1 end-1]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
         }
         Componant -
         Delegate {
-          my keyword.Annotation info $commentblock delegate {*}[lrange $thisline 1 end-1]
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
         }
         superclass {
           dict set info ancestors [lrange $thisline 1 end]
@@ -1597,15 +1613,15 @@ oo::class create ::practcl::doctool {
     }
     return $result
   }
-  method section.annotation {type name info} {
-    set result {}
-    set line "\[call $type \[cmd $name\]\]"
-    if {[dict exists $minfo description]} {
-      putb result [dict get $minfo description]
+  method section.annotation {type name iinfo} {
+    set result "\[call $type \[cmd $name\]\]"
+    if {[dict exists $iinfo description]} {
+      putb result [dict get $iinfo description]
     }
-    if {[dict exists $minfo example]} {
+    if {[dict exists $iinfo example]} {
       putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
     }
+    return $result
   }
   method section.class {class_name class_info} {
     set result {}
@@ -1619,7 +1635,7 @@ oo::class create ::practcl::doctool {
       putb result {[para]}
     }
     dict for {f v} $class_info {
-      if {$f in {class_method method description ancestors example}} continue
+      if {$f in {class_method method description ancestors example option variable delegate}} continue
       putb result "\[emph \"$f\"\]: $v"
       putb result {[para]}
     }
@@ -1631,19 +1647,16 @@ oo::class create ::practcl::doctool {
       putb result [dict get $class_info description]
       putb result {[para]}
     }
-    foreach {type} {
-      option variable delegate
-    } {
-      if {[dict exists $class_info $type]} {
-        putb result "\[class \{Options\}\]"
-        #putb result "Methods on the class object itself."
-        putb result {[list_begin definitions]}
-        dict for {item iinfo} [dict get $class_info $type] {
-          putb result [my section.annotation $type $item $iiinfo]
-        }
-        putb result {[list_end]}
-        putb result {[para]}
+    dict for {f v} $class_info {
+      if {$f ni {option variable delegate}} continue
+      putb result "\[class \{[string totitle $f]\}\]"
+      #putb result "Methods on the class object itself."
+      putb result {[list_begin definitions]}
+      dict for {item iinfo} [dict get $class_info $f] {
+        putb result [my section.annotation $f $item $iinfo]
       }
+      putb result {[list_end]}
+      putb result {[para]}
     }
     if {[dict exists $class_info class_method]} {
       putb result "\[class \{Class Methods\}\]"
@@ -2928,7 +2941,7 @@ proc ::practcl::target {name info {action {}}} {
         }
       }
       if {$mixinslot ne {}} {
-        my mixin $mixinslot $class
+        my clay mixinmap $mixinslot $class
       } elseif {[info command $class] ne {}} {
         if {[info object class [self]] ne $class} {
           ::oo::objdefine [self] class $class
@@ -2943,36 +2956,6 @@ proc ::practcl::target {name info {action {}}} {
       ::oo::objdefine [self] $define(oodefine)
       #unset define(oodefine)
     }
-  }
-  method mixin {slot classname} {
-    my variable mixinslot
-    set class {}
-    set map [list @slot@ $slot @name@ $classname]
-    foreach pattern [split [string map $map {
-      @name@
-      @slot@.@name@
-      ::practcl::@name@
-      ::practcl::@slot@.@name@
-      ::practcl::@slot@*@name@
-      ::practcl::*@name@*
-    }] \n] {
-      set pattern [string trim $pattern]
-      set matches [info commands $pattern]
-      if {![llength $matches]} continue
-      set class [lindex $matches 0]
-      break
-    }
-    ::practcl::debug [self] mixin $slot $class
-    dict set mixinslot $slot $class
-    set mixins {}
-    foreach {s c} $mixinslot {
-      if {$c eq {}} continue
-      lappend mixins $c
-    }
-    oo::objdefine [self] mixin {*}$mixins
-  }
-  method organ args {
-    return [my clay delegate {*}$args]
   }
   method script script {
     eval $script
@@ -3066,6 +3049,9 @@ oo::class create ::practcl::toolset {
     ###
     # Oh man... we have to guess
     ###
+    if {![file exists [file join $builddir Makefile]]} {
+      my Configure
+    }
     set filename [file join $builddir Makefile]
     if {![file exists $filename]} {
       error "Could not locate any configuration data in $srcdir"
@@ -3117,11 +3103,10 @@ oo::class create ::practcl::toolset {
     ::practcl::dotclexec $critcl {*}$args
     cd $PWD
   }
-  method make-autodetect {} {}
 }
 oo::objdefine ::practcl::toolset {
 
-
+  # Perform the selection for the toolset mixin
   method select object {
     ###
     # Select the toolset to use for this project
@@ -3131,12 +3116,12 @@ oo::objdefine ::practcl::toolset {
     }
     set class [$object define get toolset]
     if {$class ne {}} {
-      $object mixin toolset $class
+      $object clay mixinmap toolset $class
     } else {
       if {[info exists ::env(VisualStudioVersion)]} {
-        $object mixin toolset ::practcl::toolset.msvc
+        $object clay mixinmap toolset ::practcl::toolset.msvc
       } else {
-        $object mixin toolset ::practcl::toolset.gcc
+        $object clay mixinmap toolset ::practcl::toolset.gcc
       }
     }
   }
@@ -3201,16 +3186,17 @@ oo::objdefine ::practcl::toolset {
     }
     set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
-    if {![my <project> define get LOCAL 0]} {
-      set obj [my <project> tclcore]
-      if {$obj ne {}} {
-        if {$inside_msys} {
-          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-        } else {
-          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+
+    if {[my define get tk 0]} {
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
         }
-      }
-      if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
           if {$inside_msys} {
@@ -3219,11 +3205,22 @@ oo::objdefine ::practcl::toolset {
             lappend opts --with-tk=[file normalize [$obj define get builddir]]
           }
         }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
+        lappend opts --with-tk=[file join $PREFIX lib]
       }
     } else {
-      lappend opts --with-tcl=[file join $PREFIX lib]
-      if {[my define get tk 0]} {
-        lappend opts --with-tk=[file join $PREFIX lib]
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
+        }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
       }
     }
 
@@ -3281,6 +3278,9 @@ oo::objdefine ::practcl::toolset {
   method make-autodetect {} {
     set srcdir [my define get srcdir]
     set localsrcdir [my define get localsrcdir]
+    if {$localsrcdir eq {}} {
+      set localsrcdir $srcdir
+    }
     if {$srcdir eq $localsrcdir} {
       if {![file exists [file join $srcdir tclconfig install-sh]]} {
         # ensure we have tclconfig with all of the trimmings
@@ -3649,7 +3649,25 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
   }
 }
 method build-tclsh {outfile PROJECT} {
-  puts " BUILDING STATIC TCLSH "
+  if {[my define get tk 0] && [my define get static_tk 0]} {
+    puts " BUILDING STATIC TCL/TK EXE $PROJECT"
+    set TKOBJ  [$PROJECT tkcore]
+    if {[info command $TKOBJ] eq {}} {
+      set TKOBJ ::noop
+      $PROJECT define set static_tk 0
+    } else {
+      ::practcl::toolset select $TKOBJ
+      array set TK  [$TKOBJ read_configuration]
+      set do_tk [$TKOBJ define get static]
+      $PROJECT define set static_tk $do_tk
+      $PROJECT define set tk $do_tk
+      set TKSRCDIR [$TKOBJ define get srcdir]
+    }
+  } else {
+    puts " BUILDING STATIC TCL EXE $PROJECT"
+    set TKOBJ ::noop
+    my define set static_tk 0
+  }
   set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
@@ -3664,19 +3682,6 @@ method build-tclsh {outfile PROJECT} {
     }
   }
   array set TCL [$TCLOBJ read_configuration]
-
-  set TKOBJ  [$PROJECT tkcore]
-  if {[info command $TKOBJ] eq {}} {
-    set TKOBJ ::noop
-    $PROJECT define set static_tk 0
-  } else {
-    ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ read_configuration]
-    set do_tk [$TKOBJ define get static]
-    $PROJECT define set static_tk $do_tk
-    $PROJECT define set tk $do_tk
-    set TKSRCDIR [$TKOBJ define get srcdir]
-  }
   set path [file dirname $outfile]
   cd $path
   ###
@@ -5200,10 +5205,10 @@ oo::objdefine ::practcl::product {
       }
     }
     if {$class ne {}} {
-      $object morph $class
+      $object clay mixinmap core $class
     }
     if {$mixin ne {}} {
-      $object mixin product $mixin
+      $object clay mixinmap product $mixin
     }
   }
 }
@@ -5733,15 +5738,16 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 
     set _TclSrcDir [$tclobj define get localsrcdir]
     my define set tclsrcdir $_TclSrcDir
-
-    set tkobj [my tkcore]
-    lappend tk_config_opts --with-tcl=[::practcl::file_relative [$tkobj define get builddir]  [$tclobj define get builddir]]
-    if {[my define get debug 0]} {
-      $tkobj define set debug 1
-      lappend tk_config_opts --enable-symbols=true
+    if {[my define get tk 0]} {
+      set tkobj [my tkcore]
+      lappend tk_config_opts --with-tcl=[::practcl::file_relative [$tkobj define get builddir]  [$tclobj define get builddir]]
+      if {[my define get debug 0]} {
+        $tkobj define set debug 1
+        lappend tk_config_opts --enable-symbols=true
+      }
+      $tkobj define set config_opts $tk_config_opts
+      $tkobj compile
     }
-    $tkobj define set config_opts $tk_config_opts
-    $tkobj compile
   }
   method child which {
     switch $which {
@@ -5764,7 +5770,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     ${obj} {*}$args
   }
   method tclcore {} {
-    if {[info commands [set obj [my organ tclcore]]] ne {}} {
+    if {[info commands [set obj [my clay delegate tclcore]]] ne {}} {
       return $obj
     }
     if {[info commands [set obj [my project TCLCORE]]] ne {}} {
@@ -5788,7 +5794,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
     return $obj
   }
   method tkcore {} {
-    if {[set obj [my organ tkcore]] ne {}} {
+    if {[set obj [my clay delegate tkcore]] ne {}} {
       return $obj
     }
     if {[set obj [my project tk]] ne {}} {
@@ -6513,7 +6519,7 @@ oo::class create ::practcl::distribution {
     if {[my define exists sandbox]} {
       return [my define get sandbox]
     }
-    if {[my organ project] ni {::noop {}}} {
+    if {[my clay delegate project] ni {::noop {}}} {
       set sandbox [my <project> define get sandbox]
       if {$sandbox ne {}} {
         my define set sandbox $sandbox
@@ -6562,7 +6568,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define exists sandbox]} {
       return [$object define get sandbox]
     }
-    if {[$object organ project] ni {::noop {}}} {
+    if {[$object clay delegate project] ni {::noop {}}} {
       set sandbox [$object <project> define get sandbox]
       if {$sandbox ne {}} {
         $object define set sandbox $sandbox
@@ -6592,7 +6598,7 @@ oo::objdefine ::practcl::distribution {
     if {[file exists $srcdir]} {
       foreach class [::info commands ${classprefix}*] {
         if {[$class claim_path $srcdir]} {
-          $object mixin distribution $class
+          $object clay mixinmap distribution $class
           $object define set scm [string range $class [string length ::practcl::distribution.] end]
           return [$object define get scm]
         }
@@ -6600,7 +6606,7 @@ oo::objdefine ::practcl::distribution {
     }
     foreach class [::info commands ${classprefix}*] {
       if {[$class claim_object $object]} {
-        $object mixin distribution $class
+        $object clay mixinmap distribution $class
         $object define set scm [string range $class [string length ::practcl::distribution.] end]
         return [$object define get scm]
       }
@@ -6608,7 +6614,7 @@ oo::objdefine ::practcl::distribution {
     if {[$object define get scm] eq {} && [$object define exists file_url]} {
       set class ::practcl::distribution.snapshot
       $object define set scm snapshot
-      $object mixin distribution $class
+      $object clay mixinmap distribution $class
       return [$object define get scm]
     }
     error "Cannot determine source distribution method"

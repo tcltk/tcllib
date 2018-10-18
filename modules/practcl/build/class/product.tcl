@@ -589,10 +589,10 @@ oo::objdefine ::practcl::product {
       }
     }
     if {$class ne {}} {
-      $object morph $class
+      $object clay mixinmap core $class
     }
     if {$mixin ne {}} {
-      $object mixin product $mixin
+      $object clay mixinmap product $mixin
     }
   }
 }

@@ -55,16 +55,17 @@
     }
     set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
-    if {![my <project> define get LOCAL 0]} {
-      set obj [my <project> tclcore]
-      if {$obj ne {}} {
-        if {$inside_msys} {
-          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-        } else {
-          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+
+    if {[my define get tk 0]} {
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
         }
-      }
-      if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
           if {$inside_msys} {
@@ -73,11 +74,22 @@
             lappend opts --with-tk=[file normalize [$obj define get builddir]]
           }
         }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
+        lappend opts --with-tk=[file join $PREFIX lib]
       }
     } else {
-      lappend opts --with-tcl=[file join $PREFIX lib]
-      if {[my define get tk 0]} {
-        lappend opts --with-tk=[file join $PREFIX lib]
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
+        }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
       }
     }
 
@@ -138,6 +150,9 @@
   method make-autodetect {} {
     set srcdir [my define get srcdir]
     set localsrcdir [my define get localsrcdir]
+    if {$localsrcdir eq {}} {
+      set localsrcdir $srcdir
+    }
     if {$srcdir eq $localsrcdir} {
       if {![file exists [file join $srcdir tclconfig install-sh]]} {
         # ensure we have tclconfig with all of the trimmings
@@ -519,7 +534,25 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 # Produce a static executable
 ###
 method build-tclsh {outfile PROJECT} {
-  puts " BUILDING STATIC TCLSH "
+  if {[my define get tk 0] && [my define get static_tk 0]} {
+    puts " BUILDING STATIC TCL/TK EXE $PROJECT"
+    set TKOBJ  [$PROJECT tkcore]
+    if {[info command $TKOBJ] eq {}} {
+      set TKOBJ ::noop
+      $PROJECT define set static_tk 0
+    } else {
+      ::practcl::toolset select $TKOBJ
+      array set TK  [$TKOBJ read_configuration]
+      set do_tk [$TKOBJ define get static]
+      $PROJECT define set static_tk $do_tk
+      $PROJECT define set tk $do_tk
+      set TKSRCDIR [$TKOBJ define get srcdir]
+    }
+  } else {
+    puts " BUILDING STATIC TCL EXE $PROJECT"
+    set TKOBJ ::noop
+    my define set static_tk 0
+  }
   set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
@@ -534,19 +567,6 @@ method build-tclsh {outfile PROJECT} {
     }
   }
   array set TCL [$TCLOBJ read_configuration]
-
-  set TKOBJ  [$PROJECT tkcore]
-  if {[info command $TKOBJ] eq {}} {
-    set TKOBJ ::noop
-    $PROJECT define set static_tk 0
-  } else {
-    ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ read_configuration]
-    set do_tk [$TKOBJ define get static]
-    $PROJECT define set static_tk $do_tk
-    $PROJECT define set tk $do_tk
-    set TKSRCDIR [$TKOBJ define get srcdir]
-  }
   set path [file dirname $outfile]
   cd $path
   ###

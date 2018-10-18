@@ -153,7 +153,7 @@
         }
       }
       if {$mixinslot ne {}} {
-        my mixin $mixinslot $class
+        my clay mixinmap $mixinslot $class
       } elseif {[info command $class] ne {}} {
         if {[info object class [self]] ne $class} {
           ::oo::objdefine [self] class $class
@@ -168,38 +168,6 @@
       ::oo::objdefine [self] $define(oodefine)
       #unset define(oodefine)
     }
-  }
-
-  method mixin {slot classname} {
-    my variable mixinslot
-    set class {}
-    set map [list @slot@ $slot @name@ $classname]
-    foreach pattern [split [string map $map {
-      @name@
-      @slot@.@name@
-      ::practcl::@name@
-      ::practcl::@slot@.@name@
-      ::practcl::@slot@*@name@
-      ::practcl::*@name@*
-    }] \n] {
-      set pattern [string trim $pattern]
-      set matches [info commands $pattern]
-      if {![llength $matches]} continue
-      set class [lindex $matches 0]
-      break
-    }
-    ::practcl::debug [self] mixin $slot $class
-    dict set mixinslot $slot $class
-    set mixins {}
-    foreach {s c} $mixinslot {
-      if {$c eq {}} continue
-      lappend mixins $c
-    }
-    oo::objdefine [self] mixin {*}$mixins
-  }
-
-  method organ args {
-    return [my clay delegate {*}$args]
   }
 
   method script script {
