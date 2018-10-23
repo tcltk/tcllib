@@ -702,7 +702,7 @@ proc ::dicttool::merge {args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
 }
-::tcllib::PROC ::ladd {varname args} {
+::tcllib::PROC ::dicttool::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -713,7 +713,7 @@ proc ::dicttool::merge {args} {
   }
   return $var
 }
-::tcllib::PROC ::ldelete {varname args} {
+::tcllib::PROC ::dicttool::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -725,7 +725,7 @@ proc ::dicttool::merge {args} {
   }
   return $var
 }
-::tcllib::PROC ::lrandom list {
+::tcllib::PROC ::dicttool::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]
@@ -2081,6 +2081,9 @@ proc ::putb {buffername args} {
   method keyword.class_method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
         dict set result class_method "${name} $method" $minfo
@@ -2105,6 +2108,9 @@ proc ::putb {buffername args} {
   method keyword.method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
         dict set result method "\"${name} $method\"" $minfo
@@ -2162,11 +2168,22 @@ proc ::putb {buffername args} {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        dictargs::proc {
+          set procinfo [my keyword.proc $commentblock [lindex $thisline 1] [list args [list dictargs [lindex $thisline 2]]]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
+          dict set info proc [string trim [lindex $thisline 1] :] $procinfo
+          set commentblock {}
+        }
         tcllib::PROC -
         PROC -
         Proc -
         proc {
           set procinfo [my keyword.proc $commentblock {*}[lrange $thisline 1 2]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
           dict set info proc [string trim [lindex $thisline 1] :] $procinfo
           set commentblock {}
         }
@@ -2254,6 +2271,9 @@ proc ::putb {buffername args} {
     }
     if {[dict exists $minfo example]} {
       putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
+    if {[dict exists $minfo internals]} {
+      putb result "\[para\]Internals: \[example [list [dict get $minfo internals]]\]"
     }
     return $result
   }
@@ -3173,9 +3193,6 @@ proc ::practcl::log {fname comment} {
 ###
 # START: installutil.tcl
 ###
-proc ::practcl::_isdirectory name {
-  return [file isdirectory $name]
-}
 proc ::practcl::_pkgindex_directory {path} {
   set buffer {}
   set pkgidxfile [file join $path pkgIndex.tcl]
@@ -3917,7 +3934,7 @@ oo::objdefine ::practcl::toolset {
     }
     return $localsrcdir
   }
-  method make-autodetect {} {
+  Ensemble make::autodetect {} {
     set srcdir [my define get srcdir]
     set localsrcdir [my define get localsrcdir]
     if {$localsrcdir eq {}} {
@@ -3963,11 +3980,11 @@ oo::objdefine ::practcl::toolset {
     catch {exec sh [file join $localsrcdir configure] {*}$opts >>& [file join $builddir autoconf.log]}
     cd $::CWD
   }
-  method make-clean {} {
+  Ensemble make::clean {} {
     set builddir [file normalize [my define get builddir]]
     catch {::practcl::domake $builddir clean}
   }
-  method make-compile {} {
+  Ensemble make::compile {} {
     set name [my define get name]
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -3991,7 +4008,7 @@ oo::objdefine ::practcl::toolset {
       ::practcl::domake $builddir all
     }
   }
-  method make-install DEST {
+  Ensemble make::install DEST {
     set PWD [pwd]
     set builddir [my define get builddir]
     if {[my <project> define get LOCAL 0] || $DEST eq {}} {
@@ -4524,16 +4541,16 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     set srcdir [my define get srcdir]
     return $srcdir
   }
-  method make-autodetect {} {
+  Ensemble make::autodetect {} {
   }
-  method make-clean {} {
+  Ensemble make::clean {} {
     set PWD [pwd]
     set srcdir [my define get srcdir]
     cd $srcdir
     catch {::practcl::doexec nmake -f makefile.vc clean}
     cd $PWD
   }
-  method make-compile {} {
+  Ensemble make::compile {} {
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
       puts "BUILDING Static $name $srcdir"
@@ -4558,7 +4575,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       }
     }
   }
-  method make-install DEST {
+  Ensemble make::install DEST {
     set PWD [pwd]
     set srcdir [my define get srcdir]
     cd $srcdir
@@ -7761,7 +7778,7 @@ oo::objdefine ::practcl::distribution.git {
     my go
     my clean
     my compile
-    my make-install {}
+    my make install {}
   }
   method project-compile-products {} {}
   method ComputeInstall {} {
@@ -7870,7 +7887,7 @@ oo::objdefine ::practcl::distribution.git {
     } else {
       puts "BUILDING Dynamic $name $srcdir"
     }
-    my make-compile
+    my make compile
     cd $PWD
   }
   method Configure {} {
@@ -7880,7 +7897,7 @@ oo::objdefine ::practcl::distribution.git {
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir
-    my make-autodetect
+    my make autodetect
   }
   method install DEST {
     set PWD [pwd]
@@ -7902,7 +7919,7 @@ oo::objdefine ::practcl::distribution.git {
       }
     }
     my compile
-    my make-install $DEST
+    my make install $DEST
     cd $PWD
   }
 }
@@ -7947,7 +7964,7 @@ oo::objdefine ::practcl::distribution.git {
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]
     my go
     my compile
-    my make-install {}
+    my make install {}
   }
   method go {} {
     my define set core_binary 1

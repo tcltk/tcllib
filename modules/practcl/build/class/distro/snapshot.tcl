@@ -1,3 +1,6 @@
+###
+# A file distribution from zip, tarball, or other non-scm archive format
+###
 ::clay::define ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
 

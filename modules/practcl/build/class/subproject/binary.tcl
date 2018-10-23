@@ -1,6 +1,5 @@
-
 ###
-# A binary package
+# A subordinate binary package
 ###
 ::clay::define ::practcl::subproject.binary {
   superclass ::practcl::subproject
@@ -30,7 +29,7 @@
     my go
     my clean
     my compile
-    my make-install {}
+    my make install {}
   }
 
   method project-compile-products {} {}
@@ -146,7 +145,7 @@
     } else {
       puts "BUILDING Dynamic $name $srcdir"
     }
-    my make-compile
+    my make compile
     cd $PWD
   }
 
@@ -157,7 +156,7 @@
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir
-    my make-autodetect
+    my make autodetect
   }
 
   method install DEST {
@@ -180,16 +179,22 @@
       }
     }
     my compile
-    my make-install $DEST
+    my make install $DEST
     cd $PWD
   }
 }
 
+###
+# A subordinate TEA based binary package
+###
 ::clay::define ::practcl::subproject.tea {
   superclass ::practcl::subproject.binary
 
 }
 
+###
+# A subordinate C library built by this project
+###
 ::clay::define ::practcl::subproject.library {
   superclass ::practcl::subproject.binary ::practcl::library
   method install DEST {
@@ -197,7 +202,9 @@
   }
 }
 
-# An external library
+###
+# A subordinate external C library
+###
 ::clay::define ::practcl::subproject.external {
   superclass ::practcl::subproject.binary
   method install DEST {

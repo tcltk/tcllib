@@ -700,7 +700,7 @@ proc ::dicttool::merge {args} {
 ###
 # START: dicttool/build/list.tcl
 ###
-::tcllib::PROC ::ladd {varname args} {
+::tcllib::PROC ::dicttool::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -711,7 +711,7 @@ proc ::dicttool::merge {args} {
   }
   return $var
 }
-::tcllib::PROC ::ldelete {varname args} {
+::tcllib::PROC ::dicttool::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -723,7 +723,7 @@ proc ::dicttool::merge {args} {
   }
   return $var
 }
-::tcllib::PROC ::lrandom list {
+::tcllib::PROC ::dicttool::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]

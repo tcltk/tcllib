@@ -1,3 +1,6 @@
+###
+# The metaclass for all practcl objects
+###
 ::clay::define ::practcl::metaclass {
 
   method _MorphPatterns {} {

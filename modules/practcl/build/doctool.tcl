@@ -356,6 +356,9 @@ proc ::putb {buffername args} {
   method keyword.class_method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
         dict set result class_method "${name} $method" $minfo
@@ -384,6 +387,9 @@ proc ::putb {buffername args} {
   method keyword.method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
         dict set result method "\"${name} $method\"" $minfo
@@ -453,11 +459,22 @@ proc ::putb {buffername args} {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        dictargs::proc {
+          set procinfo [my keyword.proc $commentblock [lindex $thisline 1] [list args [list dictargs [lindex $thisline 2]]]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
+          dict set info proc [string trim [lindex $thisline 1] :] $procinfo
+          set commentblock {}
+        }
         tcllib::PROC -
         PROC -
         Proc -
         proc {
           set procinfo [my keyword.proc $commentblock {*}[lrange $thisline 1 2]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
           dict set info proc [string trim [lindex $thisline 1] :] $procinfo
           set commentblock {}
         }
@@ -549,6 +566,9 @@ proc ::putb {buffername args} {
     }
     if {[dict exists $minfo example]} {
       putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
+    if {[dict exists $minfo internals]} {
+      putb result "\[para\]Internals: \[example [list [dict get $minfo internals]]\]"
     }
     return $result
   }

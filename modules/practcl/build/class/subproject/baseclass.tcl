@@ -1,3 +1,6 @@
+###
+# A subordinate project
+###
 ::clay::define ::practcl::subproject {
   superclass ::practcl::module
 

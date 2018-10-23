@@ -1,4 +1,6 @@
-
+###
+# A toplevel project that is a collection of other projects
+###
 ::clay::define ::practcl::project {
   superclass ::practcl::module
 

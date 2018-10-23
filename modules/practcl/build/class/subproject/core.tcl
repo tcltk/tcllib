@@ -21,7 +21,7 @@
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]
     my go
     my compile
-    my make-install {}
+    my make install {}
   }
 
   method go {} {

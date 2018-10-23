@@ -1,10 +1,4 @@
 ###
-# Installer tools
-###
-proc ::practcl::_isdirectory name {
-  return [file isdirectory $name]
-}
-###
 # Return true if the pkgindex file contains
 # any statement other than "package ifneeded"
 # and/or if any package ifneeded loads a DLL
@@ -110,7 +104,9 @@ proc ::practcl::_pkgindex_directory {path} {
   return $buffer
 }
 
-
+###
+# Helper function for ::practcl::pkgindex_path
+###
 proc ::practcl::_pkgindex_path_subdir {path} {
   set result {}
   if {[file exists [file join $path src build.tcl]]} {
@@ -191,6 +187,8 @@ set ::PATHSTACK [lrange $::PATHSTACK 0 end-1]
   return $buffer
 }
 
+# Delete the contents of [emph d2], and then
+# recusively Ccopy the contents of [emph d1] to [emph d2].
 proc ::practcl::installDir {d1 d2} {
   puts [format {%*sCreating %s} [expr {4 * [info level]}] {} [file tail $d2]]
   file delete -force -- $d2
@@ -217,6 +215,7 @@ proc ::practcl::installDir {d1 d2} {
   }
 }
 
+# Recursively copy the contents of [emph d1] to [emph d2]
 proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   #if {$toplevel} {
   #  puts [list ::practcl::copyDir $d1 -> $d2]

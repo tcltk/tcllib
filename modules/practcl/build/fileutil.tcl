@@ -4,7 +4,7 @@
 
 
 ###
-# grep
+# Search for the pattern [emph pattern] amongst $files
 ###
 proc ::practcl::grep {pattern {files {}}} {
     set result [list]
@@ -82,6 +82,13 @@ proc ::practcl::file_lexnormalize {sp} {
     return {}
 }
 
+###
+# Calculate a relative path between base and dst
+#
+# example:
+#  ::practcl::file_relative ~/build/tcl/unix ~/build/tcl/library
+#  > ../library
+###
 proc ::practcl::file_relative {base dst} {
     # Ensure that the link to directory 'dst' is properly done relative to
     # the directory 'base'.
@@ -130,6 +137,9 @@ proc ::practcl::file_relative {base dst} {
     return $dst
 }
 
+###
+# Record an event in the practcl log
+###
 proc ::practcl::log {fname comment} {
   set fname [file normalize $fname]
   if {[info exists ::practcl::logchan($fname)]} {

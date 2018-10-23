@@ -1,5 +1,6 @@
-
-
+###
+# A file distribution based on git
+###
 ::clay::define ::practcl::distribution.git {
   superclass ::practcl::distribution
 

@@ -1,4 +1,7 @@
-
+###
+# A build deliverable object. Normally an object file, header, or tcl script
+# which must be compiled or generated in some way
+###
 ::clay::define ::practcl::make_obj {
   superclass ::practcl::metaclass
 

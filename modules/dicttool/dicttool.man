@@ -223,7 +223,17 @@ just in case any of these slip into the core.
 
 
 
-[call proc [cmd ladd] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
+[call proc [cmd dictargs::proc] [arg name] [arg argspec] [arg body]]
+
+ Named Procedures as new command
+
+
+
+
+[call proc [cmd dictargs::method] [arg name] [arg argspec] [arg body]]
+
+
+[call proc [cmd dicttool::ladd] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
 
  Add elements to a list if that are not already present in the list.
  As a side effect, if variable [variable varname] does not exists,
@@ -239,7 +249,7 @@ just in case any of these slip into the core.
 
 }]
 
-[call proc [cmd ldelete] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
+[call proc [cmd dicttool::ldelete] [arg varname] [opt "[arg element]"] [opt [option "element..."]]]
 
  Delete all instances of the elements given from a list contained in [variable varname].
  If the variable does exist this is a noop.
@@ -252,7 +262,7 @@ just in case any of these slip into the core.
 
 }]
 
-[call proc [cmd lrandom] [arg list]]
+[call proc [cmd dicttool::lrandom] [arg list]]
 
  Return a random element from [variable list]
 

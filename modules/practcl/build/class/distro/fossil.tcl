@@ -1,4 +1,6 @@
-
+###
+# A file distribution based on fossil
+###
 ::clay::define ::practcl::distribution.fossil {
   superclass ::practcl::distribution
 

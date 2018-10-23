@@ -1,4 +1,6 @@
-
+###
+# A toplevel project that produces a self-contained executable
+###
 ::clay::define ::practcl::tclkit {
   superclass ::practcl::library
 

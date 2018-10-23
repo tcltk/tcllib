@@ -11,6 +11,18 @@
 [description]
 The Practcl module is a tool for integrating large modules for C API
 Tcl code that requires custom Tcl types and TclOO objects.
+[para]
+The concept with Practcl is that is a single file package that can
+assist any tcl based project with distribution, compilation, linking,
+VFS preparation, executable assembly, and installation. Practcl also
+allows one project to invoke the build system from another project,
+allowing complex projects such as a statically linked basekit to be
+assembled with relative ease.
+[para]
+Practcl ships as a single file, and aside from a Tcl 8.6 interpreter,
+has no external dependencies.
+[para]
+Making a practcl project
 
 [section {Commands}]
 [list_begin definitions]
@@ -178,7 +190,7 @@ Converts a XXX.sh file into a series of Tcl variables
 
 [call proc [cmd practcl::grep] [arg pattern] [opt "[arg files] [const ""]"]]
 
- grep
+ Search for the pattern [emph pattern] amongst $files
 
 
 
@@ -188,13 +200,18 @@ Converts a XXX.sh file into a series of Tcl variables
 
 [call proc [cmd practcl::file_relative] [arg base] [arg dst]]
 
+ Calculate a relative path between base and dst
+
+
+[para]Example: [example {  ::practcl::file_relative ~/build/tcl/unix ~/build/tcl/library
+  > ../library
+
+
+}]
 
 [call proc [cmd practcl::log] [arg fname] [arg comment]]
 
-
-[call proc [cmd practcl::_isdirectory] [arg name]]
-
- Installer tools
+ Record an event in the practcl log
 
 
 
@@ -210,6 +227,10 @@ Converts a XXX.sh file into a series of Tcl variables
 
 [call proc [cmd practcl::_pkgindex_path_subdir] [arg path]]
 
+ Helper function for ::practcl::pkgindex_path
+
+
+
 
 [call proc [cmd practcl::pkgindex_path] [opt "[arg args]"]]
 
@@ -220,19 +241,58 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 [call proc [cmd practcl::installDir] [arg d1] [arg d2]]
+ Delete the contents of [emph d2], and then
+ recusively Ccopy the contents of [emph d1] to [emph d2].
+
 
 
 [call proc [cmd practcl::copyDir] [arg d1] [arg d2] [opt "[arg toplevel] [const "1"]"]]
+ Recursively copy the contents of [emph d1] to [emph d2]
+
 
 
 [call proc [cmd practcl::trigger] [opt "[arg args]"]]
 
+ Trigger build targets, and recompute dependencies
+
+
+
+[para]Internals: [example {
+  ::practcl::LOCAL make trigger {*}$args
+  foreach {name obj} [::practcl::LOCAL make objects] {
+    set ::make($name) [$obj do]
+  }
+}]
 
 [call proc [cmd practcl::depends] [opt "[arg args]"]]
 
+ Calculate if a dependency for any of the arguments needs to
+ be fulfilled or rebuilt.
+
+
+[para]Internals: [example {
+  ::practcl::LOCAL make depends {*}$args
+}]
 
 [call proc [cmd practcl::target] [arg name] [arg info] [opt "[arg action] [const ""]"]]
 
+ Declare a build product. This proc is just a shorthand for
+ [command {::practcl::LOCAL make task $name $info $action}]
+ [para]
+ Registering a build product with this command will create
+ an entry in the global [variable make] array, and populate
+ a value in the global [variable target] array.
+
+
+
+[para]Internals: [example {
+  set obj [::practcl::LOCAL make task $name $info $action]
+  set ::make($name) 0
+  set filename [$obj define get filename]
+  if {$filename ne {}} {
+    set ::target($name) $filename
+  }
+}]
 
 [list_end]
 
@@ -419,6 +479,10 @@ Converts a XXX.sh file into a series of Tcl variables
 
 [subsection {Class  practcl::metaclass}]
 
+ The metaclass for all practcl objects
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -541,16 +605,16 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 
-[call method [cmd "make-autodetect"]]
+[call method [cmd "make {} autodetect"]]
 
 
-[call method [cmd "make-clean"]]
+[call method [cmd "make {} clean"]]
 
 
-[call method [cmd "make-compile"]]
+[call method [cmd "make {} compile"]]
 
 
-[call method [cmd "make-install"] [arg DEST]]
+[call method [cmd "make {} install"] [arg DEST]]
 
 
 [call method [cmd "build-compile-sources"] [arg PROJECT] [arg COMPILE] [arg CPPCOMPILE] [arg INCLUDES]]
@@ -588,18 +652,18 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 
-[call method [cmd "make-autodetect"]]
+[call method [cmd "make {} autodetect"]]
  Do nothing
 
 
 
-[call method [cmd "make-clean"]]
+[call method [cmd "make {} clean"]]
 
 
-[call method [cmd "make-compile"]]
+[call method [cmd "make {} compile"]]
 
 
-[call method [cmd "make-install"] [arg DEST]]
+[call method [cmd "make {} install"] [arg DEST]]
 
 
 [call method [cmd "MakeDir"] [arg srcdir]]
@@ -616,6 +680,11 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::make_obj}]
 [emph "ancestors"]: [class practcl::metaclass]
 [para]
+
+ A build deliverable object. Normally an object file, header, or tcl script
+ which must be compiled or generated in some way
+
+
 
 [para]
 [class {Methods}]
@@ -923,7 +992,7 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::product]
 [para]
 
- Flesh out several trivial varieties of product
+ A product which generated from a C header file. Which is to say, nothing.
 
 
 
@@ -943,6 +1012,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::product]
 [para]
 
+ A product which generated from a C source file. Normally an object (.o) file.
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -955,6 +1028,13 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::product.clibrary}]
 [emph "ancestors"]: [class practcl::product]
 [para]
+
+ A product which is generated from a compiled C library.
+ Usually a .a or a .dylib file, but in complex cases may
+ actually just be a conduit for one project to integrate the
+ source code of another
+
+
 
 [para]
 [class {Methods}]
@@ -969,6 +1049,13 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::dynamic] [class practcl::product]
 [para]
 
+ A product which is generated from C code that itself is generated
+ by practcl or some other means. This C file may or may not produce
+ its own .o file, depending on whether it is eligible to become part
+ of an amalgamation
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -981,6 +1068,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::product.critcl}]
 [emph "ancestors"]: [class practcl::dynamic] [class practcl::product]
 [para]
+
+ A binary product produced by critcl. Note: The implementation is not
+ written yet, this class does nothing.
+
 
 [para]
 
@@ -1096,6 +1187,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::module]
 [para]
 
+ A toplevel project that is a collection of other projects
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -1149,6 +1244,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::project]
 [para]
 
+ A toplevel project that produces a library
+
+
+
 [para]
 [class {Methods}]
 [list_begin definitions]
@@ -1193,6 +1292,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::tclkit}]
 [emph "ancestors"]: [class practcl::library]
 [para]
+
+ A toplevel project that produces a self-contained executable
+
+
 
 [para]
 [class {Methods}]
@@ -1273,6 +1376,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::distribution]
 [para]
 
+ A file distribution from zip, tarball, or other non-scm archive format
+
+
+
 [para]
 [class {Class Methods}]
 [list_begin definitions]
@@ -1295,6 +1402,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::distribution.fossil}]
 [emph "ancestors"]: [class practcl::distribution]
 [para]
+
+ A file distribution based on fossil
+
+
 
 [para]
 [class {Class Methods}]
@@ -1337,6 +1448,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::distribution]
 [para]
 
+ A file distribution based on git
+
+
+
 [para]
 [class {Class Methods}]
 [list_begin definitions]
@@ -1365,6 +1480,10 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::subproject}]
 [emph "ancestors"]: [class practcl::module]
 [para]
+
+ A subordinate project
+
+
 
 [para]
 [class {Methods}]
@@ -1560,7 +1679,7 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::subproject]
 [para]
 
- A binary package
+ A subordinate binary package
 
 
 
@@ -1607,11 +1726,19 @@ Converts a XXX.sh file into a series of Tcl variables
 [emph "ancestors"]: [class practcl::subproject.binary]
 [para]
 
+ A subordinate TEA based binary package
+
+
+
 [para]
 
 [subsection {Class  practcl::subproject.library}]
 [emph "ancestors"]: [class practcl::subproject.binary] [class practcl::library]
 [para]
+
+ A subordinate C library built by this project
+
+
 
 [para]
 [class {Methods}]
@@ -1625,7 +1752,9 @@ Converts a XXX.sh file into a series of Tcl variables
 [subsection {Class  practcl::subproject.external}]
 [emph "ancestors"]: [class practcl::subproject.binary]
 [para]
- An external library
+
+ A subordinate external C library
+
 
 
 [para]

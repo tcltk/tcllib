@@ -147,7 +147,7 @@
     return $localsrcdir
   }
 
-  method make-autodetect {} {
+  Ensemble make::autodetect {} {
     set srcdir [my define get srcdir]
     set localsrcdir [my define get localsrcdir]
     if {$localsrcdir eq {}} {
@@ -194,12 +194,12 @@
     cd $::CWD
   }
 
-  method make-clean {} {
+  Ensemble make::clean {} {
     set builddir [file normalize [my define get builddir]]
     catch {::practcl::domake $builddir clean}
   }
 
-  method make-compile {} {
+  Ensemble make::compile {} {
     set name [my define get name]
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -224,7 +224,7 @@
     }
   }
 
-  method make-install DEST {
+  Ensemble make::install DEST {
     set PWD [pwd]
     set builddir [my define get builddir]
     if {[my <project> define get LOCAL 0] || $DEST eq {}} {

@@ -597,7 +597,7 @@ oo::objdefine ::practcl::product {
 }
 
 ###
-# Flesh out several trivial varieties of product
+# A product which generated from a C header file. Which is to say, nothing.
 ###
 ::clay::define ::practcl::product.cheader {
   superclass ::practcl::product
@@ -606,6 +606,9 @@ oo::objdefine ::practcl::product {
   method generate-loader-module {} {}
 }
 
+###
+# A product which generated from a C source file. Normally an object (.o) file.
+###
 ::clay::define ::practcl::product.csource {
   superclass ::practcl::product
 
@@ -629,6 +632,12 @@ oo::objdefine ::practcl::product {
   }
 }
 
+###
+# A product which is generated from a compiled C library.
+# Usually a .a or a .dylib file, but in complex cases may
+# actually just be a conduit for one project to integrate the
+# source code of another
+###
 ::clay::define ::practcl::product.clibrary {
   superclass ::practcl::product
 
@@ -638,6 +647,12 @@ oo::objdefine ::practcl::product {
 
 }
 
+###
+# A product which is generated from C code that itself is generated
+# by practcl or some other means. This C file may or may not produce
+# its own .o file, depending on whether it is eligible to become part
+# of an amalgamation
+###
 ::clay::define ::practcl::product.dynamic {
   superclass ::practcl::dynamic ::practcl::product
 
@@ -666,6 +681,9 @@ oo::objdefine ::practcl::product {
   }
 }
 
+###
+# A binary product produced by critcl. Note: The implementation is not
+# written yet, this class does nothing.
 ::clay::define ::practcl::product.critcl {
   superclass ::practcl::dynamic ::practcl::product
 }

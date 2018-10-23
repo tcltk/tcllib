@@ -9,10 +9,10 @@
 
 
   # Do nothing
-  method make-autodetect {} {
+  Ensemble make::autodetect {} {
   }
 
-  method make-clean {} {
+  Ensemble make::clean {} {
     set PWD [pwd]
     set srcdir [my define get srcdir]
     cd $srcdir
@@ -20,7 +20,7 @@
     cd $PWD
   }
 
-  method make-compile {} {
+  Ensemble make::compile {} {
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
       puts "BUILDING Static $name $srcdir"
@@ -46,7 +46,7 @@
     }
   }
 
-  method make-install DEST {
+  Ensemble make::install DEST {
     set PWD [pwd]
     set srcdir [my define get srcdir]
     cd $srcdir

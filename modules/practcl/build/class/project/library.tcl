@@ -1,4 +1,6 @@
-
+###
+# A toplevel project that produces a library
+###
 ::clay::define ::practcl::library {
   superclass ::practcl::project
 
