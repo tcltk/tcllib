@@ -43,14 +43,19 @@
   }
 }
 oo::objdefine ::practcl::distribution.snapshot {
+
+  method claim_object object {
+    return false
+  }
+
+  method claim_option {} {
+    return snapshot
+  }
+
   method claim_path path {
     if {[file exists [file join $path .download]]} {
       return true
     }
-    return false
-  }
-
-  method claim_object object {
     return false
   }
 }

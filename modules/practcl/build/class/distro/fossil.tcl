@@ -113,16 +113,6 @@
 }
 
 oo::objdefine ::practcl::distribution.fossil {
-  # Check for markers in the source root
-  method claim_path path {
-    if {[file exists [file join $path .fslckout]]} {
-      return true
-    }
-    if {[file exists [file join $path _FOSSIL_]]} {
-      return true
-    }
-    return false
-  }
 
   # Check for markers in the metadata
   method claim_object obj {
@@ -131,6 +121,21 @@ oo::objdefine ::practcl::distribution.fossil {
       return true
     }
     if {[$obj define get fossil_url] ne {}} {
+      return true
+    }
+    return false
+  }
+
+  method claim_option {} {
+    return fossil
+  }
+
+  # Check for markers in the source root
+  method claim_path path {
+    if {[file exists [file join $path .fslckout]]} {
+      return true
+    }
+    if {[file exists [file join $path _FOSSIL_]]} {
       return true
     }
     return false

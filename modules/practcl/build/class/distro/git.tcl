@@ -46,12 +46,6 @@
 }
 
 oo::objdefine ::practcl::distribution.git {
-  method claim_path path {
-   if {[file exists [file join $path .git]]} {
-      return true
-    }
-    return false
-  }
 
   method claim_object obj {
     set path [$obj define get srcdir]
@@ -59,6 +53,17 @@ oo::objdefine ::practcl::distribution.git {
       return true
     }
     if {[$obj define get git_url] ne {}} {
+      return true
+    }
+    return false
+  }
+
+  method claim_option {} {
+    return git
+  }
+
+  method claim_path path {
+   if {[file exists [file join $path .git]]} {
       return true
     }
     return false

@@ -222,7 +222,6 @@
   }
 }
 
-
 ::clay::define ::practcl::subproject.sak {
   superclass ::practcl::subproject
 
@@ -272,7 +271,55 @@
     set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
     set pkgpath [file join $prefix lib $pkg]
     foreach module $args {
-      ::practcl::installDir [file join $pkgpath $module] [file join $DEST $module]
+      ::practcl::installModule [file join $pkgpath $module] $DEST
     }
   }
 }
+
+
+::clay::define ::practcl::subproject.practcl {
+  superclass ::practcl::subproject
+
+  method env-bootstrap {} {
+    set LibraryRoot [file join [my define get srcdir] [my define get module_root modules]]
+    if {[file exists $LibraryRoot] && $LibraryRoot ni $::auto_path} {
+      set ::auto_path [linsert $::auto_path 0 $LibraryRoot]
+    }
+  }
+
+  method env-install {} {
+    ###
+    # Handle teapot installs
+    ###
+    set pkg [my define get pkg_name [my define get name]]
+    my unpack
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set srcdir [my define get srcdir]
+    ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $prefix lib $pkg]
+  }
+
+  method install DEST {
+    ###
+    # Handle teapot installs
+    ###
+    set pkg [my define get pkg_name [my define get name]]
+    my unpack
+    set prefix [string trimleft [my <project> define get prefix] /]
+    set srcdir [my define get srcdir]
+    puts [list INSTALLING  [my define get name] to [file join $DEST $prefix lib $pkg]]
+    ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $DEST $prefix lib $pkg]
+  }
+
+
+  method install-module {DEST args} {
+    set pkg [my define get pkg_name [my define get name]]
+    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
+    set pkgpath [file join $prefix lib $pkg]
+    foreach module $args {
+      puts [list INSTALLING  [my define get name]/$module to [file join $DEST $prefix lib $pkg]]
+      ::practcl::installModule [file join $pkgpath $module] $DEST
+    }
+  }
+}
+
+

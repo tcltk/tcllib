@@ -227,7 +227,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     }
     set PROJECT [self]
     set os [$PROJECT define get TEACUP_OS]
-    if {[my define get SHARED_BUILD]} {
+    if {[my define get SHARED_BUILD 0]} {
       puts [list BUILDING TCLSH FOR OS $os]
     } else {
       puts [list BUILDING KIT FOR OS $os]
@@ -250,7 +250,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     # Arrange to build an main.c that utilizes TCL_LOCAL_APPINIT and TCL_LOCAL_MAIN_HOOK
     if {$os eq "windows"} {
       set PLATFORM_SRC_DIR win
-      if {[my define get SHARED_BUILD]} {
+      if {[my define get SHARED_BUILD 0]} {
         my add class csource filename [file join $TCLSRCDIR win tclWinReg.c] initfunc Registry_Init pkg_name registry pkg_vers 1.3.1 autoload 1
         my add class csource filename [file join $TCLSRCDIR win tclWinDde.c] initfunc Dde_Init pkg_name dde pkg_vers 1.4.0 autoload 1
       }
@@ -260,7 +260,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       my add class csource ofile [my define get name]_appinit.o filename [file join $TCLSRCDIR unix tclAppInit.c] extra [list -DTCL_LOCAL_MAIN_HOOK=[my define get TCL_LOCAL_MAIN_HOOK Tclkit_MainHook] -DTCL_LOCAL_APPINIT=[my define get TCL_LOCAL_APPINIT Tclkit_AppInit]]
     }
 
-    if {[my define get SHARED_BUILD]} {
+    if {[my define get SHARED_BUILD 0]} {
       ###
       # Add local static Zlib implementation
       ###

@@ -106,32 +106,39 @@ oo::objdefine ::practcl::distribution {
       foreach class [::info commands ${classprefix}*] {
         if {[$class claim_path $srcdir]} {
           $object clay mixinmap distribution $class
-          $object define set scm [string range $class [string length ::practcl::distribution.] end]
-          return [$object define get scm]
+          set name [$class claim_option]
+          $object define set scm $name
+          return $name
         }
       }
     }
     foreach class [::info commands ${classprefix}*] {
       if {[$class claim_object $object]} {
         $object clay mixinmap distribution $class
-        $object define set scm [string range $class [string length ::practcl::distribution.] end]
-        return [$object define get scm]
+        set name [$class claim_option]
+        $object define set scm $name
+        return $name
       }
     }
     if {[$object define get scm] eq {} && [$object define exists file_url]} {
       set class ::practcl::distribution.snapshot
-      $object define set scm snapshot
+      set name [$class claim_option]
+      $object define set scm $name
       $object clay mixinmap distribution $class
-      return [$object define get scm]
+      return $name
     }
     error "Cannot determine source distribution method"
   }
 
-  method claim_path path {
-    return false
+  method claim_option {} {
+    return Unknown
   }
 
   method claim_object object {
+    return false
+  }
+
+  method claim_path path {
     return false
   }
 }

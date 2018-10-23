@@ -276,7 +276,7 @@ char *
     set output_tcl [my define get output_tcl]
     if {$output_tcl ne {}} {
       set script "\[list source \[file join \$dir $output_tcl\]\]"
-    } elseif {[string is true -strict [my define get SHARED_BUILD]]} {
+    } elseif {[my define get SHARED_BUILD 0]} {
       set script "\[list load \[file join \$dir [my define get libfile]\] $name\]"
     } else {
       # Provide a null passthrough
