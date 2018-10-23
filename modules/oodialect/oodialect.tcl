@@ -7,7 +7,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.3.4
+# Package oo::dialect 0.4
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -23,8 +23,15 @@
 namespace eval ::oo::dialect {
   namespace export create
 }
+# Allow test rigs to overwrite the flags before invoking this script
+foreach {flag test} {
+  tip470 {package vsatisfies [package provide Tcl] 8.7}
+} {
+  if {![info exists ::oo::dialect::has($flag)]} {
+    set ::oo::dialect::has($flag) [eval $test]
+  }
+}
 
-# A stack of class names
 proc ::oo::dialect::Push {class} {
   ::variable class_stack
   lappend class_stack $class
@@ -38,27 +45,39 @@ proc ::oo::dialect::Pop {} {
   set class_stack [lrange $class_stack 0 end-1]
 }
 
+if {$::oo::dialect::has(tip470)} {
+proc ::oo::dialect::current_class {} {
+  return [uplevel 1 self]
+}
+} else {
+proc ::oo::dialect::current_class {} {
+  tailcall Peek
+}
+}
+
 ###
 # This proc will generate a namespace, a "mother of all classes", and a
 # rudimentary set of policies for this dialect.
 ###
 proc ::oo::dialect::create {name {parent ""}} {
+  variable has
   set NSPACE [NSNormalize [uplevel 1 {namespace current}] $name]
   ::namespace eval $NSPACE {::namespace eval define {}}
   ###
   # Build the "define" namespace
   ###
+
   if {$parent eq ""} {
-  	###
-  	# With no "parent" language, begin with all of the keywords in
-  	# oo::define
-  	###
-  	foreach command [info commands ::oo::define::*] {
-	    set procname [namespace tail $command]
-	    interp alias {} ${NSPACE}::define::$procname {} \
-    		::oo::dialect::DefineThunk $procname
-  	}
-  	# Create an empty dynamic_methods proc
+    ###
+    # With no "parent" language, begin with all of the keywords in
+    # oo::define
+    ###
+    foreach command [info commands ::oo::define::*] {
+      set procname [namespace tail $command]
+      interp alias {} ${NSPACE}::define::$procname {} \
+        ::oo::dialect::DefineThunk $procname
+    }
+    # Create an empty dynamic_methods proc
     proc ${NSPACE}::dynamic_methods {class} {}
     namespace eval $NSPACE {
       ::namespace export dynamic_methods
@@ -67,39 +86,39 @@ proc ::oo::dialect::create {name {parent ""}} {
     set ANCESTORS {}
   } else {
     ###
-  	# If we have a parent language, that language already has the
-  	# [oo::define] keywords as well as additional keywords and behaviors.
-  	# We should begin with that
-  	###
-  	set pnspace [NSNormalize [uplevel 1 {namespace current}] $parent]
+    # If we have a parent language, that language already has the
+    # [oo::define] keywords as well as additional keywords and behaviors.
+    # We should begin with that
+    ###
+    set pnspace [NSNormalize [uplevel 1 {namespace current}] $parent]
     apply [list parent {
-  	  ::namespace export dynamic_methods
-  	  ::namespace import -force ${parent}::dynamic_methods
-  	} $NSPACE] $pnspace
+      ::namespace export dynamic_methods
+      ::namespace import -force ${parent}::dynamic_methods
+    } $NSPACE] $pnspace
 
     apply [list parent {
-  	  ::namespace import -force ${parent}::define::*
-  	  ::namespace export *
-  	} ${NSPACE}::define] $pnspace
+      ::namespace import -force ${parent}::define::*
+      ::namespace export *
+    } ${NSPACE}::define] $pnspace
       set ANCESTORS [list ${pnspace}::object]
   }
   ###
   # Build our dialect template functions
   ###
   proc ${NSPACE}::define {oclass args} [string map [list %NSPACE% $NSPACE] {
-	###
-	# To facilitate library reloading, allow
-	# a dialect to create a class from DEFINE
-	###
+  ###
+  # To facilitate library reloading, allow
+  # a dialect to create a class from DEFINE
+  ###
   set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
     if {[info commands $class] eq {}} {
-	    %NSPACE%::class create $class {*}${args}
+      %NSPACE%::class create $class {*}${args}
     } else {
-	    ::oo::dialect::Define %NSPACE% $class {*}${args}
+      ::oo::dialect::Define %NSPACE% $class {*}${args}
     }
 }]
   interp alias {} ${NSPACE}::define::current_class {} \
-    ::oo::dialect::Peek
+    ::oo::dialect::current_class
   interp alias {} ${NSPACE}::define::aliases {} \
     ::oo::dialect::Aliases $NSPACE
   interp alias {} ${NSPACE}::define::superclass {} \
@@ -241,7 +260,7 @@ proc ::oo::dialect::SuperClass {namespace args} {
 # Implementation of the common portions of the the metaclass for our
 # languages.
 ###
-
+if {[info command ::oo::dialect::MotherOfAllMetaClasses] eq {}} {
 ::oo::class create ::oo::dialect::MotherOfAllMetaClasses {
   superclass ::oo::class
   constructor {define definitionScript} {
@@ -256,9 +275,10 @@ proc ::oo::dialect::SuperClass {namespace args} {
     }
   }
 }
+}
 
 namespace eval ::oo::dialect {
   variable core_classes {::oo::class ::oo::object}
 }
 
-package provide oo::dialect 0.3.4
+package provide oo::dialect 0.4

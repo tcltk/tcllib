@@ -17,13 +17,7 @@ testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
-### All dependencies are now included
-#    use uuid/uuid.tcl uuid
-#    use dicttool/dicttool.tcl dicttool
-#    use oodialect/oodialect.tcl oo::dialect
-support {
-
-}
+support {}
 testing {
     useLocal clay.tcl clay
 }

@@ -136,6 +136,18 @@ close $fout
 namespace eval ::clay {}
 source [file join $srcdir procs.tcl]
 set fout [open [file join $moddir $filename.test] w]
+puts $fout {
+namespace eval ::oo::dialect {}
+set ::oo::dialect::has(tip470) 0
+}
+puts $fout [source [file join $srcdir test.tcl]]
+puts $fout {
+
+if {![package vsatisfies [package provide Tcl] 8.7]} {return}
+puts "Repeating tests with 8.7 features"
+namespace eval ::oo::dialect {}
+set ::oo::dialect::has(tip470) 1
+}
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
 set manout [open [file join $moddir $filename.man] w]
