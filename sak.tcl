@@ -1076,7 +1076,7 @@ proc build_amalgamation_mod {m} {
       return
     }
   }
-  puts [list REBUILDING MODULE $m]
+  #puts [list REBUILDING MODULE $m]
   exec [info nameofexecutable] [file join $distribution modules $m build build.tcl]
   return 1
 }
