@@ -1,7 +1,7 @@
 ###
 # A deliverable for the build system
 ###
-::oo::class create ::practcl::product {
+::clay::define ::practcl::product {
 
   method code {section body} {
     my variable code
@@ -549,10 +549,9 @@ package provide @PKG_NAME@ @PKG_VERSION@
       is_unix { return [expr {$::tcl_platform(platform) eq "unix"}] }
     }
   }
-
 }
-
 oo::objdefine ::practcl::product {
+
   method select {object} {
     set class [$object define get class]
     set mixin [$object define get product]
@@ -600,14 +599,14 @@ oo::objdefine ::practcl::product {
 ###
 # Flesh out several trivial varieties of product
 ###
-::oo::class create ::practcl::product.cheader {
+::clay::define ::practcl::product.cheader {
   superclass ::practcl::product
 
   method project-compile-products {} {}
   method generate-loader-module {} {}
 }
 
-::oo::class create ::practcl::product.csource {
+::clay::define ::practcl::product.csource {
   superclass ::practcl::product
 
   method project-compile-products {} {
@@ -630,7 +629,7 @@ oo::objdefine ::practcl::product {
   }
 }
 
-::oo::class create ::practcl::product.clibrary {
+::clay::define ::practcl::product.clibrary {
   superclass ::practcl::product
 
   method linker-products {configdict} {
@@ -639,7 +638,7 @@ oo::objdefine ::practcl::product {
 
 }
 
-::oo::class create ::practcl::product.dynamic {
+::clay::define ::practcl::product.dynamic {
   superclass ::practcl::dynamic ::practcl::product
 
   method initialize {} {
@@ -667,7 +666,7 @@ oo::objdefine ::practcl::product {
   }
 }
 
-::oo::class create ::practcl::product.critcl {
+::clay::define ::practcl::product.critcl {
   superclass ::practcl::dynamic ::practcl::product
 }
 

@@ -94,7 +94,7 @@ proc ::putb {buffername args} {
 # puts $manout [AutoDoc manpage {*}$arglist]
 # close $manout
 ###
-oo::class create ::practcl::doctool {
+::oo::class create ::practcl::doctool {
   constructor {} {
     my reset
   }

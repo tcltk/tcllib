@@ -1,5 +1,5 @@
 
-::oo::class create ::practcl::library {
+::clay::define ::practcl::library {
   superclass ::practcl::project
 
 

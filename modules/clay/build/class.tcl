@@ -1,4 +1,4 @@
-oo::define oo::class {
+::oo::define ::clay::class {
 
   ###
   # description:
@@ -169,6 +169,9 @@ oo::define oo::class {
         foreach arg $args {
           ::dicttool::dictmerge clay {*}$arg
         }
+      }
+      noop {
+        # Do nothing. Used as a sign of clay savviness
       }
       search {
         foreach aclass [::clay::ancestors [self]] {

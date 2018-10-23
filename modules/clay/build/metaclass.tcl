@@ -117,6 +117,50 @@ proc ::clay::define::Dict {name {values {}}} {
 }
 
 ###
+# Define an option for the class
+###
+proc ::clay::define::Option {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  foreach {var val} [::clay::args_to_dict {*}$args] {
+    dict set dictargs [string trim $var -:/] $val
+  }
+  set name [string trimleft $name -]
+
+  ###
+  # Option Class handling
+  ###
+  set optclass [dict getnull $dictargs class]
+  if {$optclass ne {}} {
+    foreach {f v} [$class clay find option_class $optclass] {
+      if {![dict exists $dictargs $f]} {
+        dict set dictargs $f $v
+      }
+    }
+    if {$optclass eq "variable"} {
+      variable $name [dict getnull $dictargs default]
+    }
+  }
+  foreach {f v} $dictargs {
+    $class clay set option $name $f $v
+  }
+}
+
+###
+# Define a class of options
+# All field / value pairs will be be inherited by an option that
+# specify [emph name] as it class field.
+###
+proc ::clay::define::Option_Class {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  set name [string trimleft $name -:]
+  foreach {f v} [::clay::args_to_dict {*}$args] {
+    $class clay set option_class $name [string trim $f -/:] $v
+  }
+}
+
+###
 # topic: 615b7c43b863b0d8d1f9107a8d126b21
 # title: Specify a variable which should be initialized in the constructor
 # description:
@@ -149,64 +193,5 @@ proc ::clay::object_destroy objname {
     puts [list $objname DESTROY]
   }
   ::cron::object_destroy $objname
-}
-
-
-# clay::object
-#
-# This class is inherited by all classes that have options.
-#
-::clay::define ::clay::object {
-  clay branch array
-  clay branch mixin
-  clay branch option
-  clay branch dict clay
-
-  Variable DestroyEvent 0
-
-  ###
-  # Instantiate variables and build ensemble methods.
-  ###
-  method InitializePublic {} {
-    next
-    my variable clayorder clay claycache
-    if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble]
-    } else {
-      set emap {}
-    }
-    foreach class [lreverse $clayorder] {
-      ###
-      # Build a compsite map of all ensembles defined by the object's current
-      # class as well as all of the classes being mixed in
-      ###
-      dict for {mensemble einfo} [$class clay get method_ensemble] {
-        if {$mensemble eq {.}} continue
-        set ensemble [string trim $mensemble :/]
-        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
-
-        dict for {method info} $einfo {
-          if {$method eq {.}} continue
-          if {![dict is_dict $info]} {
-            puts [list WARNING: class: $class method: $method not dict: $info]
-            continue
-          }
-          dict set info source $class
-          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
-          dict set emap $ensemble $method $info
-        }
-      }
-    }
-    foreach {ensemble einfo} $emap {
-      #if {[dict exists $einfo _body]} continue
-      set body [::clay::ensemble_methodbody $ensemble $einfo]
-      if {$::clay::trace>2} {
-        set rawbody $body
-        set body {puts [list [self] <object> [self method]]}
-        append body \n $rawbody
-      }
-      oo::objdefine [self] method $ensemble {{method default} args} $body
-    }
-  }
 }
 

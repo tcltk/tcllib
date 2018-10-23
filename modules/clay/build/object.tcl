@@ -1,4 +1,8 @@
-oo::define oo::object {
+# clay::object
+#
+# This class is inherited by all classes that have options.
+#
+::oo::define ::clay::object {
 
   ###
   # description:
@@ -546,11 +550,51 @@ oo::define oo::object {
         {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
       }
     }
+    my variable clayorder clay claycache
+    if {[info exists clay]} {
+      set emap [dict getnull $clay method_ensemble]
+    } else {
+      set emap {}
+    }
+    foreach class [lreverse $clayorder] {
+      ###
+      # Build a compsite map of all ensembles defined by the object's current
+      # class as well as all of the classes being mixed in
+      ###
+      dict for {mensemble einfo} [$class clay get method_ensemble] {
+        if {$mensemble eq {.}} continue
+        set ensemble [string trim $mensemble :/]
+        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
+
+        dict for {method info} $einfo {
+          if {$method eq {.}} continue
+          if {![dict is_dict $info]} {
+            puts [list WARNING: class: $class method: $method not dict: $info]
+            continue
+          }
+          dict set info source $class
+          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
+          dict set emap $ensemble $method $info
+        }
+      }
+    }
+    foreach {ensemble einfo} $emap {
+      #if {[dict exists $einfo _body]} continue
+      set body [::clay::ensemble_methodbody $ensemble $einfo]
+      if {$::clay::trace>2} {
+        set rawbody $body
+        set body {puts [list [self] <object> [self method]]}
+        append body \n $rawbody
+      }
+      oo::objdefine [self] method $ensemble {{method default} args} $body
+    }
   }
 }
 
-oo::class clay branch array
-oo::class clay branch mixin
-oo::class clay branch option
-oo::class clay branch dict clay
+::clay::object clay branch array
+::clay::object clay branch mixin
+::clay::object clay branch option
+::clay::object clay branch dict clay
+::clay::object clay set variable DestroyEvent 0
+
 

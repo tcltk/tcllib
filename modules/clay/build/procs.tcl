@@ -23,7 +23,18 @@ proc ::clay::ancestors args {
     }
   }
   lappend result {*}$metaclasses
-  return $result
+  ###
+  # Screen out classes that do not participate in clay
+  # interactions
+  ###
+  set output {}
+  foreach {item} $result {
+    if {[catch {$item clay noop} err]} {
+      continue
+    }
+    lappend output $item
+  }
+  return $output
 }
 
 proc ::clay::args_to_dict args {

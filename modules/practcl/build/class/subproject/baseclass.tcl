@@ -1,4 +1,4 @@
-oo::class create ::practcl::subproject {
+::clay::define ::practcl::subproject {
   superclass ::practcl::module
 
   method _MorphPatterns {} {
@@ -134,7 +134,7 @@ oo::class create ::practcl::subproject {
 # A project which the kit compiles and integrates
 # the source for itself
 ###
-oo::class create ::practcl::subproject.source {
+::clay::define ::practcl::subproject.source {
   superclass ::practcl::subproject ::practcl::library
 
   method env-bootstrap {} {
@@ -156,7 +156,7 @@ oo::class create ::practcl::subproject.source {
 }
 
 # a copy from the teapot
-oo::class create ::practcl::subproject.teapot {
+::clay::define ::practcl::subproject.teapot {
   superclass ::practcl::subproject
 
   method env-bootstrap {} {
@@ -191,7 +191,7 @@ oo::class create ::practcl::subproject.teapot {
   }
 }
 
-oo::class create ::practcl::subproject.kettle {
+::clay::define ::practcl::subproject.kettle {
   superclass ::practcl::subproject
 
   method kettle {path args} {
@@ -209,7 +209,7 @@ oo::class create ::practcl::subproject.kettle {
   }
 }
 
-oo::class create ::practcl::subproject.critcl {
+::clay::define ::practcl::subproject.critcl {
   superclass ::practcl::subproject
 
   method install DEST {
@@ -220,7 +220,7 @@ oo::class create ::practcl::subproject.critcl {
 }
 
 
-oo::class create ::practcl::subproject.sak {
+::clay::define ::practcl::subproject.sak {
   superclass ::practcl::subproject
 
   method env-bootstrap {} {

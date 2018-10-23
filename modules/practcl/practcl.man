@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.14.1]
+[vset PACKAGE_VERSION 0.15]
 [manpage_begin practcl n [vset PACKAGE_VERSION]]
 [keywords practcl]
 [copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
@@ -418,8 +418,6 @@ Converts a XXX.sh file into a series of Tcl variables
 [para]
 
 [subsection {Class  practcl::metaclass}]
-[emph "ancestors"]: [class oo::object]
-[para]
 
 [para]
 [class {Methods}]
@@ -997,6 +995,12 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 [para]
+[class {Variable}]
+[list_begin definitions]
+[call variable [cmd make_object]]
+
+[list_end]
+[para]
 [class {Methods}]
 [list_begin definitions]
 [call method [cmd "_MorphPatterns"]]
@@ -1008,10 +1012,49 @@ Converts a XXX.sh file into a series of Tcl variables
 [call method [cmd "install-headers"] [opt "[arg args]"]]
 
 
-[call method [cmd "make"] [arg command] [opt "[arg args]"]]
+[call method [cmd "make {} _preamble"]]
 
- Target handling
 
+[call method [cmd "make {} pkginfo"]]
+
+
+[call method [cmd "make {} objects"]]
+ Return a dictionary of all handles and associated objects
+
+
+
+[call method [cmd "make {} object"] [arg name]]
+ Return the object associated with handle [emph name]
+
+
+
+[call method [cmd "make {} reset"]]
+ Reset all deputy objects
+
+
+
+[call method [cmd "make {} trigger"] [opt "[arg args]"]]
+ Exercise the triggers method for all handles listed
+
+
+
+[call method [cmd "make {} depends"] [opt "[arg args]"]]
+ Exercise the check method for all handles listed
+
+
+
+[call method [cmd "make {} filename"] [arg name]]
+ Return the file name of the build product for the listed
+ handle
+
+
+
+[call method [cmd "make {} target"] [arg name] [arg Info] [arg body]]
+
+
+[call method [cmd "make {} todo"]]
+ For each target exercise the action specified in the [emph action]
+ definition if the [emph do] method returns true
 
 
 
@@ -1072,6 +1115,11 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 [call method [cmd "build-tclcore"]]
+
+ Compile the Tcl core. If the define [emph tk] is true, compile the
+ Tk core as well
+
+
 
 
 [call method [cmd "child"] [arg which]]

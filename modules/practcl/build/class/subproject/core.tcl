@@ -1,5 +1,5 @@
 
-oo::class create ::practcl::subproject.core {
+::clay::define ::practcl::subproject.core {
   superclass ::practcl::subproject.binary
 
   method env-bootstrap {} {}

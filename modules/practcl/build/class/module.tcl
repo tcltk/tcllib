@@ -4,7 +4,7 @@
 # This will either be a dynamically loaded library implementing
 # a tcl extension, or a compiled in segment of a custom shell/app
 ###
-::oo::class create ::practcl::module {
+::clay::define ::practcl::module {
   superclass ::practcl::object ::practcl::product.dynamic
 
   method _MorphPatterns {} {
@@ -20,142 +20,150 @@
     return $object
   }
 
+  Dict make_object {}
 
   method install-headers args {}
 
-  ###
-  # Target handling
-  ###
-  method make {command args} {
+  Ensemble make::_preamble {} {
     my variable make_object
-    if {![info exists make_object]} {
-      set make_object {}
+  }
+  Ensemble make::pkginfo {} {
+    ###
+    # Build local variables needed for install
+    ###
+    package require platform
+    set result {}
+    set dat [my define dump]
+    set PKG_DIR [dict get $dat name][dict get $dat version]
+    dict set result PKG_DIR $PKG_DIR
+    dict with dat {}
+    if {![info exists DESTDIR]} {
+      set DESTDIR {}
     }
-    switch $command {
-      pkginfo {
-        ###
-        # Build local variables needed for install
-        ###
-        package require platform
-        set result {}
-        set dat [my define dump]
-        set PKG_DIR [dict get $dat name][dict get $dat version]
-        dict set result PKG_DIR $PKG_DIR
-        dict with dat {}
-        if {![info exists DESTDIR]} {
-          set DESTDIR {}
+    dict set result profile [::platform::identify]
+    dict set result os $::tcl_platform(os)
+    dict set result platform $::tcl_platform(platform)
+    foreach {field value} $dat {
+      switch $field {
+        includedir -
+        mandir -
+        datadir -
+        libdir -
+        libfile -
+        name -
+        output_tcl -
+        version -
+        authors -
+        license -
+        requires {
+          dict set result $field $value
         }
-        dict set result profile [::platform::identify]
-        dict set result os $::tcl_platform(os)
-        dict set result platform $::tcl_platform(platform)
-        foreach {field value} $dat {
-          switch $field {
-            includedir -
-            mandir -
-            datadir -
-            libdir -
-            libfile -
-            name -
-            output_tcl -
-            version -
-            authors -
-            license -
-            requires {
-              dict set result $field $value
-            }
-            TEA_PLATFORM {
-              dict set result platform $value
-            }
-            TEACUP_OS {
-              dict set result os $value
-            }
-            TEACUP_PROFILE {
-              dict set result profile $value
-            }
-            TEACUP_ZIPFILE {
-              dict set result zipfile $value
-            }
-          }
+        TEA_PLATFORM {
+          dict set result platform $value
         }
-        if {![dict exists $result zipfile]} {
-          dict set result zipfile "[dict get $result name]-[dict get $result version]-[dict get $result profile].zip"
+        TEACUP_OS {
+          dict set result os $value
         }
-        return $result
-      }
-      objects {
-        return $make_object
-      }
-      object {
-        set name [lindex $args 0]
-        if {[dict exists $make_object $name]} {
-          return [dict get $make_object $name]
+        TEACUP_PROFILE {
+          dict set result profile $value
         }
-        return {}
-      }
-      reset {
-        foreach {name obj} $make_object {
-          $obj reset
+        TEACUP_ZIPFILE {
+          dict set result zipfile $value
         }
       }
-      trigger {
-        foreach {name obj} $make_object {
-          if {$name in $args} {
-            $obj triggers
-          }
-        }
-      }
-      depends {
-        foreach {name obj} $make_object {
-          if {$name in $args} {
-            $obj check
-          }
-        }
-      }
-      filename {
-        set name [lindex $args 0]
-        if {[dict exists $make_object $name]} {
-          return [[dict get $make_object $name] define get filename]
-        }
-      }
-      task -
-      target -
-      add {
-        set name [lindex $args 0]
-        set info [uplevel #0 [list subst [lindex $args 1]]]
-        set body [lindex $args 2]
+    }
+    if {![dict exists $result zipfile]} {
+      dict set result zipfile "[dict get $result name]-[dict get $result version]-[dict get $result profile].zip"
+    }
+    return $result
+  }
 
-        set nspace [namespace current]
-        if {[dict exist $make_object $name]} {
-          set obj [dict get $$make_object $name]
-        } else {
-          set obj [::practcl::make_obj new [self] $name $info $body]
-          dict set make_object $name $obj
-          dict set target_make $name 0
-          dict set target_trigger $name 0
-        }
-        if {[dict exists $info aliases]} {
-          foreach item [dict get $info aliases] {
-            if {![dict exists $make_object $item]} {
-              dict set make_object $item $obj
-            }
-          }
-        }
-        return $obj
+  # Return a dictionary of all handles and associated objects
+  Ensemble make::objects {} {
+    return $make_object
+  }
+
+  # Return the object associated with handle [emph name]
+  Ensemble make::object name {
+    if {[dict exists $make_object $name]} {
+      return [dict get $make_object $name]
+    }
+    return {}
+  }
+
+  # Reset all deputy objects
+  Ensemble make::reset {} {
+    foreach {name obj} $make_object {
+      $obj reset
+    }
+  }
+
+  # Exercise the triggers method for all handles listed
+  Ensemble make::trigger args {
+    foreach {name obj} $make_object {
+      if {$name in $args} {
+        $obj triggers
       }
-      todo {
-         foreach {name obj} $make_object {
-          if {[$obj do]} {
-            lappend result $name
-          }
+    }
+  }
+
+  # Exercise the check method for all handles listed
+  Ensemble make::depends args {
+    foreach {name obj} $make_object {
+      if {$name in $args} {
+        $obj check
+      }
+    }
+  }
+
+  # Return the file name of the build product for the listed
+  # handle
+  Ensemble make::filename name {
+    if {[dict exists $make_object $name]} {
+      return [[dict get $make_object $name] define get filename]
+    }
+  }
+
+  Ensemble make::target {name Info body} {
+    set info [uplevel #0 [list subst $Info]]
+    set nspace [namespace current]
+    if {[dict exist $make_object $name]} {
+      set obj [dict get $$make_object $name]
+    } else {
+      set obj [::practcl::make_obj new [self] $name $info $body]
+      dict set make_object $name $obj
+      dict set target_make $name 0
+      dict set target_trigger $name 0
+    }
+    if {[dict exists $info aliases]} {
+      foreach item [dict get $info aliases] {
+        if {![dict exists $make_object $item]} {
+          dict set make_object $item $obj
         }
       }
-      do {
-        global CWD SRCDIR project SANDBOX
-        foreach {name obj} $make_object {
-          if {[$obj do]} {
-            eval [$obj define get action]
-          }
-        }
+    }
+    return $obj
+  }
+  clay set method_ensemble make target aliases {task add}
+
+  # Return a list of handles for object which return true for the
+  # do method
+  Ensemble make::todo {} {
+    foreach {name obj} $make_object {
+      if {[$obj do]} {
+        lappend result $name
+      }
+    }
+    return $result
+  }
+
+  # For each target exercise the action specified in the [emph action]
+  # definition if the [emph do] method returns true
+  Ensemble make::todo {} {
+    global CWD SRCDIR project SANDBOX
+    foreach {name obj} $make_object {
+      if {[$obj do]} {
+        eval [$obj define get action]
       }
     }
   }

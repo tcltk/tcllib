@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.5
+set version 0.6
 set module clay
 set filename clay
 if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
@@ -57,14 +57,30 @@ namespace eval ::%module% {}
 set loaded {}
 lappend loaded build.tcl test.tcl
 
+foreach {omod files} {
+  uuid      {uuid.tcl}
+  oodialect {oodialect.tcl}
+  dicttool  {build/core.tcl build/dict.tcl build/list.tcl}
+} {
+  foreach file $files {
+    set content [::practcl::cat [file join $moddir .. $omod {*}$file]]
+    #AutoDoc scan_text $content
+    puts $fout "###\n# START: [file join $omod $file]\n###"
+    puts $fout [::practcl::docstrip $content]
+    puts $fout "###\n# END: [file join $omod $file]\n###"
+  }
+}
+
 # These files must be loaded in a particular order
 foreach file {
   core.tcl
+  dialect.tcl
   procs.tcl
-  class.tcl
-  object.tcl
+  dictargs.tcl
   metaclass.tcl
   ensemble.tcl
+  class.tcl
+  object.tcl
 } {
   lappend loaded $file
   set content [::practcl::cat [file join $srcdir {*}$file]]

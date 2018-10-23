@@ -4,7 +4,7 @@
 # instead the contribute to the amalgamation
 # of the main library file
 ###
-::oo::class create ::practcl::dynamic {
+::clay::define ::practcl::dynamic {
 
   ###
   # Parser functions
@@ -20,7 +20,7 @@
       dict set cstruct $name public 1
     }
   }
-  
+
   method include header {
     my define add include $header
   }
@@ -173,8 +173,6 @@ $body"
   ###
   # Module interactions
   ###
-
-
   method project-compile-products {} {
     set filename [my define get output_c]
     set result {}
@@ -207,7 +205,6 @@ $body"
     return $result
   }
 
-
   method implement path {
     my go
     my Collate_Source $path
@@ -229,12 +226,9 @@ $body"
     close $fout
   }
 
-
-
   ###
   # Practcl internals
   ###
-
   method initialize {} {
     set filename [my define get filename]
     if {$filename eq {}} {

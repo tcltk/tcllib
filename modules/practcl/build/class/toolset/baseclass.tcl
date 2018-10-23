@@ -3,7 +3,7 @@
 # which defines a family of build related behaviors
 # that are modified when targetting either gcc or msvc
 ###
-oo::class create ::practcl::toolset {
+::clay::define ::practcl::toolset {
   ###
   # find or fake a key/value list describing this project
   ###
@@ -152,9 +152,7 @@ oo::class create ::practcl::toolset {
   }
 }
 
-
 oo::objdefine ::practcl::toolset {
-
   # Perform the selection for the toolset mixin
   method select object {
     ###

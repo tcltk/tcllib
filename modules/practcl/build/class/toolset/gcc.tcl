@@ -1,5 +1,5 @@
 
-::oo::class create ::practcl::toolset.gcc {
+::clay::define ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
   method Autoconf {} {

@@ -1,5 +1,5 @@
 
-oo::class create ::practcl::distribution.fossil {
+::clay::define ::practcl::distribution.fossil {
   superclass ::practcl::distribution
 
   method scm_info {} {
@@ -10,7 +10,7 @@ oo::class create ::practcl::distribution.fossil {
     }
     return $info
   }
-  
+
   # Clone the source
   method ScmClone  {} {
     set srcdir [my SrcDir]
@@ -111,7 +111,6 @@ oo::class create ::practcl::distribution.fossil {
 }
 
 oo::objdefine ::practcl::distribution.fossil {
-
   # Check for markers in the source root
   method claim_path path {
     if {[file exists [file join $path .fslckout]]} {

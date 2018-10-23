@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide practcl 0.14.1
+package provide practcl 0.15
 namespace eval ::practcl {}
 
 ###
@@ -55,8 +55,398 @@ proc ::http::wget {url destfile {verbose 1}} {
 # END: httpwget/wget.tcl
 ###
 ###
-# START: dicttool/build/core.tcl
+# START: clay/clay.tcl
 ###
+package provide clay 0.6
+namespace eval ::clay {
+}
+package require Tcl 8.5
+namespace eval uuid {
+    variable accel
+    array set accel {critcl 0}
+    namespace export uuid
+    variable uid
+    if {![info exists uid]} {
+        set uid 1
+    }
+    proc K {a b} {set a}
+}
+proc ::uuid::generate_tcl_machinfo {} {
+  variable machinfo
+  if {[info exists machinfo]} {
+    return $machinfo
+  }
+  lappend machinfo [clock seconds]; # timestamp
+  lappend machinfo [clock clicks];  # system incrementing counter
+  lappend machinfo [info hostname]; # spatial unique id (poor)
+  lappend machinfo [pid];           # additional entropy
+  lappend machinfo [array get ::tcl_platform]
+
+  ###
+  # If we have /dev/urandom just stream 128 bits from that
+  ###
+  if {[file exists /dev/urandom]} {
+    set fin [open /dev/urandom r]
+    binary scan [read $fin 128] H* machinfo
+    close $fin
+  } elseif {[catch {package require nettool}]} {
+    # More spatial information -- better than hostname.
+    # bug 1150714: opening a server socket may raise a warning messagebox
+    #   with WinXP firewall, using ipconfig will return all IP addresses
+    #   including ipv6 ones if available. ipconfig is OK on win98+
+    if {[string equal $::tcl_platform(platform) "windows"]} {
+      catch {exec ipconfig} config
+      lappend machinfo $config
+    } else {
+      catch {
+          set s [socket -server void -myaddr [info hostname] 0]
+          K [fconfigure $s -sockname] [close $s]
+      } r
+      lappend machinfo $r
+    }
+
+    if {[package provide Tk] != {}} {
+      lappend machinfo [winfo pointerxy .]
+      lappend machinfo [winfo id .]
+    }
+  } else {
+    ###
+    # If the nettool package works on this platform
+    # use the stream of hardware ids from it
+    ###
+    lappend machinfo {*}[::nettool::hwid_list]
+  }
+  return $machinfo
+}
+proc ::uuid::generate_tcl {} {
+    package require md5 2
+    variable uid
+
+    set tok [md5::MD5Init]
+    md5::MD5Update $tok [incr uid];      # package incrementing counter
+    foreach string [generate_tcl_machinfo] {
+      md5::MD5Update $tok $string
+    }
+    set r [md5::MD5Final $tok]
+    binary scan $r c* r
+
+    # 3.4: set uuid versioning fields
+    lset r 8 [expr {([lindex $r 8] & 0x3F) | 0x80}]
+    lset r 6 [expr {([lindex $r 6] & 0x0F) | 0x40}]
+
+    return [binary format c* $r]
+}
+if {[string equal $tcl_platform(platform) "windows"]
+        && [package provide critcl] != {}} {
+    namespace eval uuid {
+        critcl::ccode {
+            #define WIN32_LEAN_AND_MEAN
+            #define STRICT
+            #include <windows.h>
+            #include <ole2.h>
+            typedef long (__stdcall *LPFNUUIDCREATE)(UUID *);
+            typedef const unsigned char cu_char;
+        }
+        critcl::cproc generate_c {Tcl_Interp* interp} ok {
+            HRESULT hr = S_OK;
+            int r = TCL_OK;
+            UUID uuid = {0};
+            HMODULE hLib;
+            LPFNUUIDCREATE lpfnUuidCreate = NULL;
+            hLib = LoadLibraryA(("rpcrt4.dll"));
+            if (hLib)
+                lpfnUuidCreate = (LPFNUUIDCREATE)
+                    GetProcAddress(hLib, "UuidCreate");
+            if (lpfnUuidCreate) {
+                Tcl_Obj *obj;
+                lpfnUuidCreate(&uuid);
+                obj = Tcl_NewByteArrayObj((cu_char *)&uuid, sizeof(uuid));
+                Tcl_SetObjResult(interp, obj);
+            } else {
+                Tcl_SetResult(interp, "error: failed to create a guid",
+                              TCL_STATIC);
+                r = TCL_ERROR;
+            }
+            return r;
+        }
+    }
+}
+proc ::uuid::tostring {uuid} {
+    binary scan $uuid H* s
+    foreach {a b} {0 7 8 11 12 15 16 19 20 end} {
+        append r [string range $s $a $b] -
+    }
+    return [string tolower [string trimright $r -]]
+}
+proc ::uuid::fromstring {uuid} {
+    return [binary format H* [string map {- {}} $uuid]]
+}
+proc ::uuid::equal {left right} {
+    set l [fromstring $left]
+    set r [fromstring $right]
+    return [string equal $l $r]
+}
+proc ::uuid::generate {} {
+    variable accel
+    if {$accel(critcl)} {
+        return [generate_c]
+    } else {
+        return [generate_tcl]
+    }
+}
+proc uuid::uuid {cmd args} {
+    switch -exact -- $cmd {
+        generate {
+            if {[llength $args] != 0} {
+                return -code error "wrong # args:\
+                    should be \"uuid generate\""
+            }
+            return [tostring [generate]]
+        }
+        equal {
+            if {[llength $args] != 2} {
+                return -code error "wrong \# args:\
+                    should be \"uuid equal uuid1 uuid2\""
+            }
+            return [eval [linsert $args 0 equal]]
+        }
+        default {
+            return -code error "bad option \"$cmd\":\
+                must be generate or equal"
+        }
+    }
+}
+proc ::uuid::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        critcl {
+            if {![catch {package require tcllibc}]} {
+                set r [expr {[info commands ::uuid::generate_c] != {}}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator package:\
+                must be one of [join [array names accel] {, }]"
+        }
+    }
+    set accel($name) $r
+}
+namespace eval ::uuid {
+    variable e {}
+    foreach e {critcl} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
+}
+package provide uuid 1.0.7
+namespace eval ::oo::dialect {
+  namespace export create
+}
+proc ::oo::dialect::Push {class} {
+  ::variable class_stack
+  lappend class_stack $class
+}
+proc ::oo::dialect::Peek {} {
+  ::variable class_stack
+  return [lindex $class_stack end]
+}
+proc ::oo::dialect::Pop {} {
+  ::variable class_stack
+  set class_stack [lrange $class_stack 0 end-1]
+}
+proc ::oo::dialect::create {name {parent ""}} {
+  set NSPACE [NSNormalize [uplevel 1 {namespace current}] $name]
+  ::namespace eval $NSPACE {::namespace eval define {}}
+  ###
+  # Build the "define" namespace
+  ###
+  if {$parent eq ""} {
+  	###
+  	# With no "parent" language, begin with all of the keywords in
+  	# oo::define
+  	###
+  	foreach command [info commands ::oo::define::*] {
+	    set procname [namespace tail $command]
+	    interp alias {} ${NSPACE}::define::$procname {} \
+    		::oo::dialect::DefineThunk $procname
+  	}
+  	# Create an empty dynamic_methods proc
+    proc ${NSPACE}::dynamic_methods {class} {}
+    namespace eval $NSPACE {
+      ::namespace export dynamic_methods
+      ::namespace eval define {::namespace export *}
+    }
+    set ANCESTORS {}
+  } else {
+    ###
+  	# If we have a parent language, that language already has the
+  	# [oo::define] keywords as well as additional keywords and behaviors.
+  	# We should begin with that
+  	###
+  	set pnspace [NSNormalize [uplevel 1 {namespace current}] $parent]
+    apply [list parent {
+  	  ::namespace export dynamic_methods
+  	  ::namespace import -force ${parent}::dynamic_methods
+  	} $NSPACE] $pnspace
+
+    apply [list parent {
+  	  ::namespace import -force ${parent}::define::*
+  	  ::namespace export *
+  	} ${NSPACE}::define] $pnspace
+      set ANCESTORS [list ${pnspace}::object]
+  }
+  ###
+  # Build our dialect template functions
+  ###
+  proc ${NSPACE}::define {oclass args} [string map [list %NSPACE% $NSPACE] {
+	###
+	# To facilitate library reloading, allow
+	# a dialect to create a class from DEFINE
+	###
+  set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
+    if {[info commands $class] eq {}} {
+	    %NSPACE%::class create $class {*}${args}
+    } else {
+	    ::oo::dialect::Define %NSPACE% $class {*}${args}
+    }
+}]
+  interp alias {} ${NSPACE}::define::current_class {} \
+    ::oo::dialect::Peek
+  interp alias {} ${NSPACE}::define::aliases {} \
+    ::oo::dialect::Aliases $NSPACE
+  interp alias {} ${NSPACE}::define::superclass {} \
+    ::oo::dialect::SuperClass $NSPACE
+
+  if {[info command ${NSPACE}::class] ne {}} {
+    ::rename ${NSPACE}::class {}
+  }
+  ###
+  # Build the metaclass for our language
+  ###
+  ::oo::class create ${NSPACE}::class {
+    superclass ::oo::dialect::MotherOfAllMetaClasses
+  }
+  # Wire up the create method to add in the extra argument we need; the
+  # MotherOfAllMetaClasses will know what to do with it.
+  ::oo::objdefine ${NSPACE}::class \
+    method create {name {definitionScript ""}} \
+      "next \$name [list ${NSPACE}::define] \$definitionScript"
+
+  ###
+  # Build the mother of all classes. Note that $ANCESTORS is already
+  # guaranteed to be a list in canonical form.
+  ###
+  uplevel #0 [string map [list %NSPACE% [list $NSPACE] %name% [list $name] %ANCESTORS% $ANCESTORS] {
+    %NSPACE%::class create %NSPACE%::object {
+     superclass %ANCESTORS%
+      # Put MOACish stuff in here
+    }
+  }]
+  if { "${NSPACE}::class" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::class"
+  }
+  if { "${NSPACE}::object" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::object"
+  }
+}
+proc ::oo::dialect::NSNormalize {namespace qualname} {
+  if {![string match ::* $qualname]} {
+    set qualname ${namespace}::$qualname
+  }
+  regsub -all {::+} $qualname "::"
+}
+proc ::oo::dialect::DefineThunk {target args} {
+  tailcall ::oo::define [Peek] $target {*}$args
+}
+proc ::oo::dialect::Canonical {namespace NSpace class} {
+  namespace upvar $namespace cname cname
+  #if {[string match ::* $class]} {
+  #  return $class
+  #}
+  if {[info exists cname($class)]} {
+    return $cname($class)
+  }
+  if {[info exists ::oo::dialect::cname($class)]} {
+    return $::oo::dialect::cname($class)
+  }
+  if {[info exists ::oo::dialect::cname(${NSpace}::${class})]} {
+    return $::oo::dialect::cname(${NSpace}::${class})
+  }
+  foreach item [list "${NSpace}::$class" "::$class"] {
+    if {[info commands $item] ne {}} {
+      return $item
+    }
+  }
+  return ${NSpace}::$class
+}
+proc ::oo::dialect::Define {namespace class args} {
+  Push $class
+  try {
+  	if {[llength $args]==1} {
+      namespace eval ${namespace}::define [lindex $args 0]
+    } else {
+      ${namespace}::define::[lindex $args 0] {*}[lrange $args 1 end]
+    }
+  	${namespace}::dynamic_methods $class
+  } finally {
+    Pop
+  }
+}
+proc ::oo::dialect::Aliases {namespace args} {
+  set class [Peek]
+  namespace upvar $namespace cname cname
+  set NSpace [join [lrange [split $class ::] 1 end-2] ::]
+  set cname($class) $class
+  foreach name $args {
+    set cname($name) $class
+    #set alias $name
+    set alias [NSNormalize $NSpace $name]
+    # Add a local metaclass reference
+    if {![info exists ::oo::dialect::cname($alias)]} {
+      lappend ::oo::dialect::aliases($class) $alias
+      ##
+      # Add a global reference, first come, first served
+      ##
+      set ::oo::dialect::cname($alias) $class
+    }
+  }
+}
+proc ::oo::dialect::SuperClass {namespace args} {
+  set class [Peek]
+  namespace upvar $namespace class_info class_info
+  dict set class_info($class) superclass 1
+  set ::oo::dialect::cname($class) $class
+  set NSpace [join [lrange [split $class ::] 1 end-2] ::]
+  set unique {}
+  foreach item $args {
+    set Item [Canonical $namespace $NSpace $item]
+    dict set unique $Item $item
+  }
+  set root ${namespace}::object
+  if {$class ne $root} {
+    dict set unique $root $root
+  }
+  tailcall ::oo::define $class superclass {*}[dict keys $unique]
+}
+::oo::class create ::oo::dialect::MotherOfAllMetaClasses {
+  superclass ::oo::class
+  constructor {define definitionScript} {
+    $define [self] {
+      superclass
+    }
+    $define [self] $definitionScript
+  }
+  method aliases {} {
+    if {[info exists ::oo::dialect::aliases([self])]} {
+      return $::oo::dialect::aliases([self])
+    }
+  }
+}
+namespace eval ::oo::dialect {
+  variable core_classes {::oo::class ::oo::object}
+}
+package provide oo::dialect 0.3.4
 namespace eval ::dicttool {
 }
 namespace eval ::tcllib {
@@ -93,13 +483,6 @@ if {[info command ::putb] eq {}} {
   namespace eval ::tcllib { namespace export putb }
   namespace eval :: { namespace import ::tcllib::putb }
 }
-
-###
-# END: dicttool/build/core.tcl
-###
-###
-# START: dicttool/build/dict.tcl
-###
 ::tcllib::PROC ::tcl::dict::getnull {dictionary args} {
   if {[exists $dictionary {*}$args]} {
     get $dictionary {*}$args
@@ -319,13 +702,6 @@ proc ::dicttool::merge {args} {
   namespace ensemble configure dict -map [dict replace\
       [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
 }
-
-###
-# END: dicttool/build/dict.tcl
-###
-###
-# START: dicttool/build/list.tcl
-###
 ::tcllib::PROC ::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
@@ -354,13 +730,18 @@ proc ::dicttool::merge {args} {
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]
 }
-
-###
-# END: dicttool/build/list.tcl
-###
-###
-# START: clay/build/procs.tcl
-###
+package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
+package require TclOO
+package require uuid
+package require dicttool 1.2
+package require oo::dialect
+::oo::dialect::create ::clay
+::namespace eval ::clay {
+}
+::namespace eval ::clay::classes {
+}
+::namespace eval ::clay::define {
+}
 namespace eval ::clay {
 }
 set ::clay::trace 0
@@ -386,7 +767,18 @@ proc ::clay::ancestors args {
     }
   }
   lappend result {*}$metaclasses
-  return $result
+  ###
+  # Screen out classes that do not participate in clay
+  # interactions
+  ###
+  set output {}
+  foreach {item} $result {
+    if {[catch {$item clay noop} err]} {
+      continue
+    }
+    lappend output $item
+  }
+  return $output
 }
 proc ::clay::args_to_dict args {
   if {[llength $args]==1} {
@@ -513,14 +905,235 @@ namespace eval ::clay {
   variable option_class {}
   variable core_classes {::oo::class ::oo::object}
 }
+proc ::clay::dynamic_methods class {
+  foreach command [info commands [namespace current]::dynamic_methods_*] {
+    $command $class
+  }
+}
+proc ::clay::dynamic_methods_class {thisclass} {
+  set methods {}
+  set mdata [$thisclass clay find class_typemethod]
+  foreach {method info} $mdata {
+    if {$method eq {.}} continue
+    set method [string trimright $method :/-]
+    if {$method in $methods} continue
+    lappend methods $method
+    set arglist [dict getnull $info arglist]
+    set body    [dict getnull $info body]
+    ::oo::objdefine $thisclass method $method $arglist $body
+  }
+}
+proc ::clay::define::Array {name {values {}}} {
+  set class [current_class]
+  set name [string trim $name :/]
+  $class clay branch array $name
+  dict for {var val} $values {
+    $class clay set array/ $name $var $val
+  }
+}
+proc ::clay::define::Delegate {name info} {
+  set class [current_class]
+  foreach {field value} $info {
+    $class clay set component/ [string trim $name :/]/ $field $value
+  }
+}
+proc ::clay::define::constructor {arglist rawbody} {
+  set body {
+my variable DestroyEvent
+set DestroyEvent 0
+::clay::object_create [self] [info object class [self]]
+# Initialize public variables and options
+my InitializePublic
+  }
+  append body $rawbody
+  set class [current_class]
+  ::oo::define $class constructor $arglist $body
+}
+proc ::clay::define::class_method {name arglist body} {
+  set class [current_class]
+  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
+}
+proc ::clay::define::clay {args} {
+  set class [current_class]
+  if {[lindex $args 0] in "cget set branch"} {
+    $class clay {*}$args
+  } else {
+    $class clay set {*}$args
+  }
+}
+proc ::clay::define::destructor rawbody {
+  set body {
+# Run the destructor once and only once
+set self [self]
+my variable DestroyEvent
+if {$DestroyEvent} return
+set DestroyEvent 1
+::clay::object_destroy $self
+}
+  append body $rawbody
+  ::oo::define [current_class] destructor $body
+}
+proc ::clay::define::Dict {name {values {}}} {
+  set class [current_class]
+  set name [string trim $name :/]
+  $class clay branch dict $name
+  foreach {var val} $values {
+    $class clay set dict/ $name/ $var $val
+  }
+}
+proc ::clay::define::Option {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  foreach {var val} [::clay::args_to_dict {*}$args] {
+    dict set dictargs [string trim $var -:/] $val
+  }
+  set name [string trimleft $name -]
 
-###
-# END: clay/build/procs.tcl
-###
-###
-# START: clay/build/class.tcl
-###
-oo::define oo::class {
+  ###
+  # Option Class handling
+  ###
+  set optclass [dict getnull $dictargs class]
+  if {$optclass ne {}} {
+    foreach {f v} [$class clay find option_class $optclass] {
+      if {![dict exists $dictargs $f]} {
+        dict set dictargs $f $v
+      }
+    }
+    if {$optclass eq "variable"} {
+      variable $name [dict getnull $dictargs default]
+    }
+  }
+  foreach {f v} $dictargs {
+    $class clay set option $name $f $v
+  }
+}
+proc ::clay::define::Option_Class {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  set name [string trimleft $name -:]
+  foreach {f v} [::clay::args_to_dict {*}$args] {
+    $class clay set option_class $name [string trim $f -/:] $v
+  }
+}
+proc ::clay::define::Variable {name {default {}}} {
+  set class [current_class]
+  set name [string trimright $name :/]
+  $class clay set variable/ $name $default
+}
+proc ::clay::object_create {objname {class {}}} {
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
+}
+proc ::clay::object_rename {object newname} {
+  if {$::clay::trace>0} {
+    puts [list $object RENAME -> $newname]
+  }
+}
+proc ::clay::object_destroy objname {
+  if {$::clay::trace>0} {
+    puts [list $objname DESTROY]
+  }
+  ::cron::object_destroy $objname
+}
+::namespace eval ::clay::define {
+}
+proc ::clay::ensemble_methodbody {ensemble einfo} {
+  set default standard
+  set preamble {}
+  set eswitch {}
+  if {[dict exists $einfo default]} {
+    set emethodinfo [dict get $einfo default]
+    set arglist     [dict getnull $emethodinfo arglist]
+    set realbody    [dict get $emethodinfo body]
+    if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
+      set body {}
+    } else {
+      set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
+    }
+    append body "\n      " [string trim $realbody] "      \n"
+    set default $body
+    dict unset einfo default
+  }
+  foreach {msubmethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
+    set submethod [string trim $msubmethod :/-]
+    if {$submethod eq "_body"} continue
+    if {$submethod eq "_preamble"} {
+      set preamble [dict getnull $esubmethodinfo body]
+      continue
+    }
+    set arglist     [dict getnull $esubmethodinfo arglist]
+    set realbody    [dict getnull $esubmethodinfo body]
+    if {[string length [string trim $realbody]] eq {}} {
+      dict set eswitch $submethod {}
+    } else {
+      if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
+        set body {}
+      } else {
+        set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
+      }
+      append body "\n      " [string trim $realbody] "      \n"
+      if {$submethod eq "default"} {
+        set default $body
+      } else {
+        foreach alias [dict getnull $esubmethodinfo aliases] {
+          dict set eswitch $alias -
+        }
+        dict set eswitch $submethod $body
+      }
+    }
+  }
+  set methodlist [lsort -dictionary [dict keys $eswitch]]
+  if {![dict exists $eswitch <list>]} {
+    dict set eswitch <list> {return $methodlist}
+  }
+  if {$default eq "standard"} {
+    set default "error \"unknown method $ensemble \$method. Valid: \$methodlist\""
+  }
+  dict set eswitch default $default
+  set mbody {}
+
+  append mbody $preamble \n
+
+  append mbody \n [list set methodlist $methodlist]
+  append mbody \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
+  append mbody \n {return -options $opts $result}
+  return $mbody
+}
+::proc ::clay::define::Ensemble {rawmethod arglist body} {
+  set class [current_class]
+  #if {$::clay::trace>2} {
+  #  puts [list $class Ensemble $rawmethod $arglist $body]
+  #}
+  set mlist [split $rawmethod "::"]
+  set ensemble [string trim [lindex $mlist 0] :/]
+  set mensemble ${ensemble}/
+  if {[llength $mlist]==1 || [lindex $mlist 1] in "_body"} {
+    set method _body
+    ###
+    # Simple method, needs no parsing, but we do need to record we have one
+    ###
+    $class clay set method_ensemble/ $mensemble _body [dict create arglist $arglist body $body]
+    if {$::clay::trace>2} {
+      puts [list $class clay set method_ensemble/ $mensemble _body ...]
+    }
+    set method $rawmethod
+    if {$::clay::trace>2} {
+      puts [list $class Ensemble $rawmethod $arglist $body]
+      set rawbody $body
+      set body {puts [list [self] $class [self method]]}
+      append body \n $rawbody
+    }
+    ::oo::define $class method $rawmethod $arglist $body
+    return
+  }
+  set method [join [lrange $mlist 2 end] "::"]
+  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create arglist $arglist body $body]
+  if {$::clay::trace>2} {
+    puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
+  }
+}
+::oo::define ::clay::class {
   method clay {submethod args} {
     my variable clay
     if {![info exists clay]} {
@@ -634,6 +1247,9 @@ oo::define oo::class {
           ::dicttool::dictmerge clay {*}$arg
         }
       }
+      noop {
+        # Do nothing. Used as a sign of clay savviness
+      }
       search {
         foreach aclass [::clay::ancestors [self]] {
           if {[$aclass clay exists {*}$args]} {
@@ -653,14 +1269,7 @@ oo::define oo::class {
     }
   }
 }
-
-###
-# END: clay/build/class.tcl
-###
-###
-# START: clay/build/object.tcl
-###
-oo::define oo::object {
+::oo::define ::clay::object {
   method clay {submethod args} {
     my variable clay claycache clayorder config option_canonical
     if {![info exists clay]} {set clay {}}
@@ -1134,22 +1743,57 @@ oo::define oo::object {
         {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
       }
     }
+    my variable clayorder clay claycache
+    if {[info exists clay]} {
+      set emap [dict getnull $clay method_ensemble]
+    } else {
+      set emap {}
+    }
+    foreach class [lreverse $clayorder] {
+      ###
+      # Build a compsite map of all ensembles defined by the object's current
+      # class as well as all of the classes being mixed in
+      ###
+      dict for {mensemble einfo} [$class clay get method_ensemble] {
+        if {$mensemble eq {.}} continue
+        set ensemble [string trim $mensemble :/]
+        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
+
+        dict for {method info} $einfo {
+          if {$method eq {.}} continue
+          if {![dict is_dict $info]} {
+            puts [list WARNING: class: $class method: $method not dict: $info]
+            continue
+          }
+          dict set info source $class
+          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
+          dict set emap $ensemble $method $info
+        }
+      }
+    }
+    foreach {ensemble einfo} $emap {
+      #if {[dict exists $einfo _body]} continue
+      set body [::clay::ensemble_methodbody $ensemble $einfo]
+      if {$::clay::trace>2} {
+        set rawbody $body
+        set body {puts [list [self] <object> [self method]]}
+        append body \n $rawbody
+      }
+      oo::objdefine [self] method $ensemble {{method default} args} $body
+    }
   }
 }
-oo::class clay branch array
-oo::class clay branch mixin
-oo::class clay branch option
-oo::class clay branch dict clay
+::clay::object clay branch array
+::clay::object clay branch mixin
+::clay::object clay branch option
+::clay::object clay branch dict clay
+::clay::object clay set variable DestroyEvent 0
+namespace eval ::clay {
+  namespace export *
+}
 
 ###
-# END: clay/build/object.tcl
-###
-###
-# START: clay/build/doctool.tcl
-###
-
-###
-# END: clay/build/doctool.tcl
+# END: clay/clay.tcl
 ###
 ###
 # START: setup.tcl
@@ -1228,7 +1872,7 @@ proc ::putb {buffername args} {
     }
   }
 }
-oo::class create ::practcl::doctool {
+::oo::class create ::practcl::doctool {
   constructor {} {
     my reset
   }
@@ -2793,8 +3437,7 @@ proc ::practcl::target {name info {action {}}} {
 ###
 # START: class metaclass.tcl
 ###
-::oo::class create ::practcl::metaclass {
-  superclass ::oo::object
+::clay::define ::practcl::metaclass {
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}
   }
@@ -2982,7 +3625,7 @@ proc ::practcl::target {name info {action {}}} {
 ###
 # START: class toolset baseclass.tcl
 ###
-oo::class create ::practcl::toolset {
+::clay::define ::practcl::toolset {
   method config.sh {} {
     return [my read_configuration]
   }
@@ -3105,7 +3748,6 @@ oo::class create ::practcl::toolset {
   }
 }
 oo::objdefine ::practcl::toolset {
-
   # Perform the selection for the toolset mixin
   method select object {
     ###
@@ -3133,7 +3775,7 @@ oo::objdefine ::practcl::toolset {
 ###
 # START: class toolset gcc.tcl
 ###
-::oo::class create ::practcl::toolset.gcc {
+::clay::define ::practcl::toolset.gcc {
   superclass ::practcl::toolset
   method Autoconf {} {
     ###
@@ -3876,7 +4518,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 ###
 # START: class toolset msvc.tcl
 ###
-::oo::class create ::practcl::toolset.msvc {
+::clay::define ::practcl::toolset.msvc {
   superclass ::practcl::toolset
   method BuildDir {PWD} {
     set srcdir [my define get srcdir]
@@ -3987,7 +4629,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 ###
 # START: class target.tcl
 ###
-::oo::class create ::practcl::make_obj {
+::clay::define ::practcl::make_obj {
   superclass ::practcl::metaclass
   constructor {module_object name info {action_body {}}} {
     my variable define triggered domake
@@ -4090,7 +4732,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 ###
 # START: class object.tcl
 ###
-::oo::class create ::practcl::object {
+::clay::define ::practcl::object {
   superclass ::practcl::metaclass
   constructor {parent args} {
     my variable links define
@@ -4134,7 +4776,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 ###
 # START: class dynamic.tcl
 ###
-::oo::class create ::practcl::dynamic {
+::clay::define ::practcl::dynamic {
   method cstructure {name definition {argdat {}}} {
     my variable cstruct
     dict set cstruct $name body $definition
@@ -4678,7 +5320,7 @@ const static Tcl_ObjectMetadataType @NAME@DataType = {
 ###
 # START: class product.tcl
 ###
-::oo::class create ::practcl::product {
+::clay::define ::practcl::product {
   method code {section body} {
     my variable code
     ::practcl::cputs code($section) $body
@@ -5169,6 +5811,7 @@ package provide @PKG_NAME@ @PKG_VERSION@
   }
 }
 oo::objdefine ::practcl::product {
+
   method select {object} {
     set class [$object define get class]
     set mixin [$object define get product]
@@ -5212,12 +5855,12 @@ oo::objdefine ::practcl::product {
     }
   }
 }
-::oo::class create ::practcl::product.cheader {
+::clay::define ::practcl::product.cheader {
   superclass ::practcl::product
   method project-compile-products {} {}
   method generate-loader-module {} {}
 }
-::oo::class create ::practcl::product.csource {
+::clay::define ::practcl::product.csource {
   superclass ::practcl::product
   method project-compile-products {} {
     set result {}
@@ -5238,13 +5881,13 @@ oo::objdefine ::practcl::product {
     return $result
   }
 }
-::oo::class create ::practcl::product.clibrary {
+::clay::define ::practcl::product.clibrary {
   superclass ::practcl::product
   method linker-products {configdict} {
     return [my define get filename]
   }
 }
-::oo::class create ::practcl::product.dynamic {
+::clay::define ::practcl::product.dynamic {
   superclass ::practcl::dynamic ::practcl::product
   method initialize {} {
     set filename [my define get filename]
@@ -5270,7 +5913,7 @@ oo::objdefine ::practcl::product {
     }
   }
 }
-::oo::class create ::practcl::product.critcl {
+::clay::define ::practcl::product.critcl {
   superclass ::practcl::dynamic ::practcl::product
 }
 
@@ -5280,7 +5923,7 @@ oo::objdefine ::practcl::product {
 ###
 # START: class module.tcl
 ###
-::oo::class create ::practcl::module {
+::clay::define ::practcl::module {
   superclass ::practcl::object ::practcl::product.dynamic
   method _MorphPatterns {} {
     return {{@name@} {::practcl::module.@name@} ::practcl::module}
@@ -5293,137 +5936,128 @@ oo::objdefine ::practcl::product {
     }
     return $object
   }
+  Dict make_object {}
   method install-headers args {}
-  method make {command args} {
+  Ensemble make::_preamble {} {
     my variable make_object
-    if {![info exists make_object]} {
-      set make_object {}
+  }
+  Ensemble make::pkginfo {} {
+    ###
+    # Build local variables needed for install
+    ###
+    package require platform
+    set result {}
+    set dat [my define dump]
+    set PKG_DIR [dict get $dat name][dict get $dat version]
+    dict set result PKG_DIR $PKG_DIR
+    dict with dat {}
+    if {![info exists DESTDIR]} {
+      set DESTDIR {}
     }
-    switch $command {
-      pkginfo {
-        ###
-        # Build local variables needed for install
-        ###
-        package require platform
-        set result {}
-        set dat [my define dump]
-        set PKG_DIR [dict get $dat name][dict get $dat version]
-        dict set result PKG_DIR $PKG_DIR
-        dict with dat {}
-        if {![info exists DESTDIR]} {
-          set DESTDIR {}
+    dict set result profile [::platform::identify]
+    dict set result os $::tcl_platform(os)
+    dict set result platform $::tcl_platform(platform)
+    foreach {field value} $dat {
+      switch $field {
+        includedir -
+        mandir -
+        datadir -
+        libdir -
+        libfile -
+        name -
+        output_tcl -
+        version -
+        authors -
+        license -
+        requires {
+          dict set result $field $value
         }
-        dict set result profile [::platform::identify]
-        dict set result os $::tcl_platform(os)
-        dict set result platform $::tcl_platform(platform)
-        foreach {field value} $dat {
-          switch $field {
-            includedir -
-            mandir -
-            datadir -
-            libdir -
-            libfile -
-            name -
-            output_tcl -
-            version -
-            authors -
-            license -
-            requires {
-              dict set result $field $value
-            }
-            TEA_PLATFORM {
-              dict set result platform $value
-            }
-            TEACUP_OS {
-              dict set result os $value
-            }
-            TEACUP_PROFILE {
-              dict set result profile $value
-            }
-            TEACUP_ZIPFILE {
-              dict set result zipfile $value
-            }
-          }
+        TEA_PLATFORM {
+          dict set result platform $value
         }
-        if {![dict exists $result zipfile]} {
-          dict set result zipfile "[dict get $result name]-[dict get $result version]-[dict get $result profile].zip"
+        TEACUP_OS {
+          dict set result os $value
         }
-        return $result
-      }
-      objects {
-        return $make_object
-      }
-      object {
-        set name [lindex $args 0]
-        if {[dict exists $make_object $name]} {
-          return [dict get $make_object $name]
+        TEACUP_PROFILE {
+          dict set result profile $value
         }
-        return {}
-      }
-      reset {
-        foreach {name obj} $make_object {
-          $obj reset
+        TEACUP_ZIPFILE {
+          dict set result zipfile $value
         }
       }
-      trigger {
-        foreach {name obj} $make_object {
-          if {$name in $args} {
-            $obj triggers
-          }
+    }
+    if {![dict exists $result zipfile]} {
+      dict set result zipfile "[dict get $result name]-[dict get $result version]-[dict get $result profile].zip"
+    }
+    return $result
+  }
+  Ensemble make::objects {} {
+    return $make_object
+  }
+  Ensemble make::object name {
+    if {[dict exists $make_object $name]} {
+      return [dict get $make_object $name]
+    }
+    return {}
+  }
+  Ensemble make::reset {} {
+    foreach {name obj} $make_object {
+      $obj reset
+    }
+  }
+  Ensemble make::trigger args {
+    foreach {name obj} $make_object {
+      if {$name in $args} {
+        $obj triggers
+      }
+    }
+  }
+  Ensemble make::depends args {
+    foreach {name obj} $make_object {
+      if {$name in $args} {
+        $obj check
+      }
+    }
+  }
+  Ensemble make::filename name {
+    if {[dict exists $make_object $name]} {
+      return [[dict get $make_object $name] define get filename]
+    }
+  }
+  Ensemble make::target {name Info body} {
+    set info [uplevel #0 [list subst $Info]]
+    set nspace [namespace current]
+    if {[dict exist $make_object $name]} {
+      set obj [dict get $$make_object $name]
+    } else {
+      set obj [::practcl::make_obj new [self] $name $info $body]
+      dict set make_object $name $obj
+      dict set target_make $name 0
+      dict set target_trigger $name 0
+    }
+    if {[dict exists $info aliases]} {
+      foreach item [dict get $info aliases] {
+        if {![dict exists $make_object $item]} {
+          dict set make_object $item $obj
         }
       }
-      depends {
-        foreach {name obj} $make_object {
-          if {$name in $args} {
-            $obj check
-          }
-        }
+    }
+    return $obj
+  }
+  clay set method_ensemble make target aliases {task add}
+  Ensemble make::todo {} {
+    foreach {name obj} $make_object {
+      if {[$obj do]} {
+        lappend result $name
       }
-      filename {
-        set name [lindex $args 0]
-        if {[dict exists $make_object $name]} {
-          return [[dict get $make_object $name] define get filename]
-        }
-      }
-      task -
-      target -
-      add {
-        set name [lindex $args 0]
-        set info [uplevel #0 [list subst [lindex $args 1]]]
-        set body [lindex $args 2]
-
-        set nspace [namespace current]
-        if {[dict exist $make_object $name]} {
-          set obj [dict get $$make_object $name]
-        } else {
-          set obj [::practcl::make_obj new [self] $name $info $body]
-          dict set make_object $name $obj
-          dict set target_make $name 0
-          dict set target_trigger $name 0
-        }
-        if {[dict exists $info aliases]} {
-          foreach item [dict get $info aliases] {
-            if {![dict exists $make_object $item]} {
-              dict set make_object $item $obj
-            }
-          }
-        }
-        return $obj
-      }
-      todo {
-         foreach {name obj} $make_object {
-          if {[$obj do]} {
-            lappend result $name
-          }
-        }
-      }
-      do {
-        global CWD SRCDIR project SANDBOX
-        foreach {name obj} $make_object {
-          if {[$obj do]} {
-            eval [$obj define get action]
-          }
-        }
+    }
+    return $result
+  }
+  Ensemble make::todo {} {
+    global CWD SRCDIR project SANDBOX
+    foreach {name obj} $make_object {
+      if {[$obj do]} {
+        eval [$obj define get action]
       }
     }
   }
@@ -5632,7 +6266,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 ###
 # START: class project baseclass.tcl
 ###
-::oo::class create ::practcl::project {
+::clay::define ::practcl::project {
   superclass ::practcl::module
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::project.@name@} {::practcl::project}}
@@ -5828,7 +6462,7 @@ extern int DLLEXPORT [my define get initfunc]( Tcl_Interp *interp ) \{"
 ###
 # START: class project library.tcl
 ###
-::oo::class create ::practcl::library {
+::clay::define ::practcl::library {
   superclass ::practcl::project
   method clean {PATH} {
     set objext [my define get OBJEXT o]
@@ -6134,7 +6768,7 @@ char *
 ###
 # START: class project tclkit.tcl
 ###
-::oo::class create ::practcl::tclkit {
+::clay::define ::practcl::tclkit {
   superclass ::practcl::library
   method build-tclkit_main {PROJECT PKG_OBJS} {
     ###
@@ -6502,7 +7136,7 @@ foreach teapath [glob -nocomplain [file join $dir teapot $::tcl_teapot_profile *
 ###
 # START: class distro baseclass.tcl
 ###
-oo::class create ::practcl::distribution {
+::clay::define ::practcl::distribution {
   method scm_info {} {
     return {
       scm  None
@@ -6563,7 +7197,6 @@ oo::class create ::practcl::distribution {
   }
 }
 oo::objdefine ::practcl::distribution {
-
   method Sandbox {object} {
     if {[$object define exists sandbox]} {
       return [$object define get sandbox]
@@ -6623,6 +7256,7 @@ oo::objdefine ::practcl::distribution {
   method claim_path path {
     return false
   }
+
   method claim_object object {
     return false
   }
@@ -6634,7 +7268,7 @@ oo::objdefine ::practcl::distribution {
 ###
 # START: class distro snapshot.tcl
 ###
-oo::class create ::practcl::distribution.snapshot {
+::clay::define ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
   method ScmUnpack {} {
     set srcdir [my SrcDir]
@@ -6681,6 +7315,7 @@ oo::objdefine ::practcl::distribution.snapshot {
     }
     return false
   }
+
   method claim_object object {
     return false
   }
@@ -6692,7 +7327,7 @@ oo::objdefine ::practcl::distribution.snapshot {
 ###
 # START: class distro fossil.tcl
 ###
-oo::class create ::practcl::distribution.fossil {
+::clay::define ::practcl::distribution.fossil {
   superclass ::practcl::distribution
   method scm_info {} {
     set info [next]
@@ -6797,7 +7432,6 @@ oo::class create ::practcl::distribution.fossil {
   }
 }
 oo::objdefine ::practcl::distribution.fossil {
-
   # Check for markers in the source root
   method claim_path path {
     if {[file exists [file join $path .fslckout]]} {
@@ -6828,7 +7462,7 @@ oo::objdefine ::practcl::distribution.fossil {
 ###
 # START: class distro git.tcl
 ###
-oo::class create ::practcl::distribution.git {
+::clay::define ::practcl::distribution.git {
   superclass ::practcl::distribution
   method ScmTag {} {
     if {[my define exists scm_tag]} {
@@ -6875,6 +7509,7 @@ oo::objdefine ::practcl::distribution.git {
     }
     return false
   }
+
   method claim_object obj {
     set path [$obj define get srcdir]
     if {[my claim_path $path]} {
@@ -6893,7 +7528,7 @@ oo::objdefine ::practcl::distribution.git {
 ###
 # START: class subproject baseclass.tcl
 ###
-oo::class create ::practcl::subproject {
+::clay::define ::practcl::subproject {
   superclass ::practcl::module
   method _MorphPatterns {} {
     return {{::practcl::subproject.@name@} {::practcl::@name@} {@name@} {::practcl::subproject}}
@@ -6976,7 +7611,7 @@ oo::class create ::practcl::subproject {
     cd $::CWD
   }
 }
-oo::class create ::practcl::subproject.source {
+::clay::define ::practcl::subproject.source {
   superclass ::practcl::subproject ::practcl::library
   method env-bootstrap {} {
     set LibraryRoot [file join [my define get srcdir] [my define get module_root modules]]
@@ -6992,7 +7627,7 @@ oo::class create ::practcl::subproject.source {
     return {subordinate package source}
   }
 }
-oo::class create ::practcl::subproject.teapot {
+::clay::define ::practcl::subproject.teapot {
   superclass ::practcl::subproject
   method env-bootstrap {} {
     set pkg [my define get pkg_name [my define get name]]
@@ -7022,7 +7657,7 @@ oo::class create ::practcl::subproject.teapot {
     ::zipfile::decode::unzipfile [file join $download $pkg.zip] [file join $DEST $prefix lib $pkg]
   }
 }
-oo::class create ::practcl::subproject.kettle {
+::clay::define ::practcl::subproject.kettle {
   superclass ::practcl::subproject
   method kettle {path args} {
     my variable kettle
@@ -7037,7 +7672,7 @@ oo::class create ::practcl::subproject.kettle {
     my kettle reinstall --prefix $DEST
   }
 }
-oo::class create ::practcl::subproject.critcl {
+::clay::define ::practcl::subproject.critcl {
   superclass ::practcl::subproject
   method install DEST {
     my critcl -pkg [my define get name]
@@ -7045,7 +7680,7 @@ oo::class create ::practcl::subproject.critcl {
     ::practcl::copyDir [file join $srcdir [my define get name]] [file join $DEST lib [my define get name]]
   }
 }
-oo::class create ::practcl::subproject.sak {
+::clay::define ::practcl::subproject.sak {
   superclass ::practcl::subproject
   method env-bootstrap {} {
     set LibraryRoot [file join [my define get srcdir] [my define get module_root modules]]
@@ -7100,7 +7735,7 @@ oo::class create ::practcl::subproject.sak {
 ###
 # START: class subproject binary.tcl
 ###
-oo::class create ::practcl::subproject.binary {
+::clay::define ::practcl::subproject.binary {
   superclass ::practcl::subproject
   method clean {} {
     set builddir [file normalize [my define get builddir]]
@@ -7271,16 +7906,16 @@ oo::class create ::practcl::subproject.binary {
     cd $PWD
   }
 }
-oo::class create ::practcl::subproject.tea {
+::clay::define ::practcl::subproject.tea {
   superclass ::practcl::subproject.binary
 }
-oo::class create ::practcl::subproject.library {
+::clay::define ::practcl::subproject.library {
   superclass ::practcl::subproject.binary ::practcl::library
   method install DEST {
     my compile
   }
 }
-oo::class create ::practcl::subproject.external {
+::clay::define ::practcl::subproject.external {
   superclass ::practcl::subproject.binary
   method install DEST {
     my compile
@@ -7293,7 +7928,7 @@ oo::class create ::practcl::subproject.external {
 ###
 # START: class subproject core.tcl
 ###
-oo::class create ::practcl::subproject.core {
+::clay::define ::practcl::subproject.core {
   superclass ::practcl::subproject.binary
   method env-bootstrap {} {}
   method env-present {} {

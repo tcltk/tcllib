@@ -2,7 +2,7 @@
 ###
 # A binary package
 ###
-oo::class create ::practcl::subproject.binary {
+::clay::define ::practcl::subproject.binary {
   superclass ::practcl::subproject
 
   method clean {} {
@@ -185,12 +185,12 @@ oo::class create ::practcl::subproject.binary {
   }
 }
 
-oo::class create ::practcl::subproject.tea {
+::clay::define ::practcl::subproject.tea {
   superclass ::practcl::subproject.binary
 
 }
 
-oo::class create ::practcl::subproject.library {
+::clay::define ::practcl::subproject.library {
   superclass ::practcl::subproject.binary ::practcl::library
   method install DEST {
     my compile
@@ -198,7 +198,7 @@ oo::class create ::practcl::subproject.library {
 }
 
 # An external library
-oo::class create ::practcl::subproject.external {
+::clay::define ::practcl::subproject.external {
   superclass ::practcl::subproject.binary
   method install DEST {
     my compile

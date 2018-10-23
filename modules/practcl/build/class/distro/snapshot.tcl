@@ -1,5 +1,4 @@
-
-oo::class create ::practcl::distribution.snapshot {
+::clay::define ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
 
   method ScmUnpack {} {
@@ -40,7 +39,6 @@ oo::class create ::practcl::distribution.snapshot {
     return 1
   }
 }
-
 oo::objdefine ::practcl::distribution.snapshot {
   method claim_path path {
     if {[file exists [file join $path .download]]} {
@@ -48,6 +46,7 @@ oo::objdefine ::practcl::distribution.snapshot {
     }
     return false
   }
+
   method claim_object object {
     return false
   }

@@ -4,7 +4,7 @@ source [file join $srcdir doctool.tcl]
 
 ::practcl::doctool create AutoDoc
 
-set version 0.14.1
+set version 0.15
 set tclversion 8.6
 set module [file tail $moddir]
 set filename $module
@@ -36,8 +36,7 @@ set loaded {}
 ###
 foreach {omod files} {
   httpwget wget.tcl
-  dicttool {build/core.tcl build/dict.tcl build/list.tcl}
-  clay {build/procs.tcl build/class.tcl build/object.tcl build/doctool.tcl}
+  clay {clay.tcl}
 } {
   foreach fname $files {
     set file [file join $moddir .. $omod $fname]

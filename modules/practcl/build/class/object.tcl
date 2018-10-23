@@ -1,7 +1,7 @@
 ###
 # A generic Practcl object
 ###
-::oo::class create ::practcl::object {
+::clay::define ::practcl::object {
   superclass ::practcl::metaclass
 
   constructor {parent args} {

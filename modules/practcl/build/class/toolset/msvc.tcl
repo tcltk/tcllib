@@ -1,4 +1,4 @@
-::oo::class create ::practcl::toolset.msvc {
+::clay::define ::practcl::toolset.msvc {
   superclass ::practcl::toolset
 
   # MSVC always builds in the source directory
@@ -7,11 +7,11 @@
     return $srcdir
   }
 
-  
+
   # Do nothing
   method make-autodetect {} {
   }
-  
+
   method make-clean {} {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -19,7 +19,7 @@
     catch {::practcl::doexec nmake -f makefile.vc clean}
     cd $PWD
   }
-  
+
   method make-compile {} {
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -45,7 +45,7 @@
       }
     }
   }
-  
+
   method make-install DEST {
     set PWD [pwd]
     set srcdir [my define get srcdir]
@@ -74,7 +74,7 @@
     }
     cd $PWD
   }
-  
+
   # Detect what directory contains the Makefile template
   method MakeDir {srcdir} {
     set localsrcdir $srcdir
@@ -89,7 +89,7 @@
     }
     return $localsrcdir
   }
-  
+
   method NmakeOpts {} {
     set opts {}
     set builddir [file normalize [my define get builddir]]

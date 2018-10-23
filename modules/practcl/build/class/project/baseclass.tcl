@@ -1,5 +1,5 @@
 
-::oo::class create ::practcl::project {
+::clay::define ::practcl::project {
   superclass ::practcl::module
 
   method _MorphPatterns {} {
@@ -94,6 +94,10 @@
     return $obj
   }
 
+  ###
+  # Compile the Tcl core. If the define [emph tk] is true, compile the
+  # Tk core as well
+  ###
   method build-tclcore {} {
     set os [my define get TEACUP_OS]
     set tcl_config_opts [::practcl::platform::tcl_core_options $os]

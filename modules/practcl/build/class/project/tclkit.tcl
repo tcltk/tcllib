@@ -1,6 +1,5 @@
 
-
-::oo::class create ::practcl::tclkit {
+::clay::define ::practcl::tclkit {
   superclass ::practcl::library
 
   method build-tclkit_main {PROJECT PKG_OBJS} {

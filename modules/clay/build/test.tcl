@@ -17,10 +17,12 @@ testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
+### All dependencies are now included
+#    use uuid/uuid.tcl uuid
+#    use dicttool/dicttool.tcl dicttool
+#    use oodialect/oodialect.tcl oo::dialect
 support {
-    use uuid/uuid.tcl uuid
-    use dicttool/dicttool.tcl dicttool
-    use oodialect/oodialect.tcl oo::dialect
+
 }
 testing {
     useLocal clay.tcl clay
@@ -33,6 +35,17 @@ set ::clay::trace 0
 
 
 putb result {
+# Modification History:
+###
+# Modification 2018-10-21
+# The clay metaclass no longer exports the clay method
+# to oo::class and oo::object, and clay::ancestors no
+# longer returns any class that lacks the clay method
+###
+# Modification 2018-10-10
+# clay::ancestors now rigged to descend into all classes depth-first
+# and then place metaclasses at the end of the search
+###
 # -------------------------------------------------------------------------
 
 ::oo::dialect::create ::alpha
@@ -161,17 +174,26 @@ test oodialect-aliasing-003 {Testing aliase method on class} {
   ::test1::a aliases
 } {::test1::A}
 
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-003 {Testing heritage} {
   ::clay::ancestors ::test1::f
-} {::test1::f ::test1::a ::bravo::object ::alpha::object ::oo::object}
+} {}
 
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-004 {Testing heritage} {
   ::clay::ancestors ::alpha::object
-} {::alpha::object ::oo::object}
+} {}
 
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-005 {Testing heritage} {
   ::clay::ancestors ::delta::object
-} {::delta::object ::charlie::object ::bravo::object ::alpha::object ::oo::object}
+} {}
 
 # -------------------------------------------------------------------------
 # clay submodule testing
@@ -570,12 +592,20 @@ test clay-object-clay-a-0004 {Test that objects of the class get properties} {
   $OBJ2 clay get flavor
 } strawberry
 
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-a-0005 {Test the clay ancestors function} {
   $OBJ clay ancestors
-} {::clay::object ::oo::object}
+} {::clay::object}
+
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-a-0006 {Test the clay ancestors function} {
   $OBJ2 clay ancestors
-} {::TEST::myclass ::clay::object ::oo::object}
+} {::TEST::myclass ::clay::object}
+
 test clay-object-clay-a-0007 {Test the clay provenance  function} {
   $OBJ2 clay provenance  flavor
 } ::TEST::myclass
@@ -595,7 +625,6 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   superclass ::TEST::myclass
 
   clay color blue
-
   method do args {
     return "I did $args"
   }
@@ -603,6 +632,7 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   Ensemble which::color {} {
     return [my clay get color]
   }
+  clay set method_ensemble which color aliases farbe
 }
 
 ###
@@ -634,9 +664,13 @@ test clay-object-clay-b-0003 {Test that objects of the class get properties} {
 test clay-object-clay-b-0004 {Test the clay provenance  function} {
   $OBJ3 clay provenance  flavor
 } ::TEST::myclass
+
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-b-0005 {Test the clay provenance  function} {
   $OBJ3 clay ancestors
-} {::TEST::myclasse ::TEST::myclass ::clay::object ::oo::object}
+} {::TEST::myclasse ::TEST::myclass ::clay::object}
 
 ###
 # Test defining a standard method
@@ -654,6 +688,10 @@ test clay-object-method-0004 {Test an ensemble} {
   $OBJ3 which color
 } black
 
+# Test setting properties
+test clay-object-method-0004 {Test an ensemble alias} {
+  $OBJ3 which farbe
+} black
 ###
 # Test that if you try to replace a global command you get an error
 ###
@@ -777,9 +815,12 @@ test clay-mixin-b-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-b-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+###
+# Test Modified: 2018-10-21
+###
 test clay-mixin-b-0004 {Test that mixins resolve in the correct order} {
   $OBJ clay ancestors
-} {::TEST::animal ::TEST::thing ::clay::object ::oo::object}
+} {::TEST::animal ::TEST::thing ::clay::object}
 
 ###
 # Replacing a mixin replaces the behaviors
@@ -795,9 +836,12 @@ test clay-mixin-c-0002 {Test that an ensemble is created during a mixin} \
 test clay-mixin-c-0003 {Test that an ensemble is created during a mixin} {
   $OBJ which flavor
 } {unknown}
+###
+# Test Modified: 2018-10-21
+###
 test clay-mixin-c-0004 {Test that mixins resolve in the correct order} {
   $OBJ clay ancestors
-} {::TEST::vegetable ::TEST::thing ::clay::object ::oo::object}
+} {::TEST::vegetable ::TEST::thing ::clay::object}
 
 ###
 # Replacing a mixin
@@ -812,13 +856,11 @@ test clay-mixin-e-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
 ###
-# Test modified 2018-10-10
-# clay::ancestors now rigged to descend into all classes depth-first
-# and then place metaclasses at the end of the search
+# Test Modified: 2018-10-21, 2018-10-10
 ###
 test clay-mixin-e-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
+} {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object}
 
 $OBJ clay mixinmap coloring ::TEST::coloring.calico
 test clay-mixin-f-0001 {Test that an ensemble is created during a mixin} {
@@ -832,13 +874,11 @@ test clay-mixin-f-0003 {Test that an ensemble is created during a mixin} \
   -result {unknown method which flavor. Valid: color sound}
 
 ###
-# Test modified 2018-10-10
-# clay::ancestors now rigged to descend into all classes depth-first
-# and then place metaclasses at the end of the search
+# Test modified 2018-10-21, 2018-10-10
 ###
 test clay-mixin-f-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::species.cat ::TEST::coloring.calico ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
+} {::TEST::species.cat ::TEST::coloring.calico ::TEST::thing ::TEST::animal ::clay::object}
 
 test clay-mixin-f-0005 {Test that clay data from a mixin works} {
   $OBJ clay provenance  color

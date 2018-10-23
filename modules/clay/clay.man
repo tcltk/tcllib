@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.5]
+[vset PACKAGE_VERSION 0.6]
 [manpage_begin clay n [vset PACKAGE_VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
@@ -201,6 +201,22 @@ $A <counter> value
 [call proc [cmd clay::define::Dict] [arg name] [opt "[arg values] [const ""]"]]
 
 
+[call proc [cmd clay::define::Option] [arg name] [opt "[arg args]"]]
+
+ Define an option for the class
+
+
+
+
+[call proc [cmd clay::define::Option_Class] [arg name] [opt "[arg args]"]]
+
+ Define a class of options
+ All field / value pairs will be be inherited by an option that
+ specify [emph name] as it class field.
+
+
+
+
 [call proc [cmd clay::define::Variable] [arg name] [opt "[arg default] [const ""]"]]
 
     This keyword can also be expressed:
@@ -230,7 +246,7 @@ $A <counter> value
 [list_end]
 
 [section Classes]
-[subsection {Class  oo::class}]
+[subsection {Class  clay::class}]
 
 [para]
 [class {Methods}]
@@ -279,7 +295,12 @@ Merge the conents of [const value] with the object's clay storage at [const path
 [list_end]
 [para]
 
-[subsection {Class  oo::object}]
+[subsection {Class  clay::object}]
+ clay::object
+
+ This class is inherited by all classes that have options.
+
+
 
 [para]
 [class {Methods}]
@@ -372,42 +393,6 @@ Merge the conents of [const value] with the object's clay storage at [const path
 [call method [cmd "InitializePublic"]]
 
  Instantiate variables. Called on object creation and during clay mixin.
-
-
-
-
-[list_end]
-[para]
-
-[subsection {Class  branch}]
-
-[para]
-[class {Option}]
-[list_begin definitions]
-[call option [cmd ]]
-
-[list_end]
-[para]
-
-[subsection {Class  clay::object}]
- clay::object
-
- This class is inherited by all classes that have options.
-
-
-
-[para]
-[class {Variable}]
-[list_begin definitions]
-[call variable [cmd DestroyEvent]]
-
-[list_end]
-[para]
-[class {Methods}]
-[list_begin definitions]
-[call method [cmd "InitializePublic"]]
-
- Instantiate variables and build ensemble methods.
 
 
 

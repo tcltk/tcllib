@@ -38,6 +38,9 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
       if {$submethod eq "default"} {
         set default $body
       } else {
+        foreach alias [dict getnull $esubmethodinfo aliases] {
+          dict set eswitch $alias -
+        }
         dict set eswitch $submethod $body
       }
     }
@@ -88,7 +91,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     return
   }
   set method [join [lrange $mlist 2 end] "::"]
-  $class clay set method_ensemble/ $mensemble [string trim $method :/] [dict create arglist $arglist body $body]
+  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create arglist $arglist body $body]
   if {$::clay::trace>2} {
     puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
   }

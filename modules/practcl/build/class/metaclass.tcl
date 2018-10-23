@@ -1,5 +1,4 @@
-::oo::class create ::practcl::metaclass {
-  superclass ::oo::object
+::clay::define ::practcl::metaclass {
 
   method _MorphPatterns {} {
     return {{@name@} {::practcl::@name@} {::practcl::*@name@} {::practcl::*@name@*}}

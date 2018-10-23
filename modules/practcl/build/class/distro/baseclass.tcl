@@ -4,7 +4,7 @@
 # This class is intended to be mixed into another class
 # (Thus the lack of ancestors)
 ###
-oo::class create ::practcl::distribution {
+::clay::define ::practcl::distribution {
 
   method scm_info {} {
     return {
@@ -70,9 +70,7 @@ oo::class create ::practcl::distribution {
     my ScmUnpack
   }
 }
-
 oo::objdefine ::practcl::distribution {
-
   method Sandbox {object} {
     if {[$object define exists sandbox]} {
       return [$object define get sandbox]
@@ -132,6 +130,7 @@ oo::objdefine ::practcl::distribution {
   method claim_path path {
     return false
   }
+
   method claim_object object {
     return false
   }
