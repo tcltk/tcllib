@@ -12,6 +12,7 @@ proc _tcl {module libdir} {
     global distribution
     if {![file exists [file join $distribution modules $module $module.tcl]]} {
       if {[file exists [file join $distribution modules $module build build.tcl]]} {
+        puts "REBUILDING MODULE $module"
         exec [info nameofexecutable] [file join $distribution modules $module build build.tcl]
       }
     }
@@ -99,6 +100,7 @@ proc _manfile {f format ext docdir} { return }
 proc _man {module format ext docdir} {
   if {[file exists [file join $distribution modules $module $module.main]]} return
   if {![file exists [file join $distribution modules $module build build.tcl]]} return
+  puts "REBUILDING MODULE $module"
   exec [info nameofexecutable] [file join $distribution modules $module build build.tcl]
   return
 }

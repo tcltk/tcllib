@@ -24,7 +24,7 @@ dict set map "\t" {    }
 proc ::record {service port type usage} {
   if { $port eq {} } return
   if {$service eq {} && $type in {tcp udp {}} && $usage != "Reserved"} {
-    ladd ::available_port($port) {*}$type
+    ::dicttool::ladd ::available_port($port) {*}$type
     return
   }
   unset -nocomplain ::available_port($port)
