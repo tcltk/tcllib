@@ -196,10 +196,11 @@ foreach path {
       }
     }
     append main_init_script \n {
-if {[file exists [file join $::SRCDIR packages.tcl]]} {
+puts [list SRCDIR IS $::SRCDIR]
+if {[file exists [file join $::SRCDIR pkgIndex.tcl]]} {
   #In a wrapped exe, we don't go out to the environment
   set dir $::SRCDIR
-  source [file join $::SRCDIR packages.tcl]
+  source [file join $::SRCDIR pkgIndex.tcl]
 }
 # Specify a user-specific startup file to invoke if the application
 # is run interactively.  Typically the startup file is "~/.apprc"
@@ -323,7 +324,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
        ::practcl::copyDir $arg $vfspath
     }
 
-    set fout [open [file join $vfspath packages.tcl] w]
+    set fout [open [file join $vfspath pkgIndex.tcl] w]
     puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
 set ::PKGIDXFILE [info script]
