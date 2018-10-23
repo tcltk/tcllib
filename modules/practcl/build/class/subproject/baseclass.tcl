@@ -267,11 +267,17 @@
   }
 
   method install-module {DEST args} {
-    set pkg [my define get pkg_name [my define get name]]
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
-    set pkgpath [file join $prefix lib $pkg]
-    foreach module $args {
-      ::practcl::installModule [file join $pkgpath $module] $DEST
+    set srcdir [my define get srcdir]
+    if {[llength $args]==1 && [lindex $args 0] in {* all}} {
+      set pkg [my define get pkg_name [my define get name]]
+      ::practcl::dotclexec [file join $srcdir installer.tcl] \
+        -pkg-path [file join $DEST $pkg]  \
+        -no-examples -no-html -no-nroff \
+        -no-wait -no-gui -no-apps
+    } else {
+      foreach module $args {
+        ::practcl::installModule [file join $srcdir modules $module] [file join $DEST $module]
+      }
     }
   }
 }
@@ -310,15 +316,10 @@
     ::practcl::dotclexec [file join $srcdir make.tcl] install [file join $DEST $prefix lib $pkg]
   }
 
-
   method install-module {DEST args} {
     set pkg [my define get pkg_name [my define get name]]
-    set prefix [my <project> define get prefix [file normalize [file join ~ tcl]]]
-    set pkgpath [file join $prefix lib $pkg]
-    foreach module $args {
-      puts [list INSTALLING  [my define get name]/$module to [file join $DEST $prefix lib $pkg]]
-      ::practcl::installModule [file join $pkgpath $module] $DEST
-    }
+    set srcdir [my define get srcdir]
+    ::practcl::dotclexec [file join $srcdir make.tcl] install-module $DEST {*}$args
   }
 }
 

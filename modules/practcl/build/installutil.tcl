@@ -343,6 +343,6 @@ proc ::practcl::installModule {modpath DEST} {
     file copy $file $dpath
   }
   if {[file exists [file join $modpath htdocs]]} {
-    ::practcl::installDir [file join $modpath htdocs] [file join $dpath htdocs]
+    ::practcl::copyDir [file join $modpath htdocs] [file join $dpath htdocs]
   }
 }
