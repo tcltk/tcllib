@@ -238,6 +238,14 @@
   method generate-h {} {
     ::practcl::debug [list [self] [self method] [self class] -- [my define get filename] [info object class [self]]]
     set result {}
+    foreach method {
+      generate-hfile-public-define
+      generate-hfile-public-macro
+    } {
+      ::practcl::cputs result "/* BEGIN SECTION $method */"
+      ::practcl::cputs result [my $method]
+      ::practcl::cputs result "/* END SECTION $method */"
+    }
     set includes [my generate-hfile-public-includes]
     foreach inc $includes {
       if {[string index $inc 0] ni {< \"}} {
@@ -246,10 +254,7 @@
         ::practcl::cputs result "#include $inc"
       }
     }
-
     foreach method {
-      generate-hfile-public-define
-      generate-hfile-public-macro
       generate-hfile-public-typedef
       generate-hfile-public-structure
     } {

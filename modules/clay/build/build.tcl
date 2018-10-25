@@ -60,7 +60,7 @@ lappend loaded build.tcl test.tcl
 foreach {omod files} {
   uuid      {uuid.tcl}
   oodialect {oodialect.tcl}
-  dicttool  {build/core.tcl build/dict.tcl build/list.tcl}
+  dicttool  {dicttool.tcl}
 } {
   foreach file $files {
     set content [::practcl::cat [file join $moddir .. $omod {*}$file]]

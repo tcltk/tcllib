@@ -459,11 +459,27 @@ method build-library {outfile PROJECT} {
   set includedir .
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]
+  if {[$PROJECT define get TEA_PRIVATE_TCL_HEADERS 0]} {
+    if {[$PROJECT define get TEA_PLATFORM] eq "windows"} {
+      lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) win]]]
+    } else {
+      lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) unix]]]
+    }
+  }
+
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(srcdir) generic]]]
+
   if {[$PROJECT define get tk 0]} {
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) generic]]]
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) ttk]]]
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) xlib]]]
+    if {[$PROJECT define get TEA_PRIVATE_TK_HEADERS 0]} {
+      if {[$PROJECT define get TEA_PLATFORM] eq "windows"} {
+        lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) win]]]
+      } else {
+        lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) unix]]]
+      }
+    }
     lappend includedir [::practcl::file_relative $path [file normalize $proj(TK_BIN_DIR)]]
   }
   foreach include [$PROJECT toolset-include-directory] {
