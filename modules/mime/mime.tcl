@@ -23,6 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.6
 
+
 package require tcl::chan::memchan
 package require tcl::chan::string
 package require coroutine
@@ -76,9 +77,7 @@ if {[catch {package require Trf 2.0}]} {
 #     canonicalP: input is in its canonical form
 #     encoding: transfer encoding
 #     version: MIME-version
-#     header: dicttionary (keys are lower-case)
-#     lowerL: list of header keys, lower-case
-#     mixedL: list of header keys, mixed-case
+#     header: dictionary (keys are lower-case)
 #     value: either "file", "parts", or "string"
 #
 #     file: input file
@@ -1442,7 +1441,7 @@ proc ::mime::encoding token {
     upvar 0 $token state
     upvar 0 state(params) params
 
-    lassign [header get $token content-type] content
+    lassign [header get $token content-type]  content
 
     switch -glob $content {
         audio/*
@@ -1802,6 +1801,19 @@ proc ::mime::header::boundary {} {
 }
 
 
+# ::mime::dunset --
+#
+#   Unset all values for $key, without "normalizing" other redundant keys
+proc ::mime::header::dunset {dictname key} {
+    upvar 1 $dictname dict
+    join [lmap {key1 val} $dict[set dict {}] {
+	if {$key1 eq $key} continue
+	list $key $val
+    }]
+}
+
+
+
 proc ::mime::header::serialize {token name value params} {
     variable notattchar_re
     set lname [string tolower $name]
@@ -1871,50 +1883,34 @@ proc ::mime::header::serialize {token name value params} {
 proc ::mime::header::exists {token name} {
     upvar 0 $token state
     set lname [string tolower $name]
-    dict exists $state(header) $lname
+    expr {[dict exists $state(headerlower) $lname]
+	|| [dict exists $state(headerinternallower) $lname]}
 }
 
 
 # ::mime::header get --
 #
-#    [mime::header get] returns the header of a MIME part.
+#    Returns the header of a message as a multidict where each value is a list
+#    containing the header value and a dictionary parameters for that header.
+
+#    If $key is provided, returns only the value and paramemters of the last
+#    maching header, without regard for case. 
 #
-#    A header consists of zero or more key/value pairs. Each value is a
-#    list containing one or more strings.
+#    If -names is specified, a list of all header names is returned.
 #
-#    If [mime::header get] is invoked with the name of a specific key, then
-#    a list containing the corresponding value(s) is returned; instead,
-#    if -names is specified, a list of all keys is returned; otherwise, a
-#    dictionary is returned. Note that when a
-#    key is specified (e.g., "Subject"), the list returned usually
-#    contains exactly one string; however, some keys (e.g., "Received")
-#    often occur more than once in the header, accordingly the list
-#    returned usually contains more than one string.
-#
-# Arguments:
-#       token      The MIME token to parse.
-#       key        Either a key or '-names'.  If it is '-names' a list
-#                  of all keys is returned.
-#
-# Results:
-#       Returns the header of a MIME part.
 
 proc ::mime::header::get {token {key {}}} {
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(hparams) hparams
     parse $token
 
-    array set header $state(header)
+    set headerlower $state(headerlower)
+    set header $state(header)
+    set headerinternallower $state(headerinternallower)
+    set headerinternal $state(headerinternal)
     switch $key {
 	{} {
-	    set result {}
-	    foreach lower $state(lowerL) mixed $state(mixedL) {
-		foreach value $header($lower) hparam [
-		    dict get $hparams $lower] {
-		    lappend result $mixed [list $value $hparam]
-		}
-	    }
+	    set result [dict merge $headerinternal $header]
 	    set tencoding [getTransferEncoding $token]
 	    if {$tencoding ne {}} {
 		lappend result Content-Transfer-Encoding [list $tencoding {}]
@@ -1923,7 +1919,7 @@ proc ::mime::header::get {token {key {}}} {
 	}
 
 	-names {
-	    return $state(mixedL)
+	    return [dict keys $header]
 	}
 
 	default {
@@ -1937,11 +1933,14 @@ proc ::mime::header::get {token {key {}}} {
 		    return [list $state(version) {}]
 		}
 		default {
-		    if {![info exists header($lower)]} {
-			error "key $key not in header"
+		    set res {}
+		    if {[dict exists $headerinternallower $lower]} {
+			return [dict get $headerinternallower $lower]
+		    } elseif {[dict exists headerlower $lower]} {
+			return [dict get $headerlower $lower]
+		    } else {
+			error [list {no such header} $key]
 		    }
-		    return [list $header($lower) [lindex [
-			dict get $hparams $lower] end]]
 		}
 	    }
 	}
@@ -2336,7 +2335,6 @@ proc ::mime::header::set_ {token key value args} {
     variable internal
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(hparams) hparams
     parse $token
 
     set params {}
@@ -2352,22 +2350,29 @@ proc ::mime::header::set_ {token key value args} {
 	}
     }
     array set options [list -mode write]
-    array set options $args
+    array set options {}
+    dict for {opt val} $args {
+	switch $opt {
+	    -mode {
+		set options($opt) $val
+	    }
+	    default {
+		error [list {unknon option} $opt]
+	    }
+	}
+    }
 
     set lower [string tolower $key]
-    array set header $state(header)
-    if {[set x [lsearch -exact $state(lowerL) $lower]] < 0} {
+    set headerlower $state(headerlower)
+    set header $state(header)
+    set headerinternallower $state(headerinternallower)
+    set headerinternal $state(headerinternal)
+    if {[catch {header get $lower} result]} {
         #TODO: this code path is not tested
-        if {$options(-mode) eq "delete"} {
-            error "key $key not in header"
+        if {$options(-mode) eq {delete}} {
+            error [list {key not in header} $key]
         }
-
-        lappend state(lowerL) $lower
-        lappend state(mixedL) $key
-
-        set result {}
-    } else {
-        set result $header($lower)
+	set result {}
     }
     switch $options(-mode) {
 	append - write {
@@ -2404,22 +2409,36 @@ proc ::mime::header::set_ {token key value args} {
 		    }
 		}
 	    }
-	    switch $options(-mode) {
-		append {
-		    lappend header($lower) $value
-		    dict lappend hparams $lower $params
+	    if {$options(-mode) eq {write}} {
+		if {[dict exists $header $key]} {
+		    dunset header $key
 		}
-		write {
-		    set header($lower) [list $value]
-		    dict set hparams $lower [list $params]
+		if {[dict exists $headerlower $lower]} {
+		    dunset headerlower $lower
 		}
+
+		if {[dict exists headerinternal $key]} {
+		    dunset headerinternal $key
+		}
+		if {[dict exists $headerinternallower $lower]} {
+		    dunset headerinternallower $lower
+		}
+
+	    }
+	    set newval [list $value $params]
+	    if {$internal} {
+		lappend headerinternal $key $newval 
+		lappend headerinternallower $lower $newval 
+	    } else {
+		lappend header $key $newval 
+		lappend headerlower $lower $newval 
 	    }
 	}
         delete {
-            unset header($lower)
-	    dict unset hparams $lower
-            set state(lowerL) [lreplace $state(lowerL) $x $x]
-            set state(mixedL) [lreplace $state(mixedL) $x $x]
+            unset headerlower($lower)
+	    unset headerinternallower($lower)
+	    unset header($key)
+	    unset headerinternal($key)
         }
 
         default {
@@ -2427,7 +2446,10 @@ proc ::mime::header::set_ {token key value args} {
         }
     }
 
-    set state(header) [array get header]
+    set state(header) $header 
+    set state(headerlower) $headerlower 
+    set state(headerinternal) $headerinternal 
+    set state(headerinternallower) $headerinternallower
 
     return $result
 }
@@ -2439,6 +2461,12 @@ proc ::mime::header::setinternal args {
 	set_ {*}$args
     } finally {
 	set internal 0
+    }
+}
+
+proc ::mime::header::dset {name key val} {
+    if {[dict exists $name]} {
+	set name [lsearch
     }
 }
 
@@ -2509,16 +2537,16 @@ proc ::mime::initializeaux {token args} {
 
     set params {}
 
-    set state(hparams) {}
     set state(encoding) {}
     set state(version) 1.0
 
     set state(bodyparsed) 0
     set canonicalP 0
     set state(header) {}
+    set state(headerinternal) {}
+    set state(headerinternallower) {}
+    set state(headerlower) {}
     set state(headerparsed) 0
-    set state(lowerL) {}
-    set state(mixedL) {}
 
     set state(cid) 0
     set state(closechan) 1
@@ -2695,7 +2723,7 @@ proc ::mime::initializeaux {token args} {
 	    }
 	}
 
-	lassign [header get $token content-type] content
+	lassign [header get $token content-type] content dummy
 
         switch $state(value) {
             file {
@@ -2841,7 +2869,6 @@ proc ::mime::parsepartaux token {
                 }
             }
         }
-
         return
     }
 
@@ -3705,8 +3732,8 @@ proc ::mime::serialize_chan {token channel level} {
     if {!$level} {
 	puts $channel [header serialize $token MIME-Version $state(version) {}]
     }
-    foreach {mixed value} [header get $token] {
-	puts $channel [header serialize $token $mixed {*}$value]
+    foreach {name value} [header get $token] {
+	puts $channel [header serialize $token $name {*}$value]
     }
 
     set converter {}

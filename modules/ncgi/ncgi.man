@@ -24,7 +24,7 @@ encode and decode www-url-encoded values.
 
 In the simplest case, a CGI script first calls [cmd ::ncgi::parse] and
 then calls [cmd ::ncgi::value] to get different form values.  If a CGI
-value is repeated, you should use [cmd ::ncgi::valueList] to get back
+value is repeated, you should use [cmd ::ncgi::all] to get back
 the complete list of values.
 
 [para]
@@ -81,17 +81,6 @@ header and additional headers based on [arg args], which is a list of
 header names and header values. The [arg type] defaults to
 "text/html".
 
-[call [cmd ::ncgi::import] [arg cginame] [opt [arg tclname]]]
-
-This creates a variable in the current scope with the value of the CGI
-variable [arg cginame].  The name of the variable is [arg tclname], or
-[arg cginame] if [arg tclname] is empty (default).
-
-[call [cmd ::ncgi::importAll] [arg args]]
-
-This imports several CGI variables as Tcl variables.  If [arg args] is
-empty, then every CGI value is imported.  Otherwise each CGI variable
-listed in [arg args] is imported.
 
 [call [cmd ::ncgi::importFile] [arg cmd] [arg cginame] [opt [arg filename]]]
 
@@ -122,12 +111,32 @@ responsible for deleting this file after use.
 
 [list_end]
 
-[call [cmd ::ncgi::input] [opt [arg fakeinput]] [opt [arg fakecookie]]]
 
-This reads and decodes the CGI values from the environment.  It
-restricts repeated form values to have a trailing "List" in their
-name.  The CGI values are obtained later with the [cmd ::ncgi::value]
-procedure.
+[call [cmd ::ncgi::all] [arg key] [opt [arg default]]]
+
+Like [cmd ::ncgi::value], but this always returns a list of values
+(even if there is only one value).  In the case of
+multipart/form-data, this procedure returns a list of two elements.
+The first element is meta-data in the form of a parameter, value list.
+The second element is the form value.
+
+
+[call [cmd ::ncgi::body]]
+
+Returns the raw body.
+
+
+[call [cmd ::ncgi::form]]
+
+Returns the parsed form data as a multidict.
+
+
+[call [cmd ::ncgi::get] [arg key] [opt [arg default]]]
+
+Given [arg key], returns the value corresponding argument. If there is no such
+key , the [arg default] value, which by default is the empty string, is
+returned instead.
+
 
 [call [cmd ::ncgi::multipart] [arg {type query}]]
 
@@ -137,7 +146,7 @@ an alternating list of names and structured values.  Each structure
 value is in turn a list of two elements.  The first element is
 meta-data from the multipart/form-data structure.  The second element
 is the form value.  If you use [cmd ::ncgi::value] you just get the
-form value.  If you use [cmd ::ncgi::valueList] you get the structured
+form value.  If you use [cmd ::ncgi::all] you get the structured
 value with meta data and the value.
 
 [para]
@@ -150,52 +159,17 @@ second.  The descriptive information is list of header names and
 values that describe the content.
 
 
-[call [cmd ::ncgi::nvlist]]
-
-This returns all the query data as a name, value list.  In the case of
-multipart/form-data, the values are structured as described in
-
-
-[cmd ::ncgi::multipart].
-
-[call [cmd ::ncgi::names]]
-
-This returns all names found in the query data, as a list.
-
-[cmd ::ncgi::multipart].
-
-
-[call [cmd ::ncgi::parse]]
-
-This reads and decodes the CGI values from the environment.  The CGI
-values are obtained later with the [cmd ::ncgi::value] procedure.  IF
-a CGI value is repeated, then you should use [cmd ::ncgi::valueList]
-to get the complete list of values.
-
-
-[call [cmd ::ncgi::parseMimeValue] [arg value]]
-
-Decodes the Content-Type and other MIME headers that have the
-form of "primary value; param=val; p2=v2" It returns a list, where the
-first element is the primary value, and the second element is a list
-of parameter names and values.
-
-
-[call [cmd ::ncgi::post]]
-
-Returns the parsed post data as a multidict.
-
-
-[call [cmd ::ncgi::poststring]]
-
-Returns the raw post data.
-
-[call [cmd ::ncgi::query]]
+[call [cmd ::ncgi::query] [cmd parse]]
 
 Returns the parsed query data as a multidict.
 
 
-[call [cmd ::ncgi::querystring]]
+[call [cmd ::ncgi::query] [cmd set] [arg {key value}]]
+
+Set a query value.
+
+
+[call [cmd ::ncgi::query] [cmd string]]
 
 Returns the raw query data.
 
@@ -236,34 +210,6 @@ called in order for the cookie to be returned properly.  The
 [list_end]
 
 
-[call [cmd ::ncgi::setDefaultValue] [arg {key defvalue}]]
-
-Set a CGI value if it does not already exists.  This affects future
-calls to [cmd ::ncgi::value] (but not future calls to
-
-[cmd ::ncgi::nvlist]).  If the CGI value already is present, then this
-procedure has no side effects.
-
-
-[call [cmd ::ncgi::setDefaultValueList] [arg {key defvaluelist}]]
-
-Like [cmd ::ncgi::setDefaultValue] except that the value already has
-list structure to represent multiple checkboxes or a multi-selection.
-
-
-[call [cmd ::ncgi::setValue] [arg {key value}]]
-
-Set a CGI value, overriding whatever was present in the CGI
-environment already.  This affects future calls to [cmd ::ncgi::value]
-(but not future calls to [cmd ::ncgi::nvlist]).
-
-
-[call [cmd ::ncgi::setValueList] [arg {key valuelist}]]
-
-Like [cmd ::ncgi::setValue] except that the value already has list
-structure to represent multiple checkboxes or a multi-selection.
-
-
 [call [cmd ::ncgi::type]]
 
 Returns the Content-Type of the current CGI values.
@@ -277,33 +223,6 @@ session.  That value will be returned by future calls to
 
 [cmd ::ncgi::urlStub]
 
-
-[call [cmd ::ncgi::value] [arg key] [opt [arg default]]]
-
-Return the CGI value identified by [arg key].  If the CGI value is not
-present, then the [arg default] value is returned instead. This value
-defaults to the empty string.
-
-[para]
-
-If the form value [arg key] is repeated, then there are two cases: if
-[cmd ::ncgi::parse] was called, then [cmd ::ncgi::value] only returns
-the first value associated with [arg key].  If [cmd ::ncgi::input] was
-called, then [cmd ::ncgi::value] returns a Tcl list value and
-
-[arg key] must end in "List" (e.g., "skuList").  In the case of
-multipart/form-data, this procedure just returns the value of the form
-element.  If you want the meta-data associated with each form value,
-then use [cmd ::ncgi::valueList].
-
-
-[call [cmd ::ncgi::valueList] [arg key] [opt [arg default]]]
-
-Like [cmd ::ncgi::value], but this always returns a list of values
-(even if there is only one value).  In the case of
-multipart/form-data, this procedure returns a list of two elements.
-The first element is meta-data in the form of a parameter, value list.
-The second element is the form value.
 
 [list_end]
 

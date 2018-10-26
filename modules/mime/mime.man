@@ -111,7 +111,8 @@ in.
 
 [call [cmd ::mime::datetime] ([arg time] | [option -now]) [arg property]]
 
-Returns the [arg property] of [arg time], which 822-style date-time value.
+Returns the [arg property] of [arg time], which is an 822-style date-time
+value.
 
 
 [para]
@@ -191,27 +192,28 @@ returns the empty string.
 
 [para]
 
-[option -subordinates] specifies which messages 
-comprising the body should also be destroyed.  The default value is
-[const dynamic], which destroys all component messages that were created by
-[cmd ::mime::initialize].
+[option -subordinates] specifies which messages comprising the body should also
+be destroyed.  The default value is [const dynamic], indicates all component
+messages that were created by [cmd ::mime::initialize].  [const all] indicates
+all component messages. [const none] indicates that no component messages should be
+destroyed.
 
 
 [call [cmd ::mime::header] [cmd serialize] [arg value] [arg parameters]]
 
-Serialize a header.
+Returns the the serialization of a header.
 
 
 [call [cmd ::mime::header] [cmd get] [arg token] [opt "[arg key] | [option -names]"]]
 
 Returns the header of a message as a multidict where each value is a list
-containing the header value and a dictionary parameters for that header.
+containing the header value and a dictionary of parameters for that header.
 
 
 [para]
 
-If [arg name] is provided returns a list of values for that name, without
-regard to case.
+If [arg name] is provided, returns the value and parameters of the last entry
+matching that name, without regard to case.
 
 
 [para]
@@ -223,17 +225,15 @@ If [option -names] is provided, returns a list of all header names.
     opt "[arg parameters] [opt "[option -mode] [const write] | [\
 	const append] | [const delete]"]"]]
 
-If [const append] is provided, creates a new header named [arg name] with the
-value of [arg value] is added.
-
-If [const write] is provided, deletes any existing headers whose names match
-[arg key] and then creates a new header named [arg key] with the value of
-[arg value].
-
-If [const delete] is provided, deletes any existing header having a name that matches
-[arg key]. 
-
 [arg parameters] is a dictionary of parameters for the header.
+
+If [const append] is provided, creates a new header named [arg name] with the
+value of [arg value] and any provided [arg parameters].
+
+If [const write] is provided, first deletes any existing headers matching 
+[arg name].
+
+If [const delete] is provided, deletes any existing header matching [arg name].
 
 Returns a list of strings containing the previous value associated with the
 key.
@@ -286,7 +286,7 @@ A list of "Content-Type" parameters
 
 [def [const parts]]
 
-A list of tokens for messages that should comprise a multipart body.  Only exists if
+A list of tokens for messages that comprise a multipart body.  Only exists if
 there are any such messages.
 
 [def [const size]]
@@ -299,9 +299,9 @@ The approximate size of the unencoded content.
 [call [cmd ::mime::serialize] [arg token] [opt [option -level]] [
     opt "[option -chan] [arg channel]"]]
 
-Return the serialization of the message corresponding to [arg token].  If
-[option -chan] is provided, write the message to [arg channel] and return the
-empty string.  If [option -level] is provided, indicates the level of the part
+Returns the serialization of the message corresponding to [arg token].  If
+[option -chan] is provided, writes the serialization to [arg channel] and returns the
+empty string.  [option -level], if provided, indicates the level of the part
 in the message hierarchy.  The [const MIME-Version] header is only included at
 level [const 0].  Yields from the current coroutine as needed to wait for input to
 become available.
@@ -309,7 +309,7 @@ become available.
 
 [call [cmd ::mime::parseaddress] [arg addresses]]
 
-Returns a list of describing the comma-separated 822-style [arg addresses].
+Returns a list describing the comma-separated 822-style [arg addresses].
 
 
 [para]
@@ -380,30 +380,6 @@ that are unknown return "".
 
 [list_end]
 
-[section {KNOWN BUGS}]
-
-[list_begin definitions]
-[def {Tcllib Bug #447037}]
-
-This problem affects only people which are using Tcl and Mime on a
-64-bit system. The currently recommended fix for this problem is to
-upgrade to Tcl version 8.4. This version has extended 64 bit support
-and the bug does not appear anymore.
-
-
-[para]
-
-The problem could have been generally solved by requiring the use of
-Tcl 8.4 for this package. We decided against this solution as it would
-force a large number of unaffected users to upgrade their Tcl
-interpreter for no reason.
-
-
-[para]
-
-See [uri {/tktview?name=447037} {Ticket 447037}] for additional information.
-
-[list_end]
 
 [vset CATEGORY mime]
 [include ../doctools2base/include/feedback.inc]

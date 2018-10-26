@@ -756,10 +756,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
     set data [viewFile $out]
     file delete $in $out
     set data
-}} {Content-Disposition: attachment
-	; filename=a0036.dss
-Content-Type: application/octet-stream
+}} {Content-Type: application/octet-stream
 	; name=a0036.dss
+Content-Disposition: attachment
+	; filename=a0036.dss
 Content-Transfer-Encoding: base64
 
 BGRzcwEAAQABAAAAYQAAAAAAAAAAAAAAAAAAACQAAAD+//7/+/8wNzA2MTYwODE1MjQwNzA2
@@ -781,9 +781,9 @@ ZApEaWFnbm9zdGljLUNvZGU6IHNtdHA7IDU1MCAjNS4xLjAgQWRkcmVzcyByZWplY3RlZC4KUmVt
 b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 }]
     set parts [mime::property $token parts]
-    lassign [mime::header get [lindex $parts end] Remote-MTA] result
+    set result [mime::header get [lindex $parts end] Remote-MTA]
     return $result
-}} 53.24.282.150
+}} {53.24.282.150 {}}
 
 # -------------------------------------------------------------------------
 
@@ -898,6 +898,7 @@ dawg one" \
 ]
 
 
+# -------------------------------------------------------------------------
 
 test mime-13.1 {header parsing} {cleanly {
     set mime [mime::initialize -string {Content-Type: text/html}]
