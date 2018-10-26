@@ -4,7 +4,6 @@
 [titledesc {The Practcl Module}]
 [category {TclOO}]
 [require TclOO 1.0]
-[require practcl [vset VERSION]]
 [description]
 The Practcl module is a tool for integrating large modules for C API
 Tcl code that requires custom Tcl types and TclOO objects.

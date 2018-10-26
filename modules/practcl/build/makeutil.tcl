@@ -23,7 +23,7 @@ proc ::practcl::depends {args} {
 # show_body: 1
 # description:
 # Declare a build product. This proc is just a shorthand for
-# [command {::practcl::LOCAL make task $name $info $action}]
+# [emph {::practcl::LOCAL make task $name $info $action}]
 # [para]
 # Registering a build product with this command will create
 # an entry in the global [variable make] array, and populate
