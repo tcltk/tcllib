@@ -646,6 +646,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     set RSOBJ [file join $path build tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
     set RCMAN [${PROJECT} define get kit_manifest_file]
+    set RCICO [${PROJECT} define get kit_icon_file]
 
     set cmd [list $windres -o $RSOBJ -DSTATIC_BUILD --include [::practcl::file_relative $path [file join $TCLSRC generic]]]
     if {[$PROJECT define get static_tk]} {
@@ -655,16 +656,22 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       if {$RCMAN eq {} || ![file exists $RCMAN]} {
         set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
+      if {$RCICO eq {} || ![file exists $RCICO]} {
+        set RCICO [file join $TCLSRCDIR win rc wish.ico]
+      }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
         --include [::practcl::file_relative $path [file join $TKSRC win]] \
         --include [::practcl::file_relative $path [file join $TKSRC win rc]]
     } else {
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
-        set RCSRC [file join $TCLSRCDIR tclsh.rc]
+        set RCSRC [file join $TCLSRCDIR win tclsh.rc]
       }
       if {$RCMAN eq {} || ![file exists $RCMAN]} {
         set RCMAN [file join [$TCLOBJ define get builddir] tclsh.exe.manifest]
+      }
+      if {$RCICO eq {} || ![file exists $RCICO]} {
+        set RCICO [file join $TCLSRCDIR win tclsh.ico]
       }
     }
     foreach item [${PROJECT} define get resource_include] {
@@ -676,6 +683,9 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     if {![file exists [file join $path [file tail $RCMAN]]]} {
       file copy -force $RCMAN [file join $path [file tail $RCMAN]]
+    }
+    if {![file exists [file join $path [file tail $RCICO]]]} {
+      file copy -force $RCICO [file join $path [file tail $RCICO]]
     }
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ
