@@ -271,7 +271,7 @@ proc ::putb {buffername args} {
         }
         method -
         Ensemble {
-          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          my keyword.Class_Method info $commentblock  {*}[lrange $thisline 1 end-1]
           set commentblock {}
         }
       }
@@ -330,8 +330,10 @@ proc ::putb {buffername args} {
           dict set info ancestors [lrange $thisline 1 end]
           set commentblock {}
         }
-        class_method {
-          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+        classmethod -
+        class_method -
+        Class_Method {
+          my keyword.Class_Method info $commentblock  {*}[lrange $thisline 1 end-1]
           set commentblock {}
         }
         destructor -
@@ -353,7 +355,7 @@ proc ::putb {buffername args} {
   ###
   # Process a statement for a clay style class method
   ###
-  method keyword.class_method {resultvar commentblock name args} {
+  method keyword.Class_Method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
     if {[dict exists $info show_body] && [dict get $info show_body]} {
@@ -361,7 +363,7 @@ proc ::putb {buffername args} {
     }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
-        dict set result class_method "${name} $method" $minfo
+        dict set result Class_Method "${name} $method" $minfo
       }
     } else {
       switch [llength $args] {
@@ -377,7 +379,7 @@ proc ::putb {buffername args} {
       if {![dict exists $info arglist]} {
         dict set info arglist [my arglist $arglist]
       }
-      dict set result class_method [string trim $name :] $info
+      dict set result Class_Method [string trim $name :] $info
     }
   }
 
@@ -599,7 +601,7 @@ proc ::putb {buffername args} {
       putb result {[para]}
     }
     dict for {f v} $class_info {
-      if {$f in {class_method method description ancestors example option variable delegate}} continue
+      if {$f in {Class_Method method description ancestors example option variable delegate}} continue
       putb result "\[emph \"$f\"\]: $v"
       putb result {[para]}
     }
@@ -622,11 +624,11 @@ proc ::putb {buffername args} {
       putb result {[list_end]}
       putb result {[para]}
     }
-    if {[dict exists $class_info class_method]} {
+    if {[dict exists $class_info Class_Method]} {
       putb result "\[class \{Class Methods\}\]"
       #putb result "Methods on the class object itself."
       putb result {[list_begin definitions]}
-      dict for {method minfo} [dict get $class_info class_method] {
+      dict for {method minfo} [dict get $class_info Class_Method] {
         putb result [my section.method classmethod $method $minfo]
       }
       putb result {[list_end]}

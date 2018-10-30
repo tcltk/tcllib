@@ -1,28 +1,47 @@
 namespace eval ::clay {}
 set ::clay::trace 0
 
-proc ::clay::ancestors args {
+proc ::clay::_ancestors {resultvar class} {
+  upvar 1 $resultvar result
+  if {$class in $result} {
+    return
+  }
+  lappend result $class
+  foreach aclass [::info class superclasses $class] {
+    _ancestors result $aclass
+  }
+}
+
+proc ::clay::ancestors {args} {
   set result {}
-  set queue  [lreverse $args]
-  set result $queue
+  set queue  {}
   set metaclasses {}
-  while {[llength $queue]} {
-    set tqueue $queue
-    set queue {}
-    foreach qclass $tqueue {
-      foreach aclass [::info class superclasses $qclass] {
-        if { $aclass in $result } continue
-        if { $aclass in $queue } continue
-        lappend queue $aclass
+
+  foreach class $args {
+    set ancestors($class) {}
+    _ancestors ancestors($class) $class
+  }
+  foreach class [lreverse $args] {
+    foreach aclass $ancestors($class) {
+      if {$aclass in $result} continue
+      set skip 0
+      foreach bclass $args {
+        if {$class eq $bclass} continue
+        if {$aclass in $ancestors($bclass)} {
+          set skip 1
+          break
+        }
       }
-    }
-    foreach item $tqueue {
-      if { $item ni $result } {
-        lappend result $item
-      }
+      if {$skip} continue
+      lappend result $aclass
     }
   }
-  lappend result {*}$metaclasses
+  foreach class [lreverse $args] {
+    foreach aclass $ancestors($class) {
+      if {$aclass in $result} continue
+      lappend result $aclass
+    }
+  }
   ###
   # Screen out classes that do not participate in clay
   # interactions

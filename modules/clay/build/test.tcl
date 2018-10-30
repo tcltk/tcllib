@@ -31,6 +31,10 @@ set ::clay::trace 0
 putb result {
 # Modification History:
 ###
+# Modification 2018-10-30
+# Fixed an error in our ancestry mapping and developed tests to
+# ensure we are actually following in the order TclOO follows methods
+###
 # Modification 2018-10-21
 # The clay metaclass no longer exports the clay method
 # to oo::class and oo::object, and clay::ancestors no
@@ -41,6 +45,69 @@ putb result {
 # and then place metaclasses at the end of the search
 ###
 # -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Test Helpers
+###
+proc dict_compare {a b} {
+  set result {}
+  set A {}
+  dict for {f v} $a {
+    set f [string trim $f :/]
+    if {$f eq {.}} continue
+    dict set A $f $v
+  }
+  set B {}
+  dict for {f v} $b {
+    set f [string trim $f :/]
+    if {$f eq {.}} continue
+    dict set B $f $v
+  }
+  dict for {f v} $A {
+    if {[dict exists $B $f]} {
+      if {[dict get $B $f] ne $v} {
+        lappend result [list B $f [dict get $B $f] [list != $v]]
+      }
+    } else {
+      lappend result [list B $f $v missing]
+    }
+  }
+  dict for {f v} $B {
+    if {![dict exists $A $f]} {
+      lappend result [list A $f $v missing]
+    }
+  }
+  return $result
+}
+
+test dict-compare-001 {Test our testing method} {
+  dict_compare {} {}
+} {}
+
+test dict-compare-002 {Test our testing method} {
+  dict_compare {a 1} {}
+} {{B a 1 missing}}
+
+test dict-compare-003 {Test our testing method} {
+  dict_compare {a 1 b 2} {a 1 b 2}
+} {}
+
+test dict-compare-003.a {Test our testing method} {
+  dict_compare {a 1 b 2} {b 2 a 1 }
+} {}
+
+test dict-compare-003.b {Test our testing method} {
+  dict_compare {b 2 a 1} {a 1 b 2}
+} {}
+
+
+test dict-compare-004 {Test our testing method} {
+  dict_compare {a: 1 b: 2} {a 1 b 2}
+} {}
+
+test dict-compare-005 {Test our testing method} {
+  dict_compare {a 1 b 3} {a 1 b 2}
+} {{B b 2 {!= 3}}}
 
 ::oo::dialect::create ::alpha
 
@@ -189,9 +256,15 @@ test oodialect-ancestry-005 {Testing heritage} {
   ::clay::ancestors ::delta::object
 } {}
 
+}
+
+putb result {
 # -------------------------------------------------------------------------
 # clay submodule testing
 # -------------------------------------------------------------------------
+
+}
+putb result {
 # Test canonical path building
 set path {const/ foo/ bar/ baz/}
 }
@@ -399,10 +472,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -429,10 +502,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -444,7 +517,8 @@ putb result {# -----------------------------------------------------------------
 set OBJECTAB [::foo::class.ab new]
 # Object where classes were mixed in ::foo::classa ::foo::classb
 set MIXINAB  [::oo::object new]
-oo::objdefine $MIXINAB mixin ::foo::classa ::foo::classb
+# Test modified 2018-10-30, mixin order was wrong before
+oo::objdefine $MIXINAB mixin ::foo::classb ::foo::classa
 }
 set matrix ${claydict-b}
 foreach {top children} ${claydict-a} {
@@ -466,10 +540,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -481,7 +555,8 @@ putb result {# -----------------------------------------------------------------
 set OBJECTBA [::foo::class.ba new]
 # Object where classes were mixed in ::foo::classb ::foo::classa
 set MIXINBA  [::oo::object new]
-oo::objdefine $MIXINBA mixin ::foo::classb ::foo::classa
+# Test modified 2018-10-30, mixin order was wrong before
+oo::objdefine $MIXINBA mixin ::foo::classa ::foo::classb
 }
 set matrix ${claydict-a}
 foreach {top children} ${claydict-b} {
@@ -850,11 +925,11 @@ test clay-mixin-e-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
 ###
-# Test Modified: 2018-10-21, 2018-10-10
+# Test Modified: 2018-10-30, 2018-10-21, 2018-10-10
 ###
 test clay-mixin-e-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object}
+} {::TEST::species.cat ::TEST::animal ::TEST::thing ::clay::object}
 
 $OBJ clay mixinmap coloring ::TEST::coloring.calico
 test clay-mixin-f-0001 {Test that an ensemble is created during a mixin} {
@@ -868,11 +943,11 @@ test clay-mixin-f-0003 {Test that an ensemble is created during a mixin} \
   -result {unknown method which flavor. Valid: color sound}
 
 ###
-# Test modified 2018-10-21, 2018-10-10
+# Test modified 2018-10-30, 2018-10-21, 2018-10-10
 ###
 test clay-mixin-f-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::species.cat ::TEST::coloring.calico ::TEST::thing ::TEST::animal ::clay::object}
+} {::TEST::coloring.calico ::TEST::species.cat ::TEST::animal ::TEST::thing ::clay::object}
 
 test clay-mixin-f-0005 {Test that clay data from a mixin works} {
   $OBJ clay provenance  color
@@ -895,13 +970,15 @@ test clay-class-variable-0001 {Test that the parser injected the right value in 
   $OBJ clay get variable/ my_variable
 } {10}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-variable-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay get variable
-} {DestroyEvent 0 my_variable 10}
+} {my_variable 10 DestroyEvent 0}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget variable
-} {. {} DestroyEvent 0 my_variable 10}
+} {. {} my_variable 10 DestroyEvent 0}
 
 test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
@@ -944,14 +1021,16 @@ test clay-class-array-0009 {Test that the parser injected the right value in the
   ::TEST::has_more_array clay find array
 } {my_array {timeout 10 color blue}}
 
+# Modified 2018-10-30 (order is different)
 set BOBJ [::TEST::has_more_array new]
 test clay-class-array-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay get array
-} {my_array {timeout 10 color blue}}
+} {my_array {color blue timeout 10}}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-array-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget array
-} {. {} my_array {. {} timeout 10 color blue}}
+} {. {} my_array {. {} color blue timeout 10}}
 
 test clay-class-arrau-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_array timeout
@@ -1026,13 +1105,15 @@ test clay-class-dict-0004 {Test that an empty dict is annotated} {
 }
 set BOBJ [::TEST::has_more_dict new]
 
+# Modified 2018-10-30
 test clay-class-dict-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay get dict
-} {my_dict {timeout 10 color blue}}
+} {my_dict {color blue timeout 10}}
 
+# Modified 2018-10-30
 test clay-class-dict-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget dict
-} {. {} my_dict {. {} timeout 10 color blue}}
+} {. {} my_dict {. {} color blue timeout 10}}
 
 test clay-class-dict-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_dict timeout
@@ -1172,11 +1253,11 @@ putb result {
 ###
 
 clay::class create WidgetClass {
-  class_method working {} {
+  Class_Method working {} {
     return {Works}
   }
 
-  class_method unknown args {
+  Class_Method unknown args {
     set tkpath [lindex $args 0]
     if {[string index $tkpath 0] eq "."} {
       set obj [my new $tkpath {*}[lrange $args 1 end]]
@@ -1402,6 +1483,355 @@ mixintest clay mixinmap tool {}
 test tool-mixinmap-004 {Test object prior to mixins} {
   mixintest test which
 } {}
+}
+
+###
+# Test clay mixinslots
+###
+putb result {
+
+clay::define ::clay::object {
+  method path {} {
+    return [self class]
+  }
+}
+
+
+clay::define ::MixinRoot {
+  clay set opts core   root
+  clay set opts option unset
+  clay set opts color  unset
+
+  Ensemble info::root {} {
+    return MixinRoot
+  }
+  Ensemble info::shade {} {
+    return avacodo
+  }
+  Ensemble info::default {} {
+    return Undefined
+  }
+
+  method did {} {
+    return MixinRoot
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinOption1 {
+  clay set opts option option1
+
+  Ensemble info::option {} {
+    return MixinOption1
+  }
+  Ensemble info::other {} {
+    return MixinOption1
+  }
+
+  method did {} {
+    return MixinOption1
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinOption2 {
+  superclass ::MixinOption1
+
+  clay set opts option option2
+
+  Ensemble info::option {} {
+    return MixinOption2
+  }
+
+  method did {} {
+    return MixinOption2
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+
+clay::define ::MixinColor1 {
+  clay set opts color blue
+
+  Ensemble info::color {} {
+    return MixinColor1
+  }
+  Ensemble info::shade {} {
+    return blue
+  }
+
+  method did {} {
+    return MixinColor1
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinColor2 {
+  clay set opts color green
+
+  Ensemble info::color {} {
+    return MixinColor2
+  }
+  Ensemble info::shade {} {
+    return green
+  }
+
+  method did {} {
+    return MixinColor2
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+set obj [clay::object new]
+
+$obj clay mixinmap root ::MixinRoot
+}
+set testnum 0
+set batnum  0
+
+set obj {$obj}
+set template {
+test tool-prototype-%battery%-%test% {%comment%} {
+  %obj% %method%
+} {%answer%}
+}
+set map {}
+
+dict set map %obj% {$obj}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin core}
+
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {Undefined}
+  {info other} {Undefined}
+  {info shade} {avacodo}
+  {did} {MixinRoot}
+  {path} {::MixinRoot ::clay::object}
+  {clay get opts} {core root option unset color unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} unset
+  {clay ancestors} {::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option ::MixinOption1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption1}
+  {path} {::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option1 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {
+set obj2 [clay::object new]
+$obj2 clay mixinmap root ::MixinRoot option ::MixinOption1
+}
+putb result {$obj clay mixinmap option ::MixinOption1}
+dict set map %obj% {$obj2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option1 - clean object}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption1}
+  {path} {::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option1 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option ::MixinOption2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option2}
+dict set map %obj% {$obj}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption2}
+  {path} {::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option2 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap color MixinColor1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {MixinColor1}
+  {info other} {MixinOption1}
+  {info shade} {blue}
+  {did} {MixinColor1}
+  {path} {::MixinColor1 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {color blue option option2 core root}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} blue
+  {clay ancestors} {::MixinColor1 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+set testnum 0
+putb result {$obj clay mixinmap color MixinColor2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {MixinColor2}
+  {info other} {MixinOption1}
+  {info shade} {green}
+  {clay get opts} {color green option option2 core root}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option MixinOption1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2 + Option1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {MixinColor2}
+  {info other} {MixinOption1}
+  {info shade} {green}
+  {clay get opts} {color green option option1 core root}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option {}}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2 + no option}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {MixinColor2}
+  {info other} {Undefined}
+  {info shade} {green}
+  {clay get opts} {color green core root option unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap color {}}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin core (return to normal)}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {Undefined}
+  {info other} {Undefined}
+  {info shade} {avacodo}
+  {clay get opts} {core root option unset color unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} unset
+  {clay ancestors} {::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
 }
 
 ###
