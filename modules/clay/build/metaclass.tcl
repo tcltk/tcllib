@@ -73,10 +73,17 @@ my InitializePublic
 }
 
 ###
-# topic: 7a5c7e04989704eef117ff3c9dd88823
-# title: Specify the a method for the class object itself, instead of for objects of the class
+# Specify the a method for the class object itself, instead of for objects of the class
 ###
 proc ::clay::define::Class_Method {name arglist body} {
+  set class [current_class]
+  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
+}
+
+###
+# And alias to the new Class_Method keyword
+###
+proc ::clay::define::class_method {name arglist body} {
   set class [current_class]
   $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
 }

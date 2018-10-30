@@ -6,6 +6,10 @@
 ::clay::define ::httpd::content.file {
 
   method FileName {} {
+    # Some dispatchers will inject a fully qualified name during discovery
+    if {[my clay exists FILENAME] && [file exists [my clay get FILENAME]]} {
+      return [my clay get FILENAME]
+    }
     set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
