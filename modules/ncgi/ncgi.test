@@ -6,6 +6,7 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
+# Copyright (c) 2018 Poor Yorick 
 #
 # RCS: @(#) $Id: ncgi.test,v 1.28 2012/05/03 17:56:07 andreas_kupries Exp $
 
@@ -31,6 +32,20 @@ proc main {} {
 	set ncgiFile   [localPath ncgi.tcl]
 	set futlFile   [tcllibPath fileutil/fileutil.tcl]
 	set cmdlFile   [tcllibPath cmdline/cmdline.tcl]
+
+
+	proc makescript script {
+		string map [list @script@ [list $script]] {
+			after 0 [list coroutine main try @script@ \
+				on error {tres topts} {
+				exit 1 
+			} finally {
+				set done 1
+			}]
+			vwait done
+			exit
+		}
+	}
 
 	proc resetenv {} {
 		global env
@@ -351,20 +366,19 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 80
-		makeFile [format {
-		set auto_path {%s}
-		if {[catch {
-			source %s
-			source %s
-			source %s
-			ncgi new ncgi1
-			ncgi1 redirect %s
-			ncgi1 delete
-		} err]} {
-			puts $err
-		}
-		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		makeFile [makescript [format {
+			set auto_path {%s}
+			if {[catch {
+				source %s
+				source %s
+				source %s
+				ncgi new ncgi1
+				ncgi1 redirect %s
+				ncgi1 delete
+			} err]} {
+				puts $err
+			}
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -381,7 +395,7 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 80
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -391,11 +405,11 @@ proc main {} {
 			$token setCookie -name CookieName -value 12345
 			$token redirect %s
 			$token delete
-		} err]} {
-			puts $err
+		} err copts]} {
+			puts [dict get $copts -errorinfo]
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -412,7 +426,7 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 80
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -425,7 +439,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -442,7 +456,7 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 80
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -455,7 +469,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -472,7 +486,7 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 8000
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -485,7 +499,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -503,7 +517,7 @@ proc main {} {
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 443
 		set env(HTTPS) on
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -516,7 +530,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
@@ -534,7 +548,7 @@ proc main {} {
 		set env(SERVER_NAME) foo.com
 		set env(SERVER_PORT) 443
 		set env(HTTPS) on
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -547,7 +561,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -557,7 +571,7 @@ proc main {} {
 
 
 	test ncgi-12.1 {ncgi::header} {
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -570,7 +584,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -580,7 +594,7 @@ proc main {} {
 
 
 	test ncgi-12.2 {ncgi::header} {
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -593,7 +607,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -603,7 +617,7 @@ proc main {} {
 
 
 	test ncgi-12.3 {ncgi::header} {
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -616,7 +630,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -626,7 +640,7 @@ proc main {} {
 
 
 	test ncgi-12.4 {ncgi::header} {
-		makeFile [format {
+		makeFile [makescript [format {
 		set auto_path {%s}
 		if {[catch {
 			source %s
@@ -639,7 +653,7 @@ proc main {} {
 			puts $err
 		}
 		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile] test1
+		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f

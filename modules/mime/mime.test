@@ -5,6 +5,7 @@
 # genere totes output for errors.  No output means no errors were found.
 #
 # Copyright (c) 2000 by Ajuba Solutions
+# Copyright (c) 2018 by Poor Yorick
 # All rights reserved.
 #
 # RCS: @(#) $Id: mime.test,v 1.31 2012/02/23 17:35:17 andreas_kupries Exp $

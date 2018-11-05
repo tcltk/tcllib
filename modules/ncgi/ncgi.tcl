@@ -369,16 +369,17 @@ proc ::ncgi::get {token args} {
 
 proc ::ncgi::header {token {type text/html} args} {
     namespace upvar $token cookieOutput cookieOutput
-    puts "Content-Type: $type"
+    set mimeout [mime::initialize -canonical $type -addcontentid 0 \
+	-addmimeversion 0 -string {}]
     foreach {n v} $args {
-	puts "$n: $v"
+	mime::header set $mimeout $n $v {}
     }
     if {[info exists cookieOutput]} {
 	foreach line $cookieOutput {
-	    puts "Set-Cookie: $line"
+	    mime::header set $mimeout Set-Cookie $line {}
 	}
     }
-    puts ""
+    mime::serialize $mimeout -chan stdout
     flush stdout
 }
 

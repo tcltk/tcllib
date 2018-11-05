@@ -34,6 +34,8 @@ Provides commands to create and manipulate Internet messages.
     opt "[option -params] [arg dictionary]"] [
     opt "[option -encoding] [arg value]"] [
     opt "[option -headers] [arg dictionary]"] [
+    opt "[option -addcontentid] [arg boolean]"] [
+    opt "[option -addmimeversion] [arg boolean]"] [
     opt "([option -chan] [arg name] | [option -file] [arg name] | [
 	option -string] [arg value] | [option -parts] [arg parts])"]]
 
@@ -79,7 +81,17 @@ of parameters for the [
 
     option -headers
     
-] is a multidict of headers.
+] is a multidict of headers.  If [
+    arg addcontentid
+] is provided, it is a boolean value indicating whether a [
+    const Content-Id
+] header field should be added to the message.  By default, this
+header is added to non-canonical messages.  If [
+    arg addmimeversion
+] is provided, it is a boolean value indicating whether a [
+    const MIME-Version
+] header should be added to non-canonical messages.  By default, this header is
+added to non-canonical messages.
 
 
 [para]

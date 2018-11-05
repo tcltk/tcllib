@@ -10,7 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013-2018 PoorYorick
+# (c) 2013-2018 Poor Yorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -2507,7 +2507,7 @@ proc ::mime::initialize args {
 
 # ::mime::initializeaux --
 #
-#    Creates a MIME part, and returnes the MIME token for that part.
+#    Creates a MIME part and returns the MIME token for that part.
 #
 # Arguments:
 #    args   Args can be any one of the following:
@@ -2553,6 +2553,8 @@ proc ::mime::initializeaux {token args} {
 
     set params {}
 
+    set state(addcontentid) 1
+    set state(addmimeversion) 1
     set state(encoding) {}
     set state(version) 1.0
 
@@ -2579,6 +2581,12 @@ proc ::mime::initializeaux {token args} {
         set value [lindex $args $argx]
 
         switch $option {
+	    -addcontentid {
+		set state(addcontentid) [expr {!!$value}]
+	    }
+	    -addmimeversion {
+		set state(addmimeversion) [expr {!!$value}]
+	    }
             -canonical {
 		set canonicalP 1
 		set type [string tolower $value]
@@ -2713,7 +2721,7 @@ proc ::mime::initializeaux {token args} {
 
 
     if {$canonicalP} {
-        if {![header exists $token content-id]} {
+        if {![header exists $token content-id] && $state(addcontentid)} {
 	    header::setinternal $token Content-ID [contentid]
         }
 
@@ -3750,7 +3758,7 @@ proc ::mime::serialize_chan {token channel level} {
     parsepart $token
 
     set result {}
-    if {!$level} {
+    if {!$level && $state(addmimeversion)} {
 	puts $channel [header serialize $token MIME-Version $state(version) {}]
     }
     foreach {name value} [header get $token] {
