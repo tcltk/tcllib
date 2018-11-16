@@ -1,13 +1,15 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.6
+set version 0.6.1
 set module clay
 set filename clay
-if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
+if {[file exists [file join $moddir .. .. scripts practcl.tcl]]} {
+  source [file join $moddir .. .. scripts practcl.tcl]
+} elseif {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
   source [file join $moddir .. practcl build doctool.tcl]
 } else {
-  package require practcl 0.13
+  package require practcl 0.14
 }
 ::practcl::doctool create AutoDoc
 

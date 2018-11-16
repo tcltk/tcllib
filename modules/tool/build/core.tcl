@@ -6,7 +6,7 @@ package require oo::meta 0.8
 package require oo::dialect
 package require clay
 
-::oo::dialect::create ::tool ::clay
+::oo::dialect::create ::tool
 ::namespace eval ::tool {}
 set ::tool::trace 0
 

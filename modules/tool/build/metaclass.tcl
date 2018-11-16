@@ -324,20 +324,30 @@ proc ::tool::define::meta {args} {
   }
 }
 
-::tool::define ::tool::object {
+::tool::object clay set variable signals_pending create
+::tool::object clay set variable meta {}
+::tool::object clay set variable organs {}
+::tool::object clay set variable mixins {}
+::tool::object clay set variable mixinmap {}
+::tool::object clay set variable DestroyEvent 0
 
-  # Put MOACish stuff in here
-  variable signals_pending create
-  variable organs {}
-  variable mixins {}
-  variable mixinmap {}
-  variable DestroyEvent 0
+::oo::define ::tool::object {
 
   constructor args {
+    ::tool::object_create [self] [info object class [self]]
+    my InitializePublic
+    my initialize
     my Config_merge [::tool::args_to_options {*}$args]
-  }
 
-  destructor {}
+  }
+  destructor {
+    # Run the destructor once and only once
+    set self [self]
+    my variable DestroyEvent
+    if {$DestroyEvent} return
+    set DestroyEvent 1
+    ::tool::object_destroy $self
+  }
 
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
