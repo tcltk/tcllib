@@ -191,7 +191,7 @@ proc ::clay::NSNormalize qualname {
 }
 
 proc ::clay::uuid_generate args {
-  return [uuid::uuid generate]
+  return [uuid generate]
 }
 
 namespace eval ::clay {

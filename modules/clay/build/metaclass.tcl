@@ -9,6 +9,7 @@
 #    clay(n): Implementation File
 #
 #-------------------------------------------------------------------------
+::clay::dialect::create ::clay
 
 
 proc ::clay::dynamic_methods class {

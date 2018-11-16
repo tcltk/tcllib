@@ -2,7 +2,7 @@
 #
 # This class is inherited by all classes that have options.
 #
-::oo::define ::oo::object {
+::oo::define ::clay::object {
 
   ###
   # description:
@@ -86,7 +86,7 @@
         return $clayorder
       }
       branch {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {![dict exists $clay {*}$path .]} {
           dict set clay {*}$path . {}
         }
@@ -103,7 +103,7 @@
             return [dict get $config $field]
           }
         }
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
         }
@@ -168,9 +168,9 @@
         set result {}
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
-          ::dicttool::dictmerge result [$class clay dump]
+          ::clay::tree::dictmerge result [$class clay dump]
         }
-        ::dicttool::dictmerge result $clay
+        ::clay::tree::dictmerge result $clay
         return $result
       }
       ensemble_map {
@@ -178,11 +178,11 @@
         my variable claycache
         set mensemble [string trim $ensemble :/]
         if {[dict exists $claycache method_ensemble $mensemble]} {
-          return [dicttool::sanitize [dict get $claycache method_ensemble $mensemble]]
+          return [clay::tree::sanitize [dict get $claycache method_ensemble $mensemble]]
         }
         set emap [my clay dget method_ensemble $mensemble]
         dict set claycache method_ensemble $mensemble $emap
-        return [dicttool::sanitize $emap]
+        return [clay::tree::sanitize $emap]
       }
       eval {
         set script [lindex $args 0]
@@ -217,7 +217,7 @@
       exists {
         # Leaf searches return one data field at a time
         # Search in our local dict
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[dict exists $clay {*}$path]} {
           return 1
         }
@@ -243,15 +243,15 @@
         oo::objdefine [self] forward {*}$args
       }
       dget {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[llength $path]==0} {
           # Do a full dump of clay data
           set result {}
           # Search in the in our list of classes for an answer
           foreach class $clayorder {
-            ::dicttool::dictmerge result [$class clay dump]
+            ::clay::tree::dictmerge result [$class clay dump]
           }
-          ::dicttool::dictmerge result $clay
+          ::clay::tree::dictmerge result $clay
           return $result
         }
         # Search in our local cache
@@ -282,30 +282,30 @@
         set result [dict getnull $clay {*}$path]
         foreach class $clayorder {
           if {![$class clay exists {*}$path .]} continue
-          ::dicttool::dictmerge result [$class clay dget {*}$path]
+          ::clay::tree::dictmerge result [$class clay dget {*}$path]
         }
         #if {[dict exists $clay {*}$path .]} {
-        #  ::dicttool::dictmerge result
+        #  ::clay::tree::dictmerge result
         #}
         dict set claycache {*}$path $result
         return $result
       }
       getnull -
       get {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[llength $path]==0} {
           # Do a full dump of clay data
           set result {}
           # Search in the in our list of classes for an answer
           foreach class $clayorder {
-            ::dicttool::dictmerge result [$class clay dump]
+            ::clay::tree::dictmerge result [$class clay dump]
           }
-          ::dicttool::dictmerge result $clay
-          return [::dicttool::sanitize $result]
+          ::clay::tree::dictmerge result $clay
+          return [::clay::tree::sanitize $result]
         }
         # Search in our local cache
         if {[dict exists $claycache {*}$path .]} {
-          return [::dicttool::sanitize [dict get $claycache {*}$path]]
+          return [::clay::tree::sanitize [dict get $claycache {*}$path]]
         }
         if {[dict exists $claycache {*}$path]} {
           return [dict get $claycache {*}$path]
@@ -331,31 +331,31 @@
         set result [dict getnull $clay {*}$path]
         #foreach class [lreverse $clayorder] {
         #  if {![$class clay exists {*}$path .]} continue
-        #  ::dicttool::dictmerge result [$class clay dget {*}$path]
+        #  ::clay::tree::dictmerge result [$class clay dget {*}$path]
         #}
         foreach class $clayorder {
           if {![$class clay exists {*}$path .]} continue
-          ::dicttool::dictmerge result [$class clay dget {*}$path]
+          ::clay::tree::dictmerge result [$class clay dget {*}$path]
         }
         #if {[dict exists $clay {*}$path .]} {
-        #  ::dicttool::dictmerge result [dict get $clay {*}$path]
+        #  ::clay::tree::dictmerge result [dict get $clay {*}$path]
         #}
         dict set claycache {*}$path $result
-        return [dicttool::sanitize $result]
+        return [clay::tree::sanitize $result]
       }
       leaf {
         # Leaf searches return one data field at a time
         # Search in our local dict
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[dict exists $clay {*}$path .]} {
-          return [dicttool::sanitize [dict get $clay {*}$path]]
+          return [clay::tree::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
         }
         # Search in our local cache
         if {[dict exists $claycache {*}$path .]} {
-          return [dicttool::sanitize [dict get $claycache {*}$path]]
+          return [clay::tree::sanitize [dict get $claycache {*}$path]]
         }
         if {[dict exists $claycache {*}$path]} {
           return [dict get $claycache {*}$path]
@@ -371,7 +371,7 @@
       }
       merge {
         foreach arg $args {
-          ::dicttool::dictmerge clay {*}$arg
+          ::clay::tree::dictmerge clay {*}$arg
         }
       }
       mixin {
@@ -462,7 +462,7 @@
       set {
         #puts [list [self] clay SET {*}$args]
         set claycache {}
-        ::dicttool::dictset clay {*}$args
+        ::clay::tree::dictset clay {*}$args
       }
       default {
         dict $submethod clay {*}$args

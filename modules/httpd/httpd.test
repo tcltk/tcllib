@@ -1,10 +1,14 @@
 # httpd.test - Copyright (c) 2015 Sean Woods
 
 # -------------------------------------------------------------------------
-
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+set MODDIR [file dirname [file dirname [file join [pwd] [info script]]]]
+if {[file exists [file join $MODDIR devtools testutilities.tcl]]} {
+  # Running inside tcllib
+  set TCLLIBMOD $MODDIR
+} else {
+  set TCLLIBMOD [file join $MODDIR .. .. tcllib modules]
+}
+source [file join $TCLLIBMOD devtools testutilities.tcl]
 
 testsNeedTcl     8.6 ;# tool requires 8.6
 testsNeedTcltest 2
@@ -12,23 +16,19 @@ testsNeedTcltest 2
 testsNeed TclOO 1
 
 support {
-  use cmdline/cmdline.tcl cmdline
-  use fileutil/fileutil.tcl fileutil
-  use uuid/uuid.tcl uuid
-  use sha1/sha1.tcl sha1
-  use uri/uri.tcl uri
-  use ncgi/ncgi.tcl ncgi
-
-  use dns/ip.tcl ip
-  use nettool/nettool.tcl nettool
-  use coroutine/coroutine.tcl coroutine
-
-  use dicttool/dicttool.tcl dicttool
-  use cron/cron.tcl cron
-  use clay/clay.tcl clay
-  use virtchannel_core/core.tcl tcl::chan::core
-  use virtchannel_core/events.tcl tcl::chan::events
-  use virtchannel_base/memchan.tcl tcl::chan::memchan
+  use [file join ${TCLLIBMOD} cmdline cmdline.tcl]      cmdline
+  use [file join ${TCLLIBMOD} fileutil fileutil.tcl]    fileutil
+  use [file join ${TCLLIBMOD} sha1 sha1.tcl]            sha1
+  use [file join ${TCLLIBMOD} uri uri.tcl]              uri
+  use [file join ${TCLLIBMOD} ncgi ncgi.tcl]            ncgi
+  use [file join ${TCLLIBMOD} dns ip.tcl]               ip
+  use [file join ${TCLLIBMOD} nettool nettool.tcl]      nettool
+  use [file join ${TCLLIBMOD} coroutine coroutine.tcl]  coroutine
+  use [file join ${TCLLIBMOD} cron cron.tcl]            cron
+  use [file join ${TCLLIBMOD} virtchannel_core core.tcl] tcl::chan::core
+  use [file join ${TCLLIBMOD} virtchannel_core events.tcl] tcl::chan::events
+  use [file join ${TCLLIBMOD} virtchannel_base memchan.tcl] tcl::chan::memchan
+  use [file join ${MODDIR} clay clay.tcl]               clay
 }
 
 testing {

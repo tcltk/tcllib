@@ -100,6 +100,12 @@
         dict with headers {}
         my puts [subst $tmltxt]
       }
+      .svgz -
+      .svg {
+        # FU magic screws it up
+        my reply set Content-Type {image/svg+xml}
+        set reply_file $local_file
+      }
       default {
         ###
         # Assume we are returning a binary file

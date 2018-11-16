@@ -14,13 +14,12 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require clay 0.5
 package require mime
 package require fileutil
 package require websocket
 package require Markdown
-package require uuid
 package require fileutil::magic::filetype
+package require clay 0.7
 
 namespace eval httpd::content {}
 

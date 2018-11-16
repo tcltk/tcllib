@@ -1,4 +1,4 @@
-::oo::define ::oo::class {
+::oo::define ::clay::class {
 
   ###
   # description:
@@ -67,7 +67,7 @@
         tailcall ::clay::ancestors [self]
       }
       branch {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {![dict exists $clay {*}$path .]} {
           dict set clay {*}$path . {}
         }
@@ -76,7 +76,7 @@
         if {![info exists clay]} {
           return 0
         }
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[dict exists $clay {*}$path]} {
           return 1
         }
@@ -92,7 +92,7 @@
          if {![info exists clay]} {
           return {}
         }
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
         }
@@ -102,7 +102,7 @@
         return {}
       }
       is_branch {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         return [dict exists $clay {*}$path .]
       }
       getnull -
@@ -110,12 +110,12 @@
         if {![info exists clay]} {
           return {}
         }
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {[llength $path]==0} {
           return $clay
         }
         if {[dict exists $clay {*}$path .]} {
-          return [::dicttool::sanitize [dict get $clay {*}$path]]
+          return [::clay::tree::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
@@ -126,7 +126,7 @@
         return {}
       }
       find {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {![info exists clay]} {
           set clay {}
         }
@@ -135,9 +135,9 @@
         if {[llength $path]==0} {
           set result [dict create . {}]
           foreach class $clayorder {
-            ::dicttool::dictmerge result [$class clay dump]
+            ::clay::tree::dictmerge result [$class clay dump]
           }
-          return [::dicttool::sanitize $result]
+          return [::clay::tree::sanitize $result]
         }
         foreach class $clayorder {
           if {[$class clay exists {*}$path .]} {
@@ -161,13 +161,13 @@
         # Search in our local dict
         # Search in the in our list of classes for an answer
         foreach class [lreverse $clayorder] {
-          ::dicttool::dictmerge result [$class clay dget {*}$path]
+          ::clay::tree::dictmerge result [$class clay dget {*}$path]
         }
-        return [::dicttool::sanitize $result]
+        return [::clay::tree::sanitize $result]
       }
       merge {
         foreach arg $args {
-          ::dicttool::dictmerge clay {*}$arg
+          ::clay::tree::dictmerge clay {*}$arg
         }
       }
       noop {
@@ -181,7 +181,7 @@
         }
       }
       set {
-        ::dicttool::dictset clay {*}$args
+        ::clay::tree::dictset clay {*}$args
       }
       unset {
         dict unset clay {*}$args
