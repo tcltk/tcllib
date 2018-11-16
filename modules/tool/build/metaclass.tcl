@@ -315,8 +315,17 @@ proc ::tool::object_destroy objname {
 #
 # This class is inherited by all classes that have options.
 #
+proc ::tool::define::meta {args} {
+  set class [current_class]
+  if {[lindex $args 0] in "cget set branchset"} {
+    $class meta {*}$args
+  } else {
+    $class meta set {*}$args
+  }
+}
 
 ::tool::define ::tool::object {
+
   # Put MOACish stuff in here
   variable signals_pending create
   variable organs {}

@@ -2,7 +2,7 @@
 #
 # This class is inherited by all classes that have options.
 #
-::oo::define ::clay::object {
+::oo::define ::oo::object {
 
   ###
   # description:

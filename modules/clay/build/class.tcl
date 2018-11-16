@@ -1,4 +1,4 @@
-::oo::define ::clay::class {
+::oo::define ::oo::class {
 
   ###
   # description:
