@@ -60,10 +60,10 @@ set loaded {}
 lappend loaded build.tcl test.tcl
 
 foreach file {
+  procs.tcl
   core.tcl uuid.tcl
   dict.tcl list.tcl dictargs.tcl
   dialect.tcl
-  procs.tcl
   dictargs.tcl
   metaclass.tcl
   ensemble.tcl

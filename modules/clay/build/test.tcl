@@ -208,14 +208,7 @@ set test 0
     dict set map %canonical% $canonical
     dict set map %storage% $storage
     incr test
-    noop {
-    dict set map %test% [format "test-canonical-%04d" $test]
-    putb result $map {
-test {%test%} {Test ::clay::tree::canonical with %pattern%} {
-  clay::tree::canonical {%pattern%}
-} {%canonical%}
-}
-    }
+
     dict set map %test% [format "test-storage-%04d" $test]
     putb result $map {
 test {%test%} {Test ::clay::tree::storage with %pattern%} {
