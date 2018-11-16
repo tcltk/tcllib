@@ -71,9 +71,13 @@
     } {
       dict set map %${var}% [set $var]
     }
+    set thread_init_script {namespace eval ::starkit {}}
+    append thread_init_script \n [list set ::starkit::topdir $vfsroot]
     set preinitscript {
 set ::odie(boot_vfs) %vfsroot%
 set ::SRCDIR $::odie(boot_vfs)
+namespace eval ::starkit {}
+set ::starkit::topdir %vfsroot%
 if {[file exists [file join %vfsroot% tcl_library init.tcl]]} {
   set ::tcl_library [file join %vfsroot% tcl_library]
   set ::auto_path {}
@@ -187,6 +191,7 @@ foreach path {
       $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
       set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
       append main_init_script \n [list set ::kitpkg(${statpkg}) $script]
+
       if {[dict get $info autoload]} {
         ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
         ::practcl::cputs appinit "  Tcl_StaticPackage(interp,\"$statpkg\",$initfunc,NULL)\;"
@@ -196,19 +201,24 @@ foreach path {
       }
     }
     append main_init_script \n {
-puts [list SRCDIR IS $::SRCDIR]
-if {[file exists [file join $::SRCDIR pkgIndex.tcl]]} {
+if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
   #In a wrapped exe, we don't go out to the environment
-  set dir $::SRCDIR
-  source [file join $::SRCDIR pkgIndex.tcl]
-}
+  set dir $::starkit::topdir
+  source [file join $::starkit::topdir pkgIndex.tcl]
+}}
+    append thread_init_script $main_init_script
+    append main_init_script \n {
 # Specify a user-specific startup file to invoke if the application
 # is run interactively.  Typically the startup file is "~/.apprc"
 # where "app" is the name of the application.  If this line is deleted
 # then no user-specific startup file will be run under any conditions.
 }
+    append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
+    append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
-    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $main_init_script]);"
+
+
+    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
     practcl::cputs appinit {  return TCL_OK;}
     $PROJECT c_function [string map $map "int %mainfunc%(Tcl_Interp *interp)"] [string map $map $appinit]
   }

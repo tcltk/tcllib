@@ -583,7 +583,7 @@ method build-tclsh {outfile PROJECT} {
     }
   }
   array set TCL [$TCLOBJ read_configuration]
-  set path [file dirname $outfile]
+  set path [file dirname [file normalize $outfile]]
   cd $path
   ###
   # For a static Tcl shell, we need to build all local sources
@@ -643,7 +643,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 
   if {[${PROJECT} define get TEACUP_OS] eq "windows"} {
     set windres [$PROJECT define get RC windres]
-    set RSOBJ [file join $path build tclkit.res.o]
+    set RSOBJ [file join $path objs tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
     set RCMAN [${PROJECT} define get kit_manifest_file]
     set RCICO [${PROJECT} define get kit_icon_file]
