@@ -1,5 +1,7 @@
-
-::oo::class create ::practcl::project {
+###
+# A toplevel project that is a collection of other projects
+###
+::clay::define ::practcl::project {
   superclass ::practcl::module
 
   method _MorphPatterns {} {
@@ -94,6 +96,10 @@
     return $obj
   }
 
+  ###
+  # Compile the Tcl core. If the define [emph tk] is true, compile the
+  # Tk core as well
+  ###
   method build-tclcore {} {
     set os [my define get TEACUP_OS]
     set tcl_config_opts [::practcl::platform::tcl_core_options $os]
@@ -111,15 +117,16 @@
 
     set _TclSrcDir [$tclobj define get localsrcdir]
     my define set tclsrcdir $_TclSrcDir
-
-    set tkobj [my tkcore]
-    lappend tk_config_opts --with-tcl=[::practcl::file_relative [$tkobj define get builddir]  [$tclobj define get builddir]]
-    if {[my define get debug 0]} {
-      $tkobj define set debug 1
-      lappend tk_config_opts --enable-symbols=true
+    if {[my define get tk 0]} {
+      set tkobj [my tkcore]
+      lappend tk_config_opts --with-tcl=[::practcl::file_relative [$tkobj define get builddir]  [$tclobj define get builddir]]
+      if {[my define get debug 0]} {
+        $tkobj define set debug 1
+        lappend tk_config_opts --enable-symbols=true
+      }
+      $tkobj define set config_opts $tk_config_opts
+      $tkobj compile
     }
-    $tkobj define set config_opts $tk_config_opts
-    $tkobj compile
   }
 
   method child which {
@@ -149,7 +156,7 @@
 
 
   method tclcore {} {
-    if {[info commands [set obj [my organ tclcore]]] ne {}} {
+    if {[info commands [set obj [my clay delegate tclcore]]] ne {}} {
       return $obj
     }
     if {[info commands [set obj [my project TCLCORE]]] ne {}} {
@@ -174,7 +181,7 @@
   }
 
   method tkcore {} {
-    if {[set obj [my organ tkcore]] ne {}} {
+    if {[set obj [my clay delegate tkcore]] ne {}} {
       return $obj
     }
     if {[set obj [my project tk]] ne {}} {

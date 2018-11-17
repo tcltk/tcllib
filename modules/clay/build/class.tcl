@@ -1,4 +1,4 @@
-oo::define oo::class {
+::oo::define ::clay::class {
 
   ###
   # description:
@@ -66,11 +66,24 @@ oo::define oo::class {
       ancestors {
         tailcall ::clay::ancestors [self]
       }
+      branch {
+        set path [::clay::tree::storage $args]
+        if {![dict exists $clay {*}$path .]} {
+          dict set clay {*}$path . {}
+        }
+      }
       exists {
         if {![info exists clay]} {
           return 0
         }
-        return [dict exists $clay {*}[::dicttool::storage $args]]
+        set path [::clay::tree::storage $args]
+        if {[dict exists $clay {*}$path]} {
+          return 1
+        }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return 1
+        }
+        return 0
       }
       dump {
         return $clay
@@ -79,33 +92,53 @@ oo::define oo::class {
          if {![info exists clay]} {
           return {}
         }
-        set path [::dicttool::storage $args]
-        if {![dict exists $clay {*}$path]} {
-          return {}
+        set path [::clay::tree::storage $args]
+        if {[dict exists $clay {*}$path]} {
+          return [dict get $clay {*}$path]
         }
-        return [dict get $clay {*}$path]
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
+        }
+        return {}
+      }
+      is_branch {
+        set path [::clay::tree::storage $args]
+        return [dict exists $clay {*}$path .]
       }
       getnull -
       get {
         if {![info exists clay]} {
           return {}
         }
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
+        if {[llength $path]==0} {
+          return $clay
+        }
         if {[dict exists $clay {*}$path .]} {
-          return [::dicttool::sanitize [dict get $clay {*}$path]]
+          return [::clay::tree::sanitize [dict get $clay {*}$path]]
         }
         if {[dict exists $clay {*}$path]} {
           return [dict get $clay {*}$path]
         }
+        if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+          return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
+        }
         return {}
       }
       find {
-        set path [::dicttool::storage $args]
+        set path [::clay::tree::storage $args]
         if {![info exists clay]} {
           set clay {}
         }
         set clayorder [::clay::ancestors [self]]
         set found 0
+        if {[llength $path]==0} {
+          set result [dict create . {}]
+          foreach class $clayorder {
+            ::clay::tree::dictmerge result [$class clay dump]
+          }
+          return [::clay::tree::sanitize $result]
+        }
         foreach class $clayorder {
           if {[$class clay exists {*}$path .]} {
             # Found a branch break
@@ -116,6 +149,9 @@ oo::define oo::class {
             # Found a leaf. Return that value immediately
             return [$class clay get {*}$path]
           }
+          if {[dict exists $clay {*}[lrange $path 0 end-1] [lindex $path end]:]} {
+            return [dict get $clay {*}[lrange $path 0 end-1] [lindex $path end]:]
+          }
         }
         if {!$found} {
           return {}
@@ -125,14 +161,17 @@ oo::define oo::class {
         # Search in our local dict
         # Search in the in our list of classes for an answer
         foreach class [lreverse $clayorder] {
-          ::dicttool::dictmerge result [$class clay dget {*}$path]
+          ::clay::tree::dictmerge result [$class clay dget {*}$path]
         }
-        return [::dicttool::sanitize $result]
+        return [::clay::tree::sanitize $result]
       }
       merge {
         foreach arg $args {
-          ::dicttool::dictmerge clay {*}$arg
+          ::clay::tree::dictmerge clay {*}$arg
         }
+      }
+      noop {
+        # Do nothing. Used as a sign of clay savviness
       }
       search {
         foreach aclass [::clay::ancestors [self]] {
@@ -142,7 +181,10 @@ oo::define oo::class {
         }
       }
       set {
-        ::dicttool::dictset clay {*}$args
+        ::clay::tree::dictset clay {*}$args
+      }
+      unset {
+        dict unset clay {*}$args
       }
       default {
         dict $submethod clay {*}$args

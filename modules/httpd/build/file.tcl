@@ -6,11 +6,15 @@
 ::clay::define ::httpd::content.file {
 
   method FileName {} {
+    # Some dispatchers will inject a fully qualified name during discovery
+    if {[my clay exists FILENAME] && [file exists [my clay get FILENAME]]} {
+      return [my clay get FILENAME]
+    }
     set uri [string trimleft [my request get REQUEST_URI] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
-    if {$fname in "{} index.html index.md index"} {
+    if {$fname in "{} index.html index.md index index.tml"} {
       return $path
     }
     if {[file exists [file join $path $fname]]} {
@@ -95,6 +99,12 @@
         set headers [my request dump]
         dict with headers {}
         my puts [subst $tmltxt]
+      }
+      .svgz -
+      .svg {
+        # FU magic screws it up
+        my reply set Content-Type {image/svg+xml}
+        set reply_file $local_file
       }
       default {
         ###

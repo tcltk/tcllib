@@ -6,22 +6,20 @@ set result {}
 putb result {# clay.test - Copyright (c) 2018 Sean Woods
 # -------------------------------------------------------------------------
 
-#source [file join \
-#	[file dirname [file dirname [file dirname [file join [pwd] [info script]]]]] \
-#	compat devtools testutilities.tcl]
-
-source [file join  [file dirname [file dirname [file join [pwd] [info script]]]]  devtools testutilities.tcl]
-
+set MODDIR [file dirname [file dirname [file join [pwd] [info script]]]]
+if {[file exists [file join $MODDIR devtools testutilities.tcl]]} {
+  # Running inside tcllib
+  set TCLLIBMOD $MODDIR
+} else {
+  set TCLLIBMOD [file join $MODDIR .. .. tcllib modules]
+}
+source [file join $TCLLIBMOD devtools testutilities.tcl]
 
 testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
-support {
-    use uuid/uuid.tcl uuid
-    use dicttool/dicttool.tcl dicttool
-    use oodialect/oodialect.tcl oo::dialect
-}
+support {}
 testing {
     useLocal clay.tcl clay
 }
@@ -31,11 +29,491 @@ putb result {
 set ::clay::trace 0
 }
 
+###
+# UUID test
+###
+putb result {
+
+# -------------------------------------------------------------------------
+# Handle multiple implementation testing
+#
+
+array set preserve [array get ::clay::uuid::accel]
+
+proc implementations {} {
+    variable ::clay::uuid::accel
+    foreach {a v} [array get accel] {if {$v} {lappend r $a}}
+    lappend r tcl; set r
+}
+
+proc select_implementation {impl} {
+    variable ::clay::uuid::accel
+    foreach e [array names accel] { set accel($e) 0 }
+    if {[string compare "tcl" $impl] != 0} {
+        set accel($impl) 1
+    }
+}
+
+proc reset_implementation {} {
+    variable ::clay::uuid::accel
+    array set accel [array get ::preserve]
+}
+
+# -------------------------------------------------------------------------
+# Setup any constraints
+#
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+
+foreach impl [implementations] {
+    select_implementation $impl
+
+    test uuid-1.0-$impl "uuid requires args" {
+        list [catch {clay::uuid} msg]
+    } {1}
+
+    test uuid-1.1-$impl "uuid generate should create a 36 char string uuid" {
+        list [catch {string length [clay::uuid generate]} msg] $msg
+    } {0 36}
+
+    test uuid-1.2-$impl "uuid comparison of uuid with self should be true" {
+        list [catch {
+            set a [clay::uuid generate]
+            clay::uuid equal $a $a
+        } msg] $msg
+    } {0 1}
+
+    test uuid-1.3-$impl "uuid comparison of two different\
+        uuids should be false" {
+        list [catch {
+            set a [clay::uuid generate]
+            set b [clay::uuid generate]
+            clay::uuid equal $a $b
+        } msg] $msg
+    } {0 0}
+
+    reset_implementation
+}
+}
+
+
+putb result {
+# Modification History:
+###
+# Modification 2018-10-30
+# Fixed an error in our ancestry mapping and developed tests to
+# ensure we are actually following in the order TclOO follows methods
+###
+# Modification 2018-10-21
+# The clay metaclass no longer exports the clay method
+# to oo::class and oo::object, and clay::ancestors no
+# longer returns any class that lacks the clay method
+###
+# Modification 2018-10-10
+# clay::ancestors now rigged to descend into all classes depth-first
+# and then place metaclasses at the end of the search
+###
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Test Helpers
+###
+proc dict_compare {a b} {
+  set result {}
+  set A {}
+  dict for {f v} $a {
+    set f [string trim $f :/]
+    if {$f eq {.}} continue
+    dict set A $f $v
+  }
+  set B {}
+  dict for {f v} $b {
+    set f [string trim $f :/]
+    if {$f eq {.}} continue
+    dict set B $f $v
+  }
+  dict for {f v} $A {
+    if {[dict exists $B $f]} {
+      if {[dict get $B $f] ne $v} {
+        lappend result [list B $f [dict get $B $f] [list != $v]]
+      }
+    } else {
+      lappend result [list B $f $v missing]
+    }
+  }
+  dict for {f v} $B {
+    if {![dict exists $A $f]} {
+      lappend result [list A $f $v missing]
+    }
+  }
+  return $result
+}
+
+test dict-compare-001 {Test our testing method} {
+  dict_compare {} {}
+} {}
+
+test dict-compare-002 {Test our testing method} {
+  dict_compare {a 1} {}
+} {{B a 1 missing}}
+
+test dict-compare-003 {Test our testing method} {
+  dict_compare {a 1 b 2} {a 1 b 2}
+} {}
+
+test dict-compare-003.a {Test our testing method} {
+  dict_compare {a 1 b 2} {b 2 a 1 }
+} {}
+
+test dict-compare-003.b {Test our testing method} {
+  dict_compare {b 2 a 1} {a 1 b 2}
+} {}
+
+
+test dict-compare-004 {Test our testing method} {
+  dict_compare {a: 1 b: 2} {a 1 b 2}
+} {}
+
+test dict-compare-005 {Test our testing method} {
+  dict_compare {a 1 b 3} {a 1 b 2}
+} {{B b 2 {!= 3}}}
+}
+
+
+###
+# Tests for clay::tree
+###
+
+putb result {
+###
+# Test canonical mapping
+###
+}
+set test 0
+  foreach {pattern canonical storage} {
+    {foo bar baz}       {foo/ bar/ baz}         {foo bar baz}
+    {foo bar baz/}      {foo/ bar/ baz/}        {foo bar baz}
+    {foo bar .}         {foo/ bar}              {foo bar .}
+    {foo/ bar/ .}       {foo/ bar}              {foo bar .}
+    {foo . bar . baz .} {foo/ bar/ baz}         {foo . bar . baz .}
+    {foo bar baz bat:}  {foo/ bar/ baz/ bat:}   {foo bar baz bat:}
+    {foo:}              {foo:}                  {foo:}
+    {foo/bar/baz/bat:}  {foo/ bar/ baz/ bat:}   {foo bar baz bat:}
+} {
+    dict set map %pattern% $pattern
+    dict set map %canonical% $canonical
+    dict set map %storage% $storage
+    incr test
+
+    dict set map %test% [format "test-storage-%04d" $test]
+    putb result $map {
+test {%test%} {Test ::clay::tree::storage with %pattern%} {
+  clay::tree::storage {%pattern%}
+} {%storage%}
+}
+}
+
+putb result {
+dict set r foo/ bar/ baz 1
+dict set s foo/ bar/ baz 0
+set t [clay::tree::merge $r $s]
+
+test rmerge-0001 {Test that the root is marked as a branch} {
+  dict get $t foo bar baz
+} 0
+
+set r [dict create]
+clay::tree::dictmerge r {
+  foo/ {
+    bar/ {
+      baz 1
+      bing: 2
+      bang { bim 3 boom 4 }
+      womp: {a 1 b 2}
+    }
+  }
+}
+
+test dictmerge-0001 {Test that the root is marked as a branch} {
+  dict exists $r .
+} 1
+test dictmerge-0002 {Test that branch foo is marked correctly} {
+  dict exists $r foo .
+} 1
+test dictmerge-0003 {Test that branch bar is marked correctly} {
+  dict exists $r foo bar .
+} 1
+test dictmerge-0004 {Test that leaf foo/bar/bang is not marked as branch despite being a dict} {
+  dict exists $r foo bar bang .
+} 0
+test dictmerge-0004 {Test that leaf foo/bar/bang/bim exists} {
+  dict exists $r foo bar bang bim
+} 1
+test dictmerge-0005 {Test that leaf foo/bar/bang/boom exists} {
+  dict exists $r foo bar bang boom
+} 1
+
+###
+# Replace bang with bang/
+###
+clay::tree::dictmerge r {
+  foo/ {
+    bar/ {
+      bang/ {
+        whoop 1
+      }
+    }
+  }
+}
+
+test dictmerge-0006 {Test that leaf foo/bar/bang/bim ceases to exist} {
+  dict exists $r foo bar bang bim
+} 0
+test dictmerge-0007 {Test that leaf foo/bar/bang/boom exists} {
+  dict exists $r foo bar bang boom
+} 0
+
+test dictmerge-0008 {Test that leaf foo/bar/bang is now a branch} {
+  dict exists $r foo bar bang .
+} 1
+
+test branch-0001 {Test that foo/ is a branch} {
+  clay::tree::is_branch $r foo/
+} 1
+test branch-0002 {Test that foo is a branch} {
+  clay::tree::is_branch $r foo
+} 1
+test branch-0003 {Test that foo/bar/ is a branch} {
+  clay::tree::is_branch $r {foo/ bar/}
+} 1
+test branch-0004 {Test that foo bar is not branch} {
+  clay::tree::is_branch $r {foo bar}
+} 1
+test branch-0004 {Test that foo/ bar is not branch} {
+  clay::tree::is_branch $r {foo/ bar}
+} 0
+}
+
+set test 0
+foreach {path isbranch} {
+  foo 1
+  {foo bar} 1
+  {foo bar baz} 0
+  {foo bar bing} 0
+  {foo bar bang} 1
+  {foo bar bang whoop} 0
+} {
+  set mpath [lrange $path 0 end-1]
+  set item  [lindex $path end]
+  set tests [list {} {} $isbranch {} : 0 {} / 1 . {} 0]
+  dict set map %mpath% $mpath
+  dict set map %item% $item
+  foreach {head tail isbranch} $tests {
+    dict set map %head% $head
+    dict set map %tail% $tail
+    dict set map %isbranch% $isbranch
+    dict set map %test% [format "test-branch-%04d" [incr test]]
+    putb result $map {
+test {%test%} {Test that %mpath% %head%%item%%tail% is_branch = %isbranch%} {
+  clay::tree::is_branch $r {%mpath% %head%%item%%tail%}
+} %isbranch%
+}
+  }
+}
 
 putb result {
 # -------------------------------------------------------------------------
+# dictmerge Testing - oometa
+unset -nocomplain foo
+clay::tree::dictmerge foo {
+  option/ {
+    color/ {
+      label Color
+      default green
+    }
+  }
+}
+clay::tree::dictmerge foo {
+  option/ {
+    color/ {
+      default purple
+    }
+  }
+}
 
-::oo::dialect::create ::alpha
+test oometa-0001 {Invoking dictmerge with empty args on a non existent variable create an empty variable} {
+  dict get $foo option color default
+} purple
+test oometa-0002 {Invoking dictmerge with empty args on a non existent variable create an empty variable} {
+  dict get $foo option color label
+} Color
+
+unset -nocomplain foo
+set foo {. {}}
+::clay::tree::dictmerge foo {. {} color {. {} default green label Color}}
+::clay::tree::dictmerge foo {. {} color {. {} default purple}}
+test oometa-0003 {Recursive merge problem from oometa/clay find} {
+  dict get $foo color default
+} purple
+test oometa-0004 {Recursive merge problem from oometa/clay find} {
+  dict get $foo color label
+} Color
+
+unset -nocomplain foo
+set foo {. {}}
+::clay::tree::dictmerge foo {. {} color {. {} default purple}}
+::clay::tree::dictmerge foo {. {} color {. {} default green label Color}}
+test oometa-0005 {Recursive merge problem from oometa/clay find} {
+  dict get $foo color default
+} green
+test oometa-0006 {Recursive merge problem from oometa/clay find} {
+  dict get $foo color label
+} Color
+
+test oometa-0008 {Un-Sanitized output} {
+  set foo
+} {. {} color {. {} default green label Color}}
+
+test oometa-0009 {Sanitize} {
+  clay::tree::sanitize $foo
+} {color {default green label Color}}
+}
+
+
+putb result {
+# -------------------------------------------------------------------------
+# dictmerge Testing - clay
+unset -nocomplain foo
+test clay-0001 {Invoking dictmerge with empty args on a non existent variable create an empty variable} {
+  ::clay::tree::dictmerge foo
+  set foo
+} {. {}}
+
+unset -nocomplain foo
+::clay::tree::dictset foo bar/ baz/ bell bang
+
+test clay-0002 {For new entries dictmerge is essentially a set} {
+  dict get $foo bar baz bell
+} {bang}
+::clay::tree::dictset foo bar/ baz/ boom/ bang
+test clay-0003 {For entries that do exist a zipper merge is performed} {
+  dict get $foo bar baz bell
+} {bang}
+test clay-0004 {For entries that do exist a zipper merge is performed} {
+  dict get $foo bar baz boom
+} {bang}
+
+::clay::tree::dictset foo bar/ baz/ bop {color green flavor strawberry}
+
+test clay-0005 {Leaves are replaced even if they look like a dict} {
+  dict get $foo bar baz bop
+} {color green flavor strawberry}
+
+::clay::tree::dictset foo bar/ baz/ bop {color yellow}
+test clay-0006 {Leaves are replaced even if they look like a dict} {
+  dict get $foo bar baz bop
+} {color yellow}
+
+::clay::tree::dictset foo bar/ baz/ bang/ {color green flavor strawberry}
+test clay-0007a {Branches are merged} {
+  dict get $foo bar baz bang
+} {. {} color green flavor strawberry}
+
+::clay::tree::dictset foo bar/ baz/ bang/ color yellow
+test clay-0007b {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color yellow flavor strawberry}
+
+::clay::tree::dictset foo bar/ baz/ bang/ {color blue}
+test clay-0007c {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color blue flavor strawberry}
+
+::clay::tree::dictset foo bar/ baz/ bang/ shape: {Sort of round}
+test clay-0007d {Branches are merged} {
+  dict get $foo bar baz bang
+} {. {} color blue flavor strawberry shape: {Sort of round}}
+
+::clay::tree::dictset foo bar/ baz/ bang/ color yellow
+test clay-0007e {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color yellow flavor strawberry shape: {Sort of round}}
+
+::clay::tree::dictset foo bar/ baz/ bang/ {color blue}
+test clay-0007f {Branches are merged}  {
+  dict get $foo bar baz bang
+} {. {} color blue flavor strawberry shape: {Sort of round}}
+
+::clay::tree::dictset foo dict my_var 10
+::clay::tree::dictset foo dict my_other_var 9
+
+test clay-0007g {Branches are merged}  {
+  dict get $foo dict
+} {. {} my_var 10 my_other_var 9}
+
+::clay::tree::dictset foo dict/ my_other_other_var 8
+test clay-0007h {Branches are merged}  {
+  dict get $foo dict
+} {. {} my_var 10 my_other_var 9 my_other_other_var 8}
+
+
+::clay::tree::dictmerge foo {option/ {color {type color} flavor {sense taste}}}
+::clay::tree::dictmerge foo {option/ {format {default ascii}}}
+
+test clay-0008 {Whole dicts are merged}  {
+  dict get $foo option color
+} {type color}
+test clay-0009 {Whole dicts are merged}  {
+  dict get $foo option flavor
+} {sense taste}
+test clay-0010 {Whole dicts are merged}  {
+  dict get $foo option format
+} {default ascii}
+
+###
+# Tests for the httpd module
+###
+test clay-0010 {Test that leaves are merged properly}
+set bar {}
+::clay::tree::dictmerge bar {
+   proxy/ {port 10101 host myhost.localhost}
+}
+::clay::tree::dictmerge bar {
+   mimetxt {Host: localhost
+Content_Type: text/plain
+Content-Length: 15
+}
+   http {HTTP_HOST {} CONTENT_LENGTH 15 HOST localhost CONTENT_TYPE text/plain UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e REMOTE_ADDR 127.0.0.1 REMOTE_HOST 127.0.0.1 REQUEST_METHOD POST REQUEST_URI /echo REQUEST_PATH echo REQUEST_VERSION 1.0 DOCUMENT_ROOT {} QUERY_STRING {} REQUEST_RAW {POST /echo HTTP/1.0} SERVER_PORT 10001 SERVER_NAME 127.0.0.1 SERVER_PROTOCOL HTTP/1.1 SERVER_SOFTWARE {TclHttpd 4.2.0} LOCALHOST 0} UUID 3a7b4cdc-28d7-49b7-b18d-9d7d18382b9e uriinfo {fragment {} port {} path echo scheme http host {} query {} pbare 0 pwd {} user {}}
+   mixin {reply ::test::content.echo}
+   prefix /echo
+   proxy_port 10010
+   proxy/ {host localhost}
+}
+
+test clay-0011 {Whole dicts are merged}  {
+  dict get $bar proxy_port
+} {10010}
+
+test clay-0012 {Whole dicts are merged}  {
+  dict get $bar http CONTENT_LENGTH
+} 15
+test clay-0013 {Whole dicts are merged}  {
+  dict get $bar proxy host
+} localhost
+test clay-0014 {Whole dicts are merged}  {
+  dict get $bar proxy port
+} 10101
+}
+
+putb result {
+###
+# Dialect Testing
+###
+::clay::dialect::create ::alpha
 
 proc ::alpha::define::is_alpha {} {
   dict set ::testinfo([current_class]) is_alpha 1
@@ -45,7 +523,7 @@ proc ::alpha::define::is_alpha {} {
   is_alpha
 }
 
-::oo::dialect::create ::bravo ::alpha
+::clay::dialect::create ::bravo ::alpha
 
 proc ::bravo::define::is_bravo {} {
   dict set ::testinfo([current_class]) is_bravo 1
@@ -55,7 +533,7 @@ proc ::bravo::define::is_bravo {} {
   is_bravo
 }
 
-::oo::dialect::create ::charlie ::bravo
+::clay::dialect::create ::charlie ::bravo
 
 proc ::charlie::define::is_charlie {} {
   dict set ::testinfo([current_class]) is_charlie 1
@@ -65,7 +543,7 @@ proc ::charlie::define::is_charlie {} {
   is_charlie
 }
 
-::oo::dialect::create ::delta ::charlie
+::clay::dialect::create ::delta ::charlie
 
 proc ::delta::define::is_delta {} {
   dict set ::testinfo([current_class]) is_delta 1
@@ -161,22 +639,36 @@ test oodialect-aliasing-003 {Testing aliase method on class} {
   ::test1::a aliases
 } {::test1::A}
 
-
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-003 {Testing heritage} {
   ::clay::ancestors ::test1::f
-} {::test1::f ::test1::a ::bravo::object ::alpha::object ::oo::object}
+} {}
 
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-004 {Testing heritage} {
   ::clay::ancestors ::alpha::object
-} {::alpha::object ::oo::object}
+} {}
 
+###
+# Test modified 2018-10-21
+###
 test oodialect-ancestry-005 {Testing heritage} {
   ::clay::ancestors ::delta::object
-} {::delta::object ::charlie::object ::bravo::object ::alpha::object ::oo::object}
+} {}
 
+}
+
+putb result {
 # -------------------------------------------------------------------------
 # clay submodule testing
 # -------------------------------------------------------------------------
+
+}
+putb result {
 # Test canonical path building
 set path {const/ foo/ bar/ baz/}
 }
@@ -384,10 +876,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -414,10 +906,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -429,7 +921,8 @@ putb result {# -----------------------------------------------------------------
 set OBJECTAB [::foo::class.ab new]
 # Object where classes were mixed in ::foo::classa ::foo::classb
 set MIXINAB  [::oo::object new]
-oo::objdefine $MIXINAB mixin ::foo::classa ::foo::classb
+# Test modified 2018-10-30, mixin order was wrong before
+oo::objdefine $MIXINAB mixin ::foo::classb ::foo::classa
 }
 set matrix ${claydict-b}
 foreach {top children} ${claydict-a} {
@@ -451,10 +944,10 @@ foreach {top children} $matrix {
     dict set map %value% $value
     dict set map %testnum% [format %04d [incr testnum]]
     putb result $map {
-test oo-object-clay-method-native-%testnum% {Test native object gets the property} {
+test oo-object-clay-method-native-%testnum% {Test native object gets the property %top%/%child%} {
   $%object1% clay get %top% %child%
 } {%value%}
-test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property} {
+test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property %top%/%child%} {
   $%object2% clay get %top% %child%
 } {%value%}
 }
@@ -466,7 +959,8 @@ putb result {# -----------------------------------------------------------------
 set OBJECTBA [::foo::class.ba new]
 # Object where classes were mixed in ::foo::classb ::foo::classa
 set MIXINBA  [::oo::object new]
-oo::objdefine $MIXINBA mixin ::foo::classb ::foo::classa
+# Test modified 2018-10-30, mixin order was wrong before
+oo::objdefine $MIXINBA mixin ::foo::classa ::foo::classb
 }
 set matrix ${claydict-a}
 foreach {top children} ${claydict-b} {
@@ -571,12 +1065,20 @@ test clay-object-clay-a-0004 {Test that objects of the class get properties} {
   $OBJ2 clay get flavor
 } strawberry
 
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-a-0005 {Test the clay ancestors function} {
   $OBJ clay ancestors
-} {::clay::object ::oo::object}
+} {::clay::object}
+
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-a-0006 {Test the clay ancestors function} {
   $OBJ2 clay ancestors
-} {::TEST::myclass ::clay::object ::oo::object}
+} {::TEST::myclass ::clay::object}
+
 test clay-object-clay-a-0007 {Test the clay provenance  function} {
   $OBJ2 clay provenance  flavor
 } ::TEST::myclass
@@ -596,7 +1098,6 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   superclass ::TEST::myclass
 
   clay color blue
-
   method do args {
     return "I did $args"
   }
@@ -604,6 +1105,7 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   Ensemble which::color {} {
     return [my clay get color]
   }
+  clay set method_ensemble which color aliases farbe
 }
 
 ###
@@ -635,9 +1137,13 @@ test clay-object-clay-b-0003 {Test that objects of the class get properties} {
 test clay-object-clay-b-0004 {Test the clay provenance  function} {
   $OBJ3 clay provenance  flavor
 } ::TEST::myclass
+
+###
+# Test modified 2018-10-21
+###
 test clay-object-clay-b-0005 {Test the clay provenance  function} {
   $OBJ3 clay ancestors
-} {::TEST::myclasse ::TEST::myclass ::clay::object ::oo::object}
+} {::TEST::myclasse ::TEST::myclass ::clay::object}
 
 ###
 # Test defining a standard method
@@ -655,6 +1161,10 @@ test clay-object-method-0004 {Test an ensemble} {
   $OBJ3 which color
 } black
 
+# Test setting properties
+test clay-object-method-0004 {Test an ensemble alias} {
+  $OBJ3 which farbe
+} black
 ###
 # Test that if you try to replace a global command you get an error
 ###
@@ -778,9 +1288,12 @@ test clay-mixin-b-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-b-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+###
+# Test Modified: 2018-10-21
+###
 test clay-mixin-b-0004 {Test that mixins resolve in the correct order} {
   $OBJ clay ancestors
-} {::TEST::animal ::TEST::thing ::clay::object ::oo::object}
+} {::TEST::animal ::TEST::thing ::clay::object}
 
 ###
 # Replacing a mixin replaces the behaviors
@@ -796,9 +1309,12 @@ test clay-mixin-c-0002 {Test that an ensemble is created during a mixin} \
 test clay-mixin-c-0003 {Test that an ensemble is created during a mixin} {
   $OBJ which flavor
 } {unknown}
+###
+# Test Modified: 2018-10-21
+###
 test clay-mixin-c-0004 {Test that mixins resolve in the correct order} {
   $OBJ clay ancestors
-} {::TEST::vegetable ::TEST::thing ::clay::object ::oo::object}
+} {::TEST::vegetable ::TEST::thing ::clay::object}
 
 ###
 # Replacing a mixin
@@ -812,9 +1328,12 @@ test clay-mixin-e-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-e-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+###
+# Test Modified: 2018-10-30, 2018-10-21, 2018-10-10
+###
 test clay-mixin-e-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::species.cat ::TEST::thing ::TEST::animal ::clay::object ::oo::object}
+} {::TEST::species.cat ::TEST::animal ::TEST::thing ::clay::object}
 
 $OBJ clay mixinmap coloring ::TEST::coloring.calico
 test clay-mixin-f-0001 {Test that an ensemble is created during a mixin} {
@@ -826,9 +1345,13 @@ test clay-mixin-f-0002 {Test that an ensemble is created during a mixin} {
 test clay-mixin-f-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+
+###
+# Test modified 2018-10-30, 2018-10-21, 2018-10-10
+###
 test clay-mixin-f-0004 {Test that clay data follows the rules of inheritence and order of mixin} {
   $OBJ clay ancestors
-} {::TEST::coloring.calico ::TEST::species.cat ::TEST::thing ::clay::object ::TEST::animal ::oo::object}
+} {::TEST::coloring.calico ::TEST::species.cat ::TEST::animal ::TEST::thing ::clay::object}
 
 test clay-mixin-f-0005 {Test that clay data from a mixin works} {
   $OBJ clay provenance  color
@@ -851,13 +1374,15 @@ test clay-class-variable-0001 {Test that the parser injected the right value in 
   $OBJ clay get variable/ my_variable
 } {10}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-variable-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay get variable
-} {clay {} claycache {} DestroyEvent 0 my_variable 10}
+} {my_variable 10 DestroyEvent 0}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-variable-0003 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget variable
-} {. 1 clay {} claycache {} DestroyEvent 0 my_variable 10}
+} {. {} my_variable 10 DestroyEvent 0}
 
 test clay-class-variable-0004 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_variable
@@ -882,7 +1407,7 @@ test clay-class-array-0001 {Test that the parser injected the right value in the
 
 test clay-class-array-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget array
-} {. 1 my_array {. 1 timeout 10}}
+} {. {} my_array {. {} timeout 10}}
 
 test clay-class-array-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_array timeout
@@ -895,18 +1420,21 @@ test clay-class-array-0003 {Test that variables declared in the class definition
 test clay-class-array-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
   ::TEST::has_more_array clay get array
 } {my_array {color blue}}
+
 test clay-class-array-0009 {Test that the parser injected the right value in the right place for clay to catch it} {
   ::TEST::has_more_array clay find array
 } {my_array {timeout 10 color blue}}
 
+# Modified 2018-10-30 (order is different)
 set BOBJ [::TEST::has_more_array new]
 test clay-class-array-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay get array
-} {my_array {timeout 10 color blue}}
+} {my_array {color blue timeout 10}}
 
+# Modified 2018-10-30 (order is different)
 test clay-class-array-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget array
-} {. 1 my_array {. 1 timeout 10 color blue}}
+} {. {} my_array {. {} color blue timeout 10}}
 
 test clay-class-arrau-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_array timeout
@@ -915,6 +1443,32 @@ test clay-class-arrau-0007 {Test that variables declared in the class definition
   $BOBJ get_my_array color
 } blue
 
+::clay::define ::TEST::has_empty_array {
+  Array my_array {}
+
+  method my_array_exists {} {
+    my variable my_array
+    return [info exists my_array]
+  }
+  method get {field} {
+    my variable my_array
+    return $my_array($field)
+  }
+  method set {field value} {
+    my variable my_array
+    set my_array($field) $value
+  }
+}
+
+test clay-class-array-0008 {Test that an declaration of an array with no values produces and empty array} {
+  set COBJ [::TEST::has_empty_array new]
+  $COBJ my_array_exists
+} 1
+
+test clay-class-array-0009 {Test that an declaration of an array with no values produces and empty array} {
+  $COBJ set test "A random value"
+  $COBJ get test
+} {A random value}
 ###
 # Test dict initialization
 ###
@@ -923,8 +1477,12 @@ test clay-class-arrau-0007 {Test that variables declared in the class definition
 
   method get_my_dict {args} {
     my variable my_dict
+    if {[llength $args]==0} {
+      return $my_dict
+    }
     return [dict get $my_dict {*}$args]
   }
+
 }
 
 set OBJ [::TEST::has_dict new]
@@ -934,11 +1492,16 @@ test clay-class-dict-0001 {Test that the parser injected the right value in the 
 
 test clay-class-dict-0002 {Test that the parser injected the right value in the right place for clay to catch it} {
   $OBJ clay dget dict
-} {. 1 my_dict {. 1 timeout 10}}
+} {. {} my_dict {. {} timeout 10}}
 
 test clay-class-dict-0003 {Test that variables declared in the class definition are initialized} {
   $OBJ get_my_dict timeout
 } 10
+
+test clay-class-dict-0004 {Test that an empty dict is annotated} {
+  $OBJ clay get dict
+} {my_dict {timeout 10}}
+
 
 ::clay::define ::TEST::has_more_dict {
   superclass ::TEST::has_dict
@@ -946,13 +1509,15 @@ test clay-class-dict-0003 {Test that variables declared in the class definition 
 }
 set BOBJ [::TEST::has_more_dict new]
 
+# Modified 2018-10-30
 test clay-class-dict-0004 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay get dict
-} {my_dict {timeout 10 color blue}}
+} {my_dict {color blue timeout 10}}
 
+# Modified 2018-10-30
 test clay-class-dict-0005 {Test that the parser injected the right value in the right place for clay to catch it} {
   $BOBJ clay dget dict
-} {. 1 my_dict {. 1 timeout 10 color blue}}
+} {. {} my_dict {. {} color blue timeout 10}}
 
 test clay-class-dict-0006 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_dict timeout
@@ -961,6 +1526,28 @@ test clay-class-dict-0006 {Test that variables declared in the class definition 
 test clay-class-dict-0007 {Test that variables declared in the class definition are initialized} {
   $BOBJ get_my_dict color
 } blue
+
+::clay::define ::TEST::has_empty_dict {
+  Dict my_empty_dict {}
+
+  method get_my_empty_dict {args} {
+    my variable my_empty_dict
+    if {[llength $args]==0} {
+      return $my_empty_dict
+    }
+    return [dict get $my_empty_dict {*}$args]
+  }
+}
+
+set COBJ [::TEST::has_empty_dict new]
+
+test clay-class-dict-0008 {Test that the parser injected the right value in the right place for clay to catch it} {
+  $COBJ clay dget dict
+} {my_empty_dict {. {}}}
+
+test clay-class-dict-0009 {Test that an empty dict is initialized} {
+  $COBJ get_my_empty_dict
+} {}
 
 ###
 # Test object delegation
@@ -1070,11 +1657,11 @@ putb result {
 ###
 
 clay::class create WidgetClass {
-  class_method working {} {
+  Class_Method working {} {
     return {Works}
   }
 
-  class_method unknown args {
+  Class_Method unknown args {
     set tkpath [lindex $args 0]
     if {[string index $tkpath 0] eq "."} {
       set obj [my new $tkpath {*}[lrange $args 1 end]]
@@ -1300,6 +1887,355 @@ mixintest clay mixinmap tool {}
 test tool-mixinmap-004 {Test object prior to mixins} {
   mixintest test which
 } {}
+}
+
+###
+# Test clay mixinslots
+###
+putb result {
+
+clay::define ::clay::object {
+  method path {} {
+    return [self class]
+  }
+}
+
+
+clay::define ::MixinRoot {
+  clay set opts core   root
+  clay set opts option unset
+  clay set opts color  unset
+
+  Ensemble info::root {} {
+    return MixinRoot
+  }
+  Ensemble info::shade {} {
+    return avacodo
+  }
+  Ensemble info::default {} {
+    return Undefined
+  }
+
+  method did {} {
+    return MixinRoot
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinOption1 {
+  clay set opts option option1
+
+  Ensemble info::option {} {
+    return MixinOption1
+  }
+  Ensemble info::other {} {
+    return MixinOption1
+  }
+
+  method did {} {
+    return MixinOption1
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinOption2 {
+  superclass ::MixinOption1
+
+  clay set opts option option2
+
+  Ensemble info::option {} {
+    return MixinOption2
+  }
+
+  method did {} {
+    return MixinOption2
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+
+clay::define ::MixinColor1 {
+  clay set opts color blue
+
+  Ensemble info::color {} {
+    return MixinColor1
+  }
+  Ensemble info::shade {} {
+    return blue
+  }
+
+  method did {} {
+    return MixinColor1
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+clay::define ::MixinColor2 {
+  clay set opts color green
+
+  Ensemble info::color {} {
+    return MixinColor2
+  }
+  Ensemble info::shade {} {
+    return green
+  }
+
+  method did {} {
+    return MixinColor2
+  }
+
+  method path {} {
+    return [list [self class] {*}[next]]
+  }
+}
+
+set obj [clay::object new]
+
+$obj clay mixinmap root ::MixinRoot
+}
+set testnum 0
+set batnum  0
+
+set obj {$obj}
+set template {
+test tool-prototype-%battery%-%test% {%comment%} {
+  %obj% %method%
+} {%answer%}
+}
+set map {}
+
+dict set map %obj% {$obj}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin core}
+
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {Undefined}
+  {info other} {Undefined}
+  {info shade} {avacodo}
+  {did} {MixinRoot}
+  {path} {::MixinRoot ::clay::object}
+  {clay get opts} {core root option unset color unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} unset
+  {clay ancestors} {::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option ::MixinOption1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption1}
+  {path} {::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option1 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {
+set obj2 [clay::object new]
+$obj2 clay mixinmap root ::MixinRoot option ::MixinOption1
+}
+putb result {$obj clay mixinmap option ::MixinOption1}
+dict set map %obj% {$obj2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option1 - clean object}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption1}
+  {path} {::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option1 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option ::MixinOption2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin option2}
+dict set map %obj% {$obj}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {Undefined}
+  {info other} {MixinOption1}
+  {info shade} {avacodo}
+  {did} {MixinOption2}
+  {path} {::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {option option2 core root color unset}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} unset
+  {clay ancestors} {::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap color MixinColor1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {MixinColor1}
+  {info other} {MixinOption1}
+  {info shade} {blue}
+  {did} {MixinColor1}
+  {path} {::MixinColor1 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+  {clay get opts} {color blue option option2 core root}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} blue
+  {clay ancestors} {::MixinColor1 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+set testnum 0
+putb result {$obj clay mixinmap color MixinColor2}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption2}
+  {info color} {MixinColor2}
+  {info other} {MixinOption1}
+  {info shade} {green}
+  {clay get opts} {color green option option2 core root}
+  {clay get opts core} root
+  {clay get opts option} option2
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinOption2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option MixinOption1}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2 + Option1}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {MixinOption1}
+  {info color} {MixinColor2}
+  {info other} {MixinOption1}
+  {info shade} {green}
+  {clay get opts} {color green option option1 core root}
+  {clay get opts core} root
+  {clay get opts option} option1
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinOption1 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap option {}}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin color2 + no option}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {MixinColor2}
+  {info other} {Undefined}
+  {info shade} {green}
+  {clay get opts} {color green core root option unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} green
+  {clay ancestors} {::MixinColor2 ::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
+}
+
+set testnum 0
+putb result {$obj clay mixinmap color {}}
+dict set map %battery% [format %04d [incr batnum]]
+dict set map %comment% {Mixin core (return to normal)}
+foreach {method answer} {
+  {info root} {MixinRoot}
+  {info option} {Undefined}
+  {info color} {Undefined}
+  {info other} {Undefined}
+  {info shade} {avacodo}
+  {clay get opts} {core root option unset color unset}
+  {clay get opts core} root
+  {clay get opts option} unset
+  {clay get opts color} unset
+  {clay ancestors} {::MixinRoot ::clay::object}
+} {
+  set testid [format %04d [incr testnum]]
+  dict set map %test% $testid
+  dict set map %method% $method
+  dict set map %answer% $answer
+  putb result $map $template
 }
 
 ###

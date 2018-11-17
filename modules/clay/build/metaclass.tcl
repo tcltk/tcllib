@@ -9,6 +9,7 @@
 #    clay(n): Implementation File
 #
 #-------------------------------------------------------------------------
+::clay::dialect::create ::clay
 
 
 proc ::clay::dynamic_methods class {
@@ -37,16 +38,18 @@ proc ::clay::dynamic_methods_class {thisclass} {
 proc ::clay::define::Array {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]
-  #$class clay set array $name . 1
-  foreach {var val} $values {
-    $class clay set array/ $name/ $var: $val
+  $class clay branch array $name
+  dict for {var val} $values {
+    $class clay set array/ $name $var $val
   }
 }
 
 ###
-# topic: 710a93168e4ba7a971d3dbb8a3e7bcbc
+# An annotation that objects of this class interact with delegated
+# methods. The annotation is intended to be a dictionary, and the
+# only reserved key is [emph {description}], a human readable description.
 ###
-proc ::clay::define::component {name info} {
+proc ::clay::define::Delegate {name info} {
   set class [current_class]
   foreach {field value} $info {
     $class clay set component/ [string trim $name :/]/ $field $value
@@ -71,8 +74,15 @@ my InitializePublic
 }
 
 ###
-# topic: 7a5c7e04989704eef117ff3c9dd88823
-# title: Specify the a method for the class object itself, instead of for objects of the class
+# Specify the a method for the class object itself, instead of for objects of the class
+###
+proc ::clay::define::Class_Method {name arglist body} {
+  set class [current_class]
+  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
+}
+
+###
+# And alias to the new Class_Method keyword
 ###
 proc ::clay::define::class_method {name arglist body} {
   set class [current_class]
@@ -81,7 +91,7 @@ proc ::clay::define::class_method {name arglist body} {
 
 proc ::clay::define::clay {args} {
   set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
+  if {[lindex $args 0] in "cget set branch"} {
     $class clay {*}$args
   } else {
     $class clay set {*}$args
@@ -108,9 +118,53 @@ set DestroyEvent 1
 proc ::clay::define::Dict {name {values {}}} {
   set class [current_class]
   set name [string trim $name :/]
-  #$class clay set dict $name . 1
+  $class clay branch dict $name
   foreach {var val} $values {
-    $class clay set dict/ $name/ $var: $val
+    $class clay set dict/ $name/ $var $val
+  }
+}
+
+###
+# Define an option for the class
+###
+proc ::clay::define::Option {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  foreach {var val} [::clay::args_to_dict {*}$args] {
+    dict set dictargs [string trim $var -:/] $val
+  }
+  set name [string trimleft $name -]
+
+  ###
+  # Option Class handling
+  ###
+  set optclass [dict getnull $dictargs class]
+  if {$optclass ne {}} {
+    foreach {f v} [$class clay find option_class $optclass] {
+      if {![dict exists $dictargs $f]} {
+        dict set dictargs $f $v
+      }
+    }
+    if {$optclass eq "variable"} {
+      variable $name [dict getnull $dictargs default]
+    }
+  }
+  foreach {f v} $dictargs {
+    $class clay set option $name $f $v
+  }
+}
+
+###
+# Define a class of options
+# All field / value pairs will be be inherited by an option that
+# specify [emph name] as it class field.
+###
+proc ::clay::define::Option_Class {name args} {
+  set class [current_class]
+  set dictargs {default {}}
+  set name [string trimleft $name -:]
+  foreach {f v} [::clay::args_to_dict {*}$args] {
+    $class clay set option_class $name [string trim $f -/:] $v
   }
 }
 
@@ -127,8 +181,7 @@ proc ::clay::define::Dict {name {values {}}} {
 proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
-  $class clay set variable $name: $default
-  #::oo::define $class variable $name
+  $class clay set variable/ $name $default
 }
 
 proc ::clay::object_create {objname {class {}}} {
@@ -148,57 +201,5 @@ proc ::clay::object_destroy objname {
     puts [list $objname DESTROY]
   }
   ::cron::object_destroy $objname
-}
-
-
-# clay::object
-#
-# This class is inherited by all classes that have options.
-#
-::clay::define ::clay::object {
-  Variable clay {}
-  Variable claycache {}
-  Variable DestroyEvent 0
-
-  ###
-  # Instantiate variables and build ensemble methods.
-  ###
-  method InitializePublic {} {
-    next
-    my variable clayorder clay claycache
-    if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble]
-    } else {
-      set emap {}
-    }
-    foreach class [lreverse $clayorder] {
-      ###
-      # Build a compsite map of all ensembles defined by the object's current
-      # class as well as all of the classes being mixed in
-      ###
-      dict for {mensemble einfo} [$class clay get method_ensemble] {
-        if {$mensemble eq {.}} continue
-        set ensemble [string trim $mensemble :/]
-        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
-
-        dict for {method info} $einfo {
-          if {$method eq {.}} continue
-          dict set info source $class
-          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
-          dict set emap $ensemble $method $info
-        }
-      }
-    }
-    foreach {ensemble einfo} $emap {
-      #if {[dict exists $einfo _body]} continue
-      set body [::clay::ensemble_methodbody $ensemble $einfo]
-      if {$::clay::trace>2} {
-        set rawbody $body
-        set body {puts [list [self] <object> [self method]]}
-        append body \n $rawbody
-      }
-      oo::objdefine [self] method $ensemble {{method default} args} $body
-    }
-  }
 }
 

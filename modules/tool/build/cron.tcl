@@ -5,10 +5,6 @@
 ###
 #
 # Author: Sean Woods (for T&E Solutions)
-package require Tcl 8.6 ;# See coroutine
-package require coroutine
-
-package provide cron 2.1.1
 
 ::namespace eval ::cron {}
 

@@ -13,7 +13,7 @@
 # dictionary {mandatory 1 positional 1}
 # element {mandatory 0 positional 1 repeating 1}
 ###
-::tcllib::PROC ::tcl::dict::getnull {dictionary args} {
+::clay::PROC ::tcl::dict::getnull {dictionary args} {
   if {[exists $dictionary {*}$args]} {
     get $dictionary {*}$args
   }
@@ -28,7 +28,7 @@
 # [para]
 # This command is added to the [fun dict] ensemble as [fun {dict is_dict}]
 ###
-::tcllib::PROC ::tcl::dict::is_dict { d } {
+::clay::PROC ::tcl::dict::is_dict { d } {
   # is it a dict, or can it be treated like one?
   if {[catch {dict size $d} err]} {
     #::set ::errorInfo {}
@@ -44,13 +44,13 @@
 # A routine to recursively dig through dicts and merge
 # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
 ###
-::tcllib::PROC ::tcl::dict::rmerge {args} {
+::clay::PROC ::tcl::dict::rmerge {args} {
   ::set result [dict create . {}]
   # Merge b into a, and handle nested dicts appropriately
   ::foreach b $args {
     for { k v } $b {
       ::set field [string trim $k :/]
-      if {![::dicttool::is_branch $b $k]} {
+      if {![::clay::tree::is_branch $b $k]} {
         # Element names that end in ":" are assumed to be literals
         set result $k $v
       } elseif { [exists $result $k] } {
@@ -89,17 +89,17 @@
 # [list_end]
 # [para]
 # [para]
-# This command is added to the [fun dict] ensemble as [fun {dicttool::is_branch}]
+# This command is added to the [fun dict] ensemble as [fun {clay::tree::is_branch}]
 # example:
 # > set mydict {sub/ {sub/ {field {A block of text}}}
-# > dicttool::is_branch $mydict sub/
+# > clay::tree::is_branch $mydict sub/
 # 1
-# > dicttool::is_branch $mydict {sub/ sub/}
+# > clay::tree::is_branch $mydict {sub/ sub/}
 # 1
-# > dicttool::is_branch $mydict {sub/ sub/ field}
+# > clay::tree::is_branch $mydict {sub/ sub/ field}
 # 0
 ###
-::tcllib::PROC ::dicttool::is_branch { dict path } {
+::clay::PROC ::clay::tree::is_branch { dict path } {
   set field [lindex $path end]
   if {[string index $field end] eq ":"} {
     return 0
@@ -116,36 +116,36 @@
 ###
 # Output a dictionary as an indented stream of
 # data suitable for output to the screen. The system uses
-# the rules for [fun {dicttool::is_branch}] to determine if
+# the rules for [fun {clay::tree::is_branch}] to determine if
 # an value in a dictionary is a leaf or a branch.
 # example:
 # > set mydict {sub/ {sub/ {field {A block of text}}}
-# > dicttool::print $mydict
+# > clay::tree::print $mydict
 # sub/ {
 #   sub/ {
 #     field {A block of text}
 #   }
 # }
 ###
-::tcllib::PROC ::dicttool::print {dict} {
+::clay::PROC ::clay::tree::print {dict} {
   ::set result {}
   ::set level -1
-  ::dicttool::_dictputb $level result $dict
+  ::clay::tree::_dictputb $level result $dict
   return $result
 }
 
 ###
-# Helper function for ::dicttool::print
+# Helper function for ::clay::tree::print
 # Formats the string representation for a dictionary element within
 # a human readable stream of lines, and determines if it needs to call itself
 # with further indentation to express a sub-branch
 ###
-::tcllib::PROC ::dicttool::_dictputb {level varname dict} {
+::clay::PROC ::clay::tree::_dictputb {level varname dict} {
   upvar 1 $varname result
   incr level
   dict for {field value} $dict {
     if {$field eq "."} continue
-    if {[dicttool::is_branch $dict $field]} {
+    if {[clay::tree::is_branch $dict $field]} {
       putb result "[string repeat "  " $level]$field \{"
       _dictputb $level result $value
       putb result "[string repeat "  " $level]\}"
@@ -156,26 +156,26 @@
 }
 
 ###
-# Output a dictionary removing any . entries added by [fun {dicttool::merge}]
+# Output a dictionary removing any . entries added by [fun {clay::tree::merge}]
 ###
-proc ::dicttool::sanitize {dict} {
+proc ::clay::tree::sanitize {dict} {
   ::set result {}
   ::set level -1
-  ::dicttool::_sanitizeb {} result $dict
+  ::clay::tree::_sanitizeb {} result $dict
   return $result
 }
 
 ###
-# Helper function for ::dicttool::sanitize
+# Helper function for ::clay::tree::sanitize
 # Formats the string representation for a dictionary element within
 # a human readable stream of lines, and determines if it needs to call itself
 # with further indentation to express a sub-branch
 ###
-proc ::dicttool::_sanitizeb {path varname dict} {
+proc ::clay::tree::_sanitizeb {path varname dict} {
   upvar 1 $varname result
   dict for {field value} $dict {
     if {$field eq "."} continue
-    if {[dicttool::is_branch $dict $field]} {
+    if {[clay::tree::is_branch $dict $field]} {
       _sanitizeb [list {*}$path $field] result $value
     } else {
       dict set result {*}$path $field $value
@@ -184,23 +184,23 @@ proc ::dicttool::_sanitizeb {path varname dict} {
 }
 
 ###
-# Return the path as a storage path for dicttool
+# Return the path as a storage path for clay::tree
 # with all branch terminators removed.
 # This command will also break arguments up if they
 # contain /.
 # example:
-# > dicttool::storage {foo bar baz bang}
+# > clay::tree::storage {foo bar baz bang}
 # foo bar baz bang
-# > dicttool::storage {foo bar baz bang/}
+# > clay::tree::storage {foo bar baz bang/}
 # foo bar baz bang
-# > dicttool::storage {foo bar baz bang:}
+# > clay::tree::storage {foo bar baz bang:}
 # foo bar baz bang:
-# > dicttool::storage {foo/bar/baz bang:}
+# > clay::tree::storage {foo/bar/baz bang:}
 # foo bar baz bang:
-# > dicttool::storage {foo/bar/baz/bang}
+# > clay::tree::storage {foo/bar/baz/bang}
 # foo bar baz bang
 ###
-proc ::dicttool::storage {rawpath} {
+proc ::clay::tree::storage {rawpath} {
   set isleafvar 0
   set path {}
   set tail [string index $rawpath end]
@@ -225,16 +225,16 @@ proc ::dicttool::storage {rawpath} {
 # stored, and the value is treated as a leaf from then on.
 # example:
 # > set r {}
-# > ::dicttool::dictset r option color default Green
+# > ::clay::tree::dictset r option color default Green
 # . {} option {. {} color {. {} default Green}}
-# > ::dicttool::dictset r option {Something not dictlike}
+# > ::clay::tree::dictset r option {Something not dictlike}
 # . {} option {Something not dictlike}
 # # Note that if the value is not a dict, and you try to force it to be
 # # an error with be thrown on the merge
-# > ::dicttool::dictset r option color default Blue
+# > ::clay::tree::dictset r option color default Blue
 # missing value to go with key
 ###
-proc ::dicttool::dictset {varname args} {
+proc ::clay::tree::dictset {varname args} {
   upvar 1 $varname result
   if {[llength $args] < 2} {
     error "Usage: ?path...? path value"
@@ -264,7 +264,7 @@ proc ::dicttool::dictset {varname args} {
     dict set result {*}$path $dot $one
   }
   if {[dict exists $result {*}$path $dot]} {
-    dict set result {*}$path [::dicttool::merge [dict get $result {*}$path] $value]
+    dict set result {*}$path [::clay::tree::merge [dict get $result {*}$path] $value]
     return
   }
   dict set result {*}$path $value
@@ -274,8 +274,8 @@ proc ::dicttool::dictset {varname args} {
 # A recursive form of dict merge, intended for modifying variables in place.
 # example:
 # > set mydict {sub/ {sub/ {description {a block of text}}}}
-# > ::dicttool::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
-# > dicttool::print $mydict
+# > ::clay::tree::dictmerge mydict {sub/ {sub/ {field {another block of text}}}}]
+# > clay::tree::print $mydict
 # sub/ {
 #   sub/ {
 #     description {a block of text}
@@ -283,7 +283,7 @@ proc ::dicttool::dictset {varname args} {
 #   }
 # }
 ###
-proc ::dicttool::dictmerge {varname args} {
+proc ::clay::tree::dictmerge {varname args} {
   upvar 1 $varname result
   set dot .
   set one {}
@@ -291,17 +291,17 @@ proc ::dicttool::dictmerge {varname args} {
   foreach dict $args {
     dict for {f v} $dict {
       set field [string trim $f /]
-      set bbranch [dicttool::is_branch $dict $f]
+      set bbranch [clay::tree::is_branch $dict $f]
       if {![dict exists $result $field]} {
         dict set result $field $v
         if {$bbranch} {
-          dict set result $field [dicttool::merge $v]
+          dict set result $field [clay::tree::merge $v]
         } else {
           dict set result $field $v
         }
       } elseif {[dict exists $result $field $dot]} {
         if {$bbranch} {
-          dict set result $field [dicttool::merge [dict get $result $field] $v]
+          dict set result $field [clay::tree::merge [dict get $result $field] $v]
         } else {
           dict set result $field $v
         }
@@ -320,8 +320,8 @@ proc ::dicttool::dictmerge {varname args} {
 # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
 # example:
 # > set mydict {sub/ {sub/ {description {a block of text}}}}
-# > set odict [dicttool::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
-# > dicttool::print $odict
+# > set odict [clay::tree::merge $mydict {sub/ {sub/ {field {another block of text}}}}]
+# > clay::tree::print $odict
 # sub/ {
 #   sub/ {
 #     description {a block of text}
@@ -329,7 +329,7 @@ proc ::dicttool::dictmerge {varname args} {
 #   }
 # }
 ###
-proc ::dicttool::merge {args} {
+proc ::clay::tree::merge {args} {
   ###
   # The result of a merge is always a dict with branches
   ###
@@ -376,7 +376,7 @@ proc ::dicttool::merge {args} {
 # [para]
 # This function is added to the global dict ensemble as [fun {dict isnull}]
 ###
-::tcllib::PROC ::tcl::dict::isnull {dictionary args} {
+::clay::PROC ::tcl::dict::isnull {dictionary args} {
   if {![exists $dictionary {*}$args]} {return 1}
   return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
 } {

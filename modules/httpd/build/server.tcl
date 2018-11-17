@@ -466,11 +466,11 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
   # Generate a GUUID. Used to ensure every request has a unique ID.
   # The default implementation is:
   # [example {
-  #   return [::uuid::uuid generate]
+  #   return [::clay::uuid generate]
   # }]
   ###
   method Uuid_Generate {} {
-    return [::uuid::uuid generate]
+    return [::clay::uuid generate]
   }
 
   ###

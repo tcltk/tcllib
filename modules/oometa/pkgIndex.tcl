@@ -5,4 +5,4 @@ if {![package vsatisfies [package provide Tcl] 8.6]} {
     return
 }
 package ifneeded oo::meta   0.8 [list source [file join $dir oometa.tcl]]
-package ifneeded oo::option 0.4 [list source [file join $dir oooption.tcl]]
+package ifneeded oo::option 0.3.1 [list source [file join $dir oooption.tcl]]

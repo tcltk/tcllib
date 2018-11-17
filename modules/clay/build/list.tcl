@@ -13,7 +13,7 @@
 # puts $contents
 # > foo bar baz bang
 ###
-::tcllib::PROC ::dicttool::ladd {varname args} {
+::clay::PROC ::clay::ladd {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       set var {}
@@ -37,7 +37,7 @@
 # puts $contents
 # > bar baz bang
 ###
-::tcllib::PROC ::dicttool::ldelete {varname args} {
+::clay::PROC ::clay::ldelete {varname args} {
   upvar 1 $varname var
   if ![info exists var] {
       return
@@ -53,7 +53,7 @@
 ###
 # Return a random element from [variable list]
 ###
-::tcllib::PROC ::dicttool::lrandom list {
+::clay::PROC ::clay::lrandom list {
   set len [llength $list]
   set idx [expr int(rand()*$len)]
   return [lindex $list $idx]

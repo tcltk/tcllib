@@ -16,7 +16,6 @@ testsNeedTcl     8.6
 testsNeedTcltest 1.0
 
 support {
-    use dicttool/dicttool.tcl   dicttool
 }
 testing {
     useLocal cron.tcl cron
@@ -36,7 +35,7 @@ foreach {val testval} {
 } {
   test cron-step-$val [list test clock_step function for $val] {
     ::cron::clock_step $val
-  } $testval 
+  } $testval
 }
 
 proc test_elapsed_time {start target} {
@@ -214,7 +213,7 @@ oo::class create CronTest_Persistant_Coro {
       puts [list [self] SIGNAL TO EXIT]
     }
   }
-  
+
   method DoLoop {} {
     if {$::cron::trace} {
       puts "[self] CORO START"
@@ -362,7 +361,7 @@ test cron-naive-corotine-3 {cron::coroutine sleep} {
   } else {
     return 0
   }
-  
+
 } 0
 
 ###

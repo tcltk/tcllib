@@ -1,5 +1,5 @@
 ###
-# oodialect.tcl
+# Adapted from Tcllib's oo::dialect
 #
 # Copyright (c) 2015-2018 Sean Woods
 # Copyright (c) 2015 Donald K Fellows
@@ -7,7 +7,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package oo::dialect 0.4
+# Package clay::dialect 0.4
 # Meta platform     tcl
 # Meta summary      A utility for defining a domain specific language for TclOO systems
 # Meta description  This package allows developers to generate
@@ -20,37 +20,37 @@
 # Meta author       Donald K. Fellows
 # Meta license      BSD
 # @@ Meta End
-namespace eval ::oo::dialect {
+namespace eval ::clay::dialect {
   namespace export create
 }
 # Allow test rigs to overwrite the flags before invoking this script
 foreach {flag test} {
   tip470 {package vsatisfies [package provide Tcl] 8.7}
 } {
-  if {![info exists ::oo::dialect::has($flag)]} {
-    set ::oo::dialect::has($flag) [eval $test]
+  if {![info exists ::clay::dialect::has($flag)]} {
+    set ::clay::dialect::has($flag) [eval $test]
   }
 }
 
-proc ::oo::dialect::Push {class} {
+proc ::clay::dialect::Push {class} {
   ::variable class_stack
   lappend class_stack $class
 }
-proc ::oo::dialect::Peek {} {
+proc ::clay::dialect::Peek {} {
   ::variable class_stack
   return [lindex $class_stack end]
 }
-proc ::oo::dialect::Pop {} {
+proc ::clay::dialect::Pop {} {
   ::variable class_stack
   set class_stack [lrange $class_stack 0 end-1]
 }
 
-if {$::oo::dialect::has(tip470)} {
-proc ::oo::dialect::current_class {} {
+if {$::clay::dialect::has(tip470)} {
+proc ::clay::dialect::current_class {} {
   return [uplevel 1 self]
 }
 } else {
-proc ::oo::dialect::current_class {} {
+proc ::clay::dialect::current_class {} {
   tailcall Peek
 }
 }
@@ -59,7 +59,7 @@ proc ::oo::dialect::current_class {} {
 # This proc will generate a namespace, a "mother of all classes", and a
 # rudimentary set of policies for this dialect.
 ###
-proc ::oo::dialect::create {name {parent ""}} {
+proc ::clay::dialect::create {name {parent ""}} {
   variable has
   set NSPACE [NSNormalize [uplevel 1 {namespace current}] $name]
   ::namespace eval $NSPACE {::namespace eval define {}}
@@ -75,7 +75,7 @@ proc ::oo::dialect::create {name {parent ""}} {
     foreach command [info commands ::oo::define::*] {
       set procname [namespace tail $command]
       interp alias {} ${NSPACE}::define::$procname {} \
-        ::oo::dialect::DefineThunk $procname
+        ::clay::dialect::DefineThunk $procname
     }
     # Create an empty dynamic_methods proc
     proc ${NSPACE}::dynamic_methods {class} {}
@@ -110,19 +110,19 @@ proc ::oo::dialect::create {name {parent ""}} {
   # To facilitate library reloading, allow
   # a dialect to create a class from DEFINE
   ###
-  set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
+  set class [::clay::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
     if {[info commands $class] eq {}} {
       %NSPACE%::class create $class {*}${args}
     } else {
-      ::oo::dialect::Define %NSPACE% $class {*}${args}
+      ::clay::dialect::Define %NSPACE% $class {*}${args}
     }
 }]
   interp alias {} ${NSPACE}::define::current_class {} \
-    ::oo::dialect::current_class
+    ::clay::dialect::current_class
   interp alias {} ${NSPACE}::define::aliases {} \
-    ::oo::dialect::Aliases $NSPACE
+    ::clay::dialect::Aliases $NSPACE
   interp alias {} ${NSPACE}::define::superclass {} \
-    ::oo::dialect::SuperClass $NSPACE
+    ::clay::dialect::SuperClass $NSPACE
 
   if {[info command ${NSPACE}::class] ne {}} {
     ::rename ${NSPACE}::class {}
@@ -131,7 +131,7 @@ proc ::oo::dialect::create {name {parent ""}} {
   # Build the metaclass for our language
   ###
   ::oo::class create ${NSPACE}::class {
-    superclass ::oo::dialect::MotherOfAllMetaClasses
+    superclass ::clay::dialect::MotherOfAllMetaClasses
   }
   # Wire up the create method to add in the extra argument we need; the
   # MotherOfAllMetaClasses will know what to do with it.
@@ -149,27 +149,27 @@ proc ::oo::dialect::create {name {parent ""}} {
       # Put MOACish stuff in here
     }
   }]
-  if { "${NSPACE}::class" ni $::oo::dialect::core_classes } {
-    lappend ::oo::dialect::core_classes "${NSPACE}::class"
+  if { "${NSPACE}::class" ni $::clay::dialect::core_classes } {
+    lappend ::clay::dialect::core_classes "${NSPACE}::class"
   }
-  if { "${NSPACE}::object" ni $::oo::dialect::core_classes } {
-    lappend ::oo::dialect::core_classes "${NSPACE}::object"
+  if { "${NSPACE}::object" ni $::clay::dialect::core_classes } {
+    lappend ::clay::dialect::core_classes "${NSPACE}::object"
   }
 }
 
 # Support commands; not intended to be called directly.
-proc ::oo::dialect::NSNormalize {namespace qualname} {
+proc ::clay::dialect::NSNormalize {namespace qualname} {
   if {![string match ::* $qualname]} {
     set qualname ${namespace}::$qualname
   }
   regsub -all {::+} $qualname "::"
 }
 
-proc ::oo::dialect::DefineThunk {target args} {
+proc ::clay::dialect::DefineThunk {target args} {
   tailcall ::oo::define [Peek] $target {*}$args
 }
 
-proc ::oo::dialect::Canonical {namespace NSpace class} {
+proc ::clay::dialect::Canonical {namespace NSpace class} {
   namespace upvar $namespace cname cname
   #if {[string match ::* $class]} {
   #  return $class
@@ -177,11 +177,11 @@ proc ::oo::dialect::Canonical {namespace NSpace class} {
   if {[info exists cname($class)]} {
     return $cname($class)
   }
-  if {[info exists ::oo::dialect::cname($class)]} {
-    return $::oo::dialect::cname($class)
+  if {[info exists ::clay::dialect::cname($class)]} {
+    return $::clay::dialect::cname($class)
   }
-  if {[info exists ::oo::dialect::cname(${NSpace}::${class})]} {
-    return $::oo::dialect::cname(${NSpace}::${class})
+  if {[info exists ::clay::dialect::cname(${NSpace}::${class})]} {
+    return $::clay::dialect::cname(${NSpace}::${class})
   }
   foreach item [list "${NSpace}::$class" "::$class"] {
     if {[info commands $item] ne {}} {
@@ -194,7 +194,7 @@ proc ::oo::dialect::Canonical {namespace NSpace class} {
 ###
 # Implementation of the languages' define command
 ###
-proc ::oo::dialect::Define {namespace class args} {
+proc ::clay::dialect::Define {namespace class args} {
   Push $class
   try {
   	if {[llength $args]==1} {
@@ -213,7 +213,7 @@ proc ::oo::dialect::Define {namespace class args} {
 # to
 ###
 
-proc ::oo::dialect::Aliases {namespace args} {
+proc ::clay::dialect::Aliases {namespace args} {
   set class [Peek]
   namespace upvar $namespace cname cname
   set NSpace [join [lrange [split $class ::] 1 end-2] ::]
@@ -223,12 +223,12 @@ proc ::oo::dialect::Aliases {namespace args} {
     #set alias $name
     set alias [NSNormalize $NSpace $name]
     # Add a local metaclass reference
-    if {![info exists ::oo::dialect::cname($alias)]} {
-      lappend ::oo::dialect::aliases($class) $alias
+    if {![info exists ::clay::dialect::cname($alias)]} {
+      lappend ::clay::dialect::aliases($class) $alias
       ##
       # Add a global reference, first come, first served
       ##
-      set ::oo::dialect::cname($alias) $class
+      set ::clay::dialect::cname($alias) $class
     }
   }
 }
@@ -238,11 +238,11 @@ proc ::oo::dialect::Aliases {namespace args} {
 # our language's mother of all classes
 ###
 
-proc ::oo::dialect::SuperClass {namespace args} {
+proc ::clay::dialect::SuperClass {namespace args} {
   set class [Peek]
   namespace upvar $namespace class_info class_info
   dict set class_info($class) superclass 1
-  set ::oo::dialect::cname($class) $class
+  set ::clay::dialect::cname($class) $class
   set NSpace [join [lrange [split $class ::] 1 end-2] ::]
   set unique {}
   foreach item $args {
@@ -260,8 +260,8 @@ proc ::oo::dialect::SuperClass {namespace args} {
 # Implementation of the common portions of the the metaclass for our
 # languages.
 ###
-if {[info command ::oo::dialect::MotherOfAllMetaClasses] eq {}} {
-::oo::class create ::oo::dialect::MotherOfAllMetaClasses {
+if {[info command ::clay::dialect::MotherOfAllMetaClasses] eq {}} {
+::oo::class create ::clay::dialect::MotherOfAllMetaClasses {
   superclass ::oo::class
   constructor {define definitionScript} {
     $define [self] {
@@ -270,15 +270,13 @@ if {[info command ::oo::dialect::MotherOfAllMetaClasses] eq {}} {
     $define [self] $definitionScript
   }
   method aliases {} {
-    if {[info exists ::oo::dialect::aliases([self])]} {
-      return $::oo::dialect::aliases([self])
+    if {[info exists ::clay::dialect::aliases([self])]} {
+      return $::clay::dialect::aliases([self])
     }
   }
 }
 }
 
-namespace eval ::oo::dialect {
+namespace eval ::clay::dialect {
   variable core_classes {::oo::class ::oo::object}
 }
-
-package provide oo::dialect 0.4

@@ -21,6 +21,16 @@ dict set map "\t" {    }
 #    http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
 #    And produces a summary
 ###
+proc ::ladd {varname args} { 
+  upvar 1 $varname list
+  if {![info exist list]} {
+    set list {}
+  }
+  foreach item $args {
+    if {$item ni $list} { lappend list $item }
+  }
+  return $list
+}
 proc ::record {service port type usage} {
   if { $port eq {} } return
   if {$service eq {} && $type in {tcp udp {}} && $usage != "Reserved"} {
@@ -35,8 +45,7 @@ proc ::record {service port type usage} {
 for {set x 0} {$x < 65536} {incr x} {
   set ::available_port($x) {}
 }
-package require dicttool
-package require csv
+source [file join $moddir .. csv csv.tcl]
 set fin [open [file join $srcdir service-names-port-numbers.csv] r]
 set headers [gets $fin]
 set thisline {}

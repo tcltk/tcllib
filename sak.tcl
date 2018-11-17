@@ -75,6 +75,16 @@ proc getpackage {package tclmodule} {
 proc tclfiles {} {
     global distribution
     getpackage fileutil fileutil/fileutil.tcl
+    foreach mod [modules] {
+      build_amalgamation_mod $mod
+    }
+    set bl [fileutil::findByPattern $distribution -glob build.tcl]
+    foreach f $bl {
+	if {[file tail [file dirname $f]] ne "build"} continue
+	puts "Invoke Build $f"
+	exec [info nameofexecutable] $f
+    }
+
     set fl [fileutil::findByPattern $distribution -glob *.tcl]
     # Remove files under SCCS. They are repository, not sources to check.
     set tmp {}
@@ -87,10 +97,11 @@ proc tclfiles {} {
 }
 
 proc modtclfiles {modules} {
-    global mfiles guide
+    global mfiles guide distribution
     load_modinfo
     set mfiles [list]
     foreach m $modules {
+      build_amalgamation_mod $m
 	eval $guide($m,pkg) $m __dummy__
     }
     return $mfiles
@@ -101,10 +112,10 @@ proc modules {} {
     set fl [list]
     foreach f [glob -nocomplain [file join $distribution modules *]] {
 	if {![file isdirectory $f]} {continue}
+  build_amalgamation_mod [file tail $f]
 	if {[string match CVS [file tail $f]]} {continue}
 
 	if {![file exists [file join $f pkgIndex.tcl]]} {continue}
-
 	lappend fl [file tail $f]
     }
     set fl [lsort $fl]
@@ -167,9 +178,9 @@ proc ipackages {args} {
     global distribution
 
     if {[llength $args] == 0} {set args [modules]}
-
     array set p {}
     foreach m $args {
+	build_amalgamation_mod $m
 	set f [open [file join $distribution modules $m pkgIndex.tcl] r]
 	foreach line [split [read $f] \n] {
 	    if { [regexp {#}        $line]} {continue}
@@ -390,7 +401,7 @@ proc ppackages {args} {
     unset p
 
     set ppcache($args) $pp
-    return $pp 
+    return $pp
 }
 
 proc xNULL    {args} {}
@@ -723,7 +734,7 @@ proc getpdesc  {} {
 
     package require sak::doc
     sak::doc::Gen desc l $argv
-    
+
     array set _ {}
     foreach file [glob -nocomplain doc/desc/*.l] {
         set f [open $file r]
@@ -924,6 +935,9 @@ proc validate_versions_mod {m} {
 proc validate_testsuite_mod {m} {
     global distribution
     if {[llength [glob -nocomplain [file join $distribution modules $m *.test]]] == 0} {
+      build_amalgamation_mod $m
+    }
+    if {[llength [glob -nocomplain [file join $distribution modules $m *.test]]] == 0} {
 	puts "  Without testsuite : $m"
     }
     return
@@ -1040,8 +1054,36 @@ proc _bench_write {output data norm format} {
     }
 }
 
+proc build_amalgamation_mod {m} {
+  global distribution amalgamation
+  if {[info exists amalgamation($m)]} return
+  if {![file exists [file join $distribution modules $m build build.tcl]]} {
+    set amalgamation($m) 0
+    return 0
+  }
+  set amalgamation($m) 1
+  getpackage fileutil fileutil/fileutil.tcl
+  set modfile [file join $distribution modules $m $m.tcl]
+  if {[file exists $modfile]} {
+    set newest 0
+    foreach f [fileutil::findByPattern [file join $distribution modules $m build] -glob *.tcl] {
+      set mtime [file mtime $f]
+      if {$mtime>$newest} {
+        set newest $mtime
+      }
+    }
+    if {$newest<=[file mtime $modfile]} {
+      return
+    }
+  }
+  #puts [list REBUILDING MODULE $m]
+  exec [info nameofexecutable] [file join $distribution modules $m build build.tcl]
+  return 1
+}
+
 proc validate_testsuites {} {
     foreach m [modules] {
+  build_amalgamation_mod $m
 	validate_testsuite_mod $m
     }
     return
@@ -1463,7 +1505,7 @@ proc ::dsrs::Final {} {
 
 	    # We are writing over code required by ourselves.
 	    # For easy recovery in case of problems we save
-	    # the original 
+	    # the original
 
 	    puts "    *Saving original of code important to docstrip/regen itself*"
 	    write_out $o.bak [get_input $o]
@@ -1668,7 +1710,7 @@ proc critcl_module {pkg {extra ""}} {
     set target [file join $distribution modules]
     catch {
         puts "$critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files"
-        eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files 
+        eval exec $critcl $extra -force -libdir [list $target] -pkg [list $pkg] $files
     } r
     puts $r
     return
@@ -2020,7 +2062,6 @@ proc __oldvalidate {} {
 proc _validate_all {} {
     global package_name package_version
     set i 0
-
     puts "Validating $package_name $package_version development"
     puts "==================================================="
     puts "[incr i]: Existence of testsuites ..."
@@ -2073,7 +2114,7 @@ proc _validate_all {} {
     }
     if {$nagelfar == {}} {puts "  Tool 'nagelfar' not found, no check"}
 
-    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {}) 
+    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {})
         || ($nagelfar == {})} {
 	puts "------------------------------------------------------"
     }
@@ -2093,7 +2134,7 @@ proc _validate_all {} {
 	puts "------------------------------------------------------"
     }
     if {$nagelfar    !={}} {
-    	run-nagelfar 
+    	run-nagelfar
 	puts "------------------------------------------------------"
     }
     puts ""
@@ -2103,8 +2144,13 @@ proc _validate_all {} {
 proc _validate_module {m} {
     global package_name package_version
     set i 0
-
     puts "Validating $package_name $package_version development -- $m"
+
+    if {[build_amalgamation_mod $m]} {
+      puts "==================================================="
+      puts "Rebuilt module amalgamation"
+    }
+
     puts "==================================================="
     puts "[incr i]: Existence of testsuites ..."
     puts "------------------------------------------------------"
@@ -2149,13 +2195,13 @@ proc _validate_module {m} {
     set procheck [auto_execok procheck]
     set nagelfar [auto_execok nagelfar]
     set tclchecker [auto_execok tclchecker]
-    
+
     if {$frink    == {}} {puts "  Tool 'frink'    not found, no check"}
     if {($procheck == {}) || ($tclchecker == {})} {
 	puts "  Tools 'procheck'/'tclchecker' not found, no check"
     }
     if {$nagelfar == {}} {puts "  Tool 'nagelfar' not found, no check"}
-    
+
     if {($frink == {}) || ($procheck == {}) || ($tclchecker == {}) ||
     	($nagelfar == {})} {
 	puts "------------------------------------------------------"
@@ -2257,7 +2303,7 @@ proc __release {} {
 
 	*
 	* Released and tagged $pname $package_version ========================
-	* 
+	*
 
 "
 
