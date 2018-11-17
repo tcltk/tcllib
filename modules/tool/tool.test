@@ -9,73 +9,14 @@ testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
-
+# use oodialect/oodialect.tcl oo::dialect
 support {
-    use oodialect/oodialect.tcl oo::dialect
-    use dicttool/dicttool.tcl   dicttool
-    use clay/clay.tcl           clay
-    use oometa/oometa.tcl       oo::meta
     use cron/cron.tcl           cron
     use sha1/sha1.tcl           sha1
 }
 testing {
     useLocal tool.tcl tool
 }
-# -------------------------------------------------------------------------
-# Test Helpers
-###
-proc dict_compare {a b} {
-  set result {}
-  set A {}
-  dict for {f v} $a {
-    set f [string trim $f :/]
-    if {$f eq {.}} continue
-    dict set A $f $v
-  }
-  set B {}
-  dict for {f v} $b {
-    set f [string trim $f :/]
-    if {$f eq {.}} continue
-    dict set B $f $v
-  }
-  dict for {f v} $A {
-    if {[dict exists $B $f]} {
-      if {[dict get $B $f] ne $v} {
-        lappend result [list B $f [dict get $B $f] [list != $v]]
-      }
-    } else {
-      lappend result [list B $f $v missing]
-    }
-  }
-  dict for {f v} $B {
-    if {![dict exists $A $f]} {
-      lappend result [list A $f $v missing]
-    }
-  }
-  return $result
-}
-
-
-test dict-compare-001 {Test our testing method} {
-  dict_compare {} {}
-} {}
-
-test dict-compare-002 {Test our testing method} {
-  dict_compare {a 1} {}
-} {{B a 1 missing}}
-
-test dict-compare-003 {Test our testing method} {
-  dict_compare {a 1 b 2} {a 1 b 2}
-} {}
-
-test dict-compare-004 {Test our testing method} {
-  dict_compare {a: 1 b: 2} {a 1 b 2}
-} {}
-
-test dict-compare-005 {Test our testing method} {
-  dict_compare {a 1 b 3} {a 1 b 2}
-} {{B b 2 {!= 3}}}
-
 
 # -------------------------------------------------------------------------
 
@@ -275,73 +216,65 @@ tool::class create ArrayEnsembleClass {
 
 ArrayEnsembleClass create ArrayEnsembleObject
 
-test tool-array-ensemble-001 {Test Array Ensemble} {
+test tool-ensemble-001 {Test Array Ensemble} {
   ArrayEnsembleObject define true
 } true
-test tool-array-ensemble-002 {Test Array Ensemble} {
+test tool-ensemble-002 {Test Array Ensemble} {
   ArrayEnsembleObject define false
 } false
-test tool-array-ensemble-003 {Test Array Ensemble retrieve initial value} {
+test tool-ensemble-003 {Test Array Ensemble retrieve initial value} {
   ArrayEnsembleObject define get foo
 } bar
-test tool-array-ensemble-004 {Test Array Ensemble Store a value} {
+test tool-ensemble-004 {Test Array Ensemble Store a value} {
   ArrayEnsembleObject define set cc /usr/bin/cc
   ArrayEnsembleObject define get cc
 } /usr/bin/cc
 
-test tool-array-ensemble-005 {Test array add} {
+test tool-ensemble-005 {Test array add} {
   ArrayEnsembleObject define add path /bin
   ArrayEnsembleObject define get path
 } /bin
 
-test tool-array-ensemble-005 {Test array add} {
+test tool-ensemble-005 {Test array add} {
   ArrayEnsembleObject define add path /usr/bin
   ArrayEnsembleObject define get path
 } {/bin /usr/bin}
 
-test tool-array-ensemble-006 {Test array add (again)} {
+test tool-ensemble-006 {Test array add (again)} {
   ArrayEnsembleObject define add path /usr/bin
   ArrayEnsembleObject define get path
 } {/bin /usr/bin}
 
 
-test tool-array-ensemble-007 {Test array lappend} {
+test tool-ensemble-007 {Test array lappend} {
   ArrayEnsembleObject define lappend path /usr/bin
   ArrayEnsembleObject define get path
 } {/bin /usr/bin /usr/bin}
 
-test tool-array-ensemble-008 {Test array remove} {
+test tool-ensemble-008 {Test array remove} {
   ArrayEnsembleObject define remove path /usr/bin
   ArrayEnsembleObject define get path
 } {/bin}
 
-test tool-array-ensemble-009 {Test array exists} {
+test tool-ensemble-009 {Test array exists} {
   ArrayEnsembleObject define exists counter
 } 0
 
-test tool-array-ensemble-010 {Test array incr} {
+test tool-ensemble-010 {Test array incr} {
   ArrayEnsembleObject define incr counter
   ArrayEnsembleObject define get counter
 } 1
 
-test tool-array-ensemble-011 {Test array incr} {
+test tool-ensemble-011 {Test array incr} {
   ArrayEnsembleObject define incr counter
   ArrayEnsembleObject define get counter
 } 2
 
-test tool-array-ensemble-012 {Test array exists} {
+test tool-ensemble-012 {Test array exists} {
   ArrayEnsembleObject define exists counter
 } 1
 
-test tool-array-ensemble-013a {Test array reset} {
-  lsort -stride 2 [ArrayEnsembleObject define initial]
-} {color pink foo bar}
-
-test tool-array-ensemble-013b {Test array reset} {
-  lsort -stride 2 [ArrayEnsembleObject define reset]
-} {color pink foo bar}
-
-test tool-array-ensemble-013 {Test array reset} {
+test tool-ensemble-013 {Test array reset} {
   ArrayEnsembleObject define reset
   lsort -stride 2 [ArrayEnsembleObject define dump]
 } {color pink foo bar}
@@ -370,119 +303,81 @@ tool::class create DictEnsembleClass {
 
 DictEnsembleClass create DictEnsembleObject
 
-test tool-dict-ensemble-000 {Test Dict Ensemble} {
-  DictEnsembleObject define <list>
-} {add append branchset custom dump false incr initial initialize lappend merge remove replace reset rmerge set true unset update}
-
-test tool-dict-ensemble-001 {Test Dict Ensemble} {
+test tool-ensemble-001 {Test Array Ensemble} {
   DictEnsembleObject define true
 } true
-
-test tool-dict-ensemble-002 {Test Dict Ensemble} {
+test tool-ensemble-002 {Test Array Ensemble} {
   DictEnsembleObject define false
 } false
-test tool-dict-ensemble-003 {Test Dict Ensemble retrieve initial value} {
+test tool-ensemble-003 {Test Array Ensemble retrieve initial value} {
   DictEnsembleObject define get foo
 } bar
-test tool-dict-ensemble-004 {Test Array Ensemble Store a value} {
+test tool-ensemble-004 {Test Array Ensemble Store a value} {
   DictEnsembleObject define set cc /usr/bin/cc
   DictEnsembleObject define get cc
 } /usr/bin/cc
 
-test tool-dict-ensemble-005 {Test doct add} {
+test tool-ensemble-005 {Test array add} {
   DictEnsembleObject define add path /bin
   DictEnsembleObject define get path
 } /bin
 
-test tool-dict-ensemble-005 {Test dict add} {
+test tool-ensemble-005 {Test array add} {
   DictEnsembleObject define add path /usr/bin
   DictEnsembleObject define get path
 } {/bin /usr/bin}
 
-test tool-dict-ensemble-006 {Test dict add (again)} {
+test tool-ensemble-006 {Test array add (again)} {
   DictEnsembleObject define add path /usr/bin
   DictEnsembleObject define get path
 } {/bin /usr/bin}
 
 
-test tool-dict-ensemble-007 {Test array lappend} {
+test tool-ensemble-007 {Test array lappend} {
   DictEnsembleObject define lappend path /usr/bin
   DictEnsembleObject define get path
 } {/bin /usr/bin /usr/bin}
 
-test tool-dict-ensemble-008 {Test dict remove} {
+test tool-ensemble-008 {Test array remove} {
   DictEnsembleObject define remove path /usr/bin
   DictEnsembleObject define get path
 } {/bin}
 
-test tool-dict-ensemble-009 {Test dict exists} {
+test tool-ensemble-009 {Test array exists} {
   DictEnsembleObject define exists counter
 } 0
 
-test tool-dict-ensemble-010 {Test dict incr} {
+test tool-ensemble-010 {Test array incr} {
   DictEnsembleObject define incr counter
   DictEnsembleObject define get counter
 } 1
 
-test tool-dict-ensemble-011 {Test dict incr} {
+test tool-ensemble-011 {Test array incr} {
   DictEnsembleObject define incr counter
   DictEnsembleObject define get counter
 } 2
 
-test tool-dict-ensemble-012 {Test dict exists} {
+test tool-ensemble-012 {Test array exists} {
   DictEnsembleObject define exists counter
 } 1
 
-
-test tool-dict-ensemble-013a {Test array reset} {
-  lsort -stride 2 [DictEnsembleObject define initial]
-} {color pink foo bar}
-
-test tool-dict-ensemble-013b {Test array reset} {
-  lsort -stride 2 [DictEnsembleObject define reset]
-} {color pink foo bar}
-
-
-test tool-dict-ensemble-013 {Test dict reset} {
+test tool-ensemble-013 {Test array reset} {
   DictEnsembleObject define reset
   lsort -stride 2 [DictEnsembleObject define dump]
 } {color pink foo bar}
 
+
+
+
 test tool-option_class-001 {Test option class} {
-  set result [ObjectOptionTest1 meta get option master]
-  dict_compare {
-    default: ::noop
-    class: organ
-    widget: label
-    set-command: {my graft %field% %value%}
-    get-command: {my organ %field%}
-  } $result
-} {}
+  ObjectOptionTest1 meta get option master
+} {default: ::noop class: organ widget: label set-command: {my graft %field% %value%} get-command: {my organ %field%}}
 
 proc GNDN args {
   return $args
 }
 
-test tool-option_class-002a {Test option class} {
-  set r [ObjectOptionTest1 clay get option]
-  dict_compare $r {bodystyle {default sedan} master {default ::noop class organ widget label set-command {my graft %field% %value%} get-command {my organ %field%}}}
-} {}
-
-
-test tool-option_class-002b {Test option class} {
-  ObjectOptionTest1 clay delegate
-} {<class> ::OptionClass <master> ::noop}
-
 ObjectOptionTest1 configure master GNDN
-
-test tool-option_class-002c {Test option class} {
-  ObjectOptionTest1 clay delegate
-} {<class> ::OptionClass <master> GNDN}
-
-test tool-option_class-002d {Test option class} {
-  ObjectOptionTest1 cget master
-} GNDN
-
 test tool-option_class-002 {Test option class} {
   ObjectOptionTest1 organ master
 } GNDN
@@ -653,13 +548,10 @@ tool::define NestedClassF {
 
 NestedClassC create NestedObjectC
 
-noop {
-# This test no longer works with the clay model
-# of building ensembles on the fly
 test tool-ensemble-001 {Test that an ensemble can access [next] even if no object of the ancestor class have been instantiated} {
   NestedObjectC do family
 } {::NestedClassA ::NestedClassB ::NestedClassC}
-}
+
 test tool-ensemble-002 {Test that a later ensemble definition trumps a more primitive one} {
   NestedObjectC do whop
 } {B}
@@ -758,7 +650,6 @@ test tool-mixinmap-001 {Test object prior to mixins} {
   mixintest test which
 } {}
 
-::tcllib::noop {
 ###
 # Coroutine tests
 ###
@@ -1070,7 +961,6 @@ test tool-coroutine-yodawg-03-endevent {Test coroutine - yodawg } {
   $obj coro_yodawg_info get last_event
 } end
 
-}
 # -------------------------------------------------------------------------
 
 

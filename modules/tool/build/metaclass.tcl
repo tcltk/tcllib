@@ -18,9 +18,12 @@ namespace eval ::tool {}
 namespace eval ::tool::define {}
 proc ::tool::define::array {name {values {}}} {
   set class [current_class]
-  set name [string trimright $name :]
-  dict for {f v} $values {
-    $class clay set array $name $f $v
+  set name [string trimright $name :]:
+  if {![::oo::meta::info $class exists array $name]} {
+    ::oo::meta::info $class set array $name {}
+  }
+  foreach {var val} $values {
+    ::oo::meta::info $class set array $name: $var $val
   }
 }
 
@@ -57,8 +60,9 @@ my initialize
 ###
 proc ::tool::define::class_method {name arglist body} {
   set class [current_class]
-  $class clay set class_typemethod/ [string trim $name :/] [dict create arglist $arglist body $body]
+  ::oo::meta::info $class set class_typemethod $name: [list $arglist $body]
 }
+
 ###
 # topic: 4cb3696bf06d1e372107795de7fe1545
 # title: Specify the destructor for a class
@@ -213,15 +217,9 @@ proc ::tool::dynamic_arguments {ensemble method arglist args} {
 # topic: b88add196bb63abccc44639db5e5eae1
 ###
 proc ::tool::dynamic_methods_class {thisclass metadata} {
-  set methods {}
-  set mdata [$thisclass clay find class_typemethod]
-  foreach {method info} $mdata {
-    if {$method eq {.}} continue
-    set method [string trimright $method :/-]
-    if {$method in $methods} continue
-    lappend methods $method
-    set arglist [dict getnull $info arglist]
-    set body    [dict getnull $info body]
+  foreach {method info} [dict getnull $metadata class_typemethod] {
+    lassign $info arglist body
+    set method [string trimright $method :]
     ::oo::objdefine $thisclass method $method $arglist $body
   }
 }
@@ -315,39 +313,20 @@ proc ::tool::object_destroy objname {
 #
 # This class is inherited by all classes that have options.
 #
-proc ::tool::define::meta {args} {
-  set class [current_class]
-  if {[lindex $args 0] in "cget set branchset"} {
-    $class meta {*}$args
-  } else {
-    $class meta set {*}$args
-  }
-}
 
-::tool::object clay set variable signals_pending create
-::tool::object clay set variable meta {}
-::tool::object clay set variable organs {}
-::tool::object clay set variable mixins {}
-::tool::object clay set variable mixinmap {}
-::tool::object clay set variable DestroyEvent 0
-
-::oo::define ::tool::object {
+::tool::define ::tool::object {
+  # Put MOACish stuff in here
+  variable signals_pending create
+  variable organs {}
+  variable mixins {}
+  variable mixinmap {}
+  variable DestroyEvent 0
 
   constructor args {
-    ::tool::object_create [self] [info object class [self]]
-    my InitializePublic
-    my initialize
     my Config_merge [::tool::args_to_options {*}$args]
+  }
 
-  }
-  destructor {
-    # Run the destructor once and only once
-    set self [self]
-    my variable DestroyEvent
-    if {$DestroyEvent} return
-    set DestroyEvent 1
-    ::tool::object_destroy $self
-  }
+  destructor {}
 
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
@@ -374,8 +353,20 @@ proc ::tool::define::meta {args} {
   ###
   method graft args {
     my variable organs
-    set organs [my clay delegate {*}$args]
-    return $organs
+    if {[llength $args] == 1} {
+      error "Need two arguments"
+    }
+    set object {}
+    foreach {stub object} $args {
+      if {$stub eq "class"} {
+        # Force class to always track the object's current class
+        set obj [info object class [self]]
+      }
+      dict set organs $stub $object
+      oo::objdefine [self] forward <${stub}> $object
+      oo::objdefine [self] export <${stub}>
+    }
+    return $object
   }
 
   # Called after all options and public variables are initialized
@@ -402,11 +393,12 @@ proc ::tool::define::meta {args} {
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
   method InitializePublic {} {
-    my variable clay config meta clayorder claycache
-    set claycache {}
-    set clayorder [::clay::ancestors [info object class [self]] {*}[info object mixins [self]]]
-    if {![info exists clay]} {
-      set clay {}
+    my variable config meta mixinmap mixins
+    if {![info exists mixins]} {
+      set mixins {}
+    }
+    if {![info exists mixinmap]} {
+      set mixinmap {}
     }
     if {![info exists meta]} {
       set meta {}
@@ -414,120 +406,98 @@ proc ::tool::define::meta {args} {
     if {![info exists config]} {
       set config {}
     }
-    dict for {var value} [my clay get variable] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
+    my ClassPublicApply {}
+  }
+
+  class_method info {which} {
+    my variable cache
+    if {![info exists cache($which)]} {
+      set cache($which) {}
+      switch $which {
+        public {
+          dict set cache(public) variable [my meta branchget variable]
+          dict set cache(public) array [my meta branchget array]
+          set optinfo [my meta getnull option]
+          dict set cache(public) option_info $optinfo
+          foreach {var info} [dict getnull $cache(public) option_info] {
+            if {[dict exists $info aliases:]} {
+              foreach alias [dict exists $info aliases:] {
+                dict set cache(public) option_canonical $alias $var
+              }
+            }
+            set getcmd [dict getnull $info default-command:]
+            if {$getcmd ne {}} {
+              dict set cache(public) option_default_command $var $getcmd
+            } else {
+              dict set cache(public) option_default_value $var [dict getnull $info default:]
+            }
+            dict set cache(public) option_canonical $var $var
+          }
+        }
+      }
+    }
+    return $cache($which)
+  }
+
+  ###
+  # Incorporate the class's variables, arrays, and options
+  ###
+  method ClassPublicApply class {
+    my variable config
+    set integrate 0
+    if {$class eq {}} {
+      set class [info object class [self]]
+    } else {
+      set integrate 1
+    }
+    set public [$class info public]
+    foreach {var value} [dict getnull $public variable] {
+      if { $var in {meta config} } continue
       my variable $var
       if {![info exists $var]} {
-        if {$::clay::trace>2} {puts [list initialize variable $var $value]}
         set $var $value
       }
     }
-    dict for {var value} [my clay get dict] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
+    foreach {var value} [dict getnull $public array] {
+      if { $var eq {meta config} } continue
       my variable $var
-      if {![info exists $var]} {
-        set $var {}
-      }
-      foreach {f v} [my clay get $var] {
-        if {![dict exists ${var} $f]} {
-          if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
-          dict set ${var} $f $v
-        }
-      }
       foreach {f v} $value {
-        if {![dict exists ${var} $f]} {
-          if {$::clay::trace>2} {puts [list initialize dict $var $f $v]}
-          dict set ${var} $f $v
-        }
-      }
-    }
-    foreach {var value} [my clay get array] {
-      if { $var in {. clay} } continue
-      set var [string trim $var :/]
-      if { $var eq {clay} } continue
-      my variable $var
-      if {![info exists $var]} { array set $var {} }
-      foreach {f v} [my clay get $var] {
         if {![array exists ${var}($f)]} {
           set ${var}($f) $v
         }
       }
-      foreach {f v} $value {
-        if {![array exists ${var}($f)]} {
-          if {$::clay::trace>2} {puts [list initialize array $var\($f\) $v]}
-          set ${var}($f) $v
-        }
-      }
     }
-    my variable option_canonical option_getcmd option_getcmd
-    foreach {field info} [my clay get option] {
-      if { $field in {. clay} } continue
-      set field [string trim $field -/:]
-      foreach alias [dict getnull $info aliases] {
-        set option_canonical($alias) $field
+    set dat [dict getnull $public option_info]
+    if {$integrate} {
+      my meta rmerge [list option $dat]
+    }
+    my variable option_canonical
+    array set option_canonical [dict getnull $public option_canonical]
+    set dictargs {}
+    foreach {var getcmd} [dict getnull $public option_default_command] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
       }
-      if {[dict getnull $info class] eq "organ"} {
-        if {[my clay delegate $field] ne {}} continue
-      } else {
-        if {[dict exists $config $field]} continue
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var [{*}[string map [list %field% $var %self% [namespace which my]] $getcmd]]
+    }
+    foreach {var value} [dict getnull $public option_default_value] {
+      if {[dict getnull $dat $var class:] eq "organ"} {
+        if {[my organ $var] ne {}} continue
       }
-      set getcmd [dict getnull $info get-command]
-      if {$getcmd ne {}} {
-        set option_getcmd($field) [string map [list %field% $field %self% [namespace which my]] $getcmd]
-      }
-      set dfltcmd [dict getnull $info default-command]
-      if {$dfltcmd ne {}} {
-        set value [{*}[string map [list %field% $field %self% [namespace which my]] $dfltcmd]]
-      } else {
-        set value [dict getnull $info default]
-      }
-      if {[dict getnull $info class] eq "organ"} {
-        my clay delegate $field $value
-      }
-      dict set config $field $value
-      set setcmd [dict getnull $info set-command]
-      if {$setcmd ne {}} {
-        {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
-      }
+      if {[dict exists $config $var]} continue
+      dict set dictargs $var $value
     }
     ###
-    # Rebuild ensemble methods
+    # Apply all inputs with special rules
     ###
-    my variable clayorder clay claycache
-    if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble]
-    } else {
-      set emap {}
-    }
-    foreach class [lreverse $clayorder] {
-      ###
-      # Build a compsite map of all ensembles defined by the object's current
-      # class as well as all of the classes being mixed in
-      ###
-      dict for {mensemble einfo} [$class clay get method_ensemble] {
-        if {$mensemble eq {.}} continue
-        set ensemble [string trim $mensemble :/]
-        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
-
-        dict for {method info} $einfo {
-          if {$method eq {.}} continue
-          dict set info source $class
-          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
-          dict set emap $ensemble $method $info
-        }
+    foreach {field val} $dictargs {
+      if {[dict exists $config $field]} continue
+      set script [dict getnull $dat $field set-command:]
+      dict set config $field $val
+      if {$script ne {}} {
+        {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
       }
-    }
-    foreach {ensemble einfo} $emap {
-      #if {[dict exists $einfo _body]} continue
-      set body [::clay::ensemble_methodbody $ensemble $einfo]
-      if {$::clay::trace>2} {
-        set rawbody $body
-        set body {puts [list [self] <object> [self method]]}
-        append body \n $rawbody
-      }
-      oo::objdefine [self] method $ensemble {{method default} args} $body
     }
   }
 
@@ -546,17 +516,65 @@ proc ::tool::define::meta {args} {
     # Mix in the class
     ###
     my variable mixins
+    set prior $mixins
+
     set mixins $args
-    my clay mixin {*}$args
+    ::oo::objdefine [self] mixin {*}$args
+    ###
+    # Build a compsite map of all ensembles defined by the object's current
+    # class as well as all of the classes being mixed in
+    ###
+    set emap [::tool::ensemble_build_map [::info object class [self]] {*}[lreverse $args]]
+    set body [::tool::ensemble_methods $emap]
+    oo::objdefine [self] $body
+    foreach class $args {
+      if {$class ni $prior} {
+        my meta mixin $class
+      }
+      my ClassPublicApply $class
+    }
+    foreach class $prior {
+      if {$class ni $mixins } {
+        my meta mixout $class
+      }
+    }
   }
 
   method mixinmap args {
-    set result [my clay mixinmap {*}$args]
-    if {[llength $args]>1} {
-      my variable mixinmap
-      set mixinmap [my clay mixinmap]
+    my variable mixinmap
+    set priorlist {}
+    foreach {slot classes} $args {
+      if {[dict exists $mixinmap $slot]} {
+        lappend priorlist {*}[dict get $mixinmap $slot]
+        foreach class [dict get $mixinmap $slot] {
+          if {$class ni $classes && [$class meta exists mixin unmap-script:]} {
+            if {[catch [$class meta get mixin unmap-script:] err errdat]} {
+              puts stderr "[self] MIXIN ERROR POPPING $class:\n[dict get $errdat -errorinfo]"
+            }
+          }
+        }
+      }
+      dict set mixinmap $slot $classes
     }
-    return $result
+    my Recompute_Mixins
+    foreach {slot classes} $args {
+      foreach class $classes {
+        if {$class ni $priorlist && [$class meta exists mixin map-script:]} {
+          if {[catch [$class meta get mixin map-script:] err errdat]} {
+            puts stderr "[self] MIXIN ERROR PUSHING $class:\n[dict get $errdat -errorinfo]"
+          }
+        }
+      }
+    }
+    foreach {slot classes} $mixinmap {
+      foreach class $classes {
+        if {[$class meta exists mixin react-script:]} {
+          if {[catch [$class meta get mixin react-script:] err errdat]} {
+            puts stderr "[self] MIXIN ERROR REACTING $class:\n[dict get $errdat -errorinfo]"
+          }
+        }
+      }
+    }
   }
 
   method debug_mixinmap {} {
@@ -608,11 +626,12 @@ proc ::tool::define::meta {args} {
   ###
   method organ {{stub all}} {
     my variable organs
-    set organs [my clay delegate]
+    if {![info exists organs]} {
+      return {}
+    }
     if { $stub eq "all" } {
       return $organs
     }
-    set stub <[string trim $stub <>]>
     return [dict getnull $organs $stub]
   }
 }

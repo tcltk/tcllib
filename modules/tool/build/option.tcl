@@ -4,16 +4,16 @@
 ###
 proc ::tool::define::option {name args} {
   set class [current_class]
-  set dictargs {default {}}
+  set dictargs {default: {}}
   foreach {var val} [::oo::meta::args_to_dict {*}$args] {
-    dict set dictargs [string trim $var -:/] $val
+    dict set dictargs [string trimright [string trimleft $var -] :]: $val
   }
   set name [string trimleft $name -]
 
   ###
   # Option Class handling
   ###
-  set optclass [dict getnull $dictargs class]
+  set optclass [dict getnull $dictargs class:]
   if {$optclass ne {}} {
     foreach {f v} [::oo::meta::info $class getnull option_class $optclass] {
       if {![dict exists $dictargs $f]} {
@@ -21,12 +21,10 @@ proc ::tool::define::option {name args} {
       }
     }
     if {$optclass eq "variable"} {
-      variable $name [dict getnull $dictargs default]
+      variable $name [dict getnull $dictargs default:]
     }
   }
-  foreach {f v} $dictargs {
-    $class clay set option $name $f $v
-  }
+  ::oo::meta::info $class branchset option $name $dictargs
 }
 
 ###
@@ -39,10 +37,11 @@ proc ::tool::define::option {name args} {
 proc ::tool::define::option_class {name args} {
   set class [current_class]
   set dictargs {default {}}
-  set name [string trimleft $name -]
-  foreach {f v} [::oo::meta::args_to_dict {*}$args] {
-    $class clay set option_class $name [string trim $f -/] $v
+  foreach {var val} [::oo::meta::args_to_dict {*}$args] {
+    dict set dictargs [string trimleft $var -] $val
   }
+  set name [string trimleft $name -]
+  ::oo::meta::info $class branchset option_class $name $dictargs
 }
 
 ::tool::define ::tool::object {
@@ -60,7 +59,7 @@ proc ::tool::define::option_class {name args} {
     set-command {my variable %field% ; set %field% %value%}
     get-command {my variable %field% ; set %field%}
   }
-
+  
   dict_ensemble config config {
     get {
       return [my Config_get {*}$args]
@@ -108,9 +107,9 @@ proc ::tool::define::option_class {name args} {
     if {[llength $args]} {
       return [lindex $args 0]
     }
-    return [my meta cget $field]
+    return [my meta cget $field] 
   }
-
+  
   ###
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
@@ -118,9 +117,10 @@ proc ::tool::define::option_class {name args} {
     my variable config option_canonical
     set rawlist $dictargs
     set dictargs {}
-    set dat [my clay get option]
+    set dat [my meta getnull option]
     foreach {field val} $rawlist {
-      set field [string trim $field -:/]
+      set field [string trimleft $field -]
+      set field [string trimright $field :]
       if {[info exists option_canonical($field)]} {
         set field $option_canonical($field)
       }
@@ -130,7 +130,7 @@ proc ::tool::define::option_class {name args} {
     # Validate all inputs
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field validate-command]
+      set script [dict getnull $dat $field validate-command:]
       if {$script ne {}} {
         dict set dictargs $field [eval [string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]]
       }
@@ -139,7 +139,7 @@ proc ::tool::define::option_class {name args} {
     # Apply all inputs with special rules
     ###
     foreach {field val} $dictargs {
-      set script [dict getnull $dat $field set-command]
+      set script [dict getnull $dat $field set-command:]
       dict set config $field $val
       if {$script ne {}} {
         {*}[string map [list %field% [list $field] %value% [list $val] %self% [namespace which my]] $script]
@@ -147,13 +147,13 @@ proc ::tool::define::option_class {name args} {
     }
     return $dictargs
   }
-
+  
   method Config_set args {
     set dictargs [::tool::args_to_options {*}$args]
     set dat [my Config_merge $dictargs]
     my Config_triggers $dat
   }
-
+  
   ###
   # topic: 543c936485189593f0b9ed79b5d5f2c0
   ###

@@ -22,7 +22,7 @@ proc ::oo::meta::rebuild args {
 proc ::tool::ensemble_build_map args {
   set emap {}
   foreach thisclass $args {
-    foreach {ensemble einfo} [$thisclass clay find method_ensemble] {
+    foreach {ensemble einfo} [::oo::meta::info $thisclass getnull method_ensemble] {
       foreach {submethod subinfo} $einfo {
         dict set emap $ensemble $submethod $subinfo
       }
@@ -37,12 +37,10 @@ proc ::tool::ensemble_methods emap {
     #set einfo [dict getnull $einfo method_ensemble $ensemble]
     set eswitch {}
     set default standard
-    set preamble {}
-
-    if {[dict exists $einfo default]} {
-      set emethodinfo [dict get $einfo default]
-      set arglist     [dict get $emethodinfo arglist]
-      set realbody    [dict get $emethodinfo body]
+    if {[dict exists $einfo default:]} {
+      set emethodinfo [dict get $einfo default:]
+      set arglist     [lindex $emethodinfo 0]
+      set realbody    [lindex $emethodinfo 1]
       if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
         set body {}
       } else {
@@ -50,22 +48,17 @@ proc ::tool::ensemble_methods emap {
       }
       append body "\n      " [string trim $realbody] "      \n"
       set default $body
-      dict unset einfo default
+      dict unset einfo default:
     }
     set methodlist {}
     foreach item [dict keys $einfo] {
-      if {$item eq "_preamble"} continue
       lappend methodlist [string trimright $item :]
     }
     set methodlist  [lsort -dictionary -unique $methodlist]
     foreach {submethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-      if {$submethod eq "_preamble"} {
-        set preamble [dict get $esubmethodinfo body]
-        continue
-      }
-      if {$submethod in {"_preamble" "default"}} continue
-      set arglist  [dict get $esubmethodinfo arglist]
-      set realbody [dict get $esubmethodinfo body]
+      if {$submethod in {"_preamble:" "default:"}} continue
+      set submethod [string trimright $submethod :]
+      lassign $esubmethodinfo arglist realbody
       if {[string length [string trim $realbody]] eq {}} {
         dict set eswitch $submethod {}
       } else {
@@ -85,14 +78,14 @@ proc ::tool::ensemble_methods emap {
       set default "error \"unknown method $ensemble \$method. Valid: \$methodlist\""
     }
     dict set eswitch default $default
-    set mbody {}
-    if {[dict exists $einfo _preamble]} {
-      append mbody [dict get [dict get $einfo _preamble] body] \n
+    set mbody {}    
+    if {[dict exists $einfo _preamble:]} {
+      append mbody [lindex [dict get $einfo _preamble:] 1] \n
     }
     append mbody \n [list set methodlist $methodlist]
     append mbody \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
     append mbody \n {return -options $opts $result}
-    append result \n [list method $ensemble {{method default} args} $mbody]
+    append result \n [list method $ensemble {{method default} args} $mbody]    
   }
   return $result
 }
@@ -122,7 +115,7 @@ proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
     oo::define $aclass $body
     # Define a property for this ensemble for introspection
     foreach {ensemble einfo} $emap {
-      ::oo::meta::info $aclass set ensemble_methods $ensemble [lsort -dictionary [dict keys $einfo]]
+      ::oo::meta::info $aclass set ensemble_methods $ensemble: [lsort -dictionary [dict keys $einfo]]
     }
     set ::tool::obj_ensemble_cache($aclass) 1
   }
@@ -147,10 +140,10 @@ proc ::tool::dynamic_object_ensembles {thisobject thisclass} {
   set method [join [lrange $mlist 2 end] "::"]
   switch [llength $args] {
     1 {
-      ::oo::meta::info $class set method_ensemble $ensemble $method [list arglist dictargs body [lindex $args 0]]
+      ::oo::meta::info $class set method_ensemble $ensemble $method: [list dictargs [lindex $args 0]]
     }
     2 {
-      ::oo::meta::info $class set method_ensemble $ensemble $method [list arglist [lindex $args 0] body [lindex $args 1]]
+      ::oo::meta::info $class set method_ensemble $ensemble $method: $args
     }
     default {
       error "Usage: method NAME ARGLIST BODY"
@@ -168,14 +161,12 @@ proc ::tool::define::dictobj args {
 proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
-
+  
   set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
   set initial [dict getnull $cases initialize]
-  foreach {f v} $initial {
-    $class clay set dict $varname $f $v
-  }
+  variable $varname $initial
   foreach {name body} $CASES {
-    dict set methoddata [string trim $name :] [list arglist args body $body]
+    dict set methoddata $name: [list args $body]
   }
   set template [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
     _preamble {} {
@@ -202,14 +193,10 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
       dict set %VARNAME% $field $result
     }
     initial {} {
-      set result [my clay get %VARNAME%]
-      dict for {f v} [my clay get dict %VARNAME%] {
-        dict set result $f $v
-      }
-      return $result
+      return [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
     }
     reset {} {
-      set %VARNAME% [my %METHOD% initial]
+      set %VARNAME% [dict rmerge [my meta branchget %VARNAME%] {%INITIAL%}]
       return $%VARNAME%
     }
     dump {} {
@@ -240,7 +227,7 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
     }
     rmerge args {
       set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
-      return $%VARNAME%
+      return $%VARNAME%  
     }
     merge args {
       set %VARNAME% [dict rmerge $%VARNAME% {*}$args]
@@ -254,9 +241,8 @@ proc ::tool::define::dict_ensemble {methodname varname {cases {}}} {
     }
   }]
   foreach {name arglist body} $template {
-    set name [string trim $name :]
-    if {[dict exists $methoddata $name]} continue
-    dict set methoddata $name [list arglist $arglist body $body]
+    if {[dict exists $methoddata $name:]} continue
+    dict set methoddata $name: [list $arglist $body]
   }
   ::oo::meta::info $class set method_ensemble $methodname $methoddata
 }
@@ -273,9 +259,8 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
   set class [current_class]
   set CASES [string map [list %METHOD% $methodname %VARNAME% $varname] $cases]
   set initial [dict getnull $cases initialize]
-  dict for {f v} $initial {
-    $class clay set array $varname $f $v
-  }
+  array $varname $initial
+
   set map [list %CLASS% $class %METHOD% $methodname %VARNAME% $varname %CASES% $CASES %INITIAL% $initial]
 
   ::oo::define $class method _${methodname}Get {field} [string map $map {
@@ -283,35 +268,31 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     if {[info exists %VARNAME%($field)]} {
       return $%VARNAME%($field)
     }
-    return [my meta getnull %VARNAME% $field]
+    return [my meta getnull %VARNAME% $field:]
   }]
   ::oo::define $class method _${methodname}Exists {field} [string map $map {
     my variable %VARNAME%
     if {[info exists %VARNAME%($field)]} {
       return 1
     }
-    return [my meta exists %VARNAME% $field]
+    return [my meta exists %VARNAME% $field:]
   }]
+  set methoddata [::oo::meta::info $class set array_ensemble $methodname: $varname]
+  
   set methoddata [::oo::meta::info $class getnull method_ensemble $methodname]
   foreach {name body} $CASES {
-    dict set methoddata $name [list arglist args body $body]
-  }
+    dict set methoddata $name: [list args $body]
+  } 
   set template  [string map [list %CLASS% $class %INITIAL% $initial %METHOD% $methodname %VARNAME% $varname] {
     _preamble {} {
       my variable %VARNAME%
     }
-    initial {} {
-      set result [my clay get %VARNAME%]
-      foreach {f v} [my clay get array %VARNAME%] {
-        dict set result $f $v
-      }
-      return $result
-    }
     reset {} {
       ::array unset %VARNAME% *
-      foreach {f v} [my %METHOD% initial] {
-        set %VARNAME%($f) $v
+      foreach {field value} [my meta getnull %VARNAME%] {
+        set %VARNAME%([string trimright $field :]) $value
       }
+      ::array set %VARNAME% {%INITIAL%}
       return [array get %VARNAME%]
     }
     ni value {
@@ -345,7 +326,14 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
       set %VARNAME%($field) $result
     }
     dump {} {
-      return [array get %VARNAME%]
+      set result {}
+      foreach {var val} [my meta getnull %VARNAME%] {
+        dict set result [string trimright $var :] $val
+      }
+      foreach {var val} [lsort -dictionary -stride 2 [array get %VARNAME%]] {
+        dict set result [string trimright $var :] $val
+      }
+      return $result
     }
     exists args {
       set field [string trimright [lindex $args 0] :]
@@ -353,7 +341,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     getnull args {
       set field [string trimright [lindex $args 0] :]
-      set data [my _%METHOD%Get $field]
+      set data [my _%METHOD%Get $field]      
     }
     get field {
       set field [string trimright $field :]
@@ -361,7 +349,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     set args {
       set field [string trimright [lindex $args 0] :]
-      ::set %VARNAME%($field) {*}[lrange $args 1 end]
+      ::set %VARNAME%($field) {*}[lrange $args 1 end]        
     }
     append args {
       set field [string trimright [lindex $args 0] :]
@@ -386,21 +374,12 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
     rmerge args {
       foreach arg $args {
-        foreach {field value} $arg {
-          set %VARNAME%([string trimright $field :]) $value
-        }
+        my %VARNAME% branchset $arg
       }
     }
     merge args {
       foreach arg $args {
-        foreach {field value} $arg {
-          set %VARNAME%([string trimright $field :]) $value
-        }
-      }
-    }
-    set args {
-      foreach {field value} $args {
-        set %VARNAME%([string trimright $field :]) $value
+        my %VARNAME% branchset $arg
       }
     }
     default args {
@@ -408,8 +387,8 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
     }
   }]
   foreach {name arglist body} $template {
-    if {[dict exists $methoddata $name]} continue
-    dict set methoddata $name [list arglist $arglist body $body]
+    if {[dict exists $methoddata $name:]} continue
+    dict set methoddata $name: [list $arglist $body]
   }
   ::oo::meta::info $class set method_ensemble $methodname $methoddata
 }
