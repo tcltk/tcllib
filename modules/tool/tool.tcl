@@ -3,19 +3,1580 @@
 # Do not edit directly, tweak the source in src/ and rerun
 # build.tcl
 ###
-package provide tool 0.7
+package provide tool 0.7.1
 namespace eval ::tool {}
 
+###
+# START: dicttool.tcl
+###
+###
+# This package enhances the stock dict implementation with some
+# creature comforts
+###
+if {[info commands ::ladd] eq {}} {
+  proc ladd {varname args} {
+    upvar 1 $varname var
+    if ![info exists var] {
+        set var {}
+    }
+    foreach item $args {
+      if {$item in $var} continue
+      lappend var $item
+    }
+    return $var
+  }
+}
+
+if {[info command ::ldelete] eq {}} {
+  proc ::ldelete {varname args} {
+    upvar 1 $varname var
+    if ![info exists var] {
+        return
+    }
+    foreach item [lsort -unique $args] {
+      while {[set i [lsearch $var $item]]>=0} {
+        set var [lreplace $var $i $i]
+      }
+    }
+    return $var
+  }
+}
+
+if {[::info commands ::tcl::dict::getnull] eq {}} {
+  proc ::tcl::dict::getnull {dictionary args} {
+    if {[exists $dictionary {*}$args]} {
+      get $dictionary {*}$args
+    }
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] getnull ::tcl::dict::getnull]
+}
+if {[::info commands ::tcl::dict::print] eq {}} {
+  ###
+  # Test if element is a dict
+  ###
+  proc ::tcl::dict::_putb {buffervar indent field value} {
+    ::upvar 1 $buffervar buffer
+    ::append buffer \n [::string repeat " " $indent] [::list $field] " "
+    if {[string index $field end] eq "/"} {
+      ::incr indent 2
+      ::append buffer "\{"
+      foreach item $value {
+        if [catch {
+        if {![is_dict $item]} {
+          ::append buffer \n [::string repeat " " $indent] [list $item]
+        } else {
+          ::append buffer \n "[::string repeat " " $indent]\{"
+          ::incr indent 2
+          foreach {sf sv} $item {
+            _putb buffer $indent $sf $sv
+          }
+          ::incr indent -2
+          ::append buffer \n "[::string repeat " " $indent]\}"
+        }
+        } err] {
+          puts [list FAILED $indent $field $item]
+          puts $err
+          puts "$::errorInfo"
+        }
+      }
+      ::incr indent -2
+      ::append buffer \n [::string repeat " " $indent] "\}"
+    } elseif {[string index $field end] eq ":" || ![is_dict $value]} {
+      ::append buffer [::list $value]
+    } else {
+      ::incr indent 2
+      ::append buffer "\{"
+      foreach {f v} $value {
+        _putb buffer $indent $f $v
+      }
+      ::incr indent -2
+      ::append buffer \n [::string repeat " " $indent] "\}"
+    }
+  }
+  proc ::tcl::dict::print dict {
+    ::set buffer {}
+    ::foreach {field value} $dict {
+      _putb buffer 0 $field $value
+    }
+    return $buffer
+  }
+
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] print ::tcl::dict::print]
+}
+if {[::info commands ::tcl::dict::is_dict] eq {}} {
+  ###
+  # Test if element is a dict
+  ###
+  proc ::tcl::dict::is_dict { d } {
+    # is it a dict, or can it be treated like one?
+    if {[catch {dict size $d} err]} {
+      #::set ::errorInfo {}
+      return 0
+    }
+    return 1
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] is_dict ::tcl::dict::is_dict]
+}
+if {[::info commands ::tcl::dict::rmerge] eq {}} {
+  ###
+  # title: A recursive form of dict merge
+  # description:
+  # A routine to recursively dig through dicts and merge
+  # adapted from http://stevehavelka.com/tcl-dict-operation-nested-merge/
+  ###
+  proc ::tcl::dict::rmerge {a args} {
+    ::set result $a
+    # Merge b into a, and handle nested dicts appropriately
+    ::foreach b $args {
+      for { k v } $b {
+        if {[string index $k end] eq ":"} {
+          # Element names that end in ":" are assumed to be literals
+          set result $k $v
+        } elseif { [dict exists $result $k] } {
+          # key exists in a and b?  let's see if both values are dicts
+          # both are dicts, so merge the dicts
+          if { [is_dict [get $result $k]] && [is_dict $v] } {
+            set result $k [rmerge [get $result $k] $v]
+          } else {
+            set result $k $v
+          }
+        } else {
+          set result $k $v
+        }
+      }
+    }
+    return $result
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] rmerge ::tcl::dict::rmerge]
+}
+
+if {[::info commands ::tcl::dict::isnull] eq {}} {
+  proc ::tcl::dict::isnull {dictionary args} {
+    if {![exists $dictionary {*}$args]} {return 1}
+    return [expr {[get $dictionary {*}$args] in {{} NULL null}}]
+  }
+  namespace ensemble configure dict -map [dict replace\
+      [namespace ensemble configure dict -map] isnull ::tcl::dict::isnull]
+}
+
+###
+# END: dicttool.tcl
+###
+###
+# START: dialect.tcl
+###
+###
+# oodialect.tcl
+#
+# Copyright (c) 2015-2018 Sean Woods
+# Copyright (c) 2015 Donald K Fellows
+#
+# BSD License
+###
+# @@ Meta Begin
+# Package oo::dialect 0.3.4
+# Meta platform     tcl
+# Meta summary      A utility for defining a domain specific language for TclOO systems
+# Meta description  This package allows developers to generate
+# Meta description  domain specific languages to describe TclOO
+# Meta description  classes and objects.
+# Meta category     TclOO
+# Meta subject      oodialect
+# Meta require      {Tcl 8.6}
+# Meta author       Sean Woods
+# Meta author       Donald K. Fellows
+# Meta license      BSD
+# @@ Meta End
+namespace eval ::oo::dialect {
+  namespace export create
+}
+
+# A stack of class names
+proc ::oo::dialect::Push {class} {
+  ::variable class_stack
+  lappend class_stack $class
+}
+proc ::oo::dialect::Peek {} {
+  ::variable class_stack
+  return [lindex $class_stack end]
+}
+proc ::oo::dialect::Pop {} {
+  ::variable class_stack
+  set class_stack [lrange $class_stack 0 end-1]
+}
+
+###
+# This proc will generate a namespace, a "mother of all classes", and a
+# rudimentary set of policies for this dialect.
+###
+proc ::oo::dialect::create {name {parent ""}} {
+  set NSPACE [NSNormalize [uplevel 1 {namespace current}] $name]
+  ::namespace eval $NSPACE {::namespace eval define {}}
+  ###
+  # Build the "define" namespace
+  ###
+  if {$parent eq ""} {
+  	###
+  	# With no "parent" language, begin with all of the keywords in
+  	# oo::define
+  	###
+  	foreach command [info commands ::oo::define::*] {
+	    set procname [namespace tail $command]
+	    interp alias {} ${NSPACE}::define::$procname {} \
+    		::oo::dialect::DefineThunk $procname
+  	}
+  	# Create an empty dynamic_methods proc
+    proc ${NSPACE}::dynamic_methods {class} {}
+    namespace eval $NSPACE {
+      ::namespace export dynamic_methods
+      ::namespace eval define {::namespace export *}
+    }
+    set ANCESTORS {}
+  } else {
+    ###
+  	# If we have a parent language, that language already has the
+  	# [oo::define] keywords as well as additional keywords and behaviors.
+  	# We should begin with that
+  	###
+  	set pnspace [NSNormalize [uplevel 1 {namespace current}] $parent]
+    apply [list parent {
+  	  ::namespace export dynamic_methods
+  	  ::namespace import -force ${parent}::dynamic_methods
+  	} $NSPACE] $pnspace
+
+    apply [list parent {
+  	  ::namespace import -force ${parent}::define::*
+  	  ::namespace export *
+  	} ${NSPACE}::define] $pnspace
+      set ANCESTORS [list ${pnspace}::object]
+  }
+  ###
+  # Build our dialect template functions
+  ###
+  proc ${NSPACE}::define {oclass args} [string map [list %NSPACE% $NSPACE] {
+	###
+	# To facilitate library reloading, allow
+	# a dialect to create a class from DEFINE
+	###
+  set class [::oo::dialect::NSNormalize [uplevel 1 {namespace current}] $oclass]
+    if {[info commands $class] eq {}} {
+	    %NSPACE%::class create $class {*}${args}
+    } else {
+	    ::oo::dialect::Define %NSPACE% $class {*}${args}
+    }
+}]
+  interp alias {} ${NSPACE}::define::current_class {} \
+    ::oo::dialect::Peek
+  interp alias {} ${NSPACE}::define::aliases {} \
+    ::oo::dialect::Aliases $NSPACE
+  interp alias {} ${NSPACE}::define::superclass {} \
+    ::oo::dialect::SuperClass $NSPACE
+
+  if {[info command ${NSPACE}::class] ne {}} {
+    ::rename ${NSPACE}::class {}
+  }
+  ###
+  # Build the metaclass for our language
+  ###
+  ::oo::class create ${NSPACE}::class {
+    superclass ::oo::dialect::MotherOfAllMetaClasses
+  }
+  # Wire up the create method to add in the extra argument we need; the
+  # MotherOfAllMetaClasses will know what to do with it.
+  ::oo::objdefine ${NSPACE}::class \
+    method create {name {definitionScript ""}} \
+      "next \$name [list ${NSPACE}::define] \$definitionScript"
+
+  ###
+  # Build the mother of all classes. Note that $ANCESTORS is already
+  # guaranteed to be a list in canonical form.
+  ###
+  uplevel #0 [string map [list %NSPACE% [list $NSPACE] %name% [list $name] %ANCESTORS% $ANCESTORS] {
+    %NSPACE%::class create %NSPACE%::object {
+     superclass %ANCESTORS%
+      # Put MOACish stuff in here
+    }
+  }]
+  if { "${NSPACE}::class" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::class"
+  }
+  if { "${NSPACE}::object" ni $::oo::dialect::core_classes } {
+    lappend ::oo::dialect::core_classes "${NSPACE}::object"
+  }
+}
+
+# Support commands; not intended to be called directly.
+proc ::oo::dialect::NSNormalize {namespace qualname} {
+  if {![string match ::* $qualname]} {
+    set qualname ${namespace}::$qualname
+  }
+  regsub -all {::+} $qualname "::"
+}
+
+proc ::oo::dialect::DefineThunk {target args} {
+  tailcall ::oo::define [Peek] $target {*}$args
+}
+
+proc ::oo::dialect::Canonical {namespace NSpace class} {
+  namespace upvar $namespace cname cname
+  #if {[string match ::* $class]} {
+  #  return $class
+  #}
+  if {[info exists cname($class)]} {
+    return $cname($class)
+  }
+  if {[info exists ::oo::dialect::cname($class)]} {
+    return $::oo::dialect::cname($class)
+  }
+  if {[info exists ::oo::dialect::cname(${NSpace}::${class})]} {
+    return $::oo::dialect::cname(${NSpace}::${class})
+  }
+  foreach item [list "${NSpace}::$class" "::$class"] {
+    if {[info commands $item] ne {}} {
+      return $item
+    }
+  }
+  return ${NSpace}::$class
+}
+
+###
+# Implementation of the languages' define command
+###
+proc ::oo::dialect::Define {namespace class args} {
+  Push $class
+  try {
+  	if {[llength $args]==1} {
+      namespace eval ${namespace}::define [lindex $args 0]
+    } else {
+      ${namespace}::define::[lindex $args 0] {*}[lrange $args 1 end]
+    }
+  	${namespace}::dynamic_methods $class
+  } finally {
+    Pop
+  }
+}
+
+###
+# Implementation of how we specify the other names that this class will answer
+# to
+###
+
+proc ::oo::dialect::Aliases {namespace args} {
+  set class [Peek]
+  namespace upvar $namespace cname cname
+  set NSpace [join [lrange [split $class ::] 1 end-2] ::]
+  set cname($class) $class
+  foreach name $args {
+    set cname($name) $class
+    #set alias $name
+    set alias [NSNormalize $NSpace $name]
+    # Add a local metaclass reference
+    if {![info exists ::oo::dialect::cname($alias)]} {
+      lappend ::oo::dialect::aliases($class) $alias
+      ##
+      # Add a global reference, first come, first served
+      ##
+      set ::oo::dialect::cname($alias) $class
+    }
+  }
+}
+
+###
+# Implementation of a superclass keyword which will enforce the inheritance of
+# our language's mother of all classes
+###
+
+proc ::oo::dialect::SuperClass {namespace args} {
+  set class [Peek]
+  namespace upvar $namespace class_info class_info
+  dict set class_info($class) superclass 1
+  set ::oo::dialect::cname($class) $class
+  set NSpace [join [lrange [split $class ::] 1 end-2] ::]
+  set unique {}
+  foreach item $args {
+    set Item [Canonical $namespace $NSpace $item]
+    dict set unique $Item $item
+  }
+  set root ${namespace}::object
+  if {$class ne $root} {
+    dict set unique $root $root
+  }
+  tailcall ::oo::define $class superclass {*}[dict keys $unique]
+}
+
+###
+# Implementation of the common portions of the the metaclass for our
+# languages.
+###
+
+if {[info commands ::oo::dialect::MotherOfAllMetaClasses] eq {}} {
+  ::oo::class create ::oo::dialect::MotherOfAllMetaClasses {
+    superclass ::oo::class
+    constructor {define definitionScript} {
+      $define [self] {
+        superclass
+      }
+      $define [self] $definitionScript
+    }
+    method aliases {} {
+      if {[info exists ::oo::dialect::aliases([self])]} {
+        return $::oo::dialect::aliases([self])
+      }
+    }
+  }
+}
+
+namespace eval ::oo::dialect {
+  variable core_classes {::oo::class ::oo::object}
+}
+
+###
+# END: dialect.tcl
+###
+###
+# START: oometa.tcl
+###
+
+namespace eval ::oo::meta {
+  set dirty_classes {}
+}
+
+proc ::oo::meta::args_to_dict args {
+  if {[llength $args]==1} {
+    return [lindex $args 0]
+  }
+  return $args
+}
+
+proc ::oo::meta::args_to_options args {
+  set result {}
+  foreach {var val} [args_to_dict {*}$args] {
+    lappend result [string trimleft $var -] $val
+  }
+  return $result
+}
+
+proc ::oo::meta::ancestors class {
+  set class [::oo::meta::normalize $class]
+  set core_result {}
+  set queue $class
+  set result {}
+  # Rig things such that that the top superclasses
+  # are evaluated first
+  while {[llength $queue]} {
+    set tqueue $queue
+    set queue {}
+    foreach qclass $tqueue {
+      if {$qclass in $::oo::dialect::core_classes} {
+        if {$qclass ni $core_result} {
+          lappend core_result $qclass
+        }
+        continue
+      }
+      foreach aclass [::info class superclasses $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $core_result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+    }
+    foreach item $tqueue {
+      if {$item in $core_result} continue
+      if { $item ni $result } {
+        set result [linsert $result 0 $item]
+      }
+    }
+  }
+  # Handle core classes last
+  set queue $core_result
+  while {[llength $queue]} {
+    set tqueue $queue
+    set queue {}
+    foreach qclass $tqueue {
+      foreach aclass [::info class superclasses $qclass] {
+        if { $aclass in $result } continue
+        if { $aclass in $queue } continue
+        lappend queue $aclass
+      }
+    }
+    foreach item $tqueue {
+      if { $item ni $result } {
+        set result [linsert $result 0 $item]
+      }
+    }
+  }
+  return $result
+}
+
+proc oo::meta::info {class submethod args} {
+  set class [::oo::meta::normalize $class]
+  switch $submethod {
+    cget {
+      ###
+      # submethod: cget
+      # arguments: ?*path* ...? *field*
+      # format: markdown
+      # description:
+      # Retrieve a value from the class' meta data. Values are searched in the
+      # following order:
+      # 1. From class meta data as const **path** **field:**
+      # 2. From class meta data as const **path** **field**
+      # 3. From class meta data as **path** **field:**
+      # 4. From class meta data as **path** **field**
+      ###
+      set path [lrange $args 0 end-1]
+      set field [string trimright [lindex $args end] :]
+      foreach mclass [lreverse [::oo::meta::ancestors $class]] {
+        if {![::info exists ::oo::meta::local_property($mclass)]} continue
+        set class_metadata $::oo::meta::local_property($mclass)
+        if {[dict exists $class_metadata const {*}$path $field:]} {
+          return [dict get $class_metadata const {*}$path $field:]
+        }
+        if {[dict exists $class_metadata const {*}$path $field]} {
+          return [dict get $class_metadata const {*}$path $field]
+        }
+        if {[dict exists $class_metadata {*}$path $field:]} {
+          return [dict get $class_metadata {*}$path $field:]
+        }
+        if {[dict exists $class_metadata {*}$path $field]} {
+          return [dict get $class_metadata {*}$path $field]
+        }
+      }
+      return {}
+    }
+    rebuild {
+      ::oo::meta::rebuild $class
+    }
+    is {
+      set info [metadata $class]
+      return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
+    }
+    for -
+    map {
+      set info [metadata $class]
+      uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
+    }
+    with {
+      upvar 1 TEMPVAR info
+      set info [metadata $class]
+      return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
+    }
+    branchget {
+      set info [metadata $class]
+      set result {}
+      foreach {field value} [dict getnull $info {*}$args] {
+        dict set result [string trimright $field :] $value
+      }
+      return $result
+    }
+    branchset {
+      ::oo::meta::rebuild $class
+      foreach {field value} [lindex $args end] {
+        ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
+      }
+    }
+    leaf_add {
+      if {[::info exists ::oo::meta::local_property($class)]} {
+        set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      }
+      ladd result {*}[lrange $args 1 end]
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
+    }
+    leaf_remove {
+      if {![::info exists ::oo::meta::local_property($class)]} return
+      set result {}
+      forearch element [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]] {
+        if { $element in [lrange $args 1 end]} continue
+        lappend result $element
+      }
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
+    }
+    append -
+    incr -
+    lappend -
+    set -
+    unset -
+    update {
+      ::oo::meta::rebuild $class
+      ::dict $submethod ::oo::meta::local_property($class) {*}$args
+    }
+    merge {
+      ::oo::meta::rebuild $class
+      set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
+    }
+    dump {
+      set info [metadata $class]
+      return $info
+    }
+    default {
+      set info [metadata $class]
+      return [::dict $submethod $info {*}$args]
+    }
+  }
+}
+
+proc ::oo::meta::localdata {class args} {
+  if {![::info exists ::oo::meta::local_property($class)]} {
+    return {}
+  }
+  if {[::llength $args]==0} {
+    return $::oo::meta::local_property($class)
+  }
+  return [::dict getnull $::oo::meta::local_property($class) {*}$args]
+}
+
+proc ::oo::meta::normalize class {
+  set class ::[string trimleft $class :]
+}
+
+proc ::oo::meta::metadata {class {force 0}} {
+  set class [::oo::meta::normalize $class]
+  ###
+  # Destroy the cache of all derivitive classes
+  ###
+  if {$force} {
+    unset -nocomplain ::oo::meta::cached_property
+    unset -nocomplain ::oo::meta::cached_hierarchy
+  } else {
+    variable dirty_classes
+    foreach dclass $dirty_classes {
+      foreach {cclass cancestors} [array get ::oo::meta::cached_hierarchy] {
+        if {$dclass in $cancestors} {
+          unset -nocomplain ::oo::meta::cached_property($cclass)
+          unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
+        }
+      }
+      if {![::info exists ::oo::meta::local_property($dclass)]} continue
+      if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
+        if {$dclass ni $::oo::dialect::core_classes} {
+          lappend ::oo::dialect::core_classes $dclass
+        }
+      }
+    }
+    set dirty_classes {}
+  }
+
+  ###
+  # If the cache is available, use it
+  ###
+  variable cached_property
+  if {[::info exists cached_property($class)]} {
+    return $cached_property($class)
+  }
+  ###
+  # Build a cache of the hierarchy and the
+  # aggregate metadata for this class and store
+  # them for future use
+  ###
+  variable cached_hierarchy
+  set metadata {}
+  set stack {}
+  variable local_property
+  set cached_hierarchy($class) [::oo::meta::ancestors $class]
+  foreach class $cached_hierarchy($class) {
+    if {[::info exists local_property($class)]} {
+      lappend metadata $local_property($class)
+    }
+  }
+  #foreach aclass [lreverse [::info class superclasses $class]] {
+  #  lappend metadata [::oo::meta::metadata $aclass]
+  #}
+
+  lappend metadata {classinfo {type: {}}}
+  if {[::info exists local_property($class)]} {
+    lappend metadata $local_property($class)
+  }
+  set metadata [dict rmerge {*}$metadata]
+  set cached_property($class) $metadata
+  return $metadata
+}
+
+proc ::oo::meta::rebuild args {
+  foreach class $args {
+    if {$class ni $::oo::meta::dirty_classes} {
+      lappend ::oo::meta::dirty_classes $class
+    }
+  }
+}
+
+proc ::oo::meta::search args {
+  variable local_property
+
+  set path [lrange $args 0 end-1]
+  set value [lindex $args end]
+
+  set result {}
+  foreach {class info} [array get local_property] {
+    if {[dict exists $info {*}$path:]} {
+      if {[string match [dict get $info {*}$path:] $value]} {
+        lappend result $class
+      }
+      continue
+    }
+    if {[dict exists $info {*}$path]} {
+      if {[string match [dict get $info {*}$path] $value]} {
+        lappend result $class
+      }
+    }
+  }
+  return $result
+}
+
+proc ::oo::define::meta {args} {
+  set class [lindex [::info level -1] 1]
+  if {[lindex $args 0] in "cget set branchset"} {
+    ::oo::meta::info $class {*}$args
+  } else {
+    ::oo::meta::info $class set {*}$args
+  }
+}
+
+oo::define oo::class {
+  method meta {submethod args} {
+    tailcall ::oo::meta::info [self] $submethod {*}$args
+  }
+}
+
+oo::define oo::object {
+  ###
+  # title: Provide access to meta data
+  # format: markdown
+  # description:
+  # The *meta* method allows an object access
+  # to a combination of its own meta data as
+  # well as to that of its class
+  ###
+  method meta {submethod args} {
+    my variable meta MetaMixin
+    if {![info exists MetaMixin]} {
+      set MetaMixin {}
+    }
+    set class [::info object class [self object]]
+    set classlist [list $class {*}$MetaMixin]
+    switch $submethod {
+      cget {
+        ###
+        # submethod: cget
+        # arguments: ?*path* ...? *field*
+        # format: markdown
+        # description:
+        # Retrieve a value from the local objects **meta** dict
+        # or from the class' meta data. Values are searched in the
+        # following order:
+        # 0. (If path length==1) From the _config array
+        # 1. From the local dict as **path** **field:**
+        # 2. From the local dict as **path** **field**
+        # 3. From class meta data as const **path** **field:**
+        # 4. From class meta data as const **path** **field**
+        # 5. From class meta data as **path** **field:**
+        # 6. From class meta data as **path** **field**
+        ###
+        set path [lrange $args 0 end-1]
+        set field [string trim [lindex $args end] :]
+        if {[dict exists $meta {*}$path $field:]} {
+          return [dict get $meta {*}$path $field:]
+        }
+        if {[dict exists $meta {*}$path $field]} {
+          return [dict get $meta {*}$path $field]
+        }
+        foreach mclass [lreverse $classlist] {
+          set class_metadata [::oo::meta::metadata $mclass]
+          if {[dict exists $class_metadata const {*}$path $field:]} {
+            return [dict get $class_metadata const {*}$path $field:]
+          }
+          if {[dict exists $class_metadata const {*}$path $field]} {
+            return [dict get $class_metadata const {*}$path $field]
+          }
+          if {[dict exists $class_metadata {*}$path $field:]} {
+            return [dict get $class_metadata {*}$path $field:]
+          }
+          if {[dict exists $class_metadata {*}$path $field]} {
+            return [dict get $class_metadata {*}$path $field]
+          }
+        }
+        return {}
+      }
+      is {
+        set value [my meta cget {*}[lrange $args 1 end]]
+        return [string is [lindex $args 0] -strict $value]
+      }
+      for -
+      map {
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
+      }
+      with {
+        upvar 1 TEMPVAR info
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        return [uplevel 1 [list dict with TEMPVAR {*}$args]]
+      }
+      dump {
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        return [dict rmerge {*}$mdata $meta]
+      }
+      append -
+      incr -
+      lappend -
+      set -
+      unset -
+      update {
+        return [dict $submethod meta {*}$args]
+      }
+      branchset {
+        foreach {field value} [lindex $args end] {
+          dict set meta {*}[lrange $args 0 end-1] [string trimright $field :]: $value
+        }
+      }
+      rmerge -
+      merge {
+        set meta [dict rmerge $meta {*}$args]
+        return $meta
+      }
+      exists {
+        foreach mclass $classlist {
+          if {[dict exists [::oo::meta::metadata $mclass] {*}$args]} {
+            return 1
+          }
+        }
+        if {[dict exists $meta {*}$args]} {
+          return 1
+        }
+        return 0
+      }
+      get -
+      getnull {
+        if {[string index [lindex $args end] end]==":"} {
+          # Looking for a leaf node
+          if {[dict exists $meta {*}$args]} {
+            return [dict get $meta {*}$args]
+          }
+          foreach mclass [lreverse $classlist] {
+            set mdata [::oo::meta::metadata $mclass]
+            if {[dict exists $mdata {*}$args]} {
+              return [dict get $mdata {*}$args]
+            }
+          }
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
+        }
+        # Looking for a branch node
+        # So we need to composite the result
+        set found 0
+        foreach mclass $classlist {
+          set mdata [::oo::meta::metadata $mclass]
+          if {[dict exists $mdata {*}$args]} {
+            set found 1
+            lappend result [dict get $mdata {*}$args]
+          }
+        }
+        if {[dict exists $meta {*}$args]} {
+          set found 1
+          lappend result [dict get $meta {*}$args]
+        }
+        if {!$found} {
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
+        }
+        return [dict rmerge {*}$result]
+      }
+      branchget {
+        set result {}
+        foreach mclass [lreverse $classlist] {
+          foreach {field value} [dict getnull [::oo::meta::metadata $mclass] {*}$args] {
+            dict set result [string trimright $field :] $value
+          }
+        }
+        foreach {field value} [dict getnull $meta {*}$args] {
+          dict set result [string trimright $field :] $value
+        }
+        return $result
+      }
+      mixin {
+        foreach mclass $args {
+          set mclass [::oo::meta::normalize $mclass]
+          if {$mclass ni $MetaMixin} {
+            lappend MetaMixin $mclass
+          }
+        }
+      }
+      mixout {
+        foreach mclass $args {
+          set mclass [::oo::meta::normalize $mclass]
+          while {[set i [lsearch $MetaMixin $mclass]]>=0} {
+            set MetaMixin [lreplace $MetaMixin $i $i]
+          }
+        }
+      }
+      default {
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        return [dict $submethod $info {*}$args]
+      }
+    }
+  }
+}
+
+###
+# END: oometa.tcl
+###
+###
+# START: cron.tcl
+###
+###
+# This file implements a process table
+# Instead of having individual components try to maintain their own timers
+# we centrally manage how often tasks should be kicked off here.
+###
+#
+# Author: Sean Woods (for T&E Solutions)
+
+::namespace eval ::cron {}
+
+proc ::cron::task {command args} {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::task $command $args]
+  }
+  variable processTable
+  switch $command {
+    TEMPLATE {
+      return [list object {} lastevent 0 lastrun 0 err 0 result {} \
+        running 0 coroutine {} scheduled 0 frequency 0 command {}]
+    }
+    delete {
+      unset -nocomplain ::cron::processTable([lindex $args 0])
+    }
+    exists {
+      return [::info exists ::cron::processTable([lindex $args 0])]
+    }
+    info {
+      set process [lindex $args 0]
+      if {![::info exists ::cron::processTable($process)]} {
+        error "Process $process does not exist"
+      }
+      return $::cron::processTable($process)
+    }
+    frequency {
+      set process [lindex $args 0]
+      set time [lindex $args 1]
+      if {![info exists ::cron::processTable($process)]} return
+      dict with ::cron::processTable($process) {
+        set now [clock_step [current_time]]
+        set frequency [expr {0+$time}]
+        if {$scheduled>($now+$time)} {
+          dict set ::cron::processTable($process) scheduled [expr {$now+$time}]
+        }
+      }
+    }
+    sleep {
+      set process [lindex $args 0]
+      set time [lindex $args 1]
+      if {![info exists ::cron::processTable($process)]} return
+      dict with ::cron::processTable($process) {
+        set now [clock_step [current_time]]
+        set frequency 0
+        set scheduled [expr {$now+$time}]
+      }
+    }
+    create -
+    set {
+      set process [lindex $args 0]
+      if {![::info exists ::cron::processTable($process)]} {
+        set ::cron::processTable($process) [task TEMPLATE]
+      }
+      if {[llength $args]==2} {
+        foreach {field value} [lindex $args 1] {
+          dict set ::cron::processTable($process) $field $value
+        }
+      } else {
+        foreach {field value} [lrange $args 1 end] {
+          dict set ::cron::processTable($process) $field $value
+        }
+      }
+    }
+  }
+}
+
+proc ::cron::at args {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::at $args]
+  }
+  switch [llength $args] {
+    2 {
+      variable processuid
+      set process event#[incr processuid]
+      lassign $args timecode command
+    }
+    3 {
+      lassign $args process timecode command
+    }
+    default {
+      error "Usage: ?process? timecode command"
+    }
+  }
+  variable processTable
+  if {[string is integer -strict $timecode]} {
+    set scheduled [expr {$timecode*1000}]
+  } else {
+    set scheduled [expr {[clock scan $timecode]*1000}]
+  }
+  ::cron::task set $process \
+    frequency -1 \
+    command $command \
+    scheduled $scheduled \
+    coroutine {}
+
+  if {$::cron::trace > 1} {
+    puts [list ::cron::task info $process - > [::cron::task info $process]]
+  }
+  ::cron::wake NEW
+  return $process
+}
+
+proc ::cron::idle args {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::idle $args]
+  }
+  switch [llength $args] {
+    2 {
+      variable processuid
+      set process event#[incr processuid]
+      lassign $args command
+    }
+    3 {
+      lassign $args process command
+    }
+    default {
+      error "Usage: ?process? timecode command"
+    }
+  }
+  ::cron::task set $process \
+    scheduled 0 \
+    frequency 0 \
+    command $command
+  ::cron::wake NEW
+  return $process
+}
+
+proc ::cron::in args {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::in $args]
+  }
+  switch [llength $args] {
+    2 {
+      variable processuid
+      set process event#[incr processuid]
+      lassign $args timecode command
+    }
+    3 {
+      lassign $args process timecode command
+    }
+    default {
+      error "Usage: ?process? timecode command"
+    }
+  }
+  set now [clock_step [current_time]]
+  set scheduled [expr {$timecode*1000+$now}]
+  ::cron::task set $process \
+    frequency -1 \
+    command $command \
+    scheduled $scheduled
+  ::cron::wake NEW
+  return $process
+}
+
+proc ::cron::cancel {process} {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::cancel $process]
+  }
+  ::cron::task delete $process
+}
+
+###
+# topic: 0776dccd7e84530fa6412e507c02487c
+###
+proc ::cron::every {process frequency command} {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::every $process $frequency $command]
+  }
+  variable processTable
+  set mnow [clock_step [current_time]]
+  set frequency [expr {$frequency*1000}]
+  ::cron::task set $process \
+    frequency $frequency \
+    command $command \
+    scheduled [expr {$mnow + $frequency}]
+  ::cron::wake NEW
+}
+
+
+proc ::cron::object_coroutine {objname coroutine {info {}}} {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::object_coroutine $objname $coroutine $info]
+  }
+  task set $coroutine \
+    {*}$info \
+    object $objname \
+    coroutine $coroutine
+
+  return $coroutine
+}
+
+# Notification that an object has been destroyed, and that
+# it should give up any toys associated with events
+proc ::cron::object_destroy {objname} {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::object_destroy $objname]
+  }
+  variable processTable
+  set dat [array get processTable]
+  foreach {process info} $dat {
+    if {[dict exists $info object] && [dict get $info object] eq $objname} {
+      unset -nocomplain processTable($process)
+    }
+  }
+}
+
+###
+# topic: 97015814408714af539f35856f85bce6
+###
+proc ::cron::run process {
+  variable processTable
+  set mnow [clock_step [current_time]]
+  if {[dict exists processTable($process) scheduled] && [dict exists processTable($process) scheduled]>0} {
+    dict set processTable($process) scheduled [expr {$mnow-1000}]
+  } else {
+    dict set processTable($process) lastrun 0
+  }
+  ::cron::wake PROCESS
+}
+
+proc ::cron::clock_step timecode {
+  return [expr {$timecode-($timecode%1000)}]
+}
+
+proc ::cron::clock_delay {delay} {
+  set now [current_time]
+  set then [clock_step [expr {$delay+$now}]]
+  return [expr {$then-$now}]
+}
+
+# Sleep for X seconds, wake up at the top
+proc ::cron::clock_sleep {{sec 1} {offset 0}} {
+  set now [current_time]
+  set delay [expr {[clock_delay [expr {$sec*1000}]]+$offset}]
+  sleep $delay
+}
+
+proc ::cron::current_time {} {
+  if {$::cron::time < 0} {
+    return [clock milliseconds]
+  }
+  return $::cron::time
+}
+
+proc ::cron::clock_set newtime {
+  variable time
+  for {} {$time < $newtime} {incr time 100} {
+    uplevel #0 {::cron::do_one_event CLOCK_ADVANCE}
+  }
+  set time $newtime
+  uplevel #0 {::cron::do_one_event CLOCK_ADVANCE}
+}
+
+proc ::cron::once_in_a_while body {
+  set script {set _eventid_ $::cron::current_event}
+  append script $body
+  # Add a safety to allow this while to only execute once per call
+  append script {if {$_eventid_==$::cron::current_event} yield}
+  uplevel 1 [list while 1 $script]
+}
+
+proc ::cron::sleep ms {
+  if {$::cron::trace > 1} {
+    puts [list ::cron::sleep $ms [info coroutine]]
+  }
+
+  set coro [info coroutine]
+  # When the clock is being externally
+  # controlled, advance the clock when
+  # a sleep is called
+  variable time
+  if {$time >= 0 && $coro eq {}} {
+    ::cron::clock_set [expr {$time+$ms}]
+    return
+  }
+  if {$coro ne {}} {
+    set mnow [current_time]
+    set start $mnow
+    set end [expr {$start+$ms}]
+    set eventid $coro
+    if {$::cron::trace} {
+      puts "::cron::sleep $ms $coro"
+    }
+    # Mark as running
+    task set $eventid scheduled $end coroutine $coro running 1
+    ::cron::wake WAKE_IN_CORO
+    yield 2
+    while {$end >= $mnow} {
+      if {$::cron::trace} {
+        puts "::cron::sleep $ms $coro (loop)"
+      }
+      set mnow [current_time]
+      yield 2
+    }
+    # Mark as not running to resume idle computation
+    task set $eventid running 0
+    if {$::cron::trace} {
+      puts "/::cron::sleep $ms $coro"
+    }
+  } else {
+    set eventid [incr ::cron::eventcount]
+    set var ::cron::event_#$eventid
+    set $var 0
+    if {$::cron::trace} {
+      puts "::cron::sleep $ms $eventid waiting for $var"
+      ::after $ms "set $var 1 ; puts \"::cron::sleep - $eventid - FIRED\""
+    } else {
+      ::after $ms "set $var 1"
+    }
+    ::vwait $var
+    if {$::cron::trace} {
+      puts "/::cron::sleep $ms $eventid"
+    }
+    unset $var
+  }
+}
+
+###
+# topic: 21de7bb8db019f3a2fd5a6ae9b38fd55
+# description:
+#    Called once per second, and timed to ensure
+#    we run in roughly realtime
+###
+proc ::cron::runTasksCoro {} {
+  ###
+  # Do this forever
+  ###
+  variable processTable
+  variable processing
+  variable all_coroutines
+  variable coroutine_object
+  variable coroutine_busy
+  variable nextevent
+  variable current_event
+
+  while 1 {
+    incr current_event
+    set lastevent 0
+    set now [current_time]
+    # Wake me up in 5 minute intervals, just out of principle
+    set nextevent [expr {$now-($now % 300000) + 300000}]
+    set next_idle_event [expr {$now+250}]
+    if {$::cron::trace > 1} {
+      puts [list CRON TASK RUNNER nextevent $nextevent]
+    }
+    ###
+    # Determine what tasks to run this timestep
+    ###
+    set tasks {}
+    set cancellist {}
+    set nexttask {}
+
+    foreach {process} [lsort -dictionary [array names processTable]] {
+      dict with processTable($process) {
+        if {$::cron::trace > 1} {
+          puts [list CRON TASK RUNNER process $process frequency: $frequency scheduled: $scheduled]
+        }
+        if {$scheduled==0 && $frequency==0} {
+          set lastrun $now
+          set lastevent $now
+          lappend tasks $process
+        } else {
+          if { $scheduled <= $now } {
+            lappend tasks $process
+            if { $frequency < 0 } {
+              lappend cancellist $process
+            } elseif {$frequency==0} {
+              set scheduled 0
+              if {$::cron::trace > 1} {
+                puts [list CRON TASK RUNNER process $process demoted to idle]
+              }
+            } else {
+              set scheduled [clock_step [expr {$frequency+$lastrun}]]
+              if { $scheduled <= $now } {
+                set scheduled [clock_step [expr {$frequency+$now}]]
+              }
+              if {$::cron::trace > 1} {
+                puts [list CRON TASK RUNNER process $process rescheduled to $scheduled]
+              }
+            }
+            set lastrun $now
+          }
+          set lastevent $now
+        }
+      }
+    }
+    foreach task $tasks {
+      dict set processTable($task) lastrun $now
+      if {[dict exists processTable($task) foreground] && [dict set processTable($task) foreground]} continue
+      if {[dict exists processTable($task) running] && [dict set processTable($task) running]} continue
+      if {$::cron::trace > 2} {
+        puts [list RUNNING $task [task info $task]]
+      }
+      if {[dict exists $processTable($task) coroutine]} {
+        set coro [dict get $processTable($task) coroutine]
+      } else {
+        set coro {}
+      }
+      dict set processTable($task) running 1
+      if {[dict exists $processTable($task) command]} {
+        set command [dict get $processTable($task) command]
+      } else {
+        set command {}
+      }
+      if {$command eq {} && $coro eq {}} {
+        # Task has nothing to do. Slot it for destruction
+        lappend cancellist $task
+      } elseif {$coro ne {}} {
+        if {[info command $coro] eq {}} {
+          set object [dict get $processTable($task) object]
+          # Trigger coroutine again if a command was given
+          # If this coroutine is associated with an object, ensure
+          # the object still exists before invoking its method
+          if {$command eq {} || ($object ne {} && [info command $object] eq {})} {
+            lappend cancellist $task
+            dict set processTable($task) running 0
+            continue
+          }
+          if {$::cron::trace} {
+            puts [list RESTARTING $task - coroutine $coro - with $command]
+          }
+          ::coroutine $coro {*}$command
+        }
+        try $coro on return {} {
+          # Terminate the coroutine
+          lappend cancellist $task
+        } on break {} {
+          # Terminate the coroutine
+          lappend cancellist $task
+        } on error {errtxt errdat} {
+          # Coroutine encountered an error
+          lappend cancellist $task
+          puts "ERROR $coro"
+          set errorinfo [dict get $errdat -errorinfo]
+          if {[info exists coroutine_object($coro)] && $coroutine_object($coro) ne {}} {
+            catch {
+            puts "OBJECT: $coroutine_object($coro)"
+            puts "CLASS: [info object class $coroutine_object($coro)]"
+            }
+          }
+          puts "$errtxt"
+          puts ***
+          puts $errorinfo
+        } on continue {result opts} {
+          # Ignore continue
+          if { $result eq "done" } {
+            lappend cancellist $task
+          }
+        } on ok {result opts} {
+          if { $result eq "done" } {
+            lappend cancellist $task
+          }
+        }
+      } else {
+        dict with processTable($task) {
+          set err [catch {uplevel #0 $command} result errdat]
+          if $err {
+            puts "CRON TASK FAILURE:"
+            puts "PROCESS: $task"
+            puts $result
+            puts ***
+            puts [dict get $errdat -errorinfo]
+          }
+        }
+        yield 0
+      }
+      dict set processTable($task) running 0
+    }
+    foreach {task} $cancellist {
+      unset -nocomplain processTable($task)
+    }
+    foreach {process} [lsort -dictionary [array names processTable]] {
+      set scheduled 0
+      set frequency 0
+      dict with processTable($process) {
+        if {$scheduled==0 && $frequency==0} {
+          if {$next_idle_event < $nextevent} {
+            set nexttask $task
+            set nextevent $next_idle_event
+          }
+        } elseif {$scheduled < $nextevent} {
+          set nexttask $process
+          set nextevent $scheduled
+        }
+        set lastevent $now
+      }
+    }
+    foreach {eventid msec} [array get ::cron::coro_sleep] {
+      if {$msec < 0} continue
+      if {$msec<$nextevent} {
+        set nexttask "CORO $eventid"
+        set nextevent $scheduled
+      }
+    }
+    set delay [expr {$nextevent-$now}]
+    if {$delay <= 0} {
+      yield 0
+    } else {
+      if {$::cron::trace > 1} {
+        puts "NEXT EVENT $delay - NEXT TASK $nexttask"
+      }
+      yield $delay
+    }
+  }
+}
+
+proc ::cron::wake {{who ???}} {
+  ##
+  # Only triggered by cron jobs kicking off other cron jobs within
+  # the script body
+  ##
+  if {$::cron::trace} {
+    puts "::cron::wake $who"
+  }
+  if {$::cron::busy} {
+    return
+  }
+  after cancel $::cron::next_event
+  set ::cron::next_event [after idle [list ::cron::do_one_event $who]]
+}
+
+proc ::cron::do_one_event {{who ???}} {
+  if {$::cron::trace} {
+    puts "::cron::do_one_event $who"
+  }
+  after cancel $::cron::next_event
+  set now [current_time]
+  set ::cron::busy 1
+  while {$::cron::busy} {
+    if {[info command ::cron::COROUTINE] eq {}} {
+      ::coroutine ::cron::COROUTINE ::cron::runTasksCoro
+    }
+    set cron_delay [::cron::COROUTINE]
+    if {$cron_delay==0} {
+      if {[incr loops]>10} {
+        if {$::cron::trace} {
+          puts "Breaking out of 10 recursive loops"
+        }
+        set ::cron::wake_time 1000
+        break
+      }
+      set ::cron::wake_time 0
+      incr ::cron::loops(active)
+    } else {
+      set ::cron::busy 0
+      incr ::cron::loops(idle)
+    }
+  }
+  ###
+  # Try to get the event to fire off on the border of the
+  # nearest second
+  ###
+  if {$cron_delay < 10} {
+    set cron_delay 250
+  }
+  set ctime [current_time]
+  set next [expr {$ctime+$cron_delay}]
+  set ::cron::wake_time [expr {$next/1000}]
+  if {$::cron::trace} {
+    puts [list EVENT LOOP WILL WAKE IN $cron_delay ms next: [clock format $::cron::wake_time -format "%H:%M:%S"] active: $::cron::loops(active) idle: $::cron::loops(idle) woken_by: $who]
+  }
+  set ::cron::next_event [after $cron_delay {::cron::do_one_event TIMER}]
+}
+
+
+proc ::cron::main {} {
+  # Never launch from a coroutine
+  if {[info coroutine] ne {}} {
+    return
+  }
+  set ::cron::forever 1
+  while {$::cron::forever} {
+    ::after 120000 {set ::cron::forever 1}
+    # Call an update just to give the rest of the event loop a chance
+    incr ::cron::loops(main)
+    ::after cancel $::cron::next_event
+    set ::cron::next_event [::after idle {::cron::wake MAIN}]
+    set ::cron::forever 1
+    set ::cron::busy 0
+    ::vwait ::cron::forever
+    if {$::cron::trace} {
+      puts "MAIN LOOP CYCLE $::cron::loops(main)"
+    }
+  }
+}
+
+###
+# topic: 4a891d0caabc6e25fbec9514ea8104dd
+# description:
+#    This file implements a process table
+#    Instead of having individual components try to maintain their own timers
+#    we centrally manage how often tasks should be kicked off here.
+###
+namespace eval ::cron {
+  variable lastcall 0
+  variable processTable
+  variable busy 0
+  variable next_event {}
+  variable trace 0
+  variable current_event
+  variable time -1
+  if {![info exists current_event]} {
+    set current_event 0
+  }
+  if {![info exists ::cron::loops]} {
+    array set ::cron::loops {
+      active 0
+      main 0
+      idle 0
+      wake 0
+    }
+  }
+}
+
+::cron::wake STARTUP
+
+
+###
+# END: cron.tcl
+###
 ###
 # START: core.tcl
 ###
 package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
-package require dicttool
+package require coroutine
 package require TclOO
 package require sha1
 #package require cron 2.0
-package require oo::meta 0.5.1
-package require oo::dialect
+#package require oo::dialect
 
 ::oo::dialect::create ::tool
 ::namespace eval ::tool {}
@@ -578,7 +2139,7 @@ proc ::tool::define::array_ensemble {methodname varname {cases {}}} {
 # START: metaclass.tcl
 ###
 #-------------------------------------------------------------------------
-# TITLE: 
+# TITLE:
 #    tool.tcl
 #
 # PROJECT:
@@ -904,9 +2465,9 @@ proc ::tool::object_destroy objname {
   constructor args {
     my Config_merge [::tool::args_to_options {*}$args]
   }
-  
+
   destructor {}
-    
+
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
     if {$reverse} {
@@ -914,19 +2475,19 @@ proc ::tool::object_destroy objname {
     }
     return $result
   }
-  
+
   method DestroyEvent {} {
     my variable DestroyEvent
     return $DestroyEvent
   }
-  
+
   ###
   # title: Forward a method
   ###
   method forward {method args} {
     oo::objdefine [self] forward $method {*}$args
   }
-  
+
   ###
   # title: Direct a series of sub-functions to a seperate object
   ###
@@ -947,10 +2508,10 @@ proc ::tool::object_destroy objname {
     }
     return $object
   }
-  
+
   # Called after all options and public variables are initialized
   method initialize {} {}
-  
+
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -972,7 +2533,13 @@ proc ::tool::object_destroy objname {
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
   method InitializePublic {} {
-    my variable config meta
+    my variable config meta mixinmap mixins
+    if {![info exists mixins]} {
+      set mixins {}
+    }
+    if {![info exists mixinmap]} {
+      set mixinmap {}
+    }
     if {![info exists meta]} {
       set meta {}
     }
@@ -981,7 +2548,7 @@ proc ::tool::object_destroy objname {
     }
     my ClassPublicApply {}
   }
-  
+
   class_method info {which} {
     my variable cache
     if {![info exists cache($which)]} {
@@ -1011,7 +2578,7 @@ proc ::tool::object_destroy objname {
     }
     return $cache($which)
   }
-  
+
   ###
   # Incorporate the class's variables, arrays, and options
   ###
@@ -1019,7 +2586,7 @@ proc ::tool::object_destroy objname {
     my variable config
     set integrate 0
     if {$class eq {}} {
-      set class [info object class [self]]      
+      set class [info object class [self]]
     } else {
       set integrate 1
     }
@@ -1073,7 +2640,7 @@ proc ::tool::object_destroy objname {
       }
     }
   }
-  
+
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -1107,18 +2674,18 @@ proc ::tool::object_destroy objname {
       my ClassPublicApply $class
     }
     foreach class $prior {
-      if {$class ni $mixins } { 
+      if {$class ni $mixins } {
         my meta mixout $class
       }
     }
   }
 
-  method mixinmap args { 
+  method mixinmap args {
     my variable mixinmap
     set priorlist {}
     foreach {slot classes} $args {
       if {[dict exists $mixinmap $slot]} {
-        lappend priorlist {*}[dict get $mixinmap $slot]  
+        lappend priorlist {*}[dict get $mixinmap $slot]
         foreach class [dict get $mixinmap $slot] {
           if {$class ni $classes && [$class meta exists mixin unmap-script:]} {
             if {[catch [$class meta get mixin unmap-script:] err errdat]} {
@@ -1165,7 +2732,7 @@ proc ::tool::object_destroy objname {
     }
     my mixin {*}$classlist
   }
-  
+
   method morph newclass {
     if {$newclass eq {}} return
     set class [string trimleft [info object class [self]]]
@@ -1193,7 +2760,7 @@ proc ::tool::object_destroy objname {
   # Commands to perform as this object transitions into this class as a new class
   ###
   method Morph_enter {} {}
-  
+
   ###
   # title: List which objects are forwarded as organs
   ###

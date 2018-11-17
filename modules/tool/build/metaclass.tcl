@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------
-# TITLE: 
+# TITLE:
 #    tool.tcl
 #
 # PROJECT:
@@ -325,9 +325,9 @@ proc ::tool::object_destroy objname {
   constructor args {
     my Config_merge [::tool::args_to_options {*}$args]
   }
-  
+
   destructor {}
-    
+
   method ancestors {{reverse 0}} {
     set result [::oo::meta::ancestors [info object class [self]]]
     if {$reverse} {
@@ -335,19 +335,19 @@ proc ::tool::object_destroy objname {
     }
     return $result
   }
-  
+
   method DestroyEvent {} {
     my variable DestroyEvent
     return $DestroyEvent
   }
-  
+
   ###
   # title: Forward a method
   ###
   method forward {method args} {
     oo::objdefine [self] forward $method {*}$args
   }
-  
+
   ###
   # title: Direct a series of sub-functions to a seperate object
   ###
@@ -368,10 +368,10 @@ proc ::tool::object_destroy objname {
     }
     return $object
   }
-  
+
   # Called after all options and public variables are initialized
   method initialize {} {}
-  
+
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -393,7 +393,13 @@ proc ::tool::object_destroy objname {
   #    signals until a later call to <i>my lock remove pipeline</i>
   ###
   method InitializePublic {} {
-    my variable config meta
+    my variable config meta mixinmap mixins
+    if {![info exists mixins]} {
+      set mixins {}
+    }
+    if {![info exists mixinmap]} {
+      set mixinmap {}
+    }
     if {![info exists meta]} {
       set meta {}
     }
@@ -402,7 +408,7 @@ proc ::tool::object_destroy objname {
     }
     my ClassPublicApply {}
   }
-  
+
   class_method info {which} {
     my variable cache
     if {![info exists cache($which)]} {
@@ -432,7 +438,7 @@ proc ::tool::object_destroy objname {
     }
     return $cache($which)
   }
-  
+
   ###
   # Incorporate the class's variables, arrays, and options
   ###
@@ -440,7 +446,7 @@ proc ::tool::object_destroy objname {
     my variable config
     set integrate 0
     if {$class eq {}} {
-      set class [info object class [self]]      
+      set class [info object class [self]]
     } else {
       set integrate 1
     }
@@ -494,7 +500,7 @@ proc ::tool::object_destroy objname {
       }
     }
   }
-  
+
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -528,18 +534,18 @@ proc ::tool::object_destroy objname {
       my ClassPublicApply $class
     }
     foreach class $prior {
-      if {$class ni $mixins } { 
+      if {$class ni $mixins } {
         my meta mixout $class
       }
     }
   }
 
-  method mixinmap args { 
+  method mixinmap args {
     my variable mixinmap
     set priorlist {}
     foreach {slot classes} $args {
       if {[dict exists $mixinmap $slot]} {
-        lappend priorlist {*}[dict get $mixinmap $slot]  
+        lappend priorlist {*}[dict get $mixinmap $slot]
         foreach class [dict get $mixinmap $slot] {
           if {$class ni $classes && [$class meta exists mixin unmap-script:]} {
             if {[catch [$class meta get mixin unmap-script:] err errdat]} {
@@ -586,7 +592,7 @@ proc ::tool::object_destroy objname {
     }
     my mixin {*}$classlist
   }
-  
+
   method morph newclass {
     if {$newclass eq {}} return
     set class [string trimleft [info object class [self]]]
@@ -614,7 +620,7 @@ proc ::tool::object_destroy objname {
   # Commands to perform as this object transitions into this class as a new class
   ###
   method Morph_enter {} {}
-  
+
   ###
   # title: List which objects are forwarded as organs
   ###

@@ -9,12 +9,9 @@ testsNeedTcl     8.6
 testsNeedTcltest 2
 testsNeed        TclOO 1
 
-
+# use oodialect/oodialect.tcl oo::dialect
 support {
-    use oodialect/oodialect.tcl oo::dialect
-    use dicttool/dicttool.tcl   dicttool
     use cron/cron.tcl           cron
-    use oometa/oometa.tcl       oo::meta
     use sha1/sha1.tcl           sha1
 }
 testing {
@@ -104,7 +101,7 @@ tool::class create OptionClass2 {
   option color {default: blue}
 }
 
-OptionClass create ObjectOptionTest1 
+OptionClass create ObjectOptionTest1
 OptionClass create ObjectOptionTest2 bodystyle wagon transmission standard
 OptionClass2 create ObjectOptionTest3
 OptionClass2 create ObjectOptionTest4 bodystyle SUV transmission cvt color white
@@ -416,13 +413,13 @@ tool::class create WidgetClass {
     }
     next {*}$args
   }
-  
+
   constructor {TkPath args} {
     my variable hull
     set hull $TkPath
     my graft hull $TkPath
   }
-    
+
   method tkalias tkname {
     set oldname $tkname
     my variable tkalias
@@ -469,7 +466,7 @@ DummyClass create ::DbObj
 OrganClass create OrganObject db ::DbObj
 test tool-constructor-args-001 {Test that organs passed as options map correctly} {
   OrganObject organ db
-} {::DbObj} 
+} {::DbObj}
 test tool-constructor-args-002 {Test that organs passed as options map correctly} {
   OrganObject cget db
 } {::DbObj}
@@ -579,12 +576,12 @@ test tool-ensemble-005 {Test that ensembles follow the same rules for inheritanc
 ###
 tool::define MixinMainClass {
   variable mainvar unchanged
-  
+
   method test::which {} {
     my variable mainvar
     return $mainvar
   }
-  
+
   method test::main args {
     puts [list this is main $method $args]
   }
@@ -600,17 +597,17 @@ my test untool $class
 my test tool $class
   }
   meta set mixin name: {Generic Tool}
-  
-  method test::untool class { 
+
+  method test::untool class {
     my variable toolvar mainvar
     set mainvar {}
-    set toolvar {} 
+    set toolvar {}
   }
-  
+
   method test::tool class {
     my variable toolvar mainvar
-    set mainvar [$class meta get mixin name:] 
-    set toolvar [$class meta get mixin name:] 
+    set mainvar [$class meta get mixin name:]
+    set toolvar [$class meta get mixin name:]
   }
 }
 
@@ -657,7 +654,7 @@ test tool-mixinmap-001 {Test object prior to mixins} {
 # Coroutine tests
 ###
 tool::define coro_example {
-  
+
   dict_ensemble coro_a_info coro_a_info {
     initialize {
       restart 0
@@ -667,7 +664,7 @@ tool::define coro_example {
       idle  0
     }
   }
-  
+
   coroutine coro_a {
     my coro_a_info merge {
       phase 0
@@ -702,7 +699,7 @@ tool::define coro_example {
       }
     }
   }
-  
+
   dict_ensemble coro_b_info coro_b_info {
     initialize {
       restart 0
@@ -712,7 +709,7 @@ tool::define coro_example {
       idle  0
     }
   }
-  
+
   coroutine coro_b {
     my coro_b_info merge {
       phase 0
@@ -743,7 +740,7 @@ tool::define coro_example {
       }
     }
   }
-  
+
 
   dict_ensemble coro_yodawg_info coro_yodawg_info {
     initialize {
@@ -755,7 +752,7 @@ tool::define coro_example {
       yodawg  0
     }
   }
-  
+
   coroutine coro_yodawg {
     my coro_yodawg_info merge {
       phase 0
