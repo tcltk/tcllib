@@ -21,15 +21,14 @@
 #
 
 # new string features and inline scan are used, requiring 8.3.
-package require Tcl 8.6
+package require Tcl 8.6.9
 
-
+package require namespacex
+package require tcl::chan::cat
 package require tcl::chan::memchan
 package require tcl::chan::string
-package require coroutine
-namespace eval ::mime {
-    namespace path ::coroutine::util {*}[namespace path]
-}
+package require {chan base}
+package require {chan getslimit}
 package require sha256
 
 package provide mime 1.7
@@ -78,20 +77,16 @@ if {[catch {package require Trf 2.0}]} {
 #     encoding: transfer encoding
 #     version: MIME-version
 #     header: dictionary (keys are lower-case)
-#     value: either "file", "parts", or "string"
+#     value: either "chan" or  "parts"
 #
 #     file: input file
 #     fd: cached file-descriptor, typically for root
 #     root: token for top-level part, for (distant) subordinates
-#     offset: number of octets from beginning of file/string
 #     count: length in octets of (encoded) content
 #
 #     parts: list of bodies (tokens)
 #
-#     string: input string
-#
 #     cid: last child-id assigned
-#
 
 
 namespace eval ::mime {
@@ -327,13 +322,18 @@ namespace eval ::mime {
 }
 
 
-proc ::mime::addchan {token fd} {
+proc ::mime::addchan {token chan} {
     variable channels
     upvar 0 $token state
-    if {[info exists state(fd)]} {
+    upvar 0 state(fd) fd
+    if {[info exists fd]} {
 	error [list {a channel is already present}]
     }
-    set state(fd) $fd
+
+    if {[$chan configure -encoding] ne {binary}} {
+	$chan configure -translation auto
+    }
+    set fd $chan
     incr channels($fd)
     return
 }
@@ -911,290 +911,61 @@ proc ::mime::addr_x400 {mbox key} {
 }
 
 
-# ::mime::body --
-#
-#    mime::body returns the body of a leaf MIME part in canonical form.
-#
-#    If the -command option is present, then it is repeatedly invoked
-#    with a fragment of the body as this:
-#
-#        uplevel #0 $callback [list "data" $fragment]
-#
-#    (The -blocksize option, if present, specifies the maximum size of
-#    each fragment passed to the callback.)
-#    When the end of the body is reached, the callback is invoked as:
-#
-#        uplevel #0 $callback "end"
-#
-#    Alternatively, if an error occurs, the callback is invoked as:
-#
-#        uplevel #0 $callback [list "error" reason]
-#
-#    Regardless, the return value of the final invocation of the callback
-#    is propagated upwards by mime::body.
-#
-#    If the -command option is absent, then the return value of
-#    mime::body is a string containing the MIME part's entire body.
-#
-# Arguments:
-#       token      The MIME token to parse.
-#       args       Optional arguments of the form:
-#                  ?-decode? ?-command callback ?-blocksize octets? ?
-#
-# Results:
-#       Returns a string containing the MIME part's entire body, or
-#       if '-command' is specified, the return value of the command
-#       is returned.
-
-proc ::mime::body {token args} {
-    # FRINK: nocheck
-    parsepart $token
-
-    set decode 0
-    if {[set pos [lsearch -exact $args -decode]] >= 0} {
-        set decode 1
-        set args [lreplace $args $pos $pos]
-    }
-
-    array set options $args
-
-    if {[info exists options(-blocksize)]} {
-	set collect 1
-	if {$options(-blocksize) eq {}]} {
-	    set options(-blocksize) 8192
-	}
-	if {$options(-blocksize) < 1} {
-	    error [list -blocksize $options(-blocksize) {not a positive integer}]
-	}
-    } else {
-	set options(-blocksize) 8192
-	set collect 0
-    }
-
-    set coro [coroutine [info cmdcount]_body body2 $token $decode [array get options]]
-    set command [list ::apply [list coro {
-	return {*}[yieldto $coro [info coroutine]]
-    } [namespace current]] $coro]
-
-    if {$collect} {
-	return $command
-    } else {
-	set res {}
-	while 1 {
-	    append res [{*}$command]
-	}
-	return $res
+proc ::mime::checkinputs {} {
+    upvar 1 inputs inputs
+    if {[incr inputs] > 1} {
+	error [list {more than one input source provided}]
     }
 }
 
 
-proc ::mime::body2 {token decode optdict} {
-    set caller [yield [info coroutine]]
-
-    set yield [list ::apply [list args {
-	upvar 1 caller caller decode decode dread dread dwrite dwrite
-	if {[llength $args] == 1 && [info exists decode] && $decode} {
-	    lassign $args[set args {}] fragment
-	    puts -nonewline $dwrite $fragment 
-	    set arg {}
-	    # not using a coroutine::util::read here because there isn't much
-	    # data on the channel and if no characters are currently available,
-	    # the current routine must continue to put more data into the
-	    # channel.
-
-	    # $dread must be nonblocking even though it is read in a tight loop
-	    # here.
-	    while {[set data [::read $dread]] ne {}} {
-		append arg $data
-	    }
-	    if {$arg ne {}} {
-		lappend args $arg 
-		set caller [yieldto $caller {*}$args]
-	    }
-	} else {
-	    set caller [yieldto $caller {*}$args]
-	}
-    } [namespace current]]]
-
-    set return [list ::apply [list args {
-	upvar 1 caller caller yield yield
-	if {[info exists dread]} {
-	    close $dread
-	    close $dwrite
-	}
-	rename [info coroutine] {}
-	uplevel 1 [list {*}$yield {*}$args] 
-    } [namespace current]]]
-
-    try {
-	upvar 0 $token state
-
-	array set options $optdict 
-
-	set code 0
-	set ecode {}
-	set einfo {}
-
-	switch $state(value) {
-	    file {
-		upvar 0 state(fd) fd
-		set offset $state(offset)
-		set count $state(count)
-	    }
-	    string {
-		set offset 0
-		set fd [tcl::chan::string $state(string)]
-		seek $fd 0 end
-		set count [tell $fd]
-		seek $fd 0
-	    }
-	}
-
-	switch $state(value) {
-	    parts {
-		error [list {MIME part isn't a leaf}]
-	    }
-	}
-
-
-	if {$decode} {
-	    lassign [chan pipe] dread dwrite
-	    chan configure $dread -blocking 0
-	    chan configure $dwrite -blocking 0 -encoding binary -buffering none
-	    set params [mime::property $token params]
-
-	    if {[dict exists $params charset]} {
-		set charset [dict get $params charset]
-	    } else {
-		set charset US-ASCII
-	    }
-
-	    set enc [reversemapencoding $charset]
-	    if {$enc ne {}} {
-		chan configure $dread -encoding $enc
-	    } else {
-		{*}$return -code error [
-		    list {-decode cannot reversemap charset} $charset]
-	    }
-	}
-
-
-
-	if {$state(canonicalP)} {
-	    seek $fd [set pos $offset] start
-	    fconfigure $fd -translation binary
-	    set code [catch {
-		while {[string length [
-		    set fragment [read $fd $options(-blocksize)]]] > 0} {
-			{*}$yield $fragment
-		    }
-	    } result copts]
-	} else {
-	    set code [catch {
-		seek $fd [set pos $offset] start
-		set last [expr {$offset + $count - 1}]
-
-		set fragment {}
-		while {$pos <= $last} {
-		    if {[set cc [
-			expr {($last - $pos) + 1}]] > $options(-blocksize)} {
-			set cc $options(-blocksize)
-		    }
-		    incr pos [set len [
-			string length [set chunk [read $fd $cc]]]]
-		    switch -exact $state(encoding) {
-			base64
-			    -
-			quoted-printable {
-			    if {([set x [string last \n $chunk]] > 0) \
-				    && ($x + 1 != $len)} {
-				set chunk [string range $chunk 0 $x]
-				seek $fd [incr pos [expr {($x + 1) - $len}]] start
-			    }
-			    set chunk [
-				$state(encoding) -mode decode -- $chunk]
-			}
-			7bit - 8bit - binary - {} {
-			    # Bugfix for [#477088]
-			    # Go ahead, leave chunk alone
-			}
-			default {
-			    error "Can't handle content encoding \"$state(encoding)\""
-			}
-		    }
-		    append fragment $chunk
-
-		    set cc [expr {$options(-blocksize) - 1}]
-		    while {[string length $fragment] > $options(-blocksize)} {
-			{*}$yield [string range $fragment 0 $cc]
-
-			set fragment [
-			    string range $fragment $options(-blocksize) end]
-		    }
-		}
-		if {[string length $fragment] > 0} {
-		    {*}$yield $fragment
-		}
-	    } result copts]
-	}
-
-	if {$code} {
-	    {*}$yield -options $copts $result
-	}
-
-	{*}$return -code break
-    } on error {tres topts} {
-	{*}$return -options $topts $tres
-    }
-}
-
-# ::mime::bodyaux --
-#
-#    Builds up the body of the message, fragment by fragment.  When
-#    the entire message has been retrieved, it is returned.
-#
-# Arguments:
-#       token      The MIME token to parse.
-#       reason     One of 'data', 'end', or 'error'.
-#       fragment   The section of data data fragment to extract a
-#                  string from.
-#
-# Results:
-#       Returns nothing, except when called with the 'end' argument
-#       in which case it returns a string that contains all of the
-#       data that 'bodyaux' has been called with.  Will throw an
-#       error if it is called with the reason of 'error'.
-
-proc ::mime::bodyaux {token reason {fragment {}}} {
-    # FRINK: nocheck
+proc ::mime::body_decoded token {
     upvar 0 $token state
-
-    switch $reason {
-        data {
-            append state(getbody) $fragment
-            return {}
-        }
-
-        end {
-            if {[info exists state(getbody)]} {
-                set result $state(getbody)
-                unset state(getbody)
-            } else {
-                set result {}
-            }
-
-            return $result
-        }
-
-        error {
-            catch {unset state(getbody)}
-            error $reason
-        }
-
-        default {
-            error "Unknown reason \"$reason\""
-        }
+    upvar 0 state(bodychandecoded) bodychandecoded
+    parsepart $token
+    if {[info exists state(parts)]} {
+	error [list {not a leaf part} $token]
     }
+    if {$state(canonicalP)} { 
+	$state(fd) seek 0 
+	return $state(fd)
+    } else {
+	if {![info exists bodychandecoded]} {
+	    set bodychandecoded [::tcllib::chan::base .new [
+		info cmdcount]_bodydecoded [file tempfile]]
+	    $bodychandecoded configure -translation binary
+	    $state(bodychan) seek 0
+	    $state(bodychan) copy [$bodychandecoded $ chan]
+	    $bodychandecoded seek 0
+	    $state(bodychan) seek 0
+	    setencoding $token $bodychandecoded
+	    setcharset $token $bodychandecoded
+	}
+	$bodychandecoded seek 0
+	return $bodychandecoded
+    }
+}
+
+proc ::mime::body_raw token {
+    upvar 0 $token state
+    parsepart $token
+    if {[info exists state(parts)]} {
+	error [list {not a leaf part} $token]
+    }
+    if {$state(canonicalP)} { 
+	$state(fd) seek 0
+	return $state(fd)
+    } else {
+	$state(bodychan) seek 0 
+	return $state(bodychan)
+    }
+}
+
+
+namespace eval ::mime::body {
+    namespace ensemble create
+    namespace export *
+    namespacex import [namespace parent] body_decoded decoded body_raw raw
 }
 
 
@@ -1202,11 +973,23 @@ proc ::mime::contenttype token {
     upvar 0 $token state
     try {
 	header get $token content-type
-    } on error {} {
+    } on error {cres copts} {
 	# rfc 2045 5.2
 	try {
-	    header get $token MIME-Version
-	    return {text/plain {charset us-ascii}}
+	    if {header exists $token MIME-Version} {
+		    return text/plain
+	    } else {
+		switch $state(spec) {
+		    http {
+			return {text/html {charset UTF-8}}
+		    }
+		    mime {
+			# do not specify US-ASCII here as it is the default
+			return text/plain
+		    }
+		    
+		}
+	    }
 	} on error {} {
 	    return application/octet-stream
 	}
@@ -1446,7 +1229,8 @@ proc ::mime::datetime {value property} {
 #     Determines how a token is encoded.
 #
 # Arguments:
-#       token      The MIME token to parse.
+#       token
+#            The MIME token to parse.
 #
 # Results:
 #       Returns the encoding of the message (the null string, base64,
@@ -1455,8 +1239,11 @@ proc ::mime::datetime {value property} {
 proc ::mime::encoding token {
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(params) params
+    upvar 0 state(fd) chan state(params) params
 
+    if {[info exists state(encoding)]} {
+	return $state(encoding)
+    }
     lassign [contenttype $token] content
 
     switch -glob $content {
@@ -1465,68 +1252,56 @@ proc ::mime::encoding token {
         image/*
             -
         video/* {
-            return base64
+            return [set state(encoding) base64]
         }
 
         message/*
             -
         multipart/* {
-            return {}
+            return [set state(encoding) {}]
         }
         default {# Skip}
     }
 
     set asciiP 1
     set lineP 1
-    switch $state(value) {
-        file {
-	    if {$state(file) eq {}} {
-		# choose a workable all-purpose encoding 
-		set asciiP 0
-		set lineP 0
-	    } else {
-		set fd [open $state(file) RDONLY]
-		fconfigure $fd -translation binary
+    if {[info exists state(parts)]} {
+	return [set state(encoding) {}]
+    }
 
-		while {[gets $fd line] >= 0} {
-		    if {$asciiP} {
-			set asciiP [encodingasciiP $line]
-		    }
-		    if {$lineP} {
-			set lineP [encodinglineP $line]
-		    }
-		    if {(!$asciiP) && (!$lineP)} {
-			break
-		    }
-		}
-		catch {close $fd}
+    if {[set current [$chan tell]] < 0} {
+	makeseekable $token
+	set current [$chan tell]
+    }
+    set chanconfig [$chan configure]
+    try {
+	set buf {}
+	set dataend 0
+	while {[set data [$chan read 8192]] ne {} || $buf ne {}} {
+	    if {$data eq {}} {
+		set dataend 1
 	    }
-        }
-
-        parts {
-            return {}
-        }
-
-        string {
-	    set saved $state(lines.current)
-	    while {$state(lines.current) < $state(lines.count)} {
-		set line [lindex $state(lines) $state(lines.current)]
-		incr state(lines.current)
-                if {$asciiP} {
-                    set asciiP [encodingasciiP $line]
-                }
-                if {$lineP} {
-                    set lineP [encodinglineP $line]
-                }
-                if {(!$asciiP) && (!$lineP)} {
-                    break
-                }
-            }
-	    set state(lines.current) $saved
-        }
-        default {
-            error [list {Unknown value} $state(value)]
-        }
+	    set data $buf[set buf {}]$data[set data{}]
+	    set lines [split $data \n]
+	    if {!$dataend} {
+		set buf [lindex $lines end]
+		set lines [lrange $lines[set lines {}] 0 end-1]
+	    }
+	    if {[llength $lines]} {
+		if {$asciiP} {
+		    set asciiP [encodingasciiP $lines]
+		}
+		if {$lineP} {
+		    set lineP [encodinglineP $lines]
+		}
+		if {(!$asciiP) && (!$lineP)} {
+		    break
+		}
+	    }
+	}
+    } finally {
+	$chan configure {*}$chanconfig
+	$chan seek 0
     }
 
     switch -glob $content {
@@ -1535,27 +1310,26 @@ proc ::mime::encoding token {
                 #TODO: this path is not covered by tests
 		if {[dict exists $params charset]} {
 		    set v [string tolower [dict get $params $charset]]
-		    if {($v ne "us-ascii") \
+		    if {($v ne {us-ascii}) \
 			    && (![string match {iso-8859-[1-8]} $v])} {
-			return base64
+			return [set state(encoding) base64]
 		    }
 		}
             }
 
             if {!$lineP} {
-                return quoted-printable
+                return [set state(encoding) quoted-printable]
             }
         }
 
 
         default {
             if {(!$asciiP) || (!$lineP)} {
-                return base64
+                return [set state(encoding) base64]
             }
         }
     }
-
-    return {}
+    return [set state(encoding) {}]
 }
 
 # ::mime::encodingasciiP --
@@ -1570,29 +1344,29 @@ proc ::mime::encoding token {
 #       Returns 1 if \r only occurs at the end of lines, and if all
 #       characters in the line are between the ASCII codes of 32 and 126.
 
-proc ::mime::encodingasciiP line {
-    foreach c [split $line {}] {
-        switch $c {
-            { } - \t - \r - \n {
-            }
+proc ::mime::encodingasciiP lines {
+    foreach line $lines {
+	set firstr [string first \r $line]]
+	if {
+	    $firstr > 0 && $first != [string length $line]
+	} {
+	    return 0
+	}
+	foreach c [split $line {}] {
+	    switch $c {
+		{ } - \t - \r - \n {
+		}
 
-            default {
-                binary scan $c c c
-                if {($c < 32) || ($c > 126)} {
-                    return 0
-                }
-            }
-        }
+		default {
+		    binary scan $c c c
+		    if {($c < 32) || ($c > 126)} {
+			return 0
+		    }
+		}
+	    }
+	}
     }
-    if {
-	[set r [string first \r $line]] < 0
-	||
-	$r == {[string length $line] - 1}
-    } {
-        return 1
-    }
-
-    return 0
+    return 1
 }
 
 # ::mime::encodinglineP --
@@ -1607,21 +1381,45 @@ proc ::mime::encodingasciiP line {
 #       contains more characters than just whitespace, the line does
 #       not start with a '.', and the line does not start with 'From '.
 
-proc ::mime::encodinglineP line {
-    if {([string length $line] > 76) \
-            || ($line ne [string trimright $line]) \
-            || ([string first . $line] == 0) \
-            || ([string first {From } $line] == 0)} {
-        return 0
+proc ::mime::encodinglineP lines {
+    foreach line $line {
+	if {([string length $line] > 76) \
+		|| ($line ne [string trimright $line]) \
+		|| ([string first . $line] == 0) \
+		|| ([string first {From } $line] == 0)} {
+	    return 0
+	}
     }
-
     return 1
 }
 
 
-proc ::mime::contentid {} {
-    set unique [uniqueID]
-    return $unique@|
+proc ::mime::contentid token {
+    upvar 0 $token state
+    upvar 0 state(parts) parts
+    parsepart $token
+    if {[info exists parts]} {
+	foreach part $parts {
+	    # use message-id here, not content-id, to account for header info
+	    # in the parts
+	    append ids [header get $part message-id] 
+	}
+	set id [::sha2::sha256 -hex $ids]
+    } else {
+	set chan [body decoded $token]
+	set config [$chan configure]
+	if {[dict exists $config -chan]} {
+	    dict unset config -chan
+	}
+	try {
+	    $chan seek 0
+	    set id [::sha2::sha256 -hex -channel [$chan configure -chan]]
+	    $chan seek 0
+	} finally {
+	    $chan configure {*}$config
+	}
+    }
+    return $id@|
 }
 
 
@@ -1634,7 +1432,7 @@ proc ::mime::dropchan token {
 	if {[incr channels($fd) -1] == 0} {
 	    unset channels($fd)
 	    if {$state(closechan)} {
-		close $fd
+		$fd close
 	    }
 	}
 	unset state(fd)
@@ -1667,7 +1465,7 @@ proc ::mime::finalize {token args} {
     switch $options(-subordinates) {
         all {
             #TODO: this code path is untested
-            if {$state(value) eq "parts"} {
+            if {[info exists state(parts)]} {
                 foreach part $state(parts) {
                     eval [linsert $args 0 mime::finalize $part]
                 }
@@ -1690,6 +1488,16 @@ proc ::mime::finalize {token args} {
 
     dropchan $token
 
+    if {$state(bodychan) ne {}} {
+	if {[$state(bodychan) configure -chan] in [chan names]} {
+	    rename $state(bodychan) {}
+	}
+    }
+
+    if {[info exists state(bodychandecoded)]} {
+	rename $state(bodychandecoded) {}
+    }
+
     foreach name [array names state] {
         unset state($name)
     }
@@ -1697,6 +1505,64 @@ proc ::mime::finalize {token args} {
     unset $token
 }
 
+
+proc ::mime::messageid token {
+    upvar 0 $token state
+    #set unique [uniqueID]
+    if {![header exists $token content-id] && $state(addcontentid)} {
+	header::setinternal $token Content-ID [contentid $token]
+    }
+    set sha [::sha2::SHA256Init]
+    foreach {key val} [lsort -stride 2 [header::get $token]] {
+	lassign $val value params
+	::sha2::SHA256Update $sha $key$value
+	foreach {pkey pval} $params {
+	    ::sha2::SHA256Update $sha $pkey$pval
+	}
+    }
+    set hash [::sha2::SHA256Final $sha]
+    binary scan $hash H* hex
+    return $hex@|
+}
+
+# ::mime::mimegets --
+#
+#    like [gets] but does not run over multipart boundaries
+#
+#    only needed during the parsing stage, since after that the content of each
+#    part is in a separate file
+#
+# Arguments:
+#       token      The MIME token to parse.
+#
+# Results:
+#       Returns the size in bytes of the MIME token.
+proc ::mime::mimegets {token varname} {
+    upvar 0 $token state
+    upvar 0 state(boundary) boundary state(eof) eof
+    upvar 1 $varname line
+    if {$eof} {
+	set line {}
+	return -1
+    }
+    set res [$state(fd) gets line]
+    if {$res == -1} {
+	set eof 1
+	set line {}
+	return -1
+    } else {
+	set found [string first --$boundary $line]
+	if {$found == 0} {
+	    if {[string first --$boundary-- $line] >= 0} {
+		set state(sawclosing) 1
+		set eof 1
+	    }
+	    set line {}
+	    return -1 
+	}
+	return $res
+    }
+}
 
 # ::mime::getsize --
 #
@@ -1708,73 +1574,52 @@ proc ::mime::finalize {token args} {
 # Results:
 #       Returns the size in bytes of the MIME token.
 
-proc ::mime::getsize {token} {
+proc ::mime::getsize token {
     # FRINK: nocheck
     upvar 0 $token state
+    upvar 0 state(bodychan) bodychan state(fd) inputchan 
 
-    switch $state(value)/$state(canonicalP) {
-        file/0 {
-            set size $state(count)
-        }
+    parsepart $token
 
-        file/1 {
-            return [file size $state(file)]
-        }
-
-        parts/0
-            -
-        parts/1 {
-            set size 0
-            foreach part $state(parts) {
-                incr size [getsize $part]
-            }
-            return $size
-        }
-
-        string/0 {
-            set size [string length $state(string)]
-        }
-
-        string/1 {
-            return [string length $state(string)]
-        }
-        default {
-            error [list {Unknown combination} $state(value) $state(canonicalP)]
-        }
+    if {[info exists state(parts)]} {
+	set size 0
+	foreach part $state(parts) {
+	    incr size [getsize $part]
+	}
+    } else {
+	set size 0
+	if {$state(canonicalP)} {
+	    if {[set current [$inputchan tell]] < 0} {
+		makeseekable $token
+	    }
+	    set current [$inputchan tell]
+	    $inputchan seek 0 end
+	    set size [$inputchan tell]
+	    $inputchan seek $current
+	} else {
+	    set size $state(size)
+	}
     }
-
-    if {$state(encoding) eq {base64}} {
-        set size [expr {($size * 3 + 2) / 4}]
-    }
-
+    # no longer needed since size is calculated during parsing
+    #if {$state(encoding) eq {base64}} {
+    #    set size [expr {($size * 3 + 2) / 4}]
+    #}
     return $size
 }
 
 
 proc ::mime::getTransferEncoding token {
     upvar 0 $token state
-    set res {}
-    if {[set encoding $state(encoding)] eq {}} {
-	set encoding [encoding $token]
-    }
-    if {$encoding ne {}} {
-	set res $encoding
-    }
+    set encoding [encoding $token]
+    # See also issues [#477088] and [#539952]
     switch $encoding {
-	base64
-	    -
-	quoted-printable {
-	    set converter $encoding
-	}
-	7bit - 8bit - binary - {} {
-	    # Bugfix for [#477088], also [#539952]
-	    # Go ahead
+	base64 - quoted-printable  - 7bit - 8bit - binary - {} {
 	}
 	default {
-	    error "Can't handle content encoding \"$encoding\""
+	    error [list {Can't handle content encoding} $encoding]
 	}
     }
-    return $res
+    return $encoding
 }
 
 
@@ -1822,77 +1667,10 @@ proc ::mime::header::boundary {} {
 #   Unset all values for $key, without "normalizing" other redundant keys
 proc ::mime::header::dunset {dictname key} {
     upvar 1 $dictname dict
-    join [lmap {key1 val} $dict[set dict {}] {
+    set dict [join [lmap {key1 val} $dict[set dict {}] {
 	if {$key1 eq $key} continue
-	list $key $val
-    }]
-}
-
-
-
-proc ::mime::header::serialize {token name value params} {
-    variable notattchar_re
-    set lname [string tolower $name]
-
-    # to do: check key for conformance
-    # to do: properly quote/process $value for interpolation
-    if {[regexp {[^\x21-\x39\x3b-\x7e]} $name]} {
-	error [
-	    list {non-printing character or colon character in header name} $name]
-    }
-    if {[regexp {[^\t\x20-\x7e]} $value]} {
-	error [
-	    list {non-printing character in header value}]
-    }
-
-    switch $lname {
-	content-id - message-id {
-	    set value <$value>
-	}
-    }
-
-    set res "$name: $value"
-
-    dict for {key value} $params {
-	if {[regexp $notattchar_re $key]} {
-	    error [list {illegal character found in attribute name}]
-	}
-	set len [expr {[string length $key]} + 1 + [string length $value]]
-	# save one byte for the folding white space continuation space
-	# and two bytes for "; "
-	if {$len > 73 || ![regexp {[^-!#$%&'*+,.\w`~^@{}|]+$} $value]} {
-	    # save two bytes for the quotes
-	    if {$len <= 71 && ![regexp {[^\x20-\x7e]} $value]} {
-		set value "[string map [list \\ \\\\ \" \\\"] $value[set value {}]]"
-		append res "\n\t; $key=$value"
-	    } else {
-		set value [::encoding convertto utf-8 $value]
-
-		regsub -all -- $notattchar_re $value {[format %%%02X [scan "\\&" %c]]} value
-		set value [subst -novariables $value]
-
-		set partnum 0
-		set start 0
-		set param $key*$partnum*=utf-8''
-		while {$start < [string length $value]} {
-		    # subtract one from the limit to ensure that at least one byte
-		    # is included in the part value
-		    if {[string length $param] > 72} {
-			error [list {parameter name is too long}]
-		    }
-		    set end [expr {$start + 72 - [string length $param]}]
-		    set part [string range $value $start $end]
-		    incr start [string length $part]
-		    append res "\n\t; $param$part"
-		    set param $key*$partnum=
-		    incr partnum
-		}
-	    }
-	} else {
-	    append res "\n\t; $key=$value"
-	}
-    }
-    return $res
+	list $key1 $val
+    }]]
 }
 
 
@@ -1900,7 +1678,10 @@ proc ::mime::header::exists {token name} {
     upvar 0 $token state
     set lname [string tolower $name]
     expr {[dict exists $state(headerlower) $lname]
-	|| [dict exists $state(headerinternallower) $lname]}
+		|| [dict exists $state(headerinternallower) $lname]
+		|| [dict exists $state(contentidlower) $lname]
+		|| [dict exists $state(messageidlower) $lname]
+    }
 }
 
 
@@ -1920,16 +1701,24 @@ proc ::mime::header::get {token {key {}}} {
     upvar 0 $token state
     parse $token
 
+    set contentid $state(contentid)
+    set contentidlower $state(contentidlower)
     set header $state(header)
     set headerlower $state(headerlower)
     set headerinternal $state(headerinternal)
     set headerinternallower $state(headerinternallower)
+    set messageid $state(messageid) 
+    set messageidlower $state(messageidlower)
     switch $key {
 	{} {
-	    set result [dict merge $headerinternal $header]
-	    set tencoding [getTransferEncoding $token]
-	    if {$tencoding ne {}} {
-		lappend result Content-Transfer-Encoding [list $tencoding {}]
+	    set result [list {*}$messageid {*}$contentid {*}$headerinternal \
+		{*}$header]
+	    if {![dict exists $headerlower content-transfer-encoding]
+		&& !$state(canonicalP)} {
+		set tencoding [getTransferEncoding $token]
+		if {$tencoding ne {}} {
+		    lappend result Content-Transfer-Encoding [list $tencoding {}]
+		}
 	    }
 	    return $result
 	}
@@ -1942,8 +1731,27 @@ proc ::mime::header::get {token {key {}}} {
 	    set lower [string tolower $key]
 
 	    switch $lower {
+		content-id {
+		    if {![dict size $contentidlower]} {
+			contentid $token
+		    }
+		    return [dict get $contentidlower content-id]
+		}
 		content-transfer-encoding {
-		    return [list [getTransferEncoding $token] {}]
+		    if {[dict exists $headerinternallower $lower]} {
+			return [dict get $headerinternallower $lower]
+		    } elseif {!$state(canonicalP)} {
+			return [list [getTransferEncoding $token] {}]
+		    } else {
+			error [list {no such header} $key]
+		    }
+		}
+		message-id {
+		    if {![dict size $messageidlower]} {
+			setinternal $token Message-ID [
+			    [namespace parent]::messageid $token]
+		    }
+		    return [dict get $messageidlower message-id]
 		}
 		mime-version {
 		    return [list $state(version) {}]
@@ -1967,40 +1775,28 @@ proc ::mime::header::get {token {key {}}} {
 proc ::mime::header::parse token {
     # FRINK: nocheck
     upvar 0 $token state
+    upvar 0 state(fd) fd state(boundary) boundary
     if {$state(canonicalP) || $state(headerparsed)} {
 	return
     }
     set state(headerparsed) 1
-    upvar 0 state(last) last
 
-    if {[set fileP [info exists state(file)]]} {
-        seek $state(fd) [set pos $state(offset)] start
-        set last [expr {$state(offset) + $state(count) - 1}]
+    if {[info exists boundary]} {
+	set gets [list [namespace parent]::mimegets $token line]
     } else {
-        set string $state(string)
+	set gets [list $fd gets line]
     }
 
     set vline {}
     while 1 {
 	set blankP 0
-	if {$fileP} {
-	    if {($pos > $last) || ([set x [gets $state(fd) line]] <= 0)} {
-		set blankP 1
-	    } else {
-		incr pos [expr {$x + 1}]
-	    }
-	} else {
-	    if {$state(lines.current) >= $state(lines.count)} {
-		set blankP 1
-		set line {}
-	    } else {
-		set line [lindex $state(lines) $state(lines.current)]
-		incr state(lines.current)
-		set x [string length $line]
-		if {$x == 0} {set blankP 1}
-	    }
+	set x [{*}$gets]
+	if {$x <= 0} {
+	    set blankP 1
 	}
 
+	# to do 2018-11-13: probably remove this now that line translation
+	# happens automatically,
 	if {!$blankP && [string match *\r $line]} {
 	    set line [string range $line 0 $x-2]
 	    if {$x == 1} {
@@ -2037,6 +1833,11 @@ proc ::mime::header::parse token {
 	    content-disposition {
 		set_ $token $mixed {*}[parseparts $token $value]
 	    }
+
+	    content-id {
+		setinternal $token $mixed $value
+	    }
+
             content-type {
                 if {[exists $token content-type]} {
                     error [list {multiple Content-Type fields starting with} \
@@ -2068,7 +1869,7 @@ proc ::mime::header::parse token {
             }
 
             default {
-		setinternal $token $mixed $value -mode append
+		set_ $token $mixed $value -mode append
             }
         }
 
@@ -2310,11 +2111,77 @@ proc ::mime::header::processparams params {
 	if {[info exists encoding]} {
 	    set value [string map {% {\x}} $value[set value {}]]
 	    set value [subst -novariables -nocommands $value[set value {}]]
-	    set value [encoding convertfrom $encoding $value]
+	    set value [::encoding convertfrom $encoding $value]
 	}
 	dict set params $key $value
     }
     return $params
+}
+
+
+proc ::mime::header::serialize {token name value params} {
+    variable notattchar_re
+    set lname [string tolower $name]
+
+    # to do: check key for conformance
+    # to do: properly quote/process $value for interpolation
+    if {[regexp {[^\x21-\x39\x3b-\x7e]} $name]} {
+	error [
+	    list {non-printing character or colon character in header name} $name]
+    }
+    if {[regexp {[^\t\x20-\x7e]} $value]} {
+	error [
+	    list {non-printing character in header value}]
+    }
+
+    switch $lname {
+	content-id - message-id {
+	    set value <$value>
+	}
+    }
+
+    set res "$name: $value"
+
+    dict for {key value} $params {
+	if {[regexp $notattchar_re $key]} {
+	    error [list {illegal character found in attribute name}]
+	}
+	set len [expr {[string length $key]} + 1 + [string length $value]]
+	# save one byte for the folding white space continuation space
+	# and two bytes for "; "
+	if {$len > 73 || ![regexp {[^-!#$%&'*+,.\w`~^@{}|]+$} $value]} {
+	    # save two bytes for the quotes
+	    if {$len <= 71 && ![regexp {[^\x20-\x7e]} $value]} {
+		set value "[string map [list \\ \\\\ \" \\\"] $value[set value {}]]"
+		append res "\n\t; $key=$value"
+	    } else {
+		set value [::encoding convertto utf-8 $value]
+
+		regsub -all -- $notattchar_re $value {[format %%%02X [scan "\\&" %c]]} value
+		set value [subst -novariables $value]
+
+		set partnum 0
+		set start 0
+		set param $key*$partnum*=utf-8''
+		while {$start < [string length $value]} {
+		    # subtract one from the limit to ensure that at least one byte
+		    # is included in the part value
+		    if {[string length $param] > 72} {
+			error [list {parameter name is too long}]
+		    }
+		    set end [expr {$start + 72 - [string length $param]}]
+		    set part [string range $value $start $end]
+		    incr start [string length $part]
+		    append res "\n\t; $param$part"
+		    set param $key*$partnum=
+		    incr partnum
+		}
+	    }
+	} else {
+	    append res "\n\t; $key=$value"
+	}
+    }
+    return $res
 }
 
 
@@ -2351,6 +2218,15 @@ proc ::mime::header::set_ {token key value args} {
     variable internal
     # FRINK: nocheck
     upvar 0 $token state
+    upvar 0 \
+	state(contentid) contentid \
+	state(contentidlower) contentidlower \
+	state(header) header \
+	state(headerinternal) headerinternal \
+	state(headerinternallower) headerinternallower \
+	state(headerlower) headerlower \
+	state(messageid) messageid \
+	state(messageidlower) messageidlower
     parse $token
 
     set params {}
@@ -2379,17 +2255,7 @@ proc ::mime::header::set_ {token key value args} {
     }
 
     set lower [string tolower $key]
-    set headerlower $state(headerlower)
-    set header $state(header)
-    set headerinternallower $state(headerinternallower)
-    set headerinternal $state(headerinternal)
-    if {[catch {header get $lower} result]} {
-        #TODO: this code path is not tested
-        if {$options(-mode) eq {delete}} {
-            error [list {key not in header} $key]
-        }
-	set result {}
-    }
+    set result {}
     switch $options(-mode) {
 	append - write {
 	    switch $lower {
@@ -2403,9 +2269,11 @@ proc ::mime::header::set_ {token key value args} {
 		    if {!$internal} {
 			switch $lower {
 			    default {
-				lassign [get $token $lower] values params1
-				if {$value ni $values} {
-				    error "key $key may not be set"
+				if {[exists $token $lower]} {
+				    lassign [get $token $lower] values params1
+				    if {$value ni $values} {
+					error "key $key may not be set"
+				    }
 				}
 			    }
 			}
@@ -2443,29 +2311,36 @@ proc ::mime::header::set_ {token key value args} {
 	    }
 	    set newval [list $value $params]
 	    if {$internal} {
-		lappend headerinternal $key $newval 
-		lappend headerinternallower $lower $newval 
+		switch $lower {
+		    content-id {
+			lappend contentid $key $newval 
+			lappend contentidlower $lower $newval 
+		    }
+		    message-id {
+			lappend messageid $key $newval 
+			lappend messageidlower $lower $newval 
+		    }
+		    default {
+			lappend headerinternal $key $newval 
+			lappend headerinternallower $lower $newval 
+		    }
+		}
 	    } else {
 		lappend header $key $newval 
 		lappend headerlower $lower $newval 
 	    }
 	}
         delete {
-            unset headerlower($lower)
-	    unset headerinternallower($lower)
-	    unset header($key)
-	    unset headerinternal($key)
+            dunset headerlower $lower
+	    dunset headerinternallower $lower
+	    dunset header $key
+	    dunset headerinternal $key
         }
 
         default {
             error "unknown value for -mode $options(-mode)"
         }
     }
-
-    set state(header) $header 
-    set state(headerlower) $headerlower 
-    set state(headerinternal) $headerinternal 
-    set state(headerinternallower) $headerinternallower
 
     return $result
 }
@@ -2498,7 +2373,8 @@ proc ::mime::initialize args {
     # FRINK: nocheck
     upvar 0 $token state
 
-    if {[catch [list mime::initializeaux $token {*}$args] result eopts]} {
+    if {[catch {uplevel 1 [
+	list mime::initializeaux $token {*}$args]} result eopts]} {
         catch {mime::finalize $token -subordinates dynamic}
         return -options $eopts $result
     }
@@ -2515,18 +2391,16 @@ proc ::mime::initialize args {
 #                  ?-params    {?key value? ...}
 #                  ?-encoding value?
 #                  ?-headers   {?key value? ...}
-#                  ?-http
-#                  (-file name | -string value | -parts {token1 ... tokenN})
+#                  ?-spec   ?mime | http? 
+#                  (-chan value | -parts {token1 ... tokenN})
 #
 #       If the -canonical option is present, then the body is in
-#       canonical (raw) form and is found by consulting either the -file,
-#       -string, or -parts option.
+#       canonical (raw) form and is found by consulting either the,
+#       -chan, or -parts option.
 #
 #       -header
 #           a dictionary of headers
 #               with possibliy-redundant keys
-#       -http
-#           operate in http mode
 #
 #       -params
 #           a dictionary of parameters
@@ -2537,7 +2411,7 @@ proc ::mime::initialize args {
 #       "Content-Transfer-Encoding" when copying the body.
 #
 #       If the -canonical option is not present, then the MIME part
-#       contained in either the -file or the -string option is parsed,
+#       contained in -chan option is parsed,
 #       dynamically generating subordinates as appropriate.
 #
 # Results:
@@ -2548,27 +2422,44 @@ proc ::mime::initializeaux {token args} {
     variable channels
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(canonicalP) canonicalP
-    upvar 0 state(params) params
+    upvar 0 state(canonicalP) canonicalP state(params) params \
+	state(relax) relax
+
+    set ipnuts 0
 
     set params {}
 
     set state(addcontentid) 1
+    set state(addmessageid) 1
     set state(addmimeversion) 1
-    set state(encoding) {}
-    set state(version) 1.0
 
+    # contains the decoded message body 
+    set state(bodychan) {}
+    set state(bodydecoded) 0
     set state(bodyparsed) 0
     set canonicalP 0
+    set state(cid) 0
+    set state(closechan) 1
+    set state(contentid) {}
+    set state(contentidlower) {}
+    set state(encoding) {}
+    set state(encodingdone) 0
+    set state(eof) 0
     set state(header) {}
     set state(headerinternal) {}
     set state(headerinternallower) {}
     set state(headerlower) {}
     set state(headerparsed) 0
-
-    set state(cid) 0
-    set state(closechan) 1
+    set state(isstring) 0 
+    set relax [dict create finalboundary 0]
+    set state(messageid) {}
+    set state(messageidlower) {}
     set state(root) $token
+    set state(sawclosing) 0
+    set state(spec) mime
+    set state(size) 0
+    set state(usemem) 0 
+    set state(version) 1.0
 
     set userparams 0
 
@@ -2584,22 +2475,59 @@ proc ::mime::initializeaux {token args} {
 	    -addcontentid {
 		set state(addcontentid) [expr {!!$value}]
 	    }
+	    -addmessageid {
+		set state(addmessageid) [expr {!!$value}]
+	    }
 	    -addmimeversion {
 		set state(addmimeversion) [expr {!!$value}]
+	    }
+	    -boundary {
+		set state(boundary) $value
 	    }
             -canonical {
 		set canonicalP 1
 		set type [string tolower $value]
             }
-
 	    -chan {
-		set state(file) {}
-		addchan $token $value
+		checkinputs
+		addchan $token [uplevel 1 [list namespace which $value]]
 	    }
 
 	    -close {
 		set state(closechan) [expr {!!$value}]
 	    }
+
+            -encoding {
+		set value [string tolower $value[set value {}]]
+
+                switch $value {
+                    7bit - 8bit - binary - quoted-printable - base64 {
+                    }
+
+                    default {
+                        error "unknown value for -encoding $state(encoding)"
+                    }
+                }
+                set state(encoding) [string tolower $value]
+            }
+
+	    -file {
+		checkinputs
+		addchan $token [tcllib::chan::base .new [
+		    info cmdcount]_chan [open $value]]
+	    }
+
+            -headers {
+		# process headers later in order to assure that content-id and
+		# content-type occur first
+		if {[info exists headers]} {
+		    error [list {-headers option occurred more than once}]
+		}
+                if {[llength $value] % 2} {
+                    error [list -headers expects a dictionary]
+                }
+		set headers $value
+            }
 
             -params {
 		if {$userparams} {
@@ -2619,69 +2547,53 @@ proc ::mime::initializeaux {token args} {
 		}
             }
 
-            -encoding {
-		set value [string tolower $value[set value {}]]
-
-                switch $value {
-                    7bit - 8bit - binary - quoted-printable - base64 {
-                    }
-
-                    default {
-                        error "unknown value for -encoding $state(encoding)"
-                    }
-                }
-                set state(encoding) [string tolower $value]
-            }
-
-            -headers {
-		# process headers later in order to assure that content-id and
-		# content-type occur first
-		if {[info exists headers]} {
-		    error [list {-headers option occurred more than once}]
-		}
-                if {[llength $value] % 2} {
-                    error [list -headers expects a dictionary]
-                }
-		set headers $value
-            }
-
-            -file {
-                set state(file) $value
-            }
-
             -parts {
+		checkinputs
 		set canonicalP 1
                 set state(parts) $value
             }
 
-            -string {
-                set state(string) $value
-
-                set state(lines) [split $value \n]
-                set state(lines.count) [llength $state(lines)]
-                set state(lines.current) 0
-            }
+	    -relax {
+		relax $token $value 1 
+	    }
 
             -root {
                 # the following are internal options
                 set state(root) $value
             }
 
-            -offset {
-                set state(offset) $value
-            }
+	    -spec {
+		switch $value {
+		    http {
+			set state(addcontentid) 0
+			set state(addmimeversion) 0
+			set state(addmessageid) 0
+			set state(spec) http
+		    }
+		    mime {
+			set state(addcontentid) 1
+			set state(addmimeversion) 1
+			set state(spec) mime
+		    }
+		    default {
+			error [list {unknown protocol}]
+		    }
+		}
+	    }
 
-            -count {
-                set state(count) $value
-            }
+	    -strict {
+		relax $token $value [expr {!$value}]
+	    }
 
-            -lineslist {
-                set state(lines) $value
-                set state(lines.count) [llength $state(lines)]
-                set state(lines.current) 0
-                #state(string) is needed, but will be built when required
-                set state(string) {}
-            }
+	    -string {
+		checkinputs
+		addchan $token [tcllib::chan::base .new [
+		    info cmdcount]_chan [::tcl::chan::string $value]]
+	    }
+
+	    -usemem {
+		set state(usemem) [expr {!!$value}] 
+	    }
 
             default {
                 error [list {unknown option} $option]
@@ -2689,42 +2601,11 @@ proc ::mime::initializeaux {token args} {
         }
     }
 
-    #We only want one of -chan -file, -parts or -string:
-    set valueN 0
-    foreach value {file parts string} {
-        if {[info exists state($value)]} {
-	    set state(value) $value
-            incr valueN
-        }
+    if {![info exists inputs]} {
+	error [list {specify exactly one of} {-chan -file -parts -string}]
     }
-    if {$valueN != 1 && ![info exists state(lines)]} {
-        error [list {specify exactly one of} {-file -parts -string}]
-    }
-
-
-    if {$state(value) eq {file}} {
-	if {$state(root) eq $token} {
-	    if {![info exists state(fd)]} {
-		addchan $token [open $state(file) RDONLY]
-	    }
-	    set state(offset) 0
-	    seek $state(fd) 0 end
-	    set state(count) [tell $state(fd)]
-
-	    fconfigure $state(fd) -translation binary
-	} else {
-	    # FRINK: nocheck
-	    upvar 0 $state(root) root
-	    addchan $token $root(fd)
-	}
-    }
-
 
     if {$canonicalP} {
-        if {![header exists $token content-id] && $state(addcontentid)} {
-	    header::setinternal $token Content-ID [contentid]
-        }
-
 	if {![info exists type]} {
 	    set type multipart/mixed
 	}
@@ -2749,32 +2630,25 @@ proc ::mime::initializeaux {token args} {
 
 	lassign [header get $token content-type] content dummy
 
-        switch $state(value) {
-            file {
-                set state(offset) 0
-            }
+	if {[info exists state(parts)]} {
+	    switch -glob $content {
+		text/*
+		    -
+		image/*
+		    -
+		audio/*
+		    -
+		video/* {
+		    error "-canonical $content and -parts do not mix"
+		}
 
-            parts {
-                switch -glob $content {
-                    text/*
-                        -
-                    image/*
-                        -
-                    audio/*
-                        -
-                    video/* {
-                        error "-canonical $content and -parts do not mix"
-                    }
-
-                    default {
-                        if {$state(encoding) ne {}} {
-                            error "-encoding and -parts do not mix"
-                        }
-                    }
-                }
-            }
-            default {# Go ahead}
-        }
+		default {
+		    if {$state(encoding) ne {}} {
+			error "-encoding and -parts do not mix"
+		    }
+		}
+	    }
+	}
 
         set state(version) 1.0
         return
@@ -2790,6 +2664,20 @@ proc ::mime::initializeaux {token args} {
         error "-header requires -canonical"
     }
 
+}
+
+
+proc mime::makeseekable token {
+    upvar 0 $token state
+    upvar 0 state(bodychan) bodychan state(fd) inputchan 
+    set chan2 [::tcllib::chan::base [info cmdcount]_chan [file tempfile]]
+    chan configure $chan2 -translation binary
+    chan copy $inputchan $chan2
+    incr size [tell $chan2]
+    seek $chan2 0
+    close $inputchan
+    set inputchan [::tcllib::chan::base [info cmdcount]_chan $chan2]
+    return
 }
 
 
@@ -2816,7 +2704,6 @@ proc ::mime::mapencoding {enc} {
     return {}
 }
 
-
 # ::mime::parsepart --
 #
 #       Parses the MIME headers and attempts to break up the message
@@ -2842,7 +2729,8 @@ proc ::mime::parsepart token {
 proc ::mime::parsepartaux token {
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(last) last
+    upvar 0 state(bodychan) bodychan state(eof) eof \
+	state(fd) fd state(size) size state(usemem) usemem state(relax) relax
 
     header parse $token
 
@@ -2857,236 +2745,161 @@ proc ::mime::parsepartaux token {
 
     lassign [contenttype $token] content params
 
+    if {$usemem} {
+	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan [
+	    ::tcl::chan::memchan]]
+    } else {
+	set bodychan [tcllib::chan::getslimit .new [info cmdcount]_bodychan [
+	    file tempfile]]
+    }
+    if {[dict exists $params charset]} {
+	set charset [reversemapencoding [dict get $params charset]]
+	if {$charset eq {}} {
+	    puts stderr [list {unknown charset} [
+		dict get $params charset] {using binary translation instead}]
+	    # but still do line automatic translation
+	    $fd configure -encoding binary -translation auto
+	} else {
+	    $fd configure -encoding [reversemapencoding [dict get $params charset]]
+	}
+    }
+    $bodychan configure -translation binary
 
-    set fileP [info exists state(file)]
-    if {![string match multipart/* $content]} {
-        if {$fileP} {
-            set x [tell $state(fd)]
-            incr state(count) [expr {$state(offset) - $x}]
-            set state(offset) $x
-        } else {
-            # rebuild string, this is cheap and needed by other functions
-            set state(string) [join [
-                lrange $state(lines) $state(lines.current) end] \n]
-        }
+    if {[info exists state(boundary)]} {
+	set gets [list mimegets $token line]
+	set iseof {$eof}
+    } else {
+	set gets [list $fd gets line]
+	set iseof {[$fd eof] || $eof}
+    }
+
+    if {[string match multipart/* $content]} {
+	set state(parts) {}
+
+	dict update params boundary boundary {}
+	if {![info exists state(boundary)]} {
+	    if {![info exists boundary]} {
+		error "boundary parameter is missing in $content"
+	    }
+
+	    if {[string trim $boundary] eq {}} {
+		error "boundary parameter is empty in $content"
+	    }
+	}
+
+	while 1 {
+	    if $iseof {
+		break
+	    }
+	    if {![llength $state(parts)]} {
+		set x [{*}$gets]
+		if {$x == -1} {
+		    break
+		}
+	    }
+	    if {[string first --$boundary-- $line] >= 0} {
+		    # No starting boundary was seen prior to the terminating boundary.
+		    # Interpret this to mean there are no more parts, and also attempt
+		    # to make a part from data already seen.
+
+		    # Covered by by test case mime-3.7, using  "badmail1.txt".
+
+		    set state(sawclosing) 1
+
+		    $bodychan puts $line
+		    $bodychan seek 0
+
+		    # FRINK: nocheck
+		    variable [set child $token-[incr state(cid)]]
+
+		    mime::initializeaux $child -chan $bodychan \
+			-root $state(root) -boundary $boundary -usemem $usemem
+		    parsepart $child
+		    
+		    lappend state(parts) $child
+		    header setinternal $child Content-Type application/octet-stream
+		    break
+	    } elseif {[llength $state(parts)] || [string first --$boundary $line] == 0} {
+		    # either just saw the first boundary or saw a boundary between parts
+
+		    # do not brace this expression 
+		    if $iseof {
+			# either saw the closing boundary or reached the end of the file
+			break
+		    } elseif {[string first --$boundary-- $line] >= 0} {
+			set state(sawclosing) 1
+			break
+		    } else {
+			#mimegets returned 0 because it found a border
+
+			# FRINK: nocheck
+			variable [set child $token-[incr state(cid)]]
+
+
+			mime::initializeaux $child -chan $fd \
+			    -root $state(root) -boundary $boundary -usemem $usemem
+			parsepart $child
+			lappend state(parts) $child
+			upvar 0 $child childstate
+			set state(sawclosing) $childstate(sawclosing)
+			if {$childstate(eof)} break
+		    }
+	    } else {
+		# Accumulate data in case the terminating boundary occurs starting
+		# boundary was found, so that a part can be generated from data
+		# seen so far.
+		if $iseof {
+		    $bodychan puts -nonewline $line
+		} else {
+		    $bodychan puts $line
+		}
+		set size [expr {$size + [
+		    string length $line] + 1}]
+	    }
+	}
+	if {!$state(sawclosing) && ![dict get $relax finalboundary]} {
+	    error {end-of-string encountered while parsing multipart/form-data}
+	}
+    } else {
+	if {[info exists state(boundary)]} {
+	    while 1 {
+		set x [{*}$gets]
+		if {$x == -1} {
+		    break
+		} else {
+		    if {[incr linesout] > 1} {
+			$bodychan puts -nonewline \n$line
+		    } else {
+			$bodychan puts -nonewline $line
+		    }
+		    set size [expr {$size + [
+			string length $line] + 1}]
+		}
+	    }
+	} else {
+	    $fd copy [$bodychan configure -chan]
+	    set size [$bodychan tell]
+	}
+	$bodychan seek 0
 
         if {[string match message/* $content]} {
             # FRINK: nocheck
+	    setencoding $token $bodychan
+	    setcharset $token $bodychan
             variable [set child $token-[incr state(cid)]]
 
-            set state(value) parts
+	    mime::initializeaux $child -chan $bodychan -usemem $usemem
+
             set state(parts) $child
-            if {$fileP} {
-                mime::initializeaux $child \
-                    -file $state(file) -root $state(root) \
-                    -offset $state(offset) -count $state(count)
-            } else {
-                if {[info exists state(encoding)]} {
-                    set strng [join [
-                        lrange $state(lines) $state(lines.current) end] \n]
-                    switch $state(encoding) {
-                        base64 -
-                        quoted-printable {
-                            set strng [$state(encoding) -mode decode -- $strng]
-                        }
-                        default {}
-                    }
-                    mime::initializeaux $child -root $state(root) -string $strng
-                } else {
-                    mime::initializeaux $child -root $state(root) -lineslist [
-                        lrange $state(lines) $state(lines.current) end]
-                }
-            }
-        }
-        return
-    }
-
-    set state(value) parts
-
-    dict update params boundary boundary {}
-    if {![info exists boundary]} {
-        error "boundary parameter is missing in $content"
-    }
-
-    if {[string trim $boundary] eq {}} {
-        error "boundary parameter is empty in $content"
-    }
-
-    if {$fileP} {
-        set pos [tell $state(fd)]
-            # This variable is like 'start', for the reasons laid out
-            # below, in the other branch of this conditional.
-            set initialpos $pos
+	    parsepart $child
         } else {
-            # This variable is like 'start', a list of lines in the
-            # part. This record is made even before we find a starting
-            # boundary and used if we run into the terminating boundary
-            # before a starting boundary was found. In that case the lines
-            # before the terminator as recorded by tracelines are seen as
-            # the part, or at least we attempt to parse them as a
-            # part. See the forceoctet and nochild flags later. We cannot
-            # use 'start' as that records lines only after the starting
-            # boundary was found.
-            set tracelines [list]
+	    # this is undtrusted data, so keep the getslimit enabled on the
+	    # assumption that no one else wants to get hit by a long-line
+	    # attack either.
+	    #$bodychan configure -getslimit -1
+	}
     }
-
-    set inP 0
-    set moreP 1
-    set forceoctet 0
-    while {$moreP} {
-        if {$fileP} {
-            if {$pos > $last} {
-                # We have run over the end of the part per the outer
-                # information without finding a terminating boundary.
-                # We now fake the boundary and force the parser to
-                # give any new part coming of this a mime-type of
-                # application/octet-stream regardless of header
-                # information.
-                set line "--$boundary--"
-                set x [string length $line]
-                set forceoctet 1
-            } else {
-                if {[set x [gets $state(fd) line]] < 0} {
-                    error "end-of-file encountered while parsing $content"
-                }
-            }
-            incr pos [expr {$x + 1}]
-        } else {
-            if {$state(lines.current) >= $state(lines.count)} {
-                error "end-of-string encountered while parsing $content"
-            } else {
-                set line [lindex $state(lines) $state(lines.current)]
-                incr state(lines.current)
-                set x [string length $line]
-            }
-            set x [string length $line]
-        }
-        if {[string last \r $line] == $x - 1} {
-            set line [string range $line 0 [expr {$x - 2}]]
-            set crlf 2
-        } else {
-            set crlf 1
-        }
-
-        if {[string first --$boundary $line] != 0} {
-             if {$inP && !$fileP} {
-                 lappend start $line
-             }
-             continue
-        } else {
-            lappend tracelines $line
-        }
-
-        if {!$inP} {
-            # Haven't seen the starting boundary yet. Check if the
-            # current line contains this starting boundary.
-
-            if {$line eq "--$boundary"} {
-                # Yes. Switch parser state to now search for the
-                # terminating boundary of the part and record where
-                # the part begins (or initialize the recorder for the
-                # lines in the part).
-                set inP 1
-                if {$fileP} {
-                    set start $pos
-                } else {
-                    set start [list]
-                }
-                continue
-            } elseif {$line eq "--$boundary--"} {
-                # We just saw a terminating boundary before we ever
-                # saw the starting boundary of a part. This forces us
-                # to stop parsing, we do this by forcing the parser
-                # into an accepting state. We will try to create a
-                # child part based on faked start position or recorded
-                # lines, or, if that fails, let the current part have
-                # no children.
-
-                # As an example note the test case mime-3.7 and the
-                # referenced file "badmail1.txt".
-
-                set inP 1
-                if {$fileP} {
-                    set start $initialpos
-                } else {
-                    set start $tracelines
-                }
-                set forceoctet 1
-                # Fall through. This brings to the creation of the new
-                # part instead of searching further and possible
-                # running over the end.
-            } else {
-                continue
-            }
-        }
-
-        # Looking for the end of the current part. We accept both a
-        # terminating boundary and the starting boundary of the next
-        # part as the end of the current part.
-
-        if {[set moreP [string compare $line --$boundary--]]
-	    && $line ne "--$boundary"} {
-
-            # The current part has not ended, so we record the line
-            # if we are inside a part and doing string parsing.
-            if {$inP && !$fileP} {
-                lappend start $line
-            }
-            continue
-        }
-
-        # The current part has ended. We now determine the exact
-        # boundaries, create a mime part object for it and recursively
-        # parse it deeper as part of that action.
-
-        # FRINK: nocheck
-        variable [set child $token-[incr state(cid)]]
-
-        lappend state(parts) $child
-
-        set nochild 0
-        if {$fileP} {
-            if {[set count [expr {$pos - ($start + $x + $crlf + 1)}]] < 0} {
-                set count 0
-            }
-            if {$forceoctet} {
-                if {[catch {
-                    mime::initializeaux $child \
-                        -file $state(file) -root $state(root) \
-                        -offset $start -count $count
-		    parsepart $child
-                }]} {
-                    set nochild 1
-                    set state(parts) [lrange $state(parts) 0 end-1]
-                }
-	    } else {
-                mime::initializeaux $child \
-                    -file $state(file) -root $state(root) \
-                    -offset $start -count $count
-		parsepart $child
-            }
-            seek $state(fd) [set start $pos] start
-        } else {
-            if {$forceoctet} {
-                if {[catch {
-                    mime::initializeaux $child -root $state(root) \
-			-lineslist $start
-		    parsepart $child
-                } cres copts]} {
-                    set nochild 1
-                    set state(parts) [lrange $state(parts) 0 end-1]
-                }
-            } else {
-                mime::initializeaux $child -root $state(root) -lineslist $start
-		parsepart $child
-            }
-            set start {}
-        }
-        if {$forceoctet && !$nochild} {
-	    header setinternal $child Content-Type application/octet-stream
-        }
-        set forceoctet 0
-    }
+    return
 }
 
 
@@ -3102,7 +2915,7 @@ proc ::mime::parsepartaux token {
 #       encoding    the "Content-Transfer-Encoding"
 #       params      a list of "Content-Type" parameters
 #       parts       a list of tokens for the part's subordinates
-#       size        the approximate size of the content (unencoded)
+#       size        the approximate size of the content {before decoding} 
 #
 #   The "parts" property is present only if the MIME part has
 #   subordinates.
@@ -3125,7 +2938,6 @@ proc ::mime::property {token {property {}}} {
     # FRINK: nocheck
     upvar 0 $token state
     parsepart $token
-
 
     lassign [contenttype $token] content params
 
@@ -3221,18 +3033,18 @@ proc ::mime::parseaddress {string args} {
     # FRINK: nocheck
     upvar 0 $token state
 
-	if {[llength $args]} {
-		set string2 [lindex $args end]
-		set args [list $string {*}[lrange $args 0 end-1]]
-		set string $string2
+    if {[llength $args]} {
+	set string2 [lindex $args end]
+	set args [list $string {*}[lrange $args 0 end-1]]
+	set string $string2
+    }
+    dict for {opt val} $args {
+	switch $opt {
+	    hostname {
+		set state(default_host) $val
+	    }
 	}
-	dict for {opt val} $args {
-		switch $opt {
-			hostname {
-				set state(default_host) $val
-			}
-		}
-	}
+    }
 
     catch {mime::parseaddressaux $token $string} result copts
 
@@ -3546,132 +3358,6 @@ proc ::mime::parselexeme token {
 }
 
 
-# ::mime::qp_encode --
-#
-#    Tcl version of quote-printable encode
-#
-# Arguments:
-#    string        The string to quote.
-#       encoded_word  Boolean value to determine whether or not encoded words
-#                     (RFC 2047) should be handled or not. (optional)
-#
-# Results:
-#    The properly quoted string is returned.
-
-proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
-    # 8.1+ improved string manipulation routines used.
-    # Replace outlying characters, characters that would normally
-    # be munged by EBCDIC gateways, and special Tcl characters "[\]{}
-    # with =xx sequence
-
-    if {$encoded_word} {
-        # Special processing for encoded words (RFC 2047)
-        set regexp {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF\x09\x5F\x3F]}
-	lappend mapChars { } _
-    } else {
-        set regexp {[\x00-\x08\x0B-\x1E\x21-\x24\x3D\x40\x5B-\x5E\x60\x7B-\xFF]}
-    }
-    regsub -all -- $regexp $string {[format =%02X [scan "\\&" %c]]} string
-
-    # Replace the format commands with their result
-
-    set string [subst -novariables $string]
-
-    # soft/hard newlines and other
-    # Funky cases for SMTP compatibility
-    lappend mapChars " \n" =20\n \t\n =09\n \n\.\n =2E\n "\nFrom " "\n=46rom "
-
-    set string [string map $mapChars $string]
-
-    # Break long lines - ugh
-
-    # Implementation of FR #503336
-    if {$no_softbreak} {
-        set result $string
-    } else {
-        set result {}
-        foreach line [split $string \n] {
-            while {[string length $line] > 72} {
-                set chunk [string range $line 0 72]
-                if {[regexp -- (=|=.)$ $chunk dummy end]} {
-
-                    # Don't break in the middle of a code
-
-                    set len [expr {72 - [string length $end]}]
-                    set chunk [string range $line 0 $len]
-                    incr len
-                    set line [string range $line $len end]
-                } else {
-                    set line [string range $line 73 end]
-                }
-                append result $chunk=\n
-            }
-            append result $line\n
-        }
-
-        # Trim off last \n, since the above code has the side-effect
-        # of adding an extra \n to the encoded string and return the
-        # result.
-        set result [string range $result 0 end-1]
-    }
-
-    # If the string ends in space or tab, replace with =xx
-
-    set lastChar [string index $result end]
-    if {$lastChar eq { }} {
-        set result [string replace $result end end =20]
-    } elseif {$lastChar eq "\t"} {
-        set result [string replace $result end end =09]
-    }
-
-    return $result
-}
-
-
-# ::mime::qp_decode --
-#
-#    Tcl version of quote-printable decode
-#
-# Arguments:
-#    string        The quoted-prinatble string to decode.
-#       encoded_word  Boolean value to determine whether or not encoded words
-#                     (RFC 2047) should be handled or not. (optional)
-#
-# Results:
-#    The decoded string is returned.
-
-proc ::mime::qp_decode {string {encoded_word 0}} {
-    # 8.1+ improved string manipulation routines used.
-    # Special processing for encoded words (RFC 2047)
-
-    if {$encoded_word} {
-        # _ == \x20, even if SPACE occupies a different code position
-        set string [string map [list _ \u0020] $string]
-    }
-
-    # smash the white-space at the ends of lines since that must've been
-    # generated by an MUA.
-
-    regsub -all -- {[ \t]+\n} $string \n string
-    set string [string trimright $string " \t"]
-
-    # Protect the backslash for later subst and
-    # smash soft newlines, has to occur after white-space smash
-    # and any encoded word modification.
-
-    #TODO: codepath not tested
-    set string [string map [list \\ {\\} =\n {}] $string]
-
-    # Decode specials
-
-    regsub -all -nocase {=([a-f0-9][a-f0-9])} $string {\\u00\1} string
-
-    # process \u unicode mapped chars
-
-    return [subst -novariables -nocommands $string]
-}
-
-
 # ::mime::reversemapencoding --
 #
 #    mime::reversemapencodings maps MIME charset types onto tcl encoding names.
@@ -3684,8 +3370,7 @@ proc ::mime::qp_decode {string {encoded_word 0}} {
 #    Returns the tcl encoding name for the specified mime charset, or {}
 #       if none is known.
 
-proc ::mime::reversemapencoding {mimeType} {
-
+proc ::mime::reversemapencoding mimeType {
     variable reversemap
 
     set lmimeType [string tolower $mimeType]
@@ -3693,6 +3378,27 @@ proc ::mime::reversemapencoding {mimeType} {
         return $reversemap($lmimeType)
     }
     return {}
+}
+
+
+proc ::mime::relax {token args} {
+    upvar 0 $token state
+    upvar 0 state(relax) relax
+    foreach {key val} $args {
+	switch $key {
+	    all {
+		dict set relax finalboundary 1
+	    }
+	    finalboundary {
+		dict set relax $key [expr {!!$val}]
+	    }
+	    default {
+		error [list {unknown value for -relax} $key {should be one of} {
+		    all finalboundary
+		}]
+	    }
+	}
+    }
 }
 
 
@@ -3718,7 +3424,7 @@ proc ::mime::serialize {token args} {
 		if {$val eq {}} {
 		    error [list {chan must not be the empty string}]
 		}
-		set chan $val
+		set chan [uplevel 1 [list ::namespace which $val]]
 	    }
 	    -level {
 		set level [expr {$val + 0}]
@@ -3732,62 +3438,43 @@ proc ::mime::serialize {token args} {
     if {$chan eq {}} {
 	# FRINK: nocheck
 	upvar 0 $token state
-
-	set openP [info exists state(fd)]
-
 	set code [catch {mime::serialize_value $token $level} result copts]
-
-	if {!$openP && [info exists state(fd)]} {
-	    if {![info exists state(root)]} {
-		catch {close $state(fd)}
-	    }
-	    unset state(fd)
-	}
 	return -options $copts $result
     } else {
 	return [serialize_chan $token $chan $level]
     }
-
 }
 
 
 proc ::mime::serialize_chan {token channel level} {
     # FRINK: nocheck
     upvar 0 $token state
-    upvar 0 state(fd) fd
+    upvar 0 state(bodychan) bodychan
     parsepart $token
 
     set result {}
     if {!$level && $state(addmimeversion)} {
-	puts $channel [header serialize $token MIME-Version $state(version) {}]
+	$channel puts [header serialize $token MIME-Version $state(version) {}]
     }
+    contentid $token
+    if {![header exists $token content-id] && $state(addcontentid)} {
+	header::setinternal $token Content-ID [contentid $token]
+    }
+    if {![header exists $token message-id] && $state(addmessageid)} {
+	header::setinternal $token Message-ID [messageid $token]
+    }
+
     foreach {name value} [header get $token] {
-	puts $channel [header serialize $token $name {*}$value]
+	$channel puts [header serialize $token $name {*}$value]
     }
 
     set converter {}
     set encoding {}
-    if {$state(value) ne "parts"} {
+    if {![info exists state(parts)]} {
         if {$state(canonicalP)} {
-            if {[set encoding $state(encoding)] eq {}} {
-                set encoding [encoding $token]
-            }
+	    set encoding [getTransferEncoding $token]
             if {$encoding ne {}} {
-                puts $channel "Content-Transfer-Encoding: $encoding"
-            }
-            switch $encoding {
-                base64
-                    -
-                quoted-printable {
-                    set converter $encoding
-                }
-                7bit - 8bit - binary - {} {
-                    # Bugfix for [#477088], also [#539952]
-                    # Go ahead
-                }
-                default {
-                    error "Can't handle content encoding \"$encoding\""
-                }
+                $channel puts "Content-Transfer-Encoding: $encoding"
             }
         }
     }
@@ -3796,100 +3483,59 @@ proc ::mime::serialize_chan {token channel level} {
         unset state(error)
     }
 
-    switch $state(value) {
-        file {
-            if {[info exists state(root)]} {
-                set size $state(count)
-            } else {
-                # read until eof
-                set size -1
-            }
-            seek $fd $state(offset) start
+    if {[info exists state(parts)]} {
+	lassign [contenttype $token] content params
+	set boundary [dict get $params boundary]
 
-            puts $channel {}
+	switch -glob $content {
+	    message/* {
+		$channel puts {}
+		foreach part $state(parts) {
+		    mime::serialize_chan $part $channel 1
+		    break
+		}
+	    }
 
-            while {$size != 0 && ![eof $fd]} {
-                if {$size < 0 || $size > 32766} {
-                    set X [read $fd 32766]
-                } else {
-                    set X [read $fd $size]
-                }
-                if {$size > 0} {
-                    set size [expr {$size - [string length $X]}]
-                }
-                if {$converter eq {}} {
-                    puts -nonewline $channel $X
-                } else {
-                    puts -nonewline $channel [$converter -mode encode -- $X]
-                }
-            }
-        }
-
-        parts {
-	    lassign [contenttype $token] content params
-	    set boundary [dict get $params boundary]
-
-            switch -glob $content {
-                message/* {
-                    puts $channel {}
-                    foreach part $state(parts) {
-                        mime::serialize_chan $part $channel 1
-                        break
-                    }
-                }
-
-                default {
-                    # Note RFC 2046: See serialize_value for details.
-                    #
-                    # The boundary delimiter MUST occur at the
-                    # beginning of a line, i.e., following a CRLF, and
-                    # the initial CRLF is considered to be attached to
-                    # the boundary delimiter line rather than part of
-                    # the preceding part.
-                    #
-                    # - The above means that the CRLF before $boundary
-                    #   is needed per the RFC, and the parts must not
-                    #   have a closing CRLF of their own. See Tcllib bug
-                    #   1213527, and patch 1254934 for the problems when
-                    #   both file/string branches added CRLF after the
-                    #   body parts.
+	    default {
+		# Note RFC 2046: See serialize_value for details.
+		#
+		# The boundary delimiter MUST occur at the
+		# beginning of a line, i.e., following a CRLF, and
+		# the initial CRLF is considered to be attached to
+		# the boundary delimiter line rather than part of
+		# the preceding part.
+		#
+		# - The above means that the CRLF before $boundary
+		#   is needed per the RFC, and the parts must not
+		#   have a closing CRLF of their own. See Tcllib bug
+		#   1213527, and patch 1254934 for the problems when
+		#   both file/string branches added CRLF after the
+		#   body parts.
 
 
-                    foreach part $state(parts) {
-                        puts $channel \n--$boundary
-                        mime::serialize_chan $part $channel 1
-                    }
-                    puts $channel \n--$boundary--
-                }
-            }
-        }
-
-        string {
-            if {[catch {fconfigure $channel -buffersize} blocksize]} {
-                set blocksize 4096
-            } elseif {$blocksize < 512} {
-                set blocksize 512
-            }
-            set blocksize [expr {($blocksize / 4) * 3}]
-
-            # [893516]
-            fconfigure $channel -buffersize $blocksize
-
-            puts $channel {}
-
-            #TODO: tests don't cover these paths
-            if {$converter eq {}} {
-                puts -nonewline $channel $state(string)
-            } else {
-                puts -nonewline $channel [$converter -mode encode -- $state(string)]
-            }
-        }
-        default {
-            error "Unknown value \"$state(value)\""
-        }
+		foreach part $state(parts) {
+		    $channel puts \n--$boundary
+		    mime::serialize_chan $part $channel 1
+		}
+		$channel puts \n--$boundary--
+	    }
+	}
+    } else {
+	$channel puts {}
+	if {$state(canonicalP)} {
+	    set transforms [setencoding $token $channel]
+	    $state(fd) seek 0
+	    $state(fd) copy [$channel $ chan]
+	    while {[incr transforms -1] >= 0} {
+		$channel $channel
+	    }
+	} else {
+	    $state(bodychan) seek 0
+	    $state(bodychan) copy [$channel $ chan]
+	}
     }
 
-    flush $channel
+    $channel flush
 
     if {[info exists state(error)]} {
         error $state(error)
@@ -3898,14 +3544,70 @@ proc ::mime::serialize_chan {token channel level} {
 
 
 proc ::mime::serialize_value {token level} {
-    set chan [tcl::chan::memchan]
-    chan configure $chan -translation crlf
+    set chan [::tcllib::chan::base .new [info cmdcount]_serialize_value [
+	tcl::chan::memchan]]
+    $chan configure -translation crlf
     serialize_chan $token $chan $level
-    seek $chan 0
-    chan configure $chan -translation binary
-    set res [read $chan]
-    close $chan
+    $chan seek 0
+    $chan configure -translation binary
+    set res [$chan read]
+    $chan close
     return $res
+}
+
+
+proc ::mime::setencoding {token chan} {
+    upvar 0 $token state
+
+    set transforms 0
+
+    if {[info exists state(encoding)]} {
+	switch $state(encoding) {
+	    base64 {
+		package require tcl::transform::base64
+		::tcl::transform::base64 [$chan configure -chan]
+		incr transforms
+	    }
+	    quoted-printable {
+		package require {tcl transform qp}
+		::tcl::transform::qp [$chan configure -chan]
+		incr transforms
+	    }
+	    7bit - 8bit - binary - {} {
+		# Bugfix for [#477088]
+		# Go ahead, leave chunk alone
+	    }
+	    default {
+		error [list {Can't handle content encoding} $state(encoding)]
+	    }
+	}
+    }
+    return $transforms
+}
+
+proc ::mime::setcharset {token chan} {
+    upvar 0 $token state
+    lassign [contenttype $token] content params
+    if {[dict exists $params charset]} {
+	set mcharset [dict get $params charset]
+    } else {
+	switch $state(spec) {
+	    http {
+		set mcharset UTF-8
+	    }
+	    mime - default {
+		# mime
+		set mcharset US-ASCII
+	    }
+	}
+    }
+    set encoding [reversemapencoding $mcharset]
+    if {$encoding eq {}} {
+	$chan configure -translation binary
+    } else {
+	$chan configure -encoding $encoding 
+    }
+    return
 }
 
 
@@ -3973,7 +3675,7 @@ proc ::mime::word_encode {charset method string {args}} {
         error [list {invalid charset} $charset]
     }
 
-    if {$method ne "base64" && $method ne "quoted-printable"} {
+    if {$method ne {base64} && $method ne {quoted-printable}} {
         error [list {unknown method} $method {must be one of} \
 	    {base64 quoted-printable}]
     }
@@ -4041,7 +3743,7 @@ proc ::mime::word_encode {charset method string {args}} {
                 while {$length < $maxlength && $count < $string_length} {
                     set char [string range $unencoded_string $count $count]
                     set enc_char [::encoding convertto $charset $char]
-                    set qp_enc_char [qp_encode $enc_char 1]
+                    set qp_enc_char [qp::encode $enc_char 1]
                     set qp_enc_char_length [string length $qp_enc_char]
                     if {$qp_enc_char_length > $maxlength} {
                         error [list maxlength $options(-maxlength) \
@@ -4119,7 +3821,7 @@ proc ::mime::word_decode {encoded} {
             set result [base64 -mode decode -- $string]
         }
         quoted-printable {
-            set result [qp_decode $string 1]
+            set result [qp::decode $string 1]
         }
         {} {
             # Go ahead

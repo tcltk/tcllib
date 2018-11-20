@@ -29,17 +29,9 @@ Provides commands to create and manipulate Internet messages.
 [list_begin definitions]
 
 
-[call [cmd ::mime::initialize] [
-    opt "[option -canonical] [arg type/subtype]"] [
-    opt "[option -params] [arg dictionary]"] [
-    opt "[option -encoding] [arg value]"] [
-    opt "[option -headers] [arg dictionary]"] [
-    opt "[option -addcontentid] [arg boolean]"] [
-    opt "[option -addmimeversion] [arg boolean]"] [
-    opt "([option -chan] [arg name] | [option -file] [arg name] | [
-	option -string] [arg value] | [option -parts] [arg parts])"]]
+[call [cmd ::mime::initialize] [opt [arg options]]]
 
-Parses a message and returns a token for the message.  One of [
+Parses a message and returns a token for the message.  One and only one of [
 
     option -chan
 
@@ -51,58 +43,89 @@ Parses a message and returns a token for the message.  One of [
 
     option -string
     
-] must be provided as the source of the input.  If [
+] must be provided as the source of the input.  Optional arguments are
+processed such that later arguments override earlier arguments.  For example,
+provide [option -addcontentid] [const 1] after [option "-spec [const http]"]  has disabled
+that option.  The optional arguments are
 
-    option -canonical
+[list_begin definitions]
+
+    [def "[option -addcontentid] [arg boolean]"]
+   
+	Indicates whether a [const Content-ID] header field should be added to
+	the message.  By default, this header is added to non-canonical
+	messages.
+
+    [def "[option -addmimeversion] [arg boolean]"]
     
-] is provided the input is the body only and is already formatted according to
-the provided [
+	Indicates whether a [const MIME-Version] header should be added to
+	non-canonical messages.  By default, this header is added to
+	non-canonical messages.
 
-    arg type/subtype
+    [def "[option -canonical] [arg type/subtype]"]
+
+	The input message is the body only and is in the format
+	specified by the provided [
+
+	    arg type/subtype
+	    
+	], and therefore should not be parsed.
+
+    [def "[option -chan] [arg channel]"]
+
+	The name of an ensemble command providing the standard channel commands.
+
+    [def "[option -encoding] [arg encoding]"]
     
-], and therefore should not be parsed.  If [
+	sets the [const Content-Transfer-Encoding].
 
-    arg parts
+    [def "[option -file] [arg string]"]
+
+	The file providing the input message.
+
+    [def "[option -headers] [arg headers]"]
+
+	[arg headers] is a multidict of headers.
+
+    [def "[option -spec] [arg spec]"]
+
+	[arg spec] is one of [const mime] (the default) or [const http],
+	indicating what specification to conform to.  For [const mime], the
+	default [const Content-Type] is [const text/plain] and the character
+	set is assumed to be [const US-ASCII].  For [const http], the default
+	[const Content-Type] is [const text/html], the [const charset] is
+	[const utf-8], and  [const MIME-Version] and [const Content-ID] headers
+	are by default not automatically added.
+   
+    [def "[option -params] [arg params]"]
+
+	[arg params] is a multidict (a dictionary where the keys may not be
+	unique) of parameters for the [
+
+	    const Content-Type
     
-] is provided it is a list of tokens for messages that comprise a [
+	] header. 
 
-    const multipart/mixed
-    
-] message body.  [
+    [def "[option -parts] [arg parts]"]
 
-    option -params
+	[arg parts] is  list of tokens for messages that comprise a [
 
-] is a multidict (a dictionary where the keys may not be unique)
-of parameters for the [
+	    const multipart/mixed
+	    
+	] message body.
 
-    const Content-Type
-    
-] header.  [
-
-    option -headers
-    
-] is a multidict of headers.  If [
-    arg addcontentid
-] is provided, it is a boolean value indicating whether a [
-    const Content-Id
-] header field should be added to the message.  By default, this
-header is added to non-canonical messages.  If [
-    arg addmimeversion
-] is provided, it is a boolean value indicating whether a [
-    const MIME-Version
-] header should be added to non-canonical messages.  By default, this header is
-added to non-canonical messages.
+    [def "[option -string] [arg string]"]
+	The string providing the input message.
 
 
-[para]
-
-[option -encoding] sets the [const Content-Transfer-Encoding].
+[list_end]
 
 
 [call [cmd ::mime::body] [arg token] [opt [option -decode]] [opt "[option -blocksize] [arg octets]"]"]
 
-Returns as a string in canonical form the body of the message corresponding to 
-[arg token].
+Sets to [const 0] the cursor for the channel hodling the body of the message
+corresponding to [arg token] and returns the name of a channel command for
+that channel.
 
 
 [para]
@@ -110,8 +133,7 @@ Returns as a string in canonical form the body of the message corresponding to
 If [option -blocksize] is provided, returns a command that itself returns up to
 the next [arg octets] of the message each time it's called, and returns a code
 of [const break] when finished, deleting itself as well.  If [arg octets] is
-the empty string, a default value is used.  Pauses the current coroutine as
-needed to wait for input.
+the empty string, a default value is used. 
 
 
 [para]
@@ -315,8 +337,7 @@ Returns the serialization of the message corresponding to [arg token].  If
 [option -chan] is provided, writes the serialization to [arg channel] and returns the
 empty string.  [option -level], if provided, indicates the level of the part
 in the message hierarchy.  The [const MIME-Version] header is only included at
-level [const 0].  Yields from the current coroutine as needed to wait for input to
-become available.
+level [const 0].
 
 
 [call [cmd ::mime::parseaddress] [arg addresses]]

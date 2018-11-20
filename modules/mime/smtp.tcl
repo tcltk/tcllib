@@ -308,7 +308,7 @@ proc ::smtp::sendmessage {part args} {
 
     # We're done parsing the arguments.
 
-    if {$recipients != ""} {
+    if {$recipients ne {}} {
         set who -recipients
     } elseif {![info exists header($toL)]} {
         error "need -header \"$toM ...\""
@@ -389,7 +389,7 @@ proc ::smtp::sendmessage {part args} {
             && ([catch {::mime::header get $part $dateL}])} {
         lappend lowerL $dateL
         lappend mixedL $dateM
-        lappend header($dateL) [::mime::parsedatetime -now proper]
+        lappend header($dateL) [::mime::datetime -now proper]
     }
 
     if {([lsearch -exact $lowerL ${message-idL}] < 0) \
@@ -403,7 +403,6 @@ proc ::smtp::sendmessage {part args} {
     # Get all the headers from the MIME object and save them so that they can
     # later be restored.
     set savedH [::mime::header get $part]
-    puts [list crackle $savedH]
 
     # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
@@ -429,15 +428,15 @@ proc ::smtp::sendmessage {part args} {
                                 -tlspolicy $tlspolicy -tlsimport $tlsimport \
                                 -username $username -password $password]
 
+
     if {![string match "::smtp::*" $token]} {
 	# An error occurred and $token contains the error info
 	array set respArr $token
 	return -code error $respArr(diagnostic)
     }
 
-    set code [catch { sendmessageaux $token $part \
-                                           $sender $vrecipients $aloP } \
-                    result]
+    set code [catch {
+	sendmessageaux $token $part $sender $vrecipients $aloP } result]
     set ecode $errorCode
     set einfo $errorInfo
 
@@ -459,7 +458,7 @@ proc ::smtp::sendmessage {part args} {
 	    -headers [list \
 		From [list $originator {}] \
 		Bcc 
-		Date [::mime::parsedatetime -now proper] \
+		Date [::mime::datetime -now proper] \
 		Subject $subject \
 		Message-ID [::mime::uniqueID] \
 		Content-Description {Blind Carbon Copy} \
@@ -507,15 +506,15 @@ proc ::smtp::sendmessage {part args} {
     catch { finalize $token -close $status } copts cres
 
     # Restore provided MIME object to original state (without the SMTP headers).
-    
-    foreach key [::mime::header get $part -names] {
+   
+    foreach {key val} [::mime::header get $part] {
         mime::header set $part $key "" -mode delete
     }
     foreach {key value} $savedH {
 	::mime::header set $part $key {*}$value -mode append
     }
 
-    retuern -options $copts $cres
+    return -options $copts $cres
 }
 
 # ::smtp::sendmessageaux --
@@ -996,7 +995,7 @@ proc ::smtp::winit {token part originator {mode MAIL}} {
     if {[info exists state(esmtp)] 
         && [lsearch -glob $state(esmtp) "SIZE*"] != -1} {
         catch {
-            set size [string length [mime::buildmessage $part]]
+            set size [string length [mime::serialize $part]]
             append from " SIZE=$size"
         }
     }
@@ -1137,7 +1136,7 @@ proc ::smtp::wtextaux {token part} {
     if {$trf} {
         set code [catch { ::mime::copymessage $part $state(sd) } result]
     } else {
-        set code [catch { ::mime::buildmessage $part } result]
+        set code [catch { ::mime::serialize $part } result]
         if {$code == 0} {
 	    # Detect and transform bare LF's into proper CR/LF
 	    # sequences.

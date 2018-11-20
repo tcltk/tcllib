@@ -25,6 +25,7 @@
 
 # We use newer string routines
 package require Tcl 8.6
+package require {chan base}
 package require fileutil ; # Required by importFile.
 package require mime
 package require uri
@@ -370,7 +371,7 @@ proc ::ncgi::get {token args} {
 proc ::ncgi::header {token {type text/html} args} {
     namespace upvar $token cookieOutput cookieOutput
     set mimeout [mime::initialize -canonical $type -addcontentid 0 \
-	-addmimeversion 0 -string {}]
+	-addmimeversion 0 -addmessageid 0  -string {}]
     foreach {n v} $args {
 	mime::header set $mimeout $n $v {}
     }
@@ -379,8 +380,8 @@ proc ::ncgi::header {token {type text/html} args} {
 	    mime::header set $mimeout Set-Cookie $line {}
 	}
     }
-    mime::serialize $mimeout -chan stdout
-    flush stdout
+    mime::serialize $mimeout -chan ${token}::stdout
+    ${token}::stdout flush
 }
 
 
@@ -391,14 +392,13 @@ proc ::ncgi::header {token {type text/html} args} {
 # Arguments:
 #   cmd         one of '-server' '-client' '-type' '-data'
 #   var         cgi variable name for the file field
-#   filename    filename to write to for -server
 # Results:
 #   -server returns the name of the file on the server: side effect
 #      is that the file gets stored on the server and the 
 #      script is responsible for deleting/moving the file
 #   -client returns the name of the file sent from the client 
 #   -type   returns the mime type of the file
-#   -data   returns the contents of the file 
+#   -data   returns a channel command for the contents of the file 
 
 proc ::ncgi::importFile {token cmd var {filename {}}} {
     namespace upvar $token mimeparts mimeparts
@@ -412,27 +412,7 @@ proc ::ncgi::importFile {token cmd var {filename {}}} {
 
     switch -exact -- $cmd {
 	-server {
-	    ## take care not to write it out more than once
-	    namespace upvar $token _tmpfiles _tmpfiles
-	    if {![info exists _tmpfiles($var)]} {
-		if {$filename eq {}} {
-		    ## create a tmp file 
-		    set _tmpfiles($var) [::fileutil::tempfile ncgi]
-		} else {
-		    ## use supplied filename 
-		    set _tmpfiles($var) $filename
-		}
-
-		# write out the data only if it's not been done already
-		if {[catch {open $_tmpfiles($var) w} h]} {
-		    error "Can't open temporary file in ncgi::importFile ($h)"
-		} 
-
-		fconfigure $h -translation binary -encoding binary
-		puts -nonewline $h [mime::body $mime]
-		close $h
-	    }
-	    return $_tmpfiles($var)
+	    return [mime::body decode $mime]
 	}
 	-client {
 	    if {[dict exists $dispparams filename]} {
@@ -445,7 +425,7 @@ proc ::ncgi::importFile {token cmd var {filename {}}} {
 	    return $ctype
 	}
 	-data {
-	    return [mime::body $mime]
+	    return [mime::body decoded $mime]
 	}
 	default {
 	    error "Unknown subcommand to ncgi::import_file: $cmd"
@@ -492,7 +472,7 @@ proc ::ncgi::multipart token {
 
     set results [list]
     foreach part $parts {
-	    set value [::mime::body $part -decode]
+	    set value [[::mime::body decoded $part] read]
 	    lassign [::mime::header get $part content-disposition] hvalue params
 	    if {$hvalue eq {form-data} && [dict exists $params name]} {
 		set name [dict get $params name]
@@ -527,6 +507,8 @@ proc ::ncgi::new {token name args} {
 	namespace ensemble create
 	namespace current
     }]
+
+    ::tcllib::chan::base .new ${new}::stdout stdout -close 0
 
     # normalize $new
     set new [namespace which $new]
