@@ -99,6 +99,22 @@ objects:
 
 [list_end]
 
+[call [arg disjointsetName] [method add-element] [arg item]]
+
+Creates a new partition in the specified disjoint set, and fills it
+with the single item [arg item].  The command maintains
+the integrity of the disjoint set, i.e. it verifies that none of the
+[arg elements] are already part of the disjoint set and throws an
+error otherwise.
+
+[para]
+
+The result of this method is the empty string.
+
+[para]
+
+This method runs in constant time.
+
 [call [arg disjointsetName] [method add-partition] [arg elements]]
 
 Creates a new partition in specified disjoint set, and fills it with
@@ -111,15 +127,31 @@ error otherwise.
 
 The result of the command is the empty string.
 
+[para]
+
+This method runs in time proportional to the size of [arg elements]].
+
+
 [call [arg disjointsetName] [method partitions]]
 
 Returns the set of partitions the named disjoint set currently
-consists of.
+consists of. The form of the result is a list of lists; the inner
+lists contain the elements of the partitions.
+
+[para]
+
+This method runs in time O(N*alpha(N)),
+where N is the number of elements in the disjoint set and alpha
+is the inverse Ackermann function.
 
 [call [arg disjointsetName] [method num-partitions]]
 
 Returns the number of partitions the named disjoint set currently
 consists of.
+
+[para]
+
+This method runs in constant time.
 
 [call [arg disjointsetName] [method equal] [arg a] [arg b]]
 
@@ -133,6 +165,11 @@ partition, and [const False] otherwise.
 An error will be thrown if either [arg a] or [arg b] are not elements
 of the disjoint set.
 
+[para]
+
+This method runs in amortized time O(alpha(N)), where N is the number of
+elements in the larger partition and alpha is the inverse Ackermann function.
+
 [call [arg disjointsetName] [method merge] [arg a] [arg b]]
 
 Determines the partitions the elements [arg a] and [arg b] are
@@ -144,10 +181,48 @@ change.
 
 The result of the method is the empty string.
 
+[para]
+
+This method runs in amortized time O(alpha(N)), where N is the number of
+items in the larger of the partitions being merged. The worst case time
+is O(N).
+
 [call [arg disjointsetName] [method find] [arg e]]
 
-Returns the partition of the disjoint set which contains the element
+Returns a list of the members of the partition of the disjoint set
+which contains the element
 [arg e].
+
+[para]
+
+This method runs in O(N*alpha(N)) time, where N is the total number of
+items in the disjoint set and alpha is the inverse Ackermann function,
+See [method find-exemplar] for a faster method, if all that is needed
+is a unique identifier for the partition, rather than an enumeration
+of all its elements.
+
+[call [arg disjointsetName] [method exemplars]]
+
+Returns a list containing an exemplar of each partition in the disjoint
+set. The exemplar is a member of the partition, chosen arbitrarily.
+
+[para]
+
+This method runs in O(N*alpha(N)) time, where N is the total number of items
+in the disjoint set and alpha is the inverse Ackermann function.
+
+[call [arg disjointsetName] [method find-exemplar] [arg e]]
+
+Returns the exemplar of the partition of the disjoint set containing
+the element [arg e].  Throws an error if [arg e] is not found in the
+disjoint set.  The exemplar is an arbitrarily chosen member of the partition.
+The only operation that will change the exemplar of any partition is
+[method merge].
+
+[para]
+
+This method runs in O(alpha(N)) time, where N is the number of items in
+the partition containing E, and alpha is the inverse Ackermann function.
 
 [call [arg disjointsetName] [method destroy]]
 

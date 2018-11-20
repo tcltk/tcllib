@@ -4,20 +4,335 @@
 #
 # Copyright (c) Google Summer of Code 2008 Alejandro Eduardo Cruz Paz
 # Copyright (c) 2008 Andreas Kupries (API redesign and simplification)
+# Copyright (c) 2018 by Kevin B. Kenny - reworked to a proper disjoint-sets
+# data structure, added 'add-element', 'exemplars' and 'find-exemplar'.
 
-package require Tcl 8.2
-package require struct::set
+package require Tcl 8.6
 
 # Initialize the disjointset structure namespace. Note that any
 # missing parent namespace (::struct) will be automatically created as
 # well.
 namespace eval ::struct::disjointset {
-    # Counter for naming disjoint sets without a given name
-    variable counter 0
 
     # Only export one command, the one used to instantiate a new
     # disjoint set
     namespace export disjointset
+}
+
+# class struct::disjointset::_disjointset --
+#
+#	Implementation of a disjoint-sets data structure
+
+oo::class create struct::disjointset::_disjointset {
+
+    # elements - Dictionary whose keys are all the elements in the structure,
+    #            and whose values are element numbers. 
+    # tree     - List indexed by element number whose members are
+    #            ordered triples consisting of the element's name,
+    #            the element number of the element's parent (or the element's
+    #            own index if the element is a root), and the rank of
+    #		 the element
+    # nParts   - Number of partitions in the structure. Maintained only
+    #            so that num_partitions will work.
+
+    variable elements tree nParts
+
+    constructor {} {
+	set elements {}
+	set tree {}
+	set nParts 0
+    }
+
+    # add-element --
+    #
+    #	Adds an element to the structure
+    #
+    # Parameters:
+    #	item - Name of the element to add
+    #
+    # Results:
+    #	None.
+    #
+    # Side effects:
+    #	Element is added
+
+    method add-element {item} {
+	if {[dict exists $elements $item]} {
+	    return -code error \
+		-errorcode [list STRUCT DISJOINTSET DUPLICATE $item [self]] \
+		"The element \"$item\" is already known to the disjoint\
+            	 set [self]"
+	}
+	set n [llength $tree]
+	dict set elements $item $n
+	lappend tree [list $item $n 0]
+	incr nParts
+	return
+    }
+
+    # add-partition --
+    #
+    #	Adds a collection of new elements to a disjoint-sets structure and
+    #	makes them all one partition.
+    #
+    # Parameters:
+    #	items - List of elements to add.
+    #
+    # Results:
+    #	None.
+    #
+    # Side effects:
+    #	Adds all the elements, and groups them into a single partition.
+
+    method add-partition {items} {
+
+	# Integrity check - make sure that none of the elements have yet
+	# been added
+
+	foreach name $items {
+	    if {[dict exists $elements $name]} {
+		return -code error \
+		    -errorcode [list STRUCT DISJOINTSET DUPLICATE \
+				    $name [self]] \
+		    "The element \"$name\" is already known to the disjoint\
+            	     set [self]"	      	 
+	    }
+	}
+
+	# Add all the elements in one go, and establish parent links for all
+	# but the first
+	
+	set first -1
+	foreach n $items {
+	    set idx [llength $tree]
+	    dict set elements $n $idx
+	    if {$first < 0} {
+		set first $idx
+		set rank 1
+	    } else {
+		set rank 0
+	    }
+	    lappend tree [list $n $first $rank]
+	}
+	incr nParts
+	return
+    }
+
+    # equal --
+    #
+    #	Test if two elements belong to the same partition in a disjoint-sets
+    #	data structure.
+    #
+    # Parameters:
+    #	a - Name of the first element
+    #	b - Name of the second element
+    #
+    # Results:
+    #	Returns 1 if the elements are in the same partition, and 0 otherwise.
+
+    method equal {a b} {
+	expr {[my FindNum $a] == [my FindNum $b]}
+    }
+
+    # exemplars --
+    #
+    #	Find one representative element for each partition in a disjoint-sets
+    #	data structure.
+    #
+    # Results:
+    #	Returns a list of element names
+
+    method exemplars {} {
+	set result {}
+	set n -1
+	foreach pair $tree {
+	    if {[lindex $pair 1] == [incr n]} {
+		lappend result [lindex $pair 0]
+	    }
+	}
+	return $result
+    }
+
+    # find --
+    #
+    #	Find the partition to which a given element belongs.
+    #
+    # Parameters:
+    #	item - Item to find
+    #
+    # Results:
+    #	Returns a list of the partition's members
+    #
+    # Notes:
+    #	This operation takes time proportional to the total number of elements
+    #	in the disjoint-sets structure. If a simple name of the partition
+    #	is all that is required, use find_exemplar instead, which runs
+    #	in amortized time proportional to the inverse Ackermann function of
+    #	the size of the partition.
+
+    method find {item} {
+	set result {}
+	# No error on a nonexistent item
+	if {![dict exists $elements $item]} {
+	    return {}
+	}
+	set pnum [my FindNum $item]
+	set n -1
+	foreach pair $tree {
+	    if {[my FindByNum [incr n]] eq $pnum} {
+		lappend result [lindex $pair 0]
+	    }
+	}
+	return $result
+    }
+
+    # find-exemplar --
+    #
+    #	Find a representative element of the partition that contains a given
+    #	element.
+    #
+    # parameters:
+    #	item - Item to examine
+    #
+    # Results:
+    #	Returns the exemplar
+    #
+    # Notes:
+    #	Takes O(alpha(|P|)) amortized time, where |P| is the size of the
+    #	partition, and alpha is the inverse Ackermann function
+
+    method find-exemplar {item} {
+	return [lindex $tree [my FindNum $item] 0]
+    }
+    
+    # merge --
+    #
+    #	Merges the partitions that two elements are in.
+    #
+    # Results:
+    #	None.
+
+    method merge {a b} {
+	my MergeByNum [my FindNum $a] [my FindNum $b]
+    }
+
+    # num-partitions --
+    #
+    #	Counts the partitions of a disjoint-sets data structure
+    #
+    # Results:
+    #	Returns the partition count.
+
+    method num-partitions {} {
+	return $nParts
+    }
+    
+    # partitions --
+    #
+    #	Enumerates the partitions of a disjoint-sets data structure
+    #
+    # Results:
+    #	Returns a list of lists. Each list is one of the disjoint sets,
+    #	and each member of the sublist is one of the elements added to
+    #	the structure.
+
+    method partitions {} {
+
+	# Find the partition number for each element, and accumulate a list
+	# per partition
+	set parts {}
+	dict for {element eltNo} $elements {
+	    set partNo [my FindByNum $eltNo]
+	    dict lappend parts $partNo $element
+	}
+	return [dict values $parts]
+    }
+
+    # FindNum --
+    #
+    #	Finds the partition number for an element.
+    #
+    # Parameters:
+    #	item - Item to look up
+    #
+    # Results:
+    #	Returns the partition number
+
+    method FindNum {item} {
+	if {![dict exists $elements $item]} {
+	    return -code error \
+		-errorcode [list STRUCT DISJOINTSET NOTFOUND $item [self]] \
+		"The element \"$item\" is not known to the disjoint\
+                 set [self]"	  
+	}
+	return [my FindByNum [dict get $elements $item]]
+    }
+
+    # FindByNum --
+    #
+    #	Finds the partition number for an element, given the element's
+    #	index
+    #
+    # Parameters:
+    #	idx - Index of the item to look up
+    #
+    # Results:
+    #	Returns the partition number
+    #
+    # Side effects:
+    #	Performs path splitting
+
+    method FindByNum {idx} {
+	while {1} {
+	    set parent [lindex $tree $idx 1]
+	    if {$parent == $idx} {
+		return $idx
+	    }
+	    set prev $idx
+	    set idx $parent
+	    lset tree $prev 1 [lindex $tree $idx 1]
+	}
+    }
+
+    # MergeByNum --
+    #
+    #	Merges two partitions in a disjoint-sets data structure
+    #
+    # Parameters:
+    #	x - Index of an element in the first partition
+    #	y - Index of an element in the second partition
+    #
+    # Results:
+    #	None
+    #
+    # Side effects:
+    #	Merges the partition of the lower rank into the one of the
+    #	higher rank.
+
+    method MergeByNum {x y} {
+	set xroot [my FindByNum $x]
+	set yroot [my FindByNum $y]
+
+	if {$xroot == $yroot} {
+	    # The elements are already in the same partition
+	    return
+	}
+
+	incr nParts -1
+
+	# Make xroot the taller tree
+	if {[lindex $tree $xroot 2] < [lindex $tree $yroot 2]} {
+	    set t $xroot; set xroot $yroot; set yroot $t
+	}
+
+	# Merge yroot into xroot
+	set xrank [lindex $tree $xroot 2]
+	set yrank [lindex $tree $yroot 2]
+	lset tree $yroot 1 $xroot
+	if {$xrank == $yrank} {
+	    lset tree $xroot 2 [expr {$xrank + 1}]
+	}
+    }
 }
 
 # ::struct::disjointset::disjointset --
@@ -32,313 +347,28 @@ namespace eval ::struct::disjointset {
 #	name	Name of the disjoint set created
 
 proc ::struct::disjointset::disjointset {args} {
-    variable counter
 
-    # Derived from the constructor of struct::queue, see file
-    # "queue_tcl.tcl". Create name of not specified.
-    switch -exact -- [llength [info level 0]] {
-	1 {
-	    # Missing name, generate one.
-	    incr counter
-	    set name "disjointset${counter}"
+    switch -exact -- [llength $args] {
+	0 {
+	    return [_disjointset new]
 	}
-	2 {
-	    # Standard call. New empty disjoint set.
-	    set name [lindex $args 0]
+	1 {
+	    # Name supplied by user
+	    return [uplevel 1 [list [namespace which _disjointset] \
+				   create [lindex $args 0]]]
 	}
 	default {
-	    # Error.
+	    # Too many args
 	    return -code error \
-		"wrong # args: should be \"::struct::disjointset ?name?\""
+		-errorcode {TCL WRONGARGS} \
+		"wrong # args: should be \"[lindex [info level 0] 0] ?name?\""
 	}
     }
-
-    # FIRST, qualify the name.
-    if {![string match "::*" $name]} {
-        # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 [list namespace current]]
-        if {"::" != $ns} {
-            append ns "::"
-        }
-        set name "$ns$name"
-    }
-
-    # Done after qualification so that we have a canonical name and
-    # know exactly what we are looking for.
-    if {[llength [info commands $name]]} {
-	return -code error \
-	    "command \"$name\" already exists, unable to create disjointset"
-    }
-
-
-    # This is the structure where each disjoint set will be kept. A
-    # namespace containing a list/set of the partitions, and a set of
-    # all elements (for quick testing of validity when adding
-    # partitions.).
-
-    namespace eval $name {
-	variable partitions {} ; # Set of partitions.
-	variable all        {} ; # Set of all elements.
-    }
-
-    # Create the command to manipulate the DisjointSet
-    interp alias {} ::$name {} ::struct::disjointset::DisjointSetProc $name
-    return $name
 }
-
-##########################
-# Private functions follow
-
-# ::struct::disjointset::DisjointSetProc --
-#
-#	Command that processes all disjointset object commands.
-#
-# Arguments:
-#	name	Name of the disjointset object to manipulate.
-#	cmd	Subcommand to invoke.
-#	args	Arguments for subcommand.
-#
-# Results:
-#	Varies based on command to perform
-
-proc ::struct::disjointset::DisjointSetProc {name {cmd ""} args} {
-    # Do minimal args checks here
-    if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
-    }
-
-    # Derived from the struct::queue dispatcher (see queue_tcl.tcl).
-    # Gets rid of the explicit list of commands. Slower in case of an
-    # error, considered acceptable, as errors should not happen, or
-    # only seldomly.
-
-    set sub _$cmd
-    if { ![llength [info commands ::struct::disjointset::$sub]]} {
-	set optlist [lsort [info commands ::struct::disjointset::_*]]
-	set xlist {}
-	foreach p $optlist {
-	    set p [namespace tail $p]
-	    lappend xlist [string range $p 1 end]
-	}
-	set optlist [linsert [join $xlist ", "] "end-1" "or"]
-	return -code error \
-		"bad option \"$cmd\": must be $optlist"
-    }
-
-    # Run the method in the same context as the dispatcher.
-    return [uplevel 1 [linsert $args 0 ::struct::disjointset::_$cmd $name]]
-}
-
-# ::struct::disjointset::_add-partition
-#
-#	Creates a new partition in the disjoint set structure,
-#	verifying the integrity of each new insertion for previous
-#	existence in the structure.
-#
-# Arguments:
-#	name	The name of the actual disjoint set structure
-#	items	A set of elements to add to the set as a new partition.
-#
-# Results:
-#	A new partition is added to the disjoint set.  If the disjoint
-#	set already included any of the elements in any of its
-#	partitions an error will be thrown.
-
-proc ::struct::disjointset::_add-partition {name items} {
-    variable ${name}::partitions
-    variable ${name}::all
-
-    # Validate that one of the elements to be added are already known.
-    foreach element $items {
-	if {[struct::set contains $all $element]} {
-	    return -code error \
-		"The element \"$element\" is already known to the disjoint set $name"
-	}
-    }
-
-    struct::set add all $items
-    lappend partitions  $items
-    return
-}
-
-# ::struct::disjointset::_partitions
-#
-#	Retrieves the set of partitions the disjoint set consists of.
-#
-# Arguments:
-#	name	The name of the disjoint set.
-#
-# Results:
-#	A set of the partitions contained in the disjoint set.
-#	If the disjoint set has no partitions the returned set
-#       will be empty.
-
-proc ::struct::disjointset::_partitions {name} {
-    variable ${name}::partitions
-    return $partitions
-}
-
-# ::struct::disjointset::_num-partitions
-#
-#	Retrieves the number of partitions the disjoint set consists of.
-#
-# Arguments:
-#	name	The name of the disjoint set.
-#
-# Results:
-#	The number of partitions contained in the disjoint set.
-
-proc ::struct::disjointset::_num-partitions {name} {
-    variable ${name}::partitions
-    return [llength $partitions]
-}
-
-# ::struct::disjointset::_equal
-#
-#	Determines if the two elements belong to the same partition
-#	of the disjoint set. Throws an error if either element does
-#	not belong to the disjoint set at all.
-#
-# Arguments:
-#	name	The name of the disjoint set.
-#	a	The first element to be compared
-#	b	The second element set to be compared
-#
-# Results:
-#	The result of the comparison, a boolean flag.
-#	True if the element are in the same partition, and False otherwise.
-
-proc ::struct::disjointset::_equal {name a b} {
-    CheckValidity $name $a
-    CheckValidity $name $b
-    return [expr {[FindIndex $name $a] == [FindIndex $name $b]}]
-}
-
-# ::struct::disjointset::_merge
-#
-#	Determines the partitions the two elements belong to and
-#	merges them, if they are not the same. An error is thrown
-#	if either element does not belong to the disjoint set.
-#
-# Arguments:
-#	name	The name of the actual disjoint set structure
-#	a	1st item whose partition will be merged.
-#	b	2nd item whose partition will be merged.
-#
-# Results:
-#	An empty string.
-
-proc ::struct::disjointset::_merge {name a b} {
-    CheckValidity $name $a
-    CheckValidity $name $b
-
-    set a [FindIndex $name $a]
-    set b [FindIndex $name $b]
-
-    if {$a == $b} return
-
-    variable ${name}::partitions
-
-    set apart [lindex $partitions $a]
-    set bpart [lindex $partitions $b]
-
-    # Remove the higher partition first, otherwise the 2nd replace
-    # will access the wrong element.
-    if {$b > $a} { set t $a ; set a $b ; set b $t }
-
-    set partitions [linsert \
-			[lreplace [lreplace [K $partitions [unset partitions]] \
-				       $a $a] $b $b] \
-			end [struct::set union $apart $bpart]]
-    return
-}
-
-# ::struct::disjointset::_find
-#
-#	Determines and returns the partition the element belongs to.
-#	Returns an empty partition if the element does not belong to
-#	the disjoint set.
-#
-# Arguments:
-#	name	The name of the disjoint set.
-#	item	The element to be searched.
-#
-# Results:
-#	Returns the partition containing the element, or an empty
-#	partition if the item is not present.
-
-proc ::struct::disjointset::_find {name item} {
-    variable ${name}::all
-    if {![struct::set contains $all $item]} {
-	return {}
-    } else {
-	variable ${name}::partitions
-	return [lindex $partitions [FindIndex $name $item]]
-    }
-}
-
-proc ::struct::disjointset::FindIndex {name item} {
-    variable ${name}::partitions
-    # Check each partition directly.
-    # AK XXX Future Use a nested-tree structure to make the search
-    # faster
-
-    set i 0
-    foreach p $partitions {
-	if {[struct::set contains $p $item]} {
-	    return $i
-	}
-	incr i
-    }
-    return -1
-}
-
-# ::struct::disjointset::_destroy
-#
-#	Destroy the disjoint set structure and releases all memory
-#	associated with it.
-#
-# Arguments:
-#	name	The name of the actual disjoint set structure
-
-proc ::struct::disjointset::_destroy {name} {
-    namespace delete $name
-    interp alias {} ::$name {}
-    return
-}
-
-# ### ### ### ######### ######### #########
-## Internal helper
-
-# ::struct::disjointset::CheckValidity
-#
-#	Verifies if the argument element is a member of the disjoint
-#	set or not. Throws an error if not.
-#
-# Arguments:
-#	name	The name of the disjoint set
-#	element	The element to look for.
-#
-# Results:
-#	1 if element is a unary list, 0 otherwise
-
-proc ::struct::disjointset::CheckValidity {name element} {
-    variable ${name}::all
-    if {![struct::set contains $all $element]} {
-	return -code error \
-	    "The element \"$element\" is not known to the disjoint set $name"
-    }
-    return
-}
-
-proc ::struct::disjointset::K { x y } { set x }
-
-# ### ### ### ######### ######### #########
-## Ready
 
 namespace eval ::struct {
-    namespace import -force disjointset::disjointset
+    namespace import disjointset::disjointset
     namespace export disjointset
 }
 
-package provide struct::disjointset 1.0
+package provide struct::disjointset 1.1
