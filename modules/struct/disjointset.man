@@ -1,4 +1,4 @@
-[manpage_begin struct::disjointset n 1.0]
+[manpage_begin struct::disjointset n 1.1]
 [keywords {disjoint set}]
 [keywords {equivalence class}]
 [keywords find]
@@ -9,8 +9,8 @@
 [moddesc   {Tcl Data Structures}]
 [titledesc {Disjoint set data structure}]
 [category  {Data structures}]
-[require Tcl 8.4]
-[require struct::disjointset [opt 1.0]]
+[require Tcl 8.6]
+[require struct::disjointset [opt 1.1]]
 [description]
 [para]
 
