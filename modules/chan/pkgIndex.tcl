@@ -2,14 +2,12 @@
 
 
 package ifneeded {chan getslimit} 0.1 [list ::apply {dir {
-    package require {chan base}
-    ::tcllib::chan::base .new ::tcllib::chan::getslimit
-    ::tcllib::chan::getslimit .specialize
-    ::tcllib::chan::getslimit .eval [list ::source $dir/getslimit.tcl]
+    package require ego
+    namespace eval ::tcllib::chan::getslimit [list ::source $dir/getslimit.tcl]
+    package provide {chan getslimit} 0.1
     namespace eval ::tcllib::chan {
 	namespace export getslimit
     }
-    package provide {chan getslimit} 0.1
 }} $dir]
 
 

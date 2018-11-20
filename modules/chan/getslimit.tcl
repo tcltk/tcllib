@@ -8,8 +8,21 @@
 #     Poor Yorick
 # # ## ### ##### ######## #############
 
-
 variable buf bufcount eof getslimit
+
+proc [namespace current] chan {
+	if {![string match ::* $chan]} {
+		set chan [uplevel 1 [list ::namespace which $chan]]
+	}
+	$chan .specialize
+	foreach name {
+		.init configure eof gets read
+	} {
+		$chan .method $name getslimit::$name
+	}
+	return $chan
+}
+
 
 proc .init {_ args} {
     $_ .vars eof buf bufcount getslimit
@@ -19,7 +32,6 @@ proc .init {_ args} {
     set getslimit -1
     uplevel 1 [list $_ .prototype .init {*}$args]
 }
-.my .method .init
 
 
 proc configure {_ args} {
@@ -51,14 +63,12 @@ proc configure {_ args} {
     }
     return $res
 }
-.my .method configure
 
 
 proc  eof _ {
     $_ .vars bufcount eof
     return [expr {$eof || ( [$_ .prototype eof] && $bufcount == 0 )}]
 }
-.my .method eof
 
 
 proc gets {_ args} {
@@ -117,8 +127,6 @@ proc gets {_ args} {
 	return $res
     }
 }
-.my .method gets
-
 
 
 proc read {_ args} {
@@ -147,7 +155,6 @@ proc read {_ args} {
     }
     return $res
 }
-.my .method read
 
 
 package provide tcllib::chan::getslimit 1

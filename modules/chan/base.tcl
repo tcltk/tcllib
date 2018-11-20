@@ -11,6 +11,9 @@
 
 proc .init {_ channame args} {
     $_ .vars chan close
+    if {$channame ni [::chan names]} {
+	error [list {unknown channel} $channame]
+    }
     set chan $channame
     $_ .ondelete [list ::apply {{_ channame} {
 	$_ .vars close
