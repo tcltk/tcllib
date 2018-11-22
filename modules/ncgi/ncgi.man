@@ -6,6 +6,7 @@
 [keywords form]
 [keywords html]
 [comment {-*- tcl -*- doctools manpage}]
+[copyright {2018  Poor Yorick}]
 [moddesc   {CGI Support}]
 [titledesc {Procedures to manipulate CGI values.}]
 [category  {CGI programming}]
@@ -26,7 +27,7 @@ cookies, and to encode and decode www-url-encoded values.
 below for the [const ::ncgi] namespace.  When calling these routines as
 subroutines, omit [arg session] as it is passed automatically. 
 
-To create a new CGI session, call [cmd {::ncgi new}], and then use command it
+To create a new CGI session, call [cmd {::ncgi .new}], and then use command it
 creates returns to work with request arguments.  Use [cmd {::ncgi get}] to
 retrieve argument values, or use [cmd {::ncgi all}] for arguments that might
 occur multiple times.
@@ -58,7 +59,7 @@ value for the argument and the corresponding dictionary of parameters.
 
 [list_begin definitions]
 
-[call [cmd ::ncgi::new] [arg session] [arg name] [opt "[arg option] [arg value]"]]
+[call [cmd ::ncgi] [method .new] [arg name] [opt "[arg option] [arg value]"]]
 
 Creates a routine named [arg name] that represents a new CGI session, and
 returns the name the new routine.  The available options, primarily for use
@@ -85,69 +86,68 @@ Use [arg querystring] as the query string.
 [list_end]
 
 
-[call [cmd ::ncgi::all] [arg session] [arg name] [opt [arg default]]]
+[call [arg session] [method all] [arg name] [opt [arg default]]]
 
 Like [cmd ::ncgi::get], but returns a list of values matching [arg name] in the
 argument multidict.
 
 
-[call [cmd ::ncgi::body] [arg session]]
+[call [arg session] [method body]]
 
 Returns the raw request body.
 
 
-[call [cmd {::ncgi::cookies all}] [arg session] [opt [arg name]]]
+[call [arg session] [method {cookies all}]]
 
-Returns a list of values for cookie matching [arg name].
-
-
-[call [cmd {::ncgi::cookies get}] [arg session] [opt [arg name]] [opt [arg default]]]
-
-Returns a multidict of cookie names and values.  If [arg name] is provided,
-returns the value of the last matching cookie.  if [arg default] is provided,
-it is returned when there is no cookie matching [arg name].
+Returns a multidict of all cookie names and values.
 
 
-[call [cmd ::ncgi::decode] [arg str]]
+[call [arg session] [method {cookies get}] [opt [arg name]] [opt [arg default]]]
 
-Decodes strings in www-url-encoding, which represents special
-characters with a %xx sequence, where xx is the character code in hex.
+Returns the value of the last cookiet named [arg name], or [arg default] it is
+provided and no such cookie exists.
 
 
-[call [cmd ::ncgi::encode] [arg string]]
+[call [arg session] [method decode] [arg str]]
+
+Decodes the www-url-encoded [arg str]. In this encoding special characters are
+represented with a %xx sequence, where xx is the character code in hex.
+
+
+[call [arg session] [method encode] [arg string]]
 
 Encodes [arg string] into www-url-encoded format.
 
 
-[call [cmd ::ncgi::exists] [arg session] [arg name]]
+[call [arg session] [method exists] [arg name]]
 
 Returns [const true] if an CGI argument matching [arg name] is present and is
 [const false] otherwise.
 
 
-[call [cmd ::ncgi::form] [arg session] [cmd get] [opt [arg name]]]
+[call [arg session] [method form] [cmd get] [opt [arg name]]]
 
 Like [cmd ::ncgi::get], but only considers form arguments, not arguments
 in the query string.
 
 
-[call [cmd ::ncgi::get] [opt [arg name]] [opt [arg default]]]
+[call [arg session] [method get] [opt [arg name]] [opt [arg default]]]
 
 Returns a list containing the values matching [arg name] in the argument
 multidict.  If [arg name] is not provided, returns the entire argument
 multidict.
 
 
-[call [cmd ::ncgi::header] [opt [arg type]] [arg args]]
+[call [arg session] [method {header send}] [opt [arg type]]]
 
-Serialize the response header to standard output.  Produces a [
+Serialize the response header to the session output.  Produces a [
     const Content-Type
 ]
 header and additional headers based on [arg args], which is a multidict of
 names and values. [arg type] defaults to [const text/html].
 
 
-[call [cmd ::ncgi::importFile] [arg session] [arg cmd] [arg name] [
+[call [arg session] [cmd importFile] [arg cmd] [arg name] [
     opt [arg filename]]]
 
 Provides information about an uploaded file from a form field.
@@ -170,28 +170,28 @@ Returns the contents of the file.
 
 [def "[option -server] [arg name]"]
 
-Returns the name of a channel routine for the contents of the field named [arg
-name].
+Returns the name of a channel routine for the contents of the field named
+[arg name].
 
 [list_end]
 
 
-[call [cmd ::ncgi::query] [arg session] [cmd parse]]
+[call [arg session] [method {query get}]]
 
-Returns the parsed query data as a multidict.
+Returns the query data as a multidict.
 
 
-[call [cmd ::ncgi::query] [arg session] [cmd set] [arg {name value}]]
+[call [arg session] [method {query set}] [arg {name value}]]
 
 Sets a query value.
 
 
-[call [cmd ::ncgi::query] [arg session] [cmd string]]
+[call [arg session] [method {query string}]]
 
 Returns the raw query data.
 
 
-[call [cmd ::ncgi::redirect] [arg session] [arg url]]
+[call [arg session] [method redirect] [arg url]]
 
 Generates a response that causes a 302 redirect by the Web server.  The
 [arg url] is the new URL that is the target of the redirect.  The URL
@@ -199,25 +199,7 @@ will be qualified with the current server and current directory, if
 necessary, to convert it into a full URL.
 
 
-[call [cmd ::ncgi::setCookie] [arg session] [arg args]]
-
-Sets a cookie value that will be returned as part of the reply.  This
-must be done before [cmd ::ncgi::header] or [cmd ::ncgi::redirect] is
-called in order for the cookie to be returned properly.  The
-
-[arg args] are a set of flags and values:
-
-[list_begin definitions]
-
-[def "[option -name] [arg name]"]
-[def "[option -value] [arg value]"]
-[def "[option -expires] [arg date]"]
-[def "[option -path] [arg {path restriction}]"]
-[def "[option -domain] [arg {domain restriction}]"]
-[list_end]
-
-
-[call [cmd ::ncgi::type] [arg session]]
+[call [arg session] [method type]]
 
 Returns the Content-Type of the current CGI values.
 

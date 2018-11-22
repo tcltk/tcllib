@@ -55,8 +55,8 @@ namespace eval ::ncgi {
 
 }
 
-proc ::ncgi::.namespace token {
-    namespace ensemble configure $token -namespace
+proc ::ncgi::.namespace _ {
+    namespace ensemble configure $_ -namespace
 }
 
 
@@ -72,11 +72,11 @@ proc ::ncgi::.namespace token {
 # Results:
 #	The first value of the named element, or ""
 
-proc ::ncgi::all {token name} {
-    namespace upvar $token query query form form
-    query $token parse
-    if {[form $token exists]} {
-	form $token get 
+proc ::ncgi::all {_ name} {
+    namespace upvar $_ query query form form
+    $_ query get
+    if {[form $_ exists]} {
+	$_ form get 
     }
     set result {}
     foreach {qname val} $query {
@@ -84,7 +84,7 @@ proc ::ncgi::all {token name} {
 	    lappend result $val
 	}
     }
-    if {[form $token exists]} {
+    if {[form $_ exists]} {
 	foreach {fname val} $form {
 	    if {$fname eq $name} {
 		lappend result [lindex $val 0]
@@ -95,9 +95,9 @@ proc ::ncgi::all {token name} {
 }
 
 
-proc ::ncgi::body token {
+proc ::ncgi::body _ {
     global env
-    namespace upvar $token {*}{
+    namespace upvar $_ {*}{
 	body body content_length content_length method method
     }
     if {![info exists body]} {
@@ -115,26 +115,26 @@ proc ::ncgi::body token {
 }
 
 
-# ::ncgi::cookie
+# ::ncgi::cookies
 #
 #	Returns a multidict of incoming cookies.
 
 namespace eval ::ncgi::cookies {
-    namespace ensemble create -parameters token
+    namespace ensemble create -parameters _
     namespace export all get
 
-    proc all {token name} {
-	namespace upvar $token cookies cookies
-	init $token
+    proc all {_ name} {
+	namespace upvar $_ cookies cookies
+	init $_
 	lmap {name1 val} $cookies {
 	    if {$name1 ne $name} continue
 	    lindex $val
 	}
     }
 
-    proc init token {
+    proc init _ {
 	global env
-	namespace upvar $token cookies cookies
+	namespace upvar $_ cookies cookies
 	if {![info exists cookies]} {
 	    if {[info exists env(HTTP_COOKIE)]} {
 		set cookies [join [lmap pair [split $env(HTTP_COOKIE) \;] {
@@ -147,10 +147,18 @@ namespace eval ::ncgi::cookies {
 	return 
     }
 
-    proc get {token args} {
-	init $token
-	namespace upvar $token cookies cookies
+    proc get {_ args} {
+	init $_
+	namespace upvar $_ cookies cookies
 	switch [llength $args] {
+	    2 {
+		lassign $args key default
+		if {[dict exists $cookies $key]} {
+		    return [dict get $cookies $key]
+		} else {
+		    return $default
+		}
+	    }
 	    1 {
 		return [dict get $cookies [lindex $args 0]]
 	    }
@@ -164,8 +172,8 @@ namespace eval ::ncgi::cookies {
     }
 }
 
-proc ::ncgi::delete token {
-    namespace delete [namespace ensemble configure $token -namespace]
+proc ::ncgi::delete _ {
+    namespace delete [namespace ensemble configure $_ -namespace]
 }
 
 
@@ -224,9 +232,9 @@ proc ::ncgi::encode string {
 }
 
 
-proc ::ncgi::form_get {token args} {
-    namespace upvar $token form form
-    set type [type $token]
+proc ::ncgi::form_get {_ args} {
+    namespace upvar $_ form form
+    set type [$_ type]
     if {![info exists form]} {
 	set form {}
 	switch -glob $type {
@@ -234,12 +242,12 @@ proc ::ncgi::form_get {token args} {
 	    text/xml* -
 	    application/x-www-form-urlencoded* -
 	    application/x-www-urlencoded* {
-		foreach {key val} [urlquery [body $token]] {
+		foreach {key val} [urlquery [$_ body]] {
 		    lappend form $key [list $val {}]
 		}
 	    }
 	    multipart/* {
-		multipart $token
+		$_ multipart
 	    }
 	    default {
 		return -code error "Unknown Content-Type: $type"
@@ -260,10 +268,10 @@ proc ::ncgi::form_get {token args} {
 }
 
 
-proc ::ncgi::form_exists token {
-    namespace upvar $token content_length content_length
+proc ::ncgi::form_exists _ {
+    namespace upvar $_ content_length content_length
     if {[info exists content_length]} {
-	switch -glob [type $token] {
+	switch -glob [type $_] {
 	    {}
 	    - text/xml*
 	    - application/x-www-form-urlencoded*
@@ -284,17 +292,17 @@ proc ::ncgi::headerfilter headers {
 }
 
 
-proc ::ncgi::header_send {token type args} {
-    namespace upvar $token respons response 
+proc ::ncgi::header_send {_ type args} {
+    namespace upvar $_ respons response 
     set mimeout [mime::.new {} -canonical $type -params $args \
 	-addcontentid 0 -addmimeversion 0 -addmessageid 0 -string {}
     ]
-    foreach {n v} [headerfilter [$token response header get]] {
+    foreach {n v} [headerfilter [$_ response header get]] {
 	$mimeout header set $n {*}$v
     }
-    $token response .destroy
-    $mimeout serialize -chan ${token}::stdout
-    ${token}::stdout flush
+    $_ response .destroy
+    $mimeout serialize -chan ${_}::stdout
+    ${_}::stdout flush
     $mimeout .destroy
 }
 
@@ -313,13 +321,13 @@ proc ::ncgi::header_send {token type args} {
 # Results:
 #	The first value of the named element, or the default
 
-proc ::ncgi::get {token args} {
-    namespace upvar $token form form query query
-    query $token parse
-    if {[form $token exists]} {
-	form $token get
+proc ::ncgi::get {_ args} {
+    namespace upvar $_ form form query query
+    $_ query get
+    if {[form $_ exists]} {
+	$_ form get
     }
-    set merged [merge $token]
+    set merged [merge $_]
     if {![llength $args]} {
 	return $merged
     } elseif {[llength $args] <= 2} {
@@ -350,10 +358,10 @@ proc ::ncgi::get {token args} {
 #   -type   returns the mime type of the file
 #   -data   returns a channel command for the contents of the file 
 
-proc ::ncgi::importFile {token cmd var {filename {}}} {
-    namespace upvar $token mimeparts mimeparts
-    if {[form $token exists]} {
-	set form [form $token get]
+proc ::ncgi::importFile {_ cmd var {filename {}}} {
+    namespace upvar $_ mimeparts mimeparts
+    if {[$_ form exists]} {
+	set form [$_ form get]
     }
 
     lassign [dict get $mimeparts $var] mime 
@@ -384,13 +392,13 @@ proc ::ncgi::importFile {token cmd var {filename {}}} {
 }
 
 
-proc ::ncgi::merge token {
-    namespace upvar $token form form query query
-    query $token parse
+proc ::ncgi::merge _ {
+    namespace upvar $_ form form query query
+    $_ query get
     set query2 [join [lmap {key val} $query {
 	list $key [list $val {}]
     }]]
-    if {[form $token exists]} {
+    if {[$_ form exists]} {
 	# form overrides query in a multidict
 	list {*}$query2 {*}[join [lmap {key val} $form {
 	    list $key $val 
@@ -410,10 +418,10 @@ proc ::ncgi::merge token {
 #	each value is a list containing the header value and a dictionary of
 #	parameters for that header.
 
-proc ::ncgi::multipart token {
-    namespace upvar $token form form mime mime mimeparts mimeparts
-    set type [type $token]
-    set data [body $token]
+proc ::ncgi::multipart _ {
+    namespace upvar $_ form form mime mime mimeparts mimeparts
+    set type [$_ type]
+    set data [$_ body]
     set mime [mime::.new {}  -string "Content-Type: $type\n\n$data"]
     set parts [$mime property parts]
     trace add variable mime unset [list apply [list {mime args} {
@@ -440,16 +448,16 @@ proc ::ncgi::multipart token {
 
 
 # ::ncgi::.new
-#	Create a new cgi session and return a token for that session
-# Arguments:
-#	newquery	The query data to be used instead of external CGI.
-#	newtype		The raw content type.
-#
-# Side Effects:
+#	Creates a command representing a new cgi session and return the name of
+#	that command.
+#   arguments
+#	name
+#	    The name of the command to create, or the empty string if a command
+#	    name should be automatically generated.
+#   effects
 #	Resets the cached query data and wipes any environment variables
-#	associated with CGI inputs (like QUERY_STRING)
-
-proc ::ncgi::.new {token name args} {
+#	associated with CGI inputs (like QUERY_STRING).
+proc ::ncgi::.new {_ name args} {
     if {$name eq {}} {
 	set name [namespace current]::[info cmdcount]
     } elseif {![string match ::* $name]} {
@@ -471,8 +479,8 @@ proc ::ncgi::.new {token name args} {
     mime::.new ${ns}::response -canonical text/html -spec cgi -string {}
 
     set map [dict merge [list decode decode encode encode {*}[join [lmap cmdname {
-	.namespace .new all importFile input body cookies delete form get
-	merge method query redirect type urlStub
+	.namespace .new all body cookies delete form get importFile input
+	merge method multipart query redirect type urlStub
     } {
 	list $cmdname [list $cmdname $name]
     }]]] [list \
@@ -482,8 +490,7 @@ proc ::ncgi::.new {token name args} {
     ]]
     namespace ensemble configure $name -map $map
     
-    trace add command $name delete [list apply [list {
-	token headercmd old new op} {
+    trace add command $name delete [list apply [list {old new op} {
 	$old .destroy
     }]]
 
@@ -592,14 +599,14 @@ proc ::ncgi::parseMimeValue value {
 }
 
 
-# ::ncgi::query parse
+# ::ncgi::query_get
 #
-#	Parses the query part of the URI
+#	Returns the query part of the URI
 #
-proc ::ncgi::query_parse token {
-    namespace upvar $token query query
+proc ::ncgi::query_get _ {
+    namespace upvar $_ query query
     if {![info exists query]} {
-	set query [urlquery [query_string $token]]
+	set query [urlquery [$_ query string]]
     }
     return $query
 }
@@ -609,9 +616,9 @@ proc ::ncgi::query_parse token {
 #
 #	set the value of $key in the query dictionary to $value
 #
-proc ::ncgi::query_set {token key value} {
-    namespace upvar $token query query
-    query $token parse
+proc ::ncgi::query_set {_ key value} {
+    namespace upvar $_ query query
+    $_ query get
     set idx [lindex [lmap idx [lsearch -exact -all $key $query] {
 	if {[$idx % 2]} continue
 	set idx
@@ -636,8 +643,8 @@ proc ::ncgi::query_set {token key value} {
 # Results:
 #	The raw query data.
 
-proc ::ncgi::query_string token {
-    namespace upvar $token env env querystring querystring
+proc ::ncgi::query_string _ {
+    namespace upvar $_ env env querystring querystring
 
     if {[info exists querystring]} {
 	# This ensures you can call ncgi::query more than once,
@@ -665,8 +672,8 @@ proc ::ncgi::query_string token {
 # Side Effects:
 #	Outputs a redirect header
 
-proc ::ncgi::redirect {token url} {
-    namespace upvar $token env env
+proc ::ncgi::redirect {_ url} {
+    namespace upvar $_ env env
     if {![regexp -- {^[^:]+://} $url]} {
 
 	# The url is relative (no protocol/server spec in it), so
@@ -727,14 +734,14 @@ proc ::ncgi::redirect {token url} {
 	-string "Please go to <a href=\"$url\">$url</a>\n"
     ]
 
-    foreach {n v} [headerfilter [$token response header get]] {
+    foreach {n v} [headerfilter [$_ response header get]] {
 	$mimeout header set $n {*}$v
     }
-    $token response .destroy
+    $_ response .destroy
 
     $mimeout header set Location $url
-    $mimeout serialize -chan ${token}::stdout
-    ${token}::stdout flush
+    $mimeout serialize -chan ${_}::stdout
+    ${_}::stdout flush
     $mimeout .destroy
     return
 }
@@ -749,8 +756,8 @@ proc ::ncgi::redirect {token url} {
 #
 # Results:
 #	The content type of the query data.
-proc ::ncgi::type token {
-    namespace upvar $token contenttype contenttype env env
+proc ::ncgi::type _ {
+    namespace upvar $_ contenttype contenttype env env
 
     if {![info exists contenttype]} {
 	if {[info exists env(CONTENT_TYPE)]} {
@@ -824,9 +831,9 @@ proc ::ncgi::urlquery data {
 # Side Effects:
 #	May affects future calls to ncgi::urlStub
 #
-proc ::ncgi::urlStub {token {url {}}} {
+proc ::ncgi::urlStub {_ {url {}}} {
     global  env
-    namespace upvar $token urlStub urlStub
+    namespace upvar $_ urlStub urlStub
     if {[string length $url]} {
 	set urlStub $url
 	return {} 
@@ -844,15 +851,15 @@ proc ::ncgi::urlStub {token {url {}}} {
 
 namespace eval ::ncgi {
     namespace ensemble create -command [namespace current]::form \
-	-parameters token -map {
+	-parameters _ -map {
 	exists form_exists
 	get form_get
     }
 
     namespace ensemble create -command [namespace current]::query \
-	-parameters token -map {
+	-parameters _ -map {
 
-	parse query_parse
+	get query_get
 	set query_set
 	string query_string
     }

@@ -98,7 +98,7 @@ proc main {} {try {
 
 	test ncgi-2.1 {[ncgi query] fake query data} {
 		withncgi querystring fake=query {
-			ncgi1 query parse
+			ncgi1 query get
 			list [set [ncgi1 .namespace]::querystring] [
 				set [ncgi1 .namespace]::query]
 		}
@@ -109,7 +109,7 @@ proc main {} {try {
 		set env(REQUEST_METHOD) GET
 		set env(QUERY_STRING) name=value
 		withncgi {
-			ncgi1 query parse 
+			ncgi1 query get 
 			list [set [ncgi1 .namespace]::querystring] [
 				set [ncgi1 .namespace]::query]
 		}
@@ -119,7 +119,7 @@ proc main {} {try {
 	test ncgi-2.3 {[ncgi query] HEAD} {
 		set env(REQUEST_METHOD) HEAD
 		withncgi {
-			ncgi1 query parse 
+			ncgi1 query get 
 			set [ncgi1 .namespace]::query
 		}
 	} {} 
@@ -236,9 +236,9 @@ proc main {} {try {
 	} {hello%0D%0Aworld%0D%09bar}
 
 
-	test ncgi-5.1 {ncgi::query parse} {
+	test ncgi-5.1 {ncgi::query get} {
 		withncgi querystring name=hello+world&name2=%7ewelch {
-			ncgi1 query parse 
+			ncgi1 query get 
 		}
 	} {name {hello world} name2 ~welch}
 
@@ -282,9 +282,9 @@ proc main {} {try {
 
 	# multipart tests at the end because I'm too lazy to renumber the tests
 
-	test ncgi-6.1 {ncgi::parse, anonymous values, redundant keys} {
+	test ncgi-6.1 {query get, anonymous values, redundant keys} {
 		withncgi querystring name=&name2 {
-			ncgi1 query parse 
+			ncgi1 query get 
 		}
 	} {name {} name2 {}}
 
@@ -403,10 +403,10 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			set token [ncgi .new {}]
-			$token response cookie set -name CookieName -value 12345
-			$token redirect %s
-			$token delete
+			set ncgi [ncgi .new {}]
+			$ncgi response cookie set -name CookieName -value 12345
+			$ncgi redirect %s
+			$ncgi delete
 		} err copts]} {
 			puts [dict get $copts -errorinfo]
 		}
