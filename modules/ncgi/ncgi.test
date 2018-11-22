@@ -64,7 +64,7 @@ proc main {} {try {
 	proc withncgi args {
 		set script [lindex $args end]
 		set args [lreplace $args end end]
-		ncgi new ncgi1 {*}$args
+		ncgi .new ncgi1 {*}$args
 		catch [list uplevel 1 $script] cres copts
 		ncgi1 delete
 		resetenv
@@ -72,7 +72,7 @@ proc main {} {try {
 	}
 
 
-	test ncgi-1.1 {[ncgi new]} {
+	test ncgi-1.1 {[ncgi .new]} {
 		withncgi {
 			list [info exist [ncgi1 .namespace]::query] [
 				info exist [ncgi1 .namespace]::contenttype]
@@ -130,17 +130,17 @@ proc main {} {try {
 		set env(CONTENT_LENGTH) 10
 		withncgi {
 			makeFile [format {
-			set auto_path {%s}
-			source {%s}
-			source {%s}
-			source {%s}
-			ncgi new ncgi1
-			ncgi1 body
-			puts [set [ncgi1 .namespace]::body]
-			ncgi1 delete
+				set auto_path {%s}
+				source {%s}
+				source {%s}
+				source {%s}
+				ncgi .new ncgi1
+				ncgi1 body
+				puts [set [ncgi1 .namespace]::body]
+				ncgi1 delete
 			} $sub_ap $cmdlFile $futlFile $ncgiFile] test1 ; # {}
-			set f [open "|[list $::tcltest::tcltest test1]" r+]
-			puts  $f "name=value"
+			set f [open |[list $::tcltest::tcltest test1] r+]
+			puts  $f name=value
 			flush $f
 			gets  $f line
 			close $f
@@ -373,7 +373,7 @@ proc main {} {try {
 				source %s
 				source %s
 				source %s
-				ncgi new ncgi1
+				ncgi .new ncgi1
 				ncgi1 redirect %s
 				ncgi1 delete
 			} err eopts]} {
@@ -381,7 +381,7 @@ proc main {} {try {
 				puts $err
 			}
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -403,8 +403,8 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			set token [ncgi new {}]
-			$token setCookie -name CookieName -value 12345
+			set token [ncgi .new {}]
+			$token response cookie set -name CookieName -value 12345
 			$token redirect %s
 			$token delete
 		} err copts]} {
@@ -412,12 +412,12 @@ proc main {} {try {
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
 		set res
-	} "Content-Type: text/html\nLocation: $URL2\nSet-Cookie: CookieName=12345 ;\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
+	} "Content-Type: text/html\nSet-Cookie: CookieName=12345 ;\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
 
 
 	set URL foo.html
@@ -434,7 +434,7 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
+			ncgi .new ncgi1
 			ncgi1 redirect %s
 			ncgi1 delete
 		} err]} {
@@ -442,7 +442,7 @@ proc main {} {try {
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -464,7 +464,7 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
+			ncgi .new ncgi1
 			ncgi1 redirect %s
 			ncgi delete
 		} err]} {
@@ -472,7 +472,7 @@ proc main {} {try {
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -494,7 +494,7 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
+			ncgi .new ncgi1
 			ncgi1 redirect %s
 			ncgi1 delete
 		} err]} {
@@ -502,7 +502,7 @@ proc main {} {try {
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -525,7 +525,7 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
+			ncgi .new ncgi1
 			ncgi1 redirect %s
 			ncgi1 delete
 		} err]} {
@@ -556,15 +556,16 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
+			ncgi .new ncgi1
 			ncgi1 redirect %s
 			ncgi1 delete
-		} err]} {
-			puts $err
+		} cres copts]} {
+			puts stderr [dict get $copts -errorinfo] 
+			exit 1
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -579,15 +580,16 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
-			ncgi1 header
+			ncgi .new ncgi1
+			ncgi1 header send text/html
 			ncgi1 delete
-		} err]} {
-			puts $err
+		} err copts]} {
+			puts stderr [dict get $copts -errorinfo] 
+			exit 1
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -597,20 +599,21 @@ proc main {} {try {
 
 	test ncgi-12.2 {ncgi::header} {
 		makeFile [makescript [format {
-		set auto_path {%s}
-		if {[catch {
+		    set auto_path {%s}
+		    if {[catch {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
-			ncgi1 header text/plain
+			ncgi .new ncgi1
+			ncgi1 header send text/plain
 			ncgi1 delete
-		} err]} {
-			puts $err
-		}
-		exit
+		    } err copts]} {
+			puts stderr [dict get $copts -errorinfo] 
+			exit 1
+		    }
+		    exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -625,15 +628,17 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
-			ncgi1 header text/html X-Comment "This is a test"
+			ncgi .new ncgi1
+			ncgi1 response header set X-Comment {This is a test}
+			ncgi1 header send text/html
 			ncgi1 delete
-		} err]} {
-			puts $err
+		} cres copts]} {
+			puts stderr [dict get $copts -errorinfo] 
+			exit 1
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1
@@ -648,15 +653,15 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			ncgi new ncgi1
-			ncgi1 setCookie -name Name -value {The+Value}
-			ncgi1 header
+			ncgi .new ncgi1
+			ncgi1 response cookie set -name Name -value {The+Value}
+			ncgi1 header send text/html
 		} err]} {
 			puts $err
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile]] test1
-		set f [open "|[list $::tcltest::tcltest test1]" r+]
+		set f [open |[list $::tcltest::tcltest test1] r+]
 		set res [read $f]
 		close $f
 		removeFile test1

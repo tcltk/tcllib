@@ -218,7 +218,7 @@ Sun, Mon, ..., Sat
 [list_end]
 
 
-[call [cmd ::mime::finalize] [arg token] [opt "[option -subordinates] [const all] | [const dynamic] | [const none]"]]
+[call [arg message] [cmd .destroy] [opt "[option -subordinates] [const all] | [const dynamic] | [const none]"]]
 
 Destroys the message corresponding to [arg token] and
 returns the empty string.
@@ -227,8 +227,8 @@ returns the empty string.
 [para]
 
 [option -subordinates] specifies which messages comprising the body should also
-be destroyed.  The default value is [const dynamic], indicates all component
-messages that were created by [cmd ::mime::initialize].  [const all] indicates
+be destroyed.  The default value of [const dynamic] indicates all component
+messages that were created while parsing a message.  [const all] indicates
 all component messages. [const none] indicates that no component messages should be
 destroyed.
 

@@ -19,12 +19,11 @@ package require smtpd
 variable port [nettool::allocate_port 1025]
 smtpd::start localhost $port
 
-proc accept token {
+proc accept msg {
     variable result
-    set headers [::mime::header get $token]
+    set headers [$msg header get]
     lappend result [lsort [dict keys $headers]]
-    lappend result [::mime::header get $token From]
-    ::mime::finalize $token
+    lappend result [$msg header get From]
     return
 }
 
@@ -35,14 +34,15 @@ proc main {} {
     test smtp-1.1 {} -body {
 	variable port
 	smtpd::configure -deliverMIME [namespace which accept]
-	set msg [mime::initialize -canonical text/plain \
+	set msg [mime::.new {} -canonical text/plain \
 	    -string {a door is ajar}]
-	smtp::sendmessage $msg -ports $port -originator Slawkenbergius -recipients {leroy@fake.domain}
+	set res [smtp::sendmessage $msg -ports $port -originator Slawkenbergius -recipients {leroy@fake.domain}]
+	lappend result $res
 	return $result
     } -cleanup {
 	unset result
     } -result [list \
-	{Bcc Content-ID Content-Type Date From Message-ID Received Return-Path} {Slawkenbergius {}}
+	{Bcc Content-ID Content-Type Date From Message-ID Received Return-Path} {Slawkenbergius {}} {}
     ]
 
     testsuiteCleanup

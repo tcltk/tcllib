@@ -164,50 +164,6 @@ namespace eval ::ncgi::cookies {
     }
 }
 
-# ::ncgi::setCookie
-#
-#	Set a return cookie.  You must call this before you call
-#	ncgi::header or ncgi::redirect
-#
-# Arguments:
-#	args	Name value pairs, where the names are:
-#		-name	Cookie name
-#		-value	Cookie value
-#		-path	Path restriction
-#		-domain	domain restriction
-#		-expires	Time restriction
-#
-# Side Effects:
-#	Formats and stores the Set-Cookie header for the reply.
-
-proc ::ncgi::setCookie {token args} {
-    namespace upvar $token cookieOutput cookieOutput
-    array set opt $args
-    set line "$opt(-name)=$opt(-value) ;"
-    foreach extra {path domain} {
-	if {[info exists opt(-$extra)]} {
-	    append line " $extra=$opt(-$extra) ;"
-	}
-    }
-    if {[info exists opt(-expires)]} {
-	switch -glob -- $opt(-expires) {
-	    *GMT {
-		set expires $opt(-expires)
-	    }
-	    default {
-		set expires [clock format [clock scan $opt(-expires)] \
-			-format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
-	    }
-	}
-	append line " expires=$expires ;"
-    }
-    if {[info exists opt(-secure)]} {
-	append line " secure "
-    }
-    lappend cookieOutput $line
-}
-
-
 proc ::ncgi::delete token {
     namespace delete [namespace ensemble configure $token -namespace]
 }
@@ -320,6 +276,28 @@ proc ::ncgi::form_exists token {
     return 0
 }
 
+proc ::ncgi::headerfilter headers {
+    join [lmap {key val} $headers[set headers {}] {
+	if {[string tolower $key] in {content-type}} continue
+	list $key $val
+    }]
+}
+
+
+proc ::ncgi::header_send {token type args} {
+    namespace upvar $token respons response 
+    set mimeout [mime::.new {} -canonical $type -params $args \
+	-addcontentid 0 -addmimeversion 0 -addmessageid 0 -string {}
+    ]
+    foreach {n v} [headerfilter [$token response header get]] {
+	$mimeout header set $n {*}$v
+    }
+    $token response .destroy
+    $mimeout serialize -chan ${token}::stdout
+    ${token}::stdout flush
+    $mimeout .destroy
+}
+
 
 # ::ncgi::get
 #
@@ -357,34 +335,6 @@ proc ::ncgi::get {token args} {
 }
 
 
-# ncgi:header
-#
-#	Output the Content-Type header.
-#
-# Arguments:
-#	type	The MIME content type
-#	args	Additional name, value pairs to specifiy output headers
-#
-# Side Effects:
-#	Outputs a normal header
-
-proc ::ncgi::header {token {type text/html} args} {
-    namespace upvar $token cookieOutput cookieOutput
-    set mimeout [mime::initialize -canonical $type -addcontentid 0 \
-	-addmimeversion 0 -addmessageid 0  -string {}]
-    foreach {n v} $args {
-	mime::header set $mimeout $n $v {}
-    }
-    if {[info exists cookieOutput]} {
-	foreach line $cookieOutput {
-	    mime::header set $mimeout Set-Cookie $line {}
-	}
-    }
-    mime::serialize $mimeout -chan ${token}::stdout
-    ${token}::stdout flush
-}
-
-
 # ::ncgi::importFile --
 #
 #   get information about a file upload field
@@ -408,11 +358,11 @@ proc ::ncgi::importFile {token cmd var {filename {}}} {
 
     lassign [dict get $mimeparts $var] mime 
 
-    lassign [mime::header get $mime content-disposition] cdisp dispparams
+    lassign [$mime header get content-disposition] cdisp dispparams
 
     switch -exact -- $cmd {
 	-server {
-	    return [mime::body decode $mime]
+	    return [$mime body decode]
 	}
 	-client {
 	    if {[dict exists $dispparams filename]} {
@@ -421,11 +371,11 @@ proc ::ncgi::importFile {token cmd var {filename {}}} {
 	    return {}
 	}
 	-type {
-	    lassign [mime::header get $mime content-type] ctype params
+	    lassign [$mime header get content-type] ctype params
 	    return $ctype
 	}
 	-data {
-	    return [mime::body decoded $mime]
+	    return [$mime body decoded]
 	}
 	default {
 	    error "Unknown subcommand to ncgi::import_file: $cmd"
@@ -464,30 +414,32 @@ proc ::ncgi::multipart token {
     namespace upvar $token form form mime mime mimeparts mimeparts
     set type [type $token]
     set data [body $token]
-    set mime [mime::initialize  -string "Content-Type: $type\n\n$data"]
-    set parts [mime::property $mime parts]
-    trace add variable mime unset [list apply [list token {
-	mime::finalize $token
-    } $token]]
+    set mime [mime::.new {}  -string "Content-Type: $type\n\n$data"]
+    set parts [$mime property parts]
+    trace add variable mime unset [list apply [list {mime args} {
+	if {[namespace which $mime] ne {}} {
+	    $mime .destroy
+	}
+    } $mime]]
 
     set results [list]
     foreach part $parts {
-	    set value [[::mime::body decoded $part] read]
-	    lassign [::mime::header get $part content-disposition] hvalue params
-	    if {$hvalue eq {form-data} && [dict exists $params name]} {
-		set name [dict get $params name]
-		dict unset params name
-	    } else {
-		set name {}
-	    }
-	    lappend mimeparts $name $part 
-	    lappend form $name [list $value $params]
+	set value [[$part body decoded] read]
+	lassign [$part header get content-disposition] hvalue params
+	if {$hvalue eq {form-data} && [dict exists $params name]} {
+	    set name [dict get $params name]
+	    dict unset params name
+	} else {
+	    set name {}
+	}
+	lappend mimeparts $name $part 
+	lappend form $name [list $value $params]
     }
     return $form
 }
 
 
-# ::ncgi::new
+# ::ncgi::.new
 #	Create a new cgi session and return a token for that session
 # Arguments:
 #	newquery	The query data to be used instead of external CGI.
@@ -497,29 +449,43 @@ proc ::ncgi::multipart token {
 #	Resets the cached query data and wipes any environment variables
 #	associated with CGI inputs (like QUERY_STRING)
 
-proc ::ncgi::new {token name args} {
+proc ::ncgi::.new {token name args} {
     if {$name eq {}} {
 	set name [namespace current]::[info cmdcount]
     } elseif {![string match ::* $name]} {
 	set name [uplevel 1 {namespace current}]::$name
     }
-    set new [namespace eval $name {
+    set ns [namespace eval $name {
 	namespace ensemble create
 	namespace current
     }]
+    # normalize $name
+    set name [namespace which $name]
 
-    ::tcllib::chan::base .new ${new}::stdout stdout -close 0
+    ::tcllib::chan::base .new ${ns}::stdout stdout -close 0
 
-    # normalize $new
-    set new [namespace which $new]
+    namespace ensemble create -command ${ns}::header -map [list \
+	send [list header_send $name]
+    ]
 
-    set map [list decode decode encode encode {*}[join [lmap cmdname {
-	.namespace all importFile input body cookies delete form get
-	header merge method new query redirect setCookie type urlStub
+    mime::.new ${ns}::response -canonical text/html -spec cgi -string {}
+
+    set map [dict merge [list decode decode encode encode {*}[join [lmap cmdname {
+	.namespace .new all importFile input body cookies delete form get
+	merge method query redirect type urlStub
     } {
 	list $cmdname [list $cmdname $name]
-    }]]]
+    }]]] [list \
+	header [list ${ns}::header] \
+	response [list ${ns}::response] \
+	stdout [list ${ns}::stdout]
+    ]]
     namespace ensemble configure $name -map $map
+    
+    trace add command $name delete [list apply [list {
+	token headercmd old new op} {
+	$old .destroy
+    }]]
 
     # $query holds the raw query (i.e., form) data
     # This is treated as a cache, too, so you can call ncgi::query more than
@@ -530,14 +496,11 @@ proc ::ncgi::new {token name args} {
     # $urlStub holds the URL corresponding to the current request
     # This does not include the server name.
 
-    # $cookieOutput is the set of cookies that are pending for output
-
-    namespace upvar $new \
+    namespace upvar $ns \
 	_tmpfiles _tmpfiles \
 	body body \
 	content_length content_length \
 	contenttype contenttype \
-	cookieOutput cookieOutput \
 	env env \
 	form form \
 	listRestrict listRestrict \
@@ -554,9 +517,6 @@ proc ::ncgi::new {token name args} {
     # with form values that appear more than once.  This bit gets flipped when
     # you use the ncgi::input procedure to parse inputs.
     set listRestrict 0
-
-
-    set cookieOutput {}
 
     dict for {opt val} $args {
 	switch $opt {
@@ -577,7 +537,6 @@ proc ::ncgi::new {token name args} {
 	array set env [array get ::env]
     }
 
-
     if {[info exists env(CONTENT_LENGTH)] && [
 	string length $env(CONTENT_LENGTH)] != 0} {
 	set content_length [expr {$env(CONTENT_LENGTH)}]
@@ -587,8 +546,7 @@ proc ::ncgi::new {token name args} {
 	set method [string tolower $env(REQUEST_METHOD)]
     }
 
-
-    return $new
+    return $name
 }
 
 
@@ -763,8 +721,22 @@ proc ::ncgi::redirect {token url} {
 	    set url $proto://$server$port$dirname$url
 	}
     }
-    ncgi::header $token text/html Location $url
-    puts "Please go to <a href=\"$url\">$url</a>"
+
+    set mimeout [mime::.new {} -canonical text/html -addcontentid 0 \
+	-addmimeversion 0 -addmessageid 0 \
+	-string "Please go to <a href=\"$url\">$url</a>\n"
+    ]
+
+    foreach {n v} [headerfilter [$token response header get]] {
+	$mimeout header set $n {*}$v
+    }
+    $token response .destroy
+
+    $mimeout header set Location $url
+    $mimeout serialize -chan ${token}::stdout
+    ${token}::stdout flush
+    $mimeout .destroy
+    return
 }
 
 
@@ -784,7 +756,7 @@ proc ::ncgi::type token {
 	if {[info exists env(CONTENT_TYPE)]} {
 	    set contenttype $env(CONTENT_TYPE)
 	} else {
-	    return ""
+	    return {} 
 	}
     }
     return $contenttype
@@ -885,6 +857,6 @@ namespace eval ::ncgi {
 	string query_string
     }
 
-    new dummy [namespace current]
+    .new dummy [namespace current]
 }
 
