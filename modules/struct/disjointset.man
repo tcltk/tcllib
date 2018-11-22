@@ -1,4 +1,5 @@
-[manpage_begin struct::disjointset n 1.1]
+[vset VERSION 1.1]
+[manpage_begin struct::disjointset n [vset VERSION]]
 [keywords {disjoint set}]
 [keywords {equivalence class}]
 [keywords find]
@@ -10,7 +11,7 @@
 [titledesc {Disjoint set data structure}]
 [category  {Data structures}]
 [require Tcl 8.6]
-[require struct::disjointset [opt 1.1]]
+[require struct::disjointset [opt [vset VERSION]]]
 [description]
 [para]
 

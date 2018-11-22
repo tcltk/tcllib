@@ -7,6 +7,16 @@
 # Copyright (c) 2018 by Kevin B. Kenny - reworked to a proper disjoint-sets
 # data structure, added 'add-element', 'exemplars' and 'find-exemplar'.
 
+# References
+#
+# - General overview
+#   - https://en.wikipedia.org/wiki/Disjoint-set_data_structure
+#
+# - Time/Complexity proofs
+#   - https://dl.acm.org/citation.cfm?doid=62.2160
+#   - https://dl.acm.org/citation.cfm?doid=364099.364331
+#
+
 package require Tcl 8.6
 
 # Initialize the disjointset structure namespace. Note that any
@@ -31,7 +41,7 @@ oo::class create struct::disjointset::_disjointset {
     #            ordered triples consisting of the element's name,
     #            the element number of the element's parent (or the element's
     #            own index if the element is a root), and the rank of
-    #		 the element
+    #		 the element.
     # nParts   - Number of partitions in the structure. Maintained only
     #            so that num_partitions will work.
 
@@ -145,9 +155,9 @@ oo::class create struct::disjointset::_disjointset {
     method exemplars {} {
 	set result {}
 	set n -1
-	foreach pair $tree {
-	    if {[lindex $pair 1] == [incr n]} {
-		lappend result [lindex $pair 0]
+	foreach row $tree {
+	    if {[lindex $row 1] == [incr n]} {
+		lappend result [lindex $row 0]
 	    }
 	}
 	return $result
@@ -166,7 +176,7 @@ oo::class create struct::disjointset::_disjointset {
     # Notes:
     #	This operation takes time proportional to the total number of elements
     #	in the disjoint-sets structure. If a simple name of the partition
-    #	is all that is required, use find_exemplar instead, which runs
+    #	is all that is required, use "find-exemplar" instead, which runs
     #	in amortized time proportional to the inverse Ackermann function of
     #	the size of the partition.
 
@@ -178,9 +188,9 @@ oo::class create struct::disjointset::_disjointset {
 	}
 	set pnum [my FindNum $item]
 	set n -1
-	foreach pair $tree {
+	foreach row $tree {
 	    if {[my FindByNum [incr n]] eq $pnum} {
-		lappend result [lindex $pair 0]
+		lappend result [lindex $row 0]
 	    }
 	}
 	return $result
@@ -232,14 +242,14 @@ oo::class create struct::disjointset::_disjointset {
     #	Enumerates the partitions of a disjoint-sets data structure
     #
     # Results:
-    #	Returns a list of lists. Each list is one of the disjoint sets,
-    #	and each member of the sublist is one of the elements added to
-    #	the structure.
+    #	Returns a list of lists. Each list is one of the partitions
+    #	in the disjoint set, and each member of the sublist is one
+    #	of the elements added to the structure.
 
     method partitions {} {
 
-	# Find the partition number for each element, and accumulate a list
-	# per partition
+	# Find the partition number for each element, and accumulate a
+	# list per partition
 	set parts {}
 	dict for {element eltNo} $elements {
 	    set partNo [my FindByNum $eltNo]
@@ -372,3 +382,4 @@ namespace eval ::struct {
 }
 
 package provide struct::disjointset 1.1
+return
