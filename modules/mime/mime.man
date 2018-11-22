@@ -145,6 +145,13 @@ the empty string, a default value is used.
 in.
 
 
+[call [arg message] [method {cookie delete}] [arg args]]
+
+Deletes the specifed cookie. [arg args] is the same as for
+[method {cookie set}], except that [arg -value] is not needed and
+[arg -expires] is ignored.
+
+
 [call [arg message] [method {cookie set}] [arg args]]
 
 Sets a cookie header.
