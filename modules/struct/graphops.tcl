@@ -13,9 +13,9 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.6
 
-package require struct::disjointset ; # Used by kruskal
+package require struct::disjointset ; # Used by kruskal -- 8.6 required
 package require struct::prioqueue   ; # Used by kruskal, prim
 package require struct::queue       ; # Used by isBipartite?, connectedComponent(Of)
 package require struct::stack       ; # Used by tarjan
