@@ -15,7 +15,7 @@
 package require Tcl 8.5  ; # namespace ensembles, {*}
 
 namespace eval ::namespacex {
-    namespace export add hook info normalize strip state
+    namespace export add hook import info normalize strip state
     namespace ensemble create
 
     namespace eval hook {
@@ -182,6 +182,31 @@ proc ::namespacex::hook::Handle {handler old args} {
 
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: Info - Visible API
+
+
+proc ::namespacex::import {from args} {
+    set upns [uplevel 1 {namespace current}]
+    if {![string match ::* $from]} {
+	set from $upns::$from[set from {}]
+    }
+    set orig [namespace eval $from {namespace export}]
+    try {
+	namespace eval $from {namespace export *}
+	set tmp [namespace current]::[::info cmdcount]
+	namespace eval $tmp [list ::namespace import ${from}::*]
+	if {[llength $args] == 1} {
+	    lappend args [lindex $args 0]
+	}
+	dict size $args
+	foreach {old new} $args {
+	    rename ${tmp}::$old ${upns}::$new
+	}
+	namespace delete $tmp
+    } finally {
+	namespace eval $from [list ::namespace export -clear {*}$orig]
+    }
+    return
+}
 
 
 proc ::namespacex::info::allvars ns {

@@ -493,8 +493,8 @@ proc ::smtpd::deliver {channel} {
             && [state $channel data] != {} } {
         
         # create a MIME token from the mail message.        
-        set tok [mime::initialize -string \
-                [join [state $channel data] "\n"]]
+        set tok [mime::.new {} -string \
+                [join [state $channel data] \n]]
 #        mime::setheader $tok "From" [state $channel from]
 #        foreach recipient [state $channel to] {
 #            mime::setheader $tok "To" $recipient -mode append
@@ -502,7 +502,7 @@ proc ::smtpd::deliver {channel} {
         
         # catch and rethrow any errors.
         set err [catch {eval $deliverMIME [list $tok]} msg]
-        mime::finalize $tok -subordinates all
+        $tok .destroy -subordinates all
         if {$err} {
             Log debug "error in deliver: $msg"
             return -code error -errorcode $::errorCode \

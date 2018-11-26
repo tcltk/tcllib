@@ -30,17 +30,21 @@ testing {
     useLocal mime.tcl mime
 }
 
-# -------------------------------------------------------------------------
-
-namespace import mime::*
+package require {chan base}
 
 # -------------------------------------------------------------------------
 
+namespace import mime::datetime mime::field_decode mime::mapencoding \
+    mime::.new mime::parseaddress mime::qp mime::reversemapencoding \
+    mime::word_decode mime::word_encode
+
+# -------------------------------------------------------------------------
 
 
 proc channamescmp names {
     expr {[llength $names] == [llength [chan names]]}
 }
+
 
 proc cleanly script {
     set ns [info cmdcount]
@@ -49,11 +53,15 @@ proc cleanly script {
     }
     catch {namespace eval $ns $script} cres copts
     foreach name [info vars ${ns}::*] {
-	catch [list mime finalize $name]
+	set val [set $name]
+	if {[namespace which $val] ne {} && [string match ::mime* $val]} {
+	    rename $val {}
+	}
     }
     namespace delete $ns
     return -options $copts $cres
 }
+
 
 proc setup1 {} {
     uplevel 1 {
@@ -61,122 +69,131 @@ proc setup1 {} {
     }
 }
 
+
 proc with.chan {name args} {
     set body [lindex $args end]
     set args [lrange $args 0 end-1]
-    set chan [open $name]
-    uplevel 1 [list set tok [::mime::initialize {*}$args -chan $chan]]
-    uplevel 1 $body
+    set chan chan_[info cmdcount]
+    ::tcllib::chan::base .new $chan [open $name]
+    uplevel 1 [list set tok [.new {} {*}$args -chan $chan]]
+    try {
+	uplevel 1 $body
+    } finally {
+	rename $chan {}
+    }
 }
+
 
 proc with.file {name args} {
     set body [lindex $args end]
     set args [lrange $args 0 end-1]
-    uplevel 1 [list set tok [::mime::initialize {*}$args -file $name]]
+    uplevel 1 [list set tok [.new {} {*}$args -file $name]]
     uplevel 1 $body
 }
+
 
 proc main {} {
 variable encoded
 variable name
 variable n
-test mime-1.1 {initialize with no args} {cleanly {
-    catch {initialize} res
+
+set message1 {MIME-Version: 1.0
+Content-Type: Text/plain
+
+I'm the message.}
+
+test mime-1.1 {.new with no args} {cleanly {
+    catch .new res
     subst $res
-}} {{specify exactly one of} {-file -parts -string}}
+}} {{specify exactly one of} {-chan -file -parts -string}}
 
 
 test mime-2.1 {Generate a MIME message} {cleanly {
-    
-    set tok [initialize -canonical Text/plain -string {jack and jill}]
-    set msg [mime::serialize $tok]
-
-    # The generated message is predictable except for the Content-ID
-    regexp "MIME-Version: 1.0\r
-Content-ID: \[^\n]+\r
+    set tok [.new {} -canonical Text/plain -string {jack and jill}]
+    set msg [$tok serialize]
+}} "MIME-Version: 1.0\r
+Message-ID: <ac7319c5a872e80af7fe7fb7efa5fd7ac7356ec74eb4410d23287b6cf7fa0129@|>\r
+Content-ID: <8e84af0326e6170dfb2720eeb49b23337250b571c563247605c9ec6910772d2c@|>\r
 Content-Type: text/plain\r
 \r
-jack and jill" $msg
-}} 1
+jack and jill"
 
-foreach name {file chan} {
-    test mime-2.1.1.$name {Generate a MIME message} {cleanly {
-	setup1
-	with.$name [makeFile {jack and jill} input.txt] -canonical Text/plain {
-	    set msg [mime::body $tok]
-	    mime::finalize $tok
+test mime-2.1.1 {Generate a MIME message} {cleanly {
+    setup1
+    with.chan [makeFile {jack and jill} input.txt] -canonical Text/plain {
+	set msg [[$tok body raw] read]
+	$tok .destroy
 
-	    # The generated message is predictable except for the Content-ID
-	    lappend res $msg
-	    lappend res [channamescmp $channames]
-	    return $res
-	}
-    }} [list "jack and jill\n" 1]
-}
+	# The generated message is predictable except for the Content-ID
+	lappend res $msg
+	lappend res [channamescmp $channames]
+	return $res
+    }
+}} [list "jack and jill\n" 1]
 
 
 test mime-2.2 {Generate a multi-part MIME message} {cleanly {
-    set tok1 [initialize -canonical Text/plain -string {jack and jill}]
-    set tok2 [initialize -canonical Text/plain -string james]
-    set bigTok [mime::initialize -canonical Multipart/MyType \
+    set tok1 [.new {} -canonical Text/plain -string {jack and jill}]
+    set tok2 [.new {} -canonical Text/plain -string james]
+    set bigTok [.new {} -canonical Multipart/MyType \
 	    -params [list MyParam foo boundary bndry] \
 	    -headers [list Content-Description {Test Multipart}] \
 	    -parts [list $tok1 $tok2]]
-    set msg [mime::serialize $bigTok]
-    # The generated message is predictable except for the Content-ID
-
-    list [regexp "MIME-Version: 1.0\r
-Content-ID: \[^\n]+\r
+    $bigTok serialize
+}} "MIME-Version: 1.0\r
+Message-ID: <0b1ce38bc23a7af000d136b6227d7e47af437c850c83145d8ae807bb4ab4d748@|>\r
+Content-ID: <b534a48db81537371fd048c0fc6da3047924c773b8f1b1691df58d032ed717c1@|>\r
 Content-Type: multipart/mytype\r
-\t; \[^\n]+\r
-\t; \[^\n]+\r
+	; myparam=foo\r
+	; boundary=bndry\r
 Content-Description: Test Multipart\r
 \r
 --bndry\r
-Content-ID: \[^\n]+\r
+Message-ID: <ac7319c5a872e80af7fe7fb7efa5fd7ac7356ec74eb4410d23287b6cf7fa0129@|>\r
+Content-ID: <8e84af0326e6170dfb2720eeb49b23337250b571c563247605c9ec6910772d2c@|>\r
 Content-Type: text/plain\r
 \r
 jack and jill\r
 --bndry\r
-Content-ID: \[^\n]+\r
+Message-ID: <ab7737bc7bbff0d4096ba7e130fd69e77ea5a1e1d7618d17e15f4914bae8600f@|>\r
+Content-ID: <119c9ae6f9ca741bd0a76f87fba0b22cab5413187afb2906aa2875c38e213603@|>\r
 Content-Type: text/plain\r
 \r
 james\r
 --bndry--\r
-" $msg] [regexp boundary=bndry $msg] [regexp myparam=foo $msg]
-}} {1 1 1}
-
+"
 
 
 test mime-2.3 {Generate a multi-part MIME message} {cleanly {
-    set tok1 [initialize -canonical Text/plain -string {jack and jill}]
-    set tok2 [initialize -canonical Text/plain -string james]
-    set bigTok [mime::initialize \
+    set tok1 [.new {} -canonical Text/plain -string {jack and jill}]
+    set tok2 [.new {} -canonical Text/plain -string james]
+    set bigTok [.new {} \
 	    -params [list MyParam foo boundary bndry] \
 	    -headers [list Content-Description {Test Multipart}] \
 	    -parts [list $tok1 $tok2]]
-    set msg [mime::serialize $bigTok]
-    # The generated message is predictable except for the Content-ID
-    list [regexp "MIME-Version: 1.0\r
-Content-ID: \[^\n]+\r
+    $bigTok serialize
+}} "MIME-Version: 1.0\r
+Message-ID: <6fd7e9b06fe3961dbc67d3bcc058451c3674403801ed18714d11aa200aed02a2@|>\r
+Content-ID: <b534a48db81537371fd048c0fc6da3047924c773b8f1b1691df58d032ed717c1@|>\r
 Content-Type: multipart/mixed\r
-	; \[^\n]+\r
-	; \[^\n]+\r
+	; myparam=foo\r
+	; boundary=bndry\r
 Content-Description: Test Multipart\r
 \r
 --bndry\r
-Content-ID: \[^\n]+\r
+Message-ID: <ac7319c5a872e80af7fe7fb7efa5fd7ac7356ec74eb4410d23287b6cf7fa0129@|>\r
+Content-ID: <8e84af0326e6170dfb2720eeb49b23337250b571c563247605c9ec6910772d2c@|>\r
 Content-Type: text/plain\r
 \r
 jack and jill\r
 --bndry\r
-Content-ID: \[^\n]+\r
+Message-ID: <ab7737bc7bbff0d4096ba7e130fd69e77ea5a1e1d7618d17e15f4914bae8600f@|>\r
+Content-ID: <119c9ae6f9ca741bd0a76f87fba0b22cab5413187afb2906aa2875c38e213603@|>\r
 Content-Type: text/plain\r
 \r
 james\r
 --bndry--\r
-" $msg] [regexp boundary=bndry $msg] [regexp myparam=foo $msg]
-}} {1 1 1}
+"
 
 
 test mime-3.1 {Parse a MIME message} {cleanly {
@@ -184,8 +201,8 @@ test mime-3.1 {Parse a MIME message} {cleanly {
 Content-Type: Text/plain
 
 I'm the message.}
-    set tok [mime::initialize -string $msg]
-    mime::body $tok
+    set tok [.new {} -string $msg]
+    [$tok body raw] read
 }} {I'm the message.}
 
 
@@ -211,22 +228,22 @@ part3
 --bar--
 }
 
-    set tok [mime::initialize -string $msg]
-    set partToks [mime::property $tok parts]
+    set tok [.new {} -string $msg]
+    set partToks [$tok property parts]
 
     set res {} 
     foreach childTok $partToks {
-	lappend res [mime::body $childTok]
+	lappend res [[$childTok body raw] read]
     }
     set res
-}} {part1 part2 part3}
+}} [list part1 part2 part3]
 
 
-test mime-3.3 {Try to parse a totally invalid message} {
-	set token [mime::initialize -string blah]
-    catch {mime::header get $token} err0
+test mime-3.3 {Try to parse a totally invalid message} {cleanly {
+	set token [.new {} -string blah]
+    catch {$token header get} err0
     set err0
-} {{improper line in header} blah}
+}} {{improper line in header} blah}
 
 
 test mime-3.4 {Try to parse a MIME message with an invalid version} {cleanly {
@@ -235,11 +252,13 @@ Content-Type: text/plain
 
 msg1}
 
-    set tok [mime::initialize -string $msg1]
-    catch {mime::body $tok} err1
-    catch {mime::serialize $tok} err1a
+    set tok [.new {} -string $msg1]
+    catch {[$tok body raw] read} err1
+    catch {$tok serialize} err1a
     list $err1 $err1a
 }} "msg1 {MIME-Version: 2.0\r
+Message-ID: <d956986793d51d614044c01a7e7650665330a4a170d071aff1de6dceda8c8b0d@|>\r
+Content-ID: <289e5175e02c788c2d442cfe81d6be0533d8c13e253ef763fda45d37accfe4d4@|>\r
 Content-Type: text/plain\r
 \r
 msg1}"
@@ -250,24 +269,24 @@ test mime-3.5 {Try to parse a MIME message with no newline between headers and d
 Content-Type: foobar
 data without newline}
 
-    set token [mime::initialize -string $msg2]
-    catch {mime::header get $token} err2
+    .new mime1 -string $msg2
+    catch {mime1 header get} err2
     set err2
 }} {expecting type/subtype found foobar}
 
 
 test mime-3.6 {Try to parse a MIME message with no MIME version and generate a new message from it} {cleanly {
-
     # No MIME version
     set msg3 {Content-Type: text/plain
 
 foo}
-
-    set tok [mime::initialize -string $msg3]
-    catch {mime::body $tok} err3
-    catch {mime::serialize $tok} err3a
+    .new mime1 -string $msg3
+    catch {[mime1 body raw] read} err3
+    catch {mime1 serialize} err3a copts
     list $err3 $err3a
 }} "foo {MIME-Version: 1.0\r
+Message-ID: <fb8bfc091f5ff55264834b7ea21278fbcb7bf875b20ddeae2f5e4eb662de2129@|>\r
+Content-ID: <2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae@|>\r
 Content-Type: text/plain\r
 \r
 foo}"
@@ -277,215 +296,218 @@ foreach name {file chan} {
     test mime-3.7.$name {Test mime with a bad email [SF Bug 631314 ]} {cleanly {
 	with.$name $tcltest::testsDirectory/badmail1.txt {
 	    set res {}
-	    set ctok [lindex [mime::property $tok parts] 0]
-	    lappend res [dictsort [mime::property $tok]]
-	    lappend res [dictsort [mime::property $ctok]]
-	    mime::finalize $tok
+	    lappend res [llength [$tok property parts]]
+	    set ctok [lindex [$tok property parts] 0]
+	    lappend res [dictsort [$tok property]]
+	    lappend res [dictsort [$ctok property]]
+	    $tok .destroy
 	    string map [list $ctok CHILD] $res
 	}
-    }} {{content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {} size 0}}
+    }} {1 {content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {} size 0}}
+}
 
-    test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {cleanly {
+foreach name {file chan} {
+
+    test mime-3.8.1.$name {Test mime with another bad email [SF Bug 631314 ]} -body {cleanly {
 	with.$name $tcltest::testsDirectory/badmail2.txt {
+	    set ctok [lindex [$tok property parts] 0]
+	}
+    }} -returnCodes 1 -result {end-of-string encountered while parsing multipart/form-data}
+}
+
+foreach name {file chan} {
+
+    test mime-3.8.2.$name {Test mime with another bad email [SF Bug 631314 ]} {cleanly {
+	with.$name $tcltest::testsDirectory/badmail2.txt -relax finalboundary {
 	    set res {}
-	    set ctok [lindex [mime::property $tok parts] 0]
-	    lappend res [dictsort [mime::property $tok]]
-	    lappend res [dictsort [mime::property $ctok]]
-	    mime::finalize $tok
+	    set ctok [lindex [$tok property parts] 0]
+	    lappend res [dictsort [$tok property]]
+	    lappend res [dictsort [$ctok property]]
+	    $tok .destroy
 	    string map [list $ctok CHILD] $res
 	}
-    }} {{content multipart/related encoding {} params {boundary ----=_NextPart_000_0000_2CBA2CBA.150C56D2} parts CHILD size 659} {content application/octet-stream encoding base64 params {} size 659}}
+    }} {{content multipart/related encoding {} params {boundary ----=_NextPart_000_0000_2CBA2CBA.150C56D2} parts CHILD size 879} {content text/html encoding base64 params {} size 879}}
 }
 
 
-
-
-test mime-3.9 {Parse a MIME message with a charset encoded body and use [body] -decode to get it back} {cleanly {
+test mime-3.9 {Parse a MIME message with a charset encoded body and use [body decoded] to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 
 Fran\xE7ois
 }
-    set tok [mime::initialize -string $msg]
-    mime::body $tok -decode
+    set tok [.new {} -string $msg]
+    [$tok body decoded] read
 }} {Fran\xE7ois
 }
 
 
-test mime-3.10 {Parse a MIME message with a charset encoded body and use [body] -decode to get it back (example from encoding man page)} {cleanly {
+test mime-3.10 {Parse a MIME message with a charset encoded body and use [body decoded] to get it back (example from encoding man page)} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=EUC-JP
 Content-Transfer-Encoding: quoted-printable
 
 =A4=CF}
-    set tok [mime::initialize -string $msg]
-    mime::body $tok -decode
+    set tok [.new {} -string $msg]
+    [$tok body decoded] read
 }} \u306F
 
 
-test mime-3.11 {Parse a MIME message without a charset encoded body and use [body] -decode to get it back} {cleanly {
+test mime-3.11 {Parse a MIME message without a charset encoded body and use [body decoded] to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
 A plain text message.}
-    set tok [mime::initialize -string $msg]
-    mime::body $tok -decode
+    set tok [.new {} -string $msg]
+    [$tok body decoded] read
 }} {A plain text message.}
 
 
-test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use [body] -decode to attempt to get it back} {cleanly {
+test mime-3.12 {Parse a MIME message with a charset encoded body in an unrecognised charset and use [body decoded] to attempt to get it back} {cleanly {
     set msg {MIME-Version: 1.0
 Content-Type: text/plain; charset=SCRIBBLE
 Content-Transfer-Encoding: quoted-printable
 
 This is a message in the scribble charset that tcl does not recognise.}
-    set tok [mime::initialize -string $msg]
-    catch {mime::body $tok -decode} errmsg
-    set errmsg
-}} {{-decode cannot reversemap charset} SCRIBBLE}
+    set tok [.new {} -string $msg]
+    lappend res [$tok header get content-type]
+    lappend res [[$tok body decoded] configure -encoding]
+    catch {[$tok body decoded] read} errmsg
+    lappend res $errmsg
+}} {{text/plain {charset SCRIBBLE}} binary {This is a message in the scribble charset that tcl does not recognise.}}
 
 
-test mime-3.13 {Parse a MIME message with a charset encoded body in an unrecognised charset but don't use -decode so we get it back raw} {cleanly {
-    set msg {MIME-Version: 1.0
-Content-Type: text/plain; charset=SCRIBBLE
-Content-Transfer-Encoding: quoted-printable
 
-This is a message in the scribble charset that tcl does not recognise.}
-    set tok [mime::initialize -string $msg]
-    mime::body $tok
-}} {This is a message in the scribble charset that tcl does not recognise.}
-
-
-test mime-4.1 {Test qp_encode with a > 76 character string containing special chars.} {cleanly {
+test mime-4.1 {Test qp::encode with a > 76 character string containing special chars.} {cleanly {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\""
-    mime::qp_encode $str1
+    qp encode $str1
 }} "foo=21=22\t barbaz =24 =60 =7B =23 jack and jill went up a hill to fetch a=\n pail of water. Jack fell down and said =21=22=23=24=40=5B=5C=5D=5E=60=7B=\n=7C=7D=7E =20\nJill said, =22Oh my=22"
 
 
 test mime-4.2 {Check that encode/decode yields original string} {cleanly {
     set str1 "foo!\"\t barbaz \$ ` \{ # jack and jill went up a hill to fetch a pail of water. Jack fell down and said !\"\#\$@\[\\\]^`\{\|\}\~  \nJill said, \"Oh my\"  "
-    set enc [mime::qp_encode $str1]
-    set dec [mime::qp_decode $enc]
+    set enc [qp encode $str1]
+    set dec [qp decode $enc]
     string equal $dec $str1
 }} 1
 
 
-test mime-4.3 {mime::decode data that might come from an MUA} {cleanly {
+test mime-4.3 {decode data that might come from an MUA} {cleanly {
     set enc "I'm the =22 message =\nwith some new lines=  \n but with some extra space, too.   "
-    mime::qp_decode $enc
+    qp decode $enc
 }} "I'm the \" message with some new lines but with some extra space, too."
 
 
-test mime-4.4 {Test qp_encode with non-US_ASCCI characters.} {cleanly {
+test mime-4.4 {Test qp::encode with non-US_ASCCI characters.} {cleanly {
     set str1 "Test de caractères accentués : â î é ç et quelques contrôles \"\[|\]()\""
-    mime::qp_encode $str1
+    qp encode $str1
 }} "Test de caract=E8res accentu=E9s : =E2 =EE =E9 =E7 et quelques contr=F4le=\ns =22=5B=7C=5D()=22"
 
 
-test mime-4.5 {Test qp_encode with softbreak} {cleanly {
+test mime-4.5 {Test qp::encode with softbreak} {cleanly {
     set str1 [string repeat abc 40]
-    mime::qp_encode $str1
+    qp encode $str1
 }} "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca=
 bcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
 
 
-test mime-4.6 {Test qp_encode with softbreak} {cleanly {
+test mime-4.6 {Test qp::encode with softbreak} {cleanly {
     set str1 [string repeat abc 40]
-    mime::qp_encode $str1 0 1
+    qp encode $str1 0 1
 }} [string repeat abc 40]
 
 
-test mime-4.7 {Test qp_encode/decode in encoded_word mode} {cleanly {
-    set enc [mime::qp_encode {jack and jill went up the hill} 1]
-    mime::qp_decode $enc 1
+test mime-4.7 {Test qp::encode/decode in encoded_word mode} {cleanly {
+    set enc [qp encode {jack and jill went up the hill} 1]
+    qp decode $enc 1
 }} {jack and jill went up the hill}
 
 
-test mime-4.8 {Test qp_encode in encoded_word mode with equal signs} {cleanly {
-    mime::qp_encode 1and1=2 1
+test mime-4.8 {Test qp::encode in encoded_word mode with equal signs} {cleanly {
+    qp encode 1and1=2 1
 }} 1and1=3D2
 
-test mime-4.9 {Test qp_encode in encoded_word mode with tabs and spaces} {cleanly {
-    mime::qp_encode "1 and 1 =\t2" 1
+test mime-4.9 {Test qp::encode in encoded_word mode with tabs and spaces} {cleanly {
+    qp encode "1 and 1 =\t2" 1
 }} 1_and_1_=3D=092
 
 
-test mime-4.10 {Test qp_encode in encoded_word mode with underscores} {cleanly {
-    mime::qp_encode 2003_06_30 1
+test mime-4.10 {Test qp::encode in encoded_word mode with underscores} {cleanly {
+    qp encode 2003_06_30 1
 }} 2003=5F06=5F30
 
 
-test mime-4.11 {Test qp_encode in encoded_word mode with underscores and spaces} {cleanly {
-    mime::qp_encode {2003_06_30 is 30 June 2003} 1
+test mime-4.11 {Test qp::encode in encoded_word mode with underscores and spaces} {cleanly {
+    qp encode {2003_06_30 is 30 June 2003} 1
 }} 2003=5F06=5F30_is_30_June_2003
 
 
-test mime-4.12 {Test qp_encode in encoded_word mode with question marks} {cleanly {
-    mime::qp_encode {How long is a piece of string ?} 1
+test mime-4.12 {Test qp::encode in encoded_word mode with question marks} {cleanly {
+    qp encode {How long is a piece of string ?} 1
 }} How_long_is_a_piece_of_string_=3F
 
 
-test mime-4.13 {Test qp_encode in no_softbreak mode} {cleanly {
-    mime::qp_encode {This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility} 0 1
+test mime-4.13 {Test qp::encode in no_softbreak mode} {cleanly {
+    qp encode {This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility} 0 1
 }} {This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility}
  
 
 
 test mime-5.1 {Test word_encode with quoted-printable method} {cleanly {
-    mime::word_encode iso8859-1 quoted-printable {Test de contrôle effectué}
+    word_encode iso8859-1 quoted-printable {Test de contrôle effectué}
 }} =?ISO-8859-1?Q?Test_de_contr=F4le_effectu=E9?=
 
 
 test mime-5.2 {Test word_encode with base64 method} {cleanly {
-    mime::word_encode iso8859-1 base64 {Test de contrôle effectué}
+    word_encode iso8859-1 base64 {Test de contrôle effectué}
 }} =?ISO-8859-1?B?VGVzdCBkZSBjb250cvRsZSBlZmZlY3R16Q==?=
 
 
 test mime-5.3 {Test encode+decode with quoted-printable method} {cleanly {
-    set enc [mime::word_encode iso8859-1 quoted-printable {Test de contrôle effectué}]
-    mime::word_decode $enc
+    set enc [word_encode iso8859-1 quoted-printable {Test de contrôle effectué}]
+    word_decode $enc
 }} {iso8859-1 quoted-printable {Test de contrôle effectué}}
 
 
 test mime-5.4 {Test encode+decode with base64 method} {cleanly {
-    set enc [mime::word_encode iso8859-1 base64 {Test de contrôle effectué}]
-    mime::word_decode $enc
+    set enc [word_encode iso8859-1 base64 {Test de contrôle effectué}]
+    word_decode $enc
 }} {iso8859-1 base64 {Test de contrôle effectué}}
 
 
 test mime-5.5 {Test decode with lowercase quoted-printable method} {cleanly {
-	mime::word_decode =?ISO-8859-1?q?Test_lowercase_q?=
+	word_decode =?ISO-8859-1?q?Test_lowercase_q?=
 }} {iso8859-1 quoted-printable {Test lowercase q}}
 
 
 test mime-5.6 {Test decode with lowercase base64 method} {cleanly {
-	mime::word_decode =?ISO-8859-1?b?VGVzdCBsb3dlcmNhc2UgYg==?=
+	word_decode =?ISO-8859-1?b?VGVzdCBsb3dlcmNhc2UgYg==?=
 }} {iso8859-1 base64 {Test lowercase b}}
 
 
 test mime-5.7 {Test word_encode with quoted-printable method across encoded word boundaries} {cleanly {
-    mime::word_encode iso8859-1 quoted-printable {Test de contrôle effectué} -maxlength 31
+    word_encode iso8859-1 quoted-printable {Test de contrôle effectué} -maxlength 31
 }} "=?ISO-8859-1?Q?Test_de_contr?=
  =?ISO-8859-1?Q?=F4le_effectu?=
  =?ISO-8859-1?Q?=E9?="
 
 
 test mime-5.8 {Test word_encode with quoted-printable method across encoded word boundaries} {cleanly {
-    mime::word_encode iso8859-1 quoted-printable {Test de contrôle effectué} -maxlength 32
+    word_encode iso8859-1 quoted-printable {Test de contrôle effectué} -maxlength 32
 }} "=?ISO-8859-1?Q?Test_de_contr?=
  =?ISO-8859-1?Q?=F4le_effectu?=
  =?ISO-8859-1?Q?=E9?="
 
 
 test mime-5.9 {Test word_encode with quoted-printable method and multibyte character} {cleanly {
-    mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF"
+    word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF"
 }} =?EUC-JP?Q?Following_me_is_a_multibyte_character_=A4=CF?=
 
 set n 10
 while {$n < 14} {
     test mime-5.$n {Test word_encode with quoted-printable method and multibyte character across encoded word boundary} {cleanly {
-	mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
+	word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
     }} "=?EUC-JP?Q?Following_me_is_a_multibyte_character_?=
  =?EUC-JP?Q?=A4=CF?="
     incr n
@@ -493,13 +515,13 @@ while {$n < 14} {
 
 
 test mime-5.14 {Test word_encode with quoted-printable method and multibyte character (triple)} {cleanly {
-    mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF"
+    word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF"
 }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?=
 
 set n 15
 while {$n < 23} {
     test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
-	mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+	word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
     }} "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
  =?UTF-8?Q?=E3=81=AF?="
     incr n
@@ -507,14 +529,14 @@ while {$n < 23} {
 
 while {$n < 25} {
     test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {cleanly {
-	mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+	word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
     }} =?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?=
     incr n
 }
 
 while {$n < 29} {
     test mime-5.$n {Test word_encode with base64 method across encoded word boundaries} {cleanly {
-	mime::word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
+	word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
     }} "=?EUC-JP?B?VGhlcmUgaXMgYSBtdWx0aWJ5dGUgY2hhcmFjdGVy?=
  =?EUC-JP?B?IKTP?="
     incr n
@@ -522,7 +544,7 @@ while {$n < 29} {
 
 while {$n < 33} {
     test mime-5.$n {Test word_encode with base64 method and triple byte character across encoded word boundary} {cleanly {
-	mime::word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
+	word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
     }} "=?UTF-8?B?SGVyZSBpcyBhIG11bHRpYnl0ZSBjaGFyYWN0ZXIg?=
  =?UTF-8?B?44Gv?="
     incr n
@@ -530,95 +552,95 @@ while {$n < 33} {
 
 
 test mime-5.33 {Test word_encode with quoted-printable method and -maxlength set to same length as will the result} {cleanly {
-    mime::word_encode iso8859-1 quoted-printable 123 -maxlength 20
+    word_encode iso8859-1 quoted-printable 123 -maxlength 20
 }} =?ISO-8859-1?Q?123?=
 
 
 test mime-5.34 {Test word_encode with base64 method and -maxlength set to same length as will the result} {cleanly {
-    mime::word_encode iso8859-1 base64 123 -maxlength 21
+    word_encode iso8859-1 base64 123 -maxlength 21
 }} =?ISO-8859-1?B?MTIz?=
 
 
 test mime-5.35 {Test word_encode with quoted-printable method and non charset encoded string} {cleanly {
-    mime::word_encode utf-8 quoted-printable \u306F -charset_encoded 0
+    word_encode utf-8 quoted-printable \u306F -charset_encoded 0
 }} =?UTF-8?Q?=E3=81=AF?=
 
 
 test mime-5.36 {Test word_encode with base64 method and non charset encoded string} {cleanly {
-    mime::word_encode utf-8 base64 \u306F -charset_encoded 0
+    word_encode utf-8 base64 \u306F -charset_encoded 0
 }} =?UTF-8?B?44Gv?=
 
 
 test mime-5.36 {Test word_encode with base64 method and one byte} {cleanly {
-    mime::word_encode iso8859-1 base64 a
+    word_encode iso8859-1 base64 a
 }} =?ISO-8859-1?B?YQ==?=
 
 
 test mime-5.37 {Test word_encode with base64 method and two bytes} {cleanly {
-    mime::word_encode euc-jp base64 \xA4\xCF
+    word_encode euc-jp base64 \xA4\xCF
 }} =?EUC-JP?B?pM8=?=
 
 
 test mime-5.38 {Test word_encode with unknown charset} {cleanly {
-    catch {mime::word_encode scribble  quoted-printable {scribble is an unknown charset}} errmsg
+    catch {word_encode scribble  quoted-printable {scribble is an unknown charset}} errmsg
     set errmsg
 }} {{unknown charset} scribble}
 
 
 test mime-5.39 {Test word_encode with invalid charset} {cleanly {
-    catch {mime::word_encode unicode quoted-printable {unicode is not a valid charset}} errmsg
+    catch {word_encode unicode quoted-printable {unicode is not a valid charset}} errmsg
     set errmsg
 }} {{invalid charset} unicode}
 
 
 test mime-5.40 {Test word_encode with invalid method} {cleanly {
-    catch {mime::word_encode iso8859-1 tea-leaf {tea-leaf is not a valid method}} errmsg
+    catch {word_encode iso8859-1 tea-leaf {tea-leaf is not a valid method}} errmsg
     set errmsg
 }} {{unknown method} tea-leaf {must be one of} {base64 quoted-printable}}
 
 
 test mime-5.41 {Test word_encode with maxlength to short for method quoted-printable} {cleanly {
-    catch {mime::word_encode iso8859-1 quoted-printable 1 -maxlength 17} errmsg
+    catch {word_encode iso8859-1 quoted-printable 1 -maxlength 17} errmsg
     set errmsg
 }} {maxlength 17 {too short for chosen charset and encoding}}
 
 
 test mime-5.42 {Test word_encode with maxlength on the limit for quoted_printable and an unquoted character} {cleanly {
-   catch {mime::word_encode iso8859-1 quoted-printable _ -maxlength 20} errmsg
+   catch {word_encode iso8859-1 quoted-printable _ -maxlength 20} errmsg
    set errmsg
 }} =?ISO-8859-1?Q?=5F?=
 
 
 test mime-5.43 {Test word_encode with maxlength to short for method quoted_printable and a character to be quoted} {cleanly {
-   catch {mime::word_encode iso8859-1 quoted-printable = -maxlength 18} errmsg
+   catch {word_encode iso8859-1 quoted-printable = -maxlength 18} errmsg
    set errmsg
 }} {maxlength 18 {too short for chosen charset and encoding}}
 
 
 test mime-5.44 {Test word_encode with maxlength to short for method quoted-printable and multibyte character} {cleanly {
-    catch {mime::word_encode euc-jp quoted-printable \xA4\xCF -maxlength 17} errmsg
+    catch {word_encode euc-jp quoted-printable \xA4\xCF -maxlength 17} errmsg
     set errmsg
 }} {maxlength 17 {too short for chosen charset and encoding}}
 
 
 test mime-5.45 {Test word_encode with maxlength to short for method base64} {cleanly {
-    catch {mime::word_encode iso8859-1 base64 1 -maxlength 20} errmsg
+    catch {word_encode iso8859-1 base64 1 -maxlength 20} errmsg
     set errmsg
 }} {maxlength 20 {too short for chosen charset and encoding}}
 
 
 test mime-6.1 {Test field_decode (from RFC 2047, part 8)} {cleanly {
-    mime::field_decode {=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>}
+    field_decode {=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>}
 }} {Keith Moore <moore@cs.utk.edu>}
 
 
 test mime-6.2 {Test field_decode (from RFC 2047, part 8)} {cleanly {
-    mime::field_decode {=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>}
+    field_decode {=?ISO-8859-1?Q?Patrik_F=E4ltstr=F6m?= <paf@nada.kth.se>}
 }} {Patrik Fältström <paf@nada.kth.se>}
 
 
 test mime-6.3 {Test field_decode (from RFC 2047, part 8)} {cleanly {
-    mime::field_decode {=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+    field_decode {=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
 			=?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=}
 }} {If you can read this you understand the example.}
 
@@ -646,7 +668,7 @@ foreach {n encoded expected} {
     {}
 } {
     test mime-6.$n {Test field_decode (from RFC 2047, part 8)} {cleanly {
-	mime::field_decode $encoded
+	field_decode $encoded
     }} $expected ; # {}
 }
 
@@ -654,20 +676,20 @@ foreach {bug n encoded expected} {
     764702 1 {(=?utf-8?Q?H=C3=BCrz?=)} {(Hürz)}
 } {
     test mime-7.$n "Test field_decode (from SF Tcllib bug $bug)" {cleanly {
-	mime::field_decode $encoded
+	field_decode $encoded
     }} $expected ; # {}
 }
 
 
 test mime-8.1 {Test reversemapencoding+mapencoding with preferred name} {cleanly {
-    set charset [mime::reversemapencoding US-ASCII]
-    mime::mapencoding $charset
+    set charset [reversemapencoding US-ASCII]
+    mapencoding $charset
 }} US-ASCII
 
 
 test mime-8.2 {Test reversemapencoding+mapencoding with alias} {cleanly {
-    set charset [mime::reversemapencoding UTF8]
-    mime::mapencoding $charset
+    set charset [reversemapencoding UTF8]
+    mapencoding $charset
 }} UTF-8
 
 
@@ -677,18 +699,18 @@ foreach name {file chan} {
 	set mi [makeFile {} mime.txt]
 
 	with.$name $in -canonical text/plain {
-	    set f [open $mi w]
-	    fconfigure $f -translation binary
-	    mime::serialize $tok -chan $f
-	    close $f
+	    ::tcllib::chan::base .new chan1 [open $mi w]
+	    chan1 configure -translation binary
+	    $tok serialize -chan chan1 
+	    chan1 close
 
 	    with.$name $mi {
-		set newdata [mime::body $tok]
+		set newdata [[$tok body raw] read]
 		set res [string compare $data $newdata]
 
 		removeFile input.txt
 		removeFile mime.txt
-		unset data newdata tok f in mi
+		unset data newdata tok in mi
 		set res
 	    }
 	}
@@ -707,9 +729,9 @@ foreach {n stamp date} {
 } {
     test mime-10.$n "Test formatting dates (RFC 822)" {
 	# To verify that clock scan gets the expected value.
-	set stamp_test [expr {[mime::datetime $date clock] - $epoch}]
+	set stamp_test [expr {[datetime $date clock] - $epoch}]
 	# Parse and re-format should get us the original.
-	set parsed_test [mime::datetime $date proper]
+	set parsed_test [datetime $date proper]
 	list $stamp_test $parsed_test
     } [list $stamp $date]
 }
@@ -744,20 +766,22 @@ BGRzcwEAAQABAAAAYQAAAAAAAAAAAAAAAAAAACQAAAD+//7/+/8wNzA2MTYwODE1MjQwNzA2
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ
 --------------090305080603000703000106--
 } mail_part]
-    set token [mime::initialize -file $in]
-    set allparts [mime::property $token parts]
+    set token [.new {} -file $in]
+    set allparts [$token property parts]
     set attachment [lindex $allparts 1]
 
     set out [makeFile {} mail_att]
-    set ofh [open $out w]
-    fconfigure $ofh -translation binary
-    mime::serialize $attachment -chan $ofh -level 1
-    close $ofh
+    ::tcllib::chan::base .new chan1 [open $out w]
+    chan1 configure -translation binary
+    $attachment serialize -chan chan1 -level 1
+    chan1 close
 
     set data [viewFile $out]
     file delete $in $out
     set data
-}} {Content-Type: application/octet-stream
+}} {Message-ID: <f60c78370648168a30158b8cda876db2f875d1531e86e5594c5a108dcf5209db@|>
+Content-ID: <93755e1312eacd488b6170673caa5e7a9a9445ce82ff11c934055bd1f907b229@|>
+Content-Type: application/octet-stream
 	; name=a0036.dss
 Content-Disposition: attachment
 	; filename=a0036.dss
@@ -770,7 +794,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ}
 
 
 test mime-12.0 {Bug 3483716} {cleanly {
-    set token [mime::initialize -string {Content-Type: message/delivery-status; name="deliverystatus.txt"
+    set token [.new {} -string {Content-Type: message/delivery-status; name="deliverystatus.txt"
 Content-Disposition: attachment; filename="deliverystatus.txt"; size=138;
 creation-date="Thu, 02 Feb 2012 13:50:05 GMT";
 modification-date="Thu, 02 Feb 2012 13:50:05 GMT"
@@ -781,8 +805,8 @@ T3JpZ2luYWwtUmVjaXBpZW50OiA8L2ZheD1ibHViYkBndW1taS5ib290PgpBY3Rpb246IGZhaWxl
 ZApEaWFnbm9zdGljLUNvZGU6IHNtdHA7IDU1MCAjNS4xLjAgQWRkcmVzcyByZWplY3RlZC4KUmVt
 b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 }]
-    set parts [mime::property $token parts]
-    set result [mime::header get [lindex $parts end] Remote-MTA]
+    set parts [$token property parts]
+    set result [[lindex $parts end] header get Remote-MTA]
     return $result
 }} {53.24.282.150 {}}
 
@@ -798,8 +822,8 @@ Content-Type: text/plain\r
 so plain
 "
 
-    set tok [mime::initialize -string $msg]
-	mime::body $tok
+    set tok [.new {} -string $msg]
+    [$tok body raw] read 
 } "so plain\n"
 
 # -------------------------------------------------------------------------
@@ -807,7 +831,7 @@ so plain
 test mime-14.0 {cleanly {
 	hostname argument to parseaddress
 }} {
-	set parsed [mime::parseaddress hostname fakedomain.fake {Here <h>}] 
+	set parsed [parseaddress hostname fakedomain.fake {Here <h>}] 
     list [llength $parsed] [lindex $parsed 0]
 } [list 1 [list address h@fakedomain.fake comment {} domain {} error {} \
 	friendly Here group {} local h memberP 0 phrase Here \
@@ -818,7 +842,7 @@ test mime-14.0 {cleanly {
 test mime-14.1 {cleanly {
 	special characters in local part
 }} {
-	set parsed [mime::parseaddress hostname fakedomain.fake foo<>bar@grill.com]
+	set parsed [parseaddress hostname fakedomain.fake foo<>bar@grill.com]
     list [llength $parsed] [lindex $parsed 0]
 } [list 1 [list address {} comment {} domain {} \
 	error {expecting mailbox in local-part (found >)} friendly foo group {} \
@@ -827,7 +851,7 @@ test mime-14.1 {cleanly {
 test mime-14.2 {cleanly {
 	special characters in local part
 }} {
-	set parsed [mime::parseaddress hostname fakedomain.fake {"foobar"@grill.com}]
+	set parsed [parseaddress hostname fakedomain.fake {"foobar"@grill.com}]
     list [llength $parsed] [lindex $parsed 0]
 } [list 1 [
     list address {"foobar"@grill.com} comment {} domain grill.com error {} \
@@ -847,8 +871,8 @@ Content-Type: multipart/mixed; boundary=\"something\"\r
 so plain
 "
 
-    set tok [mime::initialize -string $msg]
-    mime::header get $tok
+    set tok [.new {} -string $msg]
+    $tok header get
 } [list Content-Type {multipart/mixed {boundary something}}]
 
 
@@ -866,8 +890,8 @@ Content-Disposition: attachment
 so plain
 "
 
-    set tok [mime::initialize -string $msg]
-	mime::header get $tok
+    set tok [.new {} -string $msg]
+    $tok header get
 } [list Content-Type {text/plain {}} Content-Disposition [
     list attachment [list param1 {a parameter value} \
 	param2 {another parameter value}]]]
@@ -877,23 +901,24 @@ set char [encoding convertfrom utf-8 \xE3\x81\xAF]
 test mime-16.1 {cleanly {
 }} {
     set res {}
-    set mime [mime::initialize -canonical text/plain -string {dawg one}]
-    mime::header set $mime Content-Disposition attachment [list param1 $char]
-    set msg [mime::serialize $mime]
-    regsub {(Content-ID: <).*(>)} $msg {\1\2} msg
+    set mime [.new {} -canonical text/plain -string {dawg one}]
+    $mime header set Content-Disposition attachment [list param1 $char]
+    set msg [$mime serialize]
     lappend res $msg
-    set mime2 [mime::initialize -string $msg]
-    lappend res [mime::header get $mime2]
+    set mime2 [.new {} -string $msg]
+    lappend res [$mime2 header get]
     return $res
 
 } [list "MIME-Version: 1.0\r
-Content-ID: <>\r
+Message-ID: <c7aa6d4b48aa9fcfe18d9c24adf71de96efbaaf2e261eb1de738ef45f453d1a4@|>\r
+Content-ID: <086570e97284c5bc5145f32689a5342363b10b64963446293b83930fa8a9fa45@|>\r
 Content-Type: text/plain\r
 Content-Disposition: attachment\r
 	; param1*0*=utf-8''%E3%81%AF\r
 \r
 dawg one" \
-[list Content-ID {<> {}} Content-Type {text/plain {}} \
+[list Content-ID {<086570e97284c5bc5145f32689a5342363b10b64963446293b83930fa8a9fa45@|> {}} Content-Type {text/plain {}} \
+    Message-ID {<c7aa6d4b48aa9fcfe18d9c24adf71de96efbaaf2e261eb1de738ef45f453d1a4@|> {}} \
     Content-Disposition [list attachment [list param1 $char]]]
 
 ]
@@ -902,67 +927,88 @@ dawg one" \
 # -------------------------------------------------------------------------
 
 test mime-17.1 {header parsing} {cleanly {
-    set mime [mime::initialize -string {Content-Type: text/html}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html}]
+    $mime header get Content-Type
 }} {text/html {}}
 
 
 test mime-17.2 {header parsing} {cleanly {
-    set mime [mime::initialize -string {Content-Type: text/html; charset=iso-8859-1}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html; charset=iso-8859-1}]
+    $mime header get Content-Type
 }} {text/html {charset iso-8859-1}}
 
 
 test mime-17.3 {header parsing} {
-    set mime [mime::initialize -string {Content-Type: text/html; charset='iso-8859-1'}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html; charset='iso-8859-1'}]
+    $mime header get Content-Type
 } {text/html {charset 'iso-8859-1'}}
 
 
 test mime-17.4 {header parsing} {
-    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html; charset="iso-8859-1"}]
+    $mime header get Content-Type
 } {text/html {charset iso-8859-1}}
 
 
 test mime-17.5 {header parsing} -body {
-    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"; ignored}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html; charset="iso-8859-1"; ignored}]
+    $mime header get Content-Type
 } -returnCodes 1 -result {expecting = found end-of-input}
 
 
 test mime-17.6 {header parsing} -body {
-    set mime [mime::initialize -string {Content-Type: text/html; charset="iso-8859-1"morecrap}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: text/html; charset="iso-8859-1"morecrap}]
+    $mime header get Content-Type
 } -returnCodes 1 -result {expecting = found end-of-input}
 
 
 test mime-17.7 {header parsing} {
-    set mime [mime::initialize -string {Content-Type: test/test; foo="bar\"baz\""}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: test/test; foo="bar\"baz\""}]
+    $mime header get Content-Type
 } [list test/test [list foo bar"baz"]]
 
 
 test mime-17.8 {header parsing} {
-    set mime [mime::initialize -string {Content-Type: test/test; foo=""}]
-    mime::header get $mime Content-Type
+    set mime [.new {} -string {Content-Type: test/test; foo=""}]
+    $mime header get Content-Type
 } {test/test {foo {}}}
 
 
 test mime-17.9 {
     header supplied by a component message, retrieved by lowercase name
 } {
-    set mime [mime::initialize -string {Content-Disposition: form-data; name="field2"}]
-    mime::header get $mime content-disposition 
+    set mime [.new {} -string {Content-Disposition: form-data; name="field2"}]
+    $mime header get content-disposition 
 } {form-data {name field2}}
 
 
 test mime-17.10 {
     Content-Type is not automatically added to a subordinate
 } {
-    set mime [mime::initialize -string {Content-Disposition: form-data; name="field2"}]
-    mime::header get $mime content-disposition 
+    set mime [.new {} -string {Content-Disposition: form-data; name="field2"}]
+    $mime header get content-disposition 
 } {form-data {name field2}}
+
+
+test mime-18.1 {
+    non-seekable channel
+} {
+    set script [list puts -nonewline $message1]
+    set chan [open |[list [info nameofexecutable] <<$script]]
+    tcllib::chan::base .new chan1 $chan
+    set mime [.new {} -spec http -chan chan1]
+    $mime serialize
+} "Content-Type: text/plain\r
+\r
+I'm the message."
+
+test mime-19.1 {
+    -http
+} {
+    set mime [.new {} -spec http -string {}]
+    $mime serialize
+} "\r
+"
 
 
 
@@ -972,7 +1018,7 @@ set [namespace current]::done 1
 return
 }
 
-after 0 [list ::coroutine [info cmdcount]_main [namespace current]::main]
+after 0 [list ::coroutine [info cmdcount]_main [namespace which main]]
 vwait [namespace current]::done
 return
 

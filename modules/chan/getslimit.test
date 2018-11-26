@@ -1,0 +1,76 @@
+#! /usr/bin/tclsh
+
+source [file join \
+	[file dirname [file dirname [file dirname [
+	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 1.0-
+
+package require {chan base}
+package require {chan getslimit}
+
+package require tcl::chan::memchan 
+package require tcl::chan::string 
+namespace import ::tcllib::chan::getslimit
+
+proc main {} {
+    variable done
+    set data1 abcdefghijklmnopqrstuvwxyz
+
+    test getslimit-configure {} -body {
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::memchan] -getslimit 33
+	chan1 configure -getslimit
+    } -cleanup {
+	rename chan1 {}
+    } -result 33
+
+
+    test getslimit-under {
+    } -body {
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::string $data1] -getslimit 1000
+	chan1 gets
+    } -cleanup {
+	rename chan1 {}
+    } -result $data1
+
+
+    test getslimit-exceeded {
+    } -body {
+	::tcllib::chan::base .new chan1
+	getslimit chan1 
+	chan1 .init [::tcl::chan::string [
+	    string repeat $data1 100]] -getslimit 10
+	chan1 gets
+    } -cleanup {
+	rename chan1 {}
+    } -result {abcdefghij}
+
+    test getslimit-read {
+	read is unaffacted by the limit
+    } -body {
+	::tcllib::chan::base .new chan1
+	getslimit chan1
+	chan1 .init [::tcl::chan::string $data1]
+	chan1 configure -getslimit 10
+	lappend res [chan1 read 15]
+	lappend res [chan1 read 3]
+	lappend res [chan1 read 1]
+	lappend res [chan1 read]
+	lappend res [chan1 eof]
+	lappend res [chan1 read]
+	lappend res [chan1 eof]
+    } -cleanup {
+	rename chan1 {}
+    } -result {abcdefghijklmno pqr s tuvwxyz 1 {} 1}
+
+    testsuiteCleanup
+    set done 1 
+}
+
+after 0 coroutine [info cmdcount]_main main  
+vwait [namespace current]::done

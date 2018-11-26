@@ -1,0 +1,34 @@
+#! /usr/bin/tclsh
+
+source [file join \
+	[file dirname [file dirname [file dirname [
+	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 1.0-
+
+package require {chan base}
+package require {chan coroutine}
+package require tcl::chan::string 
+
+
+proc main {} {try {
+    variable done
+
+    test getslimit-configure {} -body {
+	::tcllib::chan::base .new chan1
+	::tcllib::chan::coroutine chan1
+	chan1 .init [::tcl::chan::string \
+	    {Curiosity governs the first moment}]
+	chan1 read
+    } -cleanup {
+	rename chan1 {}
+    } -result {Curiosity governs the first moment} 
+
+    testsuiteCleanup
+} finally {
+    set done 1
+}}
+
+after 0 coroutine [info cmdcount]_main main  
+vwait [namespace current]::done
