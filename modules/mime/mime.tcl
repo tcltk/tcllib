@@ -1001,7 +1001,7 @@ proc ::mime::contenttype _ {
 
 proc ::mime::cookie_delete {_ name args} {
     # this -expires overrides any that might be in $args
-    $_ cookie set -value {} {*}$args -expires [
+    $_ cookie set value {} {*}$args expires [
 	format 0 -timezone :UTC -format {%a, %d %b %Y %H:%M:%S %z}]
     return
 }
@@ -1014,36 +1014,47 @@ proc ::mime::cookie_delete {_ name args} {
 #
 # Arguments:
 #	args	Name value pairs, where the names are:
-#		-name	Cookie name
-#		-value	Cookie value
-#		-path	Path restriction
-#		-domain	domain restriction
-#		-expires	Time restriction
+#		name		Cookie name
+#		value		Cookie value
+#		?path?		Path restriction
+#		?domain?	domain restriction
+#		?expires?	Time restriction
 #
 # Side Effects:
 #	Formats and stores the Set-Cookie header for the reply.
 
-proc ::mime::cookie_set {_ args} {
-    array set opt $args
-    set line "$opt(-name)=$opt(-value) ;"
-    foreach extra {path domain} {
-	if {[info exists opt(-$extra)]} {
-	    append line " $extra=$opt(-$extra) ;"
-	}
-    }
-    if {[info exists opt(-expires)]} {
-	switch -glob -- $opt(-expires) {
-	    *GMT {
-		set expires $opt(-expires)
+proc ::mime::cookie_set {_ name value args} {
+    dict size $args
+    foreach {key val} $args {
+	switch $key {
+	    domain - expires - path {
+		set $key $val
 	    }
 	    default {
-		set expires [clock format [datetimescan $opt(-expires)] \
+		error [list {wrong # args} {should be} \
+		    {name value ?path path? ?domain domain? ?expires expires?}]
+	    }
+	}
+    }
+    set line "$name=$value ;"
+    foreach extra {path domain} {
+	if {[info exists $extra]} {
+	    append line " $extra=[set $extra] ;"
+	}
+    }
+    if {[info exists expires]} {
+	switch -glob $expires {
+	    *GMT {
+		# do nothing
+	    }
+	    default {
+		set expires [clock format [datetimescan $expires] \
 		    -format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
 	    }
 	}
 	append line " expires=$expires ;"
     }
-    if {[info exists opt(-secure)]} {
+    if {[info exists secure]} {
 	append line " secure "
     }
     $_ header set Set-Cookie $line {}
@@ -2581,6 +2592,7 @@ proc ::mime::initializeaux {_ args} {
     set state(size) 0
     set state(usemem) 0 
     set state(version) 1.0
+	set state(warnings) {}
 
     set userparams 0
 
@@ -2879,7 +2891,8 @@ proc ::mime::parsepartaux _ {
     if {[dict exists $params charset]} {
 	set charset [reversemapencoding [dict get $params charset]]
 	if {$charset eq {}} {
-	    puts stderr [list {unknown charset} [
+		upvar 0 state(warnings) warnings
+		lappend warnings [list {unknown charset} [
 		dict get $params charset] {using binary translation instead}]
 	    # but still do line automatic translation
 	    $fd configure -encoding binary -translation auto

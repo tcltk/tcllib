@@ -404,7 +404,7 @@ proc main {} {try {
 			source %s
 			source %s
 			set ncgi [ncgi .new {}]
-			$ncgi response cookie set -name CookieName -value 12345
+			$ncgi response cookie set CookieName 12345
 			$ncgi redirect %s
 			$ncgi delete
 		} err copts]} {
@@ -654,7 +654,7 @@ proc main {} {try {
 			source %s
 			source %s
 			ncgi .new ncgi1
-			ncgi1 response cookie set -name Name -value {The+Value}
+			ncgi1 response cookie set Name The+Value
 			ncgi1 header send text/html
 		} err]} {
 			puts $err
