@@ -22,15 +22,16 @@
 # @@ Meta End
 namespace eval ::oo::dialect {
   namespace export create
-}
-# Allow test rigs to overwrite the flags before invoking this script
-foreach {flag test} {
-  tip470 {package vsatisfies [package provide Tcl] 8.7}
-} {
-  if {![info exists ::oo::dialect::has($flag)]} {
-    set ::oo::dialect::has($flag) [eval $test]
+  # Allow test rigs to overwrite the flags before invoking this script
+  foreach {flag test} {
+    tip470 {package vsatisfies [package provide Tcl] 8.7}
+  } {
+    if {![info exists ::oo::dialect::has($flag)]} {
+      set ::oo::dialect::has($flag) [eval $test]
+    }
   }
 }
+
 
 proc ::oo::dialect::Push {class} {
   ::variable class_stack
