@@ -1011,6 +1011,33 @@ test mime-19.1 {
 "
 
 
+test mime-19.1 {
+	cookie serialization
+} {
+	set mime [.new {} -spec http -string {}]
+	$mime cookie set one two
+	set res [$mime serialize]
+	$mime .destroy
+	return $res
+	
+} "Set-Cookie: one=two\r
+\r
+"
+
+test mime-19.2 {
+	cookie serialization
+} {
+	set mime [.new {} -spec http -string {}]
+	$mime cookie set one two path /three/four
+	set res [$mime serialize]
+	$mime .destroy
+	return $res
+	
+} "Set-Cookie: one=two\r
+\t; path=/three/four\r
+\r
+"
+
 
 
 testsuiteCleanup

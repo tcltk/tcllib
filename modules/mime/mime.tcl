@@ -1036,10 +1036,11 @@ proc ::mime::cookie_set {_ name value args} {
 	    }
 	}
     }
-    set line "$name=$value ;"
+    set line $name=$value
+    set params {}
     foreach extra {path domain} {
 	if {[info exists $extra]} {
-	    append line " $extra=[set $extra] ;"
+	    lappend params $extra=[set $extra]
 	}
     }
     if {[info exists expires]} {
@@ -1052,12 +1053,12 @@ proc ::mime::cookie_set {_ name value args} {
 		    -format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
 	    }
 	}
-	append line " expires=$expires ;"
+	lappend params expires=$expires
     }
     if {[info exists secure]} {
-	append line " secure "
+	lappens params secure
     }
-    $_ header set Set-Cookie $line {}
+    $_ header set Set-Cookie $line $params 
     return
 }
 
@@ -2219,7 +2220,13 @@ proc ::mime::header::serialize {name value params} {
 
     set res "$name: $value"
 
-    dict for {key value} $params {
+    if {[llength $params] % 2} {
+	set extra [lindex $params end]
+	set params [lreplace $params[set params {}] end end]
+    } else {
+	set extra {}
+    }
+    foreach {key value} $params {
 	if {[regexp $notattchar_re $key]} {
 	    error [list {illegal character found in attribute name}]
 	}
@@ -2257,6 +2264,9 @@ proc ::mime::header::serialize {name value params} {
 	} else {
 	    append res "\n\t; $key=$value"
 	}
+    }
+    foreach item $extra {
+	append res "\n\t; $item"
     }
     return $res
 }
