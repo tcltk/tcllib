@@ -10,6 +10,12 @@ proc _null {args} {}
 
 proc _tcl {module libdir} {
     global distribution
+    if {![file exists [file join $distribution modules $module $module.tcl]]} {
+      if {[file exists [file join $distribution modules $module build build.tcl]]} {
+        puts "REBUILDING MODULE $module"
+        exec [info nameofexecutable] [file join $distribution modules $module build build.tcl]
+      }
+    }
     xcopy \
 	    [file join $distribution modules $module] \
 	    [file join $libdir $module] \
@@ -91,7 +97,13 @@ proc _trt {module libdir} {
 }
 
 proc _manfile {f format ext docdir} { return }
-proc _man {module format ext docdir} { return }
+proc _man {module format ext docdir} {
+  if {[file exists [file join $distribution modules $module $module.main]]} return
+  if {![file exists [file join $distribution modules $module build build.tcl]]} return
+  puts "REBUILDING MODULE $module"
+  exec [info nameofexecutable] [file join $distribution modules $module build build.tcl]
+  return
+}
 
 proc _exa {module exadir} {
     global distribution

@@ -1,7 +1,7 @@
 ###
 # A deliverable for the build system
 ###
-::oo::class create ::practcl::product {
+::clay::define ::practcl::product {
 
   method code {section body} {
     my variable code
@@ -549,10 +549,9 @@ package provide @PKG_NAME@ @PKG_VERSION@
       is_unix { return [expr {$::tcl_platform(platform) eq "unix"}] }
     }
   }
-
 }
-
 oo::objdefine ::practcl::product {
+
   method select {object} {
     set class [$object define get class]
     set mixin [$object define get product]
@@ -589,25 +588,28 @@ oo::objdefine ::practcl::product {
       }
     }
     if {$class ne {}} {
-      $object morph $class
+      $object clay mixinmap core $class
     }
     if {$mixin ne {}} {
-      $object mixin product $mixin
+      $object clay mixinmap product $mixin
     }
   }
 }
 
 ###
-# Flesh out several trivial varieties of product
+# A product which generated from a C header file. Which is to say, nothing.
 ###
-::oo::class create ::practcl::product.cheader {
+::clay::define ::practcl::product.cheader {
   superclass ::practcl::product
 
   method project-compile-products {} {}
   method generate-loader-module {} {}
 }
 
-::oo::class create ::practcl::product.csource {
+###
+# A product which generated from a C source file. Normally an object (.o) file.
+###
+::clay::define ::practcl::product.csource {
   superclass ::practcl::product
 
   method project-compile-products {} {
@@ -630,7 +632,13 @@ oo::objdefine ::practcl::product {
   }
 }
 
-::oo::class create ::practcl::product.clibrary {
+###
+# A product which is generated from a compiled C library.
+# Usually a .a or a .dylib file, but in complex cases may
+# actually just be a conduit for one project to integrate the
+# source code of another
+###
+::clay::define ::practcl::product.clibrary {
   superclass ::practcl::product
 
   method linker-products {configdict} {
@@ -639,7 +647,13 @@ oo::objdefine ::practcl::product {
 
 }
 
-::oo::class create ::practcl::product.dynamic {
+###
+# A product which is generated from C code that itself is generated
+# by practcl or some other means. This C file may or may not produce
+# its own .o file, depending on whether it is eligible to become part
+# of an amalgamation
+###
+::clay::define ::practcl::product.dynamic {
   superclass ::practcl::dynamic ::practcl::product
 
   method initialize {} {
@@ -667,7 +681,10 @@ oo::objdefine ::practcl::product {
   }
 }
 
-::oo::class create ::practcl::product.critcl {
+###
+# A binary product produced by critcl. Note: The implementation is not
+# written yet, this class does nothing.
+::clay::define ::practcl::product.critcl {
   superclass ::practcl::dynamic ::practcl::product
 }
 

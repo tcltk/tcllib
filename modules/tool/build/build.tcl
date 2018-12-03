@@ -1,7 +1,7 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.7
+set version 0.7.1
 set module [file tail $moddir]
 
 set fout [open [file join $moddir ${module}.tcl] w]
@@ -26,6 +26,10 @@ lappend loaded build.tcl
 
 # These files must be loaded in a particular order
 foreach file {
+  dicttool.tcl
+  dialect.tcl
+  oometa.tcl
+  cron.tcl
   core.tcl
   uuid.tcl
   ensemble.tcl

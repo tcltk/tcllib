@@ -9,7 +9,6 @@
 [keywords httpserver]
 [keywords services]
 [require Tcl 8.6]
-[require httpd [opt [vset VERSION]]]
 [require uuid]
 [require clay]
 [require coroutine]

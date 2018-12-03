@@ -100,10 +100,18 @@
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
 
-  Variable transfer_complete 0
+  Delegate <server> {
+    description {The server object which spawned this reply}
+  }
 
+  ###
+  # A dictionary which will converted into the MIME headers of the reply
+  ###
   Dict reply {}
 
+  ###
+  # A dictionary containing the SCGI transformed HTTP headers for the request
+  ###
   Dict request {
     CONTENT_LENGTH 0
     COOKIE {}
@@ -450,8 +458,6 @@ body {
   #     chan flush $chan
   # }]
   method TransferComplete args {
-    my variable chan transfer_complete
-    set transfer_complete 1
     my log TransferComplete
     set chan {}
     foreach c $args {

@@ -1,13 +1,15 @@
 set srcdir [file dirname [file normalize [file join [pwd] [info script]]]]
 set moddir [file dirname $srcdir]
 
-set version 0.3
+set version 0.7
 set module clay
 set filename clay
-if {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
+if {[file exists [file join $moddir .. .. scripts practcl.tcl]]} {
+  source [file join $moddir .. .. scripts practcl.tcl]
+} elseif {[file exists [file join $moddir .. practcl build doctool.tcl]]} {
   source [file join $moddir .. practcl build doctool.tcl]
 } else {
-  package require practcl 0.13
+  package require practcl 0.14
 }
 ::practcl::doctool create AutoDoc
 
@@ -57,14 +59,16 @@ namespace eval ::%module% {}
 set loaded {}
 lappend loaded build.tcl test.tcl
 
-# These files must be loaded in a particular order
 foreach file {
-  core.tcl
   procs.tcl
-  class.tcl
-  object.tcl
+  core.tcl uuid.tcl
+  dict.tcl list.tcl dictargs.tcl
+  dialect.tcl
+  dictargs.tcl
   metaclass.tcl
   ensemble.tcl
+  class.tcl
+  object.tcl
 } {
   lappend loaded $file
   set content [::practcl::cat [file join $srcdir {*}$file]]
@@ -120,6 +124,18 @@ close $fout
 namespace eval ::clay {}
 source [file join $srcdir procs.tcl]
 set fout [open [file join $moddir $filename.test] w]
+puts $fout {
+namespace eval ::oo::dialect {}
+set ::oo::dialect::has(tip470) 0
+}
+puts $fout [source [file join $srcdir test.tcl]]
+puts $fout {
+
+if {![package vsatisfies [package provide Tcl] 8.7]} {return}
+puts "Repeating tests with 8.7 features"
+namespace eval ::oo::dialect {}
+set ::oo::dialect::has(tip470) 1
+}
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
 set manout [open [file join $moddir $filename.man] w]

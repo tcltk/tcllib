@@ -1,13 +1,11 @@
 package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
-package require dicttool
+package require coroutine
 package require TclOO
 package require sha1
 #package require cron 2.0
-package require oo::meta 0.6
-package require oo::dialect
-package require clay
+#package require oo::dialect
 
-::oo::dialect::create ::tool ::clay
+::oo::dialect::create ::tool
 ::namespace eval ::tool {}
 set ::tool::trace 0
 

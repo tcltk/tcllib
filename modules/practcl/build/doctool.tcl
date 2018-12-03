@@ -94,7 +94,7 @@ proc ::putb {buffername args} {
 # puts $manout [AutoDoc manpage {*}$arglist]
 # close $manout
 ###
-oo::class create ::practcl::doctool {
+::oo::class create ::practcl::doctool {
   constructor {} {
     my reset
   }
@@ -209,6 +209,20 @@ oo::class create ::practcl::doctool {
     return $result
   }
 
+  method keyword.Annotation {resultvar commentblock type name body} {
+    upvar 1 $resultvar result
+    set name [string trim $name :]
+    if {[dict exists $result $type $name]} {
+      set info [dict get $result $type $name]
+    } else {
+      set info [my comment $commentblock]
+    }
+    foreach {f v} $body {
+      dict set info $f $v
+    }
+    dict set result $type $name $info
+  }
+
   ###
   # Process an oo::objdefine call that modifies the class object
   # itself
@@ -233,9 +247,31 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
+        variable -
+        Variable {
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list type scaler default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
         method -
         Ensemble {
-          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+          my keyword.Class_Method info $commentblock  {*}[lrange $thisline 1 end-1]
           set commentblock {}
         }
       }
@@ -267,12 +303,37 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        Option -
+        option {
+          puts [list keyword.Annotation $cmd $thisline]
+          my keyword.Annotation info $commentblock option [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
+        variable -
+        Variable {
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] [list default [lindex $thisline 2]]
+          set commentblock {}
+        }
+        Dict -
+        Array {
+          set iinfo [lindex $thisline 2]
+          dict set iinfo type [string tolower $cmd]
+          my keyword.Annotation info $commentblock variable [lindex $thisline 1] $iinfo
+          set commentblock {}
+        }
+        Componant -
+        Delegate {
+          my keyword.Annotation info $commentblock delegate [lindex $thisline 1] [lindex $thisline 2]
+          set commentblock {}
+        }
         superclass {
           dict set info ancestors [lrange $thisline 1 end]
           set commentblock {}
         }
-        class_method {
-          my keyword.class_method info $commentblock  {*}[lrange $thisline 1 end-1]
+        classmethod -
+        class_method -
+        Class_Method {
+          my keyword.Class_Method info $commentblock  {*}[lrange $thisline 1 end-1]
           set commentblock {}
         }
         destructor -
@@ -294,12 +355,15 @@ oo::class create ::practcl::doctool {
   ###
   # Process a statement for a clay style class method
   ###
-  method keyword.class_method {resultvar commentblock name args} {
+  method keyword.Class_Method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
-        dict set result class_method "${name} $method" $minfo
+        dict set result Class_Method "${name} $method" $minfo
       }
     } else {
       switch [llength $args] {
@@ -315,7 +379,7 @@ oo::class create ::practcl::doctool {
       if {![dict exists $info arglist]} {
         dict set info arglist [my arglist $arglist]
       }
-      dict set result class_method [string trim $name :] $info
+      dict set result Class_Method [string trim $name :] $info
     }
   }
 
@@ -325,6 +389,9 @@ oo::class create ::practcl::doctool {
   method keyword.method {resultvar commentblock name args} {
     upvar 1 $resultvar result
     set info [my comment $commentblock]
+    if {[dict exists $info show_body] && [dict get $info show_body]} {
+      dict set info internals [lindex $args end]
+    }
     if {[dict exists $info ensemble]} {
       dict for {method minfo} [dict get $info ensemble] {
         dict set result method "\"${name} $method\"" $minfo
@@ -394,11 +461,22 @@ oo::class create ::practcl::doctool {
       }
       set cmd [string trim [lindex $thisline 0] ":"]
       switch $cmd {
+        dictargs::proc {
+          set procinfo [my keyword.proc $commentblock [lindex $thisline 1] [list args [list dictargs [lindex $thisline 2]]]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
+          dict set info proc [string trim [lindex $thisline 1] :] $procinfo
+          set commentblock {}
+        }
         tcllib::PROC -
         PROC -
         Proc -
         proc {
           set procinfo [my keyword.proc $commentblock {*}[lrange $thisline 1 2]]
+          if {[dict exists $procinfo show_body] && [dict get $procinfo show_body]} {
+            dict set procinfo internals [lindex $thisline end]
+          }
           dict set info proc [string trim [lindex $thisline 1] :] $procinfo
           set commentblock {}
         }
@@ -491,6 +569,20 @@ oo::class create ::practcl::doctool {
     if {[dict exists $minfo example]} {
       putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
     }
+    if {[dict exists $minfo internals]} {
+      putb result "\[para\]Internals: \[example [list [dict get $minfo internals]]\]"
+    }
+    return $result
+  }
+
+  method section.annotation {type name iinfo} {
+    set result "\[call $type \[cmd $name\]\]"
+    if {[dict exists $iinfo description]} {
+      putb result [dict get $iinfo description]
+    }
+    if {[dict exists $iinfo example]} {
+      putb result "\[para\]Example: \[example [list [dict get $minfo example]]\]"
+    }
     return $result
   }
 
@@ -509,7 +601,7 @@ oo::class create ::practcl::doctool {
       putb result {[para]}
     }
     dict for {f v} $class_info {
-      if {$f in {class_method method description ancestors example}} continue
+      if {$f in {Class_Method method description ancestors example option variable delegate}} continue
       putb result "\[emph \"$f\"\]: $v"
       putb result {[para]}
     }
@@ -521,11 +613,22 @@ oo::class create ::practcl::doctool {
       putb result [dict get $class_info description]
       putb result {[para]}
     }
-    if {[dict exists $class_info class_method]} {
+    dict for {f v} $class_info {
+      if {$f ni {option variable delegate}} continue
+      putb result "\[class \{[string totitle $f]\}\]"
+      #putb result "Methods on the class object itself."
+      putb result {[list_begin definitions]}
+      dict for {item iinfo} [dict get $class_info $f] {
+        putb result [my section.annotation $f $item $iinfo]
+      }
+      putb result {[list_end]}
+      putb result {[para]}
+    }
+    if {[dict exists $class_info Class_Method]} {
       putb result "\[class \{Class Methods\}\]"
       #putb result "Methods on the class object itself."
       putb result {[list_begin definitions]}
-      dict for {method minfo} [dict get $class_info class_method] {
+      dict for {method minfo} [dict get $class_info Class_Method] {
         putb result [my section.method classmethod $method $minfo]
       }
       putb result {[list_end]}
