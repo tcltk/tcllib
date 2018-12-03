@@ -37,7 +37,7 @@ while {[gets $fin line]>=0} {
   dict set map %end% $end
   dict set map %code% $code
   dict set map %comment% [string trim $comment]
-  puts $fout "  $hash $comment"
+  #puts $fout "  $hash $comment"
   if {$start eq $end} {
     puts $fout [string map $map {  if {$char == %start%} { return %code% }}]
   } else {
@@ -106,7 +106,7 @@ while {[gets $fin line]>=0} {
   }
   dict set map %code% $code
   dict set map %comment% [string trim $comment]
-  puts $fout "  # $comment"
+  #puts $fout "  # $comment"
   if {$start eq $end} {
     puts $fout [string map $map {  if {$char == %start%} { return %width% }}]
   } else {
