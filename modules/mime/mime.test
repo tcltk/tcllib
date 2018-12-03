@@ -1021,6 +1021,7 @@ test mime-19.1 {
 	return $res
 	
 } "Set-Cookie: one=two\r
+\t; HttpOnly\r
 \r
 "
 
@@ -1035,6 +1036,7 @@ test mime-19.2 {
 	
 } "Set-Cookie: one=two\r
 \t; path=/three/four\r
+\t; HttpOnly\r
 \r
 "
 

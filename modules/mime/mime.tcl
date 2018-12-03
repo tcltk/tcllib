@@ -1019,6 +1019,8 @@ proc ::mime::cookie_delete {_ name args} {
 #		?path?		Path restriction
 #		?domain?	domain restriction
 #		?expires?	Time restriction
+#		?httponly?	boolean, default true
+
 #
 # Side Effects:
 #	Formats and stores the Set-Cookie header for the reply.
@@ -1027,20 +1029,22 @@ proc ::mime::cookie_set {_ name value args} {
     dict size $args
     foreach {key val} $args {
 	switch $key {
-	    domain - expires - path {
+	    domain - expires - httponly - path {
 		set $key $val
 	    }
 	    default {
 		error [list {wrong # args} {should be} \
-		    {name value ?path path? ?domain domain? ?expires expires?}]
+		    [list name value ?path path? ?domain domain? \
+			?expires date? ?httponly boolean?]]
 	    }
 	}
     }
     set line $name=$value
     set params {}
+    set flags {}
     foreach extra {path domain} {
 	if {[info exists $extra]} {
-	    lappend params $extra=[set $extra]
+	    lappend params $extra [set $extra]
 	}
     }
     if {[info exists expires]} {
@@ -1050,13 +1054,19 @@ proc ::mime::cookie_set {_ name value args} {
 	    }
 	    default {
 		set expires [clock format [datetimescan $expires] \
-		    -format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
+		    -format {%A, %d-%b-%Y %H:%M:%S GMT} -gmt 1]
 	    }
 	}
-	lappend params expires=$expires
+	lappend params expires $expires
     }
     if {[info exists secure]} {
-	lappens params secure
+	lappend flags secure
+    }
+    if {![info exists httponly] || $httponly} {
+	lappend flags HttpOnly
+    }
+    if {[llength $flags]} {
+	lappend params $flags
     }
     $_ header set Set-Cookie $line $params 
     return
