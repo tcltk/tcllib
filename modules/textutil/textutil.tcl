@@ -10,7 +10,7 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
+#
 # RCS: @(#) $Id: textutil.tcl,v 1.17 2006/09/21 06:46:24 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
@@ -30,6 +30,7 @@ package require textutil::adjust
 package require textutil::split
 package require textutil::tabify
 package require textutil::trim
+package require textutil::wcswidth
 
 namespace eval ::textutil {
     # Import the miscellaneous string command for public export
@@ -76,4 +77,4 @@ namespace eval ::textutil {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil 0.8
+package provide textutil 0.9

@@ -22,6 +22,8 @@ support {
     useLocal     split.tcl    textutil::split
     useLocal     tabify.tcl   textutil::tabify
     useLocal     trim.tcl     textutil::trim
+    useLocal     trim.tcl     textutil::trim
+    useLocal     wcswidth.tcl textutil::wcswidth
 }
 testing {
     useLocalKeep textutil.tcl textutil
@@ -161,6 +163,19 @@ test textutil-7.5 {capEachWord, blocks} -body {
     textutil::capEachWord {here \comes the $sun}
 } -result {Here \comes The $sun}
 
+# -------------------------------------------------------------------------
+
+test textutil-8.0 {wcswidth} -body {
+   textutil::wcswidth {The Quick Brown Fox}
+} -result 19
+
+test textutil-8.1 {wcswidth} -body {
+   textutil::wcswidth {道德經}
+} -result 6
+
+test textutil-8.2 {wcswidth} -body {
+   textutil::wcswidth {道德經 of the fox}
+} -result 17
 # -------------------------------------------------------------------------
 testsuiteCleanup
 return

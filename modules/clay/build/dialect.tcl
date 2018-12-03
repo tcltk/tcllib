@@ -1,34 +1,15 @@
 ###
 # Adapted from Tcllib's oo::dialect
-#
-# Copyright (c) 2015-2018 Sean Woods
-# Copyright (c) 2015 Donald K Fellows
-#
-# BSD License
 ###
-# @@ Meta Begin
-# Package clay::dialect 0.4
-# Meta platform     tcl
-# Meta summary      A utility for defining a domain specific language for TclOO systems
-# Meta description  This package allows developers to generate
-# Meta description  domain specific languages to describe TclOO
-# Meta description  classes and objects.
-# Meta category     TclOO
-# Meta subject      oodialect
-# Meta require      {Tcl 8.6}
-# Meta author       Sean Woods
-# Meta author       Donald K. Fellows
-# Meta license      BSD
-# @@ Meta End
 namespace eval ::clay::dialect {
   namespace export create
-}
-# Allow test rigs to overwrite the flags before invoking this script
-foreach {flag test} {
-  tip470 {package vsatisfies [package provide Tcl] 8.7}
-} {
-  if {![info exists ::clay::dialect::has($flag)]} {
-    set ::clay::dialect::has($flag) [eval $test]
+  # Allow test rigs to overwrite the flags before invoking this script
+  foreach {flag test} {
+    tip470 {package vsatisfies [package provide Tcl] 8.7}
+  } {
+    if {![info exists ::clay::dialect::has($flag)]} {
+      set ::clay::dialect::has($flag) [eval $test]
+    }
   }
 }
 
