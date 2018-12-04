@@ -17,7 +17,7 @@ source [file join \
 	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0-
+testsNeedTcltest 2 
 
 support {
     # This code loads md5x, i.e. md5 v2. Proper testing should do one

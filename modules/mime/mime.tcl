@@ -21,6 +21,9 @@
 #
 
 # new string features and inline scan are used, requiring 8.3.
+
+# Fix for 00d04c4f12l, base64 transchan over a refchan: segmentation fault,
+# requires 8.6.9
 package require Tcl 8.6.9
 
 package require {mime qp}
