@@ -1,5 +1,6 @@
 #! /usr/bin/env tclsh
 
+if {![package vsatisfies [package provide Tcl] 8.6]} {return}
 
 package ifneeded {chan getslimit} 0.1 [list ::apply {dir {
     package require ego
