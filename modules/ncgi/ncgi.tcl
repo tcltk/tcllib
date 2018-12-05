@@ -15,10 +15,7 @@
 # of the cgi package.  That implementation provides a bunch of cgi_ procedures
 # (it doesn't use the ::cgi:: namespace) and has a wealth of procedures for
 # generating HTML.  In contrast, the package provided here is primarly
-# concerned with processing input to CGI programs.  I have tried to mirror his
-# API's where possible.  So, ncgi::input is equivalent to cgi_input, and so
-# on.  There are also some different APIs for accessing values (ncgi::list,
-# ncgi::parse and ncgi::value come to mind)
+# concerned with processing input to CGI programs.
 
 # Note, I use the term "query data" to refer to the data that is passed in
 # to a CGI program.  Typically this comes from a Form in an HTML browser.
@@ -27,62 +24,19 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.4
+package require Tcl 8.6
+package require {chan base}
 package require fileutil ; # Required by importFile.
+package require mime
 package require uri
 
 package provide ncgi 1.5.0
 
 namespace eval ::ncgi {
 
-    # "query" holds the raw query (i.e., form) data
-    # This is treated as a cache, too, so you can call ncgi::query more than
-    # once
-
-    variable query
-
-    # This is the content-type which affects how the query is parsed
-
-    variable contenttype
-
-    if {[info exists env(CONTENT_LENGTH)] && [
-	string length $env(CONTENT_LENGTH)] != 0} {
-	variable content_length [expr {$env(CONTENT_LENGTH)}]
-    }
-
-    if {[info exists ::env(REQUEST_METHOD)]} {
-	variable method [string tolower $::env(REQUEST_METHOD)]
-    }
-
-    # value is an array of parsed query data.  Each array element is a list
-    # of values, and the array index is the form element name.
-    # See the differences among ncgi::parse, ncgi::input, ncgi::value
-    # and ncgi::valuelist for the various approaches to handling these values.
-
-    variable value
-
-    # This lists the names that appear in the query data
-
-    variable varlist
-
-    # This holds the URL coresponding to the current request
-    # This does not include the server name.
-
-    variable urlStub
-
-    # This flags compatibility with Don Libes cgi.tcl when dealing with
-    # form values that appear more than once.  This bit gets flipped when
-    # you use the ncgi::input procedure to parse inputs.
-
-    variable listRestrict 0
-
-    # This is the set of cookies that are pending for output
-
-    variable cookieOutput
-
     # Support for x-www-urlencoded character mapping
     # The spec says: "non-alphanumeric characters are replaced by '%HH'"
- 
+
     variable i
     variable c
     variable map
@@ -96,201 +50,147 @@ namespace eval ::ncgi {
      
     # These are handled specially
     array set map {
-	" " +   \n %0D%0A
+	{ } + \n %0D%0A
     }
 
-    # Map of transient files
+}
 
-    variable  _tmpfiles
-    array set _tmpfiles {}
-
-    # I don't like importing, but this makes everything show up in 
-    # pkgIndex.tcl
-
-    namespace export method reset urlStub query type decode encode
-    namespace export nvlist parse input value valueList names
-    namespace export setValue setValueList setDefaultValue setDefaultValueList
-    namespace export empty import importAll importFile redirect header
-    namespace export parseMimeValue multipart cookie setCookie
+proc ::ncgi::.namespace _ {
+    namespace ensemble configure $_ -namespace
 }
 
 
-proc ::ncgi::post {} {
-    set type [type]
-    switch -glob $type {
-	{} -
-	text/xml* -
-	application/x-www-form-urlencoded* -
-	application/x-www-urlencoded* {
-	    return [urlencoded [poststring]]
-	}
-	multipart/* {
-	    return [multipart $type [poststring]]
-	}
-	default {
-	    return -code error "Unknown Content-Type: $type"
+# ::ncgi::all
+#
+#	Returns all the values of a named query element as a list, or
+#	the empty list if $name was not not specified.  Always returns
+#	lists.  Consider using ncgi::get instead.
+#
+# Arguments:
+#	key	The name of the query element
+#
+# Results:
+#	The first value of the named element, or ""
+
+proc ::ncgi::all {_ name} {
+    namespace upvar $_ query query form form
+    $_ query get
+    if {[form $_ exists]} {
+	$_ form get 
+    }
+    set result {}
+    foreach {qname val} $query {
+	if {$qname eq $name} {
+	    lappend result $val
 	}
     }
+    if {[form $_ exists]} {
+	foreach {fname val} $form {
+	    if {$fname eq $name} {
+		lappend result [lindex $val 0]
+	    }
+	}
+    }
+    return $result
 }
 
 
-proc ::ncgi::poststring {} {
+proc ::ncgi::body _ {
     global env
-    variable content_length
-    variable method
-    variable post
-    if {![info exists post]} {
+    namespace upvar $_ {*}{
+	body body content_length content_length method method
+    }
+    if {![info exists body]} {
 	if {([info exists method] && $method eq {post})
 	    && [info exist content_length]
 	} {
-	    fconfigure stdin -translation binary -encoding binary
-	    set post [read stdin $env(CONTENT_LENGTH)]
+	    chan configure stdin -translation binary
+	    set body [read stdin $env(CONTENT_LENGTH)]
 	} else {
-	    set post {}
+	    set body {}
 	}
     }
-    return $post
+    chan configure stdout -translation binary
+    return $body
 }
 
-# ::ncgi::reset
+
+# ::ncgi::cookies
 #
-#	This resets the state of the CGI input processor.  This is primarily
-#	used for tests, although it is also designed so that TclHttpd can
-#	call this with the current query data
-#	so the ncgi package can be shared among TclHttpd and CGI scripts.
-#
-#	DO NOT CALL this in a standard cgi environment if you have not
-#	yet processed the query data, which will not be used after a
-#	call to ncgi::reset is made.  Instead, just call ncgi::parse
-#
-# Arguments:
-#	newquery	The query data to be used instead of external CGI.
-#	newtype		The raw content type.
-#
-# Side Effects:
-#	Resets the cached query data and wipes any environment variables
-#	associated with CGI inputs (like QUERY_STRING)
+#	Returns a multidict of incoming cookies.
 
-proc ::ncgi::reset args {
-    global env
-    variable _tmpfiles
-    variable query
-    variable contenttype
-    variable cookieOutput
-    variable post
+namespace eval ::ncgi::cookies {
+    namespace ensemble create -parameters _
+    namespace export all get
 
-    # array unset _tmpfiles -- Not a Tcl 8.2 idiom
-    unset _tmpfiles ; array set _tmpfiles {}
-
-    set cookieOutput {}
-    if {[llength $args] == 0} {
-
-	# We use and test args here so we can detect the
-	# difference between empty query data and a full reset.
-
-	if {[info exists query]} {
-	    unset query
+    proc all {_ name} {
+	namespace upvar $_ cookies cookies
+	init $_
+	lmap {name1 val} $cookies {
+	    if {$name1 ne $name} continue
+	    lindex $val
 	}
-	if {[info exists contenttype]} {
-	    unset contenttype
+    }
+
+    proc init _ {
+	global env
+	namespace upvar $_ cookies cookies
+	if {![info exists cookies]} {
+	    if {[info exists env(HTTP_COOKIE)]} {
+		set cookies [join [lmap pair [split $env(HTTP_COOKIE) \;] {
+		    split [string trim $pair] =
+		}]]
+	    } else {
+		set cookies {}
+	    }
 	}
-	if {[info exists post]} {
-	    unset post
-	}
-    } else {
-	set contenttype {}
-	set post {}
-	set query {}
-	dict for {opt val} $args {
-	    switch $opt {
-		contenttype - post - query {
-		    set $opt $val
+	return 
+    }
+
+    proc get {_ args} {
+	init $_
+	namespace upvar $_ cookies cookies
+	switch [llength $args] {
+	    2 {
+		lassign $args key default
+		if {[dict exists $cookies $key]} {
+		    return [dict get $cookies $key]
+		} else {
+		    return $default
 		}
-		default {
-		    error [list {unknown reset option} $opt]
-		}
+	    }
+	    1 {
+		return [dict get $cookies [lindex $args 0]]
+	    }
+	    0 {
+		return $cookies
+	    }
+	    default {
+		error [list {wrong # args}]
 	    }
 	}
     }
 }
 
-# ::ncgi::urlStub
-#
-#	Set or return the URL associated with the current page.
-#	This is for use by TclHttpd to override the default value
-#	that otherwise comes from the CGI environment
-#
-# Arguments:
-#	url	(option) The url of the page, not counting the server name.
-#		If not specified, the current urlStub is returned
-#
-# Side Effects:
-#	May affects future calls to ncgi::urlStub
-
-proc ::ncgi::urlStub {{url {}}} {
-    global   env
-    variable urlStub
-    if {[string length $url]} {
-	set urlStub $url
-	return ""
-    } elseif {[info exists urlStub]} {
-	return $urlStub
-    } elseif {[info exists env(SCRIPT_NAME)]} {
-	set urlStub $env(SCRIPT_NAME)
-	return $urlStub
-    } else {
-	return ""
-    }
+proc ::ncgi::delete _ {
+    namespace delete [namespace ensemble configure $_ -namespace]
 }
 
-
-# ::ncgi::type
-#
-#	This returns the content type of the query data.
-#
-# Arguments:
-#	none
-#
-# Results:
-#	The content type of the query data.
-
-proc ::ncgi::type {} {
-    global env
-    variable contenttype
-
-    if {![info exists contenttype]} {
-	if {[info exists env(CONTENT_TYPE)]} {
-	    set contenttype $env(CONTENT_TYPE)
-	} else {
-	    return ""
-	}
-    }
-    return $contenttype
-}
 
 # ::ncgi::decode
 #
-#	This decodes data in www-url-encoded format.
+#	Decodes data in www-url-encoded format.
 #
 # Arguments:
-#	An encoded value
+#	An encoded value.
 #
 # Results:
-#	The decoded value
-
-if {[package vsatisfies [package present Tcl] 8.6]} {
-    # 8.6+, use 'binary decode hex'
-    proc ::ncgi::DecodeHex {hex} {
-	return [binary decode hex $hex]
-    }
-} else {
-    # 8.4+. More complex way of handling the hex conversion.
-    proc ::ncgi::DecodeHex {hex} {
-	return [binary format H* $hex]
-    }
+#	The decoded value.
+proc ::ncgi::DecodeHex {hex} {
+    return [binary decode hex $hex]
 }
 
-proc ::ncgi::decode {str} {
+proc ::ncgi::decode str {
     # rewrite "+" back to space
     # protect \ from quoting another '\'
     set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
@@ -306,9 +206,10 @@ proc ::ncgi::decode {str} {
     return [subst -novar $str]
 }
 
+
 # ::ncgi::encode
 #
-#	This encodes data in www-url-encoded format.
+#	Encodes data in www-url-encoded format.
 #
 # Arguments:
 #	A string
@@ -316,7 +217,7 @@ proc ::ncgi::decode {str} {
 # Results:
 #	The encoded value
 
-proc ::ncgi::encode {string} {
+proc ::ncgi::encode string {
     variable map
 
     # 1 leave alphanumerics characters alone
@@ -330,228 +231,88 @@ proc ::ncgi::encode {string} {
     return [subst -nocommand $string]
 }
 
-# ::ncgi::names
-#
-#	This parses the query data and returns a list of the names found therein.
-#
-# 	Note: If you use ncgi::setValue or ncgi::setDefaultValue, this
-#	names procedure doesn't see the effect of that.
-#
-# Arguments:
-#	none
-#
-# Results:
-#	A list of names
 
-proc ::ncgi::names {} {
-    array set names {}
-    foreach {name val} [nvlist] {
-        if {![string equal $name "anonymous"]} {
-            set names($name) 1
-        }
-    }
-    return [array names names]
-}
-
-# ::ncgi::nvlist
-#
-#	This parses the query data and returns it as a name, value list
-#
-# 	Note: If you use ncgi::setValue or ncgi::setDefaultValue, this
-#	nvlist procedure doesn't see the effect of that.
-#
-# Arguments:
-#	none
-#
-# Results:
-#	An alternating list of names and values
-
-proc ::ncgi::nvlist {} {
-    set query [query]
-    set post [post]
-    return [dict merge $query $post]
-    switch -glob -- [type] {
-	{} -
-	text/xml* -
-	application/x-www-form-urlencoded* -
-	application/x-www-urlencoded*  -
-	multipart/* {
-	}
-	default {
-	    return -code error "Unknown Content-Type: $type"
-	}
-    }
-}
-
-# ::ncgi::parse
-#
-#	The parses the query data and stores it into an array for later retrieval.
-#	You should use the ncgi::value or ncgi::valueList procedures to get those
-#	values, or you are allowed to access the ncgi::value array directly.
-#
-#	Note - all values have a level of list structure associated with them
-#	to allow for multiple values for a given form element (e.g., a checkbox)
-#
-# Arguments:
-#	none
-#
-# Results:
-#	A list of names of the query values
-
-proc ::ncgi::parse {} {
-    variable value
-    variable listRestrict 0
-    variable varlist {}
-    if {[info exists value]} {
-	unset value
-    }
-    foreach {name val} [nvlist] {
-	if {![info exists value($name)]} {
-	    lappend varlist $name
-	}
-	lappend value($name) $val
-    }
-    return $varlist
-} 
-
-
-
-# ::ncgi::input
-#
-#	Like ncgi::parse, but with Don Libes cgi.tcl semantics.
-#	Form elements must have a trailing "List" in their name to be
-#	listified, otherwise this raises errors if an element appears twice.
-#
-# Arguments:
-#	fakeinput	See ncgi::reset
-#	fakecookie	The raw cookie string to use when testing.
-#
-# Results:
-#	The list of element names in the form
-
-proc ::ncgi::input {{fakeinput {}} {fakecookie {}}} {
-    variable value
-    variable varlist {}
-    variable listRestrict 1
-    if {[info exists value]} {
-	unset value
-    }
-    if {[string length $fakeinput]} {
-	ncgi::reset query $fakeinput
-    }
-    foreach {name val} [nvlist] {
-	set exists [info exists value($name)]
-	if {!$exists} {
-	    lappend varlist $name
-	}
-	if {[string match "*List" $name]} {
-	    # Accumulate a list of values for this name
-	    lappend value($name) $val
-	} elseif {$exists} {
-	    error "Multiple definitions of $name encountered in input.\
-	    If you're trying to do this intentionally (such as with select),\
-	    the variable must have a \"List\" suffix."
-	} else {
-	    # Capture value with no list structure
-	    set value($name) $val
-	}
-    }
-    return $varlist
-} 
-
-
-# ::ncgi::query
-#
-#	Parses the query part of the URI
-#
-proc ::ncgi::query {} {
-    urlencoded [querystring]
-}
-
-
-# ::ncgi::urlencoded
-#
-#	Parses $data as a url-encoded query and returns a multidict containing
-#	the query.
-#
-proc ::ncgi::urlencoded query {
-    set result {}
-
-    # Any whitespace at the beginning or end of urlencoded data is not
-    # considered to be part of that data, so we trim it off.  One special
-    # case in which post data is preceded by a \n occurs when posting
-    # with HTTPS in Netscape.
-    foreach x [split [string trim $query] &] {
-	# Turns out you might not get an = sign,
-	# especially with <isindex> forms.
-
-	set pos [string first = $x]
-	set len [string length $x]
-
-	if { $pos>=0 } {
-	    if { $pos == 0 } { # if the = is at the beginning ...
-		if { $len>1 } { 
-		    # ... and there is something to the right ...
-		    set varname anonymous
-		    set val [string range $x 1 end]
-		} else { 
-		    # ... otherwise, all we have is an =
-		    set varname anonymous
-		    set val ""
+proc ::ncgi::form_get {_ args} {
+    namespace upvar $_ form form
+    set type [$_ type]
+    if {![info exists form]} {
+	set form {}
+	switch -glob $type {
+	    {} -
+	    text/xml* -
+	    application/x-www-form-urlencoded* -
+	    application/x-www-urlencoded* {
+		foreach {key val} [urlquery [$_ body]] {
+		    lappend form $key [list $val {}]
 		}
-	    } elseif { $pos==[expr {$len-1}] } { 
-		# if the = is at the end ...
-		set varname [string range $x 0 [expr {$pos-1}]]
-		set val ""
-	    } else {
-		set varname [string range $x 0 [expr {$pos-1}]]
-		set val [string range $x [expr {$pos+1}] end]
 	    }
-	} else { # no = was found ...
-	    set varname anonymous
-	    set val $x
-	}		
-	lappend result [decode $varname] [decode $val]
+	    multipart/* {
+		$_ multipart
+	    }
+	    default {
+		return -code error "Unknown Content-Type: $type"
+	    }
+	}
     }
-    return $result
+    if {[llength $args] == 1} {
+	lindex [dict get $form {*}$args] 0
+    } elseif {[llength $args] == 2} {
+	set args [lassign $args[set args {}] key]
+	lassign [dict get $form $key] value params
+	dict get $params {*}$args
+    } elseif {[llength $args]} {
+	error [list wrong # args]
+    } else {
+	return $form
+    }
 }
 
 
-# ::ncgi::querystring
-#
-#	This reads the query data from the appropriate location, which depends
-#	on if it is a POST or GET request.
-#
-# Arguments:
-#	none
-#
-# Results:
-#	The raw query data.
-
-proc ::ncgi::querystring {} {
-    global env
-    variable query
-
-    if {[info exists query]} {
-	# This ensures you can call ncgi::query more than once,
-	# and that you can use it with ncgi::reset
-	return $query
+proc ::ncgi::form_exists _ {
+    namespace upvar $_ content_length content_length
+    if {[info exists content_length]} {
+	switch -glob [type $_] {
+	    {}
+	    - text/xml*
+	    - application/x-www-form-urlencoded*
+	    - application/x-www-urlencoded*
+	    - multipart/* {
+		return 1
+	    }
+	}
     }
+    return 0
+}
 
-    set query {} 
-    if {[info exists env(QUERY_STRING)]} {
-	set query $env(QUERY_STRING)
-    }
-    return $query
+proc ::ncgi::headerfilter headers {
+    join [lmap {key val} $headers[set headers {}] {
+	if {[string tolower $key] in {content-type}} continue
+	list $key $val
+    }]
 }
 
 
-# ::ncgi::value
+proc ::ncgi::header_send {_ type args} {
+    namespace upvar $_ respons response 
+    set mimeout [mime::.new {} -canonical $type -params $args \
+	-addcontentid 0 -addmimeversion 0 -addmessageid 0 -string {}
+    ]
+    foreach {n v} [headerfilter [$_ response header get]] {
+	$mimeout header set $n {*}$v
+    }
+    $_ response .destroy
+    $mimeout serialize -chan ${_}::stdout
+    ${_}::stdout flush
+    $mimeout .destroy
+}
+
+
+# ::ncgi::get
 #
-#	Return the value of a named query element, or the empty string if
+#	Returns the value of a named query element, or the empty string if
 #	it was not not specified.  This only returns the first value of
 #	associated with the name.  If you want them all (like all values
-#	of a checkbox), use ncgi::valueList
+#	of a checkbox), use ncgi::all
 #
 # Arguments:
 #	key	The name of the query element
@@ -560,219 +321,344 @@ proc ::ncgi::querystring {} {
 # Results:
 #	The first value of the named element, or the default
 
-proc ::ncgi::value {key {default {}}} {
-    variable value
-    variable listRestrict
-    variable contenttype
-    if {[info exists value($key)]} {
-	if {$listRestrict} {
+proc ::ncgi::get {_ args} {
+    namespace upvar $_ form form query query
+    $_ query get
+    if {[form $_ exists]} {
+	$_ form get
+    }
+    set merged [merge $_]
+    if {![llength $args]} {
+	return $merged
+    } elseif {[llength $args] <= 2} {
+	lassign $args key default
+	try {
+	    return [lindex [dict get $merged $key] 0]
+	} on error {} {
+	    return $default
+	}
+    } else {
+	error [list {wrong # args}]
+    }
+}
 
-	    # ::ncgi::input was called, and it already figured out if the
-	    # user wants list structure or not.
 
-	    set val $value($key)
+# ::ncgi::importFile --
+#
+#   get information about a file upload field
+#
+# Arguments:
+#   cmd         one of '-server' '-client' '-type' '-data'
+#   var         cgi variable name for the file field
+# Results:
+#   -server returns the name of the file on the server: side effect
+#      is that the file gets stored on the server and the 
+#      script is responsible for deleting/moving the file
+#   -client returns the name of the file sent from the client 
+#   -type   returns the mime type of the file
+#   -data   returns a channel command for the contents of the file 
+
+proc ::ncgi::importFile {_ cmd var {filename {}}} {
+    namespace upvar $_ mimeparts mimeparts
+    if {[$_ form exists]} {
+	set form [$_ form get]
+    }
+
+    lassign [dict get $mimeparts $var] mime 
+
+    lassign [$mime header get content-disposition] cdisp dispparams
+
+    switch -exact -- $cmd {
+	-server {
+	    return [$mime body decode]
+	}
+	-client {
+	    if {[dict exists $dispparams filename]} {
+		return [dict get $dispparams filename]
+	    }
+	    return {}
+	}
+	-type {
+	    lassign [$mime header get content-type] ctype params
+	    return $ctype
+	}
+	-data {
+	    return [$mime body decoded]
+	}
+	default {
+	    error "Unknown subcommand to ncgi::import_file: $cmd"
+	}
+    }
+}
+
+
+proc ::ncgi::merge _ {
+    namespace upvar $_ form form query query
+    $_ query get
+    set query2 [join [lmap {key val} $query {
+	list $key [list $val {}]
+    }]]
+    if {[$_ form exists]} {
+	# form overrides query in a multidict
+	list {*}$query2 {*}[join [lmap {key val} $form {
+	    list $key $val 
+	}]]
+    } else {
+	return $query2
+    }
+}
+
+
+# ::ncgi::multipart
+#
+#	Parses $data into a multidict using the boundary provided in $type,
+#	which is a complete Content-type value.  Each value in the resulting
+#	multi dict is a list where the first item is the value and the the
+#	second item is a multidict where each key is the name of a header and
+#	each value is a list containing the header value and a dictionary of
+#	parameters for that header.
+
+proc ::ncgi::multipart _ {
+    namespace upvar $_ form form mime mime mimeparts mimeparts
+    set type [$_ type]
+    set data [$_ body]
+    set mime [mime::.new {}  -string "Content-Type: $type\n\n$data"]
+    set parts [$mime property parts]
+    trace add variable mime unset [list apply [list {mime args} {
+	if {[namespace which $mime] ne {}} {
+	    $mime .destroy
+	}
+    } $mime]]
+
+    set results [list]
+    foreach part $parts {
+	set value [[$part body decoded] read]
+	lassign [$part header get content-disposition] hvalue params
+	if {$hvalue eq {form-data} && [dict exists $params name]} {
+	    set name [dict get $params name]
+	    dict unset params name
 	} else {
-
-	    # Undo the level of list structure done by ncgi::parse
-
-	    set val [lindex $value($key) 0]
+	    set name {}
 	}
-	if {[string match multipart/* [type]]} {
+	lappend mimeparts $name $part 
+	lappend form $name [list $value $params]
+    }
+    return $form
+}
 
-	    # Drop the meta-data information associated with each part
 
-	    set val [lindex $val 1]
+# ::ncgi::.new
+#	Creates a command representing a new cgi session and return the name of
+#	that command.
+#   arguments
+#	name
+#	    The name of the command to create, or the empty string if a command
+#	    name should be automatically generated.
+#   effects
+#	Resets the cached query data and wipes any environment variables
+#	associated with CGI inputs (like QUERY_STRING).
+proc ::ncgi::.new {_ name args} {
+    if {$name eq {}} {
+	set name [namespace current]::[info cmdcount]
+    } elseif {![string match ::* $name]} {
+	set name [uplevel 1 {namespace current}]::$name
+    }
+    set ns [namespace eval $name {
+	namespace ensemble create
+	namespace current
+    }]
+    # normalize $name
+    set name [namespace which $name]
+
+    ::tcllib::chan::base .new ${ns}::stdout stdout -close 0
+
+    namespace ensemble create -command ${ns}::header -map [list \
+	send [list header_send $name]
+    ]
+
+    mime::.new ${ns}::response -canonical text/html -spec cgi -string {}
+
+    set map [dict merge [list decode decode encode encode {*}[join [lmap cmdname {
+	.namespace .new all body cookies delete form get importFile input
+	merge method multipart query redirect type urlStub
+    } {
+	list $cmdname [list $cmdname $name]
+    }]]] [list \
+	header [list ${ns}::header] \
+	response [list ${ns}::response] \
+	stdout [list ${ns}::stdout]
+    ]]
+    namespace ensemble configure $name -map $map
+    
+    trace add command $name delete [list apply [list {old new op} {
+	$old .destroy
+    }]]
+
+    # $query holds the raw query (i.e., form) data
+    # This is treated as a cache, too, so you can call ncgi::query more than
+    # once
+
+    # $contenttype is the content-type, which affects how the query is parsed
+
+    # $urlStub holds the URL corresponding to the current request
+    # This does not include the server name.
+
+    namespace upvar $ns \
+	_tmpfiles _tmpfiles \
+	body body \
+	content_length content_length \
+	contenttype contenttype \
+	env env \
+	form form \
+	listRestrict listRestrict \
+	method method \
+	query query \
+	querystring querystring \
+	urlStub urlStub \
+
+
+    # Map of transient files
+    array set _tmpfiles {}
+
+    # $listRestrict flags compatibility with Don Libes cgi.tcl when dealing
+    # with form values that appear more than once.  This bit gets flipped when
+    # you use the ncgi::input procedure to parse inputs.
+    set listRestrict 0
+
+    dict for {opt val} $args {
+	switch $opt {
+	    body {
+		set $opt $val
+		set content_length [string length $body]
+	    }
+	    contenttype - env - form - querystring {
+		set $opt $val
+	    }
+	    default {
+		error [list {unknown reset option} $opt]
+	    }
 	}
-	return $val
-    } else {
-	return $default
     }
+
+    if {![info exists env]} {
+	array set env [array get ::env]
+    }
+
+    if {[info exists env(CONTENT_LENGTH)] && [
+	string length $env(CONTENT_LENGTH)] != 0} {
+	set content_length [expr {$env(CONTENT_LENGTH)}]
+    }
+
+    if {[info exists env(REQUEST_METHOD)]} {
+	set method [string tolower $env(REQUEST_METHOD)]
+    }
+
+    return $name
 }
 
-# ::ncgi::valueList
+
+# ::ncgi::parseMimeValue
 #
-#	Return all the values of a named query element as a list, or
-#	the empty list if it was not not specified.  This always returns
-#	lists - if you do not want the extra level of listification, use
-#	ncgi::value instead.
+#	Parse a MIME header value, which has the form
+#	value; param=value; param2="value2"; param3='value3'
 #
 # Arguments:
-#	key	The name of the query element
+#	value	The mime header value.  This does not include the mime
+#		header field name, but everything after it.
 #
 # Results:
-#	The first value of the named element, or ""
+#	A two-element list, the first is the primary value,
+#	the second is in turn a name-value list corresponding to the
+#	parameters.  Given the above example, the return value is
+#	{
+#		value
+#		{param value param2 value2 param3 value3}
+#	}
 
-proc ::ncgi::valueList {key {default {}}} {
-    variable value
-    if {[info exists value($key)]} {
-	return $value($key)
+proc ::ncgi::parseMimeValue value {
+    set parts [split $value \;]
+    set results [list [string trim [lindex $parts 0]]]
+    set paramList [list]
+    foreach sub [lrange $parts 1 end] {
+	if {[regexp -- {([^=]+)=(.+)} $sub match key val]} {
+            set key [string trim [string tolower $key]]
+            set val [string trim $val]
+            # Allow single as well as double quotes
+            if {[regexp -- {^(['"])(.*)\1} $val x quote val2]} { ; # need a " for balance
+               # Trim quotes and any extra crap after close quote
+               # remove quoted quotation marks
+               set val [string map {\\" "\"" \\' "\'"} $val2]
+            }
+            lappend paramList $key $val
+	}
+    }
+    if {[llength $paramList]} {
+	lappend results $paramList
+    }
+    return $results
+}
+
+
+# ::ncgi::query_get
+#
+#	Returns the query part of the URI
+#
+proc ::ncgi::query_get _ {
+    namespace upvar $_ query query
+    if {![info exists query]} {
+	set query [urlquery [$_ query string]]
+    }
+    return $query
+}
+
+
+# ::ncgi::query_set
+#
+#	set the value of $key in the query dictionary to $value
+#
+proc ::ncgi::query_set {_ key value} {
+    namespace upvar $_ query query
+    $_ query get
+    set idx [lindex [lmap idx [lsearch -exact -all $key $query] {
+	if {[$idx % 2]} continue
+	set idx
+    }] end]
+    if {$idx >= 0} {
+	set query [lreplace $query[set query {}] $idx $idx $value]
     } else {
-	return $default
+	lappend query $key $value
     }
+    return $value
 }
 
-# ::ncgi::setValue
+
+# ::ncgi::query_string
 #
-#	Jam a new value into the CGI environment.  This is handy for preliminary
-#	processing that does data validation and cleanup.
+#	Reads the query data from the QUERY_STRING environment variable if
+#	needed.
 #
 # Arguments:
-#	key	The name of the query element
-#	value	This is a single value, and this procedure wraps it up in a list
-#		for compatibility with the ncgi::value array usage.  If you
-#		want a list of values, use ngci::setValueList
-#		
-#
-# Side Effects:
-#	Alters the ncgi::value and possibly the ncgi::valueList variables
-
-proc ::ncgi::setValue {key value} {
-    variable listRestrict
-    if {$listRestrict} {
-	ncgi::setValueList $key $value
-    } else {
-	ncgi::setValueList $key [list $value]
-    }
-}
-
-# ::ncgi::setValueList
-#
-#	Jam a list of new values into the CGI environment.
-#
-# Arguments:
-#	key		The name of the query element
-#	valuelist	This is a list of values, e.g., for checkbox or multiple
-#			selections sets.
-#		
-# Side Effects:
-#	Alters the ncgi::value and possibly the ncgi::valueList variables
-
-proc ::ncgi::setValueList {key valuelist} {
-    variable value
-    variable varlist
-    if {![info exists value($key)]} {
-	lappend varlist $key
-    }
-
-    # This if statement is a workaround for another hack in
-    # ::ncgi::value that treats multipart form data
-    # differently.
-    if {[string match multipart/* [type]]} {
-	set value($key) [list [list {} [join $valuelist]]]
-    } else {
-	set value($key) $valuelist
-    }
-    return ""
-}
-
-# ::ncgi::setDefaultValue
-#
-#	Set a new value into the CGI environment if there is not already one there.
-#
-# Arguments:
-#	key	The name of the query element
-#	value	This is a single value, and this procedure wraps it up in a list
-#		for compatibility with the ncgi::value array usage.
-#		
-#
-# Side Effects:
-#	Alters the ncgi::value and possibly the ncgi::valueList variables
-
-proc ::ncgi::setDefaultValue {key value} {
-    ncgi::setDefaultValueList $key [list $value]
-}
-
-# ::ncgi::setDefaultValueList
-#
-#	Jam a list of new values into the CGI environment if the CGI value
-#	is not already defined.
-#
-# Arguments:
-#	key		The name of the query element
-#	valuelist	This is a list of values, e.g., for checkbox or multiple
-#			selections sets.
-#		
-# Side Effects:
-#	Alters the ncgi::value and possibly the ncgi::valueList variables
-
-proc ::ncgi::setDefaultValueList {key valuelist} {
-    variable value
-    if {![info exists value($key)]} {
-	ncgi::setValueList $key $valuelist
-	return ""
-    } else {
-	return ""
-    }
-}
-
-# ::ncgi::exists --
-#
-#	Return false if the CGI variable doesn't exist.
-#
-# Arguments:
-#	name	Name of the CGI variable
+#	none
 #
 # Results:
-#	0 if the variable doesn't exist
+#	The raw query data.
 
-proc ::ncgi::exists {var} {
-    variable value
-    return [info exists value($var)]
-}
+proc ::ncgi::query_string _ {
+    namespace upvar $_ env env querystring querystring
 
-# ::ncgi::empty --
-#
-#	Return true if the CGI variable doesn't exist or is an empty string
-#
-# Arguments:
-#	name	Name of the CGI variable
-#
-# Results:
-#	1 if the variable doesn't exist or has the empty value
-
-proc ::ncgi::empty {name} {
-    return [expr {[string length [string trim [value $name]]] == 0}]
-}
-
-# ::ncgi::import
-#
-#	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
-#	the callers scope that has the value of the CGI input.  An alternate
-#	name for the Tcl variable can be specified.
-#
-# Arguments:
-#	cginame		The name of the form element
-#	tclname		If present, an alternate name for the Tcl variable,
-#			otherwise it is the same as the form element name
-
-proc ::ncgi::import {cginame {tclname {}}} {
-    if {[string length $tclname]} {
-	upvar 1 $tclname var
-    } else {
-	upvar 1 $cginame var
+    if {[info exists querystring]} {
+	# This ensures you can call ncgi::query more than once,
+	# and that you can use it with ncgi::reset
+	return $querystring
     }
-    set var [value $cginame]
+
+    set querystring {}
+    if {[info exists env(QUERY_STRING)]} {
+	set querystring $env(QUERY_STRING)
+    }
+    return $querystring
 }
 
-# ::ncgi::importAll
-#
-#	Map a CGI input into a Tcl variable.  This creates a Tcl variable in
-#	the callers scope for every CGI value, or just for those named values.
-#
-# Arguments:
-#	args	A list of form element names.  If this is empty,
-#		then all form value are imported.
-
-proc ::ncgi::importAll {args} {
-    variable varlist
-    if {[llength $args] == 0} {
-	set args $varlist
-    }
-    foreach cginame $args {
-	upvar 1 $cginame var
-	set var [value $cginame]
-    }
-}
 
 # ::ncgi::redirect
 #
@@ -786,9 +672,8 @@ proc ::ncgi::importAll {args} {
 # Side Effects:
 #	Outputs a redirect header
 
-proc ::ncgi::redirect {url} {
-    global env
-
+proc ::ncgi::redirect {_ url} {
+    namespace upvar $_ env env
     if {![regexp -- {^[^:]+://} $url]} {
 
 	# The url is relative (no protocol/server spec in it), so
@@ -843,350 +728,142 @@ proc ::ncgi::redirect {url} {
 	    set url $proto://$server$port$dirname$url
 	}
     }
-    ncgi::header text/html Location $url
-    puts "Please go to <a href=\"$url\">$url</a>"
+
+    set mimeout [mime::.new {} -canonical text/html -addcontentid 0 \
+	-addmimeversion 0 -addmessageid 0 \
+	-string "Please go to <a href=\"$url\">$url</a>\n"
+    ]
+
+    foreach {n v} [headerfilter [$_ response header get]] {
+	$mimeout header set $n {*}$v
+    }
+    $_ response .destroy
+
+    $mimeout header set Location $url
+    $mimeout serialize -chan ${_}::stdout
+    ${_}::stdout flush
+    $mimeout .destroy
+    return
 }
 
-# ncgi:header
+
+# ::ncgi::type
 #
-#	Output the Content-Type header.
+#	This returns the content type of the query data.
 #
 # Arguments:
-#	type	The MIME content type
-#	args	Additional name, value pairs to specifiy output headers
-#
-# Side Effects:
-#	Outputs a normal header
-
-proc ::ncgi::header {{type text/html} args} {
-    variable cookieOutput
-    puts "Content-Type: $type"
-    foreach {n v} $args {
-	puts "$n: $v"
-    }
-    if {[info exists cookieOutput]} {
-	foreach line $cookieOutput {
-	    puts "Set-Cookie: $line"
-	}
-    }
-    puts ""
-    flush stdout
-}
-
-# ::ncgi::parseMimeValue
-#
-#	Parse a MIME header value, which has the form
-#	value; param=value; param2="value2"; param3='value3'
-#
-# Arguments:
-#	value	The mime header value.  This does not include the mime
-#		header field name, but everything after it.
+#	none
 #
 # Results:
-#	A two-element list, the first is the primary value,
-#	the second is in turn a name-value list corresponding to the
-#	parameters.  Given the above example, the return value is
-#	{
-#		value
-#		{param value param2 value2 param3 value3}
-#	}
+#	The content type of the query data.
+proc ::ncgi::type _ {
+    namespace upvar $_ contenttype contenttype env env
 
-proc ::ncgi::parseMimeValue {value} {
-    set parts [split $value \;]
-    set results [list [string trim [lindex $parts 0]]]
-    set paramList [list]
-    foreach sub [lrange $parts 1 end] {
-	if {[regexp -- {([^=]+)=(.+)} $sub match key val]} {
-            set key [string trim [string tolower $key]]
-            set val [string trim $val]
-            # Allow single as well as double quotes
-            if {[regexp -- {^(['"])(.*)\1} $val x quote val2]} { ; # need a " for balance
-               # Trim quotes and any extra crap after close quote
-               # remove quoted quotation marks
-               set val [string map {\\" "\"" \\' "\'"} $val2]
-            }
-            lappend paramList $key $val
-	}
-    }
-    if {[llength $paramList]} {
-	lappend results $paramList
-    }
-    return $results
-}
-
-# ::ncgi::multipart
-#
-#	This parses multipart form data.
-#	Based on work by Steve Ball for TclHttpd, but re-written to use
-#	string first with an offset to iterate through the data instead
-#	of using a regsub/subst combo.
-#
-# Arguments:
-#	type	The Content-Type, because we need boundary options
-#	query	The raw multipart query data
-#
-# Results:
-#	An alternating list of names and values
-#	In this case, the value is a two element list:
-#		headers, which in turn is a list names and values
-#		content, which is the main value of the element
-#	The header name/value pairs come primarily from the MIME headers
-#	like Content-Type that appear in each part.  However, the
-#	Content-Disposition header is handled specially.  It has several
-#	parameters like "name" and "filename" that are important, so they
-#	are promoted to to the same level as Content-Type.  Otherwise,
-#	if a header like Content-Type has parameters, they appear as a list
-#	after the primary value of the header.  For example, if the
-#	part has these two headers:
-#
-#	Content-Disposition: form-data; name="Foo"; filename="/a/b/C.txt"
-#	Content-Type: text/html; charset="iso-8859-1"; mumble='extra'
-#	
-#	Then the header list will have this structure:
-#	{
-#		content-disposition form-data
-#		name Foo
-#		filename /a/b/C.txt
-#		content-type {text/html {charset iso-8859-1 mumble extra}}
-#	}
-#	Note that the header names are mapped to all lowercase.  You can
-#	use "array set" on the header list to easily find things like the
-#	filename or content-type.  You should always use [lindex $value 0]
-#	to account for values that have parameters, like the content-type
-#	example above.  Finally, not that if the value has a second element,
-#	which are the parameters, you can "array set" that as well.
-#	
-proc ::ncgi::multipart {type query} {
-
-    set parsedType [parseMimeValue $type]
-    if {![string match multipart/* [lindex $parsedType 0]]} {
-	return -code error "Not a multipart Content-Type: [lindex $parsedType 0]"
-    }
-    array set options [lindex $parsedType 1]
-    if {![info exists options(boundary)]} {
-	return -code error "No boundary given for multipart document"
-    }
-    set boundary $options(boundary)
-
-    # The query data is typically read in binary mode, which preserves
-    # the \r\n sequence from a Windows-based browser.
-    # Also, binary data may contain \r\n sequences.
-
-    if {[string match "*$boundary\r\n*" $query]} {
-        set lineDelim "\r\n"
-	#	puts "DELIM"
-    } else {
-        set lineDelim "\n"
-	#	puts "NO"
-    }
-
-    # Iterate over the boundary string and chop into parts
-
-    set len [string length $query]
-    # [string length $lineDelim]+2 is for "$lineDelim--"
-    set blen [expr {[string length $lineDelim] + 2 + \
-            [string length $boundary]}]
-    set first 1
-    set results [list]
-    set offset 0
-
-    # Ensuring the query data starts
-    # with a newline makes the string first test simpler
-    if {[string first $lineDelim $query 0]!=0} {
-        set query $lineDelim$query
-    }
-    while {[set offset [string first $lineDelim--$boundary $query $offset]] \
-            >= 0} {
-	if {!$first} {
-	    lappend results $formName [list $headers \
-		[string range $query $off2 [expr {$offset -1}]]]
+    if {![info exists contenttype]} {
+	if {[info exists env(CONTENT_TYPE)]} {
+	    set contenttype $env(CONTENT_TYPE)
 	} else {
-	    set first 0
-	}
-	incr offset $blen
-
-	# Check for the ending boundary, which is signaled by --$boundary--
-
-	if {[string equal "--" \
-		[string range $query $offset [expr {$offset + 1}]]]} {
-	    break
-	}
-
-	# Split headers out from content
-	# The headers become a nested list structure:
-	#	{header-name {
-	#		value {
-	#			paramname paramvalue ... }
-	#		}
-	#	}
-
-        set off2 [string first "$lineDelim$lineDelim" $query $offset]
-	set headers [list]
-	set formName ""
-        foreach line [split [string range $query $offset $off2] $lineDelim] {
-	    if {[regexp -- {([^:	 ]+):(.*)$} $line x hdrname value]} {
-		set hdrname [string tolower $hdrname]
-		set valueList [parseMimeValue $value]
-		if {[string equal $hdrname "content-disposition"]} {
-
-		    # Promote Conent-Disposition parameters up to headers,
-		    # and look for the "name" that identifies the form element
-
-		    lappend headers $hdrname [lindex $valueList 0]
-		    foreach {n v} [lindex $valueList 1] {
-			lappend headers $n $v
-			if {[string equal $n "name"]} {
-			    set formName $v
-			}
-		    }
-		} else {
-		    lappend headers $hdrname $valueList
-		}
-	    }
-	}
-
-	if {$off2 > 0} {
-            # +[string length "$lineDelim$lineDelim"] for the
-            # $lineDelim$lineDelim
-            incr off2 [string length "$lineDelim$lineDelim"]
-	    set offset $off2
-	} else {
-	    break
+	    return {} 
 	}
     }
-    return $results
-}
-
-# ::ncgi::importFile --
-#
-#   get information about a file upload field
-#
-# Arguments:
-#   cmd         one of '-server' '-client' '-type' '-data'
-#   var         cgi variable name for the file field
-#   filename    filename to write to for -server
-# Results:
-#   -server returns the name of the file on the server: side effect
-#      is that the file gets stored on the server and the 
-#      script is responsible for deleting/moving the file
-#   -client returns the name of the file sent from the client 
-#   -type   returns the mime type of the file
-#   -data   returns the contents of the file 
-
-proc ::ncgi::importFile {cmd var {filename {}}} {
-
-    set vlist [valueList $var]
-
-    array set fileinfo [lindex [lindex $vlist 0] 0]
-    set contents [lindex [lindex $vlist 0] 1]
-
-    switch -exact -- $cmd {
-	-server {
-	    ## take care not to write it out more than once
-	    variable _tmpfiles
-	    if {![info exists _tmpfiles($var)]} {
-		if {$filename != {}} {
-		    ## use supplied filename 
-		    set _tmpfiles($var) $filename
-		} else {
-		    ## create a tmp file 
-		    set _tmpfiles($var) [::fileutil::tempfile ncgi]
-		}
-
-		# write out the data only if it's not been done already
-		if {[catch {open $_tmpfiles($var) w} h]} {
-		    error "Can't open temporary file in ncgi::importFile ($h)"
-		} 
-
-		fconfigure $h -translation binary -encoding binary
-		puts -nonewline $h $contents 
-		close $h
-	    }
-	    return $_tmpfiles($var)
-	}
-	-client {
-	    if {![info exists fileinfo(filename)]} {return {}}
-	    return $fileinfo(filename)
-	}
-	-type {
-	    if {![info exists fileinfo(content-type)]} {return {}}
-	    return $fileinfo(content-type)
-	}
-	-data {
-	    return $contents
-	}
-	default {
-	    error "Unknown subcommand to ncgi::import_file: $cmd"
-	}
-    }
+    return $contenttype
 }
 
 
-# ::ncgi::cookie
+# ::ncgi::urlquery
 #
-#	Return a *list* of cookie values, if present, else ""
-#	It is possible for multiple cookies with the same key
-#	to be present, so we return a list.
+#	Parses $data as a url-encoded query and returns a multidict containing
+#	the query.
 #
-# Arguments:
-#	cookie	The name of the cookie (the key)
-#
-# Results:
-#	A list of values for the cookie
+proc ::ncgi::urlquery data {
+    set result {}
 
-proc ::ncgi::cookie {cookie} {
-    global env
-    set result ""
-    if {[info exists env(HTTP_COOKIE)]} {
-	foreach pair [split $env(HTTP_COOKIE) \;] {
-	    foreach {key value} [split [string trim $pair] =] { break ;# lassign }
-	    if {[string compare $cookie $key] == 0} {
-		lappend result $value
+    # Any whitespace at the beginning or end of urlquery data is not
+    # considered to be part of that data, so we trim it off.  One special
+    # case in which post data is preceded by a \n occurs when posting
+    # with HTTPS in Netscape.
+    foreach x [split [string trim $data] &] {
+	# Turns out you might not get an = sign,
+	# especially with <isindex> forms.
+
+	set pos [string first = $x]
+	set len [string length $x]
+
+	if {$pos>=0} {
+	    if {$pos == 0} { # if the = is at the beginning ...
+		if {$len>1} { 
+		    # ... and there is something to the right ...
+		    set varname [string range $x 1 end]
+		    set val {}
+		} else { 
+		    # ... otherwise, all we have is an =
+		    set varname {}
+		    set val {} 
+		}
+	    } elseif {$pos==[expr {$len-1}]} {
+		# if the = is at the end ...
+		set varname [string range $x 0 [expr {$pos-1}]]
+		set val ""
+	    } else {
+		set varname [string range $x 0 [expr {$pos-1}]]
+		set val [string range $x [expr {$pos+1}] end]
 	    }
-	}
+	} else { # no = was found ...
+	    set varname $x
+	    set val {}
+	}		
+	lappend result [decode $varname] [decode $val]
     }
     return $result
 }
 
-# ::ncgi::setCookie
+
+# ::ncgi::urlStub
 #
-#	Set a return cookie.  You must call this before you call
-#	ncgi::header or ncgi::redirect
+#	Set or return the URL associated with the current page.
+#	This is for use by TclHttpd to override the default value
+#	that otherwise comes from the CGI environment
 #
 # Arguments:
-#	args	Name value pairs, where the names are:
-#		-name	Cookie name
-#		-value	Cookie value
-#		-path	Path restriction
-#		-domain	domain restriction
-#		-expires	Time restriction
+#	url	(option) The url of the page, not counting the server name.
+#		If not specified, the current urlStub is returned
 #
 # Side Effects:
-#	Formats and stores the Set-Cookie header for the reply.
-
-proc ::ncgi::setCookie {args} {
-    variable cookieOutput
-    array set opt $args
-    set line "$opt(-name)=$opt(-value) ;"
-    foreach extra {path domain} {
-	if {[info exists opt(-$extra)]} {
-	    append line " $extra=$opt(-$extra) ;"
+#	May affects future calls to ncgi::urlStub
+#
+proc ::ncgi::urlStub {_ {url {}}} {
+    global  env
+    namespace upvar $_ urlStub urlStub
+    if {[string length $url]} {
+	set urlStub $url
+	return {} 
+    } elseif {[info exists urlStub]} {
+	return $urlStub
+    } else {
+	if {[info exists env(SCRIPT_NAME)]} {
+	    set urlStub $env(SCRIPT_NAME)
+	} else {
+	    set urlStub {}
 	}
+	return $urlStub
     }
-    if {[info exists opt(-expires)]} {
-	switch -glob -- $opt(-expires) {
-	    *GMT {
-		set expires $opt(-expires)
-	    }
-	    default {
-		set expires [clock format [clock scan $opt(-expires)] \
-			-format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
-	    }
-	}
-	append line " expires=$expires ;"
-    }
-    if {[info exists opt(-secure)]} {
-	append line " secure "
-    }
-    lappend cookieOutput $line
 }
+
+namespace eval ::ncgi {
+    namespace ensemble create -command [namespace current]::form \
+	-parameters _ -map {
+	exists form_exists
+	get form_get
+    }
+
+    namespace ensemble create -command [namespace current]::query \
+	-parameters _ -map {
+
+	get query_get
+	set query_set
+	string query_string
+    }
+
+    .new dummy [namespace current]
+}
+

@@ -4,7 +4,7 @@ namespace eval ::tcllib {}
 ###
 # Because many features in this package may be added as
 # commands to future tcl cores, or be provided in binary
-# form by packages, I need a declaritive way of saying
+# form by packages, I need a declarative way of saying
 # [emph {Create this command if there isn't one already}].
 # The [emph ninja] argument is a script to execute if the
 # command is created by this mechanism.

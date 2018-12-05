@@ -45,6 +45,7 @@ Module  bibtex      _tcl  _man  _exa
 Module  blowfish    _tcl  _man  _null
 Module  cache       _tcl  _man  _null
 Module  calendar     _tci _man  _null
+Module  chan        _tcl  _man  _null
 Module  clay         _tcl  _man _null
 Module  clock       _tcl  _man _null
 Module  cmdline     _tcl  _man  _null
@@ -67,6 +68,7 @@ Module  doctools2base _tcl _man _null
 Module  doctools2idx  _tcl _man _null
 Module  doctools2toc  _tcl _man _null
 Module  dtplite       _tcl _man _null
+Module  ego           _tcl _man _null
 Module  exif        _tcl  _man  _null
 Module  fileutil    _tcl  _man  _null
 Module  ftp         _tcl  _man _exa

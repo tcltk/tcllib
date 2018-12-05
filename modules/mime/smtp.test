@@ -1,0 +1,55 @@
+#! /usr/bin/env tclsh
+
+# copyright 2018 Poor Yorick
+
+source [file join \
+	[file dirname [file dirname [file dirname [
+	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 1.0-
+
+testing {
+    useLocal smtp.tcl smtp
+}
+
+package require nettool
+package require smtpd
+
+variable port [nettool::allocate_port 1025]
+smtpd::start localhost $port
+
+proc accept msg {
+    variable result
+    set headers [$msg header get]
+    lappend result [lsort [dict keys $headers]]
+    lappend result [$msg header get From]
+    return
+}
+
+
+proc main {} {
+    variable done
+    variable result
+    test smtp-1.1 {} -body {
+	variable port
+	smtpd::configure -deliverMIME [namespace which accept]
+	set msg [mime::.new {} -canonical text/plain \
+	    -string {a door is ajar}]
+	set res [smtp::sendmessage $msg -ports $port -originator Slawkenbergius -recipients {leroy@fake.domain}]
+	lappend result $res
+	return $result
+    } -cleanup {
+	unset result
+    } -result [list \
+	{Bcc Content-ID Content-Type Date From Message-ID Received Return-Path} {Slawkenbergius {}} {}
+    ]
+
+    testsuiteCleanup
+    set done 1
+    return
+}
+
+after 0 [list coroutine [info cmdcount]_main [namespace which main]]
+vwait [namespace current]::done
+
