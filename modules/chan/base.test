@@ -4,8 +4,8 @@ source [file join \
 	[file dirname [file dirname [file dirname [
 	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
 
-testsNeedTcl     8.5
-testsNeedTcltest 1.0-
+testsNeedTcl     8.6
+testsNeedTcltest 2.0
 
 package require tcl::chan::string 
 package require {chan base}
@@ -18,11 +18,11 @@ proc main {} {
 
     test chan-object-closeondelete {
     } -body {
-	base .new chan1 [::tcl::chan::string $data1]
-	set name [chan1 $ chan]
-	lappend res [expr {$name in [chan names]}]
-	chan1 close
-	lappend res [expr {$name in [chan names]}]
+        base .new chan1 [::tcl::chan::string $data1]
+        set name [chan1 $ chan]
+        lappend res [expr {$name in [chan names]}]
+        chan1 close
+        lappend res [expr {$name in [chan names]}]
     } -result {1 0} 
 
     testsuiteCleanup

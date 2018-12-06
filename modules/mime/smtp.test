@@ -6,7 +6,7 @@ source [file join \
 	[file dirname [file dirname [file dirname [
 	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
 
-testsNeedTcl     8.5
+testsNeedTcl     8.6.9
 testsNeedTcltest 2 
 
 testing {
