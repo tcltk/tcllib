@@ -473,15 +473,16 @@ proc useLocal {fname pname args} {
     package forget $pname
     catch {namespace delete $nsname}
 
-    set unique [info cmdcount]
-    set cresvar [namespace current]::${unique}_cres
-    set coptsvar [namespace current]::${unique}_copts
-    if {[uplevel 1 [list ::catch [list useLocalFile $fname] $cresvar $coptsvar]]} {
+    if {[catch {
+	uplevel 1 [list useLocalFile $fname]
+    } msg]} {
 	puts "    Aborting the tests found in \"[file tail [info script]]\""
-    } else {
-	puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
+	puts "    Error in [file tail $fname]: $msg"
+	return -code error ""
     }
-    return -options [set $coptsvar][unset $coptsvar] [set $cresvar][unset $cresvar] 
+
+    puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
+    return
 }
 
 proc useLocalKeep {fname pname args} {
@@ -531,13 +532,16 @@ proc support {script} {
 
 proc testing {script} {
     InitializeTclTest
-    set ::tcllib::testutils::tag *
-    set unique [info cmdcount]
-    set cresvar [namespace current]::${unique}_cres
-    set coptsvar [namespace current]::${unique}_copts
-    uplevel 1 [list ::catch $script $cresvar $coptsvar]
-    return -options [set $coptsvar][unset $coptsvar] [set $cresvar][
-	unset $cresvar]
+    set ::tcllib::testutils::tag "*"
+    if {[catch {
+	uplevel 1 $script
+    } msg]} {
+	set prefix "SETUP Error (Testing): "
+	puts $prefix[join [split $::errorInfo \n] "\n$prefix"]
+
+	return -code return
+    }
+    return
 }
 
 proc useTcllibC {} {
