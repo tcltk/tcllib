@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require mime 1.6
+package require -exact mime 1.6
 package require fileutil
 package require websocket
 package require Markdown

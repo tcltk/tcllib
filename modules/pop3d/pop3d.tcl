@@ -9,7 +9,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require md5  ; # tcllib | APOP
-package require mime 1.6; # tcllib | storage callback
+package require -exact mime 1.6; # tcllib | storage callback
 package require log  ; # tcllib | tracing
 
 package provide pop3d 1.1.0

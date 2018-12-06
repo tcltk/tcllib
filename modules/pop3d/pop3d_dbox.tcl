@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require mime 1.6; # tcllib | mime token is result of "get".
+package require -exact mime 1.6; # tcllib | mime token is result of "get".
 package require log  ; # tcllib | Logging package
 
 namespace eval ::pop3d::dbox {

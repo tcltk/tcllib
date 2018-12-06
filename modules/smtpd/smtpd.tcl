@@ -14,7 +14,7 @@
 
 package require Tcl 8.3;                # tcl minimum version
 package require logger;                 # tcllib 1.3
-package require mime 1.6;                   # tcllib
+package require -exact mime 1.6;                   # tcllib
 
 package provide smtpd 1.5
 
