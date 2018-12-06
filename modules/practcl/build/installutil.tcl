@@ -219,7 +219,7 @@ set IDXPATH [lindex $::PATHSTACK end]
     }
     set path_indexed($base) 1
     set path_indexed([file join $base boot tcl]) 1
-    append buffer \n {# SINGLE FILE MODULES BEGIN} \n {set dir [file dirname $::PKGIDXFILE]} \n
+    append buffer \n {# SINGLE FILE MODULES BEGIN} \n {set dir [lindex $::PATHSTACK end]} \n
     foreach path $paths {
       if {$path_indexed($path)} continue
       set thisdir [file_relative $base $path]
@@ -329,18 +329,28 @@ proc ::practcl::buildModule {modpath} {
 }
 
 proc ::practcl::installModule {modpath DEST} {
-  puts [list installModule $modpath $DEST]
   set dpath  [file join $DEST modules [file tail $modpath]]
+  puts [list ::practcl::installModule $modpath -> $dpath]
+  if {[file exists [file join $modpath index.tcl]]} {
+    # IRM/Tao style modules non-amalgamated
+    ::practcl::installDir $modpath $dpath
+    return
+  }
   if {[file exists [file join $modpath build build.tcl]]} {
     buildModule $modpath
-  } elseif {![file exists [file join $modpath pkgIndex.tcl]]} {
-    puts [list Reindex $modpath]
-    pkg_mkIndex $modpath
   }
-  file delete -force $dpath
-  file mkdir $dpath
-  foreach file [glob  [file join $modpath *.tcl]] {
-    file copy $file $dpath
+  set files [glob -nocomplain [file join $modpath *.tcl]]
+  if {[llength $files]} {
+    if {[llength $files]>1} {
+      if {![file exists [file join $modpath pkgIndex.tcl]]} {
+        pkg_mkIndex $modpath
+      }
+    }
+    file delete -force $dpath
+    file mkdir $dpath
+    foreach file $files {
+      file copy $file $dpath
+    }
   }
   if {[file exists [file join $modpath htdocs]]} {
     ::practcl::copyDir [file join $modpath htdocs] [file join $dpath htdocs]
