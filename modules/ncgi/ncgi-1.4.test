@@ -20,9 +20,7 @@ testsNeedTcltest 2
 
 testsNeedTcl     8.4
 testsNeedTcltest 2
-support {
-    use           mime/mime-1.6.tcl mime
-}
+
 testing {
     useLocal ncgi-1.4.tcl ncgi
 }

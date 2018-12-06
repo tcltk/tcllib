@@ -14,7 +14,7 @@
 
 package require Tcl 8.3;                # tcl minimum version
 package require logger;                 # tcllib 1.3
-package require mime;                   # tcllib
+package require mime 1.6;                   # tcllib
 
 package provide smtpd 1.5
 
@@ -27,7 +27,7 @@ namespace eval ::smtpd {
     variable commands
     if {![info exists commands]} {
         set commands {EHLO HELO MAIL RCPT DATA RSET NOOP QUIT HELP}
-        # non-minimal commands HELP VRFY EXPN VERB ETRN DSN 
+        # non-minimal commands HELP VRFY EXPN VERB ETRN DSN
     }
 
     variable extensions
@@ -52,7 +52,7 @@ namespace eval ::smtpd {
         }
         set options(banner) "tcllib smtpd $version"
     }
-    variable tlsopts {-cadir -cafile -certfile -cipher 
+    variable tlsopts {-cadir -cafile -certfile -cipher
         -command -keyfile -password -request -require -ssl2 -ssl3 -tls1}
 
     variable log
@@ -65,18 +65,18 @@ namespace eval ::smtpd {
                 $service $level\] $text"
         }
     }
-    
+
     variable Help
     if {![info exists Help]} {
         array set Help {
-            {}   {{Topics:} {   HELO MAIL DATA RSET NOOP QUIT} 
+            {}   {{Topics:} {   HELO MAIL DATA RSET NOOP QUIT}
                 {For more information use "HELP <topic>".}}
             HELO {{HELO <hostname>} {   Introduce yourself.}}
             MAIL {{MAIL FROM: <sender> [ <parameters> ]}
                 {   Specify the sender of the message.}
                 {   If using ESMTP there may be additional parameters of the}
                 {   form NAME=VALUE.}}
-            DATA {{DATA} {   Send your mail message.} 
+            DATA {{DATA} {   Send your mail message.}
                 {   End with a line containing a single dot.}}
             RSET {{RSET} {   Reset the session.}}
             NOOP {{NOOP} {   Command ignored by server.}}
@@ -181,7 +181,7 @@ proc ::smtpd::configure {args} {
 proc ::smtpd::start {{myaddr {}} {port 25}} {
     variable options
     variable stopped
-    
+
     if {[info exists options(socket)]} {
         return -code error \
             "smtpd service already running on socket $options(socket)"
@@ -249,13 +249,13 @@ proc ::smtpd::accept {channel client_addr client_port} {
             set accepted false
         }
     }
-    
+
     if {$accepted} {
         # Accept the connection
         Log notice "connect from $client_addr:$client_port on $channel"
         Puts $channel "220 $options(serveraddr) $options(banner); [timestamp]"
     }
-    
+
     return
 }
 
@@ -491,15 +491,15 @@ proc ::smtpd::deliver {channel} {
             && [state $channel from] != {} \
             && [state $channel to] != {} \
             && [state $channel data] != {} } {
-        
-        # create a MIME token from the mail message.        
+
+        # create a MIME token from the mail message.
         set tok [mime::.new {} -string \
                 [join [state $channel data] \n]]
 #        mime::setheader $tok "From" [state $channel from]
 #        foreach recipient [state $channel to] {
 #            mime::setheader $tok "To" $recipient -mode append
 #        }
-        
+
         # catch and rethrow any errors.
         set err [catch {eval $deliverMIME [list $tok]} msg]
         $tok .destroy -subordinates all
@@ -507,8 +507,8 @@ proc ::smtpd::deliver {channel} {
             Log debug "error in deliver: $msg"
             return -code error -errorcode $::errorCode \
                     -errorinfo $::errorInfo $msg
-        }        
-        
+        }
+
     } else {
         # Try the old interface
         deliver_old $channel
@@ -659,7 +659,7 @@ proc ::smtpd::MAIL {channel line} {
 # -------------------------------------------------------------------------
 # Description:
 #   Specify a recipient for this mail. This command may be executed multiple
-#   times to contruct a list of recipients. If a -validate_recipient 
+#   times to contruct a list of recipients. If a -validate_recipient
 #   procedure is configured then this is used. An error from the validation
 #   procedure indicates an invalid or unacceptable mailbox.
 # Reference:
@@ -715,7 +715,7 @@ proc ::smtpd::RCPT {channel line} {
 
 # -------------------------------------------------------------------------
 # Description:
-#   Begin accepting data for the mail payload. A line containing a single 
+#   Begin accepting data for the mail payload. A line containing a single
 #   period marks the end of the data and the server will then deliver the
 #   mail. RCPT and MAIL commands must have been executed before the DATA
 #   command.
@@ -835,7 +835,7 @@ proc ::smtpd::NOOP {channel line} {
 # Reference:
 #   RFC2821 4.1.1.10
 # Notes:
-#   The server is only permitted to close the channel once it has received 
+#   The server is only permitted to close the channel once it has received
 #   a QUIT message.
 #
 proc ::smtpd::QUIT {channel line} {
@@ -845,7 +845,7 @@ proc ::smtpd::QUIT {channel line} {
     Log debug "QUIT on $channel"
     Puts $channel "221 $options(serveraddr) Service closing transmission channel"
     close $channel
-        
+
     # cleanup the session state array.
     unset State
     return
@@ -861,7 +861,7 @@ proc ::smtpd::QUIT {channel line} {
 proc ::smtpd::STARTTLS {channel line} {
     variable options
     upvar [namespace current]::state_$channel State
-    
+
     Log debug "$line on $channel"
     if {![string equal $line STARTTLS]} {
         Puts $channel "501 Syntax error (no parameters allowed)"
@@ -873,7 +873,7 @@ proc ::smtpd::STARTTLS {channel line} {
         Puts $channel "454 TLS not available due to temporary reason"
         return
     }
-    
+
     set import [linsert $options(tlsopts) 0 ::tls::import $channel -server 1]
     Puts $channel "220 Ready to start TLS"
     if {[catch $import msg]} {
@@ -894,7 +894,7 @@ proc ::smtpd::tlscallback {option args} {
         "error" {
             foreach {chan msg} $args break
             Log error "TLS error '$msg'"
-        } 
+        }
         "verify" {
             foreach {chan depth cert rc err} $args break
             if {$rc ne "1"} {

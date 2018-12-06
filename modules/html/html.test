@@ -20,6 +20,11 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
+support {
+    use           md5/md5x.tcl   md5
+    use           mime/mime-1.6.tcl  mime
+    use           ncgi/ncgi-1.4.tcl  ncgi
+}
 testing {
     useLocal html.tcl html
 }
@@ -307,7 +312,7 @@ test html-13.5 {html::textInput} {
 
 test html-13.6 {html::textInput} {
     html::init
-    ncgi::reset 
+    ncgi::reset
     ncgi::parse
     html::textInput email default@foo.com size="80"
 } {<input type="text" name="email" value="default@foo.com" size="80">
@@ -578,7 +583,7 @@ test html-27.8 {html::foreach--subst body w/ nested foreach} {
     }
 } {
         acad
-    
+
         bcbd
     }
 
@@ -592,7 +597,7 @@ test html-27.9 {html::foreach--subst body w/ multiple nested foreach's} {
             ef
         ad
             ef
-        
+
         bc
             ef
         bd

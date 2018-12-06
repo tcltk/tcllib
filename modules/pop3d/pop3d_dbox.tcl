@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require mime ; # tcllib | mime token is result of "get".
+package require mime 1.6; # tcllib | mime token is result of "get".
 package require log  ; # tcllib | Logging package
 
 namespace eval ::pop3d::dbox {
@@ -57,7 +57,7 @@ namespace eval ::pop3d::dbox {
 
 proc ::pop3d::dbox::new {{name ""}} {
     variable counter
-    
+
     if { [llength [info level 0]] == 1 } {
 	incr counter
 	set name "p3dbox${counter}"
@@ -104,7 +104,7 @@ proc ::pop3d::dbox::DboxProc {name {cmd ""} args} {
 	return -code error \
 		"wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     if { [llength [info commands ::pop3d::dbox::_$cmd]] == 0 } {
 	variable commands

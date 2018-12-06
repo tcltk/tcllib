@@ -29,7 +29,6 @@
 package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 package require uri
-
 package provide ncgi 1.4.3
 
 namespace eval ::ncgi {
@@ -72,7 +71,7 @@ namespace eval ::ncgi {
 
     # Support for x-www-urlencoded character mapping
     # The spec says: "non-alphanumeric characters are replaced by '%HH'"
- 
+
     variable i
     variable c
     variable map
@@ -83,7 +82,7 @@ namespace eval ::ncgi {
 	    set map($c) %[format %.2X $i]
 	}
     }
-     
+
     # These are handled specially
     array set map {
 	" " +   \n %0D%0A
@@ -94,7 +93,7 @@ namespace eval ::ncgi {
     variable  _tmpfiles
     array set _tmpfiles {}
 
-    # I don't like importing, but this makes everything show up in 
+    # I don't like importing, but this makes everything show up in
     # pkgIndex.tcl
 
     namespace export reset urlStub query type decode encode
@@ -365,16 +364,16 @@ proc ::ncgi::nvlist {} {
 
 		if { $pos>=0 } {
 		    if { $pos == 0 } { # if the = is at the beginning ...
-		        if { $len>1 } { 
+		        if { $len>1 } {
                             # ... and there is something to the right ...
 		            set varname anonymous
 		            set val [string range $x 1 end]
-		        } else { 
+		        } else {
                             # ... otherwise, all we have is an =
 		            set varname anonymous
 		            set val ""
 		        }
-		    } elseif { $pos==[expr {$len-1}] } { 
+		    } elseif { $pos==[expr {$len-1}] } {
                         # if the = is at the end ...
 		        set varname [string range $x 0 [expr {$pos-1}]]
 			set val ""
@@ -385,7 +384,7 @@ proc ::ncgi::nvlist {} {
 		} else { # no = was found ...
 		    set varname anonymous
 		    set val $x
-		}		
+		}
 		lappend result [decode $varname] [decode $val]
 	    }
 	    return $result
@@ -428,7 +427,7 @@ proc ::ncgi::parse {} {
 	lappend value($name) $val
     }
     return $varlist
-} 
+}
 
 # ::ncgi::input
 #
@@ -471,7 +470,7 @@ proc ::ncgi::input {{fakeinput {}} {fakecookie {}}} {
 	}
     }
     return $varlist
-} 
+}
 
 # ::ncgi::value
 #
@@ -548,7 +547,7 @@ proc ::ncgi::valueList {key {default {}}} {
 #	value	This is a single value, and this procedure wraps it up in a list
 #		for compatibility with the ncgi::value array usage.  If you
 #		want a list of values, use ngci::setValueList
-#		
+#
 #
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
@@ -570,7 +569,7 @@ proc ::ncgi::setValue {key value} {
 #	key		The name of the query element
 #	valuelist	This is a list of values, e.g., for checkbox or multiple
 #			selections sets.
-#		
+#
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
@@ -600,7 +599,7 @@ proc ::ncgi::setValueList {key valuelist} {
 #	key	The name of the query element
 #	value	This is a single value, and this procedure wraps it up in a list
 #		for compatibility with the ncgi::value array usage.
-#		
+#
 #
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
@@ -618,7 +617,7 @@ proc ::ncgi::setDefaultValue {key value} {
 #	key		The name of the query element
 #	valuelist	This is a list of values, e.g., for checkbox or multiple
 #			selections sets.
-#		
+#
 # Side Effects:
 #	Alters the ncgi::value and possibly the ncgi::valueList variables
 
@@ -721,7 +720,7 @@ proc ::ncgi::redirect {url} {
 	# The url is relative (no protocol/server spec in it), so
 	# here we create a canonical URL.
 
-	# request_uri	The current URL used when dealing with relative URLs.  
+	# request_uri	The current URL used when dealing with relative URLs.
 	# proto		http or https
 	# server 	The server, which we are careful to match with the
 	#		current one in base Basic Authentication is being used.
@@ -869,7 +868,7 @@ proc ::ncgi::parseMimeValue {value} {
 #
 #	Content-Disposition: form-data; name="Foo"; filename="/a/b/C.txt"
 #	Content-Type: text/html; charset="iso-8859-1"; mumble='extra'
-#	
+#
 #	Then the header list will have this structure:
 #	{
 #		content-disposition form-data
@@ -883,7 +882,7 @@ proc ::ncgi::parseMimeValue {value} {
 #	to account for values that have parameters, like the content-type
 #	example above.  Finally, not that if the value has a second element,
 #	which are the parameters, you can "array set" that as well.
-#	
+#
 proc ::ncgi::multipart {type query} {
 
     set parsedType [parseMimeValue $type]
@@ -995,11 +994,11 @@ proc ::ncgi::multipart {type query} {
 #   filename    filename to write to for -server
 # Results:
 #   -server returns the name of the file on the server: side effect
-#      is that the file gets stored on the server and the 
+#      is that the file gets stored on the server and the
 #      script is responsible for deleting/moving the file
-#   -client returns the name of the file sent from the client 
+#   -client returns the name of the file sent from the client
 #   -type   returns the mime type of the file
-#   -data   returns the contents of the file 
+#   -data   returns the contents of the file
 
 proc ::ncgi::importFile {cmd var {filename {}}} {
 
@@ -1014,20 +1013,20 @@ proc ::ncgi::importFile {cmd var {filename {}}} {
 	    variable _tmpfiles
 	    if {![info exists _tmpfiles($var)]} {
 		if {$filename != {}} {
-		    ## use supplied filename 
+		    ## use supplied filename
 		    set _tmpfiles($var) $filename
 		} else {
-		    ## create a tmp file 
+		    ## create a tmp file
 		    set _tmpfiles($var) [::fileutil::tempfile ncgi]
 		}
 
 		# write out the data only if it's not been done already
 		if {[catch {open $_tmpfiles($var) w} h]} {
 		    error "Can't open temporary file in ncgi::importFile ($h)"
-		} 
+		}
 
 		fconfigure $h -translation binary -encoding binary
-		puts -nonewline $h $contents 
+		puts -nonewline $h $contents
 		close $h
 	    }
 	    return $_tmpfiles($var)

@@ -15,7 +15,7 @@
 # RCS: @(#) $Id: javascript.tcl,v 1.5 2005/09/30 05:36:39 andreas_kupries Exp $
 
 package require Tcl 8
-package require ncgi 1
+package require ncgi 1.4
 package provide javascript 1.0.2
 
 
@@ -296,7 +296,7 @@ proc ::javascript::makeSubmitButton {name value} {
 
     # Create the HTML submit button.
 
-    append html "<input type=submit name=\"$name\" value=\"$value\" 
+    append html "<input type=submit name=\"$name\" value=\"$value\"
     onClick=\"getSelections(this.form)\">"
 
     return $html
@@ -333,7 +333,7 @@ proc ::javascript::makeProtectedSubmitButton {name value msg} {
 
     # Create the HTML submit button.
 
-    append html "<input type=submit name=\"$name\" value=\"$value\" 
+    append html "<input type=submit name=\"$name\" value=\"$value\"
     onClick=\"return areYouSure${name}(this.form)\">"
 
     return $html
@@ -370,7 +370,7 @@ proc ::javascript::makeMasterButton {master value slavePattern boolean} {
 
     append html "\}\n"
     append html [EndJS]
-    
+
     # Create the HTML button object.
 
     append html "<input type=button name=\"$master\" value=\"$value\" " \
