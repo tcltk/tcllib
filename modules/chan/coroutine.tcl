@@ -9,7 +9,8 @@
 # # ## ### ##### ######## #############
 
 package require coroutine
-
+package require ego
+namespace eval ::tcllib::chan::coroutine {
 
 proc [namespace current] chan {
 	if {![string match ::* $chan]} {
@@ -34,4 +35,10 @@ proc gets {_ args} {
 proc read {_ args} {
 	$_ .vars chan
 	tailcall ::coroutine::util::read $chan {*}$args
+}
+}
+
+package provide {chan coroutine} 0.1
+namespace eval ::tcllib::chan {
+	namespace export coroutine
 }

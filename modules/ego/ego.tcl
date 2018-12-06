@@ -1,5 +1,3 @@
-#! /bin/env tclsh
-
 # # ## ### ##### ######## #############
 # copyright
 #
@@ -8,6 +6,7 @@
 #     Poor Yorick
 # # ## ### ##### ######## #############
 
+namespace eval ::tcllib::ego {
 namespace ensemble create
 namespace export *
 
@@ -17,7 +16,7 @@ proc .method {_ name args} {
 	}
 	set args [linsert $args[set args {}] 1 $_]
 	set map [namespace ensemble configure $_ -map]
-	dict set map $name $args 
+	dict set map $name $args
 	uplevel 1 [list ::namespace ensemble configure $_ -map $map]
 	return
 }
@@ -52,7 +51,7 @@ proc .as {_ other name args} {
 proc .eval {_ args} {
 	::tailcall ::namespace eval [$_ .namespace] {*}$args
 }
-.method [namespace current] .eval 
+.method [namespace current] .eval
 
 
 proc .insert {_ name} {
@@ -61,7 +60,7 @@ proc .insert {_ name} {
 
 	if {[llength $unknown1]} {
 		namespace ensemble configure $name -prototype $prototype1 \
-			-unknown $unknown1 
+			-unknown $unknown1
 	}
 
 	namespace enemble configure $_ -prototype [list ::lindex $name] -unknown $unknown1
@@ -72,13 +71,13 @@ proc .insert {_ name} {
 proc .name _ {
 	return $_
 }
-.method [namespace current] .name 
+.method [namespace current] .name
 
 
 proc .namespace _ {
 	namespace ensemble configure $_ -namespace
 }
-.method [namespace current] .namespace 
+.method [namespace current] .namespace
 
 
 proc .new {_ name args} {
@@ -100,12 +99,12 @@ proc .new {_ name args} {
 	set prototypes {}
 	while {[dict exists $map .prototype]} {
 		set prototypes [list $map {*}$prototypes[set prototypes {}]]
-		lassign [dict get $map .prototype] prototype 
+		lassign [dict get $map .prototype] prototype
 		set map [namespace ensemble configure $prototype -map]
 	}
 
 	set map {}
-	foreach {key val} [namespace ensemble configure $prototype -map] { 
+	foreach {key val} [namespace ensemble configure $prototype -map] {
 		if {$key ne {.prototype}} {
 			if {[lindex $val 1] eq $_} {
 				set val [lreplace $val[set val {}] 1 1 $ns]
@@ -113,7 +112,7 @@ proc .new {_ name args} {
 		} else {
 			error [list {how did we get to here?}]
 		}
-		lappend map $key $val 
+		lappend map $key $val
 	}
 
 	namespace ensemble configure $ns -map $map
@@ -125,7 +124,7 @@ proc .new {_ name args} {
 		dict for {name cmd} $map {
 			if {[lindex $cmd 1] eq $_} {
 				# remove the original name from index 1 because .method is
-				# going to add it back 
+				# going to add it back
 				$ns .method $name {*}[lreplace $cmd[set cmd {}] 1 1]
 			} else {
 				$ns .routine $name {*}$cmd
@@ -133,7 +132,7 @@ proc .new {_ name args} {
 		}
 	}
 
-	interp alias {} ${ns}::.my {} $ns 
+	interp alias {} ${ns}::.my {} $ns
 
 	if {[llength $args]} {
 		tailcall $ns .init {*}$args
@@ -141,7 +140,7 @@ proc .new {_ name args} {
 		return $ns
 	}
 }
-.method [namespace current] .new 
+.method [namespace current] .new
 
 
 proc .ondelete {_ trace args} {
@@ -173,15 +172,15 @@ proc .routine {_ name args} {
 	uplevel 1 [list ::namespace ensemble configure $_ -map $map]
 	return
 }
-.method [namespace current] .routine 
+.method [namespace current] .routine
 
 
 proc .specialize {_ args} {
-	set ns [$_ .namespace] 
+	set ns [$_ .namespace]
 	while {[namespace which [set name ${ns}::[
 		info cmdcount]_prototype]] ne {}} {}
 	rename $_ $name
-	
+
 	set new [namespace eval ${ns} [
 		list namespace ensemble create -command $_ -map [list \
 			.prototype [list $name]
@@ -199,7 +198,7 @@ proc .specialize {_ args} {
 	}} $ns]
 	return
 }
-.method [namespace current] .specialize 
+.method [namespace current] .specialize
 
 
 proc .vars {_ args} {
@@ -213,13 +212,15 @@ proc .vars {_ args} {
 	}
 	uplevel 1 [list ::namespace upvar $_ {*}$vars]
 }
-.method [namespace current] .vars 
+.method [namespace current] .vars
 
 
 proc = {_ name val} {
 	set [$_ .namespace]::$name $val
 }
-.method [namespace current] = 
+.method [namespace current] =
+}
+package provide ego 0.1
 
 
 
