@@ -6,21 +6,13 @@ package require oo::meta 0.4
 
 proc ::oo::define::option {field argdict} {
   set class [lindex [::info level -1] 1]
-  set field [string trimleft $field -/:]
-  set properties {default {}}
-  foreach {f v} $argdict {
-    dict set properties [string trim $f -/:] $v
+  foreach {prop value} $argdict {
+    ::oo::meta::info $class set option $field [string trim $prop :]: $value
   }
-  dict for {f v} [$class clay get option $field] {
-    if {![dict exists $properties $f]} {
-      dict set properties $f $v
-    }
-  }
-  $class clay set option/ $field/ $properties
 }
 
 oo::define oo::object {
-
+  
   ###
   # topic: 3c4893b65a1c79b2549b9ee88f23c9e3
   # description:
@@ -79,50 +71,44 @@ oo::define oo::object {
   # topic: 86a1b968cea8d439df87585afdbdaadb
   ###
   method cget {field {default {}}} {
-    my variable config
-    if {![info exists config]} {
-      set config {}
-    }
+    my variable _config
     set field [string trimleft $field -]
-    if {[my clay exists option $field]} {
-      set info [my clay get option $field]
-      if {$default eq "default"} {
-        set getcmd [dict getnull $info default-command]
-        if {$getcmd ne {}} {
-          return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
-        } else {
-          return [dict getnull $info default]
-        }
+    set dat [my meta getnull option]
+  
+    if {[my meta is true const options_strict:] && ![dict exists $dat $field]} {
+      error "Invalid option -$field. Valid: [dict keys $dat]"
+    }
+    set info [dict getnull $dat $field]    
+    if {$default eq "default"} {
+      set getcmd [dict getnull $info default-command:]
+      if {$getcmd ne {}} {
+        return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
+      } else {
+        return [dict getnull $info default:]
       }
-      set getcmd [dict getnull $info get-command]
+    }
+    if {[dict exists $dat $field]} {
+      set getcmd [dict getnull $info get-command:]
       if {$getcmd ne {}} {
         return [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
       }
-      if {![dict exists $config $field]} {
-        set getcmd [dict getnull $info default-command]
+      if {![info exists _config($field)]} {
+        set getcmd [dict getnull $info default-command:]
         if {$getcmd ne {}} {
-          dict set config $field [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
+          set _config($field) [{*}[string map [list %field% $field %self% [namespace which my]] $getcmd]]
         } else {
-          dict set config $field [dict getnull $info default]
+          set _config($field) [dict getnull $info default:]
         }
       }
       if {$default eq "varname"} {
-        error "Operation not supported"
-        #set varname [my varname config]
-        #return "${varname}($field)"
+        set varname [my varname _config]
+        return "${varname}($field)"
       }
-      return [dict get $config $field]
-    } else {
-      if {[string is true -strict [my clay get const options_strict]]} {
-        error "Invalid option -$field. Valid: [dict keys $dat]"
-      }
-      if {[dict exists $config $field]} {
-        return [dict get $config $field]
-      }
+      return $_config($field)
     }
     return [my meta cget $field]
   }
-
+  
   ###
   # topic: 73e2566466b836cc4535f1a437c391b0
   ###
@@ -140,7 +126,7 @@ oo::define oo::object {
   # topic: dc9fba12ec23a3ad000c66aea17135a5
   ###
   method configurelist dictargs {
-    my variable config
+    my variable _config
     set dat [my meta getnull option]
     if {[my meta is true const options_strict:]} {
       foreach {field val} $dictargs {
@@ -161,9 +147,7 @@ oo::define oo::object {
     ###
     # Apply all inputs with special rules
     ###
-    dict for {f v} $dictargs {
-      dict set config $f $v
-    }
+    array set _config $dictargs
   }
 
   ###

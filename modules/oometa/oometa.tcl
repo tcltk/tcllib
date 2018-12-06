@@ -4,13 +4,12 @@
 # TclOO routines to implement property tracking by class and object
 ###
 package require Tcl 8.6 ;# tailcall
-package require dicttool 1.2
-package require clay 0.4
-package require oo::dialect
-package provide oo::meta 0.8
+package require dicttool
+package provide oo::meta 0.7.1
 
 namespace eval ::oo::meta {
-  set dirty_classes {}
+  variable dirty_classes {}
+  variable core_classes {::oo::class ::oo::object}
 }
 
 proc ::oo::meta::args_to_dict args {
@@ -29,6 +28,7 @@ proc ::oo::meta::args_to_options args {
 }
 
 proc ::oo::meta::ancestors class {
+  variable core_classes
   set class [::oo::meta::normalize $class]
   set core_result {}
   set queue $class
@@ -39,7 +39,7 @@ proc ::oo::meta::ancestors class {
     set tqueue $queue
     set queue {}
     foreach qclass $tqueue {
-      if {$qclass in $::oo::dialect::core_classes} {
+      if {$qclass in $core_classes} {
         if {$qclass ni $core_result} {
           lappend core_result $qclass
         }
@@ -80,101 +80,8 @@ proc ::oo::meta::ancestors class {
   return $result
 }
 
-###
-# Output a dictionary removing any . entries added by [fun {dicttool::merge}]
-###
-proc oo::meta::to_dicttool {dict} {
-  ::set result {}
-  ::set level -1
-  if {![dict is_dict $dict]} {
-    return $dict
-  }
-  _to_dicttool {} result $dict
-  return $result
-}
-
-###
-# Helper function for ::dicttool::sanitize
-# Formats the string representation for a dictionary element within
-# a human readable stream of lines, and determines if it needs to call itself
-# with further indentation to express a sub-branch
-###
-proc oo::meta::_to_dicttool {path varname dict} {
-  upvar 1 $varname result
-  dict for {field value} $dict {
-    if {$field eq "."} continue
-    if {[dicttool::is_branch $dict $field]} {
-      dict set result {*}$path $field . {}
-      _to_dicttool [list {*}$path $field] result $value
-    } else {
-      dict set result {*}$path [string trim $field :] $value
-    }
-  }
-}
-
-proc oo::meta::clay_branch args {
-  foreach item $args {
-    lappend result [string trim $item /:]/
-  }
-  return $result
-}
-
-proc oo::meta::clay_leaf args {
-  set tfx [string index [lindex $args end] end]
-  if {$tfx eq "/"} {
-    return {*}$args
-  }
-  set result {}
-  foreach item [lrange $args 0 end-1] {
-    lappend result [string trim $item /:]/
-  }
-  lappend result [string trim [lindex $args end] :]
-  return $result
-}
-
-proc oo::meta::claypath args {
-  set tfx [string index [lindex $args end] end]
-  if {$tfx eq "/"} {
-    return $args
-  }
-  set result {}
-  set root [lindex $args 0]
-  if {$root in {option method_ensemble}} {
-    lappend result $root/
-    if {[llength $args]>1} {
-      lappend result [string trim [lindex $args 1] /:]
-    }
-    foreach item [lrange $args 2 end-1] {
-      lappend result [string trim $item /:]
-    }
-    if {[llength $args]>2} {
-      lappend result [string trim [lindex $args end] :]
-    }
-  } elseif {$root in {variable dict array}} {
-    lappend result $root/
-    if {[llength $args]>1} {
-      lappend result [string trim [lindex $args 1] /:]/
-    }
-    foreach item [lrange $args 2 end-1] {
-      lappend result [string trim $item /:]/
-    }
-    if {[llength $args]>2} {
-      lappend result [lindex $args end]
-    }
-  } else {
-    foreach item [lrange $args 0 end-1] {
-      lappend result [string trim $item /:]/
-    }
-    lappend result [string trim [lindex $args end] :]
-  }
-  return $result
-}
-
-proc oo::meta::info {class args} {
+proc oo::meta::info {class submethod args} {
   set class [::oo::meta::normalize $class]
-  tailcall $class meta {*}$args
-}
-noop {
   switch $submethod {
     cget {
       ###
@@ -189,106 +96,105 @@ noop {
       # 3. From class meta data as **path** **field:**
       # 4. From class meta data as **path** **field**
       ###
-      set path [::oo::meta::clay_leaf {*}$args]
-      if {[$class clay exists const/ {*}$path]} {
-        return [$class clay get const/ {*}$path]
-      }
-      if {[$class clay exists {*}$path]} {
-        return [$class clay get {*}$path]
+      set path [lrange $args 0 end-1]
+      set field [string trimright [lindex $args end] :]
+      foreach mclass [lreverse [::oo::meta::ancestors $class]] {
+        if {![::info exists ::oo::meta::local_property($mclass)]} continue
+        set class_metadata $::oo::meta::local_property($mclass)
+        if {[dict exists $class_metadata const {*}$path $field:]} {
+          return [dict get $class_metadata const {*}$path $field:]
+        }
+        if {[dict exists $class_metadata const {*}$path $field]} {
+          return [dict get $class_metadata const {*}$path $field]
+        }
+        if {[dict exists $class_metadata {*}$path $field:]} {
+          return [dict get $class_metadata {*}$path $field:]
+        }
+        if {[dict exists $class_metadata {*}$path $field]} {
+          return [dict get $class_metadata {*}$path $field]
+        }
       }
       return {}
-    }
-    exists {
-      set path [oo::meta::claypath {*}$args]
-      return [$class clay exists $path]
     }
     rebuild {
       ::oo::meta::rebuild $class
     }
     is {
-      set path [::oo::meta::clay_leaf is {*}[lrange $args 1 end]]
-      return [string is [lindex $args 0] -strict [$class clay get {*}$path]]
+      set info [metadata $class]
+      return [string is [lindex $args 0] -strict [dict getnull $info {*}[lrange $args 1 end]]]
     }
     for -
     map {
-      set info [$class clay find {*}[lrange $args 1 end-1]]
-      tailcall ::dict $submethod [lindex $args 0] $info [lindex $args end]
+      set info [metadata $class]
+      uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
     }
     with {
       upvar 1 TEMPVAR info
-      set info [$class clay find {*}[lrange $args 1 end-1]]
-      tailcall ::dict with TEMPVAR [lindex $args end]
+      set info [metadata $class]
+      return [uplevel 1 [list ::dict with TEMPVAR {*}$args]]
     }
     branchget {
-      return [dicttool::sanitize [$class clay get $args]]
+      set info [metadata $class]
+      set result {}
+      foreach {field value} [dict getnull $info {*}$args] {
+        dict set result [string trimright $field :] $value
+      }
+      return $result
     }
     branchset {
-      set path [::dicttool::storage [lrange $args 0 end-1]]
+      ::oo::meta::rebuild $class
       foreach {field value} [lindex $args end] {
-        $class clay set {*}$path [string trim $field /:] [::oo::meta::to_dicttool $value]
+        ::dict set ::oo::meta::local_property($class) {*}[lrange $args 0 end-1] [string trimright $field :]: $value
       }
     }
     leaf_add {
-      error "Unsupported"
+      if {[::info exists ::oo::meta::local_property($class)]} {
+        set result [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]]
+      }
+      ladd result {*}[lrange $args 1 end]
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
     }
     leaf_remove {
-      error "Unsupported"
-    }
-    set -
-    update {
-      ::oo::meta::rebuild $class
-      set value [::oo::meta::to_dicttool [lindex $args end]]
-      $class clay set {*}$path $field: $value
-
-      set field [lindex $args end-1]
-      set path  [lrange $args 0 end-2]
-      puts [list META SET $class -> $path $field $value]
-      if {![dict is_dict $value] || [string index $field end] eq ":"} {
-        $class clay set {*}$path $field: $value
-      } else {
-        $class clay merge {*}$path $field $value
+      if {![::info exists ::oo::meta::local_property($class)]} return
+      set result {}
+      forearch element [dict getnull $::oo::meta::local_property($class) {*}[lindex $args 0]] {
+        if { $element in [lrange $args 1 end]} continue
+        lappend result $element
       }
-    }
-    unset {
-      ::oo::meta::rebuild $class
-      $class clay unset {*}$args
+      dict set ::oo::meta::local_property($class) {*}[lindex $args 0] $result
     }
     append -
     incr -
-    lappend {
-      error "Operation not supported"
+    lappend -
+    set -
+    unset -
+    update {
       ::oo::meta::rebuild $class
-      $class clay $submethod {*}$args
+      ::dict $submethod ::oo::meta::local_property($class) {*}$args
     }
     merge {
       ::oo::meta::rebuild $class
-      $class clay merge {*}$args
+      set ::oo::meta::local_property($class) [dict rmerge $::oo::meta::local_property($class) {*}$args]
     }
     dump {
       set info [metadata $class]
       return $info
     }
-    get -
-    getnull {
-      if {![$class clay exists {*}$args]} {
-        return [$class clay find {*}[lrange $args 0 end-1] [lindex $args end]:]
-      } else {
-        return [$class clay find {*}$args]
-      }
-    }
     default {
       set info [metadata $class]
-      return [::dict $submethod $info {*}$args]
+      return [::dict $submethod $info {*}$args] 
     }
   }
 }
 
 proc ::oo::meta::localdata {class args} {
-  if {[llength $args]==0} {
-    return [::dicttool::sanitize [$class clay dump]]
-  } else {
-    return [::dicttool::sanitize [$class clay get {*}$args]]
+  if {![::info exists ::oo::meta::local_property($class)]} {
+    return {}
   }
+  if {[::llength $args]==0} {
+    return $::oo::meta::local_property($class)
+  }
+  return [::dict getnull $::oo::meta::local_property($class) {*}$args]
 }
 
 proc ::oo::meta::normalize class {
@@ -312,9 +218,10 @@ proc ::oo::meta::metadata {class {force 0}} {
           unset -nocomplain ::oo::meta::cached_hierarchy($cclass)
         }
       }
-      if {[$dclass clay get classinfo type:] eq "core"} {
-        if {$dclass ni $::oo::dialect::core_classes} {
-          lappend ::oo::dialect::core_classes $dclass
+      if {![::info exists ::oo::meta::local_property($dclass)]} continue
+      if {[dict getnull $::oo::meta::local_property($dclass) classinfo type:] eq "core"} {
+        if {$dclass ni $::oo::meta::core_classes} {
+          lappend ::oo::meta::core_classes $dclass
         }
       }
     }
@@ -326,7 +233,7 @@ proc ::oo::meta::metadata {class {force 0}} {
   ###
   variable cached_property
   if {[::info exists cached_property($class)]} {
-    return [dicttool::sanitize $cached_property($class)]
+    return $cached_property($class)
   }
   ###
   # Build a cache of the hierarchy and the
@@ -336,14 +243,24 @@ proc ::oo::meta::metadata {class {force 0}} {
   variable cached_hierarchy
   set metadata {}
   set stack {}
+  variable local_property
   set cached_hierarchy($class) [::oo::meta::ancestors $class]
-  foreach aclass $cached_hierarchy($class) {
-    ::dicttool::dictmerge metadata [$aclass clay dump]
+  foreach class $cached_hierarchy($class) {
+    if {[::info exists local_property($class)]} {
+      lappend metadata $local_property($class)
+    }
   }
-  ::dicttool::dictmerge metadata {. {} classinfo {type {}}}
-  ::dicttool::dictmerge metadata [$class clay dump]
+  #foreach aclass [lreverse [::info class superclasses $class]] {
+  #  lappend metadata [::oo::meta::metadata $aclass]
+  #}
+
+  lappend metadata {classinfo {type: {}}}
+  if {[::info exists local_property($class)]} {
+    lappend metadata $local_property($class)
+  }
+  set metadata [dict rmerge {*}$metadata]
   set cached_property($class) $metadata
-  return [::dicttool::sanitize $metadata]
+  return $metadata
 }
 
 proc ::oo::meta::rebuild args {
@@ -355,7 +272,26 @@ proc ::oo::meta::rebuild args {
 }
 
 proc ::oo::meta::search args {
-  error "Feature Removed"
+  variable local_property
+
+  set path [lrange $args 0 end-1]
+  set value [lindex $args end]
+
+  set result {}
+  foreach {class info} [array get local_property] {
+    if {[dict exists $info {*}$path:]} {
+      if {[string match [dict get $info {*}$path:] $value]} {
+        lappend result $class
+      }
+      continue
+    }
+    if {[dict exists $info {*}$path]} {
+      if {[string match [dict get $info {*}$path] $value]} {
+        lappend result $class
+      }
+    }
+  }
+  return $result
 }
 
 proc ::oo::define::meta {args} {
@@ -368,118 +304,8 @@ proc ::oo::define::meta {args} {
 }
 
 oo::define oo::class {
- method meta {submethod args} {
-    switch $submethod {
-      branchget {
-        set path [oo::meta::clay_branch {*}$args]
-        return [dicttool::sanitize [my clay get $path]]
-      }
-      branchset {
-        set path [oo::meta::clay_branch {*}[lrange $args 0 end-1]]
-        foreach {field value} [lindex $args end] {
-          my clay set {*}$path [string trim $field /:] [::oo::meta::to_dicttool $value]
-        }
-      }
-      cget {
-        ###
-        # submethod: cget
-        # arguments: ?*path* ...? *field*
-        # format: markdown
-        # description:
-        # Retrieve a value from the local objects **meta** dict
-        # or from the class' meta data. Values are searched in the
-        # following order:
-        # 0. (If path length==1) From the _config array
-        # 1. From the local dict as **path** **field:**
-        # 2. From the local dict as **path** **field**
-        # 3. From class meta data as const **path** **field:**
-        # 4. From class meta data as const **path** **field**
-        # 5. From class meta data as **path** **field:**
-        # 6. From class meta data as **path** **field**
-        ###
-        set path [::dicttool::storage {*}$args]
-        if {[my clay exists {*}$path]} {
-          return [my clay get {*}$path]
-        }
-        if {[my clay exists const/ {*}$path]} {
-          return [my clay get const/ {*}$path]
-        }
-        if {[llength $path]==1} {
-          set field [string trim [lindex $path end] -:/]
-          if {[my clay exists option $field default]} {
-            return [my clay get option $field default]
-          }
-        }
-        return {}
-      }
-      dump {
-        return [my clay dump]
-      }
-      exists {
-        set path [oo::meta::claypath {*}$args]
-        return [my clay exists $path]
-      }
-      for -
-      map {
-        set path [::dicttool::storage [lrange $args 1 end-1]]
-        set info  [dicttool::sanitize [my clay find {*}$path]]
-        tailcall ::dict $submethod [lindex $args 0] $info [lindex $args end]
-      }
-      is {
-        set path [::oo::meta::clay_leaf is {*}[lrange $args 1 end]]
-        return [string is [lindex $args 0] -strict [my clay get {*}$path]]
-      }
-      getnull -
-      get {
-        set rawpath [::dicttool::storage $args]
-        if {[my clay is_branch $rawpath]} {
-          set result [my clay find {*}$rawpath]
-          return [dicttool::sanitize $result]
-        }
-        set field [string trim [lindex $rawpath end] :/]
-        set path [lrange $rawpath 0 end-1]
-        if {[llength $path]==0 || [string index [lindex $args end] end] eq "/"} {
-          set result [my clay find {*}$path $field]
-          return [dicttool::sanitize $result]
-        }
-        if {[my clay exists {*}$path $field:]} {
-          return [my clay find {*}$path $field:]
-        }
-        set result [my clay find {*}$path $field]
-        if {[dict is_dict $result] && [dict exists $result .]} {
-          return [dicttool::sanitize $result]
-        }
-        return $result
-      }
-      merge {
-        my clay merge {*}${args}
-      }
-      set {
-        set field [lindex $args end-1]
-        set path  [::dicttool::storage [lrange $args 0 end-2]]
-        set value [lindex $args end]
-        if {![dict is_dict $value] || [string index $field end] eq ":"} {
-          my clay set {*}$path [string trim $field :/] $value
-          return
-        }
-        if {[llength [dict keys $value *:]]} {
-          dict for {f v} $value {
-            my clay set {*}$path [string trim $field :/] [string trim $f :] $value
-          }
-          return
-        }
-        my clay set {*}$path [string trim $field :/] [::oo::meta::to_dicttool $value]
-      }
-      with {
-        set path [::dicttool::storage [lrange $args 0 end-1]]
-        upvar 1 TEMPVAR info
-        set info  [dicttool::sanitize [my clay find {*}$path]]
-        uplevel 1 [list ::dict with TEMPVAR [lindex $args end]]
-      }
-      default {
-        error "Unknown method $submethod. Valid: branchget branchset cget for is with"
-      }
-    }
+  method meta {submethod args} {
+    tailcall ::oo::meta::info [self] $submethod {*}$args
   }
 }
 
@@ -498,7 +324,7 @@ oo::define oo::object {
       set MetaMixin {}
     }
     set class [::info object class [self object]]
-    set classlist [my clay ancestors]
+    set classlist [list $class {*}$MetaMixin]
     switch $submethod {
       cget {
         ###
@@ -509,6 +335,7 @@ oo::define oo::object {
         # Retrieve a value from the local objects **meta** dict
         # or from the class' meta data. Values are searched in the
         # following order:
+        # 0. (If path length==1) From the _config array
         # 1. From the local dict as **path** **field:**
         # 2. From the local dict as **path** **field**
         # 3. From class meta data as const **path** **field:**
@@ -516,19 +343,28 @@ oo::define oo::object {
         # 5. From class meta data as **path** **field:**
         # 6. From class meta data as **path** **field**
         ###
-        set path [::oo::meta::clay_leaf {*}$args]
-
-        set field [lindex $path end]
-        set path [lrange $path 0 end-1]
+        set path [lrange $args 0 end-1]
+        set field [string trim [lindex $args end] :]
+        if {[dict exists $meta {*}$path $field:]} {
+          return [dict get $meta {*}$path $field:]
+        }
         if {[dict exists $meta {*}$path $field]} {
           return [dict get $meta {*}$path $field]
         }
-        my variable config clay
-        if {[my clay exists const {*}$path $field]} {
-          return [my clay get const {*}$path $field]
-        }
-        if {[my clay exists {*}$path $field]} {
-          return [my clay get {*}$path $field]
+        foreach mclass [lreverse $classlist] {
+          set class_metadata [::oo::meta::metadata $mclass]
+          if {[dict exists $class_metadata const {*}$path $field:]} {
+            return [dict get $class_metadata const {*}$path $field:]
+          }
+          if {[dict exists $class_metadata const {*}$path $field]} {
+            return [dict get $class_metadata const {*}$path $field]
+          }
+          if {[dict exists $class_metadata {*}$path $field:]} {
+            return [dict get $class_metadata {*}$path $field:]
+          }
+          if {[dict exists $class_metadata {*}$path $field]} {
+            return [dict get $class_metadata {*}$path $field]
+          }
         }
         return {}
       }
@@ -538,22 +374,25 @@ oo::define oo::object {
       }
       for -
       map {
-        set path [::dicttool::storage [lrange $args 1 end-1]]
-        set info [dicttool::sanitize [my clay get {*}$path]]
-        tailcall ::dict $submethod [lindex $args 0] $info [lindex $args end]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        uplevel 1 [list ::dict $submethod [lindex $args 0] [dict get $info {*}[lrange $args 1 end-1]] [lindex $args end]]
       }
       with {
-        set path [::dicttool::storage [lrange $args 0 end-1]]
         upvar 1 TEMPVAR info
-        set info  [dicttool::sanitize [my clay get {*}$path]]
-        uplevel 1 [list ::dict with TEMPVAR [lindex $args end]]
+        foreach mclass $classlist {
+          lappend mdata [::oo::meta::metadata $mclass]
+        }
+        set info [dict rmerge {*}$mdata $meta]
+        return [uplevel 1 [list dict with TEMPVAR {*}$args]]
       }
       dump {
-        set result {. {}}
         foreach mclass $classlist {
-          ::dicttool::dictmerge result [$mclass clay dump]
+          lappend mdata [::oo::meta::metadata $mclass]
         }
-        return [::dicttool::sanitize $result]
+        return [dict rmerge {*}$mdata $meta]
       }
       append -
       incr -
@@ -574,50 +413,62 @@ oo::define oo::object {
         return $meta
       }
       exists {
-        set path [::oo::meta::clay_leaf {*}$args]
         foreach mclass $classlist {
-          if {[$mclass clay exists {*}$path]} {
+          if {[dict exists [::oo::meta::metadata $mclass] {*}$args]} {
             return 1
           }
-        }
-        if {[dict exists $meta {*}$path]} {
-          return 1
         }
         if {[dict exists $meta {*}$args]} {
           return 1
         }
         return 0
       }
-      get {
-        set path [::dicttool::storage $args]
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
-        }
-        set dpath [lrange $path 0 end-1]
-        set field [string trim [lindex $path end] :]
-        if {![my clay exists {*}$dpath $field]} {
-          puts [list [self] META [::dicttool::print  [my clay dump]]]
-          puts [list [self] meta get $path]
-          #puts [[self] meta get $path]
-          puts [list [self] meta get $args]
-          #puts [[self] meta get $args]
-          error "key \"$args\" not known in metadata"
-        }
-        return [my clay get {*}$dpath $field]
-      }
+      get -
       getnull {
-        if {[dict exists $meta {*}$args]} {
-          return [dict get $meta {*}$args]
+        if {[string index [lindex $args end] end]==":"} {
+          # Looking for a leaf node
+          if {[dict exists $meta {*}$args]} {
+            return [dict get $meta {*}$args]
+          }
+          foreach mclass [lreverse $classlist] {
+            set mdata [::oo::meta::metadata $mclass]
+            if {[dict exists $mdata {*}$args]} {
+              return [dict get $mdata {*}$args]
+            }
+          }
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
         }
-        set path [::dicttool::storage $args]
-        set dpath [lrange $path 0 end-1]
-        set field [string trim [lindex $path end] :]
-        return [my clay get {*}$dpath $field]
+        # Looking for a branch node
+        # So we need to composite the result
+        set found 0
+        foreach mclass $classlist {
+          set mdata [::oo::meta::metadata $mclass]
+          if {[dict exists $mdata {*}$args]} {
+            set found 1
+            lappend result [dict get $mdata {*}$args]
+          }
+        }
+        if {[dict exists $meta {*}$args]} {
+          set found 1
+          lappend result [dict get $meta {*}$args]
+        }
+        if {!$found} {
+          if {$submethod == "get"} {
+            error "key \"$args\" not known in metadata"
+          }
+          return {}
+        }
+        return [dict rmerge {*}$result]
       }
       branchget {
         set result {}
-        foreach {field value} [my clay get {*}$args] {
-          dict set result [string trim $field :] $value
+        foreach mclass [lreverse $classlist] {
+          foreach {field value} [dict getnull [::oo::meta::metadata $mclass] {*}$args] {
+            dict set result [string trimright $field :] $value
+          }
         }
         foreach {field value} [dict getnull $meta {*}$args] {
           dict set result [string trimright $field :] $value
@@ -631,7 +482,6 @@ oo::define oo::object {
             lappend MetaMixin $mclass
           }
         }
-        my clay mixin {*}$MetaMixin
       }
       mixout {
         foreach mclass $args {
@@ -640,14 +490,13 @@ oo::define oo::object {
             set MetaMixin [lreplace $MetaMixin $i $i]
           }
         }
-        my clay mixin {*}$MetaMixin
       }
       default {
         foreach mclass $classlist {
           lappend mdata [::oo::meta::metadata $mclass]
         }
         set info [dict rmerge {*}$mdata $meta]
-        return [dict $submethod $info {*}$args]
+        return [dict $submethod $info {*}$args] 
       }
     }
   }
