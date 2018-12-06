@@ -20,7 +20,6 @@ support {
   use [file join ${TCLLIBMOD} fileutil fileutil.tcl]    fileutil
   use [file join ${TCLLIBMOD} sha1 sha1.tcl]            sha1
   use [file join ${TCLLIBMOD} uri uri.tcl]              uri
-  use [file join ${TCLLIBMOD} ncgi ncgi.tcl]            ncgi
   use [file join ${TCLLIBMOD} dns ip.tcl]               ip
   use [file join ${TCLLIBMOD} nettool nettool.tcl]      nettool
   use [file join ${TCLLIBMOD} coroutine coroutine.tcl]  coroutine
