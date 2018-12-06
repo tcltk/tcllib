@@ -657,7 +657,7 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
         set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
       if {$RCICO eq {} || ![file exists $RCICO]} {
-        set RCICO [file join $TCLSRCDIR win rc wish.ico]
+        set RCICO [file join $TKSRCDIR win rc wish.ico]
       }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
