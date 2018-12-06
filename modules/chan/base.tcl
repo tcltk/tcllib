@@ -1,5 +1,3 @@
-#! /usr/bin/env tclsh
-
 # # ## ### ##### ######## #############
 # copyright
 #
@@ -7,7 +5,9 @@
 #
 #     Poor Yorick
 # # ## ### ##### ######## #############
-
+package require ego
+tcllib::ego .new ::tcllib::chan::base
+::tcllib::chan::base .eval {
 
 proc .init {_ channame args} {
     $_ .vars chan close
@@ -111,5 +111,9 @@ apply [list {} {
 	.my .method $name
     }
 } [namespace current]]
-
+}
+namespace eval ::tcllib::chan {
+	namespace export base
+}
+package provide {chan base} 0.1
 

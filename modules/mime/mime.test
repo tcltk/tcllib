@@ -17,16 +17,20 @@ source [file join \
 	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 2 
+testsNeedTcltest 2
 
 support {
     # This code loads md5x, i.e. md5 v2. Proper testing should do one
     # run using md5 v1, aka md5.tcl as well.
     use md5/md5x.tcl md5
-
     use namespacex/namespacex.tcl namespacex
+    use ego/ego.tcl   ego
+    use chan/base.tcl {chan base}
+    use chan/getslimit.tcl {chan getslimit}
+
 }
 testing {
+    useLocal qp.tcl   {mime qp}
     useLocal mime.tcl mime
 }
 
@@ -231,7 +235,7 @@ part3
     set tok [.new {} -string $msg]
     set partToks [$tok property parts]
 
-    set res {} 
+    set res {}
     foreach childTok $partToks {
 	lappend res [[$childTok body raw] read]
     }
@@ -451,7 +455,7 @@ test mime-4.12 {Test qp::encode in encoded_word mode with question marks} {clean
 test mime-4.13 {Test qp::encode in no_softbreak mode} {cleanly {
     qp encode {This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility} 0 1
 }} {This is a very long string into which we do not want inserted softbreaks as we want one very long line returned even though that's probably not how we whould be doing it (see RFC2047) but we don't want to break backward compatibility}
- 
+
 
 
 test mime-5.1 {Test word_encode with quoted-printable method} {cleanly {
@@ -664,7 +668,7 @@ foreach {n encoded expected} {
     {(ax b)}
     12 {a         b         c}
     {a         b         c}
-    13 {} 
+    13 {}
     {}
 } {
     test mime-6.$n {Test field_decode (from RFC 2047, part 8)} {cleanly {
@@ -701,7 +705,7 @@ foreach name {file chan} {
 	with.$name $in -canonical text/plain {
 	    ::tcllib::chan::base .new chan1 [open $mi w]
 	    chan1 configure -translation binary
-	    $tok serialize -chan chan1 
+	    $tok serialize -chan chan1
 	    chan1 close
 
 	    with.$name $mi {
@@ -823,7 +827,7 @@ so plain
 "
 
     set tok [.new {} -string $msg]
-    [$tok body raw] read 
+    [$tok body raw] read
 } "so plain\n"
 
 # -------------------------------------------------------------------------
@@ -831,7 +835,7 @@ so plain
 test mime-14.0 {cleanly {
 	hostname argument to parseaddress
 }} {
-	set parsed [parseaddress hostname fakedomain.fake {Here <h>}] 
+	set parsed [parseaddress hostname fakedomain.fake {Here <h>}]
     list [llength $parsed] [lindex $parsed 0]
 } [list 1 [list address h@fakedomain.fake comment {} domain {} error {} \
 	friendly Here group {} local h memberP 0 phrase Here \
@@ -978,7 +982,7 @@ test mime-17.9 {
     header supplied by a component message, retrieved by lowercase name
 } {
     set mime [.new {} -string {Content-Disposition: form-data; name="field2"}]
-    $mime header get content-disposition 
+    $mime header get content-disposition
 } {form-data {name field2}}
 
 
@@ -986,7 +990,7 @@ test mime-17.10 {
     Content-Type is not automatically added to a subordinate
 } {
     set mime [.new {} -string {Content-Disposition: form-data; name="field2"}]
-    $mime header get content-disposition 
+    $mime header get content-disposition
 } {form-data {name field2}}
 
 
@@ -1019,7 +1023,7 @@ test mime-19.1 {
 	set res [$mime serialize]
 	$mime .destroy
 	return $res
-	
+
 } "Set-Cookie: one=two\r
 \t; HttpOnly\r
 \r
@@ -1033,7 +1037,7 @@ test mime-19.2 {
 	set res [$mime serialize]
 	$mime .destroy
 	return $res
-	
+
 } "Set-Cookie: one=two\r
 \t; path=/three/four\r
 \t; HttpOnly\r

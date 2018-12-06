@@ -1,5 +1,3 @@
-#! /usr/bin/env tclsh
-
 # # ## ### ##### ######## #############
 # copyright
 #
@@ -7,7 +5,8 @@
 #
 #     Poor Yorick
 # # ## ### ##### ######## #############
-
+package require ego
+namespace eval ::tcllib::chan::getslimit {
 variable buf bufcount eof getslimit
 
 proc [namespace current] chan {
@@ -49,7 +48,7 @@ proc configure {_ args} {
 	foreach {key val} $args[set args {}] {
 	    if {$key eq {-getslimit}} {
 		set getslimit $val
-	    } else {    
+	    } else {
 		lappend args $key $val
 	    }
 	}
@@ -72,7 +71,7 @@ proc  eof _ {
 
 
 proc gets {_ args} {
-    $_ .vars buf bufcount chan eof getslimit 
+    $_ .vars buf bufcount chan eof getslimit
     switch [llength $args] {
 	1 {
 	    lassign $args varname
@@ -130,7 +129,7 @@ proc gets {_ args} {
 
 
 proc read {_ args} {
-    $_ .vars buf eof bufcount 
+    $_ .vars buf eof bufcount
     if {$eof} {
 	return {}
     }
@@ -155,6 +154,10 @@ proc read {_ args} {
     }
     return $res
 }
-
+}
 
 package provide tcllib::chan::getslimit 1
+package provide {chan getslimit} 0.1
+namespace eval ::tcllib::chan {
+	namespace export getslimit
+}
