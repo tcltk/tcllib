@@ -15,7 +15,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 	
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 1.0
 
 testing {

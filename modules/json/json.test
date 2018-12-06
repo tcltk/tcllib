@@ -14,7 +14,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     [expr {[catch {package require dict}] ? "8.5" : "8.4"}]
+testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
 support {
