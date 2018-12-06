@@ -19,13 +19,19 @@ support {
   use [file join ${TCLLIBMOD} cmdline cmdline.tcl]      cmdline
   use [file join ${TCLLIBMOD} fileutil fileutil.tcl]    fileutil
   use [file join ${TCLLIBMOD} sha1 sha1.tcl]            sha1
+  use [file join ${TCLLIBMOD} namespacex  namespacex.tcl] namespacex
+  use [file join ${TCLLIBMOD} ego  ego.tcl]             ego
+  use [file join ${TCLLIBMOD} chan base.tcl]            {chan base}
+  use [file join ${TCLLIBMOD} chan getslimit.tcl]       {chan getslimit}
+  use [file join ${TCLLIBMOD} mime qp.tcl]              {mime qp}
+  use [file join ${TCLLIBMOD} mime mime.tcl]            mime
   use [file join ${TCLLIBMOD} uri uri.tcl]              uri
   use [file join ${TCLLIBMOD} dns ip.tcl]               ip
   use [file join ${TCLLIBMOD} nettool nettool.tcl]      nettool
   use [file join ${TCLLIBMOD} coroutine coroutine.tcl]  coroutine
   use [file join ${TCLLIBMOD} cron cron.tcl]            cron
-  use [file join ${TCLLIBMOD} virtchannel_core core.tcl] tcl::chan::core
-  use [file join ${TCLLIBMOD} virtchannel_core events.tcl] tcl::chan::events
+  #use [file join ${TCLLIBMOD} virtchannel_core core.tcl] tcl::chan::core
+  #use [file join ${TCLLIBMOD} virtchannel_core events.tcl] tcl::chan::events
   use [file join ${TCLLIBMOD} virtchannel_base memchan.tcl] tcl::chan::memchan
   use [file join ${MODDIR} clay clay.tcl]               clay
 }
