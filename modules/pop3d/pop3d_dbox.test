@@ -21,7 +21,7 @@ testsNeedTcltest 1.0
 
 support {
     use md5/md5x.tcl  md5
-    use mime/mime.tcl mime
+    use mime/mime-1.6.tcl mime
 }
 testing {
     useLocal pop3d_dbox.tcl pop3d::dbox

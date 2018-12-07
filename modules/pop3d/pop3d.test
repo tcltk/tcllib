@@ -24,7 +24,7 @@ support {
     useTcllibFile devtools/coserv.tcl ; # loads comm too
     useTcllibFile devtools/dialog.tcl
     use           md5/md5x.tcl   md5
-    use           mime/mime.tcl  mime
+    use           mime/mime-1.6.tcl  mime
     useLocal      pop3d_udb.tcl  pop3d::udb
     useLocalKeep  pop3d_dbox.tcl pop3d::dbox
 }
@@ -427,7 +427,7 @@ array set log {
 # AUTHORIZATION state - Initial state, after the greeting.
 # Allowed commands: USER, APOP, QUIT, CAPA
 # Not permitted:    PASS, STAT, DELE, RETR, TOP, RSET, LIST, NOOP
-# 
+#
 
 proc Match {l c res} {
     global log cstate
@@ -561,7 +561,7 @@ foreach {n user pass lidx cidx} {
 # TRANSACTION state - after successful authentication.
 # Allowed commands: QUIT, STAT, DELE, RETR, TOP, RSET, LIST, NOOP, CAPA
 # Not permitted:    USER, PASS, APOP
-# 
+#
 
 foreach {n cmd lidx cidx} {
     0  {USER foo}      7 4

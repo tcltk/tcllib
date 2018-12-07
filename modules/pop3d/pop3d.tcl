@@ -9,7 +9,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require md5  ; # tcllib | APOP
-package require mime ; # tcllib | storage callback
+package require -exact mime 1.6; # tcllib | storage callback
 package require log  ; # tcllib | tracing
 
 package provide pop3d 1.1.0
@@ -92,7 +92,7 @@ namespace eval ::pop3d {
 	     PIPELINING			both \
 	     "IMPLEMENTATION $server"	trans \
 	    ]
-    
+
     # -- UIDL -- not implemented --
 
     # Only export one command, the one used to instantiate a new server
@@ -112,7 +112,7 @@ namespace eval ::pop3d {
 
 proc ::pop3d::new {{name ""}} {
     variable counter
-    
+
     if { [llength [info level 0]] == 1 } {
 	incr counter
 	set name "pop3d${counter}"
@@ -160,7 +160,7 @@ proc ::pop3d::Pop3dProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
     if { [llength [info commands ::pop3d::_$cmd]] == 0 } {
 	variable commands
@@ -506,7 +506,7 @@ proc ::pop3d::HandleCommand {name sock} {
     # @c connection.
 
     # @a sock:   Direct access to the channel representing the connection.
-    
+
     # Client closed connection, bye bye
     if {[eof $sock]} {
 	CloseConnection $name $sock
@@ -1063,7 +1063,7 @@ proc ::pop3d::CheckLogin {name sock clientid serverid storage} {
 	    set cstate(size) [uplevel #0 [linsert $storCmd end \
 		    size $cstate(storage)]]
 	}
-	
+
 	::log::log notice \
 		"pop3d $name $sock login $cstate(name) $storage $cstate(msg)"
 	::log::log notice "pop3d $name $sock state trans"
@@ -1089,7 +1089,7 @@ proc ::pop3d::Transfer {name sock msgid {limit -1}} {
     }
 
     set token [uplevel #0 [linsert $storCmd end get $cstate(storage) $msgid]]
-    
+
     ::log::log debug "pop3d $name $sock transfering data ($token)"
 
     if {$limit < 0} {
