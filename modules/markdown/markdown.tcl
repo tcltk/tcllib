@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 
-package require textutil
+package require textutil::tabify
 
 ## \file
 # \brief Functions for converting markdown to HTML.
@@ -270,7 +270,7 @@ namespace eval Markdown {
 		    #     ```tcl
 		    #
 		    # The language specifier is used for two purposes:
-		    # a) As a CSS class name 
+		    # a) As a CSS class name
 		    #    (useful e.g. for highlight.js)
 		    # b) As a name for a source code to HTML converter.
 		    #    When such a converter is registered,
@@ -313,7 +313,7 @@ namespace eval Markdown {
 			$code_result \
 			</code></pre>
                 }
-		
+
                 {^[ ]{0,3}(?:\*|-|\+) |^[ ]{0,3}\d+\. } {
                     # LISTS
                     set list_result {}

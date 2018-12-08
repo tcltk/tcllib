@@ -12,15 +12,30 @@ testsNeedTcltest 2
 testsNeed TclOO 1
 
 support {
+  use fileutil/fileutil.tcl fileutil
+  use fumagic/rtcore.tcl fileutil::magic::rt
+  use fumagic/filetypes.tcl fileutil::magic::filetype
+
+  use textutil/string.tcl   textutil::string
+  use textutil/repeat.tcl   textutil::repeat
+  use textutil/tabify.tcl   textutil::tabify
+  use markdown/markdown.tcl Markdown
+
   use cmdline/cmdline.tcl cmdline
   use fileutil/fileutil.tcl fileutil
   use sha1/sha1.tcl sha1
   use uri/uri.tcl uri
   use ncgi/ncgi.tcl ncgi
-
+  use log/logger.tcl logger
+  use base64/base64.tcl base64
+  use md5/md5x.tcl md5
+  use mime/mime.tcl mime
   use dns/ip.tcl ip
   use nettool/nettool.tcl nettool
   use coroutine/coroutine.tcl coroutine
+  use uuid/uuid.tcl uuid
+
+  use websocket/websocket.tcl websocket
 
   use dicttool/dicttool.tcl dicttool
   use cron/cron.tcl cron
@@ -658,7 +673,7 @@ $checkfile"
 } {}
 
 ::DEBUG puts all-tests-finished
-
+file delete test.tcl
 # -------------------------------------------------------------------------
 
 testsuiteCleanup
