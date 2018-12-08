@@ -60,7 +60,6 @@ proc testsNeedTcltest {version} {
 	    return
 	}
     } elseif {[package vcompare [package present tcltest] $version] >= 0} {
-    puts goon
 	InitializeTclTest
 	return
     }
