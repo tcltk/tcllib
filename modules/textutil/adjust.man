@@ -129,7 +129,7 @@ Set the length of the [emph logical] line in the string to
 [arg integer].  [arg integer] must be a positive integer
 value. Defaults to [const 72].
 
-[opt_def -strictlength] [arg boolean]]
+[opt_def -strictlength [arg boolean]]
 
 If set to [const false] (default), a line can exceed the specified
 [option -length] if a single word is longer than [option -length]. If
