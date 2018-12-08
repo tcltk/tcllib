@@ -50,20 +50,29 @@ proc testsNeedTcltest {version} {
     # Tcltest if the package has not been loaded yet.
 
     if {[lsearch [namespace children] ::tcltest] == -1} {
-	if {![catch {
+	if {[catch {
 	    package require tcltest $version
-	}]} {
+	} cres copts]} {
+	    set msg [dict get $copts -errorinfo]
+	} else {
 	    namespace import -force ::tcltest::*
 	    InitializeTclTest
 	    return
 	}
     } elseif {[package vcompare [package present tcltest] $version] >= 0} {
+    puts goon
 	InitializeTclTest
 	return
     }
 
+    if {![info exists msg]} {
+	set msg "    Requiring at least tcltest $version, have [
+	    package present tcltest]"
+    }
+    
+
     puts "    Aborting the tests found in [file tail [info script]]."
-    puts "    Requiring at least tcltest $version, have [package present tcltest]"
+    puts $msg
 
     # This causes a 'return' in the calling scope.
     return -code return
