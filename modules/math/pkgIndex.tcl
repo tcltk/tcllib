@@ -21,7 +21,8 @@ package ifneeded math::machineparameters 0.1   [list source [file join $dir mach
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 package ifneeded math::calculus          0.8.1 [list source [file join $dir calculus.tcl]]
 # statistics depends on linearalgebra (for multi-variate linear regression).
-package ifneeded math::statistics        1.2.0 [list source [file join $dir statistics.tcl]]
+# statistics depends on optimize (for logistic regression).
+package ifneeded math::statistics        1.3.0 [list source [file join $dir statistics.tcl]]
 package ifneeded math::linearalgebra     1.1.6 [list source [file join $dir linalg.tcl]]
 package ifneeded math::calculus::symdiff 1.0.1 [list source [file join $dir symdiff.tcl]]
 package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigfloat2.tcl]]
