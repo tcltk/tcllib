@@ -205,7 +205,7 @@ command, see section [sectref Authentication].
 
 [list_begin definitions]
 
-[call [arg storageCmd] [method dele] [arg mbox] [arg msgList]]]
+[call [arg storageCmd] [method dele] [arg mbox] [arg msgList]]
 
 Deletes the messages whose numeric ids are contained in the
 [arg msgList] from the mailbox specified via [arg mbox].

@@ -85,7 +85,7 @@ The values are lists of the files the entry is touching.
 [list_end]
 [para]
 
-[call [cmd ::doctools::cvs::toChangeLog] [arg evar] [arg cvar] [arg fvar]]]
+[call [cmd ::doctools::cvs::toChangeLog] [arg evar] [arg cvar] [arg fvar]]
 
 The three arguments for this command are the same as the last three
 arguments of the command [cmd ::doctools::cvs::scanLog]. This command
