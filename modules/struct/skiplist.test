@@ -16,7 +16,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 1.0-
 
 testing {
     useLocal skiplist.tcl struct::skiplist
@@ -118,7 +118,6 @@ test skiplist-1.1 {insert} {
 
 test skiplist-1.2 {insert} {
 	struct::skiplist myskiplist
-	unset a
 	foreach a [list 9 7 5 3 1 8 6 4 2] {
 		myskiplist insert $a value_$a
 	}
