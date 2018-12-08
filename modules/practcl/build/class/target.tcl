@@ -1,5 +1,8 @@
-
-::oo::class create ::practcl::make_obj {
+###
+# A build deliverable object. Normally an object file, header, or tcl script
+# which must be compiled or generated in some way
+###
+::clay::define ::practcl::make_obj {
   superclass ::practcl::metaclass
 
   constructor {module_object name info {action_body {}}} {
@@ -54,7 +57,7 @@
     }
     return $needs_make
   }
-  
+
   method output {} {
     set result {}
     set filename [my define get filename]
@@ -75,7 +78,7 @@
     set domake 0
     set needs_make 0
   }
-  
+
   method triggers {} {
     my variable triggered domake define
     if {$triggered} {

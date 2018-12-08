@@ -1,8 +1,7 @@
-
 ###
-# A binary package
+# A subordinate binary package
 ###
-oo::class create ::practcl::subproject.binary {
+::clay::define ::practcl::subproject.binary {
   superclass ::practcl::subproject
 
   method clean {} {
@@ -30,7 +29,7 @@ oo::class create ::practcl::subproject.binary {
     my go
     my clean
     my compile
-    my make-install {}
+    my make install {}
   }
 
   method project-compile-products {} {}
@@ -146,7 +145,7 @@ oo::class create ::practcl::subproject.binary {
     } else {
       puts "BUILDING Dynamic $name $srcdir"
     }
-    my make-compile
+    my make compile
     cd $PWD
   }
 
@@ -157,7 +156,7 @@ oo::class create ::practcl::subproject.binary {
     set srcdir [file normalize [my define get srcdir]]
     set builddir [file normalize [my define get builddir]]
     file mkdir $builddir
-    my make-autodetect
+    my make autodetect
   }
 
   method install DEST {
@@ -180,25 +179,33 @@ oo::class create ::practcl::subproject.binary {
       }
     }
     my compile
-    my make-install $DEST
+    my make install $DEST
     cd $PWD
   }
 }
 
-oo::class create ::practcl::subproject.tea {
+###
+# A subordinate TEA based binary package
+###
+::clay::define ::practcl::subproject.tea {
   superclass ::practcl::subproject.binary
 
 }
 
-oo::class create ::practcl::subproject.library {
+###
+# A subordinate C library built by this project
+###
+::clay::define ::practcl::subproject.library {
   superclass ::practcl::subproject.binary ::practcl::library
   method install DEST {
     my compile
   }
 }
 
-# An external library
-oo::class create ::practcl::subproject.external {
+###
+# A subordinate external C library
+###
+::clay::define ::practcl::subproject.external {
   superclass ::practcl::subproject.binary
   method install DEST {
     my compile
