@@ -49,6 +49,8 @@ proc testsNeedTcltest {version} {
     # Note that this command will try to load a suitable version of
     # Tcltest if the package has not been loaded yet.
 
+
+    regexp {^([^-]*)} $version -> minversion
     if {[lsearch [namespace children] ::tcltest] == -1} {
 	if {[catch {
 	    package require tcltest $version
@@ -59,7 +61,7 @@ proc testsNeedTcltest {version} {
 	    InitializeTclTest
 	    return
 	}
-    } elseif {[package vcompare [package present tcltest] $version] >= 0} {
+    } elseif {[package vcompare [package present tcltest] $minversion] >= 0} {
 	InitializeTclTest
 	return
     }
