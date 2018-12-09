@@ -710,12 +710,12 @@ proc ::dictargs::method {name argspec body} {
 ###
 namespace eval ::clay::dialect {
   namespace export create
-}
-foreach {flag test} {
-  tip470 {package vsatisfies [package provide Tcl] 8.7}
-} {
-  if {![info exists ::clay::dialect::has($flag)]} {
-    set ::clay::dialect::has($flag) [eval $test]
+  foreach {flag test} {
+    tip470 {package vsatisfies [package provide Tcl] 8.7}
+  } {
+    if {![info exists ::clay::dialect::has($flag)]} {
+      set ::clay::dialect::has($flag) [eval $test]
+    }
   }
 }
 proc ::clay::dialect::Push {class} {

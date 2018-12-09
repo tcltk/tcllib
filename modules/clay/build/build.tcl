@@ -129,8 +129,6 @@ namespace eval ::oo::dialect {}
 set ::oo::dialect::has(tip470) 0
 }
 puts $fout [source [file join $srcdir test.tcl]]
-
-if 0 {
 puts $fout {
 
 if {![package vsatisfies [package provide Tcl] 8.7]} {return}
@@ -140,8 +138,6 @@ set ::oo::dialect::has(tip470) 1
 }
 puts $fout [source [file join $srcdir test.tcl]]
 close $fout
-}
-
 set manout [open [file join $moddir $filename.man] w]
 puts $manout [AutoDoc manpage map $modmap \
   header [::practcl::cat [file join $srcdir manual.txt]] \
