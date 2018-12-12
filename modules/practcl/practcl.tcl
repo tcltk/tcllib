@@ -698,12 +698,12 @@ proc ::dictargs::method {name argspec body} {
 }
 namespace eval ::clay::dialect {
   namespace export create
-}
-foreach {flag test} {
-  tip470 {package vsatisfies [package provide Tcl] 8.7}
-} {
-  if {![info exists ::clay::dialect::has($flag)]} {
-    set ::clay::dialect::has($flag) [eval $test]
+  foreach {flag test} {
+    tip470 {package vsatisfies [package provide Tcl] 8.7}
+  } {
+    if {![info exists ::clay::dialect::has($flag)]} {
+      set ::clay::dialect::has($flag) [eval $test]
+    }
   }
 }
 proc ::clay::dialect::Push {class} {
@@ -7345,14 +7345,15 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
     set fout [open [file join $vfspath pkgIndex.tcl] w]
     puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
+namespace eval ::starkit {}
 set ::PKGIDXFILE [info script]
 set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
-  set ::g(HOME) [file join [file normalize $::env(LOCALAPPDATA)] tcl]
+  set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  set ::g(HOME) [file normalize ~/tcl]
+  set ::starkit::localHome [file normalize ~/tcl]
 }
-set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot
 }
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
