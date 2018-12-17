@@ -29,29 +29,12 @@
 #ifndef _SHA256_H
 #define _SHA256_H
 
-#if HAVE_INTTYPES_H
-# include <inttypes.h>
-#else
-# if HAVE_STDINT_H
-#  include <stdint.h>
-# endif
-#endif
+#include <stdint.h>
 
 #define SHA256_HASH_SIZE 32
 
 /* Hash size in 32-bit words */
 #define SHA256_HASH_WORDS 8
-
-#ifdef _MSC_VER
-typedef unsigned __int64    uint64_t;
-#elif !(defined(__hpux) || defined(_AIX))
-typedef unsigned long long  uint64_t;
-#endif
-
-#if !(defined(__hpux))
-typedef unsigned int        uint32_t;
-typedef unsigned char       uint8_t;
-#endif
 
 struct _SHA256Context {
   uint64_t totalLength;

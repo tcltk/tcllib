@@ -32,6 +32,7 @@ namespace eval ::sha2 {
     namespace export sha256 hmac \
             SHA256Init SHA256Update SHA256Final
 
+
     variable uid
     if {![info exists uid]} {
         set uid 0
@@ -187,7 +188,7 @@ proc ::sha2::SwitchTo {key} {
             SHA256Final  SHA224Final
             SHA256Update
         } {
-            rename ::sha2::${c}-${key} ::sha2::$c
+	    interp alias {} ::sha2::$c {} ::sha2::${c}-${key}
         }
     }
 
