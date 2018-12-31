@@ -1,4 +1,4 @@
-# lazyset.test - Copyright (c) 2019 Roy Keene
+# lazyset.test - Copyright (c) 2018 Roy Keene
 #
 # -------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ test lazyset-basic-1.0 {} -body {
 } -result {ok}
 
 test lazyset-withargs-1.0 {} -body {
-	::lazyset::variable test [list apply {{name1 name2} {
+	::lazyset::variable test [list apply {{name} {
 		return ok
 	}}]
 	set test
@@ -34,7 +34,7 @@ test lazyset-withargs-1.0 {} -body {
 } -result {ok}
 
 test lazyset-withargs-2.0 {} -body {
-	::lazyset::variable test [list apply {{result name1 name2} {
+	::lazyset::variable test [list apply {{result name} {
 		return $result
 	}} ok]
 	set test
