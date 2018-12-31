@@ -52,7 +52,15 @@ proc ::lazyset::variable {args} {
 	if {$appendArgs} {
 		append finalCode {
 			set args [lrange $args 1 end]
-			append code " " [list $name1 $name2 {*}$args]
+		}
+		if {$isArray} {
+			append finalCode {
+				append code " " [list $name1 $name2 {*}$args]
+			}
+		} else {
+			append finalCode {
+				append code " " [list $name1 {*}$args]
+			}
 		}
 	}
 
