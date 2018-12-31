@@ -793,7 +793,11 @@ proc ::dns::UdpTransmit {token} {
         fconfigure $state(sock) -blocking 0
     } else {
         # using tcludp
-        set state(sock) [udp_open]
+        if {[string match "*:*" $state(-nameserver)]} {
+            set state(sock) [udp_open ipv6]
+        } else {
+            set state(sock) [udp_open]
+        }
         udp_conf $state(sock) $state(-nameserver) $state(-port)
     }
     fconfigure $state(sock) -translation binary -buffering none
