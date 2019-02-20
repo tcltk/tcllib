@@ -582,7 +582,7 @@ test html-27.8 {html::foreach--subst body w/ nested foreach} {
     }
 } {
         acad
-
+    
         bcbd
     }
 
@@ -596,7 +596,7 @@ test html-27.9 {html::foreach--subst body w/ multiple nested foreach's} {
             ef
         ad
             ef
-
+        
         bc
             ef
         bd

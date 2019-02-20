@@ -82,11 +82,11 @@ proc dumpcmp {s1 s2} {
 # in - markdown input, possibly indented.
 #
 # Outdents the input and converts it to HTML.  Indents it for inclusion
-# in a result.
+# in a result. Empty lines are kept empty.
 proc convert {in} {
     set lines [split [string trim [Markdown::convert [outdent $in]]] \n]
 
-    set out [join $lines "\n    "]
+    set out [string map [list "\n    \n" "\n\n"] [join $lines "\n    "]]
     return "\n    $out\n"
 }
 
