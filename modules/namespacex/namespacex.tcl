@@ -14,8 +14,17 @@
 
 package require Tcl 8.5  ; # namespace ensembles, {*}
 
+# The try command is used in the namespacex::import command. For
+# backward compatibility we will use the try package from tcllib if
+# running on a platform that does not have it as a core command,
+# i.e. before 8.6.
+
+if {![llength [info commands try]]} {
+    package require try ; # tcllib
+}
+
 namespace eval ::namespacex {
-    namespace export add hook info state
+    namespace export add hook info import normalize strip state
     namespace ensemble create
 
     namespace eval hook {
@@ -183,13 +192,37 @@ proc ::namespacex::hook::Handle {handler old args} {
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: Info - Visible API
 
+proc ::namespacex::import {from args} {
+    set upns [uplevel 1 {::namespace current}]
+    if {![string match ::* $from]} {
+	set from ${upns}::$from[set from {}]
+    }
+    set orig [namespace eval $from {::namespace export}]
+    try {
+	namespace eval $from {::namespace export *}
+	set tmp [::namespace current]::[::info cmdcount]
+	namespace eval $tmp [list ::namespace import ${from}::*]
+	if {[llength $args] == 1} {
+	    lappend args [lindex $args 0]
+	}
+	dict size $args
+	foreach {old new} $args {
+	    rename ${tmp}::$old ${upns}::$new
+	}
+	namespace delete $tmp
+    } finally {
+	namespace eval $from [list ::namespace export -clear {*}$orig]
+    }
+    return
+}
+
 proc ::namespacex::info::allvars {ns} {
     if {![string match {::*} $ns]} { set ns ::$ns }
     ::set result [::info vars ${ns}::*]
     foreach cns [allchildren $ns] {
 	lappend result {*}[::info vars ${cns}::*]
     }
-    return [Strip $ns $result]
+    return [::namespacex::strip $ns $result]
 }
 
 proc ::namespacex::info::allchildren {ns} {
@@ -203,10 +236,22 @@ proc ::namespacex::info::allchildren {ns} {
 }
 
 proc ::namespacex::info::vars {ns {pattern *}} {
-    return [Strip $ns [::info vars ${ns}::$pattern]]
+    return [::namespacex::strip $ns [::info vars ${ns}::$pattern]]
 }
 
-proc ::namespacex::info::Strip {ns itemlist} {
+# this implementation avoids string operations
+proc ::namespacex::normalize {ns} {
+    if {[uplevel 1 [list ::namespace exists $ns]]} {
+	return [uplevel 1 [list namespace eval $ns {::namespace current}]]
+    }
+    if {![string match ::* $ns]} {
+	set ns [uplevel 1 {::namespace current}]::$ns
+    }
+    regsub {::+} $ns :: ns
+    return $ns
+}
+
+proc ::namespacex::strip {ns itemlist} {
     set n [string length $ns]
     if {![string match {::*} $ns]} {
 	incr n 4
@@ -251,4 +296,4 @@ proc ::namespacex::state::set {ns state} {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0.1
+package provide namespacex 0.2
