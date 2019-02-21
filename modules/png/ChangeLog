@@ -1,3 +1,7 @@
+2018-12-12  Harald Oehlmann <oehhar@users.sourceforge.net>
+
+	* png.tcl: add function getPixelDimension to   get physical pixel size
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
