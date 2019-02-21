@@ -21,15 +21,25 @@ testing {
     useLocal token_shell.tcl string::token::shell
 }
 
+if {[package vsatisfies [package provide Tcl] 8.6]} {
+    proc E {a b} { return $b }
+} else {
+    proc E {a b} { return $a }
+}
+
 # -------------------------------------------------------------------------
 
 test string-token-shell-1.0 "string token shell, wrong#args, not enough" -body {
     string token shell
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [E \
+  {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"} \
+  {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}]
 
 test string-token-shell-1.1 "string token shell, wrong#args, too many" -body {
     string token shell T X
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [E \
+  {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"} \
+  {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}]
 
 test string-token-shell-1.2 "string token shell, bad option" -body {
     string token shell -foo T
@@ -37,7 +47,9 @@ test string-token-shell-1.2 "string token shell, bad option" -body {
 
 test string-token-shell-1.3 "string token shell, wrong#args, too many" -body {
     string token shell -- T X
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [E \
+  {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"} \
+  {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}]
 
 # -------------------------------------------------------------------------
 
