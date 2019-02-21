@@ -1,3 +1,11 @@
+2018-08-28  Aldo Buratti
+
+    *
+    * BugFix in method 'clear'
+        * Added a test in async.test
+    * Release 0.3.1
+    *
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
