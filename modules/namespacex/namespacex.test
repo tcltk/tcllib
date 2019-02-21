@@ -46,6 +46,83 @@ proc ns3_setup {} {
 
 # -------------------------------------------------------------------------
 
+test namespacex-hook-add-1.0 {
+    namespacex hook add: add a single hook
+} -setup {
+    variable hadd1 20
+
+    proc h {args} {
+        variable hadd1
+        set hadd1 40
+        return
+    }
+    namespace eval ::testHook {
+        proc testProc {} {
+            foo a b c
+        }
+    }
+} -cleanup {
+    namespace delete ::testHook
+    rename h {}
+} -body {
+    namespacex hook add ::testHook [namespace code h]
+    ::testHook::testProc
+    return $hadd1
+} -result {40}
+
+# -------------------------------------------------------------------------
+
+test namespacex-import-1.0 {
+    namespacex import from a child namespace
+} -setup {
+    namespace eval importTest {
+        proc t {} {
+            return [namespace current]
+        }
+    }
+} -cleanup {
+    namespace delete importTest
+} -body {
+    namespacex import importTest t
+    t
+} -result ::importTest
+
+test namespacex-import-1.1 {
+    namespacex import from fully qualified namespace
+} -setup {
+    namespace eval ::importTest {
+        proc t {} {
+            return [namespace current]
+        }
+    }
+} -cleanup {
+    namespace delete ::importTest
+} -body {
+    namespacex import ::importTest t
+    t
+} -result {::importTest}
+
+test namespacex-import-1.2 {
+    namespacex import multiple commands
+} -setup {
+    namespace eval ::importTest {
+        proc a {} {
+            return "a: [namespace current]"
+        }
+        proc b {} {
+            return "b: [namespace current]"
+        }
+    }
+} -cleanup {
+    namespace delete ::importTest
+} -body {
+    namespacex import ::importTest a myA b myB
+    append result [myA] " " [myB]
+    return $result
+} -result {a: ::importTest b: ::importTest}
+
+# -------------------------------------------------------------------------
+
 test namespacex-info-allchildren-1.0 {namespacex info allchildren, wrong\#args} -body {
     namespacex info allchildren
 } -returnCodes error -result {wrong # args: should be "namespacex info allchildren ns"}
