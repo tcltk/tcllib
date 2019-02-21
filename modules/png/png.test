@@ -303,4 +303,19 @@ foreach root [array names comex] {
 }
 
 # -------------------------------------------------------------------------
+# PhysicalDimensions
+
+test png-physical-dimensions-missing {Test for empty list if no physical dimensions present} {
+    ::png::getPixelDimension [file join\
+	    [file dirname [file join [pwd] [info script]]]\
+	    testimages/physicaldimensions/basi0g01.png]
+} {}
+
+test png-physical-dimensions-missing {Test for empty list if no physical dimensions present} {
+    ::png::getPixelDimension [file join\
+	    [file dirname [file join [pwd] [info script]]]\
+	    testimages/physicaldimensions/basi0g01_300dpi.png]
+} {ppux 11811 ppuy 11811 unit meter}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup
