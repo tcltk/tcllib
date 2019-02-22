@@ -311,7 +311,7 @@ test png-physical-dimensions-missing {Test for empty list if no physical dimensi
 	    testimages/physicaldimensions/basi0g01.png]
 } {}
 
-test png-physical-dimensions-missing {Test for empty list if no physical dimensions present} {
+test png-physical-dimensions-present {Test to extract physical dimensions} {
     ::png::getPixelDimension [file join\
 	    [file dirname [file join [pwd] [info script]]]\
 	    testimages/physicaldimensions/basi0g01_300dpi.png]
