@@ -647,7 +647,10 @@ proc ::struct::list::Lflatten {args} {
     while {[string match -* [set opt [::lindex $args 0]]]} {
 	switch -glob -- $opt {
 	    -full   {set full 1}
-	    --      {break}
+	    --      {
+                set args [::lrange $args 1 end]
+                break ; # fix ticket 6e778502b8 -- break exits while loop
+            }
 	    default {
 		return -code error "Unknown option \"$opt\", should be either -full, or --"
 	    }
@@ -1825,4 +1828,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8.3
+package provide struct::list 1.8.4
