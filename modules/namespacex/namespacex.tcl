@@ -217,7 +217,7 @@ proc ::namespacex::import {from args} {
 }
 
 proc ::namespacex::info::allvars {ns} {
-    if {![string match {::*} $ns]} { set ns ::$ns }
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result [::info vars ${ns}::*]
     foreach cns [allchildren $ns] {
 	lappend result {*}[::info vars ${cns}::*]
@@ -226,7 +226,7 @@ proc ::namespacex::info::allvars {ns} {
 }
 
 proc ::namespacex::info::allchildren {ns} {
-    if {![string match {::*} $ns]} { set ns ::$ns }
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result [list]
     foreach cns [::namespace children $ns] {
 	lappend result {*}[allchildren $cns]
@@ -236,6 +236,7 @@ proc ::namespacex::info::allchildren {ns} {
 }
 
 proc ::namespacex::info::vars {ns {pattern *}} {
+    set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     return [::namespacex::strip $ns [::info vars ${ns}::$pattern]]
 }
 
@@ -270,13 +271,13 @@ proc ::namespacex::strip {ns itemlist} {
 ## Implementation :: State - Visible API
 
 proc ::namespacex::state::drop {ns} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     namespace eval $ns [list ::unset {*}[::namespacex info allvars $ns]]
     return
 }
 
 proc ::namespacex::state::get {ns} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     ::set result {}
     foreach v [::namespacex info allvars $ns] {
 	namespace upvar $ns $v value
@@ -286,7 +287,7 @@ proc ::namespacex::state::get {ns} {
 }
 
 proc ::namespacex::state::set {ns state} {
-    if {![string match {::*} $ns]} { ::set ns ::$ns }
+    ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     # Inlined 'state drop'.
     namespace eval $ns [list ::unset  {*}[::namespacex info allvars $ns]]
     namespace eval $ns [list variable {*}$state]
