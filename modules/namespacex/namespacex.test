@@ -16,8 +16,8 @@ testing {
 
 # -------------------------------------------------------------------------
 
-proc ns_setup {} {
-    namespace eval ::X {
+proc ns_setup {{parent {}}} {
+    namespace eval ${parent}::X {
         namespace eval A {}
         namespace eval B {
             namespace eval D {}
@@ -26,8 +26,8 @@ proc ns_setup {} {
     }
 }
 
-proc ns2_setup {} {
-    namespace eval ::X {
+proc ns2_setup {{parent {}}} {
+    namespace eval ${parent}::X {
         variable vXa 1
         variable vXb aleph
         namespace eval B {
@@ -36,8 +36,8 @@ proc ns2_setup {} {
     }
 }
 
-proc ns3_setup {} {
-    namespace eval ::X {
+proc ns3_setup {{parent {}}} {
+    namespace eval ${parent}::X {
         namespace eval B {
             variable vB mjolnir
         }
@@ -131,7 +131,7 @@ test namespacex-info-allchildren-1.1 {namespacex info allchildren, wrong\#args} 
     namespacex info allchildren N X
 } -returnCodes error -result {wrong # args: should be "namespacex info allchildren ns"}
 
-test namespacex-info-allchildren-2.0.0 {namespacex info allchildren} -setup {
+test namespacex-info-allchildren-2.0.0 {namespacex info allchildren, fqn} -setup {
     ns_setup
 } -body {
     lsort -dict [namespacex info allchildren ::X]
@@ -139,13 +139,23 @@ test namespacex-info-allchildren-2.0.0 {namespacex info allchildren} -setup {
     namespace delete ::X
 } -result {::X::A ::X::B ::X::B::D ::X::C}
 
-test namespacex-info-allchildren-2.0.1 {namespacex info allchildren} -setup {
+test namespacex-info-allchildren-2.0.1 {namespacex info allchildren, relative to global} -setup {
     ns_setup
 } -body {
     lsort -dict [namespacex info allchildren X]
 } -cleanup {
     namespace delete ::X
 } -result {::X::A ::X::B ::X::B::D ::X::C}
+
+test namespacex-info-allchildren-2.0.2 {namespacex info allchildren, relative to non-global} -setup {
+    ns_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info allchildren X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {::Q::X::A ::Q::X::B ::Q::X::B::D ::Q::X::C}
 
 # -------------------------------------------------------------------------
 
@@ -157,12 +167,30 @@ test namespacex-info-vars-1.1 {namespacex info vars, wrong\#args} -body {
     namespacex info vars N P X
 } -returnCodes error -result {wrong # args: should be "namespacex info vars ns ?pattern?"}
 
-test namespacex-info-vars-2.0 {namespacex info vars} -setup {
+test namespacex-info-vars-2.0.0 {namespacex info vars, fqn} -setup {
     ns2_setup
 } -body {
     lsort -dict [namespacex info vars ::X]
 } -cleanup {
     namespace delete ::X
+} -result {vXa vXb}
+
+test namespacex-info-vars-2.0.1 {namespacex info vars, relative to global} -setup {
+    ns2_setup
+} -body {
+    lsort -dict [namespacex info vars X]
+} -cleanup {
+    namespace delete ::X
+} -result {vXa vXb}
+
+test namespacex-info-vars-2.0.2 {namespacex info vars, relative to non-global} -setup {
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info vars X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {vXa vXb}
 
 test namespacex-info-vars-2.1 {namespacex info vars} -setup {
@@ -173,12 +201,30 @@ test namespacex-info-vars-2.1 {namespacex info vars} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-info-vars-2.2 {namespacex info vars} -setup {
+test namespacex-info-vars-2.2.0 {namespacex info vars, fqn} -setup {
     ns3_setup
 } -body {
     lsort -dict [namespacex info vars ::X]
 } -cleanup {
     namespace delete ::X
+} -result {}
+
+test namespacex-info-vars-2.2.1 {namespacex info vars, relative to global} -setup {
+    ns3_setup
+} -body {
+    lsort -dict [namespacex info vars X]
+} -cleanup {
+    namespace delete ::X
+} -result {}
+
+test namespacex-info-vars-2.2.2 {namespacex info vars, relative to non-global} -setup {
+    ns3_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info vars X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {}
 
 # -------------------------------------------------------------------------
@@ -191,7 +237,7 @@ test namespacex-info-allvars-1.1 {namespacex info allvars, wrong\#args} -body {
     namespacex info allvars N X
 } -returnCodes error -result {wrong # args: should be "namespacex info allvars ns"}
 
-test namespacex-info-allvars-2.0.0 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.0.0 {namespacex info allvars, fqn} -setup {
     ns2_setup
 } -body {
     lsort -dict [namespacex info allvars ::X]
@@ -199,7 +245,7 @@ test namespacex-info-allvars-2.0.0 {namespacex info allvars} -setup {
     namespace delete ::X
 } -result {B::vB vXa vXb}
 
-test namespacex-info-allvars-2.0.1 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.0.1 {namespacex info allvars, relative to global} -setup {
     ns2_setup
 } -body {
     lsort -dict [namespacex info allvars X]
@@ -207,7 +253,17 @@ test namespacex-info-allvars-2.0.1 {namespacex info allvars} -setup {
     namespace delete ::X
 } -result {B::vB vXa vXb}
 
-test namespacex-info-allvars-2.1.0 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.0.2 {namespacex info allvars, relative to non-global} -setup {
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info allvars X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {B::vB vXa vXb}
+
+test namespacex-info-allvars-2.1.0 {namespacex info allvars, fqn} -setup {
     namespace eval ::X {}
 } -body {
     lsort -dict [namespacex info allvars ::X]
@@ -215,7 +271,7 @@ test namespacex-info-allvars-2.1.0 {namespacex info allvars} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-info-allvars-2.1.1 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.1.1 {namespacex info allvars, relative to global} -setup {
     namespace eval ::X {}
 } -body {
     lsort -dict [namespacex info allvars X]
@@ -223,7 +279,17 @@ test namespacex-info-allvars-2.1.1 {namespacex info allvars} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-info-allvars-2.2.0 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.1.2 {namespacex info allvars, relative to non-global} -setup {
+    namespace eval ::Q::X {}
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info allvars X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {}
+
+test namespacex-info-allvars-2.2.0 {namespacex info allvars, fqn} -setup {
     ns3_setup
 } -body {
     lsort -dict [namespacex info allvars ::X]
@@ -231,12 +297,22 @@ test namespacex-info-allvars-2.2.0 {namespacex info allvars} -setup {
     namespace delete ::X
 } -result {B::vB}
 
-test namespacex-info-allvars-2.2.1 {namespacex info allvars} -setup {
+test namespacex-info-allvars-2.2.1 {namespacex info allvars, relative to global} -setup {
     ns3_setup
 } -body {
     lsort -dict [namespacex info allvars X]
 } -cleanup {
     namespace delete ::X
+} -result {B::vB}
+
+test namespacex-info-allvars-2.2.2 {namespacex info allvars, relative to non-global} -setup {
+    ns3_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info allvars X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {B::vB}
 
 # -------------------------------------------------------------------------
@@ -249,7 +325,7 @@ test namespacex-state-get-1.1 {namespacex state get, wrong\#args} -body {
     namespacex state get N X
 } -returnCodes error -result {wrong # args: should be "namespacex state get ns"}
 
-test namespacex-state-get-2.0.0 {namespacex state get} -setup {
+test namespacex-state-get-2.0.0 {namespacex state get, fqn} -setup {
     ns2_setup
 } -body {
     dictsort [namespacex state get ::X]
@@ -257,7 +333,7 @@ test namespacex-state-get-2.0.0 {namespacex state get} -setup {
     namespace delete ::X
 } -result {B::vB 3 vXa 1 vXb aleph}
 
-test namespacex-state-get-2.0.1 {namespacex state get} -setup {
+test namespacex-state-get-2.0.1 {namespacex state get, relative to global} -setup {
     ns2_setup
 } -body {
     dictsort [namespacex state get X]
@@ -265,7 +341,17 @@ test namespacex-state-get-2.0.1 {namespacex state get} -setup {
     namespace delete ::X
 } -result {B::vB 3 vXa 1 vXb aleph}
 
-test namespacex-state-get-2.1.0 {namespacex state get} -setup {
+test namespacex-state-get-2.0.2 {namespacex state get, relative to non-global} -setup {
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {B::vB 3 vXa 1 vXb aleph}
+
+test namespacex-state-get-2.1.0 {namespacex state get, fqn} -setup {
     namespace eval ::X {}
 } -body {
     dictsort [namespacex state get ::X]
@@ -273,7 +359,7 @@ test namespacex-state-get-2.1.0 {namespacex state get} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-get-2.1.1 {namespacex state get} -setup {
+test namespacex-state-get-2.1.1 {namespacex state get, relative to global} -setup {
     namespace eval ::X {}
 } -body {
     dictsort [namespacex state get X]
@@ -281,7 +367,17 @@ test namespacex-state-get-2.1.1 {namespacex state get} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-get-2.2.0 {namespacex state get} -setup {
+test namespacex-state-get-2.1.2 {namespacex state get, relative to non-global} -setup {
+    namespace eval ::Q::X {}
+} -body {
+    namespace eval ::Q {
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {}
+
+test namespacex-state-get-2.2.0 {namespacex state get, fqn} -setup {
     ns3_setup
 } -body {
     dictsort [namespacex state get ::X]
@@ -289,12 +385,22 @@ test namespacex-state-get-2.2.0 {namespacex state get} -setup {
     namespace delete ::X
 } -result {B::vB mjolnir}
 
-test namespacex-state-get-2.2.1 {namespacex state get} -setup {
+test namespacex-state-get-2.2.1 {namespacex state get, relative to global} -setup {
     ns3_setup
 } -body {
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
+} -result {B::vB mjolnir}
+
+test namespacex-state-get-2.2.2 {namespacex state get, relative to non-global} -setup {
+    ns3_setup ::Q
+} -body {
+    namespace eval ::Q {
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {B::vB mjolnir}
 
 # -------------------------------------------------------------------------
@@ -307,7 +413,7 @@ test namespacex-state-drop-1.1 {namespacex state drop, wrong\#args} -body {
     namespacex state drop N X
 } -returnCodes error -result {wrong # args: should be "namespacex state drop ns"}
 
-test namespacex-state-drop-2.0.0 {namespacex state drop} -setup {
+test namespacex-state-drop-2.0.0 {namespacex state drop, fqn} -setup {
     ns2_setup
 } -body {
     namespacex state drop ::X
@@ -316,7 +422,7 @@ test namespacex-state-drop-2.0.0 {namespacex state drop} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-drop-2.0.1 {namespacex state drop} -setup {
+test namespacex-state-drop-2.0.1 {namespacex state drop, relative to global} -setup {
     ns2_setup
 } -body {
     namespacex state drop X
@@ -325,7 +431,18 @@ test namespacex-state-drop-2.0.1 {namespacex state drop} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-drop-2.1.0 {namespacex state drop} -setup {
+test namespacex-state-drop-2.0.2 {namespacex state drop, relative to non-global} -setup {
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state drop X
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {}
+
+test namespacex-state-drop-2.1.0 {namespacex state drop, fqn} -setup {
     namespace eval ::X {}
 } -body {
     namespacex state drop X
@@ -334,7 +451,7 @@ test namespacex-state-drop-2.1.0 {namespacex state drop} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-drop-2.1.1 {namespacex state drop} -setup {
+test namespacex-state-drop-2.1.1 {namespacex state drop, relative to global} -setup {
     namespace eval ::X {}
 } -body {
     namespacex state drop X
@@ -343,7 +460,18 @@ test namespacex-state-drop-2.1.1 {namespacex state drop} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-drop-2.2.0 {namespacex state drop} -setup {
+test namespacex-state-drop-2.1.2 {namespacex state drop, relative to non-global} -setup {
+    namespace eval ::Q::X {}
+} -body {
+    namespace eval ::Q {
+        namespacex state drop X
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {}
+
+test namespacex-state-drop-2.2.0 {namespacex state drop, fqn} -setup {
     ns3_setup
 } -body {
     namespacex state drop X
@@ -352,13 +480,24 @@ test namespacex-state-drop-2.2.0 {namespacex state drop} -setup {
     namespace delete ::X
 } -result {}
 
-test namespacex-state-drop-2.2.1 {namespacex state drop} -setup {
+test namespacex-state-drop-2.2.1 {namespacex state drop, relative to global} -setup {
     ns3_setup
 } -body {
     namespacex state drop X
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
+} -result {}
+
+test namespacex-state-drop-2.2.2 {namespacex state drop, relative to non-global} -setup {
+    ns3_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state drop X
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {}
 
 # -------------------------------------------------------------------------
@@ -375,7 +514,7 @@ test namespacex-state-set-1.2 {namespacex state set, wrong\#args} -body {
     namespacex state set N S X
 } -returnCodes error -result {wrong # args: should be "namespacex state set ns state"}
 
-test namespacex-state-set-2.0.0 {namespacex state set} -setup {
+test namespacex-state-set-2.0.0 {namespacex state set, fqn} -setup {
     ns2_setup
     set ST [namespacex state get ::X]
     ns3_setup
@@ -386,7 +525,7 @@ test namespacex-state-set-2.0.0 {namespacex state set} -setup {
     namespace delete ::X
 } -result {B::vB 3 vXa 1 vXb aleph}
 
-test namespacex-state-set-2.0.1 {namespacex state set} -setup {
+test namespacex-state-set-2.0.1 {namespacex state set, relative to global} -setup {
     ns2_setup
     set ST [namespacex state get ::X]
     ns3_setup
@@ -397,7 +536,21 @@ test namespacex-state-set-2.0.1 {namespacex state set} -setup {
     namespace delete ::X
 } -result {B::vB 3 vXa 1 vXb aleph}
 
-test namespacex-state-set-2.1.0 {namespacex state set} -setup {
+test namespacex-state-set-2.0.1 {namespacex state set, relative to non-global} -setup {
+    ns2_setup
+    set ST [namespacex state get ::X]
+    namespace delete ::X
+    ns3_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state set X $ST
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {B::vB 3 vXa 1 vXb aleph}
+
+test namespacex-state-set-2.1.0 {namespacex state set, fqn} -setup {
     ns3_setup
     set ST [namespacex state get ::X]
     ns2_setup
@@ -408,7 +561,7 @@ test namespacex-state-set-2.1.0 {namespacex state set} -setup {
     namespace delete ::X
 } -result {B::vB mjolnir}
 
-test namespacex-state-set-2.1.1 {namespacex state set} -setup {
+test namespacex-state-set-2.1.1 {namespacex state set, relative to global} -setup {
     ns3_setup
     set ST [namespacex state get ::X]
     ns2_setup
@@ -417,6 +570,20 @@ test namespacex-state-set-2.1.1 {namespacex state set} -setup {
     dictsort [namespacex state get X]
 } -cleanup {
     namespace delete ::X
+} -result {B::vB mjolnir}
+
+test namespacex-state-set-2.1.2 {namespacex state set, relative to non-global} -setup {
+    ns3_setup
+    set ST [namespacex state get ::X]
+    namespace delete ::X
+    ns2_setup ::Q
+} -body {
+    namespace eval ::Q {
+        namespacex state set X $ST
+        dictsort [namespacex state get X]
+    }
+} -cleanup {
+    namespace delete ::Q
 } -result {B::vB mjolnir}
 
 # -------------------------------------------------------------------------
