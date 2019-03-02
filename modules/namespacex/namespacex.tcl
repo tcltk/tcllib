@@ -222,7 +222,7 @@ proc ::namespacex::info::allvars {ns} {
     foreach cns [allchildren $ns] {
 	lappend result {*}[::info vars ${cns}::*]
     }
-    return [::namespacex::strip $ns $result]
+    return [::namespacex::Strip $ns $result]
 }
 
 proc ::namespacex::info::allchildren {ns} {
@@ -237,7 +237,7 @@ proc ::namespacex::info::allchildren {ns} {
 
 proc ::namespacex::info::vars {ns {pattern *}} {
     set ns [uplevel 1 [list [namespace parent] normalize $ns]]
-    return [::namespacex::strip $ns [::info vars ${ns}::$pattern]]
+    return [::namespacex::Strip $ns [::info vars ${ns}::$pattern]]
 }
 
 # this implementation avoids string operations
@@ -253,12 +253,22 @@ proc ::namespacex::normalize {ns} {
 }
 
 proc ::namespacex::strip {ns itemlist} {
+    set ns [uplevel 1 [list [namespace current] normalize $ns]]
     set n [string length $ns]
-    if {![string match {::*} $ns]} {
-	incr n 4
-    } else {
-	incr n 2
+    incr n -1
+    foreach i $itemlist {
+	if {[string range $i 0 $n] eq "$ns"} continue
+	return -code error "Expected $ns as prefix for $i, not found"
     }
+    return [Strip $ns $itemlist]
+}
+
+proc ::namespacex::Strip {ns itemlist} {
+    # Assert: is-fqn (ns)
+    if {![string match {::*} $ns]} { error "Expected fqn for ns" }
+    
+    set n [string length $ns]
+    incr n 2
 
     set result {}
     foreach i $itemlist {

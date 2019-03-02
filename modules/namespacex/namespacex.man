@@ -160,10 +160,10 @@ namespaces.
 
 The result of the command is the empty string.
 
-[call [cmd {::namespacex strip}] [arg namespace] [arg namespaces]]
+[call [cmd {::namespacex strip}] [arg prefix] [arg namespaces]]
 
 Each item in [arg namespaces] must be the absolute normalized name of
-a child namespace of [arg prefix].
+a child namespace of namespace [arg prefix].
 
 Returns the corresponding list of relative names of child namespaces.
 
