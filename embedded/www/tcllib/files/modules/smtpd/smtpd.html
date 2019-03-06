@@ -291,8 +291,7 @@ callback and permits you to verify a local mailbox and accept mail for
 a local user address during RCPT command handling. To reject mail,
 throw an error as above. The error message is ignored.</p></dd>
 <dt><b class="cmd">deliverMIME</b> callback</dt>
-<dd><p>]
-The deliverMIME callback is called once a mail message has been
+<dd><p>The deliverMIME callback is called once a mail message has been
 successfully passed to the server. A mime token is constructed from
 the sender, recipients and data and the users procedure it called with
 this single argument. When the call returns, the mime token is cleaned

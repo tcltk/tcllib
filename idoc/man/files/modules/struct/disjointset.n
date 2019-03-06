@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'disjointset\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "struct::disjointset" n 1\&.0 tcllib "Tcl Data Structures"
+.TH "struct::disjointset" n 1\&.1 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,13 +273,15 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 struct::disjointset \- Disjoint set data structure
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBstruct::disjointset  ?1\&.0?\fR
+package require \fBstruct::disjointset  ?1\&.1?\fR
 .sp
 \fB::struct::disjointset\fR \fIdisjointsetName\fR
 .sp
 \fIdisjointsetName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
+.sp
+\fIdisjointsetName\fR \fBadd-element\fR \fIitem\fR
 .sp
 \fIdisjointsetName\fR \fBadd-partition\fR \fIelements\fR
 .sp
@@ -292,6 +294,10 @@ package require \fBstruct::disjointset  ?1\&.0?\fR
 \fIdisjointsetName\fR \fBmerge\fR \fIa\fR \fIb\fR
 .sp
 \fIdisjointsetName\fR \fBfind\fR \fIe\fR
+.sp
+\fIdisjointsetName\fR \fBexemplars\fR
+.sp
+\fIdisjointsetName\fR \fBfind-exemplar\fR \fIe\fR
 .sp
 \fIdisjointsetName\fR \fBdestroy\fR
 .sp
@@ -368,6 +374,17 @@ the command\&. The following commands are possible for disjointset
 objects:
 .RE
 .TP
+\fIdisjointsetName\fR \fBadd-element\fR \fIitem\fR
+Creates a new partition in the specified disjoint set, and fills it
+with the single item \fIitem\fR\&.  The command maintains
+the integrity of the disjoint set, i\&.e\&. it verifies that none of the
+\fIelements\fR are already part of the disjoint set and throws an
+error otherwise\&.
+.sp
+The result of this method is the empty string\&.
+.sp
+This method runs in constant time\&.
+.TP
 \fIdisjointsetName\fR \fBadd-partition\fR \fIelements\fR
 Creates a new partition in specified disjoint set, and fills it with
 the values found in the set of \fIelements\fR\&. The command maintains
@@ -376,14 +393,23 @@ the integrity of the disjoint set, i\&.e\&. it verifies that none of the
 error otherwise\&.
 .sp
 The result of the command is the empty string\&.
+.sp
+This method runs in time proportional to the size of \fIelements\fR]\&.
 .TP
 \fIdisjointsetName\fR \fBpartitions\fR
 Returns the set of partitions the named disjoint set currently
-consists of\&.
+consists of\&. The form of the result is a list of lists; the inner
+lists contain the elements of the partitions\&.
+.sp
+This method runs in time O(N*alpha(N)),
+where N is the number of elements in the disjoint set and alpha
+is the inverse Ackermann function\&.
 .TP
 \fIdisjointsetName\fR \fBnum-partitions\fR
 Returns the number of partitions the named disjoint set currently
 consists of\&.
+.sp
+This method runs in constant time\&.
 .TP
 \fIdisjointsetName\fR \fBequal\fR \fIa\fR \fIb\fR
 Determines if the two elements \fIa\fR and \fIb\fR of the disjoint set
@@ -393,6 +419,9 @@ partition, and \fBFalse\fR otherwise\&.
 .sp
 An error will be thrown if either \fIa\fR or \fIb\fR are not elements
 of the disjoint set\&.
+.sp
+This method runs in amortized time O(alpha(N)), where N is the number of
+elements in the larger partition and alpha is the inverse Ackermann function\&.
 .TP
 \fIdisjointsetName\fR \fBmerge\fR \fIa\fR \fIb\fR
 Determines the partitions the elements \fIa\fR and \fIb\fR are
@@ -401,10 +430,38 @@ elements were already contained in the same partition nothing will
 change\&.
 .sp
 The result of the method is the empty string\&.
+.sp
+This method runs in amortized time O(alpha(N)), where N is the number of
+items in the larger of the partitions being merged\&. The worst case time
+is O(N)\&.
 .TP
 \fIdisjointsetName\fR \fBfind\fR \fIe\fR
-Returns the partition of the disjoint set which contains the element
+Returns a list of the members of the partition of the disjoint set
+which contains the element
 \fIe\fR\&.
+.sp
+This method runs in O(N*alpha(N)) time, where N is the total number of
+items in the disjoint set and alpha is the inverse Ackermann function,
+See \fBfind-exemplar\fR for a faster method, if all that is needed
+is a unique identifier for the partition, rather than an enumeration
+of all its elements\&.
+.TP
+\fIdisjointsetName\fR \fBexemplars\fR
+Returns a list containing an exemplar of each partition in the disjoint
+set\&. The exemplar is a member of the partition, chosen arbitrarily\&.
+.sp
+This method runs in O(N*alpha(N)) time, where N is the total number of items
+in the disjoint set and alpha is the inverse Ackermann function\&.
+.TP
+\fIdisjointsetName\fR \fBfind-exemplar\fR \fIe\fR
+Returns the exemplar of the partition of the disjoint set containing
+the element \fIe\fR\&.  Throws an error if \fIe\fR is not found in the
+disjoint set\&.  The exemplar is an arbitrarily chosen member of the partition\&.
+The only operation that will change the exemplar of any partition is
+\fBmerge\fR\&.
+.sp
+This method runs in O(alpha(N)) time, where N is the number of items in
+the partition containing E, and alpha is the inverse Ackermann function\&.
 .TP
 \fIdisjointsetName\fR \fBdestroy\fR
 Destroys the disjoint set object and all associated memory\&.

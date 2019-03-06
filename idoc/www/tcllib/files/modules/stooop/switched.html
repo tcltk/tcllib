@@ -316,10 +316,10 @@ error command) if the value is invalid.</p>
 <p>The switched layer also keeps track of the options current
 values, so that a <b class="method">set-<b class="option">option</b></b> procedure is called
 only when the corresponding option value passed as parameter is
-different from the current value (see  data members
+different from the current value (see <b class="variable">-option</b> data members
 description).</p></dd>
-<dt></dt>
-<dd><p>The  data member is an options current value.
+<dt><b class="variable">-option</b></dt>
+<dd><p>The <b class="variable">-option</b> data member is an options current value.
 There is one for each option listed in the options procedure. It is a
 read-only value which the switched layer checks against when an option
 is changed.
@@ -343,9 +343,9 @@ proc car::printData {this} {
 <p>In this case, the manufacturer's name is stored at the switched
 layer level (this is why the set-manufacturer procedure has nothing to
 do) and later retrieved in the printData procedure.</p></dd>
-<dt></dt>
-<dd><p>The  data member (not to be confused with
-the <b class="method">complete</b> procedure) is a boolean.
+<dt><b class="variable">complete</b></dt>
+<dd><p>The <b class="variable">complete</b> data member (not to be confused with the
+<b class="method">complete</b> procedure) is a boolean.
 Its initial value is <b class="const">false</b> and it is set to <b class="const">true</b> at
 the very end of the switched <b class="method">complete</b> procedure.
 It becomes useful when some options should be set at construction time
