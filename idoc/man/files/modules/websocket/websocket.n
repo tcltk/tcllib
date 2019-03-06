@@ -474,7 +474,7 @@ should be declared using \fB::websocket::live\fR\&.
 .TP
 \fB::websocket::live\fR \fIsock\fR \fIpath\fR \fIcb\fR ?\fIproto\fR?
 This procedure registers callbacks that will be performed on a
-WebSocket compliant server registered with \fB::websocket::server\fR]
+WebSocket compliant server registered with \fB::websocket::server\fR
 whenever a client connects to a matching path and protocol\&.
 \fIsock\fR is the listening socket of the websocket compliant server
 declared using \fB::websocket::server\fR\&.  \fIpath\fR is a glob-style

@@ -229,16 +229,6 @@ in the given order. Regular text is not allowed within the header.</p>
 <p>Remember that the whitespace is optional. The document</p>
 <pre class="doctools_example">
     [manpage_begin NAME SECTION VERSION]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
     [vset CATEGORY doctools]
@@ -433,7 +423,7 @@ It shows their use within a block of text, as the arguments of a list
 item command (<b class="cmd">call</b>), and our ability to nest them.</p>
 <pre class="doctools_example">
   ...
-  [call [<b class="cmd">cmd arg_def</b>] [<b class="cmd">arg type</b>] [<b class="cmd">arg name</b>]] [<b class="cmd">opt</b> [<b class="cmd">arg mode</b>]]]
+  [call [<b class="cmd">cmd arg_def</b>] [<b class="cmd">arg type</b>] [<b class="cmd">arg name</b>] [<b class="cmd">opt</b> [<b class="cmd">arg mode</b>]]]
   Text structure. List element. Argument list. Automatically closes the
   previous list element. Specifies the data-[<b class="cmd">arg type</b>] of the described
   argument of a command, its [<b class="cmd">arg name</b>] and its i/o-[<b class="cmd">arg mode</b>]. The
