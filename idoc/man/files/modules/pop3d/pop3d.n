@@ -454,7 +454,6 @@ as returned by the \fBlookup\fR method of the authentication
 command, see section \fBAuthentication\fR\&.
 .TP
 \fIstorageCmd\fR \fBdele\fR \fImbox\fR \fImsgList\fR
-]
 Deletes the messages whose numeric ids are contained in the
 \fImsgList\fR from the mailbox specified via \fImbox\fR\&.
 .TP

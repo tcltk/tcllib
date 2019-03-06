@@ -376,8 +376,7 @@ Set the length of the \fIlogical\fR line in the string to
 \fIinteger\fR\&.  \fIinteger\fR must be a positive integer
 value\&. Defaults to \fB72\fR\&.
 .TP
-\fB-strictlength\fR
-\fIboolean\fR]
+\fB-strictlength\fR \fIboolean\fR
 If set to \fBfalse\fR (default), a line can exceed the specified
 \fB-length\fR if a single word is longer than \fB-length\fR\&. If
 set to \fBtrue\fR, words that are longer than \fB-length\fR are
