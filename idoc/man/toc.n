@@ -1341,8 +1341,17 @@ tcllib
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
 .TP
+\fBtcllib_install_guide\fR
+\fIfiles/devdoc/tcllib_installer\&.n\fR: Tcllib - The Installer's Guide
+.TP
 \fBtcllib_ip\fR
 \fIfiles/modules/dns/tcllib_ip\&.n\fR: IPv4 and IPv6 address manipulation
+.TP
+\fBtcllib_license\fR
+\fIfiles/devdoc/tcllib_license\&.n\fR: Tcllib - License
+.TP
+\fBtcllib_sources\fR
+\fIfiles/devdoc/tcllib_sources\&.n\fR: Tcllib - How To Get The Sources
 .TP
 \fBtclrep/machineparameters\fR
 \fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.

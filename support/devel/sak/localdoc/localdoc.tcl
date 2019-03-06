@@ -44,15 +44,16 @@ proc ::sak::localdoc::run {} {
     sak::doc::index __dummy__ $excluded
 
     puts "Removing old documentation..."
-    # but keep the main index around, manually created, edited, not to be touched
+    # Keep the main index around however, manually created, edited,
+    # not to be touched
     # TODO: catch errors and restore automatically
-    file rename embedded/index.html e_index.html
+    file rename embedded/index.md e_index.md
     
     file delete -force embedded
-    file mkdir embedded/www
+    file mkdir embedded/www embedded/dev
 
     # Put the saved main page back into place, early.
-    file rename e_index.html embedded/index.html
+    file rename e_index.md embedded/index.md
 
     run-idoc-man $baseconfig
 	

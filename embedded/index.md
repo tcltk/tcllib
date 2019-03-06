@@ -15,6 +15,14 @@ Packages - [Table Of Contents](www/toc.html)
 	</form>
 </center>
 
+## Guides to Tcllib
+
+   * Guide to Kind Communication
+   * [License](www/tcllib/files/devdoc/tcllib_license.html)
+   * [How To Get The Sources](www/tcllib/files/devdoc/tcllib_sources.html)
+   * [How To Build And Install Tcllib](www/tcllib/files/devdoc/tcllib_installer.html)
+   * The Developer's Guide
+
 ## Discussion & Contact
 
 Tcllib has two

@@ -1,0 +1,294 @@
+
+<!DOCTYPE html><html><head>
+<title>tcllib_install_guide - </title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.doctools_title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.doctools_section, LI.doctools_subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.doctools_example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.doctools_synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.doctools_syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.doctools_requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<!-- Generated from file 'tcllib_installer.man' by tcllib/doctools with format 'html'
+   -->
+<!-- tcllib_install_guide.n
+   -->
+<body><hr> [
+   <a href="../../../../../../../home">Tcllib Home</a>
+| <a href="../../../toc.html">Main Table Of Contents</a>
+| <a href="../../toc.html">Table Of Contents</a>
+| <a href="../../../index.html">Keyword Index</a>
+| <a href="../../../toc0.html">Categories</a>
+| <a href="../../../toc1.html">Modules</a>
+| <a href="../../../toc2.html">Applications</a>
+ ] <hr>
+<div class="doctools">
+<h1 class="doctools_title">tcllib_install_guide(n) 1 tcllib &quot;&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
+<p>tcllib_install_guide - Tcllib - The Installer's Guide</p>
+</div>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Requisites</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Tcl</a></li>
+<li class="doctools_subsection"><a href="#subsection2">CriTcl</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section3">Build &amp; Installation Instructions</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection3">Unix</a></li>
+<li class="doctools_subsection"><a href="#subsection4">Windows</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Critcl &amp; Accelerators</a></ul>
+</li>
+</ul>
+</div>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
+<p>Welcome to Tcllib, the Tcl Standard Library. Note that Tcllib is not a
+package itself. It is a collection of (semi-independent) <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>
+packages that provide utility functions useful to a large collection
+of Tcl programmers.</p>
+<p>The audience of this document is anyone wishing to build the packages,
+for either themselves, or others.</p>
+<p>For a developer intending to extend or modify the packages we
+additionally provide</p>
+<ol class="doctools_enumerated">
+<li><p><i class="term">Tcllib - The Developer's Guide</i>.</p></li>
+</ol>
+<p>Please read <i class="term"><a href="tcllib_sources.html">Tcllib - How To Get The Sources</a></i> first, if that
+was not done already. Here we assume that the sources are already
+available in a directory of your choice.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Requisites</a></h2>
+<p>Before Tcllib can be build and used a number of requisites must be installed.
+These are:</p>
+<ol class="doctools_enumerated">
+<li><p>The scripting language Tcl.
+       For details see <span class="sectref"><a href="#subsection1">Tcl</a></span>.</p></li>
+<li><p>Optionally, the <b class="package">critcl</b> package (C embedding) for <b class="syscmd"><a href="../../../index.html#tcl">Tcl</a></b>.
+       For details see <span class="sectref"><a href="#subsection2">CriTcl</a></span>.</p></li>
+</ol>
+<p>This list assumes that the machine where Tcllib is to be installed is
+essentially clean. Of course, if parts of the dependencies listed
+below are already installed the associated steps can be skipped. It is
+still recommended to read their sections though, to validate that the
+dependencies they talk about are indeed installed.</p>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Tcl</a></h3>
+<p>As we are installing a number of Tcl packages and applications it
+should be pretty much obvious that a working installation of Tcl
+itself is needed, and I will not belabor the point.</p>
+<p>Out of the many possibilites use whatever you are comfortable
+with, as long as it provides Tcl 8.2, or higher.
+This may be a Tcl installation provided by your operating system
+distribution, from a distribution-independent vendor, or built by
+yourself.</p>
+<p><em>Note</em> that the packages in Tcllib have begun to require
+8.4, 8.5, and even 8.6. Older versions of Tcl will not be able to use
+such packages. Trying to use them will result in
+<em>package not found</em> errors, as their package index files will
+not register them in versions of the core unable to use them.</p>
+<p>Myself, I used (and still use)
+<a href="http://www.activestate.com">ActiveState's</a>
+ActiveTcl 8.5 distribution during development, as I am most familiar
+with it.</p>
+<p><em>(Disclosure: I, Andreas Kupries, worked for ActiveState until 2016, maintaining ActiveTcl and TclDevKit for them).</em>.
+I am currently working for SUSE Software Canada ULC, although not in
+Tcl-related areas.</p>
+<p>This distribution can be found at
+<a href="http://www.activestate.com/activetcl">http://www.activestate.com/activetcl</a>. Retrieve the archive of
+ActiveTcl 8.5 (or higher) for your platform and install it as directed
+by ActiveState.</p>
+<p>For those wishing to build and install Tcl on their own, the
+relevant sources can be found at</p>
+<dl class="doctools_definitions">
+<dt>Tcl</dt>
+<dd><p><a href="http://core.tcl-lang.org/tcl/">http://core.tcl-lang.org/tcl/</a></p></dd>
+</dl>
+<p>together with the necessary instructions on how to build it.</p>
+<p>If there are problems with building, installing, or using Tcl
+please file a ticket against <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>, or the vendor of your
+distribution, and <em>not</em> <i class="term"><a href="../../../index.html#tcllib">Tcllib</a></i>.</p>
+</div>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">CriTcl</a></h3>
+<p>The <b class="syscmd">critcl</b> tool is an <em>optional</em> dependency.</p>
+<p>It is only required when trying to build the C-based
+<i class="term">accelerators</i> for a number of packages, as explained in
+<span class="sectref"><a href="#subsection5">Critcl &amp; Accelerators</a></span></p>
+<p>Tcllib's build system accepts it as an application found in the
+PATH (be it starkit or starpack).</p>
+<p>Tcllib requires version 2 or higher.</p>
+<p>The github repository providing releases of version 2 and
+higher, and the associated sources, can be found at
+<a href="http://andreas-kupries.github.com/critcl">http://andreas-kupries.github.com/critcl</a>.</p>
+<p>Any branch of the repository can be used (if not using the
+prebuild starkit or starpack), although the use of the stable branch
+<em>master</em> is recommended.</p>
+<p>At the above url is also an explanation on how to build and
+install CriTcl, including a list of its dependencies.</p>
+<p>Its instructions will not be repeated here. If there are
+problems with their directions please file a ticket against the
+<i class="term">Critcl</i> project, and not Tcllib.</p>
+</div>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Build &amp; Installation Instructions</a></h2>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Unix</a></h3>
+<p>This section describes the actions required to install Tcllib on Unix
+systems (Linux, BSD, and related, including OS X).
+If you have to install Tcllib on a Windows machine instead then see
+section <span class="sectref"><a href="#subsection4">Windows</a></span>.</p>
+<p>Tcllib comes with a standard TEA buildsystem using a
+<b class="syscmd">configure</b> script and a &quot;<b class="file">Makefile</b>&quot; generated by it.</p>
+<p>To install Tcllib simply run</p>
+<pre class="doctools_example">
+    ./configure
+    make install
+</pre>
+<p>in the toplevel directory of Tcllib itself. To build in a directory D
+outside of Tcllib's toplevel directory simply make D the current
+working directory and invoke <b class="syscmd">configure</b> with either its
+absolute path or a proper relative path.</p>
+<p>The above will non-interactively install all packages,
+applications found in Tcllib, and their manpages, in directories
+derived from what <b class="syscmd">configure</b> found out about the system.</p>
+<p>The underlying tool is &quot;<b class="file">installer.tcl</b>&quot; in the toplevel
+directory of Tcllib.</p>
+<p>Invoking this tool via</p>
+<pre class="doctools_example">
+    ./installer.tcl -help
+</pre>
+<p>will provide a short list of the available options. For more examples
+see the various <i class="term">install</i> targets found in &quot;<b class="file">Makefile.in</b>&quot;.</p>
+</div>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Windows</a></h3>
+<p>This section describes the actions required to install Tcllib on Windows(tm)
+systems.
+If you have to install Tcllib on a Unix machine (Linux, BSD, and
+related, including OS X) instead then see section <span class="sectref"><a href="#subsection3">Unix</a></span>.</p>
+<p>If the build environment is based on <i class="term">MSYS</i>,
+<i class="term">cygwin</i>, or a similar emulation of a unix environment, then
+<span class="sectref"><a href="#subsection3">Unix</a></span> still applies and should be used.</p>
+<p>Alternatively, as mentioned in the previous section, the tool
+underneath of the unix buildsystem is the <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>-based
+&quot;<b class="file">installer.tcl</b>&quot; script.</p>
+<p>Invoking this tool from a DOS shell via</p>
+<pre class="doctools_example">
+    /path/to/tclsh ./installer.tcl -help
+</pre>
+<p>will provide a short list of the available options. For more examples
+see the various <i class="term">install</i> targets found in &quot;<b class="file">Makefile.in</b>&quot;.
+Invoking this tool without any arguments, i.e. like</p>
+<pre class="doctools_example">
+    /path/to/tclsh ./installer.tcl
+</pre>
+<p>will start a non-interactive installation showing its progress in a
+Tk-based graphical interface. The directories to install the packages,
+applications, etc. into are derived from the location of the
+<b class="syscmd">tclsh</b> used to invoke the script, and where it expects
+packages.</p>
+</div>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Critcl &amp; Accelerators</a></h3>
+<p>A number of packages come with <i class="term">accelerators</i>, i.e.
+<b class="syscmd">critcl</b>-based C code whose use will boost the performance of
+the packages using them. As these accelerators are optional they are
+not installed by default.</p>
+<p>To build the accelerators the normally optional dependency on
+<b class="syscmd">critcl</b> becomes required.</p>
+<p>To install Tcllib with the accelerators run</p>
+<pre class="doctools_example">
+    ./configure
+    make critcl # This builds the shared library holding the accelerators
+    make install
+</pre>
+<p>The underlying tool is &quot;<b class="file">sak.tcl</b>&quot; in the toplevel directory
+of Tcllib and the command <b class="cmd">make critcl</b> is just a wrapper around</p>
+<pre class="doctools_example">
+    ./sak.tcl critcl
+</pre>
+</div>
+</div>
+</div></body></html>
