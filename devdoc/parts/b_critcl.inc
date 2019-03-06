@@ -8,7 +8,8 @@ not installed by default.
 [para] To build the accelerators the normally optional dependency on
 [syscmd critcl] becomes required.
 
-[para] To install Tcllib with the accelerators run
+[para] To install Tcllib with the accelerators in a unix-type
+environment invoke:
 
 [example {
     ./configure
@@ -21,4 +22,11 @@ of Tcllib and the command [cmd {make critcl}] is just a wrapper around
 
 [example {
     ./sak.tcl critcl
+}]
+
+[para] Therefore in a Windows environment instead invoke
+
+[example {
+    /path/to/tclsh ./sak.tcl critcl
+    /path/to/tclsh ./installer.tcl
 }]

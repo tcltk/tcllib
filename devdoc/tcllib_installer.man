@@ -52,8 +52,7 @@ dependencies they talk about are indeed installed.
 [comment {= build instructions ==============================================}]
 [section {Build & Installation Instructions}]
 
-[include parts/b_unix.inc]
-[include parts/b_windows.inc]
+[include parts/b_tooling.inc]
 [include parts/b_critcl.inc]
 
 [manpage_end]
