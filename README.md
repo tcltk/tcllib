@@ -34,8 +34,10 @@ Another location to find these sources at is the
 
 Please note the :warning: at the top.
 
-# More reading
+# Guides To Tcllib
 
-Note that depending on your role with regard to Tcllib (developer,
-release manager, installer) we have additional README documents
-available with more information specific to that role.
+   * Guide to Kind Communication
+   * [License](embedded/www/tcllib/files/devdoc/tcllib_license.html)
+   * [How To Get The Sources](embedded/www/tcllib/files/devdoc/tcllib_sources.html)
+   * [How To Build And Install Tcllib](embedded/www/tcllib/files/devdoc/tcllib_installer.html)
+   * The Developer's Guide
