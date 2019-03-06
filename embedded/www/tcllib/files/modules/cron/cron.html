@@ -133,8 +133,8 @@
 <li><a href="#9"><b class="cmd">::cron::task info</b> <i class="arg">process</i></a></li>
 <li><a href="#10"><b class="cmd">::cron::task set</b> <i class="arg">process</i> <i class="arg">field</i> <i class="arg">value</i> <i class="arg">?field...?</i> <i class="arg">?value...?</i></a></li>
 <li><a href="#11"><b class="cmd">::cron::wake</b> <i class="arg">?who?</i></a></li>
-<li><a href="#12"><b class="cmd">::cron::clock_step</b> <i class="arg">milleseconds</i></a></li>
-<li><a href="#13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milleseconds</i></a></li>
+<li><a href="#12"><b class="cmd">::cron::clock_step</b> <i class="arg">milliseconds</i></a></li>
+<li><a href="#13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milliseconds</i></a></li>
 <li><a href="#14"><b class="cmd">::cron::clock_sleep</b> <i class="arg">seconds</i> <i class="arg">?offset?</i></a></li>
 <li><a href="#15"><b class="cmd">::cron::clock_set</b> <i class="arg">newtime</i></a></li>
 </ul>
@@ -228,23 +228,23 @@ set $var 0
 <dt><a name="10"><b class="cmd">::cron::task set</b> <i class="arg">process</i> <i class="arg">field</i> <i class="arg">value</i> <i class="arg">?field...?</i> <i class="arg">?value...?</i></a></dt>
 <dd><p>If <i class="arg">process</i> does not exist, it is created. Options Include:</p>
 <dl class="doctools_definitions">
-<b class="cmd"><a href="../../../../index.html#command">command</a></b>
-If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is black, a global command which implements this process. If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is not
-black, the command to invoke to create or recreate the coroutine.
-<b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b>
-The name of the coroutine (if any) which implements this process.
-<b class="cmd">frequency</b>
-If -1, this process is terminated after the next event. If 0 this process should be called during every
-idle event. If positive, this process should generate events periodically. The frequency is an interger number
-of milleseconds between events.
-<b class="cmd"><a href="../../../../index.html#object">object</a></b>
-The object associated with this process or coroutine.
-<b class="cmd">scheduled</b>
-If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event.
-If zero, and the <b class="cmd">frequency</b> is also zero, this process is called every idle loop.
-<b class="cmd"><a href="../../../../index.html#running">running</a></b>
-A boolean flag. If true it indicates the process never returned or yielded during the event loop,
-and will not be called again until it does so.
+<dt><b class="cmd"><a href="../../../../index.html#command">command</a></b></dt>
+<dd><p>If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is black, a global command which implements this process. If <b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b> is not
+black, the command to invoke to create or recreate the coroutine.</p></dd>
+<dt><b class="cmd"><a href="../coroutine/tcllib_coroutine.html">coroutine</a></b></dt>
+<dd><p>The name of the coroutine (if any) which implements this process.</p></dd>
+<dt><b class="cmd">frequency</b></dt>
+<dd><p>If -1, this process is terminated after the next event. If 0 this process should be called during every
+idle event. If positive, this process should generate events periodically. The frequency is an integer number
+of milliseconds between events.</p></dd>
+<dt><b class="cmd"><a href="../../../../index.html#object">object</a></b></dt>
+<dd><p>The object associated with this process or coroutine.</p></dd>
+<dt><b class="cmd">scheduled</b></dt>
+<dd><p>If non-zero, the absolute time from the epoch (in milliseconds) that this process will trigger an event.
+If zero, and the <b class="cmd">frequency</b> is also zero, this process is called every idle loop.</p></dd>
+<dt><b class="cmd"><a href="../../../../index.html#running">running</a></b></dt>
+<dd><p>A boolean flag. If true it indicates the process never returned or yielded during the event loop,
+and will not be called again until it does so.</p></dd>
 </dl></dd>
 <dt><a name="11"><b class="cmd">::cron::wake</b> <i class="arg">?who?</i></a></dt>
 <dd><p>Wake up cron, and arrange for its event loop to be run during the next Idle cycle.</p>
@@ -256,12 +256,12 @@ and will not be called again until it does so.
 <p>Several utility commands are provided that are used internally within cron and for
 testing cron, but may or may not be useful in the general cases.</p>
 <dl class="doctools_definitions">
-<dt><a name="12"><b class="cmd">::cron::clock_step</b> <i class="arg">milleseconds</i></a></dt>
+<dt><a name="12"><b class="cmd">::cron::clock_step</b> <i class="arg">milliseconds</i></a></dt>
 <dd><p>Return a clock time absolute to the epoch which falls on the next
-border between one second and the next for the value of <i class="arg">milleseconds</i></p></dd>
-<dt><a name="13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milleseconds</i></a></dt>
+border between one second and the next for the value of <i class="arg">milliseconds</i></p></dd>
+<dt><a name="13"><b class="cmd">::cron::clock_delay</b> <i class="arg">milliseconds</i></a></dt>
 <dd><p>Return a clock time absolute to the epoch which falls on the next
-border between one second and the next <i class="arg">milleseconds</i> in the future.</p></dd>
+border between one second and the next <i class="arg">milliseconds</i> in the future.</p></dd>
 <dt><a name="14"><b class="cmd">::cron::clock_sleep</b> <i class="arg">seconds</i> <i class="arg">?offset?</i></a></dt>
 <dd><p>Return a clock time absolute to the epoch which falls exactly <i class="arg">seconds</i> in
 the future. If offset is given it may be positive or negative, and will shift
@@ -269,7 +269,7 @@ the final time to before or after the second would flip.</p></dd>
 <dt><a name="15"><b class="cmd">::cron::clock_set</b> <i class="arg">newtime</i></a></dt>
 <dd><p>Sets the internal clock for cron. This command will advance the time in 100ms
 increment, triggering events, until the internal time catches up with <i class="arg">newtime</i>.</p>
-<p><i class="arg">newtime</i> is expressed in absolute milleseconds since the beginning of the epoch.</p></dd>
+<p><i class="arg">newtime</i> is expressed in absolute milliseconds since the beginning of the epoch.</p></dd>
 </dl>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>

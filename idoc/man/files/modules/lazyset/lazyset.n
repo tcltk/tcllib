@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file 'nns_server\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Generated from file 'lazyset\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2018 Roy Keene
 '\"
-.TH "nameserv::server" n 0\&.3\&.2 tcllib "Name service facility"
+.TH "lazyset" n 1 tcllib "Lazy evaluation for variables and arrays"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,131 +272,83 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-nameserv::server \- Name service facility, Server
+lazyset \- Lazy evaluation
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBnameserv::server  ?0\&.3\&.2?\fR
+package require \fBlazyset  ?1?\fR
 .sp
-package require \fBcomm \fR
-.sp
-package require \fBinterp \fR
-.sp
-package require \fBlogger \fR
-.sp
-\fB::nameserv::server::start\fR
-.sp
-\fB::nameserv::server::stop\fR
-.sp
-\fB::nameserv::server::active?\fR
-.sp
-\fB::nameserv::server::cget\fR \fB-option\fR
-.sp
-\fB::nameserv::server::configure\fR
-.sp
-\fB::nameserv::server::configure\fR \fB-option\fR
-.sp
-\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
+\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
 .sp
 .BE
 .SH DESCRIPTION
-Please read \fIName service facility, introduction\fR first\&.
 .PP
-This package provides an implementation of the serviver side of the
-name service facility queried by the client provided by the package
-\fBnameserv\fR\&. All information required by the server will be
-held in memory\&. There is no persistent state\&.
+The \fBlazyset\fR package provides a mechanism for deferring execution
+of code until a specific variable or any index of an array is referenced\&.
+.SH COMMANDS
+.TP
+\fB::lazyset::variable\fR ?\fI-array boolean\fR? ?\fI-appendArgs boolean\fR? \fIvariableName\fR \fIcommandPrefix\fR
+Arrange for the code specified as \fIcommandPrefix\fR to be executed when
+the variable whose name is specified by \fIvariableName\fR is read for
+the first time\&.
+If the optional argument \fI-array boolean\fR is specified as true,
+then the variable specified as \fIvariableName\fR is treated as an
+array and attempting to read any index of the array causes that
+index to be set by the \fIcommandPrefix\fR as they are read\&.
+If the optional argument \fI-appendArgs boolean\fR is specified as
+false, then the variable name and subnames are not appended to the
+\fIcommandPrefix\fR before it is evaluated\&.  If the argument
+\fI-appendArgs boolean\fR is not specified or is specified as true
+then 1 or 2 additional arguments are appended to the \fIcommandPrefix\fR\&.
+If \fI-array boolean\fR is specified as true, then 2 arguments are
+appended corresponding to the name of the variable and the index,
+otherwise 1 argument is appended containing the name of variable\&.
+The \fIcommandPrefix\fR code is run in the same scope as the variable
+is read\&.
 .PP
-This service is built in top of and for the package \fBcomm\fR\&.
-It has nothing to do with the Internet's Domain Name System\&. If the
-reader is looking for a package dealing with that please see Tcllib's
-packages \fBdns\fR and \fBresolv\fR\&.
-.PP
-This server supports the \fICore\fR protocol feature, and since
-version 0\&.3 the \fISearch/Continuous\fR feature as well\&.
-.SH API
-The package exports five commands, as specified below:
-.TP
-\fB::nameserv::server::start\fR
-This command starts the server and causes it to listen on the
-configured port\&. From now on clients are able to connect and make
-requests\&. The result of the command is the empty string\&.
-.sp
-Note that any incoming requests will only be handled if the
-application the server is part of does enter an event loop after this
-command has been run\&.
-.TP
-\fB::nameserv::server::stop\fR
-Invoking this command stops the server and releases all information it
-had\&. Existing connections are shut down, and no new connections will
-be accepted any longer\&. The result of the command is the empty string\&.
-.TP
-\fB::nameserv::server::active?\fR
-This command returns a boolean value indicating the state of the
-server\&. The result will be \fBtrue\fR if the server is active,
-i\&.e\&. has been started, and \fBfalse\fR otherwise\&.
-.TP
-\fB::nameserv::server::cget\fR \fB-option\fR
-This command returns the currently configured value for the specified
-\fB-option\fR\&. The list of supported options and their meaning can
-be found in section \fBOPTIONS\fR\&.
-.TP
-\fB::nameserv::server::configure\fR
-In this form the command returns a dictionary of all supported
-options, and their current values\&. The list of supported options and
-their meaning can be found in section \fBOPTIONS\fR\&.
-.TP
-\fB::nameserv::server::configure\fR \fB-option\fR
-In this form the command is an alias for
-"\fB::nameserv::server::cget\fR \fB-option\fR"\&.
-The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR\&.
-.TP
-\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
-In this form the command is used to configure one or more of the
-supported options\&. At least one option has to be specified, and each
-option is followed by its new value\&.
-The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR\&.
-.sp
-This form can be used only if the server is not active, i\&.e\&. has not
-been started yet, or has been stopped\&. While the server is active it
-cannot be reconfigured\&.
-.PP
-.SH OPTIONS
-The options supported by the server are for the specification of the
-TCP port to listen on, and whether to accept non-local connections or
-not\&.
-They are:
-.TP
-\fB-localonly\fR \fIbool\fR
-This option specifies whether to accept only local connections
-(-localonly 1) or remote connections as well (-localonly 0)\&. The
-default is to accept only local connections\&.
-.TP
-\fB-port\fR \fInumber\fR
-This option specifies the port the name service will listen on after
-it has been started\&. It has to be a positive integer number (> 0) not
-greater than 65536 (unsigned short)\&. The initial default is the number
-returned by the command \fB::nameserv::server::common::port\fR, as
-provided by the package \fB::nameserv::server::common\fR\&.
-.PP
-.SH HISTORY
-.TP
-0\&.3
-Extended the server with the ability to perform asynchronous and
-continuous searches\&.
-.TP
-0\&.2
-Changed name of -local switch to -localonly\&.
-.TP
-0\&.1
-Initial implementation of the server\&.
-.PP
+.SH EXAMPLES
+.CS
+
+
+	::lazyset::variable page {apply {{name} {
+		package require http
+		set token [http::geturl http://www\&.tcl\&.tk/]
+		set data [http::data $token]
+		return $data
+	}}}
+
+	puts $page
+
+.CE
+.CS
+
+
+	::lazyset::variable -array true page {apply {{name index} {
+		package require http
+		set token [http::geturl $index]
+		set data [http::data $token]
+		return $data
+	}}}
+
+	puts $page(http://www\&.tcl\&.tk/)
+
+.CE
+.CS
+
+
+	::lazyset::variable -appendArgs false simple {
+		return -level 0 42
+	}
+
+	puts $simple
+
+.CE
+.SH AUTHORS
+Roy Keene
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fInameserv\fR of the
+Please report such in the category \fIutility\fR of the
 \fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
@@ -408,14 +360,10 @@ Note further that \fIattachments\fR are strongly preferred over
 inlined patches\&. Attachments can be made by going to the \fBEdit\fR
 form of the ticket immediately after its creation, and then using the
 left-most button in the secondary navigation bar\&.
-.SH "SEE ALSO"
-nameserv::client(n), nameserv::common(n)
-.SH KEYWORDS
-name service, server
 .SH CATEGORY
-Networking
+Utility
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2018 Roy Keene
 
 .fi

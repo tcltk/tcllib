@@ -729,6 +729,9 @@ tcllib
 \fBlambda\fR
 \fIfiles/modules/lambda/lambda\&.n\fR: Utility commands for anonymous procedures
 .TP
+\fBlazyset\fR
+\fIfiles/modules/lazyset/lazyset\&.n\fR: Lazy evaluation
+.TP
 \fBldap\fR
 \fIfiles/modules/ldap/ldap\&.n\fR: LDAP client
 .TP
@@ -836,6 +839,9 @@ tcllib
 .TP
 \fBmath::statistics\fR
 \fIfiles/modules/math/statistics\&.n\fR: Basic statistical functions and procedures
+.TP
+\fBmath::trig\fR
+\fIfiles/modules/math/trig\&.n\fR: Trigonometric anf hyperbolic functions
 .TP
 \fBmd4\fR
 \fIfiles/modules/md4/md4\&.n\fR: MD4 Message-Digest Algorithm

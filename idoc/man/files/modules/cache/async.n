@@ -2,7 +2,7 @@
 '\" Generated from file 'async\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "cache::async" n 0\&.3 tcllib "In-memory caches"
+.TH "cache::async" n 0\&.3\&.1 tcllib "In-memory caches"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ cache::async \- Asynchronous in-memory cache
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBcache::async  ?0\&.3?\fR
+package require \fBcache::async  ?0\&.3\&.1?\fR
 .sp
 \fB::cache::async\fR \fIobjectName\fR \fIcommandprefix\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
