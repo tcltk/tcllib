@@ -1,0 +1,6 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tcl_community_communication n 1]
+[titledesc {Tcl Community - Kind Communication}]
+[description]
+
+[manpage_end]

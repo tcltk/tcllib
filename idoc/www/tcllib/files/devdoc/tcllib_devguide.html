@@ -1,0 +1,473 @@
+
+<!DOCTYPE html><html><head>
+<title>tcllib_devguide - </title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.doctools_title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.doctools_toc,UL.doctools_toc UL, UL.doctools_toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.doctools_section, LI.doctools_subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.doctools_example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.doctools_requirements LI, UL.doctools_syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.doctools_synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.doctools_syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.doctools_requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<!-- Generated from file 'tcllib_devguide.man' by tcllib/doctools with format 'html'
+   -->
+<!-- tcllib_devguide.n
+   -->
+<body><hr> [
+   <a href="../../../../../../../home">Tcllib Home</a>
+| <a href="../../../toc.html">Main Table Of Contents</a>
+| <a href="../../toc.html">Table Of Contents</a>
+| <a href="../../../index.html">Keyword Index</a>
+| <a href="../../../toc0.html">Categories</a>
+| <a href="../../../toc1.html">Modules</a>
+| <a href="../../../toc2.html">Applications</a>
+ ] <hr>
+<div class="doctools">
+<h1 class="doctools_title">tcllib_devguide(n) 1 tcllib &quot;&quot;</h1>
+<div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
+<p>tcllib_devguide - Tcllib - The Developer's Guide</p>
+</div>
+<div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="doctools_toc">
+<li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#section1">Description</a></li>
+<li class="doctools_section"><a href="#section2">Commitments</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection1">Contributor</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Maintainer</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section3">Branching and Workflow</a></li>
+<li class="doctools_section"><a href="#section4">Structural Overview</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection3">Main Directories</a></li>
+<li class="doctools_subsection"><a href="#subsection4">More Directories</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Top Files</a></li>
+<li class="doctools_subsection"><a href="#subsection6">File Types</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section5">Testsuite Tooling</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection7">Invoke the testsuites of a specific module</a></li>
+<li class="doctools_subsection"><a href="#subsection8">Invoke the testsuites of all modules</a></li>
+<li class="doctools_subsection"><a href="#subsection9">Detailed Test Logs</a></li>
+<li class="doctools_subsection"><a href="#subsection10">Shell Selection</a></li>
+<li class="doctools_subsection"><a href="#subsection11">Help</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section6">Documentation Tooling</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection12">Generate documentation for a specific module</a></li>
+<li class="doctools_subsection"><a href="#subsection13">Generate documentation for all modules</a></li>
+<li class="doctools_subsection"><a href="#subsection14">Available output formats, help</a></li>
+<li class="doctools_subsection"><a href="#subsection15">Validation without output</a></li>
+</ul>
+</li>
+<li class="doctools_section"><a href="#section7">Notes On Writing A Testsuite</a></li>
+<li class="doctools_section"><a href="#section8">Installation Tooling</a></li>
+</ul>
+</div>
+<div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
+<p>Welcome to Tcllib, the Tcl Standard Library. Note that Tcllib is not a
+package itself. It is a collection of (semi-independent) <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>
+packages that provide utility functions useful to a large collection
+of Tcl programmers.</p>
+<p>This document is a guide for developers working on Tcllib,
+i.e. maintainers fixing bugs, extending the collection's
+functionality, etc.</p>
+<p>Please read</p>
+<ol class="doctools_enumerated">
+<li><p><i class="term"><a href="tcllib_sources.html">Tcllib - How To Get The Sources</a></i> and</p></li>
+<li><p><i class="term"><a href="tcllib_installer.html">Tcllib - The Installer's Guide</a></i></p></li>
+</ol>
+<p>first, if that was not done already.</p>
+<p>Here we assume that the sources are already available in a
+directory of your choice, and that you not only know how to build and
+install them, but also have all the necessary requisites to actually
+do so. The guide to the sources in particular also explains which
+source code management system is used, where to find it, how to set it
+up, etc.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Commitments</a></h2>
+<div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Contributor</a></h3>
+<p>As a contributor to Tcllib you are committing yourself to:</p>
+<ol class="doctools_enumerated">
+<li><p>Follow the guidelines laid down in
+       <i class="term"><a href="tcl_community_communication.html">Tcl Community - Kind Communication</a></i></p></li>
+</ol>
+<p>Contributions are made by entering tickets into our tracker, providing
+patches, bundles or branches of code for inclusion, or posting to the
+Tcllib related mailing lists.</p>
+</div>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Maintainer</a></h3>
+<p>When contributing one or more packages for full inclusion into Tcllib
+you are committing yourself to</p>
+<ol class="doctools_enumerated">
+<li><p>Follow the guidelines laid down in
+       <i class="term"><a href="tcl_community_communication.html">Tcl Community - Kind Communication</a></i>
+       (as any contributor)</p></li>
+<li><p>Maintenance of the new packages for a period of two years under
+       the following rules, and responsibilities:</p>
+<ol class="doctools_enumerated">
+       
+<li><p>A maintainer may step down after the mandatory period as
+       	      they see fit.</p></li>
+<li><p>A maintainer may step down before the end of the
+      	      mandatory period, under the condition that a replacement
+      	      maintainer is immediatel available and has agreed to
+      	      serve the remainder of the period, plus their own
+      	      mandatory period (see below).</p></li>
+<li><p>When stepping down without a replacement maintainer
+      	      taking over the relevant packages have to be flagged as
+      	      <b class="const">unmaintained</b>.</p></li>
+<li><p>When a replacement mantainer is brought in for a package
+      	      it is (kept) marked as <b class="const">maintained</b> (again).</p>
+<p>A replacement maintainer is bound by the same rules as
+	      the original maintainer, except that the mandatory
+	      period of maintenance is shortened to one year.</p></li>
+<li><p>For any <b class="const">unmaintained</b> package a contributor
+       	      interested in becoming its maintainer can become so by
+       	      flagging them as <b class="const">maintained</b> with their name and
+       	      contact information, committing themselves to the rules
+       	      of a replacement maintainer (see previous).</p></li>
+<li><p>For any already <b class="const">maintained</b> package a contributor
+       	      interested in becoming a co-maintainer can become so
+       	      with the agreement of the existing maintainer(s),
+       	      committing themselves to the rules of a replacement
+       	      maintainer (see two above).</p></li>
+</ol>
+<p>The responsibilities as a maintainer include:</p>
+<ol class="doctools_enumerated">
+       
+       
+<li><p>Watching Tcllib's ticket tracker for bugs, bug fixes,
+       	      and feature requests related to the new packages.</p></li>
+<li><p>Reviewing the aforementioned tickets, rejecting or
+       	      applying them</p></li>
+<li><p>Coordination and discussion with ticket submitter during
+       	      the development and/or application of bug fixes.</p></li>
+</ol>
+</li>
+<li><p>Follow the <span class="sectref"><a href="#section3">Branching and Workflow</a></span> of this guide.</p></li>
+</ol>
+</div>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Branching and Workflow</a></h2>
+<p>x</p>
+</div>
+<div id="section4" class="doctools_section"><h2><a name="section4">Structural Overview</a></h2>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Main Directories</a></h3>
+<p>The main directories in the Tcllib toplevel directory and of interest
+to a developer are:</p>
+<dl class="doctools_definitions">
+<dt>&quot;<b class="file">modules</b>&quot;</dt>
+<dd><p>Each child directory represents one or more packages.
+In the case of the latter the packages are usually related in some
+way. Examples are &quot;<b class="file">base64</b>&quot;, &quot;<b class="file">math</b>&quot;, and &quot;<b class="file">struct</b>&quot;, with
+loose (base64) to strong (math) relations between the packages in the
+directory.</p></dd>
+<dt>&quot;<b class="file">apps</b>&quot;</dt>
+<dd><p>This directory contains all the installable applications, with their
+documentation. Note that this directory is currently <em>not</em> split
+into sub-directories.</p></dd>
+<dt>&quot;<b class="file">examples</b>&quot;</dt>
+<dd><p>Each child directory &quot;<b class="file">foo</b>&quot; contains one or more example
+application for the packages in &quot;<b class="file">modules/foo</b>&quot;. These examples are
+generally not polished enough to be considered for installation.</p></dd>
+</dl>
+</div>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">More Directories</a></h3>
+<dl class="doctools_definitions">
+<dt>&quot;<b class="file">config</b>&quot;</dt>
+<dd><p>This directory contains files supporting the unix build system,
+i.e. &quot;<b class="file">configure</b>&quot; and &quot;<b class="file">Makefile.in</b>&quot;.</p></dd>
+<dt>&quot;<b class="file">devdoc</b>&quot;</dt>
+<dd><p>This directories contains the doctools sources for the global
+documentation, like this document and its sibling guides.</p></dd>
+<dt>&quot;<b class="file">embedded</b>&quot;</dt>
+<dd><p>This directory contains the entire documentation formatted for
+<i class="term"><a href="../../../index.html#html">HTML</a></i> and styled to properly mix into the web site generated by
+fossil for the repository.</p>
+<p>This is the documentation accessible from the Tcllib home
+directory, represented in the repository as &quot;<b class="file">embedded/index.md</b>&quot;.</p></dd>
+<dt>&quot;<b class="file">idoc</b>&quot;</dt>
+<dd><p>This directory contains the entire documentation formatted for
+<i class="term"><a href="../../../index.html#nroff">nroff</a></i> and <i class="term"><a href="../../../index.html#html">HTML</a></i>, the latter without any styling.
+This is the documentation which will be installed.</p></dd>
+<dt>&quot;<b class="file">support</b>&quot;</dt>
+<dd><p>This directory contains the sources of internal packages and utilities
+used in the implementation of the &quot;<b class="file">installer.tcl</b>&quot; and
+&quot;<b class="file">sak.tcl</b>&quot; scripts/tools.</p></dd>
+</dl>
+</div>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Top Files</a></h3>
+<dl class="doctools_definitions">
+<dt>&quot;<b class="file">aclocal.m4</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">configure</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">configure.in</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">Makefile.in</b>&quot;</dt>
+<dd><p>These four files comprise the unix build system layered on top of the
+&quot;<b class="file">installer.tcl</b>&quot; script.</p></dd>
+<dt>&quot;<b class="file">installer.tcl</b>&quot;</dt>
+<dd><p>The Tcl-based installation script/tool.</p></dd>
+<dt>&quot;<b class="file">project.shed</b>&quot;</dt>
+<dd><p>Configuration file for <i class="term">Sean Wood</i>'s <b class="syscmd"><a href="../modules/practcl/practcl.html">PracTcl</a></b>
+buildsystem.</p></dd>
+<dt>&quot;<b class="file">sak.tcl</b>&quot;</dt>
+<dd><p>This is the main tool for developers and release managers, the
+<i class="term">Swiss Army Knife</i> of management operations on the collection.</p></dd>
+<dt>&quot;<b class="file">ChangeLog</b>&quot;</dt>
+<dd><p>The log of changes to the global support, when the sources were held
+in <i class="term"><a href="../../../index.html#cvs">CVS</a></i>. Not relevant any logner with the switch to the
+<i class="term">fossil</i> SCM.</p></dd>
+<dt>&quot;<b class="file">license.terms</b>&quot;</dt>
+<dd><p>The license in plain ASCII. See also <i class="term"><a href="tcllib_license.html">Tcllib - License</a></i> for the
+nicely formatted form. The text is identical.</p></dd>
+<dt>&quot;<b class="file">README.md</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">.github/CONTRIBUTING.md</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">.github/ISSUE_TEMPLATE.md</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">.github/PULL_REQUEST_TEMPLATE.md</b>&quot;</dt>
+<dd><p>These markdown-formatted documents are used and shown by the github
+mirror of these sources, pointing people back to the official location
+and issue trackers.</p></dd>
+<dt>&quot;<b class="file">DESCRIPTION.txt</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">STATUS</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">tcllib.spec</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">tcllib.tap</b>&quot;</dt>
+<dd></dd>
+<dt>&quot;<b class="file">tcllib.yml</b>&quot;</dt>
+<dd><p>????</p></dd>
+</dl>
+</div>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">File Types</a></h3>
+<p>The most common file types, by file extension, are:</p>
+<dl class="doctools_definitions">
+<dt>&quot;<b class="file">.tcl</b>&quot;</dt>
+<dd><p>Tcl code for a package, application, or example.</p></dd>
+<dt>&quot;<b class="file">.man</b>&quot;</dt>
+<dd><p>Doctools-formatted documentation, usually for a package.</p></dd>
+<dt>&quot;<b class="file">.test</b>&quot;</dt>
+<dd><p>Test suite for a package, or part of.
+Based on <b class="package">tcltest</b>.</p></dd>
+<dt>&quot;<b class="file">.bench</b>&quot;</dt>
+<dd><p>Performance benchmarks for a package, or part of.
+Based on &quot;<b class="file">modules/bench</b>&quot;.</p></dd>
+<dt>&quot;<b class="file">.pcx</b>&quot;</dt>
+<dd><p>Syntax rules for <i class="term">TclDevKit</i>'s <b class="syscmd">tclchecker</b>. Using these
+rules allows the checker to validate the use of commands of a Tcllib
+package <b class="package">FOO</b> without having to scan the &quot;<b class="file">.tcl</b>&quot; files
+implementing it.</p></dd>
+</dl>
+</div>
+</div>
+<div id="section5" class="doctools_section"><h2><a name="section5">Testsuite Tooling</a></h2>
+<p>Testsuites in Tcllib are based on Tcl's standard test package
+<b class="package">tcltest</b>, plus utilities found in the directory
+&quot;<b class="file">modules/devtools</b>&quot;</p>
+<p>Tcllib developers invoke the suites through the
+<b class="cmd">test run</b> method of the &quot;<b class="file">sak.tcl</b>&quot; tool, with other methods
+of <b class="cmd"><a href="../../../index.html#test">test</a></b> providing management operations, for example setting a
+list of standard Tcl shells to use.</p>
+<div id="subsection7" class="doctools_subsection"><h3><a name="subsection7">Invoke the testsuites of a specific module</a></h3>
+<p>Invoke either</p>
+<pre class="doctools_example">  ./sak.tcl test run FOO </pre>
+<p>or</p>
+<pre class="doctools_example">  ./sak.tcl test run modules/FOO </pre>
+<p>to invoke the testsuites found in a specific module &quot;<b class="file">FOO</b>&quot;.</p>
+</div>
+<div id="subsection8" class="doctools_subsection"><h3><a name="subsection8">Invoke the testsuites of all modules</a></h3>
+<p>Invoke the tool without a module name, i.e.</p>
+<pre class="doctools_example">  ./sak.tcl test run </pre>
+<p>to invoke the testsuites of all modules.</p>
+</div>
+<div id="subsection9" class="doctools_subsection"><h3><a name="subsection9">Detailed Test Logs</a></h3>
+<p>In all the previous examples the test runner will write a combination
+of progress display and testsuite log to the standard output, showing
+for each module only the tests that passed or failed and how many of
+each in a summary at the end.</p>
+<p>To get a detailed log, it is necessary to invoke the test
+runner with additional options.</p>
+<p>For one:</p>
+<pre class="doctools_example">
+   ./sak.tcl test run --log LOG FOO
+</pre>
+<p>While this shows the same short log on the terminal as before, it also
+writes a detailed log to the file &quot;<b class="file">LOG.log</b>&quot;, and excerpts to
+other files (&quot;<b class="file">LOG.summary</b>&quot;, &quot;<b class="file">LOG.failures</b>&quot;, etc.).</p>
+<p>For two:</p>
+<pre class="doctools_example">
+  ./sak.tcl test run -v FOO
+</pre>
+<p>This writes the detailed log to the standard output, instead of the
+short log.</p>
+<p>Regardless of form, the detailed log contains a list of all test
+cases executed, which failed, and how they failed (expected versus
+actual results).</p>
+</div>
+<div id="subsection10" class="doctools_subsection"><h3><a name="subsection10">Shell Selection</a></h3>
+<p>By default the test runner will use all the Tcl shells specified via
+<b class="cmd">test add</b> to invoke the specified testsuites, if any. If no
+such are specified it will fall back to the Tcl shell used to ran the
+tool itself.</p>
+<p>Use option <b class="option">--shell</b> to explicitly specify the Tcl shell
+to use, like</p>
+<pre class="doctools_example">
+  ./sak.tcl test run --shell /path/to/tclsh ...
+</pre>
+</div>
+<div id="subsection11" class="doctools_subsection"><h3><a name="subsection11">Help</a></h3>
+<p>Invoke the tool as</p>
+<pre class="doctools_example">  ./sak.tcl help test </pre>
+<p>to see the detailed help for all methods of <b class="cmd"><a href="../../../index.html#test">test</a></b>, and the
+associated options.</p>
+</div>
+</div>
+<div id="section6" class="doctools_section"><h2><a name="section6">Documentation Tooling</a></h2>
+<p>The standard format used for documentation of packages and other
+things in Tcllib is <i class="term"><a href="../../../index.html#doctools">doctools</a></i>.
+Its supporting packages are a part of Tcllib, see the directories
+&quot;<b class="file">modules/doctools</b>&quot; and &quot;<b class="file">modules/dtplite</b>&quot;. The latter is
+an application package, with the actual application
+&quot;<b class="file">apps/dtplite</b>&quot; a light wrapper around it.</p>
+<p>Tcllib developers gain access to these through the <b class="cmd">doc</b>
+method of the &quot;<b class="file">sak.tcl</b>&quot; tool, another (internal) wrapper around
+the &quot;<b class="file">modules/dptlite</b>&quot; application package.</p>
+<div id="subsection12" class="doctools_subsection"><h3><a name="subsection12">Generate documentation for a specific module</a></h3>
+<p>Invoke either</p>
+<pre class="doctools_example">  ./sak.tcl doc html FOO </pre>
+<p>or</p>
+<pre class="doctools_example">  ./sak.tcl doc html modules/FOO </pre>
+<p>to generate HTML for the documentation found in the module &quot;<b class="file">FOO</b>&quot;.
+Instead of <b class="const">html</b> any other supported format can be used here,
+of course.</p>
+<p>The generated formatted documentation will be placed into a
+directory &quot;<b class="file">doc</b>&quot; in the current working directory.</p>
+</div>
+<div id="subsection13" class="doctools_subsection"><h3><a name="subsection13">Generate documentation for all modules</a></h3>
+<p>Invoke the tool without a module name, i.e.</p>
+<pre class="doctools_example">  ./sak.tcl doc html </pre>
+<p>to generate HTML for the documentation found in all modules.
+Instead of <b class="const">html</b> any other supported format can be used here,
+of course.</p>
+<p>The generated formatted documentation will be placed into a
+directory &quot;<b class="file">doc</b>&quot; in the current working directory.</p>
+</div>
+<div id="subsection14" class="doctools_subsection"><h3><a name="subsection14">Available output formats, help</a></h3>
+<p>Invoke the tool as</p>
+<pre class="doctools_example">  ./sak.tcl help doc </pre>
+<p>to see the entire set of supported output formats which can be
+generated.</p>
+</div>
+<div id="subsection15" class="doctools_subsection"><h3><a name="subsection15">Validation without output</a></h3>
+<p>Note the special format <b class="const">validate</b>.</p>
+<p>Using this value as the name of the format to generate forces
+the tool to simply check that the documentation is syntactically
+correct, without generating actual output.</p>
+<p>Invoke it as either</p>
+<pre class="doctools_example">  ./sak.tcl doc validate (modules/)FOO </pre>
+<p>or</p>
+<pre class="doctools_example">  ./sak.tcl doc validate </pre>
+<p>to either check the packages of a specific module or check all of
+them.
+x</p>
+</div>
+</div>
+<div id="section7" class="doctools_section"><h2><a name="section7">Notes On Writing A Testsuite</a></h2>
+<p>x</p>
+</div>
+<div id="section8" class="doctools_section"><h2><a name="section8">Installation Tooling</a></h2>
+<p>x</p>
+</div>
+</div></body></html>

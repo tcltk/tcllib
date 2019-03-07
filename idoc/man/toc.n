@@ -1332,6 +1332,9 @@ tcllib
 \fBtcl::transform::zlib\fR
 \fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
 .TP
+\fBtcl_community_communication\fR
+\fIfiles/devdoc/tcl_community_communication\&.n\fR: Tcl Community - Kind Communication
+.TP
 \fBtclDES\fR
 \fIfiles/modules/des/tcldes\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
@@ -1341,6 +1344,9 @@ tcllib
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
 .TP
+\fBtcllib_devguide\fR
+\fIfiles/devdoc/tcllib_devguide\&.n\fR: Tcllib - The Developer's Guide
+.TP
 \fBtcllib_install_guide\fR
 \fIfiles/devdoc/tcllib_installer\&.n\fR: Tcllib - The Installer's Guide
 .TP
@@ -1349,6 +1355,9 @@ tcllib
 .TP
 \fBtcllib_license\fR
 \fIfiles/devdoc/tcllib_license\&.n\fR: Tcllib - License
+.TP
+\fBtcllib_releasemgr\fR
+\fIfiles/devdoc/tcllib_releasemgr\&.n\fR: Tcllib - The Release Manager's Guide
 .TP
 \fBtcllib_sources\fR
 \fIfiles/devdoc/tcllib_sources\&.n\fR: Tcllib - How To Get The Sources

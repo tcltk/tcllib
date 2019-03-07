@@ -1,0 +1,652 @@
+'\"
+'\" Generated from file 'tcllib_devguide\&.man' by tcllib/doctools with format 'nroff'
+'\"
+.TH "tcllib_devguide" n 1 tcllib ""
+.\" The -*- nroff -*- definitions below are for supplemental macros used
+.\" in Tcl/Tk manual entries.
+.\"
+.\" .AP type name in/out ?indent?
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS ?type? ?name?
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .CS
+.\"	Begin code excerpt.
+.\"
+.\" .CE
+.\"	End code excerpt.
+.\"
+.\" .VS ?version? ?br?
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.  The first argument is ignored and used for recording
+.\"	the version when the .VS was added, so that the sidebars can be
+.\"	found and removed when they reach a certain age.  If another argument
+.\"	is present, then a line break is forced before starting the sidebar.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+.\" .SO ?manpage?
+.\"	Start of list of standard options for a Tk widget. The manpage
+.\"	argument defines where to look up the standard options; if
+.\"	omitted, defaults to "options". The options follow on successive
+.\"	lines, in three columns separated by tabs.
+.\"
+.\" .SE
+.\"	End of list of standard options for a Tk widget.
+.\"
+.\" .OP cmdName dbName dbClass
+.\"	Start of description of a specific option.  cmdName gives the
+.\"	option's name as specified in the class command, dbName gives
+.\"	the option's name in the option database, and dbClass gives
+.\"	the option's class in the option database.
+.\"
+.\" .UL arg1 arg2
+.\"	Print arg1 underlined, then print arg2 normally.
+.\"
+.\" .QW arg1 ?arg2?
+.\"	Print arg1 in quotes, then arg2 normally (for trailing punctuation).
+.\"
+.\" .PQ arg1 ?arg2?
+.\"	Print an open parenthesis, arg1 in quotes, then arg2 normally
+.\"	(for trailing punctuation) and then a closing parenthesis.
+.\"
+.\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
+.if t .wh -1.3i ^B
+.nr ^l \n(.l
+.ad b
+.\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ta \\n()Au \\n()Bu
+.ie !"\\$3"" \{\
+\&\\$1 \\fI\\$2\\fP (\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+.\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+.AS Tcl_Interp Tcl_CreateInterp in/out
+.\"	# BS - start boxed text
+.\"	# ^y = starting y location
+.\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+.\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+.\"	# VS - start vertical sidebar
+.\"	# ^Y = starting y location
+.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.if !"\\$2"" .br
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+.\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+.\"	# Special macro to handle page bottom:  finish off current
+.\"	# box/sidebar if in box/sidebar mode, then invoked standard
+.\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+.\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+.\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp
+..
+.\"	# SO - start of list of standard options
+.de SO
+'ie '\\$1'' .ds So \\fBoptions\\fR
+'el .ds So \\fB\\$1\\fR
+.SH "STANDARD OPTIONS"
+.LP
+.nf
+.ta 5.5c 11c
+.ft B
+..
+.\"	# SE - end of list of standard options
+.de SE
+.fi
+.ft R
+.LP
+See the \\*(So manual entry for details on the standard options.
+..
+.\"	# OP - start of full description for a single option
+.de OP
+.LP
+.nf
+.ta 4c
+Command-Line Name:	\\fB\\$1\\fR
+Database Name:	\\fB\\$2\\fR
+Database Class:	\\fB\\$3\\fR
+.fi
+.IP
+..
+.\"	# CS - begin code excerpt
+.de CS
+.RS
+.nf
+.ta .25i .5i .75i 1i
+..
+.\"	# CE - end code excerpt
+.de CE
+.fi
+.RE
+..
+.\"	# UL - underline word
+.de UL
+\\$1\l'|0\(ul'\\$2
+..
+.\"	# QW - apply quotation marks to word
+.de QW
+.ie '\\*(lq'"' ``\\$1''\\$2
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\$2
+..
+.\"	# PQ - apply parens and quotation marks to word
+.de PQ
+.ie '\\*(lq'"' (``\\$1''\\$2)\\$3
+.\"" fix emacs highlighting
+.el (\\*(lq\\$1\\*(rq\\$2)\\$3
+..
+.\"	# QR - quoted range
+.de QR
+.ie '\\*(lq'"' ``\\$1''\\-``\\$2''\\$3
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\-\\*(lq\\$2\\*(rq\\$3
+..
+.\"	# MT - "empty" string
+.de MT
+.QW ""
+..
+.BS
+.SH NAME
+tcllib_devguide \- Tcllib - The Developer's Guide
+.SH DESCRIPTION
+Welcome to Tcllib, the Tcl Standard Library\&. Note that Tcllib is not a
+package itself\&. It is a collection of (semi-independent) \fITcl\fR
+packages that provide utility functions useful to a large collection
+of Tcl programmers\&.
+.PP
+This document is a guide for developers working on Tcllib,
+i\&.e\&. maintainers fixing bugs, extending the collection's
+functionality, etc\&.
+.PP
+Please read
+.IP [1]
+\fITcllib - How To Get The Sources\fR and
+.IP [2]
+\fITcllib - The Installer's Guide\fR
+.PP
+first, if that was not done already\&.
+.PP
+Here we assume that the sources are already available in a
+directory of your choice, and that you not only know how to build and
+install them, but also have all the necessary requisites to actually
+do so\&. The guide to the sources in particular also explains which
+source code management system is used, where to find it, how to set it
+up, etc\&.
+.SH COMMITMENTS
+.SS CONTRIBUTOR
+As a contributor to Tcllib you are committing yourself to:
+.IP [1]
+Follow the guidelines laid down in
+\fITcl Community - Kind Communication\fR
+.PP
+Contributions are made by entering tickets into our tracker, providing
+patches, bundles or branches of code for inclusion, or posting to the
+Tcllib related mailing lists\&.
+.SS MAINTAINER
+When contributing one or more packages for full inclusion into Tcllib
+you are committing yourself to
+.IP [1]
+Follow the guidelines laid down in
+\fITcl Community - Kind Communication\fR
+(as any contributor)
+.IP [2]
+Maintenance of the new packages for a period of two years under
+the following rules, and responsibilities:
+.RS
+.IP [1]
+A maintainer may step down after the mandatory period as
+they see fit\&.
+.IP [2]
+A maintainer may step down before the end of the
+mandatory period, under the condition that a replacement
+maintainer is immediatel available and has agreed to
+serve the remainder of the period, plus their own
+mandatory period (see below)\&.
+.IP [3]
+When stepping down without a replacement maintainer
+taking over the relevant packages have to be flagged as
+\fBunmaintained\fR\&.
+.IP [4]
+When a replacement mantainer is brought in for a package
+it is (kept) marked as \fBmaintained\fR (again)\&.
+.sp
+A replacement maintainer is bound by the same rules as
+the original maintainer, except that the mandatory
+period of maintenance is shortened to one year\&.
+.IP [5]
+For any \fBunmaintained\fR package a contributor
+interested in becoming its maintainer can become so by
+flagging them as \fBmaintained\fR with their name and
+contact information, committing themselves to the rules
+of a replacement maintainer (see previous)\&.
+.IP [6]
+For any already \fBmaintained\fR package a contributor
+interested in becoming a co-maintainer can become so
+with the agreement of the existing maintainer(s),
+committing themselves to the rules of a replacement
+maintainer (see two above)\&.
+.RE
+.sp
+The responsibilities as a maintainer include:
+.RS
+.IP [1]
+Watching Tcllib's ticket tracker for bugs, bug fixes,
+and feature requests related to the new packages\&.
+.IP [2]
+Reviewing the aforementioned tickets, rejecting or
+applying them
+.IP [3]
+Coordination and discussion with ticket submitter during
+the development and/or application of bug fixes\&.
+.RE
+.IP [3]
+Follow the \fBBranching and Workflow\fR of this guide\&.
+.PP
+.SH "BRANCHING AND WORKFLOW"
+x
+.SH "STRUCTURAL OVERVIEW"
+.SS "MAIN DIRECTORIES"
+The main directories in the Tcllib toplevel directory and of interest
+to a developer are:
+.TP
+"\fImodules\fR"
+Each child directory represents one or more packages\&.
+In the case of the latter the packages are usually related in some
+way\&. Examples are "\fIbase64\fR", "\fImath\fR", and "\fIstruct\fR", with
+loose (base64) to strong (math) relations between the packages in the
+directory\&.
+.TP
+"\fIapps\fR"
+This directory contains all the installable applications, with their
+documentation\&. Note that this directory is currently \fInot\fR split
+into sub-directories\&.
+.TP
+"\fIexamples\fR"
+Each child directory "\fIfoo\fR" contains one or more example
+application for the packages in "\fImodules/foo\fR"\&. These examples are
+generally not polished enough to be considered for installation\&.
+.PP
+.SS "MORE DIRECTORIES"
+.TP
+"\fIconfig\fR"
+This directory contains files supporting the unix build system,
+i\&.e\&. "\fIconfigure\fR" and "\fIMakefile\&.in\fR"\&.
+.TP
+"\fIdevdoc\fR"
+This directories contains the doctools sources for the global
+documentation, like this document and its sibling guides\&.
+.TP
+"\fIembedded\fR"
+This directory contains the entire documentation formatted for
+\fIHTML\fR and styled to properly mix into the web site generated by
+fossil for the repository\&.
+.sp
+This is the documentation accessible from the Tcllib home
+directory, represented in the repository as "\fIembedded/index\&.md\fR"\&.
+.TP
+"\fIidoc\fR"
+This directory contains the entire documentation formatted for
+\fInroff\fR and \fIHTML\fR, the latter without any styling\&.
+This is the documentation which will be installed\&.
+.TP
+"\fIsupport\fR"
+This directory contains the sources of internal packages and utilities
+used in the implementation of the "\fIinstaller\&.tcl\fR" and
+"\fIsak\&.tcl\fR" scripts/tools\&.
+.PP
+.SS "TOP FILES"
+.TP
+"\fIaclocal\&.m4\fR"
+.TP
+"\fIconfigure\fR"
+.TP
+"\fIconfigure\&.in\fR"
+.TP
+"\fIMakefile\&.in\fR"
+These four files comprise the unix build system layered on top of the
+"\fIinstaller\&.tcl\fR" script\&.
+.TP
+"\fIinstaller\&.tcl\fR"
+The Tcl-based installation script/tool\&.
+.TP
+"\fIproject\&.shed\fR"
+Configuration file for \fISean Wood\fR's \fBPracTcl\fR
+buildsystem\&.
+.TP
+"\fIsak\&.tcl\fR"
+This is the main tool for developers and release managers, the
+\fISwiss Army Knife\fR of management operations on the collection\&.
+.TP
+"\fIChangeLog\fR"
+The log of changes to the global support, when the sources were held
+in \fICVS\fR\&. Not relevant any logner with the switch to the
+\fIfossil\fR SCM\&.
+.TP
+"\fIlicense\&.terms\fR"
+The license in plain ASCII\&. See also \fITcllib - License\fR for the
+nicely formatted form\&. The text is identical\&.
+.TP
+"\fIREADME\&.md\fR"
+.TP
+"\fI\&.github/CONTRIBUTING\&.md\fR"
+.TP
+"\fI\&.github/ISSUE_TEMPLATE\&.md\fR"
+.TP
+"\fI\&.github/PULL_REQUEST_TEMPLATE\&.md\fR"
+These markdown-formatted documents are used and shown by the github
+mirror of these sources, pointing people back to the official location
+and issue trackers\&.
+.TP
+"\fIDESCRIPTION\&.txt\fR"
+.TP
+"\fISTATUS\fR"
+.TP
+"\fItcllib\&.spec\fR"
+.TP
+"\fItcllib\&.tap\fR"
+.TP
+"\fItcllib\&.yml\fR"
+????
+.PP
+.SS "FILE TYPES"
+The most common file types, by file extension, are:
+.TP
+"\fI\&.tcl\fR"
+Tcl code for a package, application, or example\&.
+.TP
+"\fI\&.man\fR"
+Doctools-formatted documentation, usually for a package\&.
+.TP
+"\fI\&.test\fR"
+Test suite for a package, or part of\&.
+Based on \fBtcltest\fR\&.
+.TP
+"\fI\&.bench\fR"
+Performance benchmarks for a package, or part of\&.
+Based on "\fImodules/bench\fR"\&.
+.TP
+"\fI\&.pcx\fR"
+Syntax rules for \fITclDevKit\fR's \fBtclchecker\fR\&. Using these
+rules allows the checker to validate the use of commands of a Tcllib
+package \fBFOO\fR without having to scan the "\fI\&.tcl\fR" files
+implementing it\&.
+.PP
+.SH "TESTSUITE TOOLING"
+Testsuites in Tcllib are based on Tcl's standard test package
+\fBtcltest\fR, plus utilities found in the directory
+"\fImodules/devtools\fR"
+.PP
+Tcllib developers invoke the suites through the
+\fBtest run\fR method of the "\fIsak\&.tcl\fR" tool, with other methods
+of \fBtest\fR providing management operations, for example setting a
+list of standard Tcl shells to use\&.
+.SS "INVOKE THE TESTSUITES OF A SPECIFIC MODULE"
+Invoke either
+.CS
+
+  \&./sak\&.tcl test run FOO
+.CE
+or
+.CS
+
+  \&./sak\&.tcl test run modules/FOO
+.CE
+to invoke the testsuites found in a specific module "\fIFOO\fR"\&.
+.SS "INVOKE THE TESTSUITES OF ALL MODULES"
+Invoke the tool without a module name, i\&.e\&.
+.CS
+
+  \&./sak\&.tcl test run
+.CE
+to invoke the testsuites of all modules\&.
+.SS "DETAILED TEST LOGS"
+In all the previous examples the test runner will write a combination
+of progress display and testsuite log to the standard output, showing
+for each module only the tests that passed or failed and how many of
+each in a summary at the end\&.
+.PP
+To get a detailed log, it is necessary to invoke the test
+runner with additional options\&.
+.PP
+For one:
+.CS
+
+
+   \&./sak\&.tcl test run --log LOG FOO
+
+.CE
+While this shows the same short log on the terminal as before, it also
+writes a detailed log to the file "\fILOG\&.log\fR", and excerpts to
+other files ("\fILOG\&.summary\fR", "\fILOG\&.failures\fR", etc\&.)\&.
+.PP
+For two:
+.CS
+
+
+  \&./sak\&.tcl test run -v FOO
+
+.CE
+This writes the detailed log to the standard output, instead of the
+short log\&.
+.PP
+Regardless of form, the detailed log contains a list of all test
+cases executed, which failed, and how they failed (expected versus
+actual results)\&.
+.SS "SHELL SELECTION"
+By default the test runner will use all the Tcl shells specified via
+\fBtest add\fR to invoke the specified testsuites, if any\&. If no
+such are specified it will fall back to the Tcl shell used to ran the
+tool itself\&.
+.PP
+Use option \fB--shell\fR to explicitly specify the Tcl shell
+to use, like
+.CS
+
+
+  \&./sak\&.tcl test run --shell /path/to/tclsh \&.\&.\&.
+
+.CE
+.SS HELP
+Invoke the tool as
+.CS
+
+  \&./sak\&.tcl help test
+.CE
+to see the detailed help for all methods of \fBtest\fR, and the
+associated options\&.
+.SH "DOCUMENTATION TOOLING"
+The standard format used for documentation of packages and other
+things in Tcllib is \fIdoctools\fR\&.
+Its supporting packages are a part of Tcllib, see the directories
+"\fImodules/doctools\fR" and "\fImodules/dtplite\fR"\&. The latter is
+an application package, with the actual application
+"\fIapps/dtplite\fR" a light wrapper around it\&.
+.PP
+Tcllib developers gain access to these through the \fBdoc\fR
+method of the "\fIsak\&.tcl\fR" tool, another (internal) wrapper around
+the "\fImodules/dptlite\fR" application package\&.
+.SS "GENERATE DOCUMENTATION FOR A SPECIFIC MODULE"
+Invoke either
+.CS
+
+  \&./sak\&.tcl doc html FOO
+.CE
+or
+.CS
+
+  \&./sak\&.tcl doc html modules/FOO
+.CE
+to generate HTML for the documentation found in the module "\fIFOO\fR"\&.
+Instead of \fBhtml\fR any other supported format can be used here,
+of course\&.
+.PP
+The generated formatted documentation will be placed into a
+directory "\fIdoc\fR" in the current working directory\&.
+.SS "GENERATE DOCUMENTATION FOR ALL MODULES"
+Invoke the tool without a module name, i\&.e\&.
+.CS
+
+  \&./sak\&.tcl doc html
+.CE
+to generate HTML for the documentation found in all modules\&.
+Instead of \fBhtml\fR any other supported format can be used here,
+of course\&.
+.PP
+The generated formatted documentation will be placed into a
+directory "\fIdoc\fR" in the current working directory\&.
+.SS "AVAILABLE OUTPUT FORMATS, HELP"
+Invoke the tool as
+.CS
+
+  \&./sak\&.tcl help doc
+.CE
+to see the entire set of supported output formats which can be
+generated\&.
+.SS "VALIDATION WITHOUT OUTPUT"
+Note the special format \fBvalidate\fR\&.
+.PP
+Using this value as the name of the format to generate forces
+the tool to simply check that the documentation is syntactically
+correct, without generating actual output\&.
+.PP
+Invoke it as either
+.CS
+
+  \&./sak\&.tcl doc validate (modules/)FOO
+.CE
+or
+.CS
+
+  \&./sak\&.tcl doc validate
+.CE
+to either check the packages of a specific module or check all of
+them\&.
+x
+.SH "NOTES ON WRITING A TESTSUITE"
+x
+.SH "INSTALLATION TOOLING"
+x
