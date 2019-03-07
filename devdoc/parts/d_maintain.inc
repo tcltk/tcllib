@@ -8,6 +8,9 @@ you are committing yourself to
        [term {Tcl Community - Kind Communication}]
        (as any contributor)
 
+[enum] Your packages getting distributed under a BSD/MIT license.  For
+       the details see [term {Tcllib - License}]
+
 [enum] Maintenance of the new packages for a period of two years under
        the following rules, and responsibilities:
 

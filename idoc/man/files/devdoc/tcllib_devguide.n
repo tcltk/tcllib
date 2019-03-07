@@ -302,6 +302,9 @@ As a contributor to Tcllib you are committing yourself to:
 .IP [1]
 Follow the guidelines laid down in
 \fITcl Community - Kind Communication\fR
+.IP [2]
+Your contributions getting distributed under a BSD/MIT license\&.
+For the details see \fITcllib - License\fR
 .PP
 Contributions are made by entering tickets into our tracker, providing
 patches, bundles or branches of code for inclusion, or posting to the
@@ -314,6 +317,9 @@ Follow the guidelines laid down in
 \fITcl Community - Kind Communication\fR
 (as any contributor)
 .IP [2]
+Your packages getting distributed under a BSD/MIT license\&.  For
+the details see \fITcllib - License\fR
+.IP [3]
 Maintenance of the new packages for a period of two years under
 the following rules, and responsibilities:
 .RS
@@ -363,7 +369,7 @@ applying them
 Coordination and discussion with ticket submitter during
 the development and/or application of bug fixes\&.
 .RE
-.IP [3]
+.IP [4]
 Follow the \fBBranching and Workflow\fR of this guide\&.
 .PP
 .SH "BRANCHING AND WORKFLOW"
