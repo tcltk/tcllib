@@ -6,6 +6,9 @@ As a contributor to Tcllib you are committing yourself to:
 [enum] Follow the guidelines laid down in
        [term {Tcl Community - Kind Communication}]
 
+[enum] Your contributions getting distributed under a BSD/MIT license.
+       For the details see [term {Tcllib - License}]
+
 [list_end]
 
 Contributions are made by entering tickets into our tracker, providing
