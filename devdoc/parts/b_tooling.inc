@@ -83,7 +83,7 @@ the GUI, or by specifying additional options.
 [para] The defaults depend on the platform detected (unix/windows) and
 on the [syscmd tclsh] executable used to run the installer.
 
-[para][strong Attention] The installer will overwrite an existing
+[para][emph Attention] The installer will overwrite an existing
 installation of a Tcllib with the same version without asking back
 after the initial confirmation is given.
 
