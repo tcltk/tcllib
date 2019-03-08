@@ -12,10 +12,10 @@ This may be a Tcl installation provided by your operating system
 distribution, from a distribution-independent vendor, or built by
 yourself.
 
-[para] [strong Note] that the packages in Tcllib have begun to require
+[para] [emph Note] that the packages in Tcllib have begun to require
 8.4, 8.5, and even 8.6. Older versions of Tcl will not be able to use
 such packages. Trying to use them will result in
-[strong {package not found}] errors, as their package index files will
+[emph {package not found}] errors, as their package index files will
 not register them in versions of the core unable to use them.
 
 [para] Myself, I used (and still use)
@@ -43,4 +43,4 @@ together with the necessary instructions on how to build it.
 
 [para] If there are problems with building, installing, or using Tcl
 please file a ticket against [term Tcl], or the vendor of your
-distribution, and [strong not] [term Tcllib].
+distribution, and [emph not] [term Tcllib].

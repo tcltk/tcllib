@@ -1,7 +1,7 @@
 
 [subsection CriTcl]
 
-The [syscmd critcl] tool is an [strong optional] dependency.
+The [syscmd critcl] tool is an [emph optional] dependency.
 
 [para] It is only required when trying to build the C-based
 [term accelerators] for a number of packages, as explained in
