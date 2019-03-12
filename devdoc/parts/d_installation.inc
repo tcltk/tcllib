@@ -1,18 +1,17 @@
 A last thing to consider when adding a new package to the collection
 is installation.
 
-[para] How to [emph use] the tool, the [file installer.tcl] script is
-doumented in
-[term {Tcllib - The Installer's Guide}].
+[para] How to [emph use] the [file installer.tcl] script is documented
+in [term {Tcllib - The Installer's Guide}].
 
-[para] Here we document how to extend the installer so that it may
-install the new package(s).
+[para] Here we document how to extend said installer so that it may
+install new package(s) and/or application(s).
 
-[para] In most cases only a single file has to be modified,
+[para] In most cases only a single file has to be modified, the
 [file support/installation/modules.tcl] holding one command per module
 and application to install.
 
-[para] The commands are:
+[para] The relevant commands are:
 
 [list_begin definitions]
 

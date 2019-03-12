@@ -381,7 +381,98 @@ the development and/or application of bug fixes\&.
 Follow the \fBBranching and Workflow\fR of this guide\&.
 .PP
 .SH "BRANCHING AND WORKFLOW"
-x
+.SS BRANCHES
+An important part of working with a
+\fIDistributed Version Control System\fR (\fIDVCS\fR) like
+\fIfossil\fR [https://www\&.fossil-scm\&.org/]
+is the management and use of branches\&.
+.PP
+For Tcllib the main branch of the collection is
+\fItrunk\fR\&. In \fIgit\fR this branch would be called \fImaster\fR,
+and this exactly the case in the
+\fIgithub mirror\fR [https://github\&.com/tcltk/tcllib/] of Tcllib\&.
+.PP
+In support of debugging, like searching for when an issue
+appeared via bisection, each commit on this branch must pass the
+entire testsuite of the collection\&.
+.PP
+As fossil has no mechanism to enfore this this is handled on
+the honor system for developers and maintainers\&.
+.PP
+To make the task easier Tcllib comes with a tool
+("\fIsak\&.tcl\fR") providing a number of commands in support\&. These
+commands are explained in the following sections of this guide\&.
+.PP
+While it is possible and allowed to commit directly to trunk
+remember the above regarding the testsuite, and the coming notes about
+other possible issues with a commit\&.
+.PP
+Because of this it is (strongly) recommended to perform any
+development on a nicely named (nick of dev, ticket reference if any,
+keywords applicable to the work, \&.\&.\&.) non-trunk branch\&. Outside of the
+trunk developers are allowed to commit intermediate broken states of
+their work\&. Only at the end, when the branch is considered ready for
+merging will it be necessary to perform full validation\&.
+.SS "VERSION NUMBERS"
+In Tcllib all changes to a package have to come with an increment of
+its version number\&. With what part is incremented (patchlevel, minor,
+major version) dependent on the kind of change made\&. With multiple
+changes in a commit the highest "wins"\&.
+.PP
+When working in a development branch the version change can be
+defered until it is time to merge, and then has to cover all the
+changes in the branch\&.
+.PP
+Below a list of the kinds of changes and their association
+version increments:
+.TP
+\fID - documentation\fR
+No increment
+.TP
+\fIT - testsuite\fR
+No increment
+.TP
+\fIB - bugfix\fR
+Patchlevel
+.TP
+\fII - implementation tweak\fR
+Patchlevel
+.TP
+\fIP - performance tweak\fR
+Patchlevel
+.TP
+\fIE - backward-compatible extension\fR
+Minor
+.TP
+\fIAPI - incompatible change\fR
+Major
+.PP
+.PP
+Note, a commit containing a version increment has to mention
+the kind of change which caused it in the commit message, as well as
+the new version number\&.
+.PP
+Note further that the version number of a package currently
+exists in 3 places\&. An increment has to update all of them:
+.IP [1]
+The package implementation\&.
+.IP [2]
+The package index ("\fIpkgIndex\&.tcl\fR")
+.IP [3]
+The package documentation\&.
+.PP
+.PP
+The "\fIsak\&.tcl\fR" command \fBvalidate version\fR helps
+finding discrepancies between the first two\&.
+All the other \fBvalidate\fR methods are also of interest to any
+developer\&. Invoke it with
+.CS
+
+
+    sak\&.tcl help validate
+
+.CE
+to see their documentation\&.
 .SH "STRUCTURAL OVERVIEW"
 .SS "MAIN DIRECTORIES"
 The main directories in the Tcllib toplevel directory and of interest
@@ -778,18 +869,17 @@ reminder to put a check for this condition into the code\&.
 A last thing to consider when adding a new package to the collection
 is installation\&.
 .PP
-How to \fIuse\fR the tool, the "\fIinstaller\&.tcl\fR" script is
-doumented in
-\fITcllib - The Installer's Guide\fR\&.
+How to \fIuse\fR the "\fIinstaller\&.tcl\fR" script is documented
+in \fITcllib - The Installer's Guide\fR\&.
 .PP
-Here we document how to extend the installer so that it may
-install the new package(s)\&.
+Here we document how to extend said installer so that it may
+install new package(s) and/or application(s)\&.
 .PP
-In most cases only a single file has to be modified,
+In most cases only a single file has to be modified, the
 "\fIsupport/installation/modules\&.tcl\fR" holding one command per module
 and application to install\&.
 .PP
-The commands are:
+The relevant commands are:
 .TP
 \fBModule\fR \fIname\fR \fIcode-action\fR \fIdoc-action\fR \fIexample-action\fR
 Install the packages of module \fIname\fR, found in

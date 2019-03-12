@@ -35,7 +35,7 @@ up, etc.
 
 [comment {===================================================================}]
 [section {Branching and Workflow}]
-[include parts/d_branchflow.inc]x
+[include parts/d_branchflow.inc]
 
 [comment {===================================================================}]
 [section {Structural Overview}]
