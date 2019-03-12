@@ -121,30 +121,35 @@
 <li class="doctools_subsection"><a href="#subsection2">Maintainer</a></li>
 </ul>
 </li>
-<li class="doctools_section"><a href="#section3">Branching and Workflow</a></li>
+<li class="doctools_section"><a href="#section3">Branching and Workflow</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection3">Branches</a></li>
+<li class="doctools_subsection"><a href="#subsection4">Version numbers</a></li>
+</ul>
+</li>
 <li class="doctools_section"><a href="#section4">Structural Overview</a>
 <ul>
-<li class="doctools_subsection"><a href="#subsection3">Main Directories</a></li>
-<li class="doctools_subsection"><a href="#subsection4">More Directories</a></li>
-<li class="doctools_subsection"><a href="#subsection5">Top Files</a></li>
-<li class="doctools_subsection"><a href="#subsection6">File Types</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Main Directories</a></li>
+<li class="doctools_subsection"><a href="#subsection6">More Directories</a></li>
+<li class="doctools_subsection"><a href="#subsection7">Top Files</a></li>
+<li class="doctools_subsection"><a href="#subsection8">File Types</a></li>
 </ul>
 </li>
 <li class="doctools_section"><a href="#section5">Testsuite Tooling</a>
 <ul>
-<li class="doctools_subsection"><a href="#subsection7">Invoke the testsuites of a specific module</a></li>
-<li class="doctools_subsection"><a href="#subsection8">Invoke the testsuites of all modules</a></li>
-<li class="doctools_subsection"><a href="#subsection9">Detailed Test Logs</a></li>
-<li class="doctools_subsection"><a href="#subsection10">Shell Selection</a></li>
-<li class="doctools_subsection"><a href="#subsection11">Help</a></li>
+<li class="doctools_subsection"><a href="#subsection9">Invoke the testsuites of a specific module</a></li>
+<li class="doctools_subsection"><a href="#subsection10">Invoke the testsuites of all modules</a></li>
+<li class="doctools_subsection"><a href="#subsection11">Detailed Test Logs</a></li>
+<li class="doctools_subsection"><a href="#subsection12">Shell Selection</a></li>
+<li class="doctools_subsection"><a href="#subsection13">Help</a></li>
 </ul>
 </li>
 <li class="doctools_section"><a href="#section6">Documentation Tooling</a>
 <ul>
-<li class="doctools_subsection"><a href="#subsection12">Generate documentation for a specific module</a></li>
-<li class="doctools_subsection"><a href="#subsection13">Generate documentation for all modules</a></li>
-<li class="doctools_subsection"><a href="#subsection14">Available output formats, help</a></li>
-<li class="doctools_subsection"><a href="#subsection15">Validation without output</a></li>
+<li class="doctools_subsection"><a href="#subsection14">Generate documentation for a specific module</a></li>
+<li class="doctools_subsection"><a href="#subsection15">Generate documentation for all modules</a></li>
+<li class="doctools_subsection"><a href="#subsection16">Available output formats, help</a></li>
+<li class="doctools_subsection"><a href="#subsection17">Validation without output</a></li>
 </ul>
 </li>
 <li class="doctools_section"><a href="#section7">Notes On Writing A Testsuite</a></li>
@@ -250,10 +255,81 @@ you are committing yourself to</p>
 </div>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Branching and Workflow</a></h2>
-<p>x</p>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Branches</a></h3>
+<p>An important part of working with a
+<i class="term">Distributed Version Control System</i> (<i class="term">DVCS</i>) like
+<a href="https://www.fossil-scm.org/">fossil</a>
+is the management and use of branches.</p>
+<p>For Tcllib the main branch of the collection is
+<i class="term">trunk</i>. In <i class="term">git</i> this branch would be called <i class="term">master</i>,
+and this exactly the case in the
+<a href="https://github.com/tcltk/tcllib/">github mirror</a> of Tcllib.</p>
+<p>In support of debugging, like searching for when an issue
+appeared via bisection, each commit on this branch must pass the
+entire testsuite of the collection.</p>
+<p>As fossil has no mechanism to enfore this this is handled on
+the honor system for developers and maintainers.</p>
+<p>To make the task easier Tcllib comes with a tool
+(&quot;<b class="file">sak.tcl</b>&quot;) providing a number of commands in support. These
+commands are explained in the following sections of this guide.</p>
+<p>While it is possible and allowed to commit directly to trunk
+remember the above regarding the testsuite, and the coming notes about
+other possible issues with a commit.</p>
+<p>Because of this it is (strongly) recommended to perform any
+development on a nicely named (nick of dev, ticket reference if any,
+keywords applicable to the work, ...) non-trunk branch. Outside of the
+trunk developers are allowed to commit intermediate broken states of
+their work. Only at the end, when the branch is considered ready for
+merging will it be necessary to perform full validation.</p>
+</div>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Version numbers</a></h3>
+<p>In Tcllib all changes to a package have to come with an increment of
+its version number. With what part is incremented (patchlevel, minor,
+major version) dependent on the kind of change made. With multiple
+changes in a commit the highest &quot;wins&quot;.</p>
+<p>When working in a development branch the version change can be
+defered until it is time to merge, and then has to cover all the
+changes in the branch.</p>
+<p>Below a list of the kinds of changes and their association
+version increments:</p>
+<dl class="doctools_definitions">
+<dt><i class="term">D - documentation</i></dt>
+<dd><p>No increment</p></dd>
+<dt><i class="term">T - testsuite</i></dt>
+<dd><p>No increment</p></dd>
+<dt><i class="term">B - bugfix</i></dt>
+<dd><p>Patchlevel</p></dd>
+<dt><i class="term">I - implementation tweak</i></dt>
+<dd><p>Patchlevel</p></dd>
+<dt><i class="term">P - performance tweak</i></dt>
+<dd><p>Patchlevel</p></dd>
+<dt><i class="term">E - backward-compatible extension</i></dt>
+<dd><p>Minor</p></dd>
+<dt><i class="term">API - incompatible change</i></dt>
+<dd><p>Major</p></dd>
+</dl>
+<p>Note, a commit containing a version increment has to mention
+the kind of change which caused it in the commit message, as well as
+the new version number.</p>
+<p>Note further that the version number of a package currently
+exists in 3 places. An increment has to update all of them:</p>
+<ol class="doctools_enumerated">
+<li><p>The package implementation.</p></li>
+<li><p>The package index (&quot;<b class="file">pkgIndex.tcl</b>&quot;)</p></li>
+<li><p>The package documentation.</p></li>
+</ol>
+<p>The &quot;<b class="file">sak.tcl</b>&quot; command <b class="cmd">validate version</b> helps
+finding discrepancies between the first two.
+All the other <b class="cmd">validate</b> methods are also of interest to any
+developer. Invoke it with</p>
+<pre class="doctools_example">
+    sak.tcl help validate
+</pre>
+<p>to see their documentation.</p>
+</div>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">Structural Overview</a></h2>
-<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Main Directories</a></h3>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Main Directories</a></h3>
 <p>The main directories in the Tcllib toplevel directory and of interest
 to a developer are:</p>
 <dl class="doctools_definitions">
@@ -273,7 +349,7 @@ application for the packages in &quot;<b class="file">modules/foo</b>&quot;. The
 generally not polished enough to be considered for installation.</p></dd>
 </dl>
 </div>
-<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">More Directories</a></h3>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">More Directories</a></h3>
 <dl class="doctools_definitions">
 <dt>&quot;<b class="file">config</b>&quot;</dt>
 <dd><p>This directory contains files supporting the unix build system,
@@ -297,7 +373,7 @@ used in the implementation of the &quot;<b class="file">installer.tcl</b>&quot; 
 &quot;<b class="file">sak.tcl</b>&quot; scripts/tools.</p></dd>
 </dl>
 </div>
-<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Top Files</a></h3>
+<div id="subsection7" class="doctools_subsection"><h3><a name="subsection7">Top Files</a></h3>
 <dl class="doctools_definitions">
 <dt>&quot;<b class="file">aclocal.m4</b>&quot;</dt>
 <dd></dd>
@@ -345,7 +421,7 @@ and issue trackers.</p></dd>
 <dd><p>????</p></dd>
 </dl>
 </div>
-<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">File Types</a></h3>
+<div id="subsection8" class="doctools_subsection"><h3><a name="subsection8">File Types</a></h3>
 <p>The most common file types, by file extension, are:</p>
 <dl class="doctools_definitions">
 <dt>&quot;<b class="file">.tcl</b>&quot;</dt>
@@ -374,19 +450,19 @@ implementing it.</p></dd>
 <b class="cmd">test run</b> method of the &quot;<b class="file">sak.tcl</b>&quot; tool, with other methods
 of <b class="cmd"><a href="../../../index.html#test">test</a></b> providing management operations, for example setting a
 list of standard Tcl shells to use.</p>
-<div id="subsection7" class="doctools_subsection"><h3><a name="subsection7">Invoke the testsuites of a specific module</a></h3>
+<div id="subsection9" class="doctools_subsection"><h3><a name="subsection9">Invoke the testsuites of a specific module</a></h3>
 <p>Invoke either</p>
 <pre class="doctools_example">  ./sak.tcl test run FOO </pre>
 <p>or</p>
 <pre class="doctools_example">  ./sak.tcl test run modules/FOO </pre>
 <p>to invoke the testsuites found in a specific module &quot;<b class="file">FOO</b>&quot;.</p>
 </div>
-<div id="subsection8" class="doctools_subsection"><h3><a name="subsection8">Invoke the testsuites of all modules</a></h3>
+<div id="subsection10" class="doctools_subsection"><h3><a name="subsection10">Invoke the testsuites of all modules</a></h3>
 <p>Invoke the tool without a module name, i.e.</p>
 <pre class="doctools_example">  ./sak.tcl test run </pre>
 <p>to invoke the testsuites of all modules.</p>
 </div>
-<div id="subsection9" class="doctools_subsection"><h3><a name="subsection9">Detailed Test Logs</a></h3>
+<div id="subsection11" class="doctools_subsection"><h3><a name="subsection11">Detailed Test Logs</a></h3>
 <p>In all the previous examples the test runner will write a combination
 of progress display and testsuite log to the standard output, showing
 for each module only the tests that passed or failed and how many of
@@ -410,7 +486,7 @@ short log.</p>
 cases executed, which failed, and how they failed (expected versus
 actual results).</p>
 </div>
-<div id="subsection10" class="doctools_subsection"><h3><a name="subsection10">Shell Selection</a></h3>
+<div id="subsection12" class="doctools_subsection"><h3><a name="subsection12">Shell Selection</a></h3>
 <p>By default the test runner will use all the Tcl shells specified via
 <b class="cmd">test add</b> to invoke the specified testsuites, if any. If no
 such are specified it will fall back to the Tcl shell used to ran the
@@ -421,7 +497,7 @@ to use, like</p>
   ./sak.tcl test run --shell /path/to/tclsh ...
 </pre>
 </div>
-<div id="subsection11" class="doctools_subsection"><h3><a name="subsection11">Help</a></h3>
+<div id="subsection13" class="doctools_subsection"><h3><a name="subsection13">Help</a></h3>
 <p>Invoke the tool as</p>
 <pre class="doctools_example">  ./sak.tcl help test </pre>
 <p>to see the detailed help for all methods of <b class="cmd"><a href="../../../index.html#test">test</a></b>, and the
@@ -438,7 +514,7 @@ an application package, with the actual application
 <p>Tcllib developers gain access to these through the <b class="cmd">doc</b>
 method of the &quot;<b class="file">sak.tcl</b>&quot; tool, another (internal) wrapper around
 the &quot;<b class="file">modules/dptlite</b>&quot; application package.</p>
-<div id="subsection12" class="doctools_subsection"><h3><a name="subsection12">Generate documentation for a specific module</a></h3>
+<div id="subsection14" class="doctools_subsection"><h3><a name="subsection14">Generate documentation for a specific module</a></h3>
 <p>Invoke either</p>
 <pre class="doctools_example">  ./sak.tcl doc html FOO </pre>
 <p>or</p>
@@ -449,7 +525,7 @@ of course.</p>
 <p>The generated formatted documentation will be placed into a
 directory &quot;<b class="file">doc</b>&quot; in the current working directory.</p>
 </div>
-<div id="subsection13" class="doctools_subsection"><h3><a name="subsection13">Generate documentation for all modules</a></h3>
+<div id="subsection15" class="doctools_subsection"><h3><a name="subsection15">Generate documentation for all modules</a></h3>
 <p>Invoke the tool without a module name, i.e.</p>
 <pre class="doctools_example">  ./sak.tcl doc html </pre>
 <p>to generate HTML for the documentation found in all modules.
@@ -458,13 +534,13 @@ of course.</p>
 <p>The generated formatted documentation will be placed into a
 directory &quot;<b class="file">doc</b>&quot; in the current working directory.</p>
 </div>
-<div id="subsection14" class="doctools_subsection"><h3><a name="subsection14">Available output formats, help</a></h3>
+<div id="subsection16" class="doctools_subsection"><h3><a name="subsection16">Available output formats, help</a></h3>
 <p>Invoke the tool as</p>
 <pre class="doctools_example">  ./sak.tcl help doc </pre>
 <p>to see the entire set of supported output formats which can be
 generated.</p>
 </div>
-<div id="subsection15" class="doctools_subsection"><h3><a name="subsection15">Validation without output</a></h3>
+<div id="subsection17" class="doctools_subsection"><h3><a name="subsection17">Validation without output</a></h3>
 <p>Note the special format <b class="const">validate</b>.</p>
 <p>Using this value as the name of the format to generate forces
 the tool to simply check that the documentation is syntactically
@@ -575,15 +651,14 @@ reminder to put a check for this condition into the code.</p>
 <div id="section8" class="doctools_section"><h2><a name="section8">Installation Tooling</a></h2>
 <p>A last thing to consider when adding a new package to the collection
 is installation.</p>
-<p>How to <em>use</em> the tool, the &quot;<b class="file">installer.tcl</b>&quot; script is
-doumented in
-<i class="term"><a href="tcllib_installer.html">Tcllib - The Installer's Guide</a></i>.</p>
-<p>Here we document how to extend the installer so that it may
-install the new package(s).</p>
-<p>In most cases only a single file has to be modified,
+<p>How to <em>use</em> the &quot;<b class="file">installer.tcl</b>&quot; script is documented
+in <i class="term"><a href="tcllib_installer.html">Tcllib - The Installer's Guide</a></i>.</p>
+<p>Here we document how to extend said installer so that it may
+install new package(s) and/or application(s).</p>
+<p>In most cases only a single file has to be modified, the
 &quot;<b class="file">support/installation/modules.tcl</b>&quot; holding one command per module
 and application to install.</p>
-<p>The commands are:</p>
+<p>The relevant commands are:</p>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd"><a href="../../../index.html#module">Module</a></b> <i class="arg">name</i> <i class="arg">code-action</i> <i class="arg">doc-action</i> <i class="arg">example-action</i></a></dt>
 <dd><p>Install the packages of module <i class="arg">name</i>, found in
