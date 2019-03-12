@@ -272,6 +272,14 @@ Database Class:	\\fB\\$3\\fR
 .BS
 .SH NAME
 tcllib_devguide \- Tcllib - The Developer's Guide
+.SH SYNOPSIS
+\fBModule\fR \fIname\fR \fIcode-action\fR \fIdoc-action\fR \fIexample-action\fR
+.sp
+\fBApplication\fR \fIname\fR
+.sp
+\fBExclude\fR \fIname\fR
+.sp
+.BE
 .SH DESCRIPTION
 Welcome to Tcllib, the Tcl Standard Library\&. Note that Tcllib is not a
 package itself\&. It is a collection of (semi-independent) \fITcl\fR
@@ -651,8 +659,210 @@ or
 .CE
 to either check the packages of a specific module or check all of
 them\&.
-x
 .SH "NOTES ON WRITING A TESTSUITE"
-x
+While previous sections talked about running the testsuites for a
+module and the packages therein this has no meaning if the module in
+question has no testsuites at all\&.
+.PP
+This section gives a very basic overview on possible
+methodologies for writing tests and testsuites\&.
+.PP
+First there are "drudgery" tests\&. Written to check absolutely
+basic assumptions which should never fail\&.
+.PP
+For example for a command FOO taking two arguments, three tests
+calling it with zero, one, and three arguments\&. The basic checks that
+the command fails if it has not enough arguments, or too many\&.
+.PP
+After that come the tests checking things based on our
+knowledge of the command, about its properties and assumptions\&. Some
+examples based on the graph operations added during Google's Summer of
+Code 2009 are:
+.IP \(bu
+The BellmanFord command in struct::graph::ops takes a
+\fIstartnode\fR as argument, and this node should be a node of
+the graph\&. Equals one test case checking the behavior when the
+specified node is not a node a graph\&.
+.sp
+This often gives rise to code in the implementation which
+explicitly checks the assumption and throws a nice error\&.
+Instead of letting the algorithm fails later in some weird
+non-deterministic way\&.
+.sp
+It not always possible to do such checks\&. The graph argument
+for example is just a command in itself, and while we expect
+it to exhibit a certain interface, i\&.e\&. a set of sub-commands
+aka methods, we cannot check that it has them, except by
+actually trying to use them\&. That is done by the algorithm
+anyway, so an explicit check is just overhead we can get by
+without\&.
+.IP \(bu
+IIRC one of the distinguishing characteristic of either
+BellmanFord and/or Johnson is that they are able to handle
+negative weights\&. Whereas Dijkstra requires positive weights\&.
+.sp
+This induces (at least) three testcases \&.\&.\&. Graph with all
+positive weights, all negative, and a mix of positive and
+negative weights\&.
+Thinking further does the algorithm handle the weight
+\fB0\fR as well ? Another test case, or several, if we mix
+zero with positive and negative weights\&.
+.IP \(bu
+The two algorithms we are currently thinking about are about
+distances between nodes, and distance can be 'Inf'inity,
+i\&.e\&. nodes may not be connected\&. This means that good test
+cases are
+.RS
+.IP [1]
+Strongly connected graph
+.IP [2]
+Connected graph
+.IP [3]
+Disconnected graph\&.
+.RE
+.sp
+At the extremes of strongly connected and disconnected
+we have the fully connected graphs and graphs without edges,
+only nodes, i\&.e\&. completely disconnected\&.
+.IP \(bu
+IIRC both of the algorithms take weighted arcs, and fill in a
+default if arcs are left unweighted in the input graph\&.
+.sp
+This also induces three test cases:
+.RS
+.IP [1]
+Graph will all arcs with explicit weights\&.
+.IP [2]
+Graph without weights at all\&.
+.IP [3]
+Graph with mixture of weighted and unweighted graphs\&.
+.RE
+.PP
+.PP
+What was described above via examples is called
+\fIblack-box\fR testing\&. Test cases are designed and written based on
+the developer's knowledge of the properties of the algorithm and its
+inputs, without referencing a particular implementation\&.
+.PP
+Going further, a complement to \fIblack-box\fR testing is
+\fIwhite-box\fR\&. For this we know the implementation of the
+algorithm, we look at it and design our tests cases so that they force
+the code through all possible paths in the implementation\&. Wherever a
+decision is made we have a test case forcing a specific direction of
+the decision, for all possible combinations and directions\&. It is easy
+to get a combinatorial explosion in the number of needed test-cases\&.
+.PP
+In practice I often hope that the black-box tests I have made
+are enough to cover all the paths, obviating the need for white-box
+tests\&.
+.PP
+The above should be enough to make it clear that writing tests
+for an algorithm takes at least as much time as coding the algorithm,
+and often more time\&. Much more time\&.
+See for example also \fIhttp://sqlite\&.org/testing\&.html\fR, a writeup
+on how the Sqlite database engine is tested\&.
+.PP
+An interesting connection is to documentation\&. In one
+direction, the properties checked with black-box testing are exactly
+the properties which should be documented in the algorithm's man
+page\&. And conversely, the documentation of the properties of an
+algorithm makes a good reference to base the black-box tests on\&.
+.PP
+In practice test cases and documentation often get written
+together, cross-influencing each other\&. And the actual writing of test
+cases is a mix of black and white box, possibly influencing the
+implementation while writing the tests\&. Like writing a test for a
+condition like \fIstartnode not in input graph\fR serving as
+reminder to put a check for this condition into the code\&.
 .SH "INSTALLATION TOOLING"
-x
+A last thing to consider when adding a new package to the collection
+is installation\&.
+.PP
+How to \fIuse\fR the tool, the "\fIinstaller\&.tcl\fR" script is
+doumented in
+\fITcllib - The Installer's Guide\fR\&.
+.PP
+Here we document how to extend the installer so that it may
+install the new package(s)\&.
+.PP
+In most cases only a single file has to be modified,
+"\fIsupport/installation/modules\&.tcl\fR" holding one command per module
+and application to install\&.
+.PP
+The commands are:
+.TP
+\fBModule\fR \fIname\fR \fIcode-action\fR \fIdoc-action\fR \fIexample-action\fR
+Install the packages of module \fIname\fR, found in
+"\fImodules/\fIname\fR\fR"\&.
+.sp
+The \fIcode-action\fR is responsible for installing the
+packages and their index\&. The system currently provides
+.RS
+.TP
+\fB_tcl\fR
+Copy all "\fI\&.tcl\fR" files found in
+"\fImodules/\fIname\fR\fR" into the installation\&.
+.TP
+\fB_tcr\fR
+As \fB_tcl\fR, copy the "\fI\&.tcl\fR" files found in
+the subdirectories of "\fImodules/\fIname\fR\fR" as well\&.
+.TP
+\fB_tci\fR
+As \fB_tcl\fR, and copy the "\fItclIndex\&.tcl\fR" file
+as well\&.
+.TP
+\fB_msg\fR
+As \fB_tcl\fR, and copy the subdirectory "\fImsgs\fR"
+as well\&.
+.TP
+\fB_doc\fR
+As \fB_tcl\fR, and copy the subdirectory
+"\fImpformats\fR" as well\&.
+.TP
+\fB_tex\fR
+As \fB_tcl\fR, and copy "\fI\&.tex\fR" files as well\&.
+.RE
+.sp
+The \fIdoc-action\fR is responsible for installing the package
+documentation\&. The system currently provides
+.RS
+.TP
+\fB_null\fR
+No documentation available, do nothing\&.
+.TP
+\fB_man\fR
+Process the "\fI\&.man\fR" files found in
+"\fImodules/\fIname\fR\fR" and install the results (nroff and/or HTML)
+in the proper location, as given to the installer\&.
+.sp
+This is actually a fallback, normally the installer uses the
+pre-made formatted documentation found under "\fIidoc\fR"\&.
+.RE
+.sp
+The \fIexample-action\fR is responsible for installing the
+examples\&. The system currently provides
+.RS
+.TP
+\fB_null\fR
+No examples available, do nothing\&.
+.TP
+\fB_exa\fR
+Copy the the directory "\fIexamples/\fIname\fR\fR"
+recursively to the install location for examples\&.
+.RE
+.TP
+\fBApplication\fR \fIname\fR
+Install the application with \fIname\fR, found in "\fIapps\fR"\&.
+.TP
+\fBExclude\fR \fIname\fR
+This command signals to the installer which of the listed modules to
+\fInot\fR install\&. I\&.e\&. they name the deprecated modules of Tcllib\&.
+.PP
+.PP
+If, and only if the above actions are not suitable for the new
+module then a second file has to be modified,
+"\fIsupport/installation/actions\&.tcl\fR"\&.
+.PP
+This file contains the implementations of the available
+actions, and is the place where any custom action needed to handle the
+special circumstances of module has to be added\&.

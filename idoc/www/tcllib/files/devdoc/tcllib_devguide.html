@@ -113,6 +113,7 @@
 <div id="toc" class="doctools_section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="doctools_toc">
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
+<li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
 <li class="doctools_section"><a href="#section2">Commitments</a>
 <ul>
@@ -149,6 +150,15 @@
 <li class="doctools_section"><a href="#section7">Notes On Writing A Testsuite</a></li>
 <li class="doctools_section"><a href="#section8">Installation Tooling</a></li>
 </ul>
+</div>
+<div id="synopsis" class="doctools_section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="doctools_synopsis">
+<ul class="doctools_syntax">
+<li><a href="#1"><b class="cmd"><a href="../../../index.html#module">Module</a></b> <i class="arg">name</i> <i class="arg">code-action</i> <i class="arg">doc-action</i> <i class="arg">example-action</i></a></li>
+<li><a href="#2"><b class="cmd"><a href="../../../index.html#application">Application</a></b> <i class="arg">name</i></a></li>
+<li><a href="#3"><b class="cmd">Exclude</b> <i class="arg">name</i></a></li>
+</ul>
+</div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>Welcome to Tcllib, the Tcl Standard Library. Note that Tcllib is not a
@@ -464,14 +474,173 @@ correct, without generating actual output.</p>
 <p>or</p>
 <pre class="doctools_example">  ./sak.tcl doc validate </pre>
 <p>to either check the packages of a specific module or check all of
-them.
-x</p>
+them.</p>
 </div>
 </div>
 <div id="section7" class="doctools_section"><h2><a name="section7">Notes On Writing A Testsuite</a></h2>
-<p>x</p>
+<p>While previous sections talked about running the testsuites for a
+module and the packages therein this has no meaning if the module in
+question has no testsuites at all.</p>
+<p>This section gives a very basic overview on possible
+methodologies for writing tests and testsuites.</p>
+<p>First there are &quot;drudgery&quot; tests. Written to check absolutely
+basic assumptions which should never fail.</p>
+<p>For example for a command FOO taking two arguments, three tests
+calling it with zero, one, and three arguments. The basic checks that
+the command fails if it has not enough arguments, or too many.</p>
+<p>After that come the tests checking things based on our
+knowledge of the command, about its properties and assumptions. Some
+examples based on the graph operations added during Google's Summer of
+Code 2009 are:</p>
+<ul class="doctools_itemized">
+<li><p>The BellmanFord command in struct::graph::ops takes a
+	<i class="arg">startnode</i> as argument, and this node should be a node of
+	the graph. Equals one test case checking the behavior when the
+	specified node is not a node a graph.</p>
+<p>This often gives rise to code in the implementation which
+	explicitly checks the assumption and throws a nice error.
+	Instead of letting the algorithm fails later in some weird
+	non-deterministic way.</p>
+<p>It not always possible to do such checks. The graph argument
+	for example is just a command in itself, and while we expect
+	it to exhibit a certain interface, i.e. a set of sub-commands
+	aka methods, we cannot check that it has them, except by
+	actually trying to use them. That is done by the algorithm
+	anyway, so an explicit check is just overhead we can get by
+	without.</p></li>
+<li><p>IIRC one of the distinguishing characteristic of either
+	BellmanFord and/or Johnson is that they are able to handle
+	negative weights. Whereas Dijkstra requires positive weights.</p>
+<p>This induces (at least) three testcases ... Graph with all
+	positive weights, all negative, and a mix of positive and
+	negative weights.
+	Thinking further does the algorithm handle the weight
+	<b class="const">0</b> as well ? Another test case, or several, if we mix
+	zero with positive and negative weights.</p></li>
+<li><p>The two algorithms we are currently thinking about are about
+	distances between nodes, and distance can be 'Inf'inity,
+	i.e. nodes may not be connected. This means that good test
+	cases are</p>
+<ol class="doctools_enumerated">
+	
+<li><p>Strongly connected graph</p></li>
+<li><p>Connected graph</p></li>
+<li><p>Disconnected graph.</p></li>
+</ol>
+<p>At the extremes of strongly connected and disconnected
+	we have the fully connected graphs and graphs without edges,
+	only nodes, i.e. completely disconnected.</p></li>
+<li><p>IIRC both of the algorithms take weighted arcs, and fill in a
+	default if arcs are left unweighted in the input graph.</p>
+<p>This also induces three test cases:</p>
+<ol class="doctools_enumerated">
+	
+<li><p>Graph will all arcs with explicit weights.</p></li>
+<li><p>Graph without weights at all.</p></li>
+<li><p>Graph with mixture of weighted and unweighted graphs.</p></li>
+</ol>
+</li>
+</ul>
+<p>What was described above via examples is called
+<i class="term">black-box</i> testing. Test cases are designed and written based on
+the developer's knowledge of the properties of the algorithm and its
+inputs, without referencing a particular implementation.</p>
+<p>Going further, a complement to <i class="term">black-box</i> testing is
+<i class="term">white-box</i>. For this we know the implementation of the
+algorithm, we look at it and design our tests cases so that they force
+the code through all possible paths in the implementation. Wherever a
+decision is made we have a test case forcing a specific direction of
+the decision, for all possible combinations and directions. It is easy
+to get a combinatorial explosion in the number of needed test-cases.</p>
+<p>In practice I often hope that the black-box tests I have made
+are enough to cover all the paths, obviating the need for white-box
+tests.</p>
+<p>The above should be enough to make it clear that writing tests
+for an algorithm takes at least as much time as coding the algorithm,
+and often more time. Much more time.
+See for example also <a href="http://sqlite.org/testing.html">http://sqlite.org/testing.html</a>, a writeup
+on how the Sqlite database engine is tested.</p>
+<p>An interesting connection is to documentation. In one
+direction, the properties checked with black-box testing are exactly
+the properties which should be documented in the algorithm's man
+page. And conversely, the documentation of the properties of an
+algorithm makes a good reference to base the black-box tests on.</p>
+<p>In practice test cases and documentation often get written
+together, cross-influencing each other. And the actual writing of test
+cases is a mix of black and white box, possibly influencing the
+implementation while writing the tests. Like writing a test for a
+condition like <i class="term">startnode not in input graph</i> serving as
+reminder to put a check for this condition into the code.</p>
 </div>
 <div id="section8" class="doctools_section"><h2><a name="section8">Installation Tooling</a></h2>
-<p>x</p>
+<p>A last thing to consider when adding a new package to the collection
+is installation.</p>
+<p>How to <em>use</em> the tool, the &quot;<b class="file">installer.tcl</b>&quot; script is
+doumented in
+<i class="term"><a href="tcllib_installer.html">Tcllib - The Installer's Guide</a></i>.</p>
+<p>Here we document how to extend the installer so that it may
+install the new package(s).</p>
+<p>In most cases only a single file has to be modified,
+&quot;<b class="file">support/installation/modules.tcl</b>&quot; holding one command per module
+and application to install.</p>
+<p>The commands are:</p>
+<dl class="doctools_definitions">
+<dt><a name="1"><b class="cmd"><a href="../../../index.html#module">Module</a></b> <i class="arg">name</i> <i class="arg">code-action</i> <i class="arg">doc-action</i> <i class="arg">example-action</i></a></dt>
+<dd><p>Install the packages of module <i class="arg">name</i>, found in
+&quot;<b class="file">modules/<i class="arg">name</i></b>&quot;.</p>
+<p>The <i class="arg">code-action</i> is responsible for installing the
+packages and their index. The system currently provides</p>
+<dl class="doctools_definitions">
+<dt><b class="cmd">_tcl</b></dt>
+<dd><p>Copy all &quot;<b class="file">.tcl</b>&quot; files found in
+&quot;<b class="file">modules/<i class="arg">name</i></b>&quot; into the installation.</p></dd>
+<dt><b class="cmd">_tcr</b></dt>
+<dd><p>As <b class="cmd">_tcl</b>, copy the &quot;<b class="file">.tcl</b>&quot; files found in
+the subdirectories of &quot;<b class="file">modules/<i class="arg">name</i></b>&quot; as well.</p></dd>
+<dt><b class="cmd">_tci</b></dt>
+<dd><p>As <b class="cmd">_tcl</b>, and copy the &quot;<b class="file">tclIndex.tcl</b>&quot; file
+as well.</p></dd>
+<dt><b class="cmd">_msg</b></dt>
+<dd><p>As <b class="cmd">_tcl</b>, and copy the subdirectory &quot;<b class="file">msgs</b>&quot;
+as well.</p></dd>
+<dt><b class="cmd">_doc</b></dt>
+<dd><p>As <b class="cmd">_tcl</b>, and copy the subdirectory
+&quot;<b class="file">mpformats</b>&quot; as well.</p></dd>
+<dt><b class="cmd">_tex</b></dt>
+<dd><p>As <b class="cmd">_tcl</b>, and copy &quot;<b class="file">.tex</b>&quot; files as well.</p></dd>
+</dl>
+<p>The <i class="arg">doc-action</i> is responsible for installing the package
+documentation. The system currently provides</p>
+<dl class="doctools_definitions">
+<dt><b class="cmd">_null</b></dt>
+<dd><p>No documentation available, do nothing.</p></dd>
+<dt><b class="cmd">_man</b></dt>
+<dd><p>Process the &quot;<b class="file">.man</b>&quot; files found in
+&quot;<b class="file">modules/<i class="arg">name</i></b>&quot; and install the results (nroff and/or HTML)
+in the proper location, as given to the installer.</p>
+<p>This is actually a fallback, normally the installer uses the
+pre-made formatted documentation found under &quot;<b class="file">idoc</b>&quot;.</p></dd>
+</dl>
+<p>The <i class="arg">example-action</i> is responsible for installing the
+examples. The system currently provides</p>
+<dl class="doctools_definitions">
+<dt><b class="cmd">_null</b></dt>
+<dd><p>No examples available, do nothing.</p></dd>
+<dt><b class="cmd">_exa</b></dt>
+<dd><p>Copy the the directory &quot;<b class="file">examples/<i class="arg">name</i></b>&quot;
+recursively to the install location for examples.</p></dd>
+</dl></dd>
+<dt><a name="2"><b class="cmd"><a href="../../../index.html#application">Application</a></b> <i class="arg">name</i></a></dt>
+<dd><p>Install the application with <i class="arg">name</i>, found in &quot;<b class="file">apps</b>&quot;.</p></dd>
+<dt><a name="3"><b class="cmd">Exclude</b> <i class="arg">name</i></a></dt>
+<dd><p>This command signals to the installer which of the listed modules to
+<em>not</em> install. I.e. they name the deprecated modules of Tcllib.</p></dd>
+</dl>
+<p>If, and only if the above actions are not suitable for the new
+module then a second file has to be modified,
+&quot;<b class="file">support/installation/actions.tcl</b>&quot;.</p>
+<p>This file contains the implementations of the available
+actions, and is the place where any custom action needed to handle the
+special circumstances of module has to be added.</p>
 </div>
 </div></body></html>

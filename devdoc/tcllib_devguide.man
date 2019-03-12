@@ -47,15 +47,15 @@ up, etc.
 
 [comment {===================================================================}]
 [section {Documentation Tooling}]
-[include parts/d_documentation.inc]x
+[include parts/d_documentation.inc]
 
 [comment {===================================================================}]
 [section {Notes On Writing A Testsuite}]
-[include parts/d_testwrite.inc]x
+[include parts/d_testwrite.inc]
 
 [comment {===================================================================}]
 [section {Installation Tooling}]
-[include parts/d_installation.inc]x
+[include parts/d_installation.inc]
 
 [comment {===================================================================}]
 [manpage_end]
