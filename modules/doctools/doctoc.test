@@ -321,8 +321,6 @@ foreach format {
 } {
     set n 0
     foreach src [TestFilesGlob tests/toc/toc/*] {
-	if {[file tail $src] == "CVS"} continue
-
 	# Get the expected result
 	set dst [localPath [file join tests toc $format [file tail $src]]]
 	set map {} ; lappend map @USR@ $tcl_platform(user)

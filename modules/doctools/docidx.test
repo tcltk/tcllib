@@ -317,8 +317,6 @@ foreach format {
 } {
     set n 0
     foreach src [TestFilesGlob tests/idx/idx/*] {
-	if {[file tail $src] == "CVS"} continue
-
 	# Get the expected result
 	set dst [localPath [file join tests idx $format [file tail $src]]]
 	set map {} ; lappend map @USR@ $tcl_platform(user)
