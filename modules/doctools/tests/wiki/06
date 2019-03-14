@@ -7,11 +7,15 @@
 
 
 
-   *  1  2  3
+   *  1
+2
+3
 
    *
 
-   1.  a  b  c
+   1.  a
+b
+c
 
    1.
 
@@ -21,11 +25,14 @@
 
    roo:    gork  
 
-   1.  a  b  c
+   1.  a
+b
+c
 
-   *  4  5  6
+   *  4
+5
+6
 
 **COPYRIGHT**
 
  Copyright (c) .COPYRIGHT.
-

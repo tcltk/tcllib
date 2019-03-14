@@ -2,12 +2,10 @@
 #
 #	Handling of various cvs output formats.
 #
-# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: cvs.tcl,v 1.10 2008/07/08 23:03:58 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil

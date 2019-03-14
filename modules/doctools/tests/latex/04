@@ -1,6 +1,6 @@
 % Generated from file '.FILE.' by tcllib/doctools with format 'latex'
 % Copyright (c) .COPYRIGHT.
-% CVS: @ID@ TEST.z
+% TEST.z
 \documentclass{article}
 \begin{document}
 \author{@USR@}
@@ -11,6 +11,7 @@ BEGINNE HIER
 \begin{verbatim}
 	 Example Block  More Lines
 \end{verbatim}
+
 \begin{verbatim}
 Inlined Example \
 Next Line
