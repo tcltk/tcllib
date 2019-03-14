@@ -5,10 +5,8 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2003-2010 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2003-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: doctools.test,v 1.28 2011/01/13 02:41:44 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -318,9 +316,8 @@ test doctools-9.0 {manpage syntax} {
 
 set k 11
 foreach format {
-    html  tmml
-    nroff latex
-    text  wiki
+    html  tmml nroff
+    latex text wiki
     desc  list null
 } {
     set n 0
@@ -329,8 +326,8 @@ foreach format {
 
 	# Get the expected result
 	set dst [localPath [file join tests $format [file tail $src]]]
-	set map @ID@   ; lappend map \$Id\$ ; lappend map @USR@ $tcl_platform(user)
-	set rem \$Id\$ ; lappend rem @ID@   ; lappend $tcl_platform(user) @USR@
+	set map {} ; lappend map @USR@ $tcl_platform(user)
+	set rem {} ; lappend rem $tcl_platform(user) @USR@
 	if {$format eq "nroff"} {
 		lappend map ".so man.macros\n" [fileutil::cat [localPath mpformats/man.macros]]
 	}
@@ -371,8 +368,8 @@ foreach src [TestFilesGlob tests/man/*] {
 
     # Get the expected result
     set dst [localPath [file join tests html [file tail $src]]]
-    set map @ID@   ; lappend map \$Id\$ ; lappend map @USR@ $tcl_platform(user)
-    set rem \$Id\$ ; lappend rem @ID@   ; lappend $tcl_platform(user) @USR@
+    set map {} ; lappend map @USR@ $tcl_platform(user)
+    set rem {} ; lappend rem $tcl_platform(user) @USR@
 
     if {[catch {
 	set expected [string map $map [fileutil::cat $dst]]
@@ -382,7 +379,7 @@ foreach src [TestFilesGlob tests/man/*] {
     regsub {</body>.*} $expected {} expected
     regsub {.*<body>}  $expected {} expected
     append expected \n
-    if {$n == 5 || $n == 8} { set expected \n$expected }
+    #if {$n == 5 || $n == 8} { set expected \n$expected }
 
     # Run the test ...
     test doctools-html-raw-11.$n "doctools backends, html-raw/[file tail $src]" {

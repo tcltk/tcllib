@@ -1,0 +1,31 @@
+% Generated from file '.FILE.' by tcllib/doctools with format 'latex'
+% Copyright (c) .COPYRIGHT.
+% TEST.z
+\documentclass{article}
+\begin{document}
+\author{aku}
+\title{.MODULE. / TEST --  : }
+\maketitle
+\section{Description}\label{section1}
+lorem
+\begin{verbatim}
+1 lorem ipsum dolores
+\end{verbatim}
+ipsum
+\begin{verbatim} 2 lorem ipsum dolores \end{verbatim}
+dolores
+\begin{verbatim}
+3 lorem ipsum dolores
+\end{verbatim}
+lorem
+\begin{verbatim} 4 lorem ipsum dolores
+\end{verbatim}
+ipsum
+\begin{verbatim}
+5 lorem ipsum dolores \end{verbatim}
+dolores
+\section{Copyright}\label{copyright}
+\begin{flushleft}
+Copyright (c) .COPYRIGHT.\linebreak
+\end{flushleft}
+\end{document}

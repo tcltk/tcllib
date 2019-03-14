@@ -36,12 +36,16 @@ OK
 
    1.  A
 
-   1.  B  C  D
+   1.  B
+C
+D
 
 
    *  1
 
-   *  2  2a  2b
+   *  2
+2a
+2b
 
 
    '''option-1''':    meaning 
@@ -63,4 +67,3 @@ KO
 **COPYRIGHT**
 
  Copyright (c) .COPYRIGHT.
-

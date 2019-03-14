@@ -1,6 +1,6 @@
 % Generated from file '.FILE.' by tcllib/doctools with format 'latex'
 % Copyright (c) .COPYRIGHT.
-% CVS: @ID@ TEST.z
+% TEST.z
 \documentclass{article}
 \begin{document}
 \author{@USR@}
@@ -17,7 +17,9 @@
 4444
 \section{EeE}\label{section4}
 5555
+
 At {\bf AaA (\ref{section2})}.
+
 At {\bf \_\_undefined\_\_ (\ref{\_\_undefined\_\_})}.
 \section{Copyright}\label{copyright}
 \begin{flushleft}
