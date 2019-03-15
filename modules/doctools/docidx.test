@@ -312,8 +312,8 @@ test docidx-9.2 {docidx syntax, key without references, error} {
 
 set k 11
 foreach format {
-    html nroff text
-    wiki null
+    null html nroff
+    text wiki markdown
 } {
     set n 0
     foreach src [TestFilesGlob tests/idx/idx/*] {
