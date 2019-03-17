@@ -30,7 +30,7 @@ friendly. Ways that are, in a word: kind.
 [para] These guidelines suggest specific ways to accomplish that goal.
 
 [para] Please note: for the balance of this document any reference to
-“People”, “Persons”, “anybody” or “somebody” can refer to any sentient
+"People", "Persons", "anybody" or "somebody" can refer to any sentient
 being, not merely corporeal members of the species Homo Sapien.
 
 [list_begin definitions]
@@ -79,7 +79,7 @@ statements is not a personal attack on you.
 [def {Persons, not People}]
 
 Stereotypes are an unhelpful tool on many accounts. They are generally
-oversimplified. They are usually flat out wrong. And even if “right”
+oversimplified. They are usually flat out wrong. And even if "right"
 they are of absolutely no utility in determining the capabilities,
 motivations, or fitness of an individual.
 
@@ -153,7 +153,7 @@ stop arguing.
 listen.
 
 [para] If your words leave people hurt, stop. There is no amount of
-being “right” that makes up for someone leaving out midst because they
+being "right" that makes up for someone leaving out midst because they
 felt insulted, threatened, or ignored.
 
 [list_end]
@@ -166,13 +166,13 @@ friendlier and reach conclusions more easily.
 
 [section Signatories]
 [list_begin itemized]
-[item] Sean “the Hypnotoad” Woods
+[item] Sean "the Hypnotoad" Woods
 [item] Andreas Kupries
 [list_end]
 
 [section Authors]
 [list_begin definitions]
-[def Primary] Sean “the Hypnotoad” Woods
+[def Primary] Sean "the Hypnotoad" Woods
 [def {Light editing}] Andreas Kupries
 [list_end]
 [manpage_end]
