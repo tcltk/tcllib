@@ -317,7 +317,8 @@ test doctoc-9.3 {doctoc syntax v1.1, empty division, ok} {
 set k 11
 foreach format {
     html tmml nroff
-    text wiki null
+    text wiki markdown
+    null
 } {
     set n 0
     foreach src [TestFilesGlob tests/toc/toc/*] {

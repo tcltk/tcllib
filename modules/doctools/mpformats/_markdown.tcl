@@ -1,11 +1,16 @@
 # -*- tcl -*-
-#
-# -- Core support for markdown
+##
+# Support for markdown, overrides parts of coore text.
 #
 # Copyright (c) 2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 # Freely redistributable.
+##
+# # ## ### ##### ########
 
-################################################################
+# Modified bulleting
+
+DIB {- * +}
+DEB {{1.} {1)}}
 
 # # ## ### ##### ########
 ## `markdown` formatting
@@ -36,3 +41,7 @@ proc Sub4Title {lb title} {
 
 proc Strong {text} { return __${text}__ }
 proc Em     {text} { return *${text}* }
+
+##
+# # ## ### ##### ########
+return
