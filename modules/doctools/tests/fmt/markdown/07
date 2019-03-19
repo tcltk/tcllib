@@ -1,0 +1,42 @@
+
+[//000000001]: # (TEST - )
+[//000000002]: # (Generated from file '.FILE.' by tcllib/doctools with format 'markdown')
+[//000000003]: # (TEST(z) 3.14.15.926 .MODULE. "")
+
+# NAME
+
+TEST -
+
+# DESCRIPTION
+
+  - 1
+
+  - 2
+
+  1. a
+
+  1. b
+
+  * foo
+
+    snafu
+
+  * bar
+
+    barf
+
+  * roo
+
+    gork
+
+  1. bb
+
+  1. a
+
+  - 22
+
+  - 3
+
+# COPYRIGHT
+
+Copyright (c) .COPYRIGHT.
