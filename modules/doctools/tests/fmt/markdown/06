@@ -15,29 +15,29 @@ TEST -
 
     3
 
-  1. a
+      1. a
 
-     b
+         b
 
-     c
+         c
 
-  * foo
+           * foo
 
-    snafu
+             snafu
 
-  * bar
+           * bar
 
-    barf
+             barf
 
-  * roo
+           * roo
 
-    gork
+             gork
 
-  1. a
+      1. a
 
-     b
+         b
 
-     c
+         c
 
   - 4
 

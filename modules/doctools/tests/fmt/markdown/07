@@ -13,27 +13,27 @@ TEST -
 
   - 2
 
-  1. a
+      1. a
 
-  1. b
+      1. b
 
-  * foo
+           * foo
 
-    snafu
+             snafu
 
-  * bar
+           * bar
 
-    barf
+             barf
 
-  * roo
+           * roo
 
-    gork
+             gork
 
-  1. bb
+         bb
 
-  1. a
+      1. a
 
-  - 22
+    22
 
   - 3
 

@@ -1,0 +1,70 @@
+
+[//000000001]: # (test-definitions-nested - )
+[//000000002]: # (Generated from file '.FILE.' by tcllib/doctools with format 'markdown')
+[//000000003]: # (test-definitions-nested(1) n .MODULE. "")
+
+# NAME
+
+test-definitions-nested -
+
+# DESCRIPTION
+
+lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+        lorem ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+        lorem ipsum dolores
+
+        lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+    lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+    lorem ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+        lorem ipsum dolores
+
+      * lorem
+
+        ipsum dolores
+
+        lorem ipsum dolores
+
+        lorem ipsum dolores
+
+    lorem ipsum dolores
+
+# COPYRIGHT
+
+Copyright &copy; .COPYRIGHT.
