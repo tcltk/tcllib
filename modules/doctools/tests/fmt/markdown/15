@@ -1,0 +1,38 @@
+
+[//000000001]: # (test-definition-examples - )
+[//000000002]: # (Generated from file '.FILE.' by tcllib/doctools with format 'markdown')
+[//000000003]: # (test-definition-examples(1) n .MODULE. "")
+
+# NAME
+
+test-definition-examples -
+
+# DESCRIPTION
+
+lorem ipsum dolores
+
+  - lorem
+
+    A1 lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+    B2 lorem ipsum dolores
+
+    lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+    C3 lorem ipsum dolores
+
+  - lorem
+
+    ipsum dolores
+
+# COPYRIGHT
+
+Copyright (c) .COPYRIGHT.

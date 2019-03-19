@@ -317,7 +317,7 @@ test doctools-9.0 {manpage syntax} {
 set k 11
 foreach format {
     html  tmml nroff
-    latex text wiki
+    latex text wiki markdown
     desc  list null
 } {
     set n 0

@@ -1,0 +1,129 @@
+
+[//000000001]: # (ALL - ..THE_MODULE..)
+[//000000002]: # (Generated from file '.FILE.' by tcllib/doctools with format 'markdown')
+[//000000003]: # (ALL(a) 5 .MODULE. "..THE_MODULE..")
+
+# NAME
+
+ALL - ..THE_TITLE..
+
+# SYNOPSIS
+
+package require AAA  
+package require BBB VVV  
+package require CCC ?VVV?  
+
+CMDNAME ...  
+CMDNAME ...  
+CMDNAME ...  
+
+# DESCRIPTION
+
+  - NAME
+
+    DESCRIPTION ::Command::
+
+  - NAME
+
+    DESCRIPTION ::::
+
+  - NAME
+
+    DESCRIPTION ::__Constant__::
+
+# API
+
+  - TERM
+
+    DESCRIPTION ::*Emphasis*::
+
+  - TERM
+
+    DESCRIPTION ::"File/Path"::
+
+  * Command-Line Switch:	NAME  
+    Database Name:	__DBNAME__  
+    Database Class:	__CLASS__
+
+    DESCRIPTION -> NARGLE
+
+  * Command-Line Switch:	NAME  
+    Database Name:	__DBNAME__  
+    Database Class:	__CLASS__
+
+    DESCRIPTION ::__Function__::
+
+  * Command-Line Switch:	NAME  
+    Database Name:	__DBNAME__  
+    Database Class:	__CLASS__
+
+    DESCRIPTION ::Method::
+
+  - TERM
+
+    DESCRIPTION
+
+  - CMDNAME ...
+
+    DESCRIPTION ::__Namespace__::
+
+  * TYPE NAME
+
+    DESCRIPTION ::Argument::
+
+  * TYPE NAME
+
+    DESCRIPTION ::Option::
+
+  * TYPE NAME (MODE)
+
+    DESCRIPTION ::?Optional?::
+
+    THE ARGUMENT IS USED IN THIS
+    AND/OR THAT MANNER
+
+  - CMDNAME ...
+
+    DESCRIPTION ::__Package__::
+
+  - CMDNAME ...
+
+    DESCRIPTION ::__SystemCommand__::
+
+  * NAME
+
+    DESCRIPTION ::*Term*::
+
+  * NAME
+
+    DESCRIPTION ::__Type__::
+
+  * NAME ARGUMENT
+
+    DESCRIPTION ::[Uri](Uri)::
+
+## NARGLE
+
+  1. PARAGRAPH ::[UriLabel](Uri)::
+
+  1. PARAGRAPH ::__Variable__::
+
+  1. PARAGRAPH ::__Widget__::
+
+  - PARAGRAPH ::__Class__::
+
+  - PARAGRAPH
+
+  - PARAGRAPH
+
+# SEE ALSO
+
+ELSE, OTHER
+
+# KEYWORDS
+
+KEYA, KEYZ
+
+# COPYRIGHT
+
+Copyright (c) **Copyright**
