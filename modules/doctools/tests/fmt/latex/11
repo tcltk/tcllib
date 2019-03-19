@@ -3,7 +3,7 @@
 % test-enumerated.1
 \documentclass{article}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / test-enumerated --  : }
 \maketitle
 \section{Description}\label{section1}
