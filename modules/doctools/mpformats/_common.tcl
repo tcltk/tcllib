@@ -68,7 +68,10 @@ proc c_get_title {} {
 
 proc c_copyrightsymbol {} {return "(c)"}
 proc c_set_copyright {text} {global state ; lappend state(copyright) $text ; return}
-proc c_get_copyright {}     {
+proc c_get_copyright {} {
+    return [join [c_get_copyright_r] \n]
+}
+proc c_get_copyright_r {} {
     global state
 
     set cc $state(copyright)
@@ -87,7 +90,7 @@ proc c_get_copyright {}     {
 	}
     }
 
-    return [join $stmts \n]
+    return $stmts
 }
 
 proc c_provenance {} {

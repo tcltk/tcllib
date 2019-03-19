@@ -9,13 +9,13 @@ TEST -
 
 # DESCRIPTION
 
-Argument ::Argument:: Class ::__Class__:: Command ::Command:: Comment :::: Const
-::__Constant__:: Emphasis ::*Emphasis*:: File ::"File/Path":: Function
-::__Function__:: Method ::Method:: Namespace ::__Namespace__:: Option ::Option::
-Optional ::?Optional?:: Package ::__Package__:: Syscmd ::__SystemCommand__::
-Term ::*Term*:: Type ::__Type__:: Uri ::[Uri](Uri):: Variable ::__Variable__::
-Widget ::__Widget__::
+Argument ::*Argument*:: Class ::__Class__:: Command ::__Command__:: Comment ::::
+Const ::__Constant__:: Emphasis ::*Emphasis*:: File ::"File/Path":: Function
+::__Function__:: Method ::__Method__:: Namespace ::__Namespace__:: Option
+::__Option__:: Optional ::?Optional?:: Package ::__Package__:: Syscmd
+::__SystemCommand__:: Term ::*Term*:: Type ::__Type__:: Uri ::[Uri](Uri)::
+Variable ::__Variable__:: Widget ::__Widget__::
 
 # COPYRIGHT
 
-Copyright (c) **Copyright**
+Copyright &copy; **Copyright**

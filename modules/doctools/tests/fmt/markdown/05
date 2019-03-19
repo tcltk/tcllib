@@ -15,19 +15,19 @@ a-command
 
 OK
 
-  - integer argument-1
+  - integer *argument-1*
 
     verification
 
-  - string argument-2 (out)
+  - string *argument-2* (out)
 
     mogrification
 
-  - command-a
+  - __command-a__
 
     explanation
 
-  - command-b
+  - __command-b__
 
     elucidation
 
@@ -55,21 +55,21 @@ OK
 
     2b
 
-  - option-1
+  - __option-1__
 
     meaning
 
-  - option-2 value
+  - __option-2__ value
 
     elaboration
 
-  - Command-Line Switch:	background  
+  - Command-Line Switch:	__background__  
     Database Name:	__Background__  
     Database Class:	__Color__
 
     candy
 
-  - Command-Line Switch:	foreground  
+  - Command-Line Switch:	__foreground__  
     Database Name:	__Foreground__  
     Database Class:	__Color__
 
@@ -79,4 +79,4 @@ KO
 
 # COPYRIGHT
 
-Copyright (c) .COPYRIGHT.
+Copyright &copy; .COPYRIGHT.

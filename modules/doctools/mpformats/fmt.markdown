@@ -3,6 +3,18 @@
 #
 # Copyright (c) 2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 
+# Note: While markdown is a text format its intended target is HTML,
+# making its formatting nearer to that with the ability to set anchors
+# and refer to them, linkage in general.
+
+# TODO: Table of contents, section linkage
+# TODO: Synopsis command linkage
+# TODO: package - xref
+# TODO: syscmd - xref
+# TODO: cmd - xref
+# TODO: term -xref
+# TODO: see also, keywords - xref
+
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
 
@@ -133,6 +145,11 @@ c_pass 2 fmt_tkoption_def {name dbname dbclass} {
     fmt_lst_item $text
 }
 
+proc fmt_arg     {text} { Em     $text }
+proc fmt_cmd     {text} { Strong $text }
+proc fmt_method  {text} { Strong $text }
+proc fmt_option  {text} { Strong $text }
+
 proc fmt_uri {text {label {}}} {
     if {$label == {}} { set label $text }
     return "\[$label\]($text)"
@@ -172,7 +189,6 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
-    set copyright   [c_get_copyright]
 
     MDComment  "$title - $shortdesc"
     MDComment  [c_provenance]
@@ -183,6 +199,10 @@ c_pass 2 fmt_manpage_begin {title section version} {
     Text "$title - $description"
     CloseParagraph
     return
+}
+
+proc c_get_copyright {} {
+    return [join [c_get_copyright_r] [LB]]
 }
 
 ##

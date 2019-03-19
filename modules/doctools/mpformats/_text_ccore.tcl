@@ -36,8 +36,8 @@ proc ContextSetup {} {
     global contextName ; unset -nocomplain contextName ; array set contextName {}
     global nextId ; set                                            nextId 0
     
-    global currentHandle  ; set       currentHandle  {}
-    global currentContext ; array set currentContext {}
+    global currentHandle  ; set                                          currentHandle  {}
+    global currentContext ; unset -nocomplain currentContext ; array set currentContext {}
     return
 }
 
@@ -52,6 +52,11 @@ proc ContextSet {id} {
     unset     currentContext
     array set currentContext $contextData($currentHandle)
     return
+}
+
+proc ContextExists {id} {
+    global contextData
+    info exists contextData($id)
 }
 
 proc ContextNew {name script} {
