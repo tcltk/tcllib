@@ -185,7 +185,7 @@ proc PARA {arguments} {
     foreach {env text} $arguments break
     ContextSet $env
 
-    #puts_stderr "PARA $env"
+    #puts_stderr "PARA $env [CAttrName $env]"
     #parray_stderr ::currentEnv
     #puts_stderr "    (($text))"
     #puts_stderr ""
