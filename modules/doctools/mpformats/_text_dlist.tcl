@@ -58,6 +58,7 @@ proc CloseParagraph {{id {}}} {
     if {$id == {}} { set id [CAttrCurrent] }
     Store PARA $id $para
     #puts_stderr "CloseParagraph $id [CAttrName $id]"
+    #puts_stderr "  (($para))"
     TextClear
     return 1
 } 
@@ -183,7 +184,7 @@ proc PARA {arguments} {
 
     #puts_stderr "PARA $env"
     #parray_stderr ::currentEnv
-    #puts_stderr "     \{$text\}"
+    #puts_stderr "    (($text))"
     #puts_stderr ""
 
     # Use the information in the referenced context to format the
@@ -195,6 +196,7 @@ proc PARA {arguments} {
     
     if {[Verbatim?]} {
 	set text [Undent $text]
+	#puts_stderr "UN  (($text))"
     } else {
 	set  plm $lm
 	incr plm [string length $blank]
@@ -206,6 +208,7 @@ proc PARA {arguments} {
     set p [Prefix?]
     if {[string length $p]} {
 	set text [Indent $text $p]
+	#puts_stderr "IN  (($text))"
     }
 
     if {$lt != {}} {
@@ -246,6 +249,8 @@ proc PARA {arguments} {
 	set text [Indent $text [Blank $lm]]
     }
 
+    #puts_stderr "FIN (($text))"
+    
     lappend lines $text
     return
 }
