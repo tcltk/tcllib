@@ -462,8 +462,8 @@ proc fmt_image {text {label {}}} {
     # text = symbolic name of the image.
 
     set img [dt_imgdata $text {txt}]
-    if {$img eq {}} {
-	if {$label eq {}} {
+    if {$img != {}} {
+	if {$label == {}} {
 	    return "IMAGE: $text"
 	} else {
 	    return "IMAGE: $text $label"
