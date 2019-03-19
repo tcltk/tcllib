@@ -13,9 +13,14 @@ global __currentp
 # # ## ### ##### ########
 ## API
 
-proc Text      {text} { global __currentp ; append __currentp $text ; return }
-proc Text?     {}     { global __currentp ; return $__currentp }
-proc TextClear {}     { global __currentp ; set __currentp "" }
+proc Text {text} {
+    #puts_stderr "T++ (($text))"
+    global __currentp
+    append __currentp $text
+    return
+}
+proc Text?     {} { global __currentp ; return $__currentp }
+proc TextClear {} { global __currentp ; set __currentp "" }
 
 proc TextTrimLeadingSpace {} {
     global __currentp
@@ -48,13 +53,6 @@ proc TextPlain {text} {
     return
 }
 
-#return
+##
 # # ## ### ##### ########
-## Debugging
-
-proc Text {text} {
-    #puts_stderr "T++ (($text))"
-    global __currentp
-    append __currentp $text
-    return
-}
+return

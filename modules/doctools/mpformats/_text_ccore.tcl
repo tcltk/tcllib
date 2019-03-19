@@ -51,6 +51,8 @@ proc ContextSet {id} {
     # information.
     unset     currentContext
     array set currentContext $contextData($currentHandle)
+
+    #puts_stderr "--Set $contextData($currentHandle)"
     return
 }
 
