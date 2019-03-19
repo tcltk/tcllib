@@ -42,6 +42,18 @@ proc Sub4Title {lb title} {
 proc Strong {text} { return __${text}__ }
 proc Em     {text} { return *${text}* }
 
+set __comments 0
+
+proc MDComment {text} {
+    global __comments
+    Text "\n\[//[format %09d [incr __comments]]\]: # ($text)"
+}
+
+proc MDCDone {} {
+    TextTrimLeadingSpace
+    CloseParagraph [Verbatim]
+}
+
 ##
 # # ## ### ##### ########
 return
