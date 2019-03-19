@@ -34,6 +34,16 @@ proc LB. {} { return "\1" }
 # # ## ### ##### ########
 ## Override crucial parts of the regular text formatter
 
+proc In? {} {
+    if {![CAttrHas mdindent]} {
+	CAttrSet mdindent ""
+    }
+    CAttrGet mdindent
+}
+proc In! {ws} {
+    CAttrSet mdindent $ws
+}
+
 proc NewExample {} {
     return [ContextNew Example {
 	VerbatimOn ; Example! ; Prefix! "    "
@@ -46,12 +56,21 @@ proc NewUnorderedList {} {
     # 2. First paragraph in a list item.
     # 3. All other paragraphs.
     ContextPush
+
+    #puts_stderr "UL [CAttrName]"
+    #puts_stderr "UL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Itemized {
-	set bullet "[WPrefix?]  [IBullet]"
+	set bullet "[In?]  [IBullet]"
+	set ws     "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "UL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "UL |[string map {{ } _} $ws]|[string length $ws]"
+
     set first [ContextNew First {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
     }] ; ContextSet $base ; # {}
 
     set next [ContextNew Next {
@@ -73,13 +92,21 @@ proc NewOrderedList {} {
     # 2. First paragraph in a list item.
     # 3. All other paragraphs.
     ContextPush
-    
+
+    #puts_stderr "OL [CAttrName]"
+    #puts_stderr "OL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Enumerated {
-	set bullet "[WPrefix?]  [EBullet]"
+	set bullet "[In?]  [EBullet]"
+	set ws     "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "OL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "OL |[string map {{ } _} $ws]|[string length $ws]"
+
     set first [ContextNew First {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
     }] ; ContextSet $base ; # {}
 
     set next [ContextNew Next {
@@ -105,13 +132,21 @@ proc NewDefinitionList {} {
     # Markdown has no native definition lists. We translate them into
     # itemized lists, rendering the term part as the first paragraph
     # of each entry, and the definition as all following.
-    
+
+    #puts_stderr "DL [CAttrName]"
+    #puts_stderr "DL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Definitions {
-	set bullet "[WPrefix?]  [IBullet]"
+	set bullet "[In?]  [IBullet]"
+	set ws "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "DL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "DL |[string map {{ } _} $ws]|[string length $ws]"
+
     set term [ContextNew Term {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
 	VerbatimOn
     }] ; ContextSet $base ; # {}
 
@@ -122,7 +157,7 @@ proc NewDefinitionList {} {
 
     TD $term $def
     ContextCommit
-    
+
     ContextPop
     ContextSet $base
     return
@@ -168,7 +203,7 @@ proc fmt_image {text {label {}}} {
 	    return "!\[\]($img)"
 	}
     }
-    
+
     set img [dt_imgdata $text {txt}]
     if {$img != {}} {
 	# Show ASCII image like an example (code block => fixed font, no reflow)
