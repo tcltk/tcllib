@@ -220,7 +220,6 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
-    set copyright   [c_get_copyright]
 
     set     hdr [list]
     lappend hdr "$title - $shortdesc"

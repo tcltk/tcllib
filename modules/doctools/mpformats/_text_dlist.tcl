@@ -56,6 +56,9 @@ proc CloseParagraph {{id {}}} {
     set para [Text?]
     if {$para == {}} { return 0 }
     if {$id == {}} { set id [CAttrCurrent] }
+    if {![ContextExists $id]} {
+	error "Unknown context $id for paragraph"
+    }
     Store PARA $id $para
     #puts_stderr "CloseParagraph $id [CAttrName $id]"
     #puts_stderr "  (($para))"

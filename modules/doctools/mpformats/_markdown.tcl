@@ -7,6 +7,8 @@
 ##
 # # ## ### ##### ########
 
+proc c_copyrightsymbol {} {return "&copy;"}
+
 # Modified bulleting
 
 DIB {- * +}

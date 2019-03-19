@@ -13,11 +13,11 @@
 
 |||
 |---|---|
-|<a name='dolores'></a>dolores|<a name='lorem'></a>ipsum &#183; <a name='dolores'></a>lorem &#183; <a name='ipsum'></a>dolores|
+|<a name='dolores'></a>dolores|[ipsum](lorem) &#183; [lorem](dolores) &#183; [dolores](ipsum)|
 
 
 #### <a name='cL'></a>Keywords: L
 
 |||
 |---|---|
-|<a name='lorem'></a>lorem|<a name='ipsum'></a>dolores &#183; <a name='lorem'></a>ipsum|
+|<a name='lorem'></a>lorem|[dolores](ipsum) &#183; [ipsum](lorem)|

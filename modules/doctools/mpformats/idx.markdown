@@ -143,7 +143,7 @@ proc References {k} {
     global key dot
     set refs {}
     foreach {ref label} $key($k) {
-	lappend refs [SetAnchor $label $ref]
+	lappend refs [ALink $ref $label]
     }
     Text [join $refs $dot]
     return

@@ -19,15 +19,15 @@ CMDNAME ...
 
 # DESCRIPTION
 
-  - NAME
+  - __NAME__
 
-    DESCRIPTION ::Command::
+    DESCRIPTION ::__Command__::
 
-  - NAME
+  - __NAME__
 
     DESCRIPTION ::::
 
-  - NAME
+  - __NAME__
 
     DESCRIPTION ::__Constant__::
 
@@ -41,23 +41,23 @@ CMDNAME ...
 
     DESCRIPTION ::"File/Path"::
 
-  * Command-Line Switch:	NAME  
+  * Command-Line Switch:	__NAME__  
     Database Name:	__DBNAME__  
     Database Class:	__CLASS__
 
     DESCRIPTION -> NARGLE
 
-  * Command-Line Switch:	NAME  
+  * Command-Line Switch:	__NAME__  
     Database Name:	__DBNAME__  
     Database Class:	__CLASS__
 
     DESCRIPTION ::__Function__::
 
-  * Command-Line Switch:	NAME  
+  * Command-Line Switch:	__NAME__  
     Database Name:	__DBNAME__  
     Database Class:	__CLASS__
 
-    DESCRIPTION ::Method::
+    DESCRIPTION ::__Method__::
 
   - TERM
 
@@ -67,15 +67,15 @@ CMDNAME ...
 
     DESCRIPTION ::__Namespace__::
 
-  * TYPE NAME
+  * TYPE *NAME*
 
-    DESCRIPTION ::Argument::
+    DESCRIPTION ::*Argument*::
 
-  * TYPE NAME
+  * TYPE *NAME*
 
-    DESCRIPTION ::Option::
+    DESCRIPTION ::__Option__::
 
-  * TYPE NAME (MODE)
+  * TYPE *NAME* (MODE)
 
     DESCRIPTION ::?Optional?::
 
@@ -90,15 +90,15 @@ CMDNAME ...
 
     DESCRIPTION ::__SystemCommand__::
 
-  * NAME
+  * __NAME__
 
     DESCRIPTION ::*Term*::
 
-  * NAME
+  * __NAME__
 
     DESCRIPTION ::__Type__::
 
-  * NAME ARGUMENT
+  * __NAME__ ARGUMENT
 
     DESCRIPTION ::[Uri](Uri)::
 
@@ -126,4 +126,4 @@ KEYA, KEYZ
 
 # COPYRIGHT
 
-Copyright (c) **Copyright**
+Copyright &copy; **Copyright**
