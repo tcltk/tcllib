@@ -34,8 +34,8 @@ proc fmt_index_begin {label title} {
 
     TextInitialize
 
-    Text "\[//\]: # (Index [Provenance])"
-    CloseParagraph [Verbatim]
+    MDComment "Index [Provenance]"
+    MDCDone
 
     SectTitle hdr $title
     Text [Compose hdr]

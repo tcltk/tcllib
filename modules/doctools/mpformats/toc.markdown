@@ -27,8 +27,8 @@ proc fmt_toc_begin {label title} {
     
     TextInitialize
 
-    Text "\[//\]: # (Table of contents [Provenance])"
-    CloseParagraph [Verbatim]
+    MDComment "Table of contents [Provenance]"
+    MDCDone
 
     SectTitle hdr $title
     Text [Compose hdr]    
