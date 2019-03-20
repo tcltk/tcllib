@@ -158,27 +158,6 @@ proc Separator {} {
     CloseParagraph [Verbatim]
 }
 
-proc ALink {dst label} { return "\[$label]($dst)" }
-
-proc SetAnchor {text {name {}}} {
-    if {$name == {}} { set name [Anchor $text] }
-    return "<a name='$name'></a>$text"
-}
-
-proc Anchor {text} {
-    global kwid
-    if {[info exists kwid($text)]} {
-	return "$kwid($text)"
-    }
-    return [A $text]
-}
-
-proc A {text} {
-    set anchor [regsub -all {[^a-zA-Z0-9]} [string tolower $text] {_}]
-    set anchor [regsub -all {__+} $anchor _]
-    return $anchor
-}
-
 # ### ### ### ######### ######### #########
 ## Engine state
 

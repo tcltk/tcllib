@@ -229,7 +229,7 @@ c_pass 2 fmt_description {did} {
     if {[c_xref_category]         ne ""} {c_newSection Category   1 end category}
     if {[c_get_copyright]         != {}} {c_newSection Copyright  1 end copyright}
 
-    set sections $::SectionList
+    set sections [c_sections]
 
     # Pass 2: Generate the markup for the TOC, indenting the
     #         links according to the level of each section.
@@ -240,7 +240,7 @@ c_pass 2 fmt_description {did} {
     set lastlevel 1
     set close 0
     foreach {name id level} $sections {
-	# level in {1,2}, 1 = sectio n, 2 = subsection
+	# level in {1,2}, 1 = section, 2 = subsection
 	if {$level == $lastlevel} {
 	    # Close previous item.
 	    if {$close} { append result [tag/ li] \n }
@@ -369,11 +369,9 @@ proc fmt_opt  {text} { span   "?$text?" opt }
 
 proc fmt_comment {text} {ht_comment $text}
 proc fmt_sectref {title {id {}}} {
-    global SectionNames
-    if {$id == {}} {
-	set id [c_sectionId $title]
-    }
-    if {[info exists SectionNames($id)]} {
+    if {$id == {}} { set id [c_sectionId $title] }
+
+    if {[c_sectionKnown $id]} {
     	return [span [link $title "#$id"] sectref]
     } else {
 	return [bold $title sectref]
