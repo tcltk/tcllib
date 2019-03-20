@@ -35,7 +35,7 @@ generally not polished enough to be considered for installation.
 
 [def [file config]]
 
-This directory contains files supporting the unix build system,
+This directory contains files supporting the Unix build system,
 i.e. [file configure] and [file Makefile.in].
 
 [def [file devdoc]]
@@ -74,7 +74,7 @@ used in the implementation of the [file installer.tcl] and
 [def [file configure.in]]
 [def [file Makefile.in]]
 
-These four files comprise the unix build system layered on top of the
+These four files comprise the Unix build system layered on top of the
 [file installer.tcl] script.
 
 [def [file installer.tcl]]
@@ -93,7 +93,7 @@ This is the main tool for developers and release managers, the
 [def [file ChangeLog]]
 
 The log of changes to the global support, when the sources were held
-in [term CVS]. Not relevant any logner with the switch to the
+in [term CVS]. Not relevant any longer with the switch to the
 [term fossil] SCM.
 
 [def [file license.terms]]
@@ -143,7 +143,7 @@ Based on [file modules/bench].
 [def [file .pcx]]
 Syntax rules for [term TclDevKit]'s [syscmd tclchecker]. Using these
 rules allows the checker to validate the use of commands of a Tcllib
-package [package FOO] without having to scan the [file .tcl] files
+package [package foo] without having to scan the [file .tcl] files
 implementing it.
 
 [list_end]

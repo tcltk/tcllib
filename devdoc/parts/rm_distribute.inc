@@ -17,7 +17,7 @@ its existence.
 [enum]	    [uri http://core.tcl-lang.org/tcllib/wiki?name=Past+Releases {Past Releases}]
 [enum]	    [uri http://www.tcl-lang.org/home/release.txt     ]
 [enum]	    [uri http://www.tcl-lang.org/software/tcllib/*.tml]
-[enum]	    [uri http://wiki.tcl-lang.org/1246]
+[enum]	    [uri http://wiki.tcl-lang.org/page/Tcllib]
 [list_end]
 
 The first location maps to the file [file embedded/index.md] in the

@@ -32,7 +32,7 @@ files on a double-click.
 
 [enum]
 
-In a unix-type environment, i.e. Linux, BSD and related, including OS
+In a Unix-type environment, i.e. Linux, BSD and related, including OS
 X, and Windows using some kind of unix-emulation like [syscmd MSYS],
 [syscmd Cygwin], etc.) it is also possible to use
 
@@ -54,7 +54,7 @@ found in Tcllib, and their manpages, in directories derived from what
 
 [list_end]
 
-[para] The installer selects automatically either a gui based mode, or
+[para] The installer selects automatically either a GUI based mode, or
 a command line based mode. If the package [package Tk] is present and
 can be loaded, then the GUI mode is entered, else the system falls
 back to the command line.
@@ -80,7 +80,7 @@ locations of packages, examples, and documentation, and also the
 format of the documentation. The user can overide these defaults in
 the GUI, or by specifying additional options.
 
-[para] The defaults depend on the platform detected (unix/windows) and
+[para] The defaults depend on the platform detected (Unix/Windows) and
 on the [syscmd tclsh] executable used to run the installer.
 
 [para][emph Attention] The installer will overwrite an existing

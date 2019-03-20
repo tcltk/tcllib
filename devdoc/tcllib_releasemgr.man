@@ -6,8 +6,8 @@
 
 [para]
 
-The audience of this document is the release manager for Tcllib, his
-or her deputies, and anybody else interested in the task of creating
+The audience of this document is the release manager for Tcllib, their
+deputies, and anybody else interested in the task of creating
 an official release of Tcllib for distribution.
 
 [para]
