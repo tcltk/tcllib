@@ -7,17 +7,35 @@
 
 ALL - ..THE_TITLE..
 
-# SYNOPSIS
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Synopsis](#synopsis)
+
+  -  [Description](#section1)
+
+  -  [API](#section2)
+
+      -  [NARGLE](#subsection1)
+
+  -  [See Also](#see-also)
+
+  -  [Keywords](#keywords)
+
+  -  [Copyright](#copyright)
+
+# <a name='synopsis'></a>SYNOPSIS
 
 package require AAA  
 package require BBB VVV  
 package require CCC ?VVV?  
 
-CMDNAME ...  
-CMDNAME ...  
-CMDNAME ...  
+[CMDNAME ...](#1)  
+[CMDNAME ...](#2)  
+[CMDNAME ...](#3)  
 
-# DESCRIPTION
+# <a name='description'></a>DESCRIPTION
 
   - __NAME__
 
@@ -31,7 +49,7 @@ CMDNAME ...
 
     DESCRIPTION ::__Constant__::
 
-# API
+# <a name='section2'></a>API
 
   - TERM
 
@@ -41,68 +59,68 @@ CMDNAME ...
 
     DESCRIPTION ::"File/Path"::
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION -> NARGLE
+        DESCRIPTION [NARGLE](#subsection1)
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION ::__Function__::
+        DESCRIPTION ::__Function__::
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION ::__Method__::
+        DESCRIPTION ::__Method__::
 
   - TERM
 
     DESCRIPTION
 
-  - CMDNAME ...
+  - <a name='1'></a>CMDNAME ...
 
     DESCRIPTION ::__Namespace__::
 
-  * TYPE *NAME*
+      * TYPE *NAME*
 
-    DESCRIPTION ::*Argument*::
+        DESCRIPTION ::*Argument*::
 
-  * TYPE *NAME*
+      * TYPE *NAME*
 
-    DESCRIPTION ::__Option__::
+        DESCRIPTION ::__Option__::
 
-  * TYPE *NAME* (MODE)
+      * TYPE *NAME* (MODE)
 
-    DESCRIPTION ::?Optional?::
+        DESCRIPTION ::?Optional?::
 
-    THE ARGUMENT IS USED IN THIS
-    AND/OR THAT MANNER
+            THE ARGUMENT IS USED IN THIS
+            AND/OR THAT MANNER
 
-  - CMDNAME ...
+  - <a name='2'></a>CMDNAME ...
 
     DESCRIPTION ::__Package__::
 
-  - CMDNAME ...
+  - <a name='3'></a>CMDNAME ...
 
     DESCRIPTION ::__SystemCommand__::
 
-  * __NAME__
+      * __NAME__
 
-    DESCRIPTION ::*Term*::
+        DESCRIPTION ::*Term*::
 
-  * __NAME__
+      * __NAME__
 
-    DESCRIPTION ::__Type__::
+        DESCRIPTION ::__Type__::
 
-  * __NAME__ ARGUMENT
+      * __NAME__ ARGUMENT
 
-    DESCRIPTION ::[Uri](Uri)::
+        DESCRIPTION ::[Uri](Uri)::
 
-## NARGLE
+## <a name='subsection1'></a>NARGLE
 
   1. PARAGRAPH ::[UriLabel](Uri)::
 
@@ -110,20 +128,20 @@ CMDNAME ...
 
   1. PARAGRAPH ::__Widget__::
 
-  - PARAGRAPH ::__Class__::
+       - PARAGRAPH ::__Class__::
 
-  - PARAGRAPH
+       - PARAGRAPH
 
-  - PARAGRAPH
+       - PARAGRAPH
 
-# SEE ALSO
+# <a name='see-also'></a>SEE ALSO
 
 ELSE, OTHER
 
-# KEYWORDS
+# <a name='keywords'></a>KEYWORDS
 
 KEYA, KEYZ
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; **Copyright**

@@ -7,11 +7,21 @@
 
 BASIC -
 
-# SYNOPSIS
+# <a name='toc'></a>Table Of Contents
 
-a-command  
+  -  [Table Of Contents](#toc)
 
-# DESCRIPTION
+  -  [Synopsis](#synopsis)
+
+  -  [Description](#section1)
+
+  -  [Copyright](#copyright)
+
+# <a name='synopsis'></a>SYNOPSIS
+
+[a-command](#1)  
+
+# <a name='description'></a>DESCRIPTION
 
 OK
 
@@ -35,7 +45,7 @@ OK
 
     definition
 
-  - a-command
+  - <a name='1'></a>a-command
 
     semantic
 
@@ -77,6 +87,6 @@ OK
 
 KO
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; .COPYRIGHT.

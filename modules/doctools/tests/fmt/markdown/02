@@ -7,21 +7,35 @@
 
 TEST - ..THE_TITLE..
 
-# SYNOPSIS
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Synopsis](#synopsis)
+
+  -  [Description](#section1)
+
+  -  [See Also](#see-also)
+
+  -  [Keywords](#keywords)
+
+  -  [Copyright](#copyright)
+
+# <a name='synopsis'></a>SYNOPSIS
 
 package require AAA  
 package require BBB VVV  
 
-# DESCRIPTION
+# <a name='description'></a>DESCRIPTION
 
-# SEE ALSO
+# <a name='see-also'></a>SEE ALSO
 
 ELSE, OTHER
 
-# KEYWORDS
+# <a name='keywords'></a>KEYWORDS
 
 KEYA, KEYZ
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; .COPYRIGHT.
