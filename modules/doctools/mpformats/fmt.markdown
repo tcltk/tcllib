@@ -7,14 +7,6 @@
 # making its formatting nearer to that with the ability to set anchors
 # and refer to them, linkage in general.
 
-# TODO: Table of contents, section linkage
-# TODO: Synopsis command linkage
-# TODO: package - xref
-# TODO: syscmd - xref
-# TODO: cmd - xref
-# TODO: term -xref
-# TODO: see also, keywords - xref
-
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
 
@@ -22,6 +14,7 @@ dt_source _common.tcl
 dt_source _text.tcl
 dt_source fmt.text
 dt_source _markdown.tcl
+dt_source _xref.tcl
 
 rename PostProcess PostProcessT
 proc PostProcess {text} {
@@ -34,9 +27,19 @@ proc LB. {} { return "\1" }
 # # ## ### ##### ########
 ## Override crucial parts of the regular text formatter
 
+proc In? {} {
+    if {![CAttrHas mdindent]} {
+	CAttrSet mdindent ""
+    }
+    CAttrGet mdindent
+}
+proc In! {ws} {
+    CAttrSet mdindent $ws
+}
+
 proc NewExample {} {
     return [ContextNew Example {
-	VerbatimOn ; Example! ; Prefix! "    "
+	VerbatimOn ; Example! ; Prefix+ "    "
     }] ; # {}
 }
 
@@ -46,12 +49,21 @@ proc NewUnorderedList {} {
     # 2. First paragraph in a list item.
     # 3. All other paragraphs.
     ContextPush
+
+    #puts_stderr "UL [CAttrName]"
+    #puts_stderr "UL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Itemized {
-	set bullet "[WPrefix?]  [IBullet]"
+	set bullet "[In?]  [IBullet]"
+	set ws     "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "UL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "UL |[string map {{ } _} $ws]|[string length $ws]"
+
     set first [ContextNew First {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
     }] ; ContextSet $base ; # {}
 
     set next [ContextNew Next {
@@ -73,13 +85,21 @@ proc NewOrderedList {} {
     # 2. First paragraph in a list item.
     # 3. All other paragraphs.
     ContextPush
-    
+
+    #puts_stderr "OL [CAttrName]"
+    #puts_stderr "OL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Enumerated {
-	set bullet "[WPrefix?]  [EBullet]"
+	set bullet "[In?]  [EBullet]"
+	set ws     "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "OL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "OL |[string map {{ } _} $ws]|[string length $ws]"
+
     set first [ContextNew First {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
     }] ; ContextSet $base ; # {}
 
     set next [ContextNew Next {
@@ -105,13 +125,21 @@ proc NewDefinitionList {} {
     # Markdown has no native definition lists. We translate them into
     # itemized lists, rendering the term part as the first paragraph
     # of each entry, and the definition as all following.
-    
+
+    #puts_stderr "DL [CAttrName]"
+    #puts_stderr "DL |[string map {{ } _} [In?]]|outer"
+
     set base [ContextNew Definitions {
-	set bullet "[WPrefix?]  [IBullet]"
+	set bullet "[In?]  [IBullet]"
+	set ws "[BlankM $bullet] "
+	In! $ws
     }] ; # {}
 
+    #puts_stderr "DL |[string map {{ } _} $bullet]|[string length $bullet]"
+    #puts_stderr "DL |[string map {{ } _} $ws]|[string length $ws]"
+
     set term [ContextNew Term {
-	List! bullet $bullet [set ws "[BlankM $bullet] "]
+	List! bullet $bullet $ws
 	VerbatimOn
     }] ; ContextSet $base ; # {}
 
@@ -122,14 +150,54 @@ proc NewDefinitionList {} {
 
     TD $term $def
     ContextCommit
-    
+
     ContextPop
     ContextSet $base
     return
 }
 
-c_pass 1 fmt_usage {cmd args} {c_hold synopsis "[join [linsert $args 0 $cmd] " "][LB.]"}
-c_pass 1 fmt_call  {cmd args} {c_hold synopsis "[join [linsert $args 0 $cmd] " "][LB.]"}
+##
+# # ## ### ##### ########
+##
+
+c_pass 1 fmt_section {name id} { c_newSection $name 1 end $id }
+c_pass 2 fmt_section {name id} {
+    CloseParagraph
+    Section [SetAnchor $name $id]
+    return
+}
+
+c_pass 1 fmt_subsection {name id} { c_newSection $name 2 end $id }
+c_pass 2 fmt_subsection {name id} {
+    CloseParagraph
+    Subsection [SetAnchor $name $id]
+    return
+}
+
+proc fmt_sectref {title {id {}}} {
+    if {$id == {}} { set id [c_sectionId $title] }
+    if {[c_sectionKnown $id]} {
+    	return [ALink "#$id" $title]
+    } else {
+	return [Strong $title]
+    }
+}
+
+c_pass 1 fmt_usage {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    c_hold synopsis "$text[LB.]"
+}
+
+c_pass 1 fmt_call  {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    set dest "#[c_cnext]"
+    c_hold synopsis "[MakeLink $text $dest][LB.]"
+}
+c_pass 2 fmt_call {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    return [fmt_lst_item [SetAnchor $text [c_cnext]]]
+}
+
 c_pass 1 fmt_require {pkg {version {}}} {
     set result "package require $pkg"
     if {$version != {}} {append result " $version"}
@@ -145,14 +213,18 @@ c_pass 2 fmt_tkoption_def {name dbname dbclass} {
     fmt_lst_item $text
 }
 
+proc fmt_syscmd  {text} { Strong [XrefMatch $text sa] }
+proc fmt_package {text} { Strong [XrefMatch $text sa kw] }
+proc fmt_term    {text} { Em     [XrefMatch $text kw sa] }
+
 proc fmt_arg     {text} { Em     $text }
-proc fmt_cmd     {text} { Strong $text }
+proc fmt_cmd     {text} { Strong [XrefMatch $text sa] }
 proc fmt_method  {text} { Strong $text }
 proc fmt_option  {text} { Strong $text }
 
 proc fmt_uri {text {label {}}} {
     if {$label == {}} { set label $text }
-    return "\[$label\]($text)"
+    ALink $text $label
 }
 
 proc fmt_image {text {label {}}} {
@@ -168,7 +240,7 @@ proc fmt_image {text {label {}}} {
 	    return "!\[\]($img)"
 	}
     }
-    
+
     set img [dt_imgdata $text {txt}]
     if {$img != {}} {
 	# Show ASCII image like an example (code block => fixed font, no reflow)
@@ -183,9 +255,12 @@ proc fmt_image {text {label {}}} {
     return $img
 }
 
-c_pass 1 fmt_manpage_begin {title section version} NOP
+c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
     Off
+    XrefInit
+    c_cinit
+
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
@@ -201,8 +276,120 @@ c_pass 2 fmt_manpage_begin {title section version} {
     return
 }
 
+c_pass 2 fmt_description {id} {
+    On
+    set syn [c_held synopsis]
+    set req [c_held require]
+
+    # Create the TOC.
+
+    # Pass 1: We have a number of special sections which were not
+    #         listed explicitly in the document sources. Add them
+    #         now. Note the inverse order for the sections added
+    #         at the beginning.
+
+    c_newSection Description 1 0 $id
+    if {$syn != {} || $req != {}} {c_newSection Synopsis 1 0 synopsis}
+    c_newSection {Table Of Contents} 1 0 toc
+
+    if {[llength [c_xref_seealso]]  > 0} {c_newSection {See Also} 1 end see-also}
+    if {[llength [c_xref_keywords]] > 0} {c_newSection Keywords   1 end keywords}
+    if {[c_xref_category]         ne ""} {c_newSection Category   1 end category}
+    if {[c_get_copyright]         != {}} {c_newSection Copyright  1 end copyright}
+
+    # Pass 2: Generate the markup for the TOC, indenting the
+    #         links according to the level of each section.
+
+    TOC
+
+    # Implicit sections coming after the TOC (Synopsis, then the
+    # description which starts the actual document). The other
+    # implicit sections are added at the end of the document and are
+    # generated by 'fmt_manpage_end' in the second pass.
+    
+    if {$syn != {} || $req != {}} {
+	Section [SetAnchor SYNOPSIS synopsis]
+	if {($req != {}) && ($syn != {})} {
+	    Text $req\n\n$syn
+	} else {
+	    if {$req != {}} {Text $req}
+	    if {$syn != {}} {Text $syn}
+	}
+	CloseParagraph [Verbatim]
+    }
+
+    Section [SetAnchor DESCRIPTION description]
+    return
+}
+
+c_pass 2 fmt_manpage_end {} {
+    set sa [c_xref_seealso]
+    set kw [c_xref_keywords]
+    set ca [c_xref_category]
+    set ct [c_get_copyright]
+
+    CloseParagraph
+    if {[llength $sa]} { Special {SEE ALSO} see-also  [join [XrefList [lsort $sa] sa] ", "] }
+    if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
+    if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
+    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
+    return
+}
+
 proc c_get_copyright {} {
     return [join [c_get_copyright_r] [LB]]
+}
+
+##
+# # ## ### ##### ########
+##
+
+proc Special {title id text {p {}}} {
+    Section [SetAnchor $title $id]
+    Text $text
+    CloseParagraph $p
+}
+
+proc TOC {} {
+    # While we could go through (fmt_list_begin itemized, item ...,
+    # fmt_list_end) it looks to be easier to directly emit paragraphs
+    # into the display list. No need to track anything. Just map entry
+    # level directly to the proper context.
+    Section [SetAnchor {Table Of Contents} toc]
+
+    ContextPush
+    lappend toc _bogus_
+    lappend toc [ContextNew TOC/Section { List! bullet "  - "     "     "     }]
+    lappend toc [ContextNew TOC/SubSect { List! bullet "      - " "         " }]
+    ContextPop
+
+    foreach {name id level} [c_sections] {
+	# level in {1,2}, 1 = section, 2 = subsection
+	Text [ALink "#$id" $name]
+	CloseParagraph [lindex $toc $level]
+    }
+
+    return
+}
+
+# # ## ### ##### ########
+## Engine Parameters
+
+proc GetXref {} { Get xref } ;# xref access to engine parameters
+
+global    __var
+array set __var {
+    xref   {}
+}
+proc Get               {varname}      {global __var ; return $__var($varname)}
+proc fmt_listvariables {}             {global __var ; return [array names __var]}
+proc fmt_varset        {varname text} {
+    global __var
+    if {![info exists __var($varname)]} {
+	return -code error "Unknown engine variable \"$varname\""
+    }
+    set __var($varname) $text
+    return
 }
 
 ##

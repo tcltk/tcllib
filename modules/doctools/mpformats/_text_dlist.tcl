@@ -107,6 +107,7 @@ proc PrefixReset  {} { CAttrSet prefix {} }
 proc WPrefixReset {} { CAttrSet wspfx {} }
 
 proc Prefix!   {p} { CAttrSet prefix $p }
+proc Prefix+   {p} { CAttrAppend prefix $p }
 proc WPrefix!  {p} { CAttrSet wspfx  $p }
 
 proc Bullet?   {} { CAttrGet bullet }
@@ -185,7 +186,7 @@ proc PARA {arguments} {
     foreach {env text} $arguments break
     ContextSet $env
 
-    #puts_stderr "PARA $env"
+    #puts_stderr "PARA $env [CAttrName $env]"
     #parray_stderr ::currentEnv
     #puts_stderr "    (($text))"
     #puts_stderr ""

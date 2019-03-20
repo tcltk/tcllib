@@ -7,36 +7,44 @@
 
 TEST -
 
-# DESCRIPTION
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Description](#section1)
+
+  -  [Copyright](#copyright)
+
+# <a name='description'></a>DESCRIPTION
 
   - 1
 
   - 2
 
-  1. a
+      1. a
 
-  1. b
+      1. b
 
-  * foo
+           * foo
 
-    snafu
+             snafu
 
-  * bar
+           * bar
 
-    barf
+             barf
 
-  * roo
+           * roo
 
-    gork
+             gork
 
-  1. bb
+         bb
 
-  1. a
+      1. a
 
-  - 22
+    22
 
   - 3
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; .COPYRIGHT.

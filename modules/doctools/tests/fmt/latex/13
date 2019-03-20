@@ -3,7 +3,7 @@
 % test-itemized-examples.1
 \documentclass{article}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / test-itemized-examples --  : }
 \maketitle
 \section{Description}\label{section1}
