@@ -19,7 +19,7 @@ BASIC -
 
 # <a name='synopsis'></a>SYNOPSIS
 
-a-command  
+[a-command](#1)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -45,7 +45,7 @@ OK
 
     definition
 
-  - a-command
+  - <a name='1'></a>a-command
 
     semantic
 

@@ -64,6 +64,8 @@ proc MDCDone {} {
 # # ## ### ##### ########
 ##
 
+proc MakeLink {l t} { ALink $t $l } ;# - xref - todo: consolidate
+
 proc ALink {dst label} { return "\[$label]($dst)" }
 
 proc SetAnchor {text {name {}}} {

@@ -7,13 +7,6 @@
 # making its formatting nearer to that with the ability to set anchors
 # and refer to them, linkage in general.
 
-# TODO: Synopsis command linkage
-# TODO: package - xref
-# TODO: syscmd - xref
-# TODO: cmd - xref
-# TODO: term -xref
-# TODO: see also, keywords - xref
-
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
 
@@ -21,6 +14,7 @@ dt_source _common.tcl
 dt_source _text.tcl
 dt_source fmt.text
 dt_source _markdown.tcl
+dt_source _xref.tcl
 
 rename PostProcess PostProcessT
 proc PostProcess {text} {
@@ -189,8 +183,21 @@ proc fmt_sectref {title {id {}}} {
     }
 }
 
-c_pass 1 fmt_usage {cmd args} {c_hold synopsis "[join [linsert $args 0 $cmd] " "][LB.]"}
-c_pass 1 fmt_call  {cmd args} {c_hold synopsis "[join [linsert $args 0 $cmd] " "][LB.]"}
+c_pass 1 fmt_usage {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    c_hold synopsis "$text[LB.]"
+}
+
+c_pass 1 fmt_call  {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    set dest "#[c_cnext]"
+    c_hold synopsis "[MakeLink $text $dest][LB.]"
+}
+c_pass 2 fmt_call {cmd args} {
+    set text [join [linsert $args 0 $cmd] " "]
+    return [fmt_lst_item [SetAnchor $text [c_cnext]]]
+}
+
 c_pass 1 fmt_require {pkg {version {}}} {
     set result "package require $pkg"
     if {$version != {}} {append result " $version"}
@@ -206,8 +213,12 @@ c_pass 2 fmt_tkoption_def {name dbname dbclass} {
     fmt_lst_item $text
 }
 
+proc fmt_syscmd  {text} { Strong [XrefMatch $text sa] }
+proc fmt_package {text} { Strong [XrefMatch $text sa kw] }
+proc fmt_term    {text} { Em     [XrefMatch $text kw sa] }
+
 proc fmt_arg     {text} { Em     $text }
-proc fmt_cmd     {text} { Strong $text }
+proc fmt_cmd     {text} { Strong [XrefMatch $text sa] }
 proc fmt_method  {text} { Strong $text }
 proc fmt_option  {text} { Strong $text }
 
@@ -244,8 +255,12 @@ proc fmt_image {text {label {}}} {
     return $img
 }
 
+c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
     Off
+    XrefInit
+    c_cinit
+
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
@@ -314,8 +329,8 @@ c_pass 2 fmt_manpage_end {} {
     set ct [c_get_copyright]
 
     CloseParagraph
-    if {[llength $sa]} { Special {SEE ALSO} see-also  [join [lsort $sa] ", "] }
-    if {[llength $kw]} { Special KEYWORDS   keywords  [join [lsort $kw] ", "] }
+    if {[llength $sa]} { Special {SEE ALSO} see-also  [join [XrefList [lsort $sa] sa] ", "] }
+    if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
     if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
     if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
     return
@@ -354,6 +369,26 @@ proc TOC {} {
 	CloseParagraph [lindex $toc $level]
     }
 
+    return
+}
+
+# # ## ### ##### ########
+## Engine Parameters
+
+proc GetXref {} { Get xref } ;# xref access to engine parameters
+
+global    __var
+array set __var {
+    xref   {}
+}
+proc Get               {varname}      {global __var ; return $__var($varname)}
+proc fmt_listvariables {}             {global __var ; return [array names __var]}
+proc fmt_varset        {varname text} {
+    global __var
+    if {![info exists __var($varname)]} {
+	return -code error "Unknown engine variable \"$varname\""
+    }
+    set __var($varname) $text
     return
 }
 
