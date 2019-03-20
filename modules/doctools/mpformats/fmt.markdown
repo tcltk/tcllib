@@ -46,7 +46,7 @@ proc In! {ws} {
 
 proc NewExample {} {
     return [ContextNew Example {
-	VerbatimOn ; Example! ; Prefix! "    "
+	VerbatimOn ; Example! ; Prefix+ "    "
     }] ; # {}
 }
 

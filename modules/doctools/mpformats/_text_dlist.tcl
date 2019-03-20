@@ -107,6 +107,7 @@ proc PrefixReset  {} { CAttrSet prefix {} }
 proc WPrefixReset {} { CAttrSet wspfx {} }
 
 proc Prefix!   {p} { CAttrSet prefix $p }
+proc Prefix+   {p} { CAttrAppend prefix $p }
 proc WPrefix!  {p} { CAttrSet wspfx  $p }
 
 proc Bullet?   {} { CAttrGet bullet }

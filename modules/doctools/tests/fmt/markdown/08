@@ -41,23 +41,23 @@ CMDNAME ...
 
     DESCRIPTION ::"File/Path"::
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION -> NARGLE
+        DESCRIPTION -> NARGLE
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION ::__Function__::
+        DESCRIPTION ::__Function__::
 
-  * Command-Line Switch:	__NAME__  
-    Database Name:	__DBNAME__  
-    Database Class:	__CLASS__
+      * Command-Line Switch:	__NAME__  
+        Database Name:	__DBNAME__  
+        Database Class:	__CLASS__
 
-    DESCRIPTION ::__Method__::
+        DESCRIPTION ::__Method__::
 
   - TERM
 
@@ -67,20 +67,20 @@ CMDNAME ...
 
     DESCRIPTION ::__Namespace__::
 
-  * TYPE *NAME*
+      * TYPE *NAME*
 
-    DESCRIPTION ::*Argument*::
+        DESCRIPTION ::*Argument*::
 
-  * TYPE *NAME*
+      * TYPE *NAME*
 
-    DESCRIPTION ::__Option__::
+        DESCRIPTION ::__Option__::
 
-  * TYPE *NAME* (MODE)
+      * TYPE *NAME* (MODE)
 
-    DESCRIPTION ::?Optional?::
+        DESCRIPTION ::?Optional?::
 
-    THE ARGUMENT IS USED IN THIS
-    AND/OR THAT MANNER
+            THE ARGUMENT IS USED IN THIS
+            AND/OR THAT MANNER
 
   - CMDNAME ...
 
@@ -90,17 +90,17 @@ CMDNAME ...
 
     DESCRIPTION ::__SystemCommand__::
 
-  * __NAME__
+      * __NAME__
 
-    DESCRIPTION ::*Term*::
+        DESCRIPTION ::*Term*::
 
-  * __NAME__
+      * __NAME__
 
-    DESCRIPTION ::__Type__::
+        DESCRIPTION ::__Type__::
 
-  * __NAME__ ARGUMENT
+      * __NAME__ ARGUMENT
 
-    DESCRIPTION ::[Uri](Uri)::
+        DESCRIPTION ::[Uri](Uri)::
 
 ## NARGLE
 
