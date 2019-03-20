@@ -7,8 +7,15 @@ The [syscmd critcl] tool is an [emph optional] dependency.
 [term accelerators] for a number of packages, as explained in
 [sectref {Critcl & Accelerators}]
 
-[para] Tcllib's build system accepts it as an application found in the
-PATH (be it starkit or starpack).
+[para] Tcllib's build system looks for it in the [variable PATH],
+using the name [syscmd critcl]. This is for Unix.
+
+On Windows on the other hand the search is more complex. First we look
+for a proper application [syscmd critcl.exe]. When that is not found
+we look for a combination of interpreter ([syscmd tclkitsh.exe],
+[syscmd tclsh.exe]) and starkit ([syscmd critcl.kit], [syscmd critcl])
+instead. [emph Note] that the choice of starkit can be overriden via
+the environment variable [cariable CRITCL].
 
 [para] Tcllib requires Critcl version 2 or higher.
 
