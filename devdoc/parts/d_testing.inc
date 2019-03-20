@@ -13,13 +13,13 @@ list of standard Tcl shells to use.
 
 Invoke either
 
-[example {  ./sak.tcl test run FOO }]
+[example {  ./sak.tcl test run foo }]
 
 or
 
-[example {  ./sak.tcl test run modules/FOO }]
+[example {  ./sak.tcl test run modules/foo }]
 
-to invoke the testsuites found in a specific module [file FOO].
+to invoke the testsuites found in a specific module [file foo].
 
 [comment {===================================================================}]
 [subsection {Invoke the testsuites of all modules}]
@@ -44,7 +44,7 @@ runner with additional options.
 [para] For one:
 
 [example {
-   ./sak.tcl test run --log LOG FOO
+   ./sak.tcl test run --log LOG foo
 }]
 
 While this shows the same short log on the terminal as before, it also
@@ -54,7 +54,7 @@ other files ([file LOG.summary], [file LOG.failures], etc.).
 [para] For two:
 
 [example {
-  ./sak.tcl test run -v FOO
+  ./sak.tcl test run -v foo
 }]
 
 This writes the detailed log to the standard output, instead of the
@@ -69,7 +69,7 @@ actual results).
 
 By default the test runner will use all the Tcl shells specified via
 [cmd {test add}] to invoke the specified testsuites, if any. If no
-such are specified it will fall back to the Tcl shell used to ran the
+such are specified it will fall back to the Tcl shell used to run the
 tool itself.
 
 [para] Use option [option --shell] to explicitly specify the Tcl shell

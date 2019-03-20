@@ -1,5 +1,5 @@
 
-[subsection CriTcl]
+[subsection Critcl]
 
 The [syscmd critcl] tool is an [emph optional] dependency.
 
@@ -10,7 +10,7 @@ The [syscmd critcl] tool is an [emph optional] dependency.
 [para] Tcllib's build system accepts it as an application found in the
 PATH (be it starkit or starpack).
 
-[para] Tcllib requires version 2 or higher.
+[para] Tcllib requires Critcl version 2 or higher.
 
 [para] The github repository providing releases of version 2 and
 higher, and the associated sources, can be found at
@@ -21,8 +21,8 @@ prebuild starkit or starpack), although the use of the stable branch
 [emph master] is recommended.
 
 [para] At the above url is also an explanation on how to build and
-install CriTcl, including a list of its dependencies.
+install Critcl, including a list of its dependencies.
 
 [para] Its instructions will not be repeated here. If there are
-problems with their directions please file a ticket against the
+problems with these directions please file a ticket against the
 [term Critcl] project, and not Tcllib.

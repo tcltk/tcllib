@@ -9,20 +9,20 @@ an application package, with the actual application
 
 [para] Tcllib developers gain access to these through the [cmd doc]
 method of the [file sak.tcl] tool, another (internal) wrapper around
-the [file modules/dptlite] application package.
+the [file modules/dtplite] application package.
 
 [comment {===================================================================}]
 [subsection {Generate documentation for a specific module}]
 
 Invoke either
 
-[example {  ./sak.tcl doc html FOO }]
+[example {  ./sak.tcl doc html foo }]
 
 or
 
-[example {  ./sak.tcl doc html modules/FOO }]
+[example {  ./sak.tcl doc html modules/foo }]
 
-to generate HTML for the documentation found in the module [file FOO].
+to generate HTML for the documentation found in the module [file foo].
 
 Instead of [const html] any other supported format can be used here,
 of course.
@@ -66,7 +66,7 @@ correct, without generating actual output.
 
 [para] Invoke it as either
 
-[example {  ./sak.tcl doc validate (modules/)FOO }]
+[example {  ./sak.tcl doc validate (modules/)foo }]
 
 or
 

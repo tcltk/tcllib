@@ -5,8 +5,8 @@ As we are installing a number of Tcl packages and applications it
 should be pretty much obvious that a working installation of Tcl
 itself is needed, and I will not belabor the point.
 
-[para] Out of the many possibilites use whatever you are comfortable
-with, as long as it provides Tcl 8.2, or higher.
+[para] Out of the many possibilities use whatever you are comfortable
+with, as long as it provides at the very least Tcl 8.2, or higher.
 
 This may be a Tcl installation provided by your operating system
 distribution, from a distribution-independent vendor, or built by
@@ -41,6 +41,6 @@ relevant sources can be found at
 
 together with the necessary instructions on how to build it.
 
-[para] If there are problems with building, installing, or using Tcl
+[para] If there are problems with building, installing, or using Tcl,
 please file a ticket against [term Tcl], or the vendor of your
 distribution, and [emph not] [term Tcllib].

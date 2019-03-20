@@ -21,7 +21,7 @@ you are committing yourself to
 
        [enum] A maintainer may step down before the end of the
       	      mandatory period, under the condition that a replacement
-      	      maintainer is immediatel available and has agreed to
+      	      maintainer is immediately available and has agreed to
       	      serve the remainder of the period, plus their own
       	      mandatory period (see below).
 
@@ -40,20 +40,20 @@ you are committing yourself to
        	      interested in becoming its maintainer can become so by
        	      flagging them as [const maintained] with their name and
        	      contact information, committing themselves to the rules
-       	      of a replacement maintainer (see previous).
+       	      of a replacement maintainer (see previous point).
 
        [enum] For any already [const maintained] package a contributor
        	      interested in becoming a co-maintainer can become so
        	      with the agreement of the existing maintainer(s),
        	      committing themselves to the rules of a replacement
-       	      maintainer (see two above).
+       	      maintainer (see two points previous).
 
        [list_end]
 
        [para] The responsibilities as a maintainer include:
 
        [list_begin enumerated]
-       
+
        [enum] Watching Tcllib's ticket tracker for bugs, bug fixes,
        	      and feature requests related to the new packages.
 

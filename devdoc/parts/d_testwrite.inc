@@ -1,6 +1,6 @@
 
 While previous sections talked about running the testsuites for a
-module and the packages therein this has no meaning if the module in
+module and the packages therein, this has no meaning if the module in
 question has no testsuites at all.
 
 [para] This section gives a very basic overview on possible
@@ -22,15 +22,15 @@ Code 2009 are:
 
 [item]	The BellmanFord command in struct::graph::ops takes a
 	[arg startnode] as argument, and this node should be a node of
-	the graph. Equals one test case checking the behavior when the
-	specified node is not a node a graph.
+	the graph. This equals one test case checking the behavior when the
+	specified node is not a node of the graph.
 
 [para]  This often gives rise to code in the implementation which
-	explicitly checks the assumption and throws a nice error.
-	Instead of letting the algorithm fails later in some weird
+	explicitly checks the assumption and throws an understandable error.
+	Instead of letting the algorithm fail later in some weird
 	non-deterministic way.
 
-[para]  It not always possible to do such checks. The graph argument
+[para]  It is not always possible to do such checks. The graph argument
 	for example is just a command in itself, and while we expect
 	it to exhibit a certain interface, i.e. a set of sub-commands
 	aka methods, we cannot check that it has them, except by

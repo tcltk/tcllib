@@ -14,7 +14,7 @@ and this exactly the case in the
 appeared via bisection, each commit on this branch must pass the
 entire testsuite of the collection.
 
-[para] As fossil has no mechanism to enfore this this is handled on
+[para] As fossil has no mechanism to enforce this this is handled on
 the honor system for developers and maintainers.
 
 [para] To make the task easier Tcllib comes with a tool
@@ -35,12 +35,12 @@ merging will it be necessary to perform full validation.
 [subsection {Version numbers}]
 
 In Tcllib all changes to a package have to come with an increment of
-its version number. With what part is incremented (patchlevel, minor,
-major version) dependent on the kind of change made. With multiple
+its version number. What part is incremented (patchlevel, minor,
+major version) depends on the kind of change made. With multiple
 changes in a commit the highest "wins".
 
 [para] When working in a development branch the version change can be
-defered until it is time to merge, and then has to cover all the
+deferred until it is time to merge, and then has to cover all the
 changes in the branch.
 
 [para] Below a list of the kinds of changes and their association

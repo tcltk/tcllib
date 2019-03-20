@@ -8,12 +8,13 @@ not installed by default.
 [para] To build the accelerators the normally optional dependency on
 [syscmd critcl] becomes required.
 
-[para] To install Tcllib with the accelerators in a unix-type
+[para] To install Tcllib with the accelerators in a Unix-type
 environment invoke:
 
 [example {
     ./configure
-    make critcl # This builds the shared library holding the accelerators
+    make critcl # This builds the shared library holding
+                # the accelerators
     make install
 }]
 
