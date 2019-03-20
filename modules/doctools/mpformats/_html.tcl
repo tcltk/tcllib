@@ -113,6 +113,7 @@ proc use_bg {} {
     return bgcolor=$c
 }
 
+proc MakeLink {l t} { link $l $t }
 
 proc nbsp   {}         {return [markup "&nbsp;"]}
 proc p      {}         {return [markup <p>]}
