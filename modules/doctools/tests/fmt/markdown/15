@@ -7,7 +7,15 @@
 
 test-definition-examples -
 
-# DESCRIPTION
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Description](#section1)
+
+  -  [Copyright](#copyright)
+
+# <a name='description'></a>DESCRIPTION
 
 lorem ipsum dolores
 
@@ -33,6 +41,6 @@ lorem ipsum dolores
 
     ipsum dolores
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; .COPYRIGHT.

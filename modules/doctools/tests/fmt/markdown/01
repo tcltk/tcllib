@@ -7,7 +7,15 @@
 
 TEST -
 
-# DESCRIPTION
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Description](#section1)
+
+  -  [Copyright](#copyright)
+
+# <a name='description'></a>DESCRIPTION
 
 Argument ::*Argument*:: Class ::__Class__:: Command ::__Command__:: Comment ::::
 Const ::__Constant__:: Emphasis ::*Emphasis*:: File ::"File/Path":: Function
@@ -16,6 +24,6 @@ Const ::__Constant__:: Emphasis ::*Emphasis*:: File ::"File/Path":: Function
 ::__SystemCommand__:: Term ::*Term*:: Type ::__Type__:: Uri ::[Uri](Uri)::
 Variable ::__Variable__:: Widget ::__Widget__::
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; **Copyright**

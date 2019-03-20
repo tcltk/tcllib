@@ -7,7 +7,25 @@
 
 ALL - ..THE_TITLE..
 
-# SYNOPSIS
+# <a name='toc'></a>Table Of Contents
+
+  -  [Table Of Contents](#toc)
+
+  -  [Synopsis](#synopsis)
+
+  -  [Description](#section1)
+
+  -  [API](#section2)
+
+      -  [NARGLE](#subsection1)
+
+  -  [See Also](#see-also)
+
+  -  [Keywords](#keywords)
+
+  -  [Copyright](#copyright)
+
+# <a name='synopsis'></a>SYNOPSIS
 
 package require AAA  
 package require BBB VVV  
@@ -17,7 +35,7 @@ CMDNAME ...
 CMDNAME ...  
 CMDNAME ...  
 
-# DESCRIPTION
+# <a name='description'></a>DESCRIPTION
 
   - __NAME__
 
@@ -31,7 +49,7 @@ CMDNAME ...
 
     DESCRIPTION ::__Constant__::
 
-# API
+# <a name='section2'></a>API
 
   - TERM
 
@@ -45,7 +63,7 @@ CMDNAME ...
         Database Name:	__DBNAME__  
         Database Class:	__CLASS__
 
-        DESCRIPTION -> NARGLE
+        DESCRIPTION [NARGLE](#subsection1)
 
       * Command-Line Switch:	__NAME__  
         Database Name:	__DBNAME__  
@@ -102,7 +120,7 @@ CMDNAME ...
 
         DESCRIPTION ::[Uri](Uri)::
 
-## NARGLE
+## <a name='subsection1'></a>NARGLE
 
   1. PARAGRAPH ::[UriLabel](Uri)::
 
@@ -116,14 +134,14 @@ CMDNAME ...
 
        - PARAGRAPH
 
-# SEE ALSO
+# <a name='see-also'></a>SEE ALSO
 
 ELSE, OTHER
 
-# KEYWORDS
+# <a name='keywords'></a>KEYWORDS
 
 KEYA, KEYZ
 
-# COPYRIGHT
+# <a name='copyright'></a>COPYRIGHT
 
 Copyright &copy; **Copyright**
