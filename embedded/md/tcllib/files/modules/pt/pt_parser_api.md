@@ -63,7 +63,7 @@ of theirs and then use that parser within a Tcl-based package or application.
 
 It resides in the User Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_user_pkg.png)
+![](../../../../image/arch_user_pkg.png)
 
 # <a name='section2'></a>Class API
 
@@ -250,7 +250,7 @@ whitespace)
 
 Or, more graphical
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/expr_ast.png)
+![](../../../../image/expr_ast.png)
 
 # <a name='section6'></a>PE serialization format
 

@@ -62,7 +62,7 @@ intended to be used by __[pt::peg::export](pt_peg_export.md)__, the export
 manager, sitting between it and the corresponding core conversion functionality
 provided by __[pt::peg::to::json](pt_peg_to_json.md)__.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_eplugins.png)
+![](../../../../image/arch_core_eplugins.png)
 
 While the direct use of this package with a regular interpreter is possible,
 this is strongly disrecommended and requires a number of contortions to provide

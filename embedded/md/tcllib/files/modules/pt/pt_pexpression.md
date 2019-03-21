@@ -83,7 +83,7 @@ serialization format](#section3).
 
 This is a supporting package in the Core Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_support.png)
+![](../../../../image/arch_core_support.png)
 
 # <a name='section2'></a>API
 

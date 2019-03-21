@@ -63,8 +63,7 @@ What are your goals which drove you here ?
 
 The system can be split into roughly three layers, as seen in the figure below
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/architecture.png) These
-layers are, from high to low:
+![](../../../../image/architecture.png) These layers are, from high to low:
 
   1. At the top we have the application and the packages using the packages of
      the layer below to implement common usecases. One example is the

@@ -58,7 +58,7 @@ serialization format](#section3).
 
 This is a supporting package in the Core Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_support.png)
+![](../../../../image/arch_core_support.png)
 
 # <a name='section2'></a>API
 
@@ -256,7 +256,7 @@ whitespace)
 
 Or, more graphical
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/expr_ast.png)
+![](../../../../image/expr_ast.png)
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

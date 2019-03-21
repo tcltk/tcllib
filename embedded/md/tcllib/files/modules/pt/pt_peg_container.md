@@ -83,8 +83,8 @@ query its definition.
 It resides in the Storage section of the Core Layer of Parser Tools, and is one
 of the three pillars the management of parsing expression grammars resides on.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_container.png)
-The other two pillars are, as shown above
+![](../../../../image/arch_core_container.png) The other two pillars are, as
+shown above
 
   1. *[PEG Import](pt_peg_import.md)*, and
 

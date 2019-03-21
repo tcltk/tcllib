@@ -55,7 +55,7 @@ applications' manpage, i.e. *[Parser Tools Application](../../apps/pt.md)*.
 
 It resides in the User Package Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_user_pkg.png)
+![](../../../../image/arch_user_pkg.png)
 
 # <a name='section2'></a>API
 
@@ -121,8 +121,8 @@ In this section we are working a complete example, starting with a PEG grammar
 and ending with running the parser generated from it over some input, following
 the outline shown in the figure below:
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/flow.png) Our grammar,
-assumed to the stored in the file "calculator.peg" is
+![](../../../../image/flow.png) Our grammar, assumed to the stored in the file
+"calculator.peg" is
 
     PEG calculator (Expression)
         Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
@@ -193,11 +193,10 @@ assuming that the input file and channel contained the text
 
 A more graphical representation of the tree would be
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/expr_ast.png) Regardless,
-at this point it is the user's responsibility to work with the tree to reach
-whatever goal she desires. I.e. analyze it, transform it, etc. The package
-__[pt::ast](pt_astree.md)__ should be of help here, providing commands to walk
-such ASTs structures in various ways.
+![](../../../../image/expr_ast.png) Regardless, at this point it is the user's
+responsibility to work with the tree to reach whatever goal she desires. I.e.
+analyze it, transform it, etc. The package __[pt::ast](pt_astree.md)__ should be
+of help here, providing commands to walk such ASTs structures in various ways.
 
 One important thing to note is that the parsers used here return a data
 structure representing the structure of the input per the grammar underlying the

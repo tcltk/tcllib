@@ -62,7 +62,7 @@ type of input, and/or an import plugin for their or some other converter.
 
 It resides in the Import section of the Core Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_import.png)
+![](../../../../image/arch_core_import.png)
 
 # <a name='section2'></a>Converter API
 
