@@ -234,6 +234,7 @@ proc fmt_image {text {label {}}} {
 
     set img [dt_imgdst $text {png gif jpg}]
     if {$img != {}} {
+	set img [LinkTo $img [LinkHere]]
 	if {$label != {}} {
 	    return "!\[\]($img \"$label\")"
 	} else {

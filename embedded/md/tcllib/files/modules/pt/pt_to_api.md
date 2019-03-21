@@ -67,7 +67,7 @@ type of output, and/or an export plugin for their or some other converter.
 
 It resides in the Export section of the Core Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_export.png)
+![](../../../../image/arch_core_export.png)
 
 # <a name='section2'></a>Converter API
 

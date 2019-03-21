@@ -63,7 +63,7 @@ The latter is intented for use in untrusted environments and done through the
 corresponding import plugin __[pt::peg::import::json](pt_peg_import_json.md)__
 sitting between converter and import manager.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_iplugins.png)
+![](../../../../image/arch_core_iplugins.png)
 
 # <a name='section2'></a>API
 

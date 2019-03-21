@@ -60,7 +60,7 @@ intended to be used by __[pt::peg::import](pt_peg_import.md)__, the import
 manager, sitting between it and the corresponding core conversion functionality
 provided by __[pt::peg::from::json](pt_peg_from_json.md)__.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_iplugins.png)
+![](../../../../image/arch_core_iplugins.png)
 
 While the direct use of this package with a regular interpreter is possible,
 this is strongly disrecommended and requires a number of contortions to provide

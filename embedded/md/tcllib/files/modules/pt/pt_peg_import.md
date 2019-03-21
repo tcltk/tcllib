@@ -75,8 +75,8 @@ i.e. their conversion from, for example *peg*, *container*,
 It resides in the Import section of the Core Layer of Parser Tools, and is one
 of the three pillars the management of parsing expression grammars resides on.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_import.png) The
-other two pillars are, as shown above
+![](../../../../image/arch_core_import.png) The other two pillars are, as shown
+above
 
   1. *[PEG Export](pt_peg_export.md)*, and
 

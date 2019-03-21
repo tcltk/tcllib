@@ -70,7 +70,7 @@ The latter is intented for use in untrusted environments and done through the
 corresponding export plugin __[pt::peg::export::peg](pt_peg_export_peg.md)__
 sitting between converter and export manager.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_eplugins.png)
+![](../../../../image/arch_core_eplugins.png)
 
 # <a name='section2'></a>API
 

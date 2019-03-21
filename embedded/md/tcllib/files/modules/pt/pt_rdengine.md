@@ -160,7 +160,7 @@ parts of its architectural state.
 
 The package resides in the Execution section of the Core Layer of Parser Tools.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_transform.png)
+![](../../../../image/arch_core_transform.png)
 
 Note: This package not only has the standard Tcl implementation, but also an
 accelerator, i.e. a C implementation, based on Critcl.

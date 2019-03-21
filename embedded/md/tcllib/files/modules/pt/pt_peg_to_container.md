@@ -71,7 +71,7 @@ corresponding export plugin
 __[pt::peg::export::container](pt_peg_export_container.md)__ sitting between
 converter and export manager.
 
-![](/home/aku/Play/Tcllib/w-scratch/embedded/md/image/arch_core_eplugins.png)
+![](../../../../image/arch_core_eplugins.png)
 
 # <a name='section2'></a>API
 
