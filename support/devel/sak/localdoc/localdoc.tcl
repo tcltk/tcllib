@@ -135,6 +135,7 @@ proc ::sak::localdoc::run-embedded {baseconfig toc cats mods apps} {
     lappend config -post+toc Modules       $mods
     lappend config -post+toc Applications  $apps
     lappend config -merge
+    lappend config -ext md
     lappend config -o embedded/md
     lappend config markdown .
 

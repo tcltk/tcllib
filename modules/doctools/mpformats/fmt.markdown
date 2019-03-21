@@ -258,6 +258,7 @@ proc fmt_image {text {label {}}} {
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
     Off
+    MDCInit
     XrefInit
     c_cinit
 

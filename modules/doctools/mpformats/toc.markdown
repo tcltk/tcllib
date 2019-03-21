@@ -23,6 +23,7 @@ proc fmt_plain_text {text} {return {}}
 ## Backend for Markdown markup
 
 proc fmt_toc_begin {label title} {
+    MDCInit
     set title "$label -- $title"
     
     TextInitialize
