@@ -24,6 +24,7 @@ proc   fmt_plain_text {text} {return {}}
 ## Backend for plain text markup
 
 proc fmt_index_begin {label title} {
+    MDCInit
     if {($label != {}) && ($title != {})} {
 	set title "$label -- $title"
     } elseif {$label != {}} {

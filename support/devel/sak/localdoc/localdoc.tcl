@@ -47,7 +47,7 @@ proc ::sak::localdoc::run {} {
     # but keep the main index around, manually created, edited, not to be touched
     # TODO: catch errors and restore automatically
     file rename embedded/index.html e_index.html
-    
+
     file delete -force embedded
     file mkdir embedded/www
 
@@ -55,7 +55,7 @@ proc ::sak::localdoc::run {} {
     file rename e_index.html embedded/index.html
 
     run-idoc-man $baseconfig
-	
+
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
@@ -71,7 +71,19 @@ proc ::sak::localdoc::run {} {
     set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
 
     run-idoc-www $baseconfig $toc $nav $cats $mods $apps
-    run-embedded $baseconfig $toc $nav $cats $mods $apps
+
+    set map  {
+	.man     .md
+	modules/ tcllib/files/modules/
+	apps/    tcllib/files/apps/
+    }
+
+    set toc  [string map $map [fileutil::cat support/devel/sak/doc/toc.txt]]
+    set apps [string map $map [fileutil::cat support/devel/sak/doc/toc_apps.txt]]
+    set mods [string map $map [fileutil::cat support/devel/sak/doc/toc_mods.txt]]
+    set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
+
+    run-embedded $baseconfig $toc $cats $mods $apps
     return
 }
 
@@ -95,14 +107,14 @@ proc ::sak::localdoc::run-idoc-man {baseconfig} {
 proc ::sak::localdoc::run-idoc-www {baseconfig toc nav cats mods apps} {
     puts "Generating HTML (installation)... Pass 1, draft..."
     set     config $baseconfig
-    lappend config -exclude  {*/doctools/tests/*} 
-    lappend config -exclude  {*/support/*} 
+    lappend config -exclude  {*/doctools/tests/*}
+    lappend config -exclude  {*/support/*}
     lappend config -toc      $toc
-    lappend config -nav      {Tcllib Home} $nav 
-    lappend config -post+toc Categories    $cats 
-    lappend config -post+toc Modules       $mods 
-    lappend config -post+toc Applications  $apps 
-    lappend config -merge 
+    lappend config -nav      {Tcllib Home} $nav
+    lappend config -post+toc Categories    $cats
+    lappend config -post+toc Modules       $mods
+    lappend config -post+toc Applications  $apps
+    lappend config -merge
     lappend config -o idoc/www
     lappend config html .
 
@@ -113,24 +125,23 @@ proc ::sak::localdoc::run-idoc-www {baseconfig toc nav cats mods apps} {
     return
 }
 
-proc ::sak::localdoc::run-embedded {baseconfig toc nav cats mods apps} {
-    puts "Generating HTML (online)... Pass 1, draft..."
+proc ::sak::localdoc::run-embedded {baseconfig toc cats mods apps} {
+    puts "Generating Markdown (online)... Pass 1, draft..."
     set     config $baseconfig
-    lappend config -exclude  {*/doctools/tests/*} 
-    lappend config -exclude  {*/support/*} 
+    lappend config -exclude  {*/doctools/tests/*}
+    lappend config -exclude  {*/support/*}
     lappend config -toc      $toc
-    lappend config -post+toc Categories    $cats 
-    lappend config -post+toc Modules       $mods 
-    lappend config -post+toc Applications  $apps 
-    lappend config -merge 
-    lappend config -raw 
-    lappend config -o embedded/www
-    lappend config -header support/fossil-nav-integration.html
-    lappend config html .
+    lappend config -post+toc Categories    $cats
+    lappend config -post+toc Modules       $mods
+    lappend config -post+toc Applications  $apps
+    lappend config -merge
+    lappend config -ext md
+    lappend config -o embedded/md
+    lappend config markdown .
 
     dtplite::do $config
 
-    puts "Generating HTML (online)... Pass 2, resolving cross-references..."
+    puts "Generating Markdown (online)... Pass 2, resolving cross-references..."
     dtplite::do $config
     return
 }
