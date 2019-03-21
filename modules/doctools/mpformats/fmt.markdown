@@ -234,6 +234,7 @@ proc fmt_image {text {label {}}} {
 
     set img [dt_imgdst $text {png gif jpg}]
     if {$img != {}} {
+	set img [LinkTo $img [LinkHere]]
 	if {$label != {}} {
 	    return "!\[\]($img \"$label\")"
 	} else {
@@ -258,6 +259,7 @@ proc fmt_image {text {label {}}} {
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
     Off
+    MDCInit
     XrefInit
     c_cinit
 
