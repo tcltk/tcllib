@@ -1,16 +1,14 @@
 # -*- tcl -*-
-#
-# $Id: idx.text,v 1.4 2010/06/08 19:32:36 andreas_kupries Exp $
-#
 # Engine to convert a docidx document into plain text.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 # Freely redistributable.
 #
 ######################################################################
 
 dt_source _idx_common.tcl
 dt_source _text.tcl
+
 proc c_copyrightsymbol {} {return "(c)"}
 
 ######################################################################
@@ -29,14 +27,9 @@ global key ; set key {}
 global max ; set max 0
 
 proc fmt_index_begin {label title} {
-    TextInitialize
-
     global map ; unset map ; array set map {}
     global key ; set key {}
     global max ; set max 0
-
-    set hdr ""
-    append hdr "Index [textutil::string::uncap [c_provenance]]\n\n"
 
     if {($label != {}) && ($title != {})} {
 	set title "$label -- $title"
@@ -45,35 +38,40 @@ proc fmt_index_begin {label title} {
     } elseif {$title != {}} {
 	 # title is set
     }
-    append hdr $title \n
-    append hdr [textutil::repeat::strRepeat = [string length $title]]
-    Text  $hdr
+
+    TextInitialize
+
+    lappend   hdr "Index [Provenance]"
+    SectTitle hdr $title
+    Text [Compose hdr]
     CloseParagraph [Verbatim]
     return
 }
+
 proc fmt_index_end {} {
     global map max
 
-    set break 0
-    set rmargin [expr {80 - $max}]
-    if {$rmargin < 20} {set rmargin 20}
+    set rmargin [RMargin $max]
+
     incr max
-    set pfx [textutil::repeat::blank $max]
+    set blank [Blank $max] ;# indent
 
     foreach key [lsort [array names map]] {
-	set   opfx $key[string range $pfx [string length $key] end]
-	Text $opfx[textutil::adjust::indent [textutil::adjust::adjust [join $map($key) ", "] -length $rmargin] $pfx 1]
+	set keys [join $map($key) ", "]
+	Text [InFlow $keys $rmargin [ReHead $blank $key] $blank]
 	CloseParagraph [Verbatim]
     }
     return
 }
+
 proc fmt_key {text} {
     global key max ; set key $text
-    if {[string length $text] > $max} {set max [string length $text]}
+    MaxLen max $text
     return
 }
+
 proc fmt_manpage {file label} {global map key ; lappend map($key) $file ; return}
-proc fmt_url     {url label}  {global map key ; lappend map($key) $url ; return}
+proc fmt_url     {url label}  {global map key ; lappend map($key) $url  ; return}
 proc fmt_comment {text}       {return}
 
 ################################################################

@@ -53,7 +53,7 @@ global state
 #		+-----------------------+-----------
 #		| division_start	| -> division, PUSH division
 #		+-----------------------+-----------
-#		| division_end		| POP (-> division / -> end)
+#		| division_end		| POP (-> division / -> contents)
 # --------------+-----------------------+----------------------
 # end		| toc_end		| -> done
 #		+-----------------------+-----------
@@ -112,17 +112,17 @@ proc Warn {code text} {
 
 proc Is    {s} {global state ; return [string equal $state $s]}
 proc IsNot {s} {global state ; return [expr {![string equal $state $s]}]}
-proc Go    {s} {Log " >>\[$s\]" ; global state ; set state $s; return}
-proc Push  {s} {Log " //\[$s\]" ; global state stack ; lappend stack $state ; set state $s; return}
-proc Pop   {}  {Log* " pop" ;  global state stack ; set state [lindex $stack end] ; set stack [lrange $stack 0 end-1] ; Log " \\\\\[$state\]" ; return}
+proc Go    {s} {Log " ==\[$s\]" ; global state ; set state $s; return}
+proc Push  {s} {Log " >>\[$s\]" ; global state stack ; lappend stack $state ; set state $s; return}
+proc Pop   {}  {Log* " <<"     ;  global state stack ; set state [lindex $stack end] ; set stack [lrange $stack 0 end-1] ; Log " \\\\\[$state\]" ; return}
 proc State {} {global state stack ; return "$stack || $state"}
 
-proc Enter {cmd} {Log* "\[[State]\] $cmd"}
+proc Enter {cmd} {Log* "\n\[[State]\] $cmd"}
 
+proc Log* {args} {}
+proc Log  {args} {}
 #proc Log* {text} {puts -nonewline $text}
 #proc Log  {text} {puts            $text}
-proc Log* {text} {}
-proc Log  {text} {}
 
 # -------------------------------------------------------------
 # Framing
@@ -177,7 +177,8 @@ proc vset {var args} {
 proc toc_begin {label title} {
     Enter toc_begin
     if {[IsNot toc_begin]} {Error toc/begincmd}
-    Go contents
+    Go   end
+    Push contents
     fmt_toc_begin $label $title
 }
 proc toc_end {} {
@@ -191,7 +192,6 @@ proc division_start {title {symfile {}}} {
     if {
 	[IsNot contents] && [IsNot end] && [IsNot division]
     } {Error toc/sectcmd}
-    if {[Is contents] || [Is end]} {Go end} else {Go division}
     Push division
     fmt_division_start $title $symfile
 }
