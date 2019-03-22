@@ -1,8 +1,8 @@
 
 [//000000001]: # (doctools::toc \- Documentation tools)
 [//000000002]: # (Generated from file 'doctoc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2003\-2017 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::toc\(n\) 1\.1\.7 tcllib "Documentation tools")
+[//000000003]: # (Copyright &copy; 2003\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (doctools::toc\(n\) 1\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -50,7 +50,7 @@ doctools::toc \- doctoc \- Processing tables of contents
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require doctools::toc ?1\.1\.7?  
+package require doctools::toc ?1\.2?  
 
 [__::doctools::toc::new__ *objectName* ?__\-option__ *value* \.\.\.?](#1)  
 [__::doctools::toc::help__](#2)  
@@ -338,6 +338,11 @@ explicitly highlighted\.
     document\. As such it can be used to generate a directory listing for a set
     of manpages\.
 
+  - markdown
+
+    This engine generates *[Markdown](\.\./\.\./\.\./\.\./index\.md\#markdown)*
+    markup\.
+
   - nroff
 
     This engine generates nroff output, for processing by
@@ -390,6 +395,7 @@ secondary navigation bar\.
 [documentation](\.\./\.\./\.\./\.\./index\.md\#documentation),
 [latex](\.\./\.\./\.\./\.\./index\.md\#latex),
 [manpage](\.\./\.\./\.\./\.\./index\.md\#manpage),
+[markdown](\.\./\.\./\.\./\.\./index\.md\#markdown),
 [markup](\.\./\.\./\.\./\.\./index\.md\#markup),
 [nroff](\.\./\.\./\.\./\.\./index\.md\#nroff), [table of
 contents](\.\./\.\./\.\./\.\./index\.md\#table\_of\_contents),
@@ -401,4 +407,4 @@ Documentation tools
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2003\-2017 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2003\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
