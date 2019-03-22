@@ -1,35 +1,43 @@
 
-[//000000001]: # (doctoc_lang_faq - Documentation tools)
-[//000000002]: # (Generated from file 'doctoc_lang_faq.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (doctoc_lang_faq(n) 1.0 tcllib "Documentation tools")
+[//000000001]: # (doctoc\_lang\_faq \- Documentation tools)
+[//000000002]: # (Generated from file 'doctoc\_lang\_faq\.man' by tcllib/doctools with format 'markdown')
+[//000000003]: # (Copyright &copy; 2007 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (doctoc\_lang\_faq\(n\) 1\.0 tcllib "Documentation tools")
+
+<hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
+href="../../../toc.md">Table Of Contents</a> &#124; <a
+href="../../../../index.md">Keyword Index</a> &#124; <a
+href="../../../../toc0.md">Categories</a> &#124; <a
+href="../../../../toc1.md">Modules</a> &#124; <a
+href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-doctoc_lang_faq - doctoc language faq
+doctoc\_lang\_faq \- doctoc language faq
 
 # <a name='toc'></a>Table Of Contents
 
-  -  [Table Of Contents](#toc)
+  - [Table Of Contents](#toc)
 
-  -  [Description](#section1)
+  - [Description](#section1)
 
-  -  [OVERVIEW](#section2)
+  - [OVERVIEW](#section2)
 
-      -  [What is this document?](#subsection1)
+      - [What is this document?](#subsection1)
 
-  -  [EXAMPLES](#section3)
+  - [EXAMPLES](#section3)
 
-      -  [Where do I find doctoc examples?](#subsection2)
+      - [Where do I find doctoc examples?](#subsection2)
 
-  -  [Bugs, Ideas, Feedback](#section4)
+  - [Bugs, Ideas, Feedback](#section4)
 
-  -  [See Also](#see-also)
+  - [See Also](#seealso)
 
-  -  [Keywords](#keywords)
+  - [Keywords](#keywords)
 
-  -  [Category](#category)
+  - [Category](#category)
 
-  -  [Copyright](#copyright)
+  - [Copyright](#copyright)
 
 # <a name='description'></a>DESCRIPTION
 
@@ -39,61 +47,61 @@ doctoc_lang_faq - doctoc language faq
 
 This document is currently mainly a placeholder, to be filled with commonly
 asked questions about the doctoc markup language and companions, and their
-answers.
+answers\.
 
-Please report any questions (and, if possible, answers) we should consider for
-this document as explained in the section [Bugs, Ideas, Feedback](#section4)
-below.
+Please report any questions \(and, if possible, answers\) we should consider for
+this document as explained in the section [Bugs, Ideas,
+Feedback](#section4) below\.
 
 # <a name='section3'></a>EXAMPLES
 
 ## <a name='subsection2'></a>Where do I find doctoc examples?
 
-We have no direct examples of documents written using doctoc markup. However the
-doctools processor __[dtplite](../../apps/dtplite.md)__ does generate a table of
-contents when processing a set of documents written in doctools markup. The
-intermediate file for it uses doctoc markup and is not deleted when generation
-completes. Such files can therefore serve as examples.
+We have no direct examples of documents written using doctoc markup\. However the
+doctools processor __[dtplite](\.\./\.\./apps/dtplite\.md)__ does generate a
+table of contents when processing a set of documents written in doctools markup\.
+The intermediate file for it uses doctoc markup and is not deleted when
+generation completes\. Such files can therefore serve as examples\.
 
-__[dtplite](../../apps/dtplite.md)__ is distributed as part of Tcllib, so to get
-it you need one of
+__[dtplite](\.\./\.\./apps/dtplite\.md)__ is distributed as part of Tcllib,
+so to get it you need one of
 
-  1. A snapshot of Tcllib. How to retrieve such a snapshot and the tools
+  1. A snapshot of Tcllib\. How to retrieve such a snapshot and the tools
      required for this are described at [Development
-     Snapshots](/wiki?name=Development+Snapshots)
+     Snapshots](/wiki?name=Development\+Snapshots)
 
-  1. A Tcllib release archive. They are available at the [home](/home) page.
+  1. A Tcllib release archive\. They are available at the [home](/home) page\.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
-other problems. Please report such in the category *doctools* of the [Tcllib
-Trackers](http://core.tcl.tk/tcllib/reportlist). Please also report any ideas
-for enhancements you may have for either package and/or documentation.
+other problems\. Please report such in the category *doctools* of the [Tcllib
+Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report any ideas
+for enhancements you may have for either package and/or documentation\.
 
-When proposing code changes, please provide *unified diffs*, i.e the output of
-__diff -u__.
+When proposing code changes, please provide *unified diffs*, i\.e the output of
+__diff \-u__\.
 
-Note further that *attachments* are strongly preferred over inlined patches.
-Attachments can be made by going to the __Edit__ form of the ticket immediately
-after its creation, and then using the left-most button in the secondary
-navigation bar.
+Note further that *attachments* are strongly preferred over inlined patches\.
+Attachments can be made by going to the __Edit__ form of the ticket
+immediately after its creation, and then using the left\-most button in the
+secondary navigation bar\.
 
-# <a name='see-also'></a>SEE ALSO
+# <a name='seealso'></a>SEE ALSO
 
-[doctoc_lang_cmdref](doctoc_lang_cmdref.md),
-[doctoc_lang_intro](doctoc_lang_intro.md),
-[doctoc_lang_syntax](doctoc_lang_syntax.md)
+[doctoc\_lang\_cmdref](doctoc\_lang\_cmdref\.md),
+[doctoc\_lang\_intro](doctoc\_lang\_intro\.md),
+[doctoc\_lang\_syntax](doctoc\_lang\_syntax\.md)
 
 # <a name='keywords'></a>KEYWORDS
 
-[doctoc commands](../../../../index.md#doctoc_commands), [doctoc
-language](../../../../index.md#doctoc_language), [doctoc
-markup](../../../../index.md#doctoc_markup), [doctoc
-syntax](../../../../index.md#doctoc_syntax),
-[examples](../../../../index.md#examples), [faq](../../../../index.md#faq),
-[markup](../../../../index.md#markup), [semantic
-markup](../../../../index.md#semantic_markup)
+[doctoc commands](\.\./\.\./\.\./\.\./index\.md\#doctoc\_commands), [doctoc
+language](\.\./\.\./\.\./\.\./index\.md\#doctoc\_language), [doctoc
+markup](\.\./\.\./\.\./\.\./index\.md\#doctoc\_markup), [doctoc
+syntax](\.\./\.\./\.\./\.\./index\.md\#doctoc\_syntax),
+[examples](\.\./\.\./\.\./\.\./index\.md\#examples),
+[faq](\.\./\.\./\.\./\.\./index\.md\#faq), [markup](\.\./\.\./\.\./\.\./index\.md\#markup),
+[semantic markup](\.\./\.\./\.\./\.\./index\.md\#semantic\_markup)
 
 # <a name='category'></a>CATEGORY
 
@@ -101,4 +109,4 @@ Documentation tools
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright &copy; 2007 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

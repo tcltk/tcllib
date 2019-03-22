@@ -43,7 +43,7 @@ proc fmt_toc_end {} { return }
 
 proc fmt_division_start {title symfile} {
 
-    Text "\[$title\]($symfile)"
+    Text [ALink $symfile $title]
     CloseParagraph [Verbatim]
 
     ListOpen
@@ -55,7 +55,7 @@ proc fmt_division_end  {} {
 }
 
 proc fmt_item {file label desc} {
-    Text "\[$label\]($file) $desc"
+    Text "[ALink $file $label] $desc"
     CloseParagraph [Verbatim]
     return
 }

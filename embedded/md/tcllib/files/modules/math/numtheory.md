@@ -1,34 +1,42 @@
 
-[//000000001]: # (math::numtheory - Tcl Math Library)
-[//000000002]: # (Generated from file 'numtheory.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::numtheory(n) 1.1.1 tcllib "Tcl Math Library")
+[//000000001]: # (math::numtheory \- Tcl Math Library)
+[//000000002]: # (Generated from file 'numtheory\.man' by tcllib/doctools with format 'markdown')
+[//000000003]: # (Copyright &copy; 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>)
+[//000000004]: # (math::numtheory\(n\) 1\.1\.1 tcllib "Tcl Math Library")
+
+<hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
+href="../../../toc.md">Table Of Contents</a> &#124; <a
+href="../../../../index.md">Keyword Index</a> &#124; <a
+href="../../../../toc0.md">Categories</a> &#124; <a
+href="../../../../toc1.md">Modules</a> &#124; <a
+href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-math::numtheory - Number Theory
+math::numtheory \- Number Theory
 
 # <a name='toc'></a>Table Of Contents
 
-  -  [Table Of Contents](#toc)
+  - [Table Of Contents](#toc)
 
-  -  [Synopsis](#synopsis)
+  - [Synopsis](#synopsis)
 
-  -  [Description](#section1)
+  - [Description](#section1)
 
-  -  [Bugs, Ideas, Feedback](#section2)
+  - [Bugs, Ideas, Feedback](#section2)
 
-  -  [Keywords](#keywords)
+  - [Keywords](#keywords)
 
-  -  [Category](#category)
+  - [Category](#category)
 
-  -  [Copyright](#copyright)
+  - [Copyright](#copyright)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8.5?  
-package require math::numtheory ?1.1.1?  
+package require Tcl ?8\.5?  
+package require math::numtheory ?1\.1\.1?  
 
-[__math::numtheory::isprime__ *N* ?*option* *value* ...?](#1)  
+[__math::numtheory::isprime__ *N* ?*option* *value* \.\.\.?](#1)  
 [__math::numtheory::firstNprimes__ *N*](#2)  
 [__math::numtheory::primesLowerThan__ *N*](#3)  
 [__math::numtheory::primeFactors__ *N*](#4)  
@@ -48,43 +56,44 @@ package require math::numtheory ?1.1.1?
 
 # <a name='description'></a>DESCRIPTION
 
-This package is for collecting various number-theoretic operations, with a
-slight bias to prime numbers.
+This package is for collecting various number\-theoretic operations, with a
+slight bias to prime numbers\.
 
-  - <a name='1'></a>__math::numtheory::isprime__ *N* ?*option* *value* ...?
+  - <a name='1'></a>__math::numtheory::isprime__ *N* ?*option* *value* \.\.\.?
 
-    The __isprime__ command tests whether the integer *N* is a prime, returning
-    a boolean true value for prime *N* and a boolean false value for non-prime
-    *N*. The formal definition of 'prime' used is the conventional, that the
-    number being tested is greater than 1 and only has trivial divisors.
+    The __isprime__ command tests whether the integer *N* is a prime,
+    returning a boolean true value for prime *N* and a boolean false value for
+    non\-prime *N*\. The formal definition of 'prime' used is the conventional,
+    that the number being tested is greater than 1 and only has trivial
+    divisors\.
 
-    To be precise, the return value is one of __0__ (if *N* is definitely not a
-    prime), __1__ (if *N* is definitely a prime), and __on__ (if *N* is probably
-    prime); the latter two are both boolean true values. The case that an
-    integer may be classified as "probably prime" arises because the
-    Miller-Rabin algorithm used in the test implementation is basically
+    To be precise, the return value is one of __0__ \(if *N* is definitely
+    not a prime\), __1__ \(if *N* is definitely a prime\), and __on__ \(if
+    *N* is probably prime\); the latter two are both boolean true values\. The
+    case that an integer may be classified as "probably prime" arises because
+    the Miller\-Rabin algorithm used in the test implementation is basically
     probabilistic, and may if we are unlucky fail to detect that a number is in
-    fact composite. Options may be used to select the risk of such "false
-    positives" in the test. __1__ is returned for "small" *N* (which currently
-    means *N* < 118670087467), where it is known that no false positives are
-    possible.
+    fact composite\. Options may be used to select the risk of such "false
+    positives" in the test\. __1__ is returned for "small" *N* \(which
+    currently means *N* < 118670087467\), where it is known that no false
+    positives are possible\.
 
     The only option currently defined is:
 
-      * __-randommr__ *repetitions*
+      * __\-randommr__ *repetitions*
 
-        which controls how many times the Miller-Rabin test should be repeated
-        with randomly chosen bases. Each repetition reduces the probability of a
-        false positive by a factor at least 4. The default for *repetitions* is
-        4.
+        which controls how many times the Miller\-Rabin test should be repeated
+        with randomly chosen bases\. Each repetition reduces the probability of a
+        false positive by a factor at least 4\. The default for *repetitions*
+        is 4\.
 
-    Unknown options are silently ignored.
+    Unknown options are silently ignored\.
 
   - <a name='2'></a>__math::numtheory::firstNprimes__ *N*
 
     Return the first N primes
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number of primes to return
 
@@ -92,7 +101,7 @@ slight bias to prime numbers.
 
     Return the prime numbers lower/equal to N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Maximum number to consider
 
@@ -100,7 +109,7 @@ slight bias to prime numbers.
 
     Return a list of the prime numbers in the number N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number to be factorised
 
@@ -108,7 +117,7 @@ slight bias to prime numbers.
 
     Return the prime numbers lower/equal to N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Maximum number to consider
 
@@ -116,7 +125,7 @@ slight bias to prime numbers.
 
     Return a list of the prime numbers in the number N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number to be factorised
 
@@ -124,7 +133,7 @@ slight bias to prime numbers.
 
     Return a list of the *unique* prime numbers in the number N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number to be factorised
 
@@ -133,16 +142,16 @@ slight bias to prime numbers.
     Return a list of all *unique* factors in the number N, including 1 and N
     itself
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number to be factorised
 
   - <a name='9'></a>__math::numtheory::totient__ *N*
 
-    Evaluate the Euler totient function for the number N (number of numbers
-    relatively prime to N)
+    Evaluate the Euler totient function for the number N \(number of numbers
+    relatively prime to N\)
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number in question
 
@@ -150,43 +159,43 @@ slight bias to prime numbers.
 
     Evaluate the Moebius function for the number N
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number in question
 
   - <a name='11'></a>__math::numtheory::legendre__ *a* *p*
 
-    Evaluate the Legendre symbol (a/p)
+    Evaluate the Legendre symbol \(a/p\)
 
-      * integer *a* (in)
+      * integer *a* \(in\)
 
         Upper number in the symbol
 
-      * integer *p* (in)
+      * integer *p* \(in\)
 
-        Lower number in the symbol (must be non-zero)
+        Lower number in the symbol \(must be non\-zero\)
 
   - <a name='12'></a>__math::numtheory::jacobi__ *a* *b*
 
-    Evaluate the Jacobi symbol (a/b)
+    Evaluate the Jacobi symbol \(a/b\)
 
-      * integer *a* (in)
+      * integer *a* \(in\)
 
         Upper number in the symbol
 
-      * integer *b* (in)
+      * integer *b* \(in\)
 
-        Lower number in the symbol (must be odd)
+        Lower number in the symbol \(must be odd\)
 
   - <a name='13'></a>__math::numtheory::gcd__ *m* *n*
 
     Return the greatest common divisor of *m* and *n*
 
-      * integer *m* (in)
+      * integer *m* \(in\)
 
         First number
 
-      * integer *n* (in)
+      * integer *n* \(in\)
 
         Second number
 
@@ -194,57 +203,57 @@ slight bias to prime numbers.
 
     Return the lowest common multiple of *m* and *n*
 
-      * integer *m* (in)
+      * integer *m* \(in\)
 
         First number
 
-      * integer *n* (in)
+      * integer *n* \(in\)
 
         Second number
 
   - <a name='15'></a>__math::numtheory::numberPrimesGauss__ *N*
 
-    Estimate the number of primes according the formula by Gauss.
+    Estimate the number of primes according the formula by Gauss\.
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number in question
 
   - <a name='16'></a>__math::numtheory::numberPrimesLegendre__ *N*
 
-    Estimate the number of primes according the formula by Legendre.
+    Estimate the number of primes according the formula by Legendre\.
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number in question
 
   - <a name='17'></a>__math::numtheory::numberPrimesLegendreModified__ *N*
 
-    Estimate the number of primes according the modified formula by Legendre.
+    Estimate the number of primes according the modified formula by Legendre\.
 
-      * integer *N* (in)
+      * integer *N* \(in\)
 
         Number in question
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
-other problems. Please report such in the category *math :: numtheory* of the
-[Tcllib Trackers](http://core.tcl.tk/tcllib/reportlist). Please also report any
-ideas for enhancements you may have for either package and/or documentation.
+other problems\. Please report such in the category *math :: numtheory* of the
+[Tcllib Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report
+any ideas for enhancements you may have for either package and/or documentation\.
 
-When proposing code changes, please provide *unified diffs*, i.e the output of
-__diff -u__.
+When proposing code changes, please provide *unified diffs*, i\.e the output of
+__diff \-u__\.
 
-Note further that *attachments* are strongly preferred over inlined patches.
-Attachments can be made by going to the __Edit__ form of the ticket immediately
-after its creation, and then using the left-most button in the secondary
-navigation bar.
+Note further that *attachments* are strongly preferred over inlined patches\.
+Attachments can be made by going to the __Edit__ form of the ticket
+immediately after its creation, and then using the left\-most button in the
+secondary navigation bar\.
 
 # <a name='keywords'></a>KEYWORDS
 
-[number theory](../../../../index.md#number_theory),
-[prime](../../../../index.md#prime)
+[number theory](\.\./\.\./\.\./\.\./index\.md\#number\_theory),
+[prime](\.\./\.\./\.\./\.\./index\.md\#prime)
 
 # <a name='category'></a>CATEGORY
 

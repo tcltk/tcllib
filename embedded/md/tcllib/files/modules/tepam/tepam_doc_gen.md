@@ -1,256 +1,266 @@
 
-[//000000001]: # (tepam::doc_gen - Tcl's Enhanced Procedure and Argument Manager)
-[//000000002]: # (Generated from file 'tepam_doc_gen.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (tepam::doc_gen(n) 0.5.0 tcllib "Tcl's Enhanced Procedure and Argument Manager")
+[//000000001]: # (tepam::doc\_gen \- Tcl's Enhanced Procedure and Argument Manager)
+[//000000002]: # (Generated from file 'tepam\_doc\_gen\.man' by tcllib/doctools with format 'markdown')
+[//000000003]: # (Copyright &copy; 2013, Andreas Drollinger)
+[//000000004]: # (tepam::doc\_gen\(n\) 0\.5\.0 tcllib "Tcl's Enhanced Procedure and Argument Manager")
+
+<hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
+href="../../../toc.md">Table Of Contents</a> &#124; <a
+href="../../../../index.md">Keyword Index</a> &#124; <a
+href="../../../../toc0.md">Categories</a> &#124; <a
+href="../../../../toc1.md">Modules</a> &#124; <a
+href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-tepam::doc_gen - TEPAM DOC Generation, reference manual
+tepam::doc\_gen \- TEPAM DOC Generation, reference manual
 
 # <a name='toc'></a>Table Of Contents
 
-  -  [Table Of Contents](#toc)
+  - [Table Of Contents](#toc)
 
-  -  [Synopsis](#synopsis)
+  - [Synopsis](#synopsis)
 
-  -  [Description](#section1)
+  - [Description](#section1)
 
-  -  [ARGUMENTS](#section2)
+  - [ARGUMENTS](#section2)
 
-  -  [PREDEFINED DOCUMENT FORMATS](#section3)
+  - [PREDEFINED DOCUMENT FORMATS](#section3)
 
-      -  [TXT - Text format](#subsection1)
+      - [TXT \- Text format](#subsection1)
 
-      -  [HTML - HTML format](#subsection2)
+      - [HTML \- HTML format](#subsection2)
 
-      -  [POD - Perl document format](#subsection3)
+      - [POD \- Perl document format](#subsection3)
 
-      -  [DT - TclLib DocTools format](#subsection4)
+      - [DT \- TclLib DocTools format](#subsection4)
 
-  -  [ADDING SUPPORT FOR NEW DOCUMENT FORMATS](#section4)
+  - [ADDING SUPPORT FOR NEW DOCUMENT FORMATS](#section4)
 
-  -  [EXAMPLES](#section5)
+  - [EXAMPLES](#section5)
 
-      -  [tepam::doc_gen::generate](#subsection5)
+      - [tepam::doc\_gen::generate](#subsection5)
 
-      -  [tepam::doc_gen::patch](#subsection6)
+      - [tepam::doc\_gen::patch](#subsection6)
 
-  -  [See Also](#see-also)
+  - [See Also](#seealso)
 
-  -  [Keywords](#keywords)
+  - [Keywords](#keywords)
 
-  -  [Category](#category)
+  - [Category](#category)
 
-  -  [Copyright](#copyright)
+  - [Copyright](#copyright)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8.3  
-package require tepam 0.5  
-package require tepam::doc_gen ?0.1?  
+package require Tcl 8\.3  
+package require tepam 0\.5  
+package require tepam::doc\_gen ?0\.1?  
 
-[__tepam::doc_gen::generate__ ?-format *format*? ?-style *style*? ?-header_footer? ?-dest_file *dest_file*? *name*](#1)  
-[__tepam::doc_gen::patch__ ?-format *format*? ?-style *style*? ?-search_pattern *search_pattern*? ?-src_string *src_string* | -src_file *src_file*? ?-dest_file *dest_file*? ?name?](#2)  
+[__tepam::doc\_gen::generate__ ?\-format *format*? ?\-style *style*? ?\-header\_footer? ?\-dest\_file *dest\_file*? *name*](#1)  
+[__tepam::doc\_gen::patch__ ?\-format *format*? ?\-style *style*? ?\-search\_pattern *search\_pattern*? ?\-src\_string *src\_string* &#124; \-src\_file *src\_file*? ?\-dest\_file *dest\_file*? ?name?](#2)  
 
 # <a name='description'></a>DESCRIPTION
 
-This package generates documentations of TEPAM procedures (procedures that have
-been declared with __[tepam::procedure](tepam_procedure.md)__). The documents
-are generated in the classic UNIX document style using the following document
-sections: Name, Synopsis, Description, Arguments and Example. __TEPAM Doc Gen__
-provides support for various document formats. Support for additional formats
-can be added if necessary.
+This package generates documentations of TEPAM procedures \(procedures that have
+been declared with __[tepam::procedure](tepam\_procedure\.md)__\)\. The
+documents are generated in the classic UNIX document style using the following
+document sections: Name, Synopsis, Description, Arguments and Example\. __TEPAM
+Doc Gen__ provides support for various document formats\. Support for
+additional formats can be added if necessary\.
 
 The __TEPAM Doc Gen__ package provides the following commands:
 
-  - <a name='1'></a>__tepam::doc_gen::generate__ ?-format *format*? ?-style *style*? ?-header_footer? ?-dest_file *dest_file*? *name*
+  - <a name='1'></a>__tepam::doc\_gen::generate__ ?\-format *format*? ?\-style *style*? ?\-header\_footer? ?\-dest\_file *dest\_file*? *name*
 
-    This command generates the documentation for a specified procedure (*name*)
-    in one of the supported formats (TXT, HTML, POD (Perl Doc), DT (TclLib
-    DocTool), or in a custom specific format. The format is specified via
-    ?format?. The flag ?-header_footer? adds to the documentation file header
-    and footer. If ?dest_file? is specified the documentation is stored in a
-    file (the file header and footer are added automatically in this case) and
-    the file name is returned. Otherwise the documentation string is returned by
-    __generate__.
+    This command generates the documentation for a specified procedure
+    \(*name*\) in one of the supported formats \(TXT, HTML, POD \(Perl Doc\), DT
+    \(TclLib DocTool\), or in a custom specific format\. The format is specified
+    via ?format?\. The flag ?\-header\_footer? adds to the documentation file
+    header and footer\. If ?dest\_file? is specified the documentation is stored
+    in a file \(the file header and footer are added automatically in this case\)
+    and the file name is returned\. Otherwise the documentation string is
+    returned by __generate__\.
 
-  - <a name='2'></a>__tepam::doc_gen::patch__ ?-format *format*? ?-style *style*? ?-search_pattern *search_pattern*? ?-src_string *src_string* | -src_file *src_file*? ?-dest_file *dest_file*? ?name?
+  - <a name='2'></a>__tepam::doc\_gen::patch__ ?\-format *format*? ?\-style *style*? ?\-search\_pattern *search\_pattern*? ?\-src\_string *src\_string* &#124; \-src\_file *src\_file*? ?\-dest\_file *dest\_file*? ?name?
 
     This command inserts procedure documentations into an existing master
     document at the locations indicated by insertion placeholders which are
-    matching the pattern of ?search_pattern?. The existing master document is
-    either provided as data to the argument (?src_string?) or via a file
-    (?src_file?). The final document is returned by
-    __[patch](../../../../index.md#patch)__ if no destination file is defined
-    (?dest_file?). Otherwise, the document is stored in the specified file, and
-    the number of insertion placeholders that could be handled successfully is
-    returned.
+    matching the pattern of ?search\_pattern?\. The existing master document is
+    either provided as data to the argument \(?src\_string?\) or via a file
+    \(?src\_file?\)\. The final document is returned by
+    __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ if no destination file is
+    defined \(?dest\_file?\)\. Otherwise, the document is stored in the specified
+    file, and the number of insertion placeholders that could be handled
+    successfully is returned\.
 
-    Any insertion placeholders of the master document are handled by default. By
+    Any insertion placeholders of the master document are handled by default\. By
     defining the argument ?name? the documentation insertion will be restricted
-    to a particular procedure.
+    to a particular procedure\.
 
 # <a name='section2'></a>ARGUMENTS
 
-  - ?-format *format*?
+  - ?\-format *format*?
 
-    Specifies the documentation format. __TEPAM Doc Gen__ provides support for
-    the following formats:
+    Specifies the documentation format\. __TEPAM Doc Gen__ provides support
+    for the following formats:
 
-    TXT - Text format (default)
+    TXT \- Text format \(default\)
 
     HTML
 
-    POD - Perl Plain Old Documentation format (PerlPOD)
+    POD \- Perl Plain Old Documentation format \(PerlPOD\)
 
-    DT - TclLib DocTool format
+    DT \- TclLib DocTool format
 
     Section [ADDING SUPPORT FOR NEW DOCUMENT FORMATS](#section4) shows how
-    support for additional formats can be added.
+    support for additional formats can be added\.
 
-  - ?-style *style*?
+  - ?\-style *style*?
 
-    The documentation is by default generated in Tcl style (e.g. __command arg1
-    arg2 ...__). C-style documentation can be generated by setting this argument
-    to 'C' (e.g. __command(arg1,arg2,...)__).
+    The documentation is by default generated in Tcl style \(e\.g\. __command
+    arg1 arg2 \.\.\.__\)\. C\-style documentation can be generated by setting this
+    argument to 'C' \(e\.g\. __command\(arg1,arg2,\.\.\.\)__\)\.
 
-  - ?-dest_file *dest_file*?
+  - ?\-dest\_file *dest\_file*?
 
-    If ?dest_file? is defined the documentation is written into the specified
-    destination file. Otherwise the documentation string is returned by the
-    commands __generate__ and __[patch](../../../../index.md#patch)__.
+    If ?dest\_file? is defined the documentation is written into the specified
+    destination file\. Otherwise the documentation string is returned by the
+    commands __generate__ and
+    __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__\.
 
   - *name* / ?name?
 
     This is the name of the procedure for which the documentation has to be
-    generated. This is a mandatory argument for __generate__, but an optional
-    argument for __[patch](../../../../index.md#patch)__.
+    generated\. This is a mandatory argument for __generate__, but an
+    optional argument for __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__\.
 
-  - ?-header_footer?
+  - ?\-header\_footer?
 
-    __Generate__ adds to the generated procedure documentation the file header
-    and footer only if a file is generated. By selecting the flag
-    ?-header_footer? the header and footer are also generated if the
-    documentation is returned as string by __generate__.
+    __Generate__ adds to the generated procedure documentation the file
+    header and footer only if a file is generated\. By selecting the flag
+    ?\-header\_footer? the header and footer are also generated if the
+    documentation is returned as string by __generate__\.
 
-  - ?-src_string *src_string* | -src_file *src_file*?
+  - ?\-src\_string *src\_string* &#124; \-src\_file *src\_file*?
 
-    __[Patch](../../../../index.md#patch)__ inserts procedure documentations
-    into an existing document that is either provided as string to the argument
-    (?src_string?) or as a file (?src_file?). One of these two arguments need to
-    be specified.
+    __[Patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ inserts procedure
+    documentations into an existing document that is either provided as string
+    to the argument \(?src\_string?\) or as a file \(?src\_file?\)\. One of these two
+    arguments need to be specified\.
 
-  - ?-search_pattern *search_pattern*?
+  - ?\-search\_pattern *search\_pattern*?
 
-    The argument ?search_pattern? defines the documentation insertion
-    placeholder used in a document. It is a regular expression accepted by
-    __regexp__ and needs to contain a parenthesized sub-expression that contains
-    the procedure name for which the documentation needs to be inserted.
+    The argument ?search\_pattern? defines the documentation insertion
+    placeholder used in a document\. It is a regular expression accepted by
+    __regexp__ and needs to contain a parenthesized sub\-expression that
+    contains the procedure name for which the documentation needs to be
+    inserted\.
 
-    The default insertion placeholder pattern is *\{!(.*?)!\}*, which means that
-    the procedure name will be embedded between *{!* and *!}*. The section
-    [EXAMPLES](#section5) contains a custom insertion placeholder pattern
-    example.
+    The default insertion placeholder pattern is *\\\{\!\(\.\*?\)\!\\\}*, which means
+    that the procedure name will be embedded between *\{\!* and *\!\}*\. The
+    section [EXAMPLES](#section5) contains a custom insertion placeholder
+    pattern example\.
 
 # <a name='section3'></a>PREDEFINED DOCUMENT FORMATS
 
-__TEPAM Doc Gen__ pre-defines the following document formats:
+__TEPAM Doc Gen__ pre\-defines the following document formats:
 
-## <a name='subsection1'></a>TXT - Text format
+## <a name='subsection1'></a>TXT \- Text format
 
 The documentation will be generated in a simple text format if this format is
-selected. The format can be customized via the following variable:
+selected\. The format can be customized via the following variable:
 
-  - __tepam::doc_gen::Option(TXT,MaxLineLength)__
+  - __tepam::doc\_gen::Option\(TXT,MaxLineLength\)__
 
     Default: 80
 
-    This variable defines the line wrapping limit (character position).
+    This variable defines the line wrapping limit \(character position\)\.
 
-## <a name='subsection2'></a>HTML - HTML format
+## <a name='subsection2'></a>HTML \- HTML format
 
-__TEPAM Doc Gen__ generates CSS styled HTML files. The HTML documentation can be
-customized via the following variable:
+__TEPAM Doc Gen__ generates CSS styled HTML files\. The HTML documentation
+can be customized via the following variable:
 
-  - __tepam::doc_gen::Option(HTML,CssFile)__
+  - __tepam::doc\_gen::Option\(HTML,CssFile\)__
 
-    Default: "tepam_doc_stylesheet.css"
+    Default: "tepam\_doc\_stylesheet\.css"
 
     This variable specifies the CSS stylesheet file that is referred by the
-    generated HTML files.
+    generated HTML files\.
 
-The CSS stylesheet can be customized to change the documentation formatting. A
+The CSS stylesheet can be customized to change the documentation formatting\. A
 good starting point to create a customized CSS stylesheet is to use the CSS file
-provided by the __TEPAM Doc Gen__ example/demo. The HTML documentation uses the
-following CSS class styles:
+provided by the __TEPAM Doc Gen__ example/demo\. The HTML documentation uses
+the following CSS class styles:
 
-  - *h1.tepam_page_title* - Document page title. Only used by __generate__ if a
-    file is created or if the header and footer are built (flag ?-header_footer?
-    selected).
+  - *h1\.tepam\_page\_title* \- Document page title\. Only used by __generate__
+    if a file is created or if the header and footer are built \(flag
+    ?\-header\_footer? selected\)\.
 
-  - *div.tepam_command_help* - Documentation container. The entire procedure
-    documentation is placed inside this container.
+  - *div\.tepam\_command\_help* \- Documentation container\. The entire procedure
+    documentation is placed inside this container\.
 
-  - *p.tepam_section_title* - Section title (e.g. *Name*, *Synopsis*,
-    *Description*, ...)
+  - *p\.tepam\_section\_title* \- Section title \(e\.g\. *Name*, *Synopsis*,
+    *Description*, \.\.\.\)
 
-  - *p.tepam_sub_section_title* - Sub-section title (used to separate the
-    documentation of multiple sub-procedures)
+  - *p\.tepam\_sub\_section\_title* \- Sub\-section title \(used to separate the
+    documentation of multiple sub\-procedures\)
 
-  - *p.tepam_name* - Name section
+  - *p\.tepam\_name* \- Name section
 
-  - *p.tepam_synopsis* - Synopsis section
+  - *p\.tepam\_synopsis* \- Synopsis section
 
-  - *p.tepam_description* - Single description paragraph
+  - *p\.tepam\_description* \- Single description paragraph
 
-  - *ul.tepam_description_list* - Item of a HTML bulleted/unordered list inside
-    the description section
+  - *ul\.tepam\_description\_list* \- Item of a HTML bulleted/unordered list
+    inside the description section
 
-  - *dt.tepam_argument* - Item of a HTML description list used to list the
+  - *dt\.tepam\_argument* \- Item of a HTML description list used to list the
     procedure arguments
 
-  - *p.tepam_argument_description* - Argument description paragraph
+  - *p\.tepam\_argument\_description* \- Argument description paragraph
 
-  - *p.tepam_argument_attribute* - Argument attribute line
+  - *p\.tepam\_argument\_attribute* \- Argument attribute line
 
-  - *pre.tepam_example* - Example section
+  - *pre\.tepam\_example* \- Example section
 
-## <a name='subsection3'></a>POD - Perl document format
+## <a name='subsection3'></a>POD \- Perl document format
 
 The documentation is generated in the Perl Plain Old Documentation format
-(PerlPOD) if this format is selected.
+\(PerlPOD\) if this format is selected\.
 
-## <a name='subsection4'></a>DT - TclLib DocTools format
+## <a name='subsection4'></a>DT \- TclLib DocTools format
 
 The documentation is generated in the Tcllib DocTools format if this format is
-selected.
+selected\.
 
 # <a name='section4'></a>ADDING SUPPORT FOR NEW DOCUMENT FORMATS
 
 Support for a new document format can be added by defining in the
-__tepam::doc_gen__ namespace a set of procedures that generate the different
-document components.
+__tepam::doc\_gen__ namespace a set of procedures that generate the different
+document components\.
 
 The following documentation listing contains tokens that refer to the different
 document generation procedures:
 
     *     <01>*
     *<03> <20s>*   NAME*<20e>*
-    *     <30s>*       message_box - Displays text in a message box*<30e>*
+    *     <30s>*       message\_box \- Displays text in a message box*<30e>*
     *     <20s>*   SYNOPSYS*<20e>*
-    *     <40s>*       message_box [-mtype <mtype>] <text>*<40e>*
+    *     <40s>*       message\_box \[\-mtype <mtype>\] <text>*<40e>*
     *     <20s>*   DESCRIPTION*<20e>*
-    *     <21s>     message_box<21e>*
-    *     <54s>       message_box [-mtype <mtype>] <text><54e>*
-    *     <50s>*       This procedure allows displaying a text in an message box. The following
+    *     <21s>     message\_box<21e>*
+    *     <54s>       message\_box \[\-mtype <mtype>\] <text><54e>*
+    *     <50s>*       This procedure allows displaying a text in an message box\. The following
     *          *       message types are supported:*<50e>*
-    *<51> <53s>*       * Info*<53e>*
-    *     <53s>*       * Warning*<53e>*
-    *     <53s>*       * Error*<53e>*                                           *<52>*
+    *<51> <53s>*       \* Info*<53e>*
+    *     <53s>*       \* Warning*<53e>*
+    *     <53s>*       \* Error*<53e>*                                           *<52>*
     *     <50s>*       If the text parameter is use multiple times the different texts are
-    *          *       concatenated to create the message text.*<50e>*
+    *          *       concatenated to create the message text\.*<50e>*
     *     <20s>*   ARGUMENTS*<20e>*
-    *<60> <62s>*       [-mtype <mtype>]*<62e>*
+    *<60> <62s>*       \[\-mtype <mtype>\]*<62e>*
     *<63> <65s>*          Message type*<65e>*
     *     <66s>*          Default: "Warning"*<66e>*
     *     <66s>*          Multiple: yes*<66e>*
@@ -260,155 +270,155 @@ document generation procedures:
     *     <66s>*          Type: string*<66e>*
     *     <66s>*          Multiple: yes*<66e>*                                  *<64><61>*
     *     <20s>*   EXAMPLE*<20e>*
-    *<70> <72s>*       message_box "Please save first the document"*<72e>*
-    *     <73s>*       -> 1*<73e>*                                              *<71><04>*
+    *<70> <72s>*       message\_box "Please save first the document"*<72e>*
+    *     <73s>*       \-> 1*<73e>*                                              *<71><04>*
     *     <02>*
 
 There are 2 types of document generation procedures:
 
-  - Content generation procedures (e.g. <40s>...<40e>)
+  - Content generation procedures \(e\.g\. <40s>\.\.\.<40e>\)
 
     These procedures generate some document content based on the text that is
-    provided as procedure argument. The listing above shows two tokens for these
-    procedures to indicate the beginning and the end of the generated content.
+    provided as procedure argument\. The listing above shows two tokens for these
+    procedures to indicate the beginning and the end of the generated content\.
 
-  - Control generation procedures (e.g. <03>)
+  - Control generation procedures \(e\.g\. <03>\)
 
     These procedures generate control constructs, for example to generate the
-    prolog code and epilog code for lists, sections, etc. These procedures have
-    no argument.
+    prolog code and epilog code for lists, sections, etc\. These procedures have
+    no argument\.
 
 The following set of procedures needs to be defined to provide support for a new
 document format:
 
-  - *01* - __gen($Format,Header)__ {*Text*}
+  - *01* \- __gen\($Format,Header\)__ \{*Text*\}
 
-    Only called if __doc_gen__ generates a file or if it is called with the flag
-    ?-header_footer?. The procedure creates the file header. The provided
+    Only called if __doc\_gen__ generates a file or if it is called with the
+    flag ?\-header\_footer?\. The procedure creates the file header\. The provided
     parameter is the procedure name for which the documentation has to be
-    generated.
+    generated\.
 
-  - *02* - __gen($Format,Footer)__ {*Text*}
+  - *02* \- __gen\($Format,Footer\)__ \{*Text*\}
 
-    Only called if __doc_gen__ generates a file or if it is called with the flag
-    ?-header_footer?. The procedure creates the file footer.
+    Only called if __doc\_gen__ generates a file or if it is called with the
+    flag ?\-header\_footer?\. The procedure creates the file footer\.
 
-  - *03* - __gen($Format,Begin)__ {}
+  - *03* \- __gen\($Format,Begin\)__ \{\}
 
-    Generates the documentation prolog (preamble)
+    Generates the documentation prolog \(preamble\)
 
-  - *04* - __gen($Format,End)__ {}
+  - *04* \- __gen\($Format,End\)__ \{\}
 
     Generates the documentation epilog
 
-  - *20* - __gen($Format,SectionTitle)__ {*Text*}
+  - *20* \- __gen\($Format,SectionTitle\)__ \{*Text*\}
 
-    Generates a section title (e.g. *Name*, *Synopsis*, *Description*, ...). The
-    raw title text is provided as parameter
+    Generates a section title \(e\.g\. *Name*, *Synopsis*, *Description*,
+    \.\.\.\)\. The raw title text is provided as parameter
 
-  - *21* - __gen($Format,SubSectionTitle)__ {*Text*}
+  - *21* \- __gen\($Format,SubSectionTitle\)__ \{*Text*\}
 
-    Generates a sub-section title. Sub-sections are used if a single
-    documentation is generated for multiple sub-commands to make a separation
-    between them. The raw title text is provided as parameter
+    Generates a sub\-section title\. Sub\-sections are used if a single
+    documentation is generated for multiple sub\-commands to make a separation
+    between them\. The raw title text is provided as parameter
 
-  - *30* - __gen($Format,Name)__ {*Text*}
+  - *30* \- __gen\($Format,Name\)__ \{*Text*\}
 
-    Generates the name section (without title). The raw section text is provided
-    as parameter.
+    Generates the name section \(without title\)\. The raw section text is provided
+    as parameter\.
 
-  - *40* - __gen($Format,Synopsis)__ {*Text*}
+  - *40* \- __gen\($Format,Synopsis\)__ \{*Text*\}
 
-    Generates the synopsis section (without title). The section text provided as
-    parameter is pre-formatted (the argument strings are generated by
-    __gen($Format,ArgumentString)__).
+    Generates the synopsis section \(without title\)\. The section text provided as
+    parameter is pre\-formatted \(the argument strings are generated by
+    __gen\($Format,ArgumentString\)__\)\.
 
-  - *50* - __gen($Format,Description)__ {*Text*}
+  - *50* \- __gen\($Format,Description\)__ \{*Text*\}
 
-    Generates a description paragraph. The raw paragraph text is provided as
-    parameter.
+    Generates a description paragraph\. The raw paragraph text is provided as
+    parameter\.
 
-  - *51* - __gen($Format,DescriptionListBegin)__ {}
+  - *51* \- __gen\($Format,DescriptionListBegin\)__ \{\}
 
     Generates the prolog of a bulleted/unordered list inside the description
-    section. This prolog is usually the start code of a list structure.
+    section\. This prolog is usually the start code of a list structure\.
 
-  - *52* - __gen($Format,DescriptionListEnd)__ {}
+  - *52* \- __gen\($Format,DescriptionListEnd\)__ \{\}
 
     Generates the epilog of a bulleted/unordered list inside the description
-    section. This epilog is usually the end code of a list structure.
+    section\. This epilog is usually the end code of a list structure\.
 
-  - *53* - __gen($Format,DescriptionListItem)__ {*Text*}
+  - *53* \- __gen\($Format,DescriptionListItem\)__ \{*Text*\}
 
-    Generates a text item in a bulleted/unordered description list. The raw item
-    text is provided as parameter.
+    Generates a text item in a bulleted/unordered description list\. The raw item
+    text is provided as parameter\.
 
-  - *54* - __gen($Format,DescriptionSynopsis)__ {*Text*}
+  - *54* \- __gen\($Format,DescriptionSynopsis\)__ \{*Text*\}
 
-    Generates the synopsis line on the beginning of the description section. The
+    Generates the synopsis line on the beginning of the description section\. The
     command can return an empty string if no synopsys line is required at this
-    place.
+    place\.
 
-    Some formats (e.g. Tcl DocTools) require that the synopsis line is defined
+    Some formats \(e\.g\. Tcl DocTools\) require that the synopsis line is defined
     in the description section, to build then automatically the synopsis
-    section. The section text provided as parameter is pre-formatted (the
-    argument strings are generated by __gen($Format,ArgumentString)__).
+    section\. The section text provided as parameter is pre\-formatted \(the
+    argument strings are generated by __gen\($Format,ArgumentString\)__\)\.
 
-  - *60* - __gen($Format,ArgumentListBegin)__ {}
+  - *60* \- __gen\($Format,ArgumentListBegin\)__ \{\}
 
-    Generates the prolog of argument list (definition/non-bulleted list). This
-    prolog is usually the start code of a definition list.
+    Generates the prolog of argument list \(definition/non\-bulleted list\)\. This
+    prolog is usually the start code of a definition list\.
 
-  - *61* - __gen($Format,ArgumentListEnd)__ {}
+  - *61* \- __gen\($Format,ArgumentListEnd\)__ \{\}
 
-    Generates the epilog of the argument list. This epilog is usually the end
-    string of a list structure.
+    Generates the epilog of the argument list\. This epilog is usually the end
+    string of a list structure\.
 
-  - *62* - __gen($Format,ArgumentListItem)__ {Name IsOptional IsNamed Type}
+  - *62* \- __gen\($Format,ArgumentListItem\)__ \{Name IsOptional IsNamed Type\}
 
-    Generates an argument item line inside the argument list. This command can
-    rely on __gen($Format,ArgumentDetailBegin)__ since the parameters are
-    identical.
+    Generates an argument item line inside the argument list\. This command can
+    rely on __gen\($Format,ArgumentDetailBegin\)__ since the parameters are
+    identical\.
 
-  - *63* - __gen($Format,ArgumentDetailBegin)__ {}
+  - *63* \- __gen\($Format,ArgumentDetailBegin\)__ \{\}
 
-    Generates the argument details prolog (preamble).
+    Generates the argument details prolog \(preamble\)\.
 
-  - *64* - __gen($Format,ArgumentDetailEnd)__ {}
+  - *64* \- __gen\($Format,ArgumentDetailEnd\)__ \{\}
 
     Generates the argument details epilog
 
-  - *65* - __gen($Format,ArgumentDescription)__ {*Text*}
+  - *65* \- __gen\($Format,ArgumentDescription\)__ \{*Text*\}
 
-    Generates the argument description (single paragraph).
+    Generates the argument description \(single paragraph\)\.
 
-  - *66* - __gen($Format,ArgumentAttribute)__ {*Text*}
+  - *66* \- __gen\($Format,ArgumentAttribute\)__ \{*Text*\}
 
-    Generates a single argument attribute string. The command is called
-    individually for each attribute.
+    Generates a single argument attribute string\. The command is called
+    individually for each attribute\.
 
-  - *70* - __gen($Format,ExampleBegin)__ {}
+  - *70* \- __gen\($Format,ExampleBegin\)__ \{\}
 
-    Generates the example section prolog (preamble)
+    Generates the example section prolog \(preamble\)
 
-  - *71* - __gen($Format,ExampleEnd)__ {}
+  - *71* \- __gen\($Format,ExampleEnd\)__ \{\}
 
     Generates the example section epilog
 
-  - *72* - __gen($Format,ExampleCommandLine)__ {*Text*}
+  - *72* \- __gen\($Format,ExampleCommandLine\)__ \{*Text*\}
 
-    Generates a single command line in the example section. The command is
-    called for each individual command line.
+    Generates a single command line in the example section\. The command is
+    called for each individual command line\.
 
-  - *73* - __gen($Format,ExampleResultLine)__ {*Text*}
+  - *73* \- __gen\($Format,ExampleResultLine\)__ \{*Text*\}
 
     Generates a command result line
 
-  - *80* - __gen($Format,ArgumentString)__ {Name IsOptional IsNamed Type}
+  - *80* \- __gen\($Format,ArgumentString\)__ \{Name IsOptional IsNamed Type\}
 
     Generates the part of the command line or the synopsis that is specific to
-    an argument. The generated string has to indicate if an argument is
-    optional, named and if it is a flag.
+    an argument\. The generated string has to indicate if an argument is
+    optional, named and if it is a flag\.
 
     The following parameters are provided to this procedure:
 
@@ -418,128 +428,130 @@ document format:
 
       * *IsOptional*
 
-        If true (=__1__) the argument is optional which should be indicated by
-        the generated string (for example by putting the argument into brackets
-        {[]} or into question marks '?'):
+        If true \(=__1__\) the argument is optional which should be indicated
+        by the generated string \(for example by putting the argument into
+        brackets \{\[\]\} or into question marks '?'\):
 
-    gen(TXT,ArgumentString) mtype 1 0 string ->
+    gen\(TXT,ArgumentString\) mtype 1 0 string \->
 
-        *"[mtype]"*
+        *"\[mtype\]"*
 
       * *IsNamed*
 
-        If true (=__1__) an argument is a named argument (option). The generated
-        string should in this case contain the argument/option name, followed by
-        the argument itself:
+        If true \(=__1__\) an argument is a named argument \(option\)\. The
+        generated string should in this case contain the argument/option name,
+        followed by the argument itself:
 
-    gen(TXT,ArgumentString) mtype 0 1 string ->
+    gen\(TXT,ArgumentString\) mtype 0 1 string \->
 
-        *"-mtype <mtype>"* Named arguments can also be optional:
+        *"\-mtype <mtype>"* Named arguments can also be optional:
 
-    gen(TXT,ArgumentString) mtype 1 1 string ->
+    gen\(TXT,ArgumentString\) mtype 1 1 string \->
 
-        *"[-mtype <mtype>]"*
+        *"\[\-mtype <mtype>\]"*
 
       * *Type*
 
-        Indicates the type of the argument. If the type is set to __none__ the
-        argument is a flag, which needs to be indicated by the generated string.
-        Example:
+        Indicates the type of the argument\. If the type is set to __none__
+        the argument is a flag, which needs to be indicated by the generated
+        string\. Example:
 
-    gen(TXT,ArgumentString) close 1 1 none ->
+    gen\(TXT,ArgumentString\) close 1 1 none \->
 
-        *"[-close]"*
+        *"\[\-close\]"*
 
 # <a name='section5'></a>EXAMPLES
 
-## <a name='subsection5'></a>tepam::doc_gen::generate
+## <a name='subsection5'></a>tepam::doc\_gen::generate
 
-The __TEPAM Doc Gen__ package can be explored by generating the documentation of
-the command __tepam::doc_gen::generate__. The following example generates the
-document in text format (default format):
+The __TEPAM Doc Gen__ package can be explored by generating the
+documentation of the command __tepam::doc\_gen::generate__\. The following
+example generates the document in text format \(default format\):
 
-    __tepam::doc_gen::generate__ tepam::doc_gen::generate
+    __tepam::doc\_gen::generate__ tepam::doc\_gen::generate
 
 The next example generates the documentation in HTML format:
 
-    __tepam::doc_gen::generate__ -format HTML tepam::doc_gen::generate
+    __tepam::doc\_gen::generate__ \-format HTML tepam::doc\_gen::generate
 
-The flag ?header_footer? adds also the file header and footer:
+The flag ?header\_footer? adds also the file header and footer:
 
-    __tepam::doc_gen::generate__ -format HTML -header_footer tepam::doc_gen::generate
+    __tepam::doc\_gen::generate__ \-format HTML \-header\_footer tepam::doc\_gen::generate
 
-The documentation can directly be stored in a file. The file header and footer
+The documentation can directly be stored in a file\. The file header and footer
 are automatically generated in this way:
 
-    __tepam::doc_gen::generate__ -format HTML -dest_file doc_gen.html tepam::doc_gen::generate
+    __tepam::doc\_gen::generate__ \-format HTML \-dest\_file doc\_gen\.html tepam::doc\_gen::generate
 
-The generated HTML file refers a CSS stylesheet file (default:
-tepam_doc_stylesheet.css). To display the HTML file correctly this CSS
+The generated HTML file refers a CSS stylesheet file \(default:
+tepam\_doc\_stylesheet\.css\)\. To display the HTML file correctly this CSS
 stylesheet file needs to be copied into the directory of the generated HTML
-file.
+file\.
 
 The Tcl DOC Tools format can be used as intermediate format to generate other
 formats, for example HTML:
 
-    *# Generate the documentation in Tcl Doc Tool format*
-    set dt [__tepam::doc_gen::generate__ -format DT -header_footer tepam::doc_gen::generate]
+    *\# Generate the documentation in Tcl Doc Tool format*
+    set dt \[__tepam::doc\_gen::generate__ \-format DT \-header\_footer tepam::doc\_gen::generate\]
     **
-    *# Create a new doc tools object (HTML format)*
+    *\# Create a new doc tools object \(HTML format\)*
     package require doctools
-    ::doctools::new myDoc -format html
+    ::doctools::new myDoc \-format html
     **
-    *# Open the HTML file, and write the HTML formatted documentation*
-    set fHtml [open doc_gen.dt.html w]
-    puts $fHtml [myDoc format $dt]
+    *\# Open the HTML file, and write the HTML formatted documentation*
+    set fHtml \[open doc\_gen\.dt\.html w\]
+    puts $fHtml \[myDoc format $dt\]
     close $fHtml
 
-## <a name='subsection6'></a>tepam::doc_gen::patch
+## <a name='subsection6'></a>tepam::doc\_gen::patch
 
 While __generate__ provides a limited number of possibilities to vary the
-document structure, __[patch](../../../../index.md#patch)__ offers more
-flexibility. Multiple documentations for different procedures and meta
-information can for example be added.
+document structure, __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ offers more
+flexibility\. Multiple documentations for different procedures and meta
+information can for example be added\.
 
-The following listing shows how the __[patch](../../../../index.md#patch)__
-command works. It defines first a HTML master document string that contains 2
-procedure documentation placeholders (*{*<ProcedureName>*}*). There placeholders
-are replaced by __[patch](../../../../index.md#patch)__ with the generated
-documentation of the referred procedures. Since nonstandard placeholders are
-used, __[patch](../../../../index.md#patch)__ is called with an explicit
-placeholder pattern definition (argument *search_pattern*).
+The following listing shows how the
+__[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ command works\. It defines first
+a HTML master document string that contains 2 procedure documentation
+placeholders \(*\{\*<ProcedureName>\*\}*\)\. There placeholders are replaced by
+__[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ with the generated documentation
+of the referred procedures\. Since nonstandard placeholders are used,
+__[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ is called with an explicit
+placeholder pattern definition \(argument *search\_pattern*\)\.
 
-    *# Define the HTML master document*
-    set HtmlMasterDoc {\
+    *\# Define the HTML master document*
+    set HtmlMasterDoc \{\\
     <html>
       <head>
-        <title>tepam::doc_gen</title>
-        <link rel="stylesheet" href="tepam_doc_stylesheet.css">
+        <title>tepam::doc\_gen</title>
+        <link rel="stylesheet" href="tepam\_doc\_stylesheet\.css">
         <meta content="documentation" name="keywords"></meta>
       </head>
       <body>
-        <h1>tepam::doc_gen</h1>
+        <h1>tepam::doc\_gen</h1>
           <h2>Generate</h2>
-    __{*tepam::doc_gen::generate*}__
+    __\{\*tepam::doc\_gen::generate\*\}__
           <h2>Patch</h2>
-    __{*tepam::doc_gen::patch*}__
+    __\{\*tepam::doc\_gen::patch\*\}__
       </body>
-    <html>\
-    }
+    <html>\\
+    \}
     **
-    *# Patch the master document: This will replace the placeholders by the
-    # procedure documentation divisions:*
-    __tepam::doc_gen::patch__ -format HTML -search_pattern {\{\*(.*?)\*\}} \
-                          -src_string $HtmlMasterDoc -dest_file tepam_doc_gen.html
+    *\# Patch the master document: This will replace the placeholders by the
+    \# procedure documentation divisions:*
+    __tepam::doc\_gen::patch__ \-format HTML \-search\_pattern \{\\\{\\\*\(\.\*?\)\\\*\\\}\} \\
+                          \-src\_string $HtmlMasterDoc \-dest\_file tepam\_doc\_gen\.html
 
-# <a name='see-also'></a>SEE ALSO
+# <a name='seealso'></a>SEE ALSO
 
-[tepam(n)](tepam_introduction.md), [tepam::procedure(n)](tepam_procedure.md)
+[tepam\(n\)](tepam\_introduction\.md),
+[tepam::procedure\(n\)](tepam\_procedure\.md)
 
 # <a name='keywords'></a>KEYWORDS
 
-[automatic documentation](../../../../index.md#automatic_documentation),
-[documentation](../../../../index.md#documentation), [procedure
-documentation](../../../../index.md#procedure_documentation)
+[automatic documentation](\.\./\.\./\.\./\.\./index\.md\#automatic\_documentation),
+[documentation](\.\./\.\./\.\./\.\./index\.md\#documentation), [procedure
+documentation](\.\./\.\./\.\./\.\./index\.md\#procedure\_documentation)
 
 # <a name='category'></a>CATEGORY
 

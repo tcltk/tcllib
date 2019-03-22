@@ -8,13 +8,15 @@
 # # ## ### ##### ########
 ## API
 
+proc Dots {x} { string map {{ } . {	} .} $x }
+
 proc Compose {lb} {
     upvar 1 $lb linebuffer
     return [string trimright [join $linebuffer \n]]
 }
 
 proc ReHead {line prefix} {
-    set n [string length $prefix]
+    set n [string length [DeIce $prefix]]
     incr n -1
     string replace $line 0 $n $prefix
 }
@@ -26,12 +28,14 @@ proc MaxLen {v s} {
     set max $n
 }
 
+proc DeIce {x} { string map [list \1 {}] $x }
+
 proc BlankMargin {} { global lmarginIncrement ; Blank $lmarginIncrement }
 
 proc Repeat  {char n}      { textutil::repeat::strRepeat $char $n }
 proc Blank   {n}           { textutil::repeat::blank $n }
-proc RepeatM {char text}   { Repeat $char [string length $text] }
-proc BlankM  {text}        { Blank        [string length $text] }
+proc RepeatM {char text}   { Repeat $char [string length [DeIce $text]] }
+proc BlankM  {text}        { Blank        [string length [DeIce $text]] }
 proc Undent  {text}        { textutil::adjust::undent $text }
 proc Reflow  {text maxlen} { textutil::adjust::adjust $text -length $maxlen }
 proc Indent  {text prefix} { textutil::adjust::indent $text $prefix }

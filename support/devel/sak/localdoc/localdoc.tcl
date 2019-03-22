@@ -46,13 +46,13 @@ proc ::sak::localdoc::run {} {
     puts "Removing old documentation..."
     # but keep the main index around, manually created, edited, not to be touched
     # TODO: catch errors and restore automatically
-    file rename embedded/index.html e_index.html
+    file rename embedded/index.md e_index.md
 
     file delete -force embedded
-    file mkdir embedded/www
+    file mkdir embedded/md
 
     # Put the saved main page back into place, early.
-    file rename e_index.html embedded/index.html
+    file rename e_index.md embedded/index.md
 
     run-idoc-man $baseconfig
 
@@ -130,12 +130,12 @@ proc ::sak::localdoc::run-embedded {baseconfig toc cats mods apps} {
     set     config $baseconfig
     lappend config -exclude  {*/doctools/tests/*}
     lappend config -exclude  {*/support/*}
+    lappend config -ext md ;# must be known before nav options
     lappend config -toc      $toc
     lappend config -post+toc Categories    $cats
     lappend config -post+toc Modules       $mods
     lappend config -post+toc Applications  $apps
     lappend config -merge
-    lappend config -ext md
     lappend config -o embedded/md
     lappend config markdown .
 
