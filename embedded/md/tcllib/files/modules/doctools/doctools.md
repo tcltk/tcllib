@@ -1,8 +1,8 @@
 
 [//000000001]: # (doctools \- Documentation tools)
 [//000000002]: # (Generated from file 'doctools\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2003\-2017 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools\(n\) 1\.4\.21 tcllib "Documentation tools")
+[//000000003]: # (Copyright &copy; 2003\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (doctools\(n\) 1\.5 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -50,7 +50,7 @@ doctools \- doctools \- Processing documents
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require doctools ?1\.4\.21?  
+package require doctools ?1\.5?  
 
 [__::doctools::new__ *objectName* ?*option value*\.\.\.?](#1)  
 [__::doctools::help__](#2)  
@@ -458,6 +458,30 @@ engines support parameters\. These will be explained below as well\.
     __[nroff](\.\./\.\./\.\./\.\./index\.md\#nroff)__, or __groff__\. The
     result will be standard man pages as they are known in the unix world\.
 
+  - markdown
+
+    This engine generates *[Markdown](\.\./\.\./\.\./\.\./index\.md\#markdown)*
+    markup\. This engine supports two parameters:
+
+      * header
+
+        The value for this parameter has to be valid selfcontained markdown
+        markup for the body section of a markdown document\. The default value is
+        the empty string\. The value is inserted into the generated output just
+        before the table of contents\.
+
+        This can be used to insert boilerplate header markup into the generated
+        document\.
+
+      * xref
+
+        The value for this parameter has to be a list of triples specifying
+        cross\-reference information\.
+
+        The full details of expected syntax and engine\-internal use are
+        explained above for the *[html](\.\./\.\./\.\./\.\./index\.md\#html)*
+        engine\.
+
   - null
 
     This engine generates no outout at all\. This can be used if one just wants
@@ -502,6 +526,7 @@ secondary navigation bar\.
 [conversion](\.\./\.\./\.\./\.\./index\.md\#conversion),
 [documentation](\.\./\.\./\.\./\.\./index\.md\#documentation),
 [manpage](\.\./\.\./\.\./\.\./index\.md\#manpage),
+[markdown](\.\./\.\./\.\./\.\./index\.md\#markdown),
 [markup](\.\./\.\./\.\./\.\./index\.md\#markup),
 [nroff](\.\./\.\./\.\./\.\./index\.md\#nroff)
 
@@ -511,4 +536,4 @@ Documentation tools
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2003\-2017 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2003\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

@@ -143,7 +143,7 @@ proc ::doctools::changelog::closeSection {} {
     } {
 	lappend clist   [list $files [string trim $comment]]
 	set     files   [list]
-	set     comment ""	
+	set     comment ""
     }
     return
 }

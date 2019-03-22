@@ -2,7 +2,7 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -182,7 +182,7 @@ proc ::doctools::toc::DocTocProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
 
     if { [llength [info commands ::doctools::toc::_$cmd]] == 0 } {
@@ -963,4 +963,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.7
+package provide doctools::toc 1.2

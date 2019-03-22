@@ -182,7 +182,7 @@ proc ::doctools::idx::DocIdxProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
 
     if { [llength [info commands ::doctools::idx::_$cmd]] == 0 } {
@@ -957,4 +957,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 1.0.8
+package provide doctools::idx 1.1
