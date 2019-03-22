@@ -85,7 +85,7 @@ proc NavBar {} {
     foreach c [lsort -dict [array names ch]] {
 	set ref c[F $c]
 	set ch($c) $ref
-	lappend nav [ALink #$ref $c]
+	lappend nav [ALink [Hash]$ref $c]
     }
 
     Separator
@@ -128,16 +128,16 @@ proc Keys {} {
 
 proc Section {c} {
     global ch
-    Text "#### [SetAnchor "Keywords: $c" $ch($c)]"
+    Text "[Hash][Hash][Hash][Hash] [SetAnchor "Keywords: $c" $ch($c)]"
     CloseParagraph [Verbatim]
 
-    Text "|||\n"
-    Text "|---|---|\n"
+    Text "[VBar][VBar][VBar]\n"
+    Text "[VBar][Dash][Dash][Dash][VBar][Dash][Dash][Dash][VBar]\n"
     return
 }
 
 proc BeginKey {k} {
-    Text "|[SetAnchor $k]|"
+    Text "[VBar][SetAnchor $k][VBar]"
 }
 
 proc References {k} {
@@ -151,11 +151,11 @@ proc References {k} {
 }
 
 proc EndKey {} {
-    Text "|\n"
+    Text "[VBar]\n"
 }
 
 proc Separator {} {
-    Text ----
+    Text [Dash][Dash][Dash][Dash]
     CloseParagraph [Verbatim]
 }
 
@@ -195,7 +195,7 @@ global lk   ; set       lk   {}
 global la   ; set       la   {}
 global ti   ; set       ti   {}
 global kwid ; array set kwid {}
-global dot  ; set dot   { &#183; }
+global dot  ; set dot   " &[Hash]183; "
 
 # ### ### ### ######### ######### #########
 ## Engine parameters

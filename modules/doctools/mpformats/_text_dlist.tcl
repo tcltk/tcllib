@@ -117,6 +117,11 @@ proc Prefix?   {} { CAttrGet prefix }
 proc WPrefix?  {} { CAttrGet wspfx }
 
 proc List! {type bullet wprefix} {
+
+    #puts_stderr L!(($type))
+    #puts_stderr L!(($bullet))[string length $bullet],[string length [DeIce $bullet]]
+    #puts_stderr L!(([Dots $wprefix]))
+    
     CAttrSet listtype $type
     CAttrSet bullet   $bullet
     CAttrSet wspfx    $wprefix
@@ -234,9 +239,15 @@ proc PARA {arguments} {
 
 	set blank [WPrefix?]
 
-	if {[string length $thebullet] >= [string length $blank]} {
+	#puts_stderr B.(($lt))
+	#puts_stderr B.(($thebullet))[string length $thebullet],[string length [DeIce $thebullet]]
+	#puts_stderr B.(([Dots $blank]))
+
+	if {[string length [DeIce $thebullet]] >= [string length $blank]} {
 	    # The item's bullet is longer than the space for indenting.
 	    # Put bullet and text on separate lines, indent text in full.
+
+	    #puts_stderr B.DROP
 
 	    set text "$thebullet\n[Indent $text $blank]"
 	} else {
@@ -245,11 +256,15 @@ proc PARA {arguments} {
 	    # bullet in front of the first line, with suitable partial
 	    # spacing.
 
+	    #puts_stderr B.SAME
+	    #puts_stderr B.(([Dots [ReHead $blank $thebullet]]))
+
 	    set text [Indent1 $text [ReHead $blank $thebullet] $blank]
 	}
     }
 
     if {$lm} {
+	#puts_stderr "LMA $lm"
 	set text [Indent $text [Blank $lm]]
     }
 

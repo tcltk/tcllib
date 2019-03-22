@@ -1724,7 +1724,7 @@ proc ::dtplite::NavbarSegment {sepv firstv nav ref} {
     set sep 0
 
     foreach item $nav {
-	if {!$first} {append hdr "| "} else {append hdr "  "}
+	if {!$first} {append hdr "&#124; "} else {append hdr "  "}
 	set first 0
 	foreach {label url} $item break
 

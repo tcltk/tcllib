@@ -16,14 +16,6 @@ dt_source fmt.text
 dt_source _markdown.tcl
 dt_source _xref.tcl
 
-rename PostProcess PostProcessT
-proc PostProcess {text} {
-    string map [list [LB] "  \n"] [PostProcessT $text]
-}
-
-proc LB  {} { return "\1\n" }
-proc LB. {} { return "\1" }
-
 # # ## ### ##### ########
 ## Override crucial parts of the regular text formatter
 
@@ -177,7 +169,7 @@ c_pass 2 fmt_subsection {name id} {
 proc fmt_sectref {title {id {}}} {
     if {$id == {}} { set id [c_sectionId $title] }
     if {[c_sectionKnown $id]} {
-    	return [ALink "#$id" $title]
+    	return [ALink "[Hash]$id" $title]
     } else {
 	return [Strong $title]
     }
@@ -190,7 +182,7 @@ c_pass 1 fmt_usage {cmd args} {
 
 c_pass 1 fmt_call  {cmd args} {
     set text [join [linsert $args 0 $cmd] " "]
-    set dest "#[c_cnext]"
+    set dest "[Hash][c_cnext]"
     c_hold synopsis "[MakeLink $text $dest][LB.]"
 }
 c_pass 2 fmt_call {cmd args} {
@@ -236,9 +228,9 @@ proc fmt_image {text {label {}}} {
     if {$img != {}} {
 	set img [LinkTo $img [LinkHere]]
 	if {$label != {}} {
-	    return "!\[\]($img \"$label\")"
+	    return "[Bang][OBrk][CBrk][OPar]$img \"$label\"[CPar]"
 	} else {
-	    return "!\[\]($img)"
+	    return "[Bang][OBrk][CBrk][OPar]$img[CPar]"
 	}
     }
 
@@ -248,7 +240,7 @@ proc fmt_image {text {label {}}} {
 	# A label is shown as a pseudo-caption (paragraph after image).
 	fmt_example $img
 	if {$label != {}} {
-	    Text [String "IMAGE: $label"]
+	    Text [Strong "IMAGE: $label"]
 	    CloseCurrent
 	}
     }
@@ -266,11 +258,17 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set module      [dt_module]
     set shortdesc   [c_get_module]
     set description [c_get_title]
+    set copyright   [c_get_copyright]
+    set pagetitle   "$title - $shortdesc"
 
     MDComment  "$title - $shortdesc"
     MDComment  [c_provenance]
+    if {$copyright != {}} { MDComment $copyright }
     MDComment  "[string trimleft $title :]($section) $version $module \"$shortdesc\""
     MDCDone
+
+    Text [GetT header @TITLE@ $pagetitle]
+    CloseParagraph
 
     Section NAME
     Text "$title - $description"
@@ -294,7 +292,7 @@ c_pass 2 fmt_description {id} {
     if {$syn != {} || $req != {}} {c_newSection Synopsis 1 0 synopsis}
     c_newSection {Table Of Contents} 1 0 toc
 
-    if {[llength [c_xref_seealso]]  > 0} {c_newSection {See Also} 1 end see-also}
+    if {[llength [c_xref_seealso]]  > 0} {c_newSection {See Also} 1 end seealso}
     if {[llength [c_xref_keywords]] > 0} {c_newSection Keywords   1 end keywords}
     if {[c_xref_category]         ne ""} {c_newSection Category   1 end category}
     if {[c_get_copyright]         != {}} {c_newSection Copyright  1 end copyright}
@@ -331,7 +329,7 @@ c_pass 2 fmt_manpage_end {} {
     set ct [c_get_copyright]
 
     CloseParagraph
-    if {[llength $sa]} { Special {SEE ALSO} see-also  [join [XrefList [lsort $sa] sa] ", "] }
+    if {[llength $sa]} { Special {SEE ALSO} seealso   [join [XrefList [lsort $sa] sa] ", "] }
     if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
     if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
     if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
@@ -361,13 +359,13 @@ proc TOC {} {
 
     ContextPush
     lappend toc _bogus_
-    lappend toc [ContextNew TOC/Section { List! bullet "  - "     "     "     }]
-    lappend toc [ContextNew TOC/SubSect { List! bullet "      - " "         " }]
+    lappend toc [ContextNew TOC/Section { List! bullet "  [Dash]"     "    "     }]
+    lappend toc [ContextNew TOC/SubSect { List! bullet "      [Dash]" "        " }]
     ContextPop
 
     foreach {name id level} [c_sections] {
 	# level in {1,2}, 1 = section, 2 = subsection
-	Text [ALink "#$id" $name]
+	Text [ALink "[Hash]$id" $name]
 	CloseParagraph [lindex $toc $level]
     }
 
@@ -376,12 +374,15 @@ proc TOC {} {
 
 # # ## ### ##### ########
 ## Engine Parameters
+## - xref	cross-reference data
+## - header	HTML or MD to place at the top of the document, before the title.
 
 proc GetXref {} { Get xref } ;# xref access to engine parameters
 
 global    __var
 array set __var {
     xref   {}
+    header {}
 }
 proc Get               {varname}      {global __var ; return $__var($varname)}
 proc fmt_listvariables {}             {global __var ; return [array names __var]}
@@ -392,6 +393,21 @@ proc fmt_varset        {varname text} {
     }
     set __var($varname) $text
     return
+}
+
+# Extended `Get`, templating.
+proc GetT {varname args} {
+    set content [Get $varname]
+    if {$content == {}} { return "" }
+    if {[llength $args]} {
+	set content [string map $args $content]
+    }
+
+    # The content is specified by the user. It is expected to be valid
+    # markdown. That means that any special characters are only quoted
+    # when they are not special. Internally this is inverted.
+
+    return "[Mark $content]\n"
 }
 
 ##

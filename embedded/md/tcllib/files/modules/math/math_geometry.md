@@ -1,43 +1,54 @@
 
-[//000000001]: # (math::geometry - Tcl Math Library)
-[//000000002]: # (Generated from file 'math_geometry.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (math::geometry(n) 1.3.0 tcllib "Tcl Math Library")
+[//000000001]: # (math::geometry \- Tcl Math Library)
+[//000000002]: # (Generated from file 'math\_geometry\.man' by tcllib/doctools with format 'markdown')
+[//000000003]: # (Copyright &copy; 2001 by Ideogramic ApS and other parties  
+Copyright &copy; 2010 by Andreas Kupries  
+Copyright &copy; 2010 by Kevin Kenny  
+Copyright &copy; 2018 by Arjen Markus)
+[//000000004]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
+
+<hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
+href="../../../toc.md">Table Of Contents</a> &#124; <a
+href="../../../../index.md">Keyword Index</a> &#124; <a
+href="../../../../toc0.md">Categories</a> &#124; <a
+href="../../../../toc1.md">Modules</a> &#124; <a
+href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-math::geometry - Geometrical computations
+math::geometry \- Geometrical computations
 
 # <a name='toc'></a>Table Of Contents
 
-  -  [Table Of Contents](#toc)
+  - [Table Of Contents](#toc)
 
-  -  [Synopsis](#synopsis)
+  - [Synopsis](#synopsis)
 
-  -  [Description](#section1)
+  - [Description](#section1)
 
-  -  [PROCEDURES](#section2)
+  - [PROCEDURES](#section2)
 
-  -  [References](#section3)
+  - [References](#section3)
 
-  -  [Bugs, Ideas, Feedback](#section4)
+  - [Bugs, Ideas, Feedback](#section4)
 
-  -  [Keywords](#keywords)
+  - [Keywords](#keywords)
 
-  -  [Category](#category)
+  - [Category](#category)
 
-  -  [Copyright](#copyright)
+  - [Copyright](#copyright)
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8.5?  
-package require math::geometry ?1.3.0?  
+package require Tcl ?8\.5?  
+package require math::geometry ?1\.3\.0?  
 
-[__::math::geometry::+__ *point1* *point2*](#1)  
-[__::math::geometry::-__ *point1* *point2*](#2)  
+[__::math::geometry::\+__ *point1* *point2*](#1)  
+[__::math::geometry::\-__ *point1* *point2*](#2)  
 [__::math::geometry::p__ *x* *y*](#3)  
 [__::math::geometry::distance__ *point1* *point2*](#4)  
 [__::math::geometry::length__ *point*](#5)  
-[__::math::geometry::s*__ *factor* *point*](#6)  
+[__::math::geometry::s\*__ *factor* *point*](#6)  
 [__::math::geometry::direction__ *angle*](#7)  
 [__::math::geometry::h__ *length*](#8)  
 [__::math::geometry::v__ *length*](#9)  
@@ -83,105 +94,105 @@ package require math::geometry ?1.3.0?
 
 # <a name='description'></a>DESCRIPTION
 
-The __math::geometry__ package is a collection of functions for computations and
-manipulations on two-dimensional geometrical objects, such as points, lines and
-polygons.
+The __math::geometry__ package is a collection of functions for computations
+and manipulations on two\-dimensional geometrical objects, such as points, lines
+and polygons\.
 
-The geometrical objects are implemented as plain lists of coordinates. For
-instance a line is defined by a list of four numbers, the x- and y-coordinate of
-a first point and the x- and y-coordinates of a second point on the line.
+The geometrical objects are implemented as plain lists of coordinates\. For
+instance a line is defined by a list of four numbers, the x\- and y\-coordinate of
+a first point and the x\- and y\-coordinates of a second point on the line\.
 
 The various types of object are recognised by the number of coordinate pairs and
 the context in which they are used: a list of four elements can be regarded as
 an infinite line, a finite line segment but also as a polyline of one segment
-and a point set of two points.
+and a point set of two points\.
 
 Currently the following types of objects are distinguished:
 
-  - *point* - a list of two coordinates representing the x- and y-coordinates
-    respectively.
+  - *point* \- a list of two coordinates representing the x\- and y\-coordinates
+    respectively\.
 
-  - *line* - a list of four coordinates, interpreted as the x- and y-coordinates
-    of two distinct points on the line.
+  - *line* \- a list of four coordinates, interpreted as the x\- and
+    y\-coordinates of two distinct points on the line\.
 
-  - *line segment* - a list of four coordinates, interpreted as the x- and
-    y-coordinates of the first and the last points on the line segment.
+  - *line segment* \- a list of four coordinates, interpreted as the x\- and
+    y\-coordinates of the first and the last points on the line segment\.
 
-  - *polyline* - a list of an even number of coordinates, interpreted as the x-
-    and y-coordinates of an ordered set of points.
+  - *polyline* \- a list of an even number of coordinates, interpreted as the
+    x\- and y\-coordinates of an ordered set of points\.
 
-  - *polygon* - like a polyline, but the implicit assumption is that the
-    polyline is closed (if the first and last points do not coincide, the
-    missing segment is automatically added).
+  - *polygon* \- like a polyline, but the implicit assumption is that the
+    polyline is closed \(if the first and last points do not coincide, the
+    missing segment is automatically added\)\.
 
-  - *point set* - again a list of an even number of coordinates, but the points
-    are regarded without any ordering.
+  - *point set* \- again a list of an even number of coordinates, but the
+    points are regarded without any ordering\.
 
-  - *circle* - a list of three numbers, the first two are the coordinates of the
-    centre and the third is the radius.
+  - *circle* \- a list of three numbers, the first two are the coordinates of
+    the centre and the third is the radius\.
 
 # <a name='section2'></a>PROCEDURES
 
 The package defines the following public procedures:
 
-  - <a name='1'></a>__::math::geometry::+__ *point1* *point2*
+  - <a name='1'></a>__::math::geometry::\+__ *point1* *point2*
 
-    Compute the sum of the two vectors given as points and return it. The result
-    is a vector as well.
+    Compute the sum of the two vectors given as points and return it\. The result
+    is a vector as well\.
 
-  - <a name='2'></a>__::math::geometry::-__ *point1* *point2*
+  - <a name='2'></a>__::math::geometry::\-__ *point1* *point2*
 
-    Compute the difference (point1 - point2) of the two vectors given as points
-    and return it. The result is a vector as well.
+    Compute the difference \(point1 \- point2\) of the two vectors given as points
+    and return it\. The result is a vector as well\.
 
   - <a name='3'></a>__::math::geometry::p__ *x* *y*
 
     Construct a point from its coordinates and return it as the result of the
-    command.
+    command\.
 
   - <a name='4'></a>__::math::geometry::distance__ *point1* *point2*
 
     Compute the distance between the two points and return it as the result of
-    the command. This is in essence the same as
+    the command\. This is in essence the same as
 
-        math::geometry::length [math::geomtry::- point1 point2]
+        math::geometry::length \[math::geomtry::\- point1 point2\]
 
   - <a name='5'></a>__::math::geometry::length__ *point*
 
-    Compute the length of the vector and return it as the result of the command.
+    Compute the length of the vector and return it as the result of the command\.
 
-  - <a name='6'></a>__::math::geometry::s*__ *factor* *point*
+  - <a name='6'></a>__::math::geometry::s\*__ *factor* *point*
 
-    Scale the vector by the factor and return it as the result of the command.
-    This is a vector as well.
+    Scale the vector by the factor and return it as the result of the command\.
+    This is a vector as well\.
 
   - <a name='7'></a>__::math::geometry::direction__ *angle*
 
     Given the angle in degrees this command computes and returns the unit vector
-    pointing into this direction. The vector for angle == 0 points to the right
-    (up), and for angle == 90 up (north).
+    pointing into this direction\. The vector for angle == 0 points to the right
+    \(up\), and for angle == 90 up \(north\)\.
 
   - <a name='8'></a>__::math::geometry::h__ *length*
 
-    Returns a horizontal vector on the X-axis of the specified length. Positive
-    lengths point to the right (east).
+    Returns a horizontal vector on the X\-axis of the specified length\. Positive
+    lengths point to the right \(east\)\.
 
   - <a name='9'></a>__::math::geometry::v__ *length*
 
-    Returns a vertical vector on the Y-axis of the specified length. Positive
-    lengths point down (south).
+    Returns a vertical vector on the Y\-axis of the specified length\. Positive
+    lengths point down \(south\)\.
 
   - <a name='10'></a>__::math::geometry::between__ *point1* *point2* *s*
 
     Compute the point which is at relative distance *s* between the two points
-    and return it as the result of the command. A relative distance of __0__
-    returns *point1*, the distance __1__ returns *point2*. Distances < 0 or > 1
-    extrapolate along the line between the two point.
+    and return it as the result of the command\. A relative distance of __0__
+    returns *point1*, the distance __1__ returns *point2*\. Distances < 0
+    or > 1 extrapolate along the line between the two point\.
 
   - <a name='11'></a>__::math::geometry::octant__ *point*
 
     Compute the octant of the circle the point is in and return it as the result
-    of the command. The possible results are
+    of the command\. The possible results are
 
     east
 
@@ -199,24 +210,24 @@ The package defines the following public procedures:
 
     southeast
 
-    Each octant is the arc of the circle +/- 22.5 degrees from the cardinal
-    direction the octant is named for.
+    Each octant is the arc of the circle \+/\- 22\.5 degrees from the cardinal
+    direction the octant is named for\.
 
   - <a name='12'></a>__::math::geometry::rect__ *nw* *se*
 
     Construct a rectangle from its northwest and southeast corners and return it
-    as the result of the command.
+    as the result of the command\.
 
   - <a name='13'></a>__::math::geometry::nwse__ *rect*
 
     Extract the northwest and southeast corners of the rectangle and return them
-    as the result of the command (a 2-element list containing the points, in the
-    named order).
+    as the result of the command \(a 2\-element list containing the points, in the
+    named order\)\.
 
   - <a name='14'></a>__::math::geometry::angle__ *line*
 
-    Calculate the angle from the positive x-axis to a given line (in two
-    dimensions only).
+    Calculate the angle from the positive x\-axis to a given line \(in two
+    dimensions only\)\.
 
       * list *line*
 
@@ -224,7 +235,7 @@ The package defines the following public procedures:
 
   - <a name='15'></a>__::math::geometry::calculateDistanceToLine__ *P* *line*
 
-    Calculate the distance of point P to the (infinite) line and return the
+    Calculate the distance of point P to the \(infinite\) line and return the
     result
 
       * list *P*
@@ -237,8 +248,8 @@ The package defines the following public procedures:
 
   - <a name='16'></a>__::math::geometry::calculateDistanceToLineSegment__ *P* *linesegment*
 
-    Calculate the distance of point P to the (finite) line segment and return
-    the result.
+    Calculate the distance of point P to the \(finite\) line segment and return
+    the result\.
 
       * list *P*
 
@@ -251,8 +262,8 @@ The package defines the following public procedures:
 
   - <a name='17'></a>__::math::geometry::calculateDistanceToPolyline__ *P* *polyline*
 
-    Calculate the distance of point P to the polyline and return the result.
-    Note that a polyline needs not to be closed.
+    Calculate the distance of point P to the polyline and return the result\.
+    Note that a polyline needs not to be closed\.
 
       * list *P*
 
@@ -264,9 +275,9 @@ The package defines the following public procedures:
 
   - <a name='18'></a>__::math::geometry::calculateDistanceToPolygon__ *P* *polygon*
 
-    Calculate the distance of point P to the polygon and return the result. If
-    the list of coordinates is not closed (first and last points differ), it is
-    automatically closed.
+    Calculate the distance of point P to the polygon and return the result\. If
+    the list of coordinates is not closed \(first and last points differ\), it is
+    automatically closed\.
 
       * list *P*
 
@@ -278,7 +289,7 @@ The package defines the following public procedures:
 
   - <a name='19'></a>__::math::geometry::findClosestPointOnLine__ *P* *line*
 
-    Return the point on a line which is closest to a given point.
+    Return the point on a line which is closest to a given point\.
 
       * list *P*
 
@@ -290,7 +301,7 @@ The package defines the following public procedures:
 
   - <a name='20'></a>__::math::geometry::findClosestPointOnLineSegment__ *P* *linesegment*
 
-    Return the point on a *line segment* which is closest to a given point.
+    Return the point on a *line segment* which is closest to a given point\.
 
       * list *P*
 
@@ -302,7 +313,7 @@ The package defines the following public procedures:
 
   - <a name='21'></a>__::math::geometry::findClosestPointOnPolyline__ *P* *polyline*
 
-    Return the point on a *polyline* which is closest to a given point.
+    Return the point on a *polyline* which is closest to a given point\.
 
       * list *P*
 
@@ -314,7 +325,7 @@ The package defines the following public procedures:
 
   - <a name='22'></a>__::math::geometry::lengthOfPolyline__ *polyline*
 
-    Return the length of the *polyline* (note: it not regarded as a polygon)
+    Return the length of the *polyline* \(note: it not regarded as a polygon\)
 
       * list *polyline*
 
@@ -323,7 +334,7 @@ The package defines the following public procedures:
   - <a name='23'></a>__::math::geometry::movePointInDirection__ *P* *direction* *dist*
 
     Move a point over a given distance in a given direction and return the new
-    coordinates (in two dimensions only).
+    coordinates \(in two dimensions only\)\.
 
       * list *P*
 
@@ -331,7 +342,7 @@ The package defines the following public procedures:
 
       * double *direction*
 
-        Direction (in degrees; 0 is to the right, 90 upwards)
+        Direction \(in degrees; 0 is to the right, 90 upwards\)
 
       * list *dist*
 
@@ -339,9 +350,9 @@ The package defines the following public procedures:
 
   - <a name='24'></a>__::math::geometry::lineSegmentsIntersect__ *linesegment1* *linesegment2*
 
-    Check if two line segments intersect or coincide. Returns 1 if that is the
-    case, 0 otherwise (in two dimensions only). If an endpoint of one segment
-    lies on the other segment (or is very close to the segment), they are
+    Check if two line segments intersect or coincide\. Returns 1 if that is the
+    case, 0 otherwise \(in two dimensions only\)\. If an endpoint of one segment
+    lies on the other segment \(or is very close to the segment\), they are
     considered to intersect
 
       * list *linesegment1*
@@ -354,9 +365,9 @@ The package defines the following public procedures:
 
   - <a name='25'></a>__::math::geometry::findLineSegmentIntersection__ *linesegment1* *linesegment2*
 
-    Find the intersection point of two line segments. Return the coordinates or
+    Find the intersection point of two line segments\. Return the coordinates or
     the keywords "coincident" or "none" if the line segments coincide or have no
-    points in common (in two dimensions only).
+    points in common \(in two dimensions only\)\.
 
       * list *linesegment1*
 
@@ -368,9 +379,9 @@ The package defines the following public procedures:
 
   - <a name='26'></a>__::math::geometry::findLineIntersection__ *line1* *line2*
 
-    Find the intersection point of two (infinite) lines. Return the coordinates
+    Find the intersection point of two \(infinite\) lines\. Return the coordinates
     or the keywords "coincident" or "none" if the lines coincide or have no
-    points in common (in two dimensions only).
+    points in common \(in two dimensions only\)\.
 
       * list *line1*
 
@@ -380,12 +391,12 @@ The package defines the following public procedures:
 
         Second line
 
-    See section [References](#section3) for details on the algorithm and math
-    behind it.
+    See section [References](#section3) for details on the algorithm and
+    math behind it\.
 
   - <a name='27'></a>__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*
 
-    Check if two polylines intersect or not (in two dimensions only).
+    Check if two polylines intersect or not \(in two dimensions only\)\.
 
       * list *polyline1*
 
@@ -398,14 +409,14 @@ The package defines the following public procedures:
   - <a name='28'></a>__::math::geometry::polylinesBoundingIntersect__ *polyline1* *polyline2* *granularity*
 
     Check whether two polylines intersect, but reduce the correctness of the
-    result to the given granularity. Use this for faster, but weaker,
-    intersection checking.
+    result to the given granularity\. Use this for faster, but weaker,
+    intersection checking\.
 
     How it works:
 
     Each polyline is split into a number of smaller polylines, consisting of
-    granularity points each. If a pair of those smaller lines' bounding boxes
-    intersect, then this procedure returns 1, otherwise it returns 0.
+    granularity points each\. If a pair of those smaller lines' bounding boxes
+    intersect, then this procedure returns 1, otherwise it returns 0\.
 
       * list *polyline1*
 
@@ -417,11 +428,11 @@ The package defines the following public procedures:
 
       * int *granularity*
 
-        Number of points in each part (<=1 means check every edge)
+        Number of points in each part \(<=1 means check every edge\)
 
   - <a name='29'></a>__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*
 
-    Check if two intervals overlap.
+    Check if two intervals overlap\.
 
       * double *y1,y2*
 
@@ -433,36 +444,36 @@ The package defines the following public procedures:
 
       * logical *strict*
 
-        Check for strict or non-strict overlap
+        Check for strict or non\-strict overlap
 
   - <a name='30'></a>__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*
 
-    Check if two rectangles overlap.
+    Check if two rectangles overlap\.
 
       * list *P1*
 
-        upper-left corner of the first rectangle
+        upper\-left corner of the first rectangle
 
       * list *P2*
 
-        lower-right corner of the first rectangle
+        lower\-right corner of the first rectangle
 
       * list *Q1*
 
-        upper-left corner of the second rectangle
+        upper\-left corner of the second rectangle
 
       * list *Q2*
 
-        lower-right corner of the second rectangle
+        lower\-right corner of the second rectangle
 
       * list *strict*
 
-        choosing strict or non-strict interpretation
+        choosing strict or non\-strict interpretation
 
   - <a name='31'></a>__::math::geometry::bbox__ *polyline*
 
-    Calculate the bounding box of a polyline. Returns a list of four
-    coordinates: the upper-left and the lower-right corner of the box.
+    Calculate the bounding box of a polyline\. Returns a list of four
+    coordinates: the upper\-left and the lower\-right corner of the box\.
 
       * list *polyline*
 
@@ -470,8 +481,8 @@ The package defines the following public procedures:
 
   - <a name='32'></a>__::math::geometry::pointInsidePolygon__ *P* *polyline*
 
-    Determine if a point is completely inside a polygon. If the point touches
-    the polygon, then the point is not completely inside the polygon.
+    Determine if a point is completely inside a polygon\. If the point touches
+    the polygon, then the point is not completely inside the polygon\.
 
       * list *P*
 
@@ -483,10 +494,10 @@ The package defines the following public procedures:
 
   - <a name='33'></a>__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*
 
-    Determine if a point is completely inside a polygon. If the point touches
-    the polygon, then the point is not completely inside the polygon. *Note:*
-    this alternative procedure uses the so-called winding number to determine
-    this. It handles self-intersecting polygons in a "natural" way.
+    Determine if a point is completely inside a polygon\. If the point touches
+    the polygon, then the point is not completely inside the polygon\. *Note:*
+    this alternative procedure uses the so\-called winding number to determine
+    this\. It handles self\-intersecting polygons in a "natural" way\.
 
       * list *P*
 
@@ -498,16 +509,16 @@ The package defines the following public procedures:
 
   - <a name='34'></a>__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*
 
-    Determine if a rectangle is completely inside a polygon. If polygon touches
-    the rectangle, then the rectangle is not complete inside the polygon.
+    Determine if a rectangle is completely inside a polygon\. If polygon touches
+    the rectangle, then the rectangle is not complete inside the polygon\.
 
       * list *P1*
 
-        Upper-left corner of the rectangle
+        Upper\-left corner of the rectangle
 
       * list *P2*
 
-        Lower-right corner of the rectangle
+        Lower\-right corner of the rectangle
 
       * list *polygon*
 
@@ -515,7 +526,7 @@ The package defines the following public procedures:
 
   - <a name='35'></a>__::math::geometry::areaPolygon__ *polygon*
 
-    Calculate the area of a polygon.
+    Calculate the area of a polygon\.
 
       * list *polygon*
 
@@ -535,11 +546,11 @@ The package defines the following public procedures:
 
   - <a name='37'></a>__::math::geometry::rotate__ *angle* *polyline*
 
-    Rotate a polyline over a given angle (degrees) around the origin
+    Rotate a polyline over a given angle \(degrees\) around the origin
 
       * list *angle*
 
-        Angle over which to rotate the polyline (degrees)
+        Angle over which to rotate the polyline \(degrees\)
 
       * list *polyline*
 
@@ -547,12 +558,12 @@ The package defines the following public procedures:
 
   - <a name='38'></a>__::math::geometry::reflect__ *angle* *polyline*
 
-    Reflect a polyline in a line through the origin at a given angle (degrees)
-    to the x-axis
+    Reflect a polyline in a line through the origin at a given angle \(degrees\)
+    to the x\-axis
 
       * list *angle*
 
-        Angle of the line of reflection (degrees)
+        Angle of the line of reflection \(degrees\)
 
       * list *polyline*
 
@@ -576,7 +587,7 @@ The package defines the following public procedures:
 
   - <a name='41'></a>__::math::geometry::circle__ *centre* *radius*
 
-    Convenience procedure to create a circle from a point and a radius.
+    Convenience procedure to create a circle from a point and a radius\.
 
       * list *centre*
 
@@ -590,7 +601,7 @@ The package defines the following public procedures:
 
     Convenience procedure to create a circle from two points on its
     circumference The centre is the point between the two given points, the
-    radius is half the distance between them.
+    radius is half the distance between them\.
 
       * list *point1*
 
@@ -603,7 +614,7 @@ The package defines the following public procedures:
   - <a name='43'></a>__::math::geometry::pointInsideCircle__ *point* *circle*
 
     Determine if the given point is inside the circle or on the circumference
-    (1) or outside (0).
+    \(1\) or outside \(0\)\.
 
       * list *point*
 
@@ -615,8 +626,8 @@ The package defines the following public procedures:
 
   - <a name='44'></a>__::math::geometry::lineIntersectsCircle__ *line* *circle*
 
-    Determine if the given line intersects the circle or touches it (1) or does
-    not (0).
+    Determine if the given line intersects the circle or touches it \(1\) or does
+    not \(0\)\.
 
       * list *line*
 
@@ -628,8 +639,8 @@ The package defines the following public procedures:
 
   - <a name='45'></a>__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*
 
-    Determine if the given line segment intersects the circle or touches it (1)
-    or does not (0).
+    Determine if the given line segment intersects the circle or touches it \(1\)
+    or does not \(0\)\.
 
       * list *segment*
 
@@ -641,10 +652,10 @@ The package defines the following public procedures:
 
   - <a name='46'></a>__::math::geometry::intersectionLineWithCircle__ *line* *circle*
 
-    Determine the points at which the given line intersects the circle. There
-    can be zero, one or two points. (If the line touches the circle or is close
-    to it, then one point is returned. An arbitrary margin of 1.0e-10 times the
-    radius is used to determine this situation.)
+    Determine the points at which the given line intersects the circle\. There
+    can be zero, one or two points\. \(If the line touches the circle or is close
+    to it, then one point is returned\. An arbitrary margin of 1\.0e\-10 times the
+    radius is used to determine this situation\.\)
 
       * list *line*
 
@@ -656,10 +667,10 @@ The package defines the following public procedures:
 
   - <a name='47'></a>__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*
 
-    Determine the points at which the given two circles intersect. There can be
-    zero, one or two points. (If the two circles touch the circle or are very
-    close, then one point is returned. An arbitrary margin of 1.0e-10 times the
-    mean of the radii of the two circles is used to determine this situation.)
+    Determine the points at which the given two circles intersect\. There can be
+    zero, one or two points\. \(If the two circles touch the circle or are very
+    close, then one point is returned\. An arbitrary margin of 1\.0e\-10 times the
+    mean of the radii of the two circles is used to determine this situation\.\)
 
       * list *circle1*
 
@@ -671,10 +682,10 @@ The package defines the following public procedures:
 
   - <a name='48'></a>__::math::geometry::tangentLinesToCircle__ *point* *circle*
 
-    Determine the tangent lines from the given point to the circle. There can be
-    zero, one or two lines. (If the point is on the cirucmference or very close
-    to the circle, then one line is returned. An arbitrary margin of 1.0e-10
-    times the radius of the circle is used to determine this situation.)
+    Determine the tangent lines from the given point to the circle\. There can be
+    zero, one or two lines\. \(If the point is on the cirucmference or very close
+    to the circle, then one line is returned\. An arbitrary margin of 1\.0e\-10
+    times the radius of the circle is used to determine this situation\.\)
 
       * list *point*
 
@@ -686,33 +697,34 @@ The package defines the following public procedures:
 
 # <a name='section3'></a>References
 
-  1. [Polygon Intersection](http:/wiki.tcl.tk/12070)
+  1. [Polygon Intersection](http:/wiki\.tcl\.tk/12070)
 
-  1. [http://en.wikipedia.org/wiki/Line-line_intersection](http://en.wikipedia.org/wiki/Line-line_intersection)
+  1. [http://en\.wikipedia\.org/wiki/Line\-line\_intersection](http://en\.wikipedia\.org/wiki/Line\-line\_intersection)
 
-  1. [http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/](http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/)
+  1. [http://local\.wasp\.uwa\.edu\.au/~pbourke/geometry/lineline2d/](http://local\.wasp\.uwa\.edu\.au/~pbourke/geometry/lineline2d/)
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
-other problems. Please report such in the category *math :: geometry* of the
-[Tcllib Trackers](http://core.tcl.tk/tcllib/reportlist). Please also report any
-ideas for enhancements you may have for either package and/or documentation.
+other problems\. Please report such in the category *math :: geometry* of the
+[Tcllib Trackers](http://core\.tcl\.tk/tcllib/reportlist)\. Please also report
+any ideas for enhancements you may have for either package and/or documentation\.
 
-When proposing code changes, please provide *unified diffs*, i.e the output of
-__diff -u__.
+When proposing code changes, please provide *unified diffs*, i\.e the output of
+__diff \-u__\.
 
-Note further that *attachments* are strongly preferred over inlined patches.
-Attachments can be made by going to the __Edit__ form of the ticket immediately
-after its creation, and then using the left-most button in the secondary
-navigation bar.
+Note further that *attachments* are strongly preferred over inlined patches\.
+Attachments can be made by going to the __Edit__ form of the ticket
+immediately after its creation, and then using the left\-most button in the
+secondary navigation bar\.
 
 # <a name='keywords'></a>KEYWORDS
 
-[angle](../../../../index.md#angle), [distance](../../../../index.md#distance),
-[line](../../../../index.md#line), [math](../../../../index.md#math), [plane
-geometry](../../../../index.md#plane_geometry),
-[point](../../../../index.md#point)
+[angle](\.\./\.\./\.\./\.\./index\.md\#angle),
+[distance](\.\./\.\./\.\./\.\./index\.md\#distance),
+[line](\.\./\.\./\.\./\.\./index\.md\#line), [math](\.\./\.\./\.\./\.\./index\.md\#math),
+[plane geometry](\.\./\.\./\.\./\.\./index\.md\#plane\_geometry),
+[point](\.\./\.\./\.\./\.\./index\.md\#point)
 
 # <a name='category'></a>CATEGORY
 
