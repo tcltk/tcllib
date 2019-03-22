@@ -88,7 +88,7 @@ package provide dtplite 1.3.1
 # *	As described above the format name is used as the extension
 #	for the generated files. Does it make sense to introduce an
 #	option with which we can overide this, or should we simply
-#	extect that a calling script does a proper renaming of all the
+#	expect that a calling script does a proper renaming of all the
 #	files ?  ... The option is better. In HTML output we have
 #	links between the files, and renaming from the outside just
 #	breaks the links. This option is '-ext'. It is ignored if the
@@ -1724,7 +1724,7 @@ proc ::dtplite::NavbarSegment {sepv firstv nav ref} {
     set sep 0
 
     foreach item $nav {
-	if {!$first} {append hdr "| "} else {append hdr "  "}
+	if {!$first} {append hdr "&#124; "} else {append hdr "  "}
 	set first 0
 	foreach {label url} $item break
 

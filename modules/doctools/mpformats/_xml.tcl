@@ -1,14 +1,11 @@
 # -*- tcl -*-
-#
-# $Id: _xml.tcl,v 1.9 2004/04/22 21:16:46 jenglish Exp $
-#
 # [expand] utilities for generating XML.
 #
 # Copyright (C) 2001 Joe English <jenglish@sourceforge.net>.
 # Freely redistributable.
 #
+# Copyright (C) 2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 ######################################################################
-
 
 # Handling XML delimiters in content:
 #
@@ -24,9 +21,9 @@ variable markupMap { {&} {\1&}  {<} {\1<}  {>} {\1>} }
 variable finalMap  { {\1&} {&}  {\1<} {<}  {\1>} {>}
 		     {&} &amp;  {<} &lt;   {>} &gt; }
 
-proc fmt_postprocess {text}	{
+proc fmt_postprocess {text} {
     variable finalMap
-    return [string map $finalMap $text]
+    return [string trim [string map $finalMap $text]]\n
 }
 
 # markup text --
