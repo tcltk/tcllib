@@ -15,7 +15,7 @@ for a proper application [syscmd critcl.exe]. When that is not found
 we look for a combination of interpreter ([syscmd tclkitsh.exe],
 [syscmd tclsh.exe]) and starkit ([syscmd critcl.kit], [syscmd critcl])
 instead. [emph Note] that the choice of starkit can be overriden via
-the environment variable [cariable CRITCL].
+the environment variable [variable CRITCL].
 
 [para] Tcllib requires Critcl version 2 or higher.
 

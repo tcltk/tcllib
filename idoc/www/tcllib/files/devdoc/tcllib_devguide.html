@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>tcllib_devguide - </title>
 <style type="text/css"><!--
@@ -98,12 +97,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../home">Tcllib Home</a>
-| <a href="../../../toc.html">Main Table Of Contents</a>
-| <a href="../../toc.html">Table Of Contents</a>
-| <a href="../../../index.html">Keyword Index</a>
-| <a href="../../../toc0.html">Categories</a>
-| <a href="../../../toc1.html">Modules</a>
-| <a href="../../../toc2.html">Applications</a>
+&#124; <a href="../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../index.html">Keyword Index</a>
+&#124; <a href="../../../toc0.html">Categories</a>
+&#124; <a href="../../../toc1.html">Modules</a>
+&#124; <a href="../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">tcllib_devguide(n) 1 tcllib &quot;&quot;</h1>
@@ -216,7 +215,7 @@ you are committing yourself to</p>
        	      they see fit.</p></li>
 <li><p>A maintainer may step down before the end of the
       	      mandatory period, under the condition that a replacement
-      	      maintainer is immediatel available and has agreed to
+      	      maintainer is immediately available and has agreed to
       	      serve the remainder of the period, plus their own
       	      mandatory period (see below).</p></li>
 <li><p>When stepping down without a replacement maintainer
@@ -231,16 +230,15 @@ you are committing yourself to</p>
        	      interested in becoming its maintainer can become so by
        	      flagging them as <b class="const">maintained</b> with their name and
        	      contact information, committing themselves to the rules
-       	      of a replacement maintainer (see previous).</p></li>
+       	      of a replacement maintainer (see previous point).</p></li>
 <li><p>For any already <b class="const">maintained</b> package a contributor
        	      interested in becoming a co-maintainer can become so
        	      with the agreement of the existing maintainer(s),
        	      committing themselves to the rules of a replacement
-       	      maintainer (see two above).</p></li>
+       	      maintainer (see two points previous).</p></li>
 </ol>
 <p>The responsibilities as a maintainer include:</p>
 <ol class="doctools_enumerated">
-       
        
 <li><p>Watching Tcllib's ticket tracker for bugs, bug fixes,
        	      and feature requests related to the new packages.</p></li>
@@ -267,7 +265,7 @@ and this exactly the case in the
 <p>In support of debugging, like searching for when an issue
 appeared via bisection, each commit on this branch must pass the
 entire testsuite of the collection.</p>
-<p>As fossil has no mechanism to enfore this this is handled on
+<p>As fossil has no mechanism to enforce this this is handled on
 the honor system for developers and maintainers.</p>
 <p>To make the task easier Tcllib comes with a tool
 (&quot;<b class="file">sak.tcl</b>&quot;) providing a number of commands in support. These
@@ -284,11 +282,11 @@ merging will it be necessary to perform full validation.</p>
 </div>
 <div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Version numbers</a></h3>
 <p>In Tcllib all changes to a package have to come with an increment of
-its version number. With what part is incremented (patchlevel, minor,
-major version) dependent on the kind of change made. With multiple
+its version number. What part is incremented (patchlevel, minor,
+major version) depends on the kind of change made. With multiple
 changes in a commit the highest &quot;wins&quot;.</p>
 <p>When working in a development branch the version change can be
-defered until it is time to merge, and then has to cover all the
+deferred until it is time to merge, and then has to cover all the
 changes in the branch.</p>
 <p>Below a list of the kinds of changes and their association
 version increments:</p>
@@ -352,7 +350,7 @@ generally not polished enough to be considered for installation.</p></dd>
 <div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">More Directories</a></h3>
 <dl class="doctools_definitions">
 <dt>&quot;<b class="file">config</b>&quot;</dt>
-<dd><p>This directory contains files supporting the unix build system,
+<dd><p>This directory contains files supporting the Unix build system,
 i.e. &quot;<b class="file">configure</b>&quot; and &quot;<b class="file">Makefile.in</b>&quot;.</p></dd>
 <dt>&quot;<b class="file">devdoc</b>&quot;</dt>
 <dd><p>This directories contains the doctools sources for the global
@@ -382,7 +380,7 @@ used in the implementation of the &quot;<b class="file">installer.tcl</b>&quot; 
 <dt>&quot;<b class="file">configure.in</b>&quot;</dt>
 <dd></dd>
 <dt>&quot;<b class="file">Makefile.in</b>&quot;</dt>
-<dd><p>These four files comprise the unix build system layered on top of the
+<dd><p>These four files comprise the Unix build system layered on top of the
 &quot;<b class="file">installer.tcl</b>&quot; script.</p></dd>
 <dt>&quot;<b class="file">installer.tcl</b>&quot;</dt>
 <dd><p>The Tcl-based installation script/tool.</p></dd>
@@ -394,7 +392,7 @@ buildsystem.</p></dd>
 <i class="term">Swiss Army Knife</i> of management operations on the collection.</p></dd>
 <dt>&quot;<b class="file">ChangeLog</b>&quot;</dt>
 <dd><p>The log of changes to the global support, when the sources were held
-in <i class="term"><a href="../../../index.html#cvs">CVS</a></i>. Not relevant any logner with the switch to the
+in <i class="term"><a href="../../../index.html#cvs">CVS</a></i>. Not relevant any longer with the switch to the
 <i class="term">fossil</i> SCM.</p></dd>
 <dt>&quot;<b class="file">license.terms</b>&quot;</dt>
 <dd><p>The license in plain ASCII. See also <i class="term"><a href="tcllib_license.html">Tcllib - License</a></i> for the
@@ -437,7 +435,7 @@ Based on &quot;<b class="file">modules/bench</b>&quot;.</p></dd>
 <dt>&quot;<b class="file">.pcx</b>&quot;</dt>
 <dd><p>Syntax rules for <i class="term">TclDevKit</i>'s <b class="syscmd">tclchecker</b>. Using these
 rules allows the checker to validate the use of commands of a Tcllib
-package <b class="package">FOO</b> without having to scan the &quot;<b class="file">.tcl</b>&quot; files
+package <b class="package">foo</b> without having to scan the &quot;<b class="file">.tcl</b>&quot; files
 implementing it.</p></dd>
 </dl>
 </div>
@@ -452,10 +450,10 @@ of <b class="cmd"><a href="../../../index.html#test">test</a></b> providing mana
 list of standard Tcl shells to use.</p>
 <div id="subsection9" class="doctools_subsection"><h3><a name="subsection9">Invoke the testsuites of a specific module</a></h3>
 <p>Invoke either</p>
-<pre class="doctools_example">  ./sak.tcl test run FOO </pre>
+<pre class="doctools_example">  ./sak.tcl test run foo </pre>
 <p>or</p>
-<pre class="doctools_example">  ./sak.tcl test run modules/FOO </pre>
-<p>to invoke the testsuites found in a specific module &quot;<b class="file">FOO</b>&quot;.</p>
+<pre class="doctools_example">  ./sak.tcl test run modules/foo </pre>
+<p>to invoke the testsuites found in a specific module &quot;<b class="file">foo</b>&quot;.</p>
 </div>
 <div id="subsection10" class="doctools_subsection"><h3><a name="subsection10">Invoke the testsuites of all modules</a></h3>
 <p>Invoke the tool without a module name, i.e.</p>
@@ -471,14 +469,14 @@ each in a summary at the end.</p>
 runner with additional options.</p>
 <p>For one:</p>
 <pre class="doctools_example">
-   ./sak.tcl test run --log LOG FOO
+   ./sak.tcl test run --log LOG foo
 </pre>
 <p>While this shows the same short log on the terminal as before, it also
 writes a detailed log to the file &quot;<b class="file">LOG.log</b>&quot;, and excerpts to
 other files (&quot;<b class="file">LOG.summary</b>&quot;, &quot;<b class="file">LOG.failures</b>&quot;, etc.).</p>
 <p>For two:</p>
 <pre class="doctools_example">
-  ./sak.tcl test run -v FOO
+  ./sak.tcl test run -v foo
 </pre>
 <p>This writes the detailed log to the standard output, instead of the
 short log.</p>
@@ -489,7 +487,7 @@ actual results).</p>
 <div id="subsection12" class="doctools_subsection"><h3><a name="subsection12">Shell Selection</a></h3>
 <p>By default the test runner will use all the Tcl shells specified via
 <b class="cmd">test add</b> to invoke the specified testsuites, if any. If no
-such are specified it will fall back to the Tcl shell used to ran the
+such are specified it will fall back to the Tcl shell used to run the
 tool itself.</p>
 <p>Use option <b class="option">--shell</b> to explicitly specify the Tcl shell
 to use, like</p>
@@ -513,13 +511,13 @@ an application package, with the actual application
 &quot;<b class="file">apps/dtplite</b>&quot; a light wrapper around it.</p>
 <p>Tcllib developers gain access to these through the <b class="cmd">doc</b>
 method of the &quot;<b class="file">sak.tcl</b>&quot; tool, another (internal) wrapper around
-the &quot;<b class="file">modules/dptlite</b>&quot; application package.</p>
+the &quot;<b class="file">modules/dtplite</b>&quot; application package.</p>
 <div id="subsection14" class="doctools_subsection"><h3><a name="subsection14">Generate documentation for a specific module</a></h3>
 <p>Invoke either</p>
-<pre class="doctools_example">  ./sak.tcl doc html FOO </pre>
+<pre class="doctools_example">  ./sak.tcl doc html foo </pre>
 <p>or</p>
-<pre class="doctools_example">  ./sak.tcl doc html modules/FOO </pre>
-<p>to generate HTML for the documentation found in the module &quot;<b class="file">FOO</b>&quot;.
+<pre class="doctools_example">  ./sak.tcl doc html modules/foo </pre>
+<p>to generate HTML for the documentation found in the module &quot;<b class="file">foo</b>&quot;.
 Instead of <b class="const">html</b> any other supported format can be used here,
 of course.</p>
 <p>The generated formatted documentation will be placed into a
@@ -546,7 +544,7 @@ generated.</p>
 the tool to simply check that the documentation is syntactically
 correct, without generating actual output.</p>
 <p>Invoke it as either</p>
-<pre class="doctools_example">  ./sak.tcl doc validate (modules/)FOO </pre>
+<pre class="doctools_example">  ./sak.tcl doc validate (modules/)foo </pre>
 <p>or</p>
 <pre class="doctools_example">  ./sak.tcl doc validate </pre>
 <p>to either check the packages of a specific module or check all of
@@ -555,7 +553,7 @@ them.</p>
 </div>
 <div id="section7" class="doctools_section"><h2><a name="section7">Notes On Writing A Testsuite</a></h2>
 <p>While previous sections talked about running the testsuites for a
-module and the packages therein this has no meaning if the module in
+module and the packages therein, this has no meaning if the module in
 question has no testsuites at all.</p>
 <p>This section gives a very basic overview on possible
 methodologies for writing tests and testsuites.</p>
@@ -571,13 +569,13 @@ Code 2009 are:</p>
 <ul class="doctools_itemized">
 <li><p>The BellmanFord command in struct::graph::ops takes a
 	<i class="arg">startnode</i> as argument, and this node should be a node of
-	the graph. Equals one test case checking the behavior when the
-	specified node is not a node a graph.</p>
+	the graph. This equals one test case checking the behavior when the
+	specified node is not a node of the graph.</p>
 <p>This often gives rise to code in the implementation which
-	explicitly checks the assumption and throws a nice error.
-	Instead of letting the algorithm fails later in some weird
+	explicitly checks the assumption and throws an understandable error.
+	Instead of letting the algorithm fail later in some weird
 	non-deterministic way.</p>
-<p>It not always possible to do such checks. The graph argument
+<p>It is not always possible to do such checks. The graph argument
 	for example is just a command in itself, and while we expect
 	it to exhibit a certain interface, i.e. a set of sub-commands
 	aka methods, we cannot check that it has them, except by

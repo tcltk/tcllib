@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>tcllib_install_guide - </title>
 <style type="text/css"><!--
@@ -98,12 +97,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../home">Tcllib Home</a>
-| <a href="../../../toc.html">Main Table Of Contents</a>
-| <a href="../../toc.html">Table Of Contents</a>
-| <a href="../../../index.html">Keyword Index</a>
-| <a href="../../../toc0.html">Categories</a>
-| <a href="../../../toc1.html">Modules</a>
-| <a href="../../../toc2.html">Applications</a>
+&#124; <a href="../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../index.html">Keyword Index</a>
+&#124; <a href="../../../toc0.html">Categories</a>
+&#124; <a href="../../../toc1.html">Modules</a>
+&#124; <a href="../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">tcllib_install_guide(n) 1 tcllib &quot;&quot;</h1>
@@ -117,7 +116,7 @@
 <li class="doctools_section"><a href="#section2">Requisites</a>
 <ul>
 <li class="doctools_subsection"><a href="#subsection1">Tcl</a></li>
-<li class="doctools_subsection"><a href="#subsection2">CriTcl</a></li>
+<li class="doctools_subsection"><a href="#subsection2">Critcl</a></li>
 </ul>
 </li>
 <li class="doctools_section"><a href="#section3">Build &amp; Installation Instructions</a>
@@ -149,7 +148,7 @@ These are:</p>
 <li><p>The scripting language Tcl.
        For details see <span class="sectref"><a href="#subsection1">Tcl</a></span>.</p></li>
 <li><p>Optionally, the <b class="package">critcl</b> package (C embedding) for <b class="syscmd"><a href="../../../index.html#tcl">Tcl</a></b>.
-       For details see <span class="sectref"><a href="#subsection2">CriTcl</a></span>.</p></li>
+       For details see <b class="sectref">CriTcl</b>.</p></li>
 </ol>
 <p>This list assumes that the machine where Tcllib is to be installed is
 essentially clean. Of course, if parts of the dependencies listed
@@ -160,8 +159,8 @@ dependencies they talk about are indeed installed.</p>
 <p>As we are installing a number of Tcl packages and applications it
 should be pretty much obvious that a working installation of Tcl
 itself is needed, and I will not belabor the point.</p>
-<p>Out of the many possibilites use whatever you are comfortable
-with, as long as it provides Tcl 8.2, or higher.
+<p>Out of the many possibilities use whatever you are comfortable
+with, as long as it provides at the very least Tcl 8.2, or higher.
 This may be a Tcl installation provided by your operating system
 distribution, from a distribution-independent vendor, or built by
 yourself.</p>
@@ -188,18 +187,24 @@ relevant sources can be found at</p>
 <dd><p><a href="http://core.tcl-lang.org/tcl/">http://core.tcl-lang.org/tcl/</a></p></dd>
 </dl>
 <p>together with the necessary instructions on how to build it.</p>
-<p>If there are problems with building, installing, or using Tcl
+<p>If there are problems with building, installing, or using Tcl,
 please file a ticket against <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>, or the vendor of your
 distribution, and <em>not</em> <i class="term"><a href="../../../index.html#tcllib">Tcllib</a></i>.</p>
 </div>
-<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">CriTcl</a></h3>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">Critcl</a></h3>
 <p>The <b class="syscmd">critcl</b> tool is an <em>optional</em> dependency.</p>
 <p>It is only required when trying to build the C-based
 <i class="term">accelerators</i> for a number of packages, as explained in
 <span class="sectref"><a href="#subsection3">Critcl &amp; Accelerators</a></span></p>
-<p>Tcllib's build system accepts it as an application found in the
-PATH (be it starkit or starpack).</p>
-<p>Tcllib requires version 2 or higher.</p>
+<p>Tcllib's build system looks for it in the ,
+using the name <b class="syscmd">critcl</b>. This is for Unix.
+On Windows on the other hand the search is more complex. First we look
+for a proper application <b class="syscmd">critcl.exe</b>. When that is not found
+we look for a combination of interpreter (<b class="syscmd">tclkitsh.exe</b>,
+<b class="syscmd">tclsh.exe</b>) and starkit (<b class="syscmd">critcl.kit</b>, <b class="syscmd">critcl</b>)
+instead. <em>Note</em> that the choice of starkit can be overriden via
+the environment variable .</p>
+<p>Tcllib requires Critcl version 2 or higher.</p>
 <p>The github repository providing releases of version 2 and
 higher, and the associated sources, can be found at
 <a href="http://andreas-kupries.github.com/critcl">http://andreas-kupries.github.com/critcl</a>.</p>
@@ -207,9 +212,9 @@ higher, and the associated sources, can be found at
 prebuild starkit or starpack), although the use of the stable branch
 <em>master</em> is recommended.</p>
 <p>At the above url is also an explanation on how to build and
-install CriTcl, including a list of its dependencies.</p>
+install Critcl, including a list of its dependencies.</p>
 <p>Its instructions will not be repeated here. If there are
-problems with their directions please file a ticket against the
+problems with these directions please file a ticket against the
 <i class="term">Critcl</i> project, and not Tcllib.</p>
 </div>
 </div>
@@ -235,7 +240,7 @@ the toplevel directory of a checkout or release.</p>
 <p>The second form is required on Windows (without a Unix emulation),
 except if the Tcl installation is configured to handle &quot;<b class="file">.tcl</b>&quot;
 files on a double-click.</p></li>
-<li><p>In a unix-type environment, i.e. Linux, BSD and related, including OS
+<li><p>In a Unix-type environment, i.e. Linux, BSD and related, including OS
 X, and Windows using some kind of unix-emulation like <b class="syscmd">MSYS</b>,
 <b class="syscmd">Cygwin</b>, etc.) it is also possible to use</p>
 <pre class="doctools_example">
@@ -251,7 +256,7 @@ relative path.</p>
 found in Tcllib, and their manpages, in directories derived from what
 <b class="syscmd">configure</b> found out about the system.</p></li>
 </ol>
-<p>The installer selects automatically either a gui based mode, or
+<p>The installer selects automatically either a GUI based mode, or
 a command line based mode. If the package <b class="package"><a href="../../../index.html#tk">Tk</a></b> is present and
 can be loaded, then the GUI mode is entered, else the system falls
 back to the command line.</p>
@@ -271,7 +276,7 @@ targets found in &quot;<b class="file">Makefile.in</b>&quot;.</p>
 locations of packages, examples, and documentation, and also the
 format of the documentation. The user can overide these defaults in
 the GUI, or by specifying additional options.</p>
-<p>The defaults depend on the platform detected (unix/windows) and
+<p>The defaults depend on the platform detected (Unix/Windows) and
 on the <b class="syscmd">tclsh</b> executable used to run the installer.</p>
 <p><em>Attention</em> The installer will overwrite an existing
 installation of a Tcllib with the same version without asking back
@@ -285,11 +290,12 @@ the packages using them. As these accelerators are optional they are
 not installed by default.</p>
 <p>To build the accelerators the normally optional dependency on
 <b class="syscmd">critcl</b> becomes required.</p>
-<p>To install Tcllib with the accelerators in a unix-type
+<p>To install Tcllib with the accelerators in a Unix-type
 environment invoke:</p>
 <pre class="doctools_example">
     ./configure
-    make critcl # This builds the shared library holding the accelerators
+    make critcl # This builds the shared library holding
+                # the accelerators
     make install
 </pre>
 <p>The underlying tool is &quot;<b class="file">sak.tcl</b>&quot; in the toplevel directory

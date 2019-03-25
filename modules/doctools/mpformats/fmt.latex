@@ -1,8 +1,5 @@
 # -*- tcl -*-
-#
-# fmt.latex
-#
-# (c) 2001 Andreas Kupries <andreas_kupries@sourceforge.net>
+# (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [mpexpand] definitions to convert a tcl based manpage definition into
 # a manpage based upon LaTeX markup.
@@ -36,8 +33,17 @@ proc Year {} {clock format [clock seconds] -format %Y}
 c_holdBuffers require
 
 proc fmt_postprocess {text} {
+    # Trim trailing whitespace, for all lines.
+    regsub -all -- "\[ \t]+\n" $text "\n" text
+    # Strip superfluous line breaks
     regsub -all -- "\n+" $text "\n" text
-    return [string map {\1\\ \\ \1$ $} $text]
+    # Normalize paragraph breaks (subsume leading and traling whitespace)
+    regsub -all -- "\[\t \n]+\1@P" $text "\1@P" text
+    regsub -all -- "\1@P\[\t \n]+" $text "\1@P" text
+    # Insert the paragraph breaks, unify multiple adjacent breaks
+    regsub -all -- "(\1@P)+" $text "\n\n" text
+    # Finalize the protected special characters
+    return [string trimleft [string map {\1\\ \\ \1$ $} $text]]
     #return $text
 }
 
@@ -58,7 +64,7 @@ c_pass 2 fmt_manpage_begin {title section version} {
     if {$copyright != {}} {
 	append  hdr [Comment $copyright] \n
     }
-    append  hdr [Comment "CVS: \$Id\$ $title.$section"] \n
+    append  hdr [Comment "$title.$section"] \n
     append  hdr \n
     append  hdr "\1\\documentclass\{article\}" \n
 
@@ -131,7 +137,9 @@ c_pass 2 fmt_manpage_end {} {
 
 proc fmt_section    {name id} {return    "\1\\section\{[texEscape $name]\}\1\\label\{$id\}"}
 proc fmt_subsection {name id} {return "\1\\subsection\{[texEscape $name]\}\1\\label\{$id\}"}
-proc fmt_para    {}        {return \n\n}
+
+proc fmt_para   {} { return \1@P }
+proc fmt_nl     {} { return \1@P }
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
@@ -306,7 +314,6 @@ proc fmt_example_end   {} {
 # No mapping of special characters
 proc fmt_example {code} { return "\1\\begin\{verbatim\}\n${code}\n\1\\end\{verbatim\}\n" }
 
-proc fmt_nl     {}     {return}
 proc fmt_arg    {text} {Underline $text}
 proc fmt_cmd    {text} {Bold      $text}
 proc fmt_emph   {text} {Italic    $text}
@@ -393,7 +400,15 @@ proc texEscape {text} {
 	\1\\# \1\\#
 	\1\\& \1\\&
 	\1\\ \1\\
-	\\ \1$\\backslash$ _ \1\\_ % \1\\% ^ \1\\^ $ \1\\$ < \1$<$ > \1$>$ # \1\\# & \1\\&
+	\\ \1$\\backslash$
+	_ \1\\_
+	% \1\\%
+	^ \1\\^
+	$ \1\\$
+	< \1$<$
+	> \1$>$
+	# \1\\#
+	& \1\\&
     } $text]
     if {$x} {
 	#puts_stderr "==> '$text'"

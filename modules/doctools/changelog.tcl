@@ -2,13 +2,10 @@
 #
 #	Handling of ChangeLog's.
 #
-# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: changelog.tcl,v 1.8 2008/07/08 23:03:58 andreas_kupries Exp $
-
 
 # FUTURE -- Expand pre-parsed log (nested lists) into flat structures
 # FUTURE --  => date/author/file/cref + cref/text
@@ -146,7 +143,7 @@ proc ::doctools::changelog::closeSection {} {
     } {
 	lappend clist   [list $files [string trim $comment]]
 	set     files   [list]
-	set     comment ""	
+	set     comment ""
     }
     return
 }

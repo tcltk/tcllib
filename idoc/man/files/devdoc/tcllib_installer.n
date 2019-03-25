@@ -311,8 +311,8 @@ As we are installing a number of Tcl packages and applications it
 should be pretty much obvious that a working installation of Tcl
 itself is needed, and I will not belabor the point\&.
 .PP
-Out of the many possibilites use whatever you are comfortable
-with, as long as it provides Tcl 8\&.2, or higher\&.
+Out of the many possibilities use whatever you are comfortable
+with, as long as it provides at the very least Tcl 8\&.2, or higher\&.
 This may be a Tcl installation provided by your operating system
 distribution, from a distribution-independent vendor, or built by
 yourself\&.
@@ -345,7 +345,7 @@ Tcl
 .PP
 together with the necessary instructions on how to build it\&.
 .PP
-If there are problems with building, installing, or using Tcl
+If there are problems with building, installing, or using Tcl,
 please file a ticket against \fITcl\fR, or the vendor of your
 distribution, and \fInot\fR \fITcllib\fR\&.
 .SS CRITCL
@@ -355,10 +355,16 @@ It is only required when trying to build the C-based
 \fIaccelerators\fR for a number of packages, as explained in
 \fBCritcl & Accelerators\fR
 .PP
-Tcllib's build system accepts it as an application found in the
-PATH (be it starkit or starpack)\&.
+Tcllib's build system looks for it in the ,
+using the name \fBcritcl\fR\&. This is for Unix\&.
+On Windows on the other hand the search is more complex\&. First we look
+for a proper application \fBcritcl\&.exe\fR\&. When that is not found
+we look for a combination of interpreter (\fBtclkitsh\&.exe\fR,
+\fBtclsh\&.exe\fR) and starkit (\fBcritcl\&.kit\fR, \fBcritcl\fR)
+instead\&. \fINote\fR that the choice of starkit can be overriden via
+the environment variable \&.
 .PP
-Tcllib requires version 2 or higher\&.
+Tcllib requires Critcl version 2 or higher\&.
 .PP
 The github repository providing releases of version 2 and
 higher, and the associated sources, can be found at
@@ -369,10 +375,10 @@ prebuild starkit or starpack), although the use of the stable branch
 \fImaster\fR is recommended\&.
 .PP
 At the above url is also an explanation on how to build and
-install CriTcl, including a list of its dependencies\&.
+install Critcl, including a list of its dependencies\&.
 .PP
 Its instructions will not be repeated here\&. If there are
-problems with their directions please file a ticket against the
+problems with these directions please file a ticket against the
 \fICritcl\fR project, and not Tcllib\&.
 .SH "BUILD & INSTALLATION INSTRUCTIONS"
 The Tcllib distribution, whether a checkout directly from the source
@@ -408,7 +414,7 @@ The second form is required on Windows (without a Unix emulation),
 except if the Tcl installation is configured to handle "\fI\&.tcl\fR"
 files on a double-click\&.
 .IP [2]
-In a unix-type environment, i\&.e\&. Linux, BSD and related, including OS
+In a Unix-type environment, i\&.e\&. Linux, BSD and related, including OS
 X, and Windows using some kind of unix-emulation like \fBMSYS\fR,
 \fBCygwin\fR, etc\&.) it is also possible to use
 .CS
@@ -431,7 +437,7 @@ found in Tcllib, and their manpages, in directories derived from what
 \fBconfigure\fR found out about the system\&.
 .PP
 .PP
-The installer selects automatically either a gui based mode, or
+The installer selects automatically either a GUI based mode, or
 a command line based mode\&. If the package \fBTk\fR is present and
 can be loaded, then the GUI mode is entered, else the system falls
 back to the command line\&.
@@ -458,7 +464,7 @@ locations of packages, examples, and documentation, and also the
 format of the documentation\&. The user can overide these defaults in
 the GUI, or by specifying additional options\&.
 .PP
-The defaults depend on the platform detected (unix/windows) and
+The defaults depend on the platform detected (Unix/Windows) and
 on the \fBtclsh\fR executable used to run the installer\&.
 .PP
 \fIAttention\fR The installer will overwrite an existing
@@ -476,13 +482,14 @@ not installed by default\&.
 To build the accelerators the normally optional dependency on
 \fBcritcl\fR becomes required\&.
 .PP
-To install Tcllib with the accelerators in a unix-type
+To install Tcllib with the accelerators in a Unix-type
 environment invoke:
 .CS
 
 
     \&./configure
-    make critcl # This builds the shared library holding the accelerators
+    make critcl # This builds the shared library holding
+                # the accelerators
     make install
 
 .CE

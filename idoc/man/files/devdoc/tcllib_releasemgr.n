@@ -278,8 +278,8 @@ package itself\&. It is a collection of (semi-independent) \fITcl\fR
 packages that provide utility functions useful to a large collection
 of Tcl programmers\&.
 .PP
-The audience of this document is the release manager for Tcllib, his
-or her deputies, and anybody else interested in the task of creating
+The audience of this document is the release manager for Tcllib, their
+deputies, and anybody else interested in the task of creating
 an official release of Tcllib for distribution\&.
 .PP
 Please read \fITcllib - How To Get The Sources\fR first, if that
@@ -339,7 +339,7 @@ Update a number of web locations:
 .IP [5]
 \fIhttp://www\&.tcl-lang\&.org/software/tcllib/*\&.tml\fR
 .IP [6]
-\fIhttp://wiki\&.tcl-lang\&.org/1246\fR
+\fIhttp://wiki\&.tcl-lang\&.org/page/Tcllib\fR
 .RE
 .IP
 The first location maps to the file "\fIembedded/index\&.md\fR" in the
