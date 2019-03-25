@@ -623,8 +623,8 @@ is returned (as a list of "sampleSize" values), otherwise a list of samples is r
 Compute the Wasserstein distance or earth mover's distance for two equidstantly spaced histograms
 or probability densities. The histograms need not to be normalised to sum to one,
 but they must have the same number of entries.
-[nl]
-Note: the histograms are assumed to be based on the same equidistant intervals.
+
+[para] Note: the histograms are assumed to be based on the same equidistant intervals.
 As the bounds are not passed, the value is expressed in the length of the intervals.
 
 [list_begin arguments]
@@ -636,11 +636,11 @@ As the bounds are not passed, the value is expressed in the length of the interv
 Compute the Kullback-Leibler (KL) divergence for two equidstantly spaced histograms
 or probability densities. The histograms need not to be normalised to sum to one,
 but they must have the same number of entries.
-[nl]
-Note: the histograms are assumed to be based on the same equidistant intervals.
+
+[para] Note: the histograms are assumed to be based on the same equidistant intervals.
 As the bounds are not passed, the value is expressed in the length of the intervals.
-[nl]
-Note also that the KL divergence is not symmetric and that the second histogram
+
+[para] Note also that the KL divergence is not symmetric and that the second histogram
 should not contain zeroes in places where the first histogram has non-zero values.
 
 [list_begin arguments]

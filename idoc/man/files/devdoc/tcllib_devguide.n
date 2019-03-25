@@ -337,7 +337,7 @@ they see fit\&.
 .IP [2]
 A maintainer may step down before the end of the
 mandatory period, under the condition that a replacement
-maintainer is immediatel available and has agreed to
+maintainer is immediately available and has agreed to
 serve the remainder of the period, plus their own
 mandatory period (see below)\&.
 .IP [3]
@@ -356,13 +356,13 @@ For any \fBunmaintained\fR package a contributor
 interested in becoming its maintainer can become so by
 flagging them as \fBmaintained\fR with their name and
 contact information, committing themselves to the rules
-of a replacement maintainer (see previous)\&.
+of a replacement maintainer (see previous point)\&.
 .IP [6]
 For any already \fBmaintained\fR package a contributor
 interested in becoming a co-maintainer can become so
 with the agreement of the existing maintainer(s),
 committing themselves to the rules of a replacement
-maintainer (see two above)\&.
+maintainer (see two points previous)\&.
 .RE
 .sp
 The responsibilities as a maintainer include:
@@ -396,7 +396,7 @@ In support of debugging, like searching for when an issue
 appeared via bisection, each commit on this branch must pass the
 entire testsuite of the collection\&.
 .PP
-As fossil has no mechanism to enfore this this is handled on
+As fossil has no mechanism to enforce this this is handled on
 the honor system for developers and maintainers\&.
 .PP
 To make the task easier Tcllib comes with a tool
@@ -415,12 +415,12 @@ their work\&. Only at the end, when the branch is considered ready for
 merging will it be necessary to perform full validation\&.
 .SS "VERSION NUMBERS"
 In Tcllib all changes to a package have to come with an increment of
-its version number\&. With what part is incremented (patchlevel, minor,
-major version) dependent on the kind of change made\&. With multiple
+its version number\&. What part is incremented (patchlevel, minor,
+major version) depends on the kind of change made\&. With multiple
 changes in a commit the highest "wins"\&.
 .PP
 When working in a development branch the version change can be
-defered until it is time to merge, and then has to cover all the
+deferred until it is time to merge, and then has to cover all the
 changes in the branch\&.
 .PP
 Below a list of the kinds of changes and their association
@@ -498,7 +498,7 @@ generally not polished enough to be considered for installation\&.
 .SS "MORE DIRECTORIES"
 .TP
 "\fIconfig\fR"
-This directory contains files supporting the unix build system,
+This directory contains files supporting the Unix build system,
 i\&.e\&. "\fIconfigure\fR" and "\fIMakefile\&.in\fR"\&.
 .TP
 "\fIdevdoc\fR"
@@ -532,7 +532,7 @@ used in the implementation of the "\fIinstaller\&.tcl\fR" and
 "\fIconfigure\&.in\fR"
 .TP
 "\fIMakefile\&.in\fR"
-These four files comprise the unix build system layered on top of the
+These four files comprise the Unix build system layered on top of the
 "\fIinstaller\&.tcl\fR" script\&.
 .TP
 "\fIinstaller\&.tcl\fR"
@@ -548,7 +548,7 @@ This is the main tool for developers and release managers, the
 .TP
 "\fIChangeLog\fR"
 The log of changes to the global support, when the sources were held
-in \fICVS\fR\&. Not relevant any logner with the switch to the
+in \fICVS\fR\&. Not relevant any longer with the switch to the
 \fIfossil\fR SCM\&.
 .TP
 "\fIlicense\&.terms\fR"
@@ -597,7 +597,7 @@ Based on "\fImodules/bench\fR"\&.
 "\fI\&.pcx\fR"
 Syntax rules for \fITclDevKit\fR's \fBtclchecker\fR\&. Using these
 rules allows the checker to validate the use of commands of a Tcllib
-package \fBFOO\fR without having to scan the "\fI\&.tcl\fR" files
+package \fBfoo\fR without having to scan the "\fI\&.tcl\fR" files
 implementing it\&.
 .PP
 .SH "TESTSUITE TOOLING"
@@ -613,14 +613,14 @@ list of standard Tcl shells to use\&.
 Invoke either
 .CS
 
-  \&./sak\&.tcl test run FOO
+  \&./sak\&.tcl test run foo
 .CE
 or
 .CS
 
-  \&./sak\&.tcl test run modules/FOO
+  \&./sak\&.tcl test run modules/foo
 .CE
-to invoke the testsuites found in a specific module "\fIFOO\fR"\&.
+to invoke the testsuites found in a specific module "\fIfoo\fR"\&.
 .SS "INVOKE THE TESTSUITES OF ALL MODULES"
 Invoke the tool without a module name, i\&.e\&.
 .CS
@@ -641,7 +641,7 @@ For one:
 .CS
 
 
-   \&./sak\&.tcl test run --log LOG FOO
+   \&./sak\&.tcl test run --log LOG foo
 
 .CE
 While this shows the same short log on the terminal as before, it also
@@ -652,7 +652,7 @@ For two:
 .CS
 
 
-  \&./sak\&.tcl test run -v FOO
+  \&./sak\&.tcl test run -v foo
 
 .CE
 This writes the detailed log to the standard output, instead of the
@@ -664,7 +664,7 @@ actual results)\&.
 .SS "SHELL SELECTION"
 By default the test runner will use all the Tcl shells specified via
 \fBtest add\fR to invoke the specified testsuites, if any\&. If no
-such are specified it will fall back to the Tcl shell used to ran the
+such are specified it will fall back to the Tcl shell used to run the
 tool itself\&.
 .PP
 Use option \fB--shell\fR to explicitly specify the Tcl shell
@@ -693,19 +693,19 @@ an application package, with the actual application
 .PP
 Tcllib developers gain access to these through the \fBdoc\fR
 method of the "\fIsak\&.tcl\fR" tool, another (internal) wrapper around
-the "\fImodules/dptlite\fR" application package\&.
+the "\fImodules/dtplite\fR" application package\&.
 .SS "GENERATE DOCUMENTATION FOR A SPECIFIC MODULE"
 Invoke either
 .CS
 
-  \&./sak\&.tcl doc html FOO
+  \&./sak\&.tcl doc html foo
 .CE
 or
 .CS
 
-  \&./sak\&.tcl doc html modules/FOO
+  \&./sak\&.tcl doc html modules/foo
 .CE
-to generate HTML for the documentation found in the module "\fIFOO\fR"\&.
+to generate HTML for the documentation found in the module "\fIfoo\fR"\&.
 Instead of \fBhtml\fR any other supported format can be used here,
 of course\&.
 .PP
@@ -741,7 +741,7 @@ correct, without generating actual output\&.
 Invoke it as either
 .CS
 
-  \&./sak\&.tcl doc validate (modules/)FOO
+  \&./sak\&.tcl doc validate (modules/)foo
 .CE
 or
 .CS
@@ -752,7 +752,7 @@ to either check the packages of a specific module or check all of
 them\&.
 .SH "NOTES ON WRITING A TESTSUITE"
 While previous sections talked about running the testsuites for a
-module and the packages therein this has no meaning if the module in
+module and the packages therein, this has no meaning if the module in
 question has no testsuites at all\&.
 .PP
 This section gives a very basic overview on possible
@@ -772,15 +772,15 @@ Code 2009 are:
 .IP \(bu
 The BellmanFord command in struct::graph::ops takes a
 \fIstartnode\fR as argument, and this node should be a node of
-the graph\&. Equals one test case checking the behavior when the
-specified node is not a node a graph\&.
+the graph\&. This equals one test case checking the behavior when the
+specified node is not a node of the graph\&.
 .sp
 This often gives rise to code in the implementation which
-explicitly checks the assumption and throws a nice error\&.
-Instead of letting the algorithm fails later in some weird
+explicitly checks the assumption and throws an understandable error\&.
+Instead of letting the algorithm fail later in some weird
 non-deterministic way\&.
 .sp
-It not always possible to do such checks\&. The graph argument
+It is not always possible to do such checks\&. The graph argument
 for example is just a command in itself, and while we expect
 it to exhibit a certain interface, i\&.e\&. a set of sub-commands
 aka methods, we cannot check that it has them, except by

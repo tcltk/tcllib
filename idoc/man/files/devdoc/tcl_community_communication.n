@@ -303,7 +303,7 @@ friendly\&. Ways that are, in a word: kind\&.
 These guidelines suggest specific ways to accomplish that goal\&.
 .PP
 Please note: for the balance of this document any reference to
-“People”, “Persons”, “anybody” or “somebody” can refer to any sentient
+"People", "Persons", "anybody" or "somebody" can refer to any sentient
 being, not merely corporeal members of the species Homo Sapien\&.
 .TP
 We are a Sanctuary not a Clubhouse
@@ -343,7 +343,7 @@ statements is not a personal attack on you\&.
 .TP
 Persons, not People
 Stereotypes are an unhelpful tool on many accounts\&. They are generally
-oversimplified\&. They are usually flat out wrong\&. And even if “right”
+oversimplified\&. They are usually flat out wrong\&. And even if "right"
 they are of absolutely no utility in determining the capabilities,
 motivations, or fitness of an individual\&.
 .sp
@@ -409,8 +409,8 @@ stop arguing\&.
 If someone complains about how you are expressing your ideas,
 listen\&.
 .sp
-If your words leave people hurt, stop\&. There is no amount of
-being “right” that makes up for someone leaving out midst because they
+If your words are hurting people, stop\&. There is no amount of
+being "right" that makes up for someone leaving our midst because they
 felt insulted, threatened, or ignored\&.
 .PP
 By following these guidelines, we will build our community, encourage
@@ -420,14 +420,14 @@ friendlier and reach conclusions more easily\&.
 Thank You\&.
 .SH SIGNATORIES
 .IP \(bu
-Sean “the Hypnotoad” Woods
+Sean "the Hypnotoad" Woods
 .IP \(bu
 Andreas Kupries
 .PP
 .SH AUTHORS
 .TP
 Primary
-Sean “the Hypnotoad” Woods
+Sean "the Hypnotoad" Woods
 .TP
 Light editing
 Andreas Kupries

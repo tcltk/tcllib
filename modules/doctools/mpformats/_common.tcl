@@ -68,7 +68,10 @@ proc c_get_title {} {
 
 proc c_copyrightsymbol {} {return "(c)"}
 proc c_set_copyright {text} {global state ; lappend state(copyright) $text ; return}
-proc c_get_copyright {}     {
+proc c_get_copyright {} {
+    return [join [c_get_copyright_r] \n]
+}
+proc c_get_copyright_r {} {
     global state
 
     set cc $state(copyright)
@@ -87,7 +90,7 @@ proc c_get_copyright {}     {
 	}
     }
 
-    return [join $stmts \n]
+    return $stmts
 }
 
 proc c_provenance {} {
@@ -205,6 +208,16 @@ global SectionNames	;# array mapping 'section name' to 'reference id'
 global SectionList      ;# List of sections, their ids, and levels, in
 set    SectionList {}   ;# order of definition.
 
+proc c_sections {} {
+    global SectionList
+    set    SectionList
+}
+
+proc c_sectionKnown {id} {
+    global SectionNames
+    info exists SectionNames($id)
+}
+
 # sectionId --
 #	Format section name as an XML ID.
 #
@@ -214,7 +227,7 @@ proc c_sectionId {name} {
     regsub -all {"} $id _ id ; # "
     return $id
 }
-
+    
 # possibleReference text gi --
 #	Check if $text is a potential cross-reference;
 #	if so, format as a reference;
