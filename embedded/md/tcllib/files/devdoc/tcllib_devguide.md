@@ -30,41 +30,47 @@ tcllib\_devguide \- Tcllib \- The Developer's Guide
 
   - [Branching and Workflow](#section3)
 
-      - [Branches](#subsection3)
+      - [Package Dependencies](#subsection3)
 
-      - [Version numbers](#subsection4)
+      - [Trunk](#subsection4)
+
+      - [Branches](#subsection5)
+
+      - [Working with Branches](#subsection6)
+
+      - [Version numbers](#subsection7)
 
   - [Structural Overview](#section4)
 
-      - [Main Directories](#subsection5)
+      - [Main Directories](#subsection8)
 
-      - [More Directories](#subsection6)
+      - [More Directories](#subsection9)
 
-      - [Top Files](#subsection7)
+      - [Top Files](#subsection10)
 
-      - [File Types](#subsection8)
+      - [File Types](#subsection11)
 
   - [Testsuite Tooling](#section5)
 
-      - [Invoke the testsuites of a specific module](#subsection9)
+      - [Invoke the testsuites of a specific module](#subsection12)
 
-      - [Invoke the testsuites of all modules](#subsection10)
+      - [Invoke the testsuites of all modules](#subsection13)
 
-      - [Detailed Test Logs](#subsection11)
+      - [Detailed Test Logs](#subsection14)
 
-      - [Shell Selection](#subsection12)
+      - [Shell Selection](#subsection15)
 
-      - [Help](#subsection13)
+      - [Help](#subsection16)
 
   - [Documentation Tooling](#section6)
 
-      - [Generate documentation for a specific module](#subsection14)
+      - [Generate documentation for a specific module](#subsection17)
 
-      - [Generate documentation for all modules](#subsection15)
+      - [Generate documentation for all modules](#subsection18)
 
-      - [Available output formats, help](#subsection16)
+      - [Available output formats, help](#subsection19)
 
-      - [Validation without output](#subsection17)
+      - [Validation without output](#subsection20)
 
   - [Notes On Writing A Testsuite](#section7)
 
@@ -106,8 +112,9 @@ find it, how to set it up, etc\.
 
 As a contributor to Tcllib you are committing yourself to:
 
-  1. Follow the guidelines laid down in *[Tcl Community \- Kind
-     Communication](tcl\_community\_communication\.md)*
+  1. keep the guidelines written down in *[Tcl Community \- Kind
+     Communication](tcl\_community\_communication\.md)* in your mind\. The main
+     point to take away from there is *to be kind to each other*\.
 
   1. Your contributions getting distributed under a BSD/MIT license\. For the
      details see *[Tcllib \- License](tcllib\_license\.md)*
@@ -121,8 +128,10 @@ mailing lists\.
 When contributing one or more packages for full inclusion into Tcllib you are
 committing yourself to
 
-  1. Follow the guidelines laid down in *[Tcl Community \- Kind
-     Communication](tcl\_community\_communication\.md)* \(as any contributor\)
+  1. Keep the guidelines written down in *[Tcl Community \- Kind
+     Communication](tcl\_community\_communication\.md)* \(as any contributor\) in
+     your mind\. The main point to take away from there is *to be kind to each
+     other*\.
 
   1. Your packages getting distributed under a BSD/MIT license\. For the details
      see *[Tcllib \- License](tcllib\_license\.md)*
@@ -172,39 +181,306 @@ committing yourself to
 
 # <a name='section3'></a>Branching and Workflow
 
-## <a name='subsection3'></a>Branches
+## <a name='subsection3'></a>Package Dependencies
 
-An important part of working with a *Distributed Version Control System*
-\(*DVCS*\) like [fossil](https://www\.fossil\-scm\.org/) is the management and
-use of branches\.
+Regarding packages and dependencies between them Tcllib occupies a middle
+position between two extremes:
+
+  1. On one side a strongly interdependent set of packages, usually by a single
+     author, for a single project\. Looking at my \(Andreas Kupries\) own work
+     examples of such are [Marpa](https://core\.tcl\.tk/akupries/marpa/index),
+     [CRIMP](https://core\.tcl\.tk/akupries/crimp/index),
+     [Kinetcl](https://core\.tcl\.tk/akupries/kinetcl/index), etc\.
+
+     For every change the author of the project handles all the modifications
+     cascading from any incompatibilities it introduced to the system\.
+
+  1. On the other side, the world of semi\-independent projects by many different
+     authors where authors know what packages their own creations depend on, yet
+     usually do not know who else depends on them\.
+
+     The best thing an author making an \(incompatible\) change to their project
+     can do is to for one announce such changes in some way, and for two use
+     versioning to distinguish the code before and after the change\.
+
+     The world is then responsible for adapting, be it by updating their own
+     projects to the new version, or by sticking to the old\.
+
+As mentioned already, Tcllib lives in the middle of that\.
+
+While we as maintainers cannot be aware of all users of Tcllib's packages, and
+thus have to rely on the mechanisms touched on in point 2 above for that, the
+dependencies between the packages contained in Tcllib are a different matter\.
+
+As we are collectively responsible for the usability of Tcllib in toto to the
+outside world, it behooves us to be individually mindful even of Tcllib packages
+we are not directly maintaining, when they depend on packages under our
+maintainership\. This may be as simple as coordinating with the maintainers of
+the affected packages\. It may also require us to choose how to adapt affected
+packages which do not have maintainers, i\.e\. modify them to use our changed
+package properly, or modify them to properly depend on the unchanged version of
+our package\.
+
+Note that the above is not only a chore but an opportunity as well\. Additional
+insight can be had by forcing ourselves to look at our package and the planned
+change\(s\) from an outside perspective, to consider the ramafications of our
+actions on others in general, and on dependent packages in particular\.
+
+## <a name='subsection4'></a>Trunk
+
+The management and use of branches is an important part of working with a
+*Distributed Version Control System* \(*DVCS*\) like
+[fossil](https://www\.fossil\-scm\.org/)\.
 
 For Tcllib the main branch of the collection is *trunk*\. In *git* this
 branch would be called *master*, and this exactly the case in the [github
 mirror](https://github\.com/tcltk/tcllib/) of Tcllib\.
 
-In support of debugging, like searching for when an issue appeared via
-bisection, each commit on this branch must pass the entire testsuite of the
-collection\.
+To properly support debugging *each commit* on this branch *has to pass the
+entire testsuite* of the collection\. Using bisection to determine when an issue
+appeared is an example of an action made easier by this constraint\.
 
-As fossil has no mechanism to enforce this this is handled on the honor system
-for developers and maintainers\.
+This is part of our collective responsibility for the usability of Tcllib in
+toto to the outside world\. As *fossil* has no mechanism to enforce this
+condition this is handled on the honor system for developers and maintainers\.
 
 To make the task easier Tcllib comes with a tool \("sak\.tcl"\) providing a number
 of commands in support\. These commands are explained in the following sections
 of this guide\.
 
 While it is possible and allowed to commit directly to trunk remember the above
-regarding the testsuite, and the coming notes about other possible issues with a
-commit\.
+constraint regarding the testsuite, and the coming notes about other possible
+issues with a commit\.
 
-Because of this it is \(strongly\) recommended to perform any development on a
-nicely named \(nick of dev, ticket reference if any, keywords applicable to the
-work, \.\.\.\) non\-trunk branch\. Outside of the trunk developers are allowed to
-commit intermediate broken states of their work\. Only at the end, when the
-branch is considered ready for merging will it be necessary to perform full
-validation\.
+## <a name='subsection5'></a>Branches
 
-## <a name='subsection4'></a>Version numbers
+Given the constraints placed on the *trunk* branch of the repository it is
+\(strongly\) recommended to perform any development going beyond trivial changes
+on a non\-trunk branch\.
+
+Outside of the trunk developers are allowed to commit intermediate broken states
+of their work\. Only at the end of a development cycle, when the relevant branch
+is considered ready for merging, will it be necessary to perform full the set of
+validations ensuring that the merge to come will create a good commit on trunk\.
+
+Note that while a review from a second developer is not a required condition for
+merging a branch it is recommended to seek out such an independent opinion as a
+means of cross\-checking the work\.
+
+It also recommended to give any new branch a name which aids in determining
+additional details about it\. Examples of good things to stick into a branch name
+would be
+
+  - Developer \(nick\)name
+
+  - Ticket hash/reference
+
+  - One or two keywords applicable to the work
+
+  - \.\.\.
+
+Further, while most development branches are likely quite short\-lived, no
+prohibitions exist against making longer\-lived branches\. Creators should however
+be mindful that the longer such a branch exists without merges the more
+divergent they will tend to be, with an associated increase in the effort which
+will have to be spent on either merging from and merging to trunk\.
+
+## <a name='subsection6'></a>Working with Branches
+
+In the hope of engendering good work practices now a few example operations
+which will come up with branches, and their associated fossil command
+\(sequences\)\.
+
+  - *Awareness*
+
+    When developing we have to keep ourselves aware of the context of our work\.
+    On what branch are we ? What files have we changed ? What new files are not
+    yet known to the repository ? This becomes especially important when using a
+    long\-lived checkout and coming back to it after some time away\.
+
+    Commands to answer questions like the above are:
+
+      * __fossil info &#124; grep tags__
+
+      * __fossil branch list &#124; grep '\\\*'__
+
+        Two different ways of determining the branch our checkout is on\.
+
+      * __fossil timeline__
+
+        What have we \(and others\) done recently ?
+
+        *Attention*, this information is very likely outdated, the more the
+        longer we did not use this checkout\. Run __fossil pull__ first to
+        get latest information from the remote repository of the project\.
+
+      * __fossil timeline current__
+
+        Place the commit our checkout is based on at the top of the timeline\.
+
+      * __fossil changes__
+
+        Lists the files we have changed compared to the commit the checkout is
+        based on\.
+
+      * __fossil extra__
+
+        Lists the files we have in the checkout the repository does not know
+        about\. This may be leftover chaff from our work, or something we have
+        forgotten to __fossil add__ to the repository yet\.
+
+  - *Clean checkouts*
+
+    Be aware of where you are \(see first definition\)\.
+
+    For pretty much all the operation recipes below a clean checkout is at least
+    desired, often required\. To check that a checkout is clean invoke
+
+        fossil changes
+        fossil extra
+
+    How to clean up when uncommitted changes of all sorts are found is
+    context\-specific and outside of the scope of this guide\.
+
+  - *Starting a new branch*
+
+    Be aware of where you are \(see first definition\)\.
+
+    Ensure that you have clean checkout \(see second definition\)\. It is
+    *required*\.
+
+    In most situations you want to be on branch *trunk*, and you want to be on
+    the latest commit for it\. To get there use
+
+        fossil pull
+        fossil update trunk
+
+    If some other branch is desired as the starting point for the coming work
+    replace *trunk* in the commands above with the name of that branch\.
+
+    With the base line established we now have two ways of creating the new
+    branch, with differing \(dis\)advantages\. The simpler way is to
+
+        fossil branch new NAME\_OF\_NEW\_BRANCH
+
+    and start developing\. The advantage here is that you cannot forget to create
+    the branch\. The disadvantages are that we have a branch commit unchanged
+    from where we branched from, and that we have to use high\-handed techniques
+    like hiding or shunning to get rid of the commit should we decide to abandon
+    the work before the first actual commit on the branch\.
+
+    The other way of creating the branch is to start developing, and then on the
+    first commit use the option __\-\-branch__ to tell __fossil__ that we
+    are starting a branch now\. I\.e\. run
+
+        fossil commit \-\-branch NAME\_OF\_NEW\_BRANCH \.\.\.
+
+    where *\.\.\.* are any other options used to supply the commit message, files
+    to commit, etc\.
+
+    The \(dis\)advantages are now reversed\.
+
+    We have no superflous commit, only what is actually developed\. The work is
+    hidden until we commit to make our first commit\.
+
+    We may forget to use __\-\-branch NAME\_OF\_NEW\_BRANCH__ and then have to
+    correct that oversight via the fossil web interface \(I am currently unaware
+    of ways of doing such from the command line, although some magic
+    incantantion of __fossil tag create__ may work\)\.
+
+    It helps tp keep awareness, like checking before any commit that we are on
+    the desired branch\.
+
+  - *Merging a branch into trunk*
+
+    Be aware of where you are \(see first definition\)\.
+
+    Ensure that you have clean checkout \(see second definition\)\. In the
+    full\-blown sequence \(zig\-zag\) it is *required*, due to the merging from
+    trunk\. In the shorter sequence it is only desired\. That said, keeping the
+    checkout clean before any major operations is a good habit to have, in my
+    opinion\.
+
+    The full\-blown sequencing with checks all the way is to
+
+    Validate the checkout, i\.e\. last commit on your branch\. Run the full test
+    suite and other validations, fix all the issues which have cropped up\.
+
+    Merge the latest state of the *trunk* \(see next definition\)\.
+
+    Validate the checkout again\. The incoming trunk changes may have broken
+    something now\. Do any required fixes\.
+
+    Now merge to the trunk using
+
+        fossil update trunk
+        fossil merge \-\-integrate YOU\_BRANCH
+
+    At this point the checkout should be in the same state as at the end of
+    point \(3\) above, because we resolved any issues with the trunk already\. Thus
+    a simple
+
+        fossil commit \.\.\.
+
+    should be sufficient now to commit the merge back and close the branch \(due
+    to the __\-\-integrate__ we used on the merge\)\.
+
+    The more paranoid may validate the checkout a third time before commiting\.
+
+    I call this a *zig\-zag merge* because of how the arrows look in the
+    timeline, from trunk to feature branch for the first merge, and then back
+    for the final merge\.
+
+    A less paranoid can do what I call a *simple merge*, which moves step \(2\)
+    after step \(4\) and skips step \(3\) entirely\. The resulting shorter sequence
+    is
+
+    Validate
+
+    Merge to trunk
+
+    Validate again
+
+    Commit to trunk
+
+    The last step after either zig\-zag or plain merge is to
+
+        fossil sync
+
+    This saves our work to the remote side, and further gives us any other work
+    done while we were doing our merge\. It especially allows us to check if we
+    raced somebody else, resulting in a split trunk\.
+
+    When that happens we should coordinate with the other developer on who fixes
+    the split, to ensure that we do not race each other again\.
+
+  - *Merging from trunk*
+
+    Be aware of where you are \(see first definition\)\.
+
+    Ensure that you have clean checkout \(see second definition\)\. It is
+    *required*\.
+
+    In most situations you want to import the latest commit of branch *trunk*
+    \(or other origin\)\. To get it use
+
+        fossil pull
+
+    With that done we can now import this commit into our current branch with
+
+        fossil merge trunk
+
+    Even if __fossil__ does not report any conflicts it is a good idea to
+    check that the operation has not broken the new and/or changed functionality
+    we are working on\.
+
+    With the establishment of a good merge we then save the state with
+
+        fossil commit \.\.\.
+
+    before continuing development\.
+
+## <a name='subsection7'></a>Version numbers
 
 In Tcllib all changes to a package have to come with an increment of its version
 number\. What part is incremented \(patchlevel, minor, major version\) depends on
@@ -213,7 +489,7 @@ the kind of change made\. With multiple changes in a commit the highest "wins"\.
 When working in a development branch the version change can be deferred until it
 is time to merge, and then has to cover all the changes in the branch\.
 
-Below a list of the kinds of changes and their association version increments:
+Below a list of the kinds of changes and their associated version increments:
 
   - *D \- documentation*
 
@@ -243,11 +519,11 @@ Below a list of the kinds of changes and their association version increments:
 
     Major
 
-Note, a commit containing a version increment has to mention the kind of change
-which caused it in the commit message, as well as the new version number\.
+Note that a commit containing a version increment has to mention the new version
+number in its commit message, as well as the kind of change which caused it\.
 
-Note further that the version number of a package currently exists in 3 places\.
-An increment has to update all of them:
+Note further that the version number of a package currently exists in three
+places\. An increment has to update all of them:
 
   1. The package implementation\.
 
@@ -265,7 +541,7 @@ to see their documentation\.
 
 # <a name='section4'></a>Structural Overview
 
-## <a name='subsection5'></a>Main Directories
+## <a name='subsection8'></a>Main Directories
 
 The main directories in the Tcllib toplevel directory and of interest to a
 developer are:
@@ -289,7 +565,7 @@ developer are:
     packages in "modules/foo"\. These examples are generally not polished enough
     to be considered for installation\.
 
-## <a name='subsection6'></a>More Directories
+## <a name='subsection9'></a>More Directories
 
   - "config"
 
@@ -322,7 +598,7 @@ developer are:
     This directory contains the sources of internal packages and utilities used
     in the implementation of the "installer\.tcl" and "sak\.tcl" scripts/tools\.
 
-## <a name='subsection7'></a>Top Files
+## <a name='subsection10'></a>Top Files
 
   - "aclocal\.m4"
 
@@ -385,7 +661,7 @@ developer are:
 
     ????
 
-## <a name='subsection8'></a>File Types
+## <a name='subsection11'></a>File Types
 
 The most common file types, by file extension, are:
 
@@ -421,7 +697,7 @@ Tcllib developers invoke the suites through the __test run__ method of the
 providing management operations, for example setting a list of standard Tcl
 shells to use\.
 
-## <a name='subsection9'></a>Invoke the testsuites of a specific module
+## <a name='subsection12'></a>Invoke the testsuites of a specific module
 
 Invoke either
 
@@ -433,7 +709,7 @@ or
 
 to invoke the testsuites found in a specific module "foo"\.
 
-## <a name='subsection10'></a>Invoke the testsuites of all modules
+## <a name='subsection13'></a>Invoke the testsuites of all modules
 
 Invoke the tool without a module name, i\.e\.
 
@@ -441,7 +717,7 @@ Invoke the tool without a module name, i\.e\.
 
 to invoke the testsuites of all modules\.
 
-## <a name='subsection11'></a>Detailed Test Logs
+## <a name='subsection14'></a>Detailed Test Logs
 
 In all the previous examples the test runner will write a combination of
 progress display and testsuite log to the standard output, showing for each
@@ -468,7 +744,7 @@ This writes the detailed log to the standard output, instead of the short log\.
 Regardless of form, the detailed log contains a list of all test cases executed,
 which failed, and how they failed \(expected versus actual results\)\.
 
-## <a name='subsection12'></a>Shell Selection
+## <a name='subsection15'></a>Shell Selection
 
 By default the test runner will use all the Tcl shells specified via __test
 add__ to invoke the specified testsuites, if any\. If no such are specified it
@@ -478,7 +754,7 @@ Use option __\-\-shell__ to explicitly specify the Tcl shell to use, like
 
     \./sak\.tcl test run \-\-shell /path/to/tclsh \.\.\.
 
-## <a name='subsection13'></a>Help
+## <a name='subsection16'></a>Help
 
 Invoke the tool as
 
@@ -499,7 +775,7 @@ Tcllib developers gain access to these through the __doc__ method of the
 "sak\.tcl" tool, another \(internal\) wrapper around the "modules/dtplite"
 application package\.
 
-## <a name='subsection14'></a>Generate documentation for a specific module
+## <a name='subsection17'></a>Generate documentation for a specific module
 
 Invoke either
 
@@ -515,7 +791,7 @@ __html__ any other supported format can be used here, of course\.
 The generated formatted documentation will be placed into a directory "doc" in
 the current working directory\.
 
-## <a name='subsection15'></a>Generate documentation for all modules
+## <a name='subsection18'></a>Generate documentation for all modules
 
 Invoke the tool without a module name, i\.e\.
 
@@ -527,7 +803,7 @@ __html__ any other supported format can be used here, of course\.
 The generated formatted documentation will be placed into a directory "doc" in
 the current working directory\.
 
-## <a name='subsection16'></a>Available output formats, help
+## <a name='subsection19'></a>Available output formats, help
 
 Invoke the tool as
 
@@ -535,7 +811,7 @@ Invoke the tool as
 
 to see the entire set of supported output formats which can be generated\.
 
-## <a name='subsection17'></a>Validation without output
+## <a name='subsection20'></a>Validation without output
 
 Note the special format __validate__\.
 

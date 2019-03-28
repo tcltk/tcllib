@@ -278,10 +278,10 @@ package itself\&. It is a collection of (semi-independent) \fITcl\fR
 packages that provide utility functions useful to a large collection
 of Tcl programmers\&.
 .PP
-The audience of this document is anyone wishing to build the packages,
-for either themselves, or others\&.
+The audience of this document is anyone wishing to build and install
+the packages found in Tcllib, for either themselves, or others\&.
 .PP
-For a developer intending to extend or modify the packages we
+For developers intending to work on the packages themselves we
 additionally provide
 .IP [1]
 \fITcllib - The Developer's Guide\fR\&.
@@ -381,116 +381,84 @@ Its instructions will not be repeated here\&. If there are
 problems with these directions please file a ticket against the
 \fICritcl\fR project, and not Tcllib\&.
 .SH "BUILD & INSTALLATION INSTRUCTIONS"
-The Tcllib distribution, whether a checkout directly from the source
-repository, or an official release, offers a single method for
-installing it, based on Tcl itself\&.
+As Tcllib is mainly a bundle of packages written in pure Tcl building
+it is the same as installing it\&. The exceptions to this have their own
+subsection, \fBCritcl & Accelerators\fR, later on\&.
 .PP
-This is based on the assumption that for Tcllib to be of use
-Tcl has to be present, and therefore can be used in the implementation
-of the install code\&.
+Before that however comes the standard case, differentiated by
+the platforms with material differences in the instruction, i\&.e\&.
+\fIUnix\fR-like, versus \fIWindows\fR\&.
 .PP
-The relevant tool is the "\fIinstaller\&.tcl\fR" script found in
-the toplevel directory of a checkout or release\&.
+Regarding the latter it should also be noted that it is
+possible set up an \fIUnix\fR-like environment using projects
+like \fIMSYS\fR, \fICygwin\fR, and others\&. In that case the
+user has the choice of which instructions to follow\&.
 .PP
-It can be used in a variety of ways:
-.IP [1]
-It is always possible to invoke the tool directly, either as
+Regardless of environment or platform, a suitable \fITcl\fR
+has to be installed, and its \fBtclsh\fR should be placed on
+the  (\fIUnix\fR) or associated with
+"\fI\&.tcl\fR" files (\fIWindows\fR)\&.
+.SS "INSTALLING ON UNIX"
+For \fIUnix\fR-like environments Tcllib comes with the standard set
+of files to make
 .CS
 
 
-    \&./installer\&.tcl
+  \&./configure
+  make install
 
 .CE
-.IP
-or
+a suitable way of installing it\&.
+This is a standard non-interactive install automatically figuring out
+where to place everything, i\&.e\&. packages, applications, and the
+manpages\&.
+.PP
+To get a graphical installer invoke
 .CS
 
 
-    /path/to/tclsh \&./installer\&.tcl
+  \&./installer\&.tcl
 
 .CE
-.IP
-The second form is required on Windows (without a Unix emulation),
-except if the Tcl installation is configured to handle "\fI\&.tcl\fR"
-files on a double-click\&.
-.IP [2]
-In a Unix-type environment, i\&.e\&. Linux, BSD and related, including OS
-X, and Windows using some kind of unix-emulation like \fBMSYS\fR,
-\fBCygwin\fR, etc\&.) it is also possible to use
+instead\&.
+.SS "INSTALLING ON WINDOWS"
+In a Windows environment we have the \fBinstaller\&.tcl\fR script to
+perform installation\&.
+.PP
+If the desired \fBtclsh\fR is associated "\fI\&.tcl\fR" files
+then double-clicking / opening the \fBinstaller\&.tcl\fR is
+enough to invoke it in graphical mode\&.
+This assumes that \fITk\fR is installed and available as well\&.
+.PP
+Without \fITk\fR the only way to invoke the installer are to
+open a DOS window, i\&.e\&. \fBcmd\&.exe\fR, and then to invoke
 .CS
 
 
-    \&./configure
-    make install
+  \&./installer\&.tcl
 
 .CE
-.IP
-in the toplevel directory of Tcllib itself\&.
-.sp
-To build in a directory "\fID\fR" outside of Tcllib's toplevel
-directory simply make "\fID\fR" the current working directory and
-invoke \fBconfigure\fR with either its absolute path or a proper
-relative path\&.
-.sp
-This will non-interactively install all packages, applications
-found in Tcllib, and their manpages, in directories derived from what
-\fBconfigure\fR found out about the system\&.
-.PP
-.PP
-The installer selects automatically either a GUI based mode, or
-a command line based mode\&. If the package \fBTk\fR is present and
-can be loaded, then the GUI mode is entered, else the system falls
-back to the command line\&.
-.PP
-Note that it is possible to specify options on the command line
-even if the installer ultimatively selects GUI mode\&. In that case the
-hardwired defaults and the options determine the data presented to the
-user for editing\&.
-.PP
-Command line help can be asked for by using the option \fB-help\fR when
-invoking the installer, i\&.e\&.
-.CS
-
-
-    \&./installer\&.tcl -help
-
-.CE
-This will print a short list of the available options to the standard
-output channel\&. For more examples see the various \fIinstall\fR
-targets found in "\fIMakefile\&.in\fR"\&.
-.PP
-The installer will select a number of defaults for the
-locations of packages, examples, and documentation, and also the
-format of the documentation\&. The user can overide these defaults in
-the GUI, or by specifying additional options\&.
-.PP
-The defaults depend on the platform detected (Unix/Windows) and
-on the \fBtclsh\fR executable used to run the installer\&.
-.PP
-\fIAttention\fR The installer will overwrite an existing
-installation of a Tcllib with the same version without asking back
-after the initial confirmation is given\&.
-Further if the user chooses the same directory as chosen for/by
-previous installations then these will be overwritten as well\&.
+inside it\&.
 .SS "CRITCL & ACCELERATORS"
-.PP
-A number of packages come with \fIaccelerators\fR, i\&.e\&.
-\fBcritcl\fR-based C code whose use will boost the performance of
-the packages using them\&. As these accelerators are optional they are
-not installed by default\&.
+While the majority of Tcllib consists of packages written in pure Tcl
+a number of packages also have \fIaccelerators\fR associated with them\&.
+These are \fBcritcl\fR-based C packages whose use will boost the
+performance of the packages using them\&.
+These accelerators are optional, and they are not installed by
+default\&.
 .PP
 To build the accelerators the normally optional dependency on
 \fBcritcl\fR becomes required\&.
 .PP
-To install Tcllib with the accelerators in a Unix-type
-environment invoke:
+To build and install Tcllib with the accelerators in a
+Unix-like environment invoke:
 .CS
 
 
-    \&./configure
-    make critcl # This builds the shared library holding
-                # the accelerators
-    make install
+  \&./configure
+  make critcl # This builds the shared library holding
+              # the accelerators
+  make install
 
 .CE
 .PP
@@ -499,7 +467,7 @@ of Tcllib and the command \fBmake critcl\fR is just a wrapper around
 .CS
 
 
-    \&./sak\&.tcl critcl
+  \&./sak\&.tcl critcl
 
 .CE
 .PP
@@ -507,7 +475,122 @@ Therefore in a Windows environment instead invoke
 .CS
 
 
-    /path/to/tclsh \&./sak\&.tcl critcl
-    /path/to/tclsh \&./installer\&.tcl
+  \&./sak\&.tcl critcl
+  \&./installer\&.tcl
 
 .CE
+from within a DOS window, i\&.e\&. \fBcmd\&.exe\fR\&.
+.SS TOOLING
+The core of Tcllib's build system is the script "\fIinstaller\&.tcl\fR"
+found in the toplevel directory of a checkout or release\&.
+.PP
+The
+.CS
+
+
+         configure ; make install
+
+.CE
+setup available to
+developers on Unix-like systems is just a wrapper around it\&.
+To go beyond the standard embodied in the wrapper it is
+necessary to directly invoke this script\&.
+.PP
+On Windows system using it directly is the only way to invoke
+it\&.
+.PP
+For basic help invoke it as
+.CS
+
+
+         \&./installer\&.tcl -help
+
+.CE
+This will print a short list of all the available options to
+the standard output channel\&.
+.PP
+The commands associated with the various \fIinstall\fR targets
+in the \fIMakefile\&.in\fR for Unix can be used as additional
+examples on how to use this tool as well\&.
+.PP
+The installer can operate in GUI and CLI modes\&.
+By default it chooses the mode automatically, based on if the
+Tcl package \fBTk\fR can be used or not\&.
+The option \fB-no-gui\fR can be used to force CLI mode\&.
+.PP
+Note that it is possible to specify options on the command line
+even if the installer ultimatively selects GUI mode\&. In that
+case the hardwired defaults and the options determine the data
+presented to the user for editing\&.
+.PP
+The installer will select a number of defaults for the
+locations of packages, examples, and documentation, and also
+the format of the documentation\&. The user can overide these
+defaults in the GUI, or by specifying additional options\&.
+The defaults depend on the platform detected (Unix/Windows) and
+on the \fBtclsh\fR executable used to run the installer\&.
+.PP
+\fIOptions\fR
+.TP
+\fB-help\fR
+Show the list of options explained here on the standard output channel
+and exit\&.
+.TP
+\fB+excluded\fR
+Include deprecated packages in the installation\&.
+.TP
+\fB-no-gui\fR
+Force command line operation of the installer
+.TP
+\fB-no-wait\fR
+In CLI mode the installer will by default ask the user to confirm that
+the chosen configuration (destination paths, things to install) is
+correct before performing any action\&. Using this option causes the
+installer to skip this query and immediately jump to installation\&.
+.TP
+\fB-app-path\fR \fIpath\fR
+.TP
+\fB-example-path\fR \fIpath\fR
+.TP
+\fB-html-path\fR \fIpath\fR
+.TP
+\fB-nroff-path\fR \fIpath\fR
+.TP
+\fB-pkg-path\fR \fIpath\fR
+Declare the destination paths for the applications, examples, html
+documentation, nroff manpages, and packages\&. The defaults are derived
+from the location of the \fBtclsh\fR used to run the installer\&.
+.TP
+\fB-dry-run\fR
+.TP
+\fB-simulate\fR
+Run the installer without modifying the destination directories\&.
+.TP
+\fB-apps\fR
+.TP
+\fB-no-apps\fR
+.TP
+\fB-examples\fR
+.TP
+\fB-no-examples\fR
+.TP
+\fB-pkgs\fR
+.TP
+\fB-no-pkgs\fR
+.TP
+\fB-html\fR
+.TP
+\fB-no-html\fR
+.TP
+\fB-nroff\fR
+.TP
+\fB-no-nroff\fR
+(De)activate the installation of applications, examples, packages,
+html documentation, and nroff manpages\&.
+.sp
+Applications, examples, and packages are installed by default\&.
+.sp
+On Windows the html documentation is installed by default\&.
+.sp
+On Unix the nroff manpages are installed by default\&.
+.PP

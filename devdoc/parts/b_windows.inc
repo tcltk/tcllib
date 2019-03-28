@@ -1,36 +1,18 @@
-[subsection Windows]
 
-This section describes the actions required to install Tcllib on Windows(tm)
-systems.
+In a Windows environment we have the [cmd installer.tcl] script to
+perform installation.
 
-If you have to install Tcllib on a Unix machine (Linux, BSD, and
-related, including OS X) instead then see section [sectref Unix].
+[para] If the desired [syscmd tclsh] is associated [file .tcl] files
+       then double-clicking / opening the [cmd installer.tcl] is
+       enough to invoke it in graphical mode.
 
-[para] If the build environment is based on [term MSYS],
-[term cygwin], or a similar emulation of a unix environment, then
-[sectref Unix] still applies and should be used.
+       This assumes that [term Tk] is installed and available as well.
 
-[para] Alternatively, as mentioned in the previous section, the tool
-underneath of the unix buildsystem is the [term Tcl]-based
-[file installer.tcl] script.
-
-[para] Invoking this tool from a DOS shell via
-
+[para] Without [term Tk] the only way to invoke the installer are to
+       open a DOS window, i.e. [syscmd cmd.exe], and then to invoke
+      
 [example {
-    /path/to/tclsh ./installer.tcl -help
+  ./installer.tcl
 }]
 
-will provide a short list of the available options. For more examples
-see the various [term install] targets found in [file Makefile.in].
-
-Invoking this tool without any arguments, i.e. like
-
-[example {
-    /path/to/tclsh ./installer.tcl
-}]
-
-will start a non-interactive installation showing its progress in a
-Tk-based graphical interface. The directories to install the packages,
-applications, etc. into are derived from the location of the
-[syscmd tclsh] used to invoke the script, and where it expects
-packages.
+inside it.

@@ -28,7 +28,13 @@ tcllib\_install\_guide \- Tcllib \- The Installer's Guide
 
   - [Build & Installation Instructions](#section3)
 
-      - [Critcl & Accelerators](#subsection3)
+      - [Installing on Unix](#subsection3)
+
+      - [Installing on Windows](#subsection4)
+
+      - [Critcl & Accelerators](#subsection5)
+
+      - [Tooling](#subsection6)
 
 # <a name='description'></a>DESCRIPTION
 
@@ -37,10 +43,10 @@ itself\. It is a collection of \(semi\-independent\)
 *[Tcl](\.\./\.\./\.\./index\.md\#tcl)* packages that provide utility functions
 useful to a large collection of Tcl programmers\.
 
-The audience of this document is anyone wishing to build the packages, for
-either themselves, or others\.
+The audience of this document is anyone wishing to build and install the
+packages found in Tcllib, for either themselves, or others\.
 
-For a developer intending to extend or modify the packages we additionally
+For developers intending to work on the packages themselves we additionally
 provide
 
   1. *[Tcllib \- The Developer's Guide](tcllib\_devguide\.md)*\.
@@ -111,7 +117,7 @@ distribution, and *not* *[Tcllib](\.\./\.\./\.\./index\.md\#tcllib)*\.
 The __critcl__ tool is an *optional* dependency\.
 
 It is only required when trying to build the C\-based *accelerators* for a
-number of packages, as explained in [Critcl & Accelerators](#subsection3)
+number of packages, as explained in [Critcl & Accelerators](#subsection5)
 
 Tcllib's build system looks for it in the , using the name __critcl__\. This
 is for Unix\. On Windows on the other hand the search is more complex\. First we
@@ -137,87 +143,71 @@ directions please file a ticket against the *Critcl* project, and not Tcllib\.
 
 # <a name='section3'></a>Build & Installation Instructions
 
-The Tcllib distribution, whether a checkout directly from the source repository,
-or an official release, offers a single method for installing it, based on Tcl
-itself\.
+As Tcllib is mainly a bundle of packages written in pure Tcl building it is the
+same as installing it\. The exceptions to this have their own subsection,
+[Critcl & Accelerators](#subsection5), later on\.
 
-This is based on the assumption that for Tcllib to be of use Tcl has to be
-present, and therefore can be used in the implementation of the install code\.
+Before that however comes the standard case, differentiated by the platforms
+with material differences in the instruction, i\.e\. *Unix*\-like, versus
+*Windows*\.
 
-The relevant tool is the "installer\.tcl" script found in the toplevel directory
-of a checkout or release\.
+Regarding the latter it should also be noted that it is possible set up an
+*Unix*\-like environment using projects like *MSYS*, *Cygwin*, and others\.
+In that case the user has the choice of which instructions to follow\.
 
-It can be used in a variety of ways:
+Regardless of environment or platform, a suitable
+*[Tcl](\.\./\.\./\.\./index\.md\#tcl)* has to be installed, and its __tclsh__
+should be placed on the \(*Unix*\) or associated with "\.tcl" files
+\(*Windows*\)\.
 
-  1. It is always possible to invoke the tool directly, either as
+## <a name='subsection3'></a>Installing on Unix
 
-         \./installer\.tcl
+For *Unix*\-like environments Tcllib comes with the standard set of files to
+make
 
-     or
+    \./configure
+    make install
 
-         /path/to/tclsh \./installer\.tcl
+a suitable way of installing it\. This is a standard non\-interactive install
+automatically figuring out where to place everything, i\.e\. packages,
+applications, and the manpages\.
 
-     The second form is required on Windows \(without a Unix emulation\), except
-     if the Tcl installation is configured to handle "\.tcl" files on a
-     double\-click\.
+To get a graphical installer invoke
 
-  1. In a Unix\-type environment, i\.e\. Linux, BSD and related, including OS X,
-     and Windows using some kind of unix\-emulation like __MSYS__,
-     __Cygwin__, etc\.\) it is also possible to use
+    \./installer\.tcl
 
-         \./configure
-         make install
+instead\.
 
-     in the toplevel directory of Tcllib itself\.
+## <a name='subsection4'></a>Installing on Windows
 
-     To build in a directory "D" outside of Tcllib's toplevel directory simply
-     make "D" the current working directory and invoke __configure__ with
-     either its absolute path or a proper relative path\.
+In a Windows environment we have the __installer\.tcl__ script to perform
+installation\.
 
-     This will non\-interactively install all packages, applications found in
-     Tcllib, and their manpages, in directories derived from what
-     __configure__ found out about the system\.
+If the desired __tclsh__ is associated "\.tcl" files then double\-clicking /
+opening the __installer\.tcl__ is enough to invoke it in graphical mode\. This
+assumes that *[Tk](\.\./\.\./\.\./index\.md\#tk)* is installed and available as
+well\.
 
-The installer selects automatically either a GUI based mode, or a command line
-based mode\. If the package __[Tk](\.\./\.\./\.\./index\.md\#tk)__ is present and
-can be loaded, then the GUI mode is entered, else the system falls back to the
-command line\.
+Without *[Tk](\.\./\.\./\.\./index\.md\#tk)* the only way to invoke the installer
+are to open a DOS window, i\.e\. __cmd\.exe__, and then to invoke
 
-Note that it is possible to specify options on the command line even if the
-installer ultimatively selects GUI mode\. In that case the hardwired defaults and
-the options determine the data presented to the user for editing\.
+    \./installer\.tcl
 
-Command line help can be asked for by using the option __\-help__ when
-invoking the installer, i\.e\.
+inside it\.
 
-    \./installer\.tcl \-help
+## <a name='subsection5'></a>Critcl & Accelerators
 
-This will print a short list of the available options to the standard output
-channel\. For more examples see the various *install* targets found in
-"Makefile\.in"\.
-
-The installer will select a number of defaults for the locations of packages,
-examples, and documentation, and also the format of the documentation\. The user
-can overide these defaults in the GUI, or by specifying additional options\.
-
-The defaults depend on the platform detected \(Unix/Windows\) and on the
-__tclsh__ executable used to run the installer\.
-
-*Attention* The installer will overwrite an existing installation of a Tcllib
-with the same version without asking back after the initial confirmation is
-given\. Further if the user chooses the same directory as chosen for/by previous
-installations then these will be overwritten as well\.
-
-## <a name='subsection3'></a>Critcl & Accelerators
-
-A number of packages come with *accelerators*, i\.e\. __critcl__\-based C
-code whose use will boost the performance of the packages using them\. As these
-accelerators are optional they are not installed by default\.
+While the majority of Tcllib consists of packages written in pure Tcl a number
+of packages also have *accelerators* associated with them\. These are
+__critcl__\-based C packages whose use will boost the performance of the
+packages using them\. These accelerators are optional, and they are not installed
+by default\.
 
 To build the accelerators the normally optional dependency on __critcl__
 becomes required\.
 
-To install Tcllib with the accelerators in a Unix\-type environment invoke:
+To build and install Tcllib with the accelerators in a Unix\-like environment
+invoke:
 
     \./configure
     make critcl \# This builds the shared library holding
@@ -231,5 +221,119 @@ command __make critcl__ is just a wrapper around
 
 Therefore in a Windows environment instead invoke
 
-    /path/to/tclsh \./sak\.tcl critcl
-    /path/to/tclsh \./installer\.tcl
+    \./sak\.tcl critcl
+    \./installer\.tcl
+
+from within a DOS window, i\.e\. __cmd\.exe__\.
+
+## <a name='subsection6'></a>Tooling
+
+The core of Tcllib's build system is the script "installer\.tcl" found in the
+toplevel directory of a checkout or release\.
+
+The
+
+    configure ; make install
+
+setup available to developers on Unix\-like systems is just a wrapper around it\.
+To go beyond the standard embodied in the wrapper it is necessary to directly
+invoke this script\.
+
+On Windows system using it directly is the only way to invoke it\.
+
+For basic help invoke it as
+
+    \./installer\.tcl \-help
+
+This will print a short list of all the available options to the standard output
+channel\.
+
+The commands associated with the various *install* targets in the
+*Makefile\.in* for Unix can be used as additional examples on how to use this
+tool as well\.
+
+The installer can operate in GUI and CLI modes\. By default it chooses the mode
+automatically, based on if the Tcl package
+__[Tk](\.\./\.\./\.\./index\.md\#tk)__ can be used or not\. The option
+__\-no\-gui__ can be used to force CLI mode\.
+
+Note that it is possible to specify options on the command line even if the
+installer ultimatively selects GUI mode\. In that case the hardwired defaults and
+the options determine the data presented to the user for editing\.
+
+The installer will select a number of defaults for the locations of packages,
+examples, and documentation, and also the format of the documentation\. The user
+can overide these defaults in the GUI, or by specifying additional options\. The
+defaults depend on the platform detected \(Unix/Windows\) and on the __tclsh__
+executable used to run the installer\.
+
+*Options*
+
+  - __\-help__
+
+    Show the list of options explained here on the standard output channel and
+    exit\.
+
+  - __\+excluded__
+
+    Include deprecated packages in the installation\.
+
+  - __\-no\-gui__
+
+    Force command line operation of the installer
+
+  - __\-no\-wait__
+
+    In CLI mode the installer will by default ask the user to confirm that the
+    chosen configuration \(destination paths, things to install\) is correct
+    before performing any action\. Using this option causes the installer to skip
+    this query and immediately jump to installation\.
+
+  - __\-app\-path__ *path*
+
+  - __\-example\-path__ *path*
+
+  - __\-html\-path__ *path*
+
+  - __\-nroff\-path__ *path*
+
+  - __\-pkg\-path__ *path*
+
+    Declare the destination paths for the applications, examples, html
+    documentation, nroff manpages, and packages\. The defaults are derived from
+    the location of the __tclsh__ used to run the installer\.
+
+  - __\-dry\-run__
+
+  - __\-simulate__
+
+    Run the installer without modifying the destination directories\.
+
+  - __\-apps__
+
+  - __\-no\-apps__
+
+  - __\-examples__
+
+  - __\-no\-examples__
+
+  - __\-pkgs__
+
+  - __\-no\-pkgs__
+
+  - __\-html__
+
+  - __\-no\-html__
+
+  - __\-nroff__
+
+  - __\-no\-nroff__
+
+    \(De\)activate the installation of applications, examples, packages, html
+    documentation, and nroff manpages\.
+
+    Applications, examples, and packages are installed by default\.
+
+    On Windows the html documentation is installed by default\.
+
+    On Unix the nroff manpages are installed by default\.
