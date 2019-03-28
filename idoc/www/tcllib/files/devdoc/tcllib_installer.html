@@ -121,7 +121,10 @@
 </li>
 <li class="doctools_section"><a href="#section3">Build &amp; Installation Instructions</a>
 <ul>
-<li class="doctools_subsection"><a href="#subsection3">Critcl &amp; Accelerators</a></ul>
+<li class="doctools_subsection"><a href="#subsection3">Installing on Unix</a></li>
+<li class="doctools_subsection"><a href="#subsection4">Installing on Windows</a></li>
+<li class="doctools_subsection"><a href="#subsection5">Critcl &amp; Accelerators</a></li>
+<li class="doctools_subsection"><a href="#subsection6">Tooling</a></ul>
 </li>
 </ul>
 </div>
@@ -130,9 +133,9 @@
 package itself. It is a collection of (semi-independent) <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>
 packages that provide utility functions useful to a large collection
 of Tcl programmers.</p>
-<p>The audience of this document is anyone wishing to build the packages,
-for either themselves, or others.</p>
-<p>For a developer intending to extend or modify the packages we
+<p>The audience of this document is anyone wishing to build and install
+the packages found in Tcllib, for either themselves, or others.</p>
+<p>For developers intending to work on the packages themselves we
 additionally provide</p>
 <ol class="doctools_enumerated">
 <li><p><i class="term"><a href="tcllib_devguide.html">Tcllib - The Developer's Guide</a></i>.</p></li>
@@ -195,7 +198,7 @@ distribution, and <em>not</em> <i class="term"><a href="../../../index.html#tcll
 <p>The <b class="syscmd">critcl</b> tool is an <em>optional</em> dependency.</p>
 <p>It is only required when trying to build the C-based
 <i class="term">accelerators</i> for a number of packages, as explained in
-<span class="sectref"><a href="#subsection3">Critcl &amp; Accelerators</a></span></p>
+<span class="sectref"><a href="#subsection5">Critcl &amp; Accelerators</a></span></p>
 <p>Tcllib's build system looks for it in the ,
 using the name <b class="syscmd">critcl</b>. This is for Unix.
 On Windows on the other hand the search is more complex. First we look
@@ -219,95 +222,171 @@ problems with these directions please file a ticket against the
 </div>
 </div>
 <div id="section3" class="doctools_section"><h2><a name="section3">Build &amp; Installation Instructions</a></h2>
-<p>The Tcllib distribution, whether a checkout directly from the source
-repository, or an official release, offers a single method for
-installing it, based on Tcl itself.</p>
-<p>This is based on the assumption that for Tcllib to be of use
-Tcl has to be present, and therefore can be used in the implementation
-of the install code.</p>
-<p>The relevant tool is the &quot;<b class="file">installer.tcl</b>&quot; script found in
-the toplevel directory of a checkout or release.</p>
-<p>It can be used in a variety of ways:</p>
-<ol class="doctools_enumerated">
-<li><p>It is always possible to invoke the tool directly, either as</p>
+<p>As Tcllib is mainly a bundle of packages written in pure Tcl building
+it is the same as installing it. The exceptions to this have their own
+subsection, <span class="sectref"><a href="#subsection5">Critcl &amp; Accelerators</a></span>, later on.</p>
+<p>Before that however comes the standard case, differentiated by
+       the platforms with material differences in the instruction, i.e.
+       <i class="term">Unix</i>-like, versus <i class="term">Windows</i>.</p>
+<p>Regarding the latter it should also be noted that it is
+       possible set up an <i class="term">Unix</i>-like environment using projects
+       like <i class="term">MSYS</i>, <i class="term">Cygwin</i>, and others. In that case the
+       user has the choice of which instructions to follow.</p>
+<p>Regardless of environment or platform, a suitable <i class="term"><a href="../../../index.html#tcl">Tcl</a></i>
+       has to be installed, and its <b class="syscmd">tclsh</b> should be placed on
+       the  (<i class="term">Unix</i>) or associated with
+       &quot;<b class="file">.tcl</b>&quot; files (<i class="term">Windows</i>).</p>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Installing on Unix</a></h3>
+<p>For <i class="term">Unix</i>-like environments Tcllib comes with the standard set
+of files to make</p>
 <pre class="doctools_example">
-    ./installer.tcl
+  ./configure
+  make install
 </pre>
-<p>or</p>
+<p>a suitable way of installing it.
+This is a standard non-interactive install automatically figuring out
+where to place everything, i.e. packages, applications, and the
+manpages.</p>
+<p>To get a graphical installer invoke</p>
 <pre class="doctools_example">
-    /path/to/tclsh ./installer.tcl
+  ./installer.tcl
 </pre>
-<p>The second form is required on Windows (without a Unix emulation),
-except if the Tcl installation is configured to handle &quot;<b class="file">.tcl</b>&quot;
-files on a double-click.</p></li>
-<li><p>In a Unix-type environment, i.e. Linux, BSD and related, including OS
-X, and Windows using some kind of unix-emulation like <b class="syscmd">MSYS</b>,
-<b class="syscmd">Cygwin</b>, etc.) it is also possible to use</p>
+<p>instead.</p>
+</div>
+<div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Installing on Windows</a></h3>
+<p>In a Windows environment we have the <b class="cmd">installer.tcl</b> script to
+perform installation.</p>
+<p>If the desired <b class="syscmd">tclsh</b> is associated &quot;<b class="file">.tcl</b>&quot; files
+       then double-clicking / opening the <b class="cmd">installer.tcl</b> is
+       enough to invoke it in graphical mode.
+       This assumes that <i class="term"><a href="../../../index.html#tk">Tk</a></i> is installed and available as well.</p>
+<p>Without <i class="term"><a href="../../../index.html#tk">Tk</a></i> the only way to invoke the installer are to
+       open a DOS window, i.e. <b class="syscmd">cmd.exe</b>, and then to invoke</p>
 <pre class="doctools_example">
-    ./configure
-    make install
+  ./installer.tcl
 </pre>
-<p>in the toplevel directory of Tcllib itself.</p>
-<p>To build in a directory &quot;<b class="file">D</b>&quot; outside of Tcllib's toplevel
-directory simply make &quot;<b class="file">D</b>&quot; the current working directory and
-invoke <b class="syscmd">configure</b> with either its absolute path or a proper
-relative path.</p>
-<p>This will non-interactively install all packages, applications
-found in Tcllib, and their manpages, in directories derived from what
-<b class="syscmd">configure</b> found out about the system.</p></li>
-</ol>
-<p>The installer selects automatically either a GUI based mode, or
-a command line based mode. If the package <b class="package"><a href="../../../index.html#tk">Tk</a></b> is present and
-can be loaded, then the GUI mode is entered, else the system falls
-back to the command line.</p>
-<p>Note that it is possible to specify options on the command line
-even if the installer ultimatively selects GUI mode. In that case the
-hardwired defaults and the options determine the data presented to the
-user for editing.</p>
-<p>Command line help can be asked for by using the option <b class="option">-help</b> when
-invoking the installer, i.e.</p>
-<pre class="doctools_example">
-    ./installer.tcl -help
-</pre>
-<p>This will print a short list of the available options to the standard
-output channel. For more examples see the various <i class="term">install</i>
-targets found in &quot;<b class="file">Makefile.in</b>&quot;.</p>
-<p>The installer will select a number of defaults for the
-locations of packages, examples, and documentation, and also the
-format of the documentation. The user can overide these defaults in
-the GUI, or by specifying additional options.</p>
-<p>The defaults depend on the platform detected (Unix/Windows) and
-on the <b class="syscmd">tclsh</b> executable used to run the installer.</p>
-<p><em>Attention</em> The installer will overwrite an existing
-installation of a Tcllib with the same version without asking back
-after the initial confirmation is given.
-Further if the user chooses the same directory as chosen for/by
-previous installations then these will be overwritten as well.</p>
-<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">Critcl &amp; Accelerators</a></h3>
-<p>A number of packages come with <i class="term">accelerators</i>, i.e.
-<b class="syscmd">critcl</b>-based C code whose use will boost the performance of
-the packages using them. As these accelerators are optional they are
-not installed by default.</p>
+<p>inside it.</p>
+</div>
+<div id="subsection5" class="doctools_subsection"><h3><a name="subsection5">Critcl &amp; Accelerators</a></h3>
+<p>While the majority of Tcllib consists of packages written in pure Tcl
+a number of packages also have <i class="term">accelerators</i> associated with them.
+These are <b class="syscmd">critcl</b>-based C packages whose use will boost the
+performance of the packages using them.
+These accelerators are optional, and they are not installed by
+default.</p>
 <p>To build the accelerators the normally optional dependency on
-<b class="syscmd">critcl</b> becomes required.</p>
-<p>To install Tcllib with the accelerators in a Unix-type
-environment invoke:</p>
+       <b class="syscmd">critcl</b> becomes required.</p>
+<p>To build and install Tcllib with the accelerators in a
+       Unix-like environment invoke:</p>
 <pre class="doctools_example">
-    ./configure
-    make critcl # This builds the shared library holding
-                # the accelerators
-    make install
+  ./configure
+  make critcl # This builds the shared library holding
+              # the accelerators
+  make install
 </pre>
 <p>The underlying tool is &quot;<b class="file">sak.tcl</b>&quot; in the toplevel directory
 of Tcllib and the command <b class="cmd">make critcl</b> is just a wrapper around</p>
 <pre class="doctools_example">
-    ./sak.tcl critcl
+  ./sak.tcl critcl
 </pre>
 <p>Therefore in a Windows environment instead invoke</p>
 <pre class="doctools_example">
-    /path/to/tclsh ./sak.tcl critcl
-    /path/to/tclsh ./installer.tcl
+  ./sak.tcl critcl
+  ./installer.tcl
 </pre>
+<p>from within a DOS window, i.e. <b class="syscmd">cmd.exe</b>.</p>
+</div>
+<div id="subsection6" class="doctools_subsection"><h3><a name="subsection6">Tooling</a></h3>
+<p>The core of Tcllib's build system is the script &quot;<b class="file">installer.tcl</b>&quot;
+found in the toplevel directory of a checkout or release.</p>
+<p>The</p>
+<pre class="doctools_example">
+         configure ; make install
+       </pre>
+<p>setup available to
+       developers on Unix-like systems is just a wrapper around it.
+       To go beyond the standard embodied in the wrapper it is
+       necessary to directly invoke this script.</p>
+<p>On Windows system using it directly is the only way to invoke
+       it.</p>
+<p>For basic help invoke it as</p>
+<pre class="doctools_example">
+         ./installer.tcl -help
+       </pre>
+<p>This will print a short list of all the available options to
+       the standard output channel.</p>
+<p>The commands associated with the various <i class="term">install</i> targets
+       in the <i class="term">Makefile.in</i> for Unix can be used as additional
+       examples on how to use this tool as well.</p>
+<p>The installer can operate in GUI and CLI modes.
+       By default it chooses the mode automatically, based on if the
+       Tcl package <b class="package"><a href="../../../index.html#tk">Tk</a></b> can be used or not.
+       The option <b class="option">-no-gui</b> can be used to force CLI mode.</p>
+<p>Note that it is possible to specify options on the command line
+       even if the installer ultimatively selects GUI mode. In that
+       case the hardwired defaults and the options determine the data
+       presented to the user for editing.</p>
+<p>The installer will select a number of defaults for the
+       locations of packages, examples, and documentation, and also
+       the format of the documentation. The user can overide these
+       defaults in the GUI, or by specifying additional options.
+       The defaults depend on the platform detected (Unix/Windows) and
+       on the <b class="syscmd">tclsh</b> executable used to run the installer.</p>
+<p><em>Options</em></p>
+<dl class="doctools_options">
+<dt><b class="option">-help</b></dt>
+<dd><p>Show the list of options explained here on the standard output channel
+and exit.</p></dd>
+<dt><b class="option">+excluded</b></dt>
+<dd><p>Include deprecated packages in the installation.</p></dd>
+<dt><b class="option">-no-gui</b></dt>
+<dd><p>Force command line operation of the installer</p></dd>
+<dt><b class="option">-no-wait</b></dt>
+<dd><p>In CLI mode the installer will by default ask the user to confirm that
+the chosen configuration (destination paths, things to install) is
+correct before performing any action. Using this option causes the
+installer to skip this query and immediately jump to installation.</p></dd>
+<dt><b class="option">-app-path</b> <i class="arg">path</i></dt>
+<dd></dd>
+<dt><b class="option">-example-path</b> <i class="arg">path</i></dt>
+<dd></dd>
+<dt><b class="option">-html-path</b> <i class="arg">path</i></dt>
+<dd></dd>
+<dt><b class="option">-nroff-path</b> <i class="arg">path</i></dt>
+<dd></dd>
+<dt><b class="option">-pkg-path</b> <i class="arg">path</i></dt>
+<dd><p>Declare the destination paths for the applications, examples, html
+documentation, nroff manpages, and packages. The defaults are derived
+from the location of the <b class="syscmd">tclsh</b> used to run the installer.</p></dd>
+<dt><b class="option">-dry-run</b></dt>
+<dd></dd>
+<dt><b class="option">-simulate</b></dt>
+<dd><p>Run the installer without modifying the destination directories.</p></dd>
+<dt><b class="option">-apps</b></dt>
+<dd></dd>
+<dt><b class="option">-no-apps</b></dt>
+<dd></dd>
+<dt><b class="option">-examples</b></dt>
+<dd></dd>
+<dt><b class="option">-no-examples</b></dt>
+<dd></dd>
+<dt><b class="option">-pkgs</b></dt>
+<dd></dd>
+<dt><b class="option">-no-pkgs</b></dt>
+<dd></dd>
+<dt><b class="option">-html</b></dt>
+<dd></dd>
+<dt><b class="option">-no-html</b></dt>
+<dd></dd>
+<dt><b class="option">-nroff</b></dt>
+<dd></dd>
+<dt><b class="option">-no-nroff</b></dt>
+<dd><p>(De)activate the installation of applications, examples, packages,
+html documentation, and nroff manpages.</p>
+<p>Applications, examples, and packages are installed by default.</p>
+<p>On Windows the html documentation is installed by default.</p>
+<p>On Unix the nroff manpages are installed by default.</p></dd>
+</dl>
 </div>
 </div>
 </div></body></html>
