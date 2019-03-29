@@ -3,9 +3,9 @@
 <h1 align="center">Tcl Library Source Code</h1>
 
 <center>
-Packages - [Table Of Contents](www/toc.html)
+Packages - [Table Of Contents](md/toc.md)
 &nbsp;&nbsp;&nbsp;
-[Keyword Index](www/index.html)
+[Keyword Index](md/index.md)
 </center>
 
 <center>
@@ -17,12 +17,12 @@ Packages - [Table Of Contents](www/toc.html)
 
 ## Guides to Tcllib
 
-   * [Tcl Community - Kind Communication](www/tcllib/files/devdoc/tcl_community_communication.html)
-   * [License](www/tcllib/files/devdoc/tcllib_license.html)
-   * [How To Get The Sources](www/tcllib/files/devdoc/tcllib_sources.html)
-   * [How To Build And Install Tcllib](www/tcllib/files/devdoc/tcllib_installer.html)
-   * [The Developer's Guide](www/tcllib/files/devdoc/tcllib_devguide.html)
-   * [The Release Manager's Guide](www/tcllib/files/devdoc/tcllib_releasemgr.html)
+   * [Tcl Community - Kind Communication](md/tcllib/files/devdoc/tcl_community_communication.md)
+   * [License](md/tcllib/files/devdoc/tcllib_license.md)
+   * [How To Get The Sources](md/tcllib/files/devdoc/tcllib_sources.md)
+   * [How To Build And Install Tcllib](md/tcllib/files/devdoc/tcllib_installer.md)
+   * [The Developer's Guide](md/tcllib/files/devdoc/tcllib_devguide.md)
+   * [The Release Manager's Guide](md/tcllib/files/devdoc/tcllib_releasemgr.md)
 
 ## Discussion & Contact
 
