@@ -403,29 +403,31 @@ which will come up with branches, and their associated fossil command
 
     The full\-blown sequencing with checks all the way is to
 
-    Validate the checkout, i\.e\. last commit on your branch\. Run the full test
-    suite and other validations, fix all the issues which have cropped up\.
+      1. Validate the checkout, i\.e\. last commit on your branch\. Run the full
+         test suite and other validations, fix all the issues which have cropped
+         up\.
 
-    Merge the latest state of the *trunk* \(see next definition\)\.
+      1. Merge the latest state of the *trunk* \(see next definition\)\.
 
-    Validate the checkout again\. The incoming trunk changes may have broken
-    something now\. Do any required fixes\.
+      1. Validate the checkout again\. The incoming trunk changes may have broken
+         something now\. Do any required fixes\.
 
-    Now merge to the trunk using
+      1. Now merge to the trunk using
 
-        fossil update trunk
-        fossil merge \-\-integrate YOU\_BRANCH
+             fossil update trunk
+             fossil merge \-\-integrate YOU\_BRANCH
 
-    At this point the checkout should be in the same state as at the end of
-    point \(3\) above, because we resolved any issues with the trunk already\. Thus
-    a simple
+      1. At this point the checkout should be in the same state as at the end of
+         point \(3\) above, because we resolved any issues with the trunk already\.
+         Thus a simple
 
-        fossil commit \.\.\.
+             fossil commit \.\.\.
 
-    should be sufficient now to commit the merge back and close the branch \(due
-    to the __\-\-integrate__ we used on the merge\)\.
+         should be sufficient now to commit the merge back and close the branch
+         \(due to the __\-\-integrate__ we used on the merge\)\.
 
-    The more paranoid may validate the checkout a third time before commiting\.
+         The more paranoid may validate the checkout a third time before
+         commiting\.
 
     I call this a *zig\-zag merge* because of how the arrows look in the
     timeline, from trunk to feature branch for the first merge, and then back
@@ -435,13 +437,13 @@ which will come up with branches, and their associated fossil command
     after step \(4\) and skips step \(3\) entirely\. The resulting shorter sequence
     is
 
-    Validate
+      1. Validate
 
-    Merge to trunk
+      1. Merge to trunk
 
-    Validate again
+      1. Validate again
 
-    Commit to trunk
+      1. Commit to trunk
 
     The last step after either zig\-zag or plain merge is to
 
