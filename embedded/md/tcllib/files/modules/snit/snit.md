@@ -931,13 +931,13 @@ Snit provides the following commands for defining new types:
             at a price; with __\-simpledispatch yes__ you get the following
             limitations:
 
-            Methods cannot be delegated\.
+              - Methods cannot be delegated\.
 
-            __uplevel__ and __upvar__ do not work as expected: the
-            caller's scope is two levels up rather than one\.
+              - __uplevel__ and __upvar__ do not work as expected: the
+                caller's scope is two levels up rather than one\.
 
-            The option\-handling methods \(__cget__, __configure__, and
-            __configurelist__\) are very slightly slower\.
+              - The option\-handling methods \(__cget__, __configure__,
+                and __configurelist__\) are very slightly slower\.
 
       * <a name='25'></a>__expose__ *comp*
 
@@ -990,18 +990,18 @@ Snit provides the following commands for defining new types:
     *definition* is defined as for __snit::type__\. A __snit::widget__
     differs from a __snit::type__ in these ways:
 
-    Every instance of a __snit::widget__ has an automatically\-created
-    component called __hull__, which is normally a Tk frame widget\. Other
-    widgets created as part of the megawidget will be created within this
-    widget\.
+      * Every instance of a __snit::widget__ has an automatically\-created
+        component called __hull__, which is normally a Tk frame widget\.
+        Other widgets created as part of the megawidget will be created within
+        this widget\.
 
-    The hull component is initially created with the requested widget name; then
-    Snit does some magic, renaming the hull component and installing its own
-    instance command in its place\. The hull component's new name is saved in an
-    instance variable called __hull__\.
+        The hull component is initially created with the requested widget name;
+        then Snit does some magic, renaming the hull component and installing
+        its own instance command in its place\. The hull component's new name is
+        saved in an instance variable called __hull__\.
 
-    The name of an instance must be valid Tk window name, and the parent window
-    must exist\.
+      * The name of an instance must be valid Tk window name, and the parent
+        window must exist\.
 
     A __snit::widget__ definition can include any of statements allowed in a
     __snit::type__ definition, and may also include the following:

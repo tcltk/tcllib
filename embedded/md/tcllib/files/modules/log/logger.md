@@ -247,27 +247,27 @@ In the above code, after the package is loaded, the following things happen:
     __enter__ or __leave__ keyword along with another dictionary of
     details about the trace\. These include:
 
-    __proc__ \- Name of the procedure being traced\.
+      * __proc__ \- Name of the procedure being traced\.
 
-    __level__ \- The stack level for the procedure invocation \(from
-    __[info](\.\./\.\./\.\./\.\./index\.md\#info)__ __level__\)\.
+      * __level__ \- The stack level for the procedure invocation \(from
+        __[info](\.\./\.\./\.\./\.\./index\.md\#info)__ __level__\)\.
 
-    __script__ \- The name of the file in which the procedure is defined, or
-    an empty string if defined in interactive mode\.
+      * __script__ \- The name of the file in which the procedure is defined,
+        or an empty string if defined in interactive mode\.
 
-    __caller__ \- The name of the procedure calling the procedure being
-    traced, or an empty string if the procedure was called from the global scope
-    \(stack level 0\)\.
+      * __caller__ \- The name of the procedure calling the procedure being
+        traced, or an empty string if the procedure was called from the global
+        scope \(stack level 0\)\.
 
-    __procargs__ \- A dictionary consisting of the names of arguments to the
-    procedure paired with values given for those arguments \(__enter__ traces
-    only\)\.
+      * __procargs__ \- A dictionary consisting of the names of arguments to
+        the procedure paired with values given for those arguments
+        \(__enter__ traces only\)\.
 
-    __status__ \- The Tcl return code \(e\.g\. __ok__, __continue__,
-    etc\.\) \(__leave__ traces only\)\.
+      * __status__ \- The Tcl return code \(e\.g\. __ok__, __continue__,
+        etc\.\) \(__leave__ traces only\)\.
 
-    __result__ \- The value returned by the procedure \(__leave__ traces
-    only\)\.
+      * __result__ \- The value returned by the procedure \(__leave__
+        traces only\)\.
 
   - <a name='26'></a>__$\{log\}::services__
 

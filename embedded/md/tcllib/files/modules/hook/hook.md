@@ -181,38 +181,38 @@ Hook provides the following commands:
 
         hook call $s $h
 
-    No binding is ever called after it is deleted\.
+      1. No binding is ever called after it is deleted\.
 
-    When a binding is called, the most recently given command prefix is always
-    used\.
+      1. When a binding is called, the most recently given command prefix is
+         always used\.
 
-    The set of observers whose bindings are to be called is determined when this
-    method begins to execute, and does not change thereafter, except that
-    deleted bindings are not called\.
+      1. The set of observers whose bindings are to be called is determined when
+         this method begins to execute, and does not change thereafter, except
+         that deleted bindings are not called\.
 
     In particular:
 
-    If __$o__s binding to __$s__ and __$h__ is deleted, and
-    __$o__s binding has not yet been called during this execution of
+      1. If __$o__s binding to __$s__ and __$h__ is deleted, and
+         __$o__s binding has not yet been called during this execution of
 
-        hook call $s $h
+             hook call $s $h
 
-    it will not be called\. \(Note that it might already have been called; and in
-    all likelihood, it is probably deleting itself\.\)
+         it will not be called\. \(Note that it might already have been called;
+         and in all likelihood, it is probably deleting itself\.\)
 
-    If __$o__ changes the command prefix that's bound to __$s__ and
-    __$h__, and if __$o__s binding has not yet been called during this
-    execution of
+      1. If __$o__ changes the command prefix that's bound to __$s__ and
+         __$h__, and if __$o__s binding has not yet been called during
+         this execution of
 
-        hook call $s $h
+             hook call $s $h
 
-    the new binding will be called when the time comes\. \(But again, it is
-    probably __$o__s binding that is is making the change\.\)
+         the new binding will be called when the time comes\. \(But again, it is
+         probably __$o__s binding that is is making the change\.\)
 
-    If a new observer is bound to __$s__ and __$h__, its binding will
-    not be called until the next invocation of
+      1. If a new observer is bound to __$s__ and __$h__, its binding
+         will not be called until the next invocation of
 
-        hook call $s $h
+             hook call $s $h
 
   - <a name='2'></a>__hook__ __call__ *subject* *hook* ?*args*\.\.\.?
 
@@ -230,15 +230,16 @@ Hook provides the following commands:
     is presumed that the *subject* has no knowledge of the observers, nor any
     expectation regarding return values\. This has a number of implications:
 
-    __hook call__ returns the empty string\.
+      1. __hook call__ returns the empty string\.
 
-    Normal return values from observer bindings are ignored\.
+      1. Normal return values from observer bindings are ignored\.
 
-    Errors and other exceptional returns propagate normally by default\. This
-    will rarely be what is wanted, because the subjects usually have no
-    knowledge of the observers and will therefore have no particular competence
-    at handling their errors\. That makes it an application issue, and so
-    applications will usually want to define an __\-errorcommand__\.
+      1. Errors and other exceptional returns propagate normally by default\.
+         This will rarely be what is wanted, because the subjects usually have
+         no knowledge of the observers and will therefore have no particular
+         competence at handling their errors\. That makes it an application
+         issue, and so applications will usually want to define an
+         __\-errorcommand__\.
 
     If the __\-errorcommand__ configuration option has a non\-empty value, its
     value will be invoked for all errors and other exceptional returns in
@@ -252,16 +253,16 @@ Hook provides the following commands:
     *[observer](\.\./\.\./\.\./\.\./index\.md\#observer)*\. Bindings deleted by this
     method will never be called again\. In particular,
 
-    If an observer is forgotten during a call to __hook call__, any uncalled
-    binding it might have had to the relevant subject and hook will *not* be
-    called subsequently\.
+      1. If an observer is forgotten during a call to __hook call__, any
+         uncalled binding it might have had to the relevant subject and hook
+         will *not* be called subsequently\.
 
-    If a subject __$s__ is forgotten during a call to
+      1. If a subject __$s__ is forgotten during a call to
 
-        hook call $s $h
+             hook call $s $h
 
-    then __hook call__ will return as soon as the current binding returns\.
-    No further bindings will be called\.
+         then __hook call__ will return as soon as the current binding
+         returns\. No further bindings will be called\.
 
   - <a name='4'></a>__hook__ __cget__ *option*
 
@@ -280,11 +281,11 @@ Hook provides the following commands:
         Otherwise, it must be a command prefix taking three additional
         arguments:
 
-        a 4\-element list \{subject hook arglist observer\},
+          1. a 4\-element list \{subject hook arglist observer\},
 
-        the result string, and
+          1. the result string, and
 
-        the return options dictionary\.
+          1. the return options dictionary\.
 
         Given this information, the __\-errorcommand__ can choose to log the
         error, call __interp bgerror__, delete the errant binding \(thus
@@ -294,13 +295,13 @@ Hook provides the following commands:
 
         The option's value should be a command prefix taking four arguments:
 
-        a *[subject](\.\./\.\./\.\./\.\./index\.md\#subject)*,
+          1. a *[subject](\.\./\.\./\.\./\.\./index\.md\#subject)*,
 
-        a *[hook](\.\./\.\./\.\./\.\./index\.md\#hook)*,
+          1. a *[hook](\.\./\.\./\.\./\.\./index\.md\#hook)*,
 
-        a list of the hook's argument values, and
+          1. a list of the hook's argument values, and
 
-        a list of *objects* the hook was called for\.
+          1. a list of *objects* the hook was called for\.
 
         The command will be called for each hook that is called\. This allows the
         application to trace hook execution for debugging purposes\.

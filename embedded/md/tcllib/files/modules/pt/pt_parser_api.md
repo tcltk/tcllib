@@ -127,19 +127,19 @@ All parser instances provide at least the methods shown below:
     This error will be a 4\-element Tcl\-list, containing, in the order listed
     below:
 
-    The string __pt::rde__ identifying it as parser runtime error\.
+      1. The string __pt::rde__ identifying it as parser runtime error\.
 
-    The location of the parse error, as character offset from the beginning of
-    the parsed input\.
+      1. The location of the parse error, as character offset from the beginning
+         of the parsed input\.
 
-    The location of parse error, now as a 2\-element list containing line\-number
-    and column in the line\.
+      1. The location of parse error, now as a 2\-element list containing
+         line\-number and column in the line\.
 
-    A set of atomic parsing expressions indicating encoding the characters
-    and/or nonterminal symbols the parser expected to see at the location of the
-    parse error, but did not get\. For the specification of atomic parsing
-    expressions please see the section [PE serialization
-    format](#section6)\.
+      1. A set of atomic parsing expressions indicating encoding the characters
+         and/or nonterminal symbols the parser expected to see at the location
+         of the parse error, but did not get\. For the specification of atomic
+         parsing expressions please see the section [PE serialization
+         format](#section6)\.
 
   - <a name='4'></a>*objectName* __parset__ *text*
 
@@ -187,27 +187,29 @@ be *canonical*\.
 
   - Regular serialization
 
-    The serialization of any AST is the serialization of its root node\.
+      1. The serialization of any AST is the serialization of its root node\.
 
-    The serialization of any node is a Tcl list containing at least three
-    elements\.
+      1. The serialization of any node is a Tcl list containing at least three
+         elements\.
 
-    The first element is the name of the nonterminal symbol stored in the node\.
+           1) The first element is the name of the nonterminal symbol stored in
+              the node\.
 
-    The second and third element are the locations of the first and last token
-    in the token stream the node represents \(covers\)\.
+           1) The second and third element are the locations of the first and
+              last token in the token stream the node represents \(covers\)\.
 
-    Locations are provided as non\-negative integer offsets from the beginning of
-    the token stream, with the first token found in the stream located at offset
-    0 \(zero\)\.
+                1. Locations are provided as non\-negative integer offsets from
+                   the beginning of the token stream, with the first token found
+                   in the stream located at offset 0 \(zero\)\.
 
-    The end location has to be equal to or larger than the start location\.
+                1. The end location has to be equal to or larger than the start
+                   location\.
 
-    All elements after the first three represent the children of the node, which
-    are themselves nodes\. This means that the serializations of nodes without
-    children, i\.e\. leaf nodes, have exactly three elements\. The children are
-    stored in the list with the leftmost child first, and the rightmost child
-    last\.
+           1) All elements after the first three represent the children of the
+              node, which are themselves nodes\. This means that the
+              serializations of nodes without children, i\.e\. leaf nodes, have
+              exactly three elements\. The children are stored in the list with
+              the leftmost child first, and the rightmost child last\.
 
   - Canonical serialization
 
@@ -216,8 +218,8 @@ be *canonical*\.
     constraints below, which make it unique among all the possible
     serializations of this tree\.
 
-    The string representation of the value is the canonical representation of a
-    pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
+      1. The string representation of the value is the canonical representation
+         of a pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
 
 ## <a name='subsection1'></a>Example
 
@@ -276,103 +278,107 @@ of them will be *canonical*\.
 
       * __Atomic Parsing Expressions__
 
-        The string __epsilon__ is an atomic parsing expression\. It matches
-        the empty string\.
+          1. The string __epsilon__ is an atomic parsing expression\. It
+             matches the empty string\.
 
-        The string __dot__ is an atomic parsing expression\. It matches any
-        character\.
+          1. The string __dot__ is an atomic parsing expression\. It matches
+             any character\.
 
-        The string __alnum__ is an atomic parsing expression\. It matches any
-        Unicode alphabet or digit character\. This is a custom extension of PEs
-        based on Tcl's builtin command __string is__\.
+          1. The string __alnum__ is an atomic parsing expression\. It
+             matches any Unicode alphabet or digit character\. This is a custom
+             extension of PEs based on Tcl's builtin command __string is__\.
 
-        The string __alpha__ is an atomic parsing expression\. It matches any
-        Unicode alphabet character\. This is a custom extension of PEs based on
-        Tcl's builtin command __string is__\.
+          1. The string __alpha__ is an atomic parsing expression\. It
+             matches any Unicode alphabet character\. This is a custom extension
+             of PEs based on Tcl's builtin command __string is__\.
 
-        The string __ascii__ is an atomic parsing expression\. It matches any
-        Unicode character below U0080\. This is a custom extension of PEs based
-        on Tcl's builtin command __string is__\.
+          1. The string __ascii__ is an atomic parsing expression\. It
+             matches any Unicode character below U0080\. This is a custom
+             extension of PEs based on Tcl's builtin command __string is__\.
 
-        The string __control__ is an atomic parsing expression\. It matches
-        any Unicode control character\. This is a custom extension of PEs based
-        on Tcl's builtin command __string is__\.
+          1. The string __control__ is an atomic parsing expression\. It
+             matches any Unicode control character\. This is a custom extension
+             of PEs based on Tcl's builtin command __string is__\.
 
-        The string __digit__ is an atomic parsing expression\. It matches any
-        Unicode digit character\. Note that this includes characters outside of
-        the \[0\.\.9\] range\. This is a custom extension of PEs based on Tcl's
-        builtin command __string is__\.
+          1. The string __digit__ is an atomic parsing expression\. It
+             matches any Unicode digit character\. Note that this includes
+             characters outside of the \[0\.\.9\] range\. This is a custom extension
+             of PEs based on Tcl's builtin command __string is__\.
 
-        The string __graph__ is an atomic parsing expression\. It matches any
-        Unicode printing character, except for space\. This is a custom extension
-        of PEs based on Tcl's builtin command __string is__\.
+          1. The string __graph__ is an atomic parsing expression\. It
+             matches any Unicode printing character, except for space\. This is a
+             custom extension of PEs based on Tcl's builtin command __string
+             is__\.
 
-        The string __lower__ is an atomic parsing expression\. It matches any
-        Unicode lower\-case alphabet character\. This is a custom extension of PEs
-        based on Tcl's builtin command __string is__\.
+          1. The string __lower__ is an atomic parsing expression\. It
+             matches any Unicode lower\-case alphabet character\. This is a custom
+             extension of PEs based on Tcl's builtin command __string is__\.
 
-        The string __print__ is an atomic parsing expression\. It matches any
-        Unicode printing character, including space\. This is a custom extension
-        of PEs based on Tcl's builtin command __string is__\.
+          1. The string __print__ is an atomic parsing expression\. It
+             matches any Unicode printing character, including space\. This is a
+             custom extension of PEs based on Tcl's builtin command __string
+             is__\.
 
-        The string __punct__ is an atomic parsing expression\. It matches any
-        Unicode punctuation character\. This is a custom extension of PEs based
-        on Tcl's builtin command __string is__\.
+          1. The string __punct__ is an atomic parsing expression\. It
+             matches any Unicode punctuation character\. This is a custom
+             extension of PEs based on Tcl's builtin command __string is__\.
 
-        The string __space__ is an atomic parsing expression\. It matches any
-        Unicode space character\. This is a custom extension of PEs based on
-        Tcl's builtin command __string is__\.
+          1. The string __space__ is an atomic parsing expression\. It
+             matches any Unicode space character\. This is a custom extension of
+             PEs based on Tcl's builtin command __string is__\.
 
-        The string __upper__ is an atomic parsing expression\. It matches any
-        Unicode upper\-case alphabet character\. This is a custom extension of PEs
-        based on Tcl's builtin command __string is__\.
+          1. The string __upper__ is an atomic parsing expression\. It
+             matches any Unicode upper\-case alphabet character\. This is a custom
+             extension of PEs based on Tcl's builtin command __string is__\.
 
-        The string __wordchar__ is an atomic parsing expression\. It matches
-        any Unicode word character\. This is any alphanumeric character \(see
-        alnum\), and any connector punctuation characters \(e\.g\. underscore\)\. This
-        is a custom extension of PEs based on Tcl's builtin command __string
-        is__\.
+          1. The string __wordchar__ is an atomic parsing expression\. It
+             matches any Unicode word character\. This is any alphanumeric
+             character \(see alnum\), and any connector punctuation characters
+             \(e\.g\. underscore\)\. This is a custom extension of PEs based on Tcl's
+             builtin command __string is__\.
 
-        The string __xdigit__ is an atomic parsing expression\. It matches
-        any hexadecimal digit character\. This is a custom extension of PEs based
-        on Tcl's builtin command __string is__\.
+          1. The string __xdigit__ is an atomic parsing expression\. It
+             matches any hexadecimal digit character\. This is a custom extension
+             of PEs based on Tcl's builtin command __string is__\.
 
-        The string __ddigit__ is an atomic parsing expression\. It matches
-        any decimal digit character\. This is a custom extension of PEs based on
-        Tcl's builtin command __regexp__\.
+          1. The string __ddigit__ is an atomic parsing expression\. It
+             matches any decimal digit character\. This is a custom extension of
+             PEs based on Tcl's builtin command __regexp__\.
 
-        The expression \[list t __x__\] is an atomic parsing expression\. It
-        matches the terminal string __x__\.
+          1. The expression \[list t __x__\] is an atomic parsing expression\.
+             It matches the terminal string __x__\.
 
-        The expression \[list n __A__\] is an atomic parsing expression\. It
-        matches the nonterminal __A__\.
+          1. The expression \[list n __A__\] is an atomic parsing expression\.
+             It matches the nonterminal __A__\.
 
       * __Combined Parsing Expressions__
 
-        For parsing expressions __e1__, __e2__, \.\.\. the result of \[list
-        / __e1__ __e2__ \.\.\. \] is a parsing expression as well\. This is
-        the *ordered choice*, aka *prioritized choice*\.
+          1. For parsing expressions __e1__, __e2__, \.\.\. the result of
+             \[list / __e1__ __e2__ \.\.\. \] is a parsing expression as
+             well\. This is the *ordered choice*, aka *prioritized choice*\.
 
-        For parsing expressions __e1__, __e2__, \.\.\. the result of \[list
-        x __e1__ __e2__ \.\.\. \] is a parsing expression as well\. This is
-        the *sequence*\.
+          1. For parsing expressions __e1__, __e2__, \.\.\. the result of
+             \[list x __e1__ __e2__ \.\.\. \] is a parsing expression as
+             well\. This is the *sequence*\.
 
-        For a parsing expression __e__ the result of \[list \* __e__\] is a
-        parsing expression as well\. This is the *kleene closure*, describing
-        zero or more repetitions\.
+          1. For a parsing expression __e__ the result of \[list \* __e__\]
+             is a parsing expression as well\. This is the *kleene closure*,
+             describing zero or more repetitions\.
 
-        For a parsing expression __e__ the result of \[list \+ __e__\] is a
-        parsing expression as well\. This is the *positive kleene closure*,
-        describing one or more repetitions\.
+          1. For a parsing expression __e__ the result of \[list \+ __e__\]
+             is a parsing expression as well\. This is the *positive kleene
+             closure*, describing one or more repetitions\.
 
-        For a parsing expression __e__ the result of \[list & __e__\] is a
-        parsing expression as well\. This is the *and lookahead predicate*\.
+          1. For a parsing expression __e__ the result of \[list & __e__\]
+             is a parsing expression as well\. This is the *and lookahead
+             predicate*\.
 
-        For a parsing expression __e__ the result of \[list \! __e__\] is a
-        parsing expression as well\. This is the *not lookahead predicate*\.
+          1. For a parsing expression __e__ the result of \[list \! __e__\]
+             is a parsing expression as well\. This is the *not lookahead
+             predicate*\.
 
-        For a parsing expression __e__ the result of \[list ? __e__\] is a
-        parsing expression as well\. This is the *optional input*\.
+          1. For a parsing expression __e__ the result of \[list ? __e__\]
+             is a parsing expression as well\. This is the *optional input*\.
 
   - Canonical serialization
 
@@ -381,11 +387,11 @@ of them will be *canonical*\.
     constraints below, which make it unique among all the possible
     serializations of this parsing expression\.
 
-    The string representation of the value is the canonical representation of a
-    pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
+      1. The string representation of the value is the canonical representation
+         of a pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
 
-    Terminals are *not* encoded as ranges \(where start and end of the range
-    are identical\)\.
+      1. Terminals are *not* encoded as ranges \(where start and end of the
+         range are identical\)\.
 
 ## <a name='subsection2'></a>Example
 

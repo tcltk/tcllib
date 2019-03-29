@@ -62,21 +62,21 @@ MIME body parts\.
 
     This command creates a MIME part and returns a token representing it\.
 
-    If the __\-canonical__ option is present, then the body is in canonical
-    \(raw\) form and is found by consulting either the __\-file__,
-    __\-string__, or __\-parts__ option\.
+      * If the __\-canonical__ option is present, then the body is in
+        canonical \(raw\) form and is found by consulting either the
+        __\-file__, __\-string__, or __\-parts__ option\.
 
-    In addition, both the __\-param__ and __\-header__ options may occur
-    zero or more times to specify __Content\-Type__ parameters \(e\.g\.,
-    __charset__\) and header keyword/values \(e\.g\.,
-    __Content\-Disposition__\), respectively\.
+        In addition, both the __\-param__ and __\-header__ options may
+        occur zero or more times to specify __Content\-Type__ parameters
+        \(e\.g\., __charset__\) and header keyword/values \(e\.g\.,
+        __Content\-Disposition__\), respectively\.
 
-    Also, __\-encoding__, if present, specifies the
-    __Content\-Transfer\-Encoding__ when copying the body\.
+        Also, __\-encoding__, if present, specifies the
+        __Content\-Transfer\-Encoding__ when copying the body\.
 
-    If the __\-canonical__ option is not present, then the MIME part
-    contained in either the __\-file__ or the __\-string__ option is
-    parsed, dynamically generating subordinates as appropriate\.
+      * If the __\-canonical__ option is not present, then the MIME part
+        contained in either the __\-file__ or the __\-string__ option is
+        parsed, dynamically generating subordinates as appropriate\.
 
   - <a name='2'></a>__::mime::finalize__ *token* ?__\-subordinates__ __all__ &#124; __dynamic__ &#124; __none__?
 

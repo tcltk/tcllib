@@ -611,23 +611,23 @@ The general statistical procedures are:
 
         The result consists of the following list:
 
-        \(Estimate of\) Intercept A
+          + \(Estimate of\) Intercept A
 
-        \(Estimate of\) Slope B
+          + \(Estimate of\) Slope B
 
-        Standard deviation of Y relative to fit
+          + Standard deviation of Y relative to fit
 
-        Correlation coefficient R2
+          + Correlation coefficient R2
 
-        Number of degrees of freedom df
+          + Number of degrees of freedom df
 
-        Standard error of the intercept A
+          + Standard error of the intercept A
 
-        Significance level of A
+          + Significance level of A
 
-        Standard error of the slope B
+          + Standard error of the slope B
 
-        Significance level of B
+          + Significance level of B
 
   - <a name='29'></a>__::math::statistics::linear\-residuals__ *xdata* *ydata* *intercept*
 
@@ -1023,17 +1023,17 @@ Note: These procedures depend on the math::linearalgebra package\.
 
     The procedure returns a list with the following elements:
 
-    The r\-squared statistic
+      * The r\-squared statistic
 
-    The adjusted r\-squared statistic
+      * The adjusted r\-squared statistic
 
-    A list containing the estimated coefficients b1, \.\.\. bN, b0 \(The constant b0
-    comes last in the list\.\)
+      * A list containing the estimated coefficients b1, \.\.\. bN, b0 \(The
+        constant b0 comes last in the list\.\)
 
-    A list containing the standard errors of the coefficients
+      * A list containing the standard errors of the coefficients
 
-    A list containing the 95% confidence bounds of the coefficients, with each
-    set of bounds returned as a list with two values
+      * A list containing the 95% confidence bounds of the coefficients, with
+        each set of bounds returned as a list with two values
 
     Arguments:
 

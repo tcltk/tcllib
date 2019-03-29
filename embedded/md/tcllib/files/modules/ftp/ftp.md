@@ -192,12 +192,12 @@ a failure code as described below but pass the thrown error to their caller\.
     directory was successfully changed to the specified directory or 0 if it
     fails\. The target directory can be
 
-    a subdirectory of the current directory,
+      * a subdirectory of the current directory,
 
-    Two dots, __\.\.__ \(as an indicator for the parent directory of the
-    current directory\)
+      * Two dots, __\.\.__ \(as an indicator for the parent directory of the
+        current directory\)
 
-    or a fully qualified path to a new working directory\.
+      * or a fully qualified path to a new working directory\.
 
   - <a name='4'></a>__::ftp::Pwd__ *handle*
 

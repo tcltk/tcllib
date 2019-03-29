@@ -176,11 +176,11 @@ provided here can be reached through a subcommand of this command\.
 
     *Notes:*
 
-    An index of __\-1__ in a *deleted* chunk refers to just before the
-    first element of the second sequence\.
+      * An index of __\-1__ in a *deleted* chunk refers to just before the
+        first element of the second sequence\.
 
-    Also an index equal to the length of the first sequence in an *added*
-    chunk refers to just behind the end of the sequence\.
+      * Also an index equal to the length of the first sequence in an *added*
+        chunk refers to just behind the end of the sequence\.
 
   - <a name='4'></a>__::struct::list__ __lcsInvert2__ *lcs1* *lcs2* *len1* *len2*
 

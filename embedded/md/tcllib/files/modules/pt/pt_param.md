@@ -427,15 +427,15 @@ The instructions in this section mainly access ER and ES\.
 
     The merge is governed by four rules, with the merge result
 
-    Empty if both states are empty\.
+      1. Empty if both states are empty\.
 
-    The non\-empty state if only one of the two states is non\-empty\.
+      1. The non\-empty state if only one of the two states is non\-empty\.
 
-    The state with the larger location, if the two states specify different
-    locations\.
+      1. The state with the larger location, if the two states specify different
+         locations\.
 
-    The pair of the location shared by the two states, and the set\-union of
-    their messages for states at the same location\.
+      1. The pair of the location shared by the two states, and the set\-union of
+         their messages for states at the same location\.
 
   - __error\_nonterminal__ *symbol*
 

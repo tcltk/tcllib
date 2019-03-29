@@ -193,27 +193,29 @@ be *canonical*\.
 
   - Regular serialization
 
-    The serialization of any AST is the serialization of its root node\.
+      1. The serialization of any AST is the serialization of its root node\.
 
-    The serialization of any node is a Tcl list containing at least three
-    elements\.
+      1. The serialization of any node is a Tcl list containing at least three
+         elements\.
 
-    The first element is the name of the nonterminal symbol stored in the node\.
+           1) The first element is the name of the nonterminal symbol stored in
+              the node\.
 
-    The second and third element are the locations of the first and last token
-    in the token stream the node represents \(covers\)\.
+           1) The second and third element are the locations of the first and
+              last token in the token stream the node represents \(covers\)\.
 
-    Locations are provided as non\-negative integer offsets from the beginning of
-    the token stream, with the first token found in the stream located at offset
-    0 \(zero\)\.
+                1. Locations are provided as non\-negative integer offsets from
+                   the beginning of the token stream, with the first token found
+                   in the stream located at offset 0 \(zero\)\.
 
-    The end location has to be equal to or larger than the start location\.
+                1. The end location has to be equal to or larger than the start
+                   location\.
 
-    All elements after the first three represent the children of the node, which
-    are themselves nodes\. This means that the serializations of nodes without
-    children, i\.e\. leaf nodes, have exactly three elements\. The children are
-    stored in the list with the leftmost child first, and the rightmost child
-    last\.
+           1) All elements after the first three represent the children of the
+              node, which are themselves nodes\. This means that the
+              serializations of nodes without children, i\.e\. leaf nodes, have
+              exactly three elements\. The children are stored in the list with
+              the leftmost child first, and the rightmost child last\.
 
   - Canonical serialization
 
@@ -222,8 +224,8 @@ be *canonical*\.
     constraints below, which make it unique among all the possible
     serializations of this tree\.
 
-    The string representation of the value is the canonical representation of a
-    pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
+      1. The string representation of the value is the canonical representation
+         of a pure Tcl list\. I\.e\. it does not contain superfluous whitespace\.
 
 ## <a name='subsection1'></a>Example
 

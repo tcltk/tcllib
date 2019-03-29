@@ -108,18 +108,19 @@ All parser instances provide at least the methods shown below:
     This error will be a 4\-element Tcl\-list, containing, in the order listed
     below:
 
-    The string __pt::rde__ identifying it as parser runtime error\.
+      1. The string __pt::rde__ identifying it as parser runtime error\.
 
-    The location of the parse error, as character offset from the beginning of
-    the parsed input\.
+      1. The location of the parse error, as character offset from the beginning
+         of the parsed input\.
 
-    The location of parse error, now as a 2\-element list containing line\-number
-    and column in the line\.
+      1. The location of parse error, now as a 2\-element list containing
+         line\-number and column in the line\.
 
-    A set of atomic parsing expressions indicating encoding the characters
-    and/or nonterminal symbols the parser expected to see at the location of the
-    parse error, but did not get\. For the specification of atomic parsing
-    expressions please see the section __PE serialization format__\.
+      1. A set of atomic parsing expressions indicating encoding the characters
+         and/or nonterminal symbols the parser expected to see at the location
+         of the parse error, but did not get\. For the specification of atomic
+         parsing expressions please see the section __PE serialization
+         format__\.
 
   - <a name='4'></a>*objectName* __parset__ *text*
 

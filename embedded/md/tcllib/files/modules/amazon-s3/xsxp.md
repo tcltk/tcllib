@@ -76,23 +76,23 @@ processing\.
     succeeded\. The return value is referred to herein as a "pxml", or "parsed
     xml"\. The list consists of two or more elements:
 
-    The first element is the name of the tag\.
+      * The first element is the name of the tag\.
 
-    The second element is an array\-get formatted list of key/value pairs\. The
-    keys are attribute names and the values are attribute values\. This is an
-    empty list if there are no attributes on the tag\.
+      * The second element is an array\-get formatted list of key/value pairs\.
+        The keys are attribute names and the values are attribute values\. This
+        is an empty list if there are no attributes on the tag\.
 
-    The third through end elements are the children of the node, if any\. Each
-    child is, recursively, a pxml\.
+      * The third through end elements are the children of the node, if any\.
+        Each child is, recursively, a pxml\.
 
-    Note that if the zero'th element, i\.e\. the tag name, is "%PCDATA", then the
-    attributes will be empty and the third element will be the text of the
-    element\. In addition, if an element's contents consists only of PCDATA, it
-    will have only one child, and all the PCDATA will be concatenated\. In other
-    words, this parser works poorly for XML with elements that contain both
-    child tags and PCDATA\. Since Amazon S3 does not do this \(and for that matter
-    most uses of XML where XML is a poor choice don't do this\), this is probably
-    not a serious limitation\.
+      * Note that if the zero'th element, i\.e\. the tag name, is "%PCDATA", then
+        the attributes will be empty and the third element will be the text of
+        the element\. In addition, if an element's contents consists only of
+        PCDATA, it will have only one child, and all the PCDATA will be
+        concatenated\. In other words, this parser works poorly for XML with
+        elements that contain both child tags and PCDATA\. Since Amazon S3 does
+        not do this \(and for that matter most uses of XML where XML is a poor
+        choice don't do this\), this is probably not a serious limitation\.
 
   - <a name='2'></a>__xsxp::fetch__ *pxml* *path* ?*part*?
 

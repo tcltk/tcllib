@@ -357,17 +357,17 @@ This package provides implementations of standard unix utilities\.
     temporary files, such as "/tmp" on Unix systems\. The algorithm we use to
     find the correct directory is as follows:
 
-    The directory set by an invokation of __::fileutil::tempdir__ with an
-    argument\. If this is present it is tried exclusively and none of the
-    following item are tried\.
+      1. The directory set by an invokation of __::fileutil::tempdir__ with
+         an argument\. If this is present it is tried exclusively and none of the
+         following item are tried\.
 
-    The directory named in the TMPDIR environment variable\.
+      1. The directory named in the TMPDIR environment variable\.
 
-    The directory named in the TEMP environment variable\.
+      1. The directory named in the TEMP environment variable\.
 
-    The directory named in the TMP environment variable\.
+      1. The directory named in the TMP environment variable\.
 
-    A platform specific location:
+      1. A platform specific location:
 
            * Windows
 

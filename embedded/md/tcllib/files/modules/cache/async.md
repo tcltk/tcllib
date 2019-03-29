@@ -90,9 +90,9 @@ The object commands created by the class commands above have the form:
     run to transfer the result to the caller\. This command prefix is invoked
     with either 2 or 3 arguments, i\.e\.
 
-    The string __set__, the *key*, and the value\.
+      1. The string __set__, the *key*, and the value\.
 
-    The string __unset__, and the *key*\.
+      1. The string __unset__, and the *key*\.
 
     These two possibilities are used to either signal the value for the *key*,
     or that the *key* has no value defined for it\. The latter is distinct from

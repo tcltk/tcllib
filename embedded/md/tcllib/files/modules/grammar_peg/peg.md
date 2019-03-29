@@ -251,18 +251,18 @@ of their contents:
 
     The result is a list of four elements with the following structure:
 
-    The constant string __grammar::peg__\.
+      1. The constant string __grammar::peg__\.
 
-    A dictionary\. Its keys are the names of all known nonterminal symbols, and
-    their associated values are the parsing expressions describing their
-    sentennial structure\.
+      1. A dictionary\. Its keys are the names of all known nonterminal symbols,
+         and their associated values are the parsing expressions describing
+         their sentennial structure\.
 
-    A dictionary\. Its keys are the names of all known nonterminal symbols, and
-    their associated values hints to a matcher regarding the semantic values
-    produced by the symbol\.
+      1. A dictionary\. Its keys are the names of all known nonterminal symbols,
+         and their associated values hints to a matcher regarding the semantic
+         values produced by the symbol\.
 
-    The last item is a parsing expression, the *start expression* of the
-    grammar\.
+      1. The last item is a parsing expression, the *start expression* of the
+         grammar\.
 
     Assuming the following PEG for simple mathematical expressions
 
