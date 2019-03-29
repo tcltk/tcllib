@@ -1064,16 +1064,17 @@ __[struct::graph](graph\.md)__\.
 
   - Generalizations:
 
-    *The single\-source shortest path problem*, in which we have to find
-    shortest paths from a source vertex v to all other vertices in the graph\.
+      * *The single\-source shortest path problem*, in which we have to find
+        shortest paths from a source vertex v to all other vertices in the
+        graph\.
 
-    *The single\-destination shortest path problem*, in which we have to find
-    shortest paths from all vertices in the graph to a single destination vertex
-    v\. This can be reduced to the single\-source shortest path problem by
-    reversing the edges in the graph\.
+      * *The single\-destination shortest path problem*, in which we have to
+        find shortest paths from all vertices in the graph to a single
+        destination vertex v\. This can be reduced to the single\-source shortest
+        path problem by reversing the edges in the graph\.
 
-    *The all\-pairs shortest path problem*, in which we have to find shortest
-    paths between every pair of vertices v, v' in the graph\.
+      * *The all\-pairs shortest path problem*, in which we have to find
+        shortest paths between every pair of vertices v, v' in the graph\.
 
     *Note:* The result of *Shortest Path problem* can be *Shortest Path
     tree*, which is a subgraph of a given \(possibly weighted\) graph constructed
@@ -1093,32 +1094,33 @@ __[struct::graph](graph\.md)__\.
 
   - Generalizations:
 
-    *Metric TSP* \- A very natural restriction of the *TSP* is to require
-    that the distances between cities form a *metric*, i\.e\., they satisfy
-    *the triangle inequality*\. That is, for any 3 cities *A*, *B* and
-    *[C](\.\./\.\./\.\./\.\./index\.md\#c)*, the distance between *A* and
-    *[C](\.\./\.\./\.\./\.\./index\.md\#c)* must be at most the distance from *A*
-    to *B* plus the distance from *B* to
-    *[C](\.\./\.\./\.\./\.\./index\.md\#c)*\. Most natural instances of *TSP*
-    satisfy this constraint\.
+      * *Metric TSP* \- A very natural restriction of the *TSP* is to require
+        that the distances between cities form a *metric*, i\.e\., they satisfy
+        *the triangle inequality*\. That is, for any 3 cities *A*, *B* and
+        *[C](\.\./\.\./\.\./\.\./index\.md\#c)*, the distance between *A* and
+        *[C](\.\./\.\./\.\./\.\./index\.md\#c)* must be at most the distance from
+        *A* to *B* plus the distance from *B* to
+        *[C](\.\./\.\./\.\./\.\./index\.md\#c)*\. Most natural instances of *TSP*
+        satisfy this constraint\.
 
-    *Euclidean TSP* \- Euclidean TSP, or *planar TSP*, is the *TSP* with
-    the distance being the ordinary *Euclidean distance*\. *Euclidean TSP* is
-    a particular case of *TSP* with *triangle inequality*, since distances
-    in plane obey triangle inequality\. However, it seems to be easier than
-    general *TSP* with *triangle inequality*\. For example, *the minimum
-    spanning tree* of the graph associated with an instance of *Euclidean
-    TSP* is a *Euclidean minimum spanning tree*, and so can be computed in
-    expected *O\(n log n\)* time for *n* points \(considerably less than the
-    number of edges\)\. This enables the simple *2\-approximation algorithm* for
-    TSP with triangle inequality above to operate more quickly\.
+      * *Euclidean TSP* \- Euclidean TSP, or *planar TSP*, is the *TSP*
+        with the distance being the ordinary *Euclidean distance*\. *Euclidean
+        TSP* is a particular case of *TSP* with *triangle inequality*,
+        since distances in plane obey triangle inequality\. However, it seems to
+        be easier than general *TSP* with *triangle inequality*\. For
+        example, *the minimum spanning tree* of the graph associated with an
+        instance of *Euclidean TSP* is a *Euclidean minimum spanning tree*,
+        and so can be computed in expected *O\(n log n\)* time for *n* points
+        \(considerably less than the number of edges\)\. This enables the simple
+        *2\-approximation algorithm* for TSP with triangle inequality above to
+        operate more quickly\.
 
-    *Asymmetric TSP* \- In most cases, the distance between two nodes in the
-    *TSP* network is the same in both directions\. The case where the distance
-    from *A* to *B* is not equal to the distance from *B* to *A* is
-    called *asymmetric TSP*\. A practical application of an *asymmetric TSP*
-    is route optimisation using street\-level routing \(asymmetric due to one\-way
-    streets, slip\-roads and motorways\)\.
+      * *Asymmetric TSP* \- In most cases, the distance between two nodes in
+        the *TSP* network is the same in both directions\. The case where the
+        distance from *A* to *B* is not equal to the distance from *B* to
+        *A* is called *asymmetric TSP*\. A practical application of an
+        *asymmetric TSP* is route optimisation using street\-level routing
+        \(asymmetric due to one\-way streets, slip\-roads and motorways\)\.
 
 ## <a name='subsection3'></a>Matching Problem
 
@@ -1131,45 +1133,46 @@ __[struct::graph](graph\.md)__\.
 
   - Generalizations:
 
-    *Maximal matching* \- a matching *M* of a graph G with the property that
-    if any edge not in *M* is added to *M*, it is no longer a
-    *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)*, that is, *M* is maximal
-    if it is not a proper subset of any other
-    *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)* in graph G\. In other
-    words, a *matching M* of a graph G is maximal if every edge in G has a
-    non\-empty intersection with at least one edge in *M*\.
+      * *Maximal matching* \- a matching *M* of a graph G with the property
+        that if any edge not in *M* is added to *M*, it is no longer a
+        *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)*, that is, *M* is
+        maximal if it is not a proper subset of any other
+        *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)* in graph G\. In other
+        words, a *matching M* of a graph G is maximal if every edge in G has a
+        non\-empty intersection with at least one edge in *M*\.
 
-    *Maximum matching* \- a matching that contains the largest possible number
-    of edges\. There may be many *maximum matchings*\. The *matching number*
-    of a graph G is the size of a *maximum matching*\. Note that every
-    *maximum matching* is *maximal*, but not every *maximal matching* is a
-    *maximum matching*\.
+      * *Maximum matching* \- a matching that contains the largest possible
+        number of edges\. There may be many *maximum matchings*\. The *matching
+        number* of a graph G is the size of a *maximum matching*\. Note that
+        every *maximum matching* is *maximal*, but not every *maximal
+        matching* is a *maximum matching*\.
 
-    *Perfect matching* \- a matching which matches all vertices of the graph\.
-    That is, every vertex of the graph is incident to exactly one edge of the
-    matching\. Every *perfect matching* is
-    *[maximum](\.\./\.\./\.\./\.\./index\.md\#maximum)* and hence *maximal*\. In
-    some literature, the term *complete matching* is used\. A *perfect
-    matching* is also a *minimum\-size edge cover*\. Moreover, the size of a
-    *maximum matching* is no larger than the size of a *minimum edge cover*\.
+      * *Perfect matching* \- a matching which matches all vertices of the
+        graph\. That is, every vertex of the graph is incident to exactly one
+        edge of the matching\. Every *perfect matching* is
+        *[maximum](\.\./\.\./\.\./\.\./index\.md\#maximum)* and hence *maximal*\.
+        In some literature, the term *complete matching* is used\. A *perfect
+        matching* is also a *minimum\-size edge cover*\. Moreover, the size of
+        a *maximum matching* is no larger than the size of a *minimum edge
+        cover*\.
 
-    *Near\-perfect matching* \- a matching in which exactly one vertex is
-    unmatched\. This can only occur when the graph has an odd number of vertices,
-    and such a *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)* must be
-    *[maximum](\.\./\.\./\.\./\.\./index\.md\#maximum)*\. If, for every vertex in a
-    graph, there is a near\-perfect matching that omits only that vertex, the
-    graph is also called *factor\-critical*\.
+      * *Near\-perfect matching* \- a matching in which exactly one vertex is
+        unmatched\. This can only occur when the graph has an odd number of
+        vertices, and such a *[matching](\.\./\.\./\.\./\.\./index\.md\#matching)*
+        must be *[maximum](\.\./\.\./\.\./\.\./index\.md\#maximum)*\. If, for every
+        vertex in a graph, there is a near\-perfect matching that omits only that
+        vertex, the graph is also called *factor\-critical*\.
 
   - Related terms:
 
-    *Alternating path* \- given a matching *M*, an *alternating path* is a
-    path in which the edges belong alternatively to the matching and not to the
-    matching\.
+      * *Alternating path* \- given a matching *M*, an *alternating path*
+        is a path in which the edges belong alternatively to the matching and
+        not to the matching\.
 
-    *[Augmenting path](\.\./\.\./\.\./\.\./index\.md\#augmenting\_path)* \- given a
-    matching *M*, an *[augmenting
-    path](\.\./\.\./\.\./\.\./index\.md\#augmenting\_path)* is an *alternating path*
-    that starts from and ends on free \(unmatched\) vertices\.
+      * *[Augmenting path](\.\./\.\./\.\./\.\./index\.md\#augmenting\_path)* \- given
+        a matching *M*, an *[augmenting
+        path](\.\./\.\./\.\./\.\./index\.md\#augmenting\_path)* is an *alternating
+        path* that starts from and ends on free \(unmatched\) vertices\.
 
 ## <a name='subsection4'></a>Cut Problems
 
@@ -1182,17 +1185,19 @@ __[struct::graph](graph\.md)__\.
 
     Formally:
 
-    a *cut* *C = \(S,T\)* is a partition of *V* of a graph *G = \(V, E\)*\.
+      * a *cut* *C = \(S,T\)* is a partition of *V* of a graph *G = \(V,
+        E\)*\.
 
-    an *s\-t cut* *C = \(S,T\)* of a *[flow
-    network](\.\./\.\./\.\./\.\./index\.md\#flow\_network)* *N = \(V, E\)* is a cut of
-    *N* such that *s* is included in *S* and *t* is included in *T*,
-    where *s* and *t* are the *[source](\.\./\.\./\.\./\.\./index\.md\#source)*
-    and the *sink* of *N* respectively\.
+      * an *s\-t cut* *C = \(S,T\)* of a *[flow
+        network](\.\./\.\./\.\./\.\./index\.md\#flow\_network)* *N = \(V, E\)* is a cut
+        of *N* such that *s* is included in *S* and *t* is included in
+        *T*, where *s* and *t* are the
+        *[source](\.\./\.\./\.\./\.\./index\.md\#source)* and the *sink* of *N*
+        respectively\.
 
-    The *cut\-set* of a *cut C = \(S,T\)* is such set of edges from graph *G =
-    \(V, E\)* that each edge *\(u, v\)* satisfies condition that *u* is
-    included in *S* and *v* is included in *T*\.
+      * The *cut\-set* of a *cut C = \(S,T\)* is such set of edges from graph
+        *G = \(V, E\)* that each edge *\(u, v\)* satisfies condition that *u*
+        is included in *S* and *v* is included in *T*\.
 
     In an *unweighted undirected* graph, the size or weight of a cut is the
     number of edges crossing the cut\. In a *weighted graph*, the same term is
@@ -1210,15 +1215,16 @@ __[struct::graph](graph\.md)__\.
 
   - Generalizations:
 
-    *Minimum cut* \- A cut is minimum if the size of the cut is not larger than
-    the size of any other cut\.
+      * *Minimum cut* \- A cut is minimum if the size of the cut is not larger
+        than the size of any other cut\.
 
-    *Maximum cut* \- A cut is maximum if the size of the cut is not smaller
-    than the size of any other cut\.
+      * *Maximum cut* \- A cut is maximum if the size of the cut is not smaller
+        than the size of any other cut\.
 
-    *Sparsest cut* \- The *Sparsest cut problem* is to bipartition the
-    vertices so as to minimize the ratio of the number of edges across the cut
-    divided by the number of vertices in the smaller half of the partition\.
+      * *Sparsest cut* \- The *Sparsest cut problem* is to bipartition the
+        vertices so as to minimize the ratio of the number of edges across the
+        cut divided by the number of vertices in the smaller half of the
+        partition\.
 
 ## <a name='subsection5'></a>K\-Center Problem
 
@@ -1249,60 +1255,62 @@ __[struct::graph](graph\.md)__\.
 
   - Definitions:
 
-    *the maximum flow problem* \- the goal is to find a feasible flow through a
-    single\-source, single\-sink flow network that is maximum\. The *maximum flow
-    problem* can be seen as a special case of more complex network flow
-    problems, such as the *circulation problem*\. The maximum value of an *s\-t
-    flow* is equal to the minimum capacity of an *s\-t cut* in the network, as
-    stated in the *max\-flow min\-cut theorem*\.
+      * *the maximum flow problem* \- the goal is to find a feasible flow
+        through a single\-source, single\-sink flow network that is maximum\. The
+        *maximum flow problem* can be seen as a special case of more complex
+        network flow problems, such as the *circulation problem*\. The maximum
+        value of an *s\-t flow* is equal to the minimum capacity of an *s\-t
+        cut* in the network, as stated in the *max\-flow min\-cut theorem*\.
 
-    More formally for flow network *G = \(V,E\)*, where for each edge *\(u, v\)*
-    we have its throuhgput *c\(u,v\)* defined\. As
-    *[flow](\.\./\.\./\.\./\.\./index\.md\#flow)* *F* we define set of
-    non\-negative integer attributes *f\(u,v\)* assigned to edges, satisfying
-    such conditions:
+        More formally for flow network *G = \(V,E\)*, where for each edge *\(u,
+        v\)* we have its throuhgput *c\(u,v\)* defined\. As
+        *[flow](\.\./\.\./\.\./\.\./index\.md\#flow)* *F* we define set of
+        non\-negative integer attributes *f\(u,v\)* assigned to edges, satisfying
+        such conditions:
 
-    for each edge *\(u, v\)* in *G* such condition should be satisfied: 0 <=
-    f\(u,v\) <= c\(u,v\)
+          1. for each edge *\(u, v\)* in *G* such condition should be
+             satisfied: 0 <= f\(u,v\) <= c\(u,v\)
 
-    Network *G* has source node *s* such that the flow *F* is equal to the
-    sum of outcoming flow decreased by the sum of incoming flow from that source
-    node *s*\.
+          1. Network *G* has source node *s* such that the flow *F* is
+             equal to the sum of outcoming flow decreased by the sum of incoming
+             flow from that source node *s*\.
 
-    Network *G* has sink node *t* such that the the *\-F* value is equal to
-    the sum of the incoming flow decreased by the sum of outcoming flow from
-    that sink node *t*\.
+          1. Network *G* has sink node *t* such that the the *\-F* value is
+             equal to the sum of the incoming flow decreased by the sum of
+             outcoming flow from that sink node *t*\.
 
-    For each node that is not a *[source](\.\./\.\./\.\./\.\./index\.md\#source)* or
-    *sink* the sum of incoming flow and sum of outcoming flow should be equal\.
+          1. For each node that is not a
+             *[source](\.\./\.\./\.\./\.\./index\.md\#source)* or *sink* the sum
+             of incoming flow and sum of outcoming flow should be equal\.
 
-    *the minimum cost flow problem* \- the goal is finding the cheapest
-    possible way of sending a certain amount of flow through a *[flow
-    network](\.\./\.\./\.\./\.\./index\.md\#flow\_network)*\.
+      * *the minimum cost flow problem* \- the goal is finding the cheapest
+        possible way of sending a certain amount of flow through a *[flow
+        network](\.\./\.\./\.\./\.\./index\.md\#flow\_network)*\.
 
-    *[blocking flow](\.\./\.\./\.\./\.\./index\.md\#blocking\_flow)* \- a *[blocking
-    flow](\.\./\.\./\.\./\.\./index\.md\#blocking\_flow)* for a *residual network*
-    *Gf* we name such flow *b* in *Gf* that:
+      * *[blocking flow](\.\./\.\./\.\./\.\./index\.md\#blocking\_flow)* \- a
+        *[blocking flow](\.\./\.\./\.\./\.\./index\.md\#blocking\_flow)* for a
+        *residual network* *Gf* we name such flow *b* in *Gf* that:
 
-    Each path from *sink* to *[source](\.\./\.\./\.\./\.\./index\.md\#source)* is
-    the shortest path in *Gf*\.
+          1. Each path from *sink* to
+             *[source](\.\./\.\./\.\./\.\./index\.md\#source)* is the shortest path
+             in *Gf*\.
 
-    Each shortest path in *Gf* contains an edge with fully used throughput in
-    *Gf\+b*\.
+          1. Each shortest path in *Gf* contains an edge with fully used
+             throughput in *Gf\+b*\.
 
-    *residual network* \- for a flow network *G* and flow *f* *residual
-    network* is built with those edges, which can send larger flow\. It contains
-    only those edges, which can send flow larger than 0\.
+      * *residual network* \- for a flow network *G* and flow *f*
+        *residual network* is built with those edges, which can send larger
+        flow\. It contains only those edges, which can send flow larger than 0\.
 
-    *level network* \- it has the same set of nodes as *[residual
-    graph](\.\./\.\./\.\./\.\./index\.md\#residual\_graph)*, but has only those edges
-    *\(u,v\)* from *Gf* for which such equality is satisfied:
-    *distance\(s,u\)\+1 = distance\(s,v\)*\.
+      * *level network* \- it has the same set of nodes as *[residual
+        graph](\.\./\.\./\.\./\.\./index\.md\#residual\_graph)*, but has only those
+        edges *\(u,v\)* from *Gf* for which such equality is satisfied:
+        *distance\(s,u\)\+1 = distance\(s,v\)*\.
 
-    *[augmenting network](\.\./\.\./\.\./\.\./index\.md\#augmenting\_network)* \- it
-    is a modification of *residual network* considering the new flow values\.
-    Structure stays unchanged but values of throughputs and costs at edges are
-    different\.
+      * *[augmenting network](\.\./\.\./\.\./\.\./index\.md\#augmenting\_network)* \-
+        it is a modification of *residual network* considering the new flow
+        values\. Structure stays unchanged but values of throughputs and costs at
+        edges are different\.
 
 ## <a name='subsection7'></a>Approximation algorithm
 
@@ -1311,9 +1319,9 @@ __[struct::graph](graph\.md)__\.
     Algorithm is a k\-approximation, when for *ALG* \(solution returned by
     algorithm\) and *OPT* \(optimal solution\), such inequality is true:
 
-    for minimalization problems: *ALG/OPT <= k*
+      * for minimalization problems: *ALG/OPT <= k*
 
-    for maximalization problems: *OPT/ALG <= k*
+      * for maximalization problems: *OPT/ALG <= k*
 
 # <a name='section4'></a>References
 

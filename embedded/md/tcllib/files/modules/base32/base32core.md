@@ -75,11 +75,11 @@ en\- and decoder\. A regular user has no need of this package at all\.
 
     The rules checked by the command, beyond rejection of bad characters, are:
 
-    The length of the input is not a multiple of eight,
+      1. The length of the input is not a multiple of eight,
 
-    The padding appears not at the end of input, but in the middle,
+      1. The padding appears not at the end of input, but in the middle,
 
-    The padding has not of length six, four, three, or one characters,
+      1. The padding has not of length six, four, three, or one characters,
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

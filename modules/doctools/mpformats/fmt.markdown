@@ -46,6 +46,7 @@ proc NewUnorderedList {} {
     #puts_stderr "UL |[string map {{ } _} [In?]]|outer"
 
     set base [ContextNew Itemized {
+	LC
 	set bullet "[In?]  [IBullet]"
 	set ws     "[BlankM $bullet] "
 	In! $ws
@@ -82,6 +83,7 @@ proc NewOrderedList {} {
     #puts_stderr "OL |[string map {{ } _} [In?]]|outer"
 
     set base [ContextNew Enumerated {
+	LC
 	set bullet "[In?]  [EBullet]"
 	set ws     "[BlankM $bullet] "
 	In! $ws
@@ -122,6 +124,7 @@ proc NewDefinitionList {} {
     #puts_stderr "DL |[string map {{ } _} [In?]]|outer"
 
     set base [ContextNew Definitions {
+	LC
 	set bullet "[In?]  [IBullet]"
 	set ws "[BlankM $bullet] "
 	In! $ws

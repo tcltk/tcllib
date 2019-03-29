@@ -250,9 +250,9 @@ representation in order to :
 
     Returns 1 if *x* is :
 
-    a BigFloat close enough to zero to raise "divide by zero"\.
+      * a BigFloat close enough to zero to raise "divide by zero"\.
 
-    the integer 0\.
+      * the integer 0\.
 
     See here how numbers that are close to zero are converted to strings:
 

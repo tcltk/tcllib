@@ -82,9 +82,9 @@ package require pki ?0\.10?
 
     Mapping to OpenSSL's __openssl__ application:
 
-    "openssl rsautl \-encrypt" == "::pki::encrypt \-binary \-pub"
+      1. "openssl rsautl \-encrypt" == "::pki::encrypt \-binary \-pub"
 
-    "openssl rsautl \-sign" == "::pki::encrypt \-binary \-priv"
+      1. "openssl rsautl \-sign" == "::pki::encrypt \-binary \-priv"
 
   - <a name='2'></a>__::pki::decrypt__ ?*\-binary*? ?*\-hex*? ?*\-unpad*? ?*\-nounpad*? ?*\-priv*? ?*\-pub*? ?*\-\-*? *input* *key*
 
@@ -93,9 +93,9 @@ package require pki ?0\.10?
 
     Mapping to OpenSSL's __openssl__ application:
 
-    "openssl rsautl \-decrypt" == "::pki::decrypt \-binary \-priv"
+      1. "openssl rsautl \-decrypt" == "::pki::decrypt \-binary \-priv"
 
-    "openssl rsautl \-verify" == "::pki::decrypt \-binary \-pub"
+      1. "openssl rsautl \-verify" == "::pki::decrypt \-binary \-pub"
 
   - <a name='3'></a>__::pki::sign__ *input* *key* ?*algo*?
 

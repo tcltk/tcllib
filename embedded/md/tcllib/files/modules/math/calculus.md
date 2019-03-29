@@ -153,15 +153,15 @@ This package defines the following public procedures:
     points quadrature rule\. The interval for the integration is \[*xstart*,
     *xend*\]\. The procedure returns a list of four values:
 
-    The estimate of the integral over the specified interval \(I\)\.
+      * The estimate of the integral over the specified interval \(I\)\.
 
-    An estimate of the absolute error in I\.
+      * An estimate of the absolute error in I\.
 
-    The estimate of the integral of the absolute value of the function over the
-    interval\.
+      * The estimate of the integral of the absolute value of the function over
+        the interval\.
 
-    The estimate of the integral of the absolute value of the function minus its
-    mean over the interval\.
+      * The estimate of the integral of the absolute value of the function minus
+        its mean over the interval\.
 
     The remaining arguments are:
 

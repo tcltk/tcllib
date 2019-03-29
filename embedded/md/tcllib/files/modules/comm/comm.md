@@ -453,7 +453,7 @@ These are the defined *events*:
 
     Examples:
 
-    augmenting a command
+      1. augmenting a command
 
     % ::comm::comm send \[::comm::comm self\] pid
     5013
@@ -462,14 +462,14 @@ These are the defined *events*:
     going to execute pid
     5013
 
-    short circuiting a command
+      1. short circuiting a command
 
     % ::comm::comm hook eval \{puts "would have executed $buffer"; return 0\}
     % ::comm::comm send \[::comm::comm self\] pid
     would have executed pid
     0
 
-    Replacing double eval semantics
+      1. Replacing double eval semantics
 
     % ::comm::comm send \[::comm::comm self\] llength \{a b c\}
     wrong \# args: should be "llength list"
@@ -478,7 +478,7 @@ These are the defined *events*:
     % ::comm::comm send \[::comm::comm self\] llength \{a b c\}
     3
 
-    Using a slave interpreter
+      1. Using a slave interpreter
 
     % interp create foo
     % ::comm::comm hook eval \{return \[foo eval $buffer\]\}
@@ -489,11 +489,11 @@ These are the defined *events*:
     % foo eval set myvar
     123
 
-    Using a slave interpreter \(double eval\)
+      1. Using a slave interpreter \(double eval\)
 
     % ::comm::comm hook eval \{return \[eval foo eval $buffer\]\}
 
-    Subverting the script to execute
+      1. Subverting the script to execute
 
     % ::comm::comm hook eval \{
         switch \-\- $buffer \{
@@ -517,20 +517,20 @@ These are the defined *events*:
     processing of replies to sent commands\. The reply *buffer* is in one of
     the following forms
 
-    return result
+      * return result
 
-    return \-code code result
+      * return \-code code result
 
-    return \-code code \-errorinfo info \-errorcode ecode msg
+      * return \-code code \-errorinfo info \-errorcode ecode msg
 
     For safety reasons, this is decomposed\. The return result is in *ret*, and
     the return switches are in the return array:
 
-    *return\(\-code\)*
+      * *return\(\-code\)*
 
-    *return\(\-errorinfo\)*
+      * *return\(\-errorinfo\)*
 
-    *return\(\-errorcode\)*
+      * *return\(\-errorcode\)*
 
     Any of these may be the empty string\. Modifying these four variables can
     change the return value, whereas modifying *buffer* has no effect\.

@@ -241,13 +241,14 @@ object command\.
     a particular item\. There are two possible outcomes depending on the
     availability of items:
 
-    The request is honoured, an item is allocated and the variable whose name is
-    passed with the argument *itemVar* will be set to the name of the item
-    that was allocated\. The command returns 1\.
+      1. The request is honoured, an item is allocated and the variable whose
+         name is passed with the argument *itemVar* will be set to the name of
+         the item that was allocated\. The command returns 1\.
 
-    The request is denied\. No item is allocated\. The variable whose name is
-    itemVar is not set\. Attempts to read *itemVar* may raise an error if the
-    variable was not defined before issuing the request\. The command returns 0\.
+      1. The request is denied\. No item is allocated\. The variable whose name is
+         itemVar is not set\. Attempts to read *itemVar* may raise an error if
+         the variable was not defined before issuing the request\. The command
+         returns 0\.
 
     The return values from this command are meant to be inspected\. The examples
     below show how to do this\. Failure to check the return value may result in

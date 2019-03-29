@@ -178,28 +178,30 @@ properties and gets the epsilon for the machine\.
     Returns the value corresponding with given key\. The following is the list of
     available keys\.
 
-    \-epsilon : smallest value so that 1\+epsilon>1 is false
+      * \-epsilon : smallest value so that 1\+epsilon>1 is false
 
-    \-rounding : The rounding mode used on the machine\. The rounding occurs when
-    more than t digits would be required to represent the number\. Two modes can
-    be determined with the current system : "chop" means than only t digits are
-    kept, no matter the value of the number "proper" means that another rounding
-    mode is used, be it "round to nearest", "round up", "round down"\.
+      * \-rounding : The rounding mode used on the machine\. The rounding occurs
+        when more than t digits would be required to represent the number\. Two
+        modes can be determined with the current system : "chop" means than only
+        t digits are kept, no matter the value of the number "proper" means that
+        another rounding mode is used, be it "round to nearest", "round up",
+        "round down"\.
 
-    \-basis : the basis of the floating\-point representation\. The basis is
-    usually 2, i\.e\. binary representation \(for example IEEE 754 machines\), but
-    some machines \(like HP calculators for example\) uses 10, or 16, etc\.\.\.
+      * \-basis : the basis of the floating\-point representation\. The basis is
+        usually 2, i\.e\. binary representation \(for example IEEE 754 machines\),
+        but some machines \(like HP calculators for example\) uses 10, or 16,
+        etc\.\.\.
 
-    \-mantissa : the number of bits in the mantissa
+      * \-mantissa : the number of bits in the mantissa
 
-    \-exponentmax : the largest positive exponent before overflow occurs
+      * \-exponentmax : the largest positive exponent before overflow occurs
 
-    \-exponentmin : the largest negative exponent before \(gradual\) underflow
-    occurs
+      * \-exponentmin : the largest negative exponent before \(gradual\) underflow
+        occurs
 
-    \-vmax : largest positive value before overflow occurs
+      * \-vmax : largest positive value before overflow occurs
 
-    \-vmin : largest negative value before \(gradual\) underflow occurs
+      * \-vmin : largest negative value before \(gradual\) underflow occurs
 
   - <a name='7'></a>*objectname* __tostring__
 
