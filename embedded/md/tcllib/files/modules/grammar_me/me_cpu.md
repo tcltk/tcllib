@@ -255,11 +255,12 @@ the operation as part of the event loop\.
 
     This methods causes the engine to execute match instructions until either
 
-    *n* instructions have been executed, or
+      * *n* instructions have been executed, or
 
-    a halt instruction was executed, or
+      * a halt instruction was executed, or
 
-    the input queue is empty and the code is asking for more tokens to process\.
+      * the input queue is empty and the code is asking for more tokens to
+        process\.
 
     If no limit *n* was set only the last two conditions are checked for\.
 

@@ -295,15 +295,16 @@ by the assembler in either\.
 
     To this end it
 
-    reads the instruction references from the attributes __gas::entry__,
-    __gas::exit::ok__, and __gas::exit::fail__ from the node *n* of
-    the tree *t* and makes them available to assembler und the labels
-    *label*/entry, *label*/exit::ok, and *label*/exit::fail respectively\.
+      1. reads the instruction references from the attributes
+         __gas::entry__, __gas::exit::ok__, and __gas::exit::fail__
+         from the node *n* of the tree *t* and makes them available to
+         assembler und the labels *label*/entry, *label*/exit::ok, and
+         *label*/exit::fail respectively\.
 
-    Creates an arc from the *anchor* to the node labeled *label*/entry, and
-    tags it with the current condition code\.
+      1. Creates an arc from the *anchor* to the node labeled *label*/entry,
+         and tags it with the current condition code\.
 
-    Makes the node labeled *label*/exit/ok the new *anchor*\.
+      1. Makes the node labeled *label*/exit/ok the new *anchor*\.
 
     The command returns the empty string as its result\.
 

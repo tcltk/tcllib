@@ -59,48 +59,52 @@ package __page::pluginmgr__\.
 
     The following operations are performd
 
-    The data for all terminals is stored in their grandparental nodes\. The
-    terminal nodes and their parents are removed\. Type information is dropped\.
+      1. The data for all terminals is stored in their grandparental nodes\. The
+         terminal nodes and their parents are removed\. Type information is
+         dropped\.
 
-    All nodes which have exactly one child are irrelevant and are removed, with
-    the exception of the root node\. The immediate child of the root is
-    irrelevant as well, and removed as well\.
+      1. All nodes which have exactly one child are irrelevant and are removed,
+         with the exception of the root node\. The immediate child of the root is
+         irrelevant as well, and removed as well\.
 
-    The name of the grammar is moved from the tree node it is stored in to an
-    attribute of the root node, and the tree node removed\.
+      1. The name of the grammar is moved from the tree node it is stored in to
+         an attribute of the root node, and the tree node removed\.
 
-    The node keeping the start expression separate is removed as irrelevant and
-    the root node of the start expression tagged with a marker attribute, and
-    its handle saved in an attribute of the root node for quick access\.
+         The node keeping the start expression separate is removed as irrelevant
+         and the root node of the start expression tagged with a marker
+         attribute, and its handle saved in an attribute of the root node for
+         quick access\.
 
-    Nonterminal hint information is moved from nodes into attributes, and the
-    now irrelevant nodes are deleted\.
+      1. Nonterminal hint information is moved from nodes into attributes, and
+         the now irrelevant nodes are deleted\.
 
-    *Note:* This transformation is dependent on the removal of all nodes with
-    exactly one child, as it removes the all 'Attribute' nodes already\.
-    Otherwise this transformation would have to put the information into the
-    grandparental node\.
+         *Note:* This transformation is dependent on the removal of all nodes
+         with exactly one child, as it removes the all 'Attribute' nodes
+         already\. Otherwise this transformation would have to put the
+         information into the grandparental node\.
 
-    The default mode given to the nonterminals is __value__\.
+         The default mode given to the nonterminals is __value__\.
 
-    Like with the global metadata definition specific information is moved out
-    out of nodes into attributes, the now irrelevant nodes are deleted, and the
-    root nodes of all definitions are tagged with marker attributes\. This
-    provides us with a mapping from nonterminal names to their defining nodes as
-    well, which is saved in an attribute of the root node for quick reference\.
+         Like with the global metadata definition specific information is moved
+         out out of nodes into attributes, the now irrelevant nodes are deleted,
+         and the root nodes of all definitions are tagged with marker
+         attributes\. This provides us with a mapping from nonterminal names to
+         their defining nodes as well, which is saved in an attribute of the
+         root node for quick reference\.
 
-    At last the range in the input covered by a definition is computed\. The left
-    extent comes from the terminal for the nonterminal symbol it defines\. The
-    right extent comes from the rightmost child under the definition\. While this
-    not an expression tree yet the location data is sound already\.
+         At last the range in the input covered by a definition is computed\. The
+         left extent comes from the terminal for the nonterminal symbol it
+         defines\. The right extent comes from the rightmost child under the
+         definition\. While this not an expression tree yet the location data is
+         sound already\.
 
-    The remaining nodes under all definitions are transformed into proper
-    expression trees\. First character ranges, followed by unary operations,
-    characters, and nonterminals\. At last the tree is flattened by the removal
-    of superfluous inner nodes\.
+      1. The remaining nodes under all definitions are transformed into proper
+         expression trees\. First character ranges, followed by unary operations,
+         characters, and nonterminals\. At last the tree is flattened by the
+         removal of superfluous inner nodes\.
 
-    The order matters, to shed as much nodes as possible early, and to avoid
-    unnecessary work later\.
+         The order matters, to shed as much nodes as possible early, and to
+         avoid unnecessary work later\.
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

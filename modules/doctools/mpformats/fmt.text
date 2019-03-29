@@ -38,7 +38,9 @@ proc Example {} {
 
 proc NewList {what} {
     # List contexts
-    # Per list several contexts are required.
+    # Per list type several contexts are required.
+    #puts_stderr "LIST OUT [CAttrName] NewList $what"
+    
     switch -exact -- $what {
 	enumerated {NewOrderedList}
 	itemized   {NewUnorderedList}
@@ -48,6 +50,8 @@ proc NewList {what} {
 	tkoptions -
 	definitions {NewDefinitionList}
     }
+
+    #puts_stderr "LIST INN [CAttrName]"
     return
 }
 
@@ -59,6 +63,7 @@ proc NewUnorderedList {} {
     ContextPush
 
     set base [ContextNew Itemized {
+	LC
 	MarginIn
 	set bullet [IBullet]
     }] ; # {}
@@ -87,6 +92,7 @@ proc NewOrderedList {} {
     ContextPush
     
     set base [ContextNew Enumerated {
+	LC
 	MarginIn
 	set bullet [EBullet]
     }] ; # {}
@@ -115,6 +121,7 @@ proc NewDefinitionList {} {
     ContextPush
 
     set base [ContextNew Definitions {
+	LC
 	MarginIn
     }] ; # {}
 
@@ -136,6 +143,14 @@ proc NewDefinitionList {} {
 
 # # ## ### ##### ########
 ##
+
+proc LC {} {
+    # Clear inherited list type information from the current context
+    CAttrUnset _first
+    CAttrUnset _next
+    CAttrUnset _term
+    CAttrUnset _definition
+}
 
 proc OUL {f n} {
     CAttrSet _first $f

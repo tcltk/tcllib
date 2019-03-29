@@ -504,29 +504,29 @@ parameters\.
     It will return the standard declaration string for the id, or throw an error
     if the id is not known\. The following id's are defined:
 
-    HTML32
+      1. HTML32
 
-    HTML40
+      1. HTML40
 
-    HTML40T
+      1. HTML40T
 
-    HTML40F
+      1. HTML40F
 
-    HTML401
+      1. HTML401
 
-    HTML401T
+      1. HTML401T
 
-    HTML401F
+      1. HTML401F
 
-    XHTML10S
+      1. XHTML10S
 
-    XHTML10T
+      1. XHTML10T
 
-    XHTML10F
+      1. XHTML10F
 
-    XHTML11
+      1. XHTML11
 
-    XHTMLB
+      1. XHTMLB
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

@@ -144,13 +144,13 @@ callback\.
 
         A list containing three elements:
 
-        The constant string __string__, denoting the type of the value\.
+          + The constant string __string__, denoting the type of the value\.
 
-        An integer number greater than or equal to zero\. This is the index of
-        the first character of the bee\-value in the input *string*\.
+          + An integer number greater than or equal to zero\. This is the index
+            of the first character of the bee\-value in the input *string*\.
 
-        An integer number greater than or equal to zero\. This is the index of
-        the last character of the bee\-value in the input *string*\.
+          + An integer number greater than or equal to zero\. This is the index
+            of the last character of the bee\-value in the input *string*\.
 
         *Note* that this information is present in the results for all four
         types of bee\-values, with only the first element changing according to

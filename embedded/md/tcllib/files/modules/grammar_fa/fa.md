@@ -197,28 +197,29 @@ All automatons provide the following methods for their manipulation:
 
     The result is a list of three elements with the following structure:
 
-    The constant string __grammar::fa__\.
+      1. The constant string __grammar::fa__\.
 
-    A list containing the names of all known input symbols\. The order of
-    elements in this list is not relevant\.
+      1. A list containing the names of all known input symbols\. The order of
+         elements in this list is not relevant\.
 
-    The last item in the list is a dictionary, however the order of the keys is
-    important as well\. The keys are the states of the serialized FA, and their
-    order is the order in which to create the states when deserializing\. This is
-    relevant to preserve the order relationship between states\.
+      1. The last item in the list is a dictionary, however the order of the
+         keys is important as well\. The keys are the states of the serialized
+         FA, and their order is the order in which to create the states when
+         deserializing\. This is relevant to preserve the order relationship
+         between states\.
 
-    The value of each dictionary entry is a list of three elements describing
-    the state in more detail\.
+         The value of each dictionary entry is a list of three elements
+         describing the state in more detail\.
 
-    A boolean flag\. If its value is __true__ then the state is a start
-    state, otherwise it is not\.
+           1) A boolean flag\. If its value is __true__ then the state is a
+              start state, otherwise it is not\.
 
-    A boolean flag\. If its value is __true__ then the state is a final
-    state, otherwise it is not\.
+           1) A boolean flag\. If its value is __true__ then the state is a
+              final state, otherwise it is not\.
 
-    The last element is a dictionary describing the transitions for the state\.
-    The keys are symbols \(or the empty string\), and the values are sets of
-    successor states\.
+           1) The last element is a dictionary describing the transitions for
+              the state\. The keys are symbols \(or the empty string\), and the
+              values are sets of successor states\.
 
     Assuming the following FA \(which describes the life of a truck driver in a
     very simple way :\)

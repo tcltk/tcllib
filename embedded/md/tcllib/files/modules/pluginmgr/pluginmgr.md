@@ -120,31 +120,31 @@ allow plugins the loading of all additional packages they may need\.
     This utility command adds a set of paths to the specified object, based on
     the given *name*s\. It will search for:
 
-    The environment variable __*name*\_PLUGINS__\. Its contents will be
-    interpreted as a list of package paths\. The entries have to be separated by
-    either __:__ \(unix\) or __;__ \(windows\)\.
+      1. The environment variable __*name*\_PLUGINS__\. Its contents will be
+         interpreted as a list of package paths\. The entries have to be
+         separated by either __:__ \(unix\) or __;__ \(windows\)\.
 
-    The name will be converted to upper\-case letters\.
+         The name will be converted to upper\-case letters\.
 
-    The registry entry "HKEY\_LOCAL\_MACHINE\\SOFTWARE\\*name*\\PLUGINS"\. Its
-    contents will be interpreted as a list of package paths\. The entries have to
-    be separated by __;__\. This item is considered only when on Windows
-    \(tm\)\.
+      1. The registry entry "HKEY\_LOCAL\_MACHINE\\SOFTWARE\\*name*\\PLUGINS"\. Its
+         contents will be interpreted as a list of package paths\. The entries
+         have to be separated by __;__\. This item is considered only when on
+         Windows \(tm\)\.
 
-    The casing of letters is not changed\.
+         The casing of letters is not changed\.
 
-    The registry entry "HKEY\_CURRENT\_USER\\SOFTWARE\\*name*\\PLUGINS"\. Its
-    contents will be interpreted as a list of package paths\. The entries have to
-    be separated by __;__\. This item is considered only when on Windows
-    \(tm\)\.
+      1. The registry entry "HKEY\_CURRENT\_USER\\SOFTWARE\\*name*\\PLUGINS"\. Its
+         contents will be interpreted as a list of package paths\. The entries
+         have to be separated by __;__\. This item is considered only when on
+         Windows \(tm\)\.
 
-    The casing of letters is not changed\.
+         The casing of letters is not changed\.
 
-    The directory "~/\.*name*/plugin"\.
+      1. The directory "~/\.*name*/plugin"\.
 
-    The directory "~/\.*name*/plugins"\.
+      1. The directory "~/\.*name*/plugins"\.
 
-    The casing of letters is not changed\.
+         The casing of letters is not changed\.
 
     and add all the paths found that way to the list of package paths maintained
     by the object\.
@@ -256,27 +256,27 @@ invoke various operations on their plugin manager object\.
 
     The algorithm to locate and load the plugin employed is:
 
-    If the *string* contains the path to an existing file then this file is
-    taken as the implementation of the plugin\.
+      1. If the *string* contains the path to an existing file then this file
+         is taken as the implementation of the plugin\.
 
-    Otherwise the plugin name is translated into a package name via the value of
-    the option __\-pattern__ and then loaded through the regular package
-    management\.
+      1. Otherwise the plugin name is translated into a package name via the
+         value of the option __\-pattern__ and then loaded through the
+         regular package management\.
 
-    The load fails\.
+      1. The load fails\.
 
     The algorithm to validate and initialize the loaded code is:
 
-    If the option __\-api__ is non\-empty introspection commands are used to
-    ascertain that the plugin provides the listed commands\.
+      1. If the option __\-api__ is non\-empty introspection commands are used
+         to ascertain that the plugin provides the listed commands\.
 
-    If the option __\-check__ is non\-empty the specified command prefix is
-    called\.
+      1. If the option __\-check__ is non\-empty the specified command prefix
+         is called\.
 
-    If either of the above fails the candidate plugin is unloaded again
+      1. If either of the above fails the candidate plugin is unloaded again
 
-    Otherwise all the commands specified via the option __\-cmds__ are
-    installed in the plugin\.
+      1. Otherwise all the commands specified via the option __\-cmds__ are
+         installed in the plugin\.
 
     A previously loaded plugin is discarded, but only if the new plugin was
     found and sucessfully validated and initialized\. Note that there will be no

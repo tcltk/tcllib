@@ -202,23 +202,23 @@ An instance of the __entry__ class keeps the following data:
     element has one of the following formats \(which match the corresponding LDAP
     operations\):
 
-    \{__add__ \{attr1 \{val1\.\.\.valn\} attr2 \{\.\.\.\} \.\.\.\}\}
+      1. \{__add__ \{attr1 \{val1\.\.\.valn\} attr2 \{\.\.\.\} \.\.\.\}\}
 
-    Addition of a new entry\.
+         Addition of a new entry\.
 
-    \{__mod__ \{modop \{attr1 ?val1\.\.\.valn?\} attr2 \.\.\.\} \{modop \.\.\.\} \.\.\.\}
+      1. \{__mod__ \{modop \{attr1 ?val1\.\.\.valn?\} attr2 \.\.\.\} \{modop \.\.\.\} \.\.\.\}
 
-    Modification of one or more attributes and/or values, where <modop> can be
-    __modadd__, __moddel__ or __modrepl__ \(see the LDAP modify
-    operation\)\.
+         Modification of one or more attributes and/or values, where <modop> can
+         be __modadd__, __moddel__ or __modrepl__ \(see the LDAP
+         modify operation\)\.
 
-    \{__del__\}
+      1. \{__del__\}
 
-    Deletion of an old entry\.
+         Deletion of an old entry\.
 
-    \{__modrdn__ newrdn deleteoldrdn ?newsuperior?\}
+      1. \{__modrdn__ newrdn deleteoldrdn ?newsuperior?\}
 
-    Renaming of an entry\.
+         Renaming of an entry\.
 
 ## <a name='subsection2'></a>Entry Options
 

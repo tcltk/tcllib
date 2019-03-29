@@ -792,13 +792,13 @@ __procedure__ command\.
     controls the default logging settings for any procedures\. The following
     configurations are supported:
 
-    *0*: Disables any procedure call loggings
+      * *0*: Disables any procedure call loggings
 
-    *1*: Enables any procedure call loggings
+      * *1*: Enables any procedure call loggings
 
-    *"interactive"*: Will log any procedures called interactively \(e\.g\.
-    procedures called with the \-interactive flag\)\. This is the default
-    configuration\.
+      * *"interactive"*: Will log any procedures called interactively \(e\.g\.
+        procedures called with the \-interactive flag\)\. This is the default
+        configuration\.
 
     This default logging configuration can be changed individually for each
     procedure with the *\-command\_log* attribute\.

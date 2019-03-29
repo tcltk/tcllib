@@ -192,7 +192,7 @@ proc PARA {arguments} {
     ContextSet $env
 
     #puts_stderr "PARA $env [CAttrName $env]"
-    #parray_stderr ::currentEnv
+    #parray_stderr ::currentContext ;# consider capsulation
     #puts_stderr "    (($text))"
     #puts_stderr ""
 

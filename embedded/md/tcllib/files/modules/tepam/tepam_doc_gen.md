@@ -105,13 +105,13 @@ The __TEPAM Doc Gen__ package provides the following commands:
     Specifies the documentation format\. __TEPAM Doc Gen__ provides support
     for the following formats:
 
-    TXT \- Text format \(default\)
+      * TXT \- Text format \(default\)
 
-    HTML
+      * HTML
 
-    POD \- Perl Plain Old Documentation format \(PerlPOD\)
+      * POD \- Perl Plain Old Documentation format \(PerlPOD\)
 
-    DT \- TclLib DocTool format
+      * DT \- TclLib DocTool format
 
     Section [ADDING SUPPORT FOR NEW DOCUMENT FORMATS](#section4) shows how
     support for additional formats can be added\.
