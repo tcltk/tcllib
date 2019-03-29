@@ -410,14 +410,14 @@ on the languages of the FAs in a defined manner\)\.
     algorithm first to the main expression and then recursively to all
     sub\-expressions:
 
-    Convert the expression into a finite automaton\.
+      1. Convert the expression into a finite automaton\.
 
-    Minimize the automaton\.
+      1. Minimize the automaton\.
 
-    Convert the automaton back to a regular expression\.
+      1. Convert the automaton back to a regular expression\.
 
-    Choose the shorter of original expression and expression from the previous
-    step\.
+      1. Choose the shorter of original expression and expression from the
+         previous step\.
 
 # <a name='section3'></a>EXAMPLES
 

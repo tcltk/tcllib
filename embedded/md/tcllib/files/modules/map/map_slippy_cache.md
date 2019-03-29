@@ -84,9 +84,9 @@ maps in the local filesystem\.
     the image for the tile or that no image will forthcoming\. It will be invoked
     with either 2 or 3 arguments, i\.e\.
 
-    The string __set__, the *tile*, and the image\.
+      1. The string __set__, the *tile*, and the image\.
 
-    The string __unset__, and the *tile*\.
+      1. The string __unset__, and the *tile*\.
 
     These two possibilities are used to either signal the image for the
     *tile*, or that the *tile* has no image defined for it\.

@@ -69,14 +69,14 @@ of the standard base32 encoding as specified in RFC 3548\.
     The command will always throw an error whenever encountering conditions
     which signal some type of bogus input, namely if
 
-    the input contains characters which are not valid output of a base32
-    encoder,
+      1. the input contains characters which are not valid output of a base32
+         encoder,
 
-    the length of the input is not a multiple of eight,
+      1. the length of the input is not a multiple of eight,
 
-    padding appears not at the end of input, but in the middle,
+      1. padding appears not at the end of input, but in the middle,
 
-    the padding has not of length six, four, three, or one characters,
+      1. the padding has not of length six, four, three, or one characters,
 
 # <a name='section3'></a>Code map
 

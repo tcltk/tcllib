@@ -247,9 +247,9 @@ __romberg__ procedures to deal with the commoner cases\.
 
     To summarize the meaning of gamma:
 
-    If f\(x\) ~ x\*\*\(\-a\) \(0 < a < 1\), use gamma = a
+      * If f\(x\) ~ x\*\*\(\-a\) \(0 < a < 1\), use gamma = a
 
-    If f'\(x\) ~ x\*\*\(\-b\) \(0 < b < 1\), use gamma = b
+      * If f'\(x\) ~ x\*\*\(\-b\) \(0 < b < 1\), use gamma = b
 
   - __romberg\_sqrtSingLower__ and __romberg\_sqrtSingUpper__
 

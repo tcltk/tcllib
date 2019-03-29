@@ -411,15 +411,15 @@ specialised procedures, see below\):
 
         Type of check:
 
-        "shape" \- the two objects have the same shape \(for all element\-wise
-        operations\)
+          + "shape" \- the two objects have the same shape \(for all element\-wise
+            operations\)
 
-        "rows" \- the two objects have the same number of rows \(for use as A and
-        b in a system of linear equations *Ax = b*
+          + "rows" \- the two objects have the same number of rows \(for use as A
+            and b in a system of linear equations *Ax = b*
 
-        "matmul" \- the first object has the same number of columns as the number
-        of rows of the second object\. Useful for matrix\-matrix or matrix\-vector
-        multiplication\.
+          + "matmul" \- the first object has the same number of columns as the
+            number of rows of the second object\. Useful for matrix\-matrix or
+            matrix\-vector multiplication\.
 
       * list *obj1*
 
@@ -984,13 +984,13 @@ specialised procedures, see below\):
         If not provided, the operation is performed on all rows/columns of A if
         provided, it is expected to be the list \{imin imax jmin jmax\} where:
 
-        *imin* Minimum row index
+          + *imin* Minimum row index
 
-        *imax* Maximum row index
+          + *imax* Maximum row index
 
-        *jmin* Minimum column index
+          + *jmin* Minimum column index
 
-        *jmax* Maximum column index
+          + *jmax* Maximum column index
 
   - <a name='59'></a>__::math::linearalgebra::dgetrf__ *matrix*
 

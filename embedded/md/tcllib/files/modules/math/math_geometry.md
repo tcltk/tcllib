@@ -194,21 +194,21 @@ The package defines the following public procedures:
     Compute the octant of the circle the point is in and return it as the result
     of the command\. The possible results are
 
-    east
+      1. east
 
-    northeast
+      1. northeast
 
-    north
+      1. north
 
-    northwest
+      1. northwest
 
-    west
+      1. west
 
-    southwest
+      1. southwest
 
-    south
+      1. south
 
-    southeast
+      1. southeast
 
     Each octant is the arc of the circle \+/\- 22\.5 degrees from the cardinal
     direction the octant is named for\.

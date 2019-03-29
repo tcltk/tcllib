@@ -153,20 +153,22 @@ explained below\.
 
     The above means in detail that:
 
-    The first argument is interpreted as the name of a query operator, the
-    number of arguments required by that operator is then determined, and taken
-    from the immediately following arguments\.
+      1. The first argument is interpreted as the name of a query operator, the
+         number of arguments required by that operator is then determined, and
+         taken from the immediately following arguments\.
 
-    Because of this operators cannot have optional arguments, all arguments have
-    to be present as defined\. Failure to do this will, at least, confuse the
-    query interpreter, but more likely cause errors\.
+         Because of this operators cannot have optional arguments, all arguments
+         have to be present as defined\. Failure to do this will, at least,
+         confuse the query interpreter, but more likely cause errors\.
 
-    The operator is applied to the current node set, yielding a new node set,
-    and/or manipulating the tree object the query object is connected to\.
+      1. The operator is applied to the current node set, yielding a new node
+         set, and/or manipulating the tree object the query object is connected
+         to\.
 
-    The arguments used \(i\.e\. operator name and arguments\) are removed from the
-    list of method arguments, and then the whole process is repeated from step
-    \[1\], until the list of arguments is empty or an error occurred\.
+      1. The arguments used \(i\.e\. operator name and arguments\) are removed from
+         the list of method arguments, and then the whole process is repeated
+         from step \[1\], until the list of arguments is empty or an error
+         occurred\.
 
             \# q is the query object\.
 

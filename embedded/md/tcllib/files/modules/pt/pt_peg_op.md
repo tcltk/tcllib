@@ -162,13 +162,13 @@ This package provides a number of utility commands manipulating a PE grammar
     This command optimizes the semantic modes of non\-terminal symbols according
     to the two rules below\.
 
-    If a symbol X with mode __value__ calls no other symbols, i\.e\. uses only
-    terminal symbols in whatever combination, then this can be represented
-    simpler by using mode __leaf__\.
+      1. If a symbol X with mode __value__ calls no other symbols, i\.e\. uses
+         only terminal symbols in whatever combination, then this can be
+         represented simpler by using mode __leaf__\.
 
-    If a symbol X is only called from symbols with modes __leaf__ or
-    __void__ then this symbol should have mode __void__ also, as any AST
-    it could generate will be discarded anyway\.
+      1. If a symbol X is only called from symbols with modes __leaf__ or
+         __void__ then this symbol should have mode __void__ also, as
+         any AST it could generate will be discarded anyway\.
 
     The result of the command is the empty string\.
 

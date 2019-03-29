@@ -688,36 +688,39 @@ The following commands are possible for graph objects:
     associated with the whole graph\. Regarding the other elements; each triple
     consists of
 
-    The name of the node to be described,
+      1. The name of the node to be described,
 
-    A dictionary containing the attributes associated with the node,
+      1. A dictionary containing the attributes associated with the node,
 
-    And a list describing all the arcs starting at that node\.
+      1. And a list describing all the arcs starting at that node\.
 
     The elements of the arc list are lists containing three or four elements
     each, i\.e\.
 
-    The name of the arc described by the element,
+      1. The name of the arc described by the element,
 
-    A reference to the destination node of the arc\. This reference is an integer
-    number given the index of that node in the main serialization list\. As that
-    it is greater than or equal to zero, less than the length of the
-    serialization, and a multiple of three\. *Note:* For internal consistency
-    no arc name may be used twice, whether in the same node, or at some other
-    node\. This is a global consistency requirement for the serialization\.
+      1. A reference to the destination node of the arc\. This reference is an
+         integer number given the index of that node in the main serialization
+         list\. As that it is greater than or equal to zero, less than the length
+         of the serialization, and a multiple of three\. *Note:* For internal
+         consistency no arc name may be used twice, whether in the same node, or
+         at some other node\. This is a global consistency requirement for the
+         serialization\.
 
-    And a dictionary containing the attributes associated with the arc\.
+      1. And a dictionary containing the attributes associated with the arc\.
 
-    The weight associated with the arc\. This value is optional\. Its non\-presence
-    means that the arc in question has no weight associated with it\.
+      1. The weight associated with the arc\. This value is optional\. Its
+         non\-presence means that the arc in question has no weight associated
+         with it\.
 
-    *Note:* This information is new, compared to the serialization of
-    __[graph](\.\./\.\./\.\./\.\./index\.md\#graph)__ 2\.3 and earlier\. By making
-    it an optional element the new format is maximally compatible with the old\.
-    This means that any graph not using weights will generate a serialization
-    which is still understood by the older graph package\. A serialization will
-    not be understood any longer by the older packages if, and only if the graph
-    it was generated from actually has arcs with weights\.
+         *Note:* This information is new, compared to the serialization of
+         __[graph](\.\./\.\./\.\./\.\./index\.md\#graph)__ 2\.3 and earlier\. By
+         making it an optional element the new format is maximally compatible
+         with the old\. This means that any graph not using weights will generate
+         a serialization which is still understood by the older graph package\. A
+         serialization will not be understood any longer by the older packages
+         if, and only if the graph it was generated from actually has arcs with
+         weights\.
 
     For all attribute dictionaries they keys are the names of the attributes,
     and the values are the values for each name\.

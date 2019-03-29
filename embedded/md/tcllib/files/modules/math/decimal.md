@@ -146,17 +146,17 @@ about individual procedures\.
 
     Sets the *variable* to *setting*\. Valid variables are:
 
-    *rounding* \- Method of rounding to use during rescale\. Valid methods are
-    round\_half\_even, round\_half\_up, round\_half\_down, round\_down, round\_up,
-    round\_floor, round\_ceiling\.
+      * *rounding* \- Method of rounding to use during rescale\. Valid methods
+        are round\_half\_even, round\_half\_up, round\_half\_down, round\_down,
+        round\_up, round\_floor, round\_ceiling\.
 
-    *precision* \- Maximum number of digits allowed in mantissa\.
+      * *precision* \- Maximum number of digits allowed in mantissa\.
 
-    *extended* \- Set to 1 for extended mode\. 0 for simplified mode\.
+      * *extended* \- Set to 1 for extended mode\. 0 for simplified mode\.
 
-    *maxExponent* \- Maximum value for the exponent\. Defaults to 999\.
+      * *maxExponent* \- Maximum value for the exponent\. Defaults to 999\.
 
-    *minExponent* \- Minimum value for the exponent\. Default to \-998\.
+      * *minExponent* \- Minimum value for the exponent\. Default to \-998\.
 
   - <a name='4'></a>__::math::decimal::add__ *a* *b*
 
