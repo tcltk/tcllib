@@ -1008,6 +1008,9 @@ namespace eval ::httpd::coro {
         package require tls
         set cmd ::tls::socket
         set opts {-tls1 1 -ssl2 0 -ssl3 0}
+        if {[dict exist $info CA_FILE]} {
+	  lappend opts -cafile [dict get $info CA_FILE]
+        }
       } else {
         set cmd ::socket
         set opts {}

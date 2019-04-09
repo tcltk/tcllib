@@ -204,8 +204,9 @@ if {[dict exists $serveropts port]} {
   dict set info SERVER_PORT auto
   lappend portlist $info
 }
-if {![catch {package require tls}]} {
+if {[dict exists $serveropts cafile] && ![catch {package require tls}]} {
   dict set info SERVER_SSL 1
+  dict set info CA_FILE [dict get $serveropts cafile]
   if {[dict exists $serveropts port_ssl]} {
     dict set info SERVER_PORT [dict get $serveropts port_ssl]
     lappend portlist $info
