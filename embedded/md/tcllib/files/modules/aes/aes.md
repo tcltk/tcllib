@@ -144,13 +144,13 @@ calling the __Reset__ function with a new initialization vector value\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % set nil\_block \[string repeat \\\\0 16\]
-    % aes::aes \-hex \-mode cbc \-dir encrypt \-key $nil\_block $nil\_block
+    % set nil_block [string repeat \\0 16]
+    % aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
     66e94bd4ef8a2c3b884cfa59ca342b2e
 
-    set Key \[aes::Init cbc $sixteen\_bytes\_key\_data $sixteen\_byte\_iv\]
-    append ciphertext \[aes::Encrypt $Key $plaintext\]
-    append ciphertext \[aes::Encrypt $Key $additional\_plaintext\]
+    set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
+    append ciphertext [aes::Encrypt $Key $plaintext]
+    append ciphertext [aes::Encrypt $Key $additional_plaintext]
     aes::Final $Key
 
 # <a name='section6'></a>REFERENCES

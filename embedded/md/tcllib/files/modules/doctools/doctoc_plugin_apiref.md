@@ -218,24 +218,24 @@ The management commands a plugin has to provide are used by the frontend to
 After the plugin has been loaded and the frontend commands are established the
 commands will be called in the following sequence:
 
-    toc\_numpasses \-> n
-    toc\_listvariables \-> vars
+    toc_numpasses -> n
+    toc_listvariables -> vars
 
-    toc\_varset var1 value1
-    toc\_varset var2 value2
-    \.\.\.
-    toc\_varset varK valueK
-    toc\_initialize
-    toc\_setup 1
-    \.\.\.
-    toc\_setup 2
-    \.\.\.
-    \.\.\.
-    toc\_setup n
-    \.\.\.
-    toc\_postprocess
-    toc\_shutdown
-    \.\.\.
+    toc_varset var1 value1
+    toc_varset var2 value2
+    ...
+    toc_varset varK valueK
+    toc_initialize
+    toc_setup 1
+    ...
+    toc_setup 2
+    ...
+    ...
+    toc_setup n
+    ...
+    toc_postprocess
+    toc_shutdown
+    ...
 
 I\.e\. first the number of passes and the set of available engine parameters is
 established, followed by calls setting the parameters\. That second part is

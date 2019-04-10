@@ -316,7 +316,7 @@ change the model's data:
 The __\.view__ megawidget displays the model state, and needs to know about
 model updates\. Consequently, it subscribes to the ::model's <Update> hook\.
 
-    hook bind ::model <Update> \.view \[list \.view ModelUpdate\]
+    hook bind ::model <Update> .view [list .view ModelUpdate]
 
 When the __::model__ calls the hook, the __\.view__s ModelUpdate
 subcommand will be called\.
@@ -324,7 +324,7 @@ subcommand will be called\.
 Later the __\.view__ megawidget is destroyed\. In its destructor, it tells the
 *[hook](\.\./\.\./\.\./\.\./index\.md\#hook)* that it no longer exists:
 
-    hook forget \.view
+    hook forget .view
 
 All bindings involving __\.view__ are deleted\.
 

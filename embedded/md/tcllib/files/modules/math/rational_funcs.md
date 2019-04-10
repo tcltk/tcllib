@@ -70,13 +70,13 @@ The package defines the following public procedures:
     Return an \(encoded\) list that defines the rational function\. A rational
     function
 
-                  1 \+ x^3
-        f\(x\) = \-\-\-\-\-\-\-\-\-\-\-\-
-               1 \+ 2x \+ x^2
+                  1 + x^3
+        f(x) = ------------
+               1 + 2x + x^2
 
     can be defined via:
 
-        set f \[::math::rationalfunctions::rationalFunction \[list 1 0 0 1\]  \[list 1 2 1\]\]
+        set f [::math::rationalfunctions::rationalFunction [list 1 0 0 1]  [list 1 2 1]]
 
       * list *num*
 

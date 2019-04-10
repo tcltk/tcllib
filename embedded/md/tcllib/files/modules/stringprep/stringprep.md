@@ -113,13 +113,13 @@ Unicode strings for comparison as defined in RFC\-3454\.
 
 Nameprep profile definition \(see RFC\-3491\):
 
-    ::stringprep::register nameprep  \-mapping \{B\.1 B\.2\}  \-normalization KC  \-prohibited \{A\.1 C\.1\.2 C\.2\.2 C\.3 C\.4 C\.5 C\.6 C\.7 C\.8 C\.9\}  \-prohibitedBidi 1
+    ::stringprep::register nameprep  -mapping {B.1 B.2}  -normalization KC  -prohibited {A.1 C.1.2 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedBidi 1
 
 Nodeprep and resourceprep profile definitions \(see RFC\-3920\):
 
-    ::stringprep::register nodeprep  \-mapping \{B\.1 B\.2\}  \-normalization KC  \-prohibited \{A\.1 C\.1\.1 C\.1\.2 C\.2\.1 C\.2\.2 C\.3 C\.4 C\.5 C\.6 C\.7 C\.8 C\.9\}  \-prohibitedList \{0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40\}  \-prohibitedBidi 1
+    ::stringprep::register nodeprep  -mapping {B.1 B.2}  -normalization KC  -prohibited {A.1 C.1.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedList {0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40}  -prohibitedBidi 1
 
-    ::stringprep::register resourceprep  \-mapping \{B\.1\}  \-normalization KC  \-prohibited \{A\.1 C\.1\.2 C\.2\.1 C\.2\.2 C\.3 C\.4 C\.5 C\.6 C\.7 C\.8 C\.9\}  \-prohibitedBidi 1
+    ::stringprep::register resourceprep  -mapping {B.1}  -normalization KC  -prohibited {A.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedBidi 1
 
 # <a name='section4'></a>REFERENCES
 

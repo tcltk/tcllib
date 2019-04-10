@@ -65,13 +65,13 @@ The method resembles the cooling of material, hence the name\.
 
 The package *simulation::annealing* offers the command *findMinimum*:
 
-    puts \[::simulation::annealing::findMinimum  \-trials 300  \-parameters \{x \-5\.0 5\.0 y \-5\.0 5\.0\}  \-function \{$x\*$x\+$y\*$y\+sin\(10\.0\*$x\)\+4\.0\*cos\(20\.0\*$y\)\}\]
+    puts [::simulation::annealing::findMinimum  -trials 300  -parameters {x -5.0 5.0 y -5.0 5.0}  -function {$x*$x+$y*$y+sin(10.0*$x)+4.0*cos(20.0*$y)}]
 
 prints the estimated minimum value of the function f\(x,y\) =
 *x\*\*2\+y\*\*2\+sin\(10\*x\)\+4\*cos\(20\*y\)* and the values of x and y where the minimum
 was attained:
 
-    result \-4\.9112922923 x \-0\.181647676593 y 0\.155743646974
+    result -4.9112922923 x -0.181647676593 y 0.155743646974
 
 # <a name='section2'></a>PROCEDURES
 
@@ -176,13 +176,13 @@ taken:
 
 Here is an example of finding an optimum inside a circle:
 
-    puts \[::simulation::annealing::findMinimum  \-trials 3000  \-reduce 0\.98  \-parameters \{x \-5\.0 5\.0 y \-5\.0 5\.0\}  \-code \{
-            if \{ hypot\($x\-5\.0,$y\-5\.0\) < 4\.0 \} \{
-                set result \[expr \{$x\*$x\+$y\*$y\+sin\(10\.0\*$x\)\+4\.0\*cos\(20\.0\*$y\)\}\]
-            \} else \{
-                set result 1\.0e100
-            \}
-        \}\]
+    puts [::simulation::annealing::findMinimum  -trials 3000  -reduce 0.98  -parameters {x -5.0 5.0 y -5.0 5.0}  -code {
+            if { hypot($x-5.0,$y-5.0) < 4.0 } {
+                set result [expr {$x*$x+$y*$y+sin(10.0*$x)+4.0*cos(20.0*$y)}]
+            } else {
+                set result 1.0e100
+            }
+        }]
 
 The method is theoretically capable of determining the global optimum, but often
 you need to use a large number of trials and a slow reduction of temperature to
@@ -198,29 +198,29 @@ example:
   - We have a function that attains an absolute minimum if the first ten numbers
     are 1 and the rest is 0:
 
-    proc cost \{params\} \{
+    proc cost {params} {
         set cost 0
-        foreach p \[lrange $params 0 9\] \{
-            if \{ $p == 0 \} \{
+        foreach p [lrange $params 0 9] {
+            if { $p == 0 } {
                 incr cost
-            \}
-        \}
-        foreach p \[lrange $params 10 end\] \{
-            if \{ $p == 1 \} \{
+            }
+        }
+        foreach p [lrange $params 10 end] {
+            if { $p == 1 } {
                 incr cost
-            \}
-        \}
+            }
+        }
         return $cost
-    \}
+    }
 
   - We want to find the solution that gives this minimum for various lengths of
     the solution vector *params*:
 
-    foreach n \{100 1000 10000\} \{
+    foreach n {100 1000 10000} {
         break
         puts "Problem size: $n"
-        puts \[::simulation::annealing::findCombinatorialMinimum  \-trials 300  \-verbose 0  \-number\-params $n  \-code \{set result \[cost $params\]\}\]
-    \}
+        puts [::simulation::annealing::findCombinatorialMinimum  -trials 300  -verbose 0  -number-params $n  -code {set result [cost $params]}]
+    }
 
   - As the vector grows, the computation time increases, but the procedure will
     stop if some kind of equilibrium is reached\. To achieve a useful solution

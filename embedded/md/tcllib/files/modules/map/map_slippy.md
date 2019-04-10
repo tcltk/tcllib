@@ -67,7 +67,7 @@ slippy\-based map packages\.
     This method returns the width/height of a slippy\-based map at the specified
     zoom *level*, in pixels\. This is, in essence, the result of
 
-        expr \{ \[tiles $level\] \* \[tile size\] \}
+        expr { [tiles $level] * [tile size] }
 
   - <a name='2'></a>__::map::slippy__ __tiles__ *level*
 

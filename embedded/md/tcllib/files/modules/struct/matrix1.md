@@ -360,11 +360,11 @@ values 1 to 5, with 1 in the top\-left cell\. Each other row contains the conten
 of the row above it, rotated by one cell to the right\.
 
     % M getrect 0 0 4 4
-    \{\{1 2 3 4 5\} \{5 1 2 3 4\} \{4 5 1 2 3\} \{3 4 5 1 2\} \{2 3 4 5 1\}\}
+    {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 
-    % M setrect 1 1 \{\{0 0 0\} \{0 0 0\} \{0 0 0\}\}
+    % M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
     % M getrect 0 0 4 4
-    \{\{1 2 3 4 5\} \{5 0 0 0 4\} \{4 0 0 0 3\} \{3 0 0 0 2\} \{2 3 4 5 1\}\}
+    {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 
 Assuming that the style definitions in the example section of the manpage for
 the package __[report](\.\./report/report\.md)__ are loaded into the
@@ -372,21 +372,21 @@ interpreter now an example which formats a matrix into a tabular report\. The
 code filling the matrix with data is not shown\. contains useful data\.
 
     % ::struct::matrix m
-    % \# \.\.\. fill m with data, assume 5 columns
+    % # ... fill m with data, assume 5 columns
     % ::report::report r 5 style captionedtable 1
     % m format 2string r
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
-    &#124;000&#124;VERSIONS:          &#124;2:8\.4a3&#124;1:8\.4a3&#124;1:8\.4a3%&#124;
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
-    &#124;001&#124;CATCH return ok    &#124;7      &#124;13     &#124;53\.85   &#124;
-    &#124;002&#124;CATCH return error &#124;68     &#124;91     &#124;74\.73   &#124;
-    &#124;003&#124;CATCH no catch used&#124;7      &#124;14     &#124;50\.00   &#124;
-    &#124;004&#124;IF if true numeric &#124;12     &#124;33     &#124;36\.36   &#124;
-    &#124;005&#124;IF elseif          &#124;15     &#124;47     &#124;31\.91   &#124;
-    &#124;   &#124;true numeric       &#124;       &#124;       &#124;        &#124;
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
+    +---+-------------------+-------+-------+--------+
+    |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
+    +---+-------------------+-------+-------+--------+
+    |001|CATCH return ok    |7      |13     |53.85   |
+    |002|CATCH return error |68     |91     |74.73   |
+    |003|CATCH no catch used|7      |14     |50.00   |
+    |004|IF if true numeric |12     |33     |36.36   |
+    |005|IF elseif          |15     |47     |31.91   |
+    |   |true numeric       |       |       |        |
+    +---+-------------------+-------+-------+--------+
     %
-    % \# alternate way of doing the above
+    % # alternate way of doing the above
     % r printmatrix m
 
 # <a name='section3'></a>Bugs, Ideas, Feedback

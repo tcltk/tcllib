@@ -63,7 +63,7 @@ These new commands deliver
 
 For example:
 
-    set p \[::simulation::random::prng\_Normal \-1\.0 10\.0\]
+    set p [::simulation::random::prng_Normal -1.0 10.0]
 
 produces a new command \(whose name is stored in the variable "p"\) that generates
 normally distributed numbers with a mean of \-1\.0 and a standard deviation of
@@ -162,7 +162,7 @@ distributions:
     Gumbel with a given minimum value and a given scale factor\. The probability
     density function is:
 
-    P\(v\) = exp\( \-exp\(f\*\(v\-min\)\)\)
+    P(v) = exp( -exp(f*(v-min)))
 
       * float *min*
 

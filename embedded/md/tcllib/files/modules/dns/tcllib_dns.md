@@ -253,24 +253,24 @@ DNS queries\. Using this feature requires the TLS package\.
 
 # <a name='section3'></a>EXAMPLES
 
-    % set tok \[dns::resolve www\.tcl\.tk\]
+    % set tok [dns::resolve www.tcl.tk]
     ::dns::1
     % dns::status $tok
     ok
     % dns::address $tok
-    199\.175\.6\.239
+    199.175.6.239
     % dns::name $tok
-    www\.tcl\.tk
+    www.tcl.tk
     % dns::cleanup $tok
 
 Using DNS URIs as queries:
 
-    % set tok \[dns::resolve "dns:tcl\.tk;type=MX"\]
-    % set tok \[dns::resolve "dns://l\.root\-servers\.net/www\.tcl\.tk"\]
+    % set tok [dns::resolve "dns:tcl.tk;type=MX"]
+    % set tok [dns::resolve "dns://l.root-servers.net/www.tcl.tk"]
 
 Reverse address lookup:
 
-    % set tok \[dns::resolve 127\.0\.0\.1\]
+    % set tok [dns::resolve 127.0.0.1]
     ::dns::1
     % dns::name $tok
     localhost
@@ -278,12 +278,12 @@ Reverse address lookup:
 
 Using DNS over TLS \(RFC 7858\):
 
-    % set tok \[dns::resolve www\.tcl\.tk \-nameserver dns\-tls\.bitwiseshift\.net  \-usetls 1 \-cafile /etc/ssl/certs/ca\-certificates\.crt\]
+    % set tok [dns::resolve www.tcl.tk -nameserver dns-tls.bitwiseshift.net  -usetls 1 -cafile /etc/ssl/certs/ca-certificates.crt]
     ::dns::12
     % dns::wait $tok
     ok
     % dns::address $tok
-    104\.25\.119\.118 104\.25\.120\.118
+    104.25.119.118 104.25.120.118
 
 # <a name='section4'></a>REFERENCES
 

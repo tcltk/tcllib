@@ -59,8 +59,8 @@ validation\. This method must take a single argument, the value to be validated;
 further, it must do nothing if the value is valid, but throw an error if the
 value is invalid:
 
-    valtype::iban validate \.\.\.\. ;\# Does nothing
-    valtype::iban validate \.\.\.\. ;\# Throws an error \(bad International Bank Account Number\)\.
+    valtype::iban validate .... ;# Does nothing
+    valtype::iban validate .... ;# Throws an error (bad International Bank Account Number).
 
 The __validate__ method will always return the validated value on success,
 and throw the __\-errorcode__ INVALID on error, possibly with additional

@@ -564,11 +564,11 @@ Snit 1\.3 for Tcl 8\.4 and Snit 2\.2 for Tcl 8\.5\.
 
 To always use Snit 1\.3 \(or a later version of Snit 1\.x\), invoke Snit as follows:
 
-    package require snit 1\.3
+    package require snit 1.3
 
 To always use Snit 2\.2 \(or a later version of Snit 2\.x\), say this instead:
 
-    package require snit 2\.2
+    package require snit 2.2
 
 Note that if you request Snit 2\.2 explicitly, your application will halt with
 Tcl 8\.4, since Snit 2\.2 is unavailable for Tcl 8\.4\.
@@ -597,9 +597,9 @@ There are four specific incompatibilities between Snit 1\.3 and Snit 2\.2\.
     __snit::type__ called __dog__\. You can create instances of
     __dog__ in three ways:
 
-    dog spot               ;\# Explicit naming
-    set obj1 \[dog %AUTO%\]  ;\# Automatic naming
-    set obj2 \[dog\]         ;\# Implicit naming
+    dog spot               ;# Explicit naming
+    set obj1 [dog %AUTO%]  ;# Automatic naming
+    set obj2 [dog]         ;# Implicit naming
 
     In Snit 2\.2, type commands are defined using the __namespace ensemble__
     mechanism; and __namespace ensemble__ doesn't allow an ensemble command
@@ -614,7 +614,7 @@ There are four specific incompatibilities between Snit 1\.3 and Snit 2\.2\.
     methods \(including the standard type methods, like __$type info__\)\. To
     do so, use the __\-hastypemethods__ pragma:
 
-    pragma \-hastypemethods 0
+    pragma -hastypemethods 0
 
   - Hierarchical methods and type methods are implemented differently in Snit
     2\.2\.
@@ -625,17 +625,17 @@ There are four specific incompatibilities between Snit 1\.3 and Snit 2\.2\.
     such subcommands in Snit simply by including multiple words in the method
     names:
 
-    method \{tag configure\} \{tag args\} \{ \.\.\. \}
+    method {tag configure} {tag args} { ... }
 
-    method \{tag cget\} \{tag option\} \{\.\.\.\}
+    method {tag cget} {tag option} {...}
 
     Here we've implicitly defined a __tag__ method which has two
     subcommands, __configure__ and __cget__\.
 
     In Snit 1\.3, hierarchical methods could be called in two ways:
 
-    $obj tag cget \-myoption      ;\# The good way
-    $obj \{tag cget\} \-myoption    ;\# The weird way
+    $obj tag cget -myoption      ;# The good way
+    $obj {tag cget} -myoption    ;# The weird way
 
     In the second call, we see that a hierarchical method or type method is
     simply one whose name contains multiple words\.
@@ -702,7 +702,7 @@ Yes\.
     which is why it hasn't been implemented for V1\.x\. V1\.x code can achieve
     something similar by placing
 
-    namespace import \[namespace parent\]::\*
+    namespace import [namespace parent]::*
 
     in a type constructor\. This is less useful, however, as it picks up only
     those commands which have already been exported by the parent namespace at
@@ -745,9 +745,9 @@ the operations are defined as subcommands of the instance command\. For example,
 to insert text into a Tk text widget, you use the text widget's __insert__
 subcommand:
 
-    \# Create a text widget and insert some text in it\.
-    text \.mytext \-width 80 \-height 24
-    \.mytext insert end "Howdy\!"
+    # Create a text widget and insert some text in it.
+    text .mytext -width 80 -height 24
+    .mytext insert end "Howdy!"
 
 In this example, __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ is the
 *[type](\.\./\.\./\.\./\.\./index\.md\#type)* command and __\.mytext__ is the
@@ -773,9 +773,9 @@ __snit::type__s are defined using the __snit::type__ command\. For
 example, if you were designing a kennel management system for a dog breeder,
 you'd need a dog type\.
 
-    % snit::type dog \{
-        \# \.\.\.
-    \}
+    % snit::type dog {
+        # ...
+    }
     ::dog
     %
 
@@ -805,9 +805,9 @@ You create an instance of a __snit::type__ by passing the new instance's
 name to the type's create method\. In the following example, we create a
 __dog__ object called __spot__\.
 
-    % snit::type dog \{
-        \# \.\.\.\.
-    \}
+    % snit::type dog {
+        # ....
+    }
     ::dog
     % dog create spot
     ::spot
@@ -818,9 +818,9 @@ instance name doesn't conflict with any defined [TYPE METHODS](#section9)\.
 \(See [TYPE COMPONENTS](#section15) for the special case in which this
 doesn't work\.\) So the following example is identical to the previous example:
 
-    % snit::type dog \{
-        \# \.\.\.\.
-    \}
+    % snit::type dog {
+        # ....
+    }
     ::dog
     % dog spot
     ::spot
@@ -831,18 +831,18 @@ This document generally uses the shorter form\.
 If the __dog__ type defines [OPTIONS](#section7), these can usually be
 given defaults at creation time:
 
-    % snit::type dog \{
-        option \-breed mongrel
-        option \-color brown
+    % snit::type dog {
+        option -breed mongrel
+        option -color brown
 
-        method bark \{\} \{ return "$self barks\." \}
-    \}
+        method bark {} { return "$self barks." }
+    }
     ::dog
-    % dog create spot \-breed dalmation \-color spotted
+    % dog create spot -breed dalmation -color spotted
     ::spot
-    % spot cget \-breed
+    % spot cget -breed
     dalmation
-    % spot cget \-color
+    % spot cget -color
     spotted
     %
 
@@ -850,7 +850,7 @@ Once created, the instance name now names a new Tcl command that is used to
 manipulate the object\. For example, the following code makes the dog bark:
 
     % spot bark
-    ::spot barks\.
+    ::spot barks.
     %
 
 ## <a name='subsection19'></a>How do I refer to an object indirectly?
@@ -858,14 +858,14 @@ manipulate the object\. For example, the following code makes the dog bark:
 Some programmers prefer to save the object name in a variable, and reference it
 that way\. For example,
 
-    % snit::type dog \{ \.\.\. \}
+    % snit::type dog { ... }
     ::dog
-    % set d \[dog spot \-breed dalmation \-color spotted\]
+    % set d [dog spot -breed dalmation -color spotted]
     ::spot
-    % $d cget \-breed
+    % $d cget -breed
     dalmation
     % $d bark
-    ::spot barks\.
+    ::spot barks.
     %
 
 If you prefer this style, you might prefer to have Snit generate the instance's
@@ -876,20 +876,20 @@ name automatically\.
 If you'd like Snit to generate an object name for you, use the __%AUTO%__
 keyword as the requested name:
 
-    % snit::type dog \{ \.\.\. \}
+    % snit::type dog { ... }
     ::dog
-    % set d \[dog %AUTO%\]
+    % set d [dog %AUTO%]
     ::dog2
     % $d bark
-    ::dog2 barks\.
+    ::dog2 barks.
     %
 
 The __%AUTO%__ keyword can be embedded in a longer string:
 
-    % set d \[dog obj\_%AUTO%\]
-    ::obj\_dog4
+    % set d [dog obj_%AUTO%]
+    ::obj_dog4
     % $d bark
-    ::obj\_dog4 barks\.
+    ::obj_dog4 barks.
     %
 
 ## <a name='subsection21'></a>Can types be renamed?
@@ -919,14 +919,14 @@ though this flexibility has some consequences:
     __$self__ changes\. For example, don't pass a callback command to another
     object like this:
 
-    \.btn configure \-command \[list $self ButtonPress\]
+    .btn configure -command [list $self ButtonPress]
 
     You'll get an error if __\.btn__ calls your command after your object is
     renamed\.
 
   - Instead, your object should define its callback command like this:
 
-    \.btn configure \-command \[mymethod ButtonPress\]
+    .btn configure -command [mymethod ButtonPress]
 
     The __mymethod__ command returns code that will call the desired method
     safely; the caller of the callback can add additional arguments to the end
@@ -957,12 +957,12 @@ window hierarchy\.
 
 Every instance of a __snit::type__ has a __destroy__ method:
 
-    % snit::type dog \{ \.\.\. \}
+    % snit::type dog { ... }
     ::dog
     % dog spot
     ::spot
     % spot bark
-    ::spot barks\.
+    ::spot barks.
     % spot destroy
     % spot barks
     invalid command name "spot"
@@ -971,12 +971,12 @@ Every instance of a __snit::type__ has a __destroy__ method:
 Finally, every Snit type has a type method called __destroy__; calling it
 destroys the type and all of its instances:
 
-    % snit::type dog \{ \.\.\. \}
+    % snit::type dog { ... }
     ::dog
     % dog spot
     ::spot
     % spot bark
-    ::spot barks\.
+    ::spot barks.
     % dog destroy
     % spot bark
     invalid command name "spot"
@@ -998,15 +998,15 @@ Instance methods are defined in the type definition using the
 __[method](\.\./\.\./\.\./\.\./index\.md\#method)__ statement\. Consider the
 following code that might be used to add dogs to a computer simulation:
 
-    % snit::type dog \{
-        method bark \{\} \{
-            return "$self barks\."
-        \}
+    % snit::type dog {
+        method bark {} {
+            return "$self barks."
+        }
 
-        method chase \{thing\} \{
-            return "$self chases $thing\."
-        \}
-    \}
+        method chase {thing} {
+            return "$self chases $thing."
+        }
+    }
     ::dog
     %
 
@@ -1026,9 +1026,9 @@ simulated dog through its paces:
     % dog spot
     ::spot
     % spot bark
-    ::spot barks\.
+    ::spot barks.
     % spot chase cat
-    ::spot chases cat\.
+    ::spot chases cat.
     %
 
 ## <a name='subsection27'></a>How does an instance method call another instance method?
@@ -1040,22 +1040,22 @@ object name stored in the implicit argument __self__\.
 Suppose, for example, that our dogs never chase anything without barking at
 them:
 
-    % snit::type dog \{
-        method bark \{\} \{
-            return "$self barks\."
-        \}
+    % snit::type dog {
+        method bark {} {
+            return "$self barks."
+        }
 
-        method chase \{thing\} \{
-            return "$self chases $thing\.  \[$self bark\]"
-        \}
-    \}
+        method chase {thing} {
+            return "$self chases $thing.  [$self bark]"
+        }
+    }
     ::dog
     % dog spot
     ::spot
     % spot bark
-    ::spot barks\.
+    ::spot barks.
     % spot chase cat
-    ::spot chases cat\.  ::spot barks\.
+    ::spot chases cat.  ::spot barks.
     %
 
 ## <a name='subsection28'></a>Are there any limitations on instance method names?
@@ -1080,11 +1080,11 @@ Define methods whose names consist of multiple words\. These words define the
 hierarchy implicitly\. For example, the following code defines a __tag__
 method with subcommands __cget__ and __configure__:
 
-    snit::widget mytext \{
-        method \{tag configure\} \{tag args\} \{ \.\.\. \}
+    snit::widget mytext {
+        method {tag configure} {tag args} { ... }
 
-        method \{tag cget\} \{tag option\} \{\.\.\.\}
-    \}
+        method {tag cget} {tag option} {...}
+    }
 
 Note that there is no explicit definition for the __tag__ method; it is
 implicit in the definition of __tag configure__ and __tag cget__\. If you
@@ -1094,10 +1094,10 @@ tried to define __tag__ explicitly in this example, you'd get an error\.
 
 As subcommands of subcommands\.
 
-    % mytext \.text
-    \.text
-    % \.text tag configure redtext \-foreground red \-background black
-    % \.text tag cget redtext \-foreground
+    % mytext .text
+    .text
+    % .text tag configure redtext -foreground red -background black
+    % .text tag cget redtext -foreground
     red
     %
 
@@ -1115,21 +1115,21 @@ For example, suppose our simulated dogs only bark in response to other stimuli;
 they never bark just for fun\. So the __bark__ method becomes __Bark__ to
 indicate that it is private:
 
-    % snit::type dog \{
-        \# Private by convention: begins with uppercase letter\.
-        method Bark \{\} \{
-            return "$self barks\."
-        \}
+    % snit::type dog {
+        # Private by convention: begins with uppercase letter.
+        method Bark {} {
+            return "$self barks."
+        }
 
-        method chase \{thing\} \{
-            return "$self chases $thing\. \[$self Bark\]"
-        \}
-    \}
+        method chase {thing} {
+            return "$self chases $thing. [$self Bark]"
+        }
+    }
     ::dog
     % dog fido
     ::fido
     % fido chase cat
-    ::fido chases cat\. ::fido barks\.
+    ::fido chases cat. ::fido barks.
     %
 
 ## <a name='subsection33'></a>Are there any limitations on instance method arguments?
@@ -1152,11 +1152,11 @@ __selfns__, __win__, and __self__\.
 The implicit argument __type__ contains the fully qualified name of the
 object's type:
 
-    % snit::type thing \{
-        method mytype \{\} \{
+    % snit::type thing {
+        method mytype {} {
             return $type
-        \}
-    \}
+        }
+    }
     ::thing
     % thing something
     ::something
@@ -1172,11 +1172,11 @@ If the object's command is renamed, then __$self__ will change to match in
 subsequent calls\. Thus, your code should not assume that __$self__ is
 constant unless you know for sure that the object will never be renamed\.
 
-    % snit::type thing \{
-        method myself \{\} \{
+    % snit::type thing {
+        method myself {} {
             return $self
-        \}
-    \}
+        }
+    }
     ::thing
     % thing mutt
     ::mutt
@@ -1194,19 +1194,19 @@ VARIABLES](#section6) and [OPTIONS](#section7)\. The implicit argument
 __selfns__ contains the name of this namespace; its value never changes, and
 is constant for the life of the object, even if the object's name changes:
 
-    % snit::type thing \{
-        method myNameSpace \{\} \{
+    % snit::type thing {
+        method myNameSpace {} {
             return $selfns
-        \}
-    \}
+        }
+    }
     ::thing
     % thing jeff
     ::jeff
     % jeff myNameSpace
-    ::thing::Snit\_inst3
+    ::thing::Snit_inst3
     % rename jeff mutt
     % mutt myNameSpace
-    ::thing::Snit\_inst3
+    ::thing::Snit_inst3
     %
 
 The above example reveals how Snit names an instance's private namespace;
@@ -1239,20 +1239,20 @@ want __fido__ to bark when a Tk button called __\.bark__ is pressed\. In
 this case, I create the callback command in the usual way, using
 __[list](\.\./\.\./\.\./\.\./index\.md\#list)__:
 
-    button \.bark \-text "Bark\!" \-command \[list fido bark\]
+    button .bark -text "Bark!" -command [list fido bark]
 
 In typical Tcl style, we use a callback to hook two independent components
 together\. But suppose that the __dog__ object has a graphical interface and
 owns the button itself? In this case, the __dog__ must pass one of its own
 instance methods to the button it owns\. The obvious thing to do is this:
 
-    % snit::widget dog \{
-        constructor \{args\} \{
-            \#\.\.\.
-            button $win\.barkbtn \-text "Bark\!" \-command \[list $self bark\]
-            \#\.\.\.
-        \}
-    \}
+    % snit::widget dog {
+        constructor {args} {
+            #...
+            button $win.barkbtn -text "Bark!" -command [list $self bark]
+            #...
+        }
+    }
     ::dog
     %
 
@@ -1271,13 +1271,13 @@ might or might not do the right thing\.
 
 There's a safer way to do it, and it looks like this:
 
-    % snit::widget dog \{
-        constructor \{args\} \{
-            \#\.\.\.
-            button $win\.barkbtn \-text "Bark\!" \-command \[mymethod bark\]
-            \#\.\.\.
-        \}
-    \}
+    % snit::widget dog {
+        constructor {args} {
+            #...
+            button $win.barkbtn -text "Bark!" -command [mymethod bark]
+            #...
+        }
+    }
     ::dog
     %
 
@@ -1309,10 +1309,10 @@ Scalar instance variables are defined in the type definition using the
 __variable__ statement\. You can simply name it, or you can initialize it
 with a value:
 
-    snit::type mytype \{
-        \# Define variable "greeting" and initialize it with "Howdy\!"
-        variable greeting "Howdy\!"
-    \}
+    snit::type mytype {
+        # Define variable "greeting" and initialize it with "Howdy!"
+        variable greeting "Howdy!"
+    }
 
 ## <a name='subsection43'></a>How is an array instance variable defined?
 
@@ -1320,13 +1320,13 @@ Array instance variables are also defined in the type definition using the
 __variable__ command\. You can initialize them at the same time by specifying
 the __\-array__ option:
 
-    snit::type mytype \{
-        \# Define array variable "greetings"
-        variable greetings \-array \{
+    snit::type mytype {
+        # Define array variable "greetings"
+        variable greetings -array {
             formal "Good Evening"
-            casual "Howdy\!"
-        \}
-    \}
+            casual "Howdy!"
+        }
+    }
 
 ## <a name='subsection44'></a>What happens if I don't initialize an instance variable?
 
@@ -1373,25 +1373,25 @@ command might come to your rescue\.
 The second method is to declare your instance variables explicitly in your
 instance code, while *not* including them in the type definition:
 
-    snit::type dog \{
-        constructor \{\} \{
+    snit::type dog {
+        constructor {} {
             variable mood
 
             set mood happy
-        \}
+        }
 
-        method setmood \{newMood\} \{
+        method setmood {newMood} {
             variable mood
 
             set mood $newMood
-        \}
+        }
 
-        method getmood \{\} \{
+        method getmood {} {
             variable mood
 
             return $mood
-        \}
-    \}
+        }
+    }
 
 This allows you to ensure that only the required variables are included in each
 method, at the cost of longer code and run\-time errors when you forget to
@@ -1410,17 +1410,17 @@ Instead, you need to provide a fully\-qualified variable name\. From within an
 instance method or a constructor, you can fully qualify the variable's name
 using the __myvar__ command:
 
-    snit::widget mywidget \{
+    snit::widget mywidget {
         variable labeltext ""
 
-        constructor \{args\} \{
-            \# \.\.\.
+        constructor {args} {
+            # ...
 
-            label $win\.label \-textvariable \[myvar labeltext\]
+            label $win.label -textvariable [myvar labeltext]
 
-            \# \.\.\.
-        \}
-    \}
+            # ...
+        }
+    }
 
 ## <a name='subsection48'></a>How do I make an instance variable public?
 
@@ -1447,12 +1447,12 @@ Options are defined in the type definition using the __option__ statement\.
 Consider the following type, to be used in an application that manages a list of
 dogs for a pet store:
 
-    snit::type dog \{
-        option \-breed \-default mongrel
-        option \-color \-default brown
-        option \-akc   \-default 0
-        option \-shots \-default 0
-    \}
+    snit::type dog {
+        option -breed -default mongrel
+        option -color -default brown
+        option -akc   -default 0
+        option -shots -default 0
+    }
 
 According to this, a dog has four notable properties: a breed, a color, a flag
 that says whether it's pedigreed with the American Kennel Club, and another flag
@@ -1463,12 +1463,12 @@ There are a number of options you can specify when defining an option; if
 __\-default__ is the only one, you can omit the word __\-default__ as
 follows:
 
-    snit::type dog \{
-        option \-breed mongrel
-        option \-color brown
-        option \-akc   0
-        option \-shots 0
-    \}
+    snit::type dog {
+        option -breed mongrel
+        option -color brown
+        option -akc   0
+        option -shots 0
+    }
 
 If no __\-default__ value is specified, the option's default value will be
 the empty string \(but see [THE TK OPTION DATABASE](#section19)\)\.
@@ -1482,9 +1482,9 @@ their values after the object's name at object creation\. For example, the
 __::dog__ command defined in the previous answer can now be used to create
 individual dogs\. Any or all of the options may be set at creation time\.
 
-    % dog spot \-breed beagle \-color "mottled" \-akc 1 \-shots 1
+    % dog spot -breed beagle -color "mottled" -akc 1 -shots 1
     ::spot
-    % dog fido \-shots 1
+    % dog fido -shots 1
     ::fido
     %
 
@@ -1499,9 +1499,9 @@ information\.
 
 Retrieve option values using the __cget__ method:
 
-    % spot cget \-color
+    % spot cget -color
     mottled
-    % fido cget \-breed
+    % fido cget -breed
     mongrel
     %
 
@@ -1511,33 +1511,33 @@ Any number of options may be set at one time using the __configure__
 instance method\. Suppose that closer inspection shows that ::fido is not a brown
 mongrel, but rather a rare Arctic Boar Hound of a lovely dun color:
 
-    % fido configure \-color dun \-breed "Arctic Boar Hound"
-    % fido cget \-color
+    % fido configure -color dun -breed "Arctic Boar Hound"
+    % fido cget -color
     dun
-    % fido cget \-breed
+    % fido cget -breed
     Arctic Boar Hound
 
 Alternatively, the __configurelist__ method takes a list of options and
 values; occasionally this is more convenient:
 
-    % set features \[list \-color dun \-breed "Arctic Boar Hound"\]
-    \-color dun \-breed \{Arctic Boar Hound\}
+    % set features [list -color dun -breed "Arctic Boar Hound"]
+    -color dun -breed {Arctic Boar Hound}
     % fido configurelist $features
-    % fido cget \-color
+    % fido cget -color
     dun
-    % fido cget \-breed
+    % fido cget -breed
     Arctic Boar Hound
     %
 
 In Tcl 8\.5, the __\*__ keyword can be used with __configure__ in this
 case:
 
-    % set features \[list \-color dun \-breed "Arctic Boar Hound"\]
-    \-color dun \-breed \{Arctic Boar Hound\}
-    % fido configure \{\*\}$features
-    % fido cget \-color
+    % set features [list -color dun -breed "Arctic Boar Hound"]
+    -color dun -breed {Arctic Boar Hound}
+    % fido configure {*}$features
+    % fido cget -color
     dun
-    % fido cget \-breed
+    % fido cget -breed
     Arctic Boar Hound
     %
 
@@ -1548,22 +1548,22 @@ The results are the same\.
 There are two ways an instance method can set and retrieve an option's value\.
 One is to use the __configure__ and __cget__ methods, as shown below\.
 
-    % snit::type dog \{
-        option \-weight 10
+    % snit::type dog {
+        option -weight 10
 
-        method gainWeight \{\} \{
-            set wt \[$self cget \-weight\]
+        method gainWeight {} {
+            set wt [$self cget -weight]
             incr wt
-            $self configure \-weight $wt
-        \}
-    \}
+            $self configure -weight $wt
+        }
+    }
     ::dog
     % dog fido
     ::fido
-    % fido cget \-weight
+    % fido cget -weight
     10
     % fido gainWeight
-    % fido cget \-weight
+    % fido cget -weight
     11
     %
 
@@ -1571,9 +1571,9 @@ Alternatively, Snit provides a built\-in array instance variable called
 __options__\. The indices are the option names; the values are the option
 values\. The method __gainWeight__ can thus be rewritten as follows:
 
-    method gainWeight \{\} \{
-        incr options\(\-weight\)
-    \}
+    method gainWeight {} {
+        incr options(-weight)
+    }
 
 As you can see, using the __options__ variable involves considerably less
 typing and is the usual way to do it\. But if you use __\-configuremethod__ or
@@ -1594,16 +1594,16 @@ example, a dog never changes its breed; it might or might not have had its
 shots, and if not can have them at a later time\. __\-breed__ should be
 read\-only, but __\-shots__ should not be\.
 
-    % snit::type dog \{
-        option \-breed \-default mongrel \-readonly yes
-        option \-shots \-default no
-    \}
+    % snit::type dog {
+        option -breed -default mongrel -readonly yes
+        option -shots -default no
+    }
     ::dog
-    % dog fido \-breed retriever
+    % dog fido -breed retriever
     ::fido
-    % fido configure \-shots yes
-    % fido configure \-breed terrier
-    option \-breed can only be set at instance creation
+    % fido configure -shots yes
+    % fido configure -breed terrier
+    option -breed can only be set at instance creation
     %
 
 ## <a name='subsection56'></a>How can I catch accesses to an option's value?
@@ -1620,13 +1620,13 @@ it to do\.
 Here's what the default behavior would look like if written using a
 __\-cgetmethod__:
 
-    snit::type dog \{
-        option \-color \-default brown \-cgetmethod GetOption
+    snit::type dog {
+        option -color -default brown -cgetmethod GetOption
 
-        method GetOption \{option\} \{
-            return $options\($option\)
-        \}
-    \}
+        method GetOption {option} {
+            return $options($option)
+        }
+    }
 
 Any instance method can be used, provided that it takes one argument, the name
 of the option whose value is to be retrieved\.
@@ -1645,13 +1645,13 @@ database, or do anything else you'd like it to do\.
 Here's what the default configuration behavior would look like if written using
 a __\-configuremethod__:
 
-    snit::type dog \{
-        option \-color \-default brown \-configuremethod SetOption
+    snit::type dog {
+        option -color -default brown -configuremethod SetOption
 
-        method SetOption \{option value\} \{
-            set options\($option\) $value
-        \}
-    \}
+        method SetOption {option value} {
+            set options($option) $value
+        }
+    }
 
 Any instance method can be used, provided that it takes two arguments, the name
 of the option and the new value\.
@@ -1675,19 +1675,19 @@ it's called before the __\-configuremethod__, if any\.
 For example, suppose an option always takes a Boolean value\. You can ensure that
 the value is in fact a valid Boolean like this:
 
-    % snit::type dog \{
-        option \-shots \-default no \-validatemethod BooleanOption
+    % snit::type dog {
+        option -shots -default no -validatemethod BooleanOption
 
-        method BooleanOption \{option value\} \{
-            if \{\!\[string is boolean \-strict $value\]\} \{
-                error "expected a boolean value, got \\"$value\\""
-            \}
-        \}
-    \}
+        method BooleanOption {option value} {
+            if {![string is boolean -strict $value]} {
+                error "expected a boolean value, got \"$value\""
+            }
+        }
+    }
     ::dog
     % dog fido
-    % fido configure \-shots yes
-    % fido configure \-shots NotABooleanValue
+    % fido configure -shots yes
+    % fido configure -shots NotABooleanValue
     expected a boolean value, got "NotABooleanValue"
     %
 
@@ -1712,10 +1712,10 @@ Scalar type variables are defined in the type definition using the
 __typevariable__ statement\. You can simply name it, or you can initialize it
 with a value:
 
-    snit::type mytype \{
-        \# Define variable "greeting" and initialize it with "Howdy\!"
-        typevariable greeting "Howdy\!"
-    \}
+    snit::type mytype {
+        # Define variable "greeting" and initialize it with "Howdy!"
+        typevariable greeting "Howdy!"
+    }
 
 Every object of type __mytype__ now has access to a single variable called
 __greeting__\.
@@ -1725,13 +1725,13 @@ __greeting__\.
 Array\-valued type variables are also defined using the __typevariable__
 command; to initialize them, include the __\-array__ option:
 
-    snit::type mytype \{
-        \# Define typearray variable "greetings"
-        typevariable greetings \-array \{
+    snit::type mytype {
+        # Define typearray variable "greetings"
+        typevariable greetings -array {
             formal "Good Evening"
-            casual "Howdy\!"
-        \}
-    \}
+            casual "Howdy!"
+        }
+    }
 
 ## <a name='subsection65'></a>What happens if I don't initialize a type variable?
 
@@ -1768,17 +1768,17 @@ you need to provide a fully\-qualified variable name\. From within an instance
 method or a constructor, you can fully qualify the type variable's name using
 the __mytypevar__ command:
 
-    snit::widget mywidget \{
+    snit::widget mywidget {
         typevariable labeltext ""
 
-        constructor \{args\} \{
-            \# \.\.\.
+        constructor {args} {
+            # ...
 
-            label $win\.label \-textvariable \[mytypevar labeltext\]
+            label $win.label -textvariable [mytypevar labeltext]
 
-            \# \.\.\.
-        \}
-    \}
+            # ...
+        }
+    }
 
 ## <a name='subsection69'></a>How do I make a type variable public?
 
@@ -1789,9 +1789,9 @@ Type variables are stored in the type's namespace, which has the same name as
 the type itself\. Thus, you can also publicize the type variable's name in your
 documentation so that clients can access it directly\. For example,
 
-    snit::type mytype \{
+    snit::type mytype {
         typevariable myvariable
-    \}
+    }
 
     set ::mytype::myvariable "New Value"
 
@@ -1808,14 +1808,14 @@ command\.
 Type methods are defined in the type definition using the __typemethod__
 statement:
 
-    snit::type dog \{
-        \# List of pedigreed dogs
+    snit::type dog {
+        # List of pedigreed dogs
         typevariable pedigreed
 
-        typemethod pedigreedDogs \{\} \{
+        typemethod pedigreedDogs {} {
             return $pedigreed
-        \}
-    \}
+        }
+    }
 
 Suppose the __dog__ type maintains a list of the names of the dogs that have
 pedigrees\. The __pedigreedDogs__ type method returns this list\.
@@ -1831,23 +1831,23 @@ The type method name becomes a subcommand of the type's command\. For example,
 assuming that the constructor adds each pedigreed dog to the list of
 __pedigreedDogs__,
 
-    snit::type dog \{
-        option \-pedigreed 0
+    snit::type dog {
+        option -pedigreed 0
 
-        \# List of pedigreed dogs
+        # List of pedigreed dogs
         typevariable pedigreed
 
-        typemethod pedigreedDogs \{\} \{
+        typemethod pedigreedDogs {} {
             return $pedigreed
-        \}
+        }
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
-    dog spot \-pedigreed 1
+    dog spot -pedigreed 1
     dog fido
 
-    foreach dog \[dog pedigreedDogs\] \{ \.\.\. \}
+    foreach dog [dog pedigreedDogs] { ... }
 
 ## <a name='subsection73'></a>Are there any limitations on type method names?
 
@@ -1882,14 +1882,14 @@ defined for [INSTANCE METHODS](#section5)\.
 If an instance or type method needs to call a type method, it should use
 __$type__ to do so:
 
-    snit::type dog \{
+    snit::type dog {
 
-        typemethod pedigreedDogs \{\} \{ \.\.\. \}
+        typemethod pedigreedDogs {} { ... }
 
-        typemethod printPedigrees \{\} \{
-            foreach obj \[$type pedigreedDogs\] \{ \.\.\. \}
-        \}
-    \}
+        typemethod printPedigrees {} {
+            foreach obj [$type pedigreedDogs] { ... }
+        }
+    }
 
 ## <a name='subsection77'></a>How do I pass a type method as a callback?
 
@@ -1898,8 +1898,8 @@ later\. Because types cannot be renamed, you can just use the type name, or, if
 the callback is registered from within a type method, __type__\. For example,
 suppose we want to print a list of pedigreed dogs when a Tk button is pushed:
 
-    button \.btn \-text "Pedigrees" \-command \[list dog printPedigrees\]
-    pack \.btn
+    button .btn -text "Pedigrees" -command [list dog printPedigrees]
+    pack .btn
 
 Alternatively, from a method or type method you can use the __mytypemethod__
 command, just as you would use __mymethod__ to define a callback command for
@@ -1924,13 +1924,13 @@ isn't related to any particular instance\.
 Procs are defined by including a __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__
 statement in the type definition:
 
-    snit::type mytype \{
-        \# Pops and returns the first item from the list stored in the
-        \# listvar, updating the listvar
-       proc pop \{listvar\} \{ \.\.\. \}
+    snit::type mytype {
+        # Pops and returns the first item from the list stored in the
+        # listvar, updating the listvar
+       proc pop {listvar} { ... }
 
-       \# \.\.\.
-    \}
+       # ...
+    }
 
 ## <a name='subsection81'></a>Are there any limitations on proc names?
 
@@ -1950,18 +1950,18 @@ it doesn't matter much either way\.
 
 Just like it calls any Tcl command\. For example,
 
-    snit::type mytype \{
-        \# Pops and returns the first item from the list stored in the
-        \# listvar, updating the listvar
-        proc pop \{listvar\} \{ \.\.\. \}
+    snit::type mytype {
+        # Pops and returns the first item from the list stored in the
+        # listvar, updating the listvar
+        proc pop {listvar} { ... }
 
-        variable requestQueue \{\}
+        variable requestQueue {}
 
-        \# Get one request from the queue and process it\.
-        method processRequest \{\} \{
-            set req \[pop requestQueue\]
-        \}
-    \}
+        # Get one request from the queue and process it.
+        method processRequest {} {
+            set req [pop requestQueue]
+        }
+    }
 
 ## <a name='subsection83'></a>How can I pass a proc to another object as a callback?
 
@@ -1986,13 +1986,13 @@ the type definition\. For example, suppose the type uses an array\-valued type
 variable as a look\-up table, and the values in the array have to be computed at
 start\-up\.
 
-    % snit::type mytype \{
+    % snit::type mytype {
         typevariable lookupTable
 
-        typeconstructor \{
-            array set lookupTable \{key value\.\.\.\}
-        \}
-    \}
+        typeconstructor {
+            array set lookupTable {key value...}
+        }
+    }
 
 # <a name='section12'></a>CONSTRUCTORS
 
@@ -2015,25 +2015,25 @@ list can be maintained in a type variable and retrieved by a type method\.
 Whenever a dog is created, it can add itself to the list\-\-provided that it's
 registered with the American Kennel Club\.
 
-    % snit::type dog \{
-        option \-akc 0
+    % snit::type dog {
+        option -akc 0
 
-        typevariable akcList \{\}
+        typevariable akcList {}
 
-        constructor \{args\} \{
+        constructor {args} {
             $self configurelist $args
 
-            if \{$options\(\-akc\)\} \{
+            if {$options(-akc)} {
                 lappend akcList $self
-            \}
-        \}
+            }
+        }
 
-        typemethod akclist \{\} \{
+        typemethod akclist {} {
             return $akcList
-        \}
-    \}
+        }
+    }
     ::dog
-    % dog spot \-akc 1
+    % dog spot -akc 1
     ::spot
     % dog fido
     ::fido
@@ -2046,11 +2046,11 @@ registered with the American Kennel Club\.
 If you don't provide a constructor explicitly, you get the default constructor,
 which is identical to the explicitly\-defined constructor shown here:
 
-    snit::type dog \{
-        constructor \{args\} \{
+    snit::type dog {
+        constructor {args} {
             $self configurelist $args
-        \}
-    \}
+        }
+    }
 
 When the constructor is called, __args__ will be set to the list of
 arguments that follow the object's name\. The constructor is allowed to interpret
@@ -2065,21 +2065,21 @@ Yes, you can\. For example, suppose we wanted to be sure that the breed was
 explicitly stated for every dog at creation time, and couldn't be changed
 thereafter\. One way to do that is as follows:
 
-    % snit::type dog \{
+    % snit::type dog {
         variable breed
 
-        option \-color brown
-        option \-akc 0
+        option -color brown
+        option -akc 0
 
-        constructor \{theBreed args\} \{
+        constructor {theBreed args} {
             set breed $theBreed
             $self configurelist $args
-        \}
+        }
 
-        method breed \{\} \{ return $breed \}
-    \}
+        method breed {} { return $breed }
+    }
     ::dog
-    % dog spot dalmatian \-color spotted \-akc 1
+    % dog spot dalmatian -color spotted -akc 1
     ::spot
     % spot breed
     dalmatian
@@ -2120,31 +2120,31 @@ definition\.
 Suppose we're maintaining a list of pedigreed dogs; then we'll want to remove
 dogs from it when they are destroyed\.
 
-    snit::type dog \{
-        option \-akc 0
+    snit::type dog {
+        option -akc 0
 
-        typevariable akcList \{\}
+        typevariable akcList {}
 
-        constructor \{args\} \{
+        constructor {args} {
             $self configurelist $args
 
-            if \{$options\(\-akc\)\} \{
+            if {$options(-akc)} {
                 lappend akcList $self
-            \}
-        \}
+            }
+        }
 
-        destructor \{
-            set ndx \[lsearch $akcList $self\]
+        destructor {
+            set ndx [lsearch $akcList $self]
 
-            if \{$ndx \!= \-1\} \{
-                set akcList \[lreplace $akcList $ndx $ndx\]
-            \}
-        \}
+            if {$ndx != -1} {
+                set akcList [lreplace $akcList $ndx $ndx]
+            }
+        }
 
-        typemethod akclist \{\} \{
+        typemethod akclist {} {
             return $akcList
-        \}
-    \}
+        }
+    }
 
 ## <a name='subsection94'></a>Are there any limitations on destructor arguments?
 
@@ -2184,19 +2184,19 @@ creation options\-\-the destructor will be called, and there will be no
 __tail__ to destroy\. The simplest solution is generally to catch and ignore
 any errors while destroying components\.
 
-    snit::type dog \{
+    snit::type dog {
         component tail
 
-        constructor \{args\} \{
+        constructor {args} {
             $self configurelist $args
 
-            set tail \[tail %AUTO%\]
-        \}
+            set tail [tail %AUTO%]
+        }
 
-        destructor \{
-            catch \{$tail destroy\}
-        \}
-    \}
+        destructor {
+            catch {$tail destroy}
+        }
+    }
 
 # <a name='section14'></a>COMPONENTS
 
@@ -2223,19 +2223,19 @@ the component is created\.
 For example, suppose your __dog__ object creates a __tail__ object \(the
 better to wag with, no doubt\):
 
-    snit::type dog \{
+    snit::type dog {
         component mytail
 
-        constructor \{args\} \{
-            \# Create and save the component's command
-            set mytail \[tail %AUTO% \-partof $self\]
+        constructor {args} {
+            # Create and save the component's command
+            set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
-        \}
+        }
 
-        method wag \{\} \{
+        method wag {} {
             $mytail wag
-        \}
-    \}
+        }
+    }
 
 As shown here, it doesn't matter what the __tail__ object's real name is;
 the __dog__ object refers to it by its component name\.
@@ -2275,42 +2275,42 @@ methods or options\. Under this definition, our object will usually create its
 component objects, but not necessarily\. Consider the following: a dog object has
 a tail component; but tail knows that it's part of the dog:
 
-    snit::type dog \{
+    snit::type dog {
         component mytail
 
-        constructor \{args\} \{
-            set mytail \[tail %AUTO% \-partof $self\]
+        constructor {args} {
+            set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
-        \}
+        }
 
-        destructor \{
-            catch \{$mytail destroy\}
-        \}
+        destructor {
+            catch {$mytail destroy}
+        }
 
         delegate method wagtail to mytail as wag
 
-        method bark \{\} \{
-            return "$self barked\."
-        \}
-    \}
+        method bark {} {
+            return "$self barked."
+        }
+    }
 
-     snit::type tail \{
+     snit::type tail {
          component mydog
-         option \-partof \-readonly yes
+         option -partof -readonly yes
 
-         constructor \{args\} \{
+         constructor {args} {
              $self configurelist $args
-             set mydog $options\(\-partof\)
-         \}
+             set mydog $options(-partof)
+         }
 
-         method wag \{\} \{
-             return "Wag, wag\."
-         \}
+         method wag {} {
+             return "Wag, wag."
+         }
 
-         method pull \{\} \{
+         method pull {} {
              $mydog bark
-         \}
-     \}
+         }
+     }
 
 Thus, if you ask a dog to wag its tail, it tells its tail to wag; and if you
 pull the dog's tail, the tail tells the dog to bark\. In this scenario, the tail
@@ -2323,15 +2323,15 @@ The __install__ command creates an owned component using a specified
 command, and assigns the result to the component's instance variable\. For
 example:
 
-    snit::type dog \{
+    snit::type dog {
         component mytail
 
-        constructor \{args\} \{
-            \# set mytail \[tail %AUTO% \-partof $self\]
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            # set mytail [tail %AUTO% -partof $self]
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
-    \}
+        }
+    }
 
 In a __snit::type__'s code, the __install__ command shown above is
 equivalent to the __set mytail__ command that's commented out\. In a
@@ -2360,15 +2360,15 @@ Next, the object names of components and owned by your object must be unique\.
 This is no problem for widget components, since widget names are always unique;
 but consider the following code:
 
-    snit::type tail \{ \.\.\. \}
+    snit::type tail { ... }
 
-    snit::type dog \{
+    snit::type dog {
         delegate method wag to mytail
 
-        constructor \{\} \{
+        constructor {} {
             install mytail using tail mytail
-        \}
-    \}
+        }
+    }
 
 This code uses the component name, __mytail__, as the component object name\.
 This is not good, and here's why: Snit instance code executes in the Snit type's
@@ -2389,7 +2389,7 @@ safest thing to do:
 If the component type isn't a __snit::type__ you can create the component in
 the object's instance namespace:
 
-    install mytail using tail $\{selfns\}::mytail
+    install mytail using tail ${selfns}::mytail
 
 Make sure you pick a unique name within the instance namespace\.
 
@@ -2426,16 +2426,16 @@ For example, supposed you've written a combobox megawidget which owns a listbox
 widget, and you want to make the listbox's entire interface public\. You can do
 it like this:
 
-    snit::widget combobox \{
-         component listbox \-public listbox
+    snit::widget combobox {
+         component listbox -public listbox
 
-         constructor \{args\} \{
-             install listbox using listbox $win\.listbox \.\.\.\.
-         \}
-    \}
+         constructor {args} {
+             install listbox using listbox $win.listbox ....
+         }
+    }
 
-    combobox \.mycombo
-    \.mycombo listbox configure \-width 30
+    combobox .mycombo
+    .mycombo listbox configure -width 30
 
 Your comobox widget, __\.mycombo__, now has a __listbox__ method which
 has all of the same subcommands as the listbox widget itself\. Thus, the above
@@ -2468,13 +2468,13 @@ command\.
 Suppose in your model you've got many dogs, but only one veterinarian\. You might
 make the veterinarian a type component\.
 
-    snit::type veterinarian \{ \.\.\. \}
+    snit::type veterinarian { ... }
 
-    snit::type dog \{
+    snit::type dog {
         typecomponent vet
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 ## <a name='subsection111'></a>How do I install a type component?
 
@@ -2485,15 +2485,15 @@ extra features of the __install__ command are not needed\.
 
 You'll usually install type components in the type constructor, as shown here:
 
-    snit::type veterinarian \{ \.\.\. \}
+    snit::type veterinarian { ... }
 
-    snit::type dog \{
+    snit::type dog {
         typecomponent vet
 
-        typeconstructor \{
-            set vet \[veterinarian %AUTO%\]
-        \}
-    \}
+        typeconstructor {
+            set vet [veterinarian %AUTO%]
+        }
+    }
 
 ## <a name='subsection112'></a>Are there any limitations on type component names?
 
@@ -2510,29 +2510,29 @@ thing\. The following example shows one way in which the __dog__ object can
 delegate its __wag__ method and its __\-taillength__ option to its
 __tail__ component\.
 
-    snit::type dog \{
+    snit::type dog {
         variable mytail
 
-        option \-taillength \-configuremethod SetTailOption \-cgetmethod GetTailOption
+        option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
 
-        method SetTailOption \{option value\} \{
+        method SetTailOption {option value} {
              $mytail configure $option $value
-        \}
+        }
 
-        method GetTailOption \{option\} \{
+        method GetTailOption {option} {
              $mytail cget $option
-        \}
+        }
 
-        method wag \{\} \{
+        method wag {} {
             $mytail wag
-        \}
+        }
 
-        constructor \{args\} \{
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
+        }
 
-    \}
+    }
 
 This is the hard way to do it, by it demonstrates what delegation is all about\.
 See the following answers for the easy way to do it\.
@@ -2553,22 +2553,22 @@ information about component names\.\)
 For example, here's a much better way to delegate the __dog__ object's
 __wag__ method:
 
-    % snit::type dog \{
+    % snit::type dog {
         delegate method wag to mytail
 
-        constructor \{\} \{
+        constructor {} {
             install mytail using tail %AUTO%
-        \}
-    \}
+        }
+    }
     ::dog
-    % snit::type tail \{
-        method wag \{\} \{ return "Wag, wag, wag\."\}
-    \}
+    % snit::type tail {
+        method wag {} { return "Wag, wag, wag."}
+    }
     ::tail
     % dog spot
     ::spot
     % spot wag
-    Wag, wag, wag\.
+    Wag, wag, wag.
 
 This code has the same effect as the code shown under the previous question:
 when a __dog__'s __wag__ method is called, the call and its arguments
@@ -2588,14 +2588,14 @@ Suppose you wanted to delegate the __dog__'s __wagtail__ method to the
 __tail__'s __wag__ method\. After all you wag the tail, not the dog\. It's
 easily done:
 
-    snit::type dog \{
+    snit::type dog {
         delegate method wagtail to mytail as wag
 
-        constructor \{args\} \{
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
-    \}
+        }
+    }
 
 ## <a name='subsection116'></a>Can I delegate to a method with additional arguments?
 
@@ -2604,17 +2604,17 @@ times the tail should be wagged\. You want to delegate the __dog__'s
 __wagtail__ method to the __tail__'s __wag__ method, specifying that
 the tail should be wagged exactly three times\. This is easily done, too:
 
-    snit::type dog \{
-        delegate method wagtail to mytail as \{wag 3\}
-        \# \.\.\.
-    \}
+    snit::type dog {
+        delegate method wagtail to mytail as {wag 3}
+        # ...
+    }
 
-    snit::type tail \{
-        method wag \{count\} \{
-            return \[string repeat "Wag " $count\]
-        \}
-        \# \.\.\.
-    \}
+    snit::type tail {
+        method wag {count} {
+            return [string repeat "Wag " $count]
+        }
+        # ...
+    }
 
 ## <a name='subsection117'></a>Can I delegate a method to something other than an object?
 
@@ -2632,9 +2632,9 @@ For example, __saverec__ saves a record\. If you let the record ID be the
 name of the dog object, you can delegate the dog's __save__ method to the
 __saverec__ command as follows:
 
-    snit::type dog \{
-        delegate method save using \{saverec %s\}
-    \}
+    snit::type dog {
+        delegate method save using {saverec %s}
+    }
 
 The __%s__ is replaced with the instance name when the __save__ method
 is called; any additional arguments are the appended to the resulting command\.
@@ -2670,23 +2670,23 @@ that Snit makes it easy\. For example, every __tail__ object has a
 __\-length__ option; we want to allow the creator of a __dog__ object to
 set the tail's length\. We can do this:
 
-    % snit::type dog \{
-        delegate option \-length to mytail
+    % snit::type dog {
+        delegate option -length to mytail
 
-        constructor \{args\} \{
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
-    \}
+        }
+    }
     ::dog
-    % snit::type tail \{
-        option \-partof
-        option \-length 5
-    \}
+    % snit::type tail {
+        option -partof
+        option -length 5
+    }
     ::tail
-    % dog spot \-length 7
+    % dog spot -length 7
     ::spot
-    % spot cget \-length
+    % spot cget -length
     7
 
 This produces nearly the same result as the __\-configuremethod__ and
@@ -2705,14 +2705,14 @@ the tail has a length, and they are different\. What we'd really like to do is
 give the __dog__ a __\-taillength__ option, but delegate it to the
 __tail__'s __\-length__ option:
 
-    snit::type dog \{
-        delegate option \-taillength to mytail as \-length
+    snit::type dog {
+        delegate option -taillength to mytail as -length
 
-        constructor \{args\} \{
-            set mytail \[tail %AUTO% \-partof $self\]
+        constructor {args} {
+            set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
-        \}
-    \}
+        }
+    }
 
 ## <a name='subsection122'></a>How can I delegate any unrecognized method or option to a component object?
 
@@ -2726,21 +2726,21 @@ objects to inherit these same behaviors, while adding dog\-like behaviors of its
 own\. Here's how we can give a __dog__ methods and options of its own while
 delegating all other methods and options to its __animal__ component:
 
-    snit::type dog \{
-        delegate option \* to animal
-        delegate method \* to animal
+    snit::type dog {
+        delegate option * to animal
+        delegate method * to animal
 
-        option \-akc 0
+        option -akc 0
 
-        constructor \{args\} \{
-            install animal using animal %AUTO% \-name $self
+        constructor {args} {
+            install animal using animal %AUTO% -name $self
             $self configurelist $args
-        \}
+        }
 
-        method wag \{\} \{
+        method wag {} {
             return "$self wags its tail"
-        \}
-    \}
+        }
+    }
 
 That's it\. A __dog__ is now an __animal__ that has a __\-akc__ option
 and can __wag__ its tail\.
@@ -2764,19 +2764,19 @@ One solution is to explicitly delegate all the options and methods, and forgo
 the convenience of __delegate method \*__ and __delegate option \*__\. But
 if we wish to suppress only a few options or methods, there's an easier way:
 
-    snit::type dog \{
-        delegate option \* to animal except \-numlegs
-        delegate method \* to animal except \{fly climb\}
+    snit::type dog {
+        delegate option * to animal except -numlegs
+        delegate method * to animal except {fly climb}
 
-        \# \.\.\.
+        # ...
 
-        constructor \{args\} \{
-            install animal using animal %AUTO% \-name $self \-numlegs 4
+        constructor {args} {
+            install animal using animal %AUTO% -name $self -numlegs 4
             $self configurelist $args
-        \}
+        }
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 Dogs have four legs, so we specify that explicitly when we create the
 __animal__ component, and explicitly exclude __\-numlegs__ from the set
@@ -2787,33 +2787,33 @@ so we exclude those __animal__ methods as shown\.
 
 Yes; just specify multiple words in the delegated method's name:
 
-    snit::type tail \{
-        method wag \{\} \{return "Wag, wag"\}
-        method droop \{\} \{return "Droop, droop"\}
-    \}
+    snit::type tail {
+        method wag {} {return "Wag, wag"}
+        method droop {} {return "Droop, droop"}
+    }
 
-    snit::type dog \{
-        delegate method \{tail wag\} to mytail
-        delegate method \{tail droop\} to mytail
+    snit::type dog {
+        delegate method {tail wag} to mytail
+        delegate method {tail droop} to mytail
 
-        \# \.\.\.
+        # ...
 
-        constructor \{args\} \{
+        constructor {args} {
             install mytail using tail %AUTO%
             $self configurelist $args
-        \}
+        }
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 Unrecognized hierarchical methods can also be delegated; the following code
 delegates all subcommands of the "tail" method to the "mytail" component:
 
-    snit::type dog \{
-        delegate method \{tail \*\} to mytail
+    snit::type dog {
+        delegate method {tail *} to mytail
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 # <a name='section17'></a>WIDGETS
 
@@ -2877,11 +2877,11 @@ Tk widget that defines the __\-class__ option\. You can explicitly choose the
 hull type you prefer by including the __hulltype__ command in the widget
 definition:
 
-    snit::widget mytoplevel \{
+    snit::widget mytoplevel {
         hulltype toplevel
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 If no __hulltype__ command appears, the hull will be a
 __[frame](\.\./\.\./\.\./\.\./index\.md\#frame)__\.
@@ -2897,11 +2897,11 @@ type called a __prettyframe__:
 
     lappend snit::hulltypes prettyframe
 
-    snit::widget mywidget \{
+    snit::widget mywidget {
         hulltype prettyframe
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 ## <a name='subsection130'></a>How should I name widgets which are components of a snit::widget?
 
@@ -2917,19 +2917,19 @@ should be named using __win__ as the root\.
 Thus, suppose you're writing a toolbar widget, a frame consisting of a number of
 buttons placed side\-by\-side\. It might look something like this:
 
-    snit::widget toolbar \{
-        delegate option \* to hull
+    snit::widget toolbar {
+        delegate option * to hull
 
-        constructor \{args\} \{
-            button $win\.open \-text Open \-command \[mymethod open\]
-            button $win\.save \-text Save \-command \[mymethod save\]
+        constructor {args} {
+            button $win.open -text Open -command [mymethod open]
+            button $win.save -text Save -command [mymethod save]
 
-            \# \.\.\.\.
+            # ....
 
             $self configurelist $args
 
-        \}
-    \}
+        }
+    }
 
 See also the question on renaming objects, toward the top of this file\.
 
@@ -2959,31 +2959,31 @@ the hull component as __insert__ and __delete__\. Thus, we've adapted the
 text widget and given it new behavior while still leaving it fundamentally a
 text widget\.
 
-    ::snit::widgetadaptor rotext \{
+    ::snit::widgetadaptor rotext {
 
-        constructor \{args\} \{
-            \# Create the text widget; turn off its insert cursor
-            installhull using text \-insertwidth 0
+        constructor {args} {
+            # Create the text widget; turn off its insert cursor
+            installhull using text -insertwidth 0
 
-            \# Apply any options passed at creation time\.
+            # Apply any options passed at creation time.
             $self configurelist $args
-        \}
+        }
 
-        \# Disable the text widget's insert and delete methods, to
-        \# make this readonly\.
-        method insert \{args\} \{\}
-        method delete \{args\} \{\}
+        # Disable the text widget's insert and delete methods, to
+        # make this readonly.
+        method insert {args} {}
+        method delete {args} {}
 
-        \# Enable ins and del as synonyms, so the program can insert and
-        \# delete\.
+        # Enable ins and del as synonyms, so the program can insert and
+        # delete.
         delegate method ins to hull as insert
         delegate method del to hull as delete
 
-        \# Pass all other methods and options to the real text widget, so
-        \# that the remaining behavior is as expected\.
-        delegate method \* to hull
-        delegate option \* to hull
-    \}
+        # Pass all other methods and options to the real text widget, so
+        # that the remaining behavior is as expected.
+        delegate method * to hull
+        delegate option * to hull
+    }
 
 The most important part is in the constructor\. Whereas __snit::widget__
 creates the hull for you, __snit::widgetadaptor__ cannot \-\- it doesn't know
@@ -3012,14 +3012,14 @@ In a case like this, the Tk widget will already exist when the
 __snit::widgetadaptor__ is created\. Snit provides an alternate form of the
 __installhull__ command for this purpose:
 
-    snit::widgetadaptor pageadaptor \{
-        constructor \{args\} \{
-            \# The widget already exists; just install it\.
+    snit::widgetadaptor pageadaptor {
+        constructor {args} {
+            # The widget already exists; just install it.
             installhull $win
 
-            \# \.\.\.
-        \}
-    \}
+            # ...
+        }
+    }
 
 ## <a name='subsection134'></a>Can I adapt another megawidget?
 
@@ -3093,18 +3093,18 @@ Similarly, the widget class of a __snit::widget__ defaults to the
 unqualified type name with the first letter capitalized\. For example, the widget
 class of
 
-    snit::widget ::mylibrary::scrolledText \{ \.\.\. \}
+    snit::widget ::mylibrary::scrolledText { ... }
 
 is __ScrolledText__\.
 
 The widget class can also be set explicitly using the __widgetclass__
 statement within the __snit::widget__ definition:
 
-    snit::widget ::mylibrary::scrolledText \{
+    snit::widget ::mylibrary::scrolledText {
         widgetclass Text
 
-        \# \.\.\.
-    \}
+        # ...
+    }
 
 The above definition says that a __scrolledText__ megawidget has the same
 widget class as an ordinary __[text](\.\./\.\./\.\./\.\./index\.md\#text)__
@@ -3138,10 +3138,10 @@ class name is usually just the resource name with an initial capital, but not
 always\. For example, here are the option, resource, and class names for several
 Tk __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ widget options:
 
-    \-background         background         Background
-    \-borderwidth        borderWidth        BorderWidth
-    \-insertborderwidth  insertBorderWidth  BorderWidth
-    \-padx               padX               Pad
+    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 
 As is easily seen, sometimes the resource and class names can be inferred from
 the option name, but not always\.
@@ -3153,21 +3153,21 @@ the resource and class names will be exactly those defined by the component\. Th
 __configure__ method returns these names, along with the option's default
 and current values:
 
-    % snit::widget mytext \{
-        delegate option \* to text
+    % snit::widget mytext {
+        delegate option * to text
 
-        constructor \{args\} \{
-            install text using text \.text
-            \# \.\.\.
-        \}
+        constructor {args} {
+            install text using text .text
+            # ...
+        }
 
-        \# \.\.\.
-    \}
+        # ...
+    }
     ::mytext
-    % mytext \.text
-    \.text
-    % \.text configure \-padx
-    \-padx padX Pad 1 1
+    % mytext .text
+    .text
+    % .text configure -padx
+    -padx padX Pad 1 1
     %
 
 For all other options \(whether locally defined or explicitly delegated\), the
@@ -3178,26 +3178,26 @@ By default, the resource name is just the option name minus the hyphen; the the
 class name is just the option name with an initial capital letter\. For example,
 suppose we explicitly delegate "\-padx":
 
-    % snit::widget mytext \{
-        option \-myvalue 5
+    % snit::widget mytext {
+        option -myvalue 5
 
-        delegate option \-padx to text
-        delegate option \* to text
+        delegate option -padx to text
+        delegate option * to text
 
-        constructor \{args\} \{
-            install text using text \.text
-            \# \.\.\.
-        \}
+        constructor {args} {
+            install text using text .text
+            # ...
+        }
 
-        \# \.\.\.
-    \}
+        # ...
+    }
     ::mytext
-    % mytext \.text
-    \.text
-    % \.text configure \-myvalue
-    \-myvalue myvalue Myvalue 5 5
-    % \.text configure \-padx
-    \-padx padx Padx 1 1
+    % mytext .text
+    .text
+    % .text configure -myvalue
+    -myvalue myvalue Myvalue 5 5
+    % .text configure -padx
+    -padx padx Padx 1 1
     %
 
 Here the resource and class names are chosen using the default rules\. Often
@@ -3205,16 +3205,16 @@ these rules are sufficient, but in the case of "\-padx" we'd most likely prefer
 that the option's resource and class names are the same as for the built\-in Tk
 widgets\. This is easily done:
 
-    % snit::widget mytext \{
-        delegate option \{\-padx padX Pad\} to text
+    % snit::widget mytext {
+        delegate option {-padx padX Pad} to text
 
-        \# \.\.\.
-    \}
+        # ...
+    }
     ::mytext
-    % mytext \.text
-    \.text
-    % \.text configure \-padx
-    \-padx padX Pad 1 1
+    % mytext .text
+    .text
+    % .text configure -padx
+    -padx padX Pad 1 1
     %
 
 ## <a name='subsection141'></a>How does Snit initialize my megawidget's locally\-defined options?
@@ -3224,14 +3224,14 @@ options, using the option's resource and class name\. If the result isn't "",
 then it replaces the default value given in widget definition\. In either case,
 the default can be overridden by the caller\. For example,
 
-    option add \*Mywidget\.texture pebbled
+    option add *Mywidget.texture pebbled
 
-    snit::widget mywidget \{
-        option \-texture smooth
-        \# \.\.\.
-    \}
+    snit::widget mywidget {
+        option -texture smooth
+        # ...
+    }
 
-    mywidget \.mywidget \-texture greasy
+    mywidget .mywidget -texture greasy
 
 Here, __\-texture__ would normally default to "smooth", but because of the
 entry added to the option database it defaults to "pebbled"\. However, the caller
@@ -3249,24 +3249,24 @@ it is expected to query the option database for itself\. The only exception
 concerns options that are delegated to it with a different name\. Consider the
 following code:
 
-    option add \*Mywidget\.borderWidth 5
-    option add \*Mywidget\.relief sunken
-    option add \*Mywidget\.hullbackground red
-    option add \*Mywidget\.background green
+    option add *Mywidget.borderWidth 5
+    option add *Mywidget.relief sunken
+    option add *Mywidget.hullbackground red
+    option add *Mywidget.background green
 
-    snit::widget mywidget \{
-        delegate option \-borderwidth to hull
-        delegate option \-hullbackground to hull as \-background
-        delegate option \* to hull
-        \# \.\.\.
-    \}
+    snit::widget mywidget {
+        delegate option -borderwidth to hull
+        delegate option -hullbackground to hull as -background
+        delegate option * to hull
+        # ...
+    }
 
-    mywidget \.mywidget
+    mywidget .mywidget
 
-    set A \[\.mywidget cget \-relief\]
-    set B \[\.mywidget cget \-hullbackground\]
-    set C \[\.mywidget cget \-background\]
-    set D \[\.mywidget cget \-borderwidth\]
+    set A [.mywidget cget -relief]
+    set B [.mywidget cget -hullbackground]
+    set C [.mywidget cget -background]
+    set D [.mywidget cget -borderwidth]
 
 The question is, what are the values of variables A, B, C and D?
 
@@ -3297,27 +3297,27 @@ assumes that the correct thing has happened, and doesn't worry about it any
 further\. To avoid confusion, the __\-borderwidth__ option should have been
 delegated like this:
 
-    delegate option \{\-borderwidth borderWidth BorderWidth\} to hull
+    delegate option {-borderwidth borderWidth BorderWidth} to hull
 
 For __snit::widgetadaptor__s, the case is somewhat altered\. Widget adaptors
 retain the widget class of their hull, and the hull is not created automatically
 by Snit\. Instead, the __snit::widgetadaptor__ must call __installhull__
 in its constructor\. The normal way to do this is as follows:
 
-    snit::widgetadaptor mywidget \{
-        \# \.\.\.
-        constructor \{args\} \{
-            \# \.\.\.
-            installhull using text \-foreground white
-            \# \.\.\.
-        \}
-        \# \.\.\.
-    \}
+    snit::widgetadaptor mywidget {
+        # ...
+        constructor {args} {
+            # ...
+            installhull using text -foreground white
+            # ...
+        }
+        # ...
+    }
 
 In this case, the __installhull__ command will create the hull using a
 command like this:
 
-    set hull \[text $win \-foreground white\]
+    set hull [text $win -foreground white]
 
 The hull is a __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ widget, so its
 widget class is __Text__\. Just as with __snit::widget__ hulls, Snit
@@ -3328,7 +3328,7 @@ from the option database in the same way as described above\.
 In earlier versions of Snit, __snit::widgetadaptor__s were expected to call
 __installhull__ like this:
 
-    installhull \[text $win \-foreground white\]
+    installhull [text $win -foreground white]
 
 This form still works\-\-but Snit will not query the option database as described
 above\.
@@ -3353,24 +3353,24 @@ Before option database support was added to Snit, the usual way to create a
 component was to simply create it in the constructor and assign its command name
 to the component variable:
 
-    snit::widget mywidget \{
-        delegate option \-background to myComp
+    snit::widget mywidget {
+        delegate option -background to myComp
 
-        constructor \{args\} \{
-            set myComp \[text $win\.text \-foreground black\]
-        \}
-    \}
+        constructor {args} {
+            set myComp [text $win.text -foreground black]
+        }
+    }
 
 The drawback of this method is that Snit has no opportunity to initialize the
 component properly\. Hence, the following approach is now used:
 
-    snit::widget mywidget \{
-        delegate option \-background to myComp
+    snit::widget mywidget {
+        delegate option -background to myComp
 
-        constructor \{args\} \{
-            install myComp using text $win\.text \-foreground black
-        \}
-    \}
+        constructor {args} {
+            install myComp using text $win.text -foreground black
+        }
+    }
 
 The __install__ command does the following:
 
@@ -3433,13 +3433,13 @@ For example, the following code uses [DELEGATION](#section16) to create a
 work\-alike for the standard __[string](\.\./\.\./\.\./\.\./index\.md\#string)__
 command:
 
-    snit::type ::mynamespace::mystringtype \{
-        delegate method \* to stringhandler
+    snit::type ::mynamespace::mystringtype {
+        delegate method * to stringhandler
 
-        constructor \{\} \{
+        constructor {} {
             set stringhandler string
-        \}
-    \}
+        }
+    }
 
     ::mynamespace::mystringtype mystring
 
@@ -3459,13 +3459,13 @@ For example, the following code uses [DELEGATION](#section16) to create a
 work\-alike for the standard __[string](\.\./\.\./\.\./\.\./index\.md\#string)__
 command:
 
-    snit::type mystring \{
-        delegate typemethod \* to stringhandler
+    snit::type mystring {
+        delegate typemethod * to stringhandler
 
-        typeconstructor \{
+        typeconstructor {
             set stringhandler string
-        \}
-    \}
+        }
+    }
 
 Now the type command itself is your ensemble command\.
 
@@ -3479,17 +3479,17 @@ what's wanted\. This is very bad\.
 
 The work around is to set some [PRAGMAS](#section21), as shown here:
 
-    snit::type mystring \{
-        pragma \-hastypeinfo    no
-        pragma \-hastypedestroy no
-        pragma \-hasinstances   no
+    snit::type mystring {
+        pragma -hastypeinfo    no
+        pragma -hastypedestroy no
+        pragma -hasinstances   no
 
-        delegate typemethod \* to stringhandler
+        delegate typemethod * to stringhandler
 
-        typeconstructor \{
+        typeconstructor {
             set stringhandler string
-        \}
-    \}
+        }
+    }
 
 Here we've used the __pragma__ statement to tell Snit that we don't want the
 __info__ typemethod or the __destroy__ typemethod, and that our type has
@@ -3513,10 +3513,10 @@ time you use the __pragma__ statement you can set one or more of them\.
 
 Set the __\-hastypeinfo__ pragma to __no__:
 
-    snit::type dog \{
-        pragma \-hastypeinfo no
-        \# \.\.\.
-    \}
+    snit::type dog {
+        pragma -hastypeinfo no
+        # ...
+    }
 
 Snit will refrain from defining the __info__ type method\.
 
@@ -3524,10 +3524,10 @@ Snit will refrain from defining the __info__ type method\.
 
 Set the __\-hastypedestroy__ pragma to __no__:
 
-    snit::type dog \{
-        pragma \-hastypedestroy no
-        \# \.\.\.
-    \}
+    snit::type dog {
+        pragma -hastypedestroy no
+        # ...
+    }
 
 Snit will refrain from defining the __destroy__ type method\.
 
@@ -3535,10 +3535,10 @@ Snit will refrain from defining the __destroy__ type method\.
 
 Set the __\-hasinstances__ pragma to __no__:
 
-    snit::type dog \{
-        pragma \-hasinstances no
-        \# \.\.\.
-    \}
+    snit::type dog {
+        pragma -hasinstances no
+        # ...
+    }
 
 Snit will refrain from defining the __create__ type method; if you call the
 type command with an unknown method name, you'll get an error instead of a new
@@ -3557,15 +3557,15 @@ widgets\-\-in Snit terms, the type command calls the __create__ type method
 directly\. To get the same behavior from Snit, set the __\-hastypemethods__
 pragma to __no__:
 
-    snit::type dog \{
-        pragma \-hastypemethods no
-        \#\.\.\.
-    \}
+    snit::type dog {
+        pragma -hastypemethods no
+        #...
+    }
 
-    \# Creates ::spot
+    # Creates ::spot
     dog spot
 
-    \# Tries to create an instance called ::create
+    # Tries to create an instance called ::create
     dog create spot
 
 Pragmas __\-hastypemethods__ and __\-hasinstances__ cannot both be false
@@ -3577,7 +3577,7 @@ Up until Snit 0\.95, you could use any name for an instance of a
 __snit::type__, even if the name was already in use by some other object or
 command\. You could do the following, for example:
 
-    snit::type dog \{ \.\.\. \}
+    snit::type dog { ... }
 
     dog proc
 
@@ -3586,10 +3586,10 @@ really wanted to do\. As a result, Snit now throws an error if your chosen
 instance name names an existing command\. To restore the old behavior, set the
 __\-canreplace__ pragma to __yes__:
 
-    snit::type dog \{
-        pragma \-canreplace yes
-        \# \.\.\.
-    \}
+    snit::type dog {
+        pragma -canreplace yes
+        # ...
+    }
 
 ## <a name='subsection157'></a>How can I make my simple type run faster?
 
@@ -3634,26 +3634,26 @@ not?
 It's easily done\. Outside of any type definition, define a macro that returns 1
 if the extension is available, and 0 otherwise:
 
-    if \{$gotFastExtension\} \{
-        snit::macro fastcode \{\} \{return 1\}
-    \} else \{
-        snit::macro fastcode \{\} \{return 0\}
-    \}
+    if {$gotFastExtension} {
+        snit::macro fastcode {} {return 1}
+    } else {
+        snit::macro fastcode {} {return 0}
+    }
 
 Then, use your macro in your type definition:
 
-    snit::type dog \{
+    snit::type dog {
 
-        if \{\[fastcode\]\} \{
-            \# Fast methods
-            method bark \{\} \{\.\.\.\}
-            method wagtail \{\} \{\.\.\.\}
-        \} else \{
-            \# Slow methods
-            method bark \{\} \{\.\.\.\}
-            method wagtail \{\} \{\.\.\.\}
-        \}
-    \}
+        if {[fastcode]} {
+            # Fast methods
+            method bark {} {...}
+            method wagtail {} {...}
+        } else {
+            # Slow methods
+            method bark {} {...}
+            method wagtail {} {...}
+        }
+    }
 
 ## <a name='subsection161'></a>How do I define new type definition syntax?
 
@@ -3661,40 +3661,40 @@ Use a macro\. For example, your __snit::widget__'s __\-background__ option
 should be propagated to a number of component widgets\. You could implement that
 like this:
 
-    snit::widget mywidget \{
-        option \-background \-default white \-configuremethod PropagateBackground
+    snit::widget mywidget {
+        option -background -default white -configuremethod PropagateBackground
 
-        method PropagateBackground \{option value\} \{
+        method PropagateBackground {option value} {
             $comp1 configure $option $value
             $comp2 configure $option $value
             $comp3 configure $option $value
-        \}
-    \}
+        }
+    }
 
 For one option, this is fine; if you've got a number of options, it becomes
 tedious and error prone\. So package it as a macro:
 
-    snit::macro propagate \{option "to" components\} \{
-        option $option \-configuremethod Propagate$option
+    snit::macro propagate {option "to" components} {
+        option $option -configuremethod Propagate$option
 
-        set body "\\n"
+        set body "\n"
 
-        foreach comp $components \{
-            append body "\\$$comp configure $option \\$value\\n"
-        \}
+        foreach comp $components {
+            append body "\$$comp configure $option \$value\n"
+        }
 
-        method Propagate$option \{option value\} $body
-    \}
+        method Propagate$option {option value} $body
+    }
 
 Then you can use it like this:
 
-    snit::widget mywidget \{
-        option \-background default \-white
-        option \-foreground default \-black
+    snit::widget mywidget {
+        option -background default -white
+        option -foreground default -black
 
-        propagate \-background to \{comp1 comp2 comp3\}
-        propagate \-foreground to \{comp1 comp2 comp3\}
-    \}
+        propagate -background to {comp1 comp2 comp3}
+        propagate -foreground to {comp1 comp2 comp3}
+    }
 
 ## <a name='subsection162'></a>Are there are restrictions on macro names?
 
@@ -3712,15 +3712,15 @@ If my fancy __snit::widget__ is called __::mylib::mywidget__, for
 example, then I should define my __propagate__ macro as
 __::mylib::propagate__:
 
-    snit::macro mylib::propagate \{option "to" components\} \{ \.\.\. \}
+    snit::macro mylib::propagate {option "to" components} { ... }
 
-    snit::widget ::mylib::mywidget \{
-        option \-background default \-white
-        option \-foreground default \-black
+    snit::widget ::mylib::mywidget {
+        option -background default -white
+        option -foreground default -black
 
-        mylib::propagate \-background to \{comp1 comp2 comp3\}
-        mylib::propagate \-foreground to \{comp1 comp2 comp3\}
-    \}
+        mylib::propagate -background to {comp1 comp2 comp3}
+        mylib::propagate -foreground to {comp1 comp2 comp3}
+    }
 
 # <a name='section23'></a>Bugs, Ideas, Feedback
 

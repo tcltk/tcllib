@@ -62,7 +62,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
 
     If you use
 
-        __::mkzip::mkzip__ mystuff\.tm \-zipkit \-directory mystuff\.vfs
+        __::mkzip::mkzip__ mystuff.tm -zipkit -directory mystuff.vfs
 
     it will pack your "mystuff\.vfs/" virtual filesystem tree into a zip archive
     with a suitable header such that on unix you may mark it executable and it
@@ -73,7 +73,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
     where preface is a file containing code you want prefixed\. For instance, on
     Windows you can create a self\-extracting zip archive using
 
-        mkzip mystuff\.exe \-directory mystuff\.vfs \-runtime unzipsfx\.exe
+        mkzip mystuff.exe -directory mystuff.vfs -runtime unzipsfx.exe
 
     The "unzipsfx\.exe" is the Info\-Zip self\-extracting stub\.
 
@@ -105,7 +105,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
         least one of the patterns are not placed into the generated archive\.
         This option defaults to
 
-            CVS/\* \*/CVS/\* \*~ "\.\#\*" "\*/\.\#\*"
+            CVS/* */CVS/* *~ ".#*" "*/.#*"
 
       * __\-\-__
 

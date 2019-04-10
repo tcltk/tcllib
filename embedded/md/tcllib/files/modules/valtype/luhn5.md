@@ -60,8 +60,8 @@ validation\. This method must take a single argument, the value to be validated;
 further, it must do nothing if the value is valid, but throw an error if the
 value is invalid:
 
-    valtype::luhn5 validate \.\.\.\. ;\# Does nothing
-    valtype::luhn5 validate \.\.\.\. ;\# Throws an error \(bad luhn5 checkdigit\)\.
+    valtype::luhn5 validate .... ;# Does nothing
+    valtype::luhn5 validate .... ;# Throws an error (bad luhn5 checkdigit).
 
 The __validate__ method will always return the validated value on success,
 and throw the __\-errorcode__ INVALID on error, possibly with additional

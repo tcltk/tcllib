@@ -78,7 +78,7 @@ transformations not in conflict with the base definition\.
         C is not,
 
         so A now loses the node in the expression for C calling it,
-        or rather, not calling it anymore\.
+        or rather, not calling it anymore.
 
     This command updates the cross\-references and which nonterminals are now
     undefined\.

@@ -80,17 +80,17 @@ etc\.
 
     Example
 
-        oo::class create ActiveRecord \{
-            classmethod find args \{ puts "\[self\] called with arguments: $args" \}
-        \}
-        oo::class create Table \{
+        oo::class create ActiveRecord {
+            classmethod find args { puts "[self] called with arguments: $args" }
+        }
+        oo::class create Table {
             superclass ActiveRecord
-        \}
-        puts \[Table find foo bar\]
-        \# ======
-        \# which will write
-        \# ======
-        \# ::Table called with arguments: foo bar
+        }
+        puts [Table find foo bar]
+        # ======
+        # which will write
+        # ======
+        # ::Table called with arguments: foo bar
 
   - <a name='3'></a>__classvariable__ ?*arg*\.\.\.?
 
@@ -107,12 +107,12 @@ etc\.
 
     Example:
 
-        % oo::class create Foo \{
-            method bar \{z\} \{
+        % oo::class create Foo {
+            method bar {z} {
                 classvariable x y
-                return \[incr x $z\],\[incr y\]
-            \}
-        \}
+                return [incr x $z],[incr y]
+            }
+        }
         ::Foo
         % Foo create a
         ::a
@@ -124,7 +124,7 @@ etc\.
         5,2
         % b bar 7
         12,3
-        % b bar \-1
+        % b bar -1
         11,4
         % a bar 0
         11,5
@@ -143,14 +143,14 @@ etc\.
     Examples:
 
         link foo
-        \# The method foo is now directly accessible as foo instead of my foo\.
+        # The method foo is now directly accessible as foo instead of my foo.
 
-        link \{bar foo\}
-        \# The method foo is now directly accessible as bar\.
+        link {bar foo}
+        # The method foo is now directly accessible as bar.
 
         link a b c
-        \# The methods a, b, and c all become directly acessible under their
-        \# own names\.
+        # The methods a, b, and c all become directly acessible under their
+        # own names.
 
     The main use of this command is expected to be in instance constructors, for
     convenience, or to set up some methods for use in a mini DSL\.
@@ -165,14 +165,14 @@ etc\.
 
     Example:
 
-        % oo::class create example \{
+        % oo::class create example {
            self mixin singleton
-           method foo \{\} \{self\}
-        \}
+           method foo {} {self}
+        }
         ::example
-        % \[example new\] foo
+        % [example new] foo
         ::oo::Obj22
-        % \[example new\] foo
+        % [example new] foo
         ::oo::Obj22
 
 # <a name='section3'></a>AUTHORS
