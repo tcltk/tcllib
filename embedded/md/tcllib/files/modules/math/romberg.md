@@ -286,36 +286,36 @@ asin\(a\) to asin\(b\) of f\(sin\(u\)\)\*cos\(u\)\.
 We can make a function __g__ that accepts an arbitrary function __f__
 and the parameter u, and computes this new integrand\.
 
-    proc g \{ f u \} \{
-        set x \[expr \{ sin\($u\) \}\]
-        set cmd $f; lappend cmd $x; set y \[eval $cmd\]
-        return \[expr \{ $y / cos\($u\) \}\]
-    \}
+    proc g { f u } {
+        set x [expr { sin($u) }]
+        set cmd $f; lappend cmd $x; set y [eval $cmd]
+        return [expr { $y / cos($u) }]
+    }
 
 Now integrating __f__ from *a* to *b* is the same as integrating
 __g__ from *asin\(a\)* to *asin\(b\)*\. It's a little tricky to get __f__
 consistently evaluated in the caller's scope; the following procedure does it\.
 
-    proc romberg\_sine \{ f a b args \} \{
-        set f \[lreplace $f 0 0 \[uplevel 1 \[list namespace which \[lindex $f 0\]\]\]\]
-        set f \[list g $f\]
-        return \[eval \[linsert $args 0 romberg $f \[expr \{ asin\($a\) \}\] \[expr \{ asin\($b\) \}\]\]\]
-    \}
+    proc romberg_sine { f a b args } {
+        set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+        set f [list g $f]
+        return [eval [linsert $args 0 romberg $f [expr { asin($a) }] [expr { asin($b) }]]]
+    }
 
 This __romberg\_sine__ procedure will do any function with sqrt\(1\-x\*x\) in the
 denominator\. Our sample function is f\(x\)=exp\(x\)/sqrt\(1\-x\*x\):
 
-    proc f \{ x \} \{
-        expr \{ exp\($x\) / sqrt\( 1\. \- $x\*$x \) \}
-    \}
+    proc f { x } {
+        expr { exp($x) / sqrt( 1. - $x*$x ) }
+    }
 
 Integrating it is a matter of applying __romberg\_sine__ as we would any of
 the other __romberg__ procedures:
 
-    foreach \{ value error \} \[romberg\_sine f \-1\.0 1\.0\] break
-    puts \[format "integral is %\.6g \+/\- %\.6g" $value $error\]
+    foreach { value error } [romberg_sine f -1.0 1.0] break
+    puts [format "integral is %.6g +/- %.6g" $value $error]
 
-    integral is 3\.97746 \+/\- 2\.3557e\-010
+    integral is 3.97746 +/- 2.3557e-010
 
 # <a name='section8'></a>Bugs, Ideas, Feedback
 

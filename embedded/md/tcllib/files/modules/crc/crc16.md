@@ -130,16 +130,16 @@ package can handle all of them\. Defaults are set up for the most common cases\.
 
 # <a name='section4'></a>EXAMPLES
 
-    % crc::crc16 \-\- "Hello, World\!"
+    % crc::crc16 -- "Hello, World!"
     64077
 
-    % crc::crc\-ccitt \-\- "Hello, World\!"
+    % crc::crc-ccitt -- "Hello, World!"
     26586
 
-    % crc::crc16 \-format 0x%X \-\- "Hello, World\!"
+    % crc::crc16 -format 0x%X -- "Hello, World!"
     0xFA4D
 
-    % crc::crc16 \-file crc16\.tcl
+    % crc::crc16 -file crc16.tcl
     51675
 
 # <a name='section5'></a>AUTHORS

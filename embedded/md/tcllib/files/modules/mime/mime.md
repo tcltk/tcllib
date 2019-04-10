@@ -163,18 +163,18 @@ MIME body parts\.
     If the __\-command__ option is present, then it is repeatedly invoked
     with a fragment of the body as this:
 
-        uplevel \#0 $callback \[list "data" $fragment\]
+        uplevel #0 $callback [list "data" $fragment]
 
     \(The __\-blocksize__ option, if present, specifies the maximum size of
     each fragment passed to the callback\.\)
 
     When the end of the body is reached, the callback is invoked as:
 
-        uplevel \#0 $callback "end"
+        uplevel #0 $callback "end"
 
     Alternatively, if an error occurs, the callback is invoked as:
 
-        uplevel \#0 $callback \[list "error" reason\]
+        uplevel #0 $callback [list "error" reason]
 
     Regardless, the return value of the final invocation of the callback is
     propagated upwards by __::mime::getbody__\.

@@ -128,26 +128,26 @@ need to specify the __record__ keyword, along the with name of the record,
 and the name of the instance of that nested record\. For example, it would look
 like this:
 
-    \# this is the nested record
-    record define mynestedrecord \{
+    # this is the nested record
+    record define mynestedrecord {
         nest1
         nest2
-    \}
+    }
 
-    \# This is the main record
-    record define myrecord \{
+    # This is the main record
+    record define myrecord {
         mem1
         mem2
-        \{record mynestedrecord mem3\}
-    \}
+        {record mynestedrecord mem3}
+    }
 
 You can also assign default or initial values to the members of a record, by
 enclosing the member entry in braces:
 
-    record define myrecord \{
+    record define myrecord {
         mem1
-        \{mem2 5\}
-    \}
+        {mem2 5}
+    }
 
 All instances created from this record definition, will initially have 5 as the
 value for *mem2*\. If no default is given, then the value will be the empty
@@ -205,32 +205,32 @@ Basically, for every member of every instance, an alias is created\. This alias
 is used to get and set values for that member\. An example will illustrate the
 point, using the above defined records:
 
-    \# Create an instance first
+    # Create an instance first
     % myrecord inst1
     ::inst1
-    % \# To get a member of an instance, just use the
-    % \# alias \(it behaves like a Tcl command\):
-    % inst1\.mem1
+    % # To get a member of an instance, just use the
+    % # alias (it behaves like a Tcl command):
+    % inst1.mem1
     %
-    % \# To set a member via the alias, just include
-    % \# a value \(optionally the equal sign \- syntactic sugar\)
-    % inst1\.mem1 = 5
+    % # To set a member via the alias, just include
+    % # a value (optionally the equal sign - syntactic sugar)
+    % inst1.mem1 = 5
     5
-    % inst1\.mem1
+    % inst1.mem1
     5
-    % \# For nested records, just continue with the
-    % \# dot notation \(note no equal sign\)
-    % inst1\.mem3\.nest1 10
+    % # For nested records, just continue with the
+    % # dot notation (note no equal sign)
+    % inst1.mem3.nest1 10
     10
-    % inst1\.mem3\.nest1
+    % inst1.mem3.nest1
     10
-    % \# just the instance by itself gives all
-    % \# member/values pairs for that instance
+    % # just the instance by itself gives all
+    % # member/values pairs for that instance
     % inst1
-    \-mem1 5 \-mem2 \{\} \-mem3 \{\-nest1 10 \-nest2 \{\}\}
-    % \# and to get all members within the nested record
-    % inst1\.mem3
-    \-nest1 10 \-nest2 \{\}
+    -mem1 5 -mem2 {} -mem3 {-nest1 10 -nest2 {}}
+    % # and to get all members within the nested record
+    % inst1.mem3
+    -nest1 10 -nest2 {}
     %
 
 # <a name='section3'></a>RECORD COMMAND
@@ -286,89 +286,89 @@ addresses, phone numbers, comments, etc\. Since a person can have multiple phone
 numbers, multiple email addresses, etc, we will use nested records to define
 these\. So, the first thing we do is define the nested records:
 
-    \#\#
-    \#\#  This is an interactive example, to see what is
-    \#\#  returned by each command as well\.
-    \#\#
+    ##
+    ##  This is an interactive example, to see what is
+    ##  returned by each command as well.
+    ##
 
-    % namespace import ::struct::record::\*
+    % namespace import ::struct::record::*
 
-    % \# define a nested record\. Notice that country has default 'USA'\.
-    % record define locations \{
+    % # define a nested record. Notice that country has default 'USA'.
+    % record define locations {
         street
         street2
         city
         state
         zipcode
-        \{country USA\}
+        {country USA}
         phone
-    \}
+    }
     ::locations
-    % \# Define the main record\. Notice that it uses the location record twice\.
-    % record define contacts \{
+    % # Define the main record. Notice that it uses the location record twice.
+    % record define contacts {
         first
         middle
         last
-        \{record locations home\}
-        \{record locations work\}
-    \}
+        {record locations home}
+        {record locations work}
+    }
     ::contacts
-    % \# Create an instance for the contacts record\.
+    % # Create an instance for the contacts record.
     % contacts cont1
     ::cont1
-    % \# Display some introspection values
+    % # Display some introspection values
     % record show records
     ::contacts ::locations
-    % \#
+    % #
     % record show values cont1
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \#
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % #
     % record show instances contacts
     ::cont1
-    % \#
+    % #
     % cont1 config
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \#
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % #
     % cont1 cget
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \# copy one record to another record
-    % record define contacts2 \[record show members contacts\]
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % # copy one record to another record
+    % record define contacts2 [record show members contacts]
     ::contacts2
     % record show members contacts2
-    first middle last \{record locations home\} \{record locations work\}
+    first middle last {record locations home} {record locations work}
     % record show members contacts
-    first middle last \{record locations home\} \{record locations work\}
+    first middle last {record locations home} {record locations work}
     %
 
 *Example 1*
 
 This next example just illustrates a simple linked list
 
-    % \# define a very simple record for linked list
-    % record define llist \{
+    % # define a very simple record for linked list
+    % record define llist {
         value
         next
-    \}
+    }
     ::llist
     % llist lstart
     ::lstart
-    % lstart config \-value 1 \-next \[llist \#auto\]
-    % \[lstart cget \-next\] config \-value 2 \-next \[llist \#auto\]
-    % \[\[lstart cget \-next\] cget \-next\] config \-value 3 \-next "end"
+    % lstart config -value 1 -next [llist #auto]
+    % [lstart cget -next] config -value 2 -next [llist #auto]
+    % [[lstart cget -next] cget -next] config -value 3 -next "end"
     % set next lstart
     lstart
-    % while 1 \{
-    lappend values \[$next cget \-value\]
-    set next \[$next cget \-next\]
-    if \{\[string match "end" $next\]\} \{break\}
-    \}
+    % while 1 {
+    lappend values [$next cget -value]
+    set next [$next cget -next]
+    if {[string match "end" $next]} {break}
+    }
     % puts "$values"
     1 2 3
-    % \# cleanup linked list
-    % \# We could just use delete record llist also
-    % foreach I \[record show instances llist\] \{
+    % # cleanup linked list
+    % # We could just use delete record llist also
+    % foreach I [record show instances llist] {
     record delete instance $I
-    \}
+    }
     % record show instances llist
     %
 

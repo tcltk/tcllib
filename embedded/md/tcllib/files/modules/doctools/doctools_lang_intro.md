@@ -70,34 +70,34 @@ and __\]__\. Inside of these delimiters the usual rules for a Tcl command
 apply with regard to word quotation, nested commands, continuation lines, etc\.
 I\.e\.
 
-    \.\.\. \[list\_begin enumerated\] \.\.\.
+    ... [list_begin enumerated] ...
 
-    \.\.\. \[call \[cmd foo\] \\\\
-            \[arg bar\]\] \.\.\.
+    ... [call [cmd foo] \\
+            [arg bar]] ...
 
-    \.\.\. \[term \{complex concept\}\] \.\.\.
+    ... [term {complex concept}] ...
 
-    \.\.\. \[opt "\[arg key\] \[arg value\]"\] \.\.\.
+    ... [opt "[arg key] [arg value]"] ...
 
 ## <a name='subsection2'></a>Basic structure
 
 The most simple document which can be written in doctools is
 
-        \[manpage\_begin NAME SECTION VERSION\]
-    \[see\_also doctools\_intro\]
-    \[see\_also doctools\_lang\_cmdref\]
-    \[see\_also doctools\_lang\_faq\]
-    \[see\_also doctools\_lang\_syntax\]
-    \[keywords \{doctools commands\}\]
-    \[keywords \{doctools language\}\]
-    \[keywords \{doctools markup\}\]
-    \[keywords \{doctools syntax\}\]
-    \[keywords markup\]
-    \[keywords \{semantic markup\}\]
-        \[description\]
-        \[vset CATEGORY doctools\]
-    \[include \.\./doctools2base/include/feedback\.inc\]
-    \[manpage\_end\]
+        [manpage_begin NAME SECTION VERSION]
+    [see_also doctools_intro]
+    [see_also doctools_lang_cmdref]
+    [see_also doctools_lang_faq]
+    [see_also doctools_lang_syntax]
+    [keywords {doctools commands}]
+    [keywords {doctools language}]
+    [keywords {doctools markup}]
+    [keywords {doctools syntax}]
+    [keywords markup]
+    [keywords {semantic markup}]
+        [description]
+        [vset CATEGORY doctools]
+    [include ../doctools2base/include/feedback.inc]
+    [manpage_end]
 
 This also shows us that all doctools documents are split into two parts, the
 *header* and the *body*\. Everything coming before \[__description__\]
@@ -132,23 +132,23 @@ allowed within the header\.
 
 Given the above a less minimal example of a document is
 
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[__copyright \{YEAR AUTHOR\}__\]
-    \[__titledesc TITLE__\]
-    \[__moddesc   MODULE\_TITLE__\]
-    \[__require   PACKAGE VERSION__\]
-    \[__require   PACKAGE__\]
-    \[description\]
-    \[manpage\_end\]
+    [manpage_begin NAME SECTION VERSION]
+    [__copyright {YEAR AUTHOR}__]
+    [__titledesc TITLE__]
+    [__moddesc   MODULE_TITLE__]
+    [__require   PACKAGE VERSION__]
+    [__require   PACKAGE__]
+    [description]
+    [manpage_end]
 
 Remember that the whitespace is optional\. The document
 
-        \[manpage\_begin NAME SECTION VERSION\]
-        \[copyright \{YEAR AUTHOR\}\]\[titledesc TITLE\]\[moddesc MODULE\_TITLE\]
-        \[require PACKAGE VERSION\]\[require PACKAGE\]\[description\]
-        \[vset CATEGORY doctools\]
-    \[include \.\./doctools2base/include/feedback\.inc\]
-    \[manpage\_end\]
+        [manpage_begin NAME SECTION VERSION]
+        [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
+        [require PACKAGE VERSION][require PACKAGE][description]
+        [vset CATEGORY doctools]
+    [include ../doctools2base/include/feedback.inc]
+    [manpage_end]
 
 has the same meaning as the example before\.
 
@@ -157,16 +157,16 @@ sequence of characters containing the space character, horizontal and vertical
 tabs, carriage return, and newline, but it may contain comment markup as well,
 in the form of the __[comment](\.\./\.\./\.\./\.\./index\.md\#comment)__ command\.
 
-    \[__comment \{ \.\.\. \}__\]
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[copyright \{YEAR AUTHOR\}\]
-    \[titledesc TITLE\]
-    \[moddesc   MODULE\_TITLE\]\[__comment \{ \.\.\. \}__\]
-    \[require   PACKAGE VERSION\]
-    \[require   PACKAGE\]
-    \[description\]
-    \[manpage\_end\]
-    \[__comment \{ \.\.\. \}__\]
+    [__comment { ... }__]
+    [manpage_begin NAME SECTION VERSION]
+    [copyright {YEAR AUTHOR}]
+    [titledesc TITLE]
+    [moddesc   MODULE_TITLE][__comment { ... }__]
+    [require   PACKAGE VERSION]
+    [require   PACKAGE]
+    [description]
+    [manpage_end]
+    [__comment { ... }__]
 
 ## <a name='subsection3'></a>Advanced structure
 
@@ -178,21 +178,21 @@ Instead of only whitespace the two templating commands __include__ and
 __vset__ are also allowed, to enable the writer to either set and/or import
 configuration settings relevant to the document\. I\.e\. it is possible to write
 
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[description\]
-    \[manpage\_end\]
+    [__include FILE__]
+    [__vset VAR VALUE__]
+    [manpage_begin NAME SECTION VERSION]
+    [description]
+    [manpage_end]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\. I\.e\. for example in
 the header as well\.
 
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \[description\]
-    \[manpage\_end\]
+    [manpage_begin NAME SECTION VERSION]
+    [__include FILE__]
+    [__vset VAR VALUE__]
+    [description]
+    [manpage_end]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -217,14 +217,14 @@ first paragraph is automatically opened at the beginning of the body, by
 __description__\. In the same manner the last paragraph automatically ends at
 __manpage\_end__\.
 
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[description\]
-     \.\.\.
-    \[__para__\]
-     \.\.\.
-    \[__para__\]
-     \.\.\.
-    \[manpage\_end\]
+    [manpage_begin NAME SECTION VERSION]
+    [description]
+     ...
+    [__para__]
+     ...
+    [__para__]
+     ...
+    [manpage_end]
 
 Empty paragraphs are ignored\.
 
@@ -239,16 +239,16 @@ automatically ends at __manpage\_end__\.
 Empty sections are *not* ignored\. We are free to \(not\) use paragraphs within
 sections\.
 
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[description\]
-     \.\.\.
-    \[__section \{Section A\}__\]
-     \.\.\.
-    \[para\]
-     \.\.\.
-    \[__section \{Section B\}__\]
-     \.\.\.
-    \[manpage\_end\]
+    [manpage_begin NAME SECTION VERSION]
+    [description]
+     ...
+    [__section {Section A}__]
+     ...
+    [para]
+     ...
+    [__section {Section B}__]
+     ...
+    [manpage_end]
 
 Between sections and paragraphs we have subsections, to split sections\. The
 command for doing so is __subsection__\. Each occurrence of this command
@@ -260,20 +260,20 @@ manner the last subsection automatically ends at __manpage\_end__\.
 Empty subsections are *not* ignored\. We are free to \(not\) use paragraphs
 within subsections\.
 
-    \[manpage\_begin NAME SECTION VERSION\]
-    \[description\]
-     \.\.\.
-    \[section \{Section A\}\]
-     \.\.\.
-    \[__subsection \{Sub 1\}__\]
-     \.\.\.
-    \[para\]
-     \.\.\.
-    \[__subsection \{Sub 2\}__\]
-     \.\.\.
-    \[section \{Section B\}\]
-     \.\.\.
-    \[manpage\_end\]
+    [manpage_begin NAME SECTION VERSION]
+    [description]
+     ...
+    [section {Section A}]
+     ...
+    [__subsection {Sub 1}__]
+     ...
+    [para]
+     ...
+    [__subsection {Sub 2}__]
+     ...
+    [section {Section B}]
+     ...
+    [manpage_end]
 
 ## <a name='subsection5'></a>Text markup
 
@@ -379,14 +379,14 @@ The example demonstrating the use of text markup is an excerpt from the
 some highlighting added\. It shows their use within a block of text, as the
 arguments of a list item command \(__call__\), and our ability to nest them\.
 
-    \.\.\.
-    \[call \[__cmd arg\_def__\] \[__arg type__\] \[__arg name__\] \[__opt__ \[__arg mode__\]\]\]
+    ...
+    [call [__cmd arg_def__] [__arg type__] [__arg name__] [__opt__ [__arg mode__]]]
 
-    Text structure\. List element\. Argument list\. Automatically closes the
-    previous list element\. Specifies the data\-\[__arg type__\] of the described
-    argument of a command, its \[__arg name__\] and its i/o\-\[__arg mode__\]\. The
-    latter is optional\.
-    \.\.\.
+    Text structure. List element. Argument list. Automatically closes the
+    previous list element. Specifies the data-[__arg type__] of the described
+    argument of a command, its [__arg name__] and its i/o-[__arg mode__]. The
+    latter is optional.
+    ...
 
 ## <a name='subsection6'></a>Escapes
 
@@ -400,11 +400,11 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
-    \.\.\.
-    These commands, \[cmd lb\] and \[cmd lb\] respectively, are required
-    because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it
-    impossible to directly use \[__lb__\] and \[__rb__\] within the text\.
-    \.\.\.
+    ...
+    These commands, [cmd lb] and [cmd lb] respectively, are required
+    because our use of [__lb__] and [__rb__] to bracket markup commands makes it
+    impossible to directly use [__lb__] and [__rb__] within the text.
+    ...
 
 ## <a name='subsection7'></a>Cross\-references
 
@@ -436,14 +436,14 @@ considers them as meta data which should be in the header, etc\.
 Our example shows the sources for the cross\-references of this document, with
 some highlighting added\. Incidentally they are found at the end of the body\.
 
-    \.\.\.
-    \[__see\_also doctools\_intro__\]
-    \[__see\_also doctools\_lang\_syntax__\]
-    \[__see\_also doctools\_lang\_cmdref__\]
-    \[__keywords markup \{semantic markup\}__\]
-    \[__keywords \{doctools markup\} \{doctools language\}__\]
-    \[__keywords \{doctools syntax\} \{doctools commands\}__\]
-    \[manpage\_end\]
+    ...
+    [__see_also doctools_intro__]
+    [__see_also doctools_lang_syntax__]
+    [__see_also doctools_lang_cmdref__]
+    [__keywords markup {semantic markup}__]
+    [__keywords {doctools markup} {doctools language}__]
+    [__keywords {doctools syntax} {doctools commands}__]
+    [manpage_end]
 
 ## <a name='subsection8'></a>Examples
 
@@ -463,15 +463,15 @@ templating commands within example blocks to read their contents from a file
 The source for the very first example in this document \(see section
 [Fundamentals](#subsection1)\), with some highlighting added, is
 
-    \[__example__ \{
-        \.\.\. \[list\_begin enumerated\] \.\.\.
-      \}\]
+    [__example__ {
+        ... [list_begin enumerated] ...
+      }]
 
 Using __example\_begin__ / __example\_end__ this would look like
 
-    \[__example\_begin__\]
-        \.\.\. \[list\_begin enumerated\] \.\.\.
-      \[__example\_end__\]
+    [__example_begin__]
+        ... [list_begin enumerated] ...
+      [__example_end__]
 
 ## <a name='subsection9'></a>Lists
 
@@ -534,42 +534,42 @@ commands are:
 Our example is the source of the definition list in the previous paragraph, with
 most of the content in the middle removed\.
 
-    \.\.\.
-    \[__list\_begin__ definitions\]
-    \[__def__ \[const arg\]\]
+    ...
+    [__list_begin__ definitions]
+    [__def__ [const arg]]
 
-    \(\[cmd arg\_def\]\) This opens an argument \(declaration\) list\. It is a
+    ([cmd arg_def]) This opens an argument (declaration) list. It is a
     specialized form of a definition list where the term is an argument
-    name, with its type and i/o\-mode\.
+    name, with its type and i/o-mode.
 
-    \[__def__ \[const itemized\]\]
+    [__def__ [const itemized]]
 
-    \(\[cmd item\]\)
-    This opens a general itemized list\.
+    ([cmd item])
+    This opens a general itemized list.
 
-    \.\.\.
-    \[__def__ \[const tkoption\]\]
+    ...
+    [__def__ [const tkoption]]
 
-    \(\[cmd tkoption\_def\]\) This opens a widget option \(declaration\) list\. It
+    ([cmd tkoption_def]) This opens a widget option (declaration) list. It
     is a specialized form of a definition list where the term is the name
     of a configuration option for a widget, with its name and class in the
-    option database\.
+    option database.
 
-    \[__list\_end__\]
-    \.\.\.
+    [__list_end__]
+    ...
 
 Note that a list cannot begin in one \(sub\)section and end in another\.
 Differently said, \(sub\)section breaks are not allowed within lists and list
 items\. An example of this *illegal* construct is
 
-    \.\.\.
-    \[list\_begin itemized\]
-    \[item\]
-    \.\.\.
-    \[__section \{ILLEGAL WITHIN THE LIST\}__\]
-    \.\.\.
-    \[list\_end\]
-    \.\.\.
+    ...
+    [list_begin itemized]
+    [item]
+    ...
+    [__section {ILLEGAL WITHIN THE LIST}__]
+    ...
+    [list_end]
+    ...
 
 # <a name='section2'></a>FURTHER READING
 

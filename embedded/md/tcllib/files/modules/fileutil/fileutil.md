@@ -76,10 +76,10 @@ This package provides implementations of standard unix utilities\.
 
     Examples:
 
-        fileutil::lexnormalize /foo/\./bar
+        fileutil::lexnormalize /foo/./bar
         => /foo/bar
 
-        fileutil::lexnormalize /foo/\.\./bar
+        fileutil::lexnormalize /foo/../bar
         => /bar
 
   - <a name='2'></a>__::fileutil::fullnormalize__ *path*
@@ -252,10 +252,10 @@ This package provides implementations of standard unix utilities\.
 
     Example:
 
-        \# find \.tcl files
+        # find .tcl files
         package require fileutil
-        proc is\_tcl \{name\} \{return \[string match \*\.tcl $name\]\}
-        set tcl\_files \[fileutil::find \. is\_tcl\]
+        proc is_tcl {name} {return [string match *.tcl $name]}
+        set tcl_files [fileutil::find . is_tcl]
 
   - <a name='13'></a>__::fileutil::findByPattern__ *basedir* ?__\-regexp__&#124;__\-glob__? ?__\-\-__? *patterns*
 
@@ -480,16 +480,16 @@ This package provides implementations of standard unix utilities\.
     legal paths to enumerate\. The structure, reduced to three devices, roughly
     looks like
 
-        /sys/class/tty/tty0 \-\-> \.\./\.\./dev/tty0
-        /sys/class/tty/tty1 \-\-> \.\./\.\./dev/tty1
-        /sys/class/tty/tty2 \-\-> \.\./\.\./dev/tty1
+        /sys/class/tty/tty0 --> ../../dev/tty0
+        /sys/class/tty/tty1 --> ../../dev/tty1
+        /sys/class/tty/tty2 --> ../../dev/tty1
 
         /sys/dev/tty0/bus
-        /sys/dev/tty0/subsystem \-\-> \.\./\.\./class/tty
+        /sys/dev/tty0/subsystem --> ../../class/tty
         /sys/dev/tty1/bus
-        /sys/dev/tty1/subsystem \-\-> \.\./\.\./class/tty
+        /sys/dev/tty1/subsystem --> ../../class/tty
         /sys/dev/tty2/bus
-        /sys/dev/tty2/subsystem \-\-> \.\./\.\./class/tty
+        /sys/dev/tty2/subsystem --> ../../class/tty
 
     The command __fileutil::find__ currently has no way to escape this\. When
     having to handle such a pathological hierarchy It is recommended to switch
@@ -499,17 +499,17 @@ This package provides implementations of standard unix utilities\.
 
         package require fileutil::traverse
 
-        proc NoLinks \{fileName\} \{
-            if \{\[string equal \[file type $fileName\] link\]\} \{
+        proc NoLinks {fileName} {
+            if {[string equal [file type $fileName] link]} {
                 return 0
-            \}
+            }
             return 1
-        \}
+        }
 
-        fileutil::traverse T /sys/devices \-prefilter NoLinks
-        T foreach p \{
+        fileutil::traverse T /sys/devices -prefilter NoLinks
+        T foreach p {
             puts $p
-        \}
+        }
         T destroy
 
 # <a name='section3'></a>Bugs, Ideas, Feedback

@@ -549,9 +549,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_loc\_push
-        i\_error\_clear
-        i\_error\_push
+        i_loc_push
+        i_error_clear
+        i_error_push
 
     Parsers use it at the beginning of *void* sequences and choices with a
     *void* initial branch\.
@@ -560,9 +560,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_loc\_push
-        i\_error\_clear
-        i\_error\_push
+        i_loc_push
+        i_error_clear
+        i_error_push
 
     Parsers use it at the beginning of optional and repeated expressions\.
 
@@ -570,10 +570,10 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_ast\_push
-        i\_loc\_push
-        i\_error\_clear
-        i\_error\_push
+        i_ast_push
+        i_loc_push
+        i_error_clear
+        i_error_push
 
     Parsers use it at the beginning of sequences generating an AST and choices
     with an initial branch generating an AST\.
@@ -582,8 +582,8 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_loc\_pop\_rewind/discard
+        i_error_pop_merge
+        i_loc_pop_rewind/discard
 
     Parsers use it at the end of void sequences and choices whose last branch is
     void\.
@@ -592,9 +592,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_loc\_pop\_rewind/discard
-        i\_status\_ok
+        i_error_pop_merge
+        i_loc_pop_rewind/discard
+        i_status_ok
 
     Parsers use it at the end of optional expressions
 
@@ -602,9 +602,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_ast\_pop\_rewind/discard
-        i\_loc\_pop\_rewind/discard
+        i_error_pop_merge
+        i_ast_pop_rewind/discard
+        i_loc_pop_rewind/discard
 
     Parsers use it at the end of sequences generating ASTs and choices whose
     last branch generates an AST
@@ -613,8 +613,8 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_loc\_push
-        i\_ast\_push
+        i_loc_push
+        i_ast_push
 
     Parsers use it at the beginning of negative lookahead predicates which
     generate ASTs\.
@@ -623,8 +623,8 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_loc\_pop\_rewind
-        i\_status\_negate
+        i_loc_pop_rewind
+        i_status_negate
 
     Parsers use it at the end of void negative lookahead predicates\.
 
@@ -632,9 +632,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_ast\_pop\_discard/rewind
-        i\_loc\_pop\_rewind
-        i\_status\_negate
+        i_ast_pop_discard/rewind
+        i_loc_pop_rewind
+        i_status_negate
 
     Parsers use it at the end of negative lookahead predicates which generate
     ASTs\.
@@ -643,8 +643,8 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_loc\_pop\_rewind/discard
-        i:fail\_return
+        i_loc_pop_rewind/discard
+        i:fail_return
 
     Parsers use it to stop a positive repetition when its first, required,
     expression fails\.
@@ -653,10 +653,10 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_loc\_pop\_rewind/discard
-        i:fail\_status\_ok
-        i:fail\_return
+        i_error_pop_merge
+        i_loc_pop_rewind/discard
+        i:fail_status_ok
+        i:fail_return
 
     Parsers use it at the end of repetitions\.
 
@@ -664,11 +664,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i:ok\_loc\_pop\_discard
-        i:ok\_return
-        i\_loc\_rewind
-        i\_error\_push
+        i_error_pop_merge
+        i:ok_loc_pop_discard
+        i:ok_return
+        i_loc_rewind
+        i_error_push
 
     Parsers use it when transiting between branches of a choice when both are
     void\.
@@ -677,12 +677,12 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i:ok\_loc\_pop\_discard
-        i:ok\_return
-        i\_ast\_push
-        i\_loc\_rewind
-        i\_error\_push
+        i_error_pop_merge
+        i:ok_loc_pop_discard
+        i:ok_return
+        i_ast_push
+        i_loc_rewind
+        i_error_push
 
     Parsers use it when transiting between branches of a choice when the failing
     branch is void, and the next to test generates an AST\.
@@ -691,12 +691,12 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_ast\_pop\_rewind/discard
-        i:ok\_loc\_pop\_discard
-        i:ok\_return
-        i\_loc\_rewind
-        i\_error\_push
+        i_error_pop_merge
+        i_ast_pop_rewind/discard
+        i:ok_loc_pop_discard
+        i:ok_return
+        i_loc_rewind
+        i_error_push
 
     Parsers use it when transiting between branches of a choice when the failing
     branch generates an AST, and the next to test is void\.
@@ -705,13 +705,13 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i\_ast\_pop\_discard
-        i:ok\_loc\_pop\_discard
-        i:ok\_return
-        i\_ast\_rewind
-        i\_loc\_rewind
-        i\_error\_push
+        i_error_pop_merge
+        i_ast_pop_discard
+        i:ok_loc_pop_discard
+        i:ok_return
+        i_ast_rewind
+        i_loc_rewind
+        i_error_push
 
     Parsers use it when transiting between branches of a choice when both
     generate ASTs\.
@@ -720,10 +720,10 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i:fail\_loc\_pop\_rewind
-        i:fail\_return
-        i\_error\_push
+        i_error_pop_merge
+        i:fail_loc_pop_rewind
+        i:fail_return
+        i_error_push
 
     Parsers use it when transiting between parts of a sequence and both are
     void\.
@@ -732,11 +732,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i:fail\_loc\_pop\_rewind
-        i:fail\_return
-        i\_ast\_push
-        i\_error\_push
+        i_error_pop_merge
+        i:fail_loc_pop_rewind
+        i:fail_return
+        i_ast_push
+        i_error_push
 
     Parsers use it when transiting between parts of a sequence and the
     sucessfully matched part is void, and after it an AST is generated\.
@@ -745,11 +745,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_error\_pop\_merge
-        i:fail\_ast\_pop\_rewind
-        i:fail\_loc\_pop\_rewind
-        i:fail\_return
-        i\_error\_push
+        i_error_pop_merge
+        i:fail_ast_pop_rewind
+        i:fail_loc_pop_rewind
+        i:fail_return
+        i_error_push
 
     Parsers use it when transiting between parts of a sequence and both parts
     generate ASTs\.
@@ -758,11 +758,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        if/found? i\_symbol\_restore $symbol
-        i:found:ok\_ast\_value\_push
-        i:found\_return
-        i\_loc\_push
-        i\_ast\_push
+        if/found? i_symbol_restore $symbol
+        i:found:ok_ast_value_push
+        i:found_return
+        i_loc_push
+        i_ast_push
 
     Parsers use it at the beginning of a nonterminal symbol generating an AST,
     whose right\-hand side may have generated an AST as well\.
@@ -771,11 +771,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        if/found? i\_symbol\_restore $symbol
-        i:found:ok\_ast\_value\_push
-        i:found\_return
-        i\_loc\_push
-        i\_ast\_push
+        if/found? i_symbol_restore $symbol
+        i:found:ok_ast_value_push
+        i:found_return
+        i_loc_push
+        i_ast_push
 
     Parsers use it at the beginning of a void nonterminal symbol whose
     right\-hand side may generate an AST\.
@@ -784,10 +784,10 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        if/found? i\_symbol\_restore $symbol
-        i:found\_return
-        i\_loc\_push
-        i\_ast\_push
+        if/found? i_symbol_restore $symbol
+        i:found_return
+        i_loc_push
+        i_ast_push
 
     Parsers use it at the beginning of a nonterminal symbol generating an AST
     whose right\-hand side is void\.
@@ -796,9 +796,9 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        if/found? i\_symbol\_restore $symbol
-        i:found\_return
-        i\_loc\_push
+        if/found? i_symbol_restore $symbol
+        i:found_return
+        i_loc_push
 
     Parsers use it at the beginning of a void nonterminal symbol whose
     right\-hand side is void as well\.
@@ -807,12 +807,12 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_value\_clear/reduce $symbol
-        i\_symbol\_save        $symbol
-        i\_error\_nonterminal  $symbol
-        i\_ast\_pop\_rewind
-        i\_loc\_pop\_discard
-        i:ok\_ast\_value\_push
+        i_value_clear/reduce $symbol
+        i_symbol_save        $symbol
+        i_error_nonterminal  $symbol
+        i_ast_pop_rewind
+        i_loc_pop_discard
+        i:ok_ast_value_push
 
     Parsers use it at the end of a non\-terminal symbol generating an AST using
     the AST generated by the right\-hand side as child\.
@@ -821,11 +821,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_value\_clear/leaf  $symbol
-        i\_symbol\_save       $symbol
-        i\_error\_nonterminal $symbol
-        i\_loc\_pop\_discard
-        i:ok\_ast\_value\_push
+        i_value_clear/leaf  $symbol
+        i_symbol_save       $symbol
+        i_error_nonterminal $symbol
+        i_loc_pop_discard
+        i:ok_ast_value_push
 
     Parsers use it at the end of a non\-terminal symbol generating an AST whose
     right\-hand side is void\.
@@ -834,12 +834,12 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_value\_clear/leaf  $symbol
-        i\_symbol\_save       $symbol
-        i\_error\_nonterminal $symbol
-        i\_loc\_pop\_discard
-        i\_ast\_pop\_rewind
-        i:ok\_ast\_value\_push
+        i_value_clear/leaf  $symbol
+        i_symbol_save       $symbol
+        i_error_nonterminal $symbol
+        i_loc_pop_discard
+        i_ast_pop_rewind
+        i:ok_ast_value_push
 
     Parsers use it at the end of a non\-terminal symbol generating an AST
     discarding the AST generated by the right\-hand side\.
@@ -848,11 +848,11 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_value\_clear
-        i\_symbol\_save       $symbol
-        i\_error\_nonterminal $symbol
-        i\_loc\_pop\_discard
-        i\_ast\_pop\_rewind
+        i_value_clear
+        i_symbol_save       $symbol
+        i_error_nonterminal $symbol
+        i_loc_pop_discard
+        i_ast_pop_rewind
 
     Parsers use it at the end of a void non\-terminal symbol, discarding the AST
     generated by the right\-hand side\.
@@ -861,10 +861,10 @@ In this we can see the reasoning behind their use well:
 
     This method combines
 
-        i\_value\_clear
-        i\_symbol\_save       $symbol
-        i\_error\_nonterminal $symbol
-        i\_loc\_pop\_discard
+        i_value_clear
+        i_symbol_save       $symbol
+        i_error_nonterminal $symbol
+        i_loc_pop_discard
 
     Parsers use it at the end of a void non\-terminal symbol with a void
     right\-hand side\.
@@ -901,8 +901,8 @@ In this we can see the reasoning behind their use well:
 
     These methods all combine
 
-        i\_input\_next $msg
-        i:fail\_return
+        i_input_next $msg
+        i:fail_return
 
     with the appropriate __i\_test\_xxx__ instruction\. Parsers use them for
     handling atomic expressions\.

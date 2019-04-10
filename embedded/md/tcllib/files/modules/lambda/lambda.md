@@ -52,28 +52,28 @@ procedures, i\.e\. lambdas more
 __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__\-like\. Instead of, for example, to
 write
 
-    set f \{::apply \{\{x\} \{
-       \.\.\.\.
-    \}\}\}
+    set f {::apply {{x} {
+       ....
+    }}}
 
 with its deep nesting of braces, or
 
-    set f \[list ::apply \{\{x y\} \{
-       \.\.\.\.
-    \}\} $value\_for\_x\]
+    set f [list ::apply {{x y} {
+       ....
+    }} $value_for_x]
 
 with a list command to insert some of the arguments of a partial application,
 just write
 
-    set f \[lambda \{x\} \{
-       \.\.\.\.
-    \}\]
+    set f [lambda {x} {
+       ....
+    }]
 
 and
 
-    set f \[lambda \{x y\} \{
-       \.\.\.\.
-    \} $value\_for\_x\]
+    set f [lambda {x y} {
+       ....
+    } $value_for_x]
 
 # <a name='section2'></a>COMMANDS
 

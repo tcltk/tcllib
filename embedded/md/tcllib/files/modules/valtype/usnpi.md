@@ -60,8 +60,8 @@ validation\. This method must take a single argument, the value to be validated;
 further, it must do nothing if the value is valid, but throw an error if the
 value is invalid:
 
-    valtype::usnpi validate \.\.\.\. ;\# Does nothing
-    valtype::usnpi validate \.\.\.\. ;\# Throws an error \(bad US National Provider Identifier \(US\-NPI\) number\)\.
+    valtype::usnpi validate .... ;# Does nothing
+    valtype::usnpi validate .... ;# Throws an error (bad US National Provider Identifier (US-NPI) number).
 
 The __validate__ method will always return the validated value on success,
 and throw the __\-errorcode__ INVALID on error, possibly with additional

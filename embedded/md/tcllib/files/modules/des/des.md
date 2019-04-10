@@ -171,15 +171,15 @@ calling the __Reset__ function with a new initialization vector value\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % set ciphertext \[DES::des \-mode cbc \-dir encrypt \-key $secret $plaintext\]
-    % set plaintext \[DES::des \-mode cbc \-dir decrypt \-key $secret $ciphertext\]
+    % set ciphertext [DES::des -mode cbc -dir encrypt -key $secret $plaintext]
+    % set plaintext [DES::des -mode cbc -dir decrypt -key $secret $ciphertext]
 
-    set iv \[string repeat \\\\0 8\]
-    set Key \[DES::Init cbc \\\\0\\\\1\\\\2\\\\3\\\\4\\\\5\\\\6\\\\7 $iv\]
-    set ciphertext \[DES::Encrypt $Key "somedata"\]
-    append ciphertext \[DES::Encrypt $Key "moredata"\]
+    set iv [string repeat \\0 8]
+    set Key [DES::Init cbc \\0\\1\\2\\3\\4\\5\\6\\7 $iv]
+    set ciphertext [DES::Encrypt $Key "somedata"]
+    append ciphertext [DES::Encrypt $Key "moredata"]
     DES::Reset $Key $iv
-    set plaintext \[DES::Decrypt $Key $ciphertext\]
+    set plaintext [DES::Decrypt $Key $ciphertext]
     DES::Final $Key
 
 # <a name='section6'></a>REFERENCES

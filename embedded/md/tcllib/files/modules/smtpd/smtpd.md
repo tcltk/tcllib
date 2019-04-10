@@ -106,9 +106,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section4'></a>COMMANDS
 
@@ -119,7 +119,7 @@ example below\.
     address then the server socket will be bound to that network interface\. By
     default the server is bound to all network interfaces\. For example:
 
-    set sock \[::smtpd::start \[info hostname\] 0\]
+    set sock [::smtpd::start [info hostname] 0]
 
     will bind to the hosts internet interface on the first available port\.
 
@@ -201,16 +201,16 @@ example below\.
     you wish to deny access to a specific host then an error should be returned
     by this callback\. For example:
 
-    proc validate\_host \{ipnum\} \{
-       if \{\[string match "192\.168\.1\.\*" $ipnum\]\} \{
-          error "go away\!"
-       \}
-    \}
+    proc validate_host {ipnum} {
+       if {[string match "192.168.1.*" $ipnum]} {
+          error "go away!"
+       }
+    }
 
     If access is denied the client will receive a standard message that includes
     the text of your error, such as:
 
-    550 Access denied: I hate you\.
+    550 Access denied: I hate you.
 
     As per the SMTP protocol, the connection is not closed but we wait for the
     client to send a QUIT command\. Any other commands cause a __503 Bad
@@ -223,13 +223,13 @@ example below\.
     upon the declared sender\. To reject mail you should throw an error\. For
     example, to reject mail from user "denied":
 
-    proc validate\_sender \{address\} \{
-       eval array set addr \[mime::parseaddress $address\]
-       if \{\[string match "denied" $addr\(local\)\]\} \{
-            error "mailbox $addr\(local\) denied"
-       \}
+    proc validate_sender {address} {
+       eval array set addr [mime::parseaddress $address]
+       if {[string match "denied" $addr(local)]} {
+            error "mailbox $addr(local) denied"
+       }
        return
-    \}
+    }
 
     The content of any error message will not be passed back to the client\.
 
@@ -248,13 +248,13 @@ example below\.
     argument\. When the call returns, the mime token is cleaned up so if the user
     wishes to preserve the data she must make a copy\.
 
-    proc deliverMIME \{token\} \{
-        set sender \[lindex \[mime::getheader $token From\] 0\]
-        set recipients \[lindex \[mime::getheader $token To\] 0\]
-        set mail "From $sender \[clock format \[clock seconds\]\]"
-        append mail "\\n" \[mime::buildmessage $token\]
+    proc deliverMIME {token} {
+        set sender [lindex [mime::getheader $token From] 0]
+        set recipients [lindex [mime::getheader $token To] 0]
+        set mail "From $sender [clock format [clock seconds]]"
+        append mail "\n" [mime::buildmessage $token]
         puts $mail
-    \}
+    }
 
   - __deliver__ callback
 
@@ -263,11 +263,11 @@ example below\.
     is called with the sender, a list of recipients and the text of the mail as
     a list of lines\. For example:
 
-    proc deliver \{sender recipients data\} \{
-       set mail "From $sender  \[clock format \[clock seconds\]\]"
-       append mail "\\n" \[join $data "\\n"\]
+    proc deliver {sender recipients data} {
+       set mail "From $sender  [clock format [clock seconds]]"
+       append mail "\n" [join $data "\n"]
        puts "$mail"
-    \}
+    }
 
     Note that the DATA command will return an error if no sender or recipient
     has yet been defined\.

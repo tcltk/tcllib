@@ -297,65 +297,65 @@ separately\. In the latter case the items should be labeled with more neutral
 names such as: car1, car2, car3 , etc \.\.\. and a separate database or array
 should hold the brand names associated with the car labels\.
 
-    1\. Load the package into an interpreter
+    1. Load the package into an interpreter
     % package require pool
-    0\.1
+    0.1
 
-    2\. Create a pool object called \`CarPool' with a maximum size of 55 items \(cars\):
+    2. Create a pool object called `CarPool' with a maximum size of 55 items (cars):
     % pool CarPool 55
     CarPool
 
-    4\. Add items to the pool:
+    4. Add items to the pool:
     % CarPool add Toyota Trabant Chrysler1 Chrysler2 Volkswagen
 
-    5\. Somebody crashed the Toyota\. Remove it from the pool as follows:
+    5. Somebody crashed the Toyota. Remove it from the pool as follows:
     % CarPool remove Toyota
 
-    6\. Acquired a new car for the pool\. Add it as follows:
+    6. Acquired a new car for the pool. Add it as follows:
     % CarPool add Nissan
 
-    7\. Check whether the pool was adjusted correctly:
+    7. Check whether the pool was adjusted correctly:
     % CarPool info allitems
     Trabant Chrysler1 Chrysler2 Volkswagen Nissan
 
 Suspend the interactive session temporarily, and show the programmatic use of
 the request subcommand:
 
-    \# Mrs\. Swift needs a car\. She doesn't have a preference for a
-    \# particular car\. We'll issue a request on her behalf as follows:
-    if \{ \[CarPool request car \-allocID "Mrs\. Swift"\] \}  \{
-        \# request was honoured, process the variable \`car'
-        puts "$car has been allocated to \[CarPool info allocID $car\]\."
-    \} else \{
-        \# request was denied
-         puts "No car available\."
-    \}
+    # Mrs. Swift needs a car. She doesn't have a preference for a
+    # particular car. We'll issue a request on her behalf as follows:
+    if { [CarPool request car -allocID "Mrs. Swift"] }  {
+        # request was honoured, process the variable `car'
+        puts "$car has been allocated to [CarPool info allocID $car]."
+    } else {
+        # request was denied
+         puts "No car available."
+    }
 
 Note how the __if__ command uses the value returned by the __request__
 subcommand\.
 
-    \# Suppose Mr\. Wiggly has a preference for the Trabant:
-    if \{ \[CarPool request car \-allocID "Mr\. Wiggly" \-prefer Trabant\] \}  \{
-        \# request was honoured, process the variable \`car'
-        puts "$car has been allocated to \[CarPool info allocID $car\]\."
-    \} else \{
-        \# request was denied
-         puts "The Trabant was not available\."
-    \}
+    # Suppose Mr. Wiggly has a preference for the Trabant:
+    if { [CarPool request car -allocID "Mr. Wiggly" -prefer Trabant] }  {
+        # request was honoured, process the variable `car'
+        puts "$car has been allocated to [CarPool info allocID $car]."
+    } else {
+        # request was denied
+         puts "The Trabant was not available."
+    }
 
 Resume the interactive session:
 
-    8\. When the car is returned then you can render it available by:
+    8. When the car is returned then you can render it available by:
     % CarPool release Trabant
 
-    9\. When done, you delete the pool\.
+    9. When done, you delete the pool.
     % CarPool destroy
-    Couldn't destroy \`CarPool' because some items are still allocated\.
+    Couldn't destroy `CarPool' because some items are still allocated.
 
-    Oops, forgot that Mrs\. Swift still occupies a car\.
+    Oops, forgot that Mrs. Swift still occupies a car.
 
-    10\. We force the destruction of the pool as follows:
-    % CarPool destroy \-force
+    10. We force the destruction of the pool as follows:
+    % CarPool destroy -force
 
 *Example 2*
 
@@ -368,26 +368,26 @@ request may be passed along\. The file descriptors that identify the channels to
 these back\-end instances make up a pool of connections\. A particular connection
 may be allocated to just one client request at a time\.
 
-    \# Create the pool of connections \(pipes\)
+    # Create the pool of connections (pipes)
     set maxpipes 10
     pool Pipes $maxpipes
-    for \{set i 0\} \{$i < $maxpipes\} \{incr i\} \{
-        set fd \[open "&#124;backendApplication" w\+\]
+    for {set i 0} {$i < $maxpipes} {incr i} {
+        set fd [open "|backendApplication" w+]
         Pipes add $fd
-    \}
+    }
 
-    \# A client request comes in\. The request is identified as \`clientX'\.
-    \# Dispatch it onto an instance of a back\-end application
-    if \{ \[Pipes request fd \-allocID clientX\] \} \{
-        \# a connection was allocated
-        \# communicate to the back\-end application via the variable \`fd'
+    # A client request comes in. The request is identified as `clientX'.
+    # Dispatch it onto an instance of a back-end application
+    if { [Pipes request fd -allocID clientX] } {
+        # a connection was allocated
+        # communicate to the back-end application via the variable `fd'
         puts $fd "someInstruction"
-        \# \.\.\.\.\.\. etc\.
-    \} else \{
-        \# all connections are currently occupied
-        \# store the client request in a queue for later processing,
-        \# or return a 'Server busy' message to the client\.
-    \}
+        # ...... etc.
+    } else {
+        # all connections are currently occupied
+        # store the client request in a queue for later processing,
+        # or return a 'Server busy' message to the client.
+    }
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 

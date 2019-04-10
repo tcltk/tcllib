@@ -83,8 +83,8 @@ well with an external clock\.
     *processname* exists, it will be replaced\. If *processname* is not
     given, one is generated and returned by the command\.
 
-        ::cron::at start\_coffee \{Tomorrow at 9:00am\}  \{remote::exec::coffeepot power on\}
-        ::cron::at shutdown\_coffee \{Tomorrow at 12:00pm\}  \{remote::exec::coffeepot power off\}
+        ::cron::at start_coffee {Tomorrow at 9:00am}  {remote::exec::coffeepot power on}
+        ::cron::at shutdown_coffee {Tomorrow at 12:00pm}  {remote::exec::coffeepot power off}
 
   - <a name='2'></a>__::cron::cancel__ *processname*
 
@@ -92,7 +92,7 @@ well with an external clock\.
     commands\. Note: processname can be a process created by either
     __::cron::at__ or __::cron::every__\.
 
-        ::cron::cancel check\_mail
+        ::cron::cancel check_mail
 
   - <a name='3'></a>__::cron::every__ *processname* *frequency* *command*
 
@@ -101,8 +101,8 @@ well with an external clock\.
     by subsequent calls to this package's commands by referencing
     *processname*\. If *processname* exists, it will be replaced\.
 
-        ::cron::every check\_mail 900  ::imap\_client::check\_mail
-        ::cron::every backup\_db  3600 \{::backup\_procedure ::mydb\}
+        ::cron::every check_mail 900  ::imap_client::check_mail
+        ::cron::every backup_db  3600 {::backup_procedure ::mydb}
 
   - <a name='4'></a>__::cron::in__ *?processname?* *timecode* *command*
 
@@ -131,8 +131,8 @@ well with an external clock\.
     In all other cases this command will generate a fictious variable, generate
     an after call, and vwait the variable:
 
-        set eventid \[incr ::cron::eventcount\]
-        set var ::cron::event\_\#$eventid
+        set eventid [incr ::cron::eventcount]
+        set var ::cron::event_#$eventid
         set $var 0
         ::after $ms "set $var 1"
         ::vwait $var
@@ -198,7 +198,7 @@ well with an external clock\.
     Wake up cron, and arrange for its event loop to be run during the next Idle
     cycle\.
 
-        ::cron::wake \{I just did something important\}
+        ::cron::wake {I just did something important}
 
 Several utility commands are provided that are used internally within cron and
 for testing cron, but may or may not be useful in the general cases\.

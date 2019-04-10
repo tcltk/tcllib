@@ -460,20 +460,20 @@ slashes\. To generate a valid __path__ for the scheme
 prepended with "__/__", and then any characters that do not match the
 __regexp__ bracket expression
 
-    \[a\-zA\-Z0\-9$\_\.\+\!\*'\(,\)?:@&=\-\]
+    [a-zA-Z0-9$_.+!*'(,)?:@&=-]
 
 must be percent\-encoded\.
 
 The result in this example is "__/C:/Other%20Files/startup\.txt__" which is a
 valid value for __path__\.
 
-    % uri::join path /C:/Other%20Files/startup\.txt scheme file
+    % uri::join path /C:/Other%20Files/startup.txt scheme file
 
-    file:///C:/Other%20Files/startup\.txt
+    file:///C:/Other%20Files/startup.txt
 
-    % uri::split file:///C:/Other%20Files/startup\.txt
+    % uri::split file:///C:/Other%20Files/startup.txt
 
-    path /C:/Other%20Files/startup\.txt scheme file
+    path /C:/Other%20Files/startup.txt scheme file
 
 On UNIX® systems filenames begin with "__/__" which is also used as the
 directory separator\. The only action needed to convert a filename to a valid

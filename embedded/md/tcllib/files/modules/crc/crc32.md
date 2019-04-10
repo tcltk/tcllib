@@ -129,18 +129,18 @@ and can help to avoid excessive memory consumption\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % crc::crc32 "Hello, World\!"
+    % crc::crc32 "Hello, World!"
     3964322768
 
-    % crc::crc32 \-format 0x%X "Hello, World\!"
+    % crc::crc32 -format 0x%X "Hello, World!"
     0xEC4AC3D0
 
-    % crc::crc32 \-file crc32\.tcl
+    % crc::crc32 -file crc32.tcl
     483919716
 
-    % set tok \[crc::Crc32Init\]
+    % set tok [crc::Crc32Init]
     % crc::Crc32Update $tok "Hello, "
-    % crc::Crc32Update $tok "World\!"
+    % crc::Crc32Update $tok "World!"
     % crc::Crc32Final $tok
     3964322768
 

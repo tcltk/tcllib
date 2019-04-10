@@ -83,26 +83,26 @@ core\.
     levels of a dict\. Dict keys which end in a : indicate a leaf, which will be
     interpreted as a literal value, and not descended into further\.
 
-        set items \[dict merge \{
-          option \{color \{default: green\}\}
-        \} \{
-          option \{fruit \{default: mango\}\}
-        \} \{
-          option \{color \{default: blue\} fruit \{widget: select values: \{mango apple cherry grape\}\}\}
-        \}\]
-        puts \[dict print $items\]
+        set items [dict merge {
+          option {color {default: green}}
+        } {
+          option {fruit {default: mango}}
+        } {
+          option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
+        }]
+        puts [dict print $items]
 
     Prints the following result:
 
-        option \{
-          color \{
+        option {
+          color {
             default: blue
-          \}
-          fruit \{
+          }
+          fruit {
             widget: select
-            values: \{mango apple cherry grape\}
-          \}
-        \}
+            values: {mango apple cherry grape}
+          }
+        }
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

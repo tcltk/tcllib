@@ -113,47 +113,47 @@ In the following table several characteristics of the functions in this package
 are summarized: the domain for the argument, the values for the parameters and
 error bounds\.
 
-    Family       &#124; Function    &#124; Domain x    &#124; Parameter   &#124; Error bound
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-    Bessel       &#124; J0, J1,     &#124; all of R    &#124; n = integer &#124;   < 1\.0e\-8
-                 &#124; Jn          &#124;             &#124;             &#124;  \(&#124;x&#124;<20, n<20\)
-    Bessel       &#124; J1/2, J\-1/2,&#124;  x > 0      &#124; n = integer &#124;   exact
-    Bessel       &#124; I\_n         &#124; all of R    &#124; n = integer &#124;   < 1\.0e\-6
-                 &#124;             &#124;             &#124;             &#124;
-    Elliptic     &#124; cn          &#124; 0 <= x <= 1 &#124;     \-\-      &#124;   < 1\.0e\-10
-    functions    &#124; dn          &#124; 0 <= x <= 1 &#124;     \-\-      &#124;   < 1\.0e\-10
-                 &#124; sn          &#124; 0 <= x <= 1 &#124;     \-\-      &#124;   < 1\.0e\-10
-    Elliptic     &#124; K           &#124; 0 <= x < 1  &#124;     \-\-      &#124;   < 1\.0e\-6
-    integrals    &#124; E           &#124; 0 <= x < 1  &#124;     \-\-      &#124;   < 1\.0e\-6
-                 &#124;             &#124;             &#124;             &#124;
-    Error        &#124; erf         &#124;             &#124;     \-\-      &#124;
-    functions    &#124; erfc        &#124;             &#124;             &#124;
-                 &#124;             &#124;             &#124;             &#124;
-    Inverse      &#124; invnorm     &#124; 0 < x < 1   &#124;     \-\-      &#124;   < 1\.2e\-9
-    normal       &#124;             &#124;             &#124;             &#124;
-    distribution &#124;             &#124;             &#124;             &#124;
-                 &#124;             &#124;             &#124;             &#124;
-    Exponential  &#124; Ei          &#124;  x \!= 0     &#124;     \-\-      &#124;   < 1\.0e\-10 \(relative\)
-    integrals    &#124; En          &#124;  x >  0     &#124;     \-\-      &#124;   as Ei
-                 &#124; li          &#124;  x > 0      &#124;     \-\-      &#124;   as Ei
-                 &#124; Chi         &#124;  x > 0      &#124;     \-\-      &#124;   < 1\.0e\-8
-                 &#124; Shi         &#124;  x > 0      &#124;     \-\-      &#124;   < 1\.0e\-8
-                 &#124; Ci          &#124;  x > 0      &#124;     \-\-      &#124;   < 2\.0e\-4
-                 &#124; Si          &#124;  x > 0      &#124;     \-\-      &#124;   < 2\.0e\-4
-                 &#124;             &#124;             &#124;             &#124;
-    Fresnel      &#124; C           &#124;  all of R   &#124;     \-\-      &#124;   < 2\.0e\-3
-    integrals    &#124; S           &#124;  all of R   &#124;     \-\-      &#124;   < 2\.0e\-3
-                 &#124;             &#124;             &#124;             &#124;
-    general      &#124; Beta        &#124; \(see Gamma\) &#124;     \-\-      &#124;   < 1\.0e\-9
-                 &#124; Gamma       &#124;  x \!= 0,\-1, &#124;     \-\-      &#124;   < 1\.0e\-9
-                 &#124;             &#124;  \-2, \.\.\.    &#124;             &#124;
-                 &#124; sinc        &#124;  all of R   &#124;     \-\-      &#124;   exact
-                 &#124;             &#124;             &#124;             &#124;
-    orthogonal   &#124; Legendre    &#124;  all of R   &#124; n = 0,1,\.\.\. &#124;   exact
-    polynomials  &#124; Chebyshev   &#124;  all of R   &#124; n = 0,1,\.\.\. &#124;   exact
-                 &#124; Laguerre    &#124;  all of R   &#124; n = 0,1,\.\.\. &#124;   exact
-                 &#124;             &#124;             &#124; alpha el\. R &#124;
-                 &#124; Hermite     &#124;  all of R   &#124; n = 0,1,\.\.\. &#124;   exact
+    Family       | Function    | Domain x    | Parameter   | Error bound
+    -------------+-------------+-------------+-------------+--------------
+    Bessel       | J0, J1,     | all of R    | n = integer |   < 1.0e-8
+                 | Jn          |             |             |  (|x|<20, n<20)
+    Bessel       | J1/2, J-1/2,|  x > 0      | n = integer |   exact
+    Bessel       | I_n         | all of R    | n = integer |   < 1.0e-6
+                 |             |             |             |
+    Elliptic     | cn          | 0 <= x <= 1 |     --      |   < 1.0e-10
+    functions    | dn          | 0 <= x <= 1 |     --      |   < 1.0e-10
+                 | sn          | 0 <= x <= 1 |     --      |   < 1.0e-10
+    Elliptic     | K           | 0 <= x < 1  |     --      |   < 1.0e-6
+    integrals    | E           | 0 <= x < 1  |     --      |   < 1.0e-6
+                 |             |             |             |
+    Error        | erf         |             |     --      |
+    functions    | erfc        |             |             |
+                 |             |             |             |
+    Inverse      | invnorm     | 0 < x < 1   |     --      |   < 1.2e-9
+    normal       |             |             |             |
+    distribution |             |             |             |
+                 |             |             |             |
+    Exponential  | Ei          |  x != 0     |     --      |   < 1.0e-10 (relative)
+    integrals    | En          |  x >  0     |     --      |   as Ei
+                 | li          |  x > 0      |     --      |   as Ei
+                 | Chi         |  x > 0      |     --      |   < 1.0e-8
+                 | Shi         |  x > 0      |     --      |   < 1.0e-8
+                 | Ci          |  x > 0      |     --      |   < 2.0e-4
+                 | Si          |  x > 0      |     --      |   < 2.0e-4
+                 |             |             |             |
+    Fresnel      | C           |  all of R   |     --      |   < 2.0e-3
+    integrals    | S           |  all of R   |     --      |   < 2.0e-3
+                 |             |             |             |
+    general      | Beta        | (see Gamma) |     --      |   < 1.0e-9
+                 | Gamma       |  x != 0,-1, |     --      |   < 1.0e-9
+                 |             |  -2, ...    |             |
+                 | sinc        |  all of R   |     --      |   exact
+                 |             |             |             |
+    orthogonal   | Legendre    |  all of R   | n = 0,1,... |   exact
+    polynomials  | Chebyshev   |  all of R   | n = 0,1,... |   exact
+                 | Laguerre    |  all of R   | n = 0,1,... |   exact
+                 |             |             | alpha el. R |
+                 | Hermite     |  all of R   | n = 0,1,... |   exact
 
 *Note:* Some of the error bounds are estimated, as no "formal" bounds were
 available with the implemented approximation method, others hold for the
@@ -463,8 +463,8 @@ For dealing with the classical families of orthogonal polynomials, the package
 relies on the *math::polynomials* package\. To evaluate the polynomial at some
 coordinate, use the *evalPolyn* command:
 
-    set leg2 \[::math::special::legendre 2\]
-    puts "Value at x=$x: \[::math::polynomials::evalPolyn $leg2 $x\]"
+    set leg2 [::math::special::legendre 2]
+    puts "Value at x=$x: [::math::polynomials::evalPolyn $leg2 $x]"
 
 The return value from the *legendre* and other commands is actually the
 definition of the corresponding polynomial as used in that package\.

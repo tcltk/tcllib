@@ -80,67 +80,67 @@ The JSON format used for tables of contents is a direct translation of the [ToC
 serialization format](#section5), mapping Tcl dictionaries as JSON objects
 and Tcl lists as JSON arrays\. For example, the Tcl serialization
 
-    doctools::toc \{
-        items \{
-            \{reference \{
-    	    desc \{DocTools \- Tables of Contents\}
-    	     id introduction\.man
+    doctools::toc {
+        items {
+            {reference {
+    	    desc {DocTools - Tables of Contents}
+    	     id introduction.man
     	     label doctools::toc::introduction
-    	\}\}
-    	\{division \{
-    	     id processing\.man
-    	     items \{
-    	         \{reference \{
-    		     desc \{doctoc serialization utilities\}
-    		     id structure\.man
+    	}}
+    	{division {
+    	     id processing.man
+    	     items {
+    	         {reference {
+    		     desc {doctoc serialization utilities}
+    		     id structure.man
     		     label doctools::toc::structure
-    		 \}\}
-    		 \{reference \{
-    		     desc \{Parsing text in doctoc format\}
-    		     id parse\.man
+    		 }}
+    		 {reference {
+    		     desc {Parsing text in doctoc format}
+    		     id parse.man
     		     label doctools::toc::parse
-    		 \}\}
-    	     \}
+    		 }}
+    	     }
                  label Processing
-            \}\}
-        \}
-        label \{Table of Contents\}
+            }}
+        }
+        label {Table of Contents}
         title TOC
-    \}
+    }
 
 is equivalent to the JSON string
 
-    \{
-        "doctools::toc" : \{
-            "items" : \[\{
-                "reference" : \{
-                    "desc"  : "DocTools \- Tables of Contents",
-                    "id"    : "introduction\.man",
+    {
+        "doctools::toc" : {
+            "items" : [{
+                "reference" : {
+                    "desc"  : "DocTools - Tables of Contents",
+                    "id"    : "introduction.man",
                     "label" : "doctools::toc::introduction"
-                \}
-            \},\{
-                "division" : \{
-                    "id"    : "processing\.man",
-                    "items" : \[\{
-                        "reference" : \{
+                }
+            },{
+                "division" : {
+                    "id"    : "processing.man",
+                    "items" : [{
+                        "reference" : {
                             "desc"  : "doctoc serialization utilities",
-                            "id"    : "structure\.man",
+                            "id"    : "structure.man",
                             "label" : "doctools::toc::structure"
-                        \}
-                    \},\{
-                        "reference" : \{
+                        }
+                    },{
+                        "reference" : {
                             "desc"  : "Parsing text in doctoc format",
-                            "id"    : "parse\.man",
+                            "id"    : "parse.man",
                             "label" : "doctools::toc::parse"
-                        \}
-                    \}\],
+                        }
+                    }],
                     "label" : "Processing"
-                \}
-            \}\],
+                }
+            }],
             "label" : "Table of Contents",
             "title" : "TOC"
-        \}
-    \}
+        }
+    }
 
 # <a name='section4'></a>Configuration
 

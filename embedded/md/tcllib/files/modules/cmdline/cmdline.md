@@ -160,43 +160,43 @@ command\. This code always has the word __CMDLINE__ as its first element\.
 
 # <a name='section4'></a>EXAMPLES
 
-            package require Tcl 8\.5
-            package require try         ;\# Tcllib\.
-            package require cmdline 1\.5 ;\# First version with proper error\-codes\.
+            package require Tcl 8.5
+            package require try         ;# Tcllib.
+            package require cmdline 1.5 ;# First version with proper error-codes.
 
-            \# Notes:
-            \# \- Tcl 8\.6\+ has 'try' as a builtin command and therefore does not
-            \#   need the 'try' package\.
-            \# \- Before Tcl 8\.5 we cannot support 'try' and have to use 'catch'\.
-            \#   This then requires a dedicated test \(if\) on the contents of
-            \#   ::errorCode to separate the CMDLINE USAGE signal from actual errors\.
+            # Notes:
+            # - Tcl 8.6+ has 'try' as a builtin command and therefore does not
+            #   need the 'try' package.
+            # - Before Tcl 8.5 we cannot support 'try' and have to use 'catch'.
+            #   This then requires a dedicated test (if) on the contents of
+            #   ::errorCode to separate the CMDLINE USAGE signal from actual errors.
 
-            set options \{
-                \{a          "set the atime only"\}
-                \{m          "set the mtime only"\}
-                \{c          "do not create non\-existent files"\}
-                \{r\.arg  ""  "use time from ref\_file"\}
-                \{t\.arg  \-1  "use specified time"\}
-            \}
-            set usage ": MyCommandName \\\[options\] filename \.\.\.\\noptions:"
+            set options {
+                {a          "set the atime only"}
+                {m          "set the mtime only"}
+                {c          "do not create non-existent files"}
+                {r.arg  ""  "use time from ref_file"}
+                {t.arg  -1  "use specified time"}
+            }
+            set usage ": MyCommandName \[options] filename ...\noptions:"
 
-            try \{
-                array set params \[::cmdline::getoptions argv $options $usage\]
-            \} trap \{CMDLINE USAGE\} \{msg o\} \{
-                \# Trap the usage signal, print the message, and exit the application\.
-                \# Note: Other errors are not caught and passed through to higher levels\!
+            try {
+                array set params [::cmdline::getoptions argv $options $usage]
+            } trap {CMDLINE USAGE} {msg o} {
+                # Trap the usage signal, print the message, and exit the application.
+                # Note: Other errors are not caught and passed through to higher levels!
     	    puts $msg
     	    exit 1
-            \}
+            }
 
-            if \{  $params\(a\) \} \{ set set\_atime "true" \}
-            set has\_t \[expr \{$params\(t\) \!= \-1\}\]
-            set has\_r \[expr \{\[string length $params\(r\)\] > 0\}\]
-            if \{$has\_t && $has\_r\} \{
-                return \-code error "Cannot specify both \-r and \-t"
-            \} elseif \{$has\_t\} \{
-    	    \.\.\.
-            \}
+            if {  $params(a) } { set set_atime "true" }
+            set has_t [expr {$params(t) != -1}]
+            set has_r [expr {[string length $params(r)] > 0}]
+            if {$has_t && $has_r} {
+                return -code error "Cannot specify both -r and -t"
+            } elseif {$has_t} {
+    	    ...
+            }
 
 This example, taken \(and slightly modified\) from the package
 __[fileutil](\.\./fileutil/fileutil\.md)__, shows how to use cmdline\.

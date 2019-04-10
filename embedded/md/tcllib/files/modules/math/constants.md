@@ -59,7 +59,7 @@ The motivation for this package is that quite often, with \(mathematical\)
 computations, you need a good approximation to, say, the ratio of degrees to
 radians\. You can, of course, define this like:
 
-    variable radtodeg \[expr \{180\.0/\(4\.0\*atan\(1\.0\)\)\}\]
+    variable radtodeg [expr {180.0/(4.0*atan(1.0))}]
 
 and use the variable radtodeg whenever you need the conversion\.
 
@@ -89,7 +89,7 @@ mathematical tables with more precision than usually can be handled\) include:
   - purely numerical values such as 1/3 that are included for convenience and
     for the fact that certain seemingly trivial computations like:
 
-    set value \[expr \{3\.0\*$onethird\}\]
+    set value [expr {3.0*$onethird}]
 
     give *exactly* the value you expect \(if IEEE arithmetic is available\)\.
 

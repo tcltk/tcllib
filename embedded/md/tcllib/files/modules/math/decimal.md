@@ -110,27 +110,27 @@ about individual procedures\.
 
     package require math::decimal
 
-    \# Various operations on two numbers\.
-    \# We first convert them to decimal format\.
-    set a \[::math::decimal::fromstr 8\.2\]
-    set b \[::math::decimal::fromstr \.2\]
+    # Various operations on two numbers.
+    # We first convert them to decimal format.
+    set a [::math::decimal::fromstr 8.2]
+    set b [::math::decimal::fromstr .2]
 
-    \# Then we perform our operations\. Here we add
-    set c \[::math::decimal::\+ $a $b\]
+    # Then we perform our operations. Here we add
+    set c [::math::decimal::+ $a $b]
 
-    \# Finally we convert back to string format for presentation to the user\.
-    puts \[::math::decimal::tostr $c\] ; \# => will output 8\.4
+    # Finally we convert back to string format for presentation to the user.
+    puts [::math::decimal::tostr $c] ; # => will output 8.4
 
-    \# Other examples
-    \#
-    \# Subtraction
-    set c \[::math::decimal::\- $a $b\]
-    puts \[::math::decimal::tostr $c\] ; \# => will output 8\.0
+    # Other examples
+    #
+    # Subtraction
+    set c [::math::decimal::- $a $b]
+    puts [::math::decimal::tostr $c] ; # => will output 8.0
 
-    \# Why bother using this instead of simply expr?
-    puts \[expr \{8\.2 \+ \.2\}\] ; \# => will output 8\.399999999999999
-    puts \[expr \{8\.2 \- \.2\}\] ; \# => will output 7\.999999999999999
-    \# See http://speleotrove\.com/decimal to learn more about why this happens\.
+    # Why bother using this instead of simply expr?
+    puts [expr {8.2 + .2}] ; # => will output 8.399999999999999
+    puts [expr {8.2 - .2}] ; # => will output 7.999999999999999
+    # See http://speleotrove.com/decimal to learn more about why this happens.
 
 # <a name='section3'></a>API
 
