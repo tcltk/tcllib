@@ -388,7 +388,7 @@ which will come up with branches, and their associated fossil command
     of ways of doing such from the command line, although some magic
     incantantion of __fossil tag create__ may work\)\.
 
-    It helps tp keep awareness, like checking before any commit that we are on
+    It helps to keep awareness, like checking before any commit that we are on
     the desired branch\.
 
   - *Merging a branch into trunk*
@@ -415,7 +415,7 @@ which will come up with branches, and their associated fossil command
       1. Now merge to the trunk using
 
              fossil update trunk
-             fossil merge --integrate YOU_BRANCH
+             fossil merge --integrate YOUR_BRANCH
 
       1. At this point the checkout should be in the same state as at the end of
          point \(3\) above, because we resolved any issues with the trunk already\.

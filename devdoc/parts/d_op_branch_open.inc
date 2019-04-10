@@ -55,5 +55,5 @@ message, files to commit, etc.
        the command line, although some magic incantantion of
        [cmd {fossil tag create}] may work).
 
-[para] It helps tp keep awareness, like checking before any commit
+[para] It helps to keep awareness, like checking before any commit
        that we are on the desired branch.

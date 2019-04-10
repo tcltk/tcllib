@@ -25,7 +25,7 @@ Be aware of where you are (see first definition).
 
 [example {
     fossil update trunk
-    fossil merge --integrate YOU_BRANCH
+    fossil merge --integrate YOUR_BRANCH
 }]
 
 [enum] At this point the checkout should be in the same state as at
