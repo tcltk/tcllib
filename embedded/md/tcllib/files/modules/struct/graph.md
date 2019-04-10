@@ -198,7 +198,7 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *graphName* __deserialize__ \[*sourcegraph* __serialize__\]
+        *graphName* __deserialize__ [*sourcegraph* __serialize__]
 
     The operation assumes that the *sourcegraph* provides the method
     __serialize__ and that this method returns a valid graph serialization\.
@@ -212,7 +212,7 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *destgraph* __deserialize__ \[*graphName* __serialize__\]
+        *destgraph* __deserialize__ [*graphName* __serialize__]
 
     The operation assumes that the *destgraph* provides the method
     __deserialize__ and that this method takes a graph serialization\.
@@ -728,24 +728,24 @@ The following commands are possible for graph objects:
     *Note:* The order of the nodes in the serialization has no relevance, nor
     has the order of the arcs per node\.
 
-        \# A possible serialization for the graph structure
-        \#
-        \#        d \-\-\-\-\-> %2
-        \#       /         ^ \\\\
-        \#      /         /   \\\\
-        \#     /         b     \\\\
-        \#    /         /       \\\\
-        \#  %1 <\- a \- %0         e
-        \#    ^         \\\\      /
-        \#     \\\\        c     /
-        \#      \\\\        \\\\  /
-        \#       \\\\        v v
-        \#        f \-\-\-\-\-\- %3
-        \# is
-        \#
-        \# %3 \{\} \{\{f 6 \{\}\}\} %0 \{\} \{\{a 6 \{\}\} \{b 9 \{\}\} \{c 0 \{\}\}\} %1 \{\} \{\{d 9 \{\}\}\} %2 \{\} \{\{e 0 \{\}\}\} \{\}
-        \#
-        \# This assumes that the graph has neither attribute data nor weighted arcs\.
+        # A possible serialization for the graph structure
+        #
+        #        d -----> %2
+        #       /         ^ \\
+        #      /         /   \\
+        #     /         b     \\
+        #    /         /       \\
+        #  %1 <- a - %0         e
+        #    ^         \\      /
+        #     \\        c     /
+        #      \\        \\  /
+        #       \\        v v
+        #        f ------ %3
+        # is
+        #
+        # %3 {} {{f 6 {}}} %0 {} {{a 6 {}} {b 9 {}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {}
+        #
+        # This assumes that the graph has neither attribute data nor weighted arcs.
 
   - <a name='64'></a>*graphName* __set__ *key* ?*value*?
 

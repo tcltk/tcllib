@@ -98,13 +98,13 @@ used by default but the SysV algorithm is also available\.
 
 # <a name='section4'></a>EXAMPLES
 
-    % crc::sum "Hello, World\!"
+    % crc::sum "Hello, World!"
     37287
 
-    % crc::sum \-format 0x%X "Hello, World\!"
+    % crc::sum -format 0x%X "Hello, World!"
     0x91A7
 
-    % crc::sum \-file sum\.tcl
+    % crc::sum -file sum.tcl
     13392
 
 # <a name='section5'></a>AUTHORS

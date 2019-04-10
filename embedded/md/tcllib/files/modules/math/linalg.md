@@ -999,7 +999,7 @@ specialised procedures, see below\):
 
     The factorization has the form
 
-        P \* A = L \* U
+        P * A = L * U
 
     where P is a permutation matrix, L is lower triangular with unit diagonal
     elements, and U is upper triangular\. Returns the permutation vector, as a
@@ -1091,7 +1091,7 @@ is related to ordinary matrices as follows:
 
   - To set element \(i,j\) of matrix "B" use:
 
-        setelem B $j \[expr \{$N\+$i\-1\}\] $value
+        setelem B $j [expr {$N+$i-1}] $value
 
 \(There is no convenience procedure for this yet\)
 
@@ -1130,17 +1130,17 @@ defines all its commands in the global namespace\. The solution is to import the
 linear algebra commands in a namespace that is not the global one:
 
     package require math::linearalgebra
-    namespace eval compute \{
-        namespace import ::math::linearalgebra::\*
-        \.\.\. use the linear algebra version of scale \.\.\.
-    \}
+    namespace eval compute {
+        namespace import ::math::linearalgebra::*
+        ... use the linear algebra version of scale ...
+    }
 
 To use Tk's scale command in that same namespace you can rename it:
 
-    namespace eval compute \{
+    namespace eval compute {
         rename ::scale scaleTk
-        scaleTk \.scale \.\.\.
-    \}
+        scaleTk .scale ...
+    }
 
 # <a name='section7'></a>Bugs, Ideas, Feedback
 

@@ -99,9 +99,9 @@ algorithm\.
     value in the footer\. Use this option to change the default from *true* to
     *false*\.
 
-    % set d \[yencode::yencode \-file testfile\.txt\]
-    =ybegin line=128 size=584 name=testfile\.txt
-     \-o\- data not shown \-o\-
+    % set d [yencode::yencode -file testfile.txt]
+    =ybegin line=128 size=584 name=testfile.txt
+     -o- data not shown -o-
     =yend size=584 crc32=ded29f4f
 
 # <a name='section3'></a>References

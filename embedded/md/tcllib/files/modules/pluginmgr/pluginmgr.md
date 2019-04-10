@@ -158,21 +158,21 @@ allow plugins the loading of all additional packages they may need\.
 
         ::pluginmgr::paths ::obj docidx
 
-        => env  DOCIDX\_PLUGINS
-           reg  HKEY\_LOCAL\_MACHINE\\SOFTWARE\\docidx\\PLUGINS
-           reg  HKEY\_CURRENT\_USER\\SOFTWARE\\docidx\\PLUGINS
-           path ~/\.docidx/plugins
+        => env  DOCIDX_PLUGINS
+           reg  HKEY_LOCAL_MACHINE\SOFTWARE\docidx\PLUGINS
+           reg  HKEY_CURRENT_USER\SOFTWARE\docidx\PLUGINS
+           path ~/.docidx/plugins
 
         ::pluginmgr::paths ::obj doctools::idx
 
-        => env  DOCTOOLS\_PLUGINS
-           env  DOCTOOLS\_IDX\_PLUGINS
-           reg  HKEY\_LOCAL\_MACHINE\\SOFTWARE\\doctools\\PLUGINS
-           reg  HKEY\_LOCAL\_MACHINE\\SOFTWARE\\doctools\\idx\\PLUGINS
-           reg  HKEY\_CURRENT\_USER\\SOFTWARE\\doctools\\PLUGINS
-           reg  HKEY\_CURRENT\_USER\\SOFTWARE\\doctools\\idx\\PLUGINS
-           path ~/\.doctools/plugin
-           path ~/\.doctools/idx/plugin
+        => env  DOCTOOLS_PLUGINS
+           env  DOCTOOLS_IDX_PLUGINS
+           reg  HKEY_LOCAL_MACHINE\SOFTWARE\doctools\PLUGINS
+           reg  HKEY_LOCAL_MACHINE\SOFTWARE\doctools\idx\PLUGINS
+           reg  HKEY_CURRENT_USER\SOFTWARE\doctools\PLUGINS
+           reg  HKEY_CURRENT_USER\SOFTWARE\doctools\idx\PLUGINS
+           path ~/.doctools/plugin
+           path ~/.doctools/idx/plugin
 
 ## <a name='subsection2'></a>OBJECT COMMAND
 

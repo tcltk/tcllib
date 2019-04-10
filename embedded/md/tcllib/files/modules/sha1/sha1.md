@@ -158,12 +158,12 @@ all cases\.
     % sha1::hmac Sekret "Tcl does SHA1"
     ae6251fa51b95b18cba2be95eb031d07475ff03c
 
-    % set tok \[sha1::SHA1Init\]
+    % set tok [sha1::SHA1Init]
     ::sha1::1
     % sha1::SHA1Update $tok "Tcl "
     % sha1::SHA1Update $tok "does "
     % sha1::SHA1Update $tok "SHA1"
-    % sha1::Hex \[sha1::SHA1Final $tok\]
+    % sha1::Hex [sha1::SHA1Final $tok]
     285a6a91c45a9066bf39fcf24425796ef0b2a8bf
 
 # <a name='section5'></a>REFERENCES

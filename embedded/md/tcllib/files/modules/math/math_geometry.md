@@ -155,7 +155,7 @@ The package defines the following public procedures:
     Compute the distance between the two points and return it as the result of
     the command\. This is in essence the same as
 
-        math::geometry::length \[math::geomtry::\- point1 point2\]
+        math::geometry::length [math::geomtry::- point1 point2]
 
   - <a name='5'></a>__::math::geometry::length__ *point*
 

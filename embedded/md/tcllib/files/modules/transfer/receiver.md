@@ -270,13 +270,13 @@ package __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ and then configure the
 option __\-socketcmd__ to force the use of command __tls::socket__ to
 open the socket\.
 
-    \# Load and initialize tls
+    # Load and initialize tls
     package require tls
-    tls::init \-cafile /path/to/ca/cert \-keyfile \.\.\.
+    tls::init -cafile /path/to/ca/cert -keyfile ...
 
-    \# Create a connector with secure socket setup,
-    transfer::receiver R \-socketcmd tls::socket \.\.\.
-    \.\.\.
+    # Create a connector with secure socket setup,
+    transfer::receiver R -socketcmd tls::socket ...
+    ...
 
 # <a name='section4'></a>TLS Security Considerations
 
@@ -299,9 +299,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

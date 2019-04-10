@@ -139,16 +139,16 @@ __\+__, __\*__ and parentheses as its operators\. It also shows the format
 in which the lexical analyzer is expected to present terminal symbols to the
 parser\.
 
-    set p \[aycock::parser \{
-        start ::= E \{\}
-        E ::= E \+ T \{expr \{\[lindex $\_ 0\] \+ \[lindex $\_ 2\]\}\}
-        E ::= T \{\}
-        T ::= T \* F \{expr \{\[lindex $\_ 0\] \* \[lindex $\_ 2\]\}\}
-        T ::= F \{\}
-        F ::= NUMBER \{\}
-        F ::= \( E \) \{lindex $\_ 1\}
-    \}\]
-    puts \[$p parse \{\(  NUMBER \+  NUMBER \)  \*  \( NUMBER \+  NUMBER \) \}  \{\{\} 2      \{\} 3      \{\} \{\} \{\} 7     \{\} 1      \{\}\}\]
+    set p [aycock::parser {
+        start ::= E {}
+        E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
+        E ::= T {}
+        T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
+        T ::= F {}
+        F ::= NUMBER {}
+        F ::= ( E ) {lindex $_ 1}
+    }]
+    puts [$p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) }  {{} 2      {} 3      {} {} {} 7     {} 1      {}}]
     $p destroy
 
 The example, when run, prints __40__\.

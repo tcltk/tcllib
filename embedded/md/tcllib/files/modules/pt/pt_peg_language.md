@@ -81,7 +81,7 @@ in the Parser Tools do not lend themselves too\.
 
 The general outline of a textual PEG is
 
-    PEG <<name>> \(<<start\-expression>>\)
+    PEG <<name>> (<<start-expression>>)
        <<rules>>
     END;
 
@@ -103,18 +103,18 @@ The structure of a name is simple:
 
 Or, in formal textual notation:
 
-    \(\[\_:\] / <alpha>\) \(\[\_:\] / <alnum>\)\*
+    ([_:] / <alpha>) ([_:] / <alnum>)*
 
 Examples of names:
 
     Hello
     ::world
-    \_:submarine55\_
+    _:submarine55_
 
 Examples of text which are *not* names:
 
     12
-    \.bogus
+    .bogus
     0wrong
     @location
 
@@ -124,7 +124,7 @@ The main body of the text of a grammar specification is taken up by the rules\.
 Each rule defines the sentence structure of one nonterminal symbol\. Their basic
 structure is
 
-    <<name>>  <\-  <<expression>> ;
+    <<name>>  <-  <<expression>> ;
 
 The <name> specifies the nonterminal symbol to be defined, the <expression>
 after the arrow \(<\-\) then declares its structure\.
@@ -152,45 +152,45 @@ by simply placing the parts adjacent to each other\.
 Here are the operators, from highest to lowest priority \(i\.e\. strength of
 binding\):
 
-    \# Binary operators\.
+    # Binary operators.
 
-    <<expression\-1>>     <<expression\-2>>  \# sequence\. parse 1, then 2\.
-    <<expression\-1>>  /  <<expression\-2>>  \# alternative\. try to parse 1, and parse 2 if 1 failed to parse\.
+    <<expression-1>>     <<expression-2>>  # sequence. parse 1, then 2.
+    <<expression-1>>  /  <<expression-2>>  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
 
-    \# Prefix operators\. Lookahead constraints\. Same priority\.
+    # Prefix operators. Lookahead constraints. Same priority.
 
-    & <<expression>>  \# Parse expression, ok on successful parse\.
-    \! <<expression>>  \# Ditto, except ok on failure to parse\.
+    & <<expression>>  # Parse expression, ok on successful parse.
+    ! <<expression>>  # Ditto, except ok on failure to parse.
 
-    \# Suffix operators\. Repetition\. Same priority\.
+    # Suffix operators. Repetition. Same priority.
 
-    <<expression>> ?  \# Parse expression none, or once \(repeat 0 or 1\)\.
-    <<expression>> \*  \# Parse expression zero or more times\.
-    <<expression>> \+  \# Parse expression one or more times\.
+    <<expression>> ?  # Parse expression none, or once (repeat 0 or 1).
+    <<expression>> *  # Parse expression zero or more times.
+    <<expression>> +  # Parse expression one or more times.
 
-    \# Expression nesting
+    # Expression nesting
 
-    \( <<expression>> \) \# Put an expression in parens to change its priority\.
+    ( <<expression>> ) # Put an expression in parens to change its priority.
 
 With this we can now deconstruct the formal expression for names given in
 section [Names](#subsection2):
 
-    \(\[\_:\] / <alpha>\) \(\[\_:\] / <alnum>\)\*
+    ([_:] / <alpha>) ([_:] / <alnum>)*
 
 It is a sequence of two parts,
 
-    \[\_:\] / <alpha>
+    [_:] / <alpha>
 
 and
 
-    \(\[\_:\] / <alnum>\)\*
+    ([_:] / <alnum>)*
 
 The parentheses around the parts kept their inner alternatives bound together
 against the normally higher priority of the sequence\. Each of the two parts is
 an alternative, with the second part additionally repeated zero or more times,
 leaving us with the three atomic expressions
 
-    \[\_:\]
+    [_:]
     <alpha>
     <alnum>
 
@@ -223,36 +223,36 @@ For the last, but not least of our atomic expressions, character classes, we
 have a number of predefined classes, shown below, and the ability to construct
 or own\. The predefined classes are:
 
-    <alnum>    \# Any unicode alphabet or digit character \(string is alnum\)\.
-    <alpha>    \# Any unicode alphabet character \(string is alpha\)\.
-    <ascii>    \# Any unicode character below codepoint 0x80 \(string is ascii\)\.
-    <control>  \# Any unicode control character \(string is control\)\.
-    <ddigit>   \# The digit characters \[0\-9\]\.
-    <digit>    \# Any unicode digit character \(string is digit\)\.
-    <graph>    \# Any unicode printing character, except space \(string is graph\)\.
-    <lower>    \# Any unicode lower\-case alphabet character \(string is lower\)\.
-    <print>    \# Any unicode printing character, incl\. space \(string is print\)\.
-    <punct>    \# Any unicode punctuation character \(string is punct\)\.
-    <space>    \# Any unicode space character \(string is space\)\.
-    <upper>    \# Any unicode upper\-case alphabet character \(string is upper\)\.
-    <wordchar> \# Any unicode word character \(string is wordchar\)\.
-    <xdigit>   \# The hexadecimal digit characters \[0\-9a\-fA\-F\]\.
-    \.          \# Any character, except end of input\.
+    <alnum>    # Any unicode alphabet or digit character (string is alnum).
+    <alpha>    # Any unicode alphabet character (string is alpha).
+    <ascii>    # Any unicode character below codepoint 0x80 (string is ascii).
+    <control>  # Any unicode control character (string is control).
+    <ddigit>   # The digit characters [0-9].
+    <digit>    # Any unicode digit character (string is digit).
+    <graph>    # Any unicode printing character, except space (string is graph).
+    <lower>    # Any unicode lower-case alphabet character (string is lower).
+    <print>    # Any unicode printing character, incl. space (string is print).
+    <punct>    # Any unicode punctuation character (string is punct).
+    <space>    # Any unicode space character (string is space).
+    <upper>    # Any unicode upper-case alphabet character (string is upper).
+    <wordchar> # Any unicode word character (string is wordchar).
+    <xdigit>   # The hexadecimal digit characters [0-9a-fA-F].
+    .          # Any character, except end of input.
 
 And the syntax of custom\-defined character classes is
 
-    \[ <<range>>\* \]
+    [ <<range>>* ]
 
 where each range is either a single character, or of the form
 
-    <<character>> \- <character>>
+    <<character>> - <character>>
 
 Examples for character classes we have seen already in the course of this
 introduction are
 
-    \[\_:\]
-    \[0\-9\]
-    \[0\-9a\-fA\-F\]
+    [_:]
+    [0-9]
+    [0-9a-fA-F]
 
 We are nearly done with expressions\. The only piece left is to tell how the
 characters in character classes and string literals are specified\.
@@ -266,10 +266,10 @@ codepoint 0x5C\)\. This is then followed by a series of octal digits, or 'u' and
 hexedecimal digits, or a regular character from a fixed set for various control
 characters\. Some examples:
 
-    \\n \\r \\t \\' \\" \\\[ \\\] \\\\ \#
-    \\000 up to \\277         \# octal escape, all ascii character, leading 0's can be removed\.
-    \\u2CA7                  \# hexadecimal escape, all unicode characters\.
-    \#                       \# Here 2ca7 <=> Koptic Small Letter Tau
+    \n \r \t \' \" \[ \] \\ #
+    \000 up to \277         # octal escape, all ascii character, leading 0's can be removed.
+    \u2CA7                  # hexadecimal escape, all unicode characters.
+    #                       # Here 2ca7 <=> Koptic Small Letter Tau
 
 ## <a name='subsection5'></a>Whitespace and comments
 
@@ -288,13 +288,13 @@ string literals, predefined character classes, etc\.
 Lastly, a more advanced topic\. In the section [Rules](#subsection3) we gave
 the structure of a rule as
 
-    <<name>>  <\-  <<expression>> ;
+    <<name>>  <-  <<expression>> ;
 
 This is not quite true\. It is possible to associate a semantic mode with the
 nonterminal in the rule, by writing it before the name, separated from it by a
 colon, i\.e\. writing
 
-    <<mode>> : <<name>>  <\-  <<expression>> ;
+    <<mode>> : <<name>>  <-  <<expression>> ;
 
 is also allowed\. This mode is optional\. The known modes and their meanings are:
 
@@ -335,21 +335,21 @@ It is formally specified by the grammar shown below, written in itself\. For a
 tutorial / introduction to the language please go and read the *PEG Language
 Tutorial*\.
 
-    PEG pe\-grammar\-for\-peg \(Grammar\)
+    PEG pe-grammar-for-peg (Grammar)
 
-    	\# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-            \# Syntactical constructs
+    	# --------------------------------------------------------------------
+            # Syntactical constructs
 
-            Grammar         <\- WHITESPACE Header Definition\* Final EOF ;
+            Grammar         <- WHITESPACE Header Definition* Final EOF ;
 
-            Header          <\- PEG Identifier StartExpr ;
-            Definition      <\- Attribute? Identifier IS Expression SEMICOLON ;
-            Attribute       <\- \(VOID / LEAF\) COLON ;
-            Expression      <\- Sequence \(SLASH Sequence\)\* ;
-            Sequence        <\- Prefix\+ ;
-            Prefix          <\- \(AND / NOT\)? Suffix ;
-            Suffix          <\- Primary \(QUESTION / STAR / PLUS\)? ;
-            Primary         <\- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
+            Header          <- PEG Identifier StartExpr ;
+            Definition      <- Attribute? Identifier IS Expression SEMICOLON ;
+            Attribute       <- (VOID / LEAF) COLON ;
+            Expression      <- Sequence (SLASH Sequence)* ;
+            Sequence        <- Prefix+ ;
+            Prefix          <- (AND / NOT)? Suffix ;
+            Suffix          <- Primary (QUESTION / STAR / PLUS)? ;
+            Primary         <- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
                             /  GRAPH / LOWER / PRINTABLE / PUNCT / SPACE / UPPER
                             /  WORDCHAR / XDIGIT
                             / Identifier
@@ -358,101 +358,101 @@ Tutorial*\.
                             /  Class
                             /  DOT
                             ;
-            Literal         <\- APOSTROPH  \(\!APOSTROPH  Char\)\* APOSTROPH  WHITESPACE
-                            /  DAPOSTROPH \(\!DAPOSTROPH Char\)\* DAPOSTROPH WHITESPACE ;
-            Class           <\- OPENB \(\!CLOSEB Range\)\* CLOSEB WHITESPACE ;
-            Range           <\- Char TO Char / Char ;
+            Literal         <- APOSTROPH  (!APOSTROPH  Char)* APOSTROPH  WHITESPACE
+                            /  DAPOSTROPH (!DAPOSTROPH Char)* DAPOSTROPH WHITESPACE ;
+            Class           <- OPENB (!CLOSEB Range)* CLOSEB WHITESPACE ;
+            Range           <- Char TO Char / Char ;
 
-            StartExpr       <\- OPEN Expression CLOSE ;
-    void:   Final           <\- "END" WHITESPACE SEMICOLON WHITESPACE ;
+            StartExpr       <- OPEN Expression CLOSE ;
+    void:   Final           <- "END" WHITESPACE SEMICOLON WHITESPACE ;
 
-            \# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-            \# Lexing constructs
+            # --------------------------------------------------------------------
+            # Lexing constructs
 
-            Identifier      <\- Ident WHITESPACE ;
-    leaf:   Ident           <\- \(\[\_:\] / <alpha>\) \(\[\_:\] / <alnum>\)\* ;
-            Char            <\- CharSpecial / CharOctalFull / CharOctalPart
+            Identifier      <- Ident WHITESPACE ;
+    leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
+            Char            <- CharSpecial / CharOctalFull / CharOctalPart
                             /  CharUnicode / CharUnescaped
                             ;
 
-    leaf:   CharSpecial     <\- "\\\\" \[nrt'"\\\[\\\]\\\\\] ;
-    leaf:   CharOctalFull   <\- "\\\\" \[0\-2\]\[0\-7\]\[0\-7\] ;
-    leaf:   CharOctalPart   <\- "\\\\" \[0\-7\]\[0\-7\]? ;
-    leaf:   CharUnicode     <\- "\\\\" 'u' HexDigit \(HexDigit \(HexDigit HexDigit?\)?\)? ;
-    leaf:   CharUnescaped   <\- \!"\\\\" \. ;
+    leaf:   CharSpecial     <- "\\" [nrt'"\[\]\\] ;
+    leaf:   CharOctalFull   <- "\\" [0-2][0-7][0-7] ;
+    leaf:   CharOctalPart   <- "\\" [0-7][0-7]? ;
+    leaf:   CharUnicode     <- "\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
+    leaf:   CharUnescaped   <- !"\\" . ;
 
-    void:   HexDigit        <\- \[0\-9a\-fA\-F\] ;
+    void:   HexDigit        <- [0-9a-fA-F] ;
 
-    void:   TO              <\- '\-'           ;
-    void:   OPENB           <\- "\["           ;
-    void:   CLOSEB          <\- "\]"           ;
-    void:   APOSTROPH       <\- "'"           ;
-    void:   DAPOSTROPH      <\- '"'           ;
-    void:   PEG             <\- "PEG" \!\(\[\_:\] / <alnum>\) WHITESPACE ;
-    void:   IS              <\- "<\-"    WHITESPACE ;
-    leaf:   VOID            <\- "void"  WHITESPACE ; \# Implies that definition has no semantic value\.
-    leaf:   LEAF            <\- "leaf"  WHITESPACE ; \# Implies that definition has no terminals\.
-    void:   SEMICOLON       <\- ";"     WHITESPACE ;
-    void:   COLON           <\- ":"     WHITESPACE ;
-    void:   SLASH           <\- "/"     WHITESPACE ;
-    leaf:   AND             <\- "&"     WHITESPACE ;
-    leaf:   NOT             <\- "\!"     WHITESPACE ;
-    leaf:   QUESTION        <\- "?"     WHITESPACE ;
-    leaf:   STAR            <\- "\*"     WHITESPACE ;
-    leaf:   PLUS            <\- "\+"     WHITESPACE ;
-    void:   OPEN            <\- "\("     WHITESPACE ;
-    void:   CLOSE           <\- "\)"     WHITESPACE ;
-    leaf:   DOT             <\- "\."     WHITESPACE ;
+    void:   TO              <- '-'           ;
+    void:   OPENB           <- "["           ;
+    void:   CLOSEB          <- "]"           ;
+    void:   APOSTROPH       <- "'"           ;
+    void:   DAPOSTROPH      <- '"'           ;
+    void:   PEG             <- "PEG" !([_:] / <alnum>) WHITESPACE ;
+    void:   IS              <- "<-"    WHITESPACE ;
+    leaf:   VOID            <- "void"  WHITESPACE ; # Implies that definition has no semantic value.
+    leaf:   LEAF            <- "leaf"  WHITESPACE ; # Implies that definition has no terminals.
+    void:   SEMICOLON       <- ";"     WHITESPACE ;
+    void:   COLON           <- ":"     WHITESPACE ;
+    void:   SLASH           <- "/"     WHITESPACE ;
+    leaf:   AND             <- "&"     WHITESPACE ;
+    leaf:   NOT             <- "!"     WHITESPACE ;
+    leaf:   QUESTION        <- "?"     WHITESPACE ;
+    leaf:   STAR            <- "*"     WHITESPACE ;
+    leaf:   PLUS            <- "+"     WHITESPACE ;
+    void:   OPEN            <- "("     WHITESPACE ;
+    void:   CLOSE           <- ")"     WHITESPACE ;
+    leaf:   DOT             <- "."     WHITESPACE ;
 
-    leaf:   ALNUM           <\- "<alnum>"    WHITESPACE ;
-    leaf:   ALPHA           <\- "<alpha>"    WHITESPACE ;
-    leaf:   ASCII           <\- "<ascii>"    WHITESPACE ;
-    leaf:   CONTROL         <\- "<control>"  WHITESPACE ;
-    leaf:   DDIGIT          <\- "<ddigit>"   WHITESPACE ;
-    leaf:   DIGIT           <\- "<digit>"    WHITESPACE ;
-    leaf:   GRAPH           <\- "<graph>"    WHITESPACE ;
-    leaf:   LOWER           <\- "<lower>"    WHITESPACE ;
-    leaf:   PRINTABLE       <\- "<print>"    WHITESPACE ;
-    leaf:   PUNCT           <\- "<punct>"    WHITESPACE ;
-    leaf:   SPACE           <\- "<space>"    WHITESPACE ;
-    leaf:   UPPER           <\- "<upper>"    WHITESPACE ;
-    leaf:   WORDCHAR        <\- "<wordchar>" WHITESPACE ;
-    leaf:   XDIGIT          <\- "<xdigit>"   WHITESPACE ;
+    leaf:   ALNUM           <- "<alnum>"    WHITESPACE ;
+    leaf:   ALPHA           <- "<alpha>"    WHITESPACE ;
+    leaf:   ASCII           <- "<ascii>"    WHITESPACE ;
+    leaf:   CONTROL         <- "<control>"  WHITESPACE ;
+    leaf:   DDIGIT          <- "<ddigit>"   WHITESPACE ;
+    leaf:   DIGIT           <- "<digit>"    WHITESPACE ;
+    leaf:   GRAPH           <- "<graph>"    WHITESPACE ;
+    leaf:   LOWER           <- "<lower>"    WHITESPACE ;
+    leaf:   PRINTABLE       <- "<print>"    WHITESPACE ;
+    leaf:   PUNCT           <- "<punct>"    WHITESPACE ;
+    leaf:   SPACE           <- "<space>"    WHITESPACE ;
+    leaf:   UPPER           <- "<upper>"    WHITESPACE ;
+    leaf:   WORDCHAR        <- "<wordchar>" WHITESPACE ;
+    leaf:   XDIGIT          <- "<xdigit>"   WHITESPACE ;
 
-    void:   WHITESPACE      <\- \(" " / "\\t" / EOL / COMMENT\)\* ;
-    void:   COMMENT         <\- '\#' \(\!EOL \.\)\* EOL ;
-    void:   EOL             <\- "\\n\\r" / "\\n" / "\\r" ;
-    void:   EOF             <\- \!\. ;
+    void:   WHITESPACE      <- (" " / "\t" / EOL / COMMENT)* ;
+    void:   COMMENT         <- '#' (!EOL .)* EOL ;
+    void:   EOL             <- "\n\r" / "\n" / "\r" ;
+    void:   EOF             <- !. ;
 
-            \# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+            # --------------------------------------------------------------------
     END;
 
 ## <a name='subsection7'></a>Example
 
 Our example specifies the grammar for a basic 4\-operation calculator\.
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 Using higher\-level features of the notation, i\.e\. the character classes
 \(predefined and custom\), this example can be rewritten as
 
-    PEG calculator \(Expression\)
-        Sign       <\- \[\-\+\] 						;
-        Number     <\- Sign? <ddigit>\+				;
-        Expression <\- '\(' Expression '\)' / \(Factor \(MulOp Factor\)\*\)	;
-        MulOp      <\- \[\*/\]						;
-        Factor     <\- Term \(AddOp Term\)\*				;
-        AddOp      <\- \[\-\+\]						;
-        Term       <\- Number					;
+    PEG calculator (Expression)
+        Sign       <- [-+] 						;
+        Number     <- Sign? <ddigit>+				;
+        Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+        MulOp      <- [*/]						;
+        Factor     <- Term (AddOp Term)*				;
+        AddOp      <- [-+]						;
+        Term       <- Number					;
     END;
 
 # <a name='section5'></a>Bugs, Ideas, Feedback

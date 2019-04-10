@@ -104,11 +104,11 @@ accepted\.
 
 # <a name='section4'></a>Examples
 
-    math::calculus::symdiff::symdiff \{\($a\*$x\+$b\)\*\($c\*$x\+$d\)\} x
-    ==> \(\($c \* \(\($a \* $x\) \+ $b\)\) \+ \($a \* \(\($c \* $x\) \+ $d\)\)\)
-    math::calculus::symdiff::jacobian \{x \{$a \* $x \+ $b \* $y\}
-                             y \{$c \* $x \+ $d \* $y\}\}
-    ==> \{\{$a\} \{$b\}\} \{\{$c\} \{$d\}\}
+    math::calculus::symdiff::symdiff {($a*$x+$b)*($c*$x+$d)} x
+    ==> (($c * (($a * $x) + $b)) + ($a * (($c * $x) + $d)))
+    math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
+                             y {$c * $x + $d * $y}}
+    ==> {{$a} {$b}} {{$c} {$d}}
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

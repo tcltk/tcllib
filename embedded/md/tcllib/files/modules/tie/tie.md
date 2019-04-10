@@ -470,17 +470,17 @@ source](\.\./\.\./\.\./\.\./index\.md\#data\_source)* methods to the regular Tcl
 commands for accessing an array\.
 
     Regular Tcl             Data source
-    \-\-\-\-\-\-\-\-\-\-\-             \-\-\-\-\-\-\-\-\-\-\-
+    -----------             -----------
     array names a           ds names
     array size  a           ds size
     array get   a           ds get
     array set   a dict      ds set   dict
     array unset a pattern   ds unset ?pattern?
-    \-\-\-\-\-\-\-\-\-\-\-             \-\-\-\-\-\-\-\-\-\-\-
-    set a\($idx\) $val        ds setv   idx val
-    unset a\($idx\)           ds unsetv idx
-    $a\($idx\)                ds getv   idx
-    \-\-\-\-\-\-\-\-\-\-\-             \-\-\-\-\-\-\-\-\-\-\-
+    -----------             -----------
+    set a($idx) $val        ds setv   idx val
+    unset a($idx)           ds unsetv idx
+    $a($idx)                ds getv   idx
+    -----------             -----------
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

@@ -114,18 +114,18 @@ or process the returned data yourself
 
         set appid APPID
         set search tcl
-        set res \[rest::get http://boss\.yahooapis\.com/ysearch/web/v1/$search \[list appid $appid\]\]
-        set res \[rest::format\_json $res\]
+        set res [rest::get http://boss.yahooapis.com/ysearch/web/v1/$search [list appid $appid]]
+        set res [rest::format_json $res]
 
     Example 2, Twitter:
 
-        set url   http://twitter\.com/statuses/update\.json
-        set query \[list status $text\]
-        set res \[rest::simple $url $query \{
+        set url   http://twitter.com/statuses/update.json
+        set query [list status $text]
+        set res [rest::simple $url $query {
             method post
-            auth   \{basic user password\}
+            auth   {basic user password}
             format json
-        \}\]
+        }]
 
 # <a name='section3'></a>Interface usage
 
@@ -141,13 +141,13 @@ Example, Yahoo Weather:
 
     package require rest
 
-    set yweather\(forecast\) \{
-       url      http://weather\.yahooapis\.com/forecastrss
-       req\_args \{ p: \}
-       opt\_args \{ u: \}
-    \}
-    rest::create\_interface yweather
-    puts \[yweather::forecast \-p 94089\]
+    set yweather(forecast) {
+       url      http://weather.yahooapis.com/forecastrss
+       req_args { p: }
+       opt_args { u: }
+    }
+    rest::create_interface yweather
+    puts [yweather::forecast -p 94089]
 
   - <a name='8'></a>__::rest::save__ *name* *file*
 
@@ -461,47 +461,47 @@ Example, Yahoo Weather:
 
 Yahoo Geo:
 
-    set ygeo\(parse\) \{
-        url http://wherein\.yahooapis\.com/v1/document
+    set ygeo(parse) {
+        url http://wherein.yahooapis.com/v1/document
         method post
-        body \{ arg documentContent \}
-    \}
+        body { arg documentContent }
+    }
     ygeo::parse "san jose ca"
-    \# "san jose ca" will be interpreted as if it were specified as the \-documentContent option
+    # "san jose ca" will be interpreted as if it were specified as the -documentContent option
 
 Google Docs:
 
-    set gdocs\(upload\) \{
-        url http://docs\.google\.com/feeds/default/private/full
-        body mime\_multipart
-    \}
-    gdocs::upload \[list \{Content\-Type application/atom\+xml\} $xml\] \[list \{Content\-Type image/jpeg\} $filedata\]
+    set gdocs(upload) {
+        url http://docs.google.com/feeds/default/private/full
+        body mime_multipart
+    }
+    gdocs::upload [list {Content-Type application/atom+xml} $xml] [list {Content-Type image/jpeg} $filedata]
 
 Delicious:
 
-    set delicious\(updated\) \{
-        url https://api\.del\.icio\.us/v1/posts/update
+    set delicious(updated) {
+        url https://api.del.icio.us/v1/posts/update
         auth basic
-    \}
+    }
 
-    rest::create\_interface flickr
+    rest::create_interface flickr
 
-    flickr::basic\_auth username password
+    flickr::basic_auth username password
 
 Flickr:
 
-    set flickr\(auth\.getToken\) \{
-       url http://api\.flickr\.com/services/rest/
-       req\_args \{ api\_key: secret: \}
-       auth \{ sign do\_signature \}
-    \}
+    set flickr(auth.getToken) {
+       url http://api.flickr.com/services/rest/
+       req_args { api_key: secret: }
+       auth { sign do_signature }
+    }
 
-    rest::create\_interface flickr
+    rest::create_interface flickr
 
-    proc ::flickr::do\_signature \{query\} \{
-        \# perform some operations on the query here
+    proc ::flickr::do_signature {query} {
+        # perform some operations on the query here
         return $query
-    \}
+    }
 
 # <a name='section5'></a>INCLUDED
 
@@ -559,9 +559,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section8'></a>Bugs, Ideas, Feedback
 

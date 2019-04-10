@@ -440,11 +440,11 @@ of them will be *canonical*\.
 
 Assuming the parsing expression shown on the right\-hand side of the rule
 
-    Expression <\- Term \(AddOp Term\)\*
+    Expression <- Term (AddOp Term)*
 
 then its canonical serialization \(except for whitespace\) is
 
-    \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

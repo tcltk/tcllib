@@ -262,11 +262,11 @@ main use is the specification of the __tls::socket__ command, see package
 __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__, to secure the communication\.
 
     package require tls
-    tls::init \\\\
-    	\.\.\.
+    tls::init \\
+    	...
 
-    pop3d::new S \-socket tls::socket
-    \.\.\.
+    pop3d::new S -socket tls::socket
+    ...
 
 # <a name='section6'></a>References
 

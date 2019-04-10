@@ -140,18 +140,18 @@ programming interface remains the same, however\.
 
 # <a name='section4'></a>EXAMPLES
 
-    % ripemd::ripemd128 \-hex "Tcl does RIPEMD\-128"
+    % ripemd::ripemd128 -hex "Tcl does RIPEMD-128"
     3cab177bae65205d81e7978f63556c63
 
-    % ripemd::hmac128 \-hex \-key Sekret "Tcl does RIPEMD\-128"
+    % ripemd::hmac128 -hex -key Sekret "Tcl does RIPEMD-128"
     b359dc5971a05beea0be7b106b30e389
 
-    % set tok \[ripemd::RIPEMD128Init\]
+    % set tok [ripemd::RIPEMD128Init]
     ::ripemd::1
     % ripemd::RIPEMD128Update $tok "Tcl "
     % ripemd::RIPEMD128Update $tok "does "
-    % ripemd::RIPEMD128Update $tok "RIPEMD\-128"
-    % ripemd::Hex \[ripemd::RIPEMD128Final $tok\]
+    % ripemd::RIPEMD128Update $tok "RIPEMD-128"
+    % ripemd::Hex [ripemd::RIPEMD128Final $tok]
     3cab177bae65205d81e7978f63556c63
 
 # <a name='section5'></a>REFERENCES

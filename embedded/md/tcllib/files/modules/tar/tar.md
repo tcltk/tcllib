@@ -64,8 +64,8 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
     __linkname__ __uname__ __gname__ __devmajor__
     __devminor__"
 
-        % ::tar::stat tarball\.tar
-        foo\.jpg \{mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname \{\} uname user gname wheel devmajor 0 devminor 0\}
+        % ::tar::stat tarball.tar
+        foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
 
     If the option __\-chan__ is present *tarball* is interpreted as an open
     channel\. It is assumed that the channel was opened for reading, and
@@ -113,17 +113,17 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
         It is assumed that the channel was opened for reading, and configured
         for binary input\. The command will *not* close the channel\.
 
-        % foreach \{file size\} \[::tar::untar tarball\.tar \-glob \*\.jpg\] \{
-        puts "Extracted $file \($size bytes\)"
-        \}
+        % foreach {file size} [::tar::untar tarball.tar -glob *.jpg] {
+        puts "Extracted $file ($size bytes)"
+        }
 
   - <a name='4'></a>__::tar::get__ *tarball* *fileName* ?__\-chan__?
 
     Returns the contents of *fileName* from the *tarball*\.
 
-        % set readme \[::tar::get tarball\.tar doc/README\] \{
+        % set readme [::tar::get tarball.tar doc/README] {
         % puts $readme
-        \}
+        }
 
     If the option __\-chan__ is present *tarball* is interpreted as an open
     channel\. It is assumed that the channel was opened for reading, and
@@ -148,8 +148,8 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
         It is assumed that the channel was opened for writing, and configured
         for binary output\. The command will *not* close the channel\.
 
-        % ::tar::create new\.tar \[glob \-nocomplain file\*\]
-        % ::tar::contents new\.tar
+        % ::tar::create new.tar [glob -nocomplain file*]
+        % ::tar::contents new.tar
         file1 file2 file3
 
   - <a name='6'></a>__::tar::add__ *tarball* *files* *args*
@@ -183,8 +183,8 @@ untar\) support the GNU LongName extension \(header type 'L'\) for large paths\.
     does not exist in the tarball\. Directory write permission and free disk
     space equivalent to at least the size of the tarball will be needed\.
 
-        % ::tar::remove new\.tar \{file2 file3\}
-        % ::tar::contents new\.tar
+        % ::tar::remove new.tar {file2 file3}
+        % ::tar::contents new.tar
         file3
 
 # <a name='section2'></a>Bugs, Ideas, Feedback

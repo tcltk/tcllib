@@ -91,8 +91,8 @@ capability investigate the __[irc](irc\.md)__ package\.
 
 The callback must look like:
 
-    proc Callback \{context state args\} \{
-    \}
+    proc Callback {context state args} {
+    }
 
 where context is the irc context variable name \(in case you need to pass it back
 to a picoirc procedure\)\. state is one of a number of states as described below\.

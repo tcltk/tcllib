@@ -67,20 +67,20 @@ __[emacs](\.\./\.\./\.\./\.\./index\.md\#emacs)__\.
     names, and a string containing the true comment associated with the files of
     the section\.
 
-            \{
-        	\{
+            {
+        	{
         	    date
         	    author
-        	    \{
-        		\{
-        		    \{file \.\.\.\}
+        	    {
+        		{
+        		    {file ...}
         		    commenttext
-        		\}
-        		\.\.\.
-        	    \}
-        	\}
-        	\{\.\.\.\}
-            \}
+        		}
+        		...
+        	    }
+        	}
+        	{...}
+            }
 
   - <a name='2'></a>__::doctools::changelog::flatten__ *entries*
 

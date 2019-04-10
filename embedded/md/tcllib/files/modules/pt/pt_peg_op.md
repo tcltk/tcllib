@@ -80,17 +80,17 @@ This package provides a number of utility commands manipulating a PE grammar
     by inlining the right hand side of the called symbol in its callers\. This
     works if and only the modes match properly, per the decision table below\.
 
-        caller called &#124; dechain &#124; notes
-        \-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-        value  value  &#124;  yes    &#124;  value is passed
-        value  leaf   &#124;  yes    &#124;  value is passed
-        value  void   &#124;  yes    &#124;  caller is implied void
-        leaf   value  &#124;  no     &#124;  generated value was discarded, inlined would not\. called may be implied void\.
-        leaf   leaf   &#124;  no     &#124;  s\.a\.
-        leaf   void   &#124;  no     &#124;  s\.a\.
-        void   value  &#124;  no     &#124;  caller drops value, inlined would not\.
-        void   leaf   &#124;  no     &#124;  s\.a\.
-        void   void   &#124;  yes    &#124;
+        caller called | dechain | notes
+        --------------+---------+-----------------------
+        value  value  |  yes    |  value is passed
+        value  leaf   |  yes    |  value is passed
+        value  void   |  yes    |  caller is implied void
+        leaf   value  |  no     |  generated value was discarded, inlined would not. called may be implied void.
+        leaf   leaf   |  no     |  s.a.
+        leaf   void   |  no     |  s.a.
+        void   value  |  no     |  caller drops value, inlined would not.
+        void   leaf   |  no     |  s.a.
+        void   void   |  yes    |
 
     The result of the command is the empty string\.
 
