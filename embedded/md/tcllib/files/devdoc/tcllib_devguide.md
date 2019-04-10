@@ -361,7 +361,7 @@ which will come up with branches, and their associated fossil command
     With the base line established we now have two ways of creating the new
     branch, with differing \(dis\)advantages\. The simpler way is to
 
-        fossil branch new NAME\_OF\_NEW\_BRANCH
+        fossil branch new NAME_OF_NEW_BRANCH
 
     and start developing\. The advantage here is that you cannot forget to create
     the branch\. The disadvantages are that we have a branch commit unchanged
@@ -373,7 +373,7 @@ which will come up with branches, and their associated fossil command
     first commit use the option __\-\-branch__ to tell __fossil__ that we
     are starting a branch now\. I\.e\. run
 
-        fossil commit \-\-branch NAME\_OF\_NEW\_BRANCH \.\.\.
+        fossil commit --branch NAME_OF_NEW_BRANCH ...
 
     where *\.\.\.* are any other options used to supply the commit message, files
     to commit, etc\.
@@ -415,13 +415,13 @@ which will come up with branches, and their associated fossil command
       1. Now merge to the trunk using
 
              fossil update trunk
-             fossil merge \-\-integrate YOU\_BRANCH
+             fossil merge --integrate YOU_BRANCH
 
       1. At this point the checkout should be in the same state as at the end of
          point \(3\) above, because we resolved any issues with the trunk already\.
          Thus a simple
 
-             fossil commit \.\.\.
+             fossil commit ...
 
          should be sufficient now to commit the merge back and close the branch
          \(due to the __\-\-integrate__ we used on the merge\)\.
@@ -478,7 +478,7 @@ which will come up with branches, and their associated fossil command
 
     With the establishment of a good merge we then save the state with
 
-        fossil commit \.\.\.
+        fossil commit ...
 
     before continuing development\.
 
@@ -537,7 +537,7 @@ The "sak\.tcl" command __validate version__ helps finding discrepancies
 between the first two\. All the other __validate__ methods are also of
 interest to any developer\. Invoke it with
 
-    sak\.tcl help validate
+    sak.tcl help validate
 
 to see their documentation\.
 
@@ -703,11 +703,11 @@ shells to use\.
 
 Invoke either
 
-    \./sak\.tcl test run foo
+    ./sak.tcl test run foo
 
 or
 
-    \./sak\.tcl test run modules/foo
+    ./sak.tcl test run modules/foo
 
 to invoke the testsuites found in a specific module "foo"\.
 
@@ -715,7 +715,7 @@ to invoke the testsuites found in a specific module "foo"\.
 
 Invoke the tool without a module name, i\.e\.
 
-    \./sak\.tcl test run
+    ./sak.tcl test run
 
 to invoke the testsuites of all modules\.
 
@@ -731,7 +731,7 @@ options\.
 
 For one:
 
-    \./sak\.tcl test run \-\-log LOG foo
+    ./sak.tcl test run --log LOG foo
 
 While this shows the same short log on the terminal as before, it also writes a
 detailed log to the file "LOG\.log", and excerpts to other files \("LOG\.summary",
@@ -739,7 +739,7 @@ detailed log to the file "LOG\.log", and excerpts to other files \("LOG\.summary
 
 For two:
 
-    \./sak\.tcl test run \-v foo
+    ./sak.tcl test run -v foo
 
 This writes the detailed log to the standard output, instead of the short log\.
 
@@ -754,13 +754,13 @@ will fall back to the Tcl shell used to run the tool itself\.
 
 Use option __\-\-shell__ to explicitly specify the Tcl shell to use, like
 
-    \./sak\.tcl test run \-\-shell /path/to/tclsh \.\.\.
+    ./sak.tcl test run --shell /path/to/tclsh ...
 
 ## <a name='subsection16'></a>Help
 
 Invoke the tool as
 
-    \./sak\.tcl help test
+    ./sak.tcl help test
 
 to see the detailed help for all methods of
 __[test](\.\./\.\./\.\./index\.md\#test)__, and the associated options\.
@@ -781,11 +781,11 @@ application package\.
 
 Invoke either
 
-    \./sak\.tcl doc html foo
+    ./sak.tcl doc html foo
 
 or
 
-    \./sak\.tcl doc html modules/foo
+    ./sak.tcl doc html modules/foo
 
 to generate HTML for the documentation found in the module "foo"\. Instead of
 __html__ any other supported format can be used here, of course\.
@@ -797,7 +797,7 @@ the current working directory\.
 
 Invoke the tool without a module name, i\.e\.
 
-    \./sak\.tcl doc html
+    ./sak.tcl doc html
 
 to generate HTML for the documentation found in all modules\. Instead of
 __html__ any other supported format can be used here, of course\.
@@ -809,7 +809,7 @@ the current working directory\.
 
 Invoke the tool as
 
-    \./sak\.tcl help doc
+    ./sak.tcl help doc
 
 to see the entire set of supported output formats which can be generated\.
 
@@ -823,11 +823,11 @@ output\.
 
 Invoke it as either
 
-    \./sak\.tcl doc validate \(modules/\)foo
+    ./sak.tcl doc validate (modules/)foo
 
 or
 
-    \./sak\.tcl doc validate
+    ./sak.tcl doc validate
 
 to either check the packages of a specific module or check all of them\.
 

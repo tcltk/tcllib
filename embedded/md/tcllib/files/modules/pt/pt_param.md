@@ -558,48 +558,48 @@ on Tcl commands to provide it with control flow \(instructions\)\.
 
     Instruction		Inputs				Outputs
     ======================= =======================		====================
-    ast\_pop\_discard		AS			\->	AS
-    ast\_pop\_rewind		AS			\->	AS, ARS
-    ast\_push		ARS, AS			\->	AS
-    ast\_value\_push		SV, ARS			\->	ARS
+    ast_pop_discard		AS			->	AS
+    ast_pop_rewind		AS			->	AS, ARS
+    ast_push		ARS, AS			->	AS
+    ast_value_push		SV, ARS			->	ARS
     ======================= =======================		====================
-    error\_clear		\-			\->	ER
-    error\_nonterminal sym	ER, LS			\->	ER
-    error\_pop\_merge   	ES, ER			\->	ER
-    error\_push		ES, ER			\->	ES
+    error_clear		-			->	ER
+    error_nonterminal sym	ER, LS			->	ER
+    error_pop_merge   	ES, ER			->	ER
+    error_push		ES, ER			->	ES
     ======================= =======================		====================
-    input\_next msg		IN			\->	TC, CL, CC, ST, ER
+    input_next msg		IN			->	TC, CL, CC, ST, ER
     ======================= =======================		====================
-    loc\_pop\_discard		LS			\->	LS
-    loc\_pop\_rewind		LS			\->	LS, CL
-    loc\_push		CL, LS			\->	LS
+    loc_pop_discard		LS			->	LS
+    loc_pop_rewind		LS			->	LS, CL
+    loc_push		CL, LS			->	LS
     ======================= =======================		====================
-    status\_fail		\-			\->	ST
-    status\_negate		ST			\->	ST
-    status\_ok		\-			\->	ST
+    status_fail		-			->	ST
+    status_negate		ST			->	ST
+    status_ok		-			->	ST
     ======================= =======================		====================
-    symbol\_restore sym	NC			\->	CL, ST, ER, SV
-    symbol\_save    sym	CL, ST, ER, SV LS	\->	NC
+    symbol_restore sym	NC			->	CL, ST, ER, SV
+    symbol_save    sym	CL, ST, ER, SV LS	->	NC
     ======================= =======================		====================
-    test\_alnum  		CC			\->	ST, ER
-    test\_alpha		CC			\->	ST, ER
-    test\_ascii		CC			\->	ST, ER
-    test\_char char		CC			\->	ST, ER
-    test\_ddigit		CC			\->	ST, ER
-    test\_digit		CC			\->	ST, ER
-    test\_graph		CC			\->	ST, ER
-    test\_lower		CC			\->	ST, ER
-    test\_print		CC			\->	ST, ER
-    test\_punct		CC			\->	ST, ER
-    test\_range chars chare	CC			\->	ST, ER
-    test\_space		CC			\->	ST, ER
-    test\_upper		CC			\->	ST, ER
-    test\_wordchar		CC			\->	ST, ER
-    test\_xdigit		CC			\->	ST, ER
+    test_alnum  		CC			->	ST, ER
+    test_alpha		CC			->	ST, ER
+    test_ascii		CC			->	ST, ER
+    test_char char		CC			->	ST, ER
+    test_ddigit		CC			->	ST, ER
+    test_digit		CC			->	ST, ER
+    test_graph		CC			->	ST, ER
+    test_lower		CC			->	ST, ER
+    test_print		CC			->	ST, ER
+    test_punct		CC			->	ST, ER
+    test_range chars chare	CC			->	ST, ER
+    test_space		CC			->	ST, ER
+    test_upper		CC			->	ST, ER
+    test_wordchar		CC			->	ST, ER
+    test_xdigit		CC			->	ST, ER
     ======================= =======================		====================
-    value\_clear		\-			\->	SV
-    value\_leaf symbol	LS, CL			\->	SV
-    value\_reduce symbol	ARS, LS, CL		\->	SV
+    value_clear		-			->	SV
+    value_leaf symbol	LS, CL			->	SV
+    value_reduce symbol	ARS, LS, CL		->	SV
     ======================= =======================		====================
 
 # <a name='section5'></a>Bugs, Ideas, Feedback

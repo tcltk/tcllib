@@ -7,6 +7,18 @@
 # making its formatting nearer to that with the ability to set anchors
 # and refer to them, linkage in general.
 
+# Notes, Attention
+# - A number of characters are special to markdown. Such characters in
+#   user input are \-quoted to make them non-special to the markdown
+#   processor handling our generated document.
+#
+# - Exceptions are the special characters in verbatim code-blocks
+#   (indent 4), and in `...` sequences (verbatim inline). In such
+#   blocks they are not special and must not be quoted.
+#
+#   The generator currently only used verbatim blocks, for doctools
+#   examples. It does not use verbatim inlines.
+
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
 
@@ -336,6 +348,38 @@ c_pass 2 fmt_manpage_end {} {
     if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
     if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
     if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
+    return
+}
+
+c_pass 2 fmt_example_end {} {
+    #puts_stderr "AAA/fmt_example_end"
+    TextTrimLeadingSpace
+
+    # In examples (verbatim markup) markdown's special characters are
+    # no such by default, thus must not be quoted. Mark them as
+    # protected from quoting.
+    set t [Mark [Text?]]
+    TextClear
+    Text $t
+    
+    set penv [GetCurrent]
+    if {$penv != {}} {
+	# In a list we save the current list context, activate the
+	# proper paragraph context and create its example
+	# variant. After closing the paragraph using the example we
+	# restore and reactivate the list context.
+	ContextPush
+	ContextSet $penv
+	#if {[CloseParagraph [Example]]} PAdvance
+	CloseParagraph [Example]
+	ContextPop
+    } else {
+	# In a regular paragraph we simple close the example
+	#if {[CloseParagraph [Example]]} PAdvance
+	CloseParagraph [Example]
+    }
+
+    #puts_stderr "AAA/fmt_example_end/Done"
     return
 }
 

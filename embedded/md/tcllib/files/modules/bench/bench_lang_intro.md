@@ -59,9 +59,9 @@ in this language is a Tcl script and has the same syntax\.
 
 One of the most simplest benchmarks which can be written in bench is
 
-    bench \-desc LABEL \-body \{
+    bench -desc LABEL -body {
         set a b
-    \}
+    }
 
 This code declares a benchmark named __LABEL__ which measures the time it
 takes to assign a value to a variable\. The Tcl code doing this assignment is the
@@ -80,13 +80,13 @@ __[aes](\.\./aes/aes\.md)__ package, the concrete initialization code
 constructs the key schedule used by the encryption command whose speed we
 measure, and the cleanup code releases any resources bound to that schedule\.
 
-    bench \-desc "AES\-$\{len\} ECB encryption core" __\-pre__ \{
-        set key \[aes::Init ecb $k $i\]
-    \} \-body \{
+    bench -desc "AES-${len} ECB encryption core" __-pre__ {
+        set key [aes::Init ecb $k $i]
+    } -body {
         aes::Encrypt $key $p
-    \} __\-post__ \{
+    } __-post__ {
         aes::Final $key
-    \}
+    }
 
 ## <a name='subsection4'></a>Advanced pre\- and postprocessing
 
@@ -131,14 +131,14 @@ representation, which is shared\) affecting the speed of the inclusion command,
 and the cleanup code releases the temporary variables created by this
 initialization\.
 
-    bench \-desc "set include, missing <SC> x$times $n" __\-ipre__ \{
-        set A $sx\($times,$n\)
+    bench -desc "set include, missing <SC> x$times $n" __-ipre__ {
+        set A $sx($times,$n)
         set B $A
-    \} \-body \{
+    } -body {
         struct::set include A x
-    \} __\-ipost__ \{
+    } __-ipost__ {
         unset A B
-    \}
+    }
 
 # <a name='section2'></a>FURTHER READING
 

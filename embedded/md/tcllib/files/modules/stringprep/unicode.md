@@ -80,15 +80,15 @@ This is an implementation in Tcl of the Unicode normalization forms\.
 
 # <a name='section3'></a>EXAMPLES
 
-    % ::unicode::fromstring "\\u0410\\u0411\\u0412\\u0413"
+    % ::unicode::fromstring "\u0410\u0411\u0412\u0413"
     1040 1041 1042 1043
-    % ::unicode::tostring \{49 50 51 52 53\}
+    % ::unicode::tostring {49 50 51 52 53}
     12345
     %
 
-    % ::unicode::normalize D \{7692 775\}
+    % ::unicode::normalize D {7692 775}
     68 803 775
-    % ::unicode::normalizeS KD "\\u1d2c"
+    % ::unicode::normalizeS KD "\u1d2c"
     A
     %
 

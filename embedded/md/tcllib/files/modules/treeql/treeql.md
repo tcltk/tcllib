@@ -170,26 +170,26 @@ explained below\.
          from step \[1\], until the list of arguments is empty or an error
          occurred\.
 
-            \# q is the query object\.
+            # q is the query object.
 
             q query root children get data
 
-            \# The above query
-            \# \- Resets the node set to the root node \- root
-            \# \- Adds the children of root to the set \- children
-            \# \- Replaces the node set with the       \- get data
-            \#   values for the attribute 'data',
-            \#   for all nodes in the set which
-            \#   have such an attribute\.
-            \# \- And returns this information\.
+            # The above query
+            # - Resets the node set to the root node - root
+            # - Adds the children of root to the set - children
+            # - Replaces the node set with the       - get data
+            #   values for the attribute 'data',
+            #   for all nodes in the set which
+            #   have such an attribute.
+            # - And returns this information.
 
-            \# Below we can see the same query, but rewritten
-            \# to show the structure as it is seen by the query
-            \# interpreter\.
+            # Below we can see the same query, but rewritten
+            # to show the structure as it is seen by the query
+            # interpreter.
 
-            q query \\\\
-        	    root \\\\
-        	    children \\\\
+            q query \\
+        	    root \\
+        	    children \\
         	    get data
 
     The operators of the TreeQL language available for this are explained in the

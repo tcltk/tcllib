@@ -302,26 +302,26 @@ Uploading a file
 
     HTML:
     <html>
-    <form action="/cgi\-bin/upload\.cgi" method="POST" enctype="multipart/form\-data">
+    <form action="/cgi-bin/upload.cgi" method="POST" enctype="multipart/form-data">
     Path: <input type="file" name="filedata"><br>
     Name: <input type="text" name="filedesc"><br>
     <input type="submit">
     </form>
     </html>
 
-    TCL: upload\.cgi
-    \#\!/usr/local/bin/tclsh
+    TCL: upload.cgi
+    #!/usr/local/bin/tclsh
 
     ::ncgi::parse
-    set filedata \[::ncgi::value filedata\]
-    set filedesc \[::ncgi::value filedesc\]
+    set filedata [::ncgi::value filedata]
+    set filedesc [::ncgi::value filedesc]
 
-    puts "<html> File uploaded at <a href=\\"/images/$filedesc\\">$filedesc</a> </html>"
+    puts "<html> File uploaded at <a href=\"/images/$filedesc\">$filedesc</a> </html>"
 
     set filename /www/images/$filedesc
 
-    set fh \[open $filename w\]
-    puts \-nonewline $fh $filedata
+    set fh [open $filename w]
+    puts -nonewline $fh $filedata
     close $fh
 
 # <a name='section3'></a>Bugs, Ideas, Feedback

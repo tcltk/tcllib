@@ -232,12 +232,12 @@ Snit provides the following commands for defining new types:
         If the *name* consists of two or more tokens, Snit handles it
         specially:
 
-            typemethod \{a b\} \{arg\} \{ puts "Got $arg" \}
+            typemethod {a b} {arg} { puts "Got $arg" }
 
         This statement implicitly defines a type method called __a__ which
         has a subcommand __b__\. __b__ is called like this:
 
-            $type a b "Hello, world\!"
+            $type a b "Hello, world!"
 
         __a__ may have any number of subcommands\. This makes it possible to
         define a hierarchical command structure; see
@@ -254,8 +254,8 @@ Snit provides the following commands for defining new types:
         *Snit 1\.x Incompatibility:* In Snit 1\.x, the following following two
         calls to this type method are equivalent:
 
-            $type a b "Hello, world\!"
-            $type \{a b\} "Hello, world\!"
+            $type a b "Hello, world!"
+            $type {a b} "Hello, world!"
 
         In Snit 2\.2, the second form is invalid\.
 
@@ -310,20 +310,20 @@ Snit provides the following commands for defining new types:
         If the *name* consists of two or more tokens, Snit handles it
         specially:
 
-            method \{a b\} \{\} \{ \.\.\. \}
+            method {a b} {} { ... }
 
         This statement implicitly defines a method called __a__ which has a
         subcommand __b__\. __b__ is called like this:
 
-            $self a b "Hello, world\!"
+            $self a b "Hello, world!"
 
         __a__ may have any number of subcommands\. This makes it possible to
         define a hierarchical command structure:
 
-            % snit::type dog \{
-                method \{tail wag\}   \{\} \{return "Wag, wag"\}
-                method \{tail droop\} \{\} \{return "Droop, droop"\}
-            \}
+            % snit::type dog {
+                method {tail wag}   {} {return "Wag, wag"}
+                method {tail droop} {} {return "Droop, droop"}
+            }
             ::dog
             % dog spot
             ::spot
@@ -347,8 +347,8 @@ Snit provides the following commands for defining new types:
         *Snit 1\.x Incompatibility:* In Snit 1\.x, the following following two
         calls to this method are equivalent:
 
-            $self a b "Hello, world\!"
-            $self \{a b\} "Hello, world\!"
+            $self a b "Hello, world!"
+            $self {a b} "Hello, world!"
 
         In Snit 2\.2, the second form is invalid\.
 
@@ -365,7 +365,7 @@ Snit provides the following commands for defining new types:
         The *namespec* is a list defining the option's name, resource name,
         and class name, e\.g\.:
 
-            option \{\-font font Font\} \{Courier 12\}
+            option {-font font Font} {Courier 12}
 
         The option name must begin with a hyphen, and must not contain any upper
         case letters\. The resource name and class name are optional; if not
@@ -374,7 +374,7 @@ Snit provides the following commands for defining new types:
         letter capitalized\. Thus, the following statement is equivalent to the
         previous example:
 
-            option \-font \{Courier 12\}
+            option -font {Courier 12}
 
         See [The Tk Option Database](#subsection9) for more information
         about resource and class names\.
@@ -384,7 +384,7 @@ Snit provides the following commands for defining new types:
         bodies, etc\.\), option values are available through the __options__
         array:
 
-            set myfont $options\(\-font\)
+            set myfont $options(-font)
 
         If the type defines any option handlers \(e\.g\.,
         __\-configuremethod__\), then it should probably use __configure__
@@ -413,12 +413,12 @@ Snit provides the following commands for defining new types:
             For example, an option may declare that its value must be an integer
             by specifying __snit::integer__ as its validation type:
 
-                option \-number \-type snit::integer
+                option -number -type snit::integer
 
             It may also declare that its value is an integer between 1 and 10 by
             specifying a validation subtype:
 
-                option \-number \-type \{snit::integer \-min 1 \-max 10\}
+                option -number -type {snit::integer -min 1 -max 10}
 
             If a validation type or subtype is defined for an option, then it
             will be used to validate the option's value whenever it is changed
@@ -443,10 +443,10 @@ Snit provides the following commands for defining new types:
             example, this code is equivalent to \(though slower than\) Snit's
             default handling of __cget__:
 
-                option \-font \-cgetmethod GetOption
-                method GetOption \{option\} \{
-                    return $options\($option\)
-                \}
+                option -font -cgetmethod GetOption
+                method GetOption {option} {
+                    return $options($option)
+                }
 
             Note that it's possible for any number of options to share a
             __\-cgetmethod__\.
@@ -464,10 +464,10 @@ Snit provides the following commands for defining new types:
             new value\. For example, this code is equivalent to \(though slower
             than\) Snit's default handling of __configure__:
 
-                option \-font \-configuremethod SetOption
-                method SetOption \{option value\} \{
-                    set options\($option\) $value
-                \}
+                option -font -configuremethod SetOption
+                method SetOption {option value} {
+                    set options($option) $value
+                }
 
             Note that it's possible for any number of options to share a single
             __\-configuremethod__\.
@@ -485,12 +485,12 @@ Snit provides the following commands for defining new types:
             new value\. For example, this code verifies that __\-flag__'s
             value is a valid Boolean value:
 
-                option \-font \-validatemethod CheckBoolean
-                method CheckBoolean \{option value\} \{
-                    if \{\!\[string is boolean \-strict $value\]\} \{
-                        error "option $option must have a boolean value\."
-                    \}
-                \}
+                option -font -validatemethod CheckBoolean
+                method CheckBoolean {option value} {
+                    if {![string is boolean -strict $value]} {
+                        error "option $option must have a boolean value."
+                    }
+                }
 
             Note that it's possible for any number of options to share a single
             __\-validatemethod__\.
@@ -510,9 +510,9 @@ Snit provides the following commands for defining new types:
         \(whether locally or by delegation\), the default constructor will be
         defined as follows:
 
-            constructor \{args\} \{
+            constructor {args} {
                 $self configurelist $args
-            \}
+            }
 
         For standard Tk widget behavior, the argument list should be the single
         name __args__, as shown\.
@@ -520,7 +520,7 @@ Snit provides the following commands for defining new types:
         If the *definition* defines neither a constructor nor any options, the
         default constructor is defined as follows:
 
-            constructor \{\} \{\}
+            constructor {} {}
 
         As with methods, the constructor can call commands from the namespace in
         which the type is defined without importing them, e\.g\., if the type name
@@ -576,9 +576,9 @@ Snit provides the following commands for defining new types:
 
         is roughly equivalent to this explicitly defined method:
 
-            method wag \{args\} \{
+            method wag {args} {
                 uplevel $tail wag $args
-            \}
+            }
 
         As with methods, the *name* may have multiple tokens; in this case,
         the last token of the name is assumed to be the name of the component's
@@ -669,7 +669,7 @@ Snit provides the following commands for defining new types:
         In fact, the "\*" can be a list of two or more tokens whose last element
         is "\*", as in the following example:
 
-            delegate method \{tail \*\} to tail
+            delegate method {tail *} to tail
 
         This implicitly defines the method __tail__ whose subcommands will
         be delegated to the __tail__ component\.
@@ -690,13 +690,13 @@ Snit provides the following commands for defining new types:
         option was defined with the following __\-configuremethod__ and
         __\-cgetmethod__:
 
-            method ConfigureMethod \{option value\} \{
+            method ConfigureMethod {option value} {
                 $comp configure $option $value
-            \}
+            }
 
-            method CgetMethod \{option\} \{
-                return \[$comp cget $option\]
-            \}
+            method CgetMethod {option} {
+                return [$comp cget $option]
+            }
 
         Note that delegated options never appear in the __options__ array\.
 
@@ -725,7 +725,7 @@ Snit provides the following commands for defining new types:
         following:
 
             component mycomp
-            delegate method \{mymethod \*\} to mycomp
+            delegate method {mymethod *} to mycomp
 
         If the __\-inherit__ option is specified, then *flag* must be a
         Boolean value; if *flag* is true then all unknown methods and options
@@ -735,8 +735,8 @@ Snit provides the following commands for defining new types:
         to:
 
             component mycomp
-            delegate option \* to mycomp
-            delegate method \* to mycomp
+            delegate option * to mycomp
+            delegate method * to mycomp
 
       * <a name='20'></a>__delegate__ __typemethod__ *name* __to__ *comp* ?__as__ *target*?
 
@@ -749,9 +749,9 @@ Snit provides the following commands for defining new types:
 
         is roughly equivalent to this explicitly defined method:
 
-            typemethod lostdogs \{args\} \{
+            typemethod lostdogs {args} {
                 uplevel $pound lostdogs $args
-            \}
+            }
 
         As with type methods, the *name* may have multiple tokens; in this
         case, the last token of the name is assumed to be the name of the
@@ -832,7 +832,7 @@ Snit provides the following commands for defining new types:
         The "\*" can be a list of two or more tokens whose last element is "\*",
         as in the following example:
 
-            delegate typemethod \{tail \*\} to tail
+            delegate typemethod {tail *} to tail
 
         This implicitly defines the type method __tail__ whose subcommands
         will be delegated to the __tail__ type component\.
@@ -850,7 +850,7 @@ Snit provides the following commands for defining new types:
         equivalent to the following:
 
             typecomponent mycomp
-            delegate typemethod \{mytypemethod \*\} to mycomp
+            delegate typemethod {mytypemethod *} to mycomp
 
         If the __\-inherit__ option is specified, then *flag* must be a
         Boolean value; if *flag* is true then all unknown type methods will be
@@ -860,7 +860,7 @@ Snit provides the following commands for defining new types:
         yes__ is equivalent to:
 
             typecomponent mycomp
-            delegate typemethod \* to mycomp
+            delegate typemethod * to mycomp
 
       * <a name='24'></a>__pragma__ ?*options\.\.\.*?
 
@@ -953,17 +953,17 @@ Snit provides the following commands for defining new types:
 
         As of version 0\.95, the following definitions,
 
-            option \-myoption
-            onconfigure \-myoption \{value\} \{
-                \# Code to save the option's value
-            \}
+            option -myoption
+            onconfigure -myoption {value} {
+                # Code to save the option's value
+            }
 
         are implemented as follows:
 
-            option \-myoption \-configuremethod \_configure\-myoption
-            method \_configure\-myoption \{\_option value\} \{
-                \# Code to save the option's value
-            \}
+            option -myoption -configuremethod _configure-myoption
+            method _configure-myoption {_option value} {
+                # Code to save the option's value
+            }
 
       * <a name='28'></a>__oncget__ *name* *body*
 
@@ -972,17 +972,17 @@ Snit provides the following commands for defining new types:
 
         As of version 0\.95, the following definitions,
 
-            option \-myoption
-            oncget \-myoption \{
-                \# Code to return the option's value
-            \}
+            option -myoption
+            oncget -myoption {
+                # Code to return the option's value
+            }
 
         are implemented as follows:
 
-            option \-myoption \-cgetmethod \_cget\-myoption
-            method \_cget\-myoption \{\_option\} \{
-                \# Code to return the option's value
-            \}
+            option -myoption -cgetmethod _cget-myoption
+            method _cget-myoption {_option} {
+                # Code to return the option's value
+            }
 
   - <a name='29'></a>__snit::widget__ *name* *definition*
 
@@ -1113,11 +1113,11 @@ instances of the type\. The type command has this form:
     words, provided that the __\-hastypemethods__ pragma is false and the
     type has instances, the following commands are equivalent:
 
-        snit::type dog \{ \.\.\. \}
+        snit::type dog { ... }
 
-        set mydog \[dog create %AUTO%\]
-        set mydog \[dog %AUTO%\]
-        set mydog \[dog\]
+        set mydog [dog create %AUTO%]
+        set mydog [dog %AUTO%]
+        set mydog [dog]
 
     This doesn't work for Snit widgets, for obvious reasons\.
 
@@ -1372,9 +1372,9 @@ qualification\.
     cause the object's __dosomething__ method to be called when the
     __$button__ is pressed:
 
-        $button configure \-command \[list $self dosomething myargument\]
+        $button configure -command [list $self dosomething myargument]
 
-        $button configure \-command \[mymethod dosomething myargument\]
+        $button configure -command [mymethod dosomething myargument]
 
     The chief distinction between the two is that the latter form will not break
     if the object's command is renamed\.
@@ -1388,9 +1388,9 @@ qualification\.
     commands will cause the object's __dosomething__ type method to be
     called when __$button__ is pressed:
 
-        $button configure \-command \[list $type dosomething myargument\]
+        $button configure -command [list $type dosomething myargument]
 
-        $button configure \-command \[mytypemethod dosomething myargument\]
+        $button configure -command [mytypemethod dosomething myargument]
 
     Type commands cannot be renamed, so in practice there's little difference
     between the two forms\. __mytypemethod__ is provided for parallelism with
@@ -1405,9 +1405,9 @@ qualification\.
     commands will cause the object's __dosomething__ proc to be called when
     __$button__ is pressed:
 
-        $button configure \-command \[list $\{type\}::dosomething myargument\]
+        $button configure -command [list ${type}::dosomething myargument]
 
-        $button configure \-command \[myproc dosomething myargument\]
+        $button configure -command [myproc dosomething myargument]
 
   - <a name='63'></a>__myvar__ *name*
 
@@ -1443,9 +1443,9 @@ qualification\.
     with the name to the *objType* command\. If this is a __snit::type__,
     then the following two commands are equivalent:
 
-        install myComp using myObjType $self\.myComp args\.\.\.
+        install myComp using myObjType $self.myComp args...
 
-        set myComp \[myObjType $self\.myComp args\.\.\.\]
+        set myComp [myObjType $self.myComp args...]
 
     Note that whichever method is used, *compName* must still be declared in
     the type definition using __component__, or must be referenced in at
@@ -1542,24 +1542,24 @@ object is to declare them using __component__, which creates a component
 instance variable\. In the following example, a __dog__ object has a
 __tail__ object:
 
-    snit::type dog \{
+    snit::type dog {
         component mytail
 
-        constructor \{args\} \{
-            set mytail \[tail %AUTO% \-partof $self\]
+        constructor {args} {
+            set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
-        \}
+        }
 
-        method wag \{\} \{
+        method wag {} {
             $mytail wag
-        \}
-    \}
+        }
+    }
 
-    snit::type tail \{
-        option \-length 5
-        option \-partof
-        method wag \{\} \{ return "Wag, wag, wag\."\}
-    \}
+    snit::type tail {
+        option -length 5
+        option -partof
+        method wag {} { return "Wag, wag, wag."}
+    }
 
 Because the __tail__ object's name is stored in an instance variable, it's
 easily accessible in any method\.
@@ -1567,18 +1567,18 @@ easily accessible in any method\.
 The __install__ command provides an alternate way to create and install the
 component:
 
-    snit::type dog \{
+    snit::type dog {
         component mytail
 
-        constructor \{args\} \{
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
+        }
 
-        method wag \{\} \{
+        method wag {} {
             $mytail wag
-        \}
-    \}
+        }
+    }
 
 For __snit::type__s, the two methods are equivalent; for
 __snit::widget__s and __snit::widgetadaptor__s, the __install__
@@ -1589,14 +1589,14 @@ In the above examples, the __dog__ object's __wag__ method simply calls
 the __tail__ component's __wag__ method\. In OO jargon, this is called
 delegation\. Snit provides an easier way to do this:
 
-    snit::type dog \{
+    snit::type dog {
         delegate method wag to mytail
 
-        constructor \{args\} \{
-            install mytail using tail %AUTO% \-partof $self
+        constructor {args} {
+            install mytail using tail %AUTO% -partof $self
             $self configurelist $args
-        \}
-    \}
+        }
+    }
 
 The __delegate__ statement in the type definition implicitly defines the
 instance variable __mytail__ to hold the component's name \(though it's good
@@ -1607,16 +1607,16 @@ component\.
 If desired, all otherwise unknown methods can be delegated to a specific
 component:
 
-        snit::type dog \{
-    	delegate method \* to mytail
+        snit::type dog {
+    	delegate method * to mytail
 
-    	constructor \{args\} \{
-    	    set mytail \[tail %AUTO% \-partof $self\]
+    	constructor {args} {
+    	    set mytail [tail %AUTO% -partof $self]
     	    $self configurelist $args
-    	\}
+    	}
 
-    	method bark \{ return "Bark, bark, bark\!" \}
-        \}
+    	method bark { return "Bark, bark, bark!" }
+        }
 
 In this case, a __dog__ object will handle its own __bark__ method; but
 __wag__ will be passed along to __mytail__\. Any other method, being
@@ -1679,7 +1679,7 @@ Similarly, the widget class of a __snit::widget__ defaults to the
 unqualified type name with the first letter capitalized\. For example, the widget
 class of
 
-    snit::widget ::mylibrary::scrolledText \{ \.\.\. \}
+    snit::widget ::mylibrary::scrolledText { ... }
 
 is "ScrolledText"\. The widget class can also be set explicitly using the
 __widgetclass__ statement within the __snit::widget__ definition\.
@@ -1706,10 +1706,10 @@ class name is usually just the resource name with an initial capital, but not
 always\. For example, here are the option, resource, and class names for several
 __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ widget options:
 
-    \-background         background         Background
-    \-borderwidth        borderWidth        BorderWidth
-    \-insertborderwidth  insertBorderWidth  BorderWidth
-    \-padx               padX               Pad
+    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 
 As is easily seen, sometimes the resource and class names can be inferred from
 the option name, but not always\.
@@ -1719,12 +1719,12 @@ follow the rule given above: the resource name is the option name without the
 hyphen, and the class name is the resource name with an initial capital\. This is
 true for both locally\-defined options and explicitly delegated options:
 
-        snit::widget mywidget \{
-            option \-background
-            delegate option \-borderwidth to hull
-            delegate option \* to text
-    	\# \.\.\.
-        \}
+        snit::widget mywidget {
+            option -background
+            delegate option -borderwidth to hull
+            delegate option * to text
+    	# ...
+        }
 
 In this case, the widget class name is "Mywidget"\. The widget has the following
 options: __\-background__, which is locally defined, and
@@ -1734,9 +1734,9 @@ __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ widget\. If so, __mywidget__
 has all the same options as a __[text](\.\./\.\./\.\./\.\./index\.md\#text)__
 widget\. The option, resource, and class names are as follows:
 
-    \-background  background  Background
-    \-borderwidth borderwidth Borderwidth
-    \-padx        padX        Pad
+    -background  background  Background
+    -borderwidth borderwidth Borderwidth
+    -padx        padX        Pad
 
 Note that the locally defined option, __\-background__, happens to have the
 same three names as the standard Tk __\-background__ option; and
@@ -1747,12 +1747,12 @@ the other hand, has different resource and class names than usual, because the
 internal word "width" isn't capitalized\. For consistency, it should be; this is
 done as follows:
 
-        snit::widget mywidget \{
-    	option \-background
-    	delegate option \{\-borderwidth borderWidth\} to hull
-    	delegate option \* to text
-    	\# \.\.\.
-        \}
+        snit::widget mywidget {
+    	option -background
+    	delegate option {-borderwidth borderWidth} to hull
+    	delegate option * to text
+    	# ...
+        }
 
 The class name will default to "BorderWidth", as expected\.
 
@@ -1760,14 +1760,14 @@ Suppose, however, that __mywidget__ also delegated __\-padx__ and
 __\-pady__ to the hull\. In this case, both the resource name and the class
 name must be specified explicitly:
 
-        snit::widget mywidget \{
-    	option \-background
-    	delegate option \{\-borderwidth borderWidth\} to hull
-    	delegate option \{\-padx padX Pad\} to hull
-    	delegate option \{\-pady padY Pad\} to hull
-    	delegate option \* to text
-    	\# \.\.\.
-        \}
+        snit::widget mywidget {
+    	option -background
+    	delegate option {-borderwidth borderWidth} to hull
+    	delegate option {-padx padX Pad} to hull
+    	delegate option {-pady padY Pad} to hull
+    	delegate option * to text
+    	# ...
+        }
 
 __Querying the option database:__ If you set your widgetclass and option
 names as described above, Snit will query the option database when each instance
@@ -1781,14 +1781,14 @@ the result is non\-empty, it is used as the option's default; otherwise, the
 default hardcoded in the type definition is used\. In either case, the default
 can be overridden by the caller\. For example,
 
-        option add \*Mywidget\.texture pebbled
+        option add *Mywidget.texture pebbled
 
-        snit::widget mywidget \{
-    	option \-texture smooth
-    	\# \.\.\.
-        \}
+        snit::widget mywidget {
+    	option -texture smooth
+    	# ...
+        }
 
-        mywidget \.mywidget \-texture greasy
+        mywidget .mywidget -texture greasy
 
 Here, __\-texture__ would normally default to "smooth", but because of the
 entry added to the option database it defaults to "pebbled"\. However, the caller
@@ -1799,24 +1799,24 @@ hull is a widget, and given that its class has been set it is expected to query
 the option database for itself\. The only exception concerns options that are
 delegated to it with a different name\. Consider the following code:
 
-        option add \*Mywidget\.borderWidth 5
-        option add \*Mywidget\.relief sunken
-        option add \*Mywidget\.hullbackground red
-        option add \*Mywidget\.background green
+        option add *Mywidget.borderWidth 5
+        option add *Mywidget.relief sunken
+        option add *Mywidget.hullbackground red
+        option add *Mywidget.background green
 
-        snit::widget mywidget \{
-    	delegate option \-borderwidth to hull
-    	delegate option \-hullbackground to hull as \-background
-    	delegate option \* to hull
-    	\# \.\.\.
-        \}
+        snit::widget mywidget {
+    	delegate option -borderwidth to hull
+    	delegate option -hullbackground to hull as -background
+    	delegate option * to hull
+    	# ...
+        }
 
-        mywidget \.mywidget
+        mywidget .mywidget
 
-        set A \[\.mywidget cget \-relief\]
-        set B \[\.mywidget cget \-hullbackground\]
-        set C \[\.mywidget cget \-background\]
-        set D \[\.mywidget cget \-borderwidth\]
+        set A [.mywidget cget -relief]
+        set B [.mywidget cget -hullbackground]
+        set C [.mywidget cget -background]
+        set D [.mywidget cget -borderwidth]
 
 The question is, what are the values of variables A, B, C and D?
 
@@ -1850,20 +1850,20 @@ retain the widget class of their hull, and the hull is not created automatically
 by Snit\. Instead, the __snit::widgetadaptor__ must call __installhull__
 in its constructor\. The normal way to do this is as follows:
 
-        snit::widgetadaptor mywidget \{
-    	\# \.\.\.
-    	constructor \{args\} \{
-    	    \# \.\.\.
-    	    installhull using text \-foreground white
-    	    \#
-    	\}
-    	\#\.\.\.
-        \}
+        snit::widgetadaptor mywidget {
+    	# ...
+    	constructor {args} {
+    	    # ...
+    	    installhull using text -foreground white
+    	    #
+    	}
+    	#...
+        }
 
 In this case, the __installhull__ command will create the hull using a
 command like this:
 
-    set hull \[text $win \-foreground white\]
+    set hull [text $win -foreground white]
 
 The hull is a __[text](\.\./\.\./\.\./\.\./index\.md\#text)__ widget, so its
 widget class is "Text"\. Just as with __snit::widget__ hulls, Snit assumes
@@ -1882,24 +1882,24 @@ Before option database support was added to Snit, the usual way to create a
 component was to simply create it in the constructor and assign its command name
 to the component variable:
 
-        snit::widget mywidget \{
-    	delegate option \-background to myComp
+        snit::widget mywidget {
+    	delegate option -background to myComp
 
-    	constructor \{args\} \{
-    	    set myComp \[text $win\.text \-foreground black\]
-    	\}
-        \}
+    	constructor {args} {
+    	    set myComp [text $win.text -foreground black]
+    	}
+        }
 
 The drawback of this method is that Snit has no opportunity to initialize the
 component properly\. Hence, the following approach is now used:
 
-        snit::widget mywidget \{
-    	delegate option \-background to myComp
+        snit::widget mywidget {
+    	delegate option -background to myComp
 
-    	constructor \{args\} \{
-    	    install myComp using text $win\.text \-foreground black
-    	\}
-        \}
+    	constructor {args} {
+    	    install myComp using text $win.text -foreground black
+    	}
+        }
 
 The __install__ command does the following:
 
@@ -1935,28 +1935,28 @@ The __snit::macro__ command enables a certain amount of meta\-programming
 with Snit classes\. For example, suppose you like to define properties: instance
 variables that have set/get methods\. Your code might look like this:
 
-    snit::type dog \{
+    snit::type dog {
         variable mood happy
 
-        method getmood \{\} \{
+        method getmood {} {
             return $mood
-        \}
+        }
 
-        method setmood \{newmood\} \{
+        method setmood {newmood} {
             set mood $newmood
-        \}
-    \}
+        }
+    }
 
 That's nine lines of text per property\. Or, you could define the following
 __snit::macro__:
 
-    snit::macro property \{name initValue\} \{
+    snit::macro property {name initValue} {
         variable $name $initValue
 
-        method get$name \{\} "return $name"
+        method get$name {} "return $name"
 
-        method set$name \{value\} "set $name \\$value"
-    \}
+        method set$name {value} "set $name \$value"
+    }
 
 Note that a __snit::macro__ is just a normal Tcl proc defined in the slave
 interpreter used to compile type and widget definitions; as a result, it has
@@ -1964,9 +1964,9 @@ access to all the commands used to define types and widgets\.
 
 Given this new macro, you can define a property in one line of code:
 
-    snit::type dog \{
+    snit::type dog {
         property mood happy
-    \}
+    }
 
 Within a macro, the commands __variable__ and
 __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__ refer to the Snit type\-definition
@@ -1978,11 +1978,11 @@ widgets in the application, there's the possibility of macro name collisions\. I
 you're writing a reuseable package using Snit, and you use some
 __snit::macro__s, define them in your package namespace:
 
-    snit::macro mypkg::property \{name initValue\} \{ \.\.\. \}
+    snit::macro mypkg::property {name initValue} { ... }
 
-    snit::type dog \{
+    snit::type dog {
         mypkg::property mood happy
-    \}
+    }
 
 This leaves the global namespace open for application authors\.
 
@@ -1997,8 +1997,8 @@ validation\. This method must take a single argument, the value to be validated;
 further, it must do nothing if the value is valid, but throw an error if the
 value is invalid:
 
-    snit::integer validate 5     ;\# Does nothing
-    snit::integer validate 5\.0   ;\# Throws an error \(not an integer\!\)
+    snit::integer validate 5     ;# Does nothing
+    snit::integer validate 5.0   ;# Throws an error (not an integer!)
 
 The __validate__ method will always return the validated value on success,
 and throw the __\-errorcode__ INVALID on error\.
@@ -2008,30 +2008,30 @@ __snit::type__'s\. They can be used as is; in addition, their instances serve
 as parameterized subtypes\. For example, a probability is a number between 0\.0
 and 1\.0 inclusive:
 
-    snit::double probability \-min 0\.0 \-max 1\.0
+    snit::double probability -min 0.0 -max 1.0
 
 The example above creates an instance of __snit::double__\-\-a validation
 subtype\-\-called __probability__, which can be used to validate probability
 values:
 
-    probability validate 0\.5   ;\# Does nothing
-    probability validate 7\.9   ;\# Throws an error
+    probability validate 0.5   ;# Does nothing
+    probability validate 7.9   ;# Throws an error
 
 Validation subtypes can be defined explicitly, as in the above example; when a
 locally\-defined option's __\-type__ is specified, they may also be created on
 the fly:
 
-    snit::enum ::dog::breed \-values \{mutt retriever sheepdog\}
+    snit::enum ::dog::breed -values {mutt retriever sheepdog}
 
-    snit::type dog \{
-        \# Define subtypes on the fly\.\.\.
-        option \-breed \-type \{
-            snit::enum \-values \{mutt retriever sheepdog\}
-        \}
+    snit::type dog {
+        # Define subtypes on the fly...
+        option -breed -type {
+            snit::enum -values {mutt retriever sheepdog}
+        }
 
-        \# Or use predefined subtypes\.\.\.
-        option \-breed \-type ::dog::breed
-    \}
+        # Or use predefined subtypes...
+        option -breed -type ::dog::breed
+    }
 
 Any object that has a __validate__ method with the semantics described above
 can be used as a validation type; see [Defining Validation
@@ -2137,22 +2137,22 @@ Snit defines the following validation types:
         validation type or subtype\. In the following example, the value of
         __\-numbers__ must be a list of integers\.
 
-    option \-numbers \-type \{snit::listtype \-type snit::integer\}
+    option -numbers -type {snit::listtype -type snit::integer}
 
         Note that this option doesn't support defining new validation subtypes
         on the fly; that is, the following code will not work \(yet, anyway\):
 
-    option \-numbers \-type \{
-        snit::listtype \-type \{snit::integer \-min 5\}
-    \}
+    option -numbers -type {
+        snit::listtype -type {snit::integer -min 5}
+    }
 
         Instead, define the subtype explicitly:
 
-    snit::integer gt4 \-min 5
+    snit::integer gt4 -min 5
 
-    snit::type mytype \{
-        option \-numbers \-type \{snit::listtype \-type gt4\}
-    \}
+    snit::type mytype {
+        option -numbers -type {snit::listtype -type gt4}
+    }
 
   - <a name='86'></a>__snit::pixels__ __validate__ ?*value*?
 
@@ -2233,13 +2233,13 @@ value is invalid\. This can be done with a simple
 __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__\. For example, the
 __snit::boolean__ validate type could have been implemented like this:
 
-    proc ::snit::boolean \{"validate" value\} \{
-        if \{\!\[string is boolean \-strict $value\]\} \{
-            return \-code error \-errorcode INVALID  "invalid boolean \\"$value\\", should be one of: 1, 0, \.\.\."
-        \}
+    proc ::snit::boolean {"validate" value} {
+        if {![string is boolean -strict $value]} {
+            return -code error -errorcode INVALID  "invalid boolean \"$value\", should be one of: 1, 0, ..."
+        }
 
         return $value
-    \}
+    }
 
 A validation type defined in this way cannot be subtyped, of course; but for
 many applications this will be sufficient\.
@@ -2247,66 +2247,66 @@ many applications this will be sufficient\.
 Finally, one can define a full\-fledged, subtype\-able validation type as a
 __snit::type__\. Here's a skeleton to get you started:
 
-    snit::type myinteger \{
-        \# First, define any options you'd like to use to define
-        \# subtypes\.  Give them defaults such that they won't take
-        \# effect if they aren't used, and marked them "read\-only"\.
-        \# After all, you shouldn't be changing their values after
-        \# a subtype is defined\.
-        \#
-        \# For example:
+    snit::type myinteger {
+        # First, define any options you'd like to use to define
+        # subtypes.  Give them defaults such that they won't take
+        # effect if they aren't used, and marked them "read-only".
+        # After all, you shouldn't be changing their values after
+        # a subtype is defined.
+        #
+        # For example:
 
-        option \-min \-default "" \-readonly 1
-        option \-max \-default "" \-readonly 1
+        option -min -default "" -readonly 1
+        option -max -default "" -readonly 1
 
-        \# Next, define a "validate" type method which should do the
-        \# validation in the basic case\.  This will allow the
-        \# type command to be used as a validation type\.
+        # Next, define a "validate" type method which should do the
+        # validation in the basic case.  This will allow the
+        # type command to be used as a validation type.
 
-        typemethod validate \{value\} \{
-            if \{\!\[string is integer \-strict $value\]\} \{
-                return \-code error \-errorcode INVALID  "invalid value \\"$value\\", expected integer"
-            \}
+        typemethod validate {value} {
+            if {![string is integer -strict $value]} {
+                return -code error -errorcode INVALID  "invalid value \"$value\", expected integer"
+            }
 
             return $value
-        \}
+        }
 
-        \# Next, the constructor should validate the subtype options,
-        \# if any\.  Since they are all readonly, we don't need to worry
-        \# about validating the options on change\.
+        # Next, the constructor should validate the subtype options,
+        # if any.  Since they are all readonly, we don't need to worry
+        # about validating the options on change.
 
-        constructor \{args\} \{
-            \# FIRST, get the options
+        constructor {args} {
+            # FIRST, get the options
             $self configurelist $args
 
-            \# NEXT, validate them\.
+            # NEXT, validate them.
 
-            \# I'll leave this to your imagination\.
-        \}
+            # I'll leave this to your imagination.
+        }
 
-        \# Next, define a "validate" instance method; its job is to
-        \# validate values for subtypes\.
+        # Next, define a "validate" instance method; its job is to
+        # validate values for subtypes.
 
-        method validate \{value\} \{
-            \# First, call the type method to do the basic validation\.
+        method validate {value} {
+            # First, call the type method to do the basic validation.
             $type validate $value
 
-            \# Now we know it's a valid integer\.
+            # Now we know it's a valid integer.
 
-            if \{\("" \!= $options\(\-min\) && $value < $options\(\-min\)\)  &#124;&#124;
-                \("" \!= $options\(\-max\) && $value > $options\(\-max\)\)\} \{
-                \# It's out of range; format a detailed message about
-                \# the error, and throw it\.
+            if {("" != $options(-min) && $value < $options(-min))  ||
+                ("" != $options(-max) && $value > $options(-max))} {
+                # It's out of range; format a detailed message about
+                # the error, and throw it.
 
-                set msg "\.\.\.\."
+                set msg "...."
 
-                return \-code error \-errorcode INVALID $msg
-            \}
+                return -code error -errorcode INVALID $msg
+            }
 
-            \# Otherwise, if it's valid just return it\.
+            # Otherwise, if it's valid just return it.
             return $valid
-        \}
-    \}
+        }
+    }
 
 And now you have a type that can be subtyped\.
 

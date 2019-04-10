@@ -134,7 +134,7 @@ This package adds template based *appenders*\.
 
         For example
 
-            logger::utils::applyAppender \-serviceCmd $log \-appender console \-appenderArgs \{\-conversionPattern \{\\\[%M\\\] \\\[%p\\\] \- %m\}\}
+            logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\[%M\] \[%p\] - %m}}
 
         The usual Tcl quoting rules apply\.
 
@@ -145,11 +145,11 @@ This package adds template based *appenders*\.
 
     Example of usage:
 
-        % set log \[logger::init testLog\]
+        % set log [logger::init testLog]
         ::logger::tree::testLog
-        % logger::utils::applyAppender \-appender console \-serviceCmd $log
-        % $\{log\}::error "this is an error"
-        \[2005/08/22 10:14:13\] \[testLog\] \[global\] \[error\] this is an error
+        % logger::utils::applyAppender -appender console -serviceCmd $log
+        % ${log}::error "this is an error"
+        [2005/08/22 10:14:13] [testLog] [global] [error] this is an error
 
   - <a name='4'></a>__::logger::utils::autoApplyAppender__ *command* *command\-string* *log* *op* *args*\.\.\.
 
@@ -160,9 +160,9 @@ This package adds template based *appenders*\.
 
     Example of usage:
 
-        logger::utils::applyAppender \-appender console
-        set log \[logger::init applyAppender\-3\]
-        $\{log\}::error "this is an error"
+        logger::utils::applyAppender -appender console
+        set log [logger::init applyAppender-3]
+        ${log}::error "this is an error"
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

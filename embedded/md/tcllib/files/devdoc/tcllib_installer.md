@@ -165,7 +165,7 @@ should be placed on the \(*Unix*\) or associated with "\.tcl" files
 For *Unix*\-like environments Tcllib comes with the standard set of files to
 make
 
-    \./configure
+    ./configure
     make install
 
 a suitable way of installing it\. This is a standard non\-interactive install
@@ -174,7 +174,7 @@ applications, and the manpages\.
 
 To get a graphical installer invoke
 
-    \./installer\.tcl
+    ./installer.tcl
 
 instead\.
 
@@ -191,7 +191,7 @@ well\.
 Without *[Tk](\.\./\.\./\.\./index\.md\#tk)* the only way to invoke the installer
 are to open a DOS window, i\.e\. __cmd\.exe__, and then to invoke
 
-    \./installer\.tcl
+    ./installer.tcl
 
 inside it\.
 
@@ -209,20 +209,20 @@ becomes required\.
 To build and install Tcllib with the accelerators in a Unix\-like environment
 invoke:
 
-    \./configure
-    make critcl \# This builds the shared library holding
-                \# the accelerators
+    ./configure
+    make critcl # This builds the shared library holding
+                # the accelerators
     make install
 
 The underlying tool is "sak\.tcl" in the toplevel directory of Tcllib and the
 command __make critcl__ is just a wrapper around
 
-    \./sak\.tcl critcl
+    ./sak.tcl critcl
 
 Therefore in a Windows environment instead invoke
 
-    \./sak\.tcl critcl
-    \./installer\.tcl
+    ./sak.tcl critcl
+    ./installer.tcl
 
 from within a DOS window, i\.e\. __cmd\.exe__\.
 
@@ -243,7 +243,7 @@ On Windows system using it directly is the only way to invoke it\.
 
 For basic help invoke it as
 
-    \./installer\.tcl \-help
+    ./installer.tcl -help
 
 This will print a short list of all the available options to the standard output
 channel\.

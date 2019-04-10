@@ -56,11 +56,11 @@ The *math::machineparameters* package is the Tcl equivalent of the DLAMCH
 LAPACK function\. In floating point systems, a floating point number is
 represented by
 
-    x = \+/\- d1 d2 \.\.\. dt basis^e
+    x = +/- d1 d2 ... dt basis^e
 
 where digits satisfy
 
-    0 <= di <= basis \- 1, i = 1, t
+    0 <= di <= basis - 1, i = 1, t
 
 with the convention :
 
@@ -77,21 +77,21 @@ prints a report on standard output\.
 In the following example, one compute the parameters of a desktop under Linux
 with the following Tcl 8\.4\.19 properties :
 
-    % parray tcl\_platform
-    tcl\_platform\(byteOrder\) = littleEndian
-    tcl\_platform\(machine\)   = i686
-    tcl\_platform\(os\)        = Linux
-    tcl\_platform\(osVersion\) = 2\.6\.24\-19\-generic
-    tcl\_platform\(platform\)  = unix
-    tcl\_platform\(tip,268\)   = 1
-    tcl\_platform\(tip,280\)   = 1
-    tcl\_platform\(user\)      = <username>
-    tcl\_platform\(wordSize\)  = 4
+    % parray tcl_platform
+    tcl_platform(byteOrder) = littleEndian
+    tcl_platform(machine)   = i686
+    tcl_platform(os)        = Linux
+    tcl_platform(osVersion) = 2.6.24-19-generic
+    tcl_platform(platform)  = unix
+    tcl_platform(tip,268)   = 1
+    tcl_platform(tip,280)   = 1
+    tcl_platform(user)      = <username>
+    tcl_platform(wordSize)  = 4
 
 The following example creates a machineparameters object, computes the
 properties and displays it\.
 
-    set pp \[machineparameters create %AUTO%\]
+    set pp [machineparameters create %AUTO%]
     $pp compute
     $pp print
     $pp destroy
@@ -99,35 +99,35 @@ properties and displays it\.
 This prints out :
 
     Machine parameters
-    Epsilon : 1\.11022302463e\-16
+    Epsilon : 1.11022302463e-16
     Beta : 2
     Rounding : proper
     Mantissa : 53
     Maximum exponent : 1024
-    Minimum exponent : \-1021
-    Overflow threshold : 8\.98846567431e\+307
-    Underflow threshold : 2\.22507385851e\-308
+    Minimum exponent : -1021
+    Overflow threshold : 8.98846567431e+307
+    Underflow threshold : 2.22507385851e-308
 
 That compares well with the results produced by Lapack 3\.1\.1 :
 
-    Epsilon                      =   1\.11022302462515654E\-016
-    Safe minimum                 =   2\.22507385850720138E\-308
-    Base                         =    2\.0000000000000000
-    Precision                    =   2\.22044604925031308E\-016
-    Number of digits in mantissa =    53\.000000000000000
-    Rounding mode                =   1\.00000000000000000
-    Minimum exponent             =   \-1021\.0000000000000
-    Underflow threshold          =   2\.22507385850720138E\-308
-    Largest exponent             =    1024\.0000000000000
-    Overflow threshold           =   1\.79769313486231571E\+308
-    Reciprocal of safe minimum   =   4\.49423283715578977E\+307
+    Epsilon                      =   1.11022302462515654E-016
+    Safe minimum                 =   2.22507385850720138E-308
+    Base                         =    2.0000000000000000
+    Precision                    =   2.22044604925031308E-016
+    Number of digits in mantissa =    53.000000000000000
+    Rounding mode                =   1.00000000000000000
+    Minimum exponent             =   -1021.0000000000000
+    Underflow threshold          =   2.22507385850720138E-308
+    Largest exponent             =    1024.0000000000000
+    Overflow threshold           =   1.79769313486231571E+308
+    Reciprocal of safe minimum   =   4.49423283715578977E+307
 
 The following example creates a machineparameters object, computes the
 properties and gets the epsilon for the machine\.
 
-    set pp \[machineparameters create %AUTO%\]
+    set pp [machineparameters create %AUTO%]
     $pp compute
-    set eps \[$pp get \-epsilon\]
+    set eps [$pp get -epsilon]
     $pp destroy
 
 # <a name='section3'></a>REFERENCES

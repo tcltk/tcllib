@@ -145,15 +145,15 @@ Starting a web service requires starting a class of type __httpd::server__,
 and providing that server with one or more URIs to service, and
 __httpd::reply__ derived classes to generate them\.
 
-    tool::define ::reply\.hello \{
-      method content \{\} \{
+    tool::define ::reply.hello {
+      method content {} {
         my puts "<HTML><HEAD><TITLE>IRM Dispatch Server</TITLE></HEAD><BODY>"
-        my puts "<h1>Hello World\!</h1>"
+        my puts "<h1>Hello World!</h1>"
         my puts </BODY></HTML>
-      \}
-    \}
-    ::docserver::server create HTTPD port 8015 myaddr 127\.0\.0\.1
-    HTTPD add\_uri /\* \[list mixin reply\.hello\]
+      }
+    }
+    ::docserver::server create HTTPD port 8015 myaddr 127.0.0.1
+    HTTPD add_uri /* [list mixin reply.hello]
 
 # <a name='section3'></a>Class ::httpd::server
 
@@ -376,60 +376,60 @@ Manage the headers sent in the reply\.
     Tcl, for example\) the caller will auto\-generate a 500 \{Internal Error\}
     message\. A typical implementation of __content__ look like:
 
-    tool::define ::test::content\.file \{
-    	superclass ::httpd::content\.file
-    	\# Return a file
-    	\# Note: this is using the content\.file mixin which looks for the reply\_file variable
-    	\# and will auto\-compute the Content\-Type
-    	method content \{\} \{
+    tool::define ::test::content.file {
+    	superclass ::httpd::content.file
+    	# Return a file
+    	# Note: this is using the content.file mixin which looks for the reply_file variable
+    	# and will auto-compute the Content-Type
+    	method content {} {
     	  my reset
-        set doc\_root \[my http\_info get doc\_root\]
-        my variable reply\_file
-        set reply\_file \[file join $doc\_root index\.html\]
-    	\}
-    \}
-    tool::define ::test::content\.time \{
-      \# return the current system time
-    	method content \{\} \{
-    		my variable reply\_body
-        my reply set Content\-Type text/plain
-    		set reply\_body \[clock seconds\]
-    	\}
-    \}
-    tool::define ::test::content\.echo \{
-    	method content \{\} \{
-    		my variable reply\_body
-        my reply set Content\-Type \[my request get CONTENT\_TYPE\]
-    		set reply\_body \[my PostData \[my request get CONTENT\_LENGTH\]\]
-    	\}
-    \}
-    tool::define ::test::content\.form\_handler \{
-    	method content \{\} \{
-    	  set form \[my FormData\]
-    	  my reply set Content\-Type \{text/html; charset=UTF\-8\}
-        my puts \[my html header \{My Dynamic Page\}\]
+        set doc_root [my http_info get doc_root]
+        my variable reply_file
+        set reply_file [file join $doc_root index.html]
+    	}
+    }
+    tool::define ::test::content.time {
+      # return the current system time
+    	method content {} {
+    		my variable reply_body
+        my reply set Content-Type text/plain
+    		set reply_body [clock seconds]
+    	}
+    }
+    tool::define ::test::content.echo {
+    	method content {} {
+    		my variable reply_body
+        my reply set Content-Type [my request get CONTENT_TYPE]
+    		set reply_body [my PostData [my request get CONTENT_LENGTH]]
+    	}
+    }
+    tool::define ::test::content.form_handler {
+    	method content {} {
+    	  set form [my FormData]
+    	  my reply set Content-Type {text/html; charset=UTF-8}
+        my puts [my html header {My Dynamic Page}]
         my puts "<BODY>"
         my puts "You Sent<p>"
         my puts "<TABLE>"
-        foreach \{f v\} $form \{
+        foreach {f v} $form {
           my puts "<TR><TH>$f</TH><TD><verbatim>$v</verbatim></TD>"
-        \}
+        }
         my puts "</TABLE><p>"
         my puts "Send some info:<p>"
-        my puts "<FORM action=/\[my http\_info get REQUEST\_PATH\] method POST>"
+        my puts "<FORM action=/[my http_info get REQUEST_PATH] method POST>"
         my puts "<TABLE>"
-        foreach field \{name rank serial\_number\} \{
-          set line "<TR><TH>$field</TH><TD><input name=\\"$field\\" "
-          if \{\[dict exists $form $field\]\} \{
-            append line " value=\\"\[dict get $form $field\]\\"""
-          \}
+        foreach field {name rank serial_number} {
+          set line "<TR><TH>$field</TH><TD><input name=\"$field\" "
+          if {[dict exists $form $field]} {
+            append line " value=\"[dict get $form $field]\"""
+          }
           append line " /></TD></TR>"
           my puts $line
-        \}
+        }
         my puts "</TABLE>"
-        my puts \[my html footer\]
-    	\}
-    \}
+        my puts [my html footer]
+    	}
+    }
 
   - <a name='32'></a>method __EncodeStatus__ *status*
 
@@ -490,19 +490,19 @@ Manage the headers sent in the reply\.
     Intended to be invoked from __chan copy__ as a callback\. This closes
     every channel fed to it on the command line, and then destroys the object\.
 
-    \#\#\#
-    \# Output the body
-    \#\#\#
-    chan configure $sock \-translation binary \-blocking 0 \-buffering full \-buffersize 4096
-    chan configure $chan \-translation binary \-blocking 0 \-buffering full \-buffersize 4096
-    if \{$length\} \{
-      \#\#\#
-      \# Send any POST/PUT/etc content
-      \#\#\#
-      chan copy $sock $chan \-size $SIZE \-command \[info coroutine\]
+    ###
+    # Output the body
+    ###
+    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+    if {$length} {
+      ###
+      # Send any POST/PUT/etc content
+      ###
+      chan copy $sock $chan -size $SIZE -command [info coroutine]
       yield
-    \}
-    catch \{close $sock\}
+    }
+    catch {close $sock}
     chan flush $chan
 
   - <a name='42'></a>method __Url\_Decode__ *string*

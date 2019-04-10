@@ -74,12 +74,12 @@ directly at its [download page](http://www\.fossil\-scm\.org/download\.html)\.
 
 With that tool available the full history can be retrieved via:
 
-    fossil clone  http://core\.tcl\-lang\.org/tcllib  tcllib\.fossil
+    fossil clone  http://core.tcl-lang.org/tcllib  tcllib.fossil
 
 followed by
 
     mkdir tcllib
     cd tcllib
-    fossil open \.\./tcllib\.fossil
+    fossil open ../tcllib.fossil
 
 to get a checkout of the head of the trunk\.

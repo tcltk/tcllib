@@ -68,27 +68,27 @@ until a specific variable or any index of an array is referenced\.
 
 # <a name='section3'></a>EXAMPLES
 
-    ::lazyset::variable page \{apply \{\{name\} \{
+    ::lazyset::variable page {apply {{name} {
     	package require http
-    	set token \[http::geturl http://www\.tcl\.tk/\]
-    	set data \[http::data $token\]
+    	set token [http::geturl http://www.tcl.tk/]
+    	set data [http::data $token]
     	return $data
-    \}\}\}
+    }}}
 
     puts $page
 
-    ::lazyset::variable \-array true page \{apply \{\{name index\} \{
+    ::lazyset::variable -array true page {apply {{name index} {
     	package require http
-    	set token \[http::geturl $index\]
-    	set data \[http::data $token\]
+    	set token [http::geturl $index]
+    	set data [http::data $token]
     	return $data
-    \}\}\}
+    }}}
 
-    puts $page\(http://www\.tcl\.tk/\)
+    puts $page(http://www.tcl.tk/)
 
-    ::lazyset::variable \-appendArgs false simple \{
-    	return \-level 0 42
-    \}
+    ::lazyset::variable -appendArgs false simple {
+    	return -level 0 42
+    }
 
     puts $simple
 

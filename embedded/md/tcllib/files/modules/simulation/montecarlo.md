@@ -70,34 +70,34 @@ element in it\.
 The package *simulation::montecarlo* offers a basic framework for such a
 modelling technique:
 
-    \#
-    \# MC experiments:
-    \# Determine the mean and median of a set of points and compare them
-    \#
-    ::simulation::montecarlo::singleExperiment \-init \{
+    #
+    # MC experiments:
+    # Determine the mean and median of a set of points and compare them
+    #
+    ::simulation::montecarlo::singleExperiment -init {
         package require math::statistics
 
-        set prng \[::simulation::random::prng\_Normal 0\.0 1\.0\]
-    \} \-loop \{
-        set numbers \{\}
-        for \{ set i 0 \} \{ $i < \[getOption samples\] \} \{ incr i \} \{
-            lappend numbers \[$prng\]
-        \}
-        set mean   \[::math::statistics::mean $numbers\]
-        set median \[::math::statistics::median $numbers\] ;\# ? Exists?
-        setTrialResult \[list $mean $median\]
-    \} \-final \{
-        set result \[getTrialResults\]
-        set means   \{\}
-        set medians \{\}
-        foreach r $result \{
-            foreach \{m M\} $r break
+        set prng [::simulation::random::prng_Normal 0.0 1.0]
+    } -loop {
+        set numbers {}
+        for { set i 0 } { $i < [getOption samples] } { incr i } {
+            lappend numbers [$prng]
+        }
+        set mean   [::math::statistics::mean $numbers]
+        set median [::math::statistics::median $numbers] ;# ? Exists?
+        setTrialResult [list $mean $median]
+    } -final {
+        set result [getTrialResults]
+        set means   {}
+        set medians {}
+        foreach r $result {
+            foreach {m M} $r break
             lappend means   $m
             lappend medians $M
-        \}
-        puts \[getOption reportfile\] "Correlation: \[::math::statistics::corr $means $medians\]"
+        }
+        puts [getOption reportfile] "Correlation: [::math::statistics::corr $means $medians]"
 
-    \} \-trials 100 \-samples 10 \-verbose 1 \-columns \{Mean Median\}
+    } -trials 100 -samples 10 -verbose 1 -columns {Mean Median}
 
 This example attemps to find out how well the median value and the mean value of
 a random set of numbers correlate\. Sometimes a median value is a more robust

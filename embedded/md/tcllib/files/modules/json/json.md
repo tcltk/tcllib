@@ -82,49 +82,49 @@ use\.
 An example of a JSON array converted to Tcl\. A JSON array is returned as a
 single item with multiple elements\.
 
-    \[
-        \{
+    [
+        {
            "precision": "zip",
-           "Latitude":  37\.7668,
-           "Longitude": \-122\.3959,
+           "Latitude":  37.7668,
+           "Longitude": -122.3959,
            "Address":   "",
            "City":      "SAN FRANCISCO",
            "State":     "CA",
            "Zip":       "94107",
            "Country":   "US"
-        \},
-        \{
+        },
+        {
            "precision": "zip",
-           "Latitude":  37\.371991,
-           "Longitude": \-122\.026020,
+           "Latitude":  37.371991,
+           "Longitude": -122.026020,
            "Address":   "",
            "City":      "SUNNYVALE",
            "State":     "CA",
            "Zip":       "94085",
            "Country":   "US"
-        \}
-    \]
+        }
+    ]
     =>
-    \{Country US Latitude 37\.7668 precision zip State CA City \{SAN FRANCISCO\} Address \{\} Zip 94107 Longitude \-122\.3959\} \{Country US Latitude 37\.371991 precision zip State CA City SUNNYVALE Address \{\} Zip 94085 Longitude \-122\.026020\}
+    {Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
 
 An example of a JSON object converted to Tcl\. A JSON object is returned as a
 multi\-element list \(a dict\)\.
 
-    \{
-        "Image": \{
+    {
+        "Image": {
             "Width":  800,
             "Height": 600,
             "Title":  "View from 15th Floor",
-            "Thumbnail": \{
-                "Url":    "http://www\.example\.com/image/481989943",
+            "Thumbnail": {
+                "Url":    "http://www.example.com/image/481989943",
                 "Height": 125,
                 "Width":  "100"
-            \},
-            "IDs": \[116, 943, 234, 38793\]
-        \}
-    \}
+            },
+            "IDs": [116, 943, 234, 38793]
+        }
+    }
     =>
-    Image \{IDs \{116 943 234 38793\} Thumbnail \{Width 100 Height 125 Url http://www\.example\.com/image/481989943\} Width 800 Height 600 Title \{View from 15th Floor\}\}
+    Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www.example.com/image/481989943} Width 800 Height 600 Title {View from 15th Floor}}
 
 # <a name='section4'></a>RELATED
 

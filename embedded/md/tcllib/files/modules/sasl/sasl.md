@@ -287,28 +287,28 @@ used\. In reality this should be event driven\. Each time the __step__ command
 is called, the last server response should be provided as the command argument
 so that the SASL mechanism can take appropriate action\.
 
-    proc ClientCallback \{context command args\} \{
-        switch \-exact \-\- $command \{
-            login    \{ return "" \}
-            username \{ return $::tcl\_platform\(user\) \}
-            password \{ return "SecRet" \}
-            realm    \{ return "" \}
-            hostname \{ return \[info host\] \}
-            default  \{ return \-code error unxpected \}
-        \}
-    \}
+    proc ClientCallback {context command args} {
+        switch -exact -- $command {
+            login    { return "" }
+            username { return $::tcl_platform(user) }
+            password { return "SecRet" }
+            realm    { return "" }
+            hostname { return [info host] }
+            default  { return -code error unxpected }
+        }
+    }
 
-    proc Demo \{\{mech PLAIN\}\} \{
-        set ctx \[SASL::new \-mechanism $mech \-callback ClientCallback\]
+    proc Demo {{mech PLAIN}} {
+        set ctx [SASL::new -mechanism $mech -callback ClientCallback]
         set challenge ""
-        while \{1\} \{
-            set more\_steps \[SASL::step $ctx challenge\]
-            puts "Send '\[SASL::response $ctx\]'"
+        while {1} {
+            set more_steps [SASL::step $ctx challenge]
+            puts "Send '[SASL::response $ctx]'"
             puts "Read server response into challenge var"
-            if \{\!$more\_steps\} \{break\}
-        \}
+            if {!$more_steps} {break}
+        }
         SASL::cleanup $ctx
-    \}
+    }
 
 # <a name='section7'></a>REFERENCES
 

@@ -67,19 +67,19 @@ This package provides procedures to encode binary data into ascii85 and back\.
 # <a name='section2'></a>EXAMPLES
 
     % ascii85::encode "Hello, world"
-    87cURD\_\*\#TDfTZ\)
+    87cURD_*#TDfTZ)
 
-    % ascii85::encode \[string repeat xyz 24\]
-    G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G
-    ^4U\[H$X^\\H?a^\]
-    % ascii85::encode \-wrapchar "" \[string repeat xyz 24\]
-    G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]G^4U\[H$X^\\H?a^\]
+    % ascii85::encode [string repeat xyz 24]
+    G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G
+    ^4U[H$X^\H?a^]
+    % ascii85::encode -wrapchar "" [string repeat xyz 24]
+    G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]
 
-    \# NOTE: ascii85 encodes BINARY strings\.
-    % set chemical \[encoding convertto utf\-8 "C\\u2088H\\u2081\\u2080N\\u2084O\\u2082"\]
-    % set encoded \[ascii85::encode $chemical\]
-    6fN\]R8E,5Pidu\\UiduhZidua
-    % set caffeine \[encoding convertfrom utf\-8 \[ascii85::decode $encoded\]\]
+    # NOTE: ascii85 encodes BINARY strings.
+    % set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
+    % set encoded [ascii85::encode $chemical]
+    6fN]R8E,5Pidu\UiduhZidua
+    % set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
 
 # <a name='section3'></a>References
 

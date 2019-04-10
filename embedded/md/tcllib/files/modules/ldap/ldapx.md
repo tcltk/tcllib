@@ -355,60 +355,60 @@ In all methods, attribute names are converted in lower case\.
 
     package require ldapx
 
-    \#
-    \# Create an entry and fill it as a standard entry with
-    \# attributes and values
-    \#
+    #
+    # Create an entry and fill it as a standard entry with
+    # attributes and values
+    #
     ::ldapx::entry create e
     e dn "uid=joe,ou=people,o=mycomp"
     e set1 "uid"             "joe"
-    e set  "objectClass"     \{person anotherObjectClass\}
+    e set  "objectClass"     {person anotherObjectClass}
     e set1 "givenName"       "Joe"
     e set1 "sn"              "User"
-    e set  "telephoneNumber" \{\+31415926535 \+2182818\}
+    e set  "telephoneNumber" {+31415926535 +2182818}
     e set1 "anotherAttr"     "This is a beautiful day, isn't it?"
 
-    puts stdout "e\\n\[e print\]"
+    puts stdout "e\n[e print]"
 
-    \#
-    \# Create a second entry as a backup of the first, and
-    \# make some changes on it\.
-    \# Entry is named automatically by snit\.
-    \#
+    #
+    # Create a second entry as a backup of the first, and
+    # make some changes on it.
+    # Entry is named automatically by snit.
+    #
 
-    set b \[::ldapx::entry create %AUTO%\]
+    set b [::ldapx::entry create %AUTO%]
     e backup $b
 
-    puts stdout "$b\\n\[$b print\]"
+    puts stdout "$b\n[$b print]"
 
     $b del  "anotherAttr"
     $b del1 "objectClass" "anotherObjectClass"
 
-    \#
-    \# Create a change entry, a compute differences between first
-    \# and second entry\.
-    \#
+    #
+    # Create a change entry, a compute differences between first
+    # and second entry.
+    #
 
     ::ldapx::entry create c
     c diff e $b
 
-    puts stdout "$c\\n\[$c print\]"
+    puts stdout "$c\n[$c print]"
 
-    \#
-    \# Apply changes to first entry\. It should be the same as the
-    \# second entry, now\.
-    \#
+    #
+    # Apply changes to first entry. It should be the same as the
+    # second entry, now.
+    #
 
     e apply c
 
     ::ldapx::entry create nc
     nc diff e $b
 
-    puts stdout "nc\\n\[nc print\]"
+    puts stdout "nc\n[nc print]"
 
-    \#
-    \# Clean\-up
-    \#
+    #
+    # Clean-up
+    #
 
     e destroy
     $b destroy
@@ -556,50 +556,50 @@ directory:
 
         package require ldapx
 
-        \#
-        \# Connects to the LDAP directory
-        \#
+        #
+        # Connects to the LDAP directory
+        #
 
         ::ldapx::ldap create l
-        set url "ldap://server\.mycomp\.com"
-        if \{\! \[l connect $url "cn=admin,o=mycomp" "mypasswd"\]\} then \{
-    	puts stderr "error: \[l error\]"
+        set url "ldap://server.mycomp.com"
+        if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
+    	puts stderr "error: [l error]"
     	exit 1
-        \}
+        }
 
-        \#
-        \# Search all entries matching some criterion
-        \#
+        #
+        # Search all entries matching some criterion
+        #
 
-        l configure \-scope one
+        l configure -scope one
         ::ldapx::entry create e
         set n 0
-        l traverse "ou=people,o=mycomp" "\(sn=Joe\*\)" \{sn givenName\} e \{
-    	puts "dn: \[e dn\]"
-    	puts "  sn:        \[e get1 sn\]"
-    	puts "  givenName: \[e get1 givenName\]"
+        l traverse "ou=people,o=mycomp" "(sn=Joe*)" {sn givenName} e {
+    	puts "dn: [e dn]"
+    	puts "  sn:        [e get1 sn]"
+    	puts "  givenName: [e get1 givenName]"
     	incr n
-        \}
+        }
         puts "$n entries found"
         e destroy
 
-        \#
-        \# Add a telephone number to some entries
-        \# Note this modification cannot be done in the "traverse" operation\.
-        \#
+        #
+        # Add a telephone number to some entries
+        # Note this modification cannot be done in the "traverse" operation.
+        #
 
-        set lent \[l search "ou=people,o=mycomp" "\(sn=Joe\*\)" \{\}\]
+        set lent [l search "ou=people,o=mycomp" "(sn=Joe*)" {}]
         ::ldapx::entry create c
-        foreach e $lent \{
+        foreach e $lent {
     	$e backup
-    	$e add1 "telephoneNumber" "\+31415926535"
+    	$e add1 "telephoneNumber" "+31415926535"
     	c diff $e
-    	if \{\! \[l commit c\]\} then \{
-    	    puts stderr "error: \[l error\]"
+    	if {! [l commit c]} then {
+    	    puts stderr "error: [l error]"
     	    exit 1
-    	\}
+    	}
     	$e destroy
-        \}
+        }
         c destroy
 
         l disconnect
@@ -691,10 +691,10 @@ This class defines two options:
 
         package require ldapx
 
-        \# This examples reads a LDIF file containing entries,
-        \# compare them to a LDAP directory, and writes on standard
-        \# output an LDIF file containing changes to apply to the
-        \# LDAP directory to match exactly the LDIF file\.
+        # This examples reads a LDIF file containing entries,
+        # compare them to a LDAP directory, and writes on standard
+        # output an LDIF file containing changes to apply to the
+        # LDAP directory to match exactly the LDIF file.
 
         ::ldapx::ldif create liin
         liin channel stdin
@@ -703,30 +703,30 @@ This class defines two options:
         liout channel stdout
 
         ::ldapx::ldap create la
-        if \{\! \[la connect "ldap://server\.mycomp\.com"\]\} then \{
-    	puts stderr "error: \[la error\]"
+        if {! [la connect "ldap://server.mycomp.com"]} then {
+    	puts stderr "error: [la error]"
     	exit 1
-        \}
-        la configure \-scope one
+        }
+        la configure -scope one
 
-        \# Reads LDIF file
+        # Reads LDIF file
 
         ::ldapx::entry create e1
         ::ldapx::entry create e2
         ::ldapx::entry create c
 
-        while \{\[liin read e1\] \!= 0\} \{
-    	set base \[e1 superior\]
-    	set id \[e1 rdn\]
-    	if \{\[la read $base "\($id\)" e2\] == 0\} then \{
+        while {[liin read e1] != 0} {
+    	set base [e1 superior]
+    	set id [e1 rdn]
+    	if {[la read $base "($id)" e2] == 0} then {
     	    e2 reset
-    	\}
+    	}
 
     	c diff e1 e2
-    	if \{\[llength \[c change\]\] \!= 0\} then \{
+    	if {[llength [c change]] != 0} then {
     	    liout write c
-    	\}
-        \}
+    	}
+        }
 
         la disconnect
         la destroy

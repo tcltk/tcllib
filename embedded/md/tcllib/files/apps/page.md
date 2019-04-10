@@ -125,7 +125,7 @@ Default options are used if and only if the command line did not contain any
 options at all\. They will set the application up as a PEG\-based parser
 generator\. The exact list of options is
 
-    \-c peg
+    -c peg
 
 And now the recognized options and their arguments, if they have any:
 
@@ -266,12 +266,12 @@ sources\.
         expression grammars and writing a packrat parser in Tcl\. The actual
         arguments it specifies are:
 
-    \-\-reset
-    \-\-append
-    \-\-reader    peg
-    \-\-transform reach
-    \-\-transform use
-    \-\-writer    me
+    --reset
+    --append
+    --reader    peg
+    --transform reach
+    --transform use
+    --writer    me
 
   - __\-r__ *name*
 

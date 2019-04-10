@@ -434,11 +434,11 @@ The general statistical procedures are:
     \(1\) or not \(0\) and the confidence interval the conclusion is based on\. The
     groups may also be stored in a nested list:
 
-        test\-anova\-F 0\.05 $A $B $C
-        \#
-        \# Or equivalently:
-        \#
-        test\-anova\-F 0\.05 \[list $A $B $C\]
+        test-anova-F 0.05 $A $B $C
+        #
+        # Or equivalently:
+        #
+        test-anova-F 0.05 [list $A $B $C]
 
       * float *alpha*
 
@@ -479,7 +479,7 @@ The general statistical procedures are:
     Note: some care is required if there is only one group to compare the
     control with:
 
-        test\-Dunnett\-F 0\.05 $control \[list $A\]
+        test-Dunnett-F 0.05 $control [list $A]
 
     Otherwise the group A is split up into groups of one element \- this is due
     to an ambiguity\.
@@ -985,8 +985,8 @@ Note: These procedures depend on the math::linearalgebra package\.
 
     Returns the value of the t\-distribution t\* satisfying
 
-        P\(t\*\)  =  1 \- alpha/2
-        P\(\-t\*\) =  alpha/2
+        P(t*)  =  1 - alpha/2
+        P(-t*) =  alpha/2
 
     for the number of degrees of freedom dof\.
 
@@ -994,7 +994,7 @@ Note: These procedures depend on the math::linearalgebra package\.
     mean and sbar for the standard deviation, the alpha confidence interval for
     the estimate of the mean can be calculated as
 
-        \( xbar \- t\* sbar , xbar \+ t\* sbar\)
+        ( xbar - t* sbar , xbar + t* sbar)
 
     The return values from this procedure can be compared to an estimated
     t\-statistic to determine whether the estimated value of a parameter is
@@ -1015,11 +1015,11 @@ Note: These procedures depend on the math::linearalgebra package\.
 
     The linear model is of the form
 
-        y = b0 \+ b1 \* x1 \+ b2 \* x2 \.\.\. \+ bN \* xN \+ error
+        y = b0 + b1 * x1 + b2 * x2 ... + bN * xN + error
 
     and each point satisfies
 
-        yi = b0 \+ b1 \* xi1 \+ b2 \* xi2 \+ \.\.\. \+ bN \* xiN \+ Residual\_i
+        yi = b0 + b1 * xi1 + b2 * xi2 + ... + bN * xiN + Residual_i
 
     The procedure returns a list with the following elements:
 
@@ -1055,33 +1055,33 @@ Note: These procedures depend on the math::linearalgebra package\.
 
 *Example of the use:*
 
-    \# Store the value of the unicode value for the "\+/\-" character
-    set pm "\\u00B1"
+    # Store the value of the unicode value for the "+/-" character
+    set pm "\u00B1"
 
-    \# Provide some data
-    set data \{\{  \-\.67  14\.18  60\.03 \-7\.5  \}
-              \{ 36\.97  15\.52  34\.24 14\.61 \}
-              \{\-29\.57  21\.85  83\.36 \-7\.   \}
-              \{\-16\.9   11\.79  51\.67 \-6\.56 \}
-              \{ 14\.09  16\.24  36\.97 \-12\.84\}
-              \{ 31\.52  20\.93  45\.99 \-25\.4 \}
-              \{ 24\.05  20\.69  50\.27  17\.27\}
-              \{ 22\.23  16\.91  45\.07  \-4\.3 \}
-              \{ 40\.79  20\.49  38\.92  \-\.73 \}
-              \{\-10\.35  17\.24  58\.77  18\.78\}\}
+    # Provide some data
+    set data {{  -.67  14.18  60.03 -7.5  }
+              { 36.97  15.52  34.24 14.61 }
+              {-29.57  21.85  83.36 -7.   }
+              {-16.9   11.79  51.67 -6.56 }
+              { 14.09  16.24  36.97 -12.84}
+              { 31.52  20.93  45.99 -25.4 }
+              { 24.05  20.69  50.27  17.27}
+              { 22.23  16.91  45.07  -4.3 }
+              { 40.79  20.49  38.92  -.73 }
+              {-10.35  17.24  58.77  18.78}}
 
-    \# Call the ols routine
-    set results \[::math::statistics::mv\-ols $data\]
+    # Call the ols routine
+    set results [::math::statistics::mv-ols $data]
 
-    \# Pretty\-print the results
-    puts "R\-squared: \[lindex $results 0\]"
-    puts "Adj R\-squared: \[lindex $results 1\]"
-    puts "Coefficients $pm s\.e\. \-\- \\\[95% confidence interval\\\]:"
-    foreach val \[lindex $results 2\] se \[lindex $results 3\] bounds \[lindex $results 4\] \{
-        set lb \[lindex $bounds 0\]
-        set ub \[lindex $bounds 1\]
-        puts "   $val $pm $se \-\- \\\[$lb to $ub\\\]"
-    \}
+    # Pretty-print the results
+    puts "R-squared: [lindex $results 0]"
+    puts "Adj R-squared: [lindex $results 1]"
+    puts "Coefficients $pm s.e. -- \[95% confidence interval\]:"
+    foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+        set lb [lindex $bounds 0]
+        set ub [lindex $bounds 1]
+        puts "   $val $pm $se -- \[$lb to $ub\]"
+    }
 
 # <a name='section4'></a>STATISTICAL DISTRIBUTIONS
 
@@ -1805,9 +1805,9 @@ The following procedures have been implemented:
 
     Evaluate the incomplete Gamma integral
 
-                  1       / x               p\-1
-    P\(p,x\) =  \-\-\-\-\-\-\-\-   &#124;   dt exp\(\-t\) \* t
-              Gamma\(p\)  / 0
+                  1       / x               p-1
+    P(p,x) =  --------   |   dt exp(-t) * t
+              Gamma(p)  / 0
 
       * float *x*
 
@@ -2076,113 +2076,113 @@ The following procedures are yet to be implemented:
 
 The code below is a small example of how you can examine a set of data:
 
-    \# Simple example:
-    \# \- Generate data \(as a cheap way of getting some\)
-    \# \- Perform statistical analysis to describe the data
-    \#
+    # Simple example:
+    # - Generate data (as a cheap way of getting some)
+    # - Perform statistical analysis to describe the data
+    #
     package require math::statistics
 
-    \#
-    \# Two auxiliary procs
-    \#
-    proc pause \{time\} \{
+    #
+    # Two auxiliary procs
+    #
+    proc pause {time} {
        set wait 0
-       after \[expr \{$time\*1000\}\] \{set ::wait 1\}
+       after [expr {$time*1000}] {set ::wait 1}
        vwait wait
-    \}
+    }
 
-    proc print\-histogram \{counts limits\} \{
-       foreach count $counts limit $limits \{
-          if \{ $limit \!= \{\} \} \{
-             puts \[format "<%12\.4g\\t%d" $limit $count\]
-             set prev\_limit $limit
-          \} else \{
-             puts \[format ">%12\.4g\\t%d" $prev\_limit $count\]
-          \}
-       \}
-    \}
+    proc print-histogram {counts limits} {
+       foreach count $counts limit $limits {
+          if { $limit != {} } {
+             puts [format "<%12.4g\t%d" $limit $count]
+             set prev_limit $limit
+          } else {
+             puts [format ">%12.4g\t%d" $prev_limit $count]
+          }
+       }
+    }
 
-    \#
-    \# Our source of arbitrary data
-    \#
-    proc generateData \{ data1 data2 \} \{
-       upvar 1 $data1 \_data1
-       upvar 1 $data2 \_data2
+    #
+    # Our source of arbitrary data
+    #
+    proc generateData { data1 data2 } {
+       upvar 1 $data1 _data1
+       upvar 1 $data2 _data2
 
-       set d1 0\.0
-       set d2 0\.0
-       for \{ set i 0 \} \{ $i < 100 \} \{ incr i \} \{
-          set d1 \[expr \{10\.0\-2\.0\*cos\(2\.0\*3\.1415926\*$i/24\.0\)\+3\.5\*rand\(\)\}\]
-          set d2 \[expr \{0\.7\*$d2\+0\.3\*$d1\+0\.7\*rand\(\)\}\]
-          lappend \_data1 $d1
-          lappend \_data2 $d2
-       \}
-       return \{\}
-    \}
+       set d1 0.0
+       set d2 0.0
+       for { set i 0 } { $i < 100 } { incr i } {
+          set d1 [expr {10.0-2.0*cos(2.0*3.1415926*$i/24.0)+3.5*rand()}]
+          set d2 [expr {0.7*$d2+0.3*$d1+0.7*rand()}]
+          lappend _data1 $d1
+          lappend _data2 $d2
+       }
+       return {}
+    }
 
-    \#
-    \# The analysis session
-    \#
+    #
+    # The analysis session
+    #
     package require Tk
     console show
-    canvas \.plot1
-    canvas \.plot2
-    pack   \.plot1 \.plot2 \-fill both \-side top
+    canvas .plot1
+    canvas .plot2
+    pack   .plot1 .plot2 -fill both -side top
 
     generateData data1 data2
 
     puts "Basic statistics:"
-    set b1 \[::math::statistics::basic\-stats $data1\]
-    set b2 \[::math::statistics::basic\-stats $data2\]
-    foreach label \{mean min max number stdev var\} v1 $b1 v2 $b2 \{
-       puts "$label\\t$v1\\t$v2"
-    \}
-    puts "Plot the data as function of \\"time\\" and against each other"
-    ::math::statistics::plot\-scale \.plot1  0 100  0 20
-    ::math::statistics::plot\-scale \.plot2  0 20   0 20
-    ::math::statistics::plot\-tline \.plot1 $data1
-    ::math::statistics::plot\-tline \.plot1 $data2
-    ::math::statistics::plot\-xydata \.plot2 $data1 $data2
+    set b1 [::math::statistics::basic-stats $data1]
+    set b2 [::math::statistics::basic-stats $data2]
+    foreach label {mean min max number stdev var} v1 $b1 v2 $b2 {
+       puts "$label\t$v1\t$v2"
+    }
+    puts "Plot the data as function of \"time\" and against each other"
+    ::math::statistics::plot-scale .plot1  0 100  0 20
+    ::math::statistics::plot-scale .plot2  0 20   0 20
+    ::math::statistics::plot-tline .plot1 $data1
+    ::math::statistics::plot-tline .plot1 $data2
+    ::math::statistics::plot-xydata .plot2 $data1 $data2
 
     puts "Correlation coefficient:"
-    puts \[::math::statistics::corr $data1 $data2\]
+    puts [::math::statistics::corr $data1 $data2]
 
     pause 2
     puts "Plot histograms"
-    \.plot2 delete all
-    ::math::statistics::plot\-scale \.plot2  0 20 0 100
-    set limits         \[::math::statistics::minmax\-histogram\-limits 7 16\]
-    set histogram\_data \[::math::statistics::histogram $limits $data1\]
-    ::math::statistics::plot\-histogram \.plot2 $histogram\_data $limits
+    .plot2 delete all
+    ::math::statistics::plot-scale .plot2  0 20 0 100
+    set limits         [::math::statistics::minmax-histogram-limits 7 16]
+    set histogram_data [::math::statistics::histogram $limits $data1]
+    ::math::statistics::plot-histogram .plot2 $histogram_data $limits
 
     puts "First series:"
-    print\-histogram $histogram\_data $limits
+    print-histogram $histogram_data $limits
 
     pause 2
-    set limits         \[::math::statistics::minmax\-histogram\-limits 0 15 10\]
-    set histogram\_data \[::math::statistics::histogram $limits $data2\]
-    ::math::statistics::plot\-histogram \.plot2 $histogram\_data $limits d2
-    \.plot2 itemconfigure d2 \-fill red
+    set limits         [::math::statistics::minmax-histogram-limits 0 15 10]
+    set histogram_data [::math::statistics::histogram $limits $data2]
+    ::math::statistics::plot-histogram .plot2 $histogram_data $limits d2
+    .plot2 itemconfigure d2 -fill red
 
     puts "Second series:"
-    print\-histogram $histogram\_data $limits
+    print-histogram $histogram_data $limits
 
     puts "Autocorrelation function:"
-    set  autoc \[::math::statistics::autocorr $data1\]
-    puts \[::math::statistics::map $autoc \{\[format "%\.2f" $x\]\}\]
-    puts "Cross\-correlation function:"
-    set  crossc \[::math::statistics::crosscorr $data1 $data2\]
-    puts \[::math::statistics::map $crossc \{\[format "%\.2f" $x\]\}\]
+    set  autoc [::math::statistics::autocorr $data1]
+    puts [::math::statistics::map $autoc {[format "%.2f" $x]}]
+    puts "Cross-correlation function:"
+    set  crossc [::math::statistics::crosscorr $data1 $data2]
+    puts [::math::statistics::map $crossc {[format "%.2f" $x]}]
 
-    ::math::statistics::plot\-scale \.plot1  0 100 \-1  4
-    ::math::statistics::plot\-tline \.plot1  $autoc "autoc"
-    ::math::statistics::plot\-tline \.plot1  $crossc "crossc"
-    \.plot1 itemconfigure autoc  \-fill green
-    \.plot1 itemconfigure crossc \-fill yellow
+    ::math::statistics::plot-scale .plot1  0 100 -1  4
+    ::math::statistics::plot-tline .plot1  $autoc "autoc"
+    ::math::statistics::plot-tline .plot1  $crossc "crossc"
+    .plot1 itemconfigure autoc  -fill green
+    .plot1 itemconfigure crossc -fill yellow
 
-    puts "Quantiles: 0\.1, 0\.2, 0\.5, 0\.8, 0\.9"
-    puts "First:  \[::math::statistics::quantiles $data1 \{0\.1 0\.2 0\.5 0\.8 0\.9\}\]"
-    puts "Second: \[::math::statistics::quantiles $data2 \{0\.1 0\.2 0\.5 0\.8 0\.9\}\]"
+    puts "Quantiles: 0.1, 0.2, 0.5, 0.8, 0.9"
+    puts "First:  [::math::statistics::quantiles $data1 {0.1 0.2 0.5 0.8 0.9}]"
+    puts "Second: [::math::statistics::quantiles $data2 {0.1 0.2 0.5 0.8 0.9}]"
 
 If you run this example, then the following should be clear:
 

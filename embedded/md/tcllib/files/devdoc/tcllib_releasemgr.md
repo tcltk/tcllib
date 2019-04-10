@@ -54,12 +54,12 @@ tool used by the release manager to perform its [Tasks](#section3)\.
 
 The main commands to be used are
 
-    sak\.tcl validate
-    sak\.tcl test run
-    sak\.tcl review
-    sak\.tcl readme
-    sak\.tcl localdoc
-    sak\.tcl release
+    sak.tcl validate
+    sak.tcl test run
+    sak.tcl review
+    sak.tcl readme
+    sak.tcl localdoc
+    sak.tcl release
 
 More detail will be provided in the explanations of the various
 [Tasks](#section3)\.

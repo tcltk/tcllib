@@ -81,23 +81,23 @@ own "class" class, "object" class, and define namespace\.
 
     package require tool
 
-    \# tool::class workds just like oo::class
-    tool::class create myclass \{
-    \}
+    # tool::class workds just like oo::class
+    tool::class create myclass {
+    }
 
-    \# tool::define works just like oo::define
-    tool::define myclass method noop \{\} \{\}
+    # tool::define works just like oo::define
+    tool::define myclass method noop {} {}
 
-    \# tool::define and tool::class understand additional keywords
-    tool::define myclass array\_ensemble mysettings mysettings \{\}
+    # tool::define and tool::class understand additional keywords
+    tool::define myclass array_ensemble mysettings mysettings {}
 
-    \# And tool interoperates with oo::define
-    oo::define myclass method do\_something \{\} \{ return something \}
+    # And tool interoperates with oo::define
+    oo::define myclass method do_something {} { return something }
 
-    \# TOOL and TclOO objects are interchangeable
-    oo::class create myooclass \{
+    # TOOL and TclOO objects are interchangeable
+    oo::class create myooclass {
       superclass myclass
-    \}
+    }
 
 Several manual pages go into more detail about specific keywords and methods\.
 
@@ -162,12 +162,12 @@ or *tool::define*
     Declares an option\. *dictopts* is a key/value list defining parameters for
     the option\. See __tool::option\_handling__\.
 
-    tool::class create myclass \{
-      option color \{
-        post\-command: \{puts \[list %self%'s %field% is now %value%\]\}
+    tool::class create myclass {
+      option color {
+        post-command: {puts [list %self%'s %field% is now %value%]}
         default: green
-      \}
-    \}
+      }
+    }
     myclass create foo
     foo configure color purple
     > foo's color is now purple
@@ -253,27 +253,27 @@ consistent behavior throughout the framework\.
     This method is intended for configuration scripts, where the object's
     methods are intepreting a domain specific language\.
 
-    tool::class myclass \{
-      constructor script \{
-        my Eval\_Script $script
-      \}
-      method node \{nodename info\} \{
+    tool::class myclass {
+      constructor script {
+        my Eval_Script $script
+      }
+      method node {nodename info} {
         my variable node
         dict set node $nodename $info
-      \}
-      method get \{args\} \{
+      }
+      method get {args} {
         my variable node
-        return \[dict get $node $args\]
-      \}
-    \}
-    myclass create movies \{
-      \# This block of code is executed by the object
-      node \{The Day the Earth Stood Still\} \{
+        return [dict get $node $args]
+      }
+    }
+    myclass create movies {
+      # This block of code is executed by the object
+      node {The Day the Earth Stood Still} {
         date: 1952
-        characters: \{GORT Klatoo\}
-      \}
-    \}
-    movies get \{The Day the Earth Stood Still\} date:
+        characters: {GORT Klatoo}
+      }
+    }
+    movies get {The Day the Earth Stood Still} date:
     > 1952
 
   - <a name='17'></a>*object* __Option\_Default__ *field*
