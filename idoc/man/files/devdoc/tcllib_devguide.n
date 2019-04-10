@@ -627,7 +627,7 @@ interface (I am currently unaware of ways of doing such from
 the command line, although some magic incantantion of
 \fBfossil tag create\fR may work)\&.
 .sp
-It helps tp keep awareness, like checking before any commit
+It helps to keep awareness, like checking before any commit
 that we are on the desired branch\&.
 .TP
 \fIMerging a branch into trunk\fR
@@ -656,7 +656,7 @@ Now merge to the trunk using
 
 
     fossil update trunk
-    fossil merge --integrate YOU_BRANCH
+    fossil merge --integrate YOUR_BRANCH
 
 .CE
 .IP [5]
