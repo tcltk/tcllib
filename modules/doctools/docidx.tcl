@@ -2,12 +2,10 @@
 #
 #	Implementation of docidx objects for Tcl.
 #
-# Copyright (c) 2003-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: docidx.tcl,v 1.22 2010/06/08 19:13:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -184,7 +182,7 @@ proc ::doctools::idx::DocIdxProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
 
     if { [llength [info commands ::doctools::idx::_$cmd]] == 0 } {
@@ -959,4 +957,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 1.0.8
+package provide doctools::idx 1.1

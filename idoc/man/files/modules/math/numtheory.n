@@ -2,7 +2,7 @@
 '\" Generated from file 'numtheory\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
-.TH "math::numtheory" n 1\&.0 tcllib "Tcl Math Library"
+.TH "math::numtheory" n 1\&.1\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,11 +276,15 @@ math::numtheory \- Number Theory
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::numtheory  ?1\&.0?\fR
+package require \fBmath::numtheory  ?1\&.1\&.1?\fR
 .sp
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp
 \fBmath::numtheory::firstNprimes\fR \fIN\fR
+.sp
+\fBmath::numtheory::primesLowerThan\fR \fIN\fR
+.sp
+\fBmath::numtheory::primeFactors\fR \fIN\fR
 .sp
 \fBmath::numtheory::primesLowerThan\fR \fIN\fR
 .sp
@@ -351,6 +355,22 @@ Return the first N primes
 .TP
 integer \fIN\fR (in)
 Number of primes to return
+.RE
+.TP
+\fBmath::numtheory::primesLowerThan\fR \fIN\fR
+Return the prime numbers lower/equal to N
+.RS
+.TP
+integer \fIN\fR (in)
+Maximum number to consider
+.RE
+.TP
+\fBmath::numtheory::primeFactors\fR \fIN\fR
+Return a list of the prime numbers in the number N
+.RS
+.TP
+integer \fIN\fR (in)
+Number to be factorised
 .RE
 .TP
 \fBmath::numtheory::primesLowerThan\fR \fIN\fR

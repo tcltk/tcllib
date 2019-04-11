@@ -99,15 +99,15 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">png(n) 0.1.2 tcllib &quot;Image manipulation&quot;</h1>
+<h1 class="doctools_title">png(n) 0.3 tcllib &quot;Image manipulation&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>png - PNG querying and manipulation of meta data</p>
 </div>
@@ -128,7 +128,7 @@
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
 <li>package require <b class="pkgname">crc32</b></li>
-<li>package require <b class="pkgname">png <span class="opt">?0.1.2?</span></b></li>
+<li>package require <b class="pkgname">png <span class="opt">?0.3?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::png::validate</b> <i class="arg">file</i></a></li>
@@ -140,8 +140,9 @@
 <li><a href="#7"><b class="cmd">::png::removeComments</b> <i class="arg">file</i></a></li>
 <li><a href="#8"><b class="cmd">::png::addComment</b> <i class="arg">file</i> <i class="arg">keyword</i> <i class="arg">text</i></a></li>
 <li><a href="#9"><b class="cmd">::png::addComment</b> <i class="arg">file</i> <i class="arg">keyword</i> <i class="arg">lang</i> <i class="arg">keyword2</i> <i class="arg">text</i></a></li>
-<li><a href="#10"><b class="cmd">::png::image</b> <i class="arg">file</i></a></li>
-<li><a href="#11"><b class="cmd">::png::write</b> <i class="arg">file</i> <i class="arg">data</i></a></li>
+<li><a href="#10"><b class="cmd">::png::getPixelDimension</b> <i class="arg">file</i></a></li>
+<li><a href="#11"><b class="cmd">::png::image</b> <i class="arg">file</i></a></li>
+<li><a href="#12"><b class="cmd">::png::write</b> <i class="arg">file</i> <i class="arg">data</i></a></li>
 </ul>
 </div>
 </div>
@@ -229,9 +230,18 @@ is found. <i class="arg">keyword</i> has to be less than 80 characters long to
 conform to the PNG specification. <i class="arg">keyword2</i> is the translated
 <i class="arg">keyword</i>, in the language specified by the language identifier
 <i class="arg">lang</i>.</p></dd>
-<dt><a name="10"><b class="cmd">::png::image</b> <i class="arg">file</i></a></dt>
+<dt><a name="10"><b class="cmd">::png::getPixelDimension</b> <i class="arg">file</i></a></dt>
+<dd><p>Returns a dictionary with keys <b class="const">ppux</b>, <b class="const">ppuy</b> and
+<b class="const">unit</b> if the information is present.  Otherwise, it returns the empty
+string.</p>
+<p>The values of <b class="const">ppux</b> and <b class="const">ppuy</b> return the pixel
+per unit value in X or Y direction.</p>
+<p>The allowed values for key <b class="const">unit</b> are <b class="const">meter</b> and
+<b class="const">unknown</b>. In the case of meter, the dpi value can be calculated
+by multiplying with the conversion factor <b class="const">0.0254</b>.</p></dd>
+<dt><a name="11"><b class="cmd">::png::image</b> <i class="arg">file</i></a></dt>
 <dd><p>Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor.</p></dd>
-<dt><a name="11"><b class="cmd">::png::write</b> <i class="arg">file</i> <i class="arg">data</i></a></dt>
+<dt><a name="12"><b class="cmd">::png::write</b> <i class="arg">file</i> <i class="arg">data</i></a></dt>
 <dd><p>Takes a list of scanlines in the Tk_GetColor format and writes the represented image
 to <i class="arg">file</i>.</p></dd>
 </dl>

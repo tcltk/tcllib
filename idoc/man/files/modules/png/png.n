@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "png" n 0\&.1\&.2 tcllib "Image manipulation"
+.TH "png" n 0\&.3 tcllib "Image manipulation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ package require \fBTcl  8\&.2\fR
 .sp
 package require \fBcrc32 \fR
 .sp
-package require \fBpng  ?0\&.1\&.2?\fR
+package require \fBpng  ?0\&.3?\fR
 .sp
 \fB::png::validate\fR \fIfile\fR
 .sp
@@ -298,6 +298,8 @@ package require \fBpng  ?0\&.1\&.2?\fR
 \fB::png::addComment\fR \fIfile\fR \fIkeyword\fR \fItext\fR
 .sp
 \fB::png::addComment\fR \fIfile\fR \fIkeyword\fR \fIlang\fR \fIkeyword2\fR \fItext\fR
+.sp
+\fB::png::getPixelDimension\fR \fIfile\fR
 .sp
 \fB::png::image\fR \fIfile\fR
 .sp
@@ -405,6 +407,18 @@ is found\&. \fIkeyword\fR has to be less than 80 characters long to
 conform to the PNG specification\&. \fIkeyword2\fR is the translated
 \fIkeyword\fR, in the language specified by the language identifier
 \fIlang\fR\&.
+.TP
+\fB::png::getPixelDimension\fR \fIfile\fR
+Returns a dictionary with keys \fBppux\fR, \fBppuy\fR and
+\fBunit\fR if the information is present\&.  Otherwise, it returns the empty
+string\&.
+.sp
+The values of \fBppux\fR and \fBppuy\fR return the pixel
+per unit value in X or Y direction\&.
+.sp
+The allowed values for key \fBunit\fR are \fBmeter\fR and
+\fBunknown\fR\&. In the case of meter, the dpi value can be calculated
+by multiplying with the conversion factor \fB0\&.0254\fR\&.
 .TP
 \fB::png::image\fR \fIfile\fR
 Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor\&.

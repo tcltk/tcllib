@@ -82,7 +82,7 @@ snit::type cache::async {
 	if {![llength $args]} {
 	    array unset myhit  *
 	    array unset mymiss *
-	} elseif {[llength $arg] == 1} {
+	} elseif {[llength $args] == 1} {
 	    set key [lindex $args 0]
 	    unset -nocomplain  myhit($key)
 	    unset -nocomplain mymiss($key)
@@ -182,4 +182,4 @@ snit::type cache::async {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide cache::async 0.3
+package provide cache::async 0.3.1

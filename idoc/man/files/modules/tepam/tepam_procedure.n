@@ -1124,7 +1124,7 @@ my_proc \fB-n1 N1 -n2 N2 "->" "<-"\fR
 \fI-> my_proc: Argument '->' not known\fR
 
 set U1 "->"
-my_proc -n1 N1 -n2 N2 $U1 U2}]
+my_proc \fB-n1 N1 -n2 N2 $U1 U2\fR
 my_proc: Argument '->' not known
 .CE
 The '--' flag allows separating unambiguously the unnamed arguments from the named arguments\&. All data after the '--' flag will be considered as unnamed argument:

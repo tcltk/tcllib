@@ -336,7 +336,6 @@ The values are lists of the files the entry is touching\&.
 .sp
 .TP
 \fB::doctools::cvs::toChangeLog\fR \fIevar\fR \fIcvar\fR \fIfvar\fR
-]
 The three arguments for this command are the same as the last three
 arguments of the command \fB::doctools::cvs::scanLog\fR\&. This command
 however expects them to be filled with information about one or more

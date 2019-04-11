@@ -1,0 +1,17 @@
+% Generated from file '.FILE.' by tcllib/doctools with format 'latex'
+% Copyright (c) .COPYRIGHT.
+% TEST.z
+\documentclass{article}
+\begin{document}
+\author{aku}
+\title{.MODULE. / TEST --  : }
+\maketitle
+\section{Description}\label{section1}
+\begin{verbatim}
+Special markdown __non-special__
+\end{verbatim}
+\section{Copyright}\label{copyright}
+\begin{flushleft}
+Copyright (c) .COPYRIGHT.\linebreak
+\end{flushleft}
+\end{document}

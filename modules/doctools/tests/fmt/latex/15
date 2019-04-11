@@ -1,0 +1,36 @@
+% Generated from file '.FILE.' by tcllib/doctools with format 'latex'
+% Copyright (c) .COPYRIGHT.
+% test-definition-examples.1
+\documentclass{article}
+\begin{document}
+\author{@USR@}
+\title{.MODULE. / test-definition-examples --  : }
+\maketitle
+\section{Description}\label{section1}
+lorem ipsum dolores
+\begin{itemize}
+%
+\item[] lorem
+%
+\begin{verbatim} A1 lorem ipsum dolores \end{verbatim}
+%
+\item[] lorem
+%
+ ipsum dolores
+\begin{verbatim} B2 lorem ipsum dolores \end{verbatim}
+lorem ipsum dolores
+%
+\item[] lorem
+%
+ ipsum dolores
+\begin{verbatim} C3 lorem ipsum dolores \end{verbatim}
+%
+\item[] lorem
+%
+ ipsum dolores
+\end{itemize}
+\section{Copyright}\label{copyright}
+\begin{flushleft}
+Copyright (c) .COPYRIGHT.\linebreak
+\end{flushleft}
+\end{document}
