@@ -314,7 +314,7 @@ generally be listening on port 995.</p>
 	package require tls
 	tls::init -cafile /path/to/ca/cert -keyfile ...
 	# Create secured pop3 channel
-	pop3::open -socketcmd tls::socket \\
+	pop3::open -socketcmd tls::socket \
 		$thehost $theuser $thepassword
 	...
 </pre>
@@ -327,7 +327,7 @@ proceeding with authentication.</p>
 	package require tls
 	tls::init -cafile /path/to/ca/cert -keyfile ...
 	# Create secured pop3 channel
-	pop3::open -stls 1 \\
+	pop3::open -stls 1 \
 		$thehost $theuser $thepassword
 	...
 </pre>

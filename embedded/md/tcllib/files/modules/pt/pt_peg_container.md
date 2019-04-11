@@ -191,7 +191,8 @@ manipulation and querying of their contents:
 
     This operation is in effect equivalent to
 
-        *objectName* __deserialize =__ [*source* __serialize__]
+    > *objectName* __deserialize =__ \[*source* __serialize__\]  
+    >   
 
   - <a name='9'></a>*objectName* __\-\->__ *destination*
 
@@ -201,7 +202,8 @@ manipulation and querying of their contents:
 
     This operation is in effect equivalent to
 
-        *destination* __deserialize =__ [*objectName* __serialize__]
+    > *destination* __deserialize =__ \[*objectName* __serialize__\]  
+    >   
 
   - <a name='10'></a>*objectName* __serialize__ ?*format*?
 

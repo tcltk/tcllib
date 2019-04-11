@@ -169,7 +169,8 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-        *faName* __deserialize__ [*srcFA* __serialize__]
+    > *faName* __deserialize__ \[*srcFA* __serialize__\]  
+    >   
 
   - <a name='6'></a>*faName* __\-\->__ *dstFA*
 
@@ -180,7 +181,8 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-        *dstFA* __deserialize__ [*faName* __serialize__]
+    > *dstFA* __deserialize__ \[*faName* __serialize__\]  
+    >   
 
   - <a name='7'></a>*faName* __serialize__
 
@@ -229,11 +231,11 @@ All automatons provide the following methods for their manipulation:
 
     a possible serialization is
 
-        grammar::fa \\
-        {yellow red green red/yellow} \\
-        {Drive     {0 0 {yellow     Brake}} \\
-         Brake     {0 0 {red        Stop}} \\
-         Stop      {1 0 {red/yellow Attention}} \\
+        grammar::fa \
+        {yellow red green red/yellow} \
+        {Drive     {0 0 {yellow     Brake}} \
+         Brake     {0 0 {red        Stop}} \
+         Stop      {1 0 {red/yellow Attention}} \
          Attention {0 0 {green      Drive}}}
 
     A possible one, because I did not care about creation order here

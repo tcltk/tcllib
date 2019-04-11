@@ -493,7 +493,7 @@ command, see package \fBtls\fR, to secure the communication\&.
 
 
 	package require tls
-	tls::init \\\\
+	tls::init \\
 		\&.\&.\&.
 
 	pop3d::new S -socket tls::socket

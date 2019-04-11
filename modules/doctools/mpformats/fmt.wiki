@@ -203,6 +203,14 @@ proc fmt_tkoption_def {name dbname dbclass} {
 global textmode
 set    textmode ""
 
+# NOTE: The example_begin/end combo allows for the example
+# text to contain markup. The currently used verbatim
+# environment will cause show the wiki markup of the example,
+# instead of formatting per that markup.
+#
+# TODO: Strip internal markup from the example text, wiki cannot
+# handle such at all.
+
 proc fmt_example_begin {} {
     global  mode_save textmode
     lappend mode_save $textmode
@@ -216,7 +224,8 @@ proc fmt_example_end   {} {
     return "\n======\n"
 }
 proc fmt_example {code} {
-    return "$code"
+    set code [string map [list \\\\\n \\\n] $code]
+    return "\n======\n$code\n======\n"
 }
 
 proc emph    {text} {return ''$text''}
@@ -285,6 +294,7 @@ proc fmt_plain_text {text} {
     global textmode
 
     if {"$textmode" == "example"} {
+	set text [string map [list \\\\\n \\\n] $text]
 	return "$text"
     }
 

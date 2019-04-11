@@ -37,13 +37,33 @@ proc In? {} {
     }
     CAttrGet mdindent
 }
+
 proc In! {ws} {
     CAttrSet mdindent $ws
 }
 
-proc NewExample {} {
-    return [ContextNew Example {
-	VerbatimOn ; Example! ; Prefix+ "    "
+proc Example {complex} {
+    if {![CAttrHas exenv$complex]} {
+	ContextPush
+	set exenv [NewExample $complex]
+	ContextPop
+	CAttrSet exenv$complex $exenv
+	ContextCommit
+    }
+    return [CAttrGet exenv$complex]
+}
+
+proc NewExample {complex} {
+    return [ContextNew Example$complex {
+	VerbatimOn
+	Example!
+	if {$complex} {
+	    # Block quote
+	    Prefix+ "> "
+	} else {
+	    # Code block
+	    Prefix+ "    "
+	}
     }] ; # {}
 }
 
@@ -346,8 +366,8 @@ c_pass 2 fmt_manpage_end {} {
     CloseParagraph
     if {[llength $sa]} { Special {SEE ALSO} seealso   [join [XrefList [lsort $sa] sa] ", "] }
     if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
-    if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
-    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
+    if {$ca ne ""}     { Special CATEGORY   category  $ca            }
+    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim] }
     return
 }
 
@@ -355,10 +375,27 @@ c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
     TextTrimLeadingSpace
 
+    # Check for protected markdown markup in the input. If present
+    # this is a complex example with highlighted parts.
+    set complex [string match *\1* [Text?]]
+
+    #puts_stderr "AAA/fmt_example_end/$complex"
+    
     # In examples (verbatim markup) markdown's special characters are
     # no such by default, thus must not be quoted. Mark them as
-    # protected from quoting.
-    set t [Mark [Text?]]
+    # protected from quoting. Further look for and convert
+    # continuation lines protected from Tcl substitution into a
+    # regular continuation line.
+    set t [Text?]
+    set t [string map [list \\\\\n \\\n] $t]
+    if {$complex} {
+	set tmp {}
+	foreach line [split $t \n] { append tmp $line[LB] }
+	set t $tmp
+	unset tmp
+    } else {
+	set t [Mark $t]
+    }
     TextClear
     Text $t
     
@@ -370,13 +407,11 @@ c_pass 2 fmt_example_end {} {
 	# restore and reactivate the list context.
 	ContextPush
 	ContextSet $penv
-	#if {[CloseParagraph [Example]]} PAdvance
-	CloseParagraph [Example]
+	CloseParagraph [Example $complex]
 	ContextPop
     } else {
 	# In a regular paragraph we simple close the example
-	#if {[CloseParagraph [Example]]} PAdvance
-	CloseParagraph [Example]
+	CloseParagraph [Example $complex]
     }
 
     #puts_stderr "AAA/fmt_example_end/Done"
