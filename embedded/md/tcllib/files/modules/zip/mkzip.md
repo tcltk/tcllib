@@ -62,7 +62,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
 
     If you use
 
-        __::mkzip::mkzip__ mystuff.tm -zipkit -directory mystuff.vfs
+    > __::mkzip::mkzip__ mystuff\.tm \-zipkit \-directory mystuff\.vfs  
 
     it will pack your "mystuff\.vfs/" virtual filesystem tree into a zip archive
     with a suitable header such that on unix you may mark it executable and it

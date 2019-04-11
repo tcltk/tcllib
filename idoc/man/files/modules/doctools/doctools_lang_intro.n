@@ -300,7 +300,7 @@ commands, continuation lines, etc\&. I\&.e\&.
 .CS
 
 
-  \&.\&.\&. [call [cmd foo] \\\\
+  \&.\&.\&. [call [cmd foo] \\
           [arg bar]] \&.\&.\&.
 
 .CE

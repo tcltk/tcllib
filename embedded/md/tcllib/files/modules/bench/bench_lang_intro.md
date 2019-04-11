@@ -80,13 +80,14 @@ __[aes](\.\./aes/aes\.md)__ package, the concrete initialization code
 constructs the key schedule used by the encryption command whose speed we
 measure, and the cleanup code releases any resources bound to that schedule\.
 
-    bench -desc "AES-${len} ECB encryption core" __-pre__ {
-        set key [aes::Init ecb $k $i]
-    } -body {
-        aes::Encrypt $key $p
-    } __-post__ {
-        aes::Final $key
-    }
+> bench \-desc "AES\-$\{len\} ECB encryption core" __\-pre__ \{  
+>     set key \[aes::Init ecb $k $i\]  
+> \} \-body \{  
+>     aes::Encrypt $key $p  
+> \} __\-post__ \{  
+>     aes::Final $key  
+> \}  
+>   
 
 ## <a name='subsection4'></a>Advanced pre\- and postprocessing
 
@@ -131,14 +132,15 @@ representation, which is shared\) affecting the speed of the inclusion command,
 and the cleanup code releases the temporary variables created by this
 initialization\.
 
-    bench -desc "set include, missing <SC> x$times $n" __-ipre__ {
-        set A $sx($times,$n)
-        set B $A
-    } -body {
-        struct::set include A x
-    } __-ipost__ {
-        unset A B
-    }
+> bench \-desc "set include, missing <SC> x$times $n" __\-ipre__ \{  
+>     set A $sx\($times,$n\)  
+>     set B $A  
+> \} \-body \{  
+>     struct::set include A x  
+> \} __\-ipost__ \{  
+>     unset A B  
+> \}  
+>   
 
 # <a name='section2'></a>FURTHER READING
 

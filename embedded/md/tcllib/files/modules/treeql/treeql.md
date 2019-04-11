@@ -187,9 +187,9 @@ explained below\.
             # to show the structure as it is seen by the query
             # interpreter.
 
-            q query \\
-        	    root \\
-        	    children \\
+            q query \
+        	    root \
+        	    children \
         	    get data
 
     The operators of the TreeQL language available for this are explained in the

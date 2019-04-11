@@ -23,6 +23,16 @@ set    _has_images 0
 proc fmt_plain_text {text} {
     global _in_example
     if {$_in_example} {
+	
+	# NOTE: The example_begin/end combo allows for the example
+	# text to contain markup. The currently used verbatim
+	# environment will cause show the latex markup of the example,
+	# instead of formatting per that markup.
+	#
+	# TODO: Use a different environment to handle fixed font stuff
+	# while allowing for actual markup of parts.
+	
+	set text [string map [list \\\\\n \\\n] $text]
 	return $text
     }
     return [texEscape $text]
