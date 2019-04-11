@@ -1,7 +1,4 @@
 # -*- tcl -*-
-#
-# $Id: idx.nroff,v 1.7 2009/01/30 04:56:47 andreas_kupries Exp $
-#
 # Engine to convert a docidx document into nroff.
 #
 # Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
@@ -39,6 +36,10 @@ proc fmt_plain_text {text} {return {}}
 ################################################################
 ## Backend for NROFF markup
 
+global map ; array set map {}
+global key ; set key {}
+global max ; set max 0
+
 global prec ok haskey
 set    prec   ""
 set    ok     0
@@ -59,8 +60,27 @@ proc fmt_index_begin     {label title}      {
     append  hdr $title[nr_in]\n
     return $hdr
 }
-proc fmt_index_end {}          {return [nr_out]}
-proc fmt_key       {text}      {
+
+proc fmt_index_end {} {
+    global map
+    foreach key [lsort [array names map]] {
+	append r $key [nr_in] \n
+	foreach ref  $map($key) {
+	foreach {file label} $ref break
+	    append r [Man $file $label]
+	}
+	append r [nr_out] \n
+    }
+    
+    append r [nr_out]
+    return $r
+}
+
+proc fmt_key     {text}       { global key     ; set key $text ; return }
+proc fmt_manpage {file label} { global map key ; lappend map($key) [list $file $label] ; return }
+proc fmt_url     {url  label} { global map key ; lappend map($key) [list $url  $label] ; return }
+
+proc Key {text} {
     global haskey
     set res ""
     if {$haskey} {append res [nr_out]\n}
@@ -68,14 +88,14 @@ proc fmt_key       {text}      {
     set haskey 1
     return $res
 }
-proc fmt_manpage   {file label} {return [nr_blt [nr_bld]$file[nr_rst]]\n$label\n}
-proc fmt_url       {url label}  {return [nr_blt [nr_bld]$url[nr_rst]]\n$label\n}
+
+proc Man {file label} {return [nr_blt [nr_bld]$file[nr_rst]]\n$label\n}
 
 proc fmt_comment {text} {
     global prec ok
-    if {$ok} {return [nr_comment $text]}
+    if {$ok} { return [nr_comment $text] }
     append prec $text \n
-    return {}
+    return
 }
 
 ################################################################

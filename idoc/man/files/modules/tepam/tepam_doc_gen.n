@@ -513,7 +513,7 @@ The following parameters are provided to this procedure:
 Name of the argument
 .TP
 \fIIsOptional\fR
-If true (=\fB1\fR) the argument is optional which should be indicated by the generated string (for example by putting the argument into brackets {} or into question marks '?'):
+If true (=\fB1\fR) the argument is optional which should be indicated by the generated string (for example by putting the argument into brackets {[]} or into question marks '?'):
 .CS
 
 gen(TXT,ArgumentString) mtype 1 0 string -> \fI"[mtype]"\fR

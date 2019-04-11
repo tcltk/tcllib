@@ -391,7 +391,6 @@ makes sense for the normal mode\&. Only incomplete tags are detected,
 not missing tags\&.  Optional, defaults to 'no variable'\&.
 .RE
 .RS
-.sp
 .TP
 \fIInterface to the command prefix\fR
 In normal mode the parser will invoke the command prefix with four
