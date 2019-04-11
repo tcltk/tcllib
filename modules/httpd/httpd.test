@@ -69,102 +69,102 @@ namespace eval ::httpd::test {}
 # Not intended for public consumption
 # (But if you find it handy, please steal!)
 proc ::httpd::test::compare {actual correct} {
-	set result {}
-	set cbuf [split $correct \n]
-	set abuf [split $actual \n]
-	for {set i 0} {$i < [llength $cbuf]} {incr i} {
-		set cline [string trim [lindex $cbuf $i]]
-		set aline [string trim [lindex $abuf $i]]
-		if {![string match $cline $aline]} {
-			if {$cline ne $aline} {
-				append result "Line $i differs [list $aline] != [list $cline]" \n
-			}
-		}
-	}
-  if {[llength $result]} {
+    set result {}
+    set cbuf [split $correct \n]
+    set abuf [split $actual \n]
+    for {set i 0} {$i < [llength $cbuf]} {incr i} {
+        set cline [string trim [lindex $cbuf $i]]
+        set aline [string trim [lindex $abuf $i]]
+        if {![string match $cline $aline]} {
+            if {$cline ne $aline} {
+                append result "Line $i differs [list $aline] != [list $cline]" \n
+            }
+        }
+    }
+    if {[llength $result]} {
   	puts [list ACTUAL $actual]
-	  puts [list CORRECT $correct]
-  }
-	return $result
+        puts [list CORRECT $correct]
+    }
+    return $result
 }
 
 proc ::httpd::test::send {port http headers body} {
-  set sock [socket localhost $port]
-  variable reply
-  set reply($sock) {}
-  chan configure $sock -translation {crlf crlf} -blocking 0 -buffering full -buffersize 4096
-  chan event $sock readable [list ::httpd::test::get_reply $sock]
+    set sock [socket localhost $port]
+    variable reply
+    set reply($sock) {}
+    chan configure $sock -translation {crlf crlf} -blocking 0 -buffering full -buffersize 4096
+    chan event $sock readable [list ::httpd::test::get_reply $sock]
 
-	puts $sock $http
-	if {![dict exists $headers Host]} {
-	  dict set headers Host localhost
-	}
-	if {[string length $body]} {
-		if {![dict exists $headers Content-Type]} {
-			dict set headers Content_Type text/plain
-		}
-		dict set headers Content-Length [string length $body]
-	}
-	foreach {f v} $headers {
-		puts $sock "${f}: $v"
-	}
-  puts $sock {}
-	if {[string length $body]} {
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-		puts -nonewline $sock $body
-	}
-  flush $sock
-  while {$reply($sock) eq {}} {
-    update
-  }
-  #vwait [namespace current]::reply($sock)
-  return $reply($sock)
+    puts $sock $http
+    if {![dict exists $headers Host]} {
+        dict set headers Host localhost
+    }
+    if {[string length $body]} {
+        if {![dict exists $headers Content-Type]} {
+            dict set headers Content_Type text/plain
+        }
+        dict set headers Content-Length [string length $body]
+    }
+    foreach {f v} $headers {
+        puts $sock "${f}: $v"
+    }
+    puts $sock {}
+    if {[string length $body]} {
+        chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
+        puts -nonewline $sock $body
+    }
+    flush $sock
+    while {$reply($sock) eq {}} {
+        update
+    }
+    #vwait [namespace current]::reply($sock)
+    return $reply($sock)
 }
 
 proc ::httpd::test::get_reply {sock} {
-  variable buffer
-  set data [read $sock]
-  append buffer($sock) $data
-  if {[eof $sock]} {
-    chan event $sock readable {}
-    set [namespace current]::reply($sock) $buffer($sock)
-    unset buffer($sock)
-  }
+    variable buffer
+    set data [read $sock]
+    append buffer($sock) $data
+    if {[eof $sock]} {
+        chan event $sock readable {}
+        set [namespace current]::reply($sock) $buffer($sock)
+        unset buffer($sock)
+    }
 }
 
 
 clay::define ::httpd::server {
-  method log args {}
+    method log args {}
 
-  method TemplateSearch page {
-    set doc_root [my clay get server/ doc_root]
-    if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
-      return [::fileutil::cat [file join $doc_root $page.tml]]
+    method TemplateSearch page {
+        set doc_root [my clay get server/ doc_root]
+        if {$doc_root ne {} && [file exists [file join $doc_root $page.tml]]} {
+            return [::fileutil::cat [file join $doc_root $page.tml]]
+        }
+        if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
+            return [::fileutil::cat [file join $doc_root $page.html]]
+        }
+        switch $page {
+            redirect {
+                return {300 Redirect}
+            }
+            notfound {
+                return {404 Not Found}
+            }
+            internal_error {
+                return {500 Server Internal Error}
+            }
+        }
     }
-    if {$doc_root ne {} && [file exists [file join $doc_root $page.html]]} {
-      return [::fileutil::cat [file join $doc_root $page.html]]
+
+
+    ::DEBUG method debug args {
+        puts stderr $args
     }
-    switch $page {
-      redirect {
-        return {300 Redirect}
-      }
-      notfound {
-        return {404 Not Found}
-      }
-      internal_error {
-        return {500 Server Internal Error}
-      }
+
+    ::DEBUG method log args {
+        puts stdout $args
     }
-  }
-
-
-  ::DEBUG method debug args {
-    puts stderr $args
-  }
-
-  ::DEBUG method log args {
-    puts stdout $args
-  }
 }
 
 

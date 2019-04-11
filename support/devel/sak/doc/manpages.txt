@@ -166,6 +166,7 @@ modules/jpeg/jpeg.man
 modules/json/json.man
 modules/json/json_write.man
 modules/lambda/lambda.man
+modules/lazyset/lazyset.man
 modules/ldap/ldap.man
 modules/ldap/ldapx.man
 modules/log/log.man
@@ -203,6 +204,7 @@ modules/math/romberg.man
 modules/math/special.man
 modules/math/statistics.man
 modules/math/symdiff.man
+modules/math/trig.man
 modules/md4/md4.man
 modules/md5/md5.man
 modules/md5crypt/md5crypt.man

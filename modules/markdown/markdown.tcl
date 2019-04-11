@@ -45,7 +45,7 @@ namespace eval Markdown {
     #
     proc convert {markdown} {
         set markdown [regsub {\r\n?} $markdown {\n}]
-        set markdown [::textutil::untabify2 $markdown 4]
+        set markdown [::textutil::tabify::untabify2 $markdown 4]
         set markdown [string trimright $markdown]
 
         # COLLECT REFERENCES

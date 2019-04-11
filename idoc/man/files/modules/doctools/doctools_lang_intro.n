@@ -376,16 +376,6 @@ Given the above a less minimal example of a document is
 
 
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [\fBcopyright {YEAR AUTHOR}\fR]
 [\fBtitledesc TITLE\fR]
 [\fBmoddesc   MODULE_TITLE\fR]
@@ -400,16 +390,6 @@ Remember that the whitespace is optional\&. The document
 
 
     [manpage_begin NAME SECTION VERSION]
-[see_also doctools_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[see_also doctools_lang_syntax]
-[keywords {doctools commands}]
-[keywords {doctools language}]
-[keywords {doctools markup}]
-[keywords {doctools syntax}]
-[keywords markup]
-[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
     [vset CATEGORY doctools]
@@ -429,16 +409,6 @@ command\&.
 
 [\fBcomment { \&.\&.\&. }\fR]
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [copyright {YEAR AUTHOR}]
 [titledesc TITLE]
 [moddesc   MODULE_TITLE][\fBcomment { \&.\&.\&. }\fR]
@@ -464,16 +434,6 @@ is possible to write
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [description]
 [manpage_end]
 
@@ -485,16 +445,6 @@ structure\&. I\&.e\&. for example in the header as well\&.
 
 
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [description]
@@ -525,16 +475,6 @@ paragraph automatically ends at \fBmanpage_end\fR\&.
 
 
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [description]
  \&.\&.\&.
 [\fBpara\fR]
@@ -561,16 +501,6 @@ paragraphs within sections\&.
 
 
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [description]
  \&.\&.\&.
 [\fBsection {Section A}\fR]
@@ -596,16 +526,6 @@ paragraphs within subsections\&.
 
 
 [manpage_begin NAME SECTION VERSION]
-
-
-
-
-
-
-
-
-
-
 [description]
  \&.\&.\&.
 [section {Section A}]
@@ -711,7 +631,7 @@ item command (\fBcall\fR), and our ability to nest them\&.
 
 
   \&.\&.\&.
-  [call [\fBcmd arg_def\fR] [\fBarg type\fR] [\fBarg name\fR]] [\fBopt\fR [\fBarg mode\fR]]]
+  [call [\fBcmd arg_def\fR] [\fBarg type\fR] [\fBarg name\fR] [\fBopt\fR [\fBarg mode\fR]]]
 
   Text structure\&. List element\&. Argument list\&. Automatically closes the
   previous list element\&. Specifies the data-[\fBarg type\fR] of the described
