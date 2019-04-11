@@ -13,7 +13,7 @@ but only if that element is not already present.
 
 #### ldelete] *varname* *args*
 
-This command will add a delete all instances of each element in *args* from *varname*.
+This command will delete all instances of each element in *args* from *varname*.
 
 #### dict getnull *args*
 
