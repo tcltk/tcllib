@@ -190,7 +190,7 @@ foreach path {
       # package is actually loaded into the interpreter
       $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
       set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
-      append main_init_script \n [list set ::kitpkg(${statpkg}) $script]
+      append main_init_script \n [list set ::starkit::static_packages(${statpkg}) $script]
 
       if {[dict get $info autoload]} {
         ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
@@ -353,7 +353,7 @@ lappend ::auto_path $::tcl_teapot
     puts $fout $buffer
     puts $fout {
 # Advertise statically linked packages
-foreach {pkg script} [array get ::kitpkg] {
+foreach {pkg script} [array get ::starkit::static_packages] {
   eval $script
 }
 }
