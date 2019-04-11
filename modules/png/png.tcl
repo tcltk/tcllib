@@ -9,7 +9,7 @@
 # 
 # RCS: @(#) $Id: png.tcl,v 1.11 2012/07/09 16:35:04 afaupell Exp $
 
-package provide png 0.2
+package provide png 0.3
 
 namespace eval ::png {}
 
@@ -208,6 +208,28 @@ proc ::png::addComment {file keyword arg1 args} {
     }
     close $fh
     return -code error "no data chunk found"
+}
+
+proc ::png::getPixelDimension {file} {
+    set fh [_openPNG $file]
+
+    while {[set r [read $fh 8]] != ""} {
+        binary scan $r Ia4 len type
+        if {$type == "pHYs"} {
+            set r [read $fh [expr {$len + 4}]]
+            binary scan $r IIc ppux ppuy unit
+            close $fh
+            # mask out sign bit, from tcl 8.5, one may use u specifier
+            set res [list ppux [expr {$ppux & 0xFFFFFFFF}]\
+                     ppuy [expr {$ppuy & 0xFFFFFFFF}]\
+                    unit]
+            if {$unit == 1} {lappend res meter} else {lappend res unknown}
+            return $res
+        }
+        seek $fh [expr {$len + 4}] current
+    }
+    close $fh
+    return
 }
 
 proc ::png::image {file} {

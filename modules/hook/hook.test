@@ -442,7 +442,7 @@ test errorcommand-1.2 {error with -errorcommand set} -body {
     cleanup
 } -result [EResult \
 	       {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorcode NONE}}} \
-	       {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}]
+	       {{{S1 <H1> {} O1} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {call S1 <H1>}} -errorcode NONE}}}]
 
 test errorcommand-1.3 {handled errors don't break sequence of calls} -body {
     hook configure -errorcommand ErrorCommand
@@ -456,7 +456,7 @@ test errorcommand-1.3 {handled errors don't break sequence of calls} -body {
     cleanup
 } -result [EResult \
 	       {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorcode NONE}}}} \
-	       {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {::hook::call S1 <H1>}} -errorcode NONE}}}}]
+	       {{{S1 <H1> O1 {}} {S1 <H1> O3 {}}} {{{S1 <H1> {} O2} {simulated error} {-code 1 -level 0 -errorstack {INNER {error {simulated error}} UP 1 CALL {call S1 <H1>}} -errorcode NONE}}}}]
 
 test errorcommand-1.4 {-errorcommand handles other exceptions} -body {
     hook configure -errorcommand ErrorCommand

@@ -7272,7 +7272,7 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
     # Arrange to build an main.c that utilizes TCL_LOCAL_APPINIT and TCL_LOCAL_MAIN_HOOK
     if {$os eq "windows"} {
       set PLATFORM_SRC_DIR win
-      if {[my define get SHARED_BUILD 0]} {
+      if {![my define get SHARED_BUILD 0]} {
         my add class csource filename [file join $TCLSRCDIR win tclWinReg.c] initfunc Registry_Init pkg_name registry pkg_vers 1.3.1 autoload 1
         my add class csource filename [file join $TCLSRCDIR win tclWinDde.c] initfunc Dde_Init pkg_name dde pkg_vers 1.4.0 autoload 1
       }
@@ -7282,7 +7282,7 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
       my add class csource ofile [my define get name]_appinit.o filename [file join $TCLSRCDIR unix tclAppInit.c] extra [list -DTCL_LOCAL_MAIN_HOOK=[my define get TCL_LOCAL_MAIN_HOOK Tclkit_MainHook] -DTCL_LOCAL_APPINIT=[my define get TCL_LOCAL_APPINIT Tclkit_AppInit]]
     }
 
-    if {[my define get SHARED_BUILD 0]} {
+    if {![my define get SHARED_BUILD 0]} {
       ###
       # Add local static Zlib implementation
       ###
@@ -7312,9 +7312,14 @@ if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
       # The Tclconfig project maintains a mirror of the version
       # released with the Tcl core
       my define set tip_430 0
-      ::practcl::LOCAL tool tclconfig unpack
-      set COMPATSRCROOT [::practcl::LOCAL tool tclconfig define get srcdir]
-      my add class csource ofile tclZipfs.o filename [file join $COMPATSRCROOT compat tclZipfs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
+      set tclzipfs_c [my define get tclzipfs_c]
+      if {![file exists $tclzipfs_c]} {
+        ::practcl::LOCAL tool tclconfig unpack
+        set COMPATSRCROOT [::practcl::LOCAL tool tclconfig define get srcdir]
+        set tclzipfs_c [file join $COMPATSRCROOT compat tclZipfs.c]
+      }
+      my add class csource ofile tclZipfs.o filename $tclzipfs_c \
+        extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
     my define add include_dir [file join $TCLSRCDIR generic]

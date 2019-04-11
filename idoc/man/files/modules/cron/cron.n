@@ -300,9 +300,9 @@ package require \fBcron  ?2\&.1?\fR
 .sp
 \fB::cron::wake\fR \fI?who?\fR
 .sp
-\fB::cron::clock_step\fR \fImilleseconds\fR
+\fB::cron::clock_step\fR \fImilliseconds\fR
 .sp
-\fB::cron::clock_delay\fR \fImilleseconds\fR
+\fB::cron::clock_delay\fR \fImilliseconds\fR
 .sp
 \fB::cron::clock_sleep\fR \fIseconds\fR \fI?offset?\fR
 .sp
@@ -423,20 +423,26 @@ Returns a dict describing \fIprocess\fR\&. See \fB::cron::task set\fR for a desc
 .sp
 If \fIprocess\fR does not exist, it is created\&. Options Include:
 .RS
+.TP
 \fBcommand\fR
 If \fBcoroutine\fR is black, a global command which implements this process\&. If \fBcoroutine\fR is not
 black, the command to invoke to create or recreate the coroutine\&.
+.TP
 \fBcoroutine\fR
 The name of the coroutine (if any) which implements this process\&.
+.TP
 \fBfrequency\fR
 If -1, this process is terminated after the next event\&. If 0 this process should be called during every
-idle event\&. If positive, this process should generate events periodically\&. The frequency is an interger number
-of milleseconds between events\&.
+idle event\&. If positive, this process should generate events periodically\&. The frequency is an integer number
+of milliseconds between events\&.
+.TP
 \fBobject\fR
 The object associated with this process or coroutine\&.
+.TP
 \fBscheduled\fR
-If non-zero, the absolute time from the epoch (in milleseconds) that this process will trigger an event\&.
+If non-zero, the absolute time from the epoch (in milliseconds) that this process will trigger an event\&.
 If zero, and the \fBfrequency\fR is also zero, this process is called every idle loop\&.
+.TP
 \fBrunning\fR
 A boolean flag\&. If true it indicates the process never returned or yielded during the event loop,
 and will not be called again until it does so\&.
@@ -455,15 +461,15 @@ Wake up cron, and arrange for its event loop to be run during the next Idle cycl
 Several utility commands are provided that are used internally within cron and for
 testing cron, but may or may not be useful in the general cases\&.
 .TP
-\fB::cron::clock_step\fR \fImilleseconds\fR
+\fB::cron::clock_step\fR \fImilliseconds\fR
 .sp
 Return a clock time absolute to the epoch which falls on the next
-border between one second and the next for the value of \fImilleseconds\fR
+border between one second and the next for the value of \fImilliseconds\fR
 .TP
-\fB::cron::clock_delay\fR \fImilleseconds\fR
+\fB::cron::clock_delay\fR \fImilliseconds\fR
 .sp
 Return a clock time absolute to the epoch which falls on the next
-border between one second and the next \fImilleseconds\fR in the future\&.
+border between one second and the next \fImilliseconds\fR in the future\&.
 .TP
 \fB::cron::clock_sleep\fR \fIseconds\fR \fI?offset?\fR
 .sp
@@ -476,7 +482,7 @@ the final time to before or after the second would flip\&.
 Sets the internal clock for cron\&. This command will advance the time in 100ms
 increment, triggering events, until the internal time catches up with \fInewtime\fR\&.
 .sp
-\fInewtime\fR is expressed in absolute milleseconds since the beginning of the epoch\&.
+\fInewtime\fR is expressed in absolute milliseconds since the beginning of the epoch\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

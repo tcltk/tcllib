@@ -416,7 +416,7 @@ the missing segment is automatically added)\&.
 \fIpoint set\fR - again a list of an even number of coordinates, but
 the points are regarded without any ordering\&.
 .IP \(bu
-\fIcircle\fR - a list of thtee numbers, the first two are the coordinates of the
+\fIcircle\fR - a list of three numbers, the first two are the coordinates of the
 centre and the third is the radius\&.
 .PP
 .SH PROCEDURES
@@ -954,8 +954,8 @@ Circle that may or may not be intersected
 \fB::math::geometry::intersectionCircleWithCircle\fR \fIcircle1\fR \fIcircle2\fR
 Determine the points at which the given two circles intersect\&. There can
 be zero, one or two points\&. (If the two circles touch the circle or are very close,
-then one point is returned\&. An arbitrary margin of 1\&.0e-10 times the radius of
-the first circle is used to determine this situation\&.)
+then one point is returned\&. An arbitrary margin of 1\&.0e-10 times the mean of the radii of
+the two circles is used to determine this situation\&.)
 .RS
 .TP
 list \fIcircle1\fR
