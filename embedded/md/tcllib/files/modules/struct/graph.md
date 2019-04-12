@@ -198,7 +198,8 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *graphName* __deserialize__ [*sourcegraph* __serialize__]
+    > *graphName* __deserialize__ \[*sourcegraph* __serialize__\]  
+    >   
 
     The operation assumes that the *sourcegraph* provides the method
     __serialize__ and that this method returns a valid graph serialization\.
@@ -212,7 +213,8 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *destgraph* __deserialize__ [*graphName* __serialize__]
+    > *destgraph* __deserialize__ \[*graphName* __serialize__\]  
+    >   
 
     The operation assumes that the *destgraph* provides the method
     __deserialize__ and that this method takes a graph serialization\.
@@ -731,10 +733,10 @@ The following commands are possible for graph objects:
         # A possible serialization for the graph structure
         #
         #        d -----> %2
-        #       /         ^ \\
-        #      /         /   \\
-        #     /         b     \\
-        #    /         /       \\
+        #       /         ^ \
+        #      /         /   \
+        #     /         b     \
+        #    /         /       \
         #  %1 <- a - %0         e
         #    ^         \\      /
         #     \\        c     /

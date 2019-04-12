@@ -466,7 +466,13 @@ c_pass 1 fmt_example_end {} NOP
 c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
     TextTrimLeadingSpace
-    
+
+    # Look for and convert continuation lines protected from Tcl
+    # substitution into a regular continuation line.
+    set t [string map [list \\\\\n \\\n] [Text?]]
+    TextClear
+    Text $t
+
     set penv [GetCurrent]
     if {$penv != {}} {
 	# In a list we save the current list context, activate the

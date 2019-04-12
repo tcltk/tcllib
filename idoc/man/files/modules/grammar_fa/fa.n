@@ -549,11 +549,11 @@ a possible serialization is
 .CS
 
 
-    grammar::fa \\\\
-    {yellow red green red/yellow} \\\\
-    {Drive     {0 0 {yellow     Brake}} \\\\
-     Brake     {0 0 {red        Stop}} \\\\
-     Stop      {1 0 {red/yellow Attention}} \\\\
+    grammar::fa \\
+    {yellow red green red/yellow} \\
+    {Drive     {0 0 {yellow     Brake}} \\
+     Brake     {0 0 {red        Stop}} \\
+     Stop      {1 0 {red/yellow Attention}} \\
      Attention {0 0 {green      Drive}}}
 
 .CE

@@ -395,14 +395,15 @@ Master source files with "\.dtx" extension are usually set up so that they can b
 typeset directly by __[latex](\.\./\.\./\.\./\.\./index\.md\#latex)__ without any
 support from other files\. This is achieved by beginning the file with the lines
 
-    % \iffalse
-    %<*driver>
-    \documentclass{tclldoc}
-    \begin{document}
-    \DocInput{*filename.dtx*}
-    \end{document}
-    %</driver>
-    % \fi
+> &nbsp;&nbsp;&nbsp;% \\iffalse  
+> &nbsp;&nbsp;&nbsp;%<\*driver>  
+> &nbsp;&nbsp;&nbsp;\\documentclass\{tclldoc\}  
+> &nbsp;&nbsp;&nbsp;\\begin\{document\}  
+> &nbsp;&nbsp;&nbsp;\\DocInput\{*filename\.dtx*\}  
+> &nbsp;&nbsp;&nbsp;\\end\{document\}  
+> &nbsp;&nbsp;&nbsp;%</driver>  
+> &nbsp;&nbsp;&nbsp;% \\fi  
+>   
 
 or some variation thereof\. The trick is that the file gets read twice\. With
 normal LaTeX reading rules, the first two lines are comments and therefore

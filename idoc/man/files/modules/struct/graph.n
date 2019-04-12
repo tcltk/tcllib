@@ -1035,10 +1035,10 @@ relevance, nor has the order of the arcs per node\&.
     # A possible serialization for the graph structure
     #
     #        d -----> %2
-    #       /         ^ \\\\
-    #      /         /   \\\\
-    #     /         b     \\\\
-    #    /         /       \\\\
+    #       /         ^ \\
+    #      /         /   \\
+    #     /         b     \\
+    #    /         /       \\
     #  %1 <- a - %0         e
     #    ^         \\\\      /
     #     \\\\        c     /

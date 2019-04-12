@@ -223,7 +223,8 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    *pegName* __deserialize__ [*srcPEG* __serialize__]
+    > *pegName* __deserialize__ \[*srcPEG* __serialize__\]  
+    >   
 
   - <a name='5'></a>*pegName* __\-\->__ *dstPEG*
 
@@ -234,7 +235,8 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    *dstPEG* __deserialize__ [*pegName* __serialize__]
+    > *dstPEG* __deserialize__ \[*pegName* __serialize__\]  
+    >   
 
   - <a name='6'></a>*pegName* __serialize__
 
@@ -277,20 +279,20 @@ of their contents:
 
     a possible serialization is
 
-    grammar::peg \\
-    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \\
-     Factor     {x Term {* {x AddOp Term}}} \\
-     Term       Number \\
-     MulOp      {/ * /} \\
-     AddOp      {/ + -} \\
-     Number     {x {? Sign} {+ Digit}} \\
-     Sign       {/ + -} \\
-     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \\
-    } \\
-    {Expression value     Factor     value \\
-     Term       value     MulOp      value \\
-     AddOp      value     Number     value \\
-     Sign       value     Digit      value \\
+    grammar::peg \
+    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \
+     Factor     {x Term {* {x AddOp Term}}} \
+     Term       Number \
+     MulOp      {/ * /} \
+     AddOp      {/ + -} \
+     Number     {x {? Sign} {+ Digit}} \
+     Sign       {/ + -} \
+     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \
+    } \
+    {Expression value     Factor     value \
+     Term       value     MulOp      value \
+     AddOp      value     Number     value \
+     Sign       value     Digit      value \
     }
     Expression
 
