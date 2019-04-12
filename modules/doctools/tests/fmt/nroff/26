@@ -297,7 +297,7 @@ Done
 .CS
 
 
-\fBcommand\fR \\
+   \fBcommand\fR    x \\
 -- \fBcommand\fR --
 
 .CE

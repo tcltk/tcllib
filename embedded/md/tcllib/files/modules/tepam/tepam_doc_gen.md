@@ -244,35 +244,35 @@ document components\.
 The following documentation listing contains tokens that refer to the different
 document generation procedures:
 
-> *     <01>*  
-> *<03> <20s>*   NAME*<20e>*  
-> *     <30s>*       message\_box \- Displays text in a message box*<30e>*  
-> *     <20s>*   SYNOPSYS*<20e>*  
-> *     <40s>*       message\_box \[\-mtype <mtype>\] <text>*<40e>*  
-> *     <20s>*   DESCRIPTION*<20e>*  
-> *     <21s>     message\_box<21e>*  
-> *     <54s>       message\_box \[\-mtype <mtype>\] <text><54e>*  
-> *     <50s>*       This procedure allows displaying a text in an message box\. The following  
-> *          *       message types are supported:*<50e>*  
-> *<51> <53s>*       \* Info*<53e>*  
-> *     <53s>*       \* Warning*<53e>*  
-> *     <53s>*       \* Error*<53e>*                                           *<52>*  
-> *     <50s>*       If the text parameter is use multiple times the different texts are  
-> *          *       concatenated to create the message text\.*<50e>*  
-> *     <20s>*   ARGUMENTS*<20e>*  
-> *<60> <62s>*       \[\-mtype <mtype>\]*<62e>*  
-> *<63> <65s>*          Message type*<65e>*  
-> *     <66s>*          Default: "Warning"*<66e>*  
-> *     <66s>*          Multiple: yes*<66e>*  
-> *     <66s>*          Choices: Info, Warning, Error*<66e>*                  *<64>*  
-> *     <62s>*       <text>*<62e>*  
-> *<63> <65s>*          One or multiple text lines to display*<65e>*  
-> *     <66s>*          Type: string*<66e>*  
-> *     <66s>*          Multiple: yes*<66e>*                                  *<64><61>*  
-> *     <20s>*   EXAMPLE*<20e>*  
-> *<70> <72s>*       message\_box "Please save first the document"*<72e>*  
-> *     <73s>*       \-> 1*<73e>*                                              *<71><04>*  
-> *     <02>*  
+> &nbsp;*     <01>*  
+> &nbsp;*<03> <20s>*   NAME*<20e>*  
+> &nbsp;*     <30s>*       message\_box \- Displays text in a message box*<30e>*  
+> &nbsp;*     <20s>*   SYNOPSYS*<20e>*  
+> &nbsp;*     <40s>*       message\_box \[\-mtype <mtype>\] <text>*<40e>*  
+> &nbsp;*     <20s>*   DESCRIPTION*<20e>*  
+> &nbsp;*     <21s>     message\_box<21e>*  
+> &nbsp;*     <54s>       message\_box \[\-mtype <mtype>\] <text><54e>*  
+> &nbsp;*     <50s>*       This procedure allows displaying a text in an message box\. The following  
+> &nbsp;*          *       message types are supported:*<50e>*  
+> &nbsp;*<51> <53s>*       \* Info*<53e>*  
+> &nbsp;*     <53s>*       \* Warning*<53e>*  
+> &nbsp;*     <53s>*       \* Error*<53e>*                                           *<52>*  
+> &nbsp;*     <50s>*       If the text parameter is use multiple times the different texts are  
+> &nbsp;*          *       concatenated to create the message text\.*<50e>*  
+> &nbsp;*     <20s>*   ARGUMENTS*<20e>*  
+> &nbsp;*<60> <62s>*       \[\-mtype <mtype>\]*<62e>*  
+> &nbsp;*<63> <65s>*          Message type*<65e>*  
+> &nbsp;*     <66s>*          Default: "Warning"*<66e>*  
+> &nbsp;*     <66s>*          Multiple: yes*<66e>*  
+> &nbsp;*     <66s>*          Choices: Info, Warning, Error*<66e>*                  *<64>*  
+> &nbsp;*     <62s>*       <text>*<62e>*  
+> &nbsp;*<63> <65s>*          One or multiple text lines to display*<65e>*  
+> &nbsp;*     <66s>*          Type: string*<66e>*  
+> &nbsp;*     <66s>*          Multiple: yes*<66e>*                                  *<64><61>*  
+> &nbsp;*     <20s>*   EXAMPLE*<20e>*  
+> &nbsp;*<70> <72s>*       message\_box "Please save first the document"*<72e>*  
+> &nbsp;*     <73s>*       \-> 1*<73e>*                                              *<71><04>*  
+> &nbsp;*     <02>*  
 
 There are 2 types of document generation procedures:
 
@@ -523,25 +523,25 @@ placeholder pattern definition \(argument *search\_pattern*\)\.
 > *\# Define the HTML master document*  
 > set HtmlMasterDoc \{\\  
 > <html>  
->   <head>  
->     <title>tepam::doc\_gen</title>  
->     <link rel="stylesheet" href="tepam\_doc\_stylesheet\.css">  
->     <meta content="documentation" name="keywords"></meta>  
->   </head>  
->   <body>  
->     <h1>tepam::doc\_gen</h1>  
->       <h2>Generate</h2>  
+> &nbsp;&nbsp;<head>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<title>tepam::doc\_gen</title>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<link rel="stylesheet" href="tepam\_doc\_stylesheet\.css">  
+> &nbsp;&nbsp;&nbsp;&nbsp;<meta content="documentation" name="keywords"></meta>  
+> &nbsp;&nbsp;</head>  
+> &nbsp;&nbsp;<body>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<h1>tepam::doc\_gen</h1>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h2>Generate</h2>  
 > __\{\*tepam::doc\_gen::generate\*\}__  
->       <h2>Patch</h2>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h2>Patch</h2>  
 > __\{\*tepam::doc\_gen::patch\*\}__  
->   </body>  
+> &nbsp;&nbsp;</body>  
 > <html>\\  
 > \}  
 > **  
 > *\# Patch the master document: This will replace the placeholders by the   
 > \# procedure documentation divisions:*  
 > __tepam::doc\_gen::patch__ \-format HTML \-search\_pattern \{\\\{\\\*\(\.\*?\)\\\*\\\}\} \\  
->                       \-src\_string $HtmlMasterDoc \-dest\_file tepam\_doc\_gen\.html  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-src\_string $HtmlMasterDoc \-dest\_file tepam\_doc\_gen\.html  
 >   
 
 # <a name='seealso'></a>SEE ALSO

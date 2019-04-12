@@ -214,25 +214,25 @@ __proc__ also 3 arguments:
 The TEPAM procedure declaration syntax is demonstrated by the following example:
 
 > __tepam::procedure__ \{display message\} \{  
->    \-short\_description  
->       "Displays a simple message box"  
->    \-description  
->       "This procedure allows displaying a configurable\\  
->        message box\. The default message type that is\\  
->        created is a warning, but also errors and info can\\  
->        be generated\.  
->        The procedure accepts multiple text lines\."  
->    \-example  
->       \{display message \-mtype Warning "Save first your job"\}  
->    \-args \{  
->       \{\-mtype \-choices \{Info Warning Error\} \\  
->               \-default Warning \-description "Message type"\}  
->       \{text   \-type string \-multiple \\  
->               \-description "Multiple text lines to display"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-short\_description  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Displays a simple message box"  
+> &nbsp;&nbsp;&nbsp;\-description  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"This procedure allows displaying a configurable\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message box\. The default message type that is\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;created is a warning, but also errors and info can\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;be generated\.  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The procedure accepts multiple text lines\."  
+> &nbsp;&nbsp;&nbsp;\-example  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{display message \-mtype Warning "Save first your job"\}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-choices \{Info Warning Error\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default Warning \-description "Message type"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text   \-type string \-multiple \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "Message type: $mtype"  
->    puts "Message: $text"  
+> &nbsp;&nbsp;&nbsp;puts "Message type: $mtype"  
+> &nbsp;&nbsp;&nbsp;puts "Message: $text"  
 > \}  
 
 The 3 arguments of __procedure__ are:
@@ -289,13 +289,13 @@ The 3 arguments of __procedure__ are:
     could be validated by the TEPAM argument manager\.
 
 > tepam::procedure \{display\_message\} \{  
->    \-args \{  
->       \{\-__mtype__ \-default Warning \-choices \{Warning Error\}\}  
->       \{__text__ \-type string\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-__mtype__ \-default Warning \-choices \{Warning Error\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__text__ \-type string\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "Message type: __$mtype__"  
->    puts "Message: __$text__"  
+> &nbsp;&nbsp;&nbsp;puts "Message type: __$mtype__"  
+> &nbsp;&nbsp;&nbsp;puts "Message: __$text__"  
 > \}  
 
 The commands __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ as well as
@@ -306,8 +306,8 @@ import them into the main namespace:
 > __namespace import tepam::\*__  
 >   
 > __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ \{display\_message\} \{  
->    \-args \{  
->       \.\.\.  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\.\.\.  
 
 ## <a name='subsection1'></a>Procedure Attributes
 
@@ -368,9 +368,9 @@ error messages in case these checks are failing:
     Validation command declaration example:
 
 > tepam::procedure \{display\_message\} \{  
->    \-args \{  
->       \{text \-type string \-description "Message text"\} \}  
->    __\-validatecommand \{IllegalWordDetector $text\}__  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-description "Message text"\} \}  
+> &nbsp;&nbsp;&nbsp;__\-validatecommand \{IllegalWordDetector $text\}__  
 > \} \{  
 > \}  
 
@@ -438,14 +438,14 @@ The following example shows the structure that is used for the argument
 definitions in the context of a procedure declaration:
 
 > tepam::procedure \{display\_message\} \{  
->    \-args __\{  
->       \{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}  
->       \{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}  
->       \{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}  
->       \{\-fg \-type color \-optional \-description "Message color"\}  
->       \{\-log\_file \-type file \-optional \-description "Optional message log file"\}  
->       \{text \-type string \-multiple \-description "Multiple text lines to display"\}  
->    \}__  
+> &nbsp;&nbsp;&nbsp;\-args __\{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-fg \-type color \-optional \-description "Message color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-log\_file \-type file \-optional \-description "Optional message log file"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-multiple \-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}__  
 > \} \{  
 > \}  
 
@@ -454,11 +454,11 @@ element the argument name, followed by eventual attributes\. The argument
 definition syntax can be formalized in the following way:
 
 > tepam::procedure <name> \{  
->    \-args __\{  
->       \{<argument\_name\_1> <arg\_attr\_name\_1a> <arg\_attr\_value\_1a>  <arg\_attr\_name\_1b> <arg\_attr\_value\_1b> \.\.\.\}  
->       \{<argument\_name\_2> <arg\_attr\_name\_2a> <arg\_attr\_value\_2a>  <arg\_attr\_name\_2b> <arg\_attr\_value\_2b> \.\.\.\}  
->       \.\.\.  
->    \}__  
+> &nbsp;&nbsp;&nbsp;\-args __\{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{<argument\_name\_1> <arg\_attr\_name\_1a> <arg\_attr\_value\_1a>  <arg\_attr\_name\_1b> <arg\_attr\_value\_1b> \.\.\.\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{<argument\_name\_2> <arg\_attr\_name\_2a> <arg\_attr\_value\_2a>  <arg\_attr\_name\_2b> <arg\_attr\_value\_2b> \.\.\.\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;\}__  
 > \} <body>  
 
 The argument names and attributes have to be used in the following way:
@@ -478,11 +478,11 @@ The argument names and attributes have to be used in the following way:
         *<Name>*\.
 
 > tepam::procedure \{print\_string\} \{  
->    \-args \{  
->       \{__[text](\.\./\.\./\.\./\.\./index\.md\#text)__ \-type string \-description "This is an unnamed argument"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__[text](\.\./\.\./\.\./\.\./index\.md\#text)__ \-type string \-description "This is an unnamed argument"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts __$text__  
+> &nbsp;&nbsp;&nbsp;puts __$text__  
 > \}  
 >   
 > print\_string __"Hello"__  
@@ -497,11 +497,11 @@ The argument names and attributes have to be used in the following way:
         be assigned to a variable with the name *<Name>* \(not *\-<Name>*\)\.
 
 > tepam::procedure \{print\_string\} \{  
->    \-args \{  
->       \{__\-text__ \-type string \-description "This is a named argument"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__\-text__ \-type string \-description "This is a named argument"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts __$text__  
+> &nbsp;&nbsp;&nbsp;puts __$text__  
 > \}  
 >   
 > print\_string __\-text "Hello"__  
@@ -526,17 +526,17 @@ The argument names and attributes have to be used in the following way:
         following arguments\.
 
 > tepam::procedure \{print\_time\} \{  
->    \-interactive\_display\_format short  
->    \-args \{  
->       \{hours \-type integer \-description "Hour"\}  
->       \{minutes \-type integer \-description "Minute"\}  
+> &nbsp;&nbsp;&nbsp;\-interactive\_display\_format short  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{hours \-type integer \-description "Hour"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{minutes \-type integer \-description "Minute"\}  
 >   
->       __\{\- The following arguments are optional:\}__  
->       \{seconds \-type integer \-default 0 \-description "Seconds"\}  
->       \{milliseconds \-type integer \-default 0 \-description "Milliseconds"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\- The following arguments are optional:\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{seconds \-type integer \-default 0 \-description "Seconds"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{milliseconds \-type integer \-default 0 \-description "Milliseconds"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "$\{hour\}h$\{minutes\}:\[expr $seconds\+0\.001\*$milliseconds\]"  
+> &nbsp;&nbsp;&nbsp;puts "$\{hour\}h$\{minutes\}:\[expr $seconds\+0\.001\*$milliseconds\]"  
 > \}  
 
         Argument comments are basically used in the graphical argument
@@ -554,18 +554,18 @@ The argument names and attributes have to be used in the following way:
         generated help texts and the interactive argument definition forms\.
 
 > tepam::procedure \{complex\_multiply\} \{  
->    \-description "This function perform a complex multiplication"  
->    \-args \{  
->       __\{\#\#\#\# First complex number \#\#\#\#\}__  
->       \{\-r0 \-type double \-description "First number real part"\}  
->       \{\-i0 \-type double \-description "First number imaginary part"\}  
+> &nbsp;&nbsp;&nbsp;\-description "This function perform a complex multiplication"  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\#\#\#\# First complex number \#\#\#\#\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-r0 \-type double \-description "First number real part"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-i0 \-type double \-description "First number imaginary part"\}  
 >   
->       __\{\#\#\#\# Second complex number \#\#\#\#\}__  
->       \{\-r1 \-type double \-description "Second number real part"\}  
->       \{\-i1 \-type double \-description "Second number imaginary part"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\#\#\#\# Second complex number \#\#\#\#\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-r1 \-type double \-description "Second number real part"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-i1 \-type double \-description "Second number imaginary part"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    return \[expr $r0\*$r1 \- $i0\*$i1\]  
+> &nbsp;&nbsp;&nbsp;return \[expr $r0\*$r1 \- $i0\*$i1\]  
 > \}  
 
   - Argument attributes \(*<arg\_attr\_name\_<mn>> <arg\_attr\_value\_<mn>>*\)
@@ -658,9 +658,9 @@ The argument names and attributes have to be used in the following way:
         Validation command declaration example:
 
 > tepam::procedure \{display\_message\} \{  
->    \-args \{  
->       \{text \-type string \-description "Message text" \\  
->             __\-validatecommand \{IllegalWordDetector %P\}__\}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-description "Message text" \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-validatecommand \{IllegalWordDetector %P\}__\}  
 > \} \{  
 > \}  
 
@@ -699,10 +699,10 @@ The argument names and attributes have to be used in the following way:
         *\-auxargs* attribute to the argument definition form:
 
 > tepam::procedure LoadPicture \{  
->    \-args \{  
->       \{FileName \-type existingfile \-description "Picture file" \\  
->                  __\-auxargs \{\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\} \}\}__\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{FileName \-type existingfile \-description "Picture file" \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-auxargs \{\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\} \}\}__\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
 > \}  
 
@@ -815,14 +815,14 @@ be completed with application specific types if necessary\.
 To remember, a type can be assigned to each specified procedure argument:
 
 > tepam::procedure \{warning\} \{  
->    \-args \{  
->       \{\-font __\-type font__ \-default \{Arial 10 italic\}\}  
->       \{\-severity\_level __\-type integer__ \-optional \-range \{1 10\}\}  
->       \{\-fg __\-type color__ \-optional \-description "Message color"\}  
->       \{text __\-type string__ \-multiple \-description "Multiple text lines to display"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-font __\-type font__ \-default \{Arial 10 italic\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-severity\_level __\-type integer__ \-optional \-range \{1 10\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-fg __\-type color__ \-optional \-description "Message color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text __\-type string__ \-multiple \-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    \.\.\.  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
 > \}  
 
 There are some *special purpose types* that are building the first category of
@@ -835,11 +835,11 @@ predefined argument types:
     flag\.
 
 > tepam::procedure flag\_test \{  
->    \-args \{  
->       __\{\-flag \-type none \-description "This is a flag"\}__  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-flag \-type none \-description "This is a flag"\}__  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts __$flag__  
+> &nbsp;&nbsp;&nbsp;puts __$flag__  
 > \}  
 >   
 > flag\_test  
@@ -1134,14 +1134,14 @@ the meaning of this calling style:
 
 > __set tepam::named\_arguments\_first 1__  
 > tepam::procedure my\_proc \{  
->    \-args \{  
->       \{\-n1 \-default ""\}  
->       \{\-n2 \-default ""\}  
->       \{u1 \-default ""\}  
->       \{u2 \-default ""\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
+> &nbsp;&nbsp;&nbsp;puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
 > \}  
 
 The unnamed arguments are placed at the end of procedure call, after the named
@@ -1200,14 +1200,14 @@ used in this section to illustrate this calling style:
 
 > __set tepam::named\_arguments\_first 0__  
 > tepam::procedure my\_proc \{  
->    \-args \{  
->       \{\-n1 \-default ""\}  
->       \{\-n2 \-default ""\}  
->       \{u1\}  
->       \{u2 \-default "" \-multiple\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u1\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u2 \-default "" \-multiple\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
+> &nbsp;&nbsp;&nbsp;puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
 > \}  
 
 The unnamed arguments have to be provided first in this case\. The named
@@ -1312,13 +1312,13 @@ entire list of arguments provided during a procedure call\. This can happen via
 the __args__ variable that contains always the unprocessed argument list:
 
 > tepam::procedure \{display\_message\} \{  
->    \-args \{  
->       \{\-mtype \-choices \{Warning Error\} \-default Warning\}  
->       \{text \-type string \-multiple\}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-choices \{Warning Error\} \-default Warning\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-multiple\}  
 >   
->    \}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
->    puts "args: __$args__"  
+> &nbsp;&nbsp;&nbsp;puts "args: __$args__"  
 > \}  
 > display\_message \-mtype Warning "It is 7:00"  
 >   

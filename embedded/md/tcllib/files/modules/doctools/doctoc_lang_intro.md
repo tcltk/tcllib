@@ -242,11 +242,11 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
->   \.\.\.  
->   These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
->   because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
->   impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
->   \.\.\.  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
+> &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
+> &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
+> &nbsp;&nbsp;\.\.\.  
 >   
 
 # <a name='section2'></a>FURTHER READING

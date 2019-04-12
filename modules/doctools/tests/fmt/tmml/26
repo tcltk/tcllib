@@ -34,7 +34,7 @@ Done
 ............... Vorwaerts ..........
 
 <example>
-<cmd>command</cmd> \
+   <cmd>command</cmd>    x \
 -- <cmd>command</cmd> --
 
 </example>

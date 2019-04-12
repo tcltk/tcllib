@@ -371,6 +371,25 @@ c_pass 2 fmt_manpage_end {} {
     return
 }
 
+proc Breaks {lines} {
+    set r {}
+    foreach line $lines { lappend r $line[LB] }
+    return $r
+}
+
+proc LeadSpaces {lines} {
+    set r {}
+    foreach line $lines { lappend r [LeadSpace $line] }
+    return $r
+}
+
+proc LeadSpace {line} {
+    # Split into leading and trailing whitespace, plus content
+    regexp {^([ \t]*)(.*)([ \t]*)$} $line -> lead content _
+    # Drop trailing spaces, make leading non-breaking, keep content (and inner spaces).
+    return [RepeatM "&nbsp;" $lead]$content
+}
+
 c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
     TextTrimLeadingSpace
@@ -389,11 +408,12 @@ c_pass 2 fmt_example_end {} {
     set t [Text?]
     set t [string map [list \\\\\n \\\n] $t]
     if {$complex} {
-	set tmp {}
-	foreach line [split $t \n] { append tmp $line[LB] }
-	set t $tmp
-	unset tmp
+	# Process for block quote
+	# - make leading spaces non-breaking
+	# - force linebreaks
+	set t [join [Breaks [LeadSpaces [split $t \n]]] {}]
     } else {
+	# Process for code block (verbatim)
 	set t [Mark $t]
     }
     TextClear
