@@ -135,26 +135,26 @@ __[message](\.\./\.\./\.\./\.\./index\.md\#message)__ of the procedure
 __display__\. This command has several named and unnamed arguments:
 
 > __[tepam::procedure](tepam\_procedure\.md)__ \{display message\} \{  
->    \-return            \-  
->    \-short\_description "Displays a simple message box"  
->    \-description       "This procedure allows displaying a configurable message box\."  
->    \-args \{  
->       \{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}  
->       \{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}  
->       \{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}  
->       \{\-fg \-type color \-default black \-description "Message color"\}  
->       \{\-bg \-type color \-optional \-description "Background color"\}  
->       \{\-no\_border \-type none \-description "Use a splash window style \(no border\)"\}  
->       \{\-log\_file \-type file \-optional \-description "Optional message log file"\}  
->       \{text \-type string \-multiple \-description "Multiple text lines to display"\}  
->    \}  
+> &nbsp;&nbsp;&nbsp;\-return            \-  
+> &nbsp;&nbsp;&nbsp;\-short\_description "Displays a simple message box"  
+> &nbsp;&nbsp;&nbsp;\-description       "This procedure allows displaying a configurable message box\."  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-fg \-type color \-default black \-description "Message color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-bg \-type color \-optional \-description "Background color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-no\_border \-type none \-description "Use a splash window style \(no border\)"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-log\_file \-type file \-optional \-description "Optional message log file"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-multiple \-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > \} \{  
 > *   puts "display message:"  
->    foreach var \{mtype font level fg bg no\_border log\_file text\} \{  
->       if \{\[info exists $var\]\} \{  
->          puts  "  $var=\[set $var\]"  
->       \}  
->    \}  
+> &nbsp;&nbsp;&nbsp;foreach var \{mtype font level fg bg no\_border log\_file text\} \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if \{\[info exists $var\]\} \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;puts  "  $var=\[set $var\]"  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\}  
+> &nbsp;&nbsp;&nbsp;\}  
 > *\}  
 
 A call of procedure that has been declared in this way will first invoke the
@@ -225,31 +225,31 @@ some valid procedure calls:
 
 > __display message__ "The document hasn't yet been saved\!"  
 > *\-> display message:  
->      mtype=Warning  
->      font=Arial 10 italic  
->      fg=black  
->      no\_border=0  
->      text=\{The document hasn't yet been saved\!\}*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtype=Warning  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font=Arial 10 italic  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fg=black  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no\_border=0  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text=\{The document hasn't yet been saved\!\}*  
 >   
 > __display message__ \-fg red \-bg black "Please save first the document"  
 > *\-> display message:  
->      mtype=Warning  
->      font=Arial 10 italic  
->      fg=red  
->      bg=black  
->      no\_border=0  
->      text=\{Please save first the document\}*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtype=Warning  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font=Arial 10 italic  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fg=red  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bg=black  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no\_border=0  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text=\{Please save first the document\}*  
 >   
 > __display message__ \-mtype Error \-no\_border "Why is here no border?"  
 > *\-> display message:  
->      mtype=Error  
->      font=Arial 10 italic  
->      fg=black  
->      no\_border=1  
->      text=\{Why is here no border?\}*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mtype=Error  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;font=Arial 10 italic  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fg=black  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no\_border=1  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text=\{Why is here no border?\}*  
 >   
 > __display message__ \-font \{Courier 12\} \-level 10 \\  
->    "Is there enough space?" "Reduce otherwise the font size\!"  
+> &nbsp;&nbsp;&nbsp;"Is there enough space?" "Reduce otherwise the font size\!"  
 >   
 
 *\-> display message: mtype=Warning font=Courier 12 level=10 fg=black
@@ -326,9 +326,9 @@ accept and decline the selection\. Here is the code snippet that is doing all
 this:
 
 > __[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\  
->    __\-existingfile__ \{\-label "Source file" \-variable SourceFile\} \\  
->    __\-existingdirectory__ \{\-label "Destination folder" \-variable DestDir\} \\  
->    __\-checkbutton__ \{\-label "Overwrite existing file" \-variable Overwrite\}  
+> &nbsp;&nbsp;&nbsp;__\-existingfile__ \{\-label "Source file" \-variable SourceFile\} \\  
+> &nbsp;&nbsp;&nbsp;__\-existingdirectory__ \{\-label "Destination folder" \-variable DestDir\} \\  
+> &nbsp;&nbsp;&nbsp;__\-checkbutton__ \{\-label "Overwrite existing file" \-variable Overwrite\}  
 
 The __argument\_dialogbox__ returns __ok__ if the entered data are
 validated\. It will return __cancel__ if the data entry has been canceled\.
@@ -360,40 +360,40 @@ which allows organizing the different entry widgets in frames and sections:
 > set ChoiceList \{"Choice 1" "Choice 2" "Choice 3" "Choice 4" "Choice 5" "Choice 6"\}  
 >   
 > set Result \[__[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\  
->    __\-title__ "System configuration" \\  
->    __\-context__ test\_1 \\  
->    __\-frame__ \{\-label "Entries"\} \\  
->       __\-entry__ \{\-label Entry1 \-variable Entry1\} \\  
->       __\-entry__ \{\-label Entry2 \-variable Entry2 \-default "my default"\} \\  
->    __\-frame__ \{\-label "Listbox & combobox"\} \\  
->       __\-listbox__ \{\-label "Listbox, single selection" \-variable Listbox1 \\  
->                 \-choices \{1 2 3 4 5 6 7 8\} \-default 1 \-height 3\} \\  
->       __\-listbox__ \{\-label "Listbox, multiple selection" \-variable Listbox2  
->                 \-choicevariable ChoiceList \-default \{"Choice 2" "Choice 3"\}  
->                 \-multiple\_selection 1 \-height 3\} \\  
->       __\-disjointlistbox__ \{\-label "Disjoined listbox" \-variable DisJntListbox  
->                         \-choicevariable ChoiceList \\  
->                         \-default \{"Choice 3" "Choice 5"\} \-height 3\} \\  
->       __\-combobox__ \{\-label "Combobox" \-variable Combobox \\  
->                  \-choices \{1 2 3 4 5 6 7 8\} \-default 3\} \\  
->    __\-frame__ \{\-label "Checkbox, radiobox and checkbutton"\} \\  
->       __\-checkbox__ \{\-label Checkbox \-variable Checkbox  
->                  \-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
->                  \-default italic\} \\  
->       __\-radiobox__ \{\-label Radiobox \-variable Radiobox  
->                  \-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
->                  \-default underline\} \\  
->       __\-checkbutton__ \{\-label CheckButton \-variable Checkbutton \-default 1\} \\  
->    __\-frame__ \{\-label "Files & directories"\} \\  
->       __\-existingfile__ \{\-label "Input file" \-variable InputFile\} \\  
->       __\-file__ \{\-label "Output file" \-variable OutputFile\} \\  
->       __\-sep__ \{\} \\  
->       __\-existingdirectory__ \{\-label "Input directory" \-variable InputDirectory\} \\  
->       __\-directory__ \{\-label "Output irectory" \-variable OutputDirectory\} \\  
->    __\-frame__ \{\-label "Colors and fonts"\} \\  
->       __\-color__ \{\-label "Background color" \-variable Color \-default red\} \\  
->       __\-sep__ \{\} \\  
->       __\-font__ \{\-label "Font" \-variable Font \-default \{Courier 12 italic\}\}  
+> &nbsp;&nbsp;&nbsp;__\-title__ "System configuration" \\  
+> &nbsp;&nbsp;&nbsp;__\-context__ test\_1 \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Entries"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{\-label Entry1 \-variable Entry1\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{\-label Entry2 \-variable Entry2 \-default "my default"\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Listbox & combobox"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Listbox, single selection" \-variable Listbox1 \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{1 2 3 4 5 6 7 8\} \-default 1 \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Listbox, multiple selection" \-variable Listbox2  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicevariable ChoiceList \-default \{"Choice 2" "Choice 3"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-multiple\_selection 1 \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-disjointlistbox__ \{\-label "Disjoined listbox" \-variable DisJntListbox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicevariable ChoiceList \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default \{"Choice 3" "Choice 5"\} \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-combobox__ \{\-label "Combobox" \-variable Combobox \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{1 2 3 4 5 6 7 8\} \-default 3\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Checkbox, radiobox and checkbutton"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-checkbox__ \{\-label Checkbox \-variable Checkbox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default italic\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-radiobox__ \{\-label Radiobox \-variable Radiobox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-checkbutton__ \{\-label CheckButton \-variable Checkbutton \-default 1\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Files & directories"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-existingfile__ \{\-label "Input file" \-variable InputFile\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-file__ \{\-label "Output file" \-variable OutputFile\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-sep__ \{\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-existingdirectory__ \{\-label "Input directory" \-variable InputDirectory\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-directory__ \{\-label "Output irectory" \-variable OutputDirectory\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Colors and fonts"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-color__ \{\-label "Background color" \-variable Color \-default red\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-sep__ \{\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-font__ \{\-label "Font" \-variable Font \-default \{Courier 12 italic\}\}  
 
 \] The __argument\_dialogbox__ defines all the specified variables with the
 entered data and returns __ok__ if the data have been validated via the Ok

@@ -17,7 +17,7 @@ Done
 [example_end]
 ............... Vorwaerts ..........
 [example_begin]
-[cmd command] \\
+   [cmd command]    x \\
 -- [cmd command] --
 [example_end]
 [manpage_end]

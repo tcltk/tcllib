@@ -123,7 +123,7 @@ Done
 </pre>
 <p>............... Vorwaerts ..........</p>
 <pre class="doctools_example">
-<b class="cmd">command</b> \
+   <b class="cmd">command</b>    x \
 -- <b class="cmd">command</b> --
 </pre>
 </div>

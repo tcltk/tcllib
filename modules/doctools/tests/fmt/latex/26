@@ -2,29 +2,30 @@
 % Copyright (c) .COPYRIGHT.
 % TEST.z
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{aku}
 \title{.MODULE. / TEST --  : }
 \maketitle
 \section{Description}\label{section1}
-\begin{verbatim}
-Example Block  More Lines \
+\begin{alltt}
+Example Block  More Lines \textbackslash
 Ever More
 Never
-\end{verbatim}
+\end{alltt}
 
 ............... Weiter .............
 
-\begin{verbatim}
-Second \
-Continuing Lines \
+\begin{alltt}
+Second \textbackslash
+Continuing Lines \textbackslash
 Done
-\end{verbatim}
+\end{alltt}
 ............... Vorwaerts ..........
-\begin{verbatim}
-{\bf command} \
+\begin{alltt}
+   {\bf command}    x \textbackslash
 -- {\bf command} --
-\end{verbatim}
+\end{alltt}
 \section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak

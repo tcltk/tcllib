@@ -2,14 +2,15 @@
 % Copyright (c) .COPYRIGHT.
 % TEST.z
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{aku}
 \title{.MODULE. / TEST --  : }
 \maketitle
 \section{Description}\label{section1}
-\begin{verbatim}
+\begin{alltt}
 Special markdown __non-special__
-\end{verbatim}
+\end{alltt}
 \section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak

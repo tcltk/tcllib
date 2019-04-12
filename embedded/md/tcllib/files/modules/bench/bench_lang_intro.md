@@ -81,11 +81,11 @@ constructs the key schedule used by the encryption command whose speed we
 measure, and the cleanup code releases any resources bound to that schedule\.
 
 > bench \-desc "AES\-$\{len\} ECB encryption core" __\-pre__ \{  
->     set key \[aes::Init ecb $k $i\]  
+> &nbsp;&nbsp;&nbsp;&nbsp;set key \[aes::Init ecb $k $i\]  
 > \} \-body \{  
->     aes::Encrypt $key $p  
+> &nbsp;&nbsp;&nbsp;&nbsp;aes::Encrypt $key $p  
 > \} __\-post__ \{  
->     aes::Final $key  
+> &nbsp;&nbsp;&nbsp;&nbsp;aes::Final $key  
 > \}  
 >   
 
@@ -133,12 +133,12 @@ and the cleanup code releases the temporary variables created by this
 initialization\.
 
 > bench \-desc "set include, missing <SC> x$times $n" __\-ipre__ \{  
->     set A $sx\($times,$n\)  
->     set B $A  
+> &nbsp;&nbsp;&nbsp;&nbsp;set A $sx\($times,$n\)  
+> &nbsp;&nbsp;&nbsp;&nbsp;set B $A  
 > \} \-body \{  
->     struct::set include A x  
+> &nbsp;&nbsp;&nbsp;&nbsp;struct::set include A x  
 > \} __\-ipost__ \{  
->     unset A B  
+> &nbsp;&nbsp;&nbsp;&nbsp;unset A B  
 > \}  
 >   
 

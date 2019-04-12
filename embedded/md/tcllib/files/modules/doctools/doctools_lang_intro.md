@@ -223,11 +223,11 @@ __manpage\_end__\.
 
 > \[manpage\_begin NAME SECTION VERSION\]  
 > \[description\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__para__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__para__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[manpage\_end\]  
 >   
 
@@ -246,13 +246,13 @@ sections\.
 
 > \[manpage\_begin NAME SECTION VERSION\]  
 > \[description\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__section \{Section A\}__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[para\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__section \{Section B\}__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[manpage\_end\]  
 >   
 
@@ -268,17 +268,17 @@ within subsections\.
 
 > \[manpage\_begin NAME SECTION VERSION\]  
 > \[description\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[section \{Section A\}\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__subsection \{Sub 1\}__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[para\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[__subsection \{Sub 2\}__\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[section \{Section B\}\]  
->  \.\.\.  
+> &nbsp;\.\.\.  
 > \[manpage\_end\]  
 >   
 
@@ -386,14 +386,14 @@ The example demonstrating the use of text markup is an excerpt from the
 some highlighting added\. It shows their use within a block of text, as the
 arguments of a list item command \(__call__\), and our ability to nest them\.
 
->   \.\.\.  
->   \[call \[__cmd arg\_def__\] \[__arg type__\] \[__arg name__\] \[__opt__ \[__arg mode__\]\]\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[call \[__cmd arg\_def__\] \[__arg type__\] \[__arg name__\] \[__opt__ \[__arg mode__\]\]\]  
 >   
->   Text structure\. List element\. Argument list\. Automatically closes the  
->   previous list element\. Specifies the data\-\[__arg type__\] of the described  
->   argument of a command, its \[__arg name__\] and its i/o\-\[__arg mode__\]\. The  
->   latter is optional\.  
->   \.\.\.  
+> &nbsp;&nbsp;Text structure\. List element\. Argument list\. Automatically closes the  
+> &nbsp;&nbsp;previous list element\. Specifies the data\-\[__arg type__\] of the described  
+> &nbsp;&nbsp;argument of a command, its \[__arg name__\] and its i/o\-\[__arg mode__\]\. The  
+> &nbsp;&nbsp;latter is optional\.  
+> &nbsp;&nbsp;\.\.\.  
 >   
 
 ## <a name='subsection6'></a>Escapes
@@ -408,11 +408,11 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
->   \.\.\.  
->   These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
->   because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
->   impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
->   \.\.\.  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
+> &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
+> &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
+> &nbsp;&nbsp;\.\.\.  
 >   
 
 ## <a name='subsection7'></a>Cross\-references
@@ -445,14 +445,14 @@ considers them as meta data which should be in the header, etc\.
 Our example shows the sources for the cross\-references of this document, with
 some highlighting added\. Incidentally they are found at the end of the body\.
 
->   \.\.\.  
->   \[__see\_also doctools\_intro__\]  
->   \[__see\_also doctools\_lang\_syntax__\]  
->   \[__see\_also doctools\_lang\_cmdref__\]  
->   \[__keywords markup \{semantic markup\}__\]  
->   \[__keywords \{doctools markup\} \{doctools language\}__\]  
->   \[__keywords \{doctools syntax\} \{doctools commands\}__\]  
->   \[manpage\_end\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[__see\_also doctools\_intro__\]  
+> &nbsp;&nbsp;\[__see\_also doctools\_lang\_syntax__\]  
+> &nbsp;&nbsp;\[__see\_also doctools\_lang\_cmdref__\]  
+> &nbsp;&nbsp;\[__keywords markup \{semantic markup\}__\]  
+> &nbsp;&nbsp;\[__keywords \{doctools markup\} \{doctools language\}__\]  
+> &nbsp;&nbsp;\[__keywords \{doctools syntax\} \{doctools commands\}__\]  
+> &nbsp;&nbsp;\[manpage\_end\]  
 >   
 
 ## <a name='subsection8'></a>Examples
@@ -474,15 +474,15 @@ The source for the very first example in this document \(see section
 [Fundamentals](#subsection1)\), with some highlighting added, is
 
 > \[__example__ \{  
->     \.\.\. \[list\_begin enumerated\] \.\.\.  
->   \}\]  
+> &nbsp;&nbsp;&nbsp;&nbsp;\.\.\. \[list\_begin enumerated\] \.\.\.  
+> &nbsp;&nbsp;\}\]  
 >   
 
 Using __example\_begin__ / __example\_end__ this would look like
 
 > \[__example\_begin__\]  
->     \.\.\. \[list\_begin enumerated\] \.\.\.  
->   \[__example\_end__\]  
+> &nbsp;&nbsp;&nbsp;&nbsp;\.\.\. \[list\_begin enumerated\] \.\.\.  
+> &nbsp;&nbsp;\[__example\_end__\]  
 >   
 
 ## <a name='subsection9'></a>Lists
@@ -546,43 +546,43 @@ commands are:
 Our example is the source of the definition list in the previous paragraph, with
 most of the content in the middle removed\.
 
->   \.\.\.  
->   \[__list\_begin__ definitions\]  
->   \[__def__ \[const arg\]\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[__list\_begin__ definitions\]  
+> &nbsp;&nbsp;\[__def__ \[const arg\]\]  
 >   
->   \(\[cmd arg\_def\]\) This opens an argument \(declaration\) list\. It is a  
->   specialized form of a definition list where the term is an argument  
->   name, with its type and i/o\-mode\.  
+> &nbsp;&nbsp;\(\[cmd arg\_def\]\) This opens an argument \(declaration\) list\. It is a  
+> &nbsp;&nbsp;specialized form of a definition list where the term is an argument  
+> &nbsp;&nbsp;name, with its type and i/o\-mode\.  
 >   
->   \[__def__ \[const itemized\]\]  
+> &nbsp;&nbsp;\[__def__ \[const itemized\]\]  
 >   
->   \(\[cmd item\]\)  
->   This opens a general itemized list\.  
+> &nbsp;&nbsp;\(\[cmd item\]\)  
+> &nbsp;&nbsp;This opens a general itemized list\.  
 >   
->   \.\.\.  
->   \[__def__ \[const tkoption\]\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[__def__ \[const tkoption\]\]  
 >   
->   \(\[cmd tkoption\_def\]\) This opens a widget option \(declaration\) list\. It  
->   is a specialized form of a definition list where the term is the name  
->   of a configuration option for a widget, with its name and class in the  
->   option database\.  
+> &nbsp;&nbsp;\(\[cmd tkoption\_def\]\) This opens a widget option \(declaration\) list\. It  
+> &nbsp;&nbsp;is a specialized form of a definition list where the term is the name  
+> &nbsp;&nbsp;of a configuration option for a widget, with its name and class in the  
+> &nbsp;&nbsp;option database\.  
 >   
->   \[__list\_end__\]  
->   \.\.\.  
+> &nbsp;&nbsp;\[__list\_end__\]  
+> &nbsp;&nbsp;\.\.\.  
 >   
 
 Note that a list cannot begin in one \(sub\)section and end in another\.
 Differently said, \(sub\)section breaks are not allowed within lists and list
 items\. An example of this *illegal* construct is
 
->   \.\.\.  
->   \[list\_begin itemized\]  
->   \[item\]  
->   \.\.\.  
->   \[__section \{ILLEGAL WITHIN THE LIST\}__\]  
->   \.\.\.  
->   \[list\_end\]  
->   \.\.\.  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[list\_begin itemized\]  
+> &nbsp;&nbsp;\[item\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[__section \{ILLEGAL WITHIN THE LIST\}__\]  
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;\[list\_end\]  
+> &nbsp;&nbsp;\.\.\.  
 >   
 
 # <a name='section2'></a>FURTHER READING
