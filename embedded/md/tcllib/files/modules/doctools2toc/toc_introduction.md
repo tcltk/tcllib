@@ -139,9 +139,9 @@ Keyword Indices* and the *DocTools \- General*, respectively\.
                             |                         |     |    |                  |
                     doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
                             doctoc                    |     |    |                  doctoc, json
-                            json                      |     |    |                  |           \\
-                            html                      |     |    |          doctools::toc::parse \\
-                            nroff                     |     |    |                  |             \\
+                            json                      |     |    |                  |           \
+                            html                      |     |    |          doctools::toc::parse \
+                            nroff                     |     |    |                  |             \
                             wiki                      |     |    |  +---------------+              json
                             text                      |     |    |  |               |
                                                     doctools::toc::structure        |

@@ -437,6 +437,8 @@
 
           + [ident](tcllib/files/modules/ident/ident\.md) Ident protocol client
 
+          + [imap4](tcllib/files/modules/imap4/imap4\.md) imap client\-side tcl implementation of imap protocol
+
           + [irc](tcllib/files/modules/irc/irc\.md) Create IRC connection and interface\.
 
           + [ldap](tcllib/files/modules/ldap/ldap\.md) LDAP client
@@ -834,8 +836,6 @@
           + [generator](tcllib/files/modules/generator/generator\.md) Procedures for creating and using generators\.
 
           + [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
-
-          + [imap4](tcllib/files/modules/imap4/imap4\.md) imap client\-side tcl implementation of imap protocol
 
           + [map::geocode::nominatim](tcllib/files/modules/map/map\_geocode\_nominatim\.md) Resolving geographical names with a Nominatim service
 

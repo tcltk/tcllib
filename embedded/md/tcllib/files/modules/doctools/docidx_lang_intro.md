@@ -63,7 +63,7 @@ I\.e\.
 
     ... [key {markup language}] ...
 
-    ... [manpage thefile \\
+    ... [manpage thefile \
             {file description}] ...
 
 ## <a name='subsection2'></a>Basic structure
@@ -79,13 +79,14 @@ of only one part where we will list all keys and their references\.
 A more useful index will contain at least keywords, or short 'keys', i\.e\. the
 phrases which were indexed\. So:
 
-    [index_begin GROUPTITLE TITLE]
-    [__key markup__]
-    [__key {semantic markup}]__]
-    [__key {docidx markup}__]
-    [__key {docidx language}__]
-    [__key {docidx commands}__]
-    [index_end]
+> \[index\_begin GROUPTITLE TITLE\]  
+> \[__key markup__\]  
+> \[__key \{semantic markup\}\]__\]  
+> \[__key \{docidx markup\}__\]  
+> \[__key \{docidx language\}__\]  
+> \[__key \{docidx commands\}__\]  
+> \[index\_end\]  
+>   
 
 In the above example the command __key__ is used to declare the keyword
 phrases we wish to be part of the index\.
@@ -95,22 +96,23 @@ also contain references to documents associated with the keywords\. Here is a
 made\-up index for all the manpages in the module
 *[base64](\.\./\.\./\.\./\.\./index\.md\#base64)*:
 
-    [index_begin tcllib/base64 {De- & Encoding}]
-    [key base64]
-    [__manpage base64__]
-    [key encoding]
-    [__manpage base64__]
-    [__manpage uuencode__]
-    [__manpage yencode__]
-    [key uuencode]
-    [__manpage uuencode__]
-    [key yEnc]
-    [__manpage yencode__]
-    [key ydecode]
-    [__manpage yencode__]
-    [key yencode]
-    [__manpage yencode__]
-    [index_end]
+> \[index\_begin tcllib/base64 \{De\- & Encoding\}\]  
+> \[key base64\]  
+> \[__manpage base64__\]  
+> \[key encoding\]  
+> \[__manpage base64__\]  
+> \[__manpage uuencode__\]  
+> \[__manpage yencode__\]  
+> \[key uuencode\]  
+> \[__manpage uuencode__\]  
+> \[key yEnc\]  
+> \[__manpage yencode__\]  
+> \[key ydecode\]  
+> \[__manpage yencode__\]  
+> \[key yencode\]  
+> \[__manpage yencode__\]  
+> \[index\_end\]  
+>   
 
 In the above example the command
 __[manpage](\.\./\.\./\.\./\.\./index\.md\#manpage)__ is used to insert references
@@ -134,20 +136,22 @@ __vset__ are also allowed, to enable the writer to either set and/or import
 configuration settings relevant to the table of contents\. I\.e\. it is possible to
 write
 
-    [__include FILE__]
-    [__vset VAR VALUE__]
-    [index_begin GROUPTITLE TITLE]
-    ...
-    [index_end]
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \[index\_begin GROUPTITLE TITLE\]  
+> \.\.\.  
+> \[index\_end\]  
+>   
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\.
 
-    [index_begin GROUPTITLE TITLE]
-    [__include FILE__]
-    [__vset VAR VALUE__]
-    ...
-    [index_end]
+> \[index\_begin GROUPTITLE TITLE\]  
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \.\.\.  
+> \[index\_end\]  
+>   
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -166,11 +170,12 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
-    ...
-    These commands, [cmd lb] and [cmd lb] respectively, are required
-    because our use of [__lb__] and [__rb__] to bracket markup commands makes it
-    impossible to directly use [__lb__] and [__rb__] within the text.
-    ...
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
+> &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
+> &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
+> &nbsp;&nbsp;\.\.\.  
+>   
 
 # <a name='section2'></a>FURTHER READING
 

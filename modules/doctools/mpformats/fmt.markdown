@@ -37,13 +37,33 @@ proc In? {} {
     }
     CAttrGet mdindent
 }
+
 proc In! {ws} {
     CAttrSet mdindent $ws
 }
 
-proc NewExample {} {
-    return [ContextNew Example {
-	VerbatimOn ; Example! ; Prefix+ "    "
+proc Example {complex} {
+    if {![CAttrHas exenv$complex]} {
+	ContextPush
+	set exenv [NewExample $complex]
+	ContextPop
+	CAttrSet exenv$complex $exenv
+	ContextCommit
+    }
+    return [CAttrGet exenv$complex]
+}
+
+proc NewExample {complex} {
+    return [ContextNew Example$complex {
+	VerbatimOn
+	Example!
+	if {$complex} {
+	    # Block quote
+	    Prefix+ "> "
+	} else {
+	    # Code block
+	    Prefix+ "    "
+	}
     }] ; # {}
 }
 
@@ -346,19 +366,56 @@ c_pass 2 fmt_manpage_end {} {
     CloseParagraph
     if {[llength $sa]} { Special {SEE ALSO} seealso   [join [XrefList [lsort $sa] sa] ", "] }
     if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
-    if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
-    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
+    if {$ca ne ""}     { Special CATEGORY   category  $ca            }
+    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim] }
     return
+}
+
+proc Breaks {lines} {
+    set r {}
+    foreach line $lines { lappend r $line[LB] }
+    return $r
+}
+
+proc LeadSpaces {lines} {
+    set r {}
+    foreach line $lines { lappend r [LeadSpace $line] }
+    return $r
+}
+
+proc LeadSpace {line} {
+    # Split into leading and trailing whitespace, plus content
+    regexp {^([ \t]*)(.*)([ \t]*)$} $line -> lead content _
+    # Drop trailing spaces, make leading non-breaking, keep content (and inner spaces).
+    return [RepeatM "&nbsp;" $lead]$content
 }
 
 c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
     TextTrimLeadingSpace
 
+    # Check for protected markdown markup in the input. If present
+    # this is a complex example with highlighted parts.
+    set complex [string match *\1* [Text?]]
+
+    #puts_stderr "AAA/fmt_example_end/$complex"
+    
     # In examples (verbatim markup) markdown's special characters are
     # no such by default, thus must not be quoted. Mark them as
-    # protected from quoting.
-    set t [Mark [Text?]]
+    # protected from quoting. Further look for and convert
+    # continuation lines protected from Tcl substitution into a
+    # regular continuation line.
+    set t [Text?]
+    set t [string map [list \\\\\n \\\n] $t]
+    if {$complex} {
+	# Process for block quote
+	# - make leading spaces non-breaking
+	# - force linebreaks
+	set t [join [Breaks [LeadSpaces [split $t \n]]] {}]
+    } else {
+	# Process for code block (verbatim)
+	set t [Mark $t]
+    }
     TextClear
     Text $t
     
@@ -370,13 +427,11 @@ c_pass 2 fmt_example_end {} {
 	# restore and reactivate the list context.
 	ContextPush
 	ContextSet $penv
-	#if {[CloseParagraph [Example]]} PAdvance
-	CloseParagraph [Example]
+	CloseParagraph [Example $complex]
 	ContextPop
     } else {
 	# In a regular paragraph we simple close the example
-	#if {[CloseParagraph [Example]]} PAdvance
-	CloseParagraph [Example]
+	CloseParagraph [Example $complex]
     }
 
     #puts_stderr "AAA/fmt_example_end/Done"

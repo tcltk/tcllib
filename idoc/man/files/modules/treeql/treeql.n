@@ -408,9 +408,9 @@ occurred\&.
     # to show the structure as it is seen by the query
     # interpreter\&.
 
-    q query \\\\
-	    root \\\\
-	    children \\\\
+    q query \\
+	    root \\
+	    children \\
 	    get data
 
 .CE

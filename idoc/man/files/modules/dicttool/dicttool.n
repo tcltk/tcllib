@@ -276,6 +276,8 @@ dicttool \- Dictionary Tools
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBdicttool  ?1\&.0?\fR
+.sp
 \fBladd\fR \fIvarname\fR \fIargs\fR
 .sp
 \fBldelete\fR \fIvarname\fR \fIargs\fR
@@ -301,7 +303,7 @@ This command will add a new instance of each element in \fIargs\fR to \fIvarname
 is not already present\&.
 .TP
 \fBldelete\fR \fIvarname\fR \fIargs\fR
-This command will add a delete all instances of each element in \fIargs\fR from \fIvarname\fR\&.
+This command will delete all instances of each element in \fIargs\fR from \fIvarname\fR\&.
 .TP
 \fBdict getnull\fR \fIargs\fR
 Operates like \fBdict get\fR, however if the key \fIargs\fR does not exist, it returns an empty
