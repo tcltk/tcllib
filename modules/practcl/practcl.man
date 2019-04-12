@@ -641,7 +641,7 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 
-[call method [cmd "build-tclsh"] [arg outfile] [arg PROJECT]]
+[call method [cmd "build-tclsh"] [arg outfile] [arg PROJECT] [opt "[arg path] [const "auto"]"]]
 
  Produce a static executable
 
