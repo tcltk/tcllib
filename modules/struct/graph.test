@@ -6,10 +6,8 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# Copyright (c) 2017-2017 Andreas Kupries
+# Copyright (c) 2017,2019 Andreas Kupries
 # All rights reserved.
-#
-# RCS: @(#) $Id: graph.test,v 1.27 2007/04/12 03:01:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
