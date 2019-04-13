@@ -592,7 +592,7 @@ method build-tclsh {outfile PROJECT {path {auto}}} {
   if {$path in {{} auto}} {
     set path [file dirname [file normalize $outfile]]
   }
-  if {$path eq .} {
+  if {$path eq "."} {
     set path [pwd]
   }
   cd $path
