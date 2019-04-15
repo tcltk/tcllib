@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 package require Tcl 8.6
-package provide argparse 0.3
+package provide argparse 0.4
 
 # argparse --
 # Parses an argument list according to a definition list.  The result may be
@@ -33,6 +33,11 @@ package provide argparse 0.3
 # After the above switches comes the definition list argument, then finally the
 # optional argument list argument.  If the argument list is omitted, it is taken
 # from the caller's args variable.
+#
+# A special syntax is provided allowing the above switches to appear within the
+# definition list argument.  If an element of the definition list is a list
+# whose first element is empty string, its subsequent elements are treated as
+# additional overall switches to [argparse].
 #
 # Each element of the definition list is itself a list containing a unique,
 # non-empty name element consisting of alphanumerics, underscores, and minus
@@ -133,7 +138,7 @@ package provide argparse 0.3
 #
 # A validation expression is an [expr] expression parameterized on a variable
 # named arg which is replaced with the argument.  If the expression evaluates to
-# true, the argument is accepted.  
+# true, the argument is accepted.
 #
 # An enumeration list is a list of possible argument values.  If the argument
 # appears in the enumeration list, the argument is accepted.  Unless -exact is
@@ -243,23 +248,60 @@ proc ::argparse {args} {
         return $args
     }}}
 
-    # Process switches and locate the definition argument.
+    # Process arguments.
     set level 1
     set enum {}
     set validate {}
     for {set i 0} {$i < [llength $args]} {incr i} {
-        if {[lindex $args $i] eq "--"} {
-            # Stop after "--".
-            incr i
-            break
-        } elseif {[catch {
+        if {[catch {
             regsub {^-} [tcl::prefix match -message switch {
                 -boolean -enum -equalarg -exact -inline -keep -level -long
                 -mixed -normalize -pass -reciprocal -template -validate
             } [lindex $args $i]] {} switch
-        }]} {
-            # Stop at the first non-switch argument.
-            break
+        } msg]} {
+            # Do not allow "--" or definition lists nested within the special
+            # empty-string element containing extra overall switches.
+            if {[info exists reparse]} {
+                return -code error $msg
+            }
+
+            # Stop after "--" or at the first non-switch argument.
+            if {[lindex $args $i] eq "--"} {
+                incr i
+            }
+
+            # Extract definition and args from the argument list, pulling from
+            # the caller's args variable if the args parameter is omitted.
+            switch [expr {[llength $args] - $i}] {
+            0 {
+                break
+            } 1 {
+                set definition [lindex $args end]
+                set argv [uplevel 1 {::set args}]
+            } 2 {
+                set definition [lindex $args end-1]
+                set argv [lindex $args end]
+            } default {
+                return -code error "too many arguments"
+            }}
+
+            # Convert any definition list elements named empty string to instead
+            # be overall switches, and arrange to reparse those switches.  Also,
+            # remove inline comments from the definition list.
+            set args {}
+            set reparse {}
+            set i -1
+            foreach elem $definition[set definition {}] {
+                if {$elem eq "#"} {
+                    set comment {}
+                } elseif {[info exists comment]} {
+                    unset comment
+                } elseif {[lindex $elem 0] eq {}} {
+                    lappend args {*}[lrange $elem 1 end]
+                } else {
+                    lappend definition $elem
+                }
+            }
         } elseif {$switch ni {enum level pass template validate}} {
             # Process switches with no arguments.
             set $switch {}
@@ -271,25 +313,15 @@ proc ::argparse {args} {
         }
     }
 
+    # Fail if no definition argument was supplied.
+    if {![info exists definition]} {
+        return -code error "missing required parameter: definition"
+    }
+
     # Forbid using -inline and -keep at the same time.
     if {[info exists inline] && [info exists keep]} {
         return -code error "-inline and -keep conflict"
     }
-
-    # Extract the definition and args parameters from the argument list, pulling
-    # from the caller's args variable if the args parameter is omitted.
-    switch [expr {[llength $args] - $i}] {
-    0 {
-        return -code error "missing required parameter: definition"
-    } 1 {
-        set definition [lindex $args end]
-        set argv [uplevel 1 {::set args}]
-    } 2 {
-        set definition [lindex $args end-1]
-        set argv [lindex $args end]
-    } default {
-        return -code error "too many arguments"
-    }}
 
     # Parse element definition list.
     set def {}
@@ -299,15 +331,6 @@ proc ::argparse {args} {
     set upvars {}
     set omitted {}
     foreach elem $definition {
-        # Skip inline comments.
-        if {[info exists comment]} {
-            unset comment
-            continue
-        } elseif {[llength $elem] == 1 && [lindex $elem 0] eq "#"} {
-            set comment {}
-            continue
-        }
-
         # Read element definition switches.
         set opt {}
         for {set i 1} {$i < [llength $elem]} {incr i} {
