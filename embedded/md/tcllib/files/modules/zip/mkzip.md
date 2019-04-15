@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::mkzip \- Zip archive creation)
 [//000000002]: # (Generated from file 'mkzip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Pat Thoyts)
-[//000000004]: # (zipfile::mkzip\(n\) 1\.2 tcllib "Zip archive creation")
+[//000000004]: # (zipfile::mkzip\(n\) 1\.2\.1 tcllib "Zip archive creation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ zipfile::mkzip \- Build a zip archive
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require zipfile::mkzip ?1\.2?  
+package require zipfile::mkzip ?1\.2\.1?  
 
 [__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?](#1)  
 
