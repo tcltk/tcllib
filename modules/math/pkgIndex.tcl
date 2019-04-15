@@ -32,5 +32,5 @@ package ifneeded math::geometry          1.3.0 [list source [file join $dir geom
 package ifneeded math::trig              1.0   [list source [file join $dir trig.tcl]]
 
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
-package ifneeded math::exact             1.0   [list source [file join $dir exact.tcl]]
+package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]
 package ifneeded math::PCA               1.0   [list source [file join $dir pca.tcl]]
