@@ -7,7 +7,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 package require Tcl 8.6
 package require argparse
-package provide pipeline 0.2
+package provide pipeline 0.3
 
 # Create a namespace for pipeline commands.
 namespace eval ::pipeline {}
@@ -192,10 +192,18 @@ proc ::pipeline::new {args} {
     } ::pipeline} [lmap filter $args {{*}$coroNew {*}$filter}]
 }
 
+# ::pipeline::procLoop --
+# Creates a named pipeline filter using the [pipeline::loop] command.
+proc ::pipeline::procLoop {name args} {
+    uplevel 1 [list interp alias {} $name {} ::pipeline::loop {*}$args]
+}
+
 # ::pipeline::loop --
 # Pipeline main loop skeleton, suitable for implementing pipeline filters.  The
 # following arguments are accepted:
 #
+# -params PL  [argparse] parameter definition list
+# -init SCR   Initialization script before beginning loop
 # -command    Positional arguments form a command prefix rather than a script
 # -observe    Do not modify pipeline data, ignoring return value or out variable
 # -result     Script result is used directly as the output chunk list
@@ -205,7 +213,27 @@ proc ::pipeline::new {args} {
 # -separate   Disable buffered output merging
 # -delim PAT  Buffer delimiter regular expression, default \n
 # -trim       Strip buffer delimiter from the command argument
-# script      Main loop body script or command prefix (multiple arguments)
+# SCRIPT      Main loop body script or command prefix (multiple arguments)
+# ARGS ...    Arguments to bind to the parameter list, requires -params
+#
+# As an alternative to writing a full [proc] or [apply] script, the -params and
+# -init switches may be used to set up the context in which the loop runs.  If
+# -params is used, [pipeline::loop] accepts additional arguments following the
+# script argument.  These arguments are parsed according to the [argparse]
+# parameter list which is given as the argument to -params.  The -init switch
+# supplies a custom initialization script to evaluate after processing -params
+# and before beginning the loop.  -params and -init conflict with -command.
+#
+# The -params and -init switches are processed before all other arguments.  As a
+# result, their side effects (e.g. setting variables) will still occur even if
+# there is an error in processing the remaining arguments.
+#
+# If the loopArgs variable is created by -params or -init, it is used as a list
+# of additional arguments to pass to [pipeline::loop], which will be processed
+# after -params and -init and before all other arguments.  If a variable named
+# loopArgs exists at the moment [pipeline:loop] is called, it will be unset
+# before processing arguments.  After processing -params and -init, loopArgs
+# will be restored to its initial state.
 #
 # If -buffer is used, the pipeline data is divided into chunks according to the
 # delimiter defined by the -delim regular expression.  The data matched by the
@@ -217,11 +245,6 @@ proc ::pipeline::new {args} {
 # complete or flush is commanded, unless -partial is used, in which case the
 # script or command is executed for every chunk.  When the script or command is
 # not executed, subsequent filters in the pipeline are not executed either.
-#
-# -buffer causes the output chunks of the script or command to be merged if
-# possible, though they will remain distinct chunks when they command flush or
-# have varying metadata or restart flags.  -separate may be used to disable
-# merging of output chunks.
 #
 # It is an error for the -delim regular expression to match empty string.
 #
@@ -268,7 +291,8 @@ proc ::pipeline::new {args} {
 # If -raw is not used, the command return value is the output data.  If -buffer
 # is not used, the command argument is the input chunk data.  If -buffer is
 # used, the command argument is all data buffered since the last delimiter.  If
-# -trim is used, the delimiter is not included in the argument.
+# -trim is used, the delimiter is not included in the argument but will be
+# appended to the return value.
 #
 # If -raw is used, the command return value is a list of zero or more output
 # chunks.  The command argument is a three- or six-element list.  The first
@@ -278,6 +302,10 @@ proc ::pipeline::new {args} {
 # If -observe is used, the out variable, script result, or command return value
 # is ignored, and the pipeline filter's output is equal to its input.  This also
 # prevents -buffer from pausing the pipeline when the buffer is incomplete.
+#
+# The output chunks of the script or command will be merged if possible, though
+# they will remain distinct chunks when they command flush or have varying
+# metadata or restart flags.  -separate may be used to disable merging.
 proc ::pipeline::loop {args} {
     # If [pipeline::loop] is the top level of the coroutine, recursively invoke
     # itself one time so that the [upvar] and [uplevel] commands store the
@@ -288,56 +316,104 @@ proc ::pipeline::loop {args} {
         return [{*}[info level 0]]
     }
 
-    # Parse arguments.
-    argparse -boolean {
-        -command
+    # Parameter definition list.
+    set definition {
+        -params=
+        -init=
+        {-command   -forbid {params init}}
         -observe
-        {-result   -forbid {command observe}}
-        {-buffer   -key bufferMode}
-        {-raw      -require command}
-        {-partial  -require buffer}
-        {-separate -require buffer}
-        {-delim=   -require buffer -default {\n}}
-        {-trim     -require {buffer command} -forbid raw}
-        script*!
+        {-result    -forbid {command observe}}
+        {-buffer    -key bufferMode}
+        {-raw       -require command}
+        {-partial   -require buffer}
+        -separate
+        {-delim=    -require buffer -default {\n}}
+        {-trim      -require {buffer command} -forbid raw}
+        script
+        extra*
+    }
+
+    # Unset loopArgs and make a local backup.
+    upvar 1 loopArgs loopArgs
+    if {[array exists loopArgs]} {
+        array set loopArgsBackup [array get loopArgs]
+    } elseif {[info exists loopArgs]} {
+        set loopArgsBackup $loopArgs
+    }
+    unset -nocomplain loopArgs
+
+    try {
+        # Parse arguments.
+        argparse -boolean $definition
+
+        # Evaluate -params and -init if supplied.
+        if {[info exists params]} {
+            uplevel 1 [list argparse $params $extra]
+        }
+        if {[info exists init]} {
+            uplevel 1 $init
+        }
+
+        # If the loopArgs variable was created by -params or -init, prepend it
+        # to the argument list and parse again.
+        if {[info exists loopArgs]} {
+            set args [linsert $args 0 {*}$loopArgs]
+            argparse -boolean $definition
+        }
+    } finally {
+        # Restore loopArgs to its original state, even if an error occurred.
+        unset -nocomplain loopArgs
+        if {[array exists loopArgsBackup]} {
+            array set loopArgs [array get loopArgsBackup]
+        } elseif {[info exists loopArgsBackup]} {
+            set loopArgs $loopArgsBackup
+        }
+    }
+
+    # Perform some additional argument validation.
+    if {$bufferMode && [regexp $delim {}]} {
+        return -code error "delimiter pattern matches empty string: $delim"
+    } elseif {$extra ne {} && !$command && ![info exists params]} {
+        return -code error "too many arguments"
     }
 
     # Bind the script to the inputs and outputs.  If -command is used, convert
-    # the command prefix to a script.  Otherwise, precede the script with code
-    # to expand the input to separate variables.
+    # the command prefix to a script, potentially modified by -buffer, -raw, and
+    # -trim.  Otherwise, precede the script with code to expand the input to
+    # separate variables.
     if {$command} {
-        # Append command arguments.
+        # Combine command name and arguments.
+        lappend script {*}$extra
+        append script " "
         if {$raw} {
-            append script " \$input"
+            append script {$input}
         } elseif {!$bufferMode} {
-            append script " \[lindex \$input 0\]"
+            append script {[lindex $input 0]}
         } elseif {$trim} {
-            append script " \[lindex \$input 4\]"
+            append script {[lindex $input 4]}
         } else {
-            append script " \[lindex \$input 4\]\[lindex \$input 5\]"
+            append script {[lindex $input 4][lindex $input 5]}
         }
 
         # Store the command return value into the out variable.
         if {!$observe} {
-            if {$raw} {
-                set script "set out \[$script\]"
-            } else {
-                set script "set out \[list \[list \[$script\]\]\]"
+            set script \[$script\]
+            if {$trim} {
+                append script {[lindex $input 5]}
             }
+            if {!$raw} {
+                set script "\[list \[list $script\]\]"
+            }
+            set script "set out $script"
         }
-    } elseif {[llength $script] > 1} {
-        # When -command is not used, the script must be one argument.
-        return -code error "too many arguments"
     } else {
         # If -result is used, store the script result into the out variable.
         # Intercept both "ok" (normal result) and "return" codes.
         if {$result} {
-            set script "try $script on ok out {} on return out {}"
-        } else {
-            set script [lindex $script 0]
+            set script [list try $script on ok out {} on return out {}]
         }
 
-        # Load tme data into script variables.
+        # Load the data into script variables.
         set vars {data meta flush}
         if {$bufferMode} {
             lappend vars prior buffer complete
@@ -345,15 +421,36 @@ proc ::pipeline::loop {args} {
         set script "lassign \$input $vars\n$script"
     }
 
+    # Unless -separate is used, plan to merge consecutive chunks having the same
+    # metadata and restart flag.  Two chunks cannot be merged if the first one
+    # commands flush but the second does not.
+    if {$separate} {
+        set merge {apply {{out} {return $out}}}
+    } else {
+        set merge {apply {{out} {
+            set i 0
+            set j 1
+            while {$j < [llength $out]} {
+                if {[lindex $out $i 1] eq [lindex $out $j 1]
+                 && (![lindex $out $i 2] || [lindex $out $j 2])
+                 && ([llength [lindex $out $i]] >= 4 && [lindex $out $i 3])
+                 == ([llength [lindex $out $j]] >= 4 && [lindex $out $j 3])} {
+                    lset out $i 0 [lindex $out $i 0][lindex $out $j 0]
+                    lset out $i 2 [lindex $out $j 2]
+                    set out [lreplace $out $j $j]
+                } else {
+                    incr i
+                    incr j
+                }
+            }
+            return $out
+        }}}
+    }
+
     # Get access to caller input and output variables.
     upvar 1 input input out scriptOut
 
     if {$bufferMode} {
-        # Avoid infinite loops by rejecting patterns matching empty string.
-        if {[regexp $delim {}]} {
-            return -code error "delimiter pattern matches empty string: $delim"
-        }
-
         # Loop until the pipeline is destroyed.
         set out {}
         set buffer {}
@@ -419,29 +516,7 @@ proc ::pipeline::loop {args} {
                         }
                     }
                 }
-
-                # Unless -separate is used, merge consecutive chunks having the
-                # same metadata and restart flag.  Two chunks cannot be merged
-                # if the first one commands flush but the second does not.
-                if {!$separate} {
-                    set i 0
-                    set j 1
-                    while {$j < [llength $out]} {
-                        if {[lindex $out $i 1] eq [lindex $out $j 1]
-                         && (![lindex $out $i 2] || [lindex $out $j 2])
-                         && ([llength [lindex $out $i]] >= 4
-                          && [lindex $out $i 3])
-                         == ([llength [lindex $out $j]] >= 4
-                          && [lindex $out $j 3])} {
-                            lset out $i 0 [lindex $out $i 0][lindex $out $j 0]
-                            lset out $i 2 [lindex $out $j 2]
-                            set out [lreplace $out $j $j]
-                        } else {
-                            incr i
-                            incr j
-                        }
-                    }
-                }
+                set out [{*}$merge $out]
             }
         }
     } else {
@@ -450,6 +525,7 @@ proc ::pipeline::loop {args} {
         while {[set input [yieldto return -level 0 $scriptOut]] ne {}} {
             set scriptOut {{}}
             uplevel 1 $script
+            set scriptOut [{*}$merge $scriptOut]
         }
     }
 }
@@ -495,45 +571,40 @@ proc ::pipeline::fork {args} {
 # -partial    Evaluate script for partial buffers as well as complete buffers
 # -delim PAT  Buffer delimiter regular expression, default \n
 # script      Script to evaluate for each chunk
-proc ::pipeline::filter {args} {
-    argparse {
-        {-vars=   -default {}}
-        {-setup=  -default {}}
-        {-expr    -boolean}
-        {-buffer  -pass loopArgs}
-        {-partial -pass loopArgs}
-        {-delim?  -pass loopArgs}
-        test
-    }
+::pipeline::procLoop ::pipeline::filter -params {
+    {-vars=   -default {}}
+    {-setup=  -default {}}
+    {-expr    -boolean}
+    {-buffer  -pass loopArgs}
+    {-partial -pass loopArgs}
+    {-delim?  -pass loopArgs}
+    test
+} -init {
     if {$expr} {
         set test [list expr $test]
     }
     dict with vars {}
     eval $setup
-    loop {*}$loopArgs {
-        if {![eval $test]} {
-            set out {}
-        }
+} {
+    if {![eval $test]} {
+        set out {}
     }
 }
 
 # ::pipeline::echo --
 # Filter procedure for use with [pipeline::new].  Echoes input data to a given
 # channel (defaulting to stdout) then passes it through unmodified.  If this
-# filter is wrapped using [pipeline::loop -buffer], and flush is not commanded,
-# only complete buffers are echoed, with the delimiter appended.  Otherwise,
-# chunks are echoed as soon as they are received.  The output channel is flushed
-# after every write.
-proc ::pipeline::echo {args} {
-    argparse {
-        {-buffer  -pass loopArgs}
-        {-delim=  -pass loopArgs -require buffer}
-        {chan?    -default stdout}
-    }
-    loop -observe {*}$loopArgs {
-        chan puts -nonewline $chan $data
-        chan flush $chan
-    }
+# filter is wrapped using [pipeline::buffer], and flush is not commanded, only
+# complete buffers are echoed, with the delimiter appended.  Otherwise, chunks
+# are echoed as soon as they are received.  The output channel is flushed after
+# every write.
+::pipeline::procLoop ::pipeline::echo -params {
+    {-buffer  -pass loopArgs}
+    {-delim=  -pass loopArgs -require buffer}
+    {chan?    -default stdout}
+} -observe {
+    chan puts -nonewline $chan $data
+    chan flush $chan
 }
 
 # ::pipeline::regsub --
@@ -550,67 +621,64 @@ proc ::pipeline::echo {args} {
 #
 # Regular expression matching and substitution are not applied to the delimiter,
 # which is newline by default.  The delimiter can be changed using the -delim
-# switch.  See the [pipeline::loop -buffer] documentation for more information.
+# switch.  See the documentation for [pipeline::buffer] for more information.
 #
 # If the -erase switch is used, at least one regular expression substitution
 # succeeded, and the result is an empty buffer, it is removed in full, and no
 # delimiter is appended.  This mode allows [pipeline::regsub] to be used to
 # delete entire lines of input, rather than make them be blank lines.
-proc ::pipeline::regsub {args} {
-    argparse -normalize -boolean -pass regsubArgs {
-        {-start=    -pass regsubArgs}
-        -erase
-        {-delim=    -pass loopArgs}
-        expReps*!
+::pipeline::procLoop ::pipeline::regsub -params {
+    {{}         -normalize -boolean -pass regsubArgs}
+    {-start=    -pass regsubArgs}
+    -erase
+    {-delim=    -pass loopArgs}
+    expReps*!
+} -buffer -result {
+    # Apply regular expression substitutions.
+    foreach {exp rep} $expReps {
+        ::regsub {*}$regsubArgs $exp $buffer $rep buffer
     }
-    loop -buffer -result {*}$loopArgs {
-        # Apply regular expression substitutions.
-        foreach {exp rep} $expReps {
-            ::regsub {*}$regsubArgs $exp $buffer $rep buffer
-        }
 
-        # Append the delimiter unless the buffer is being erased.
-        if {!$erase || $buffer ne {}} {
-            append buffer $complete
-        }
+    # Append the delimiter unless the buffer is being erased.
+    if {!$erase || $buffer ne {}} {
+        append buffer $complete
+    }
 
-        # Yield any output that may have been obtained.
-        if {$buffer ne {}} {
-            list [list $buffer]
-        }
+    # Yield any output that may have been obtained.
+    if {$buffer ne {}} {
+        list [list $buffer]
     }
 }
 
 # ::pipeline::trimTrailingSpace --
 # Filter procedure for use with [pipeline::new].  Trims trailing whitespace from
 # each buffer.  The default delimiter is newline but can be changed with -delim.
-# See the documentation for [pipeline::loop -buffer] for more information.
-proc ::pipeline::trimTrailingSpace {args} {
-    argparse {{-delim= -ignore}}
-    loop -buffer -partial -result {*}$args {
-        # Find the last non-whitespace character in the current chunk.
-        set output {}
-        if {[regexp -indices {.*[^ \f\n\r\t\v]} $buffer end]} {
-            # Find the last non-whitespace character preceding the current
-            # chunk.  This was the last character that was output before.
-            if {[regexp -indices {.*[^ \f\n\r\t\v]} $prior start]} {
-                set start [expr {[lindex $start 1] + 1}]
-            } else {
-                set start 0
-            }
-
-            # Output all characters since the previous output for this buffer
-            # through the final non-whitespace character in the current chunk.
-            append output [string range $buffer $start [lindex $end 1]]
+# See the documentation for [pipeline::buffer] for more information.
+::pipeline::procLoop ::pipeline::trimTrailingSpace -params {
+    {-delim=    -pass loopArgs}
+} -buffer -partial -result {
+    # Find the last non-whitespace character in the current chunk.
+    set output {}
+    if {[regexp -indices {.*[^ \f\n\r\t\v]} $buffer end]} {
+        # Find the last non-whitespace character preceding the current chunk.
+        # This was the last character that was output before.
+        if {[regexp -indices {.*[^ \f\n\r\t\v]} $prior start]} {
+            set start [expr {[lindex $start 1] + 1}]
+        } else {
+            set start 0
         }
 
-        # If this is a complete buffer, append the delimiter to the output.
-        append output $complete
+        # Output all characters since the previous output for this buffer
+        # through the final non-whitespace character in the current chunk.
+        append output [string range $buffer $start [lindex $end 1]]
+    }
 
-        # Yield any output that may have been obtained.
-        if {$output ne {}} {
-            list [list $output]
-        }
+    # If this is a complete buffer, append the delimiter to the output.
+    append output $complete
+
+    # Yield any output that may have been obtained.
+    if {$output ne {}} {
+        list [list $output]
     }
 }
 
@@ -618,27 +686,27 @@ proc ::pipeline::trimTrailingSpace {args} {
 # Filter procedure for use with [pipeline::new].  Removes empty buffers at the
 # beginning and end of output and collapses consecutive empty buffers into one.
 # The default delimiter is newline but can be changed with -delim.  See the
-# documentation for [pipeline::loop -buffer] for more information.
-proc ::pipeline::squeeze {args} {
-    argparse {{-delim= -ignore}}
+# documentation for [pipeline::buffer] for more information.
+::pipeline::procLoop ::pipeline::squeeze -params {
+    {-delim=    -pass loopArgs}
+} -init {
     set empty 1
-    loop -buffer -partial {*}$args {
-        if {$buffer eq {} && $complete ne {}} {
-            # Do not output empty buffers.
-            set out {}
-            set empty 1
-        } elseif {$buffer ne {}} {
-            # If a non-empty buffer comes after at least one empty buffer which
-            # is not at the beginning of input, precede the output chunk with
-            # the most recently observed delimiter.  Otherwise, fall back on the
-            # default behavior which is to pass the chunk through directly.
-            if {$empty && [info exists delim]} {
-                set out [list [list $delim] {}]
-            }
-            set empty 0
-            if {$complete ne {}} {
-                set delim $complete
-            }
+} -buffer -partial {
+    if {$buffer eq {} && $complete ne {}} {
+        # Do not output empty buffers.
+        set out {}
+        set empty 1
+    } elseif {$buffer ne {}} {
+        # If a non-empty buffer comes after at least one empty buffer which is
+        # not at the beginning of input, precede the output chunk with the most
+        # recently observed delimiter.  Otherwise, fall back on the default
+        # behavior which is to pass the chunk through directly.
+        if {$empty && [info exists delim]} {
+            set out [list [list $delim] {}]
+        }
+        set empty 0
+        if {$complete ne {}} {
+            set delim $complete
         }
     }
 }
@@ -656,40 +724,38 @@ proc ::pipeline::squeeze {args} {
 # match the removal pattern.
 #
 # The default delimiter is newline but can be changed with -delim.  See the
-# documentation for [pipeline::loop -buffer] for more information.
-proc ::pipeline::removeFixed {args} {
-    argparse -boolean {
-        -prefix
-        {-delim=  -pass loopArgs}
-        patterns*
-    }
-    loop -buffer -partial {*}$loopArgs {
-        foreach pattern $patterns {
-            # Determine the match prefix length.
-            if {$prefix && (($complete ne {} || $flush)
-             || [string length $pattern] < [string length $buffer])} {
-                set len [string length $pattern]
-            } elseif {$complete eq {} && !$flush} {
-                set len [string length $buffer]
-            } else {
-                set len -1
-            }
+# documentation for [pipeline::buffer] for more information.
+::pipeline::procLoop ::pipeline::removeFixed -params {
+    {{}         -boolean}
+    -prefix
+    {-delim=    -pass loopArgs}
+    patterns*
+} -buffer -partial {
+    foreach pattern $patterns {
+        # Determine the match prefix length.
+        if {$prefix && (($complete ne {} || $flush)
+         || [string length $pattern] < [string length $buffer])} {
+            set len [string length $pattern]
+        } elseif {$complete eq {} && !$flush} {
+            set len [string length $buffer]
+        } else {
+            set len -1
+        }
 
-            # Check for matches against the current and prior buffers.
-            if {[string equal -length $len $buffer $pattern]} {
-                # Discard or delay the input if the buffer is complete and
-                # exactly matches the pattern, or is incomplete and is a prefix
-                # of the pattern, or if prefix matching is enabled and the
-                # pattern is a prefix of the buffer.
-                set out {}
-                break
-            } elseif {$prior ne {} && [string equal\
-                    -length [string length $prior] $prior $pattern]} {
-                # If the partial buffer was previously discarded, provisionally
-                # output it in full because it ultimately ended up not matching.
-                # It may yet be discarded if it matches another pattern.
-                set out [list [list $buffer$complete]]
-            }
+        # Check for matches against the current and prior buffers.
+        if {[string equal -length $len $buffer $pattern]} {
+            # Discard or delay the input if the buffer is complete and exactly
+            # matches the pattern, or is incomplete and is a prefix of the
+            # pattern, or if prefix matching is enabled and the pattern is a
+            # prefix of the buffer.
+            set out {}
+            break
+        } elseif {$prior ne {} && [string equal -length [string length $prior]\
+                $prior $pattern]} {
+            # If the partial buffer was previously discarded, provisionally
+            # output it in full because it ultimately ended up not matching.  It
+            # may yet be discarded if it matches another pattern.
+            set out [list [list $buffer$complete]]
         }
     }
 }
@@ -701,10 +767,8 @@ proc ::pipeline::removeFixed {args} {
 # current pipeline.  If nothing will call [pipeline::get] on the other pipeline,
 # it is best that it contain the [pipeline::discard] filter to avoid unbounded
 # growth of its output buffer.
-proc ::pipeline::tee {pipeline} {
-    loop -observe {
-        $pipeline put -meta $meta {*}[if {$flush} {list -flush}] $data
-    }
+::pipeline::procLoop ::pipeline::tee -params pipeline -observe {
+    $pipeline put -meta $meta {*}[if {$flush} {list -flush}] $data
 }
 
 # ::pipeline::splice --
@@ -721,8 +785,6 @@ proc ::pipeline::splice {pipeline} {
 # subsequent filters (there probably won't be any) are executed with no input.
 # This filter is useful in combination with [pipeline::tee] to terminate a teed
 # pipeline on which [pipeline::get] will never be called.
-proc ::pipeline::discard {} {
-    loop -result {}
-}
+::pipeline::procLoop ::pipeline::discard -result {}
 
 # vim: set sts=4 sw=4 tw=80 et ft=tcl:
