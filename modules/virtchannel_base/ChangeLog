@@ -1,3 +1,7 @@
+2019-03-12  Aldo Buratti
+
+    * cat.tcl - BUGFIX in event-handling . Version bumped to 1.0.3
+    * 
 2013-12-17  Andreas Kupries  <andreask@activestate.com>
 
 	* randseed.man: Fixed package name.

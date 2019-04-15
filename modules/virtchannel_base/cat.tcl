@@ -1,13 +1,13 @@
 # -*- tcl -*-
 # # ## ### ##### ######## #############
-# (C) 2011 Andreas Kupries
+# (C) 2011,2019 Andreas Kupries
 
 # Facade concatenating the contents of the channels it was constructed
 # with. Owns the sub-ordinate channels and closes them on exhaustion and/or
 # when closed itself.
 
 # @@ Meta Begin
-# Package tcl::chan::cat 1.0.1
+# Package tcl::chan::cat 1.0.3
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
 # Meta as::license BSD
@@ -43,10 +43,9 @@ oo::class create ::tcl::chan::cat::implementation {
 
     constructor {args} {
 	set channels $args
-	# Disable encoding and translation processing in the wrapped channels.
+	# Disable translation (and hence encoding) in the wrapped channels.
 	# This will happen in our generic layer instead.
 	foreach c $channels {
-	    fconfigure $c -translation binary
 	    fconfigure $c -translation binary
 	}
 	set delay 10
@@ -70,21 +69,19 @@ oo::class create ::tcl::chan::cat::implementation {
 
 	    set watching 1
 	    if {![llength $channels]} {
-		set timer [after $delay \
-			       [namespace code [list my Post $c]]]
+		set timer [after $delay [namespace code [list my Post $c]]]
 	    } else {
-		set c [lindex $channels 0]
-		fileevent readable $c [list chan postevent $c read]
+		chan event [lindex $channels 0] readable [list chan postevent $c read]
 	    }
 	} else {
-	    # Stop events. Kill timer, or disable in the foremost
-	    # sub-ordinate.
+	    # Stop events. Either kill timer, or disable in the
+	    # foremost sub-ordinate.
 
 	    set watching 0
 	    if {![llength $channels]} {
 		catch { after cancel $timer }
 	    } else {
-		fileevent readable [lindex $channels 0] {}
+		chan event [lindex $channels 0] readable {}
 	    }
 	}
 	return
@@ -92,7 +89,7 @@ oo::class create ::tcl::chan::cat::implementation {
 
     method read {c n} {
 	if {![llength $channels]} {
-	    # Actually should be EOF signal.
+	    # This signals EOF higher up.
 	    return {}
 	}
 
@@ -108,10 +105,11 @@ oo::class create ::tcl::chan::cat::implementation {
 		close $in
 		set channels [lrange $channels 1 end]
 
-		# The close above also killed any fileevent handling
-		# we might have attached to this channel. We may have
-		# to update the settings (i.e. move to next channel,
-		# or to timer-based, to drive the eof home).
+		# The close of the exhausted subordinate killed any
+		# fileevent handling we may have had attached to this
+		# channel. Update the settings (i.e. move to the next
+		# subordinate, or to timer-based, to drive the eof
+		# home).
 
 		if {$watching} {
 		    my watch $c read
@@ -119,21 +117,19 @@ oo::class create ::tcl::chan::cat::implementation {
 	    }
 	}
 
-	if {$buf eq {}} {
-	    return -code error EAGAIN
-	}
-
+	# When `buf` is empty, all channels have been exhausted and
+	# closed, therefore returning this empty string will cause an
+	# EOF higher up.
 	return $buf
     }
 
     method Post {c} {
-	set timer [after $delay \
-		       [namespace code [list my Post $c]]]
+	set timer [after $delay [namespace code [list my Post $c]]]
 	chan postevent $c read
 	return
     }
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::cat 1.0.2
+package provide tcl::chan::cat 1.0.3
 return
