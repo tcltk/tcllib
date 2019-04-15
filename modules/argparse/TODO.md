@@ -5,8 +5,6 @@
     variable or omitting a dict key when the switch is not present
 - Documentation
   - Instead of having a big comment, use doctools
-  - Perhaps wait for the completion of the Tcllib documentation overhaul
-  - Doctools will still be the standard afterwards, right?
 - Help text generation
   - Parameter and switch descriptions given by per-element `-help` switch
   - Need overall `-help` switch to provide narrative description
