@@ -86,8 +86,7 @@ measure, and the cleanup code releases any resources bound to that schedule\.
 > &nbsp;&nbsp;&nbsp;&nbsp;aes::Encrypt $key $p  
 > \} __\-post__ \{  
 > &nbsp;&nbsp;&nbsp;&nbsp;aes::Final $key  
-> \}  
->   
+> \}
 
 ## <a name='subsection4'></a>Advanced pre\- and postprocessing
 
@@ -139,8 +138,7 @@ initialization\.
 > &nbsp;&nbsp;&nbsp;&nbsp;struct::set include A x  
 > \} __\-ipost__ \{  
 > &nbsp;&nbsp;&nbsp;&nbsp;unset A B  
-> \}  
->   
+> \}
 
 # <a name='section2'></a>FURTHER READING
 

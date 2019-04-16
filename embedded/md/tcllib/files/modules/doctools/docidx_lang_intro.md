@@ -85,8 +85,7 @@ phrases which were indexed\. So:
 > \[__key \{docidx markup\}__\]  
 > \[__key \{docidx language\}__\]  
 > \[__key \{docidx commands\}__\]  
-> \[index\_end\]  
->   
+> \[index\_end\]
 
 In the above example the command __key__ is used to declare the keyword
 phrases we wish to be part of the index\.
@@ -111,8 +110,7 @@ made\-up index for all the manpages in the module
 > \[__manpage yencode__\]  
 > \[key yencode\]  
 > \[__manpage yencode__\]  
-> \[index\_end\]  
->   
+> \[index\_end\]
 
 In the above example the command
 __[manpage](\.\./\.\./\.\./\.\./index\.md\#manpage)__ is used to insert references
@@ -140,8 +138,7 @@ write
 > \[__vset VAR VALUE__\]  
 > \[index\_begin GROUPTITLE TITLE\]  
 > \.\.\.  
-> \[index\_end\]  
->   
+> \[index\_end\]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\.
@@ -150,8 +147,7 @@ command is allowed, without regard for any other structure\.
 > \[__include FILE__\]  
 > \[__vset VAR VALUE__\]  
 > \.\.\.  
-> \[index\_end\]  
->   
+> \[index\_end\]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -174,8 +170,7 @@ paragraph, with some highlighting added\.
 > &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
 > &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
 > &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 # <a name='section2'></a>FURTHER READING
 

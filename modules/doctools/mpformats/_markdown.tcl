@@ -34,8 +34,8 @@ proc Sub4Title {lb title} {
     return
 }
 
-proc Strong {text} { return [Undr][Undr]${text}[Undr][Undr] }
-proc Em     {text} { return [Star]${text}[Star] }
+proc _Strong {text} { return [Undr][Undr]${text}[Undr][Undr] }
+proc _Em     {text} { return [Star]${text}[Star] }
 
 ##
 # # ## ### ##### ########

@@ -121,8 +121,36 @@ proc SubsectTitle {lb title} {
     return
 }
 
-proc Strong {text} { return *${text}* }
-proc Em     {text} { return _${text}_ }
+proc Strong {text} { SplitLine $text _Strong }
+proc Em     {text} { SplitLine $text _Em }
+
+proc _Strong {text} { return *${text}* }
+proc _Em     {text} { return _${text}_ }
+
+proc SplitLine {text cmd} {
+    #puts_stderr AAA/SLI=[string map [list \1 \\1 \t \\t { } \\s] <<[join [split $text \n] >>\n<<]>>]
+    if {![string match *\n* $text]} {
+	foreach {lead content} [LeadSplit $text] break
+	return ${lead}[uplevel 1 [list $cmd $content]]
+    }
+    set r {}   
+    foreach line [split $text \n] {
+	foreach {lead content} [LeadSplit $line] break
+	if {$content == {}} {
+	    lappend r {}
+	    continue
+	}
+	lappend r ${lead}[uplevel 1 [list $cmd $content]]
+    }
+    set text [string trimright [join $r \n]]\n
+    #puts_stderr AAA/SLE=[string map [list \1 \\1 \t \\t { } \\s] <<[join [split $text \n] >>\n<<]>>]
+    return $text
+}
+
+proc LeadSplit {line} {
+    regexp {^([ \t]*)(.*)([ \t]*)$} $line -> lead content _
+    list $lead $content
+}
 
 # # ## ### ##### ########
 ## Bulleting

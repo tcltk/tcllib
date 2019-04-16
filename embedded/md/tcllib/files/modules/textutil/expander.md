@@ -130,8 +130,7 @@ expander objects created by this command\.
     is interpreted as relative to the current namespace\. The command has the
     following general form:
 
-    > *expanderName* option ?*arg arg \.\.\.*?  
-    >   
+    > *expanderName* option ?*arg arg \.\.\.*?
 
     *Option* and the *arg*s determine the exact behavior of the command\.
 
