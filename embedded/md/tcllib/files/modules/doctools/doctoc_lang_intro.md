@@ -108,8 +108,7 @@ Here a made up example for a table of contents of this document:
 > \[__item 1\.2 Items__\]  
 > \[__item 1\.3 Divisions__\]  
 > \[__item 2 \{FURTHER READING\}__\]  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 ## <a name='subsection4'></a>Divisions
 
@@ -150,8 +149,7 @@ Using this we can recast the last example like this
 > \[__division\_end__\]  
 > \[__division\_start \{FURTHER READING\}__\]  
 > \[__division\_end__\]  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 Or, to demonstrate deeper nesting
 
@@ -173,8 +171,7 @@ Or, to demonstrate deeper nesting
 > \[__division\_end__\]  
 > \[__division\_start \{FURTHER READING\}__\]  
 > \[__division\_end__\]  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 And do not forget, it is possible to freely mix items and divisions, and to have
 empty divisions\.
@@ -195,8 +192,7 @@ empty divisions\.
 > \[__division\_end__\]  
 > \[__division\_start \{FURTHER READING\}__\]  
 > \[__division\_end__\]  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 ## <a name='subsection5'></a>Advanced structure
 
@@ -212,8 +208,7 @@ write
 > \[__vset VAR VALUE__\]  
 > \[toc\_begin GROUPTITLE TITLE\]  
 > \.\.\.  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\.
@@ -222,8 +217,7 @@ command is allowed, without regard for any other structure\.
 > \[__include FILE__\]  
 > \[__vset VAR VALUE__\]  
 > \.\.\.  
-> \[toc\_end\]  
->   
+> \[toc\_end\]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -246,8 +240,7 @@ paragraph, with some highlighting added\.
 > &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
 > &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
 > &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 # <a name='section2'></a>FURTHER READING
 

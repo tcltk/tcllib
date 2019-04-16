@@ -169,8 +169,7 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-    > *faName* __deserialize__ \[*srcFA* __serialize__\]  
-    >   
+    > *faName* __deserialize__ \[*srcFA* __serialize__\]
 
   - <a name='6'></a>*faName* __\-\->__ *dstFA*
 
@@ -181,8 +180,7 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-    > *dstFA* __deserialize__ \[*faName* __serialize__\]  
-    >   
+    > *dstFA* __deserialize__ \[*faName* __serialize__\]
 
   - <a name='7'></a>*faName* __serialize__
 

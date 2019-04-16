@@ -223,8 +223,7 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    > *pegName* __deserialize__ \[*srcPEG* __serialize__\]  
-    >   
+    > *pegName* __deserialize__ \[*srcPEG* __serialize__\]
 
   - <a name='5'></a>*pegName* __\-\->__ *dstPEG*
 
@@ -235,8 +234,7 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    > *dstPEG* __deserialize__ \[*pegName* __serialize__\]  
-    >   
+    > *dstPEG* __deserialize__ \[*pegName* __serialize__\]
 
   - <a name='6'></a>*pegName* __serialize__
 

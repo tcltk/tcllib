@@ -24,13 +24,18 @@ proc TextClear {} { global __currentp ; set __currentp "" }
 
 proc TextTrimLeadingSpace {} {
     global __currentp
-    regsub {^([ \t\v\f]*\n)*} $__currentp {} __currentp
+    regsub {^([ \t\v\f]*\x01?\n)*} $__currentp {} __currentp
+    return
+}
+
+proc TextTrimTrailingSpace {} {
+    global __currentp
+    regsub {([ \t\v\f]*\x01?\n)*$} $__currentp {} __currentp
+    append __currentp \n
     return
 }
 
 proc TextPlain {text} {
-    #puts_stderr "<<text_plain_text>>"
-
     if  {[IsOff]} {return}
 
     # Note: Whenever we get plain text it is possible that a macro for
@@ -44,6 +49,8 @@ proc TextPlain {text} {
     # next macro added more data.
 
     set text [ex_ctopandclear]$text
+
+    #puts_stderr "<<text_plain_text>>=<<[string map [list \t \\t { } \\s \n \\n \r \\r \v \\v \f \\f \1 \\1] $text]>>"
 
     # ... TODO ... Handling of example => verbatim
 
