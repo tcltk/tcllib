@@ -3,6 +3,7 @@
 [include include/module.inc]
 [titledesc {PEG Import}]
 [require snit]
+[require fileutil::paths]
 [require configuration]
 [require pt::peg]
 [require pluginmgr]
