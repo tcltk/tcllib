@@ -1,11 +1,11 @@
 [comment {-*- text -*- doctools manpage}]
 [vset VERSION 1]
 [manpage_begin fileutil::paths n [vset VERSION]]
-[titledesc {Managed of search path pools}]
+[titledesc {Manage search path pools}]
 [require fileutil::paths [opt [vset VERSION]]]
 [description]
 
-Provides a snit class whose instances manage a list of (search) paths.
+Provides a snit class whose instances manage a pool of (search) paths.
 
 [section API]
 

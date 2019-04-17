@@ -13,6 +13,9 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
+support {
+    use       snit/snit.tcl   snit
+}    
 testing {
     useLocal paths.tcl fileutil::paths
 }
