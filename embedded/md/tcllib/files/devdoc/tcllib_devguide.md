@@ -223,7 +223,7 @@ our package\.
 
 Note that the above is not only a chore but an opportunity as well\. Additional
 insight can be had by forcing ourselves to look at our package and the planned
-change\(s\) from an outside perspective, to consider the ramafications of our
+change\(s\) from an outside perspective, to consider the ramifications of our
 actions on others in general, and on dependent packages in particular\.
 
 ## <a name='subsection4'></a>Trunk
@@ -233,7 +233,7 @@ The management and use of branches is an important part of working with a
 [fossil](https://www\.fossil\-scm\.org/)\.
 
 For Tcllib the main branch of the collection is *trunk*\. In *git* this
-branch would be called *master*, and this exactly the case in the [github
+branch would be called *master*, and this is exactly the case in the [github
 mirror](https://github\.com/tcltk/tcllib/) of Tcllib\.
 
 To properly support debugging *each commit* on this branch *has to pass the
@@ -857,7 +857,7 @@ operations added during Google's Summer of Code 2009 are:
     graph\.
 
     This often gives rise to code in the implementation which explicitly checks
-    the assumption and throws an understandable error\. Instead of letting the
+    the assumption and throws an understandable error, instead of letting the
     algorithm fail later in some weird non\-deterministic way\.
 
     It is not always possible to do such checks\. The graph argument for example
@@ -921,7 +921,11 @@ The above should be enough to make it clear that writing tests for an algorithm
 takes at least as much time as coding the algorithm, and often more time\. Much
 more time\. See for example also
 [http://sqlite\.org/testing\.html](http://sqlite\.org/testing\.html), a writeup
-on how the Sqlite database engine is tested\.
+on how the Sqlite database engine is tested\. Another article of interest might
+be
+[https://www\.researchgate\.net/publication/298896236](https://www\.researchgate\.net/publication/298896236)\.
+While geared to a particular numerical algorithm it still shows that even a
+simple\-looking algorithm can lead to an incredible number of test cases\.
 
 An interesting connection is to documentation\. In one direction, the properties
 checked with black\-box testing are exactly the properties which should be

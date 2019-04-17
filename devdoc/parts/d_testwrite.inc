@@ -26,8 +26,8 @@ Code 2009 are:
 	specified node is not a node of the graph.
 
 [para]  This often gives rise to code in the implementation which
-	explicitly checks the assumption and throws an understandable error.
-	Instead of letting the algorithm fail later in some weird
+	explicitly checks the assumption and throws an understandable error,
+	instead of letting the algorithm fail later in some weird
 	non-deterministic way.
 
 [para]  It is not always possible to do such checks. The graph argument
@@ -99,7 +99,11 @@ for an algorithm takes at least as much time as coding the algorithm,
 and often more time. Much more time.
 
 See for example also [uri http://sqlite.org/testing.html], a writeup
-on how the Sqlite database engine is tested.
+on how the Sqlite database engine is tested. Another article of
+interest might be [uri https://www.researchgate.net/publication/298896236].
+While geared to a particular numerical algorithm it still shows that
+even a simple-looking algorithm can lead to an incredible number of
+test cases.
 
 [para] An interesting connection is to documentation. In one
 direction, the properties checked with black-box testing are exactly

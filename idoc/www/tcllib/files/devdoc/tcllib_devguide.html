@@ -304,7 +304,7 @@ middle position between two extremes:</p>
        well.
        Additional insight can be had by forcing ourselves to look at
        our package and the planned change(s) from an outside
-       perspective, to consider the ramafications of our actions on
+       perspective, to consider the ramifications of our actions on
        others in general, and on dependent packages in particular.</p>
 </div>
 <div id="subsection4" class="doctools_subsection"><h3><a name="subsection4">Trunk</a></h3>
@@ -313,7 +313,7 @@ with a <i class="term">Distributed Version Control System</i> (<i class="term">D
 <a href="https://www.fossil-scm.org/">fossil</a>.</p>
 <p>For Tcllib the main branch of the collection is
        <i class="term">trunk</i>. In <i class="term">git</i> this branch would be called
-       <i class="term">master</i>, and this exactly the case in the
+       <i class="term">master</i>, and this is exactly the case in the
        <a href="https://github.com/tcltk/tcllib/">github mirror</a> of
        Tcllib.</p>
 <p>To properly support debugging <em>each commit</em> on this
@@ -823,8 +823,8 @@ Code 2009 are:</p>
 	the graph. This equals one test case checking the behavior when the
 	specified node is not a node of the graph.</p>
 <p>This often gives rise to code in the implementation which
-	explicitly checks the assumption and throws an understandable error.
-	Instead of letting the algorithm fail later in some weird
+	explicitly checks the assumption and throws an understandable error,
+	instead of letting the algorithm fail later in some weird
 	non-deterministic way.</p>
 <p>It is not always possible to do such checks. The graph argument
 	for example is just a command in itself, and while we expect
@@ -884,7 +884,11 @@ tests.</p>
 for an algorithm takes at least as much time as coding the algorithm,
 and often more time. Much more time.
 See for example also <a href="http://sqlite.org/testing.html">http://sqlite.org/testing.html</a>, a writeup
-on how the Sqlite database engine is tested.</p>
+on how the Sqlite database engine is tested. Another article of
+interest might be <a href="https://www.researchgate.net/publication/298896236">https://www.researchgate.net/publication/298896236</a>.
+While geared to a particular numerical algorithm it still shows that
+even a simple-looking algorithm can lead to an incredible number of
+test cases.</p>
 <p>An interesting connection is to documentation. In one
 direction, the properties checked with black-box testing are exactly
 the properties which should be documented in the algorithm's man
