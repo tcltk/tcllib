@@ -1,26 +1,24 @@
-# docidx.tcl --
+# paths.tcl --
 #
-#	Generic path list management, for use by import management.
+#	Manage lists of search paths.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: paths.tcl,v 1.2 2009/04/29 02:09:46 andreas_kupries Exp $
 
-# Each object manages a list of paths.
+# Each object instance manages a list of paths.
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.4
+package require Tcl 8.5
 package require snit
 
 # ### ### ### ######### ######### #########
 ## API
 
-snit::type ::doctools::paths {
+snit::type ::fileutil::paths {
 
     # ### ### ### ######### ######### #########
     ## Options :: None
@@ -39,8 +37,7 @@ snit::type ::doctools::paths {
     }
 
     method add {path} {
-	set pos [lsearch $mypaths $path]
-	if {$pos >= 0 } return
+	if {$path in $mypaths} return
 	lappend mypaths $path
 	return
     }
@@ -48,7 +45,7 @@ snit::type ::doctools::paths {
     method remove {path} {
 	set pos [lsearch $mypaths $path]
 	if {$pos < 0} return
-	set  mypaths [lreplace $mypaths $pos $pos]
+	set mypaths [lreplace $mypaths $pos $pos]
 	return
     }
 
@@ -72,5 +69,5 @@ snit::type ::doctools::paths {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::paths 0.1
+package provide fileutil::paths 1
 return

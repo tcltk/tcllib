@@ -2,10 +2,8 @@
 # -- idx_import.test:
 # -- Tests for package "doctools::idx::import": Management of import plugins.
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: import.test,v 1.1 2009/04/01 04:28:37 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -13,18 +11,18 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2
 
 support {
     use struct/list.tcl         struct::list
     use snit/snit.tcl           snit
     use fileutil/fileutil.tcl   fileutil
+    use fileutil/paths.tcl      fileutil::paths
     use log/logger.tcl          logger
     use pluginmgr/pluginmgr.tcl pluginmgr
 
-    use      doctools2base/config.tcl    doctools::config
-    use      doctools2base/paths.tcl     doctools::paths
+    use doctools2base/config.tcl    doctools::config
 
     source [tcllibPath doctools2base/tests/common]
 }
@@ -152,13 +150,16 @@ test doctools-idx-import-7.1 {config set, wrong#args} -setup {
 
 # config unset - accepts any number of arguments.
 
+# -------------------------------------------------------------------------
+## `include paths` component, provided via fileutil::paths, search path for includes
+
 test doctools-idx-import-8.0 {include paths, wrong#args} -setup {
     doctools::idx::import I
 } -body {
     I include paths X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodpaths type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodpaths type selfns win self"}
 
 test doctools-idx-import-9.0 {include clear, wrong#args} -setup {
     doctools::idx::import I
@@ -166,7 +167,7 @@ test doctools-idx-import-9.0 {include clear, wrong#args} -setup {
     I include clear X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodclear type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodclear type selfns win self"}
 
 test doctools-idx-import-10.0 {include add, wrong#args} -setup {
     doctools::idx::import I
@@ -174,7 +175,7 @@ test doctools-idx-import-10.0 {include add, wrong#args} -setup {
     I include add
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodadd type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodadd type selfns win self path"}
 
 test doctools-idx-import-10.1 {include add, wrong#args} -setup {
     doctools::idx::import I
@@ -182,7 +183,7 @@ test doctools-idx-import-10.1 {include add, wrong#args} -setup {
     I include add P X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodadd type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodadd type selfns win self path"}
 
 test doctools-idx-import-11.0 {include remove, wrong#args} -setup {
     doctools::idx::import I
@@ -190,7 +191,7 @@ test doctools-idx-import-11.0 {include remove, wrong#args} -setup {
     I include remove
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodremove type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodremove type selfns win self path"}
 
 test doctools-idx-import-11.1 {include remove, wrong#args} -setup {
     doctools::idx::import I
@@ -198,7 +199,7 @@ test doctools-idx-import-11.1 {include remove, wrong#args} -setup {
     I include remove P X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::paths::Snit_methodremove type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodremove type selfns win self path"}
 
 # -------------------------------------------------------------------------
 
