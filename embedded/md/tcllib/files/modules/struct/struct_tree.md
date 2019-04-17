@@ -198,8 +198,7 @@ And now the methods supported by tree objects created by this package:
 
     This operation is in effect equivalent to
 
-    > *treeName* __deserialize__ \[*sourcetree* __serialize__\]  
-    >   
+    > *treeName* __deserialize__ \[*sourcetree* __serialize__\]
 
   - <a name='5'></a>*treeName* __\-\->__ *desttree*
 
@@ -210,8 +209,7 @@ And now the methods supported by tree objects created by this package:
 
     This operation is in effect equivalent to
 
-    > *desttree* __deserialize__ \[*treeName* __serialize__\]  
-    >   
+    > *desttree* __deserialize__ \[*treeName* __serialize__\]
 
   - <a name='6'></a>*treeName* __ancestors__ *node*
 

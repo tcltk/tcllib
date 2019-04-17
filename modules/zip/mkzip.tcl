@@ -9,7 +9,7 @@
 ## BSD License
 ##
 # Package providing commands for the generation of a zip archive.
-# version 1.2
+# version 1.2.1
 
 package require Tcl 8.6
 
@@ -64,7 +64,7 @@ proc ::zipfile::mkzip::pop {varname {nth 0}} {
 proc ::zipfile::mkzip::walk {base {excludes ""} {match *} {path {}}} {
     set result {}
     set imatch [file join $path $match]
-    set files [glob -nocomplain -tails -types f -directory $base $imatch]
+    set files [glob -nocomplain -tails -types f -directory $base -- $imatch]
     foreach file $files {
         set excluded 0
         foreach glob $excludes {
@@ -75,7 +75,7 @@ proc ::zipfile::mkzip::walk {base {excludes ""} {match *} {path {}}} {
         }
         if {!$excluded} {lappend result $file}
     }
-    foreach dir [glob -nocomplain -tails -types d -directory $base $imatch] {
+    foreach dir [glob -nocomplain -tails -types d -directory $base -- $imatch] {
         set subdir [walk $base $excludes $match $dir]
         if {[llength $subdir]>0} {
             set result [concat $result [list $dir] $subdir]
@@ -279,4 +279,4 @@ proc ::zipfile::mkzip::mkzip {filename args} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::mkzip 1.2
+package provide zipfile::mkzip 1.2.1

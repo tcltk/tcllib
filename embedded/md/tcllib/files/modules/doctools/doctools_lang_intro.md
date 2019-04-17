@@ -139,8 +139,7 @@ Given the above a less minimal example of a document is
 > \[__require   PACKAGE VERSION__\]  
 > \[__require   PACKAGE__\]  
 > \[description\]  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 Remember that the whitespace is optional\. The document
 
@@ -167,8 +166,7 @@ in the form of the __[comment](\.\./\.\./\.\./\.\./index\.md\#comment)__ command
 > \[require   PACKAGE\]  
 > \[description\]  
 > \[manpage\_end\]  
-> \[__comment \{ \.\.\. \}__\]  
->   
+> \[__comment \{ \.\.\. \}__\]
 
 ## <a name='subsection3'></a>Advanced structure
 
@@ -184,8 +182,7 @@ configuration settings relevant to the document\. I\.e\. it is possible to write
 > \[__vset VAR VALUE__\]  
 > \[manpage\_begin NAME SECTION VERSION\]  
 > \[description\]  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\. I\.e\. for example in
@@ -195,8 +192,7 @@ the header as well\.
 > \[__include FILE__\]  
 > \[__vset VAR VALUE__\]  
 > \[description\]  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -228,8 +224,7 @@ __manpage\_end__\.
 > &nbsp;\.\.\.  
 > \[__para__\]  
 > &nbsp;\.\.\.  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 Empty paragraphs are ignored\.
 
@@ -253,8 +248,7 @@ sections\.
 > &nbsp;\.\.\.  
 > \[__section \{Section B\}__\]  
 > &nbsp;\.\.\.  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 Between sections and paragraphs we have subsections, to split sections\. The
 command for doing so is __subsection__\. Each occurrence of this command
@@ -279,8 +273,7 @@ within subsections\.
 > &nbsp;\.\.\.  
 > \[section \{Section B\}\]  
 > &nbsp;\.\.\.  
-> \[manpage\_end\]  
->   
+> \[manpage\_end\]
 
 ## <a name='subsection5'></a>Text markup
 
@@ -393,8 +386,7 @@ arguments of a list item command \(__call__\), and our ability to nest them\.
 > &nbsp;&nbsp;previous list element\. Specifies the data\-\[__arg type__\] of the described  
 > &nbsp;&nbsp;argument of a command, its \[__arg name__\] and its i/o\-\[__arg mode__\]\. The  
 > &nbsp;&nbsp;latter is optional\.  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 ## <a name='subsection6'></a>Escapes
 
@@ -412,8 +404,7 @@ paragraph, with some highlighting added\.
 > &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
 > &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
 > &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 ## <a name='subsection7'></a>Cross\-references
 
@@ -452,8 +443,7 @@ some highlighting added\. Incidentally they are found at the end of the body\.
 > &nbsp;&nbsp;\[__keywords markup \{semantic markup\}__\]  
 > &nbsp;&nbsp;\[__keywords \{doctools markup\} \{doctools language\}__\]  
 > &nbsp;&nbsp;\[__keywords \{doctools syntax\} \{doctools commands\}__\]  
-> &nbsp;&nbsp;\[manpage\_end\]  
->   
+> &nbsp;&nbsp;\[manpage\_end\]
 
 ## <a name='subsection8'></a>Examples
 
@@ -475,15 +465,13 @@ The source for the very first example in this document \(see section
 
 > \[__example__ \{  
 > &nbsp;&nbsp;&nbsp;&nbsp;\.\.\. \[list\_begin enumerated\] \.\.\.  
-> &nbsp;&nbsp;\}\]  
->   
+> &nbsp;&nbsp;\}\]
 
 Using __example\_begin__ / __example\_end__ this would look like
 
 > \[__example\_begin__\]  
 > &nbsp;&nbsp;&nbsp;&nbsp;\.\.\. \[list\_begin enumerated\] \.\.\.  
-> &nbsp;&nbsp;\[__example\_end__\]  
->   
+> &nbsp;&nbsp;\[__example\_end__\]
 
 ## <a name='subsection9'></a>Lists
 
@@ -568,8 +556,7 @@ most of the content in the middle removed\.
 > &nbsp;&nbsp;option database\.  
 >   
 > &nbsp;&nbsp;\[__list\_end__\]  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 Note that a list cannot begin in one \(sub\)section and end in another\.
 Differently said, \(sub\)section breaks are not allowed within lists and list
@@ -582,8 +569,7 @@ items\. An example of this *illegal* construct is
 > &nbsp;&nbsp;\[__section \{ILLEGAL WITHIN THE LIST\}__\]  
 > &nbsp;&nbsp;\.\.\.  
 > &nbsp;&nbsp;\[list\_end\]  
-> &nbsp;&nbsp;\.\.\.  
->   
+> &nbsp;&nbsp;\.\.\.
 
 # <a name='section2'></a>FURTHER READING
 

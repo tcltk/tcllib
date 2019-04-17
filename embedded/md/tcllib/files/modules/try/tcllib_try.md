@@ -116,8 +116,7 @@ Ensure that a file is closed no matter what:
 > &nbsp;&nbsp;&nbsp;&nbsp;\# \.\.\.  
 > \} __finally__ \{  
 > &nbsp;&nbsp;&nbsp;&nbsp;close \\$f  
-> \}  
->   
+> \}
 
 Handle different reasons for a file to not be openable for reading:
 
@@ -127,8 +126,7 @@ Handle different reasons for a file to not be openable for reading:
 > &nbsp;&nbsp;&nbsp;&nbsp;puts "failed to open /some/file/name: it's a directory"  
 > \} __trap__ \{POSIX ENOENT\} \{\} \{  
 > &nbsp;&nbsp;&nbsp;&nbsp;puts "failed to open /some/file/name: it doesn't exist"  
-> \}  
->   
+> \}
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 
