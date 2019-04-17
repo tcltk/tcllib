@@ -436,7 +436,7 @@ Note that the above is not only a chore but an opportunity as
 well\&.
 Additional insight can be had by forcing ourselves to look at
 our package and the planned change(s) from an outside
-perspective, to consider the ramafications of our actions on
+perspective, to consider the ramifications of our actions on
 others in general, and on dependent packages in particular\&.
 .SS TRUNK
 The management and use of branches is an important part of working
@@ -445,7 +445,7 @@ with a \fIDistributed Version Control System\fR (\fIDVCS\fR) like
 .PP
 For Tcllib the main branch of the collection is
 \fItrunk\fR\&. In \fIgit\fR this branch would be called
-\fImaster\fR, and this exactly the case in the
+\fImaster\fR, and this is exactly the case in the
 \fIgithub mirror\fR [https://github\&.com/tcltk/tcllib/] of
 Tcllib\&.
 .PP
@@ -1111,8 +1111,8 @@ the graph\&. This equals one test case checking the behavior when the
 specified node is not a node of the graph\&.
 .sp
 This often gives rise to code in the implementation which
-explicitly checks the assumption and throws an understandable error\&.
-Instead of letting the algorithm fail later in some weird
+explicitly checks the assumption and throws an understandable error,
+instead of letting the algorithm fail later in some weird
 non-deterministic way\&.
 .sp
 It is not always possible to do such checks\&. The graph argument
@@ -1186,7 +1186,11 @@ The above should be enough to make it clear that writing tests
 for an algorithm takes at least as much time as coding the algorithm,
 and often more time\&. Much more time\&.
 See for example also \fIhttp://sqlite\&.org/testing\&.html\fR, a writeup
-on how the Sqlite database engine is tested\&.
+on how the Sqlite database engine is tested\&. Another article of
+interest might be \fIhttps://www\&.researchgate\&.net/publication/298896236\fR\&.
+While geared to a particular numerical algorithm it still shows that
+even a simple-looking algorithm can lead to an incredible number of
+test cases\&.
 .PP
 An interesting connection is to documentation\&. In one
 direction, the properties checked with black-box testing are exactly

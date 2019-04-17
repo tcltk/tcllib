@@ -5,7 +5,7 @@ with a [term {Distributed Version Control System}] ([term DVCS]) like
 
 [para] For Tcllib the main branch of the collection is
        [term trunk]. In [term git] this branch would be called
-       [term master], and this exactly the case in the
+       [term master], and this is exactly the case in the
        [uri https://github.com/tcltk/tcllib/ {github mirror}] of
        Tcllib.
 

@@ -57,5 +57,5 @@ As mentioned already, Tcllib lives in the middle of that.
 
        Additional insight can be had by forcing ourselves to look at
        our package and the planned change(s) from an outside
-       perspective, to consider the ramafications of our actions on
+       perspective, to consider the ramifications of our actions on
        others in general, and on dependent packages in particular.
