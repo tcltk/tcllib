@@ -4,6 +4,7 @@
 [keywords argv0]
 [keywords {cmdline processing}]
 [keywords {command line processing}]
+[see_also argparse(n)]
 [moddesc   {Command line and option processing}]
 [titledesc {Procedures to process command lines and options.}]
 [category  {Programming tools}]

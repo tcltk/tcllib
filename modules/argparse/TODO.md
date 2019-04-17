@@ -3,6 +3,8 @@
   - Remove `-keep` as well
   - Add an `-unset` switch to selectively change the behavior to unsetting a
     variable or omitting a dict key when the switch is not present
+- Remove `-switch` and `-parameter`
+  - Instead make `-` "shorthand" mandatory when declaring a switch
 - Documentation
   - Instead of having a big comment, use doctools
 - Help text generation

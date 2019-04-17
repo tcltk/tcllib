@@ -36,6 +36,7 @@ Exclude exif
 #       name         pkg   doc   example
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
+Module  argparse    _tcl  _man  _null
 Module  asn         _tcl  _man  _null
 Module  base32      _tcl  _man  _null
 Module  base64      _tcl  _man  _null
