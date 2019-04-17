@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 package require Tcl 8.6
-package provide argparse 0.4
+package provide argparse 0.5
 
 # argparse --
 # Parses an argument list according to a definition list.  The result may be
@@ -67,9 +67,10 @@ package provide argparse 0.4
 # -validate DEF  Name of validation expression, or inline validation definition
 # -enum DEF      Name of enumeration list, or inline enumeration definition
 #
-# As a special case, a definition list element may be the single character "#",
-# which will cause the following element to be completely ignored.  This may be
-# used to place comments directly within the definition list.
+# If the first (possibly only) word of a definition list element is the single
+# character "#", the element is ignored.  If the definition list element is only
+# one word long, the following element is ignored as well.  This may be used to
+# place comments directly within the definition list.
 #
 # If neither -switch nor -parameter are used, a shorthand form is permitted.  If
 # the name is preceded by "-", it is a switch; otherwise, it is a parameter.  An
@@ -292,8 +293,10 @@ proc ::argparse {args} {
             set reparse {}
             set i -1
             foreach elem $definition[set definition {}] {
-                if {$elem eq "#"} {
-                    set comment {}
+                if {[lindex $elem 0] eq "#"} {
+                    if {[llength $elem] == 1} {
+                        set comment {}
+                    }
                 } elseif {[info exists comment]} {
                     unset comment
                 } elseif {[lindex $elem 0] eq {}} {
