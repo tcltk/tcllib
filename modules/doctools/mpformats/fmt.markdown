@@ -392,6 +392,9 @@ proc LeadSpace {line} {
 
 c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
+    # Flush markup from preceding commands into the text buffer.
+    TextPlain ""
+
     TextTrimLeadingSpace
 
     # Check for protected markdown markup in the input. If present
@@ -418,6 +421,7 @@ c_pass 2 fmt_example_end {} {
     }
     TextClear
     Text $t
+    TextTrimTrailingSpace
     
     set penv [GetCurrent]
     if {$penv != {}} {

@@ -2,13 +2,11 @@
 #
 #	Implementation of a graph data structure for Tcl.
 #
-# Copyright (c) 2000-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
-# Copyright (c) 2008      by Alejandro Paz <vidriloco@gmail.com>
+# Copyright (c) 2000-2009,2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2008           by Alejandro Paz <vidriloco@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: graph_tcl.tcl,v 1.5 2009/11/26 04:42:16 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require struct::list
@@ -3001,7 +2999,8 @@ proc ::struct::graph::CheckE {name what arguments} {
     upvar 1 condNodes  condNodes  ; set condNodes  {}
 
     set wa_usage "wrong # args: should be \"$name $what ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?\""
-
+    set seenodes 0
+    
     for {set i 0} {$i < [llength $arguments]} {incr i} {
 	set arg [lindex $arguments $i]
 	switch -glob -- $arg {
@@ -3018,6 +3017,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 
 		set haveCond 1
 		set cond [string range $arg 1 end]
+		set seenodes 1
 	    }
 	    -key {
 		if {($i + 1) == [llength $arguments]} {
@@ -3030,6 +3030,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set key [lindex $arguments $i]
 		set haveKey 1
+		set seenodes 0
 	    }
 	    -value {
 		if {($i + 1) == [llength $arguments]} {
@@ -3042,6 +3043,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set value [lindex $arguments $i]
 		set haveValue 1
+		set seenodes 0
 	    }
 	    -filter {
 		if {($i + 1) == [llength $arguments]} {
@@ -3054,10 +3056,15 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set fcmd [lindex $arguments $i]
 		set haveFilter 1
+		set seenodes 0
 	    }
 	    -* {
-		return -code error "bad restriction \"$arg\": must be -adj, -embedding,\
+		if {$seenodes} {
+		    lappend condNodes $arg
+		} else {
+		    return -code error "bad restriction \"$arg\": must be -adj, -embedding,\
 			-filter, -in, -inner, -key, -out, or -value"
+		}
 	    }
 	    default {
 		lappend condNodes $arg

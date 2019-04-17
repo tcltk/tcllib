@@ -402,8 +402,7 @@ support from other files\. This is achieved by beginning the file with the lines
 > &nbsp;&nbsp;&nbsp;\\DocInput\{*filename\.dtx*\}  
 > &nbsp;&nbsp;&nbsp;\\end\{document\}  
 > &nbsp;&nbsp;&nbsp;%</driver>  
-> &nbsp;&nbsp;&nbsp;% \\fi  
->   
+> &nbsp;&nbsp;&nbsp;% \\fi
 
 or some variation thereof\. The trick is that the file gets read twice\. With
 normal LaTeX reading rules, the first two lines are comments and therefore

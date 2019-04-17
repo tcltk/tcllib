@@ -616,7 +616,7 @@ proc sectref {id {title {}}} {
     }
 
     # If we have no text take the section title as text, if we
-    # can. Last fallback for thext is the id.
+    # can. Last fallback for text is the id.
     if {$title == {}} {
 	if {$pid != {}} {
 	    set title $sectt($fid)
