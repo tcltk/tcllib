@@ -124,5 +124,5 @@ internals of the nameservice facility however are strongly advised to
 read it.
 
 [vset CATEGORY nameserv]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

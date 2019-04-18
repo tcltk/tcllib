@@ -796,5 +796,5 @@ The plugin manager currently checks the plugins for only one feature,
 able to collect timing statistics on request.
 
 [vset CATEGORY page]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

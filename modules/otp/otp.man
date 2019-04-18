@@ -91,5 +91,5 @@ e249b58257c80087
 [list_end]
 
 [vset CATEGORY otp]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -92,5 +92,5 @@ Return the number of items in the queue.
 [list_end]
 
 [vset CATEGORY {struct :: queue}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

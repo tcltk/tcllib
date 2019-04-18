@@ -39,5 +39,5 @@ future calls simply return this handle.
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

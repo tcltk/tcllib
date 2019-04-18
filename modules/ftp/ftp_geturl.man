@@ -53,5 +53,5 @@ The attributes of the link, including the path it refers to.
 [list_end]
 
 [vset CATEGORY ftp]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

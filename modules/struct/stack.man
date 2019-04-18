@@ -104,5 +104,5 @@ Return the number of items on the stack.
 [list_end]
 
 [vset CATEGORY {struct :: stack}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

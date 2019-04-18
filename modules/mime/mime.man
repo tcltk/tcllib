@@ -402,5 +402,5 @@ See [uri {/tktview?name=447037} {Ticket 447037}] for additional information.
 [list_end]
 
 [vset CATEGORY mime]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

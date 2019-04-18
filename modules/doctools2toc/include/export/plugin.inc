@@ -51,5 +51,5 @@ The created string is then returned as the result of the command.
 [include ../serialization.inc]
 
 [vset CATEGORY doctools]
-[include ../../../doctools2base/include/feedback.inc]
+[include ../../../common-text/feedback.inc]
 [manpage_end]

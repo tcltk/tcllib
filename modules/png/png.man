@@ -151,5 +151,5 @@ to [arg file].
 [list_end]
 
 [vset CATEGORY png]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

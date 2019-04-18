@@ -36,5 +36,5 @@ error code and error message.
 [example_end]
 
 [vset CATEGORY try]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

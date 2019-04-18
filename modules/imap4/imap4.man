@@ -362,7 +362,7 @@ RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
 OpenSSL, [uri http://www.openssl.org/]
 
 [vset CATEGORY imap4]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 
 Only a small part of rfc3501 implemented.
 [manpage_end]

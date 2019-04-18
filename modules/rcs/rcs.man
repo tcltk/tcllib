@@ -326,5 +326,5 @@ Deeper and more profound,
 The door of all subtleties!}}}}]
 
 [vset CATEGORY rcs]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

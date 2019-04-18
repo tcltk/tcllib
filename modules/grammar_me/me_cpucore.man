@@ -370,5 +370,5 @@ location, each value a four-element list containing current location,
 match status, semantic value, and error status, in this order.
 
 [vset CATEGORY grammar_me]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -71,5 +71,5 @@ be easily confused with "O", "o" and "l" (L).
 }]
 
 [vset CATEGORY base32]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

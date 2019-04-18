@@ -224,5 +224,5 @@ Return the number of bits needed to represent bignum in radix 2.
 [para]
 
 [vset CATEGORY {math :: bignum}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

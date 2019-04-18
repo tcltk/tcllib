@@ -178,5 +178,5 @@ names in the response were added or removed from the service.
 [list_end]
 
 [vset CATEGORY nameserv]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

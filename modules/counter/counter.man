@@ -246,5 +246,5 @@ the same meaning as described for [cmd ::counter::init].
 [list_end]
 
 [vset CATEGORY counter]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
