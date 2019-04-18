@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'plugin\&.inc' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 .TH "doctools::idx::export::text" n 0\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -420,6 +420,6 @@ doctools, export, index, plain text, serialization
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

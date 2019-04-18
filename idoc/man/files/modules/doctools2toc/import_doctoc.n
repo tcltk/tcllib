@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'plugin\&.inc' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::toc::import::doctoc" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::toc::import::doctoc" n 0\&.2\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::toc::import::doctoc \- doctoc import plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBdoctools::toc::import::doctoc  ?0\&.1?\fR
+package require \fBdoctools::toc::import::doctoc  ?0\&.2\&.1?\fR
 .sp
 package require \fBdoctools::toc::parse \fR
 .sp
@@ -472,6 +472,6 @@ deserialization, doctoc, doctools, import, table of contents, toc
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

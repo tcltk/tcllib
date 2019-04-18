@@ -15,7 +15,7 @@
 ## Requisites
 
 package require Tcl 8.5
-package require doctools::config
+package require struct::map
 package require doctools::toc::structure
 package require fileutil::paths
 package require pluginmgr
@@ -33,7 +33,7 @@ snit::type ::doctools::toc::import {
     ## Creation, destruction.
 
     constructor {} {
-	install myconfig  using ::doctools::config ${selfns}::config
+	install myconfig  using ::struct::map ${selfns}::config
 	install myinclude using ::fileutil::paths  ${selfns}::include
 	return
     }

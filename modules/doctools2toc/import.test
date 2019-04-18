@@ -21,8 +21,7 @@ support {
     use fileutil/paths.tcl      fileutil::paths
     use log/logger.tcl          logger
     use pluginmgr/pluginmgr.tcl pluginmgr
-
-    use      doctools2base/config.tcl    doctools::config
+    use struct/map.tcl          struct::map
 
     source [tcllibPath doctools2base/tests/common]
 }
@@ -122,7 +121,7 @@ test doctools-toc-import-5.0 {config names, wrong#args} -setup {
     I config names X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::config::Snit_methodnames type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodnames type selfns win self"}
 
 test doctools-toc-import-6.0 {config get, wrong#args} -setup {
     doctools::toc::import I
@@ -130,7 +129,7 @@ test doctools-toc-import-6.0 {config get, wrong#args} -setup {
     I config get X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::config::Snit_methodget type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodget type selfns win self"}
 
 test doctools-toc-import-7.0 {config set, wrong#args} -setup {
     doctools::toc::import I
@@ -138,7 +137,7 @@ test doctools-toc-import-7.0 {config set, wrong#args} -setup {
     I config set
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::config::Snit_methodset type selfns win self name ?value?"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
 
 test doctools-toc-import-7.1 {config set, wrong#args} -setup {
     doctools::toc::import I
@@ -146,7 +145,7 @@ test doctools-toc-import-7.1 {config set, wrong#args} -setup {
     I config set N V X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::doctools::config::Snit_methodset type selfns win self name ?value?"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
 
 # config unset - accepts any number of arguments.
 

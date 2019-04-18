@@ -135,7 +135,7 @@ Keyword Indices* and the *DocTools \- General*, respectively\.
                             |                               |                       |
             +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
             |               |                         |     |    |                  |               |                       |               |
-    doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
+    struct:map              =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
                             |                         |     |    |                  |
                     doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
                             doctoc                    |     |    |                  doctoc, json
