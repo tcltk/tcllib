@@ -1,10 +1,10 @@
 
 [//000000001]: # (namespacex \- Namespace utility commands)
 [//000000002]: # (Generated from file 'namespacex\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 200? Neil Madden \(http://wiki\.tcl\.tk/12790\)  
-Copyright &copy; 200? Various \(http://wiki\.tcl\.tk/1489\)  
-Copyright &copy; 2010 Documentation, Andreas Kupries)
-[//000000004]: # (namespacex\(n\) 0\.2 tcllib "Namespace utility commands")
+[//000000003]: # (Copyright &copy; 200? Neil Madden \(http://wiki\.tcl\.tk/12790\))
+[//000000004]: # (Copyright &copy; 200? Various \(http://wiki\.tcl\.tk/1489\))
+[//000000005]: # (Copyright &copy; 2010 Documentation, Andreas Kupries)
+[//000000006]: # (namespacex\(n\) 0\.2 tcllib "Namespace utility commands")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

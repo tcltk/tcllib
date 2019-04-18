@@ -1,9 +1,9 @@
 
 [//000000001]: # (huddle \- HUDDLE)
 [//000000002]: # (Generated from file 'huddle\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2008\-2011 KATO Kanryu <kanryu6@users\.sourceforge\.net>  
-Copyright &copy; 2015 Miguel Martínez López <aplicacionamedida@gmail\.com>)
-[//000000004]: # (huddle\(n\) 0\.3 tcllib "HUDDLE")
+[//000000003]: # (Copyright &copy; 2008\-2011 KATO Kanryu <kanryu6@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2015 Miguel Martínez López <aplicacionamedida@gmail\.com>)
+[//000000005]: # (huddle\(n\) 0\.3 tcllib "HUDDLE")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

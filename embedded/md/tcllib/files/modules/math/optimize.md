@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::optimize \- Tcl Math Library)
 [//000000002]: # (Generated from file 'optimize\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>  
-Copyright &copy; 2004,2005 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
-[//000000004]: # (math::optimize\(n\) 1\.0 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004,2005 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
+[//000000005]: # (math::optimize\(n\) 1\.0 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
