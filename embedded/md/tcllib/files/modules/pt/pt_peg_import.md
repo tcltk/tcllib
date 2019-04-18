@@ -2,7 +2,7 @@
 [//000000001]: # (pt::peg::import \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_peg\_import\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::peg::import\(n\) 1 tcllib "Parser Tools")
+[//000000004]: # (pt::peg::import\(n\) 1\.0\.1 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -51,10 +51,10 @@ pt::peg::import \- PEG Import
 
 package require Tcl 8\.5  
 package require snit  
-package require configuration  
+package require fileutil::paths  
 package require pt::peg  
 package require pluginmgr  
-package require pt::peg::import ?1?  
+package require pt::peg::import ?1\.0\.1?  
 
 [__::pt::peg::import__ *objectName*](#1)  
 [__objectName__ __method__ ?*arg arg \.\.\.*?](#2)  

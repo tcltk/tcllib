@@ -2,7 +2,6 @@ if {![package vsatisfies [package provide Tcl] 8.5]} return
 
 # General utilities.
 package ifneeded char          1.0.1 [list source [file join $dir char.tcl]]
-package ifneeded configuration 1 [list source [file join $dir configuration.tcl]]
 package ifneeded text::write   1 [list source [file join $dir text_write.tcl]]
 
 # AST support
@@ -25,7 +24,7 @@ package ifneeded pt::parse::peg     1.0.1 [list source [file join $dir pt_parse_
 
 
 # Export/import managers. Assumes an untrusted environment.
-package ifneeded pt::peg::export            1     [list source [file join $dir pt_peg_export.tcl]]
+package ifneeded pt::peg::export            1.0.1 [list source [file join $dir pt_peg_export.tcl]]
 package ifneeded pt::peg::import            1.0.1 [list source [file join $dir pt_peg_import.tcl]]
 
 # Export plugins, connecting manager to the core conversion packages.

@@ -833,6 +833,8 @@
 
           + [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
 
+          + [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
           + [generator](tcllib/files/modules/generator/generator\.md) Procedures for creating and using generators\.
 
           + [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
@@ -856,6 +858,8 @@
           + [stringprep](tcllib/files/modules/stringprep/stringprep\.md) Implementation of stringprep
 
           + [stringprep::data](tcllib/files/modules/stringprep/stringprep\_data\.md) stringprep data tables, generated, internal
+
+          + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
 
           + [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
@@ -1236,6 +1240,8 @@
               - [fileutil::multi](tcllib/files/modules/fileutil/multi\.md) Multi\-file operation, scatter/gather, standard object
 
               - [fileutil::multi::op](tcllib/files/modules/fileutil/multiop\.md) Multi\-file operation, scatter/gather
+
+              - [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
 
               - [fileutil\_traverse](tcllib/files/modules/fileutil/traverse\.md) Iterative directory traversal
 
@@ -1768,6 +1774,8 @@
               - [struct::graph\_v1](tcllib/files/modules/struct/graph1\.md) Create and manipulate directed graph objects
 
               - [struct::list](tcllib/files/modules/struct/struct\_list\.md) Procedures for manipulating lists
+
+              - [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
 
               - [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 

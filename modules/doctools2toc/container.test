@@ -23,8 +23,7 @@ support {
     use fileutil/paths.tcl       fileutil::paths
     use log/logger.tcl           logger
     use pluginmgr/pluginmgr.tcl  pluginmgr
-
-    use doctools2base/config.tcl          doctools::config
+    use struct/map.tcl           struct::map
 
     useLocal export.tcl      doctools::toc::export
     useLocal import.tcl      doctools::toc::import

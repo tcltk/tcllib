@@ -8,7 +8,7 @@
                         |                               |                       |
         +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
         |               |                         |     |    |                  |               |                       |               |
-doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
+struct::map             =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
                         |                         |     |    |                  |
                 doctools::idx::export::<*>        |     |    |          doctools::idx::import::<*>
                         docidx                    |     |    |                  docidx, json
