@@ -3,6 +3,7 @@
 [manpage_begin pt::peg::import n [vset VERSION]]
 [include include/module.inc]
 [titledesc {PEG Import}]
+[require Tcl 8.5]
 [require snit]
 [require fileutil::paths]
 [require pt::peg]
