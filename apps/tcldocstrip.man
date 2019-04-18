@@ -193,5 +193,5 @@ written after the actual content of a generated file.
 [list_end]
 
 [vset CATEGORY docstrip]
-[include ../modules/doctools2base/include/feedback.inc]
+[include ../modules/common-text/feedback.inc]
 [manpage_end]

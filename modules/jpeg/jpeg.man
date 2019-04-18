@@ -192,5 +192,5 @@ gps exif data not parsed
 makernote data not yet implemented
 
 [vset CATEGORY jpeg]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

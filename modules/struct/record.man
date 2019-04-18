@@ -389,5 +389,5 @@ record delete instance $I
 [para]
 
 [vset CATEGORY {struct :: record}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

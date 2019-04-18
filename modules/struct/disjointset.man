@@ -232,5 +232,5 @@ Destroys the disjoint set object and all associated memory.
 [list_end]
 
 [vset CATEGORY {struct :: disjointset}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

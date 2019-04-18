@@ -160,5 +160,5 @@ d0d8f27e7a374b9e2dbd9938dd04195a
 Frank Pilhofer, Pat Thoyts
 
 [vset CATEGORY blowfish]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

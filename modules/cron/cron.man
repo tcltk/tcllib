@@ -182,5 +182,5 @@ increment, triggering events, until the internal time catches up with [arg newti
 [list_end]
 [para]
 [vset CATEGORY odie]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

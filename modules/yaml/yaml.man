@@ -185,5 +185,5 @@ Too many braces, or too few braces.
 Not enough character set of line feeds. Please use only "\n" as line breaks.
 
 [vset CATEGORY yaml]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

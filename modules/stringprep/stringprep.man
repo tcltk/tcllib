@@ -147,5 +147,5 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
 Sergei Golovan
 
 [vset CATEGORY stringprep]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

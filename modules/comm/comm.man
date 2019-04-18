@@ -1228,5 +1228,5 @@ Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
 library.  See [uri http://www.purl.org/net/akupries/soft/pool/index.htm].
 
 [vset CATEGORY comm]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

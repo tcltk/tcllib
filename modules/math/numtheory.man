@@ -201,5 +201,5 @@ Number in question
 [list_end]
 
 [vset CATEGORY {math :: numtheory}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

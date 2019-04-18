@@ -159,5 +159,5 @@ output channel if not specified.
 [list_end][comment definitions/api]
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

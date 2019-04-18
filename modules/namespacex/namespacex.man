@@ -170,5 +170,5 @@ Returns the corresponding list of relative names of child namespaces.
 [list_end]
 
 [vset CATEGORY namespacex]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

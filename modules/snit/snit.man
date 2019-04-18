@@ -2835,5 +2835,5 @@ If I've forgotten anyone, my apologies; let me know and I'll add
 your name to the list.
 
 [vset CATEGORY snit]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

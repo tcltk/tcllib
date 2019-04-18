@@ -388,5 +388,5 @@ GNU Units program at [uri http://www.gnu.org/software/units/]
 Robert W. Techentin
 
 [vset CATEGORY units]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

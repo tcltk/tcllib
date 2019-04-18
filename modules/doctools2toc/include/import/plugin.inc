@@ -51,5 +51,5 @@ specified in section [sectref {ToC serialization format}].
 [include ../serialization.inc]
 
 [vset CATEGORY doctools]
-[include ../../../doctools2base/include/feedback.inc]
+[include ../../../common-text/feedback.inc]
 [manpage_end]

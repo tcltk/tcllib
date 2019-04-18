@@ -96,7 +96,7 @@ The most simple document which can be written in doctools is
     [keywords {semantic markup}]
         [description]
         [vset CATEGORY doctools]
-    [include ../doctools2base/include/feedback.inc]
+    [include ../common-text/feedback.inc]
     [manpage_end]
 
 This also shows us that all doctools documents are split into two parts, the
@@ -147,7 +147,7 @@ Remember that the whitespace is optional\. The document
         [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
         [require PACKAGE VERSION][require PACKAGE][description]
         [vset CATEGORY doctools]
-    [include ../doctools2base/include/feedback.inc]
+    [include ../common-text/feedback.inc]
     [manpage_end]
 
 has the same meaning as the example before\.

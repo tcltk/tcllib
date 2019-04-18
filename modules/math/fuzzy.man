@@ -129,5 +129,5 @@ D. Knuth, Art of Computer Programming,
 Vol. 1, Problem 1.2.4-5.
 
 [vset CATEGORY {math :: fuzzy}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

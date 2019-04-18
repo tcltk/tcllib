@@ -472,5 +472,5 @@ The following id's are defined:
 [list_end]
 
 [vset CATEGORY html]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

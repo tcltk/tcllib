@@ -120,5 +120,5 @@ In other words, the set of recognized strings has to form a
 [term {prefix code}].
 
 [vset CATEGORY term]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

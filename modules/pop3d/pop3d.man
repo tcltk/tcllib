@@ -269,5 +269,5 @@ command, see package [package tls], to secure the communication.
 [list_end]
 
 [vset CATEGORY pop3d]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

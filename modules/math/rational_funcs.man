@@ -182,5 +182,5 @@ math::polynomials package. For further remarks see the documentation on
 that package.
 
 [vset CATEGORY {math :: rationalfunctions}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
