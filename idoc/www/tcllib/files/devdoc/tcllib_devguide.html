@@ -371,11 +371,19 @@ fossil command (sequences).</p>
 <dt><em>Awareness</em></dt>
 <dd><p>When developing we have to keep ourselves aware of the context of our
 work. On what branch are we ? What files have we changed ? What new
-files are not yet known to the repository ?
-This becomes especially important when using a long-lived checkout and
-coming back to it after some time away.</p>
+files are not yet known to the repository ? What has happened remotely
+since we used our checkout ?
+The answers to these questions become especially important when using
+a long-lived checkout and coming back to it after some time away.</p>
 <p>Commands to answer questions like the above are:</p>
 <dl class="doctools_definitions">
+<dt><b class="cmd">fossil pull</b></dt>
+<dd><p>Get all changes done on the remote since the last pull or sync
+       from it. This has to be done first, before any of the commands
+       below.</p>
+<p>Even if the commit in our checkout refers to the branch we want
+       right now control operations committed to the remote may have
+       changed that from underneath us.</p></dd>
 <dt><b class="cmd">fossil info | grep tags</b></dt>
 <dd></dd>
 <dt><b class="cmd">fossil branch list | grep '\*'</b></dt>
