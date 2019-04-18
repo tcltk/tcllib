@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::exact \- Tcl Math Library)
 [//000000002]: # (Generated from file 'exact\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2015 Kevin B\. Kenny <kennykb@acm\.org>
-Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000004]: # (math::exact\(n\) 1\.0\.1 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2015 Kevin B\. Kenny <kennykb@acm\.org>)
+[//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
+[//000000005]: # (math::exact\(n\) 1\.0\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
