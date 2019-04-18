@@ -14,7 +14,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.4
 package require struct::map
 package require doctools::idx::structure
 package require fileutil::paths
@@ -33,8 +33,8 @@ snit::type ::doctools::idx::import {
     ## Creation, destruction.
 
     constructor {} {
-	install myconfig  using ::struct::map ${selfns}::config
-	install myinclude using ::fileutil::paths  ${selfns}::include
+	install myconfig  using ::struct::map     ${selfns}::config
+	install myinclude using ::fileutil::paths ${selfns}::include
 	return
     }
 

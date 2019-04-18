@@ -12,7 +12,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
+package require Tcl 8.4
 package require snit
 
 # ### ### ### ######### ######### #########
@@ -37,7 +37,8 @@ snit::type ::fileutil::paths {
     }
 
     method add {path} {
-	if {$path in $mypaths} return
+	set pos [lsearch $mypaths $path]
+	if {$pos >= 0 } return
 	lappend mypaths $path
 	return
     }
