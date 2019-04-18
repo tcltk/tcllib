@@ -295,10 +295,20 @@ which will come up with branches, and their associated fossil command
 
     When developing we have to keep ourselves aware of the context of our work\.
     On what branch are we ? What files have we changed ? What new files are not
-    yet known to the repository ? This becomes especially important when using a
-    long\-lived checkout and coming back to it after some time away\.
+    yet known to the repository ? What has happened remotely since we used our
+    checkout ? The answers to these questions become especially important when
+    using a long\-lived checkout and coming back to it after some time away\.
 
     Commands to answer questions like the above are:
+
+      * __fossil pull__
+
+        Get all changes done on the remote since the last pull or sync from it\.
+        This has to be done first, before any of the commands below\.
+
+        Even if the commit in our checkout refers to the branch we want right
+        now control operations committed to the remote may have changed that
+        from underneath us\.
 
       * __fossil info &#124; grep tags__
 
