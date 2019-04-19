@@ -1,10 +1,8 @@
 # -*- tcl -*-
 # peg_import.test:  tests for the pt::peg::import package.
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: pt_peg_import.test,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,9 +16,9 @@ testsNeedTcltest 2
 support {
     use fileutil/fileutil.tcl      fileutil      ;# tests/common
     use snit/snit.tcl              snit
+    use fileutil/paths.tcl         fileutil::paths
     use pluginmgr/pluginmgr.tcl    pluginmgr
 
-    useLocal paths.tcl             paths
     useLocal pt_pexpression.tcl    pt::pe
     useLocal pt_pegrammar.tcl      pt::peg
 
