@@ -1,9 +1,9 @@
 
 [//000000001]: # (debug::heartbeat \- debug narrative)
 [//000000002]: # (Generated from file 'debug\_heartbeat\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 200?, Colin McCormack, Wub Server Utilities  
-Copyright &copy; 2012, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (debug::heartbeat\(n\) 1 tcllib "debug narrative")
+[//000000003]: # (Copyright &copy; 200?, Colin McCormack, Wub Server Utilities)
+[//000000004]: # (Copyright &copy; 2012, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (debug::heartbeat\(n\) 1 tcllib "debug narrative")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

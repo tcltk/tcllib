@@ -1,10 +1,10 @@
 
 [//000000001]: # (struct::graph::op \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'graphops\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2008 Alejandro Paz <vidriloco@gmail\.com>  
-Copyright &copy; 2008 \(docs\) Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2009 Michal Antoniewski <antoniewski\.m@gmail\.com>)
-[//000000004]: # (struct::graph::op\(n\) 0\.11\.3 tcllib "Tcl Data Structures")
+[//000000003]: # (Copyright &copy; 2008 Alejandro Paz <vidriloco@gmail\.com>)
+[//000000004]: # (Copyright &copy; 2008 \(docs\) Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (Copyright &copy; 2009 Michal Antoniewski <antoniewski\.m@gmail\.com>)
+[//000000006]: # (struct::graph::op\(n\) 0\.11\.3 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

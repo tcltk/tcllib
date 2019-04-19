@@ -833,6 +833,8 @@
 
           + [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
 
+          + [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
           + [generator](tcllib/files/modules/generator/generator\.md) Procedures for creating and using generators\.
 
           + [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
@@ -856,6 +858,8 @@
           + [stringprep](tcllib/files/modules/stringprep/stringprep\.md) Implementation of stringprep
 
           + [stringprep::data](tcllib/files/modules/stringprep/stringprep\_data\.md) stringprep data tables, generated, internal
+
+          + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
 
           + [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 

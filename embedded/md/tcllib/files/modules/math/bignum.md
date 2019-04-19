@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::bignum \- Tcl Math Library)
 [//000000002]: # (Generated from file 'bignum\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Salvatore Sanfilippo <antirez at invece dot org>  
-Copyright &copy; 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>)
-[//000000004]: # (math::bignum\(n\) 3\.1 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004 Salvatore Sanfilippo <antirez at invece dot org>)
+[//000000004]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>)
+[//000000005]: # (math::bignum\(n\) 3\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

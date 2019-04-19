@@ -303,6 +303,8 @@
 
           + [fileutil::multi::op](tcllib/files/modules/fileutil/multiop\.md) Multi\-file operation, scatter/gather
 
+          + [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
           + [fileutil\_traverse](tcllib/files/modules/fileutil/traverse\.md) Iterative directory traversal
 
       * [ftp]()
@@ -834,6 +836,8 @@
           + [struct::graph\_v1](tcllib/files/modules/struct/graph1\.md) Create and manipulate directed graph objects
 
           + [struct::list](tcllib/files/modules/struct/struct\_list\.md) Procedures for manipulating lists
+
+          + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
 
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 

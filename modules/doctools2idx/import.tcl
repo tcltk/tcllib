@@ -2,12 +2,10 @@
 #
 #	Importing indices into other formats.
 #
-# Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: import.tcl,v 1.2 2011/11/17 08:00:45 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the conversion of keyword
 # indices into some textual representation. I.e. this object manages
@@ -17,9 +15,9 @@
 ## Requisites
 
 package require Tcl 8.4
-package require doctools::config
+package require struct::map
 package require doctools::idx::structure
-package require doctools::paths
+package require fileutil::paths
 package require pluginmgr
 package require snit
 
@@ -35,8 +33,8 @@ snit::type ::doctools::idx::import {
     ## Creation, destruction.
 
     constructor {} {
-	install myconfig  using ::doctools::config ${selfns}::config
-	install myinclude using ::doctools::paths  ${selfns}::include
+	install myconfig  using ::struct::map     ${selfns}::config
+	install myinclude using ::fileutil::paths ${selfns}::include
 	return
     }
 
@@ -187,5 +185,5 @@ snit::type ::doctools::idx::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::import 0.2
+package provide doctools::idx::import 0.2.1
 return

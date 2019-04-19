@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- --- !doctools ---}]
 [manpage_begin doctools::toc::export::[vset PACKAGE] n [vset VERSION]]
-[copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2009-2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc "[vset NAME] export plugin"]
 [category  {Text formatter plugin}]
