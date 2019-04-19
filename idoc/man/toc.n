@@ -624,6 +624,9 @@ tcllib
 \fBfileutil::multi::op\fR
 \fIfiles/modules/fileutil/multiop\&.n\fR: Multi-file operation, scatter/gather
 .TP
+\fBfileutil::paths\fR
+\fIfiles/modules/fileutil/paths\&.n\fR: Manage search path pools
+.TP
 \fBfileutil_traverse\fR
 \fIfiles/modules/fileutil/traverse\&.n\fR: Iterative directory traversal
 .TP
@@ -1199,6 +1202,9 @@ tcllib
 .TP
 \fBstruct::list\fR
 \fIfiles/modules/struct/struct_list\&.n\fR: Procedures for manipulating lists
+.TP
+\fBstruct::map\fR
+\fIfiles/modules/struct/struct_map\&.n\fR: Manage key/value maps
 .TP
 \fBstruct::matrix\fR
 \fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
