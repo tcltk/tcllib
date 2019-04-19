@@ -298,7 +298,15 @@ c_pass 2 fmt_manpage_begin {title section version} {
 
     MDComment  "$title - $shortdesc"
     MDComment  [c_provenance]
-    if {$copyright != {}} { MDComment $copyright }
+    if {$copyright != {}} {
+	# Note, multiple copyright clauses => multiple lines, comments
+	# are single-line => split for generation, strip MD markup for
+	# linebreaks, will be re-added when committing the complete
+	# comment block.
+	foreach line [split $copyright \n] {
+	    MDComment [string trimright $line " \t\1"]
+	}
+    }
     MDComment  "[string trimleft $title :]($section) $version $module \"$shortdesc\""
     MDCDone
 

@@ -1,9 +1,9 @@
 
 [//000000001]: # (aes \- Advanced Encryption Standard \(AES\))
 [//000000002]: # (Generated from file 'aes\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>  
-Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (aes\(n\) 1\.2\.1 tcllib "Advanced Encryption Standard \(AES\)")
+[//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (aes\(n\) 1\.2\.1 tcllib "Advanced Encryption Standard \(AES\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

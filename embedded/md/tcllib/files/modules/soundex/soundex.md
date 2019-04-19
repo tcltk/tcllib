@@ -1,10 +1,10 @@
 
 [//000000001]: # (soundex \- Soundex)
 [//000000002]: # (Generated from file 'soundex\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; ????, Algorithm: Donald E\. Knuth  
-Copyright &copy; 2003, Documentation: Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 1998, Tcl port: Evan Rempel <erempel@uvic\.ca>)
-[//000000004]: # (soundex\(n\) 1\.0 tcllib "Soundex")
+[//000000003]: # (Copyright &copy; ????, Algorithm: Donald E\. Knuth)
+[//000000004]: # (Copyright &copy; 2003, Documentation: Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (Copyright &copy; 1998, Tcl port: Evan Rempel <erempel@uvic\.ca>)
+[//000000006]: # (soundex\(n\) 1\.0 tcllib "Soundex")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

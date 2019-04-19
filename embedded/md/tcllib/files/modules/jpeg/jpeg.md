@@ -1,11 +1,11 @@
 
 [//000000001]: # (jpeg \- JPEG image manipulation)
 [//000000002]: # (Generated from file 'jpeg\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004\-2005, Code: Aaron Faupell <afaupell@users\.sourceforge\.net>  
-Copyright &copy; 2007, Code:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2004\-2009, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2011, Code: Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (jpeg\(n\) 0\.5 tcllib "JPEG image manipulation")
+[//000000003]: # (Copyright &copy; 2004\-2005, Code: Aaron Faupell <afaupell@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2007, Code:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (Copyright &copy; 2004\-2009, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000006]: # (Copyright &copy; 2011, Code: Pat Thoyts <patthoyts@users\.sourceforge\.net>)
+[//000000007]: # (jpeg\(n\) 0\.5 tcllib "JPEG image manipulation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

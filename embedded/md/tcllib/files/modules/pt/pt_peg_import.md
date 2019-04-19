@@ -50,6 +50,7 @@ pt::peg::import \- PEG Import
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
+package require Tcl 8\.5  
 package require snit  
 package require fileutil::paths  
 package require pt::peg  

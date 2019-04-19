@@ -1,9 +1,9 @@
 
 [//000000001]: # (grammar::aycock \- Aycock\-Horspool\-Earley parser generator for Tcl)
 [//000000002]: # (Generated from file 'aycock\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2006 by Kevin B\. Kenny <kennykb@acm\.org>
-Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000004]: # (grammar::aycock\(n\) 1\.0 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
+[//000000003]: # (Copyright &copy; 2006 by Kevin B\. Kenny <kennykb@acm\.org>)
+[//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
+[//000000005]: # (grammar::aycock\(n\) 1\.0 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

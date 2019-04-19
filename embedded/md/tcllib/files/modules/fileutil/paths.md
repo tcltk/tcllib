@@ -28,6 +28,7 @@ fileutil::paths \- Manage search path pools
 
 # <a name='synopsis'></a>SYNOPSIS
 
+package require Tcl 8\.4  
 package require fileutil::paths ?1?  
 
 [__::fileutil::paths__ *poolName*](#1)  

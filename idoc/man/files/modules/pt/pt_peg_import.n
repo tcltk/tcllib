@@ -276,6 +276,8 @@ pt::peg::import \- PEG Import
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBTcl  8\&.5\fR
+.sp
 package require \fBsnit \fR
 .sp
 package require \fBfileutil::paths \fR
