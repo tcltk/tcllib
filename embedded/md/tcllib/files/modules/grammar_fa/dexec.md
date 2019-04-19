@@ -1,9 +1,9 @@
 
 [//000000001]: # (grammar::fa::dexec \- Finite automaton operations and usage)
 [//000000002]: # (Generated from file 'dexec\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2007 Bogdan <rftghost@users\.sourceforge\.net>)
-[//000000004]: # (grammar::fa::dexec\(n\) 0\.2 tcllib "Finite automaton operations and usage")
+[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2007 Bogdan <rftghost@users\.sourceforge\.net>)
+[//000000005]: # (grammar::fa::dexec\(n\) 0\.2 tcllib "Finite automaton operations and usage")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

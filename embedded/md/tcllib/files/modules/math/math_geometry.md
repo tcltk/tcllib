@@ -1,11 +1,11 @@
 
 [//000000001]: # (math::geometry \- Tcl Math Library)
 [//000000002]: # (Generated from file 'math\_geometry\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2001 by Ideogramic ApS and other parties  
-Copyright &copy; 2010 by Andreas Kupries  
-Copyright &copy; 2010 by Kevin Kenny  
-Copyright &copy; 2018 by Arjen Markus)
-[//000000004]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2001 by Ideogramic ApS and other parties)
+[//000000004]: # (Copyright &copy; 2010 by Andreas Kupries)
+[//000000005]: # (Copyright &copy; 2010 by Kevin Kenny)
+[//000000006]: # (Copyright &copy; 2018 by Arjen Markus)
+[//000000007]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

@@ -1,10 +1,10 @@
 
 [//000000001]: # (math::linearalgebra \- Tcl Math Library)
 [//000000002]: # (Generated from file 'linalg\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004\-2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>  
-Copyright &copy; 2004 Ed Hume <http://www\.hume\.com/contact\.us\.htm>  
-Copyright &copy; 2008 Michael Buadin <relaxkmike@users\.sourceforge\.net>)
-[//000000004]: # (math::linearalgebra\(n\) 1\.1\.5 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004\-2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Ed Hume <http://www\.hume\.com/contact\.us\.htm>)
+[//000000005]: # (Copyright &copy; 2008 Michael Buadin <relaxkmike@users\.sourceforge\.net>)
+[//000000006]: # (math::linearalgebra\(n\) 1\.1\.5 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

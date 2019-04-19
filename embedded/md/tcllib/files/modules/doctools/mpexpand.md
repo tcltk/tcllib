@@ -1,9 +1,9 @@
 
 [//000000001]: # (mpexpand \- Documentation toolbox)
 [//000000002]: # (Generated from file 'mpexpand\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2002 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2003 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (mpexpand\(n\) 1\.0 tcllib "Documentation toolbox")
+[//000000003]: # (Copyright &copy; 2002 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2003 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (mpexpand\(n\) 1\.0 tcllib "Documentation toolbox")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
