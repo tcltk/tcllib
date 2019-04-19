@@ -4,14 +4,11 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 # (still v1.1 doc{idx,toc} languages).
 
 # Supporting packages
-# - Handling configuration variables, and include paths.
 # - Handling text generation, the nroff man.macros definitions,
 #            HTML/XML generation, and the default CSS style
 # - Handling of message catalogs as packages.
 # - Recursive descent parser for Tcl strings (as expected by 'subst -novariables').
 
-package ifneeded doctools::config            0.1 [list source [file join $dir config.tcl]]
-package ifneeded doctools::paths             0.1 [list source [file join $dir paths.tcl]]
 package ifneeded doctools::text              0.1 [list source [file join $dir text.tcl]]
 package ifneeded doctools::nroff::man_macros 0.1 [list source [file join $dir nroff_manmacros.tcl]]
 package ifneeded doctools::html              0.1 [list source [file join $dir html.tcl]]

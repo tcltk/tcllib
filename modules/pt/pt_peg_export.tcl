@@ -6,8 +6,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: pt_peg_export.tcl,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the conversion of parsing
 # expression grammars into some textual representation. I.e. this
@@ -18,10 +16,10 @@
 ## Requisites
 
 package require Tcl 8.5
-package require configuration
+package require snit
 package require pt::peg
 package require pluginmgr
-package require snit
+package require struct::map
 
 # ### ### ### ######### ######### #########
 ## API
@@ -35,7 +33,7 @@ snit::type ::pt::peg::export {
     ## Creation, destruction.
 
     constructor {} {
-	install myconfig using ::configuration ${selfns}::CONFIG
+	install myconfig using ::struct::map ${selfns}::CONFIG
 	return
     }
 
@@ -115,5 +113,5 @@ snit::type ::pt::peg::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::export 1
+package provide pt::peg::export 1.0.1
 return
