@@ -1,3 +1,7 @@
+2019-04-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* misc.tcl: Add double() to calculation of mean and standard deviation in proc stats (ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
+	* math.test: Correct the outcome of the test for stats (consequence of ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
+
 2018-08-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Source stat_wasserstein.tcl and stat_logit.tcl - for new commands
 	* statistics.test: Add corresponding tests
