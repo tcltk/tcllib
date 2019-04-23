@@ -1,3 +1,9 @@
+2019-04-23  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.tcl: New package - generate quasi-random numbers (for instance for estimating multidimensional integrals)
+	* quasirandom.test: Tests for the new package
+	* quasirandom.man: Documentation for the new package
+	* pkgIndex.tcl: Add the new package
+
 2019-04-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* misc.tcl: Add double() to calculation of mean and standard deviation in proc stats (ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
 	* math.test: Correct the outcome of the test for stats (consequence of ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
