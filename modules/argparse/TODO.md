@@ -1,3 +1,6 @@
+- Add switch to put parameters before switches
+  - Some Tcl commands work this way
+  - Examples: [chan copy], [zlib gunzip], [clock], [registry broadcast]
 - Remove `-boolean` 
   - Instead, act as if `-boolean` were always being passed to [argparse]
   - Remove `-keep` as well
@@ -5,6 +8,20 @@
     variable or omitting a dict key when the switch is not present
 - Remove `-switch` and `-parameter`
   - Instead make `-` "shorthand" mandatory when declaring a switch
+- Change from a result dict to a result array
+  - Makes more complex validation expressions possible
+  - If `-inline` is used, use [array get] to get the return value
+- Allow validation expressions to see the result array, not just the switch or
+  parameter being validated
+  - Use [upvar] rather than [array get] and [array set] to expose the result
+    array into the validation expression
+  - Also use [upvar] to link the arg variable to the current value
+  - Validation expressions can then be (ab)used to modify the results
+  - Necessary to do validation expressions as a separate final pass
+  - Still do enumeration immediately so their final result values will be
+    reflected in the validation
+- Allow enumerations to have validation expressions
+  - No real reason why these two have to conflict
 - Documentation
   - Instead of having a big comment, use doctools
 - Help text generation
