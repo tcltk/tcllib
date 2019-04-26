@@ -18,9 +18,9 @@
     [opt [arg arguments]]]
 [description]
 
-The [package argparse] package provides a powerful, feature-heavy argument
-parser command named [cmd argparse] capable of flexibly processing many
-varieties of switches and parameters.
+The [package argparse] package provides a powerful argument parser command named
+[cmd argparse] capable of flexibly processing and validating many varieties of
+switches and parameters.
 
 [para]
 
@@ -44,10 +44,131 @@ nature.  Another example: by calling [cmd argparse] multiple times, it is
 possible to parse nested or multi-part argument lists in which arguments to
 subsystems are embedded in passthrough switches or parameters.
 
-[section {Quick Start Guide}]
+[section {Quick Start}]
 
-The [cmd argparse] command is featureful and complex, but it is not necessary to
-understand it in depth before using it for simple tasks.
+The [cmd argparse] command may have many complex features, but it is not
+necessary to understand it in depth before using it for the most common tasks.
+Its syntax is reasonably intuitive, so the best thing to do is see it in action
+before reading the precise details on how it works.
+
+[para]
+
+Consider the following:
+
+[example_begin]
+% proc greet {args} {
+      [cmd {argparse {
+          {-salutation= -default hello}
+          -modifier=
+          -title
+          subject
+      }}]
+      set msg [var {$salutation}]
+      if {[lb]info exists [var title][rb]} {
+          set msg [lb]string totitle $msg[rb]
+      }
+      if {[lb]info exists [var modifier][rb]} {
+          append msg ", " [var {$modifier}]
+      }
+      append msg " " [var {$subject}]
+  }
+% [cmd {greet world}]
+hello world
+% [cmd {greet -salutation howdy world}]
+howdy world
+% [cmd {greet -title -mod "my dear" world}]
+Hello, my dear world
+% [cmd {greet -title}]
+hello -title
+[example_end]
+
+This example demonstrates many of the [cmd argparse] core concepts and features.
+The [cmd greet] command is defined to accept [const args].  When not explicitly
+given an argument list to parse, [cmd argparse] parses the value of the
+[const args] variable and stores the results into local variables having the
+same [sectref Name names] as the various [sectref Element elements] of the
+[sectref Definition definition].
+
+[para]
+
+Here, the definition is a list of four elements, named [var salutation],
+[var modifier], [var title], and [var subject].  Because their names are
+prefixed with "[option -]", [var salutation], [var modifier], and [var title]
+are [sectref Switch switches], whereas [var subject], lacking a "[option -]"
+prefix, is a [sectref Parameter parameter].  Two of the switches are given a
+"[option =]" suffix, which means they each take an [sectref Argument argument],
+whereas [var title] does not.  In addition to these [sectref Flag flag]
+characters, the [var salutation] element is surrounded with braces because it
+contains more list words used to further customize how it is handled.  Namely,
+it uses the [option -default] [sectref {Element Switches} {element switch}] to
+set its default value to [const hello], in case [option -salutation] is not
+present in the argument list.
+
+[para]
+
+By default, switches are [sectref Optional optional] and parameters are
+[sectref Required required].
+[var salutation], [var modifier], and [var title], being switches, are all
+optional, but since [var salutation] has a default value, its variable's
+existence is therefore guaranteed.  Likewise, [var subject], being a parameter,
+is required, and its variable's existence is also guaranteed.  On the contrary,
+because [var modifier] and [var title] are optional and have no default value,
+it is necessary to use [cmd {info exists}] to confirm their variables' existence
+before attempting to read them.  Because [var title] does not accept an
+argument, its variable's value (if the variable exists at all) is predefined to
+be empty string.
+
+[example_begin]
+% [cmd {greet world}]
+hello world
+[example_end]
+
+The first time [cmd greet] is called, it is given only one argument, which is
+bound to the [var subject] parameter.  Normally, switch arguments appear to the
+left of parameter arguments, and parameter arguments are bound first.  Thus, the
+final argument to [cmd greet] is always bound to the [var subject] parameter,
+even if it happens to resemble a switch, and is therefore stored in the
+[var subject] variable.  Because their associated switches do not appear in the
+argument list, the [var salutation] variable is set to its default value
+([const hello]), and the [var modifier] and [var title] variables are unset due
+to lacking a default.
+
+[example_begin]
+% [cmd {greet -salutation howdy world}]
+howdy world
+[example_end]
+
+The second time [cmd greet] is called, it is given three arguments.  As
+discussed above, the final argument ([const world]) is immediately stored into
+the [var subject] variable before any switch processing occurs.  Next, the
+remaining two arguments are examined and determined to be the name and value of
+the [var salutation] switch.  Thus, the second argument ([const howdy]) is
+stored in the [var salutation] variable.  The [var modifier] and [var title]
+variables are unset.
+
+[example_begin]
+% [cmd {greet -title -mod "my dear" world}]
+Hello, my dear world
+[example_end]
+
+The third time [cmd greet] is called, it is given four arguments.  The first is
+[option -title], causing the [var title] variable to be set to empty string.
+The second is the name of the [var modifier] switch.  More precisely, it is an
+unambiguous prefix thereof, i.e. an abbreviation.  This causes the third
+argument ([const {my dear}]) to be stored in the [var modifier] variable, and
+the final argument ([const world]) is stored in the [var subject] variable.  As
+for the [var salutation] variable, it is set to its default ([var hello]).
+
+[example_begin]
+% [cmd {greet -title}]
+hello -title
+[example_end]
+
+The fourth time [cmd greet] is called, it is given one argument.  Because the
+final argument is always bound to the [var subject] parameter, [var subject] is
+set to [option -title] even though there happens to be a switch with the same
+name.  There are no remaining arguments, so the switches are all handled
+according to defaults, just like in the first call to [cmd greet].
 
 [section Concepts]
 
@@ -60,7 +181,7 @@ while reading the remainder of this document.
 
 The [term definition] determines how the [cmd argparse] command parses its
 arguments.  Definitions are Tcl lists of any length, each word of which is an
-[term element].
+[sectref Element element].
 
 [para]
 
@@ -80,16 +201,19 @@ stores a sequence of numbers into a variable.
 
 [subsection Element]
 
-A [term definition] contains any number of [term elements].  For the most part,
-each element defines either a [term switch] or a [term parameter].  An element
-is itself a Tcl list whose required first word is the [term name] (with optional
-shorthand [term aliases] and [term flags]) and whose optional subsequent words
-are [term {element switches}].
+A [sectref Definition definition] contains any number of [term elements].  For
+the most part, each element defines either a [sectref Switch switch] or a
+[sectref Parameter parameter].  Elements may also be [sectref Comment comments]
+or [sectref {Global Switch} {global switches}].  An element is itself a Tcl list
+whose required first word is the [sectref Name name] (with optional shorthand
+[sectref Alias aliases] and [sectref Flag flags]) and whose optional subsequent
+words are [sectref {Element Switch} {element switches}].
 
 [para]
 
-In addition to switches and parameters, elements may be [term comments] or lists
-of [term {global switches}].
+In addition to switches and parameters, elements may be
+[sectref Comment comments] or lists of
+[sectref {Global Switch} {global switches}].
 
 [para]
 
@@ -102,17 +226,21 @@ parameter elements in the example make use of shorthand flags.
 One element from the above example is repeated here so it may be examined more
 closely.
 
-[example {{-from= -default 1}}]
+[example {
+    {-from= -default 1}
+}]
 
-The name of this element is [const from].  It uses the [const -] and [const =]
-flags, as well as the [const -default] element switch with argument [const 1].
-The specific meaning of flags and element switches are described elsewhere in
-this document.
+The name of this element is [const from].  It uses the "[option -]" and
+"[option =]" flags, as well as the [option -default] element switch with
+argument [const 1].  The specific meaning of flags and element switches are
+described elsewhere in this document.
 
 [subsection Name]
 
-Aside from [term aliases] and [term flags], the first word of each [term switch]
-or [term parameter] [term element] in the [term definition] is the [term name].
+Aside from [sectref Alias aliases] and [sectref Flag flags], the first word of
+each [sectref Switch switch] or [sectref Parameter parameter]
+[sectref Element element] in the [sectref Definition definition] is the
+[term name].
 
 [para]
 
@@ -121,20 +249,22 @@ definition.
 
 [para]
 
-If the name is [const #], the element is a [term comment] and is ignored.  If
-the name is empty string, the element is neither a switch nor a parameter and is
-instead a list of [term {global switches}].
+If the name is "[option #]", the element is a [sectref Comment comment] and is
+ignored.  If the name is empty string, the element is neither a switch nor a
+parameter and is instead a list of [sectref {Global Switch} {global switches}].
 
 [subsection Key]
 
-In addition to having a [term name], every [term switch] and [term parameter]
-[term definition] [term element] has a [term key].  Unlike names, multiple
-elements may share the same key, subject to restrictions.
+In addition to having a [sectref Name name], every [sectref Switch switch] and
+[sectref Parameter parameter] [sectref Definition definition]
+[sectref Element element] has a [term key].  Unlike names, multiple elements may
+share the same key, subject to restrictions.
 
 [para]
 
-By default, the key defaults to the name, but it is possible to use the [const\
--key] [term {element switch}] to explicitly declare an element's key.
+By default, the key defaults to the name, but it is possible to use the
+[option -key] [sectref {Element Switch} {element switch}] to explicitly declare
+an element's key.
 
 [para]
 
@@ -149,22 +279,22 @@ argument value of the switch or parameter.
 
 A [term {global switch}] configures the overall operation of the [cmd argparse]
 command.  Global switches are optional initial arguments to [cmd argparse] and
-may only appear before the [term definition] argument.  Global switches may also
-be embedded within special definition [term elements] whose [term name] is empty
-string.
+may only appear before the [sectref Definition definition] argument.  Global
+switches may also be embedded within special definition
+[sectref Element elements] whose [sectref Name name] is empty string.
 
 [subsection {Element Switch}]
 
-An [term {element switch}] configures a single [term element] in the [term\
-definition].  Element switches are listed following the the [term name] word of
-the definition element.
+An [term {element switch}] configures a single [sectref Element element] in the
+[sectref Definition definition].  Element switches are listed following the the
+[sectref Name name] word of the definition element.
 
 [para]
 
-In the above example definition, each [term switch] element explicitly uses the
-[option -default] element switch.  Due to use of the [option -] and [option =]
-shorthand [term flags], each switch element also implicitly uses the [option\
--switch] and [option -argument] element switches.
+In the above example definition, each [sectref Switch switch] element explicitly
+uses the [option -default] element switch.  Due to use of the "[option -]" and
+"[option =]" shorthand [sectref Flag flags], each switch element also implicitly
+uses the [option -switch] and [option -argument] element switches.
 
 [subsection Switch]
 
@@ -176,6 +306,10 @@ shorthand [term flags], each switch element also implicitly uses the [option\
 
 The actual values passed to the [cmd argparse] command to be parsed are known as
 arguments.
+
+[subsection Required]
+
+[subsection Optional]
 
 [section {Global Switches}]
 
@@ -239,7 +373,7 @@ Define named enumeration lists to be used by elements
 
 [opt_def --]
 
-Force next argument to be interpreted as the definition list 
+Force next argument to be interpreted as the definition list
 
 [list_end]
 
@@ -337,7 +471,7 @@ Name of validation expression, or inline validation definition
 
 [opt_def -enum enumNameOrDef]
 
-Name of enumeration list, or inline enumeration definition 
+Name of enumeration list, or inline enumeration definition
 
 [list_end]
 
@@ -361,7 +495,7 @@ Name of enumeration list, or inline enumeration definition
 
 [section Author]
 
-Andy Goth
+Andy Goth <andrew.m.goth@gmail.com>
 
 [comment { vim: set sts=4 sw=4 tw=80 et ft=tcl: }]
 [manpage_end]
