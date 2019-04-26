@@ -233,20 +233,16 @@ package provide argparse 0.5
 # second, to optional, non-catchall parameters; and last to catchall parameters.
 # Finally, each parameter is assigned the allocated number of arguments.
 proc ::argparse {args} {
-    # Common validation helper routine.
-    set validateHelper {apply {{name opt args} {
+    # Validation and enumeration processing helper routine.
+    set enumHelper {apply {{name opt args} {
         if {[dict exists $opt enum]} {
             set command [list tcl::prefix match -message "$name value"\
                     {*}[if {[uplevel 1 {info exists exact}]} {list -exact}]\
                     [dict get $opt enum]]
-            set args [lmap arg $args {{*}$command $arg}]
-        } elseif {[dict exists $opt validate]} {
-            foreach arg $args [list if [dict get $opt validate] {} else {
-                return -code error -level 2\
-                        "$name value \"$arg\" fails [dict get $opt validateMsg]"
-            }]
+            lmap arg $args {{*}$command $arg}
+        } else {
+            return $args
         }
-        return $args
     }}}
 
     # Process arguments.
@@ -333,6 +329,7 @@ proc ::argparse {args} {
     set switches {}
     set upvars {}
     set omitted {}
+    set validations {}
     foreach elem $definition {
         # Read element definition switches.
         set opt {}
@@ -430,7 +427,6 @@ proc ::argparse {args} {
             argument  {boolean value}
             upvar     {boolean inline catchall}
             boolean   {default value}
-            enum      validate
         } {
             if {[dict exists $opt $switch]} {
                 foreach other $others {
@@ -514,20 +510,19 @@ proc ::argparse {args} {
             lappend switches -[dict get $opt alias]|$name
         }
 
-        # Map from upvar keys back to element names, and forbid collisions.
+        # Map from upvar keys back to element names.
         if {[dict exists $opt upvar] && [dict exists $opt key]} {
-            if {[dict exists $upvars [dict get $opt key]]} {
-                return -code error "multiple upvars to the same variable:\
-                        [dict get $upvars [dict get $opt key]] $name"
-            }
             dict set upvars [dict get $opt key] $name
         }
 
-        # Look up named enumeration lists and validation expressions.
+        # Resolve named enumeration lists.
         if {[dict exists $opt enum]
          && [dict exists $enum [dict get $opt enum]]} {
             dict set opt enum [dict get $enum [dict get $opt enum]]
-        } elseif {[dict exists $opt validate]} {
+        }
+
+        # Resolve validation expressions.
+        if {[dict exists $opt validate]} {
             if {[dict exists $validate [dict get $opt validate]]} {
                 dict set opt validateMsg "[dict get $opt validate] validation"
                 dict set opt validate [dict get $validate\
@@ -535,6 +530,7 @@ proc ::argparse {args} {
             } else {
                 dict set opt validateMsg "validation: [dict get $opt validate]"
             }
+            dict set validations $name {}
         }
 
         # Save element definition.
@@ -574,19 +570,18 @@ proc ::argparse {args} {
                 if {$name ne $otherName && [dict exists $otherOpt key]
                  && [dict get $otherOpt key] eq [dict get $opt key]} {
                     # Limit when shared keys may be used.
-                    if {[dict exists $opt parameter]} {
-                        return -code error "$name cannot be a parameter because\
-                                it shares a key with $otherName"
-                    } elseif {[dict exists $opt argument]} {
-                        return -code error "$name cannot use -argument because\
-                                it shares a key with $otherName"
-                    } elseif {[dict exists $opt catchall]} {
-                        return -code error "$name cannot use -catchall because\
-                                it shares a key with $otherName"
-                    } elseif {[dict exists $opt default]
-                           && [dict exists $otherOpt default]} {
-                        return -code error "$name and $otherName cannot both\
-                                use -default because they share a key"
+                    foreach key {parameter argument catchall} {
+                        if {[dict exists $opt $key]} {
+                            return -code error "$name cannot use -$key because\
+                                    it shares a key with $otherName"
+                        }
+                    }
+                    foreach key {default validate upvar} {
+                        if {[dict exists $opt $key]
+                         && [dict exists $otherOpt $key]} {
+                            return -code error "$name and $otherName cannot both\
+                                    use -$key because they share a key"
+                        }
                     }
 
                     # Create forbid constraints on shared keys.
@@ -624,7 +619,6 @@ proc ::argparse {args} {
     set argv [lrange $argv 0 $end]
 
     # Perform switch logic.
-    set result {}
     set missing {}
     if {$switches ne {}} {
         # Build regular expression to match switches.
@@ -732,19 +726,18 @@ proc ::argparse {args} {
             # Keep track of which switches have been seen.
             dict unset omitted $name
 
-            # Validate switch arguments and store values into the result dict.
+            # Validate switch arguments and store values into the result array.
             if {[dict exists $def $name catchall]} {
                 # The switch is catchall, so store all remaining arguments.
-                set argv [{*}$validateHelper $normal\
-                        [dict get $def $name] {*}$argv]
+                set argv [{*}$enumHelper $normal [dict get $def $name] {*}$argv]
                 if {[info exists key]} {
-                    dict set result $key $argv
+                    set result($key) $argv
                 }
                 if {[info exists pass]} {
                     if {[info exists normalize]} {
-                        dict lappend result $pass $normal {*}$argv
+                        lappend result($pass) $normal {*}$argv
                     } else {
-                        dict lappend result $pass $arg {*}$argv
+                        lappend result($pass) $arg {*}$argv
                     }
                 }
                 break
@@ -755,36 +748,36 @@ proc ::argparse {args} {
                 }
                 if {[info exists key]} {
                     if {[dict exists $def $name value]} {
-                        dict set result $key [dict get $def $name value]
+                        set result($key) [dict get $def $name value]
                     } else {
-                        dict set result $key {}
+                        set result($key) {}
                     }
                 }
                 if {[info exists pass]} {
                     if {[info exists normalize]} {
-                        dict lappend result $pass $normal
+                        lappend result($pass) $normal
                     } else {
-                        dict lappend result $pass $arg
+                        lappend result($pass) $arg
                     }
                 }
             } elseif {$argv ne {}} {
                 # The switch was given the expected argument.
-                set argv0 [lindex [{*}$validateHelper $normal\
+                set argv0 [lindex [{*}$enumHelper $normal\
                         [dict get $def $name] [lindex $argv 0]] 0]
                 if {[info exists key]} {
                     if {[dict exists $def $name optional]} {
-                        dict set result $key [list {} $argv0]
+                        set result($key) [list {} $argv0]
                     } else {
-                        dict set result $key $argv0
+                        set result($key) $argv0
                     }
                 }
                 if {[info exists pass]} {
                     if {[info exists normalize]} {
-                        dict lappend result $pass $normal $argv0
+                        lappend result($pass) $normal $argv0
                     } elseif {$equal eq "="} {
-                        dict lappend result $pass $arg
+                        lappend result($pass) $arg
                     } else {
-                        dict lappend result $pass $arg [lindex $argv 0]
+                        lappend result($pass) $arg [lindex $argv 0]
                     }
                 }
                 set argv [lrange $argv 1 end]
@@ -794,13 +787,13 @@ proc ::argparse {args} {
                     return -code error "$normal requires an argument"
                 }
                 if {[info exists key]} {
-                    dict set result $key {}
+                    set result($key) {}
                 }
                 if {[info exists pass]} {
                     if {[info exists normalize]} {
-                        dict lappend result $pass $normal
+                        lappend result($pass) $normal
                     } else {
-                        dict lappend result $pass $arg
+                        lappend result($pass) $arg
                     }
                 }
             }
@@ -930,45 +923,45 @@ proc ::argparse {args} {
             if {[dict exists $opt switch] && [dict exists $opt pass]
              && [dict exists $opt argument] && [dict exists $opt default]
              && [dict exists $omitted $name]} {
-                dict lappend result [dict get $opt pass]\
+                lappend result([dict get $opt pass])\
                         -$name [dict get $opt default]
             }
         }
     }
 
-    # Validate parameters and store in result dict.
+    # Apply enumeration logic and store parameters in result array.
     set i 0
     foreach name $order {
         set opt [dict get $def $name]
         if {[dict exists $alloc $name]} {
             if {![dict exists $opt catchall] && $name ne {}} {
-                set val [lindex [{*}$validateHelper $name\
+                set val [lindex [{*}$enumHelper $name\
                         $opt [lindex $params $i]] 0]
                 if {[dict exists $opt pass]} {
                     if {[string index $val 0] eq "-"
-                     && ![dict exists $result [dict get $opt pass]]} {
-                        dict lappend result [dict get $opt pass] --
+                     && ![info exists result([dict get $opt pass])]} {
+                        lappend result([dict get $opt pass]) --
                     }
-                    dict lappend result [dict get $opt pass] $val
+                    lappend result([dict get $opt pass]) $val
                 }
                 incr i
             } else {
                 set step [dict get $alloc $name]
                 set val [lrange $params $i [expr {$i + $step - 1}]]
                 if {$name ne {}} {
-                    set val [{*}$validateHelper $name $opt {*}$val]
+                    set val [{*}$enumHelper $name $opt {*}$val]
                 }
                 if {[dict exists $opt pass]} {
                     if {[string index [lindex $val 0] 0] eq "-"
-                     && ![dict exists $result [dict get $opt pass]]} {
-                        dict lappend result [dict get $opt pass] --
+                     && ![info exists result([dict get $opt pass])]} {
+                        lappend result([dict get $opt pass]) --
                     }
-                    dict lappend result [dict get $opt pass] {*}$val
+                    lappend result([dict get $opt pass]) {*}$val
                 }
                 incr i $step
             }
             if {[dict exists $opt key]} {
-                dict set result [dict get $opt key] $val
+                set result([dict get $opt key]) $val
             }
         } elseif {[info exists normalize] && [dict exists $opt default]
                && [dict exists $opt pass]} {
@@ -977,46 +970,48 @@ proc ::argparse {args} {
             # value in the pass-through key, located in the correct position so
             # that it can be recognized again later.
             if {[string index [dict get $opt default] 0] eq "-"
-             && ![dict exists $result [dict get $opt pass]]} {
-                dict lappend result [dict get $opt pass] --
+             && ![info exists result([dict get $opt pass])]} {
+                lappend result([dict get $opt pass]) --
             }
-            dict lappend result [dict get $opt pass] [dict get $opt default]
+            lappend result([dict get $opt pass]) [dict get $opt default]
         }
     }
 
     # Create default values for missing elements.
+    # TODO: Build list of defaults that were added.  Skip validation for these
+    # keys because defaults may well be intended to be outside the allowable
+    # range for explicitly specified values.
     dict for {name opt} $def {
         if {[dict exists $opt key]
-         && ![dict exists $result [dict get $opt key]]} {
+         && ![info exists result([dict get $opt key])]} {
             if {[dict exists $opt default]} {
-                dict set result [dict get $opt key] [dict get $opt default]
+                set result([dict get $opt key]) [dict get $opt default]
             } elseif {[dict exists $opt catchall]} {
-                dict set result [dict get $opt key] {}
+                set result([dict get $opt key]) {}
             }
         }
         if {[dict exists $opt pass]
-         && ![dict exists $result [dict get $opt pass]]} {
-            dict set result [dict get $opt pass] {}
+         && ![info exists result([dict get $opt pass])]} {
+            set result([dict get $opt pass]) {}
         }
     }
 
     if {[info exists inline]} {
-        # Return result dict.
-        return $result
+        # When -inline is used, return result array, converted to be a dict.
+        array get result
     } else {
         # Unless -keep was used, unset caller variables for omitted elements.
         if {![info exists keep]} {
-            dict for {name val} $omitted {
-                set opt [dict get $def $name]
-                if {![dict exists $opt keep] && [dict exists $opt key]
-                 && ![dict exists $result [dict get $opt key]]} {
+            dict for {name opt} $def {
+                if {[dict exists $opt key] && ![dict exists $opt keep]
+                 && ![info exists result([dict get $opt key])]} {
                     uplevel 1 [list ::unset -nocomplain [dict get $opt key]]
                 }
             }
         }
 
-        # Process results.
-        dict for {key val} $result {
+        # Update caller variables to store results.
+        foreach {key val} [array get result] {
             if {[dict exists $upvars $key]} {
                 # If this element uses -upvar, link to the named variable.
                 uplevel 1 [list ::upvar\
