@@ -6608,6 +6608,9 @@ mathematics
 \fBfiles/modules/math/fourier\&.n\fR
 math::fourier
 .TP
+\fBfiles/modules/math/quasirandom\&.n\fR
+math::quasirandom
+.TP
 \fBfiles/modules/math/statistics\&.n\fR
 math::statistics
 .RE
@@ -8413,6 +8416,12 @@ pt_parser_api
 .TP
 \fBfiles/modules/pt/pt_peg_op\&.n\fR
 pt_peg_op
+.RE
+quasi-random
+.RS
+.TP
+\fBfiles/modules/math/quasirandom\&.n\fR
+math::quasirandom
 .RE
 queue
 .RS

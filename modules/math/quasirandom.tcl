@@ -10,6 +10,9 @@
 #     http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
 #
 
+package require Tcl 8.5
+package require TclOO
+
 package provide math::quasirandom 1.0
 
 namespace eval ::math::quasirandom {
