@@ -831,6 +831,9 @@ tcllib
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
 .TP
+\fBmath::quasirandom\fR
+\fIfiles/modules/math/quasirandom\&.n\fR: Quasi-random points for integration and Monte Carlo type methods
+.TP
 \fBmath::rationalfunctions\fR
 \fIfiles/modules/math/rational_funcs\&.n\fR: Polynomial functions
 .TP

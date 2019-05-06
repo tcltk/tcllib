@@ -199,6 +199,7 @@ modules/math/optimize.man
 modules/math/pca.man
 modules/math/polynomials.man
 modules/math/qcomplex.man
+modules/math/quasirandom.man
 modules/math/rational_funcs.man
 modules/math/roman.man
 modules/math/romberg.man

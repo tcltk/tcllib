@@ -1,10 +1,18 @@
+# -*- tcl -*-
 # quasirandom.test --
 #     Tests for the quasi-random numbers package
 #
-package require tcltest
-namespace import ::tcltest::test
 
-source quasirandom.tcl
+source [file join \
+	    [file dirname [file dirname [file join [pwd] [info script]]]] \
+	    devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.1
+
+testing {
+    useLocal  quasirandom.tcl math::quasirandom
+}
 
 #
 # Functions for integration tests
@@ -51,38 +59,38 @@ proc equalCoords {coords1 coords2} {
 # Create and register (in that order!) custom matching procedures
 #
 proc matchTolerant { expected actual } {
-   set match 1
-   foreach a $actual e $expected {
-       if { $e != 0.0 } {
-           if { abs($e-$a)>1.0e-7*abs($e) &&
-                abs($e-$a)>1.0e-7*abs($a)     } {
-               set match 0
-               break
-           }
-       } else {
-           if { abs($a) > 1.0e-7 } {
-               set match 0
-           }
-       }
-   }
-   return $match
+    set match 1
+    foreach a $actual e $expected {
+	if { $e != 0.0 } {
+	    if { abs($e-$a)>1.0e-7*abs($e) &&
+		 abs($e-$a)>1.0e-7*abs($a)     } {
+		set match 0
+		break
+	    }
+	} else {
+	    if { abs($a) > 1.0e-7 } {
+		set match 0
+	    }
+	}
+    }
+    return $match
 }
 proc matchOnePercent { expected actual } {
-   set match 1
-   foreach a $actual e $expected {
-       if { $e != 0.0 } {
-           if { abs($e-$a)>1.0e-2*abs($e) &&
-                abs($e-$a)>1.0e-2*abs($a)     } {
-               set match 0
-               break
-           }
-       } else {
-           if { abs($a) > 1.0e-2 } {
-               set match 0
-           }
-       }
-   }
-   return $match
+    set match 1
+    foreach a $actual e $expected {
+	if { $e != 0.0 } {
+	    if { abs($e-$a)>1.0e-2*abs($e) &&
+		 abs($e-$a)>1.0e-2*abs($a)     } {
+		set match 0
+		break
+	    }
+	} else {
+	    if { abs($a) > 1.0e-2 } {
+		set match 0
+	    }
+	}
+    }
+    return $match
 }
 
 ::tcltest::customMatch tolerant matchTolerant
@@ -304,8 +312,8 @@ test "Quasirandom-4.6" "Integrate linear function (x, y, z)" -match error1percen
     ::math::quasirandom::qrpoints create simple 3
 
     set result [list [simple integral fx {{0.0 1.0} {0.0 1.0} {0.0 1.0}}] \
-                     [simple integral fy {{0.0 1.0} {0.0 1.0} {0.0 1.0}}] \
-                     [simple integral fz {{0.0 1.0} {0.0 1.0} {0.0 1.0}}] ]
+		    [simple integral fy {{0.0 1.0} {0.0 1.0} {0.0 1.0}}] \
+		    [simple integral fz {{0.0 1.0} {0.0 1.0} {0.0 1.0}}] ]
 
 } -result {0.5 0.5 0.5} -cleanup {simple destroy}
 
@@ -365,81 +373,87 @@ test "Quasirandom-5.3" "Integrate (xyz)**4 with details - volume = 1" -match tol
 # likely to be 10%.
 #
 if {0} {
-::math::quasirandom::qrpoints create simple 3
-# Exact answer is 1/125
-set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 100]
-puts "fxyz4: $result"
-simple set-step 0
-set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
-puts "fxyz4: $result"
-set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
-puts "fxyz4: $result"
-set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
-puts "fxyz4: $result"
-
-package require math::statistics
-set samples {}
-for {set trial 0} {$trial < 10} {incr trial} {
-    set sum 0.0
-
-    for {set p 0} {$p < 100} {incr p} {
-        set x   [expr {rand()}]
-        set y   [expr {rand()}]
-        set z   [expr {rand()}]
-        set sum [expr {$sum + [fxyz4 [list $x $y $z]]}]
-    }
-
-    puts "Trial $trial: [expr {$sum/100.0}]"
-
-    lappend samples [expr {$sum/100.0}]
-}
-
-puts "MonteCarlo (100):"
-puts [::math::statistics::mean $samples]
-puts [::math::statistics::stdev $samples]
-
-set samples {}
-for {set trial 0} {$trial < 10} {incr trial} {
-    set sum 0.0
-
-    for {set p 0} {$p < 1000} {incr p} {
-        set x   [expr {rand()}]
-        set y   [expr {rand()}]
-        set z   [expr {rand()}]
-        set sum [expr {$sum + [fxyz4 [list $x $y $z]]}]
-    }
-
-    puts "Trial $trial: [expr {$sum/1000.0}]"
-
-    lappend samples [expr {$sum/1000.0}]
-}
-
-puts "MonteCarlo (1000):"
-puts [::math::statistics::mean $samples]
-puts [::math::statistics::stdev $samples]
-
-set samples {}
-for {set trial 0} {$trial < 10} {incr trial} {
+    ::math::quasirandom::qrpoints create simple 3
+    # Exact answer is 1/125
     set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 100]
-
-    lappend samples $result
-}
-
-puts "Quasi-random (100):"
-puts [::math::statistics::mean $samples]
-puts [::math::statistics::stdev $samples]
-
-set samples {}
-for {set trial 0} {$trial < 10} {incr trial} {
+    puts "fxyz4: $result"
+    simple set-step 0
     set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
+    puts "fxyz4: $result"
+    set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
+    puts "fxyz4: $result"
+    set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
+    puts "fxyz4: $result"
 
-    lappend samples $result
+    package require math::statistics
+    set samples {}
+    for {set trial 0} {$trial < 10} {incr trial} {
+	set sum 0.0
+
+	for {set p 0} {$p < 100} {incr p} {
+	    set x   [expr {rand()}]
+	    set y   [expr {rand()}]
+	    set z   [expr {rand()}]
+	    set sum [expr {$sum + [fxyz4 [list $x $y $z]]}]
+	}
+
+	puts "Trial $trial: [expr {$sum/100.0}]"
+
+	lappend samples [expr {$sum/100.0}]
+    }
+
+    puts "MonteCarlo (100):"
+    puts [::math::statistics::mean $samples]
+    puts [::math::statistics::stdev $samples]
+
+    set samples {}
+    for {set trial 0} {$trial < 10} {incr trial} {
+	set sum 0.0
+
+	for {set p 0} {$p < 1000} {incr p} {
+	    set x   [expr {rand()}]
+	    set y   [expr {rand()}]
+	    set z   [expr {rand()}]
+	    set sum [expr {$sum + [fxyz4 [list $x $y $z]]}]
+	}
+
+	puts "Trial $trial: [expr {$sum/1000.0}]"
+
+	lappend samples [expr {$sum/1000.0}]
+    }
+
+    puts "MonteCarlo (1000):"
+    puts [::math::statistics::mean $samples]
+    puts [::math::statistics::stdev $samples]
+
+    set samples {}
+    for {set trial 0} {$trial < 10} {incr trial} {
+	set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 100]
+
+	lappend samples $result
+    }
+
+    puts "Quasi-random (100):"
+    puts [::math::statistics::mean $samples]
+    puts [::math::statistics::stdev $samples]
+
+    set samples {}
+    for {set trial 0} {$trial < 10} {incr trial} {
+	set result [simple integral fxyz4 {{0.0 1.0} {0.0 1.0} {0.0 1.0}} -evaluations 1000]
+
+	lappend samples $result
+    }
+
+    puts "Quasi-random (1000):"
+    puts [::math::statistics::mean $samples]
+    puts [::math::statistics::stdev $samples]
+
+
+    puts [simple integral-detailed fx {{0.0 1.0} {0.0 1.0} {0.0 1.0}}]
 }
 
-puts "Quasi-random (1000):"
-puts [::math::statistics::mean $samples]
-puts [::math::statistics::stdev $samples]
 
+# -------------------------------------------------------------------------
 
-puts [simple integral-detailed fx {{0.0 1.0} {0.0 1.0} {0.0 1.0}}]
-}
+# End of test cases
+testsuiteCleanup

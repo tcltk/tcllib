@@ -517,6 +517,8 @@
 
           + [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
 
+          + [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
+
           + [math::rationalfunctions](tcllib/files/modules/math/rational\_funcs\.md) Polynomial functions
 
           + [math::roman](tcllib/files/modules/math/roman\.md) Tools for creating and manipulating roman numerals

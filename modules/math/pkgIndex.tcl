@@ -30,8 +30,8 @@ package ifneeded math::numtheory         1.1.1 [list source [file join $dir numt
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
 package ifneeded math::geometry          1.3.0 [list source [file join $dir geometry.tcl]]
 package ifneeded math::trig              1.0   [list source [file join $dir trig.tcl]]
+package ifneeded math::quasirandom       1.0   [list source [file join $dir quasirandom.tcl]]
 
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]
 package ifneeded math::PCA               1.0   [list source [file join $dir pca.tcl]]
-package ifneeded math::quasirandom       1.0   [list source [file join $dir quasirandom.tcl]]
