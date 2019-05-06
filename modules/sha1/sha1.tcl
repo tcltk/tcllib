@@ -650,7 +650,7 @@ proc ::sha1::Chunk {token channel {chunksize 4096}} {
         fileevent $channel readable {}
         set state(reading) 0
     }
-        
+    return
 }
 
 # -------------------------------------------------------------------------
@@ -805,7 +805,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 2.0.3
+package provide sha1 2.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:
