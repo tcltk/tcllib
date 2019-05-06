@@ -176,7 +176,7 @@ proc ::sha2::SwitchTo {key} {
             SHA256Final  SHA224Final
             SHA256Update
         } {
-            rename ::sha2::$c ::sha2::${c}-${loaded}
+            interp alias {} ::sha2::$c {}
         }
     }
 
@@ -666,7 +666,7 @@ proc ::sha2::Chunk {token channel {chunksize 4096}} {
         fileevent $channel readable {}
         set state(reading) 0
     }
-	return
+    return
 }
 
 # -------------------------------------------------------------------------
@@ -824,7 +824,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 1.0.3
+package provide sha256 1.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:
