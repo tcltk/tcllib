@@ -179,5 +179,5 @@ The FA changed state due to a transition. [arg stateid] is the new state.
 [section EXAMPLES]
 
 [vset CATEGORY grammar_fa]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

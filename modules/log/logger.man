@@ -393,5 +393,5 @@ side effects.
 ]
 
 [vset CATEGORY logger]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

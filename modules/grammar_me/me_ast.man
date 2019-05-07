@@ -130,5 +130,5 @@ column index. Lines are counted from 1, columns are counted from 0.
 [list_end]
 
 [vset CATEGORY grammar_me]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

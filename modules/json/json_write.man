@@ -88,5 +88,5 @@ object as its result, with the keys formatted as JSON strings.
 To parse json, instead of writing it, see package [package json].
 
 [vset CATEGORY json]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

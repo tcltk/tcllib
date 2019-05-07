@@ -230,7 +230,7 @@ Computes the default value for an option. See [package tool::option_handling].
 Sean Woods
 
 [vset CATEGORY tcloo]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
 
 

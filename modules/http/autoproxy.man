@@ -212,5 +212,5 @@ planned to add support for Digest (2) and NTLM in the future.
 Pat Thoyts
 
 [vset CATEGORY {http :: autoproxy}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

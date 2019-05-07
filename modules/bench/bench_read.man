@@ -61,5 +61,5 @@ and automatically detects which format is used by the input file.
 [list_end]
 
 [vset CATEGORY bench]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

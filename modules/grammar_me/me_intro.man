@@ -90,5 +90,5 @@ bytecode based implementation of ME virtual machines.
 [para]
 
 [vset CATEGORY grammar_me]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -381,5 +381,5 @@ vwait forever
 [include ../common-text/tls-security-notes.inc]
 
 [vset CATEGORY websocket]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -72,5 +72,5 @@ The result of the command is the empty string.
 
 [list_end]
 
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

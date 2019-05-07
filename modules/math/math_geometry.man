@@ -611,5 +611,5 @@ radius of the circle is used to determine this situation.)
 [list_end]
 
 [vset CATEGORY {math :: geometry}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

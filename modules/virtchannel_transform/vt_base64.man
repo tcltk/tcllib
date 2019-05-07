@@ -40,5 +40,5 @@ This command creates a base64 transformation on top of the channel
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

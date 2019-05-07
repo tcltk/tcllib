@@ -67,5 +67,5 @@ causing the creation of procedure [const ::fileutil::magic::/FOO::run].
 [list_end]
 
 [vset CATEGORY {fileutil :: magic}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
