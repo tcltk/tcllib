@@ -314,6 +314,8 @@ namespace eval ::math::quasirandom {
 
         set evals $evaluations
 
+        set func [uplevel 1 [list namespace which -command $func]]
+
         foreach {key value} $args {
             switch -- $key {
             "-evaluations" {
@@ -379,6 +381,8 @@ namespace eval ::math::quasirandom {
         my variable evaluations
 
         set evals $evaluations
+
+        set func [uplevel 1 [list namespace which -command $func]]
 
         foreach {key value} $args {
             switch -- $key {

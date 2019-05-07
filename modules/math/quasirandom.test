@@ -363,6 +363,45 @@ test "Quasirandom-5.3" "Integrate (xyz)**4 with details - volume = 1" -match tol
 } -result {0.0022115062627913935 0.009840104253511376 0.014937934937801888 0.007838969739655276} -cleanup {simple destroy}
 
 
+#
+# Test integration procedures in a different namespace
+#
+test "Quasirandom-6.1" "Integrate ::func::func" -match tolerant -body {
+    namespace eval ::func {
+
+        proc func {xy} {
+            lassign $xy x y
+            expr {$x**2+$y**2}
+        }
+
+        ::math::quasirandom::qrpoints create simple 2
+
+        set ::result [simple integral func {{0.0 1.0} {0.0 1.0}}]
+    }
+
+    return $result
+
+} -result {0.67353777} -cleanup {::func::simple destroy}
+
+
+test "Quasirandom-6.2" "Integrate (details) ::func::func" -match tolerant -body {
+    namespace eval ::func {
+
+        proc func {xy} {
+            lassign $xy x y
+            expr {$x**2+$y**2}
+        }
+
+        ::math::quasirandom::qrpoints create simple 2
+
+        set ::result [simple integral-detailed func {{0.0 1.0} {0.0 1.0}}]
+    }
+
+    return [dict get $result -estimate]
+
+} -result {0.67353777} -cleanup {::func::simple destroy}
+
+
 # TODO:
 # - func in different namespace
 # - implement detailed integration and test the details
