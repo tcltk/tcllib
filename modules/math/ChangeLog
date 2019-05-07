@@ -1,3 +1,12 @@
+2019-05-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.test: Add tests to deal with procedures in a different namespace
+	* quasirandom.tcl: Deal with procedures in a different namespace
+
+2019-04-24  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.test: Add support code
+	* numtheory.tcl: Add estimation of the number of primes between two limits
+	* numtheory.test: Add tests regarding the estimated number of primes
+
 2019-04-23  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* quasirandom.tcl: New package - generate quasi-random numbers (for instance for estimating multidimensional integrals)
 	* quasirandom.test: Tests for the new package
