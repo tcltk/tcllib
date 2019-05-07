@@ -43,5 +43,5 @@ of the builtin command [cmd {clock scan}].
 [list_end]
 
 [vset CATEGORY clock::iso8601]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

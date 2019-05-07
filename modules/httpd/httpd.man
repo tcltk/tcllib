@@ -61,5 +61,5 @@ HTTPD add_uri /* [list mixin reply.hello]
 Sean Woods
 
 [vset CATEGORY network]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

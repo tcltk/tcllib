@@ -165,5 +165,5 @@ file3
 [list_end]
 
 [vset CATEGORY tar]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

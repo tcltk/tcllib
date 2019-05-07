@@ -179,5 +179,5 @@ ae6251fa51b95b18cba2be95eb031d07475ff03c
 [list_end]
 
 [vset CATEGORY sha1]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

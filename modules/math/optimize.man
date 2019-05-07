@@ -321,5 +321,5 @@ the Simplex algorithm that is implemented here is the best-known
 method to solve this type of problems, but it is not the only one.
 
 [vset CATEGORY {math :: optimize}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

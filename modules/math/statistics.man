@@ -1635,5 +1635,5 @@ series - they do not show the periodic nature.
 [list_end]
 
 [vset CATEGORY {math :: statistics}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -106,5 +106,5 @@ th input may be an outright fake too.
 [list_end]
 
 [vset CATEGORY valtype]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

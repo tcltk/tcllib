@@ -122,5 +122,5 @@ Return the sum of one or more numeric values.
 [list_end]
 
 [vset CATEGORY math]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

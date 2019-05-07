@@ -39,5 +39,5 @@ length the shorter of the two is padded with 0s before merging.
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

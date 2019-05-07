@@ -178,7 +178,7 @@ See also the documentation for the packages
 [include include/secure.inc]
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [comment {
 
 This option specifies the command to invoke when the transmission of

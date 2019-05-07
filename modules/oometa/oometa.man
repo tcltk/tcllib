@@ -147,6 +147,6 @@ between the class metadata, the local [emph meta] variable, and THEN performing 
 [list_end]
 
 [vset CATEGORY tcloo]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
 

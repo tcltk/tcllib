@@ -285,5 +285,5 @@ that) in most situations debugging output is not wanted. Most people wish to
 have such output only when actually debugging an application.
 
 [vset CATEGORY log]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

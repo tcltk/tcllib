@@ -435,5 +435,5 @@ The command returns the empty string as its result.
 [list_end]
 
 [vset CATEGORY grammar_me]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

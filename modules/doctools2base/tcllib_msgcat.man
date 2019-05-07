@@ -63,5 +63,5 @@ result of [cmd msgcat::mcpreferences].
 [list_end]
 
 [vset CATEGORY doctools]
-[include include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

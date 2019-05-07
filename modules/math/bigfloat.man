@@ -428,5 +428,5 @@ puts "angle3 : [lb]tostr [lb]rad2deg $angle3[rb][rb]"
 [example_end]
 
 [vset CATEGORY {math :: bignum :: float}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

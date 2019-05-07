@@ -210,5 +210,5 @@ documents behind the scenes, without the writer having to do so on
 their own.
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

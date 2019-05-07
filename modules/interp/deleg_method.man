@@ -45,5 +45,5 @@ method will not wait for a result and return immediately.
 [list_end]
 
 [vset CATEGORY interp]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

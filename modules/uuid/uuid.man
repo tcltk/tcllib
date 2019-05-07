@@ -51,5 +51,5 @@ b12dc22c-5c36-41d2-57da-e29d0ef5839c
 [list_end]
 
 [vset CATEGORY uuid]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

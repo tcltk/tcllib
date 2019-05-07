@@ -715,13 +715,25 @@
 
   - [tcl::transform::zlib](tcllib/files/modules/virtchannel\_transform/tcllib\_zlib\.md) zlib \(de\)compression
 
+  - [tcl\_community\_communication](tcllib/files/devdoc/tcl\_community\_communication\.md) Tcl Community \- Kind Communication
+
   - [tclDES](tcllib/files/modules/des/tcldes\.md) Implementation of the DES and triple\-DES ciphers
 
   - [tclDESjr](tcllib/files/modules/des/tcldesjr\.md) Implementation of the DES and triple\-DES ciphers
 
   - [tcldocstrip](tcllib/files/apps/tcldocstrip\.md) Tcl\-based Docstrip Processor
 
+  - [tcllib\_devguide](tcllib/files/devdoc/tcllib\_devguide\.md) Tcllib \- The Developer's Guide
+
+  - [tcllib\_install\_guide](tcllib/files/devdoc/tcllib\_installer\.md) Tcllib \- The Installer's Guide
+
   - [tcllib\_ip](tcllib/files/modules/dns/tcllib\_ip\.md) IPv4 and IPv6 address manipulation
+
+  - [tcllib\_license](tcllib/files/devdoc/tcllib\_license\.md) Tcllib \- License
+
+  - [tcllib\_releasemgr](tcllib/files/devdoc/tcllib\_releasemgr\.md) Tcllib \- The Release Manager's Guide
+
+  - [tcllib\_sources](tcllib/files/devdoc/tcllib\_sources\.md) Tcllib \- How To Get The Sources
 
   - [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 

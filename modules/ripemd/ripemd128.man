@@ -187,5 +187,5 @@ b359dc5971a05beea0be7b106b30e389
 [list_end]
 
 [vset CATEGORY ripemd]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
