@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.7]
+[vset PACKAGE_VERSION 0.8]
 [manpage_begin clay n [vset PACKAGE_VERSION]]
 [keywords oo]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
@@ -196,17 +196,7 @@ $A <counter> value
 [call proc [cmd clay::uuid::generate_tcl_machinfo]]
 
 
-[call proc [cmd clay::uuid::generate]]
- Generates a binary UUID as per the draft spec. We generate a pseudo-random
- type uuid (type 4). See section 3.4
-
-
-
-
 [call proc [cmd clay::uuid::tostring] [arg uuid]]
- Convert a binary uuid into its string representation.
-
-
 
 
 [call proc [cmd clay::uuid::fromstring] [arg uuid]]
@@ -435,6 +425,9 @@ $A <counter> value
 
 
 
+[call proc [cmd clay::define::Method] [arg name] [arg argstyle] [arg argspec] [arg body]]
+
+
 [call proc [cmd clay::define::Option_Class] [arg name] [opt "[arg args]"]]
 
  Define a class of options
@@ -467,7 +460,7 @@ $A <counter> value
 [call proc [cmd clay::ensemble_methodbody] [arg ensemble] [arg einfo]]
 
 
-[call proc [cmd clay::define::Ensemble] [arg rawmethod] [arg arglist] [arg body]]
+[call proc [cmd clay::define::Ensemble] [arg rawmethod] [opt "[arg args]"]]
 
 
 [list_end]

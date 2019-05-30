@@ -1807,10 +1807,10 @@ test clay-delegation-0001 {Test an array driven ensemble} {
       error "Couldn't figure out what to do with $pattern"
     }
     set method [lindex $mlist 0]
-    set arglist [dict get $emap $method arglist]
+    set argspec [dict get $emap $method argspec]
     set body    [dict get $emap $method body]
-    if {$arglist ni {args {}}} {
-      ::clay::dynamic_arguments $ensemble $method [list $arglist] {*}$args
+    if {$argspec ni {args {}}} {
+      ::clay::dynamic_arguments $ensemble $method [list $argspec] {*}$args
     }
     eval $body
   }
@@ -2714,6 +2714,110 @@ test tool-prototype-0009-0009 {Mixin core (return to normal)} {
 test tool-prototype-0009-0010 {Mixin core (return to normal)} {
   $obj clay ancestors
 } {::MixinRoot ::clay::object}
+
+
+###
+# Tip479 Tests
+###
+clay::define tip479class {
+
+  Method newitem dictargs {
+    id {type: number}
+    color {default: green}
+    shape {options: {round square}}
+    flavor {default: grape}
+  } {
+    my variable items
+    foreach {f v} $args {
+      dict set items $id $f $v
+    }
+    if {"color" ni [dict keys $args]} {
+      dict set items $id color $color
+    }
+    return [dict get $items $id]
+  }
+
+  method itemget {id field} {
+    my variable items
+    return [dict get $id $field]
+  }
+}
+
+set obj [tip479class new]
+test tip479-001 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 1 color orange shape round
+} {id 1 color orange shape round}
+
+# Fail because we left off a mandatory argument
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
+  $obj newitem id 2
+} -result {shape is required}
+
+###
+# Leave off a value that has a default
+# note: Method had special handling for color, but not flavor
+###
+test tip479-003 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 3 shape round
+} {id 3 shape round color green}
+
+###
+# Add extra arguments
+###
+test tip479-004 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 4 shape round trim leather
+} {id 4 shape round trim leather color green}
+
+clay::define tip479classE {
+
+  Ensemble item::new dictargs {
+    id {type: number}
+    color {default: green}
+    shape {options: {round square}}
+    flavor {default: grape}
+  } {
+    my variable items
+    foreach {f v} $args {
+      dict set items $id $f $v
+    }
+    if {"color" ni [dict keys $args]} {
+      dict set items $id color $color
+    }
+    return [dict get $items $id]
+  }
+
+  Ensemble item::get {id field} {
+    my variable items
+    return [dict get $id $field]
+  }
+}
+
+
+set obj [tip479classE new]
+test tip479-001 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 1 color orange shape round
+} {id 1 color orange shape round}
+
+# Fail because we left off a mandatory argument
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
+  $obj item new id 2
+} -result {shape is required}
+
+###
+# Leave off a value that has a default
+# note: Method had special handling for color, but not flavor
+###
+test tip479-003 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 3 shape round
+} {id 3 shape round color green}
+
+###
+# Add extra arguments
+###
+test tip479-004 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 4 shape round trim leather
+} {id 4 shape round trim leather color green}
+
 
 
 testsuiteCleanup
@@ -4536,10 +4640,10 @@ test clay-delegation-0001 {Test an array driven ensemble} {
       error "Couldn't figure out what to do with $pattern"
     }
     set method [lindex $mlist 0]
-    set arglist [dict get $emap $method arglist]
+    set argspec [dict get $emap $method argspec]
     set body    [dict get $emap $method body]
-    if {$arglist ni {args {}}} {
-      ::clay::dynamic_arguments $ensemble $method [list $arglist] {*}$args
+    if {$argspec ni {args {}}} {
+      ::clay::dynamic_arguments $ensemble $method [list $argspec] {*}$args
     }
     eval $body
   }
@@ -5443,6 +5547,110 @@ test tool-prototype-0009-0009 {Mixin core (return to normal)} {
 test tool-prototype-0009-0010 {Mixin core (return to normal)} {
   $obj clay ancestors
 } {::MixinRoot ::clay::object}
+
+
+###
+# Tip479 Tests
+###
+clay::define tip479class {
+
+  Method newitem dictargs {
+    id {type: number}
+    color {default: green}
+    shape {options: {round square}}
+    flavor {default: grape}
+  } {
+    my variable items
+    foreach {f v} $args {
+      dict set items $id $f $v
+    }
+    if {"color" ni [dict keys $args]} {
+      dict set items $id color $color
+    }
+    return [dict get $items $id]
+  }
+
+  method itemget {id field} {
+    my variable items
+    return [dict get $id $field]
+  }
+}
+
+set obj [tip479class new]
+test tip479-001 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 1 color orange shape round
+} {id 1 color orange shape round}
+
+# Fail because we left off a mandatory argument
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
+  $obj newitem id 2
+} -result {shape is required}
+
+###
+# Leave off a value that has a default
+# note: Method had special handling for color, but not flavor
+###
+test tip479-003 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 3 shape round
+} {id 3 shape round color green}
+
+###
+# Add extra arguments
+###
+test tip479-004 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj newitem id 4 shape round trim leather
+} {id 4 shape round trim leather color green}
+
+clay::define tip479classE {
+
+  Ensemble item::new dictargs {
+    id {type: number}
+    color {default: green}
+    shape {options: {round square}}
+    flavor {default: grape}
+  } {
+    my variable items
+    foreach {f v} $args {
+      dict set items $id $f $v
+    }
+    if {"color" ni [dict keys $args]} {
+      dict set items $id color $color
+    }
+    return [dict get $items $id]
+  }
+
+  Ensemble item::get {id field} {
+    my variable items
+    return [dict get $id $field]
+  }
+}
+
+
+set obj [tip479classE new]
+test tip479-001 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 1 color orange shape round
+} {id 1 color orange shape round}
+
+# Fail because we left off a mandatory argument
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
+  $obj item new id 2
+} -result {shape is required}
+
+###
+# Leave off a value that has a default
+# note: Method had special handling for color, but not flavor
+###
+test tip479-003 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 3 shape round
+} {id 3 shape round color green}
+
+###
+# Add extra arguments
+###
+test tip479-004 {Test that a later ensemble definition trumps a more primitive one} {
+  $obj item new id 4 shape round trim leather
+} {id 4 shape round trim leather color green}
+
 
 
 testsuiteCleanup

@@ -24,7 +24,7 @@ if {[info commands ::dictargs::parse] eq {}} {
         if {$found} continue
       }
       if {[dict exists $info default:]} {
-        set _var [dict get $info default:] \n
+        set _var [dict get $info default:]
         continue
       }
       set mandatory 1

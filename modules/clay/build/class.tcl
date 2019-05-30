@@ -7,15 +7,15 @@
   # well as to that of its ancestors
   # ensemble:
   # ancestors {
-  #   arglist {}
+  #   argspec {}
   #   description {Return this class and all ancestors in search order.}
   # }
   # dump {
-  #   arglist {}
+  #   argspec {}
   #   description {Return a complete dump of this object's clay data, but only this object's clay data.}
   # }
   # find {
-  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   argspec {path {mandatory 1 positional 1 repeating 1}}
   #   description {
   #     Pull a chunk of data from the clay system. If the last element of [emph path] is a branch,
   #     returns a recursive merge of all data from this object and it's constituent classes of the data in that branch.
@@ -26,7 +26,7 @@
   #   }
   # }
   # get {
-  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   argspec {path {mandatory 1 positional 1 repeating 1}}
   #   description {
   #     Pull a chunk of data from the class's clay system.
   #     If no value is found, returns an empty string.
@@ -34,26 +34,26 @@
   #   }
   # }
   # GET {
-  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   argspec {path {mandatory 1 positional 1 repeating 1}}
   #   description {
   #     Pull a chunk of data from the class's clay system.
   #     If no value is found, returns an empty string.
   #   }
   #}
   # merge {
-  #   arglist {dict {mandatory 1 positional 1 repeating 1}}
+  #   argspec {dict {mandatory 1 positional 1 repeating 1}}
   #   description {Recursively merge the dictionaries given into the object's local clay storage.}
   # }
   # replace {
-  #   arglist {dictionary {mandatory 1 positional 1}}
+  #   argspec {dictionary {mandatory 1 positional 1}}
   #   description {Replace the contents of the internal clay storage with the dictionary given.}
   # }
   # search {
-  #   arglist {path {mandatory 1 positional 1 repeating 1}}
+  #   argspec {path {mandatory 1 positional 1 repeating 1}}
   #   description {Return the first matching value for the path in either this class's clay data or one of its ancestors}
   # }
   # set {
-  #   arglist {path {mandatory 1 positional 1 repeating 1} value {mandatory 1 postional 1}}
+  #   argspec {path {mandatory 1 positional 1 repeating 1} value {mandatory 1 postional 1}}
   #   description {Merge the conents of [const value] with the object's clay storage at [const path].}
   # }
   ###

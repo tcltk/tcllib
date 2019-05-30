@@ -1,7 +1,9 @@
 package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
-package require TclOO
-package require md5 2
-
+if {[info commands irmmd5] eq {}} {
+  if {[catch {package require odielibc}]} {
+    package require md5 2
+  }
+}
 ::namespace eval ::clay {}
 ::namespace eval ::clay::classes {}
 ::namespace eval ::clay::define {}

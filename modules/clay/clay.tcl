@@ -6,7 +6,7 @@
 # BSD License
 ###
 # @@ Meta Begin
-# Package clay 0.7
+# Package clay 0.8
 # Meta platform     tcl
 # Meta summary      A minimalist framework for complex TclOO development
 # Meta description  This package introduces the method "clay" to both oo::object
@@ -24,7 +24,7 @@
 # Do not edit directly, tweak the source in build/ and rerun
 # build.tcl
 ###
-package provide clay 0.7
+package provide clay 0.8
 namespace eval ::clay {}
 
 ###
@@ -256,8 +256,11 @@ namespace eval ::clay {
 # START: core.tcl
 ###
 package require Tcl 8.6 ;# try in pipeline.tcl. Possibly other things.
-package require TclOO
-package require md5 2
+if {[info commands irmmd5] eq {}} {
+  if {[catch {package require odielibc}]} {
+    package require md5 2
+  }
+}
 ::namespace eval ::clay {
 }
 ::namespace eval ::clay::classes {
@@ -279,13 +282,8 @@ package require md5 2
 ###
 # START: uuid.tcl
 ###
-package require Tcl 8.5
 namespace eval ::clay::uuid {
     namespace export uuid
-    variable uid
-    if {![info exists uid]} {
-        set uid 1
-    }
 }
 proc ::clay::uuid::generate_tcl_machinfo {} {
   variable machinfo
@@ -334,26 +332,42 @@ proc ::clay::uuid::generate_tcl_machinfo {} {
   }
   return $machinfo
 }
-proc ::clay::uuid::generate {} {
-    variable uid
+if {[info commands irmmd5] ne {}} {
+proc ::clay::uuid::generate {{type {}}} {
+    variable nextuuid
+    set s [irmmd5 "$type [incr nextuuid(type)] [generate_tcl_machinfo]"]
+    foreach {a b} {0 7 8 11 12 15 16 19 20 31} {
+         append r [string range $s $a $b] -
+     }
+     return [string tolower [string trimright $r -]]
+}
+proc ::clay::uuid::short {{type {}}} {
+  variable nextuuid
+  set r [irmmd5 "$type [incr nextuuid(type)] [generate_tcl_machinfo]"]
+  return [string range $r 0 16]
+}
 
+} else {
+package require md5 2
+proc ::clay::uuid::raw {{type {}}} {
+    variable nextuuid
     set tok [md5::MD5Init]
-    md5::MD5Update $tok [incr uid];      # package incrementing counter
-    foreach string [generate_tcl_machinfo] {
-      md5::MD5Update $tok $string
-    }
+    md5::MD5Update $tok "$type [incr nextuuid($type)] [generate_tcl_machinfo]"
     set r [md5::MD5Final $tok]
-    binary scan $r c* r
-
-    # 3.4: set uuid versioning fields
-    lset r 8 [expr {([lindex $r 8] & 0x3F) | 0x80}]
-    lset r 6 [expr {([lindex $r 6] & 0x0F) | 0x40}]
-
-    return [binary format c* $r]
+    return [::clay::uuid::tostring $r]
+}
+proc ::clay::uuid::generate {{type {}}} {
+    return [::clay::uuid::tostring [::clay::uuid::raw  $type]]
+}
+proc ::clay::uuid::short {{type {}}} {
+  set r [::clay::uuid::raw $type]
+  binary scan $r H* s
+  return [string range $s 0 16]
+}
 }
 proc ::clay::uuid::tostring {uuid} {
     binary scan $uuid H* s
-    foreach {a b} {0 7 8 11 12 15 16 19 20 end} {
+    foreach {a b} {0 7 8 11 12 15 16 19 20 31} {
         append r [string range $s $a $b] -
     }
     return [string tolower [string trimright $r -]]
@@ -369,7 +383,10 @@ proc ::clay::uuid::equal {left right} {
 proc ::clay::uuid {cmd args} {
     switch -exact -- $cmd {
         generate {
-            tailcall ::clay::uuid::tostring [::clay::uuid::generate]
+           return [::clay::uuid::generate {*}$args]
+        }
+        short {
+          set uuid [::clay::uuid::short {*}$args]
         }
         equal {
             tailcall ::clay::uuid::equal {*}$args
@@ -675,7 +692,7 @@ if {[info commands ::dictargs::parse] eq {}} {
         if {$found} continue
       }
       if {[dict exists $info default:]} {
-        set _var [dict get $info default:] \n
+        set _var [dict get $info default:]
         continue
       }
       set mandatory 1
@@ -968,7 +985,7 @@ if {[info commands ::dictargs::parse] eq {}} {
         if {$found} continue
       }
       if {[dict exists $info default:]} {
-        set _var [dict get $info default:] \n
+        set _var [dict get $info default:]
         continue
       }
       set mandatory 1
@@ -1108,6 +1125,17 @@ proc ::clay::define::Option {name args} {
     $class clay set option $name $f $v
   }
 }
+proc ::clay::define::Method {name argstyle argspec body} {
+  set class [current_class]
+  set result {}
+  switch $argstyle {
+    dictargs {
+      append result "::dictargs::parse \{$argspec\} \$args" \;
+    }
+  }
+  append result $body
+  oo::define $class method $name [list [list args [list dictargs $argspec]]] $result
+}
 proc ::clay::define::Option_Class {name args} {
   set class [current_class]
   set dictargs {default {}}
@@ -1152,12 +1180,15 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   set eswitch {}
   if {[dict exists $einfo default]} {
     set emethodinfo [dict get $einfo default]
-    set arglist     [dict getnull $emethodinfo arglist]
-    set realbody    [dict get $emethodinfo body]
-    if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
+    set argspec     [dict getnull $emethodinfo argspec]
+    set realbody    [dict getnull $emethodinfo body]
+    set argstyle    [dict getnull $emethodinfo argstyle]
+    if {$argstyle eq "dictargs"} {
+      set body "\n      ::dictargs::parse \{$argspec\} \$args" \;
+    } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
       set body {}
     } else {
-      set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
+      set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
     }
     append body "\n      " [string trim $realbody] "      \n"
     set default $body
@@ -1170,15 +1201,18 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
       set preamble [dict getnull $esubmethodinfo body]
       continue
     }
-    set arglist     [dict getnull $esubmethodinfo arglist]
+    set argspec     [dict getnull $esubmethodinfo argspec]
     set realbody    [dict getnull $esubmethodinfo body]
+    set argstyle    [dict getnull $esubmethodinfo argstyle]
     if {[string length [string trim $realbody]] eq {}} {
       dict set eswitch $submethod {}
     } else {
-      if {[llength $arglist]==1 && [lindex $arglist 0] in {{} args arglist}} {
+      if {$argstyle eq "dictargs"} {
+        set body "\n      ::dictargs::parse \{$argspec\} \$args"
+      } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
         set body {}
       } else {
-        set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $arglist] {*}\$args"
+        set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
       }
       append body "\n      " [string trim $realbody] "      \n"
       if {$submethod eq "default"} {
@@ -1208,10 +1242,18 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   append mbody \n {return -options $opts $result}
   return $mbody
 }
-::proc ::clay::define::Ensemble {rawmethod arglist body} {
+::proc ::clay::define::Ensemble {rawmethod args} {
+  if {[llength $args]==2} {
+    lassign $args argspec body
+    set argstyle tcl
+  } elseif {[llength $args]==3} {
+    lassign $args argstyle argspec body
+  } else {
+    error "Usage: Ensemble name ?argstyle? argspec body"
+  }
   set class [current_class]
   #if {$::clay::trace>2} {
-  #  puts [list $class Ensemble $rawmethod $arglist $body]
+  #  puts [list $class Ensemble $rawmethod $argspec $body]
   #}
   set mlist [split $rawmethod "::"]
   set ensemble [string trim [lindex $mlist 0] :/]
@@ -1221,22 +1263,30 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     ###
     # Simple method, needs no parsing, but we do need to record we have one
     ###
-    $class clay set method_ensemble/ $mensemble _body [dict create arglist $arglist body $body]
+    if {$argstyle eq "dictargs"} {
+      set argspec [list args $argspec]
+    }
+    $class clay set method_ensemble/ $mensemble _body [dict create argspec $argspec body $body argstyle $argstyle]
     if {$::clay::trace>2} {
       puts [list $class clay set method_ensemble/ $mensemble _body ...]
     }
     set method $rawmethod
     if {$::clay::trace>2} {
-      puts [list $class Ensemble $rawmethod $arglist $body]
+      puts [list $class Ensemble $rawmethod $argspec $body]
       set rawbody $body
       set body {puts [list [self] $class [self method]]}
       append body \n $rawbody
     }
-    ::oo::define $class method $rawmethod $arglist $body
+    if {$argstyle eq "dictargs"} {
+      set rawbody $body
+      set body "::dictargs::parse \{$argspec\} \$args\; "
+      append body $rawbody
+    }
+    ::oo::define $class method $rawmethod $argspec $body
     return
   }
   set method [join [lrange $mlist 2 end] "::"]
-  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create arglist $arglist body $body]
+  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create argspec $argspec body $body argstyle $argstyle]
   if {$::clay::trace>2} {
     puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
   }
@@ -1398,7 +1448,16 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     if {![info exists claycache]} {set claycache {}}
     if {![info exists config]} {set config {}}
     if {![info exists clayorder] || [llength $clayorder]==0} {
-      set clayorder [::clay::ancestors [info object class [self]] {*}[lreverse [info object mixins [self]]]]
+      set clayorder {}
+      if {[dict exists $clay cascade]} {
+        dict for {f v} [dict get $clay cascade] {
+          if {$f eq "."} continue
+          if {[info commands $v] ne {}} {
+            lappend clayorder $v
+          }
+        }
+      }
+      lappend clayorder {*}[::clay::ancestors [info object class [self]] {*}[lreverse [info object mixins [self]]]]
     }
     switch $submethod {
       ancestors {
