@@ -13,16 +13,8 @@
 #
 # Usage: clay::uuid generate
 #        clay::uuid equal $idA $idB
-
-package require Tcl 8.5
-
 namespace eval ::clay::uuid {
     namespace export uuid
-
-    variable uid
-    if {![info exists uid]} {
-        set uid 1
-    }
 }
 
 ###
@@ -81,34 +73,46 @@ proc ::clay::uuid::generate_tcl_machinfo {} {
 # Generates a binary UUID as per the draft spec. We generate a pseudo-random
 # type uuid (type 4). See section 3.4
 #
-proc ::clay::uuid::generate {} {
-    variable uid
-
-    set tok [md5::MD5Init]
-    md5::MD5Update $tok [incr uid];      # package incrementing counter
-    foreach string [generate_tcl_machinfo] {
-      md5::MD5Update $tok $string
-    }
-    set r [md5::MD5Final $tok]
-    binary scan $r c* r
-
-    # 3.4: set uuid versioning fields
-    lset r 8 [expr {([lindex $r 8] & 0x3F) | 0x80}]
-    lset r 6 [expr {([lindex $r 6] & 0x0F) | 0x40}]
-
-    return [binary format c* $r]
+if {[info commands irmmd5] ne {}} {
+proc ::clay::uuid::generate {{type {}}} {
+    variable nextuuid
+    set s [irmmd5 "$type [incr nextuuid(type)] [generate_tcl_machinfo]"]
+    foreach {a b} {0 7 8 11 12 15 16 19 20 31} {
+         append r [string range $s $a $b] -
+     }
+     return [string tolower [string trimright $r -]]
+}
+proc ::clay::uuid::short {{type {}}} {
+  variable nextuuid
+  set r [irmmd5 "$type [incr nextuuid(type)] [generate_tcl_machinfo]"]
+  return [string range $r 0 16]
 }
 
-# Convert a binary uuid into its string representation.
-#
+} else {
+package require md5 2
+proc ::clay::uuid::raw {{type {}}} {
+    variable nextuuid
+    set tok [md5::MD5Init]
+    md5::MD5Update $tok "$type [incr nextuuid($type)] [generate_tcl_machinfo]"
+    set r [md5::MD5Final $tok]
+    return [::clay::uuid::tostring $r]
+}
+proc ::clay::uuid::generate {{type {}}} {
+    return [::clay::uuid::tostring [::clay::uuid::raw  $type]]
+}
+proc ::clay::uuid::short {{type {}}} {
+  set r [::clay::uuid::raw $type]
+  binary scan $r H* s
+  return [string range $s 0 16]
+}
+}
 proc ::clay::uuid::tostring {uuid} {
     binary scan $uuid H* s
-    foreach {a b} {0 7 8 11 12 15 16 19 20 end} {
+    foreach {a b} {0 7 8 11 12 15 16 19 20 31} {
         append r [string range $s $a $b] -
     }
     return [string tolower [string trimright $r -]]
 }
-
 # Convert a string representation of a uuid into its binary format.
 #
 proc ::clay::uuid::fromstring {uuid} {
@@ -129,7 +133,10 @@ proc ::clay::uuid::equal {left right} {
 proc ::clay::uuid {cmd args} {
     switch -exact -- $cmd {
         generate {
-            tailcall ::clay::uuid::tostring [::clay::uuid::generate]
+           return [::clay::uuid::generate {*}$args]
+        }
+        short {
+          set uuid [::clay::uuid::short {*}$args]
         }
         equal {
             tailcall ::clay::uuid::equal {*}$args

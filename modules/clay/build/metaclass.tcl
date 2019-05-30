@@ -154,6 +154,18 @@ proc ::clay::define::Option {name args} {
   }
 }
 
+proc ::clay::define::Method {name argstyle argspec body} {
+  set class [current_class]
+  set result {}
+  switch $argstyle {
+    dictargs {
+      append result "::dictargs::parse \{$argspec\} \$args" \;
+    }
+  }
+  append result $body
+  oo::define $class method $name [list [list args [list dictargs $argspec]]] $result
+}
+
 ###
 # Define a class of options
 # All field / value pairs will be be inherited by an option that

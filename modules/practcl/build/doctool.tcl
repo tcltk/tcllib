@@ -49,7 +49,7 @@ proc ::practcl::docstrip text {
 
 ###
 # Append a line of text to a variable. Optionally apply a string mapping.
-# arglist:
+# argspec:
 #   map {mandatory 0 positional 1}
 #   text {mandatory 1 positional 1}
 ###
@@ -88,10 +88,10 @@ proc ::putb {buffername args} {
 # }
 # # Write out the manual page
 # set manout [open [file join $moddir module.man] w]
-# dict set arglist header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]]
-# dict set arglist footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]]
-# dict set arglist authors $authors
-# puts $manout [AutoDoc manpage {*}$arglist]
+# dict set args header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]]
+# dict set args footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]]
+# dict set args authors $authors
+# puts $manout [AutoDoc manpage {*}$args]
 # close $manout
 ###
 ::oo::class create ::practcl::doctool {
@@ -110,13 +110,13 @@ proc ::putb {buffername args} {
   # [const default] value.
   # [para]
   # example:
-  #   my arglist {a b {c 10}}
+  #   my argspec {a b {c 10}}
   #
   #   > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
   ###
-  method arglist {arglist} {
+  method argspec {argspec} {
     set result [dict create]
-    foreach arg $arglist {
+    foreach arg $argspec {
       set name [lindex $arg 0]
       dict set result $name positional 1
       dict set result $name mandatory  1
@@ -195,6 +195,10 @@ proc ::putb {buffername args} {
       if {[string index $firstword end] eq ":"} {
         set field [string tolower [string trim $firstword -:]]
         switch $field {
+          dictargs -
+          arglist {
+            set field argspec
+          }
           desc {
             set field description
           }
@@ -368,16 +372,16 @@ proc ::putb {buffername args} {
     } else {
       switch [llength $args] {
         1 {
-          set arglist [lindex $args 0]
+          set argspec [lindex $args 0]
         }
         0 {
-          set arglist dictargs
+          set argspec dictargs
           #set body [lindex $args 0]
         }
         default {error "could not interpret method $name {*}$args"}
       }
-      if {![dict exists $info arglist]} {
-        dict set info arglist [my arglist $arglist]
+      if {![dict exists $info argspec]} {
+        dict set info argspec [my argspec $argspec]
       }
       dict set result Class_Method [string trim $name :] $info
     }
@@ -399,16 +403,16 @@ proc ::putb {buffername args} {
     } else {
       switch [llength $args] {
         1 {
-          set arglist [lindex $args 0]
+          set argspec [lindex $args 0]
         }
         0 {
-          set arglist dictargs
+          set argspec dictargs
           #set body [lindex $args 0]
         }
         default {error "could not interpret method $name {*}$args"}
       }
-      if {![dict exists $info arglist]} {
-        dict set info arglist [my arglist $arglist]
+      if {![dict exists $info argspec]} {
+        dict set info argspec [my argspec $argspec]
       }
       dict set result method "\"[split [string trim $name :] ::]\"" $info
     }
@@ -417,10 +421,10 @@ proc ::putb {buffername args} {
   ###
   # Process a proc statement
   ###
-  method keyword.proc {commentblock name arglist} {
+  method keyword.proc {commentblock name argspec} {
     set info [my comment $commentblock]
-    if {![dict exists $info arglist]} {
-      dict set info arglist [my arglist $arglist]
+    if {![dict exists $info argspec]} {
+      dict set info argspec [my argspec $argspec]
     }
     return $info
   }
@@ -527,8 +531,8 @@ proc ::putb {buffername args} {
   method section.method {keyword method minfo} {
     set result {}
     set line "\[call $keyword \[cmd $method\]"
-    if {[dict exists $minfo arglist]} {
-      dict for {argname arginfo} [dict get $minfo arglist] {
+    if {[dict exists $minfo argspec]} {
+      dict for {argname arginfo} [dict get $minfo argspec] {
         set positional 1
         set mandatory  1
         set repeating 0
@@ -666,7 +670,7 @@ proc ::putb {buffername args} {
   # section. footer is a block of doctools text to go in after the machine generated
   # section. authors is a list of individual authors and emails in the form of AUTHOR EMAIL ?AUTHOR EMAIL?...
   #
-  # arglist:
+  # argspec:
   #   header {mandatory 0 positional 0}
   #   footer {mandatory 0 positional 0}
   #   authors {mandatory 0 positional 0 type list}

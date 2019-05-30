@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 0.16.2]
+[vset PACKAGE_VERSION 0.16.3]
 [manpage_begin practcl n [vset PACKAGE_VERSION]]
 [keywords practcl]
 [copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
@@ -325,10 +325,10 @@ Converts a XXX.sh file into a series of Tcl variables
  }
  # Write out the manual page
  set manout [open [file join $moddir module.man] w]
- dict set arglist header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]]
- dict set arglist footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]]
- dict set arglist authors $authors
- puts $manout [AutoDoc manpage {*}$arglist]
+ dict set args header [string map $modmap [::practcl::cat [file join $srcdir manual.txt]]]
+ dict set args footer [string map $modmap [::practcl::cat [file join $srcdir footer.txt]]]
+ dict set args authors $authors
+ puts $manout [AutoDoc manpage {*}$args]
  close $manout
 
 
@@ -344,7 +344,7 @@ Converts a XXX.sh file into a series of Tcl variables
 [call method [cmd "constructor"]]
 
 
-[call method [cmd "arglist"] [arg arglist]]
+[call method [cmd "argspec"] [arg argspec]]
 
  Process an argument list into an informational dict.
  This method also understands non-positional
@@ -356,7 +356,7 @@ Converts a XXX.sh file into a series of Tcl variables
  [const default] value.
  [para]
 
-[para]Example: [example {   my arglist {a b {c 10}}
+[para]Example: [example {   my argspec {a b {c 10}}
 
    > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
 
@@ -421,7 +421,7 @@ Converts a XXX.sh file into a series of Tcl variables
 
 
 
-[call method [cmd "keyword.proc"] [arg commentblock] [arg name] [arg arglist]]
+[call method [cmd "keyword.proc"] [arg commentblock] [arg name] [arg argspec]]
 
  Process a proc statement
 
