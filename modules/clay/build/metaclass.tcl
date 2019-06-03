@@ -212,6 +212,6 @@ proc ::clay::object_destroy objname {
   if {$::clay::trace>0} {
     puts [list $objname DESTROY]
   }
-  ::cron::object_destroy $objname
+  #::cron::object_destroy $objname
 }
 

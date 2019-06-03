@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.3.2
+package provide httpd 4.3.3
 namespace eval ::httpd {}
-set ::httpd::version 4.3.2
+set ::httpd::version 4.3.3
 ###
 # START: core.tcl
 ###
@@ -392,24 +392,12 @@ Connection close}
     my content
     my DoOutput
   }
-  method html_css {} {
-    set result "<link rel=\"stylesheet\" href=\"/style.css\">"
-    append result \n {<style media="screen" type="text/css">
-body {
-	background:  url(images/etoyoc-circuit-tile.gif) repeat;
-	font-family: serif;
-	color:#000066;
-	font-size: 12pt;
-}
-</style>}
-  }
   method html_header {title args} {
     set result {}
     append result "<HTML><HEAD>"
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
     }
-    append result [my html_css]
     append result "</HEAD><BODY>"
     append result \n {<div id="top-menu">}
     if {[dict exists $args banner]} {
@@ -1061,7 +1049,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
   }
   method Thread_start {} {}
   method Uuid_Generate {} {
-    return [::clay::uuid generate]
+    return [::clay::uuid::short]
   }
   method Validate_Connection {sock ip} {
     return 0

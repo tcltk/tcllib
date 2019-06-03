@@ -12,4 +12,7 @@ if {[info commands irmmd5] eq {}} {
 ::namespace eval ::clay::list {}
 ::namespace eval ::clay::uuid {}
 
+if {![info exists ::clay::idle_destroy]} {
+  set ::clay::idle_destroy {}
+}
 

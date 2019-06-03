@@ -10,7 +10,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     set realbody    [dict getnull $emethodinfo body]
     set argstyle    [dict getnull $emethodinfo argstyle]
     if {$argstyle eq "dictargs"} {
-      set body "\n      ::dictargs::parse \{$argspec\} \$args" \;
+      set body "\n      ::dictargs::parse \{$argspec\} \$args"
     } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
       set body {}
     } else {

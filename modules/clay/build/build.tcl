@@ -64,7 +64,6 @@ foreach file {
   core.tcl uuid.tcl
   dict.tcl list.tcl dictargs.tcl
   dialect.tcl
-  dictargs.tcl
   metaclass.tcl
   ensemble.tcl
   class.tcl

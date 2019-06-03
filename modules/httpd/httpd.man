@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 4.3.2]
+[vset PACKAGE_VERSION 4.3.3]
 [manpage_begin httpd n [vset PACKAGE_VERSION]]
 [keywords WWW]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]
@@ -296,9 +296,6 @@ tclsh examples/httpd.tcl
 
 
 [call method [cmd "Dispatch"]]
-
-
-[call method [cmd "html_css"]]
 
 
 [call method [cmd "html_header"] [arg title] [opt "[arg args]"]]
