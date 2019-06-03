@@ -470,7 +470,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
   # }]
   ###
   method Uuid_Generate {} {
-    return [::clay::uuid generate]
+    return [::clay::uuid::short]
   }
 
   ###

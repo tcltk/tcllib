@@ -10,6 +10,46 @@ namespace eval ::practcl {}
 ###
 # START: httpwget/wget.tcl
 ###
+package provide http::wget 0.1
+package require http
+::namespace eval ::http {
+}
+proc ::http::_followRedirects {url args} {
+    while 1 {
+        set token [geturl $url -validate 1]
+        set ncode [ncode $token]
+        if { $ncode eq "404" } {
+          error "URL Not found"
+        }
+        switch -glob $ncode {
+            30[1237] {### redirect - see below ###}
+            default  {cleanup $token ; return $url}
+        }
+        upvar #0 $token state
+        array set meta [set ${token}(meta)]
+        cleanup $token
+        if {![info exists meta(Location)]} {
+           return $url
+        }
+        set url $meta(Location)
+        unset meta
+    }
+    return $url
+}
+proc ::http::wget {url destfile {verbose 1}} {
+    set tmpchan [open $destfile w]
+    fconfigure $tmpchan -translation binary
+    if { $verbose } {
+        puts [list  GETTING [file tail $destfile] from $url]
+    }
+    set real_url [_followRedirects $url]
+    set token [geturl $real_url -channel $tmpchan -binary yes]
+    if {[ncode $token] != "200"} {
+      error "DOWNLOAD FAILED"
+    }
+    cleanup $token
+    close $tmpchan
+}
 
 ###
 # END: httpwget/wget.tcl
@@ -257,6 +297,9 @@ if {[info commands irmmd5] eq {}} {
 ::namespace eval ::clay::list {
 }
 ::namespace eval ::clay::uuid {
+}
+if {![info exists ::clay::idle_destroy]} {
+  set ::clay::idle_destroy {}
 }
 namespace eval ::clay::uuid {
     namespace export uuid
@@ -899,59 +942,6 @@ if {[info command ::clay::dialect::MotherOfAllMetaClasses] eq {}} {
 namespace eval ::clay::dialect {
   variable core_classes {::oo::class ::oo::object}
 }
-namespace eval ::dictargs {
-}
-if {[info commands ::dictargs::parse] eq {}} {
-  proc ::dictargs::parse {argdef argdict} {
-    set result {}
-    dict for {field info} $argdef {
-      if {![string is alnum [string index $field 0]]} {
-        error "$field is not a simple variable name"
-      }
-      upvar 1 $field _var
-      set aliases {}
-      if {[dict exists $argdict $field]} {
-        set _var [dict get $argdict $field]
-        continue
-      }
-      if {[dict exists $info aliases:]} {
-        set found 0
-        foreach {name} [dict get $info aliases:] {
-          if {[dict exists $argdict $name]} {
-            set _var [dict get $argdict $name]
-            set found 1
-            break
-          }
-        }
-        if {$found} continue
-      }
-      if {[dict exists $info default:]} {
-        set _var [dict get $info default:]
-        continue
-      }
-      set mandatory 1
-      if {[dict exists $info mandatory:]} {
-        set mandatory [dict get $info mandatory:]
-      }
-      if {$mandatory} {
-        error "$field is required"
-      }
-    }
-  }
-}
-proc ::dictargs::proc {name argspec body} {
-  set result {}
-  append result "::dictargs::parse \{$argspec\} \$args" \;
-  append result $body
-  uplevel 1 [list ::proc $name [list [list args [list dictargs $argspec]]] $result]
-}
-proc ::dictargs::method {name argspec body} {
-  set class [lindex [::info level -1] 1]
-  set result {}
-  append result "::dictargs::parse \{$argspec\} \$args" \;
-  append result $body
-  oo::define $class method $name [list [list args [list dictargs $argspec]]] $result
-}
 ::clay::dialect::create ::clay
 proc ::clay::dynamic_methods class {
   foreach command [info commands [namespace current]::dynamic_methods_*] {
@@ -1097,7 +1087,7 @@ proc ::clay::object_destroy objname {
   if {$::clay::trace>0} {
     puts [list $objname DESTROY]
   }
-  ::cron::object_destroy $objname
+  #::cron::object_destroy $objname
 }
 ::namespace eval ::clay::define {
 }
@@ -1111,7 +1101,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     set realbody    [dict getnull $emethodinfo body]
     set argstyle    [dict getnull $emethodinfo argstyle]
     if {$argstyle eq "dictargs"} {
-      set body "\n      ::dictargs::parse \{$argspec\} \$args" \;
+      set body "\n      ::dictargs::parse \{$argspec\} \$args"
     } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
       set body {}
     } else {
@@ -1872,6 +1862,175 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
 ::clay::object clay branch option
 ::clay::object clay branch dict clay
 ::clay::object clay set variable DestroyEvent 0
+::namespace eval ::clay::event {
+}
+proc ::clay::destroy args {
+  if {![info exists ::clay::idle_destroy]} {
+    set ::clay::idle_destroy {}
+  }
+  foreach object $args {
+    if {$object in $::clay::idle_destroy} continue
+    lappend ::clay::idle_destroy  $object
+  }
+}
+proc ::clay::cleanup {} {
+  if {![info exists ::clay::idle_destroy]} return
+  foreach obj $::clay::idle_destroy {
+    if {[info commands $obj] ne {}} {
+      catch {$obj destroy}
+    }
+  }
+  set ::clay::idle_destroy {}
+}
+proc ::clay::event::cancel {self {task *}} {
+  variable timer_event
+  variable timer_script
+
+  foreach {id event} [array get timer_event $self:$task] {
+    ::after cancel $event
+    set timer_event($id) {}
+    set timer_script($id) {}
+  }
+}
+proc ::clay::event::generate {self event args} {
+  set wholist [Notification_list $self $event]
+  if {$wholist eq {}} return
+  set dictargs [::oo::meta::args_to_options {*}$args]
+  set info $dictargs
+  set strict 0
+  set debug 0
+  set sender $self
+  dict with dictargs {}
+  dict set info id     [::clay::event::nextid]
+  dict set info origin $self
+  dict set info sender $sender
+  dict set info rcpt   {}
+  foreach who $wholist {
+    catch {::clay::event::notify $who $self $event $info}
+  }
+}
+proc ::clay::event::nextid {} {
+  return "event#[format %0.8x [incr ::clay::event_count]]"
+}
+proc ::clay::event::Notification_list {self event {stackvar {}}} {
+  set notify_list {}
+  foreach {obj patternlist} [array get ::clay::object_subscribe] {
+    if {$obj eq $self} continue
+    if {$obj in $notify_list} continue
+    set match 0
+    foreach {objpat eventlist} $patternlist {
+      if {![string match $objpat $self]} continue
+      foreach eventpat $eventlist {
+        if {![string match $eventpat $event]} continue
+        set match 1
+        break
+      }
+      if {$match} {
+        break
+      }
+    }
+    if {$match} {
+      lappend notify_list $obj
+    }
+  }
+  return $notify_list
+}
+proc ::clay::event::notify {rcpt sender event eventinfo} {
+  if {[info commands $rcpt] eq {}} return
+  if {$::clay::trace} {
+    puts [list event notify rcpt $rcpt sender $sender event $event info $eventinfo]
+  }
+  $rcpt notify $event $sender $eventinfo
+}
+proc ::clay::event::process {self handle script} {
+  variable timer_event
+  variable timer_script
+
+  array unset timer_event $self:$handle
+  array unset timer_script $self:$handle
+
+  set err [catch {uplevel #0 $script} result errdat]
+  if $err {
+    puts "BGError: $self $handle $script
+ERR: $result
+[dict get $errdat -errorinfo]
+***"
+  }
+}
+proc ::clay::event::schedule {self handle interval script} {
+  variable timer_event
+  variable timer_script
+  if {$::clay::trace} {
+    puts [list $self schedule $handle $interval]
+  }
+  if {[info exists timer_event($self:$handle)]} {
+    if {$script eq $timer_script($self:$handle)} {
+      return
+    }
+    ::after cancel $timer_event($self:$handle)
+  }
+  set timer_script($self:$handle) $script
+  set timer_event($self:$handle) [::after $interval [list ::clay::event::process $self $handle $script]]
+}
+proc ::clay::event::subscribe {self who event} {
+  upvar #0 ::clay::object_subscribe($self) subscriptions
+  if {![info exists subscriptions]} {
+    set subscriptions {}
+  }
+  set match 0
+  foreach {objpat eventlist} $subscriptions {
+    if {![string match $objpat $who]} continue
+    foreach eventpat $eventlist {
+      if {[string match $eventpat $event]} {
+        # This rule already exists
+        return
+      }
+    }
+  }
+  dict lappend subscriptions $who $event
+}
+proc ::clay::event::unsubscribe {self args} {
+  upvar #0 ::clay::object_subscribe($self) subscriptions
+  if {![info exists subscriptions]} {
+    return
+  }
+  switch [llength $args] {
+    1 {
+      set event [lindex $args 0]
+      if {$event eq "*"} {
+        # Shortcut, if the
+        set subscriptions {}
+      } else {
+        set newlist {}
+        foreach {objpat eventlist} $subscriptions {
+          foreach eventpat $eventlist {
+            if {[string match $event $eventpat]} continue
+            dict lappend newlist $objpat $eventpat
+          }
+        }
+        set subscriptions $newlist
+      }
+    }
+    2 {
+      set who [lindex $args 0]
+      set event [lindex $args 1]
+      if {$who eq "*" && $event eq "*"} {
+        set subscriptions {}
+      } else {
+        set newlist {}
+        foreach {objpat eventlist} $subscriptions {
+          if {[string match $who $objpat]} {
+            foreach eventpat $eventlist {
+              if {[string match $event $eventpat]} continue
+              dict lappend newlist $objpat $eventpat
+            }
+          }
+        }
+        set subscriptions $newlist
+      }
+    }
+  }
+}
 namespace eval ::clay {
   namespace export *
 }
