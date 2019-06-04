@@ -308,7 +308,12 @@ clay::define ::test::content.error {
 }
 clay::define ::test::content.cgi {
     superclass ::httpd::content.cgi
-
+}
+clay::define ::test::content.string {
+    method content {} {
+        my variable reply_body
+        set reply_body [my clay get hardcoded_string]
+    }
 }
 clay::define ::httpd::test::reply {
     superclass ::httpd::reply ::test::content.echo
@@ -325,6 +330,7 @@ TESTAPP uri add * /echo  [list mixin {reply ::test::content.echo}]
 TESTAPP uri add * /file  [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTAPP uri add * /time  [list mixin {reply ::test::content.time}]
 TESTAPP uri add * /error [list mixin {reply ::test::content.error}]
+TESTAPP uri add * /string  [list mixin {reply ::test::content.string} hardcoded_string apple]
 
 # Catch all
 #TESTAPP uri add * * [list mixin {reply httpd::content.echo}]
@@ -364,6 +370,10 @@ test httpd-client-0007 {URL Generates Not Found} -body {
     ::httpd::test::send 10001 {POST /doesnotexist HTTP/1.0} {} {THIS ONE ALONE IS MINE}
 } -match glob -result [404]
 
+::DEBUG puts httpd-client-0008
+test httpd-client-0008 {Pull a constant string} -body {
+    ::httpd::test::send 10001 {GET /string HTTP/1.0} {} {}
+} -match glob -result [200 apple]
 # -------------------------------------------------------------------------
 # Test proxies
 
@@ -383,6 +393,7 @@ TESTPROXY uri add * /echo   [list mixin {reply ::test::content.echo}]
 TESTPROXY uri add * /file   [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTPROXY uri add * /time   [list mixin {reply ::test::content.time}]
 TESTPROXY uri add * /error  [list mixin {reply ::test::content.error}]
+TESTPROXY uri add * /string   [list mixin {reply ::test::content.string} hardcoded_string banana]
 
 ## AKU ##
 #
@@ -425,6 +436,10 @@ test httpd-proxy-0006 {Return a file} -body {
     norm-eol [::httpd::test::send 10001 {GET /proxy/file HTTP/1.0} {} {}]
 } -result [IndexReply]
 
+::DEBUG puts httpd-proxy-0008
+test httpd-proxy-0008 {Pull a constant string} -body {
+    norm-eol [::httpd::test::send 10001 {GET /proxy/string HTTP/1.0} {} {}]
+} -result [200 banana 6]
 # -------------------------------------------------------------------------
 # cgi
 
@@ -567,6 +582,7 @@ TESTSCGI uri add * /echo  [list mixin {reply ::test::content.echo}]
 TESTSCGI uri add * /file  [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTSCGI uri add * /time  [list mixin {reply ::test::content.time}]
 TESTSCGI uri add * /error [list mixin {reply ::test::content.error}]
+TESTSCGI uri add * /string  [list mixin {reply ::test::content.string} hardcoded_string cherry]
 
 ::DEBUG puts scgi-client-0001
 test scgi-client-0001 {Do an echo request} -body {
@@ -593,18 +609,16 @@ test scgi-client-0005 {URL Different output with a different request} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /time} {THIS ONE ALONE IS MINE}
 } -match glob -result [200+status-head $::NOW]
 
-###
-# Nerfed: There is something screwy that is preventing this test from working
-# properly in Sak. But only this test, and not the other two (normal client and proxy)
-# who are doing essentially the same operation
-# Investigate at some point - Sean
-###
-
 ::DEBUG puts scgi-client-0006
 test scgi-client-0006 {Return a file} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}
 } -result [IndexReply Status:]
 
+
+::DEBUG puts scgi-client-0008
+test scgi-client-0008 {Pull a constant string} -body {
+    ::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /string} {}
+} -match glob -result [200+status-head cherry]
 ###
 # Test the all object have been destroyed after ::clay::cleanup
 ###
