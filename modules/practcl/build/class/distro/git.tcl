@@ -1,6 +1,7 @@
-
-
-oo::class create ::practcl::distribution.git {
+###
+# A file distribution based on git
+###
+::clay::define ::practcl::distribution.git {
   superclass ::practcl::distribution
 
   method ScmTag {} {
@@ -42,21 +43,27 @@ oo::class create ::practcl::distribution.git {
     ::practcl::doexec_in $srcdir git pull
     cd $CWD
   }
-
 }
+
 oo::objdefine ::practcl::distribution.git {
-  method claim_path path {
-   if {[file exists [file join $path .git]]} {
-      return true
-    }
-    return false
-  }
+
   method claim_object obj {
     set path [$obj define get srcdir]
     if {[my claim_path $path]} {
       return true
     }
     if {[$obj define get git_url] ne {}} {
+      return true
+    }
+    return false
+  }
+
+  method claim_option {} {
+    return git
+  }
+
+  method claim_path path {
+   if {[file exists [file join $path .git]]} {
       return true
     }
     return false
