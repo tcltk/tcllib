@@ -1029,7 +1029,6 @@ set self [self]
 my variable DestroyEvent
 if {$DestroyEvent} return
 set DestroyEvent 1
-::clay::object_destroy $self
 }
   append body $rawbody
   ::oo::define [current_class] destructor $body
@@ -1091,22 +1090,6 @@ proc ::clay::define::Variable {name {default {}}} {
   set class [current_class]
   set name [string trimright $name :/]
   $class clay set variable/ $name $default
-}
-proc ::clay::object_create {objname {class {}}} {
-  #if {$::clay::trace>0} {
-  #  puts [list $objname CREATE]
-  #}
-}
-proc ::clay::object_rename {object newname} {
-  if {$::clay::trace>0} {
-    puts [list $object RENAME -> $newname]
-  }
-}
-proc ::clay::object_destroy objname {
-  if {$::clay::trace>0} {
-    puts [list $objname DESTROY]
-  }
-  #::cron::object_destroy $objname
 }
 
 ###
@@ -1774,6 +1757,24 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         }
         return {}
       }
+      refcount {
+        my variable refcount
+        if {![info exists refcount]} {
+          return 0
+        }
+        return $refcount
+      }
+      refcount_incr {
+        my variable refcount
+        incr refcount
+      }
+      refcount_decr {
+        my variable refcount
+        incr refcount -1
+        if {$refcount <= 0} {
+          ::clay::object_destroy [self]
+        }
+      }
       replace {
         set clay [lindex $args 0]
       }
@@ -1909,16 +1910,12 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
 ###
 # START: event.tcl
 ###
-::namespace eval ::clay::event {
+if {[info commands ::cron::object_destroy] eq {}} {
+  # Provide a noop if we aren't running with the cron scheduler
+  namespace eval ::cron {}
+  proc ::cron::object_destroy args {}
 }
-proc ::clay::destroy args {
-  if {![info exists ::clay::idle_destroy]} {
-    set ::clay::idle_destroy {}
-  }
-  foreach object $args {
-    if {$object in $::clay::idle_destroy} continue
-    lappend ::clay::idle_destroy  $object
-  }
+::namespace eval ::clay::event {
 }
 proc ::clay::cleanup {} {
   if {![info exists ::clay::idle_destroy]} return
@@ -1928,6 +1925,29 @@ proc ::clay::cleanup {} {
     }
   }
   set ::clay::idle_destroy {}
+}
+proc ::clay::object_create {objname {class {}}} {
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
+}
+proc ::clay::object_rename {object newname} {
+  if {$::clay::trace>0} {
+    puts [list $object RENAME -> $newname]
+  }
+}
+proc ::clay::object_destroy args {
+  if {![info exists ::clay::idle_destroy]} {
+    set ::clay::idle_destroy {}
+  }
+  foreach objname $args {
+    if {$::clay::trace>0} {
+      puts [list $objname DESTROY]
+    }
+    ::cron::object_destroy $objname
+    if {$objname in $::clay::idle_destroy} continue
+    lappend ::clay::idle_destroy $objname
+  }
 }
 proc ::clay::event::cancel {self {task *}} {
   variable timer_event

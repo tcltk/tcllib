@@ -403,7 +403,7 @@ Connection close}
       my DoOutput
     } finally {
       my close
-      ::clay::destroy [self]
+      my clay refcount_decr
     }
   }
   method Dispatch {} {
@@ -836,7 +836,7 @@ namespace eval ::httpd::coro {
       try {
         $obj timeOutCheck
       } on error {} {
-        ::clay::destroy $obj
+        $obj clay refcount_decr
       }
     }
     ::clay::cleanup
@@ -1262,7 +1262,6 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     ###
     chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
     my ChannelCopy $reply_chan $chan -chunk 4096
-
   }
 }
 
@@ -1686,7 +1685,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       }
       # With length in hand, read the netstring encoded headers
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
-      chan configure $sock -blocking 0 -buffersize 4096 -buffering full
+      chan configure $sock -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query http $f $v
       }
@@ -1718,7 +1717,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      ::clay::destroy $pageobj
+      $pageobj clay refcount_decr
       catch {chan event readable $sock {}}
       catch {chan event writeable $sock {}}
       catch {chan close $sock}
@@ -1889,7 +1888,7 @@ package require tcl::chan::memchan
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]
-    ::clay::destroy $pageobj
+    $pageobj clay refcount_decr
     return $output
   }
 }

@@ -243,7 +243,7 @@
       my DoOutput
     } finally {
       my close
-      ::clay::destroy [self]
+      my clay refcount_decr
     }
   }
 

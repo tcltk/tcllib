@@ -203,7 +203,7 @@ package require tcl::chan::memchan
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]
-    ::clay::destroy $pageobj
+    $pageobj clay refcount_decr
     return $output
   }
 }

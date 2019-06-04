@@ -148,6 +148,5 @@
     ###
     chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
     my ChannelCopy $reply_chan $chan -chunk 4096
-
   }
 }
