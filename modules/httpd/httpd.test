@@ -290,7 +290,7 @@ clay::define ::test::content.file {
     superclass ::httpd::content.file
     method content {} {
         my reset
-        set doc_root $::TESTDIR
+        set doc_root  [my clay get path]
         my variable reply_file
         set reply_file [file join $doc_root pkgIndex.tcl]
     }
@@ -322,7 +322,7 @@ clay::define ::httpd::test::reply {
 TESTAPP plugin dict_dispatch
 TESTAPP uri add * /      [list mixin {reply ::test::content.echo}]
 TESTAPP uri add * /echo  [list mixin {reply ::test::content.echo}]
-TESTAPP uri add * /file  [list mixin {reply ::test::content.file}]
+TESTAPP uri add * /file  [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTAPP uri add * /time  [list mixin {reply ::test::content.time}]
 TESTAPP uri add * /error [list mixin {reply ::test::content.error}]
 
@@ -380,7 +380,7 @@ TESTAPP   uri add * /proxy* [list mixin {reply ::test::content.proxy} proxy_port
 TESTPROXY plugin dict_dispatch
 TESTPROXY uri add * /       [list mixin {reply ::test::content.echo}]
 TESTPROXY uri add * /echo   [list mixin {reply ::test::content.echo}]
-TESTPROXY uri add * /file   [list mixin {reply ::test::content.file}]
+TESTPROXY uri add * /file   [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTPROXY uri add * /time   [list mixin {reply ::test::content.time}]
 TESTPROXY uri add * /error  [list mixin {reply ::test::content.error}]
 
