@@ -165,7 +165,7 @@
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
+      ::clay::destroy $pageobj
       catch {chan event readable $sock {}}
       catch {chan event writeable $sock {}}
       catch {chan close $sock}
