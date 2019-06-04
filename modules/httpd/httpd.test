@@ -61,21 +61,20 @@ proc DEBUG args {
 
 # -------------------------------------------------------------------------
 # Constructors for various expected replies.
+proc IndexReply {{head {HTTP/1.0}}} {
+   global TESTDIR
+   set fin       [open [file join $TESTDIR pkgIndex.tcl] r]
+   set replyfile [read $fin]
+   close $fin
 
-proc IndexReply {} {
-    global TESTDIR
-    set fin       [open [file join $TESTDIR pkgIndex.tcl] r]
-    set replyfile [read $fin]
-    close $fin
+   append checkreply "$head 200 OK" \n
+   append checkreply "Content-Type: text/plain" \n
+   append checkreply "Connection: close" \n
+   append checkreply "Content-Length: [string length $replyfile]" \n
+   append checkreply \n
+   append checkreply $replyfile
 
-    append checkreply "HTTP/1.0 200 OK" \n
-    append checkreply "Content-Type: text/plain" \n
-    append checkreply "Connection: close" \n
-    append checkreply "Content-Length: [string length $replyfile]" \n
-    append checkreply \n
-    append checkreply $replyfile
-
-    return $checkreply
+   return $checkreply
 }
 
 proc 404 {} {
@@ -605,7 +604,7 @@ test scgi-client-0005 {URL Different output with a different request} -body {
 ::DEBUG puts scgi-client-0006
 test scgi-client-0006 {Return a file} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}
-} -match glob -result [IndexReply]
+} -match glob -result [IndexReply Status:]
 
 ::DEBUG puts all-tests-finished
 # -------------------------------------------------------------------------

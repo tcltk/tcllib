@@ -462,6 +462,24 @@
         }
         return {}
       }
+      refcount {
+        my variable refcount
+        if {![info exists refcount]} {
+          return 0
+        }
+        return $refcount
+      }
+      refcount_incr {
+        my variable refcount
+        incr refcount
+      }
+      refcount_decr {
+        my variable refcount
+        incr refcount -1
+        if {$refcount <= 0} {
+          ::clay::object_destroy [self]
+        }
+      }
       replace {
         set clay [lindex $args 0]
       }

@@ -163,7 +163,7 @@ namespace eval ::httpd::coro {}
       try {
         $obj timeOutCheck
       } on error {} {
-        ::clay::destroy $obj
+        $obj clay refcount_decr
       }
     }
     ::clay::cleanup
