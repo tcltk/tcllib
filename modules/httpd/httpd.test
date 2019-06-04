@@ -13,7 +13,7 @@ source [file join $TCLLIBMOD devtools testutilities.tcl]
 
 testsNeedTcl     8.6 ;# tool requires 8.6
 testsNeedTcltest 2
-
+set NOW [clock seconds]
 testsNeed TclOO 1
 
 support {
@@ -298,7 +298,7 @@ clay::define ::test::content.file {
 clay::define ::test::content.time {
     method content {} {
         my variable reply_body
-        set reply_body [clock seconds]
+        set reply_body $::NOW
     }
 }
 clay::define ::test::content.error {
@@ -352,7 +352,7 @@ test httpd-client-0004 {URL Generates Error} -body {
 ::DEBUG puts httpd-client-0005
 test httpd-client-0005 {URL Different output with a different request} -body {
     ::httpd::test::send 10001 {POST /time HTTP/1.0} {} {THIS ONE ALONE IS MINE}
-} -match glob -result [200 [clock seconds]]
+} -match glob -result [200 $::NOW]
 
 ::DEBUG puts httpd-client-0006
 test httpd-client-0006 {Return a file} -body {
@@ -418,7 +418,7 @@ test httpd-proxy-0004 {URL Generates Error} -body {
 ::DEBUG puts httpd-proxy-0005
 test httpd-proxy-0005 {URL Different output with a different request} -body {
     norm-eol [::httpd::test::send 10001 {POST /proxy/time HTTP/1.0} {} {THIS ONE ALONE IS MINE}]
-} -match glob -result [200 [clock seconds]]
+} -match glob -result [200 $::NOW]
 
 ::DEBUG puts httpd-proxy-0006
 test httpd-proxy-0006 {Return a file} -body {
@@ -449,7 +449,7 @@ test httpd-cgi-0002 {CGI Get} -body {
 
 test httpd-memchan-0001 {Memchan GET} {
     TESTAPP local_memchan geturl /time
-} [clock seconds]
+} $NOW
 
 # -------------------------------------------------------------------------
 namespace eval ::scgi {}
@@ -592,7 +592,7 @@ test scgi-client-0004 {URL Generates Error} -body {
 ::DEBUG puts scgi-client-0005
 test scgi-client-0005 {URL Different output with a different request} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD POST REQUEST_URI /time} {THIS ONE ALONE IS MINE}
-} -match glob -result [200+status-head [clock seconds]]
+} -match glob -result [200+status-head $::NOW]
 
 ###
 # Nerfed: There is something screwy that is preventing this test from working
