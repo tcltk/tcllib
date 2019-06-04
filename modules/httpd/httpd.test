@@ -290,7 +290,7 @@ clay::define ::test::content.file {
     superclass ::httpd::content.file
     method content {} {
         my reset
-        set doc_root [my request get DOCUMENT_ROOT]
+        set doc_root $::TESTDIR
         my variable reply_file
         set reply_file [file join $doc_root pkgIndex.tcl]
     }
@@ -446,7 +446,6 @@ test httpd-cgi-0002 {CGI Get} -body {
 ###
 # Test the local geturl method
 ###
-
 test httpd-memchan-0001 {Memchan GET} {
     TESTAPP local_memchan geturl /time
 } $NOW
