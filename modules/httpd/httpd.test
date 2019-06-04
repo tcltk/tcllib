@@ -604,7 +604,7 @@ test scgi-client-0005 {URL Different output with a different request} -body {
 ::DEBUG puts scgi-client-0006
 test scgi-client-0006 {Return a file} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}
-} -match glob -result [IndexReply Status:]
+} -result [IndexReply Status:]
 
 ::DEBUG puts all-tests-finished
 # -------------------------------------------------------------------------
