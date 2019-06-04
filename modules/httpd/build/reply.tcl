@@ -204,6 +204,7 @@
   method dispatch {newsock datastate} {
     my variable chan request
     try {
+      my clay refcount_incr
       set chan $newsock
       my ChannelRegister $chan
       chan event $chan readable {}

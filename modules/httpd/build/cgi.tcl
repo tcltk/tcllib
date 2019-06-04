@@ -94,6 +94,7 @@
     } else {
       chan flush $chanb
     }
+    my clay refcount_incr
     chan event $chanb readable [info coroutine]
     yield
   }
@@ -124,6 +125,7 @@
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
+    my clay refcount_decr
   }
 
   ###
