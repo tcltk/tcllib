@@ -566,7 +566,7 @@ scgi::test::app create TESTSCGI port 10003 doc_root $::TESTDIR
 TESTSCGI plugin dict_dispatch
 TESTSCGI uri add * /      [list mixin {reply ::test::content.echo}]
 TESTSCGI uri add * /echo  [list mixin {reply ::test::content.echo}]
-TESTSCGI uri add * /file  [list mixin {reply ::test::content.file}]
+TESTSCGI uri add * /file  [list mixin {reply ::test::content.file} path $::TESTDIR]
 TESTSCGI uri add * /time  [list mixin {reply ::test::content.time}]
 TESTSCGI uri add * /error [list mixin {reply ::test::content.error}]
 

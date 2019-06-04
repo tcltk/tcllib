@@ -203,7 +203,7 @@ package require tcl::chan::memchan
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]
-    catch {$pageobj destroy}
+    ::clay::destroy $pageobj
     return $output
   }
 }

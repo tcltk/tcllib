@@ -297,6 +297,7 @@ Connection close}
 ###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
+  Variable ChannelRegister {}
   Delegate <server> {
     description {The server object which spawned this reply}
   }
@@ -313,7 +314,7 @@ Connection close}
     SESSION {}
   }
   constructor {ServerObj args} {
-    my variable chan dispatched_time uuid
+    my variable dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
     my clay delegate <server> $ServerObj
@@ -324,15 +325,29 @@ Connection close}
   destructor {
     my close
   }
-  method close {} {
-    my variable chan
-    if {[info exists chan] && $chan ne {}} {
-      catch {chan event $chan readable {}}
-      catch {chan event $chan writable {}}
-      catch {chan flush $chan}
-      catch {chan close $chan}
-      set chan {}
+  method ChannelRegister args {
+    my variable ChannelRegister
+    if {![info exists ChannelRegister]} {
+      set ChannelRegister {}
     }
+    foreach c $args {
+      if {$c ni $ChannelRegister} {
+        lappend ChannelRegister $c
+      }
+    }
+  }
+  method close {} {
+    my variable ChannelRegister
+    if {![info exists ChannelRegister]} {
+      return
+    }
+    foreach c $ChannelRegister {
+      catch {chan event $c readable {}}
+      catch {chan event $c writable {}}
+      catch {chan flush $c}
+      catch {chan close $c}
+    }
+    set ChannelRegister {}
   }
   method Log_Dispatched {} {
     my log Dispatched [dict create \
@@ -350,6 +365,7 @@ Connection close}
     my variable chan request
     try {
       set chan $newsock
+      my ChannelRegister $chan
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line
       if {[dict exists $datastate mixin]} {
@@ -385,6 +401,9 @@ Connection close}
     } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
+    } finally {
+      my close
+      ::clay::destroy [self]
     }
   }
   method Dispatch {} {
@@ -477,7 +496,6 @@ Connection close}
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     }
-    my destroy
   }
   method FormData {} {
     my variable chan formdata
@@ -546,17 +564,6 @@ Connection close}
     return $postdata
   }
   method Session_Load {} {}
-  method TransferComplete args {
-    my log TransferComplete
-    set chan {}
-    foreach c $args {
-      catch {chan event $c readable {}}
-      catch {chan event $c writable {}}
-      catch {chan flush $c}
-      catch {chan close $c}
-    }
-    my destroy
-  }
   method puts line {
     my variable reply_body
     append reply_body $line \n
@@ -786,6 +793,7 @@ namespace eval ::httpd::coro {
     return $result
   }
   method Connect {uuid sock ip} {
+    ::clay::cleanup
     yield [info coroutine]
     chan event $sock readable {}
     chan configure $sock \
@@ -828,9 +836,10 @@ namespace eval ::httpd::coro {
       try {
         $obj timeOutCheck
       } on error {} {
-        catch {$obj destroy}
+        ::clay::destroy $obj
       }
     }
+    ::clay::cleanup
   }
   method debug args {}
   method dispatch {data} {
@@ -1092,15 +1101,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ::clay::define ::httpd::content.cache {
   method Dispatch {} {
     my variable chan
-    try {
-      my wait writable $chan
-      chan configure $chan  -translation {binary binary}
-      chan puts -nonewline $chan [my clay get cache/ data]
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-    } finally {
-      my TransferComplete $chan
-    }
+    my wait writable $chan
+    chan configure $chan  -translation {binary binary}
+    chan puts -nonewline $chan [my clay get cache/ data]
   }
 }
 ::clay::define ::httpd::content.template {
@@ -1242,26 +1245,24 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     if {![info exists reply_file]} {
       tailcall my DoOutput
     }
-    try {
-      chan configure $chan  -translation {binary binary}
-      my log HttpAccess {}
-      ###
-      # Return a stream of data from a file
-      ###
-      set size [file size $reply_file]
-      my reply set Content-Length $size
-      append result [my reply output] \n
-      chan puts -nonewline $chan $result
-      set reply_chan [open $reply_file r]
-      my log SendReply [list length $size]
-      ###
-      # Output the file contents. With no -size flag, channel will copy until EOF
-      ###
-      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-      my ChannelCopy $reply_chan $chan -chunk 4096
-    } finally {
-      my TransferComplete $reply_chan $chan
-    }
+    chan configure $chan  -translation {binary binary}
+    my log HttpAccess {}
+    ###
+    # Return a stream of data from a file
+    ###
+    set size [file size $reply_file]
+    my reply set Content-Length $size
+    append result [my reply output] \n
+    chan puts -nonewline $chan $result
+    set reply_chan [open $reply_file r]
+    my ChannelRegister $reply_chan
+    my log SendReply [list length $size]
+    ###
+    # Output the file contents. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+    my ChannelCopy $reply_chan $chan -chunk 4096
+
   }
 }
 
@@ -1421,12 +1422,9 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
-    try {
-      my ProxyRequest $chan $sock
-      my ProxyReply   $sock $chan
-    } finally {
-      my TransferComplete $chan $sock
-    }
+    my ChannelRegister $sock
+    my ProxyRequest $chan $sock
+    my ProxyReply   $sock $chan
   }
 }
 
@@ -1720,7 +1718,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
+      ::clay::destroy $pageobj
       catch {chan event readable $sock {}}
       catch {chan event writeable $sock {}}
       catch {chan close $sock}
@@ -1891,7 +1889,7 @@ package require tcl::chan::memchan
     }
     $pageobj dispatch $sock $reply
     set output [$pageobj output]
-    catch {$pageobj destroy}
+    ::clay::destroy $pageobj
     return $output
   }
 }

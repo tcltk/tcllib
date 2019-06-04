@@ -131,25 +131,23 @@
     if {![info exists reply_file]} {
       tailcall my DoOutput
     }
-    try {
-      chan configure $chan  -translation {binary binary}
-      my log HttpAccess {}
-      ###
-      # Return a stream of data from a file
-      ###
-      set size [file size $reply_file]
-      my reply set Content-Length $size
-      append result [my reply output] \n
-      chan puts -nonewline $chan $result
-      set reply_chan [open $reply_file r]
-      my log SendReply [list length $size]
-      ###
-      # Output the file contents. With no -size flag, channel will copy until EOF
-      ###
-      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-      my ChannelCopy $reply_chan $chan -chunk 4096
-    } finally {
-      my TransferComplete $reply_chan $chan
-    }
+    chan configure $chan  -translation {binary binary}
+    my log HttpAccess {}
+    ###
+    # Return a stream of data from a file
+    ###
+    set size [file size $reply_file]
+    my reply set Content-Length $size
+    append result [my reply output] \n
+    chan puts -nonewline $chan $result
+    set reply_chan [open $reply_file r]
+    my ChannelRegister $reply_chan
+    my log SendReply [list length $size]
+    ###
+    # Output the file contents. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+    my ChannelCopy $reply_chan $chan -chunk 4096
+
   }
 }

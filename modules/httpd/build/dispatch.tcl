@@ -29,15 +29,9 @@
 
   method Dispatch {} {
     my variable chan
-    try {
-      my wait writable $chan
-      chan configure $chan  -translation {binary binary}
-      chan puts -nonewline $chan [my clay get cache/ data]
-    } on error {err info} {
-      my <server> debug [dict get $info -errorinfo]
-    } finally {
-      my TransferComplete $chan
-    }
+    my wait writable $chan
+    chan configure $chan  -translation {binary binary}
+    chan puts -nonewline $chan [my clay get cache/ data]
   }
 }
 
