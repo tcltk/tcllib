@@ -606,6 +606,14 @@ test scgi-client-0006 {Return a file} -body {
     ::scgi::test::send 10003 {REQUEST_METHOD GET REQUEST_URI /file} {}
 } -result [IndexReply Status:]
 
+###
+# Test the all object have been destroyed after ::clay::cleanup
+###
+test httpd-garbage-collection {Test that garbage collection leaves nothing behind} -body {
+  ::clay::cleanup
+  info commands ::httpd::object::*
+} -result {}
+
 ::DEBUG puts all-tests-finished
 # -------------------------------------------------------------------------
 
