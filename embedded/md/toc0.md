@@ -437,6 +437,8 @@
 
           + [ftpd](tcllib/files/modules/ftpd/ftpd\.md) Tcl FTP server implementation
 
+          + [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
+
           + [ident](tcllib/files/modules/ident/ident\.md) Ident protocol client
 
           + [imap4](tcllib/files/modules/imap4/imap4\.md) imap client\-side tcl implementation of imap protocol
@@ -498,8 +500,6 @@
           + [smtpd](tcllib/files/modules/smtpd/smtpd\.md) Tcl SMTP server implementation
 
           + [tcllib\_ip](tcllib/files/modules/dns/tcllib\_ip\.md) IPv4 and IPv6 address manipulation
-
-          + [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
           + [udpcluster](tcllib/files/modules/udpcluster/udpcluster\.md) UDP Peer\-to\-Peer cluster
 
@@ -622,6 +622,8 @@
           + [tepam::procedure](tcllib/files/modules/tepam/tepam\_procedure\.md) TEPAM procedure, reference manual
 
       * [Programming tools]()
+
+          + [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
 
           + [cmdline](tcllib/files/modules/cmdline/cmdline\.md) Procedures to process command lines and options\.
 

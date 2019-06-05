@@ -5,6 +5,18 @@ set version 0.5.2
 set tclversion 8.5
 set module [file tail $moddir]
 
+proc ::ladd {varname args} {
+  upvar 1 $varname var
+  if ![info exists var] {
+      set var {}
+  }
+  foreach item $args {
+    if {$item in $var} continue
+    lappend var $item
+  }
+  return $var
+}
+
 dict set map %module% $module
 dict set map %version% $version
 dict set map %tclversion% $tclversion

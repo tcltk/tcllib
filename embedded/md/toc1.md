@@ -69,6 +69,10 @@
 
           + [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
 
+      * [clay]()
+
+          + [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
+
       * [clock]()
 
           + [clock\_iso8601](tcllib/files/modules/clock/iso8601\.md) Parsing ISO 8601 dates/times
@@ -391,7 +395,7 @@
 
       * [httpd]()
 
-          + [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
+          + [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
       * [ident]()
 

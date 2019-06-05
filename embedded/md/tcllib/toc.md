@@ -43,6 +43,8 @@
 
   - [cksum](tcllib/files/modules/crc/cksum\.md) Calculate a cksum\(1\) compatible checksum
 
+  - [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
+
   - [clock\_iso8601](tcllib/files/modules/clock/iso8601\.md) Parsing ISO 8601 dates/times
 
   - [clock\_rfc2822](tcllib/files/modules/clock/rfc2822\.md) Parsing ISO 8601 dates/times
@@ -286,6 +288,8 @@
   - [html](tcllib/files/modules/html/html\.md) Procedures to generate HTML structures
 
   - [htmlparse](tcllib/files/modules/htmlparse/htmlparse\.md) Procedures to parse HTML strings
+
+  - [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
   - [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
 
@@ -792,8 +796,6 @@
   - [tie](tcllib/files/modules/tie/tie\.md) Array persistence
 
   - [tiff](tcllib/files/modules/tiff/tiff\.md) TIFF reading, writing, and querying and manipulation of meta data
-
-  - [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
   - [tool](tcllib/files/modules/tool/tool\.md) TclOO Library \(TOOL\) Framework
 
