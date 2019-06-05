@@ -333,6 +333,9 @@ tcllib
 \fBcksum\fR
 \fIfiles/modules/crc/cksum\&.n\fR: Calculate a cksum(1) compatible checksum
 .TP
+\fBclay\fR
+\fIfiles/modules/clay/clay\&.n\fR: A minimalist framework for large scale OO Projects
+.TP
 \fBclock_iso8601\fR
 \fIfiles/modules/clock/iso8601\&.n\fR: Parsing ISO 8601 dates/times
 .TP
@@ -698,6 +701,9 @@ tcllib
 .TP
 \fBhtmlparse\fR
 \fIfiles/modules/htmlparse/htmlparse\&.n\fR: Procedures to parse HTML strings
+.TP
+\fBhttpd\fR
+\fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
 .TP
 \fBhuddle\fR
 \fIfiles/modules/yaml/huddle\&.n\fR: Create and manipulate huddle object
@@ -1460,9 +1466,6 @@ tcllib
 .TP
 \fBtool\fR
 \fIfiles/modules/tool/tool\&.n\fR: TclOO Library (TOOL) Framework
-.TP
-\fBtool\fR
-\fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
 .TP
 \fBtool::dict_ensemble\fR
 \fIfiles/modules/tool/tool_dict_ensemble\&.n\fR: Dictionary Tools

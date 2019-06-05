@@ -146,6 +146,7 @@
 <li><a href="#15"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></li>
 <li><a href="#16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></li>
 <li><a href="#17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></li>
+<li><a href="#18"><b class="cmd">math::numtheory::differenceNumberPrimesLegendreModified</b> <i class="arg">lower</i> <i class="arg">upper</i></a></li>
 </ul>
 </div>
 </div>
@@ -271,19 +272,27 @@ relatively prime to N)</p>
 <dd><p>Estimate the number of primes according the formula by Gauss.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
 </dl></dd>
 <dt><a name="16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
 </dl></dd>
 <dt><a name="17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the modified formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
+</dl></dd>
+<dt><a name="18"><b class="cmd">math::numtheory::differenceNumberPrimesLegendreModified</b> <i class="arg">lower</i> <i class="arg">upper</i></a></dt>
+<dd><p>Estimate the number of primes between tow limits according the modified formula by Legendre.</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">lower</i> (in)</dt>
+<dd><p>Lower limit for the primes, should be larger than 0</p></dd>
+<dt>integer <i class="arg">upper</i> (in)</dt>
+<dd><p>Upper limit for the primes, should be larger than 0</p></dd>
 </dl></dd>
 </dl>
 </div>

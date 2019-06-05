@@ -250,7 +250,8 @@ are
 
   - __[pt::tclparam::configuration::tcloo](pt\_tclparam\_config\_tcloo\.md)__
 
-    Generated parsers are classes based on the __OO__ package\.
+    Generated parsers are classes based on the
+    __[OO](\.\./\.\./\.\./\.\./index\.md\#oo)__ package\.
 
 # <a name='section4'></a>Tcl/PARAM code representation of parsing expression grammars
 
