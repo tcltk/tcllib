@@ -460,5 +460,5 @@ Examples for the usage of this package can be found in the
 implementation of package [package ldap].
 
 [vset CATEGORY asn]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

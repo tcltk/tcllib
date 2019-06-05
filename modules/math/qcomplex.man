@@ -298,5 +298,5 @@ The complex power to be used
 [list_end]
 
 [vset CATEGORY {math :: complexnumbers}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -468,5 +468,5 @@ Abramowitz and Stegun: [emph "Handbook of Mathematical Functions"]
 (Dover, ISBN 486-61272-4)
 
 [vset CATEGORY {math :: special}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

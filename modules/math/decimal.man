@@ -195,5 +195,5 @@ the result is the same as for round-down.
 [para]
 
 [vset CATEGORY decimal]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

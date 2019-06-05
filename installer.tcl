@@ -282,7 +282,7 @@ proc defaults {} {
 	# location of its library.
 
 	# For a starkit [info library] is inside the running
-	# tclkit. Detect this and derive the lcoation from the
+	# tclkit. Detect this and derive the location from the
 	# location of the executable itself for that case.
 
 	if {[string match [info nameofexecutable]* [info library]]} {

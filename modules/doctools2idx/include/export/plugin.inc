@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- --- !doctools ---}]
 [manpage_begin doctools::idx::export::[vset PACKAGE] n [vset VERSION]]
-[copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2009-2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc "[vset NAME] export plugin"]
 [category  {Text formatter plugin}]
@@ -51,5 +51,5 @@ The created string is then returned as the result of the command.
 [include ../serialization.inc]
 
 [vset CATEGORY doctools]
-[include ../../../doctools2base/include/feedback.inc]
+[include ../../../common-text/feedback.inc]
 [manpage_end]

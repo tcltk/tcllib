@@ -243,14 +243,14 @@ and <b class="package"><a href="../ripemd/ripemd160.html">ripemd160</a></b>.</p>
 proc send_simple_message {recipient email_server subject body} {
     package require smtp
     package require mime
-    set token [mime::initialize -canonical text/plain \\
+    set token [mime::initialize -canonical text/plain \
 	-string $body]
     mime::setheader $token Subject $subject
-    smtp::sendmessage $token \\
+    smtp::sendmessage $token \
 	-recipients $recipient -servers $email_server
     mime::finalize $token
 }
-send_simple_message someone@somewhere.com localhost \\
+send_simple_message someone@somewhere.com localhost \
     &quot;This is the subject.&quot; &quot;This is the message.&quot;
 </pre>
 </div>

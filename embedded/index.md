@@ -3,9 +3,9 @@
 <h1 align="center">Tcl Library Source Code</h1>
 
 <center>
-Packages
-- [Table Of Contents](md/toc.md)
-- [Keyword Index](md/index.md)
+Packages - [Table Of Contents](md/toc.md)
+&nbsp;&nbsp;&nbsp;
+[Keyword Index](md/index.md)
 </center>
 
 <center>
@@ -14,6 +14,15 @@ Packages
 	<input type="submit" value="Search Package Documentation">
 	</form>
 </center>
+
+## Guides to Tcllib
+
+   * [Tcl Community - Kind Communication](md/tcllib/files/devdoc/tcl_community_communication.md)
+   * [License](md/tcllib/files/devdoc/tcllib_license.md)
+   * [How To Get The Sources](md/tcllib/files/devdoc/tcllib_sources.md)
+   * [How To Build And Install Tcllib](md/tcllib/files/devdoc/tcllib_installer.md)
+   * [The Developer's Guide](md/tcllib/files/devdoc/tcllib_devguide.md)
+   * [The Release Manager's Guide](md/tcllib/files/devdoc/tcllib_releasemgr.md)
 
 ## Discussion & Contact
 

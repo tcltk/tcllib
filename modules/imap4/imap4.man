@@ -1,4 +1,5 @@
-[manpage_begin imap4 n 0.5.3]
+[vset VERSION 0.5.3]
+[manpage_begin imap4 n [vset VERSION]]
 [see_also ftp]
 [see_also http]
 [see_also imap]
@@ -15,9 +16,9 @@
 [keywords tls]
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
-
+[category Networking]
 [require Tcl 8.5]
-[require imap4 [opt 0.5.2]]
+[require imap4 [opt [vset VERSION]]]
 
 [description]
 
@@ -361,7 +362,7 @@ RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
 OpenSSL, [uri http://www.openssl.org/]
 
 [vset CATEGORY imap4]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 
 Only a small part of rfc3501 implemented.
 [manpage_end]

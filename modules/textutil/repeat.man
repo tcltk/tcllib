@@ -42,5 +42,5 @@ A convenience command. Returns a string of [arg num] spaces.
 [list_end]
 
 [vset CATEGORY textutil]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

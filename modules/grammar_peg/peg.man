@@ -717,5 +717,5 @@ CoCo/R, a generator for recursive descent parsers.
 [list_end]
 
 [vset CATEGORY grammar_peg]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

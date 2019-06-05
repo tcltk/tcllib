@@ -68,5 +68,5 @@ math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
 }]
 
 [vset CATEGORY {math :: calculus}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

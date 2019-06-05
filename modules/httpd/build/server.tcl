@@ -114,6 +114,7 @@ namespace eval ::httpd::coro {}
   # closing the socket.
   ###
   method Connect {uuid sock ip} {
+    ::clay::cleanup
     yield [info coroutine]
     chan event $sock readable {}
     chan configure $sock \
@@ -162,9 +163,10 @@ namespace eval ::httpd::coro {}
       try {
         $obj timeOutCheck
       } on error {} {
-        catch {$obj destroy}
+        $obj clay refcount_decr
       }
     }
+    ::clay::cleanup
   }
 
   method debug args {}

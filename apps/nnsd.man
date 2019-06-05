@@ -87,5 +87,5 @@ specifies the TCP port the server has to listen on for requests.
 [list_end]
 
 [vset CATEGORY nameserv]
-[include ../modules/doctools2base/include/feedback.inc]
+[include ../modules/common-text/feedback.inc]
 [manpage_end]

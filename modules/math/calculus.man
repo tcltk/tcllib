@@ -447,5 +447,5 @@ It can be solved with the following fragment:
 [example_end]
 
 [vset CATEGORY {math :: calculus}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -34,6 +34,7 @@ dicttool \- Dictionary Tools
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
+package require dicttool ?1\.0?  
 
 [__ladd__ *varname* *args*](#1)  
 [__ldelete__ *varname* *args*](#2)  
@@ -57,8 +58,8 @@ core\.
 
   - <a name='2'></a>__ldelete__ *varname* *args*
 
-    This command will add a delete all instances of each element in *args*
-    from *varname*\.
+    This command will delete all instances of each element in *args* from
+    *varname*\.
 
   - <a name='3'></a>__dict getnull__ *args*
 

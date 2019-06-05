@@ -36,10 +36,12 @@ imap4 \- imap client\-side tcl implementation of imap protocol
 
   - [Keywords](#keywords)
 
+  - [Category](#category)
+
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require imap4 ?0\.5\.2?  
+package require imap4 ?0\.5\.3?  
 
 [__::imap4::open__ *hostname* ?*port*?](#1)  
 [__::imap4::starttls__ *chan*](#2)  
@@ -513,3 +515,7 @@ secondary navigation bar\. Only a small part of rfc3501 implemented\.
 [mail](\.\./\.\./\.\./\.\./index\.md\#mail), [net](\.\./\.\./\.\./\.\./index\.md\#net),
 [rfc3501](\.\./\.\./\.\./\.\./index\.md\#rfc3501),
 [ssl](\.\./\.\./\.\./\.\./index\.md\#ssl), [tls](\.\./\.\./\.\./\.\./index\.md\#tls)
+
+# <a name='category'></a>CATEGORY
+
+Networking

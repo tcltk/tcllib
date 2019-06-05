@@ -135,13 +135,13 @@ Keyword Indices* and the *DocTools \- General*, respectively\.
                             |                               |                       |
             +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
             |               |                         |     |    |                  |               |                       |               |
-    doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
+    struct:map              =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
                             |                         |     |    |                  |
                     doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
                             doctoc                    |     |    |                  doctoc, json
-                            json                      |     |    |                  |           \\
-                            html                      |     |    |          doctools::toc::parse \\
-                            nroff                     |     |    |                  |             \\
+                            json                      |     |    |                  |           \
+                            html                      |     |    |          doctools::toc::parse \
+                            nroff                     |     |    |                  |             \
                             wiki                      |     |    |  +---------------+              json
                             text                      |     |    |  |               |
                                                     doctools::toc::structure        |

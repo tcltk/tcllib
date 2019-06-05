@@ -126,6 +126,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
+<li>package require <b class="pkgname">dicttool <span class="opt">?1.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></li>
@@ -147,7 +148,7 @@ just in case any of these slip into the core.</p>
 <dd><p>This command will add a new instance of each element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
 is not already present.</p></dd>
 <dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
-<dd><p>This command will add a delete all instances of each element in <i class="arg">args</i> from <i class="arg">varname</i>.</p></dd>
+<dd><p>This command will delete all instances of each element in <i class="arg">args</i> from <i class="arg">varname</i>.</p></dd>
 <dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
 <dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
 list instead of throwing an error.</p></dd>

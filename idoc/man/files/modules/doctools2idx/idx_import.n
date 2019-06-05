@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'idx_import\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx::import" n 0\&.2 tcllib "Documentation tools"
+.TH "doctools::idx::import" n 0\&.2\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,11 +274,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::import \- Importing keyword indices
 .SH SYNOPSIS
-package require \fBdoctools::idx::import  ?0\&.2?\fR
+package require \fBdoctools::idx::import  ?0\&.2\&.1?\fR
 .sp
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBdoctools::config \fR
+package require \fBstruct::map \fR
 .sp
 package require \fBdoctools::idx::structure \fR
 .sp
@@ -753,6 +753,6 @@ conversion, docidx, documentation, import, index, json, keyword index, manpage, 
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

@@ -92,5 +92,5 @@ check value in the footer. Use this option to change the default from
 [list_end]
 
 [vset CATEGORY base64]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

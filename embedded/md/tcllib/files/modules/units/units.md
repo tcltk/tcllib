@@ -182,10 +182,10 @@ must conform to these rules\.
 
 # <a name='section4'></a>SI UNITS
 
-The standard SI units are predefined according to *NIST Special Publication
-330*\. Standard units for both SI Base Units \(Table 1\) and SI Derived Units with
-Special Names \(Tables 3a and 3b\) are included here for reference\. Each standard
-unit name and abbreviation are included in this package\.
+The standard SI units are predefined according to *NIST Special* *Publication
+330* \. Standard units for both SI Base Units \(Table 1\) and SI Derived Units
+with Special Names \(Tables 3a and 3b\) are included here for reference\. Each
+standard unit name and abbreviation are included in this package\.
 
 ## <a name='subsection2'></a>SI Base Units
 
@@ -239,7 +239,7 @@ to add to the units library\.
 SI Units can have a multiple or sub\-multiple prefix\. The prefix or its
 abbreviation should appear before the unit, without spaces\. Compound prefixes
 are not allowed, and a prefix should never be used alone\. These prefixes are
-defined in Table 5 of *Special Publication 330*\.
+defined in Table 5 of *Special Publication* *330* \.
 
 ## <a name='subsection4'></a>SI Prefixes
 
@@ -341,18 +341,18 @@ strings\.
 
 A units system enhanced with quantity type checking might benefit from inclusion
 of other derived types which are expressed in terms of special units, as
-illustrated in Table 2 of *NIST Publication 330*\. The quantity *area*, for
-example, could be defined as units properly reducing to *meter^2*, although
-the utility of defining a unit named *square meter* is arguable\.
+illustrated in Table 2 of *NIST Publication* *330* \. The quantity *area*,
+for example, could be defined as units properly reducing to *meter^2*,
+although the utility of defining a unit named *square meter* is arguable\.
 
 # <a name='section5'></a>REFERENCES
 
 The unit names, abbreviations, and conversion values are derived from those
 published by the United States Department of Commerce Technology Administration,
 National Institute of Standards and Technology \(NIST\) in *NIST Special
-Publication 330: The International System of Units \(SI\)* and *NIST Special
-Publication 811: Guide for the Use of the International System of Units \(SI\)*\.
-Both of these publications are available \(as of December 2000\) from
+Publication 330: The International System of* *Units \(SI\)* and *NIST Special
+Publication 811: Guide for* *the Use of the International System of Units
+\(SI\)* \. Both of these publications are available \(as of December 2000\) from
 [http://physics\.nist\.gov/cuu/Reference/contents\.html](http://physics\.nist\.gov/cuu/Reference/contents\.html)
 
 The ideas behind implementation of this package is based in part on code written

@@ -389,5 +389,5 @@ Modularisation by Steve Ball, also the split/join/resolve
 functionality. RFC 3986 conformance by Keith Nash.
 
 [vset CATEGORY uri]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

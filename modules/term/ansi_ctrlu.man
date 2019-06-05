@@ -75,5 +75,5 @@ the number of rows (aka lines) available for display.
 [list_end]
 
 [vset CATEGORY term]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

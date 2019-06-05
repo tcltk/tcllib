@@ -55,7 +55,7 @@ revision ?, when try/finally was implemented as Tcl procedure instead of in C\.
 
 # <a name='section2'></a>EXAMPLES
 
-    __throw__ {MYERROR CODE} "My error message"
+> __throw__ \{MYERROR CODE\} "My error message"
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 
