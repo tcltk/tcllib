@@ -151,7 +151,7 @@ The following commands are possible for matrix objects:
 
     This operation is in effect equivalent to
 
-        *matrixName* __deserialize__ [*sourcematrix* __serialize__]
+    > *matrixName* __deserialize__ \[*sourcematrix* __serialize__\]
 
   - <a name='4'></a>*matrixName* __\-\->__ *destmatrix*
 
@@ -162,7 +162,7 @@ The following commands are possible for matrix objects:
 
     This operation is in effect equivalent to
 
-        *destmatrix* __deserialize__ [*matrixName* __serialize__]
+    > *destmatrix* __deserialize__ \[*matrixName* __serialize__\]
 
   - <a name='5'></a>*matrixName* __add column__ ?*values*?
 

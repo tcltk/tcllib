@@ -1,12 +1,12 @@
-## 
+##
 ## This is the file `primes.tcl',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-## 
+##
 ## The original source files were:
-## 
+##
 ## numtheory.dtx  (with options: `pkg_primes pkg_common')
-## 
+##
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -26,7 +26,8 @@ namespace eval ::math::numtheory {
 
     namespace export firstNprimes primesLowerThan primeFactors uniquePrimeFactors factors \
                      totient moebius legendre jacobi gcd lcm \
-                     numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified
+                     numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified \
+                     differenceNumberPrimesLegendreModified
 }
 
 # ComputeNextPrime --
@@ -465,6 +466,33 @@ proc ::math::numtheory::numberPrimesLegendreModified {limit} {
     }
     expr {$limit / (log($limit) - 1.08366)}
 }
-## 
-## 
+
+# differenceNumberPrimesLegendreModified --
+#     Return the approximate difference number of primes
+#     between a lower and higher limit as given values
+#     for approximate number of primes based on the
+#     modified formula by Legendre
+#
+# Arguments:
+#     limit1     The lower limit for the interval, largest prime to be included in the l.limit
+#     limit2     The upper limit for the interval, largest prime to be included in the u.mlimit
+#
+# Returns:
+#     Approximate difference number of primes
+#
+proc ::math::numtheory::differenceNumberPrimesLegendreModified {limit1 limit2} {
+    if { $limit1 <= 1 } {
+        return -code error "The lower limit must be larger than 1"
+    }
+    if { $limit2 <= 1 } {
+        return -code error "The upper limit must be larger than 1"
+    }
+
+     set aa [::math::numtheory::numberPrimesLegendreModified [expr ($limit1)]]
+     set bb [::math::numtheory::numberPrimesLegendreModified [expr ($limit2)]]
+     expr {abs($bb-$aa)}
+}
+
+##
+##
 ## End of file `primes.tcl'.

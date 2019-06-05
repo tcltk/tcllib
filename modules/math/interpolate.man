@@ -295,5 +295,5 @@ to get the following output:
 As you can see, the values at the abscissae are reproduced perfectly.
 
 [vset CATEGORY {math :: interpolate}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

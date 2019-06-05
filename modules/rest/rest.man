@@ -549,7 +549,7 @@ Example
 [include ../common-text/tls-security-notes.inc]
 
 [vset CATEGORY rest]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [comment {
 TOKENS
      the value is substituted into the url at call time.

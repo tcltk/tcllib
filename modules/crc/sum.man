@@ -104,5 +104,5 @@ Return the checksum using an alternative format template.
 Pat Thoyts
 
 [vset CATEGORY crc]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

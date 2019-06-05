@@ -109,7 +109,6 @@ set self [self]
 my variable DestroyEvent
 if {$DestroyEvent} return
 set DestroyEvent 1
-::clay::object_destroy $self
 }
   append body $rawbody
   ::oo::define [current_class] destructor $body
@@ -195,23 +194,3 @@ proc ::clay::define::Variable {name {default {}}} {
   set name [string trimright $name :/]
   $class clay set variable/ $name $default
 }
-
-proc ::clay::object_create {objname {class {}}} {
-  #if {$::clay::trace>0} {
-  #  puts [list $objname CREATE]
-  #}
-}
-
-proc ::clay::object_rename {object newname} {
-  if {$::clay::trace>0} {
-    puts [list $object RENAME -> $newname]
-  }
-}
-
-proc ::clay::object_destroy objname {
-  if {$::clay::trace>0} {
-    puts [list $objname DESTROY]
-  }
-  #::cron::object_destroy $objname
-}
-

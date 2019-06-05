@@ -191,5 +191,5 @@ Calculate the cotangent of the angle (in degrees)
 [list_end]
 
 [vset CATEGORY {math :: trig}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

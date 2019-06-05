@@ -70,5 +70,5 @@ of the command to execute. [arg args] are arguments to pass to that command.
 [list_end]
 [para]
 [vset CATEGORY odie]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

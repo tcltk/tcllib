@@ -439,5 +439,5 @@ connection may be allocated to just one client request at a time.
 }]
 
 [vset CATEGORY {struct :: pool}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

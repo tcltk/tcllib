@@ -121,6 +121,7 @@
       dict set query http CONTENT_LENGTH 0
       dict set query http REQUEST_URI /
       dict set query http REMOTE_ADDR $ip
+      dict set query http DOCUMENT_ROOT [my clay get server/ doc_root]
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]
@@ -133,7 +134,7 @@
       }
       # With length in hand, read the netstring encoded headers
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
-      chan configure $sock -blocking 0 -buffersize 4096 -buffering full
+      chan configure $sock -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query http $f $v
       }
@@ -165,7 +166,7 @@
     } on error {err errdat} {
       my debug [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
       my log BadRequest $uuid [list ip: $ip error: $err errorinfo: [dict get $errdat -errorinfo]]
-      catch {$pageobj destroy}
+      $pageobj clay refcount_decr
       catch {chan event readable $sock {}}
       catch {chan event writeable $sock {}}
       catch {chan close $sock}

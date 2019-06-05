@@ -161,5 +161,5 @@ instance of the classes defined with it.
 Donal Fellows, Andreas Kupries
 
 [vset CATEGORY oo::util]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

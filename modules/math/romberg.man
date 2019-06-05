@@ -336,5 +336,5 @@ integral is 3.97746 +/- 2.3557e-010
 }]
 
 [vset CATEGORY {math :: calculus}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,17 +1,9 @@
-::namespace eval ::clay::event {}
-
-###
-# Mark an object for destruction on the next cleanup
-###
-proc ::clay::destroy args {
-  if {![info exists ::clay::idle_destroy]} {
-    set ::clay::idle_destroy {}
-  }
-  foreach object $args {
-    if {$object in $::clay::idle_destroy} continue
-    lappend ::clay::idle_destroy  $object
-  }
+if {[info commands ::cron::object_destroy] eq {}} {
+  # Provide a noop if we aren't running with the cron scheduler
+  namespace eval ::cron {}
+  proc ::cron::object_destroy args {}
 }
+::namespace eval ::clay::event {}
 
 ###
 # Process the queue of objects to be destroyed
@@ -24,6 +16,35 @@ proc ::clay::cleanup {} {
     }
   }
   set ::clay::idle_destroy {}
+}
+
+proc ::clay::object_create {objname {class {}}} {
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
+}
+
+proc ::clay::object_rename {object newname} {
+  if {$::clay::trace>0} {
+    puts [list $object RENAME -> $newname]
+  }
+}
+
+###
+# Mark an objects for destruction on the next cleanup
+###
+proc ::clay::object_destroy args {
+  if {![info exists ::clay::idle_destroy]} {
+    set ::clay::idle_destroy {}
+  }
+  foreach objname $args {
+    if {$::clay::trace>0} {
+      puts [list $objname DESTROY]
+    }
+    ::cron::object_destroy $objname
+    if {$objname in $::clay::idle_destroy} continue
+    lappend ::clay::idle_destroy $objname
+  }
 }
 
 ###

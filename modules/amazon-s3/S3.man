@@ -1446,5 +1446,5 @@ to be run on Amazon's Elastic Compute Cloud.
 [include ../common-text/tls-security-notes.inc]
 
 [vset CATEGORY amazon-s3]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

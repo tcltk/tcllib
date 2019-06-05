@@ -1,9 +1,9 @@
 
 [//000000001]: # (json \- JSON)
 [//000000002]: # (Generated from file 'json\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2006 ActiveState Software Inc\.  
-Copyright &copy; 2009 Thomas Maeder, Glue Software Engineering AG)
-[//000000004]: # (json\(n\) 1\.3\.4 tcllib "JSON")
+[//000000003]: # (Copyright &copy; 2006 ActiveState Software Inc\.)
+[//000000004]: # (Copyright &copy; 2009 Thomas Maeder, Glue Software Engineering AG)
+[//000000005]: # (json\(n\) 1\.3\.4 tcllib "JSON")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

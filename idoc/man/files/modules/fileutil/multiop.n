@@ -636,19 +636,19 @@ reference to a multi-file operation object\&.
 .CS
 
 
-    $F do copy                       \\\\
-	the  *\&.dll                    \\\\
-	from c:/TDK/PrivateOpenSSL/bin \\\\
+    $F do copy                       \\
+	the  *\&.dll                    \\
+	from c:/TDK/PrivateOpenSSL/bin \\
 	to   [installdir_of tls]
 
 .CE
 .CS
 
 
-    $F do move      \\\\
-	the  *       \\\\
-	from /sources \\\\
-	into /scratch  \\\\
+    $F do move      \\
+	the  *       \\
+	from /sources \\
+	into /scratch  \\
 	but not *\&.html
 
     # Alternatively use 'except for *\&.html'\&.
@@ -657,20 +657,20 @@ reference to a multi-file operation object\&.
 .CS
 
 
-    $F do           \\\\
-	move         \\\\
-	the  index    \\\\
-	from /sources  \\\\
-	into /scratch   \\\\
+    $F do           \\
+	move         \\
+	the  index    \\
+	from /sources  \\
+	into /scratch   \\
 	as   pkgIndex\&.tcl
 
 .CE
 .CS
 
 
-    $F do         \\\\
-	remove     \\\\
-	the *\&.txt  \\\\
+    $F do         \\
+	remove     \\
+	the *\&.txt  \\
 	in /scratch
 
 .CE
@@ -681,11 +681,11 @@ For example the second example in this section can re-arranged into:
 .CS
 
 
-    $F do            \\\\
-	from /sources \\\\
-	into /scratch  \\\\
-	but not *\&.html \\\\
-	move           \\\\
+    $F do            \\
+	from /sources \\
+	into /scratch  \\
+	but not *\&.html \\
+	move           \\
 	the  *
 
 .CE
@@ -701,13 +701,13 @@ can be merged and rewritten into the equivalent:
 .CS
 
 
-$F do                   \\\\
-    move                 \\\\
-    the  *                \\\\
-    from /sources          \\\\
-    into /scratch           \\\\
-    but not *\&.html not index \\\\
-    the  index               \\\\
+$F do                   \\
+    move                 \\
+    the  *                \\
+    from /sources          \\
+    into /scratch           \\
+    but not *\&.html not index \\
+    the  index               \\
     as   pkgIndex\&.tcl
 
 .CE

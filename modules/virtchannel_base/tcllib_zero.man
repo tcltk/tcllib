@@ -41,5 +41,5 @@ This command creates a new zero channel and returns its handle.
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

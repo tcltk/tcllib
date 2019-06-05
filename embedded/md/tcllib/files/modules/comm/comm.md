@@ -1,10 +1,10 @@
 
 [//000000001]: # (comm \- Remote communication)
 [//000000002]: # (Generated from file 'comm\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 1995\-1998 The Open Group\. All Rights Reserved\.  
-Copyright &copy; 2003\-2004 ActiveState Corporation\.  
-Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (comm\(n\) 4\.6\.3 tcllib "Remote communication")
+[//000000003]: # (Copyright &copy; 1995\-1998 The Open Group\. All Rights Reserved\.)
+[//000000004]: # (Copyright &copy; 2003\-2004 ActiveState Corporation\.)
+[//000000005]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000006]: # (comm\(n\) 4\.6\.3 tcllib "Remote communication")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

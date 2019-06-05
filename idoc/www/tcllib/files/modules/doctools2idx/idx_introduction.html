@@ -210,13 +210,13 @@ the <i class="term">DocTools - General</i>, respectively.</p>
                         |                               |                       |
         +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
         |               |                         |     |    |                  |               |                       |               |
-doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
+struct::map             =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
                         |                         |     |    |                  |
                 doctools::idx::export::&lt;*&gt;        |     |    |          doctools::idx::import::&lt;*&gt;
                         docidx                    |     |    |                  docidx, json
-                        json                      |     |    |                  |           \\
-                        html                      |     |    |          doctools::idx::parse \\
-                        nroff                     |     |    |                  |             \\
+                        json                      |     |    |                  |           \
+                        html                      |     |    |          doctools::idx::parse \
+                        nroff                     |     |    |                  |             \
                         wiki                      |     |    |  +---------------+              json
                         text                      |     |    |  |               |
                                                 doctools::idx::structure        |

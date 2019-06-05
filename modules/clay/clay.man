@@ -448,31 +448,28 @@ $A <counter> value
 
 
 
-[call proc [cmd clay::object_create] [arg objname] [opt "[arg class] [const ""]"]]
-
-
-[call proc [cmd clay::object_rename] [arg object] [arg newname]]
-
-
-[call proc [cmd clay::object_destroy] [arg objname]]
-
-
 [call proc [cmd clay::ensemble_methodbody] [arg ensemble] [arg einfo]]
 
 
 [call proc [cmd clay::define::Ensemble] [arg rawmethod] [opt "[arg args]"]]
 
 
-[call proc [cmd clay::destroy] [opt "[arg args]"]]
-
- Mark an object for destruction on the next cleanup
-
-
-
-
 [call proc [cmd clay::cleanup]]
 
  Process the queue of objects to be destroyed
+
+
+
+
+[call proc [cmd clay::object_create] [arg objname] [opt "[arg class] [const ""]"]]
+
+
+[call proc [cmd clay::object_rename] [arg object] [arg newname]]
+
+
+[call proc [cmd clay::object_destroy] [opt "[arg args]"]]
+
+ Mark an objects for destruction on the next cleanup
 
 
 
@@ -701,7 +698,7 @@ Merge the conents of [const value] with the object's clay storage at [const path
 [section AUTHORS]
 Sean Woods [uri mailto:<yoda@etoyoc.com>][para]
 [vset CATEGORY oo]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 
 [manpage_end]
 

@@ -82,11 +82,11 @@ coupling between the modules sending and receiving the notification\.
 Loose coupling between sender and receiver is often desirable, however\. In
 Model/View/Controller terms, a View can send a command \(stemming from user
 input\) to the Controller, which updates the Model\. The Model can then call a
-hook *to which all relevant Views subscribe\.* The Model is decoupled from the
-Views, and indeed need not know whether any Views actually exist\. At present,
-Tcl/Tk has no standard mechanism for implementing loose coupling of this kind\.
-This package defines a new command, __hook__, which implements just such a
-mechanism\.
+hook *to which all relevant* *Views subscribe\.* The Model is decoupled from
+the Views, and indeed need not know whether any Views actually exist\. At
+present, Tcl/Tk has no standard mechanism for implementing loose coupling of
+this kind\. This package defines a new command, __hook__, which implements
+just such a mechanism\.
 
 ## <a name='subsection2'></a>Bindings
 

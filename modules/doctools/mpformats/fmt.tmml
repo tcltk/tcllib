@@ -40,9 +40,29 @@ proc fmt_opt 	{text}	{ wrap $text o }
 c_pass 1 fmt_example_begin {}	NOP
 c_pass 1 fmt_example_end {} 	NOP
 c_pass 1 fmt_example {code}	NOP
-c_pass 2 fmt_example_begin {}	{ sequence [xmlContext $::block] [start example] }
-c_pass 2 fmt_example_end   {}	{ end example }
-c_pass 2 fmt_example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
+c_pass 2 fmt_example_begin {}	{
+    global inexample ; set inexample 1
+    sequence [xmlContext $::block] [start example]
+}
+c_pass 2 fmt_example_end   {}	{
+    global inexample ; set inexample 0
+    end example
+}
+c_pass 2 fmt_example {code} {
+    set code [string map [list \\\\\n \\\n] $code]
+    sequence [xmlContext $::block] [wrap $code example]
+}
+
+global inexample
+set    inexample 0
+
+proc fmt_plain_text {text} {
+    global inexample
+    if {$inexample} {
+	set text [string map [list \\\\\n \\\n] $text]
+    }
+    return $text
+}
 
 proc fmt_comment {text} {xmlComment $text}
 proc fmt_sectref {text {id {}}} {

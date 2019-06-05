@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'plugin\&.inc' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx::import::json" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::idx::import::json" n 0\&.2\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,9 +274,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools::idx::import::json \- JSON import plugin
 .SH SYNOPSIS
-package require \fBTcl  8\&.4\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBdoctools::idx::import::json  ?0\&.1?\fR
+package require \fBdoctools::idx::import::json  ?0\&.2\&.1?\fR
 .sp
 package require \fBdoctools::idx::structure \fR
 .sp
@@ -462,6 +462,6 @@ JSON, deserialization, doctools, import, index
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

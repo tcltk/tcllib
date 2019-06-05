@@ -39,5 +39,5 @@ nominal [arg delta].
 [list_end]
 
 [vset CATEGORY debug]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

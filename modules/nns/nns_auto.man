@@ -115,5 +115,5 @@ remembered information simply restarts the timer and subsequent
 reconnection attempts.
 
 [vset CATEGORY nameserv]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

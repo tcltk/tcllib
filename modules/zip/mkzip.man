@@ -1,4 +1,4 @@
-[vset ZIP_mkzip_VERSION 1.2]
+[vset ZIP_mkzip_VERSION 1.2.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::mkzip n [vset ZIP_mkzip_VERSION]]
 [keywords decompression zip]
@@ -100,5 +100,5 @@ is specified.
 [list_end]
 
 [vset CATEGORY zipfile]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

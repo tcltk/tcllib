@@ -107,5 +107,5 @@ Return the number of items in the prioqueue.
 [list_end]
 
 [vset CATEGORY {struct :: prioqueue}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

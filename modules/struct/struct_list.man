@@ -826,5 +826,5 @@ volume 4". Available on the Web at the author's personal site:
 [list_end]
 
 [vset CATEGORY {struct :: list}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

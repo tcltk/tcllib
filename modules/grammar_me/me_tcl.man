@@ -339,5 +339,5 @@ Tcl stack, not the machine state. It replaces [term ias_mpop].
 [para]
 
 [vset CATEGORY grammar_me]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

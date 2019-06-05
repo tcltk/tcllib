@@ -23,7 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
-package provide mime 1.6
+package provide mime 1.6.1
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -379,7 +379,9 @@ proc ::mime::initialize args {
     variable $token
     upvar 0 $token state
 
-    if {[catch {{*}[list mime::initializeaux $token {*}$args]} result eopts]} {
+    if {[catch {
+	mime::initializeaux $token {*}$args
+    } result eopts]} {
         catch {mime::finalize $token -subordinates dynamic}
         return -options $eopts $result
     }
@@ -658,25 +660,23 @@ proc ::mime::parsepart {token} {
                 incr pos [expr {$x + 1}]
             }
         } else {
-
-        if {$state(lines.current) >= $state(lines.count)} {
-            set blankP 1
-            set line {}
-        } else {
-            set line [lindex $state(lines) $state(lines.current)]
-            incr state(lines.current)
-            set x [string length $line]
-            if {$x == 0} {set blankP 1}
+	    if {$state(lines.current) >= $state(lines.count)} {
+		set blankP 1
+		set line {}
+	    } else {
+		set line [lindex $state(lines) $state(lines.current)]
+		incr state(lines.current)
+		set x [string length $line]
+		if {$x == 0} {set blankP 1}
+	    }
         }
 
-        }
-
-         if {(!$blankP) && ([string last \r $line] == {$x - 1})} {
-             set line [string range $line 0 [expr {$x - 2}]]
-             if {$x == 1} {
-                 set blankP 1
-             }
-         }
+	if {(!$blankP) && ([string last \r $line] == ($x - 1))} {
+	    set line [string range $line 0 [expr {$x - 2}]]
+	    if {$x == 1} {
+		set blankP 1
+	    }
+	}
 
         if {(!$blankP) && (([
             string first { } $line] == 0) || ([

@@ -103,5 +103,5 @@ The [arg module] information is passed to [cmd mpexpand].
 Possible future formats are plain text, pdf and postscript.
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

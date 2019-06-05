@@ -135,13 +135,13 @@ Tables Of Contents* and the *DocTools \- General*, respectively\.
                             |                               |                       |
             +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
             |               |                         |     |    |                  |               |                       |               |
-    doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
+    struct::map             =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
                             |                         |     |    |                  |
                     doctools::idx::export::<*>        |     |    |          doctools::idx::import::<*>
                             docidx                    |     |    |                  docidx, json
-                            json                      |     |    |                  |           \\
-                            html                      |     |    |          doctools::idx::parse \\
-                            nroff                     |     |    |                  |             \\
+                            json                      |     |    |                  |           \
+                            html                      |     |    |          doctools::idx::parse \
+                            nroff                     |     |    |                  |             \
                             wiki                      |     |    |  +---------------+              json
                             text                      |     |    |  |               |
                                                     doctools::idx::structure        |

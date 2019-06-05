@@ -134,6 +134,11 @@ Terminate the transaction, and close the socket.
 Stream MIME headers from the socket [arg sock], stopping at an empty line. Returns
 the stream as a block of text.
 
+[call method [cmd ChannelRegister] [arg chan]]
+
+Registers a channel that will need to be flushed and closed when the object's destructor
+invokes the close method.
+
 [call method [cmd dispatch] [arg newsock] [arg datastate]]
 
 Take over control of the socket [arg newsock], and store that as the [arg chan] variable
@@ -267,28 +272,6 @@ a timeout error to the request if it has, as well as destroy the object and clos
 [call method [cmd timestamp]]
 
 Return the current system time in the format: [example {%a, %d %b %Y %T %Z}]
-
-[call method [cmd TransferComplete] [arg args]]
-
-Intended to be invoked from [cmd {chan copy}] as a callback. This closes every channel
-fed to it on the command line, and then destroys the object.
-
-[example {
-    ###
-    # Output the body
-    ###
-    chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-    if {$length} {
-      ###
-      # Send any POST/PUT/etc content
-      ###
-      chan copy $sock $chan -size $SIZE -command [info coroutine]
-      yield
-    }
-    catch {close $sock}
-    chan flush $chan
-}]
 
 [call method [cmd Url_Decode] [arg string]]
 

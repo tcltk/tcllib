@@ -1,9 +1,9 @@
 
 [//000000001]: # (tcllib\_ip \- Domain Name Service)
 [//000000002]: # (Generated from file 'tcllib\_ip\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004, Pat Thoyts  
-Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000004]: # (tcllib\_ip\(n\) 1\.4 tcllib "Domain Name Service")
+[//000000003]: # (Copyright &copy; 2004, Pat Thoyts)
+[//000000004]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
+[//000000005]: # (tcllib\_ip\(n\) 1\.4 tcllib "Domain Name Service")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a

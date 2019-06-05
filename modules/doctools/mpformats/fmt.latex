@@ -19,10 +19,16 @@ set    _in_example 0
 global _has_images
 set    _has_images 0
 
+global _has_examples
+set    _has_examples 0
+
 # Called to handle plain text from the input
 proc fmt_plain_text {text} {
     global _in_example
-    if {$_in_example} {
+    if {$_in_example} {	
+	lappend map \\\\\n \1\\textbackslash\n
+	lappend map \\\n   \1\\textbackslash\n	
+	set text [string map $map $text]
 	return $text
     }
     return [texEscape $text]
@@ -52,7 +58,7 @@ proc fmt_postprocess {text} {
 
 c_pass 1 fmt_manpage_begin {title section version} NOP
 c_pass 2 fmt_manpage_begin {title section version} {
-    global _has_images
+    global _has_images _has_examples
 
     set module      [dt_module]
     set shortdesc   [c_get_module]
@@ -71,6 +77,9 @@ c_pass 2 fmt_manpage_begin {title section version} {
     if {$_has_images} {
 	append hdr "\1\\usepackage{epsfig}" \n
 	append hdr "\1\\usepackage{epstopdf}" \n
+    }
+    if {$_has_examples} {
+	append hdr "\1\\usepackage{alltt}" \n
     }
 
     append  hdr "\1\\begin\{document\}" \n
@@ -302,17 +311,20 @@ proc fmt_tkoption_def {name dbname dbclass} {
 ################################################################
 
 proc fmt_example_begin {} {
-    global _in_example
+    global _has_examples _in_example
+    set _has_examples 1
     set    _in_example 1
-    return {\begin{verbatim}}
+    return "\1\\begin{alltt}\n"
 }
 proc fmt_example_end   {} {
     global _in_example
     set    _in_example 0
-    return {\end{verbatim}}
+    return "\1\\end{alltt}\n"
 }
 # No mapping of special characters
-proc fmt_example {code} { return "\1\\begin\{verbatim\}\n${code}\n\1\\end\{verbatim\}\n" }
+proc fmt_example {code} {
+    return [fmt_example_begin][fmt_plain_text $code][fmt_example_end]
+}
 
 proc fmt_arg    {text} {Underline $text}
 proc fmt_cmd    {text} {Bold      $text}

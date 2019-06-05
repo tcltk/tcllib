@@ -42,5 +42,5 @@ compression, from [const 0] to [const 9], and defaults to [const 4].
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

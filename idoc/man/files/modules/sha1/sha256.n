@@ -2,7 +2,7 @@
 '\" Generated from file 'sha256\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "sha256" n 1\&.0\&.3 tcllib "SHA-x Message-Digest Algorithm"
+.TH "sha256" n 1\&.0\&.4 tcllib "SHA-x Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ sha256 \- SHA256 Message-Digest Algorithm
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBsha256  ?1\&.0\&.3?\fR
+package require \fBsha256  ?1\&.0\&.4?\fR
 .sp
 \fB::sha2::sha256\fR ?\fB-hex|-bin\fR? [ \fB-channel channel\fR | \fB-file filename\fR | ?\fB--\fR? \fIstring\fR ]
 .sp

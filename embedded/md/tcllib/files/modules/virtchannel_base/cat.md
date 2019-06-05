@@ -2,7 +2,7 @@
 [//000000001]: # (tcl::chan::cat \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'cat\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2011 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::cat\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000004]: # (tcl::chan::cat\(n\) 1\.0\.3 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ tcl::chan::cat \- Concatenation channel
 package require Tcl 8\.5  
 package require TclOO  
 package require tcl::chan::core ?1?  
-package require tcl::chan::cat ?1?  
+package require tcl::chan::cat ?1\.0\.3?  
 
 [__::tcl::chan::cat__ *chan*\.\.\.](#1)  
 

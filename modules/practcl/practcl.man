@@ -1843,7 +1843,7 @@ Converts a XXX.sh file into a series of Tcl variables
 [para]
 
 [vset CATEGORY practcl]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 
 [manpage_end]
 

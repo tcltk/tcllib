@@ -1,0 +1,69 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tcllib_sources n 1]
+[titledesc {Tcllib - How To Get The Sources}]
+[description]
+[include parts/welcome.inc]
+
+[para]
+
+The audience of this document is anyone wishing to either have just a
+look at Tcllib's source code, or build the packages, or to extend and
+modify them.
+
+[para] For builders and developers we additionally provide
+
+[list_begin enum]
+[enum] [term {Tcllib - The Installer's Guide}].
+[enum] [term {Tcllib - The Developer's Guide}].
+[list_end]
+
+respectively.
+
+[section {Source Location}]
+
+The official repository for Tcllib can be found at
+[uri http://core.tcl-lang.org/tcllib]
+
+[section Retrieval]
+
+Assuming that you simply wish to look at the sources, or build a
+specific revision, the easiest way of retrieving it is to:
+
+[list_begin enum]
+[enum] Log into this site, as "anonymous", using the semi-random password in the captcha.
+[enum] Go to the "Timeline".
+[enum] Choose the revision you wish to have.
+[enum] Follow its link to its detailed information page.
+[enum] On that page, choose either the "ZIP" or "Tarball" link to get
+a copy of this revision in the format of your choice.
+[list_end]
+
+[section {Source Code Management}]
+
+For the curious (or a developer-to-be), the sources are managed by the
+[uri http://www.fossil-scm.org {Fossil SCM}].
+
+Binaries for popular platforms can be found directly at its
+[uri http://www.fossil-scm.org/download.html {download page}].
+
+[para]
+
+With that tool available the full history can be retrieved via:
+
+[example {
+    fossil clone \
+	http://core.tcl-lang.org/tcllib \
+        tcllib.fossil
+}]
+
+followed by
+
+[example {
+    mkdir tcllib
+    cd tcllib
+    fossil open ../tcllib.fossil
+}]
+
+to get a checkout of the head of the trunk.
+
+[manpage_end]

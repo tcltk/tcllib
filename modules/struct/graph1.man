@@ -371,5 +371,5 @@ a node [const enter]s it, the second visit [const leave]s it.
 [list_end]
 
 [vset CATEGORY {struct :: graph}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

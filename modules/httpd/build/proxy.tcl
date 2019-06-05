@@ -159,11 +159,8 @@
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
-    try {
-      my ProxyRequest $chan $sock
-      my ProxyReply   $sock $chan
-    } finally {
-      my TransferComplete $chan $sock
-    }
+    my ChannelRegister $sock
+    my ProxyRequest $chan $sock
+    my ProxyReply   $sock $chan
   }
 }

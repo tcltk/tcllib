@@ -53,6 +53,7 @@ package require math::numtheory ?1\.1\.1?
 [__math::numtheory::numberPrimesGauss__ *N*](#15)  
 [__math::numtheory::numberPrimesLegendre__ *N*](#16)  
 [__math::numtheory::numberPrimesLegendreModified__ *N*](#17)  
+[__math::numtheory::differenceNumberPrimesLegendreModified__ *lower* *upper*](#18)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -217,7 +218,7 @@ slight bias to prime numbers\.
 
       * integer *N* \(in\)
 
-        Number in question
+        Number in question, should be larger than 0
 
   - <a name='16'></a>__math::numtheory::numberPrimesLegendre__ *N*
 
@@ -225,7 +226,7 @@ slight bias to prime numbers\.
 
       * integer *N* \(in\)
 
-        Number in question
+        Number in question, should be larger than 0
 
   - <a name='17'></a>__math::numtheory::numberPrimesLegendreModified__ *N*
 
@@ -233,7 +234,20 @@ slight bias to prime numbers\.
 
       * integer *N* \(in\)
 
-        Number in question
+        Number in question, should be larger than 0
+
+  - <a name='18'></a>__math::numtheory::differenceNumberPrimesLegendreModified__ *lower* *upper*
+
+    Estimate the number of primes between tow limits according the modified
+    formula by Legendre\.
+
+      * integer *lower* \(in\)
+
+        Lower limit for the primes, should be larger than 0
+
+      * integer *upper* \(in\)
+
+        Upper limit for the primes, should be larger than 0
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

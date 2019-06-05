@@ -88,5 +88,5 @@ a specific order of files in the archive, for example [file .epub].
 [list_end]
 
 [vset CATEGORY zipfile]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -98,7 +98,7 @@ proc ::coroutine::util::global {args} {
 # - -- --- ----- -------- -------------
 
 proc ::coroutine::util::after {delay} {
-    ::after $delay [info coroutine]
+    ::after $delay [list [info coroutine]]
     yield
     return
 }
@@ -129,7 +129,7 @@ proc ::coroutine::util::vwait {varname} {
     #
     # (*) At this point we are in VWaitTrace running the coroutine.
 
-    ::after idle [info coroutine]
+    ::after idle [list [info coroutine]]
     yield
     return
 }
@@ -143,12 +143,12 @@ proc ::coroutine::util::VWaitTrace {coroutine args} {
 
 proc ::coroutine::util::update {{what {}}} {
     if {$what eq "idletasks"} {
-        ::after idle [info coroutine]
+        ::after idle [list [info coroutine]]
     } elseif {$what ne {}} {
         # Force proper error message for bad call.
         tailcall ::tcl::update $what
     } else {
-        ::after 0 [info coroutine]
+        ::after 0 [list [info coroutine]]
     }
     yield
     return
@@ -380,7 +380,7 @@ proc ::coroutine::util::await args {
     #
     # (*) At this point we are in AWaitSignal running the coroutine.
 
-    ::after idle [info coroutine]
+    ::after idle [list [info coroutine]]
     yield
 
     return $choice

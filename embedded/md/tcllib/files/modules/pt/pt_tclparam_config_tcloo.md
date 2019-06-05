@@ -52,7 +52,7 @@ __[pt::peg::to::tclparam](pt\_peg\_to\_tclparam\.md)__, to make the use of
 this highly configurable package easier by providing a canned configuration\.
 When applied this configuration causes the package
 __[pt::peg::to::tclparam](pt\_peg\_to\_tclparam\.md)__ to generate
-__OO__\-based parser packages\.
+__[OO](\.\./\.\./\.\./\.\./index\.md\#oo)__\-based parser packages\.
 
 It is a supporting package in the Core Layer of Parser Tools\.
 
@@ -63,8 +63,9 @@ It is a supporting package in the Core Layer of Parser Tools\.
   - <a name='1'></a>__::pt::tclparam::configuration::tcloo__ __def__ *name* *pkg* *version* *cmdprefix*
 
     The command applies the configuration provided by this package to the
-    *cmdprefix*, causing the creation of __OO__\-based parsers whose class
-    is *name*, in package *pkg* with *version*\.
+    *cmdprefix*, causing the creation of
+    __[OO](\.\./\.\./\.\./\.\./index\.md\#oo)__\-based parsers whose class is
+    *name*, in package *pkg* with *version*\.
 
     The use of a command prefix as API allows application of the configuration
     to not only __[pt::peg::to::tclparam](pt\_peg\_to\_tclparam\.md)__

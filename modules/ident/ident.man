@@ -50,5 +50,5 @@ to the RFC. A detailed error message is returned under the
 [list_end]
 
 [vset CATEGORY ident]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

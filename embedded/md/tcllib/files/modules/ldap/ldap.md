@@ -1,10 +1,10 @@
 
 [//000000001]: # (ldap \- LDAP client)
 [//000000002]: # (Generated from file 'ldap\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>  
-Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
-[//000000004]: # (ldap\(n\) 1\.9\.2 tcllib "LDAP client")
+[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>)
+[//000000005]: # (Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
+[//000000006]: # (ldap\(n\) 1\.9\.2 tcllib "LDAP client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
