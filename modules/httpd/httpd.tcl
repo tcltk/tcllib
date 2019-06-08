@@ -1683,6 +1683,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
       dict set query http CONTENT_LENGTH 0
       dict set query http REQUEST_URI /
       dict set query http REMOTE_ADDR $ip
+      dict set query http DOCUMENT_ROOT [my clay get server/ doc_root]
       set size {}
       while 1 {
         set char [::coroutine::util::read $sock 1]
