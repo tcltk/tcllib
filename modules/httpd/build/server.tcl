@@ -429,7 +429,7 @@ namespace eval ::httpd::coro {}
       redirect {
 return {
 [my html_header "$HTTP_STATUS"]
-The page you are looking for: <b>[my request get REQUEST_URI]</b> has moved.
+The page you are looking for: <b>[my request get REQUEST_PATH]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -439,7 +439,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html_header "$HTTP_STATUS"]
-Error serving <b>[my request get REQUEST_URI]</b>:
+Error serving <b>[my request get REQUEST_PATH]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -451,7 +451,7 @@ $errorInfo
       notfound {
         return {
 [my html_header "$HTTP_STATUS"]
-The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist.
+The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exist.
 [my html_footer]
         }
       }

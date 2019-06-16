@@ -2,7 +2,7 @@
   superclass ::httpd::content.proxy
 
   method FileName {} {
-    set uri [string trimleft [my request get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
 
@@ -28,7 +28,7 @@
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my request get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {Not Found}
       tailcall my DoOutput
     }

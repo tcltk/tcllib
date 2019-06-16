@@ -549,7 +549,7 @@ Connection close}
         }
       }
     } else {
-      foreach pair [split [my clay get QUERY_STRING] "&"] {
+      foreach pair [split [my request get QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }
@@ -1036,7 +1036,7 @@ namespace eval ::httpd::coro {
       redirect {
 return {
 [my html_header "$HTTP_STATUS"]
-The page you are looking for: <b>[my request get REQUEST_URI]</b> has moved.
+The page you are looking for: <b>[my request get REQUEST_PATH]</b> has moved.
 <p>
 If your browser does not automatically load the new location, it is
 <a href=\"$msg\">$msg</a>
@@ -1046,7 +1046,7 @@ If your browser does not automatically load the new location, it is
       internal_error {
         return {
 [my html_header "$HTTP_STATUS"]
-Error serving <b>[my request get REQUEST_URI]</b>:
+Error serving <b>[my request get REQUEST_PATH]</b>:
 <p>
 The server encountered an internal server error: <pre>$msg</pre>
 <pre><code>
@@ -1058,7 +1058,7 @@ $errorInfo
       notfound {
         return {
 [my html_header "$HTTP_STATUS"]
-The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist.
+The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exist.
 [my html_footer]
         }
       }
@@ -1135,7 +1135,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     if {[my clay exists FILENAME] && [file exists [my clay get FILENAME]]} {
       return [my clay get FILENAME]
     }
-    set uri [string trimleft [my request get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
@@ -1157,7 +1157,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     return {}
   }
   method DirectoryListing {local_file} {
-    set uri [string trimleft [my request get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
@@ -1184,7 +1184,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     my variable reply_file
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my request get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
@@ -1444,7 +1444,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
 ::clay::define ::httpd::content.cgi {
   superclass ::httpd::content.proxy
   method FileName {} {
-    set uri [string trimleft [my request get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
 
@@ -1469,7 +1469,7 @@ The page you are looking for: <b>[my request get REQUEST_URI]</b> does not exist
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my request get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {Not Found}
       tailcall my DoOutput
     }
@@ -1906,6 +1906,13 @@ package require tcl::chan::memchan
 
 ###
 # END: plugin.tcl
+###
+###
+# START: cuneiform.tcl
+###
+
+###
+# END: cuneiform.tcl
 ###
 
     namespace eval ::httpd {
