@@ -4,7 +4,7 @@
 \documentclass{article}
 \usepackage{alltt}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / ALL -- ..THE\_MODULE.. : ..THE\_TITLE..}
 \maketitle
 \section{Synopsis}\label{synopsis}
