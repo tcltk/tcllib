@@ -3,7 +3,7 @@
 % test-definitions-enumerated.1
 \documentclass{article}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / test-definitions-enumerated --  : }
 \maketitle
 \section{Description}\label{section1}
