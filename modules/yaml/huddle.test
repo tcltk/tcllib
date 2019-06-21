@@ -144,7 +144,7 @@ test huddle-2.11 "test of huddle list" -body {
 #        }
 #        return [eval huddle create $result]
 #    }
-#    set fd [open [file join [file dirname [info script]] layers.txt] r]
+#    set fd [open [asset layers.txt] r]
 #    set json1 [read $fd]
 #    close $fd
 #

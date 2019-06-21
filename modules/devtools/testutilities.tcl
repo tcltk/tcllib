@@ -410,10 +410,12 @@ proc asset {path} {
     file join $::tcltest::testsDirectory test-assets $path
 }
 
+# General access to module-local files
 proc localPath {fname} {
     return [file join $::tcltest::testsDirectory $fname]
 }
 
+# General access to global (project-local) files
 proc tcllibPath {fname} {
     return [file join $::tcllib::testutils::tcllib $fname]
 }

@@ -8,8 +8,6 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # Copyright (c) 2005-2007,2017 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: filetype.test,v 1.1 2007/08/03 23:07:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -181,7 +179,7 @@ test fileType-1.21 {test binary compressed gzip} {
 } [list 0 [list binary compressed gzip]]
 
 test fileType-1.22 {text pdf} {
-    set f [localPath test-data/pdf4tcl_01.pdf]
+    set f [asset pdf4tcl_01.pdf]
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list text pdf]]
@@ -189,25 +187,25 @@ test fileType-1.22 {text pdf} {
 # -------------------------------------------------------------------------
 
 test fileType-1.23 {sqlite3, fossil repo} {
-    set f [localPath test-data/p.fossil]
+    set f [asset p.fossil]
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary sqlite3 fossil-repository]]
 
 test fileType-1.24 {sqlite3, fossil checkout} {
-    set f [localPath test-data/p.ckout]
+    set f [asset p.ckout]
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary sqlite3 fossil-checkout]]
 
 test fileType-1.25 {sqlite3, fossil global config} {
-    set f [localPath test-data/p.global]
+    set f [asset p.global]
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary sqlite3 fossil-global-config]]
 
 test fileType-1.26 {sqlite3, no app} {
-    set f [localPath test-data/p.sqlite]
+    set f [asset p.sqlite]
     set res [catch {fileutil::fileType $f} msg]
     list $res $msg
 } [list 0 [list binary sqlite3 A00000000]]
