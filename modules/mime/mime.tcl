@@ -23,7 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
-package provide mime 1.6.1
+package provide mime 1.6.2
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -330,7 +330,7 @@ namespace eval ::mime {
     namespace export initialize finalize getproperty \
                      getheader setheader \
                      getbody \
-                     copymessage \
+                     buildmessage copymessage \
                      mapencoding \
                      reversemapencoding \
                      parseaddress \
