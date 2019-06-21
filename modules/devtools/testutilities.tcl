@@ -405,6 +405,11 @@ proc snitErrors {} {
 ## avoid contamination of the testsuite by packages and code outside
 ## of the Tcllib under test.
 
+# Shorthand for access to module-local assets files for tests.
+proc asset {path} {
+    file join $::tcltest::testsDirectory test-assets $path
+}
+
 proc localPath {fname} {
     return [file join $::tcltest::testsDirectory $fname]
 }
