@@ -92,6 +92,7 @@ proc ::sak::test::run::Do {cv modules} {
 	variable logerd [open $config(stem).errdetails  w]
 	variable logfad [open $config(stem).faildetails w]
 	variable logtim [open $config(stem).timings     w]
+	variable logtmt [open $config(stem).timetable   w]
     } else {
 	variable logext stdout
     }
@@ -175,8 +176,8 @@ proc ::sak::test::run::Do {cv modules} {
 	M insert row 1 {===== ====== ========= ===== ======= =========}
 	M add    row   {===== ====== ========= ===== ======= =========}
 
-	puts $logsum \nTimings...
-	puts $logsum [M format 2string]
+	puts $logtmt "\nTiming Table..."
+	puts $logtmt [M format 2string]
     }
 
     exit [expr {($err || $fail) ? 1 : 0}]

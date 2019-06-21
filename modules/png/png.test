@@ -2,8 +2,6 @@
 # png.test:  tests for png decoding and manipulation.
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
-#
-# RCS: @(#) $Id: png.test,v 1.10 2007/04/30 22:47:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -25,7 +23,7 @@ testing {
 # -------------------------------------------------------------------------
 # Validation
 
-foreach f [TestFilesGlob testimages/*.png] {
+foreach f [TestFilesGlob test-assets/*.png] {
     set root [file rootname [file tail $f]]
 
     # All files have a valid signature, except for two.
@@ -48,7 +46,7 @@ foreach f [TestFilesGlob testimages/*.png] {
 
 # Validation II, the bad files ...
 
-foreach f [TestFilesGlob testimages/x*.png] {
+foreach f [TestFilesGlob test-assets/x*.png] {
     set root [file rootname [file tail $f]]
 
     test png-validate-$root {full validation} {
@@ -217,7 +215,7 @@ array set expected {
     z09n2c08 {color 2 compression 0 depth 8 filter 0 height 32 interlace 0 width 32}
 }
 
-foreach f [TestFilesGlob testimages/*.png] {
+foreach f [TestFilesGlob test-assets/*.png] {
     set root [file rootname [file tail $f]]
 
     # Files beginning with x are invalid, and thus not usable in these
@@ -239,7 +237,7 @@ array set exptime {
     cm9n0g04 946684799
 }
 
-foreach f [TestFilesGlob testimages/cm*.png] {
+foreach f [TestFilesGlob test-assets/cm*.png] {
     set root [file rootname [file tail $f]]
 
     #puts [clock format $exptime($root) -gmt 1]
@@ -265,7 +263,7 @@ to the spec are present.}} {Software {Created on a NeXTstation color using "pnmt
 
 # - Retrieval
 
-foreach f [TestFilesGlob testimages/*.png] {
+foreach f [TestFilesGlob test-assets/*.png] {
     set root [file rootname [file tail $f]]
 
     # All files have a valid signature, except for two. These we ignore.
@@ -289,7 +287,7 @@ foreach f [TestFilesGlob testimages/*.png] {
 # LF. Windows for example, or asian systems.
 
 foreach root [array names comex] {
-    set f [localPath testimages/${root}.png]
+    set f [asset ${root}.png]
 
     test png-removecomment-$root {remove comments} {
 	set copy [makeFile {} pngrc.$root]
@@ -306,15 +304,11 @@ foreach root [array names comex] {
 # PhysicalDimensions
 
 test png-physical-dimensions-missing {Test for empty list if no physical dimensions present} {
-    ::png::getPixelDimension [file join\
-	    [file dirname [file join [pwd] [info script]]]\
-	    testimages/physicaldimensions/basi0g01.png]
+    ::png::getPixelDimension [asset physicaldimensions/basi0g01.png]
 } {}
 
 test png-physical-dimensions-present {Test to extract physical dimensions} {
-    ::png::getPixelDimension [file join\
-	    [file dirname [file join [pwd] [info script]]]\
-	    testimages/physicaldimensions/basi0g01_300dpi.png]
+    ::png::getPixelDimension [asset physicaldimensions/basi0g01_300dpi.png]
 } {ppux 11811 ppuy 11811 unit meter}
 
 # -------------------------------------------------------------------------
