@@ -17,8 +17,8 @@ testing {
 #---------------------------------------------------------------------
 
 set inifile [localPath ini.tcl]
-set testini [localPath test.ini]
-set sampini [localPath sample.ini]
+set testini [asset test.ini]
+set sampini [asset sample.ini]
 
 #---------------------------------------------------------------------
 

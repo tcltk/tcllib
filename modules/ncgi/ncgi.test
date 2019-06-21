@@ -6,8 +6,6 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
-#
-# RCS: @(#) $Id: ncgi.test,v 1.28 2012/05/03 17:56:07 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -590,7 +588,7 @@ test ncgi-14.2 {ncgi::multipart} {
 } {No boundary given for multipart document}
 
 test ncgi-14.3 {ncgi::multipart} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 
@@ -616,7 +614,7 @@ test ncgi-14.3 {ncgi::multipart} {
 }}}
 
 test ncgi-14.4 {ncgi::multipart} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 
@@ -644,7 +642,7 @@ test ncgi-14.4 {ncgi::multipart} {
 
 
 test ncgi-14.6 {ncgi::multipart setValue} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 
