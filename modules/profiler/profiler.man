@@ -1,5 +1,6 @@
+[vset VERSION 0.4]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin profiler n 0.3]
+[manpage_begin profiler n [vset VERSION]]
 [keywords performance]
 [keywords profile]
 [keywords speed]
@@ -7,7 +8,7 @@
 [titledesc {Tcl source code profiler}]
 [category  {Programming tools}]
 [require Tcl 8.3]
-[require profiler [opt 0.3]]
+[require profiler [opt [vset VERSION]]]
 [description]
 [para]
 
