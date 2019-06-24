@@ -492,6 +492,27 @@ test profiler-9.1 {dump for multiple functions} {
 } [list [list callCount 2 callerDist [list GLOBAL 2]] \
 	[list callCount 1 callerDist [list GLOBAL 1]]]
 
+test profiler-10.0-tkt-0dd4b31bb8 {result of leave handler} {
+    set c [interp create]
+    interp alias $c parentSet {} set
+    set result [join [$c eval {
+	set auto_path [parentSet auto_path]
+	package require profiler
+	profiler::init
+	set trace {}
+	#
+	proc echo   args { global trace; lappend trace $args; return $args }
+	proc tracer args { global trace; lappend trace $args; return $args }
+	#
+	trace add execution echo leave tracer
+	echo hi
+	#
+	set trace
+    }] \n]
+    interp delete $c
+    set result
+} [viewFile [asset tkt-0dd4b31bb8]]
+
 # -------------------------------------------------------------------------
 testsuiteCleanup
 return
