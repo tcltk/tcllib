@@ -204,8 +204,16 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.3plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
 
+    ::tcltest::testConstraint tcl8.4only \
+	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+
     ::tcltest::testConstraint tcl8.4plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+    ::tcltest::testConstraint tcl8.5only [expr {
+	![package vsatisfies [package provide Tcl] 8.6] &&
+	 [package vsatisfies [package provide Tcl] 8.5]
+    }]
 
     ::tcltest::testConstraint tcl8.5plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
