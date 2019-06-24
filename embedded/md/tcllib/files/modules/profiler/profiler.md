@@ -1,7 +1,7 @@
 
 [//000000001]: # (profiler \- Tcl Profiler)
 [//000000002]: # (Generated from file 'profiler\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (profiler\(n\) 0\.3 tcllib "Tcl Profiler")
+[//000000003]: # (profiler\(n\) 0\.4 tcllib "Tcl Profiler")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ profiler \- Tcl source code profiler
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.3  
-package require profiler ?0\.3?  
+package require profiler ?0\.4?  
 
 [__::profiler::init__](#1)  
 [__::profiler::dump__ *pattern*](#2)  
