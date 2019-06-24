@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
-#
-# RCS: @(#) $Id: log.test,v 1.10 2008/09/25 21:52:57 eee Exp $
 
 # -------------------------------------------------------------------------
 
@@ -442,6 +440,8 @@ foreach level {alert critical debug error emergency info notice warning} {
     } {1 0}
 }
 ::log::lvChannelForall {}
+
+# -------------------------------------------------------------------------
 
 testsuiteCleanup
 return
