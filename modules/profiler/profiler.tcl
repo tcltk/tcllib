@@ -6,14 +6,11 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: profiler.tcl,v 1.29 2006/09/19 23:36:17 andreas_kupries Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.3
+package provide profiler 0.4
 
-namespace eval ::profiler {
-}
+namespace eval ::profiler {}
 
 # ::profiler::tZero --
 #
@@ -230,8 +227,11 @@ proc ::profiler::enterHandler {name caller} {
 proc ::profiler::leaveHandler {name caller} {
     variable enabled
 
+    # Tkt [0dd4b31bb8] Note that the result is pulled from the
+    # caller's context as it is not passed into leaveHandler
+    
     if { !$enabled($name) } {
-        return
+	return [uplevel 1 {lindex $args 1}] ;# RETURN RESULT!
     }
 
     set t [::profiler::tMark $name.$caller]
@@ -247,6 +247,8 @@ proc ::profiler::leaveHandler {name caller} {
     if { [catch {incr ::profiler::descendants($caller,$name)}] } {
         set ::profiler::descendants($caller,$name) 1
     }
+
+    return [uplevel 1 {lindex $args 1}] ;# RETURN RESULT!
 }
 
 # ::profiler::profProc --
@@ -635,4 +637,3 @@ proc ::profiler::resume {{pattern *}} {
 
     return
 }
-
