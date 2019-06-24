@@ -30,7 +30,7 @@ package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 package require uri
 
-package provide ncgi 1.4.3
+package provide ncgi 1.4.4
 
 namespace eval ::ncgi {
 
@@ -275,7 +275,7 @@ proc ::ncgi::decode {str} {
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
     regsub -all -nocase -- {%([CDcd][A-F0-9])%([89AB][A-F0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
-    regsub -all -nocase -- {%([0-7][A-F0-9])} $str {\\u00\1} str
+    regsub -all -nocase -- {%([A-F0-9][A-F0-9])} $str {\\u00\1} str
 
     # process \u unicode mapped chars
     return [subst -novar $str]

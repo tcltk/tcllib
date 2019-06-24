@@ -138,9 +138,9 @@ test ncgi-3.9 {ncgi::decode, bug 3601995} {
     ncgi::decode {%E2%A0%90}
 } "\u2810" ; # a braille pattern
 
-test ncgi-3.10 {ncgi::decode, bug 3601995} {
+test ncgi-3.10 {ncgi::decode, bug 3601995, tkt [1f900bdf6b]} {
     ncgi::decode {%E2%B1}
-} "%E2%B1" ; # missing byte trailing %A0, do not accept/decode, pass through.
+} "\u00e2\u00b1" ;# Changed with branch `ncgi-1f900bdf6b`, tkt [1f900bdf6b]
 
 test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
