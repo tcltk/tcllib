@@ -1,6 +1,5 @@
 ##Library Header
 #
-# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -73,7 +72,6 @@ namespace eval ::logger::appender {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -176,7 +174,6 @@ proc ::logger::appender::console {args} {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -283,7 +280,6 @@ proc ::logger::appender::colorConsole {args} {
 }
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -395,7 +391,6 @@ proc ::logger::appender::fileAppend {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:

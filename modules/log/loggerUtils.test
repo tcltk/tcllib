@@ -91,6 +91,33 @@ proc msg {name {suffix {}}} {
     }
 }  -match regexp -output {\[[\d:\/ ]+\] \[catTest\] \[namespace\] \[critical\] test}
 
+
+::tcltest::test createLogProc-2 {tkt e4d5ef01e7, %M OO context} -constraints tcl8.5plus -setup {
+    package require TclOO
+    ::oo::class create Main {
+	variable log
+	constructor {} {
+	    set this_inst [namespace current]
+	    set this_klaz [info object class $this_inst]
+	    set log [::logger::init $this_klaz]
+	    ::logger::utils::applyAppender \
+		-appender "console" \
+		-appenderArgs {-conversionPattern {%d \[%p\] \[%M\] %m}} \
+		-serviceCmd $log
+	}
+	method invoke {} {
+	    ${log}::info "hello"
+	}
+    }
+    set main [Main new]
+} -cleanup {
+    $main destroy
+    unset main
+    Main destroy
+} -body {
+    $main invoke
+} -match regexp -output {[\d:\/ ]+ \[info\] \[::Main::invoke\] hello}
+
 ::tcltest::test applyAppender-1 {apply an appender} -cleanup {
     ${log}::delete
     unset log
