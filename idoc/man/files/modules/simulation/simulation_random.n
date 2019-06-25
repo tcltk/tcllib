@@ -2,7 +2,7 @@
 '\" Generated from file 'simulation_random\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "simulation::random" n 0\&.1 tcllib "Tcl Simulation Tools"
+.TH "simulation::random" n 0\&.4 tcllib "Tcl Simulation Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ simulation::random \- Pseudo-random number generators
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBsimulation::random  0\&.1\fR
+package require \fBsimulation::random  0\&.4\fR
 .sp
 \fB::simulation::random::prng_Bernoulli\fR \fIp\fR
 .sp
@@ -285,6 +285,10 @@ package require \fBsimulation::random  0\&.1\fR
 \fB::simulation::random::prng_Poisson\fR \fIlambda\fR
 .sp
 \fB::simulation::random::prng_Uniform\fR \fImin\fR \fImax\fR
+.sp
+\fB::simulation::random::prng_Triangular\fR \fImin\fR \fImax\fR
+.sp
+\fB::simulation::random::prng_SymmTriangular\fR \fImin\fR \fImax\fR
 .sp
 \fB::simulation::random::prng_Exponential\fR \fImin\fR \fImean\fR
 .sp
@@ -365,6 +369,34 @@ The package defines the following public procedures for \fIcontinuous\fR distrib
 \fB::simulation::random::prng_Uniform\fR \fImin\fR \fImax\fR
 Create a command (PRNG) that generates uniformly distributed numbers
 between "min" and "max"\&.
+.RS
+.TP
+float \fImin\fR
+Minimum number that will be generated
+.TP
+float \fImax\fR
+Maximum number that will be generated
+.RE
+.sp
+.TP
+\fB::simulation::random::prng_Triangular\fR \fImin\fR \fImax\fR
+Create a command (PRNG) that generates triangularly distributed numbers
+between "min" and "max"\&. If the argument min is lower than the argument max, then smaller
+values have higher probability and vice versa\&. In the first case the probability
+density function is of the form \fIf(x) = 2(1-x)\fR and the other case it is of the form \fIf(x) = 2x\fR\&.
+.RS
+.TP
+float \fImin\fR
+Minimum number that will be generated
+.TP
+float \fImax\fR
+Maximum number that will be generated
+.RE
+.sp
+.TP
+\fB::simulation::random::prng_SymmTriangular\fR \fImin\fR \fImax\fR
+Create a command (PRNG) that generates numbers distributed according to a symmetric triangle
+around the mean of "min" and "max"\&.
 .RS
 .TP
 float \fImin\fR
