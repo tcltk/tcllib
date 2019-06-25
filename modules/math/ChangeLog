@@ -1,3 +1,9 @@
+2019-06-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf_stat.tcl: Add procedures for triangular distribution
+	* statistics.man: Describe procedures for triangular distribution
+	* statistics.test: Add tests for triangular distribution
+	* statistics.tcl: Bumped version to 1.3.1
+	* pkgIndex.tcl: Bumped version to 1.3.1
 2019-05-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* quasirandom.test: Add tests to deal with procedures in a different namespace
 	* quasirandom.tcl: Deal with procedures in a different namespace
