@@ -901,6 +901,30 @@ distribution with given extremes.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::pdf-triangular] [arg xmin] [arg xmax] [arg value]]
+Return the probability of a given value for a triangular
+distribution with given extremes. If the argument min is lower than the argument max, then smaller
+values have higher probability and vice versa. In the first case the probability
+density function is of the form [emph {f(x) = 2(1-x)}] and the other case it is of the form [emph {f(x) = 2x}].
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmin] - Maximum value of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-symmetric-triangular] [arg xmin] [arg xmax] [arg value]]
+Return the probability of a given value for a symmetric triangular
+distribution with given extremes.
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmin] - Maximum value of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::pdf-gamma] [arg alpha] [arg beta] [arg value]]
 Return the probability of a given value for a Gamma
 distribution with given shape and rate parameters
@@ -1045,6 +1069,29 @@ distribution with given mean.
 
 [call [cmd ::math::statistics::cdf-uniform] [arg xmin] [arg xmax] [arg value]]
 Return the cumulative probability of a given value for a uniform
+distribution with given extremes.
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmin] - Maximum value of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-triangular] [arg xmin] [arg xmax] [arg value]]
+Return the cumulative probability of a given value for a triangular
+distribution with given extremes. If xmin < xmax, then lower values have
+a higher probability and vice versa, see also [emph pdf-triangular]
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmin] - Maximum value of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-symmetric-triangular] [arg xmin] [arg xmax] [arg value]]
+Return the cumulative probability of a given value for a symmetric triangular
 distribution with given extremes.
 
 [list_begin arguments]
@@ -1199,6 +1246,29 @@ distribution with given extremes.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::random-triangular] [arg xmin] [arg xmax] [arg number]]
+Return a list of "number" random values satisfying a triangular
+distribution with given extremes. If xmin < xmax, then lower values have a higher probability
+and vice versa (see also [emph pdf-triangular].
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmax] - Maximum value of the distribution
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-symmetric-triangular] [arg xmin] [arg xmax] [arg number]]
+Return a list of "number" random values satisfying a symmetric triangular
+distribution with given extremes.
+
+[list_begin arguments]
+[arg_def float xmin] - Minimum value of the distribution
+[arg_def float xmax] - Maximum value of the distribution
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::random-gamma] [arg alpha] [arg beta] [arg number]]
 Return a list of "number" random values satisfying
 a Gamma distribution with given shape and rate parameters.
@@ -1339,6 +1409,15 @@ Returns the estimated scale and shape parameters, as well as the standard error 
 
 [list_begin arguments]
 [arg_def list values] - List of values, assumed to be distributed according to a Pareto distribution
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::estimate-exponential] [arg values]]
+Estimate the parameter for the exponential distribution that comes closest to the given values.
+Returns an estimate of the one parameter and of the standard error.
+
+[list_begin arguments]
+[arg_def list values] - List of values, assumed to be distributed according to an exponential distribution
 [list_end]
 [para]
 

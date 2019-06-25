@@ -15,12 +15,12 @@
 namespace eval ::math::statistics {
 
     namespace export pdf-normal pdf-uniform pdf-lognormal \
-	    pdf-exponential \
+	    pdf-exponential pdf-triangular pdf-symmetric-triangular \
 	    cdf-normal cdf-uniform cdf-lognormal \
-	    cdf-exponential \
+	    cdf-exponential cdf-triangular cdf-symmetric-triangular \
 	    cdf-students-t \
 	    random-normal random-uniform random-lognormal \
-	    random-exponential \
+	    random-exponential random-triangular \
 	    histogram-uniform \
 	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t pdf-beta \
 	    pdf-weibull pdf-gumbel pdf-pareto pdf-cauchy \
@@ -29,7 +29,7 @@ namespace eval ::math::statistics {
 	    random-gamma random-poisson random-chisquare random-students-t random-beta \
 	    random-weibull random-gumbel random-pareto random-cauchy \
 	    incompleteGamma incompleteBeta \
-	    estimate-pareto empirical-distribution bootstrap
+	    estimate-pareto empirical-distribution bootstrap estimate-exponential
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -119,6 +119,78 @@ proc ::math::statistics::pdf-uniform { pmin pmax x } {
     set prob [expr {1.0/($pmax-$pmin)}]
 
     if { $x < $pmin || $x > $pmax } { return 0.0 }
+
+    return $prob
+}
+
+
+# pdf-triangular --
+#    Return the probabilities belonging to a triangular distribution
+#    (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    x         Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+# Note:
+#    If pmin > pmax, the main weight will be at the larger
+#    values.
+#
+proc ::math::statistics::pdf-triangular { pmin pmax x } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+    if { $pmin < $pmax } {
+        if { $x < $pmin || $x > $pmax } { return 0.0 }
+    } else {
+        if { $x < $pmax || $x > $pmin } { return 0.0 }
+    }
+
+    set prob [expr {2.0*(1.0-($x-$pmin)/($pmax-$pmin))}]
+
+
+    return $prob
+}
+
+
+# pdf-symmetric-triangular --
+#    Return the probabilities belonging to a symmetric triangular distribution
+#    (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    x         Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::pdf-symmetric-triangular { pmin pmax x } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+    if { $pmin < $pmax } {
+        if { $x < $pmin || $x > $pmax } { return 0.0 }
+    } else {
+        if { $x < $pmax || $x > $pmin } { return 0.0 }
+    }
+
+    set diff   [expr {abs($pmax-$pmin)}]
+    set centre [expr {($pmax+$pmin)/2.0}]
+
+    set prob [expr {2./$diff * (1.0 - 2.*abs($x-$centre)/$diff)}]
 
     return $prob
 }
@@ -267,6 +339,91 @@ proc ::math::statistics::cdf-uniform { pmin pmax x } {
 
     if { $x < $pmin } { return 0.0 }
     if { $x > $pmax } { return 1.0 }
+
+    return $prob
+}
+
+
+# cdf-triangular --
+#    Return the cumulative probabilities belonging to a triangular distribution
+#    (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    x         Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+# Note:
+#    If pmin > pmax, the main weight will be at the larger
+#    values.
+#
+proc ::math::statistics::cdf-triangular { pmin pmax x } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+
+    if { $pmin < $pmax } {
+        if { $x < $pmin } { return 0.0 }
+        if { $x > $pmax } { return 1.0 }
+        set xm   [expr {($x - $pmin) / ($pmax - $pmin)}]
+        set prob [expr {2.0*$xm - $xm**2}]
+    } else {
+        if { $x < $pmax } { return 0.0 }
+        if { $x > $pmin } { return 1.0 }
+        set xm   [expr {($x - $pmax) / ($pmin - $pmax)}]
+        set prob [expr {$xm**2}]
+    }
+
+    return $prob
+}
+
+
+# cdf-symmetric-triangular --
+#    Return the cumulative probabilities belonging to a symmetric triangular distribution
+#    (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    x         Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::cdf-symmetric-triangular { pmin pmax x } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+
+    set diff   [expr {abs($pmax-$pmin)/2.0}]
+    set centre [expr {($pmax+$pmin)/2.0}]
+
+    if { $pmin < $pmax } {
+        if { $x < $pmin } { return 0.0 }
+        if { $x > $pmax } { return 1.0 }
+    } else {
+        if { $x < $pmax } { return 0.0 }
+        if { $x > $pmin } { return 1.0 }
+    }
+
+    if { $x < $centre } {
+        set xm   [expr {($x - $centre + $diff) / $diff}]
+        set prob [expr {0.5 * $xm**2}]
+    } else {
+        set xm   [expr {($x - $centre - $diff) / $diff}]
+        set prob [expr {1.0 - 0.5 * $xm**2}]
+    }
 
     return $prob
 }
@@ -482,6 +639,75 @@ proc ::math::statistics::random-uniform { pmin pmax number } {
     set result {}
     for { set i 0 }  {$i < $number } { incr i } {
 	lappend result [Inverse-cdf-uniform $pmin $pmax [expr {rand()}]]
+    }
+
+    return $result
+}
+
+
+# random-triangular --
+#    Return a list of random numbers satisfying a triangular
+#    distribution (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    number    Number of values to generate
+#
+# Result:
+#    List of random numbers
+#
+proc ::math::statistics::random-triangular { pmin pmax number } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+    set diff [expr {$pmax - $pmin}]
+    if { $pmin < $pmax } {
+        set result {}
+        for { set i 0 }  {$i < $number } { incr i } {
+	    set r [expr {1.0 - sqrt(1.0 - rand())}]
+	    lappend result [expr {$pmin + $r * $diff}]
+        }
+    } else {
+        set result {}
+        for { set i 0 }  {$i < $number } { incr i } {
+	    lappend result [expr {$pmax - sqrt(rand()) * $diff}]
+        }
+    }
+
+    return $result
+}
+
+
+# random-symmetric-triangular --
+#    Return a list of random numbers satisfying a symmetric triangular
+#    distribution (parameters as minimum/maximum)
+#
+# Arguments:
+#    pmin      Minimum of the distribution
+#    pmax      Maximum of the distribution
+#    number    Number of values to generate
+#
+# Result:
+#    List of random numbers
+#
+proc ::math::statistics::random-symmetric-triangular { pmin pmax number } {
+
+    if { $pmin == $pmax } {
+	return -code error -errorcode ARG \
+		-errorinfo "Zero range" \
+		"Zero range"
+    }
+
+    set diff2 [expr {0.5 * ($pmax - $pmin)}]
+
+    set result {}
+    for { set i 0 }  {$i < $number } { incr i } {
+	lappend result [expr {$pmin + $diff2 * (rand() + rand())}]
     }
 
     return $result
@@ -1950,6 +2176,35 @@ proc ::math::statistics::estimate-pareto { values } {
     return [list $scale $shape [expr {$shape/sqrt($n)}]]
 }
 
+
+# estimate-exponential --
+#    Estimate the parameter of an exponential distribution
+#
+# Arguments:
+#    values    Values that are supposed to be exponentially distributed
+#
+# Result:
+#    Estimate of the one parameter of the exponential distribution
+#    as well as the asymptotic standard deviation
+#    (See https://www.statlect.com/fundamentals-of-statistics/exponential-distribution-maximum-likelihood)
+#
+proc ::math::statistics::estimate-exponential { values } {
+
+    set sum   0.0
+    set count 0
+
+    foreach v $values {
+        if { $v != "" } {
+            set  sum [expr {$sum + $v}]
+            incr count
+        }
+    }
+
+    set parameter [expr {$sum/double($count)}]
+    set stdev     [expr {$parameter / sqrt($count)}]
+
+    return [list $parameter $stdev]
+}
 
 # empirical-distribution --
 #    Determine the empirical distribution

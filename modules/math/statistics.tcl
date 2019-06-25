@@ -23,8 +23,8 @@
 # version 1.1:   added test-Tukey-range and test-Dunnett
 # version 1.3:   added wasserstein-distance, kl-divergence and logit regression
 
-package require Tcl 8.5 ; # 8.5+ feature in test-anovo-F: **-operator
-package provide math::statistics 1.3.0
+package require Tcl 8.5 ; # 8.5+ feature in test-anova-F and others: **-operator
+package provide math::statistics 1.3.1
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
