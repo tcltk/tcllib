@@ -1,7 +1,7 @@
 
 [//000000001]: # (html \- HTML Generation)
 [//000000002]: # (Generated from file 'html\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (html\(n\) 1\.4\.4 tcllib "HTML Generation")
+[//000000003]: # (html\(n\) 1\.5 tcllib "HTML Generation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ html \- Procedures to generate HTML structures
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require html ?1\.4\.4?  
+package require html ?1\.5?  
 
 [__::html::author__ *author*](#1)  
 [__::html::bodyTag__ *args*](#2)  
@@ -69,34 +69,38 @@ package require html ?1\.4\.4?
 [__::html::keywords__ *args*](#32)  
 [__::html::mailto__ *email* ?*subject*?](#33)  
 [__::html::meta__ *args*](#34)  
-[__::html::css__ *href*](#35)  
-[__::html::css\-clear__](#36)  
-[__::html::js__ *href*](#37)  
-[__::html::js\-clear__](#38)  
-[__::html::minorList__ *list* ?*ordered*?](#39)  
-[__::html::minorMenu__ *list* ?*sep*?](#40)  
-[__::html::nl2br__ *string*](#41)  
-[__::html::openTag__ *tag* ?*param*?](#42)  
-[__::html::paramRow__ *list* ?*rparam*? ?*cparam*?](#43)  
-[__::html::passwordInput__ ?*name*?](#44)  
-[__::html::passwordInputRow__ *label* ?*name*?](#45)  
-[__::html::quoteFormValue__ *value*](#46)  
-[__::html::radioSet__ *key sep list*](#47)  
-[__::html::radioValue__ *name value*](#48)  
-[__::html::refresh__ *seconds url*](#49)  
-[__::html::row__ *args*](#50)  
-[__::html::select__ *name param choices* ?*current*?](#51)  
-[__::html::selectPlain__ *name param choices* ?*current*?](#52)  
-[__::html::set__ *var val*](#53)  
-[__::html::submit__ *label* ?*name*?](#54)  
-[__::html::tableFromArray__ *arrname* ?*param*? ?*pat*?](#55)  
-[__::html::tableFromList__ *querylist* ?*param*?](#56)  
-[__::html::textarea__ *name* ?*param*? ?*current*?](#57)  
-[__::html::textInput__ *name value args*](#58)  
-[__::html::textInputRow__ *label name value args*](#59)  
-[__::html::varEmpty__ *name*](#60)  
-[__::html::while__ *test body*](#61)  
-[__::html::doctype__ *id*](#62)  
+[__::html::meta\_name__ *args*](#35)  
+[__::html::meta\_equiv__ *args*](#36)  
+[__::html::meta\_charset__ *charset*](#37)  
+[__::html::css__ *href*](#38)  
+[__::html::css\-clear__](#39)  
+[__::html::js__ *href*](#40)  
+[__::html::js\-clear__](#41)  
+[__::html::minorList__ *list* ?*ordered*?](#42)  
+[__::html::minorMenu__ *list* ?*sep*?](#43)  
+[__::html::nl2br__ *string*](#44)  
+[__::html::openTag__ *tag* ?*param*?](#45)  
+[__::html::paramRow__ *list* ?*rparam*? ?*cparam*?](#46)  
+[__::html::passwordInput__ ?*name*?](#47)  
+[__::html::passwordInputRow__ *label* ?*name*?](#48)  
+[__::html::quoteFormValue__ *value*](#49)  
+[__::html::radioSet__ *key sep list*](#50)  
+[__::html::radioValue__ *name value*](#51)  
+[__::html::refresh__ *seconds url*](#52)  
+[__::html::row__ *args*](#53)  
+[__::html::select__ *name param choices* ?*current*?](#54)  
+[__::html::selectPlain__ *name param choices* ?*current*?](#55)  
+[__::html::set__ *var val*](#56)  
+[__::html::submit__ *label* ?*name*? ?*title*?](#57)  
+[__::html::tableFromArray__ *arrname* ?*param*? ?*pat*?](#58)  
+[__::html::tableFromList__ *querylist* ?*param*?](#59)  
+[__::html::textarea__ *name* ?*param*? ?*current*?](#60)  
+[__::html::textInput__ *name value args*](#61)  
+[__::html::textInputRow__ *label name value args*](#62)  
+[__::html::varEmpty__ *name*](#63)  
+[__::html::while__ *test body*](#64)  
+[__::html::doctype__ *id*](#65)  
+[__::html::wrapTag__ *tag* ?*text*? ?*args*?](#66)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -305,12 +309,32 @@ parameters\.
 
   - <a name='34'></a>__::html::meta__ *args*
 
-    *Side effect only*\. Call this before __::html::head__ to define a
-    *meta* tag for the page\. The *args* is a Tcl\-style name, value list that
-    is used for the name= and value= parameters for the *meta* tag\. The
-    *meta* tag is included in the result of __::html::head__\.
+    Compatibility name for __html::meta\_name__\.
 
-  - <a name='35'></a>__::html::css__ *href*
+  - <a name='35'></a>__::html::meta\_name__ *args*
+
+    *Side effect only*\. Call this before __::html::head__ to define a
+    *meta* tag for the page\. The arguments \(*args*\) are a Tcl\-style name,
+    value list that is used for the __name=__ and __content=__
+    attributes of the *meta* tag\. The *meta* tag is included in the result
+    of __::html::head__\.
+
+  - <a name='36'></a>__::html::meta\_equiv__ *args*
+
+    *Side effect only*\. Call this before __::html::head__ to define a
+    *meta* tag for the page\. The arguments \(*args*\) are a Tcl\-style name,
+    value list that is used for the __http\-equiv=__ and __content=__
+    attributes of the *meta* tag\. The *meta* tag is included in the result
+    of __::html::head__\.
+
+  - <a name='37'></a>__::html::meta\_charset__ *charset*
+
+    *Side effect only*\. Call this before __::html::head__ to define a
+    *meta* tag for the page\. The *charset* is used with the __charset=__
+    attribute of the *meta* tag\. The *meta* tag is included in the result of
+    __::html::head__\.
+
+  - <a name='38'></a>__::html::css__ *href*
 
     *Side effect only*\. Call this before __::html::head__ to define a
     *link* tag for a linked CSS document\. The *href* value is a HTTP URL to
@@ -321,7 +345,7 @@ parameters\.
     document references\. In other words, the arguments of multiple calls are
     accumulated, and do not overwrite each other\.
 
-  - <a name='36'></a>__::html::css\-clear__
+  - <a name='39'></a>__::html::css\-clear__
 
     *Side effect only*\. Call this before __::html::head__ to clear all
     links to CSS documents\.
@@ -329,7 +353,7 @@ parameters\.
     Multiple calls of this command are allowed, doing nothing after the first of
     a sequence with no intervening __::html::css__\.
 
-  - <a name='37'></a>__::html::js__ *href*
+  - <a name='40'></a>__::html::js__ *href*
 
     *Side effect only*\. Call this before __::html::head__ to define a
     *script* tag for a linked JavaScript document\. The *href* is a HTTP URL
@@ -340,7 +364,7 @@ parameters\.
     JavaScript document references\. In other words, the arguments of multiple
     calls are accumulated, and do not overwrite each other\.
 
-  - <a name='38'></a>__::html::js\-clear__
+  - <a name='41'></a>__::html::js\-clear__
 
     *Side effect only*\. Call this before __::html::head__ to clear all
     links to JavaScript documents\.
@@ -348,32 +372,32 @@ parameters\.
     Multiple calls of this command are allowed, doing nothing after the first of
     a sequence with no intervening __::html::js__\.
 
-  - <a name='39'></a>__::html::minorList__ *list* ?*ordered*?
+  - <a name='42'></a>__::html::minorList__ *list* ?*ordered*?
 
     Generate an ordered or unordered list of links\. The *list* is a Tcl\-style
     name, value list of labels and urls for the links\. *ordered* is a boolean
     used to choose between an ordered or unordered list\. It defaults to
     __false__\.
 
-  - <a name='40'></a>__::html::minorMenu__ *list* ?*sep*?
+  - <a name='43'></a>__::html::minorMenu__ *list* ?*sep*?
 
     Generate a series of hypertext links\. The *list* is a Tcl\-style name,
     value list of labels and urls for the links\. The *sep* is the text to put
     between each link\. It defaults to " &#124; "\.
 
-  - <a name='41'></a>__::html::nl2br__ *string*
+  - <a name='44'></a>__::html::nl2br__ *string*
 
     This command replaces all line\-endings in the *string* with a *br* tag
     and returns the modified text\.
 
-  - <a name='42'></a>__::html::openTag__ *tag* ?*param*?
+  - <a name='45'></a>__::html::openTag__ *tag* ?*param*?
 
     Push *tag* onto a stack and generate the opening tag for *tag*\. Use
     __::html::closeTag__ to pop the tag from the stack\. The second argument
     provides any tag arguments, as a list whose elements are formatted to be in
     the form "__key__=__value__"\.
 
-  - <a name='43'></a>__::html::paramRow__ *list* ?*rparam*? ?*cparam*?
+  - <a name='46'></a>__::html::paramRow__ *list* ?*rparam*? ?*cparam*?
 
     Generate a table row, including *tr* and *td* tags\. Each value in
     *list* is placed into its own table cell\. This uses __::html::cell__\.
@@ -381,62 +405,62 @@ parameters\.
     of *cparam* is passed to __::html::cell__ as parameter for the *td*
     tags\.
 
-  - <a name='44'></a>__::html::passwordInput__ ?*name*?
+  - <a name='47'></a>__::html::passwordInput__ ?*name*?
 
     Generate an *input* tag of type
     *[password](\.\./\.\./\.\./\.\./index\.md\#password)*\. The *name* defaults to
     "password"\.
 
-  - <a name='45'></a>__::html::passwordInputRow__ *label* ?*name*?
+  - <a name='48'></a>__::html::passwordInputRow__ *label* ?*name*?
 
     Format a table row containing a label and an *input* tag of type
     *[password](\.\./\.\./\.\./\.\./index\.md\#password)*\. The *name* defaults to
     "password"\.
 
-  - <a name='46'></a>__::html::quoteFormValue__ *value*
+  - <a name='49'></a>__::html::quoteFormValue__ *value*
 
     Quote special characters in *value* by replacing them with HTML entities
     for quotes, ampersand, and angle brackets\.
 
-  - <a name='47'></a>__::html::radioSet__ *key sep list*
+  - <a name='50'></a>__::html::radioSet__ *key sep list*
 
     Generate a set of *input* tags of type *radio* and an associated text
     label\. All the radio buttons share the same *key* for their name\. The
     *sep* is text used to separate the elements\. The *list* is a Tcl\-style
     label, value list\.
 
-  - <a name='48'></a>__::html::radioValue__ *name value*
+  - <a name='51'></a>__::html::radioValue__ *name value*
 
     Generate the "name=*name* value=*value*" for a *radio* form element\.
     If the CGI variable *name* has the value *value*, then SELECTED is added
     to the return value\.
 
-  - <a name='49'></a>__::html::refresh__ *seconds url*
+  - <a name='52'></a>__::html::refresh__ *seconds url*
 
     Set up a refresh *meta* tag\. Call this before __::html::head__ and the
     HEAD section will contain a *meta* tag that causes the document to refresh
     in *seconds* seconds\. The *url* is optional\. If specified, it specifies
     a new page to load after the refresh interval\.
 
-  - <a name='50'></a>__::html::row__ *args*
+  - <a name='53'></a>__::html::row__ *args*
 
     Generate a table row, including *tr* and *td* tags\. Each value in
     *args* is place into its own table cell\. This uses __::html::cell__\.
     Ignores any default information set up via __::html::init__\.
 
-  - <a name='51'></a>__::html::select__ *name param choices* ?*current*?
+  - <a name='54'></a>__::html::select__ *name param choices* ?*current*?
 
     Generate a *select* form element and nested *option* tags\. The *name*
     and *param* are used to generate the *select* tag\. The *choices* list
     is a Tcl\-style name, value list\.
 
-  - <a name='52'></a>__::html::selectPlain__ *name param choices* ?*current*?
+  - <a name='55'></a>__::html::selectPlain__ *name param choices* ?*current*?
 
     Like __::html::select__ except that *choices* is a Tcl list of values
     used for the *option* tags\. The label and the value for each *option*
     are the same\.
 
-  - <a name='53'></a>__::html::set__ *var val*
+  - <a name='56'></a>__::html::set__ *var val*
 
     This procedure is similar to the built\-in Tcl
     __[set](\.\./\.\./\.\./\.\./index\.md\#set)__ command\. The main difference is
@@ -444,11 +468,13 @@ parameters\.
     appending unwanted results\. The other difference is that it must take two
     arguments\.
 
-  - <a name='54'></a>__::html::submit__ *label* ?*name*?
+  - <a name='57'></a>__::html::submit__ *label* ?*name*? ?*title*?
 
-    Generate an *input* tag of type *submit*\. *name* defaults to "submit"\.
+    Generate an *input* tag of type *submit*\. The *name* defaults to
+    "submit"\. When a non\-empty *title* string is specified the button gains a
+    __title=__ attribute with that value\.
 
-  - <a name='55'></a>__::html::tableFromArray__ *arrname* ?*param*? ?*pat*?
+  - <a name='58'></a>__::html::tableFromArray__ *arrname* ?*param*? ?*pat*?
 
     Generate a two\-column *[table](\.\./\.\./\.\./\.\./index\.md\#table)* and nested
     rows to display a Tcl array\. The table gets a heading that matches the array
@@ -459,7 +485,7 @@ parameters\.
     pattern used to select the array elements to show in the table\. It defaults
     to __\*__, i\.e\. the whole array is shown\.
 
-  - <a name='56'></a>__::html::tableFromList__ *querylist* ?*param*?
+  - <a name='59'></a>__::html::tableFromList__ *querylist* ?*param*?
 
     Generate a two\-column *[table](\.\./\.\./\.\./\.\./index\.md\#table)* and nested
     rows to display *querylist*, which is a Tcl dictionary\. Each generated row
@@ -468,37 +494,37 @@ parameters\.
     *[table](\.\./\.\./\.\./\.\./index\.md\#table)* tag and has to contain a
     pre\-formatted string\.
 
-  - <a name='57'></a>__::html::textarea__ *name* ?*param*? ?*current*?
+  - <a name='60'></a>__::html::textarea__ *name* ?*param*? ?*current*?
 
     Generate a *textarea* tag wrapped around its current values\.
 
-  - <a name='58'></a>__::html::textInput__ *name value args*
+  - <a name='61'></a>__::html::textInput__ *name value args*
 
     Generate an *input* form tag with type
     *[text](\.\./\.\./\.\./\.\./index\.md\#text)*\. This uses
     __::html::formValue__\. The args is any additional tag attributes you
     want to put into the *input* tag\.
 
-  - <a name='59'></a>__::html::textInputRow__ *label name value args*
+  - <a name='62'></a>__::html::textInputRow__ *label name value args*
 
     Generate an *input* form tag with type
     *[text](\.\./\.\./\.\./\.\./index\.md\#text)* formatted into a table row with an
     associated label\. The args is any additional tag attributes you want to put
     into the *input* tag\.
 
-  - <a name='60'></a>__::html::varEmpty__ *name*
+  - <a name='63'></a>__::html::varEmpty__ *name*
 
     This returns 1 if the named variable either does not exist or has the empty
     string for its value\.
 
-  - <a name='61'></a>__::html::while__ *test body*
+  - <a name='64'></a>__::html::while__ *test body*
 
     This procedure is similar to the built\-in Tcl __while__ control
     structure\. Rather than evaluating the body, it returns the subst'ed
     *body*\. Each iteration of the loop causes another string to be
     concatenated to the result value\.
 
-  - <a name='62'></a>__::html::doctype__ *id*
+  - <a name='65'></a>__::html::doctype__ *id*
 
     This procedure can be used to build the standard DOCTYPE declaration string\.
     It will return the standard declaration string for the id, or throw an error
@@ -527,6 +553,14 @@ parameters\.
       1. XHTML11
 
       1. XHTMLB
+
+  - <a name='66'></a>__::html::wrapTag__ *tag* ?*text*? ?*args*?
+
+    A helper to wrap a *text* in a pair of open/close *tag*s\. The arguments
+    \(*args*\) are a Tcl\-style name, value list that is used to provide
+    attributes and associated values to the opening tag\. The result is a string
+    with the open *tag* along with the optional attributes, the optional text,
+    and the closed tag\.
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 
