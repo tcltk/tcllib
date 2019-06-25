@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'html\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "html" n 1\&.4\&.4 tcllib "HTML Generation"
+.TH "html" n 1\&.5 tcllib "HTML Generation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ html \- Procedures to generate HTML structures
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBhtml  ?1\&.4\&.4?\fR
+package require \fBhtml  ?1\&.5?\fR
 .sp
 \fB::html::author\fR \fIauthor\fR
 .sp
@@ -345,6 +345,12 @@ package require \fBhtml  ?1\&.4\&.4?\fR
 .sp
 \fB::html::meta\fR \fIargs\fR
 .sp
+\fB::html::meta_name\fR \fIargs\fR
+.sp
+\fB::html::meta_equiv\fR \fIargs\fR
+.sp
+\fB::html::meta_charset\fR \fIcharset\fR
+.sp
 \fB::html::css\fR \fIhref\fR
 .sp
 \fB::html::css-clear\fR
@@ -383,7 +389,7 @@ package require \fBhtml  ?1\&.4\&.4?\fR
 .sp
 \fB::html::set\fR \fIvar val\fR
 .sp
-\fB::html::submit\fR \fIlabel\fR ?\fIname\fR?
+\fB::html::submit\fR \fIlabel\fR ?\fIname\fR? ?\fItitle\fR?
 .sp
 \fB::html::tableFromArray\fR \fIarrname\fR ?\fIparam\fR? ?\fIpat\fR?
 .sp
@@ -400,6 +406,8 @@ package require \fBhtml  ?1\&.4\&.4?\fR
 \fB::html::while\fR \fItest body\fR
 .sp
 \fB::html::doctype\fR \fIid\fR
+.sp
+\fB::html::wrapTag\fR \fItag\fR ?\fItext\fR? ?\fIargs\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -589,9 +597,31 @@ is included in the result of \fB::html::head\fR\&.
 Generate a hypertext link to a mailto: URL\&.
 .TP
 \fB::html::meta\fR \fIargs\fR
-\fISide effect only\fR\&.  Call this before \fB::html::head\fR to
-define a \fImeta\fR tag for the page\&.  The \fIargs\fR is a Tcl-style name,
-value list that is used for the name= and value= parameters for the
+Compatibility name for \fBhtml::meta_name\fR\&.
+.TP
+\fB::html::meta_name\fR \fIargs\fR
+\fISide effect only\fR\&.
+Call this before \fB::html::head\fR to define a \fImeta\fR tag for
+the page\&.
+The arguments (\fIargs\fR) are a Tcl-style name, value list that is
+used for the \fBname=\fR and \fBcontent=\fR attributes of the
+\fImeta\fR tag\&.  The \fImeta\fR tag is included in the result of
+\fB::html::head\fR\&.
+.TP
+\fB::html::meta_equiv\fR \fIargs\fR
+\fISide effect only\fR\&.
+Call this before \fB::html::head\fR to define a \fImeta\fR tag for
+the page\&.
+The arguments (\fIargs\fR) are a Tcl-style name, value list that is
+used for the \fBhttp-equiv=\fR and \fBcontent=\fR attributes of
+the \fImeta\fR tag\&.  The \fImeta\fR tag is included in the result of
+\fB::html::head\fR\&.
+.TP
+\fB::html::meta_charset\fR \fIcharset\fR
+\fISide effect only\fR\&.
+Call this before \fB::html::head\fR to
+define a \fImeta\fR tag for the page\&.
+The \fIcharset\fR is used with the \fBcharset=\fR attribute of the
 \fImeta\fR tag\&.  The \fImeta\fR tag is included in the result of
 \fB::html::head\fR\&.
 .TP
@@ -709,8 +739,11 @@ main difference is that it returns "" so it can be called from an HTML
 template file without appending unwanted results\&.  The other
 difference is that it must take two arguments\&.
 .TP
-\fB::html::submit\fR \fIlabel\fR ?\fIname\fR?
-Generate an \fIinput\fR tag of type \fIsubmit\fR\&. \fIname\fR defaults to "submit"\&.
+\fB::html::submit\fR \fIlabel\fR ?\fIname\fR? ?\fItitle\fR?
+Generate an \fIinput\fR tag of type \fIsubmit\fR\&.
+The \fIname\fR defaults to "submit"\&.
+When a non-empty \fItitle\fR string is specified the button gains a
+\fBtitle=\fR attribute with that value\&.
 .TP
 \fB::html::tableFromArray\fR \fIarrname\fR ?\fIparam\fR? ?\fIpat\fR?
 Generate a two-column \fItable\fR and nested rows to display a Tcl array\&. The
@@ -782,6 +815,13 @@ XHTML11
 .IP [12]
 XHTMLB
 .RE
+.TP
+\fB::html::wrapTag\fR \fItag\fR ?\fItext\fR? ?\fIargs\fR?
+A helper to wrap a \fItext\fR in a pair of open/close \fItag\fRs\&.
+The arguments (\fIargs\fR) are a Tcl-style name, value list that is
+used to provide attributes and associated values to the opening tag\&.
+The result is a string with the open \fItag\fR along with the optional
+attributes, the optional text, and the closed tag\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
