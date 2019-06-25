@@ -101,57 +101,64 @@ package require math::statistics 1
 [__::math::statistics::pdf\-lognormal__ *mean* *stdev* *value*](#52)  
 [__::math::statistics::pdf\-exponential__ *mean* *value*](#53)  
 [__::math::statistics::pdf\-uniform__ *xmin* *xmax* *value*](#54)  
-[__::math::statistics::pdf\-gamma__ *alpha* *beta* *value*](#55)  
-[__::math::statistics::pdf\-poisson__ *mu* *k*](#56)  
-[__::math::statistics::pdf\-chisquare__ *df* *value*](#57)  
-[__::math::statistics::pdf\-student\-t__ *df* *value*](#58)  
-[__::math::statistics::pdf\-gamma__ *a* *b* *value*](#59)  
-[__::math::statistics::pdf\-beta__ *a* *b* *value*](#60)  
-[__::math::statistics::pdf\-weibull__ *scale* *shape* *value*](#61)  
-[__::math::statistics::pdf\-gumbel__ *location* *scale* *value*](#62)  
-[__::math::statistics::pdf\-pareto__ *scale* *shape* *value*](#63)  
-[__::math::statistics::pdf\-cauchy__ *location* *scale* *value*](#64)  
-[__::math::statistics::cdf\-normal__ *mean* *stdev* *value*](#65)  
-[__::math::statistics::cdf\-lognormal__ *mean* *stdev* *value*](#66)  
-[__::math::statistics::cdf\-exponential__ *mean* *value*](#67)  
-[__::math::statistics::cdf\-uniform__ *xmin* *xmax* *value*](#68)  
-[__::math::statistics::cdf\-students\-t__ *degrees* *value*](#69)  
-[__::math::statistics::cdf\-gamma__ *alpha* *beta* *value*](#70)  
-[__::math::statistics::cdf\-poisson__ *mu* *k*](#71)  
-[__::math::statistics::cdf\-beta__ *a* *b* *value*](#72)  
-[__::math::statistics::cdf\-weibull__ *scale* *shape* *value*](#73)  
-[__::math::statistics::cdf\-gumbel__ *location* *scale* *value*](#74)  
-[__::math::statistics::cdf\-pareto__ *scale* *shape* *value*](#75)  
-[__::math::statistics::cdf\-cauchy__ *location* *scale* *value*](#76)  
-[__::math::statistics::cdf\-F__ *nf1* *nf2* *value*](#77)  
-[__::math::statistics::empirical\-distribution__ *values*](#78)  
-[__::math::statistics::random\-normal__ *mean* *stdev* *number*](#79)  
-[__::math::statistics::random\-lognormal__ *mean* *stdev* *number*](#80)  
-[__::math::statistics::random\-exponential__ *mean* *number*](#81)  
-[__::math::statistics::random\-uniform__ *xmin* *xmax* *number*](#82)  
-[__::math::statistics::random\-gamma__ *alpha* *beta* *number*](#83)  
-[__::math::statistics::random\-poisson__ *mu* *number*](#84)  
-[__::math::statistics::random\-chisquare__ *df* *number*](#85)  
-[__::math::statistics::random\-student\-t__ *df* *number*](#86)  
-[__::math::statistics::random\-beta__ *a* *b* *number*](#87)  
-[__::math::statistics::random\-weibull__ *scale* *shape* *number*](#88)  
-[__::math::statistics::random\-gumbel__ *location* *scale* *number*](#89)  
-[__::math::statistics::random\-pareto__ *scale* *shape* *number*](#90)  
-[__::math::statistics::random\-cauchy__ *location* *scale* *number*](#91)  
-[__::math::statistics::histogram\-uniform__ *xmin* *xmax* *limits* *number*](#92)  
-[__::math::statistics::incompleteGamma__ *x* *p* ?tol?](#93)  
-[__::math::statistics::incompleteBeta__ *a* *b* *x* ?tol?](#94)  
-[__::math::statistics::estimate\-pareto__ *values*](#95)  
-[__::math::statistics::filter__ *varname* *data* *expression*](#96)  
-[__::math::statistics::map__ *varname* *data* *expression*](#97)  
-[__::math::statistics::samplescount__ *varname* *list* *expression*](#98)  
-[__::math::statistics::subdivide__](#99)  
-[__::math::statistics::plot\-scale__ *canvas* *xmin* *xmax* *ymin* *ymax*](#100)  
-[__::math::statistics::plot\-xydata__ *canvas* *xdata* *ydata* *tag*](#101)  
-[__::math::statistics::plot\-xyline__ *canvas* *xdata* *ydata* *tag*](#102)  
-[__::math::statistics::plot\-tdata__ *canvas* *tdata* *tag*](#103)  
-[__::math::statistics::plot\-tline__ *canvas* *tdata* *tag*](#104)  
-[__::math::statistics::plot\-histogram__ *canvas* *counts* *limits* *tag*](#105)  
+[__::math::statistics::pdf\-triangular__ *xmin* *xmax* *value*](#55)  
+[__::math::statistics::pdf\-symmetric\-triangular__ *xmin* *xmax* *value*](#56)  
+[__::math::statistics::pdf\-gamma__ *alpha* *beta* *value*](#57)  
+[__::math::statistics::pdf\-poisson__ *mu* *k*](#58)  
+[__::math::statistics::pdf\-chisquare__ *df* *value*](#59)  
+[__::math::statistics::pdf\-student\-t__ *df* *value*](#60)  
+[__::math::statistics::pdf\-gamma__ *a* *b* *value*](#61)  
+[__::math::statistics::pdf\-beta__ *a* *b* *value*](#62)  
+[__::math::statistics::pdf\-weibull__ *scale* *shape* *value*](#63)  
+[__::math::statistics::pdf\-gumbel__ *location* *scale* *value*](#64)  
+[__::math::statistics::pdf\-pareto__ *scale* *shape* *value*](#65)  
+[__::math::statistics::pdf\-cauchy__ *location* *scale* *value*](#66)  
+[__::math::statistics::cdf\-normal__ *mean* *stdev* *value*](#67)  
+[__::math::statistics::cdf\-lognormal__ *mean* *stdev* *value*](#68)  
+[__::math::statistics::cdf\-exponential__ *mean* *value*](#69)  
+[__::math::statistics::cdf\-uniform__ *xmin* *xmax* *value*](#70)  
+[__::math::statistics::cdf\-triangular__ *xmin* *xmax* *value*](#71)  
+[__::math::statistics::cdf\-symmetric\-triangular__ *xmin* *xmax* *value*](#72)  
+[__::math::statistics::cdf\-students\-t__ *degrees* *value*](#73)  
+[__::math::statistics::cdf\-gamma__ *alpha* *beta* *value*](#74)  
+[__::math::statistics::cdf\-poisson__ *mu* *k*](#75)  
+[__::math::statistics::cdf\-beta__ *a* *b* *value*](#76)  
+[__::math::statistics::cdf\-weibull__ *scale* *shape* *value*](#77)  
+[__::math::statistics::cdf\-gumbel__ *location* *scale* *value*](#78)  
+[__::math::statistics::cdf\-pareto__ *scale* *shape* *value*](#79)  
+[__::math::statistics::cdf\-cauchy__ *location* *scale* *value*](#80)  
+[__::math::statistics::cdf\-F__ *nf1* *nf2* *value*](#81)  
+[__::math::statistics::empirical\-distribution__ *values*](#82)  
+[__::math::statistics::random\-normal__ *mean* *stdev* *number*](#83)  
+[__::math::statistics::random\-lognormal__ *mean* *stdev* *number*](#84)  
+[__::math::statistics::random\-exponential__ *mean* *number*](#85)  
+[__::math::statistics::random\-uniform__ *xmin* *xmax* *number*](#86)  
+[__::math::statistics::random\-triangular__ *xmin* *xmax* *number*](#87)  
+[__::math::statistics::random\-symmetric\-triangular__ *xmin* *xmax* *number*](#88)  
+[__::math::statistics::random\-gamma__ *alpha* *beta* *number*](#89)  
+[__::math::statistics::random\-poisson__ *mu* *number*](#90)  
+[__::math::statistics::random\-chisquare__ *df* *number*](#91)  
+[__::math::statistics::random\-student\-t__ *df* *number*](#92)  
+[__::math::statistics::random\-beta__ *a* *b* *number*](#93)  
+[__::math::statistics::random\-weibull__ *scale* *shape* *number*](#94)  
+[__::math::statistics::random\-gumbel__ *location* *scale* *number*](#95)  
+[__::math::statistics::random\-pareto__ *scale* *shape* *number*](#96)  
+[__::math::statistics::random\-cauchy__ *location* *scale* *number*](#97)  
+[__::math::statistics::histogram\-uniform__ *xmin* *xmax* *limits* *number*](#98)  
+[__::math::statistics::incompleteGamma__ *x* *p* ?tol?](#99)  
+[__::math::statistics::incompleteBeta__ *a* *b* *x* ?tol?](#100)  
+[__::math::statistics::estimate\-pareto__ *values*](#101)  
+[__::math::statistics::estimate\-exponential__ *values*](#102)  
+[__::math::statistics::filter__ *varname* *data* *expression*](#103)  
+[__::math::statistics::map__ *varname* *data* *expression*](#104)  
+[__::math::statistics::samplescount__ *varname* *list* *expression*](#105)  
+[__::math::statistics::subdivide__](#106)  
+[__::math::statistics::plot\-scale__ *canvas* *xmin* *xmax* *ymin* *ymax*](#107)  
+[__::math::statistics::plot\-xydata__ *canvas* *xdata* *ydata* *tag*](#108)  
+[__::math::statistics::plot\-xyline__ *canvas* *xdata* *ydata* *tag*](#109)  
+[__::math::statistics::plot\-tdata__ *canvas* *tdata* *tag*](#110)  
+[__::math::statistics::plot\-tline__ *canvas* *tdata* *tag*](#111)  
+[__::math::statistics::plot\-histogram__ *canvas* *counts* *limits* *tag*](#112)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -1196,7 +1203,44 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='55'></a>__::math::statistics::pdf\-gamma__ *alpha* *beta* *value*
+  - <a name='55'></a>__::math::statistics::pdf\-triangular__ *xmin* *xmax* *value*
+
+    Return the probability of a given value for a triangular distribution with
+    given extremes\. If the argument min is lower than the argument max, then
+    smaller values have higher probability and vice versa\. In the first case the
+    probability density function is of the form *f\(x\) = 2\(1\-x\)* and the other
+    case it is of the form *f\(x\) = 2x*\.
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmin*
+
+        \- Maximum value of the distribution
+
+      * float *value*
+
+        \- Value for which the probability is required
+
+  - <a name='56'></a>__::math::statistics::pdf\-symmetric\-triangular__ *xmin* *xmax* *value*
+
+    Return the probability of a given value for a symmetric triangular
+    distribution with given extremes\.
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmin*
+
+        \- Maximum value of the distribution
+
+      * float *value*
+
+        \- Value for which the probability is required
+
+  - <a name='57'></a>__::math::statistics::pdf\-gamma__ *alpha* *beta* *value*
 
     Return the probability of a given value for a Gamma distribution with given
     shape and rate parameters
@@ -1213,7 +1257,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='56'></a>__::math::statistics::pdf\-poisson__ *mu* *k*
+  - <a name='58'></a>__::math::statistics::pdf\-poisson__ *mu* *k*
 
     Return the probability of a given number of occurrences in the same interval
     \(k\) for a Poisson distribution with given mean \(mu\)
@@ -1226,7 +1270,7 @@ The following procedures have been implemented:
 
         \- Number of occurences
 
-  - <a name='57'></a>__::math::statistics::pdf\-chisquare__ *df* *value*
+  - <a name='59'></a>__::math::statistics::pdf\-chisquare__ *df* *value*
 
     Return the probability of a given value for a chi square distribution with
     given degrees of freedom
@@ -1239,7 +1283,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='58'></a>__::math::statistics::pdf\-student\-t__ *df* *value*
+  - <a name='60'></a>__::math::statistics::pdf\-student\-t__ *df* *value*
 
     Return the probability of a given value for a Student's t distribution with
     given degrees of freedom
@@ -1252,7 +1296,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='59'></a>__::math::statistics::pdf\-gamma__ *a* *b* *value*
+  - <a name='61'></a>__::math::statistics::pdf\-gamma__ *a* *b* *value*
 
     Return the probability of a given value for a Gamma distribution with given
     shape and rate parameters
@@ -1269,7 +1313,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='60'></a>__::math::statistics::pdf\-beta__ *a* *b* *value*
+  - <a name='62'></a>__::math::statistics::pdf\-beta__ *a* *b* *value*
 
     Return the probability of a given value for a Beta distribution with given
     shape parameters
@@ -1286,7 +1330,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='61'></a>__::math::statistics::pdf\-weibull__ *scale* *shape* *value*
+  - <a name='63'></a>__::math::statistics::pdf\-weibull__ *scale* *shape* *value*
 
     Return the probability of a given value for a Weibull distribution with
     given scale and shape parameters
@@ -1303,7 +1347,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='62'></a>__::math::statistics::pdf\-gumbel__ *location* *scale* *value*
+  - <a name='64'></a>__::math::statistics::pdf\-gumbel__ *location* *scale* *value*
 
     Return the probability of a given value for a Gumbel distribution with given
     location and shape parameters
@@ -1320,7 +1364,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='63'></a>__::math::statistics::pdf\-pareto__ *scale* *shape* *value*
+  - <a name='65'></a>__::math::statistics::pdf\-pareto__ *scale* *shape* *value*
 
     Return the probability of a given value for a Pareto distribution with given
     scale and shape parameters
@@ -1337,7 +1381,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='64'></a>__::math::statistics::pdf\-cauchy__ *location* *scale* *value*
+  - <a name='66'></a>__::math::statistics::pdf\-cauchy__ *location* *scale* *value*
 
     Return the probability of a given value for a Cauchy distribution with given
     location and shape parameters\. Note that the Cauchy distribution has no
@@ -1355,7 +1399,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='65'></a>__::math::statistics::cdf\-normal__ *mean* *stdev* *value*
+  - <a name='67'></a>__::math::statistics::cdf\-normal__ *mean* *stdev* *value*
 
     Return the cumulative probability of a given value for a normal distribution
     with given mean and standard deviation, that is the probability for values
@@ -1373,7 +1417,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='66'></a>__::math::statistics::cdf\-lognormal__ *mean* *stdev* *value*
+  - <a name='68'></a>__::math::statistics::cdf\-lognormal__ *mean* *stdev* *value*
 
     Return the cumulative probability of a given value for a log\-normal
     distribution with given mean and standard deviation, that is the probability
@@ -1391,7 +1435,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='67'></a>__::math::statistics::cdf\-exponential__ *mean* *value*
+  - <a name='69'></a>__::math::statistics::cdf\-exponential__ *mean* *value*
 
     Return the cumulative probability of a given value for an exponential
     distribution with given mean\.
@@ -1404,7 +1448,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='68'></a>__::math::statistics::cdf\-uniform__ *xmin* *xmax* *value*
+  - <a name='70'></a>__::math::statistics::cdf\-uniform__ *xmin* *xmax* *value*
 
     Return the cumulative probability of a given value for a uniform
     distribution with given extremes\.
@@ -1421,7 +1465,42 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='69'></a>__::math::statistics::cdf\-students\-t__ *degrees* *value*
+  - <a name='71'></a>__::math::statistics::cdf\-triangular__ *xmin* *xmax* *value*
+
+    Return the cumulative probability of a given value for a triangular
+    distribution with given extremes\. If xmin < xmax, then lower values have a
+    higher probability and vice versa, see also *pdf\-triangular*
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmin*
+
+        \- Maximum value of the distribution
+
+      * float *value*
+
+        \- Value for which the probability is required
+
+  - <a name='72'></a>__::math::statistics::cdf\-symmetric\-triangular__ *xmin* *xmax* *value*
+
+    Return the cumulative probability of a given value for a symmetric
+    triangular distribution with given extremes\.
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmin*
+
+        \- Maximum value of the distribution
+
+      * float *value*
+
+        \- Value for which the probability is required
+
+  - <a name='73'></a>__::math::statistics::cdf\-students\-t__ *degrees* *value*
 
     Return the cumulative probability of a given value for a Student's t
     distribution with given number of degrees\.
@@ -1434,7 +1513,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='70'></a>__::math::statistics::cdf\-gamma__ *alpha* *beta* *value*
+  - <a name='74'></a>__::math::statistics::cdf\-gamma__ *alpha* *beta* *value*
 
     Return the cumulative probability of a given value for a Gamma distribution
     with given shape and rate parameters\.
@@ -1451,7 +1530,7 @@ The following procedures have been implemented:
 
         \- Value for which the cumulative probability is required
 
-  - <a name='71'></a>__::math::statistics::cdf\-poisson__ *mu* *k*
+  - <a name='75'></a>__::math::statistics::cdf\-poisson__ *mu* *k*
 
     Return the cumulative probability of a given number of occurrences in the
     same interval \(k\) for a Poisson distribution with given mean \(mu\)\.
@@ -1464,7 +1543,7 @@ The following procedures have been implemented:
 
         \- Number of occurences
 
-  - <a name='72'></a>__::math::statistics::cdf\-beta__ *a* *b* *value*
+  - <a name='76'></a>__::math::statistics::cdf\-beta__ *a* *b* *value*
 
     Return the cumulative probability of a given value for a Beta distribution
     with given shape parameters
@@ -1481,7 +1560,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='73'></a>__::math::statistics::cdf\-weibull__ *scale* *shape* *value*
+  - <a name='77'></a>__::math::statistics::cdf\-weibull__ *scale* *shape* *value*
 
     Return the cumulative probability of a given value for a Weibull
     distribution with given scale and shape parameters\.
@@ -1498,7 +1577,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='74'></a>__::math::statistics::cdf\-gumbel__ *location* *scale* *value*
+  - <a name='78'></a>__::math::statistics::cdf\-gumbel__ *location* *scale* *value*
 
     Return the cumulative probability of a given value for a Gumbel distribution
     with given location and scale parameters\.
@@ -1515,7 +1594,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='75'></a>__::math::statistics::cdf\-pareto__ *scale* *shape* *value*
+  - <a name='79'></a>__::math::statistics::cdf\-pareto__ *scale* *shape* *value*
 
     Return the cumulative probability of a given value for a Pareto distribution
     with given scale and shape parameters
@@ -1532,7 +1611,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='76'></a>__::math::statistics::cdf\-cauchy__ *location* *scale* *value*
+  - <a name='80'></a>__::math::statistics::cdf\-cauchy__ *location* *scale* *value*
 
     Return the cumulative probability of a given value for a Cauchy distribution
     with given location and scale parameters\.
@@ -1549,7 +1628,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='77'></a>__::math::statistics::cdf\-F__ *nf1* *nf2* *value*
+  - <a name='81'></a>__::math::statistics::cdf\-F__ *nf1* *nf2* *value*
 
     Return the cumulative probability of a given value for an F distribution
     with nf1 and nf2 degrees of freedom\.
@@ -1566,7 +1645,7 @@ The following procedures have been implemented:
 
         \- Value for which the probability is required
 
-  - <a name='78'></a>__::math::statistics::empirical\-distribution__ *values*
+  - <a name='82'></a>__::math::statistics::empirical\-distribution__ *values*
 
     Return a list of values and their empirical probability\. The values are
     sorted in increasing order\. \(The implementation follows the description at
@@ -1576,7 +1655,7 @@ The following procedures have been implemented:
 
         \- List of data to be examined
 
-  - <a name='79'></a>__::math::statistics::random\-normal__ *mean* *stdev* *number*
+  - <a name='83'></a>__::math::statistics::random\-normal__ *mean* *stdev* *number*
 
     Return a list of "number" random values satisfying a normal distribution
     with given mean and standard deviation\.
@@ -1593,7 +1672,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='80'></a>__::math::statistics::random\-lognormal__ *mean* *stdev* *number*
+  - <a name='84'></a>__::math::statistics::random\-lognormal__ *mean* *stdev* *number*
 
     Return a list of "number" random values satisfying a log\-normal distribution
     with given mean and standard deviation\.
@@ -1610,7 +1689,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='81'></a>__::math::statistics::random\-exponential__ *mean* *number*
+  - <a name='85'></a>__::math::statistics::random\-exponential__ *mean* *number*
 
     Return a list of "number" random values satisfying an exponential
     distribution with given mean\.
@@ -1623,7 +1702,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='82'></a>__::math::statistics::random\-uniform__ *xmin* *xmax* *number*
+  - <a name='86'></a>__::math::statistics::random\-uniform__ *xmin* *xmax* *number*
 
     Return a list of "number" random values satisfying a uniform distribution
     with given extremes\.
@@ -1640,7 +1719,42 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='83'></a>__::math::statistics::random\-gamma__ *alpha* *beta* *number*
+  - <a name='87'></a>__::math::statistics::random\-triangular__ *xmin* *xmax* *number*
+
+    Return a list of "number" random values satisfying a triangular distribution
+    with given extremes\. If xmin < xmax, then lower values have a higher
+    probability and vice versa \(see also *pdf\-triangular*\.
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmax*
+
+        \- Maximum value of the distribution
+
+      * int *number*
+
+        \- Number of values to be returned
+
+  - <a name='88'></a>__::math::statistics::random\-symmetric\-triangular__ *xmin* *xmax* *number*
+
+    Return a list of "number" random values satisfying a symmetric triangular
+    distribution with given extremes\.
+
+      * float *xmin*
+
+        \- Minimum value of the distribution
+
+      * float *xmax*
+
+        \- Maximum value of the distribution
+
+      * int *number*
+
+        \- Number of values to be returned
+
+  - <a name='89'></a>__::math::statistics::random\-gamma__ *alpha* *beta* *number*
 
     Return a list of "number" random values satisfying a Gamma distribution with
     given shape and rate parameters\.
@@ -1657,7 +1771,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='84'></a>__::math::statistics::random\-poisson__ *mu* *number*
+  - <a name='90'></a>__::math::statistics::random\-poisson__ *mu* *number*
 
     Return a list of "number" random values satisfying a Poisson distribution
     with given mean\.
@@ -1670,7 +1784,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='85'></a>__::math::statistics::random\-chisquare__ *df* *number*
+  - <a name='91'></a>__::math::statistics::random\-chisquare__ *df* *number*
 
     Return a list of "number" random values satisfying a chi square distribution
     with given degrees of freedom\.
@@ -1683,7 +1797,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='86'></a>__::math::statistics::random\-student\-t__ *df* *number*
+  - <a name='92'></a>__::math::statistics::random\-student\-t__ *df* *number*
 
     Return a list of "number" random values satisfying a Student's t
     distribution with given degrees of freedom\.
@@ -1696,7 +1810,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='87'></a>__::math::statistics::random\-beta__ *a* *b* *number*
+  - <a name='93'></a>__::math::statistics::random\-beta__ *a* *b* *number*
 
     Return a list of "number" random values satisfying a Beta distribution with
     given shape parameters\.
@@ -1713,7 +1827,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='88'></a>__::math::statistics::random\-weibull__ *scale* *shape* *number*
+  - <a name='94'></a>__::math::statistics::random\-weibull__ *scale* *shape* *number*
 
     Return a list of "number" random values satisfying a Weibull distribution
     with given scale and shape parameters\.
@@ -1730,7 +1844,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='89'></a>__::math::statistics::random\-gumbel__ *location* *scale* *number*
+  - <a name='95'></a>__::math::statistics::random\-gumbel__ *location* *scale* *number*
 
     Return a list of "number" random values satisfying a Gumbel distribution
     with given location and scale parameters\.
@@ -1747,7 +1861,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='90'></a>__::math::statistics::random\-pareto__ *scale* *shape* *number*
+  - <a name='96'></a>__::math::statistics::random\-pareto__ *scale* *shape* *number*
 
     Return a list of "number" random values satisfying a Pareto distribution
     with given scale and shape parameters\.
@@ -1764,7 +1878,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='91'></a>__::math::statistics::random\-cauchy__ *location* *scale* *number*
+  - <a name='97'></a>__::math::statistics::random\-cauchy__ *location* *scale* *number*
 
     Return a list of "number" random values satisfying a Cauchy distribution
     with given location and scale parameters\.
@@ -1781,7 +1895,7 @@ The following procedures have been implemented:
 
         \- Number of values to be returned
 
-  - <a name='92'></a>__::math::statistics::histogram\-uniform__ *xmin* *xmax* *limits* *number*
+  - <a name='98'></a>__::math::statistics::histogram\-uniform__ *xmin* *xmax* *limits* *number*
 
     Return the expected histogram for a uniform distribution\.
 
@@ -1801,7 +1915,7 @@ The following procedures have been implemented:
 
         \- Total number of "observations" in the histogram
 
-  - <a name='93'></a>__::math::statistics::incompleteGamma__ *x* *p* ?tol?
+  - <a name='99'></a>__::math::statistics::incompleteGamma__ *x* *p* ?tol?
 
     Evaluate the incomplete Gamma integral
 
@@ -1821,7 +1935,7 @@ The following procedures have been implemented:
 
         \- Required tolerance \(default: 1\.0e\-9\)
 
-  - <a name='94'></a>__::math::statistics::incompleteBeta__ *a* *b* *x* ?tol?
+  - <a name='100'></a>__::math::statistics::incompleteBeta__ *a* *b* *x* ?tol?
 
     Evaluate the incomplete Beta integral
 
@@ -1841,7 +1955,7 @@ The following procedures have been implemented:
 
         \- Required tolerance \(default: 1\.0e\-9\)
 
-  - <a name='95'></a>__::math::statistics::estimate\-pareto__ *values*
+  - <a name='101'></a>__::math::statistics::estimate\-pareto__ *values*
 
     Estimate the parameters for the Pareto distribution that comes closest to
     the given values\. Returns the estimated scale and shape parameters, as well
@@ -1852,13 +1966,24 @@ The following procedures have been implemented:
         \- List of values, assumed to be distributed according to a Pareto
         distribution
 
+  - <a name='102'></a>__::math::statistics::estimate\-exponential__ *values*
+
+    Estimate the parameter for the exponential distribution that comes closest
+    to the given values\. Returns an estimate of the one parameter and of the
+    standard error\.
+
+      * list *values*
+
+        \- List of values, assumed to be distributed according to an exponential
+        distribution
+
 TO DO: more function descriptions to be added
 
 # <a name='section5'></a>DATA MANIPULATION
 
 The data manipulation procedures act on lists or lists of lists:
 
-  - <a name='96'></a>__::math::statistics::filter__ *varname* *data* *expression*
+  - <a name='103'></a>__::math::statistics::filter__ *varname* *data* *expression*
 
     Return a list consisting of the data for which the logical expression is
     true \(this command works analogously to the command
@@ -1876,7 +2001,7 @@ The data manipulation procedures act on lists or lists of lists:
 
         \- Logical expression using the variable name
 
-  - <a name='97'></a>__::math::statistics::map__ *varname* *data* *expression*
+  - <a name='104'></a>__::math::statistics::map__ *varname* *data* *expression*
 
     Return a list consisting of the data that are transformed via the
     expression\.
@@ -1893,7 +2018,7 @@ The data manipulation procedures act on lists or lists of lists:
 
         \- Expression to be used to transform \(map\) the data
 
-  - <a name='98'></a>__::math::statistics::samplescount__ *varname* *list* *expression*
+  - <a name='105'></a>__::math::statistics::samplescount__ *varname* *list* *expression*
 
     Return a list consisting of the *counts* of all data in the sublists of
     the "list" argument for which the expression is true\.
@@ -1910,7 +2035,7 @@ The data manipulation procedures act on lists or lists of lists:
 
         \- Logical expression to test the data \(defaults to "true"\)\.
 
-  - <a name='99'></a>__::math::statistics::subdivide__
+  - <a name='106'></a>__::math::statistics::subdivide__
 
     Routine *PM* \- not implemented yet
 
@@ -1918,7 +2043,7 @@ The data manipulation procedures act on lists or lists of lists:
 
 The following simple plotting procedures are available:
 
-  - <a name='100'></a>__::math::statistics::plot\-scale__ *canvas* *xmin* *xmax* *ymin* *ymax*
+  - <a name='107'></a>__::math::statistics::plot\-scale__ *canvas* *xmin* *xmax* *ymin* *ymax*
 
     Set the scale for a plot in the given canvas\. All plot routines expect this
     function to be called first\. There is no automatic scaling provided\.
@@ -1943,7 +2068,7 @@ The following simple plotting procedures are available:
 
         \- Maximum y value
 
-  - <a name='101'></a>__::math::statistics::plot\-xydata__ *canvas* *xdata* *ydata* *tag*
+  - <a name='108'></a>__::math::statistics::plot\-xydata__ *canvas* *xdata* *ydata* *tag*
 
     Create a simple XY plot in the given canvas \- the data are shown as a
     collection of dots\. The tag can be used to manipulate the appearance\.
@@ -1964,7 +2089,7 @@ The following simple plotting procedures are available:
 
         \- Tag to give to the plotted data \(defaults to xyplot\)
 
-  - <a name='102'></a>__::math::statistics::plot\-xyline__ *canvas* *xdata* *ydata* *tag*
+  - <a name='109'></a>__::math::statistics::plot\-xyline__ *canvas* *xdata* *ydata* *tag*
 
     Create a simple XY plot in the given canvas \- the data are shown as a line
     through the data points\. The tag can be used to manipulate the appearance\.
@@ -1985,7 +2110,7 @@ The following simple plotting procedures are available:
 
         \- Tag to give to the plotted data \(defaults to xyplot\)
 
-  - <a name='103'></a>__::math::statistics::plot\-tdata__ *canvas* *tdata* *tag*
+  - <a name='110'></a>__::math::statistics::plot\-tdata__ *canvas* *tdata* *tag*
 
     Create a simple XY plot in the given canvas \- the data are shown as a
     collection of dots\. The horizontal coordinate is equal to the index\. The tag
@@ -2005,7 +2130,7 @@ The following simple plotting procedures are available:
 
         \- Tag to give to the plotted data \(defaults to xyplot\)
 
-  - <a name='104'></a>__::math::statistics::plot\-tline__ *canvas* *tdata* *tag*
+  - <a name='111'></a>__::math::statistics::plot\-tline__ *canvas* *tdata* *tag*
 
     Create a simple XY plot in the given canvas \- the data are shown as a line\.
     See plot\-tdata for an explanation\.
@@ -2022,7 +2147,7 @@ The following simple plotting procedures are available:
 
         \- Tag to give to the plotted data \(defaults to xyplot\)
 
-  - <a name='105'></a>__::math::statistics::plot\-histogram__ *canvas* *counts* *limits* *tag*
+  - <a name='112'></a>__::math::statistics::plot\-histogram__ *canvas* *counts* *limits* *tag*
 
     Create a simple histogram in the given canvas
 

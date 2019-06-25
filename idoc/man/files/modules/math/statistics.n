@@ -385,6 +385,10 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::pdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
 .sp
+\fB::math::statistics::pdf-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+.sp
 \fB::math::statistics::pdf-gamma\fR \fIalpha\fR \fIbeta\fR \fIvalue\fR
 .sp
 \fB::math::statistics::pdf-poisson\fR \fImu\fR \fIk\fR
@@ -412,6 +416,10 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::cdf-exponential\fR \fImean\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-students-t\fR \fIdegrees\fR \fIvalue\fR
 .sp
@@ -441,6 +449,10 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::random-uniform\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
 .sp
+\fB::math::statistics::random-triangular\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
+.sp
 \fB::math::statistics::random-gamma\fR \fIalpha\fR \fIbeta\fR \fInumber\fR
 .sp
 \fB::math::statistics::random-poisson\fR \fImu\fR \fInumber\fR
@@ -466,6 +478,8 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::incompleteBeta\fR \fIa\fR \fIb\fR \fIx\fR ?tol?
 .sp
 \fB::math::statistics::estimate-pareto\fR \fIvalues\fR
+.sp
+\fB::math::statistics::estimate-exponential\fR \fIvalues\fR
 .sp
 \fB::math::statistics::filter\fR \fIvarname\fR \fIdata\fR \fIexpression\fR
 .sp
@@ -1543,6 +1557,40 @@ float \fIvalue\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::pdf-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+Return the probability of a given value for a triangular
+distribution with given extremes\&. If the argument min is lower than the argument max, then smaller
+values have higher probability and vice versa\&. In the first case the probability
+density function is of the form \fIf(x) = 2(1-x)\fR and the other case it is of the form \fIf(x) = 2x\fR\&.
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmin\fR
+- Maximum value of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+Return the probability of a given value for a symmetric triangular
+distribution with given extremes\&.
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmin\fR
+- Maximum value of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
 \fB::math::statistics::pdf-gamma\fR \fIalpha\fR \fIbeta\fR \fIvalue\fR
 Return the probability of a given value for a Gamma
 distribution with given shape and rate parameters
@@ -1744,6 +1792,39 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
 Return the cumulative probability of a given value for a uniform
+distribution with given extremes\&.
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmin\fR
+- Maximum value of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+Return the cumulative probability of a given value for a triangular
+distribution with given extremes\&. If xmin < xmax, then lower values have
+a higher probability and vice versa, see also \fIpdf-triangular\fR
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmin\fR
+- Maximum value of the distribution
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
+Return the cumulative probability of a given value for a symmetric triangular
 distribution with given extremes\&.
 .RS
 .TP
@@ -1967,6 +2048,39 @@ int \fInumber\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::random-triangular\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
+Return a list of "number" random values satisfying a triangular
+distribution with given extremes\&. If xmin < xmax, then lower values have a higher probability
+and vice versa (see also \fIpdf-triangular\fR\&.
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmax\fR
+- Maximum value of the distribution
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-symmetric-triangular\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
+Return a list of "number" random values satisfying a symmetric triangular
+distribution with given extremes\&.
+.RS
+.TP
+float \fIxmin\fR
+- Minimum value of the distribution
+.TP
+float \fIxmax\fR
+- Maximum value of the distribution
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
 \fB::math::statistics::random-gamma\fR \fIalpha\fR \fIbeta\fR \fInumber\fR
 Return a list of "number" random values satisfying
 a Gamma distribution with given shape and rate parameters\&.
@@ -2168,6 +2282,16 @@ Returns the estimated scale and shape parameters, as well as the standard error 
 .TP
 list \fIvalues\fR
 - List of values, assumed to be distributed according to a Pareto distribution
+.RE
+.sp
+.TP
+\fB::math::statistics::estimate-exponential\fR \fIvalues\fR
+Estimate the parameter for the exponential distribution that comes closest to the given values\&.
+Returns an estimate of the one parameter and of the standard error\&.
+.RS
+.TP
+list \fIvalues\fR
+- List of values, assumed to be distributed according to an exponential distribution
 .RE
 .sp
 .PP
