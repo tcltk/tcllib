@@ -626,8 +626,8 @@ if {[string equal $tcl_platform(platform) windows]} {
 
 # ::fileutil::jail --
 #
-#	Ensures that the input path 'filename' stays within the the
-#	directory 'jail'. In this way it preventsuser-supplied paths
+#	Ensures that the input path 'filename' stays within the
+#	directory 'jail'. In this way it prevents user-supplied paths
 #	from escaping the jail.
 #
 # Arguments:
