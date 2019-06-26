@@ -415,7 +415,7 @@
         }
       }
     } else {
-      foreach pair [split [my clay get QUERY_STRING] "&"] {
+      foreach pair [split [my request get QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }

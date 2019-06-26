@@ -98,18 +98,17 @@ if {[file exists [file join %vfsroot% tk_library tk.tcl]]} {
         append main_init_script \n [list ::load {} $statpkg]
       }
     }
-    append preinitscript \n {
-if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
-  #In a wrapped exe, we don't go out to the environment
-  set dir $::starkit::topdir
-  source [file join $::starkit::topdir pkgIndex.tcl]
-}}
     append main_init_script \n {
 # Specify a user-specific startup file to invoke if the application
 # is run interactively.  Typically the startup file is "~/.apprc"
 # where "app" is the name of the application.  If this line is deleted
 # then no user-specific startup file will be run under any conditions.
 }
+    append main_init_script \n {if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
+  #In a wrapped exe, we don't go out to the environment
+  set dir $::starkit::topdir
+  source [file join $::starkit::topdir pkgIndex.tcl]
+}}
     append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
     append preinitscript \n [list set ::starkit::thread_init $thread_init_script]
     append preinitscript \n {eval $::starkit::thread_init}
