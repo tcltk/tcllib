@@ -1437,6 +1437,9 @@ tcllib
 \fBtextutil::expander\fR
 \fIfiles/modules/textutil/expander\&.n\fR: Procedures to process templates and expand text\&.
 .TP
+\fBtextutil::patch\fR
+\fIfiles/modules/textutil/patch\&.n\fR: Application of uni-diff patches to directory trees
+.TP
 \fBtextutil::repeat\fR
 \fIfiles/modules/textutil/repeat\&.n\fR: Procedures to repeat strings\&.
 .TP

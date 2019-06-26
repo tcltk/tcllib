@@ -915,6 +915,8 @@
 
           + [textutil::expander](tcllib/files/modules/textutil/expander\.md) Procedures to process templates and expand text\.
 
+          + [textutil::patch](tcllib/files/modules/textutil/patch\.md) Application of uni\-diff patches to directory trees
+
           + [textutil::repeat](tcllib/files/modules/textutil/repeat\.md) Procedures to repeat strings\.
 
           + [textutil::split](tcllib/files/modules/textutil/textutil\_split\.md) Procedures to split texts
