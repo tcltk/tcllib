@@ -23,7 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.5
 
-package provide mime 1.6.1
+package provide mime 1.6.2
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -330,7 +330,7 @@ namespace eval ::mime {
     namespace export initialize finalize getproperty \
                      getheader setheader \
                      getbody \
-                     copymessage \
+                     buildmessage copymessage \
                      mapencoding \
                      reversemapencoding \
                      parseaddress \
@@ -2172,7 +2172,7 @@ proc ::mime::buildmessageaux {token} {
                     #   is needed per the RFC, and the parts must not
                     #   have a closing CRLF of their own. See Tcllib bug
                     #   1213527, and patch 1254934 for the problems when
-                    #   both file/string brnaches added CRLF after the
+                    #   both file/string branches added CRLF after the
                     #   body parts.
 
                     foreach part $state(parts) {
@@ -2527,7 +2527,7 @@ proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
 #    Tcl version of quote-printable decode
 #
 # Arguments:
-#    string        The quoted-prinatble string to decode.
+#    string        The quoted-printable string to decode.
 #       encoded_word  Boolean value to determine whether or not encoded words
 #                     (RFC 2047) should be handled or not. (optional)
 #

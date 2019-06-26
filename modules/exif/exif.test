@@ -7,8 +7,6 @@
 #
 # Copyright (c) 2001-2006 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
-#
-# RCS: @(#) $Id: exif.test,v 1.6 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -28,7 +26,7 @@ testing {
 test exif-makernote-19.0 {makernote field 19 (afpoint) is optional} {
     # AFPoint == AutoFocus Point
 
-    set f [open [file join $::tcltest::testsDirectory noafpoint.jpg] r]
+    set f [open [asset noafpoint.jpg] r]
     fconfigure $f -translation binary
     array set resa [exif::analyze $f]
     close $f

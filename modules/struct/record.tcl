@@ -1,12 +1,12 @@
 #============================================================
 # ::struct::record --
 #
-#    Implements a container data structure similar to a 'C' 
+#    Implements a container data structure similar to a 'C'
 #    structure. It hides the ugly details about keeping the
 #    data organized by using a combination of arrays, lists
 #    and namespaces.
-#   
-#    Each record definition is kept in a master array 
+#
+#    Each record definition is kept in a master array
 #    (_recorddefn) under the ::struct::record namespace. Each
 #    instance of a record is kept within a separate namespace
 #    for each record definition. Hence, instances of
@@ -21,8 +21,6 @@
 #
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: record.tcl,v 1.10 2004/09/29 20:56:18 andreas_kupries Exp $
-#
 #============================================================
 #
 ####  FIX ERROR MESSAGES SO THEY MAKE SENSE (Wrong args)
@@ -32,8 +30,7 @@ namespace eval ::struct {}
 namespace eval ::struct::record {
 
     ##
-    ##  array of lists that holds the 
-    ##  definition (variables) for each 
+    ##  array of lists that holds the definition (variables) for each
     ##  record
     ##
     ##  _recorddefn(some_record) var1 var2 var3 ...
@@ -41,8 +38,7 @@ namespace eval ::struct::record {
     variable _recorddefn
 
     ##
-    ##  holds the count for each record
-    ##  in cases where the instance is
+    ##  holds the count for each record in cases where the instance is
     ##  automatically generated
     ##
     ##  _count(some_record) 0
@@ -54,8 +50,7 @@ namespace eval ::struct::record {
     variable _count
 
     ##
-    ##  array that holds the defining record's
-    ##  name for each instances
+    ##  array that holds the defining record's name for each instances
     ##
     ##  _defn(some_instances) name_of_defining_record
     ##
@@ -63,9 +58,9 @@ namespace eval ::struct::record {
     array set _defn {}
 
     ##
-    ##  This holds the defaults for a record definition.
-    ##  If no default is given for a member of a record,
-    ##  then the value is assigned to the empty string
+    ##  This holds the defaults for a record definition.  If no
+    ##  default is given for a member of a record, then the value is
+    ##  assigned to the empty string
     ##
     variable _defaults
 
@@ -76,9 +71,9 @@ namespace eval ::struct::record {
     set commands [list define delete exists show]
 
     ##
-    ##  This keeps track of the level that we are in
-    ##  when handling nested records. This is kind of
-    ##  a hack, and probably can be handled better
+    ##  This keeps track of the level that we are in when handling
+    ##  nested records. This is kind of a hack, and probably can be
+    ##  handled better
     ##
     set _level 0
 
@@ -127,10 +122,11 @@ proc ::struct::record::record {cmd_ args} {
 #------------------------------------------------------------
 #
 proc ::struct::record::Define {defn_ vars_ args} {
-
     variable _recorddefn
     variable _count
     variable _defaults
+
+    # puts .([info level 0])...
 
     set defn_ [Qualify $defn_]
 
@@ -145,46 +141,40 @@ proc ::struct::record::Define {defn_ vars_ args} {
     set _defaults($defn_)   [list]
     set _recorddefn($defn_) [list]
 
-
     ##
     ##  Loop through the members of the record
     ##  definition
     ##
     foreach V $vars_ {
-
         set len [llength $V]
         set D ""
 
-        ##
-        ##  2 --> there is a default value
-        ##        assigned to the member
-        ##
-        ##  3 --> there is a nested record
-        ##        definition given as a member
-        ##
         if {$len == 2} {
+	    ##  2 --> there is a default value
+	    ##        assigned to the member
 
             set D [lindex $V 1]
             set V [lindex $V 0]
 
         } elseif {$len == 3} {
+	    ##  3 --> there is a nested record
+	    ##        definition given as a member
+	    ##  V = ('record' record-name field-name)
 
             if {![string match "record" "[lindex $V 0]"]} {
-
                 Delete record $defn_
-                error "$V is a Bad member for record definition
-                definition creation aborted."
+                error "$V is a Bad member for record definition. Definition creation aborted."
             }
 
             set new [lindex $V 1]
-
             set new [Qualify $new]
-
+	    # puts .\tchild=$new
             ##
             ##  Right now, there can not be circular records
             ##  so, we abort the creation
             ##
             if {[string match "$defn_" "$new"]} {
+		# puts .\tabort
                 Delete record $defn_
                 error "Can not have circular records. Structure was not created."
             }
@@ -198,31 +188,39 @@ proc ::struct::record::Define {defn_ vars_ args} {
             set V [join [lrange $V 1 2] "::"]
         }
 
+	# puts .\tfield($V)=default($D)
+
         lappend _recorddefn($defn_) $V
         lappend _defaults($defn_)   $D
     }
-    
 
-    uplevel #0 [list interp alias {} $defn_ {} ::struct::record::Create $defn_]
+    # Create class command as alias to instance creator.
+    uplevel #0 [list interp alias \
+		    {} $defn_ \
+		    {} ::struct::record::Create $defn_]
 
     set _count($defn_) 0
 
+    # Create class namespace. This will hold all the instance information.
     namespace eval ::struct::record${defn_} {
         variable values
         variable instances
+	variable record
 
         set instances [list]
     }
+
+    set ::struct::record${defn_}::record $defn_
 
     ##
     ##    If there were args given (instances), then
     ##    create them now
     ##
     foreach A $args {
-
         uplevel 1 [list ::struct::record::Create $defn_ $A]
     }
 
+    # puts .=>${defn_}
     return $defn_
 
 }; # end proc ::struct::record::Define
@@ -243,12 +241,13 @@ proc ::struct::record::Define {defn_ vars_ args} {
 #------------------------------------------------------------
 #
 proc ::struct::record::Create {defn_ inst_ args} {
-
     variable _recorddefn
     variable _count
     variable _defn
     variable _defaults
     variable _level
+
+    # puts .([info level 0])...
 
     set inst_ [Qualify "$inst_"]
 
@@ -259,7 +258,6 @@ proc ::struct::record::Create {defn_ inst_ args} {
     if {![info exists _recorddefn($defn_)]} {
         error "Structure $defn_ does not exist"
     }
-
 
     ##
     ##    if there was no argument given,
@@ -286,85 +284,95 @@ proc ::struct::record::Create {defn_ inst_ args} {
     set _defn($inst_) $defn_
 
     ##
-    ##    Initialize record variables to
-    ##    defaults
+    ##    Initialize record variables to defaults
     ##
 
+    # Create instance command as alias of instance dispatcher.
     uplevel #0 [list interp alias {} ${inst_} {} ::struct::record::Cmd $inst_]
+
+    # Locate manager namespace, i.e. class namespace for new instance
+    set nsi [Ns $inst_]
+    # puts .\tnsi=$nsi
+
+    # Import the state of the manager namespace
+    upvar 0 ${nsi}values    __values
+    upvar 0 ${nsi}instances __instances
 
     set cnt 0
     foreach V $_recorddefn($defn_) D $_defaults($defn_) {
 
-        set [Ns $inst_]values($inst_,$V) $D
+	# puts .\tfield($V)=default($D)
+
+	set __values($inst_,$V) $D
 
         ##
         ##  Test to see if there is a nested record
         ##
-        if {[regexp -- {([\w]*)::([\w]*)} $V m def inst]} {
+        if {[regexp -- {([\w]*)::([\w]*)} $V -> def inst]} {
 
             if {$_level == 0} {
                 set _level 2
             }
 
             ##
-            ##  This is to guard against if the creation
-            ##  had failed, that there isn't any
-            ##  lingering variables/alias around
+            ##  This is to guard against if the creation had failed,
+            ##  that there isn't any lingering variables/alias around
             ##
             set def [Qualify $def $_level]
 
             if {![info exists _recorddefn($def)]} {
-
                 Delete inst "$inst_"
-
                 return
             }
 
             ##
-            ##    evaluate the nested record. If there
-            ##    were values for the variables passed
-            ##    in, then we assume that the value for
-            ##    this nested record is a list 
-            ##    corresponding the the nested list's
-            ##    variables, and so we pass that to
-            ##    the nested record's instantiation.
-            ##    We then get rid of those args for later
-            ##    processing.
+            ##    evaluate the nested record. If there were values for
+            ##    the variables passed in, then we assume that the
+            ##    value for this nested record is a list corresponding
+            ##    the the nested list's variables, and so we pass that
+            ##    to the nested record's instantiation.  We then get
+            ##    rid of those args for later processing.
             ##
             set cnt_plus [expr {$cnt + 1}]
             set mem [lindex $args $cnt]
             if {![string match "" "$mem"]} {
-                 if {![string match "-$inst" "$mem"]} {
+		if {![string match "-$inst" "$mem"]} {
                     Delete inst "$inst_"
                     error "$inst is not a member of $defn_"
                 }
             }
             incr _level
             set narg [lindex $args $cnt_plus]
+
+	    # Create instance of the nested record.
             eval [linsert $narg 0 Create $def ${inst_}.${inst}]
+
             set args [lreplace $args $cnt $cnt_plus]
 
             incr _level -1
         } else {
-
-            uplevel #0 [list interp alias {} ${inst_}.$V {} ::struct::record::Access $defn_ $inst_ $V]
+	    # Regular field, not a nested record. Create alias for
+	    # field access.
+            uplevel #0 [list interp alias \
+			    {} ${inst_}.$V \
+			    {} ::struct::record::Access $defn_ $inst_ $V]
             incr cnt 2
         }
-
     }; # end foreach variable
 
-    lappend [Ns $inst_]instances $inst_
+    # Remember new instance.
+    lappend __instances $inst_
 
+    # Apply field values handed to the instance constructor.
     foreach {k v} $args {
-
         Access $defn_ $inst_ [string trimleft "$k" -] $v
-
     }; # end foreach arg {}
 
     if {$_level == 2} {
 	set _level 0
     }
 
+    # puts .=>${inst_}
     return $inst_
 
 }; # end proc ::struct::record::Create
@@ -394,17 +402,23 @@ proc ::struct::record::Access {defn_ inst_ var_ args} {
     set i [lsearch $_recorddefn($defn_) $var_]
 
     if {$i < 0} {
-         error "$var_ does not exist in record $defn_"
+	error "$var_ does not exist in record $defn_"
     }
 
     if {![info exists _defn($inst_)]} {
 
-         error "$inst_ does not exist"
+	error "$inst_ does not exist"
     }
 
     if {[set idx [lsearch $args "="]] >= 0} {
         set args [lreplace $args $idx $idx]
-    } 
+    }
+
+    set nsi [Ns $inst_]
+    # puts .\tnsi=$nsi
+
+    # Import the state of the manager namespace
+    upvar 0 ${nsi}values    __values
 
     ##
     ##    If a value was given, then set it
@@ -413,11 +427,11 @@ proc ::struct::record::Access {defn_ inst_ var_ args} {
 
         set val_ [lindex $args 0]
 
-        set [Ns $inst_]values($inst_,$var_) $val_
+        set __values($inst_,$var_) $val_
     }
 
-    return [set [Ns $inst_]values($inst_,$var_)]
-     
+    return $__values($inst_,$var_)
+
 }; # end proc ::struct::record::Access
 
 
@@ -450,27 +464,27 @@ proc ::struct::record::Cmd {inst_ args} {
 
     if {[string match "cget" "$cmd"]} {
 
-            set cnt 0
-            foreach k [lrange $args 1 end] {
-                if {[catch {set r [${inst_}.[string trimleft ${k} -]]} err]} {
-                    error "Bad option \"$k\""
-                }
+	set cnt 0
+	foreach k [lrange $args 1 end] {
+	    if {[catch {set r [${inst_}.[string trimleft ${k} -]]} err]} {
+		error "Bad option \"$k\""
+	    }
 
-                lappend result $r
-                incr cnt
-            }
-            if {$cnt == 1} {set result [lindex $result 0]}
-            return $result
+	    lappend result $r
+	    incr cnt
+	}
+	if {$cnt == 1} {set result [lindex $result 0]}
+	return $result
 
     } elseif {[string match "config*" "$cmd"]} {
 
-            set L [lrange $args 1 end]
-            foreach {k v} $L {
-                 ${inst_}.[string trimleft ${k} -] $v
-            }
+	set L [lrange $args 1 end]
+	foreach {k v} $L {
+	    ${inst_}.[string trimleft ${k} -] $v
+	}
 
     } else {
-            error "Wrong argument.
+	error "Wrong argument.
             must be \"object cget|configure args\""
     }
 
@@ -526,72 +540,94 @@ proc ::struct::record::Ns {inst_} {
 #------------------------------------------------------------
 #
 proc ::struct::record::Show {what_ {record_ ""}} {
-
     variable _recorddefn
     variable _defn
     variable _defaults
 
+    set record_ [Qualify $record_]
+
     ##
     ## We just prepend :: to the record_ argument
     ##
-    if {![string match "::*" "$record_"]} {set record_ "::$record_"}
+    #if {![string match "::*" "$record_"]} {set record_ "::$record_"}
 
     if {[string match "record*" "$what_"]} {
+	# Show record
+
         return [lsort [array names _recorddefn]]
-    } elseif {[string match "mem*" "$what_"]} {
+    }
 
-       if {[string match "" "$record_"] || ![info exists _recorddefn($record_)]} {
-           error "Bad arguments while accessing members. Bad record name"
-       }
+    if {[string match "mem*" "$what_"]} {
+	# Show members
 
-       set res [list]
-       set cnt 0
-       foreach m $_recorddefn($record_) {
-           set def [lindex $_defaults($record_) $cnt]
-           if {[regexp -- {([\w]+)::([\w]+)} $m m d i]} {
-               lappend res [list record $d $i]
-           } elseif {![string match "" "$def"]} {
-               lappend res [list $m $def]
-           } else {
-               lappend res $m
-           }
+	if {[string match "" "$record_"] || ![info exists _recorddefn($record_)]} {
+	    error "Bad arguments while accessing members. Bad record name"
+	}
 
-           incr cnt
-       }
+	set res [list]
+	set cnt 0
+	foreach m $_recorddefn($record_) {
+	    set def [lindex $_defaults($record_) $cnt]
+	    if {[regexp -- {([\w]+)::([\w]+)} $m m d i]} {
+		lappend res [list record $d $i]
+	    } elseif {![string match "" "$def"]} {
+		lappend res [list $m $def]
+	    } else {
+		lappend res $m
+	    }
 
-       return $res
+	    incr cnt
+	}
 
-    } elseif {[string match "inst*" "$what_"]} {
+	return $res
+    }
 
-        if {![info exists ::struct::record${record_}::instances]} {
+    if {[string match "inst*" "$what_"]} {
+	# Show instances
+
+	if {![namespace exists ::struct::record${record_}]} {
+	    return [list]
+	}
+
+	# Import the state of the manager namespace
+	upvar 0 ::struct::record${record_}::instances __instances
+
+        if {![info exists __instances]} {
             return [list]
         }
-        return [lsort [set ::struct::record${record_}::instances]]
-
-    } elseif {[string match "val*" "$what_"]} {
-
-           set ns $_defn($record_)
-
-           if {[string match "" "$record_"] || ([lsearch [set [Ns $record_]instances] $record_] < 0)} {
-
-               error "Wrong arguments to values. Bad instance name"
-           }
-
-           set ret [list]
-           foreach k $_recorddefn($ns) {
-
-              set v [set [Ns $record_]values($record_,$k)]
-
-              if {[regexp -- {([\w]*)::([\w]*)} $k m def inst]} {
-                  set v [::struct::record::Show values ${record_}.${inst}]
-              }
-
-              lappend ret -[namespace tail $k] $v
-           }
-           return $ret
+        return [lsort $__instances]
 
     }
 
+    if {[string match "val*" "$what_"]} {
+	# Show values
+
+	set nsi [Ns $record_]
+	upvar 0 ${nsi}::instances __instances
+	upvar 0 ${nsi}::values    __values
+	upvar 0 ${nsi}::record    __record
+
+	if {[string match "" "$record_"] ||
+	    ([lsearch $__instances $record_] < 0)} {
+
+	    error "Wrong arguments to values. Bad instance name"
+	}
+
+	set ret [list]
+	foreach k $_recorddefn($__record) {
+	    set v $__values($record_,$k)
+
+	    if {[regexp -- {([\w]*)::([\w]*)} $k m def inst]} {
+		set v [::struct::record::Show values ${record_}.${inst}]
+	    }
+
+	    lappend ret -[namespace tail $k] $v
+	}
+	return $ret
+
+    }
+
+    # Bogus submethod
     return [list]
 
 }; # end proc ::struct::record::Show
@@ -613,60 +649,80 @@ proc ::struct::record::Show {what_ {record_ ""}} {
 #------------------------------------------------------------
 #
 proc ::struct::record::Delete {sub_ item_} {
-
     variable _recorddefn
     variable _defn
     variable _count
     variable _defaults
 
-    ##
-    ## We just semi-blindly prepend :: to the record_ argument
-    ##
-    if {![string match "::*" "$item_"]} {set item_ "::$item_"}
+    # puts .([info level 0])...
+
+    set item_ [Qualify $item_]
 
     switch -- $sub_ {
-
         instance -
         instances -
         inst    {
-
+	    # puts .instance
+	    # puts .is-instance=[Exists instance $item_]
 
             if {[Exists instance $item_]} {
-        
-		set ns $_defn($item_)
-                foreach A [info commands ${item_}.*] {
-		    Delete inst $A
-                }
-        
-                catch {
-                    foreach {k v} [array get [Ns $item_]values $item_,*] {
-                        
-                        unset [Ns $item_]values($k)
-                    }
-                    set i [lsearch [set [Ns $item_]instances] $item_]
-                    set [Ns $item_]instances [lreplace [set [Ns $item_]instances] $i $i]
-                    unset _defn($item_)
-                }
+
+		# Locate manager namespace, i.e. class namespace for
+		# instance to remove
+		set nsi [Ns $item_]
+		# puts .\tnsi=$nsi
+
+		# Import the state of the manager namespace
+		upvar 0 ${nsi}values    __values
+		upvar 0 ${nsi}instances __instances
+		upvar 0 ${nsi}record    __record
+		# puts .\trecord=$__record
+
+		# Remove instance from state
+		set i [lsearch $__instances $item_]
+		set __instances [lreplace $__instances $i $i]
+		unset _defn($item_)
+
+		# Process instance fields.
+
+		foreach V $_recorddefn($__record) {
+		    # puts .\tfield($V)=/clear
+
+		    if {[regexp -- {([\w]*)::([\w]*)} $V m def inst]} {
+			# Nested record detected.
+			# Determine associated instance and delete recursively.
+			Delete inst ${item_}.${inst}
+		    } else {
+			# Delete field accessor alias
+			# puts .de-alias\t($item_.$V)
+			uplevel #0 [list interp alias {} ${item_}.$V {}]
+		    }
+
+		    unset __values($item_,$V)
+		}
 
 		# Auto-generated id numbers increase monotonically.
 		# Reverting here causes the next auto to fail, claiming
 		# that the instance exists.
                 # incr _count($ns) -1
-        
+
             } else {
                 #error "$item_ is not a instance"
             }
         }
         record  -
         records   {
-
-
+	    # puts .record
             ##
             ##  Delete the instances for this
             ##  record
             ##
+	    # puts .get-instances
             foreach I [Show instance "$item_"] {
-                catch {Delete instance "$I"}
+                catch {
+		    # puts .di/$I
+		    Delete instance "$I"
+		}
             }
 
             catch {
@@ -675,8 +731,6 @@ proc ::struct::record::Delete {sub_ item_} {
                 unset _count($item_)
                 namespace delete ::struct::record${item_}
             }
-
-            
         }
         default   {
             error "Wrong arguments to delete"
@@ -684,8 +738,11 @@ proc ::struct::record::Delete {sub_ item_} {
 
     }; # end switch
 
+    # Remove alias associated with instance or record (class)
+    # puts .de-alias\t($item_)
     catch { uplevel #0 [list interp alias {} $item_ {}]}
 
+    # puts ./
     return
 
 }; # end proc ::struct::record::Delete
@@ -701,31 +758,25 @@ proc ::struct::record::Delete {sub_ item_} {
 #    sub_    what to test. Either 'instance' or 'record'
 #    item_   the specific record instance or definition
 #            that needs to be tested.
-#    
+#
 # Tests to see if a particular instance exists
 #
 #------------------------------------------------------------
 #
 proc ::struct::record::Exists {sub_ item_} {
 
+    # puts .([info level 0])...
+
+    set item_ [Qualify $item_]
 
     switch -glob -- $sub_ {
-        inst*    {
-    
-            if {([lsearch ::[Ns $item_]instances $item_] >=0) || [llength [info commands ::${item_}.*]]} {
-                return 1
-            } else {
-                return 0
-            }
+        inst* {
+	    variable _defn
+            return [info exists _defn($item_)]
         }
-        record  {
-    
-            set item_ "::$item_"
-            if {[info exists _recorddefn($item_)] || [llength [info commands ${item_}]]} {
-                return 1
-            } else {
-                return 0
-            }
+        record {
+	    variable _recorddefn
+            return [info exists _recorddefn($item_)]
         }
         default  {
             error "Wrong arguments. Must be exists record|instance target"
@@ -745,21 +796,20 @@ proc ::struct::record::Exists {sub_ item_} {
 # Arguments:
 #    item_   the command that needs to be qualified
 #    level_  how many levels to go up (default = 2)
-#    
+#
 # Results:
 #    the item_ passed in fully qualified
 #
 #------------------------------------------------------------
 #
 proc ::struct::record::Qualify {item_ {level_ 2}} {
-
     if {![string match "::*" "$item_"]} {
         set ns [uplevel $level_ [list namespace current]]
 
         if {![string match "::" "$ns"]} {
             append ns "::"
         }
-     
+
         set item_ "$ns${item_}"
     }
 
@@ -775,4 +825,6 @@ namespace eval ::struct {
     namespace import -force record::record
     namespace export record
 }
-package provide struct::record 1.2.1
+
+package provide struct::record 1.2.2
+return

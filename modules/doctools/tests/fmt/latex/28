@@ -5,7 +5,7 @@
 % TEST.z
 \documentclass{article}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
 \section{Description}\label{section1}

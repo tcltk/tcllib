@@ -4,7 +4,7 @@
 \documentclass{article}
 \usepackage{alltt}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / test-definition-examples --  : }
 \maketitle
 \section{Description}\label{section1}
