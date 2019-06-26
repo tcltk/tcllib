@@ -21,15 +21,38 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
+testsNeed xml ; # aka TclXML, author Steve Ball, of Zveno (Australia)
+
 if {[catch {package require xml}]} {
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring xml package, not found."
     return
 }
 
+# Put your own keys into test-assets/aws-access-id, aws-secret-access_key
+# -------------------------------------------------------------------------
+
+if {![file exists [asset aws-access-id]] ||
+    ![file exists [asset aws-secret-access-key]]
+} {
+    if {[file exists [asset no-aws]]} {
+	puts "    Skipping the tests found in \"[file tail [info script]]\""
+	puts "    AWS not configured by user choice."
+
+    } else {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    AWS configuration required, missing."
+	puts "    Place access id and secret key into the files"
+	puts "    - [asset aws-access-id], and"
+	puts "    - [asset aws-secret-access-key]"
+    }
+    return
+}
+
+# -------------------------------------------------------------------------
+
 support {
-    # Requires xml (TclXML)
-    useLocal xsxp.tcl xsxp
+    useLocal xsxp.tcl xsxp ;# Here we need (tcl)xml
 }
 testing {
     useLocal S3.tcl S3
@@ -43,7 +66,7 @@ testing {
 # This may clobber files starting with the characers "S3T". Don't
 # run it in a directory with such files you want.
 
-# Put your own keys in S3-test.config.
+# Put your own keys in test-assets/test-S3.config.
 
 tcltest::customMatch S3err S3ErrorMatch
 
@@ -125,7 +148,7 @@ proc bgerror {args} {set ::S3::afterResult [list "BGERROR" $args $::errorInfo]}
 # Allow easy incorporation of user's AccessID and SecretKey
 
 proc S3loadKeys {} {
-    source test-S3.config
+    source [asset test-S3.config]
 }
 
 namespace import ::tcltest::test

@@ -1,8 +1,6 @@
 # -*- tcl -*-
 # loggerperformance.tcl
-
-# $Id: loggerperformance,v 1.2 2004/01/15 06:36:13 andreas_kupries Exp $
-
+#
 # This code is for benchmarking the performance of the log tools.
 
 set auto_path "[file dirname [info script]] $auto_path"

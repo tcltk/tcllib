@@ -6,8 +6,6 @@
 # generates output for errors.  No output means no errors were found.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
-#
-# RCS: @(#) $Id: ncgi.test,v 1.28 2012/05/03 17:56:07 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -140,9 +138,9 @@ test ncgi-3.9 {ncgi::decode, bug 3601995} {
     ncgi::decode {%E2%A0%90}
 } "\u2810" ; # a braille pattern
 
-test ncgi-3.10 {ncgi::decode, bug 3601995} {
+test ncgi-3.10 {ncgi::decode, bug 3601995, tkt [1f900bdf6b]} {
     ncgi::decode {%E2%B1}
-} "%E2%B1" ; # missing byte trailing %A0, do not accept/decode, pass through.
+} "\u00e2\u00b1" ;# Changed with branch `ncgi-1f900bdf6b`, tkt [1f900bdf6b]
 
 test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
@@ -590,7 +588,7 @@ test ncgi-14.2 {ncgi::multipart} {
 } {No boundary given for multipart document}
 
 test ncgi-14.3 {ncgi::multipart} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 
@@ -616,7 +614,7 @@ test ncgi-14.3 {ncgi::multipart} {
 }}}
 
 test ncgi-14.4 {ncgi::multipart} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 
@@ -644,7 +642,7 @@ test ncgi-14.4 {ncgi::multipart} {
 
 
 test ncgi-14.6 {ncgi::multipart setValue} {
-    set in [open [file join [file dirname [info script]] formdata.txt]]
+    set in [open [asset formdata.txt]]
     set X [read $in]
     close $in
 

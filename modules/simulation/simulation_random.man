@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin simulation::random n 0.1]
+[manpage_begin simulation::random n 0.4]
 [keywords math]
 [keywords {random numbers}]
 [keywords simulation]
@@ -9,7 +9,7 @@
 [titledesc {Pseudo-random number generators}]
 [category  Mathematics]
 [require Tcl [opt 8.4]]
-[require simulation::random 0.1]
+[require simulation::random 0.4]
 
 [description]
 [para]
@@ -80,6 +80,32 @@ The package defines the following public procedures for [emph continuous] distri
 
 Create a command (PRNG) that generates uniformly distributed numbers
 between "min" and "max".
+
+[list_begin arguments]
+[arg_def float min] Minimum number that will be generated
+[arg_def float max] Maximum number that will be generated
+[list_end]
+
+[para]
+
+[call [cmd ::simulation::random::prng_Triangular] [arg min ] [arg max]]
+
+Create a command (PRNG) that generates triangularly distributed numbers
+between "min" and "max". If the argument min is lower than the argument max, then smaller
+values have higher probability and vice versa. In the first case the probability
+density function is of the form [emph {f(x) = 2(1-x)}] and the other case it is of the form [emph {f(x) = 2x}].
+
+[list_begin arguments]
+[arg_def float min] Minimum number that will be generated
+[arg_def float max] Maximum number that will be generated
+[list_end]
+
+[para]
+
+[call [cmd ::simulation::random::prng_SymmTriangular] [arg min ] [arg max]]
+
+Create a command (PRNG) that generates numbers distributed according to a symmetric triangle
+around the mean of "min" and "max".
 
 [list_begin arguments]
 [arg_def float min] Minimum number that will be generated

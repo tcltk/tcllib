@@ -6,7 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ldap.test,v 1.5 2008/07/20 19:50:55 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,7 +18,7 @@ testsNeedTcltest 2.0
 
 testing {
     useLocal ldap.tcl ldap
-    useLocal ../asn/asn.tcl asn
+    use      asn/asn.tcl asn
 }
 
 

@@ -27,6 +27,8 @@ testing {
 namespace import struct::record
 
 #----------------------------------------------------------------------
+## __Attention__, currently the later tests depend on actions
+## performed here in the early tests (new records, instances, etc.).
 
 test record-0.1 {record define} {
     record define phones {home work cell}
@@ -68,6 +70,7 @@ test record-0.5 {test error with circular records} {
     set err
 } "Can not have circular records. Structure was not created."
 
+
 test record-0.6 {single instance} {
     contact cont(1)
 } ::cont(1)
@@ -85,6 +88,8 @@ test record-0.8 {instance of double nested record} {
 test record-0.9 {setting a instance var via alias} {
     cont(1).first Brett
 } Brett
+
+#----------------------------------------------------------------------
 
 test record-1.0 {setting a nested instance var via alias} {
     cont(1).phlist.cell 425-555-1212
@@ -126,6 +131,8 @@ test record-1.9 {setting nested vars via config} {
     cont(1) config -phlist.home 425-555-1212
 } ""
 
+#----------------------------------------------------------------------
+
 test record-2.0 {test value of nested member} {
     cont(1) cget -phlist.home
 } 425-555-1212
@@ -165,6 +172,8 @@ test record-2.8 {copy one instance to another during creation} {
 test record-2.9 {get the above values via alias} {
     cont(2).phlist.home
 } 425-555-1212
+
+#----------------------------------------------------------------------
 
 test record-3.0 {copy one definition to another definition} {
     record define new_contact [record show members contact]
@@ -207,6 +216,8 @@ test record-3.9 {delete a nested instance} {
     record delete instance cont(2)
 } ""
 
+#----------------------------------------------------------------------
+
 test record-4.0 {delete a record} {
     record delete record location
 } ""
@@ -227,6 +238,26 @@ test record-4.4 {show existence of record} {
     record exists record contact
 } 1
 
+test record-4.5-tkt-baa334cfef {deletion of nested record through container} {
+    record define details {date place}
+    record define person {fullname {record details birth}}
+    person js
+    js.fullname "John Smith"
+    js.birth.date "31 Jul 1935"
+    js.birth.place London
+
+    record delete instance js
+    set r [list [record show instances person] \
+	       [record show instances details]]
+
+    record delete record details
+    record delete record person
+
+    set r
+} {{} {}}
+unset r
+
+#----------------------------------------------------------------------
 
 ##
 ##    NAMESPACE TESTS
@@ -298,6 +329,8 @@ test record-5.9 {get a value via cget} {
     myns::cont(1) cget -first -middle -last
 } [list Brett Allen Schwarz]
 
+#----------------------------------------------------------------------
+
 test record-6.0 {record default value} {
     myns::loc(1) cget -country
 } USA
@@ -339,6 +372,8 @@ test record-6.8 {set values during instantiation} {
 test record-6.9 {get the above value via alias} {
     myns::loc(2).street
 } street2
+
+#----------------------------------------------------------------------
 
 test record-7.0 {set values during instantiation - nested record} {
     namespace eval myns {
@@ -384,6 +419,8 @@ test record-7.9 {delete an instance} {
     record delete instance myns::loc(2)
 } ""
 
+#----------------------------------------------------------------------
+
 test record-8.0 {delete a nested instance} {
     record delete instance myns::cont(2)
 } ""
@@ -408,7 +445,7 @@ test record-8.5 {show existence of record} {
     record exists record myns::contact
 } 1
 
-
+#----------------------------------------------------------------------
 # Auto instances and deletion.
 
 test record-9.0 {auto instance & deletion} {
@@ -421,6 +458,8 @@ test record-9.0 {auto instance & deletion} {
     lappend res [contact #auto]
 
 } {::contact1 ::contact2 ::contact3}
+
+#----------------------------------------------------------------------
 
 test record-10.0 {nesting records more than one level} {
     set jmod aMacro
@@ -465,3 +504,7 @@ test record-10.0 {nesting records more than one level} {
     record delete instance $fitXYInputData
     set res
 } {-silent true -verbose true -macro aMacro -confidence 0.9 -input {-reps 30 -sdev 0.1 -seed 12345 -params {-amp {} -unmod {} -jcoup {} -t2star {}} -data {-delays {} -values {}}}}
+
+#----------------------------------------------------------------------
+testsuiteCleanup
+return
