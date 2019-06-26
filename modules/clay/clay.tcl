@@ -357,7 +357,8 @@ proc ::clay::uuid::raw {{type {}}} {
     set tok [md5::MD5Init]
     md5::MD5Update $tok "$type [incr nextuuid($type)] [generate_tcl_machinfo]"
     set r [md5::MD5Final $tok]
-    return [::clay::uuid::tostring $r]
+    return $r
+    #return [::clay::uuid::tostring $r]
 }
 proc ::clay::uuid::generate {{type {}}} {
     return [::clay::uuid::tostring [::clay::uuid::raw  $type]]
