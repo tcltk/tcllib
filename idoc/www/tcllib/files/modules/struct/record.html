@@ -107,7 +107,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">struct::record(n) 1.2.1 tcllib &quot;Tcl Data Structures&quot;</h1>
+<h1 class="doctools_title">struct::record(n) 1.2.2 tcllib &quot;Tcl Data Structures&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>struct::record - Define and create records (similar to 'C' structures)</p>
 </div>
@@ -141,7 +141,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">struct::record <span class="opt">?1.2.1?</span></b></li>
+<li>package require <b class="pkgname">struct::record <span class="opt">?1.2.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">record define</b> <i class="arg">recordName</i> <i class="arg">recordMembers</i> <span class="opt">?<i class="arg">instanceName1 instanceName2 ...</i>?</span></a></li>
@@ -212,8 +212,9 @@ name <i class="arg">instanceName</i>.</p></dd>
 <dd><p>Deletes <i class="arg">recordName</i>, and all instances of <i class="arg">recordName</i>.
 It will return an error if the record does not exist.</p></dd>
 <dt><a name="9"><b class="cmd">record delete</b> <i class="arg">instance</i> <i class="arg">instanceName</i></a></dt>
-<dd><p>Deletes <i class="arg">instance</i> with the name of <i class="arg">instanceName</i>. It
-will return an error if the instance does not exist.</p></dd>
+<dd><p>Deletes <i class="arg">instance</i> with the name of <i class="arg">instanceName</i>. It will
+return an error if the instance does not exist. Note that this
+recursively deletes any nested instances as well.</p></dd>
 </dl>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">RECORD MEMBERS</a></h2>
@@ -221,7 +222,8 @@ will return an error if the instance does not exist.</p></dd>
 same record can not be nested witin itself (circular). To define a
 nested record, you need to specify the <b class="const">record</b> keyword, along
 the with name of the record, and the name of the instance of that
-nested record. For example, it would look like this:</p>
+nested record (within the container). For example, it would look like
+this:</p>
 <pre class="doctools_example">
 # this is the nested record
 record define mynestedrecord {
@@ -243,7 +245,7 @@ record define myrecord {
     {mem2 5}
 }
 </pre>
-<p>All instances created from this record definition, will initially have
+<p>All instances created from this record definition will initially have
 <b class="const">5</b> as the value for member <i class="arg">mem2</i>. If no default is given,
 then the value will be the empty string.</p>
 <div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Getting Values</a></h3>
@@ -432,15 +434,15 @@ first middle last {record locations home} {record locations work}
 <p>This next example just illustrates a simple linked list</p>
 <pre class="doctools_example">
 % # define a very simple record for linked list
-% record define llist {
+% record define linkedlist {
     value
     next
 }
-::llist
-% llist lstart
+::linkedlist
+% linkedlist lstart
 ::lstart
-% lstart config -value 1 -next [llist #auto]
-% [lstart cget -next] config -value 2 -next [llist #auto]
+% lstart config -value 1 -next [linkedlist #auto]
+% [lstart cget -next] config -value 2 -next [linkedlist #auto]
 % [[lstart cget -next] cget -next] config -value 3 -next &quot;end&quot;
 % set next lstart
 lstart
@@ -452,11 +454,11 @@ lstart
 % puts &quot;$values&quot;
 1 2 3
 % # cleanup linked list
-% # We could just use delete record llist also
-% foreach I [record show instances llist] {
+% # We could just use delete record linkedlist also
+% foreach I [record show instances linkedlist] {
     record delete instance $I
 }
-% record show instances llist
+% record show instances linkedlist
 %
 </pre>
 </div>
