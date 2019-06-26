@@ -2,7 +2,7 @@
 [//000000001]: # (struct::record \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'record\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Brett Schwarz <brett\_schwarz@yahoo\.com>)
-[//000000004]: # (struct::record\(n\) 1\.2\.1 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::record\(n\) 1\.2\.2 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -52,7 +52,7 @@ struct::record \- Define and create records \(similar to 'C' structures\)
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require struct::record ?1\.2\.1?  
+package require struct::record ?1\.2\.2?  
 
 [__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?](#1)  
 [__record show__ *record*](#2)  
@@ -136,15 +136,16 @@ objects returned are fully qualified\.
   - <a name='9'></a>__record delete__ *instance* *instanceName*
 
     Deletes *instance* with the name of *instanceName*\. It will return an
-    error if the instance does not exist\.
+    error if the instance does not exist\. Note that this recursively deletes any
+    nested instances as well\.
 
 # <a name='section2'></a>RECORD MEMBERS
 
 Record members can either be variables, or other records, However, the same
 record can not be nested witin itself \(circular\)\. To define a nested record, you
 need to specify the __record__ keyword, along the with name of the record,
-and the name of the instance of that nested record\. For example, it would look
-like this:
+and the name of the instance of that nested record \(within the container\)\. For
+example, it would look like this:
 
     # this is the nested record
     record define mynestedrecord {
@@ -167,7 +168,7 @@ enclosing the member entry in braces:
         {mem2 5}
     }
 
-All instances created from this record definition, will initially have __5__
+All instances created from this record definition will initially have __5__
 as the value for member *mem2*\. If no default is given, then the value will be
 the empty string\.
 
@@ -374,15 +375,15 @@ these\. So, the first thing we do is define the nested records:
 This next example just illustrates a simple linked list
 
     % # define a very simple record for linked list
-    % record define llist {
+    % record define linkedlist {
         value
         next
     }
-    ::llist
-    % llist lstart
+    ::linkedlist
+    % linkedlist lstart
     ::lstart
-    % lstart config -value 1 -next [llist #auto]
-    % [lstart cget -next] config -value 2 -next [llist #auto]
+    % lstart config -value 1 -next [linkedlist #auto]
+    % [lstart cget -next] config -value 2 -next [linkedlist #auto]
     % [[lstart cget -next] cget -next] config -value 3 -next "end"
     % set next lstart
     lstart
@@ -394,11 +395,11 @@ This next example just illustrates a simple linked list
     % puts "$values"
     1 2 3
     % # cleanup linked list
-    % # We could just use delete record llist also
-    % foreach I [record show instances llist] {
+    % # We could just use delete record linkedlist also
+    % foreach I [record show instances linkedlist] {
         record delete instance $I
     }
-    % record show instances llist
+    % record show instances linkedlist
     %
 
 # <a name='section6'></a>Bugs, Ideas, Feedback

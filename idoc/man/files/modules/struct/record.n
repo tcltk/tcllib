@@ -2,7 +2,7 @@
 '\" Generated from file 'record\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Brett Schwarz <brett_schwarz@yahoo\&.com>
 '\"
-.TH "struct::record" n 1\&.2\&.1 tcllib "Tcl Data Structures"
+.TH "struct::record" n 1\&.2\&.2 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::record \- Define and create records (similar to 'C' structures)
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBstruct::record  ?1\&.2\&.1?\fR
+package require \fBstruct::record  ?1\&.2\&.2?\fR
 .sp
 \fBrecord define\fR \fIrecordName\fR \fIrecordMembers\fR ?\fIinstanceName1 instanceName2 \&.\&.\&.\fR?
 .sp
@@ -373,15 +373,17 @@ Deletes \fIrecordName\fR, and all instances of \fIrecordName\fR\&.
 It will return an error if the record does not exist\&.
 .TP
 \fBrecord delete\fR \fIinstance\fR \fIinstanceName\fR
-Deletes \fIinstance\fR with the name of \fIinstanceName\fR\&. It
-will return an error if the instance does not exist\&.
+Deletes \fIinstance\fR with the name of \fIinstanceName\fR\&. It will
+return an error if the instance does not exist\&. Note that this
+recursively deletes any nested instances as well\&.
 .PP
 .SH "RECORD MEMBERS"
 Record members can either be variables, or other records, However, the
 same record can not be nested witin itself (circular)\&. To define a
 nested record, you need to specify the \fBrecord\fR keyword, along
 the with name of the record, and the name of the instance of that
-nested record\&. For example, it would look like this:
+nested record (within the container)\&. For example, it would look like
+this:
 .PP
 .CS
 
@@ -412,7 +414,7 @@ record define myrecord {
 }
 
 .CE
-All instances created from this record definition, will initially have
+All instances created from this record definition will initially have
 \fB5\fR as the value for member \fImem2\fR\&. If no default is given,
 then the value will be the empty string\&.
 .SS "GETTING VALUES"
@@ -630,15 +632,15 @@ This next example just illustrates a simple linked list
 
 
 % # define a very simple record for linked list
-% record define llist {
+% record define linkedlist {
     value
     next
 }
-::llist
-% llist lstart
+::linkedlist
+% linkedlist lstart
 ::lstart
-% lstart config -value 1 -next [llist #auto]
-% [lstart cget -next] config -value 2 -next [llist #auto]
+% lstart config -value 1 -next [linkedlist #auto]
+% [lstart cget -next] config -value 2 -next [linkedlist #auto]
 % [[lstart cget -next] cget -next] config -value 3 -next "end"
 % set next lstart
 lstart
@@ -650,11 +652,11 @@ lstart
 % puts "$values"
 1 2 3
 % # cleanup linked list
-% # We could just use delete record llist also
-% foreach I [record show instances llist] {
+% # We could just use delete record linkedlist also
+% foreach I [record show instances linkedlist] {
     record delete instance $I
 }
-% record show instances llist
+% record show instances linkedlist
 %
 
 .CE

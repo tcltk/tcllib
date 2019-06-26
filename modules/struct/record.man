@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[vset VERSION 1.2.1]
+[vset VERSION 1.2.2]
 [manpage_begin struct::record n [vset VERSION]]
 [keywords {data structures}]
 [keywords record]
@@ -79,8 +79,9 @@ It will return an error if the record does not exist.
 
 [call [cmd {record delete}] [arg instance] [arg instanceName]]
 
-Deletes [arg instance] with the name of [arg instanceName]. It
-will return an error if the instance does not exist.
+Deletes [arg instance] with the name of [arg instanceName]. It will
+return an error if the instance does not exist. Note that this
+recursively deletes any nested instances as well.
 
 [list_end]
 
@@ -90,7 +91,8 @@ Record members can either be variables, or other records, However, the
 same record can not be nested witin itself (circular). To define a
 nested record, you need to specify the [const record] keyword, along
 the with name of the record, and the name of the instance of that
-nested record. For example, it would look like this:
+nested record (within the container). For example, it would look like
+this:
 
 [para][example_begin]
 # this is the nested record
@@ -118,7 +120,7 @@ record define myrecord {
 }
 [example_end]
 
-All instances created from this record definition, will initially have
+All instances created from this record definition will initially have
 [const 5] as the value for member [arg mem2]. If no default is given,
 then the value will be the empty string.
 
@@ -369,15 +371,15 @@ This next example just illustrates a simple linked list
 
 [para][example {
 % # define a very simple record for linked list
-% record define llist {
+% record define linkedlist {
     value
     next
 }
-::llist
-% llist lstart
+::linkedlist
+% linkedlist lstart
 ::lstart
-% lstart config -value 1 -next [llist #auto]
-% [lstart cget -next] config -value 2 -next [llist #auto]
+% lstart config -value 1 -next [linkedlist #auto]
+% [lstart cget -next] config -value 2 -next [linkedlist #auto]
 % [[lstart cget -next] cget -next] config -value 3 -next "end"
 % set next lstart
 lstart
@@ -389,11 +391,11 @@ lstart
 % puts "$values"
 1 2 3
 % # cleanup linked list
-% # We could just use delete record llist also
-% foreach I [record show instances llist] {
+% # We could just use delete record linkedlist also
+% foreach I [record show instances linkedlist] {
     record delete instance $I
 }
-% record show instances llist
+% record show instances linkedlist
 %
 }]
 
