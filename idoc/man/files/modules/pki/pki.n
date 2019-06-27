@@ -349,16 +349,35 @@ Mapping to OpenSSL's \fBopenssl\fR application:
 .RE
 .TP
 \fB::pki::sign\fR \fIinput\fR \fIkey\fR ?\fIalgo\fR?
-Digitally sign message \fIinput\fR using the private \fIkey\fR\&.  If \fIalgo\fR
-is ommited "sha1" is assumed\&.  Possible values for \fIalgo\fR include
-"md5", "sha1", "sha256", and "raw"\&.  Specifyin "raw" for \fIalgo\fR will
-inhibit the building of an ASN\&.1 structure to encode which hashing
-algorithm was chosen\&.
-The \fIinput\fR should be the plain text, hashing will be performed on it\&.
+Digitally sign message \fIinput\fR using the private \fIkey\fR\&.
+.sp
+If \fIalgo\fR is ommited "sha1" is assumed\&. Possible values for
+\fIalgo\fR include "\fBmd5\fR", "\fBsha1\fR", "\fBsha256\fR",
+and "\fBraw\fR"\&.
+.sp
+Specifying "\fBraw\fR" for \fIalgo\fR will inhibit the
+building of an ASN\&.1 structure to encode which hashing algorithm was
+chosen\&.
+\fIAttention\fR: In this case the corresponding \fBpkgi::verify\fR
+must be called \fBwith\fR algorithm information\&.
+Conversely, specifying a non-"\fBraw\fR" algorithm here means that
+the corresponding \fBpkgi::verify\fR invokation has to be made
+\fIwithout\fR algorithm information\&.
+.sp
+The \fIinput\fR should be the plain text, hashing will be
+performed on it\&.
+.sp
 The \fIkey\fR should include the private key\&.
 .TP
 \fB::pki::verify\fR \fIsignedmessage\fR \fIplaintext\fR \fIkey\fR ?\fIalgo\fR?
 Verify a digital signature using a public \fIkey\fR\&.  Returns true or false\&.
+.sp
+\fIAttention\fR: The algorithm information \fIalgo\fR has to
+be specified if and only if the \fBpki::sign\fR which generated the
+\fIsignedmessage\fR was called with algorithm "\fBraw\fR"\&. This
+inhibited the building of the ASN\&.1 structure encoding the chosen
+hashing algorithm\&. Conversely, if a proper algorithm was specified
+during signing then you \fImust not\fR specify an algorithm here\&.
 .TP
 \fB::pki::key\fR \fIkey\fR ?\fIpassword\fR? ?\fIencodePem\fR?
 Convert a key structure into a serialized PEM (default) or DER encoded private key suitable for other applications\&.  For RSA keys this means PKCS#1\&.
