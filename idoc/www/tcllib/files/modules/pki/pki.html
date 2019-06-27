@@ -186,15 +186,29 @@ from either
 <li><p>&quot;openssl rsautl -verify&quot;  == &quot;::pki::decrypt -binary -pub&quot;</p></li>
 </ol></dd>
 <dt><a name="3"><b class="cmd">::pki::sign</b> <i class="arg">input</i> <i class="arg">key</i> <span class="opt">?<i class="arg">algo</i>?</span></a></dt>
-<dd><p>Digitally sign message <i class="arg">input</i> using the private <i class="arg">key</i>.  If <i class="arg">algo</i>
-is ommited &quot;sha1&quot; is assumed.  Possible values for <i class="arg">algo</i> include
-&quot;md5&quot;, &quot;sha1&quot;, &quot;sha256&quot;, and &quot;raw&quot;.  Specifyin &quot;raw&quot; for <i class="arg">algo</i> will
-inhibit the building of an ASN.1 structure to encode which hashing
-algorithm was chosen.
-The <i class="arg">input</i> should be the plain text, hashing will be performed on it.
-The <i class="arg">key</i> should include the private key.</p></dd>
+<dd><p>Digitally sign message <i class="arg">input</i> using the private <i class="arg">key</i>.</p>
+<p>If <i class="arg">algo</i> is ommited &quot;sha1&quot; is assumed. Possible values for
+<i class="arg">algo</i> include &quot;<b class="const">md5</b>&quot;, &quot;<b class="const">sha1</b>&quot;, &quot;<b class="const">sha256</b>&quot;,
+and &quot;<b class="const">raw</b>&quot;.</p>
+<p>Specifying &quot;<b class="const">raw</b>&quot; for <i class="arg">algo</i> will inhibit the
+building of an ASN.1 structure to encode which hashing algorithm was
+chosen.
+<em>Attention</em>: In this case the corresponding <b class="cmd">pkgi::verify</b>
+must be called <b class="const">with</b> algorithm information.
+Conversely, specifying a non-&quot;<b class="const">raw</b>&quot; algorithm here means that
+the corresponding <b class="cmd">pkgi::verify</b> invokation has to be made
+<em>without</em> algorithm information.</p>
+<p>The <i class="arg">input</i> should be the plain text, hashing will be
+performed on it.</p>
+<p>The <i class="arg">key</i> should include the private key.</p></dd>
 <dt><a name="4"><b class="cmd">::pki::verify</b> <i class="arg">signedmessage</i> <i class="arg">plaintext</i> <i class="arg">key</i> <span class="opt">?<i class="arg">algo</i>?</span></a></dt>
-<dd><p>Verify a digital signature using a public <i class="arg">key</i>.  Returns true or false.</p></dd>
+<dd><p>Verify a digital signature using a public <i class="arg">key</i>.  Returns true or false.</p>
+<p><em>Attention</em>: The algorithm information <i class="arg">algo</i> has to
+be specified if and only if the <b class="cmd">pki::sign</b> which generated the
+<i class="arg">signedmessage</i> was called with algorithm &quot;<b class="const">raw</b>&quot;. This
+inhibited the building of the ASN.1 structure encoding the chosen
+hashing algorithm. Conversely, if a proper algorithm was specified
+during signing then you <em>must not</em> specify an algorithm here.</p></dd>
 <dt><a name="5"><b class="cmd">::pki::key</b> <i class="arg">key</i> <span class="opt">?<i class="arg">password</i>?</span> <span class="opt">?<i class="arg">encodePem</i>?</span></a></dt>
 <dd><p>Convert a key structure into a serialized PEM (default) or DER encoded private key suitable for other applications.  For RSA keys this means PKCS#1.</p></dd>
 <dt><a name="6"><b class="cmd">::pki::pkcs::parse_key</b> <i class="arg">key</i> <span class="opt">?<i class="arg">password</i>?</span></a></dt>

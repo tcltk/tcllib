@@ -99,16 +99,32 @@ package require pki ?0\.10?
 
   - <a name='3'></a>__::pki::sign__ *input* *key* ?*algo*?
 
-    Digitally sign message *input* using the private *key*\. If *algo* is
-    ommited "sha1" is assumed\. Possible values for *algo* include "md5",
-    "sha1", "sha256", and "raw"\. Specifyin "raw" for *algo* will inhibit the
-    building of an ASN\.1 structure to encode which hashing algorithm was chosen\.
-    The *input* should be the plain text, hashing will be performed on it\. The
-    *key* should include the private key\.
+    Digitally sign message *input* using the private *key*\.
+
+    If *algo* is ommited "sha1" is assumed\. Possible values for *algo*
+    include "__md5__", "__sha1__", "__sha256__", and "__raw__"\.
+
+    Specifying "__raw__" for *algo* will inhibit the building of an ASN\.1
+    structure to encode which hashing algorithm was chosen\. *Attention*: In
+    this case the corresponding __pkgi::verify__ must be called __with__
+    algorithm information\. Conversely, specifying a non\-"__raw__" algorithm
+    here means that the corresponding __pkgi::verify__ invokation has to be
+    made *without* algorithm information\.
+
+    The *input* should be the plain text, hashing will be performed on it\.
+
+    The *key* should include the private key\.
 
   - <a name='4'></a>__::pki::verify__ *signedmessage* *plaintext* *key* ?*algo*?
 
     Verify a digital signature using a public *key*\. Returns true or false\.
+
+    *Attention*: The algorithm information *algo* has to be specified if and
+    only if the __pki::sign__ which generated the *signedmessage* was
+    called with algorithm "__raw__"\. This inhibited the building of the
+    ASN\.1 structure encoding the chosen hashing algorithm\. Conversely, if a
+    proper algorithm was specified during signing then you *must not* specify
+    an algorithm here\.
 
   - <a name='5'></a>__::pki::key__ *key* ?*password*? ?*encodePem*?
 
