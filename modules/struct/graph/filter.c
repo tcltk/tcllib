@@ -102,7 +102,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 
     int             ac = oc;
     Tcl_Obj* const* av = ov;
-    int             r;
+    int             r, seenodes;
 
     na->mode   = NA_NONE;
     na->nc     = 0;
@@ -114,10 +114,12 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
     oc -= 2; /* Skip 'graph arcs' */
     ov += 2;
 
+    seenodes = 0;
     while (oc) {
 	if ('-' == Tcl_GetString (ov[0])[0]) {
 	    if (Tcl_GetIndexFromObj (interp, ov [0], restr,
 				     "restriction", 0, &r) != TCL_OK) {
+		if (seenodes) goto addnode;
 		goto abort;
 	    }
 	    switch (r) {
@@ -132,6 +134,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 		    goto abort;
 		}
 		na->mode = mode [r];
+		seenodes = 1;
 		break;
 	    case R_CMD:
 		if (oc < 2) goto wrongargs;
@@ -143,6 +146,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 		na->filter = ov [1];
 		oc --;
 		ov ++;
+		seenodes = 0;
 		break;
 	    case R_KEY:
 		if (oc < 2) goto wrongargs;
@@ -154,6 +158,7 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 		na->key = ov [1];
 		oc --;
 		ov ++;
+		seenodes = 0;
 		break;
 	    case R_VAL:
 		if (oc < 2) goto wrongargs;
@@ -165,11 +170,13 @@ filter_setup (NA* na, Tcl_Interp* interp, int oc, Tcl_Obj* const* ov, G* g)
 		na->value = ov [1];
 		oc --;
 		ov ++;
+		seenodes = 0;
 		break;
 	    }
 	    oc --;
 	    ov ++;
 	} else {
+	addnode:
 	    /* Save non-options for the list of nodes */
 	    ASSERT_BOUNDS (na->nc, ac);
 	    na->nv [na->nc] = ov[0];
