@@ -269,7 +269,7 @@ foreach {switch nodes expected} {
 } {
     lappend expected $switch $nodes
 
-    test graph-${impl}-${setimpl}-nodes-ioaie-3.$n "nodes, $switch" {
+    test graph-${impl}-${setimpl}-nodes-ioaie-3.$n "nodes, $switch ($nodes)" {
 	SETUP
 	# Nodes (digits -1,1-6) and arcs (letters A-G), no direction
 	#        4
@@ -298,6 +298,7 @@ foreach {switch nodes expected} {
 
     incr n
 }
+unset n
 
 # ---------------------------------------------------
 # Test with many parallel arcs, beyond the number of nodes, i.e. lots
@@ -335,5 +336,6 @@ foreach {switch nodes expected} {
 
     incr n
 }
+unset n
 
 # ---------------------------------------------------
