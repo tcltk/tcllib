@@ -2,7 +2,7 @@
 [//000000001]: # (struct::graph \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'graph\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002\-2009,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::graph\(n\) 2\.4\.2 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::graph\(n\) 2\.4\.3 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ struct::graph \- Create and manipulate directed graph objects
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require struct::graph ?2\.4\.2?  
+package require struct::graph ?2\.4\.3?  
 package require struct::list ?1\.5?  
 package require struct::set ?2\.2\.3?  
 

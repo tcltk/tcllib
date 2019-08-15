@@ -1,4 +1,4 @@
-[comment {-*- tcl -*-}][vset VERSION 2.4.2]
+[comment {-*- tcl -*-}][vset VERSION 2.4.3]
 [manpage_begin struct::graph n [vset VERSION]]
 [keywords adjacent]
 [keywords arc]
