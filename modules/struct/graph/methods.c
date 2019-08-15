@@ -610,17 +610,28 @@ gm_arc_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
      */
 
     GA* a;
-    int i;
+    int i, new;
+    Tcl_HashTable seen;
 
     if (objc < 4) {
 	Tcl_WrongNumArgs (interp, 3, objv, "arc arc...");
 	return TCL_ERROR;
     }
 
+    Tcl_InitHashTable (&seen, TCL_STRING_KEYS);
     for (i=3; i<objc; i++) {
 	a = ga_get_arc (g, objv[i], interp, objv[0]);
+	if (a && (Tcl_FindHashEntry (&seen, Tcl_GetString (objv[i])) != NULL)) {
+	    ga_err_missing (interp, objv[i], objv[0]);
+	    a = NULL;
+	}
+	if (a == NULL) {
+	    Tcl_DeleteHashTable (&seen);
+	}
 	FAIL (a);
+	Tcl_CreateHashEntry (&seen, Tcl_GetString (objv[i]), &new);
     }
+    Tcl_DeleteHashTable (&seen);
 
     for (i=3; i<objc; i++) {
 	a = ga_get_arc (g, objv[i], interp, objv[0]);
@@ -1816,18 +1827,29 @@ gm_node_DELETE (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
      *	       [0]   [1]  [2]    [3]  [4+]
      */
 
-    int i;
+    int i, new;
     GN* n;
+    Tcl_HashTable seen;
 
     if (objc < 4) {
 	Tcl_WrongNumArgs (interp, 3, objv, "node node...");
 	return TCL_ERROR;
     }
 
+    Tcl_InitHashTable (&seen, TCL_STRING_KEYS);
     for (i=3; i< objc; i++) {
 	n = gn_get_node (g, objv [i], interp, objv [0]);
+	if (n && (Tcl_FindHashEntry (&seen, Tcl_GetString (objv[i])) != NULL)) {
+	    gn_err_missing (interp, objv[i], objv[0]);
+	    n = NULL;
+	}
+	if (n == NULL) {
+	    Tcl_DeleteHashTable (&seen);
+	}
 	FAIL (n);
+	Tcl_CreateHashEntry (&seen, Tcl_GetString (objv[i]), &new);
     }
+    Tcl_DeleteHashTable (&seen);
 
     for (i=3; i< objc; i++) {
 	n = gn_get_node (g, objv [i], interp, objv [0]);
@@ -1981,17 +2003,22 @@ gm_node_INSERT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     }
 
     if (objc >= 4) {
-	int       lc, i;
+	int       lc, i, new;
 	Tcl_Obj** lv;
+	Tcl_HashTable seen;
 
 	/* Explicit node names, must not exist */
-
+	Tcl_InitHashTable (&seen, TCL_STRING_KEYS);
 	for (i=3; i<objc; i++) {
-	    if (gn_get_node (g, objv [i], NULL, NULL)) {
+	    if ((Tcl_FindHashEntry (&seen, Tcl_GetString (objv[i])) != NULL) ||
+		gn_get_node (g, objv [i], NULL, NULL)) {
 		gn_err_duplicate (interp, objv[i], objv[0]);
+		Tcl_DeleteHashTable (&seen);
 		return TCL_ERROR;
 	    }
+	    Tcl_CreateHashEntry (&seen, Tcl_GetString (objv[i]), &new);
 	}
+	Tcl_DeleteHashTable (&seen);
 
 	/* No matching nodes found. Create nodes with specified name, then
 	 * insert them

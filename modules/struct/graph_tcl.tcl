@@ -318,7 +318,15 @@ proc ::struct::graph::__arc_delete {name args} {
 	return {wrong # args: should be "::struct::graph::__arc_delete name arc arc..."}
     }
 
-    foreach arc $args {CheckMissingArc $name $arc}
+    # seen is used to catch duplicate arcs in the args
+    array set seen {}
+    foreach arc $args {
+	if {[info exists seen($arc)]} {
+	    return -code error "arc \"$arc\" does not exist in graph \"$name\""
+	}
+	CheckMissingArc $name $arc
+	set seen($arc) .
+    }
 
     variable ${name}::inArcs
     variable ${name}::outArcs
@@ -1678,7 +1686,15 @@ proc ::struct::graph::__node_delete {name args} {
     if {![llength $args]} {
 	return {wrong # args: should be "::struct::graph::__node_delete name node node..."}
     }
-    foreach node $args {CheckMissingNode $name $node}
+    # seen is used to catch duplicate nodes in the args
+    array set seen {}
+    foreach node $args {
+	if {[info exists seen($node)]} {
+	    return -code error "node \"$node\" does not exist in graph \"$name\""
+	}
+	CheckMissingNode $name $node
+	set seen($node) .
+    }
 
     variable ${name}::inArcs
     variable ${name}::outArcs
@@ -1845,7 +1861,15 @@ proc ::struct::graph::__node_insert {name args} {
 	# No node name was given; generate a unique one
 	set args [list [__generateUniqueNodeName $name]]
     } else {
-	foreach node $args {CheckDuplicateNode $name $node}
+	# seen is used to catch duplicate nodes in the args
+	array set seen {}
+	foreach node $args {
+	    if {[info exists seen($node)]} {
+		return -code error "node \"$node\" already exists in graph \"$name\""
+	    }
+	    CheckDuplicateNode $name $node
+	    set seen($node) .
+	}
     }
     
     variable ${name}::inArcs
