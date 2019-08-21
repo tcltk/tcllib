@@ -1,6 +1,6 @@
 2018-02-20 Harald Oehlmann <oehhar@sourceforge.net>
 
-	* log.tcl: [RFE 19607f927b]: Add command log::logeval
+	* log.tcl: [RFE 19607f927b]: Add command log::logsubst
 	* log.man: to optimize expensive log message construction.
 	* log.test: Bumped package version to 1.4
 
@@ -8,7 +8,7 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2012-07-09  Andreas Kupries  <aku@hephaistos>
 

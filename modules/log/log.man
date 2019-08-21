@@ -1,5 +1,6 @@
+[vset VERSION 1.4]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin log n 1.4]
+[manpage_begin log n [vset VERSION]]
 [keywords log]
 [keywords {log level}]
 [keywords message]
@@ -9,7 +10,7 @@
 [titledesc {Procedures to log messages of libraries and applications.}]
 [category  {Programming tools}]
 [require Tcl 8]
-[require log [opt 1.4]]
+[require log [opt [vset VERSION]]]
 [description]
 
 [para]
