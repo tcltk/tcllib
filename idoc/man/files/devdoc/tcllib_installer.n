@@ -444,8 +444,9 @@ While the majority of Tcllib consists of packages written in pure Tcl
 a number of packages also have \fIaccelerators\fR associated with them\&.
 These are \fBcritcl\fR-based C packages whose use will boost the
 performance of the packages using them\&.
-These accelerators are optional, and they are not installed by
-default\&.
+These accelerators are optional, and they are not built by default\&.
+If they are built according to the instructions below then they will
+also be installed as well\&.
 .PP
 To build the accelerators the normally optional dependency on
 \fBcritcl\fR becomes required\&.
@@ -456,9 +457,9 @@ Unix-like environment invoke:
 
 
   \&./configure
-  make critcl # This builds the shared library holding
-              # the accelerators
-  make install
+  make critcl  # Builds the shared library and package holding
+               # the accelerators, tcllibc
+  make install # Installs all packages, including the new tcllibc\&.
 
 .CE
 .PP
