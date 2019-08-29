@@ -28,7 +28,8 @@ proc ::sak::localdoc::run {} {
 
     # Read installation information. Need the list of excluded
     # modules to suppress them here in the doc generation as well.
-    global excluded modules apps guide
+    global excluded modules apps guide distribution
+    set distribution [pwd]
     source support/installation/modules.tcl
 
     lappend baseconfig -module tcllib
