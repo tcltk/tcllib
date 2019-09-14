@@ -1552,9 +1552,11 @@ namespace eval ::math::geometry {
 	calculateDistanceToPolylineSegment findClosestPointOnPolyline lengthOfPolyline \
 	movePointInDirection lineSegmentsIntersect findLineSegmentIntersection findLineIntersection \
 	polylinesIntersect polylinesBoundingIntersect intervalsOverlap rectanglesOverlap pointInsidePolygon pointInsidePolygonAlt \
-	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
+	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg \
+	calculateDistanceToPolyline calculateDistanceToPolygon areaParallellogram angle inproduct angleBetween
+
 }
 
 source [file join [file dirname [info script]] geometry_circle.tcl]
 
-package provide math::geometry 1.3.0
+package provide math::geometry 1.3.1
