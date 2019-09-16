@@ -495,7 +495,7 @@ Translate a polyline over a given vector
 
 [list_begin arguments]
 [arg_def list vector]   Translation vector
-[arg_def list polyline] The polyline to be rotated
+[arg_def list polyline] The polyline to be translated
 [list_end]
 
 [para]
@@ -506,7 +506,7 @@ Rotate a polyline over a given angle (degrees) around the origin
 
 [list_begin arguments]
 [arg_def list angle]    Angle over which to rotate the polyline (degrees)
-[arg_def list polyline] The polyline to be translated
+[arg_def list polyline] The polyline to be rotated
 [list_end]
 
 [para]
