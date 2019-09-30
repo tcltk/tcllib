@@ -2,7 +2,6 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded math                    1.2.5 [list source [file join $dir math.tcl]]
 package ifneeded math::fuzzy             0.2.1 [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::complexnumbers    1.0.2 [list source [file join $dir qcomplex.tcl]]
-package ifneeded math::special           0.3.0 [list source [file join $dir special.tcl]]
 package ifneeded math::constants         1.0.2 [list source [file join $dir constants.tcl]]
 package ifneeded math::polynomials       1.0.1 [list source [file join $dir polynomials.tcl]]
 package ifneeded math::rationalfunctions 1.0.1 [list source [file join $dir rational_funcs.tcl]]
@@ -31,6 +30,7 @@ package ifneeded math::decimal           1.0.3 [list source [file join $dir deci
 package ifneeded math::geometry          1.3.1 [list source [file join $dir geometry.tcl]]
 package ifneeded math::trig              1.0   [list source [file join $dir trig.tcl]]
 package ifneeded math::quasirandom       1.0   [list source [file join $dir quasirandom.tcl]]
+package ifneeded math::special           0.4.0 [list source [file join $dir special.tcl]]
 
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]

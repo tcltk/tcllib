@@ -1,3 +1,9 @@
+2019-09-30  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: Add function incomplete Beta, regularized Beta and digamma
+	* special.test: Add tests for the new functions
+	* special.man: Describe the new functions
+	* pkgIndex.tcl: Bumped version of special functions package to 0.4
+
 2019-08-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* math_geometry.man: Describe several procedures that were not described yet
 	* geometry.tcl: Export several procedures that were not exported yet

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::special n 0.3]
+[manpage_begin math::special n 0.4]
 [keywords {Bessel functions}]
 [keywords {error function}]
 [keywords math]
@@ -8,8 +8,8 @@
 [moddesc   {Tcl Math Library}]
 [titledesc {Special mathematical functions}]
 [category  Mathematics]
-[require Tcl [opt 8.3]]
-[require math::special [opt 0.3]]
+[require Tcl [opt 8.5]]
+[require math::special [opt 0.4]]
 
 [description]
 [para]
@@ -99,6 +99,11 @@ integrals    | S           |  all of R   |     --      |   < 2.0e-3
 general      | Beta        | (see Gamma) |     --      |   < 1.0e-9
              | Gamma       |  x != 0,-1, |     --      |   < 1.0e-9
              |             |  -2, ...    |             |
+             | incBeta     |             |  a, b > 0   |   < 1.0e-9
+             | regIncBeta  |             |  a, b > 0   |   < 1.0e-9
+             | digamma     |  x != 0,-1  |             |   < 1.0e-9
+             |             |  -2, ...    |             |
+             |             |             |             |
              | sinc        |  all of R   |     --      |   exact
              |             |             |             |
 orthogonal   | Legendre    |  all of R   | n = 0,1,... |   exact
@@ -123,9 +128,7 @@ Bessel functions of arbitrary order (and hence the Airy functions)
 [item]
 Chebyshev polynomials of the second kind (U_n)
 [item]
-The digamma function (psi)
-[item]
-The incomplete gamma and beta functions
+The incomplete gamma function
 [list_end]
 
 [section "PROCEDURES"]
@@ -146,12 +149,46 @@ Compute the Beta function for arguments "x" and "y"
 
 [para]
 
+[call [cmd ::math::special::incBeta] [arg a] [arg b] [arg x]]
+
+Compute the incomplete Beta function for argument "x" with parameters "a" and "b"
+
+[list_begin arguments]
+[arg_def float a] First parameter for the incomplete Beta function, a > 0
+[arg_def float b] Second parameter for the incomplete Beta function, b > 0
+[arg_def float x] Argument for the incomplete Beta function
+[list_end]
+
+[para]
+
+[call [cmd ::math::special::regIncBeta] [arg a] [arg b] [arg x]]
+
+Compute the regularized incomplete Beta function for argument "x" with parameters "a" and "b"
+
+[list_begin arguments]
+[arg_def float a] First parameter for the incomplete Beta function, a > 0
+[arg_def float b] Second parameter for the incomplete Beta function, b > 0
+[arg_def float x] Argument for the regularized incomplete Beta function
+[list_end]
+
+[para]
+
 [call [cmd ::math::special::Gamma] [arg x]]
 
 Compute the Gamma function for argument "x"
 
 [list_begin arguments]
 [arg_def float x] Argument for the Gamma function
+[list_end]
+
+[para]
+
+[call [cmd ::math::special::digamma] [arg x]]
+
+Compute the digamma function (psi) for argument "x"
+
+[list_begin arguments]
+[arg_def float x] Argument for the digamma function
 [list_end]
 
 [para]
