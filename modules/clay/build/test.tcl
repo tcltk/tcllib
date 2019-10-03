@@ -721,6 +721,18 @@ set commands-a {
     building no
     subelement {pedantic yes}
   }
+
+  # Provide a method that returns a constant so we can compare clay's inheritance to
+  # TclOO
+  method color {} {
+    return blue
+  }
+  method flavor {} {
+    return strawberry
+  }
+  method sound {} {
+    return zoink
+  }
 }
 set claydict-a {
   const/ {color blue flavor strawberry sound zoink}
@@ -770,6 +782,7 @@ set commands-b {}
 foreach {top children} ${claydict-b} {
   foreach {child value} $children {
     putb commands-b "  [list clay set $top $child $value]"
+    putb commands-b "  [list method $child {} [list return $value]]"
   }
 }
 putb result [list %class% ${class-b} %commands% ${commands-b}] {
@@ -820,6 +833,116 @@ clay::define %class% {
 ###
 
 putb result {# -------------------------------------------------------------------------
+# Singleton
+::clay::define ::test::singletonbehavior {
+  method bar {} {
+    return CLASS
+  }
+  method booze {} {
+    return CLASS
+  }
+  Ensemble foo::bang {} {
+    return CLASS
+  }
+  Ensemble foo::both {} {
+    return CLASS
+  }
+  Ensemble foo::mixin {} {
+    return CLASS
+  }
+  Ensemble foo::sloppy {} {
+    return CLASS
+  }
+}
+::clay::define ::test::flavor.strawberry {
+  clay define property flavor strawbery
+  method bar {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::bing {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::both {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::mixin {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::sloppy {} {
+    return STRAWBERRY
+  }
+}
+::clay::singleton ::TEST {
+  class ::test::singletonbehavior
+  clay mixinmap flavor ::test::flavor.strawberry
+  clay set property color green
+  method bar {} {
+    return OBJECT
+  }
+  method booze {} {
+    return OBJECT
+  }
+  method baz {} {
+    return OBJECT
+  }
+  Ensemble foo::bar {} {
+    return OBJECT
+  }
+  Ensemble foo::both {} {
+    return OBJECT
+  }
+}
+
+test oo-object-singleton-001 {Test singleton superclass keyword} {
+  ::TEST clay delegate class
+} {::test::singletonbehavior}
+
+test oo-object-singleton-002 {Test singleton ensemble 1} {
+  ::TEST foo <list>
+} {bang bar bing both mixin sloppy}
+
+test oo-object-singleton-003 {Test singleton ensemble from script} {
+  ::TEST foo bar
+} {OBJECT}
+test oo-object-singleton-004 {Test singleton ensemble from mixin} {
+  ::TEST foo bing
+} {STRAWBERRY}
+test oo-object-singleton-005 {Test singleton ensemble from class} {
+  ::TEST foo bang
+} {CLASS}
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-006 {Test singleton ensemble from conflict, should resolve to object} {
+  ::TEST foo both
+} {STRAWBERRY}
+test oo-object-singleton-007 {Test singleton ensemble from conflict, should resolve to mixin} {
+  ::TEST foo sloppy
+} {STRAWBERRY}
+###
+# Test note:
+# This should work but does not
+###
+#test oo-object-singleton-009 {Test property from mixin/class} {
+#  ::TEST clay get property flavor
+#} {strawberry}
+test oo-object-singleton-008 {Test property from script} {
+  ::TEST clay get property color
+} {green}
+
+
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-010 {Test method declared in script} {
+  ::TEST bar
+} {STRAWBERRY}
+
+test oo-object-singleton-011 {Test method declared in script} {
+  ::TEST booze
+} {OBJECT}
+TEST destroy
+
 # OBJECT of ::foo::classa
 set OBJECTA [::foo::classa new]
 
@@ -883,6 +1006,16 @@ test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property 
   $%object2% clay get %top% %child%
 } {%value%}
 }
+    if {$top eq "const/"} {
+      putb result $map {
+test oo-object-clay-method-native-methodcheck-%testnum% {Test that %top%/%child% would mimic method interheritance for a native class} {
+  $%object1% %child%
+} {%value%}
+test oo-object-clay-method-mixin-%testnum% {Test that %top%/%child% would mimic method interheritance for a mixed in class} {
+  $%object2% %child%
+} {%value%}
+    }
+    }
   }
 }
 
@@ -913,6 +1046,16 @@ test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property 
   $%object2% clay get %top% %child%
 } {%value%}
 }
+    if {$top eq "const/"} {
+      putb result $map {
+test oo-object-clay-method-native-methodcheck-%testnum% {Test that %top%/%child% would mimic method interheritance for a native class} {
+  $%object1% %child%
+} {%value%}
+test oo-object-clay-method-mixin-%testnum% {Test that %top%/%child% would mimic method interheritance for a mixed in class} {
+  $%object2% %child%
+} {%value%}
+    }
+    }
   }
 }
 
@@ -951,6 +1094,16 @@ test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property 
   $%object2% clay get %top% %child%
 } {%value%}
 }
+    if {$top eq "const/"} {
+      putb result $map {
+test oo-object-clay-method-native-methodcheck-%testnum% {Test that %top%/%child% would mimic method interheritance for a native class} {
+  $%object1% %child%
+} {%value%}
+test oo-object-clay-method-mixin-%testnum% {Test that %top%/%child% would mimic method interheritance for a mixed in class} {
+  $%object2% %child%
+} {%value%}
+    }
+    }
   }
 }
 
@@ -989,6 +1142,17 @@ test oo-object-clay-method-mixin-%testnum% {Test mixin object gets the property}
   $%object2% clay get %top% %child%
 } {%value%}
 }
+
+    if {$top eq "const/"} {
+      putb result $map {
+test oo-object-clay-method-native-methodcheck-%testnum% {Test that %top%/%child% would mimic method interheritance for a native class} {
+  $%object1% %child%
+} {%value%}
+test oo-object-clay-method-mixin-%testnum% {Test that %top%/%child% would mimic method interheritance for a mixed in class} {
+  $%object2% %child%
+} {%value%}
+    }
+    }
   }
 }
 
@@ -1105,7 +1269,7 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   Ensemble which::color {} {
     return [my clay get color]
   }
-  clay set method_ensemble which color aliases farbe
+  clay set method_ensemble which farbe: {tailcall my Which_color {*}$args}
 }
 
 ###
@@ -1165,6 +1329,28 @@ test clay-object-method-0004 {Test an ensemble} {
 test clay-object-method-0004 {Test an ensemble alias} {
   $OBJ3 which farbe
 } black
+
+
+###
+# Added 2019-06-24
+# Test that grabbing a leaf does not pollute the cache
+###
+::clay::define ::TEST::class_with_deep_tree {
+  clay set tree deep has depth 1
+  clay set tree shallow has depth 0
+}
+
+$OBJ3 clay mixinmap deep ::TEST::class_with_deep_tree
+
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree shallow has depth
+} 0
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree
+} {deep {has {depth 1}} shallow {has {depth 0}}}
+
+
+
 ###
 # Test that if you try to replace a global command you get an error
 ###
@@ -1202,6 +1388,37 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 #set ::clay::trace 3
 
 ###
+# New test - Added 2019-09-15
+# Test that the "method" variable is exposed to a default method
+###
+
+::clay::define ::ensembleWithDefault {
+  Ensemble foo::bar {} { return A }
+  Ensemble foo::baz {} { return B }
+  Ensemble foo::bang {} { return C }
+
+  Ensemble foo::default {} { return $method }
+}
+
+
+set OBJ [::ensembleWithDefault new]
+test clay-ensemble-default-0001 {Test a normal ensemble method} {
+  $OBJ foo bar
+} {A}
+test clay-ensemble-default-0002 {Test a normal ensemble method} {
+  $OBJ foo baz
+} {B}
+test clay-ensemble-default-0003 {Test a normal ensemble method} {
+  $OBJ foo <list>
+} [lsort -dictionary {bar baz bang}]
+
+test clay-ensemble-default-0004 {Test a normal ensemble method} {
+  $OBJ foo bing
+} {bing}
+test clay-ensemble-default-0005 {Test a normal ensemble method} {
+  $OBJ foo bong
+} {bong}
+###
 # Mixin tests
 ###
 
@@ -1227,6 +1444,7 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+
 }
 
 ::clay::define ::TEST::animal {
@@ -1240,12 +1458,17 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+  method sound {} {
+    return unknown
+  }
 }
 
 ::clay::define ::TEST::species.cat {
   superclass ::TEST::animal
   clay sound meow
-
+  method sound {} {
+    return meow
+  }
 }
 
 ::clay::define ::TEST::coloring.calico {
@@ -1261,6 +1484,9 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 
 ::clay::define ::TEST::mood.happy {
   Ensemble which::sound {} {
+    return purr
+  }
+  method sound {} {
     return purr
   }
 }
@@ -1285,9 +1511,11 @@ test clay-mixin-b-0001 {Test that an ensemble is created during a mixin} {
 test clay-mixin-b-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {unknown}
+
 test clay-mixin-b-0003 {Test that an ensemble is created during a mixin} \
   -body {$OBJ which flavor} -returnCodes {error} \
   -result {unknown method which flavor. Valid: color sound}
+
 ###
 # Test Modified: 2018-10-21
 ###
@@ -1322,6 +1550,12 @@ $OBJ clay mixinmap species ::TEST::species.cat
 test clay-mixin-e-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
+test clay-mixin-e-0002a {Test that an ensemble is created during a mixin} {
+  $OBJ sound
+} {meow}
+test clay-mixin-e-0002b {Test that an ensemble is created during a mixin} {
+  $OBJ clay get sound
+} {meow}
 test clay-mixin-e-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {meow}

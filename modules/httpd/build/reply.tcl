@@ -226,7 +226,7 @@
       set request [my clay get dict/ request]
       foreach {f v} $datastate {
         if {[string index $f end] eq "/"} {
-          my clay merge $f $v
+          catch {my clay merge $f $v}
         } else {
           my clay set $f $v
         }
@@ -343,7 +343,9 @@
     my variable reply_body chan
     if {$chan eq {}} return
     catch {
-      my wait writable $chan
+      # Causing random issues. Technically a socket is always open for read and write
+      # anyway
+      #my wait writable $chan
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
