@@ -1,6 +1,12 @@
 namespace eval ::clay {}
 set ::clay::trace 0
 
+if {[info commands ::cron::object_destroy] eq {}} {
+  # Provide a noop if we aren't running with the cron scheduler
+  namespace eval ::cron {}
+  proc ::cron::object_destroy args {}
+}
+
 ###
 # Because many features in this package may be added as
 # commands to future tcl cores, or be provided in binary
@@ -201,6 +207,53 @@ if {[info commands ::noop] eq {}} {
   namespace eval ::clay { namespace export noop }
   namespace eval :: { namespace import ::clay::noop }
 }
+
+
+###
+# Process the queue of objects to be destroyed
+###
+proc ::clay::cleanup {} {
+  set count 0
+  if {![info exists ::clay::idle_destroy]} return
+  set objlist $::clay::idle_destroy
+  set ::clay::idle_destroy {}
+  foreach obj $objlist {
+    if {![catch {$obj destroy}]} {
+      incr count
+    }
+  }
+  return $count
+}
+
+proc ::clay::object_create {objname {class {}}} {
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
+}
+
+proc ::clay::object_rename {object newname} {
+  if {$::clay::trace>0} {
+    puts [list $object RENAME -> $newname]
+  }
+}
+
+###
+# Mark an objects for destruction on the next cleanup
+###
+proc ::clay::object_destroy args {
+  if {![info exists ::clay::idle_destroy]} {
+    set ::clay::idle_destroy {}
+  }
+  foreach objname $args {
+    if {$::clay::trace>0} {
+      puts [list $objname DESTROY]
+    }
+    ::cron::object_destroy $objname
+    if {$objname in $::clay::idle_destroy} continue
+    lappend ::clay::idle_destroy $objname
+  }
+}
+
 
 proc ::clay::path args {
   set result {}
