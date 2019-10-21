@@ -2670,8 +2670,8 @@ if {[::package vcompare $::tcl_version 8.6] < 0} {
     cd $pwd
     set fout [open $exename a]
     set fin [open $zipfile r]
-    chan configure $fout -translation binary
-    chan configure $fin -translation binary
+    chan configure $fout -encoding binary -translation binary
+    chan configure $fin -encoding binary -translation binary
     chan copy $fin $fout
     chan close $fin
     chan close $fout

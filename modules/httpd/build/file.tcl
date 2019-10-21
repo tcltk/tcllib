@@ -62,8 +62,9 @@
   }
 
   method content {} {
-    my variable reply_file
+    my variable reply_file is_binary
     set local_file [my FileName]
+    set is_binary 0
     if {$local_file eq {} || ![file exist $local_file]} {
       my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {File Not Found}
@@ -99,13 +100,14 @@
       my request set LOCAL_DIR [file dirname $local_file]
     }
     my request set LOCAL_FILE $local_file
-
     switch [file extension $local_file] {
       .apng {
+        set is_binary 1
         my reply set Content-Type {image/apng}
         set reply_file $local_file
       }
       .bmp {
+        set is_binary 1
         my reply set Content-Type {image/bmp}
         set reply_file $local_file
       }
@@ -114,14 +116,17 @@
         set reply_file $local_file
       }
       .gif {
+        set is_binary 1
         my reply set Content-Type {image/gif}
         set reply_file $local_file
       }
       .cur - .ico {
+        set is_binary 1
         my reply set Content-Type {image/x-icon}
         set reply_file $local_file
       }
       .jpg - .jpeg - .jfif - .pjpeg - .pjp {
+        set is_binary 1
         my reply set Content-Type {image/jpg}
         set reply_file $local_file
       }
@@ -136,6 +141,7 @@
         my puts [::Markdown::convert $mdtxt]
       }
       .png {
+        set is_binary 1
         my reply set Content-Type {image/png}
         set reply_file $local_file
       }
@@ -154,6 +160,7 @@
         }
       }
       .tiff {
+        set is_binary 1
         my reply set Content-Type {image/tiff}
         set reply_file $local_file
       }
@@ -169,6 +176,7 @@
         set reply_file $local_file
       }
       .webp {
+        set is_binary 1
         my reply set Content-Type {image/webp}
         set reply_file $local_file
       }
@@ -176,6 +184,7 @@
         ###
         # Assume we are returning a binary file
         ###
+        set is_binary 1
         my reply set Content-Type [::fileutil::magic::filetype $local_file]
         set reply_file $local_file
       }
@@ -183,7 +192,7 @@
   }
 
   method Dispatch {} {
-    my variable reply_body reply_file reply_chan chan
+    my variable reply_body reply_file reply_chan chan is_binary
     try {
       my reset
       # Invoke the URL implementation.
@@ -202,7 +211,7 @@
       if {![info exists reply_file]} {
         tailcall my DoOutput
       }
-      chan configure $chan  -translation {binary binary}
+      chan configure $chan -encoding binary -translation {binary binary}
       my log HttpAccess {}
       ###
       # Return a stream of data from a file
@@ -217,8 +226,12 @@
       ###
       # Output the file contents. With no -size flag, channel will copy until EOF
       ###
-      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-      if {$size < 40960} {
+      if {$is_binary} {
+        chan configure $reply_chan -encoding binary -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      } else {
+        chan configure $reply_chan -encoding utf-8 -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      }
+      if {$size < 409600} {
         # Raw copy small files
         chan copy $reply_chan $chan
       } else {

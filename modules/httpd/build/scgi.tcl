@@ -40,8 +40,8 @@
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my clay get SCRIPT_NAME]]
     foreach {f v} [my request dump] {
       dict set info $f $v
@@ -55,8 +55,8 @@
     # Light off another coroutine
     #set cmd [list coroutine [my CoroName] {*}[namespace code [list my ProxyReply $chanb $chana]]]
     if {$length} {
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
@@ -81,13 +81,13 @@
     ###
     set replybuffer "HTTP/1.0 [dict get $replydat Status]\n"
     append replybuffer $replyhead
-    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
     ###
     # Output the body. With no -size flag, channel will copy until EOF
     ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
 }
@@ -111,7 +111,7 @@
     chan event $sock readable {}
     chan configure $sock \
         -blocking 1 \
-        -translation {binary binary} \
+        -encoding binary -translation {binary binary} \
         -buffersize 4096 \
         -buffering none
     my counter url_hit
@@ -134,7 +134,7 @@
       }
       # With length in hand, read the netstring encoded headers
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
-      chan configure $sock -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
+      chan configure $sock -encoding utf-8 -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query http $f $v
       }

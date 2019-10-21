@@ -131,7 +131,7 @@ clay::define ::httpd::mime {
     # suite, when we are opening a blocking channel on the other side of the
     # socket back to ourselves.)
     ###
-    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    chan configure $sock -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering line
     while 1 {
       set readCount [::coroutine::util::gets_safety $sock $LIMIT line]
       if {$readCount<=0} break
@@ -375,7 +375,7 @@ Connection close}
       set chan $newsock
       my ChannelRegister $chan
       chan event $chan readable {}
-      chan configure $chan -translation {auto crlf} -buffering line
+      chan configure $chan -encoding utf-8 -translation {auto crlf} -buffering line
       if {[dict exists $datastate mixin]} {
         set mixinmap [dict get $datastate mixin]
       } else {
@@ -490,20 +490,22 @@ Connection close}
       # Causing random issues. Technically a socket is always open for read and write
       # anyway
       #my wait writable $chan
-      chan configure $chan  -translation {binary binary}
+      chan configure $chan -encoding utf-8 -translation {auto crlf}
       ###
       # Return dynamic content
       ###
       set length [string length $reply_body]
-      set result {}
       if {${length} > 0} {
-        my reply set Content-Length [string length $reply_body]
-        append result [my reply output] \n
-        append result $reply_body
+        # Causing issues with Safari. When transmitting UTF-8 encoded data there seems
+        # to be a disagreement about the actual length, and text files are being truncated
+        #my reply set Content-Length $length
+        chan puts $chan [my reply output]
+        chan configure $chan -encoding utf-8 -translation binary
+        chan puts $chan [encoding convertto utf-8 $reply_body]
       } else {
-        append result [my reply output]
+        chan puts $chan [my reply output]
       }
-      chan puts -nonewline $chan $result
+      catch {chan flush $chan}
       my log HttpAccess {}
     }
   }
@@ -568,7 +570,7 @@ Connection close}
     set postdata {}
     if {[my request get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
-      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chan -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
     }
     return $postdata
@@ -808,7 +810,7 @@ namespace eval ::httpd::coro {
     chan event $sock readable {}
     chan configure $sock \
       -blocking 0 \
-      -translation {auto crlf} \
+      -encoding utf-8 -translation {auto crlf} \
       -buffering line
     my counter url_hit
     try {
@@ -1112,7 +1114,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
   method Dispatch {} {
     my variable chan
     my wait writable $chan
-    chan configure $chan  -translation {binary binary}
+    chan configure $chan -encoding binary -translation {binary binary}
     chan puts -nonewline $chan [my clay get cache/ data]
   }
 }
@@ -1189,8 +1191,9 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     my puts [my html_footer]
   }
   method content {} {
-    my variable reply_file
+    my variable reply_file is_binary
     set local_file [my FileName]
+    set is_binary 0
     if {$local_file eq {} || ![file exist $local_file]} {
       my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {File Not Found}
@@ -1226,13 +1229,14 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       my request set LOCAL_DIR [file dirname $local_file]
     }
     my request set LOCAL_FILE $local_file
-
     switch [file extension $local_file] {
       .apng {
+        set is_binary 1
         my reply set Content-Type {image/apng}
         set reply_file $local_file
       }
       .bmp {
+        set is_binary 1
         my reply set Content-Type {image/bmp}
         set reply_file $local_file
       }
@@ -1241,14 +1245,17 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         set reply_file $local_file
       }
       .gif {
+        set is_binary 1
         my reply set Content-Type {image/gif}
         set reply_file $local_file
       }
       .cur - .ico {
+        set is_binary 1
         my reply set Content-Type {image/x-icon}
         set reply_file $local_file
       }
       .jpg - .jpeg - .jfif - .pjpeg - .pjp {
+        set is_binary 1
         my reply set Content-Type {image/jpg}
         set reply_file $local_file
       }
@@ -1263,6 +1270,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         my puts [::Markdown::convert $mdtxt]
       }
       .png {
+        set is_binary 1
         my reply set Content-Type {image/png}
         set reply_file $local_file
       }
@@ -1281,6 +1289,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         }
       }
       .tiff {
+        set is_binary 1
         my reply set Content-Type {image/tiff}
         set reply_file $local_file
       }
@@ -1296,6 +1305,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         set reply_file $local_file
       }
       .webp {
+        set is_binary 1
         my reply set Content-Type {image/webp}
         set reply_file $local_file
       }
@@ -1303,13 +1313,14 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         ###
         # Assume we are returning a binary file
         ###
+        set is_binary 1
         my reply set Content-Type [::fileutil::magic::filetype $local_file]
         set reply_file $local_file
       }
     }
   }
   method Dispatch {} {
-    my variable reply_body reply_file reply_chan chan
+    my variable reply_body reply_file reply_chan chan is_binary
     try {
       my reset
       # Invoke the URL implementation.
@@ -1328,7 +1339,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       if {![info exists reply_file]} {
         tailcall my DoOutput
       }
-      chan configure $chan  -translation {binary binary}
+      chan configure $chan -encoding binary -translation {binary binary}
       my log HttpAccess {}
       ###
       # Return a stream of data from a file
@@ -1343,8 +1354,12 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       ###
       # Output the file contents. With no -size flag, channel will copy until EOF
       ###
-      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-      if {$size < 40960} {
+      if {$is_binary} {
+        chan configure $reply_chan -encoding binary -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      } else {
+        chan configure $reply_chan -encoding utf-8 -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      }
+      if {$size < 409600} {
         # Raw copy small files
         chan copy $reply_chan $chan
       } else {
@@ -1463,8 +1478,8 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     chan puts $chanb [my clay get mimetxt]
     set length [my request get CONTENT_LENGTH]
     if {$length} {
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
@@ -1488,13 +1503,13 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     ###
     set replybuffer "$reply_status\n"
     append replybuffer $replyhead
-    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
     ###
     # Output the body. With no -size flag, channel will copy until EOF
     ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
   method Dispatch {} {
@@ -1606,8 +1621,8 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     my log ProxyRequest {}
     set length [my request get CONTENT_LENGTH]
     if {$length} {
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
@@ -1636,13 +1651,13 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     ###
     set replybuffer "HTTP/1.0 [dict get $replydat Status]\n"
     append replybuffer $replyhead
-    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
     ###
     # Output the body. With no -size flag, channel will copy until EOF
     ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
     my clay refcount_decr
   }
@@ -1691,8 +1706,8 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     set info [dict create CONTENT_LENGTH 0 SCGI 1.0 SCRIPT_NAME [my clay get SCRIPT_NAME]]
     foreach {f v} [my request dump] {
       dict set info $f $v
@@ -1706,8 +1721,8 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     # Light off another coroutine
     #set cmd [list coroutine [my CoroName] {*}[namespace code [list my ProxyReply $chanb $chana]]]
     if {$length} {
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
@@ -1731,13 +1746,13 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     ###
     set replybuffer "HTTP/1.0 [dict get $replydat Status]\n"
     append replybuffer $replyhead
-    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
     ###
     # Output the body. With no -size flag, channel will copy until EOF
     ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
 }
@@ -1754,7 +1769,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     chan event $sock readable {}
     chan configure $sock \
         -blocking 1 \
-        -translation {binary binary} \
+        -encoding binary -translation {binary binary} \
         -buffersize 4096 \
         -buffering none
     my counter url_hit
@@ -1777,7 +1792,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       }
       # With length in hand, read the netstring encoded headers
       set inbuffer [::coroutine::util::read $sock [expr {$size+1}]]
-      chan configure $sock -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
+      chan configure $sock -encoding utf-8 -translation {auto crlf} -blocking 0 -buffersize 4096 -buffering full
       foreach {f v} [lrange [split [string range $inbuffer 0 end-1] \0] 0 end-1] {
         dict set query http $f $v
       }
@@ -1932,7 +1947,7 @@ package require tcl::chan::memchan
 
     chan configure $sock \
       -blocking 0 \
-      -translation {auto crlf} \
+      -translation {auto crlf} -encoding utf-8 \
       -buffering line
     set ip 127.0.0.1
     dict set query UUID $uuid

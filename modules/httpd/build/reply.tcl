@@ -208,7 +208,7 @@
       set chan $newsock
       my ChannelRegister $chan
       chan event $chan readable {}
-      chan configure $chan -translation {auto crlf} -buffering line
+      chan configure $chan -encoding utf-8 -translation {auto crlf} -buffering line
       if {[dict exists $datastate mixin]} {
         set mixinmap [dict get $datastate mixin]
       } else {
@@ -346,20 +346,22 @@
       # Causing random issues. Technically a socket is always open for read and write
       # anyway
       #my wait writable $chan
-      chan configure $chan  -translation {binary binary}
+      chan configure $chan -encoding utf-8 -translation {auto crlf}
       ###
       # Return dynamic content
       ###
       set length [string length $reply_body]
-      set result {}
       if {${length} > 0} {
-        my reply set Content-Length [string length $reply_body]
-        append result [my reply output] \n
-        append result $reply_body
+        # Causing issues with Safari. When transmitting UTF-8 encoded data there seems
+        # to be a disagreement about the actual length, and text files are being truncated
+        #my reply set Content-Length $length
+        chan puts $chan [my reply output]
+        chan configure $chan -encoding utf-8 -translation binary
+        chan puts $chan [encoding convertto utf-8 $reply_body]
       } else {
-        append result [my reply output]
+        chan puts $chan [my reply output]
       }
-      chan puts -nonewline $chan $result
+      catch {chan flush $chan}
       my log HttpAccess {}
     }
   }
@@ -437,7 +439,7 @@
     set postdata {}
     if {[my request get REQUEST_METHOD] in {"POST" "PUSH"}} {
       my variable chan
-      chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chan -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       set postdata [::coroutine::util::read $chan $length]
     }
     return $postdata

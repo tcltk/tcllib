@@ -30,7 +30,7 @@
   method Dispatch {} {
     my variable chan
     my wait writable $chan
-    chan configure $chan  -translation {binary binary}
+    chan configure $chan -encoding binary -translation {binary binary}
     chan puts -nonewline $chan [my clay get cache/ data]
   }
 }

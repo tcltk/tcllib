@@ -3057,9 +3057,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj newitem id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -3107,9 +3107,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj item new id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -6198,9 +6198,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj newitem id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -6248,9 +6248,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj item new id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
