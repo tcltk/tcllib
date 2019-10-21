@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require Tcl 8.5
+package require Tcl 8.6
 package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
@@ -14,6 +14,8 @@ package require cron 2.0
 package require nettool 0.5.2
 package require udp
 package require dicttool
+
+package provide udpcluster 0.4
 
 namespace eval ::comm {}
 ::namespace eval ::cluster {}
@@ -33,13 +35,13 @@ proc ::cluster::broadcast {args} {
   variable discovery_port
   listen
   while {[catch {
-    foreach net [::nettool::broadcast_list] {
+    foreach net [broadcast_list] {
       if {$::cluster::config(debug)} {
         puts [list BROADCAST -> $net $args]
       }
       set s [udp_open]
       udp_conf $s $net $discovery_port
-      chan puts -nonewline $s [list [pid] {*}$args]
+      chan puts -nonewline $s [list [::cluster::pid] {*}$args]
       chan flush $s
       chan close $s
     }
@@ -53,6 +55,21 @@ proc ::cluster::broadcast {args} {
       ::cron::sleep 250
     }
   }
+}
+
+proc ::cluster::broadcast_list {} {
+  variable broadcast_list
+  variable broadcast_list_age
+  if {([clock seconds]-$broadcast_list_age)>7200} {
+    set broadcast_list {}
+  }
+  if {[llength $broadcast_list]==0} {
+    set broadcast_list [::nettool::broadcast_list]
+    if {"127.0.0.1" ni $broadcast_list} {
+      lappend broadcast_list 127.0.0.1
+    }
+  }
+  return $broadcast_list
 }
 
 ###
@@ -83,7 +100,7 @@ proc ::cluster::Directory args {
       return [::nettool::port_busy [lindex $args 1]]
     }
     pid {
-      return [pid]
+      return [::cluster::pid]
     }
   }
   error "UNKNOWN COMMAND [lindex $args 0]"
@@ -159,7 +176,7 @@ proc ::cluster::listen {} {
     # Nobody is acting as the directory. Have this process step on
     if {![catch {socket -server ::cluster::TCPAccept $directory_port} newsock]} {
       set directory_sock $newsock
-      set directory_pid [pid]
+      set directory_pid [::cluster::pid]
     } else {
       set directory_sock {}
       set directory_pid {}
@@ -168,8 +185,13 @@ proc ::cluster::listen {} {
   return $broadcast_sock
 }
 
-proc ::cluster::sleep args {
-  ::cron::sleep {*}$args
+proc ::cluster::sleep msec {
+  if {[info couroutine] ne {}} {
+    after $msec [info couroutine]
+    yield
+  } else {
+    after $msec
+  }
 }
 
 proc ::cluster::TCPAccept {sock host port} {
@@ -190,7 +212,7 @@ proc ::cluster::TCPAccept {sock host port} {
 ###
 proc ::cluster::UDPPacket sock {
   variable ptpdata
-  set pid [pid]
+  set pid [::cluster::pid]
   set packet [string trim [read $sock]]
   set peer [fconfigure $sock -peer]
 
@@ -201,7 +223,7 @@ proc ::cluster::UDPPacket sock {
   if {$::cluster::config(debug)} {
     puts [list $::cluster::local_pid RECV $peer $packet]
   }
-  if { $sender eq [pid] } {
+  if { $sender eq [::cluster::pid] } {
     # Ignore messages from myself
     return
   }
@@ -222,6 +244,23 @@ proc ::cluster::UDPPacket sock {
       }
       return
     }
+    PING {
+      set port [lindex $packet 3]
+      set serviceurl [lindex $packet 2]
+      foreach {url info} [search_local $serviceurl] {
+        if {$port eq {}} {
+          broadcast PONG $url $info
+        } else {
+          set pong [udp_open]
+          udp_conf $pong $ipaddr $port
+          chan configure $pong -buffering none -blocking 0
+          chan puts -nonewline  $pong [list [pid] PONG $url $info]
+          catch {chan flush $pong}
+          catch {chan close $pong}
+        }
+      }
+      return
+    }
   }
 
   set now [clock seconds]
@@ -230,7 +269,7 @@ proc ::cluster::UDPPacket sock {
   set ::cluster::ping_recv($serviceurl) $now
   UDPPortInfo $serviceurl $messagetype $serviceinfo
 
-  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [::cluster::pid] } {
     # Ignore attempts to overwrite locally managed services from the network
     return
   }
@@ -249,7 +288,7 @@ proc ::cluster::UDPPacket sock {
         set result [dict merge $ptpdata($serviceurl) $serviceinfo]
       }
       dict set result closed 1
-      if {[dict exists $result pid] && [dict get $result pid] eq [pid] } {
+      if {[dict exists $result pid] && [dict get $result pid] eq [::cluster::pid] } {
         # Ignore attempts to overwrite locally managed services from the network
         return
       }
@@ -285,11 +324,6 @@ proc ::cluster::UDPPacket sock {
     }
     LOG {
       Service_Log $serviceurl $serviceinfo
-    }
-    PING {
-      foreach {url info} [search_local $serviceurl] {
-        broadcast PONG $url $info
-      }
     }
   }
 }
@@ -338,34 +372,94 @@ proc ::cluster::UDPPortInfo {serviceurl msgtype newinfo} {
   }
 }
 
+proc ::cluster::_ping {rcpt timeout starttime reply_port varname} {
+  set sock [udp_open $reply_port]
+  try {
+    chan configure $sock -buffering none -blocking 0
+    chan event $sock readable [list [::info coroutine] packet]
+    set ${varname} 0
+    if {[::info exists ::cluster::ptpdata($rcpt)]} {
+      # Try direct first
+      set ipaddr [dict getnull $::cluster::ptpdata($rcpt) ipaddr]
+      set pong [udp_open]
+      udp_conf $pong $ipaddr $::cluster::discovery_port
+      chan configure $pong -buffering none -blocking 0
+      chan puts -nonewline  $pong [list [pid] PING $rcpt $reply_port]
+      catch {chan flush $pong}
+      catch {chan close $pong}
+    } else {
+      # Broadcast
+      ::cluster::broadcast PING $rcpt $reply_port
+    }
+    set evt [after $::cluster::config(ping_sleep) [list [::info coroutine] timer]]
+    while {([clock seconds] - $starttime) < $timeout} {
+      set msg [yield 0]
+      catch {after cancel $evt}
+      if {$msg eq "packet"} {
+        try {
+          set rinfo {}
+          set peer [fconfigure $sock -peer]
+          set ipaddr [lindex $peer 0]
+          set packet [string trim [read $sock]]
+          if {[llength $packet]} {
+            lassign $packet CMD rpid rurl rinfo
+            if {($rurl eq $rcpt)} {
+              dict for {f v} $rinfo {
+                dict set ::cluster::ptpdata($rcpt) $f $v
+              }
+              if {$ipaddr ne {}} {
+                dict set ::cluster::ptpdata($rcpt) ipaddr $ipaddr
+              }
+              dict set ::cluster::ptpdata($rcpt) pinged [clock seconds]
+              set ::cluster::ping_recr($rcpt) 1
+              catch {close $sock}
+              set ${varname} 1
+            }
+            return
+          }
+        } on error {err errdat} {
+          puts [list ::cluster bgerror: $err]
+        }
+      }
+      ::cluster::broadcast PING $rcpt $reply_port
+      set evt [after $::cluster::config(ping_sleep) [list [::info coroutine] timer]]
+    }
+    catch {after cancel $evt}
+    set ${varname} -1
+  } finally {
+    catch {close $sock}
+    catch {unset -nocomplain $evt}
+  }
+}
+
 proc ::cluster::ping {rawname {timeout -1}} {
   set rcpt [cname $rawname]
   variable ptpdata
-  set starttime [clock seconds]
+  variable reply_port
 
-  set ::cluster::ping_recv($rcpt) 0
-  broadcast PING $rcpt
-  update
+  set starttime [clock seconds]
   if {$timeout <= 0} {
     set timeout $::cluster::config(ping_timeout)
   }
-  while 1 {
-    if {$::cluster::ping_recv($rcpt)} break
-    if {([clock seconds] - $starttime) > $timeout} {
-      error "Could not locate $rcpt on the network"
-    }
-    broadcast PING $rcpt
-    ::cron::sleep $::cluster::config(ping_sleep)
+  set CORO ::cluster::ping-$starttime
+  coroutine $CORO _ping $rcpt $timeout $starttime $reply_port $CORO
+  if {[::info coroutine] ne {}} {
+    ::coroutine::util::vwait $CORO
+  } else {
+    vwait $CORO
   }
-  if {[::info exists ptpdata($rcpt)]} {
-    return [dict getnull $ptpdata($rcpt) ipaddr]
+  catch {unset $CORO}
+  if {[::info exists ::cluster::ptpdata($rcpt)]} {
+    return [dict getnull $::cluster::ptpdata($rcpt) ipaddr]
   }
+  error "Error resolving $rawname"
+  catch {unset $CORO}
 }
 
 proc ::cluster::publish {url infodict} {
   variable local_data
   dict set infodict macid [self]
-  dict set infodict pid [pid]
+  dict set infodict pid [::cluster::pid]
   set local_data($url) [dict merge $infodict {ipaddr 127.0.0.1}]
   broadcast +SERVICE $url $infodict
 }
@@ -641,12 +735,15 @@ namespace eval ::cluster {
   }
   variable eventcount 0
   variable cache {}
+  variable broadcast_list {}
+  variable broadcast_list_age 0
   variable broadcast_sock {}
   variable directory_sock {}
 
   variable cache_maxage 500
   variable discovery_port 38573
   variable directory_port 38574
+  variable reply_port     38575
   variable directory_pid {}
 
   # Currently an unassigned group in the
@@ -657,5 +754,3 @@ namespace eval ::cluster {
   variable local_macid [lindex [lsort [::nettool::mac_list]] 0]
   variable local_pid   [::uuid::uuid generate]
 }
-
-package provide udpcluster 0.3.3
