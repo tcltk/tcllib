@@ -436,7 +436,9 @@ proc ::cluster::ping {rawname {timeout -1}} {
   set rcpt [cname $rawname]
   variable ptpdata
   variable reply_port
-
+  foreach {uri info} [search_local $rcpt] {
+    return 127.0.0.1
+  }
   set starttime [clock seconds]
   if {$timeout <= 0} {
     set timeout $::cluster::config(ping_timeout)
@@ -752,5 +754,8 @@ namespace eval ::cluster {
   variable discovery_group 224.0.0.200
   variable local_port {}
   variable local_macid [lindex [lsort [::nettool::mac_list]] 0]
+  if {$local_macid eq {}} {
+    set local_macid LOCALHOST
+  }
   variable local_pid   [::uuid::uuid generate]
 }
