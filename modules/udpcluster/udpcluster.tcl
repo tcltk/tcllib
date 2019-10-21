@@ -65,8 +65,8 @@ proc ::cluster::broadcast_list {} {
   }
   if {[llength $broadcast_list]==0} {
     set broadcast_list [::nettool::broadcast_list]
-    if {"127.0.0.1" ni $broadcast_list} {
-      lappend broadcast_list 127.0.0.1
+    if {"127.255.255.255" ni $broadcast_list} {
+      lappend broadcast_list 127.255.255.255
     }
   }
   return $broadcast_list
