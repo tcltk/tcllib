@@ -1,19 +1,20 @@
-[vset VERSION 0.3.3]
-[manpage_begin udpcluster n [vset VERSION]]
+[manpage_begin udpcluster n 0.3]
 [keywords {name service}]
 [keywords server]
-[copyright {2016-2018 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2018 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {Lightweight UDP based tool for cluster node discovery}]
 [titledesc {UDP Peer-to-Peer cluster}]
 [category  Networking]
-[require Tcl 8.5]
-[require udpcluster [opt [vset VERSION]]]
+[require Tcl 8.6]
 [require ip]
 [require nettool]
 [require comm]
 [require interp]
 [require dicttool]
 [require cron]
+[require uuid]
+[require md5]
+[require coroutine]
 [description]
 
 This package is a lightweight alternative to Zeroconf. It utilizes UDP packets to
@@ -55,5 +56,5 @@ This tool was originally known as nns::cluster, but as development progressed, i
 clear that it wasn't interacting with any of the other facilities in NNS.
 
 [vset CATEGORY nameserv]
-[include ../common-text/feedback.inc]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
