@@ -688,5 +688,8 @@ namespace eval ::cluster {
   variable local_ip_list {}
   variable local_port {}
   variable local_macid [lindex [lsort [::nettool::mac_list]] 0]
+  if {$local_macid eq {}} {
+    set local_macid localhost
+  }
   variable local_pid   [::uuid::uuid generate]
 }
