@@ -23,7 +23,6 @@ proc ::nettool::arp_table {} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach {iface info} [dump] {
     if {[dict exists $info broadcast:]} {
       lappend result [dict get $info broadcast:]

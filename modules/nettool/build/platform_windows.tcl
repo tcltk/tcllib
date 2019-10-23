@@ -17,7 +17,6 @@ proc ::nettool::hwid_list {} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach net [network_list] {
     if {$net in {224.0.0.0/4 127.0.0.0/8}} continue
     lappend result [::ip::broadcastAddress $net]

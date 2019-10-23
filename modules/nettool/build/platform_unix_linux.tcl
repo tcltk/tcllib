@@ -6,7 +6,6 @@ if {$::tcl_platform(platform) eq "unix" && $genus eq "linux"} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach {iface info} [dump] {
     if {[dict exists $info ipv4 Bcast:]} {
       lappend result [dict get $info ipv4 Bcast:]
