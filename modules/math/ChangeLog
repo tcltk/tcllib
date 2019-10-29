@@ -1,3 +1,7 @@
+2019-10-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Correct the procedure interp-linear for several corner cases (thanks to Alexandru)
+	* pkgIndex.tcl: Bumped version of interpolation package to 1.1.2
+
 2019-09-30  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* special.tcl: Add function incomplete Beta, regularized Beta and digamma
 	* special.test: Add tests for the new functions
