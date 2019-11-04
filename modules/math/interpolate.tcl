@@ -253,10 +253,10 @@ proc ::math::interpolate::interp-linear { xyvalues xval } {
    #
    # Border cases first
    #
-   if { [lindex $xyvalues 0] > $xval } {
+   if { [lindex $xyvalues 0]+0.0 > $xval } {
       return [lindex $xyvalues 1]
    }
-   if { [lindex $xyvalues end-1] < $xval } {
+   if { [lindex $xyvalues end-1]+0.0 < $xval } {
       return [lindex $xyvalues end]
    }
 

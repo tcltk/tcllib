@@ -1,3 +1,6 @@
+2019-11-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Correct the procedure interp-linear for another pair of corner cases (thanks to Alexandru)
+
 2019-10-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* interpolate.tcl: Correct the procedure interp-linear for several corner cases (thanks to Alexandru)
 	* pkgIndex.tcl: Bumped version of interpolation package to 1.1.2
