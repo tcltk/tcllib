@@ -1,3 +1,10 @@
+2019-11-08  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Add a new type of error message, version to 1.5.0
+	* pdf_stat.tcl: Add procedures for Laplace, Kumaraswamy and negative binomial distributions, also tests for homoscedasticity
+	* statistics.tcl: Corresponding tests
+	* statistics.man: Documentation of the new procedures
+	* pkgIndex.tcl: Bumped version of statistics package to 1.5.0
+
 2019-11-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* interpolate.tcl: Correct the procedure interp-linear for another pair of corner cases (thanks to Alexandru)
 
