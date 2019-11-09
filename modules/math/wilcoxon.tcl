@@ -1,6 +1,8 @@
-# statistics_new.tcl --
+# wilcoxon.tcl --
 #     Implementation of the Wilcoxon test: test if the medians
 #     of two samples are the same
+#
+#     Also: Levene's and Brown-Forsythe's test
 #
 
 # test-Wilcoxon
@@ -225,4 +227,112 @@ proc ::math::statistics::spearman-rank-extended {sample_a sample_b} {
 #
 proc ::math::statistics::spearman-rank {sample_a sample_b} {
     return [lindex [spearman-rank-extended $sample_a $sample_b] 0]
+}
+
+# test-Levene --
+#     Compute the Levene statistic that indicates if the variances of
+#     groups of data are the same
+#
+# Arguments:
+#     groups         List of groups of values to be examined
+#
+# Result:
+#     Statistic for the test (an F statistic with k-1, N-k degrees
+#     of freedom - k the number of groups and N the total number
+#     of values)
+#     The test uses the mean of the values in the groups.
+#
+proc ::math::statistics::test-Levene {groups} {
+
+    return [Test-Levene-Brown-Forsythe 0 $groups]
+}
+
+# test-Brown-Forsythe --
+#     Compute the Brown-Forsythe statistic that indicates if the variances of
+#     groups of data are the same
+#
+# Arguments:
+#     groups         List of groups of values to be examined
+#
+# Result:
+#     Statistic for the test (an F statistic with k-1, N-k degrees
+#     of freedom - k the number of groups and N the total number
+#     of values)
+#     The test uses the median of the values in the groups.
+#
+proc ::math::statistics::test-Brown-Forsythe {groups} {
+
+    return [Test-Levene-Brown-Forsythe 1 $groups]
+}
+
+# Test-Levene-Brown-Forsythe --
+#     Compute either the Levene or the Brown-Forsythe statistic that indicates
+#     if the variances of groups of data are the same
+#
+# Arguments:
+#     choice         Which of the two versions
+#     groups         List of groups of values to be examined
+#
+# Result:
+#     Statistic for the test
+#     The test uses either the mean or the median of the values in the groups.
+#
+proc ::math::statistics::Test-Levene-Brown-Forsythe {choice groups} {
+
+    #
+    # Compute the deviations from the mean/median within each group
+    #
+    set alldevs {}
+    set zscores {}
+    set zmeans  {}
+    foreach group $groups {
+        if { $choice } {
+            set zm [median $group]
+        } else {
+            set zm [mean $group]
+        }
+        set zgroup {}
+        foreach element $group {
+            lappend zgroup [expr {abs($element-$zm)}]
+        }
+
+        set alldevs [concat $alldevs $zgroup]
+        lappend zscores $zgroup
+        lappend zmeans  [mean $zgroup]
+    }
+
+    set zoverall [mean $alldevs]
+
+    set ndata   [llength $alldevs]
+    set ngroups [llength $groups]
+
+    #
+    # Compute the numerator of the statistic
+    #
+    set sumsqmeans 0.0
+
+    foreach zm $zmeans group $groups {
+        set n          [llength $group]
+        set sumsqmeans [expr { $sumsqmeans + $n * ($zm - $zoverall)**2 }]
+    }
+
+    #
+    # Compute the denominator
+    #
+    set sumsqpergroup 0.0
+
+    foreach zm $zmeans zs $zscores {
+        set sumsq 0.0
+        foreach z $zs {
+            set sumsq [expr {$sumsq + ($z-$zm)**2}]
+        }
+
+        set sumsqpergroup [expr { $sumsqpergroup + $sumsq }]
+    }
+
+    #
+    # Finally, the statistic
+    #
+
+    return [expr { ($ndata-$ngroups) * $sumsqmeans / double( ($ngroups-1) * $sumsqpergroup ) }]
 }
