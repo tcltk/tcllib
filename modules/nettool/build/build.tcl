@@ -47,8 +47,9 @@ proc ::record {service port type usage} {
 for {set x 0} {$x < 65536} {incr x} {
   set ::available_port($x) {}
 }
-package require dicttool
-package require csv
+source [file join $moddir .. dicttool dicttool.tcl]
+source [file join $moddir .. csv csv.tcl]
+
 set fin [open [file join $srcdir service-names-port-numbers.csv] r]
 set headers [gets $fin]
 set thisline {}
