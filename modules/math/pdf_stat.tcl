@@ -2398,7 +2398,7 @@ proc ::math::statistics::random-negative-binomial { r p number } {
 		"$OUTOFRANGE: parameter p must be non-negative and lower than 1"
     }
 
-    if { int($r) != $r }} $r < 1} {
+    if { int($r) != $r || $r < 1} {
 	return -code error -errorcode ARG -errorinfo $INVALIDE \
 		"$INVALID: parameter r must be a positive integer"
     }
