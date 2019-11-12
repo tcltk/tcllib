@@ -8,13 +8,14 @@
   method FileName {} {
     # Some dispatchers will inject a fully qualified name during discovery
     if {[my clay exists FILENAME] && [file exists [my clay get FILENAME]]} {
+      my request set PREFIX_URI [file dirname [my clay get FILENAME]]
       return [my clay get FILENAME]
     }
     set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
-    if {$fname in "{} index.html index.md index index.tml"} {
+    if {$fname in "{} index.html index.md index index.tml index.tcl"} {
       return $path
     }
     if {[file exists [file join $path $fname]]} {
@@ -28,6 +29,9 @@
     }
     if {[file exists [file join $path $fname.tml]]} {
       return [file join $path $fname.tml]
+    }
+    if {[file exists [file join $path $fname.tcl]]} {
+      return [file join $path $fname.tcl]
     }
     return {}
   }
@@ -58,22 +62,28 @@
   }
 
   method content {} {
-    my variable reply_file
+    my variable reply_file is_binary
     set local_file [my FileName]
+    set is_binary 0
     if {$local_file eq {} || ![file exist $local_file]} {
       my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {File Not Found}
       tailcall my DoOutput
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
+      my request set PREFIX_URI [my request get REQUEST_PATH]
+      my request set LOCAL_DIR $local_file
       ###
       # Produce an index page
       ###
       set idxfound 0
       foreach name {
+        index.tcl
         index.html
         index.tml
         index.md
+        index.info
+        index.clay
         content.htm
       } {
         if {[file exists [file join $local_file $name]]} {
@@ -85,13 +95,74 @@
       if {!$idxfound} {
         tailcall my DirectoryListing $local_file
       }
+    } else {
+      my request set PREFIX_URI [file dirname [my request get REQUEST_PATH]]
+      my request set LOCAL_DIR [file dirname $local_file]
     }
+    my request set LOCAL_FILE $local_file
     switch [file extension $local_file] {
+      .apng {
+        set is_binary 1
+        my reply set Content-Type {image/apng}
+        set reply_file $local_file
+      }
+      .bmp {
+        set is_binary 1
+        my reply set Content-Type {image/bmp}
+        set reply_file $local_file
+      }
+      .css {
+        my reply set Content-Type {text/css}
+        set reply_file $local_file
+      }
+      .gif {
+        set is_binary 1
+        my reply set Content-Type {image/gif}
+        set reply_file $local_file
+      }
+      .cur - .ico {
+        set is_binary 1
+        my reply set Content-Type {image/x-icon}
+        set reply_file $local_file
+      }
+      .jpg - .jpeg - .jfif - .pjpeg - .pjp {
+        set is_binary 1
+        my reply set Content-Type {image/jpg}
+        set reply_file $local_file
+      }
+      .js {
+        my reply set Content-Type {text/javascript}
+        set reply_file $local_file
+      }
       .md {
         package require Markdown
         my reply set Content-Type {text/html; charset=UTF-8}
         set mdtxt  [::fileutil::cat $local_file]
         my puts [::Markdown::convert $mdtxt]
+      }
+      .png {
+        set is_binary 1
+        my reply set Content-Type {image/png}
+        set reply_file $local_file
+      }
+      .svgz -
+      .svg {
+        # FU magic screws it up
+        my reply set Content-Type {image/svg+xml}
+        set reply_file $local_file
+      }
+      .tcl {
+        my reply set Content-Type {text/html; charset=UTF-8}
+        try {
+          source $local_file
+        } on error {err errdat} {
+          my error 500 {Internal Error} [dict get $errdat -errorinfo]
+        }
+      }
+      .tiff {
+        set is_binary 1
+        my reply set Content-Type {image/tiff}
+        set reply_file $local_file
       }
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
@@ -100,16 +171,20 @@
         dict with headers {}
         my puts [subst $tmltxt]
       }
-      .svgz -
-      .svg {
-        # FU magic screws it up
-        my reply set Content-Type {image/svg+xml}
+      .txt {
+        my reply set Content-Type {text/plain}
+        set reply_file $local_file
+      }
+      .webp {
+        set is_binary 1
+        my reply set Content-Type {image/webp}
         set reply_file $local_file
       }
       default {
         ###
         # Assume we are returning a binary file
         ###
+        set is_binary 1
         my reply set Content-Type [::fileutil::magic::filetype $local_file]
         set reply_file $local_file
       }
@@ -117,36 +192,51 @@
   }
 
   method Dispatch {} {
-    my variable reply_body reply_file reply_chan chan
+    my variable reply_body reply_file reply_chan chan is_binary
     try {
       my reset
       # Invoke the URL implementation.
       my content
     } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
-      tailcall my DoOutput
+      catch {
+        tailcall my DoOutput
+      }
     }
     if {$chan eq {}} return
-    my wait writable $chan
-    if {![info exists reply_file]} {
-      tailcall my DoOutput
+    catch {
+      # Causing random issues. Technically a socket is always open for read and write
+      # anyway
+      #my wait writable $chan
+      if {![info exists reply_file]} {
+        tailcall my DoOutput
+      }
+      chan configure $chan -encoding binary -translation {binary binary}
+      my log HttpAccess {}
+      ###
+      # Return a stream of data from a file
+      ###
+      set size [file size $reply_file]
+      my reply set Content-Length $size
+      append result [my reply output] \n
+      chan puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      my ChannelRegister $reply_chan
+      my log SendReply [list length $size]
+      ###
+      # Output the file contents. With no -size flag, channel will copy until EOF
+      ###
+      if {$is_binary} {
+        chan configure $reply_chan -encoding binary -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      } else {
+        chan configure $reply_chan -encoding utf-8 -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      }
+      if {$size < 409600} {
+        # Raw copy small files
+        chan copy $reply_chan $chan
+      } else {
+        my ChannelCopy $reply_chan $chan -chunk 4096
+      }
     }
-    chan configure $chan  -translation {binary binary}
-    my log HttpAccess {}
-    ###
-    # Return a stream of data from a file
-    ###
-    set size [file size $reply_file]
-    my reply set Content-Length $size
-    append result [my reply output] \n
-    chan puts -nonewline $chan $result
-    set reply_chan [open $reply_file r]
-    my ChannelRegister $reply_chan
-    my log SendReply [list length $size]
-    ###
-    # Output the file contents. With no -size flag, channel will copy until EOF
-    ###
-    chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-    my ChannelCopy $reply_chan $chan -chunk 4096
   }
 }

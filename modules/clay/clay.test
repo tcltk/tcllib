@@ -860,6 +860,18 @@ clay::define ::foo::classa {
     subelement {pedantic yes}
   }
 
+  # Provide a method that returns a constant so we can compare clay's inheritance to
+  # TclOO
+  method color {} {
+    return blue
+  }
+  method flavor {} {
+    return strawberry
+  }
+  method sound {} {
+    return zoink
+  }
+
 }
 
 
@@ -925,9 +937,13 @@ test oo-class-clay-method-0011 "Test ::foo::classa info/ subelement value" {
 
 clay::define ::foo::classb {
   clay set const/ color black
+  method color {} {return black}
   clay set const/ flavor vanilla
+  method flavor {} {return vanilla}
   clay set const/ feeling dread
+  method feeling {} {return dread}
   clay set info/ subelement {spoon yes}
+  method subelement {} {return {spoon yes}}
 
 }
 
@@ -982,6 +998,116 @@ superclass ::foo::classa ::foo::classb
 }
 
 # -------------------------------------------------------------------------
+# Singleton
+::clay::define ::test::singletonbehavior {
+  method bar {} {
+    return CLASS
+  }
+  method booze {} {
+    return CLASS
+  }
+  Ensemble foo::bang {} {
+    return CLASS
+  }
+  Ensemble foo::both {} {
+    return CLASS
+  }
+  Ensemble foo::mixin {} {
+    return CLASS
+  }
+  Ensemble foo::sloppy {} {
+    return CLASS
+  }
+}
+::clay::define ::test::flavor.strawberry {
+  clay define property flavor strawbery
+  method bar {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::bing {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::both {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::mixin {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::sloppy {} {
+    return STRAWBERRY
+  }
+}
+::clay::singleton ::TEST {
+  class ::test::singletonbehavior
+  clay mixinmap flavor ::test::flavor.strawberry
+  clay set property color green
+  method bar {} {
+    return OBJECT
+  }
+  method booze {} {
+    return OBJECT
+  }
+  method baz {} {
+    return OBJECT
+  }
+  Ensemble foo::bar {} {
+    return OBJECT
+  }
+  Ensemble foo::both {} {
+    return OBJECT
+  }
+}
+
+test oo-object-singleton-001 {Test singleton superclass keyword} {
+  ::TEST clay delegate class
+} {::test::singletonbehavior}
+
+test oo-object-singleton-002 {Test singleton ensemble 1} {
+  ::TEST foo <list>
+} {bang bar bing both mixin sloppy}
+
+test oo-object-singleton-003 {Test singleton ensemble from script} {
+  ::TEST foo bar
+} {OBJECT}
+test oo-object-singleton-004 {Test singleton ensemble from mixin} {
+  ::TEST foo bing
+} {STRAWBERRY}
+test oo-object-singleton-005 {Test singleton ensemble from class} {
+  ::TEST foo bang
+} {CLASS}
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-006 {Test singleton ensemble from conflict, should resolve to object} {
+  ::TEST foo both
+} {STRAWBERRY}
+test oo-object-singleton-007 {Test singleton ensemble from conflict, should resolve to mixin} {
+  ::TEST foo sloppy
+} {STRAWBERRY}
+###
+# Test note:
+# This should work but does not
+###
+#test oo-object-singleton-009 {Test property from mixin/class} {
+#  ::TEST clay get property flavor
+#} {strawberry}
+test oo-object-singleton-008 {Test property from script} {
+  ::TEST clay get property color
+} {green}
+
+
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-010 {Test method declared in script} {
+  ::TEST bar
+} {STRAWBERRY}
+
+test oo-object-singleton-011 {Test method declared in script} {
+  ::TEST booze
+} {OBJECT}
+TEST destroy
+
 # OBJECT of ::foo::classa
 set OBJECTA [::foo::classa new]
 
@@ -1034,6 +1160,14 @@ test oo-object-clay-method-mixin-0001 {Test mixin object gets the property const
 } {blue}
 
 
+test oo-object-clay-method-native-methodcheck-0001 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTA color
+} {blue}
+test oo-object-clay-method-mixin-0001 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINA color
+} {blue}
+    
+
 test oo-object-clay-method-native-0002 {Test native object gets the property const//flavor} {
   $OBJECTA clay get const/ flavor
 } {strawberry}
@@ -1042,6 +1176,14 @@ test oo-object-clay-method-mixin-0002 {Test mixin object gets the property const
 } {strawberry}
 
 
+test oo-object-clay-method-native-methodcheck-0002 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTA flavor
+} {strawberry}
+test oo-object-clay-method-mixin-0002 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINA flavor
+} {strawberry}
+    
+
 test oo-object-clay-method-native-0003 {Test native object gets the property const//sound} {
   $OBJECTA clay get const/ sound
 } {zoink}
@@ -1049,6 +1191,14 @@ test oo-object-clay-method-mixin-0003 {Test mixin object gets the property const
   $MIXINA clay get const/ sound
 } {zoink}
 
+
+test oo-object-clay-method-native-methodcheck-0003 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTA sound
+} {zoink}
+test oo-object-clay-method-mixin-0003 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINA sound
+} {zoink}
+    
 
 test oo-object-clay-method-native-0004 {Test native object gets the property info//animal} {
   $OBJECTA clay get info/ animal
@@ -1089,6 +1239,14 @@ test oo-object-clay-method-mixin-0007 {Test mixin object gets the property const
 } {black}
 
 
+test oo-object-clay-method-native-methodcheck-0007 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTB color
+} {black}
+test oo-object-clay-method-mixin-0007 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINB color
+} {black}
+    
+
 test oo-object-clay-method-native-0008 {Test native object gets the property const//flavor} {
   $OBJECTB clay get const/ flavor
 } {vanilla}
@@ -1097,6 +1255,14 @@ test oo-object-clay-method-mixin-0008 {Test mixin object gets the property const
 } {vanilla}
 
 
+test oo-object-clay-method-native-methodcheck-0008 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTB flavor
+} {vanilla}
+test oo-object-clay-method-mixin-0008 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINB flavor
+} {vanilla}
+    
+
 test oo-object-clay-method-native-0009 {Test native object gets the property const//feeling} {
   $OBJECTB clay get const/ feeling
 } {dread}
@@ -1104,6 +1270,14 @@ test oo-object-clay-method-mixin-0009 {Test mixin object gets the property const
   $MIXINB clay get const/ feeling
 } {dread}
 
+
+test oo-object-clay-method-native-methodcheck-0009 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTB feeling
+} {dread}
+test oo-object-clay-method-mixin-0009 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINB feeling
+} {dread}
+    
 
 test oo-object-clay-method-native-0010 {Test native object gets the property info//subelement} {
   $OBJECTB clay get info/ subelement
@@ -1129,6 +1303,14 @@ test oo-object-clay-method-mixin-0011 {Test mixin object gets the property const
 } {black}
 
 
+test oo-object-clay-method-native-methodcheck-0011 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTAB color
+} {black}
+test oo-object-clay-method-mixin-0011 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINAB color
+} {black}
+    
+
 test oo-object-clay-method-native-0012 {Test native object gets the property const//flavor} {
   $OBJECTAB clay get const/ flavor
 } {vanilla}
@@ -1136,6 +1318,14 @@ test oo-object-clay-method-mixin-0012 {Test mixin object gets the property const
   $MIXINAB clay get const/ flavor
 } {vanilla}
 
+
+test oo-object-clay-method-native-methodcheck-0012 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTAB flavor
+} {vanilla}
+test oo-object-clay-method-mixin-0012 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINAB flavor
+} {vanilla}
+    
 
 test oo-object-clay-method-native-0013 {Test native object gets the property const//feeling} {
   $OBJECTAB clay get const/ feeling
@@ -1145,6 +1335,14 @@ test oo-object-clay-method-mixin-0013 {Test mixin object gets the property const
 } {dread}
 
 
+test oo-object-clay-method-native-methodcheck-0013 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTAB feeling
+} {dread}
+test oo-object-clay-method-mixin-0013 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINAB feeling
+} {dread}
+    
+
 test oo-object-clay-method-native-0014 {Test native object gets the property const//sound} {
   $OBJECTAB clay get const/ sound
 } {zoink}
@@ -1152,6 +1350,14 @@ test oo-object-clay-method-mixin-0014 {Test mixin object gets the property const
   $MIXINAB clay get const/ sound
 } {zoink}
 
+
+test oo-object-clay-method-native-methodcheck-0014 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTAB sound
+} {zoink}
+test oo-object-clay-method-mixin-0014 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINAB sound
+} {zoink}
+    
 
 test oo-object-clay-method-native-0015 {Test native object gets the property info//subelement} {
   $OBJECTAB clay get info/ subelement
@@ -1193,6 +1399,14 @@ test oo-object-clay-method-mixin-0018 {Test mixin object gets the property} {
 } {blue}
 
 
+test oo-object-clay-method-native-methodcheck-0018 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTBA color
+} {blue}
+test oo-object-clay-method-mixin-0018 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINBA color
+} {blue}
+    
+
 test oo-object-clay-method-native-0019 {Test native object gets the property} {
   $OBJECTBA clay get const/ flavor
 } {strawberry}
@@ -1200,6 +1414,14 @@ test oo-object-clay-method-mixin-0019 {Test mixin object gets the property} {
   $MIXINBA clay get const/ flavor
 } {strawberry}
 
+
+test oo-object-clay-method-native-methodcheck-0019 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTBA flavor
+} {strawberry}
+test oo-object-clay-method-mixin-0019 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINBA flavor
+} {strawberry}
+    
 
 test oo-object-clay-method-native-0020 {Test native object gets the property} {
   $OBJECTBA clay get const/ sound
@@ -1209,6 +1431,14 @@ test oo-object-clay-method-mixin-0020 {Test mixin object gets the property} {
 } {zoink}
 
 
+test oo-object-clay-method-native-methodcheck-0020 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTBA sound
+} {zoink}
+test oo-object-clay-method-mixin-0020 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINBA sound
+} {zoink}
+    
+
 test oo-object-clay-method-native-0021 {Test native object gets the property} {
   $OBJECTBA clay get const/ feeling
 } {dread}
@@ -1216,6 +1446,14 @@ test oo-object-clay-method-mixin-0021 {Test mixin object gets the property} {
   $MIXINBA clay get const/ feeling
 } {dread}
 
+
+test oo-object-clay-method-native-methodcheck-0021 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTBA feeling
+} {dread}
+test oo-object-clay-method-mixin-0021 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINBA feeling
+} {dread}
+    
 
 test oo-object-clay-method-native-0022 {Test native object gets the property} {
   $OBJECTBA clay get info/ animal
@@ -1330,7 +1568,7 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   Ensemble which::color {} {
     return [my clay get color]
   }
-  clay set method_ensemble which color aliases farbe
+  clay set method_ensemble which farbe: {tailcall my Which_color {*}$args}
 }
 
 ###
@@ -1390,6 +1628,28 @@ test clay-object-method-0004 {Test an ensemble} {
 test clay-object-method-0004 {Test an ensemble alias} {
   $OBJ3 which farbe
 } black
+
+
+###
+# Added 2019-06-24
+# Test that grabbing a leaf does not pollute the cache
+###
+::clay::define ::TEST::class_with_deep_tree {
+  clay set tree deep has depth 1
+  clay set tree shallow has depth 0
+}
+
+$OBJ3 clay mixinmap deep ::TEST::class_with_deep_tree
+
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree shallow has depth
+} 0
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree
+} {deep {has {depth 1}} shallow {has {depth 0}}}
+
+
+
 ###
 # Test that if you try to replace a global command you get an error
 ###
@@ -1427,6 +1687,37 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 #set ::clay::trace 3
 
 ###
+# New test - Added 2019-09-15
+# Test that the "method" variable is exposed to a default method
+###
+
+::clay::define ::ensembleWithDefault {
+  Ensemble foo::bar {} { return A }
+  Ensemble foo::baz {} { return B }
+  Ensemble foo::bang {} { return C }
+
+  Ensemble foo::default {} { return $method }
+}
+
+
+set OBJ [::ensembleWithDefault new]
+test clay-ensemble-default-0001 {Test a normal ensemble method} {
+  $OBJ foo bar
+} {A}
+test clay-ensemble-default-0002 {Test a normal ensemble method} {
+  $OBJ foo baz
+} {B}
+test clay-ensemble-default-0003 {Test a normal ensemble method} {
+  $OBJ foo <list>
+} [lsort -dictionary {bar baz bang}]
+
+test clay-ensemble-default-0004 {Test a normal ensemble method} {
+  $OBJ foo bing
+} {bing}
+test clay-ensemble-default-0005 {Test a normal ensemble method} {
+  $OBJ foo bong
+} {bong}
+###
 # Mixin tests
 ###
 
@@ -1452,6 +1743,7 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+
 }
 
 ::clay::define ::TEST::animal {
@@ -1465,12 +1757,17 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+  method sound {} {
+    return unknown
+  }
 }
 
 ::clay::define ::TEST::species.cat {
   superclass ::TEST::animal
   clay sound meow
-
+  method sound {} {
+    return meow
+  }
 }
 
 ::clay::define ::TEST::coloring.calico {
@@ -1486,6 +1783,9 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 
 ::clay::define ::TEST::mood.happy {
   Ensemble which::sound {} {
+    return purr
+  }
+  method sound {} {
     return purr
   }
 }
@@ -1510,7 +1810,9 @@ test clay-mixin-b-0001 {Test that an ensemble is created during a mixin} {
 test clay-mixin-b-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {unknown}
+
 test clay-mixin-b-0003 {Test that an ensemble is created during a mixin}  -body {$OBJ which flavor} -returnCodes {error}  -result {unknown method which flavor. Valid: color sound}
+
 ###
 # Test Modified: 2018-10-21
 ###
@@ -1542,6 +1844,12 @@ $OBJ clay mixinmap species ::TEST::species.cat
 test clay-mixin-e-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
+test clay-mixin-e-0002a {Test that an ensemble is created during a mixin} {
+  $OBJ sound
+} {meow}
+test clay-mixin-e-0002b {Test that an ensemble is created during a mixin} {
+  $OBJ clay get sound
+} {meow}
 test clay-mixin-e-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {meow}
@@ -2749,9 +3057,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj newitem id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -2799,9 +3107,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj item new id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -3693,6 +4001,18 @@ clay::define ::foo::classa {
     subelement {pedantic yes}
   }
 
+  # Provide a method that returns a constant so we can compare clay's inheritance to
+  # TclOO
+  method color {} {
+    return blue
+  }
+  method flavor {} {
+    return strawberry
+  }
+  method sound {} {
+    return zoink
+  }
+
 }
 
 
@@ -3758,9 +4078,13 @@ test oo-class-clay-method-0011 "Test ::foo::classa info/ subelement value" {
 
 clay::define ::foo::classb {
   clay set const/ color black
+  method color {} {return black}
   clay set const/ flavor vanilla
+  method flavor {} {return vanilla}
   clay set const/ feeling dread
+  method feeling {} {return dread}
   clay set info/ subelement {spoon yes}
+  method subelement {} {return {spoon yes}}
 
 }
 
@@ -3815,6 +4139,116 @@ superclass ::foo::classa ::foo::classb
 }
 
 # -------------------------------------------------------------------------
+# Singleton
+::clay::define ::test::singletonbehavior {
+  method bar {} {
+    return CLASS
+  }
+  method booze {} {
+    return CLASS
+  }
+  Ensemble foo::bang {} {
+    return CLASS
+  }
+  Ensemble foo::both {} {
+    return CLASS
+  }
+  Ensemble foo::mixin {} {
+    return CLASS
+  }
+  Ensemble foo::sloppy {} {
+    return CLASS
+  }
+}
+::clay::define ::test::flavor.strawberry {
+  clay define property flavor strawbery
+  method bar {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::bing {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::both {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::mixin {} {
+    return STRAWBERRY
+  }
+  Ensemble foo::sloppy {} {
+    return STRAWBERRY
+  }
+}
+::clay::singleton ::TEST {
+  class ::test::singletonbehavior
+  clay mixinmap flavor ::test::flavor.strawberry
+  clay set property color green
+  method bar {} {
+    return OBJECT
+  }
+  method booze {} {
+    return OBJECT
+  }
+  method baz {} {
+    return OBJECT
+  }
+  Ensemble foo::bar {} {
+    return OBJECT
+  }
+  Ensemble foo::both {} {
+    return OBJECT
+  }
+}
+
+test oo-object-singleton-001 {Test singleton superclass keyword} {
+  ::TEST clay delegate class
+} {::test::singletonbehavior}
+
+test oo-object-singleton-002 {Test singleton ensemble 1} {
+  ::TEST foo <list>
+} {bang bar bing both mixin sloppy}
+
+test oo-object-singleton-003 {Test singleton ensemble from script} {
+  ::TEST foo bar
+} {OBJECT}
+test oo-object-singleton-004 {Test singleton ensemble from mixin} {
+  ::TEST foo bing
+} {STRAWBERRY}
+test oo-object-singleton-005 {Test singleton ensemble from class} {
+  ::TEST foo bang
+} {CLASS}
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-006 {Test singleton ensemble from conflict, should resolve to object} {
+  ::TEST foo both
+} {STRAWBERRY}
+test oo-object-singleton-007 {Test singleton ensemble from conflict, should resolve to mixin} {
+  ::TEST foo sloppy
+} {STRAWBERRY}
+###
+# Test note:
+# This should work but does not
+###
+#test oo-object-singleton-009 {Test property from mixin/class} {
+#  ::TEST clay get property flavor
+#} {strawberry}
+test oo-object-singleton-008 {Test property from script} {
+  ::TEST clay get property color
+} {green}
+
+
+# Test note: the behavior from TclOO is unexpected
+# Intuitively, a local method should override a mixin
+# but this is not the case
+test oo-object-singleton-010 {Test method declared in script} {
+  ::TEST bar
+} {STRAWBERRY}
+
+test oo-object-singleton-011 {Test method declared in script} {
+  ::TEST booze
+} {OBJECT}
+TEST destroy
+
 # OBJECT of ::foo::classa
 set OBJECTA [::foo::classa new]
 
@@ -3867,6 +4301,14 @@ test oo-object-clay-method-mixin-0001 {Test mixin object gets the property const
 } {blue}
 
 
+test oo-object-clay-method-native-methodcheck-0001 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTA color
+} {blue}
+test oo-object-clay-method-mixin-0001 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINA color
+} {blue}
+    
+
 test oo-object-clay-method-native-0002 {Test native object gets the property const//flavor} {
   $OBJECTA clay get const/ flavor
 } {strawberry}
@@ -3875,6 +4317,14 @@ test oo-object-clay-method-mixin-0002 {Test mixin object gets the property const
 } {strawberry}
 
 
+test oo-object-clay-method-native-methodcheck-0002 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTA flavor
+} {strawberry}
+test oo-object-clay-method-mixin-0002 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINA flavor
+} {strawberry}
+    
+
 test oo-object-clay-method-native-0003 {Test native object gets the property const//sound} {
   $OBJECTA clay get const/ sound
 } {zoink}
@@ -3882,6 +4332,14 @@ test oo-object-clay-method-mixin-0003 {Test mixin object gets the property const
   $MIXINA clay get const/ sound
 } {zoink}
 
+
+test oo-object-clay-method-native-methodcheck-0003 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTA sound
+} {zoink}
+test oo-object-clay-method-mixin-0003 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINA sound
+} {zoink}
+    
 
 test oo-object-clay-method-native-0004 {Test native object gets the property info//animal} {
   $OBJECTA clay get info/ animal
@@ -3922,6 +4380,14 @@ test oo-object-clay-method-mixin-0007 {Test mixin object gets the property const
 } {black}
 
 
+test oo-object-clay-method-native-methodcheck-0007 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTB color
+} {black}
+test oo-object-clay-method-mixin-0007 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINB color
+} {black}
+    
+
 test oo-object-clay-method-native-0008 {Test native object gets the property const//flavor} {
   $OBJECTB clay get const/ flavor
 } {vanilla}
@@ -3930,6 +4396,14 @@ test oo-object-clay-method-mixin-0008 {Test mixin object gets the property const
 } {vanilla}
 
 
+test oo-object-clay-method-native-methodcheck-0008 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTB flavor
+} {vanilla}
+test oo-object-clay-method-mixin-0008 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINB flavor
+} {vanilla}
+    
+
 test oo-object-clay-method-native-0009 {Test native object gets the property const//feeling} {
   $OBJECTB clay get const/ feeling
 } {dread}
@@ -3937,6 +4411,14 @@ test oo-object-clay-method-mixin-0009 {Test mixin object gets the property const
   $MIXINB clay get const/ feeling
 } {dread}
 
+
+test oo-object-clay-method-native-methodcheck-0009 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTB feeling
+} {dread}
+test oo-object-clay-method-mixin-0009 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINB feeling
+} {dread}
+    
 
 test oo-object-clay-method-native-0010 {Test native object gets the property info//subelement} {
   $OBJECTB clay get info/ subelement
@@ -3962,6 +4444,14 @@ test oo-object-clay-method-mixin-0011 {Test mixin object gets the property const
 } {black}
 
 
+test oo-object-clay-method-native-methodcheck-0011 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTAB color
+} {black}
+test oo-object-clay-method-mixin-0011 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINAB color
+} {black}
+    
+
 test oo-object-clay-method-native-0012 {Test native object gets the property const//flavor} {
   $OBJECTAB clay get const/ flavor
 } {vanilla}
@@ -3969,6 +4459,14 @@ test oo-object-clay-method-mixin-0012 {Test mixin object gets the property const
   $MIXINAB clay get const/ flavor
 } {vanilla}
 
+
+test oo-object-clay-method-native-methodcheck-0012 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTAB flavor
+} {vanilla}
+test oo-object-clay-method-mixin-0012 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINAB flavor
+} {vanilla}
+    
 
 test oo-object-clay-method-native-0013 {Test native object gets the property const//feeling} {
   $OBJECTAB clay get const/ feeling
@@ -3978,6 +4476,14 @@ test oo-object-clay-method-mixin-0013 {Test mixin object gets the property const
 } {dread}
 
 
+test oo-object-clay-method-native-methodcheck-0013 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTAB feeling
+} {dread}
+test oo-object-clay-method-mixin-0013 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINAB feeling
+} {dread}
+    
+
 test oo-object-clay-method-native-0014 {Test native object gets the property const//sound} {
   $OBJECTAB clay get const/ sound
 } {zoink}
@@ -3985,6 +4491,14 @@ test oo-object-clay-method-mixin-0014 {Test mixin object gets the property const
   $MIXINAB clay get const/ sound
 } {zoink}
 
+
+test oo-object-clay-method-native-methodcheck-0014 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTAB sound
+} {zoink}
+test oo-object-clay-method-mixin-0014 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINAB sound
+} {zoink}
+    
 
 test oo-object-clay-method-native-0015 {Test native object gets the property info//subelement} {
   $OBJECTAB clay get info/ subelement
@@ -4026,6 +4540,14 @@ test oo-object-clay-method-mixin-0018 {Test mixin object gets the property} {
 } {blue}
 
 
+test oo-object-clay-method-native-methodcheck-0018 {Test that const//color would mimic method interheritance for a native class} {
+  $OBJECTBA color
+} {blue}
+test oo-object-clay-method-mixin-0018 {Test that const//color would mimic method interheritance for a mixed in class} {
+  $MIXINBA color
+} {blue}
+    
+
 test oo-object-clay-method-native-0019 {Test native object gets the property} {
   $OBJECTBA clay get const/ flavor
 } {strawberry}
@@ -4033,6 +4555,14 @@ test oo-object-clay-method-mixin-0019 {Test mixin object gets the property} {
   $MIXINBA clay get const/ flavor
 } {strawberry}
 
+
+test oo-object-clay-method-native-methodcheck-0019 {Test that const//flavor would mimic method interheritance for a native class} {
+  $OBJECTBA flavor
+} {strawberry}
+test oo-object-clay-method-mixin-0019 {Test that const//flavor would mimic method interheritance for a mixed in class} {
+  $MIXINBA flavor
+} {strawberry}
+    
 
 test oo-object-clay-method-native-0020 {Test native object gets the property} {
   $OBJECTBA clay get const/ sound
@@ -4042,6 +4572,14 @@ test oo-object-clay-method-mixin-0020 {Test mixin object gets the property} {
 } {zoink}
 
 
+test oo-object-clay-method-native-methodcheck-0020 {Test that const//sound would mimic method interheritance for a native class} {
+  $OBJECTBA sound
+} {zoink}
+test oo-object-clay-method-mixin-0020 {Test that const//sound would mimic method interheritance for a mixed in class} {
+  $MIXINBA sound
+} {zoink}
+    
+
 test oo-object-clay-method-native-0021 {Test native object gets the property} {
   $OBJECTBA clay get const/ feeling
 } {dread}
@@ -4049,6 +4587,14 @@ test oo-object-clay-method-mixin-0021 {Test mixin object gets the property} {
   $MIXINBA clay get const/ feeling
 } {dread}
 
+
+test oo-object-clay-method-native-methodcheck-0021 {Test that const//feeling would mimic method interheritance for a native class} {
+  $OBJECTBA feeling
+} {dread}
+test oo-object-clay-method-mixin-0021 {Test that const//feeling would mimic method interheritance for a mixed in class} {
+  $MIXINBA feeling
+} {dread}
+    
 
 test oo-object-clay-method-native-0022 {Test native object gets the property} {
   $OBJECTBA clay get info/ animal
@@ -4163,7 +4709,7 @@ test clay-object-clay-a-0009 {Test that object local setting override the class}
   Ensemble which::color {} {
     return [my clay get color]
   }
-  clay set method_ensemble which color aliases farbe
+  clay set method_ensemble which farbe: {tailcall my Which_color {*}$args}
 }
 
 ###
@@ -4223,6 +4769,28 @@ test clay-object-method-0004 {Test an ensemble} {
 test clay-object-method-0004 {Test an ensemble alias} {
   $OBJ3 which farbe
 } black
+
+
+###
+# Added 2019-06-24
+# Test that grabbing a leaf does not pollute the cache
+###
+::clay::define ::TEST::class_with_deep_tree {
+  clay set tree deep has depth 1
+  clay set tree shallow has depth 0
+}
+
+$OBJ3 clay mixinmap deep ::TEST::class_with_deep_tree
+
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree shallow has depth
+} 0
+test clay-deep-nested-0001 {Test that a leaf query does not pollute the cache} {
+  $OBJ3 clay get tree
+} {deep {has {depth 1}} shallow {has {depth 0}}}
+
+
+
 ###
 # Test that if you try to replace a global command you get an error
 ###
@@ -4260,6 +4828,37 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 #set ::clay::trace 3
 
 ###
+# New test - Added 2019-09-15
+# Test that the "method" variable is exposed to a default method
+###
+
+::clay::define ::ensembleWithDefault {
+  Ensemble foo::bar {} { return A }
+  Ensemble foo::baz {} { return B }
+  Ensemble foo::bang {} { return C }
+
+  Ensemble foo::default {} { return $method }
+}
+
+
+set OBJ [::ensembleWithDefault new]
+test clay-ensemble-default-0001 {Test a normal ensemble method} {
+  $OBJ foo bar
+} {A}
+test clay-ensemble-default-0002 {Test a normal ensemble method} {
+  $OBJ foo baz
+} {B}
+test clay-ensemble-default-0003 {Test a normal ensemble method} {
+  $OBJ foo <list>
+} [lsort -dictionary {bar baz bang}]
+
+test clay-ensemble-default-0004 {Test a normal ensemble method} {
+  $OBJ foo bing
+} {bing}
+test clay-ensemble-default-0005 {Test a normal ensemble method} {
+  $OBJ foo bong
+} {bong}
+###
 # Mixin tests
 ###
 
@@ -4285,6 +4884,7 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+
 }
 
 ::clay::define ::TEST::animal {
@@ -4298,12 +4898,17 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
   Ensemble which::color {} {
     return [my clay get color]
   }
+  method sound {} {
+    return unknown
+  }
 }
 
 ::clay::define ::TEST::species.cat {
   superclass ::TEST::animal
   clay sound meow
-
+  method sound {} {
+    return meow
+  }
 }
 
 ::clay::define ::TEST::coloring.calico {
@@ -4319,6 +4924,9 @@ test clay-nspace-0003 {Test a fully qualified class ends up in the proper namesp
 
 ::clay::define ::TEST::mood.happy {
   Ensemble which::sound {} {
+    return purr
+  }
+  method sound {} {
     return purr
   }
 }
@@ -4343,7 +4951,9 @@ test clay-mixin-b-0001 {Test that an ensemble is created during a mixin} {
 test clay-mixin-b-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {unknown}
+
 test clay-mixin-b-0003 {Test that an ensemble is created during a mixin}  -body {$OBJ which flavor} -returnCodes {error}  -result {unknown method which flavor. Valid: color sound}
+
 ###
 # Test Modified: 2018-10-21
 ###
@@ -4375,6 +4985,12 @@ $OBJ clay mixinmap species ::TEST::species.cat
 test clay-mixin-e-0001 {Test that an ensemble is created during a mixin} {
   $OBJ which color
 } {unknown}
+test clay-mixin-e-0002a {Test that an ensemble is created during a mixin} {
+  $OBJ sound
+} {meow}
+test clay-mixin-e-0002b {Test that an ensemble is created during a mixin} {
+  $OBJ clay get sound
+} {meow}
 test clay-mixin-e-0002 {Test that an ensemble is created during a mixin} {
   $OBJ which sound
 } {meow}
@@ -5582,9 +6198,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj newitem id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default
@@ -5632,9 +6248,9 @@ test tip479-001 {Test that a later ensemble definition trumps a more primitive o
 } {id 1 color orange shape round}
 
 # Fail because we left off a mandatory argument
-test tip479-002 {Test that a later ensemble definition trumps a more primitive one} -body {
+test tip479-002 {Test that a later ensemble definition trumps a more primitive one}  -errorCode NONE -body {
   $obj item new id 2
-} -result {shape is required} -returnCodes error
+} -result {shape is required}
 
 ###
 # Leave off a value that has a default

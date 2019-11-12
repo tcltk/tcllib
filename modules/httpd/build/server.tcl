@@ -119,7 +119,7 @@ namespace eval ::httpd::coro {}
     chan event $sock readable {}
     chan configure $sock \
       -blocking 0 \
-      -translation {auto crlf} \
+      -encoding utf-8 -translation {auto crlf} \
       -buffering line
     my counter url_hit
     try {

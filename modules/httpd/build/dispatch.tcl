@@ -30,7 +30,7 @@
   method Dispatch {} {
     my variable chan
     my wait writable $chan
-    chan configure $chan  -translation {binary binary}
+    chan configure $chan -encoding binary -translation {binary binary}
     chan puts -nonewline $chan [my clay get cache/ data]
   }
 }
@@ -41,6 +41,8 @@
     if {[my request get HTTP_STATUS] ne {}} {
       my reply set Status [my request get HTTP_STATUS]
     }
+    set request [my request dump]
+    dict with request {}
     my puts [subst [my <server> template [my clay get template]]]
   }
 }

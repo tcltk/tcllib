@@ -19,15 +19,16 @@ testsNeed        udp
 set ::WHOAMI Main
 
 support {
+  	use snit/snit2.tcl          snit ;# Required by comm
+	  use comm/comm.tcl           comm
+	  use interp/interp.tcl       interp
+
     use dicttool/dicttool.tcl   dicttool
-    use snit/snit2.tcl          snit ;# Required by comm
-    use comm/comm.tcl           comm
     use dns/ip.tcl              ip
     use nettool/nettool.tcl     nettool
     use coroutine/coroutine.tcl coroutine ;# Required by cron
     use cron/cron.tcl           cron
     use uuid/uuid.tcl           uuid
-    use interp/interp.tcl       interp
     use log/logger.tcl          logger
     use md5/md5x.tcl            md5
 }
@@ -48,7 +49,7 @@ interp eval server {
     testsNeedTcl     8.6
     testsNeedTcltest 1.0
     testsNeed        udp
-    
+
     support {
 	use dicttool/dicttool.tcl   dicttool
 	use snit/snit2.tcl          snit ;# Required by comm
@@ -70,7 +71,7 @@ interp eval server {
     ::cluster::publish nns@[::cluster::macid] {}
     update
 }
-
+#set ::cluster::config(debug) 1
 set ::cluster::local_pid MAIN
 set macid [::cluster::macid]
 set myport [::nettool::allocate_port 10000]
@@ -121,21 +122,25 @@ test cluster-comm-2.4 {Modify a service} {
   dict get $data foo@bar color
 } {blue}
 
-
 ###
 # Create another client in a seperate interp
+#
+# Removed 10/21/2019 by sdw. The seperate interp
+# was not working. Tests now run by passing data to the
+# server interp. Need to investigate further.
 ###
+
 interp create otherclient
 interp eval otherclient [list set testutilsscript $testutilsscript]
 interp eval otherclient {
     source $testutilsscript
     set ::WHOAMI Other
-  
+
     package require tcltest
     testsNeedTcl     8.6
     testsNeedTcltest 1.0
     testsNeed        udp
-  
+
     support {
 	use dicttool/dicttool.tcl   dicttool
 	use snit/snit2.tcl          snit ;# Required by comm
@@ -164,9 +169,9 @@ interp eval otherclient {
     ::cluster::publish $url [list port $myport protocol comm class comm]
 }
 
-#set ::cluster::config(debug) 1
-::cluster::ping nns@$macid
-
+test cluster-comm-3.5 {Ping test new service} {
+  ::cluster::ping other@$macid
+} {127.0.0.1}
 set data [::cluster::search *]
 test cluster-comm-3.0 {Publish service - NNS} {
   dict exists $data nns@[::cluster::macid]
@@ -174,11 +179,14 @@ test cluster-comm-3.0 {Publish service - NNS} {
 test cluster-comm-3.1 {Check that new service does exists} {
   dict exists $data foo@bar
 } {1}
+
 test cluster-comm-3.3 {Check that other service does exists} {
   dict exists $data other@[::cluster::macid]
 } {1}
-
-test cluster-comm-3.3 {Check that other service does exists} {
+test cluster-comm-3.5 {Check that other service resolves} {
+  llength [::cluster::resolve other@[::cluster::macid]]
+} {2}
+test cluster-comm-3.4 {Check that other service does exists} {
   set chan [::cluster::resolve other@[::cluster::macid]]
   ::comm::comm send $chan {set foo b}
 } {b}
@@ -204,14 +212,14 @@ test cluster-comm-4.1 {Check that service is closed} {
 # Have a non-existant service fail
 ###
 test cluster-comm-5.0 {Service lookup failture} {
-  catch {cluster::resolve foo@bar} pat
-} {1}
+  llength [cluster::resolve foo@bat]
+} 0
 #puts $pat
 
 ###
 # Test port allocation
 ###
-set port [interp eval otherclient {
+set port [interp eval server {
   ::cluster::get_free_port 58080
 }]
 # Check that the port is allocated in this thread as well
@@ -219,14 +227,13 @@ test cluster-port-alloc-1.0 {Port allocation} {
   ::cluster::directory port_busy $port
 } 1
 
-set otherport [interp eval otherclient {
+set otherport [interp eval server {
   ::cluster::get_free_port 58080
 }]
-puts [list GET FREE PORT $port $otherport [::cluster::get_free_port 58080]]
+#puts [list GET FREE PORT $port $otherport [::cluster::get_free_port 58080]]
 test cluster-port-alloc-2.0 {Port allocation} {
   expr {$otherport != $port}
 } 1
 
-puts "DONE"
 testsuiteCleanup
 return

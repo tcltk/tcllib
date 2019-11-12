@@ -141,7 +141,7 @@ clay::define ::httpd::mime {
     # suite, when we are opening a blocking channel on the other side of the
     # socket back to ourselves.)
     ###
-    chan configure $sock -translation {auto crlf} -blocking 0 -buffering line
+    chan configure $sock -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering line
     while 1 {
       set readCount [::coroutine::util::gets_safety $sock $LIMIT line]
       if {$readCount<=0} break

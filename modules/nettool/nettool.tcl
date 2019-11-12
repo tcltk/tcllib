@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.5
-package provide nettool 0.5.2
+package provide nettool 0.5.3
 namespace eval ::nettool {}
-set ::nettool::version 0.5.2
+set ::nettool::version 0.5.3
 
 ###
 # START: core.tcl
@@ -88,7 +88,7 @@ proc ::nettool::arp_table {} {}
 # title: Return list of broadcast addresses for local networks
 ###
 proc ::nettool::broadcast_list {} {
-  return 127.0.0.1
+  return {}
 }
 
 ###
@@ -1067,7 +1067,6 @@ if {$::tcl_platform(platform) eq "unix" && $genus eq "linux"} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach {iface info} [dump] {
     if {[dict exists $info ipv4 Bcast:]} {
       lappend result [dict get $info ipv4 Bcast:]
@@ -1315,7 +1314,6 @@ proc ::nettool::arp_table {} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach {iface info} [dump] {
     if {[dict exists $info broadcast:]} {
       lappend result [dict get $info broadcast:]
@@ -1549,7 +1547,6 @@ proc ::nettool::hwid_list {} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
-  lappend result 127.0.0.1
   foreach net [network_list] {
     if {$net in {224.0.0.0/4 127.0.0.0/8}} continue
     lappend result [::ip::broadcastAddress $net]

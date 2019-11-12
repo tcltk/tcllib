@@ -155,7 +155,7 @@ package require tcl::chan::memchan
 
     chan configure $sock \
       -blocking 0 \
-      -translation {auto crlf} \
+      -translation {auto crlf} -encoding utf-8 \
       -buffering line
     set ip 127.0.0.1
     dict set query UUID $uuid

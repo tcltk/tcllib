@@ -4,13 +4,13 @@ source [file join $srcdir doctool.tcl]
 
 ::practcl::doctool create AutoDoc
 
-set version 0.16.3
+set version 0.16.4
 set tclversion 8.6
 set module [file tail $moddir]
 set filename $module
 
 set fout [open [file join $moddir $filename.tcl] w]
-fconfigure $fout -translation lf
+fconfigure $fout -encoding utf-8 -translation lf
 dict set modmap %module% $module
 dict set modmap %version% $version
 dict set modmap %tclversion% $tclversion
@@ -103,7 +103,7 @@ close $fout
 # Build our pkgIndex.tcl file
 ###
 set fout [open [file join $moddir pkgIndex.tcl] w]
-fconfigure $fout -translation lf
+fconfigure $fout -encoding utf-8 -translation lf
 puts $fout [string map $modmap {###
 if {![package vsatisfies [package provide Tcl] %tclversion%]} {return}
 package ifneeded %module% %version% [list source [file join $dir %module%.tcl]]

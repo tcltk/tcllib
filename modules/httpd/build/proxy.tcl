@@ -110,8 +110,8 @@
     chan puts $chanb [my clay get mimetxt]
     set length [my request get CONTENT_LENGTH]
     if {$length} {
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+      chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
@@ -136,13 +136,13 @@
     ###
     set replybuffer "$reply_status\n"
     append replybuffer $replyhead
-    chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding utf-8 -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
     ###
     # Output the body. With no -size flag, channel will copy until EOF
     ###
-    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chana -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -encoding binary -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
   }
 

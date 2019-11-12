@@ -4,7 +4,7 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide practcl 0.16.3
+package provide practcl 0.16.4
 namespace eval ::practcl {}
 
 ###
@@ -17,12 +17,17 @@ namespace eval ::practcl {}
 ###
 # START: clay/clay.tcl
 ###
-package provide clay 0.8
+package provide clay 0.8.6
 namespace eval ::clay {
 }
 namespace eval ::clay {
 }
 set ::clay::trace 0
+if {[info commands ::cron::object_destroy] eq {}} {
+  # Provide a noop if we aren't running with the cron scheduler
+  namespace eval ::cron {}
+  proc ::cron::object_destroy args {}
+}
 proc ::clay::PROC {name arglist body {ninja {}}} {
   if {[info commands $name] ne {}} return
   proc $name $arglist $body
@@ -192,6 +197,41 @@ proc ::clay::noop args {}
 if {[info commands ::noop] eq {}} {
   namespace eval ::clay { namespace export noop }
   namespace eval :: { namespace import ::clay::noop }
+}
+proc ::clay::cleanup {} {
+  set count 0
+  if {![info exists ::clay::idle_destroy]} return
+  set objlist $::clay::idle_destroy
+  set ::clay::idle_destroy {}
+  foreach obj $objlist {
+    if {![catch {$obj destroy}]} {
+      incr count
+    }
+  }
+  return $count
+}
+proc ::clay::object_create {objname {class {}}} {
+  #if {$::clay::trace>0} {
+  #  puts [list $objname CREATE]
+  #}
+}
+proc ::clay::object_rename {object newname} {
+  if {$::clay::trace>0} {
+    puts [list $object RENAME -> $newname]
+  }
+}
+proc ::clay::object_destroy args {
+  if {![info exists ::clay::idle_destroy]} {
+    set ::clay::idle_destroy {}
+  }
+  foreach objname $args {
+    if {$::clay::trace>0} {
+      puts [list $objname DESTROY]
+    }
+    ::cron::object_destroy $objname
+    if {$objname in $::clay::idle_destroy} continue
+    lappend ::clay::idle_destroy $objname
+  }
 }
 proc ::clay::path args {
   set result {}
@@ -1039,50 +1079,24 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   set default standard
   set preamble {}
   set eswitch {}
-  if {[dict exists $einfo default]} {
-    set emethodinfo [dict get $einfo default]
-    set argspec     [dict getnull $emethodinfo argspec]
-    set realbody    [dict getnull $emethodinfo body]
-    set argstyle    [dict getnull $emethodinfo argstyle]
-    if {$argstyle eq "dictargs"} {
-      set body "\n      ::dictargs::parse \{$argspec\} \$args"
-    } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
-      set body {}
-    } else {
-      set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
-    }
-    append body "\n      " [string trim $realbody] "      \n"
-    set default $body
-    dict unset einfo default
-  }
-  foreach {msubmethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-    set submethod [string trim $msubmethod :/-]
-    if {$submethod eq "_body"} continue
-    if {$submethod eq "_preamble"} {
-      set preamble [dict getnull $esubmethodinfo body]
+  set Ensemble [string totitle $ensemble]
+  if {$Ensemble eq "."} continue
+  foreach {msubmethod minfo} [lsort -dictionary -stride 2 $einfo] {
+    if {$msubmethod eq "."} continue
+    if {![dict exists $minfo body:]} {
       continue
     }
-    set argspec     [dict getnull $esubmethodinfo argspec]
-    set realbody    [dict getnull $esubmethodinfo body]
-    set argstyle    [dict getnull $esubmethodinfo argstyle]
-    if {[string length [string trim $realbody]] eq {}} {
-      dict set eswitch $submethod {}
+    set submethod [string trim $msubmethod :/-]
+    if {$submethod eq "default"} {
+      set default [dict get $minfo body:]
     } else {
-      if {$argstyle eq "dictargs"} {
-        set body "\n      ::dictargs::parse \{$argspec\} \$args"
-      } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
-        set body {}
-      } else {
-        set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
-      }
-      append body "\n      " [string trim $realbody] "      \n"
-      if {$submethod eq "default"} {
-        set default $body
-      } else {
-        foreach alias [dict getnull $esubmethodinfo aliases] {
-          dict set eswitch $alias -
+      dict set eswitch $submethod [dict get $minfo body:]
+    }
+    if {[dict exists $submethod aliases:]} {
+      foreach alias [dict get $minfo aliases:] {
+        if {![dict exists $eswitch $alias]} {
+          dict set eswitch $alias [dict get $minfo body:]
         }
-        dict set eswitch $submethod $body
       }
     }
   }
@@ -1095,12 +1109,8 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   }
   dict set eswitch default $default
   set mbody {}
-
-  append mbody $preamble \n
-
   append mbody \n [list set methodlist $methodlist]
-  append mbody \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
-  append mbody \n {return -options $opts $result}
+  append mbody \n "switch -- \$method \{$eswitch\}" \n
   return $mbody
 }
 ::proc ::clay::define::Ensemble {rawmethod args} {
@@ -1118,38 +1128,37 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   #}
   set mlist [split $rawmethod "::"]
   set ensemble [string trim [lindex $mlist 0] :/]
-  set mensemble ${ensemble}/
-  if {[llength $mlist]==1 || [lindex $mlist 1] in "_body"} {
-    set method _body
-    ###
-    # Simple method, needs no parsing, but we do need to record we have one
-    ###
-    if {$argstyle eq "dictargs"} {
-      set argspec [list args $argspec]
-    }
-    $class clay set method_ensemble/ $mensemble _body [dict create argspec $argspec body $body argstyle $argstyle]
-    if {$::clay::trace>2} {
-      puts [list $class clay set method_ensemble/ $mensemble _body ...]
-    }
-    set method $rawmethod
-    if {$::clay::trace>2} {
-      puts [list $class Ensemble $rawmethod $argspec $body]
-      set rawbody $body
-      set body {puts [list [self] $class [self method]]}
-      append body \n $rawbody
-    }
-    if {$argstyle eq "dictargs"} {
-      set rawbody $body
-      set body "::dictargs::parse \{$argspec\} \$args\; "
-      append body $rawbody
-    }
-    ::oo::define $class method $rawmethod $argspec $body
+  set method   [string trim [lindex $mlist 2] :/]
+  if {[string index $method 0] eq "_"} {
+    $class clay set method_ensemble $ensemble $method $body
     return
   }
-  set method [join [lrange $mlist 2 end] "::"]
-  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create argspec $argspec body $body argstyle $argstyle]
+  set realmethod  [string totitle $ensemble]_${method}
+  set realbody {}
+  if {$argstyle eq "dictargs"} {
+    append realbody "::dictargs::parse \{$argspec\} \$args" \n
+  }
+  if {[$class clay exists method_ensemble $ensemble _preamble]} {
+    append realbody [$class clay get method_ensemble $ensemble _preamble] \n
+  }
+  append realbody $body
+  if {$method eq "default"} {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod \$method {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::define $class method $realmethod [list method [list args $argspec]] $realbody
+    } else {
+      oo::define $class method $realmethod [list method {*}$argspec] $realbody
+    }
+  } else {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::define $class method $realmethod [list [list args $argspec]] $realbody
+    } else {
+      oo::define $class method $realmethod $argspec $realbody
+    }
+  }
   if {$::clay::trace>2} {
-    puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
+    puts [list $class clay set method_ensemble/ $ensemble [string trim $method :/]  ...]
   }
 }
 ::oo::define ::clay::class {
@@ -1316,6 +1325,22 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           dict set clay {*}$path . {}
         }
       }
+      busy {
+        my variable clay_busy
+        if {[llength $args]} {
+          set clay_busy [string is true [lindex $args 0]]
+          set claycache {}
+        }
+        if {![info exists clay_busy]} {
+          set clay_busy 0
+        }
+        return $clay_busy
+      }
+      cache {
+        set path [lindex $args 0]
+        set value [lindex $args 1]
+        dict set claycache $path $value
+      }
       cget {
         # Leaf searches return one data field at a time
         # Search in our local dict
@@ -1399,15 +1424,33 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         return $result
       }
       ensemble_map {
-        set ensemble [lindex $args 0]
-        my variable claycache
-        set mensemble [string trim $ensemble :/]
-        if {[dict exists $claycache method_ensemble $mensemble]} {
-          return [clay::tree::sanitize [dict get $claycache method_ensemble $mensemble]]
+        set path [::clay::tree::storage method_ensemble]
+        if {[dict exists $claycache {*}$path]} {
+          return [dict get $claycache {*}$path]
         }
-        set emap [my clay dget method_ensemble $mensemble]
-        dict set claycache method_ensemble $mensemble $emap
-        return [clay::tree::sanitize $emap]
+        set emap {}
+        foreach class $clayorder {
+          if {![$class clay exists {*}$path .]} continue
+          dict for {ensemble einfo} [$class clay dget {*}$path] {
+            if {$ensemble eq "."} continue
+            dict for {method body} $einfo {
+              if {$method eq "."} continue
+              dict set emap $ensemble $method class: $class
+              dict set emap $ensemble $method body: $body
+            }
+          }
+        }
+        if {[dict exists $clay {*}$path]} {
+          dict for {ensemble einfo} [dict get $clay {*}$path] {
+            dict for {method body} $einfo {
+              if {$method eq "."} continue
+              dict set emap $ensemble $method class: $class
+              dict set emap $ensemble $method body: $body
+            }
+          }
+        }
+        dict set claycache {*}$path $emap
+        return $emap
       }
       eval {
         set script [lindex $args 0]
@@ -1479,17 +1522,15 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           ::clay::tree::dictmerge result $clay
           return $result
         }
-        # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [dict get $claycache {*}$path]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
-        }
         if {[dict exists $clay {*}$path] && ![dict exists $clay {*}$path .]} {
           # Path is a leaf
           return [dict get $clay {*}$path]
         }
+        # Search in our local cache
+        if {[my clay search $path value isleaf]} {
+          return $value
+        }
+
         set found 0
         set branch [dict exists $clay {*}$path .]
         foreach class $clayorder {
@@ -1499,7 +1540,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           }
           if {!$branch && [$class clay exists {*}$path]} {
             set result [$class clay dget {*}$path]
-            dict set claycache {*}$path $result
+            my clay cache $path $result
             return $result
           }
         }
@@ -1512,7 +1553,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         #if {[dict exists $clay {*}$path .]} {
         #  ::clay::tree::dictmerge result
         #}
-        dict set claycache {*}$path $result
+        my clay cache $path $result
         return $result
       }
       getnull -
@@ -1528,16 +1569,17 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           ::clay::tree::dictmerge result $clay
           return [::clay::tree::sanitize $result]
         }
-        # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [::clay::tree::sanitize [dict get $claycache {*}$path]]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
-        }
         if {[dict exists $clay {*}$path] && ![dict exists $clay {*}$path .]} {
           # Path is a leaf
           return [dict get $clay {*}$path]
+        }
+        # Search in our local cache
+        if {[my clay search $path value isleaf]} {
+          if {!$isleaf} {
+            return [clay::tree::sanitize $value]
+          } else {
+            return $value
+          }
         }
         set found 0
         set branch [dict exists $clay {*}$path .]
@@ -1548,7 +1590,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           }
           if {!$branch && [$class clay exists {*}$path]} {
             set result [$class clay dget {*}$path]
-            dict set claycache {*}$path $result
+            my clay cache $path $result
             return $result
           }
         }
@@ -1565,7 +1607,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         #if {[dict exists $clay {*}$path .]} {
         #  ::clay::tree::dictmerge result [dict get $clay {*}$path]
         #}
-        dict set claycache {*}$path $result
+        my clay cache $path $result
         return [clay::tree::sanitize $result]
       }
       leaf {
@@ -1579,17 +1621,18 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
           return [dict get $clay {*}$path]
         }
         # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [clay::tree::sanitize [dict get $claycache {*}$path]]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
+        if {[my clay search $path value isleaf]} {
+          if {!$isleaf} {
+            return [clay::tree::sanitize $value]
+          } else {
+            return $value
+          }
         }
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
           if {[$class clay exists {*}$path]} {
             set value [$class clay get {*}$path]
-            dict set claycache {*}$path $value
+            my clay cache $path $value
             return $value
           }
         }
@@ -1603,6 +1646,7 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         ###
         # Mix in the class
         ###
+        my clay flush
         set prior  [info object mixins [self]]
         set newmixin {}
         foreach item $args {
@@ -1646,7 +1690,6 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         }
       }
       mixinmap {
-        my variable clay
         if {![dict exists $clay .mixin]} {
           dict set clay .mixin {}
         }
@@ -1699,12 +1742,21 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
       replace {
         set clay [lindex $args 0]
       }
+      search {
+        set path [lindex $args 0]
+        upvar 1 [lindex $args 1] value [lindex $args 2] isleaf
+        set isleaf [expr {![dict exists $claycache $path .]}]
+        if {[dict exists $claycache $path]} {
+          set value [dict get $claycache $path]
+          return 1
+        }
+        return 0
+      }
       source {
         source [lindex $args 0]
       }
       set {
         #puts [list [self] clay SET {*}$args]
-        set claycache {}
         ::clay::tree::dictset clay {*}$args
       }
       default {
@@ -1713,7 +1765,12 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
     }
   }
   method InitializePublic {} {
-    my variable clayorder clay claycache config option_canonical
+    my variable clayorder clay claycache config option_canonical clay_busy
+    if {[info exists clay_busy] && $clay_busy} {
+      # Avoid repeated calls to InitializePublic if we know that someone is
+      # going to invoke it at the end of whatever process is going on
+      return
+    }
     set claycache {}
     set clayorder [::clay::ancestors [info object class [self]] {*}[lreverse [info object mixins [self]]]]
     if {![info exists clay]} {
@@ -1779,36 +1836,10 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
         {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
       }
     }
-    my variable clayorder clay claycache
-    if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble]
-    } else {
-      set emap {}
-    }
-    foreach class [lreverse $clayorder] {
-      ###
-      # Build a compsite map of all ensembles defined by the object's current
-      # class as well as all of the classes being mixed in
-      ###
-      dict for {mensemble einfo} [$class clay get method_ensemble] {
-        if {$mensemble eq {.}} continue
-        set ensemble [string trim $mensemble :/]
-        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
 
-        dict for {method info} $einfo {
-          if {$method eq {.}} continue
-          if {![dict is_dict $info]} {
-            puts [list WARNING: class: $class method: $method not dict: $info]
-            continue
-          }
-          dict set info source $class
-          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
-          dict set emap $ensemble $method $info
-        }
-      }
-    }
-    foreach {ensemble einfo} $emap {
+    foreach {ensemble einfo} [my clay ensemble_map] {
       #if {[dict exists $einfo _body]} continue
+      if {$ensemble eq "."} continue
       set body [::clay::ensemble_methodbody $ensemble $einfo]
       if {$::clay::trace>2} {
         set rawbody $body
@@ -1824,193 +1855,81 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
 ::clay::object clay branch option
 ::clay::object clay branch dict clay
 ::clay::object clay set variable DestroyEvent 0
-if {[info commands ::cron::object_destroy] eq {}} {
-  # Provide a noop if we aren't running with the cron scheduler
-  namespace eval ::cron {}
-  proc ::cron::object_destroy args {}
-}
-::namespace eval ::clay::event {
-}
-proc ::clay::cleanup {} {
-  if {![info exists ::clay::idle_destroy]} return
-  foreach obj $::clay::idle_destroy {
-    if {[info commands $obj] ne {}} {
-      catch {$obj destroy}
-    }
+proc ::clay::singleton {name script} {
+  if {[info commands $name] eq {}} {
+    ::clay::object create $name
   }
-  set ::clay::idle_destroy {}
+  oo::objdefine $name {
+method SingletonProcs {} {
+proc class class {
+  uplevel 1 "oo::objdefine \[self\] class $class"
+  my clay delegate class $class
 }
-proc ::clay::object_create {objname {class {}}} {
-  #if {$::clay::trace>0} {
-  #  puts [list $objname CREATE]
+proc clay args {
+  my clay {*}$args
+}
+proc Ensemble {rawmethod args} {
+  if {[llength $args]==2} {
+    lassign $args argspec body
+    set argstyle tcl
+  } elseif {[llength $args]==3} {
+    lassign $args argstyle argspec body
+  } else {
+    error "Usage: Ensemble name ?argstyle? argspec body"
+  }
+  set class [uplevel 1 self]
+  #if {$::clay::trace>2} {
+  #  puts [list $class Ensemble $rawmethod $argspec $body]
   #}
-}
-proc ::clay::object_rename {object newname} {
-  if {$::clay::trace>0} {
-    puts [list $object RENAME -> $newname]
-  }
-}
-proc ::clay::object_destroy args {
-  if {![info exists ::clay::idle_destroy]} {
-    set ::clay::idle_destroy {}
-  }
-  foreach objname $args {
-    if {$::clay::trace>0} {
-      puts [list $objname DESTROY]
-    }
-    ::cron::object_destroy $objname
-    if {$objname in $::clay::idle_destroy} continue
-    lappend ::clay::idle_destroy $objname
-  }
-}
-proc ::clay::event::cancel {self {task *}} {
-  variable timer_event
-  variable timer_script
-
-  foreach {id event} [array get timer_event $self:$task] {
-    ::after cancel $event
-    set timer_event($id) {}
-    set timer_script($id) {}
-  }
-}
-proc ::clay::event::generate {self event args} {
-  set wholist [Notification_list $self $event]
-  if {$wholist eq {}} return
-  set dictargs [::oo::meta::args_to_options {*}$args]
-  set info $dictargs
-  set strict 0
-  set debug 0
-  set sender $self
-  dict with dictargs {}
-  dict set info id     [::clay::event::nextid]
-  dict set info origin $self
-  dict set info sender $sender
-  dict set info rcpt   {}
-  foreach who $wholist {
-    catch {::clay::event::notify $who $self $event $info}
-  }
-}
-proc ::clay::event::nextid {} {
-  return "event#[format %0.8x [incr ::clay::event_count]]"
-}
-proc ::clay::event::Notification_list {self event {stackvar {}}} {
-  set notify_list {}
-  foreach {obj patternlist} [array get ::clay::object_subscribe] {
-    if {$obj eq $self} continue
-    if {$obj in $notify_list} continue
-    set match 0
-    foreach {objpat eventlist} $patternlist {
-      if {![string match $objpat $self]} continue
-      foreach eventpat $eventlist {
-        if {![string match $eventpat $event]} continue
-        set match 1
-        break
-      }
-      if {$match} {
-        break
-      }
-    }
-    if {$match} {
-      lappend notify_list $obj
-    }
-  }
-  return $notify_list
-}
-proc ::clay::event::notify {rcpt sender event eventinfo} {
-  if {[info commands $rcpt] eq {}} return
-  if {$::clay::trace} {
-    puts [list event notify rcpt $rcpt sender $sender event $event info $eventinfo]
-  }
-  $rcpt notify $event $sender $eventinfo
-}
-proc ::clay::event::process {self handle script} {
-  variable timer_event
-  variable timer_script
-
-  array unset timer_event $self:$handle
-  array unset timer_script $self:$handle
-
-  set err [catch {uplevel #0 $script} result errdat]
-  if $err {
-    puts "BGError: $self $handle $script
-ERR: $result
-[dict get $errdat -errorinfo]
-***"
-  }
-}
-proc ::clay::event::schedule {self handle interval script} {
-  variable timer_event
-  variable timer_script
-  if {$::clay::trace} {
-    puts [list $self schedule $handle $interval]
-  }
-  if {[info exists timer_event($self:$handle)]} {
-    if {$script eq $timer_script($self:$handle)} {
-      return
-    }
-    ::after cancel $timer_event($self:$handle)
-  }
-  set timer_script($self:$handle) $script
-  set timer_event($self:$handle) [::after $interval [list ::clay::event::process $self $handle $script]]
-}
-proc ::clay::event::subscribe {self who event} {
-  upvar #0 ::clay::object_subscribe($self) subscriptions
-  if {![info exists subscriptions]} {
-    set subscriptions {}
-  }
-  set match 0
-  foreach {objpat eventlist} $subscriptions {
-    if {![string match $objpat $who]} continue
-    foreach eventpat $eventlist {
-      if {[string match $eventpat $event]} {
-        # This rule already exists
-        return
-      }
-    }
-  }
-  dict lappend subscriptions $who $event
-}
-proc ::clay::event::unsubscribe {self args} {
-  upvar #0 ::clay::object_subscribe($self) subscriptions
-  if {![info exists subscriptions]} {
+  set mlist [split $rawmethod "::"]
+  set ensemble [string trim [lindex $mlist 0] :/]
+  set method   [string trim [lindex $mlist 2] :/]
+  if {[string index $method 0] eq "_"} {
+    $class clay set method_ensemble $ensemble $method $body
     return
   }
-  switch [llength $args] {
-    1 {
-      set event [lindex $args 0]
-      if {$event eq "*"} {
-        # Shortcut, if the
-        set subscriptions {}
-      } else {
-        set newlist {}
-        foreach {objpat eventlist} $subscriptions {
-          foreach eventpat $eventlist {
-            if {[string match $event $eventpat]} continue
-            dict lappend newlist $objpat $eventpat
-          }
-        }
-        set subscriptions $newlist
-      }
+  set realmethod  [string totitle $ensemble]_${method}
+  set realbody {}
+  if {$argstyle eq "dictargs"} {
+    append realbody "::dictargs::parse \{$argspec\} \$args" \n
+  }
+  if {[$class clay exists method_ensemble $ensemble _preamble]} {
+    append realbody [$class clay get method_ensemble $ensemble _preamble] \n
+  }
+  append realbody $body
+  if {$method eq "default"} {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod \$method {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::objdefine $class method $realmethod [list method [list args $argspec]] $realbody
+    } else {
+      oo::objdefine $class method $realmethod [list method {*}$argspec] $realbody
     }
-    2 {
-      set who [lindex $args 0]
-      set event [lindex $args 1]
-      if {$who eq "*" && $event eq "*"} {
-        set subscriptions {}
-      } else {
-        set newlist {}
-        foreach {objpat eventlist} $subscriptions {
-          if {[string match $who $objpat]} {
-            foreach eventpat $eventlist {
-              if {[string match $event $eventpat]} continue
-              dict lappend newlist $objpat $eventpat
-            }
-          }
-        }
-        set subscriptions $newlist
-      }
+  } else {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::objdefine $class method $realmethod [list [list args $argspec]] $realbody
+    } else {
+      oo::objdefine $class method $realmethod $argspec $realbody
     }
   }
+  if {$::clay::trace>2} {
+    puts [list $class clay set method_ensemble/ $ensemble [string trim $method :/]  ...]
+  }
+}
+proc method args {
+  uplevel 1 "oo::objdefine \[self\] method {*}$args"
+}
+}
+method script script {
+  my clay busy 1
+  my SingletonProcs
+  eval $script
+  my clay busy 0
+  my InitializePublic
+}
+}
+  $name script $script
+  return $name
 }
 namespace eval ::clay {
   namespace export *
@@ -2751,8 +2670,8 @@ if {[::package vcompare $::tcl_version 8.6] < 0} {
     cd $pwd
     set fout [open $exename a]
     set fin [open $zipfile r]
-    chan configure $fout -translation binary
-    chan configure $fin -translation binary
+    chan configure $fout -encoding binary -translation binary
+    chan configure $fin -encoding binary -translation binary
     chan copy $fin $fout
     chan close $fin
     chan close $fout
@@ -2992,7 +2911,7 @@ proc ::practcl::platform::tcl_core_options {os} {
       lappend tcl_config_opts --enable-corefoundation=yes  --enable-framework=no
     }
   }
-  lappend tcl_config_opts --with-tzdata
+  lappend tcl_config_opts --with-tzdata --with-encoding utf-8
   return $tcl_config_opts
 }
 proc ::practcl::platform::tk_core_options {os} {
@@ -3455,7 +3374,7 @@ set buffer {}
   set mlist [list pkgIndex.tcl index.tcl [file tail $modfile] version_info.tcl]
   foreach file [glob -nocomplain [file join $path *.tcl]] {
     if {[file tail $file] ni $mlist} {
-      puts [list NONMODFILE $file]
+      #puts [list NONMODFILE $file]
       return {}
     }
   }
@@ -3474,7 +3393,7 @@ set buffer {}
       set version [lindex $line 3]
       if {[string index $package 0] in "\$ \[ @"} continue
       if {[string index $version 0] in "\$ \[ @"} continue
-      puts "PKGLINE $line"
+      #puts "PKGLINE $line"
       append buffer "package ifneeded $package $version \[list source \[file join %DIR% [file tail $file]\]\]" \n
       break
     }
@@ -3754,16 +3673,18 @@ proc ::practcl::buildModule {modpath} {
   ::practcl::dotclexec $buildscript
 }
 proc ::practcl::installModule {modpath DEST} {
-  set dpath  [file join $DEST modules [file tail $modpath]]
-  puts [list ::practcl::installModule $modpath -> $dpath]
+  if {[file exists [file join $DEST modules]]} {
+    set dpath [file join $DEST modules [file tail $modpath]]
+  } else {
+    set dpath $DEST
+  }
+  if {[file exists $dpath] && [file type $dpath] eq "link"} return
   if {[file exists [file join $modpath index.tcl]]} {
     # IRM/Tao style modules non-amalgamated
     ::practcl::installDir $modpath $dpath
     return
   }
-  if {[file exists [file join $modpath build build.tcl]]} {
-    buildModule $modpath
-  }
+  buildModule $modpath
   set files [glob -nocomplain [file join $modpath *.tcl]]
   if {[llength $files]} {
     if {[llength $files]>1} {
@@ -6459,7 +6380,7 @@ oo::objdefine ::practcl::product {
     }
     return $obj
   }
-  clay set method_ensemble make target aliases {task add}
+  clay set method_ensemble make target aliases {target add}
   Ensemble make::todo {} {
     foreach {name obj} $make_object {
       if {[$obj do]} {
@@ -7257,7 +7178,8 @@ char *
     } {
       dict set map %${var}% [set $var]
     }
-
+    set thread_init_script {namespace eval ::starkit {}}
+    append thread_init_script \n [list set ::starkit::topdir $vfsroot]
     set preinitscript {
 set ::odie(boot_vfs) %vfsroot%
 set ::SRCDIR $::odie(boot_vfs)
@@ -7272,33 +7194,6 @@ if {[file exists [file join %vfsroot% tk_library tk.tcl]]} {
 }
 } ; # Preinitscript
 
-    set main_init_script {}
-    set thread_init_script {}
-    append preinitscript \n {namespace eval ::starkit {}}
-    append preinitscript \n [list set ::starkit::topdir $vfsroot]
-
-    foreach {statpkg info} $statpkglist {
-      set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
-      append preinitscript \n $script
-      if {[dict get $info autoload]} {
-        append main_init_script \n [list ::load {} $statpkg]
-      }
-    }
-    append preinitscript \n {
-if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
-  #In a wrapped exe, we don't go out to the environment
-  set dir $::starkit::topdir
-  source [file join $::starkit::topdir pkgIndex.tcl]
-}}
-    append main_init_script \n {
-# Specify a user-specific startup file to invoke if the application
-# is run interactively.  Typically the startup file is "~/.apprc"
-# where "app" is the name of the application.  If this line is deleted
-# then no user-specific startup file will be run under any conditions.
-}
-    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
-    append preinitscript \n [list set ::starkit::thread_init $thread_init_script]
-    append preinitscript \n {eval $::starkit::thread_init}
     set zvfsboot {
 /*
  * %mainhook% --
@@ -7385,6 +7280,8 @@ foreach path {
     if {![$PROJECT define get tip_430 0]} {
       ::practcl::cputs appinit {  TclZipfs_Init(interp);}
     }
+    set main_init_script {}
+
     foreach {statpkg info} $statpkglist {
       set initfunc {}
       if {[dict exists $info initfunc]} {
@@ -7399,15 +7296,36 @@ foreach path {
       # We employ a NULL to prevent the package system from thinking the
       # package is actually loaded into the interpreter
       $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
+      set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
+      append main_init_script \n [list set ::starkit::static_packages(${statpkg}) $script]
+
       if {[dict get $info autoload]} {
         ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
         ::practcl::cputs appinit "  Tcl_StaticPackage(interp,\"$statpkg\",$initfunc,NULL)\;"
       } else {
         ::practcl::cputs appinit "\n  Tcl_StaticPackage(NULL,\"$statpkg\",$initfunc,NULL)\;"
+        append main_init_script \n $script
       }
     }
+    append main_init_script \n {
+if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
+  #In a wrapped exe, we don't go out to the environment
+  set dir $::starkit::topdir
+  source [file join $::starkit::topdir pkgIndex.tcl]
+}}
+    append thread_init_script $main_init_script
+    append main_init_script \n {
+# Specify a user-specific startup file to invoke if the application
+# is run interactively.  Typically the startup file is "~/.apprc"
+# where "app" is the name of the application.  If this line is deleted
+# then no user-specific startup file will be run under any conditions.
+}
+    append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
+    append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
+    append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
 
-    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $main_init_script]);"
+
+    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
     practcl::cputs appinit {  return TCL_OK;}
     $PROJECT c_function [string map $map "int %mainfunc%(Tcl_Interp *interp)"] [string map $map $appinit]
   }

@@ -11,7 +11,7 @@ proc ::nettool::arp_table {} {}
 # title: Return list of broadcast addresses for local networks
 ###
 proc ::nettool::broadcast_list {} {
-  return 127.0.0.1
+  return {}
 }
 
 ###
