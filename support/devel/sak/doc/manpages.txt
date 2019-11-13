@@ -352,6 +352,7 @@ modules/term/term_bind.man
 modules/term/term_send.man
 modules/textutil/adjust.man
 modules/textutil/expander.man
+modules/textutil/patch.man
 modules/textutil/repeat.man
 modules/textutil/tabify.man
 modules/textutil/textutil.man

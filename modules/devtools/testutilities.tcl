@@ -418,6 +418,13 @@ proc asset {path} {
     file join $::tcltest::testsDirectory test-assets $path
 }
 
+proc asset-get {path} {
+    set c [open [asset $path] r]
+    set d [read $c]
+    close $c
+    return $d
+}
+
 # General access to module-local files
 proc localPath {fname} {
     return [file join $::tcltest::testsDirectory $fname]

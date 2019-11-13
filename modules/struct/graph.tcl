@@ -2,12 +2,10 @@
 #
 #	Implementation of a graph data structure for Tcl.
 #
-# Copyright (c) 2000-2005 by Andreas Kupries
+# Copyright (c) 2000-2005,2019 by Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: graph.tcl,v 1.33 2009/09/24 16:23:47 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: graph_c.tcl
 
@@ -177,4 +175,4 @@ namespace eval ::struct {
     namespace export graph
 }
 
-package provide struct::graph 2.4.2
+package provide struct::graph 2.4.3

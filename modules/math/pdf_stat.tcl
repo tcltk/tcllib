@@ -24,12 +24,16 @@ namespace eval ::math::statistics {
 	    histogram-uniform \
 	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t pdf-beta \
 	    pdf-weibull pdf-gumbel pdf-pareto pdf-cauchy \
+	    pdf-laplace pdf-kumaraswamy pdf-negative-binomial \
 	    cdf-gamma cdf-poisson cdf-chisquare cdf-beta cdf-F \
 	    cdf-weibull cdf-gumbel cdf-pareto cdf-cauchy \
+	    cdf-laplace cdf-kumaraswamy cdf-negative-binomial \
 	    random-gamma random-poisson random-chisquare random-students-t random-beta \
 	    random-weibull random-gumbel random-pareto random-cauchy \
+	    random-laplace random-kumaraswamy random-negative-binomial \
 	    incompleteGamma incompleteBeta \
-	    estimate-pareto empirical-distribution bootstrap estimate-exponential
+	    estimate-pareto empirical-distribution bootstrap estimate-exponential \
+	    estimate-laplace estimate-negative-binomial
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -220,6 +224,92 @@ proc ::math::statistics::pdf-exponential { mean x } {
     if { $x > 700.0*$mean } { return 0.0 }
 
     set prob [expr {exp(-$x/double($mean))/$mean}]
+
+    return $prob
+}
+
+
+# pdf-laplace --
+#    Return the probabilities belonging to a Laplace
+#    distribution
+#
+# Arguments:
+#    mean     Mean of the distribution
+#    scale    Scale (the spreading) of the distribution
+#    x        Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::pdf-laplace { mean scale x } {
+    variable NEGSTDEV
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: scale must be positive"
+    }
+
+    set prob [expr {exp(-($x-$mean)/double($scale))/(2.0*$scale)}]
+
+    return $prob
+}
+
+
+# pdf-kumaraswamy --
+#    Return the probabilities belonging to a Kumaraswamy
+#    distribution (akin to the Beta distribution, but tractable)
+#
+#    Arguments:
+#    a         First parameter of the Kumaraswamy distribution
+#    b         Second parameter of the Kumaraswamy distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::pdf-kumaraswamy { a b x } {
+    variable OUTOFRANGE
+
+    if { $a <= 0.0 || $b <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameters a and b must be positive"
+    }
+
+    set prob [expr {$a * $b * $x**($a-1) * (1.0 -$x**$a)**($b-1)}]
+
+    return $prob
+}
+
+
+# pdf-negative-binomial --
+#    Return the probability belonging to a negative binomial
+#    distribution
+#
+#    Arguments:
+#    r         Allowed number of failures for the distribution
+#    p         Probability of success for the negative bionomial distribution
+#    k         Value of variate (integer)
+#
+# Result:
+#    Probability of k successes under the given distribution
+#
+proc ::math::statistics::pdf-negative-binomial { r p k } {
+    variable OUTOFRANGE
+    variable INVALID
+
+    if { $p < 0.0 || $p >= 1.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameter p must be non-negative and lower than 1"
+    }
+
+    if { int($r) != $r || $r < 1 } {
+	return -code error -errorcode ARG -errorinfo $INVALIDE \
+		"$INVALID: parameter r must be a positive integer"
+    }
+
+    set coeff [::math::choose [expr {$k+$r-1}] $k]
+    set prob  [expr {$coeff * (1.0 - $p)**$r * $p ** $k}]
 
     return $prob
 }
@@ -455,6 +545,99 @@ proc ::math::statistics::cdf-exponential { mean x } {
     set prob [expr {1.0-exp(-$x/double($mean))}]
 
     return $prob
+}
+
+
+# cdf-laplace --
+#    Return the cumulative probabilities belonging to a Laplace
+#    distribution
+#
+# Arguments:
+#    mean     Mean of the distribution
+#    scale    Scale (the spreading) of the distribution
+#    x        Value for which the probability must be determined
+#
+# Result:
+#    Cumulative probability of value x under the given distribution
+#
+proc ::math::statistics::cdf-laplace { mean scale x } {
+    variable NEGSTDEV
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: scale must be positive"
+    }
+
+    if { $x < $mean } {
+        set prob [expr {0.5 * exp(($x-$mean)/double($scale))}]
+    } else {
+        set prob [expr {1.0 - 0.5 * exp(($mean-$x)/double($scale))}]
+    }
+
+    return $prob
+}
+
+
+# cdf-kumaraswamy --
+#    Return the cumulative probabilities belonging to a Kumaraswamy
+#    distribution (akin to the Beta distribution, but tractable)
+#
+#    Arguments:
+#    a         First parameter of the Kumaraswamy distribution
+#    b         Second parameter of the Kumaraswamy distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of value x under the given distribution
+#
+proc ::math::statistics::cdf-kumaraswamy { a b x } {
+    variable OUTOFRANGE
+
+    if { $a <= 0.0 || $b <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameters a and b must be positive"
+    }
+
+    set prob [expr {1.0 - (1.0-$x**$a) ** $b}]
+
+    return $prob
+}
+
+
+# cdf-negative-binomial --
+#    Return the cumulative probability for a negative binomial distribution
+#
+#    Arguments:
+#    r         Allowed number of failures for the distribution
+#    p         Probability of success for the negative bionomial distribution
+#    k         Value of variate (integer)
+#
+# Result:
+#    Cumulative probability for up to k successes under the given distribution
+#
+proc ::math::statistics::cdf-negative-binomial { r p k } {
+    variable OUTOFRANGE
+    variable INVALID
+
+    if { $p < 0.0 || $p >= 1.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameter p must be non-negative and lower than 1"
+    }
+
+    if { int($r) != $r || $r < 1 } {
+	return -code error -errorcode ARG -errorinfo $INVALIDE \
+		"$INVALID: parameter r must be a positive integer"
+    }
+
+    set sum 0.0
+
+    for { set i 0 } { $i <= $k } { incr i } {
+        set prob [pdf-negative-binomial $r $p $i]
+        set sum  [expr {$sum + $prob}]
+    }
+
+    return $sum
 }
 
 
@@ -2126,6 +2309,120 @@ proc ::math::statistics::random-cauchy { location scale number } {
 }
 
 
+# random-laplace --
+#    Generate a list of Laplace distributed deviates
+#
+# Arguments:
+#    mean     Mean of the distribution
+#    scale    Scale (the spreading) of the distribution
+#    number   Number of values to return
+#
+# Result:
+#    List of random numbers
+#
+proc ::math::statistics::random-laplace { mean scale number } {
+    variable NEGSTDEV
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: scale must be positive"
+    }
+
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        set p [expr {rand()}]
+        if { $p < 0.5 } {
+            set x [expr {$mean + $scale * log(1.0 - 2.0*abs($p-0.5))}]
+        } else {
+            set x [expr {$mean - $scale * log(1.0 - 2.0*abs($p-0.5))}]
+        }
+        lappend retval $x
+    }
+
+    return $retval
+}
+
+
+# random-kumaraswamy --
+#    Generate a list of Kumaraswamy distributed deviates
+#
+#    Arguments:
+#    a         First parameter of the Kumaraswamy distribution
+#    b         Second parameter of the Kumaraswamy distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random numbers
+#
+proc ::math::statistics::random-kumaraswamy { a b number } {
+    variable OUTOFRANGE
+
+    if { $a <= 0.0 || $b <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameters a and b must be positive"
+    }
+
+    set ra [expr {1.0 / $a}]
+    set rb [expr {1.0 / $b}]
+
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        set p [expr {rand()}]
+        set x [expr {( 1.0 - (1.0-$p) ** $rb ) ** $ra}]
+
+        lappend retval $x
+    }
+
+    return $retval
+}
+
+
+# random-negative-binomial --
+#    Generate a list of deviates according to the negative binomial distribution
+#
+#    Arguments:
+#    r         Allowed number of failures for the distribution
+#    p         Probability of success for the negative bionomial distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random numbers
+#
+proc ::math::statistics::random-negative-binomial { r p number } {
+    variable OUTOFRANGE
+    variable INVALID
+
+    if { $p < 0.0 || $p >= 1.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
+		"$OUTOFRANGE: parameter p must be non-negative and lower than 1"
+    }
+
+    if { int($r) != $r }} $r < 1} {
+	return -code error -errorcode ARG -errorinfo $INVALIDE \
+		"$INVALID: parameter r must be a positive integer"
+    }
+
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        set success 0
+        set failure 0
+
+        while { $failure < $r } {
+            if { rand() <= $p } {
+                incr success
+            } else {
+                incr failure
+            }
+        }
+
+        lappend retval $success
+    }
+
+    return $retval
+}
+
+
 # estimate-pareto --
 #    Estimate the parameters of a Pareto distribution
 #
@@ -2205,6 +2502,70 @@ proc ::math::statistics::estimate-exponential { values } {
 
     return [list $parameter $stdev]
 }
+
+
+# estimate-laplace --
+#    Estimate the parameter of a Laplace distribution
+#
+# Arguments:
+#    values    Values that are supposed to be Laplace distributed
+#
+# Result:
+#    Estimates of respectively the mean and the scale of the Laplace distribution
+#    (See https://en.wikipedia.org/wiki/Laplace_distribution)
+#
+# Note:
+#    According to Wikipedia the estimators are maximum-likelihood estimators
+#
+proc ::math::statistics::estimate-laplace { values } {
+
+    set mean [median $values]
+
+    set sum   0.0
+    set count 0
+
+    foreach v $values {
+        if { $v != "" } {
+            set  sum [expr {$sum + abs($v-$mean)}]
+            incr count
+        }
+    }
+
+    set scale [expr {$sum/double($count)}]
+
+    return [list $mean $scale]
+}
+
+
+# estimate-negative-binomial --
+#    Estimate the parameter p of a negative binomial distribution,
+#    given the allowed number of failures
+#
+# Arguments:
+#    r         Allowed number of failures
+#    values    Values that are supposed to be distributed according to a negative binomial distribution
+#
+# Result:
+#    Estimate of the probability of success for the distribution
+#
+# Note:
+#    According to Wikipedia the estimators are maximum-likelihood estimators
+#
+proc ::math::statistics::estimate-negative-binomial { r values } {
+
+    set sum   0.0
+    set count 0
+
+    foreach v $values {
+        if { $v != "" } {
+            set  sum [expr {$sum + $v}]
+            incr count
+        }
+    }
+
+    return [expr {$sum/double($count * $r + $sum)}]
+}
+
 
 # empirical-distribution --
 #    Determine the empirical distribution
@@ -2297,7 +2658,6 @@ if { [info exists ::argv0] && ([file tail [info script]] == [file tail $::argv0]
 	set prob [::math::statistics::Cdf-toms322 1 5000 [expr {$z*$z}]]
 	puts "$z - $pexp - [expr {1.0-$prob}]"
     }
-
     puts "Normal distribution (inverted; one-tailed)"
     foreach p {0.001 0.01 0.1 0.25 0.5 0.75 0.9 0.99 0.999} {
 	puts "$p - [::math::statistics::Inverse-cdf-normal 0.0 1.0 $p]"

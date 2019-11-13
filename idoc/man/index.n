@@ -3527,6 +3527,18 @@ diff -n format
 \fBfiles/modules/rcs/rcs\&.n\fR
 rcs
 .RE
+diff -ruN
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
+diff, unified format
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
 difference
 .RS
 .TP
@@ -4808,6 +4820,12 @@ doctoc_plugin_apiref
 \fBfiles/modules/doctools/doctools_plugin_apiref\&.n\fR
 doctools_plugin_apiref
 .RE
+fossil
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
 frame
 .RS
 .TP
@@ -4921,6 +4939,12 @@ coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
 coroutine::auto
+.RE
+git
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 global
 .RS
@@ -7951,6 +7975,9 @@ patch
 .TP
 \fBfiles/modules/docstrip/docstrip_util\&.n\fR
 docstrip_util
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 patching
 .RS
@@ -11290,6 +11317,12 @@ unicode
 .TP
 \fBfiles/modules/stringprep/unicode_data\&.n\fR
 unicode::data
+.RE
+unified format diff
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 union
 .RS

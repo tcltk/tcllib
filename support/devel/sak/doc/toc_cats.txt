@@ -420,6 +420,7 @@
 [item modules/string/token_shell.man       string::token::shell {Parsing of shell command line}]
 [item modules/textutil/textutil.man        textutil             {Procedures to manipulate texts and strings.}]
 [item modules/textutil/adjust.man          textutil::adjust     {Procedures to adjust, indent, and undent paragraphs}]
+[item modules/textutil/patch.man           textutil::patch      {Application of uni-diff patches to directory trees}]
 [item modules/textutil/repeat.man          textutil::repeat     {Procedures to repeat strings.}]
 [item modules/textutil/textutil_split.man  textutil::split      {Procedures to split texts}]
 [item modules/textutil/textutil_string.man textutil::string     {Procedures to manipulate texts and strings.}]

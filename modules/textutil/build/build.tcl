@@ -11,7 +11,7 @@ puts $fout {###
 #
 # Author: Sean Woods <yoda@etoyoc.com>
 ###
-package provide textutil::wcswidth 35.0}
+package provide textutil::wcswidth 35.1}
 
 set fin [open [file join $srcdir EastAsianWidth.txt] r]
 puts $fout "proc ::textutil::wcswidth_type char \{"
@@ -29,7 +29,7 @@ while {[gets $fin line]>=0} {
   } elseif {[scan $line  {%4x;%1s} start code]==2} {
     set end $start
   } else {
-    puts "Ignored line $line"
+    puts "Ignored line: '$line'"
     continue
   }
   if {$code eq "N"} continue
@@ -62,7 +62,7 @@ while {[gets $fin line]>=0} {
   } elseif {[scan $line  {%4x;%1s} start code]==2} {
     set end $start
   } else {
-    puts "Ignored line $line"
+    puts "Ignored line: '$line'"
     continue
   }
   dict set map %start% $start
@@ -119,8 +119,8 @@ puts $fout {
 proc ::textutil::wcswidth {string} {
   set width 0
   set len [string length $string]
-  for {set i 0} {$i < $len} {incr i} {
-    scan [string index $string $i] %c char
+  foreach c [split $string {}] {
+    scan $c %c char
     set n [::textutil::wcswidth_char $char]
     if {$n < 0} {
       return -1

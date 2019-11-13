@@ -23,6 +23,13 @@ test graph-${impl}-${setimpl}-node-insert-2.0 {node insert, duplicate node} {
     set msg
 } [ExistingNode $MY node0]
 
+test graph-${impl}-${setimpl}-node-insert-2.1 {node insert, duplicate nodes} {
+    SETUP
+    catch {mygraph node insert node0 node0} msg
+    mygraph destroy
+    set msg
+} [ExistingNode $MY node0]
+
 # -------------------------------------------------------------------------
 # Ok arguments. None, single, multiple, defaults
 

@@ -544,6 +544,29 @@ equal.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::test-Levene] [arg groups]]
+Compute the Levene statistic to determine if groups of data have the
+same variance (are homoscadastic) or not. The data are organised
+in groups. This version uses the mean of the data as the measure
+to determine the deviations. The statistic is equivalent to an
+F statistic with degrees of freedom k-1 and N-k, k being the
+number of groups and N the total number of data.
+
+[list_begin arguments]
+[arg_def list groups] - List of groups of data
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::test-Brown-Forsythe] [arg groups]]
+Compute the Brown-Forsythe statistic to determine if groups of data have the
+same variance (are homoscadastic) or not. Like the Levene test, but this
+version uses the median of the data.
+
+[list_begin arguments]
+[arg_def list groups] - List of groups of data
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::group-rank] [arg args]]
 Rank the groups of data with respect to the complete set.
 Returns a list consisting of the group ID, the value and the rank
@@ -557,7 +580,7 @@ Returns a list consisting of the group ID, the value and the rank
 [call [cmd ::math::statistics::test-Wilcoxon] [arg sample_a] [arg sample_b]]
 Compute the Wilcoxon test statistic to determine if two samples have the
 same median or not. (The statistic can be regarded as standard normal, if the
-sample sizes are both larger than 10. Returns the value of this statistic.
+sample sizes are both larger than 10.) Returns the value of this statistic.
 
 [list_begin arguments]
 [arg_def list sample_a] - List of data comprising the first sample
@@ -1033,6 +1056,42 @@ has no finite higher-order moments.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::pdf-laplace] [arg location] [arg scale] [arg value]]
+Return the probability of a given value for a Laplace
+distribution with given location and shape parameters. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter (mean)
+[arg_def float scale] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-kumaraswamy] [arg a] [arg b] [arg value]]
+Return the probability of a given value for a Kumaraswamy
+distribution with given parameters a and b. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function.
+
+[list_begin arguments]
+[arg_def float a] - Parameter a
+[arg_def float b] - Parameter b
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-negative-binomial] [arg r] [arg p] [arg value]]
+Return the probability of a given value for a negative binomial
+distribution with an allowed number of failures and the probability of success.
+
+[list_begin arguments]
+[arg_def int r] - Allowed number of failures (at least 1)
+[arg_def float p] - Probability of success
+[arg_def int value] - Number of successes for which the probability is to be returned
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::cdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
@@ -1194,6 +1253,42 @@ distribution with nf1 and nf2 degrees of freedom.
 [arg_def float nf1] - Degrees of freedom for the numerator
 [arg_def float nf2] - Degrees of freedom for the denominator
 [arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-laplace] [arg location] [arg scale] [arg value]]
+Return the cumulative probability of a given value for a Laplace
+distribution with given location and shape parameters. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter (mean)
+[arg_def float scale] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-kumaraswamy] [arg a] [arg b] [arg value]]
+Return the cumulative probability of a given value for a Kumaraswamy
+distribution with given parameters a and b. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function.
+
+[list_begin arguments]
+[arg_def float a] - Parameter a
+[arg_def float b] - Parameter b
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-negative-binomial] [arg r] [arg p] [arg value]]
+Return the cumulative probability of a given value for a negative binomial
+distribution with an allowed number of failures and the probability of success.
+
+[list_begin arguments]
+[arg_def int r] - Allowed number of failures (at least 1)
+[arg_def float p] - Probability of success
+[arg_def int value] - Greatest number of successes
 [list_end]
 [para]
 
@@ -1365,6 +1460,41 @@ a Cauchy distribution with given location and scale parameters.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::random-laplace] [arg location] [arg scale] [arg number]]
+Return a list of "number" random values satisfying a Laplace
+distribution with given location and shape parameters. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter (mean)
+[arg_def float scale] - Shape parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-kumaraswamy] [arg a] [arg b] [arg number]]
+Return a list of "number" random values satisying a Kumaraswamy
+distribution with given parameters a and b. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function.
+
+[list_begin arguments]
+[arg_def float a] - Parameter a
+[arg_def float b] - Parameter b
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-negative-binomial] [arg r] [arg p] [arg number]]
+Return a list of "number" random values satisying a negative binomial distribution.
+
+[list_begin arguments]
+[arg_def int r] - Allowed number of failures (at least 1)
+[arg_def float p] - Probability of success
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::histogram-uniform] [arg xmin] [arg xmax] [arg limits] [arg number]]
 Return the expected histogram for a uniform distribution.
 
@@ -1418,6 +1548,25 @@ Returns an estimate of the one parameter and of the standard error.
 
 [list_begin arguments]
 [arg_def list values] - List of values, assumed to be distributed according to an exponential distribution
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::estimate-laplace] [arg values]]
+Estimate the parameters for the Laplace distribution that comes closest to the given values.
+Returns an estimate of respectively the location and scale parameters, based on maximum likelihood.
+
+[list_begin arguments]
+[arg_def list values] - List of values, assumed to be distributed according to an exponential distribution
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::estimante-negative-binomial] [arg r] [arg values]]
+Estimate the probability of success for the negative binomial distribution that comes closest to the given values.
+The allowed number of failures must be given.
+
+[list_begin arguments]
+[arg_def int r] - Allowed number of failures (at least 1)
+[arg_def int number] - List of values, assumed to be distributed according to a negative binomial distribution.
 [list_end]
 [para]
 

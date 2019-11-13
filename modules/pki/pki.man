@@ -102,15 +102,27 @@ Decrypt a message using PKI (probably RSA). See [cmd ::pki::encrypt] for option 
 
 [call [cmd ::pki::sign] [arg input] [arg key] [opt [arg algo]]]
 
-Digitally sign message [arg input] using the private [arg key].  If [arg algo]
-is ommited "sha1" is assumed.  Possible values for [arg algo] include
-"md5", "sha1", "sha256", and "raw".  Specifyin "raw" for [arg algo] will
-inhibit the building of an ASN.1 structure to encode which hashing
-algorithm was chosen.
+Digitally sign message [arg input] using the private [arg key].
 
-The [arg input] should be the plain text, hashing will be performed on it.
+[para] If [arg algo] is ommited "sha1" is assumed. Possible values for
+[arg algo] include "[const md5]", "[const sha1]", "[const sha256]",
+and "[const raw]".
 
-The [arg key] should include the private key.
+[para] Specifying "[const raw]" for [arg algo] will inhibit the
+building of an ASN.1 structure to encode which hashing algorithm was
+chosen.
+
+[strong Attention]: In this case the corresponding [cmd pkgi::verify]
+must be called [const with] algorithm information.
+
+Conversely, specifying a non-"[const raw]" algorithm here means that
+the corresponding [cmd pkgi::verify] invokation has to be made
+[strong without] algorithm information.
+
+[para] The [arg input] should be the plain text, hashing will be
+performed on it.
+
+[para] The [arg key] should include the private key.
 
 [comment {
 	What is the default for algo?
@@ -122,6 +134,13 @@ The [arg key] should include the private key.
 [call [cmd ::pki::verify] [arg signedmessage] [arg plaintext] [arg key] [opt [arg algo]]]
 
 Verify a digital signature using a public [arg key].  Returns true or false.
+
+[para][strong Attention]: The algorithm information [arg algo] has to
+be specified if and only if the [cmd pki::sign] which generated the
+[arg signedmessage] was called with algorithm "[const raw]". This
+inhibited the building of the ASN.1 structure encoding the chosen
+hashing algorithm. Conversely, if a proper algorithm was specified
+during signing then you [strong {must not}] specify an algorithm here.
 
 [comment {
 	What is the default for algo?

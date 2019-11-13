@@ -232,8 +232,9 @@ The management and use of branches is an important part of working with a
 *Distributed Version Control System* \(*DVCS*\) like
 [fossil](https://www\.fossil\-scm\.org/)\.
 
-For Tcllib the main branch of the collection is *trunk*\. In *git* this
-branch would be called *master*, and this is exactly the case in the [github
+For Tcllib the main branch of the collection is *trunk*\. In
+*[git](\.\./\.\./\.\./index\.md\#git)* this branch would be called *master*, and
+this is exactly the case in the [github
 mirror](https://github\.com/tcltk/tcllib/) of Tcllib\.
 
 To properly support debugging *each commit* on this branch *has to pass the
@@ -241,8 +242,9 @@ entire testsuite* of the collection\. Using bisection to determine when an issue
 appeared is an example of an action made easier by this constraint\.
 
 This is part of our collective responsibility for the usability of Tcllib in
-toto to the outside world\. As *fossil* has no mechanism to enforce this
-condition this is handled on the honor system for developers and maintainers\.
+toto to the outside world\. As *[fossil](\.\./\.\./\.\./index\.md\#fossil)* has no
+mechanism to enforce this condition this is handled on the honor system for
+developers and maintainers\.
 
 To make the task easier Tcllib comes with a tool \("sak\.tcl"\) providing a number
 of commands in support\. These commands are explained in the following sections
@@ -380,8 +382,9 @@ which will come up with branches, and their associated fossil command
     the work before the first actual commit on the branch\.
 
     The other way of creating the branch is to start developing, and then on the
-    first commit use the option __\-\-branch__ to tell __fossil__ that we
-    are starting a branch now\. I\.e\. run
+    first commit use the option __\-\-branch__ to tell
+    __[fossil](\.\./\.\./\.\./index\.md\#fossil)__ that we are starting a branch
+    now\. I\.e\. run
 
         fossil commit --branch NAME_OF_NEW_BRANCH ...
 
@@ -482,9 +485,9 @@ which will come up with branches, and their associated fossil command
 
         fossil merge trunk
 
-    Even if __fossil__ does not report any conflicts it is a good idea to
-    check that the operation has not broken the new and/or changed functionality
-    we are working on\.
+    Even if __[fossil](\.\./\.\./\.\./index\.md\#fossil)__ does not report any
+    conflicts it is a good idea to check that the operation has not broken the
+    new and/or changed functionality we are working on\.
 
     With the establishment of a good merge we then save the state with
 
@@ -641,7 +644,7 @@ developer are:
 
     The log of changes to the global support, when the sources were held in
     *[CVS](\.\./\.\./\.\./index\.md\#cvs)*\. Not relevant any longer with the
-    switch to the *fossil* SCM\.
+    switch to the *[fossil](\.\./\.\./\.\./index\.md\#fossil)* SCM\.
 
   - "license\.terms"
 
