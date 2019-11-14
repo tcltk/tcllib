@@ -24,8 +24,8 @@ proc ::debug::heartbeat {{delta 500}} {
 	# stop a previous heartbeat before starting the next
 	catch { after cancel $timer }
 	on heartbeat
-	every $duration {
-	    debug.heartbeat {[debug::pulse]}
+	::debug::every $duration {
+	    debug.heartbeat {[::debug::pulse]}
 	}
     } else {
 	catch { after cancel $timer }
@@ -64,5 +64,5 @@ namespace eval ::debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug::heartbeat 1
+package provide debug::heartbeat 1.0.1
 return
