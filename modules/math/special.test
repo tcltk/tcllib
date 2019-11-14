@@ -61,8 +61,24 @@ proc matchFresnel {expected actual} {
     return $match
 }
 
-customMatch numbers         matchNumbers
-customMatch numbers-fresnel matchFresnel
+#
+# Expect an accuracy of eight decimals (incomplete Beta and digamma)
+#
+proc matchAccurate {expected actual} {
+    set match 1
+    foreach a $actual e $expected {
+        if {abs($a-$e) > 1.0e-8} {
+            set match 0
+            break
+        }
+    }
+    return $match
+}
+
+
+customMatch numbers          matchNumbers
+customMatch numbers-fresnel  matchFresnel
+customMatch numbers-accurate matchAccurate
 
 test "Erf-1.0" "Values of the error function" \
     -match numbers -body {
@@ -103,6 +119,7 @@ test "Fresnel-1.0" "Values of the Fresnel C intergral" \
 } -result {0.0  0.09999 0.19992 0.49234 0.77989 0.44526
            0.48825 0.60572 0.49842 0.56363}
 
+
 test "Fresnel-1.1" "Values of the Fresnel S intergral" \
    -match numbers-fresnel -body {
    set result {}
@@ -112,6 +129,7 @@ test "Fresnel-1.1" "Values of the Fresnel S intergral" \
    set result
 } -result {0.0  0.00052 0.00419 0.06473 0.43826 0.69750
            0.34342 0.49631 0.42052 0.49919}
+
 
 test "invnorm-1.0" "Values of the inverse normal distribution" \
    -match numbers -body {
@@ -123,10 +141,70 @@ test "invnorm-1.0" "Values of the inverse normal distribution" \
 } -result {-3.090232304709404 -2.326347874388028 -1.2815515641401563 -0.8416212327266185 -0.5244005132792953 -0.2533471028599986
            0.0 0.2533471028599986 0.5244005132792952 0.8416212327266186 1.2815515641401563 2.326347874388028 3.090232304709404}
 
+
 test "sinc-1.0" "Values of the sinc function" \
    -match numbers -body {
    set result [::math::special::sinc 0.0]
 } -result 1.0
+
+
+test "digamma-1.0" "Values of the digamma function"  \
+   -match numbers-accurate -body {
+   set result {}
+   foreach x {-2.5 -1.5 -0.5 0.1 0.25 0.5 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 15.0 20 30.0} {
+      lappend result [::math::special::digamma $x]
+   }
+   set result
+} -result {1.103156640645243187226 0.7031566406452431872257 0.03648997397857652055902 -10.42375494041107679517 -4.22745353337626540809 -1.963510026021423479441
+           -0.5772156649015328606065 0.4227843351 0.9227843351 1.256117668 1.506117668431800472727 1.706117668431800472727 1.872784335098467139394
+           2.015641477955609996536 2.140641477955609996536 2.251752589066721107647 2.351752589066721107647 2.67434666166079370172 2.970523992242149050877
+           3.384438132685524876562}
+
+
+test "incBeta-1.0" "Values of the incomplete Beta function (a,b = 0.5,3)"  \
+   -match numbers-accurate -body {
+   set result {}
+   set a 0.5
+   set b 3.0
+   foreach x {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+      lappend result [::math::special::incBeta $a $b $x]
+   }
+   set result
+} -result {0 0.591556741 0.782325650 0.896074104 0.968078601 1.01351972 1.04105792 1.05642273 1.06377207 1.06632003 1.06666667}
+
+test "incBeta-1.1" "Values of the incomplete Beta function (a,b = 2.0,1.3)"  \
+   -match numbers-accurate -body {
+   set result {}
+   set a 2.0
+   set b 1.3
+   foreach x {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+      lappend result [::math::special::incBeta $a $b $x]
+   }
+   set result
+} -result {0 0.00489724885 0.0191537005 0.0420524051 0.0727690680 0.110331697 0.153553061 0.200905566 0.250250898 0.298074371 0.334448161}
+
+test "incBeta-2.0" "Values of the regularized incomplete Beta function (a,b = 0.5,3)"  \
+   -match numbers-accurate -body {
+   set result {}
+   set a 0.5
+   set b 3.0
+   foreach x {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+      lappend result [::math::special::regIncBeta $a $b $x]
+   }
+   set result
+} -result {0 0.554584445 0.733430297 0.840069473 0.907573688 0.950174737 0.975991803 0.990396306 0.997286318 0.999675025 1}
+
+test "incBeta-2.1" "Values of the regularized incomplete Beta function (a,b = 2.0,1.3)"  \
+   -match numbers-accurate -body {
+   set result {}
+   set a 2.0
+   set b 1.3
+   foreach x {0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+      lappend result [::math::special::regIncBeta $a $b $x]
+   }
+   set result
+} -result {0 0.0146427741 0.0572695646 0.125736691 0.217579513 0.329891773 0.459123651 0.600707642 0.748250184 0.891242370 1}
+
 
 # End of test cases
 testsuiteCleanup
