@@ -22,6 +22,7 @@ namespace eval ::math::special {
     #
     ::math::constants::constants pi
     variable halfpi [expr {$pi/2.0}]
+    variable tiny 1.0e-30
 
     #
     # Functions defined in other math submodules
@@ -291,6 +292,136 @@ proc ::math::special::invnorm {p} {
     return $x
 }
 
+
+# incBeta --
+#     Incomplete Beta funtion (not regularized)
+#
+# Arguments:
+#     a, b        Parameters a and b (both > 0)
+#     x           Value of the x argument (between 0 and 1)
+#
+# Notes:
+#     Implementation taken from http://codeplea.com/incomplete-beta-function-in-c
+#     Accuracy: at least 1.0e-8
+#     Test values: https://keisan.casio.com/exec/system/1180573396
+#
+proc ::math::special::incBeta {a b x} {
+    variable tiny
+
+    if { $x < 0.0 || $x > 1.0 } {
+        return -code error "Incomplete Beta function: x out of bounds (must be between 0 and 1)"
+    }
+    if { $a <= 0.0 || $b <= 0.0 } {
+        return -code error "Incomplete Beta function: parameter a or b out of bounds (both must be > 0)"
+    }
+
+    #
+    # Make sure the continued fraction converges fast
+    #
+    if { $x > ($a+1.0) / ($a+$b+2.0) } {
+        set beta1      [Beta $a $b]
+        set complement [incBeta $b $a [expr {1.-$x}]]
+        return [expr {$beta1 - $complement}]
+    }
+
+    set f 1.0
+    set c 1.0
+    set d 0.0
+
+    for { set i 0 } { $i <= 200 } { incr i } {
+
+        set m [expr {$i/2}]
+
+        #
+        # Coefficients of the continued fraction
+        #
+        if { $i == 0 } {
+            set numerator 1.0
+        } elseif { $i % 2 == 0 } {
+            set numerator [expr {$m * ($b-$m) * $x / ( ($a+2.0*$m-1.0) * ($a+2.0*$m) )}]
+        } else {
+            set numerator [expr {-($a+$m) * ($a+$b+$m) * $x / ( ($a+2.0*$m) * ($a+2.0*$m+1.0) )}]
+        }
+
+        #
+        # Iteration (Lentz's algorithm)
+        #
+        set d [expr {1.0 + $numerator * $d}]
+        if { abs($d) < $tiny } {
+            set d $tiny
+        }
+
+        set d [expr {1.0 / $d}]
+        set c [expr {1.0 + $numerator / $c}]
+
+        if { abs($c) < $tiny } {
+            set c $tiny
+        }
+
+        set cd [expr {$c * $d}]
+
+        set f  [expr {$cd * $f}]
+
+        #
+        # Stopping criterium
+        #
+        if { abs(1.0 - $cd) < 1.0e-8 } {
+            set factor [expr {$x ** $a * (1.0-$x) ** $b / $a}]
+            return [expr {$factor * ($f - 1.0)}]
+        }
+    }
+
+    return -code error "Incomplete Beta function: convergence not reached"
+}
+
+# regIncBeta --
+#     Regularized incomplete Beta funtion
+#
+# Arguments:
+#     a, b        Parameters a and b (both > -1)
+#     x           Value of the x argument (between 0 and 1)
+#
+proc ::math::special::regIncBeta {a b x} {
+
+    set incbeta [incBeta $a $b $x]
+    set factor  [Beta $a $b]
+
+    return [expr {$incbeta / $factor}]
+}
+
+
+# digamma --
+#     Evaluate the digamma function - approximate via a power series
+#
+# Arguments
+#     x                   Argument of the function
+#
+# Result:
+#     Value of digamma function at x
+#
+# Notes;
+#     Test values: https://keisan.casio.com/exec/system/1180573446
+#     Formula taken from: https://math.stackexchange.com/questions/1441753/approximating-the-digamma-function
+#
+proc ::math::special::digamma {x} {
+    if { $x >= 10.0 } {
+        set x [expr {$x - 1.0}]
+        return [expr {log($x) + 1.0 / (2.0 * $x) - 1.0 / (12.0 * $x**2) + 1.0 / (120.0 * $x**4) - 1.0 / (252.0 * $x**6)
+                              + 1.0 / (240.0 * $x**8) - 5.0 / (660.0 * $x**10) + 691.0 / (32760.0 * $x**12) - 1.0 / (12.0 * $x**14)}]
+    } else {
+        set n [expr {int(11.0 - $x)}]
+        set correction 0.0
+        for {set i 0} {$i < $n} {incr i} {
+            set correction [expr {$correction + 1.0 / ($x + $i)}]
+        }
+
+        set newx [expr {$x + $n}]
+
+        return [expr {[digamma $newx] - $correction}]
+    }
+}
+
+
 # Bessel functions and elliptic integrals --
 #
 source [file join [file dirname [info script]] "bessel.tcl"]
@@ -298,4 +429,4 @@ source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 source [file join [file dirname [info script]] "exponential.tcl"]
 
-package provide math::special 0.3.0
+package provide math::special 0.4.0

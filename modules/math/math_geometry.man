@@ -171,6 +171,33 @@ Calculate the angle from the positive x-axis to a given line
 [arg_def list line] Coordinates of the line
 [list_end]
 
+[call [cmd ::math::geometry::angleBetween] [arg vector1] [arg vector2]]
+
+Calculate the angle between two vectors (in degrees)
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
+[call [cmd ::math::geometry::inproduct] [arg vector1] [arg vector2]]
+
+Calculate the inner product of two vectors
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
+[call [cmd ::math::geometry::areaParallellogram] [arg vector1] [arg vector2]]
+
+Calculate the area of the parallellogram with the two vectors as its sides
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
 [para]
 
 [call [cmd ::math::geometry::calculateDistanceToLine] [arg P] [arg line]]
@@ -468,7 +495,7 @@ Translate a polyline over a given vector
 
 [list_begin arguments]
 [arg_def list vector]   Translation vector
-[arg_def list polyline] The polyline to be rotated
+[arg_def list polyline] The polyline to be translated
 [list_end]
 
 [para]
@@ -479,7 +506,7 @@ Rotate a polyline over a given angle (degrees) around the origin
 
 [list_begin arguments]
 [arg_def list angle]    Angle over which to rotate the polyline (degrees)
-[arg_def list polyline] The polyline to be translated
+[arg_def list polyline] The polyline to be rotated
 [list_end]
 
 [para]
