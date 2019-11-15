@@ -4,7 +4,7 @@ Overview
 ||||||
 |---|---|---|---|---|
 |8|new packages|in|7|modules|
-|40|changed packages|in|25|modules|
+|42|changed packages|in|25|modules|
 |389|unchanged packages|in|115|modules|
 |446|packages, total|in|131|modules, total|
 
@@ -98,9 +98,11 @@ Changes from Tcllib 1.19 to 1.20
 ||logger::utils|1.3|1.3.1|B, D, T|
 ||||||
 |math|math::calculus|0.8.2|0.8.2|D|
-||math::geometry|1.2.3|1.3.0|EF, D, T|
+||math::interpolate|1.1.1|1.1.2|B|
+||math::special __(1)__|0.3|0.4|EF, D, T|
+||math::geometry|1.2.3|1.3.1|EF, D, T|
 ||math::numtheory|1.1|1.1.1|EF, D, T|
-||math::statistics __(1)__|1.1.1|1.3.1|EF, D, T|
+||math::statistics __(1)__|1.1.1|1.5|EF, D, T|
 ||||||
 |mime|mime|1.6|1.6.2|B, D, T|
 ||smtp|1.4.5|1.5|EF, D, T|
@@ -182,10 +184,10 @@ Unchanged
     map::slippy::cache, map::slippy::fetcher, mapproj, Markdown,
     math, math::bigfloat, math::bignum, math::calculus::symdiff,
     math::complexnumbers, math::constants, math::decimal,
-    math::exact, math::fourier, math::fuzzy, math::interpolate,
+    math::exact, math::fourier, math::fuzzy,
     math::linearalgebra, math::machineparameters, math::optimize,
     math::PCA, math::polynomials, math::rationalfunctions,
-    math::roman, math::special, md4, md5, md5crypt, multiplexer,
+    math::roman, md4, md5, md5crypt, multiplexer,
     nameserv, nameserv::auto, nameserv::common, nameserv::server,
     nettool, nmea, nntp, odie::processman, oo::dialect, oo::meta,
     oo::option, oo::util, otp, page::analysis::peg::emodes,
