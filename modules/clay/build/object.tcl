@@ -14,6 +14,10 @@
   #   argspec {}
   #   description {Return the class this object belongs to, all classes mixed into this object, and all ancestors of those classes in search order.}
   # }
+  # cache {
+  #   argspec {path {mandatory 1 positional 1} value {mandatory 1 positional 1}}
+  #   description {Store VALUE in such a way that request in SEARCH for PATH will always return it until the cache is flushed}
+  # }
   # cget {
   #   argspec {field {mandatory 1 positional 1}}
   #   description {
@@ -70,6 +74,10 @@
   # }
   # provenance {argspec {path {mandatory 1 positional 1 repeating 1}} description {Return either [const self] if that path exists in the current object, or return the first class (if any) along the clay search path which contains that element.}}
   # replace {argspec {dictionary {mandatory 1 positional 1}} description {Replace the contents of the internal clay storage with the dictionary given.}}
+  # search {
+  #   argspec {path {mandatory 1 positional 1} valuevar {mandatory 1 positional 1} isleafvar {mandatory 1 positional 1}}
+  #   description {Return true, and set valuevar to the value and isleafar to true for false if PATH was found in the cache.}
+  #}
   # source {argspec {filename {mandatory 1 positional 1}} description {Source the given filename within the object's namespace}}
   # set {argspec {path {mandatory 1 positional 1 repeating 1} value {mandatory 1 postional 1}} description {Merge the conents of [const value] with the object's clay storage at [const path].}}
   ###
@@ -99,6 +107,22 @@
         if {![dict exists $clay {*}$path .]} {
           dict set clay {*}$path . {}
         }
+      }
+      busy {
+        my variable clay_busy
+        if {[llength $args]} {
+          set clay_busy [string is true [lindex $args 0]]
+          set claycache {}
+        }
+        if {![info exists clay_busy]} {
+          set clay_busy 0
+        }
+        return $clay_busy
+      }
+      cache {
+        set path [lindex $args 0]
+        set value [lindex $args 1]
+        dict set claycache $path $value
       }
       cget {
         # Leaf searches return one data field at a time
@@ -183,15 +207,33 @@
         return $result
       }
       ensemble_map {
-        set ensemble [lindex $args 0]
-        my variable claycache
-        set mensemble [string trim $ensemble :/]
-        if {[dict exists $claycache method_ensemble $mensemble]} {
-          return [clay::tree::sanitize [dict get $claycache method_ensemble $mensemble]]
+        set path [::clay::tree::storage method_ensemble]
+        if {[dict exists $claycache {*}$path]} {
+          return [dict get $claycache {*}$path]
         }
-        set emap [my clay dget method_ensemble $mensemble]
-        dict set claycache method_ensemble $mensemble $emap
-        return [clay::tree::sanitize $emap]
+        set emap {}
+        foreach class $clayorder {
+          if {![$class clay exists {*}$path .]} continue
+          dict for {ensemble einfo} [$class clay dget {*}$path] {
+            if {$ensemble eq "."} continue
+            dict for {method body} $einfo {
+              if {$method eq "."} continue
+              dict set emap $ensemble $method class: $class
+              dict set emap $ensemble $method body: $body
+            }
+          }
+        }
+        if {[dict exists $clay {*}$path]} {
+          dict for {ensemble einfo} [dict get $clay {*}$path] {
+            dict for {method body} $einfo {
+              if {$method eq "."} continue
+              dict set emap $ensemble $method class: $class
+              dict set emap $ensemble $method body: $body
+            }
+          }
+        }
+        dict set claycache {*}$path $emap
+        return $emap
       }
       eval {
         set script [lindex $args 0]
@@ -263,17 +305,15 @@
           ::clay::tree::dictmerge result $clay
           return $result
         }
-        # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [dict get $claycache {*}$path]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
-        }
         if {[dict exists $clay {*}$path] && ![dict exists $clay {*}$path .]} {
           # Path is a leaf
           return [dict get $clay {*}$path]
         }
+        # Search in our local cache
+        if {[my clay search $path value isleaf]} {
+          return $value
+        }
+
         set found 0
         set branch [dict exists $clay {*}$path .]
         foreach class $clayorder {
@@ -283,7 +323,7 @@
           }
           if {!$branch && [$class clay exists {*}$path]} {
             set result [$class clay dget {*}$path]
-            dict set claycache {*}$path $result
+            my clay cache $path $result
             return $result
           }
         }
@@ -296,7 +336,7 @@
         #if {[dict exists $clay {*}$path .]} {
         #  ::clay::tree::dictmerge result
         #}
-        dict set claycache {*}$path $result
+        my clay cache $path $result
         return $result
       }
       getnull -
@@ -312,16 +352,17 @@
           ::clay::tree::dictmerge result $clay
           return [::clay::tree::sanitize $result]
         }
-        # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [::clay::tree::sanitize [dict get $claycache {*}$path]]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
-        }
         if {[dict exists $clay {*}$path] && ![dict exists $clay {*}$path .]} {
           # Path is a leaf
           return [dict get $clay {*}$path]
+        }
+        # Search in our local cache
+        if {[my clay search $path value isleaf]} {
+          if {!$isleaf} {
+            return [clay::tree::sanitize $value]
+          } else {
+            return $value
+          }
         }
         set found 0
         set branch [dict exists $clay {*}$path .]
@@ -332,7 +373,7 @@
           }
           if {!$branch && [$class clay exists {*}$path]} {
             set result [$class clay dget {*}$path]
-            dict set claycache {*}$path $result
+            my clay cache $path $result
             return $result
           }
         }
@@ -349,7 +390,7 @@
         #if {[dict exists $clay {*}$path .]} {
         #  ::clay::tree::dictmerge result [dict get $clay {*}$path]
         #}
-        dict set claycache {*}$path $result
+        my clay cache $path $result
         return [clay::tree::sanitize $result]
       }
       leaf {
@@ -363,17 +404,18 @@
           return [dict get $clay {*}$path]
         }
         # Search in our local cache
-        if {[dict exists $claycache {*}$path .]} {
-          return [clay::tree::sanitize [dict get $claycache {*}$path]]
-        }
-        if {[dict exists $claycache {*}$path]} {
-          return [dict get $claycache {*}$path]
+        if {[my clay search $path value isleaf]} {
+          if {!$isleaf} {
+            return [clay::tree::sanitize $value]
+          } else {
+            return $value
+          }
         }
         # Search in the in our list of classes for an answer
         foreach class $clayorder {
           if {[$class clay exists {*}$path]} {
             set value [$class clay get {*}$path]
-            dict set claycache {*}$path $value
+            my clay cache $path $value
             return $value
           }
         }
@@ -387,6 +429,7 @@
         ###
         # Mix in the class
         ###
+        my clay flush
         set prior  [info object mixins [self]]
         set newmixin {}
         foreach item $args {
@@ -430,7 +473,6 @@
         }
       }
       mixinmap {
-        my variable clay
         if {![dict exists $clay .mixin]} {
           dict set clay .mixin {}
         }
@@ -483,12 +525,21 @@
       replace {
         set clay [lindex $args 0]
       }
+      search {
+        set path [lindex $args 0]
+        upvar 1 [lindex $args 1] value [lindex $args 2] isleaf
+        set isleaf [expr {![dict exists $claycache $path .]}]
+        if {[dict exists $claycache $path]} {
+          set value [dict get $claycache $path]
+          return 1
+        }
+        return 0
+      }
       source {
         source [lindex $args 0]
       }
       set {
         #puts [list [self] clay SET {*}$args]
-        set claycache {}
         ::clay::tree::dictset clay {*}$args
       }
       default {
@@ -501,7 +552,12 @@
   # Instantiate variables. Called on object creation and during clay mixin.
   ###
   method InitializePublic {} {
-    my variable clayorder clay claycache config option_canonical
+    my variable clayorder clay claycache config option_canonical clay_busy
+    if {[info exists clay_busy] && $clay_busy} {
+      # Avoid repeated calls to InitializePublic if we know that someone is
+      # going to invoke it at the end of whatever process is going on
+      return
+    }
     set claycache {}
     set clayorder [::clay::ancestors [info object class [self]] {*}[lreverse [info object mixins [self]]]]
     if {![info exists clay]} {
@@ -567,36 +623,10 @@
         {*}[string map [list %field% [list $field] %value% [list $value] %self% [namespace which my]] $setcmd]
       }
     }
-    my variable clayorder clay claycache
-    if {[info exists clay]} {
-      set emap [dict getnull $clay method_ensemble]
-    } else {
-      set emap {}
-    }
-    foreach class [lreverse $clayorder] {
-      ###
-      # Build a compsite map of all ensembles defined by the object's current
-      # class as well as all of the classes being mixed in
-      ###
-      dict for {mensemble einfo} [$class clay get method_ensemble] {
-        if {$mensemble eq {.}} continue
-        set ensemble [string trim $mensemble :/]
-        if {$::clay::trace>2} {puts [list Defining $ensemble from $class]}
 
-        dict for {method info} $einfo {
-          if {$method eq {.}} continue
-          if {![dict is_dict $info]} {
-            puts [list WARNING: class: $class method: $method not dict: $info]
-            continue
-          }
-          dict set info source $class
-          if {$::clay::trace>2} {puts [list Defining $ensemble -> $method from $class - $info]}
-          dict set emap $ensemble $method $info
-        }
-      }
-    }
-    foreach {ensemble einfo} $emap {
+    foreach {ensemble einfo} [my clay ensemble_map] {
       #if {[dict exists $einfo _body]} continue
+      if {$ensemble eq "."} continue
       set body [::clay::ensemble_methodbody $ensemble $einfo]
       if {$::clay::trace>2} {
         set rawbody $body

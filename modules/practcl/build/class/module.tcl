@@ -147,7 +147,7 @@
     }
     return $obj
   }
-  clay set method_ensemble make target aliases {task add}
+  clay set method_ensemble make target aliases {target add}
 
   # Return a list of handles for object which return true for the
   # do method
