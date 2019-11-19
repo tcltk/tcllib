@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.4
+package provide profiler 0.5
 
 namespace eval ::profiler {}
 
@@ -400,7 +400,8 @@ proc ::profiler::printname {name} {
 
 proc ::profiler::print {{pattern *}} {
     variable callCount
-
+    #parray callCount
+    
     set result ""
     foreach name [lsort [array names callCount $pattern]] {
 	append result [printname $name]
@@ -604,9 +605,7 @@ proc ::profiler::reset {{pattern *}} {
 proc ::profiler::suspend {{pattern *}} {
     variable callCount
     variable enabled
-    variable paused
 
-    set paused 1
     foreach name [array names callCount $pattern] {
         set enabled($name) 0
     }
@@ -628,12 +627,40 @@ proc ::profiler::suspend {{pattern *}} {
 proc ::profiler::resume {{pattern *}} {
     variable callCount
     variable enabled
-    variable paused
 
-    set paused 0
     foreach name [array names callCount $pattern] {
         set enabled($name) 1
     }
 
+    return
+}
+
+# ::profiler::new-disabled --
+#
+#	Start new procedures with profiling disabled
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::profiler::new-disabled {} {
+    variable paused 1
+    return
+}
+
+# ::profiler::new-enabled --
+#
+#	Start new procedures with profiling enabled
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::profiler::new-enabled {} {
+    variable paused 0
     return
 }
