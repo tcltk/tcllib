@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 4.3.3]
+[vset PACKAGE_VERSION 4.3.4]
 [manpage_begin httpd n [vset PACKAGE_VERSION]]
 [keywords WWW]
 [copyright {2018 Sean Woods <yoda@etoyoc.com>}]

@@ -2,7 +2,7 @@
 '\" Generated from file 'clay\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "clay" n 0\&.8 tcllib "Clay Framework"
+.TH "clay" n 0\&.8\&.6 tcllib "Clay Framework"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -304,6 +304,14 @@ proc \fBclay::K\fR \fIa\fR \fIb\fR
 .sp
 proc \fBclay::noop\fR ?\fIargs\fR?
 .sp
+proc \fBclay::cleanup\fR
+.sp
+proc \fBclay::object_create\fR \fIobjname\fR ?\fIclass\fR \fB\fR?
+.sp
+proc \fBclay::object_rename\fR \fIobject\fR \fInewname\fR
+.sp
+proc \fBclay::object_destroy\fR ?\fIargs\fR?
+.sp
 proc \fBclay::path\fR ?\fIargs\fR?
 .sp
 proc \fBclay::putb\fR ?\fImap\fR? \fItext\fR
@@ -392,14 +400,6 @@ proc \fBclay::ensemble_methodbody\fR \fIensemble\fR \fIeinfo\fR
 .sp
 proc \fBclay::define::Ensemble\fR \fIrawmethod\fR ?\fIargs\fR?
 .sp
-proc \fBclay::cleanup\fR
-.sp
-proc \fBclay::object_create\fR \fIobjname\fR ?\fIclass\fR \fB\fR?
-.sp
-proc \fBclay::object_rename\fR \fIobject\fR \fInewname\fR
-.sp
-proc \fBclay::object_destroy\fR ?\fIargs\fR?
-.sp
 proc \fBclay::event::cancel\fR \fIself\fR ?\fItask\fR \fB*\fR?
 .sp
 proc \fBclay::event::generate\fR \fIself\fR \fIevent\fR ?\fIargs\fR?
@@ -417,6 +417,8 @@ proc \fBclay::event::schedule\fR \fIself\fR \fIhandle\fR \fIinterval\fR \fIscrip
 proc \fBclay::event::subscribe\fR \fIself\fR \fIwho\fR \fIevent\fR
 .sp
 proc \fBclay::event::unsubscribe\fR \fIself\fR ?\fIargs\fR?
+.sp
+proc \fBclay::singleton\fR \fIname\fR \fIscript\fR
 .sp
 method \fBclay ancestors\fR
 .sp
@@ -437,6 +439,8 @@ method \fBclay search\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
 method \fBclay set\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR? \fIvalue\fR
 .sp
 method \fBclay ancestors\fR
+.sp
+method \fBclay cache\fR \fIpath\fR \fIvalue\fR
 .sp
 method \fBclay cget\fR \fIfield\fR
 .sp
@@ -469,6 +473,8 @@ method \fBclay mixinmap\fR ?\fIstub\fR? ?\fIclasses\fR?
 method \fBclay provenance\fR \fIpath\fR ?\fBpath\&.\&.\&.\fR?
 .sp
 method \fBclay replace\fR \fIdictionary\fR
+.sp
+method \fBclay search\fR \fIpath\fR \fIvaluevar\fR \fIisleafvar\fR
 .sp
 method \fBclay source\fR \fIfilename\fR
 .sp
@@ -626,6 +632,16 @@ Perform a noop\&. Useful in prototyping for commenting out blocks
 of code without actually having to comment them out\&. It also makes
 a handy default for method delegation if a delegate has not been
 assigned yet\&.
+.TP
+proc \fBclay::cleanup\fR
+Process the queue of objects to be destroyed
+.TP
+proc \fBclay::object_create\fR \fIobjname\fR ?\fIclass\fR \fB\fR?
+.TP
+proc \fBclay::object_rename\fR \fIobject\fR \fInewname\fR
+.TP
+proc \fBclay::object_destroy\fR ?\fIargs\fR?
+Mark an objects for destruction on the next cleanup
 .TP
 proc \fBclay::path\fR ?\fIargs\fR?
 .TP
@@ -831,18 +847,26 @@ Variables registered in the variable property are also initialized
 (if missing) when the object changes class via the \fImorph\fR method\&.
 .TP
 proc \fBclay::ensemble_methodbody\fR \fIensemble\fR \fIeinfo\fR
+Produce the body of an ensemble's public dispatch method
+ensemble is the name of the the ensemble\&.
+einfo is a dictionary of methods for the ensemble, and each value is a script
+to execute on dispatch
+.sp
+Example:
+.CS
+
+ ::clay::ensemble_methodbody foo {
+   bar {tailcall my Foo_bar {*}$args}
+   baz {tailcall my Foo_baz {*}$args}
+   clock {return [clock seconds]}
+   default {puts "You gave me $method"}
+ }
+
+
+
+.CE
 .TP
 proc \fBclay::define::Ensemble\fR \fIrawmethod\fR ?\fIargs\fR?
-.TP
-proc \fBclay::cleanup\fR
-Process the queue of objects to be destroyed
-.TP
-proc \fBclay::object_create\fR \fIobjname\fR ?\fIclass\fR \fB\fR?
-.TP
-proc \fBclay::object_rename\fR \fIobject\fR \fInewname\fR
-.TP
-proc \fBclay::object_destroy\fR ?\fIargs\fR?
-Mark an objects for destruction on the next cleanup
 .TP
 proc \fBclay::event::cancel\fR \fIself\fR ?\fItask\fR \fB*\fR?
 Cancel a scheduled event
@@ -873,6 +897,9 @@ Subscribe an object to an event pattern
 .TP
 proc \fBclay::event::unsubscribe\fR \fIself\fR ?\fIargs\fR?
 Unsubscribe an object from an event pattern
+.TP
+proc \fBclay::singleton\fR \fIname\fR \fIscript\fR
+An object which is intended to be it's own class\&.
 .PP
 .SH CLASSES
 .SS "CLASS  CLAY::CLASS"
@@ -923,6 +950,9 @@ This class is inherited by all classes that have options\&.
 .TP
 method \fBclay ancestors\fR
 Return the class this object belongs to, all classes mixed into this object, and all ancestors of those classes in search order\&.
+.TP
+method \fBclay cache\fR \fIpath\fR \fIvalue\fR
+Store VALUE in such a way that request in SEARCH for PATH will always return it until the cache is flushed
 .TP
 method \fBclay cget\fR \fIfield\fR
 Pull a value from either the object's clay structure or one of its constituent classes that matches the field name\&.
@@ -998,6 +1028,9 @@ Return either \fBself\fR if that path exists in the current object, or return th
 .TP
 method \fBclay replace\fR \fIdictionary\fR
 Replace the contents of the internal clay storage with the dictionary given\&.
+.TP
+method \fBclay search\fR \fIpath\fR \fIvaluevar\fR \fIisleafvar\fR
+Return true, and set valuevar to the value and isleafar to true for false if PATH was found in the cache\&.
 .TP
 method \fBclay source\fR \fIfilename\fR
 Source the given filename within the object's namespace
