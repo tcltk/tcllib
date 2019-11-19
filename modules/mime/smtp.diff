@@ -1,0 +1,28 @@
+--- smtp.oryg	2019-10-05 09:49:58.531814500 +0200
++++ smtp.tcl	2019-10-05 09:50:06.466983000 +0200
+@@ -650,6 +650,7 @@
+             if { $options(-tlsimport) } {
+                 package require tls
+                 tls::import $state(sd)
++		catch {::tls::handshake $state(sd)} msg
+             }
+             fconfigure $state(sd) -blocking off -translation binary
+             fileevent $state(sd) readable [list ::smtp::readable $token]
+@@ -1387,6 +1388,8 @@
+ 
+             set response(diagnostic) \
+                 [string trim [string range $state(line) 4 end]]
++	    lappend response(args) \
++		    [string trim [string range $state(line) 4 end]]
+         } else {
+             lappend response(args) \
+                     [string trim [string range $state(line) 4 end]]
+@@ -1510,7 +1513,7 @@
+ 
+ # -------------------------------------------------------------------------
+ 
+-package provide smtp 1.5
++package provide smtp 1.6
+ 
+ # -------------------------------------------------------------------------
+ # Local variables:

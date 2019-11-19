@@ -1,0 +1,61 @@
+Trying alt1.gmail-smtp-in.l.google.com...
+<-- 220 mx.google.com ESMTP b7si20726619ioj.111 - gsmtp
+--> EHLO ten (wait upto 300 seconds)
+<-- 250-mx.google.com at your service, [204.209.177.50]
+<-- 250-SIZE 157286400
+<-- 250-8BITMIME
+<-- 250-STARTTLS
+<-- 250-ENHANCEDSTATUSCODES
+<-- 250-PIPELINING
+<-- 250-CHUNKING
+<-- 250 SMTPUTF8
+--> STARTTLS (wait upto 300 seconds)
+<-- 220 2.0.0 Ready to start TLS
+--> EHLO ten (wait upto 300 seconds)
+<-- 250-mx.google.com at your service, [204.209.177.50]
+<-- 250-SIZE 157286400
+<-- 250-8BITMIME
+<-- 250-ENHANCEDSTATUSCODES
+<-- 250-PIPELINING
+<-- 250-CHUNKING
+<-- 250 SMTPUTF8
+--> MAIL FROM:<test@tcl.tk> SIZE=241 (wait upto 600 seconds)
+<-- 250 2.1.0 OK b7si20726619ioj.111 - gsmtp
+--> RCPT TO:<test@tcl.tk> (wait upto 3600 seconds)
+<-- 550-5.1.1 The email account that you tried to reach does not exist. Please try
+<-- 550-5.1.1 double-checking the recipient's email address for typos or
+<-- 550-5.1.1 unnecessary spaces. Learn more at
+<-- 550 5.1.1  https://support.google.com/mail/?p=NoSuchUser b7si20726619ioj.111 - gsmtp
+--> RSET (wait upto 300 seconds)
+<-- 250 2.1.5 Flushed b7si20726619ioj.111 - gsmtp
+--> QUIT (wait upto 120 seconds)
+<-- 221 2.0.0 closing connection b7si20726619ioj.111 - gsmtp
+Trying smtp.gmail.com...
+<-- 220 smtp.gmail.com ESMTP r28sm27295520pfl.37 - gsmtp
+--> EHLO ten (wait upto 300 seconds)
+<-- 250-smtp.gmail.com at your service, [204.209.177.50]
+<-- 250-SIZE 35882577
+<-- 250-8BITMIME
+<-- 250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+<-- 250-ENHANCEDSTATUSCODES
+<-- 250-PIPELINING
+<-- 250-CHUNKING
+<-- 250 SMTPUTF8
+--> MAIL FROM:<test@tcl.tk> SIZE=241 (wait upto 600 seconds)
+<-- 530-5.5.1 Authentication Required. Learn more at
+<-- 530 5.5.1  https://support.google.com/mail/?p=WantAuthError r28sm27295520pfl.37 - gsmtp
+--> RSET (wait upto 0 seconds)
+--> QUIT (wait upto 0 seconds)
+key message-id not in header
+    while executing
+"error "key $mixed not in header""
+    (procedure "::mime::getheader" line 24)
+    invoked from within
+"::mime::getheader $part ${message-idL} "
+    invoked from within
+"smtp::sendmessage $token -usetls 0 -tlsimport 1 -originator test@tcl.tk -recipients $recipient -servers $email_server -ports 465 -debug 1"
+    (procedure "send_ssl_smtp" line 4)
+    invoked from within
+"send_ssl_smtp test@tcl.tk smtp.gmail.com \
+     "This is the subject." "This is the message.""
+    (file "modules/mime/test.tcl" line 27)
