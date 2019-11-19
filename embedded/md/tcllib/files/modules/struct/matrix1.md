@@ -1,8 +1,8 @@
 
 [//000000001]: # (struct::matrix\_v1 \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'matrix1\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2002 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::matrix\_v1\(n\) 1\.2\.1 tcllib "Tcl Data Structures")
+[//000000003]: # (Copyright &copy; 2002,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (struct::matrix\_v1\(n\) 1\.2\.2 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ struct::matrix\_v1 \- Create and manipulate matrix objects
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require struct::matrix ?1\.2\.1?  
+package require struct::matrix ?1\.2\.2?  
 
 [__matrixName__ *option* ?*arg arg \.\.\.*?](#1)  
 [*matrixName* __add column__ ?*values*?](#2)  
@@ -414,4 +414,4 @@ Data structures
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2002 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2002,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
