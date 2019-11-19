@@ -3,7 +3,7 @@
 '\" Copyright (c) 200?, Colin McCormack, Wub Server Utilities
 '\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "debug::heartbeat" n 1 tcllib "debug narrative"
+.TH "debug::heartbeat" n 1\&.0\&.1 tcllib "debug narrative"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ debug::heartbeat \- debug narrative - heartbeat
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBdebug::heartbeat  ?1?\fR
+package require \fBdebug::heartbeat  ?1\&.0\&.1?\fR
 .sp
 package require \fBdebug  ?1?\fR
 .sp

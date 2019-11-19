@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'debug\_heartbeat\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 200?, Colin McCormack, Wub Server Utilities)
 [//000000004]: # (Copyright &copy; 2012, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000005]: # (debug::heartbeat\(n\) 1 tcllib "debug narrative")
+[//000000005]: # (debug::heartbeat\(n\) 1\.0\.1 tcllib "debug narrative")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -37,7 +37,7 @@ debug::heartbeat \- debug narrative \- heartbeat
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require debug::heartbeat ?1?  
+package require debug::heartbeat ?1\.0\.1?  
 package require debug ?1?  
 
 [__[debug](debug\.md)__ __heartbeat__ ?*delta*?](#1)  

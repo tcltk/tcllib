@@ -309,6 +309,12 @@ package require \fBmath::geometry  ?1\&.3\&.0?\fR
 .sp
 \fB::math::geometry::angle\fR \fIline\fR
 .sp
+\fB::math::geometry::angleBetween\fR \fIvector1\fR \fIvector2\fR
+.sp
+\fB::math::geometry::inproduct\fR \fIvector1\fR \fIvector2\fR
+.sp
+\fB::math::geometry::areaParallellogram\fR \fIvector1\fR \fIvector2\fR
+.sp
 \fB::math::geometry::calculateDistanceToLine\fR \fIP\fR \fIline\fR
 .sp
 \fB::math::geometry::calculateDistanceToLineSegment\fR \fIP\fR \fIlinesegment\fR
@@ -512,6 +518,39 @@ Calculate the angle from the positive x-axis to a given line
 .TP
 list \fIline\fR
 Coordinates of the line
+.RE
+.TP
+\fB::math::geometry::angleBetween\fR \fIvector1\fR \fIvector2\fR
+Calculate the angle between two vectors (in degrees)
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
+.RE
+.TP
+\fB::math::geometry::inproduct\fR \fIvector1\fR \fIvector2\fR
+Calculate the inner product of two vectors
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
+.RE
+.TP
+\fB::math::geometry::areaParallellogram\fR \fIvector1\fR \fIvector2\fR
+Calculate the area of the parallellogram with the two vectors as its sides
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
 .RE
 .sp
 .TP
@@ -832,7 +871,7 @@ list \fIvector\fR
 Translation vector
 .TP
 list \fIpolyline\fR
-The polyline to be rotated
+The polyline to be translated
 .RE
 .sp
 .TP
@@ -844,7 +883,7 @@ list \fIangle\fR
 Angle over which to rotate the polyline (degrees)
 .TP
 list \fIpolyline\fR
-The polyline to be translated
+The polyline to be rotated
 .RE
 .sp
 .TP
