@@ -20,9 +20,16 @@ testsNeed        TclOO 1
 
 support {
     # memchan allows proper testing of `format 2chan` method.
-    use virtchannel_core/core.tcl    tcl::chan::core
-    use virtchannel_core/events.tcl  tcl::chan::events
-    use virtchannel_base/memchan.tcl tcl::chan::memchan
+    # Note, somebody may have imported these already.
+    if {![llength [info commands ::tcl::chan::core]]} {
+	use virtchannel_core/core.tcl tcl::chan::core
+    }
+    if {![llength [info commands ::tcl::chan::events]]} {
+	use virtchannel_core/events.tcl  tcl::chan::events
+    }
+    if {![llength [info commands ::tcl::chan::memchan]]} {
+	use virtchannel_base/memchan.tcl tcl::chan::memchan
+    }
 
     useLocalFile matrix.testsupport
 }
@@ -676,12 +683,12 @@ test matrix-5.4 {formatting 2 channel, by report} {
     set result [read $chan]
     close $chan
     set result
-} "# mymatrix 3 x 3
-matrix mymatrix
-mymatrix add rows    3
-mymatrix add columns 3
-mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
-}
+} "# ::mymatrix 3 x 3
+matrix ::mymatrix
+::mymatrix add rows    3
+::mymatrix add columns 3
+::mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}
+"
 
 test matrix-5.5 {formatting, 2 string, no report} {
     matrix mymatrix
@@ -694,11 +701,9 @@ test matrix-5.5 {formatting, 2 string, no report} {
     set result [mymatrix format 2string]
     mymatrix destroy
     set result
-} "# ::mymatrix 3 x 3
-matrix ::mymatrix
-::mymatrix add rows    3
-::mymatrix add columns 3
-::mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
+} "1 2 5
+3 4 6
+7 8 9"
 
 test matrix-5.6 {formatting 2 channel, no report} {
     matrix mymatrix
@@ -717,12 +722,9 @@ test matrix-5.6 {formatting 2 channel, no report} {
     set result [read $chan]
     close $chan
     set result
-} "# mymatrix 3 x 3
-matrix mymatrix
-mymatrix add rows    3
-mymatrix add columns 3
-mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
-}
+} "1 2 5
+3 4 6
+7 8 9"
 
 test matrix-6.0 {set/get error} {
     matrix mymatrix
