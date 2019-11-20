@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # tool.test - Copyright (c) 2016 Sean Woods, Will DuQuette, Caius Project
 # -------------------------------------------------------------------------
 #-------------------------------------------------------------------------
@@ -32,7 +33,6 @@ testing {
 
 tcltest::testConstraint knownbug 0
 
-
 # outdent text
 #
 # text   - A multi-line text string
@@ -46,7 +46,7 @@ proc outdent {text} {
     # NEXT, remove any trailing whitespace
     set text [string trimright $text]
 
-    # NEXT, get the length of the leading on the first line.
+    # NEXT, get the length of the leader on the first line.
     if {[regexp {\A(\s*)\S} $text dummy leader]} {
 
         # Remove the leader from the beginning of each indented
@@ -228,8 +228,7 @@ test bquote-1.5 {complex case (from Caius test suite)} -body {
     he said. This is what she said.</p>
 
     <pre><code>import os
-    os.path.listdir()
-    </code></pre>
+    os.path.listdir()</code></pre>
 
     <p>This is what he said. This is what she said. This is what
     he said. This is what she said.</p>
@@ -244,8 +243,6 @@ test bquote-1.5 {complex case (from Caius test suite)} -body {
     <p>This is a test.</p>
 }
 
-
-
 test convert-2.2 {refs} -body {
     convert {
         Find it [here][foo]!
@@ -256,6 +253,21 @@ test convert-2.2 {refs} -body {
     <p>Find it <a href="http://example.com/" title="Optional Title Here">here</a>!</p>
 }
 
+test code-block-1.0 {basic code block render} -body {
+    convert {
+	pre code
+
+	    in code
+
+	post code
+    }
+} -result {
+    <p>pre code</p>
+
+    <pre><code>in code</code></pre>
+
+    <p>post code</p>
+}
 
 #=========================================================================
 # Tests related to other processors or test suites
@@ -314,9 +326,9 @@ test caius-1.7 {indent test} -body {
     cmp $html [Markdown::convert $md]
 } -result {1}
 }
+
 #-------------------------------------------------------------------------
 # mdtest: Bugs found while running michelf/mdtest
-
 
 test mdtest-1.1 {AL: Auto links: & not escaped in URL} -body {
     convert {
