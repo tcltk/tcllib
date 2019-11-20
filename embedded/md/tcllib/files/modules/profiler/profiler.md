@@ -1,7 +1,7 @@
 
 [//000000001]: # (profiler \- Tcl Profiler)
 [//000000002]: # (Generated from file 'profiler\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (profiler\(n\) 0\.4 tcllib "Tcl Profiler")
+[//000000003]: # (profiler\(n\) 0\.5 tcllib "Tcl Profiler")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -33,7 +33,7 @@ profiler \- Tcl source code profiler
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.3  
-package require profiler ?0\.4?  
+package require profiler ?0\.5?  
 
 [__::profiler::init__](#1)  
 [__::profiler::dump__ *pattern*](#2)  
@@ -41,7 +41,9 @@ package require profiler ?0\.4?
 [__::profiler::reset__ ?*pattern*?](#4)  
 [__::profiler::suspend__ ?*pattern*?](#5)  
 [__::profiler::resume__ ?*pattern*?](#6)  
-[__::profiler::sortFunctions__ *key*](#7)  
+[__::profiler::new\-disabled__](#7)  
+[__::profiler::new\-enabled__](#8)  
+[__::profiler::sortFunctions__ *key*](#9)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -122,7 +124,21 @@ via the __::profiler::init__ command\.
     specified, profiling will be resumed for all functions\. This command should
     be invoked after suspending the profiler in the code\.
 
-  - <a name='7'></a>__::profiler::sortFunctions__ *key*
+  - <a name='7'></a>__::profiler::new\-disabled__
+
+    Change the initial profiling state for new procedures\. Invoking this command
+    disables profiling for all procedures created after this command until
+    __new\-enabled__ is invoked\. Activate profiling of specific procedures
+    via __resume__\.
+
+  - <a name='8'></a>__::profiler::new\-enabled__
+
+    Change the initial profiling state for new procedures\. Invoking this command
+    enables profiling for all procedures created after this command until
+    __new\-disabled__ is invoked\. Prevent profiling of specific procedures
+    via __suspend__\.
+
+  - <a name='9'></a>__::profiler::sortFunctions__ *key*
 
     Return a list of functions sorted by a particular profiling statistic\.
     Supported values for *key* are: __calls__, __exclusiveTime__,
