@@ -1,8 +1,8 @@
 
 [//000000001]: # (tcl::chan::halfpipe \- Reflected/virtual channel support)
 [//000000002]: # (Generated from file 'halfpipe\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (tcl::chan::halfpipe\(n\) 1 tcllib "Reflected/virtual channel support")
+[//000000003]: # (Copyright &copy; 2009, 2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (tcl::chan::halfpipe\(n\) 1\.0\.1 tcllib "Reflected/virtual channel support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,8 +40,7 @@ tcl::chan::halfpipe \- In\-memory channel, half of a fifo2
 package require Tcl 8\.5  
 package require TclOO  
 package require tcl::chan::events ?1?  
-package require tcl::chan::halfpipe ?1?  
-package require tcl::chan::halfpipe ?1?  
+package require tcl::chan::halfpipe ?1\.0\.1?  
 
 [__::tcl::chan::halfpipe__ ?__\-option__ *value*\.\.\.?](#1)  
 [*objectCmd* __put__ *bytes*](#2)  
@@ -126,4 +125,4 @@ Channels
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2009, 2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
