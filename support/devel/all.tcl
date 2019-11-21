@@ -196,8 +196,11 @@ foreach module $modules {
 	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
 
 	# configure not present in tcltest 1.x
-	if {[catch {::tcltest::configure -verbose bstep}]} {
-	    set ::tcltest::verbose psb
+	if {[catch {::tcltest::configure -verbose {
+	    body skip start error pass usec line
+	}}]} {
+	    # ^ body skip start error pass usec line
+	    set ::tcltest::verbose psb ;# pass skip body
 	}
     }
 
