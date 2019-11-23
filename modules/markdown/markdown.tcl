@@ -253,7 +253,7 @@ namespace eval Markdown {
                     }
                     set code_result [join $code_result \n]
 
-                    append result <pre><code> $code_result \n </code></pre>
+                    append result <pre><code> $code_result </code></pre>
                 }
                 {^(?:(?:`{3,})|(?:~{3,}))\{?(\S+)?\}?\s*$} {
                     # FENCED CODE BLOCKS
@@ -808,5 +808,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.1
-
+package provide Markdown 1.1.1
+return
