@@ -80,7 +80,7 @@ callbacks with an error message about the queue abort, and 0 bytes transfered\.
 
 All transfer requests are of the form
 
-    \{type data options\.\.\.\}
+    {type data options...}
 
 where *type* is in \{__chan__, __string__\}, and *data* specifies the
 information to transfer\. For __chan__ the data is the handle of the channel

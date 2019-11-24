@@ -180,5 +180,5 @@ block. Usage is optional, its default value is [const 1024].
 [include include/secure.inc]
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

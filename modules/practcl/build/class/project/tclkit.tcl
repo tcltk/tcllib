@@ -1,6 +1,7 @@
-
-
-::oo::class create ::practcl::tclkit {
+###
+# A toplevel project that produces a self-contained executable
+###
+::clay::define ::practcl::tclkit {
   superclass ::practcl::library
 
   method build-tclkit_main {PROJECT PKG_OBJS} {
@@ -70,9 +71,13 @@
     } {
       dict set map %${var}% [set $var]
     }
+    set thread_init_script {namespace eval ::starkit {}}
+    append thread_init_script \n [list set ::starkit::topdir $vfsroot]
     set preinitscript {
 set ::odie(boot_vfs) %vfsroot%
 set ::SRCDIR $::odie(boot_vfs)
+namespace eval ::starkit {}
+set ::starkit::topdir %vfsroot%
 if {[file exists [file join %vfsroot% tcl_library init.tcl]]} {
   set ::tcl_library [file join %vfsroot% tcl_library]
   set ::auto_path {}
@@ -185,7 +190,8 @@ foreach path {
       # package is actually loaded into the interpreter
       $PROJECT code header "extern Tcl_PackageInitProc $initfunc\;\n"
       set script [list package ifneeded $statpkg [dict get $info version] [list ::load {} $statpkg]]
-      append main_init_script \n [list set ::kitpkg(${statpkg}) $script]
+      append main_init_script \n [list set ::starkit::static_packages(${statpkg}) $script]
+
       if {[dict get $info autoload]} {
         ::practcl::cputs appinit "  if(${initfunc}(interp)) return TCL_ERROR\;"
         ::practcl::cputs appinit "  Tcl_StaticPackage(interp,\"$statpkg\",$initfunc,NULL)\;"
@@ -195,18 +201,24 @@ foreach path {
       }
     }
     append main_init_script \n {
-if {[file exists [file join $::SRCDIR packages.tcl]]} {
+if {[file exists [file join $::starkit::topdir pkgIndex.tcl]]} {
   #In a wrapped exe, we don't go out to the environment
-  set dir $::SRCDIR
-  source [file join $::SRCDIR packages.tcl]
-}
+  set dir $::starkit::topdir
+  source [file join $::starkit::topdir pkgIndex.tcl]
+}}
+    append thread_init_script $main_init_script
+    append main_init_script \n {
 # Specify a user-specific startup file to invoke if the application
 # is run interactively.  Typically the startup file is "~/.apprc"
 # where "app" is the name of the application.  If this line is deleted
 # then no user-specific startup file will be run under any conditions.
 }
+    append thread_init_script \n [list set ::starkit::thread_init $thread_init_script]
+    append main_init_script \n [list set ::starkit::thread_init $thread_init_script]
     append main_init_script \n [list set tcl_rcFileName [$PROJECT define get tcl_rcFileName ~/.tclshrc]]
-    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $main_init_script]);"
+
+
+    practcl::cputs appinit "  Tcl_Eval(interp,[::practcl::tcl_to_c  $thread_init_script]);"
     practcl::cputs appinit {  return TCL_OK;}
     $PROJECT c_function [string map $map "int %mainfunc%(Tcl_Interp *interp)"] [string map $map $appinit]
   }
@@ -226,7 +238,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     }
     set PROJECT [self]
     set os [$PROJECT define get TEACUP_OS]
-    if {[my define get SHARED_BUILD]} {
+    if {[my define get SHARED_BUILD 0]} {
       puts [list BUILDING TCLSH FOR OS $os]
     } else {
       puts [list BUILDING KIT FOR OS $os]
@@ -249,7 +261,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
     # Arrange to build an main.c that utilizes TCL_LOCAL_APPINIT and TCL_LOCAL_MAIN_HOOK
     if {$os eq "windows"} {
       set PLATFORM_SRC_DIR win
-      if {[my define get SHARED_BUILD]} {
+      if {![my define get SHARED_BUILD 0]} {
         my add class csource filename [file join $TCLSRCDIR win tclWinReg.c] initfunc Registry_Init pkg_name registry pkg_vers 1.3.1 autoload 1
         my add class csource filename [file join $TCLSRCDIR win tclWinDde.c] initfunc Dde_Init pkg_name dde pkg_vers 1.4.0 autoload 1
       }
@@ -259,7 +271,7 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       my add class csource ofile [my define get name]_appinit.o filename [file join $TCLSRCDIR unix tclAppInit.c] extra [list -DTCL_LOCAL_MAIN_HOOK=[my define get TCL_LOCAL_MAIN_HOOK Tclkit_MainHook] -DTCL_LOCAL_APPINIT=[my define get TCL_LOCAL_APPINIT Tclkit_AppInit]]
     }
 
-    if {[my define get SHARED_BUILD]} {
+    if {![my define get SHARED_BUILD 0]} {
       ###
       # Add local static Zlib implementation
       ###
@@ -289,9 +301,14 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
       # The Tclconfig project maintains a mirror of the version
       # released with the Tcl core
       my define set tip_430 0
-      ::practcl::LOCAL tool tclconfig unpack
-      set COMPATSRCROOT [::practcl::LOCAL tool tclconfig define get srcdir]
-      my add class csource ofile tclZipfs.o filename [file join $COMPATSRCROOT compat tclZipfs.c] extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
+      set tclzipfs_c [my define get tclzipfs_c]
+      if {![file exists $tclzipfs_c]} {
+        ::practcl::LOCAL tool tclconfig unpack
+        set COMPATSRCROOT [::practcl::LOCAL tool tclconfig define get srcdir]
+        set tclzipfs_c [file join $COMPATSRCROOT compat tclZipfs.c]
+      }
+      my add class csource ofile tclZipfs.o filename $tclzipfs_c \
+        extra -I[::practcl::file_relative $CWD [file join $TCLSRCDIR compat zlib contrib minizip]]
     }
 
     my define add include_dir [file join $TCLSRCDIR generic]
@@ -322,17 +339,18 @@ if {[file exists [file join $::SRCDIR packages.tcl]]} {
        ::practcl::copyDir $arg $vfspath
     }
 
-    set fout [open [file join $vfspath packages.tcl] w]
+    set fout [open [file join $vfspath pkgIndex.tcl] w]
     puts $fout [string map [list %platform% [my define get TEACUP_PROFILE]] {set ::tcl_teapot_profile {%platform%}}]
     puts $fout {
+namespace eval ::starkit {}
 set ::PKGIDXFILE [info script]
 set dir [file dirname $::PKGIDXFILE]
 if {$::tcl_platform(platform) eq "windows"} {
-  set ::g(HOME) [file join [file normalize $::env(LOCALAPPDATA)] tcl]
+  set ::starkit::localHome [file join [file normalize $::env(LOCALAPPDATA)] tcl]
 } else {
-  set ::g(HOME) [file normalize ~/tcl]
+  set ::starkit::localHome [file normalize ~/tcl]
 }
-set ::tcl_teapot [file join $::g(HOME) teapot $::tcl_teapot_profile]
+set ::tcl_teapot [file join $::starkit::localHome teapot $::tcl_teapot_profile]
 lappend ::auto_path $::tcl_teapot
 }
     puts $fout [list proc installDir [info args ::practcl::installDir] [info body ::practcl::installDir]]
@@ -340,7 +358,7 @@ lappend ::auto_path $::tcl_teapot
     puts $fout $buffer
     puts $fout {
 # Advertise statically linked packages
-foreach {pkg script} [array get ::kitpkg] {
+foreach {pkg script} [array get ::starkit::static_packages] {
   eval $script
 }
 }

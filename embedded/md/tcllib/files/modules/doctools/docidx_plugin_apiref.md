@@ -219,24 +219,24 @@ The management commands a plugin has to provide are used by the frontend to
 After the plugin has been loaded and the frontend commands are established the
 commands will be called in the following sequence:
 
-    idx\_numpasses \-> n
-    idx\_listvariables \-> vars
+    idx_numpasses -> n
+    idx_listvariables -> vars
 
-    idx\_varset var1 value1
-    idx\_varset var2 value2
-    \.\.\.
-    idx\_varset varK valueK
-    idx\_initialize
-    idx\_setup 1
-    \.\.\.
-    idx\_setup 2
-    \.\.\.
-    \.\.\.
-    idx\_setup n
-    \.\.\.
-    idx\_postprocess
-    idx\_shutdown
-    \.\.\.
+    idx_varset var1 value1
+    idx_varset var2 value2
+    ...
+    idx_varset varK valueK
+    idx_initialize
+    idx_setup 1
+    ...
+    idx_setup 2
+    ...
+    ...
+    idx_setup n
+    ...
+    idx_postprocess
+    idx_shutdown
+    ...
 
 I\.e\. first the number of passes and the set of available engine parameters is
 established, followed by calls setting the parameters\. That second part is

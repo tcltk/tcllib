@@ -201,5 +201,5 @@ processing.  Subsequently, different options are checked to see if
 they have been passed to the script, and what their value is.
 
 [vset CATEGORY cmdline]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

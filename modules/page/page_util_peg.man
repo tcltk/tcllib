@@ -104,5 +104,5 @@ See the package [package grammar::peg] for the exact syntax of
 [list_end]
 
 [vset CATEGORY page]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

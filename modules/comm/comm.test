@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
-#
-# RCS: @(#) $Id: comm.test,v 1.14 2010/09/15 19:48:33 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -33,7 +31,7 @@ testing {
 # and have it execute comm too, with some general code to respond to our
 # requests
 
-useLocalFile comm.slaveboot
+source [asset comm.slaveboot]
 
 # ------------------------------------------------------------------------
 

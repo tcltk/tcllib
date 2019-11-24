@@ -73,7 +73,7 @@ The most simple document which can be written in doctools is
 [keywords {semantic markup}]
     [description]
     [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
 }]
 
@@ -136,7 +136,7 @@ Remember that the whitespace is optional. The document
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
     [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
 }]
 
@@ -613,5 +613,5 @@ Tcllib's easy and simple [syscmd dtplite], or Tclapps'
 ultra-configurable [syscmd dtp].
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

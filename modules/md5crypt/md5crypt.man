@@ -81,5 +81,5 @@ $1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
 }]
 
 [vset CATEGORY md5crypt]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

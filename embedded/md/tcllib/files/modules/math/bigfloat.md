@@ -134,16 +134,16 @@ representation in order to :
     floating\-point number to get more precision\. It cannot be applied to an
     integer\.
 
-        \# x and y are BigFloats : the first string contained a dot, and the second an e sign
-        set x \[fromstr \-1\.000000\]
-        set y \[fromstr 2000e30\]
-        \# let's see how we get integers
+        # x and y are BigFloats : the first string contained a dot, and the second an e sign
+        set x [fromstr -1.000000]
+        set y [fromstr 2000e30]
+        # let's see how we get integers
         set t 20000000000000
-        \# the old way \(package 1\.2\) is still supported for backwards compatibility :
-        set m \[fromstr 10000000000\]
-        \# but we do not need fromstr for integers anymore
-        set n \-39
-        \# t, m and n are integers
+        # the old way (package 1.2) is still supported for backwards compatibility :
+        set m [fromstr 10000000000]
+        # but we do not need fromstr for integers anymore
+        set n -39
+        # t, m and n are integers
 
     The *number*'s last digit is considered by the procedure to be true at
     \+/\-1, For example, 1\.00 is the interval \[0\.99, 1\.01\], and 0\.43 the interval
@@ -155,9 +155,9 @@ representation in order to :
 
     For example :
 
-        set x \[fromstr 1\.0000000000\]
-        \# the next line does the same, but smarter
-        set y \[fromstr 1\. 10\]
+        set x [fromstr 1.0000000000]
+        # the next line does the same, but smarter
+        set y [fromstr 1. 10]
 
   - <a name='2'></a>__tostr__ ?__\-nosci__? *number*
 
@@ -168,9 +168,9 @@ representation in order to :
     With the __\-nosci__ option, the number returned is never shown in
     scientific notation, i\.e\. not like '3\.4523e\+5' but like '345230\.'\.
 
-        puts \[tostr \[fromstr 0\.99999\]\] ;\# 1\.0000
-        puts \[tostr \[fromstr 1\.00001\]\] ;\# 1\.0000
-        puts \[tostr \[fromstr 0\.002\]\] ;\# 0\.e\-2
+        puts [tostr [fromstr 0.99999]] ;# 1.0000
+        puts [tostr [fromstr 1.00001]] ;# 1.0000
+        puts [tostr [fromstr 0.002]] ;# 0.e-2
 
     See [PRECISION](#section7) for that matter\. See also __iszero__ for
     how to detect zeros, which is useful when performing a division\.
@@ -182,10 +182,10 @@ representation in order to :
     like __fromstr__\. Here, the only important feature you might care of is
     the ability to create BigFloats with a fixed number of *decimals*\.
 
-        tostr \[fromstr 1\.111 4\]
-        \# returns : 1\.111000 \(3 zeros\)
-        tostr \[fromdouble 1\.111 4\]
-        \# returns : 1\.111
+        tostr [fromstr 1.111 4]
+        # returns : 1.111000 (3 zeros)
+        tostr [fromdouble 1.111 4]
+        # returns : 1.111
 
   - <a name='4'></a>__todouble__ *number*
 
@@ -206,10 +206,10 @@ representation in order to :
     string, one decimal is lost:
 
         set n 10
-        set x \[int2float $n\]; \# like fromstr 10\.0
-        puts \[tostr $x\]; \# prints "10\."
-        set x \[int2float $n 3\]; \# like fromstr 10\.000
-        puts \[tostr $x\]; \# prints "10\.00"
+        set x [int2float $n]; # like fromstr 10.0
+        puts [tostr $x]; # prints "10."
+        set x [int2float $n 3]; # like fromstr 10.000
+        puts [tostr $x]; # prints "10.00"
 
 # <a name='section3'></a>ARITHMETICS
 
@@ -256,19 +256,19 @@ representation in order to :
 
     See here how numbers that are close to zero are converted to strings:
 
-        tostr \[fromstr 0\.001\] ; \# \-> 0\.e\-2
-        tostr \[fromstr 0\.000000\] ; \# \-> 0\.e\-5
-        tostr \[fromstr \-0\.000001\] ; \# \-> 0\.e\-5
-        tostr \[fromstr 0\.0\] ; \# \-> 0\.
-        tostr \[fromstr 0\.002\] ; \# \-> 0\.e\-2
+        tostr [fromstr 0.001] ; # -> 0.e-2
+        tostr [fromstr 0.000000] ; # -> 0.e-5
+        tostr [fromstr -0.000001] ; # -> 0.e-5
+        tostr [fromstr 0.0] ; # -> 0.
+        tostr [fromstr 0.002] ; # -> 0.e-2
 
-        set a \[fromstr 0\.002\] ; \# uncertainty interval : 0\.001, 0\.003
-        tostr  $a ; \# 0\.e\-2
-        iszero $a ; \# false
+        set a [fromstr 0.002] ; # uncertainty interval : 0.001, 0.003
+        tostr  $a ; # 0.e-2
+        iszero $a ; # false
 
-        set a \[fromstr 0\.001\] ; \# uncertainty interval : 0\.000, 0\.002
-        tostr  $a ; \# 0\.e\-2
-        iszero $a ; \# true
+        set a [fromstr 0.001] ; # uncertainty interval : 0.000, 0.002
+        tostr  $a ; # 0.e-2
+        iszero $a ; # true
 
   - <a name='17'></a>__[equal](\.\./\.\./\.\./\.\./index\.md\#equal)__ *x* *y*
 
@@ -365,56 +365,56 @@ Now you may ask this question : What precision am I going to get after calling
 add, sub, mul or div? First you set a number from the string representation and,
 by the way, its uncertainty is set:
 
-    set a \[fromstr 1\.230\]
-    \# $a belongs to \[1\.229, 1\.231\]
-    set a \[fromstr 1\.000\]
-    \# $a belongs to \[0\.999, 1\.001\]
-    \# $a has a relative uncertainty of 0\.1% : 0\.001\(the uncertainty\)/1\.000\(the medium value\)
+    set a [fromstr 1.230]
+    # $a belongs to [1.229, 1.231]
+    set a [fromstr 1.000]
+    # $a belongs to [0.999, 1.001]
+    # $a has a relative uncertainty of 0.1% : 0.001(the uncertainty)/1.000(the medium value)
 
 The uncertainty of the sum, or the difference, of two numbers, is the sum of
 their respective uncertainties\.
 
-    set a \[fromstr 1\.230\]
-    set b \[fromstr 2\.340\]
-    set sum \[add $a $b\]\]
-    \# the result is : \[3\.568, 3\.572\] \(the last digit is known with an uncertainty of 2\)
-    tostr $sum ; \# 3\.57
+    set a [fromstr 1.230]
+    set b [fromstr 2.340]
+    set sum [add $a $b]]
+    # the result is : [3.568, 3.572] (the last digit is known with an uncertainty of 2)
+    tostr $sum ; # 3.57
 
 But when, for example, we add or substract an integer to a BigFloat, the
 relative uncertainty of the result is unchanged\. So it is desirable not to
 convert integers to BigFloats:
 
-    set a \[fromstr 0\.999999999\]
-    \# now something dangerous
-    set b \[fromstr 2\.000\]
-    \# the result has only 3 digits
-    tostr \[add $a $b\]
+    set a [fromstr 0.999999999]
+    # now something dangerous
+    set b [fromstr 2.000]
+    # the result has only 3 digits
+    tostr [add $a $b]
 
-    \# how to keep precision at its maximum
-    puts \[tostr \[add $a 2\]\]
+    # how to keep precision at its maximum
+    puts [tostr [add $a 2]]
 
 For multiplication and division, the relative uncertainties of the product or
 the quotient, is the sum of the relative uncertainties of the operands\. Take
 care of division by zero : check each divider with __iszero__\.
 
-    set num \[fromstr 4\.00\]
-    set denom \[fromstr 0\.01\]
+    set num [fromstr 4.00]
+    set denom [fromstr 0.01]
 
-    puts \[iszero $denom\];\# true
-    set quotient \[div $num $denom\];\# error : divide by zero
+    puts [iszero $denom];# true
+    set quotient [div $num $denom];# error : divide by zero
 
-    \# opposites of our operands
-    puts \[compare $num \[opp $num\]\]; \# 1
-    puts \[compare $denom \[opp $denom\]\]; \# 0 \!\!\!
-    \# No suprise \! 0 and its opposite are the same\.\.\.
+    # opposites of our operands
+    puts [compare $num [opp $num]]; # 1
+    puts [compare $denom [opp $denom]]; # 0 !!!
+    # No suprise ! 0 and its opposite are the same...
 
 Effects of the precision of a number considered equal to zero to the cos
 function:
 
-    puts \[tostr \[cos \[fromstr 0\. 10\]\]\]; \# \-> 1\.000000000
-    puts \[tostr \[cos \[fromstr 0\. 5\]\]\]; \# \-> 1\.0000
-    puts \[tostr \[cos \[fromstr 0e\-10\]\]\]; \# \-> 1\.000000000
-    puts \[tostr \[cos \[fromstr 1e\-10\]\]\]; \# \-> 1\.000000000
+    puts [tostr [cos [fromstr 0. 10]]]; # -> 1.000000000
+    puts [tostr [cos [fromstr 0. 5]]]; # -> 1.0000
+    puts [tostr [cos [fromstr 0e-10]]]; # -> 1.000000000
+    puts [tostr [cos [fromstr 1e-10]]]; # -> 1.000000000
 
 BigFloats with different internal representations may be converted to the same
 string\.
@@ -424,9 +424,9 @@ the precision of the result is difficult\. It seems however that in many cases,
 the loss of precision in the result is of one or two digits\. There are some
 exceptions : for example,
 
-    tostr \[exp \[fromstr 100\.0 10\]\]
-    \# returns : 2\.688117142e\+43 which has only 10 digits of precision, although the entry
-    \# has 14 digits of precision\.
+    tostr [exp [fromstr 100.0 10]]
+    # returns : 2.688117142e+43 which has only 10 digits of precision, although the entry
+    # has 14 digits of precision.
 
 # <a name='section8'></a>WHAT ABOUT TCL 8\.4 ?
 
@@ -440,66 +440,66 @@ are expected to be in their internal representation\. So even with integers, you
 will need to call __fromstr__ and __tostr__ in order to convert them
 between string and internal representations\.
 
-    \#
-    \# with Tcl 8\.5
-    \# ============
-    set a \[pi 20\]
-    \# round returns an integer and 'everything is a string' applies to integers
-    \# whatever big they are
-    puts \[round \[mul $a 10000000000\]\]
-    \#
-    \# the same with Tcl 8\.4
-    \# =====================
-    set a \[pi 20\]
-    \# bignums \(arbitrary length integers\) need a conversion hook
-    set b \[fromstr 10000000000\]
-    \# round returns a bignum:
-    \# before printing it, we need to convert it with 'tostr'
-    puts \[tostr \[round \[mul $a $b\]\]\]
+    #
+    # with Tcl 8.5
+    # ============
+    set a [pi 20]
+    # round returns an integer and 'everything is a string' applies to integers
+    # whatever big they are
+    puts [round [mul $a 10000000000]]
+    #
+    # the same with Tcl 8.4
+    # =====================
+    set a [pi 20]
+    # bignums (arbitrary length integers) need a conversion hook
+    set b [fromstr 10000000000]
+    # round returns a bignum:
+    # before printing it, we need to convert it with 'tostr'
+    puts [tostr [round [mul $a $b]]]
 
 # <a name='section9'></a>NAMESPACES AND OTHER PACKAGES
 
 We have not yet discussed about namespaces because we assumed that you had
 imported public commands into the global namespace, like this:
 
-    namespace import ::math::bigfloat::\*
+    namespace import ::math::bigfloat::*
 
 If you matter much about avoiding names conflicts, I considere it should be
 resolved by the following :
 
     package require math::bigfloat
-    \# beware: namespace ensembles are not available in Tcl 8\.4
-    namespace eval ::math::bigfloat \{namespace ensemble create \-command ::bigfloat\}
-    \# from now, the bigfloat command takes as subcommands all original math::bigfloat::\* commands
-    set a \[bigfloat sub \[bigfloat fromstr 2\.000\] \[bigfloat fromstr 0\.530\]\]
-    puts \[bigfloat tostr $a\]
+    # beware: namespace ensembles are not available in Tcl 8.4
+    namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
+    # from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
+    set a [bigfloat sub [bigfloat fromstr 2.000] [bigfloat fromstr 0.530]]
+    puts [bigfloat tostr $a]
 
 # <a name='section10'></a>EXAMPLES
 
 Guess what happens when you are doing some astronomy\. Here is an example :
 
-    \# convert acurrate angles with a millisecond\-rated accuracy
-    proc degree\-angle \{degrees minutes seconds milliseconds\} \{
+    # convert acurrate angles with a millisecond-rated accuracy
+    proc degree-angle {degrees minutes seconds milliseconds} {
         set result 0
         set div 1
-        foreach factor \{1 1000 60 60\} var \[list $milliseconds $seconds $minutes $degrees\] \{
-            \# we convert each entry var into milliseconds
-            set div \[expr \{$div\*$factor\}\]
-            incr result \[expr \{$var\*$div\}\]
-        \}
-        return \[div \[int2float $result\] $div\]
-    \}
-    \# load the package
+        foreach factor {1 1000 60 60} var [list $milliseconds $seconds $minutes $degrees] {
+            # we convert each entry var into milliseconds
+            set div [expr {$div*$factor}]
+            incr result [expr {$var*$div}]
+        }
+        return [div [int2float $result] $div]
+    }
+    # load the package
     package require math::bigfloat
-    namespace import ::math::bigfloat::\*
-    \# work with angles : a standard formula for navigation \(taking bearings\)
-    set angle1 \[deg2rad \[degree\-angle 20 30 40   0\]\]
-    set angle2 \[deg2rad \[degree\-angle 21  0 50 500\]\]
-    set opposite3 \[deg2rad \[degree\-angle 51  0 50 500\]\]
-    set sinProduct \[mul \[sin $angle1\] \[sin $angle2\]\]
-    set cosProduct \[mul \[cos $angle1\] \[cos $angle2\]\]
-    set angle3 \[asin \[add \[mul $sinProduct \[cos $opposite3\]\] $cosProduct\]\]
-    puts "angle3 : \[tostr \[rad2deg $angle3\]\]"
+    namespace import ::math::bigfloat::*
+    # work with angles : a standard formula for navigation (taking bearings)
+    set angle1 [deg2rad [degree-angle 20 30 40   0]]
+    set angle2 [deg2rad [degree-angle 21  0 50 500]]
+    set opposite3 [deg2rad [degree-angle 51  0 50 500]]
+    set sinProduct [mul [sin $angle1] [sin $angle2]]
+    set cosProduct [mul [cos $angle1] [cos $angle2]]
+    set angle3 [asin [add [mul $sinProduct [cos $opposite3]] $cosProduct]]
+    puts "angle3 : [tostr [rad2deg $angle3]]"
 
 # <a name='section11'></a>Bugs, Ideas, Feedback
 

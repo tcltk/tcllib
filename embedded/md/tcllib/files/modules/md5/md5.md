@@ -142,18 +142,18 @@ call __MD5Final__\. An equivalent set of functions gives you a keyed digest
 
 # <a name='section4'></a>EXAMPLES
 
-    % md5::md5 \-hex "Tcl does MD5"
+    % md5::md5 -hex "Tcl does MD5"
     8AAC1EE01E20BB347104FABB90310433
 
-    % md5::hmac \-hex \-key Sekret "Tcl does MD5"
+    % md5::hmac -hex -key Sekret "Tcl does MD5"
     35BBA244FD56D3EDF5F3C47474DACB5D
 
-    % set tok \[md5::MD5Init\]
+    % set tok [md5::MD5Init]
     ::md5::1
     % md5::MD5Update $tok "Tcl "
     % md5::MD5Update $tok "does "
     % md5::MD5Update $tok "MD5"
-    % md5::Hex \[md5::MD5Final $tok\]
+    % md5::Hex [md5::MD5Final $tok]
     8AAC1EE01E20BB347104FABB90310433
 
 # <a name='section5'></a>REFERENCES

@@ -1,3 +1,53 @@
+2019-11-08  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Add a new type of error message, version to 1.5.0
+	* pdf_stat.tcl: Add procedures for Laplace, Kumaraswamy and negative binomial distributions, also tests for homoscedasticity
+	* statistics.tcl: Corresponding tests
+	* statistics.man: Documentation of the new procedures
+	* pkgIndex.tcl: Bumped version of statistics package to 1.5.0
+
+2019-11-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Correct the procedure interp-linear for another pair of corner cases (thanks to Alexandru)
+
+2019-10-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Correct the procedure interp-linear for several corner cases (thanks to Alexandru)
+	* pkgIndex.tcl: Bumped version of interpolation package to 1.1.2
+
+2019-09-30  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: Add function incomplete Beta, regularized Beta and digamma
+	* special.test: Add tests for the new functions
+	* special.man: Describe the new functions
+	* pkgIndex.tcl: Bumped version of special functions package to 0.4
+
+2019-08-14  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* math_geometry.man: Describe several procedures that were not described yet
+	* geometry.tcl: Export several procedures that were not exported yet
+	* pkgIndex.tcl: Bumped version of geometry package to 1.3.1
+
+2019-06-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf_stat.tcl: Add procedures for triangular distribution
+	* statistics.man: Describe procedures for triangular distribution
+	* statistics.test: Add tests for triangular distribution
+	* statistics.tcl: Bumped version to 1.3.1
+	* pkgIndex.tcl: Bumped version to 1.3.1
+2019-05-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.test: Add tests to deal with procedures in a different namespace
+	* quasirandom.tcl: Deal with procedures in a different namespace
+
+2019-04-24  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.test: Add support code
+	* numtheory.tcl: Add estimation of the number of primes between two limits
+	* numtheory.test: Add tests regarding the estimated number of primes
+
+2019-04-23  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* quasirandom.tcl: New package - generate quasi-random numbers (for instance for estimating multidimensional integrals)
+	* quasirandom.test: Tests for the new package
+	* quasirandom.man: Documentation for the new package
+	* pkgIndex.tcl: Add the new package
+
+2019-04-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* misc.tcl: Add double() to calculation of mean and standard deviation in proc stats (ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
+	* math.test: Correct the outcome of the test for stats (consequence of ticket 0a030f850d4e3fc05da98aa954a6ec1b16e655d9)
+
 2018-08-04  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Source stat_wasserstein.tcl and stat_logit.tcl - for new commands
 	* statistics.test: Add corresponding tests

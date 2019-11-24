@@ -97,5 +97,5 @@ constructed text is returned as the result of the command.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

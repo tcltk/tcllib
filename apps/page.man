@@ -463,5 +463,5 @@ interpreted as a list of paths, with the elements separated by either
 colon (Unix), or semicolon (Windows).
 
 [vset CATEGORY page]
-[include ../modules/doctools2base/include/feedback.inc]
+[include ../modules/common-text/feedback.inc]
 [manpage_end]

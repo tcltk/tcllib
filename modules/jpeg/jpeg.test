@@ -3,8 +3,6 @@
 #
 # Copyright (c) 2008-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# JPEG: @(#) $Id: jpeg.test,v 1.2 2011/05/06 13:39:27 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -71,7 +69,7 @@ test jpeg-1.1 {isJPEG error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-2.$n "isJPEG, ok, [file tail $f]" -body {
 	::jpeg::isJPEG $f
     } -result 1
@@ -95,7 +93,7 @@ test jpeg-2.1 {imageInfo error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     test jpeg-3.$n "imageInfo regular, [file tail $f]" -body {
 	::jpeg::imageInfo $f
     } -result [string trim [fileutil::cat [file rootname $f].info.txt]]
@@ -103,7 +101,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-4.$n "imageInfo thumbnails, [file tail $f]" -body {
 	::jpeg::imageInfo $f
     } -result {}
@@ -127,7 +125,7 @@ test jpeg-6.1 {dimensions error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     test jpeg-7.$n "dimensions regular, [file tail $f]" -body {
 	::jpeg::dimensions $f
     } -result [string trim [fileutil::cat [file rootname $f].WxH.txt]]
@@ -135,7 +133,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-8.$n "dimensions thumbnails, [file tail $f]" -body {
 	::jpeg::dimensions $f
     } -result {160 120}
@@ -159,7 +157,7 @@ test jpeg-10.1 {getThumbnail error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     if {![file exists $f.thumb]} {
 	test jpeg-11.$n "getThumbnail - no thumbnail, [file tail $f]" -body {
 	    ::jpeg::getThumbnail $f
@@ -179,7 +177,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-12.$n "getThumbnail thumbnails, [file tail $f]" -body {
 	::jpeg::getThumbnail $f
     } -result {}
@@ -215,7 +213,7 @@ test jpeg-16.1 {getComments error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     test jpeg-17.$n "getComments regular, [file tail $f]" -body {
 	::jpeg::getComments $f
     } -result {}
@@ -223,7 +221,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-18.$n "getComments thumbnails, [file tail $f]" -body {
 	::jpeg::getComments $f
     } -result {}
@@ -247,7 +245,7 @@ test jpeg-20.1 {addComment error, wrong#args, not enough} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-21.$n "addComment regular, [file tail $f]" -setup {
 	file copy -force $f [set fx [makeFile {} jtmp]]
 	::jpeg::addComment $fx {a b} {c d}
@@ -277,7 +275,7 @@ test jpeg-23.1 {removeComments error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-24.$n "removeComments regular, [file tail $f]" -setup {
 	file copy -force $f [set fx [makeFile {} jtmp]]
 	::jpeg::addComment     $fx {a b} {c d}
@@ -312,7 +310,7 @@ test jpeg-26.2 {replaceComment error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-27.$n "replaceComment regular, [file tail $f]" -setup {
 	file copy -force $f [set fx [makeFile {} jtmp]]
 	::jpeg::addComment      $fx {a b} {c d}
@@ -341,7 +339,7 @@ test jpeg-29.1 {getExif error, wrong#args, too many} -body {
 } -returnCodes error -result [tcltest::tooManyArgs {::jpeg::getExif} {file ?type?}]
 
 test jpeg-29.2 {getExif error, bad section type} -body {
-    ::jpeg::getExif [localPath testimages/IMG_7950.JPG] fufara
+    ::jpeg::getExif [asset IMG_7950.JPG] fufara
 } -returnCodes error -result {Bad type "fufara", expected one of "main", or "thumbnail"}
 
 test jpeg-29.3 {getExifFromChannel error, wrong#args, not enough} -body {
@@ -353,7 +351,7 @@ test jpeg-29.4 {getExifFromChannel error, wrong#args, too many} -body {
 } -returnCodes error -result [tcltest::tooManyArgs {::jpeg::getExifFromChannel} {chan ?type?}]
 
 test jpeg-29.5 {getExifFromChannel error, bad section type} -setup {
-    set fd [::jpeg::openJFIF [localPath testimages/IMG_7950.JPG] r]
+    set fd [::jpeg::openJFIF [asset IMG_7950.JPG] r]
 } -body {
     ::jpeg::getExifFromChannel $fd fufara
 } -cleanup {
@@ -364,7 +362,7 @@ test jpeg-29.5 {getExifFromChannel error, bad section type} -setup {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     test jpeg-30.$n "getExif, main section, $f" -body {
 	dictsort [fixupdata [::jpeg::formatExif [::jpeg::getExif $f]]]
     } -result [string trimright [fileutil::cat [file rootname $f].exif.txt]]
@@ -372,7 +370,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-31.$n "getExif, main section, $f" -body {
 	dictsort [fixupdata [::jpeg::formatExif [::jpeg::getExif $f]]]
     } -result {}
@@ -380,7 +378,7 @@ foreach f [TestFilesGlob testimages/*.thumb] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.JPG] {
+foreach f [TestFilesGlob test-assets/*.JPG] {
     test jpeg-32.$n "getExif, thumbnail section, $f" -body {
 	dictsort [fixupdata [::jpeg::formatExif [::jpeg::getExif $f thumbnail]]]
     } -result [string trimright [fileutil::cat [file rootname $f].thumbexif.txt]]
@@ -388,7 +386,7 @@ foreach f [TestFilesGlob testimages/*.JPG] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.thumb] {
+foreach f [TestFilesGlob test-assets/*.thumb] {
     test jpeg-33.$n "getExif, thumbnail section, $f" -body {
 	dictsort [fixupdata [::jpeg::formatExif [::jpeg::getExif $f thumbnail]]]
     } -result {}
@@ -423,7 +421,7 @@ test jpeg-34.1 {removeExif error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-35.$n "removeExif ok, [file tail $f]" -setup {
 	file copy -force $f [set fx [makeFile {} jtmp]]
 	::jpeg::addComment $fx {a b} {c d}
@@ -454,7 +452,7 @@ test jpeg-37.1 {stripJPEG error, wrong#args, too many} -body {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-38.$n "stripJPEG ok, [file tail $f]" -setup {
 	file copy -force $f [set fx [makeFile {} jtmp]]
 	::jpeg::addComment $fx {a b} {c d}
@@ -487,7 +485,7 @@ test jpeg-40.1 {debug error, wrong#args, too many} -body {
 # to stdout. This may change when we can capture stdout as test result
 
 set n 0
-foreach f [TestFilesGlob testimages/*JPG*] {
+foreach f [TestFilesGlob test-assets/*JPG*] {
     test jpeg-41.$n "debug ok, [file tail $f]" -constraints donotrun -body {
 	::jpeg::debug $f
     } -result {}

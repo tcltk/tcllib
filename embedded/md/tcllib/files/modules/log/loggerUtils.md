@@ -2,7 +2,7 @@
 [//000000001]: # (logger::utils \- Object Oriented logging facility)
 [//000000002]: # (Generated from file 'loggerUtils\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000004]: # (logger::utils\(n\) 1\.3 tcllib "Object Oriented logging facility")
+[//000000004]: # (logger::utils\(n\) 1\.3\.1 tcllib "Object Oriented logging facility")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ logger::utils \- Utilities for logger
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require logger::utils ?1\.3?  
+package require logger::utils ?1\.3\.1?  
 
 [__::logger::utils::createFormatCmd__ *formatString*](#1)  
 [__::logger::utils::createLogProc__ __\-procName__ *procName* ?*options*\.\.\.?](#2)  
@@ -134,7 +134,7 @@ This package adds template based *appenders*\.
 
         For example
 
-            logger::utils::applyAppender \-serviceCmd $log \-appender console \-appenderArgs \{\-conversionPattern \{\\\[%M\\\] \\\[%p\\\] \- %m\}\}
+            logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\[%M\] \[%p\] - %m}}
 
         The usual Tcl quoting rules apply\.
 
@@ -145,11 +145,11 @@ This package adds template based *appenders*\.
 
     Example of usage:
 
-        % set log \[logger::init testLog\]
+        % set log [logger::init testLog]
         ::logger::tree::testLog
-        % logger::utils::applyAppender \-appender console \-serviceCmd $log
-        % $\{log\}::error "this is an error"
-        \[2005/08/22 10:14:13\] \[testLog\] \[global\] \[error\] this is an error
+        % logger::utils::applyAppender -appender console -serviceCmd $log
+        % ${log}::error "this is an error"
+        [2005/08/22 10:14:13] [testLog] [global] [error] this is an error
 
   - <a name='4'></a>__::logger::utils::autoApplyAppender__ *command* *command\-string* *log* *op* *args*\.\.\.
 
@@ -160,9 +160,9 @@ This package adds template based *appenders*\.
 
     Example of usage:
 
-        logger::utils::applyAppender \-appender console
-        set log \[logger::init applyAppender\-3\]
-        $\{log\}::error "this is an error"
+        logger::utils::applyAppender -appender console
+        set log [logger::init applyAppender-3]
+        ${log}::error "this is an error"
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

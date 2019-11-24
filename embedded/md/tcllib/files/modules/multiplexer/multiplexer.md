@@ -57,11 +57,11 @@ It is possible to have different multiplexers running concurrently\.
     The __create__ command creates a new multiplexer 'instance'\. For
     example:
 
-        set mp \[::multiplexer::create\]
+        set mp [::multiplexer::create]
 
     This instance can then be manipulated like so:
 
-        $\{mp\}::Init 35100
+        ${mp}::Init 35100
 
   - <a name='2'></a>__$\{multiplexer\_instance\}::Init__ *port*
 

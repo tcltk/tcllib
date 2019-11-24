@@ -436,5 +436,5 @@ run into persistent errors or infinite loops. The solution to this
 problem is to use [cmd {update idletasks}] instead of [cmd update].
 
 [vset CATEGORY ftp]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -34,8 +34,8 @@ proc Sub4Title {lb title} {
     return
 }
 
-proc Strong {text} { return [Undr][Undr]${text}[Undr][Undr] }
-proc Em     {text} { return [Star]${text}[Star] }
+proc _Strong {text} { return [Undr][Undr]${text}[Undr][Undr] }
+proc _Em     {text} { return [Star]${text}[Star] }
 
 ##
 # # ## ### ##### ########
@@ -115,7 +115,7 @@ DEB [list "1[Dot]" "1[CPar]"]
 
 proc Unmark {x} {
     lappend map "\1\n" "  \n"
-    # Marked special characters are commands. Covnert into regular
+    # Marked special characters are commands. Convert into regular
     # form. Unmarked special characters need quoting.
     lappend map \1\\ \\
     lappend map \1`  `

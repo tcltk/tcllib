@@ -1,10 +1,10 @@
 
 [//000000001]: # (comm \- Remote communication)
 [//000000002]: # (Generated from file 'comm\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 1995\-1998 The Open Group\. All Rights Reserved\.  
-Copyright &copy; 2003\-2004 ActiveState Corporation\.  
-Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (comm\(n\) 4\.6\.3 tcllib "Remote communication")
+[//000000003]: # (Copyright &copy; 1995\-1998 The Open Group\. All Rights Reserved\.)
+[//000000004]: # (Copyright &copy; 2003\-2004 ActiveState Corporation\.)
+[//000000005]: # (Copyright &copy; 2006\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000006]: # (comm\(n\) 4\.6\.3 tcllib "Remote communication")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -111,7 +111,7 @@ the remote execution path\.
 These commands work just like __[send](\.\./\.\./\.\./\.\./index\.md\#send)__ and
 __winfo interps__ :
 
-    ::comm::comm send ?\-async? id cmd ?arg arg \.\.\.?
+    ::comm::comm send ?-async? id cmd ?arg arg ...?
     ::comm::comm interps
 
 This is all that is really needed to know in order to use __comm__
@@ -176,10 +176,10 @@ that this command produced an error\. Note that the equivalent
 __[send](\.\./\.\./\.\./\.\./index\.md\#send)__ command also produces the same
 error\.
 
-    % ::comm::comm send id llength \{a b c\}
-    wrong \# args: should be "llength list"
-    % send name llength \{a b c\}
-    wrong \# args: should be "llength list"
+    % ::comm::comm send id llength {a b c}
+    wrong # args: should be "llength list"
+    % send name llength {a b c}
+    wrong # args: should be "llength list"
 
 The __eval__ hook \(described below\) can be used to change from
 __[send](\.\./\.\./\.\./\.\./index\.md\#send)__'s double eval semantics to single
@@ -205,11 +205,11 @@ channel they are defined against\.
 
 The default configuration parameters for a new channel are:
 
-    "\-port 0 \-local 1 \-listen 0 \-silent 0"
+    "-port 0 -local 1 -listen 0 -silent 0"
 
 The default channel __::comm::comm__ is created with:
 
-    "::comm::comm new ::comm::comm \-port 0 \-local 1 \-listen 1 \-silent 0"
+    "::comm::comm new ::comm::comm -port 0 -local 1 -listen 1 -silent 0"
 
 ## <a name='subsection4'></a>Channel Configuration
 
@@ -393,11 +393,11 @@ These are the defined *events*:
     __[error](\.\./\.\./\.\./\.\./index\.md\#error)__\) will abort the connection
     attempt with the error\. Example:
 
-    % ::comm::comm hook connecting \{
-        if \{\[string match \{\*\[02468\]\} $id\]\} \{
+    % ::comm::comm hook connecting {
+        if {[string match {*[02468]} $id]} {
             error "Can't connect to even ids"
-        \}
-    \}
+        }
+    }
     % ::comm::comm send 10000 puts ok
     Connect to remote failed: Can't connect to even ids
     %
@@ -424,11 +424,11 @@ These are the defined *events*:
     with the error\. Note that the peer is named by *remport* and *addr* but
     that the remote *id* is still unknown\. Example:
 
-    ::comm::comm hook incoming \{
-        if \{\[string match 127\.0\.0\.1 $addr\]\} \{
+    ::comm::comm hook incoming {
+        if {[string match 127.0.0.1 $addr]} {
             error "I don't talk to myself"
-        \}
-    \}
+        }
+    }
 
   - __eval__
 
@@ -455,34 +455,34 @@ These are the defined *events*:
 
       1. augmenting a command
 
-    % ::comm::comm send \[::comm::comm self\] pid
+    % ::comm::comm send [::comm::comm self] pid
     5013
-    % ::comm::comm hook eval \{puts "going to execute $buffer"\}
-    % ::comm::comm send \[::comm::comm self\] pid
+    % ::comm::comm hook eval {puts "going to execute $buffer"}
+    % ::comm::comm send [::comm::comm self] pid
     going to execute pid
     5013
 
       1. short circuiting a command
 
-    % ::comm::comm hook eval \{puts "would have executed $buffer"; return 0\}
-    % ::comm::comm send \[::comm::comm self\] pid
+    % ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
+    % ::comm::comm send [::comm::comm self] pid
     would have executed pid
     0
 
       1. Replacing double eval semantics
 
-    % ::comm::comm send \[::comm::comm self\] llength \{a b c\}
-    wrong \# args: should be "llength list"
-    % ::comm::comm hook eval \{return \[uplevel \#0 $buffer\]\}
-    return \[uplevel \#0 $buffer\]
-    % ::comm::comm send \[::comm::comm self\] llength \{a b c\}
+    % ::comm::comm send [::comm::comm self] llength {a b c}
+    wrong # args: should be "llength list"
+    % ::comm::comm hook eval {return [uplevel #0 $buffer]}
+    return [uplevel #0 $buffer]
+    % ::comm::comm send [::comm::comm self] llength {a b c}
     3
 
       1. Using a slave interpreter
 
     % interp create foo
-    % ::comm::comm hook eval \{return \[foo eval $buffer\]\}
-    % ::comm::comm send \[::comm::comm self\] set myvar 123
+    % ::comm::comm hook eval {return [foo eval $buffer]}
+    % ::comm::comm send [::comm::comm self] set myvar 123
     123
     % set myvar
     can't read "myvar": no such variable
@@ -491,21 +491,21 @@ These are the defined *events*:
 
       1. Using a slave interpreter \(double eval\)
 
-    % ::comm::comm hook eval \{return \[eval foo eval $buffer\]\}
+    % ::comm::comm hook eval {return [eval foo eval $buffer]}
 
       1. Subverting the script to execute
 
-    % ::comm::comm hook eval \{
-        switch \-\- $buffer \{
-            a \{return A\-OK\}
-            b \{return B\-OK\}
-            default \{error "$buffer is a no\-no"\}
-        \}
-    \}
-    % ::comm::comm send \[::comm::comm self\] pid
-    pid is a no\-no
-    % ::comm::comm send \[::comm::comm self\] a
-    A\-OK
+    % ::comm::comm hook eval {
+        switch -- $buffer {
+            a {return A-OK}
+            b {return B-OK}
+            default {error "$buffer is a no-no"}
+        }
+    }
+    % ::comm::comm send [::comm::comm self] pid
+    pid is a no-no
+    % ::comm::comm send [::comm::comm self] a
+    A-OK
 
   - __reply__
 
@@ -550,13 +550,13 @@ These are the defined *events*:
     \(or thrown error\) is ignored\. *reason* is an explanatory string indicating
     why the connection was lost\. Example:
 
-    ::comm::comm hook lost \{
+    ::comm::comm hook lost {
         global myvar
-        if \{$myvar\(id\) == $id\} \{
+        if {$myvar(id) == $id} {
             myfunc
             return
-        \}
-    \}
+        }
+    }
 
 ## <a name='subsection10'></a>Unsupported
 
@@ -575,16 +575,16 @@ These interfaces may change or go away in subsequence releases\.
     __[send](\.\./\.\./\.\./\.\./index\.md\#send)__ and __winfo interps__
     commands with these equivalents that use __::comm::comm__\.
 
-    proc send \{args\} \{
+    proc send {args} {
         eval ::comm::comm send $args
-    \}
-    rename winfo tk\_winfo
-    proc winfo \{cmd args\} \{
-        if \{\!\[string match in\* $cmd\]\} \{
-            return \[eval \[list tk\_winfo $cmd\] $args\]
-        \}
-        return \[::comm::comm interps\]
-    \}
+    }
+    rename winfo tk_winfo
+    proc winfo {cmd args} {
+        if {![string match in* $cmd]} {
+            return [eval [list tk_winfo $cmd] $args]
+        }
+        return [::comm::comm interps]
+    }
 
 ## <a name='subsection11'></a>Security
 
@@ -597,13 +597,13 @@ The envisioned main use is the specification of the __tls::socket__ command,
 see package __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__, to secure the
 communication\.
 
-    \# Load and initialize tls
+    # Load and initialize tls
     package require tls
-    tls::init  \-cafile /path/to/ca/cert \-keyfile \.\.\.
+    tls::init  -cafile /path/to/ca/cert -keyfile ...
 
-    \# Create secured comm channel
-    ::comm::comm new SECURE \-socketcmd tls::socket \-listen 1
-    \.\.\.
+    # Create secured comm channel
+    ::comm::comm new SECURE -socketcmd tls::socket -listen 1
+    ...
 
 The sections [Execution Environment](#subsection6) and
 [Callbacks](#subsection9) are also relevant to the security of the system,
@@ -691,28 +691,28 @@ The necessary support for this solution has been added to comm since version
 
     An example:
 
-    \# Procedure invoked by remote clients to run database operations\.
-    proc select \{sql\} \{
-        \# Signal the async generation of the result
+    # Procedure invoked by remote clients to run database operations.
+    proc select {sql} {
+        # Signal the async generation of the result
 
-        set future \[::comm::comm return\_async\]
+        set future [::comm::comm return_async]
 
-        \# Generate an async db operation and tell it where to deliver the result\.
+        # Generate an async db operation and tell it where to deliver the result.
 
-        set query \[db query \-command \[list $future return\] $sql\]
+        set query [db query -command [list $future return] $sql]
 
-        \# Tell the database system which query to cancel if the connection
-        \# goes away while it is running\.
+        # Tell the database system which query to cancel if the connection
+        # goes away while it is running.
 
-        $future configure \-command \[list db cancel $query\]
+        $future configure -command [list db cancel $query]
 
-        \# Note: The above will work without problem only if the async
-        \# query will nover run its completion callback immediately, but
-        \# only from the eventloop\. Because otherwise the future we wish to
-        \# configure may already be gone\. If that is possible use 'catch'
-        \# to prevent the error from propagating\.
+        # Note: The above will work without problem only if the async
+        # query will nover run its completion callback immediately, but
+        # only from the eventloop. Because otherwise the future we wish to
+        # configure may already be gone. If that is possible use 'catch'
+        # to prevent the error from propagating.
         return
-    \}
+    }
 
     The API of a future object is:
 
@@ -906,7 +906,7 @@ The revision history of __comm__ includes these releases:
     __[send](\.\./\.\./\.\./\.\./index\.md\#send)__:
 
     comm send id break
-    catch \{comm send id break\}
+    catch {comm send id break}
     comm send id expr 1 / 0
 
     Added a new hook for reply messages\. Reworked method invocation to avoid the
@@ -988,9 +988,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section3'></a>Author
 

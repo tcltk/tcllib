@@ -218,21 +218,21 @@ __\-alternate__ to the various split commands\.
 
 Using the regular format the record
 
-    123,"123,521\.2","Mary says ""Hello, I am Mary""",""
+    123,"123,521.2","Mary says ""Hello, I am Mary""",""
 
 is parsed into the items
 
-    a\) 123
-    b\) 123,521\.2
-    c\) Mary says "Hello, I am Mary"
-    d\) "
+    a) 123
+    b) 123,521.2
+    c) Mary says "Hello, I am Mary"
+    d) "
 
 Using the alternate format the result is
 
-    a\) 123
-    b\) 123,521\.2
-    c\) Mary says "Hello, I am Mary"
-    d\) \(the empty string\)
+    a) 123
+    b) 123,521.2
+    c) Mary says "Hello, I am Mary"
+    d) (the empty string)
 
 instead\. As can be seen only item \(d\) is different, now the empty string instead
 of a "\.

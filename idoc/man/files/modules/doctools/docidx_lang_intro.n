@@ -301,7 +301,7 @@ commands, continuation lines, etc\&. I\&.e\&.
 .CS
 
 
-  \&.\&.\&. [manpage thefile \\\\
+  \&.\&.\&. [manpage thefile \\
           {file description}] \&.\&.\&.
 
 .CE

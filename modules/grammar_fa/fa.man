@@ -648,5 +648,5 @@ Transducers are not handled by this package. They will get their own
 package in the future.
 
 [vset CATEGORY grammar_fa]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

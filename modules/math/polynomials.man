@@ -215,5 +215,5 @@ definition, it consists of a list of two elements: the keyword
 latter makes it easier to implement Horner's rule.
 
 [vset CATEGORY {math :: polynomials}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

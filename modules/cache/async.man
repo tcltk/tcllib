@@ -140,5 +140,5 @@ all keys known to the cache, making it unkown. This forces future
 [list_end]
 
 [vset CATEGORY cache]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

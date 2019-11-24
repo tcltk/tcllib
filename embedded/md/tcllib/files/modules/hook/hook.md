@@ -82,11 +82,11 @@ coupling between the modules sending and receiving the notification\.
 Loose coupling between sender and receiver is often desirable, however\. In
 Model/View/Controller terms, a View can send a command \(stemming from user
 input\) to the Controller, which updates the Model\. The Model can then call a
-hook *to which all relevant Views subscribe\.* The Model is decoupled from the
-Views, and indeed need not know whether any Views actually exist\. At present,
-Tcl/Tk has no standard mechanism for implementing loose coupling of this kind\.
-This package defines a new command, __hook__, which implements just such a
-mechanism\.
+hook *to which all relevant* *Views subscribe\.* The Model is decoupled from
+the Views, and indeed need not know whether any Views actually exist\. At
+present, Tcl/Tk has no standard mechanism for implementing loose coupling of
+this kind\. This package defines a new command, __hook__, which implements
+just such a mechanism\.
 
 ## <a name='subsection2'></a>Bindings
 
@@ -316,7 +316,7 @@ change the model's data:
 The __\.view__ megawidget displays the model state, and needs to know about
 model updates\. Consequently, it subscribes to the ::model's <Update> hook\.
 
-    hook bind ::model <Update> \.view \[list \.view ModelUpdate\]
+    hook bind ::model <Update> .view [list .view ModelUpdate]
 
 When the __::model__ calls the hook, the __\.view__s ModelUpdate
 subcommand will be called\.
@@ -324,7 +324,7 @@ subcommand will be called\.
 Later the __\.view__ megawidget is destroyed\. In its destructor, it tells the
 *[hook](\.\./\.\./\.\./\.\./index\.md\#hook)* that it no longer exists:
 
-    hook forget \.view
+    hook forget .view
 
 All bindings involving __\.view__ are deleted\.
 

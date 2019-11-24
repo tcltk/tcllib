@@ -1,9 +1,9 @@
 
 [//000000001]: # (treeql \- Tree Query Language)
 [//000000002]: # (Generated from file 'treeql\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Colin McCormack <coldstore@users\.sourceforge\.net>  
-Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (treeql\(n\) 1\.3\.1 tcllib "Tree Query Language")
+[//000000003]: # (Copyright &copy; 2004 Colin McCormack <coldstore@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (treeql\(n\) 1\.3\.1 tcllib "Tree Query Language")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -170,26 +170,26 @@ explained below\.
          from step \[1\], until the list of arguments is empty or an error
          occurred\.
 
-            \# q is the query object\.
+            # q is the query object.
 
             q query root children get data
 
-            \# The above query
-            \# \- Resets the node set to the root node \- root
-            \# \- Adds the children of root to the set \- children
-            \# \- Replaces the node set with the       \- get data
-            \#   values for the attribute 'data',
-            \#   for all nodes in the set which
-            \#   have such an attribute\.
-            \# \- And returns this information\.
+            # The above query
+            # - Resets the node set to the root node - root
+            # - Adds the children of root to the set - children
+            # - Replaces the node set with the       - get data
+            #   values for the attribute 'data',
+            #   for all nodes in the set which
+            #   have such an attribute.
+            # - And returns this information.
 
-            \# Below we can see the same query, but rewritten
-            \# to show the structure as it is seen by the query
-            \# interpreter\.
+            # Below we can see the same query, but rewritten
+            # to show the structure as it is seen by the query
+            # interpreter.
 
-            q query \\\\
-        	    root \\\\
-        	    children \\\\
+            q query \
+        	    root \
+        	    children \
         	    get data
 
     The operators of the TreeQL language available for this are explained in the

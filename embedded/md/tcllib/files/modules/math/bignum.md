@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::bignum \- Tcl Math Library)
 [//000000002]: # (Generated from file 'bignum\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Salvatore Sanfilippo <antirez at invece dot org>  
-Copyright &copy; 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>)
-[//000000004]: # (math::bignum\(n\) 3\.1 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004 Salvatore Sanfilippo <antirez at invece dot org>)
+[//000000004]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>)
+[//000000005]: # (math::bignum\(n\) 3\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -106,29 +106,29 @@ procedures\.
 
     package require math::bignum
 
-    \# Multiplication of two bignums
-    set a \[::math::bignum::fromstr 88888881111111\]
-    set b \[::math::bignum::fromstr 22222220000000\]
-    set c \[::math::bignum::mul $a $b\]
-    puts \[::math::bignum::tostr $c\] ; \# => will output 1975308271604953086420000000
-    set c \[::math::bignum::sqrt $c\]
-    puts \[::math::bignum::tostr $c\] ; \# => will output 44444440277777
+    # Multiplication of two bignums
+    set a [::math::bignum::fromstr 88888881111111]
+    set b [::math::bignum::fromstr 22222220000000]
+    set c [::math::bignum::mul $a $b]
+    puts [::math::bignum::tostr $c] ; # => will output 1975308271604953086420000000
+    set c [::math::bignum::sqrt $c]
+    puts [::math::bignum::tostr $c] ; # => will output 44444440277777
 
-    \# From/To string conversion in different radix
-    set a \[::math::bignum::fromstr 1100010101010111001001111010111 2\]
-    puts \[::math::bignum::tostr $a 16\] ; \# => will output 62ab93d7
+    # From/To string conversion in different radix
+    set a [::math::bignum::fromstr 1100010101010111001001111010111 2]
+    puts [::math::bignum::tostr $a 16] ; # => will output 62ab93d7
 
-    \# Factorial example
-    proc fact n \{
-        \# fromstr is not needed for 0 and 1
+    # Factorial example
+    proc fact n {
+        # fromstr is not needed for 0 and 1
         set z 1
-        for \{set i 2\} \{$i <= $n\} \{incr i\} \{
-            set z \[::math::bignum::mul $z \[::math::bignum::fromstr $i\]\]
-        \}
+        for {set i 2} {$i <= $n} {incr i} {
+            set z [::math::bignum::mul $z [::math::bignum::fromstr $i]]
+        }
         return $z
-    \}
+    }
 
-    puts \[::math::bignum::tostr \[fact 100\]\]
+    puts [::math::bignum::tostr [fact 100]]
 
 # <a name='section3'></a>API
 

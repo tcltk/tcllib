@@ -169,7 +169,7 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-        *faName* __deserialize__ \[*srcFA* __serialize__\]
+    > *faName* __deserialize__ \[*srcFA* __serialize__\]
 
   - <a name='6'></a>*faName* __\-\->__ *dstFA*
 
@@ -180,7 +180,7 @@ All automatons provide the following methods for their manipulation:
 
     This operation is in effect equivalent to
 
-        *dstFA* __deserialize__ \[*faName* __serialize__\]
+    > *dstFA* __deserialize__ \[*faName* __serialize__\]
 
   - <a name='7'></a>*faName* __serialize__
 
@@ -224,17 +224,17 @@ All automatons provide the following methods for their manipulation:
     Assuming the following FA \(which describes the life of a truck driver in a
     very simple way :\)
 
-        Drive \-\- yellow \-\-> Brake \-\- red \-\-> \(Stop\) \-\- red/yellow \-\-> Attention \-\- green \-\-> Drive
-        \(\.\.\.\) is the start state\.
+        Drive -- yellow --> Brake -- red --> (Stop) -- red/yellow --> Attention -- green --> Drive
+        (...) is the start state.
 
     a possible serialization is
 
-        grammar::fa \\\\
-        \{yellow red green red/yellow\} \\\\
-        \{Drive     \{0 0 \{yellow     Brake\}\} \\\\
-         Brake     \{0 0 \{red        Stop\}\} \\\\
-         Stop      \{1 0 \{red/yellow Attention\}\} \\\\
-         Attention \{0 0 \{green      Drive\}\}\}
+        grammar::fa \
+        {yellow red green red/yellow} \
+        {Drive     {0 0 {yellow     Brake}} \
+         Brake     {0 0 {red        Stop}} \
+         Stop      {1 0 {red/yellow Attention}} \
+         Attention {0 0 {green      Drive}}}
 
     A possible one, because I did not care about creation order here
 
@@ -464,7 +464,7 @@ All automatons provide the following methods for their manipulation:
     Returns the set of states which are not reachable from any start state by
     any number of transitions\. This is
 
-        \[faName states\] \- \[faName reachable\_states\]
+        [faName states] - [faName reachable_states]
 
   - <a name='40'></a>*faName* __reachable__ *s*
 
@@ -483,7 +483,7 @@ All automatons provide the following methods for their manipulation:
     Returns the set of states which are not able to reach a final state by any
     number of transitions\. This is
 
-        \[faName states\] \- \[faName useful\_states\]
+        [faName states] - [faName useful_states]
 
   - <a name='43'></a>*faName* __useful__ *s*
 

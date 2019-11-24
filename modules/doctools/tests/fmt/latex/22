@@ -3,7 +3,7 @@
 % test-itemized-definitions.1
 \documentclass{article}
 \begin{document}
-\author{aku}
+\author{@USR@}
 \title{.MODULE. / test-itemized-definitions --  : }
 \maketitle
 \section{Description}\label{section1}

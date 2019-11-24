@@ -61,17 +61,17 @@ and __\]__\. Inside of these delimiters the usual rules for a Tcl command
 apply with regard to word quotation, nested commands, continuation lines, etc\.
 I\.e\.
 
-    \.\.\. \[key \{markup language\}\] \.\.\.
+    ... [key {markup language}] ...
 
-    \.\.\. \[manpage thefile \\\\
-            \{file description\}\] \.\.\.
+    ... [manpage thefile \
+            {file description}] ...
 
 ## <a name='subsection2'></a>Basic structure
 
 The most simple document which can be written in docidx is
 
-    \[index\_begin GROUPTITLE TITLE\]
-    \[index\_end\]
+    [index_begin GROUPTITLE TITLE]
+    [index_end]
 
 Not very useful, but valid\. This also shows us that all docidx documents consist
 of only one part where we will list all keys and their references\.
@@ -79,13 +79,13 @@ of only one part where we will list all keys and their references\.
 A more useful index will contain at least keywords, or short 'keys', i\.e\. the
 phrases which were indexed\. So:
 
-    \[index\_begin GROUPTITLE TITLE\]
-    \[__key markup__\]
-    \[__key \{semantic markup\}\]__\]
-    \[__key \{docidx markup\}__\]
-    \[__key \{docidx language\}__\]
-    \[__key \{docidx commands\}__\]
-    \[index\_end\]
+> \[index\_begin GROUPTITLE TITLE\]  
+> \[__key markup__\]  
+> \[__key \{semantic markup\}\]__\]  
+> \[__key \{docidx markup\}__\]  
+> \[__key \{docidx language\}__\]  
+> \[__key \{docidx commands\}__\]  
+> \[index\_end\]
 
 In the above example the command __key__ is used to declare the keyword
 phrases we wish to be part of the index\.
@@ -95,22 +95,22 @@ also contain references to documents associated with the keywords\. Here is a
 made\-up index for all the manpages in the module
 *[base64](\.\./\.\./\.\./\.\./index\.md\#base64)*:
 
-    \[index\_begin tcllib/base64 \{De\- & Encoding\}\]
-    \[key base64\]
-    \[__manpage base64__\]
-    \[key encoding\]
-    \[__manpage base64__\]
-    \[__manpage uuencode__\]
-    \[__manpage yencode__\]
-    \[key uuencode\]
-    \[__manpage uuencode__\]
-    \[key yEnc\]
-    \[__manpage yencode__\]
-    \[key ydecode\]
-    \[__manpage yencode__\]
-    \[key yencode\]
-    \[__manpage yencode__\]
-    \[index\_end\]
+> \[index\_begin tcllib/base64 \{De\- & Encoding\}\]  
+> \[key base64\]  
+> \[__manpage base64__\]  
+> \[key encoding\]  
+> \[__manpage base64__\]  
+> \[__manpage uuencode__\]  
+> \[__manpage yencode__\]  
+> \[key uuencode\]  
+> \[__manpage uuencode__\]  
+> \[key yEnc\]  
+> \[__manpage yencode__\]  
+> \[key ydecode\]  
+> \[__manpage yencode__\]  
+> \[key yencode\]  
+> \[__manpage yencode__\]  
+> \[index\_end\]
 
 In the above example the command
 __[manpage](\.\./\.\./\.\./\.\./index\.md\#manpage)__ is used to insert references
@@ -134,20 +134,20 @@ __vset__ are also allowed, to enable the writer to either set and/or import
 configuration settings relevant to the table of contents\. I\.e\. it is possible to
 write
 
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \[index\_begin GROUPTITLE TITLE\]
-    \.\.\.
-    \[index\_end\]
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \[index\_begin GROUPTITLE TITLE\]  
+> \.\.\.  
+> \[index\_end\]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\.
 
-    \[index\_begin GROUPTITLE TITLE\]
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \.\.\.
-    \[index\_end\]
+> \[index\_begin GROUPTITLE TITLE\]  
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \.\.\.  
+> \[index\_end\]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -166,11 +166,11 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
-    \.\.\.
-    These commands, \[cmd lb\] and \[cmd lb\] respectively, are required
-    because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it
-    impossible to directly use \[__lb__\] and \[__rb__\] within the text\.
-    \.\.\.
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
+> &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
+> &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
+> &nbsp;&nbsp;\.\.\.
 
 # <a name='section2'></a>FURTHER READING
 

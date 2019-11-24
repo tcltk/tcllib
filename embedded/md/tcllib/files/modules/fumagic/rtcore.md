@@ -171,7 +171,7 @@ __[fileutil::magic::cfront](cfront\.md)__\.
     The argument *comp* has to contain one of Tcl's comparison operators, and
     the comparison made will be
 
-        <val> <comp> <fetched\-and\-masked\-value>
+        <val> <comp> <fetched-and-masked-value>
 
     The special comparison operator __x__ signals that no comparison should
     be done, or, in other words, that the fetched value will always match

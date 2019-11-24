@@ -1,5 +1,5 @@
 
-::oo::class create ::practcl::toolset.gcc {
+::clay::define ::practcl::toolset.gcc {
   superclass ::practcl::toolset
 
   method Autoconf {} {
@@ -9,7 +9,8 @@
     ###
     set pwd [pwd]
     set srcdir [file normalize [my define get srcdir]]
-    cd $srcdir
+    set localsrcdir [my MakeDir $srcdir]
+    cd $localsrcdir
     foreach template {configure.ac configure.in} {
       set input [file join $srcdir $template]
       if {[file exists $input]} {
@@ -55,16 +56,17 @@
     }
     set inside_msys [string is true -strict [my <project> define get MSYS_ENV 0]]
     lappend opts --with-tclsh=[info nameofexecutable]
-    if {![my <project> define get LOCAL 0]} {
-      set obj [my <project> tclcore]
-      if {$obj ne {}} {
-        if {$inside_msys} {
-          lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
-        } else {
-          lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+
+    if {[my define get tk 0]} {
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
         }
-      }
-      if {[my define get tk 0]} {
         set obj [my <project> tkcore]
         if {$obj ne {}} {
           if {$inside_msys} {
@@ -73,11 +75,22 @@
             lappend opts --with-tk=[file normalize [$obj define get builddir]]
           }
         }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
+        lappend opts --with-tk=[file join $PREFIX lib]
       }
     } else {
-      lappend opts --with-tcl=[file join $PREFIX lib]
-      if {[my define get tk 0]} {
-        lappend opts --with-tk=[file join $PREFIX lib]
+      if {![my <project> define get LOCAL 0]} {
+        set obj [my <project> tclcore]
+        if {$obj ne {}} {
+          if {$inside_msys} {
+            lappend opts --with-tcl=[::practcl::file_relative [file normalize $builddir] [$obj define get builddir]]
+          } else {
+            lappend opts --with-tcl=[file normalize [$obj define get builddir]]
+          }
+        }
+      } else {
+        lappend opts --with-tcl=[file join $PREFIX lib]
       }
     }
 
@@ -118,6 +131,11 @@
           set localsrcdir [file join $srcdir win]
         }
       }
+      macosx {
+        if {[file exists [file join $srcdir unix Makefile.in]]} {
+          set localsrcdir [file join $srcdir unix]
+        }
+      }
       default {
         if {[file exists [file join $srcdir $os]]} {
           my define add include_dir [file join $srcdir $os]
@@ -135,9 +153,12 @@
     return $localsrcdir
   }
 
-  method make-autodetect {} {
+  Ensemble make::autodetect {} {
     set srcdir [my define get srcdir]
-    set localsrcdir [my define get localsrcdir]
+    set localsrcdir [my MakeDir $srcdir]
+    if {$localsrcdir eq {}} {
+      set localsrcdir $srcdir
+    }
     if {$srcdir eq $localsrcdir} {
       if {![file exists [file join $srcdir tclconfig install-sh]]} {
         # ensure we have tclconfig with all of the trimmings
@@ -179,12 +200,12 @@
     cd $::CWD
   }
 
-  method make-clean {} {
+  Ensemble make::clean {} {
     set builddir [file normalize [my define get builddir]]
     catch {::practcl::domake $builddir clean}
   }
 
-  method make-compile {} {
+  Ensemble make::compile {} {
     set name [my define get name]
     set srcdir [my define get srcdir]
     if {[my define get static 1]} {
@@ -209,7 +230,7 @@
     }
   }
 
-  method make-install DEST {
+  Ensemble make::install DEST {
     set PWD [pwd]
     set builddir [my define get builddir]
     if {[my <project> define get LOCAL 0] || $DEST eq {}} {
@@ -444,11 +465,27 @@ method build-library {outfile PROJECT} {
   set includedir .
   #lappend includedir [::practcl::file_relative $path $proj(TCL_INCLUDES)]
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) generic]]]
+  if {[$PROJECT define get TEA_PRIVATE_TCL_HEADERS 0]} {
+    if {[$PROJECT define get TEA_PLATFORM] eq "windows"} {
+      lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) win]]]
+    } else {
+      lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TCL_SRC_DIR) unix]]]
+    }
+  }
+
   lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(srcdir) generic]]]
+
   if {[$PROJECT define get tk 0]} {
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) generic]]]
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) ttk]]]
     lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) xlib]]]
+    if {[$PROJECT define get TEA_PRIVATE_TK_HEADERS 0]} {
+      if {[$PROJECT define get TEA_PLATFORM] eq "windows"} {
+        lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) win]]]
+      } else {
+        lappend includedir [::practcl::file_relative $path [file normalize [file join $proj(TK_SRC_DIR) unix]]]
+      }
+    }
     lappend includedir [::practcl::file_relative $path [file normalize $proj(TK_BIN_DIR)]]
   }
   foreach include [$PROJECT toolset-include-directory] {
@@ -518,8 +555,26 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 # Produce a static executable
 ###
-method build-tclsh {outfile PROJECT} {
-  puts " BUILDING STATIC TCLSH "
+method build-tclsh {outfile PROJECT {path {auto}}} {
+  if {[my define get tk 0] && [my define get static_tk 0]} {
+    puts " BUILDING STATIC TCL/TK EXE $PROJECT"
+    set TKOBJ  [$PROJECT tkcore]
+    if {[info command $TKOBJ] eq {}} {
+      set TKOBJ ::noop
+      $PROJECT define set static_tk 0
+    } else {
+      ::practcl::toolset select $TKOBJ
+      array set TK  [$TKOBJ read_configuration]
+      set do_tk [$TKOBJ define get static]
+      $PROJECT define set static_tk $do_tk
+      $PROJECT define set tk $do_tk
+      set TKSRCDIR [$TKOBJ define get srcdir]
+    }
+  } else {
+    puts " BUILDING STATIC TCL EXE $PROJECT"
+    set TKOBJ ::noop
+    my define set static_tk 0
+  }
   set TCLOBJ [$PROJECT tclcore]
   ::practcl::toolset select $TCLOBJ
   set PKG_OBJS {}
@@ -534,20 +589,12 @@ method build-tclsh {outfile PROJECT} {
     }
   }
   array set TCL [$TCLOBJ read_configuration]
-
-  set TKOBJ  [$PROJECT tkcore]
-  if {[info command $TKOBJ] eq {}} {
-    set TKOBJ ::noop
-    $PROJECT define set static_tk 0
-  } else {
-    ::practcl::toolset select $TKOBJ
-    array set TK  [$TKOBJ read_configuration]
-    set do_tk [$TKOBJ define get static]
-    $PROJECT define set static_tk $do_tk
-    $PROJECT define set tk $do_tk
-    set TKSRCDIR [$TKOBJ define get srcdir]
+  if {$path in {{} auto}} {
+    set path [file dirname [file normalize $outfile]]
   }
-  set path [file dirname $outfile]
+  if {$path eq "."} {
+    set path [pwd]
+  }
   cd $path
   ###
   # For a static Tcl shell, we need to build all local sources
@@ -607,9 +654,10 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
 
   if {[${PROJECT} define get TEACUP_OS] eq "windows"} {
     set windres [$PROJECT define get RC windres]
-    set RSOBJ [file join $path build tclkit.res.o]
+    set RSOBJ [file join $path objs tclkit.res.o]
     set RCSRC [${PROJECT} define get kit_resource_file]
     set RCMAN [${PROJECT} define get kit_manifest_file]
+    set RCICO [${PROJECT} define get kit_icon_file]
 
     set cmd [list $windres -o $RSOBJ -DSTATIC_BUILD --include [::practcl::file_relative $path [file join $TCLSRC generic]]]
     if {[$PROJECT define get static_tk]} {
@@ -619,16 +667,22 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
       if {$RCMAN eq {} || ![file exists $RCMAN]} {
         set RCMAN [file join [$TKOBJ define get builddir] wish.exe.manifest]
       }
+      if {$RCICO eq {} || ![file exists $RCICO]} {
+        set RCICO [file join $TKSRCDIR win rc wish.ico]
+      }
       set TKSRC [file normalize $TKSRCDIR]
       lappend cmd --include [::practcl::file_relative $path [file join $TKSRC generic]] \
         --include [::practcl::file_relative $path [file join $TKSRC win]] \
         --include [::practcl::file_relative $path [file join $TKSRC win rc]]
     } else {
       if {$RCSRC eq {} || ![file exists $RCSRC]} {
-        set RCSRC [file join $TCLSRCDIR tclsh.rc]
+        set RCSRC [file join $TCLSRCDIR win tclsh.rc]
       }
       if {$RCMAN eq {} || ![file exists $RCMAN]} {
         set RCMAN [file join [$TCLOBJ define get builddir] tclsh.exe.manifest]
+      }
+      if {$RCICO eq {} || ![file exists $RCICO]} {
+        set RCICO [file join $TCLSRCDIR win tclsh.ico]
       }
     }
     foreach item [${PROJECT} define get resource_include] {
@@ -640,6 +694,9 @@ $TCL(cflags_warning) $TCL(extra_cflags)"
     }
     if {![file exists [file join $path [file tail $RCMAN]]]} {
       file copy -force $RCMAN [file join $path [file tail $RCMAN]]
+    }
+    if {![file exists [file join $path [file tail $RCICO]]]} {
+      file copy -force $RCICO [file join $path [file tail $RCICO]]
     }
     ::practcl::doexec {*}$cmd
     lappend OBJECTS $RSOBJ

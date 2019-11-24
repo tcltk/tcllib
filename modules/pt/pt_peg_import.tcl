@@ -2,12 +2,10 @@
 #
 #	Importing parsing expression grammars from other formats.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: pt_peg_import.tcl,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the creation of parsing
 # expression grammars from some textual representation. I.e. this
@@ -17,8 +15,8 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
-package require Tcl 8.5
-package require paths
+package require Tcl 8.4
+package require fileutil::paths
 package require pt::peg
 package require pluginmgr
 package require snit
@@ -35,7 +33,7 @@ snit::type ::pt::peg::import {
     ## Creation, destruction.
 
     constructor {} {
-	install myinclude using ::paths         ${selfns}::INCLUDE
+	install myinclude using ::fileutil::paths ${selfns}::INCLUDE
 	return
     }
 
@@ -186,5 +184,5 @@ snit::type ::pt::peg::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::import 1
+package provide pt::peg::import 1.0.1
 return

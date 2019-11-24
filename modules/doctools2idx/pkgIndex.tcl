@@ -9,10 +9,8 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 # - Parser for docidx markup, and handling serializations
 # - Message catalogs for the parser
 
-package ifneeded doctools::idx                 2   [list source [file join $dir container.tcl]]
-
-package ifneeded doctools::idx::export         0.2 [list source [file join $dir export.tcl]]
-package ifneeded doctools::idx::import         0.2 [list source [file join $dir import.tcl]]
+package ifneeded doctools::idx                 2     [list source [file join $dir container.tcl]]
+package ifneeded doctools::idx::export         0.2.1 [list source [file join $dir export.tcl]]
 
 package ifneeded doctools::idx::export::docidx 0.1 [list source [file join $dir export_docidx.tcl]]
 package ifneeded doctools::idx::export::html   0.2 [list source [file join $dir export_html.tcl]]
@@ -31,3 +29,7 @@ package ifneeded doctools::msgcat::idx::c      0.1 [list source [file join $dir 
 package ifneeded doctools::msgcat::idx::de     0.1 [list source [file join $dir msgcat_de.tcl]]
 package ifneeded doctools::msgcat::idx::en     0.1 [list source [file join $dir msgcat_en.tcl]]
 package ifneeded doctools::msgcat::idx::fr     0.1 [list source [file join $dir msgcat_fr.tcl]]
+
+if {![package vsatisfies [package provide Tcl] 8.5]} {return}
+
+package ifneeded doctools::idx::import         0.2.1 [list source [file join $dir import.tcl]]

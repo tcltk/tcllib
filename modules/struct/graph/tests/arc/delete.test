@@ -34,6 +34,16 @@ test graph-${impl}-${setimpl}-arc-delete-2.0 {arc delete, missing arc} {
     set msg
 } [MissingArc $MY arc0]
 
+test graph-${impl}-${setimpl}-arc-delete-2.1 {arc delete, missing arc} {
+    SETUP
+    mygraph node insert node0 node1
+    mygraph arc  insert node0 node1 arc0
+
+    catch {mygraph arc delete arc0 arc0} msg
+    mygraph destroy
+    set msg
+} [MissingArc $MY arc0]
+
 # -------------------------------------------------------------------------
 # Ok arguments, single, multiple deletion.
 

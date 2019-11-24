@@ -36,10 +36,12 @@ imap4 \- imap client\-side tcl implementation of imap protocol
 
   - [Keywords](#keywords)
 
+  - [Category](#category)
+
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require imap4 ?0\.5\.2?  
+package require imap4 ?0\.5\.3?  
 
 [__::imap4::open__ *hostname* ?*port*?](#1)  
 [__::imap4::starttls__ *chan*](#2)  
@@ -96,9 +98,9 @@ This package defines the following public procedures:
     *Note:* For connecting via SSL the Tcl module *tls* must be already
     loaded otherwise an error is raised\.
 
-        package require tls              ; \# must be loaded for TLS/SSL
-        set ::imap4::use\_ssl 1           ; \# request a secure connection
-        set chan \[::imap4::open $server\] ; \# default port is now 993
+        package require tls              ; # must be loaded for TLS/SSL
+        set ::imap4::use_ssl 1           ; # request a secure connection
+        set chan [::imap4::open $server] ; # default port is now 993
 
   - <a name='2'></a>__::imap4::starttls__ *chan*
 
@@ -133,7 +135,7 @@ This package defines the following public procedures:
     the result code\. All flags are converted to lowercase and leading special
     characters are removed\.
 
-        \{\{Arc08 noselect\} \{Arc08/Private \{noinferiors unmarked\}\} \{INBOX noinferiors\}\}
+        {{Arc08 noselect} {Arc08/Private {noinferiors unmarked}} {INBOX noinferiors}}
 
   - <a name='5'></a>__::imap4::select__ *chan* ?*mailbox*?
 
@@ -206,7 +208,7 @@ This package defines the following public procedures:
     format *\{ \{name \{flags\}\} \.\.\. \}* \(see also compact format in function
     __::imap4::folders__\)\.
 
-        \{\{Arc08 \{\{\\NoSelect\}\}\} \{Arc08/Private \{\{\\NoInferiors\} \{\\UnMarked\}\}\} \{INBOX \{\\NoInferiors\}\}\}
+        {{Arc08 {{\NoSelect}}} {Arc08/Private {{\NoInferiors} {\UnMarked}}} {INBOX {\NoInferiors}}}
 
   - <a name='11'></a>__::imap4::msginfo__ *chan* *msgid* ?*info*? ?*defval*?
 
@@ -248,7 +250,7 @@ This package defines the following public procedures:
     Div\. states: *CURRENT*, *FOUND*, *PERM*\.
 
         ::imap4::select $chan INBOX
-        puts "\[::imap4::mboxinfo $chan exists\] mails in INBOX"
+        puts "[::imap4::mboxinfo $chan exists] mails in INBOX"
 
   - <a name='13'></a>__::imap4::isableto__ *chan* ?*capability*?
 
@@ -329,7 +331,7 @@ This package defines the following public procedures:
     *Logical search conditions:* OR, NOT
 
         ::imap4::search $chan larger 4000 seen
-        puts "Found messages: \[::imap4::mboxinfo $chan found\]"
+        puts "Found messages: [::imap4::mboxinfo $chan found]"
         Found messages: 1 3 6 7 8 9 13 14 15 19 20
 
   - <a name='20'></a>__::imap4::close__ *chan*
@@ -390,7 +392,7 @@ This package defines the following public procedures:
 
     For example:
 
-        ::imap4::store $chan $start\_msgid:$end\_msgid \+FLAGS "Deleted"
+        ::imap4::store $chan $start_msgid:$end_msgid +FLAGS "Deleted"
 
   - <a name='24'></a>__::imap4::expunge__ *chan*
 
@@ -423,33 +425,33 @@ This package defines the following public procedures:
 
     set user myusername
     set pass xtremescrt
-    set server imap\.test\.tld
+    set server imap.test.tld
     set FOLDER INBOX
-    \# Connect to server
-    set imap \[::imap4::open $server\]
+    # Connect to server
+    set imap [::imap4::open $server]
     ::imap4::login $imap $user $pass
     ::imap4::select $imap $FOLDER
-    \# Output all the information about that mailbox
-    foreach info \[::imap4::mboxinfo $imap\] \{
-        puts "$info \-> \[::imap4::mboxinfo $imap $info\]"
-    \}
-    \# fetch 3 records inline
-    set fields \{from: to: subject: size\}
-    foreach rec \[::imap4::fetch $imap :3 \-inline \{\*\}$fields\] \{
-        puts \-nonewline "\#\[incr idx\]\)"
-        for \{set j 0\} \{$j<\[llength $fields\]\} \{incr j\} \{
-            puts "\\t\[lindex $fields $j\] \[lindex $rec $j\]"
-        \}
-    \}
+    # Output all the information about that mailbox
+    foreach info [::imap4::mboxinfo $imap] {
+        puts "$info -> [::imap4::mboxinfo $imap $info]"
+    }
+    # fetch 3 records inline
+    set fields {from: to: subject: size}
+    foreach rec [::imap4::fetch $imap :3 -inline {*}$fields] {
+        puts -nonewline "#[incr idx])"
+        for {set j 0} {$j<[llength $fields]} {incr j} {
+            puts "\t[lindex $fields $j] [lindex $rec $j]"
+        }
+    }
 
-    \# Show all the information available about the message ID 1
-    puts "Available info about message 1: \[::imap4::msginfo $imap 1\]"
+    # Show all the information available about the message ID 1
+    puts "Available info about message 1: [::imap4::msginfo $imap 1]"
 
-    \# Use the capability stuff
-    puts "Capabilities: \[::imap4::isableto $imap\]"
-    puts "Is able to imap4rev1? \[::imap4::isableto $imap imap4rev1\]"
+    # Use the capability stuff
+    puts "Capabilities: [::imap4::isableto $imap]"
+    puts "Is able to imap4rev1? [::imap4::isableto $imap imap4rev1]"
 
-    \# Cleanup
+    # Cleanup
     ::imap4::cleanup $imap
 
 # <a name='section4'></a>TLS Security Considerations
@@ -473,9 +475,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section5'></a>REFERENCES
 
@@ -513,3 +515,7 @@ secondary navigation bar\. Only a small part of rfc3501 implemented\.
 [mail](\.\./\.\./\.\./\.\./index\.md\#mail), [net](\.\./\.\./\.\./\.\./index\.md\#net),
 [rfc3501](\.\./\.\./\.\./\.\./index\.md\#rfc3501),
 [ssl](\.\./\.\./\.\./\.\./index\.md\#ssl), [tls](\.\./\.\./\.\./\.\./index\.md\#tls)
+
+# <a name='category'></a>CATEGORY
+
+Networking

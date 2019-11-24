@@ -73,14 +73,14 @@ detail: rely on the *complex* command to construct a valid number\.\)
 Most procedures implement the basic arithmetic operations or elementary
 functions whereas several others convert to and from different representations:
 
-    set z \[complex 0 1\]
-    puts "z = \[tostring $z\]"
-    puts "z\*\*2 = \[\* $z $z\]
+    set z [complex 0 1]
+    puts "z = [tostring $z]"
+    puts "z**2 = [* $z $z]
 
 would result in:
 
     z = i
-    z\*\*2 = \-1
+    z**2 = -1
 
 # <a name='section2'></a>AVAILABLE PROCEDURES
 

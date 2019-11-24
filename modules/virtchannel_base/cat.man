@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::cat n 1]
+[vset Version 1.0.3]
+[manpage_begin tcl::chan::cat n [vset Version]]
 [keywords {concatenation channel}]
 [keywords {reflected channel}]
 [keywords {tip 219}]
@@ -11,7 +12,7 @@
 [require Tcl 8.5]
 [require TclOO]
 [require tcl::chan::core [opt 1]]
-[require tcl::chan::cat [opt 1]]
+[require tcl::chan::cat [opt [vset Version]]]
 [description]
 [para]
 
@@ -43,5 +44,5 @@ channels, and returns its handle.
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

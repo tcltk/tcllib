@@ -2,7 +2,7 @@
 [//000000001]: # (simulation::random \- Tcl Simulation Tools)
 [//000000002]: # (Generated from file 'simulation\_random\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
-[//000000004]: # (simulation::random\(n\) 0\.1 tcllib "Tcl Simulation Tools")
+[//000000004]: # (simulation::random\(n\) 0\.4 tcllib "Tcl Simulation Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,22 +34,24 @@ simulation::random \- Pseudo\-random number generators
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.4?  
-package require simulation::random 0\.1  
+package require simulation::random 0\.4  
 
 [__::simulation::random::prng\_Bernoulli__ *p*](#1)  
 [__::simulation::random::prng\_Discrete__ *n*](#2)  
 [__::simulation::random::prng\_Poisson__ *lambda*](#3)  
 [__::simulation::random::prng\_Uniform__ *min* *max*](#4)  
-[__::simulation::random::prng\_Exponential__ *min* *mean*](#5)  
-[__::simulation::random::prng\_Normal__ *mean* *stdev*](#6)  
-[__::simulation::random::prng\_Pareto__ *min* *steep*](#7)  
-[__::simulation::random::prng\_Gumbel__ *min* *f*](#8)  
-[__::simulation::random::prng\_chiSquared__ *df*](#9)  
-[__::simulation::random::prng\_Disk__ *rad*](#10)  
-[__::simulation::random::prng\_Sphere__ *rad*](#11)  
-[__::simulation::random::prng\_Ball__ *rad*](#12)  
-[__::simulation::random::prng\_Rectangle__ *length* *width*](#13)  
-[__::simulation::random::prng\_Block__ *length* *width* *depth*](#14)  
+[__::simulation::random::prng\_Triangular__ *min* *max*](#5)  
+[__::simulation::random::prng\_SymmTriangular__ *min* *max*](#6)  
+[__::simulation::random::prng\_Exponential__ *min* *mean*](#7)  
+[__::simulation::random::prng\_Normal__ *mean* *stdev*](#8)  
+[__::simulation::random::prng\_Pareto__ *min* *steep*](#9)  
+[__::simulation::random::prng\_Gumbel__ *min* *f*](#10)  
+[__::simulation::random::prng\_chiSquared__ *df*](#11)  
+[__::simulation::random::prng\_Disk__ *rad*](#12)  
+[__::simulation::random::prng\_Sphere__ *rad*](#13)  
+[__::simulation::random::prng\_Ball__ *rad*](#14)  
+[__::simulation::random::prng\_Rectangle__ *length* *width*](#15)  
+[__::simulation::random::prng\_Block__ *length* *width* *depth*](#16)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -63,7 +65,7 @@ These new commands deliver
 
 For example:
 
-    set p \[::simulation::random::prng\_Normal \-1\.0 10\.0\]
+    set p [::simulation::random::prng_Normal -1.0 10.0]
 
 produces a new command \(whose name is stored in the variable "p"\) that generates
 normally distributed numbers with a mean of \-1\.0 and a standard deviation of
@@ -117,7 +119,36 @@ distributions:
 
         Maximum number that will be generated
 
-  - <a name='5'></a>__::simulation::random::prng\_Exponential__ *min* *mean*
+  - <a name='5'></a>__::simulation::random::prng\_Triangular__ *min* *max*
+
+    Create a command \(PRNG\) that generates triangularly distributed numbers
+    between "min" and "max"\. If the argument min is lower than the argument max,
+    then smaller values have higher probability and vice versa\. In the first
+    case the probability density function is of the form *f\(x\) = 2\(1\-x\)* and
+    the other case it is of the form *f\(x\) = 2x*\.
+
+      * float *min*
+
+        Minimum number that will be generated
+
+      * float *max*
+
+        Maximum number that will be generated
+
+  - <a name='6'></a>__::simulation::random::prng\_SymmTriangular__ *min* *max*
+
+    Create a command \(PRNG\) that generates numbers distributed according to a
+    symmetric triangle around the mean of "min" and "max"\.
+
+      * float *min*
+
+        Minimum number that will be generated
+
+      * float *max*
+
+        Maximum number that will be generated
+
+  - <a name='7'></a>__::simulation::random::prng\_Exponential__ *min* *mean*
 
     Create a command \(PRNG\) that generates exponentially distributed numbers
     with a given minimum value and a given mean value\.
@@ -130,7 +161,7 @@ distributions:
 
         Mean value for the numbers
 
-  - <a name='6'></a>__::simulation::random::prng\_Normal__ *mean* *stdev*
+  - <a name='8'></a>__::simulation::random::prng\_Normal__ *mean* *stdev*
 
     Create a command \(PRNG\) that generates normally distributed numbers with a
     given mean value and a given standard deviation\.
@@ -143,7 +174,7 @@ distributions:
 
         Standard deviation
 
-  - <a name='7'></a>__::simulation::random::prng\_Pareto__ *min* *steep*
+  - <a name='9'></a>__::simulation::random::prng\_Pareto__ *min* *steep*
 
     Create a command \(PRNG\) that generates numbers distributed according to
     Pareto with a given minimum value and a given distribution steepness\.
@@ -156,13 +187,13 @@ distributions:
 
         Steepness of the distribution
 
-  - <a name='8'></a>__::simulation::random::prng\_Gumbel__ *min* *f*
+  - <a name='10'></a>__::simulation::random::prng\_Gumbel__ *min* *f*
 
     Create a command \(PRNG\) that generates numbers distributed according to
     Gumbel with a given minimum value and a given scale factor\. The probability
     density function is:
 
-    P\(v\) = exp\( \-exp\(f\*\(v\-min\)\)\)
+    P(v) = exp( -exp(f*(v-min)))
 
       * float *min*
 
@@ -172,7 +203,7 @@ distributions:
 
         Scale factor for the values
 
-  - <a name='9'></a>__::simulation::random::prng\_chiSquared__ *df*
+  - <a name='11'></a>__::simulation::random::prng\_chiSquared__ *df*
 
     Create a command \(PRNG\) that generates numbers distributed according to the
     chi\-squared distribution with df degrees of freedom\. The mean is 0 and the
@@ -184,7 +215,7 @@ distributions:
 
 The package defines the following public procedures for random point sets:
 
-  - <a name='10'></a>__::simulation::random::prng\_Disk__ *rad*
+  - <a name='12'></a>__::simulation::random::prng\_Disk__ *rad*
 
     Create a command \(PRNG\) that generates \(x,y\)\-coordinates for points
     uniformly spread over a disk of given radius\.
@@ -193,7 +224,7 @@ The package defines the following public procedures for random point sets:
 
         Radius of the disk
 
-  - <a name='11'></a>__::simulation::random::prng\_Sphere__ *rad*
+  - <a name='13'></a>__::simulation::random::prng\_Sphere__ *rad*
 
     Create a command \(PRNG\) that generates \(x,y,z\)\-coordinates for points
     uniformly spread over the surface of a sphere of given radius\.
@@ -202,7 +233,7 @@ The package defines the following public procedures for random point sets:
 
         Radius of the disk
 
-  - <a name='12'></a>__::simulation::random::prng\_Ball__ *rad*
+  - <a name='14'></a>__::simulation::random::prng\_Ball__ *rad*
 
     Create a command \(PRNG\) that generates \(x,y,z\)\-coordinates for points
     uniformly spread within a ball of given radius\.
@@ -211,7 +242,7 @@ The package defines the following public procedures for random point sets:
 
         Radius of the ball
 
-  - <a name='13'></a>__::simulation::random::prng\_Rectangle__ *length* *width*
+  - <a name='15'></a>__::simulation::random::prng\_Rectangle__ *length* *width*
 
     Create a command \(PRNG\) that generates \(x,y\)\-coordinates for points
     uniformly spread over a rectangle\.
@@ -224,7 +255,7 @@ The package defines the following public procedures for random point sets:
 
         Width of the rectangle \(y\-direction\)
 
-  - <a name='14'></a>__::simulation::random::prng\_Block__ *length* *width* *depth*
+  - <a name='16'></a>__::simulation::random::prng\_Block__ *length* *width* *depth*
 
     Create a command \(PRNG\) that generates \(x,y,z\)\-coordinates for points
     uniformly spread over a block

@@ -15,8 +15,20 @@
 dt_source _common.tcl
 dt_source _nroff.tcl
 
+global _in_example
+set    _in_example 0
+
 ################################################################
 # Define the API commands.
+
+# Called to handle plain text from the input
+proc fmt_plain_text {text} {
+    global _in_example
+    if {$_in_example} {
+	set text [string map [list \\\\\n \\\n] $text]
+    }
+    return $text
+}
 
 c_pass 1 fmt_manpage_begin {title section version} c_begin
 c_pass 2 fmt_manpage_begin {title section version} {
@@ -189,20 +201,24 @@ proc fmt_tkoption_def {name dbname dbclass} {
 ################################################################
 
 proc fmt_example_begin {} {
+    global _in_example ; set _in_example 1
     return [nr_cs]\n
 }
 proc fmt_example_end   {} {
+    global _in_example ; set _in_example 0
     if {[dt_lnesting]} {
 	return [nr_ce][nr_item]
     }
     nr_ce
 }
-proc fmt_example {code} { 
+proc fmt_example {code} {
+    global _in_example ; set _in_example 1
     set lines [list "" [nr_cs]]
     foreach line [split $code "\n"] {
     	lappend lines [fmt_plain_text $line]
     }
     lappend lines [nr_ce] ""
+    set _in_example 0
     return [join $lines "\n"]
 }
 

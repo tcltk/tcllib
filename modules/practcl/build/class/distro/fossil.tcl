@@ -1,5 +1,7 @@
-
-oo::class create ::practcl::distribution.fossil {
+###
+# A file distribution based on fossil
+###
+::clay::define ::practcl::distribution.fossil {
   superclass ::practcl::distribution
 
   method scm_info {} {
@@ -10,7 +12,7 @@ oo::class create ::practcl::distribution.fossil {
     }
     return $info
   }
-  
+
   # Clone the source
   method ScmClone  {} {
     set srcdir [my SrcDir]
@@ -112,17 +114,6 @@ oo::class create ::practcl::distribution.fossil {
 
 oo::objdefine ::practcl::distribution.fossil {
 
-  # Check for markers in the source root
-  method claim_path path {
-    if {[file exists [file join $path .fslckout]]} {
-      return true
-    }
-    if {[file exists [file join $path _FOSSIL_]]} {
-      return true
-    }
-    return false
-  }
-
   # Check for markers in the metadata
   method claim_object obj {
     set path [$obj define get srcdir]
@@ -130,6 +121,21 @@ oo::objdefine ::practcl::distribution.fossil {
       return true
     }
     if {[$obj define get fossil_url] ne {}} {
+      return true
+    }
+    return false
+  }
+
+  method claim_option {} {
+    return fossil
+  }
+
+  # Check for markers in the source root
+  method claim_path path {
+    if {[file exists [file join $path .fslckout]]} {
+      return true
+    }
+    if {[file exists [file join $path _FOSSIL_]]} {
       return true
     }
     return false

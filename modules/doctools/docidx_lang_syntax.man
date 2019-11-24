@@ -116,5 +116,5 @@ markup commands, i.e. one of
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

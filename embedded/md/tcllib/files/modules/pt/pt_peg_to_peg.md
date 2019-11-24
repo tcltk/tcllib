@@ -176,21 +176,21 @@ It is formally specified by the grammar shown below, written in itself\. For a
 tutorial / introduction to the language please go and read the *[PEG Language
 Tutorial](pt\_peg\_language\.md)*\.
 
-    PEG pe\-grammar\-for\-peg \(Grammar\)
+    PEG pe-grammar-for-peg (Grammar)
 
-    	\# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-            \# Syntactical constructs
+    	# --------------------------------------------------------------------
+            # Syntactical constructs
 
-            Grammar         <\- WHITESPACE Header Definition\* Final EOF ;
+            Grammar         <- WHITESPACE Header Definition* Final EOF ;
 
-            Header          <\- PEG Identifier StartExpr ;
-            Definition      <\- Attribute? Identifier IS Expression SEMICOLON ;
-            Attribute       <\- \(VOID / LEAF\) COLON ;
-            Expression      <\- Sequence \(SLASH Sequence\)\* ;
-            Sequence        <\- Prefix\+ ;
-            Prefix          <\- \(AND / NOT\)? Suffix ;
-            Suffix          <\- Primary \(QUESTION / STAR / PLUS\)? ;
-            Primary         <\- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
+            Header          <- PEG Identifier StartExpr ;
+            Definition      <- Attribute? Identifier IS Expression SEMICOLON ;
+            Attribute       <- (VOID / LEAF) COLON ;
+            Expression      <- Sequence (SLASH Sequence)* ;
+            Sequence        <- Prefix+ ;
+            Prefix          <- (AND / NOT)? Suffix ;
+            Suffix          <- Primary (QUESTION / STAR / PLUS)? ;
+            Primary         <- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
                             /  GRAPH / LOWER / PRINTABLE / PUNCT / SPACE / UPPER
                             /  WORDCHAR / XDIGIT
                             / Identifier
@@ -199,101 +199,101 @@ Tutorial](pt\_peg\_language\.md)*\.
                             /  Class
                             /  DOT
                             ;
-            Literal         <\- APOSTROPH  \(\!APOSTROPH  Char\)\* APOSTROPH  WHITESPACE
-                            /  DAPOSTROPH \(\!DAPOSTROPH Char\)\* DAPOSTROPH WHITESPACE ;
-            Class           <\- OPENB \(\!CLOSEB Range\)\* CLOSEB WHITESPACE ;
-            Range           <\- Char TO Char / Char ;
+            Literal         <- APOSTROPH  (!APOSTROPH  Char)* APOSTROPH  WHITESPACE
+                            /  DAPOSTROPH (!DAPOSTROPH Char)* DAPOSTROPH WHITESPACE ;
+            Class           <- OPENB (!CLOSEB Range)* CLOSEB WHITESPACE ;
+            Range           <- Char TO Char / Char ;
 
-            StartExpr       <\- OPEN Expression CLOSE ;
-    void:   Final           <\- "END" WHITESPACE SEMICOLON WHITESPACE ;
+            StartExpr       <- OPEN Expression CLOSE ;
+    void:   Final           <- "END" WHITESPACE SEMICOLON WHITESPACE ;
 
-            \# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-            \# Lexing constructs
+            # --------------------------------------------------------------------
+            # Lexing constructs
 
-            Identifier      <\- Ident WHITESPACE ;
-    leaf:   Ident           <\- \(\[\_:\] / <alpha>\) \(\[\_:\] / <alnum>\)\* ;
-            Char            <\- CharSpecial / CharOctalFull / CharOctalPart
+            Identifier      <- Ident WHITESPACE ;
+    leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
+            Char            <- CharSpecial / CharOctalFull / CharOctalPart
                             /  CharUnicode / CharUnescaped
                             ;
 
-    leaf:   CharSpecial     <\- "\\\\" \[nrt'"\\\[\\\]\\\\\] ;
-    leaf:   CharOctalFull   <\- "\\\\" \[0\-2\]\[0\-7\]\[0\-7\] ;
-    leaf:   CharOctalPart   <\- "\\\\" \[0\-7\]\[0\-7\]? ;
-    leaf:   CharUnicode     <\- "\\\\" 'u' HexDigit \(HexDigit \(HexDigit HexDigit?\)?\)? ;
-    leaf:   CharUnescaped   <\- \!"\\\\" \. ;
+    leaf:   CharSpecial     <- "\\" [nrt'"\[\]\\] ;
+    leaf:   CharOctalFull   <- "\\" [0-2][0-7][0-7] ;
+    leaf:   CharOctalPart   <- "\\" [0-7][0-7]? ;
+    leaf:   CharUnicode     <- "\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
+    leaf:   CharUnescaped   <- !"\\" . ;
 
-    void:   HexDigit        <\- \[0\-9a\-fA\-F\] ;
+    void:   HexDigit        <- [0-9a-fA-F] ;
 
-    void:   TO              <\- '\-'           ;
-    void:   OPENB           <\- "\["           ;
-    void:   CLOSEB          <\- "\]"           ;
-    void:   APOSTROPH       <\- "'"           ;
-    void:   DAPOSTROPH      <\- '"'           ;
-    void:   PEG             <\- "PEG" \!\(\[\_:\] / <alnum>\) WHITESPACE ;
-    void:   IS              <\- "<\-"    WHITESPACE ;
-    leaf:   VOID            <\- "void"  WHITESPACE ; \# Implies that definition has no semantic value\.
-    leaf:   LEAF            <\- "leaf"  WHITESPACE ; \# Implies that definition has no terminals\.
-    void:   SEMICOLON       <\- ";"     WHITESPACE ;
-    void:   COLON           <\- ":"     WHITESPACE ;
-    void:   SLASH           <\- "/"     WHITESPACE ;
-    leaf:   AND             <\- "&"     WHITESPACE ;
-    leaf:   NOT             <\- "\!"     WHITESPACE ;
-    leaf:   QUESTION        <\- "?"     WHITESPACE ;
-    leaf:   STAR            <\- "\*"     WHITESPACE ;
-    leaf:   PLUS            <\- "\+"     WHITESPACE ;
-    void:   OPEN            <\- "\("     WHITESPACE ;
-    void:   CLOSE           <\- "\)"     WHITESPACE ;
-    leaf:   DOT             <\- "\."     WHITESPACE ;
+    void:   TO              <- '-'           ;
+    void:   OPENB           <- "["           ;
+    void:   CLOSEB          <- "]"           ;
+    void:   APOSTROPH       <- "'"           ;
+    void:   DAPOSTROPH      <- '"'           ;
+    void:   PEG             <- "PEG" !([_:] / <alnum>) WHITESPACE ;
+    void:   IS              <- "<-"    WHITESPACE ;
+    leaf:   VOID            <- "void"  WHITESPACE ; # Implies that definition has no semantic value.
+    leaf:   LEAF            <- "leaf"  WHITESPACE ; # Implies that definition has no terminals.
+    void:   SEMICOLON       <- ";"     WHITESPACE ;
+    void:   COLON           <- ":"     WHITESPACE ;
+    void:   SLASH           <- "/"     WHITESPACE ;
+    leaf:   AND             <- "&"     WHITESPACE ;
+    leaf:   NOT             <- "!"     WHITESPACE ;
+    leaf:   QUESTION        <- "?"     WHITESPACE ;
+    leaf:   STAR            <- "*"     WHITESPACE ;
+    leaf:   PLUS            <- "+"     WHITESPACE ;
+    void:   OPEN            <- "("     WHITESPACE ;
+    void:   CLOSE           <- ")"     WHITESPACE ;
+    leaf:   DOT             <- "."     WHITESPACE ;
 
-    leaf:   ALNUM           <\- "<alnum>"    WHITESPACE ;
-    leaf:   ALPHA           <\- "<alpha>"    WHITESPACE ;
-    leaf:   ASCII           <\- "<ascii>"    WHITESPACE ;
-    leaf:   CONTROL         <\- "<control>"  WHITESPACE ;
-    leaf:   DDIGIT          <\- "<ddigit>"   WHITESPACE ;
-    leaf:   DIGIT           <\- "<digit>"    WHITESPACE ;
-    leaf:   GRAPH           <\- "<graph>"    WHITESPACE ;
-    leaf:   LOWER           <\- "<lower>"    WHITESPACE ;
-    leaf:   PRINTABLE       <\- "<print>"    WHITESPACE ;
-    leaf:   PUNCT           <\- "<punct>"    WHITESPACE ;
-    leaf:   SPACE           <\- "<space>"    WHITESPACE ;
-    leaf:   UPPER           <\- "<upper>"    WHITESPACE ;
-    leaf:   WORDCHAR        <\- "<wordchar>" WHITESPACE ;
-    leaf:   XDIGIT          <\- "<xdigit>"   WHITESPACE ;
+    leaf:   ALNUM           <- "<alnum>"    WHITESPACE ;
+    leaf:   ALPHA           <- "<alpha>"    WHITESPACE ;
+    leaf:   ASCII           <- "<ascii>"    WHITESPACE ;
+    leaf:   CONTROL         <- "<control>"  WHITESPACE ;
+    leaf:   DDIGIT          <- "<ddigit>"   WHITESPACE ;
+    leaf:   DIGIT           <- "<digit>"    WHITESPACE ;
+    leaf:   GRAPH           <- "<graph>"    WHITESPACE ;
+    leaf:   LOWER           <- "<lower>"    WHITESPACE ;
+    leaf:   PRINTABLE       <- "<print>"    WHITESPACE ;
+    leaf:   PUNCT           <- "<punct>"    WHITESPACE ;
+    leaf:   SPACE           <- "<space>"    WHITESPACE ;
+    leaf:   UPPER           <- "<upper>"    WHITESPACE ;
+    leaf:   WORDCHAR        <- "<wordchar>" WHITESPACE ;
+    leaf:   XDIGIT          <- "<xdigit>"   WHITESPACE ;
 
-    void:   WHITESPACE      <\- \(" " / "\\t" / EOL / COMMENT\)\* ;
-    void:   COMMENT         <\- '\#' \(\!EOL \.\)\* EOL ;
-    void:   EOL             <\- "\\n\\r" / "\\n" / "\\r" ;
-    void:   EOF             <\- \!\. ;
+    void:   WHITESPACE      <- (" " / "\t" / EOL / COMMENT)* ;
+    void:   COMMENT         <- '#' (!EOL .)* EOL ;
+    void:   EOL             <- "\n\r" / "\n" / "\r" ;
+    void:   EOF             <- !. ;
 
-            \# \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+            # --------------------------------------------------------------------
     END;
 
 ## <a name='subsection1'></a>Example
 
 Our example specifies the grammar for a basic 4\-operation calculator\.
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 Using higher\-level features of the notation, i\.e\. the character classes
 \(predefined and custom\), this example can be rewritten as
 
-    PEG calculator \(Expression\)
-        Sign       <\- \[\-\+\] 						;
-        Number     <\- Sign? <ddigit>\+				;
-        Expression <\- '\(' Expression '\)' / \(Factor \(MulOp Factor\)\*\)	;
-        MulOp      <\- \[\*/\]						;
-        Factor     <\- Term \(AddOp Term\)\*				;
-        AddOp      <\- \[\-\+\]						;
-        Term       <\- Number					;
+    PEG calculator (Expression)
+        Sign       <- [-+] 						;
+        Number     <- Sign? <ddigit>+				;
+        Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+        MulOp      <- [*/]						;
+        Factor     <- Term (AddOp Term)*				;
+        AddOp      <- [-+]						;
+        Term       <- Number					;
     END;
 
 # <a name='section5'></a>PEG serialization format
@@ -388,32 +388,32 @@ may have more than one regular serialization only exactly one of them will be
 
 Assuming the following PEG for simple mathematical expressions
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 then its canonical serialization \(except for whitespace\) is
 
-    pt::grammar::peg \{
-        rules \{
-            AddOp      \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Digit      \{is \{/ \{t 0\} \{t 1\} \{t 2\} \{t 3\} \{t 4\} \{t 5\} \{t 6\} \{t 7\} \{t 8\} \{t 9\}\}                mode value\}
-            Expression \{is \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}                                        mode value\}
-            Factor     \{is \{/ \{x \{t \(\} \{n Expression\} \{t \)\}\} \{n Number\}\}                                  mode value\}
-            MulOp      \{is \{/ \{t \*\} \{t /\}\}                                                                mode value\}
-            Number     \{is \{x \{? \{n Sign\}\} \{\+ \{n Digit\}\}\}                                                 mode value\}
-            Sign       \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Term       \{is \{x \{n Factor\} \{\* \{x \{n MulOp\} \{n Factor\}\}\}\}                                    mode value\}
-        \}
-        start \{n Expression\}
-    \}
+    pt::grammar::peg {
+        rules {
+            AddOp      {is {/ {t -} {t +}}                                                                mode value}
+            Digit      {is {/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}}                mode value}
+            Expression {is {x {n Term} {* {x {n AddOp} {n Term}}}}                                        mode value}
+            Factor     {is {/ {x {t (} {n Expression} {t )}} {n Number}}                                  mode value}
+            MulOp      {is {/ {t *} {t /}}                                                                mode value}
+            Number     {is {x {? {n Sign}} {+ {n Digit}}}                                                 mode value}
+            Sign       {is {/ {t -} {t +}}                                                                mode value}
+            Term       {is {x {n Factor} {* {x {n MulOp} {n Factor}}}}                                    mode value}
+        }
+        start {n Expression}
+    }
 
 # <a name='section6'></a>PE serialization format
 
@@ -547,11 +547,11 @@ of them will be *canonical*\.
 
 Assuming the parsing expression shown on the right\-hand side of the rule
 
-    Expression <\- Term \(AddOp Term\)\*
+    Expression <- Term (AddOp Term)*
 
 then its canonical serialization \(except for whitespace\) is
 
-    \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
 
 # <a name='section7'></a>Bugs, Ideas, Feedback
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'mkzip\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Pat Thoyts
 '\"
-.TH "zipfile::mkzip" n 1\&.2 tcllib "Zip archive creation"
+.TH "zipfile::mkzip" n 1\&.2\&.1 tcllib "Zip archive creation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ zipfile::mkzip \- Build a zip archive
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBzipfile::mkzip  ?1\&.2?\fR
+package require \fBzipfile::mkzip  ?1\&.2\&.1?\fR
 .sp
 \fB::zipfile::mkzip::mkzip\fR \fIzipfile\fR ?\fB-zipkit\fR? ?\fB-runtime\fR \fIprefix\fR? ?\fB-comment\fR \fIstring\fR? ?\fB-directory\fR \fIrootpath\fR? ?\fB-exclude\fR \fIexclude\fR? ?\fB--\fR? ?\fIpath\fR\&.\&.\&.?
 .sp

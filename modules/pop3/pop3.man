@@ -270,5 +270,5 @@ proceeding with authentication.
 }]
 
 [vset CATEGORY pop3]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

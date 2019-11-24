@@ -119,5 +119,5 @@ set f [lb]open /some/file/name a[rb]
 [example_end]
 
 [vset CATEGORY try]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

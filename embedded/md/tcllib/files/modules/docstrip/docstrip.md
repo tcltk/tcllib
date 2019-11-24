@@ -109,25 +109,25 @@ input text to output text\. The basic distinction is that between *code lines*
 \(which are copied and do not begin with a percent character\) and *comment
 lines* \(which begin with a percent character and are not copied\)\.
 
-    docstrip::extract \[join \{
-      \{% comment\}
-      \{% more comment \!"\#$%&/\(\}
-      \{some command\}
-      \{ % blah $blah "Not a comment\."\}
-      \{% abc; this is comment\}
-      \{\# def; this is code\}
-      \{ghi\}
-      \{% jkl\}
-    \} \\n\] \{\}
+    docstrip::extract [join {
+      {% comment}
+      {% more comment !"#$%&/(}
+      {some command}
+      { % blah $blah "Not a comment."}
+      {% abc; this is comment}
+      {# def; this is code}
+      {ghi}
+      {% jkl}
+    } \n] {}
 
 returns the same sequence of lines as
 
-    join \{
-      \{some command\}
-      \{ % blah $blah "Not a comment\."\}
-      \{\# def; this is code\}
-      \{ghi\} ""
-    \} \\n
+    join {
+      {some command}
+      { % blah $blah "Not a comment."}
+      {# def; this is code}
+      {ghi} ""
+    } \n
 
 It does not matter to __docstrip__ what format is used for the documentation
 in the comment lines, but in order to do better than plain text comments, one
@@ -153,13 +153,13 @@ line is one of
 
 where
 
-    STARSLASH  ::=  '\*' &#124; '/'
-    PLUSMINUS  ::=  &#124; '\+' &#124; '\-'
-    EXPRESSION ::= SECONDARY &#124; SECONDARY ',' EXPRESSION
-                 &#124; SECONDARY '&#124;' EXPRESSION
-    SECONDARY  ::= PRIMARY &#124; PRIMARY '&' SECONDARY
-    PRIMARY    ::= TERMINAL &#124; '\!' PRIMARY &#124; '\(' EXPRESSION '\)'
-    CODE       ::= \{ any character except end\-of\-line \}
+    STARSLASH  ::=  '*' | '/'
+    PLUSMINUS  ::=  | '+' | '-'
+    EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
+                 | SECONDARY '|' EXPRESSION
+    SECONDARY  ::= PRIMARY | PRIMARY '&' SECONDARY
+    PRIMARY    ::= TERMINAL | '!' PRIMARY | '(' EXPRESSION ')'
+    CODE       ::= { any character except end-of-line }
 
 Comma and vertical bar both denote 'or'\. Ampersand denotes 'and'\. Exclamation
 mark denotes 'not'\. A TERMINAL can be any nonempty string of characters not
@@ -175,49 +175,49 @@ to the next '%</*EXPRESSION*>' guard with the same *EXPRESSION* \(compared as
 strings\)\. The blocks of code delimited by such '\*' and '/' guard lines must be
 properly nested\.
 
-    set text \[join \{
-       \{begin\}
-       \{%<\*foo>\}
-       \{1\}
-       \{%<\*bar>\}
-       \{2\}
-       \{%</bar>\}
-       \{%<\*\!bar>\}
-       \{3\}
-       \{%</\!bar>\}
-       \{4\}
-       \{%</foo>\}
-       \{5\}
-       \{%<\*bar>\}
-       \{6\}
-       \{%</bar>\}
-       \{end\}
-    \} \\n\]
-    set res \[docstrip::extract $text foo\]
-    append res \[docstrip::extract $text \{foo bar\}\]
-    append res \[docstrip::extract $text bar\]
+    set text [join {
+       {begin}
+       {%<*foo>}
+       {1}
+       {%<*bar>}
+       {2}
+       {%</bar>}
+       {%<*!bar>}
+       {3}
+       {%</!bar>}
+       {4}
+       {%</foo>}
+       {5}
+       {%<*bar>}
+       {6}
+       {%</bar>}
+       {end}
+    } \n]
+    set res [docstrip::extract $text foo]
+    append res [docstrip::extract $text {foo bar}]
+    append res [docstrip::extract $text bar]
 
 sets $res to the result of
 
-    join \{
-       \{begin\}
-       \{1\}
-       \{3\}
-       \{4\}
-       \{5\}
-       \{end\}
-       \{begin\}
-       \{1\}
-       \{2\}
-       \{4\}
-       \{5\}
-       \{6\}
-       \{end\}
-       \{begin\}
-       \{5\}
-       \{6\}
-       \{end\} ""
-    \} \\n
+    join {
+       {begin}
+       {1}
+       {3}
+       {4}
+       {5}
+       {end}
+       {begin}
+       {1}
+       {2}
+       {4}
+       {5}
+       {6}
+       {end}
+       {begin}
+       {5}
+       {6}
+       {end} ""
+    } \n
 
 In guard lines without a '\*', '/', '\+', or '\-' modifier after the '%<', the
 guard applies only to the CODE following the '>' on that single line\. A '\+'
@@ -232,74 +232,74 @@ current __\-metaprefix__, which is customarily set to some "comment until end
 of line" character \(or character sequence\) of the language of the code being
 extracted\.
 
-    set text \[join \{
-       \{begin\}
-       \{%<foo> foo\}
-       \{%<\+foo>plusfoo\}
-       \{%<\-foo>minusfoo\}
-       \{middle\}
-       \{%% some metacomment\}
-       \{%<\*foo>\}
-       \{%%another metacomment\}
-       \{%</foo>\}
-       \{end\}
-    \} \\n\]
-    set res \[docstrip::extract $text foo \-metaprefix \{\# \}\]
-    append res \[docstrip::extract $text bar \-metaprefix \{\#\}\]
+    set text [join {
+       {begin}
+       {%<foo> foo}
+       {%<+foo>plusfoo}
+       {%<-foo>minusfoo}
+       {middle}
+       {%% some metacomment}
+       {%<*foo>}
+       {%%another metacomment}
+       {%</foo>}
+       {end}
+    } \n]
+    set res [docstrip::extract $text foo -metaprefix {# }]
+    append res [docstrip::extract $text bar -metaprefix {#}]
 
 sets $res to the result of
 
-    join \{
-       \{begin\}
-       \{ foo\}
-       \{plusfoo\}
-       \{middle\}
-       \{\#  some metacomment\}
-       \{\# another metacomment\}
-       \{end\}
-       \{begin\}
-       \{minusfoo\}
-       \{middle\}
-       \{\# some metacomment\}
-       \{end\} ""
-    \} \\n
+    join {
+       {begin}
+       { foo}
+       {plusfoo}
+       {middle}
+       {#  some metacomment}
+       {# another metacomment}
+       {end}
+       {begin}
+       {minusfoo}
+       {middle}
+       {# some metacomment}
+       {end} ""
+    } \n
 
 Verbatim guards can be used to force code line interpretation of a block of
 lines even if some of them happen to look like any other type of lines to
 docstrip\. A verbatim guard has the form '%<<*END\-TAG*' and the verbatim block
 is terminated by the first line that is exactly '%*END\-TAG*'\.
 
-    set text \[join \{
-       \{begin\}
-       \{%<\*myblock>\}
-       \{some stupid\(\)\}
-       \{   \#computer<program>\}
-       \{%<<QQQ\-98765\}
-       \{% These three lines are copied verbatim \(including percents\}
-       \{%% even if \-metaprefix is something different than %%\)\.\}
-       \{%</myblock>\}
-       \{%QQQ\-98765\}
-       \{   using\*strange@programming<language>\}
-       \{%</myblock>\}
-       \{end\}
-    \} \\n\]
-    set res \[docstrip::extract $text myblock \-metaprefix \{\# \}\]
-    append res \[docstrip::extract $text \{\}\]
+    set text [join {
+       {begin}
+       {%<*myblock>}
+       {some stupid()}
+       {   #computer<program>}
+       {%<<QQQ-98765}
+       {% These three lines are copied verbatim (including percents}
+       {%% even if -metaprefix is something different than %%).}
+       {%</myblock>}
+       {%QQQ-98765}
+       {   using*strange@programming<language>}
+       {%</myblock>}
+       {end}
+    } \n]
+    set res [docstrip::extract $text myblock -metaprefix {# }]
+    append res [docstrip::extract $text {}]
 
 sets $res to the result of
 
-    join \{
-       \{begin\}
-       \{some stupid\(\)\}
-       \{   \#computer<program>\}
-       \{% These three lines are copied verbatim \(including percents\}
-       \{%% even if \-metaprefix is something different than %%\)\.\}
-       \{%</myblock>\}
-       \{   using\*strange@programming<language>\}
-       \{end\}
-       \{begin\}
-       \{end\} ""
-    \} \\n
+    join {
+       {begin}
+       {some stupid()}
+       {   #computer<program>}
+       {% These three lines are copied verbatim (including percents}
+       {%% even if -metaprefix is something different than %%).}
+       {%</myblock>}
+       {   using*strange@programming<language>}
+       {end}
+       {begin}
+       {end} ""
+    } \n
 
 The processing of verbatim guards takes place also inside blocks of lines which
 due to some outer block guard will not be copied\.
@@ -395,14 +395,14 @@ Master source files with "\.dtx" extension are usually set up so that they can b
 typeset directly by __[latex](\.\./\.\./\.\./\.\./index\.md\#latex)__ without any
 support from other files\. This is achieved by beginning the file with the lines
 
-    % \\iffalse
-    %<\*driver>
-    \\documentclass\{tclldoc\}
-    \\begin\{document\}
-    \\DocInput\{*filename\.dtx*\}
-    \\end\{document\}
-    %</driver>
-    % \\fi
+> &nbsp;&nbsp;&nbsp;% \\iffalse  
+> &nbsp;&nbsp;&nbsp;%<\*driver>  
+> &nbsp;&nbsp;&nbsp;\\documentclass\{tclldoc\}  
+> &nbsp;&nbsp;&nbsp;\\begin\{document\}  
+> &nbsp;&nbsp;&nbsp;\\DocInput\{*filename\.dtx*\}  
+> &nbsp;&nbsp;&nbsp;\\end\{document\}  
+> &nbsp;&nbsp;&nbsp;%</driver>  
+> &nbsp;&nbsp;&nbsp;% \\fi
 
 or some variation thereof\. The trick is that the file gets read twice\. With
 normal LaTeX reading rules, the first two lines are comments and therefore

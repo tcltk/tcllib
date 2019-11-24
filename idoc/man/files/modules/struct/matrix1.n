@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'matrix1\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2002,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::matrix_v1" n 1\&.2\&.1 tcllib "Tcl Data Structures"
+.TH "struct::matrix_v1" n 1\&.2\&.2 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::matrix_v1 \- Create and manipulate matrix objects
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBstruct::matrix  ?1\&.2\&.1?\fR
+package require \fBstruct::matrix  ?1\&.2\&.2?\fR
 .sp
 \fBmatrixName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
@@ -686,6 +686,6 @@ matrix
 Data structures
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2002,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

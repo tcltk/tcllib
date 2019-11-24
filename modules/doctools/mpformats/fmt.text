@@ -465,7 +465,20 @@ c_pass 2 fmt_example_begin {} {
 c_pass 1 fmt_example_end {} NOP
 c_pass 2 fmt_example_end {} {
     #puts_stderr "AAA/fmt_example_end"
+    #puts_stderr AAA/EIN=[string map [list \1 \\1 \t \\t { } \\s] <<[join [split [Text?] \n] >>\n<<]>>]
+
+    # Flush markup from preceding commands into the text buffer.
+    TextPlain ""
+    
     TextTrimLeadingSpace
+
+    # Look for and convert continuation lines protected from Tcl
+    # substitution into a regular continuation line.
+    set t [string map [list \\\\\n \\\n] [Text?]]
+    TextClear
+    Text $t
+
+    #puts_stderr AAA/EFT=[string map [list \1\\1 \t \\t { } \\s] <<[join [split [Text?] \n] >>\n<<]>>]
     
     set penv [GetCurrent]
     if {$penv != {}} {

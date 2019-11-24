@@ -179,20 +179,20 @@ __[ripemd160](\.\./ripemd/ripemd160\.md)__\.
 
 # <a name='section3'></a>EXAMPLE
 
-    proc send\_simple\_message \{recipient email\_server subject body\} \{
+    proc send_simple_message {recipient email_server subject body} {
         package require smtp
         package require mime
 
-        set token \[mime::initialize \-canonical text/plain \\\\
-    	\-string $body\]
+        set token [mime::initialize -canonical text/plain \
+    	-string $body]
         mime::setheader $token Subject $subject
-        smtp::sendmessage $token \\\\
-    	\-recipients $recipient \-servers $email\_server
+        smtp::sendmessage $token \
+    	-recipients $recipient -servers $email_server
         mime::finalize $token
-    \}
+    }
 
-    send\_simple\_message someone@somewhere\.com localhost \\\\
-        "This is the subject\." "This is the message\."
+    send_simple_message someone@somewhere.com localhost \
+        "This is the subject." "This is the message."
 
 # <a name='section4'></a>TLS Security Considerations
 
@@ -215,9 +215,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section5'></a>REFERENCES
 

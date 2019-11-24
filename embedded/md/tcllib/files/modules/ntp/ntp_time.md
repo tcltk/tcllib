@@ -148,23 +148,23 @@ is not used in this client\.
 
     Remove all state variables associated with the request\.
 
-    % set tok \[::time::gettime ntp2a\.mcc\.ac\.uk\]
-    % set t \[::time::unixtime $tok\]
+    % set tok [::time::gettime ntp2a.mcc.ac.uk]
+    % set t [::time::unixtime $tok]
     % ::time::cleanup $tok
 
-    % set tok \[::time::getsntp pool\.ntp\.org\]
-    % set t \[::time::unixtime $tok\]
+    % set tok [::time::getsntp pool.ntp.org]
+    % set t [::time::unixtime $tok]
     % ::time::cleanup $tok
 
-    proc on\_time \{token\} \{
-       if \{\[time::status $token\] eq "ok"\} \{
-          puts \[clock format \[time::unixtime $token\]\]
-       \} else \{
-          puts \[time::error $token\]
-       \}
+    proc on_time {token} {
+       if {[time::status $token] eq "ok"} {
+          puts [clock format [time::unixtime $token]]
+       } else {
+          puts [time::error $token]
+       }
        time::cleanup $token
-    \}
-    time::getsntp \-command on\_time pool\.ntp\.org
+    }
+    time::getsntp -command on_time pool.ntp.org
 
 # <a name='section3'></a>AUTHORS
 

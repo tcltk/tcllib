@@ -1,5 +1,7 @@
-
-oo::class create ::practcl::distribution.snapshot {
+###
+# A file distribution from zip, tarball, or other non-scm archive format
+###
+::clay::define ::practcl::distribution.snapshot {
   superclass ::practcl::distribution
 
   method ScmUnpack {} {
@@ -40,15 +42,20 @@ oo::class create ::practcl::distribution.snapshot {
     return 1
   }
 }
-
 oo::objdefine ::practcl::distribution.snapshot {
+
+  method claim_object object {
+    return false
+  }
+
+  method claim_option {} {
+    return snapshot
+  }
+
   method claim_path path {
     if {[file exists [file join $path .download]]} {
       return true
     }
-    return false
-  }
-  method claim_object object {
     return false
   }
 }

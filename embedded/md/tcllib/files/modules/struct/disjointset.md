@@ -79,19 +79,19 @@ whole situation is that we have
 
 Here is a pictorial representation of the concepts listed above:
 
-    \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+ The outer lines are the boundaries of the set S\.
-    &#124;           /     &#124; The inner regions delineated by the skewed lines
-    &#124;  \*       /   \*  &#124; are the partitions P\. The \*'s denote the elements
-    &#124;      \*  / \\     &#124; E in the set, each in a single partition, their
-    &#124;\*       /   \\    &#124; equivalence class\.
-    &#124;       /  \*  \\   &#124;
-    &#124;      / \*   /    &#124;
-    &#124; \*   /\\  \* /     &#124;
-    &#124;    /  \\  /      &#124;
-    &#124;   /    \\/  \*    &#124;
-    &#124;  / \*    \\       &#124;
-    &#124; /     \*  \\      &#124;
-    \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+
+    +-----------------+ The outer lines are the boundaries of the set S.
+    |           /     | The inner regions delineated by the skewed lines
+    |  *       /   *  | are the partitions P. The *'s denote the elements
+    |      *  / \     | E in the set, each in a single partition, their
+    |*       /   \    | equivalence class.
+    |       /  *  \   |
+    |      / *   /    |
+    | *   /\  * /     |
+    |    /  \  /      |
+    |   /    \/  *    |
+    |  / *    \       |
+    | /     *  \      |
+    +-----------------+
 
 For more information see
 [http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure](http://en\.wikipedia\.org/wiki/Disjoint\_set\_data\_structure)\.

@@ -1,8 +1,8 @@
 
 [//000000001]: # (struct::graph \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'graph\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2002\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::graph\(n\) 2\.4\.1 tcllib "Tcl Data Structures")
+[//000000003]: # (Copyright &copy; 2002\-2009,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (struct::graph\(n\) 2\.4\.3 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ struct::graph \- Create and manipulate directed graph objects
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require struct::graph ?2\.4\.1?  
+package require struct::graph ?2\.4\.3?  
 package require struct::list ?1\.5?  
 package require struct::set ?2\.2\.3?  
 
@@ -198,7 +198,7 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *graphName* __deserialize__ \[*sourcegraph* __serialize__\]
+    > *graphName* __deserialize__ \[*sourcegraph* __serialize__\]
 
     The operation assumes that the *sourcegraph* provides the method
     __serialize__ and that this method returns a valid graph serialization\.
@@ -212,7 +212,7 @@ The following commands are possible for graph objects:
 
     This operation is in effect equivalent to
 
-        *destgraph* __deserialize__ \[*graphName* __serialize__\]
+    > *destgraph* __deserialize__ \[*graphName* __serialize__\]
 
     The operation assumes that the *destgraph* provides the method
     __deserialize__ and that this method takes a graph serialization\.
@@ -407,8 +407,8 @@ The following commands are possible for graph objects:
     of nodes as argument, specified after the name of the restriction itself\.
 
     The restrictions imposed by either __\-in__, __\-out__, __\-adj__,
-    __\-inner__, or __\-embedded__ are applied first\. Specifying more than
-    one of them is illegal\.
+    __\-inner__, or __\-embedding__ are applied first\. Specifying more
+    than one of them is illegal\.
 
     After that the restrictions set via __\-key__ \(and __\-value__\) are
     applied\. Specifying more than one __\-key__ \(and __\-value__\) is
@@ -450,6 +450,14 @@ The following commands are possible for graph objects:
         Return a list of all arcs adjacent to exactly one of the nodes in the
         set\. This is the set of arcs connecting the subgraph spawned by the
         specified nodes to the rest of the graph\.
+
+    *Attention*: After the above options any word with a leading dash which is
+    not a valid option is treated as a node name instead of an invalid option to
+    error out on\. This condition holds until either a valid option terminates
+    the list of nodes, or the end of the command is reached, whichever comes
+    first\.
+
+    The remaining filter options are:
 
       * __\-key__ *key*
 
@@ -592,9 +600,12 @@ The following commands are possible for graph objects:
     have a list of nodes as argument, specified after the name of the
     restriction itself\.
 
-    The possible restrictions are the same as for method __arcs__\. The exact
-    meanings change slightly, as they operate on nodes instead of arcs\. The
-    command recognizes:
+    The possible restrictions are the same as for method __arcs__\. Note that
+    while the exact meanings change slightly, as they operate on nodes instead
+    of arcs, the general behaviour is the same, especially when it comes to the
+    handling of words with a leading dash in node lists\.
+
+    The command recognizes:
 
       * __\-in__
 
@@ -728,24 +739,24 @@ The following commands are possible for graph objects:
     *Note:* The order of the nodes in the serialization has no relevance, nor
     has the order of the arcs per node\.
 
-        \# A possible serialization for the graph structure
-        \#
-        \#        d \-\-\-\-\-> %2
-        \#       /         ^ \\\\
-        \#      /         /   \\\\
-        \#     /         b     \\\\
-        \#    /         /       \\\\
-        \#  %1 <\- a \- %0         e
-        \#    ^         \\\\      /
-        \#     \\\\        c     /
-        \#      \\\\        \\\\  /
-        \#       \\\\        v v
-        \#        f \-\-\-\-\-\- %3
-        \# is
-        \#
-        \# %3 \{\} \{\{f 6 \{\}\}\} %0 \{\} \{\{a 6 \{\}\} \{b 9 \{\}\} \{c 0 \{\}\}\} %1 \{\} \{\{d 9 \{\}\}\} %2 \{\} \{\{e 0 \{\}\}\} \{\}
-        \#
-        \# This assumes that the graph has neither attribute data nor weighted arcs\.
+        # A possible serialization for the graph structure
+        #
+        #        d -----> %2
+        #       /         ^ \
+        #      /         /   \
+        #     /         b     \
+        #    /         /       \
+        #  %1 <- a - %0         e
+        #    ^         \\      /
+        #     \\        c     /
+        #      \\        \\  /
+        #       \\        v v
+        #        f ------ %3
+        # is
+        #
+        # %3 {} {{f 6 {}}} %0 {} {{a 6 {}} {b 9 {}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {}
+        #
+        # This assumes that the graph has neither attribute data nor weighted arcs.
 
   - <a name='64'></a>*graphName* __set__ *key* ?*value*?
 
@@ -871,4 +882,4 @@ Data structures
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2002\-2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2002\-2009,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

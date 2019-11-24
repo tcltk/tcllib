@@ -1,5 +1,9 @@
 This file records outstanding actions for the math module
 
+dd. 4 november 2019
+- Extend the set of test cases for linear interpolation with corner cases
+  - these should fail with a clear error message.
+
 dd. 4 september 2018
 - Implement a "typical profile" for timeseries and determining residuals
   (Plus perhaps a notion of outliers)

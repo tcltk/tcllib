@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::interpolate \- Tcl Math Library)
 [//000000002]: # (Generated from file 'interpolate\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>  
-Copyright &copy; 2004 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
-[//000000004]: # (math::interpolate\(n\) 1\.1 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
+[//000000005]: # (math::interpolate\(n\) 1\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -212,10 +212,10 @@ The interpolation package defines the following public procedures:
 
     The list xyvalues is a list of lists:
 
-            \{   \{x1 y1 z1 \{v11 v12 v13 v14\}\}
-        	\{x2 y2 z2 \{v21 v22 v23 v24\}\}
-        	\.\.\.
-            \}
+            {   {x1 y1 z1 {v11 v12 v13 v14}}
+        	{x2 y2 z2 {v21 v22 v23 v24}}
+        	...
+            }
 
     The last element of each inner list is either a single number or a list in
     itself\. In the latter case the return value is a list with the same number
@@ -264,23 +264,23 @@ The interpolation package defines the following public procedures:
 Suppose you have several tabulated functions of one variable:
 
       x     y1     y2
-    0\.0    0\.0    0\.0
-    1\.0    1\.0    1\.0
-    2\.0    4\.0    8\.0
-    3\.0    9\.0   27\.0
-    4\.0   16\.0   64\.0
+    0.0    0.0    0.0
+    1.0    1.0    1.0
+    2.0    4.0    8.0
+    3.0    9.0   27.0
+    4.0   16.0   64.0
 
 Then to estimate the values at 0\.5, 1\.5, 2\.5 and 3\.5, you can use:
 
-    set table \[::math::interpolate::defineTable table1  \{x y1 y2\} \{   \-      1      2
-                    0\.0    0\.0    0\.0
-                    1\.0    1\.0    1\.0
-                    2\.0    4\.0    8\.0
-                    3\.0    9\.0   27\.0
-                    4\.0   16\.0   64\.0\}\]
-    foreach x \{0\.5 1\.5 2\.5 3\.5\} \{
-        puts "$x: \[::math::interpolate::interp\-1d\-table $table $x\]"
-    \}
+    set table [::math::interpolate::defineTable table1  {x y1 y2} {   -      1      2
+                    0.0    0.0    0.0
+                    1.0    1.0    1.0
+                    2.0    4.0    8.0
+                    3.0    9.0   27.0
+                    4.0   16.0   64.0}]
+    foreach x {0.5 1.5 2.5 3.5} {
+        puts "$x: [::math::interpolate::interp-1d-table $table $x]"
+    }
 
 For one\-dimensional tables the first row is not used\. For two\-dimensional
 tables, the first row represents the values for the second independent variable\.
@@ -290,31 +290,31 @@ tables, the first row represents the values for the second independent variable\
 Suppose the following values are given:
 
       x       y
-    0\.1     1\.0
-    0\.3     2\.1
-    0\.4     2\.2
-    0\.8     4\.11
-    1\.0     4\.12
+    0.1     1.0
+    0.3     2.1
+    0.4     2.2
+    0.8     4.11
+    1.0     4.12
 
 Then to estimate the values at 0\.1, 0\.2, 0\.3, \.\.\. 1\.0, you can use:
 
-    set coeffs \[::math::interpolate::prepare\-cubic\-splines  \{0\.1 0\.3 0\.4 0\.8  1\.0\}  \{1\.0 2\.1 2\.2 4\.11 4\.12\}\]
-    foreach x \{0\.1 0\.2 0\.3 0\.4 0\.5 0\.6 0\.7 0\.8 0\.9 1\.0\} \{
-       puts "$x: \[::math::interpolate::interp\-cubic\-splines $coeffs $x\]"
-    \}
+    set coeffs [::math::interpolate::prepare-cubic-splines  {0.1 0.3 0.4 0.8  1.0}  {1.0 2.1 2.2 4.11 4.12}]
+    foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+       puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
+    }
 
 to get the following output:
 
-    0\.1: 1\.0
-    0\.2: 1\.68044117647
-    0\.3: 2\.1
-    0\.4: 2\.2
-    0\.5: 3\.11221507353
-    0\.6: 4\.25242647059
-    0\.7: 5\.41804227941
-    0\.8: 4\.11
-    0\.9: 3\.95675857843
-    1\.0: 4\.12
+    0.1: 1.0
+    0.2: 1.68044117647
+    0.3: 2.1
+    0.4: 2.2
+    0.5: 3.11221507353
+    0.6: 4.25242647059
+    0.7: 5.41804227941
+    0.8: 4.11
+    0.9: 3.95675857843
+    1.0: 4.12
 
 As you can see, the values at the abscissae are reproduced perfectly\.
 

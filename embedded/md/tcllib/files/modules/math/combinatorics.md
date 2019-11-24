@@ -52,14 +52,14 @@ functions useful in combinatorial problems\.
     The Gamma function is defined as the improper integral from zero to positive
     infinity of
 
-        t\*\*\(x\-1\)\*exp\(\-t\) dt
+        t**(x-1)*exp(-t) dt
 
     The approximation used in the Tcl Math Library is from Lanczos, *ISIAM J\.
     Numerical Analysis, series B,* volume 1, p\. 86\. For "__x__ > 1", the
     absolute error of the result is claimed to be smaller than 5\.5\*10\*\*\-10 \-\-
     that is, the resulting value of Gamma when
 
-        exp\( ln\_Gamma\( x\) \)
+        exp( ln_Gamma( x) )
 
     is computed is expected to be precise to better than nine significant
     figures\.
@@ -86,7 +86,7 @@ functions useful in combinatorial problems\.
 
     Returns the binomial coefficient *C\(n, k\)*
 
-        C\(n,k\) = n\! / k\! \(n\-k\)\!
+        C(n,k) = n! / k! (n-k)!
 
     If both parameters are integers and the result fits in 32 bits, the result
     is rounded to an integer\.
@@ -98,7 +98,7 @@ functions useful in combinatorial problems\.
 
     Returns the Beta function of the parameters *z* and *w*\.
 
-        Beta\(z,w\) = Beta\(w,z\) = Gamma\(z\) \* Gamma\(w\) / Gamma\(z\+w\)
+        Beta(z,w) = Beta(w,z) = Gamma(z) * Gamma(w) / Gamma(z+w)
 
     Results are returned as a floating point number precise to better than nine
     significant digits provided that *w* and *z* are both at least 1\.

@@ -6,7 +6,7 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
+#
 # RCS: @(#) $Id: misc.tcl,v 1.6 2005/10/10 14:02:47 arjenmarkus Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
@@ -36,9 +36,9 @@ proc ::math::cov {val1 val2 args} {
      foreach val [ concat $val1 $val2 $args ] {
         set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
      }
-     set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+     set sigma_sq [ expr { $sigma_sq/($N-1) } ]
      set sigma [ expr { sqrt($sigma_sq) } ]
-     if { $mean != 0.0 } { 
+     if { $mean != 0.0 } {
         set cov [ expr { ($sigma/$mean)*100 } ]
      } else {
         return -code error -errorinfo "Cov undefined for data with zero mean" -errorcode {ARITH DOMAIN}
@@ -74,7 +74,7 @@ proc ::math::fibonacci {n} {
 # ::math::integrate --
 #
 #	calculate the area under a curve defined by a set of (x,y) data pairs.
-#	the x data must increase monotonically throughout the data set for the 
+#	the x data must increase monotonically throughout the data set for the
 #	calculation to be meaningful, therefore the monotonic condition is
 #	tested, and an error is thrown if the x value is found to be
 #	decreasing.
@@ -84,24 +84,24 @@ proc ::math::fibonacci {n} {
 #			data pairs are required, and if the number of data
 #			pairs is even, a padding value of (x0, 0) will be
 #			added.
-# 
+#
 # Results:
 #	result		A two-element list consisting of the area and error
 #			bound (calculation is "Simpson's rule")
 
 proc ::math::integrate { xy_pairs } {
-     
+
      set length [ llength $xy_pairs ]
-     
+
      if { $length < 10 } {
         return -code error "at least 5 x,y pairs must be given"
-     }   
-     
+     }
+
      ;## are we dealing with x,y pairs?
      if { [ expr {$length % 2} ] } {
         return -code error "unmatched xy pair in input"
      }
-     
+
      ;## are there an even number of pairs?  Augment.
      if { ! [ expr {$length % 4} ] } {
         set xy_pairs [ concat [ lindex $xy_pairs 0 ] 0 $xy_pairs ]
@@ -110,21 +110,21 @@ proc ::math::integrate { xy_pairs } {
      set x1   [ lindex $xy_pairs 2     ]
      set xn   [ lindex $xy_pairs end-1 ]
      set xnminus1 [ lindex $xy_pairs end-3 ]
-    
+
      if { $x1 < $x0 } {
         return -code error "monotonicity broken by x1"
      }
 
      if { $xn < $xnminus1 } {
         return -code error "monotonicity broken by xn"
-     }   
-     
+     }
+
      ;## handle the assymetrical elements 0, n, and n-1.
      set sum [ expr {[ lindex $xy_pairs 1 ] + [ lindex $xy_pairs end ]} ]
      set sum [ expr {$sum + (4*[ lindex $xy_pairs end-2 ])} ]
 
      set data [ lrange $xy_pairs 2 end-4 ]
-     
+
      set xmax $x1
      set i 1
      foreach {x1 y1 x2 y2} $data {
@@ -139,15 +139,15 @@ proc ::math::integrate { xy_pairs } {
         }
         set xmax $x2
         set sum [ expr {$sum + (4*$y1) + (2*$y2)} ]
-     }   
-     
+     }
+
      if { $xmax > $xnminus1 } {
         return -code error "monotonicity broken by xn-1"
-     }   
-    
+     }
+
      set h [ expr { ( $xn - $x0 ) / $i } ]
      set area [ expr { ( $h / 3.0 ) * $sum } ]
-     set err_bound  [ expr { ( ( $xn - $x0 ) / 180.0 ) * pow($h,4) * $xn } ]  
+     set err_bound  [ expr { ( ( $xn - $x0 ) / 180.0 ) * pow($h,4) * $xn } ]
      return [ list $area $err_bound ]
 }
 
@@ -285,10 +285,10 @@ proc ::math::sigma {val1 val2 args} {
      foreach val [ concat $val1 $val2 $args ] {
         set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
      }
-     set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+     set sigma_sq [ expr { $sigma_sq/($N-1) } ]
      set sigma [ expr { sqrt($sigma_sq) } ]
      set sigma
-}     
+}
 
 # ::math::stats --
 #
@@ -309,12 +309,12 @@ proc ::math::stats {val1 val2 args} {
      foreach val $args {
         set sum [ expr { $sum+$val } ]
      }
-     set mean [ expr { $sum/$N } ]
+     set mean [ expr { $sum/double($N) } ]
      set sigma_sq 0
      foreach val [ concat $val1 $val2 $args ] {
         set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
      }
-     set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+     set sigma_sq [ expr { $sigma_sq/double($N-1) } ]
      set sigma [ expr { sqrt($sigma_sq) } ]
      set cov [ expr { ($sigma/$mean)*100 } ]
      return [ list $mean $sigma $cov ]

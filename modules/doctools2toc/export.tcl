@@ -2,12 +2,10 @@
 #
 #	Exporting indices into other formats.
 #
-# Copyright (c) 2009-2018 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: export.tcl,v 1.2 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the conversion of keyword
 # indices into some textual representation. I.e. this object manages
@@ -17,7 +15,7 @@
 ## Requisites
 
 package require Tcl 8.4
-package require doctools::config
+package require struct::map
 package require doctools::toc::structure
 package require pluginmgr
 package require snit
@@ -34,7 +32,7 @@ snit::type ::doctools::toc::export {
     ## Creation, destruction.
 
     constructor {} {
-	install myconfig using ::doctools::config ${selfns}::config
+	install myconfig using ::struct::map ${selfns}::config
 	return
     }
 
@@ -121,5 +119,5 @@ snit::type ::doctools::toc::export {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export 0.2
+package provide doctools::toc::export 0.2.1
 return

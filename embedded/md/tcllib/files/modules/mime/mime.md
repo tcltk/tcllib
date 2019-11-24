@@ -2,7 +2,7 @@
 [//000000001]: # (mime \- Mime)
 [//000000002]: # (Generated from file 'mime\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 1999\-2000 Marshall T\. Rose)
-[//000000004]: # (mime\(n\) 1\.6 tcllib "Mime")
+[//000000004]: # (mime\(n\) 1\.6\.2 tcllib "Mime")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ mime \- Manipulation of MIME body parts
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require mime ?1\.6?  
+package require mime ?1\.6\.2?  
 
 [__::mime::initialize__ ?__\-canonical__ *type/subtype* ?__\-param__ \{*key value*\}\.\.\.? ?__\-encoding__ *value*? ?__\-header__ \{*key value*\}\.\.\.?? \(__\-file__ *name* &#124; __\-string__ *value* &#124; __\-parts__ \{*token1* \.\.\. *tokenN*\}\)](#1)  
 [__::mime::finalize__ *token* ?__\-subordinates__ __all__ &#124; __dynamic__ &#124; __none__?](#2)  
@@ -163,18 +163,18 @@ MIME body parts\.
     If the __\-command__ option is present, then it is repeatedly invoked
     with a fragment of the body as this:
 
-        uplevel \#0 $callback \[list "data" $fragment\]
+        uplevel #0 $callback [list "data" $fragment]
 
     \(The __\-blocksize__ option, if present, specifies the maximum size of
     each fragment passed to the callback\.\)
 
     When the end of the body is reached, the callback is invoked as:
 
-        uplevel \#0 $callback "end"
+        uplevel #0 $callback "end"
 
     Alternatively, if an error occurs, the callback is invoked as:
 
-        uplevel \#0 $callback \[list "error" reason\]
+        uplevel #0 $callback [list "error" reason]
 
     Regardless, the return value of the final invocation of the callback is
     propagated upwards by __::mime::getbody__\.

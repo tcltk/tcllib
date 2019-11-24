@@ -67,7 +67,7 @@ document\.
 # <a name='section3'></a>EXAMPLES
 
     % uuid::uuid generate
-    b12dc22c\-5c36\-41d2\-57da\-e29d0ef5839c
+    b12dc22c-5c36-41d2-57da-e29d0ef5839c
 
 # <a name='section4'></a>REFERENCES
 

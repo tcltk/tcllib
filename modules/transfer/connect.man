@@ -164,5 +164,5 @@ Connection objects support the set of options listed below.
 [include include/secure.inc]
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

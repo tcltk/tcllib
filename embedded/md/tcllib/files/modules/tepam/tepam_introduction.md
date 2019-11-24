@@ -134,28 +134,28 @@ The following example declares the subcommand
 __[message](\.\./\.\./\.\./\.\./index\.md\#message)__ of the procedure
 __display__\. This command has several named and unnamed arguments:
 
-    __[tepam::procedure](tepam\_procedure\.md)__ \{display message\} \{
-       \-return            \-
-       \-short\_description "Displays a simple message box"
-       \-description       "This procedure allows displaying a configurable message box\."
-       \-args \{
-          \{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}
-          \{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}
-          \{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}
-          \{\-fg \-type color \-default black \-description "Message color"\}
-          \{\-bg \-type color \-optional \-description "Background color"\}
-          \{\-no\_border \-type none \-description "Use a splash window style \(no border\)"\}
-          \{\-log\_file \-type file \-optional \-description "Optional message log file"\}
-          \{text \-type string \-multiple \-description "Multiple text lines to display"\}
-       \}
-    \} \{
-    *   puts "display message:"
-       foreach var \{mtype font level fg bg no\_border log\_file text\} \{
-          if \{\[info exists $var\]\} \{
-             puts  "  $var=\[set $var\]"
-          \}
-       \}
-    *\}
+> __[tepam::procedure](tepam\_procedure\.md)__ \{display message\} \{  
+> &nbsp;&nbsp;&nbsp;\-return            \-  
+> &nbsp;&nbsp;&nbsp;\-short\_description "Displays a simple message box"  
+> &nbsp;&nbsp;&nbsp;\-description       "This procedure allows displaying a configurable message box\."  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-fg \-type color \-default black \-description "Message color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-bg \-type color \-optional \-description "Background color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-no\_border \-type none \-description "Use a splash window style \(no border\)"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-log\_file \-type file \-optional \-description "Optional message log file"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-multiple \-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;*puts "display message:"*  
+> &nbsp;&nbsp;&nbsp;*foreach var \{mtype font level fg bg no\_border log\_file text\} \{*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*if \{\[info exists $var\]\} \{*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*puts  "  $var=\[set $var\]"*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\}*  
+> &nbsp;&nbsp;&nbsp;*\}*  
+> \}
 
 A call of procedure that has been declared in this way will first invoke the
 TEPAM argument manager, before the procedure body is executed\. The argument
@@ -205,80 +205,100 @@ the named arguments \(Tk style\)\.
 The declared procedure can simply be called with the *\-help* option to get the
 information about the usage of the procedure and its arguments:
 
-    __display message__ \-help
-
-* \-> NAME display message \- Displays a simple message box SYNOPSYS display
-message \[\-mtype <mtype>\] : Message type, default: "Warning", choices: \{Info
-Warning Error\} \[\-font <font>\] : Message text font, type: font, default: Arial 10
-italic \[\-level <level>\] : Message level, type: integer, range: 1\.\.10 \[\-fg <fg>\]
-: Message color, type: color, default: black \[\-bg <bg>\] : Background color,
-type: color \[\-no\_border \] : Use a splash window style \(no border\) \[\-log\_file
-<log\_file>\] : Optional message log file, type: file <text> : Multiple text lines
-to display, type: string DESCRIPTION This procedure allows displaying a
-configurable message box\.*
+> __display message__ \-help  
+> &nbsp;&nbsp;*\->*  
+> *NAME*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*display message \- Displays a simple message box*  
+> *SYNOPSYS*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*display message*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-mtype <mtype>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Message type, default: "Warning", choices: \{Info Warning Error\}*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-font <font>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Message text font, type: font, default: Arial 10 italic*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-level <level>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Message level, type: integer, range: 1\.\.10*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-fg <fg>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Message color, type: color, default: black*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-bg <bg>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Background color, type: color*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-no\_border \] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Use a splash window style \(no border\)*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-log\_file <log\_file>\] :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Optional message log file, type: file*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<text> :*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Multiple text lines to display, type: string*  
+> *DESCRIPTION*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*This procedure allows displaying a configurable message box\.*
 
 # <a name='section5'></a>PROCEDURE CALL
 
 The specified procedure can be called in many ways\. The following listing shows
 some valid procedure calls:
 
-    __display message__ "The document hasn't yet been saved\!"
-    *\-> display message:
-         mtype=Warning
-         font=Arial 10 italic
-         fg=black
-         no\_border=0
-         text=\{The document hasn't yet been saved\!\}*
+> __display message__ "The document hasn't yet been saved\!"  
+> *\-> display message:*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*mtype=Warning*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*font=Arial 10 italic*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*fg=black*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*no\_border=0*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*text=\{The document hasn't yet been saved\!\}*  
+>   
+>   
+> __display message__ \-fg red \-bg black "Please save first the document"  
+> *\-> display message:*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*mtype=Warning*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*font=Arial 10 italic*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*fg=red*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*bg=black*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*no\_border=0*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*text=\{Please save first the document\}*  
+>   
+>   
+> __display message__ \-mtype Error \-no\_border "Why is here no border?"  
+> *\-> display message:*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*mtype=Error*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*font=Arial 10 italic*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*fg=black*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*no\_border=1*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*text=\{Why is here no border?\}*  
+>   
+>   
+> __display message__ \-font \{Courier 12\} \-level 10 \\  
+> &nbsp;&nbsp;&nbsp;"Is there enough space?" "Reduce otherwise the font size\!"  
+> *\-> display message:*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*mtype=Warning*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*font=Courier 12*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*level=10*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*fg=black*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*no\_border=0*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*text=\{Is there enough space?\} \{Reduce otherwise the font size\!\}*
 
-    __display message__ \-fg red \-bg black "Please save first the document"
-    *\-> display message:
-         mtype=Warning
-         font=Arial 10 italic
-         fg=red
-         bg=black
-         no\_border=0
-         text=\{Please save first the document\}*
-
-    __display message__ \-mtype Error \-no\_border "Why is here no border?"
-    *\-> display message:
-         mtype=Error
-         font=Arial 10 italic
-         fg=black
-         no\_border=1
-         text=\{Why is here no border?\}*
-
-    __display message__ \-font \{Courier 12\} \-level 10 \\
-       "Is there enough space?" "Reduce otherwise the font size\!"
-
-*\-> display message: mtype=Warning font=Courier 12 level=10 fg=black
-no\_border=0 text=\{Is there enough space?\} \{Reduce otherwise the font size\!\}*
 The next lines show how wrong arguments are recognized\. The *text* argument
 that is mandatory is missing in the first procedure call:
 
-    __display message__ \-font \{Courier 12\}
+> __display message__ \-font \{Courier 12\}  
+> &nbsp;&nbsp;*\-> display message: Required argument is missing: text*
 
-* \-> display message: Required argument is missing: text* Only known arguments
-are accepted:
+Only known arguments are accepted:
 
-    __display message__ \-category warning Hello
+> __display message__ \-category warning Hello  
+> &nbsp;&nbsp;*\-> display message: Argument '\-category' not known*
 
-* \-> display message: Argument '\-category' not known* Argument types are
-automatically checked and an error message is generated in case the argument
-value has not the expected type:
+Argument types are automatically checked and an error message is generated in
+case the argument value has not the expected type:
 
-    __display message__ \-fg MyColor "Hello"
+> __display message__ \-fg MyColor "Hello"  
+> &nbsp;&nbsp;*\-> display message: Argument 'fg' requires type 'color'\.  Provided value: 'MyColor'*
 
-* \-> display message: Argument 'fg' requires type 'color'\. Provided value:
-'MyColor'* Selection choices have to be respected \.\.\.
+Selection choices have to be respected \.\.\.
 
-    __display message__ \-mtype Fatal Hello
+> __display message__ \-mtype Fatal Hello  
+> &nbsp;&nbsp;*\-> display message: Argument \(mtype\) has to be one of the  following elements: Info, Warning, Error*
 
-* \-> display message: Argument \(mtype\) has to be one of the following elements:
-Info, Warning, Error* \.\.\. as well as valid value ranges:
+\.\.\. as well as valid value ranges:
 
-    __display message__ \-level 12 Hello
-
-* \-> display message: Argument \(level\) has to be between 1 and 10*
+> __display message__ \-level 12 Hello  
+> &nbsp;&nbsp;*\-> display message: Argument \(level\) has to be between 1 and 10*
 
 # <a name='section6'></a>INTERACTIVE PROCEDURE CALLS
 
@@ -287,7 +307,7 @@ specifying all arguments interactively\. This form will automatically be
 generated if the declared procedure is called with the *\-interactive* flag\. To
 use this feature the Tk library has to be loaded\.
 
-    __display message__ \-interactive
+> __display message__ \-interactive
 
 The generated form contains for each argument a data entry widget that is
 adapted to the argument type\. Check buttons are used to specify flags, radio
@@ -318,10 +338,10 @@ files and directories\. And finally, the form offers also the possibility to
 accept and decline the selection\. Here is the code snippet that is doing all
 this:
 
-    __[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\
-       __\-existingfile__ \{\-label "Source file" \-variable SourceFile\} \\
-       __\-existingdirectory__ \{\-label "Destination folder" \-variable DestDir\} \\
-       __\-checkbutton__ \{\-label "Overwrite existing file" \-variable Overwrite\}
+> __[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\  
+> &nbsp;&nbsp;&nbsp;__\-existingfile__ \{\-label "Source file" \-variable SourceFile\} \\  
+> &nbsp;&nbsp;&nbsp;__\-existingdirectory__ \{\-label "Destination folder" \-variable DestDir\} \\  
+> &nbsp;&nbsp;&nbsp;__\-checkbutton__ \{\-label "Overwrite existing file" \-variable Overwrite\}
 
 The __argument\_dialogbox__ returns __ok__ if the entered data are
 validated\. It will return __cancel__ if the data entry has been canceled\.
@@ -350,70 +370,79 @@ about the different available entry widget types and parameter attributes\. The
 example contains also some formatting instructions like *\-frame* and *\-sep*
 which allows organizing the different entry widgets in frames and sections:
 
-    set ChoiceList \{"Choice 1" "Choice 2" "Choice 3" "Choice 4" "Choice 5" "Choice 6"\}
+> set ChoiceList \{"Choice 1" "Choice 2" "Choice 3" "Choice 4" "Choice 5" "Choice 6"\}  
+>   
+> set Result \[__[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\  
+> &nbsp;&nbsp;&nbsp;__\-title__ "System configuration" \\  
+> &nbsp;&nbsp;&nbsp;__\-context__ test\_1 \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Entries"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{\-label Entry1 \-variable Entry1\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{\-label Entry2 \-variable Entry2 \-default "my default"\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Listbox & combobox"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Listbox, single selection" \-variable Listbox1 \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{1 2 3 4 5 6 7 8\} \-default 1 \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Listbox, multiple selection" \-variable Listbox2  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicevariable ChoiceList \-default \{"Choice 2" "Choice 3"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-multiple\_selection 1 \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-disjointlistbox__ \{\-label "Disjoined listbox" \-variable DisJntListbox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicevariable ChoiceList \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default \{"Choice 3" "Choice 5"\} \-height 3\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-combobox__ \{\-label "Combobox" \-variable Combobox \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{1 2 3 4 5 6 7 8\} \-default 3\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Checkbox, radiobox and checkbutton"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-checkbox__ \{\-label Checkbox \-variable Checkbox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default italic\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-radiobox__ \{\-label Radiobox \-variable Radiobox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-checkbutton__ \{\-label CheckButton \-variable Checkbutton \-default 1\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Files & directories"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-existingfile__ \{\-label "Input file" \-variable InputFile\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-file__ \{\-label "Output file" \-variable OutputFile\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-sep__ \{\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-existingdirectory__ \{\-label "Input directory" \-variable InputDirectory\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-directory__ \{\-label "Output irectory" \-variable OutputDirectory\} \\  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\-label "Colors and fonts"\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-color__ \{\-label "Background color" \-variable Color \-default red\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-sep__ \{\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-font__ \{\-label "Font" \-variable Font \-default \{Courier 12 italic\}\}\]
 
-    set Result \[__[tepam::argument\_dialogbox](tepam\_argument\_dialogbox\.md)__ \\
-       __\-title__ "System configuration" \\
-       __\-context__ test\_1 \\
-       __\-frame__ \{\-label "Entries"\} \\
-          __\-entry__ \{\-label Entry1 \-variable Entry1\} \\
-          __\-entry__ \{\-label Entry2 \-variable Entry2 \-default "my default"\} \\
-       __\-frame__ \{\-label "Listbox & combobox"\} \\
-          __\-listbox__ \{\-label "Listbox, single selection" \-variable Listbox1 \\
-                    \-choices \{1 2 3 4 5 6 7 8\} \-default 1 \-height 3\} \\
-          __\-listbox__ \{\-label "Listbox, multiple selection" \-variable Listbox2
-                    \-choicevariable ChoiceList \-default \{"Choice 2" "Choice 3"\}
-                    \-multiple\_selection 1 \-height 3\} \\
-          __\-disjointlistbox__ \{\-label "Disjoined listbox" \-variable DisJntListbox
-                            \-choicevariable ChoiceList \\
-                            \-default \{"Choice 3" "Choice 5"\} \-height 3\} \\
-          __\-combobox__ \{\-label "Combobox" \-variable Combobox \\
-                     \-choices \{1 2 3 4 5 6 7 8\} \-default 3\} \\
-       __\-frame__ \{\-label "Checkbox, radiobox and checkbutton"\} \\
-          __\-checkbox__ \{\-label Checkbox \-variable Checkbox
-                     \-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\
-                     \-default italic\} \\
-          __\-radiobox__ \{\-label Radiobox \-variable Radiobox
-                     \-choices \{bold italic underline\} \-choicelabels \{Bold Italic Underline\} \\
-                     \-default underline\} \\
-          __\-checkbutton__ \{\-label CheckButton \-variable Checkbutton \-default 1\} \\
-       __\-frame__ \{\-label "Files & directories"\} \\
-          __\-existingfile__ \{\-label "Input file" \-variable InputFile\} \\
-          __\-file__ \{\-label "Output file" \-variable OutputFile\} \\
-          __\-sep__ \{\} \\
-          __\-existingdirectory__ \{\-label "Input directory" \-variable InputDirectory\} \\
-          __\-directory__ \{\-label "Output irectory" \-variable OutputDirectory\} \\
-       __\-frame__ \{\-label "Colors and fonts"\} \\
-          __\-color__ \{\-label "Background color" \-variable Color \-default red\} \\
-          __\-sep__ \{\} \\
-          __\-font__ \{\-label "Font" \-variable Font \-default \{Courier 12 italic\}\}
-
-\] The __argument\_dialogbox__ defines all the specified variables with the
+The __argument\_dialogbox__ defines all the specified variables with the
 entered data and returns __ok__ if the data have been validated via the Ok
 button\. If the data entry is cancelled by activating the Cancel button, the
 __argument\_dialogbox__ returns __cancel__\.
 
-    if \{$Result=="cancel"\} \{
-       puts "Canceled"
-    \} else \{ \# $Result=="ok"
-       puts "Arguments: "
-       foreach Var \{
-          Entry1 Entry2
-          Listbox1 Listbox2 DisJntListbox
-          Combobox Checkbox Radiobox Checkbutton
-          InputFile OutputFile InputDirectory OutputDirectory
-          Color Font
-       \} \{
-          puts "  $Var: '\[set $Var\]'"
-       \}
-    \}
-
-*\-> Arguments: Entry1: 'Hello, this is a trial' Entry2: 'my default' Listbox1:
-'1' Listbox2: '\{Choice 2\} \{Choice 3\}' DisJntListbox: '\{Choice 3\} \{Choice 5\}'
-Combobox: '3' Checkbox: 'italic' Radiobox: 'underline' Checkbutton: '1'
-InputFile: 'c:\\tepam\\in\.txt' OutputFile: 'c:\\tepam\\out\.txt' InputDirectory:
-'c:\\tepam\\input' OutputDirectory: 'c:\\tepam\\output' Color: 'red' Font: 'Courier
-12 italic'*
+> if \{$Result=="cancel"\} \{  
+> &nbsp;&nbsp;&nbsp;puts "Canceled"  
+> \} else \{ \# $Result=="ok"  
+> &nbsp;&nbsp;&nbsp;puts "Arguments: "  
+> &nbsp;&nbsp;&nbsp;foreach Var \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Entry1 Entry2  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Listbox1 Listbox2 DisJntListbox  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Combobox Checkbox Radiobox Checkbutton  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InputFile OutputFile InputDirectory OutputDirectory  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Color Font  
+> &nbsp;&nbsp;&nbsp;\} \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;puts "  $Var: '\[set $Var\]'"  
+> &nbsp;&nbsp;&nbsp;\}  
+> \}  
+> *\-> Arguments:*  
+> &nbsp;&nbsp;&nbsp;*Entry1: 'Hello, this is a trial'*  
+> &nbsp;&nbsp;&nbsp;*Entry2: 'my default'*  
+> &nbsp;&nbsp;&nbsp;*Listbox1: '1'*  
+> &nbsp;&nbsp;&nbsp;*Listbox2: '\{Choice 2\} \{Choice 3\}'*  
+> &nbsp;&nbsp;&nbsp;*DisJntListbox: '\{Choice 3\} \{Choice 5\}'*  
+> &nbsp;&nbsp;&nbsp;*Combobox: '3'*  
+> &nbsp;&nbsp;&nbsp;*Checkbox: 'italic'*  
+> &nbsp;&nbsp;&nbsp;*Radiobox: 'underline'*  
+> &nbsp;&nbsp;&nbsp;*Checkbutton: '1'*  
+> &nbsp;&nbsp;&nbsp;*InputFile: 'c:\\tepam\\in\.txt'*  
+> &nbsp;&nbsp;&nbsp;*OutputFile: 'c:\\tepam\\out\.txt'*  
+> &nbsp;&nbsp;&nbsp;*InputDirectory: 'c:\\tepam\\input'*  
+> &nbsp;&nbsp;&nbsp;*OutputDirectory: 'c:\\tepam\\output'*  
+> &nbsp;&nbsp;&nbsp;*Color: 'red'*  
+> &nbsp;&nbsp;&nbsp;*Font: 'Courier 12 italic'*
 
 # <a name='seealso'></a>SEE ALSO
 

@@ -677,20 +677,20 @@ the outline shown in the figure below:
 ![](\.\./\.\./\.\./image/flow\.png) Our grammar, assumed to the stored in the file
 "calculator\.peg" is
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 From this we create a snit\-based parser via
 
-    pt generate snit calculator\.tcl \-class calculator \-name calculator peg calculator\.peg
+    pt generate snit calculator.tcl -class calculator -name calculator peg calculator.peg
 
 which leaves us with the parser package and class written to the file
 "calculator\.tcl"\. Assuming that this package is then properly installed in a
@@ -699,38 +699,38 @@ place where Tcl can find it we can now use this class via a script like
     package require calculator
 
     lassign $argv input
-    set channel \[open $input r\]
+    set channel [open $input r]
 
-    set parser \[calculator\]
-    set ast \[$parser parse $channel\]
+    set parser [calculator]
+    set ast [$parser parse $channel]
     $parser destroy
     close $channel
 
-    \.\.\. now process the returned abstract syntax tree \.\.\.
+    ... now process the returned abstract syntax tree ...
 
 where the abstract syntax tree stored in the variable will look like
 
-    set ast \{Expression 0 4
-        \{Factor 0 4
-            \{Term 0 2
-                \{Number 0 2
-                    \{Digit 0 0\}
-                    \{Digit 1 1\}
-                    \{Digit 2 2\}
-                \}
-            \}
-            \{AddOp 3 3\}
-            \{Term 4 4
-                \{Number 4 4
-                    \{Digit 4 4\}
-                \}
-            \}
-        \}
-    \}
+    set ast {Expression 0 4
+        {Factor 0 4
+            {Term 0 2
+                {Number 0 2
+                    {Digit 0 0}
+                    {Digit 1 1}
+                    {Digit 2 2}
+                }
+            }
+            {AddOp 3 3}
+            {Term 4 4
+                {Number 4 4
+                    {Digit 4 4}
+                }
+            }
+        }
+    }
 
 assuming that the input file and channel contained the text
 
-    120\+5
+    120+5
 
 A more graphical representation of the tree would be
 

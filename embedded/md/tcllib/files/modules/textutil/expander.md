@@ -85,9 +85,9 @@ the variable and function values, returning the new string:
 
     % set greeting "Howdy"
     Howdy
-    % proc place \{\} \{return "World"\}
-    % subst \{$greeting, \[place\]\!\}
-    Howdy, World\!
+    % proc place {} {return "World"}
+    % subst {$greeting, [place]!}
+    Howdy, World!
     %
 
 By defining a suitable set of Tcl commands,
@@ -130,7 +130,7 @@ expander objects created by this command\.
     is interpreted as relative to the current namespace\. The command has the
     following general form:
 
-    *expanderName* option ?*arg arg \.\.\.*?
+    > *expanderName* option ?*arg arg \.\.\.*?
 
     *Option* and the *arg*s determine the exact behavior of the command\.
 
@@ -279,7 +279,7 @@ The following commands are possible for expander objects:
 To begin, create an expander object:
 
     % package require textutil::expander
-    1\.2
+    1.2
     % ::textutil::expander myexp
     ::myexp
     %
@@ -291,9 +291,9 @@ variables can be referenced by embedded commands:
 
     % set greeting "Howdy"
     Howdy
-    % proc place \{\} \{return "World"\}
-    % ::myexp expand \{\[set greeting\], \[place\]\!\}
-    Howdy, World\!
+    % proc place {} {return "World"}
+    % ::myexp expand {[set greeting], [place]!}
+    Howdy, World!
     %
 
 ## <a name='subsection2'></a>Embedding Macros
@@ -302,21 +302,21 @@ An expander macro is simply a Tcl script embedded within a text string\. Expande
 evaluates the script in the global context, and replaces it with its result
 string\. For example,
 
-        % set greetings \{Howdy Hi "What's up"\}
+        % set greetings {Howdy Hi "What's up"}
         Howdy Hi "What's up"
-        % ::myexp expand \{There are many ways to say "Hello, World\!":
-        \[set result \{\}
-        foreach greeting $greetings \{
-    	append result "$greeting, World\!\\\\n"
-        \}
-        set result\]
-        And that's just a small sample\!\}
-        There are many ways to say "Hello, World\!":
-        Howdy, World\!
-        Hi, World\!
-        What's up, World\!
+        % ::myexp expand {There are many ways to say "Hello, World!":
+        [set result {}
+        foreach greeting $greetings {
+    	append result "$greeting, World!\\n"
+        }
+        set result]
+        And that's just a small sample!}
+        There are many ways to say "Hello, World!":
+        Howdy, World!
+        Hi, World!
+        What's up, World!
 
-        And that's just a small sample\!
+        And that's just a small sample!
         %
 
 ## <a name='subsection3'></a>Writing Macro Commands
@@ -326,9 +326,9 @@ command is just a Tcl command that returns an output string\. For example, expan
 can be used to implement a generic document markup language that can be
 retargeted to HTML or any other output format:
 
-    % proc bold \{\} \{return "<b>"\}
-    % proc /bold \{\} \{return "</b>"\}
-    % ::myexp expand \{Some of this text is in \[bold\]boldface\[/bold\]\}
+    % proc bold {} {return "<b>"}
+    % proc /bold {} {return "</b>"}
+    % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
     Some of this text is in <b>boldface</b>
     %
 
@@ -348,14 +348,14 @@ The __setbrackets__ command changes the brackets permanently\. For example,
 you can write pseudo\-html by change them to __<__ and __>__:
 
     % ::myexp setbrackets < >
-    % ::myexp expand \{<bold>This is boldface</bold>\}
+    % ::myexp expand {<bold>This is boldface</bold>}
     <b>This is boldface</b>
 
 Alternatively, you can change the expansion brackets temporarily by passing the
 desired brackets to the __expand__ command:
 
-    % ::myexp setbrackets "\\\\\[" "\\\\\]"
-    % ::myexp expand \{<bold>This is boldface</bold>\} \{< >\}
+    % ::myexp setbrackets "\\[" "\\]"
+    % ::myexp expand {<bold>This is boldface</bold>} {< >}
     <b>This is boldface</b>
     %
 
@@ -371,7 +371,7 @@ macro must return 1 when passed to Tcl's "info complete" command\.
 For example, the following code "evaluates" each macro by returning the macro
 text itself\.
 
-    proc identity \{macro\} \{return $macro\}
+    proc identity {macro} {return $macro}
     ::myexp evalcmd identity
 
 ## <a name='subsection6'></a>Using the Context Stack
@@ -380,17 +380,17 @@ Often it's desirable to define a pair of macros which operate in some way on the
 plain text between them\. Consider a set of macros for adding footnotes to a web
 page: one could have implement something like this:
 
-    Dr\. Pangloss, however, thinks that this is the best of all
-    possible worlds\.\[footnote "See Candide, by Voltaire"\]
+    Dr. Pangloss, however, thinks that this is the best of all
+    possible worlds.[footnote "See Candide, by Voltaire"]
 
 The __footnote__ macro would, presumably, assign a number to this footnote
 and save the text to be formatted later on\. However, this solution is ugly if
 the footnote text is long or should contain additional markup\. Consider the
 following instead:
 
-    Dr\. Pangloss, however, thinks that this is the best of all
-    possible worlds\.\[footnote\]See \[bookTitle "Candide"\], by
-    \[authorsName "Voltaire"\], for more information\.\[/footnote\]
+    Dr. Pangloss, however, thinks that this is the best of all
+    possible worlds.[footnote]See [bookTitle "Candide"], by
+    [authorsName "Voltaire"], for more information.[/footnote]
 
 Here the footnote text is contained between __footnote__ and
 __/footnote__ macros, continues onto a second line, and contains several
@@ -403,16 +403,16 @@ __footnote__ macro pushes a new context onto the context stack\. Then, all
 expanded text gets placed in that new context\. __/footnote__ retrieves it by
 popping the context\. Here's a skeleton implementation of these two macros:
 
-    proc footnote \{\} \{
+    proc footnote {} {
         ::myexp cpush footnote
-    \}
+    }
 
-    proc /footnote \{\} \{
-        set footnoteText \[::myexp cpop footnote\]
+    proc /footnote {} {
+        set footnoteText [::myexp cpop footnote]
 
-        \# Save the footnote text, and return an appropriate footnote
-        \# number and link\.
-    \}
+        # Save the footnote text, and return an appropriate footnote
+        # number and link.
+    }
 
 The __cpush__ command pushes a new context onto the stack; the argument is
 the context's name\. It can be any string, but would typically be the name of the
@@ -426,19 +426,19 @@ define one or more context variables; the second macro can retrieve their values
 any time before calling __cpop__\. For example, suppose the document must
 specify the footnote number explicitly:
 
-    proc footnote \{footnoteNumber\} \{
+    proc footnote {footnoteNumber} {
         ::myexp cpush footnote
         ::myexp csave num $footnoteNumber
-        \# Return an appropriate link
-    \}
+        # Return an appropriate link
+    }
 
-    proc /footnote \{\} \{
-        set footnoteNumber \[::myexp cget num\]
-        set footnoteText \[::myexp cpop footnote\]
+    proc /footnote {} {
+        set footnoteNumber [::myexp cget num]
+        set footnoteText [::myexp cpop footnote]
 
-        \# Save the footnote text and its footnoteNumber for future
-        \# output\.
-    \}
+        # Save the footnote text and its footnoteNumber for future
+        # output.
+    }
 
 At times, it might be desirable to define macros that are valid only within a
 particular context pair; such macros should verify that they are only called

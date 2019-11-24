@@ -38,7 +38,7 @@ test pt-peg-export-set:${setimpl}-5.0 {configuration names, wrong#args} -setup {
     E configuration names X
 } -cleanup {
     E destroy
-} -returnCodes error -result {wrong # args: should be "::configuration::Snit_methodnames type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodnames type selfns win self"}
 
 test pt-peg-export-set:${setimpl}-6.0 {configuration get, wrong#args} -setup {
     pt::peg::export E
@@ -46,7 +46,7 @@ test pt-peg-export-set:${setimpl}-6.0 {configuration get, wrong#args} -setup {
     E configuration get X
 } -cleanup {
     E destroy
-} -returnCodes error -result {wrong # args: should be "::configuration::Snit_methodget type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodget type selfns win self"}
 
 test pt-peg-export-set:${setimpl}-7.0 {configuration set, wrong#args} -setup {
     pt::peg::export E
@@ -54,7 +54,7 @@ test pt-peg-export-set:${setimpl}-7.0 {configuration set, wrong#args} -setup {
     E configuration set
 } -cleanup {
     E destroy
-} -returnCodes error -result {wrong # args: should be "::configuration::Snit_methodset type selfns win self name ?value?"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
 
 test pt-peg-export-set:${setimpl}-7.1 {configuration set, wrong#args} -setup {
     pt::peg::export E
@@ -62,7 +62,7 @@ test pt-peg-export-set:${setimpl}-7.1 {configuration set, wrong#args} -setup {
     E configuration set N V X
 } -cleanup {
     E destroy
-} -returnCodes error -result {wrong # args: should be "::configuration::Snit_methodset type selfns win self name ?value?"}
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
 
 # -------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
 
 [//000000001]: # (math::geometry \- Tcl Math Library)
 [//000000002]: # (Generated from file 'math\_geometry\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2001 by Ideogramic ApS and other parties  
-Copyright &copy; 2010 by Andreas Kupries  
-Copyright &copy; 2010 by Kevin Kenny  
-Copyright &copy; 2018 by Arjen Markus)
-[//000000004]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2001 by Ideogramic ApS and other parties)
+[//000000004]: # (Copyright &copy; 2010 by Andreas Kupries)
+[//000000005]: # (Copyright &copy; 2010 by Kevin Kenny)
+[//000000006]: # (Copyright &copy; 2018 by Arjen Markus)
+[//000000007]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -57,40 +57,43 @@ package require math::geometry ?1\.3\.0?
 [__::math::geometry::rect__ *nw* *se*](#12)  
 [__::math::geometry::nwse__ *rect*](#13)  
 [__::math::geometry::angle__ *line*](#14)  
-[__::math::geometry::calculateDistanceToLine__ *P* *line*](#15)  
-[__::math::geometry::calculateDistanceToLineSegment__ *P* *linesegment*](#16)  
-[__::math::geometry::calculateDistanceToPolyline__ *P* *polyline*](#17)  
-[__::math::geometry::calculateDistanceToPolygon__ *P* *polygon*](#18)  
-[__::math::geometry::findClosestPointOnLine__ *P* *line*](#19)  
-[__::math::geometry::findClosestPointOnLineSegment__ *P* *linesegment*](#20)  
-[__::math::geometry::findClosestPointOnPolyline__ *P* *polyline*](#21)  
-[__::math::geometry::lengthOfPolyline__ *polyline*](#22)  
-[__::math::geometry::movePointInDirection__ *P* *direction* *dist*](#23)  
-[__::math::geometry::lineSegmentsIntersect__ *linesegment1* *linesegment2*](#24)  
-[__::math::geometry::findLineSegmentIntersection__ *linesegment1* *linesegment2*](#25)  
-[__::math::geometry::findLineIntersection__ *line1* *line2*](#26)  
-[__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*](#27)  
-[__::math::geometry::polylinesBoundingIntersect__ *polyline1* *polyline2* *granularity*](#28)  
-[__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*](#29)  
-[__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*](#30)  
-[__::math::geometry::bbox__ *polyline*](#31)  
-[__::math::geometry::pointInsidePolygon__ *P* *polyline*](#32)  
-[__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*](#33)  
-[__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*](#34)  
-[__::math::geometry::areaPolygon__ *polygon*](#35)  
-[__::math::geometry::translate__ *vector* *polyline*](#36)  
-[__::math::geometry::rotate__ *angle* *polyline*](#37)  
-[__::math::geometry::reflect__ *angle* *polyline*](#38)  
-[__::math::geometry::degToRad__ *angle*](#39)  
-[__::math::geometry::radToDeg__ *angle*](#40)  
-[__::math::geometry::circle__ *centre* *radius*](#41)  
-[__::math::geometry::circleTwoPoints__ *point1* *point2*](#42)  
-[__::math::geometry::pointInsideCircle__ *point* *circle*](#43)  
-[__::math::geometry::lineIntersectsCircle__ *line* *circle*](#44)  
-[__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*](#45)  
-[__::math::geometry::intersectionLineWithCircle__ *line* *circle*](#46)  
-[__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*](#47)  
-[__::math::geometry::tangentLinesToCircle__ *point* *circle*](#48)  
+[__::math::geometry::angleBetween__ *vector1* *vector2*](#15)  
+[__::math::geometry::inproduct__ *vector1* *vector2*](#16)  
+[__::math::geometry::areaParallellogram__ *vector1* *vector2*](#17)  
+[__::math::geometry::calculateDistanceToLine__ *P* *line*](#18)  
+[__::math::geometry::calculateDistanceToLineSegment__ *P* *linesegment*](#19)  
+[__::math::geometry::calculateDistanceToPolyline__ *P* *polyline*](#20)  
+[__::math::geometry::calculateDistanceToPolygon__ *P* *polygon*](#21)  
+[__::math::geometry::findClosestPointOnLine__ *P* *line*](#22)  
+[__::math::geometry::findClosestPointOnLineSegment__ *P* *linesegment*](#23)  
+[__::math::geometry::findClosestPointOnPolyline__ *P* *polyline*](#24)  
+[__::math::geometry::lengthOfPolyline__ *polyline*](#25)  
+[__::math::geometry::movePointInDirection__ *P* *direction* *dist*](#26)  
+[__::math::geometry::lineSegmentsIntersect__ *linesegment1* *linesegment2*](#27)  
+[__::math::geometry::findLineSegmentIntersection__ *linesegment1* *linesegment2*](#28)  
+[__::math::geometry::findLineIntersection__ *line1* *line2*](#29)  
+[__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*](#30)  
+[__::math::geometry::polylinesBoundingIntersect__ *polyline1* *polyline2* *granularity*](#31)  
+[__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*](#32)  
+[__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*](#33)  
+[__::math::geometry::bbox__ *polyline*](#34)  
+[__::math::geometry::pointInsidePolygon__ *P* *polyline*](#35)  
+[__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*](#36)  
+[__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*](#37)  
+[__::math::geometry::areaPolygon__ *polygon*](#38)  
+[__::math::geometry::translate__ *vector* *polyline*](#39)  
+[__::math::geometry::rotate__ *angle* *polyline*](#40)  
+[__::math::geometry::reflect__ *angle* *polyline*](#41)  
+[__::math::geometry::degToRad__ *angle*](#42)  
+[__::math::geometry::radToDeg__ *angle*](#43)  
+[__::math::geometry::circle__ *centre* *radius*](#44)  
+[__::math::geometry::circleTwoPoints__ *point1* *point2*](#45)  
+[__::math::geometry::pointInsideCircle__ *point* *circle*](#46)  
+[__::math::geometry::lineIntersectsCircle__ *line* *circle*](#47)  
+[__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*](#48)  
+[__::math::geometry::intersectionLineWithCircle__ *line* *circle*](#49)  
+[__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*](#50)  
+[__::math::geometry::tangentLinesToCircle__ *point* *circle*](#51)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -155,7 +158,7 @@ The package defines the following public procedures:
     Compute the distance between the two points and return it as the result of
     the command\. This is in essence the same as
 
-        math::geometry::length \[math::geomtry::\- point1 point2\]
+        math::geometry::length [math::geomtry::- point1 point2]
 
   - <a name='5'></a>__::math::geometry::length__ *point*
 
@@ -233,7 +236,43 @@ The package defines the following public procedures:
 
         Coordinates of the line
 
-  - <a name='15'></a>__::math::geometry::calculateDistanceToLine__ *P* *line*
+  - <a name='15'></a>__::math::geometry::angleBetween__ *vector1* *vector2*
+
+    Calculate the angle between two vectors \(in degrees\)
+
+      * list *vector1*
+
+        First vector
+
+      * list *vector2*
+
+        Second vector
+
+  - <a name='16'></a>__::math::geometry::inproduct__ *vector1* *vector2*
+
+    Calculate the inner product of two vectors
+
+      * list *vector1*
+
+        First vector
+
+      * list *vector2*
+
+        Second vector
+
+  - <a name='17'></a>__::math::geometry::areaParallellogram__ *vector1* *vector2*
+
+    Calculate the area of the parallellogram with the two vectors as its sides
+
+      * list *vector1*
+
+        First vector
+
+      * list *vector2*
+
+        Second vector
+
+  - <a name='18'></a>__::math::geometry::calculateDistanceToLine__ *P* *line*
 
     Calculate the distance of point P to the \(infinite\) line and return the
     result
@@ -246,7 +285,7 @@ The package defines the following public procedures:
 
         List of four numbers, the coordinates of two points on the line
 
-  - <a name='16'></a>__::math::geometry::calculateDistanceToLineSegment__ *P* *linesegment*
+  - <a name='19'></a>__::math::geometry::calculateDistanceToLineSegment__ *P* *linesegment*
 
     Calculate the distance of point P to the \(finite\) line segment and return
     the result\.
@@ -260,7 +299,7 @@ The package defines the following public procedures:
         List of four numbers, the coordinates of the first and last points of
         the line segment
 
-  - <a name='17'></a>__::math::geometry::calculateDistanceToPolyline__ *P* *polyline*
+  - <a name='20'></a>__::math::geometry::calculateDistanceToPolyline__ *P* *polyline*
 
     Calculate the distance of point P to the polyline and return the result\.
     Note that a polyline needs not to be closed\.
@@ -273,7 +312,7 @@ The package defines the following public procedures:
 
         List of numbers, the coordinates of the vertices of the polyline
 
-  - <a name='18'></a>__::math::geometry::calculateDistanceToPolygon__ *P* *polygon*
+  - <a name='21'></a>__::math::geometry::calculateDistanceToPolygon__ *P* *polygon*
 
     Calculate the distance of point P to the polygon and return the result\. If
     the list of coordinates is not closed \(first and last points differ\), it is
@@ -287,7 +326,7 @@ The package defines the following public procedures:
 
         List of numbers, the coordinates of the vertices of the polygon
 
-  - <a name='19'></a>__::math::geometry::findClosestPointOnLine__ *P* *line*
+  - <a name='22'></a>__::math::geometry::findClosestPointOnLine__ *P* *line*
 
     Return the point on a line which is closest to a given point\.
 
@@ -299,7 +338,7 @@ The package defines the following public procedures:
 
         List of four numbers, the coordinates of two points on the line
 
-  - <a name='20'></a>__::math::geometry::findClosestPointOnLineSegment__ *P* *linesegment*
+  - <a name='23'></a>__::math::geometry::findClosestPointOnLineSegment__ *P* *linesegment*
 
     Return the point on a *line segment* which is closest to a given point\.
 
@@ -311,7 +350,7 @@ The package defines the following public procedures:
 
         List of four numbers, the first and last points on the line segment
 
-  - <a name='21'></a>__::math::geometry::findClosestPointOnPolyline__ *P* *polyline*
+  - <a name='24'></a>__::math::geometry::findClosestPointOnPolyline__ *P* *polyline*
 
     Return the point on a *polyline* which is closest to a given point\.
 
@@ -323,7 +362,7 @@ The package defines the following public procedures:
 
         List of numbers, the vertices of the polyline
 
-  - <a name='22'></a>__::math::geometry::lengthOfPolyline__ *polyline*
+  - <a name='25'></a>__::math::geometry::lengthOfPolyline__ *polyline*
 
     Return the length of the *polyline* \(note: it not regarded as a polygon\)
 
@@ -331,7 +370,7 @@ The package defines the following public procedures:
 
         List of numbers, the vertices of the polyline
 
-  - <a name='23'></a>__::math::geometry::movePointInDirection__ *P* *direction* *dist*
+  - <a name='26'></a>__::math::geometry::movePointInDirection__ *P* *direction* *dist*
 
     Move a point over a given distance in a given direction and return the new
     coordinates \(in two dimensions only\)\.
@@ -348,7 +387,7 @@ The package defines the following public procedures:
 
         Distance over which to move the point
 
-  - <a name='24'></a>__::math::geometry::lineSegmentsIntersect__ *linesegment1* *linesegment2*
+  - <a name='27'></a>__::math::geometry::lineSegmentsIntersect__ *linesegment1* *linesegment2*
 
     Check if two line segments intersect or coincide\. Returns 1 if that is the
     case, 0 otherwise \(in two dimensions only\)\. If an endpoint of one segment
@@ -363,7 +402,7 @@ The package defines the following public procedures:
 
         Second line segment
 
-  - <a name='25'></a>__::math::geometry::findLineSegmentIntersection__ *linesegment1* *linesegment2*
+  - <a name='28'></a>__::math::geometry::findLineSegmentIntersection__ *linesegment1* *linesegment2*
 
     Find the intersection point of two line segments\. Return the coordinates or
     the keywords "coincident" or "none" if the line segments coincide or have no
@@ -377,7 +416,7 @@ The package defines the following public procedures:
 
         Second line segment
 
-  - <a name='26'></a>__::math::geometry::findLineIntersection__ *line1* *line2*
+  - <a name='29'></a>__::math::geometry::findLineIntersection__ *line1* *line2*
 
     Find the intersection point of two \(infinite\) lines\. Return the coordinates
     or the keywords "coincident" or "none" if the lines coincide or have no
@@ -394,7 +433,7 @@ The package defines the following public procedures:
     See section [References](#section3) for details on the algorithm and
     math behind it\.
 
-  - <a name='27'></a>__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*
+  - <a name='30'></a>__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*
 
     Check if two polylines intersect or not \(in two dimensions only\)\.
 
@@ -406,7 +445,7 @@ The package defines the following public procedures:
 
         Second polyline
 
-  - <a name='28'></a>__::math::geometry::polylinesBoundingIntersect__ *polyline1* *polyline2* *granularity*
+  - <a name='31'></a>__::math::geometry::polylinesBoundingIntersect__ *polyline1* *polyline2* *granularity*
 
     Check whether two polylines intersect, but reduce the correctness of the
     result to the given granularity\. Use this for faster, but weaker,
@@ -430,7 +469,7 @@ The package defines the following public procedures:
 
         Number of points in each part \(<=1 means check every edge\)
 
-  - <a name='29'></a>__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*
+  - <a name='32'></a>__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*
 
     Check if two intervals overlap\.
 
@@ -446,7 +485,7 @@ The package defines the following public procedures:
 
         Check for strict or non\-strict overlap
 
-  - <a name='30'></a>__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*
+  - <a name='33'></a>__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*
 
     Check if two rectangles overlap\.
 
@@ -470,7 +509,7 @@ The package defines the following public procedures:
 
         choosing strict or non\-strict interpretation
 
-  - <a name='31'></a>__::math::geometry::bbox__ *polyline*
+  - <a name='34'></a>__::math::geometry::bbox__ *polyline*
 
     Calculate the bounding box of a polyline\. Returns a list of four
     coordinates: the upper\-left and the lower\-right corner of the box\.
@@ -479,7 +518,7 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='32'></a>__::math::geometry::pointInsidePolygon__ *P* *polyline*
+  - <a name='35'></a>__::math::geometry::pointInsidePolygon__ *P* *polyline*
 
     Determine if a point is completely inside a polygon\. If the point touches
     the polygon, then the point is not completely inside the polygon\.
@@ -492,7 +531,7 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='33'></a>__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*
+  - <a name='36'></a>__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*
 
     Determine if a point is completely inside a polygon\. If the point touches
     the polygon, then the point is not completely inside the polygon\. *Note:*
@@ -507,7 +546,7 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='34'></a>__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*
+  - <a name='37'></a>__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*
 
     Determine if a rectangle is completely inside a polygon\. If polygon touches
     the rectangle, then the rectangle is not complete inside the polygon\.
@@ -524,7 +563,7 @@ The package defines the following public procedures:
 
         The polygon in question
 
-  - <a name='35'></a>__::math::geometry::areaPolygon__ *polygon*
+  - <a name='38'></a>__::math::geometry::areaPolygon__ *polygon*
 
     Calculate the area of a polygon\.
 
@@ -532,7 +571,7 @@ The package defines the following public procedures:
 
         The polygon in question
 
-  - <a name='36'></a>__::math::geometry::translate__ *vector* *polyline*
+  - <a name='39'></a>__::math::geometry::translate__ *vector* *polyline*
 
     Translate a polyline over a given vector
 
@@ -542,9 +581,9 @@ The package defines the following public procedures:
 
       * list *polyline*
 
-        The polyline to be rotated
+        The polyline to be translated
 
-  - <a name='37'></a>__::math::geometry::rotate__ *angle* *polyline*
+  - <a name='40'></a>__::math::geometry::rotate__ *angle* *polyline*
 
     Rotate a polyline over a given angle \(degrees\) around the origin
 
@@ -554,9 +593,9 @@ The package defines the following public procedures:
 
       * list *polyline*
 
-        The polyline to be translated
+        The polyline to be rotated
 
-  - <a name='38'></a>__::math::geometry::reflect__ *angle* *polyline*
+  - <a name='41'></a>__::math::geometry::reflect__ *angle* *polyline*
 
     Reflect a polyline in a line through the origin at a given angle \(degrees\)
     to the x\-axis
@@ -569,7 +608,7 @@ The package defines the following public procedures:
 
         The polyline to be reflected
 
-  - <a name='39'></a>__::math::geometry::degToRad__ *angle*
+  - <a name='42'></a>__::math::geometry::degToRad__ *angle*
 
     Convert from degrees to radians
 
@@ -577,7 +616,7 @@ The package defines the following public procedures:
 
         Angle in degrees
 
-  - <a name='40'></a>__::math::geometry::radToDeg__ *angle*
+  - <a name='43'></a>__::math::geometry::radToDeg__ *angle*
 
     Convert from radians to degrees
 
@@ -585,7 +624,7 @@ The package defines the following public procedures:
 
         Angle in radians
 
-  - <a name='41'></a>__::math::geometry::circle__ *centre* *radius*
+  - <a name='44'></a>__::math::geometry::circle__ *centre* *radius*
 
     Convenience procedure to create a circle from a point and a radius\.
 
@@ -597,7 +636,7 @@ The package defines the following public procedures:
 
         Radius of the circle
 
-  - <a name='42'></a>__::math::geometry::circleTwoPoints__ *point1* *point2*
+  - <a name='45'></a>__::math::geometry::circleTwoPoints__ *point1* *point2*
 
     Convenience procedure to create a circle from two points on its
     circumference The centre is the point between the two given points, the
@@ -611,7 +650,7 @@ The package defines the following public procedures:
 
         Second point
 
-  - <a name='43'></a>__::math::geometry::pointInsideCircle__ *point* *circle*
+  - <a name='46'></a>__::math::geometry::pointInsideCircle__ *point* *circle*
 
     Determine if the given point is inside the circle or on the circumference
     \(1\) or outside \(0\)\.
@@ -624,7 +663,7 @@ The package defines the following public procedures:
 
         Circle that may or may not contain the point
 
-  - <a name='44'></a>__::math::geometry::lineIntersectsCircle__ *line* *circle*
+  - <a name='47'></a>__::math::geometry::lineIntersectsCircle__ *line* *circle*
 
     Determine if the given line intersects the circle or touches it \(1\) or does
     not \(0\)\.
@@ -637,7 +676,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='45'></a>__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*
+  - <a name='48'></a>__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*
 
     Determine if the given line segment intersects the circle or touches it \(1\)
     or does not \(0\)\.
@@ -650,7 +689,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='46'></a>__::math::geometry::intersectionLineWithCircle__ *line* *circle*
+  - <a name='49'></a>__::math::geometry::intersectionLineWithCircle__ *line* *circle*
 
     Determine the points at which the given line intersects the circle\. There
     can be zero, one or two points\. \(If the line touches the circle or is close
@@ -665,7 +704,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='47'></a>__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*
+  - <a name='50'></a>__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*
 
     Determine the points at which the given two circles intersect\. There can be
     zero, one or two points\. \(If the two circles touch the circle or are very
@@ -680,7 +719,7 @@ The package defines the following public procedures:
 
         Second circle
 
-  - <a name='48'></a>__::math::geometry::tangentLinesToCircle__ *point* *circle*
+  - <a name='51'></a>__::math::geometry::tangentLinesToCircle__ *point* *circle*
 
     Determine the tangent lines from the given point to the circle\. There can be
     zero, one or two lines\. \(If the point is on the cirucmference or very close

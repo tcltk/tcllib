@@ -1,9 +1,9 @@
 
 [//000000001]: # (tcllib\_ip \- Domain Name Service)
 [//000000002]: # (Generated from file 'tcllib\_ip\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004, Pat Thoyts  
-Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000004]: # (tcllib\_ip\(n\) 1\.4 tcllib "Domain Name Service")
+[//000000003]: # (Copyright &copy; 2004, Pat Thoyts)
+[//000000004]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
+[//000000005]: # (tcllib\_ip\(n\) 1\.4 tcllib "Domain Name Service")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -119,7 +119,7 @@ address types\.
     This command computes the \(integer\) distance from IPv4 address *ipaddr1*
     to IPv4 address *ipaddr2*, i\.e\. "ipaddr2 \- ipaddr1"
 
-        % ::ip::distance 1\.1\.1\.1  1\.1\.1\.5
+        % ::ip::distance 1.1.1.1  1.1.1.5
         4
 
   - <a name='7'></a>__::ip::nextIp__ *ipaddr* ?*offset*?
@@ -127,8 +127,8 @@ address types\.
     This command adds the integer *offset* to the IPv4 address *ipaddr* and
     returns the new IPv4 address\.
 
-        % ::ip::distance 1\.1\.1\.1  4
-        1\.1\.1\.5
+        % ::ip::distance 1.1.1.1  4
+        1.1.1.5
 
   - <a name='8'></a>__::ip::prefix__ *address*
 
@@ -149,7 +149,7 @@ address types\.
     \(<ipaddr>/<mask> format\) to native \(hex\) form\. Returns a list containing two
     elements, ipaddress and mask, in this order, in hexadecimal notation\.
 
-        % ip::prefixToNative 1\.1\.1\.0/24
+        % ip::prefixToNative 1.1.1.0/24
         0x01010100 0xffffff00
 
   - <a name='12'></a>__::ip::nativeToPrefix__ *nativeList*&#124;*native* ?__\-ipv4__?
@@ -169,8 +169,8 @@ address types\.
     The command returns a list of addresses in dotted form if it was called with
     a list of addresses\. Otherwise a single address in dotted form is returned\.
 
-        % ip::nativeToPrefix \{0x01010100 0xffffff00\} \-ipv4
-        1\.1\.1\.0/24
+        % ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
+        1.1.1.0/24
 
   - <a name='13'></a>__::ip::intToString__ *number* ?__\-ipv4__?
 
@@ -178,20 +178,20 @@ address types\.
     dotted form\.
 
         ip::intToString 4294967295
-        255\.255\.255\.255
+        255.255.255.255
 
   - <a name='14'></a>__::ip::toInteger__ *ipaddr*
 
     This command converts a dotted form ip into an integer number\.
 
-        % ::ip::toInteger 1\.1\.1\.0
+        % ::ip::toInteger 1.1.1.0
         16843008
 
   - <a name='15'></a>__::ip::toHex__ *ipaddr*
 
     This command converts dotted form ip into a hexadecimal number\.
 
-        % ::ip::toHex 1\.1\.1\.0
+        % ::ip::toHex 1.1.1.0
         0x01010100
 
   - <a name='16'></a>__::ip::maskToInt__ *ipmask*
@@ -208,10 +208,10 @@ address types\.
     *prefix*, either in the form "addr/mask", or in native form\. The result is
     in dotted form\.
 
-        ::ip::broadcastAddress 1\.1\.1\.0/24
-        1\.1\.1\.255
+        ::ip::broadcastAddress 1.1.1.0/24
+        1.1.1.255
 
-        ::ip::broadcastAddress \{0x01010100 0xffffff00\}
+        ::ip::broadcastAddress {0x01010100 0xffffff00}
         0x010101ff
 
   - <a name='18'></a>__::ip::maskToLength__ *dottedMask*&#124;*integerMask*&#124;*hexMask* ?__\-ipv4__?
@@ -219,10 +219,10 @@ address types\.
     This command converts the dotted or integer form of an ipmask to the mask
     length form\.
 
-        ::ip::maskToLength 0xffffff00 \-ipv4
+        ::ip::maskToLength 0xffffff00 -ipv4
         24
 
-        % ::ip::maskToLength 255\.255\.255\.0
+        % ::ip::maskToLength 255.255.255.0
         24
 
   - <a name='19'></a>__::ip::lengthToMask__ *maskLength* ?__\-ipv4__?
@@ -230,7 +230,7 @@ address types\.
     This command converts an ipmask in mask length form to its dotted form\.
 
         ::ip::lengthToMask 24
-        255\.255\.255\.0
+        255.255.255.0
 
   - <a name='20'></a>__::ip::nextNet__ *ipaddr* *ipmask* ?*count*? ?__\-ipv4__?
 
@@ -250,10 +250,10 @@ address types\.
     against the first prefix\. The result is a boolean value\. It is true if an
     overlap was found for any of the prefixes\.
 
-        % ::ip::isOverlap 1\.1\.1\.0/24 2\.1\.0\.1/32
+        % ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32
         0
 
-        ::ip::isOverlap 1\.1\.1\.0/24 2\.1\.0\.1/32 1\.1\.1\.1/32
+        ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32 1.1.1.1/32
         1
 
   - <a name='22'></a>__::ip::isOverlapNative__ ?__\-all__? ?__\-inline__? ?__\-ipv4__? *hexipaddr* *hexipmask* *hexiplist*
@@ -285,10 +285,10 @@ address types\.
         A list containing the prefixes of all overlaps found, or an empty list
         if there are none\.
 
-        % ::ip::isOverlapNative 0x01010100 0xffffff00 \{\{0x02010001 0xffffffff\}\}
+        % ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff}}
         0
 
-        % ::ip::isOverlapNative 0x01010100 0xffffff00 \{\{0x02010001 0xffffffff\} \{0x01010101 0xffffffff\}\}
+        % ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff} {0x01010101 0xffffffff}}
         2
 
   - <a name='23'></a>__::ip::ipToLayer2Multicast__ *ipaddr*
@@ -296,8 +296,8 @@ address types\.
     This command an converts ipv4 address in dotted form into a layer 2
     multicast address, also in dotted form\.
 
-        % ::ip::ipToLayer2Multicast 224\.0\.0\.2
-        01\.00\.5e\.00\.00\.02
+        % ::ip::ipToLayer2Multicast 224.0.0.2
+        01.00.5e.00.00.02
 
   - <a name='24'></a>__::ip::ipHostFromPrefix__ *prefix* ?__\-exclude__ *prefixExcludeList*?
 
@@ -305,11 +305,11 @@ address types\.
     "ipaddr/masklen", also making sure that the result is not an address found
     in the *prefixExcludeList*\. The result is an ip address in dotted form\.
 
-        %::ip::ipHostFromPrefix  1\.1\.1\.5/24
-        1\.1\.1\.1
+        %::ip::ipHostFromPrefix  1.1.1.5/24
+        1.1.1.1
 
-        %::ip::ipHostFromPrefix  1\.1\.1\.1/32
-        1\.1\.1\.1
+        %::ip::ipHostFromPrefix  1.1.1.1/32
+        1.1.1.1
 
   - <a name='25'></a>__::ip::reduceToAggregates__ *prefixlist*
 
@@ -317,8 +317,8 @@ address types\.
     The prefixes are in either addr/mask form or in native format\. The result is
     a list containing the non\-overlapping ip prefixes from the input\.
 
-        % ::ip::reduceToAggregates \{1\.1\.1\.0/24 1\.1\.0\.0/8  2\.1\.1\.0/24 1\.1\.1\.1/32 \}
-        1\.0\.0\.0/8 2\.1\.1\.0/24
+        % ::ip::reduceToAggregates {1.1.1.0/24 1.1.0.0/8  2.1.1.0/24 1.1.1.1/32 }
+        1.0.0.0/8 2.1.1.0/24
 
   - <a name='26'></a>__::ip::longestPrefixMatch__ *ipaddr* *prefixlist* ?__\-ipv4__?
 
@@ -328,8 +328,8 @@ address types\.
     form, or integer form\. The result is the prefix which is the most specific
     match to the host address\.
 
-        % ::ip::longestPrefixMatch 1\.1\.1\.1 \{1\.1\.1\.0/24 1\.0\.0\.0/8  2\.1\.1\.0/24 1\.1\.1\.0/28 \}
-        1\.1\.1\.0/28
+        % ::ip::longestPrefixMatch 1.1.1.1 {1.1.1.0/24 1.0.0.0/8  2.1.1.0/24 1.1.1.0/28 }
+        1.1.1.0/28
 
   - <a name='27'></a>__::ip::collapse__ *prefixlist*
 
@@ -342,8 +342,8 @@ address types\.
     elements of the input whereas this command actively merges nets into larger
     ranges when they are adjacent to each other\.
 
-        % ::ip::collapse \{1\.2\.2\.0/24 1\.2\.3\.0/24\}
-        1\.2\.2\.0/23
+        % ::ip::collapse {1.2.2.0/24 1.2.3.0/24}
+        1.2.2.0/23
 
   - <a name='28'></a>__::ip::subtract__ *prefixlist*
 
@@ -357,20 +357,20 @@ address types\.
 
     % ip::version ::1
     6
-    % ip::version 127\.0\.0\.1
+    % ip::version 127.0.0.1
     4
 
     % ip::normalize 127/8
-    127\.0\.0\.0/8
-    % ip::contract 192\.168\.0\.0
-    192\.168
+    127.0.0.0/8
+    % ip::contract 192.168.0.0
+    192.168
     %
     % ip::normalize fec0::1
     fec0:0000:0000:0000:0000:0000:0000:0001
     % ip::contract fec0:0000:0000:0000:0000:0000:0000:0001
     fec0::1
 
-    % ip::equal 192\.168\.0\.4/16 192\.168\.0\.0/16
+    % ip::equal 192.168.0.4/16 192.168.0.0/16
     1
     % ip::equal fec0::1/10 fec0::fe01/10
     1

@@ -62,5 +62,5 @@ the command.
 [list_end]
 
 [vset CATEGORY term]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

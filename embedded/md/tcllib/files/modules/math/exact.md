@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::exact \- Tcl Math Library)
 [//000000002]: # (Generated from file 'exact\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2015 Kevin B\. Kenny <kennykb@acm\.org>
-Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000004]: # (math::exact\(n\) 1\.0\.1 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2015 Kevin B\. Kenny <kennykb@acm\.org>)
+[//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
+[//000000005]: # (math::exact\(n\) 1\.0\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -221,30 +221,30 @@ for successive approximation\. An example, which implements the high\-school
 quadratic formula, is shown below\.
 
     namespace import math::exact::exactexpr
-    proc exactquad \{a b c\} \{
-        set d \[\[exactexpr \{sqrt\($b\*$b \- 4\*$a\*$c\)\}\] ref\]
-        set r0 \[\[exactexpr \{\(\-$b \- $d\) / \(2 \* $a\)\}\] ref\]
-        set r1 \[\[exactexpr \{\(\-$b \+ $d\) / \(2 \* $a\)\}\] ref\]
+    proc exactquad {a b c} {
+        set d [[exactexpr {sqrt($b*$b - 4*$a*$c)}] ref]
+        set r0 [[exactexpr {(-$b - $d) / (2 * $a)}] ref]
+        set r1 [[exactexpr {(-$b + $d) / (2 * $a)}] ref]
         $d unref
-        return \[list $r0 $r1\]
-    \}
+        return [list $r0 $r1]
+    }
 
-    set a \[\[exactexpr 1\] ref\]
-    set b \[\[exactexpr 200\] ref\]
-    set c \[\[exactexpr \{\(\-3/2\) \* 10\*\*\-12\}\] ref\]
-    lassign \[exactquad $a $b $c\] r0 r1
+    set a [[exactexpr 1] ref]
+    set b [[exactexpr 200] ref]
+    set c [[exactexpr {(-3/2) * 10**-12}] ref]
+    lassign [exactquad $a $b $c] r0 r1
     $a unref; $b unref; $c unref
-    puts \[list \[$r0 asFloat 70\] \[$r1 asFloat 110\]\]
+    puts [list [$r0 asFloat 70] [$r1 asFloat 110]]
     $r0 unref; $r1 unref
 
 The program prints the result:
 
-    \-2\.000000000000000075e2 7\.499999999999999719e\-15
+    -2.000000000000000075e2 7.499999999999999719e-15
 
 Note that if IEEE\-754 floating point had been used, a catastrophic roundoff
 error would yield a smaller root that is a factor of two too high:
 
-    \-200\.0 1\.4210854715202004e\-14
+    -200.0 1.4210854715202004e-14
 
 The invocations of __exactexpr__ should be fairly self\-explanatory\. The
 other commands of note are __ref__ and __unref__\. It is necessary for

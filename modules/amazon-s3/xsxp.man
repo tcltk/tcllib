@@ -133,5 +133,5 @@ version of [arg pxml].
 [list_end]
 
 [vset CATEGORY amazon-s3]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

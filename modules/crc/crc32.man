@@ -148,5 +148,5 @@ result is a 32 bit integer value.
 Pat Thoyts
 
 [vset CATEGORY crc]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
