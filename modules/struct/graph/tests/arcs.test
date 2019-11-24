@@ -233,13 +233,13 @@ foreach switch {-in -out -adj -inner -embedding} {
 
     incr n
 }
+unset n
 
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
 set n 0
 foreach switch {-in -out -adj -inner -embedding} {
-
     test graph-${impl}-${setimpl}-arcs-ioaie-2.$n "arcs, $switch, missing node" {
 	SETUP
 	catch {mygraph arcs $switch x} msg
@@ -261,6 +261,7 @@ foreach switch {-in -out -adj -inner -embedding} {
 	incr n
     }
 }
+unset n
 
 # -------------------------------------------------------------------------
 # Ok arguments.
@@ -311,6 +312,7 @@ foreach {switch nodes expected} {
 
     incr n
 }
+unset n
 
 test graph-${impl}-${setimpl}-arcs-adj-1.0 {arcs -adj, border case C code failure} -setup {
     struct::graph mygraph

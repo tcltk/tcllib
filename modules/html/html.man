@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset HTML_VERSION 1.4.4]
+[vset HTML_VERSION 1.5]
 [manpage_begin html n [vset HTML_VERSION]]
 [see_also htmlparse]
 [see_also ncgi]
@@ -240,9 +240,41 @@ Generate a hypertext link to a mailto: URL.
 
 [call [cmd ::html::meta] [arg args]]
 
-[emph {Side effect only}].  Call this before [cmd ::html::head] to
-define a [term meta] tag for the page.  The [arg args] is a Tcl-style name,
-value list that is used for the name= and value= parameters for the
+Compatibility name for [cmd html::meta_name].
+
+[call [cmd ::html::meta_name] [arg args]]
+
+[emph {Side effect only}].
+
+Call this before [cmd ::html::head] to define a [term meta] tag for
+the page.
+
+The arguments ([arg args]) are a Tcl-style name, value list that is
+used for the [const name=] and [const content=] attributes of the
+[term meta] tag.  The [term meta] tag is included in the result of
+[cmd ::html::head].
+
+
+[call [cmd ::html::meta_equiv] [arg args]]
+
+[emph {Side effect only}].
+
+Call this before [cmd ::html::head] to define a [term meta] tag for
+the page.
+
+The arguments ([arg args]) are a Tcl-style name, value list that is
+used for the [const http-equiv=] and [const content=] attributes of
+the [term meta] tag.  The [term meta] tag is included in the result of
+[cmd ::html::head].
+
+[call [cmd ::html::meta_charset] [arg charset]]
+
+[emph {Side effect only}].
+
+Call this before [cmd ::html::head] to
+define a [term meta] tag for the page.
+
+The [arg charset] is used with the [const charset=] attribute of the
 [term meta] tag.  The [term meta] tag is included in the result of
 [cmd ::html::head].
 
@@ -389,9 +421,14 @@ main difference is that it returns "" so it can be called from an HTML
 template file without appending unwanted results.  The other
 difference is that it must take two arguments.
 
-[call [cmd ::html::submit] [arg label] [opt [arg name]]]
+[call [cmd ::html::submit] [arg label] [opt [arg name]] [opt [arg title]]]
 
-Generate an [term input] tag of type [term submit]. [arg name] defaults to "submit".
+Generate an [term input] tag of type [term submit].
+
+The [arg name] defaults to "submit".
+
+When a non-empty [arg title] string is specified the button gains a
+[const title=] attribute with that value.
 
 [call [cmd ::html::tableFromArray] [arg arrname] [opt [arg param]] [opt [arg pat]]]
 
@@ -469,8 +506,18 @@ The following id's are defined:
 [enum] XHTMLB
 [list_end]
 
+[call [cmd ::html::wrapTag] [arg tag] [opt [arg text]] [opt [arg args]]]
+
+A helper to wrap a [arg text] in a pair of open/close [arg tag]s.
+
+The arguments ([arg args]) are a Tcl-style name, value list that is
+used to provide attributes and associated values to the opening tag.
+
+The result is a string with the open [arg tag] along with the optional
+attributes, the optional text, and the closed tag.
+
 [list_end]
 
 [vset CATEGORY html]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

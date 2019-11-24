@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::calculus::symdiff \- Symbolic differentiation for Tcl)
 [//000000002]: # (Generated from file 'symdiff\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2010 by Kevin B\. Kenny <kennykb@acm\.org>
-Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000004]: # (math::calculus::symdiff\(n\) 1\.0\.1 tcllib "Symbolic differentiation for Tcl")
+[//000000003]: # (Copyright &copy; 2010 by Kevin B\. Kenny <kennykb@acm\.org>)
+[//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
+[//000000005]: # (math::calculus::symdiff\(n\) 1\.0\.1 tcllib "Symbolic differentiation for Tcl")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -104,11 +104,11 @@ accepted\.
 
 # <a name='section4'></a>Examples
 
-    math::calculus::symdiff::symdiff \{\($a\*$x\+$b\)\*\($c\*$x\+$d\)\} x
-    ==> \(\($c \* \(\($a \* $x\) \+ $b\)\) \+ \($a \* \(\($c \* $x\) \+ $d\)\)\)
-    math::calculus::symdiff::jacobian \{x \{$a \* $x \+ $b \* $y\}
-                             y \{$c \* $x \+ $d \* $y\}\}
-    ==> \{\{$a\} \{$b\}\} \{\{$c\} \{$d\}\}
+    math::calculus::symdiff::symdiff {($a*$x+$b)*($c*$x+$d)} x
+    ==> (($c * (($a * $x) + $b)) + ($a * (($c * $x) + $d)))
+    math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
+                             y {$c * $x + $d * $y}}
+    ==> {{$a} {$b}} {{$c} {$d}}
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

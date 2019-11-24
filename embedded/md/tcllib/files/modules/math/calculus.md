@@ -251,22 +251,22 @@ This package defines the following public procedures:
     two sides\. The equation has to be of the form \(the "conservative" form\):
 
         d      dy     d
-        \-\- A\(x\)\-\-  \+  \-\- B\(x\)y \+ C\(x\)y  =  D\(x\)
+        -- A(x)--  +  -- B(x)y + C(x)y  =  D(x)
         dx     dx     dx
 
     Ordinarily, such an equation would be written as:
 
             d2y        dy
-        a\(x\)\-\-\-  \+ b\(x\)\-\- \+ c\(x\) y  =  D\(x\)
+        a(x)---  + b(x)-- + c(x) y  =  D(x)
             dx2        dx
 
     The first form is easier to discretise \(by integrating over a finite volume\)
     than the second form\. The relation between the two forms is fairly
     straightforward:
 
-        A\(x\)  =  a\(x\)
-        B\(x\)  =  b\(x\) \- a'\(x\)
-        C\(x\)  =  c\(x\) \- B'\(x\)  =  c\(x\) \- b'\(x\) \+ a''\(x\)
+        A(x)  =  a(x)
+        B(x)  =  b(x) - a'(x)
+        C(x)  =  c(x) - B'(x)  =  c(x) - b'(x) + a''(x)
 
     Because of the differentiation, however, it is much easier to ask the user
     to provide the functions A, B and C directly\.
@@ -322,7 +322,7 @@ This package defines the following public procedures:
 
     Determine the root of an equation given by
 
-        func\(x\) = 0
+        func(x) = 0
 
     using the method of Newton\-Raphson\. The procedure takes the following
     arguments:
@@ -391,27 +391,27 @@ fully\-qualified name of these procedures is determined inside the calculus
 routines\. For the user this has only one consequence: the named procedure must
 be visible in the calling procedure\. For instance:
 
-    namespace eval ::mySpace \{
+    namespace eval ::mySpace {
        namespace export calcfunc
-       proc calcfunc \{ x \} \{ return $x \}
-    \}
-    \#
-    \# Use a fully\-qualified name
-    \#
-    namespace eval ::myCalc \{
-       proc detIntegral \{ begin end \} \{
-          return \[integral $begin $end 100 ::mySpace::calcfunc\]
-       \}
-    \}
-    \#
-    \# Import the name
-    \#
-    namespace eval ::myCalc \{
+       proc calcfunc { x } { return $x }
+    }
+    #
+    # Use a fully-qualified name
+    #
+    namespace eval ::myCalc {
+       proc detIntegral { begin end } {
+          return [integral $begin $end 100 ::mySpace::calcfunc]
+       }
+    }
+    #
+    # Import the name
+    #
+    namespace eval ::myCalc {
        namespace import ::mySpace::calcfunc
-       proc detIntegral \{ begin end \} \{
-          return \[integral $begin $end 100 calcfunc\]
-       \}
-    \}
+       proc detIntegral { begin end } {
+          return [integral $begin $end 100 calcfunc]
+       }
+    }
 
 Enhancements for the second\-order boundary value problem:
 
@@ -426,45 +426,45 @@ Let us take a few simple examples:
 
 Integrate x over the interval \[0,100\] \(20 steps\):
 
-    proc linear\_func \{ x \} \{ return $x \}
-    puts "Integral: \[::math::calculus::integral 0 100 20 linear\_func\]"
+    proc linear_func { x } { return $x }
+    puts "Integral: [::math::calculus::integral 0 100 20 linear_func]"
 
 For simple functions, the alternative could be:
 
-    puts "Integral: \[::math::calculus::integralExpr 0 100 20 \{$x\}\]"
+    puts "Integral: [::math::calculus::integralExpr 0 100 20 {$x}]"
 
 Do not forget the braces\!
 
 The differential equation for a dampened oscillator:
 
-    x'' \+ rx' \+ wx = 0
+    x'' + rx' + wx = 0
 
 can be split into a system of first\-order equations:
 
     x' = y
-    y' = \-ry \- wx
+    y' = -ry - wx
 
 Then this system can be solved with code like this:
 
-    proc dampened\_oscillator \{ t xvec \} \{
-       set x  \[lindex $xvec 0\]
-       set x1 \[lindex $xvec 1\]
-       return \[list $x1 \[expr \{\-$x1\-$x\}\]\]
-    \}
+    proc dampened_oscillator { t xvec } {
+       set x  [lindex $xvec 0]
+       set x1 [lindex $xvec 1]
+       return [list $x1 [expr {-$x1-$x}]]
+    }
 
-    set xvec   \{ 1\.0 0\.0 \}
-    set t      0\.0
-    set tstep  0\.1
-    for \{ set i 0 \} \{ $i < 20 \} \{ incr i \} \{
-       set result \[::math::calculus::eulerStep $t $tstep $xvec dampened\_oscillator\]
-       puts "Result \($t\): $result"
-       set t      \[expr \{$t\+$tstep\}\]
+    set xvec   { 1.0 0.0 }
+    set t      0.0
+    set tstep  0.1
+    for { set i 0 } { $i < 20 } { incr i } {
+       set result [::math::calculus::eulerStep $t $tstep $xvec dampened_oscillator]
+       puts "Result ($t): $result"
+       set t      [expr {$t+$tstep}]
        set xvec   $result
-    \}
+    }
 
 Suppose we have the boundary value problem:
 
-    Dy'' \+ ky = 0
+    Dy'' + ky = 0
     x = 0: y = 1
     x = L: y = 0
 
@@ -473,15 +473,15 @@ substance\.
 
 It can be solved with the following fragment:
 
-    proc coeffs \{ x \} \{ return \[list $::Diff 0\.0 $::decay\] \}
-    proc force  \{ x \} \{ return 0\.0 \}
+    proc coeffs { x } { return [list $::Diff 0.0 $::decay] }
+    proc force  { x } { return 0.0 }
 
-    set Diff   1\.0e\-2
-    set decay  0\.0001
-    set length 100\.0
+    set Diff   1.0e-2
+    set decay  0.0001
+    set length 100.0
 
-    set y \[::math::calculus::boundaryValueSecondOrder \\
-       coeffs force \{0\.0 1\.0\} \[list $length 0\.0\] 100\]
+    set y [::math::calculus::boundaryValueSecondOrder \
+       coeffs force {0.0 1.0} [list $length 0.0] 100]
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

@@ -6,14 +6,11 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: profiler.tcl,v 1.29 2006/09/19 23:36:17 andreas_kupries Exp $
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.3
+package provide profiler 0.5
 
-namespace eval ::profiler {
-}
+namespace eval ::profiler {}
 
 # ::profiler::tZero --
 #
@@ -230,8 +227,11 @@ proc ::profiler::enterHandler {name caller} {
 proc ::profiler::leaveHandler {name caller} {
     variable enabled
 
+    # Tkt [0dd4b31bb8] Note that the result is pulled from the
+    # caller's context as it is not passed into leaveHandler
+    
     if { !$enabled($name) } {
-        return
+	return [uplevel 1 {lindex $args 1}] ;# RETURN RESULT!
     }
 
     set t [::profiler::tMark $name.$caller]
@@ -247,6 +247,8 @@ proc ::profiler::leaveHandler {name caller} {
     if { [catch {incr ::profiler::descendants($caller,$name)}] } {
         set ::profiler::descendants($caller,$name) 1
     }
+
+    return [uplevel 1 {lindex $args 1}] ;# RETURN RESULT!
 }
 
 # ::profiler::profProc --
@@ -398,7 +400,8 @@ proc ::profiler::printname {name} {
 
 proc ::profiler::print {{pattern *}} {
     variable callCount
-
+    #parray callCount
+    
     set result ""
     foreach name [lsort [array names callCount $pattern]] {
 	append result [printname $name]
@@ -602,9 +605,7 @@ proc ::profiler::reset {{pattern *}} {
 proc ::profiler::suspend {{pattern *}} {
     variable callCount
     variable enabled
-    variable paused
 
-    set paused 1
     foreach name [array names callCount $pattern] {
         set enabled($name) 0
     }
@@ -626,9 +627,7 @@ proc ::profiler::suspend {{pattern *}} {
 proc ::profiler::resume {{pattern *}} {
     variable callCount
     variable enabled
-    variable paused
 
-    set paused 0
     foreach name [array names callCount $pattern] {
         set enabled($name) 1
     }
@@ -636,3 +635,32 @@ proc ::profiler::resume {{pattern *}} {
     return
 }
 
+# ::profiler::new-disabled --
+#
+#	Start new procedures with profiling disabled
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::profiler::new-disabled {} {
+    variable paused 1
+    return
+}
+
+# ::profiler::new-enabled --
+#
+#	Start new procedures with profiling enabled
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::profiler::new-enabled {} {
+    variable paused 0
+    return
+}

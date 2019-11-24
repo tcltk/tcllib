@@ -110,23 +110,23 @@ in C\.
 
 Ensure that a file is closed no matter what:
 
-    set f \[open /some/file/name a\]
-    __try__ \{
-        puts \\$f "some message"
-        \# \.\.\.
-    \} __finally__ \{
-        close \\$f
-    \}
+> set f \[open /some/file/name a\]  
+> __try__ \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;puts \\$f "some message"  
+> &nbsp;&nbsp;&nbsp;&nbsp;\# \.\.\.  
+> \} __finally__ \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;close \\$f  
+> \}
 
 Handle different reasons for a file to not be openable for reading:
 
-    __try__ \{
-        set f \[open /some/file/name\]
-    \} __trap__ \{POSIX EISDIR\} \{\} \{
-        puts "failed to open /some/file/name: it's a directory"
-    \} __trap__ \{POSIX ENOENT\} \{\} \{
-        puts "failed to open /some/file/name: it doesn't exist"
-    \}
+> __try__ \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;set f \[open /some/file/name\]  
+> \} __trap__ \{POSIX EISDIR\} \{\} \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;puts "failed to open /some/file/name: it's a directory"  
+> \} __trap__ \{POSIX ENOENT\} \{\} \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;puts "failed to open /some/file/name: it doesn't exist"  
+> \}
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
-#
-# $Id: logger_trace.test,v 1.2 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

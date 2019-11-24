@@ -1,10 +1,8 @@
 # -*- tcl -*-
 # idx.test:  Tests for the doctools::idx package. Index management.
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: container.test,v 1.2 2009/04/29 02:10:34 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,11 +17,11 @@ support {
     use struct/list.tcl          struct::list
     use snit/snit.tcl            snit
     use fileutil/fileutil.tcl    fileutil
+    use fileutil/paths.tcl       fileutil::paths
     use log/logger.tcl           logger
     use pluginmgr/pluginmgr.tcl  pluginmgr
+    use struct/map.tcl           struct::map
 
-    use doctools2base/config.tcl          doctools::config
-    use doctools2base/paths.tcl           doctools::paths
     useLocal export.tcl      doctools::idx::export
     useLocal import.tcl      doctools::idx::import
     use doctools2base/nroff_manmacros.tcl doctools::nroff::man_macros

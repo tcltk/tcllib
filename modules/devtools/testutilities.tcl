@@ -168,6 +168,14 @@ proc InitializeTclTest {} {
     if {[info exists tcltestinit] && $tcltestinit} return
     set tcltestinit 1
 
+    proc ::tcltest::byConstraint {dict} {
+	foreach {constraint value} $dict {
+	    if {![testConstraint $constraint]} continue
+	    return $value
+	}
+	return -code error "No result available. Failed to match any of the constraints ([join [lsort -dict [dict keys $dict]] ,])."
+    }
+    
     if {![package vsatisfies [package provide tcltest] 2.0]} {
 	# Tcltest 2.0+ provides a documented public API to define and
 	# initialize a test constraint. For earlier versions of the
@@ -204,14 +212,29 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.3plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
 
+    ::tcltest::testConstraint tcl8.4only \
+	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+
     ::tcltest::testConstraint tcl8.4plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+    ::tcltest::testConstraint tcl8.5only [expr {
+	![package vsatisfies [package provide Tcl] 8.6] &&
+	 [package vsatisfies [package provide Tcl] 8.5]
+    }]
 
     ::tcltest::testConstraint tcl8.5plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
     ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+
+    ::tcltest::testConstraint tcl8.6not10 \
+	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
+
+    ::tcltest::testConstraint tcl8.6.10plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.4minus \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
@@ -405,10 +428,24 @@ proc snitErrors {} {
 ## avoid contamination of the testsuite by packages and code outside
 ## of the Tcllib under test.
 
+# Shorthand for access to module-local assets files for tests.
+proc asset {path} {
+    file join $::tcltest::testsDirectory test-assets $path
+}
+
+proc asset-get {path} {
+    set c [open [asset $path] r]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# General access to module-local files
 proc localPath {fname} {
     return [file join $::tcltest::testsDirectory $fname]
 }
 
+# General access to global (project-local) files
 proc tcllibPath {fname} {
     return [file join $::tcllib::testutils::tcllib $fname]
 }

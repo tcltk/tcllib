@@ -1,9 +1,9 @@
 
 [//000000001]: # (struct::list \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'struct\_list\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2003\-2005 by Kevin B\. Kenny\. All rights reserved  
-Copyright &copy; 2003\-2012 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::list\(n\) 1\.8\.4 tcllib "Tcl Data Structures")
+[//000000003]: # (Copyright &copy; 2003\-2005 by Kevin B\. Kenny\. All rights reserved)
+[//000000004]: # (Copyright &copy; 2003\-2012 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (struct::list\(n\) 1\.8\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -164,15 +164,15 @@ provided here can be reached through a subcommand of this command\.
         original range\. Again the first index refers to the first item in the
         range, and the second index refers to the last item in the range\.
 
-        sequence 1 = \{a b r a c a d a b r a\}
-        lcs 1      =   \{1 2   4 5     8 9 10\}
-        lcs 2      =   \{0 1   3 4     5 6 7\}
-        sequence 2 =   \{b r i c a     b r a c\}
+        sequence 1 = {a b r a c a d a b r a}
+        lcs 1      =   {1 2   4 5     8 9 10}
+        lcs 2      =   {0 1   3 4     5 6 7}
+        sequence 2 =   {b r i c a     b r a c}
 
-        Inversion  = \{\{deleted  \{0  0\} \{\-1 0\}\}
-                      \{changed  \{3  3\}  \{2 2\}\}
-                      \{deleted  \{6  7\}  \{4 5\}\}
-                      \{added   \{10 11\}  \{8 8\}\}\}
+        Inversion  = {{deleted  {0  0} {-1 0}}
+                      {changed  {3  3}  {2 2}}
+                      {deleted  {6  7}  {4 5}}
+                      {added   {10 11}  {8 8}}}
 
     *Notes:*
 
@@ -198,18 +198,18 @@ provided here can be reached through a subcommand of this command\.
     sequences\. This means that the result of this command describes both the
     changed and unchanged parts of the two sequences in one structure\.
 
-        sequence 1 = \{a b r a c a d a b r a\}
-        lcs 1      =   \{1 2   4 5     8 9 10\}
-        lcs 2      =   \{0 1   3 4     5 6 7\}
-        sequence 2 =   \{b r i c a     b r a c\}
+        sequence 1 = {a b r a c a d a b r a}
+        lcs 1      =   {1 2   4 5     8 9 10}
+        lcs 2      =   {0 1   3 4     5 6 7}
+        sequence 2 =   {b r i c a     b r a c}
 
-        Inversion/Merge  = \{\{deleted   \{0  0\} \{\-1 0\}\}
-                            \{unchanged \{1  2\}  \{0 1\}\}
-                            \{changed   \{3  3\}  \{2 2\}\}
-                            \{unchanged \{4  5\}  \{3 4\}\}
-                            \{deleted   \{6  7\}  \{4 5\}\}
-                            \{unchanged \{8 10\}  \{5 7\}\}
-                            \{added    \{10 11\}  \{8 8\}\}\}
+        Inversion/Merge  = {{deleted   {0  0} {-1 0}}
+                            {unchanged {1  2}  {0 1}}
+                            {changed   {3  3}  {2 2}}
+                            {unchanged {4  5}  {3 4}}
+                            {deleted   {6  7}  {4 5}}
+                            {unchanged {8 10}  {5 7}}
+                            {added    {10 11}  {8 8}}}
 
   - <a name='6'></a>__::struct::list__ __lcsInvertMerge2__ *lcs1* *lcs2* *len1* *len2*
 
@@ -242,7 +242,7 @@ provided here can be reached through a subcommand of this command\.
     the subcommand returns a list containing the unassigned elements\. Else an
     empty list is returned\.
 
-        tclsh> ::struct::list assign \{a b c d e\} foo bar
+        tclsh> ::struct::list assign {a b c d e} foo bar
         c d e
         tclsh> set foo
         a
@@ -258,9 +258,9 @@ provided here can be reached through a subcommand of this command\.
     The subcommand will remove any nesting it finds if the option __\-full__
     is specified\.
 
-        tclsh> ::struct::list flatten \{1 2 3 \{4 5\} \{6 7\} \{\{8 9\}\} 10\}
-        1 2 3 4 5 6 7 \{8 9\} 10
-        tclsh> ::struct::list flatten \-full \{1 2 3 \{4 5\} \{6 7\} \{\{8 9\}\} 10\}
+        tclsh> ::struct::list flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
+        1 2 3 4 5 6 7 {8 9} 10
+        tclsh> ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
         1 2 3 4 5 6 7 8 9 10
 
   - <a name='11'></a>__::struct::list__ __map__ *sequence* *cmdprefix*
@@ -273,17 +273,17 @@ provided here can be reached through a subcommand of this command\.
     The command prefix will be evaluated with a single word appended to it\. The
     evaluation takes place in the context of the caller of the subcommand\.
 
-        tclsh> \# squaring all elements in a list
+        tclsh> # squaring all elements in a list
 
-        tclsh> proc sqr \{x\} \{expr \{$x\*$x\}\}
-        tclsh> ::struct::list map \{1 2 3 4 5\} sqr
+        tclsh> proc sqr {x} {expr {$x*$x}}
+        tclsh> ::struct::list map {1 2 3 4 5} sqr
         1 4 9 16 25
 
-        tclsh> \# Retrieving the second column from a matrix
-        tclsh> \# given as list of lists\.
+        tclsh> # Retrieving the second column from a matrix
+        tclsh> # given as list of lists.
 
-        tclsh> proc projection \{n list\} \{::lindex $list $n\}
-        tclsh> ::struct::list map \{\{a b c\} \{1 2 3\} \{d f g\}\} \{projection 1\}
+        tclsh> proc projection {n list} {::lindex $list $n}
+        tclsh> ::struct::list map {{a b c} {1 2 3} {d f g}} {projection 1}
         b 2 f
 
   - <a name='12'></a>__::struct::list__ __mapfor__ *var* *sequence* *script*
@@ -296,19 +296,19 @@ provided here can be reached through a subcommand of this command\.
     element through the specified iteration variable *var*\. The evaluation
     takes place in the context of the caller of the subcommand\.
 
-            tclsh> \# squaring all elements in a list
+            tclsh> # squaring all elements in a list
 
-            tclsh> ::struct::list mapfor x \{1 2 3 4 5\} \{
-        	expr \{$x \* $x\}
-            \}
+            tclsh> ::struct::list mapfor x {1 2 3 4 5} {
+        	expr {$x * $x}
+            }
             1 4 9 16 25
 
-            tclsh> \# Retrieving the second column from a matrix
-            tclsh> \# given as list of lists\.
+            tclsh> # Retrieving the second column from a matrix
+            tclsh> # given as list of lists.
 
-            tclsh> ::struct::list mapfor x \{\{a b c\} \{1 2 3\} \{d f g\}\} \{
+            tclsh> ::struct::list mapfor x {{a b c} {1 2 3} {d f g}} {
         	lindex $x 1
-            \}
+            }
             b 2 f
 
   - <a name='13'></a>__::struct::list__ __filter__ *sequence* *cmdprefix*
@@ -324,10 +324,10 @@ provided here can be reached through a subcommand of this command\.
     The command prefix will be evaluated with a single word appended to it\. The
     evaluation takes place in the context of the caller of the subcommand\.
 
-        tclsh> \# removing all odd numbers from the input
+        tclsh> # removing all odd numbers from the input
 
-        tclsh> proc even \{x\} \{expr \{\($x % 2\) == 0\}\}
-        tclsh> ::struct::list filter \{1 2 3 4 5\} even
+        tclsh> proc even {x} {expr {($x % 2) == 0}}
+        tclsh> ::struct::list filter {1 2 3 4 5} even
         2 4
 
     *Note:* The __filter__ is a specialized application of __fold__
@@ -348,9 +348,9 @@ provided here can be reached through a subcommand of this command\.
     element through the specified iteration variable *var*\. The evaluation
     takes place in the context of the caller of the subcommand\.
 
-        tclsh> \# removing all odd numbers from the input
+        tclsh> # removing all odd numbers from the input
 
-        tclsh> ::struct::list filterfor x \{1 2 3 4 5\} \{\($x % 2\) == 0\}
+        tclsh> ::struct::list filterfor x {1 2 3 4 5} {($x % 2) == 0}
         2 4
 
   - <a name='15'></a>__::struct::list__ __split__ *sequence* *cmdprefix* ?*passVar* *failVar*?
@@ -407,9 +407,9 @@ provided here can be reached through a subcommand of this command\.
         element of the list\. The result of this call is returned as the result
         of the subcommand\.
 
-        tclsh> \# summing the elements in a list\.
-        tclsh> proc \+ \{a b\} \{expr \{$a \+ $b\}\}
-        tclsh> ::struct::list fold \{1 2 3 4 5\} 0 \+
+        tclsh> # summing the elements in a list.
+        tclsh> proc + {a b} {expr {$a + $b}}
+        tclsh> ::struct::list fold {1 2 3 4 5} 0 +
         15
 
   - <a name='17'></a>__::struct::list__ __shift__ *listvar*
@@ -451,12 +451,12 @@ provided here can be reached through a subcommand of this command\.
 
         tclsh> ::struct::list repeat 3 a
         a a a
-        tclsh> ::struct::list repeat 3 \[::struct::list repeat 3 0\]
-        \{0 0 0\} \{0 0 0\} \{0 0 0\}
+        tclsh> ::struct::list repeat 3 [::struct::list repeat 3 0]
+        {0 0 0} {0 0 0} {0 0 0}
         tclsh> ::struct::list repeat 3 a b c
         a b c a b c a b c
-        tclsh> ::struct::list repeat 3 \[::struct::list repeat 2 a\] b c
-        \{a a\} b c \{a a\} b c \{a a\} b c
+        tclsh> ::struct::list repeat 3 [::struct::list repeat 2 a] b c
+        {a a} b c {a a} b c {a a} b c
 
   - <a name='21'></a>__::struct::list__ __repeatn__ *value* *size*\.\.\.
 
@@ -478,11 +478,11 @@ provided here can be reached through a subcommand of this command\.
     An empty list will be returned if no *size* arguments are present\.
 
         tclsh> ::struct::list repeatn  0 3 4
-        \{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}
-        tclsh> ::struct::list repeatn  0 \{3 4\}
-        \{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}
-        tclsh> ::struct::list repeatn  0 \{3 4 5\}
-        \{\{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}\} \{\{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}\} \{\{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}\} \{\{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}\} \{\{0 0 0\} \{0 0 0\} \{0 0 0\} \{0 0 0\}\}
+        {0 0 0} {0 0 0} {0 0 0} {0 0 0}
+        tclsh> ::struct::list repeatn  0 {3 4}
+        {0 0 0} {0 0 0} {0 0 0} {0 0 0}
+        tclsh> ::struct::list repeatn  0 {3 4 5}
+        {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
 
   - <a name='22'></a>__::struct::list__ __dbJoin__ ?__\-inner__&#124;__\-left__&#124;__\-right__&#124;__\-full__? ?__\-keys__ *varname*? \{*keycol* *table*\}\.\.\.
 
@@ -620,34 +620,34 @@ additional rows\.
 We extend all the joins from two to __n__ tables \(__n__ > 2\) by
 executing
 
-    \(\.\.\.\(\(table1 join table2\) join table3\) \.\.\.\) join tableN
+    (...((table1 join table2) join table3) ...) join tableN
 
 Examples for all the joins:
 
     Inner Join
 
-    \{0 foo\}              \{0 bagel\}    \{0 foo   0 bagel\}
-    \{1 snarf\} inner join \{1 snatz\}  = \{1 snarf 1 snatz\}
-    \{2 blue\}             \{3 driver\}
+    {0 foo}              {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} inner join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}             {3 driver}
 
     Left Outer Join
 
-    \{0 foo\}                   \{0 bagel\}    \{0 foo   0 bagel\}
-    \{1 snarf\} left outer join \{1 snatz\}  = \{1 snarf 1 snatz\}
-    \{2 blue\}                  \{3 driver\}   \{2 blue  \{\} \{\}\}
+    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} left outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                  {3 driver}   {2 blue  {} {}}
 
     Right Outer Join
 
-    \{0 foo\}                    \{0 bagel\}    \{0 foo   0 bagel\}
-    \{1 snarf\} right outer join \{1 snatz\}  = \{1 snarf 1 snatz\}
-    \{2 blue\}                   \{3 driver\}   \{\{\} \{\}   3 driver\}
+    {0 foo}                    {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} right outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                   {3 driver}   {{} {}   3 driver}
 
     Full Outer Join
 
-    \{0 foo\}                   \{0 bagel\}    \{0 foo   0 bagel\}
-    \{1 snarf\} full outer join \{1 snatz\}  = \{1 snarf 1 snatz\}
-    \{2 blue\}                  \{3 driver\}   \{2 blue  \{\} \{\}\}
-                                           \{\{\} \{\}   3 driver\}
+    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
+    {1 snarf} full outer join {1 snatz}  = {1 snarf 1 snatz}
+    {2 blue}                  {3 driver}   {2 blue  {} {}}
+                                           {{} {}   3 driver}
 
 # <a name='section5'></a>REFERENCES
 

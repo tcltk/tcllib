@@ -113,12 +113,12 @@ __yield__ instead of __[return](\.\./\.\./\.\./\.\./index\.md\#return)__\. For
 example, we can define a generator for looping through the integers in a
 particular range:
 
-    generator define range \{n m\} \{
-        for \{set i $n\} \{$i <= $m\} \{incr i\} \{ generator yield $i \}
-    \}
-    generator foreach x \[range 1 10\] \{
+    generator define range {n m} {
+        for {set i $n} {$i <= $m} {incr i} { generator yield $i }
+    }
+    generator foreach x [range 1 10] {
         puts "x = $x"
-    \}
+    }
 
 The above example will print the numbers from 1 to 10 in sequence, as you would
 expect\. The difference from a normal loop over a list is that the numbers are
@@ -129,12 +129,12 @@ infinite series\. A normal procedure would never return trying to produce this
 series as a list\. By using a generator we only have to generate those values
 which are actually used:
 
-    generator define nats \{\} \{
-        while 1 \{ generator yield \[incr nat\] \}
-    \}
-    generator foreach n \[nats\] \{
-        if \{$n > 100\} \{ break \}
-    \}
+    generator define nats {} {
+        while 1 { generator yield [incr nat] }
+    }
+    generator foreach n [nats] {
+        if {$n > 100} { break }
+    }
 
 # <a name='section2'></a>COMMANDS
 
@@ -222,19 +222,19 @@ which are actually used:
     we can use __finally__ to ensure that the file is closed whenever the
     generator is destroyed:
 
-    generator define lines file \{
-        set in \[open $file\]
-        \# Ensure file is always closed
+    generator define lines file {
+        set in [open $file]
+        # Ensure file is always closed
         generator finally close $in
-        while \{\[gets $in line\] >= 0\} \{
+        while {[gets $in line] >= 0} {
             generator yield $line
-        \}
-    \}
-    generator foreach line \[lines /etc/passwd\] \{
-        puts "\[incr count\]: $line"
-        if \{$count > 10\} \{ break \}
-    \}
-    \# File will be closed even on early exit
+        }
+    }
+    generator foreach line [lines /etc/passwd] {
+        puts "[incr count]: $line"
+        if {$count > 10} { break }
+    }
+    # File will be closed even on early exit
 
     If you create a generator that consumes another generator \(such as the
     standard __map__ and __filter__ generators defined later\), then you
@@ -242,10 +242,10 @@ which are actually used:
     destroyed when its parent is\. For example, the __map__ generator is
     defined as follows:
 
-    generator define map \{f xs\} \{
+    generator define map {f xs} {
         generator finally generator destroy $xs
-        generator foreach x $xs \{ generator yield \[\{\*\}$f $x\] \}
-    \}
+        generator foreach x $xs { generator yield [{*}$f $x] }
+    }
 
   - <a name='9'></a>__generator__ __from__ *format* *value*
 
@@ -261,8 +261,8 @@ which are actually used:
     operations obey the following identity laws \(where __=__ is interpreted
     appropriately\):
 
-    \[generator to $fmt \[generator from $fmt $value\]\] = $value
-    \[generator from $fmt \[generator to $fmt $gen\]\]   = $gen
+    [generator to $fmt [generator from $fmt $value]] = $value
+    [generator from $fmt [generator to $fmt $gen]]   = $gen
 
 # <a name='section3'></a>PRELUDE
 
@@ -281,11 +281,11 @@ persistent generators, see the streams library\.
     square numbers using the following code \(where __nats__ is defined as
     earlier\):
 
-    proc square x \{ expr \{$x \* $x\} \}
-    generator foreach n \[generator map square \[nats\]\] \{
+    proc square x { expr {$x * $x} }
+    generator foreach n [generator map square [nats]] {
         puts "n = $n"
-        if \{$n > 1000\} \{ break \}
-    \}
+        if {$n > 1000} { break }
+    }
 
   - <a name='12'></a>__generator__ __filter__ *predicate* *generator*
 
@@ -296,8 +296,8 @@ persistent generators, see the streams library\.
     people, we could filter all those whose salaries are above 100,000 dollars
     \(or whichever currency you prefer\) using a simple filter:
 
-    proc salary> \{amount person\} \{ expr \{\[dict get $person salary\] > $amount\} \}
-    set fat\-cats \[generator filter \{salary> 100000\} $employees\]
+    proc salary> {amount person} { expr {[dict get $person salary] > $amount} }
+    set fat-cats [generator filter {salary> 100000} $employees]
 
   - <a name='13'></a>__generator__ __reduce__ *function* *zero* *generator*
 
@@ -314,17 +314,17 @@ persistent generators, see the streams library\.
     sequence of numbers can be calculated by folding a __\+__ operator
     between them, with 0 as the identity:
 
-    \# sum xs          = reduce \+ 0 xs
-    \# sum \[range 1 5\] = reduce \+ 0 \[range 1 5\]
-    \#                 = reduce \+ \[\+ 0 1\] \[range 2 5\]
-    \#                 = reduce \+ \[\+ 1 2\] \[range 3 5\]
-    \#                 = \.\.\.
-    \#                 = reduce \+ \[\+ 10 5\] <empty>
-    \#                 = \(\(\(\(0\+1\)\+2\)\+3\)\+4\)\+5
-    \#                 = 15
-    proc \+ \{a b\} \{ expr \{$a \+ $b\} \}
-    proc sum gen \{ generator reduce \+ 0 $gen \}
-    puts \[sum \[range 1 10\]\]
+    # sum xs          = reduce + 0 xs
+    # sum [range 1 5] = reduce + 0 [range 1 5]
+    #                 = reduce + [+ 0 1] [range 2 5]
+    #                 = reduce + [+ 1 2] [range 3 5]
+    #                 = ...
+    #                 = reduce + [+ 10 5] <empty>
+    #                 = ((((0+1)+2)+3)+4)+5
+    #                 = 15
+    proc + {a b} { expr {$a + $b} }
+    proc sum gen { generator reduce + 0 $gen }
+    puts [sum [range 1 10]]
 
     The __reduce__ operation is an extremely useful one, and a great variety
     of different operations can be defined using it\. For example, we can define
@@ -332,15 +332,15 @@ persistent generators, see the streams library\.
     definition is both very clear and also quite efficient \(in both memory and
     running time\):
 
-    proc \* \{x y\} \{ expr \{$x \* $y\} \}
-    proc prod gen \{ generator reduce \* 0 $gen \}
-    proc fac n \{ prod \[range 1 $n\] \}
+    proc * {x y} { expr {$x * $y} }
+    proc prod gen { generator reduce * 0 $gen }
+    proc fac n { prod [range 1 $n] }
 
     However, while the __reduce__ operation is efficient for finite
     generators, care should be taken not to apply it to an infinite generator,
     as this will result in an infinite loop:
 
-    sum \[nats\]; \# Never returns
+    sum [nats]; # Never returns
 
   - <a name='14'></a>__generator__ __foldl__ *function* *zero* *generator*
 
@@ -441,10 +441,10 @@ persistent generators, see the streams library\.
     the initial argument\. For example, the Fibonacci numbers can be defined as
     follows:
 
-    proc fst pair \{ lindex $pair 0 \}
-    proc snd pair \{ lindex $pair 1 \}
-    proc nextFib ab \{ list \[snd $ab\] \[expr \{\[fst $ab\] \+ \[snd $ab\]\}\] \}
-    proc fibs \{\} \{ generator map fst \[generator iterate nextFib \{0 1\}\] \}
+    proc fst pair { lindex $pair 0 }
+    proc snd pair { lindex $pair 1 }
+    proc nextFib ab { list [snd $ab] [expr {[fst $ab] + [snd $ab]}] }
+    proc fibs {} { generator map fst [generator iterate nextFib {0 1}] }
 
   - <a name='33'></a>__generator__ __last__ *generator*
 
@@ -483,8 +483,8 @@ persistent generators, see the streams library\.
     matching the delimiter predicate are discarded\. For example, to split up a
     generator using the string "&#124;" as a delimiter:
 
-    set xs \[generator from list \{a &#124; b &#124; c\}\]
-    generator split \{string equal "&#124;"\} $xs ;\# returns a then b then c
+    set xs [generator from list {a | b | c}]
+    generator split {string equal "|"} $xs ;# returns a then b then c
 
   - <a name='41'></a>__generator__ __scanl__ *function* *zero* *generator*
 

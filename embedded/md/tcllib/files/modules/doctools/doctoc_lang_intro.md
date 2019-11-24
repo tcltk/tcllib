@@ -65,17 +65,17 @@ and __\]__\. Inside of these delimiters the usual rules for a Tcl command
 apply with regard to word quotation, nested commands, continuation lines, etc\.
 I\.e\.
 
-    \.\.\. \[division\_start \{Appendix 1\}\] \.\.\.
+    ... [division_start {Appendix 1}] ...
 
-    \.\.\. \[item thefile \\\\
-            label \{file description\}\] \.\.\.
+    ... [item thefile \
+            label {file description}] ...
 
 ## <a name='subsection2'></a>Basic structure
 
 The most simple document which can be written in doctoc is
 
-    \[toc\_begin GROUPTITLE TITLE\]
-    \[toc\_end\]
+    [toc_begin GROUPTITLE TITLE]
+    [toc_end]
 
 This also shows us that all doctoc documents consist of only one part where we
 will list *items* and *divisions*\.
@@ -102,13 +102,13 @@ actual names given to the engine\.
 
 Here a made up example for a table of contents of this document:
 
-    \[toc\_begin Doctoc \{Language Introduction\}\]
-    \[__item 1 DESCRIPTION__\]
-    \[__item 1\.1 \{Basic structure\}__\]
-    \[__item 1\.2 Items__\]
-    \[__item 1\.3 Divisions__\]
-    \[__item 2 \{FURTHER READING\}__\]
-    \[toc\_end\]
+> \[toc\_begin Doctoc \{Language Introduction\}\]  
+> \[__item 1 DESCRIPTION__\]  
+> \[__item 1\.1 \{Basic structure\}__\]  
+> \[__item 1\.2 Items__\]  
+> \[__item 1\.3 Divisions__\]  
+> \[__item 2 \{FURTHER READING\}__\]  
+> \[toc\_end\]
 
 ## <a name='subsection4'></a>Divisions
 
@@ -141,58 +141,58 @@ to close the last opened division\. They are:
 
 Using this we can recast the last example like this
 
-    \[toc\_begin Doctoc \{Language Introduction\}\]
-    \[__division\_start DESCRIPTION__\]
-    \[item 1 \{Basic structure\}\]
-    \[item 2 Items\]
-    \[item 3 Divisions\]
-    \[__division\_end__\]
-    \[__division\_start \{FURTHER READING\}__\]
-    \[__division\_end__\]
-    \[toc\_end\]
+> \[toc\_begin Doctoc \{Language Introduction\}\]  
+> \[__division\_start DESCRIPTION__\]  
+> \[item 1 \{Basic structure\}\]  
+> \[item 2 Items\]  
+> \[item 3 Divisions\]  
+> \[__division\_end__\]  
+> \[__division\_start \{FURTHER READING\}__\]  
+> \[__division\_end__\]  
+> \[toc\_end\]
 
 Or, to demonstrate deeper nesting
 
-    \[toc\_begin Doctoc \{Language Introduction\}\]
-    \[__division\_start DESCRIPTION__\]
-    \[__division\_start \{Basic structure\}__\]
-    \[item 1 Do\]
-    \[item 2 Re\]
-    \[__division\_end__\]
-    \[__division\_start Items__\]
-    \[item a Fi\]
-    \[item b Fo\]
-    \[item c Fa\]
-    \[__division\_end__\]
-    \[__division\_start Divisions__\]
-    \[item 1 Sub\]
-    \[item 1 Zero\]
-    \[__division\_end__\]
-    \[__division\_end__\]
-    \[__division\_start \{FURTHER READING\}__\]
-    \[__division\_end__\]
-    \[toc\_end\]
+> \[toc\_begin Doctoc \{Language Introduction\}\]  
+> \[__division\_start DESCRIPTION__\]  
+> \[__division\_start \{Basic structure\}__\]  
+> \[item 1 Do\]  
+> \[item 2 Re\]  
+> \[__division\_end__\]  
+> \[__division\_start Items__\]  
+> \[item a Fi\]  
+> \[item b Fo\]  
+> \[item c Fa\]  
+> \[__division\_end__\]  
+> \[__division\_start Divisions__\]  
+> \[item 1 Sub\]  
+> \[item 1 Zero\]  
+> \[__division\_end__\]  
+> \[__division\_end__\]  
+> \[__division\_start \{FURTHER READING\}__\]  
+> \[__division\_end__\]  
+> \[toc\_end\]
 
 And do not forget, it is possible to freely mix items and divisions, and to have
 empty divisions\.
 
-    \[toc\_begin Doctoc \{Language Introduction\}\]
-    \[item 1 Do\]
-    \[__division\_start DESCRIPTION__\]
-    \[__division\_start \{Basic structure\}__\]
-    \[item 2 Re\]
-    \[__division\_end__\]
-    \[item a Fi\]
-    \[__division\_start Items__\]
-    \[item b Fo\]
-    \[item c Fa\]
-    \[__division\_end__\]
-    \[__division\_start Divisions__\]
-    \[__division\_end__\]
-    \[__division\_end__\]
-    \[__division\_start \{FURTHER READING\}__\]
-    \[__division\_end__\]
-    \[toc\_end\]
+> \[toc\_begin Doctoc \{Language Introduction\}\]  
+> \[item 1 Do\]  
+> \[__division\_start DESCRIPTION__\]  
+> \[__division\_start \{Basic structure\}__\]  
+> \[item 2 Re\]  
+> \[__division\_end__\]  
+> \[item a Fi\]  
+> \[__division\_start Items__\]  
+> \[item b Fo\]  
+> \[item c Fa\]  
+> \[__division\_end__\]  
+> \[__division\_start Divisions__\]  
+> \[__division\_end__\]  
+> \[__division\_end__\]  
+> \[__division\_start \{FURTHER READING\}__\]  
+> \[__division\_end__\]  
+> \[toc\_end\]
 
 ## <a name='subsection5'></a>Advanced structure
 
@@ -204,20 +204,20 @@ __vset__ are also allowed, to enable the writer to either set and/or import
 configuration settings relevant to the table of contents\. I\.e\. it is possible to
 write
 
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \[toc\_begin GROUPTITLE TITLE\]
-    \.\.\.
-    \[toc\_end\]
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \[toc\_begin GROUPTITLE TITLE\]  
+> \.\.\.  
+> \[toc\_end\]
 
 Even more important, these two commands are allowed anywhere where a markup
 command is allowed, without regard for any other structure\.
 
-    \[toc\_begin GROUPTITLE TITLE\]
-    \[__include FILE__\]
-    \[__vset VAR VALUE__\]
-    \.\.\.
-    \[toc\_end\]
+> \[toc\_begin GROUPTITLE TITLE\]  
+> \[__include FILE__\]  
+> \[__vset VAR VALUE__\]  
+> \.\.\.  
+> \[toc\_end\]
 
 The only restriction __include__ has to obey is that the contents of the
 included file must be valid at the place of the inclusion\. I\.e\. a file included
@@ -236,11 +236,11 @@ markup commands makes it impossible to directly use \[ and \] within the text\.
 Our example of their use are the sources of the last sentence in the previous
 paragraph, with some highlighting added\.
 
-    \.\.\.
-    These commands, \[cmd lb\] and \[cmd lb\] respectively, are required
-    because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it
-    impossible to directly use \[__lb__\] and \[__rb__\] within the text\.
-    \.\.\.
+> &nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;These commands, \[cmd lb\] and \[cmd lb\] respectively, are required  
+> &nbsp;&nbsp;because our use of \[__lb__\] and \[__rb__\] to bracket markup commands makes it  
+> &nbsp;&nbsp;impossible to directly use \[__lb__\] and \[__rb__\] within the text\.  
+> &nbsp;&nbsp;\.\.\.
 
 # <a name='section2'></a>FURTHER READING
 

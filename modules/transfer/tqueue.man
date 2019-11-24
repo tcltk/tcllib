@@ -170,5 +170,5 @@ they may come back in a different order than the requests from the
 client, and releases them to the actual queue in the proper order.
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

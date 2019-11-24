@@ -1,7 +1,7 @@
 
 [//000000001]: # (doctools::toc::export::json \- Documentation tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000003]: # (Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (doctools::toc::export::json\(n\) 0\.1 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
@@ -80,67 +80,67 @@ The JSON format used for tables of contents is a direct translation of the [ToC
 serialization format](#section5), mapping Tcl dictionaries as JSON objects
 and Tcl lists as JSON arrays\. For example, the Tcl serialization
 
-    doctools::toc \{
-        items \{
-            \{reference \{
-    	    desc \{DocTools \- Tables of Contents\}
-    	     id introduction\.man
+    doctools::toc {
+        items {
+            {reference {
+    	    desc {DocTools - Tables of Contents}
+    	     id introduction.man
     	     label doctools::toc::introduction
-    	\}\}
-    	\{division \{
-    	     id processing\.man
-    	     items \{
-    	         \{reference \{
-    		     desc \{doctoc serialization utilities\}
-    		     id structure\.man
+    	}}
+    	{division {
+    	     id processing.man
+    	     items {
+    	         {reference {
+    		     desc {doctoc serialization utilities}
+    		     id structure.man
     		     label doctools::toc::structure
-    		 \}\}
-    		 \{reference \{
-    		     desc \{Parsing text in doctoc format\}
-    		     id parse\.man
+    		 }}
+    		 {reference {
+    		     desc {Parsing text in doctoc format}
+    		     id parse.man
     		     label doctools::toc::parse
-    		 \}\}
-    	     \}
+    		 }}
+    	     }
                  label Processing
-            \}\}
-        \}
-        label \{Table of Contents\}
+            }}
+        }
+        label {Table of Contents}
         title TOC
-    \}
+    }
 
 is equivalent to the JSON string
 
-    \{
-        "doctools::toc" : \{
-            "items" : \[\{
-                "reference" : \{
-                    "desc"  : "DocTools \- Tables of Contents",
-                    "id"    : "introduction\.man",
+    {
+        "doctools::toc" : {
+            "items" : [{
+                "reference" : {
+                    "desc"  : "DocTools - Tables of Contents",
+                    "id"    : "introduction.man",
                     "label" : "doctools::toc::introduction"
-                \}
-            \},\{
-                "division" : \{
-                    "id"    : "processing\.man",
-                    "items" : \[\{
-                        "reference" : \{
+                }
+            },{
+                "division" : {
+                    "id"    : "processing.man",
+                    "items" : [{
+                        "reference" : {
                             "desc"  : "doctoc serialization utilities",
-                            "id"    : "structure\.man",
+                            "id"    : "structure.man",
                             "label" : "doctools::toc::structure"
-                        \}
-                    \},\{
-                        "reference" : \{
+                        }
+                    },{
+                        "reference" : {
                             "desc"  : "Parsing text in doctoc format",
-                            "id"    : "parse\.man",
+                            "id"    : "parse.man",
                             "label" : "doctools::toc::parse"
-                        \}
-                    \}\],
+                        }
+                    }],
                     "label" : "Processing"
-                \}
-            \}\],
+                }
+            }],
             "label" : "Table of Contents",
             "title" : "TOC"
-        \}
-    \}
+        }
+    }
 
 # <a name='section4'></a>Configuration
 
@@ -306,4 +306,4 @@ Text formatter plugin
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

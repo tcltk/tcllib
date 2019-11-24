@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_peg_import\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::import" n 1 tcllib "Parser Tools"
+.TH "pt::peg::import" n 1\&.0\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,15 +276,17 @@ pt::peg::import \- PEG Import
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBTcl  8\&.5\fR
+.sp
 package require \fBsnit \fR
 .sp
-package require \fBconfiguration \fR
+package require \fBfileutil::paths \fR
 .sp
 package require \fBpt::peg \fR
 .sp
 package require \fBpluginmgr \fR
 .sp
-package require \fBpt::peg::import  ?1?\fR
+package require \fBpt::peg::import  ?1\&.0\&.1?\fR
 .sp
 \fB::pt::peg::import\fR \fIobjectName\fR
 .sp

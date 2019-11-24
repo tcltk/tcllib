@@ -198,7 +198,7 @@ And now the methods supported by tree objects created by this package:
 
     This operation is in effect equivalent to
 
-        *treeName* __deserialize__ \[*sourcetree* __serialize__\]
+    > *treeName* __deserialize__ \[*sourcetree* __serialize__\]
 
   - <a name='5'></a>*treeName* __\-\->__ *desttree*
 
@@ -209,7 +209,7 @@ And now the methods supported by tree objects created by this package:
 
     This operation is in effect equivalent to
 
-        *desttree* __deserialize__ \[*treeName* __serialize__\]
+    > *desttree* __deserialize__ \[*treeName* __serialize__\]
 
   - <a name='6'></a>*treeName* __ancestors__ *node*
 
@@ -279,25 +279,25 @@ And now the methods supported by tree objects created by this package:
             mytree insert 4    end 5 ; mytree set 5 volume 50
             mytree insert 4    end 6
 
-            proc vol \{t n\} \{
+            proc vol {t n} {
         	$t keyexists $n volume
-            \}
-            proc vgt40 \{t n\} \{
-        	if \{\!\[$t keyexists $n volume\]\} \{return 0\}
-        	expr \{\[$t get $n volume\] > 40\}
-            \}
+            }
+            proc vgt40 {t n} {
+        	if {![$t keyexists $n volume]} {return 0}
+        	expr {[$t get $n volume] > 40}
+            }
 
-            tclsh> lsort \[mytree children \-all root filter vol\]
+            tclsh> lsort [mytree children -all root filter vol]
             0 5
 
-            tclsh> lsort \[mytree children \-all root filter vgt40\]
+            tclsh> lsort [mytree children -all root filter vgt40]
             5
 
-            tclsh> lsort \[mytree children root filter vol\]
+            tclsh> lsort [mytree children root filter vol]
             0
 
-            tclsh> puts \(\[lsort \[mytree children root filter vgt40\]\]\)
-            \(\)
+            tclsh> puts ([lsort [mytree children root filter vgt40]])
+            ()
 
   - <a name='13'></a>*treeName* __cut__ *node*
 
@@ -483,15 +483,15 @@ And now the methods supported by tree objects created by this package:
 
         A possible serialization for the tree structure
 
-                    \+\- d
-              \+\- a \-\+
-        root \-\+\- b  \+\- e
-              \+\- c
+                    +- d
+              +- a -+
+        root -+- b  +- e
+              +- c
         is
 
-        \{root \{\} \{\} a 0 \{\} d 3 \{\} e 3 \{\} b 0 \{\} c 0 \{\}\}
+        {root {} {} a 0 {} d 3 {} e 3 {} b 0 {} c 0 {}}
 
-        The above assumes that none of the nodes have attributes\.
+        The above assumes that none of the nodes have attributes.
 
   - <a name='38'></a>*treeName* __set__ *node* *key* ?*value*?
 
@@ -580,17 +580,17 @@ And now the methods supported by tree objects created by this package:
     and the possible actions\.
 
         order       type    actions         notes
-        \-\-\-\-\-       \-\-\-\-    \-\-\-\-\-           \-\-\-\-\-
+        -----       ----    -----           -----
         pre         dfs     enter           parent before children
         post        dfs     leave           parent after children
-        in          dfs     visit           parent between first and second child\.
+        in          dfs     visit           parent between first and second child.
         both        dfs     enter, leave    parent before and after children
-        \-\-\-\-\-       \-\-\-\-    \-\-\-\-\-           \-\-\-\-\-
+        -----       ----    -----           -----
         pre         bfs     enter           parent before children
         post        bfs     leave           parent after children
-        in          bfs             \-\- illegal \-\-
+        in          bfs             -- illegal --
         both        bfs     enter, leave    parent before and after children
-        \-\-\-\-\-       \-\-\-\-    \-\-\-\-\-           \-\-\-\-\-
+        -----       ----    -----           -----
 
     Note the command __::struct::tree::prune__\. This command can be used in
     the walk script to force the command to ignore the children of the node we
@@ -671,12 +671,12 @@ The following noteworthy changes have occurred:
 
 The following example demonstrates the creation of new nodes:
 
-    mytree insert root end 0   ; \# Create node 0, as child of the root
-    mytree insert root end 1 2 ; \# Ditto nodes 1 & 2
-    mytree insert 0    end 3   ; \# Now create node 3 as child of node 0
-    mytree insert 0    end     ; \# Create another child of 0, with a
-    \#                              generated name\. The name is returned
-    \#                              as the result of the command\.
+    mytree insert root end 0   ; # Create node 0, as child of the root
+    mytree insert root end 1 2 ; # Ditto nodes 1 & 2
+    mytree insert 0    end 3   ; # Now create node 3 as child of node 0
+    mytree insert 0    end     ; # Create another child of 0, with a
+    #                              generated name. The name is returned
+    #                              as the result of the command.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

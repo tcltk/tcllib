@@ -122,17 +122,17 @@ Effectively the package provides the following procedures:
 
 Usage:
 
-    if \{ \[teq $x $y\] \} \{ puts "x == y" \}
-    if \{ \[tne $x $y\] \} \{ puts "x \!= y" \}
-    if \{ \[tge $x $y\] \} \{ puts "x >= y" \}
-    if \{ \[tgt $x $y\] \} \{ puts "x > y" \}
-    if \{ \[tlt $x $y\] \} \{ puts "x < y" \}
-    if \{ \[tle $x $y\] \} \{ puts "x <= y" \}
+    if { [teq $x $y] } { puts "x == y" }
+    if { [tne $x $y] } { puts "x != y" }
+    if { [tge $x $y] } { puts "x >= y" }
+    if { [tgt $x $y] } { puts "x > y" }
+    if { [tlt $x $y] } { puts "x < y" }
+    if { [tle $x $y] } { puts "x <= y" }
 
-    set fx      \[tfloor $x\]
-    set fc      \[tceil  $x\]
-    set rounded \[tround $x\]
-    set roundn  \[troundn $x $nodigits\]
+    set fx      [tfloor $x]
+    set fc      [tceil  $x]
+    set rounded [tround $x]
+    set roundn  [troundn $x $nodigits]
 
 # <a name='section3'></a>TEST CASES
 

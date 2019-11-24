@@ -130,35 +130,35 @@ Tables Of Contents* and the *DocTools \- General*, respectively\.
 # <a name='section3'></a>Package Overview
 
                                         ~~~~~~~~~~~ doctools::idx ~~~~~~~~~~~
-                                       ~~                   &#124;               ~~
-                    doctools::idx::export ~~~~~~~~~~~~~~~~~ &#124; ~~~~~~~~~~~~~ doctools::idx::import
-                            &#124;                               &#124;                       &#124;
-            \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+     &#124;    \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+
-            &#124;               &#124;                         &#124;     &#124;    &#124;                  &#124;               &#124;                       &#124;               &#124;
-    doctools::config        =                         &#124;     &#124;    &#124;                  =       doctools::include       doctools::config doctools::paths
-                            &#124;                         &#124;     &#124;    &#124;                  &#124;
-                    doctools::idx::export::<\*>        &#124;     &#124;    &#124;          doctools::idx::import::<\*>
-                            docidx                    &#124;     &#124;    &#124;                  docidx, json
-                            json                      &#124;     &#124;    &#124;                  &#124;           \\\\
-                            html                      &#124;     &#124;    &#124;          doctools::idx::parse \\\\
-                            nroff                     &#124;     &#124;    &#124;                  &#124;             \\\\
-                            wiki                      &#124;     &#124;    &#124;  \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+              json
-                            text                      &#124;     &#124;    &#124;  &#124;               &#124;
-                                                    doctools::idx::structure        &#124;
-                                                                                    &#124;
-                                                                            \+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+
-                                                                            &#124;                       &#124;
+                                       ~~                   |               ~~
+                    doctools::idx::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::idx::import
+                            |                               |                       |
+            +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
+            |               |                         |     |    |                  |               |                       |               |
+    struct::map             =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
+                            |                         |     |    |                  |
+                    doctools::idx::export::<*>        |     |    |          doctools::idx::import::<*>
+                            docidx                    |     |    |                  docidx, json
+                            json                      |     |    |                  |           \
+                            html                      |     |    |          doctools::idx::parse \
+                            nroff                     |     |    |                  |             \
+                            wiki                      |     |    |  +---------------+              json
+                            text                      |     |    |  |               |
+                                                    doctools::idx::structure        |
+                                                                                    |
+                                                                            +-------+---------------+
+                                                                            |                       |
               doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
-                    &#124;                                                                               &#124;
-              doctools::text  doctools::nroff::man\_macros                                           =
-                                                                                                    &#124;
-                                                                                            doctools::msgcat::idx::<\*>
+                    |                                                                               |
+              doctools::text  doctools::nroff::man_macros                                           =
+                                                                                                    |
+                                                                                            doctools::msgcat::idx::<*>
                                                                                                     c, en, de, fr
-                                                                                                    \(fr == en for now\)
+                                                                                                    (fr == en for now)
             ~~      Interoperable objects, without actual package dependencies
-            \-\-      Package dependency, higher requires lower package
+            --      Package dependency, higher requires lower package
             =       Dynamic dependency through plugin system
-            <\*>     Multiple packages following the given form of naming\.
+            <*>     Multiple packages following the given form of naming.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

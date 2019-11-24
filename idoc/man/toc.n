@@ -333,6 +333,9 @@ tcllib
 \fBcksum\fR
 \fIfiles/modules/crc/cksum\&.n\fR: Calculate a cksum(1) compatible checksum
 .TP
+\fBclay\fR
+\fIfiles/modules/clay/clay\&.n\fR: A minimalist framework for large scale OO Projects
+.TP
 \fBclock_iso8601\fR
 \fIfiles/modules/clock/iso8601\&.n\fR: Parsing ISO 8601 dates/times
 .TP
@@ -624,6 +627,9 @@ tcllib
 \fBfileutil::multi::op\fR
 \fIfiles/modules/fileutil/multiop\&.n\fR: Multi-file operation, scatter/gather
 .TP
+\fBfileutil::paths\fR
+\fIfiles/modules/fileutil/paths\&.n\fR: Manage search path pools
+.TP
 \fBfileutil_traverse\fR
 \fIfiles/modules/fileutil/traverse\&.n\fR: Iterative directory traversal
 .TP
@@ -695,6 +701,9 @@ tcllib
 .TP
 \fBhtmlparse\fR
 \fIfiles/modules/htmlparse/htmlparse\&.n\fR: Procedures to parse HTML strings
+.TP
+\fBhttpd\fR
+\fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
 .TP
 \fBhuddle\fR
 \fIfiles/modules/yaml/huddle\&.n\fR: Create and manipulate huddle object
@@ -827,6 +836,9 @@ tcllib
 .TP
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
+.TP
+\fBmath::quasirandom\fR
+\fIfiles/modules/math/quasirandom\&.n\fR: Quasi-random points for integration and Monte Carlo type methods
 .TP
 \fBmath::rationalfunctions\fR
 \fIfiles/modules/math/rational_funcs\&.n\fR: Polynomial functions
@@ -1200,6 +1212,9 @@ tcllib
 \fBstruct::list\fR
 \fIfiles/modules/struct/struct_list\&.n\fR: Procedures for manipulating lists
 .TP
+\fBstruct::map\fR
+\fIfiles/modules/struct/struct_map\&.n\fR: Manage key/value maps
+.TP
 \fBstruct::matrix\fR
 \fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
 .TP
@@ -1332,6 +1347,9 @@ tcllib
 \fBtcl::transform::zlib\fR
 \fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
 .TP
+\fBtcl_community_communication\fR
+\fIfiles/devdoc/tcl_community_communication\&.n\fR: Tcl Community - Kind Communication
+.TP
 \fBtclDES\fR
 \fIfiles/modules/des/tcldes\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
@@ -1341,8 +1359,23 @@ tcllib
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
 .TP
+\fBtcllib_devguide\fR
+\fIfiles/devdoc/tcllib_devguide\&.n\fR: Tcllib - The Developer's Guide
+.TP
+\fBtcllib_install_guide\fR
+\fIfiles/devdoc/tcllib_installer\&.n\fR: Tcllib - The Installer's Guide
+.TP
 \fBtcllib_ip\fR
 \fIfiles/modules/dns/tcllib_ip\&.n\fR: IPv4 and IPv6 address manipulation
+.TP
+\fBtcllib_license\fR
+\fIfiles/devdoc/tcllib_license\&.n\fR: Tcllib - License
+.TP
+\fBtcllib_releasemgr\fR
+\fIfiles/devdoc/tcllib_releasemgr\&.n\fR: Tcllib - The Release Manager's Guide
+.TP
+\fBtcllib_sources\fR
+\fIfiles/devdoc/tcllib_sources\&.n\fR: Tcllib - How To Get The Sources
 .TP
 \fBtclrep/machineparameters\fR
 \fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
@@ -1404,6 +1437,9 @@ tcllib
 \fBtextutil::expander\fR
 \fIfiles/modules/textutil/expander\&.n\fR: Procedures to process templates and expand text\&.
 .TP
+\fBtextutil::patch\fR
+\fIfiles/modules/textutil/patch\&.n\fR: Application of uni-diff patches to directory trees
+.TP
 \fBtextutil::repeat\fR
 \fIfiles/modules/textutil/repeat\&.n\fR: Procedures to repeat strings\&.
 .TP
@@ -1433,9 +1469,6 @@ tcllib
 .TP
 \fBtool\fR
 \fIfiles/modules/tool/tool\&.n\fR: TclOO Library (TOOL) Framework
-.TP
-\fBtool\fR
-\fIfiles/modules/httpd/httpd\&.n\fR: A TclOO and coroutine based web server
 .TP
 \fBtool::dict_ensemble\fR
 \fIfiles/modules/tool/tool_dict_ensemble\&.n\fR: Dictionary Tools

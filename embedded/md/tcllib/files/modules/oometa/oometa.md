@@ -58,35 +58,35 @@ The __oo::meta__ package provides a data registry service for TclOO classes\.
 
 # <a name='section2'></a>Usage
 
-    oo::class create animal \{
+    oo::class create animal {
       meta set biodata animal: 1
-    \}
-    oo::class create mammal \{
+    }
+    oo::class create mammal {
       superclass animal
       meta set biodata mammal: 1
-    \}
-    oo::class create cat \{
+    }
+    oo::class create cat {
       superclass mammal
       meta set biodata diet: carnivore
-    \}
+    }
 
     cat create felix
-    puts \[felix meta dump biodata\]
+    puts [felix meta dump biodata]
     > animal: 1 mammal: 1 diet: carnivore
 
-    felix meta set biodata likes: \{birds mice\}
-    puts \[felix meta get biodata\]
-    > animal: 1 mammal: 1 diet: carnivore likes: \{bird mice\}
+    felix meta set biodata likes: {birds mice}
+    puts [felix meta get biodata]
+    > animal: 1 mammal: 1 diet: carnivore likes: {bird mice}
 
-    \# Modify a class
-    mammal meta set biodata metabolism: warm\-blooded
-    puts \[felix meta get biodata\]
-    > animal: 1 mammal: 1 metabolism: warm\-blooded diet: carnivore likes: \{birds mice\}
+    # Modify a class
+    mammal meta set biodata metabolism: warm-blooded
+    puts [felix meta get biodata]
+    > animal: 1 mammal: 1 metabolism: warm-blooded diet: carnivore likes: {birds mice}
 
-    \# Overwrite class info
+    # Overwrite class info
     felix meta set biodata mammal: yes
-    puts \[felix meta get biodata\]
-    > animal: 1 mammal: yes metabolism: warm\-blooded diet: carnivore likes: \{birds mice\}
+    puts [felix meta get biodata]
+    > animal: 1 mammal: yes metabolism: warm-blooded diet: carnivore likes: {birds mice}
 
 # <a name='section3'></a>Concept
 
@@ -111,20 +111,20 @@ dict stored in the *meta* variable\.
     Returns a dict representation of the element at *args*, but with any
     trailing : removed from field names\.
 
-    ::oo::meta::info $myclass set option color \{default: green widget: colorselect\}
-    puts \[::oo::meta::info $myclass get option color\]
-    > \{default: green widget: color\}
-    puts \[::oo::meta::info $myclass branchget option color\]
-    > \{default green widget color\}
+    ::oo::meta::info $myclass set option color {default: green widget: colorselect}
+    puts [::oo::meta::info $myclass get option color]
+    > {default: green widget: color}
+    puts [::oo::meta::info $myclass branchget option color]
+    > {default green widget color}
 
   - <a name='3'></a>__oo::meta::info branchset__ ?*key\.\.\.*? *key* *value*
 
     Merges *dict* with any other information contaned at node ?*key\.\.\.*?,
     and adding a trailing : to all field names\.
 
-    ::oo::meta::info $myclass branchset option color \{default green widget colorselect\}
-    puts \[::oo::meta::info $myclass get option color\]
-    > \{default: green widget: color\}
+    ::oo::meta::info $myclass branchset option color {default green widget colorselect}
+    puts [::oo::meta::info $myclass get option color]
+    > {default: green widget: color}
 
   - <a name='4'></a>__oo::meta::info dump__ *class*
 
@@ -137,7 +137,7 @@ dict stored in the *meta* variable\.
     __string is__ *type* *value*
 
     ::oo::meta::info $myclass set constant mammal 1
-    puts \[::oo::meta::info $myclass is true constant mammal\]
+    puts [::oo::meta::info $myclass is true constant mammal]
     > 1
 
   - <a name='6'></a>__oo::meta::info__ *class* __[merge](\.\./\.\./\.\./\.\./index\.md\#merge)__ ?*dict*? ?*dict*? ?*\.\.\.*?
@@ -161,9 +161,9 @@ dict stored in the *meta* variable\.
     provide a class in the process of definition access to
     __oo::meta::info__, but without having to look the name up\.
 
-    oo::define myclass \{
+    oo::define myclass {
       meta set foo bar: baz
-    \}
+    }
 
   - <a name='10'></a>__oo::class method meta__
 

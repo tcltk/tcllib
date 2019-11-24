@@ -1,9 +1,9 @@
 
 [//000000001]: # (base64 \- Text encoding & decoding binary data)
 [//000000002]: # (Generated from file 'base64\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2000, Eric Melski  
-Copyright &copy; 2001, Miguel Sofer)
-[//000000004]: # (base64\(n\) 2\.4\.2 tcllib "Text encoding & decoding binary data")
+[//000000003]: # (Copyright &copy; 2000, Eric Melski)
+[//000000004]: # (Copyright &copy; 2001, Miguel Sofer)
+[//000000005]: # (base64\(n\) 2\.4\.2 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -71,17 +71,17 @@ This package provides procedures to encode binary data into base64 and back\.
     % base64::encode "Hello, world"
     SGVsbG8sIHdvcmxk
 
-    % base64::encode \[string repeat xyz 20\]
+    % base64::encode [string repeat xyz 20]
     eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
     eHl6eHl6eHl6
-    % base64::encode \-wrapchar "" \[string repeat xyz 20\]
+    % base64::encode -wrapchar "" [string repeat xyz 20]
     eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 
-    \# NOTE: base64 encodes BINARY strings\.
-    % set chemical \[encoding convertto utf\-8 "C\\u2088H\\u2081\\u2080N\\u2084O\\u2082"\]
-    % set encoded \[base64::encode $chemical\]
-    Q\+KCiEjigoHigoBO4oKET\+KCgg==
-    % set caffeine \[encoding convertfrom utf\-8 \[base64::decode $encoded\]\]
+    # NOTE: base64 encodes BINARY strings.
+    % set chemical [encoding convertto utf-8 "C\u2088H\u2081\u2080N\u2084O\u2082"]
+    % set encoded [base64::encode $chemical]
+    Q+KCiEjigoHigoBO4oKET+KCgg==
+    % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

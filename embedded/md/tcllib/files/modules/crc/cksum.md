@@ -115,18 +115,18 @@ and can help to avoid excessive memory consumption\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % crc::cksum "Hello, World\!"
+    % crc::cksum "Hello, World!"
     2609532967
 
-    % crc::cksum \-format 0x%X "Hello, World\!"
+    % crc::cksum -format 0x%X "Hello, World!"
     0x9B8A5027
 
-    % crc::cksum \-file cksum\.tcl
+    % crc::cksum -file cksum.tcl
     1828321145
 
-    % set tok \[crc::CksumInit\]
+    % set tok [crc::CksumInit]
     % crc::CksumUpdate $tok "Hello, "
-    % crc::CksumUpdate $tok "World\!"
+    % crc::CksumUpdate $tok "World!"
     % crc::CksumFinal $tok
     2609532967
 

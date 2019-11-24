@@ -1,4 +1,4 @@
-[comment {-*- tcl -*-}][vset VERSION 2.4.1]
+[comment {-*- tcl -*-}][vset VERSION 2.4.3]
 [manpage_begin struct::graph n [vset VERSION]]
 [keywords adjacent]
 [keywords arc]
@@ -12,7 +12,7 @@
 [keywords serialization]
 [keywords subgraph]
 [keywords vertex]
-[copyright {2002-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2002-2009,2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
 [category  {Data structures}]
@@ -397,7 +397,7 @@ name of the restriction itself.
 [para]
 
 The restrictions imposed by either [option -in], [option -out],
-[option -adj], [option -inner], or [option -embedded] are applied
+[option -adj], [option -inner], or [option -embedding] are applied
 first. Specifying more than one of them is illegal.
 
 [para]
@@ -447,6 +447,22 @@ specified nodes.
 Return a list of all arcs adjacent to exactly one of the nodes in the
 set. This is the set of arcs connecting the subgraph spawned by the
 specified nodes to the rest of the graph.
+
+[list_end]
+
+[emph Attention]: After the above options any word with a leading dash
+which is not a valid option is treated as a node name instead of an
+invalid option to error out on. This condition holds until either a
+valid option terminates the list of nodes, or the end of the command
+is reached, whichever comes first.
+
+[para]
+
+The remaining filter options are:
+
+[para]
+
+[list_begin definitions]
 
 [def "[option -key] [arg key]"]
 
@@ -609,9 +625,15 @@ the name of the restriction itself.
 
 [para]
 
-The possible restrictions are the same as for method
-[method arcs]. The exact meanings change slightly, as they operate on
-nodes instead of arcs. The command recognizes:
+The possible restrictions are the same as for method [method arcs].
+
+Note that while the exact meanings change slightly, as they operate on
+nodes instead of arcs, the general behaviour is the same, especially
+when it comes to the handling of words with a leading dash in node
+lists.
+
+[para]
+The command recognizes:
 
 [list_begin definitions]
 [def [option -in]]
@@ -938,5 +960,5 @@ criterium.
 [list_end]
 
 [vset CATEGORY {struct :: graph}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

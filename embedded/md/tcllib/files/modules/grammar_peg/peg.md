@@ -118,13 +118,13 @@ expanded any further, thus terminate the process of deriving new expressions\. A
 example
 
     Rules
-      \(1\)  A <\- a B c
-      \(2a\) B <\- d B
-      \(2b\) B <\- e
+      (1)  A <- a B c
+      (2a) B <- d B
+      (2b) B <- e
 
-    Some derivations, using starting expression A\.
+    Some derivations, using starting expression A.
 
-      A \-/1/\-> a B c \-/2a/\-> a d B c \-/2b/\-> a d e c
+      A -/1/-> a B c -/2a/-> a d B c -/2b/-> a d e c
 
 A derived expression containing only terminal symbols is a *sentence*\. The set
 of all sentences which can be derived from the start expression is the
@@ -223,7 +223,7 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    *pegName* __deserialize__ \[*srcPEG* __serialize__\]
+    > *pegName* __deserialize__ \[*srcPEG* __serialize__\]
 
   - <a name='5'></a>*pegName* __\-\->__ *dstPEG*
 
@@ -234,7 +234,7 @@ of their contents:
 
     This operation is in effect equivalent to
 
-    *dstPEG* __deserialize__ \[*pegName* __serialize__\]
+    > *dstPEG* __deserialize__ \[*pegName* __serialize__\]
 
   - <a name='6'></a>*pegName* __serialize__
 
@@ -266,32 +266,32 @@ of their contents:
 
     Assuming the following PEG for simple mathematical expressions
 
-    Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'
-    Sign       <\- '\+' / '\-'
-    Number     <\- Sign? Digit\+
-    Expression <\- '\(' Expression '\)' / \(Factor \(MulOp Factor\)\*\)
-    MulOp      <\- '\*' / '/'
-    Factor     <\- Term \(AddOp Term\)\*
-    AddOp      <\- '\+'/'\-'
-    Term       <\- Number
+    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'
+    Sign       <- '+' / '-'
+    Number     <- Sign? Digit+
+    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)
+    MulOp      <- '*' / '/'
+    Factor     <- Term (AddOp Term)*
+    AddOp      <- '+'/'-'
+    Term       <- Number
 
     a possible serialization is
 
-    grammar::peg \\\\
-    \{Expression \{/ \{x \( Expression \)\} \{x Factor \{\* \{x MulOp Factor\}\}\}\} \\\\
-     Factor     \{x Term \{\* \{x AddOp Term\}\}\} \\\\
-     Term       Number \\\\
-     MulOp      \{/ \* /\} \\\\
-     AddOp      \{/ \+ \-\} \\\\
-     Number     \{x \{? Sign\} \{\+ Digit\}\} \\\\
-     Sign       \{/ \+ \-\} \\\\
-     Digit      \{/ 0 1 2 3 4 5 6 7 8 9\} \\\\
-    \} \\\\
-    \{Expression value     Factor     value \\\\
-     Term       value     MulOp      value \\\\
-     AddOp      value     Number     value \\\\
-     Sign       value     Digit      value \\\\
-    \}
+    grammar::peg \
+    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \
+     Factor     {x Term {* {x AddOp Term}}} \
+     Term       Number \
+     MulOp      {/ * /} \
+     AddOp      {/ + -} \
+     Number     {x {? Sign} {+ Digit}} \
+     Sign       {/ + -} \
+     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \
+    } \
+    {Expression value     Factor     value \
+     Term       value     MulOp      value \
+     AddOp      value     Number     value \
+     Sign       value     Digit      value \
+    }
     Expression
 
     A possible one, because the order of the nonterminals in the dictionary is

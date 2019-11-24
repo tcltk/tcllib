@@ -2,7 +2,7 @@
 [//000000001]: # (oauth \- oauth)
 [//000000002]: # (Generated from file 'oauth\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2014 Javi P\. <hxm@eggdrop\.es>)
-[//000000004]: # (oauth\(n\) 1\.0\.2 tcllib "oauth")
+[//000000004]: # (oauth\(n\) 1\.0\.3 tcllib "oauth")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -38,7 +38,7 @@ oauth \- oauth API base signature
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require oauth ?1\.0\.2?  
+package require oauth ?1\.0\.3?  
 
 [__::oauth::config__](#1)  
 [__::oauth::config__ ?*options*\.\.\.?](#2)  
@@ -73,9 +73,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section3'></a>Commands
 
@@ -157,14 +157,14 @@ example below\.
         a GET query, you should provide a full path\.
 
     HTTP GET
-    ::oauth::header \{https://api\.twitter\.com/1\.1/users/lookup\.json?screen\_name=AbiertaMente\}
+    ::oauth::header {https://api.twitter.com/1.1/users/lookup.json?screen_name=AbiertaMente}
 
       * url\-encoded\-string *postQuery*
 
         When you have to send a header in POST format, you have to put the query
         string into this argument\.
 
-    ::oauth::header \{https://api\.twitter\.com/1\.1/friendships/create\.json\} \{user\_id=158812437&follow=true\}
+    ::oauth::header {https://api.twitter.com/1.1/friendships/create.json} {user_id=158812437&follow=true}
 
   - <a name='4'></a>__::oauth::query__ *baseURL* ?*postQuery*?
 
@@ -185,53 +185,53 @@ example below\.
 
     % package require oauth
     % package require json
-    % oauth::config \-consumerkey \{your\_consumer\_key\} \-consumersecret \{your\_consumer\_key\_secret\} \-accesstoken \{your\_access\_token\} \-accesstokensecret \{your\_access\_token\_secret\}
+    % oauth::config -consumerkey {your_consumer_key} -consumersecret {your_consumer_key_secret} -accesstoken {your_access_token} -accesstokensecret {your_access_token_secret}
 
-    % set response \[oauth::query https://api\.twitter\.com/1\.1/users/lookup\.json?screen\_name=AbiertaMente\]
-    % set jsondata \[lindex $response 1\]
-    % set data \[json::json2dict $jsondata\]
-    $ set data \[lindex $data 0\]
-    % dict for \{key val\} $data \{puts "$key => $val"\}
+    % set response [oauth::query https://api.twitter.com/1.1/users/lookup.json?screen_name=AbiertaMente]
+    % set jsondata [lindex $response 1]
+    % set data [json::json2dict $jsondata]
+    $ set data [lindex $data 0]
+    % dict for {key val} $data {puts "$key => $val"}
     id => 158812437
-    id\_str => 158812437
+    id_str => 158812437
     name => Un Librepensador
-    screen\_name => AbiertaMente
+    screen_name => AbiertaMente
     location => Explico mis tuits ahí →
-    description => 160Caracteres para un SMS y contaba mi vida entera sin recortar vocales\. Ahora en Twitter, podemos usar hasta 140 y a mí me sobrarían 20 para contaros todo lo q
-    url => http://t\.co/SGs3k9odBn
-    entities => url \{urls \{\{url http://t\.co/SGs3k9odBn expanded\_url http://librepensamiento\.es display\_url librepensamiento\.es indices \{0 22\}\}\}\} description \{urls \{\}\}
+    description => 160Caracteres para un SMS y contaba mi vida entera sin recortar vocales. Ahora en Twitter, podemos usar hasta 140 y a mí me sobrarían 20 para contaros todo lo q
+    url => http://t.co/SGs3k9odBn
+    entities => url {urls {{url http://t.co/SGs3k9odBn expanded_url http://librepensamiento.es display_url librepensamiento.es indices {0 22}}}} description {urls {}}
     protected => false
-    followers\_count => 72705
-    friends\_count => 53099
-    listed\_count => 258
-    created\_at => Wed Jun 23 18:29:58 \+0000 2010
-    favourites\_count => 297
-    utc\_offset => 7200
-    time\_zone => Madrid
-    geo\_enabled => false
+    followers_count => 72705
+    friends_count => 53099
+    listed_count => 258
+    created_at => Wed Jun 23 18:29:58 +0000 2010
+    favourites_count => 297
+    utc_offset => 7200
+    time_zone => Madrid
+    geo_enabled => false
     verified => false
-    statuses\_count => 8996
+    statuses_count => 8996
     lang => es
-    status => created\_at \{Sun Oct 12 08:02:38 \+0000 2014\} id 521209314087018496 id\_str 521209314087018496 text \{@thesamethanhim http://t\.co/WFoXOAofCt\} source \{<a href="http://twitter\.com" rel="nofollow">Twitter Web Client</a>\} truncated false in\_reply\_to\_status\_id 521076457490350081 in\_reply\_to\_status\_id\_str 521076457490350081 in\_reply\_to\_user\_id 2282730867 in\_reply\_to\_user\_id\_str 2282730867 in\_reply\_to\_screen\_name thesamethanhim geo null coordinates null place null contributors null retweet\_count 0 favorite\_count 0 entities \{hashtags \{\} symbols \{\} urls \{\{url http://t\.co/WFoXOAofCt expanded\_url http://www\.elmundo\.es/internacional/2014/03/05/53173dc1268e3e3f238b458a\.html display\_url elmundo\.es/internacional/… indices \{16 38\}\}\} user\_mentions \{\{screen\_name thesamethanhim name Ἑλένη id 2282730867 id\_str 2282730867 indices \{0 15\}\}\}\} favorited false retweeted false possibly\_sensitive false lang und
-    contributors\_enabled => false
-    is\_translator => true
-    is\_translation\_enabled => false
-    profile\_background\_color => 709397
-    profile\_background\_image\_url => http://pbs\.twimg\.com/profile\_background\_images/704065051/9309c02aa2728bdf543505ddbd408e2e\.jpeg
-    profile\_background\_image\_url\_https => https://pbs\.twimg\.com/profile\_background\_images/704065051/9309c02aa2728bdf543505ddbd408e2e\.jpeg
-    profile\_background\_tile => true
-    profile\_image\_url => http://pbs\.twimg\.com/profile\_images/2629816665/8035fb81919b840c5cc149755d3d7b0b\_normal\.jpeg
-    profile\_image\_url\_https => https://pbs\.twimg\.com/profile\_images/2629816665/8035fb81919b840c5cc149755d3d7b0b\_normal\.jpeg
-    profile\_banner\_url => https://pbs\.twimg\.com/profile\_banners/158812437/1400828874
-    profile\_link\_color => FF3300
-    profile\_sidebar\_border\_color => FFFFFF
-    profile\_sidebar\_fill\_color => A0C5C7
-    profile\_text\_color => 333333
-    profile\_use\_background\_image => true
-    default\_profile => false
-    default\_profile\_image => false
+    status => created_at {Sun Oct 12 08:02:38 +0000 2014} id 521209314087018496 id_str 521209314087018496 text {@thesamethanhim http://t.co/WFoXOAofCt} source {<a href="http://twitter.com" rel="nofollow">Twitter Web Client</a>} truncated false in_reply_to_status_id 521076457490350081 in_reply_to_status_id_str 521076457490350081 in_reply_to_user_id 2282730867 in_reply_to_user_id_str 2282730867 in_reply_to_screen_name thesamethanhim geo null coordinates null place null contributors null retweet_count 0 favorite_count 0 entities {hashtags {} symbols {} urls {{url http://t.co/WFoXOAofCt expanded_url http://www.elmundo.es/internacional/2014/03/05/53173dc1268e3e3f238b458a.html display_url elmundo.es/internacional/… indices {16 38}}} user_mentions {{screen_name thesamethanhim name Ἑλένη id 2282730867 id_str 2282730867 indices {0 15}}}} favorited false retweeted false possibly_sensitive false lang und
+    contributors_enabled => false
+    is_translator => true
+    is_translation_enabled => false
+    profile_background_color => 709397
+    profile_background_image_url => http://pbs.twimg.com/profile_background_images/704065051/9309c02aa2728bdf543505ddbd408e2e.jpeg
+    profile_background_image_url_https => https://pbs.twimg.com/profile_background_images/704065051/9309c02aa2728bdf543505ddbd408e2e.jpeg
+    profile_background_tile => true
+    profile_image_url => http://pbs.twimg.com/profile_images/2629816665/8035fb81919b840c5cc149755d3d7b0b_normal.jpeg
+    profile_image_url_https => https://pbs.twimg.com/profile_images/2629816665/8035fb81919b840c5cc149755d3d7b0b_normal.jpeg
+    profile_banner_url => https://pbs.twimg.com/profile_banners/158812437/1400828874
+    profile_link_color => FF3300
+    profile_sidebar_border_color => FFFFFF
+    profile_sidebar_fill_color => A0C5C7
+    profile_text_color => 333333
+    profile_use_background_image => true
+    default_profile => false
+    default_profile_image => false
     following => true
-    follow\_request\_sent => false
+    follow_request_sent => false
     notifications => false
 
 # <a name='section4'></a>Bugs, Ideas, Feedback

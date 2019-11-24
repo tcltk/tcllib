@@ -54,20 +54,20 @@ Using udpcluster\.
 
 For every service you wish to publish invoke:
 
-    cluster::publish echo@\[cluster::macid\] \{port 10000 protocol echo\}
+    cluster::publish echo@[cluster::macid] {port 10000 protocol echo}
 
 To query what services are available on the local network:
 
-    set results \[cluster::search PATTERN\]
-    \# And inside that result\.\.\.
-    echo@LOCALMACID \{
+    set results [cluster::search PATTERN]
+    # And inside that result...
+    echo@LOCALMACID {
        port 10000
        protocol echo
-    \}
+    }
 
 To unpublish a service:
 
-    cluster::unpublish echo@\[cluster::macid\]
+    cluster::unpublish echo@[cluster::macid]
 
 Results will Historical Notes:
 

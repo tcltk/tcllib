@@ -33,6 +33,11 @@ array set guide {}
 Exclude calendar
 Exclude exif
 
+#       name           pkg   doc   example
+Module  0compatibility _tcl  _null  _null
+# Wrapper packages redirecting deprecated/moved packages to their old
+# implementations. See pkgIndex.tcl for more notes.
+
 #       name         pkg   doc   example
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
@@ -45,6 +50,7 @@ Module  bibtex      _tcl  _man  _exa
 Module  blowfish    _tcl  _man  _null
 Module  cache       _tcl  _man  _null
 Module  calendar     _tci _man  _null
+Module  clay        _tcl  _man _null
 Module  clock       _tcl  _man _null
 Module  cmdline     _tcl  _man  _null
 Module  comm        _tcl  _man  _null

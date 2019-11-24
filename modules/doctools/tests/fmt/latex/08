@@ -2,6 +2,7 @@
 % Copyright (c) **Copyright**
 % ALL.a
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{@USR@}
 \title{.MODULE. / ALL -- ..THE\_MODULE.. : ..THE\_TITLE..}
@@ -83,10 +84,10 @@ Database Class:	{\bf CLASS}\\
 \item[] \underline{NAME} TYPE (MODE)
 %
  DESCRIPTION ::?Optional?::
-\begin{verbatim}
+\begin{alltt}
     THE ARGUMENT IS USED IN THIS
     AND/OR THAT MANNER
-\end{verbatim}
+\end{alltt}
 \end{itemize}
 %
 \item[] CMDNAME ...

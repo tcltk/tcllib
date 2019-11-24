@@ -1,9 +1,9 @@
 
 [//000000001]: # (math::optimize \- Tcl Math Library)
 [//000000002]: # (Generated from file 'optimize\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>  
-Copyright &copy; 2004,2005 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
-[//000000004]: # (math::optimize\(n\) 1\.0 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004,2005 Kevn B\. Kenny <kennykb@users\.sourceforge\.net>)
+[//000000005]: # (math::optimize\(n\) 1\.0 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -279,23 +279,23 @@ fully\-qualified name of these procedures is determined inside the optimize
 routines\. For the user this has only one consequence: the named procedure must
 be visible in the calling procedure\. For instance:
 
-    namespace eval ::mySpace \{
+    namespace eval ::mySpace {
        namespace export calcfunc
-       proc calcfunc \{ x \} \{ return $x \}
-    \}
-    \#
-    \# Use a fully\-qualified name
-    \#
-    namespace eval ::myCalc \{
-       puts \[min\_bound\_1d ::myCalc::calcfunc $begin $end\]
-    \}
-    \#
-    \# Import the name
-    \#
-    namespace eval ::myCalc \{
+       proc calcfunc { x } { return $x }
+    }
+    #
+    # Use a fully-qualified name
+    #
+    namespace eval ::myCalc {
+       puts [min_bound_1d ::myCalc::calcfunc $begin $end]
+    }
+    #
+    # Import the name
+    #
+    namespace eval ::myCalc {
        namespace import ::mySpace::calcfunc
-       puts \[min\_bound\_1d calcfunc $begin $end\]
-    \}
+       puts [min_bound_1d calcfunc $begin $end]
+    }
 
 The simple procedures *minimum* and *maximum* have been deprecated: the
 alternatives are much more flexible, robust and require less function
@@ -307,8 +307,8 @@ Let us take a few simple examples:
 
 Determine the maximum of f\(x\) = x^3 exp\(\-3x\), on the interval \(0,10\):
 
-    proc efunc \{ x \} \{ expr \{$x\*$x\*$x \* exp\(\-3\.0\*$x\)\} \}
-    puts "Maximum at: \[::math::optimize::max\_bound\_1d efunc 0\.0 10\.0\]"
+    proc efunc { x } { expr {$x*$x*$x * exp(-3.0*$x)} }
+    puts "Maximum at: [::math::optimize::max_bound_1d efunc 0.0 10.0]"
 
 The maximum allowed error determines the number of steps taken \(with each step
 in the iteration the interval is reduced with a factor 1/2\)\. Hence, a maximum
@@ -318,24 +318,24 @@ An example of a *linear program* is:
 
 Optimise the expression 3x\+2y, where:
 
-    x >= 0 and y >= 0 \(implicit constraints, part of the
-                      definition of linear programs\)
+    x >= 0 and y >= 0 (implicit constraints, part of the
+                      definition of linear programs)
 
-    x \+ y   <= 1      \(constraints specific to the problem\)
-    2x \+ 5y <= 10
+    x + y   <= 1      (constraints specific to the problem)
+    2x + 5y <= 10
 
 This problem can be solved as follows:
 
-    set solution \[::math::optimize::solveLinearProgram  \{ 3\.0   2\.0 \}  \{ \{ 1\.0   1\.0   1\.0 \}
-         \{ 2\.0   5\.0  10\.0 \} \} \]
+    set solution [::math::optimize::solveLinearProgram  { 3.0   2.0 }  { { 1.0   1.0   1.0 }
+         { 2.0   5.0  10.0 } } ]
 
 Note, that a constraint like:
 
-    x \+ y >= 1
+    x + y >= 1
 
 can be turned into standard form using:
 
-    \-x  \-y <= \-1
+    -x  -y <= -1
 
 The theory of linear programming is the subject of many a text book and the
 Simplex algorithm that is implemented here is the best\-known method to solve

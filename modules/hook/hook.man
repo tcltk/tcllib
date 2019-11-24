@@ -371,5 +371,5 @@ All bindings involving [widget .view] are deleted.
 Hook has been designed and implemented by William H. Duquette.
 
 [vset CATEGORY hook]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

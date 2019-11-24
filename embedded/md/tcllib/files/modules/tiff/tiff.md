@@ -104,12 +104,12 @@ reference on defined tags and their meanings see
     ?image? in *file*\. Values may be empty if the associated tag is not
     present in the file\.
 
-        puts \[::tiff::imageInfo photo\.tif\]
+        puts [::tiff::imageInfo photo.tif]
 
-        ImageWidth 686 ImageLength 1024 BitsPerSample \{8 8 8\} Compression 1
-        PhotometricInterpretation 2 ImageDescription \{\} Orientation 1
-        XResolution 170\.667 YResolution 170\.667 ResolutionUnit 2 DateTime \{2005:12:28 19:44:45\}
-        Artist \{\} HostComputer \{\}
+        ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
+        PhotometricInterpretation 2 ImageDescription {} Orientation 1
+        XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
+        Artist {} HostComputer {}
 
     There is nothing special about these tags, this is simply a convience
     procedure which calls __getEntry__ with common entries\. Throws an error
@@ -126,8 +126,8 @@ reference on defined tags and their meanings see
     *entry* may be a list of multiple entries\. If an entry does not exist, an
     empty string is returned
 
-        set data \[::tiff::getEntry photo\.tif \{0131 0132\}\]
-        puts "file was written at \[lindex $data 0\] with software \[lindex $data 1\]"
+        set data [::tiff::getEntry photo.tif {0131 0132}]
+        puts "file was written at [lindex $data 0] with software [lindex $data 1]"
 
     Throws an error if *file* is not a TIFF image\.
 
@@ -137,7 +137,7 @@ reference on defined tags and their meanings see
     optionally __all__\. *entry* must be a list where each element is a
     list of tag, type, and value\. If a tag already exists, it is overwritten\.
 
-        ::tiff::addEntry photo\.tif \{\{010e 2 "an example photo"\} \{013b 2 "Aaron F"\}\}
+        ::tiff::addEntry photo.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
 
     The data types are defined as follows
 

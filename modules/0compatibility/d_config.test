@@ -1,0 +1,144 @@
+# -*- tcl -*-
+# config.test:  Testsuite for DEPRECATED package doctools::config
+#
+# Copyright (c) 2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.0
+
+support {
+    use snit/snit.tcl  snit
+    use struct/map.tcl struct::map
+}
+testing {
+    useLocal d_config.tcl doctools::config
+}
+
+# ---------------------------------------------------------------------
+# [] constructor
+# [] destructor
+# [] get
+# [] names
+# [] set
+# [] unset
+
+#----------------------------------------------------------------------
+## Constructor, destructor
+
+test doctools-config-1.0 {constructor, wrong args, too many} -body {
+    doctools::config M X
+} -returnCodes error -result {Error in constructor: wrong # args: should be "::struct::map::I::Snit_constructor type selfns win self"}
+
+test doctools-config-1.1 {instance, bogus method} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M bogus
+} -returnCodes error -result {"::M bogus" is not defined}
+
+#----------------------------------------------------------------------
+## get
+
+test doctools-config-2.0 {get, wrong args, too many} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M get X
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodget type selfns win self"}
+
+test doctools-config-2.1 {get, base state, none} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M get
+} -result {}
+
+#----------------------------------------------------------------------
+## names
+
+test doctools-config-3.0 {names, wrong args, too many} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M names X
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodnames type selfns win self"}
+
+test doctools-config-3.1 {names, base state, none} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M names
+} -result {}
+
+#----------------------------------------------------------------------
+## set
+
+test doctools-config-4.0 {set, wrong args, not enough} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M set
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
+
+test doctools-config-4.1 {set, wrong args, too many} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    M set K V X
+} -returnCodes error -result {wrong # args: should be "::struct::map::I::Snit_methodset type selfns win self name ?value?"}
+
+test doctools-config-4.2 {set, state change, result} -setup {
+    doctools::config M
+} -cleanup {
+    M destroy
+} -body {
+    list [M names] [M get] [M set K V] [M names] [M get]
+} -result {{} {} V K {K V}}
+
+#----------------------------------------------------------------------
+## unset
+
+test doctools-config-5.2 {unset, known key, state change, result} -setup {
+    doctools::config M
+    M set K V
+} -cleanup {
+    M destroy
+} -body {
+    list [M names] [M get] [M unset K] [M names] [M get]
+} -result {K {K V} {} {} {}}
+
+test doctools-config-5.3 {unset, missing key, no state change, result} -setup {
+    doctools::config M
+    M set K V
+} -cleanup {
+    M destroy
+} -body {
+    list [M names] [M get] [M unset K'] [M names] [M get]
+} -result {K {K V} {} K {K V}}
+
+test doctools-config-5.4 {unset, no pattern, clear, result} -setup {
+    doctools::config M
+    M set K V
+} -cleanup {
+    M destroy
+} -body {
+    list [M names] [M get] [M unset] [M names] [M get]
+} -result {K {K V} {} {} {}}
+
+#----------------------------------------------------------------------
+testsuiteCleanup
+return

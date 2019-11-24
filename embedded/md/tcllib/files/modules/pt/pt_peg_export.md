@@ -2,7 +2,7 @@
 [//000000001]: # (pt::peg::export \- Parser Tools)
 [//000000002]: # (Generated from file 'pt\_peg\_export\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (pt::peg::export\(n\) 1 tcllib "Parser Tools")
+[//000000004]: # (pt::peg::export\(n\) 1\.0\.1 tcllib "Parser Tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -51,10 +51,10 @@ pt::peg::export \- PEG Export
 
 package require Tcl 8\.5  
 package require snit  
-package require configuration  
+package require struct::map  
 package require pt::peg  
 package require pluginmgr  
-package require pt::peg::export ?1?  
+package require pt::peg::export ?1\.0\.1?  
 
 [__::pt::peg::export__ *objectName*](#1)  
 [__objectName__ __method__ ?*arg arg \.\.\.*?](#2)  
@@ -318,32 +318,32 @@ may have more than one regular serialization only exactly one of them will be
 
 Assuming the following PEG for simple mathematical expressions
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 then its canonical serialization \(except for whitespace\) is
 
-    pt::grammar::peg \{
-        rules \{
-            AddOp      \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Digit      \{is \{/ \{t 0\} \{t 1\} \{t 2\} \{t 3\} \{t 4\} \{t 5\} \{t 6\} \{t 7\} \{t 8\} \{t 9\}\}                mode value\}
-            Expression \{is \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}                                        mode value\}
-            Factor     \{is \{/ \{x \{t \(\} \{n Expression\} \{t \)\}\} \{n Number\}\}                                  mode value\}
-            MulOp      \{is \{/ \{t \*\} \{t /\}\}                                                                mode value\}
-            Number     \{is \{x \{? \{n Sign\}\} \{\+ \{n Digit\}\}\}                                                 mode value\}
-            Sign       \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Term       \{is \{x \{n Factor\} \{\* \{x \{n MulOp\} \{n Factor\}\}\}\}                                    mode value\}
-        \}
-        start \{n Expression\}
-    \}
+    pt::grammar::peg {
+        rules {
+            AddOp      {is {/ {t -} {t +}}                                                                mode value}
+            Digit      {is {/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}}                mode value}
+            Expression {is {x {n Term} {* {x {n AddOp} {n Term}}}}                                        mode value}
+            Factor     {is {/ {x {t (} {n Expression} {t )}} {n Number}}                                  mode value}
+            MulOp      {is {/ {t *} {t /}}                                                                mode value}
+            Number     {is {x {? {n Sign}} {+ {n Digit}}}                                                 mode value}
+            Sign       {is {/ {t -} {t +}}                                                                mode value}
+            Term       {is {x {n Factor} {* {x {n MulOp} {n Factor}}}}                                    mode value}
+        }
+        start {n Expression}
+    }
 
 # <a name='section4'></a>PE serialization format
 
@@ -477,11 +477,11 @@ of them will be *canonical*\.
 
 Assuming the parsing expression shown on the right\-hand side of the rule
 
-    Expression <\- Term \(AddOp Term\)\*
+    Expression <- Term (AddOp Term)*
 
 then its canonical serialization \(except for whitespace\) is
 
-    \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

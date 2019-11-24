@@ -73,11 +73,11 @@ in the tcllib distribution: MD5 \(2\), MD4 \(3\), RIPE\-MD160 \(4\) and SHA\-1 \
 
 # <a name='section3'></a>EXAMPLES
 
-    % otp::otp\-md5 \-count 99 \-seed host67821 "My Secret Pass Phrase"
-    \(binary gibberish\)
-    % otp::otp\-md5 \-words \-count 99 \-seed host67821 "My Secret Pass Phrase"
+    % otp::otp-md5 -count 99 -seed host67821 "My Secret Pass Phrase"
+    (binary gibberish)
+    % otp::otp-md5 -words -count 99 -seed host67821 "My Secret Pass Phrase"
     SOON ARAB BURG LIMB FILE WAD
-    % otp::otp\-md5 \-hex \-count 99 \-seed host67821 "My Secret Pass Phrase"
+    % otp::otp-md5 -hex -count 99 -seed host67821 "My Secret Pass Phrase"
     e249b58257c80087
 
 # <a name='section4'></a>REFERENCES

@@ -518,5 +518,5 @@ option to prevent the traverser from following symbolic links, like so:
 [list_end]
 
 [vset CATEGORY fileutil]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

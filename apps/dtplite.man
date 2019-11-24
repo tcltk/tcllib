@@ -443,5 +443,5 @@ of doctoc and docidx markup.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../modules/doctools2base/include/feedback.inc]
+[include ../modules/common-text/feedback.inc]
 [manpage_end]

@@ -179,7 +179,7 @@ Estimate the number of primes according the formula by Gauss.
 
 [list_begin arguments]
 [arg_def integer N in]
-Number in question
+Number in question, should be larger than 0
 [list_end]
 
 [call [cmd math::numtheory::numberPrimesLegendre] [arg N]]
@@ -187,7 +187,7 @@ Estimate the number of primes according the formula by Legendre.
 
 [list_begin arguments]
 [arg_def integer N in]
-Number in question
+Number in question, should be larger than 0
 [list_end]
 
 [call [cmd math::numtheory::numberPrimesLegendreModified] [arg N]]
@@ -195,11 +195,19 @@ Estimate the number of primes according the modified formula by Legendre.
 
 [list_begin arguments]
 [arg_def integer N in]
-Number in question
+Number in question, should be larger than 0
+[list_end]
+
+[call [cmd math::numtheory::differenceNumberPrimesLegendreModified] [arg lower] [arg upper]]
+Estimate the number of primes between tow limits according the modified formula by Legendre.
+
+[list_begin arguments]
+[arg_def integer lower in] Lower limit for the primes, should be larger than 0
+[arg_def integer upper in] Upper limit for the primes, should be larger than 0
 [list_end]
 
 [list_end]
 
 [vset CATEGORY {math :: numtheory}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

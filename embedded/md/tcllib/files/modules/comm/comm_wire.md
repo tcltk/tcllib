@@ -128,16 +128,16 @@ sends for that message\.
 
     Examples:
 
-        \(a\)     \{send 1 \{\{array get tcl\_platform\}\}\}
-        \(b\)     \{send 1 \{array get tcl\_platform\}\}
-        \(c\)     \{send 1 \{array \{get tcl\_platform\}\}\}
+        (a)     {send 1 {{array get tcl_platform}}}
+        (b)     {send 1 {array get tcl_platform}}
+        (c)     {send 1 {array {get tcl_platform}}}
 
-        are all valid representations of the same command\. They are
+        are all valid representations of the same command. They are
         generated via
 
-        \(a'\)    send \{array get tcl\_platform\}
-        \(b'\)    send array get tcl\_platform
-        \(c'\)    send array \{get tcl\_platform\}
+        (a')    send {array get tcl_platform}
+        (b')    send array get tcl_platform
+        (c')    send array {get tcl_platform}
 
         respectively
 
@@ -146,7 +146,7 @@ sends for that message\.
     __[list](\.\./\.\./\.\./\.\./index\.md\#list)__, if the command contains
     variable arguments\. Like
 
-        send \[list array get $the\_variable\]
+        send [list array get $the_variable]
 
     These three instructions all invoke the script on the server side\. Their
     difference is in the treatment of result values, and thus determines if a
@@ -175,8 +175,8 @@ sends for that message\.
 
     Examples:
 
-        \{reply 1 \{return \-code 0 \{\}\}\}
-        \{reply 1 \{return \-code 0 \{osVersion 2\.4\.21\-99\-default byteOrder littleEndian machine i686 platform unix os Linux user andreask wordSize 4\}\}\}
+        {reply 1 {return -code 0 {}}}
+        {reply 1 {return -code 0 {osVersion 2.4.21-99-default byteOrder littleEndian machine i686 platform unix os Linux user andreask wordSize 4}}}
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

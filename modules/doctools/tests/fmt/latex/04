@@ -2,20 +2,21 @@
 % Copyright (c) .COPYRIGHT.
 % TEST.z
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
 \section{Description}\label{section1}
 BEGINNE HIER
-\begin{verbatim}
+\begin{alltt}
 	 Example Block  More Lines
-\end{verbatim}
+\end{alltt}
 
-\begin{verbatim}
-Inlined Example \
+\begin{alltt}
+Inlined Example \textbackslash
 Next Line
-\end{verbatim}
+\end{alltt}
 FERTIG
 \section{Copyright}\label{copyright}
 \begin{flushleft}

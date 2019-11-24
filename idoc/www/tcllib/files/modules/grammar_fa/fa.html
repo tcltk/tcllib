@@ -313,11 +313,11 @@ in a very simple way :)</p>
 </pre>
 <p>a possible serialization is</p>
 <pre class="doctools_example">
-    grammar::fa \\
-    {yellow red green red/yellow} \\
-    {Drive     {0 0 {yellow     Brake}} \\
-     Brake     {0 0 {red        Stop}} \\
-     Stop      {1 0 {red/yellow Attention}} \\
+    grammar::fa \
+    {yellow red green red/yellow} \
+    {Drive     {0 0 {yellow     Brake}} \
+     Brake     {0 0 {red        Stop}} \
+     Stop      {1 0 {red/yellow Attention}} \
      Attention {0 0 {green      Drive}}}
 </pre>
 <p>A possible one, because I did not care about creation order here</p></dd>

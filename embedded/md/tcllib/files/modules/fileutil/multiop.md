@@ -402,41 +402,41 @@ configuration used by the command triggering the actual action\.
 The following examples assume that the variable __F__ contains a reference
 to a multi\-file operation object\.
 
-        $F do copy                       \\\\
-    	the  \*\.dll                    \\\\
-    	from c:/TDK/PrivateOpenSSL/bin \\\\
-    	to   \[installdir\_of tls\]
+        $F do copy                       \
+    	the  *.dll                    \
+    	from c:/TDK/PrivateOpenSSL/bin \
+    	to   [installdir_of tls]
 
-        $F do move      \\\\
-    	the  \*       \\\\
-    	from /sources \\\\
-    	into /scratch  \\\\
-    	but not \*\.html
+        $F do move      \
+    	the  *       \
+    	from /sources \
+    	into /scratch  \
+    	but not *.html
 
-        \# Alternatively use 'except for \*\.html'\.
+        # Alternatively use 'except for *.html'.
 
-        $F do           \\\\
-    	move         \\\\
-    	the  index    \\\\
-    	from /sources  \\\\
-    	into /scratch   \\\\
-    	as   pkgIndex\.tcl
+        $F do           \
+    	move         \
+    	the  index    \
+    	from /sources  \
+    	into /scratch   \
+    	as   pkgIndex.tcl
 
-        $F do         \\\\
-    	remove     \\\\
-    	the \*\.txt  \\\\
+        $F do         \
+    	remove     \
+    	the *.txt  \
     	in /scratch
 
 Note that the fact that most commands just modify the object state allows us to
 use more off forms as specifications instead of just nearly\-natural language
 sentences\. For example the second example in this section can re\-arranged into:
 
-        $F do            \\\\
-    	from /sources \\\\
-    	into /scratch  \\\\
-    	but not \*\.html \\\\
-    	move           \\\\
-    	the  \*
+        $F do            \
+    	from /sources \
+    	into /scratch  \
+    	but not *.html \
+    	move           \
+    	the  *
 
 and the result is not only still a valid specification, but even stays
 relatively readable\.
@@ -448,14 +448,14 @@ allowing the user to avoid repetitions of unchanging information\. For example
 the second and third examples of this section can be merged and rewritten into
 the equivalent:
 
-    $F do                   \\\\
-        move                 \\\\
-        the  \*                \\\\
-        from /sources          \\\\
-        into /scratch           \\\\
-        but not \*\.html not index \\\\
-        the  index               \\\\
-        as   pkgIndex\.tcl
+    $F do                   \
+        move                 \
+        the  *                \
+        from /sources          \
+        into /scratch           \
+        but not *.html not index \
+        the  index               \
+        as   pkgIndex.tcl
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 

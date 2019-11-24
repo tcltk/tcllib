@@ -275,5 +275,5 @@ channel which was active when the callback was invoked.
 [list_end]
 
 [vset CATEGORY ftpd]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

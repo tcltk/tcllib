@@ -427,28 +427,28 @@ remote server has been establish and would only send data at that time\.
     package require websocket
     ::websocket::loglevel debug
 
-    proc handler \{ sock type msg \} \{
-        switch \-glob \-nocase \-\- $type \{
-    	co\* \{
+    proc handler { sock type msg } {
+        switch -glob -nocase -- $type {
+    	co* {
     	    puts "Connected on $sock"
-    	\}
-    	te\* \{
+    	}
+    	te* {
     	    puts "RECEIVED: $msg"
-    	\}
-    	cl\* \-
-    	dis\* \{
-    	\}
-        \}
+    	}
+    	cl* -
+    	dis* {
+    	}
+        }
 
-    \}
+    }
 
-    proc test \{ sock \} \{
-        puts "\[::websocket::conninfo $sock type\] from \[::websocket::conninfo $sock sockname\] to \[::websocket::conninfo $sock peername\]"
+    proc test { sock } {
+        puts "[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]"
 
-        ::websocket::send $sock text "Testing, testing\.\.\."
-    \}
+        ::websocket::send $sock text "Testing, testing..."
+    }
 
-    set sock \[::websocket::open ws://echo\.websocket\.org/ handler\]
+    set sock [::websocket::open ws://echo.websocket.org/ handler]
     after 400 test $sock
     vwait forever
 
@@ -473,9 +473,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 

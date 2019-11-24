@@ -244,35 +244,35 @@ document components\.
 The following documentation listing contains tokens that refer to the different
 document generation procedures:
 
-    *     <01>*
-    *<03> <20s>*   NAME*<20e>*
-    *     <30s>*       message\_box \- Displays text in a message box*<30e>*
-    *     <20s>*   SYNOPSYS*<20e>*
-    *     <40s>*       message\_box \[\-mtype <mtype>\] <text>*<40e>*
-    *     <20s>*   DESCRIPTION*<20e>*
-    *     <21s>     message\_box<21e>*
-    *     <54s>       message\_box \[\-mtype <mtype>\] <text><54e>*
-    *     <50s>*       This procedure allows displaying a text in an message box\. The following
-    *          *       message types are supported:*<50e>*
-    *<51> <53s>*       \* Info*<53e>*
-    *     <53s>*       \* Warning*<53e>*
-    *     <53s>*       \* Error*<53e>*                                           *<52>*
-    *     <50s>*       If the text parameter is use multiple times the different texts are
-    *          *       concatenated to create the message text\.*<50e>*
-    *     <20s>*   ARGUMENTS*<20e>*
-    *<60> <62s>*       \[\-mtype <mtype>\]*<62e>*
-    *<63> <65s>*          Message type*<65e>*
-    *     <66s>*          Default: "Warning"*<66e>*
-    *     <66s>*          Multiple: yes*<66e>*
-    *     <66s>*          Choices: Info, Warning, Error*<66e>*                  *<64>*
-    *     <62s>*       <text>*<62e>*
-    *<63> <65s>*          One or multiple text lines to display*<65e>*
-    *     <66s>*          Type: string*<66e>*
-    *     <66s>*          Multiple: yes*<66e>*                                  *<64><61>*
-    *     <20s>*   EXAMPLE*<20e>*
-    *<70> <72s>*       message\_box "Please save first the document"*<72e>*
-    *     <73s>*       \-> 1*<73e>*                                              *<71><04>*
-    *     <02>*
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<01>*  
+> &nbsp;*<03> <20s>*   NAME*<20e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<30s>*       message\_box \- Displays text in a message box*<30e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<20s>*   SYNOPSYS*<20e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<40s>*       message\_box \[\-mtype <mtype>\] <text>*<40e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<20s>*   DESCRIPTION*<20e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<21s>     message\_box<21e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<54s>       message\_box \[\-mtype <mtype>\] <text><54e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<50s>*       This procedure allows displaying a text in an message box\. The following  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**       message types are supported:*<50e>*  
+> &nbsp;*<51> <53s>*       \* Info*<53e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<53s>*       \* Warning*<53e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<53s>*       \* Error*<53e>*                                           *<52>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<50s>*       If the text parameter is use multiple times the different texts are  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**       concatenated to create the message text\.*<50e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<20s>*   ARGUMENTS*<20e>*  
+> &nbsp;*<60> <62s>*       \[\-mtype <mtype>\]*<62e>*  
+> &nbsp;*<63> <65s>*          Message type*<65e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<66s>*          Default: "Warning"*<66e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<66s>*          Multiple: yes*<66e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<66s>*          Choices: Info, Warning, Error*<66e>*                  *<64>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<62s>*       <text>*<62e>*  
+> &nbsp;*<63> <65s>*          One or multiple text lines to display*<65e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<66s>*          Type: string*<66e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<66s>*          Multiple: yes*<66e>*                                  *<64><61>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<20s>*   EXAMPLE*<20e>*  
+> &nbsp;*<70> <72s>*       message\_box "Please save first the document"*<72e>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<73s>*       \-> 1*<73e>*                                              *<71><04>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<02>*
 
 There are 2 types of document generation procedures:
 
@@ -432,9 +432,7 @@ document format:
         by the generated string \(for example by putting the argument into
         brackets \{\[\]\} or into question marks '?'\):
 
-    gen\(TXT,ArgumentString\) mtype 1 0 string \->
-
-        *"\[mtype\]"*
+> gen\(TXT,ArgumentString\) mtype 1 0 string \-> *"\[mtype\]"*
 
       * *IsNamed*
 
@@ -442,13 +440,11 @@ document format:
         generated string should in this case contain the argument/option name,
         followed by the argument itself:
 
-    gen\(TXT,ArgumentString\) mtype 0 1 string \->
+> gen\(TXT,ArgumentString\) mtype 0 1 string \-> *"\-mtype <mtype>"*
 
-        *"\-mtype <mtype>"* Named arguments can also be optional:
+        Named arguments can also be optional:
 
-    gen\(TXT,ArgumentString\) mtype 1 1 string \->
-
-        *"\[\-mtype <mtype>\]"*
+> gen\(TXT,ArgumentString\) mtype 1 1 string \-> *"\[\-mtype <mtype>\]"*
 
       * *Type*
 
@@ -456,9 +452,7 @@ document format:
         the argument is a flag, which needs to be indicated by the generated
         string\. Example:
 
-    gen\(TXT,ArgumentString\) close 1 1 none \->
-
-        *"\[\-close\]"*
+> gen\(TXT,ArgumentString\) close 1 1 none \-> *"\[\-close\]"*
 
 # <a name='section5'></a>EXAMPLES
 
@@ -468,20 +462,20 @@ The __TEPAM Doc Gen__ package can be explored by generating the
 documentation of the command __tepam::doc\_gen::generate__\. The following
 example generates the document in text format \(default format\):
 
-    __tepam::doc\_gen::generate__ tepam::doc\_gen::generate
+> __tepam::doc\_gen::generate__ tepam::doc\_gen::generate
 
 The next example generates the documentation in HTML format:
 
-    __tepam::doc\_gen::generate__ \-format HTML tepam::doc\_gen::generate
+> __tepam::doc\_gen::generate__ \-format HTML tepam::doc\_gen::generate
 
 The flag ?header\_footer? adds also the file header and footer:
 
-    __tepam::doc\_gen::generate__ \-format HTML \-header\_footer tepam::doc\_gen::generate
+> __tepam::doc\_gen::generate__ \-format HTML \-header\_footer tepam::doc\_gen::generate
 
 The documentation can directly be stored in a file\. The file header and footer
 are automatically generated in this way:
 
-    __tepam::doc\_gen::generate__ \-format HTML \-dest\_file doc\_gen\.html tepam::doc\_gen::generate
+> __tepam::doc\_gen::generate__ \-format HTML \-dest\_file doc\_gen\.html tepam::doc\_gen::generate
 
 The generated HTML file refers a CSS stylesheet file \(default:
 tepam\_doc\_stylesheet\.css\)\. To display the HTML file correctly this CSS
@@ -491,17 +485,17 @@ file\.
 The Tcl DOC Tools format can be used as intermediate format to generate other
 formats, for example HTML:
 
-    *\# Generate the documentation in Tcl Doc Tool format*
-    set dt \[__tepam::doc\_gen::generate__ \-format DT \-header\_footer tepam::doc\_gen::generate\]
-    **
-    *\# Create a new doc tools object \(HTML format\)*
-    package require doctools
-    ::doctools::new myDoc \-format html
-    **
-    *\# Open the HTML file, and write the HTML formatted documentation*
-    set fHtml \[open doc\_gen\.dt\.html w\]
-    puts $fHtml \[myDoc format $dt\]
-    close $fHtml
+> *\# Generate the documentation in Tcl Doc Tool format*  
+> set dt \[__tepam::doc\_gen::generate__ \-format DT \-header\_footer tepam::doc\_gen::generate\]  
+> **  
+> *\# Create a new doc tools object \(HTML format\)*  
+> package require doctools  
+> ::doctools::new myDoc \-format html  
+> **  
+> *\# Open the HTML file, and write the HTML formatted documentation*  
+> set fHtml \[open doc\_gen\.dt\.html w\]  
+> puts $fHtml \[myDoc format $dt\]  
+> close $fHtml
 
 ## <a name='subsection6'></a>tepam::doc\_gen::patch
 
@@ -519,28 +513,29 @@ of the referred procedures\. Since nonstandard placeholders are used,
 __[patch](\.\./\.\./\.\./\.\./index\.md\#patch)__ is called with an explicit
 placeholder pattern definition \(argument *search\_pattern*\)\.
 
-    *\# Define the HTML master document*
-    set HtmlMasterDoc \{\\
-    <html>
-      <head>
-        <title>tepam::doc\_gen</title>
-        <link rel="stylesheet" href="tepam\_doc\_stylesheet\.css">
-        <meta content="documentation" name="keywords"></meta>
-      </head>
-      <body>
-        <h1>tepam::doc\_gen</h1>
-          <h2>Generate</h2>
-    __\{\*tepam::doc\_gen::generate\*\}__
-          <h2>Patch</h2>
-    __\{\*tepam::doc\_gen::patch\*\}__
-      </body>
-    <html>\\
-    \}
-    **
-    *\# Patch the master document: This will replace the placeholders by the
-    \# procedure documentation divisions:*
-    __tepam::doc\_gen::patch__ \-format HTML \-search\_pattern \{\\\{\\\*\(\.\*?\)\\\*\\\}\} \\
-                          \-src\_string $HtmlMasterDoc \-dest\_file tepam\_doc\_gen\.html
+> *\# Define the HTML master document*  
+> set HtmlMasterDoc \{\\  
+> <html>  
+> &nbsp;&nbsp;<head>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<title>tepam::doc\_gen</title>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<link rel="stylesheet" href="tepam\_doc\_stylesheet\.css">  
+> &nbsp;&nbsp;&nbsp;&nbsp;<meta content="documentation" name="keywords"></meta>  
+> &nbsp;&nbsp;</head>  
+> &nbsp;&nbsp;<body>  
+> &nbsp;&nbsp;&nbsp;&nbsp;<h1>tepam::doc\_gen</h1>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h2>Generate</h2>  
+> __\{\*tepam::doc\_gen::generate\*\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h2>Patch</h2>  
+> __\{\*tepam::doc\_gen::patch\*\}__  
+> &nbsp;&nbsp;</body>  
+> <html>\\  
+> \}  
+> **  
+> *\# Patch the master document: This will replace the placeholders by the *  
+> *\# procedure documentation divisions:*  
+>   
+> __tepam::doc\_gen::patch__ \-format HTML \-search\_pattern \{\\\{\\\*\(\.\*?\)\\\*\\\}\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-src\_string $HtmlMasterDoc \-dest\_file tepam\_doc\_gen\.html
 
 # <a name='seealso'></a>SEE ALSO
 

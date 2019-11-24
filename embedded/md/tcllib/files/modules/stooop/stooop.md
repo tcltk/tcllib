@@ -89,7 +89,7 @@ programmer, who should have read the thorough
         __this__\. It allows a simple access of member data for the object
         referenced by __this__ inside the procedure\. For example:
 
-            set \($this,data\) 0
+            set ($this,data) 0
 
       * __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__ *name* \{?*arg arg \.\.\.*?\} *body*
 
@@ -97,7 +97,7 @@ programmer, who should have read the thorough
         argument is not named __this__\. Static \(global\) class data can be
         accessed as in:
 
-            set \(data\) 0
+            set (data) 0
 
       * __[proc](\.\./\.\./\.\./\.\./index\.md\#proc)__ *class* \{__this copy__\} *body*
 

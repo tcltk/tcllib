@@ -132,18 +132,18 @@ call __MD4Final__\. An equivalent set of functions gives you a keyed digest
 
 # <a name='section4'></a>EXAMPLES
 
-    % md4::md4 \-hex "Tcl does MD4"
+    % md4::md4 -hex "Tcl does MD4"
     858da9b31f57648a032230447bd15f25
 
-    % md4::hmac \-hex \-key Sekret "Tcl does MD4"
+    % md4::hmac -hex -key Sekret "Tcl does MD4"
     c324088e5752872689caedf2a0464758
 
-    % set tok \[md4::MD4Init\]
+    % set tok [md4::MD4Init]
     ::md4::1
     % md4::MD4Update $tok "Tcl "
     % md4::MD4Update $tok "does "
     % md4::MD4Update $tok "MD4"
-    % md4::Hex \[md4::MD4Final $tok\]
+    % md4::Hex [md4::MD4Final $tok]
     858da9b31f57648a032230447bd15f25
 
 # <a name='section5'></a>REFERENCES

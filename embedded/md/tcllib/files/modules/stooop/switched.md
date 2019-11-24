@@ -45,21 +45,21 @@ through a simple interface\.
 
 For example:
 
-    set vehicle \[new car \-length 4\.5 \-width 2 \-power 100 \-fuel diesel\]
-    puts "my car was running on \[switched::cget $vehicle \-fuel\]"
-    switched::configure $vehicle \-power 40 \-fuel electricity
-    puts "but is now running on clean \[switched::cget $vehicle \-fuel\]"
+    set vehicle [new car -length 4.5 -width 2 -power 100 -fuel diesel]
+    puts "my car was running on [switched::cget $vehicle -fuel]"
+    switched::configure $vehicle -power 40 -fuel electricity
+    puts "but is now running on clean [switched::cget $vehicle -fuel]"
 
 Of course, as you might have guessed, the __car__ class is derived from the
 __switched__ class\. Let us see how it works:
 
-    class car \{
-        proc car \{this args\} switched \{$args\} \{
-            \# car specific initialization code here
+    class car {
+        proc car {this args} switched {$args} {
+            # car specific initialization code here
             switched::complete $this
-        \}
-        \.\.\.
-    \}
+        }
+        ...
+    }
 
 The switched class constructor takes the optional configuration option / value
 pairs as parameters\. The switched class layer then completely manages the
@@ -88,16 +88,16 @@ The switched class members available to the programmer are:
     single option and is composed of the switch name, the default value for the
     option and an optional initial value\. For example:
 
-    class car \{
-        \.\.\.
-        proc options \{this\} \{
-            return \[list \[list \-fuel petrol petrol\] \[list \-length \{\} \{\}\] \[list \-power \{\} \{\}\] \[list \-width \{\} \{\}\] \]
-        \}
-        proc set\-fuel \{this value\} \{
-            \.\.\.
-        \}
-        \.\.\.
-    \}
+    class car {
+        ...
+        proc options {this} {
+            return [list [list -fuel petrol petrol] [list -length {} {}] [list -power {} {}] [list -width {} {}] ]
+        }
+        proc set-fuel {this value} {
+            ...
+        }
+        ...
+    }
 
     In this case, 4 options are specified: __fuel__, __length__,
     __power__ and __width__\. The default and initial values for the
@@ -120,13 +120,13 @@ The switched class members available to the programmer are:
     __complete__ procedure located at the end of the derived class
     constructor\. For example:
 
-    class car \{
-        \.\.\.
-        proc options \{this\} \{
-            return \[list \[list \-fuel petrol\] \[list \-length \{\} \{\}\] \[list \-power 100 50\] \[list \-width \{\} \{\}\] \]
-        \}
-        \.\.\.
-    \}
+    class car {
+        ...
+        proc options {this} {
+            return [list [list -fuel petrol] [list -length {} {}] [list -power 100 50] [list -width {} {}] ]
+        }
+        ...
+    }
 
     In this case, configuration is forced on the __fuel__ and __power__
     options, that is the corresponding __set\-__option____ procedures
@@ -151,18 +151,18 @@ The switched class members available to the programmer are:
     one implementation per supported option, as returned by the __options__
     procedure\. For example:
 
-    class car \{
-        \.\.\.
-        proc options \{this\} \{
-            return \[list \.\.\.
-                \[list \-width \{\} \{\}\] \]
-        \}
-        \.\.\.
-        proc set\-width \{this value\} \{
-            \.\.\.
-        \}
-        \.\.\.
-    \}
+    class car {
+        ...
+        proc options {this} {
+            return [list ...
+                [list -width {} {}] ]
+        }
+        ...
+        proc set-width {this value} {
+            ...
+        }
+        ...
+    }
 
     Since the __\-width__ option was listed in the __options__ procedure,
     a __set\-width__ procedure implementation is provided, which of course
@@ -175,28 +175,28 @@ The switched class members available to the programmer are:
     occurs when the switched level __complete__ procedure is invoked\. For
     example:
 
-    class car \{
-        proc car \{this args\} switched \{args\} \{
-            \.\.\.
+    class car {
+        proc car {this args} switched {args} {
+            ...
             switched::complete $this
-       \}
-        \.\.\.
-        proc options \{this\} \{
-            return \[list \[list \-fuel petrol\] \[list \-length 4\.5\] \[list \-power 350\] \[list \-width 1\.8\] \]
-        \}
-        proc set\-fuel \{this value\} \{
-            \.\.\.
-        \}
-        proc set\-length \{this value\} \{
-            \.\.\.
-        \}
-        proc set\-power \{this value\} \{
-            \.\.\.
-        \}
-        proc set\-width \{this value\} \{
-            \.\.\.
-        \}
-    \}
+       }
+        ...
+        proc options {this} {
+            return [list [list -fuel petrol] [list -length 4.5] [list -power 350] [list -width 1.8] ]
+        }
+        proc set-fuel {this value} {
+            ...
+        }
+        proc set-length {this value} {
+            ...
+        }
+        proc set-power {this value} {
+            ...
+        }
+        proc set-width {this value} {
+            ...
+        }
+    }
 
     new car
 
@@ -231,21 +231,21 @@ The switched class members available to the programmer are:
     rarely used at the layer derived from switched, except in the few cases,
     such as in the following example:
 
-    \.\.\.
-    proc car::options \{this\} \{
-        return \{
-            \.\.\.
-            \{\-manufacturer \{\} \{\}\}
-            \.\.\.
-        \}
-    \}
+    ...
+    proc car::options {this} {
+        return {
+            ...
+            {-manufacturer {} {}}
+            ...
+        }
+    }
 
-    proc car::set\-manufacturer \{this value\} \{\}
+    proc car::set-manufacturer {this value} {}
 
-    proc car::printData \{this\} \{
-        puts "manufacturer: $switched::\($this,\-manufacturer\)"
-        \.\.\.
-    \}
+    proc car::printData {this} {
+        puts "manufacturer: $switched::($this,-manufacturer)"
+        ...
+    }
 
     In this case, the manufacturer's name is stored at the switched layer level
     \(this is why the set\-manufacturer procedure has nothing to do\) and later
@@ -260,12 +260,12 @@ The switched class members available to the programmer are:
     set at construction time only and not dynamically, as the following example
     shows:
 
-    proc car::set\-width \{this value\} \{
-        if \{$switched::\($this,complete\)\} \{
-            error \{option \-width cannot be set dynamically\}
-        \}
-        \.\.\.
-    \}
+    proc car::set-width {this value} {
+        if {$switched::($this,complete)} {
+            error {option -width cannot be set dynamically}
+        }
+        ...
+    }
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

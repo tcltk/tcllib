@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.5.1]
+[vset PACKAGE_VERSION 1.5.6]
 [manpage_begin doctools n [vset PACKAGE_VERSION]]
 [see_also doctools_intro]
 [see_also doctools_lang_cmdref]
@@ -571,5 +571,5 @@ Wippler's [syscmd wikit] application.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

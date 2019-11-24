@@ -7,7 +7,7 @@
 #
 # Author: Sean Woods <yoda@etoyoc.com>
 ###
-package provide textutil::wcswidth 35.0
+package provide textutil::wcswidth 35.1
 proc ::textutil::wcswidth_type char {
   if {$char == 161} { return A }
   if {$char == 164} { return A }
@@ -759,8 +759,8 @@ proc ::textutil::wcswidth_char char {
 proc ::textutil::wcswidth {string} {
   set width 0
   set len [string length $string]
-  for {set i 0} {$i < $len} {incr i} {
-    scan [string index $string $i] %c char
+  foreach c [split $string {}] {
+    scan $c %c char
     set n [::textutil::wcswidth_char $char]
     if {$n < 0} {
       return -1

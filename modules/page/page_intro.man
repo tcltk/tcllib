@@ -31,5 +31,5 @@ tclsh, without extensive preparation of the interpreter. Preparation
 which is done for them by the plugin manager.
 
 [vset CATEGORY page]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

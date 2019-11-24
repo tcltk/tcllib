@@ -14,13 +14,12 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require tool
 package require mime
 package require fileutil
 package require websocket
 package require Markdown
-package require uuid
 package require fileutil::magic::filetype
+package require clay 0.7
 
 namespace eval httpd::content {}
 
@@ -28,19 +27,74 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
-tool::define ::httpd::mime {
+###
+# A metaclass for MIME handling behavior across a live socket
+###
+clay::define ::httpd::mime {
 
 
+  method ChannelCopy {in out args} {
+    try {
+      my clay refcount_incr
+      set chunk 4096
+      set size -1
+      foreach {f v} $args {
+        set [string trim $f -] $v
+      }
+      dict set info coroutine [info coroutine]
+      if {$size>0 && $chunk>$size} {
+          set chunk $size
+      }
+      set bytes 0
+      set sofar 0
+      set method [self method]
+      while 1 {
+        set command {}
+        set error {}
+        if {$size>=0} {
+          incr sofar $bytes
+          set remaining [expr {$size-$sofar}]
+          if {$remaining <= 0} {
+            break
+          } elseif {$chunk > $remaining} {
+            set chunk $remaining
+          }
+        }
+        lassign [yieldto chan copy $in $out -size $chunk \
+          -command [list [info coroutine] $method]] \
+          command bytes error
+        if {$command ne $method} {
+          error "Subroutine $method interrupted"
+        }
+        if {[string length $error]} {
+          error $error
+        }
+        if {[chan eof $in]} {
+          break
+        }
+      }
+    } finally {
+      my clay refcount_decr
+    }
+  }
+
+  ###
+  # Returns a block of HTML
   method html_header {{title {}} args} {
     set result {}
-    append result "<HTML><HEAD>"
+    append result "<!DOCTYPE html>\n<HTML><HEAD>"
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
     }
-    append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    if {[dict exists $args stylesheet]} {
+      append result "<link rel=\"stylesheet\" href=\"[dict get $args stylesheet]\">"
+    } else {
+      append result "<link rel=\"stylesheet\" href=\"/style.css\">"
+    }
     append result "</HEAD><BODY>"
     return $result
   }
+
   method html_footer {args} {
     return "</BODY></HTML>"
   }
@@ -110,8 +164,20 @@ Cache-Control {no-cache}
 Connection close}
   }
 
+  method HttpServerHeaders {} {
+    return {
+      CONTENT_LENGTH CONTENT_TYPE QUERY_STRING REMOTE_USER AUTH_TYPE
+      REQUEST_METHOD REMOTE_ADDR REMOTE_HOST REQUEST_URI REQUEST_PATH
+      REQUEST_VERSION  DOCUMENT_ROOT QUERY_STRING REQUEST_RAW
+      GATEWAY_INTERFACE SERVER_PORT SERVER_HTTPS_PORT
+      SERVER_NAME  SERVER_SOFTWARE SERVER_PROTOCOL
+    }
+  }
+
   ###
-  # Minimalist MIME Header Parser
+  # Converts a block of mime encoded text to a key/value list. If an exception is encountered,
+  # the method will generate its own call to the [cmd error] method, and immediately invoke
+  # the [cmd output] method to produce an error code and close the connection.
   ###
   method MimeParse mimetext {
     set data(mimeorder) {}
@@ -197,6 +263,7 @@ Connection close}
     return $result
   }
 
+  # De-httpizes a string.
   method Url_Decode data {
     regsub -all {\+} $data " " data
     regsub -all {([][$\\])} $data {\\\1} data
@@ -239,6 +306,7 @@ Connection close}
 
 
   method wait {mode sock} {
+    my clay refcount_incr
     if {[info coroutine] eq {}} {
       chan event $sock $mode [list set ::httpd::lock_$sock $mode]
       vwait ::httpd::lock_$sock
@@ -247,6 +315,7 @@ Connection close}
       yield
     }
     chan event $sock $mode {}
+    my clay refcount_decr
   }
 
 }

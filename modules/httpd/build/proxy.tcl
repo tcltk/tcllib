@@ -1,4 +1,4 @@
-::tool::define ::httpd::content.exec {
+::clay::define ::httpd::content.exec {
   variable exename [list tcl [info nameofexecutable] .tcl [info nameofexecutable]]
 
   method CgiExec {execname script arglist} {
@@ -60,14 +60,14 @@
       return [dict get $exename $which]
     }
     if {$which eq "tcl"} {
-      if {[my cget tcl_exe] ne {}} {
-        dict set exename $which [my cget tcl_exe]
+      if {[my clay get tcl_exe] ne {}} {
+        dict set exename $which [my clay get tcl_exe]
       } else {
         dict set exename $which [info nameofexecutable]
       }
     } else {
-      if {[my cget ${which}_exe] ne {}} {
-        dict set exename $which [my cget ${which}_exe]
+      if {[my clay get ${which}_exe] ne {}} {
+        dict set exename $which [my clay get ${which}_exe]
       } elseif {"$::tcl_platform(platform)" == "windows"} {
         dict set exename $which $which.exe
       } else {
@@ -85,7 +85,7 @@
 ###
 # Return data from an proxy process
 ###
-::tool::define ::httpd::content.proxy {
+::clay::define ::httpd::content.proxy {
   superclass ::httpd::content.exec
 
   method proxy_channel {} {
@@ -97,28 +97,29 @@
   }
 
   method proxy_path {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my request get REQUEST_URI] /]
+    set prefix [my clay get prefix]
     return /[string range $uri [string length $prefix] end]
   }
 
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    chan puts $chanb "[my http_info get REQUEST_METHOD] [my proxy_path]"
-    chan puts $chanb [my http_info get mimetxt]
-    set length [my http_info get CONTENT_LENGTH]
+    chan puts $chanb "[my request get REQUEST_METHOD] [my proxy_path]"
+    set mimetxt [my clay get mimetxt]
+    chan puts $chanb [my clay get mimetxt]
+    set length [my request get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    chan event $chanb readable [info coroutine]
     yield
   }
 
@@ -128,11 +129,7 @@
     set readCount [::coroutine::util::gets_safety $chana 4096 reply_status]
     set replyhead [my HttpHeaders $chana]
     set replydat  [my MimeParse $replyhead]
-    if {![dict exists $replydat Content-Length]} {
-      set length 0
-    } else {
-      set length [dict get $replydat Content-Length]
-    }
+
     ###
     # Read the first incoming line as the HTTP reply status
     # Return the rest of the headers verbatim
@@ -141,34 +138,16 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
   }
 
-  method dispatch {newsock datastate} {
-    try {
-      my http_info replace $datastate
-      my request replace  [dict get $datastate http]
-      my Log_Dispatched
-      my variable sock chan
-      set chan $newsock
-      chan configure $chan -translation {auto crlf} -buffering line
-      # Initialize the reply
-      my reset
-      # Invoke the URL implementation.
-    } on error {err errdat} {
-      my error 500 $err [dict get $errdat -errorinfo]
-      tailcall my DoOutput
-    }
+  method Dispatch {} {
+    my variable sock chan
     if {[catch {my proxy_channel} sock errdat]} {
       my error 504 {Service Temporarily Unavailable} [dict get $errdat -errorinfo]
       tailcall my DoOutput
@@ -180,6 +159,7 @@
     my log HttpAccess {}
     chan event $sock writable [info coroutine]
     yield
+    my ChannelRegister $sock
     my ProxyRequest $chan $sock
     my ProxyReply   $sock $chan
   }

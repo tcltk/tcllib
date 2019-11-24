@@ -2,13 +2,11 @@
 #
 #	Implementation of a graph data structure for Tcl.
 #
-# Copyright (c) 2000-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
-# Copyright (c) 2008      by Alejandro Paz <vidriloco@gmail.com>
+# Copyright (c) 2000-2009,2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2008           by Alejandro Paz <vidriloco@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: graph_tcl.tcl,v 1.5 2009/11/26 04:42:16 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require struct::list
@@ -320,7 +318,15 @@ proc ::struct::graph::__arc_delete {name args} {
 	return {wrong # args: should be "::struct::graph::__arc_delete name arc arc..."}
     }
 
-    foreach arc $args {CheckMissingArc $name $arc}
+    # seen is used to catch duplicate arcs in the args
+    array set seen {}
+    foreach arc $args {
+	if {[info exists seen($arc)]} {
+	    return -code error "arc \"$arc\" does not exist in graph \"$name\""
+	}
+	CheckMissingArc $name $arc
+	set seen($arc) .
+    }
 
     variable ${name}::inArcs
     variable ${name}::outArcs
@@ -1680,7 +1686,15 @@ proc ::struct::graph::__node_delete {name args} {
     if {![llength $args]} {
 	return {wrong # args: should be "::struct::graph::__node_delete name node node..."}
     }
-    foreach node $args {CheckMissingNode $name $node}
+    # seen is used to catch duplicate nodes in the args
+    array set seen {}
+    foreach node $args {
+	if {[info exists seen($node)]} {
+	    return -code error "node \"$node\" does not exist in graph \"$name\""
+	}
+	CheckMissingNode $name $node
+	set seen($node) .
+    }
 
     variable ${name}::inArcs
     variable ${name}::outArcs
@@ -1847,7 +1861,15 @@ proc ::struct::graph::__node_insert {name args} {
 	# No node name was given; generate a unique one
 	set args [list [__generateUniqueNodeName $name]]
     } else {
-	foreach node $args {CheckDuplicateNode $name $node}
+	# seen is used to catch duplicate nodes in the args
+	array set seen {}
+	foreach node $args {
+	    if {[info exists seen($node)]} {
+		return -code error "node \"$node\" already exists in graph \"$name\""
+	    }
+	    CheckDuplicateNode $name $node
+	    set seen($node) .
+	}
     }
     
     variable ${name}::inArcs
@@ -3001,7 +3023,8 @@ proc ::struct::graph::CheckE {name what arguments} {
     upvar 1 condNodes  condNodes  ; set condNodes  {}
 
     set wa_usage "wrong # args: should be \"$name $what ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?\""
-
+    set seenodes 0
+    
     for {set i 0} {$i < [llength $arguments]} {incr i} {
 	set arg [lindex $arguments $i]
 	switch -glob -- $arg {
@@ -3018,6 +3041,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 
 		set haveCond 1
 		set cond [string range $arg 1 end]
+		set seenodes 1
 	    }
 	    -key {
 		if {($i + 1) == [llength $arguments]} {
@@ -3030,6 +3054,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set key [lindex $arguments $i]
 		set haveKey 1
+		set seenodes 0
 	    }
 	    -value {
 		if {($i + 1) == [llength $arguments]} {
@@ -3042,6 +3067,7 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set value [lindex $arguments $i]
 		set haveValue 1
+		set seenodes 0
 	    }
 	    -filter {
 		if {($i + 1) == [llength $arguments]} {
@@ -3054,10 +3080,15 @@ proc ::struct::graph::CheckE {name what arguments} {
 		incr i
 		set fcmd [lindex $arguments $i]
 		set haveFilter 1
+		set seenodes 0
 	    }
 	    -* {
-		return -code error "bad restriction \"$arg\": must be -adj, -embedding,\
+		if {$seenodes} {
+		    lappend condNodes $arg
+		} else {
+		    return -code error "bad restriction \"$arg\": must be -adj, -embedding,\
 			-filter, -in, -inner, -key, -out, or -value"
+		}
 	    }
 	    default {
 		lappend condNodes $arg

@@ -82,9 +82,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section3'></a>API
 
@@ -258,13 +258,13 @@ suitable for POP3 servers which expect SSL connections only\. These will
 generally be listening on port 995\.
 
     package require tls
-    tls::init \-cafile /path/to/ca/cert \-keyfile \.\.\.
+    tls::init -cafile /path/to/ca/cert -keyfile ...
 
-    \# Create secured pop3 channel
-    pop3::open \-socketcmd tls::socket \\\\
+    # Create secured pop3 channel
+    pop3::open -socketcmd tls::socket \
     	$thehost $theuser $thepassword
 
-    \.\.\.
+    ...
 
 The second method, option __\-stls__, will connect to the standard POP3 port
 and then perform an STARTTLS handshake\. This will only work for POP3 servers
@@ -273,13 +273,13 @@ STARTTLS and the handshake was performed correctly before proceeding with
 authentication\.
 
     package require tls
-    tls::init \-cafile /path/to/ca/cert \-keyfile \.\.\.
+    tls::init -cafile /path/to/ca/cert -keyfile ...
 
-    \# Create secured pop3 channel
-    pop3::open \-stls 1 \\\\
+    # Create secured pop3 channel
+    pop3::open -stls 1 \
     	$thehost $theuser $thepassword
 
-    \.\.\.
+    ...
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

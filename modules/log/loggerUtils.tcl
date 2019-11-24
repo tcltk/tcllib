@@ -1,6 +1,5 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -59,7 +58,6 @@ namespace eval ::logger::utils {
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -164,7 +162,6 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -270,10 +267,12 @@ proc ::logger::utils::createLogProc {args} {
 	    set methodText {
 		if {[info level] < 2} {
 		    set method "global"
+		} elseif {[uplevel 1 {namespace which self}] == "::oo::Helpers::self"} {
+		    set    method    [uplevel 1 {self class}]
+		    append method :: [uplevel 1 {self method}]
 		} else {
 		    set method [lindex [info level -1] 0]
 		}
-
 	    }
 
 	    regsub -all -- \
@@ -319,7 +318,6 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -454,7 +452,6 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -534,7 +531,7 @@ proc ::logger::utils::autoApplyAppender {command command-string log op args} {
 }
 
 
-package provide logger::utils 1.3
+package provide logger::utils 1.3.1
 
 # ;;; Local Variables: ***
 # ;;; mode: tcl ***

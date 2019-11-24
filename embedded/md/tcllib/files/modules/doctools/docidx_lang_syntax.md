@@ -89,16 +89,16 @@ Regarding the syntax of the \(E\)BNF itself
 The syntax:
 
     index     = defs
-                INDEX\_BEGIN
-                \[ contents \]
-                INDEX\_END
-                \{ <WHITE> \}
+                INDEX_BEGIN
+                [ contents ]
+                INDEX_END
+                { <WHITE> }
 
-    defs      = \{ INCLUDE &#124; VSET &#124; <WHITE> \}
-    contents  = keyword \{ keyword \}
+    defs      = { INCLUDE | VSET | <WHITE> }
+    contents  = keyword { keyword }
 
-    keyword   = defs KEY ref \{ ref \}
-    ref       = MANPAGE &#124; URL &#124; defs
+    keyword   = defs KEY ref { ref }
+    ref       = MANPAGE | URL | defs
 
 At last a rule we were unable to capture in the EBNF syntax, as it is about the
 arguments of the markup commands, something which is not modeled here\.

@@ -85,13 +85,13 @@ different services, at priority levels, with different commands\.
 To begin using the logger package, we do the following:
 
     package require logger
-    set log \[logger::init myservice\]
-    $\{log\}::notice "Initialized myservice logging"
+    set log [logger::init myservice]
+    ${log}::notice "Initialized myservice logging"
 
-    \.\.\. code \.\.\.
+    ... code ...
 
-    $\{log\}::notice "Ending myservice logging"
-    $\{log\}::delete
+    ${log}::notice "Ending myservice logging"
+    ${log}::delete
 
 In the above code, after the package is loaded, the following things happen:
 
@@ -212,10 +212,10 @@ In the above code, after the package is loaded, the following things happen:
     loggers are affected, their callbacks are called before their parents
     callback\.
 
-    proc lvlcallback \{old new\} \{
+    proc lvlcallback {old new} {
         puts "Loglevel changed from $old to $new"
-    \}
-    $\{log\}::lvlchangeproc lvlcallback
+    }
+    ${log}::lvlchangeproc lvlcallback
 
   - <a name='23'></a>__$\{log\}::logproc__ *level*
 
@@ -235,12 +235,12 @@ In the above code, after the package is loaded, the following things happen:
     let you send your logs over the network, to a database, or anything else\.
     For example:
 
-    proc logtoserver \{txt\} \{
+    proc logtoserver {txt} {
         variable socket
         puts $socket "Notice: $txt"
-    \}
+    }
 
-    $\{log\}::logproc notice logtoserver
+    ${log}::logproc notice logtoserver
 
     Trace logs are slightly different: instead of a plain text argument, the
     argument provided to the logproc is a dictionary consisting of the
@@ -291,7 +291,7 @@ In the above code, after the package is loaded, the following things happen:
     called without a command it returns the currently registered command\. For
     example:
 
-    $\{log\}::delproc \[list closesock $logsock\]
+    ${log}::delproc [list closesock $logsock]
 
   - <a name='31'></a>__$\{log\}::delete__
 
@@ -306,36 +306,36 @@ In the above code, after the package is loaded, the following things happen:
     when tracing is disabled\. As a result, there is not performance impact to a
     library when tracing is disabled, just as with other log level commands\.
 
-      proc tracecmd \{ dict \} \{
+      proc tracecmd { dict } {
           puts $dict
-      \}
+      }
 
-      set log \[::logger::init example\]
-      $\{log\}::logproc trace tracecmd
+      set log [::logger::init example]
+      ${log}::logproc trace tracecmd
 
-      proc foo \{ args \} \{
+      proc foo { args } {
           puts "In foo"
           bar 1
-          return "foo\_result"
-      \}
+          return "foo_result"
+      }
 
-      proc bar \{ x \} \{
+      proc bar { x } {
           puts "In bar"
-          return "bar\_result"
-      \}
+          return "bar_result"
+      }
 
-      $\{log\}::trace add foo bar
-      $\{log\}::trace on
+      ${log}::trace add foo bar
+      ${log}::trace on
 
       foo
 
-    \# Output:
-    enter \{proc ::foo level 1 script \{\} caller \{\} procargs \{args \{\}\}\}
+    # Output:
+    enter {proc ::foo level 1 script {} caller {} procargs {args {}}}
     In foo
-    enter \{proc ::bar level 2 script \{\} caller ::foo procargs \{x 1\}\}
+    enter {proc ::bar level 2 script {} caller ::foo procargs {x 1}}
     In bar
-    leave \{proc ::bar level 2 script \{\} caller ::foo status ok result bar\_result\}
-    leave \{proc ::foo level 1 script \{\} caller \{\} status ok result foo\_result\}
+    leave {proc ::bar level 2 script {} caller ::foo status ok result bar_result}
+    leave {proc ::foo level 1 script {} caller {} status ok result foo_result}
 
   - <a name='33'></a>__$\{log\}::trace__ __on__
 
@@ -411,27 +411,27 @@ This enables logprocs to execute code in the callers scope by using uplevel or
 linking to local variables by using upvar\. This may fire traces with all usual
 side effects\.
 
-    \# Print caller and current vars in the calling proc
-    proc log\_local\_var \{txt\} \{
-         set caller \[info level \-1\]
-         set vars \[uplevel 1 info vars\]
-         foreach var \[lsort $vars\] \{
-            if \{\[uplevel 1 \[list array exists $var\]\] == 1\} \{
+    # Print caller and current vars in the calling proc
+    proc log_local_var {txt} {
+         set caller [info level -1]
+         set vars [uplevel 1 info vars]
+         foreach var [lsort $vars] {
+            if {[uplevel 1 [list array exists $var]] == 1} {
             	lappend val $var <Array>
-            \} else \{
-            	lappend val $var \[uplevel 1 \[list set $var\]\]
-            \}
-         \}
+            } else {
+            	lappend val $var [uplevel 1 [list set $var]]
+            }
+         }
          puts "$txt"
          puts "Caller: $caller"
          puts "Variables in callers scope:"
-         foreach \{var value\} $val \{
+         foreach {var value} $val {
          	puts "$var = $value"
-         \}
-    \}
+         }
+    }
 
-    \# install as logproc
-    $\{log\}::logproc debug log\_local\_var
+    # install as logproc
+    ${log}::logproc debug log_local_var
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

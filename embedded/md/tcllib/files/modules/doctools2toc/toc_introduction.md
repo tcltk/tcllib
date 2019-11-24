@@ -130,35 +130,35 @@ Keyword Indices* and the *DocTools \- General*, respectively\.
 # <a name='section3'></a>Package Overview
 
                                         ~~~~~~~~~~~ doctools::toc ~~~~~~~~~~~
-                                       ~~                   &#124;               ~~
-                    doctools::toc::export ~~~~~~~~~~~~~~~~~ &#124; ~~~~~~~~~~~~~ doctools::toc::import
-                            &#124;                               &#124;                       &#124;
-            \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+     &#124;    \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+
-            &#124;               &#124;                         &#124;     &#124;    &#124;                  &#124;               &#124;                       &#124;               &#124;
-    doctools::config        =                         &#124;     &#124;    &#124;                  =       doctools::include       doctools::config doctools::paths
-                            &#124;                         &#124;     &#124;    &#124;                  &#124;
-                    doctools::toc::export::<\*>        &#124;     &#124;    &#124;          doctools::toc::import::<\*>
-                            doctoc                    &#124;     &#124;    &#124;                  doctoc, json
-                            json                      &#124;     &#124;    &#124;                  &#124;           \\\\
-                            html                      &#124;     &#124;    &#124;          doctools::toc::parse \\\\
-                            nroff                     &#124;     &#124;    &#124;                  &#124;             \\\\
-                            wiki                      &#124;     &#124;    &#124;  \+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+              json
-                            text                      &#124;     &#124;    &#124;  &#124;               &#124;
-                                                    doctools::toc::structure        &#124;
-                                                                                    &#124;
-                                                                            \+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+
-                                                                            &#124;                       &#124;
+                                       ~~                   |               ~~
+                    doctools::toc::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::toc::import
+                            |                               |                       |
+            +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
+            |               |                         |     |    |                  |               |                       |               |
+    struct:map              =                         |     |    |                  =       doctools::include       struct::map      fileutil::paths
+                            |                         |     |    |                  |
+                    doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
+                            doctoc                    |     |    |                  doctoc, json
+                            json                      |     |    |                  |           \
+                            html                      |     |    |          doctools::toc::parse \
+                            nroff                     |     |    |                  |             \
+                            wiki                      |     |    |  +---------------+              json
+                            text                      |     |    |  |               |
+                                                    doctools::toc::structure        |
+                                                                                    |
+                                                                            +-------+---------------+
+                                                                            |                       |
               doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
-                    &#124;                                                                               &#124;
-              doctools::text  doctools::nroff::man\_macros                                           =
-                                                                                                    &#124;
-                                                                                            doctools::msgcat::toc::<\*>
+                    |                                                                               |
+              doctools::text  doctools::nroff::man_macros                                           =
+                                                                                                    |
+                                                                                            doctools::msgcat::toc::<*>
                                                                                                     c, en, de, fr
-                                                                                                    \(fr == en for now\)
+                                                                                                    (fr == en for now)
             ~~      Interoperable objects, without actual package dependencies
-            \-\-      Package dependency, higher requires lower package
+            --      Package dependency, higher requires lower package
             =       Dynamic dependency through plugin system
-            <\*>     Multiple packages following the given form of naming\.
+            <*>     Multiple packages following the given form of naming.
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

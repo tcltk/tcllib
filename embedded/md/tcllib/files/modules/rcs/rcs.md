@@ -1,9 +1,9 @@
 
 [//000000001]: # (rcs \- RCS low level utilities)
 [//000000002]: # (Generated from file 'rcs\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2005, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2005, Colin McCormack <coldstore@users\.sourceforge\.net>)
-[//000000004]: # (rcs\(n\) 2\.0\.2 tcllib "RCS low level utilities")
+[//000000003]: # (Copyright &copy; 2005, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2005, Colin McCormack <coldstore@users\.sourceforge\.net>)
+[//000000005]: # (rcs\(n\) 2\.0\.2 tcllib "RCS low level utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -161,16 +161,16 @@ The text
 
 for example can be represented by
 
-    \{\{1 \{Hello World,\}\} \{2 \{how are you ?\}\} \{3 \{Fine, and you ?\}\}\}
+    {{1 {Hello World,}} {2 {how are you ?}} {3 {Fine, and you ?}}}
 
 or
 
-    \{\{5 \{Hello World,\}\} \{8 \{how are you ?\}\} \{9 \{Fine, and you ?\}\}\}
+    {{5 {Hello World,}} {8 {how are you ?}} {9 {Fine, and you ?}}}
 
 or
 
-    \{\{\-1 \{Hello World,
-    how are you ?\}\} \{4 \{Fine, and you ?\}\}\}
+    {{-1 {Hello World,
+    how are you ?}} {4 {Fine, and you ?}}}
 
 The first dictionary is the *canonical* representation of the text, with line
 numbers starting at __1__, increasing in steps of __1__ and without
@@ -241,12 +241,12 @@ And example of a RCS patch is
     d1 2
     d4 1
     a4 2
-    The named is the mother of all things\.
+    The named is the mother of all things.
 
     a11 3
-    They both may be called deep and profound\.
+    They both may be called deep and profound.
     Deeper and more profound,
-    The door of all subtleties\!
+    The door of all subtleties!
 
 # <a name='section5'></a>RCS PATCH COMMAND LIST
 
@@ -276,11 +276,11 @@ by the patch encoder and applicator commands\.
 An example for a patch command is shown below, it represents the example RCS
 patch found in section [RCS PATCH FORMAT](#section4)\.
 
-    \{\{d 1 2\} \{d 4 1\} \{a 4 \{The named is the mother of all things\.
+    {{d 1 2} {d 4 1} {a 4 {The named is the mother of all things.
 
-    \}\} \{a 11 \{They both may be called deep and profound\.
+    }} {a 11 {They both may be called deep and profound.
     Deeper and more profound,
-    The door of all subtleties\!\}\}\}
+    The door of all subtleties!}}}
 
 # <a name='section6'></a>Bugs, Ideas, Feedback
 

@@ -82,7 +82,7 @@ message with level __debug__ is deactivated\.
 
     package require log
     log::lvSuppress debug
-    log::log debug "Unseen message" ; \# No output
+    log::log debug "Unseen message" ; # No output
 
 By default all messages associated with an error\-level \(__emergency__,
 __alert__, __critical__, and __error__\) are written to
@@ -104,7 +104,7 @@ it by itself\.
 
     package require log
     log::lvCmd notice toText
-    log::log notice "Handled by \\"toText\\""
+    log::log notice "Handled by \"toText\""
 
 Another database maintained by this facility is a map from message levels to
 colors\. The information in this database has *no* influence on the behaviour
@@ -243,7 +243,7 @@ The following commands are available:
     command execution\. The following example shows an xml text representation,
     which is only generated in debug mode:
 
-    log::logsubst debug \{XML of node $node is '\[$node toXml\]'\}
+    log::logsubst debug {XML of node $node is '[$node toXml]'}
 
   - <a name='21'></a>__::log::logMsg__ *text*
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'oauth\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2014 Javi P\&. <hxm@eggdrop\&.es>
 '\"
-.TH "oauth" n 1\&.0\&.2 tcllib "oauth"
+.TH "oauth" n 1\&.0\&.3 tcllib "oauth"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ oauth \- oauth API base signature
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBoauth  ?1\&.0\&.2?\fR
+package require \fBoauth  ?1\&.0\&.3?\fR
 .sp
 \fB::oauth::config\fR
 .sp

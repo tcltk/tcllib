@@ -81,29 +81,29 @@ __argument\_dialogbox__ in two formats:
     A small example illustrates how the __argument\_dialogbox__ can be
     employed:
 
-        set DialogResult \[__tepam::argument\_dialogbox__ \\
-           __\-title__ "Itinerary selection" \\
-           __\-file__ \{*\-label "Itinerary report" \-variable report\_file*\} \\
-           __\-frame__ \{*\-label "Itinerary start"*\} \\
-              __\-comment__ \{*\-text "Specify your itinerary start location"*\} \\
-              __\-entry__ \{*\-label "City" \-variable start\_city \-type string*\} \\
-              __\-entry__ \{*\-label "Street" \-variable start\_street \-type string \-optional 1*\} \\
-              __\-entry__ \{*\-label "Street number" \-variable start\_street\_nbr \-type integer \-optional 1*\} \\
-           __\-frame__ \{*\-label "Itinerary destination"*\} \\
-              __\-comment__ \{*\-text "Specify your itinerary destination"*\} \\
-              __\-entry__ \{*\-label "City" \-variable dest\_city \-type string*\} \\
-              __\-entry__ \{*\-label "Street" \-variable dest\_street \-type string \-optional 1*\} \\
-              __\-entry__ \{*\-label "Street number" \-variable dest\_street\_nbr \-type integer \-optional 1*\} \\
-           __\-frame__ \{\} \\
-           __\-checkbutton__ \{*\-label "Don't use highways" \-variable no\_highway*\}
+    > set DialogResult \[__tepam::argument\_dialogbox__ \\  
+    > &nbsp;&nbsp;&nbsp;__\-title__ "Itinerary selection" \\  
+    > &nbsp;&nbsp;&nbsp;__\-file__ \{*\-label "Itinerary report" \-variable report\_file*\} \\  
+    > &nbsp;&nbsp;&nbsp;__\-frame__ \{*\-label "Itinerary start"*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-comment__ \{*\-text "Specify your itinerary start location"*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "City" \-variable start\_city \-type string*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "Street" \-variable start\_street \-type string \-optional 1*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "Street number" \-variable start\_street\_nbr \-type integer \-optional 1*\} \\  
+    > &nbsp;&nbsp;&nbsp;__\-frame__ \{*\-label "Itinerary destination"*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-comment__ \{*\-text "Specify your itinerary destination"*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "City" \-variable dest\_city \-type string*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "Street" \-variable dest\_street \-type string \-optional 1*\} \\  
+    > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-entry__ \{*\-label "Street number" \-variable dest\_street\_nbr \-type integer \-optional 1*\} \\  
+    > &nbsp;&nbsp;&nbsp;__\-frame__ \{\} \\  
+    > &nbsp;&nbsp;&nbsp;__\-checkbutton__ \{*\-label "Don't use highways" \-variable no\_highway*\}\]
 
-    \] This example opens a dialog box that has the title *Itinerary
-    selection*\. A first entry widget in this box allows selecting a report
-    file\. It follows two frames to define respectively an itinerary start and
-    end location\. Each of these locations that are described with a comment has
-    three entry widgets to specify respectively the city, street and the street
-    number\. Bellow the second frame there is a check button that allows
-    specifying if eventual highways should be ignored\.
+    This example opens a dialog box that has the title *Itinerary selection*\.
+    A first entry widget in this box allows selecting a report file\. It follows
+    two frames to define respectively an itinerary start and end location\. Each
+    of these locations that are described with a comment has three entry widgets
+    to specify respectively the city, street and the street number\. Bellow the
+    second frame there is a check button that allows specifying if eventual
+    highways should be ignored\.
 
   - <a name='2'></a>__tepam::argument\_dialogbox__ \{*item\_name item\_attributes ?item\_name item\_attributes? ?\.\.\.?*\}
 
@@ -114,24 +114,22 @@ __argument\_dialogbox__ in two formats:
     packed into a single list that is provided to __argument\_dialogbox__\.
     The previous example can therefore also be written in the following way:
 
-        set DialogResult \[__tepam::argument\_dialogbox \{__
-           __\-title__ "Itinerary selection"
-           __\-file__ \{*\-label "Itinerary report" \-variable report\_file*\}
-           \.\.\.
-           __\-checkbutton__ \{*\-label "Don't use highways" \-variable no\_highway*\}
-
-    __\}__\]
+    > set DialogResult \[__tepam::argument\_dialogbox \{__  
+    > &nbsp;&nbsp;&nbsp;__\-title__ "Itinerary selection"  
+    > &nbsp;&nbsp;&nbsp;__\-file__ \{*\-label "Itinerary report" \-variable report\_file*\}  
+    > &nbsp;&nbsp;&nbsp;\.\.\.  
+    > &nbsp;&nbsp;&nbsp;__\-checkbutton__ \{*\-label "Don't use highways" \-variable no\_highway*\} __\}__\]
 
 The commands __argument\_dialogbox__ as well as
 __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ are exported from the
 namespace __tepam__\. To use these commands without the __tepam::__
 namespace prefix, it is sufficient to import them into the main namespace:
 
-    __namespace import tepam::\*__
-
-    set DialogResult \[__argument\_dialogbox__ \\
-       \-title "Itinerary selection"
-       \.\.\.
+> __namespace import tepam::\*__  
+>   
+> set DialogResult \[__argument\_dialogbox__ \\  
+> &nbsp;&nbsp;&nbsp;\-title "Itinerary selection"  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 The following subsections explain the different argument item types that are
 accepted by the __argument\_dialogbox__, classified into three groups\. The
@@ -145,9 +143,9 @@ __argument\_dialogbox__\.
 The first item group allows specifying some context aspects of an argument
 dialog box\. These items are taking a simple character string as item attribute:
 
-    tepam::argument\_dialogbox \\
-       __\-<argument\_name>__ *string* \\
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-<argument\_name>__ *string* \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 The following items are classified into this group:
 
@@ -156,18 +154,18 @@ The following items are classified into this group:
     The dialog box window title which is by default *Dialog* can be changed
     with the *\-title* item:
 
-    tepam::argument\_dialogbox \\
-       __\-title__ "System configuration" \\
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-title__ "System configuration" \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-window *string*
 
     The argument dialog box uses by default *\.dialog* as dialog top level
     window\. This path can be changed with the *\-window* item:
 
-    tepam::argument\_dialogbox \\
-       __\-window__ \.dialog \\
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-window__ \.dialog \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-parent *string*
 
@@ -175,9 +173,9 @@ The following items are classified into this group:
     beside this one\. Without explicit parent window definition, the top\-level
     window will be considered as parent window\.
 
-    tepam::argument\_dialogbox \\
-       __\-parent__ \.my\_appl \\
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-parent__ \.my\_appl \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-context *string*
 
@@ -187,9 +185,9 @@ The following items are classified into this group:
     box state in its context to distinguish between different usages of the
     argument dialog box\.
 
-    tepam::argument\_dialogbox \\
-       __\-context__ destination\_definitions \\
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-context__ destination\_definitions \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 ## <a name='subsection2'></a>Formatting and Display Options
 
@@ -201,14 +199,15 @@ and commenting the dialog boxes\.
 The items of this classification group require as item attributes a definition
 list, which contains itself attribute name and value pairs:
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-<argument\_name>__ \{ *
-          ?\-<attribute\_name> <attribute\_value>?
-          ?\-<attribute\_name> <attribute\_value>?
-          ?\.\.\.?*
-       \}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-<argument\_name>__ \{   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\-<attribute\_name> <attribute\_value>?*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\-<attribute\_name> <attribute\_value>?*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\.\.\.?*  
+>   
+> &nbsp;&nbsp;&nbsp;\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 The following items are classified into this group:
 
@@ -225,18 +224,18 @@ The following items are classified into this group:
 
     Example:
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-frame__ \{*\-label "Destination address"*\}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{*\-label "Destination address"*\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
     To close an open frame without opening a new one, an empty list has to be
     provided to the *\-frame* statement\.
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-frame__ \{\}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-frame__ \{\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-sep \[const \{\{\}\}\]
 
@@ -244,10 +243,10 @@ The following items are classified into this group:
     require additional definitions\. The related definition list has to exist,
     but its content is ignored\.
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-sep__ \{\}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-sep__ \{\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-comment *string*
 
@@ -257,10 +256,10 @@ The following items are classified into this group:
     *\-comment* item allows for example adding a description between two
     frames\.
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-comment__ \{*\-text "Specify bellow the destination address"*\}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-comment__ \{*\-text "Specify bellow the destination address"*\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
   - \-yscroll __0__&#124;__1__&#124;__auto__
 
@@ -270,10 +269,10 @@ The following items are classified into this group:
     enabled in this mode only if the vertical data entry form size exceeds 66%
     of the screen height\.
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-yscroll__ __auto__
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-yscroll__ __auto__  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 ## <a name='subsection3'></a>Global Custom Data Validation
 
@@ -285,9 +284,9 @@ data\.
     Custom data checks can be performed via validation commands that are defined
     with the *\-validatecommand* item\. Example:
 
-    tepam::argument\_dialogbox \\
-       \-entry \{\-label "Your comment" \-variable YourCom\} \\
-       __\-validatecommand__ \{IllegalWordDetector $YourCom\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label "Your comment" \-variable YourCom\} \\  
+> &nbsp;&nbsp;&nbsp;__\-validatecommand__ \{IllegalWordDetector $YourCom\}
 
     The validation command is executed in the context of the calling procedure,
     once all the basic data checks have been performed and data variables are
@@ -320,14 +319,15 @@ Data entry widgets are created with the widget items\. These items require as
 item attributes a definition list, which contains itself attribute name and
 value pairs:
 
-    tepam::argument\_dialogbox \\
-       \.\.\.
-       __\-<argument\_name>__ \{ *
-          ?\-<attribute\_name> <attribute\_value>?
-          ?\-<attribute\_name> <attribute\_value>?
-          ?\.\.\.?*
-       \}
-       \.\.\.
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> &nbsp;&nbsp;&nbsp;__\-<argument\_name>__ \{   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\-<attribute\_name> <attribute\_value>?*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\-<attribute\_name> <attribute\_value>?*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*?\.\.\.?*  
+>   
+> &nbsp;&nbsp;&nbsp;\}  
+> &nbsp;&nbsp;&nbsp;\.\.\.
 
 The attribute list can contain various attributes to describe and comment an
 entry widget and to constrain its entered value\. All entry widgets are accepting
@@ -343,16 +343,16 @@ SPECIFIC ENTRY WIDGETS](#section3)\):
     The *\-entry* item generates the simplest but most universal data entry
     widget\. It allows entering any kind of data in form of single line strings\.
 
-    tepam::argument\_dialogbox \\
-       __\-entry__ \{\-label Name \-variable Entry\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-entry__ \{\-label Name \-variable Entry\}
 
   - \-text *list*
 
     The *\-text* item generates a multi line text entry widget\. The widget
     height can be selected with the *\-height* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-text__ \{\-label Name \-variable Text \-height 5\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-text__ \{\-label Name \-variable Text \-height 5\}
 
   - \-checkbox *list*
 
@@ -361,18 +361,18 @@ SPECIFIC ENTRY WIDGETS](#section3)\):
     the *\-choices* attribute or via a variable declared with the
     *\-choicevariable* attribute:
 
-    tepam::argument\_dialogbox \\
-       __\-checkbox__ \{\-label "Font sytle" \-variable FontStyle \\
-                   \-choices \{bold italic underline\} \-default italic\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-checkbox__ \{\-label "Font sytle" \-variable FontStyle \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-default italic\}
 
     If the labels of the check boxes should differ from the option values, their
     labels can be defined with the *\-choicelabels* attribute:
 
-    tepam::argument\_dialogbox \\
-       __\-checkbox__ \{\-label "Font sytle" \-variable FontStyle \\
-                  \-choices \{bold italic underline\} \\
-                  \-choicelabels \{Bold Italic Underline\} \\
-                  \-default italic\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-checkbox__ \{\-label "Font sytle" \-variable FontStyle \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicelabels \{Bold Italic Underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default italic\}
 
     In contrast to a radio box group, a check box group allows selecting
     simultaneously several choice options\. The selection is stored for this
@@ -390,17 +390,17 @@ SPECIFIC ENTRY WIDGETS](#section3)\):
     simultaneously only one choice option\. The selected option value is stored
     directly, and not in form of a list, inside the defined variable\.
 
-    tepam::argument\_dialogbox \\
-       __\-radiobox__ \{\-label "Text adjustment" \-variable Adjustment \\
-                  \-choices \{left center right\} \-default left\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-radiobox__ \{\-label "Text adjustment" \-variable Adjustment \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{left center right\} \-default left\}
 
     If the labels of the radio boxes should differ from the option values, their
     labels can be defined with the *\-choicelabels* attribute:
 
-    tepam::argument\_dialogbox \\
-       __\-radiobox__ \{\-label "Text adjustment" \-variable Adjustment \\
-                  \-choices \{left center right\} \\
-                  \-choicelabels \{Left Center Right\} \-default left\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-radiobox__ \{\-label "Text adjustment" \-variable Adjustment \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{left center right\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicelabels \{Left Center Right\} \-default left\}
 
   - \-checkbutton *list*
 
@@ -410,8 +410,8 @@ SPECIFIC ENTRY WIDGETS](#section3)\):
     eventually provided default value has also to be either __0__ or
     __1__\.
 
-    tepam::argument\_dialogbox \\
-       __\-checkbutton__ \{\-label Capitalize \-variable Capitalize \-default 1\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-checkbutton__ \{\-label Capitalize \-variable Capitalize \-default 1\}
 
 Several types of list and combo boxes are available to handle selection lists\.
 
@@ -423,14 +423,14 @@ Several types of list and combo boxes are available to handle selection lists\.
     either as a list to the *\-choices* attribute, or via a variable that is
     specified with the *\-choicevariable* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-combobox__ \{\-label "Text size" \-variable Size \-choices \{8 9 10 12 15 18\} \-default 12\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-combobox__ \{\-label "Text size" \-variable Size \-choices \{8 9 10 12 15 18\} \-default 12\}
 
     And here is an example of using a variable to define the selection list:
 
-    set TextSizes \{8 9 10 12 15 18\}
-    tepam::argument\_dialogbox \\
-       __\-combobox__ \{\-label "Text size" \-variable Size \-choicevariable TextSizes \-default 12\}
+> set TextSizes \{8 9 10 12 15 18\}  
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-combobox__ \{\-label "Text size" \-variable Size \-choicevariable TextSizes \-default 12\}
 
   - \-listbox *list*
 
@@ -441,22 +441,22 @@ Several types of list and combo boxes are available to handle selection lists\.
     defined, the list box height is automatically adapted to the argument dialog
     box size\. The first example uses a variable to define the available choices:
 
-    set set AvailableSizes
-    for \{set k 0\} \{$k<16\} \{incr k\} \{lappend AvailableSizes \[expr 1<<$k\]\}
-
-    tepam::argument\_dialogbox \\
-       __\-listbox__ \{\-label "Distance" \-variable Distance \\
-                 \-choicevariable AvailableSizes \-default 6 \-height 5\}
+> set set AvailableSizes  
+> for \{set k 0\} \{$k<16\} \{incr k\} \{lappend AvailableSizes \[expr 1<<$k\]\}  
+>   
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Distance" \-variable Distance \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicevariable AvailableSizes \-default 6 \-height 5\}
 
     Here is a multi\-element selection example\. Please note that also the default
     selection can contain multiple elements:
 
-    tepam::argument\_dialogbox \\
-       __\-listbox__ \{\-label "Text styles" \-variable Styles \\
-                 \-choices \{bold italic underline overstrike\} \\
-                 \-choicelabels \{Bold Italic Underline Overstrike\} \\
-                 \-default \{bold underline\} \-multiple\_selection 1 \\
-                 \-height 3\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-listbox__ \{\-label "Text styles" \-variable Styles \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline overstrike\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choicelabels \{Bold Italic Underline Overstrike\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default \{bold underline\} \-multiple\_selection 1 \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-height 3\}
 
   - \-disjointlistbox *list*
 
@@ -470,11 +470,11 @@ Several types of list and combo boxes are available to handle selection lists\.
     are accepting the same attributes as the normal listbox, e\.g\. *\-height,
     \-choices, \-choicevariable, \-default*\.
 
-    tepam::argument\_dialogbox \\
-       __\-disjointlistbox__ \{\-label "Preferred scripting languages" \-variable Languages \\
-                 \-comment "Please select your preferred languages in the order" \\
-                 \-choices \{JavaScript Lisp Lua Octave PHP Perl Python Ruby Scheme Tcl\} \\
-                 \-default \{Tcl Perl Python\}\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-disjointlistbox__ \{\-label "Preferred scripting languages" \-variable Languages \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-comment "Please select your preferred languages in the order" \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{JavaScript Lisp Lua Octave PHP Perl Python Ruby Scheme Tcl\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default \{Tcl Perl Python\}\}
 
 The file and directory selectors are building a next group of data entry
 widgets\. A paragraph of section [Entry Widget Item
@@ -488,10 +488,10 @@ specifying the targeted file types, active directory etc\.
     automatically selected for this entry if no data type has been explicitly
     defined with the *\-type* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-file__ \{\-label "Image file" \-variable ImageF \\
-              \-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\} \\
-              \-initialfile "picture\.gif"\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-file__ \{\-label "Image file" \-variable ImageF \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-initialfile "picture\.gif"\}
 
   - \-existingfile *list*
 
@@ -501,10 +501,10 @@ specifying the targeted file types, active directory etc\.
     entry if no data type has been explicitly defined with the *\-type*
     attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-existingfile__ \{\-label "Image file" \-variable ImageF \\
-                      \-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\} \\
-                      \-initialfile "picture\.gif"\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-existingfile__ \{\-label "Image file" \-variable ImageF \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-initialfile "picture\.gif"\}
 
   - \-directory *list*
 
@@ -513,8 +513,8 @@ specifying the targeted file types, active directory etc\.
     *directory* is automatically selected for this entry if no data type has
     been explicitly defined with the *\-type* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-directory__ \{\-label "Report directory" \-variable ReportDir\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-directory__ \{\-label "Report directory" \-variable ReportDir\}
 
   - \-existingdirectory *list*
 
@@ -524,8 +524,8 @@ specifying the targeted file types, active directory etc\.
     this entry if no data type has been explicitly defined with the *\-type*
     attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-existingdirectory__ \{\-label "Report directory" \-variable ReportDir\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-existingdirectory__ \{\-label "Report directory" \-variable ReportDir\}
 
 Finally, there is a last group of some other special data entry widgets\.
 
@@ -536,8 +536,8 @@ Finally, there is a last group of some other special data entry widgets\.
     automatically selected for this entry widget type if no data type has been
     explicitly defined with the *\-type* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-color__ \{\-label "Background color" \-variable Color \-default red\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-color__ \{\-label "Background color" \-variable Color \-default red\}
 
   - \-font *list*
 
@@ -560,10 +560,10 @@ Finally, there is a last group of some other special data entry widgets\.
     the font size of this label widget is not part of the available sizes the
     next close available size is selected as default size\.
 
-    tepam::argument\_dialogbox \\
-       __\-font__ \{\-label "Font" \-variable Font \\
-              \-font\_sizes \{8 10 12 16\} \\
-              \-default \{Arial 20 italic\}\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-font__ \{\-label "Font" \-variable Font \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-font\_sizes \{8 10 12 16\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default \{Arial 20 italic\}\}
 
 ## <a name='subsection5'></a>Entry Widget Item Attributes
 
@@ -574,16 +574,16 @@ All the entry widget items are accepting the following attributes:
     Eventual descriptions and comments specified with the *\-text* attribute
     are displayed above the entry widget\.
 
-    tepam::argument\_dialogbox \\
-       \-entry \{__\-text "Please enter your name bellow"__ \-variable Name\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{__\-text "Please enter your name bellow"__ \-variable Name\}
 
   - \-label *string*
 
     The label attribute creates left to the entry widget a label using the
     provided string as label text:
 
-    tepam::argument\_dialogbox \\
-       \-entry \{__\-label Name__ \-variable Name\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{__\-label Name__ \-variable Name\}
 
   - \-variable *string*
 
@@ -591,8 +591,8 @@ All the entry widget items are accepting the following attributes:
     information with the OK button, the entry widget data is stored inside the
     defined variables\.
 
-    tepam::argument\_dialogbox \\
-       \-existingdirectory \{\-label "Report directory" __\-variable ReportDir__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-existingdirectory \{\-label "Report directory" __\-variable ReportDir__\}
 
   - \-default *string*
 
@@ -601,9 +601,9 @@ All the entry widget items are accepting the following attributes:
     dialog box with a defined context is called another time\. The value
     acknowledged in a previous call will be used in this case as default value\.
 
-    tepam::argument\_dialogbox \\
-       \-checkbox \{\-label "Font sytle" \-variable FontStyle \\
-                   \-choices \{bold italic underline\} __\-default italic__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-checkbox \{\-label "Font sytle" \-variable FontStyle \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} __\-default italic__\}
 
   - \-optional __0__&#124;__1__
 
@@ -615,10 +615,10 @@ All the entry widget items are accepting the following attributes:
     contains an empty character string, the entry will be considered as
     undefined and the assigned variable will not be defined\.
 
-    tepam::argument\_dialogbox \\
-       \-entry \{\-label "City" \-variable start\_city \-type string\} \\
-       \-entry \{\-label "Street" \-variable start\_street \-type string __\-optional 0__\} \\
-       \-entry \{\-label "Street number" \-variable start\_street\_nbr \-type integer __\-optional 1__\} \\
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label "City" \-variable start\_city \-type string\} \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label "Street" \-variable start\_street \-type string __\-optional 0__\} \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label "Street number" \-variable start\_street\_nbr \-type integer __\-optional 1__\} \\
 
   - \-type *string*
 
@@ -637,8 +637,8 @@ All the entry widget items are accepting the following attributes:
     and font widgets are specifying automatically the default data type if no
     type has been specified explicitly with the *\-type* attribute\.
 
-    tepam::argument\_dialogbox \\
-       __\-entry__ \{\-label "Street number" \-variable start\_street\_nbr __\-type integer__\} \\
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;__\-entry__ \{\-label "Street number" \-variable start\_street\_nbr __\-type integer__\} \\
 
   - \-range *string*
 
@@ -649,8 +649,8 @@ All the entry widget items are accepting the following attributes:
     The *\-range* attribute has to be used only for numerical arguments, like
     integers and doubles\.
 
-    tepam::argument\_dialogbox \\
-       \-entry \{\-label Month \-variable Month \-type integer __\-range \{1 12\}__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label Month \-variable Month \-type integer __\-range \{1 12\}__\}
 
   - \-validatecommand *string*
 
@@ -659,9 +659,9 @@ All the entry widget items are accepting the following attributes:
     provided validation command can be a complete script in which the pattern
     *%P* is placeholder for the argument value that has to be validated\.
 
-    tepam::argument\_dialogbox \\
-       \-entry \{\-label "Your comment" \-variable YourCom \\
-               __\-validatecommand__ "IllegalWordDetector %P"\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-entry \{\-label "Your comment" \-variable YourCom \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-validatecommand__ "IllegalWordDetector %P"\}
 
     While the purpose of this custom argument validation attribute is the
     validation of a specific argument, there is also a global data validation
@@ -682,19 +682,19 @@ the radio and check buttons\.
     way to define choice lists is especially adapted for smaller, fixed
     selection lists\.
 
-    tepam::argument\_dialogbox \\
-       \-listbox \{\-label "Text styles" \-variable Styles \\
-                 __\-choices \{bold italic underline\}__ \-default underline
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-listbox \{\-label "Text styles" \-variable Styles \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-choices \{bold italic underline\}__ \-default underline
 
   - \-choicelabels *string* *\(only check and radio buttons\)*
 
     If the labels of the check and radio boxes should differ from the option
     values, they can be defined with the *\-choicelabels* attribute:
 
-    tepam::argument\_dialogbox \\
-       \-checkbox \{\-label "Font sytle" \-variable FontStyle \\
-                  \-choices \{bold italic underline\} \\
-                  __\-choicelabels \{Bold Italic Underline\}__
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-checkbox \{\-label "Font sytle" \-variable FontStyle \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-choicelabels \{Bold Italic Underline\}__
 
   - \-choicevariable *string*
 
@@ -702,9 +702,9 @@ the radio and check buttons\.
     attribute\. This way to define choice lists is especially adapted for huge
     and eventually variable selection lists\.
 
-    set TextSizes \{8 9 10 12 15 18\}
-    tepam::argument\_dialogbox \\
-       \-combobox \{\-label "Text size" \-variable Size __\-choicevariable TextSizes__\}
+> set TextSizes \{8 9 10 12 15 18\}  
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-combobox \{\-label "Text size" \-variable Size __\-choicevariable TextSizes__\}
 
   - \-multiple\_selection __0__&#124;__1__
 
@@ -712,10 +712,10 @@ the radio and check buttons\.
     list element\. By setting the *\-multiple\_selection* attribute to __1__,
     multiple elements can be selected\.
 
-    tepam::argument\_dialogbox \\
-       \-listbox \{\-label "Text styles" \-variable Styles \\
-                 \-choices \{bold italic underline\} \-default underline \\
-                 __\-multiple\_selection 1__ \-height 3\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-listbox \{\-label "Text styles" \-variable Styles \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{bold italic underline\} \-default underline \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-multiple\_selection 1__ \-height 3\}
 
 Some additional attributes are supported by the file and directory selection
 widgets\.
@@ -726,9 +726,9 @@ widgets\.
     __\-existingfile__ items to define the file endings that are searched by
     the file browser\.
 
-    tepam::argument\_dialogbox \\
-       \-file \{\-label "Image file" \-variable ImageF \\
-              __\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\}__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-file \{\-label "Image file" \-variable ImageF \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\}\}__\}
 
   - \-initialfile *string*
 
@@ -737,8 +737,8 @@ widgets\.
     *\-default* attribute, unless a file is specified with the *\-initialfile*
     attribute\.
 
-    tepam::argument\_dialogbox \\
-       \-file \{\-variable ImageF __\-initialfile "picture\.gif"__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-file \{\-variable ImageF __\-initialfile "picture\.gif"__\}
 
   - \-activedir *string*
 
@@ -749,8 +749,8 @@ widgets\.
     directory of the default file/directory, specified with the *\-default*
     attribute\.
 
-    tepam::argument\_dialogbox \\
-       \-file "\-variable ImageF __\-activedir $pwd__"
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-file "\-variable ImageF __\-activedir $pwd__"
 
 Finally, there is a last attribute supported by some widgets:
 
@@ -761,9 +761,9 @@ Finally, there is a last attribute supported by some widgets:
     __\-text__ widget are accepting the *\-height* attribute that defines
     the number of displayed rows of the selection lists\.
 
-    tepam::argument\_dialogbox \\
-       \-listbox \{\-label "Text size" \-variable Size \\
-                 \-choices \{8 9 10 12 15 18\} \-default 12 __\-height 3__\}
+> tepam::argument\_dialogbox \\  
+> &nbsp;&nbsp;&nbsp;\-listbox \{\-label "Text size" \-variable Size \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-choices \{8 9 10 12 15 18\} \-default 12 __\-height 3__\}
 
     If the no height has been explicitly specified the height of the widget will
     be dynamically adapted to the argument dialog box size\.
@@ -775,16 +775,16 @@ dialog box by adding a dedicated procedure to the __tepam__ namespace\. This
 procedure has three arguments; the first one is the widget path, the second one
 a subcommand and the third argument has various purposes:
 
-    *proc* tepam::ad\_form\(<WidgetName>\) \{W Command \{Par ""\}\} \{
-       *upvar Option Option; \# if required*
-       *variable argument\_dialogbox; \# if required*
-       switch $Command \{
-          "create" <CreateCommandSequence>
-          "set\_choice" <SetChoiceCommandSequence>
-          "set" <SetCommandv>
-          "get" <GetCommandSequence>
-       \}
-    \}
+> *proc* tepam::ad\_form\(<WidgetName>\) \{W Command \{Par ""\}\} \{  
+> &nbsp;&nbsp;&nbsp;*upvar Option Option; \# if required*  
+> &nbsp;&nbsp;&nbsp;*variable argument\_dialogbox; \# if required*  
+> &nbsp;&nbsp;&nbsp;switch $Command \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"create" <CreateCommandSequence>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"set\_choice" <SetChoiceCommandSequence>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"set" <SetCommandv>  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"get" <GetCommandSequence>  
+> &nbsp;&nbsp;&nbsp;\}  
+> \}
 
 __Argument\_dialogbox__ takes care about the *\-label* and *\-text*
 attributes for all entry widgets\. For any data entry widget it creates a frame
@@ -840,14 +840,14 @@ Examples of entry widget procedures are directly provided by the TEPAM package
 source file that specifies the standard entry widget procedures\. The simplest
 procedure is the one for the basic *entry* widget:
 
-    proc tepam::ad\_form\(entry\) \{W Command \{Par ""\}\} \{
-       switch $Command \{
-          "create" \{pack \[entry \\$W\.entry\] \-fill x \\
-                            \-expand yes \-pady 4 \-side left\}
-          "set" \{\\$W\.entry insert 0 $Par\}
-          "get" \{return \[\\$W\.entry get\]\}
-       \}
-    \}
+    proc tepam::ad_form(entry) {W Command {Par ""}} {
+       switch $Command {
+          "create" {pack [entry \$W.entry] -fill x \
+                            -expand yes -pady 4 -side left}
+          "set" {\$W.entry insert 0 $Par}
+          "get" {return [\$W.entry get]}
+       }
+    }
 
 It is also possible to relay on an existing entry widget procedure to derive a
 new, more specific one\. The *radiobox* widget is used for example, to create a
@@ -856,13 +856,13 @@ The original *radiobox* widget is called with the *set\_choice* command
 immediately after the *create* command, to define the fixed list of selection
 options\.
 
-    proc tepam::ad\_form\(rcl\) \{W Command \{Par ""\}\} \{
-       set Res \[ad\_form\(radiobox\) $W $Command $Par\]
-       if \{$Command=="create"\} \{
-          ad\_form\(radiobox\) $W set\_choice \{left center right\}
-       \}
+    proc tepam::ad_form(rcl) {W Command {Par ""}} {
+       set Res [ad_form(radiobox) $W $Command $Par]
+       if {$Command=="create"} {
+          ad_form(radiobox) $W set_choice {left center right}
+       }
        return $Res
-    \}
+    }
 
 Please consult the TEPAM package source file to find additional and more complex
 examples of entry widget procedures\.

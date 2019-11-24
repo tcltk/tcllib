@@ -42,5 +42,5 @@ channel provides random read-only access to the [arg content] string.
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]
