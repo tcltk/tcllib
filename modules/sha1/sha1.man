@@ -1,4 +1,5 @@
-[manpage_begin sha1 n 2.0.3]
+[vset VERSION 2.0.4]
+[manpage_begin sha1 n [vset VERSION]]
 [see_also md4]
 [see_also md5]
 [see_also ripemd128]
@@ -14,7 +15,7 @@
 [titledesc {SHA1 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require sha1 [opt 2.0.3]]
+[require sha1 [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -178,5 +179,5 @@ ae6251fa51b95b18cba2be95eb031d07475ff03c
 [list_end]
 
 [vset CATEGORY sha1]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

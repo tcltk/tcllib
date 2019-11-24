@@ -1,8 +1,8 @@
 
 [//000000001]: # (struct::matrix \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'matrix\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2002\-2013 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (struct::matrix\(n\) 2\.0\.3 tcllib "Tcl Data Structures")
+[//000000003]: # (Copyright &copy; 2002\-2013,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (struct::matrix\(n\) 2\.0\.4 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ struct::matrix \- Create and manipulate matrix objects
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require struct::matrix ?2\.0\.3?  
+package require struct::matrix ?2\.0\.4?  
 
 [__::struct::matrix__ ?*matrixName*? ?__=__&#124;__:=__&#124;__as__&#124;__deserialize__ *source*?](#1)  
 [__matrixName__ *option* ?*arg arg \.\.\.*?](#2)  
@@ -151,7 +151,7 @@ The following commands are possible for matrix objects:
 
     This operation is in effect equivalent to
 
-        *matrixName* __deserialize__ \[*sourcematrix* __serialize__\]
+    > *matrixName* __deserialize__ \[*sourcematrix* __serialize__\]
 
   - <a name='4'></a>*matrixName* __\-\->__ *destmatrix*
 
@@ -162,7 +162,7 @@ The following commands are possible for matrix objects:
 
     This operation is in effect equivalent to
 
-        *destmatrix* __deserialize__ \[*matrixName* __serialize__\]
+    > *destmatrix* __deserialize__ \[*matrixName* __serialize__\]
 
   - <a name='5'></a>*matrixName* __add column__ ?*values*?
 
@@ -394,15 +394,15 @@ The following commands are possible for matrix objects:
     the receiver the creation of a matrix with the proper size despite the
     missing values\.
 
-        \# A possible serialization for the matrix structure
-        \#
-        \# &#124; a b d g &#124;
-        \# &#124; c e     &#124;
-        \# &#124; f       &#124;
-        \#
-        \# is
-        \#
-        \# 3 4 \{\{a b d g\} \{c e\} \{f\}\}
+        # A possible serialization for the matrix structure
+        #
+        # | a b d g |
+        # | c e     |
+        # | f       |
+        #
+        # is
+        #
+        # 3 4 {{a b d g} {c e} {f}}
 
   - <a name='36'></a>*matrixName* __set cell__ *column row value*
 
@@ -479,11 +479,11 @@ values 1 to 5, with 1 in the top\-left cell\. Each other row contains the conten
 of the row above it, rotated by one cell to the right\.
 
     % M get rect 0 0 4 4
-    \{\{1 2 3 4 5\} \{5 1 2 3 4\} \{4 5 1 2 3\} \{3 4 5 1 2\} \{2 3 4 5 1\}\}
+    {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 
-    % M set rect 1 1 \{\{0 0 0\} \{0 0 0\} \{0 0 0\}\}
+    % M set rect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
     % M get rect 0 0 4 4
-    \{\{1 2 3 4 5\} \{5 0 0 0 4\} \{4 0 0 0 3\} \{3 0 0 0 2\} \{2 3 4 5 1\}\}
+    {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 
 Assuming that the style definitions in the example section of the manpage for
 the package __[report](\.\./report/report\.md)__ are loaded into the
@@ -491,21 +491,21 @@ interpreter now an example which formats a matrix into a tabular report\. The
 code filling the matrix with data is not shown\. contains useful data\.
 
     % ::struct::matrix m
-    % \# \.\.\. fill m with data, assume 5 columns
+    % # ... fill m with data, assume 5 columns
     % ::report::report r 5 style captionedtable 1
     % m format 2string r
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
-    &#124;000&#124;VERSIONS:          &#124;2:8\.4a3&#124;1:8\.4a3&#124;1:8\.4a3%&#124;
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
-    &#124;001&#124;CATCH return ok    &#124;7      &#124;13     &#124;53\.85   &#124;
-    &#124;002&#124;CATCH return error &#124;68     &#124;91     &#124;74\.73   &#124;
-    &#124;003&#124;CATCH no catch used&#124;7      &#124;14     &#124;50\.00   &#124;
-    &#124;004&#124;IF if true numeric &#124;12     &#124;33     &#124;36\.36   &#124;
-    &#124;005&#124;IF elseif          &#124;15     &#124;47     &#124;31\.91   &#124;
-    &#124;   &#124;true numeric       &#124;       &#124;       &#124;        &#124;
-    \+\-\-\-\+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\+\-\-\-\-\-\-\-\-\+
+    +---+-------------------+-------+-------+--------+
+    |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
+    +---+-------------------+-------+-------+--------+
+    |001|CATCH return ok    |7      |13     |53.85   |
+    |002|CATCH return error |68     |91     |74.73   |
+    |003|CATCH no catch used|7      |14     |50.00   |
+    |004|IF if true numeric |12     |33     |36.36   |
+    |005|IF elseif          |15     |47     |31.91   |
+    |   |true numeric       |       |       |        |
+    +---+-------------------+-------+-------+--------+
     %
-    % \# alternate way of doing the above
+    % # alternate way of doing the above
     % r printmatrix m
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
@@ -533,4 +533,4 @@ Data structures
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2002\-2013 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2002\-2013,2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

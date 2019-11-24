@@ -154,5 +154,5 @@ always be ele (elevation) and time metadata keys.
 Keith Vetter
 
 [vset CATEGORY gpx]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

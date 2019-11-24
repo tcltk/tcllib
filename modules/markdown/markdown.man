@@ -1,4 +1,4 @@
-[vset VERSION 1.1]
+[vset VERSION 1.1.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin markdown n [vset VERSION]]
 [moddesc   {Markdown to HTML Converter}]
@@ -49,5 +49,5 @@ Reset the language counters.
 [list_end]
 
 [vset CATEGORY textutil]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

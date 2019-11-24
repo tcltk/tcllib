@@ -7,6 +7,18 @@
 # making its formatting nearer to that with the ability to set anchors
 # and refer to them, linkage in general.
 
+# Notes, Attention
+# - A number of characters are special to markdown. Such characters in
+#   user input are \-quoted to make them non-special to the markdown
+#   processor handling our generated document.
+#
+# - Exceptions are the special characters in verbatim code-blocks
+#   (indent 4), and in `...` sequences (verbatim inline). In such
+#   blocks they are not special and must not be quoted.
+#
+#   The generator currently only used verbatim blocks, for doctools
+#   examples. It does not use verbatim inlines.
+
 # # ## ### ##### ######## #############
 ## Load shared code and modify it to our needs.
 
@@ -25,13 +37,33 @@ proc In? {} {
     }
     CAttrGet mdindent
 }
+
 proc In! {ws} {
     CAttrSet mdindent $ws
 }
 
-proc NewExample {} {
-    return [ContextNew Example {
-	VerbatimOn ; Example! ; Prefix+ "    "
+proc Example {complex} {
+    if {![CAttrHas exenv$complex]} {
+	ContextPush
+	set exenv [NewExample $complex]
+	ContextPop
+	CAttrSet exenv$complex $exenv
+	ContextCommit
+    }
+    return [CAttrGet exenv$complex]
+}
+
+proc NewExample {complex} {
+    return [ContextNew Example$complex {
+	VerbatimOn
+	Example!
+	if {$complex} {
+	    # Block quote
+	    Prefix+ "> "
+	} else {
+	    # Code block
+	    Prefix+ "    "
+	}
     }] ; # {}
 }
 
@@ -266,7 +298,15 @@ c_pass 2 fmt_manpage_begin {title section version} {
 
     MDComment  "$title - $shortdesc"
     MDComment  [c_provenance]
-    if {$copyright != {}} { MDComment $copyright }
+    if {$copyright != {}} {
+	# Note, multiple copyright clauses => multiple lines, comments
+	# are single-line => split for generation, strip MD markup for
+	# linebreaks, will be re-added when committing the complete
+	# comment block.
+	foreach line [split $copyright \n] {
+	    MDComment [string trimright $line " \t\1"]
+	}
+    }
     MDComment  "[string trimleft $title :]($section) $version $module \"$shortdesc\""
     MDCDone
 
@@ -334,8 +374,79 @@ c_pass 2 fmt_manpage_end {} {
     CloseParagraph
     if {[llength $sa]} { Special {SEE ALSO} seealso   [join [XrefList [lsort $sa] sa] ", "] }
     if {[llength $kw]} { Special KEYWORDS   keywords  [join [XrefList [lsort $kw] kw] ", "] }
-    if {$ca ne ""}     { Special CATEGORY   category  $ca                     }
-    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim]          }
+    if {$ca ne ""}     { Special CATEGORY   category  $ca            }
+    if {$ct != {}}     { Special COPYRIGHT  copyright $ct [Verbatim] }
+    return
+}
+
+proc Breaks {lines} {
+    set r {}
+    foreach line $lines { lappend r $line[LB] }
+    return $r
+}
+
+proc LeadSpaces {lines} {
+    set r {}
+    foreach line $lines { lappend r [LeadSpace $line] }
+    return $r
+}
+
+proc LeadSpace {line} {
+    # Split into leading and trailing whitespace, plus content
+    regexp {^([ \t]*)(.*)([ \t]*)$} $line -> lead content _
+    # Drop trailing spaces, make leading non-breaking, keep content (and inner spaces).
+    return [RepeatM "&nbsp;" $lead]$content
+}
+
+c_pass 2 fmt_example_end {} {
+    #puts_stderr "AAA/fmt_example_end"
+    # Flush markup from preceding commands into the text buffer.
+    TextPlain ""
+
+    TextTrimLeadingSpace
+
+    # Check for protected markdown markup in the input. If present
+    # this is a complex example with highlighted parts.
+    set complex [string match *\1* [Text?]]
+
+    #puts_stderr "AAA/fmt_example_end/$complex"
+    
+    # In examples (verbatim markup) markdown's special characters are
+    # no such by default, thus must not be quoted. Mark them as
+    # protected from quoting. Further look for and convert
+    # continuation lines protected from Tcl substitution into a
+    # regular continuation line.
+    set t [Text?]
+    set t [string map [list \\\\\n \\\n] $t]
+    if {$complex} {
+	# Process for block quote
+	# - make leading spaces non-breaking
+	# - force linebreaks
+	set t [join [Breaks [LeadSpaces [split $t \n]]] {}]
+    } else {
+	# Process for code block (verbatim)
+	set t [Mark $t]
+    }
+    TextClear
+    Text $t
+    TextTrimTrailingSpace
+    
+    set penv [GetCurrent]
+    if {$penv != {}} {
+	# In a list we save the current list context, activate the
+	# proper paragraph context and create its example
+	# variant. After closing the paragraph using the example we
+	# restore and reactivate the list context.
+	ContextPush
+	ContextSet $penv
+	CloseParagraph [Example $complex]
+	ContextPop
+    } else {
+	# In a regular paragraph we simple close the example
+	CloseParagraph [Example $complex]
+    }
+
+    #puts_stderr "AAA/fmt_example_end/Done"
     return
 }
 

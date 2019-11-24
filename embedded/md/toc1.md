@@ -69,6 +69,10 @@
 
           + [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
 
+      * [clay]()
+
+          + [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
+
       * [clock]()
 
           + [clock\_iso8601](tcllib/files/modules/clock/iso8601\.md) Parsing ISO 8601 dates/times
@@ -303,6 +307,8 @@
 
           + [fileutil::multi::op](tcllib/files/modules/fileutil/multiop\.md) Multi\-file operation, scatter/gather
 
+          + [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
           + [fileutil\_traverse](tcllib/files/modules/fileutil/traverse\.md) Iterative directory traversal
 
       * [ftp]()
@@ -389,7 +395,7 @@
 
       * [httpd]()
 
-          + [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
+          + [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
       * [ident]()
 
@@ -514,6 +520,8 @@
           + [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
           + [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+          + [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
           + [math::rationalfunctions](tcllib/files/modules/math/rational\_funcs\.md) Polynomial functions
 
@@ -835,6 +843,8 @@
 
           + [struct::list](tcllib/files/modules/struct/struct\_list\.md) Procedures for manipulating lists
 
+          + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
+
           + [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
           + [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
@@ -904,6 +914,8 @@
           + [textutil::adjust](tcllib/files/modules/textutil/adjust\.md) Procedures to adjust, indent, and undent paragraphs
 
           + [textutil::expander](tcllib/files/modules/textutil/expander\.md) Procedures to process templates and expand text\.
+
+          + [textutil::patch](tcllib/files/modules/textutil/patch\.md) Application of uni\-diff patches to directory trees
 
           + [textutil::repeat](tcllib/files/modules/textutil/repeat\.md) Procedures to repeat strings\.
 

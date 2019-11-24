@@ -262,5 +262,5 @@ form elements. Its only argument is the name of the tree to cut down.
 [list_end]
 
 [vset CATEGORY htmlparse]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

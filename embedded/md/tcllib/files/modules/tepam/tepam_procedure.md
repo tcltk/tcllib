@@ -110,10 +110,10 @@ shortly explained to avoid any ambiguities and misunderstandings\.
     for example subcommands to check a character string length, to compare
     strings, to extract substrings, etc:
 
-        __string length__ *string*
-        __string compare__ *string* *string*
-        __string range__ *string* *first* *last*
-        \.\.\.
+    > __string length__ *string*  
+    > __string compare__ *string* *string*  
+    > __string range__ *string* *first* *last*  
+    > \.\.\.
 
     TEPAM provides a framework that allows implementing easily such subcommands
     in form of Tcl procedures\. It allows not only defining a first level of
@@ -121,10 +121,10 @@ shortly explained to avoid any ambiguities and misunderstandings\.
     command class check could be implemented as independent sub\-sub\-commands of
     the __string__ command:
 
-        __string is alnum__ *string*
-        __string is integer__ *string*
-        __string is double__ *string*
-        \.\.\.
+    > __string is alnum__ *string*  
+    > __string is integer__ *string*  
+    > __string is double__ *string*  
+    > \.\.\.
 
   - *Procedure attribute*
 
@@ -140,10 +140,9 @@ shortly explained to avoid any ambiguities and misunderstandings\.
     The following example calls the subcommand __string compare__ with
     several arguments:
 
-        __string compare__
+    > __string compare__ *\-nocase \-length 3 "emphasized" "emphasised"*
 
-    *\-nocase \-length 3 "emphasized" "emphasised"* The following paragraphs
-    discuss these different argument types\.
+    The following paragraphs discuss these different argument types\.
 
   - *Named argument*
 
@@ -185,11 +184,11 @@ shortly explained to avoid any ambiguities and misunderstandings\.
     *named arguments* \(options, flags\) are provided first\. The two mandatory
     \(unnamed\) arguments have to be provided as last argument\.
 
-        __string compare__
+    > __string compare__ *\-nocase \-length 3 Water $Text*
 
-    *\-nocase \-length 3 Water $Text* This is the usual Tcl style \(exceptions
-    exist\) which is referred in the TEPAM documentation as *named arguments
-    first, unnamed arguments later style*\.
+    This is the usual Tcl style \(exceptions exist\) which is referred in the
+    TEPAM documentation as *named arguments first, unnamed arguments later
+    style*\.
 
   - *Unnamed arguments first, named arguments later*
 
@@ -197,11 +196,10 @@ shortly explained to avoid any ambiguities and misunderstandings\.
     here\) a different calling style where the *unnamed arguments* have to be
     provided first, before the *named arguments* have to be provided:
 
-        __pack__
+    > __pack__ *\.ent1 \.ent2 \-fill x \-expand yes \-side left*
 
-    *\.ent1 \.ent2 \-fill x \-expand yes \-side left* This style is referred in the
-    TEPAM documentation as *unnamed arguments first, named arguments later
-    style*\.
+    This style is referred in the TEPAM documentation as *unnamed arguments
+    first, named arguments later style*\.
 
 # <a name='section3'></a>PROCEDURE DECLARATION
 
@@ -213,27 +211,27 @@ __proc__ also 3 arguments:
 
 The TEPAM procedure declaration syntax is demonstrated by the following example:
 
-    __tepam::procedure__ \{display message\} \{
-       \-short\_description
-          "Displays a simple message box"
-       \-description
-          "This procedure allows displaying a configurable\\
-           message box\. The default message type that is\\
-           created is a warning, but also errors and info can\\
-           be generated\.
-           The procedure accepts multiple text lines\."
-       \-example
-          \{display message \-mtype Warning "Save first your job"\}
-       \-args \{
-          \{\-mtype \-choices \{Info Warning Error\} \\
-                  \-default Warning \-description "Message type"\}
-          \{text   \-type string \-multiple \\
-                  \-description "Multiple text lines to display"\}
-       \}
-    \} \{
-       puts "Message type: $mtype"
-       puts "Message: $text"
-    \}
+> __tepam::procedure__ \{display message\} \{  
+> &nbsp;&nbsp;&nbsp;\-short\_description  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Displays a simple message box"  
+> &nbsp;&nbsp;&nbsp;\-description  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"This procedure allows displaying a configurable\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message box\. The default message type that is\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;created is a warning, but also errors and info can\\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;be generated\.  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The procedure accepts multiple text lines\."  
+> &nbsp;&nbsp;&nbsp;\-example  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{display message \-mtype Warning "Save first your job"\}  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-choices \{Info Warning Error\} \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-default Warning \-description "Message type"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text   \-type string \-multiple \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "Message type: $mtype"  
+> &nbsp;&nbsp;&nbsp;puts "Message: $text"  
+> \}
 
 The 3 arguments of __procedure__ are:
 
@@ -248,17 +246,17 @@ The 3 arguments of __procedure__ are:
     Here are some valid procedure declarations using different procedure names
     \(the attribute and body arguments are empty for simplicity\):
 
-    *\# Simple procedure name:*
-    tepam::procedure __display\_message__ \{\} \{\}
-    **
-    *\# Procedure declared in the main namespace:*
-    tepam::procedure __::display\_message__ \{\} \{\}
-    **
-    *\# Procedure in the namespace* __::ns__*:*
-    tepam::procedure __::ns::display\_message__ \{\} \{\}
-    **
-    *\# Declaration of the subcommand* __message__ *of the procedure* __display__*:*
-    tepam::procedure __\{display message\}__ \{\} \{\}
+> *\# Simple procedure name:*  
+> tepam::procedure __display\_message__ \{\} \{\}  
+> **  
+> *\# Procedure declared in the main namespace:*  
+> tepam::procedure __::display\_message__ \{\} \{\}  
+> **  
+> *\# Procedure in the namespace* __::ns__*:*  
+> tepam::procedure __::ns::display\_message__ \{\} \{\}  
+> **  
+> *\# Declaration of the subcommand* __message__ *of the procedure* __display__*:*  
+> tepam::procedure __\{display message\}__ \{\} \{\}
 
   - *attributes*
 
@@ -288,26 +286,26 @@ The 3 arguments of __procedure__ are:
     The procedure body will only be executed if the provided set of arguments
     could be validated by the TEPAM argument manager\.
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{\-__mtype__ \-default Warning \-choices \{Warning Error\}\}
-          \{__text__ \-type string\}
-       \}
-    \} \{
-       puts "Message type: __$mtype__"
-       puts "Message: __$text__"
-    \}
+> tepam::procedure \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-__mtype__ \-default Warning \-choices \{Warning Error\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__text__ \-type string\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "Message type: __$mtype__"  
+> &nbsp;&nbsp;&nbsp;puts "Message: __$text__"  
+> \}
 
 The commands __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ as well as
 __argument\_dialogbox__ are exported from the namespace __tepam__\. To use
 these commands without the __tepam::__ namespace prefix, it is sufficient to
 import them into the main namespace:
 
-    __namespace import tepam::\*__
-
-    __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ \{display\_message\} \{
-       \-args \{
-          \.\.\.
+> __namespace import tepam::\*__  
+>   
+> __[procedure](\.\./\.\./\.\./\.\./index\.md\#procedure)__ \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\.\.\.
 
 ## <a name='subsection1'></a>Procedure Attributes
 
@@ -367,12 +365,12 @@ error messages in case these checks are failing:
 
     Validation command declaration example:
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{text \-type string \-description "Message text"\} \}
-       __\-validatecommand \{IllegalWordDetector $text\}__
-    \} \{
-    \}
+> tepam::procedure \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-description "Message text"\} \}  
+> &nbsp;&nbsp;&nbsp;__\-validatecommand \{IllegalWordDetector $text\}__  
+> \} \{  
+> \}
 
     The validation command is executed in the context of the declared procedure
     body\. The different argument values are accessed via the argument names\.
@@ -437,29 +435,31 @@ documentation and help text generation:
 The following example shows the structure that is used for the argument
 definitions in the context of a procedure declaration:
 
-    tepam::procedure \{display\_message\} \{
-       \-args __\{
-          \{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}
-          \{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}
-          \{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}
-          \{\-fg \-type color \-optional \-description "Message color"\}
-          \{\-log\_file \-type file \-optional \-description "Optional message log file"\}
-          \{text \-type string \-multiple \-description "Multiple text lines to display"\}
-       \}__
-    \} \{
-    \}
+> tepam::procedure \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args __\{__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-mtype \-default Warning \-choices \{Info Warning Error\} \-description "Message type"\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-font \-type font \-default \{Arial 10 italic\} \-description "Message text font"\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-level \-type integer \-optional \-range \{1 10\} \-description "Message level"\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-fg \-type color \-optional \-description "Message color"\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-log\_file \-type file \-optional \-description "Optional message log file"\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{text \-type string \-multiple \-description "Multiple text lines to display"\}__  
+> &nbsp;&nbsp;&nbsp;__\}__  
+>   
+> \} \{  
+> \}
 
 Each of the procedure arguments is declared with a list that has as first
 element the argument name, followed by eventual attributes\. The argument
 definition syntax can be formalized in the following way:
 
-    tepam::procedure <name> \{
-       \-args __\{
-          \{<argument\_name\_1> <arg\_attr\_name\_1a> <arg\_attr\_value\_1a>  <arg\_attr\_name\_1b> <arg\_attr\_value\_1b> \.\.\.\}
-          \{<argument\_name\_2> <arg\_attr\_name\_2a> <arg\_attr\_value\_2a>  <arg\_attr\_name\_2b> <arg\_attr\_value\_2b> \.\.\.\}
-          \.\.\.
-       \}__
-    \} <body>
+> tepam::procedure <name> \{  
+> &nbsp;&nbsp;&nbsp;\-args __\{__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{<argument\_name\_1> <arg\_attr\_name\_1a> <arg\_attr\_value\_1a>  <arg\_attr\_name\_1b> <arg\_attr\_value\_1b> \.\.\.\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{<argument\_name\_2> <arg\_attr\_name\_2a> <arg\_attr\_value\_2a>  <arg\_attr\_name\_2b> <arg\_attr\_value\_2b> \.\.\.\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\.\.\.__  
+> &nbsp;&nbsp;&nbsp;__\}__  
+>   
+> \} <body>
 
 The argument names and attributes have to be used in the following way:
 
@@ -477,17 +477,16 @@ The argument names and attributes have to be used in the following way:
         during a procedure call will be assigned to a variable with the name
         *<Name>*\.
 
-    tepam::procedure \{print\_string\} \{
-       \-args \{
-          \{__[text](\.\./\.\./\.\./\.\./index\.md\#text)__ \-type string \-description "This is an unnamed argument"\}
-       \}
-    \} \{
-       puts __$text__
-    \}
-
-    print\_string __"Hello"__
-
-        * \-> Hello*
+> tepam::procedure \{print\_string\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__[text](\.\./\.\./\.\./\.\./index\.md\#text)__ \-type string \-description "This is an unnamed argument"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts __$text__  
+> \}  
+>   
+> print\_string __"Hello"__  
+> &nbsp;*\-> Hello*
 
       * *"\-<Name>"*
 
@@ -495,17 +494,16 @@ The argument names and attributes have to be used in the following way:
         called *option*\)\. The parameter provided during a procedure call will
         be assigned to a variable with the name *<Name>* \(not *\-<Name>*\)\.
 
-    tepam::procedure \{print\_string\} \{
-       \-args \{
-          \{__\-text__ \-type string \-description "This is a named argument"\}
-       \}
-    \} \{
-       puts __$text__
-    \}
-
-    print\_string __\-text "Hello"__
-
-        * \-> Hello*
+> tepam::procedure \{print\_string\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{__\-text__ \-type string \-description "This is a named argument"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts __$text__  
+> \}  
+>   
+> print\_string __\-text "Hello"__  
+> &nbsp;*\-> Hello*
 
       * *"\-\-"*
 
@@ -523,19 +521,19 @@ The argument names and attributes have to be used in the following way:
         A blank argument name \(either '\-' or *''*\) starts a comment for the
         following arguments\.
 
-    tepam::procedure \{print\_time\} \{
-       \-interactive\_display\_format short
-       \-args \{
-          \{hours \-type integer \-description "Hour"\}
-          \{minutes \-type integer \-description "Minute"\}
-
-          __\{\- The following arguments are optional:\}__
-          \{seconds \-type integer \-default 0 \-description "Seconds"\}
-          \{milliseconds \-type integer \-default 0 \-description "Milliseconds"\}
-       \}
-    \} \{
-       puts "$\{hour\}h$\{minutes\}:\[expr $seconds\+0\.001\*$milliseconds\]"
-    \}
+> tepam::procedure \{print\_time\} \{  
+> &nbsp;&nbsp;&nbsp;\-interactive\_display\_format short  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{hours \-type integer \-description "Hour"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{minutes \-type integer \-description "Minute"\}  
+>   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\- The following arguments are optional:\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{seconds \-type integer \-default 0 \-description "Seconds"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{milliseconds \-type integer \-default 0 \-description "Milliseconds"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "$\{hour\}h$\{minutes\}:\[expr $seconds\+0\.001\*$milliseconds\]"  
+> \}
 
         Argument comments are basically used in the graphical argument
         definition forms that are created if a procedure is called
@@ -551,20 +549,20 @@ The argument names and attributes have to be used in the following way:
         definition code\. Section comments are also used to structure the
         generated help texts and the interactive argument definition forms\.
 
-    tepam::procedure \{complex\_multiply\} \{
-       \-description "This function perform a complex multiplication"
-       \-args \{
-          __\{\#\#\#\# First complex number \#\#\#\#\}__
-          \{\-r0 \-type double \-description "First number real part"\}
-          \{\-i0 \-type double \-description "First number imaginary part"\}
-
-          __\{\#\#\#\# Second complex number \#\#\#\#\}__
-          \{\-r1 \-type double \-description "Second number real part"\}
-          \{\-i1 \-type double \-description "Second number imaginary part"\}
-       \}
-    \} \{
-       return \[expr $r0\*$r1 \- $i0\*$i1\]
-    \}
+> tepam::procedure \{complex\_multiply\} \{  
+> &nbsp;&nbsp;&nbsp;\-description "This function perform a complex multiplication"  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\#\#\#\# First complex number \#\#\#\#\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-r0 \-type double \-description "First number real part"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-i0 \-type double \-description "First number imaginary part"\}  
+>   
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\#\#\#\# Second complex number \#\#\#\#\}__  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-r1 \-type double \-description "Second number real part"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-i1 \-type double \-description "Second number imaginary part"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;return \[expr $r0\*$r1 \- $i0\*$i1\]  
+> \}
 
   - Argument attributes \(*<arg\_attr\_name\_<mn>> <arg\_attr\_value\_<mn>>*\)
 
@@ -655,12 +653,12 @@ The argument names and attributes have to be used in the following way:
 
         Validation command declaration example:
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{text \-type string \-description "Message text" \\
-                __\-validatecommand \{IllegalWordDetector %P\}__\}
-    \} \{
-    \}
+> tepam::procedure \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-description "Message text" \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-validatecommand \{IllegalWordDetector %P\}__\}  
+> \} \{  
+> \}
 
         While the purpose of this custom argument validation attribute is the
         validation of a specific argument, there is also a global attribute
@@ -686,23 +684,23 @@ The argument names and attributes have to be used in the following way:
         via the *\-auxargs* attribute that is itself a list of attribute
         name/attribute value pairs:
 
-    \-auxargs \{\-<arg\_attr\_name\_1a> <arg\_attr\_value\_1a> \\
-              \-<arg\_attr\_name\_1b> <arg\_attr\_value\_1b>
-              \.\.\.
-    \}
+            -auxargs {-<arg_attr_name_1a> <arg_attr_value_1a> \
+                      -<arg_attr_name_1b> <arg_attr_value_1b>
+                      ...
+            }
 
         For example, if a procedure takes as argument a file name it may be
         beneficial to specify the required file type for the interactive
         argument definition form\. This information can be provided via the
         *\-auxargs* attribute to the argument definition form:
 
-    tepam::procedure LoadPicture \{
-       \-args \{
-          \{FileName \-type existingfile \-description "Picture file" \\
-                     __\-auxargs \{\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\} \}\}__\}
-       \}
-    \} \{
-    \}
+> tepam::procedure LoadPicture \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{FileName \-type existingfile \-description "Picture file" \\  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\-auxargs \{\-filetypes \{\{"GIF" \{\*\.gif\}\} \{"JPG" \{\*\.jpg\}\} \}\}__\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> \}
 
       * \-auxargs\_commands *script*
 
@@ -713,10 +711,10 @@ The argument names and attributes have to be used in the following way:
         *\-auxargs\_commands* attribute\. The provided commands are executed in
         the context of the calling procedure\.
 
-    \-auxargs\_commands \{\-<arg\_attr\_name\_1a> <arg\_attr\_command\_1a> \\
-                       \-<arg\_attr\_name\_1b> <arg\_attr\_command\_1b>
-                       \.\.\.
-    \}
+            -auxargs_commands {-<arg_attr_name_1a> <arg_attr_command_1a> \
+                               -<arg_attr_name_1b> <arg_attr_command_1b>
+                               ...
+            }
 
 # <a name='section4'></a>VARIABLES
 
@@ -733,7 +731,7 @@ __procedure__ command\.
     By setting this variable to __0__, the *named arguments first, unnamed
     arguments later* style is globally selected \(Tk style\):
 
-    set tepam::named\_arguments\_first 0
+        set tepam::named_arguments_first 0
 
     While this variable defines the general calling style, the procedure
     attribute *\-named\_arguments\_first* can adapt this style individually for
@@ -749,7 +747,7 @@ __procedure__ command\.
     By setting this variable to __0__ the automatic argument name matching
     mode is disabled:
 
-    set tepam::auto\_argument\_name\_completion 0
+        set tepam::auto_argument_name_completion 0
 
     While this variable defines the general matching mode, the procedure
     attribute *\-auto\_argument\_name\_completion* can adapt this mode
@@ -767,7 +765,7 @@ __procedure__ command\.
     sets\. The __short__ form is more adequate for huge procedure argument
     sets:
 
-    set tepam::interactive\_display\_format "short"
+        set tepam::interactive_display_format "short"
 
     The choice to use short or extended forms can be globally configured via the
     variable __interactive\_display\_format__\. This global setting can be
@@ -780,7 +778,7 @@ __procedure__ command\.
     specified with this variable\. The default length which is set to 80
     \(characters\) can easily be adapted to the need of an application:
 
-    set tepam::help\_line\_length 120
+        set tepam::help_line_length 120
 
     Since this variable is applied directly during the help text generation, its
     value can continuously be adapted to the current need\.
@@ -812,16 +810,16 @@ be completed with application specific types if necessary\.
 
 To remember, a type can be assigned to each specified procedure argument:
 
-    tepam::procedure \{warning\} \{
-       \-args \{
-          \{\-font __\-type font__ \-default \{Arial 10 italic\}\}
-          \{\-severity\_level __\-type integer__ \-optional \-range \{1 10\}\}
-          \{\-fg __\-type color__ \-optional \-description "Message color"\}
-          \{text __\-type string__ \-multiple \-description "Multiple text lines to display"\}
-       \}
-    \} \{
-       \.\.\.
-    \}
+> tepam::procedure \{warning\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-font __\-type font__ \-default \{Arial 10 italic\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-severity\_level __\-type integer__ \-optional \-range \{1 10\}\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-fg __\-type color__ \-optional \-description "Message color"\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text __\-type string__ \-multiple \-description "Multiple text lines to display"\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;\.\.\.  
+> \}
 
 There are some *special purpose types* that are building the first category of
 predefined argument types:
@@ -832,20 +830,19 @@ predefined argument types:
     the \(normal\) named arguments, no argument value has to be provided to a
     flag\.
 
-    tepam::procedure flag\_test \{
-       \-args \{
-          __\{\-flag \-type none \-description "This is a flag"\}__
-       \}
-    \} \{
-       puts __$flag__
-    \}
-
-    flag\_test
-    *\-> 0*
-
-    flag\_test \-flag
-
-    *\-> 1*
+> tepam::procedure flag\_test \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__\{\-flag \-type none \-description "This is a flag"\}__  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts __$flag__  
+> \}  
+>   
+> flag\_test  
+> *\-> 0*  
+>   
+> flag\_test \-flag  
+> *\-> 1*
 
     Since no argument value has to be provided to a flag, also no data check is
     performed for this argument type\.
@@ -873,9 +870,7 @@ the provided arguments, which assures that no empty strings are accepted as
 argument value\. The type validation expression for the numerical types and the
 argument types to which this expression is applied are:
 
-    string is __<type\_to\_check>__ \-strict
-
-*<argument\_value>*
+> string is __<type\_to\_check>__ \-strict *<argument\_value>*
 
   - *boolean*
 
@@ -887,9 +882,7 @@ Empty strings are accepted as argument value for all the alpha numeric argument
 types\. The argument types that are falling into this category and validation
 expression used for them are:
 
-    string is *<type\_to\_check>*
-
-*<argument\_value>*
+> string is *<type\_to\_check>* *<argument\_value>*
 
   - *alnum*
 
@@ -923,25 +916,21 @@ commands, TEPAM specifies some other useful data types:
   - *char* Each string that has a length of 1 character meets the
     *character* type\. The type check is made with the following expression:
 
-    expr \[string length *<argument\_value>*\]==1
+> expr \[string length *<argument\_value>*\]==1
 
   - *color* Any character strings that are accepted by Tk as a color are
     considered as valid color argument\. Please note that the Tk package has to
     be loaded to use the type *color*\. TEPAM is using the following command to
     validate the color type:
 
-    expr \!\[catch \{winfo rgb \. *<argument\_value>*\}
-
-    \]
+> expr \!\[catch \{winfo rgb \. *<argument\_value>*\}\]
 
   - *font* Any character strings that are accepted by Tk as a font are
     considered as valid font argument\. Please note that the Tk package has to be
     loaded to use the *font* type\. TEPAM is using the following command to
     validate the color type:
 
-    expr \!\[catch \{font measure <argument\_value> ""\}
-
-    \]
+        expr ![catch {font measure <argument_value> ""}]
 
   - *file* Any strings that are not containing one of the following characters
     are considered as valid file names: \* ? " < >\. It is not necessary that the
@@ -950,14 +939,12 @@ commands, TEPAM specifies some other useful data types:
 
     The following expression is used to validate the file names:
 
-    expr \[string length <argument\_value>\]>0 && \!\[regexp \{\[\\"\*?<>:\]\} <argument\_value>
-
-    \]
+        expr [string length <argument_value>]>0 && ![regexp {[\"*?<>:]} <argument_value>]
 
   - *existingfile* The argument is valid if it matches with an existing file\.
     The following check is performed to validate the arguments of this type:
 
-    file exists <argument\_value>
+        file exists <argument_value>
 
   - *directory* The directory argument is validated exactly in the same way as
     the file arguments\.
@@ -966,7 +953,7 @@ commands, TEPAM specifies some other useful data types:
     directory\. The following check is performed to validate the arguments of
     this type:
 
-    file isdirectory <argument\_value>
+        file isdirectory <argument_value>
 
 ## <a name='subsection4'></a>Defining Application Specific Argument Types
 
@@ -984,7 +971,7 @@ The following additional code snippet shows the validation function for a custom
 argument type that requires values that have a character string length of
 exactly 2:
 
-    proc tepam::Validate\(two\_char\) \{v\} \{expr \{\[string length $v\]==2\}\}
+    proc tepam::Validate(two_char) {v} {expr {[string length $v]==2}}
 
 # <a name='section6'></a>PROCEDURE CALLS
 
@@ -997,24 +984,35 @@ performing any additional actions\.
 Taking the first procedure declared in [PROCEDURE CALLS](#section6), the
 help request and the printed help text would be:
 
-    __display message \-help__
+> __display message \-help__  
+> *\->*  
+> *NAME*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*display message \- Displays a simple message box*  
+> *SYNOPSIS*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*display message*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*\[\-mtype <mtype>\]*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Message type, default: "Warning", choices: \{Info, Warning, Error\}*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<text>*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Multiple text lines to display, type: string*  
+> *DESCRIPTION*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*This procedure allows displaying a configurable message box\. The default*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*message type that is created is a warning, but also errors and info can*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*be generated\.*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*The procedure accepts multiple text lines\.*  
+> *EXAMPLE*  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*display message \-mtype Warning "Save first your job"*
 
-*\-> NAME display message \- Displays a simple message box SYNOPSIS display
-message \[\-mtype <mtype>\] Message type, default: "Warning", choices: \{Info,
-Warning, Error\} <text> Multiple text lines to display, type: string DESCRIPTION
-This procedure allows displaying a configurable message box\. The default message
-type that is created is a warning, but also errors and info can be generated\.
-The procedure accepts multiple text lines\. EXAMPLE display message \-mtype
-Warning "Save first your job"* The argument manager is checking if the last
-provided argument is *\-help* and generates the requested help message if this
-is the case\. So, also the following example will print the help message:
+The argument manager is checking if the last provided argument is *\-help* and
+generates the requested help message if this is the case\. So, also the following
+example will print the help message:
 
-__display message \-mtype Info "It is 7:00" \-help__ On the other hand, the
-following call will result in an error:
+> __display message \-mtype Info "It is 7:00" \-help__
 
-    __display message \-help \-mtype Info "It is 7:00"__
+On the other hand, the following call will result in an error:
 
-*\-> display message: Argument '\-help' not known*
+> __display message \-help \-mtype Info "It is 7:00"__  
+> *\->*  
+> *display message: Argument '\-help' not known*
 
 ## <a name='subsection6'></a>Interactive Procedure Call
 
@@ -1024,16 +1022,15 @@ arguments\. The following example assures that the Tk library is loaded and show
 the command line to call interactively the procedure declared in [PROCEDURE
 CALLS](#section6):
 
-    package require Tk
+> package require Tk  
+> __display message \-interactive__
 
-__display message \-interactive__ Also the *\-interactive* flag has to be
-placed at the last argument position as this is also required for the *\-help*
-flag\. Arguments defined before the *\-interactive* flag will be ignored\. The
-following example is therefore also a valid interactive procedure call:
+Also the *\-interactive* flag has to be placed at the last argument position as
+this is also required for the *\-help* flag\. Arguments defined before the
+*\-interactive* flag will be ignored\. The following example is therefore also a
+valid interactive procedure call:
 
-    __display message__ \-mtype Info "It is 7:00"
-
-__\-interactive__
+> __display message__ \-mtype Info "It is 7:00" __\-interactive__
 
 ## <a name='subsection7'></a>Unnamed Arguments
 
@@ -1043,38 +1040,38 @@ strictly following the order of the specified arguments\. Several parameters can
 be assigned to the last argument if this one has the *\-multiple* attribute\.
 So, the following declared procedure \.\.\.
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{mtype \-choices \{Info Warning Error\}\}
-          \{text \-type string \-multiple\}
-       \}
-    \} \{
-       puts "$mtype: \[join $text\]"
-    \}
+    tepam::procedure {display_message} {
+       -args {
+          {mtype -choices {Info Warning Error}}
+          {text -type string -multiple}
+       }
+    } {
+       puts "$mtype: [join $text]"
+    }
 
 \.\.\. can for example be called in the following ways:
 
-    __display\_message Info "It is PM 7:00\."__
-    *\-> Info: It is PM 7:00\.*
+> __display\_message Info "It is PM 7:00\."__  
+> *\-> Info: It is PM 7:00\.*  
+>   
+> __display\_message Info "It is PM 7:00\." "You should go home\."__  
+> *\-> Info: It is PM 7:00\. You should go home\.*
 
-    __display\_message Info "It is PM 7:00\." "You should go home\."__
+The nice thing is that unnamed arguments can also be called as named arguments,
+which can be handy, for example if the exact specified argument order is not
+known to a user:
 
-*\-> Info: It is PM 7:00\. You should go home\.* The nice thing is that unnamed
-arguments can also be called as named arguments, which can be handy, for example
-if the exact specified argument order is not known to a user:
-
-    __display\_message \-mtype Info \-text "It is PM 7:00\."__
-    *\-> Info: It is PM 7:00\.*
-
-    __display\_message \-text "It is PM 7:00\." \-mtype Info__
-    *\-> Info: It is PM 7:00\.*
-
-    __display\_message \-mtype Info \-text "It is PM 7:00\." \-text "You should go home\."__
-    *\-> Info: It is PM 7:00\. You should go home\.*
-
-    __display\_message \-text "It is PM 7:00\." \-text "You should go home\." \-mtype Info__
-
-*\-> Info: It is PM 7:00\. You should go home\.*
+> __display\_message \-mtype Info \-text "It is PM 7:00\."__  
+> *\-> Info: It is PM 7:00\.*  
+>   
+> __display\_message \-text "It is PM 7:00\." \-mtype Info__  
+> *\-> Info: It is PM 7:00\.*  
+>   
+> __display\_message \-mtype Info \-text "It is PM 7:00\." \-text "You should go home\."__  
+> *\-> Info: It is PM 7:00\. You should go home\.*  
+>   
+> __display\_message \-text "It is PM 7:00\." \-text "You should go home\." \-mtype Info__  
+> *\-> Info: It is PM 7:00\. You should go home\.*
 
 ## <a name='subsection8'></a>Named Arguments
 
@@ -1085,35 +1082,34 @@ argument specification order\.
 
 The following declared procedure \.\.\.
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{\-mtype \-choices \{Info Warning Error\}\}
-          \{\-text \-type string \-multiple\}
-       \}
-    \} \{
-       puts "$mtype: \[join $text\]"
-    \}
+    tepam::procedure {display_message} {
+       -args {
+          {-mtype -choices {Info Warning Error}}
+          {-text -type string -multiple}
+       }
+    } {
+       puts "$mtype: [join $text]"
+    }
 
 \.\.\. can be called in the following ways:
 
-    __display\_message \-mtype Info \-text "It is PM 7:00\."__
-    *\-> Info: It is PM 7:00\.*
+> __display\_message \-mtype Info \-text "It is PM 7:00\."__  
+> *\-> Info: It is PM 7:00\.*  
+>   
+> __display\_message \-text "It is PM 7:00\." \-mtype Info__  
+> *\-> Info: It is PM 7:00\.*  
+>   
+> __display\_message \-mtype Info \-text "It is PM 7:00\." \-text "You should go home\."__  
+> *\-> Info: It is PM 7:00\. You should go home\.*  
+>   
+> __display\_message \-text "It is PM 7:00\." \-text "You should go home\." \-mtype Info__  
+> *\-> Info: It is PM 7:00\. You should go home\.*
 
-    __display\_message \-text "It is PM 7:00\." \-mtype Info__
-    *\-> Info: It is PM 7:00\.*
+Also named arguments that have not the *\-multiple* attribute can be provided
+multiple times\. Only the last provided argument will be retained in such a case:
 
-    __display\_message \-mtype Info \-text "It is PM 7:00\." \-text "You should go home\."__
-    *\-> Info: It is PM 7:00\. You should go home\.*
-
-    __display\_message \-text "It is PM 7:00\." \-text "You should go home\." \-mtype Info__
-
-*\-> Info: It is PM 7:00\. You should go home\.* Also named arguments that have
-not the *\-multiple* attribute can be provided multiple times\. Only the last
-provided argument will be retained in such a case:
-
-    __display\_message \-mtype Info \-text "It is PM 7:00\." \-mtype Warning__
-
-*\-> Warning: It is PM 7:00\.*
+> __display\_message \-mtype Info \-text "It is PM 7:00\." \-mtype Warning__  
+> *\-> Warning: It is PM 7:00\.*
 
 ## <a name='subsection9'></a>Unnamed Arguments First, Named Arguments Later \(Tk Style\)
 
@@ -1123,60 +1119,59 @@ attribute *\-named\_arguments\_first* set to 1 has to be called in the Tcl style
 The following procedure declaration will be used in this section to illustrate
 the meaning of this calling style:
 
-    __set tepam::named\_arguments\_first 1__
-    tepam::procedure my\_proc \{
-       \-args \{
-          \{\-n1 \-default ""\}
-          \{\-n2 \-default ""\}
-          \{u1 \-default ""\}
-          \{u2 \-default ""\}
-       \}
-    \} \{
-       puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
-    \}
+> __set tepam::named\_arguments\_first 1__  
+> tepam::procedure my\_proc \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
+> \}
 
 The unnamed arguments are placed at the end of procedure call, after the named
 arguments:
 
-    my\_proc __\-n1 N1 \-n2 N2 U1 U2__
+> my\_proc __\-n1 N1 \-n2 N2 U1 U2__  
+> *\-> n1:'N1', n2:'N2', u1:'U1', u2:'U2'*
 
-*\-> n1:'N1', n2:'N2', u1:'U1', u2:'U2'* The argument parser considers the
-first argument that doesn't start with the '\-' character as well as all
-following arguments as unnamed argument:
+The argument parser considers the first argument that doesn't start with the '\-'
+character as well as all following arguments as unnamed argument:
 
-    my\_proc __U1 U2__
+> my\_proc __U1 U2__  
+> *\-> n1:'', n2:'', u1:'U1', u2:'U2'*
 
-*\-> n1:'', n2:'', u1:'U1', u2:'U2'* Named arguments can be defined multiple
-times\. If the named argument has the *\-multiply* attribute, all argument
-values will be collected in a list\. Otherwise, only the last provided attribute
-value will be retained:
+Named arguments can be defined multiple times\. If the named argument has the
+*\-multiply* attribute, all argument values will be collected in a list\.
+Otherwise, only the last provided attribute value will be retained:
 
-    my\_proc __\-n1 N1 \-n2 N2 \-n1 M1 U1 U2__
+> my\_proc __\-n1 N1 \-n2 N2 \-n1 M1 U1 U2__  
+> *\-> n1:'M1', n2:'N2', u1:'U1', u2:'U2'*
 
-*\-> n1:'M1', n2:'N2', u1:'U1', u2:'U2'* The name of the first unnamed argument
-has therefore not to start with the '\-' character\. The unnamed argument is
-otherwise considered as name of another named argument\. This is especially
-important if the first unnamed argument is given by a variable that can contain
-any character strings:
+The name of the first unnamed argument has therefore not to start with the '\-'
+character\. The unnamed argument is otherwise considered as name of another named
+argument\. This is especially important if the first unnamed argument is given by
+a variable that can contain any character strings:
 
-    my\_proc __\-n1 N1 \-n2 N2 "\->" "<\-"__
-    *\-> my\_proc: Argument '\->' not known*
-
-    set U1 "\->"
-    my\_proc __\-n1 N1 \-n2 N2 $U1 U2__
-    my\_proc: Argument '\->' not known
+> my\_proc __\-n1 N1 \-n2 N2 "\->" "<\-"__  
+> *\-> my\_proc: Argument '\->' not known*  
+>   
+> set U1 "\->"  
+> my\_proc __\-n1 N1 \-n2 N2 $U1 U2__  
+> my\_proc: Argument '\->' not known
 
 The '\-\-' flag allows separating unambiguously the unnamed arguments from the
 named arguments\. All data after the '\-\-' flag will be considered as unnamed
 argument:
 
-    my\_proc __\-n1 N1 \-n2 N2 \-\- "\->" "<\-"__
-    *\-> n1:'N1', n2:'N2', u1:'\->', u2:'<\-'*
-
-    set U1 "\->"
-    my\_proc __\-n1 N1 \-n2 N2 \-\- $U1 U2__
-
-*\-> n1:'N1', n2:'N2', u1:'\->', u2:'<\-'*
+> my\_proc __\-n1 N1 \-n2 N2 \-\- "\->" "<\-"__  
+> *\-> n1:'N1', n2:'N2', u1:'\->', u2:'<\-'*  
+>   
+> set U1 "\->"  
+> my\_proc __\-n1 N1 \-n2 N2 \-\- $U1 U2__  
+> *\-> n1:'N1', n2:'N2', u1:'\->', u2:'<\-'*
 
 ## <a name='subsection10'></a>Named Arguments First, Unnamed Arguments Later \(Tcl Style\)
 
@@ -1185,27 +1180,27 @@ __tepam::named\_arguments\_first__ is set to 0, or if the procedure attribute
 *\-named\_arguments\_first* has been set to 0\. The following procedure will be
 used in this section to illustrate this calling style:
 
-    __set tepam::named\_arguments\_first 0__
-    tepam::procedure my\_proc \{
-       \-args \{
-          \{\-n1 \-default ""\}
-          \{\-n2 \-default ""\}
-          \{u1\}
-          \{u2 \-default "" \-multiple\}
-       \}
-    \} \{
-       puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
-    \}
+> __set tepam::named\_arguments\_first 0__  
+> tepam::procedure my\_proc \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n1 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-n2 \-default ""\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u1\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{u2 \-default "" \-multiple\}  
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"  
+> \}
 
 The unnamed arguments have to be provided first in this case\. The named
 arguments are provided afterwards:
 
-    my\_proc __U1 U2 \-n1 N1 \-n2 N2__
+> my\_proc __U1 U2 \-n1 N1 \-n2 N2__  
+> *\-> n1:'N1', n1:'N1', u1:'U1', u2:'U2'*
 
-*\-> n1:'N1', n1:'N1', u1:'U1', u2:'U2'* The argument parser will assign to
-each defined unnamed argument a value before it switches to read the named
-arguments\. This default behavior changes a bit if there are unnamed arguments
-that are optional or that can take multiple values\.
+The argument parser will assign to each defined unnamed argument a value before
+it switches to read the named arguments\. This default behavior changes a bit if
+there are unnamed arguments that are optional or that can take multiple values\.
 
 An argument value will only be assigned to an unnamed argument that is optional
 \(that has either the *\-optional* attribute or that has a default value\), if
@@ -1226,62 +1221,65 @@ Let's explore in a bit less theoretically the ways how the previously defined
 procedure can be called: The first example calls the procedure without any
 parameters, which leads to an error since *u1* is a mandatory argument:
 
-    my\_proc
+> my\_proc  
+> *\-> my\_proc: Required argument is missing: u1*
 
-*\-> my\_proc: Required argument is missing: u1* The procedure call is valid if
-one parameter is provided for *u1*:
+The procedure call is valid if one parameter is provided for *u1*:
 
-    my\_proc __U1__
+> my\_proc __U1__  
+> *\-> n1:'', n2:'', u1:'U1', u2:''*
 
-*\-> n1:'', n2:'', u1:'U1', u2:''* If more parameters are provided that are not
-starting with the '\-' character, they will be attributed to the unnamed
-arguments\. *U2* will receive 3 of these parameters, since it accepts multiple
-values:
+If more parameters are provided that are not starting with the '\-' character,
+they will be attributed to the unnamed arguments\. *U2* will receive 3 of these
+parameters, since it accepts multiple values:
 
-    my\_proc __U1 U2 U3 U4__
+> my\_proc __U1 U2 U3 U4__  
+> *\-> n1:'', n2:'', u1:'U1', u2:'U2 U3 U4'*
 
-*\-> n1:'', n2:'', u1:'U1', u2:'U2 U3 U4'* As soon as one parameter starts with
-'\-' and all unnamed arguments have been assigned, the argument manager tries to
-interpret the parameter as name of a named argument\. The procedure call will
-fail if a value beginning with '\-' is assigned to an unnamed argument:
+As soon as one parameter starts with '\-' and all unnamed arguments have been
+assigned, the argument manager tries to interpret the parameter as name of a
+named argument\. The procedure call will fail if a value beginning with '\-' is
+assigned to an unnamed argument:
 
-    my\_proc __U1 U2 U3 U4 \-U5__
+> my\_proc __U1 U2 U3 U4 \-U5__  
+> *\-> my\_proc: Argument '\-U5' not known*
 
-*\-> my\_proc: Argument '\-U5' not known* The attribution of a parameter to a
-named argument will fail if there are undefined unnamed \(non optional\)
-arguments\. The name specification will in this case simply be considered as a
-parameter value that is attributed to the *next* unnamed argument\. This was
-certainly not the intention in the following example:
+The attribution of a parameter to a named argument will fail if there are
+undefined unnamed \(non optional\) arguments\. The name specification will in this
+case simply be considered as a parameter value that is attributed to the
+*next* unnamed argument\. This was certainly not the intention in the following
+example:
 
-    my\_proc __\-n1 N1__
+> my\_proc __\-n1 N1__  
+> *\-> n1:'', n2:'', u1:'\-n1', u2:'N1'*
 
-*\-> n1:'', n2:'', u1:'\-n1', u2:'N1'* The situation is completely different if
-values have already been assigned to all mandatory unnamed arguments\. A
-parameter beginning with the '\-' character will in this case be considered as a
-name identifier for a named argument:
+The situation is completely different if values have already been assigned to
+all mandatory unnamed arguments\. A parameter beginning with the '\-' character
+will in this case be considered as a name identifier for a named argument:
 
-    my\_proc __U1 \-n1 N1__
+> my\_proc __U1 \-n1 N1__  
+> *\-> n1:'N1', n2:'', u1:'U1', u2:''*
 
-*\-> n1:'N1', n2:'', u1:'U1', u2:''* No unnamed arguments are allowed behind
+No unnamed arguments are allowed behind the named arguments:
+
+> my\_proc __U1 \-n1 N1 U2__  
+> *\-> my\_proc: Argument 'U2' is not an option*
+
+The '\-\-' flag has no special meaning if not all mandatory arguments have got
+assigned a value\. This flag will simply be attributed to one of the unnamed
+arguments:
+
+> my\_proc __\-\- \-n1 N1__  
+> *\-> n1:'N1', n2:'', u1:'\-\-', u2:''*
+
+But the '\-\-' flag is simply ignored if the argument parser has started to handle
 the named arguments:
 
-    my\_proc __U1 \-n1 N1 U2__
-
-*\-> my\_proc: Argument 'U2' is not an option* The '\-\-' flag has no special
-meaning if not all mandatory arguments have got assigned a value\. This flag will
-simply be attributed to one of the unnamed arguments:
-
-    my\_proc __\-\- \-n1 N1__
-
-*\-> n1:'N1', n2:'', u1:'\-\-', u2:''* But the '\-\-' flag is simply ignored if the
-argument parser has started to handle the named arguments:
-
-    my\_proc __U1 \-\- \-n1 N1__
-    *\-> n1:'N1', n2:'', u1:'U1', u2:''*
-
-    my\_proc __U1 \-n1 N1 \-\- \-n2 N2__
-
-*\-> n1:'N1', n2:'N2', u1:'U1', u2:''*
+> my\_proc __U1 \-\- \-n1 N1__  
+> *\-> n1:'N1', n2:'', u1:'U1', u2:''*  
+>   
+> my\_proc __U1 \-n1 N1 \-\- \-n2 N2__  
+> *\-> n1:'N1', n2:'N2', u1:'U1', u2:''*
 
 ## <a name='subsection11'></a>Raw Argument List
 
@@ -1289,18 +1287,17 @@ It may be necessary sometimes that the procedure body is able to access the
 entire list of arguments provided during a procedure call\. This can happen via
 the __args__ variable that contains always the unprocessed argument list:
 
-    tepam::procedure \{display\_message\} \{
-       \-args \{
-          \{\-mtype \-choices \{Warning Error\} \-default Warning\}
-          \{text \-type string \-multiple\}
-
-       \}
-    \} \{
-       puts "args: __$args__"
-    \}
-    display\_message \-mtype Warning "It is 7:00"
-
-*\-> args: \-mtype Warning \{It is 7:00\}*
+> tepam::procedure \{display\_message\} \{  
+> &nbsp;&nbsp;&nbsp;\-args \{  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{\-mtype \-choices \{Warning Error\} \-default Warning\}  
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\{text \-type string \-multiple\}  
+>   
+> &nbsp;&nbsp;&nbsp;\}  
+> \} \{  
+> &nbsp;&nbsp;&nbsp;puts "args: __$args__"  
+> \}  
+> display\_message \-mtype Warning "It is 7:00"  
+> *\-> args: \-mtype Warning \{It is 7:00\}*
 
 # <a name='seealso'></a>SEE ALSO
 

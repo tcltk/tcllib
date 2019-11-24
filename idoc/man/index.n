@@ -1475,6 +1475,12 @@ doctools::tcl::parse
 TclOO
 .RS
 .TP
+\fBfiles/modules/clay/clay\&.n\fR
+clay
+.TP
+\fBfiles/modules/httpd/httpd\&.n\fR
+httpd
+.TP
 \fBfiles/modules/tool/meta\&.n\fR
 oo::util
 .TP
@@ -1485,9 +1491,6 @@ oo::util
 oometa
 .TP
 \fBfiles/modules/tool/tool\&.n\fR
-tool
-.TP
-\fBfiles/modules/httpd/httpd\&.n\fR
 tool
 .TP
 \fBfiles/modules/tool/tool_dict_ensemble\&.n\fR
@@ -1704,7 +1707,7 @@ WWW
 .RS
 .TP
 \fBfiles/modules/httpd/httpd\&.n\fR
-tool
+httpd
 .RE
 XGoogleToken
 .RS
@@ -3524,6 +3527,18 @@ diff -n format
 \fBfiles/modules/rcs/rcs\&.n\fR
 rcs
 .RE
+diff -ruN
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
+diff, unified format
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
 difference
 .RS
 .TP
@@ -4805,6 +4820,12 @@ doctoc_plugin_apiref
 \fBfiles/modules/doctools/doctools_plugin_apiref\&.n\fR
 doctools_plugin_apiref
 .RE
+fossil
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
+.RE
 frame
 .RS
 .TP
@@ -4918,6 +4939,12 @@ coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
 coroutine::auto
+.RE
+git
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 global
 .RS
@@ -5267,14 +5294,14 @@ http
 \fBfiles/modules/http/autoproxy\&.n\fR
 autoproxy
 .TP
+\fBfiles/modules/httpd/httpd\&.n\fR
+httpd
+.TP
 \fBfiles/modules/map/map_geocode_nominatim\&.n\fR
 map::geocode::nominatim
 .TP
 \fBfiles/modules/map/map_slippy_fetcher\&.n\fR
 map::slippy::fetcher
-.TP
-\fBfiles/modules/httpd/httpd\&.n\fR
-tool
 .TP
 \fBfiles/modules/uri/uri\&.n\fR
 uri
@@ -5286,7 +5313,7 @@ httpd
 .RS
 .TP
 \fBfiles/modules/httpd/httpd\&.n\fR
-tool
+httpd
 .RE
 https
 .RS
@@ -5298,7 +5325,7 @@ httpserver
 .RS
 .TP
 \fBfiles/modules/httpd/httpd\&.n\fR
-tool
+httpd
 .RE
 huddle
 .RS
@@ -6608,6 +6635,9 @@ mathematics
 \fBfiles/modules/math/fourier\&.n\fR
 math::fourier
 .TP
+\fBfiles/modules/math/quasirandom\&.n\fR
+math::quasirandom
+.TP
 \fBfiles/modules/math/statistics\&.n\fR
 math::statistics
 .RE
@@ -7283,6 +7313,12 @@ one time pad
 \fBfiles/modules/virtchannel_transform/vt_otp\&.n\fR
 tcl::transform::otp
 .RE
+oo
+.RS
+.TP
+\fBfiles/modules/clay/clay\&.n\fR
+clay
+.RE
 optimization
 .RS
 .TP
@@ -7939,6 +7975,9 @@ patch
 .TP
 \fBfiles/modules/docstrip/docstrip_util\&.n\fR
 docstrip_util
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 patching
 .RS
@@ -8413,6 +8452,12 @@ pt_parser_api
 .TP
 \fBfiles/modules/pt/pt_peg_op\&.n\fR
 pt_peg_op
+.RE
+quasi-random
+.RS
+.TP
+\fBfiles/modules/math/quasirandom\&.n\fR
+math::quasirandom
 .RE
 queue
 .RS
@@ -9584,11 +9629,11 @@ services
 \fBfiles/modules/ftpd/ftpd\&.n\fR
 ftpd
 .TP
+\fBfiles/modules/httpd/httpd\&.n\fR
+httpd
+.TP
 \fBfiles/modules/smtpd/smtpd\&.n\fR
 smtpd
-.TP
-\fBfiles/modules/httpd/httpd\&.n\fR
-tool
 .RE
 set
 .RS
@@ -11272,6 +11317,12 @@ unicode
 .TP
 \fBfiles/modules/stringprep/unicode_data\&.n\fR
 unicode::data
+.RE
+unified format diff
+.RS
+.TP
+\fBfiles/modules/textutil/patch\&.n\fR
+textutil::patch
 .RE
 union
 .RS

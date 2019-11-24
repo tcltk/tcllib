@@ -2,7 +2,7 @@
 [//000000001]: # (zipfile::mkzip \- Zip archive creation)
 [//000000002]: # (Generated from file 'mkzip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2009 Pat Thoyts)
-[//000000004]: # (zipfile::mkzip\(n\) 1\.2 tcllib "Zip archive creation")
+[//000000004]: # (zipfile::mkzip\(n\) 1\.2\.1 tcllib "Zip archive creation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ zipfile::mkzip \- Build a zip archive
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require zipfile::mkzip ?1\.2?  
+package require zipfile::mkzip ?1\.2\.1?  
 
 [__::zipfile::mkzip::mkzip__ *zipfile* ?__\-zipkit__? ?__\-runtime__ *prefix*? ?__\-comment__ *string*? ?__\-directory__ *rootpath*? ?__\-exclude__ *exclude*? ?__\-\-__? ?*path*\.\.\.?](#1)  
 
@@ -62,7 +62,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
 
     If you use
 
-        __::mkzip::mkzip__ mystuff\.tm \-zipkit \-directory mystuff\.vfs
+    > __::mkzip::mkzip__ mystuff\.tm \-zipkit \-directory mystuff\.vfs
 
     it will pack your "mystuff\.vfs/" virtual filesystem tree into a zip archive
     with a suitable header such that on unix you may mark it executable and it
@@ -73,7 +73,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
     where preface is a file containing code you want prefixed\. For instance, on
     Windows you can create a self\-extracting zip archive using
 
-        mkzip mystuff\.exe \-directory mystuff\.vfs \-runtime unzipsfx\.exe
+        mkzip mystuff.exe -directory mystuff.vfs -runtime unzipsfx.exe
 
     The "unzipsfx\.exe" is the Info\-Zip self\-extracting stub\.
 
@@ -105,7 +105,7 @@ This package utilizes the zlib functions in Tcl 8\.6 to build zip archives\.
         least one of the patterns are not placed into the generated archive\.
         This option defaults to
 
-            CVS/\* \*/CVS/\* \*~ "\.\#\*" "\*/\.\#\*"
+            CVS/* */CVS/* *~ ".#*" "*/.#*"
 
       * __\-\-__
 

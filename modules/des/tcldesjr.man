@@ -22,5 +22,5 @@ The [package tclDESjr] package is a helper package for [package des].
 [para] Please see the documentation of [package des] for details.
 
 [vset CATEGORY des]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

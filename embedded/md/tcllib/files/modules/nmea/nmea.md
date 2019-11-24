@@ -70,8 +70,8 @@ followed by a list of data\.
     commas it is treated as a Tcl list, otherwise it must be standard comma
     delimited NMEA data, with an optional checksum and leading __$__\.
 
-        nmea::input \{$GPGSA,A,3,04,05,,09,12,,,24,,,,,2\.5,1\.3,2\.1\*39\}
-        nmea::input \[list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2\.5 1\.3 2\.1\]
+        nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
+        nmea::input [list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2.5 1.3 2.1]
 
   - <a name='2'></a>__::nmea::open\_port__ *port* ?speed?
 
@@ -143,16 +143,16 @@ followed by a list of data\.
     handler should have two arguments, the sentence type and the data values\.
     The EOF handler has no arguments\.
 
-        nmea::event gpgsa parse\_sat\_detail
-        nmea::event default handle\_unknown
+        nmea::event gpgsa parse_sat_detail
+        nmea::event default handle_unknown
 
-        proc parse\_sat\_detail \{data\} \{
-            puts \[lindex $data 1\]
-        \}
+        proc parse_sat_detail {data} {
+            puts [lindex $data 1]
+        }
 
-        proc handle\_unknown \{name data\} \{
+        proc handle_unknown {name data} {
             puts "unknown data type $name"
-        \}
+        }
 
 # <a name='section3'></a>Bugs, Ideas, Feedback
 

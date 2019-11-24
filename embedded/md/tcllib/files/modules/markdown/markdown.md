@@ -1,7 +1,7 @@
 
 [//000000001]: # (markdown \- Markdown to HTML Converter)
 [//000000002]: # (Generated from file 'markdown\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (markdown\(n\) 1\.1 tcllib "Markdown to HTML Converter")
+[//000000003]: # (markdown\(n\) 1\.1\.1 tcllib "Markdown to HTML Converter")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -29,7 +29,7 @@ markdown \- Converts Markdown text to HTML
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require Markdown 1\.1  
+package require Markdown 1\.1\.1  
 package require textutil ?0\.8?  
 
 [__::Markdown::convert__ *markdown*](#1)  

@@ -35,5 +35,5 @@ Data written to this channel will appear in the associated [arg widget].
 [list_end]
 
 [vset CATEGORY virtchannel]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

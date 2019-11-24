@@ -788,5 +788,5 @@ The following example demonstrates the creation of new nodes:
 }]
 
 [vset CATEGORY {struct :: tree}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

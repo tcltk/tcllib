@@ -132,18 +132,18 @@ of functions gives you a keyed digest \(HMAC\)\.
 
 # <a name='section4'></a>EXAMPLES
 
-    % ripemd::ripemd160 \-hex "Tcl does RIPEMD\-160"
+    % ripemd::ripemd160 -hex "Tcl does RIPEMD-160"
     0829dea75a1a7074c702896723fe37763481a0a7
 
-    % ripemd::hmac160 \-hex \-key Sekret "Tcl does RIPEMD\-160"
+    % ripemd::hmac160 -hex -key Sekret "Tcl does RIPEMD-160"
     bf0c927231733686731dddb470b64a9c23f7f53b
 
-    % set tok \[ripemd::RIPEMD160Init\]
+    % set tok [ripemd::RIPEMD160Init]
     ::ripemd::1
     % ripemd::RIPEMD160Update $tok "Tcl "
     % ripemd::RIPEMD160Update $tok "does "
-    % ripemd::RIPEMD160Update $tok "RIPEMD\-160"
-    % ripemd::Hex \[ripemd::RIPEMD160Final $tok\]
+    % ripemd::RIPEMD160Update $tok "RIPEMD-160"
+    % ripemd::Hex [ripemd::RIPEMD160Final $tok]
     0829dea75a1a7074c702896723fe37763481a0a7
 
 # <a name='section5'></a>REFERENCES

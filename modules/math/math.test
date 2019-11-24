@@ -218,7 +218,7 @@ test math-8.3 { simple math::stats } {
      set b [ expr round($b) ]
      set c [ expr round($c) ]
      list $a $b $c
-} {102 5 5}
+} {103 5 5}
 
 test math-9.1 { math::integrate, insufficient data points } {
      catch { math::integrate {1 10 2 20 3 30 4 40} } msg

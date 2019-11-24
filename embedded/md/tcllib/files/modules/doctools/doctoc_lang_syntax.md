@@ -89,19 +89,19 @@ Regarding the syntax of the \(E\)BNF itself
 The syntax:
 
     toc       = defs
-                TOC\_BEGIN
+                TOC_BEGIN
                 contents
-                TOC\_END
-                \{ <WHITE> \}
+                TOC_END
+                { <WHITE> }
 
-    defs      = \{ INCLUDE &#124; VSET &#124; <WHITE> \}
-    contents  = \{ defs entry \} \[ defs \]
+    defs      = { INCLUDE | VSET | <WHITE> }
+    contents  = { defs entry } [ defs ]
 
-    entry     = ITEM &#124; division
+    entry     = ITEM | division
 
-    division  = DIVISION\_START
+    division  = DIVISION_START
                 contents
-                DIVISION\_END
+                DIVISION_END
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

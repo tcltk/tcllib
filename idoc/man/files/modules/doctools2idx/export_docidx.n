@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'plugin\&.inc' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx::export::docidx" n 0\&.1 tcllib "Documentation tools"
+.TH "doctools::idx::export::docidx" n 0\&.2\&.1 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools::idx::export::docidx \- docidx export plugin
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBdoctools::idx::export::docidx  ?0\&.1?\fR
+package require \fBdoctools::idx::export::docidx  ?0\&.2\&.1?\fR
 .sp
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 .sp
@@ -468,6 +468,6 @@ docidx, doctools, export, index, serialization
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

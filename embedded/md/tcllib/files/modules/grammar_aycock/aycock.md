@@ -1,9 +1,9 @@
 
 [//000000001]: # (grammar::aycock \- Aycock\-Horspool\-Earley parser generator for Tcl)
 [//000000002]: # (Generated from file 'aycock\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2006 by Kevin B\. Kenny <kennykb@acm\.org>
-Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
-[//000000004]: # (grammar::aycock\(n\) 1\.0 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
+[//000000003]: # (Copyright &copy; 2006 by Kevin B\. Kenny <kennykb@acm\.org>)
+[//000000004]: # (Redistribution permitted under the terms of the Open Publication License <http://www\.opencontent\.org/openpub/>)
+[//000000005]: # (grammar::aycock\(n\) 1\.0 tcllib "Aycock\-Horspool\-Earley parser generator for Tcl")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -139,16 +139,16 @@ __\+__, __\*__ and parentheses as its operators\. It also shows the format
 in which the lexical analyzer is expected to present terminal symbols to the
 parser\.
 
-    set p \[aycock::parser \{
-        start ::= E \{\}
-        E ::= E \+ T \{expr \{\[lindex $\_ 0\] \+ \[lindex $\_ 2\]\}\}
-        E ::= T \{\}
-        T ::= T \* F \{expr \{\[lindex $\_ 0\] \* \[lindex $\_ 2\]\}\}
-        T ::= F \{\}
-        F ::= NUMBER \{\}
-        F ::= \( E \) \{lindex $\_ 1\}
-    \}\]
-    puts \[$p parse \{\(  NUMBER \+  NUMBER \)  \*  \( NUMBER \+  NUMBER \) \}  \{\{\} 2      \{\} 3      \{\} \{\} \{\} 7     \{\} 1      \{\}\}\]
+    set p [aycock::parser {
+        start ::= E {}
+        E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
+        E ::= T {}
+        T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
+        T ::= F {}
+        F ::= NUMBER {}
+        F ::= ( E ) {lindex $_ 1}
+    }]
+    puts [$p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) }  {{} 2      {} 3      {} {} {} 7     {} 1      {}}]
     $p destroy
 
 The example, when run, prints __40__\.

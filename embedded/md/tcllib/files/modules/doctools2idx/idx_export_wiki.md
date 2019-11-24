@@ -1,7 +1,7 @@
 
 [//000000001]: # (doctools::idx::export::wiki \- Documentation tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000003]: # (Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (doctools::idx::export::wiki\(n\) 0\.2 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
@@ -212,4 +212,4 @@ Text formatter plugin
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

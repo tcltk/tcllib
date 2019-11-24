@@ -403,6 +403,8 @@
 
           + [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
 
+          + [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
+
           + [math::rationalfunctions](tcllib/files/modules/math/rational\_funcs\.md) Polynomial functions
 
           + [math::roman](tcllib/files/modules/math/roman\.md) Tools for creating and manipulating roman numerals
@@ -435,7 +437,11 @@
 
           + [ftpd](tcllib/files/modules/ftpd/ftpd\.md) Tcl FTP server implementation
 
+          + [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
+
           + [ident](tcllib/files/modules/ident/ident\.md) Ident protocol client
+
+          + [imap4](tcllib/files/modules/imap4/imap4\.md) imap client\-side tcl implementation of imap protocol
 
           + [irc](tcllib/files/modules/irc/irc\.md) Create IRC connection and interface\.
 
@@ -494,8 +500,6 @@
           + [smtpd](tcllib/files/modules/smtpd/smtpd\.md) Tcl SMTP server implementation
 
           + [tcllib\_ip](tcllib/files/modules/dns/tcllib\_ip\.md) IPv4 and IPv6 address manipulation
-
-          + [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
           + [udpcluster](tcllib/files/modules/udpcluster/udpcluster\.md) UDP Peer\-to\-Peer cluster
 
@@ -618,6 +622,8 @@
           + [tepam::procedure](tcllib/files/modules/tepam/tepam\_procedure\.md) TEPAM procedure, reference manual
 
       * [Programming tools]()
+
+          + [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
 
           + [cmdline](tcllib/files/modules/cmdline/cmdline\.md) Procedures to process command lines and options\.
 
@@ -795,6 +801,8 @@
 
           + [textutil::adjust](tcllib/files/modules/textutil/adjust\.md) Procedures to adjust, indent, and undent paragraphs
 
+          + [textutil::patch](tcllib/files/modules/textutil/patch\.md) Application of uni\-diff patches to directory trees
+
           + [textutil::repeat](tcllib/files/modules/textutil/repeat\.md) Procedures to repeat strings\.
 
           + [textutil::split](tcllib/files/modules/textutil/textutil\_split\.md) Procedures to split texts
@@ -831,11 +839,11 @@
 
           + [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
 
+          + [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
           + [generator](tcllib/files/modules/generator/generator\.md) Procedures for creating and using generators\.
 
           + [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
-
-          + [imap4](tcllib/files/modules/imap4/imap4\.md) imap client\-side tcl implementation of imap protocol
 
           + [map::geocode::nominatim](tcllib/files/modules/map/map\_geocode\_nominatim\.md) Resolving geographical names with a Nominatim service
 
@@ -856,6 +864,8 @@
           + [stringprep](tcllib/files/modules/stringprep/stringprep\.md) Implementation of stringprep
 
           + [stringprep::data](tcllib/files/modules/stringprep/stringprep\_data\.md) stringprep data tables, generated, internal
+
+          + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
 
           + [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
@@ -1002,6 +1012,10 @@
           + [cache]()
 
               - [cache::async](tcllib/files/modules/cache/async\.md) Asynchronous in\-memory cache
+
+          + [clay]()
+
+              - [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
 
           + [clock]()
 
@@ -1237,6 +1251,8 @@
 
               - [fileutil::multi::op](tcllib/files/modules/fileutil/multiop\.md) Multi\-file operation, scatter/gather
 
+              - [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
               - [fileutil\_traverse](tcllib/files/modules/fileutil/traverse\.md) Iterative directory traversal
 
           + [ftp]()
@@ -1323,7 +1339,7 @@
 
           + [httpd]()
 
-              - [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
+              - [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
           + [ident]()
 
@@ -1448,6 +1464,8 @@
               - [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
               - [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+              - [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
               - [math::rationalfunctions](tcllib/files/modules/math/rational\_funcs\.md) Polynomial functions
 
@@ -1769,6 +1787,8 @@
 
               - [struct::list](tcllib/files/modules/struct/struct\_list\.md) Procedures for manipulating lists
 
+              - [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
+
               - [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
               - [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
@@ -1838,6 +1858,8 @@
               - [textutil::adjust](tcllib/files/modules/textutil/adjust\.md) Procedures to adjust, indent, and undent paragraphs
 
               - [textutil::expander](tcllib/files/modules/textutil/expander\.md) Procedures to process templates and expand text\.
+
+              - [textutil::patch](tcllib/files/modules/textutil/patch\.md) Application of uni\-diff patches to directory trees
 
               - [textutil::repeat](tcllib/files/modules/textutil/repeat\.md) Procedures to repeat strings\.
 

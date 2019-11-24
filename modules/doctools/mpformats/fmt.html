@@ -2,7 +2,7 @@
 #
 # fmt.html
 #
-# Copyright (c) 2001-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Definitions to convert a tcl based manpage definition into
 # a manpage based upon HTML markup.
@@ -13,6 +13,9 @@
 dt_source _common.tcl   ; # Shared code
 dt_source _html.tcl     ; # HTML basic formatting
 dt_source _xref.tcl     ; # xref management
+
+global _in_example
+set    _in_example 0
 
 proc c_copyrightsymbol {} {return "[markup "&"]copy;"}
 
@@ -49,6 +52,10 @@ proc lpop {} {
 }
 
 proc fmt_plain_text {text} {
+    global _in_example
+    if {$_in_example} {
+	set text [string map [list \\\\\n \\\n] $text]
+    }
     return $text
 }
 
@@ -352,9 +359,11 @@ proc fmt_tkoption_def {name dbname dbclass} {
 ################################################################
 
 proc fmt_example_begin {} {
-	return [para_close]\n[tag* pre class doctools_example]
+    global _in_example ; set _in_example 1
+    return [para_close]\n[tag* pre class doctools_example]
 }
 proc fmt_example_end   {} {
+    global _in_example ; set _in_example 0
     return [tag/ pre]\n[para_open]
 }
 proc fmt_example {code} {

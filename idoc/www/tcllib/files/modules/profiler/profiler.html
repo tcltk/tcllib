@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">profiler(n) 0.3 tcllib &quot;Tcl Profiler&quot;</h1>
+<h1 class="doctools_title">profiler(n) 0.5 tcllib &quot;Tcl Profiler&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>profiler - Tcl source code profiler</p>
 </div>
@@ -124,7 +124,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
-<li>package require <b class="pkgname">profiler <span class="opt">?0.3?</span></b></li>
+<li>package require <b class="pkgname">profiler <span class="opt">?0.5?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::profiler::init</b></a></li>
@@ -133,7 +133,9 @@
 <li><a href="#4"><b class="cmd">::profiler::reset</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></li>
 <li><a href="#5"><b class="cmd">::profiler::suspend</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></li>
 <li><a href="#6"><b class="cmd">::profiler::resume</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></li>
-<li><a href="#7"><b class="cmd">::profiler::sortFunctions</b> <i class="arg">key</i></a></li>
+<li><a href="#7"><b class="cmd">::profiler::new-disabled</b></a></li>
+<li><a href="#8"><b class="cmd">::profiler::new-enabled</b></a></li>
+<li><a href="#9"><b class="cmd">::profiler::sortFunctions</b> <i class="arg">key</i></a></li>
 </ul>
 </div>
 </div>
@@ -197,7 +199,17 @@ profiling.</p></dd>
 pattern is specified, profiling will be resumed for all functions.
 This command should be invoked after suspending the profiler in the
 code.</p></dd>
-<dt><a name="7"><b class="cmd">::profiler::sortFunctions</b> <i class="arg">key</i></a></dt>
+<dt><a name="7"><b class="cmd">::profiler::new-disabled</b></a></dt>
+<dd><p>Change the initial profiling state for new procedures. Invoking this
+command disables profiling for all procedures created after this
+command until <b class="cmd">new-enabled</b> is invoked. Activate profiling of
+specific procedures via <b class="cmd">resume</b>.</p></dd>
+<dt><a name="8"><b class="cmd">::profiler::new-enabled</b></a></dt>
+<dd><p>Change the initial profiling state for new procedures. Invoking this
+command enables profiling for all procedures created after this
+command until <b class="cmd">new-disabled</b> is invoked. Prevent profiling of
+specific procedures via <b class="cmd">suspend</b>.</p></dd>
+<dt><a name="9"><b class="cmd">::profiler::sortFunctions</b> <i class="arg">key</i></a></dt>
 <dd><p>Return a list of functions sorted by a particular profiling statistic.
 Supported values for <i class="arg">key</i> are: <b class="const">calls</b>,
 <b class="const">exclusiveTime</b>, <b class="const">compileTime</b>, <b class="const">nonCompileTime</b>,

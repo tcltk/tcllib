@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
-#
-# RCS: @(#) $Id: mime.test,v 1.31 2012/02/23 17:35:17 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -169,9 +167,7 @@ Content-Type: text/plain\r
 foo}"
 
 test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
-    set tok [mime::initialize -file \
-		 [file join $tcltest::testsDirectory badmail1.txt]]
-
+    set tok [mime::initialize -file [asset badmail1.txt]]
     set res {}
     set ctok [lindex [mime::getproperty $tok parts] 0]
     lappend res [dictsort [mime::getproperty $tok]]
@@ -181,8 +177,7 @@ test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
 } {{content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {charset us-ascii} size 0}}
 
 test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {
-    set tok [mime::initialize -file \
-		 [file join $tcltest::testsDirectory badmail2.txt]]
+    set tok [mime::initialize -file [asset badmail2.txt]]
     set res {}
     set ctok [lindex [mime::getproperty $tok parts] 0]
     lappend res [dictsort [mime::getproperty $tok]]
@@ -602,6 +597,15 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
     set parts [mime::getproperty $token parts]
     mime::getheader [lindex $parts end] Remote-MTA
 } 53.24.282.150
+
+# -------------------------------------------------------------------------
+
+test mime-12.1 {Fossil ticket 57909d2e1c} -cleanup {
+    mime::finalize $token
+    unset -nocomplain token
+} -body {
+    set token [::mime::initialize -file [asset mail-57909d2e1c.txt]]
+} -result {::mime::*} -match glob
 
 # -------------------------------------------------------------------------
 

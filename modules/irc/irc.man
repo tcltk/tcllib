@@ -236,5 +236,5 @@ Returns the message portion of the command (the part after the :).
 [list_end]
 
 [vset CATEGORY irc]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

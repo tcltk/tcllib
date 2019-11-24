@@ -285,24 +285,24 @@ The management commands a plugin has to provide are used by the frontend to
 After the plugin has been loaded and the frontend commands are established the
 commands will be called in the following sequence:
 
-    fmt\_numpasses \-> n
-    fmt\_listvariables \-> vars
+    fmt_numpasses -> n
+    fmt_listvariables -> vars
 
-    fmt\_varset var1 value1
-    fmt\_varset var2 value2
-    \.\.\.
-    fmt\_varset varK valueK
-    fmt\_initialize
-    fmt\_setup 1
-    \.\.\.
-    fmt\_setup 2
-    \.\.\.
-    \.\.\.
-    fmt\_setup n
-    \.\.\.
-    fmt\_postprocess
-    fmt\_shutdown
-    \.\.\.
+    fmt_varset var1 value1
+    fmt_varset var2 value2
+    ...
+    fmt_varset varK valueK
+    fmt_initialize
+    fmt_setup 1
+    ...
+    fmt_setup 2
+    ...
+    ...
+    fmt_setup n
+    ...
+    fmt_postprocess
+    fmt_shutdown
+    ...
 
 I\.e\. first the number of passes and the set of available engine parameters is
 established, followed by calls setting the parameters\. That second part is

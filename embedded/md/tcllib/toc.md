@@ -43,6 +43,8 @@
 
   - [cksum](tcllib/files/modules/crc/cksum\.md) Calculate a cksum\(1\) compatible checksum
 
+  - [clay](tcllib/files/modules/clay/clay\.md) A minimalist framework for large scale OO Projects
+
   - [clock\_iso8601](tcllib/files/modules/clock/iso8601\.md) Parsing ISO 8601 dates/times
 
   - [clock\_rfc2822](tcllib/files/modules/clock/rfc2822\.md) Parsing ISO 8601 dates/times
@@ -237,6 +239,8 @@
 
   - [fileutil::multi::op](tcllib/files/modules/fileutil/multiop\.md) Multi\-file operation, scatter/gather
 
+  - [fileutil::paths](tcllib/files/modules/fileutil/paths\.md) Manage search path pools
+
   - [fileutil\_traverse](tcllib/files/modules/fileutil/traverse\.md) Iterative directory traversal
 
   - [ftp](tcllib/files/modules/ftp/ftp\.md) Client\-side tcl implementation of the ftp protocol
@@ -284,6 +288,8 @@
   - [html](tcllib/files/modules/html/html\.md) Procedures to generate HTML structures
 
   - [htmlparse](tcllib/files/modules/htmlparse/htmlparse\.md) Procedures to parse HTML strings
+
+  - [httpd](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
   - [huddle](tcllib/files/modules/yaml/huddle\.md) Create and manipulate huddle object
 
@@ -372,6 +378,8 @@
   - [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
   - [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+  - [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
   - [math::rationalfunctions](tcllib/files/modules/math/rational\_funcs\.md) Polynomial functions
 
@@ -621,6 +629,8 @@
 
   - [struct::list](tcllib/files/modules/struct/struct\_list\.md) Procedures for manipulating lists
 
+  - [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
+
   - [struct::matrix](tcllib/files/modules/struct/matrix\.md) Create and manipulate matrix objects
 
   - [struct::matrix\_v1](tcllib/files/modules/struct/matrix1\.md) Create and manipulate matrix objects
@@ -709,13 +719,25 @@
 
   - [tcl::transform::zlib](tcllib/files/modules/virtchannel\_transform/tcllib\_zlib\.md) zlib \(de\)compression
 
+  - [tcl\_community\_communication](tcllib/files/devdoc/tcl\_community\_communication\.md) Tcl Community \- Kind Communication
+
   - [tclDES](tcllib/files/modules/des/tcldes\.md) Implementation of the DES and triple\-DES ciphers
 
   - [tclDESjr](tcllib/files/modules/des/tcldesjr\.md) Implementation of the DES and triple\-DES ciphers
 
   - [tcldocstrip](tcllib/files/apps/tcldocstrip\.md) Tcl\-based Docstrip Processor
 
+  - [tcllib\_devguide](tcllib/files/devdoc/tcllib\_devguide\.md) Tcllib \- The Developer's Guide
+
+  - [tcllib\_install\_guide](tcllib/files/devdoc/tcllib\_installer\.md) Tcllib \- The Installer's Guide
+
   - [tcllib\_ip](tcllib/files/modules/dns/tcllib\_ip\.md) IPv4 and IPv6 address manipulation
+
+  - [tcllib\_license](tcllib/files/devdoc/tcllib\_license\.md) Tcllib \- License
+
+  - [tcllib\_releasemgr](tcllib/files/devdoc/tcllib\_releasemgr\.md) Tcllib \- The Release Manager's Guide
+
+  - [tcllib\_sources](tcllib/files/devdoc/tcllib\_sources\.md) Tcllib \- How To Get The Sources
 
   - [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
@@ -757,6 +779,8 @@
 
   - [textutil::expander](tcllib/files/modules/textutil/expander\.md) Procedures to process templates and expand text\.
 
+  - [textutil::patch](tcllib/files/modules/textutil/patch\.md) Application of uni\-diff patches to directory trees
+
   - [textutil::repeat](tcllib/files/modules/textutil/repeat\.md) Procedures to repeat strings\.
 
   - [textutil::split](tcllib/files/modules/textutil/textutil\_split\.md) Procedures to split texts
@@ -774,8 +798,6 @@
   - [tie](tcllib/files/modules/tie/tie\.md) Array persistence
 
   - [tiff](tcllib/files/modules/tiff/tiff\.md) TIFF reading, writing, and querying and manipulation of meta data
-
-  - [tool](tcllib/files/modules/httpd/httpd\.md) A TclOO and coroutine based web server
 
   - [tool](tcllib/files/modules/tool/tool\.md) TclOO Library \(TOOL\) Framework
 

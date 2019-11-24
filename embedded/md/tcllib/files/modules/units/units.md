@@ -95,14 +95,14 @@ accommodate non\-SI measurement systems, such as defining the unit *inch* as
     *targetUnits*\. If units are not specified for the *value*, then it will
     be scaled to the target units\. For example,
 
-        % ::units::convert "2\.3 miles" km
-        3\.7014912
+        % ::units::convert "2.3 miles" km
+        3.7014912
         % ::units::convert 300m/s miles/hour
-        671\.080887616
-        % ::units::convert "1\.0 m kg/s^2" newton
-        1\.0
-        % ::units::convert 1\.0 millimeter
-        1000\.0
+        671.080887616
+        % ::units::convert "1.0 m kg/s^2" newton
+        1.0
+        % ::units::convert 1.0 millimeter
+        1000.0
 
   - <a name='2'></a>__::units::reduce__ *unitString*
 
@@ -113,7 +113,7 @@ accommodate non\-SI measurement systems, such as defining the unit *inch* as
     denominator\. Generates an error if the *unitString* is invalid\.
 
         % ::units::reduce pascal
-        1000\.0 gram / meter second second
+        1000.0 gram / meter second second
 
   - <a name='3'></a>__::units::new__ *name* *baseUnits*
 
@@ -130,7 +130,7 @@ accommodate non\-SI measurement systems, such as defining the unit *inch* as
         % ::units::new furlong "220 yards"
         % ::units::new fortnight "14 days"
         % ::units::convert 100m/s furlongs/fortnight
-        601288\.475303
+        601288.475303
 
 # <a name='section3'></a>UNIT STRING FORMAT
 
@@ -167,30 +167,30 @@ must conform to these rules\.
 ## <a name='subsection1'></a>Example Valid Unit Strings
 
     Unit String              Reduced Unit String
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-    meter                    1\.0 meter
-    kilometer                1000\.0 meter
-    km                       1000\.0 meter
-    km/s                     1000\.0 meter / second
-    /microsecond             1000000\.0 / second
-    /us                      1000000\.0 / second
-    kg\-m/s^2                 1000\.0 gram meter / second second
-    30second                 30\.0 second
-    30 second                30\.0 second
-    30 seconds               30\.0 second
-    200\*meter/20\.5\*second    9\.75609756098 meter / second
+    ------------------------------------------------------------
+    meter                    1.0 meter
+    kilometer                1000.0 meter
+    km                       1000.0 meter
+    km/s                     1000.0 meter / second
+    /microsecond             1000000.0 / second
+    /us                      1000000.0 / second
+    kg-m/s^2                 1000.0 gram meter / second second
+    30second                 30.0 second
+    30 second                30.0 second
+    30 seconds               30.0 second
+    200*meter/20.5*second    9.75609756098 meter / second
 
 # <a name='section4'></a>SI UNITS
 
-The standard SI units are predefined according to *NIST Special Publication
-330*\. Standard units for both SI Base Units \(Table 1\) and SI Derived Units with
-Special Names \(Tables 3a and 3b\) are included here for reference\. Each standard
-unit name and abbreviation are included in this package\.
+The standard SI units are predefined according to *NIST Special* *Publication
+330* \. Standard units for both SI Base Units \(Table 1\) and SI Derived Units
+with Special Names \(Tables 3a and 3b\) are included here for reference\. Each
+standard unit name and abbreviation are included in this package\.
 
 ## <a name='subsection2'></a>SI Base Units
 
-    Quantity                Unit Name    Abbr\.
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    Quantity                Unit Name    Abbr.
+    ---------------------------------------------
     Length                  meter        m
     Mass                    kilogram     kg
     Time                    second       s
@@ -201,27 +201,27 @@ unit name and abbreviation are included in this package\.
 
 ## <a name='subsection3'></a>SI Derived Units with Special Names
 
-    Quantity                Unit Name    Abbr\.   Units     Base Units
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    Quantity                Unit Name    Abbr.   Units     Base Units
+    --------------------------------------------------------------------
     plane angle             radian      rad     m/m       m/m
     solid angle             steradian   sr      m^2/m^2   m^2/m^2
     frequency               hertz       Hz                /s
-    force                   newton      N                 m\-kg/s^2
-    pressure                pascal      Pa      N/m^2     kg/m\-s^2
-    energy, work            joule       J       N\-m       m^2\-kg/s^2
-    power, radiant flux     watt        W       J/s       m^2\-kg/s^3
-    electric charge         coulomb     C                 s\-A
-    electric potential      volt        V       W/A       m^2\-kg/s^3\-A
-    capacitance             farad       F       C/V       s^4\-A^2/m^2\-kg
-    electric resistance     ohm                 V/A       m^2\-kg/s^3\-A^2
-    electric conductance    siemens     S       A/V       s^3\-A^2/m^2\-kg
-    magnetic flux           weber       Wb      V\-s       m^2\-kg/s^2\-A
-    magnetic flux density   tesla       T       Wb/m^2    kg/s^2\-A
-    inductance              henry       H       Wb/A      m^2\-kg/s^2\-A^2
-    luminous flux           lumen       lm                cd\-sr
-    illuminance             lux         lx      lm/m^2    cd\-sr/m^2
-    activity \(of a
-    radionuclide\)           becquerel   Bq                /s
+    force                   newton      N                 m-kg/s^2
+    pressure                pascal      Pa      N/m^2     kg/m-s^2
+    energy, work            joule       J       N-m       m^2-kg/s^2
+    power, radiant flux     watt        W       J/s       m^2-kg/s^3
+    electric charge         coulomb     C                 s-A
+    electric potential      volt        V       W/A       m^2-kg/s^3-A
+    capacitance             farad       F       C/V       s^4-A^2/m^2-kg
+    electric resistance     ohm                 V/A       m^2-kg/s^3-A^2
+    electric conductance    siemens     S       A/V       s^3-A^2/m^2-kg
+    magnetic flux           weber       Wb      V-s       m^2-kg/s^2-A
+    magnetic flux density   tesla       T       Wb/m^2    kg/s^2-A
+    inductance              henry       H       Wb/A      m^2-kg/s^2-A^2
+    luminous flux           lumen       lm                cd-sr
+    illuminance             lux         lx      lm/m^2    cd-sr/m^2
+    activity (of a
+    radionuclide)           becquerel   Bq                /s
     absorbed dose           gray        Gy      J/kg      m^2/s^2
     dose equivalent         sievert     Sv      J/kg      m^2/s^2
 
@@ -239,12 +239,12 @@ to add to the units library\.
 SI Units can have a multiple or sub\-multiple prefix\. The prefix or its
 abbreviation should appear before the unit, without spaces\. Compound prefixes
 are not allowed, and a prefix should never be used alone\. These prefixes are
-defined in Table 5 of *Special Publication 330*\.
+defined in Table 5 of *Special Publication* *330* \.
 
 ## <a name='subsection4'></a>SI Prefixes
 
-    Prefix Name     Abbr\.   Factor
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+    Prefix Name     Abbr.   Factor
+    ---------------------------------------
     yotta           Y       1e24
     zetta           Z       1e21
     exa             E       1e18
@@ -257,16 +257,16 @@ defined in Table 5 of *Special Publication 330*\.
     deka            da      1e1
     deca                    1e1
 
-    deci            d       1e\-1
-    centi           c       1e\-2
-    milli           m       1e\-3
-    micro           u       1e\-6
-    nano            n       1e\-9
-    pico            p       1e\-12
-    femto           f       1e\-15
-    atto            a       1e\-18
-    zepto           z       1e\-21
-    yocto           y       1e\-24
+    deci            d       1e-1
+    centi           c       1e-2
+    milli           m       1e-3
+    micro           u       1e-6
+    nano            n       1e-9
+    pico            p       1e-12
+    femto           f       1e-15
+    atto            a       1e-18
+    zepto           z       1e-21
+    yocto           y       1e-24
 
 Note that we define the same prefix with both the USA \("deka"\) and non\-USA
 \("deca"\) spellings\. Also note that we take the liberty of allowing "micro" to be
@@ -283,41 +283,41 @@ package\.
 
 ## <a name='subsection5'></a>Non\-SI Units
 
-    Unit Name            Abbr\.    Base Units
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-    angstrom                      1\.0E\-10 m
-    astronomicalUnit     AU       1\.495979E11 m
-    atmosphere                    1\.01325E5 Pa
-    bar                           1\.0E5 Pa
-    calorie                       4\.1868 J
-    curie                         3\.7E10 Bq
-    day                           8\.64E4 s
-    degree                        1\.745329E\-2 rad
-    erg                           1\.0E\-7 J
-    faraday                       9\.648531 C
-    fermi                         1\.0E\-15 m
-    foot                 ft       3\.048E\-1 m
-    gauss                         1\.0E\-4 T
-    gilbert                       7\.957747E\-1 A
-    grain                gr       6\.479891E\-5 kg
-    hectare              ha       1\.0E4 m^2
-    hour                 h        3\.6E3 s
-    inch                 in       2\.54E\-2 m
-    lightYear                     9\.46073E15 m
-    liter                L        1\.0E\-3 m^3
-    maxwell              Mx       1\.0E\-8 Wb
-    mho                           1\.0 S
-    micron                        1\.0E\-6 m
-    mil                           2\.54E\-5 m
-    mile                 mi       1\.609344E3 m
-    minute               min      6\.0E1 s
-    parsec               pc       3\.085E16 m
-    pica                          4\.233333E\-3 m
-    pound                lb       4\.535924E\-1 kg
-    revolution                    6\.283185 rad
-    revolutionPerMinute  rpm      1\.047198E\-1 rad/s
-    yard                 yd       9\.144E\-1 m
-    year                          3\.1536E7 s
+    Unit Name            Abbr.    Base Units
+    --------------------------------------------------
+    angstrom                      1.0E-10 m
+    astronomicalUnit     AU       1.495979E11 m
+    atmosphere                    1.01325E5 Pa
+    bar                           1.0E5 Pa
+    calorie                       4.1868 J
+    curie                         3.7E10 Bq
+    day                           8.64E4 s
+    degree                        1.745329E-2 rad
+    erg                           1.0E-7 J
+    faraday                       9.648531 C
+    fermi                         1.0E-15 m
+    foot                 ft       3.048E-1 m
+    gauss                         1.0E-4 T
+    gilbert                       7.957747E-1 A
+    grain                gr       6.479891E-5 kg
+    hectare              ha       1.0E4 m^2
+    hour                 h        3.6E3 s
+    inch                 in       2.54E-2 m
+    lightYear                     9.46073E15 m
+    liter                L        1.0E-3 m^3
+    maxwell              Mx       1.0E-8 Wb
+    mho                           1.0 S
+    micron                        1.0E-6 m
+    mil                           2.54E-5 m
+    mile                 mi       1.609344E3 m
+    minute               min      6.0E1 s
+    parsec               pc       3.085E16 m
+    pica                          4.233333E-3 m
+    pound                lb       4.535924E-1 kg
+    revolution                    6.283185 rad
+    revolutionPerMinute  rpm      1.047198E-1 rad/s
+    yard                 yd       9.144E-1 m
+    year                          3.1536E7 s
 
 ## <a name='subsection6'></a>Quantities and Derived Units with Special Names
 
@@ -341,18 +341,18 @@ strings\.
 
 A units system enhanced with quantity type checking might benefit from inclusion
 of other derived types which are expressed in terms of special units, as
-illustrated in Table 2 of *NIST Publication 330*\. The quantity *area*, for
-example, could be defined as units properly reducing to *meter^2*, although
-the utility of defining a unit named *square meter* is arguable\.
+illustrated in Table 2 of *NIST Publication* *330* \. The quantity *area*,
+for example, could be defined as units properly reducing to *meter^2*,
+although the utility of defining a unit named *square meter* is arguable\.
 
 # <a name='section5'></a>REFERENCES
 
 The unit names, abbreviations, and conversion values are derived from those
 published by the United States Department of Commerce Technology Administration,
 National Institute of Standards and Technology \(NIST\) in *NIST Special
-Publication 330: The International System of Units \(SI\)* and *NIST Special
-Publication 811: Guide for the Use of the International System of Units \(SI\)*\.
-Both of these publications are available \(as of December 2000\) from
+Publication 330: The International System of* *Units \(SI\)* and *NIST Special
+Publication 811: Guide for* *the Use of the International System of Units
+\(SI\)* \. Both of these publications are available \(as of December 2000\) from
 [http://physics\.nist\.gov/cuu/Reference/contents\.html](http://physics\.nist\.gov/cuu/Reference/contents\.html)
 
 The ideas behind implementation of this package is based in part on code written

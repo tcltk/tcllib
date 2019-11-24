@@ -2,7 +2,7 @@
 [//000000001]: # (sha1 \- SHA\-x Message\-Digest Algorithm)
 [//000000002]: # (Generated from file 'sha1\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (sha1\(n\) 2\.0\.3 tcllib "SHA\-x Message\-Digest Algorithm")
+[//000000004]: # (sha1\(n\) 2\.0\.4 tcllib "SHA\-x Message\-Digest Algorithm")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ sha1 \- SHA1 Message\-Digest Algorithm
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require sha1 ?2\.0\.3?  
+package require sha1 ?2\.0\.4?  
 
 [__::sha1::sha1__ ?__\-hex&#124;\-bin__? \[ __\-channel channel__ &#124; __\-file filename__ &#124; ?__\-\-__? *string* \]](#1)  
 [__::sha1::hmac__ *key* *string*](#2)  
@@ -158,12 +158,12 @@ all cases\.
     % sha1::hmac Sekret "Tcl does SHA1"
     ae6251fa51b95b18cba2be95eb031d07475ff03c
 
-    % set tok \[sha1::SHA1Init\]
+    % set tok [sha1::SHA1Init]
     ::sha1::1
     % sha1::SHA1Update $tok "Tcl "
     % sha1::SHA1Update $tok "does "
     % sha1::SHA1Update $tok "SHA1"
-    % sha1::Hex \[sha1::SHA1Final $tok\]
+    % sha1::Hex [sha1::SHA1Final $tok]
     285a6a91c45a9066bf39fcf24425796ef0b2a8bf
 
 # <a name='section5'></a>REFERENCES

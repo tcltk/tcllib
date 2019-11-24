@@ -183,775 +183,775 @@ It has no direct formal specification beyond what was said above\.
 
 Assuming the following PEG for simple mathematical expressions
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 one possible PARAM serialization for it is
 
-    \# \-\*\- text \-\*\-
-    \# Parsing Expression Grammar 'TEMPLATE'\.
-    \# Generated for unknown, from file 'TEST'
+    # -*- text -*-
+    # Parsing Expression Grammar 'TEMPLATE'.
+    # Generated for unknown, from file 'TEST'
 
-    \#
-    \# Grammar Start Expression
-    \#
+    #
+    # Grammar Start Expression
+    #
 
     <<MAIN>>:
-             call              sym\_Expression
+             call              sym_Expression
              halt
 
-    \#
-    \# value Symbol 'AddOp'
-    \#
+    #
+    # value Symbol 'AddOp'
+    #
 
-    sym\_AddOp:
-    \# /
-    \#     '\-'
-    \#     '\+'
+    sym_AddOp:
+    # /
+    #     '-'
+    #     '+'
 
-             symbol\_restore    AddOp
-      found\! jump              found\_7
-             loc\_push
+             symbol_restore    AddOp
+      found! jump              found_7
+             loc_push
 
-             call              choice\_5
+             call              choice_5
 
-       fail\! value\_clear
-         ok\! value\_leaf        AddOp
-             symbol\_save       AddOp
-             error\_nonterminal AddOp
-             loc\_pop\_discard
+       fail! value_clear
+         ok! value_leaf        AddOp
+             symbol_save       AddOp
+             error_nonterminal AddOp
+             loc_pop_discard
 
-    found\_7:
-         ok\! ast\_value\_push
+    found_7:
+         ok! ast_value_push
              return
 
-    choice\_5:
-    \# /
-    \#     '\-'
-    \#     '\+'
+    choice_5:
+    # /
+    #     '-'
+    #     '+'
 
-             error\_clear
+             error_clear
 
-             loc\_push
-             error\_push
+             loc_push
+             error_push
 
-             input\_next        "t \-"
-         ok\! test\_char         "\-"
+             input_next        "t -"
+         ok! test_char         "-"
 
-             error\_pop\_merge
-         ok\! jump              oknoast\_4
+             error_pop_merge
+         ok! jump              oknoast_4
 
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             input\_next        "t \+"
-         ok\! test\_char         "\+"
+             input_next        "t +"
+         ok! test_char         "+"
 
-             error\_pop\_merge
-         ok\! jump              oknoast\_4
+             error_pop_merge
+         ok! jump              oknoast_4
 
-             loc\_pop\_rewind
-             status\_fail
+             loc_pop_rewind
+             status_fail
              return
 
-    oknoast\_4:
-             loc\_pop\_discard
+    oknoast_4:
+             loc_pop_discard
              return
-    \#
-    \# value Symbol 'Digit'
-    \#
+    #
+    # value Symbol 'Digit'
+    #
 
-    sym\_Digit:
-    \# /
-    \#     '0'
-    \#     '1'
-    \#     '2'
-    \#     '3'
-    \#     '4'
-    \#     '5'
-    \#     '6'
-    \#     '7'
-    \#     '8'
-    \#     '9'
+    sym_Digit:
+    # /
+    #     '0'
+    #     '1'
+    #     '2'
+    #     '3'
+    #     '4'
+    #     '5'
+    #     '6'
+    #     '7'
+    #     '8'
+    #     '9'
 
-             symbol\_restore    Digit
-      found\! jump              found\_22
-             loc\_push
+             symbol_restore    Digit
+      found! jump              found_22
+             loc_push
 
-             call              choice\_20
+             call              choice_20
 
-       fail\! value\_clear
-         ok\! value\_leaf        Digit
-             symbol\_save       Digit
-             error\_nonterminal Digit
-             loc\_pop\_discard
+       fail! value_clear
+         ok! value_leaf        Digit
+             symbol_save       Digit
+             error_nonterminal Digit
+             loc_pop_discard
 
-    found\_22:
-         ok\! ast\_value\_push
-             return
-
-    choice\_20:
-    \# /
-    \#     '0'
-    \#     '1'
-    \#     '2'
-    \#     '3'
-    \#     '4'
-    \#     '5'
-    \#     '6'
-    \#     '7'
-    \#     '8'
-    \#     '9'
-
-             error\_clear
-
-             loc\_push
-             error\_push
-
-             input\_next        "t 0"
-         ok\! test\_char         "0"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 1"
-         ok\! test\_char         "1"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 2"
-         ok\! test\_char         "2"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 3"
-         ok\! test\_char         "3"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 4"
-         ok\! test\_char         "4"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 5"
-         ok\! test\_char         "5"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 6"
-         ok\! test\_char         "6"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 7"
-         ok\! test\_char         "7"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 8"
-         ok\! test\_char         "8"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t 9"
-         ok\! test\_char         "9"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_19
-
-             loc\_pop\_rewind
-             status\_fail
+    found_22:
+         ok! ast_value_push
              return
 
-    oknoast\_19:
-             loc\_pop\_discard
-             return
-    \#
-    \# value Symbol 'Expression'
-    \#
+    choice_20:
+    # /
+    #     '0'
+    #     '1'
+    #     '2'
+    #     '3'
+    #     '4'
+    #     '5'
+    #     '6'
+    #     '7'
+    #     '8'
+    #     '9'
 
-    sym\_Expression:
-    \# /
-    \#     x
-    \#         '\\\('
-    \#         \(Expression\)
-    \#         '\\\)'
-    \#     x
-    \#         \(Factor\)
-    \#         \*
-    \#             x
-    \#                 \(MulOp\)
-    \#                 \(Factor\)
+             error_clear
 
-             symbol\_restore    Expression
-      found\! jump              found\_46
-             loc\_push
-             ast\_push
+             loc_push
+             error_push
 
-             call              choice\_44
+             input_next        "t 0"
+         ok! test_char         "0"
 
-       fail\! value\_clear
-         ok\! value\_reduce      Expression
-             symbol\_save       Expression
-             error\_nonterminal Expression
-             ast\_pop\_rewind
-             loc\_pop\_discard
+             error_pop_merge
+         ok! jump              oknoast_19
 
-    found\_46:
-         ok\! ast\_value\_push
-             return
+             loc_pop_rewind
+             loc_push
+             error_push
 
-    choice\_44:
-    \# /
-    \#     x
-    \#         '\\\('
-    \#         \(Expression\)
-    \#         '\\\)'
-    \#     x
-    \#         \(Factor\)
-    \#         \*
-    \#             x
-    \#                 \(MulOp\)
-    \#                 \(Factor\)
+             input_next        "t 1"
+         ok! test_char         "1"
 
-             error\_clear
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             ast\_push
-             loc\_push
-             error\_push
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             call              sequence\_27
+             input_next        "t 2"
+         ok! test_char         "2"
 
-             error\_pop\_merge
-         ok\! jump              ok\_43
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             ast\_pop\_rewind
-             loc\_pop\_rewind
-             ast\_push
-             loc\_push
-             error\_push
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             call              sequence\_40
+             input_next        "t 3"
+         ok! test_char         "3"
 
-             error\_pop\_merge
-         ok\! jump              ok\_43
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             ast\_pop\_rewind
-             loc\_pop\_rewind
-             status\_fail
-             return
+             loc_pop_rewind
+             loc_push
+             error_push
 
-    ok\_43:
-             ast\_pop\_discard
-             loc\_pop\_discard
-             return
+             input_next        "t 4"
+         ok! test_char         "4"
 
-    sequence\_27:
-    \# x
-    \#     '\\\('
-    \#     \(Expression\)
-    \#     '\\\)'
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             loc\_push
-             error\_clear
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             error\_push
+             input_next        "t 5"
+         ok! test_char         "5"
 
-             input\_next        "t \("
-         ok\! test\_char         "\("
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             error\_pop\_merge
-       fail\! jump              failednoast\_29
-             ast\_push
-             error\_push
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             call              sym\_Expression
+             input_next        "t 6"
+         ok! test_char         "6"
 
-             error\_pop\_merge
-       fail\! jump              failed\_28
-             error\_push
+             error_pop_merge
+         ok! jump              oknoast_19
 
-             input\_next        "t \)"
-         ok\! test\_char         "\)"
+             loc_pop_rewind
+             loc_push
+             error_push
 
-             error\_pop\_merge
-       fail\! jump              failed\_28
+             input_next        "t 7"
+         ok! test_char         "7"
 
-             ast\_pop\_discard
-             loc\_pop\_discard
-             return
+             error_pop_merge
+         ok! jump              oknoast_19
 
-    failed\_28:
-             ast\_pop\_rewind
+             loc_pop_rewind
+             loc_push
+             error_push
 
-    failednoast\_29:
-             loc\_pop\_rewind
+             input_next        "t 8"
+         ok! test_char         "8"
+
+             error_pop_merge
+         ok! jump              oknoast_19
+
+             loc_pop_rewind
+             loc_push
+             error_push
+
+             input_next        "t 9"
+         ok! test_char         "9"
+
+             error_pop_merge
+         ok! jump              oknoast_19
+
+             loc_pop_rewind
+             status_fail
              return
 
-    sequence\_40:
-    \# x
-    \#     \(Factor\)
-    \#     \*
-    \#         x
-    \#             \(MulOp\)
-    \#             \(Factor\)
+    oknoast_19:
+             loc_pop_discard
+             return
+    #
+    # value Symbol 'Expression'
+    #
 
-             ast\_push
-             loc\_push
-             error\_clear
+    sym_Expression:
+    # /
+    #     x
+    #         '\('
+    #         (Expression)
+    #         '\)'
+    #     x
+    #         (Factor)
+    #         *
+    #             x
+    #                 (MulOp)
+    #                 (Factor)
 
-             error\_push
+             symbol_restore    Expression
+      found! jump              found_46
+             loc_push
+             ast_push
 
-             call              sym\_Factor
+             call              choice_44
 
-             error\_pop\_merge
-       fail\! jump              failed\_41
-             error\_push
+       fail! value_clear
+         ok! value_reduce      Expression
+             symbol_save       Expression
+             error_nonterminal Expression
+             ast_pop_rewind
+             loc_pop_discard
 
-             call              kleene\_37
-
-             error\_pop\_merge
-       fail\! jump              failed\_41
-
-             ast\_pop\_discard
-             loc\_pop\_discard
+    found_46:
+         ok! ast_value_push
              return
 
-    failed\_41:
-             ast\_pop\_rewind
-             loc\_pop\_rewind
+    choice_44:
+    # /
+    #     x
+    #         '\('
+    #         (Expression)
+    #         '\)'
+    #     x
+    #         (Factor)
+    #         *
+    #             x
+    #                 (MulOp)
+    #                 (Factor)
+
+             error_clear
+
+             ast_push
+             loc_push
+             error_push
+
+             call              sequence_27
+
+             error_pop_merge
+         ok! jump              ok_43
+
+             ast_pop_rewind
+             loc_pop_rewind
+             ast_push
+             loc_push
+             error_push
+
+             call              sequence_40
+
+             error_pop_merge
+         ok! jump              ok_43
+
+             ast_pop_rewind
+             loc_pop_rewind
+             status_fail
              return
 
-    kleene\_37:
-    \# \*
-    \#     x
-    \#         \(MulOp\)
-    \#         \(Factor\)
-
-             loc\_push
-             error\_push
-
-             call              sequence\_34
-
-             error\_pop\_merge
-       fail\! jump              failed\_38
-             loc\_pop\_discard
-             jump              kleene\_37
-
-    failed\_38:
-             loc\_pop\_rewind
-             status\_ok
+    ok_43:
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    sequence\_34:
-    \# x
-    \#     \(MulOp\)
-    \#     \(Factor\)
+    sequence_27:
+    # x
+    #     '\('
+    #     (Expression)
+    #     '\)'
 
-             ast\_push
-             loc\_push
-             error\_clear
+             loc_push
+             error_clear
 
-             error\_push
+             error_push
 
-             call              sym\_MulOp
+             input_next        "t ("
+         ok! test_char         "("
 
-             error\_pop\_merge
-       fail\! jump              failed\_35
-             error\_push
+             error_pop_merge
+       fail! jump              failednoast_29
+             ast_push
+             error_push
 
-             call              sym\_Factor
+             call              sym_Expression
 
-             error\_pop\_merge
-       fail\! jump              failed\_35
+             error_pop_merge
+       fail! jump              failed_28
+             error_push
 
-             ast\_pop\_discard
-             loc\_pop\_discard
+             input_next        "t )"
+         ok! test_char         ")"
+
+             error_pop_merge
+       fail! jump              failed_28
+
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    failed\_35:
-             ast\_pop\_rewind
-             loc\_pop\_rewind
-             return
-    \#
-    \# value Symbol 'Factor'
-    \#
+    failed_28:
+             ast_pop_rewind
 
-    sym\_Factor:
-    \# x
-    \#     \(Term\)
-    \#     \*
-    \#         x
-    \#             \(AddOp\)
-    \#             \(Term\)
-
-             symbol\_restore    Factor
-      found\! jump              found\_60
-             loc\_push
-             ast\_push
-
-             call              sequence\_57
-
-       fail\! value\_clear
-         ok\! value\_reduce      Factor
-             symbol\_save       Factor
-             error\_nonterminal Factor
-             ast\_pop\_rewind
-             loc\_pop\_discard
-
-    found\_60:
-         ok\! ast\_value\_push
+    failednoast_29:
+             loc_pop_rewind
              return
 
-    sequence\_57:
-    \# x
-    \#     \(Term\)
-    \#     \*
-    \#         x
-    \#             \(AddOp\)
-    \#             \(Term\)
+    sequence_40:
+    # x
+    #     (Factor)
+    #     *
+    #         x
+    #             (MulOp)
+    #             (Factor)
 
-             ast\_push
-             loc\_push
-             error\_clear
+             ast_push
+             loc_push
+             error_clear
 
-             error\_push
+             error_push
 
-             call              sym\_Term
+             call              sym_Factor
 
-             error\_pop\_merge
-       fail\! jump              failed\_58
-             error\_push
+             error_pop_merge
+       fail! jump              failed_41
+             error_push
 
-             call              kleene\_54
+             call              kleene_37
 
-             error\_pop\_merge
-       fail\! jump              failed\_58
+             error_pop_merge
+       fail! jump              failed_41
 
-             ast\_pop\_discard
-             loc\_pop\_discard
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    failed\_58:
-             ast\_pop\_rewind
-             loc\_pop\_rewind
+    failed_41:
+             ast_pop_rewind
+             loc_pop_rewind
              return
 
-    kleene\_54:
-    \# \*
-    \#     x
-    \#         \(AddOp\)
-    \#         \(Term\)
+    kleene_37:
+    # *
+    #     x
+    #         (MulOp)
+    #         (Factor)
 
-             loc\_push
-             error\_push
+             loc_push
+             error_push
 
-             call              sequence\_51
+             call              sequence_34
 
-             error\_pop\_merge
-       fail\! jump              failed\_55
-             loc\_pop\_discard
-             jump              kleene\_54
+             error_pop_merge
+       fail! jump              failed_38
+             loc_pop_discard
+             jump              kleene_37
 
-    failed\_55:
-             loc\_pop\_rewind
-             status\_ok
+    failed_38:
+             loc_pop_rewind
+             status_ok
              return
 
-    sequence\_51:
-    \# x
-    \#     \(AddOp\)
-    \#     \(Term\)
+    sequence_34:
+    # x
+    #     (MulOp)
+    #     (Factor)
 
-             ast\_push
-             loc\_push
-             error\_clear
+             ast_push
+             loc_push
+             error_clear
 
-             error\_push
+             error_push
 
-             call              sym\_AddOp
+             call              sym_MulOp
 
-             error\_pop\_merge
-       fail\! jump              failed\_52
-             error\_push
+             error_pop_merge
+       fail! jump              failed_35
+             error_push
 
-             call              sym\_Term
+             call              sym_Factor
 
-             error\_pop\_merge
-       fail\! jump              failed\_52
+             error_pop_merge
+       fail! jump              failed_35
 
-             ast\_pop\_discard
-             loc\_pop\_discard
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    failed\_52:
-             ast\_pop\_rewind
-             loc\_pop\_rewind
+    failed_35:
+             ast_pop_rewind
+             loc_pop_rewind
              return
-    \#
-    \# value Symbol 'MulOp'
-    \#
+    #
+    # value Symbol 'Factor'
+    #
 
-    sym\_MulOp:
-    \# /
-    \#     '\*'
-    \#     '/'
+    sym_Factor:
+    # x
+    #     (Term)
+    #     *
+    #         x
+    #             (AddOp)
+    #             (Term)
 
-             symbol\_restore    MulOp
-      found\! jump              found\_67
-             loc\_push
+             symbol_restore    Factor
+      found! jump              found_60
+             loc_push
+             ast_push
 
-             call              choice\_65
+             call              sequence_57
 
-       fail\! value\_clear
-         ok\! value\_leaf        MulOp
-             symbol\_save       MulOp
-             error\_nonterminal MulOp
-             loc\_pop\_discard
+       fail! value_clear
+         ok! value_reduce      Factor
+             symbol_save       Factor
+             error_nonterminal Factor
+             ast_pop_rewind
+             loc_pop_discard
 
-    found\_67:
-         ok\! ast\_value\_push
-             return
-
-    choice\_65:
-    \# /
-    \#     '\*'
-    \#     '/'
-
-             error\_clear
-
-             loc\_push
-             error\_push
-
-             input\_next        "t \*"
-         ok\! test\_char         "\*"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_64
-
-             loc\_pop\_rewind
-             loc\_push
-             error\_push
-
-             input\_next        "t /"
-         ok\! test\_char         "/"
-
-             error\_pop\_merge
-         ok\! jump              oknoast\_64
-
-             loc\_pop\_rewind
-             status\_fail
+    found_60:
+         ok! ast_value_push
              return
 
-    oknoast\_64:
-             loc\_pop\_discard
-             return
-    \#
-    \# value Symbol 'Number'
-    \#
+    sequence_57:
+    # x
+    #     (Term)
+    #     *
+    #         x
+    #             (AddOp)
+    #             (Term)
 
-    sym\_Number:
-    \# x
-    \#     ?
-    \#         \(Sign\)
-    \#     \+
-    \#         \(Digit\)
+             ast_push
+             loc_push
+             error_clear
 
-             symbol\_restore    Number
-      found\! jump              found\_80
-             loc\_push
-             ast\_push
+             error_push
 
-             call              sequence\_77
+             call              sym_Term
 
-       fail\! value\_clear
-         ok\! value\_reduce      Number
-             symbol\_save       Number
-             error\_nonterminal Number
-             ast\_pop\_rewind
-             loc\_pop\_discard
+             error_pop_merge
+       fail! jump              failed_58
+             error_push
 
-    found\_80:
-         ok\! ast\_value\_push
+             call              kleene_54
+
+             error_pop_merge
+       fail! jump              failed_58
+
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    sequence\_77:
-    \# x
-    \#     ?
-    \#         \(Sign\)
-    \#     \+
-    \#         \(Digit\)
-
-             ast\_push
-             loc\_push
-             error\_clear
-
-             error\_push
-
-             call              optional\_70
-
-             error\_pop\_merge
-       fail\! jump              failed\_78
-             error\_push
-
-             call              poskleene\_73
-
-             error\_pop\_merge
-       fail\! jump              failed\_78
-
-             ast\_pop\_discard
-             loc\_pop\_discard
+    failed_58:
+             ast_pop_rewind
+             loc_pop_rewind
              return
 
-    failed\_78:
-             ast\_pop\_rewind
-             loc\_pop\_rewind
+    kleene_54:
+    # *
+    #     x
+    #         (AddOp)
+    #         (Term)
+
+             loc_push
+             error_push
+
+             call              sequence_51
+
+             error_pop_merge
+       fail! jump              failed_55
+             loc_pop_discard
+             jump              kleene_54
+
+    failed_55:
+             loc_pop_rewind
+             status_ok
              return
 
-    optional\_70:
-    \# ?
-    \#     \(Sign\)
+    sequence_51:
+    # x
+    #     (AddOp)
+    #     (Term)
 
-             loc\_push
-             error\_push
+             ast_push
+             loc_push
+             error_clear
 
-             call              sym\_Sign
+             error_push
 
-             error\_pop\_merge
-       fail\! loc\_pop\_rewind
-         ok\! loc\_pop\_discard
-             status\_ok
+             call              sym_AddOp
+
+             error_pop_merge
+       fail! jump              failed_52
+             error_push
+
+             call              sym_Term
+
+             error_pop_merge
+       fail! jump              failed_52
+
+             ast_pop_discard
+             loc_pop_discard
              return
 
-    poskleene\_73:
-    \# \+
-    \#     \(Digit\)
-
-             loc\_push
-
-             call              sym\_Digit
-
-       fail\! jump              failed\_74
-
-    loop\_75:
-             loc\_pop\_discard
-             loc\_push
-             error\_push
-
-             call              sym\_Digit
-
-             error\_pop\_merge
-         ok\! jump              loop\_75
-             status\_ok
-
-    failed\_74:
-             loc\_pop\_rewind
+    failed_52:
+             ast_pop_rewind
+             loc_pop_rewind
              return
-    \#
-    \# value Symbol 'Sign'
-    \#
+    #
+    # value Symbol 'MulOp'
+    #
 
-    sym\_Sign:
-    \# /
-    \#     '\-'
-    \#     '\+'
+    sym_MulOp:
+    # /
+    #     '*'
+    #     '/'
 
-             symbol\_restore    Sign
-      found\! jump              found\_86
-             loc\_push
+             symbol_restore    MulOp
+      found! jump              found_67
+             loc_push
 
-             call              choice\_5
+             call              choice_65
 
-       fail\! value\_clear
-         ok\! value\_leaf        Sign
-             symbol\_save       Sign
-             error\_nonterminal Sign
-             loc\_pop\_discard
+       fail! value_clear
+         ok! value_leaf        MulOp
+             symbol_save       MulOp
+             error_nonterminal MulOp
+             loc_pop_discard
 
-    found\_86:
-         ok\! ast\_value\_push
-             return
-    \#
-    \# value Symbol 'Term'
-    \#
-
-    sym\_Term:
-    \# \(Number\)
-
-             symbol\_restore    Term
-      found\! jump              found\_89
-             loc\_push
-             ast\_push
-
-             call              sym\_Number
-
-       fail\! value\_clear
-         ok\! value\_reduce      Term
-             symbol\_save       Term
-             error\_nonterminal Term
-             ast\_pop\_rewind
-             loc\_pop\_discard
-
-    found\_89:
-         ok\! ast\_value\_push
+    found_67:
+         ok! ast_value_push
              return
 
-    \#
-    \#
+    choice_65:
+    # /
+    #     '*'
+    #     '/'
+
+             error_clear
+
+             loc_push
+             error_push
+
+             input_next        "t *"
+         ok! test_char         "*"
+
+             error_pop_merge
+         ok! jump              oknoast_64
+
+             loc_pop_rewind
+             loc_push
+             error_push
+
+             input_next        "t /"
+         ok! test_char         "/"
+
+             error_pop_merge
+         ok! jump              oknoast_64
+
+             loc_pop_rewind
+             status_fail
+             return
+
+    oknoast_64:
+             loc_pop_discard
+             return
+    #
+    # value Symbol 'Number'
+    #
+
+    sym_Number:
+    # x
+    #     ?
+    #         (Sign)
+    #     +
+    #         (Digit)
+
+             symbol_restore    Number
+      found! jump              found_80
+             loc_push
+             ast_push
+
+             call              sequence_77
+
+       fail! value_clear
+         ok! value_reduce      Number
+             symbol_save       Number
+             error_nonterminal Number
+             ast_pop_rewind
+             loc_pop_discard
+
+    found_80:
+         ok! ast_value_push
+             return
+
+    sequence_77:
+    # x
+    #     ?
+    #         (Sign)
+    #     +
+    #         (Digit)
+
+             ast_push
+             loc_push
+             error_clear
+
+             error_push
+
+             call              optional_70
+
+             error_pop_merge
+       fail! jump              failed_78
+             error_push
+
+             call              poskleene_73
+
+             error_pop_merge
+       fail! jump              failed_78
+
+             ast_pop_discard
+             loc_pop_discard
+             return
+
+    failed_78:
+             ast_pop_rewind
+             loc_pop_rewind
+             return
+
+    optional_70:
+    # ?
+    #     (Sign)
+
+             loc_push
+             error_push
+
+             call              sym_Sign
+
+             error_pop_merge
+       fail! loc_pop_rewind
+         ok! loc_pop_discard
+             status_ok
+             return
+
+    poskleene_73:
+    # +
+    #     (Digit)
+
+             loc_push
+
+             call              sym_Digit
+
+       fail! jump              failed_74
+
+    loop_75:
+             loc_pop_discard
+             loc_push
+             error_push
+
+             call              sym_Digit
+
+             error_pop_merge
+         ok! jump              loop_75
+             status_ok
+
+    failed_74:
+             loc_pop_rewind
+             return
+    #
+    # value Symbol 'Sign'
+    #
+
+    sym_Sign:
+    # /
+    #     '-'
+    #     '+'
+
+             symbol_restore    Sign
+      found! jump              found_86
+             loc_push
+
+             call              choice_5
+
+       fail! value_clear
+         ok! value_leaf        Sign
+             symbol_save       Sign
+             error_nonterminal Sign
+             loc_pop_discard
+
+    found_86:
+         ok! ast_value_push
+             return
+    #
+    # value Symbol 'Term'
+    #
+
+    sym_Term:
+    # (Number)
+
+             symbol_restore    Term
+      found! jump              found_89
+             loc_push
+             ast_push
+
+             call              sym_Number
+
+       fail! value_clear
+         ok! value_reduce      Term
+             symbol_save       Term
+             error_nonterminal Term
+             ast_pop_rewind
+             loc_pop_discard
+
+    found_89:
+         ok! ast_value_push
+             return
+
+    #
+    #
 
 # <a name='section5'></a>PEG serialization format
 
@@ -1045,32 +1045,32 @@ may have more than one regular serialization only exactly one of them will be
 
 Assuming the following PEG for simple mathematical expressions
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 then its canonical serialization \(except for whitespace\) is
 
-    pt::grammar::peg \{
-        rules \{
-            AddOp      \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Digit      \{is \{/ \{t 0\} \{t 1\} \{t 2\} \{t 3\} \{t 4\} \{t 5\} \{t 6\} \{t 7\} \{t 8\} \{t 9\}\}                mode value\}
-            Expression \{is \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}                                        mode value\}
-            Factor     \{is \{/ \{x \{t \(\} \{n Expression\} \{t \)\}\} \{n Number\}\}                                  mode value\}
-            MulOp      \{is \{/ \{t \*\} \{t /\}\}                                                                mode value\}
-            Number     \{is \{x \{? \{n Sign\}\} \{\+ \{n Digit\}\}\}                                                 mode value\}
-            Sign       \{is \{/ \{t \-\} \{t \+\}\}                                                                mode value\}
-            Term       \{is \{x \{n Factor\} \{\* \{x \{n MulOp\} \{n Factor\}\}\}\}                                    mode value\}
-        \}
-        start \{n Expression\}
-    \}
+    pt::grammar::peg {
+        rules {
+            AddOp      {is {/ {t -} {t +}}                                                                mode value}
+            Digit      {is {/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}}                mode value}
+            Expression {is {x {n Term} {* {x {n AddOp} {n Term}}}}                                        mode value}
+            Factor     {is {/ {x {t (} {n Expression} {t )}} {n Number}}                                  mode value}
+            MulOp      {is {/ {t *} {t /}}                                                                mode value}
+            Number     {is {x {? {n Sign}} {+ {n Digit}}}                                                 mode value}
+            Sign       {is {/ {t -} {t +}}                                                                mode value}
+            Term       {is {x {n Factor} {* {x {n MulOp} {n Factor}}}}                                    mode value}
+        }
+        start {n Expression}
+    }
 
 # <a name='section6'></a>PE serialization format
 
@@ -1204,11 +1204,11 @@ of them will be *canonical*\.
 
 Assuming the parsing expression shown on the right\-hand side of the rule
 
-    Expression <\- Term \(AddOp Term\)\*
+    Expression <- Term (AddOp Term)*
 
 then its canonical serialization \(except for whitespace\) is
 
-    \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
 
 # <a name='section7'></a>Bugs, Ideas, Feedback
 

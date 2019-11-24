@@ -1,9 +1,41 @@
-###
-# Installer tools
-###
-proc ::practcl::_isdirectory name {
-  return [file isdirectory $name]
+proc ::practcl::_pkgindex_simpleIndex {path} {
+set buffer {}
+  set pkgidxfile    [file join $path pkgIndex.tcl]
+  set modfile       [file join $path [file tail $path].tcl]
+  set use_pkgindex  [file exists $pkgidxfile]
+  set tclfiles      {}
+  set found 0
+  set mlist [list pkgIndex.tcl index.tcl [file tail $modfile] version_info.tcl]
+  foreach file [glob -nocomplain [file join $path *.tcl]] {
+    if {[file tail $file] ni $mlist} {
+      #puts [list NONMODFILE $file]
+      return {}
+    }
+  }
+  foreach file [glob -nocomplain [file join $path *.tcl]] {
+    if { [file tail $file] == "version_info.tcl" } continue
+    set fin [open $file r]
+    set dat [read $fin]
+    close $fin
+    if {![regexp "package provide" $dat]} continue
+    set fname [file rootname [file tail $file]]
+    # Look for a package provide statement
+    foreach line [split $dat \n] {
+      set line [string trim $line]
+      if { [string range $line 0 14] != "package provide" } continue
+      set package [lindex $line 2]
+      set version [lindex $line 3]
+      if {[string index $package 0] in "\$ \[ @"} continue
+      if {[string index $version 0] in "\$ \[ @"} continue
+      #puts "PKGLINE $line"
+      append buffer "package ifneeded $package $version \[list source \[file join %DIR% [file tail $file]\]\]" \n
+      break
+    }
+  }
+  return $buffer
 }
+
+
 ###
 # Return true if the pkgindex file contains
 # any statement other than "package ifneeded"
@@ -11,8 +43,20 @@ proc ::practcl::_isdirectory name {
 ###
 proc ::practcl::_pkgindex_directory {path} {
   set buffer {}
-  set pkgidxfile [file join $path pkgIndex.tcl]
-  if {![file exists $pkgidxfile]} {
+  set pkgidxfile    [file join $path pkgIndex.tcl]
+  set modfile       [file join $path [file tail $path].tcl]
+  set use_pkgindex  [file exists $pkgidxfile]
+  set tclfiles      {}
+  if {$use_pkgindex && [file exists $modfile]} {
+    set use_pkgindex 0
+    set mlist [list pkgIndex.tcl [file tail $modfile]]
+    foreach file [glob -nocomplain [file join $path *.tcl]] {
+      lappend tclfiles [file tail $file]
+      if {[file tail $file] in $mlist} continue
+      incr use_pkgindex
+    }
+  }
+  if {!$use_pkgindex} {
     # No pkgIndex file, read the source
     foreach file [glob -nocomplain $path/*.tm] {
       set file [file normalize $file]
@@ -110,7 +154,9 @@ proc ::practcl::_pkgindex_directory {path} {
   return $buffer
 }
 
-
+###
+# Helper function for ::practcl::pkgindex_path
+###
 proc ::practcl::_pkgindex_path_subdir {path} {
   set result {}
   if {[file exists [file join $path src build.tcl]]} {
@@ -173,6 +219,19 @@ set IDXPATH [lindex $::PATHSTACK end]
     }
     set path_indexed($base) 1
     set path_indexed([file join $base boot tcl]) 1
+    append buffer \n {# SINGLE FILE MODULES BEGIN} \n {set dir [lindex $::PATHSTACK end]} \n
+    foreach path $paths {
+      if {$path_indexed($path)} continue
+      set thisdir [file_relative $base $path]
+      set simpleIdx [_pkgindex_simpleIndex $path]
+      if {[string length $simpleIdx]==0} continue
+      incr path_indexed($path)
+      if {[string length $simpleIdx]} {
+        incr path_indexed($path)
+        append buffer [string map [list %DIR% "\$dir \{$thisdir\}"] [string trimright $simpleIdx]] \n
+      }
+    }
+    append buffer {# SINGLE FILE MODULES END} \n
     foreach path $paths {
       if {$path_indexed($path)} continue
       set thisdir [file_relative $base $path]
@@ -191,6 +250,8 @@ set ::PATHSTACK [lrange $::PATHSTACK 0 end-1]
   return $buffer
 }
 
+# Delete the contents of [emph d2], and then
+# recusively Ccopy the contents of [emph d1] to [emph d2].
 proc ::practcl::installDir {d1 d2} {
   puts [format {%*sCreating %s} [expr {4 * [info level]}] {} [file tail $d2]]
   file delete -force -- $d2
@@ -217,6 +278,7 @@ proc ::practcl::installDir {d1 d2} {
   }
 }
 
+# Recursively copy the contents of [emph d1] to [emph d2]
 proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
   #if {$toplevel} {
   #  puts [list ::practcl::copyDir $d1 -> $d2]
@@ -245,5 +307,70 @@ proc ::practcl::copyDir {d1 d2 {toplevel 1}} {
         }
       }
     }
+  }
+}
+
+proc ::practcl::buildModule {modpath} {
+  set buildscript [file join $modpath build build.tcl]
+  if {![file exists $buildscript]} return
+  set pkgIndexFile [file join $modpath pkgIndex.tcl]
+  if {[file exists $pkgIndexFile]} {
+    set latest 0
+    foreach file [::practcl::findByPattern [file dirname $buildscript] *.tcl] {
+      set mtime [file mtime $file]
+      if {$mtime>$latest} {
+        set latest $mtime
+      }
+    }
+    set IdxTime [file mtime $pkgIndexFile]
+    if {$latest<$IdxTime} return
+  }
+  ::practcl::dotclexec $buildscript
+}
+
+###
+# Install a module from MODPATH to the directory specified.
+# [emph dpath] is assumed to be the fully qualified path where module is to be placed.
+# Any existing files will be deleted at that path.
+# If the path is symlink the process will return with no error and no action.
+# If the module has contents in the build/ directory that are newer than the
+# .tcl files in the module source directory, and a build/build.tcl file exists,
+# the build/build.tcl file is run.
+# If the source directory includes a file named index.tcl, the directory is assumed
+# to be in the tao style of modules, and the entire directory (and all subdirectories)
+# are copied verbatim.
+# If no index.tcl file is present, all .tcl files are copied from the module source
+# directory, and a pkgIndex.tcl file is generated if non yet exists.
+# I a folder named htdocs exists in the source directory, that directory is copied
+# verbatim to the destination.
+###
+proc ::practcl::installModule {modpath DEST} {
+  if {[file exists [file join $DEST modules]]} {
+    set dpath [file join $DEST modules [file tail $modpath]]
+  } else {
+    set dpath $DEST
+  }
+  if {[file exists $dpath] && [file type $dpath] eq "link"} return
+  if {[file exists [file join $modpath index.tcl]]} {
+    # IRM/Tao style modules non-amalgamated
+    ::practcl::installDir $modpath $dpath
+    return
+  }
+  buildModule $modpath
+  set files [glob -nocomplain [file join $modpath *.tcl]]
+  if {[llength $files]} {
+    if {[llength $files]>1} {
+      if {![file exists [file join $modpath pkgIndex.tcl]]} {
+        pkg_mkIndex $modpath
+      }
+    }
+    file delete -force $dpath
+    file mkdir $dpath
+    foreach file $files {
+      file copy $file $dpath
+    }
+  }
+  if {[file exists [file join $modpath htdocs]]} {
+    ::practcl::copyDir [file join $modpath htdocs] [file join $dpath htdocs]
   }
 }

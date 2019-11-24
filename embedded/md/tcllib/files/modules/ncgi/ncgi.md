@@ -1,7 +1,7 @@
 
 [//000000001]: # (ncgi \- CGI Support)
 [//000000002]: # (Generated from file 'ncgi\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (ncgi\(n\) 1\.4\.3 tcllib "CGI Support")
+[//000000003]: # (ncgi\(n\) 1\.4\.4 tcllib "CGI Support")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ ncgi \- Procedures to manipulate CGI values\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require ncgi ?1\.4\.3?  
+package require ncgi ?1\.4\.4?  
 
 [__::ncgi::cookie__ *cookie*](#1)  
 [__::ncgi::decode__ *str*](#2)  
@@ -302,26 +302,26 @@ Uploading a file
 
     HTML:
     <html>
-    <form action="/cgi\-bin/upload\.cgi" method="POST" enctype="multipart/form\-data">
+    <form action="/cgi-bin/upload.cgi" method="POST" enctype="multipart/form-data">
     Path: <input type="file" name="filedata"><br>
     Name: <input type="text" name="filedesc"><br>
     <input type="submit">
     </form>
     </html>
 
-    TCL: upload\.cgi
-    \#\!/usr/local/bin/tclsh
+    TCL: upload.cgi
+    #!/usr/local/bin/tclsh
 
     ::ncgi::parse
-    set filedata \[::ncgi::value filedata\]
-    set filedesc \[::ncgi::value filedesc\]
+    set filedata [::ncgi::value filedata]
+    set filedesc [::ncgi::value filedesc]
 
-    puts "<html> File uploaded at <a href=\\"/images/$filedesc\\">$filedesc</a> </html>"
+    puts "<html> File uploaded at <a href=\"/images/$filedesc\">$filedesc</a> </html>"
 
     set filename /www/images/$filedesc
 
-    set fh \[open $filename w\]
-    puts \-nonewline $fh $filedata
+    set fh [open $filename w]
+    puts -nonewline $fh $filedata
     close $fh
 
 # <a name='section3'></a>Bugs, Ideas, Feedback

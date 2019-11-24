@@ -1,9 +1,9 @@
 
 [//000000001]: # (aes \- Advanced Encryption Standard \(AES\))
 [//000000002]: # (Generated from file 'aes\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>  
-Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (aes\(n\) 1\.2\.1 tcllib "Advanced Encryption Standard \(AES\)")
+[//000000003]: # (Copyright &copy; 2005, Pat Thoyts <patthoyts@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2012\-2014, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (aes\(n\) 1\.2\.1 tcllib "Advanced Encryption Standard \(AES\)")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -144,13 +144,13 @@ calling the __Reset__ function with a new initialization vector value\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % set nil\_block \[string repeat \\\\0 16\]
-    % aes::aes \-hex \-mode cbc \-dir encrypt \-key $nil\_block $nil\_block
+    % set nil_block [string repeat \\0 16]
+    % aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
     66e94bd4ef8a2c3b884cfa59ca342b2e
 
-    set Key \[aes::Init cbc $sixteen\_bytes\_key\_data $sixteen\_byte\_iv\]
-    append ciphertext \[aes::Encrypt $Key $plaintext\]
-    append ciphertext \[aes::Encrypt $Key $additional\_plaintext\]
+    set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
+    append ciphertext [aes::Encrypt $Key $plaintext]
+    append ciphertext [aes::Encrypt $Key $additional_plaintext]
     aes::Final $Key
 
 # <a name='section6'></a>REFERENCES

@@ -204,5 +204,5 @@ create properly wrapped paragraphs with arbitrary indentations.
 [list_end]
 
 [vset CATEGORY textutil]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

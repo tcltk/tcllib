@@ -253,10 +253,10 @@ proc ::math::interpolate::interp-linear { xyvalues xval } {
    #
    # Border cases first
    #
-   if { [lindex $xyvalues 0] > $xval } {
+   if { [lindex $xyvalues 0]+0.0 > $xval } {
       return [lindex $xyvalues 1]
    }
-   if { [lindex $xyvalues end-1] < $xval } {
+   if { [lindex $xyvalues end-1]+0.0 < $xval } {
       return [lindex $xyvalues end]
    }
 
@@ -277,9 +277,9 @@ proc ::math::interpolate::interp-linear { xyvalues xval } {
    set y2 [lindex $xyvalues $idxy]
 
    if { $x2 != $x } {
-      set yval [expr {$y+($y2-$y)*($xval-$x)/($x2-$x)}]
+      set yval [expr {$y+($y2-$y)*($xval-$x)/double($x2-$x)}]
    } else {
-      set yval $y
+      set yval [expr {double($y)}]
    }
    return $yval
 }
@@ -664,4 +664,4 @@ proc ::math::interpolate::interp-cubic-splines {coeffs x} {
 #
 # Announce our presence
 #
-package provide math::interpolate 1.1.1
+package provide math::interpolate 1.1.2

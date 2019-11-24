@@ -79,5 +79,5 @@ A
 Sergei Golovan
 
 [vset CATEGORY stringprep]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

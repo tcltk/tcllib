@@ -466,5 +466,5 @@ it. Main use is the highlighting of widget names in free-form text.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -94,20 +94,20 @@ ASCII characters\.
 
 # <a name='section3'></a>EXAMPLES
 
-    % set d \[uuencode::encode "Hello World\!"\]
-    2&5L;&\\\\@5V\]R;&0A
+    % set d [uuencode::encode "Hello World!"]
+    2&5L;&\\@5V]R;&0A
 
     % uuencode::uudecode $d
-    Hello World\!
+    Hello World!
 
-    % set d \[uuencode::uuencode \-name hello\.txt "Hello World"\]
-    begin 644 hello\.txt
-    \+2&5L;&\\@5V\]R;&0\`
-    \`
+    % set d [uuencode::uuencode -name hello.txt "Hello World"]
+    begin 644 hello.txt
+    +2&5L;&\@5V]R;&0`
+    `
     end
 
     % uuencode::uudecode $d
-    \{hello\.txt 644 \{Hello World\}\}
+    {hello.txt 644 {Hello World}}
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

@@ -93,52 +93,52 @@ Regarding the syntax of the \(E\)BNF itself
 The syntax:
 
     manpage = defs
-              MANPAGE\_BEGIN
+              MANPAGE_BEGIN
               header
               DESCRIPTION
               body
-              MANPAGE\_END
-              \{ <WHITE> \}
+              MANPAGE_END
+              { <WHITE> }
 
-    defs    = \{ INCLUDE &#124; VSET &#124; <WHITE> \}
+    defs    = { INCLUDE | VSET | <WHITE> }
 
-    header  = \{ TITLEDESC &#124; MODDESC &#124; COPYRIGHT &#124; REQUIRE &#124; defs &#124; xref \}
+    header  = { TITLEDESC | MODDESC | COPYRIGHT | REQUIRE | defs | xref }
 
-    xref    = KEYWORDS &#124; SEE\_ALSO &#124; CATEGORY
+    xref    = KEYWORDS | SEE_ALSO | CATEGORY
 
-    body    = paras \{ SECTION    sbody  \}
-    sbody   = paras \{ SUBSECTION ssbody \}
+    body    = paras { SECTION    sbody  }
+    sbody   = paras { SUBSECTION ssbody }
     ssbody  = paras
 
-    paras   = tblock \{ \(PARA &#124; NL\) tblock \}
+    paras   = tblock { (PARA | NL) tblock }
 
-    tblock  = \{ <TEXT> &#124; defs &#124; markup &#124; xref &#124; an\_example &#124; a\_list \}
+    tblock  = { <TEXT> | defs | markup | xref | an_example | a_list }
 
-    markup  = ARG     &#124; CLASS &#124; CMD     &#124; CONST     &#124; EMPH   &#124; FILE
-            &#124; FUN     &#124; LB    &#124; METHOD  &#124; NAMESPACE &#124; OPT    &#124; OPTION
-            &#124; PACKAGE &#124; RB    &#124; SECTREF &#124; STRONG    &#124; SYSCMD &#124; TERM
-            &#124; TYPE    &#124; URI   &#124; USAGE   &#124; VAR       &#124; WIDGET
+    markup  = ARG     | CLASS | CMD     | CONST     | EMPH   | FILE
+            | FUN     | LB    | METHOD  | NAMESPACE | OPT    | OPTION
+            | PACKAGE | RB    | SECTREF | STRONG    | SYSCMD | TERM
+            | TYPE    | URI   | USAGE   | VAR       | WIDGET
 
     example = EXAMPLE
-            &#124; EXAMPLE\_BEGIN extext EXAMPLE\_END
+            | EXAMPLE_BEGIN extext EXAMPLE_END
 
-    extext  = \{ <TEXT> &#124; defs &#124; markup \}
+    extext  = { <TEXT> | defs | markup }
 
-    a\_list  = LIST\_BEGIN<arguments>   argd\_list   LIST\_END
-            &#124; LIST\_BEGIN<commands>    cmdd\_list   LIST\_END
-            &#124; LIST\_BEGIN<definitions> def\_list    LIST\_END
-            &#124; LIST\_BEGIN<enumerated>  enum\_list   LIST\_END
-            &#124; LIST\_BEGIN<itemized>    item\_list   LIST\_END
-            &#124; LIST\_BEGIN<options>     optd\_list   LIST\_END
-            &#124; LIST\_BEGIN<tkoptions>   tkoptd\_list LIST\_END
+    a_list  = LIST_BEGIN<arguments>   argd_list   LIST_END
+            | LIST_BEGIN<commands>    cmdd_list   LIST_END
+            | LIST_BEGIN<definitions> def_list    LIST_END
+            | LIST_BEGIN<enumerated>  enum_list   LIST_END
+            | LIST_BEGIN<itemized>    item_list   LIST_END
+            | LIST_BEGIN<options>     optd_list   LIST_END
+            | LIST_BEGIN<tkoptions>   tkoptd_list LIST_END
 
-    argd\_list   = \[ <WHITE> \] \{ ARG\_DEF      paras \}
-    cmdd\_list   = \[ <WHITE> \] \{ CMD\_DEF      paras \}
-    def\_list    = \[ <WHITE> \] \{ \(DEF&#124;CALL\)   paras \}
-    enum\_list   = \[ <WHITE> \] \{ ENUM         paras \}
-    item\_list   = \[ <WHITE> \] \{ ITEM         paras \}
-    optd\_list   = \[ <WHITE> \] \{ OPT\_DEF      paras \}
-    tkoptd\_list = \[ <WHITE> \] \{ TKOPTION\_DEF paras \}
+    argd_list   = [ <WHITE> ] { ARG_DEF      paras }
+    cmdd_list   = [ <WHITE> ] { CMD_DEF      paras }
+    def_list    = [ <WHITE> ] { (DEF|CALL)   paras }
+    enum_list   = [ <WHITE> ] { ENUM         paras }
+    item_list   = [ <WHITE> ] { ITEM         paras }
+    optd_list   = [ <WHITE> ] { OPT_DEF      paras }
+    tkoptd_list = [ <WHITE> ] { TKOPTION_DEF paras }
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

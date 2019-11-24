@@ -1,10 +1,10 @@
-::tool::define ::httpd::content.cgi {
+::clay::define ::httpd::content.cgi {
   superclass ::httpd::content.proxy
 
   method FileName {} {
-    set uri [string trimleft [my http_info get REQUEST_URI] /]
-    set path [my http_info get path]
-    set prefix [my http_info get prefix]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
+    set path [my clay get path]
+    set prefix [my clay get prefix]
 
     set fname [string range $uri [string length $prefix] end]
     if {[file exists [file join $path $fname]]} {
@@ -28,7 +28,7 @@
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my http_info get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {Not Found}
       tailcall my DoOutput
     }
@@ -52,24 +52,15 @@
     foreach item [array names ::env HTTP_*] {
       set ::env($item) {}
     }
-    set ::env(SCRIPT_NAME) [my http_info get REQUEST_PATH]
+    set ::env(SCRIPT_NAME) [my request get REQUEST_PATH]
     set ::env(SERVER_PROTOCOL) HTTP/1.0
     set ::env(HOME) $::env(DOCUMENT_ROOT)
-    foreach {f v} [my http_info dump] {
-      if {$f in $verbatim} {
-        set ::env($f) $v
-      }
+    foreach {f v} [my request dump] {
+      set ::env($f) $v
     }
   	set arglist $::env(QUERY_STRING)
     set pwd [pwd]
     cd [file dirname $local_file]
-    foreach {f v} [my request dump] {
-      if {$f in $verbatim} {
-        set ::env($f) $v
-      } else {
-        set ::env(HTTP_$f) $v
-      }
-    }
     set script_file $local_file
     if {[file extension $local_file] in {.fossil .fos}} {
       if {![file exists $local_file.cgi]} {
@@ -92,20 +83,20 @@
   method ProxyRequest {chana chanb} {
     chan event $chanb writable {}
     my log ProxyRequest {}
-    set length [my http_info get CONTENT_LENGTH]
+    set length [my request get CONTENT_LENGTH]
     if {$length} {
       chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
       chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
       ###
       # Send any POST/PUT/etc content
       ###
-      chan copy $chana $chanb -size $length -command [info coroutine]
+      my ChannelCopy $chana $chanb -size $length
     } else {
       chan flush $chanb
-      chan event $chanb readable [info coroutine]
     }
+    my clay refcount_incr
+    chan event $chanb readable [info coroutine]
     yield
-
   }
 
 
@@ -128,17 +119,13 @@
     append replybuffer $replyhead
     chan configure $chanb -translation {auto crlf} -blocking 0 -buffering full -buffersize 4096
     chan puts $chanb $replybuffer
-    my log SendReply [list length $length]
-    if {$length} {
-      ###
-      # Output the body
-      ###
-      chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
-      chan copy $chana $chanb -size $length -command [namespace code [list my TransferComplete $chana $chanb]]
-    } else {
-      my TransferComplete $chana $chanb
-    }
+    ###
+    # Output the body. With no -size flag, channel will copy until EOF
+    ###
+    chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
+    chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
+    my ChannelCopy $chana $chanb -chunk 4096
+    my clay refcount_decr
   }
 
   ###

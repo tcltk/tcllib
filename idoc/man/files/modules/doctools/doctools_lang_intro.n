@@ -300,7 +300,7 @@ commands, continuation lines, etc\&. I\&.e\&.
 .CS
 
 
-  \&.\&.\&. [call [cmd foo] \\\\
+  \&.\&.\&. [call [cmd foo] \\
           [arg bar]] \&.\&.\&.
 
 .CE
@@ -334,7 +334,7 @@ The most simple document which can be written in doctools is
 [keywords {semantic markup}]
     [description]
     [vset CATEGORY doctools]
-[include \&.\&./doctools2base/include/feedback\&.inc]
+[include \&.\&./common-text/feedback\&.inc]
 [manpage_end]
 
 .CE
@@ -393,7 +393,7 @@ Remember that the whitespace is optional\&. The document
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
     [vset CATEGORY doctools]
-[include \&.\&./doctools2base/include/feedback\&.inc]
+[include \&.\&./common-text/feedback\&.inc]
 [manpage_end]
 
 .CE

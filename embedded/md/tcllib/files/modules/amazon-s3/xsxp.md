@@ -143,7 +143,7 @@ processing\.
     For example, to fetch the first bold text from the fifth paragraph of the
     body of your HTML file,
 
-        xsxp::fetch $pxml \{body p\#4 b\} %PCDATA
+        xsxp::fetch $pxml {body p#4 b} %PCDATA
 
   - <a name='3'></a>__xsxp::fetchall__ *pxml\_list* *path* ?*part*?
 

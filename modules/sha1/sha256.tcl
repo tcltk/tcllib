@@ -32,6 +32,7 @@ namespace eval ::sha2 {
     namespace export sha256 hmac \
             SHA256Init SHA256Update SHA256Final
 
+
     variable uid
     if {![info exists uid]} {
         set uid 0
@@ -175,7 +176,7 @@ proc ::sha2::SwitchTo {key} {
             SHA256Final  SHA224Final
             SHA256Update
         } {
-            rename ::sha2::$c ::sha2::${c}-${loaded}
+            interp alias {} ::sha2::$c {}
         }
     }
 
@@ -187,7 +188,7 @@ proc ::sha2::SwitchTo {key} {
             SHA256Final  SHA224Final
             SHA256Update
         } {
-            rename ::sha2::${c}-${key} ::sha2::$c
+	    interp alias {} ::sha2::$c {} ::sha2::${c}-${key}
         }
     }
 
@@ -659,12 +660,13 @@ proc ::sha2::Pop {varname {nth 0}} {
 proc ::sha2::Chunk {token channel {chunksize 4096}} {
     upvar #0 $token state
     
+    SHA256Update $token [read $channel $chunksize]
+
     if {[eof $channel]} {
         fileevent $channel readable {}
         set state(reading) 0
     }
-        
-    SHA256Update $token [read $channel $chunksize]
+    return
 }
 
 # -------------------------------------------------------------------------
@@ -699,7 +701,6 @@ proc ::sha2::_sha256 {ver args} {
     }
 
     if {$opts(-channel) == {}} {
-
         if {[llength $args] != 1} {
             return -code error "wrong # args: should be\
                 \"[namespace current]::sha$ver ?-hex|-bin? -filename file\
@@ -823,7 +824,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 1.0.3
+package provide sha256 1.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:

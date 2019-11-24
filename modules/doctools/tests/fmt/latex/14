@@ -2,6 +2,7 @@
 % Copyright (c) .COPYRIGHT.
 % test-enumerated-examples.1
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{@USR@}
 \title{.MODULE. / test-enumerated-examples --  : }
@@ -12,18 +13,21 @@ lorem ipsum dolores
 %
 \item
 %
-\begin{verbatim} A1 lorem ipsum dolores \end{verbatim}
+\begin{alltt}
+ A1 lorem ipsum dolores \end{alltt}
 %
 \item
 %
  lorem ipsum dolores
-\begin{verbatim} B2 lorem ipsum dolores \end{verbatim}
+\begin{alltt}
+ B2 lorem ipsum dolores \end{alltt}
 lorem ipsum dolores
 %
 \item
 %
  lorem ipsum dolores
-\begin{verbatim} C3 lorem ipsum dolores \end{verbatim}
+\begin{alltt}
+ C3 lorem ipsum dolores \end{alltt}
 %
 \item
 %

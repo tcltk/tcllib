@@ -103,21 +103,21 @@ restrictions this cipher is sometimes known as ARCFOUR\.
 
 # <a name='section4'></a>EXAMPLES
 
-    % set keydata \[binary format H\* 0123456789abcdef\]
-    % rc4::rc4 \-hex \-key $keydata HelloWorld
+    % set keydata [binary format H* 0123456789abcdef]
+    % rc4::rc4 -hex -key $keydata HelloWorld
     3cf1ae8b7f1c670b612f
-    % rc4::rc4 \-hex \-key $keydata \[binary format H\* 3cf1ae8b7f1c670b612f\]
+    % rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
     HelloWorld
 
-    set Key \[rc4::RC4Init "key data"\]
-    append ciphertext \[rc4::RC4 $Key $plaintext\]
-    append ciphertext \[rc4::RC4 $Key $additional\_plaintext\]
+    set Key [rc4::RC4Init "key data"]
+    append ciphertext [rc4::RC4 $Key $plaintext]
+    append ciphertext [rc4::RC4 $Key $additional_plaintext]
     rc4::RC4Final $Key
 
-    proc ::Finish \{myState data\} \{
+    proc ::Finish {myState data} {
         DoStuffWith $myState $data
-    \}
-    rc4::rc4 \-in $socket \-command \[list ::Finish $ApplicationState\]
+    }
+    rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
 
 # <a name='section5'></a>AUTHORS
 

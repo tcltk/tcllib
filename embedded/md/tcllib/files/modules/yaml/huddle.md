@@ -1,9 +1,9 @@
 
 [//000000001]: # (huddle \- HUDDLE)
 [//000000002]: # (Generated from file 'huddle\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2008\-2011 KATO Kanryu <kanryu6@users\.sourceforge\.net>  
-Copyright &copy; 2015 Miguel Martínez López <aplicacionamedida@gmail\.com>)
-[//000000004]: # (huddle\(n\) 0\.3 tcllib "HUDDLE")
+[//000000003]: # (Copyright &copy; 2008\-2011 KATO Kanryu <kanryu6@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2015 Miguel Martínez López <aplicacionamedida@gmail\.com>)
+[//000000005]: # (huddle\(n\) 0\.3 tcllib "HUDDLE")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -94,19 +94,19 @@ type\.
 
 In that manner huddle can serve as a common intermediary format\.
 
-    huddle\-format: >
-      \{HUDDLE \{huddle\-node\}\}
-    huddle\-node: >
-      \{tag content\}
+    huddle-format: >
+      {HUDDLE {huddle-node}}
+    huddle-node: >
+      {tag content}
     each content of tag means:
-      s: \(content is a\) string
-      L: list, each sub node is a huddle\-node
-      D: dict, each sub node is a huddle\-node
+      s: (content is a) string
+      L: list, each sub node is a huddle-node
+      D: dict, each sub node is a huddle-node
     confirmed:
-      \- JSON
-      \- YAML\(generally, but cannot discribe YAML\-tags\)
+      - JSON
+      - YAML(generally, but cannot discribe YAML-tags)
     limitation:
-      \- cannot discribe aliases from a node to other node\.
+      - cannot discribe aliases from a node to other node.
 
 The __huddle__ package returns data as a Tcl
 __[dict](\.\./\.\./\.\./\.\./index\.md\#dict)__\. Either the
@@ -171,22 +171,22 @@ use\.
 
     Merging huddle objects given\.
 
-    % set aa \[huddle create a b c d\]
-    HUDDLE \{D \{a \{s b\} c \{s d\}\}\}
-    % set bb \[huddle create a k l m\]
-    HUDDLE \{D \{a \{s k\} l \{s m\}\}\}
+    % set aa [huddle create a b c d]
+    HUDDLE {D {a {s b} c {s d}}}
+    % set bb [huddle create a k l m]
+    HUDDLE {D {a {s k} l {s m}}}
     % huddle combine $aa $bb
-    HUDDLE \{D \{a \{s k\} c \{s d\} l \{s m\}\}\}
+    HUDDLE {D {a {s k} c {s d} l {s m}}}
 
   - <a name='14'></a>__huddle equal__ *object1* *object2*
 
     Comparing two huddle objects recursively\. When to equal, returns 1,
     otherwise 0\.
 
-    % set aa \[huddle create a b c d\]
-    HUDDLE \{D \{a \{s b\} c \{s d\}\}\}
-    % set bb \[huddle create c d a b\]
-    HUDDLE \{D \{c \{s d\} a \{s b\}\}\}
+    % set aa [huddle create a b c d]
+    HUDDLE {D {a {s b} c {s d}}}
+    % set bb [huddle create c d a b]
+    HUDDLE {D {c {s d} a {s b}}}
     % huddle equal $aa $bb
     1
 
@@ -197,14 +197,14 @@ use\.
     Appending child elements\. When for dicts, giving key/value\. When for lists,
     giving values\.
 
-    % set aa \[huddle create a b c d\]
-    HUDDLE \{D \{a \{s b\} c \{s d\}\}\}
+    % set aa [huddle create a b c d]
+    HUDDLE {D {a {s b} c {s d}}}
     % huddle append aa a k l m
-    HUDDLE \{D \{a \{s k\} c \{s d\} l \{s m\}\}\}
-    % set bb \[huddle list i j k l\]
-    HUDDLE \{L \{\{s i\} \{s j\} \{s k\} \{s l\}\}\}
+    HUDDLE {D {a {s k} c {s d} l {s m}}}
+    % set bb [huddle list i j k l]
+    HUDDLE {L {{s i} {s j} {s k} {s l}}}
     % huddle append bb g h i
-    HUDDLE \{L \{\{s i\} \{s j\} \{s k\} \{s l\} \{s g\} \{s h\} \{s i\}\}\}
+    HUDDLE {L {{s i} {s j} {s k} {s l} {s g} {s h} {s i}}}
 
   - <a name='17'></a>__huddle keys__ *object*
 
@@ -243,11 +243,11 @@ use\.
 
         the node is a null\.
 
-    % huddle type \{HUDDLE \{s str\}\}
+    % huddle type {HUDDLE {s str}}
     string
-    % huddle type \{HUDDLE \{L \{\{s a\} \{s b\} \{s c\}\}\}\}
+    % huddle type {HUDDLE {L {{s a} {s b} {s c}}}}
     list
-    % huddle type \{HUDDLE \{D \{aa \{s b\} cc \{s d\}\}\}\} cc
+    % huddle type {HUDDLE {D {aa {s b} cc {s d}}}} cc
     string
 
   - <a name='20'></a>__huddle strip__ *object*
@@ -262,27 +262,27 @@ use\.
 
         begin offset as spaces " "\.
 
-    \# normal output has some indents\. some strings are escaped\.
-    % huddle jsondump \{HUDDLE \{L \{\{L \{\{s i\} \{s baa\} \{s \\\\k\} \{L \{\{s 1\.0\} \{s true\} \{s /g\} \{s h\}\}\} \{L \{\{s g\}\}\}\}\} \{s t\}\}\}\}
-    \[
-      \[
+    # normal output has some indents. some strings are escaped.
+    % huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
+    [
+      [
         "i",
         "baa",
-        "\\\\k",
-        \[
-          1\.0,
+        "\\k",
+        [
+          1.0,
           true,
-          "\\/g",
+          "\/g",
           "h"
-        \],
-        \["g"\]
-      \],
+        ],
+        ["g"]
+      ],
       "t"
-    \]
-    \# stripped output
-    % huddle jsondump \{HUDDLE \{D \{dd \{D \{bb \{D \{a \{s baa\} c \{s \{d
-    a\}\}\}\} cc \{D \{g \{s h\}\}\}\}\} ee \{D \{i \{s j\} k \{s 1\} j \{s \{ m\\a\}\}\}\}\}\}\} "" ""
-    \{"dd": \{"bb": \{"a": "baa","c": "d\\na"\},"cc": \{"g": "h"\}\},"ee": \{"i": "j","k": 1,"j": " m\\\\a"\}\}
+    ]
+    # stripped output
+    % huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
+    a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}} "" ""
+    {"dd": {"bb": {"a": "baa","c": "d\na"},"cc": {"g": "h"}},"ee": {"i": "j","k": 1,"j": " m\\a"}}
 
   - <a name='22'></a>__huddle compile__ *spec* *data*
 
@@ -317,10 +317,10 @@ use\.
 
         data is a tcl dict of lists *data* is plain old tcl values
 
-    % huddle compile \{dict \* list\} \{a \{1 2 3\} b \{4 5\}\}
-    HUDDLE \{D \{a \{L \{\{s 1\} \{s 2\} \{s 3\}\}\} b \{L \{\{s 4\} \{s 5\}\}\}\}\}
-    % huddle compile \{dict \* \{list \{dict d list\}\}\} \{a \{\{c 1\} \{d \{2 2 2\} e 3\}\} b \{\{f 4 g 5\}\}\}
-    HUDDLE \{D \{a \{L \{\{D \{c \{s 1\}\}\} \{D \{d \{L \{\{s 2\} \{s 2\} \{s 2\}\}\} e \{s 3\}\}\}\}\} b \{L \{\{D \{f \{s 4\} g \{s 5\}\}\}\}\}\}\}
+    % huddle compile {dict * list} {a {1 2 3} b {4 5}}
+    HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}
+    % huddle compile {dict * {list {dict d list}}} {a {{c 1} {d {2 2 2} e 3}} b {{f 4 g 5}}}
+    HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}
 
   - <a name='23'></a>__huddle isHuddle__ *object*
 
@@ -337,14 +337,14 @@ use\.
     if *object* is a huddle, returns root\-node\. the other, returns __\[list s
     $object\]__\.
 
-    % huddle to\_node str
+    % huddle to_node str
     s str
-    % huddle to\_node str \!\!str
-    \!\!str str
-    % huddle to\_node \{HUDDLE \{s str\}\}
+    % huddle to_node str !!str
+    !!str str
+    % huddle to_node {HUDDLE {s str}}
     s str
-    % huddle to\_node \{HUDDLE \{l \{a b c\}\}\}
-    l \{a b c\}
+    % huddle to_node {HUDDLE {l {a b c}}}
+    l {a b c}
 
   - <a name='26'></a>__huddle wrap__ *tag* *src*
 
@@ -355,7 +355,7 @@ use\.
     % huddle wrap "" str
     HUDDLE str
     % huddle wrap s str
-    HUDDLE \{s str\}
+    HUDDLE {s str}
 
   - <a name='27'></a>__huddle call__ *tag* *command* *args*
 
@@ -431,110 +431,110 @@ The callback procedure shuould reply the following subcommands\.
 __strip__ must be defined at all types\. __get\_sub__ must be defined at
 container types\. __set/remove__ shuould be defined, if you call them\.
 
-    \# callback sample for my\-dict
-    proc my\_dict\_setting \{command args\} \{
-        switch \-\- $command \{
-            setting \{ ; \# type definition
-                return \{
+    # callback sample for my-dict
+    proc my_dict_setting {command args} {
+        switch -- $command {
+            setting { ; # type definition
+                return {
                     type dict
-                    method \{create keys\}
-                    tag \{d child D parent\}
+                    method {create keys}
+                    tag {d child D parent}
                     constructor create
                     str s
-                \}
-                \# type:   the type\-name
-                \# method: add methods to huddle's subcommand\.
-                \#          "get\_sub/strip/set/remove/equal/append" called by huddle module\.
-                \#          "strip" must be defined at all types\.
-                \#          "get\_sub" must be defined at container types\.
-                \#          "set/remove/equal/append" shuould be defined, if you call them\.
-                \# tag:    tag definition\("child/parent" word is maybe obsoleted\)
-            \}
-            get\_sub \{ ; \# get a sub\-node specified by "key" from the tagged\-content
-                foreach \{src key\} $args break
-                return \[dict get $src $key\]
-            \}
-            strip \{ ; \# strip from the tagged\-content
-                foreach \{src nop\} $args break
-                foreach \{key val\} $src \{
-                    lappend result $key \[huddle strip $val\]
-                \}
+                }
+                # type:   the type-name
+                # method: add methods to huddle's subcommand.
+                #          "get_sub/strip/set/remove/equal/append" called by huddle module.
+                #          "strip" must be defined at all types.
+                #          "get_sub" must be defined at container types.
+                #          "set/remove/equal/append" shuould be defined, if you call them.
+                # tag:    tag definition("child/parent" word is maybe obsoleted)
+            }
+            get_sub { ; # get a sub-node specified by "key" from the tagged-content
+                foreach {src key} $args break
+                return [dict get $src $key]
+            }
+            strip { ; # strip from the tagged-content
+                foreach {src nop} $args break
+                foreach {key val} $src {
+                    lappend result $key [huddle strip $val]
+                }
                 return $result
-            \}
-            set \{ ; \# set a sub\-node from the tagged\-content
-                foreach \{src key value\} $args break
+            }
+            set { ; # set a sub-node from the tagged-content
+                foreach {src key value} $args break
                 dict set src $key $value
                 return $src
-            \}
-            remove \{ ; \# remove a sub\-node from the tagged\-content
-                foreach \{src key value\} $args break
-                return \[dict remove $src $key\]
-            \}
-            equal \{ ; \# check equal for each node
-                foreach \{src1 src2\} $args break
-                if \{\[llength $src1\] \!= \[llength $src2\]\} \{return 0\}
-                foreach \{key1 val1\} $src1 \{
-                    if \{\!\[dict exists $src2 $key1\]\} \{return 0\}
-                    if \{\!\[huddle \_equal\_subs $val1 \[dict get $src2 $key1\]\]\} \{return 0\}
-                \}
+            }
+            remove { ; # remove a sub-node from the tagged-content
+                foreach {src key value} $args break
+                return [dict remove $src $key]
+            }
+            equal { ; # check equal for each node
+                foreach {src1 src2} $args break
+                if {[llength $src1] != [llength $src2]} {return 0}
+                foreach {key1 val1} $src1 {
+                    if {![dict exists $src2 $key1]} {return 0}
+                    if {![huddle _equal_subs $val1 [dict get $src2 $key1]]} {return 0}
+                }
                 return 1
-            \}
-            append \{ ; \# append nodes
-                foreach \{str src list\} $args break
-                if \{\[llength $list\] % 2\} \{error \{wrong \# args: should be "huddle append objvar ?key value \.\.\.?"\}\}
+            }
+            append { ; # append nodes
+                foreach {str src list} $args break
+                if {[llength $list] % 2} {error {wrong # args: should be "huddle append objvar ?key value ...?"}}
                 set resultL $src
-                foreach \{key value\} $list \{
-                    if \{$str ne ""\} \{
-                        lappend resultL $key \[huddle to\_node $value $str\]
-                    \} else \{
+                foreach {key value} $list {
+                    if {$str ne ""} {
+                        lappend resultL $key [huddle to_node $value $str]
+                    } else {
                         lappend resultL $key $value
-                    \}
-                \}
-                return \[eval dict create $resultL\]
-            \}
-            create \{ ; \# $args: all arguments after "huddle create"
-                if \{\[llength $args\] % 2\} \{error \{wrong \# args: should be "huddle create ?key value \.\.\.?"\}\}
-                set resultL \{\}
-                foreach \{key value\} $args \{
-                    lappend resultL $key \[huddle to\_node $value\]
-                \}
-                return \[huddle wrap D $resultL\]
-            \}
-            keys \{
-                foreach \{src nop\} $args break
-                return \[dict keys \[lindex \[lindex $src 1\] 1\]\]
-            \}
-            default \{
+                    }
+                }
+                return [eval dict create $resultL]
+            }
+            create { ; # $args: all arguments after "huddle create"
+                if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
+                set resultL {}
+                foreach {key value} $args {
+                    lappend resultL $key [huddle to_node $value]
+                }
+                return [huddle wrap D $resultL]
+            }
+            keys {
+                foreach {src nop} $args break
+                return [dict keys [lindex [lindex $src 1] 1]]
+            }
+            default {
                 error "$command is not callback for dict"
-            \}
-        \}
-    \}
+            }
+        }
+    }
 
-    \# inheritance sample from default dict\-callback
-    proc ::yaml::\_huddle\_mapping \{command args\} \{
-        switch \-\- $command \{
-            setting \{ ; \# type definition
-                return \{
+    # inheritance sample from default dict-callback
+    proc ::yaml::_huddle_mapping {command args} {
+        switch -- $command {
+            setting { ; # type definition
+                return {
                     type dict
-                    method \{mapping\}
-                    tag \{\!\!map parent\}
+                    method {mapping}
+                    tag {!!map parent}
                     constructor mapping
-                    str \!\!str
-                \}
-            \}
-            mapping \{ ; \# $args: all arguments after "huddle mapping"
-                if \{\[llength $args\] % 2\} \{error \{wrong \# args: should be "huddle mapping ?key value \.\.\.?"\}\}
-                set resultL \{\}
-                foreach \{key value\} $args \{
-                    lappend resultL $key \[huddle to\_node $value \!\!str\]
-                \}
-                return \[huddle wrap \!\!map $resultL\]
-            \}
-            default \{ ; \# devolving to default dict\-callback
-                return \[huddle call D $command $args\]
-            \}
-        \}
-    \}
+                    str !!str
+                }
+            }
+            mapping { ; # $args: all arguments after "huddle mapping"
+                if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
+                set resultL {}
+                foreach {key value} $args {
+                    lappend resultL $key [huddle to_node $value !!str]
+                }
+                return [huddle wrap !!map $resultL]
+            }
+            default { ; # devolving to default dict-callback
+                return [huddle call D $command $args]
+            }
+        }
+    }
 
 # <a name='section4'></a>How to add type
 
@@ -544,64 +544,64 @@ callback\-procedure for additional tagged\-type\. The proc get argments as
 
 And, addType subcommand will called\.
 
-    huddle addType my\_dict\_setting
+    huddle addType my_dict_setting
 
 # <a name='section5'></a>WORKING SAMPLE
 
-    \# create as a dict
-    % set bb \[huddle create a b c d\]
-    HUDDLE \{D \{a \{s b\} c \{s d\}\}\}
+    # create as a dict
+    % set bb [huddle create a b c d]
+    HUDDLE {D {a {s b} c {s d}}}
 
-    \# create as a list
-    % set cc \[huddle list e f g h\]
-    HUDDLE \{L \{\{s e\} \{s f\} \{s g\} \{s h\}\}\}
-    % set bbcc \[huddle create bb $bb cc $cc\]
-    HUDDLE \{D \{bb \{D \{a \{s b\} c \{s d\}\}\} cc \{L \{\{s e\} \{s f\} \{s g\} \{s h\}\}\}\}\}
-    % set folding \[huddle list $bbcc p \[huddle list q r\] s\]
-    HUDDLE \{L \{\{D \{bb \{D \{a \{s b\} c \{s d\}\}\} cc \{L \{\{s e\} \{s f\} \{s g\} \{s h\}\}\}\}\} \{s p\} \{L \{\{s q\} \{s r\}\}\} \{s s\}\}\}
+    # create as a list
+    % set cc [huddle list e f g h]
+    HUDDLE {L {{s e} {s f} {s g} {s h}}}
+    % set bbcc [huddle create bb $bb cc $cc]
+    HUDDLE {D {bb {D {a {s b} c {s d}}} cc {L {{s e} {s f} {s g} {s h}}}}}
+    % set folding [huddle list $bbcc p [huddle list q r] s]
+    HUDDLE {L {{D {bb {D {a {s b} c {s d}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q} {s r}}} {s s}}}
 
-    \# normal Tcl's notation
+    # normal Tcl's notation
     % huddle strip $folding
-    \{bb \{a b c d\} cc \{e f g h\}\} p \{q r\} s
+    {bb {a b c d} cc {e f g h}} p {q r} s
 
-    \# get a sub node
+    # get a sub node
     % huddle get $folding 0 bb
-    HUDDLE \{D \{a \{s b\} c \{s d\}\}\}
+    HUDDLE {D {a {s b} c {s d}}}
     % huddle gets $folding 0 bb
     a b c d
 
-    \# overwrite a node
+    # overwrite a node
     % huddle set folding 0 bb c kkk
-    HUDDLE \{L \{\{D \{bb \{D \{a \{s b\} c \{s kkk\}\}\} cc \{L \{\{s e\} \{s f\} \{s g\} \{s h\}\}\}\}\} \{s p\} \{L \{\{s q\} \{s r\}\}\} \{s s\}\}\}
+    HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q} {s r}}} {s s}}}
 
-    \# remove a node
+    # remove a node
     % huddle remove $folding 2 1
-    HUDDLE \{L \{\{D \{bb \{D \{a \{s b\} c \{s kkk\}\}\} cc \{L \{\{s e\} \{s f\} \{s g\} \{s h\}\}\}\}\} \{s p\} \{L \{\{s q\}\}\} \{s s\}\}\}
+    HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q}}} {s s}}}
     % huddle strip $folding
-    \{bb \{a b c kkk\} cc \{e f g h\}\} p \{q r\} s
+    {bb {a b c kkk} cc {e f g h}} p {q r} s
 
-    \# dump as a JSON stream
+    # dump as a JSON stream
     % huddle jsondump $folding
-    \[
-      \{
-        "bb": \{
+    [
+      {
+        "bb": {
           "a": "b",
           "c": "kkk"
-        \},
-        "cc": \[
+        },
+        "cc": [
           "e",
           "f",
           "g",
           "h"
-        \]
-      \},
+        ]
+      },
       "p",
-      \[
+      [
         "q",
         "r"
-      \],
+      ],
       "s"
-    \]
+    ]
 
 # <a name='section6'></a>LIMITATIONS
 

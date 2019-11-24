@@ -2,27 +2,30 @@
 % Copyright (c) .COPYRIGHT.
 % TEST.z
 \documentclass{article}
+\usepackage{alltt}
 \begin{document}
 \author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
 \section{Description}\label{section1}
 lorem
-\begin{verbatim}
+\begin{alltt}
 1 lorem ipsum dolores
-\end{verbatim}
+\end{alltt}
 ipsum
-\begin{verbatim} 2 lorem ipsum dolores \end{verbatim}
+\begin{alltt}
+ 2 lorem ipsum dolores \end{alltt}
 dolores
-\begin{verbatim}
+\begin{alltt}
 3 lorem ipsum dolores
-\end{verbatim}
+\end{alltt}
 lorem
-\begin{verbatim} 4 lorem ipsum dolores
-\end{verbatim}
+\begin{alltt}
+ 4 lorem ipsum dolores
+\end{alltt}
 ipsum
-\begin{verbatim}
-5 lorem ipsum dolores \end{verbatim}
+\begin{alltt}
+5 lorem ipsum dolores \end{alltt}
 dolores
 \section{Copyright}\label{copyright}
 \begin{flushleft}

@@ -312,6 +312,8 @@ package require \fBmath::numtheory  ?1\&.1\&.1?\fR
 .sp
 \fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
 .sp
+\fBmath::numtheory::differenceNumberPrimesLegendreModified\fR \fIlower\fR \fIupper\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -471,7 +473,7 @@ Estimate the number of primes according the formula by Gauss\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
 .RE
 .TP
 \fBmath::numtheory::numberPrimesLegendre\fR \fIN\fR
@@ -479,7 +481,7 @@ Estimate the number of primes according the formula by Legendre\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
 .RE
 .TP
 \fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
@@ -487,7 +489,18 @@ Estimate the number of primes according the modified formula by Legendre\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
+.RE
+.TP
+\fBmath::numtheory::differenceNumberPrimesLegendreModified\fR \fIlower\fR \fIupper\fR
+Estimate the number of primes between tow limits according the modified formula by Legendre\&.
+.RS
+.TP
+integer \fIlower\fR (in)
+Lower limit for the primes, should be larger than 0
+.TP
+integer \fIupper\fR (in)
+Upper limit for the primes, should be larger than 0
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

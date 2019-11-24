@@ -153,15 +153,15 @@ GPX \(GPS eXchange\) file\. Both GPX version 1\.0 and 1\.1 are supported\.
 
 # <a name='section4'></a>EXAMPLE
 
-    % set token \[::gpx::Create myGpxFile\.gpx\]
-    % set version \[dict get \[::gpx::GetGPXMetadata $token\] version\]
-    % set trackCnt \[::gpx::GetTrackCount $token\]
-    % set firstPoint \[lindex \[::gpx::GetTrackPoints $token 1\] 0\]
+    % set token [::gpx::Create myGpxFile.gpx]
+    % set version [dict get [::gpx::GetGPXMetadata $token] version]
+    % set trackCnt [::gpx::GetTrackCount $token]
+    % set firstPoint [lindex [::gpx::GetTrackPoints $token 1] 0]
     % lassign $firstPoint lat lon ptMetadata
     % puts "first point in the first track is at $lat, $lon"
-    % if \{\[dict exists $ptMetadata ele\]\} \{
-         puts "at elevation \[dict get $ptMetadata ele\] meters"
-      \}
+    % if {[dict exists $ptMetadata ele]} {
+         puts "at elevation [dict get $ptMetadata ele] meters"
+      }
     % ::gpx::Cleanup $token
 
 # <a name='section5'></a>REFERENCES

@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'graph\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2002-2009,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::graph" n 2\&.4\&.1 tcllib "Tcl Data Structures"
+.TH "struct::graph" n 2\&.4\&.3 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::graph \- Create and manipulate directed graph objects
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBstruct::graph  ?2\&.4\&.1?\fR
+package require \fBstruct::graph  ?2\&.4\&.3?\fR
 .sp
 package require \fBstruct::list  ?1\&.5?\fR
 .sp
@@ -727,7 +727,7 @@ nodes take a variable number of nodes as argument, specified after the
 name of the restriction itself\&.
 .sp
 The restrictions imposed by either \fB-in\fR, \fB-out\fR,
-\fB-adj\fR, \fB-inner\fR, or \fB-embedded\fR are applied
+\fB-adj\fR, \fB-inner\fR, or \fB-embedding\fR are applied
 first\&. Specifying more than one of them is illegal\&.
 .sp
 After that the restrictions set via \fB-key\fR (and
@@ -766,6 +766,17 @@ specified nodes\&.
 Return a list of all arcs adjacent to exactly one of the nodes in the
 set\&. This is the set of arcs connecting the subgraph spawned by the
 specified nodes to the rest of the graph\&.
+.RE
+.IP
+\fIAttention\fR: After the above options any word with a leading dash
+which is not a valid option is treated as a node name instead of an
+invalid option to error out on\&. This condition holds until either a
+valid option terminates the list of nodes, or the end of the command
+is reached, whichever comes first\&.
+.sp
+The remaining filter options are:
+.sp
+.RS
 .TP
 \fB-key\fR \fIkey\fR
 Limit the list of arcs that are returned to those arcs that have an
@@ -896,9 +907,13 @@ values associated with the node\&. The restrictions that involve
 neighboring nodes have a list of nodes as argument, specified after
 the name of the restriction itself\&.
 .sp
-The possible restrictions are the same as for method
-\fBarcs\fR\&. The exact meanings change slightly, as they operate on
-nodes instead of arcs\&. The command recognizes:
+The possible restrictions are the same as for method \fBarcs\fR\&.
+Note that while the exact meanings change slightly, as they operate on
+nodes instead of arcs, the general behaviour is the same, especially
+when it comes to the handling of words with a leading dash in node
+lists\&.
+.sp
+The command recognizes:
 .RS
 .TP
 \fB-in\fR
@@ -1035,10 +1050,10 @@ relevance, nor has the order of the arcs per node\&.
     # A possible serialization for the graph structure
     #
     #        d -----> %2
-    #       /         ^ \\\\
-    #      /         /   \\\\
-    #     /         b     \\\\
-    #    /         /       \\\\
+    #       /         ^ \\
+    #      /         /   \\
+    #     /         b     \\
+    #    /         /       \\
     #  %1 <- a - %0         e
     #    ^         \\\\      /
     #     \\\\        c     /
@@ -1164,6 +1179,6 @@ adjacent, arc, cgraph, degree, edge, graph, loop, neighbour, node, serialization
 Data structures
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2002-2009,2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

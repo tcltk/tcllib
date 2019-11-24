@@ -352,15 +352,15 @@ command\.
 A bigger example for posting a single article\.
 
     package require nntp
-    set n \[nntp::nntp NNTP\_SERVER\]
-    $n post "From: USER@DOMAIN\.EXT \(USER\_FULL\)
-    Path: COMPUTERNAME\!USERNAME
-    Newsgroups: alt\.test
-    Subject: Tcl test post \-ignore
-    Message\-ID: <\[pid\]\[clock seconds\]
+    set n [nntp::nntp NNTP_SERVER]
+    $n post "From: USER@DOMAIN.EXT (USER_FULL)
+    Path: COMPUTERNAME!USERNAME
+    Newsgroups: alt.test
+    Subject: Tcl test post -ignore
+    Message-ID: <[pid][clock seconds]
     @COMPUTERNAME>
-    Date: \[clock format \[clock seconds\] \-format "%a, %d %
-    b %y %H:%M:%S GMT" \-gmt true\]
+    Date: [clock format [clock seconds] -format "%a, %d %
+    b %y %H:%M:%S GMT" -gmt true]
 
     Test message body"
 

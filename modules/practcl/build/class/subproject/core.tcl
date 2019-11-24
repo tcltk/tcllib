@@ -1,5 +1,5 @@
 
-oo::class create ::practcl::subproject.core {
+::clay::define ::practcl::subproject.core {
   superclass ::practcl::subproject.binary
 
   method env-bootstrap {} {}
@@ -21,7 +21,7 @@ oo::class create ::practcl::subproject.core {
     puts [list [self] OS [dict get $os TEACUP_OS] options $options]
     my go
     my compile
-    my make-install {}
+    my make install {}
   }
 
   method go {} {

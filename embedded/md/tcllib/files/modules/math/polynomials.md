@@ -72,11 +72,11 @@ The package defines the following public procedures:
 
     Return an \(encoded\) list that defines the polynomial\. A polynomial
 
-        f\(x\) = a \+ b\.x \+ c\.x\*\*2 \+ d\.x\*\*3
+        f(x) = a + b.x + c.x**2 + d.x**3
 
     can be defined via:
 
-        set f \[::math::polynomials::polynomial \[list $a $b $c $d\]
+        set f [::math::polynomials::polynomial [list $a $b $c $d]
 
       * list *coeffs*
 

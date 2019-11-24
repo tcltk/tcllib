@@ -1,10 +1,10 @@
 
 [//000000001]: # (ldap \- LDAP client)
 [//000000002]: # (Generated from file 'ldap\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>  
-Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
-[//000000004]: # (ldap\(n\) 1\.9\.2 tcllib "LDAP client")
+[//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>)
+[//000000005]: # (Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
+[//000000006]: # (ldap\(n\) 1\.9\.2 tcllib "LDAP client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -102,9 +102,9 @@ may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
     package require tls
-    tls::init \-tls1 1 ;\# forcibly activate support for the TLS1 protocol
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
 
-    \.\.\. your own application code \.\.\.
+    ... your own application code ...
 
 # <a name='section3'></a>COMMANDS
 
@@ -137,7 +137,7 @@ example below\.
 
     Use __::tls::init__ to setup defaults for trusted certificates\.
 
-    tls::init \-cadir /etc/ssl/certs/ca\-certificates\.crt
+    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
 
     TLS supports different protocol levels\. In common use are the versions 1\.0,
     1\.1 and 1\.2\. By default all those versions are offered\. If you need to
@@ -195,13 +195,13 @@ example below\.
 
     An example of a search expression is
 
-    set filterString "&#124;\(cn=Linus\*\)\(sn=Torvalds\*\)"
+    set filterString "|(cn=Linus*)(sn=Torvalds*)"
 
     The return value of the command is a list of nested dictionaries\. The first
     level keys are object identifiers \(DNs\), second levels keys are attribute
     names\. In other words, it is in the form
 
-    \{dn1 \{attr1 \{val11 val12 \.\.\.\} attr2 \{val21\.\.\.\} \.\.\.\}\} \{dn2 \{a1 \{v11 \.\.\.\} \.\.\.\}\} \.\.\.
+    {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 
   - <a name='9'></a>__::ldap::searchInit__ *handle* *baseObject* *filterString* *attributes* *options*
 
@@ -222,7 +222,7 @@ example below\.
     returned\. The parameter *options* specifies the options to be used in the
     search, and has the following format:
 
-    \{\-option1 value1 \-option2 value2 \.\.\. \}
+    {-option1 value1 -option2 value2 ... }
 
     Following options are available:
 
@@ -273,7 +273,7 @@ example below\.
     DN of the entry, the second is the list of attributes and values, under the
     format:
 
-    dn \{attr1 \{val11 val12 \.\.\.\} attr2 \{val21\.\.\.\} \.\.\.\}
+    dn {attr1 {val11 val12 ...} attr2 {val21...} ...}
 
     The __::ldap::searchNext__ command returns an empty list at the end of
     the search\.
@@ -324,7 +324,7 @@ example below\.
     attributes, and adds new attributes with new values\. All arguments are lists
     with the format:
 
-    attr1 \{val11 val12 \.\.\.\} attr2 \{val21\.\.\.\} \.\.\.
+    attr1 {val11 val12 ...} attr2 {val21...} ...
 
     where each value list may be empty for deleting all attributes\. The optional
     arguments default to empty lists of attributes to delete and to add\.
@@ -435,9 +435,9 @@ A small example, extracted from the test application coming with this code\.
 
         package require ldap
 
-        \# Connect, bind, add a new object, modify it in various ways
+        # Connect, bind, add a new object, modify it in various ways
 
-        set handle \[ldap::connect localhost 9009\]
+        set handle [ldap::connect localhost 9009]
 
         set dn "cn=Manager, o=University of Michigan, c=US"
         set pw secret
@@ -446,40 +446,40 @@ A small example, extracted from the test application coming with this code\.
 
         set dn "cn=Test User,ou=People,o=University of Michigan,c=US"
 
-        ldap::add $handle $dn \{
+        ldap::add $handle $dn {
     	objectClass     OpenLDAPperson
-    	cn              \{Test User\}
-    	mail            test\.user@google\.com
+    	cn              {Test User}
+    	mail            test.user@google.com
     	uid             testuid
     	sn              User
-    	telephoneNumber \+31415926535
-    	telephoneNumber \+27182818285
-        \}
+    	telephoneNumber +31415926535
+    	telephoneNumber +27182818285
+        }
 
         set dn "cn=Another User,ou=People,o=University of Michigan,c=US"
 
-        ldap::addMulti $handle $dn \{
-    	objectClass     \{OpenLDAPperson\}
-    	cn              \{\{Anotther User\}\}
-    	mail            \{test\.user@google\.com\}
-    	uid             \{testuid\}
-    	sn              \{User\}
-    	telephoneNumber \{\+31415926535 \+27182818285\}
-        \}
+        ldap::addMulti $handle $dn {
+    	objectClass     {OpenLDAPperson}
+    	cn              {{Anotther User}}
+    	mail            {test.user@google.com}
+    	uid             {testuid}
+    	sn              {User}
+    	telephoneNumber {+31415926535 +27182818285}
+        }
 
-        \# Replace all attributes
-        ldap::modify $handle $dn \[list drink icetea uid JOLO\]
+        # Replace all attributes
+        ldap::modify $handle $dn [list drink icetea uid JOLO]
 
-        \# Add some more
-        ldap::modify $handle $dn \{\} \{\} \[list drink water  drink orangeJuice pager "\+1 313 555 7671"\]
+        # Add some more
+        ldap::modify $handle $dn {} {} [list drink water  drink orangeJuice pager "+1 313 555 7671"]
 
-        \# Delete
-        ldap::modify $handle $dn \{\} \[list drink water  pager ""\]
+        # Delete
+        ldap::modify $handle $dn {} [list drink water  pager ""]
 
-        \# Move
+        # Move
         ldap::modifyDN $handle $dn "cn=Tester"
 
-        \# Kill the test object, and shut the connection down\.
+        # Kill the test object, and shut the connection down.
         set dn "cn=Tester,ou=People,o=University of Michigan,c=US"
         ldap::delete $handle $dn
 
@@ -489,37 +489,37 @@ A small example, extracted from the test application coming with this code\.
 And a another example, a simple query, and processing the results\.
 
         package require ldap
-        set handle \[ldap::connect ldap\.acme\.com 389\]
+        set handle [ldap::connect ldap.acme.com 389]
         ldap::bind $handle
-        set results \[ldap::search $handle "o=acme,dc=com" "\(uid=jdoe\)" \{\}\]
-        foreach result $results \{
-    	foreach \{object attributes\} $result break
+        set results [ldap::search $handle "o=acme,dc=com" "(uid=jdoe)" {}]
+        foreach result $results {
+    	foreach {object attributes} $result break
 
-    	\# The processing here is similar to what 'parray' does\.
-    	\# I\.e\. finding the longest attribute name and then
-    	\# generating properly aligned output listing all attributes
-    	\# and their values\.
+    	# The processing here is similar to what 'parray' does.
+    	# I.e. finding the longest attribute name and then
+    	# generating properly aligned output listing all attributes
+    	# and their values.
 
     	set width 0
-    	set sortedAttribs \{\}
-    	foreach \{type values\} $attributes \{
-    	    if \{\[string length $type\] > $width\} \{
-    		set width \[string length $type\]
-    	    \}
-    	    lappend sortedAttribs \[list $type $values\]
-    	\}
+    	set sortedAttribs {}
+    	foreach {type values} $attributes {
+    	    if {[string length $type] > $width} {
+    		set width [string length $type]
+    	    }
+    	    lappend sortedAttribs [list $type $values]
+    	}
 
     	puts "object='$object'"
 
-    	foreach sortedAttrib  $sortedAttribs \{
-    	    foreach \{type values\} $sortedAttrib break
-    	    foreach value $values \{
-    		regsub \-all "\\\[\\x01\-\\x1f\\\]" $value ? value
-    		puts \[format "  %\-$\{width\}s %s" $type $value\]
-    	    \}
-    	\}
+    	foreach sortedAttrib  $sortedAttribs {
+    	    foreach {type values} $sortedAttrib break
+    	    foreach value $values {
+    		regsub -all "\[\x01-\x1f\]" $value ? value
+    		puts [format "  %-${width}s %s" $type $value]
+    	    }
+    	}
     	puts ""
-        \}
+        }
         ldap::unbind $handle
         ldap::disconnect $handle
 

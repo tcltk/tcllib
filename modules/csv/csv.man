@@ -243,5 +243,5 @@ instead. As can be seen only item (d) is different, now the empty string
 instead of a ".
 
 [vset CATEGORY csv]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

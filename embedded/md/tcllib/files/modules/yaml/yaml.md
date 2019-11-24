@@ -82,7 +82,7 @@ use\.
         The *list* is a type list for the yaml\-scalar types\.\(e\.g\. \!\!str
         \!\!timestamp \!\!integer \!\!true \.\.\.\)
 
-            \-types \{timestamp integer null true false\}
+            -types {timestamp integer null true false}
 
         In this case, if a string matched "timestamp", converted to the TCL
         internal timestamp\.\(e\.g\. "2001\-12\-15T02:59:43\.1Z" => 1008385183\)
@@ -92,7 +92,7 @@ use\.
         The *param* is two elements of list for the value of true, and
         considered strings\.
 
-            \-m:true \{1 \{true on \+ yes y\}\}
+            -m:true {1 {true on + yes y}}
 
         In this case, the string "yes" found in YAML Stream, automatically
         converted 1\.
@@ -102,22 +102,22 @@ use\.
         The *param* is two elements of list for the value of false, and
         considered strings\.
 
-            \-m:false \{0 \{false off \- no n\}\}
+            -m:false {0 {false off - no n}}
 
       * ____\-m:null__ *param*__
 
         The *param* is two elements of list for the value of null, and
         considered strings\.
 
-            \-m:null \{"" \{null nil "" ~\}\}
+            -m:null {"" {null nil "" ~}}
 
       * ____\-validate____
 
         Experiment,old: Output stream contains YAML's\-tag, each node\.
 
-            % puts \[::yaml::load \-validate \{\[aaa, bbb\]\}\]
+            % puts [::yaml::load -validate {[aaa, bbb]}]
             =>
-            \!\!seq \{\{\!\!str aaa\} \{\!\!str bbb\}\}
+            !!seq {{!!str aaa} {!!str bbb}}
 
   - <a name='3'></a>__::yaml::setOption__ ?*options*?
 
@@ -146,58 +146,58 @@ use\.
 An example of a yaml stream converted to Tcl\. A yaml stream is returned as a
 single item with multiple elements\.
 
-    \{
-    \-\-\- \!<tag:clarkevans\.com,2002:invoice>
+    {
+    --- !<tag:clarkevans.com,2002:invoice>
     invoice: 34843
-    date   : 2001\-01\-23
-    bill\-to: &id001
+    date   : 2001-01-23
+    bill-to: &id001
         given  : Chris
         family : Dumars
         address:
-            lines: &#124;
-                458 Walkman Dr\.
-                Suite \#292
+            lines: |
+                458 Walkman Dr.
+                Suite #292
             city    : Royal Oak
             state   : MI
             postal  : 48046
-    ship\-to: \*id001
+    ship-to: *id001
     product:
-        \- sku         : BL394D
+        - sku         : BL394D
           quantity    : 4
           description : Basketball
-          price       : 450\.00
-        \- sku         : BL4438H
+          price       : 450.00
+        - sku         : BL4438H
           quantity    : 1
           description : Super Hoop
-          price       : 2392\.00
-    tax  : 251\.42
-    total: 4443\.52
+          price       : 2392.00
+    tax  : 251.42
+    total: 4443.52
     comments:
-        Late afternoon is best\.
+        Late afternoon is best.
         Backup contact is Nancy
-        Billsmer @ 338\-4338\.
-    \}
+        Billsmer @ 338-4338.
+    }
     =>
-    invoice 34843 date 2001\-01\-23 bill\-to \{given Chris family Dumars address \{lines \{458 Walkman Dr\.
-    Suite \#292
-    \} city \{Royal Oak\} state MI postal 48046\}\} ship\-to \{given Chris family Dumars address \{lines \{458 Walkman Dr\.
-    Suite \#292
-    \} city \{Royal Oak\} state MI postal 48046\}\} product \{\{sku BL394D quantity 4 description Basketball price 450\.00\} \{sku BL4438H quantity 1 description \{Super Hoop\} price 2392\.00\}\} tax 251\.42 total 4443\.52 comments \{Late afternoon is best\. Backup contact is Nancy Billsmer @ 338\-4338\.\}
+    invoice 34843 date 2001-01-23 bill-to {given Chris family Dumars address {lines {458 Walkman Dr.
+    Suite #292
+    } city {Royal Oak} state MI postal 48046}} ship-to {given Chris family Dumars address {lines {458 Walkman Dr.
+    Suite #292
+    } city {Royal Oak} state MI postal 48046}} product {{sku BL394D quantity 4 description Basketball price 450.00} {sku BL4438H quantity 1 description {Super Hoop} price 2392.00}} tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}
 
 An example of a yaml object converted to Tcl\. A yaml object is returned as a
 multi\-element list \(a dict\)\.
 
-    \{
-    \-\-\-
-    \- \[name        , hr, avg  \]
-    \- \[Mark McGwire, 65, 0\.278\]
-    \- \[Sammy Sosa  , 63, 0\.288\]
-    \-
-      Mark McGwire: \{hr: 65, avg: 0\.278\}
-      Sammy Sosa: \{ hr: 63, avg: 0\.288\}
-    \}
+    {
+    ---
+    - [name        , hr, avg  ]
+    - [Mark McGwire, 65, 0.278]
+    - [Sammy Sosa  , 63, 0.288]
+    -
+      Mark McGwire: {hr: 65, avg: 0.278}
+      Sammy Sosa: { hr: 63, avg: 0.288}
+    }
     =>
-    \{name hr avg\} \{\{Mark McGwire\} 65 0\.278\} \{\{Sammy Sosa\} 63 0\.288\} \{\{Mark McGwire\} \{hr 65 avg 0\.278\} \{Sammy Sosa\} \{hr 63 avg 0\.288\}\}
+    {name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288} {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}}
 
 # <a name='section4'></a>LIMITATIONS
 

@@ -324,10 +324,10 @@ and \[3\]\.
     not relevant to the structure and was just used to have proper file names\.
 
         output/
-            toc\.html
-            index\.html
+            toc.html
+            index.html
             files/
-                path/to/FOO\.html
+                path/to/FOO.html
 
     The last line in the example shows the document generated for a file FOO
     located at
@@ -340,19 +340,19 @@ and \[3\]\.
     directory structure is a bit deeper:
 
         output
-            \.toc
-            \.idx
-            \.tocdoc
-            \.idxdoc
-            \.xrf
-            toc\.html
-            index\.html
+            .toc
+            .idx
+            .tocdoc
+            .idxdoc
+            .xrf
+            toc.html
+            index.html
             FOO1/
-                \.\.\.
+                ...
             FOO2/
-                toc\.html
+                toc.html
                 files/
-                    path/to/BAR\.html
+                    path/to/BAR.html
 
     Each of the directories FOO1, \.\.\. contains the documents generated for the
     package FOO1, \.\.\. and follows the structure shown for use case \[2\]\. The only

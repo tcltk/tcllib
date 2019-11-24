@@ -222,41 +222,41 @@ be *canonical*\.
 
 Assuming the parsing expression grammar below
 
-    PEG calculator \(Expression\)
-        Digit      <\- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-        Sign       <\- '\-' / '\+'                                     ;
-        Number     <\- Sign? Digit\+                                  ;
-        Expression <\- Term \(AddOp Term\)\*                            ;
-        MulOp      <\- '\*' / '/'                                     ;
-        Term       <\- Factor \(MulOp Factor\)\*                        ;
-        AddOp      <\- '\+'/'\-'                                       ;
-        Factor     <\- '\(' Expression '\)' / Number                   ;
+    PEG calculator (Expression)
+        Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+        Sign       <- '-' / '+'                                     ;
+        Number     <- Sign? Digit+                                  ;
+        Expression <- Term (AddOp Term)*                            ;
+        MulOp      <- '*' / '/'                                     ;
+        Term       <- Factor (MulOp Factor)*                        ;
+        AddOp      <- '+'/'-'                                       ;
+        Factor     <- '(' Expression ')' / Number                   ;
     END;
 
 and the input string
 
-    120\+5
+    120+5
 
 then a parser should deliver the abstract syntax tree below \(except for
 whitespace\)
 
-    set ast \{Expression 0 4
-        \{Factor 0 4
-            \{Term 0 2
-                \{Number 0 2
-                    \{Digit 0 0\}
-                    \{Digit 1 1\}
-                    \{Digit 2 2\}
-                \}
-            \}
-            \{AddOp 3 3\}
-            \{Term 4 4
-                \{Number 4 4
-                    \{Digit 4 4\}
-                \}
-            \}
-        \}
-    \}
+    set ast {Expression 0 4
+        {Factor 0 4
+            {Term 0 2
+                {Number 0 2
+                    {Digit 0 0}
+                    {Digit 1 1}
+                    {Digit 2 2}
+                }
+            }
+            {AddOp 3 3}
+            {Term 4 4
+                {Number 4 4
+                    {Digit 4 4}
+                }
+            }
+        }
+    }
 
 Or, more graphical
 
@@ -394,11 +394,11 @@ of them will be *canonical*\.
 
 Assuming the parsing expression shown on the right\-hand side of the rule
 
-    Expression <\- Term \(AddOp Term\)\*
+    Expression <- Term (AddOp Term)*
 
 then its canonical serialization \(except for whitespace\) is
 
-    \{x \{n Term\} \{\* \{x \{n AddOp\} \{n Term\}\}\}\}
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
 
 # <a name='section4'></a>Bugs, Ideas, Feedback
 

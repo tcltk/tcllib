@@ -1,10 +1,10 @@
 
 [//000000001]: # (math::linearalgebra \- Tcl Math Library)
 [//000000002]: # (Generated from file 'linalg\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004\-2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>  
-Copyright &copy; 2004 Ed Hume <http://www\.hume\.com/contact\.us\.htm>  
-Copyright &copy; 2008 Michael Buadin <relaxkmike@users\.sourceforge\.net>)
-[//000000004]: # (math::linearalgebra\(n\) 1\.1\.5 tcllib "Tcl Math Library")
+[//000000003]: # (Copyright &copy; 2004\-2008 Arjen Markus <arjenmarkus@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2004 Ed Hume <http://www\.hume\.com/contact\.us\.htm>)
+[//000000005]: # (Copyright &copy; 2008 Michael Buadin <relaxkmike@users\.sourceforge\.net>)
+[//000000006]: # (math::linearalgebra\(n\) 1\.1\.5 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -999,7 +999,7 @@ specialised procedures, see below\):
 
     The factorization has the form
 
-        P \* A = L \* U
+        P * A = L * U
 
     where P is a permutation matrix, L is lower triangular with unit diagonal
     elements, and U is upper triangular\. Returns the permutation vector, as a
@@ -1091,7 +1091,7 @@ is related to ordinary matrices as follows:
 
   - To set element \(i,j\) of matrix "B" use:
 
-        setelem B $j \[expr \{$N\+$i\-1\}\] $value
+        setelem B $j [expr {$N+$i-1}] $value
 
 \(There is no convenience procedure for this yet\)
 
@@ -1130,17 +1130,17 @@ defines all its commands in the global namespace\. The solution is to import the
 linear algebra commands in a namespace that is not the global one:
 
     package require math::linearalgebra
-    namespace eval compute \{
-        namespace import ::math::linearalgebra::\*
-        \.\.\. use the linear algebra version of scale \.\.\.
-    \}
+    namespace eval compute {
+        namespace import ::math::linearalgebra::*
+        ... use the linear algebra version of scale ...
+    }
 
 To use Tk's scale command in that same namespace you can rename it:
 
-    namespace eval compute \{
+    namespace eval compute {
         rename ::scale scaleTk
-        scaleTk \.scale \.\.\.
-    \}
+        scaleTk .scale ...
+    }
 
 # <a name='section7'></a>Bugs, Ideas, Feedback
 

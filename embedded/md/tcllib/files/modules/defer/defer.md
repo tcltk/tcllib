@@ -93,10 +93,10 @@ resource will always occur\.
 # <a name='section3'></a>EXAMPLES
 
     package require defer 1
-    apply \{\{\} \{
-    	set fd \[open /dev/null\]
+    apply {{} {
+    	set fd [open /dev/null]
     	defer::defer close $fd
-    \}\}
+    }}
 
 # <a name='section4'></a>REFERENCES
 

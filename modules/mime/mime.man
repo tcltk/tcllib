@@ -1,5 +1,6 @@
+[vset VERSION 1.6.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin mime n 1.6]
+[manpage_begin mime n [vset VERSION]]
 [see_also ftp]
 [see_also http]
 [see_also pop3]
@@ -20,7 +21,7 @@
 [titledesc {Manipulation of MIME body parts}]
 [category  {Text processing}]
 [require Tcl 8.5]
-[require mime [opt 1.6]]
+[require mime [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -401,5 +402,5 @@ See [uri {/tktview?name=447037} {Ticket 447037}] for additional information.
 [list_end]
 
 [vset CATEGORY mime]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

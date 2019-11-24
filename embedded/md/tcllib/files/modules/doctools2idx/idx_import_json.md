@@ -1,8 +1,8 @@
 
 [//000000001]: # (doctools::idx::import::json \- Documentation tools)
 [//000000002]: # (Generated from file 'plugin\.inc' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (doctools::idx::import::json\(n\) 0\.1 tcllib "Documentation tools")
+[//000000003]: # (Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000004]: # (doctools::idx::import::json\(n\) 0\.2\.1 tcllib "Documentation tools")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,8 +39,8 @@ doctools::idx::import::json \- JSON import plugin
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require doctools::idx::import::json ?0\.1?  
+package require Tcl 8\.5  
+package require doctools::idx::import::json ?0\.2\.1?  
 package require doctools::idx::structure  
 package require json  
 
@@ -79,47 +79,47 @@ The JSON format used for keyword indices is a direct translation of the
 [Keyword index serialization format](#section4), mapping Tcl dictionaries
 as JSON objects and Tcl lists as JSON arrays\. For example, the Tcl serialization
 
-    doctools::idx \{
-    	label \{Keyword Index\}
-    	keywords \{
-    		changelog  \{changelog\.man cvs\.man\}
-    		conversion \{doctools\.man docidx\.man doctoc\.man apps/dtplite\.man mpexpand\.man\}
-    		cvs        cvs\.man
-    	\}
-    	references \{
-    		apps/dtplite\.man \{manpage dtplite\}
-    		changelog\.man    \{manpage doctools::changelog\}
-    		cvs\.man          \{manpage doctools::cvs\}
-    		docidx\.man       \{manpage doctools::idx\}
-    		doctoc\.man       \{manpage doctools::toc\}
-    		doctools\.man     \{manpage doctools\}
-    		mpexpand\.man     \{manpage mpexpand\}
-    	\}
-    	title \{\}
-    \}
+    doctools::idx {
+    	label {Keyword Index}
+    	keywords {
+    		changelog  {changelog.man cvs.man}
+    		conversion {doctools.man docidx.man doctoc.man apps/dtplite.man mpexpand.man}
+    		cvs        cvs.man
+    	}
+    	references {
+    		apps/dtplite.man {manpage dtplite}
+    		changelog.man    {manpage doctools::changelog}
+    		cvs.man          {manpage doctools::cvs}
+    		docidx.man       {manpage doctools::idx}
+    		doctoc.man       {manpage doctools::toc}
+    		doctools.man     {manpage doctools}
+    		mpexpand.man     {manpage mpexpand}
+    	}
+    	title {}
+    }
 
 is equivalent to the JSON string
 
-    \{
-        "doctools::idx" : \{
+    {
+        "doctools::idx" : {
             "label"      : "Keyword Index",
-            "keywords"   : \{
-                "changelog"  : \["changelog\.man","cvs\.man"\],
-                "conversion" : \["doctools\.man","docidx\.man","doctoc\.man","apps\\/dtplite\.man","mpexpand\.man"\],
-                "cvs"        : \["cvs\.man"\],
-            \},
-            "references" : \{
-                "apps\\/dtplite\.man" : \["manpage","dtplite"\],
-                "changelog\.man"     : \["manpage","doctools::changelog"\],
-                "cvs\.man"           : \["manpage","doctools::cvs"\],
-                "docidx\.man"        : \["manpage","doctools::idx"\],
-                "doctoc\.man"        : \["manpage","doctools::toc"\],
-                "doctools\.man"      : \["manpage","doctools"\],
-                "mpexpand\.man"      : \["manpage","mpexpand"\]
-            \},
+            "keywords"   : {
+                "changelog"  : ["changelog.man","cvs.man"],
+                "conversion" : ["doctools.man","docidx.man","doctoc.man","apps\/dtplite.man","mpexpand.man"],
+                "cvs"        : ["cvs.man"],
+            },
+            "references" : {
+                "apps\/dtplite.man" : ["manpage","dtplite"],
+                "changelog.man"     : ["manpage","doctools::changelog"],
+                "cvs.man"           : ["manpage","doctools::cvs"],
+                "docidx.man"        : ["manpage","doctools::idx"],
+                "doctoc.man"        : ["manpage","doctools::toc"],
+                "doctools.man"      : ["manpage","doctools"],
+                "mpexpand.man"      : ["manpage","mpexpand"]
+            },
             "title"      : ""
-        \}
-    \}
+        }
+    }
 
 # <a name='section4'></a>Keyword index serialization format
 
@@ -229,4 +229,4 @@ Text formatter plugin
 
 # <a name='copyright'></a>COPYRIGHT
 
-Copyright &copy; 2009 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>
+Copyright &copy; 2009\-2019 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>

@@ -145,12 +145,12 @@ implementation supports ECB and CBC mode blowfish encryption\.
 
 # <a name='section5'></a>EXAMPLES
 
-    % blowfish::blowfish \-hex \-mode ecb \-dir encrypt \-key secret01 "hello, world\!"
+    % blowfish::blowfish -hex -mode ecb -dir encrypt -key secret01 "hello, world!"
     d0d8f27e7a374b9e2dbd9938dd04195a
 
-    set Key \[blowfish::Init cbc $eight\_bytes\_key\_data $eight\_byte\_iv\]
-    append ciphertext \[blowfish::Encrypt $Key $plaintext\]
-    append ciphertext \[blowfish::Encrypt $Key $additional\_plaintext\]
+    set Key [blowfish::Init cbc $eight_bytes_key_data $eight_byte_iv]
+    append ciphertext [blowfish::Encrypt $Key $plaintext]
+    append ciphertext [blowfish::Encrypt $Key $additional_plaintext]
     blowfish::Final $Key
 
 # <a name='section6'></a>REFERENCES

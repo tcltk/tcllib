@@ -2,7 +2,7 @@
 [//000000001]: # (struct::record \- Tcl Data Structures)
 [//000000002]: # (Generated from file 'record\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Brett Schwarz <brett\_schwarz@yahoo\.com>)
-[//000000004]: # (struct::record\(n\) 1\.2\.1 tcllib "Tcl Data Structures")
+[//000000004]: # (struct::record\(n\) 1\.2\.2 tcllib "Tcl Data Structures")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -25,11 +25,21 @@ struct::record \- Define and create records \(similar to 'C' structures\)
 
   - [RECORD MEMBERS](#section2)
 
+      - [Getting Values](#subsection1)
+
+      - [Setting Values](#subsection2)
+
+      - [Alias access](#subsection3)
+
   - [RECORD COMMAND](#section3)
 
   - [INSTANCE COMMAND](#section4)
 
   - [EXAMPLES](#section5)
+
+      - [Example 1 \- Contact Information](#subsection4)
+
+      - [Example 2 \- Linked List](#subsection5)
 
   - [Bugs, Ideas, Feedback](#section6)
 
@@ -42,7 +52,7 @@ struct::record \- Define and create records \(similar to 'C' structures\)
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require struct::record ?1\.2\.1?  
+package require struct::record ?1\.2\.2?  
 
 [__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?](#1)  
 [__record show__ *record*](#2)  
@@ -53,16 +63,24 @@ package require struct::record ?1\.2\.1?
 [__record exists__ *instance* *instanceName*](#7)  
 [__record delete__ *record* *recordName*](#8)  
 [__record delete__ *instance* *instanceName*](#9)  
-[*recordName* __*instanceName&#124;\#auto*__ ?*\-member1 value1 \-member2 value2 \.\.\.*?](#10)  
-[*instanceName* __cget__ ?*\-member1 \-member2 \.\.\.*?](#11)  
-[*instanceName* __configure__ ?*\-member1 value1 \-member2 value2 \.\.\.*?](#12)  
+[*instanceName* __cget__ \-*member*](#10)  
+[*instanceName* __cget__ \-*member1* \-*member2*](#11)  
+[*instanceName* __cget__](#12)  
+[*instanceName* __configure__](#13)  
+[*instanceName*](#14)  
+[*instanceName* __configure__ \-*member* *value*](#15)  
+[*instanceName* __configure__ \-*member1* *value1* \-*member2* *value2*](#16)  
+[*recordName* *instanceName*&#124;__\#auto__ ?*\-member1 value1 \-member2 value2 \.\.\.*?](#17)  
+[*instanceName* __cget__ ?*\-member1 \-member2 \.\.\.*?](#18)  
+[*instanceName* __configure__ ?*\-member1 value1 \-member2 value2 \.\.\.*?](#19)  
 
 # <a name='description'></a>DESCRIPTION
 
 The __::struct::record__ package provides a mechanism to group variables
-together as one data structure, similar to a 'C' structure\. The members of a
-record can be variables or other records\. However, a record can not contain
-circular record, i\.e\. records that contain the same record as a member\.
+together as one data structure, similar to a *[C](\.\./\.\./\.\./\.\./index\.md\#c)*
+structure\. The members of a record can be variables or other records\. However, a
+record can not contain circular records, i\.e\. records that contain the same
+record as a member\.
 
 This package was structured so that it is very similar to how Tk objects work\.
 Each record definition creates a record object that encompasses that definition\.
@@ -71,17 +89,17 @@ instances can then be manipulated with the __cget__ and __configure__
 methods\.
 
 The package only contains one top level command, but several sub commands \(see
-below\)\. It also obeys the namespace in which the record was define, hence the
+below\)\. It also obeys the namespace in which the record was defined, hence the
 objects returned are fully qualified\.
 
   - <a name='1'></a>__record define__ *recordName* *recordMembers* ?*instanceName1 instanceName2 \.\.\.*?
 
     Defines a record\. *recordName* is the name of the record, and is also used
     as an object command\. This object command is used to create instances of the
-    record definition\. *recordMembers* are the members of the record that make
-    up the record definition\. These are variables and other record\. If optional
-    *instanceName* args are given, then an instance is generated after the
-    definition is created for each *instanceName*\.
+    record definition\. The *recordMembers* are the members of the record that
+    make up the record definition\. These are variables and other records\. If
+    optional *instanceName* args are specified, then an instance is generated
+    after the definition is created for each *instanceName*\.
 
   - <a name='2'></a>__record show__ *record*
 
@@ -118,258 +136,270 @@ objects returned are fully qualified\.
   - <a name='9'></a>__record delete__ *instance* *instanceName*
 
     Deletes *instance* with the name of *instanceName*\. It will return an
-    error if the instance does not exist\.
+    error if the instance does not exist\. Note that this recursively deletes any
+    nested instances as well\.
 
 # <a name='section2'></a>RECORD MEMBERS
 
 Record members can either be variables, or other records, However, the same
 record can not be nested witin itself \(circular\)\. To define a nested record, you
 need to specify the __record__ keyword, along the with name of the record,
-and the name of the instance of that nested record\. For example, it would look
-like this:
+and the name of the instance of that nested record \(within the container\)\. For
+example, it would look like this:
 
-    \# this is the nested record
-    record define mynestedrecord \{
+    # this is the nested record
+    record define mynestedrecord {
         nest1
         nest2
-    \}
+    }
 
-    \# This is the main record
-    record define myrecord \{
+    # This is the main record
+    record define myrecord {
         mem1
         mem2
-        \{record mynestedrecord mem3\}
-    \}
+        {record mynestedrecord mem3}
+    }
 
 You can also assign default or initial values to the members of a record, by
 enclosing the member entry in braces:
 
-    record define myrecord \{
+    record define myrecord {
         mem1
-        \{mem2 5\}
-    \}
+        {mem2 5}
+    }
 
-All instances created from this record definition, will initially have 5 as the
-value for *mem2*\. If no default is given, then the value will be the empty
-string\.
+All instances created from this record definition will initially have __5__
+as the value for member *mem2*\. If no default is given, then the value will be
+the empty string\.
 
-*Getting Values*
+## <a name='subsection1'></a>Getting Values
 
 To get a value of a member, there are several ways to do this\.
 
-  1. To get a member value, then use the instance built\-in __cget__ method:
+  - <a name='10'></a>*instanceName* __cget__ \-*member*
 
-     *instanceName* __cget__ \-mem1
+    In this form the built\-in __cget__ instance method returns the value of
+    the specified *member*\. Note the leading dash\.
 
-  1. To get multiple member values, you can specify them all in one command:
+    To reach a nested member use *dot notation*:
 
-     *instanceName* __cget__ \-mem1 \-mem2
+    > *instanceName* __cget__ \-mem3\.nest1
 
-  1. To get a list of the key/value of all of the members, there are 3 ways:
+  - <a name='11'></a>*instanceName* __cget__ \-*member1* \-*member2*
 
-     \- *instanceName* __cget__
+    In this form the built\-in __cget__ instance method returns a list
+    containing the values of both specified members, in the order of
+    specification\.
 
-     \- *instanceName* __configure__
+  - <a name='12'></a>*instanceName* __cget__
 
-     \- *instanceName*
+  - <a name='13'></a>*instanceName* __configure__
 
-  1. To get a value of a nested member, then use the dot notation:
+  - <a name='14'></a>*instanceName*
 
-     *instanceName* __cget__ \-mem3\.nest1
+    These forms are all equivalent\. They return a dictionary of all members and
+    the associated values\.
 
-*Setting Values*
+## <a name='subsection2'></a>Setting Values
 
 To set a value of a member, there are several ways to do this\.
 
-  1. To set a member value, then use the instance built\-in __configure__
-     method:
+  - <a name='15'></a>*instanceName* __configure__ \-*member* *value*
 
-     *instanceName* __configure__ \-mem1 val1
+    In this form the built\-in __configure__ instance method sets the
+    specified *member* to the given *value*\. Note the leading dash\.
 
-  1. To set multiple member values, you can specify them all in one command:
+    To reach a nested member use *dot notation*:
 
-     *instanceName* __configure__ \-mem1 va1 \-mem2 val2
+    > *instanceName* __configure__ \-mem3\.nest1 value
 
-  1. To set a value of a nested member, then use the dot notation:
+  - <a name='16'></a>*instanceName* __configure__ \-*member1* *value1* \-*member2* *value2*
 
-     *instanceName* __configure__ \-mem3\.nest1 value
+    In this form the built\-in __configure__ instance method sets all
+    specified members to the associated values\.
 
-*Alias access*
+## <a name='subsection3'></a>Alias access
 
 In the original implementation, access was done by using dot notation similar to
-how 'C' structures are accessed\. However, there was a concensus to make the
-interface more Tcl like, which made sense\. However, the original alias access
-still exists\. It might prove to be helpful to some\.
+how *[C](\.\./\.\./\.\./\.\./index\.md\#c)* structures are accessed\. However, there
+was a concensus to make the interface more Tcl like, which made sense\. However,
+the original alias access still exists\. It might prove to be helpful to some\.
 
 Basically, for every member of every instance, an alias is created\. This alias
 is used to get and set values for that member\. An example will illustrate the
 point, using the above defined records:
 
-    \# Create an instance first
+    % # Create an instance first
     % myrecord inst1
     ::inst1
-    % \# To get a member of an instance, just use the
-    % \# alias \(it behaves like a Tcl command\):
-    % inst1\.mem1
-    %
-    % \# To set a member via the alias, just include
-    % \# a value \(optionally the equal sign \- syntactic sugar\)
-    % inst1\.mem1 = 5
+
+    % # To get a member of an instance, just use the alias. It behaves
+    % # like a Tcl command:
+    % inst1.mem1
+
+    % # To set a member via the alias, just include a value. And optionally
+    % # the equal sign - syntactic sugar.
+    % inst1.mem1 = 5
     5
-    % inst1\.mem1
+
+    % inst1.mem1
     5
-    % \# For nested records, just continue with the
-    % \# dot notation \(note no equal sign\)
-    % inst1\.mem3\.nest1 10
+
+    % # For nested records, just continue with the dot notation.
+    % # note, no equal sign.
+    % inst1.mem3.nest1 10
     10
-    % inst1\.mem3\.nest1
+
+    % inst1.mem3.nest1
     10
-    % \# just the instance by itself gives all
-    % \# member/values pairs for that instance
+
+    % # just the instance by itself gives all member/values pairs for that
+    % # instance
     % inst1
-    \-mem1 5 \-mem2 \{\} \-mem3 \{\-nest1 10 \-nest2 \{\}\}
-    % \# and to get all members within the nested record
-    % inst1\.mem3
-    \-nest1 10 \-nest2 \{\}
-    %
+    -mem1 5 -mem2 {} -mem3 {-nest1 10 -nest2 {}}
+
+    % # and to get all members within the nested record
+    % inst1.mem3
+    -nest1 10 -nest2 {}
 
 # <a name='section3'></a>RECORD COMMAND
 
 The following subcommands and corresponding arguments are available to any
 record command:
 
-  - <a name='10'></a>*recordName* __*instanceName&#124;\#auto*__ ?*\-member1 value1 \-member2 value2 \.\.\.*?
+  - <a name='17'></a>*recordName* *instanceName*&#124;__\#auto__ ?*\-member1 value1 \-member2 value2 \.\.\.*?
 
     Using the *recordName* object command that was created from the record
-    definition, instances of the record definition can be created\. Once a
-    instance is created, then it inherits the members of the record definition,
-    very similar to how objects work\. During instance generation, an object
-    command for the instance is created as well, using *instanceName*\. This
-    object command is used to access the data members of the instance\. During
-    the instantiation, values for that instance can be given, *but* all values
-    must be given, and be given in key/value pairs\. Nested records, need to be
-    in list format\.
+    definition, instances of the record definition can be created\. Once an
+    instance is created, it inherits the members of the record definition, very
+    similar to how objects work\. During instance generation, an object command
+    for the instance is created as well, using *instanceName*\.
 
-    Optionally, *\#auto* can be used in place of *instanceName*\. When \#auto
-    is used, then a instance name will automatically be generated, of the form
-    recordName<integer>, where <integer> is a unique integer \(starting at 0\)
-    that is generated\.
+    This object command is used to access the data members of the instance\.
+    During the instantiation, while values for that instance may be given, when
+    done, *all* values must be given, and be given as key/value pairs, like
+    for method __configure__\. Nested records have to be in list format\.
+
+    Optionally, __\#auto__ can be used in place of *instanceName*\. When
+    __\#auto__ is used, the instance name will be automatically generated,
+    and of the form __recordName__N____, where __N__ is a unique
+    integer \(starting at 0\) that is generated\.
 
 # <a name='section4'></a>INSTANCE COMMAND
 
 The following subcommands and corresponding arguments are available to any
 record instance command:
 
-  - <a name='11'></a>*instanceName* __cget__ ?*\-member1 \-member2 \.\.\.*?
+  - <a name='18'></a>*instanceName* __cget__ ?*\-member1 \-member2 \.\.\.*?
 
-    Each instance has the sub command __cget__ associated with it\. This is
-    very similar to how Tk widget's cget command works\. It queries the values of
-    the member for that particular instance\. If no arguments are given, then a
-    key/value list is returned\.
+    Each instance has the method __cget__\. This is very similar to how Tk
+    widget's __cget__ command works\. It queries the values of the members
+    for that particular instance\. If no arguments are given, then a dictionary
+    is returned\.
 
-  - <a name='12'></a>*instanceName* __configure__ ?*\-member1 value1 \-member2 value2 \.\.\.*?
+  - <a name='19'></a>*instanceName* __configure__ ?*\-member1 value1 \-member2 value2 \.\.\.*?
 
-    Each instance has the sub command __configure__ associated with it\. This
-    is very similar to how Tk widget's configure command works\. It sets the
-    values of the particular member for that particular instance\. If no
-    arguments are given, then a key/value list is returned\.
+    Each instance has the method __configure__\. This is very similar to how
+    Tk widget's __configure__ command works\. It sets the values of the
+    particular members for that particular instance\. If no arguments are given,
+    then a dictionary list is returned\.
 
 # <a name='section5'></a>EXAMPLES
 
-Two examples are provided to give an good illustration on how to use this
+Two examples are provided to give a good illustration on how to use this
 package\.
 
-*Example 1*
+## <a name='subsection4'></a>Example 1 \- Contact Information
 
 Probably the most obvious example would be to hold contact information, such as
 addresses, phone numbers, comments, etc\. Since a person can have multiple phone
 numbers, multiple email addresses, etc, we will use nested records to define
 these\. So, the first thing we do is define the nested records:
 
-    \#\#
-    \#\#  This is an interactive example, to see what is
-    \#\#  returned by each command as well\.
-    \#\#
+    ##
+    ##  This is an interactive example, to see what is returned by
+    ##  each command as well.
+    ##
 
-    % namespace import ::struct::record::\*
+    % namespace import ::struct::record::*
 
-    % \# define a nested record\. Notice that country has default 'USA'\.
-    % record define locations \{
+    % # define a nested record. Notice that country has default 'USA'.
+    % record define locations {
         street
         street2
         city
         state
         zipcode
-        \{country USA\}
+        {country USA}
         phone
-    \}
+    }
     ::locations
-    % \# Define the main record\. Notice that it uses the location record twice\.
-    % record define contacts \{
+    % # Define the main record. Notice that it uses the location record twice.
+    % record define contacts {
         first
         middle
         last
-        \{record locations home\}
-        \{record locations work\}
-    \}
+        {record locations home}
+        {record locations work}
+    }
     ::contacts
-    % \# Create an instance for the contacts record\.
+    % # Create an instance for the contacts record.
     % contacts cont1
     ::cont1
-    % \# Display some introspection values
+    % # Display some introspection values
     % record show records
     ::contacts ::locations
-    % \#
+    % #
     % record show values cont1
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \#
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % #
     % record show instances contacts
     ::cont1
-    % \#
+    % #
     % cont1 config
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \#
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % #
     % cont1 cget
-    \-first \{\} \-middle \{\} \-last \{\} \-home \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\} \-work \{\-street \{\} \-street2 \{\} \-city \{\} \-state \{\} \-zipcode \{\} \-country USA \-phone \{\}\}
-    % \# copy one record to another record
-    % record define contacts2 \[record show members contacts\]
+    -first {} -middle {} -last {} -home {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}} -work {-street {} -street2 {} -city {} -state {} -zipcode {} -country USA -phone {}}
+    % # copy one record to another record
+    % record define contacts2 [record show members contacts]
     ::contacts2
     % record show members contacts2
-    first middle last \{record locations home\} \{record locations work\}
+    first middle last {record locations home} {record locations work}
     % record show members contacts
-    first middle last \{record locations home\} \{record locations work\}
+    first middle last {record locations home} {record locations work}
     %
 
-*Example 1*
+## <a name='subsection5'></a>Example 2 \- Linked List
 
 This next example just illustrates a simple linked list
 
-    % \# define a very simple record for linked list
-    % record define llist \{
+    % # define a very simple record for linked list
+    % record define linkedlist {
         value
         next
-    \}
-    ::llist
-    % llist lstart
+    }
+    ::linkedlist
+    % linkedlist lstart
     ::lstart
-    % lstart config \-value 1 \-next \[llist \#auto\]
-    % \[lstart cget \-next\] config \-value 2 \-next \[llist \#auto\]
-    % \[\[lstart cget \-next\] cget \-next\] config \-value 3 \-next "end"
+    % lstart config -value 1 -next [linkedlist #auto]
+    % [lstart cget -next] config -value 2 -next [linkedlist #auto]
+    % [[lstart cget -next] cget -next] config -value 3 -next "end"
     % set next lstart
     lstart
-    % while 1 \{
-    lappend values \[$next cget \-value\]
-    set next \[$next cget \-next\]
-    if \{\[string match "end" $next\]\} \{break\}
-    \}
+    % while 1 {
+        lappend values [$next cget -value]
+        set next [$next cget -next]
+        if {[string match "end" $next]} break
+    }
     % puts "$values"
     1 2 3
-    % \# cleanup linked list
-    % \# We could just use delete record llist also
-    % foreach I \[record show instances llist\] \{
-    record delete instance $I
-    \}
-    % record show instances llist
+    % # cleanup linked list
+    % # We could just use delete record linkedlist also
+    % foreach I [record show instances linkedlist] {
+        record delete instance $I
+    }
+    % record show instances linkedlist
     %
 
 # <a name='section6'></a>Bugs, Ideas, Feedback

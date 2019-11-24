@@ -115,9 +115,9 @@ are just commands like everything else\.
         % namespace eval one namespace import ::control::assert
         % control::control assert enabled 0
         % namespace eval two namespace import ::control::assert
-        % one::assert \{1 == 0\}
+        % one::assert {1 == 0}
         assertion failed: 1 == 0
-        % two::assert \{1 == 0\}
+        % two::assert {1 == 0}
 
   - <a name='3'></a>__control::do__ *body* ?*option test*?
 
@@ -150,8 +150,8 @@ __while__, etc\.\) and those control flow commands that can be provided by
 packages coded in C\. An example of this difference:
 
     % package require control
-    % proc a \{\} \{while 1 \{return \-code error a\}\}
-    % proc b \{\} \{control::do \{return \-code error b\} while 1\}
+    % proc a {} {while 1 {return -code error a}}
+    % proc b {} {control::do {return -code error b} while 1}
     % catch a
     1
     % catch b

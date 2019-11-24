@@ -1,11 +1,11 @@
 
 [//000000001]: # (jpeg \- JPEG image manipulation)
 [//000000002]: # (Generated from file 'jpeg\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (Copyright &copy; 2004\-2005, Code: Aaron Faupell <afaupell@users\.sourceforge\.net>  
-Copyright &copy; 2007, Code:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2004\-2009, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>  
-Copyright &copy; 2011, Code: Pat Thoyts <patthoyts@users\.sourceforge\.net>)
-[//000000004]: # (jpeg\(n\) 0\.5 tcllib "JPEG image manipulation")
+[//000000003]: # (Copyright &copy; 2004\-2005, Code: Aaron Faupell <afaupell@users\.sourceforge\.net>)
+[//000000004]: # (Copyright &copy; 2007, Code:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000005]: # (Copyright &copy; 2004\-2009, Doc:  Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
+[//000000006]: # (Copyright &copy; 2011, Code: Pat Thoyts <patthoyts@users\.sourceforge\.net>)
+[//000000007]: # (jpeg\(n\) 0\.5 tcllib "JPEG image manipulation")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -94,9 +94,9 @@ of photographical images\. It is specified at [LINK\_HERE](LINK\_HERE)\.
     EXIF thumbnail will take precedence\. Throws an error if *file* is not a
     JPEG image\.
 
-        set fh \[open thumbnail\.jpg w\+\]
-        fconfigure $fh \-translation binary \-encoding binary
-        puts \-nonewline $fh \[::jpeg::getThumbnail photo\.jpg\]
+        set fh [open thumbnail.jpg w+]
+        fconfigure $fh -translation binary -encoding binary
+        puts -nonewline $fh [::jpeg::getThumbnail photo.jpg]
         close $fh
 
   - <a name='5'></a>__::jpeg::getExif__ *file* ?*section*?
@@ -105,11 +105,11 @@ of photographical images\. It is specified at [LINK\_HERE](LINK\_HERE)\.
     __main__\. Returns a dictionary containing the EXIF information for the
     specified section\. For example:
 
-            set exif \{
+            set exif {
         	Make     Canon
-        	Model    \{Canon DIGITAL IXUS\}
-        	DateTime \{2001:06:09 15:17:32\}
-            \}
+        	Model    {Canon DIGITAL IXUS}
+        	DateTime {2001:06:09 15:17:32}
+            }
 
     Throws an error if *file* is not a JPEG image\.
 
@@ -133,12 +133,12 @@ of photographical images\. It is specified at [LINK\_HERE](LINK\_HERE)\.
     many of the values into a more human readable form\. As few as one key\-value
     may be passed in, the entire exif is not required\.
 
-        foreach \{key val\} \[::jpeg::formatExif \[::jpeg::getExif photo\.jpg\]\] \{
+        foreach {key val} [::jpeg::formatExif [::jpeg::getExif photo.jpg]] {
             puts "$key: $val"
-        \}
+        }
 
-        array set exif \[::jpeg::getExif photo\.jpg\]
-        puts "max f\-stop: \[::jpeg::formatExif \[list MaxAperture $exif\(MaxAperture\)\]\]
+        array set exif [::jpeg::getExif photo.jpg]
+        puts "max f-stop: [::jpeg::formatExif [list MaxAperture $exif(MaxAperture)]]
 
   - <a name='8'></a>__::jpeg::exifKeys__
 

@@ -96,8 +96,8 @@ the __salt__ command may be used to generate a random salt\.
     % md5crypt::aprcrypt password 01234567
     $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
 
-    % md5crypt::md5crypt password \[md5crypt::salt\]
-    $1$dFmvyRmO$T\.V3OmzqeEf3hqJp2WFcb\.
+    % md5crypt::md5crypt password [md5crypt::salt]
+    $1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
 
 # <a name='section5'></a>Bugs, Ideas, Feedback
 

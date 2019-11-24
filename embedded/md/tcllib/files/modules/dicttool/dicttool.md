@@ -34,6 +34,7 @@ dicttool \- Dictionary Tools
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
+package require dicttool ?1\.0?  
 
 [__ladd__ *varname* *args*](#1)  
 [__ldelete__ *varname* *args*](#2)  
@@ -57,8 +58,8 @@ core\.
 
   - <a name='2'></a>__ldelete__ *varname* *args*
 
-    This command will add a delete all instances of each element in *args*
-    from *varname*\.
+    This command will delete all instances of each element in *args* from
+    *varname*\.
 
   - <a name='3'></a>__dict getnull__ *args*
 
@@ -83,26 +84,26 @@ core\.
     levels of a dict\. Dict keys which end in a : indicate a leaf, which will be
     interpreted as a literal value, and not descended into further\.
 
-        set items \[dict merge \{
-          option \{color \{default: green\}\}
-        \} \{
-          option \{fruit \{default: mango\}\}
-        \} \{
-          option \{color \{default: blue\} fruit \{widget: select values: \{mango apple cherry grape\}\}\}
-        \}\]
-        puts \[dict print $items\]
+        set items [dict merge {
+          option {color {default: green}}
+        } {
+          option {fruit {default: mango}}
+        } {
+          option {color {default: blue} fruit {widget: select values: {mango apple cherry grape}}}
+        }]
+        puts [dict print $items]
 
     Prints the following result:
 
-        option \{
-          color \{
+        option {
+          color {
             default: blue
-          \}
-          fruit \{
+          }
+          fruit {
             widget: select
-            values: \{mango apple cherry grape\}
-          \}
-        \}
+            values: {mango apple cherry grape}
+          }
+        }
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 
