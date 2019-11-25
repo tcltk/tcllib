@@ -509,13 +509,25 @@ proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
     if {[eof $in]} {
         fileevent $in readable {}
         set state(reading) 0
+        set data $state(remainder)
+
+        # Only pad at the end of the stream.
+        if {[string length $pad] > 0} {
+            set data [Pad $data 8 $pad]
+        }
+    } else {
+        set data [read $in $chunksize]
+        #puts "Chunk: reading [string len $data] bytes"
+        set data $state(remainder)$data
+
+        # If data is not a multiple of 8, state(remainder) will hold
+        # excess bytes for the next round.
+        set pagedlen         [expr {([string length $data] / 8) * 8}]
+        set state(remainder) [string range $data $pagedlen end]
+        set data             [string range $data 0 $pagedlen-1]
     }
 
-    set data [read $in $chunksize]
-    # FIX ME: we should ony pad after eof
-    if {[string length $pad] > 0} {
-        set data [Pad $data 8]
-    }
+    if {![string length $data]} return
     
     if {$out == {}} {
         append state(output) [$state(cmd) $Key $data]
@@ -585,7 +597,7 @@ proc ::blowfish::CheckPad {char} {
 proc ::blowfish::Pad {data blocksize {fill \0}} {
     set len [string length $data]
     if {$len == 0} {
-        set data [string repeat $fill $blocksize]
+        # do not pad an empty string
     } elseif {($len % $blocksize) != 0} {
         set pad [expr {$blocksize - ($len % $blocksize)}]
         append data [string repeat $fill $pad]
@@ -682,6 +694,7 @@ proc ::blowfish::blowfish {args} {
             set state(cmd) Decrypt
         }
         set state(output) ""
+        set state(remainder) ""
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
                  $Key $opts(-in) $opts(-out) $opts(-chunksize) $opts(-pad)]
@@ -714,7 +727,7 @@ namespace eval ::blowfish {
     unset e
 }
 
-package provide blowfish 1.0.4
+package provide blowfish 1.0.5
 
 # -------------------------------------------------------------------------
 #
