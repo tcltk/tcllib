@@ -1,4 +1,4 @@
-[vset VERSION 0.4]
+[vset VERSION 0.5]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin profiler n [vset VERSION]]
 [keywords performance]
@@ -102,6 +102,20 @@ Resume profiling for all functions matching [arg pattern].  If no
 pattern is specified, profiling will be resumed for all functions.
 This command should be invoked after suspending the profiler in the
 code.
+
+[call [cmd ::profiler::new-disabled]]
+
+Change the initial profiling state for new procedures. Invoking this
+command disables profiling for all procedures created after this
+command until [cmd new-enabled] is invoked. Activate profiling of
+specific procedures via [cmd resume].
+
+[call [cmd ::profiler::new-enabled]]
+
+Change the initial profiling state for new procedures. Invoking this
+command enables profiling for all procedures created after this
+command until [cmd new-disabled] is invoked. Prevent profiling of
+specific procedures via [cmd suspend].
 
 [call [cmd ::profiler::sortFunctions] [arg key]]
 

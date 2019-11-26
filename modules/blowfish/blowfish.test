@@ -17,7 +17,10 @@ testing {
 
 # -------------------------------------------------------------------------
 # Handle multiple implementation testing
-#
+
+# TODO: Implement the standard procedures for multi-implementation
+# handling done in other modules.
+
 array set preserve [array get ::blowfish::accel]
 
 proc implementations {} {
@@ -46,6 +49,32 @@ if {[::blowfish::LoadAccelerator trf]} {
     puts "> Trf based"
 }
 puts "> pure Tcl"
+
+proc do-imm {data script} {
+    upvar 1 in in msg msg
+
+    set in $data
+
+    list [catch {
+        uplevel 1 $script
+    } msg] $msg
+}
+
+proc do-chan {data script} {
+    upvar 1 in in msg msg
+
+    set p  [makeBinaryFile $data IN]
+    set in [open $p r]
+    fconfigure $in -translation binary -encoding binary
+            
+    set r [list [catch {
+        uplevel 1 $script
+    } msg] $msg]
+
+    close $in
+    file delete $p
+    return $r
+}
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
@@ -104,16 +133,31 @@ set n 0
 foreach impl [implementations] {
     select_implementation $impl
     foreach {key plain cipher} $vectors {
-        test blowfish-$impl-2.$n "blowfish ecb test vector $n (impl $impl)" {
-            list [catch {
+        set plainb [binary format H* $plain]
+        set keyb   [binary format H* $key]
+
+        test blowfish-$impl-2.$n-imm "blowfish ecb test vector $n (impl $impl)" {
+            do-imm $plainb {
                 string toupper \
                     [::blowfish::Hex \
                          [::blowfish::blowfish -mode ecb -dir enc \
-                              -key [binary format H* $key] \
-                              [binary format H* $plain]]]
-            } msg] $msg
+                              -key $keyb \
+                              $in]]
+            }
         } [list 0 $cipher]
+
+        test blowfish-$impl-2.$n-chan "blowfish ecb test vector $n (impl $impl)" {
+            do-chan $plainb {
+                string toupper \
+                    [::blowfish::Hex \
+                         [::blowfish::blowfish -mode ecb -dir enc \
+                              -key $keyb \
+                              -in $in]]
+            }
+        } [list 0 $cipher]
+
         incr n
+        unset plainb keyb
     }
     reset_implementation
 }
@@ -150,18 +194,34 @@ foreach impl [implementations] {
     select_implementation $impl
     set n 0
     foreach {cipher key} $vectors {
-        test blowfish-$impl-4.$n "blowfish ecb test variable length key (impl $impl)" {
-            list [catch {
+        test blowfish-$impl-4.$n-imm "blowfish ecb test variable length key (impl $impl)" {
+            set keyb [binary format H* $key]
+            
+            do-imm $plain {
                 string toupper \
                     [::blowfish::Hex \
                          [::blowfish::blowfish \
                               -mode ecb \
                               -dir enc \
-                              -key [binary format H* $key] \
-                              $plain]]
-            } msg] $msg
+                              -key $keyb \
+                              $in]]
+            }
         } [list 0 $cipher]
+
+        test blowfish-$impl-4.$n-chan "blowfish ecb test variable length key (impl $impl)" {
+            do-chan $plain {
+                string toupper \
+                    [::blowfish::Hex \
+                         [::blowfish::blowfish \
+                              -mode ecb \
+                              -dir enc \
+                              -key $keyb \
+                              -in $in]]
+            }
+        } [list 0 $cipher]
+
         incr n
+        unset keyb
     }
     reset_implementation
 }
@@ -173,8 +233,9 @@ set plain [binary format H* \
 
 foreach impl [implementations] {
     select_implementation $impl
-    test blowfish-$impl-6.1 "blowfish cbc mode (impl $impl)" {
-        list [catch {
+
+    test blowfish-$impl-6.1-imm "blowfish cbc mode (impl $impl)" {
+        do-imm $plain {
             string toupper \
                 [::blowfish::Hex \
                      [::blowfish::blowfish \
@@ -182,10 +243,23 @@ foreach impl [implementations] {
                           -mode cbc \
                           -iv $iv \
                           -key $key \
-                          $plain]]
-        } msg] $msg
-    } [list 0 \
-           6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC]
+                          $in]]
+        }
+    } [list 0 6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC]
+    
+    test blowfish-$impl-6.1-chan "blowfish cbc mode (impl $impl)" {
+        do-chan $plain {
+            string toupper \
+                [::blowfish::Hex \
+                     [::blowfish::blowfish \
+                          -dir enc \
+                          -mode cbc \
+                          -iv $iv \
+                          -key $key \
+                          -in $in]]
+        }
+    } [list 0 6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC]
+    
     reset_implementation
 }
 
@@ -225,7 +299,7 @@ foreach impl [implementations] {
             set key "uP/AD/oGb6q/"
             set text "ececho cleardata"
             set cipher [blowfish::blowfish -mode ecb -key $key -dir encrypt $text]
-            set plain [blowfish::blowfish -mode ecb -key $key -dir decrypt $cipher]
+            set plain  [blowfish::blowfish -mode ecb -key $key -dir decrypt $cipher]
             string compare $plain $text
         } msg] $msg
     } {0 0}
@@ -235,7 +309,7 @@ foreach impl [implementations] {
             set key "uP/AD/oGb6q/"
             set text "-cecho cleardata"
             set cipher [blowfish::blowfish -mode ecb -key $key -dir encrypt $text]
-            set plain [blowfish::blowfish -mode ecb -key $key -dir decrypt $cipher]
+            set plain  [blowfish::blowfish -mode ecb -key $key -dir decrypt $cipher]
             string compare $plain $text
         } msg] $msg
     } {0 0}
@@ -255,36 +329,44 @@ foreach impl [implementations] {
             set key "uP/AD/oGb6q/"
             set text "ececho cleardata"
             set cipher [blowfish::blowfish -mode ecb -key $key -dir encrypt -- $text]
-            set plain [blowfish::blowfish -mode ecb -key $key -dir decrypt -- $cipher]
+            set plain  [blowfish::blowfish -mode ecb -key $key -dir decrypt -- $cipher]
             string compare $plain $text
         } msg] $msg
     } {0 0}
 
-    test blowfish-$impl-9.0 {check -pad option} {
-        list [catch {
-            set key "uP/AD/oGb6q/"
-            set text "01234"
-            set cipher [blowfish::blowfish -mode ecb -hex -key $key \
-                            -dir encrypt -pad a -- $text]
-        } msg] $msg
+    set key "uP/AD/oGb6q/"
+    set text "01234"
+
+    test blowfish-$impl-9.0-imm {check -pad option, as} {
+        do-imm $text {
+            blowfish::blowfish -mode ecb -hex -key $key -dir encrypt -pad a -- $in
+        }
     } {0 8927243c2d7d568c}
 
-    test blowfish-$impl-9.1 {check -pad option} {
-        list [catch {
-            set key "uP/AD/oGb6q/"
-            set text "01234"
-            set cipher [blowfish::blowfish -mode ecb -hex -key $key \
-                            -dir encrypt -pad { } -- $text]
-        } msg] $msg
+    test blowfish-$impl-9.0-chan {check -pad option, as} {
+        do-chan $text {
+            blowfish::blowfish -mode ecb -hex -key $key -dir encrypt -pad a -in $in
+        }
+    } {0 8927243c2d7d568c}
+
+    test blowfish-$impl-9.1-imm {check -pad option, spaces} {
+        do-imm $text {
+            blowfish::blowfish -mode ecb -hex -key $key -dir encrypt -pad { } -- $in
+        }
     } {0 3fc711286b8eca79}
 
-    test blowfish-$impl-9.2 {check -pad option} {
-        list [catch {
-            set key "uP/AD/oGb6q/"
-            set text "01234"
+    test blowfish-$impl-9.1-chan {check -pad option, spaces} {
+        do-chan $text {
+            blowfish::blowfish -mode ecb -hex -key $key -dir encrypt -pad { } -in $in
+        }
+    } {0 3fc711286b8eca79}
+
+    test blowfish-$impl-9.2-imm {check -pad option, no padding} {
+        set r [do-imm $text {
             set cipher [blowfish::blowfish -mode ecb -hex -key $key \
-                            -dir encrypt -pad "" -- $text]
-        } msg] \
+                            -dir encrypt -pad "" -- $in]
+        }]
+        lreplace $r end end \
             [expr {
                    [string equal $msg \
                         {invalid block size: blocks must be 8 bytes}] \
@@ -292,15 +374,34 @@ foreach impl [implementations] {
                         {can not encrypt incomplete block at end of input}]}]
     } {1 1}
 
-    test blowfish-$impl-9.3 {check -dir option default is encrypt} {
-        list [catch {
-            set key "04B915BA43FEB5B6"
-            set text "42FD443059577FA2"
-            set cipher [blowfish::blowfish -mode ecb -pad "" -hex\
-                            -key [binary format H* $key]\
-                            -- [binary format H* $text]]
-        } msg] $msg
+    test blowfish-$impl-9.2-chan {check -pad option, no padding} {
+        set r [do-chan $text {
+            blowfish::blowfish -mode ecb -hex -key $key -dir encrypt -pad "" -in $in
+        }]
+        lreplace $r end end \
+            [expr {
+                   [string equal $msg \
+                        {invalid block size: blocks must be 8 bytes}] \
+                || [string equal $msg \
+                        {can not encrypt incomplete block at end of input}]}]
+    } {1 1}
+
+    set key  [binary format H* "04B915BA43FEB5B6"]
+    set text [binary format H* "42FD443059577FA2"]
+    
+    test blowfish-$impl-9.3-imm {check -dir option default is encrypt} {
+        do-imm $text {
+            blowfish::blowfish -mode ecb -pad "" -hex -key $key -- $in
+        }
     } {0 353882b109ce8f1a}
+    
+    test blowfish-$impl-9.3-chan {check -dir option default is encrypt} {
+        do-chan $text {
+            blowfish::blowfish -mode ecb -pad "" -hex -key $key -in $in
+        }
+    } {0 353882b109ce8f1a}
+
+    unset text key
 
     reset_implementation
 }

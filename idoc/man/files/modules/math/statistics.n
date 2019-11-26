@@ -351,6 +351,10 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
 .sp
+\fB::math::statistics::test-Levene\fR \fIgroups\fR
+.sp
+\fB::math::statistics::test-Brown-Forsythe\fR \fIgroups\fR
+.sp
 \fB::math::statistics::group-rank\fR \fIargs\fR
 .sp
 \fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
@@ -409,6 +413,12 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::pdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
 .sp
+\fB::math::statistics::pdf-laplace\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-kumaraswamy\fR \fIa\fR \fIb\fR \fIvalue\fR
+.sp
+\fB::math::statistics::pdf-negative-binomial\fR \fIr\fR \fIp\fR \fIvalue\fR
+.sp
 \fB::math::statistics::cdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-lognormal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
@@ -438,6 +448,12 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::cdf-cauchy\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
 .sp
 \fB::math::statistics::cdf-F\fR \fInf1\fR \fInf2\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-laplace\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-kumaraswamy\fR \fIa\fR \fIb\fR \fIvalue\fR
+.sp
+\fB::math::statistics::cdf-negative-binomial\fR \fIr\fR \fIp\fR \fIvalue\fR
 .sp
 \fB::math::statistics::empirical-distribution\fR \fIvalues\fR
 .sp
@@ -471,6 +487,12 @@ package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::random-cauchy\fR \fIlocation\fR \fIscale\fR \fInumber\fR
 .sp
+\fB::math::statistics::random-laplace\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-kumaraswamy\fR \fIa\fR \fIb\fR \fInumber\fR
+.sp
+\fB::math::statistics::random-negative-binomial\fR \fIr\fR \fIp\fR \fInumber\fR
+.sp
 \fB::math::statistics::histogram-uniform\fR \fIxmin\fR \fIxmax\fR \fIlimits\fR \fInumber\fR
 .sp
 \fB::math::statistics::incompleteGamma\fR \fIx\fR \fIp\fR ?tol?
@@ -480,6 +502,10 @@ package require \fBmath::statistics  1\fR
 \fB::math::statistics::estimate-pareto\fR \fIvalues\fR
 .sp
 \fB::math::statistics::estimate-exponential\fR \fIvalues\fR
+.sp
+\fB::math::statistics::estimate-laplace\fR \fIvalues\fR
+.sp
+\fB::math::statistics::estimante-negative-binomial\fR \fIr\fR \fIvalues\fR
 .sp
 \fB::math::statistics::filter\fR \fIvarname\fR \fIdata\fR \fIexpression\fR
 .sp
@@ -1145,6 +1171,31 @@ list \fIargs\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::test-Levene\fR \fIgroups\fR
+Compute the Levene statistic to determine if groups of data have the
+same variance (are homoscadastic) or not\&. The data are organised
+in groups\&. This version uses the mean of the data as the measure
+to determine the deviations\&. The statistic is equivalent to an
+F statistic with degrees of freedom k-1 and N-k, k being the
+number of groups and N the total number of data\&.
+.RS
+.TP
+list \fIgroups\fR
+- List of groups of data
+.RE
+.sp
+.TP
+\fB::math::statistics::test-Brown-Forsythe\fR \fIgroups\fR
+Compute the Brown-Forsythe statistic to determine if groups of data have the
+same variance (are homoscadastic) or not\&. Like the Levene test, but this
+version uses the median of the data\&.
+.RS
+.TP
+list \fIgroups\fR
+- List of groups of data
+.RE
+.sp
+.TP
 \fB::math::statistics::group-rank\fR \fIargs\fR
 Rank the groups of data with respect to the complete set\&.
 Returns a list consisting of the group ID, the value and the rank
@@ -1159,7 +1210,7 @@ list \fIargs\fR
 \fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
 Compute the Wilcoxon test statistic to determine if two samples have the
 same median or not\&. (The statistic can be regarded as standard normal, if the
-sample sizes are both larger than 10\&. Returns the value of this statistic\&.
+sample sizes are both larger than 10\&.) Returns the value of this statistic\&.
 .RS
 .TP
 list \fIsample_a\fR
@@ -1743,6 +1794,57 @@ float \fIvalue\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::pdf-laplace\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the probability of a given value for a Laplace
+distribution with given location and shape parameters\&. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter (mean)
+.TP
+float \fIscale\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-kumaraswamy\fR \fIa\fR \fIb\fR \fIvalue\fR
+Return the probability of a given value for a Kumaraswamy
+distribution with given parameters a and b\&. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function\&.
+.RS
+.TP
+float \fIa\fR
+- Parameter a
+.TP
+float \fIb\fR
+- Parameter b
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::pdf-negative-binomial\fR \fIr\fR \fIp\fR \fIvalue\fR
+Return the probability of a given value for a negative binomial
+distribution with an allowed number of failures and the probability of success\&.
+.RS
+.TP
+int \fIr\fR
+- Allowed number of failures (at least 1)
+.TP
+float \fIp\fR
+- Probability of success
+.TP
+int \fIvalue\fR
+- Number of successes for which the probability is to be returned
+.RE
+.sp
+.TP
 \fB::math::statistics::cdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
@@ -1974,6 +2076,57 @@ float \fInf2\fR
 .TP
 float \fIvalue\fR
 - Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-laplace\fR \fIlocation\fR \fIscale\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Laplace
+distribution with given location and shape parameters\&. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter (mean)
+.TP
+float \fIscale\fR
+- Shape parameter
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-kumaraswamy\fR \fIa\fR \fIb\fR \fIvalue\fR
+Return the cumulative probability of a given value for a Kumaraswamy
+distribution with given parameters a and b\&. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function\&.
+.RS
+.TP
+float \fIa\fR
+- Parameter a
+.TP
+float \fIb\fR
+- Parameter b
+.TP
+float \fIvalue\fR
+- Value for which the probability is required
+.RE
+.sp
+.TP
+\fB::math::statistics::cdf-negative-binomial\fR \fIr\fR \fIp\fR \fIvalue\fR
+Return the cumulative probability of a given value for a negative binomial
+distribution with an allowed number of failures and the probability of success\&.
+.RS
+.TP
+int \fIr\fR
+- Allowed number of failures (at least 1)
+.TP
+float \fIp\fR
+- Probability of success
+.TP
+int \fIvalue\fR
+- Greatest number of successes
 .RE
 .sp
 .TP
@@ -2216,6 +2369,56 @@ int \fInumber\fR
 .RE
 .sp
 .TP
+\fB::math::statistics::random-laplace\fR \fIlocation\fR \fIscale\fR \fInumber\fR
+Return a list of "number" random values satisfying a Laplace
+distribution with given location and shape parameters\&. The Laplace distribution
+consists of two exponential functions, is peaked and has heavier tails than the
+normal distribution\&.
+.RS
+.TP
+float \fIlocation\fR
+- Location parameter (mean)
+.TP
+float \fIscale\fR
+- Shape parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-kumaraswamy\fR \fIa\fR \fIb\fR \fInumber\fR
+Return a list of "number" random values satisying a Kumaraswamy
+distribution with given parameters a and b\&. The Kumaraswamy distribution
+is related to the Beta distribution, but has a tractable cumulative distribution function\&.
+.RS
+.TP
+float \fIa\fR
+- Parameter a
+.TP
+float \fIb\fR
+- Parameter b
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-negative-binomial\fR \fIr\fR \fIp\fR \fInumber\fR
+Return a list of "number" random values satisying a negative binomial distribution\&.
+.RS
+.TP
+int \fIr\fR
+- Allowed number of failures (at least 1)
+.TP
+float \fIp\fR
+- Probability of success
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
 \fB::math::statistics::histogram-uniform\fR \fIxmin\fR \fIxmax\fR \fIlimits\fR \fInumber\fR
 Return the expected histogram for a uniform distribution\&.
 .RS
@@ -2292,6 +2495,29 @@ Returns an estimate of the one parameter and of the standard error\&.
 .TP
 list \fIvalues\fR
 - List of values, assumed to be distributed according to an exponential distribution
+.RE
+.sp
+.TP
+\fB::math::statistics::estimate-laplace\fR \fIvalues\fR
+Estimate the parameters for the Laplace distribution that comes closest to the given values\&.
+Returns an estimate of respectively the location and scale parameters, based on maximum likelihood\&.
+.RS
+.TP
+list \fIvalues\fR
+- List of values, assumed to be distributed according to an exponential distribution
+.RE
+.sp
+.TP
+\fB::math::statistics::estimante-negative-binomial\fR \fIr\fR \fIvalues\fR
+Estimate the probability of success for the negative binomial distribution that comes closest to the given values\&.
+The allowed number of failures must be given\&.
+.RS
+.TP
+int \fIr\fR
+- Allowed number of failures (at least 1)
+.TP
+int \fInumber\fR
+- List of values, assumed to be distributed according to a negative binomial distribution\&.
 .RE
 .sp
 .PP

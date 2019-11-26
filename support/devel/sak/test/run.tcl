@@ -73,6 +73,7 @@ proc ::sak::test::run::Do {cv modules} {
     variable valgrind
     variable araw     $config(raw)
     variable alog     $config(log)
+    variable xttimes {}
     # alog => !araw
 
     set shells $config(shells)
@@ -91,8 +92,12 @@ proc ::sak::test::run::Do {cv modules} {
 	variable lognon [open $config(stem).none        w]
 	variable logerd [open $config(stem).errdetails  w]
 	variable logfad [open $config(stem).faildetails w]
+	# Timings per testsuite (sec), average test timings (usec)
 	variable logtim [open $config(stem).timings     w]
 	variable logtmt [open $config(stem).timetable   w]
+	# Timings per test (usec)
+	variable logtti [open $config(stem).t-timings   w]
+	variable logtmi [open $config(stem).t-timetable w]
     } else {
 	variable logext stdout
     }
@@ -159,25 +164,56 @@ proc ::sak::test::run::Do {cv modules} {
 	puts $logext "#Errors [format %6d $err]"
     }
 
+    flush $logext
+
+    =| "... Done"
+    
     if {$alog} {
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Timings per testsuite
+	=| "... Postprocessing per-testsuite timings ..."
+	
 	variable xtimes
-	array set times $xtimes
 
 	struct::matrix M
 	M add columns 6
-	foreach k [lsort -dict [array names times]] {
-	    #foreach {shell module testfile} $k break
-	    foreach {testnum delta score} $times($k) break
+
+	M add row {Shell Module Testsuite Tests Seconds uSec/Test}
+	M add row {===== ====== ========= ===== ======= =========}
+
+	foreach item [lsort -decreasing -int -index 3 [lsort -dict -index 0 $xtimes]] {
+	    foreach {k testnum delta score} $item break
 	    M add row [linsert $k end $testnum $delta $score]
 	}
-	M sort rows -decreasing 5
 
-	M insert row 0 {Shell Module Testsuite Tests Seconds uSec/Test}
-	M insert row 1 {===== ====== ========= ===== ======= =========}
-	M add    row   {===== ====== ========= ===== ======= =========}
+	M add row {===== ====== ========= ===== ======= =========}
 
 	puts $logtmt "\nTiming Table..."
 	puts $logtmt [M format 2string]
+
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Timings per testcase.
+	=| "... Postprocessing per-test timings ..."
+	
+	variable xttimes
+	struct::matrix MX
+	MX add columns 5
+
+	MX add row {Shell Module Testsuite Test uSec}
+	MX add row {===== ====== ========= ==== ====}
+
+	foreach item [lsort -index 1 -integer -decreasing [lsort -index 0 -dict $xttimes]] {
+	    foreach {k usec} $item break
+	    MX add row [linsert $k end $usec]
+	}
+
+	MX add row {===== ====== ========= ==== ====}
+
+	puts $logtmi "\nTiming Table..."
+	puts $logtmi [MX format 2string]
+
+	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	=| "... Postprocessing Done"
     }
 
     exit [expr {($err || $fail) ? 1 : 0}]
@@ -293,6 +329,7 @@ proc ::sak::test::run::Process {pipe} {
 	CaptureStack
 
 	TestStart
+	TestTook
 	TestSkipped
 	TestPassed
 	TestFailed                    ; # xcollect => 1
@@ -407,10 +444,12 @@ proc ::sak::test::run::EndFile {} {
     variable xstartfile
     variable xtimes
     variable xtestnum
+    variable xduration
 
     set k [lreplace $xfile 0 3]
     set k [lreplace $k 2 2 [file tail [lindex $k 2]]]
     set delta [expr {$end - $xstartfile}]
+    incr xduration $delta
 
     if {$xtestnum == 0} {
 	set score $delta
@@ -420,7 +459,7 @@ proc ::sak::test::run::EndFile {} {
 	#set score [expr {$delta/double($xtestnum)}]
     }
 
-    lappend xtimes $k [list $xtestnum $delta $score]
+    lappend xtimes [list $k $xtestnum $delta $score]
 
     variable alog
     if {$alog} {
@@ -438,6 +477,7 @@ proc ::sak::test::run::Module {} {
     variable xshell
     variable xstatus ok
     variable maxml
+    variable xduration 0
     += ${xmodule}[blank [expr {$maxml - [string length $xmodule]}]]
     set xmodule [linsert $xshell end $xmodule]
     #sak::registry::local set $xmodule
@@ -494,6 +534,7 @@ proc ::sak::test::run::Summary {} {
     variable xmodule
     variable xstatus
     variable xvstatus
+    
     foreach {_ t _ p _ s _ f} [split [string trim $line]] break
     #sak::registry::local set $xmodule Total   $t ; set t [format %5d $t]
     #sak::registry::local set $xmodule Passed  $p ; set p [format %5d $p]
@@ -513,29 +554,37 @@ proc ::sak::test::run::Summary {} {
 
     if {$xstatus == "ok" && $t == 0} {
 	set xstatus none
+	set spent ""
+    } else {
+	# Time spent on all the files in the module.
+	variable xduration
+	#set sec $xduration
+	#set min [expr {$sec / 60}]
+	#set sec [expr {$sec % 60}]
+	#set hor [expr {$min / 60}]
+	#set min [expr {$min % 60}]
+	#set spent " :[format %02d $hor]h[format %02d $min]m[format %02d $sec]s"
+	set spent " @${xduration}s"
     }
 
     set st $xvstatus($xstatus)
 
     if {$xstatus == "ok"} {
 	# Quick return for ok suite.
-	=| "~~ $st T $t P $p S $s F $f"
+	=| "~~ $st T $t P $p S $s F $f$spent"
 	return -code continue
     }
 
     # Clean out progress display using a non-highlighted
-    # string. Prevents the char couint from being off. This is
+    # string. Prevents the char count from being off. This is
     # followed by construction and display of the highlighted version.
 
-    = "   $st T $t P $p S $s F $f"
+    = "   $st T $t P $p S $s F $f$spent"
     switch -exact -- $xstatus {
 	none    {=| "~~ [yel]$st T $t[rst] P $p S $s F $f"}
-	aborted {=| "~~ [whi]$st[rst] T $t P $p S $s F $f"}
-	error   {
-	    =| "~~ [mag]$st[rst] T $t P $p S $s F $f"
-	    incr _err
-	}
-	fail    {=| "~~ [red]$st[rst] T $t P $p S $s [red]F $f[rst]"}
+	aborted {=| "~~ [whi]$st[rst] T $t P $p S $s F $f$spent"}
+	error   {=| "~~ [mag]$st[rst] T $t P $p S $s F $f$spent" ; incr _err }
+	fail    {=| "~~ [red]$st[rst] T $t P $p S $s [red]F $f[rst]$spent"}
     }
     return -code continue
 }
@@ -546,9 +595,22 @@ proc ::sak::test::run::TestStart {} {
     set testname [string range $line 5 end-6]
     = "---- $testname"
     variable xfile
+    variable xtesttime -1
     variable xtest [linsert $xfile end $testname]
     variable xtestnum
     incr     xtestnum
+    return -code continue
+}
+
+proc ::sak::test::run::TestTook {} {
+    upvar 1 line line
+    if {![string match {++++ * took *} $line]} return
+    # Dynamic search for the marker because the name of the test may
+    # contain spaces, causing the field position to vary.
+    set  pos [lsearch -exact $line took]
+    incr pos
+    set usec [lindex $line $pos]
+    variable xtesttime $usec
     return -code continue
 }
 
@@ -572,13 +634,26 @@ proc ::sak::test::run::TestPassed {} {
     upvar 1 line line
     if {![string match {++++ * PASSED} $line]} return
     set             testname [string range $line 5 end-7]
+    variable xtesttime
     variable xtest
-    = "PASS $testname"
+    if {$xtesttime < 0} { set xtesttime "" }
+    = [string trimright "PASS $testname $xtesttime"]
     if {$xtest == {}} {
 	variable xfile
 	set xtest [linsert $xfile end $testname]
     }
     #sak::registry::local set $xtest Status Pass
+    variable alog
+    if {$alog && ($xtesttime ne {})} {
+	variable xttimes
+	variable logtti
+	set k [lreplace $xtest 0 3]
+	set k [lreplace $k 2 2 [file tail [lindex $k 2]]]
+	# k = shell module testfile testname
+	puts $logtti [linsert [linsert $k 0 TIME] end $xtesttime]
+
+	lappend xttimes [list $k $xtesttime]
+    }
     set xtest {}
     return -code continue
 }

@@ -1,53 +1,40 @@
 ::namespace eval ::clay::define {}
 
+###
+# Produce the body of an ensemble's public dispatch method
+# ensemble is the name of the the ensemble.
+# einfo is a dictionary of methods for the ensemble, and each value is a script
+# to execute on dispatch
+# example:
+# ::clay::ensemble_methodbody foo {
+#   bar {tailcall my Foo_bar {*}$args}
+#   baz {tailcall my Foo_baz {*}$args}
+#   clock {return [clock seconds]}
+#   default {puts "You gave me $method"}
+# }
+###
 proc ::clay::ensemble_methodbody {ensemble einfo} {
   set default standard
   set preamble {}
   set eswitch {}
-  if {[dict exists $einfo default]} {
-    set emethodinfo [dict get $einfo default]
-    set argspec     [dict getnull $emethodinfo argspec]
-    set realbody    [dict getnull $emethodinfo body]
-    set argstyle    [dict getnull $emethodinfo argstyle]
-    if {$argstyle eq "dictargs"} {
-      set body "\n      ::dictargs::parse \{$argspec\} \$args"
-    } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
-      set body {}
-    } else {
-      set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
-    }
-    append body "\n      " [string trim $realbody] "      \n"
-    set default $body
-    dict unset einfo default
-  }
-  foreach {msubmethod esubmethodinfo} [lsort -dictionary -stride 2 $einfo] {
-    set submethod [string trim $msubmethod :/-]
-    if {$submethod eq "_body"} continue
-    if {$submethod eq "_preamble"} {
-      set preamble [dict getnull $esubmethodinfo body]
+  set Ensemble [string totitle $ensemble]
+  if {$Ensemble eq "."} continue
+  foreach {msubmethod minfo} [lsort -dictionary -stride 2 $einfo] {
+    if {$msubmethod eq "."} continue
+    if {![dict exists $minfo body:]} {
       continue
     }
-    set argspec     [dict getnull $esubmethodinfo argspec]
-    set realbody    [dict getnull $esubmethodinfo body]
-    set argstyle    [dict getnull $esubmethodinfo argstyle]
-    if {[string length [string trim $realbody]] eq {}} {
-      dict set eswitch $submethod {}
+    set submethod [string trim $msubmethod :/-]
+    if {$submethod eq "default"} {
+      set default [dict get $minfo body:]
     } else {
-      if {$argstyle eq "dictargs"} {
-        set body "\n      ::dictargs::parse \{$argspec\} \$args"
-      } elseif {[llength $argspec]==1 && [lindex $argspec 0] in {{} args arglist}} {
-        set body {}
-      } else {
-        set body "\n      ::clay::dynamic_arguments $ensemble \$method [list $argspec] {*}\$args"
-      }
-      append body "\n      " [string trim $realbody] "      \n"
-      if {$submethod eq "default"} {
-        set default $body
-      } else {
-        foreach alias [dict getnull $esubmethodinfo aliases] {
-          dict set eswitch $alias -
+      dict set eswitch $submethod [dict get $minfo body:]
+    }
+    if {[dict exists $submethod aliases:]} {
+      foreach alias [dict get $minfo aliases:] {
+        if {![dict exists $eswitch $alias]} {
+          dict set eswitch $alias [dict get $minfo body:]
         }
-        dict set eswitch $submethod $body
       }
     }
   }
@@ -60,12 +47,8 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   }
   dict set eswitch default $default
   set mbody {}
-
-  append mbody $preamble \n
-
   append mbody \n [list set methodlist $methodlist]
-  append mbody \n "set code \[catch {switch -- \$method [list $eswitch]} result opts\]"
-  append mbody \n {return -options $opts $result}
+  append mbody \n "switch -- \$method \{$eswitch\}" \n
   return $mbody
 }
 
@@ -84,38 +67,37 @@ proc ::clay::ensemble_methodbody {ensemble einfo} {
   #}
   set mlist [split $rawmethod "::"]
   set ensemble [string trim [lindex $mlist 0] :/]
-  set mensemble ${ensemble}/
-  if {[llength $mlist]==1 || [lindex $mlist 1] in "_body"} {
-    set method _body
-    ###
-    # Simple method, needs no parsing, but we do need to record we have one
-    ###
-    if {$argstyle eq "dictargs"} {
-      set argspec [list args $argspec]
-    }
-    $class clay set method_ensemble/ $mensemble _body [dict create argspec $argspec body $body argstyle $argstyle]
-    if {$::clay::trace>2} {
-      puts [list $class clay set method_ensemble/ $mensemble _body ...]
-    }
-    set method $rawmethod
-    if {$::clay::trace>2} {
-      puts [list $class Ensemble $rawmethod $argspec $body]
-      set rawbody $body
-      set body {puts [list [self] $class [self method]]}
-      append body \n $rawbody
-    }
-    if {$argstyle eq "dictargs"} {
-      set rawbody $body
-      set body "::dictargs::parse \{$argspec\} \$args\; "
-      append body $rawbody
-    }
-    ::oo::define $class method $rawmethod $argspec $body
+  set method   [string trim [lindex $mlist 2] :/]
+  if {[string index $method 0] eq "_"} {
+    $class clay set method_ensemble $ensemble $method $body
     return
   }
-  set method [join [lrange $mlist 2 end] "::"]
-  $class clay set method_ensemble/ $mensemble [string trim [lindex $method 0] :/] [dict create argspec $argspec body $body argstyle $argstyle]
+  set realmethod  [string totitle $ensemble]_${method}
+  set realbody {}
+  if {$argstyle eq "dictargs"} {
+    append realbody "::dictargs::parse \{$argspec\} \$args" \n
+  }
+  if {[$class clay exists method_ensemble $ensemble _preamble]} {
+    append realbody [$class clay get method_ensemble $ensemble _preamble] \n
+  }
+  append realbody $body
+  if {$method eq "default"} {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod \$method {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::define $class method $realmethod [list method [list args $argspec]] $realbody
+    } else {
+      oo::define $class method $realmethod [list method {*}$argspec] $realbody
+    }
+  } else {
+    $class clay set method_ensemble $ensemble $method: "tailcall my $realmethod {*}\$args"
+    if {$argstyle eq "dictargs"} {
+      oo::define $class method $realmethod [list [list args $argspec]] $realbody
+    } else {
+      oo::define $class method $realmethod $argspec $realbody
+    }
+  }
   if {$::clay::trace>2} {
-    puts [list $class clay set method_ensemble/ $mensemble [string trim $method :/]  ...]
+    puts [list $class clay set method_ensemble/ $ensemble [string trim $method :/]  ...]
   }
 }
 

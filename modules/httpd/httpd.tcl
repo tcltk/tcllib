@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.3.3
+package provide httpd 4.3.4
 namespace eval ::httpd {}
-set ::httpd::version 4.3.3
+set ::httpd::version 4.3.4
 ###
 # START: core.tcl
 ###
@@ -393,7 +393,7 @@ Connection close}
       set request [my clay get dict/ request]
       foreach {f v} $datastate {
         if {[string index $f end] eq "/"} {
-          my clay merge $f $v
+          catch {my clay merge $f $v}
         } else {
           my clay set $f $v
         }
@@ -487,7 +487,9 @@ Connection close}
     my variable reply_body chan
     if {$chan eq {}} return
     catch {
-      my wait writable $chan
+      # Causing random issues. Technically a socket is always open for read and write
+      # anyway
+      #my wait writable $chan
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -1119,6 +1121,8 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     if {[my request get HTTP_STATUS] ne {}} {
       my reply set Status [my request get HTTP_STATUS]
     }
+    set request [my request dump]
+    dict with request {}
     my puts [subst [my <server> template [my clay get template]]]
   }
 }
@@ -1133,13 +1137,14 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
   method FileName {} {
     # Some dispatchers will inject a fully qualified name during discovery
     if {[my clay exists FILENAME] && [file exists [my clay get FILENAME]]} {
+      my request set PREFIX_URI [file dirname [my clay get FILENAME]]
       return [my clay get FILENAME]
     }
     set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
     set fname [string range $uri [string length $prefix] end]
-    if {$fname in "{} index.html index.md index index.tml"} {
+    if {$fname in "{} index.html index.md index index.tml index.tcl"} {
       return $path
     }
     if {[file exists [file join $path $fname]]} {
@@ -1153,6 +1158,9 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
     }
     if {[file exists [file join $path $fname.tml]]} {
       return [file join $path $fname.tml]
+    }
+    if {[file exists [file join $path $fname.tcl]]} {
+      return [file join $path $fname.tcl]
     }
     return {}
   }
@@ -1189,14 +1197,19 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       tailcall my DoOutput
     }
     if {[file isdirectory $local_file] || [file tail $local_file] in {index index.html index.tml index.md}} {
+      my request set PREFIX_URI [my request get REQUEST_PATH]
+      my request set LOCAL_DIR $local_file
       ###
       # Produce an index page
       ###
       set idxfound 0
       foreach name {
+        index.tcl
         index.html
         index.tml
         index.md
+        index.info
+        index.clay
         content.htm
       } {
         if {[file exists [file join $local_file $name]]} {
@@ -1208,13 +1221,68 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       if {!$idxfound} {
         tailcall my DirectoryListing $local_file
       }
+    } else {
+      my request set PREFIX_URI [file dirname [my request get REQUEST_PATH]]
+      my request set LOCAL_DIR [file dirname $local_file]
     }
+    my request set LOCAL_FILE $local_file
+
     switch [file extension $local_file] {
+      .apng {
+        my reply set Content-Type {image/apng}
+        set reply_file $local_file
+      }
+      .bmp {
+        my reply set Content-Type {image/bmp}
+        set reply_file $local_file
+      }
+      .css {
+        my reply set Content-Type {text/css}
+        set reply_file $local_file
+      }
+      .gif {
+        my reply set Content-Type {image/gif}
+        set reply_file $local_file
+      }
+      .cur - .ico {
+        my reply set Content-Type {image/x-icon}
+        set reply_file $local_file
+      }
+      .jpg - .jpeg - .jfif - .pjpeg - .pjp {
+        my reply set Content-Type {image/jpg}
+        set reply_file $local_file
+      }
+      .js {
+        my reply set Content-Type {text/javascript}
+        set reply_file $local_file
+      }
       .md {
         package require Markdown
         my reply set Content-Type {text/html; charset=UTF-8}
         set mdtxt  [::fileutil::cat $local_file]
         my puts [::Markdown::convert $mdtxt]
+      }
+      .png {
+        my reply set Content-Type {image/png}
+        set reply_file $local_file
+      }
+      .svgz -
+      .svg {
+        # FU magic screws it up
+        my reply set Content-Type {image/svg+xml}
+        set reply_file $local_file
+      }
+      .tcl {
+        my reply set Content-Type {text/html; charset=UTF-8}
+        try {
+          source $local_file
+        } on error {err errdat} {
+          my error 500 {Internal Error} [dict get $errdat -errorinfo]
+        }
+      }
+      .tiff {
+        my reply set Content-Type {image/tiff}
+        set reply_file $local_file
       }
       .tml {
         my reply set Content-Type {text/html; charset=UTF-8}
@@ -1223,10 +1291,12 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         dict with headers {}
         my puts [subst $tmltxt]
       }
-      .svgz -
-      .svg {
-        # FU magic screws it up
-        my reply set Content-Type {image/svg+xml}
+      .txt {
+        my reply set Content-Type {text/plain}
+        set reply_file $local_file
+      }
+      .webp {
+        my reply set Content-Type {image/webp}
         set reply_file $local_file
       }
       default {
@@ -1246,30 +1316,41 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
       my content
     } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
-      tailcall my DoOutput
+      catch {
+        tailcall my DoOutput
+      }
     }
     if {$chan eq {}} return
-    my wait writable $chan
-    if {![info exists reply_file]} {
-      tailcall my DoOutput
+    catch {
+      # Causing random issues. Technically a socket is always open for read and write
+      # anyway
+      #my wait writable $chan
+      if {![info exists reply_file]} {
+        tailcall my DoOutput
+      }
+      chan configure $chan  -translation {binary binary}
+      my log HttpAccess {}
+      ###
+      # Return a stream of data from a file
+      ###
+      set size [file size $reply_file]
+      my reply set Content-Length $size
+      append result [my reply output] \n
+      chan puts -nonewline $chan $result
+      set reply_chan [open $reply_file r]
+      my ChannelRegister $reply_chan
+      my log SendReply [list length $size]
+      ###
+      # Output the file contents. With no -size flag, channel will copy until EOF
+      ###
+      chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
+      if {$size < 40960} {
+        # Raw copy small files
+        chan copy $reply_chan $chan
+      } else {
+        my ChannelCopy $reply_chan $chan -chunk 4096
+      }
     }
-    chan configure $chan  -translation {binary binary}
-    my log HttpAccess {}
-    ###
-    # Return a stream of data from a file
-    ###
-    set size [file size $reply_file]
-    my reply set Content-Length $size
-    append result [my reply output] \n
-    chan puts -nonewline $chan $result
-    set reply_chan [open $reply_file r]
-    my ChannelRegister $reply_chan
-    my log SendReply [list length $size]
-    ###
-    # Output the file contents. With no -size flag, channel will copy until EOF
-    ###
-    chan configure $reply_chan -translation {binary binary} -buffersize 4096 -buffering full -blocking 0
-    my ChannelCopy $reply_chan $chan -chunk 4096
   }
 }
 
