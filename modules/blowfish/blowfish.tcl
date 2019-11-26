@@ -528,11 +528,20 @@ proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
     }
 
     if {![string length $data]} return
+
+    if {[set code [catch {
+        set cipher [$state(cmd) $Key $data]
+    } msg]]} {
+        fileevent $in readable {}
+        set state(reading) 0
+        set state(err) [list $code $msg]
+        return
+    }
     
     if {$out == {}} {
-        append state(output) [$state(cmd) $Key $data]
+        append state(output) $cipher
     } else {
-        puts -nonewline $out [$state(cmd) $Key $data]
+        puts -nonewline $out $cipher
     }
 }
 
@@ -650,7 +659,8 @@ proc ::blowfish::blowfish {args} {
     
     set r {}
     if {$opts(-in) == {}} {
-
+        # Immediate data (plain text is argument).
+        
         if {[llength $args] != 1} {
             return -code error "wrong \# args:\
                 should be \"blowfish ?options...? -key keydata plaintext\""
@@ -679,7 +689,8 @@ proc ::blowfish::blowfish {args} {
         }
         
     } else {
-
+        # Channel data (plain text is read from a binary channel).
+        
         if {[llength $args] != 0} {
             return -code error "wrong \# args:\
                 should be \"blowfish ?options...? -key keydata -in channel\""
@@ -703,6 +714,12 @@ proc ::blowfish::blowfish {args} {
         } else {
             vwait [subst $Key](reading)
         }
+
+        if {[info exists state(err)]} {
+            foreach {code msg} $state(err) break
+            return -code $code $msg
+        }
+        
         if {$opts(-out) == {}} {
             set r $state(output)
         }
