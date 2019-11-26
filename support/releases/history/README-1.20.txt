@@ -2,7 +2,7 @@ Overview
 ========
 
     8   new packages       in 7   modules
-    42  changed packages   in 25  modules
+    47  changed packages   in 30  modules
     389 unchanged packages in 115 modules
     446 packages, total    in 131 modules, total
 
@@ -24,16 +24,16 @@ Legend
 New in Tcllib 1.20
 ==================
 
-    Module     Package              New Version   Comments
+    Module     Package              Version       Comments
     ---------- -------------------- ------------- ----------
-    clay       clay                 0.8
+    clay       clay                 0.8.6
     fileutil   fileutil::paths      1             Replaces: doctools::paths, (pt) paths.
     lazyset    lazyset              1
     ---------- -------------------- ------------- ----------
     math       math::quasirandom    1.0
                math::trig           1.0
     ---------- -------------------- ------------- ----------
-    practcl    clay                 0.8
+    practcl    practcl              0.16.3
     struct     struct::map          1             Replaces: doctools::config, (pt) configuration.
     ---------- -------------------- ------------- ----------
     textutil   textutil::patch      0.1
@@ -77,7 +77,9 @@ Changes from Tcllib 1.19 to 1.20
 
     Module             Package                 From 1.19   To 1.20   Comments
     ------------------ ----------------------- ----------- --------- ----------
+    blowfish	       blowfish		       1.0.4	   1.0.5     B, D, T
     cache              cache::async            0.3         0.3.1     B, D, T
+    dns		       dns		       1.4	   1.4.1     B, D, T
     ------------------ ----------------------- ----------- --------- ----------
     doctools           doctools                1.4.21      1.5.6     B
                        doctools::idx           1.0.7       1.1       EF, D, T
@@ -92,10 +94,12 @@ Changes from Tcllib 1.19 to 1.20
     dtplite            dtplite                 1.3         1.3.1     B, D
     html               html                    1.4.4       1.4.5     EF, B, D, T
     http               autoproxy (1)           1.6         1.7       EF, B, D, T
-    httpd              httpd                   4.1.0       4.3.3     I, B, D, T
+    httpd              httpd                   4.1.0       4.3.4     I, B, D, T
     ------------------ ----------------------- ----------- --------- ----------
     log                log                     1.3         1.4       EF, D, T
                        logger::utils           1.3         1.3.1     B, D, T
+    ------------------ ----------------------- ----------- --------- ----------
+    markdown	       Markdown		       1.1	   1.1.1     B, T
     ------------------ ----------------------- ----------- --------- ----------
     math               math::calculus          0.8.2       0.8.2     D
                        math::interpolate       1.1.1       1.1.2     B
@@ -112,7 +116,7 @@ Changes from Tcllib 1.19 to 1.20
     oauth              oauth                   1.0.1       1.0.3     B, D
     png                png                     0.2         0.3       EF, D, T
     practcl            practcl (2)             0.11        0.16.3    EF, I, D
-    profiler           profiler                0.3         0.4       B, D, T
+    profiler           profiler                0.3         0.5       B, D, T
     ------------------ ----------------------- ----------- --------- ----------
     pt                 pt::peg::export         1           1.0.1     I, D, T
                        pt::peg::import         1           1.0.1     I, D, T
@@ -126,11 +130,15 @@ Changes from Tcllib 1.19 to 1.20
     struct             struct::disjointset (2) 1.0         1.1       EF, I, D, T
                        struct::graph           2.4.1       2.4.3     B, D, T
                        struct::list            1.8.3       1.8.4     B, D, T
+		       struct::matrix	       2.0.3	   2.0.4     B, D, T
                        struct::record          1.2.1       1.2.2     B, D, T
     ------------------ ----------------------- ----------- --------- ----------
     textutil           textutil                0.8         0.9       EF, D, T
     uuid               uuid                    1.0.5       1.0.7     B, D, T
+    ------------------ ----------------------- ----------- --------- ----------
     virtchannel_base   tcl::chan::cat          1.0.2       1.0.3     B, D
+    		       tcl::chan::halfpipe     1	   1.0.1     B, T
+    ------------------ ----------------------- ----------- --------- ----------
     zip                zipfile::mkzip          1.2         1.2.1     B, D
     ------------------ ----------------------- ----------- --------- ----------
 
@@ -143,11 +151,11 @@ Unchanged
 
     aes, ascii85, asn, base32, base32::core, base32::hex, base64,
     bee, bench, bench::in, bench::out::csv, bench::out::text,
-    bibtex, blowfish, calendar, char, cksum, clock::iso8601,
+    bibtex, calendar, char, cksum, clock::iso8601,
     clock::rfc2822, cmdline, comm, control,
     coroutine, coroutine::auto, counter, crc16, crc32, cron, csv,
     debug, debug::caller, debug::heartbeat, debug::timestamp, defer,
-    des, dicttool, dns, docstrip, docstrip::util, doctools::toc (v2),
+    des, dicttool, docstrip, docstrip::util, doctools::toc (v2),
     doctools::changelog, doctools::cvs, doctools::idx (v2),
     doctools::html, doctools::html::cssdefaults,
     doctools::idx::export::docidx, doctools::idx::export::html,
@@ -180,7 +188,7 @@ Unchanged
     interp::delegate::method, interp::delegate::proc, ip, irc,
     javascript, jpeg, json, json::write, lambda, ldap, ldapx,
     logger, logger::appender, map::geocode::nominatim, map::slippy,
-    map::slippy::cache, map::slippy::fetcher, mapproj, Markdown,
+    map::slippy::cache, map::slippy::fetcher, mapproj,
     math, math::bigfloat, math::bignum, math::calculus::symdiff,
     math::complexnumbers, math::constants, math::decimal,
     math::exact, math::fourier, math::fuzzy,
@@ -222,11 +230,11 @@ Unchanged
     SASL::SCRAM, SASL::XGoogleToken, simulation::annealing,
     simulation::montecarlo, smtpd, snit, soundex, spf, stooop,
     string::token, string::token::shell, stringprep, sha1 (v1),
-    stringprep::data, struct, struct::graph::op, struct::matrix,
+    stringprep::data, struct, struct::graph::op,
     struct::pool, struct::prioqueue, struct::queue, struct::set,
     struct::skiplist, struct::stack, struct::tree, sum, switched,
     tar, tcl::chan::core, tcl::chan::events, tcl::chan::facade,
-    tcl::chan::fifo, tcl::chan::fifo2, tcl::chan::halfpipe,
+    tcl::chan::fifo, tcl::chan::fifo2,
     tcl::chan::memchan, tcl::chan::null, tcl::chan::nullzero,
     tcl::chan::random, tcl::chan::std, tcl::chan::string,
     tcl::chan::textwindow, tcl::chan::variable, tcl::chan::zero,

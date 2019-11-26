@@ -8,7 +8,7 @@ set buffer {}
   set mlist [list pkgIndex.tcl index.tcl [file tail $modfile] version_info.tcl]
   foreach file [glob -nocomplain [file join $path *.tcl]] {
     if {[file tail $file] ni $mlist} {
-      puts [list NONMODFILE $file]
+      #puts [list NONMODFILE $file]
       return {}
     }
   }
@@ -27,7 +27,7 @@ set buffer {}
       set version [lindex $line 3]
       if {[string index $package 0] in "\$ \[ @"} continue
       if {[string index $version 0] in "\$ \[ @"} continue
-      puts "PKGLINE $line"
+      #puts "PKGLINE $line"
       append buffer "package ifneeded $package $version \[list source \[file join %DIR% [file tail $file]\]\]" \n
       break
     }
@@ -328,17 +328,35 @@ proc ::practcl::buildModule {modpath} {
   ::practcl::dotclexec $buildscript
 }
 
+###
+# Install a module from MODPATH to the directory specified.
+# [emph dpath] is assumed to be the fully qualified path where module is to be placed.
+# Any existing files will be deleted at that path.
+# If the path is symlink the process will return with no error and no action.
+# If the module has contents in the build/ directory that are newer than the
+# .tcl files in the module source directory, and a build/build.tcl file exists,
+# the build/build.tcl file is run.
+# If the source directory includes a file named index.tcl, the directory is assumed
+# to be in the tao style of modules, and the entire directory (and all subdirectories)
+# are copied verbatim.
+# If no index.tcl file is present, all .tcl files are copied from the module source
+# directory, and a pkgIndex.tcl file is generated if non yet exists.
+# I a folder named htdocs exists in the source directory, that directory is copied
+# verbatim to the destination.
+###
 proc ::practcl::installModule {modpath DEST} {
-  set dpath  [file join $DEST modules [file tail $modpath]]
-  puts [list ::practcl::installModule $modpath -> $dpath]
+  if {[file exists [file join $DEST modules]]} {
+    set dpath [file join $DEST modules [file tail $modpath]]
+  } else {
+    set dpath $DEST
+  }
+  if {[file exists $dpath] && [file type $dpath] eq "link"} return
   if {[file exists [file join $modpath index.tcl]]} {
     # IRM/Tao style modules non-amalgamated
     ::practcl::installDir $modpath $dpath
     return
   }
-  if {[file exists [file join $modpath build build.tcl]]} {
-    buildModule $modpath
-  }
+  buildModule $modpath
   set files [glob -nocomplain [file join $modpath *.tcl]]
   if {[llength $files]} {
     if {[llength $files]>1} {

@@ -2,7 +2,7 @@
 [//000000001]: # (clay \- Clay Framework)
 [//000000002]: # (Generated from file 'clay\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2018 Sean Woods <yoda@etoyoc\.com>)
-[//000000004]: # (clay\(n\) 0\.8 tcllib "Clay Framework")
+[//000000004]: # (clay\(n\) 0\.8\.6 tcllib "Clay Framework")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -65,54 +65,54 @@ package require oo::dialect
 [proc __clay::leaf__ ?*args*?](#10)  
 [proc __clay::K__ *a* *b*](#11)  
 [proc __clay::noop__ ?*args*?](#12)  
-[proc __clay::path__ ?*args*?](#13)  
-[proc __clay::putb__ ?*map*? *text*](#14)  
-[proc __clay::script\_path__](#15)  
-[proc __clay::NSNormalize__ *qualname*](#16)  
-[proc __clay::uuid\_generate__ ?*args*?](#17)  
-[proc __clay::uuid::generate\_tcl\_machinfo__](#18)  
-[proc __clay::uuid::tostring__ *uuid*](#19)  
-[proc __clay::uuid::fromstring__ *uuid*](#20)  
-[proc __clay::uuid::equal__ *left* *right*](#21)  
-[proc __clay::uuid__ *cmd* ?*args*?](#22)  
-[proc __clay::tree::sanitize__ *dict*](#23)  
-[proc __clay::tree::\_sanitizeb__ *path* *varname* *dict*](#24)  
-[proc __clay::tree::storage__ *rawpath*](#25)  
-[proc __clay::tree::dictset__ *varname* ?*args*?](#26)  
-[proc __clay::tree::dictmerge__ *varname* ?*args*?](#27)  
-[proc __clay::tree::merge__ ?*args*?](#28)  
-[proc __dictargs::proc__ *name* *argspec* *body*](#29)  
-[proc __dictargs::method__ *name* *argspec* *body*](#30)  
-[proc __clay::dialect::Push__ *class*](#31)  
-[proc __clay::dialect::Peek__](#32)  
-[proc __clay::dialect::Pop__](#33)  
-[proc __clay::dialect::create__ *name* ?*parent* ____?](#34)  
-[proc __clay::dialect::NSNormalize__ *namespace* *qualname*](#35)  
-[proc __clay::dialect::DefineThunk__ *target* ?*args*?](#36)  
-[proc __clay::dialect::Canonical__ *namespace* *NSpace* *class*](#37)  
-[proc __clay::dialect::Define__ *namespace* *class* ?*args*?](#38)  
-[proc __clay::dialect::Aliases__ *namespace* ?*args*?](#39)  
-[proc __clay::dialect::SuperClass__ *namespace* ?*args*?](#40)  
-[proc __clay::dynamic\_methods__ *class*](#41)  
-[proc __clay::dynamic\_methods\_class__ *thisclass*](#42)  
-[proc __clay::define::Array__ *name* ?*values* ____?](#43)  
-[proc __clay::define::Delegate__ *name* *info*](#44)  
-[proc __clay::define::constructor__ *arglist* *rawbody*](#45)  
-[proc __clay::define::Class\_Method__ *name* *arglist* *body*](#46)  
-[proc __clay::define::class\_method__ *name* *arglist* *body*](#47)  
-[proc __clay::define::clay__ ?*args*?](#48)  
-[proc __clay::define::destructor__ *rawbody*](#49)  
-[proc __clay::define::Dict__ *name* ?*values* ____?](#50)  
-[proc __clay::define::Option__ *name* ?*args*?](#51)  
-[proc __clay::define::Method__ *name* *argstyle* *argspec* *body*](#52)  
-[proc __clay::define::Option\_Class__ *name* ?*args*?](#53)  
-[proc __clay::define::Variable__ *name* ?*default* ____?](#54)  
-[proc __clay::ensemble\_methodbody__ *ensemble* *einfo*](#55)  
-[proc __clay::define::Ensemble__ *rawmethod* ?*args*?](#56)  
-[proc __clay::cleanup__](#57)  
-[proc __clay::object\_create__ *objname* ?*class* ____?](#58)  
-[proc __clay::object\_rename__ *object* *newname*](#59)  
-[proc __clay::object\_destroy__ ?*args*?](#60)  
+[proc __clay::cleanup__](#13)  
+[proc __clay::object\_create__ *objname* ?*class* ____?](#14)  
+[proc __clay::object\_rename__ *object* *newname*](#15)  
+[proc __clay::object\_destroy__ ?*args*?](#16)  
+[proc __clay::path__ ?*args*?](#17)  
+[proc __clay::putb__ ?*map*? *text*](#18)  
+[proc __clay::script\_path__](#19)  
+[proc __clay::NSNormalize__ *qualname*](#20)  
+[proc __clay::uuid\_generate__ ?*args*?](#21)  
+[proc __clay::uuid::generate\_tcl\_machinfo__](#22)  
+[proc __clay::uuid::tostring__ *uuid*](#23)  
+[proc __clay::uuid::fromstring__ *uuid*](#24)  
+[proc __clay::uuid::equal__ *left* *right*](#25)  
+[proc __clay::uuid__ *cmd* ?*args*?](#26)  
+[proc __clay::tree::sanitize__ *dict*](#27)  
+[proc __clay::tree::\_sanitizeb__ *path* *varname* *dict*](#28)  
+[proc __clay::tree::storage__ *rawpath*](#29)  
+[proc __clay::tree::dictset__ *varname* ?*args*?](#30)  
+[proc __clay::tree::dictmerge__ *varname* ?*args*?](#31)  
+[proc __clay::tree::merge__ ?*args*?](#32)  
+[proc __dictargs::proc__ *name* *argspec* *body*](#33)  
+[proc __dictargs::method__ *name* *argspec* *body*](#34)  
+[proc __clay::dialect::Push__ *class*](#35)  
+[proc __clay::dialect::Peek__](#36)  
+[proc __clay::dialect::Pop__](#37)  
+[proc __clay::dialect::create__ *name* ?*parent* ____?](#38)  
+[proc __clay::dialect::NSNormalize__ *namespace* *qualname*](#39)  
+[proc __clay::dialect::DefineThunk__ *target* ?*args*?](#40)  
+[proc __clay::dialect::Canonical__ *namespace* *NSpace* *class*](#41)  
+[proc __clay::dialect::Define__ *namespace* *class* ?*args*?](#42)  
+[proc __clay::dialect::Aliases__ *namespace* ?*args*?](#43)  
+[proc __clay::dialect::SuperClass__ *namespace* ?*args*?](#44)  
+[proc __clay::dynamic\_methods__ *class*](#45)  
+[proc __clay::dynamic\_methods\_class__ *thisclass*](#46)  
+[proc __clay::define::Array__ *name* ?*values* ____?](#47)  
+[proc __clay::define::Delegate__ *name* *info*](#48)  
+[proc __clay::define::constructor__ *arglist* *rawbody*](#49)  
+[proc __clay::define::Class\_Method__ *name* *arglist* *body*](#50)  
+[proc __clay::define::class\_method__ *name* *arglist* *body*](#51)  
+[proc __clay::define::clay__ ?*args*?](#52)  
+[proc __clay::define::destructor__ *rawbody*](#53)  
+[proc __clay::define::Dict__ *name* ?*values* ____?](#54)  
+[proc __clay::define::Option__ *name* ?*args*?](#55)  
+[proc __clay::define::Method__ *name* *argstyle* *argspec* *body*](#56)  
+[proc __clay::define::Option\_Class__ *name* ?*args*?](#57)  
+[proc __clay::define::Variable__ *name* ?*default* ____?](#58)  
+[proc __clay::ensemble\_methodbody__ *ensemble* *einfo*](#59)  
+[proc __clay::define::Ensemble__ *rawmethod* ?*args*?](#60)  
 [proc __clay::event::cancel__ *self* ?*task* __\*__?](#61)  
 [proc __clay::event::generate__ *self* *event* ?*args*?](#62)  
 [proc __clay::event::nextid__](#63)  
@@ -122,35 +122,38 @@ package require oo::dialect
 [proc __clay::event::schedule__ *self* *handle* *interval* *script*](#67)  
 [proc __clay::event::subscribe__ *self* *who* *event*](#68)  
 [proc __clay::event::unsubscribe__ *self* ?*args*?](#69)  
-[method __clay ancestors__](#70)  
-[method __clay dump__](#71)  
-[method __clay find__ *path* ?__path\.\.\.__?](#72)  
-[method __clay get__ *path* ?__path\.\.\.__?](#73)  
-[method __clay GET__ *path* ?__path\.\.\.__?](#74)  
-[method __clay merge__ *dict* ?__dict\.\.\.__?](#75)  
-[method __clay replace__ *dictionary*](#76)  
-[method __clay search__ *path* ?__path\.\.\.__?](#77)  
-[method __clay set__ *path* ?__path\.\.\.__? *value*](#78)  
-[method __clay ancestors__](#79)  
-[method __clay cget__ *field*](#80)  
-[method __clay delegate__ ?*stub*? ?*object*?](#81)  
-[method __clay dump__](#82)  
-[method __clay ensemble\_map__](#83)  
-[method __clay eval__ *script*](#84)  
-[method __clay evolve__](#85)  
-[method __clay exists__ *path* ?__path\.\.\.__?](#86)  
-[method __clay flush__](#87)  
-[method __clay forward__ *method* *object*](#88)  
-[method __clay get__ *path* ?__path\.\.\.__?](#89)  
-[method __clay leaf__ *path* ?__path\.\.\.__?](#90)  
-[method __clay merge__ *dict* ?__dict\.\.\.__?](#91)  
-[method __clay mixin__ *class* ?__class\.\.\.__?](#92)  
-[method __clay mixinmap__ ?*stub*? ?*classes*?](#93)  
-[method __clay provenance__ *path* ?__path\.\.\.__?](#94)  
-[method __clay replace__ *dictionary*](#95)  
-[method __clay source__ *filename*](#96)  
-[method __clay set__ *path* ?__path\.\.\.__? *value*](#97)  
-[method __InitializePublic__](#98)  
+[proc __clay::singleton__ *name* *script*](#70)  
+[method __clay ancestors__](#71)  
+[method __clay dump__](#72)  
+[method __clay find__ *path* ?__path\.\.\.__?](#73)  
+[method __clay get__ *path* ?__path\.\.\.__?](#74)  
+[method __clay GET__ *path* ?__path\.\.\.__?](#75)  
+[method __clay merge__ *dict* ?__dict\.\.\.__?](#76)  
+[method __clay replace__ *dictionary*](#77)  
+[method __clay search__ *path* ?__path\.\.\.__?](#78)  
+[method __clay set__ *path* ?__path\.\.\.__? *value*](#79)  
+[method __clay ancestors__](#80)  
+[method __clay cache__ *path* *value*](#81)  
+[method __clay cget__ *field*](#82)  
+[method __clay delegate__ ?*stub*? ?*object*?](#83)  
+[method __clay dump__](#84)  
+[method __clay ensemble\_map__](#85)  
+[method __clay eval__ *script*](#86)  
+[method __clay evolve__](#87)  
+[method __clay exists__ *path* ?__path\.\.\.__?](#88)  
+[method __clay flush__](#89)  
+[method __clay forward__ *method* *object*](#90)  
+[method __clay get__ *path* ?__path\.\.\.__?](#91)  
+[method __clay leaf__ *path* ?__path\.\.\.__?](#92)  
+[method __clay merge__ *dict* ?__dict\.\.\.__?](#93)  
+[method __clay mixin__ *class* ?__class\.\.\.__?](#94)  
+[method __clay mixinmap__ ?*stub*? ?*classes*?](#95)  
+[method __clay provenance__ *path* ?__path\.\.\.__?](#96)  
+[method __clay replace__ *dictionary*](#97)  
+[method __clay search__ *path* *valuevar* *isleafvar*](#98)  
+[method __clay source__ *filename*](#99)  
+[method __clay set__ *path* ?__path\.\.\.__? *value*](#100)  
+[method __InitializePublic__](#101)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -312,47 +315,59 @@ markings \(< >\) around them\.
     without actually having to comment them out\. It also makes a handy default
     for method delegation if a delegate has not been assigned yet\.
 
-  - <a name='13'></a>proc __clay::path__ ?*args*?
+  - <a name='13'></a>proc __clay::cleanup__
 
-  - <a name='14'></a>proc __clay::putb__ ?*map*? *text*
+    Process the queue of objects to be destroyed
+
+  - <a name='14'></a>proc __clay::object\_create__ *objname* ?*class* ____?
+
+  - <a name='15'></a>proc __clay::object\_rename__ *object* *newname*
+
+  - <a name='16'></a>proc __clay::object\_destroy__ ?*args*?
+
+    Mark an objects for destruction on the next cleanup
+
+  - <a name='17'></a>proc __clay::path__ ?*args*?
+
+  - <a name='18'></a>proc __clay::putb__ ?*map*? *text*
 
     Append a line of text to a variable\. Optionally apply a string mapping\.
 
-  - <a name='15'></a>proc __clay::script\_path__
+  - <a name='19'></a>proc __clay::script\_path__
 
-  - <a name='16'></a>proc __clay::NSNormalize__ *qualname*
+  - <a name='20'></a>proc __clay::NSNormalize__ *qualname*
 
-  - <a name='17'></a>proc __clay::uuid\_generate__ ?*args*?
+  - <a name='21'></a>proc __clay::uuid\_generate__ ?*args*?
 
-  - <a name='18'></a>proc __clay::uuid::generate\_tcl\_machinfo__
+  - <a name='22'></a>proc __clay::uuid::generate\_tcl\_machinfo__
 
-  - <a name='19'></a>proc __clay::uuid::tostring__ *uuid*
+  - <a name='23'></a>proc __clay::uuid::tostring__ *uuid*
 
-  - <a name='20'></a>proc __clay::uuid::fromstring__ *uuid*
+  - <a name='24'></a>proc __clay::uuid::fromstring__ *uuid*
 
     Convert a string representation of a uuid into its binary format\.
 
-  - <a name='21'></a>proc __clay::uuid::equal__ *left* *right*
+  - <a name='25'></a>proc __clay::uuid::equal__ *left* *right*
 
     Compare two uuids for equality\.
 
-  - <a name='22'></a>proc __clay::uuid__ *cmd* ?*args*?
+  - <a name='26'></a>proc __clay::uuid__ *cmd* ?*args*?
 
     uuid generate \-> string rep of a new uuid uuid equal uuid1 uuid2
 
-  - <a name='23'></a>proc __clay::tree::sanitize__ *dict*
+  - <a name='27'></a>proc __clay::tree::sanitize__ *dict*
 
     Output a dictionary removing any \. entries added by
     __clay::tree::merge__
 
-  - <a name='24'></a>proc __clay::tree::\_sanitizeb__ *path* *varname* *dict*
+  - <a name='28'></a>proc __clay::tree::\_sanitizeb__ *path* *varname* *dict*
 
     Helper function for ::clay::tree::sanitize Formats the string representation
     for a dictionary element within a human readable stream of lines, and
     determines if it needs to call itself with further indentation to express a
     sub\-branch
 
-  - <a name='25'></a>proc __clay::tree::storage__ *rawpath*
+  - <a name='29'></a>proc __clay::tree::storage__ *rawpath*
 
     Return the path as a storage path for clay::tree with all branch terminators
     removed\. This command will also break arguments up if they contain /\.
@@ -370,7 +385,7 @@ markings \(< >\) around them\.
     > clay::tree::storage {foo/bar/baz/bang}
     foo bar baz bang
 
-  - <a name='26'></a>proc __clay::tree::dictset__ *varname* ?*args*?
+  - <a name='30'></a>proc __clay::tree::dictset__ *varname* ?*args*?
 
     Set an element with a recursive dictionary, marking all branches on the way
     down to the final element\. If the value does not exists in the nested
@@ -391,7 +406,7 @@ markings \(< >\) around them\.
     > ::clay::tree::dictset r option color default Blue
     missing value to go with key
 
-  - <a name='27'></a>proc __clay::tree::dictmerge__ *varname* ?*args*?
+  - <a name='31'></a>proc __clay::tree::dictmerge__ *varname* ?*args*?
 
     A recursive form of dict merge, intended for modifying variables in place\.
 
@@ -407,7 +422,7 @@ markings \(< >\) around them\.
       }
     }
 
-  - <a name='28'></a>proc __clay::tree::merge__ ?*args*?
+  - <a name='32'></a>proc __clay::tree::merge__ ?*args*?
 
     A recursive form of dict merge
 
@@ -426,82 +441,82 @@ markings \(< >\) around them\.
       }
     }
 
-  - <a name='29'></a>proc __dictargs::proc__ *name* *argspec* *body*
+  - <a name='33'></a>proc __dictargs::proc__ *name* *argspec* *body*
 
     Named Procedures as new command
 
-  - <a name='30'></a>proc __dictargs::method__ *name* *argspec* *body*
+  - <a name='34'></a>proc __dictargs::method__ *name* *argspec* *body*
 
-  - <a name='31'></a>proc __clay::dialect::Push__ *class*
+  - <a name='35'></a>proc __clay::dialect::Push__ *class*
 
-  - <a name='32'></a>proc __clay::dialect::Peek__
+  - <a name='36'></a>proc __clay::dialect::Peek__
 
-  - <a name='33'></a>proc __clay::dialect::Pop__
+  - <a name='37'></a>proc __clay::dialect::Pop__
 
-  - <a name='34'></a>proc __clay::dialect::create__ *name* ?*parent* ____?
+  - <a name='38'></a>proc __clay::dialect::create__ *name* ?*parent* ____?
 
     This proc will generate a namespace, a "mother of all classes", and a
     rudimentary set of policies for this dialect\.
 
-  - <a name='35'></a>proc __clay::dialect::NSNormalize__ *namespace* *qualname*
+  - <a name='39'></a>proc __clay::dialect::NSNormalize__ *namespace* *qualname*
 
     Support commands; not intended to be called directly\.
 
-  - <a name='36'></a>proc __clay::dialect::DefineThunk__ *target* ?*args*?
+  - <a name='40'></a>proc __clay::dialect::DefineThunk__ *target* ?*args*?
 
-  - <a name='37'></a>proc __clay::dialect::Canonical__ *namespace* *NSpace* *class*
+  - <a name='41'></a>proc __clay::dialect::Canonical__ *namespace* *NSpace* *class*
 
-  - <a name='38'></a>proc __clay::dialect::Define__ *namespace* *class* ?*args*?
+  - <a name='42'></a>proc __clay::dialect::Define__ *namespace* *class* ?*args*?
 
     Implementation of the languages' define command
 
-  - <a name='39'></a>proc __clay::dialect::Aliases__ *namespace* ?*args*?
+  - <a name='43'></a>proc __clay::dialect::Aliases__ *namespace* ?*args*?
 
-  - <a name='40'></a>proc __clay::dialect::SuperClass__ *namespace* ?*args*?
+  - <a name='44'></a>proc __clay::dialect::SuperClass__ *namespace* ?*args*?
 
-  - <a name='41'></a>proc __clay::dynamic\_methods__ *class*
+  - <a name='45'></a>proc __clay::dynamic\_methods__ *class*
 
-  - <a name='42'></a>proc __clay::dynamic\_methods\_class__ *thisclass*
+  - <a name='46'></a>proc __clay::dynamic\_methods\_class__ *thisclass*
 
-  - <a name='43'></a>proc __clay::define::Array__ *name* ?*values* ____?
+  - <a name='47'></a>proc __clay::define::Array__ *name* ?*values* ____?
 
     New OO Keywords for clay
 
-  - <a name='44'></a>proc __clay::define::Delegate__ *name* *info*
+  - <a name='48'></a>proc __clay::define::Delegate__ *name* *info*
 
     An annotation that objects of this class interact with delegated methods\.
     The annotation is intended to be a dictionary, and the only reserved key is
     *description*, a human readable description\.
 
-  - <a name='45'></a>proc __clay::define::constructor__ *arglist* *rawbody*
+  - <a name='49'></a>proc __clay::define::constructor__ *arglist* *rawbody*
 
-  - <a name='46'></a>proc __clay::define::Class\_Method__ *name* *arglist* *body*
+  - <a name='50'></a>proc __clay::define::Class\_Method__ *name* *arglist* *body*
 
     Specify the a method for the class object itself, instead of for objects of
     the class
 
-  - <a name='47'></a>proc __clay::define::class\_method__ *name* *arglist* *body*
+  - <a name='51'></a>proc __clay::define::class\_method__ *name* *arglist* *body*
 
     And alias to the new Class\_Method keyword
 
-  - <a name='48'></a>proc __clay::define::clay__ ?*args*?
+  - <a name='52'></a>proc __clay::define::clay__ ?*args*?
 
-  - <a name='49'></a>proc __clay::define::destructor__ *rawbody*
+  - <a name='53'></a>proc __clay::define::destructor__ *rawbody*
 
-  - <a name='50'></a>proc __clay::define::Dict__ *name* ?*values* ____?
+  - <a name='54'></a>proc __clay::define::Dict__ *name* ?*values* ____?
 
-  - <a name='51'></a>proc __clay::define::Option__ *name* ?*args*?
+  - <a name='55'></a>proc __clay::define::Option__ *name* ?*args*?
 
     Define an option for the class
 
-  - <a name='52'></a>proc __clay::define::Method__ *name* *argstyle* *argspec* *body*
+  - <a name='56'></a>proc __clay::define::Method__ *name* *argstyle* *argspec* *body*
 
-  - <a name='53'></a>proc __clay::define::Option\_Class__ *name* ?*args*?
+  - <a name='57'></a>proc __clay::define::Option\_Class__ *name* ?*args*?
 
     Define a class of options All field / value pairs will be be inherited by an
     option that specify *name* as it class field\.
 
-  - <a name='54'></a>proc __clay::define::Variable__ *name* ?*default* ____?
+  - <a name='58'></a>proc __clay::define::Variable__ *name* ?*default* ____?
 
     This keyword can also be expressed:
 
@@ -510,21 +525,22 @@ markings \(< >\) around them\.
     Variables registered in the variable property are also initialized \(if
     missing\) when the object changes class via the *morph* method\.
 
-  - <a name='55'></a>proc __clay::ensemble\_methodbody__ *ensemble* *einfo*
+  - <a name='59'></a>proc __clay::ensemble\_methodbody__ *ensemble* *einfo*
 
-  - <a name='56'></a>proc __clay::define::Ensemble__ *rawmethod* ?*args*?
+    Produce the body of an ensemble's public dispatch method ensemble is the
+    name of the the ensemble\. einfo is a dictionary of methods for the ensemble,
+    and each value is a script to execute on dispatch
 
-  - <a name='57'></a>proc __clay::cleanup__
+    Example:
 
-    Process the queue of objects to be destroyed
+    ::clay::ensemble_methodbody foo {
+      bar {tailcall my Foo_bar {*}$args}
+      baz {tailcall my Foo_baz {*}$args}
+      clock {return [clock seconds]}
+      default {puts "You gave me $method"}
+    }
 
-  - <a name='58'></a>proc __clay::object\_create__ *objname* ?*class* ____?
-
-  - <a name='59'></a>proc __clay::object\_rename__ *object* *newname*
-
-  - <a name='60'></a>proc __clay::object\_destroy__ ?*args*?
-
-    Mark an objects for destruction on the next cleanup
+  - <a name='60'></a>proc __clay::define::Ensemble__ *rawmethod* ?*args*?
 
   - <a name='61'></a>proc __clay::event::cancel__ *self* ?*task* __\*__?
 
@@ -561,22 +577,26 @@ markings \(< >\) around them\.
 
     Unsubscribe an object from an event pattern
 
+  - <a name='70'></a>proc __clay::singleton__ *name* *script*
+
+    An object which is intended to be it's own class\.
+
 # <a name='section3'></a>Classes
 
 ## <a name='subsection4'></a>Class  clay::class
 
 __Methods__
 
-  - <a name='70'></a>method __clay ancestors__
+  - <a name='71'></a>method __clay ancestors__
 
     Return this class and all ancestors in search order\.
 
-  - <a name='71'></a>method __clay dump__
+  - <a name='72'></a>method __clay dump__
 
     Return a complete dump of this object's clay data, but only this object's
     clay data\.
 
-  - <a name='72'></a>method __clay find__ *path* ?__path\.\.\.__?
+  - <a name='73'></a>method __clay find__ *path* ?__path\.\.\.__?
 
     Pull a chunk of data from the clay system\. If the last element of *path*
     is a branch, returns a recursive merge of all data from this object and it's
@@ -586,32 +606,32 @@ __Methods__
     found, returns an empty string\. If a branch is returned the topmost \. entry
     is omitted\.
 
-  - <a name='73'></a>method __clay get__ *path* ?__path\.\.\.__?
+  - <a name='74'></a>method __clay get__ *path* ?__path\.\.\.__?
 
     Pull a chunk of data from the class's clay system\. If no value is found,
     returns an empty string\. If a branch is returned the topmost \. entry is
     omitted\.
 
-  - <a name='74'></a>method __clay GET__ *path* ?__path\.\.\.__?
+  - <a name='75'></a>method __clay GET__ *path* ?__path\.\.\.__?
 
     Pull a chunk of data from the class's clay system\. If no value is found,
     returns an empty string\.
 
-  - <a name='75'></a>method __clay merge__ *dict* ?__dict\.\.\.__?
+  - <a name='76'></a>method __clay merge__ *dict* ?__dict\.\.\.__?
 
     Recursively merge the dictionaries given into the object's local clay
     storage\.
 
-  - <a name='76'></a>method __clay replace__ *dictionary*
+  - <a name='77'></a>method __clay replace__ *dictionary*
 
     Replace the contents of the internal clay storage with the dictionary given\.
 
-  - <a name='77'></a>method __clay search__ *path* ?__path\.\.\.__?
+  - <a name='78'></a>method __clay search__ *path* ?__path\.\.\.__?
 
     Return the first matching value for the path in either this class's clay
     data or one of its ancestors
 
-  - <a name='78'></a>method __clay set__ *path* ?__path\.\.\.__? *value*
+  - <a name='79'></a>method __clay set__ *path* ?__path\.\.\.__? *value*
 
     Merge the conents of __value__ with the object's clay storage at
     __path__\.
@@ -622,12 +642,17 @@ clay::object This class is inherited by all classes that have options\.
 
 __Methods__
 
-  - <a name='79'></a>method __clay ancestors__
+  - <a name='80'></a>method __clay ancestors__
 
     Return the class this object belongs to, all classes mixed into this object,
     and all ancestors of those classes in search order\.
 
-  - <a name='80'></a>method __clay cget__ *field*
+  - <a name='81'></a>method __clay cache__ *path* *value*
+
+    Store VALUE in such a way that request in SEARCH for PATH will always return
+    it until the cache is flushed
+
+  - <a name='82'></a>method __clay cget__ *field*
 
     Pull a value from either the object's clay structure or one of its
     constituent classes that matches the field name\. The order of search us:
@@ -642,7 +667,7 @@ __Methods__
 
     5\. As a leaf in any ancestor as __option__ *field* __default__
 
-  - <a name='81'></a>method __clay delegate__ ?*stub*? ?*object*?
+  - <a name='83'></a>method __clay delegate__ ?*stub*? ?*object*?
 
     Introspect or control method delegation\. With no arguments, the method will
     return a key/value list of stubs and objects\. With just the *stub*
@@ -650,41 +675,41 @@ __Methods__
     With a *stub* and an *object* this command will forward all calls to the
     method *stub* to the *object*\.
 
-  - <a name='82'></a>method __clay dump__
+  - <a name='84'></a>method __clay dump__
 
     Return a complete dump of this object's clay data, as well as the data from
     all constituent classes recursively blended in\.
 
-  - <a name='83'></a>method __clay ensemble\_map__
+  - <a name='85'></a>method __clay ensemble\_map__
 
     Return a dictionary describing the method ensembles to be assembled for this
     object
 
-  - <a name='84'></a>method __clay eval__ *script*
+  - <a name='86'></a>method __clay eval__ *script*
 
     Evaluated a script in the namespace of this object
 
-  - <a name='85'></a>method __clay evolve__
+  - <a name='87'></a>method __clay evolve__
 
     Trigger the __InitializePublic__ private method
 
-  - <a name='86'></a>method __clay exists__ *path* ?__path\.\.\.__?
+  - <a name='88'></a>method __clay exists__ *path* ?__path\.\.\.__?
 
     Returns 1 if *path* exists in either the object's clay data\. Values
     greater than one indicate the element exists in one of the object's
     constituent classes\. A value of zero indicates the path could not be found\.
 
-  - <a name='87'></a>method __clay flush__
+  - <a name='89'></a>method __clay flush__
 
     Wipe any caches built by the clay implementation
 
-  - <a name='88'></a>method __clay forward__ *method* *object*
+  - <a name='90'></a>method __clay forward__ *method* *object*
 
     A convenience wrapper for
 
     oo::objdefine [self] forward {*}$args
 
-  - <a name='89'></a>method __clay get__ *path* ?__path\.\.\.__?
+  - <a name='91'></a>method __clay get__ *path* ?__path\.\.\.__?
 
     Pull a chunk of data from the clay system\. If the last element of *path*
     is a branch \(ends in a slash /\), returns a recursive merge of all data from
@@ -693,16 +718,16 @@ __Methods__
     all constituent classes for a matching leaf and return the first value
     found\. If no value is found, returns an empty string\.
 
-  - <a name='90'></a>method __clay leaf__ *path* ?__path\.\.\.__?
+  - <a name='92'></a>method __clay leaf__ *path* ?__path\.\.\.__?
 
     A modified get which is tailored to pull only leaf elements
 
-  - <a name='91'></a>method __clay merge__ *dict* ?__dict\.\.\.__?
+  - <a name='93'></a>method __clay merge__ *dict* ?__dict\.\.\.__?
 
     Recursively merge the dictionaries given into the object's local clay
     storage\.
 
-  - <a name='92'></a>method __clay mixin__ *class* ?__class\.\.\.__?
+  - <a name='94'></a>method __clay mixin__ *class* ?__class\.\.\.__?
 
     Perform \[oo::objdefine \[self\] mixin\] on this object, with a few additional
     rules: Prior to the call, for any class was previously mixed in, but not in
@@ -712,7 +737,7 @@ __Methods__
     map\-script \(if given\.\) Fall all classes that are now present and “mixed in”,
     execute the script registered to mixin/ react\-script \(if given\.\)
 
-  - <a name='93'></a>method __clay mixinmap__ ?*stub*? ?*classes*?
+  - <a name='95'></a>method __clay mixinmap__ ?*stub*? ?*classes*?
 
     With no arguments returns the map of stubs and classes mixed into the
     current object\. When only stub is given, returns the classes mixed in on
@@ -720,26 +745,31 @@ __Methods__
     that stub with the given classes and invoke clay mixin on the new matrix of
     mixed in classes\.
 
-  - <a name='94'></a>method __clay provenance__ *path* ?__path\.\.\.__?
+  - <a name='96'></a>method __clay provenance__ *path* ?__path\.\.\.__?
 
     Return either __self__ if that path exists in the current object, or
     return the first class \(if any\) along the clay search path which contains
     that element\.
 
-  - <a name='95'></a>method __clay replace__ *dictionary*
+  - <a name='97'></a>method __clay replace__ *dictionary*
 
     Replace the contents of the internal clay storage with the dictionary given\.
 
-  - <a name='96'></a>method __clay source__ *filename*
+  - <a name='98'></a>method __clay search__ *path* *valuevar* *isleafvar*
+
+    Return true, and set valuevar to the value and isleafar to true for false if
+    PATH was found in the cache\.
+
+  - <a name='99'></a>method __clay source__ *filename*
 
     Source the given filename within the object's namespace
 
-  - <a name='97'></a>method __clay set__ *path* ?__path\.\.\.__? *value*
+  - <a name='100'></a>method __clay set__ *path* ?__path\.\.\.__? *value*
 
     Merge the conents of __value__ with the object's clay storage at
     __path__\.
 
-  - <a name='98'></a>method __InitializePublic__
+  - <a name='101'></a>method __InitializePublic__
 
     Instantiate variables\. Called on object creation and during clay mixin\.
 

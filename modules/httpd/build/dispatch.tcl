@@ -41,6 +41,8 @@
     if {[my request get HTTP_STATUS] ne {}} {
       my reply set Status [my request get HTTP_STATUS]
     }
+    set request [my request dump]
+    dict with request {}
     my puts [subst [my <server> template [my clay get template]]]
   }
 }

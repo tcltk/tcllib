@@ -2,7 +2,7 @@
 '\" Generated from file 'blowfish\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "blowfish" n 1\&.0\&.3 tcllib "Blowfish Block Cipher"
+.TH "blowfish" n 1\&.0\&.5 tcllib "Blowfish Block Cipher"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ blowfish \- Implementation of the Blowfish block cipher
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBblowfish  ?1\&.0\&.4?\fR
+package require \fBblowfish  ?1\&.0\&.5?\fR
 .sp
 \fB::blowfish::blowfish\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? ?\fI-pad padchar\fR? [ \fI-in channel\fR | ?\fI--\fR? \fIdata\fR ]
 .sp

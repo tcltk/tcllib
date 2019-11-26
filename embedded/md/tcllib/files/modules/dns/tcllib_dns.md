@@ -2,7 +2,7 @@
 [//000000001]: # (dns \- Domain Name Service)
 [//000000002]: # (Generated from file 'tcllib\_dns\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, Pat Thoyts)
-[//000000004]: # (dns\(n\) 1\.4\.0 tcllib "Domain Name Service")
+[//000000004]: # (dns\(n\) 1\.4\.1 tcllib "Domain Name Service")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ dns \- Tcl Domain Name Service Client
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require dns ?1\.4\.0?  
+package require dns ?1\.4\.1?  
 
 [__::dns::resolve__ *query* ?*options*?](#1)  
 [__::dns::configure__ ?*options*?](#2)  

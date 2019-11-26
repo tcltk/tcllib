@@ -1,11 +1,11 @@
 # -*- tcl -*-
 # # ## ### ##### ######## #############
-# (C) 2009 Andreas Kupries
+# (C) 2009, 2019 Andreas Kupries
 
 # @@ Meta Begin
 # Package tcl::chan::halfpipe 1
 # Meta as::author {Andreas Kupries}
-# Meta as::copyright 2009
+# Meta as::copyright 2009,2019
 # Meta as::license BSD
 # Meta description Implementation of one half of a pipe
 # Meta description channel. Based on Tcl 8.5's channel
@@ -51,7 +51,7 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 	set max  [string length $read]
 	set last [expr {$at + $n - 1}]
 	set result {}
-
+	
 	#    last+1 <= max
 	# <=> at+n <= max
 	# <=> n <= max-at
@@ -65,21 +65,22 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 	    incr $size -$n
 	} else {
 	    # We need the whole remaining read buffer, and more. For
-	    # the latter we shift the write buffer contents over into
-	    # the read buffer, and then read from the latter again.
+	    # the latter we make the write buffer the new read buffer,
+	    # and then read from it again.
 
 	    append result [string range $read $at end]
 	    incr n -[string length $result]
 
 	    set at    0
+            set last  [expr {$n - 1}]
 	    set read  $write
 	    set write {}
 	    set size  [string length $read]
 	    set max   $size
 
-	    # at == 0
+	    # at == 0 simplifies expressions
 	    if {$n <= $max} {
-		# The request is less than what we have in the updated
+		# The request is less than what we have in the new
 		# read buffer, we take it, and move the read pointer
 		# forward.
 
@@ -126,7 +127,28 @@ oo::class create ::tcl::chan::halfpipe::implementation {
     # # ## ### ##### ######## #############
 
     variable at read write size options
+    # at      : first location in read buffer not yet read
+    # read    : read buffer
+    # write   : buffer for received data, i.e.
+    #           written into the halfpipe from
+    #           the other side.
+    # size    : combined length of receive and read buffers
+    #           == amount of stored data
+    # options : configuration array
 
+    # The halpipe uses a pointer (`at`) into the data buffer to
+    # extract the characters read by the user, while not shifting the
+    # data down in memory. Doing such a shift would cause a large
+    # performance hit (O(n**2) operation vs O(n)). This however comes
+    # with the danger of the buffer growing out of bounds as ever more
+    # data is appended by the receiver while the reader is not
+    # catching up, preventing a release. The solution to this in turn
+    # is to split the buffer into two. An append-only receive buffer
+    # (`write`) for incoming data, and a `read` buffer with the
+    # pointer. When the current read buffer is entirely consumed the
+    # current receive buffer becomes the new read buffer and a new
+    # empty receive buffer is started.
+    
     # # ## ### ##### ######## #############
 
     constructor {args} {
@@ -164,5 +186,5 @@ oo::class create ::tcl::chan::halfpipe::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::halfpipe 1
+package provide tcl::chan::halfpipe 1.0.1
 return
