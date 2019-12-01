@@ -5,8 +5,9 @@ a number of packages also have [term accelerators] associated with them.
 These are [syscmd critcl]-based C packages whose use will boost the
 performance of the packages using them.
 
-These accelerators are optional, and they are not installed by
-default.
+These accelerators are optional, and they are not built by default.
+If they are built according to the instructions below then they will
+also be installed as well.
 
 [para] To build the accelerators the normally optional dependency on
        [syscmd critcl] becomes required.
@@ -16,9 +17,9 @@ default.
 
 [example {
   ./configure
-  make critcl # This builds the shared library holding
-              # the accelerators
-  make install
+  make critcl  # Builds the shared library and package holding
+               # the accelerators, tcllibc
+  make install # Installs all packages, including the new tcllibc.
 }]
 
 [para] The underlying tool is [file sak.tcl] in the toplevel directory
