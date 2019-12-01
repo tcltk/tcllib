@@ -524,7 +524,8 @@ proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
         # excess bytes for the next round.
         set pagedlen         [expr {([string length $data] / 8) * 8}]
         set state(remainder) [string range $data $pagedlen end]
-        set data             [string range $data 0 $pagedlen-1]
+        incr pagedlen        -1
+        set data             [string range $data 0 $pagedlen]
     }
 
     if {![string length $data]} return

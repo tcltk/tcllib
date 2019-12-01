@@ -272,17 +272,18 @@ perform installation.</p>
 a number of packages also have <i class="term">accelerators</i> associated with them.
 These are <b class="syscmd">critcl</b>-based C packages whose use will boost the
 performance of the packages using them.
-These accelerators are optional, and they are not installed by
-default.</p>
+These accelerators are optional, and they are not built by default.
+If they are built according to the instructions below then they will
+also be installed as well.</p>
 <p>To build the accelerators the normally optional dependency on
        <b class="syscmd">critcl</b> becomes required.</p>
 <p>To build and install Tcllib with the accelerators in a
        Unix-like environment invoke:</p>
 <pre class="doctools_example">
   ./configure
-  make critcl # This builds the shared library holding
-              # the accelerators
-  make install
+  make critcl  # Builds the shared library and package holding
+               # the accelerators, tcllibc
+  make install # Installs all packages, including the new tcllibc.
 </pre>
 <p>The underlying tool is &quot;<b class="file">sak.tcl</b>&quot; in the toplevel directory
 of Tcllib and the command <b class="cmd">make critcl</b> is just a wrapper around</p>

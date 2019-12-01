@@ -8,6 +8,15 @@
 
 proc _null {args} {}
 
+proc _all {module libdir} {
+    global distribution
+    xcopy \
+	    [file join $distribution modules $module] \
+	    [file join $libdir $module] \
+	    1
+    return
+}
+
 proc _tcl {module libdir} {
     global distribution
     xcopy \
