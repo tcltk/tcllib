@@ -939,7 +939,8 @@ lappend ::nettool::blocks 48130 48555
 lappend ::nettool::blocks 48557 48618
 lappend ::nettool::blocks 48620 48652
 lappend ::nettool::blocks 48654 48999
-lappend ::nettool::blocks 49001 65535
+lappend ::nettool::blocks 49001 50999
+lappend ::nettool::blocks 51009 65535
 
 
 ###
