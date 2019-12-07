@@ -48,7 +48,7 @@ They are for
 
 ## Releases
 
-   * [Current](../../../technote/0b2528ed32f54c4a8f08951aaa11ff60b3843630) __1.19 (Feb 16, 2018)__
+   * [Current](../../../technote/cd3a11c3065120d491009e64a19f7676176045cd) __1.20 (Dec 1, 2019)__
    * [Past Releases](../../../wiki?name=Past+Releases)
    * [Development Snapshots](../../../wiki?name=Development+Snapshots)
    * [@ SourceForge](https://sourceforge.net/projects/tcllib/files/)
