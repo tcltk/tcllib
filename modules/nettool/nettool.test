@@ -11,6 +11,18 @@ testing {
     useLocal nettool.tcl    nettool
 }
 
+set ::nettool::syncfile [file join  [file dirname [file join [pwd] [info script]]] sync.txt]
+if {[file exists $::nettool::syncfile]} {
+  file delete $::nettool::syncfile
+}
+# Seed the syncfile with data as if there was a process in paralleld
+set fout [open $::nettool::syncfile w]
+puts $fout [list 8805 [dict create pid 1 mtime [expr [clock seconds]-1800]]]
+puts $fout [list 8806 [dict create pid 1 mtime [expr [clock seconds]-900]]]
+puts $fout [list 8807 [dict create pid 1 mtime [expr [clock seconds]-900]]]
+
+close $fout
+
 # Test known busy ports
 foreach port {
   80
@@ -51,7 +63,7 @@ foreach {port nextport comment} {
   ::tcltest::test port-claim-0001 \
       "Test that port busy returns true after $port is claimed" \
       [list ::nettool::port_busy $port] 1
-  
+
   # Test that claiming a port makes it busy
   ::tcltest::test port-find-0002 \
       "Test that port find returns the next port in unclaimed block starting at $port following claim" \
@@ -68,7 +80,7 @@ set port 7790
 ::tcltest::test port-claim-0003 \
     "Test that port busy returns false after $port is release" \
     [list ::nettool::port_busy $port] 0
-  
+
 # Test that claiming a port makes it busy
 ::tcltest::test port-find-0004 \
     "Test that port find returns the next port in released block starting at $port following claim" \
@@ -80,7 +92,7 @@ foreach {port nextport comment} {
   7792 7793 {End of block}
   7793 7795 {Start of new block}
 } {
-  ::nettool::release_port $port 
+  ::nettool::release_port $port
 }
 
 # Test that claiming a port makes it busy
@@ -94,8 +106,14 @@ foreach {port nextport comment} {
 
 ::tcltest::test port-allocate-0006 \
     "Test allocate port returns the next address of an claimed spot and claims it" \
-    [list ::nettool::allocate_port 7790] 7792
+    [list ::nettool::allocate_port 8805] 8808
 
+# This should skip 7993 and 7994 because we seeded those in the txt file
+::tcltest::test port-allocate-0007 \
+    "Test allocate port returns the next address of an claimed spot and claims it" \
+    [list ::nettool::allocate_port 8805] 8809
+
+catch {file delete $::nettool::syncfile}
 
 testsuiteCleanup
 return
