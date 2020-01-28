@@ -113,6 +113,46 @@ foreach {port nextport comment} {
     "Test allocate port returns the next address of an claimed spot and claims it" \
     [list ::nettool::allocate_port 8805] 8809
 
+# Read the sync file
+set mypid [pid]
+set ports_open_count 0
+set fin [open $::nettool::syncfile r]
+while {[gets $fin line] >= 0} {
+  lassign $line port info
+  if {![dict exists $info pid]} continue
+  if {[dict get $info pid]==$mypid} {
+    incr ports_open_count
+  }
+}
+
+close $fin
+
+::tcltest::test port-open-0001 \
+    "Count the number of open ports for this pid in the share file" \
+    [list set ports_open_count] 4
+
+
+::nettool::release_all
+
+# Read the sync file
+set mypid [pid]
+set ports_open_count 0
+set fin [open $::nettool::syncfile r]
+while {[gets $fin line] >= 0} {
+  lassign $line port info
+  if {![dict exists $info pid]} continue
+  if {[dict get $info pid]==$mypid} {
+    incr ports_open_count
+  }
+}
+
+close $fin
+
+::tcltest::test port-open-0002 \
+    "Count the number of open ports for this pid in the share file" \
+    [list set ports_open_count] 0
+
+
 catch {file delete $::nettool::syncfile}
 
 testsuiteCleanup

@@ -981,6 +981,10 @@ proc ::nettool::find_port startingport {
   error "Could not locate a port"
 }
 
+proc ::nettool::_die {filename} {
+}
+
+
 proc ::nettool::_sync_db {filename} {
   set mypid [pid]
   if {[file exists $filename]} {
@@ -993,6 +997,7 @@ proc ::nettool::_sync_db {filename} {
     set fout [open $filename.lock w]
     puts $fout $mypid
     close $fout
+    set now [clock seconds]
     set fin [open $filename r]
     while {[gets $fin line]>=0} {
       lassign $line port info
@@ -1000,6 +1005,8 @@ proc ::nettool::_sync_db {filename} {
       if {[dict exists $info pid] && [dict get $info pid] == $mypid} continue
       # Ignore attempts to update usage on ports I have allocated
       if {[dict exists $::nettool::used_ports $port pid] && [dict get $::nettool::used_ports $port pid] == $mypid} continue
+      # Ignore entries more than a week old
+      if {[dict exists $info mtime] && ($now-[dict get $info mtime]) > 604800} continue
       dict set ::nettool::used_ports $port $info
     }
     close $fin
@@ -1007,6 +1014,9 @@ proc ::nettool::_sync_db {filename} {
   set fout [open $filename w]
   set ports [lsort -integer [dict keys $::nettool::used_ports]]
   foreach port $ports {
+    if {[dict get $::nettool::used_ports $port pid]==$mypid} {
+      dict set ::nettool::used_ports $port mtime $now
+    }
     puts $fout [list $port [dict get $::nettool::used_ports $port]]
   }
   close $fout
@@ -1032,6 +1042,21 @@ proc ::nettool::port_busy port {
     }
   }
   return 1
+}
+
+# Called when a process is closing
+proc ::nettool::release_all {} {
+  set mypid [pid]
+  set now [clock seconds]
+  dict for {port info} $::nettool::used_ports {
+    if {[dict exists $info pid] && [dict get $info pid]==$mypid} {
+      dict set ::nettool::used_ports $port pid 0
+      dict set ::nettool::used_ports $port mtime $now
+    }
+  }
+  if {[info exists ::nettool::syncfile]} {
+    ::nettool::_sync_db $::nettool::syncfile
+  }
 }
 
 ###
