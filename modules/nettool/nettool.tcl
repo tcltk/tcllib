@@ -987,6 +987,7 @@ proc ::nettool::_die {filename} {
 
 proc ::nettool::_sync_db {filename} {
   set mypid [pid]
+  set now [clock seconds]
   if {[file exists $filename]} {
     for {set x 0} {$x < 30} {incr x} {
       if {![file exists $filename.lock]} break
@@ -997,7 +998,6 @@ proc ::nettool::_sync_db {filename} {
     set fout [open $filename.lock w]
     puts $fout $mypid
     close $fout
-    set now [clock seconds]
     set fin [open $filename r]
     while {[gets $fin line]>=0} {
       lassign $line port info
@@ -1068,6 +1068,11 @@ proc ::nettool::release_port {port {protocol tcp}} {
   if {[info exists ::nettool::syncfile]} {
     ::nettool::_sync_db $::nettool::syncfile
   }
+}
+
+proc ::nettool::set_sync_file {filename} {
+  file mkdir [file dirname $filename]
+  set ::nettool::syncfile $filename
 }
 
 if {![info exists ::nettool::used_ports]} {
