@@ -56,9 +56,16 @@ proc ::nettool::find_port startingport {
   error "Could not locate a port"
 }
 
-proc ::nettool::_die {filename} {
+proc ::nettool::sleep delay {
+  if {[info coroutine] ne {}} {
+    ::after $delay [list [info coroutine]]
+    yield
+    return
+  }
+  after $delay {set ::nettool::pause 0}
+  vwait ::nettool::pause
+  return
 }
-
 
 proc ::nettool::_sync_db {filename} {
   set mypid [pid]
@@ -68,7 +75,7 @@ proc ::nettool::_sync_db {filename} {
       if {![file exists $filename.lock]} break
       set pid [string trim [cat $filename.lock]]
       if {$pid==$mypid} break
-      after 250
+      ::nettool::sleep 250
     }
     set fout [open $filename.lock w]
     puts $fout $mypid
