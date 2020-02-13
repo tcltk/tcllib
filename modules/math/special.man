@@ -9,7 +9,7 @@
 [titledesc {Special mathematical functions}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::special [opt 0.4]]
+[require math::special [opt 0.5]]
 
 [description]
 [para]
@@ -136,6 +136,28 @@ The incomplete gamma function
 The package defines the following public procedures:
 
 [list_begin definitions]
+
+[call [cmd ::math::special::eulerNumber] [arg index]]
+
+Return the index'th Euler number (note: these are integer values). As the
+size of these numbers grows very fast, only a limited number are available.
+
+[list_begin arguments]
+[arg_def int index] Index of the number to be returned (should be between 0 and 54)
+[list_end]
+
+[para]
+
+[call [cmd ::math::special::bernoulliNumber] [arg index]]
+
+Return the index'th Bernoulli number. As the size of the numbers grows very fast,
+only a limited number are available.
+
+[list_begin arguments]
+[arg_def int index] Index of the number to be returned (should be between 0 and 52)
+[list_end]
+
+[para]
 
 [call [cmd ::math::special::Beta] [arg x] [arg y]]
 

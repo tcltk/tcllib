@@ -1,3 +1,9 @@
+2020-02-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: Add procs for returning Euler and Bernoulli number, version to 0.5.0
+	* special.test: Add tests for these new procs
+	* special.man: Add documentation for these new procs
+	* pkgIndex.tcl: Bumped version of special functions package to 0.5.0
+
 2019-11-08  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Add a new type of error message, version to 1.5.0
 	* pdf_stat.tcl: Add procedures for Laplace, Kumaraswamy and negative binomial distributions, also tests for homoscedasticity
