@@ -808,5 +808,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.1.1
+package provide Markdown 1.1.2
 return
