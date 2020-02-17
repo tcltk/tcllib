@@ -488,6 +488,70 @@ $A <counter> value
 [call proc [cmd clay::define::Ensemble] [arg rawmethod] [opt "[arg args]"]]
 
 
+[call proc [cmd clay::event::cancel] [arg self] [opt "[arg task] [const "*"]"]]
+
+Cancel a scheduled event
+
+
+
+
+[call proc [cmd clay::event::generate] [arg self] [arg event] [opt "[arg args]"]]
+
+    Generate an event
+    Adds a subscription mechanism for objects
+    to see who has recieved this event and prevent
+    spamming or infinite recursion
+
+
+
+
+[call proc [cmd clay::event::nextid]]
+
+
+
+[call proc [cmd clay::event::Notification_list] [arg self] [arg event] [opt "[arg stackvar] [const ""]"]]
+
+    Called recursively to produce a list of
+    who recieves notifications
+
+
+
+
+[call proc [cmd clay::event::notify] [arg rcpt] [arg sender] [arg event] [arg eventinfo]]
+
+ Final delivery to intended recipient object
+
+
+
+
+[call proc [cmd clay::event::process] [arg self] [arg handle] [arg script]]
+
+ Evaluate an event script in the global namespace
+
+
+
+
+[call proc [cmd clay::event::schedule] [arg self] [arg handle] [arg interval] [arg script]]
+
+Schedule an event to occur later
+
+
+
+
+[call proc [cmd clay::event::subscribe] [arg self] [arg who] [arg event]]
+
+ Subscribe an object to an event pattern
+
+
+
+
+[call proc [cmd clay::event::unsubscribe] [arg self] [opt "[arg args]"]]
+
+ Unsubscribe an object from an event pattern
+
+
+
+
 [call proc [cmd clay::singleton] [arg name] [arg script]]
 
  An object which is intended to be it's own class.

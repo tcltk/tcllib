@@ -2,15 +2,13 @@
 #
 #	Implementation of a matrix data structure for Tcl.
 #
-# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001,2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # Heapsort code Copyright (c) 2003 by Edwin A. Suominen <ed@eepatents.com>,
 # based on concepts in "Introduction to Algorithms" by Thomas H. Cormen et al.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: matrix1.tcl,v 1.3 2005/09/28 04:51:24 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1038,7 +1036,7 @@ proc ::struct::matrix::__format_2chan {name {report {}} {chan stdout}} {
     if {$report == {}} {
 	# Use an internal hardwired simple report to format the matrix.
 	# We delegate this to the string formatter and print its result.
-	puts -nonewline [__format_2string $name]
+	puts -nonewline $chan [__format_2string $name]
     } else {
 	$report printmatrix2channel $name $chan
     }
@@ -2284,4 +2282,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 1.2.1
+package provide struct::matrix 1.2.2

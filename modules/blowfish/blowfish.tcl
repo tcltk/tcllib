@@ -509,18 +509,40 @@ proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
     if {[eof $in]} {
         fileevent $in readable {}
         set state(reading) 0
+        set data $state(remainder)
+
+        # Only pad at the end of the stream.
+        if {[string length $pad] > 0} {
+            set data [Pad $data 8 $pad]
+        }
+    } else {
+        set data [read $in $chunksize]
+        #puts "Chunk: reading [string len $data] bytes"
+        set data $state(remainder)$data
+
+        # If data is not a multiple of 8, state(remainder) will hold
+        # excess bytes for the next round.
+        set pagedlen         [expr {([string length $data] / 8) * 8}]
+        set state(remainder) [string range $data $pagedlen end]
+        incr pagedlen        -1
+        set data             [string range $data 0 $pagedlen]
     }
 
-    set data [read $in $chunksize]
-    # FIX ME: we should ony pad after eof
-    if {[string length $pad] > 0} {
-        set data [Pad $data 8]
+    if {![string length $data]} return
+
+    if {[set code [catch {
+        set cipher [$state(cmd) $Key $data]
+    } msg]]} {
+        fileevent $in readable {}
+        set state(reading) 0
+        set state(err) [list $code $msg]
+        return
     }
     
     if {$out == {}} {
-        append state(output) [$state(cmd) $Key $data]
+        append state(output) $cipher
     } else {
-        puts -nonewline $out [$state(cmd) $Key $data]
+        puts -nonewline $out $cipher
     }
 }
 
@@ -585,7 +607,7 @@ proc ::blowfish::CheckPad {char} {
 proc ::blowfish::Pad {data blocksize {fill \0}} {
     set len [string length $data]
     if {$len == 0} {
-        set data [string repeat $fill $blocksize]
+        # do not pad an empty string
     } elseif {($len % $blocksize) != 0} {
         set pad [expr {$blocksize - ($len % $blocksize)}]
         append data [string repeat $fill $pad]
@@ -638,7 +660,8 @@ proc ::blowfish::blowfish {args} {
     
     set r {}
     if {$opts(-in) == {}} {
-
+        # Immediate data (plain text is argument).
+        
         if {[llength $args] != 1} {
             return -code error "wrong \# args:\
                 should be \"blowfish ?options...? -key keydata plaintext\""
@@ -667,7 +690,8 @@ proc ::blowfish::blowfish {args} {
         }
         
     } else {
-
+        # Channel data (plain text is read from a binary channel).
+        
         if {[llength $args] != 0} {
             return -code error "wrong \# args:\
                 should be \"blowfish ?options...? -key keydata -in channel\""
@@ -682,6 +706,7 @@ proc ::blowfish::blowfish {args} {
             set state(cmd) Decrypt
         }
         set state(output) ""
+        set state(remainder) ""
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
                  $Key $opts(-in) $opts(-out) $opts(-chunksize) $opts(-pad)]
@@ -690,6 +715,12 @@ proc ::blowfish::blowfish {args} {
         } else {
             vwait [subst $Key](reading)
         }
+
+        if {[info exists state(err)]} {
+            foreach {code msg} $state(err) break
+            return -code $code $msg
+        }
+        
         if {$opts(-out) == {}} {
             set r $state(output)
         }
@@ -714,7 +745,7 @@ namespace eval ::blowfish {
     unset e
 }
 
-package provide blowfish 1.0.4
+package provide blowfish 1.0.5
 
 # -------------------------------------------------------------------------
 #

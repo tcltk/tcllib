@@ -4,7 +4,7 @@ Description: This package is intended to be a collection of
     Tcl packages that provide utility functions useful to a
     large collection of Tcl programmers.
 Rights: BSD
-Version: 1.19
+Version: 1.20
 URL: http://core.tcl.tk/tcllib
 Architecture: tcl
 Contributor:  <jeffh at activestate dot com>
@@ -25,6 +25,7 @@ Contributor: Emmanuel Frecon <efrecon at gmail dot com>
 Contributor: Eric Melski <ericm at ajubasolutions dot com>
 Contributor: Gerald Lester <gwlester at users dot sourceforge dot net>
 Contributor: Gerhard Reithofer <gerhard dot rithofer at tech-edv dot co dot at>
+Contributor: Harald Oehlmann <oehhar at users dot sourceforge dot net>
 Contributor: Jeff Hobbs <jeffh at ActiveState dot com>
 Contributor: Joe English <jenglish at users dot sourceforge dot net>
 Contributor: Johannes-Heinrich Vogeler <vogeler at users dot sourceforge dot net>

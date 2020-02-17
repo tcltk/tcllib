@@ -33,6 +33,11 @@ array set guide {}
 Exclude calendar
 Exclude exif
 
+if {[file exists [file join $distribution modules tcllibc]]} {
+    #       name         pkg   doc   example
+    Module  tcllibc      _all  _null  _null
+}
+
 #       name           pkg   doc   example
 Module  0compatibility _tcl  _null  _null
 # Wrapper packages redirecting deprecated/moved packages to their old
@@ -153,8 +158,6 @@ Module  textutil     _tex _man  _null
 Module  tie         _tcl  _man  _exa
 Module  tiff        _tcl  _man  _null
 Module  tool        _tcl  _man  _null
-Module  tool-ui     _tcl  _man  _null
-Module  tool_datatype        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
 Module  treeql      _tcl  _man  _null
 Module  try         _tcl  _man  _null

@@ -200,8 +200,9 @@ inside it\.
 While the majority of Tcllib consists of packages written in pure Tcl a number
 of packages also have *accelerators* associated with them\. These are
 __critcl__\-based C packages whose use will boost the performance of the
-packages using them\. These accelerators are optional, and they are not installed
-by default\.
+packages using them\. These accelerators are optional, and they are not built by
+default\. If they are built according to the instructions below then they will
+also be installed as well\.
 
 To build the accelerators the normally optional dependency on __critcl__
 becomes required\.
@@ -210,9 +211,9 @@ To build and install Tcllib with the accelerators in a Unix\-like environment
 invoke:
 
     ./configure
-    make critcl # This builds the shared library holding
-                # the accelerators
-    make install
+    make critcl  # Builds the shared library and package holding
+                 # the accelerators, tcllibc
+    make install # Installs all packages, including the new tcllibc.
 
 The underlying tool is "sak\.tcl" in the toplevel directory of Tcllib and the
 command __make critcl__ is just a wrapper around

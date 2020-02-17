@@ -4,7 +4,7 @@
 # for information about the DNS protocol. This should insulate Tcl scripts
 # from problems with using the system library resolver for slow name servers.
 #
-# This implementation uses TCP only for DNS queries. The protocol reccommends
+# This implementation uses TCP only for DNS queries. The protocol recommends
 # that UDP be used in these cases but Tcl does not include UDP sockets by
 # default. The package should be simple to extend to use a TclUDP extension
 # in the future.
@@ -286,10 +286,17 @@ proc ::dns::resolve {query args} {
         }
     }
 
-    # Check for reverse lookups
+    # Check for reverse lookups. IPv4 first, then IPv6.
     if {[regexp {^(?:\d{0,3}\.){3}\d{0,3}$} $state(query)]} {
         set addr [lreverse [split $state(query) .]]
         lappend addr in-addr arpa
+        set state(query) [join $addr .]
+        set state(-type) PTR
+    } elseif {[string match {*:*} $state(query)]} {
+        set addr [ip::normalize $state(query)]
+        set addr [split [string reverse $addr] :]
+        set addr [join [split [join $addr ""] {}] .]
+        lappend addr ip6 arpa
         set state(query) [join $addr .]
         set state(-type) PTR
     }
@@ -1480,7 +1487,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns 1.4.0
+package provide dns 1.4.1
 
 # -------------------------------------------------------------------------
 # Local Variables:

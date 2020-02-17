@@ -2,7 +2,7 @@
 '\" Generated from file 'httpd\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "httpd" n 4\&.3\&.3 tcllib "Tcl Web Server"
+.TH "httpd" n 4\&.3\&.4 tcllib "Tcl Web Server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"

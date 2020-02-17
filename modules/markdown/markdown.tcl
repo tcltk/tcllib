@@ -44,7 +44,7 @@ namespace eval Markdown {
     # document. The format of the output is generic XHTML.
     #
     proc convert {markdown} {
-        set markdown [regsub {\r\n?} $markdown {\n}]
+        set markdown [regsub -all {\r\n?} $markdown \n]
         set markdown [::textutil::tabify::untabify2 $markdown 4]
         set markdown [string trimright $markdown]
 
@@ -253,7 +253,7 @@ namespace eval Markdown {
                     }
                     set code_result [join $code_result \n]
 
-                    append result <pre><code> $code_result \n </code></pre>
+                    append result <pre><code> $code_result </code></pre>
                 }
                 {^(?:(?:`{3,})|(?:~{3,}))\{?(\S+)?\}?\s*$} {
                     # FENCED CODE BLOCKS
@@ -808,5 +808,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.1
-
+package provide Markdown 1.1.2
+return
