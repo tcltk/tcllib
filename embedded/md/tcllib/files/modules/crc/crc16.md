@@ -2,7 +2,7 @@
 [//000000001]: # (crc16 \- Cyclic Redundancy Checks)
 [//000000002]: # (Generated from file 'crc16\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2002, 2017, Pat Thoyts)
-[//000000004]: # (crc16\(n\) 1\.1\.3 tcllib "Cyclic Redundancy Checks")
+[//000000004]: # (crc16\(n\) 1\.1\.4 tcllib "Cyclic Redundancy Checks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -44,7 +44,7 @@ crc16 \- Perform a 16bit Cyclic Redundancy Check
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require crc16 ?1\.1\.3?  
+package require crc16 ?1\.1\.4?  
 
 [__::crc::crc16__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? __\-\-__ *message*](#1)  
 [__::crc::crc16__ ?\-format *format*? ?\-seed *value*? ?\-implementation *procname*? \-filename *file*](#2)  
