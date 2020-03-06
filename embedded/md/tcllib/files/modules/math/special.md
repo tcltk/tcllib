@@ -42,41 +42,43 @@ math::special \- Special mathematical functions
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5?  
-package require math::special ?0\.4?  
+package require math::special ?0\.5?  
 
-[__::math::special::Beta__ *x* *y*](#1)  
-[__::math::special::incBeta__ *a* *b* *x*](#2)  
-[__::math::special::regIncBeta__ *a* *b* *x*](#3)  
-[__::math::special::Gamma__ *x*](#4)  
-[__::math::special::digamma__ *x*](#5)  
-[__::math::special::erf__ *x*](#6)  
-[__::math::special::erfc__ *x*](#7)  
-[__::math::special::invnorm__ *p*](#8)  
-[__::math::special::J0__ *x*](#9)  
-[__::math::special::J1__ *x*](#10)  
-[__::math::special::Jn__ *n* *x*](#11)  
-[__::math::special::J1/2__ *x*](#12)  
-[__::math::special::J\-1/2__ *x*](#13)  
-[__::math::special::I\_n__ *x*](#14)  
-[__::math::special::cn__ *u* *k*](#15)  
-[__::math::special::dn__ *u* *k*](#16)  
-[__::math::special::sn__ *u* *k*](#17)  
-[__::math::special::elliptic\_K__ *k*](#18)  
-[__::math::special::elliptic\_E__ *k*](#19)  
-[__::math::special::exponential\_Ei__ *x*](#20)  
-[__::math::special::exponential\_En__ *n* *x*](#21)  
-[__::math::special::exponential\_li__ *x*](#22)  
-[__::math::special::exponential\_Ci__ *x*](#23)  
-[__::math::special::exponential\_Si__ *x*](#24)  
-[__::math::special::exponential\_Chi__ *x*](#25)  
-[__::math::special::exponential\_Shi__ *x*](#26)  
-[__::math::special::fresnel\_C__ *x*](#27)  
-[__::math::special::fresnel\_S__ *x*](#28)  
-[__::math::special::sinc__ *x*](#29)  
-[__::math::special::legendre__ *n*](#30)  
-[__::math::special::chebyshev__ *n*](#31)  
-[__::math::special::laguerre__ *alpha* *n*](#32)  
-[__::math::special::hermite__ *n*](#33)  
+[__::math::special::eulerNumber__ *index*](#1)  
+[__::math::special::bernoulliNumber__ *index*](#2)  
+[__::math::special::Beta__ *x* *y*](#3)  
+[__::math::special::incBeta__ *a* *b* *x*](#4)  
+[__::math::special::regIncBeta__ *a* *b* *x*](#5)  
+[__::math::special::Gamma__ *x*](#6)  
+[__::math::special::digamma__ *x*](#7)  
+[__::math::special::erf__ *x*](#8)  
+[__::math::special::erfc__ *x*](#9)  
+[__::math::special::invnorm__ *p*](#10)  
+[__::math::special::J0__ *x*](#11)  
+[__::math::special::J1__ *x*](#12)  
+[__::math::special::Jn__ *n* *x*](#13)  
+[__::math::special::J1/2__ *x*](#14)  
+[__::math::special::J\-1/2__ *x*](#15)  
+[__::math::special::I\_n__ *x*](#16)  
+[__::math::special::cn__ *u* *k*](#17)  
+[__::math::special::dn__ *u* *k*](#18)  
+[__::math::special::sn__ *u* *k*](#19)  
+[__::math::special::elliptic\_K__ *k*](#20)  
+[__::math::special::elliptic\_E__ *k*](#21)  
+[__::math::special::exponential\_Ei__ *x*](#22)  
+[__::math::special::exponential\_En__ *n* *x*](#23)  
+[__::math::special::exponential\_li__ *x*](#24)  
+[__::math::special::exponential\_Ci__ *x*](#25)  
+[__::math::special::exponential\_Si__ *x*](#26)  
+[__::math::special::exponential\_Chi__ *x*](#27)  
+[__::math::special::exponential\_Shi__ *x*](#28)  
+[__::math::special::fresnel\_C__ *x*](#29)  
+[__::math::special::fresnel\_S__ *x*](#30)  
+[__::math::special::sinc__ *x*](#31)  
+[__::math::special::legendre__ *n*](#32)  
+[__::math::special::chebyshev__ *n*](#33)  
+[__::math::special::laguerre__ *alpha* *n*](#34)  
+[__::math::special::hermite__ *n*](#35)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -181,7 +183,25 @@ The following well\-known functions are currently missing from the package:
 
 The package defines the following public procedures:
 
-  - <a name='1'></a>__::math::special::Beta__ *x* *y*
+  - <a name='1'></a>__::math::special::eulerNumber__ *index*
+
+    Return the index'th Euler number \(note: these are integer values\)\. As the
+    size of these numbers grows very fast, only a limited number are available\.
+
+      * int *index*
+
+        Index of the number to be returned \(should be between 0 and 54\)
+
+  - <a name='2'></a>__::math::special::bernoulliNumber__ *index*
+
+    Return the index'th Bernoulli number\. As the size of the numbers grows very
+    fast, only a limited number are available\.
+
+      * int *index*
+
+        Index of the number to be returned \(should be between 0 and 52\)
+
+  - <a name='3'></a>__::math::special::Beta__ *x* *y*
 
     Compute the Beta function for arguments "x" and "y"
 
@@ -193,7 +213,7 @@ The package defines the following public procedures:
 
         Second argument for the Beta function
 
-  - <a name='2'></a>__::math::special::incBeta__ *a* *b* *x*
+  - <a name='4'></a>__::math::special::incBeta__ *a* *b* *x*
 
     Compute the incomplete Beta function for argument "x" with parameters "a"
     and "b"
@@ -210,7 +230,7 @@ The package defines the following public procedures:
 
         Argument for the incomplete Beta function
 
-  - <a name='3'></a>__::math::special::regIncBeta__ *a* *b* *x*
+  - <a name='5'></a>__::math::special::regIncBeta__ *a* *b* *x*
 
     Compute the regularized incomplete Beta function for argument "x" with
     parameters "a" and "b"
@@ -227,7 +247,7 @@ The package defines the following public procedures:
 
         Argument for the regularized incomplete Beta function
 
-  - <a name='4'></a>__::math::special::Gamma__ *x*
+  - <a name='6'></a>__::math::special::Gamma__ *x*
 
     Compute the Gamma function for argument "x"
 
@@ -235,7 +255,7 @@ The package defines the following public procedures:
 
         Argument for the Gamma function
 
-  - <a name='5'></a>__::math::special::digamma__ *x*
+  - <a name='7'></a>__::math::special::digamma__ *x*
 
     Compute the digamma function \(psi\) for argument "x"
 
@@ -243,7 +263,7 @@ The package defines the following public procedures:
 
         Argument for the digamma function
 
-  - <a name='6'></a>__::math::special::erf__ *x*
+  - <a name='8'></a>__::math::special::erf__ *x*
 
     Compute the error function for argument "x"
 
@@ -251,7 +271,7 @@ The package defines the following public procedures:
 
         Argument for the error function
 
-  - <a name='7'></a>__::math::special::erfc__ *x*
+  - <a name='9'></a>__::math::special::erfc__ *x*
 
     Compute the complementary error function for argument "x"
 
@@ -259,7 +279,7 @@ The package defines the following public procedures:
 
         Argument for the complementary error function
 
-  - <a name='8'></a>__::math::special::invnorm__ *p*
+  - <a name='10'></a>__::math::special::invnorm__ *p*
 
     Compute the inverse of the normal distribution function for argument "p"
 
@@ -268,7 +288,7 @@ The package defines the following public procedures:
         Argument for the inverse normal distribution function \(p must be greater
         than 0 and lower than 1\)
 
-  - <a name='9'></a>__::math::special::J0__ *x*
+  - <a name='11'></a>__::math::special::J0__ *x*
 
     Compute the zeroth\-order Bessel function of the first kind for the argument
     "x"
@@ -277,7 +297,7 @@ The package defines the following public procedures:
 
         Argument for the Bessel function
 
-  - <a name='10'></a>__::math::special::J1__ *x*
+  - <a name='12'></a>__::math::special::J1__ *x*
 
     Compute the first\-order Bessel function of the first kind for the argument
     "x"
@@ -286,7 +306,7 @@ The package defines the following public procedures:
 
         Argument for the Bessel function
 
-  - <a name='11'></a>__::math::special::Jn__ *n* *x*
+  - <a name='13'></a>__::math::special::Jn__ *n* *x*
 
     Compute the nth\-order Bessel function of the first kind for the argument "x"
 
@@ -298,7 +318,7 @@ The package defines the following public procedures:
 
         Argument for the Bessel function
 
-  - <a name='12'></a>__::math::special::J1/2__ *x*
+  - <a name='14'></a>__::math::special::J1/2__ *x*
 
     Compute the half\-order Bessel function of the first kind for the argument
     "x"
@@ -307,7 +327,7 @@ The package defines the following public procedures:
 
         Argument for the Bessel function
 
-  - <a name='13'></a>__::math::special::J\-1/2__ *x*
+  - <a name='15'></a>__::math::special::J\-1/2__ *x*
 
     Compute the minus\-half\-order Bessel function of the first kind for the
     argument "x"
@@ -316,7 +336,7 @@ The package defines the following public procedures:
 
         Argument for the Bessel function
 
-  - <a name='14'></a>__::math::special::I\_n__ *x*
+  - <a name='16'></a>__::math::special::I\_n__ *x*
 
     Compute the modified Bessel function of the first kind of order n for the
     argument "x"
@@ -329,7 +349,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='15'></a>__::math::special::cn__ *u* *k*
+  - <a name='17'></a>__::math::special::cn__ *u* *k*
 
     Compute the elliptic function *cn* for the argument "u" and parameter "k"\.
 
@@ -341,7 +361,7 @@ The package defines the following public procedures:
 
         Parameter
 
-  - <a name='16'></a>__::math::special::dn__ *u* *k*
+  - <a name='18'></a>__::math::special::dn__ *u* *k*
 
     Compute the elliptic function *dn* for the argument "u" and parameter "k"\.
 
@@ -353,7 +373,7 @@ The package defines the following public procedures:
 
         Parameter
 
-  - <a name='17'></a>__::math::special::sn__ *u* *k*
+  - <a name='19'></a>__::math::special::sn__ *u* *k*
 
     Compute the elliptic function *sn* for the argument "u" and parameter "k"\.
 
@@ -365,7 +385,7 @@ The package defines the following public procedures:
 
         Parameter
 
-  - <a name='18'></a>__::math::special::elliptic\_K__ *k*
+  - <a name='20'></a>__::math::special::elliptic\_K__ *k*
 
     Compute the complete elliptic integral of the first kind for the argument
     "k"
@@ -374,7 +394,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='19'></a>__::math::special::elliptic\_E__ *k*
+  - <a name='21'></a>__::math::special::elliptic\_E__ *k*
 
     Compute the complete elliptic integral of the second kind for the argument
     "k"
@@ -383,7 +403,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='20'></a>__::math::special::exponential\_Ei__ *x*
+  - <a name='22'></a>__::math::special::exponential\_Ei__ *x*
 
     Compute the exponential integral of the second kind for the argument "x"
 
@@ -391,7 +411,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x \!= 0\)
 
-  - <a name='21'></a>__::math::special::exponential\_En__ *n* *x*
+  - <a name='23'></a>__::math::special::exponential\_En__ *n* *x*
 
     Compute the exponential integral of the first kind for the argument "x" and
     order n
@@ -404,7 +424,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x >= 0\)
 
-  - <a name='22'></a>__::math::special::exponential\_li__ *x*
+  - <a name='24'></a>__::math::special::exponential\_li__ *x*
 
     Compute the logarithmic integral for the argument "x"
 
@@ -412,7 +432,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x > 0\)
 
-  - <a name='23'></a>__::math::special::exponential\_Ci__ *x*
+  - <a name='25'></a>__::math::special::exponential\_Ci__ *x*
 
     Compute the cosine integral for the argument "x"
 
@@ -420,7 +440,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x > 0\)
 
-  - <a name='24'></a>__::math::special::exponential\_Si__ *x*
+  - <a name='26'></a>__::math::special::exponential\_Si__ *x*
 
     Compute the sine integral for the argument "x"
 
@@ -428,7 +448,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x > 0\)
 
-  - <a name='25'></a>__::math::special::exponential\_Chi__ *x*
+  - <a name='27'></a>__::math::special::exponential\_Chi__ *x*
 
     Compute the hyperbolic cosine integral for the argument "x"
 
@@ -436,7 +456,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x > 0\)
 
-  - <a name='26'></a>__::math::special::exponential\_Shi__ *x*
+  - <a name='28'></a>__::math::special::exponential\_Shi__ *x*
 
     Compute the hyperbolic sine integral for the argument "x"
 
@@ -444,7 +464,7 @@ The package defines the following public procedures:
 
         Argument for the function \(x > 0\)
 
-  - <a name='27'></a>__::math::special::fresnel\_C__ *x*
+  - <a name='29'></a>__::math::special::fresnel\_C__ *x*
 
     Compute the Fresnel cosine integral for real argument x
 
@@ -452,7 +472,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='28'></a>__::math::special::fresnel\_S__ *x*
+  - <a name='30'></a>__::math::special::fresnel\_S__ *x*
 
     Compute the Fresnel sine integral for real argument x
 
@@ -460,7 +480,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='29'></a>__::math::special::sinc__ *x*
+  - <a name='31'></a>__::math::special::sinc__ *x*
 
     Compute the sinc function for real argument x
 
@@ -468,7 +488,7 @@ The package defines the following public procedures:
 
         Argument for the function
 
-  - <a name='30'></a>__::math::special::legendre__ *n*
+  - <a name='32'></a>__::math::special::legendre__ *n*
 
     Return the Legendre polynomial of degree n \(see [THE ORTHOGONAL
     POLYNOMIALS](#section4)\)
@@ -477,7 +497,7 @@ The package defines the following public procedures:
 
         Degree of the polynomial
 
-  - <a name='31'></a>__::math::special::chebyshev__ *n*
+  - <a name='33'></a>__::math::special::chebyshev__ *n*
 
     Return the Chebyshev polynomial of degree n \(of the first kind\)
 
@@ -485,7 +505,7 @@ The package defines the following public procedures:
 
         Degree of the polynomial
 
-  - <a name='32'></a>__::math::special::laguerre__ *alpha* *n*
+  - <a name='34'></a>__::math::special::laguerre__ *alpha* *n*
 
     Return the Laguerre polynomial of degree n with parameter alpha
 
@@ -497,7 +517,7 @@ The package defines the following public procedures:
 
         Degree of the polynomial
 
-  - <a name='33'></a>__::math::special::hermite__ *n*
+  - <a name='35'></a>__::math::special::hermite__ *n*
 
     Return the Hermite polynomial of degree n
 

@@ -276,7 +276,11 @@ math::special \- Special mathematical functions
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::special  ?0\&.4?\fR
+package require \fBmath::special  ?0\&.5?\fR
+.sp
+\fB::math::special::eulerNumber\fR \fIindex\fR
+.sp
+\fB::math::special::bernoulliNumber\fR \fIindex\fR
 .sp
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 .sp
@@ -449,6 +453,26 @@ The incomplete gamma function
 .PP
 .SH PROCEDURES
 The package defines the following public procedures:
+.TP
+\fB::math::special::eulerNumber\fR \fIindex\fR
+Return the index'th Euler number (note: these are integer values)\&. As the
+size of these numbers grows very fast, only a limited number are available\&.
+.RS
+.TP
+int \fIindex\fR
+Index of the number to be returned (should be between 0 and 54)
+.RE
+.sp
+.TP
+\fB::math::special::bernoulliNumber\fR \fIindex\fR
+Return the index'th Bernoulli number\&. As the size of the numbers grows very fast,
+only a limited number are available\&.
+.RS
+.TP
+int \fIindex\fR
+Index of the number to be returned (should be between 0 and 52)
+.RE
+.sp
 .TP
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 Compute the Beta function for arguments "x" and "y"
