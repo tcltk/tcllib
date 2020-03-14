@@ -664,8 +664,8 @@ proc ::sha2::Chunk {token channel {chunksize 4096}} {
         fileevent $channel readable {}
         set state(reading) 0
     }
-        
     SHA256Update $token [read $channel $chunksize]
+    return
 }
 
 # -------------------------------------------------------------------------
