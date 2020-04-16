@@ -72,9 +72,9 @@ menu .menu.file -tearoff 0
 
 #menu .menu.edit -tearoff 0
 #.menu add cascade -label "Bearbeiten" -menu .menu.edit -underline 0
-#.menu.edit add command -label "Alle Löschen" -underline 0 -state disabled -command {
+#.menu.edit add command -label "Alle LÃ¶schen" -underline 0 -state disabled -command {
 #	.view.remote.list selection set 0 end; BusyCommand DeleteremoteFiles}
-#.menu.edit add command -label "Alle Übertragen" -underline 0 -state disabled -command Quit
+#.menu.edit add command -label "Alle Ãœbertragen" -underline 0 -state disabled -command Quit
 
 menu .menu.view -tearoff 0
 .menu add cascade -label "View" -menu .menu.view -underline 0

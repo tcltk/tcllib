@@ -220,7 +220,7 @@ proc ::mapproj::ellRF {x y z} {
 
 # ::mapproj::toPlateCarree --
 #
-#	Project a latitude and longitude onto the plate carrée.
+#	Project a latitude and longitude onto the plate carrÃ©e.
 #
 # Parameters:
 #	phi_0 -- Latitude of the center of the sheet in degrees
@@ -246,7 +246,7 @@ proc ::mapproj::toPlateCarree {lambda_0 phi_0 lambda phi} {
 
 # ::mapproj::fromPlateCarree --
 #
-#	Solve a plate carrée projection for the
+#	Solve a plate carrÃ©e projection for the
 #	latitude and longitude represented by a point on the map.
 #
 # Parameters:
