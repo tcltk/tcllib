@@ -338,7 +338,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 _ungetc 2
 
                 # [Spec]
-                # Since people perceive theÅg-Åhindicator as indentation,
+                # Since people perceive the "-" indicator as indentation,
                 # nested block sequences may be indented by one less space
                 # to compensate, except, of course,
                 # if nested inside another block sequence.
@@ -354,7 +354,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 _ungetc 2
 
 #                 # [Spec]
-#                 # Since people perceive theÅg-Åhindicator as indentation,
+#                 # Since people perceive the "-" indicator as indentation,
 #                 # nested block sequences may be indented by one less space
 #                 # to compensate, except, of course,
 #                 # if nested inside another block sequence.
