@@ -1,5 +1,10 @@
 This file records outstanding actions for the math module
 
+dd. 17 april 2020
+Issue with the totient function:
+https://core.tcl-lang.org/tcllib/tktview?name=7017dad214
+Done
+
 dd. 6 february 2020
 - Implement accelerations for infinite sums:
   - Method described on Wolfram

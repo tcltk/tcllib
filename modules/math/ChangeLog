@@ -1,3 +1,8 @@
+2020-04-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* primes.tcl: Correct the implementation of the totient function, as per https://core.tcl-lang.org/tcllib/tktview?name=7017dad214
+	* primes.test: Added a test case for the numbers 1 to 12 for the totient function
+	* pkgIndex.tcl: Bumped version of numtheory to 1.1.2
+
 2020-02-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* special.tcl: Add procs for returning Euler and Bernoulli number, version to 0.5.0
 	* special.test: Add tests for these new procs

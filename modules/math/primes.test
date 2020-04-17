@@ -1,12 +1,12 @@
-## 
+##
 ## This is the file `primes.test',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-## 
+##
 ## The original source files were:
-## 
+##
 ## numtheory.dtx  (with options: `test_primes test_common')
-## 
+##
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -122,6 +122,14 @@ test totient-4 "Totient 105" -body {
     ::math::numtheory::totient 105
 } -result 48
 
+test totient-5 "Totient 1-12" -match equalLists -body {
+    set result {}
+    for {set n 1} {$n <= 12} {incr n} {
+        lappend result [::math::numtheory::totient $n]
+    }
+    set result
+} -result {1 1 2 2 4 2 6 4 6 4 10 4}
+
 test factors-1 "All factors 30" -match equalLists -body {
     ::math::numtheory::factors 30
 } -result {1 2 3 5 6 10 15 30}
@@ -188,6 +196,6 @@ test number-primes "Exercise prime estimators" -match equalLists -body {
     set result [list [expr {int($estimate1)}] [expr {int($estimate2)}] [expr {int($estimate3)}]]
 } -result {144 169 171}
 testsuiteCleanup
-## 
-## 
+##
+##
 ## End of file `primes.test'.
