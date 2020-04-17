@@ -200,10 +200,10 @@ proc ::math::numtheory::uniquePrimeFactors {number} {
 proc ::math::numtheory::totient {number} {
     set factors [uniquePrimeFactors $number]
 
-    set totient 1
+    set totient $number
 
     foreach f $factors {
-        set totient [expr {$totient * ($f-1)}]
+        set totient [expr {($totient * ($f-1)) / $f}]
     }
 
     return $totient
