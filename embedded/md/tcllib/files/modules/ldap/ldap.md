@@ -4,7 +4,7 @@
 [//000000003]: # (Copyright &copy; 2004 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
 [//000000004]: # (Copyright &copy; 2004 Jochen Loewer <loewerj@web\.de>)
 [//000000005]: # (Copyright &copy; 2006 Michael Schlenker <mic42@users\.sourceforge\.net>)
-[//000000006]: # (ldap\(n\) 1\.9\.2 tcllib "LDAP client")
+[//000000006]: # (ldap\(n\) 1\.10 tcllib "LDAP client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,35 +41,40 @@ ldap \- LDAP client
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require ldap ?1\.9\.2?  
+package require Tcl 8\.5  
+package require ldap ?1\.10?  
 
 [__::ldap::connect__ *host* ?*port*?](#1)  
-[__::ldap::secure\_connect__ *host* ?*port*? ?*verify\_cert*? ?*sni\_servername*?](#2)  
-[__::ldap::disconnect__ *handle*](#3)  
-[__::ldap::starttls__ *handle* ?*cafile*? ?*certfile*? ?*keyfile*? ?*verify\_cert*? ?*sni\_servername*?](#4)  
-[__::ldap::bind__ *handle* ?*name*? ?*password*?](#5)  
-[__::ldap::bindSASL__ *handle* ?*name*? ?*password*?](#6)  
-[__::ldap::unbind__ *handle*](#7)  
-[__::ldap::search__ *handle* *baseObject* *filterString* *attributes* *options*](#8)  
-[__::ldap::searchInit__ *handle* *baseObject* *filterString* *attributes* *options*](#9)  
-[__::ldap::searchNext__ *handle*](#10)  
-[__::ldap::searchEnd__ *handle*](#11)  
-[__::ldap::modify__ *handle* *dn* *attrValToReplace* ?*attrToDelete*? ?*attrValToAdd*?](#12)  
-[__::ldap::modifyMulti__ *handle* *dn* *attrValToReplace* ?*attrValToDelete*? ?*attrValToAdd*?](#13)  
-[__::ldap::add__ *handle* *dn* *attrValueTuples*](#14)  
-[__::ldap::addMulti__ *handle* *dn* *attrValueTuples*](#15)  
-[__::ldap::delete__ *handle* *dn*](#16)  
-[__::ldap::modifyDN__ *handle* *dn* *newrdn* ?*deleteOld*? ?*newSuperior*?](#17)  
-[__::ldap::info__ __[ip](\.\./\.\./\.\./\.\./index\.md\#ip)__ *handle*](#18)  
-[__::ldap::info__ __bound__ *handle*](#19)  
-[__::ldap::info__ __bounduser__ *handle*](#20)  
-[__::ldap::info__ __connections__](#21)  
-[__::ldap::info__ __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ *handle*](#22)  
-[__::ldap::info__ __saslmechanisms__ *handle*](#23)  
-[__::ldap::info__ __[control](\.\./control/control\.md)__ *handle*](#24)  
-[__::ldap::info__ __extensions__ *extensions*](#25)  
-[__::ldap::info__ __whoami__ *handle*](#26)  
+[__::ldap::tlsoptions__ __reset__](#2)  
+[__::ldap::tlsoptions__ ?*opt1* *val1*? ?*opt2* *val2*? \.\.\.](#3)  
+[__::ldap::secure\_connect__ *host* ?*port*?](#4)  
+[__::ldap::secure\_connect__ *host* ?*port*? ?*verify\_cert*? ?*sni\_servername*?](#5)  
+[__::ldap::disconnect__ *handle*](#6)  
+[__::ldap::starttls__ *handle*](#7)  
+[__::ldap::starttls__ *handle* ?*cafile*? ?*certfile*? ?*keyfile*? ?*verify\_cert*? ?*sni\_servername*?](#8)  
+[__::ldap::bind__ *handle* ?*name*? ?*password*?](#9)  
+[__::ldap::bindSASL__ *handle* ?*name*? ?*password*?](#10)  
+[__::ldap::unbind__ *handle*](#11)  
+[__::ldap::search__ *handle* *baseObject* *filterString* *attributes* *options*](#12)  
+[__::ldap::searchInit__ *handle* *baseObject* *filterString* *attributes* *options*](#13)  
+[__::ldap::searchNext__ *handle*](#14)  
+[__::ldap::searchEnd__ *handle*](#15)  
+[__::ldap::modify__ *handle* *dn* *attrValToReplace* ?*attrToDelete*? ?*attrValToAdd*?](#16)  
+[__::ldap::modifyMulti__ *handle* *dn* *attrValToReplace* ?*attrValToDelete*? ?*attrValToAdd*?](#17)  
+[__::ldap::add__ *handle* *dn* *attrValueTuples*](#18)  
+[__::ldap::addMulti__ *handle* *dn* *attrValueTuples*](#19)  
+[__::ldap::delete__ *handle* *dn*](#20)  
+[__::ldap::modifyDN__ *handle* *dn* *newrdn* ?*deleteOld*? ?*newSuperior*?](#21)  
+[__::ldap::info__ __[ip](\.\./\.\./\.\./\.\./index\.md\#ip)__ *handle*](#22)  
+[__::ldap::info__ __bound__ *handle*](#23)  
+[__::ldap::info__ __bounduser__ *handle*](#24)  
+[__::ldap::info__ __connections__](#25)  
+[__::ldap::info__ __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ *handle*](#26)  
+[__::ldap::info__ __tlsstatus__ *handle*](#27)  
+[__::ldap::info__ __saslmechanisms__ *handle*](#28)  
+[__::ldap::info__ __[control](\.\./control/control\.md)__ *handle*](#29)  
+[__::ldap::info__ __extensions__ *extensions*](#30)  
+[__::ldap::info__ __whoami__ *handle*](#31)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -84,7 +89,7 @@ command\.
 # <a name='section2'></a>TLS Security Considerations
 
 This package uses the __[TLS](\.\./\.\./\.\./\.\./index\.md\#tls)__ package to
-handle the security for __https__ urls and other socket connections\.
+handle the security for __LDAPS__ connections\.
 
 Policy decisions like the set of protocols to support and what ciphers to use
 are not the responsibility of __[TLS](\.\./\.\./\.\./\.\./index\.md\#tls)__, nor
@@ -101,8 +106,7 @@ package, nor __[TLS](\.\./\.\./\.\./\.\./index\.md\#tls)__ itself\. Such a patch
 may be as simple as generally activating __tls1__ support, as shown in the
 example below\.
 
-    package require tls
-    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ldap::tlsoptions -tls1 1 -ssl2 0 -ssl3 0 ;# forcibly activate support for the TLS1 protocol
 
     ... your own application code ...
 
@@ -118,7 +122,80 @@ example below\.
     The command blocks until the connection has been established, or
     establishment definitely failed\.
 
-  - <a name='2'></a>__::ldap::secure\_connect__ *host* ?*port*? ?*verify\_cert*? ?*sni\_servername*?
+  - <a name='2'></a>__::ldap::tlsoptions__ __reset__
+
+    This command resets TLS options to default values\. It returns the set of
+    options\. Using this command is incompatible with the obsolete form of
+    __::ldap::secure\_connect__ and __::ldap\_starttls__\.
+
+  - <a name='3'></a>__::ldap::tlsoptions__ ?*opt1* *val1*? ?*opt2* *val2*? \.\.\.
+
+    This commands adds one or more options to some value, and may be used more
+    than one time in order to add options in several steps\. A complete
+    description of options may be found in the
+    __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ package documentation\. Valid
+    options and values are:
+
+      * __\-cadir__ directory
+
+        Provide the directory containing the CA certificates\. No default\.
+
+      * __\-cafile__ file
+
+        Provide the CA file\. No default\.
+
+      * __\-cipher__ string
+
+        Provide the cipher suites to use\. No default\.
+
+      * __\-dhparams__ file
+
+        Provide a Diffie\-Hellman parameters file\. No default\.
+
+      * __\-request__ boolean
+
+        Request a certificate from peer during SSL handshake\. Default: true\.
+
+      * __\-require__ boolean
+
+        Require a valid certificate from peer during SSL handshake\. If this is
+        set to true then \-request must also be set to true\. Default: false
+
+      * __\-servername__ host
+
+        Only available if the OpenSSL library the TLS package is linked against
+        supports the TLS hostname extension for 'Server Name Indication' \(SNI\)\.
+        Use to name the logical host we are talking to and expecting a
+        certificate for\. No default\.
+
+      * __\-ssl2__ bool
+
+        Enable use of SSL v2\. Default: false
+
+      * __\-ssl3__ bool
+
+        Enable use of SSL v3\. Default: false
+
+      * __\-tls1__ bool
+
+        Enable use of TLS v1 Default: true
+
+      * __\-tls1\.1__ bool
+
+        Enable use of TLS v1\.1 Default: true
+
+      * __\-tls1\.2__ bool
+
+        Enable use of TLS v1\.2 Default: true
+
+    This command returns the current set of TLS options and values\. In
+    particular, one may use this command without any arguments to get the
+    current set of options\.
+
+    Using this command is incompatible with the obsolete form of
+    __::ldap::secure\_connect__ and __::ldap\_starttls__ \(see below\)\.
+
+  - <a name='4'></a>__::ldap::secure\_connect__ *host* ?*port*?
 
     Like __::ldap::connect__, except that the created connection is secured
     by SSL\. The port defaults to __636__\. This command depends on the
@@ -127,8 +204,20 @@ example below\.
     __[TLS](\.\./\.\./\.\./\.\./index\.md\#tls)__ is not available, then this
     command will fail\.
 
+    TLS options are specified with __::ldap::tlsoptions__\.
+
     The command blocks until the connection has been established, or
     establishment definitely failed\.
+
+  - <a name='5'></a>__::ldap::secure\_connect__ *host* ?*port*? ?*verify\_cert*? ?*sni\_servername*?
+
+    Note: this form of the command is deprecated, since TLS options had to be
+    specified with a combination of parameters to this command \(*verify\_cert*
+    and *sni\_servername*\) and arguments to __::tls::init__ \(from package
+    __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__\) for example to setup defaults
+    for trusted certificates\. Prefer the above form \(without the *verify\_cert*
+    and *sni\_servername* parameters\) and set TLS options with
+    __::ldap::tlsoptions__\.
 
     If *verify\_cert* is set to 1, the default, this checks the server
     certificate against the known hosts\. If *sni\_servername* is set, the given
@@ -137,19 +226,29 @@ example below\.
 
     Use __::tls::init__ to setup defaults for trusted certificates\.
 
-    tls::init -cadir /etc/ssl/certs/ca-certificates.crt
-
     TLS supports different protocol levels\. In common use are the versions 1\.0,
     1\.1 and 1\.2\. By default all those versions are offered\. If you need to
     modify the acceptable protocols, you can change the ::ldap::tlsProtocols
-    list\.
+    list \(deprecated\)\.
 
-  - <a name='3'></a>__::ldap::disconnect__ *handle*
+  - <a name='6'></a>__::ldap::disconnect__ *handle*
 
     Closes the ldap connection refered to by the token *handle*\. Returns the
     empty string as its result\.
 
-  - <a name='4'></a>__::ldap::starttls__ *handle* ?*cafile*? ?*certfile*? ?*keyfile*? ?*verify\_cert*? ?*sni\_servername*?
+  - <a name='7'></a>__::ldap::starttls__ *handle*
+
+    Start TLS negotiation on the connection denoted by *handle*, with TLS
+    parameters set with __::ldap::tlsoptions__\.
+
+  - <a name='8'></a>__::ldap::starttls__ *handle* ?*cafile*? ?*certfile*? ?*keyfile*? ?*verify\_cert*? ?*sni\_servername*?
+
+    Note: this form of the command is deprecated, since TLS options had to be
+    specified with a combination of parameters to this command \(*cafile*,
+    *certfile*, *keyfile*, *verify\_cert* and *sni\_servername*\) and
+    arguments to __::tls::init__ \(from package
+    __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__\)\. Prefer the above form \(without
+    specific TLS arguments\) and set TLS options with __::ldap::tlsoptions__\.
 
     Start TLS negotiation on the connection denoted by *handle*\. You need to
     set at least the *cafile* argument to a file with trusted certificates, if
@@ -159,7 +258,7 @@ example below\.
     You can specify a TLS client certificate with the *certfile* and
     *keyfile* options\.
 
-  - <a name='5'></a>__::ldap::bind__ *handle* ?*name*? ?*password*?
+  - <a name='9'></a>__::ldap::bind__ *handle* ?*name*? ?*password*?
 
     This command authenticates the ldap connection refered to by the token in
     *handle*, with a user name and associated password\. It blocks until a
@@ -169,7 +268,7 @@ example below\.
     bind to the ldap server\. You can issue __::ldap::bind__ again to bind
     with different credentials\.
 
-  - <a name='6'></a>__::ldap::bindSASL__ *handle* ?*name*? ?*password*?
+  - <a name='10'></a>__::ldap::bindSASL__ *handle* ?*name*? ?*password*?
 
     This command uses SASL authentication mechanisms to do a multistage bind\.
     Its otherwise identical to the standard __::ldap::bind__\. This feature
@@ -177,14 +276,14 @@ example below\.
     the __[SASL](\.\./sasl/sasl\.md)__ and the "SASL\.txt" in the tcllib CVS
     repository for details how to setup and use SASL with openldap\.
 
-  - <a name='7'></a>__::ldap::unbind__ *handle*
+  - <a name='11'></a>__::ldap::unbind__ *handle*
 
     This command asks the ldap server to release the last bind done for the
     connection refered to by the token in *handle*\. The *handle* is invalid
     after the unbind, as the server closes the connection\. So this is effectivly
     just a more polite disconnect operation\.
 
-  - <a name='8'></a>__::ldap::search__ *handle* *baseObject* *filterString* *attributes* *options*
+  - <a name='12'></a>__::ldap::search__ *handle* *baseObject* *filterString* *attributes* *options*
 
     This command performs a LDAP search below the *baseObject* tree using a
     complex LDAP search expression *filterString* and returns the specified
@@ -203,7 +302,7 @@ example below\.
 
     {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 
-  - <a name='9'></a>__::ldap::searchInit__ *handle* *baseObject* *filterString* *attributes* *options*
+  - <a name='13'></a>__::ldap::searchInit__ *handle* *baseObject* *filterString* *attributes* *options*
 
     This command initiates a LDAP search below the *baseObject* tree using a
     complex LDAP search expression *filterString*\. The search gets the
@@ -264,7 +363,7 @@ example below\.
         given variable\. The caller can than decide to follow those references
         and query other LDAP servers for further results\.
 
-  - <a name='10'></a>__::ldap::searchNext__ *handle*
+  - <a name='14'></a>__::ldap::searchNext__ *handle*
 
     This command returns the next entry from a LDAP search initiated by
     __::ldap::searchInit__\. It returns only after a new result is received
@@ -278,7 +377,7 @@ example below\.
     The __::ldap::searchNext__ command returns an empty list at the end of
     the search\.
 
-  - <a name='11'></a>__::ldap::searchEnd__ *handle*
+  - <a name='15'></a>__::ldap::searchEnd__ *handle*
 
     This command terminates a LDAP search initiated by
     __::ldap::searchInit__\. It also cleans up the internal state so a new
@@ -286,7 +385,7 @@ example below\.
     client sends an ABANDON message to inform the server that no further results
     for the previous search should to be sent\.
 
-  - <a name='12'></a>__::ldap::modify__ *handle* *dn* *attrValToReplace* ?*attrToDelete*? ?*attrValToAdd*?
+  - <a name='16'></a>__::ldap::modify__ *handle* *dn* *attrValToReplace* ?*attrToDelete*? ?*attrValToAdd*?
 
     This command modifies the object *dn* on the ldap server we are connected
     to via *handle*\. It replaces attributes with new values, deletes
@@ -317,7 +416,7 @@ example below\.
     The command blocks until all modifications have completed\. Its result is the
     empty string\.
 
-  - <a name='13'></a>__::ldap::modifyMulti__ *handle* *dn* *attrValToReplace* ?*attrValToDelete*? ?*attrValToAdd*?
+  - <a name='17'></a>__::ldap::modifyMulti__ *handle* *dn* *attrValToReplace* ?*attrValToDelete*? ?*attrValToAdd*?
 
     This command modifies the object *dn* on the ldap server we are connected
     to via *handle*\. It replaces attributes with new values, deletes
@@ -347,7 +446,7 @@ example below\.
     The command blocks until all modifications have completed\. Its result is the
     empty string\.
 
-  - <a name='14'></a>__::ldap::add__ *handle* *dn* *attrValueTuples*
+  - <a name='18'></a>__::ldap::add__ *handle* *dn* *attrValueTuples*
 
     This command creates a new object using the specified *dn*\. The attributes
     of the new object are set to the values in the list *attrValueTuples*\.
@@ -355,7 +454,7 @@ example below\.
     command blocks until the operation has completed\. Its result is the empty
     string\.
 
-  - <a name='15'></a>__::ldap::addMulti__ *handle* *dn* *attrValueTuples*
+  - <a name='19'></a>__::ldap::addMulti__ *handle* *dn* *attrValueTuples*
 
     This command is the preferred one to create a new object using the specified
     *dn*\. The attributes of the new object are set to the values in the
@@ -363,13 +462,13 @@ example below\.
     tuple is a list containing multiple values\. The command blocks until the
     operation has completed\. Its result is the empty string\.
 
-  - <a name='16'></a>__::ldap::delete__ *handle* *dn*
+  - <a name='20'></a>__::ldap::delete__ *handle* *dn*
 
     This command removes the object specified by *dn*, and all its attributes
     from the server\. The command blocks until the operation has completed\. Its
     result is the empty string\.
 
-  - <a name='17'></a>__::ldap::modifyDN__ *handle* *dn* *newrdn* ?*deleteOld*? ?*newSuperior*?
+  - <a name='21'></a>__::ldap::modifyDN__ *handle* *dn* *newrdn* ?*deleteOld*? ?*newSuperior*?
 
     This command moves or copies the object specified by *dn* to a new
     location in the tree of object\. This location is specified by *newrdn*, a
@@ -382,49 +481,57 @@ example below\.
     given, the argument *deleteOld* must be specified also\. The command blocks
     until the operation has completed\. Its result is the empty string\.
 
-  - <a name='18'></a>__::ldap::info__ __[ip](\.\./\.\./\.\./\.\./index\.md\#ip)__ *handle*
+  - <a name='22'></a>__::ldap::info__ __[ip](\.\./\.\./\.\./\.\./index\.md\#ip)__ *handle*
 
     This command returns the IP address of the remote LDAP server the handle is
     connected to\.
 
-  - <a name='19'></a>__::ldap::info__ __bound__ *handle*
+  - <a name='23'></a>__::ldap::info__ __bound__ *handle*
 
     This command returns 1 if a handle has successfully completed a
     __::ldap::bind__\. If no bind was done or it failed, a 0 is returned\.
 
-  - <a name='20'></a>__::ldap::info__ __bounduser__ *handle*
+  - <a name='24'></a>__::ldap::info__ __bounduser__ *handle*
 
     This command returns the username used in the bind operation if a handle has
     successfully completed a __::ldap::bind__\. If no bound was done or it
     failed, an empty string is returned\.
 
-  - <a name='21'></a>__::ldap::info__ __connections__
+  - <a name='25'></a>__::ldap::info__ __connections__
 
     This command returns all currently existing ldap connection handles\.
 
-  - <a name='22'></a>__::ldap::info__ __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ *handle*
+  - <a name='26'></a>__::ldap::info__ __[tls](\.\./\.\./\.\./\.\./index\.md\#tls)__ *handle*
 
     This command returns 1 if the ldap connection *handle* used TLS/SSL for
     connection via __ldap::secure\_connect__ or completed
     __ldap::starttls__, 0 otherwise\.
 
-  - <a name='23'></a>__::ldap::info__ __saslmechanisms__ *handle*
+  - <a name='27'></a>__::ldap::info__ __tlsstatus__ *handle*
+
+    This command returns the current security status of an TLS secured channel\.
+    The result is a list of key\-value pairs describing the connected peer \(see
+    the __[TLS](\.\./\.\./\.\./\.\./index\.md\#tls)__ package documentation for
+    the returned values\)\. If the connection is not secured with TLS, an empty
+    list is returned\.
+
+  - <a name='28'></a>__::ldap::info__ __saslmechanisms__ *handle*
 
     Return the supported SASL mechanisms advertised by the server\. Only valid in
     a bound state \(anonymous or other\)\.
 
-  - <a name='24'></a>__::ldap::info__ __[control](\.\./control/control\.md)__ *handle*
+  - <a name='29'></a>__::ldap::info__ __[control](\.\./control/control\.md)__ *handle*
 
     Return the supported controls advertised by the server as a list of OIDs\.
     Only valid in a bound state\. This is currently experimental and subject to
     change\.
 
-  - <a name='25'></a>__::ldap::info__ __extensions__ *extensions*
+  - <a name='30'></a>__::ldap::info__ __extensions__ *extensions*
 
     Returns the supported LDAP extensions as list of OIDs\. Only valid in a bound
     state\. This is currently experimental and subject to change\.
 
-  - <a name='26'></a>__::ldap::info__ __whoami__ *handle*
+  - <a name='31'></a>__::ldap::info__ __whoami__ *handle*
 
     Returns authzId for the current connection\. This implements the RFC 4532
     protocol extension\.
@@ -486,7 +593,7 @@ A small example, extracted from the test application coming with this code\.
         ldap::unbind     $handle
         ldap::disconnect $handle
 
-And a another example, a simple query, and processing the results\.
+And another example, a simple query, and processing the results\.
 
         package require ldap
         set handle [ldap::connect ldap.acme.com 389]

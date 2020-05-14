@@ -13,11 +13,11 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
 testing {
-    useLocal ldap.tcl ldap
+    useLocal ldap.tcl    ldap
     use      asn/asn.tcl asn
 }
 
@@ -255,6 +255,13 @@ test ldap-28.0 {check wrong num args for ldap::disconnect
 } -returnCodes {error} \
   -result [tcltest::wrongNumArgs {ldap::disconnect} \
 	{handle} 0 ]
+
+test ldap-29.0 {check invalid TLS option
+} -body {
+    ldap::tlsoptions -foo bar
+} -returnCodes {error} \
+    -result {invalid TLS option '-foo'}
+
 # -------------------------------------------------------------------------
 # Handling of string representation of filters (RFC 4515):
 # -------------------------------------------------------------------------
