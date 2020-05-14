@@ -2,7 +2,7 @@
 '\" Generated from file 'md5\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md5" n 2\&.0\&.7 tcllib "MD5 Message-Digest Algorithm"
+.TH "md5" n 2\&.0\&.8 tcllib "MD5 Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
