@@ -25,9 +25,8 @@
 #include <string.h>
 #include "sha1.h"
 
-#ifndef TCL_BYTE_ORDER
-#error "-DTCL_BYTE_ORDER missing"
-#endif
+/* See critcl::cutil::endian in sha1c.tcl */
+#include <critcl_endian.h>
 
 #ifndef _DIAGASSERT
 #define _DIAGASSERT(cond)	assert(cond)
@@ -39,7 +38,7 @@
  * blk0() and blk() perform the initial expand.
  * I got the idea of expanding during the round function from SSLeay
  */
-#if TCL_BYTE_ORDER==1234
+#ifdef CRITCL_LITTLE_ENDIAN
 # define blk0(i) (block->l[i] = (rol(block->l[i],24)&0xFF00FF00) \
     |(rol(block->l[i],8)&0x00FF00FF))
 #else
