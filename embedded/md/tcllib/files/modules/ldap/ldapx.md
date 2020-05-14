@@ -2,7 +2,7 @@
 [//000000001]: # (ldapx \- LDAP extended object interface)
 [//000000002]: # (Generated from file 'ldapx\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2018 Pierre David <pdav@users\.sourceforge\.net>)
-[//000000004]: # (ldapx\(n\) 1\.1 tcllib "LDAP extended object interface")
+[//000000004]: # (ldapx\(n\) 1\.2 tcllib "LDAP extended object interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -71,8 +71,8 @@ ldapx \- LDAP extended object interface
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.4  
-package require ldapx ?1\.1?  
+package require Tcl 8\.5  
+package require ldapx ?1\.2?  
 
 [*e* __reset__](#1)  
 [*e* __dn__ ?*newdn*?](#2)  
@@ -98,7 +98,7 @@ package require ldapx ?1\.1?
 [*ce* __change__ ?*new*?](#22)  
 [*ce* __diff__ *new* ?*old*?](#23)  
 [*la* __error__ ?*newmsg*?](#24)  
-[*la* __connect__ *url* ?*binddn*? ?*bindpw*?](#25)  
+[*la* __connect__ *url* ?*binddn*? ?*bindpw*? ?*starttls*?](#25)  
 [*la* __disconnect__](#26)  
 [*la* __traverse__ *base* *filter* *attrs* *entry* *body*](#27)  
 [*la* __search__ *base* *filter* *attrs*](#28)  
@@ -434,9 +434,26 @@ An instance of the __ldap__ class keeps the following data:
 
 ## <a name='subsection8'></a>Ldap Options
 
-A first set of options of the __ldap__ class is used during search
-operations \(methods __traverse__, __search__ and __read__, see
-below\)\.
+Options are configured on __ldap__ instances using the __configure__
+method\.
+
+The first option is used for TLS parameters:
+
+  - __\-tlsoptions__ *list*
+
+    Specify the set of TLS options to use when connecting to the LDAP server
+    \(see the __connect__ method\)\. For the list of valid options, see the
+    __[LDAP](ldap\.md)__ package documentation\.
+
+    The default is __\-request 1 \-require 1 \-ssl2 no \-ssl3 no \-tls1 yes \-tls1\.1
+    yes \-tls1\.2 yes__\.
+
+    Example:
+
+    $l configure -tlsoptions {-request yes -require yes}
+
+A set of options of the __ldap__ class is used during search operations
+\(methods __traverse__, __search__ and __read__, see below\)\.
 
   - __\-scope__ __base__&#124;__one__&#124;__sub__
 
@@ -501,13 +518,22 @@ directory:
     __ldap__ class method\. If the optional argument *newmsg* is supplied,
     it becomes the last error message\.
 
-  - <a name='25'></a>*la* __connect__ *url* ?*binddn*? ?*bindpw*?
+  - <a name='25'></a>*la* __connect__ *url* ?*binddn*? ?*bindpw*? ?*starttls*?
 
     This method connects to the LDAP server using given URL \(which can be of the
     form [ldap://host:port](ldap://host:port) or
     [ldaps://host:port](ldaps://host:port)\)\. If an optional *binddn*
     argument is given together with the *bindpw* argument, the __connect__
     binds to the LDAP server using the specified DN and password\.
+
+    If the *starttls* argument is given a true value \(__1__, __yes__,
+    etc\.\) and the URL uses the [ldap://](ldap://) scheme, a TLS negotiation
+    is initiated with the newly created connection, before LDAP binding\. Default
+    value: __no__\.
+
+    This method returns 1 if connection was successful, or 0 if an error
+    occurred \(use the __[error](\.\./\.\./\.\./\.\./index\.md\#error)__ method to
+    get the message\)\.
 
   - <a name='26'></a>*la* __disconnect__
 
@@ -557,12 +583,13 @@ directory:
         package require ldapx
 
         #
-        # Connects to the LDAP directory
+        # Connects to the LDAP directory using StartTLS
         #
 
         ::ldapx::ldap create l
+        l configure -tlsoptions {-cadir /etc/ssl/certs -request yes -require yes}
         set url "ldap://server.mycomp.com"
-        if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
+        if {! [l connect $url "cn=admin,o=mycomp" "mypasswd" yes]} then {
     	puts stderr "error: [l error]"
     	exit 1
         }
