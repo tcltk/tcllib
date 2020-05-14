@@ -77,7 +77,7 @@
 
           + [clock\_iso8601](tcllib/files/modules/clock/iso8601\.md) Parsing ISO 8601 dates/times
 
-          + [clock\_rfc2822](tcllib/files/modules/clock/rfc2822\.md) Parsing ISO 8601 dates/times
+          + [clock\_rfc2822](tcllib/files/modules/clock/rfc2822\.md) Parsing RFC 2822 dates/times
 
       * [cmdline]()
 

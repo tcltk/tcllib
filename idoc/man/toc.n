@@ -340,7 +340,7 @@ tcllib
 \fIfiles/modules/clock/iso8601\&.n\fR: Parsing ISO 8601 dates/times
 .TP
 \fBclock_rfc2822\fR
-\fIfiles/modules/clock/rfc2822\&.n\fR: Parsing ISO 8601 dates/times
+\fIfiles/modules/clock/rfc2822\&.n\fR: Parsing RFC 2822 dates/times
 .TP
 \fBcmdline\fR
 \fIfiles/modules/cmdline/cmdline\&.n\fR: Procedures to process command lines and options\&.

@@ -468,6 +468,9 @@ regsub -all -line \
 
 # RFC 1321:3.4 step 4: inline the set of constant modifiers.
 namespace eval md5 {
+    variable tName
+    variable tVal
+    variable map
     foreach tName {
         T01 T02 T03 T04 T05 T06 T07 T08 T09 T10 
         T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 
@@ -725,7 +728,7 @@ namespace eval ::md5 {
     unset    e
 }
 
-package provide md5 2.0.7
+package provide md5 2.0.8
 
 # -------------------------------------------------------------------------
 # Local Variables:
