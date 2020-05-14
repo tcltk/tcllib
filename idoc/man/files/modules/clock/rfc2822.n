@@ -271,7 +271,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-clock_rfc2822 \- Parsing ISO 8601 dates/times
+clock_rfc2822 \- Parsing RFC 2822 dates/times
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
