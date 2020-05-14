@@ -54,6 +54,9 @@
 
 #include "sha256.h"
 
+/* See critcl::cutil::endian in sha256c.tcl */
+#include <critcl_endian.h>
+
 #ifndef lint
 static const char rcsid[] =
 	"$Id: sha256.c,v 1.3 2007/03/25 11:33:41 patthoyts Exp $";
