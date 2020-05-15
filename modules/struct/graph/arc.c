@@ -2,6 +2,7 @@
  * (b) Arc operations.
  */
 
+#include <nacommon.h>
 #include <arc.h>
 #include <attr.h>
 #include <graph.h>

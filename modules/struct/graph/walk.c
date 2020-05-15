@@ -1,5 +1,6 @@
 
 #include "tcl.h"
+#include <string.h>
 #include <graph.h>
 #include <util.h>
 #include <walk.h>

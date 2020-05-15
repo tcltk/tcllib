@@ -4,12 +4,14 @@
  *    Implementations for all tree methods.
  */
 
+#include <ctype.h>  /* is... */
 #include <string.h>
 #include <arc.h>
 #include <graph.h>
 #include <methods.h>
 #include <nacommon.h>
 #include <node.h>
+#include <attr.h>
 #include <util.h>
 #include <walk.h>
 

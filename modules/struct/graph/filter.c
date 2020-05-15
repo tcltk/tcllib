@@ -2,6 +2,7 @@
  * (c) Graph functions
  */
 
+#include <string.h>
 #include <nacommon.h>
 #include <util.h>
 #include <node.h>

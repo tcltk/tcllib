@@ -46,6 +46,8 @@ namespace eval ::pt::parse {
 	/* -*- c -*- */
 
 	#include <string.h>
+	#include <ctype.h>  /* is... */
+	#include <stdlib.h> /* qsort */
 	#define SCOPE static
 
 #line 1 "rde_critcl/util.h"
@@ -418,7 +420,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 	{
-	    long int  oc, off, top, end;
+	    long int  oc, off, end;
 	    void** ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
@@ -437,7 +439,7 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 	{
-	    long int  oc, off, top, end;
+	    long int  oc, off, end;
 	    void** ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
@@ -834,14 +836,14 @@ namespace eval ::pt::parse {
 	{
 	    
 	    return;
-#if 0
+	#if 0
 	    long int pos;
 	    if (!p->ER) return;
 	    pos = 1 + (long int) rde_stack_top (p->LS);
 	    if (p->ER->loc != pos) return;
 	    error_set (p, s);
 	    p->ER->loc = pos;
-#endif
+	#endif
 	}
 	SCOPE void
 	rde_param_i_error_pop_merge (RDE_PARAM p)
@@ -1199,7 +1201,7 @@ namespace eval ::pt::parse {
 	rde_param_i_value_reduce (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj*  newsv;
-	    int       oc, i, j;
+	    int       i, j;
 	    Tcl_Obj** ov;
 	    long int  ac;
 	    Tcl_Obj** av;

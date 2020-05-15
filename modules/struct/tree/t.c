@@ -2,6 +2,7 @@
  * (c) Tree functions
  */
 
+#include <string.h>
 #include <t.h>
 #include <tn.h>
 #include <util.h>

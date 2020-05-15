@@ -4,6 +4,7 @@
  *    Implementations for all tree methods.
  */
 
+#include <ctype.h>  /* is... */
 #include <string.h>
 #include "util.h"
 #include "m.h"
@@ -18,6 +19,8 @@
 
 static int TclGetIntForIndex (Tcl_Interp* interp, Tcl_Obj* objPtr,
 			      int endValue, int* indexPtr);
+static int TclFormatInt      (char *buffer, long n);
+static int TclCheckBadOctal  (Tcl_Interp* interp, CONST char* value);
 
 /* .................................................. */
 
@@ -2545,7 +2548,7 @@ tm_WALKPROC (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
     res = t_walk (interp, tn, type, order,
 		  t_walk_invokecmd,
-		  (Tcl_Obj*) cc, (Tcl_Obj*) ev, objv [0]);
+		  (Tcl_Obj*) (long int) cc, (Tcl_Obj*) ev, objv [0]);
 
     ckfree ((char*) ev);
     return res;
@@ -2771,7 +2774,7 @@ SetEndOffsetFromAny(interp, objPtr)
  *----------------------------------------------------------------------
  */
 
-int
+static int
 TclCheckBadOctal(interp, value)
      Tcl_Interp *interp;		/* Interpreter to use for error reporting.
 				 * If NULL, then no error message is left
@@ -2837,7 +2840,7 @@ TclCheckBadOctal(interp, value)
  *----------------------------------------------------------------------
  */
 
-int
+static int
 TclFormatInt(buffer, n)
      char *buffer;		/* Points to the storage into which the
 				 * formatted characters are written. */

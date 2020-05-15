@@ -115,6 +115,8 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 		/* -*- c -*- */
 
 		#include <string.h>
+		#include <ctype.h>  /* is... */
+		#include <stdlib.h> /* qsort */
 		#define SCOPE static
 
 @@RUNTIME@@
