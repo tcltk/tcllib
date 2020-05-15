@@ -4,6 +4,7 @@
 
 #include <nacommon.h>
 #include <util.h>
+#include <attr.h>
 #include <node.h>
 
 /* .................................................. */

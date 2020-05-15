@@ -237,7 +237,7 @@ t_walk_invokecmd (Tcl_Interp* interp, TN* n, Tcl_Obj* dummy0,
 		  Tcl_Obj* action)
 {
     int	      res;
-    int	      cc = (int)       dummy0;
+    int	      cc = (long int)  dummy0;
     Tcl_Obj** ev = (Tcl_Obj**) dummy1; /* cc+3 elements */
 
     ev [cc]   = dummy2;	   /* Tree */
