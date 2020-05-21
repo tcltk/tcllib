@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'tcllib\_ip\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2004, Pat Thoyts)
 [//000000004]: # (Copyright &copy; 2005 Aamer Akhter <aakhter@cisco\.com>)
-[//000000005]: # (tcllib\_ip\(n\) 1\.4 tcllib "Domain Name Service")
+[//000000005]: # (tcllib\_ip\(n\) 1\.5 tcllib "Domain Name Service")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ tcllib\_ip \- IPv4 and IPv6 address manipulation
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require ip ?1\.4?  
+package require ip ?1\.5?  
 
 [__::ip::version__ *address*](#1)  
 [__::ip::is__ *class* *address*](#2)  

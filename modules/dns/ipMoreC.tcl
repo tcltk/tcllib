@@ -1,35 +1,20 @@
-# Skip this for window and a specific version of Solaris
-# 
-# This could do with an explanation -- why are we avoiding these platforms
-# and perhaps using critcl's platform::platform command might be better?
 #
-if {[string equal $::tcl_platform(platform) windows] ||
-    ([string equal $::tcl_platform(os)      SunOS] &&
-     [string equal $::tcl_platform(osVersion) 5.6])
-} {
-    # avoid warnings about nothing to compile
-    critcl::ccode {
-        /* nothing to do */
-    }
-    return
-}
-
-package require critcl;
-
-namespace eval ::ip {
+# Accelerators for two commands, `prefixToNative` and `isOverlapNative`.
+#
+package require critcl
 
 critcl::ccode {
-#include <stdlib.h>
-#include <stdio.h>
-#include <tcl.h>
-#include <inttypes.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <sys/socket.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <tcl.h>
+    #include <inttypes.h>
+    #include <arpa/inet.h>
+    #include <string.h>
+    #include <sys/socket.h>
 }
 
-critcl::ccommand prefixToNativec {clientData interp objc objv} { 
-    int elemLen, maskLen, ipLen, mask;
+critcl::ccommand ::ip::prefixToNativec {clientData interp objc objv} { 
+	int elemLen, maskLen, ipLen, mask;
 	int rval,convertListc,i;
 	Tcl_Obj **convertListv;
 	Tcl_Obj *listPtr,*returnPtr, *addrList;
@@ -49,7 +34,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 
 
 	if (Tcl_ListObjGetElements (interp, objv[1], 
-								&convertListc, &convertListv) != TCL_OK) {
+				    &convertListc, &convertListv) != TCL_OK) {
 		return TCL_ERROR;
 	}
 	returnPtr = Tcl_NewListObj(0, (Tcl_Obj **) NULL);
@@ -119,7 +104,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 	return TCL_OK;
 }
 
-critcl::ccommand isOverlapNativec {clientData interp objc objv} {
+critcl::ccommand ::ip::isOverlapNativec {clientData interp objc objv} {
         int i; 
         unsigned int ipaddr,ipMask, mask1mask2;
         unsigned int ipaddr2,ipMask2;
@@ -230,13 +215,7 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
                 return TCL_OK;
         }
         return TCL_OK;
-
-
-
-}
-
-
 }
 
 # @sak notprovided ipMorec
-package provide ipMorec 1.0
+package provide ipMorec 1.1

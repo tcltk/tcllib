@@ -13,7 +13,7 @@
 
 package require Tcl 8.2;                # tcl minimum version
 
-namespace eval ip {
+namespace eval ::ip {
     namespace export is version normalize equal type contract mask collapse subtract
     #catch {namespace ensemble create}
 
@@ -548,7 +548,7 @@ source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 
-package provide ip 1.4
+package provide ip 1.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

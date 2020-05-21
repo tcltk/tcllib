@@ -1,6 +1,4 @@
-#temporary home until this gets cleaned up for export to tcllib ip module
-# $Id: ipMore.tcl,v 1.4 2006/01/22 00:27:22 andreas_kupries Exp $
-
+# temporary home until this gets cleaned up for export to tcllib ip module
 
 ##Library Header
 #
@@ -74,8 +72,8 @@ if {![llength [info commands lassign]]} {
     }
 }
 if {![llength [info commands lvarpop]]} {
-    # Define an emulation of Tclx's lvarpop if the command
-    # is not present already.
+    # Define an emulation of Tclx's lvarpop if the command is not
+    # present already.
 
     proc ::ip::lvarpop {upVar {index 0}} {
 	upvar $upVar list;
@@ -97,7 +95,6 @@ interp alias {} ::ip::MaskToLength        {} ::ip::maskToLength
 interp alias {} ::ip::LengthToMask        {} ::ip::lengthToMask
 interp alias {} ::ip::IpToLayer2Multicast {} ::ip::ipToLayer2Multicast
 interp alias {} ::ip::IpHostFromPrefix    {} ::ip::ipHostFromPrefix
-
 
 ##Procedure Header
 # Copyright (c) 2004 Cisco Systems, Inc.
@@ -134,7 +131,7 @@ interp alias {} ::ip::IpHostFromPrefix    {} ::ip::ipHostFromPrefix
 #
 # End of Header
 
-proc ip::prefixToNativeTcl {prefix} {
+proc ::ip::prefixToNativeTcl {prefix} {
     set plist {}
     foreach p $prefix {
 	set newPrefix [ip::toHex [ip::prefix $p]]
@@ -1171,7 +1168,7 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {
     # 8.3+
-    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
+    proc ::ip::cmpDotIP {ipaddr1 ipaddr2} {
 	# convert dotted to list of integers
 	set ipaddr1 [split $ipaddr1 .]
 	set ipaddr2 [split $ipaddr2 .]
@@ -1187,7 +1184,7 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {
     }
 } else {
     # 8.4+
-    proc ip::cmpDotIP {ipaddr1 ipaddr2} {
+    proc ::ip::cmpDotIP {ipaddr1 ipaddr2} {
 	# convert dotted to decimal
 	set ipInt1 [::ip::toHex $ipaddr1]
 	set ipInt2 [::ip::toHex $ipaddr2]
