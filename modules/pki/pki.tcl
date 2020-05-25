@@ -327,8 +327,9 @@ proc ::pki::_unpad_pkcs {data} {
 			# Padding Scheme 1, the first non-zero byte is the start of data
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char != "\x00"} {
+				if {$char ne "\x00"} {
 					set ret [string range $data $idx end]
+					break
 				}
 			}
 		}
@@ -336,8 +337,8 @@ proc ::pki::_unpad_pkcs {data} {
 			# Padding Scheme 2, pad bytes are 0xFF followed by 0x00
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char != "\xff"} {
-					if {$char == "\x00"} {
+				if {$char ne "\xff"} {
+					if {$char eq "\x00"} {
 						set ret [string range $data [expr {$idx + 1}] end]
 
 						break
@@ -351,7 +352,7 @@ proc ::pki::_unpad_pkcs {data} {
 			# Padding Scheme 3, pad bytes are random, followed by 0x00
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char == "\x00"} {
+				if {$char ne "\x00"} {
 					set ret [string range $data [expr {$idx + 1}] end]
 
 					break
@@ -370,7 +371,7 @@ proc ::pki::_unpad_pkcs {data} {
 	return $ret
 }
 
-proc ::pki::rsa::encrypt {mode input keylist} {
+proc ::pki::rsa::encrypt {mode overhead input keylist} {
 	switch -- $mode {
 		"pub" {
 			set exponent_ent e
@@ -386,7 +387,9 @@ proc ::pki::rsa::encrypt {mode input keylist} {
 	set mod $key(n)
 
 	## RSA requires that the input be no larger than the key
-	set input_len_bits [expr {[string length $input] * 8}]
+	set input_len_bits [expr {
+		([string length $input] * 8) - ($overhead * 8)
+	}]
 	if {$key(l) < $input_len_bits} {
 		return -code error "Message length exceeds key length"
 	}
@@ -579,11 +582,14 @@ proc ::pki::encrypt args {
 
 	if {$enablepad} {
 		set input [::pki::_pad_pkcs $input $key(l) $padmode]
+		set overhead 3
+	} else {
+		set overhead 3
 	}
 
 	set encrypt [::pki::_lookup_command encrypt $keylist]
 
-	set retval [$encrypt $mode $input $keylist]
+	set retval [$encrypt $mode $overhead $input $keylist]
 
 	switch -- $outmode {
 		"hex" {
