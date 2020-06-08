@@ -9,7 +9,7 @@
 
 package require critcl;        # needs critcl
 # @sak notprovided sha256c
-package provide sha256c 1.0.2
+package provide sha256c 1.0.4
 			       
 critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation
 critcl::csources sha256.c;     # FreeBSD SHA256 implementation
@@ -172,3 +172,22 @@ namespace eval ::sha2 {
         return TCL_OK;
     }
 }
+
+
+critcl::api header sha256.h
+::critcl::api function void SHA256Init {
+	SHA256Context *sc
+}
+
+::critcl::api function void SHA256Update {
+	SHA256Context *sc
+	{const void} *data
+	uint32_t len
+}
+::critcl::api function void SHA256Final {
+	SHA256Context *sc
+	uint8_t *hash
+}
+
+#::critcl::debug symbols
+::critcl::load
