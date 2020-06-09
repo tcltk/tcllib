@@ -87,6 +87,18 @@ proc ::zipfile::decode::files {zdict} {
     return [array names f]
 }
 
+
+proc ::zipfile::decode::filelocations zdict {
+    set res {}
+    foreach {fname finfo} [dict get $zdict files] {
+	set start [dict get $finfo fileloc]
+	set size [dict get $finfo csize]
+	lappend res $start $size $fname
+    }
+    set res [lsort -stride 3 -index 0 -integer $res[set res {}]]
+    return $res
+}
+
 proc ::zipfile::decode::hasfile {zdict fname} {
     array set _ $zdict
     array set f $_(files)
@@ -117,6 +129,7 @@ proc ::zipfile::decode::getfile {zdict src} {
     array set fd $f($src)
     return [GetFile $src fd]
 }
+
 
 proc ::zipfile::decode::unzip {zdict dst} {
     array set _ $zdict
@@ -697,5 +710,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.7.1
+package provide zipfile::decode 0.7.2
 return
