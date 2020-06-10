@@ -15,8 +15,8 @@ critcl      md4c          md4/md4c.tcl
 critcl      md5c          md5/md5c.tcl
 critcl      md5cryptc     md5crypt/md5cryptc.tcl
 critcl      rc4c          rc4/rc4c.tcl
-critcl      sha1c         sha1/sha1c.tcl
-critcl      sha256c       sha1/sha256c.tcl
+critcl      sha1c         sha1c/sha1c.tcl
+critcl      sha256c       sha256c/sha256c.tcl
 critcl      uuid          uuid/uuid.tcl
 critcl      struct_treec  struct/tree_c.tcl
 critcl      struct_graphc struct/graph_c.tcl

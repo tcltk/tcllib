@@ -142,7 +142,9 @@ Module  report      _tcl  _man  _null
 Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
-Module  sha1        _cfh  _man  _null
+Module  sha1        _tcl  _man  _null
+Module  sha1c        _cfh _null _null
+Module  sha256c      _cfh _null _null
 Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa
 Module  snit        _tcl  _man  _null

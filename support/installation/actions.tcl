@@ -18,14 +18,13 @@ proc _all {module libdir} {
 }
 
 proc _cfh {module libdir} {
-	global distribution
+    global distribution
     _tcl $module $libdir
-	set moddir [file join $distribution modules $module ]
-	xcopy $moddir [file join $libdir $module] 0 *.c
-	xcopy $moddir [file join $libdir $module] 0 *.h
-	return
+    set    moddir [file join $distribution modules $module]
+    xcopy $moddir [file join $libdir $module] 0 *.c
+    xcopy $moddir [file join $libdir $module] 0 *.h
+    return
 }
-
 
 proc _tcl {module libdir} {
     global distribution
