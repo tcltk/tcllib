@@ -21,8 +21,22 @@ proc _cfh {module libdir} {
     global distribution
     _tcl $module $libdir
     set    moddir [file join $distribution modules $module]
-    xcopy $moddir [file join $libdir $module] 0 *.c
-    xcopy $moddir [file join $libdir $module] 0 *.h
+    xcopy $moddir [file join $libdir $module] 1 *.c
+    xcopy $moddir [file join $libdir $module] 1 *.h
+    return
+}
+
+proc _md5 {module libdir} {
+    _cfh $module $libdir
+    # Fix the disabled csources
+    set p [file join $libdir $module md5cryptc.tcl]
+    set c [open $p r]
+    set d [read $c]
+    set d [string map [list "#critcl::csources" "critcl::csources"] $d]
+    close $c
+    set c [open $p w]
+    puts -nonewline $c $d
+    close $c
     return
 }
 

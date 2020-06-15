@@ -3,8 +3,6 @@
 # Wrapper for RSA's Message Digest in C
 #
 # Written by Jean-Claude Wippler <jcw@equi4.com>
-#
-# $Id: md5c.tcl,v 1.5 2009/05/06 22:46:10 patthoyts Exp $
 
 package require critcl;                 # needs critcl
 # @sak notprovided md5c

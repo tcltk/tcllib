@@ -1,15 +1,13 @@
-# base32hexc.tcl --
+# base32c.tcl --
 #
-#       Implementation of a base32 (extended hex) de/encoder for Tcl.
+#       C implementation of a base32 (std) de/encoder for Tcl.
 #
 # Public domain
-#
-# RCS: @(#) $Id: base32hex_c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl
 package require Tcl 8.4
 
-namespace eval ::base32::hex {
+namespace eval ::base32 {
     # Supporting code for the main command.
     catch {
 	#critcl::cheaders -g
@@ -33,7 +31,7 @@ namespace eval ::base32::hex {
       /*
        * The array used for encoding
        */                     /* 123456789 123456789 123456789 12 */
-      static const char map[] = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
+      static const char map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 #define USAGEE "bitstring"
 
@@ -163,11 +161,11 @@ namespace eval ::base32::hex {
 	/* \00 */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
 	/* DLE */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
 	/* SPC */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
-	/* '0' */  0,  1,  2,  3,  4,  5,  6,  7,   8,  9, 64, 64, 64, 64, 64, 64, 
-	/* '@' */ 64, 10, 11, 12, 13, 14, 15, 16,  17, 18, 19, 20, 21, 22, 23, 24,
-	/* 'P' */ 25, 26, 27, 28, 29, 30, 31, 64,  64, 64, 64, 64, 64, 64, 64, 64,
-	/* '`' */ 64, 10, 11, 12, 13, 14, 15, 16,  17, 18, 19, 20, 21, 22, 23, 24,
-	/* 'p' */ 25, 26, 27, 28, 29, 30, 31, 64,  64, 64, 64, 64, 64, 64, 64, 64
+	/* '0' */ 64, 64, 26, 27, 28, 29, 30, 31,  64, 64, 64, 64, 64, 64, 64, 64, 
+	/* '@' */ 64,  0,  1,  2,  3,  4,  5,  6,   7,  8,  9, 10, 11, 12, 13, 14,
+	/* 'P' */ 15, 16, 17, 18, 19, 20, 21, 22,  23, 24, 25, 64, 64, 64, 64, 64,
+	/* '`' */ 64,  0,  1,  2,  3,  4,  5,  6,   7,  8,  9, 10, 11, 12, 13, 14,
+	/* 'p' */ 15, 16, 17, 18, 19, 20, 21, 22,  23, 24, 25, 64, 64, 64, 64, 64
       };
 
 #define USAGED "estring"
@@ -251,3 +249,5 @@ namespace eval ::base32::hex {
 
 # ### ### ### ######### ######### #########
 ## Ready
+package provide base32c 0.1
+return

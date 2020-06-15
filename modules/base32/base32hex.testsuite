@@ -2,8 +2,6 @@
 # base32hex.testsuite:  tests for hex extended base32.
 #
 # Public domain
-#
-# RCS: @(#) $Id: base32hex.testsuite,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

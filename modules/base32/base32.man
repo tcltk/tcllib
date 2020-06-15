@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin base32 n 0.1]
+[vset VERSION 0.1.1]
+[manpage_begin base32 n [vset VERSION]]
 [keywords base32]
 [keywords rfc3548]
 [copyright {Public domain}]
@@ -8,7 +9,7 @@
 [category  {Text processing}]
 [require Tcl 8.4]
 [require base32::core [opt 0.1]]
-[require base32       [opt 0.1]]
+[require base32       [opt [vset VERSION]]]
 [description]
 [para]
 

@@ -9,8 +9,6 @@
 # ------------
 # This package uses critcl (http://wiki.tcl.tk/critcl). To build do:
 #  critcl -libdir <your-tcl-lib-dir> -pkg md4c md4c
-#
-# $Id: md4c.tcl,v 1.6 2009/05/06 22:57:50 patthoyts Exp $
 
 package require critcl
 # @sak notprovided md4c

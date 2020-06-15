@@ -2,8 +2,6 @@
 # base32.testsuite:  tests for std base32.
 #
 # Public domain
-#
-# RCS: @(#) $Id: base32.testsuite,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

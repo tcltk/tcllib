@@ -24,8 +24,8 @@ package require critcl
 # @sak notprovided md5cryptc
 package provide md5cryptc 1.0
 
-critcl::cheaders ../md5/md5.h
-#critcl::csources ../md5/md5.c
+critcl::cheaders md5.h
+#critcl::csources md5.c ;# See installer action _md5 for fixup.
 
 namespace eval ::md5crypt {
     critcl::ccode {

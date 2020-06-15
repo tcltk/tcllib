@@ -7,8 +7,6 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: base64.tcl,v 1.32 2010/07/06 19:15:40 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace

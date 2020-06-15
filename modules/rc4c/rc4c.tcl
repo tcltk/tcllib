@@ -10,8 +10,6 @@
 # To build this for tcllib use sak.tcl:
 #  tclsh sak.tcl critcl
 # generates a tcllibc module.
-#
-# $Id: rc4c.tcl,v 1.4 2009/05/07 00:14:02 patthoyts Exp $
 
 package require critcl
 # @sak notprovided rc4c

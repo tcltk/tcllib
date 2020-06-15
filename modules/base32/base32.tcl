@@ -6,8 +6,6 @@
 #
 # Management code for switching between Tcl and C accelerated
 # implementations.
-#
-# RCS: @(#) $Id: base32.tcl,v 1.2 2006/10/13 05:39:49 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: base32_c.tcl
 
@@ -36,7 +34,8 @@ proc ::base32::LoadAccelerator {key} {
 	critcl {
 	    # Critcl implementation of base32 requires Tcl 8.4.
 	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
-	    if {[catch {package require tcllibc}]} {return 0}
+	    if {[catch {package require tcllibc}] &&
+		[catch {package require base32c}]} {return 0}
 	    set isok [llength [info commands ::base32::critcl_encode]]
 	}
 	tcl {
@@ -179,4 +178,4 @@ namespace eval ::base32 {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide base32 0.1
+package provide base32 0.1.1
