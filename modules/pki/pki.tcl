@@ -352,7 +352,7 @@ proc ::pki::_unpad_pkcs {data} {
 			# Padding Scheme 3, pad bytes are random, followed by 0x00
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char ne "\x00"} {
+				if {$char eq "\x00"} {
 					set ret [string range $data [expr {$idx + 1}] end]
 
 					break
