@@ -371,7 +371,7 @@ proc ::pki::_unpad_pkcs {data} {
 	return $ret
 }
 
-proc ::pki::rsa::encrypt {mode overhead input keylist} {
+proc ::pki::rsa::encrypt {mode input keylist {overhead 0}} {
 	switch -- $mode {
 		"pub" {
 			set exponent_ent e
@@ -388,7 +388,7 @@ proc ::pki::rsa::encrypt {mode overhead input keylist} {
 
 	## RSA requires that the input be no larger than the key
 	set input_len_bits [expr {
-		([string length $input] * 8) - ($overhead * 8)
+		([string length $input] - $overhead) * 8
 	}]
 	if {$key(l) < $input_len_bits} {
 		return -code error "Message length exceeds key length"
@@ -582,14 +582,12 @@ proc ::pki::encrypt args {
 
 	if {$enablepad} {
 		set input [::pki::_pad_pkcs $input $key(l) $padmode]
-		set overhead 3
-	} else {
-		set overhead 3
 	}
+	set overhead 3
 
 	set encrypt [::pki::_lookup_command encrypt $keylist]
 
-	set retval [$encrypt $mode $overhead $input $keylist]
+	set retval [$encrypt $mode $input $keylist $overhead]
 
 	switch -- $outmode {
 		"hex" {
