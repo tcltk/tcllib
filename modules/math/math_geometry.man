@@ -29,7 +29,7 @@ y-coordinate of a first point and the x- and y-coordinates of a second
 point on the line.
 
 [para]
-[emph Note:] In version 1.4.0 an inconsistency was repaired - see [url https://core.tcl-lang.org/tcllib/tktview?name=fb4812f82b].
+[emph Note:] In version 1.4.0 an inconsistency was repaired - see [uri https://core.tcl-lang.org/tcllib/tktview?name=fb4812f82b].
 More in [sectref "COORDINATE SYSTEM"]
 
 [para]
