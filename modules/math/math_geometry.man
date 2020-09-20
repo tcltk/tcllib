@@ -14,7 +14,7 @@
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::geometry [opt 1.3.0]]
+[require math::geometry [opt 1.4.0]]
 
 [description]
 [para]
@@ -27,6 +27,10 @@ The geometrical objects are implemented as plain lists of coordinates.
 For instance a line is defined by a list of four numbers, the x- and
 y-coordinate of a first point and the x- and y-coordinates of a second
 point on the line.
+
+[para]
+[emph Note:] In version 1.4.0 an inconsistency was repaired - see [url https://core.tcl-lang.org/tcllib/tktview?name=fb4812f82b].
+More in [sectref "COORDINATE SYSTEM"]
 
 [para]
 The various types of object are recognised by the number of coordinate
@@ -113,7 +117,7 @@ result of the command. This is a vector as well.
 
 Given the angle in degrees this command computes and returns
 the unit vector pointing into this direction. The vector for
-angle == 0 points to the right (up), and for angle == 90 up (north).
+angle == 0 points to the right (east), and for angle == 90 up (north).
 
 [call [cmd ::math::geometry::h] [arg length]]
 
@@ -628,6 +632,16 @@ radius of the circle is used to determine this situation.)
 [list_end]
 
 [list_end]
+
+[section "COORDINATE SYSTEM"]
+The coordinate system used by the package is the ordinary cartesian system, where the
+positive x-axis is directed to the right and the positive y-axis is directed upwards.
+Angles and directions are defined with respect to the positive x-axis in a counter-clockwise
+direction, so that an angle of 90 degrees is the direction of the positive y-axis.
+
+Note that the Tk canvas coordinates differ from this, as there the origin is located in the
+upper left corner of the window. Up to and including version 1.3, the direction and octant
+procedures of this package used this convention inconsistently.
 
 [section References]
 

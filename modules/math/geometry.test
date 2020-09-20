@@ -190,6 +190,18 @@ test geometry-6.8 {geometry::calculateDistanceToPolyline, on second line segment
 test geometry-7.1 {geometry::lineSegmentsIntersect, } {
     ::math::geometry::lineSegmentsIntersect {0 0 10 10} {0 10 10 0}
 } 1
+test geometry-7.2 {geometry::lineSegmentsIntersect, touching segments, in line with each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10 10 15 15}
+} 1
+test geometry-7.3 {geometry::lineSegmentsIntersect, touching segments, perpendicular to each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10 10 0 20}
+} 1
+test geometry-7.4 {geometry::lineSegmentsIntersect, slightly overlapping segments} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10.001 10.001} {10 10 15 15}
+} 1
+test geometry-7.5 {geometry::lineSegmentsIntersect, almost touching segments, perpendicular to each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10.0001 10 0 20}
+} 0
 
 
 
@@ -281,6 +293,13 @@ test geometry-10.5 {geometry::findLineSegmentIntersection, both lines skaeve - p
 test geometry-10.6 {geometry::findLineSegmentIntersection, both lines skaeve - no intersection} {
     ::math::geometry::findLineSegmentIntersection {3 2 9 4} {4 5 5 4}
 } "none"
+
+test geometry-10.7 {geometry::findLineSegmentIntersection, touching segments, in line with each other} {
+    list [::math::geometry::findLineSegmentIntersection {0 0 10 10} {10 10 15 15}] \
+         [::math::geometry::findLineSegmentIntersection {10 10 0 0} {10 10 15 15}] \
+         [::math::geometry::findLineSegmentIntersection {0 0 10 10} {15 15 10 10}] \
+         [::math::geometry::findLineSegmentIntersection {10 10 0 0} {15 15 10 10}]
+} {{10 10} {10 10} {10 10} {10 10}}
 
 
 ###
@@ -572,7 +591,7 @@ test geometry-17.6 {vector direction} {
 
 test geometry-17.7 {vector direction} {
     eval withFourDecimals [math::geometry::direction 90]
-} {0.0 -1.0}
+} {0.0 1.0}
 
 test geometry-17.8 {vector vertical} {
     math::geometry::v 90
@@ -596,7 +615,7 @@ test geometry-17.12 {point between} {
 
 test geometry-17.13 {octant} {
     math::geometry::octant {-10 -12}
-} northwest
+} southwest
 
 
 ###
