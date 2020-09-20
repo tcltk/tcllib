@@ -1,5 +1,16 @@
 This file records outstanding actions for the math module
 
+dd. 20 september 2020
+Incorporate suggestions by Manfred Rosenberger for the geometry package
+
+dd. 16 august 2020
+Statistics:
+Based on article by Dennis Helsel:
+- Shapiro-Wilk or Anderson-Darling?
+- mean according to Kaplan-Meier
+- Box-Cox transformatio
+
+
 dd. 17 april 2020
 Issue with the totient function:
 https://core.tcl-lang.org/tcllib/tktview?name=7017dad214
