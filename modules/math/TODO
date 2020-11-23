@@ -1,14 +1,24 @@
 This file records outstanding actions for the math module
 
+dd. 23 november 2020
+Add new procs by Manfred Rosenberger
+Clean up some of the code (notably the synonyms)
+
+
+dd. 2 november 2020
+Generate the actual combinations - in math::combinatinatorics
+    - take struct::list as an example!!
+
+
 dd. 20 september 2020
-Incorporate suggestions by Manfred Rosenberger for the geometry package
+Incorporate suggestions by Manfred Rosenberger for the geometry package - done
 
 dd. 16 august 2020
 Statistics:
 Based on article by Dennis Helsel:
 - Shapiro-Wilk or Anderson-Darling?
 - mean according to Kaplan-Meier
-- Box-Cox transformatio
+- Box-Cox transformation
 
 
 dd. 17 april 2020
