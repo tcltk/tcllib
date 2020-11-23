@@ -471,7 +471,7 @@ proc ::math::geometry::findClosestPointOnPolyline {P polyline} {
     set closestPoint "none"; set closestDistance "Inf"
     foreach {Bx By} [lassign $polyline Ax Ay] {
 	set Q [findClosestPointOnLineSegment $P [list $Ax $Ay $Bx $By]]
-	set dist [lengthOfPolyline [concat $P $Q]]
+	set dist [distance $P $Q]
 	if {$dist<$closestDistance} {
 	    set closestPoint $Q
 	    set closestDistance $dist
@@ -1567,5 +1567,6 @@ namespace eval ::math::geometry {
 }
 
 source [file join [file dirname [info script]] geometry_circle.tcl]
+source [file join [file dirname [info script]] geometry_ext.tcl]
 
-package provide math::geometry 1.4.0
+package provide math::geometry 1.4.1

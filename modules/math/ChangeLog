@@ -1,3 +1,10 @@
+2020-11-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.tcl: Source the file geometry_ext.tcl - additional procedures by Manfred Rosenberger
+	* geometry_ext.tcl: File with the additional procedures
+	* geometry.test: Added tests for these procedures
+	* math_geometry.man: Description of these procedures
+	* pkgIndex.tcl: Bumped version to 1.4.1
+
 2020-09-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.tcl: The procedures [direction] and [octant] used an inconsistent definition of the direction (see https://core.tcl-lang.org/tcllib/tktview?name=fb4812f82b).
 	                The changes make the results consistent with the standard mathematical definition.
@@ -5,8 +12,6 @@
 	* geometry.test: Added several tests wrt the above changes
 	* pkgIndex.tcl: Bumped the version of geometry to 1.4.0, as the changes above represent a minor incompatibility.
 	* geometry.man: Document these changes
-
-ore.tcl-lang.org/tcllib/tktview?name=7017dad214
 
 2020-04-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* primes.tcl: Correct the implementation of the totient function, as per https://core.tcl-lang.org/tcllib/tktview?name=7017dad214
