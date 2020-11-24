@@ -8,7 +8,8 @@
 # structures.
 
 package require Tcl 8.4
-package require fileutil::magic::filetype ; # Tcllib. File type determination via magic constants
+# HaO 2020-11-24 I don't see why this is helpful, so commented out
+# package require fileutil::magic::filetype ; # Tcllib. File type determination via magic constants
 package require fileutil::decode 0.2.1    ; # Framework for easy decoding of files.
 namespace eval ::zipfile::decode {}
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {

@@ -7,13 +7,14 @@
 [titledesc {Access to zip archives}]
 [category  File]
 [require Tcl 8.4]
-[require fileutil::magic::mimetype]
 [require fileutil::decode 0.2.1]
 [require Trf]
 [require zlibtcl]
 [require zipfile::decode [opt [vset ZIP_DECODE_VERSION]]]
 [description]
 [para]
+
+Note: packages Trf and zlibtcl are not required if TCL 8.6 is available.
 
 This package provides commands to decompress and access the contents
 of zip archives.
