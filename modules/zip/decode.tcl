@@ -244,7 +244,11 @@ proc ::zipfile::decode::GetFile {src fdv} {
 	deflate {
 	    go     $fd(fileloc)
 	    nbytes $fd(csize)
-	    return [zip -mode decompress -nowrap 1 -- [getval]]
+	    if {$::zipfile::decode::native_zip_functs} {
+		return [zlib inflate [getval]]
+	    } else {
+		return [zip -mode decompress -nowrap 1 -- [getval]]
+	    }
 	}
 	default {
 	    Error "Unable to handle file \"$src\" compressed with method \"$fd(cm)\"" \
