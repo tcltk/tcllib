@@ -1,5 +1,23 @@
 This file records outstanding actions for the math module
 
+
+dd. 27 november 2020
+Stirling numbers - https://mathworld.wolfram.com/StirlingNumberoftheFirstKind.html
+                   https://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html
+
+Most efficient via the recurrence relations and memoization?
+
+First kind:   S1(n+1,k) = S1(n,k-1)   - n S1(n,k)    -- S1(n,1) = (-1)**(n-1) * (n-1)! , S1(n,0) = Kronecker(n,0)
+Second kind:  S2(n,k)   = S2(n-1,k-1) + k S2(n-1,k)  -- S2(n,n) = 1, S2(n,1) = 1, S2(n,0) = Kronecker(n,0)
+
+-- done
+
+Note: [math::choose] does not take the bigints into account!
+
+More numbers: Fibonacci and Lucas numbers:
+F(0) = 1, F(1) = 1, F(n+2) = F(n+1) + F(n)
+L(0) = 1, L(1) = 3, L(n+2) = L(n+1) + L(n)
+
 dd. 23 november 2020
 Add new procs by Manfred Rosenberger
 Clean up some of the code (notably the synonyms)

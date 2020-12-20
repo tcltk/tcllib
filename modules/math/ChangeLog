@@ -1,3 +1,9 @@
+2020-12-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* filtergen.tcl: New package for digital filtering
+	* filtergen.man: Description of the filters package
+	* filtergen.test: Simple tests for the filters package
+	* pkgIndex.tcl: Added the filters package
+
 2020-11-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.tcl: Source the file geometry_ext.tcl - additional procedures by Manfred Rosenberger
 	* geometry_ext.tcl: File with the additional procedures
