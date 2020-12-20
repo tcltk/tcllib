@@ -35,3 +35,4 @@ package ifneeded math::special           0.5.0 [list source [file join $dir spec
 if {![package vsatisfies [package require Tcl] 8.6]} {return}
 package ifneeded math::exact             1.0.1 [list source [file join $dir exact.tcl]]
 package ifneeded math::PCA               1.0   [list source [file join $dir pca.tcl]]
+package ifneeded math::filters           0.1   [list source [file join $dir filtergen.tcl]]
