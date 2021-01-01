@@ -97,14 +97,14 @@ test filter-1.1 {low-pass, second order, sine series} -match numbers -body {
         lappend data [expr {cos($twopi * ($i/1.0) / double($period))}]
     }
 
-    set filtered [lrange [filter $coeffs $data] end-7 end]
-} -result {0.809968 0.845195 0.877086 0.905515 0.930371 0.951555 0.968984 0.982588}
+    set filtered [lrange [::math::filters::filter $coeffs $data] end-7 end]
+} -result {0.845195 0.877086 0.905515 0.930371 0.951555 0.968984 0.982588 0.992315}
 
 # The object interface
 
 test filterobj-1.0 {low-pass, second order, sine series} -match numbers -body {
     set coeffs   [::math::filters::filterButterworth 1 2 100 20]
-    set filter   [::math::filters::filterObject create $coeffs]
+    set filter   [::math::filters::filterObject new $coeffs]
 
     set twopi  [expr {2.0 * acos(-1.0)}]
     set period 100
@@ -112,10 +112,10 @@ test filterobj-1.0 {low-pass, second order, sine series} -match numbers -body {
     set data {}
 
     for {set i 0} {$i < $period} {incr i} {
-        lappend filter [$filter filter [expr {cos($twopi * ($i/1.0) / double($period))}]]
+        lappend filtered [$filter filter [expr {cos($twopi * ($i/1.0) / double($period))}]]
     }
 
-    set filtered [lrange [filter $coeffs $data] end-9 end]
+    set filtered [lrange $filtered end-9 end]
 } -result {0.771545 0.809968 0.845195 0.877086 0.905515 0.930371 0.951555 0.968984 0.982588 0.992315}
 
 
