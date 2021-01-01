@@ -131,7 +131,7 @@ proc ::math::filters::filter {coeff data} {
     set xcoeff   [lreverse $xcoeff]
     set ycoeff   [lreverse $ycoeff]
 
-    for {set i 0} {$i < [llength $data]-$noxcoeff} {incr i} {
+    for {set i 0} {$i <= [llength $data]-$noxcoeff} {incr i} {
         set xv [lrange $data $i [expr {$i+$noxcoeff-1}]]
 
         set f  [expr {0.0}]
