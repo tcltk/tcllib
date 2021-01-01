@@ -1,3 +1,11 @@
+2021-01-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* probopt.tcl: New package defining a number of probabilistic optimisation algorithms
+	* probopt_*.tcl: Individual source files for these algorithms
+	* probopt.test: Tests for the probabilistic algorithms
+	* probopt.man: Description of the algorithms (including references describing the backgrounds)
+	* filtergen.tcl: Correct a small mistake (loop over data)
+	* filtergen.test: Correct tests (several small mistakes)
+
 2020-12-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* filtergen.tcl: New package for digital filtering
 	* filtergen.man: Description of the filters package
