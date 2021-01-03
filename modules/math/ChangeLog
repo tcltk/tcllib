@@ -1,3 +1,9 @@
+2021-01-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* changepoint.tcl: New package defining two change point detection algorithms
+	* changepoint.test: Basic tests for the change point detection algorithms
+	* changepoint.man: Description of the change point detection procedures
+	* pkgIndex.tcl: Added the changepoint package
+
 2021-01-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* probopt.tcl: New package defining a number of probabilistic optimisation algorithms
 	* probopt_*.tcl: Individual source files for these algorithms
