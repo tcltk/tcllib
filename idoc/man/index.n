@@ -2966,6 +2966,9 @@ control
 \fBfiles/modules/control/control\&.n\fR
 control
 .TP
+\fBfiles/modules/math/changepoint\&.n\fR
+math::changepoint
+.TP
 \fBfiles/modules/term/term\&.n\fR
 term
 .TP
@@ -3556,6 +3559,12 @@ differential equations
 .TP
 \fBfiles/modules/math/calculus\&.n\fR
 math::calculus
+.RE
+digital
+.RS
+.TP
+\fBfiles/modules/math/filtergen\&.n\fR
+math::filters
 .RE
 dijkstra
 .RS
@@ -4615,6 +4624,12 @@ generator
 .TP
 \fBfiles/modules/struct/struct_list\&.n\fR
 struct::list
+.RE
+filtering
+.RS
+.TP
+\fBfiles/modules/math/filtergen\&.n\fR
+math::filters
 .RE
 final
 .RS
@@ -6635,6 +6650,9 @@ mathematics
 \fBfiles/modules/math/fourier\&.n\fR
 math::fourier
 .TP
+\fBfiles/modules/math/probopt\&.n\fR
+math::probopt
+.TP
 \fBfiles/modules/math/quasirandom\&.n\fR
 math::quasirandom
 .TP
@@ -7318,6 +7336,12 @@ oo
 .TP
 \fBfiles/modules/clay/clay\&.n\fR
 clay
+.RE
+optimisation
+.RS
+.TP
+\fBfiles/modules/math/probopt\&.n\fR
+math::probopt
 .RE
 optimization
 .RS
@@ -8215,6 +8239,12 @@ priority queue
 .TP
 \fBfiles/modules/struct/prioqueue\&.n\fR
 struct::prioqueue
+.RE
+probabilistic calculations
+.RS
+.TP
+\fBfiles/modules/math/probopt\&.n\fR
+math::probopt
 .RE
 proc
 .RS
@@ -10027,6 +10057,9 @@ counter
 .TP
 \fBfiles/modules/math/math\&.n\fR
 math
+.TP
+\fBfiles/modules/math/changepoint\&.n\fR
+math::changepoint
 .TP
 \fBfiles/modules/math/pca\&.n\fR
 math::PCA

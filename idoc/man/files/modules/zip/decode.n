@@ -276,8 +276,6 @@ zipfile::decode \- Access to zip archives
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBfileutil::magic::mimetype \fR
-.sp
 package require \fBfileutil::decode  0\&.2\&.1\fR
 .sp
 package require \fBTrf \fR
@@ -313,6 +311,7 @@ package require \fBzipfile::decode  ?0\&.7\&.1?\fR
 .BE
 .SH DESCRIPTION
 .PP
+Note: packages Trf and zlibtcl are not required if TCL 8\&.6 is available\&.
 This package provides commands to decompress and access the contents
 of zip archives\&.
 .SH API

@@ -36,7 +36,6 @@ zipfile::decode \- Access to zip archives
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require fileutil::magic::mimetype  
 package require fileutil::decode 0\.2\.1  
 package require Trf  
 package require zlibtcl  
@@ -57,8 +56,8 @@ package require zipfile::decode ?0\.7\.1?
 
 # <a name='description'></a>DESCRIPTION
 
-This package provides commands to decompress and access the contents of zip
-archives\.
+Note: packages Trf and zlibtcl are not required if TCL 8\.6 is available\. This
+package provides commands to decompress and access the contents of zip archives\.
 
 # <a name='section2'></a>API
 

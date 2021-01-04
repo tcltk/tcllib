@@ -351,6 +351,8 @@
 
   - [math::calculus::symdiff](tcllib/files/modules/math/symdiff\.md) Symbolic differentiation for Tcl
 
+  - [math::changepoint](tcllib/files/modules/math/changepoint\.md) Change point detection methods
+
   - [math::combinatorics](tcllib/files/modules/math/combinatorics\.md) Combinatorial functions in the Tcl Math Library
 
   - [math::complexnumbers](tcllib/files/modules/math/qcomplex\.md) Straightforward complex number package
@@ -360,6 +362,8 @@
   - [math::decimal](tcllib/files/modules/math/decimal\.md) General decimal arithmetic
 
   - [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
+
+  - [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
   - [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms
 
@@ -371,6 +375,8 @@
 
   - [math::linearalgebra](tcllib/files/modules/math/linalg\.md) Linear Algebra
 
+  - [math::machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
+
   - [math::numtheory](tcllib/files/modules/math/numtheory\.md) Number Theory
 
   - [math::optimize](tcllib/files/modules/math/optimize\.md) Optimisation routines
@@ -378,6 +384,8 @@
   - [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
   - [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+  - [math::probopt](tcllib/files/modules/math/probopt\.md) Probabilistic optimisation methods
 
   - [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
@@ -738,8 +746,6 @@
   - [tcllib\_releasemgr](tcllib/files/devdoc/tcllib\_releasemgr\.md) Tcllib \- The Release Manager's Guide
 
   - [tcllib\_sources](tcllib/files/devdoc/tcllib\_sources\.md) Tcllib \- How To Get The Sources
-
-  - [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
   - [tepam](tcllib/files/modules/tepam/tepam\_introduction\.md) An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
 
