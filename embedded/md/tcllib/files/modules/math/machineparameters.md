@@ -1,8 +1,8 @@
 
-[//000000001]: # (tclrep/machineparameters \- tclrep)
+[//000000001]: # (math::machineparameters \- tclrep)
 [//000000002]: # (Generated from file 'machineparameters\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 Michael Baudin <michael\.baudin@sourceforge\.net>)
-[//000000004]: # (tclrep/machineparameters\(n\) 1\.0 tcllib "tclrep")
+[//000000004]: # (math::machineparameters\(n\) 1\.0 tcllib "tclrep")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -13,7 +13,7 @@ href="../../../../toc2.md">Applications</a> ] <hr>
 
 # NAME
 
-tclrep/machineparameters \- Compute double precision machine parameters\.
+math::machineparameters \- Compute double precision machine parameters\.
 
 # <a name='toc'></a>Table Of Contents
 

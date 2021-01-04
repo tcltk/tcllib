@@ -2,7 +2,7 @@
 '\" Generated from file 'machineparameters\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Michael Baudin <michael\&.baudin@sourceforge\&.net>
 '\"
-.TH "tclrep/machineparameters" n 1\&.0 tcllib "tclrep"
+.TH "math::machineparameters" n 1\&.0 tcllib "tclrep"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,7 +272,7 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tclrep/machineparameters \- Compute double precision machine parameters\&.
+math::machineparameters \- Compute double precision machine parameters\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp

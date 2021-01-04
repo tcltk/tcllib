@@ -375,6 +375,8 @@
 
           + [math::calculus::romberg](tcllib/files/modules/math/romberg\.md) Romberg integration
 
+          + [math::changepoint](tcllib/files/modules/math/changepoint\.md) Change point detection methods
+
           + [math::combinatorics](tcllib/files/modules/math/combinatorics\.md) Combinatorial functions in the Tcl Math Library
 
           + [math::complexnumbers](tcllib/files/modules/math/qcomplex\.md) Straightforward complex number package
@@ -384,6 +386,8 @@
           + [math::decimal](tcllib/files/modules/math/decimal\.md) General decimal arithmetic
 
           + [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
+
+          + [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
           + [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms
 
@@ -402,6 +406,8 @@
           + [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
           + [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+          + [math::probopt](tcllib/files/modules/math/probopt\.md) Probabilistic optimisation methods
 
           + [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
@@ -857,6 +863,8 @@
 
           + [math::calculus::symdiff](tcllib/files/modules/math/symdiff\.md) Symbolic differentiation for Tcl
 
+          + [math::machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
+
           + [namespacex](tcllib/files/modules/namespacex/namespacex\.md) Namespace utility commands
 
           + [rest](tcllib/files/modules/rest/rest\.md) define REST web APIs and call them inline or asychronously
@@ -866,8 +874,6 @@
           + [stringprep::data](tcllib/files/modules/stringprep/stringprep\_data\.md) stringprep data tables, generated, internal
 
           + [struct::map](tcllib/files/modules/struct/struct\_map\.md) Manage key/value maps
-
-          + [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
           + [uevent::onidle](tcllib/files/modules/uev/uevent\_onidle\.md) Request merging and deferal to idle time
 
@@ -1437,6 +1443,8 @@
 
               - [math::calculus::symdiff](tcllib/files/modules/math/symdiff\.md) Symbolic differentiation for Tcl
 
+              - [math::changepoint](tcllib/files/modules/math/changepoint\.md) Change point detection methods
+
               - [math::combinatorics](tcllib/files/modules/math/combinatorics\.md) Combinatorial functions in the Tcl Math Library
 
               - [math::complexnumbers](tcllib/files/modules/math/qcomplex\.md) Straightforward complex number package
@@ -1446,6 +1454,8 @@
               - [math::decimal](tcllib/files/modules/math/decimal\.md) General decimal arithmetic
 
               - [math::exact](tcllib/files/modules/math/exact\.md) Exact Real Arithmetic
+
+              - [math::filters](tcllib/files/modules/math/filtergen\.md) Digital filters
 
               - [math::fourier](tcllib/files/modules/math/fourier\.md) Discrete and fast fourier transforms
 
@@ -1457,6 +1467,8 @@
 
               - [math::linearalgebra](tcllib/files/modules/math/linalg\.md) Linear Algebra
 
+              - [math::machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
+
               - [math::numtheory](tcllib/files/modules/math/numtheory\.md) Number Theory
 
               - [math::optimize](tcllib/files/modules/math/optimize\.md) Optimisation routines
@@ -1464,6 +1476,8 @@
               - [math::PCA](tcllib/files/modules/math/pca\.md) Package for Principal Component Analysis
 
               - [math::polynomials](tcllib/files/modules/math/polynomials\.md) Polynomial functions
+
+              - [math::probopt](tcllib/files/modules/math/probopt\.md) Probabilistic optimisation methods
 
               - [math::quasirandom](tcllib/files/modules/math/quasirandom\.md) Quasi\-random points for integration and Monte Carlo type methods
 
@@ -1476,8 +1490,6 @@
               - [math::statistics](tcllib/files/modules/math/statistics\.md) Basic statistical functions and procedures
 
               - [math::trig](tcllib/files/modules/math/trig\.md) Trigonometric anf hyperbolic functions
-
-              - [tclrep/machineparameters](tcllib/files/modules/math/machineparameters\.md) Compute double precision machine parameters\.
 
           + [md4]()
 

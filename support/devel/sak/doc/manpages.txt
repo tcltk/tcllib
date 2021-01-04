@@ -184,10 +184,12 @@ modules/markdown/markdown.man
 modules/math/bigfloat.man
 modules/math/bignum.man
 modules/math/calculus.man
+modules/math/changepoint.man
 modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
 modules/math/exact.man
+modules/math/filtergen.man
 modules/math/fourier.man
 modules/math/fuzzy.man
 modules/math/interpolate.man
@@ -199,6 +201,7 @@ modules/math/numtheory.man
 modules/math/optimize.man
 modules/math/pca.man
 modules/math/polynomials.man
+modules/math/probopt.man
 modules/math/qcomplex.man
 modules/math/quasirandom.man
 modules/math/rational_funcs.man

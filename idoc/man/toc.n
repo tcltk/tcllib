@@ -795,6 +795,9 @@ tcllib
 \fBmath::calculus::symdiff\fR
 \fIfiles/modules/math/symdiff\&.n\fR: Symbolic differentiation for Tcl
 .TP
+\fBmath::changepoint\fR
+\fIfiles/modules/math/changepoint\&.n\fR: Change point detection methods
+.TP
 \fBmath::combinatorics\fR
 \fIfiles/modules/math/combinatorics\&.n\fR: Combinatorial functions in the Tcl Math Library
 .TP
@@ -809,6 +812,9 @@ tcllib
 .TP
 \fBmath::exact\fR
 \fIfiles/modules/math/exact\&.n\fR: Exact Real Arithmetic
+.TP
+\fBmath::filters\fR
+\fIfiles/modules/math/filtergen\&.n\fR: Digital filters
 .TP
 \fBmath::fourier\fR
 \fIfiles/modules/math/fourier\&.n\fR: Discrete and fast fourier transforms
@@ -825,6 +831,9 @@ tcllib
 \fBmath::linearalgebra\fR
 \fIfiles/modules/math/linalg\&.n\fR: Linear Algebra
 .TP
+\fBmath::machineparameters\fR
+\fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
+.TP
 \fBmath::numtheory\fR
 \fIfiles/modules/math/numtheory\&.n\fR: Number Theory
 .TP
@@ -836,6 +845,9 @@ tcllib
 .TP
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
+.TP
+\fBmath::probopt\fR
+\fIfiles/modules/math/probopt\&.n\fR: Probabilistic optimisation methods
 .TP
 \fBmath::quasirandom\fR
 \fIfiles/modules/math/quasirandom\&.n\fR: Quasi-random points for integration and Monte Carlo type methods
@@ -1376,9 +1388,6 @@ tcllib
 .TP
 \fBtcllib_sources\fR
 \fIfiles/devdoc/tcllib_sources\&.n\fR: Tcllib - How To Get The Sources
-.TP
-\fBtclrep/machineparameters\fR
-\fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
 .TP
 \fBtepam\fR
 \fIfiles/modules/tepam/tepam_introduction\&.n\fR: An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager

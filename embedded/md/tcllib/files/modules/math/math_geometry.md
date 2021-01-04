@@ -5,7 +5,8 @@
 [//000000004]: # (Copyright &copy; 2010 by Andreas Kupries)
 [//000000005]: # (Copyright &copy; 2010 by Kevin Kenny)
 [//000000006]: # (Copyright &copy; 2018 by Arjen Markus)
-[//000000007]: # (math::geometry\(n\) 1\.3\.0 tcllib "Tcl Math Library")
+[//000000007]: # (Copyright &copy; 2020 by Manfred Rosenberger)
+[//000000008]: # (math::geometry\(n\) 1\.4\.1 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -28,9 +29,11 @@ math::geometry \- Geometrical computations
 
   - [PROCEDURES](#section2)
 
-  - [References](#section3)
+  - [COORDINATE SYSTEM](#section3)
 
-  - [Bugs, Ideas, Feedback](#section4)
+  - [References](#section4)
+
+  - [Bugs, Ideas, Feedback](#section5)
 
   - [Keywords](#keywords)
 
@@ -41,7 +44,7 @@ math::geometry \- Geometrical computations
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5?  
-package require math::geometry ?1\.3\.0?  
+package require math::geometry ?1\.4\.1?  
 
 [__::math::geometry::\+__ *point1* *point2*](#1)  
 [__::math::geometry::\-__ *point1* *point2*](#2)  
@@ -77,23 +80,36 @@ package require math::geometry ?1\.3\.0?
 [__::math::geometry::intervalsOverlap__ *y1* *y2* *y3* *y4* *strict*](#32)  
 [__::math::geometry::rectanglesOverlap__ *P1* *P2* *Q1* *Q2* *strict*](#33)  
 [__::math::geometry::bbox__ *polyline*](#34)  
-[__::math::geometry::pointInsidePolygon__ *P* *polyline*](#35)  
-[__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*](#36)  
-[__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*](#37)  
-[__::math::geometry::areaPolygon__ *polygon*](#38)  
-[__::math::geometry::translate__ *vector* *polyline*](#39)  
-[__::math::geometry::rotate__ *angle* *polyline*](#40)  
-[__::math::geometry::reflect__ *angle* *polyline*](#41)  
-[__::math::geometry::degToRad__ *angle*](#42)  
-[__::math::geometry::radToDeg__ *angle*](#43)  
-[__::math::geometry::circle__ *centre* *radius*](#44)  
-[__::math::geometry::circleTwoPoints__ *point1* *point2*](#45)  
-[__::math::geometry::pointInsideCircle__ *point* *circle*](#46)  
-[__::math::geometry::lineIntersectsCircle__ *line* *circle*](#47)  
-[__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*](#48)  
-[__::math::geometry::intersectionLineWithCircle__ *line* *circle*](#49)  
-[__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*](#50)  
-[__::math::geometry::tangentLinesToCircle__ *point* *circle*](#51)  
+[__::math::geometry::overlapBBox__ *polyline1* *polyline2* ?strict?](#35)  
+[__::math::geometry::pointInsideBBox__ *bbox* *point*](#36)  
+[__::math::geometry::cathetusPoint__ *pa* *pb* *cathetusLength* ?location?](#37)  
+[__::math::geometry::parallel__ *line* *offset* ?orient?](#38)  
+[__::math::geometry::unitVector__ *line*](#39)  
+[__::math::geometry::pointInsidePolygon__ *P* *polyline*](#40)  
+[__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*](#41)  
+[__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*](#42)  
+[__::math::geometry::areaPolygon__ *polygon*](#43)  
+[__::math::geometry::translate__ *vector* *polyline*](#44)  
+[__::math::geometry::rotate__ *angle* *polyline*](#45)  
+[__::math::geometry::rotateAbout__ *p* *angle* *polyline*](#46)  
+[__::math::geometry::reflect__ *angle* *polyline*](#47)  
+[__::math::geometry::degToRad__ *angle*](#48)  
+[__::math::geometry::radToDeg__ *angle*](#49)  
+[__::math::geometry::circle__ *centre* *radius*](#50)  
+[__::math::geometry::circleTwoPoints__ *point1* *point2*](#51)  
+[__::math::geometry::pointInsideCircle__ *point* *circle*](#52)  
+[__::math::geometry::lineIntersectsCircle__ *line* *circle*](#53)  
+[__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*](#54)  
+[__::math::geometry::intersectionLineWithCircle__ *line* *circle*](#55)  
+[__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*](#56)  
+[__::math::geometry::tangentLinesToCircle__ *point* *circle*](#57)  
+[__::math::geometry::intersectionPolylines__ *polyline1* *polyline2* ?mode? ?granularity?](#58)  
+[__::math::geometry::intersectionPolylineCircle__ *polyline* *circle* ?mode? ?granularity?](#59)  
+[__::math::geometry::polylineCutOrigin__ *polyline1* *polyline2* ?granularity?](#60)  
+[__::math::geometry::polylineCutEnd__ *polyline1* *polyline2* ?granularity?](#61)  
+[__::math::geometry::splitPolyline__ *polyline* *numberVertex*](#62)  
+[__::math::geometry::enrichPolyline__ *polyline* *accuracy*](#63)  
+[__::math::geometry::cleanupPolyline__ *polyline*](#64)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -104,6 +120,10 @@ and polygons\.
 The geometrical objects are implemented as plain lists of coordinates\. For
 instance a line is defined by a list of four numbers, the x\- and y\-coordinate of
 a first point and the x\- and y\-coordinates of a second point on the line\.
+
+*Note:* In version 1\.4\.0 an inconsistency was repaired \- see
+[https://core\.tcl\-lang\.org/tcllib/tktview?name=fb4812f82b](https://core\.tcl\-lang\.org/tcllib/tktview?name=fb4812f82b)\.
+More in [COORDINATE SYSTEM](#section3)
 
 The various types of object are recognised by the number of coordinate pairs and
 the context in which they are used: a list of four elements can be regarded as
@@ -173,7 +193,7 @@ The package defines the following public procedures:
 
     Given the angle in degrees this command computes and returns the unit vector
     pointing into this direction\. The vector for angle == 0 points to the right
-    \(up\), and for angle == 90 up \(north\)\.
+    \(east\), and for angle == 90 up \(north\)\.
 
   - <a name='8'></a>__::math::geometry::h__ *length*
 
@@ -430,7 +450,7 @@ The package defines the following public procedures:
 
         Second line
 
-    See section [References](#section3) for details on the algorithm and
+    See section [References](#section4) for details on the algorithm and
     math behind it\.
 
   - <a name='30'></a>__::math::geometry::polylinesIntersect__ *polyline1* *polyline2*
@@ -518,7 +538,96 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='35'></a>__::math::geometry::pointInsidePolygon__ *P* *polyline*
+  - <a name='35'></a>__::math::geometry::overlapBBox__ *polyline1* *polyline2* ?strict?
+
+    Check if the bounding boxes of two polylines overlap or not\.
+
+    Arguments:
+
+      * list *polyline1*
+
+        The first polyline
+
+      * list *polyline1*
+
+        The second polyline
+
+      * int *strict*
+
+        Whether strict overlap is to checked \(1\) or if the bounding boxes may
+        touch \(0, default\)
+
+  - <a name='36'></a>__::math::geometry::pointInsideBBox__ *bbox* *point*
+
+    Check if the point is inside or on the bounding box or not\. Arguments:
+
+      * list *bbox*
+
+        The bounding box given as a list of x/y coordinates
+
+      * list *point*
+
+        The point to be checked
+
+  - <a name='37'></a>__::math::geometry::cathetusPoint__ *pa* *pb* *cathetusLength* ?location?
+
+    Return the third point of the rectangular triangle defined by the two given
+    end points of the hypothenusa\. The triangle's side from point A \(or B, if
+    the location is given as "b"\) to the third point is the cathetus length\. If
+    the cathetus' length is lower than the length of the hypothenusa, an empty
+    list is returned\.
+
+    Arguments:
+
+      * list *pa*
+
+        The starting point on hypotenuse
+
+      * list *pb*
+
+        The ending point on hypotenuse
+
+      * float *cathetusLength*
+
+        The length of the cathetus of the triangle
+
+      * string *location*
+
+        The location of the given cathetus, "a" means given cathetus shares
+        point pa \(default\) "b" means given cathetus shares point pb
+
+  - <a name='38'></a>__::math::geometry::parallel__ *line* *offset* ?orient?
+
+    Return a line parallel to the given line, with a distance "offset"\. The
+    orientation is determined by the two points defining the line\.
+
+    Arguments:
+
+      * list *line*
+
+        The given line
+
+      * float *offset*
+
+        The distance to the given line
+
+      * string *orient*
+
+        Orientation of the new line with respect to the given line \(defaults to
+        "right"\)
+
+  - <a name='39'></a>__::math::geometry::unitVector__ *line*
+
+    Return a unit vector from the given line or direction, if the
+    *[line](\.\./\.\./\.\./\.\./index\.md\#line)* argument is a single point \(then a
+    line through the origin is assumed\) Arguments:
+
+      * list *line*
+
+        The line in question \(or a single point, implying a line through the
+        origin\)
+
+  - <a name='40'></a>__::math::geometry::pointInsidePolygon__ *P* *polyline*
 
     Determine if a point is completely inside a polygon\. If the point touches
     the polygon, then the point is not completely inside the polygon\.
@@ -531,7 +640,7 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='36'></a>__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*
+  - <a name='41'></a>__::math::geometry::pointInsidePolygonAlt__ *P* *polyline*
 
     Determine if a point is completely inside a polygon\. If the point touches
     the polygon, then the point is not completely inside the polygon\. *Note:*
@@ -546,7 +655,7 @@ The package defines the following public procedures:
 
         The polyline to be examined
 
-  - <a name='37'></a>__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*
+  - <a name='42'></a>__::math::geometry::rectangleInsidePolygon__ *P1* *P2* *polyline*
 
     Determine if a rectangle is completely inside a polygon\. If polygon touches
     the rectangle, then the rectangle is not complete inside the polygon\.
@@ -563,7 +672,7 @@ The package defines the following public procedures:
 
         The polygon in question
 
-  - <a name='38'></a>__::math::geometry::areaPolygon__ *polygon*
+  - <a name='43'></a>__::math::geometry::areaPolygon__ *polygon*
 
     Calculate the area of a polygon\.
 
@@ -571,7 +680,7 @@ The package defines the following public procedures:
 
         The polygon in question
 
-  - <a name='39'></a>__::math::geometry::translate__ *vector* *polyline*
+  - <a name='44'></a>__::math::geometry::translate__ *vector* *polyline*
 
     Translate a polyline over a given vector
 
@@ -583,7 +692,7 @@ The package defines the following public procedures:
 
         The polyline to be translated
 
-  - <a name='40'></a>__::math::geometry::rotate__ *angle* *polyline*
+  - <a name='45'></a>__::math::geometry::rotate__ *angle* *polyline*
 
     Rotate a polyline over a given angle \(degrees\) around the origin
 
@@ -595,7 +704,25 @@ The package defines the following public procedures:
 
         The polyline to be rotated
 
-  - <a name='41'></a>__::math::geometry::reflect__ *angle* *polyline*
+  - <a name='46'></a>__::math::geometry::rotateAbout__ *p* *angle* *polyline*
+
+    Rotate a polyline around a given point p and return the new polyline\.
+
+    Arguments:
+
+      * list *p*
+
+        The point of rotation
+
+      * float *angle*
+
+        The angle over which to rotate the polyline \(degrees\)
+
+      * list *polyline*
+
+        The polyline to be rotated
+
+  - <a name='47'></a>__::math::geometry::reflect__ *angle* *polyline*
 
     Reflect a polyline in a line through the origin at a given angle \(degrees\)
     to the x\-axis
@@ -608,7 +735,7 @@ The package defines the following public procedures:
 
         The polyline to be reflected
 
-  - <a name='42'></a>__::math::geometry::degToRad__ *angle*
+  - <a name='48'></a>__::math::geometry::degToRad__ *angle*
 
     Convert from degrees to radians
 
@@ -616,7 +743,7 @@ The package defines the following public procedures:
 
         Angle in degrees
 
-  - <a name='43'></a>__::math::geometry::radToDeg__ *angle*
+  - <a name='49'></a>__::math::geometry::radToDeg__ *angle*
 
     Convert from radians to degrees
 
@@ -624,7 +751,7 @@ The package defines the following public procedures:
 
         Angle in radians
 
-  - <a name='44'></a>__::math::geometry::circle__ *centre* *radius*
+  - <a name='50'></a>__::math::geometry::circle__ *centre* *radius*
 
     Convenience procedure to create a circle from a point and a radius\.
 
@@ -636,7 +763,7 @@ The package defines the following public procedures:
 
         Radius of the circle
 
-  - <a name='45'></a>__::math::geometry::circleTwoPoints__ *point1* *point2*
+  - <a name='51'></a>__::math::geometry::circleTwoPoints__ *point1* *point2*
 
     Convenience procedure to create a circle from two points on its
     circumference The centre is the point between the two given points, the
@@ -650,7 +777,7 @@ The package defines the following public procedures:
 
         Second point
 
-  - <a name='46'></a>__::math::geometry::pointInsideCircle__ *point* *circle*
+  - <a name='52'></a>__::math::geometry::pointInsideCircle__ *point* *circle*
 
     Determine if the given point is inside the circle or on the circumference
     \(1\) or outside \(0\)\.
@@ -663,7 +790,7 @@ The package defines the following public procedures:
 
         Circle that may or may not contain the point
 
-  - <a name='47'></a>__::math::geometry::lineIntersectsCircle__ *line* *circle*
+  - <a name='53'></a>__::math::geometry::lineIntersectsCircle__ *line* *circle*
 
     Determine if the given line intersects the circle or touches it \(1\) or does
     not \(0\)\.
@@ -676,7 +803,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='48'></a>__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*
+  - <a name='54'></a>__::math::geometry::lineSegmentIntersectsCircle__ *segment* *circle*
 
     Determine if the given line segment intersects the circle or touches it \(1\)
     or does not \(0\)\.
@@ -689,7 +816,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='49'></a>__::math::geometry::intersectionLineWithCircle__ *line* *circle*
+  - <a name='55'></a>__::math::geometry::intersectionLineWithCircle__ *line* *circle*
 
     Determine the points at which the given line intersects the circle\. There
     can be zero, one or two points\. \(If the line touches the circle or is close
@@ -704,7 +831,7 @@ The package defines the following public procedures:
 
         Circle that may or may not be intersected
 
-  - <a name='50'></a>__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*
+  - <a name='56'></a>__::math::geometry::intersectionCircleWithCircle__ *circle1* *circle2*
 
     Determine the points at which the given two circles intersect\. There can be
     zero, one or two points\. \(If the two circles touch the circle or are very
@@ -719,7 +846,7 @@ The package defines the following public procedures:
 
         Second circle
 
-  - <a name='51'></a>__::math::geometry::tangentLinesToCircle__ *point* *circle*
+  - <a name='57'></a>__::math::geometry::tangentLinesToCircle__ *point* *circle*
 
     Determine the tangent lines from the given point to the circle\. There can be
     zero, one or two lines\. \(If the point is on the cirucmference or very close
@@ -734,7 +861,152 @@ The package defines the following public procedures:
 
         Circle to which the tangent lines are to be determined
 
-# <a name='section3'></a>References
+  - <a name='58'></a>__::math::geometry::intersectionPolylines__ *polyline1* *polyline2* ?mode? ?granularity?
+
+    Return the first point or all points where the two polylines intersect\. If
+    the number of points in the polylines is large, you can use the granularity
+    to get an approximate answer faster\.
+
+    Arguments:
+
+      * list *polyline1*
+
+        The first polyline
+
+      * list *polyline2*
+
+        The second polyline
+
+      * string *mode*
+
+        Whether to return only the first \(default\) or to return all intersection
+        points \("all"\)
+
+      * int *granularity*
+
+        The number of points that will be skipped plus 1 in the search for
+        intersection points \(1 or smaller means an exact answer is returned\)
+
+  - <a name='59'></a>__::math::geometry::intersectionPolylineCircle__ *polyline* *circle* ?mode? ?granularity?
+
+    Return the first point or all points where the polyline intersects the
+    circle\. If the number of points in the polyline is large, you can use the
+    granularity to get an approximate answer faster\.
+
+    Arguments:
+
+      * list *polyline*
+
+        The polyline that may intersect the circle
+
+      * list *circle*
+
+        The circle in question
+
+      * string *mode*
+
+        Whether to return only the first \(default\) or to return all intersection
+        points \("all"\)
+
+      * int *granularity*
+
+        The number of points that will be skipped plus 1 in the search for
+        intersection points \(1 or smaller means an exact answer is returned\)
+
+  - <a name='60'></a>__::math::geometry::polylineCutOrigin__ *polyline1* *polyline2* ?granularity?
+
+    Return the part of the first polyline from the origin up to the first
+    intersection with the second\. If the number of points in the polyline is
+    large, you can use the granularity to get an approximate answer faster\.
+
+    Arguments:
+
+      * list *polyline1*
+
+        The first polyline \(from which a part is to be returned\)
+
+      * list *polyline2*
+
+        The second polyline
+
+      * int *granularity*
+
+        The number of points that will be skipped plus 1 in the search for
+        intersection points \(1 or smaller means an exact answer is returned\)
+
+  - <a name='61'></a>__::math::geometry::polylineCutEnd__ *polyline1* *polyline2* ?granularity?
+
+    Return the part of the first polyline from the last intersection point with
+    the second to the end\. If the number of points in the polyline is large, you
+    can use the granularity to get an approximate answer faster\.
+
+    Arguments:
+
+      * list *polyline1*
+
+        The first polyline \(from which a part is to be returned\)
+
+      * list *polyline2*
+
+        The second polyline
+
+      * int *granularity*
+
+        The number of points that will be skipped plus 1 in the search for
+        intersection points \(1 or smaller means an exact answer is returned\)
+
+  - <a name='62'></a>__::math::geometry::splitPolyline__ *polyline* *numberVertex*
+
+    Split the poyline into a set of polylines where each separate polyline holds
+    "numberVertex" vertices between the two end points\.
+
+    Arguments:
+
+      * list *polyline*
+
+        The polyline to be split up
+
+      * int *numberVertex*
+
+        The number of "internal" vertices
+
+  - <a name='63'></a>__::math::geometry::enrichPolyline__ *polyline* *accuracy*
+
+    Split up each segment of a polyline into a number of smaller segments and
+    return the result\.
+
+    Arguments:
+
+      * list *polyline*
+
+        The polyline to be refined
+
+      * int *accuracy*
+
+        The number of subsegments to be created
+
+  - <a name='64'></a>__::math::geometry::cleanupPolyline__ *polyline*
+
+    Remove duplicate neighbouring vertices and return the result\.
+
+    Arguments:
+
+      * list *polyline*
+
+        The polyline to be cleaned up
+
+# <a name='section3'></a>COORDINATE SYSTEM
+
+The coordinate system used by the package is the ordinary cartesian system,
+where the positive x\-axis is directed to the right and the positive y\-axis is
+directed upwards\. Angles and directions are defined with respect to the positive
+x\-axis in a counter\-clockwise direction, so that an angle of 90 degrees is the
+direction of the positive y\-axis\. Note that the Tk canvas coordinates differ
+from this, as there the origin is located in the upper left corner of the
+window\. Up to and including version 1\.3, the direction and octant procedures of
+this package used this convention inconsistently\.
+
+# <a name='section4'></a>References
 
   1. [Polygon Intersection](http:/wiki\.tcl\.tk/12070)
 
@@ -742,7 +1014,7 @@ The package defines the following public procedures:
 
   1. [http://local\.wasp\.uwa\.edu\.au/~pbourke/geometry/lineline2d/](http://local\.wasp\.uwa\.edu\.au/~pbourke/geometry/lineline2d/)
 
-# <a name='section4'></a>Bugs, Ideas, Feedback
+# <a name='section5'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
 other problems\. Please report such in the category *math :: geometry* of the
@@ -774,4 +1046,5 @@ Mathematics
 Copyright &copy; 2001 by Ideogramic ApS and other parties  
 Copyright &copy; 2010 by Andreas Kupries  
 Copyright &copy; 2010 by Kevin Kenny  
-Copyright &copy; 2018 by Arjen Markus
+Copyright &copy; 2018 by Arjen Markus  
+Copyright &copy; 2020 by Manfred Rosenberger
