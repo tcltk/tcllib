@@ -107,7 +107,7 @@ The algorithms in the package are the following:
 The "particle swarm optimisation" algorithm uses the idea that the candidate
 optimum points should swarm around the best point found so far, with
 variations to allow for improvements.
-[nl]
+[para]
 
 It recognises the following options:
 [list_begin itemized]
@@ -125,7 +125,7 @@ It recognises the following options:
 [call [cmd ::math::probopt::sce] [arg function] [arg bounds] [arg args]]
 The "shuffled complex evolution" algorithm is an extension of the Nelder-Mead algorithm that
 uses multiple complexes and reorganises these complexes to find the "global" optimum.
-[nl]
+[para]
 
 It recognises the following options:
 [list_begin itemized]
@@ -146,7 +146,7 @@ It recognises the following options:
 The "differential evolution" algorithm uses a number of initial points that are then updated using randomly selected points. It is more or less akin
 to genetic algorithms. It is controlled by two parameters, factor and lambda, where the first determines the update via random points and the second
 the update with the best point found sofar.
-[nl]
+[para]
 
 It recognises the following options:
 [list_begin itemized]
@@ -164,7 +164,7 @@ It recognises the following options:
 [call [cmd ::math::probopt::lipoMax] [arg function] [arg bounds] [arg args]]
 The "Lipschitz optimisation" algorithm uses the "Lipschitz" property of the given function to find a [emph maximum] in the given bounding box. There are
 two variants, [term lipoMax] assumes a fixed estimate for the Lipschitz parameter.
-[nl]
+[para]
 
 It recognises the following options:
 [list_begin itemized]
@@ -176,11 +176,11 @@ It recognises the following options:
 [call [cmd ::math::probopt::adaLipoMax] [arg function] [arg bounds] [arg args]]
 The "adaptive Lipschitz optimisation" algorithm uses the "Lipschitz" property of the given function to find a [emph maximum] in the given bounding box. The adaptive
 variant actually uses two phases to find a suitable estimate for the Lipschitz parameter. This is controlled by the "Bernoulli" parameter.
-[nl]
+[para]
 When you specify a large number of iterations, the algorithm may take a very long time to complete as it is trying to improve on the Lipschitz parameter and
 the chances of hitting a better estimate diminish fast.
 
-[nl]
+[para]
 It recognises the following options:
 [list_begin itemized]
 [item] [term {-iterations          number}]: Number of iterations (equals the actual number of function evaluations, default: 100)
@@ -199,25 +199,25 @@ The various algorithms have been described in on-line publications. Here are a f
 [item]
 [term PSO]: Maurice Clerc, Standard Particle Swarm Optimisation (2012)
 [uri https://hal.archives-ouvertes.fr/file/index/docid/764996/filename/SPSO_descriptions.pdf]
-[nl]
+[para]
 Alternatively: [uri https://en.wikipedia.org/wiki/Particle_swarm_optimization]
 
 [item]
 [term SCE]: Qingyuan Duan, Soroosh Sorooshian, Vijai K. Gupta, Optimal use offo the SCE-UA global optimization method for calibrating watershed models
 (1994), Journal of Hydrology 158, pp 265-284
-[nl]
+[para]
 [uri https://www.researchgate.net/publication/223408756_Optimal_Use_of_the_SCE-UA_Global_Optimization_Method_for_Calibrating_Watershed_Models]
 
 [item]
 [term DE]: Rainer Storn and Kenneth Price, Differential Evolution - A simple and efficient adaptivescheme for globaloptimization over continuous spaces
 (1996)
-[nl]
+[para]
 [uri http://www1.icsi.berkeley.edu/~storn/TR-95-012.pdf]
 
 [item]
 [term LIPO]: Cedric Malherbe and Nicolas Vayatis, Global optimization of Lipschitz functions,
 (june 2017)
-[nl]
+[para]
 [uri https://arxiv.org/pdf/1703.02628.pdf]
 
 [list_end]

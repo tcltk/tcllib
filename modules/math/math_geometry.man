@@ -441,7 +441,7 @@ coordinates: the upper-left and the lower-right corner of the box.
 [call [cmd ::math::geometry::overlapBBox] [arg polyline1] [arg polyline2] [opt strict]]
 
 Check if the bounding boxes of two polylines overlap or not.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline1] The first polyline
@@ -451,7 +451,7 @@ Arguments:
 
 
 [call [cmd ::math::geometry::pointInsideBBox] [arg bbox] [arg point]]
-[nl]
+[para]
 Check if the point is inside or on the bounding box or not.
 
 Arguments:
@@ -467,7 +467,7 @@ Return the third point of the rectangular triangle defined by the two given end 
 The triangle's side from point A (or B, if the location is given as "b") to the third point is the cathetus length.
 
 If the cathetus' length is lower than the length of the hypothenusa, an empty list is returned.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list pa] The starting point on hypotenuse
@@ -483,7 +483,7 @@ Arguments:
 
 Return a line parallel to the given line, with a distance "offset". The orientation is determined by the
 two points defining the line.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list line] The given line
@@ -575,7 +575,7 @@ Rotate a polyline over a given angle (degrees) around the origin
 [call [cmd ::math::geometry::rotateAbout] [arg p] [arg angle] [arg polyline]]
 
 Rotate a polyline around a given point p and return the new polyline.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list p] The point of rotation
@@ -710,7 +710,7 @@ radius of the circle is used to determine this situation.)
 
 Return the first point or all points where the two polylines intersect. If the number of points in the polylines is large,
 you can use the granularity to get an approximate answer faster.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline1] The first polyline
@@ -724,7 +724,7 @@ Arguments:
 
 Return the first point or all points where the polyline intersects the circle. If the number of points in the polyline is large,
 you can use the granularity to get an approximate answer faster.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline] The polyline that may intersect the circle
@@ -738,7 +738,7 @@ Arguments:
 
 Return the part of the first polyline from the origin up to the first intersection with the second. If the number of points in the polyline is large,
 you can use the granularity to get an approximate answer faster.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline1] The first polyline (from which a part is to be returned)
@@ -751,7 +751,7 @@ Arguments:
 
 Return the part of the first polyline from the last intersection point with the second to the end. If the number of points in the polyline is large,
 you can use the granularity to get an approximate answer faster.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline1] The first polyline (from which a part is to be returned)
@@ -763,7 +763,7 @@ Arguments:
 [call [cmd ::math::geometry::splitPolyline] [arg polyline] [arg numberVertex]]
 
 Split the poyline into a set of polylines where each separate polyline holds "numberVertex" vertices between the two end points.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline] The polyline to be split up
@@ -774,7 +774,7 @@ Arguments:
 [call [cmd ::math::geometry::enrichPolyline] [arg polyline] [arg accuracy]]
 
 Split up each segment of a polyline into a number of smaller segments and return the result.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline] The polyline to be refined
@@ -785,7 +785,7 @@ Arguments:
 [call [cmd ::math::geometry::cleanupPolyline] [arg polyline]]
 
 Remove duplicate neighbouring vertices and return the result.
-[nl]
+[para]
 Arguments:
 [list_begin arguments]
 [arg_def list polyline] The polyline to be cleaned up

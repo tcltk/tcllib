@@ -1,3 +1,7 @@
+2021-01-31  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* combinatoricsExt.tcl: Extension of the collection of combinatorial procedures
+	* combinatoricsExt.test: Tests for the new procedures
+	* combinatorics.man: Description of the new procedures
 2021-01-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* changepoint.tcl: New package defining two change point detection algorithms
 	* changepoint.test: Basic tests for the change point detection algorithms

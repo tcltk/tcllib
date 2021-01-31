@@ -1,5 +1,19 @@
 This file records outstanding actions for the math module
 
+dd. 19 january 2021
+Solve a problem with determineSVD - reported by Nicolas Robert
+https://groups.google.com/g/comp.lang.tcl/c/RKcM7OfVkXk
+- the code turned out to be correct. Issue was closed.
+
+
+dd. 4 january 2021
+Check the man pages:
+- [category] missing in several
+- [strong] used (deprecated) - or some other keyword, no, [nl] in quasirandom.man
+  math_geometry.man
+  probopt.man
+  quasirandom.man
+
 
 dd. 27 november 2020
 Stirling numbers - https://mathworld.wolfram.com/StirlingNumberoftheFirstKind.html
