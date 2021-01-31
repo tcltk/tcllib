@@ -66,18 +66,18 @@ Each generator supports the following subcommands:
 
 [call [cmd "gen next"]]
 Return the coordinates of the next quasi-random point
-[nl]
+[para]
 
 [call [cmd "gen set-start"] [arg index]]
 Reset the index for the next quasi-random point. This is useful to control which list of points is returned.
 Returns the new or the current value, if no value is given.
-[nl]
+[para]
 
 [call [cmd "gen set-evaluations"] [arg number]]
 Reset the default number of evaluations in compound algorithms. Note that the actual number is the
 smallest 4-fold larger or equal to the given number. (The 4-fold plays a role in the detailed integration
 routine.)
-[nl]
+[para]
 
 [call [cmd "gen integral"] [arg func] [arg minmax] [arg args]]
 Calculate the integral of the given function over the block (or the circle, sphere etc.)
@@ -87,7 +87,7 @@ Calculate the integral of the given function over the block (or the circle, sphe
 
 [arg_def list minmax] List of pairs of minimum and maximum coordinates. This can be used to
 map the quasi-random coordinates to the desired hyper-block.
-[nl]
+[para]
 If the space is a circle, disk etc. then this argument should be a single value, the radius.
 The circle, disk, etc. is centred at the origin. If this is not what is required, then a coordinate
 transformation should be made within the function.

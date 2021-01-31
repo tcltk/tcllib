@@ -20,7 +20,9 @@
 package require math::statistics
 package provide math::changepoint 0.1
 
-namespace eval ::math::changepoint {}
+namespace eval ::math::changepoint {
+    namespace export cusum-detect cusum-online binary-segmentation
+}
 
 # cusum-detect --
 #     Procedure to examine a given data series and return the location
@@ -193,14 +195,6 @@ proc ::math::changepoint::cusum-detect {data args} {
         return [expr { $Shi > $h || $Slo > $h }]
     }
 }
-
-# binary_segmentation.tcl --
-#     Implementation of a straightforward method to apply binary segmentation
-#     to a timeseries to find change points
-#
-package require math::statistics
-
-namespace eval ::math::changepoint {}
 
 # binary-segmentation --
 #     Apply the binary segmentation method recursively to find change points

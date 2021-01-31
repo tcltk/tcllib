@@ -38,3 +38,4 @@ package ifneeded math::PCA               1.0   [list source [file join $dir pca.
 package ifneeded math::filters           0.1   [list source [file join $dir filtergen.tcl]]
 package ifneeded math::probopt           1.0   [list source [file join $dir probopt.tcl]]
 package ifneeded math::changepoint       0.1   [list source [file join $dir changepoint.tcl]]
+package ifneeded math::combinatorics     2.0   [list source [file join $dir combinatoricsExt.tcl]]
