@@ -21,6 +21,7 @@ namespace eval ::picoirc {
     variable defaults {
         server   "irc.freenode.net"
         port     6667
+        secure   0
         channel  ""
         callback ""
         motd     {}
@@ -30,12 +31,13 @@ namespace eval ::picoirc {
 }
 
 proc ::picoirc::splituri {uri} {
-    foreach {server port channel} {{} {} {}} break
-    if {![regexp {^irc://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> server port channel]} {
+    foreach {s server port channel} {{} {} {} {}} break
+    if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> secure server port channel]} {
         regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channel server port
     }
-    if {$port eq {}} { set port 6667 }
-    return [list $server $port $channel]
+    set secure [expr {$secure eq "s"}]
+    if {$port eq {}} { set port [expr {$secure ? 6697: 6667}] }
+    return [list $server $port $channel $secure]
 }
 
 proc ::picoirc::connect {callback nick args} {
@@ -51,15 +53,20 @@ proc ::picoirc::connect {callback nick args} {
     set context [namespace current]::irc[incr uid]
     upvar #0 $context irc
     array set irc $defaults
-    foreach {server port channel} [splituri $url] break
+    foreach {server port channel secure} [splituri $url] break
     if {[info exists channel] && $channel ne ""} {set irc(channel) $channel}
     if {[info exists server] && $server ne ""} {set irc(server) $server}
     if {[info exists port] && $port ne ""} {set irc(port) $port}
+    if {[info exists secure] && $secure} {set irc(secure) $secure}
     if {[info exists passwd] && $passwd ne ""} {set irc(passwd) $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
     Callback $context init
-    set irc(socket) [socket -async $irc(server) $irc(port)]
+    if {$irc(secure)} {
+        set irc(socket) [::tls::socket $irc(server) $irc(port)]
+    } else {
+        set irc(socket) [socket -async $irc(server) $irc(port)]
+    }
     fileevent $irc(socket) readable [list [namespace origin Read] $context]
     fileevent $irc(socket) writable [list [namespace origin Write] $context]
     return $context
@@ -86,7 +93,8 @@ proc ::picoirc::Version {context} {
 proc ::picoirc::Write {context} {
     upvar #0 $context irc
     fileevent $irc(socket) writable {}
-    if {[set err [fconfigure $irc(socket) -error]] ne ""} {
+    if {[set err [fconfigure $irc(socket) -error]] ne ""
+        || $irc(secure) && [catch {while {![::tls::handshake $irc(socket)]} {}} err] != 0} {
         Callback $context close $err
         close $irc(socket)
         unset irc
@@ -266,6 +274,6 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.5.3
+package provide picoirc 0.6.0
 
 # -------------------------------------------------------------------------
