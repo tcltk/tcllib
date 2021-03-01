@@ -1,7 +1,7 @@
 
 [//000000001]: # (picoirc \- Simple embeddable IRC interface)
 [//000000002]: # (Generated from file 'picoirc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (picoirc\(n\) 0\.5\.3 tcllib "Simple embeddable IRC interface")
+[//000000003]: # (picoirc\(n\) 0\.6\.0 tcllib "Simple embeddable IRC interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ picoirc \- Small and simple embeddable IRC client\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl  
-package require picoirc ?0\.5\.3?  
+package require picoirc ?0\.6\.0?  
 
 [__::picoirc::connect__ *callback* *nick* *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  
@@ -61,10 +61,26 @@ capability investigate the __[irc](irc\.md)__ package\.
 
   - <a name='1'></a>__::picoirc::connect__ *callback* *nick* *url*
 
-    Create a new irc connection to the server specified by *url* and login
-    using the *nick* as the username\. The *callback* must be as specified in
+    Creates a new irc connection to the server specified by *url* and login
+    using the *nick* as the username\. If the *url* starts with *ircs://*
+    then a TLS connection is created\. The *callback* must be as specified in
     [CALLBACK](#section3)\. Returns a package\-specific variable that is used
     when calling other commands in this package\.
+
+    *Note:* For connecting via TLS the Tcl module *tls* must be already
+    loaded, otherwise an error is raised\.
+
+        # must be loaded for TLS
+        package require tls
+        # default arguments
+        tls::init -autoservername true -command workaround \
+            -require 1 -cadir /etc/ssl/certs -tls1 0 -tls1.1 0
+        # avoid annoying bgerror, errors are already catched internally
+        proc workaround {state args} {
+            if {$state == "verify"} {
+                return [lindex $args 3]
+            }
+        }
 
   - <a name='2'></a>__::picoirc::post__ *context* *channel* *message*
 
@@ -75,8 +91,10 @@ capability investigate the __[irc](irc\.md)__ package\.
   - <a name='3'></a>__::picoirc::splituri__ *uri*
 
     Splits an IRC scheme uniform resource indicator into its component parts\.
-    Returns a list of server, port and channel\. The default port is 6667 and
-    there is no default channel\.
+    Returns a list of server, port, channel and secure where secure is a boolean
+    flag which is __true__ if a TLS connection was requested via the
+    *ircs://* schema\. The default port is 6667 \(or 6697 if secured\) and there
+    is no default channel\.
 
   - <a name='4'></a>__::picoirc::send__ *context* *line*
 

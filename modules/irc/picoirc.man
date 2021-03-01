@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.5.3]
+[vset VERSION 0.6.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -37,10 +37,31 @@ more capability investigate the [package irc] package.
 
 [call [cmd ::picoirc::connect] [arg callback] [arg nick] [arg url]]
 
-Create a new irc connection to the server specified by [arg url] and
-login using the [arg nick] as the username. The [arg callback] must be
-as specified in [sectref CALLBACK]. Returns a package-specific variable
-that is used when calling other commands in this package.
+Creates a new irc connection to the server specified by [arg url] and
+login using the [arg nick] as the username. If the [arg url] starts
+with [emph ircs://] then a TLS connection is created.
+The [arg callback] must be as specified in [sectref CALLBACK].
+Returns a package-specific variable that is used when calling other
+commands in this package.
+
+[para][emph Note:]
+
+For connecting via TLS the Tcl module [emph tls] must be already
+loaded, otherwise an error is raised.
+
+[example {
+# must be loaded for TLS
+package require tls
+# default arguments
+tls::init -autoservername true -command workaround \\
+    -require 1 -cadir /etc/ssl/certs -tls1 0 -tls1.1 0
+# avoid annoying bgerror, errors are already catched internally
+proc workaround {state args} {
+    if {$state == "verify"} {
+        return [lindex $args 3]
+    }
+}
+}]
 
 [call [cmd ::picoirc::post] [arg context] [arg channel] [arg message]]
 
@@ -52,8 +73,10 @@ sequences and then sent.
 [call [cmd ::picoirc::splituri] [arg uri]]
 
 Splits an IRC scheme uniform resource indicator into its component
-parts. Returns a list of server, port and channel. The default port is
-6667 and there is no default channel.
+parts. Returns a list of server, port, channel and secure where
+secure is a boolean flag which is [const true] if a TLS connection was
+requested via the [emph ircs://] schema. The default port is 6667 (or
+6697 if secured) and there is no default channel.
 
 [call [cmd ::picoirc::send] [arg context] [arg line]]
 
