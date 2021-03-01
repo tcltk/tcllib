@@ -1,5 +1,6 @@
+[vset VERSION 0.2.2]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin nntp n 1.5.1]
+[manpage_begin nntp n [vset VERSION]]
 [keywords news]
 [keywords nntp]
 [keywords nntpclient]
@@ -9,7 +10,7 @@
 [titledesc {Tcl client for the NNTP protocol}]
 [category  Networking]
 [require Tcl  8.2]
-[require nntp [opt 0.2.1]]
+[require nntp [opt [vset VERSION]]]
 [description]
 
 The package [package nntp] provides a simple Tcl-only client library

@@ -4,11 +4,9 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
-# 
-# RCS: @(#) $Id: nntp.tcl,v 1.13 2004/05/03 22:56:25 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide nntp 0.2.1
+package provide nntp 0.2.2
 
 namespace eval ::nntp {
     # The socks variable holds the handle to the server connections
@@ -45,7 +43,7 @@ namespace eval ::nntp {
     set ::nntp::eol "\n"
 
     # only export one command, the one used to instantiate a new
-    # nntp connection 
+    # nntp connection
     namespace export nntp
 
 }
@@ -72,7 +70,7 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
     variable socks
 
     # If a name wasn't specified for the connection, create a new 'unique'
-    # name for the connection 
+    # name for the connection
 
     if { [llength [info level 0]] < 4 } {
         set counter 0
@@ -115,13 +113,13 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
     if {$port == ""} {
         if {[info exists env(NNTPPORT)]} {
             set data(port) $env(NNTPPORT)
-        } else {    
+        } else {
             set data(port) 119
         }
     } else {
         set data(port) $port
     }
- 
+
     set data(code) 0
     set data(mesg) ""
     set data(addr) ""
@@ -134,7 +132,7 @@ proc ::nntp::nntp {{server ""} {port ""} {name ""}} {
     # Create the command to manipulate the nntp connection
 
     interp alias {} ::$name {} ::nntp::NntpProc $name
-    
+
     ::nntp::response $name
 
     return $name
@@ -185,7 +183,7 @@ proc ::nntp::NntpProc {name {cmd ""} args} {
 # Results:
 #       Either throws an error describing the failure, or
 #       'args' and passes 'args' to the command/procedure or
-#       returns 1 for 'OK' and 0 for error states.   
+#       returns 1 for 'OK' and 0 for error states.
 
 proc ::nntp::okprint {name} {
     upvar 0 ::nntp::${name}data data
@@ -268,7 +266,7 @@ proc ::nntp::_configure {name args} {
 #
 #       Internal article proc.  Called by the 'nntpName article' command.
 #       Retrieves the article specified by msgid, in the group specified by
-#       the 'nntpName group' command.  If no msgid is specified the current 
+#       the 'nntpName group' command.  If no msgid is specified the current
 #       (or first) article in the group is retrieved
 #
 # Arguments:
@@ -292,7 +290,7 @@ proc ::nntp::_configure {name args} {
 #   423 no such article number in this group
 #   430 no such article found
 #
- 
+
 proc ::nntp::_article {name {msgid ""}} {
     upvar 0 ::nntp::${name}data data
 
@@ -303,7 +301,7 @@ proc ::nntp::_article {name {msgid ""}} {
 # ::nntp::_authinfo --
 #
 #       Internal authinfo proc.  Called by the 'nntpName authinfo' command.
-#       Passes the username and password for a nntp server to the nntp server. 
+#       Passes the username and password for a nntp server to the nntp server.
 #
 # Arguments:
 #       name    Name of the nntp object.
@@ -330,7 +328,7 @@ proc ::nntp::_authinfo {name {user "guest"} {pass "foobar"}} {
 #       Internal body proc.  Called by the 'nntpName body' command.
 #       Retrieves the body of the article specified by msgid from the group
 #       specified by the 'nntpName group' command. If no msgid is specified
-#       the current (or first) message body is returned  
+#       the current (or first) message body is returned
 #
 # Arguments:
 #       name    Name of the nntp object.
@@ -339,7 +337,7 @@ proc ::nntp::_authinfo {name {user "guest"} {pass "foobar"}} {
 # Results:
 #       Returns the body of article 'msgid' from the group specified through
 #       'nntpName group'. If msgid is not specified or is "" then the body of
-#       the current (or the first) article in the newsgroup will be returned 
+#       the current (or the first) article in the newsgroup will be returned
 #       as a valid tcl list.  The "" string will be returned if there is no
 #       article 'msgid' or if no group has been specified.
 
@@ -387,7 +385,7 @@ proc ::nntp::_group {name {group ""}} {
 #       Internal head proc.  Called by the 'nntpName head' command.
 #       Retrieves the header of the article specified by msgid from the group
 #       specified by the 'nntpName group' command. If no msgid is specified
-#       the current (or first) message header is returned  
+#       the current (or first) message header is returned
 #
 # Arguments:
 #       name    Name of the nntp object.
@@ -396,7 +394,7 @@ proc ::nntp::_group {name {group ""}} {
 # Results:
 #       Returns the header of article 'msgid' from the group specified through
 #       'nntpName group'. If msgid is not specified or is "" then the header of
-#       the current (or the first) article in the newsgroup will be returned 
+#       the current (or the first) article in the newsgroup will be returned
 #       as a valid tcl list.  The "" string will be returned if there is no
 #       article 'msgid' or if no group has been specified.
 
@@ -432,7 +430,7 @@ proc ::nntp::_ihave {name {msgid ""} args} {
     if {![::nntp::command $name "IHAVE $msgid"]} {
         return ""
     }
-    return [::nntp::squirt $name "$args"]    
+    return [::nntp::squirt $name "$args"]
 }
 
 # ::nntp::_last --
@@ -486,7 +484,7 @@ proc ::nntp::_list {name {type ""}} {
 #               format that is accepted by 'clock scan' in tcl.
 #
 # Results:
-#       Returns a tcl list of all new groups added since the time specified. 
+#       Returns a tcl list of all new groups added since the time specified.
 
 proc ::nntp::_newgroups {name since args} {
     upvar 0 ::nntp::${name}data data
@@ -510,7 +508,7 @@ proc ::nntp::_newgroups {name since args} {
 #               "1 day ago"
 #
 # Results:
-#       Returns a tcl list of all new messages since the time specified. 
+#       Returns a tcl list of all new messages since the time specified.
 
 proc ::nntp::_newnews {name {group ""} {since ""}} {
     upvar 0 ::nntp::${name}data data
@@ -529,10 +527,10 @@ proc ::nntp::_newnews {name {group ""} {since ""}} {
         }
     }
     if {"$since" == ""} {
-        set since [clock format [clock scan "now - 1 day"]]
+        set since [clock format [clock scan "now - 1 day"] -gmt 1]
     }
     set since [clock format [clock scan $since] -format "%y%m%d %H%M%S"]
-    set dist "" 
+    set dist ""
     set data(cmnd) "fetch"
     return [::nntp::command $name "NEWNEWS $group $since $dist"]
 }
@@ -574,7 +572,7 @@ proc ::nntp::_next {name} {
 #       None.
 
 proc ::nntp::_post {name article} {
-    
+
     if {![::nntp::command $name "POST"]} {
         return ""
     }
@@ -586,8 +584,8 @@ proc ::nntp::_post {name article} {
 #       Internal slave proc.  Called by the 'nntpName slave' command.
 #       Identifies a connection as being made from a slave nntp server.
 #       This might be used to indicate that the connection is serving
-#       multiple people and should be given priority.  Actual use is 
-#       entirely implementation dependant and may vary from server to
+#       multiple people and should be given priority.  Actual use is
+#       entirely implementation dependent and may vary from server to
 #       server.
 #
 # Arguments:
@@ -695,7 +693,7 @@ proc ::nntp::_xhdr {name {header "message-id"} {list ""} {last ""}} {
 	}
     }
     set data(cmnd) "fetch"
-    return [::nntp::command $name "XHDR $header $list"]    
+    return [::nntp::command $name "XHDR $header $list"]
 }
 
 proc ::nntp::_xindex {name {group ""}} {
@@ -705,18 +703,18 @@ proc ::nntp::_xindex {name {group ""}} {
         set group $data(group)
     }
     set data(cmnd) "fetch"
-    return [::nntp::command $name "XINDEX $group"]    
+    return [::nntp::command $name "XINDEX $group"]
 }
 
 proc ::nntp::_xmotd {name {since ""}} {
     upvar 0 ::nntp::${name}data data
 
-    if {"$since" != ""} {
-        set since [clock seconds]
+    if {"$since" == ""} {
+        set since [clock format [clock seconds] -gmt 1]
     }
     set since [clock format [clock scan $since] -format "%y%m%d %H%M%S"]
     set data(cmnd) "fetch"
-    return [::nntp::command $name "XMOTD $since"]    
+    return [::nntp::command $name "XMOTD $since"]
 }
 
 proc ::nntp::_xover {name {list ""} {last ""}} {
@@ -744,7 +742,7 @@ proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} args} {
     } elseif {"$last" != ""} {
         set patterns "$last"
     }
-    
+
     if {[llength $args] > 0} {
         set patterns "$patterns $args"
     }
@@ -752,7 +750,7 @@ proc ::nntp::_xpat {name {header "subject"} {list 1} {last ""} args} {
     if {"$patterns" == ""} {
         set patterns "*"
     }
-    
+
     set data(cmnd) "fetch"
     return [::nntp::command $name "XPAT $header $list $patterns"]
 }
@@ -769,7 +767,7 @@ proc ::nntp::_xsearch {name args} {
     if {!$res} {
         return ""
     }
-    return [::nntp::squirt $name "$args"]    
+    return [::nntp::squirt $name "$args"]
 }
 
 proc ::nntp::_xthread {name args} {
@@ -804,7 +802,7 @@ proc ::nntp::cmd {name cmd} {
 
 proc ::nntp::command {name args} {
     set res [eval [linsert $args 0 ::nntp::cmd $name]]
-    
+
     return [::nntp::response $name]
 }
 
@@ -910,7 +908,7 @@ proc ::nntp::response {name} {
 
     set result [regexp -- {^((\d\d)(\d))\s*(.*)} $line match \
             data(code) val1 val2 data(mesg)]
-    
+
     if {$result == 0} {
         puts stderr "nntp garbled response: $line\n";
         return ""
@@ -927,7 +925,7 @@ proc ::nntp::response {name} {
         if {[info exists data(post)]} {
             puts stderr "post '$data(post)'"
         }
-    } 
+    }
 
     return [::nntp::returnval $name]
 }
@@ -941,7 +939,7 @@ proc ::nntp::returnval {name} {
     } else {
         set command okprint
     }
-    
+
     if {$data(debug)} {
         puts stderr "returnval command '$command'"
     }
