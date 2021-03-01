@@ -1,7 +1,8 @@
 '\"
-'\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'changepoint\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2020 by Arjen Markus
 '\"
-.TH "picoirc" n 0\&.5\&.3 tcllib "Simple embeddable IRC interface"
+.TH "math::changepoint" n 0\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -271,146 +272,143 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-picoirc \- Small and simple embeddable IRC client\&.
+math::changepoint \- Change point detection methods
 .SH SYNOPSIS
-package require \fBTcl \fR
+package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBpicoirc  ?0\&.5\&.3?\fR
+package require \fBmath::statistics \fR
 .sp
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
+package require \fBmath::changepoint  ?0\&.1?\fR
 .sp
-\fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
+\fB::math::changepoint::cusum-detect\fR \fIdata\fR ?args?
 .sp
-\fB::picoirc::splituri\fR \fIuri\fR
+\fB::math::changepoint::cusum-online\fR ?args?
 .sp
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
+\fB$cusumObj\fR examine \fIvalue\fR
+.sp
+\fB$cusumObj\fR reset
+.sp
+\fB::math::changepoint::binary-segmentation\fR \fIdata\fR ?args?
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a general purpose minimal IRC client suitable for
-embedding in other applications\&. All communication with the parent
-application is done via an application provided callback procedure\&.
-Each connection has its own state so you can hook up multiple servers
-in a single application instance\&.
 .PP
-To initiate an IRC connection you must call \fBpicoirc::connect\fR
-with a callback procedure, a nick-name to use on IRC and the IRC URL
-that describes the connection\&. This will return a variable name that
-is the irc connection context\&. See \fBCALLBACK\fR for details\&.
+The \fBmath::changepoint\fR package implements a number of well-known methods
+to determine if a series of data contains a shift in the mean or not\&. Note that
+these methods only indicate if a shift in the mean is probably\&. Due to the stochastic
+nature of the data that will be analysed, false positives are possible\&.
+The CUSUM method is implemented in both an "offline" and an "online" version, so that
+it can be used either for a complete data series or for detecting changes in data that
+come in one by one\&. The implementation has been based on these websites mostly:
+.IP \(bu
+\fIhttps://www\&.itl\&.nist\&.gov/div898/handbook/pmc/section3/pmc323\&.htm\fR
+.IP \(bu
+\fIhttps://en\&.wikipedia\&.org/wiki/CUSUM\fR
 .PP
-This package is a fairly simple IRC client\&. If you need something with
-more capability investigate the \fBirc\fR package\&.
+Basically, the deviation of the data from a given target value is accumulated and when
+the total deviation becomes too large, a change point is reported\&.
+A second method, binary segmentation, is implemented only as an "offline" method, as it
+needs to examine the data series as a whole\&. In the variant contained here the following
+ideas have been used:
+.IP \(bu
+The segments in which the data series may be separated shold not be too short, otherwise
+the ultimate result could be segments of only one data point long\&. So a minimum length is
+used\&.
+.IP \(bu
+To make the segmentation worthwhile there should be a minimum gain in reducing the cost
+function (the sum of the squared deviations from the mean for each segment)\&.
 .PP
-.SH COMMANDS
+This may not be in agreement with the descriptions of the method found in various
+publications, but it is simple to understand and intuitive\&.
+One publication that provides more information on the method in general is
+"Selective review of offline change point detection methods" by Truong et al\&. \fIhttps://arxiv\&.org/abs/1801\&.00718\fR\&.
+.SH PROCEDURES
+The package defines the following public procedures:
 .TP
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
-Create a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username\&. The \fIcallback\fR must be
-as specified in \fBCALLBACK\fR\&. Returns a package-specific variable
-that is used when calling other commands in this package\&.
+\fB::math::changepoint::cusum-detect\fR \fIdata\fR ?args?
+Examine a given data series and return the location of the first change (if any)
+.RS
 .TP
-\fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
-This should be called to process user input and send it to the
-server\&. A number of commands are recognised when prefixed with a
-forward-slash (/)\&. Such commands are converted to IRC command
-sequences and then sent\&.
+double \fIdata\fR
+Series of data to be examined
 .TP
-\fB::picoirc::splituri\fR \fIuri\fR
-Splits an IRC scheme uniform resource indicator into its component
-parts\&. Returns a list of server, port and channel\&. The default port is
-6667 and there is no default channel\&.
+list \fIargs\fR
+Optional list of key-value pairs:
+.RS
 .TP
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
-This command is where all raw output to the server is handled\&. The
-default action is to write the \fIline\fR to the irc socket\&. However,
-before this happens the callback is called with "debug write"\&. This
-permits the application author to inspect the raw IRC data and if
-desired to return a break error code to halt further processing\&. In
-this way the application can override the default send via the
-callback procedure\&.
+\fB-target\fR \fIvalue\fR
+The target (or mean) for the time series
+.TP
+\fB-tolerance\fR \fIvalue\fR
+The tolerated standard deviation
+.TP
+\fB-kfactor\fR \fIvalue\fR
+The factor by which to multiply the standard deviation (defaults to 0\&.5, typically between 0\&.5 and 1\&.0)
+.TP
+\fB-hfactor\fR \fIvalue\fR
+The factor determining the limits betweem which the "cusum" statistic is accepted (typicaly 3\&.0-5\&.0, default 4\&.0)
+.RE
+.RE
+.TP
+\fB::math::changepoint::cusum-online\fR ?args?
+Class to examine data passed in against expected properties\&. At least the keywords \fI-target\fR and \fI-tolerance\fR must be given\&.
+.RS
+.TP
+list \fIargs\fR
+List of key-value pairs:
+.RS
+.TP
+\fB-target\fR \fIvalue\fR
+The target (or mean) for the time series
+.TP
+\fB-tolerance\fR \fIvalue\fR
+The tolerated standard deviation
+.TP
+\fB-kfactor\fR \fIvalue\fR
+The factor by which to multiply the standard deviation (defaults to 0\&.5, typically between 0\&.5 and 1\&.0)
+.TP
+\fB-hfactor\fR \fIvalue\fR
+The factor determining the limits betweem which the "cusum" statistic is accepted (typicaly 3\&.0-5\&.0, default 4\&.0)
+.RE
+.RE
+.TP
+\fB$cusumObj\fR examine \fIvalue\fR
+Pass a value to the \fIcusum-online\fR object and examine it\&. If, with this new value, the cumulative sum remains within the bounds,
+zero (0) is returned, otherwise one (1) is returned\&.
+.RS
+.TP
+double \fIvalue\fR
+The new value
+.RE
+.TP
+\fB$cusumObj\fR reset
+Reset the cumulative sum, so that the examination can start afresh\&.
+.TP
+\fB::math::changepoint::binary-segmentation\fR \fIdata\fR ?args?
+Apply the binary segmentation method recursively to find change points\&. Returns a list of indices of potential change points
+.RS
+.TP
+list \fIdata\fR
+Data to be examined
+.TP
+list \fIargs\fR
+Optional key-value pairs:
+.RS
+.TP
+\fB-minlength\fR \fInumber\fR
+Minimum number of points in each segment (default: 5)
+.TP
+\fB-threshold\fR \fIvalue\fR
+Factor applied to the standard deviation functioning as a threshold for accepting the change in cost function as an improvement (default: 1\&.0)
+.RE
+.RE
 .PP
-.SH CALLBACK
-The callback must look like:
-.CS
-
-
-proc Callback {context state args} {
-}
-
-.CE
-where context is the irc context variable name (in case you need to pass
-it back to a picoirc procedure)\&. state is one of a number of states as
-described below\&.
-.TP
-\fBinit\fR
-called just before the socket is created
-.TP
-\fBconnect\fR
-called once we have connected, before we join any channels
-.TP
-\fBclose\fR
-called when the socket gets closed, before the context is deleted\&. If
-an error occurs before we get connected the only argument will be the
-socket error message\&.
-.TP
-\fBuserlist\fR \fIchannel\fR \fInicklist\fR
-called to notify the application of an updated userlist\&. This is
-generated when the output of the NAMES irc command is seen\&. The
-package collects the entire output which can span a number of output
-lines from the server and calls this callback when they have all been
-received\&.
-.TP
-\fBchat\fR \fItarget\fR \fInick\fR \fImessage\fR \fItype\fR
-called when a message arrives\&. \fItarget\fR is the identity that the
-message was targetted for\&. This can be the logged in nick or a channel
-name\&. \fInick\fR is the name of the sender of the message\&.
-\fImessage\fR is the message text\&. \fItype\fR is set to "ACTION" if the
-message was sent as a CTCP ACTION
-.TP
-\fBsystem\fR \fIchannel\fR \fImessage\fR
-called when a system message is received
-.TP
-\fBtopic\fR \fIchannel\fR \fItopic\fR
-called when the channel topic string is seen\&. \fItopic\fR is the text
-of the channel topic\&.
-.TP
-\fBtraffic\fR \fIaction\fR \fIchannel\fR \fInick\fR ?\fInewnick\fR?
-called when users join, leave or change names\&.
-\fIaction\fR is either entered, left or nickchange and \fInick\fR
-is the user doing the action\&. \fInewnick\fR is
-the new name if \fIaction\fR is nickchange\&.
-.sp
-\fINOTE\fR: \fIchannel\fR is often empty for these messages as nick
-activities are global for the irc server\&. You will have
-to manage the nick for all connected channels yourself\&.
-.TP
-\fBversion\fR
-This is called to request a version string to use to
-override the internal version\&. If implemented, you should
-return as colon delimited string as
-.sp
-Appname:Appversion:LibraryVersion
-.sp
-For example, the default is
-.sp
-PicoIRC:[package provide picoirc]:Tcl [info patchlevel]
-.TP
-\fBdebug\fR \fItype\fR \fIraw\fR
-called when data is either being read or written to the network
-socket\&. \fItype\fR is set to \fBread\fR when reading data and
-\fBwrite\fR if the data is to be written\&. \fIraw\fR is the
-unprocessed IRC protocol data\&.
-.sp
-In both cases the application can return a break error code to
-interrupt further processing of the raw data\&. If this is a
-\fBread\fR operation then the package will not handle this line\&. If
-the operation is \fBwrite\fR then the package will not send the
-data\&. This callback is intended for debugging protocol issues but
-could be used to redirect all input and output if desired\&.
-.PP
-.SH "SEE ALSO"
-rfc 1459
 .SH KEYWORDS
-chat, irc
+control, statistics
 .SH CATEGORY
-Networking
+Mathematics
+.SH COPYRIGHT
+.nf
+Copyright (c) 2020 by Arjen Markus
+
+.fi

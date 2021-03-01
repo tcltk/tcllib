@@ -1,7 +1,8 @@
 '\"
-'\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'filtergen\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2020 by Arjen Markus
 '\"
-.TH "picoirc" n 0\&.5\&.3 tcllib "Simple embeddable IRC interface"
+.TH "math::filters" n 0\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -271,146 +272,98 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-picoirc \- Small and simple embeddable IRC client\&.
+math::filters \- Digital filters
 .SH SYNOPSIS
-package require \fBTcl \fR
+package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBpicoirc  ?0\&.5\&.3?\fR
+package require \fBmath::filters  ?0\&.1?\fR
 .sp
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
+\fB::math::filters::filterButterworth\fR \fIlowpass\fR \fIorder\fR \fIsamplefreq\fR \fIcutofffreq\fR
 .sp
-\fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
+\fB::math::filters::filter\fR \fIcoeffs\fR \fIdata\fR
 .sp
-\fB::picoirc::splituri\fR \fIuri\fR
+\fB::math::filters::filterObj\fR new \fIcoeffs\fR \fIyinit\fR
 .sp
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
+\fB$filterObj\fR filter \fIx\fR
+.sp
+\fB$filterObj\fR reset
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a general purpose minimal IRC client suitable for
-embedding in other applications\&. All communication with the parent
-application is done via an application provided callback procedure\&.
-Each connection has its own state so you can hook up multiple servers
-in a single application instance\&.
 .PP
-To initiate an IRC connection you must call \fBpicoirc::connect\fR
-with a callback procedure, a nick-name to use on IRC and the IRC URL
-that describes the connection\&. This will return a variable name that
-is the irc connection context\&. See \fBCALLBACK\fR for details\&.
-.PP
-This package is a fairly simple IRC client\&. If you need something with
-more capability investigate the \fBirc\fR package\&.
-.PP
-.SH COMMANDS
+The \fBmath::filters\fR package implements digital filters,
+notably Butterworth low-pass and high-pass filters\&. The procedures
+allow to filter an entire data series as well as filter data one
+by one\&.
+.SH PROCEDURES
+The package defines the following public procedures:
 .TP
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
-Create a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username\&. The \fIcallback\fR must be
-as specified in \fBCALLBACK\fR\&. Returns a package-specific variable
-that is used when calling other commands in this package\&.
-.TP
-\fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
-This should be called to process user input and send it to the
-server\&. A number of commands are recognised when prefixed with a
-forward-slash (/)\&. Such commands are converted to IRC command
-sequences and then sent\&.
-.TP
-\fB::picoirc::splituri\fR \fIuri\fR
-Splits an IRC scheme uniform resource indicator into its component
-parts\&. Returns a list of server, port and channel\&. The default port is
-6667 and there is no default channel\&.
-.TP
-\fB::picoirc::send\fR \fIcontext\fR \fIline\fR
-This command is where all raw output to the server is handled\&. The
-default action is to write the \fIline\fR to the irc socket\&. However,
-before this happens the callback is called with "debug write"\&. This
-permits the application author to inspect the raw IRC data and if
-desired to return a break error code to halt further processing\&. In
-this way the application can override the default send via the
-callback procedure\&.
-.PP
-.SH CALLBACK
-The callback must look like:
+\fB::math::filters::filterButterworth\fR \fIlowpass\fR \fIorder\fR \fIsamplefreq\fR \fIcutofffreq\fR
+Determine the coefficients for a Butterworth filter of given order\&. The coefficients are returned as
+a list of the x-coefficients, the y-coefficients and the scale\&. The formula is (n is the filter order):
 .CS
 
 
-proc Callback {context state args} {
-}
+                   n             n
+    scale * y_k = sum x_(k-i) + sum y_(k-i)
+                  i=0           i=1
 
 .CE
-where context is the irc context variable name (in case you need to pass
-it back to a picoirc procedure)\&. state is one of a number of states as
-described below\&.
+.RS
 .TP
-\fBinit\fR
-called just before the socket is created
+bool \fIlowpass\fR
+Generate a low-pass filter (1) or a high-pass filter (0)
 .TP
-\fBconnect\fR
-called once we have connected, before we join any channels
+integer \fIlowpass\fR
+The order of the filter to be generated
 .TP
-\fBclose\fR
-called when the socket gets closed, before the context is deleted\&. If
-an error occurs before we get connected the only argument will be the
-socket error message\&.
+double \fIsamplefreq\fR
+Sampling frequency of the data series
 .TP
-\fBuserlist\fR \fIchannel\fR \fInicklist\fR
-called to notify the application of an updated userlist\&. This is
-generated when the output of the NAMES irc command is seen\&. The
-package collects the entire output which can span a number of output
-lines from the server and calls this callback when they have all been
-received\&.
+double \fIcutofffreq\fR
+Cut-off frequency for the filter
+.RE
 .TP
-\fBchat\fR \fItarget\fR \fInick\fR \fImessage\fR \fItype\fR
-called when a message arrives\&. \fItarget\fR is the identity that the
-message was targetted for\&. This can be the logged in nick or a channel
-name\&. \fInick\fR is the name of the sender of the message\&.
-\fImessage\fR is the message text\&. \fItype\fR is set to "ACTION" if the
-message was sent as a CTCP ACTION
+\fB::math::filters::filter\fR \fIcoeffs\fR \fIdata\fR
+Filter the entire data series based on the filter coefficients\&.
+.RS
 .TP
-\fBsystem\fR \fIchannel\fR \fImessage\fR
-called when a system message is received
+list \fIcoeffs\fR
+List of coefficients as generated by \fIfilterButterworth\fR (or in fact any similar list of coefficients)
 .TP
-\fBtopic\fR \fIchannel\fR \fItopic\fR
-called when the channel topic string is seen\&. \fItopic\fR is the text
-of the channel topic\&.
+list \fIdata\fR
+Data to be filtered
+.RE
 .TP
-\fBtraffic\fR \fIaction\fR \fIchannel\fR \fInick\fR ?\fInewnick\fR?
-called when users join, leave or change names\&.
-\fIaction\fR is either entered, left or nickchange and \fInick\fR
-is the user doing the action\&. \fInewnick\fR is
-the new name if \fIaction\fR is nickchange\&.
-.sp
-\fINOTE\fR: \fIchannel\fR is often empty for these messages as nick
-activities are global for the irc server\&. You will have
-to manage the nick for all connected channels yourself\&.
+\fB::math::filters::filterObj\fR new \fIcoeffs\fR \fIyinit\fR
+Create a filter object\&. The initial x data are taken as zero\&. The initial y data can be prescribed\&. If they are not given,
+they are taken as zero as well\&.
+.RS
 .TP
-\fBversion\fR
-This is called to request a version string to use to
-override the internal version\&. If implemented, you should
-return as colon delimited string as
-.sp
-Appname:Appversion:LibraryVersion
-.sp
-For example, the default is
-.sp
-PicoIRC:[package provide picoirc]:Tcl [info patchlevel]
+list \fIcoeffs\fR
+List of coefficients as generated by \fIfilterButterworth\fR (or in fact any similar list of coefficients)
 .TP
-\fBdebug\fR \fItype\fR \fIraw\fR
-called when data is either being read or written to the network
-socket\&. \fItype\fR is set to \fBread\fR when reading data and
-\fBwrite\fR if the data is to be written\&. \fIraw\fR is the
-unprocessed IRC protocol data\&.
-.sp
-In both cases the application can return a break error code to
-interrupt further processing of the raw data\&. If this is a
-\fBread\fR operation then the package will not handle this line\&. If
-the operation is \fBwrite\fR then the package will not send the
-data\&. This callback is intended for debugging protocol issues but
-could be used to redirect all input and output if desired\&.
+list \fIyinit\fR
+(Optional) initial data for the filter result\&.
+.RE
+.TP
+\fB$filterObj\fR filter \fIx\fR
+Filter a single value and return the result\&.
+.RS
+.TP
+double \fIx\fR
+The value to be filtered
+.RE
+.TP
+\fB$filterObj\fR reset
+Reset the filter object (start anew)
 .PP
-.SH "SEE ALSO"
-rfc 1459
 .SH KEYWORDS
-chat, irc
+digital, filtering
 .SH CATEGORY
-Networking
+Mathematics
+.SH COPYRIGHT
+.nf
+Copyright (c) 2020 by Arjen Markus
+
+.fi

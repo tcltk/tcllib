@@ -119,7 +119,7 @@ proc ::irc::connection { args } {
             set logger [logger::init [namespace tail [namespace current]]]
             if { !$config(debug) } { ${logger}::disable debug }
         }
-	
+
 
 	# ircsend --
 	# send text to the IRC server
@@ -159,7 +159,7 @@ proc ::irc::connection { args } {
         proc cmd-config { args } {
             variable config
 	    variable logger
-	    
+
 	    if { [llength $args] == 0 } {
 		return [array get config]
 	    } elseif { [llength $args] == 1 } {
@@ -190,13 +190,13 @@ proc ::irc::connection { args } {
             }
             set config($key) $value
         }
-        
+
         proc cmd-log {level text} {
 	    variable logger
             if { ![info exists logger] } return
             ${logger}::$level $text
         }
-        
+
         proc cmd-logname { } {
             variable logger
             if { ![info exists logger] } return
@@ -305,7 +305,7 @@ proc ::irc::connection { args } {
             variable sock
             return $sock
         }
-        
+
 	proc cmd-disconnect { } {
 	    variable sock
 	    if { $sock == "" } { return -1 }

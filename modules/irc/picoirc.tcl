@@ -1,6 +1,6 @@
 # Based upon the picoirc code by Salvatore Sanfillipo and Richard Suchenwirth
 # See http://wiki.tcl.tk/13134 for the original standalone version.
-# 
+#
 #	This package provides a general purpose minimal IRC client suitable for
 #	embedding in other applications. All communication with the parent
 #	application is done via an application provided callback procedure.
@@ -44,7 +44,7 @@ proc ::picoirc::connect {callback nick args} {
     } elseif {[llength $args] == 1} {
         set url [lindex $args 0]
     } else {
-        foreach {passwd url} $args break 
+        foreach {passwd url} $args break
     }
     variable defaults
     variable uid
@@ -106,10 +106,10 @@ proc ::picoirc::Write {context} {
     return
 }
 
-proc ::picoirc::Splitirc {s} {
-    foreach v {nick flags user host} {set $v {}}
-    regexp {^([^!]*)!([^=]*)=([^@]+)@(.*)} $s -> nick flags user host
-    return [list $nick $flags $user $host]
+proc ::picoirc::Getnick {s} {
+    set nick {}
+    regexp {^([^!]*)!} $s -> nick
+    return $nick
 }
 
 proc ::picoirc::Read {context} {
@@ -138,7 +138,7 @@ proc ::picoirc::Read {context} {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
                         send $context "NOTICE $nick :\001VERSION [Version $context]\001"
-                        return 
+                        return
                     }
                     PING {
                         send $context "NOTICE $nick :\001PING [lindex $data 0]\001"
@@ -159,16 +159,16 @@ proc ::picoirc::Read {context} {
             }
             if {[lsearch -exact {ijchain wubchain} $nick] != -1} {
                 if {$type eq "ACTION"} {
-                    regexp {(\S+) (.+)} $msg -> nick msg 
+                    regexp {(\S+) (.+)} $msg -> nick msg
                 } else {
                     regexp {<([^>]+)> (.+)} $msg -> nick msg
                 }
             }
             Callback $context chat $target $nick $msg $type
-        } elseif {[regexp {^:((?:([^ ]+) +){1,}?):(.*)$} $line -> parts junk rest]} {
+        } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?$} $line -> parts junk rest]} {
             foreach {server code target fourth fifth} [split $parts] break
             switch -- $code {
-                001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 - 
+                001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 -
                 254 - 255 - 265 - 266 { return }
                 433 {
                     variable nickid ; if {![info exists nickid]} {set nickid 0}
@@ -202,18 +202,18 @@ proc ::picoirc::Read {context} {
                     return
                 }
                 JOIN {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic entered $rest $n
+                    set nick [Getnick $server]
+                    Callback $context traffic entered $target $nick
                     return
                 }
                 NICK {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic nickchange {} $n $rest
+                    set nick [Getnick $server]
+                    Callback $context traffic nickchange {} $nick $rest
                     return
                 }
                 QUIT - PART {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic left $target $n
+                    set nick [Getnick $server]
+                    Callback $context traffic left $target $nick
                     return
                 }
             }
@@ -266,6 +266,6 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.5.2
+package provide picoirc 0.5.3
 
 # -------------------------------------------------------------------------
