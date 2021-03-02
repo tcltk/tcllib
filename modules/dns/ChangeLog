@@ -14,19 +14,19 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-08-16  Andreas Kupries  <andreask@activestate.com>
 
@@ -39,7 +39,7 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-04-13  Andreas Kupries  <andreask@activestate.com>
 
@@ -53,17 +53,17 @@
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-11-22  Michael Schlenker <mic42@users.sourceforge.net>
-	
+
 	* dns.tcl: Fixed typo in flags for errorcode decoding
 
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
@@ -75,7 +75,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -98,9 +98,9 @@
 
 2007-07-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* ip.tcl:   bug #1739359 - reject domain names that look like 
+	* ip.tcl:   bug #1739359 - reject domain names that look like
 	* ip.test:  ipv4 addresses
-	
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tcllib_ip.man: Fixed all warnings due to use of now deprecated
@@ -114,7 +114,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
@@ -173,7 +173,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-10-04  Andreas Kupries <andreask@activestate.com>
 
@@ -208,12 +208,12 @@
 2004-11-21  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl:     Fixed bug in ReadUShort.
-	
+
 	* dns.tcl:     Incremented the version to 1.2.1 and updated the
-	* ip.tcl:      manual. 
-	
+	* ip.tcl:      manual.
+
 	* dns.tcl:     Added support for RFC2782 (DNS SRV) which provides
-	               for service discovery via DNS. 
+	               for service discovery via DNS.
 		       Added dns::nameservers command to return the list
 	               of nameservers configured -- this is not
 	               necessarily all that reliable but should be useful.
@@ -221,7 +221,7 @@
 
 	* ip.tcl:      Added an error message to deal with invalid address
 	               formats during normalization.
-	
+
 2004-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ip.tcl:       Bug #1060460 - support for IPv4 in IPv6-style
@@ -236,7 +236,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-07-31  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -275,13 +275,13 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2004-01-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -293,7 +293,7 @@
 
 2003-07-09  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* dns.tcl: Added decoding for SOA response records. 
+	* dns.tcl: Added decoding for SOA response records.
 
 2003-05-09  Andreas Kupries  <andreask@activestate.com>
 
@@ -303,7 +303,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -317,12 +317,12 @@
 
 2003-04-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* dns.tcl: Try to read the whole reply when using tcp. Added a 
+	* dns.tcl: Try to read the whole reply when using tcp. Added a
 	catch to avoid bgerrors within the handler.
 	* dns.tcl:
 	* dns.man:
 	* pkgIndex.tcl: hiked version to 1.0.4
-	
+
 2003-04-11  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* dns.tcl:
@@ -340,13 +340,13 @@
 	* resolv.tcl: Imported Emmanuel Frecon's code from the Tclers
 	Wiki. Provides a name cache and simplifies usage of the dns
 	package.
-	
+
 2003-02-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Tested the UDP transmission using a fixed TclUDP.
 	* dns.tcl: Implemented inverse queries. (Pretty useless though).
 	* dns.tcl: Added errorcode procedure.
-	
+
 2003-01-30  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Implemented UDP transmission. Currently not tested
@@ -370,7 +370,7 @@
 
 2002-06-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* dns.man: 
+	* dns.man:
 	* dns.tcl:
 	* pkgIndex.tcl: Version up to 1.0.1
 

@@ -224,7 +224,7 @@ proc ::resolv::Resolve {hostname} {
         set ip [lindex [::dns::address $t] 0]
         ::dns::cleanup $t
     } elseif {$status == "error"
-              && [::dns::errorcode $t] == 3 
+              && [::dns::errorcode $t] == 3
               && $R(retries) < [llength $R(search)]} {
         ::dns::cleanup $t
         set suffix [lindex $R(search) $R(retries)]
