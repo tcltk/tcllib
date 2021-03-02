@@ -105,6 +105,10 @@ desired or required, is the responsibility of the caller\.
     is specified\. The optional *usage*\-argument contains a string to include
     in front of the generated message\. If not present it defaults to "options:"\.
 
+    *argvVar* contains the name of the list of arguments to process\. If
+    options are found the list is modified and the processed arguments are
+    removed from the start of the list\.
+
     *optlist* contains a list of lists where each element specifies an option
     in the form: *flag* *default* *comment*\.
 
@@ -182,6 +186,9 @@ command\. This code always has the word __CMDLINE__ as its first element\.
 
             try {
                 array set params [::cmdline::getoptions argv $options $usage]
+
+    	    # Note: argv is modified now. The recognized options are
+    	    # removed from it, leaving the non-option arguments behind.
             } trap {CMDLINE USAGE} {msg o} {
                 # Trap the usage signal, print the message, and exit the application.
                 # Note: Other errors are not caught and passed through to higher levels!

@@ -81,6 +81,12 @@ generated message. If not present it defaults to "options:".
 
 [para]
 
+[arg argvVar] contains the name of the list of arguments to process.
+If options are found the list is modified and the processed arguments
+are removed from the start of the list.
+
+[para]
+
 [arg optlist] contains a list of lists where each element specifies an
 option in the form: [arg flag] [arg default] [arg comment].
 
@@ -174,6 +180,9 @@ code always has the word [const CMDLINE] as its first element.
 
         try {
             array set params [::cmdline::getoptions argv $options $usage]
+
+	    # Note: argv is modified now. The recognized options are
+	    # removed from it, leaving the non-option arguments behind.
         } trap {CMDLINE USAGE} {msg o} {
             # Trap the usage signal, print the message, and exit the application.
             # Note: Other errors are not caught and passed through to higher levels!
