@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'ini\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "inifile" n 0\&.3\&.1 tcllib "Parsing of Windows INI files"
+.TH "inifile" n 0\&.3\&.2 tcllib "Parsing of Windows INI files"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ inifile \- Parsing of Windows INI files
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBinifile  ?0\&.3\&.1?\fR
+package require \fBinifile  ?0\&.3\&.2?\fR
 .sp
 \fB::ini::open\fR \fIfile\fR ?\fB-encoding\fR \fIencoding\fR? ?\fIaccess\fR?
 .sp
