@@ -22,32 +22,32 @@ namespace eval ::math::bigfloat {
     variable _pi0
 }
 
-
-
-
 ################################################################################
 # procedures that handle floating-point numbers
 # these procedures are sorted by name (after eventually removing the underscores)
 #
 # BigFloats are internally represented as a list :
-# {"F" Mantissa Exponent Delta} where "F" is a character which determins
-# the datatype, Mantissa and Delta are two big integers and Exponent another integer.
+# {"F" Mantissa Exponent Delta} where "F" is a character which
+# determines the datatype, Mantissa and Delta are two big integers and
+# Exponent another integer.
 #
 # The BigFloat value equals to (Mantissa +/- Delta)*2^Exponent
-# So the internal representation is binary, but trying to get as close as possible to
-# the decimal one when converted to a string.
-# When calling [fromstr], the Delta parameter is set to the value of 1 at the position
-# of the last decimal digit.
+# So the internal representation is binary, but trying to get as close
+# as possible to the decimal one when converted to a string.  When
+# calling [fromstr], the Delta parameter is set to the value of 1 at
+# the position of the last decimal digit.
+#
 # Example : 1.50 belongs to [1.49,1.51], but internally Delta may not equal to 1.
 # Because of the binary representation, it is between 1 and 1+(2^-15).
 #
-# So Mantissa and Delta are not limited in size, but in practice Delta is kept under
-# 2^32 by the 'normalize' procedure, to avoid a never-ended growth of memory used.
-# Indeed, when you perform some computations, the Delta parameter (which represent
-# the uncertainty on the value of the Mantissa) may increase.
-# Exponent, as an integer, is limited to 32 bits, and this limit seems fair.
-# The exponent is indeed involved in logarithmic computations, so it may be
-# a mistake to give it a too large value.
+# So Mantissa and Delta are not limited in size, but in practice Delta
+# is kept under 2^32 by the 'normalize' procedure, to avoid a
+# never-ended growth of memory used.  Indeed, when you perform some
+# computations, the Delta parameter (which represent the uncertainty
+# on the value of the Mantissa) may increase.  Exponent, as an
+# integer, is limited to 32 bits, and this limit seems fair.  The
+# exponent is indeed involved in logarithmic computations, so it may
+# be a mistake to give it a too large value.
 
 # Retrieving the parameters of a BigFloat is often done with that command :
 # foreach {dummy int exp delta} $bigfloat {break}
@@ -1052,7 +1052,12 @@ proc ::math::bigfloat::fromstr {number {addzeros 0}} {
     # add the sign
     # here we avoid octal numbers by trimming the leading zeros!
     # 2005-10-28 S.ARNOLD
-    if {$signe} {set mantissa [expr {-[string trimleft $mantissa 0]}]}
+    # note however, for a -0 we may be left with an empty mantissa
+    # Ticket [ca6a2cfef5d6e742177add4954c748170b86a02d]
+    if {$signe} {
+	set mantissa -[string trimleft $mantissa 0]
+	if {$mantissa eq "-"} { set mantissa -0 }
+    }
     # the F tags a BigFloat
     # a BigInt is like any other integer since Tcl 8.5,
     # because expr now supports arbitrary length integers
@@ -2215,4 +2220,4 @@ namespace eval ::math::bigfloat {
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.2
+package provide math::bigfloat 2.0.3

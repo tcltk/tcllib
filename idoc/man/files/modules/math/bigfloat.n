@@ -2,7 +2,7 @@
 '\" Generated from file 'bigfloat\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>
 '\"
-.TH "math::bigfloat" n 2\&.0\&.1 tcllib "Tcl Math Library"
+.TH "math::bigfloat" n 2\&.0\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::bigfloat \- Arbitrary precision floating-point numbers
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBmath::bigfloat  ?2\&.0\&.1?\fR
+package require \fBmath::bigfloat  ?2\&.0\&.3?\fR
 .sp
 \fBfromstr\fR \fInumber\fR ?\fItrailingZeros\fR?
 .sp
