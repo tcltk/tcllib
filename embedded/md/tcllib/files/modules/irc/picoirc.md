@@ -1,7 +1,7 @@
 
 [//000000001]: # (picoirc \- Simple embeddable IRC interface)
 [//000000002]: # (Generated from file 'picoirc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (picoirc\(n\) 0\.6\.0 tcllib "Simple embeddable IRC interface")
+[//000000003]: # (picoirc\(n\) 0\.7\.0 tcllib "Simple embeddable IRC interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,8 +34,8 @@ picoirc \- Small and simple embeddable IRC client\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl  
-package require picoirc ?0\.6\.0?  
+package require Tcl 8\.6  
+package require picoirc ?0\.7\.0?  
 
 [__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  

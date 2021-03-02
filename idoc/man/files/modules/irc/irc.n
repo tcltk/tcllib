@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'irc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "irc" n 0\&.6\&.2 tcllib "Low Level Tcl IRC Interface"
+.TH "irc" n 0\&.7\&.0 tcllib "Low Level Tcl IRC Interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,9 +273,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 irc \- Create IRC connection and interface\&.
 .SH SYNOPSIS
-package require \fBTcl \fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBirc  ?0\&.6\&.2?\fR
+package require \fBirc  ?0\&.7\&.0?\fR
 .sp
 \fB::irc::config\fR ?key? ?value?
 .sp
