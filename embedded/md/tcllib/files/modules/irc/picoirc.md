@@ -37,7 +37,7 @@ picoirc \- Small and simple embeddable IRC client\.
 package require Tcl  
 package require picoirc ?0\.6\.0?  
 
-[__::picoirc::connect__ *callback* *nick* *url*](#1)  
+[__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  
 [__::picoirc::splituri__ *uri*](#3)  
 [__::picoirc::send__ *context* *line*](#4)  
@@ -59,13 +59,14 @@ capability investigate the __[irc](irc\.md)__ package\.
 
 # <a name='section2'></a>COMMANDS
 
-  - <a name='1'></a>__::picoirc::connect__ *callback* *nick* *url*
+  - <a name='1'></a>__::picoirc::connect__ *callback* *nick* ?*password*? *url*
 
     Creates a new irc connection to the server specified by *url* and login
-    using the *nick* as the username\. If the *url* starts with *ircs://*
-    then a TLS connection is created\. The *callback* must be as specified in
-    [CALLBACK](#section3)\. Returns a package\-specific variable that is used
-    when calling other commands in this package\.
+    using the *nick* as the username and optionally *password*\. If the
+    *url* starts with *ircs://* then a TLS connection is created\. The
+    *callback* must be as specified in [CALLBACK](#section3)\. Returns a
+    package\-specific variable that is used when calling other commands in this
+    package\.
 
     *Note:* For connecting via TLS the Tcl module *tls* must be already
     loaded, otherwise an error is raised\.

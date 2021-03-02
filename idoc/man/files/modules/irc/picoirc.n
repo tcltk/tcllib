@@ -277,7 +277,7 @@ package require \fBTcl \fR
 .sp
 package require \fBpicoirc  ?0\&.6\&.0?\fR
 .sp
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
+\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 .sp
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
 .sp
@@ -303,11 +303,11 @@ more capability investigate the \fBirc\fR package\&.
 .PP
 .SH COMMANDS
 .TP
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
+\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 Creates a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username\&. If the \fIurl\fR starts
-with \fIircs://\fR then a TLS connection is created\&.
-The \fIcallback\fR must be as specified in \fBCALLBACK\fR\&.
+login using the \fInick\fR as the username and optionally \fIpassword\fR\&.
+If the \fIurl\fR starts with \fIircs://\fR then a TLS connection is
+created\&. The \fIcallback\fR must be as specified in \fBCALLBACK\fR\&.
 Returns a package-specific variable that is used when calling other
 commands in this package\&.
 .sp
