@@ -128,7 +128,7 @@
 <li>package require <b class="pkgname">picoirc <span class="opt">?0.6.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
-<li><a href="#1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <i class="arg">url</i></a></li>
+<li><a href="#1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <span class="opt">?<i class="arg">password</i>?</span> <i class="arg">url</i></a></li>
 <li><a href="#2"><b class="cmd">::picoirc::post</b> <i class="arg">context</i> <i class="arg">channel</i> <i class="arg">message</i></a></li>
 <li><a href="#3"><b class="cmd">::picoirc::splituri</b> <i class="arg">uri</i></a></li>
 <li><a href="#4"><b class="cmd">::picoirc::send</b> <i class="arg">context</i> <i class="arg">line</i></a></li>
@@ -150,11 +150,11 @@ more capability investigate the <b class="package"><a href="irc.html">irc</a></b
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <i class="arg">url</i></a></dt>
+<dt><a name="1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <span class="opt">?<i class="arg">password</i>?</span> <i class="arg">url</i></a></dt>
 <dd><p>Creates a new irc connection to the server specified by <i class="arg">url</i> and
-login using the <i class="arg">nick</i> as the username. If the <i class="arg">url</i> starts
-with <em>ircs://</em> then a TLS connection is created.
-The <i class="arg">callback</i> must be as specified in <span class="sectref"><a href="#section3">CALLBACK</a></span>.
+login using the <i class="arg">nick</i> as the username and optionally <i class="arg">password</i>.
+If the <i class="arg">url</i> starts with <em>ircs://</em> then a TLS connection is
+created. The <i class="arg">callback</i> must be as specified in <span class="sectref"><a href="#section3">CALLBACK</a></span>.
 Returns a package-specific variable that is used when calling other
 commands in this package.</p>
 <p><em>Note:</em>
