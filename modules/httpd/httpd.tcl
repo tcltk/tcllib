@@ -4,9 +4,9 @@
 # build.tcl
 ###
 package require Tcl 8.6
-package provide httpd 4.3.4
+package provide httpd 4.3.5
 namespace eval ::httpd {}
-set ::httpd::version 4.3.4
+set ::httpd::version 4.3.5
 ###
 # START: core.tcl
 ###
@@ -27,6 +27,20 @@ namespace eval ::url {
 namespace eval ::httpd {
 }
 namespace eval ::scgi {
+}
+if {
+    [package vsatisfies [package require fileutil::magic::filetype] 2] ||
+    [package vsatisfies [package require fileutil::magic::filetype] 1.2]
+} {
+    # v1.2+, v2+: filetype result structure was changed completely.
+    proc ::httpd::mime-type {path} {
+	join [lindex [::fileutil::magic::filetype $path] 1] /
+    }
+} else {
+    # filetype result is mime type directly.
+    proc ::httpd::mime-type {path} {
+	::fileutil::magic::filetype $path
+    }
 }
 clay::define ::httpd::mime {
   method ChannelCopy {in out args} {
@@ -1303,7 +1317,7 @@ The page you are looking for: <b>[my request get REQUEST_PATH]</b> does not exis
         ###
         # Assume we are returning a binary file
         ###
-        my reply set Content-Type [::fileutil::magic::filetype $local_file]
+        my reply set Content-Type [::httpd::mime-type $local_file]
         set reply_file $local_file
       }
     }

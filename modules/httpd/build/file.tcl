@@ -176,7 +176,7 @@
         ###
         # Assume we are returning a binary file
         ###
-        my reply set Content-Type [::fileutil::magic::filetype $local_file]
+        my reply set Content-Type [::httpd::mime-type $local_file]
         set reply_file $local_file
       }
     }

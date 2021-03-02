@@ -27,11 +27,25 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
+if {
+    [package vsatisfies [package require fileutil::magic::filetype] 2] ||
+    [package vsatisfies [package require fileutil::magic::filetype] 1.2]
+} {
+    # v1.2+, v2+: filetype result structure was changed completely.
+    proc ::httpd::mime-type {path} {
+	join [lindex [::fileutil::magic::filetype $path] 1] /
+    }
+} else {
+    # filetype result is mime type directly.
+    proc ::httpd::mime-type {path} {
+	::fileutil::magic::filetype $path
+    }
+}
+
 ###
 # A metaclass for MIME handling behavior across a live socket
 ###
 clay::define ::httpd::mime {
-
 
   method ChannelCopy {in out args} {
     try {
