@@ -14,6 +14,10 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
+package require Tcl 8.6
+
+# -------------------------------------------------------------------------
+
 namespace eval ::picoirc {
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -31,7 +35,7 @@ namespace eval ::picoirc {
 }
 
 proc ::picoirc::splituri {uri} {
-    foreach {s server port channel} {{} {} {} {}} break
+    lassign {{} {} {} {}} s server port channel
     if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> secure server port channel]} {
         regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channel server port
     }
@@ -46,19 +50,19 @@ proc ::picoirc::connect {callback nick args} {
     } elseif {[llength $args] == 1} {
         set url [lindex $args 0]
     } else {
-        foreach {passwd url} $args break
+	lassign $args passwd url
     }
     variable defaults
     variable uid
     set context [namespace current]::irc[incr uid]
     upvar #0 $context irc
     array set irc $defaults
-    foreach {server port channel secure} [splituri $url] break
+    lassign [splituri $url] server port channel secure
     if {[info exists channel] && $channel ne ""} {set irc(channel) $channel}
-    if {[info exists server] && $server ne ""} {set irc(server) $server}
-    if {[info exists port] && $port ne ""} {set irc(port) $port}
-    if {[info exists secure] && $secure} {set irc(secure) $secure}
-    if {[info exists passwd] && $passwd ne ""} {set irc(passwd) $passwd}
+    if {[info exists server]  && $server  ne ""} {set irc(server)  $server}
+    if {[info exists port]    && $port    ne ""} {set irc(port)    $port}
+    if {[info exists secure]  && $secure}        {set irc(secure)  $secure}
+    if {[info exists passwd]  && $passwd  ne ""} {set irc(passwd)  $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
     Callback $context init
@@ -174,7 +178,7 @@ proc ::picoirc::Read {context} {
             }
             Callback $context chat $target $nick $msg $type
         } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?$} $line -> parts junk rest]} {
-            foreach {server code target fourth fifth} [split $parts] break
+	    lassign [split $parts] server code target fourth fifth
             switch -- $code {
                 001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 -
                 254 - 255 - 265 - 266 { return }
@@ -196,7 +200,7 @@ proc ::picoirc::Read {context} {
                 372 { append irc(motd) $rest ; return}
                 376 { return }
                 311 {
-                    foreach {server code target nick name host x} [split $parts] break
+		    lassign [split $parts] server code target nick name host x
                     set irc(whois,$fourth) [list name $name host $host userinfo $rest]
                     return
                 }
@@ -274,6 +278,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.6.0
+package provide picoirc 0.7.0
 
 # -------------------------------------------------------------------------
+return

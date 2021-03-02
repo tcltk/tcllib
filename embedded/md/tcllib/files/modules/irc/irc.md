@@ -1,7 +1,7 @@
 
 [//000000001]: # (irc \- Low Level Tcl IRC Interface)
 [//000000002]: # (Generated from file 'irc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (irc\(n\) 0\.6\.2 tcllib "Low Level Tcl IRC Interface")
+[//000000003]: # (irc\(n\) 0\.7\.0 tcllib "Low Level Tcl IRC Interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,8 +36,8 @@ irc \- Create IRC connection and interface\.
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl  
-package require irc ?0\.6\.2?  
+package require Tcl 8\.6  
+package require irc ?0\.7\.0?  
 
 [__::irc::config__ ?key? ?value?](#1)  
 [__::irc::connection__](#2)  
