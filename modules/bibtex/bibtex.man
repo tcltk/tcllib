@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.6]
+[vset VERSION 0.7]
 [manpage_begin bibtex n [vset VERSION]]
 [keywords bibliography]
 [keywords bibtex]

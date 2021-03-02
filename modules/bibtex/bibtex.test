@@ -228,7 +228,15 @@ test bibtex-4.0 {Destroying a parser} {
     close $chan
 } {}
 
+# -------------------------------------------------------------------------
+
+test bibtex-5.0 {Tkt 8bec717add, parse} {
+    bibtex::parse [viewFile [asset epj.bib]]
+} {{article refId0 {author {Santonocito, Domenico and Blumenfeld, Yorick} title {The hot GDR revisited} doi 10.1140/epja/s10050-020-00279-6 url https://doi.org/10.1140/epja/s10050-020-00279-6 journal {Eur. Phys. J. A} year 2020 volume 56 number 11 pages 279}}}
+
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
-
+# -------------------------------------------------------------------------
 testsuiteCleanup
+return
+

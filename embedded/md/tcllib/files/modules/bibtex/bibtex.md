@@ -2,7 +2,7 @@
 [//000000001]: # (bibtex \- bibtex)
 [//000000002]: # (Generated from file 'bibtex\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2005 for documentation, Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (bibtex\(n\) 0\.6 tcllib "bibtex")
+[//000000004]: # (bibtex\(n\) 0\.7 tcllib "bibtex")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ bibtex \- Parse bibtex files
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require bibtex ?0\.6?  
+package require bibtex ?0\.7?  
 
 [__::bibtex::parse__ ?*options*? ?*text*?](#1)  
 [__::bibtex::parse__ *text*](#2)  

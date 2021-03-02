@@ -411,7 +411,7 @@ proc ::bibtex::ParseBlock {block} {
     set index 0
     while {
 	[regexp -start $index -indices -- \
-		{(\S+)[^=]*=(.*)} $block -> key rest]
+	     {(\S+)\s*=(.*)} $block -> key rest]
     } {
 	foreach {ks ke} $key break
 	set k [Tidy [string range $block $ks $ke]]
@@ -447,15 +447,15 @@ proc ::bibtex::ParseBibString {index str} {
 		set escape 1
 		continue
 	    } elseif {$char eq "\""} {
-		# Managing the count ensures that comma inside of a
-		# string is not considered as the end of the field.
-		if {!$string} {
-		    incr count
-		    set string 1
-		} else {
-		    incr count -1
-		    set string 0
-		}
+	        # Handling the case where str is surrounded by
+	        # quotation marks instead of braces (as some journals
+	        # may, perhaps erroneously, print some field. e.g.:
+	        # https://www.epj.org/)
+	        if {$count == 0} {
+	            incr count
+	        } elseif {$count == 1} {
+ 	            incr count -1
+ 	        }
 		continue
 	    }
 	    # else: Nothing
@@ -465,7 +465,6 @@ proc ::bibtex::ParseBibString {index str} {
     regsub -all {\s+} $retstr { } retstr
     return [list [string trim $retstr] $index]
 }
-
 
 # ### ### ### ######### ######### #########
 ## Internal. Package configuration and state.
@@ -498,5 +497,5 @@ namespace eval bibtex {
 
 # ### ### ### ######### ######### #########
 ## Ready to go
-package provide bibtex 0.6
+package provide bibtex 0.7
 # EOF
