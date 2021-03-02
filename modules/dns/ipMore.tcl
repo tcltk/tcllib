@@ -24,7 +24,7 @@
 #
 # Description:
 #       A detailed description of the functionality provided by the library.
-#      
+#
 # Requirements:
 #
 # Variables:
@@ -36,8 +36,8 @@
 # Keywords:
 #
 #
-# Category: 
-#       
+# Category:
+#
 #
 # End of Header
 
@@ -119,7 +119,7 @@ interp alias {} ::ip::IpHostFromPrefix    {} ::ip::ipHostFromPrefix
 #        <prefix> in native format {<hexip> <hexmask>}
 #
 # Description:
-#       
+#
 # Examples:
 #   % ip::prefixToNative 1.1.1.0/24
 #   0x01010100 0xffffff00
@@ -128,7 +128,7 @@ interp alias {} ::ip::IpHostFromPrefix    {} ::ip::ipHostFromPrefix
 #
 # Sample Output:
 # Notes:
-#   fixed bug in C extension that modified 
+#   fixed bug in C extension that modified
 #    calling context variable
 # See Also:
 #
@@ -162,7 +162,7 @@ proc ip::prefixToNativeTcl {prefix} {
 #       nativeToPrefix <nativeList>|<native> [-ipv4]
 #
 # Arguments:
-#        <nativeList> 
+#        <nativeList>
 #            list of native form ip addresses native form is:
 #        <native>
 #            tcllist in format {<hexip> <hexmask>}
@@ -172,13 +172,13 @@ proc ip::prefixToNativeTcl {prefix} {
 # Return Values:
 #        if nativeToPrefix is called with <native> a single (non-listified) address
 #            is returned
-#        if nativeToPrefix is called with a <nativeList> address list, then 
+#        if nativeToPrefix is called with a <nativeList> address list, then
 #            a list of addresses is returned
 #
 #        return form is: <ipaddr>/<mask>
 #
 # Description:
-#       
+#
 # Examples:
 #   % ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
 #   1.1.1.0/24
@@ -246,7 +246,7 @@ proc ::ip::nativeToPrefix {nativeList args} {
 #        ip address in dotted form
 #
 # Description:
-#       
+#
 # Examples:
 #       ip::intToString 4294967295
 #       255.255.255.255
@@ -295,7 +295,7 @@ proc ::ip::intToString {int args} {
 #        integer form of <ipaddr>
 #
 # Description:
-#       
+#
 # Examples:
 #   % ::ip::toInteger 1.1.1.0
 #   16843008
@@ -335,7 +335,7 @@ proc ::ip::toInteger {ip} {
 #        hex form of <ipaddr>
 #
 # Description:
-#       
+#
 # Examples:
 #   % ::ip::toHex 1.1.1.0
 #   0x01010100
@@ -375,12 +375,12 @@ proc ::ip::toHex {ip} {
 #        integer form of mask
 #
 # Description:
-#       
+#
 # Examples:
 #   ::ip::maskToInt 24
 #   4294967040
 #
-#   
+#
 # Sample Input:
 #
 # Sample Output:
@@ -419,17 +419,17 @@ proc ::ip::maskToInt {mask} {
 #        -ipv4
 #            the provided native format addresses are in ipv4 format (default)
 #            note: broadcast addresses are not valid in ipv6
-#            
+#
 #
 # Return Values:
 #        ipaddress of broadcast
 #
 # Description:
-#       
+#
 # Examples:
 #   ::ip::broadcastAddress 1.1.1.0/24
 #   1.1.1.255
-#   
+#
 #   ::ip::broadcastAddress {0x01010100 0xffffff00}
 #   0x010101ff
 #
@@ -460,7 +460,7 @@ proc ::ip::broadcastAddress {prefix args} {
 	set mask [maskToInt [ip::mask $prefix]]
     }
     set ba [expr {$net  | ((~$mask)&0xffffffff)}]
-    
+
     if {[llength $prefix]==2} {
 	return [format "0x%08x" $ba]
     }
@@ -491,7 +491,7 @@ proc ::ip::broadcastAddress {prefix args} {
 #        prefix length
 #
 # Description:
-#       
+#
 # Examples:
 #   ::ip::maskToLength 0xffffff00 -ipv4
 #   24
@@ -540,7 +540,7 @@ proc ::ip::maskToLength {mask args} {
 		192 {incr prefix 2}
 		128 {incr prefix 1}
 		0   {}
-		default { 
+		default {
 		    return -code error [msgcat::mc "not an ip mask: %s" $mask]
 		}
 	    }
@@ -565,15 +565,15 @@ proc ::ip::maskToLength {mask args} {
 #
 # Arguments:
 #        <maskLength>
-#            mask length   
+#            mask length
 #        -ipv4
-#            the provided mask length is ipv4 (default)  
+#            the provided mask length is ipv4 (default)
 #
 # Return Values:
 #        mask in dotted form
 #
 # Description:
-#       
+#
 # Examples:
 #   ::ip::lengthToMask 24
 #   255.255.255.0
@@ -627,7 +627,7 @@ proc ::ip::lengthToMask {masklen args} {
 #        ipaddress in same position in next network in hex
 #
 # Description:
-#       
+#
 # Examples:
 #
 # Sample Input:
@@ -650,12 +650,12 @@ proc ::ip::nextNet {prefix mask args} {
 	    }
 	}
     }
-    if {![string is integer -strict $prefix]} { 
+    if {![string is integer -strict $prefix]} {
 	set prefix [toInteger $prefix]
     }
     if {![string is integer -strict $mask] || ($mask < 33 && $mask > 0)} {
 	set mask [maskToInt $mask]
-    }    
+    }
     set prefix [expr {$prefix + ((($mask ^ 0xFFffFFff) + 1) * $count) }]
     return [format "0x%08x" $prefix]
 }
@@ -683,7 +683,7 @@ proc ::ip::nextNet {prefix mask args} {
 #        1 if there is an overlap
 #
 # Description:
-#       
+#
 # Examples:
 #        % ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32
 #        0
@@ -786,7 +786,7 @@ proc ::ip::isOverlapNativeTcl {args} {
 	}
     }
     set args [lassign [lrange $args end-2 end] ip1int mask1int prefixList]
-    if {$inline} { 
+    if {$inline} {
 	set overLap [list]
     } else {
 	set overLap 0
@@ -842,7 +842,7 @@ proc ::ip::isOverlapNativeTcl {args} {
 #        % ::ip::ipToLayer2Multicast 224.0.0.2
 #        01.00.5e.00.00.02
 # Sample Input:
-#        
+#
 # Sample Output:
 # Notes:
 #
@@ -876,7 +876,7 @@ proc ::ip::ipToLayer2Multicast { ipaddr } {
 #        -exclude <list of prefixes>
 #            list if ipprefixes that host should not be in
 # Return Values:
-#        ip address 
+#        ip address
 #
 # Description:
 #
@@ -889,7 +889,7 @@ proc ::ip::ipToLayer2Multicast { ipaddr } {
 #
 #
 # Sample Input:
-#        
+#
 # Sample Output:
 # Notes:
 #
@@ -916,8 +916,8 @@ proc ::ip::ipHostFromPrefix { prefix args } {
 	# 1. throw away prefixes that are less specific that $prefix
 	# 2. of remaining pfx, throw away prefixes that do not overlap
 	# 3. run reducetoAggregates on specific nets
-	# 4. 
-	
+	# 4.
+
 	# 1. convert to hex format
 	set currHex [prefixToNative $prefix ]
 	set exclHex [prefixToNative $opts(-exclude) ]
@@ -926,21 +926,21 @@ proc ::ip::ipHostFromPrefix { prefix args } {
 	set sortedPfx [lsort -integer -index 1 [concat [list $currHex]  $exclHex]]
 	# throw away prefixes that are less specific than $prefix
 	set specPfx [lrange $sortedPfx [expr {[lsearch -exact $sortedPfx $currHex] +1} ] end]
-	
+
 	#2. throw away non-overlapping prefixes
 	set specPfx [isOverlapNative -all -inline \
 			 [lindex $currHex 0 ] \
 			 [lindex $currHex 1 ] \
 			 $specPfx ]
-	#3. run reduce aggregates 
+	#3. run reduce aggregates
 	set specPfx [reduceToAggregates $specPfx]
 
 	#4 now have to pick an address that overlaps with $currHex but not with
 	#   $specPfx
 	# 4.1 find the largest prefix w/ most specific mask and go to the next net
-	
 
-	# current ats tcl does not allow this in one command, so 
+
+	# current ats tcl does not allow this in one command, so
 	#  for now just going to grab the last prefix (list is already sorted)
 	set sPfx [lindex $specPfx end]
 	set startPfx $sPfx
@@ -1012,7 +1012,7 @@ proc ::ip::ipHostFromPrefix { prefix args } {
 #  1.0.0.0/8 2.1.1.0/24
 #
 # Sample Input:
-#        
+#
 # Sample Output:
 # Notes:
 #
@@ -1028,7 +1028,7 @@ proc ::ip::reduceToAggregates { prefixList } {
 	set prefixList [ip::prefixToNative $prefixList]
 	set dotConv 1
     }
-    
+
     set nonOverLapping $prefixList
     while {1==1} {
 	set overlapFound 0
@@ -1049,7 +1049,7 @@ proc ::ip::reduceToAggregates { prefixList } {
 		lvarpop remaining [expr {$overLap -1}]
 		set overlapFound 1
 	    } else {
-		#no overlap, keep all prefixes, don't touch the stuff in 
+		#no overlap, keep all prefixes, don't touch the stuff in
 		# remaining, it is needed for other overlap checking
 		lappend nonOverLapping $current
 	    }
@@ -1090,7 +1090,7 @@ proc ::ip::reduceToAggregates { prefixList } {
 #        1.1.1.0/28
 #
 # Sample Input:
-#        
+#
 # Sample Output:
 # Notes:
 #
@@ -1160,7 +1160,7 @@ proc ::ip::longestPrefixMatch { ipaddr prefixList args} {
 #        1.0.0.0 2.2.0.0 3.3.3.3 128.0.0.0
 #
 # Sample Input:
-#        
+#
 # Sample Output:
 # Notes:
 #
@@ -1236,7 +1236,7 @@ namespace eval ::ip {
 #        integer distance (addr2 - addr1)
 #
 # Description:
-#       
+#
 # Examples:
 #   % ::ip::distance 1.1.1.0 1.1.1.5
 #   5
@@ -1276,9 +1276,9 @@ proc ::ip::distance {ip1 ip2} {
 #        The increment ip address.
 #
 # Description:
-#       
+#
 # Examples:
-#   % ::ip::nextIp 1.1.1.0 5 
+#   % ::ip::nextIp 1.1.1.0 5
 #   1.1.1.5
 #
 # Sample Input:

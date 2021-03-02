@@ -1,5 +1,5 @@
 # Skip this for window and a specific version of Solaris
-# 
+#
 # This could do with an explanation -- why are we avoiding these platforms
 # and perhaps using critcl's platform::platform command might be better?
 #
@@ -28,14 +28,14 @@ critcl::ccode {
 #include <sys/socket.h>
 }
 
-critcl::ccommand prefixToNativec {clientData interp objc objv} { 
+critcl::ccommand prefixToNativec {clientData interp objc objv} {
     int elemLen, maskLen, ipLen, mask;
 	int rval,convertListc,i;
 	Tcl_Obj **convertListv;
 	Tcl_Obj *listPtr,*returnPtr, *addrList;
 	char *stringIP, *slashPos, *stringMask;
 	char v4HEX[11];
-	
+
 	uint32_t inaddr;
 	listPtr = NULL;
 
@@ -48,7 +48,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 	}
 
 
-	if (Tcl_ListObjGetElements (interp, objv[1], 
+	if (Tcl_ListObjGetElements (interp, objv[1],
 								&convertListc, &convertListv) != TCL_OK) {
 		return TCL_ERROR;
 	}
@@ -81,7 +81,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 				/* mask is in dotted form */
 				if ((rval = inet_pton(AF_INET,stringMask,&mask)) < 1 ) {
 					Tcl_AddErrorInfo(interp, "\n    bad format encountered in mask conversion");
-					return TCL_ERROR;	
+					return TCL_ERROR;
 				}
 				mask = htonl(mask);
 			}
@@ -91,7 +91,7 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 			/* printf("\n %d %d %d %d", (uintptr_t)stringMask, maskLen, (uintptr_t)stringIP, ipLen); */
 		}
 		if ( (rval = inet_pton(AF_INET,stringIP,&inaddr)) < 1) {
-			Tcl_AddErrorInfo(interp, 
+			Tcl_AddErrorInfo(interp,
 							 "\n    bad format encountered in ip conversion");
 			return TCL_ERROR;
 		};
@@ -109,18 +109,18 @@ critcl::ccommand prefixToNativec {clientData interp objc objv} {
 		Tcl_ListObjAppendElement(interp, returnPtr, listPtr);
 		Tcl_DecrRefCount(addrList);
 	}
-	
+
 	if (convertListc==1) {
 		Tcl_SetObjResult(interp,listPtr);
 	} else {
 		Tcl_SetObjResult(interp,returnPtr);
 	}
-	
+
 	return TCL_OK;
 }
 
 critcl::ccommand isOverlapNativec {clientData interp objc objv} {
-        int i; 
+        int i;
         unsigned int ipaddr,ipMask, mask1mask2;
         unsigned int ipaddr2,ipMask2;
         int compareListc,comparePrefixMaskc;
@@ -182,9 +182,9 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 
         for (i = 0; i < compareListc; i++) {
 					    /* split the ipaddr2 and ipmask2  */
-                if (Tcl_ListObjGetElements (interp, 
-					    compareListv[i], 
-					    &comparePrefixMaskc, 
+                if (Tcl_ListObjGetElements (interp,
+					    compareListv[i],
+					    &comparePrefixMaskc,
 					    &comparePrefixMaskv) != TCL_OK) {
 		    return TCL_ERROR;
                 }

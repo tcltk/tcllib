@@ -71,7 +71,7 @@ proc ::ip::version {ip} {
     }
     return $version
 }
-        
+
 proc ::ip::equal {lhs rhs} {
     foreach {LHS LM} [SplitIp $lhs] break
     foreach {RHS RM} [SplitIp $rhs] break
@@ -303,7 +303,7 @@ proc ::ip::ExpandSubnet {subnet newmask} {
 }
 
 # Returns an IP address prefix.
-# For instance: 
+# For instance:
 #  prefix 192.168.1.4/16 => 192.168.0.0
 #  prefix fec0::4/16     => fec0:0:0:0:0:0:0:0
 #  prefix fec0::4/ffff:: => fec0:0:0:0:0:0:0:0
@@ -315,7 +315,7 @@ proc ::ip::prefix {ip} {
     return [ToString [Mask$version $addr $mask]]
 }
 
-# Return the address type. For IPv4 this is one of private, reserved 
+# Return the address type. For IPv4 this is one of private, reserved
 # or normal
 # For IPv6 it is one of site local, link local, multicast, unicast,
 # unspecified or loopback.
@@ -411,7 +411,7 @@ proc ::ip::Mask6 {ip {bits {}}} {
     return [binary format I4 $r]
 }
 
-        
+
 
 # A network address specification is an IPv4 address with an optional bitmask
 # Split an address specification into a IPv4 address and a network bitmask.

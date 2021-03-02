@@ -60,7 +60,7 @@ suitable for displaying to users.
 
 [call [cmd ::ip::distance] [arg ipaddr1] [arg ipaddr2]]
 
-This command computes the (integer) distance from IPv4 address 
+This command computes the (integer) distance from IPv4 address
 [arg ipaddr1] to IPv4 address [arg ipaddr2], i.e. "ipaddr2 - ipaddr1"
 
 [para]
