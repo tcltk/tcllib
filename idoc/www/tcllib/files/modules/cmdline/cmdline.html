@@ -188,6 +188,9 @@ specified.  This also generates an error message that lists the
 allowed flags if an incorrect flag is specified. The optional
 <i class="arg">usage</i>-argument contains a string to include in front of the
 generated message. If not present it defaults to &quot;options:&quot;.</p>
+<p><i class="arg">argvVar</i> contains the name of the list of arguments to process.
+If options are found the list is modified and the processed arguments
+are removed from the start of the list.</p>
 <p><i class="arg">optlist</i> contains a list of lists where each element specifies an
 option in the form: <i class="arg">flag</i> <i class="arg">default</i> <i class="arg">comment</i>.</p>
 <p>If <i class="arg">flag</i> ends in &quot;.arg&quot; then the value is taken from the command
@@ -254,6 +257,8 @@ code always has the word <b class="const">CMDLINE</b> as its first element.</p>
         set usage &quot;: MyCommandName \[options] filename ...\noptions:&quot;
         try {
             array set params [::cmdline::getoptions argv $options $usage]
+	    # Note: argv is modified now. The recognized options are
+	    # removed from it, leaving the non-option arguments behind.
         } trap {CMDLINE USAGE} {msg o} {
             # Trap the usage signal, print the message, and exit the application.
             # Note: Other errors are not caught and passed through to higher levels!
