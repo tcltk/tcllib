@@ -220,6 +220,7 @@ proc ::picoirc::Read {context} {
                 }
                 NICK {
                     set nick [Getnick $server]
+                    if {$irc(nick) == $nick} {set irc(nick) $rest}
                     Callback $context traffic nickchange {} $nick $rest
                     return
                 }
@@ -278,7 +279,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.7.0
+package provide picoirc 0.7.1
 
 # -------------------------------------------------------------------------
 return
