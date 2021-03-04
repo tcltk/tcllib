@@ -35,7 +35,7 @@ namespace eval ::picoirc {
 }
 
 proc ::picoirc::splituri {uri} {
-    lassign {{} {} {} {}} s server port channel
+    lassign {{} {} {} {}} secure server port channel
     if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> secure server port channel]} {
         regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channel server port
     }
@@ -145,7 +145,7 @@ proc ::picoirc::Read {context} {
         if {[regexp {:([^!]*)![^ ].* +PRIVMSG ([^ :]+) +:(.*)} $line -> \
                  nick target msg]} {
             set type ""
-            if {[regexp {\001(\S+)(.*)?\001} $msg -> ctcp data]} {
+            if {[regexp {^\001(\S+) (.*)\001$} $msg -> ctcp data]} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
@@ -176,6 +176,7 @@ proc ::picoirc::Read {context} {
                     regexp {<([^>]+)> (.+)} $msg -> nick msg
                 }
             }
+            if {$irc(nick) == $target} {set target $nick}
             Callback $context chat $target $nick $msg $type
         } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?$} $line -> parts junk rest]} {
 	    lassign [split $parts] server code target fourth fifth
@@ -242,28 +243,29 @@ proc ::picoirc::post {context channel msg} {
     set type ""
     if [regexp {^/([^ ]+) *(.*)} $msg -> cmd msg] {
         regexp {^([^ ]+)?(?: +(.*))?} $msg -> first rest
- 	switch -- $cmd {
- 	    me {set msg "\001ACTION $msg\001";set type ACTION}
- 	    nick {send $context "NICK $msg"; set $irc(nick) $msg}
- 	    quit {send $context "QUIT" }
-            part {send $context "PART $channel" }
- 	    names {send $context "NAMES $channel"}
-            whois {send $context "WHOIS $channel $msg"}
-            kick {send $context "KICK $channel $first :$rest"}
-            mode {send $context "MODE $msg"}
-            topic {send $context "TOPIC $channel :$msg" }
- 	    quote {send $context $msg}
- 	    join {send $context "JOIN $msg" }
+        switch -- $cmd {
+            me {set msg "\001ACTION $msg\001";set type ACTION}
+            nick {send $context "NICK $msg"; return}
+            quit {send $context "QUIT"; return}
+            part {send $context "PART $channel"; return}
+            names {send $context "NAMES $channel"; return}
+            whois {send $context "WHOIS $channel $msg"; return}
+            kick {send $context "KICK $channel $first :$rest"; return}
+            mode {send $context "MODE $msg"; return}
+            topic {send $context "TOPIC $channel :$msg"; return}
+            quote {send $context $msg; return}
+            join {send $context "JOIN $msg"; return}
             version {send $context "PRIVMSG $first :\001VERSION\001"}
- 	    msg {
- 		if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
- 		    send $context "PRIVMSG $target :$querymsg"
- 		    Callback $context chat $target $target $querymsg ""
- 		}
- 	    }
- 	    default {Callback $context system $channel "unknown command /$cmd"}
- 	}
- 	if {$cmd ne {me} || $cmd eq {msg}} return
+            msg {
+                if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
+                    send $context "PRIVMSG $target :$querymsg"
+                    Callback $context chat $target $irc(nick) $querymsg ""
+                }
+                return
+            }
+            default {Callback $context system $channel "unknown command /$cmd"; return}
+        }
+        if {$cmd ne {me} || $cmd eq {msg}} return
     }
     foreach line [split $msg \n] {send $context "PRIVMSG $channel :$line"}
     Callback $context chat $channel $irc(nick) $msg $type
@@ -279,7 +281,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.7.1
+package provide picoirc 0.7.2
 
 # -------------------------------------------------------------------------
 return
