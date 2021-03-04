@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.7.2]
+[vset VERSION 0.8.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -134,6 +134,13 @@ message was targetted for. This can be the logged in nick or a channel
 name. [arg nick] is the name of the sender of the message.
 [arg message] is the message text. [arg type] is set to "ACTION" if the
 message was sent as a CTCP ACTION
+
+[opt_def mode "[arg nick] [arg target] [arg flags]"]
+
+called when mode of user or channel changes. [arg nick] is the name
+of the user who requested a change, can be empty if it's the server.
+[arg target] is the identity that has its mode changed. [arg flags]
+are the changes in mode.
 
 [opt_def system "[arg channel] [arg message]"]
 

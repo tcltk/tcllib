@@ -178,7 +178,7 @@ proc ::picoirc::Read {context} {
             }
             if {$irc(nick) == $target} {set target $nick}
             Callback $context chat $target $nick $msg $type
-        } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?$} $line -> parts junk rest]} {
+        } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?} $line -> parts junk rest]} {
 	    lassign [split $parts] server code target fourth fifth
             switch -- $code {
                 001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 -
@@ -228,6 +228,15 @@ proc ::picoirc::Read {context} {
                 QUIT - PART {
                     set nick [Getnick $server]
                     Callback $context traffic left $target $nick
+                    return
+                }
+                MODE {
+                    set nick [Getnick $server]
+                    if {$fourth != ""} {
+                        Callback $context mode $nick $target "$fourth $fifth"
+                    } else {
+                        Callback $context mode $nick $target $rest
+                    }
                     return
                 }
             }
@@ -281,7 +290,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.7.2
+package provide picoirc 0.8.0
 
 # -------------------------------------------------------------------------
 return
