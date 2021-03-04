@@ -162,6 +162,31 @@ test picoirc-2.9 {quit server} -body {
     callbackResult
 } -result [list traffic left {} tcler]
 
+test picoirc-2.10 {mode self} -body {
+    contextReset ":anonymous MODE anonymous :+RZi"
+    callbackResult
+} -result [list mode {} anonymous +RZi]
+
+test picoirc-2.11 {mode channel} -body {
+    contextReset ":egan.freenode.net MODE #tcl-hacks :+ns"
+    callbackResult
+} -result [list mode {} #tcl-hacks +ns]
+
+test picoirc-2.12 {mode channel with parameter} -body {
+    contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks :+v newbie"
+    callbackResult
+} -result [list mode ChanServ #tcl-hacks "+v newbie"]
+
+test picoirc-2.13 {mode channel with parameter without colon} -body {
+    contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks +v newbie"
+    callbackResult
+} -result [list mode ChanServ #tcl-hacks "+v newbie"]
+
+test picoirc-2.14 {mode channel with trailing space and without colon} -body {
+    contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks -s "
+    callbackResult
+} -result [list mode ChanServ #tcl-hacks "-s "]
+
 test picoirc-3.0 {/me} -body {
     contextReset
     send #tcl "/me testing picoirc"
