@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.8.0]
+[vset VERSION 0.8.1]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -126,6 +126,13 @@ generated when the output of the NAMES irc command is seen. The
 package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
 received.
+
+[opt_def userinfo "[arg nick] [arg info]"]
+
+called as a response of WHOIS command. [arg nick] is the user
+the command was targeted for. [arg info] is the dictionary containing
+detailed information about that user: name, host, channels and userinfo.
+userinfo typically contains name and version of user's IRC client.
 
 [opt_def chat "[arg target] [arg nick] [arg message] [arg type]"]
 
