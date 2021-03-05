@@ -221,13 +221,13 @@ test picoirc-3.5 {/whois inside channel} -body {
     contextReset
     send #tcl "/whois aku"
     contextResult
-} -result "WHOIS #tcl aku"
+} -result "WHOIS aku"
 
 test picoirc-3.6 {/whois} -body {
     contextReset
     send {} "/whois aku"
     contextResult
-} -result "WHOIS  aku"
+} -result "WHOIS aku"
 
 test picoirc-3.7 {/kick} -body {
     contextReset

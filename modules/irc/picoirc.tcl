@@ -258,7 +258,7 @@ proc ::picoirc::post {context channel msg} {
             quit {send $context "QUIT"; return}
             part {send $context "PART $channel"; return}
             names {send $context "NAMES $channel"; return}
-            whois {send $context "WHOIS $channel $msg"; return}
+            whois {send $context "WHOIS $msg"; return}
             kick {send $context "KICK $channel $first :$rest"; return}
             mode {send $context "MODE $msg"; return}
             topic {send $context "TOPIC $channel :$msg"; return}
@@ -290,7 +290,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.8.0
+package provide picoirc 0.8.1
 
 # -------------------------------------------------------------------------
 return
