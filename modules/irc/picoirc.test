@@ -187,6 +187,21 @@ test picoirc-2.14 {mode channel with trailing space and without colon} -body {
     callbackResult
 } -result [list mode ChanServ #tcl-hacks "-s "]
 
+test picoirc-2.15 {channel notice} -body {
+    contextReset ":ChanServ!ChanServ@services. NOTICE #tcl :Tcl is the productive programming language."
+    callbackResult
+} -result [list chat #tcl ChanServ {Tcl is the productive programming language.} NOTICE]
+
+test picoirc-2.16 {private notice} -body {
+    contextReset ":NickServ!NickServ@services. NOTICE anonymous :This nickname is registered."
+    callbackResult
+} -result [list chat {} NickServ {This nickname is registered.} NOTICE]
+
+test picoirc-2.17 {global notice} -body {
+    contextReset ":beckett.freenode.net NOTICE * :*** Checking Ident"
+    callbackResult
+} -result [list chat {} {} {*** Checking Ident} NOTICE]
+
 test picoirc-3.0 {/me} -body {
     contextReset
     send #tcl "/me testing picoirc"
@@ -278,7 +293,14 @@ test picoirc-3.14 {/msg} -body {
 } -result [list "PRIVMSG NickServ :help me please" \
           [list chat NickServ anonymous "help me please" {}]]
 
-test picoirc-3.15 {unknown command} -body {
+test picoirc-3.15 {/notice} -body {
+    contextReset
+    send #tcl "/notice #haskell declarative programming is amazing"
+    list [contextResult] [callbackResult]
+} -result [list "NOTICE #haskell :declarative programming is amazing" \
+          [list chat #haskell anonymous "declarative programming is amazing" "NOTICE"]]
+
+test picoirc-3.16 {unknown command} -body {
     contextReset
     send #tcl "/compile chromium"
     callbackResult
