@@ -20,7 +20,7 @@ proc contextReset {{data {}}} {
     array set ::picoirc::irc $::picoirc::defaults
     set ::picoirc::irc(callback) callback
     set ::picoirc::irc(nick) anonymous
-    set ::picoirc::irc(data) "$data"
+    set ::picoirc::irc(data) "$data\n"
     set ::picoirc::irc(socket) [tcl::chan::variable ::picoirc::irc(data)]
     chan configure $::picoirc::irc(socket) -buffering line
     foreach _ [split $data \n] {
@@ -36,12 +36,15 @@ proc send {channel msg} {
 
 proc contextResult {} {
     close $::picoirc::irc(socket)
-    return [lindex [split $::picoirc::irc(data) \n] 0]
+    return [lindex [split $::picoirc::irc(data) \n] end-1]
 }
 
 proc callback {_ args} {
     global data
     set data $args
+    if {$args == "version"} {
+        return "PicoIRC:1.0:Tcl 8.6 tls 1.7.22"
+    }
     return
 }
 
@@ -108,17 +111,27 @@ test picoirc-2.1 {channel message with action} -body {
     callbackResult
 } -result [list chat #tcl tcler {fixing scripts} ACTION]
 
-test picoirc-2.2 {private message} -body {
+test picoirc-2.2 {channel message with version} -body {
+    contextReset ":tcler!~anon@127.0.0.1 PRIVMSG #tcl :\001VERSION\001"
+    contextResult
+} -result "NOTICE tcler :\001VERSION PicoIRC:1.0:Tcl 8.6 tls 1.7.22\001"
+
+test picoirc-2.3 {private message} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :hey there"
     callbackResult
 } -result [list chat tcler tcler {hey there} {}]
 
-test picoirc-2.3 {private message with action} -body {
+test picoirc-2.4 {private message with action} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :\001ACTION feels good\001"
     callbackResult
 } -result [list chat tcler tcler {feels good} ACTION]
 
-test picoirc-2.4 {user list} -body {
+test picoirc-2.5 {private message with version} -body {
+    contextReset ":tcler!~anon@127.0.0.1 PRIVMSG anonymous :\001VERSION\001"
+    contextResult
+} -result "NOTICE tcler :\001VERSION PicoIRC:1.0:Tcl 8.6 tls 1.7.22\001"
+
+test picoirc-2.6 {user list} -body {
     contextReset [join [list \
         ":card.freenode.net 353 tcler @ #tcl :tcler +aku +curiousgay +kbk +rkeene +sebres" \
         ":card.freenode.net 366 tcler #tcl :End of /NAMES list." \
@@ -126,7 +139,7 @@ test picoirc-2.4 {user list} -body {
     callbackResult
 } -result [list userlist #tcl {tcler +aku +curiousgay +kbk +rkeene +sebres}]
 
-test picoirc-2.5 {whois} -body {
+test picoirc-2.7 {whois} -body {
     contextReset [join [list \
         ":kornbluth.freenode.net 311 tcler anonymous ~anon 192.168.1.1 * :PicoIRC 1.0 user" \
         ":kornbluth.freenode.net 319 tcler anonymous :+#go-nuts #haskell #tcl " \
@@ -142,62 +155,62 @@ test picoirc-2.5 {whois} -body {
                       userinfo {PicoIRC 1.0 user} \
                       channels {+#go-nuts #haskell #tcl }]]
 
-test picoirc-2.6 {join channel} -body {
+test picoirc-2.8 {join channel} -body {
     contextReset ":tcler!~anon@127.0.0.1 JOIN #tcl"
     callbackResult
 } -result [list traffic entered #tcl tcler]
 
-test picoirc-2.7 {change nick} -body {
+test picoirc-2.9 {change nick} -body {
     contextReset ":tcler!~anon@127.0.0.1 NICK :gopher"
     callbackResult
 } -result [list traffic nickchange {} tcler gopher]
 
-test picoirc-2.8 {quit channel} -body {
+test picoirc-2.10 {quit channel} -body {
     contextReset ":tcler!~anon@127.0.0.1 PART #tcl"
     callbackResult
 } -result [list traffic left #tcl tcler]
 
-test picoirc-2.9 {quit server} -body {
+test picoirc-2.11 {quit server} -body {
     contextReset ":tcler!~anon@127.0.0.1 QUIT"
     callbackResult
 } -result [list traffic left {} tcler]
 
-test picoirc-2.10 {mode self} -body {
+test picoirc-2.12 {mode self} -body {
     contextReset ":anonymous MODE anonymous :+RZi"
     callbackResult
 } -result [list mode {} anonymous +RZi]
 
-test picoirc-2.11 {mode channel} -body {
+test picoirc-2.13 {mode channel} -body {
     contextReset ":egan.freenode.net MODE #tcl-hacks :+ns"
     callbackResult
 } -result [list mode {} #tcl-hacks +ns]
 
-test picoirc-2.12 {mode channel with parameter} -body {
+test picoirc-2.14 {mode channel with parameter} -body {
     contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks :+v newbie"
     callbackResult
 } -result [list mode ChanServ #tcl-hacks "+v newbie"]
 
-test picoirc-2.13 {mode channel with parameter without colon} -body {
+test picoirc-2.15 {mode channel with parameter without colon} -body {
     contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks +v newbie"
     callbackResult
 } -result [list mode ChanServ #tcl-hacks "+v newbie"]
 
-test picoirc-2.14 {mode channel with trailing space and without colon} -body {
+test picoirc-2.16 {mode channel with trailing space and without colon} -body {
     contextReset ":ChanServ!ChanServ@services. MODE #tcl-hacks -s "
     callbackResult
 } -result [list mode ChanServ #tcl-hacks "-s "]
 
-test picoirc-2.15 {channel notice} -body {
+test picoirc-2.17 {channel notice} -body {
     contextReset ":ChanServ!ChanServ@services. NOTICE #tcl :Tcl is the productive programming language."
     callbackResult
 } -result [list chat #tcl ChanServ {Tcl is the productive programming language.} NOTICE]
 
-test picoirc-2.16 {private notice} -body {
+test picoirc-2.18 {private notice} -body {
     contextReset ":NickServ!NickServ@services. NOTICE anonymous :This nickname is registered."
     callbackResult
 } -result [list chat {} NickServ {This nickname is registered.} NOTICE]
 
-test picoirc-2.17 {global notice} -body {
+test picoirc-2.19 {global notice} -body {
     contextReset ":beckett.freenode.net NOTICE * :*** Checking Ident"
     callbackResult
 } -result [list chat {} {} {*** Checking Ident} NOTICE]

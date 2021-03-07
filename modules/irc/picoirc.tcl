@@ -145,7 +145,7 @@ proc ::picoirc::Read {context} {
         if {[regexp {:([^!]*)![^ ].* +PRIVMSG ([^ :]+) +:(.*)} $line -> \
                  nick target msg]} {
             set type ""
-            if {[regexp {^\001(\S+) (.*)\001$} $msg -> ctcp data]} {
+            if {[regexp {^\001(\S+)(?: (.*))?\001$} $msg -> ctcp data]} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
@@ -299,7 +299,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.9.0
+package provide picoirc 0.9.1
 
 # -------------------------------------------------------------------------
 return
