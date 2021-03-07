@@ -80,8 +80,10 @@ proc ::picoirc::Callback {context state args} {
     upvar #0 $context irc
     if {[llength $irc(callback)] > 0
         && [llength [info commands [lindex $irc(callback) 0]]] == 1} {
-        if {[catch {eval $irc(callback) [list $context $state] $args} err]} {
-            puts stderr "callback error: $err"
+        if {[catch {eval $irc(callback) [list $context $state] $args} result]} {
+            puts stderr "callback error: $result"
+        } else {
+            return $result
         }
     }
 }
