@@ -6,6 +6,7 @@
 [require Tcl 8.2]
 [require math [opt 1.2.3]]
 [require Tcl 8.6]
+[require TclOO]
 [require math::combinatorics [opt 2.0]]
 [description]
 [para]

@@ -1,7 +1,12 @@
+2021-03-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* various man files: Require Tcl 8.6 and TclOO
+
 2021-01-31  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* combinatoricsExt.tcl: Extension of the collection of combinatorial procedures
 	* combinatoricsExt.test: Tests for the new procedures
 	* combinatorics.man: Description of the new procedures
+	* pkgIndex.tcl: Added the package math::combinatorics
+
 2021-01-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* changepoint.tcl: New package defining two change point detection algorithms
 	* changepoint.test: Basic tests for the change point detection algorithms
