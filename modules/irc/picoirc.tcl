@@ -239,6 +239,13 @@ proc ::picoirc::Read {context} {
                     }
                     return
                 }
+                NOTICE {
+                    if {$target in [list $irc(nick) *]} {
+                        set target {}
+                    }
+                    Callback $context chat $target [Getnick $server] $rest NOTICE
+                    return
+                }
             }
             Callback $context system "" "[lrange [split $parts] 1 end] $rest"
         } else {
@@ -265,10 +272,12 @@ proc ::picoirc::post {context channel msg} {
             quote {send $context $msg; return}
             join {send $context "JOIN $msg"; return}
             version {send $context "PRIVMSG $first :\001VERSION\001"}
-            msg {
+            msg - notice {
+                set type [expr {$cmd == "msg" ? ""        : "NOTICE"}]
+                set cmd  [expr {$cmd == "msg" ? "PRIVMSG" : "NOTICE"}]
                 if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
-                    send $context "PRIVMSG $target :$querymsg"
-                    Callback $context chat $target $irc(nick) $querymsg ""
+                    send $context "$cmd $target :$querymsg"
+                    Callback $context chat $target $irc(nick) $querymsg $type
                 }
                 return
             }
@@ -290,7 +299,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.8.1
+package provide picoirc 0.9.0
 
 # -------------------------------------------------------------------------
 return

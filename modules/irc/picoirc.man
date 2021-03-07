@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.8.1]
+[vset VERSION 0.9.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -140,7 +140,10 @@ called when a message arrives. [arg target] is the identity that the
 message was targetted for. This can be the logged in nick or a channel
 name. [arg nick] is the name of the sender of the message.
 [arg message] is the message text. [arg type] is set to "ACTION" if the
-message was sent as a CTCP ACTION
+message was sent as a CTCP ACTION. [arg type] is set to "NOTICE" if the
+message was sent as a NOTICE command, in that case [arg target] is empty
+if it matches current user nick or it's "*", in later case empty
+[arg nick] means that notice comes from server.
 
 [opt_def mode "[arg nick] [arg target] [arg flags]"]
 
