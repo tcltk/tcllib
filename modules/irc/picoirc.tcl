@@ -80,8 +80,10 @@ proc ::picoirc::Callback {context state args} {
     upvar #0 $context irc
     if {[llength $irc(callback)] > 0
         && [llength [info commands [lindex $irc(callback) 0]]] == 1} {
-        if {[catch {eval $irc(callback) [list $context $state] $args} err]} {
-            puts stderr "callback error: $err"
+        if {[catch {eval $irc(callback) [list $context $state] $args} result]} {
+            puts stderr "callback error: $result"
+        } else {
+            return $result
         }
     }
 }
@@ -145,7 +147,7 @@ proc ::picoirc::Read {context} {
         if {[regexp {:([^!]*)![^ ].* +PRIVMSG ([^ :]+) +:(.*)} $line -> \
                  nick target msg]} {
             set type ""
-            if {[regexp {^\001(\S+) (.*)\001$} $msg -> ctcp data]} {
+            if {[regexp {^\001(\S+)(?: (.*))?\001$} $msg -> ctcp data]} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
@@ -299,7 +301,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.9.0
+package provide picoirc 0.9.1
 
 # -------------------------------------------------------------------------
 return
