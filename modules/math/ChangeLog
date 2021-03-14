@@ -6,6 +6,7 @@
 	* numtheory.man: Description of the new procedures
 	* numtheory.tcl: Updated version to 1.1.3
 	* pkgIndex.tcl: Updated the version for math::decimal and math::numtheory
+	* fourier.man: Updated the introduction as per ticket 2695827
 
 2021-03-07  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* various man files: Require Tcl 8.6 and TclOO
