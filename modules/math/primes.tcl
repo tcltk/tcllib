@@ -27,7 +27,7 @@ namespace eval ::math::numtheory {
     namespace export firstNprimes primesLowerThan primeFactors uniquePrimeFactors factors \
                      totient moebius legendre jacobi gcd lcm \
                      numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified \
-                     differenceNumberPrimesLegendreModified
+                     differenceNumberPrimesLegendreModified listPrimeProgressions
 }
 
 # ComputeNextPrime --
@@ -491,6 +491,77 @@ proc ::math::numtheory::differenceNumberPrimesLegendreModified {limit1 limit2} {
      set aa [::math::numtheory::numberPrimesLegendreModified [expr ($limit1)]]
      set bb [::math::numtheory::numberPrimesLegendreModified [expr ($limit2)]]
      expr {abs($bb-$aa)}
+}
+
+# listPrimeProgressions --
+#     Return a list of arithmetic progressions of primes that differ by a given number
+#
+# Arguments:
+#     lower      The lower limit for the interval from which to chose the primes
+#     upper      The upper limit for the interval
+#     step       The difference between sucessive primes (default to 2)
+#
+# Returns:
+#     A list of lists of successive primes differing the given step
+#
+proc ::math::numtheory::listPrimeProgressions {lower upper {step 2}} {
+    if { $upper <= $lower } {
+        return -code error "The upper limit must be larger than the lower limit"
+    }
+    if { $step <= 0 } {
+        return -code error "The step must be at least 1"
+    }
+
+    set output {}
+    set found  {}
+    for {set i $lower} {$i <= $upper} {incr i 1} {
+        if { [isprime $i] } {
+            set newset $i
+            for { set j [expr {$i + $step}]} {$j <= $upper} {incr j $step} {
+                if { [isprime $j] && $j ni $found } {
+                    lappend newset $j
+                    lappend found  $j
+                } else {
+                    break
+                }
+            }
+            if { [llength $newset] > 1 } {
+                lappend output $newset
+            }
+        }
+    }
+
+    return $output
+}
+
+# listPrimePairs --
+#     Return a list of pairso of primes that differ by a given number
+#
+# Arguments:
+#     lower      The lower limit for the interval from which to chose the primes
+#     upper      The upper limit for the interval
+#     step       The difference between sucessive primes (default to 2)
+#
+# Returns:
+#     A list of pairs of primes differing the given step
+#
+proc ::math::numtheory::listPrimePairs {lower upper {step 2}} {
+    if { $upper <= $lower } {
+        return -code error "The upper limit must be larger than the lower limit"
+    }
+    if { $step <= 0 } {
+        return -code error "The step must be at least 1"
+    }
+
+    set output {}
+    for {set i $lower} {$i <= $upper} {incr i 1} {
+        set next [expr {$i + $step}]
+        if { [isprime $i] && [isprime $next] } {
+            lappend output [list $i $next]
+        }
+    }
+
+    return $output
 }
 
 ##

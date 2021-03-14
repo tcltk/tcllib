@@ -1,5 +1,5 @@
 package require Tcl 8.5
-package provide math::decimal 1.0.3
+package provide math::decimal 1.0.4
 #
 # Copyright 2011, 2013 Mark Alston. All rights reserved.
 #
@@ -1220,6 +1220,7 @@ proc ::math::decimal::fromstr {string} {
     set epart 0
     if { $echeck >= 0 } {
 	set epart [string range $string [expr {$echeck+1}] end]
+	set epart [scan $epart %d]
 	set string [string range $string 0 [expr {$echeck -1}]]
     }
 
