@@ -218,8 +218,9 @@ test picoirc-2.19 {global notice} -body {
 test picoirc-3.0 {/me} -body {
     contextReset
     send #tcl "/me testing picoirc"
-    contextResult
-} -result "PRIVMSG #tcl :\001ACTION testing picoirc\001"
+    list [contextResult] [callbackResult]
+} -result [list "PRIVMSG #tcl :\001ACTION testing picoirc\001" \
+          [list chat #tcl anonymous "testing picoirc" ACTION]]
 
 test picoirc-3.1 {/nick} -body {
     contextReset

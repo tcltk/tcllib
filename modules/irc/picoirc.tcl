@@ -258,37 +258,46 @@ proc ::picoirc::Read {context} {
 
 proc ::picoirc::post {context channel msg} {
     upvar #0 $context irc
-    set type ""
-    if [regexp {^/([^ ]+) *(.*)} $msg -> cmd msg] {
-        regexp {^([^ ]+)?(?: +(.*))?} $msg -> first rest
-        switch -- $cmd {
-            me {set msg "\001ACTION $msg\001";set type ACTION}
-            nick {send $context "NICK $msg"; return}
-            quit {send $context "QUIT"; return}
-            part {send $context "PART $channel"; return}
-            names {send $context "NAMES $channel"; return}
-            whois {send $context "WHOIS $msg"; return}
-            kick {send $context "KICK $channel $first :$rest"; return}
-            mode {send $context "MODE $msg"; return}
-            topic {send $context "TOPIC $channel :$msg"; return}
-            quote {send $context $msg; return}
-            join {send $context "JOIN $msg"; return}
-            version {send $context "PRIVMSG $first :\001VERSION\001"}
-            msg - notice {
-                set type [expr {$cmd == "msg" ? ""        : "NOTICE"}]
-                set cmd  [expr {$cmd == "msg" ? "PRIVMSG" : "NOTICE"}]
-                if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
-                    send $context "$cmd $target :$querymsg"
-                    Callback $context chat $target $irc(nick) $querymsg $type
+    foreach line [split $msg \n] {
+        if [regexp {^/([^ ]+) *(.*)} $line -> cmd msg] {
+            regexp {^([^ ]+)?(?: +(.*))?} $msg -> first rest
+            switch -- $cmd {
+                me {
+                    if {$channel eq ""} {
+                        Callback $context system "" "not in channel"
+                        continue
+                    }
+                    send $context "PRIVMSG $channel :\001ACTION $msg\001"
+                    Callback $context chat $channel $irc(nick) $msg ACTION
                 }
-                return
+                nick {send $context "NICK $msg"}
+                quit {send $context "QUIT"}
+                part {send $context "PART $channel"}
+                names {send $context "NAMES $channel"}
+                whois {send $context "WHOIS $msg"}
+                kick {send $context "KICK $channel $first :$rest"}
+                mode {send $context "MODE $msg"}
+                topic {send $context "TOPIC $channel :$msg"}
+                quote {send $context $msg}
+                join {send $context "JOIN $msg"}
+                version {send $context "PRIVMSG $first :\001VERSION\001"}
+                msg - notice {
+                    set type [expr {$cmd == "msg" ? ""        : "NOTICE"}]
+                    set cmd  [expr {$cmd == "msg" ? "PRIVMSG" : "NOTICE"}]
+                    send $context "$cmd $first :$rest"
+                    Callback $context chat $first $irc(nick) $rest $type
+                }
+                default {Callback $context system $channel "unknown command /$cmd"}
             }
-            default {Callback $context system $channel "unknown command /$cmd"; return}
+            continue
         }
-        if {$cmd ne {me} || $cmd eq {msg}} return
+        if {$channel eq ""} {
+            Callback $context system "" "not in channel"
+            continue
+        }
+        send $context "PRIVMSG $channel :$line"
+        Callback $context chat $channel $irc(nick) $line
     }
-    foreach line [split $msg \n] {send $context "PRIVMSG $channel :$line"}
-    Callback $context chat $channel $irc(nick) $msg $type
 }
 
 proc ::picoirc::send {context line} {
@@ -301,7 +310,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.9.1
+package provide picoirc 0.9.2
 
 # -------------------------------------------------------------------------
 return
