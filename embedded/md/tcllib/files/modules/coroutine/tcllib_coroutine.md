@@ -2,7 +2,7 @@
 [//000000001]: # (coroutine \- Coroutine utilities)
 [//000000002]: # (Generated from file 'tcllib\_coroutine\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010\-2015 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (coroutine\(n\) 1\.2 tcllib "Coroutine utilities")
+[//000000004]: # (coroutine\(n\) 1\.3 tcllib "Coroutine utilities")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -36,7 +36,7 @@ coroutine \- Coroutine based event and IO handling
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require coroutine 1\.2  
+package require coroutine 1\.3  
 
 [__coroutine::util after__ *delay*](#1)  
 [__coroutine::util await__ *varname*\.\.\.](#2)  
@@ -45,9 +45,11 @@ package require coroutine 1\.2
 [__coroutine::util gets__ *chan* ?*varname*?](#5)  
 [__coroutine::util gets\_safety__ *chan* *limit* *varname*](#6)  
 [__coroutine::util global__ *varname*\.\.\.](#7)  
-[__coroutine::util read__ __\-nonewline__ *chan* ?*n*?](#8)  
-[__coroutine::util update__ ?__idletasks__?](#9)  
-[__coroutine::util vwait__ *varname*](#10)  
+[__coroutine::util puts__ ?__\-nonewline__? *channel* *string*](#8)  
+[__coroutine::util read__ __\-nonewline__ *chan* ?*n*?](#9)  
+[__coroutine::util socket__ ?*options\.\.\.*? *host* *port*](#10)  
+[__coroutine::util update__ ?__idletasks__?](#11)  
+[__coroutine::util vwait__ *varname*](#12)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -114,18 +116,31 @@ overall eventloop is not blocked however\.
     variable in to the global namespace, and each coroutine can have their own
     set, independent of all others\.
 
-  - <a name='8'></a>__coroutine::util read__ __\-nonewline__ *chan* ?*n*?
+  - <a name='8'></a>__coroutine::util puts__ ?__\-nonewline__? *channel* *string*
+
+    This commands writes the string to the specified *channel*\. Contrary to
+    the builtin __puts__ this command waits until the *channel* is
+    writable before actually writing to it\.
+
+  - <a name='9'></a>__coroutine::util read__ __\-nonewline__ *chan* ?*n*?
 
     This command reads *n* characters from the channel *chan* and returns
     them as its result\. If *n* is not specified the command will read the
     channel until EOF is reached\.
 
-  - <a name='9'></a>__coroutine::util update__ ?__idletasks__?
+  - <a name='10'></a>__coroutine::util socket__ ?*options\.\.\.*? *host* *port*
+
+    This command connects to the specified host and port and returns when that
+    is done\. Contrary to the builtin command it performs a non\-blocking connect
+    in the background\. As such, while its blocks the calling coroutine, the
+    overall application is not blocked\.
+
+  - <a name='11'></a>__coroutine::util update__ ?__idletasks__?
 
     This command causes the coroutine invoking it to run pending events or idle
     handlers before proceeding\.
 
-  - <a name='10'></a>__coroutine::util vwait__ *varname*
+  - <a name='12'></a>__coroutine::util vwait__ *varname*
 
     This command causes the coroutine calling it to wait for a write to the
     named namespace variable *varname*\.

@@ -2,10 +2,10 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1.1.2
+# Package coroutine::auto 1.2
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
-# Meta require         {coroutine 1.1}
+# Meta require         {coroutine 1.3}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
 # Meta as::origin      http://wiki.tcl.tk/21555
@@ -20,12 +20,11 @@
 
 # Copyright (c) 2009-2014 Andreas Kupries
 
-## $Id: coro_auto.tcl,v 1.3 2011/11/17 08:00:45 andreas_kupries Exp $
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
 package require Tcl 8.6
-package require coroutine
+package require coroutine 1.3
 
 namespace eval ::coroutine::auto {}
 
@@ -99,7 +98,7 @@ proc ::coroutine::auto::wrap_update {{what {}}} {
     }
     yield
     return
-} 
+}
 
 # - -- --- ----- -------- -------------
 
@@ -131,7 +130,7 @@ proc ::coroutine::auto::wrap_gets {args} {
     }
 
     # Loop until we have a complete line. Yield to the event loop
-    # where necessary. During 
+    # where necessary. During
 
     while {1} {
         set blocking [::chan configure $chan -blocking]
@@ -275,6 +274,93 @@ proc ::coroutine::auto::wrap_read {args} {
     return $buf
 }
 
+# - -- --- ----- -------- -------------
+
+proc ::coroutine::auto::wrap_puts {args} {
+    # Process arguments.
+    # Acceptable syntax:
+    # * puts ?-nonewline? ?CHAN? string
+
+    if {[info coroutine] eq {}} {
+        tailcall ::coroutine::auto::core_puts {*}$args
+    }
+
+    # This is a full re-implementation of puts, because the
+    # coroutine-aware part uses the builtin itself for some
+    # functionality, and this part cannot be taken as is.
+
+    # Calling the builtin puts command with the bogus arguments
+    # gives us the necessary error with the proper message.
+
+    switch [llength $args] {
+        1 {
+            set ch stdout
+        }
+        2 {
+            set ch [lindex $args 0]
+            if {[string match {-*} $ch]} {
+                if {$ch ne "-nonewline"} {
+                    # Force proper error message for bad call
+                    tailcall ::coroutine::auto::core_puts {*}$args
+                }
+                set ch stdout
+            }
+        }
+        3 {
+            lassign $args opt ch
+            if {$opt ne "-nonewline"} {
+                # Force proper error message for bad call
+                tailcall ::coroutine::auto::core_puts {*}$args
+            }
+        }
+        default {
+            # Force proper error message for bad call
+            tailcall ::coroutine::auto::core_puts {*}$args
+        }
+    }
+        set blocking [::chan configure $ch -blocking]
+    ::chan event $ch writable [info coroutine]
+    yield
+    ::chan event $ch writable {}
+    try {
+        ::coroutine::auto::core_puts {*}$args
+    } on error {result opts} {
+        return -code $result -options $opts
+    } finally {
+        ::chan configure $ch -blocking $blocking
+    }
+    return
+}
+
+# - -- --- ----- -------- -------------
+proc ::coroutine::auto::wrap_socket {args} {
+    # Process arguments.
+    # Acceptable syntax:
+    # * connect ?options? host port
+    # * connect -server command ?options? port
+
+    if {[info coroutine] eq {} || [lsearch -exact $args -server] >= 0} {
+        tailcall ::coroutine::auto::core_socket {*}$args
+    }
+
+    # This is a full re-implementation of socket, because the
+    # coroutine-aware part uses the builtin itself for some
+    # functionality, and this part cannot be taken as is.
+
+    set s [::coroutine::auto::core_socket -async {*}$args]
+    ::chan event $s writable [info coroutine]
+    while {[::chan configure $s -connecting]} {
+        yield
+    }
+    ::chan event $s writable {}
+    set errmsg [::chan configure $s -error]
+    if {$errmsg ne ""} {
+        ::chan close $s
+        error $errmsg
+    }
+    return $s
+}
+
 # # ## ### ##### ######## #############
 ## Internal. Setup.
 
@@ -293,6 +379,7 @@ proc ::coroutine::auto::wrap_read {args} {
 	after
 	vwait
 	update
+        socket
     } {
 	rename ::$cmd [namespace current]::core_$cmd
 	rename [namespace current]::wrap_$cmd ::$cmd
@@ -301,6 +388,7 @@ proc ::coroutine::auto::wrap_read {args} {
     foreach cmd {
 	gets
 	read
+        puts
     } {
 	rename ::tcl::chan::$cmd [namespace current]::core_$cmd
 	rename [namespace current]::wrap_$cmd ::tcl::chan::$cmd
@@ -312,5 +400,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.1.3
+package provide coroutine::auto 1.2
 return
