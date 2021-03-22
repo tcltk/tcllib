@@ -73,7 +73,7 @@ README                          Tcl MIME                   February 2000
    an empty line, and a structured body. A MIME part is either a "leaf"
    or has (zero or more) subordinates.
 
-   MIME defines four keys that may appear in the headers: 
+   MIME defines four keys that may appear in the headers:
 
       Content-Type: describes the data contained in the body ("the
       content");
@@ -119,7 +119,7 @@ README                          Tcl MIME                   February 2000
 
 1.1 Requirements
 
-   This package requires: 
+   This package requires:
 
    o  Tcl/Tk version 8.0.3[4] or later
 
@@ -242,16 +242,16 @@ README                          Tcl MIME                   February 2000
 
 3.1 mime::initialize
 
-   mime::initialize creates a MIME part: 
+   mime::initialize creates a MIME part:
 
    o  If the -canonical option is present, then the body is in
       canonical (raw) form and is found by consulting either the -file,
-      -string, or -part option. 
+      -string, or -part option.
 
       In addition, both the -param and -header options may occur zero
       or more times to specify "Content-Type" parameters (e.g.,
       "charset") and header keyword/values (e.g.,
-      "Content-Disposition"), respectively. 
+      "Content-Disposition"), respectively.
 
       Also, -encoding, if present, specifies the
       "Content-Transfer-Encoding" when copying the body.
@@ -318,7 +318,7 @@ README                          Tcl MIME                   February 2000
    mime::setheader writes, appends to, or deletes the value associated
    with a key in the header.
 
-   The value for -mode is one of: 
+   The value for -mode is one of:
 
       write: the key/value is either created or overwritten (the
       default);
@@ -382,7 +382,7 @@ README                          Tcl MIME                   February 2000
    smtp::sendmessage sends a MIME part to an SMTP server. (Note that
    this procedure is in the "smtp" package, not the "mime" package.)
 
-   The options are: 
+   The options are:
 
       -servers: a list of SMTP servers (the default is "localhost");
 
@@ -695,7 +695,7 @@ README                          Tcl MIME                   February 2000
 
 Appendix A. TODO List
 
-   mime::initialize 
+   mime::initialize
 
       *  well-defined errorCode values
 

@@ -2,7 +2,7 @@
 [//000000001]: # (smtp \- smtp client)
 [//000000002]: # (Generated from file 'smtp\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 1999\-2000 Marshall T\. Rose and others)
-[//000000004]: # (smtp\(n\) 1\.5 tcllib "smtp client")
+[//000000004]: # (smtp\(n\) 1\.5\.1 tcllib "smtp client")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -45,7 +45,7 @@ smtp \- Client\-side tcl implementation of the smtp protocol
 
 package require Tcl  
 package require mime ?1\.5\.4?  
-package require smtp ?1\.5?  
+package require smtp ?1\.5\.1?  
 
 [__::smtp::sendmessage__ *token* *option*\.\.\.](#1)  
 

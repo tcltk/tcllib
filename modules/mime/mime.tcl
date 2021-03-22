@@ -2719,7 +2719,7 @@ proc ::mime::parseaddressaux {token string} {
                 }
                 set friendly $note
             }
-            
+
             if {($friendly eq {}) \
                     && ([set mbox $state(local)] ne {})} {
                 #TODO: this path is not covered by tests
