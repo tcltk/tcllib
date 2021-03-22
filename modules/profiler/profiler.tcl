@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 package require Tcl 8.3		;# uses [clock clicks -milliseconds]
-package provide profiler 0.5
+package provide profiler 0.6
 
 namespace eval ::profiler {}
 
@@ -27,7 +27,7 @@ proc ::profiler::tZero { { tag "" } } {
     set us [ clock clicks ]
     set tag [string map {: ""} $tag]
     # FRINK: nocheck
-    set ::profiler::T$tag [ list $us $ms ] 
+    set ::profiler::T$tag [ list $us $ms ]
     return
 }
 
@@ -37,7 +37,7 @@ proc ::profiler::tZero { { tag "" } } {
 #
 # Arguments:
 #	tag	Tag for which to return a delta; if none is given, defaults to
-#		"" 
+#		""
 #
 # Results:
 #	dt	Time difference between start of the timer and the current
@@ -55,7 +55,7 @@ proc ::profiler::tMark { { tag "" } } {
 	error "Unknown tag \"$tag\""
     }
     # FRINK: nocheck
-     set ust [ lindex [ set ::profiler::T$tag ] 0 ] 
+     set ust [ lindex [ set ::profiler::T$tag ] 0 ]
     # FRINK: nocheck
      set mst [ lindex [ set ::profiler::T$tag ] 1 ]
      set udt [ expr { ($ut-$ust) } ]
@@ -85,7 +85,7 @@ proc ::profiler::stats {args} {
     set sigma    0
     set cov      0
     set N [ llength $args ]
-    if { $N > 1 } { 
+    if { $N > 1 } {
         foreach val $args {
             incr sum $val
         }
@@ -94,7 +94,7 @@ proc ::profiler::stats {args} {
             foreach val $args {
                 set sigma_sq [ expr { $sigma_sq+pow(($val-$mean),2) } ]
             }
-            set sigma_sq [ expr { $sigma_sq/($N-1) } ] 
+            set sigma_sq [ expr { $sigma_sq/($N-1) } ]
             set sigma [ expr { round(sqrt($sigma_sq)) } ]
 	    if { $mean != 0 } {
 		set cov [ expr { (($sigma*1.0)/$mean)*100 } ]
@@ -107,7 +107,7 @@ proc ::profiler::stats {args} {
 
 # ::profiler::Handler --
 #
-#	Profile a function (tcl8.3).  This function works together with 
+#	Profile a function (tcl8.3).  This function works together with
 #       profProc, which replaces the proc command.  When a new procedure
 #       is defined, it creates and alias to this function; when that
 #       procedure is called, it calls this handler first, which gathers
@@ -229,7 +229,7 @@ proc ::profiler::leaveHandler {name caller} {
 
     # Tkt [0dd4b31bb8] Note that the result is pulled from the
     # caller's context as it is not passed into leaveHandler
-    
+
     if { !$enabled($name) } {
 	return [uplevel 1 {lindex $args 1}] ;# RETURN RESULT!
     }
@@ -272,7 +272,7 @@ proc ::profiler::profProc {name arglist body} {
     variable statTime
     variable enabled
     variable paused
-    
+
     # Get the fully qualified name of the proc
     set ns [uplevel [list namespace current]]
     # If the proc call did not happen at the global context and it did not
@@ -314,7 +314,7 @@ proc ::profiler::profProc {name arglist body} {
 #	None.
 #
 # Results:
-#	None.  Renames proc to _oldProc and sets an alias for proc to 
+#	None.  Renames proc to _oldProc and sets an alias for proc to
 #		profiler::profProc
 
 proc ::profiler::init {} {
@@ -401,7 +401,7 @@ proc ::profiler::printname {name} {
 proc ::profiler::print {{pattern *}} {
     variable callCount
     #parray callCount
-    
+
     set result ""
     foreach name [lsort [array names callCount $pattern]] {
 	append result [printname $name]
@@ -554,7 +554,7 @@ proc ::profiler::sortFunctions {{field ""}} {
 		    totalRuntime, avgExclusiveRuntime, or avgRuntime"
 	}
     }
-	    
+
     set result [list ]
     foreach fxn [array names data] {
 	lappend result [list $fxn $data($fxn)]
@@ -578,6 +578,8 @@ proc ::profiler::reset {{pattern *}} {
     variable totalRuntime
     variable callers
     variable statTime
+    variable descendantTime
+    variable descendants
 
     foreach name [array names callCount $pattern] {
 	set callCount($name) 0
@@ -587,6 +589,10 @@ proc ::profiler::reset {{pattern *}} {
 	foreach caller [array names callers $name,*] {
 	    unset callers($caller)
 	}
+	set descendantTime($name) 0
+        foreach descendant [array names descendants $name,*] {
+            unset descendants($descendant)
+        }
     }
     return
 }

@@ -110,8 +110,8 @@ test profiler-3.1 {profiler wrappers do profiling} {
 test profiler::leaveHandler::initialize_descendent_time {} {
     # Verify that the profiler tracks descendent time correctly.  We'll make
     # a simple call tree, foo -> bar, then invoke foo, then check the profiler
-    # stats to see that _some_ descendent time has been logged for the call 
-    # to bar.  We won't be able to predict exactly how much time will get 
+    # stats to see that _some_ descendent time has been logged for the call
+    # to bar.  We won't be able to predict exactly how much time will get
     # billed there, but it should be non-zero.
 
     array set stats [lindex [do {
@@ -200,7 +200,7 @@ test profiler-5.2 {profiler respects new-disabled/enabled} {
 	proc ::foo {} {
 	    set foobar 0
 	}
-	#---	
+	#---
 	foo
 	bar
 	profiler::resume
@@ -392,6 +392,26 @@ test profiler-10.0-tkt-0dd4b31bb8 {result of leave handler} {
 	set trace
     }] \n
 } [viewFile [asset tkt-0dd4b31bb8]]
+
+
+test profiler-11.0-tkt-3603260fff {reset descendants} {
+    do {
+	proc profile_a {} {
+	    for {set f 0} {$f<100} {incr f} {
+		profile_b
+	    }
+	}
+	proc profile_b {} {
+	    for {set f 0} {$f<100000} {incr f} {}
+	}
+
+	profile_a
+	profiler::reset
+	profile_a
+
+	expr {$profiler::totalRuntime(::profile_a) < $profiler::descendantTime(::profile_a)}
+    }
+} 0
 
 # -------------------------------------------------------------------------
 rename do {}
