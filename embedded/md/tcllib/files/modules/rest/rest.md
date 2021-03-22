@@ -1,7 +1,7 @@
 
 [//000000001]: # (rest \- A framework for RESTful web services)
 [//000000002]: # (Generated from file 'rest\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (rest\(n\) 1\.3\.1 tcllib "A framework for RESTful web services")
+[//000000003]: # (rest\(n\) 1\.4 tcllib "A framework for RESTful web services")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -39,7 +39,7 @@ rest \- define REST web APIs and call them inline or asychronously
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require rest ?1\.3\.1?  
+package require rest ?1\.4?  
 
 [__::rest::simple__ *url* *query* ?*config*? ?*body*?](#1)  
 [__::rest::get__ *url* *query* ?*config*? ?*body*?](#2)  
@@ -275,6 +275,11 @@ Example, Yahoo Weather:
             argument representing one part of a mime/multipart document\.
             Arguments must be lists containing 2 elements, a list of header keys
             and values, and the mime part body, in this order\.
+
+          + __mime\_multipart/<value>__
+
+            Same as mime\_multipart, but the __Content\-Type__ header is set
+            to __multipart/<value>__\.
 
       * __method__
 
