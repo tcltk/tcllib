@@ -76,7 +76,7 @@
           seriesNo    %NUMBER;           #IMPLIED
           ipr         (full2026|noDerivativeWorks2026|none)
                                          #IMPLIED
-          docName     %ATEXT;            #IMPLIED> 
+          docName     %ATEXT;            #IMPLIED>
 
 <!--
   Front matter
@@ -89,7 +89,7 @@
 <!-- the "abbrev" attribute is used for headers, etc. -->
 <!ELEMENT title       (%CTEXT;)>
 <!ATTLIST title
-          abbrev      %ATEXT;            #IMPLIED> 
+          abbrev      %ATEXT;            #IMPLIED>
 
 <!ELEMENT author      (organization,address?)>
 <!ATTLIST author
@@ -100,8 +100,8 @@
 <!ELEMENT organization
                       (%CTEXT;)>
 <!ATTLIST organization
-          abbrev      %ATEXT;            #IMPLIED> 
- 
+          abbrev      %ATEXT;            #IMPLIED>
+
 <!ELEMENT address     (postal?,phone?,facsimile?,email?,uri?)>
 
 <!-- at most one of each the city, region, code, and country
@@ -150,7 +150,7 @@
 <!ATTLIST t
           hangText    %ATEXT;            #IMPLIED>
 
-<!-- the value of the style attribute is inherited from the closest 
+<!-- the value of the style attribute is inherited from the closest
      parent -->
 <!ELEMENT list        (t+)>
 <!ATTLIST list
