@@ -158,8 +158,8 @@ proc ::term::ansi::code::ctrl::INIT {} {
 
     # Switch to and from character/box graphics.
 
-    DEFC gron  {} {return \016}
-    DEFC groff {} {return \017}
+    DEFC gron  {} {esc (0}
+    DEFC groff {} {esc (B}
 
     # Character graphics, box symbols
     # - 4 corners, 4 t-junctions,
@@ -190,8 +190,10 @@ proc ::term::ansi::code::ctrl::INIT {} {
     DEFC groptim {string} {
 	variable grforw
 	variable grback
+	set offon [groff][gron]
+	set onoff [gron][groff]
 	while {![string equal $string [set new [string map \
-		[list \017\016 {} \016\017 {}] [string map \
+		[list $offon {} $onoff {}] [string map \
 		$grback [string map \
 		$grforw $string]]]]]} {
 	    set string $new
@@ -264,7 +266,7 @@ namespace eval ::term::ansi::code::ctrl {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::ctrl 0.2
+package provide term::ansi::code::ctrl 0.3
 
 ##
 # ### ### ### ######### ######### #########

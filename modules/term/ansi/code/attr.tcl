@@ -40,44 +40,44 @@ proc ::term::ansi::code::attr::INIT {} {
     ##
 
     # Colors. Foreground <=> Text
-    DEF	fgblack   30	; # Black  
-    DEF	fgred     31	; # Red    
-    DEF	fggreen   32	; # Green  
-    DEF	fgyellow  33	; # Yellow 
-    DEF	fgblue    34	; # Blue   
+    DEF	fgblack   30	; # Black
+    DEF	fgred     31	; # Red
+    DEF	fggreen   32	; # Green
+    DEF	fgyellow  33	; # Yellow
+    DEF	fgblue    34	; # Blue
     DEF	fgmagenta 35	; # Magenta
-    DEF	fgcyan    36	; # Cyan   
-    DEF	fgwhite   37	; # White  
+    DEF	fgcyan    36	; # Cyan
+    DEF	fgwhite   37	; # White
     DEF	fgdefault 39    ; # Default (Black)
 
     # Colors. Background.
-    DEF	bgblack   40	; # Black  
-    DEF	bgred     41	; # Red    
-    DEF	bggreen   42	; # Green  
-    DEF	bgyellow  43	; # Yellow 
-    DEF	bgblue    44	; # Blue   
+    DEF	bgblack   40	; # Black
+    DEF	bgred     41	; # Red
+    DEF	bggreen   42	; # Green
+    DEF	bgyellow  43	; # Yellow
+    DEF	bgblue    44	; # Blue
     DEF	bgmagenta 45	; # Magenta
-    DEF	bgcyan    46	; # Cyan   
-    DEF	bgwhite   47	; # White  
+    DEF	bgcyan    46	; # Cyan
+    DEF	bgwhite   47	; # White
     DEF	bgdefault 49    ; # Default (Transparent)
 
     # Non-color attributes. Activation.
-    DEF	bold      1	; # Bold  
+    DEF	bold      1	; # Bold
     DEF	dim       2	; # Dim
-    DEF	italic    3     ; # Italics      
-    DEF	underline 4	; # Underscore   
+    DEF	italic    3     ; # Italics
+    DEF	underline 4	; # Underscore
     DEF	blink     5	; # Blink
-    DEF	revers    7	; # Reverse      
+    DEF	revers    7	; # Reverse
     DEF	hidden    8	; # Hidden
     DEF	strike    9     ; # StrikeThrough
 
     # Non-color attributes. Deactivation.
-    DEF	nobold      22	; # Bold  
+    DEF	nobold      22	; # Bold
     DEF	nodim       __	; # Dim
-    DEF	noitalic    23  ; # Italics      
-    DEF	nounderline 24	; # Underscore   
+    DEF	noitalic    23  ; # Italics
+    DEF	nounderline 24	; # Underscore
     DEF	noblink     25	; # Blink
-    DEF	norevers    27	; # Reverse      
+    DEF	norevers    27	; # Reverse
     DEF	nohidden    28	; # Hidden
     DEF	nostrike    29  ; # StrikeThrough
 
