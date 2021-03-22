@@ -33,7 +33,8 @@ math::changepoint \- Change point detection methods
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl 8\.6  
+package require TclOO  
 package require math::statistics  
 package require math::changepoint ?0\.1?  
 

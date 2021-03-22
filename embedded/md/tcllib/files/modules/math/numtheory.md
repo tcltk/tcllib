@@ -2,7 +2,7 @@
 [//000000001]: # (math::numtheory \- Tcl Math Library)
 [//000000002]: # (Generated from file 'numtheory\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>)
-[//000000004]: # (math::numtheory\(n\) 1\.1\.1 tcllib "Tcl Math Library")
+[//000000004]: # (math::numtheory\(n\) 1\.1\.3 tcllib "Tcl Math Library")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -34,7 +34,7 @@ math::numtheory \- Number Theory
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl ?8\.5?  
-package require math::numtheory ?1\.1\.1?  
+package require math::numtheory ?1\.1\.3?  
 
 [__math::numtheory::isprime__ *N* ?*option* *value* \.\.\.?](#1)  
 [__math::numtheory::firstNprimes__ *N*](#2)  
@@ -54,6 +54,8 @@ package require math::numtheory ?1\.1\.1?
 [__math::numtheory::numberPrimesLegendre__ *N*](#16)  
 [__math::numtheory::numberPrimesLegendreModified__ *N*](#17)  
 [__math::numtheory::differenceNumberPrimesLegendreModified__ *lower* *upper*](#18)  
+[__math::numtheory::listPrimePairs__ *lower* *upper* *step*](#19)  
+[__math::numtheory::listPrimeProgressions__ *lower* *upper* *step*](#20)  
 
 # <a name='description'></a>DESCRIPTION
 
@@ -248,6 +250,39 @@ slight bias to prime numbers\.
       * integer *upper* \(in\)
 
         Upper limit for the primes, should be larger than 0
+
+  - <a name='19'></a>__math::numtheory::listPrimePairs__ *lower* *upper* *step*
+
+    Return a list of pairs of primes each differing by the given step\.
+
+      * integer *lower* \(in\)
+
+        Lower limit for the primes, should be larger than 0
+
+      * integer *upper* \(in\)
+
+        Upper limit for the primes, should be larger than the lower limit
+
+      * integer *step* \(in\)
+
+        Step by which the primes should differ, defaults to 2
+
+  - <a name='20'></a>__math::numtheory::listPrimeProgressions__ *lower* *upper* *step*
+
+    Return a list of lists of primes each differing by the given step from the
+    previous one\.
+
+      * integer *lower* \(in\)
+
+        Lower limit for the primes, should be larger than 0
+
+      * integer *upper* \(in\)
+
+        Upper limit for the primes, should be larger than the lower limit
+
+      * integer *step* \(in\)
+
+        Step by which the primes should differ, defaults to 2
 
 # <a name='section2'></a>Bugs, Ideas, Feedback
 

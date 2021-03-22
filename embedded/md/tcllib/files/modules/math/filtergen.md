@@ -33,7 +33,8 @@ math::filters \- Digital filters
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl ?8\.5?  
+package require Tcl 8\.6  
+package require TclOO  
 package require math::filters ?0\.1?  
 
 [__::math::filters::filterButterworth__ *lowpass* *order* *samplefreq* *cutofffreq*](#1)  

@@ -273,7 +273,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::quasirandom \- Quasi-random points for integration and Monte Carlo type methods
 .SH SYNOPSIS
-package require \fBTcl  8\&.5\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBTclOO \fR
 .sp

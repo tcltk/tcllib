@@ -33,6 +33,7 @@ math::combinatorics \- Combinatorial functions in the Tcl Math Library
 package require Tcl 8\.2  
 package require math ?1\.2\.3?  
 package require Tcl 8\.6  
+package require TclOO  
 package require math::combinatorics ?2\.0?  
 
 [__::math::ln\_Gamma__ *z*](#1)  
