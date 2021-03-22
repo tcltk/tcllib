@@ -2,7 +2,7 @@
 [//000000001]: # (term::ansi::code::ctrl \- Terminal control)
 [//000000002]: # (Generated from file 'ansi\_cctrl\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2006\-2008 Andreas Kupries <andreas\_kupries@users\.sourceforge\.net>)
-[//000000004]: # (term::ansi::code::ctrl\(n\) 0\.2 tcllib "Terminal control")
+[//000000004]: # (term::ansi::code::ctrl\(n\) 0\.3 tcllib "Terminal control")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -41,7 +41,7 @@ term::ansi::code::ctrl \- ANSI control sequences
 
 package require Tcl 8\.4  
 package require term::ansi::code ?0\.2?  
-package require term::ansi::code::ctrl ?0\.2?  
+package require term::ansi::code::ctrl ?0\.3?  
 
 [__::term::ansi::code::ctrl::names__](#1)  
 [__::term::ansi::code::ctrl::import__ ?*ns*? ?*arg*\.\.\.?](#2)  
