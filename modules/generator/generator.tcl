@@ -7,11 +7,9 @@
 # See the file "license.terms" for information on Usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: generator.tcl,v 1.1 2012/08/08 23:23:06 andreas_kupries Exp $
-#
 
 package require Tcl         8.6
-package provide generator   0.1
+package provide generator   0.2
 
 namespace eval generator {
     namespace export {[a-z]*}
@@ -204,7 +202,7 @@ namespace eval generator {
     }
     proc zip {xs ys} { zipWith list $xs $ys }
 
-    proc all {p xs} { 
+    proc all {p xs} {
         and [map $p $xs]
     }
     proc and xs {
@@ -240,7 +238,7 @@ namespace eval generator {
     }
 
     proc foldl1 {f xs} { foldl $f [take 1 $xs] $xs }
-    proc foldli {f z xs} { 
+    proc foldli {f z xs} {
         foreach x $xs { set z [{*}$f [incr i] $z $x] }
         return $z
     }
@@ -298,7 +296,11 @@ namespace eval generator {
     define takeWhile {p xs} {
         finally destroy $xs
         foreach x $xs {
-            if {[{*}$p $x]} { yield $x }
+            if {[{*}$p $x]} {
+                yield $x
+            } else {
+                break
+            }
         }
     }
 
