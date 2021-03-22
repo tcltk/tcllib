@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "picoirc" n 0\&.7\&.0 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.9\&.2 tcllib "Simple embeddable IRC interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBpicoirc  ?0\&.7\&.0?\fR
+package require \fBpicoirc  ?0\&.9\&.2?\fR
 .sp
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 .sp
@@ -384,12 +384,27 @@ package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
 received\&.
 .TP
+\fBuserinfo\fR \fInick\fR \fIinfo\fR
+called as a response of WHOIS command\&. \fInick\fR is the user
+the command was targeted for\&. \fIinfo\fR is the dictionary containing
+detailed information about that user: name, host, channels and userinfo\&.
+userinfo typically contains name and version of user's IRC client\&.
+.TP
 \fBchat\fR \fItarget\fR \fInick\fR \fImessage\fR \fItype\fR
 called when a message arrives\&. \fItarget\fR is the identity that the
 message was targetted for\&. This can be the logged in nick or a channel
 name\&. \fInick\fR is the name of the sender of the message\&.
 \fImessage\fR is the message text\&. \fItype\fR is set to "ACTION" if the
-message was sent as a CTCP ACTION
+message was sent as a CTCP ACTION\&. \fItype\fR is set to "NOTICE" if the
+message was sent as a NOTICE command, in that case \fItarget\fR is empty
+if it matches current user nick or it's "*", in later case empty
+\fInick\fR means that notice comes from server\&.
+.TP
+\fBmode\fR \fInick\fR \fItarget\fR \fIflags\fR
+called when mode of user or channel changes\&. \fInick\fR is the name
+of the user who requested a change, can be empty if it's the server\&.
+\fItarget\fR is the identity that has its mode changed\&. \fIflags\fR
+are the changes in mode\&.
 .TP
 \fBsystem\fR \fIchannel\fR \fImessage\fR
 called when a system message is received

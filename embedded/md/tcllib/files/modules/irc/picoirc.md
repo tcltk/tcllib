@@ -1,7 +1,7 @@
 
 [//000000001]: # (picoirc \- Simple embeddable IRC interface)
 [//000000002]: # (Generated from file 'picoirc\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (picoirc\(n\) 0\.7\.0 tcllib "Simple embeddable IRC interface")
+[//000000003]: # (picoirc\(n\) 0\.9\.2 tcllib "Simple embeddable IRC interface")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -35,7 +35,7 @@ picoirc \- Small and simple embeddable IRC client\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.6  
-package require picoirc ?0\.7\.0?  
+package require picoirc ?0\.9\.2?  
 
 [__::picoirc::connect__ *callback* *nick* ?*password*? *url*](#1)  
 [__::picoirc::post__ *context* *channel* *message*](#2)  
@@ -137,13 +137,28 @@ to a picoirc procedure\)\. state is one of a number of states as described below
     entire output which can span a number of output lines from the server and
     calls this callback when they have all been received\.
 
+  - __userinfo__ *nick* *info*
+
+    called as a response of WHOIS command\. *nick* is the user the command was
+    targeted for\. *info* is the dictionary containing detailed information
+    about that user: name, host, channels and userinfo\. userinfo typically
+    contains name and version of user's IRC client\.
+
   - __chat__ *target* *nick* *message* *type*
 
     called when a message arrives\. *target* is the identity that the message
     was targetted for\. This can be the logged in nick or a channel name\.
     *nick* is the name of the sender of the message\. *message* is the
     message text\. *type* is set to "ACTION" if the message was sent as a CTCP
-    ACTION
+    ACTION\. *type* is set to "NOTICE" if the message was sent as a NOTICE
+    command, in that case *target* is empty if it matches current user nick or
+    it's "\*", in later case empty *nick* means that notice comes from server\.
+
+  - __mode__ *nick* *target* *flags*
+
+    called when mode of user or channel changes\. *nick* is the name of the
+    user who requested a change, can be empty if it's the server\. *target* is
+    the identity that has its mode changed\. *flags* are the changes in mode\.
 
   - __system__ *channel* *message*
 

@@ -32,7 +32,8 @@ math::probopt \- Probabilistic optimisation methods
 
 # <a name='synopsis'></a>SYNOPSIS
 
-package require Tcl 8\.5  
+package require Tcl 8\.6  
+package require TclOO  
 package require math::probopt 1  
 
 [__::math::probopt::pso__ *function* *bounds* *args*](#1)  

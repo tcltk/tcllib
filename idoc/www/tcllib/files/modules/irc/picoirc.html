@@ -105,7 +105,7 @@
 &#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">picoirc(n) 0.7.0 tcllib &quot;Simple embeddable IRC interface&quot;</h1>
+<h1 class="doctools_title">picoirc(n) 0.9.2 tcllib &quot;Simple embeddable IRC interface&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>picoirc - Small and simple embeddable IRC client.</p>
 </div>
@@ -125,7 +125,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.6</b></li>
-<li>package require <b class="pkgname">picoirc <span class="opt">?0.7.0?</span></b></li>
+<li>package require <b class="pkgname">picoirc <span class="opt">?0.9.2?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::picoirc::connect</b> <i class="arg">callback</i> <i class="arg">nick</i> <span class="opt">?<i class="arg">password</i>?</span> <i class="arg">url</i></a></li>
@@ -219,12 +219,25 @@ generated when the output of the NAMES irc command is seen. The
 package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
 received.</p></dd>
+<dt><b class="option">userinfo</b> <i class="arg">nick</i> <i class="arg">info</i></dt>
+<dd><p>called as a response of WHOIS command. <i class="arg">nick</i> is the user
+the command was targeted for. <i class="arg">info</i> is the dictionary containing
+detailed information about that user: name, host, channels and userinfo.
+userinfo typically contains name and version of user's IRC client.</p></dd>
 <dt><b class="option">chat</b> <i class="arg">target</i> <i class="arg">nick</i> <i class="arg">message</i> <i class="arg">type</i></dt>
 <dd><p>called when a message arrives. <i class="arg">target</i> is the identity that the
 message was targetted for. This can be the logged in nick or a channel
 name. <i class="arg">nick</i> is the name of the sender of the message.
 <i class="arg">message</i> is the message text. <i class="arg">type</i> is set to &quot;ACTION&quot; if the
-message was sent as a CTCP ACTION</p></dd>
+message was sent as a CTCP ACTION. <i class="arg">type</i> is set to &quot;NOTICE&quot; if the
+message was sent as a NOTICE command, in that case <i class="arg">target</i> is empty
+if it matches current user nick or it's &quot;*&quot;, in later case empty
+<i class="arg">nick</i> means that notice comes from server.</p></dd>
+<dt><b class="option">mode</b> <i class="arg">nick</i> <i class="arg">target</i> <i class="arg">flags</i></dt>
+<dd><p>called when mode of user or channel changes. <i class="arg">nick</i> is the name
+of the user who requested a change, can be empty if it's the server.
+<i class="arg">target</i> is the identity that has its mode changed. <i class="arg">flags</i>
+are the changes in mode.</p></dd>
 <dt><b class="option">system</b> <i class="arg">channel</i> <i class="arg">message</i></dt>
 <dd><p>called when a system message is received</p></dd>
 <dt><b class="option">topic</b> <i class="arg">channel</i> <i class="arg">topic</i></dt>

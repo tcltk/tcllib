@@ -279,6 +279,8 @@ package require \fBmath  ?1\&.2\&.3?\fR
 .sp
 package require \fBTcl  8\&.6\fR
 .sp
+package require \fBTclOO \fR
+.sp
 package require \fBmath::combinatorics  ?2\&.0?\fR
 .sp
 \fB::math::ln_Gamma\fR \fIz\fR
