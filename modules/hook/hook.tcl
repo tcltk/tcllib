@@ -41,7 +41,7 @@ namespace eval hook {
     # -errorcommand  Handles errors in hook bindings.
     # -tracecommand  Trace called hooks.
 
-    variable options 
+    variable options
     array set options {
         -errorcommand {}
         -tracecommand {}
@@ -56,7 +56,7 @@ namespace eval hook {
 #       number of bindings.
 #
 # Arguments:
-#       subject   (optional) The name of the entity that owns the hook.  
+#       subject   (optional) The name of the entity that owns the hook.
 #                 It will usually be a fully-qualified command
 #                 name, but "virtual" subjects are also allowed.
 #
@@ -78,7 +78,7 @@ namespace eval hook {
 #       If called with no arguments, returns a list of the names of the
 #       subjects to which observers are bound.
 #
-#       If called with just a subject name, returns a list of the names 
+#       If called with just a subject name, returns a list of the names
 #       of the subject's hooks to which bindings are bound.
 #
 #       If called with just a subject name and a hook name, returns a
@@ -90,7 +90,7 @@ namespace eval hook {
 #       If called with all four arguments, it either adds or deletes
 #       a binding.  If the binding is the empty string, any existing
 #       binding is deleted and the empty string is returned.
-#       Otherwise the binding is saved, and the observer name is 
+#       Otherwise the binding is saved, and the observer name is
 #       returned.  The observer will be automatically
 #       generated if the empty string is given.
 
@@ -125,10 +125,14 @@ proc hook::bind {args} {
             # NEXT, return the observer.
             return $observer
         } else {
-            dict unset sdict $subject $hook $observer
-            dict unset odict $observer $subject $hook
+            if {[dict exists $sdict $subject $hook $observer]} {
+                dict unset sdict $subject $hook $observer
+            }
+            if {[dict exists $odict $observer $subject $hook]} {
+                dict unset odict $observer $subject $hook
+            }
         }
-        
+
         return
     }
 
@@ -208,7 +212,7 @@ proc hook::forget {object} {
     # NEXT, get rid of this object form odict as observers.
     dict unset odict $object
 
-    
+
     return
 }
 
@@ -229,13 +233,13 @@ proc hook::forget {object} {
 #       The bindings are called in no particular order; the args are
 #       appended to each binding.  Returns the empty string.
 #
-#       If -errorcommand is defined, errors in bindings are handled 
+#       If -errorcommand is defined, errors in bindings are handled
 #       by the specified command.  It is called with three arguments:
 #       a list of the subject, hook, args, and observer, the error result,
 #       and the return options dictionary.
 #
 #       When the -tracecommand is set, it is called with four arguments:
-#       the subject, the hook, a list of the hook arguments, and a 
+#       the subject, the hook, a list of the hook arguments, and a
 #       list of the receiving observers.
 
 proc hook::call {subject hook args} {
@@ -248,7 +252,7 @@ proc hook::call {subject hook args} {
     } else {
         set observers [list]
     }
-    
+
     # NEXT, for each observer, retrieve the binding (if it
     # still exists) and execute it.  Keep track of the observers
     # for which the hook was actually called.
@@ -264,7 +268,7 @@ proc hook::call {subject hook args} {
 
         # NEXT, remember that we called a binding for this observer.
         lappend called $observer
-        
+
         if {$options(-errorcommand) eq ""} {
             uplevel #0 [list {*}$binding {*}$args]
         } elseif {[catch {
@@ -351,4 +355,4 @@ proc hook::configure {args} {
 # ---------------------------------------------------------------
 # Ready
 
-package provide hook 0.1
+package provide hook 0.2
