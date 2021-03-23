@@ -1,8 +1,8 @@
 
 [//000000001]: # (hook \- Hooks)
-[//000000002]: # (Generated from file 'hook\.man~' by tcllib/doctools with format 'markdown')
+[//000000002]: # (Generated from file 'hook\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, by William H\. Duquette)
-[//000000004]: # (hook\(n\) 0\.1 tcllib "Hooks")
+[//000000004]: # (hook\(n\) 0\.2 tcllib "Hooks")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -50,7 +50,7 @@ hook \- Hooks
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.5  
-package require hook ?0\.1?  
+package require hook ?0\.2?  
 
 [__hook__ __bind__ ?*subject*? ?*hook*? ?*observer*? ?*cmdPrefix*?](#1)  
 [__hook__ __call__ *subject* *hook* ?*args*\.\.\.?](#2)  
