@@ -2,7 +2,7 @@
 [//000000001]: # (yaml \- YAML processing)
 [//000000002]: # (Generated from file 'yaml\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2008 KATO Kanryu <kanryu6@users\.sourceforge\.net>)
-[//000000004]: # (yaml\(n\) 0\.4\.1 tcllib "YAML processing")
+[//000000004]: # (yaml\(n\) 0\.4\.2 tcllib "YAML processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -40,7 +40,7 @@ yaml \- YAML Format Encoder/Decoder
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.4  
-package require yaml ?0\.4\.1?  
+package require yaml ?0\.4\.2?  
 
 [__::yaml::yaml2dict__ ?*options*? *txt*](#1)  
 [__::yaml::yaml2huddle__ ?*options*? *txt*](#2)  

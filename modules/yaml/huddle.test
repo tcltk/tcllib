@@ -11,7 +11,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     lappend auto_path [pwd]
     package require tcltest
     namespace import ::tcltest::*
-    
+
     source huddle.tcl
     package require json
 
@@ -191,7 +191,7 @@ test huddle-3.3 "test of huddle jsondump" -body {
     "j": " m\\a"
   }
 }}
-    
+
     if {$json1 == $json2} {
     return 1
     } else {
@@ -216,7 +216,7 @@ test huddle-3.4 "test of huddle compile" -body {
     "j": " m\\a"
   }
 }}
-    
+
     set data [json::json2dict $json1]
     set data [huddle compile {dict dd {dict * dict} ee {dict k number * string}}  $data]
     huddle equal $huddle1 $data
@@ -325,16 +325,16 @@ test huddle-10.1 "test of huddle clone" -body {
 
 
 test huddle-11.1 "test of huddle superclass" -body {
-    
+
     namespace eval ::new_types::mapping {
-    
+
         variable settings
         set settings {
                 superclass dict
                 publicMethods {mapping}
-                tag !!map 
+                tag !!map
                 isContainer yes }
-        
+
         proc mapping {args} {
             if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
             set resultL {}
@@ -344,11 +344,11 @@ test huddle-11.1 "test of huddle superclass" -body {
 
             return [wrap [list !!map $resultL]]
         }
-        
+
     }
-    
+
     namespace eval ::new_types::str {
-        
+
             variable settings
             set settings {
                     superclass string
@@ -357,7 +357,7 @@ test huddle-11.1 "test of huddle superclass" -body {
                     tag !!str
             }
     }
-    
+
     huddle addType ::new_types::mapping
     huddle addType ::new_types::str
 

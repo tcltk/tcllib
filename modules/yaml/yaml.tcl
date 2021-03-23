@@ -13,7 +13,9 @@
 #
 
 package require Tcl 8.5
-package provide yaml 0.4.1
+
+package provide yaml 0.4.2
+
 package require cmdline
 package require huddle 0.1.7
 
@@ -1127,35 +1129,45 @@ proc ::yaml::_getIndent {line} {
 ################
 
 proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
-    variable _dumpIndent
-    set nextoff "$offset[string repeat { } $_dumpIndent]"
-    switch -- [huddle type $data] {
-        "string" {
-            set data [huddle get_stripped $data]
-            return [_dumpScalar $data $offset]
-        }
-        "list" {
-            set inner {}
-            set len [huddle llength $data]
-            for {set i 0} {$i < $len} {incr i} {
-                set sub [huddle get $data $i]
-                set sep [expr {[huddle type $sub] eq "string" ? " " : "\n"}]
-                lappend inner [join [list $offset - $sep [_imp_huddle2yaml $sub $nextoff]] ""]
-            }
-            return [join $inner "\n"]
-        }
-        "dict" {
-            set inner {}
-            foreach {key} [huddle keys $data] {
-                set sub [huddle get $data $key]
-                set sep [expr {[huddle type $sub] eq "string" ? " " : "\n"}]
-                lappend inner [join [list $offset $key: $sep [_imp_huddle2yaml $sub $nextoff]] ""]
-            }
-            return [join $inner "\n"]
-        }
-        default {
-            return $data
-        }
+    set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
+    switch -glob -- [huddle type $data] {
+	"int*" -
+	"str*" {
+	    set data [huddle get_stripped $data]
+	    return [_dumpScalar $data $offset]
+	}
+	"sequence" -
+	"list" {
+	    set inner {}
+	    set len [huddle llength $data]
+	    for {set i 0} {$i < $len} {incr i} {
+		set sub [huddle get $data $i]
+		set tsub [huddle type $sub]
+		set sep [expr {[string match "str*" $tsub] ||
+			       [string match "int*" $tsub]
+			       ? " "
+			       : "\n"}]
+		lappend inner [join [list $offset - $sep [_imp_huddle2yaml $sub $nextoff]] ""]
+	    }
+	    return [join $inner "\n"]
+	}
+	"mapping" -
+	"dict" {
+	    set inner {}
+	    foreach {key} [huddle keys $data] {
+		set sub [huddle get $data $key]
+		set tsub [huddle type $sub]
+		set sep [expr {[string match "str*" $tsub] ||
+			       [string match "int*" $tsub]
+			       ? " "
+			       : "\n"}]
+		lappend inner [join [list $offset $key: $sep [_imp_huddle2yaml $sub $nextoff]] ""]
+	    }
+	    return [join $inner "\n"]
+	}
+	default {
+	    return $data
+	}
     }
 }
 
@@ -1293,5 +1305,3 @@ huddle addType [::yaml::_makeChildType true !!true]
 huddle addType [::yaml::_makeChildType false !!false]
 huddle addType [::yaml::_makeChildType binary !!binary]
 huddle addType [::yaml::_makeChildType plain !!plain]
-
-

@@ -13,7 +13,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     source [file join \
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
-        
+
     testsNeedTcl     8.5
     testsNeedTcltest 2
     testsNeed        TclOO 1
@@ -33,72 +33,72 @@ namespace import ::huddle::json2huddle
 
 
 test json2huddle-1.1 "test of parsing json string" -body {
-    json2huddle { "hello world" } 
+    json2huddle { "hello world" }
 } -result {HUDDLE {s {hello world}}}
 
 
 test json2huddle-1.2 "test of parsing json string" -body {
-    json2huddle { "Unicode characters: \u00e0\u00e8\u00ec\u00f2\u00f9\u00e1\u00e9\u00ed\u00f3\u00fa\u00e4\u00eb\u00ef\u00f6\u00fc" } 
+    json2huddle { "Unicode characters: \u00e0\u00e8\u00ec\u00f2\u00f9\u00e1\u00e9\u00ed\u00f3\u00fa\u00e4\u00eb\u00ef\u00f6\u00fc" }
 } -result {HUDDLE {s {Unicode characters: àèìòùáéíóúäëïöü}}}
 
 
 test json2huddle-1.3 "test of parsing json string" -body {
-    json2huddle { "escaped tab:\tescaped quote \"" } 
+    json2huddle { "escaped tab:\tescaped quote \"" }
 } -result {HUDDLE {s {escaped tab:	escaped quote "}}}
 
 
 test json2huddle-2.1 "test of parsing json number" -body {
-    json2huddle { 4 } 
+    json2huddle { 4 }
 } -result {HUDDLE {num 4}}
 
 
 test json2huddle-2.2 "test of parsing json number" -body {
-    json2huddle { 2.7 } 
+    json2huddle { 2.7 }
 } -result {HUDDLE {num 2.7}}
 
 test json2huddle-2.3 "test of parsing json number" -body {
-    json2huddle { -2.7e6 } 
+    json2huddle { -2.7e6 }
 } -result {HUDDLE {num -2.7e6}}
 
 test json2huddle-2.3 "test of parsing json number" -body {
-    json2huddle { 2345E-4 } 
+    json2huddle { 2345E-4 }
 } -result {HUDDLE {num 2345E-4}}
 
 test json2huddle-3.1 "test of parsing json boolean" -body {
-    json2huddle { true } 
+    json2huddle { true }
 } -result {HUDDLE {b true}}
 
 test json2huddle-3.1 "test of parsing json boolean" -body {
-    json2huddle { false } 
+    json2huddle { false }
 } -result {HUDDLE {b false}}
 
 test json2huddle-4.1 "test of parsing json null" -body {
-    json2huddle { null } 
+    json2huddle { null }
 } -result {HUDDLE null}
 
 
 test json2huddle-5.1 "test of parsing json array" -body {
-    json2huddle { [1,2, "3", 4, null, false] } 
+    json2huddle { [1,2, "3", 4, null, false] }
 } -result {HUDDLE {L {{num 1} {num 2} {s 3} {num 4} null {b false}}}}
 
 
 test json2huddle-5.2 "test of parsing json array" -body {
-    json2huddle { [ ] } 
+    json2huddle { [ ] }
 } -result {HUDDLE {L {}}}
 
 
 test json2huddle-6.1 "test of parsing json dict" -body {
-    json2huddle {  {"key1":"value1", "key2": 0, "key3": true,"key4":null} } 
+    json2huddle {  {"key1":"value1", "key2": 0, "key3": true,"key4":null} }
 } -result {HUDDLE {D {key1 {s value1} key2 {num 0} key3 {b true} key4 null}}}
 
 
 test json2huddle-6.2 "test of parsing json dict" -body {
-    json2huddle {  {  } } 
+    json2huddle {  {  } }
 } -result {HUDDLE {D {}}}
 
 
 test json2huddle-7.1 "test of parsing json comments" -body {
-	json2huddle { 
+	json2huddle {
 		// this is a solidus double comment
 		 "this is a string"
 	}
@@ -106,9 +106,9 @@ test json2huddle-7.1 "test of parsing json comments" -body {
 
 
 test json2huddle-7.2 "test of parsing json comments" -body {
-	json2huddle { 
+	json2huddle {
 		/* c style
-				comment 
+				comment
 				*/
 		 "this is a string"
 	}
@@ -116,9 +116,9 @@ test json2huddle-7.2 "test of parsing json comments" -body {
 
 
 test json2huddle-7.2 "test of parsing json comments" -body {
-	json2huddle { 
+	json2huddle {
 		/* c style
-				comment 
+				comment
 				*/
 				// this is a solidus double comment
 		 "this is a string"
@@ -131,16 +131,16 @@ test json2huddle-7.2 "test of parsing json comments" -body {
 
 
 test json2huddle-7.4 "test of parsing json comments" -body {
-	json2huddle { 
+	json2huddle {
 		// this is a solidus double comment
 		[
 				//another comment here
-			[], 
-			{}, 
+			[],
+			{},
 			/* c style
-				comment 
+				comment
 				*/
-		
+
 		null, false, true,
 		 -5.0e-4]
 	}
@@ -148,8 +148,8 @@ test json2huddle-7.4 "test of parsing json comments" -body {
 
 
 test json2huddle-8.1 "test of parsing complex data structures in json" -body {
-	json2huddle {  
-    
+	json2huddle {
+
 		{"menu1": {
 				"id": 234,
 				"value": "File:",
@@ -164,10 +164,10 @@ test json2huddle-8.1 "test of parsing complex data structures in json" -body {
 		"menu2": {
 				"selected": true,
 				"texts": ["open", "close", "save as.."]
-			
+
 			}
-    
-		} 
+
+		}
 	}
 } -result {HUDDLE {D {menu1 {D {id {num 234} value {s File:} unival {s 怡:} popup {D {menuitem {L {{D {value {s Open} onclick {s OpenDoc()}}} {D {value {s Close} onclick {s CloseDoc()}}}}}}}}} menu2 {D {selected {b true} texts {L {{s open} {s close} {s {save as..}}}}}}}}}
 
@@ -177,5 +177,5 @@ test json2huddle-9.1 "test of no json" -body {
 } -returnCodes {error} -result "Nothing to read"
 
 
-	
+
 tcltest::cleanupTests

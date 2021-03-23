@@ -101,8 +101,8 @@ test yaml-1.2 "error" -body {
 test yaml-1.3 "error" -body {
     set error3 {
 ---
-- Clark 
-- @Brian 
+- Clark
+- @Brian
 }
     set code [catch {yaml::yaml2dict $error3} msg]
     concat $code $msg
@@ -111,8 +111,8 @@ test yaml-1.3 "error" -body {
 test yaml-1.4 "error" -body {
     set error4 {
 ---
-- Clark 
-- `Brian 
+- Clark
+- `Brian
 }
     set code [catch {yaml::yaml2dict $error4} msg]
     concat $code $msg
@@ -121,8 +121,8 @@ test yaml-1.4 "error" -body {
 test yaml-1.5 "error" -body {
     set error5 {
 ---
-- Clark 
-- 	Brian 
+- Clark
+- 	Brian
 }
     set code [catch {yaml::yaml2dict $error5} msg]
     concat $code $msg
@@ -132,7 +132,7 @@ test yaml-1.6 "error" -body {
     set error6 {
 ---
 - *a
-- Brian 
+- Brian
 - @a Geoge
 }
     set code [catch {yaml::yaml2dict $error6} msg]
@@ -142,8 +142,8 @@ test yaml-1.6 "error" -body {
 test yaml-1.7 "error" -body {
     set error7 {
 ---
-- "Clark 
-- Brian 
+- "Clark
+- Brian
 }
     set code [catch {yaml::yaml2dict $error7} msg]
     concat $code $msg
@@ -152,8 +152,8 @@ test yaml-1.7 "error" -body {
 test yaml-1.8 "error" -body {
     set error8 {
 ---
-- 'Clark 
-- Brian 
+- 'Clark
+- Brian
 }
     set code [catch {yaml::yaml2dict $error8} msg]
     concat $code $msg
@@ -162,8 +162,8 @@ test yaml-1.8 "error" -body {
 test yaml-1.9 "error" -body {
     set error9 {
 ---
-- !!invalidtag Clark 
-- Brian 
+- !!invalidtag Clark
+- Brian
 }
     set code [catch {yaml::yaml2dict $error9} msg]
     concat $code $msg
@@ -172,9 +172,9 @@ test yaml-1.9 "error" -body {
 test yaml-1.10 "error" -body {
     set error10 {
 ---
-- Clark 
+- Clark
 <<
-  - Brian 
+  - Brian
 }
     set code [catch {yaml::yaml2dict $error10} msg]
     concat $code $msg
@@ -267,7 +267,7 @@ clipped: >
 
 
 
-same as "clipped" above: "This has one newline.\n" 
+same as "clipped" above: "This has one newline.\n"
 
 stripped: >-
     This
@@ -319,10 +319,10 @@ test yaml-4.1 "Alias Node" -body {
     set alias {
 ---
 - &showell Steve
-- Clark 
-- Brian 
-- Oren 
-- *showell 
+- Clark
+- Brian
+- Oren
+- *showell
 }
     yaml::yaml2dict $alias
 } -result {Steve Clark Brian Oren Steve}
@@ -330,11 +330,11 @@ test yaml-4.1 "Alias Node" -body {
 test yaml-4.2 "Alias Node" -body {
     set alias2 {
 ---
-- &hello 
-    Meat: pork 
-    Starch: potato 
-- banana 
-- *hello 
+- &hello
+    Meat: pork
+    Starch: potato
+- banana
+- *hello
 }
     yaml::yaml2dict $alias2
 } -result [list [dict create Meat pork Starch potato] banana [dict create Meat pork Starch potato]]
@@ -342,14 +342,14 @@ test yaml-4.2 "Alias Node" -body {
 test yaml-4.3 "Flow Alias Node" -body {
     set alias3 {
 ---
-- &hello 
+- &hello
     { Meat: &meat pork,
       Starch: potato }
-- banana 
-- *hello 
+- banana
+- *hello
 - &bye
     [ The last man, children, *meat ]
-- habana 
+- habana
 - *bye
 }
     dictsort2 [yaml::yaml2dict $alias3] {{l {0 d 2 d}}}
@@ -748,12 +748,12 @@ tclbench: A benchmarking suite for Tcl and Tk} ]
 - >
   http://www.activestate.com/Products/activetcl/
 - >
-  This is the core development home for 
-  the tcllib standardized Tcl library. 
-  This is a set of pure-Tcl extensions 
-  that you can use to become even more 
-  productive with Tcl. See also the Tcl 
-  Foundry that collects information about 
+  This is the core development home for
+  the tcllib standardized Tcl library.
+  This is a set of pure-Tcl extensions
+  that you can use to become even more
+  productive with Tcl. See also the Tcl
+  Foundry that collects information about
   many Tcl-related SourceForge projects.
 - |-
   tklib: A library of all-Tcl routines for Tk

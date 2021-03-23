@@ -67,7 +67,7 @@ set huddle {HUDDLE {!!map {invoice {!!int 34843} date {!!timestamp 980175600} bi
 Suite #292
 }} city {!!str {Royal Oak}} state {!!str MI} postal {!!int 48046}}}}} ship-to {!!map {given {!!str Chris} family {!!str Dumars} address {!!map {lines {!!str {458 Walkman Dr.
 Suite #292
-}} city {!!str {Royal Oak}} state {!!str MI} postal {!!int 48046}}}}} product {!!seq {{!!map {sku {!!str BL394D} quantity {!!int 4} description {!!str Basketball} price {!!float 450.00}}} {!!map {sku 
+}} city {!!str {Royal Oak}} state {!!str MI} postal {!!int 48046}}}}} product {!!seq {{!!map {sku {!!str BL394D} quantity {!!int 4} description {!!str Basketball} price {!!float 450.00}}} {!!map {sku
   {!!str BL4438H} quantity {!!int 1} description {!!str {Super Hoop}} price {!!float 2392.00}}}}} tax {!!float 251.42} total {!!float 4443.52} comments {!!str {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}}}}}
 
 # ### ### ### ######### ######### ######### ###########################

@@ -148,7 +148,7 @@ proc ::huddle::isHuddle {obj} {
     if {[lindex $obj 0] ne "HUDDLE" || [llength $obj] != 2} {
         return 0
     }
-    
+
     variable types
     set node [lindex $obj 1]
     set tag [lindex $node 0]
@@ -191,7 +191,7 @@ proc ::huddle::combine {args} {
 
     foreach {obj} $args {
         set node [unwrap  $obj]
-    
+
         foreach {tag src} $node break
 
         if {$tag_of_group ne $tag} {
@@ -203,7 +203,7 @@ proc ::huddle::combine {args} {
                 }
             }
         }
-        
+
         lappend result {*}$src
     }
 
@@ -321,7 +321,7 @@ proc ::huddle::Append {objvar args} {
     upvar 1 $objvar obj
 
     checkHuddle $obj
-    
+
     foreach {tag src} [unwrap $obj] break
     set src [$types(callback:$tag) append_subnodes $tag $src $args]
     set obj [wrap [list $tag $src]]
@@ -380,7 +380,7 @@ proc ::huddle::remove_node {node len path} {
                     $types(callback:$tag) set new_src $key $cloned_subnode
                 }
             }
-        
+
             return [list $tag $new_src]
         } else {
             error "\{$src\} don't have any child node."
@@ -571,29 +571,29 @@ proc ::huddle::compile {spec data} {
                         }
                     }
                 }
-                
+
                 return $result
             }
-            
+
             list {
                 if {![llength $spec]} {
                     set spec string
                 } else {
                     set spec [lindex $spec 0]
                 }
-                
+
                 set result [huddle list]
                 foreach list_item $data {
                     Append result [compile $spec $list_item]
                 }
-            
+
                 return $result
             }
-        
+
             string {
                 return [wrap [list s $data]]
             }
-        
+
             number {
                 if {[string is double -strict $data]} {
                     return [wrap [list num $data]]
@@ -601,7 +601,7 @@ proc ::huddle::compile {spec data} {
                     error "Bad number: $data"
                 }
             }
-        
+
             bool {
                 if {$data} {
                     return [wrap [list bool true]]
@@ -609,7 +609,7 @@ proc ::huddle::compile {spec data} {
                     return [wrap [list bool false]]
                 }
             }
-        
+
             null {
                 if {$data eq ""} {
                     return [wrap [list null]]
@@ -617,7 +617,7 @@ proc ::huddle::compile {spec data} {
                     error "Data must be an empty string: '$data'"
                 }
             }
-        
+
             huddle {
                 if {[isHuddle $data]} {
                     return $data
@@ -625,7 +625,7 @@ proc ::huddle::compile {spec data} {
                     error "Data is not a huddle object: $data"
                 }
             }
-        
+
             default {error "Invalid type: '$type'"}
         }
     }
