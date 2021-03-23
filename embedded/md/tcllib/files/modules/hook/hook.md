@@ -1,6 +1,6 @@
 
 [//000000001]: # (hook \- Hooks)
-[//000000002]: # (Generated from file 'hook\.man' by tcllib/doctools with format 'markdown')
+[//000000002]: # (Generated from file 'hook\.man~' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2010, by William H\. Duquette)
 [//000000004]: # (hook\(n\) 0\.1 tcllib "Hooks")
 

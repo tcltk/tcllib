@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file 'hook\&.man' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'hook\&.man~' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, by William H\&. Duquette
 '\"
 .TH "hook" n 0\&.1 tcllib "Hooks"

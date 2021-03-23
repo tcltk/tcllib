@@ -5,8 +5,8 @@
 # Copyright (C) 2010 by Will Duquette
 # Copyright (c) 2019 by Andreas Kupries
 #
-# See the file "license.terms" for information on usage and 
-# redistribution of this file, and for a DISCLAIMER OF ALL 
+# See the file "license.terms" for information on usage and
+# redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
 #-----------------------------------------------------------------------
@@ -211,6 +211,20 @@ test bind-3.4 {deleted bindings can no longer be queried} -body {
     cleanup
 } -result {O1 O2 {}}
 
+test bind-3.5 {deleted bindings can be 'deleted' again} -setup {
+    hook bind S1 <H1> O2 B2 ;# setup
+    hook bind S1 <H1> O2 {} ;# delete
+} -body {
+    hook bind S1 <H1> O2 {}
+} -cleanup {
+    cleanup
+} -result {}
+
+test bind-3.6 {A never-existent bindings can be 'deleted'} -body {
+    hook bind S1 <H1> O2 {}
+} -cleanup {
+    cleanup
+} -result {}
 
 test bind-4.1 {auto-generated observer is returned} -body {
     hook bind S1 <H1> "" {B1 arg1 arg2}
@@ -251,7 +265,7 @@ test bind-5.1 {binding deleted during hook call is not called} -body {
 
 test bind-5.2 {binding revised during hook call is called} -body {
     # If a subject/hook is called, and if a binding changes some
-    # other observer's binding to that same subject/hook, and if the 
+    # other observer's binding to that same subject/hook, and if the
     # other observer's binding has not yet been called, it is the
     # changed binding that will be called.
 
@@ -302,7 +316,7 @@ test forget-1.3 {can forget subject} -body {
     hook bind S1 <H1> O1 B1
     hook bind S2 <H2> O2 B2
     hook bind S3 <H3> O3 B3
-    
+
     hook forget S2
     hook bind
 } -cleanup {
@@ -313,7 +327,7 @@ test forget-1.4 {can forget subject} -body {
     hook bind S1 <H1> O1 B1
     hook bind S2 <H2> O2 B2
     hook bind S3 <H3> O3 B3
-    
+
     hook forget O2
     hook bind S2 <H2>
 } -cleanup {
