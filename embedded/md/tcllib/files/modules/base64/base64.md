@@ -3,7 +3,7 @@
 [//000000002]: # (Generated from file 'base64\.man' by tcllib/doctools with format 'markdown')
 [//000000003]: # (Copyright &copy; 2000, Eric Melski)
 [//000000004]: # (Copyright &copy; 2001, Miguel Sofer)
-[//000000005]: # (base64\(n\) 2\.4\.3 tcllib "Text encoding & decoding binary data")
+[//000000005]: # (base64\(n\) 2\.5 tcllib "Text encoding & decoding binary data")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -24,9 +24,15 @@ base64 \- base64\-encode/decode binary data
 
   - [Description](#section1)
 
-  - [EXAMPLES](#section2)
+  - [Beware: Variations in decoding behaviour](#section2)
 
-  - [Bugs, Ideas, Feedback](#section3)
+  - [API](#section3)
+
+  - [Implementation Notes](#section4)
+
+  - [EXAMPLES](#section5)
+
+  - [Bugs, Ideas, Feedback](#section6)
 
   - [Keywords](#keywords)
 
@@ -37,7 +43,7 @@ base64 \- base64\-encode/decode binary data
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8  
-package require base64 ?2\.4\.3?  
+package require base64 ?2\.5?  
 
 [__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*](#1)  
 [__::base64::decode__ *string*](#2)  
@@ -45,6 +51,30 @@ package require base64 ?2\.4\.3?
 # <a name='description'></a>DESCRIPTION
 
 This package provides procedures to encode binary data into base64 and back\.
+
+# <a name='section2'></a>Beware: Variations in decoding behaviour
+
+The Tcl core provides since version 8\.6 commands for the de\- and encoding of
+base64 data\. These are
+
+    binary encode base64
+    binary decode base64
+
+Beware that while these are signature compatible with the commands provided by
+this package, the decoders are *not behaviourally compatible*\.
+
+The core decoder command accepts the option __\-strict__, enabling the user
+to choose between strict and lax modes\. In the strict mode invalid characters,
+and partial data at the end of the input are reported as errors\. In lax mode
+they are ignored\.
+
+All the implementations provided by this package on the other hand implement a
+mix of the above, and the user cannot choose\. Partial data at the end of the
+input is reported as error, and invalid characters are ignored\.
+
+*Beware* of these differences when switching code from one to other\.
+
+# <a name='section3'></a>API
 
   - <a name='1'></a>__::base64::encode__ ?__\-maxlen__ *maxlen*? ?__\-wrapchar__ *wrapchar*? *string*
 
@@ -55,7 +85,7 @@ This package provides procedures to encode binary data into base64 and back\.
     *Note* that if *maxlen* is set to __0__, the output will not be
     wrapped at all\.
 
-    *Note well*: If your string is not simple ascii you should fix the string
+    *Note well*: If your string is not simple ASCII you should fix the string
     encoding before doing base64 encoding\. See the examples\.
 
     The command will throw an error for negative values of *maxlen*, or if
@@ -66,7 +96,24 @@ This package provides procedures to encode binary data into base64 and back\.
     Base64 decodes the given *string* and returns the binary data\. The decoder
     ignores whitespace in the string\.
 
-# <a name='section2'></a>EXAMPLES
+# <a name='section4'></a>Implementation Notes
+
+This package contains three different implementations for base64 de\- and
+encoding, and chooses among them based on the environment it finds itself in\.
+
+All three implementations have the same behaviour\. See also [Beware: Variations
+in decoding behaviour](#section2) at the beginning of this document\.
+
+  1. If Tcl 8\.6 or higher is found the commands are implemented in terms of the
+     then\-available builtin commands\.
+
+  1. If the __Trf__ extension cand be loaded the commands are implemented in
+     terms of its commands\.
+
+  1. If neither of the above are possible a pure Tcl implementation is used\.
+     This is of course much slower\.
+
+# <a name='section5'></a>EXAMPLES
 
     % base64::encode "Hello, world"
     SGVsbG8sIHdvcmxk
@@ -83,7 +130,7 @@ This package provides procedures to encode binary data into base64 and back\.
     Q+KCiEjigoHigoBO4oKET+KCgg==
     % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
 
-# <a name='section3'></a>Bugs, Ideas, Feedback
+# <a name='section6'></a>Bugs, Ideas, Feedback
 
 This document, and the package it describes, will undoubtedly contain bugs and
 other problems\. Please report such in the category *base64* of the [Tcllib
