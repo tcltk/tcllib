@@ -24,6 +24,23 @@ namespace eval ::base64 {
     namespace export encode decode
 }
 
+package provide base64 2.5
+
+if {[package vsatisfies [package require Tcl] 8.6]} {
+    proc ::base64::encode {args} {
+	binary encode base64 -maxlen 76 {*}$args
+    }
+
+    proc ::base64::decode {string} {
+	# Tcllib is strict with respect to end of input, yet lax for
+	# invalid characters outside of that.
+	regsub -all -- {[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/]} $string {} string
+	binary decode base64 -strict $string
+    }
+
+    return
+}
+
 if {![catch {package require Trf 2.0}]} {
     # Trf is available, so implement the functionality provided here
     # in terms of calls to Trf for speed.
@@ -388,4 +405,6 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.4.3
+# # ## ### ##### ######## ############# #####################
+return
+
