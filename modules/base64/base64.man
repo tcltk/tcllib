@@ -1,4 +1,5 @@
-[manpage_begin base64 n 2.4.2]
+[vset VERSION 2.4.3]
+[manpage_begin base64 n [vset VERSION]]
 [keywords base64]
 [keywords encoding]
 [copyright {2000, Eric Melski}]
@@ -7,7 +8,7 @@
 [titledesc {base64-encode/decode binary data}]
 [category  {Text processing}]
 [require Tcl 8]
-[require base64 [opt 2.4.2]]
+[require base64 [opt [vset VERSION]]]
 [description]
 [para]
 

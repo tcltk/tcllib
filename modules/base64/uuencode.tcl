@@ -42,7 +42,7 @@ proc ::uuencode::Decode {s} {
     if {[string length $s] == 0} {return ""}
     set r {}
     binary scan [pad $s] c* d
-        
+
     foreach {c0 c1 c2 c3} $d {
         append r [format %c [expr {((($c0-0x20)&0x3F) << 2) & 0xFF
                                    | ((($c1-0x20)&0x3F) >> 4) & 0xFF}]]
@@ -69,12 +69,12 @@ if {[package provide critcl] != {}} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, xtra;
             unsigned char *input, *p, *r;
-            
+
             if (objc !=  2) {
                 Tcl_WrongNumArgs(interp, 1, objv, "data");
                 return TCL_ERROR;
             }
-            
+
             inputPtr = objv[1];
             input = Tcl_GetByteArrayFromObj(inputPtr, &len);
             if ((xtra = (3 - (len % 3))) != 3) {
@@ -89,7 +89,7 @@ if {[package provide critcl] != {}} {
             resultPtr = Tcl_NewObj();
             r = Tcl_SetByteArrayLength(resultPtr, rlen);
             memset(r, 0, rlen);
-            
+
             for (p = input; p < input + len; p += 3) {
                 char a, b, c;
                 a = *p; b = *(p+1), c = *(p+2);
@@ -106,12 +106,12 @@ if {[package provide critcl] != {}} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, xtra;
             unsigned char *input, *p, *r;
-            
+
             if (objc !=  2) {
                 Tcl_WrongNumArgs(interp, 1, objv, "data");
                 return TCL_ERROR;
             }
-            
+
             /* if input is not mod 4, extend it with nuls */
             inputPtr = objv[1];
             input = Tcl_GetByteArrayFromObj(inputPtr, &len);
@@ -128,7 +128,7 @@ if {[package provide critcl] != {}} {
             resultPtr = Tcl_NewObj();
             r = Tcl_SetByteArrayLength(resultPtr, rlen);
             memset(r, 0, rlen);
-            
+
             for (p = input; p < input + len; p += 4) {
                 char a, b, c, d;
                 a = *p; b = *(p+1), c = *(p+2), d = *(p+3);
@@ -161,7 +161,7 @@ proc ::uuencode::pad {s} {
 
 # If the Trf package is available then we shall use this by default but the
 # Tcllib implementations are always visible if needed (ie: for testing)
-if {[info commands ::uuencode::CDecode] != {}} {    
+if {[info commands ::uuencode::CDecode] != {}} {
     # tcllib critcl package
     interp alias {} ::uuencode::encode {} ::uuencode::CEncode
     interp alias {} ::uuencode::decode {} ::uuencode::CDecode
@@ -253,8 +253,8 @@ proc ::uuencode::uuencode {args} {
 # -------------------------------------------------------------------------
 # Description:
 #  Perform uudecoding of a file or data. A file may contain more than one
-#  encoded data section so the result is a list where each element is a 
-#  three element list of the provided filename, the suggested mode and the 
+#  encoded data section so the result is a list where each element is a
+#  three element list of the provided filename, the suggested mode and the
 #  data itself.
 #
 proc ::uuencode::uudecode {args} {

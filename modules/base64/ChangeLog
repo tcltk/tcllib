@@ -2,7 +2,7 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -12,7 +12,7 @@
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -23,7 +23,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-07-06  Andreas Kupries  <andreask@activestate.com>
 
@@ -41,13 +41,13 @@
 	* ascii85.man: [FR 2993200]: Added new package ascii85,
 	* ascii85.tcl: provided by Emiliano
 	* ascii85.test: <egavilan@users.sourceforge.net>
-	* pkgIndex.tcl: 
+	* pkgIndex.tcl:
 
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -66,7 +66,7 @@
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -81,7 +81,7 @@
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -115,7 +115,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -140,7 +140,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -164,7 +164,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-08-26  Andreas Kupries <andreask@activestate.com>
 
@@ -189,7 +189,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -201,7 +201,7 @@
 2004-07-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uuencode.man: Polished a bit (options, keywords).
-	* yencode.man: 
+	* yencode.man:
 
 2004-07-19  Andreas Kupries  <andreask@activestate.com>
 
@@ -218,11 +218,11 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* uuencode.tcl: Rel. engineering. Updated version number 
+	* uuencode.tcl: Rel. engineering. Updated version number
 	* uuencode.man: of uuencode to reflect its changes, to 1.1.1.
 	* pkgIndex.tcl:
 
@@ -234,7 +234,7 @@
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2003-10-24  Andreas Kupries  <andreask@activestate.com>
 
@@ -262,7 +262,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-22  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -275,7 +275,7 @@
 	* all: Created DEVELOPMENT branch - tagged root-DEVELOPMENT.
 	This branch contains criticl-based C code to speed up some of the
 	computationally expensive functions - generates a base64c package.
-	
+
 2003-04-21  Andreas Kupries  <andreask@pliers.activestate.com>
 
 	* uuencode.test: Added code to suppress output from the log
@@ -292,7 +292,7 @@
 
 2003-03-24  Andreas Kupries  <andreask@activestate.com>
 
-	* uuencode.test: 
+	* uuencode.test:
 	* uuencode.tcl: Fixed bug #700327, reported by Roger Niva
 	  <rniva@users.sourceforge.net>. Added '--' before actual data
 	  argument to prevent mishandling of data beginning with a dash
@@ -331,7 +331,7 @@
 
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* uuencode.tcl: 
+	* uuencode.tcl:
 	* yencode.tcl:
 	* base64.tcl: Fixed decoding of empty string in tcl
 	  implementation. Fixes bug #548112.
@@ -351,12 +351,12 @@
 2002-01-17  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* uuencode.tcl: added support for Trf and fixed length bug
-	
+
 2002-01-16  Pat Thoyts <patthoyts@users.sourceforge.net>
 
 	* uuencode.tcl: initial import of uuencode package
 	* pkgIndex.tcl: added uuencode package
-	
+
 2001-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base64.tcl: Restricted export list to public API.
@@ -412,14 +412,14 @@
 	* base64.test: Added tests for decoding data that was padded with ='s
 
 	* base64.tcl: Fixed a bug with line wrapping in the encoder -- it
-	was not properly counting the number of characters emitted, so it 
-	was not wrapping when it should.  Changed the chars/line to 60, so 
+	was not properly counting the number of characters emitted, so it
+	was not wrapping when it should.  Changed the chars/line to 60, so
 	the output would be identical to that produced by GNU uuecode 4.2,
 	for easy testing purposes.  Fixed a bug in the decoder with
 	newlines -- it was not ignoring them as it should according to RFC
 	2045.
 	Fixed a bug in decoder dealing with data that was padded with ='s.
-	
+
 
 	* base64.test: Some rudimentary tests for the encoder/decoder.
 
