@@ -9,7 +9,7 @@
 package require Tcl 8.4
 
 namespace eval ascii85 {
-    namespace export encode encodefile decode 
+    namespace export encode encodefile decode
     # default values for encode options
     variable options
     array set options [list -wrapchar \n -maxlen 76]

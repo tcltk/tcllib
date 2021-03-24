@@ -49,7 +49,7 @@ test yencode-1.0 {yencode yEnc test file} {
     set chk [::yencode::loaddata $datafile]
     string equal $dec $chk
 } {0}
-    
+
 
 # -------------------------------------------------------------------------
 

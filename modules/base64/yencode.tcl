@@ -24,7 +24,7 @@ proc ::yencode::Encode {s} {
     binary scan $s c* d
     foreach {c} $d {
         set v [expr {($c + 42) % 256}]
-        if {$v == 0x00 || $v == 0x09 || $v == 0x0A 
+        if {$v == 0x00 || $v == 0x09 || $v == 0x0A
             || $v == 0x0D || $v == 0x3D} {
             append r "="
             set v [expr {($v + 64) % 256}]
@@ -67,12 +67,12 @@ if {[package provide critcl] != {}} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, xtra;
             unsigned char *input, *p, *r, v;
-            
+
             if (objc !=  2) {
                 Tcl_WrongNumArgs(interp, 1, objv, "data");
                 return TCL_ERROR;
             }
-            
+
             /* fetch the input data */
             inputPtr = objv[1];
             input = Tcl_GetByteArrayFromObj(inputPtr, &len);
@@ -84,11 +84,11 @@ if {[package provide critcl] != {}} {
                 if (v == 0 || v == 9 || v == 0x0A || v == 0x0D || v == 0x3D)
                    rlen++;
             }
-            
+
             /* allocate the output buffer */
             resultPtr = Tcl_NewObj();
             r = Tcl_SetByteArrayLength(resultPtr, rlen);
-            
+
             /* encode the input */
             for (p = input; p < input + len; p++) {
                 v = (*p + 42) % 256;
@@ -106,12 +106,12 @@ if {[package provide critcl] != {}} {
             Tcl_Obj *inputPtr, *resultPtr;
             int len, rlen, esc;
             unsigned char *input, *p, *r, v;
-            
+
             if (objc !=  2) {
                 Tcl_WrongNumArgs(interp, 1, objv, "data");
                 return TCL_ERROR;
             }
-            
+
             /* fetch the input data */
             inputPtr = objv[1];
             input = Tcl_GetByteArrayFromObj(inputPtr, &len);
@@ -119,7 +119,7 @@ if {[package provide critcl] != {}} {
             /* allocate the output buffer */
             resultPtr = Tcl_NewObj();
             r = Tcl_SetByteArrayLength(resultPtr, len);
-            
+
             /* encode the input */
             for (p = input, esc = 0, rlen = 0; p < input + len; p++) {
                 if (*p == 61 && esc == 0) {
@@ -203,9 +203,9 @@ proc ::yencode::yencode {args} {
         }
         set data [lindex $args 0]
     }
-    
+
     set opts(size) [string length $data]
-    
+
     set r {}
     append r [format "=ybegin line=%d size=%d name=%s" \
                   $opts(line) $opts(size) $opts(name)] "\n"
@@ -228,8 +228,8 @@ proc ::yencode::yencode {args} {
 # -------------------------------------------------------------------------
 # Description:
 #  Perform ydecoding of a file or data. A file may contain more than one
-#  encoded data section so the result is a list where each element is a 
-#  three element list of the provided filename, the file size and the 
+#  encoded data section so the result is a list where each element is a
+#  three element list of the provided filename, the file size and the
 #  data itself.
 #
 proc ::yencode::ydecode {args} {
