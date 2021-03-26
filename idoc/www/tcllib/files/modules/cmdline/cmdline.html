@@ -120,7 +120,12 @@
 <li class="doctools_subsection"><a href="#subsection1">Error Codes</a></li>
 </ul>
 </li>
-<li class="doctools_section"><a href="#section4">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section4">EXAMPLES</a>
+<ul>
+<li class="doctools_subsection"><a href="#subsection2">cmdline::getoptions</a></li>
+<li class="doctools_subsection"><a href="#subsection3">cmdline::getopt</a></li>
+</ul>
+</li>
 <li class="doctools_section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
@@ -161,9 +166,9 @@ if such is desired or required, is the responsibility of the caller.</p>
 <dt><a name="1"><b class="cmd">::cmdline::getopt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></dt>
 <dd><p>This command works in a fashion like the standard C based <b class="cmd">getopt</b>
 function.  Given an option string and a pointer to an array of args
-this command will process the first argument and return info on how to
-proceed. The command returns 1 if an option was found, 0 if no more
-options were found, and -1 if an error occurred.</p>
+this command will process the <em>first argument</em> and return
+info on how to proceed. The command returns 1 if an option was found,
+0 if no more options were found, and -1 if an error occurred.</p>
 <p><i class="arg">argvVar</i> contains the name of the list of arguments to
 process. If options are found the list is modified and the processed
 arguments are removed from the start of the list.</p>
@@ -179,15 +184,16 @@ specified option into upon success or an error message in the case of
 failure. The stored value comes from the command line for .arg
 options, otherwise the value is 1.</p></dd>
 <dt><a name="2"><b class="cmd">::cmdline::getKnownOpt</b> <i class="arg">argvVar</i> <i class="arg">optstring</i> <i class="arg">optVar</i> <i class="arg">valVar</i></a></dt>
-<dd><p>Like <b class="cmd">::cmdline::getopt</b>, but ignores any unknown options in the
-input.</p></dd>
+<dd><p>Like <b class="cmd">::cmdline::getopt</b>, except it ignores any unknown options in
+the input.</p></dd>
 <dt><a name="3"><b class="cmd">::cmdline::getoptions</b> <i class="arg">arglistVar</i> <i class="arg">optlist</i> <span class="opt">?<i class="arg">usage</i>?</span></a></dt>
-<dd><p>Processes the set of command line options found in the list variable
-named by <i class="arg">arglistVar</i> and fills in defaults for those not
+<dd><p>Processes the entire set of command line options found in the list
+variable named by <i class="arg">arglistVar</i> and fills in defaults for those not
 specified.  This also generates an error message that lists the
-allowed flags if an incorrect flag is specified. The optional
-<i class="arg">usage</i>-argument contains a string to include in front of the
-generated message. If not present it defaults to &quot;options:&quot;.</p>
+allowed flags if an incorrect flag is specified.
+The optional <i class="arg">usage</i>-argument contains a string to include in
+front of the generated message. If not present it defaults to
+&quot;options:&quot;.</p>
 <p><i class="arg">argvVar</i> contains the name of the list of arguments to process.
 If options are found the list is modified and the processed arguments
 are removed from the start of the list.</p>
@@ -227,8 +233,8 @@ file. The last sentence refers to the pro-tools.</p></dd>
 <dt><a name="7"><b class="cmd">::cmdline::getArgv0</b></a></dt>
 <dd><p>This command returns the &quot;sanitized&quot; version of <i class="arg">argv0</i>.  It will
 strip off the leading path and removes the extension &quot;.bin&quot;. The
-latter is used by the pro-apps because they must be wrapped by a shell
-script.</p></dd>
+latter is used by the TclPro applications because they must be wrapped
+by a shell script.</p></dd>
 </dl>
 <div id="subsection1" class="doctools_subsection"><h3><a name="subsection1">Error Codes</a></h3>
 <p>Starting with version 1.5 all errors thrown by the package have a
@@ -237,6 +243,13 @@ code always has the word <b class="const">CMDLINE</b> as its first element.</p>
 </div>
 </div>
 <div id="section4" class="doctools_section"><h2><a name="section4">EXAMPLES</a></h2>
+<div id="subsection2" class="doctools_subsection"><h3><a name="subsection2">cmdline::getoptions</a></h3>
+<p>This example, taken from the package <b class="package"><a href="../fileutil/fileutil.html">fileutil</a></b> and slightly
+modified, demonstrates how to use <b class="cmd">cmdline::getoptions</b>.
+First, a list of options is created, then the 'args' list is passed to
+cmdline for processing.
+Subsequently, different options are checked to see if they have been
+passed to the script, and what their value is.</p>
 <pre class="doctools_example">
         package require Tcl 8.5
         package require try         ;# Tcllib.
@@ -274,11 +287,21 @@ code always has the word <b class="const">CMDLINE</b> as its first element.</p>
 	    ...
         }
 </pre>
-<p>This example, taken (and slightly modified) from the package
-<b class="package"><a href="../fileutil/fileutil.html">fileutil</a></b>, shows how to use cmdline.  First, a list of
-options is created, then the 'args' list is passed to cmdline for
-processing.  Subsequently, different options are checked to see if
-they have been passed to the script, and what their value is.</p>
+</div>
+<div id="subsection3" class="doctools_subsection"><h3><a name="subsection3">cmdline::getopt</a></h3>
+<p>This example shows the core loop of <b class="cmd">cmdline::getoptions</b> from the
+previous example. It demonstrates how it uses <b class="cmd">cmdline::get</b> to
+process the options one at a time.</p>
+<pre class="doctools_example">
+    while {[set err [getopt argv $opts opt arg]]} {
+	if {$err &lt; 0} {
+            set result(?) &quot;&quot;
+            break
+	}
+	set result($opt) $arg
+    }
+</pre>
+</div>
 </div>
 <div id="section5" class="doctools_section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
