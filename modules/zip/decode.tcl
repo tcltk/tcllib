@@ -88,6 +88,9 @@ proc ::zipfile::decode::files {zdict} {
     return [array names f]
 }
 
+proc ::zipfile::decode::filesinfo zdict {
+    dict get $zdict files
+}
 
 proc ::zipfile::decode::filelocations zdict {
     set res {}
@@ -96,7 +99,7 @@ proc ::zipfile::decode::filelocations zdict {
 	set size [dict get $finfo csize]
 	lappend res $start $size $fname
     }
-    set res [lsort -stride 3 -index 0 -integer $res[set res {}]]
+    set res [lsort -integer -stride 3 -index 0 $res[set res {}]]
     return $res
 }
 
