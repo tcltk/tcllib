@@ -26,7 +26,7 @@ proc TestFilesProcess {maindir section inset outset -> nv lv iv dv ev script} {
 	if {[file isdirectory      $src]} continue
 
 	set srcname  [file tail $src]
-	set exp      [localPath $maindir]/$section/$outset/$srcname
+	set exp      [localPath $maindir $section $outset $srcname]
 	set data     [fileutil::cat $src]
 	set expected [string trim [fileutil::cat $exp]]
 	set expected [string map [list @ $::tcltest::testsDirectory] $expected]

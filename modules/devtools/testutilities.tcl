@@ -428,21 +428,28 @@ proc snitErrors {} {
 ## avoid contamination of the testsuite by packages and code outside
 ## of the Tcllib under test.
 
-# Shorthand for access to module-local assets files for tests.
-proc asset {path} {
-    file join $::tcltest::testsDirectory test-assets $path
+proc asset path {
+    file join [uplevel 1 [list [namespace which localPath] test-assets $path]]
 }
 
 proc asset-get {path} {
-    set c [open [asset $path] r]
+    set c [open [[namespace which localPath $path]] r]
     set d [read $c]
     close $c
     return $d
 }
 
+
+proc localDirectory {} {
+    set script [uplevel 1 [list ::info script]]
+    file dirname [file dirname [file normalize [
+	    file join $script[set script {}] ...]]]
+}
+
 # General access to module-local files
-proc localPath {fname} {
-    return [file join $::tcltest::testsDirectory $fname]
+proc localPath args {
+    set {script dir} [uplevel 1 [list [namespace which localDirectory]]]
+    file join ${script dir} {*}$args
 }
 
 # General access to global (project-local) files
@@ -451,7 +458,8 @@ proc tcllibPath {fname} {
 }
 
 proc useLocalFile {fname} {
-    return [uplevel 1 [list source [localPath $fname]]]
+    return [uplevel 1 [list source [uplevel 1 [
+		list [namespace which localPath] $fname]]]]
 }
 
 proc useTcllibFile {fname} {
@@ -511,7 +519,7 @@ proc useLocal {fname pname args} {
     catch {namespace delete $nsname}
 
     if {[catch {
-	uplevel 1 [list useLocalFile $fname]
+	uplevel 1 [list [namespace which useLocalFile] $fname]
     } msg]} {
 	puts "    Aborting the tests found in \"[file tail [info script]]\""
 	puts "    Error in [file tail $fname]: $msg"
@@ -735,12 +743,13 @@ proc TestAccelExit {namespace} {
 ##
 
 proc TestFiles {pattern} {
+    set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
     if {[package vsatisfies [package provide Tcl] 8.3]} {
 	# 8.3+ -directory ok
-	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
 	# 8.2 or less, no -directory
-	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+	set flist [glob -nocomplain [file join ${local directory} $pattern]]
     }
     foreach f [lsort -dict $flist] {
 	uplevel 1 [list source $f]
@@ -749,12 +758,13 @@ proc TestFiles {pattern} {
 }
 
 proc TestFilesGlob {pattern} {
+    set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
     if {[package vsatisfies [package provide Tcl] 8.3]} {
 	# 8.3+ -directory ok
-	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
 	# 8.2 or less, no -directory
-	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+	set flist [glob -nocomplain [file join ${local directory} $pattern]]
     }
     return [lsort -dict $flist]
 }

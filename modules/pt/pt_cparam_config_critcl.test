@@ -38,7 +38,7 @@ testing {
     useLocal pt_cparam_config_critcl.tcl pt::cparam::configuration::critcl
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

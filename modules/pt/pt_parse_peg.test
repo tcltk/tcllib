@@ -43,7 +43,7 @@ testing {
     TestAccelInit                             pt::parse::peg
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 # Note: When using pt::rde's C implementation struct::stack is not

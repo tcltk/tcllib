@@ -29,7 +29,7 @@ testing {
     useLocal pt_peg_to_json.tcl pt::peg::to::json
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

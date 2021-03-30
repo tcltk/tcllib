@@ -28,7 +28,7 @@ testing {
     useLocal pt_peg_from_json.tcl pt::peg::from::json
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

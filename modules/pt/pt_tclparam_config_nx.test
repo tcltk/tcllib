@@ -37,7 +37,7 @@ testing {
     useLocal pt_tclparam_config_nx.tcl pt::tclparam::configuration::nx
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

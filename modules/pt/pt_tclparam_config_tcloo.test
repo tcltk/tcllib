@@ -38,7 +38,7 @@ testing {
     useLocal pt_tclparam_config_tcloo.tcl pt::tclparam::configuration::tcloo
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

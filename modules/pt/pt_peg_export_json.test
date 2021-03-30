@@ -34,7 +34,7 @@ testing {
     useLocal pt_peg_export_json.tcl pt::peg::export::json
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

@@ -78,7 +78,7 @@ testing {
     useLocal pt_pgen.tcl pt::pgen ;# Generator
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # Table of test cases ...
 #             Id PEG     InText Error detail    Readable char

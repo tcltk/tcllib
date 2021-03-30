@@ -38,7 +38,7 @@ testing {
     useLocal pt_cparam_config_tea.tcl pt::cparam::configuration::tea
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

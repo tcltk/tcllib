@@ -38,7 +38,7 @@ testing {
     useLocal pt_tclparam_config_snit.tcl pt::tclparam::configuration::snit
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

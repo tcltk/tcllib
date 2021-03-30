@@ -33,7 +33,7 @@ testing {
     useLocal pt_peg_import_json.tcl pt::peg::import::json
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

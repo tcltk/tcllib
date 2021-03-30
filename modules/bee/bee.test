@@ -305,7 +305,7 @@ test bee-12.0 {decoder, torrent file} {
     set end 0
 
     # tcltest::viewFile does not do binary :(
-    set f [open  [asset example.torrent] r]
+    set f [open [asset example.torrent] r]
     fconfigure $f -translation binary
     set d [read $f]
     close $f

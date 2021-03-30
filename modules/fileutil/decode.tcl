@@ -44,9 +44,9 @@ proc ::fileutil::decode::mark {} {
     return
 }
 
-proc ::fileutil::decode::go {to} {
+proc ::fileutil::decode::go {to {from start}} {
     variable chan
-    seek $chan $to start
+    seek $chan $to $from
     return
 }
 

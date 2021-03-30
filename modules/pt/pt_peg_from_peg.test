@@ -46,7 +46,7 @@ testing {
     useLocal pt_peg_from_peg.tcl pt::peg::from::peg
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 # Note: When using pt::rde's C implementation struct::stack is not

@@ -30,7 +30,7 @@ testing {
     useLocal pt_peg_to_param.tcl pt::peg::to::param
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

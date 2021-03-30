@@ -41,7 +41,7 @@ testing {
     use pt/pt_peg_interp.tcl pt::peg::interp
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 # Note: When using pt::rde's C implementation struct::stack is not

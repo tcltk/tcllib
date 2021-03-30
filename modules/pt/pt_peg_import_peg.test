@@ -51,7 +51,7 @@ testing {
     useLocal pt_peg_import_peg.tcl pt::peg::import::peg
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 # Note: When using pt::rde's C implementation struct::stack is not

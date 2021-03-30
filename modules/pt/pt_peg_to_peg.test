@@ -34,7 +34,7 @@ testing {
     useLocal pt_peg_to_peg.tcl pt::peg::to::peg
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

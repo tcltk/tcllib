@@ -1,5 +1,4 @@
-# -*- tcl -*-
-# peg_structure.test:  tests for the pt::peg package.
+# 
 #
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
@@ -29,7 +28,7 @@ testing {
 
 # -------------------------------------------------------------------------
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 
