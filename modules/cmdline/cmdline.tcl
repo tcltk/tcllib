@@ -10,11 +10,9 @@
 # Copyright (c) 2003      by David N. Welton  <davidw@dedasys.com>
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.5
+package provide cmdline 1.5.1
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -355,11 +353,10 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
 	    set default [lindex $opt 1]
 	    set comment [lindex $opt 2]
-	    append str [format " %-20s %s <%s>\n" "-$name value" \
-		    $comment $default]
+	    append str [string trimright [format " %-20s %s <%s>" "-$name value" $comment $default]]\n
 	} else {
 	    set comment [lindex $opt 1]
-	    append str [format " %-20s %s\n" "-$name" $comment]
+	    append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
 	}
     }
     return $str
@@ -850,19 +847,20 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
                 # Display something about multiple options
             }
 
-            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass]
-                    || [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]} {
-                   regsub -- "\\..+\$" $name {} name
-                set comment [lindex $opt 2]
-                set default "<[lindex $opt 1]>"
-                if {$default == "<>"} {
-                    set default ""
-                }
-                append str [format " %-20s %s %s\n" "-$name $charclass" \
-                        $comment $default]
-            } else {
+            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
+		[regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
+	    } {
+		regsub -- "\\..+\$" $name {} name
+		set comment [lindex $opt 2]
+		set default "<[lindex $opt 1]>"
+		if {$default == "<>"} {
+		    set default ""
+		}
+		append str [string trimright [format " %-20s %s %s" "-$name $charclass" \
+						  $comment $default]]\n
+	    } else {
                 set comment [lindex $opt 1]
-		append str [format " %-20s %s\n" "-$name" $comment]
+		append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
             }
         }
     }
