@@ -1,7 +1,7 @@
 
 [//000000001]: # (cmdline \- Command line and option processing)
 [//000000002]: # (Generated from file 'cmdline\.man' by tcllib/doctools with format 'markdown')
-[//000000003]: # (cmdline\(n\) 1\.5 tcllib "Command line and option processing")
+[//000000003]: # (cmdline\(n\) 1\.5\.1 tcllib "Command line and option processing")
 
 <hr> [ <a href="../../../../toc.md">Main Table Of Contents</a> &#124; <a
 href="../../../toc.md">Table Of Contents</a> &#124; <a
@@ -43,7 +43,7 @@ cmdline \- Procedures to process command lines and options\.
 # <a name='synopsis'></a>SYNOPSIS
 
 package require Tcl 8\.2  
-package require cmdline ?1\.3\.3?  
+package require cmdline ?1\.5\.1?  
 
 [__::cmdline::getopt__ *argvVar* *optstring* *optVar* *valVar*](#1)  
 [__::cmdline::getKnownOpt__ *argvVar* *optstring* *optVar* *valVar*](#2)  
