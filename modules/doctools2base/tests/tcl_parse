@@ -8,8 +8,8 @@
 
 # -------------------------------------------------------------------------
 
-source [localPath tests/common]
-set mytestdir tests/tcl_data
+source [localPath common]
+set mytestdir tcl_data
 
 # -------------------------------------------------------------------------
 

@@ -8,9 +8,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+	file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
@@ -41,7 +41,7 @@ testing {
     use pt/pt_peg_interp.tcl pt::peg::interp
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 # Note: When using pt::rde's C implementation struct::stack is not

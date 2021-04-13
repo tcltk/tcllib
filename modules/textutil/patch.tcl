@@ -77,7 +77,7 @@ proc ::textutil::patch::apply {dir striplevel patch reportcmd} {
 
 # # ## ### ##### ######## ############# #####################
 
-proc ::textutil::patch::Report {args} {
+proc ::textutil::patch::Report args {
     upvar 1 reportcmd reportcmd
     uplevel #0 [list {*}$reportcmd {*}$args]
     ##
