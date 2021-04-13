@@ -12,7 +12,7 @@
 
 # -------------------------------------------------------------------------
 
-set mytestdir      tests/data
+set mytestdir      data
 set mytestconfig   {fox dog lazy jump}
 set mytestincludes [TestFilesGlob $mytestdir]
 

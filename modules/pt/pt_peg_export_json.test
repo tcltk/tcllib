@@ -8,9 +8,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+	file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
@@ -34,7 +34,7 @@ testing {
     useLocal pt_peg_export_json.tcl pt::peg::export::json
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 
