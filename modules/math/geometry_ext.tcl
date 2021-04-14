@@ -101,7 +101,7 @@ proc ::math::geometry::cathetusPoint {pa pb cathetus {location {a}}} {
       set angle_cath    [expr {180 + $angle_c + $angle_cath}]
       set vct_cath      [s* $cathetus [direction $angle_cath]]
       set pc            [+ $pb [s* $cathetus [direction $angle_cath]]]
-    }		
+    }
     return $pc
 }
     #

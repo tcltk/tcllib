@@ -1,6 +1,6 @@
 Package: math::calculus
 -----------------------
-The math::calculus package is an all-Tcl package that implements 
+The math::calculus package is an all-Tcl package that implements
 several basic numerical algorithms, such as the integration
 of functions of one variable or the integration of ordinary
 differential equations.
