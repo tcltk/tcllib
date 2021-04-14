@@ -708,7 +708,7 @@ proc ::math::calculus::midpoint { f a b { n 0 } { s 0. } } {
 #----------------------------------------------------------------------
 #
 # romberg --
-#	
+#
 #	Compute the integral of a function over an interval using
 #	Romberg's method.
 #
@@ -1139,7 +1139,7 @@ proc ::math::calculus::romberg_powerLawLower { gamma f a b args } {
 	       [expr { $gamma / $onemgamma }] \
 	       [expr { 1 / $onemgamma }] \
 	       $a]
-	
+
     set limit [expr { pow( $b - $a, $onemgamma ) }]
     set result {}
     foreach v [eval [linsert $args 0 romberg $f 0 $limit]] {
@@ -1258,7 +1258,7 @@ proc ::math::calculus::romberg_powerLawUpper { gamma f a b args } {
 	       [expr { $gamma / $onemgamma }] \
 	       [expr { 1. / $onemgamma }] \
 	       $b]
-	
+
     set limit [expr { pow( $b - $a, $onemgamma ) }]
     set result {}
     foreach v [eval [linsert $args 0 romberg $f 0 $limit]] {
