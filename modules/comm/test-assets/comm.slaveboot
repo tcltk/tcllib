@@ -14,7 +14,7 @@ proc slaveat {id} {
 exec \
     [info nameofexecutable] $spawncode \
     [tcllibPath snit/snit.tcl] \
-    [localPath  comm.tcl] \
+    [localPath  .. comm.tcl] \
     [::comm::comm self] &
 
 #puts "Waiting for spawned comm system to boot"

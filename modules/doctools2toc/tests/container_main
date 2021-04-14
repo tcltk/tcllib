@@ -999,5 +999,5 @@ test doctools-toc-${impl}-37.2 {child, nested} -setup {
 # toc tests, numbering starts at 40
 # -------------------------------------------------------------------------
 
-source [localPath tests/container]
+source [localPath container]
 return

@@ -3,9 +3,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
@@ -39,31 +39,36 @@ test textutil-patch-1.4 {wrong args, too many} -body {
 
 unset m
 
+variable scratchdir [file join [file dirname [asset pkgIndex.tcl]] scratch]
+
 # -------------------------------------------------------------------------
 ## Patch application. All ok.
 
 proc setup-scratch {} {
+    variable scratchdir
     # Create a temp directory hierarchy where we can perform patch application.
     # scratch
     # \- pkgIndex.tcl
 
-    file mkdir [asset scratch]
-    file copy  [asset pkgIndex.tcl] [asset scratch/pkgIndex.tcl]
+    file mkdir $scratchdir
+    file copy  [asset pkgIndex.tcl] [file join $scratchdir pkgIndex.tcl]
     set ::trace {}
     return    
 }
 
 proc cleanup-scratch {} {
+    variable scratchdir
     # Drop scratch area again.
     unset ::trace
-    file delete -force [asset scratch]
+    file delete -force $scratchdir
     return
 }
 
-proc record {args} { lappend ::trace $args }
+proc record args { lappend ::trace $args }
 
 proc recorded {} {
-    lappend ::trace === [tcltest::viewFile [asset scratch/pkgIndex.tcl]]
+    variable scratchdir
+    lappend ::trace === [tcltest::viewFile [file join $scratchdir pkgIndex.tcl]]
     join $::trace \n
 }
 
@@ -81,13 +86,13 @@ foreach {tool striplevel} {
 	# Apply patch `pkgIndex.tcl.<tool>` to `scratch/pkgIndex.tcl`.
 	# The result should match `pkgIndex.tcl.patched`.
 	textutil::patch apply \
-	    [asset scratch] $striplevel \
+	    $scratchdir $striplevel \
 	    [asset-get pkgIndex.tcl.$tool] \
 	    record
 	recorded
     } -result [join \
 		   [list \
-			[list apply [asset scratch/pkgIndex.tcl]] \
+			[list apply [file join $scratchdir pkgIndex.tcl]] \
 			=== \
 			[tcltest::viewFile [asset pkgIndex.tcl.patched]]] \
 		   \n]
