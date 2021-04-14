@@ -64,7 +64,7 @@ namespace eval math::exact::test {
 	}
 	return
     }
-			  
+
     namespace import ::tcltest::test
 
     test math::exact-1.0 {unit test gcd} {
@@ -264,7 +264,7 @@ namespace eval math::exact::test {
 	}
 	set trouble
     } {}
-    
+
     test math::exact-16.1 {unit test mlessm - also tests mlessv} {
 	set intervals {
 	    {-2 1} {-1 1} {-1 2} {0 1} {2 4} {3 3} {14 7} {1 0}
@@ -322,7 +322,7 @@ namespace eval math::exact::test {
     test math::exact-18.3 {unit test mscale} {
 	math::exact::mscale {{8 12} {16 20}}
     } {{2 3} {4 5}}
-    
+
     test math::exact-19.1 {unit test tscale} {
 	math::exact::tscale {{{2 3} {4 5}} {{6 7} {8 9}}}
     } {{{2 3} {4 5}} {{6 7} {8 9}}}
@@ -332,7 +332,7 @@ namespace eval math::exact::test {
     test math::exact-10.3 {unit test tscale} {
 	math::exact::tscale {{{8 12} {16 20}} {{24 28} {32 36}}}
     } {{{2 3} {4 5}} {{6 7} {8 9}}}
-    
+
     test math::exact-20.1 {unit test vreduce} {
 	math::exact::vreduce {2 3}
     } {2 3}
@@ -352,7 +352,7 @@ namespace eval math::exact::test {
     test math::exact-21.3 {unit test mreduce} {
 	math::exact::mreduce {{8 12} {16 20}}
     } {{2 3} {4 5}}
-    
+
     test math::exact-22.1 {unit test treduce} {
 	math::exact::treduce {{{2 3} {4 5}} {{6 7} {8 9}}}
     } {{{2 3} {4 5}} {{6 7} {8 9}}}
@@ -451,7 +451,7 @@ namespace eval math::exact::test {
     } [list \
 	   Undetermined 1.e0 1.e0 1.6e0 1.6e0 1.6e0 1.62e0 1.61e0 1.61e0 \
 	   1.618e0 1.618e0 1.6180e0 1.6180e0 1.61803e0 1.61803e0 1.61803e0]
-    
+
     test math::exact-31.2 {mAsFloat, scientificNotation, mantissa, eFormat} {
 	set p 0
 	set q 1
@@ -497,7 +497,7 @@ namespace eval math::exact::test {
 	   1.6e-3 1.62e-3 1.61e-3 1.61e-3 \
 	   1.618e-3 1.618e-3 1.6180e-3 1.6180e-3 \
 	   1.61803e-3 1.61803e-3 1.61803e-3]
-    
+
     test math::exact-31.4 {mAsFloat, scientificNotation, mantissa, eFormat} {
 	set p 0
 	set q 1
@@ -556,7 +556,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 1.0000000000000000e0}
     }
-    
+
     test math::exact-40.2 {unary plus} {
 	-setup leakBaseline
 	-body {
@@ -568,7 +568,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 1.0000000000000000e0}
     }
-    
+
     test math::exact-40.3 {unary minus} {
 	-setup leakBaseline
 	-body {
@@ -784,7 +784,7 @@ namespace eval math::exact::test {
 	}
 	-result {1.9000000000000000e0 1.9000000000000000e0}
     }
-	
+
     test math::exact-40.21 {E - V} {
 	-setup leakBaseline
 	-body {
@@ -808,7 +808,7 @@ namespace eval math::exact::test {
 	}
 	-result {6.0000000000000001e-1 6.0000000000000001e-1}
     }
-	
+
     test math::exact-40.23 {E / V} {
 	-setup leakBaseline
 	-body {
@@ -831,7 +831,7 @@ namespace eval math::exact::test {
 	-match glob
 	-result {1 {invalid character*}}
     }
-	
+
     test math::exact-40.25 {syntax error} {
 	-setup leakBaseline
 	-body {
@@ -842,7 +842,7 @@ namespace eval math::exact::test {
 	-match glob
 	-result {1 {syntax error*}}
     }
-	
+
     test math::exact-41.1 {square root} {
 	-setup leakBaseline
 	-body {
@@ -956,7 +956,7 @@ namespace eval math::exact::test {
 	}
 	-result {2.0000000000000000e0 2.0000000000000000e0}
     }
-    
+
     test math::exact-42.1 {exponential} {
 	-setup leakBaseline
 	-body {
@@ -1135,7 +1135,7 @@ namespace eval math::exact::test {
 	}
 	-result {3.141 763 e0}
     }
-    
+
     test math::exact-44.2 {Ramanujan constant} {
 	-setup {
 	    # Consume digits from math::exact::pi to avoid appearance of
@@ -1152,7 +1152,7 @@ namespace eval math::exact::test {
 	}
 	-result 2.625374126407687439999999999992e17
     }
-	
+
 
     test math::exact-45.1 {tangent} {
 	-setup leakBaseline
@@ -1345,7 +1345,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 -5.000000000000000e-1}
     }
-    
+
     test math::exact-47.1 {cosine} {
 	-setup leakBaseline
 	-body {
@@ -1453,7 +1453,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 5.000000000000000e-1}
     }
-    
+
     test math::exact-45.1 {arctangent} {
 	-setup leakBaseline
 	-body {
@@ -1490,7 +1490,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 0e-18}
     }
-	
+
     test math::exact-45.4 {arctangent} {
 	-setup leakBaseline
 	-body {
@@ -1514,7 +1514,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 1.5700000000000000e0}
     }
-	    
+
     test math::exact-45.6 {arctangent, cached} {
 	-setup leakBaseline
 	-body {
@@ -1600,7 +1600,7 @@ namespace eval math::exact::test {
 	}
 	-result {1 0e-18}
     }
-    
+
     test math::exact-48.1 {hyperbolic functions} {
 	-setup leakBaseline
 	-body {
@@ -1676,7 +1676,7 @@ namespace eval math::exact::test {
 	}
 	-result {-8.813735870195431e-1 0e-18 8.813735870195430e-1}
     }
-	
+
     test math::exact-50.1 {acosh} {
 	-setup leakBaseline
 	-body {
@@ -1714,7 +1714,7 @@ namespace eval math::exact::test {
 	}
 	-result {-5.4930614433405485e-1 0e-18 5.4930614433405485e-1}
     }
-    
+
     test math::exact-52.1 {e} {
 	-setup {
 	    # don't report cached digits of e as a leak
@@ -1730,7 +1730,7 @@ namespace eval math::exact::test {
 	}
 	-result 2.7182818284590452e0
     }
-    
+
     test math::exact-52.2 {e} {
 	-setup {
 	    # don't report cached digits of e as a leak
@@ -1905,7 +1905,7 @@ namespace eval math::exact::test {
 	}
 	-result 5.000000000000000e-1
     }
-	
+
     test math::exact-53.10 {real**integer, accidental} {
 	-setup leakBaseline
 	-body {
@@ -1917,7 +1917,7 @@ namespace eval math::exact::test {
 	}
 	-result 9
     }
-	
+
     test math::exact-53.11 {zero to zero power} {
 	-setup leakBaseline
 	-body {
@@ -1943,7 +1943,7 @@ namespace eval math::exact::test {
 	-returnCodes error
 	-result "zero to infinite power"
     }
-	
+
     test math::exact-53.13 {zero to rational power} {
 	-setup leakBaseline
 	-body {
@@ -1955,7 +1955,7 @@ namespace eval math::exact::test {
 	}
 	-result 0
     }
-	
+
     test math::exact-53.14 {infinity to zero power} {
 	-setup leakBaseline
 	-body {
@@ -1968,7 +1968,7 @@ namespace eval math::exact::test {
 	-returnCodes error
 	-result "infinity to zero power"
     }
-	
+
     test math::exact-53.15 {infinity to negative power} {
 	-setup leakBaseline
 	-body {
@@ -1980,7 +1980,7 @@ namespace eval math::exact::test {
 	}
 	-result 0
     }
-	
+
     test math::exact-53.15 {infinity to positive power} {
 	-setup leakBaseline
 	-body {
@@ -1992,7 +1992,7 @@ namespace eval math::exact::test {
 	}
 	-result Inf
     }
-	
+
     test math::exact-53.16 {rational to zero power} {
 	-setup leakBaseline
 	-body {
@@ -2041,7 +2041,7 @@ namespace eval math::exact::test {
 	-returnCodes error
 	-result "negative number to real power"
     }
-	
+
     test math::exact-53.20 {rational to zero power} {
 	-setup leakBaseline
 	-body {
@@ -2065,7 +2065,7 @@ namespace eval math::exact::test {
 	}
 	-result 4/9
     }
-	
+
     test math::exact-53.22 {rational to negative integer power} {
 	-setup leakBaseline
 	-body {
@@ -2104,7 +2104,7 @@ namespace eval math::exact::test {
 	-returnCodes error
 	-result {zero divided by zero}
     }
-	
+
     test math::exact-53.24 {rational to 0/0} {
 	-setup leakBaseline
 	-body {
@@ -2119,7 +2119,7 @@ namespace eval math::exact::test {
 	-returnCodes error
 	-result {zero divided by zero}
     }
-	
+
     test math::exact-53.26 {unit test - rat**int (2/3)**0} {
 	-setup leakBaseline
 	-body {

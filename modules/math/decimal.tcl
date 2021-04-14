@@ -198,7 +198,7 @@ proc ::math::decimal::+ {a b {rescale 1}} {
 	    return $a
 	}
     }
-	
+
     if { $ea > $eb } {
         set ma [expr {$ma * 10 ** ($ea-$eb)}]
         set er $eb
@@ -780,7 +780,7 @@ proc ::math::decimal::divideint { a b } {
     set sr [expr {$sa^$sb}]
 
 
-	
+
     if { $sr == 1 } {
 	set sign_string "-"
     } else {
@@ -1084,8 +1084,8 @@ proc ::math::decimal::tostr_scientific {number} {
 	} else {
 	    set exponent [expr {abs($exponent)}]
 	    if { $digits > $exponent } {
-		set string [string range $mantisse 0 [expr {$digits-$exponent-1}]].[string range $mantisse [expr {$digits-$exponent}] end]	
-		set exponent [expr {-$exponent}]	
+		set string [string range $mantisse 0 [expr {$digits-$exponent-1}]].[string range $mantisse [expr {$digits-$exponent}] end]
+		set exponent [expr {-$exponent}]
 	    } else {
 		set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
 	    }
@@ -1093,9 +1093,9 @@ proc ::math::decimal::tostr_scientific {number} {
     } elseif { $exponent <= 0 && $adjusted_exponent < -6 } {
 	if { $digits > 1 } {
 
-	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]	
+	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]
 
-	    set exponent [expr {$exponent + $digits - 1}]	
+	    set exponent [expr {$exponent + $digits - 1}]
 	    set string "${string}E${exponent}"
 	}  else {
 	    set string "${mantisse}E${exponent}"
@@ -1155,15 +1155,15 @@ proc ::math::decimal::tostr_numeric {number} {
 		set string [string range $mantisse 0 [expr {$digits-$exponent-1}]]
 		set decimal_part [string range $mantisse [expr {$digits-$exponent}] end]
 		set string ${string}.${decimal_part}
-		set exponent [expr {-$exponent}]	
+		set exponent [expr {-$exponent}]
 	    } else {
 		set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
 	    }
 	}
     } elseif { $exponent <= 0 && $adjusted_exponent < -6 } {
 	if { $digits > 1 } {
-	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]	
-	    set exponent [expr {$exponent + $digits - 1}]	
+	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]
+	    set exponent [expr {$exponent + $digits - 1}]
 	    set string "${string}E${exponent}"
 	}  else {
 	    set string "${mantisse}E${exponent}"
@@ -1389,7 +1389,7 @@ proc ::math::decimal::round_half_up {a digits} {
 	    1 {
 		set mantissa [expr {$integer_part + 1}]
 	    }
-	
+
 	}
     }
     set exponent [expr {-1 * $digits}]
@@ -1545,7 +1545,7 @@ proc ::math::decimal::round_floor {a digits} {
     }
     set exponent [expr {-1 * $digits}]
     return [list $sa $mantissa $exponent]
-}	
+}
 
 # round_up --
 #
@@ -1644,7 +1644,7 @@ proc ::math::decimal::round_ceiling {a digits} {
     }
 
     return [list $sa $mantissa $exponent]
-}	
+}
 
 # is-finite
 #
