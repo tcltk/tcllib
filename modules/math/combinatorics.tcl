@@ -189,7 +189,7 @@ proc ::math::ln_Gamma { x } {
 	-errorcode [list ARITH OVERFLOW \
 		    "floating-point value too large to represent"] \
 	"floating-point value too large to represent"
-	
+
 }
 
 #----------------------------------------------------------------------
@@ -272,7 +272,7 @@ proc ::math::factorial { x } {
 #	k -- Number of objects to be chosen.
 #
 # Results:
-#	Returns C(n,k).	
+#	Returns C(n,k).
 #
 # Side effects:
 #	None.

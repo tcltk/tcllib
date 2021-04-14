@@ -450,11 +450,8 @@ proc asset-get args {
 
 proc file-get path {
     set c [open $path r]
-	try {
-		set d [read $c]
-	} finally {
-		close $c
-	}
+    set d [read $c]
+    close $c
     return $d
 }
 

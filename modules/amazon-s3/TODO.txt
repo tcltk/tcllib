@@ -1,6 +1,6 @@
 STILL TO DO: Implement S3::Acl.
 
-STILL TO DO: Optional argument to Put and Get for compares: remote 
+STILL TO DO: Optional argument to Put and Get for compares: remote
 bucket holding the contents you're comparing, so if you do a GetBucket
 you don't have to do Head.
 

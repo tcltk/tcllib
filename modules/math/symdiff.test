@@ -86,7 +86,7 @@ test symdiff-3.6 {derivative of a sum, easy cases} {
 test symdiff-4.1 {derivative of a difference, easy cases} {
     -body {
 	symdiff {1.0 - 1.0} a
-    } 
+    }
     -match regexp
     -result {[-+]?0.0}
 }

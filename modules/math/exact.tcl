@@ -21,14 +21,14 @@
 # Menissier-Morain, Valérie. _Arbitrary Precision Real Arithmetic:
 # Design and Algorithms. J. Symbolic Computation 11 (1996)
 # http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.31.8983
-# 
+#
 #-----------------------------------------------------------------------------
 
 package require Tcl 8.6
 package require grammar::aycock 1.0
 
 namespace eval math::exact {
-    
+
     namespace eval function {
 	namespace path ::math::exact
     }
@@ -101,7 +101,7 @@ namespace eval math::exact {
 	}
 	primary ::= bareword ( ) {
 	    [dict get $clientData namespace]::function::[lindex $_ 0]
-	}	    
+	}
 	primary ::= bareword ( arglist ) {
 	    [dict get $clientData namespace]::function::[lindex $_ 0] \
 		{*}[lindex $_ 2]
@@ -223,14 +223,14 @@ proc ::math::exact::exactexpr {expr} {
 
 # A matrix is a list of its columns {{a b} {c d}}. In addition to
 # the ordinary rules of linear algebra, it represents the linear
-# transform (ax+b)/(cx+d). 
+# transform (ax+b)/(cx+d).
 
-# If x is presumed to lie in the interval [0, Inf) then this transform 
-# applied to x will lie in the interval [b/d, a/c), so the matrix 
+# If x is presumed to lie in the interval [0, Inf) then this transform
+# applied to x will lie in the interval [b/d, a/c), so the matrix
 # {{a b} {c d}} can represent that interval. The interval [0,Inf)
 # can be represented by the identity matrix {{1 0} {0 1}}
 
-# Moreover, if x  = {p/q} is a rational number, then 
+# Moreover, if x  = {p/q} is a rational number, then
 #    (ax+b)/(cx+d) = (a(p/q)+b)/(c(p/q)+d)
 #                  = ((ap+bq)/q)/(cp+dq)/q)
 #                  = (ap+bq)/(cp+dq)
@@ -521,7 +521,7 @@ proc ::math::exact::mreduce {x} {
 # Results:
 #	Returns the scaled tensor
 #
-# This procedure suffices to reduce a tensor to lowest terms if it was 
+# This procedure suffices to reduce a tensor to lowest terms if it was
 # constructed by absorbing a digit matrix into a tensor that was already
 # in lowest terms.
 
@@ -601,7 +601,7 @@ proc ::math::exact::tadd {U V} {
 # Parameters;
 #	A - Matrix
 #	x - Vector
-# 
+#
 # Results:
 #	Returns the product vector
 
@@ -874,7 +874,7 @@ proc ::math::exact::mdisjointm {m n} {
 
 # math::exact::mAsFloat
 #
-#	Formats a matrix that represents a rational interval as a floating 
+#	Formats a matrix that represents a rational interval as a floating
 #	point number, stopping as soon as a digit is not determined.
 #
 # Parameters:
@@ -1351,26 +1351,26 @@ oo::class create math::exact::Expression {
     method asPrint {relDigits} {
 	tailcall math::exact::mAsFloat [my getInterval $relDigits]
     }
-    
+
     # Derived classes are expected to implement the following methods:
-    # method dump {} {  
-    #	# Formats the object for debugging 
+    # method dump {} {
+    #	# Formats the object for debugging
     #	# Returns the formatted string
     # }
     method dump {} {
 	error "[info object class [self object]] does not implement the 'dump' method."
     }
 
-    # method refinesM {m} { 
+    # method refinesM {m} {
     #	# Returns 1 if premultiplying by the matrix m refines this object
     #   # Returns 0 otherwise
     # }
     method refinesM {m} {
 	error "[info object class [self object]] does not implement the 'refinesM' method."
     }
-    
-    # method applyM {m} { 
-    #	# Premultiplies this object by the matrix m 
+
+    # method applyM {m} {
+    #	# Premultiplies this object by the matrix m
     # }
     method applyM {m} {
 	error "[info object class [self object]] does not implement the 'applyM' method."
@@ -1384,7 +1384,7 @@ oo::class create math::exact::Expression {
     method applyTLeft {t r} {
 	error "[info object class [self object]] does not implement the 'applyTLeft' method."
     }
-    
+
     # method applyTRight {t l} {
     # 	# Computes the right product of the tensor t with this object, and
     #	# applies the result to the left operand l.
@@ -1393,7 +1393,7 @@ oo::class create math::exact::Expression {
     method applyTRight {t l} {
 	error "[info object class [self object]] does not implement the 'applyTRight' method."
     }
-    
+
     # method absorb {} {
     #	# Absorbs the next subexpression or digit into this expression
     #	# Returns the result of absorption, which always represents a
@@ -1434,7 +1434,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method + {r} {
 	return [$r E+ [self object]]
     }; export +
@@ -1453,7 +1453,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E+ {l} {
 	tailcall math::exact::+real $l [self object]
     }; export E+
@@ -1470,7 +1470,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method V+ {l} {
 	tailcall math::exact::+real $l [self object]
     }; export V+
@@ -1490,7 +1490,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method - {r} {
 	return [$r E- [self object]]
     }; export -
@@ -1509,7 +1509,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E- {l} {
 	tailcall math::exact::-real $l [self object]
     }; export E-
@@ -1526,7 +1526,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method V- {l} {
 	tailcall math::exact::-real $l [self object]
     }; export V-
@@ -1546,7 +1546,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method * {r} {
 	return [$r E* [self object]]
     }; export *
@@ -1565,7 +1565,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E* {l} {
 	tailcall math::exact::*real $l [self object]
     }; export E*
@@ -1582,7 +1582,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method V* {l} {
 	tailcall math::exact::*real $l [self object]
     }; export V*
@@ -1602,7 +1602,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method / {r} {
 	return [$r E/ [self object]]
     }; export /
@@ -1621,7 +1621,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E/ {l} {
 	tailcall math::exact::/real $l [self object]
     }; export E/
@@ -1638,7 +1638,7 @@ oo::class create math::exact::Expression {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method V/ {l} {
 	tailcall math::exact::/real $l [self object]
     }; export V/
@@ -1703,7 +1703,7 @@ oo::class create math::exact::Expression {
 	return [math::exact::function::exp \
 		    [my * [math::exact::function::log $l]]]
     }; export V**
-    
+
     # sqrt --
     #
     #	Create an expression representing the square root of an exact
@@ -1721,7 +1721,7 @@ oo::class create math::exact::Expression {
 	variable ::math::exact::idzer
 	variable ::math::exact::idneg
 	variable ::math::exact::idpos
-	
+
 	# The algorithm is a modified Newton-Raphson from the Potts and
 	# Menissier-Morain papers. The algorithm for sqrt(x) converges
 	# rapidly only if x is close to 1, so we rescale to make sure that
@@ -1736,7 +1736,7 @@ oo::class create math::exact::Expression {
 	#   sqrt(x/4) and multiply by 2.
 	# - if none of the above hold, we have insufficient information about
 	#   the magnitude of x and perform a digit exchange.
-	
+
 	my ref
 	if {[my refinesM $isneg]} {
 	    # Negative argument is an error
@@ -1795,8 +1795,8 @@ oo::class create math::exact::V {
     destructor {
 	next
     }
-    
-    # If a rational is acceptable, getLeadingDigitAndRest may simply return 
+
+    # If a rational is acceptable, getLeadingDigitAndRest may simply return
     # this object.
     method getLeadingDigitAndRest {needDigit} {
 	if {$needDigit} {
@@ -1818,7 +1818,7 @@ oo::class create math::exact::V {
 	return [math::exact::vrefines [math::exact::mdotv $m $v_]]
     }
 
-    # Apply a matrix to the vector. 
+    # Apply a matrix to the vector.
     # Precondition: v is in lowest terms
 
     method applyM {m} {
@@ -1926,7 +1926,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method + {r} {
 	return [$r V+ [self object]]
     }; export +
@@ -1943,7 +1943,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E+ {l} {
 	tailcall math::exact::+real $l [self object]
     }; export E+
@@ -1987,7 +1987,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method - {r} {
 	return [$r V- [self object]]
     }; export -
@@ -2004,7 +2004,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E- {l} {
 	tailcall math::exact::-real $l [self object]
     }; export E-
@@ -2048,7 +2048,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method * {r} {
 	return [$r V* [self object]]
     }; export *
@@ -2065,7 +2065,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E* {l} {
 	tailcall math::exact::*real $l [self object]
     }; export E*
@@ -2109,11 +2109,11 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to r.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method / {r} {
 	return [$r V/ [self object]]
     }; export /
- 
+
    # E/ --
     #	Divides an exact real and a rational
     #
@@ -2128,7 +2128,7 @@ oo::class create math::exact::V {
     # This method is a Consumer with respect to the current object and to l.
     # It is a Constructor with respect to its result, returning a zero-ref
     # object.
-    
+
     method E/ {l} {
 	tailcall math::exact::/real $l [self object]
     }; export E/
@@ -2195,7 +2195,7 @@ oo::class create math::exact::V {
 	my ref
 	lassign $v_ c d
 	my unref
- 
+
 	# Normalize the sign of the exponent
 	if {$d < 0} {
 	    set c [expr {-$c}]
@@ -2217,7 +2217,7 @@ oo::class create math::exact::V {
 	# Other rational powers come here.
 	# We know that $d > 0, and we're not just doing
 	# exponentiation by an integer
-	    
+
 	return [math::exact::real**rat $l $c $d]
     }; export E**
 
@@ -2307,7 +2307,7 @@ oo::class create math::exact::V {
 
 	return [math::exact::rat**rat $a $b $c $d]
     }; export V**
-    
+
     # sqrt --
     #
     #	Calculates the square root of this object
@@ -2327,7 +2327,7 @@ oo::class create math::exact::V {
 	my unref
 	return $result
     }
-    
+
 }
 
 # math::exact::M --
@@ -2420,7 +2420,7 @@ oo::class create math::exact::M {
 #	Expression representing the product of a matrix and another
 #	expression.
 #
-# In this version of the class, the expression is known in advance - 
+# In this version of the class, the expression is known in advance -
 # evaluated strictly.
 
 oo::class create math::exact::Mstrict {
@@ -2434,7 +2434,7 @@ oo::class create math::exact::Mstrict {
     # Constructor accepts the matrix and the expression to which
     # it applies.
     constructor {m e} {
-	next $m 
+	next $m
 	set e_ [$e ref]
     }
 
@@ -2535,7 +2535,7 @@ oo::class create math::exact::T {
     #	Absorbs information from the subexpressions.
     #
     # Results:
-    #	Returns a copy of the current object, with information from 
+    #	Returns a copy of the current object, with information from
     #   at least one subexpression absorbed so that more information is
     #	immediately available.
 
@@ -2604,7 +2604,7 @@ oo::class create math::exact::T {
 	} else {
 	    set u [math::exact::tscale [math::exact::tleftm $t $ld]]
 	    return [math::exact::Tstrict new $u 1 $rest $r]
-	} 
+	}
     }
 
     # Derived classes are expected to implement the following:
@@ -2621,7 +2621,7 @@ oo::class create math::exact::T {
     method r {} {
 	error "[info object class [self object]] does not implement the 'r' method"
     }
-    
+
 }
 
 # math::exact::Tstrict --
@@ -3216,14 +3216,14 @@ proc ::math::exact::function::atan {x} {
     # arctan(p/q + eps) = arctan(p/q) + arctan(q**2*eps/(p*q*eps+p**q+q**2))
     # using [$eps applyM] to compute the argument of the second arctan
 
-    variable ::math::exact::szer 
-    variable ::math::exact::spos 
-    variable ::math::exact::sinf 
+    variable ::math::exact::szer
+    variable ::math::exact::spos
+    variable ::math::exact::sinf
     variable ::math::exact::sneg
     variable ::math::exact::pi
 
     # Four cases, depending on which octant the arctangent lies in.
-    
+
     $x ref
     lassign [$x getSignAndMagnitude] signum mag
     $mag ref
@@ -3445,7 +3445,7 @@ oo::class create math::exact::EWorker {
     }
 
     # Formats this object for debugging
-    
+
     method dump {} {
 	return M($m_,EWorker($n_))
     }
@@ -3585,7 +3585,7 @@ oo::class create math::exact::Sqrtrat {
 
     # dump --
     #	Formats this object for debugging.
-    
+
     method dump {} {
 	return "M($m_,Sqrtrat($a_,$b_,$c_))"
     }
@@ -3670,7 +3670,7 @@ oo::class create math::exact::PowWorker {
     #
     # Results:
     #	Returns the power, as an exact real.
-    
+
     self method start {p q y m n} {
 	set pm [expr {$p ** $m}]
 	set pnmm [expr {$p ** ($n-$m)}]
@@ -3695,7 +3695,7 @@ oo::class create math::exact::PowWorker {
 		 [list \
 		      [list [expr {4 * $n * $pn}] 0] \
 		      [list [expr {2 * $n * $pm * $qnmm}] 0]]]
-    
+
 	set tinit \
 	    [list \
 		 [list \
@@ -3757,7 +3757,7 @@ oo::class create math::exact::PowWorker {
 	append res ")"
 	return $res
     }
-    
+
 }
 
 # math::exact::real**int --
@@ -3782,7 +3782,7 @@ proc ::math::exact::real**int {b e} {
 	set e [expr {-$e}]
 	set b [K [[$b ref] applyM {{0 1} {1 0}}] [$b unref]]
     }
-    
+
     # Reduce using square-and-add
     $b ref
     set result [V new {1 1}]
@@ -3847,7 +3847,7 @@ proc ::math::exact::real**rat {b m n} {
 	    return $result
 	}
     }
-	    
+
     # Handle b(-m/n) by taking (1/b)(m/n)
     if {$m < 0} {
 	set m [expr {-$m}]
@@ -3891,7 +3891,7 @@ proc ::math::exact::real**rat {b m n} {
 	if {$t1 < $t2 && $t2 < $t3} break
     }
     $y unref
-    
+
     # Get the residual
 
     lassign [math::exact::vscale [list $r $s]] p q
@@ -3900,7 +3900,7 @@ proc ::math::exact::real**rat {b m n} {
 
     # Launch a worker process to perform quasi-Newton iteration to refine
     # the result
-    
+
     set retval [$result * [math::exact::PowWorker start $p $q $y $m $n]]
     return $retval
 }

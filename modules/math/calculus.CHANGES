@@ -11,7 +11,7 @@ Version 0.2: november 2001
    Extended with Euler and Heun methods, 2D and 3D simple integration
 
 Version 0.3: march 2002
-   Implemented Runge-Kutta, converted documentation to doctools' 
+   Implemented Runge-Kutta, converted documentation to doctools'
    man format
 
 Version 0.4: march 2002

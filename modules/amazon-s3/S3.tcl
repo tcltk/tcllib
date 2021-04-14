@@ -1,5 +1,5 @@
 # S3.tcl
-# 
+#
 ###Abstract
 # This presents an interface to Amazon's S3 service.
 # The Amazon S3 service allows for reliable storage
@@ -11,12 +11,12 @@
 # NO WARRANTIES OF ANY TYPE ARE PROVIDED.
 # COPYING OR USE INDEMNIFIES THE AUTHOR IN ALL WAYS.
 #
-# This software is licensed under essentially the same 
+# This software is licensed under essentially the same
 # terms as Tcl. See LICENSE.txt for the terms.
 #
 ###Revision String
 # SCCS: %Z% %M% %I% %E% %U%
-# 
+#
 ###Change history:
 # 0.7.2 - added -default-bucket.
 # 0.8.0 - fixed bug in getLocal using wrong prefix.
@@ -26,7 +26,7 @@
 
 package require Tcl 8.5
 
-# This is by Darren New too. 
+# This is by Darren New too.
 # It is a SAX package to format XML for easy retrieval.
 # It should be in the same distribution as S3.
 package require xsxp
@@ -40,7 +40,7 @@ package require base64
 
 package provide S3 1.0.3
 
-namespace eval S3 { 
+namespace eval S3 {
     variable config          ; # A dict holding the current configuration.
     variable config_orig     ; # Holds configuration to "reset" back to.
     variable debug 0         ; # Turns on or off S3::debug
@@ -85,12 +85,12 @@ proc S3::debug {args} {
 	set str [lindex $args 1]
 	foreach ch [split $str {}] {
 	    scan $ch %c val
-	    append res [format %02x $val] 
+	    append res [format %02x $val]
 	    append res " "
 	}
 	debuglogline $res
 	return
-    } 
+    }
     if {"-dict" == [lindex $args 0]} {
 	set dict [lindex $args 1]
 	debuglogline "DEBUG dict:"
@@ -109,13 +109,13 @@ proc S3::debug {args} {
 # Internal. Throws an error if keys have not been initialized.
 proc S3::checkinit {} {
     variable config
-    set error "S3 must be initialized with -accesskeyid and -secretaccesskey before use" 
+    set error "S3 must be initialized with -accesskeyid and -secretaccesskey before use"
     set e1 {S3 usage -accesskeyid "S3 identification not initialized"}
     set e2 {S3 usage -secretaccesskey "S3 identification not initialized"}
     if {[dict get $config -accesskeyid] eq ""} {
 	error $error "" $e1
     }
-    if {[dict get $config -secretaccesskey] eq ""} { 
+    if {[dict get $config -secretaccesskey] eq ""} {
 	error $error "" $e2
     }
 }
@@ -263,7 +263,7 @@ proc S3::authREST {verb resource content-type headers args} {
     if {0 != [string length $xamz]} {append xamz \n}
     set signthis \
         "$verb\n${content-md5}\n${content-type}\n$date\n$xamz$resource"
-    S3::debug "Sign this:" $signthis ; S3::debug -hex $signthis 
+    S3::debug "Sign this:" $signthis ; S3::debug -hex $signthis
     set sig [::sha1::hmac [S3::Configure -secretaccesskey] $signthis]
     set sig [binary format H* $sig]
     set sig [string trim [::base64::encode $sig]]
@@ -340,7 +340,7 @@ proc S3::REST {orig} {
     variable config
     checkinit
     set EndPoint [dict get $config -service-access-point]
-    
+
     # Save the original stuff first.
     set thunk [dict create orig $orig]
 
@@ -425,7 +425,7 @@ proc S3::REST {orig} {
 # really small socket buffers, but Amazon doesn't want
 # data that big anyway.
 proc S3::send_headers {thunk} {
-    S3::debug "Send-headers" $thunk 
+    S3::debug "Send-headers" $thunk
     set s3 [dict get $thunk S3chan]
     puts $s3 "[dict get $thunk verb] [dict get $thunk url] HTTP/1.0"
     S3::debug ">> [dict get $thunk verb] [dict get $thunk url] HTTP/1.0"
@@ -483,7 +483,7 @@ proc S3::send_body {thunk} {
     }
 }
 
-# Internal. The first line has come back. Grab out the 
+# Internal. The first line has come back. Grab out the
 # stuff we care about.
 proc S3::parse_status {thunk line} {
     # Got the status line
@@ -497,7 +497,7 @@ proc S3::parse_status {thunk line} {
 }
 
 # A line of header information has come back. Grab it.
-# This probably is unhappy with multiple lines for one 
+# This probably is unhappy with multiple lines for one
 # header.
 proc S3::parse_header {thunk line} {
     # Got a header line. For now, assume no continuations.
@@ -519,7 +519,7 @@ proc S3::parse_header {thunk line} {
 proc S3::read_headers {thunk} {
     set s3 [dict get $thunk S3chan]
     flush $s3
-    fconfigure $s3 -blocking [dict get $thunk blocking] 
+    fconfigure $s3 -blocking [dict get $thunk blocking]
     if {[dict get $thunk blocking]} {
 	# Blocking. Just read to a blank line. Otherwise,
 	# if we use nextdo here, we wind up nesting horribly.
@@ -588,7 +588,7 @@ proc S3::read_body {thunk} {
 	}
 	return [S3::nextdo all_done $thunk readable]
     } else {
-	# Nonblocking mode. 
+	# Nonblocking mode.
 	if {[dict exists $thunk orig outchan]} {
 	    fileevent $s3 readable {}
 	    fileevent $s3 writable {}
@@ -759,7 +759,7 @@ proc S3::ListAllMyBuckets {args} {
 	    return $dict ; #we're done!
 	}
 	S3::throwhttp $dict ; #make sure it worked.
-	set xml [dict get $dict outbody] 
+	set xml [dict get $dict outbody]
     } else {
 	set xml [dict get $myargs -parse-xml]
     }
@@ -846,7 +846,7 @@ proc S3::firstif {list myargs} {
 proc S3::GetBucket {args} {
     checkinit
     set myargs [S3::parseargs1 $args {
-	-bucket -blocking -parse-xml -max-keys 
+	-bucket -blocking -parse-xml -max-keys
 	-result-type -prefix -delimiter
 	-TEST
     }]
@@ -940,7 +940,7 @@ proc S3::GetBucket {args} {
 	}
 	unset RESTL ; # just to save memory
     } else {
-	# Well, we've parsed out the XML from the REST, 
+	# Well, we've parsed out the XML from the REST,
 	# so we're ready for -parse-xml
 	set xmlL [list [dict get $myargs -parse-xml]]
     }
@@ -1040,7 +1040,7 @@ proc S3::compare {myargs direction} {
     } else {
 	error "S3: Neither 404 or 2xx on conditional compare" "" \
 	    [list S3 remote $httpstatus $res]
-    } 
+    }
     if {$direction eq "P"} {
 	if {"exists" eq $compare} {return $remote_exists}
 	if {"missing" eq $compare} {return [expr {!$remote_exists}]}
@@ -1201,7 +1201,7 @@ proc S3::Put {args} {
     set comp [S3::compare $myargs P]
     if {!$comp} {return 0} ;  # skip it, then.
 
-    # Oookeydookey. At this point, we're actually going to send 
+    # Oookeydookey. At this point, we're actually going to send
     # the file, so all we need to do is build the request array.
     set req [dict create verb PUT \
 	resource /[dict get $myargs -bucket]/[dict get $myargs -resource]]
@@ -1220,7 +1220,7 @@ proc S3::Put {args} {
     set xmlacl "" ; # For calc and keep
     if {[dict exists $myargs -acl]} {
 	if {[dict get $myargs -acl] eq "calc"} {
-	    # We could make this more complicated by 
+	    # We could make this more complicated by
 	    # assigning it to xmlacl after building it.
 	    dict set myargs -acl [S3::calcacl $myargs]
 	} elseif {[dict get $myargs -acl] eq "keep"} {
@@ -1291,13 +1291,13 @@ proc S3::Get {args} {
     }
     if {!$comp} {return 0} ;  # skip it, then.
 
-    # Oookeydookey. At this point, we're actually going to fetch 
+    # Oookeydookey. At this point, we're actually going to fetch
     # the file, so all we need to do is build the request array.
     set req [dict create verb GET \
 	resource /[dict get $myargs -bucket]/[dict get $myargs -resource]]
     if {[dict exists $myargs -file]} {
 	set pre_exists [file exists [dict get $myargs -file]]
-	if {[catch { 
+	if {[catch {
 	    set x [open [dict get $myargs -file] w]
 	    fconfigure $x -translation binary -encoding binary
 	} caught]} {
@@ -1416,7 +1416,7 @@ proc S3::GetAcl {args} {
 	    return $dict ; #we're done!
 	}
 	S3::throwhttp $dict ; #make sure it worked.
-	set xml [dict get $dict outbody] 
+	set xml [dict get $dict outbody]
     } else {
 	set xml [dict get $myargs -parse-xml]
     }
@@ -1516,14 +1516,14 @@ proc S3::PutAcl {args} {
 	    rtype acl]
 	set dict [S3::maybebackground $req $myargs]
 	S3::throwhttp $dict ; #make sure it worked.
-	set xml [dict get $dict outbody] 
+	set xml [dict get $dict outbody]
 	set pxml [xsxp::parse $xml]
 	set owner [xsxp::fetch $pxml Owner/ID %PCDATA]
     }
     if {[dict exists $myargs -owner]} {
 	set owner [dict get $myargs -owner]
     }
-    set xml [enowner $owner] 
+    set xml [enowner $owner]
     if {"" == $acl || "private" == $acl} {
 	append xml [engrant $owner FULL_CONTROL]
 	append xml [endacl]
@@ -1674,7 +1674,7 @@ proc S3::Push {args} {
     global errorCode errorInfo
     checkinit
     set myargs [S3::parseargs1 $args {
-	-bucket -blocking -prefix -directory 
+	-bucket -blocking -prefix -directory
 	-compare -x-amz-meta-* -acl -delete -error -progress
     }]
     if {![dict exists $myargs -bucket]} {
@@ -1785,7 +1785,7 @@ proc S3::Pull {args} {
     global errorCode errorInfo
     checkinit
     set myargs [S3::parseargs1 $args {
-	-bucket -blocking -prefix -directory 
+	-bucket -blocking -prefix -directory
 	-compare -timestamp -delete -error -progress
     }]
     if {![dict exists $myargs -bucket]} {
@@ -1869,7 +1869,7 @@ proc S3::Pull {args} {
 	    # Note, decreasing because we delete empty dirs
 	    if {[string match "*/" $suffix]} {
 		set f [file join $directory $suffix]
-		catch {file delete -- $f} 
+		catch {file delete -- $f}
 		if {![file exists $f]} {
 		    uplevel 1 [list {*}$progress delete $suffix {}]
 		    dict set result $suffix deleted
@@ -1903,7 +1903,7 @@ proc S3::Toss {args} {
     global errorCode errorInfo
     checkinit
     set myargs [S3::parseargs1 $args {
-	-bucket -blocking -prefix 
+	-bucket -blocking -prefix
 	-error -progress
     }]
     if {![dict exists $myargs -bucket]} {
