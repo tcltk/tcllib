@@ -1328,29 +1328,33 @@ proc ::pki::x509::parse_cert {cert} {
 
 # Verify whether a cert is valid, regardless of trust
 proc ::pki::x509::validate_cert {cert args} {
+	set {ignore time} 0
 	# Verify arguments and load options
 	for {set idx 0} {$idx < [llength $args]} {incr idx} {
 		set arg [lindex $args $idx]
 
 		switch -- $arg {
-			"-sign_message" {
+			-ignoretime {
+				set {ignore time} true
+			}
+			-sign_message {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
 
 				set opts(sign_message) $cn
 			}
-			"-encrypt_message" {
+			-encrypt_message {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
 
 				set opts(encrypt_message) $cn
 			}
-			"-sign_cert" {
+			-sign_cert {
 				incr idx
 				set dn [lindex $args $idx]
-				if {$dn == "ALL" || $dn == "ANY"} {
+				if {$dn eq {ALL} || $dn eq {ANY}} {
 					set cn $dn
 				} else {
 					set cn [_dn_to_cn $dn]
@@ -1361,7 +1365,7 @@ proc ::pki::x509::validate_cert {cert args} {
 
 				set opts(sign_cert) [list $cn $currdepth]
 			}
-			"-ssl" {
+			-ssl {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
@@ -1369,7 +1373,10 @@ proc ::pki::x509::validate_cert {cert args} {
 				set opts(ssl) $cn
 			}
 			default {
-				return -code error {wrong # args: should be "validate_cert cert ?-sign_message dn_of_signer? ?-encrypt_message dn_of_signer? ?-sign_cert [dn_to_be_signed | ANY | ALL] ca_depth? ?-ssl dn?"}
+				return -code error {wrong # args: should be \
+					"validate_cert cert ?-sign_message dn_of_signer?\
+						?-encrypt_message dn_of_signer? ?-sign_cert\
+						[dn_to_be_signed | ANY | ALL] ca_depth? ?-ssl dn?"}
 			}
 		}
 	}
@@ -1378,14 +1385,19 @@ proc ::pki::x509::validate_cert {cert args} {
 	array set cert_arr $cert
 
 	# Validate certificate
-	## Validate times
-	if {![info exists cert_arr(notBefore)] || ![info exists cert_arr(notAfter)]} {
-		return false
-	}
 
-	set currtime [clock seconds]
-	if {$currtime < $cert_arr(notBefore) || $currtime > $cert_arr(notAfter)} {
-		return false
+	if {!${ignore time}} {
+		## Validate times
+		if {![info exists cert_arr(notBefore)]
+			|| ![info exists cert_arr(notAfter)]
+		} {
+			return false
+		}
+
+		set currtime [clock seconds]
+		if {$currtime < $cert_arr(notBefore) || $currtime > $cert_arr(notAfter)} {
+			return false
+		}
 	}
 
 	# Check for extensions and process them
@@ -1396,7 +1408,7 @@ proc ::pki::x509::validate_cert {cert args} {
 		set critical [lindex $ext_val 0]
 
 		switch -- $ext_id {
-			"id-ce-basicConstraints" {
+			id-ce-basicConstraints {
 				set CA [lindex $ext_val 1]
 				set CAdepth [lindex $ext_val 2]
 			}
@@ -1425,9 +1437,29 @@ proc ::pki::x509::validate_cert {cert args} {
 	return true
 }
 
-proc ::pki::x509::verify_cert {cert trustedcerts {intermediatecerts ""}} {
+proc ::pki::x509::verify_cert {cert trustedcerts args} {
+	if {[llength $args] % 2 == 1} {
+		set args [lassign $args[set args {}] intermediatecerts]
+	} else {
+		set intermediatecerts {}
+	}
+
+	set {validate args} {}
+
+	foreach {key val} $args[set args {}] {
+		switch $key {
+			{validate args} {
+				set {validate args} $val
+			}
+			default {
+				return -code error [list {unknown agument} $key]
+			}
+			
+		}
+	}
+
 	# Validate cert
-	if {![validate_cert $cert]} {
+	if {![eval validate_cert [list $cert] ${validate args}]} {
 		return false;
 	}
 
@@ -1490,7 +1522,7 @@ proc ::pki::x509::verify_cert {cert trustedcerts {intermediatecerts ""}} {
 }
 
 # Generate a PKCS#10 Certificate Signing Request
-proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo "sha1"}} {
+proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo sha1}} {
 	array set key $keylist
 
 	set name [::pki::x509::_list_to_dn $namelist]
@@ -1498,7 +1530,7 @@ proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo "sha1"}} {
 	set type $key(type)
 
 	switch -- $type {
-		"rsa" {
+		rsa {
 			set pubkey [::asn::asnSequence \
 				[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
 				[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
@@ -1998,7 +2030,7 @@ proc ::pki::rsa::_generate_private {p q e bitlength} {
 	}
 
 	# puts "bd=[_bits $dchk], di = $di"
-	for {} {1} {incr di $e} {
+	for {} 1 {incr di $e} {
 		set dchk [expr {($totient * $di + 1) / $e}]
 		set chkval [expr {$dchk * $e - 1}]
 
