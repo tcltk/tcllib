@@ -93,9 +93,9 @@ test rsa-generate-cert-1.0 {cert} -setup {
     array set ca_arr [::pki::x509::parse_cert $cacert]
     set ca [array get ca_arr]
 
-    set csr [::pki::pkcs::parse_csr \
-                 [::pki::pkcs::create_csr $privkey \
-                      [list C US ST Florida L Tampa O Tcllib OU RSA CN TestCert]]]
+    set csr [::pki::pkcs::parse_csr [
+		::pki::pkcs::create_csr $privkey [
+			list C US ST Florida L Tampa O Tcllib OU RSA CN TestCert]]]
 } -body {
     ::pki::x509::create_cert $csr $ca 20100809075203 1281340325 1596959525 0 "" 1
 } -cleanup {
@@ -114,9 +114,9 @@ test rsa-generate-cacert-1.0 {cert} -setup {
     array set ca_arr [::pki::x509::parse_cert $cacert]
     set ca [array get ca_arr]
 
-    set csr [::pki::pkcs::parse_csr \
-                 [::pki::pkcs::create_csr $privkey \
-                      [list C US ST Florida L Tampa O Tcllib OU RSA CN TestCert]]]
+    set csr [::pki::pkcs::parse_csr [
+		::pki::pkcs::create_csr $privkey [
+			list C US ST Florida L Tampa O Tcllib OU RSA CN TestCert]]]
 } -body {
     ::pki::x509::create_cert $csr $ca 20100809075203 1281340325 1596959525 1 "" 1
 } -cleanup {
@@ -129,10 +129,10 @@ test rsa-verify-certv1-1.0 {verify_cert} -setup {
     set pubcert [::pki::x509::parse_cert $pubcert]
     set cacert [::pki::x509::parse_cert $cacert]
 } -body {
-    ::pki::x509::verify_cert $pubcert [list $cacert]
+    ::pki::x509::verify_cert $pubcert [list $cacert] {validate args} -ignoretime 
 } -cleanup {
     unset pubcert cacert
-} -result {true}
+} -result true
 
 test rsa-verify-certv3-1.0 {verify_cert} -setup {
     set pubcert [asset-get test-v3.crt]
@@ -140,10 +140,10 @@ test rsa-verify-certv3-1.0 {verify_cert} -setup {
     set pubcert [::pki::x509::parse_cert $pubcert]
     set cacert [::pki::x509::parse_cert $cacert]
 } -body {
-    ::pki::x509::verify_cert $pubcert [list $cacert]
+    ::pki::x509::verify_cert $pubcert [list $cacert] {validate args} -ignoretime
 } -cleanup {
     unset pubcert cacert
-} -result {true}
+} -result true
 
 test rsa-verify-badcertv1-1.0 {verify_cert} -setup {
     set pubcert [asset-get test-v1.crt]
