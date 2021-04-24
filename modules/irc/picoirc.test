@@ -101,6 +101,22 @@ test picoirc-1.11 {address with channel and port} -body {
     ::picoirc::splituri #go-nuts@chat.freenode.net:765
 } -result [list chat.freenode.net 765 #go-nuts 0]
 
+test picoirc-1.12 {irc:// schema with multiple channels} -body {
+    ::picoirc::splituri irc://chat.freenode.net/#tcl,#go-nuts,#twtxt
+} -result [list chat.freenode.net 6667 {{#tcl} #go-nuts #twtxt} 0]
+
+test picoirc-1.13 {irc:// schema with channel and special params} -body {
+    ::picoirc::splituri irc://chat.freenode.net/#tcl,needkey,needpass
+} -result [list chat.freenode.net 6667 #tcl 0]
+
+test picoirc-1.14 {address with multiple channels} -body {
+    ::picoirc::splituri #tcl,#go-nuts,#twtxt@chat.freenode.net
+} -result [list chat.freenode.net 6667 {{#tcl} #go-nuts #twtxt} 0]
+
+test picoirc-1.15 {address with channel and special params} -body {
+    ::picoirc::splituri #tcl,needkey,needpass@chat.freenode.net
+} -result [list chat.freenode.net 6667 #tcl 0]
+
 test picoirc-2.0 {channel message} -body {
     contextReset ":tcler!~anon@127.0.0.1 PRIVMSG #tcl :hello #tcl"
     callbackResult

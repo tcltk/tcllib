@@ -26,7 +26,7 @@ namespace eval ::picoirc {
         server   "irc.freenode.net"
         port     6667
         secure   0
-        channel  ""
+        channels ""
         callback ""
         motd     {}
         users    {}
@@ -35,13 +35,24 @@ namespace eval ::picoirc {
 }
 
 proc ::picoirc::splituri {uri} {
-    lassign {{} {} {} {}} secure server port channel
-    if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> secure server port channel]} {
-        regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channel server port
+    lassign {{} {} {} {}} secure server port channels
+    if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^ ]+))?} $uri -> secure server port channels]} {
+        regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channels server port
     }
     set secure [expr {$secure eq "s"}]
+
+    set channels [lmap x [split $channels ,] {
+        # Filter out parameters that are special according to the IRC URL
+        # scheme Internet-Draft.
+        if {$x in {needkey needpass}} continue
+        set x
+    }]
+    if {[llength $channels] == 1} {
+        set channels [lindex $channels 0]
+    }
+
     if {$port eq {}} { set port [expr {$secure ? 6697: 6667}] }
-    return [list $server $port $channel $secure]
+    return [list $server $port $channels $secure]
 }
 
 proc ::picoirc::connect {callback nick args} {
@@ -57,12 +68,12 @@ proc ::picoirc::connect {callback nick args} {
     set context [namespace current]::irc[incr uid]
     upvar #0 $context irc
     array set irc $defaults
-    lassign [splituri $url] server port channel secure
-    if {[info exists channel] && $channel ne ""} {set irc(channel) $channel}
-    if {[info exists server]  && $server  ne ""} {set irc(server)  $server}
-    if {[info exists port]    && $port    ne ""} {set irc(port)    $port}
-    if {[info exists secure]  && $secure}        {set irc(secure)  $secure}
-    if {[info exists passwd]  && $passwd  ne ""} {set irc(passwd)  $passwd}
+    lassign [splituri $url] server port channels secure
+    if {[info exists channels] && $channels ne ""} {set irc(channels) $channels}
+    if {[info exists server]   && $server   ne ""} {set irc(server)   $server}
+    if {[info exists port]     && $port     ne ""} {set irc(port)     $port}
+    if {[info exists secure]   && $secure}         {set irc(secure)   $secure}
+    if {[info exists passwd]   && $passwd   ne ""} {set irc(passwd)   $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
     Callback $context init
@@ -114,8 +125,8 @@ proc ::picoirc::Write {context} {
     set ver [join [lrange [split [Version $context] :] 0 1] " "]
     send $context "NICK $irc(nick)"
     send $context "USER $::tcl_platform(user) 0 * :$ver user"
-    if {$irc(channel) ne {}} {
-        after idle [list [namespace origin send] $context "JOIN $irc(channel)"]
+    foreach channel $irc(channels) {
+        after idle [list [namespace origin send] $context "JOIN $channel"]
     }
     return
 }
@@ -310,7 +321,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.9.2
+package provide picoirc 0.10.0
 
 # -------------------------------------------------------------------------
 return
