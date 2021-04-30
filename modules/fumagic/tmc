@@ -15,13 +15,13 @@ exec tclsh "$0" ${1+"$@"}
 # Command syntax
 # --------------
 # 
-# Ad 1)	tmc namespace magic-file ?magic-file...?
+# Ad 1)	tmc magic-file ?magic-file...?
 #
 #	Compile all magic files list of recognizers, generate a script which
-#	assigns the recognizers to $namespace::tests and $namespace::named and
+#	assigns the recognizers to $tests and $named and
 #	write the script to stdout.
 # 
-# Ad 2)	tmc -merge tclfile namespace magic-file ?magic-file...?
+# Ad 2)	tmc -merge tclfile magic-file ?magic-file...?
 #
 #	Same as (1), but does not write to stdout. Instead the part of
 #	the 'tclfile' delineated by marker lines containing "BEGIN
@@ -30,7 +30,7 @@ exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.5
 set auto_path [linsert $auto_path 0 [file dirname [file normalize [info script]]]] ; # This directory
-set auto_path [linsert $auto_path 0 [file dirname [lindex $auto_path end]]]]        ; # and the one above
+set auto_path [linsert $auto_path 0 [file dirname [lindex $auto_path end]]]        ; # and the one above
 #puts *\t[join $auto_path \n*\t]
 package require fileutil::magic::cfront
 
@@ -77,11 +77,9 @@ proc ::tmc::processCmdline {} {
 
     variable output
     variable magic
-    variable namespace
 
     set output ""
     set magic  {}
-    set namespace ""
 
     # Process the options, perform basic validation.
 
@@ -100,16 +98,12 @@ proc ::tmc::processCmdline {} {
     # Additional validation, and extraction of the non-option
     # arguments.
 
-    if {[llength $argv] < 2} Usage
+    if {[llength $argv] < 1} Usage
 
-    set namespace  [lindex $argv 0]
     set magic [lrange $argv 1 end]
 
     # Final validation across the whole configuration.
 
-    if {$namespace eq ""} {
-	ArgError "Illegal empty namespace name"
-    }
     foreach m $magic {
 	CheckInput $m {Magic file}
     }
@@ -132,7 +126,7 @@ proc ::tmc::processCmdline {} {
 proc ::tmc::Usage {} {
     global argv0
     puts stderr "$argv0 wrong#args, expected:\
-	    ?-merge iofile? namespace magic magic..."
+	    ?-merge iofile? magic magic..."
     exit 1
 }
 
@@ -185,8 +179,13 @@ proc ::tmc::Get {f} {
 }
 
 proc ::tmc::Write {f data} {
-    puts -nonewline [set out [open $f w]] $data
+    while 1 {
+	set tmp $f.tmc_[incr i]
+	if {![file exists $tmp]} break 
+    }
+    puts -nonewline [set out [open $tmp w]] $data
     close $out
+    file rename -force $tmp $f
     return
 }
 
@@ -227,15 +226,13 @@ proc ::tmc::Merge {f script} {
 
 if {[catch {
     # Read and process all input files.
-    # Generate commands into a namespace.
     # Write the result either to stdout, or merge
     # into the specified output file.
 
     set tcl [eval [linsert $tmc::magic 0 \
-	    fileutil::magic::cfront::generate \
-	    $tmc::namespace]]
+	    fileutil::magic::cfront::generate compressed 0 --]]
 
-    if {$tmc::output eq ""} {
+    if {$tmc::output eq {}} {
 	puts stdout $tcl
     } else {
 	::tmc::Merge $tmc::output \n${tcl}\n
