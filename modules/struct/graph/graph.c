@@ -163,7 +163,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
 	    ASSERT_BOUNDS(j, lc-1);
 	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) j);
+	    Tcl_SetHashValue (he, (ClientData) (long int) j);
 	    j += 3;
 	}
 	lc = j + 1;
@@ -180,7 +180,7 @@ g_ms_serialize (Tcl_Interp* interp, Tcl_Obj* go, G* g, int oc, Tcl_Obj* const* o
 	    ASSERT_BOUNDS(j, lc-1);
 	    he = Tcl_CreateHashEntry (&cn, (char*) n, &new);
 	    lv [j] = n->base.name;
-	    Tcl_SetHashValue (he, (ClientData) j);
+	    Tcl_SetHashValue (he, (ClientData) (long int) j);
 	    j += 3;
 	}
 	lc = j + 1;

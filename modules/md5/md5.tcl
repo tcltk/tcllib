@@ -355,7 +355,8 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 	regsub -all -- {\[ *<<< +\[ *expr +({[^\}]*})\] +([0-9]+) *\]} $md5body {(([set x [expr \1]] << \2) |  (($x >> R\2) \& S\2))} md5body
 
 	# now replace the R and S
-	set map {}
+	variable map {}
+	variable i
 	foreach i { 
 	    7 12 17 22
 	    5  9 14 20
@@ -366,6 +367,8 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 	}
 	
 	# inline the values of T
+	variable tVal
+	variable tName
 	foreach \
 		tName {
 	    T01 T02 T03 T04 T05 T06 T07 T08 T09 T10 
@@ -405,7 +408,7 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
 	proc md5 {msg} $md5body
 
 	# unset auxiliary variables
-	unset md5body tName tVal map
+	unset md5body tName tVal map i
     }
 
     proc ::md5::byte0 {i} {expr {0xff & $i}}
@@ -451,4 +454,4 @@ if {![catch {package require Trf 2.0}] && ![catch {::md5 -- test}]} {
     }
 }
 
-package provide md5 1.4.4
+package provide md5 1.4.5

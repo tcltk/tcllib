@@ -8,8 +8,6 @@
 # Copyright (c) 2006 Michael Schlenker <mic42@users.sourceforge.net>
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: html.test,v 1.23 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,6 +17,10 @@ source [file join \
 
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
+
+support {
+    use      ncgi/ncgi.tcl      ncgi
+}
 
 support {
     use           md5/md5x.tcl   md5
@@ -69,6 +71,9 @@ test html-2.3 {html::head} -body {
     html::keywords key word
     html::author "Cathy Coder"
     html::meta metakey metavalue
+    html::meta_name other value
+    html::meta_charset utf-8
+    html::meta_equiv refresh 30
     html::head "The Title"
 } -result {<html><head>
 	<title>The Title</title>
@@ -76,6 +81,9 @@ test html-2.3 {html::head} -body {
 	<meta name="description" content="The Description">
 	<meta name="keywords" content="key, word">
 	<meta name="metakey" content="metavalue">
+	<meta name="other" content="value">
+	<meta charset="utf-8">
+	<meta http-equiv="refresh" content="30">
 </head>
 }
 
@@ -470,23 +478,27 @@ test html-23.3 {html::textarea, dangerous input} {
 } {<textarea name="info" cols="50" rows="8">&lt;/textarea&gt;&lt;script&gt;alert(1)&lt;/script&gt;</textarea>
 }
 
-
-test html-24.1 {html::submit} {
+test html-24.1 {html::submit, wrong args, not enough} {
     catch {html::submit}
 } {1}
 
-test html-24.2 {html::submit} {
-    catch {html::submit wrong num args}
+test html-24.2 {html::submit, wrong args, too many} {
+    catch {html::submit wrong num args X}
 } {1}
 
-test html-24.3 {html::submit} {
+test html-24.3 {html::submit, label only} {
     html::submit "Push Me"
 } {<input type="submit" name="submit" value="Push Me">
 }
 
-test html-24.4 {html::submit} {
+test html-24.4 {html::submit, label and name} {
     html::submit "Push Me" push
 } {<input type="submit" name="push" value="Push Me">
+}
+
+test html-24.5 {html::submit, label, name, and title} {
+    html::submit "Push Me" push a-title
+} {<input type="submit" name="push" value="Push Me" title="a-title">
 }
 
 test html-25.1 {html::varEmpty} {
@@ -942,22 +954,43 @@ test html-tkt3439702-37.0 {html::js, html::css, mixed} -setup {
 # -------------------------------------------------------------------------
 # TODO: html::css-clear, html::js-clear
 
-
-test html-tktafe4366e2e-38.0 {html::doctype, not enough args} -body {
+test html-tkt-afe4366e2e-38.0 {html::doctype, not enough args} -body {
     html::doctype
 } -returnCodes error -result {wrong # args: should be "html::doctype arg"}
 
-test html-tktafe4366e2e-38.1 {html::doctype, too many args} -body {
+test html-tkt-afe4366e2e-38.1 {html::doctype, too many args} -body {
     html::doctype HTML401T X
 } -returnCodes error -result {wrong # args: should be "html::doctype arg"}
 
-test html-tktafe4366e2e-38.2 {html::doctype, unknown type} -body {
+test html-tkt-afe4366e2e-38.2 {html::doctype, unknown type} -body {
     html::doctype HTML401TXXX
 } -returnCodes error -result {Unknown doctype "HTML401TXXX"}
 
-test html-tktafe4366e2e-38.3 {html::doctype} -body {
+test html-tkt-afe4366e2e-38.3 {html::doctype} -body {
     html::doctype HTML401T
 } -result {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">}
+
+# -------------------------------------------------------------------------
+
+test html-tkt-1076403-39.0 {html::wrapTag, not enough args} -body {
+    html::wrapTag
+} -returnCodes error -result [tcltest::wrongNumArgs html::wrapTag {tag ?text? args} 0]
+
+test html-tkt-1076403-39.1 {html::wrapTag, tag alone} -body {
+    html::wrapTag p
+} -result {<p></p>}
+
+test html-tkt-1076403-39.2 {html::wrapTag, tag and text} -body {
+    html::wrapTag p "test"
+} -result {<p>test</p>}
+
+test html-tkt-1076403-39.3 {html::wrapTag, tag, text, and attribute} -body {
+    html::wrapTag p "test" align left
+} -result {<p align="left">test</p>}
+
+test html-tkt-1076403-39.4 {html::wrapTag, tag, text, and attributes} -body {
+    html::wrapTag pre "test" align left width 20
+} -result {<pre align="left" width="20">test</pre>}
 
 # -------------------------------------------------------------------------
 testsuiteCleanup

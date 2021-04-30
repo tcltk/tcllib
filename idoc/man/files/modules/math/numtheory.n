@@ -2,7 +2,7 @@
 '\" Generated from file 'numtheory\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
-.TH "math::numtheory" n 1\&.1\&.1 tcllib "Tcl Math Library"
+.TH "math::numtheory" n 1\&.1\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::numtheory \- Number Theory
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::numtheory  ?1\&.1\&.1?\fR
+package require \fBmath::numtheory  ?1\&.1\&.3?\fR
 .sp
 \fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp
@@ -311,6 +311,12 @@ package require \fBmath::numtheory  ?1\&.1\&.1?\fR
 \fBmath::numtheory::numberPrimesLegendre\fR \fIN\fR
 .sp
 \fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
+.sp
+\fBmath::numtheory::differenceNumberPrimesLegendreModified\fR \fIlower\fR \fIupper\fR
+.sp
+\fBmath::numtheory::listPrimePairs\fR \fIlower\fR \fIupper\fR \fIstep\fR
+.sp
+\fBmath::numtheory::listPrimeProgressions\fR \fIlower\fR \fIupper\fR \fIstep\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -471,7 +477,7 @@ Estimate the number of primes according the formula by Gauss\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
 .RE
 .TP
 \fBmath::numtheory::numberPrimesLegendre\fR \fIN\fR
@@ -479,7 +485,7 @@ Estimate the number of primes according the formula by Legendre\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
 .RE
 .TP
 \fBmath::numtheory::numberPrimesLegendreModified\fR \fIN\fR
@@ -487,7 +493,46 @@ Estimate the number of primes according the modified formula by Legendre\&.
 .RS
 .TP
 integer \fIN\fR (in)
-Number in question
+Number in question, should be larger than 0
+.RE
+.TP
+\fBmath::numtheory::differenceNumberPrimesLegendreModified\fR \fIlower\fR \fIupper\fR
+Estimate the number of primes between tow limits according the modified formula by Legendre\&.
+.RS
+.TP
+integer \fIlower\fR (in)
+Lower limit for the primes, should be larger than 0
+.TP
+integer \fIupper\fR (in)
+Upper limit for the primes, should be larger than 0
+.RE
+.TP
+\fBmath::numtheory::listPrimePairs\fR \fIlower\fR \fIupper\fR \fIstep\fR
+Return a list of pairs of primes each differing by the given step\&.
+.RS
+.TP
+integer \fIlower\fR (in)
+Lower limit for the primes, should be larger than 0
+.TP
+integer \fIupper\fR (in)
+Upper limit for the primes, should be larger than the lower limit
+.TP
+integer \fIstep\fR (in)
+Step by which the primes should differ, defaults to 2
+.RE
+.TP
+\fBmath::numtheory::listPrimeProgressions\fR \fIlower\fR \fIupper\fR \fIstep\fR
+Return a list of lists of primes each differing by the given step from the previous one\&.
+.RS
+.TP
+integer \fIlower\fR (in)
+Lower limit for the primes, should be larger than 0
+.TP
+integer \fIupper\fR (in)
+Upper limit for the primes, should be larger than the lower limit
+.TP
+integer \fIstep\fR (in)
+Step by which the primes should differ, defaults to 2
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

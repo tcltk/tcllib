@@ -22,7 +22,7 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2013-01-28  Andreas Kupries <andreask@activestate.com>
 
@@ -51,7 +51,7 @@
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-12-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -66,7 +66,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-06-16  Andreas Kupries  <akupries@shaw.ca>
 
@@ -86,7 +86,7 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-11-24  Andreas Kupries  <andreask@activestate.com>
 
@@ -114,7 +114,7 @@
 
 	* fileutil.test: Added fixes to test cleanups, to prevents errors
 	* inplace.test: when the testsuite is only run partially.
-	* test.test: 
+	* test.test:
 
 2009-09-14  Andreas Kupries  <andreask@activestate.com>
 
@@ -148,24 +148,24 @@
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-12-02  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.man: Fixed [Bug 2376321] (fileutil::TempDir, use
 	* fileutil.tcl: of env(TRASHFOLDER) for OSX). Bumped version
-	* pkgIndex.tcl: to 1.13.5. 
+	* pkgIndex.tcl: to 1.13.5.
 
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-10-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* multiop.test: Canonicalized sorting of two test results.
-	* multi.test: 
+	* multi.test:
 
 2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -204,7 +204,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -403,7 +403,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
@@ -432,8 +432,8 @@
 
 	* fileutil.tcl:  Added commands to compute paths relative to some
 	* fileutil.man:  base. Extended testsuite, documentation.
-	* fileutil.test: 
-	* pkgIndex.tcl: 
+	* fileutil.test:
+	* pkgIndex.tcl:
 
 2006-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -460,7 +460,7 @@
 
 2006-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* fileutil.tcl:  Extended the tempdir command to allow the user 
+	* fileutil.tcl:  Extended the tempdir command to allow the user
 	* fileutil.man:  to set a directory to use, exclusively. Updated
 	* fileutil.test: both documentation and testsuite.
 
@@ -532,7 +532,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-09-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -594,7 +594,7 @@
 	* fileutil.test: Added tests for the 'Normalize' forward
 	  compatibility wrapper. Got them from the Tcl testsuite for 'file
 	  normalize'. Added tests for the new 'jail' command.
-	
+
 	* fileutil.tcl: Wrote a forward compatibility implementation of
 	  'file normalize', for use with a Tcl core < 8.4. Updated the
 	  (non)use of 'file normalize' by 'tempdir' and 'tempfile'.
@@ -605,7 +605,7 @@
 
 	* fileutil.test: Extended tests for the case of inacessible
 	  directories.
-	
+
 	* fileutil.tcl (find): Fixed SF [Tcllib Bug 1111153]. This is the
 	  same as [Tcllib SF Bug 862491]. Catching problems now when
 	  cd'ing into the chosen base directory, and ignoring all
@@ -625,7 +625,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -659,11 +659,11 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* fileutil.tcl: Rel. engineering. Updated version number 
+	* fileutil.tcl: Rel. engineering. Updated version number
 	* fileutil.man: of fileutil to reflect its changes, to 1.6.1.
 	* pkgIndex.tcl:
 
@@ -683,7 +683,7 @@
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -835,7 +835,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-05-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
@@ -922,7 +922,7 @@
 2002-03-20  Eric Melski  <ericm@ajubasolutions.com>
 
 	* Bumped version to 1.4
-	
+
 	* fileutil.n:
 	* fileutil.test:
 	* fileutil.tcl: Added fileType command posted to comp.lang.tcl by

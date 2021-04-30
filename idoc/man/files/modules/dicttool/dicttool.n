@@ -276,43 +276,19 @@ dicttool \- Dictionary Tools
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-proc \fBPROC\fR \fIname\fR \fIarglist\fR \fIbody\fR ?\fIninja\fR \fB\fR?
+package require \fBdicttool  ?1\&.0?\fR
 .sp
-proc \fBnoop\fR ?\fIargs\fR?
+\fBladd\fR \fIvarname\fR \fIargs\fR
 .sp
-proc \fBputb\fR ?\fImap\fR? \fItext\fR
+\fBldelete\fR \fIvarname\fR \fIargs\fR
 .sp
-proc \fBtcl::dict::getnull\fR \fIdictionary\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
+\fBdict getnull\fR \fIargs\fR
 .sp
-proc \fBtcl::dict::is_dict\fR \fId\fR
+\fBdict print\fR \fIdict\fR
 .sp
-proc \fBdicttool::is_branch\fR \fIdict\fR \fIpath\fR
+\fBdict is_dict\fR \fIvalue\fR
 .sp
-proc \fBdicttool::print\fR \fIdict\fR
-.sp
-proc \fBdicttool::_dictputb\fR \fIlevel\fR \fIvarname\fR \fIdict\fR
-.sp
-proc \fBdicttool::sanitize\fR \fIdict\fR
-.sp
-proc \fBdicttool::_sanitizeb\fR \fIpath\fR \fIvarname\fR \fIdict\fR
-.sp
-proc \fBdicttool::canonical\fR \fIrawpath\fR
-.sp
-proc \fBdicttool::storage\fR \fIrawpath\fR
-.sp
-proc \fBdicttool::dictset\fR \fIvarname\fR ?\fIargs\fR?
-.sp
-proc \fBdicttool::dictmerge\fR \fIvarname\fR ?\fIargs\fR?
-.sp
-proc \fBdicttool::merge\fR ?\fIargs\fR?
-.sp
-proc \fBtcl::dict::isnull\fR \fIdictionary\fR ?\fIargs\fR?
-.sp
-proc \fBladd\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
-.sp
-proc \fBldelete\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
-.sp
-proc \fBlrandom\fR \fIlist\fR
+\fBrmerge\fR \fIargs\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -556,11 +532,8 @@ Example:
 
 .CE
 .TP
-proc \fBtcl::dict::isnull\fR \fIdictionary\fR ?\fIargs\fR?
-Returns true if the path specified by args either does not exist,
-if exists and contains an empty string or the value of NULL or null\&.
-.sp
-This function is added to the global dict ensemble as \fBdict isnull\fR
+\fBldelete\fR \fIvarname\fR \fIargs\fR
+This command will delete all instances of each element in \fIargs\fR from \fIvarname\fR\&.
 .TP
 proc \fBladd\fR \fIvarname\fR ?\fIelement\fR? ?\fBelement\&.\&.\&.\fR?
 Add elements to a list if that are not already present in the list\&.

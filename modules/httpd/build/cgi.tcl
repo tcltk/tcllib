@@ -2,7 +2,7 @@
   superclass ::httpd::content.proxy
 
   method FileName {} {
-    set uri [string trimleft [my request get REQUEST_URI] /]
+    set uri [string trimleft [my request get REQUEST_PATH] /]
     set path [my clay get path]
     set prefix [my clay get prefix]
 
@@ -28,7 +28,7 @@
     ###
     set local_file [my FileName]
     if {$local_file eq {} || ![file exist $local_file]} {
-      my log httpNotFound [my request get REQUEST_URI]
+      my log httpNotFound [my request get REQUEST_PATH]
       my error 404 {Not Found}
       tailcall my DoOutput
     }
@@ -94,6 +94,7 @@
     } else {
       chan flush $chanb
     }
+    my clay refcount_incr
     chan event $chanb readable [info coroutine]
     yield
   }
@@ -124,6 +125,7 @@
     chan configure $chana -translation binary -blocking 0 -buffering full -buffersize 4096
     chan configure $chanb -translation binary -blocking 0 -buffering full -buffersize 4096
     my ChannelCopy $chana $chanb -chunk 4096
+    my clay refcount_decr
   }
 
   ###

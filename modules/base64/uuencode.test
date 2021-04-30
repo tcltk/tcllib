@@ -184,7 +184,7 @@ test uuencode-5.2 {decode wrong#args} {
 
 # -------------------------------------------------------------------------
 
-file delete -force uuencode.test.data    
+file delete -force uuencode.test.data
 testsuiteCleanup
 
 # Local Variables:

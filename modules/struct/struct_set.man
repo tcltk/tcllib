@@ -132,5 +132,5 @@ subset of or equal to the set [arg B] ([const true]), or not
 [section REFERENCES]
 
 [vset CATEGORY {struct :: set}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

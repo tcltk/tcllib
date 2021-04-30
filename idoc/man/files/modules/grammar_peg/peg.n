@@ -558,20 +558,20 @@ a possible serialization is
 .CS
 
 
-    grammar::peg \\\\
-    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \\\\
-     Factor     {x Term {* {x AddOp Term}}} \\\\
-     Term       Number \\\\
-     MulOp      {/ * /} \\\\
-     AddOp      {/ + -} \\\\
-     Number     {x {? Sign} {+ Digit}} \\\\
-     Sign       {/ + -} \\\\
-     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \\\\
-    } \\\\
-    {Expression value     Factor     value \\\\
-     Term       value     MulOp      value \\\\
-     AddOp      value     Number     value \\\\
-     Sign       value     Digit      value \\\\
+    grammar::peg \\
+    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \\
+     Factor     {x Term {* {x AddOp Term}}} \\
+     Term       Number \\
+     MulOp      {/ * /} \\
+     AddOp      {/ + -} \\
+     Number     {x {? Sign} {+ Digit}} \\
+     Sign       {/ + -} \\
+     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \\
+    } \\
+    {Expression value     Factor     value \\
+     Term       value     MulOp      value \\
+     AddOp      value     Number     value \\
+     Sign       value     Digit      value \\
     }
     Expression
 

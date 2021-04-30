@@ -14,6 +14,15 @@
 
 package require Tcl 8.5  ; # namespace ensembles, {*}
 
+# The try command is used in the namespacex::import command. For
+# backward compatibility we will use the try package from tcllib if
+# running on a platform that does not have it as a core command,
+# i.e. before 8.6.
+
+if {![llength [info commands try]]} {
+    package require try ; # tcllib
+}
+
 namespace eval ::namespacex {
     namespace export add hook import info normalize strip state
     namespace ensemble create
@@ -183,6 +192,30 @@ proc ::namespacex::hook::Handle {handler old args} {
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: Info - Visible API
 
+proc ::namespacex::import {from args} {
+    set upns [uplevel 1 {::namespace current}]
+    if {![string match ::* $from]} {
+	set from ${upns}::$from[set from {}]
+    }
+    set orig [namespace eval $from {::namespace export}]
+    try {
+	namespace eval $from {::namespace export *}
+	set tmp [::namespace current]::[::info cmdcount]
+	namespace eval $tmp [list ::namespace import ${from}::*]
+	if {[llength $args] == 1} {
+	    lappend args [lindex $args 0]
+	}
+	dict size $args
+	foreach {old new} $args {
+	    rename ${tmp}::$old ${upns}::$new
+	}
+	namespace delete $tmp
+    } finally {
+	namespace eval $from [list ::namespace export -clear {*}$orig]
+    }
+    return
+}
+
 
 proc ::namespacex::import {from args} {
     set upns [uplevel 1 {namespace current}]
@@ -267,11 +300,13 @@ proc ::namespacex::strip {ns itemlist} {
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: State - Visible API
 
+
 proc ::namespacex::state::drop ns {
     ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
     namespace eval $ns [list ::unset {*}[::namespacex info allvars $ns]]
     return
 }
+
 
 proc ::namespacex::state::get ns {
     ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
@@ -282,6 +317,7 @@ proc ::namespacex::state::get ns {
     }
     return $result
 }
+
 
 proc ::namespacex::state::set {ns state} {
     ::set ns [uplevel 1 [list [namespace parent] normalize $ns]]
@@ -295,4 +331,4 @@ proc ::namespacex::state::set {ns state} {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0.1
+package provide namespacex 0.2

@@ -1,5 +1,6 @@
+[vset VERSION 0.3]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::code::ctrl n 0.2]
+[manpage_begin term::ansi::code::ctrl n [vset VERSION]]
 [keywords ansi]
 [keywords {attribute control}]
 [keywords {color control}]
@@ -11,7 +12,7 @@
 [category  {Terminal control}]
 [require Tcl 8.4]
 [require term::ansi::code       [opt 0.2]]
-[require term::ansi::code::ctrl [opt 0.2]]
+[require term::ansi::code::ctrl [opt [vset VERSION]]]
 [description]
 
 This package provides symbolic names for the ANSI control
@@ -195,5 +196,5 @@ Format the block of text for display at the specified location.
 [list_end]
 
 [vset CATEGORY term]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,10 +1,8 @@
 # -*- tcl -*-
 # bee.test:  tests for the bee encoding.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004,2018 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: bee.test,v 1.9 2006/10/09 21:41:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -307,7 +305,7 @@ test bee-12.0 {decoder, torrent file} {
     set end 0
 
     # tcltest::viewFile does not do binary :(
-    set f [open  [file join $::tcltest::testsDirectory example.torrent] r]
+    set f [open  [asset example.torrent] r]
     fconfigure $f -translation binary
     set d [read $f]
     close $f
@@ -382,3 +380,4 @@ foreach {n bee result} {
 
 # ....... ............................................................
 testsuiteCleanup
+return

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.3\&.1 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.4 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBrest  ?1\&.3\&.1?\fR
+package require \fBrest  ?1\&.4?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?\fIconfig\fR? ?\fIbody\fR?
 .sp
@@ -527,6 +527,10 @@ A request body must be supplied and will be interpreted as each
 argument representing one part of a mime/multipart document\&.
 Arguments must be lists containing 2 elements, a list of header keys
 and values, and the mime part body, in this order\&.
+.TP
+\fBmime_multipart/<value>\fR
+Same as mime_multipart, but the \fBContent-Type\fR header is set to
+\fBmultipart/<value>\fR\&.
 .RE
 .TP
 \fBmethod\fR

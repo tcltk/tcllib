@@ -110,5 +110,5 @@ Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www.ex
 To write json, instead of parsing it, see package [package json::write].
 
 [vset CATEGORY json]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

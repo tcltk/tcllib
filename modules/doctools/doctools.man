@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.4.21]
+[vset PACKAGE_VERSION 1.5.6]
 [manpage_begin doctools n [vset PACKAGE_VERSION]]
 [see_also doctools_intro]
 [see_also doctools_lang_cmdref]
@@ -12,8 +12,9 @@
 [keywords manpage]
 [keywords markup]
 [keywords nroff]
+[keywords markdown]
 [keywords TMML]
-[copyright {2003-2017 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools - Processing documents}]
 [category  {Documentation tools}]
@@ -521,6 +522,37 @@ This engine generates nroff output, for processing by [syscmd nroff],
 or [syscmd groff]. The result will be standard man pages as they are
 known in the unix world.
 
+[def markdown]
+
+This engine generates [term Markdown] markup. This engine supports two
+parameters:
+
+[list_begin definitions]
+[def header]
+
+The value for this parameter has to be valid selfcontained markdown
+markup for the body section of a markdown document. The default value
+is the empty string. The value is inserted into the generated output
+just before the table of contents.
+
+[para]
+
+This can be used to insert boilerplate header markup into the
+generated document.
+
+[def xref]
+
+The value for this parameter has to be a list of triples specifying
+cross-reference information.
+
+[para]
+
+The full details of expected syntax and engine-internal use are
+explained above for the [term html] engine.
+
+[list_end]
+[para]
+
 [def null]
 
 This engine generates no outout at all. This can be used if one just
@@ -539,5 +571,5 @@ Wippler's [syscmd wikit] application.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 1.0.8]
+[vset PACKAGE_VERSION 1.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx n [vset PACKAGE_VERSION]]
 [see_also docidx_intro]
@@ -16,9 +16,10 @@
 [keywords manpage]
 [keywords markup]
 [keywords nroff]
+[keywords markdown]
 [keywords TMML]
 [keywords wiki]
-[copyright {2003-2017 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx - Processing indices}]
 [category  {Documentation tools}]
@@ -377,6 +378,10 @@ This engine retrieves version, section and title of the manpage from
 the document. As such it can be used to generate a directory listing
 for a set of manpages.
 
+[def markdown]
+
+This engine generates [term Markdown] markup.
+
 [def nroff]
 
 This engine generates nroff output, for processing by [syscmd nroff],
@@ -401,5 +406,5 @@ Wippler's [syscmd wikit] application.
 [list_end]
 
 [vset CATEGORY doctools]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

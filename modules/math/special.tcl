@@ -22,6 +22,7 @@ namespace eval ::math::special {
     #
     ::math::constants::constants pi
     variable halfpi [expr {$pi/2.0}]
+    variable tiny 1.0e-30
 
     #
     # Functions defined in other math submodules
@@ -35,6 +36,7 @@ namespace eval ::math::special {
     # Export the various functions
     #
     namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S sinc invnorm
+    namespace export incBeta regIncBeta digamma eulerNumber bernoulliNumber
 }
 
 # Gamma --
@@ -291,6 +293,166 @@ proc ::math::special::invnorm {p} {
     return $x
 }
 
+
+# incBeta --
+#     Incomplete Beta funtion (not regularized)
+#
+# Arguments:
+#     a, b        Parameters a and b (both > 0)
+#     x           Value of the x argument (between 0 and 1)
+#
+# Notes:
+#     Implementation taken from http://codeplea.com/incomplete-beta-function-in-c
+#     Accuracy: at least 1.0e-8
+#     Test values: https://keisan.casio.com/exec/system/1180573396
+#
+proc ::math::special::incBeta {a b x} {
+    variable tiny
+
+    if { $x < 0.0 || $x > 1.0 } {
+        return -code error "Incomplete Beta function: x out of bounds (must be between 0 and 1)"
+    }
+    if { $a <= 0.0 || $b <= 0.0 } {
+        return -code error "Incomplete Beta function: parameter a or b out of bounds (both must be > 0)"
+    }
+
+    #
+    # Make sure the continued fraction converges fast
+    #
+    if { $x > ($a+1.0) / ($a+$b+2.0) } {
+        set beta1      [Beta $a $b]
+        set complement [incBeta $b $a [expr {1.-$x}]]
+        return [expr {$beta1 - $complement}]
+    }
+
+    set f 1.0
+    set c 1.0
+    set d 0.0
+
+    for { set i 0 } { $i <= 200 } { incr i } {
+
+        set m [expr {$i/2}]
+
+        #
+        # Coefficients of the continued fraction
+        #
+        if { $i == 0 } {
+            set numerator 1.0
+        } elseif { $i % 2 == 0 } {
+            set numerator [expr {$m * ($b-$m) * $x / ( ($a+2.0*$m-1.0) * ($a+2.0*$m) )}]
+        } else {
+            set numerator [expr {-($a+$m) * ($a+$b+$m) * $x / ( ($a+2.0*$m) * ($a+2.0*$m+1.0) )}]
+        }
+
+        #
+        # Iteration (Lentz's algorithm)
+        #
+        set d [expr {1.0 + $numerator * $d}]
+        if { abs($d) < $tiny } {
+            set d $tiny
+        }
+
+        set d [expr {1.0 / $d}]
+        set c [expr {1.0 + $numerator / $c}]
+
+        if { abs($c) < $tiny } {
+            set c $tiny
+        }
+
+        set cd [expr {$c * $d}]
+
+        set f  [expr {$cd * $f}]
+
+        #
+        # Stopping criterium
+        #
+        if { abs(1.0 - $cd) < 1.0e-8 } {
+            set factor [expr {$x ** $a * (1.0-$x) ** $b / $a}]
+            return [expr {$factor * ($f - 1.0)}]
+        }
+    }
+
+    return -code error "Incomplete Beta function: convergence not reached"
+}
+
+# regIncBeta --
+#     Regularized incomplete Beta funtion
+#
+# Arguments:
+#     a, b        Parameters a and b (both > -1)
+#     x           Value of the x argument (between 0 and 1)
+#
+proc ::math::special::regIncBeta {a b x} {
+
+    set incbeta [incBeta $a $b $x]
+    set factor  [Beta $a $b]
+
+    return [expr {$incbeta / $factor}]
+}
+
+
+# digamma --
+#     Evaluate the digamma function - approximate via a power series
+#
+# Arguments
+#     x                   Argument of the function
+#
+# Result:
+#     Value of digamma function at x
+#
+# Notes;
+#     Test values: https://keisan.casio.com/exec/system/1180573446
+#     Formula taken from: https://math.stackexchange.com/questions/1441753/approximating-the-digamma-function
+#
+proc ::math::special::digamma {x} {
+    if { $x >= 10.0 } {
+        set x [expr {$x - 1.0}]
+        return [expr {log($x) + 1.0 / (2.0 * $x) - 1.0 / (12.0 * $x**2) + 1.0 / (120.0 * $x**4) - 1.0 / (252.0 * $x**6)
+                              + 1.0 / (240.0 * $x**8) - 5.0 / (660.0 * $x**10) + 691.0 / (32760.0 * $x**12) - 1.0 / (12.0 * $x**14)}]
+    } else {
+        set n [expr {int(11.0 - $x)}]
+        set correction 0.0
+        for {set i 0} {$i < $n} {incr i} {
+            set correction [expr {$correction + 1.0 / ($x + $i)}]
+        }
+
+        set newx [expr {$x + $n}]
+
+        return [expr {[digamma $newx] - $correction}]
+    }
+}
+
+# eulerNumber and bernoulliNumber --
+#     Return the nth Euler number or Bernoulli number
+#
+# Arguments:
+#     index           The index of the number to be returned
+#
+# Note:
+#     If the index is outside the range, then an error is raised:
+#     For Euler numbers: index should be between 0 and 54
+#     For Bernoulli numbers: index should be between 0 and 52
+#     - even though for odd indices the numbers are mostly zero
+#     and could be returned as such
+#
+# Note:
+#     The tables were found in Nelson H.F. Beebe - The Mathematical Function Computation Handbook
+#
+proc ::math::special::eulerNumber {index} {
+    if { $index < 0 || $index > 54 } {
+        return -code error "Index ($index) out of range - should be between 0 and 54"
+    } else {
+        return [lindex {1 0 -1 0 5 0 -61 0 1385 0 -50521 0 2702765 0 -199360981 0 19391512145 0 -2404879675441 0 370371188237525 0 -69348874393137901 0 15514534163557086905 0 -4087072509293123892361 0 1252259641403629865468285 0 -441543893249023104553682821 0 177519391579539289436664789665 0 -80723299235887898062168247453281 0 41222060339517702122347079671259045 0 -23489580527043108252017828576198947741 0 14851150718114980017877156781405826684425 0 -10364622733519612119397957304745185976310201 0 7947579422597592703608040510088070619519273805 0 -6667537516685544977435028474773748197524107684661 0 6096278645568542158691685742876843153976539044435185 0 -6053285248188621896314383785111649088103498225146815121 0 6506162486684608847715870634080822983483644236765385576565 0 -7546659939008739098061432565889736744212240024711699858645581} $index]
+    }
+}
+proc ::math::special::bernoulliNumber {index} {
+    if { $index < 0 || $index > 52 } {
+        return -code error "Index ($index) out of range - should be between 0 and 52"
+    } else {
+        return [lindex {1.0 -0.5 0.16666666666666666 0.0 -0.03333333333333333 0.0 0.023809523809523808 0.0 -0.03333333333333333 0.0 0.07575757575757576 0.0 -0.2531135531135531 0.0 1.1666666666666667 0.0 -7.092156862745098 0.0 54.971177944862156 0.0 -529.1242424242424 0.0 6192.123188405797 0.0 -86580.25311355312 0.0 1425517.1666666667 0.0 -27298231.067816094 0.0 601580873.9006424 0.0 -15116315767.092157 0.0 429614643061.1667 0.0 -13711655205088.334 0.0 488332318973593.2 0.0 -19296579341940068.0 0.0 8.416930475736827e+17 0.0 -4.0338071854059454e+19 0.0 2.1150748638081993e+21 0.0 -1.2086626522296526e+23 0.0 7.500866746076964e+24 0.0 -5.038778101481068e+26} $index]
+    }
+}
+
 # Bessel functions and elliptic integrals --
 #
 source [file join [file dirname [info script]] "bessel.tcl"]
@@ -298,4 +460,4 @@ source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 source [file join [file dirname [info script]] "exponential.tcl"]
 
-package provide math::special 0.3.0
+package provide math::special 0.5.0

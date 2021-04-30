@@ -9,9 +9,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+    file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
@@ -38,7 +38,7 @@ testing {
     useLocal pt_tclparam_config_tcloo.tcl pt::tclparam::configuration::tcloo
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

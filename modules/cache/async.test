@@ -226,5 +226,34 @@ DATA_HOLE get KEY ::ca
 DONE {unset KEY}
 RESUME}
 
+# -- $obj clear ---------------------------------------------------------------
+
+test cache-async-6.0 {clear a not existing value} -setup {
+    cache::async ca DATA_NONE
+    res!
+} -body {
+    res+ BEGIN
+    ca clear KEY
+    res+ END
+    res?lines
+} -cleanup {
+    ca destroy
+} -result {BEGIN
+END}
+
+test cache-async-6.1 {clear an existing value} -setup {
+    cache::async ca DATA_NONE
+    ca set KEY VALUE
+    res!
+} -body {
+    res+ BEGIN
+    ca clear KEY
+    res+ END
+    res?lines
+} -cleanup {
+    ca destroy
+} -result {BEGIN
+END}
+
 # -------------------------------------------------------------------------
 testsuiteCleanup

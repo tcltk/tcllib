@@ -68,19 +68,19 @@ if {[catch {package require Trf  2.0}]} {
 #       args  A list of arguments specifying various options for sending the
 #             message:
 #             -atleastone  A boolean specifying whether or not to send the
-#                          message at all if any of the recipients are 
-#                          invalid.  A value of false (as defined by 
+#                          message at all if any of the recipients are
+#                          invalid.  A value of false (as defined by
 #                          ::smtp::boolean) means that ALL recipients must be
 #                          valid in order to send the message.  A value of
 #                          true means that as long as at least one recipient
 #                          is valid, the message will be sent.
 #             -debug       A boolean specifying whether or not debugging is
-#                          on.  If debugging is enabled, status messages are 
+#                          on.  If debugging is enabled, status messages are
 #                          printed to stderr while trying to send mail.
 #             -queue       A boolean specifying whether or not the message
 #                          being sent should be queued for later delivery.
 #             -header      A single RFC 822 header key and value (as a list),
-#                          used to specify to whom to send the message 
+#                          used to specify to whom to send the message
 #                          (To, Cc, Bcc), the "From", etc.
 #             -originator  The originator of the message (equivalent to
 #                          specifying a From header).
@@ -136,7 +136,7 @@ proc ::smtp::sendmessage {part args} {
 
     array set header ""
 
-    # lowerL will contain the list of header keys (converted to lower case) 
+    # lowerL will contain the list of header keys (converted to lower case)
     # specified with various -header options.  mixedL is the mixed-case version
     # of the list.
     set lowerL ""
@@ -148,7 +148,7 @@ proc ::smtp::sendmessage {part args} {
         # Some option didn't get a value.
         error "Each option must have a value!  Invalid option list: $args"
     }
-    
+
     foreach {option value} $args {
         switch -- $option {
             -atleastone {set aloP   [boolean $value]}
@@ -176,7 +176,7 @@ proc ::smtp::sendmessage {part args} {
                 if {[lsearch -exact $lowerL $lower] < 0} {
                     lappend lowerL $lower
                     lappend mixedL $mixed
-                }               
+                }
 
                 lappend header($lower) [lindex $value 1]
             }
@@ -238,7 +238,7 @@ proc ::smtp::sendmessage {part args} {
     } else {
         # -originator was specified with a value, OR -originator wasn't
         # specified at all.
-        
+
         # If no -originator was provided, get the originator from the "From"
         # header.  If there was no "From" header get it from the username
         # executing the script.
@@ -255,7 +255,7 @@ proc ::smtp::sendmessage {part args} {
                 set who $fromM
             }
         }
-        
+
 	# If there's no "From" header, create a From header with the value
 	# of -originator as the value.
 
@@ -448,7 +448,7 @@ proc ::smtp::sendmessage {part args} {
 
         set subject "\[$bccM\]"
         if {[info exists header(subject)]} {
-            append subject " " [lindex $header(subject) 0] 
+            append subject " " [lindex $header(subject) 0]
         }
 
         set outer [::mime::.new {} \
@@ -496,21 +496,21 @@ proc ::smtp::sendmessage {part args} {
 	}
     }
 
+    # Destroy SMTP token 'cause we're done with it.
     set code3 [catch {finalize $token -close $status} cres3 copts3]
 
     if {$code3 && !$code} {
 	lassign [list $cres3 $copts3] cres copts
     }
 
-    # Destroy SMTP token 'cause we're done with it.
-   
+
     # Restore provided MIME object to original state (without the SMTP headers).
    
     foreach {key val} [$part header get] {
         $part header set $key "" -mode delete
     }
     foreach {key value} $savedH {
-	$part header set $key {*}$value -mode append
+		$part header set $key {*}$value -mode append
     }
 
     return -options $copts $cres
@@ -583,7 +583,7 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #       args  A list of arguments specifying various options for sending the
 #             message:
 #             -debug       A boolean specifying whether or not debugging is
-#                          on.  If debugging is enabled, status messages are 
+#                          on.  If debugging is enabled, status messages are
 #                          printed to stderr while trying to send mail.
 #             -client      Either localhost or the name of the local host.
 #             -multiple    Multiple messages will be sent using this token.
@@ -597,7 +597,7 @@ proc ::smtp::sendmessageaux {token part originator recipients aloP} {
 #             -tlspolicy   Command called if TLS setup fails.
 #             -tlsimport   after a succesfull socket command, import tls on
 #                          channel - used for native smtps negotiation
-#             -username    These provide the authentication information 
+#             -username    These provide the authentication information
 #             -password    to be used if needed by the SMTP server.
 #
 # Results:
@@ -625,13 +625,13 @@ proc ::smtp::initialize {args} {
 
     # Iterate through servers until one accepts a connection (and responds
     # nicely).
-   
+
     foreach server $options(-servers) port $options(-ports) {
         if {$server == ""} continue
 
 	set state(readable) 0
         if {$port == ""} { set port 25 }
-        
+
         if {$options(-debug)} {
             puts stderr "Trying $server..."
             flush stderr
@@ -702,7 +702,7 @@ proc ::smtp::initialize_ehlo {token} {
     upvar einfo einfo
     upvar ecode ecode
     upvar code  code
-    
+
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -729,11 +729,11 @@ proc ::smtp::initialize_ehlo {token} {
         set ecode $errorCode
         set einfo $errorInfo
     }
-    
+
     if {$response(code) == 250} {
         # Successful response to HELO or EHLO command, so set up queuing
         # and whatnot and return the token.
-        
+
         set state(esmtp) $response(args)
 
         if {(!$options(-multiple)) \
@@ -744,7 +744,7 @@ proc ::smtp::initialize_ehlo {token} {
                 && ([lsearch $response(args) XQUE] >= 0)} {
             catch {smtp::talk $token 300 QUED}
         }
-        
+
         # Support STARTTLS extension.
         # The state(tls) item is used to see if we have already tried this.
         if {($options(-usetls)) && ![info exists state(tls)] \
@@ -760,7 +760,7 @@ proc ::smtp::initialize_ehlo {token} {
                             ::tls::import $state(sd)
                             catch {::tls::handshake $state(sd)} msg
                             set state(tls) 1
-                        } 
+                        }
                         fileevent $state(sd) readable \
                             [list ::smtp::readable $token]
                         return [initialize_ehlo $token]
@@ -788,17 +788,17 @@ proc ::smtp::initialize_ehlo {token} {
             }
         }
 
-        # If we have not already tried and the server supports it and we 
+        # If we have not already tried and the server supports it and we
         # have a username -- lets try to authenticate.
         #
         if {![info exists state(auth)]
             && [llength [package provide SASL]] != 0
-            && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0 
+            && [set andx [lsearch -glob $response(args) "AUTH*"]] >= 0
             && [string length $options(-username)] > 0 } {
-            
+
             # May be AUTH mech or AUTH=mech
             # We want to use the strongest mechanism that has been offered
-            # and that we support. If we cannot find a mechanism that 
+            # and that we support. If we cannot find a mechanism that
             # succeeds, we will go ahead and try to carry on unauthenticated.
             # This may still work else we'll get an unauthorised error later.
 
@@ -819,7 +819,7 @@ proc ::smtp::initialize_ehlo {token} {
                     } else {
                         # After successful AUTH we are supposed to redo
                         # our connection for mechanisms that setup a new
-                        # security layer -- these should set state(auth) 
+                        # security layer -- these should set state(auth)
                         # greater than 1
                         fileevent $state(sd) readable \
                             [list ::smtp::readable $token]
@@ -828,7 +828,7 @@ proc ::smtp::initialize_ehlo {token} {
                 }
             }
         }
-        
+
         return $token
     } else {
         # Bad response; close the connection and hope the next server
@@ -847,7 +847,7 @@ proc ::smtp::SASLCallback {token context command args} {
         username { return $options(-username) }
         password { return $options(-password) }
         hostname { return [info host] }
-        realm    { 
+        realm    {
             if {[string equal $ctx(mech) "NTLM"] \
                     && [info exists ::env(USERDOMAIN)]} {
                 return $::env(USERDOMAIN)
@@ -855,7 +855,7 @@ proc ::smtp::SASLCallback {token context command args} {
                 return ""
             }
         }
-        default  { 
+        default  {
             return -code error "error: unsupported SASL information requested"
         }
     }
@@ -881,7 +881,7 @@ proc ::smtp::Authenticate {token mechanism} {
                         [base64::encode -maxlen 0 [SASL::response $ctx]]]
         array set response $result
     }
-    
+
     if {$response(code) == 235} {
         set state(auth) 1
         return $result
@@ -990,7 +990,7 @@ proc ::smtp::winit {token part originator {mode MAIL}} {
     set from "$mode FROM:<$originator>"
 
     # RFC 1870 -  SMTP Service Extension for Message Size Declaration
-    if {[info exists state(esmtp)] 
+    if {[info exists state(esmtp)]
         && [lsearch -glob $state(esmtp) "SIZE*"] != -1} {
         catch {
             set size [string length [$part serialize]]
@@ -1012,12 +1012,12 @@ proc ::smtp::winit {token part originator {mode MAIL}} {
 #
 #	Send recipient info to SMTP server.  This occurs after originator info
 #       is sent (in ::smtp::winit).  This function is called by
-#       ::smtp::sendmessageaux. 
+#       ::smtp::sendmessageaux.
 #
 # Arguments:
 #       token       SMTP token that has an open connection to the SMTP server.
 #       recipient   One of the recipients to whom the message should be
-#                   delivered.  
+#                   delivered.
 #
 # Results:
 #	Recipient info is sent and SMTP server's response is returned.  If an
@@ -1047,7 +1047,7 @@ proc ::smtp::waddr {token recipient} {
 #
 #	Send message to SMTP server.  This occurs after recipient info
 #       is sent (in ::smtp::winit).  This function is called by
-#       ::smtp::sendmessageaux. 
+#       ::smtp::sendmessageaux.
 #
 # Arguments:
 #       token       SMTP token that has an open connection to the SMTP server.
@@ -1121,6 +1121,7 @@ proc ::smtp::wtextaux {token part} {
     fileevent $state(sd) readable ""
     if {$trf} {
         transform -attach $state(sd) -command [list ::smtp::wdata $token]
+        fconfigure $state(sd) -blocking on
     } else {
         set state(size) 1
     }
@@ -1158,6 +1159,7 @@ proc ::smtp::wtextaux {token part} {
     fileevent $state(sd) readable ""
     if {$trf} {
         unstack $state(sd)
+        fconfigure $state(sd) -blocking off
     }
     fileevent $state(sd) readable [list ::smtp::readable $token]
 
@@ -1390,7 +1392,7 @@ proc ::smtp::hear {token secs} {
         }
 
         # When status message line ends in -, it means the message is complete.
-        
+
         if {[string compare [string index $state(line) 3] -]} {
             break
         }
@@ -1507,7 +1509,7 @@ proc ::smtp::boolean {value} {
 
 # -------------------------------------------------------------------------
 
-package provide smtp 1.5
+package provide smtp 1.5.1
 
 # -------------------------------------------------------------------------
 # Local variables:

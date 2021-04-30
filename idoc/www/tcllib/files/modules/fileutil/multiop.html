@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>fileutil::multi::op - file utilities</title>
 <style type="text/css"><!--
@@ -98,12 +97,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">fileutil::multi::op(n) 0.5.3 tcllib &quot;file utilities&quot;</h1>
@@ -386,31 +385,31 @@ expansion are not reported as errors.</p></dd>
 <p>The following examples assume that the variable <b class="variable">F</b> contains a
 reference to a multi-file operation object.</p>
 <pre class="doctools_example">
-    $F do copy                       \\
-	the  *.dll                    \\
-	from c:/TDK/PrivateOpenSSL/bin \\
+    $F do copy                       \
+	the  *.dll                    \
+	from c:/TDK/PrivateOpenSSL/bin \
 	to   [installdir_of tls]
 </pre>
 <pre class="doctools_example">
-    $F do move      \\
-	the  *       \\
-	from /sources \\
-	into /scratch  \\
+    $F do move      \
+	the  *       \
+	from /sources \
+	into /scratch  \
 	but not *.html
     # Alternatively use 'except for *.html'.
 </pre>
 <pre class="doctools_example">
-    $F do           \\
-	move         \\
-	the  index    \\
-	from /sources  \\
-	into /scratch   \\
+    $F do           \
+	move         \
+	the  index    \
+	from /sources  \
+	into /scratch   \
 	as   pkgIndex.tcl
 </pre>
 <pre class="doctools_example">
-    $F do         \\
-	remove     \\
-	the *.txt  \\
+    $F do         \
+	remove     \
+	the *.txt  \
 	in /scratch
 </pre>
 <p>Note that the fact that most commands just modify the object state
@@ -418,11 +417,11 @@ allows us to use more off forms as specifications instead of just
 nearly-natural language sentences.
 For example the second example in this section can re-arranged into:</p>
 <pre class="doctools_example">
-    $F do            \\
-	from /sources \\
-	into /scratch  \\
-	but not *.html \\
-	move           \\
+    $F do            \
+	from /sources \
+	into /scratch  \
+	but not *.html \
+	move           \
 	the  *
 </pre>
 <p>and the result is not only still a valid specification, but even stays
@@ -434,13 +433,13 @@ manner, allowing the user to avoid repetitions of unchanging
 information. For example the second and third examples of this section
 can be merged and rewritten into the equivalent:</p>
 <pre class="doctools_example">
-$F do                   \\
-    move                 \\
-    the  *                \\
-    from /sources          \\
-    into /scratch           \\
-    but not *.html not index \\
-    the  index               \\
+$F do                   \
+    move                 \
+    the  *                \
+    from /sources          \
+    into /scratch           \
+    but not *.html not index \
+    the  index               \
     as   pkgIndex.tcl
 </pre>
 </div>

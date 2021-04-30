@@ -63,9 +63,15 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-        variable v
-        for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
-        unset v
+        if {[info exists tcl_platform(wordSize)]} {
+            set signbit [expr {1 << (8*$tcl_platform(wordSize)-1)}]
+        } else {
+            # Old Tcl. Find bit by shifting until wrap around to 0.
+            # With int() result limited to system word size the loop will end.
+            variable v
+            for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+            unset v
+        }
     }
 }
 
@@ -292,7 +298,7 @@ proc ::crc::crc-32 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide crc16 1.1.3
+package provide crc16 1.1.4
 
 # -------------------------------------------------------------------------
 #

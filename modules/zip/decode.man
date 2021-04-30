@@ -1,4 +1,4 @@
-[vset ZIP_DECODE_VERSION 0.7.1]
+[vset ZIP_DECODE_VERSION 0.8]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::decode n [vset ZIP_DECODE_VERSION]]
 [keywords decompression zip]
@@ -7,13 +7,14 @@
 [titledesc {Access to zip archives}]
 [category  File]
 [require Tcl 8.4]
-[require fileutil::magic::mimetype]
 [require fileutil::decode 0.2.1]
 [require Trf]
 [require zlibtcl]
 [require zipfile::decode [opt [vset ZIP_DECODE_VERSION]]]
 [description]
 [para]
+
+Note: packages Trf and zlibtcl are not required if TCL 8.6 is available.
 
 This package provides commands to decompress and access the contents
 of zip archives.
@@ -29,7 +30,7 @@ file.
 
 The result of the command is a dictionary describing the contents of
 the archive. The structure of this dictionary is not public. Proper
-access should be made through the provided accessor command of this
+access should be made through the provided accessor commands of this
 package.
 
 [comment { -- TODO? -- dictionary contents -- }]
@@ -92,6 +93,25 @@ check if the specified [arg path] is found in the archive.
 The result of the command is a boolean flag, [const true] if the path
 is found, and [const false] otherwise.
 
+
+[comment ---------------------------------------------------------------------]
+[call [cmd ::zipfile::decode::filesize] [arg zdict] [arg path]]
+
+This command takes a dictionary describing the currently open zip
+archive file, as returned by [cmd ::zipfile::decode::archive], and
+returns the decompressed size of the file [arg path] in the archive.
+
+An error is thrown if the file is not found in the archive.
+
+[comment ---------------------------------------------------------------------]
+[call [cmd ::zipfile::decode::filecomment] [arg zdict] [arg path]]
+
+This command takes a dictionary describing the currently open zip
+archive file, as returned by [cmd ::zipfile::decode::archive], and
+returns the per-file comment of the file [arg path] in the archive.
+
+An error is thrown if the file is not found in the archive.
+
 [comment ---------------------------------------------------------------------]
 [call [cmd ::zipfile::decode::iszip] [arg archive]]
 
@@ -131,5 +151,5 @@ This is a convenience command which unpacks the specified zip
 [list_end]
 
 [vset CATEGORY zipfile]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

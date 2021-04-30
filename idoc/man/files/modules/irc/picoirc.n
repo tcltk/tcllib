@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'picoirc\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "picoirc" n 0\&.5\&.2 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.9\&.2 tcllib "Simple embeddable IRC interface"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -273,11 +273,11 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
-package require \fBTcl \fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBpicoirc  ?0\&.5\&.2?\fR
+package require \fBpicoirc  ?0\&.9\&.2?\fR
 .sp
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
+\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
 .sp
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
 .sp
@@ -303,11 +303,33 @@ more capability investigate the \fBirc\fR package\&.
 .PP
 .SH COMMANDS
 .TP
-\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
-Create a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username\&. The \fIcallback\fR must be
-as specified in \fBCALLBACK\fR\&. Returns a package-specific variable
-that is used when calling other commands in this package\&.
+\fB::picoirc::connect\fR \fIcallback\fR \fInick\fR ?\fIpassword\fR? \fIurl\fR
+Creates a new irc connection to the server specified by \fIurl\fR and
+login using the \fInick\fR as the username and optionally \fIpassword\fR\&.
+If the \fIurl\fR starts with \fIircs://\fR then a TLS connection is
+created\&. The \fIcallback\fR must be as specified in \fBCALLBACK\fR\&.
+Returns a package-specific variable that is used when calling other
+commands in this package\&.
+.sp
+\fINote:\fR
+For connecting via TLS the Tcl module \fItls\fR must be already
+loaded, otherwise an error is raised\&.
+.CS
+
+
+# must be loaded for TLS
+package require tls
+# default arguments
+tls::init -autoservername true -command workaround \\
+    -require 1 -cadir /etc/ssl/certs -tls1 0 -tls1\&.1 0
+# avoid annoying bgerror, errors are already catched internally
+proc workaround {state args} {
+    if {$state == "verify"} {
+        return [lindex $args 3]
+    }
+}
+
+.CE
 .TP
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
 This should be called to process user input and send it to the
@@ -317,8 +339,10 @@ sequences and then sent\&.
 .TP
 \fB::picoirc::splituri\fR \fIuri\fR
 Splits an IRC scheme uniform resource indicator into its component
-parts\&. Returns a list of server, port and channel\&. The default port is
-6667 and there is no default channel\&.
+parts\&. Returns a list of server, port, channel and secure where
+secure is a boolean flag which is \fBtrue\fR if a TLS connection was
+requested via the \fIircs://\fR schema\&. The default port is 6667 (or
+6697 if secured) and there is no default channel\&.
 .TP
 \fB::picoirc::send\fR \fIcontext\fR \fIline\fR
 This command is where all raw output to the server is handled\&. The
@@ -360,12 +384,27 @@ package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
 received\&.
 .TP
+\fBuserinfo\fR \fInick\fR \fIinfo\fR
+called as a response of WHOIS command\&. \fInick\fR is the user
+the command was targeted for\&. \fIinfo\fR is the dictionary containing
+detailed information about that user: name, host, channels and userinfo\&.
+userinfo typically contains name and version of user's IRC client\&.
+.TP
 \fBchat\fR \fItarget\fR \fInick\fR \fImessage\fR \fItype\fR
 called when a message arrives\&. \fItarget\fR is the identity that the
 message was targetted for\&. This can be the logged in nick or a channel
 name\&. \fInick\fR is the name of the sender of the message\&.
 \fImessage\fR is the message text\&. \fItype\fR is set to "ACTION" if the
-message was sent as a CTCP ACTION
+message was sent as a CTCP ACTION\&. \fItype\fR is set to "NOTICE" if the
+message was sent as a NOTICE command, in that case \fItarget\fR is empty
+if it matches current user nick or it's "*", in later case empty
+\fInick\fR means that notice comes from server\&.
+.TP
+\fBmode\fR \fInick\fR \fItarget\fR \fIflags\fR
+called when mode of user or channel changes\&. \fInick\fR is the name
+of the user who requested a change, can be empty if it's the server\&.
+\fItarget\fR is the identity that has its mode changed\&. \fIflags\fR
+are the changes in mode\&.
 .TP
 \fBsystem\fR \fIchannel\fR \fImessage\fR
 called when a system message is received

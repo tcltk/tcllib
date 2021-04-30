@@ -7,10 +7,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: ini.tcl,v 1.17 2012/01/05 21:04:55 andreas_kupries Exp $
 
-package provide inifile 0.3.1
+package provide inifile 0.3.2
 
 namespace eval ini {
     variable nexthandle  0
@@ -417,6 +415,7 @@ proc ::ini::revert {fh} {
     if {[info exists enc]} {
 	::ini::_setfileenc $fh $enc
     }
+    variable ::ini::${fh}::mode
     if { ![string match "w*" $mode] } {
         _loadfile $fh
     }

@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2006 by Pierre David <pdav@users.sourceforge.net>
 # All rights reserved.
-#
-# $Id: ldapx.test,v 1.6 2007/08/19 20:20:43 pdav Exp $
 
 # -------------------------------------------------------------------------
 
@@ -375,7 +373,7 @@ test ldapx-4.1 {ldapx::entry - deletion} {
 
 test ldax-d6c9cfba {ldapx continuation line handling} {
     ::ldapx::ldif create ldin
-    ldin channel [open $::tcltest::testsDirectory/data/d6c9cfba.ldif r]
+    ldin channel [open [asset d6c9cfba.ldif] r]
     ::ldapx::entry create entr
 
     ldin read entr

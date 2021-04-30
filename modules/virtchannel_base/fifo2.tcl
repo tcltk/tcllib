@@ -74,8 +74,9 @@ oo::class create ::tcl::chan::fifo2::implementation {
 	if {$b ne {}} {
 	    close $b
 	    set b {}
+	} else {
+	    my destroy
 	}
-	my destroy
 	return
     }
 
@@ -84,8 +85,9 @@ oo::class create ::tcl::chan::fifo2::implementation {
 	if {$a ne {}} {
 	    close $a
 	    set a {}
+	} else {
+	    my destroy
 	}
-	my destroy
 	return
     }
 

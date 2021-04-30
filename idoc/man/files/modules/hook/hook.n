@@ -2,7 +2,7 @@
 '\" Generated from file 'hook\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, by William H\&. Duquette
 '\"
-.TH "hook" n 0\&.1 tcllib "Hooks"
+.TH "hook" n 0\&.2 tcllib "Hooks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ hook \- Hooks
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBhook  ?0\&.1?\fR
+package require \fBhook  ?0\&.2?\fR
 .sp
 \fBhook\fR \fBbind\fR ?\fIsubject\fR? ?\fIhook\fR? ?\fIobserver\fR? ?\fIcmdPrefix\fR?
 .sp

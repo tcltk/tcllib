@@ -4,16 +4,14 @@
 #       This code based on critcl, API compatible to the PTI [x].
 #       [x] Pure Tcl Implementation.
 #
-# Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2006,2019 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-#
-# RCS: @(#) $Id: graph_c.tcl,v 1.3 2008/03/25 07:15:34 andreas_kupries Exp $
 
 package require critcl
 # @sak notprovided struct_graphc
-package provide struct_graphc 2.1
+package provide struct_graphc 2.4.3
 package require Tcl 8.2
 
 namespace eval ::struct {

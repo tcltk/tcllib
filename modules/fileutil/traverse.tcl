@@ -6,8 +6,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: traverse.tcl,v 1.9 2012/08/29 20:42:19 andreas_kupries Exp $
 
 package require Tcl 8.3
 

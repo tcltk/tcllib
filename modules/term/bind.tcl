@@ -71,7 +71,7 @@ snit::type ::term::receive::bind {
 
 	if {![info exists dfa($key)]} {
 	    # Unknown sequence. Reset. Restart.
-	    # Run it through the default action. 
+	    # Run it through the default action.
 
 	    if {$default ne ""} {
 		uplevel #0 [linsert $default end $state$c]

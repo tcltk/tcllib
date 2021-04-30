@@ -1,9 +1,9 @@
 # -*- tcl -*-
-# Copyright (c) 2001-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Helper rules for the creation of the memchan website from the .exp files.
 # General formatting instructions ...
-
+#
 # htmlEscape text --
 #	Replaces HTML markup characters in $text with the
 #	appropriate entity references.
@@ -94,7 +94,7 @@ proc fmt_postprocess {text} {
 	puts_stderr @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     }
 
-    return $text
+    return [string trimleft $text]
 }
 
 # markup text --
@@ -113,6 +113,7 @@ proc use_bg {} {
     return bgcolor=$c
 }
 
+proc MakeLink {l t} { link $l $t }
 
 proc nbsp   {}         {return [markup "&nbsp;"]}
 proc p      {}         {return [markup <p>]}

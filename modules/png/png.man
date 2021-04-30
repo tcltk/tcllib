@@ -1,4 +1,5 @@
-[manpage_begin png n 0.1.2]
+[vset VERSION 0.3]
+[manpage_begin png n [vset VERSION]]
 [keywords comment]
 [keywords image]
 [keywords png]
@@ -10,7 +11,7 @@
 [category  {File formats}]
 [require Tcl 8.2]
 [require crc32]
-[require png [opt 0.1.2]]
+[require png [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -125,6 +126,19 @@ conform to the PNG specification. [arg keyword2] is the translated
 [arg keyword], in the language specified by the language identifier
 [arg lang].
 
+[call [cmd ::png::getPixelDimension] [arg file]]
+
+Returns a dictionary with keys [const ppux], [const ppuy] and
+[const unit] if the information is present.  Otherwise, it returns the empty
+string.
+
+[para] The values of [const ppux] and [const ppuy] return the pixel
+per unit value in X or Y direction.
+
+[para] The allowed values for key [const unit] are [const meter] and
+[const unknown]. In the case of meter, the dpi value can be calculated
+by multiplying with the conversion factor [const 0.0254].
+
 [call [cmd ::png::image] [arg file]]
 
 Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor.
@@ -137,5 +151,5 @@ to [arg file].
 [list_end]
 
 [vset CATEGORY png]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

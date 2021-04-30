@@ -2,7 +2,7 @@
 '\" Generated from file 'smtp\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 1999-2000 Marshall T\&. Rose and others
 '\"
-.TH "smtp" n 1\&.5 tcllib "smtp client"
+.TH "smtp" n 1\&.5\&.1 tcllib "smtp client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl \fR
 .sp
 package require \fBmime  ?1\&.5\&.4?\fR
 .sp
-package require \fBsmtp  ?1\&.5?\fR
+package require \fBsmtp  ?1\&.5\&.1?\fR
 .sp
 \fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR\&.\&.\&.
 .sp
@@ -407,15 +407,15 @@ proc send_simple_message {recipient email_server subject body} {
     package require smtp
     package require mime
 
-    set token [mime::initialize -canonical text/plain \\\\
+    set token [mime::initialize -canonical text/plain \\
 	-string $body]
     mime::setheader $token Subject $subject
-    smtp::sendmessage $token \\\\
+    smtp::sendmessage $token \\
 	-recipients $recipient -servers $email_server
     mime::finalize $token
 }
 
-send_simple_message someone@somewhere\&.com localhost \\\\
+send_simple_message someone@somewhere\&.com localhost \\
     "This is the subject\&." "This is the message\&."
 
 .CE

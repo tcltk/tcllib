@@ -99,7 +99,7 @@ proc f_setupcircle {} {
 # Change previous sample tree so that its circular symbolic
 # link points to the base directory. Unix-only.
 #
-#	dir                    
+#	dir
 #	+--{find 1}             <----------+
 #          +--{find 2}                     |
 #          |  +--{file* 2}		   |
@@ -228,13 +228,13 @@ proc f_setupdot {} {
 #  dir/a/c                   |			a/c/g		== a
 #  dir/a/d                   | a/c/h
 #  dir/a/c/g --> ..          |                  a/c/h/e         == c
-#  dir/a/c/h --> ../../b     | a/c/h/f					
-#  dir/a/c/i                 | a/c/i					
-#  dir/b/e   --> ../a/c	     | a/d					
-#  dir/b/f                   | b					
-#                            | b/e					
-#                            | b/e/g					
-#                            | b/e/g/c					
+#  dir/a/c/h --> ../../b     | a/c/h/f
+#  dir/a/c/i                 | a/c/i
+#  dir/b/e   --> ../a/c	     | a/d
+#  dir/b/f                   | b
+#                            | b/e
+#                            | b/e/g
+#                            | b/e/g/c
 #                            | 			b/e/g/c/g	== b/e/g
 #                            |			b/e/g/c/h	== b
 #                            | b/e/g/d

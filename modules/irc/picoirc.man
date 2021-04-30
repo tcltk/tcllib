@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.5.2]
+[vset VERSION 0.10.0]
 [manpage_begin picoirc n [vset VERSION]]
 [see_also {rfc 1459}]
 [keywords chat]
@@ -7,7 +7,7 @@
 [moddesc   {Simple embeddable IRC interface}]
 [titledesc {Small and simple embeddable IRC client.}]
 [category  Networking]
-[require Tcl]
+[require Tcl 8.6]
 [require picoirc [opt [vset VERSION]]]
 [description]
 
@@ -35,12 +35,33 @@ more capability investigate the [package irc] package.
 
 [list_begin definitions]
 
-[call [cmd ::picoirc::connect] [arg callback] [arg nick] [arg url]]
+[call [cmd ::picoirc::connect] [arg callback] [arg nick] [opt [arg password]] [arg url]]
 
-Create a new irc connection to the server specified by [arg url] and
-login using the [arg nick] as the username. The [arg callback] must be
-as specified in [sectref CALLBACK]. Returns a package-specific variable
-that is used when calling other commands in this package.
+Creates a new irc connection to the server specified by [arg url] and
+login using the [arg nick] as the username and optionally [arg password].
+If the [arg url] starts with [emph ircs://] then a TLS connection is
+created. The [arg callback] must be as specified in [sectref CALLBACK].
+Returns a package-specific variable that is used when calling other
+commands in this package.
+
+[para][emph Note:]
+
+For connecting via TLS the Tcl module [emph tls] must be already
+loaded, otherwise an error is raised.
+
+[example {
+# must be loaded for TLS
+package require tls
+# default arguments
+tls::init -autoservername true -command workaround \\
+    -require 1 -cadir /etc/ssl/certs -tls1 0 -tls1.1 0
+# avoid annoying bgerror, errors are already catched internally
+proc workaround {state args} {
+    if {$state == "verify"} {
+        return [lindex $args 3]
+    }
+}
+}]
 
 [call [cmd ::picoirc::post] [arg context] [arg channel] [arg message]]
 
@@ -52,8 +73,10 @@ sequences and then sent.
 [call [cmd ::picoirc::splituri] [arg uri]]
 
 Splits an IRC scheme uniform resource indicator into its component
-parts. Returns a list of server, port and channel. The default port is
-6667 and there is no default channel.
+parts. Returns a list of server, port, channels and secure where
+secure is a boolean flag which is [const true] if a TLS connection was
+requested via the [emph ircs://] schema. The default port is 6667 (or
+6697 if secured) and there are no default channels.
 
 [call [cmd ::picoirc::send] [arg context] [arg line]]
 
@@ -104,13 +127,30 @@ package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
 received.
 
+[opt_def userinfo "[arg nick] [arg info]"]
+
+called as a response of WHOIS command. [arg nick] is the user
+the command was targeted for. [arg info] is the dictionary containing
+detailed information about that user: name, host, channels and userinfo.
+userinfo typically contains name and version of user's IRC client.
+
 [opt_def chat "[arg target] [arg nick] [arg message] [arg type]"]
 
 called when a message arrives. [arg target] is the identity that the
 message was targetted for. This can be the logged in nick or a channel
 name. [arg nick] is the name of the sender of the message.
 [arg message] is the message text. [arg type] is set to "ACTION" if the
-message was sent as a CTCP ACTION
+message was sent as a CTCP ACTION. [arg type] is set to "NOTICE" if the
+message was sent as a NOTICE command, in that case [arg target] is empty
+if it matches current user nick or it's "*", in later case empty
+[arg nick] means that notice comes from server.
+
+[opt_def mode "[arg nick] [arg target] [arg flags]"]
+
+called when mode of user or channel changes. [arg nick] is the name
+of the user who requested a change, can be empty if it's the server.
+[arg target] is the identity that has its mode changed. [arg flags]
+are the changes in mode.
 
 [opt_def system "[arg channel] [arg message]"]
 

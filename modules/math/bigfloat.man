@@ -1,4 +1,5 @@
-[manpage_begin math::bigfloat n 2.0.1]
+[vset VERSION 2.0.3]
+[manpage_begin math::bigfloat n [vset VERSION]]
 [keywords computations]
 [keywords floating-point]
 [keywords interval]
@@ -10,7 +11,7 @@
 [titledesc {Arbitrary precision floating-point numbers}]
 [category  Mathematics]
 [require Tcl 8.5]
-[require math::bigfloat [opt 2.0.1]]
+[require math::bigfloat [opt [vset VERSION]]]
 
 [description]
 
@@ -428,5 +429,5 @@ puts "angle3 : [lb]tostr [lb]rad2deg $angle3[rb][rb]"
 [example_end]
 
 [vset CATEGORY {math :: bignum :: float}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

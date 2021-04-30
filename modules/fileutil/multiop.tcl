@@ -187,7 +187,7 @@ snit::type ::fileutil::multi::op {
 	set base     ""
 	set alias    ""
 	set op       ""
-	set recursive 0 
+	set recursive 0
 	set src      ""
 	set excl     ""
 	set types    {}

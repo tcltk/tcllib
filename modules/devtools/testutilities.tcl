@@ -178,6 +178,14 @@ proc InitializeTclTest {} {
     if {[info exists tcltestinit] && $tcltestinit} return
     set tcltestinit 1
 
+    proc ::tcltest::byConstraint {dict} {
+	foreach {constraint value} $dict {
+	    if {![testConstraint $constraint]} continue
+	    return $value
+	}
+	return -code error "No result available. Failed to match any of the constraints ([join [lsort -dict [dict keys $dict]] ,])."
+    }
+    
     if {![package vsatisfies [package provide tcltest] 2.0]} {
 	# Tcltest 2.0+ provides a documented public API to define and
 	# initialize a test constraint. For earlier versions of the
@@ -214,14 +222,29 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.3plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
 
+    ::tcltest::testConstraint tcl8.4only \
+	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+
     ::tcltest::testConstraint tcl8.4plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
+
+    ::tcltest::testConstraint tcl8.5only [expr {
+	![package vsatisfies [package provide Tcl] 8.6] &&
+	 [package vsatisfies [package provide Tcl] 8.5]
+    }]
 
     ::tcltest::testConstraint tcl8.5plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
     ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+
+    ::tcltest::testConstraint tcl8.6not10 \
+	[expr { [package vsatisfies [package provide Tcl] 8.6] &&
+	       ![package vsatisfies [package provide Tcl] 8.6.10]}]
+
+    ::tcltest::testConstraint tcl8.6.10plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.6.10]}]
 
     ::tcltest::testConstraint tcl8.4minus \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
@@ -397,12 +420,12 @@ proc snitErrors {} {
     } else {
 	proc snitWrongNumArgs {obj method arglist missingIndex} {
 	    incr missingIndex 4
-	    tcltest::wrongNumArgs "$method" [linsert $arglist 0 \
+	    tcltest::wrongNumArgs $method [linsert $arglist 0 \
 		    type selfns win self] $missingIndex
 	}
 
 	proc snitTooManyArgs {obj method arglist} {
-	    tcltest::tooManyArgs "$method" [linsert $arglist 0 \
+	    tcltest::tooManyArgs $method [linsert $arglist 0 \
 		    type selfns win self]
 	}
     }
@@ -415,10 +438,46 @@ proc snitErrors {} {
 ## avoid contamination of the testsuite by packages and code outside
 ## of the Tcllib under test.
 
-proc localPath {fname} {
-    return [file join $::tcltest::testsDirectory $fname]
+proc asset args {
+    set localPath [file join [uplevel 1 [
+		list [namespace which localPath]]]]
+	foreach location {test-assets {.. test-assets}} {
+		set candidate [eval file join [list $localPath] $location $args]
+		if {[file exists $candidate]} {
+			set {asset path} $candidate
+			break
+		}
+	}
+	if {![info exists {asset path}]} {
+		error [list {can not find asset path}]
+	}
+	return ${asset path}
 }
 
+proc asset-get args {
+	file-get [uplevel 1 [list [namespace which asset]] $args]
+}
+
+proc file-get path {
+    set c [open $path r]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+proc localDirectory {} {
+    set script [uplevel 1 [list ::info script]]
+    file dirname [file dirname [file normalize [
+	    file join $script[set script {}] ...]]]
+}
+
+# General access to module-local files
+proc localPath args {
+    set {script dir} [uplevel 1 [list [namespace which localDirectory]]]
+    eval file join [list ${script dir}] $args
+}
+
+# General access to global (project-local) files
 proc tcllibPath {fname} {
     return [file join $::tcllib::testutils::tcllib $fname]
 }
@@ -542,7 +601,7 @@ proc support {script} {
 
 proc testing {script} {
     InitializeTclTest
-    set ::tcllib::testutils::tag "*"
+    set ::tcllib::testutils::tag *
     if {[catch {
 	uplevel 1 $script
     } msg]} {
@@ -707,13 +766,14 @@ proc TestAccelExit {namespace} {
 # ### ### ### ######### ######### #########
 ##
 
-proc TestFiles {pattern} {
+proc TestFiles pattern {
+    set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
     if {[package vsatisfies [package provide Tcl] 8.3]} {
 	# 8.3+ -directory ok
-	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
 	# 8.2 or less, no -directory
-	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+	set flist [glob -nocomplain [file join ${local directory} $pattern]]
     }
     foreach f [lsort -dict $flist] {
 	uplevel 1 [list source $f]
@@ -721,13 +781,14 @@ proc TestFiles {pattern} {
     return
 }
 
-proc TestFilesGlob {pattern} {
+proc TestFilesGlob pattern {
+    set {local directory} [uplevel 1 [list [namespace which localDirectory]]]
     if {[package vsatisfies [package provide Tcl] 8.3]} {
 	# 8.3+ -directory ok
-	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+	set flist [glob -nocomplain -directory ${local directory} $pattern]
     } else {
 	# 8.2 or less, no -directory
-	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+	set flist [glob -nocomplain [file join ${local directory} $pattern]]
     }
     return [lsort -dict $flist]
 }

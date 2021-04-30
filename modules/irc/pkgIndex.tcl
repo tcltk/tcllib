@@ -1,8 +1,7 @@
-# pkgIndex.tcl                                                    -*- tcl -*-
-# $Id: pkgIndex.tcl,v 1.10 2008/08/05 20:40:04 andreas_kupries Exp $
-if { ![package vsatisfies [package provide Tcl] 8.3] } {
+# pkgIndex.tcl -*- tcl -*-
+if { ![package vsatisfies [package provide Tcl] 8.6] } {
     # PRAGMA: returnok
-    return 
+    return
 }
-package ifneeded irc     0.6.2 [list source [file join $dir irc.tcl]]
-package ifneeded picoirc 0.5.2 [list source [file join $dir picoirc.tcl]]
+package ifneeded irc     0.7.0 [list source [file join $dir irc.tcl]]
+package ifneeded picoirc 0.10.0 [list source [file join $dir picoirc.tcl]]

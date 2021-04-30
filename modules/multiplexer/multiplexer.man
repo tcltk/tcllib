@@ -126,5 +126,5 @@ ip-port.
 [list_end]
 
 [vset CATEGORY multiplexer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

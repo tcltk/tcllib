@@ -289,7 +289,7 @@ proc i_setup {} {
     foreach fl {1 2 3} {
 	set fn [file join installSrc subdir2 subfile$fl]
 	makeFile "blah" $fn
-	    
+
 	# Give it some "bad" permissions.
 	file attributes $fn -permissions 0600
     }

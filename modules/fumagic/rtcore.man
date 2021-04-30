@@ -174,5 +174,5 @@ names are the same, with the character "u" added as prefix.
 [list_end]
 
 [vset CATEGORY {fileutil :: magic}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

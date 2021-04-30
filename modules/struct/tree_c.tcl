@@ -69,7 +69,7 @@ namespace eval ::struct {
 	    }
 	    
 	    tdg->counter ++;
-	    sprintf (tdg->buf, "tree%d", tdg->counter);
+	    sprintf (tdg->buf, "tree%ld", tdg->counter);
 	    return tdg->buf;
 
 #undef  KEY

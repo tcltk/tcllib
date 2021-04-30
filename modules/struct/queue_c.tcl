@@ -63,7 +63,7 @@ namespace eval ::struct {
 	    }
 	    
 	    qdg->counter ++;
-	    sprintf (qdg->buf, "queue%d", qdg->counter);
+	    sprintf (qdg->buf, "queue%ld", qdg->counter);
 	    return qdg->buf;
 
 #undef  KEY

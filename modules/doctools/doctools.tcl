@@ -2,7 +2,7 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -168,7 +168,7 @@ proc ::doctools::help {} {
 #	name	Name of the doctools created
 
 proc ::doctools::new {name args} {
-    
+
     if { [llength [info commands ::$name]] } {
 	return -code error "command \"$name\" already exists, unable to create doctools object"
     }
@@ -233,7 +233,7 @@ proc ::doctools::DoctoolsProc {name {cmd ""} args} {
     if { [llength [info level 0]] == 2 } {
 	error "wrong # args: should be \"$name option ?arg arg ...?\""
     }
-    
+
     # Split the args into command and args components
 
     if { [llength [info commands ::doctools::_$cmd]] == 0 } {
@@ -1358,4 +1358,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.21
+package provide doctools 1.5.6

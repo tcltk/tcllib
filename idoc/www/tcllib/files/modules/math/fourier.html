@@ -97,12 +97,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">math::fourier(n) 1.0.2 tcllib &quot;Tcl Math Library&quot;</h1>
@@ -136,10 +136,10 @@
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>The <b class="package">math::fourier</b> package implements two versions of discrete
-Fourier transforms, the ordinary transform and the fast Fourier
-transform. It also provides a few simple filter procedures as an
-illustrations of how such filters can be implemented.</p>
+<p>The <b class="package">math::fourier</b> package uses the fast
+Fourier transform, if applicable, or the ordinary transform to implement
+the discrete Fourier transform. It also provides a few simple filter
+procedures as an illustration of how such filters can be implemented.</p>
 <p>The purpose of this document is to describe the implemented procedures
 and provide some examples of their usage. As there is ample literature
 on the algorithms involved, we refer to relevant text books for more
@@ -166,7 +166,7 @@ due to floating point arithmetic) return the original list of numbers.</p>
 <p>If the input length N is a power of two then these procedures will
 utilize the O(N log N) Fast Fourier Transform algorithm. If input
 length is not a power of two then the DFT will instead be computed
-using a the naive quadratic algorithm.</p>
+using the naive quadratic algorithm.</p>
 <p>Some examples:</p>
 <pre class="doctools_example">
     % dft {1 2 3 4}

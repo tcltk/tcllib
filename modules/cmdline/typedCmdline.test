@@ -6,8 +6,6 @@
 #
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # All rights reserved.
-#
-# RCS: @(#) $Id: typedCmdline.test,v 1.11 2007/08/03 04:27:38 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -307,7 +305,7 @@ test typed-cmdline-7.6 {cmdline::typedGetoptions, integer flag, missing arg, no 
     set argList {-foo}
     list [catch {cmdline::typedGetoptions argList {{foo.integer {} {blah blah}}}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
- -foo integer         blah blah 
+ -foo integer         blah blah
  -help                Print this message
  -?                   Print this message
 " {}]
@@ -327,9 +325,9 @@ test typed-cmdline-7.10 {cmdline::typedGetoptions, missing integer flag with arg
     set argList {-f}
     list [catch {cmdline::typedGetoptions argList {foo.integer *.double fooey}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
- -foo integer          
- -* double             
- -fooey               
+ -foo integer
+ -* double
+ -fooey
  -help                Print this message
  -?                   Print this message
 " -f]
@@ -373,8 +371,8 @@ test typed-cmdline-7.20 {cmdline::typedGetopt, xdigit options} {
     set argList {-foo 50gC}
     list [catch {cmdline::typedGetoptions argList {foo.(50GC|50gc) bar}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
- -foo 50GC|50gc        
- -bar                 
+ -foo 50GC|50gc
+ -bar
  -help                Print this message
  -?                   Print this message
 " 50gC]
@@ -382,8 +380,8 @@ test typed-cmdline-7.21 {cmdline::typedGetoptions, errors} {
     set argList {-b -foo}
     list [catch {cmdline::typedGetoptions argList {foo.arg a}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
- -foo arg              
- -a                   
+ -foo arg
+ -a
  -help                Print this message
  -?                   Print this message
 " {-b -foo}]
@@ -391,8 +389,8 @@ test typed-cmdline-7.22 {cmdline::typedGetoptions, errors} {
     set argList {-b -foo}
     list [catch {cmdline::typedGetoptions argList {{foo.arg {} {blah blah}} a}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
- -foo arg             blah blah 
- -a                   
+ -foo arg             blah blah
+ -a
  -help                Print this message
  -?                   Print this message
 " {-b -foo}]
@@ -402,7 +400,7 @@ test typed-cmdline-7.23 {cmdline::typedGetoptions, errors} {
 	    $argList
 } [list 1 "[cmdline::getArgv0] options:
  -foo arg              <blat>
- -a                   
+ -a
  -help                Print this message
  -?                   Print this message
 " {}]
@@ -412,7 +410,7 @@ test typed-cmdline-7.24 {cmdline::typedGetoptions, errors} {
 	    $argList
 } [list 1 "[cmdline::getArgv0] options:
  -foo arg              <blat>
- -a                   
+ -a
  -help                Print this message
  -?                   Print this message
 " {}]
@@ -422,7 +420,7 @@ test typed-cmdline-7.25 {cmdline::typedGetoptions, usage string in errors} {
 	    $argList
 } [list 1 "[cmdline::getArgv0] testing:
  -foo arg              <blat>
- -a                   
+ -a
  -help                Print this message
  -?                   Print this message
 " {}]
@@ -435,9 +433,9 @@ test typed-cmdline-7.27 {cmdline::typedGetoptions, unusual option, abbreviation 
     list [catch {cmdline::typedGetoptions argList {{foo.arg blat} x?y x*y a}} msg] $msg $argList
 } [list 1 "[cmdline::getArgv0] options:
  -foo arg              <blat>
- -x?y                 
- -x*y                 
- -a                   
+ -x?y
+ -x*y
+ -a
  -help                Print this message
  -?                   Print this message
 " {-x -a -foo}]

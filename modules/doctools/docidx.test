@@ -5,10 +5,8 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2003-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2003-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: docidx.test,v 1.15 2009/02/12 05:42:47 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,6 +19,7 @@ testsNeedTcltest 1.0
 
 support {
     use textutil/expander.tcl textutil::expander
+    use fileutil/fileutil.tcl fileutil
 }
 testing {
     useLocal docidx.tcl doctools::idx
@@ -307,6 +306,50 @@ test docidx-9.2 {docidx syntax, key without references, error} {
 [index_end]
 --> (FmtError) IDX error (idx/endcmd), "index_end" : Command not allowed here..}
 
+
+# -------------------------------------------------------------------------
+## Series of tests for all available backends, check their formatting.
+
+set k 11
+foreach format {
+    null html nroff
+    text wiki markdown
+} {
+    set n 0
+    foreach src [TestFilesGlob tests/idx/idx/*] {
+	# Get the expected result
+	set dst [localPath [file join tests idx $format [file tail $src]]]
+	set map {} ; lappend map @USR@ $tcl_platform(user)
+	set rem {} ; lappend rem $tcl_platform(user) @USR@
+	if {$format eq "nroff"} {
+		lappend map ".so man.macros\n" [fileutil::cat [localPath mpformats/man.macros]]
+	}
+	if {[catch {
+	    set expected [string map $map [fileutil::cat $dst]]
+	}]} { set expected **missing** }
+
+	test docidx-${format}-${k}.$n "docidx backends, $format/[file tail $src]" {
+	    new mydocidx
+	    mydocidx configure \
+		-format    $format \
+		-file      .FILE.
+	    if {[catch {
+		set res [mydocidx format [fileutil::cat $src]]
+	    }]} {
+		set res $::errorInfo
+	    }
+	    mydocidx destroy
+	    #fileutil::writeFile ${dst}.actual [string map $rem $res]
+	    set res
+	} $expected
+
+	#fileutil::writeFile ${dst}.expected $expected
+	incr n
+    }
+    incr k
+}
+
+# -------------------------------------------------------------------------
 
 namespace forget ::doctools::idx::new
 

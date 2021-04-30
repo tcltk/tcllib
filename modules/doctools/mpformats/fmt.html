@@ -2,7 +2,7 @@
 #
 # fmt.html
 #
-# Copyright (c) 2001-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Definitions to convert a tcl based manpage definition into
 # a manpage based upon HTML markup.
@@ -12,6 +12,10 @@
 
 dt_source _common.tcl   ; # Shared code
 dt_source _html.tcl     ; # HTML basic formatting
+dt_source _xref.tcl     ; # xref management
+
+global _in_example
+set    _in_example 0
 
 proc c_copyrightsymbol {} {return "[markup "&"]copy;"}
 
@@ -48,6 +52,10 @@ proc lpop {} {
 }
 
 proc fmt_plain_text {text} {
+    global _in_example
+    if {$_in_example} {
+	set text [string map [list \\\\\n \\\n] $text]
+    }
     return $text
 }
 
@@ -229,7 +237,7 @@ c_pass 2 fmt_description {did} {
     if {[c_xref_category]         ne ""} {c_newSection Category   1 end category}
     if {[c_get_copyright]         != {}} {c_newSection Copyright  1 end copyright}
 
-    set sections $::SectionList
+    set sections [c_sections]
 
     # Pass 2: Generate the markup for the TOC, indenting the
     #         links according to the level of each section.
@@ -240,7 +248,7 @@ c_pass 2 fmt_description {did} {
     set lastlevel 1
     set close 0
     foreach {name id level} $sections {
-	# level in {1,2}, 1 = sectio n, 2 = subsection
+	# level in {1,2}, 1 = section, 2 = subsection
 	if {$level == $lastlevel} {
 	    # Close previous item.
 	    if {$close} { append result [tag/ li] \n }
@@ -351,9 +359,11 @@ proc fmt_tkoption_def {name dbname dbclass} {
 ################################################################
 
 proc fmt_example_begin {} {
-	return [para_close]\n[tag* pre class doctools_example]
+    global _in_example ; set _in_example 1
+    return [para_close]\n[tag* pre class doctools_example]
 }
 proc fmt_example_end   {} {
+    global _in_example ; set _in_example 0
     return [tag/ pre]\n[para_open]
 }
 proc fmt_example {code} {
@@ -369,11 +379,9 @@ proc fmt_opt  {text} { span   "?$text?" opt }
 
 proc fmt_comment {text} {ht_comment $text}
 proc fmt_sectref {title {id {}}} {
-    global SectionNames
-    if {$id == {}} {
-	set id [c_sectionId $title]
-    }
-    if {[info exists SectionNames($id)]} {
+    if {$id == {}} { set id [c_sectionId $title] }
+
+    if {[c_sectionKnown $id]} {
     	return [span [link $title "#$id"] sectref]
     } else {
 	return [bold $title sectref]
@@ -508,7 +516,7 @@ proc para_close {} {
 
 ################################################################
 
-global xref ; array set xref {}
+proc GetXref {} { Get xref } ;# xref access to engine parameters
 
 global    __var
 array set __var {
@@ -632,107 +640,3 @@ set    defaultstyle {
 }
 
 ################################################################
-
-proc XrefInit {} {
-    global xref __var
-    foreach item $__var(xref) {
-	foreach {pattern fname fragment} $item break
-	set fname_ref [dt_fmap $fname]
-	if {$fragment != {}} {append fname_ref #$fragment}
-	set xref($pattern) $fname_ref
-    }
-    proc XrefInit {} {}
-    return
-}
-
-proc XrefMatch {word args} {
-    global xref
-
-    foreach ext $args {
-	if {$ext != {}} {
-	    if {[info exists xref($ext,$word)]} {
-		return [XrefLink $xref($ext,$word) $word]
-	    }
-	}
-    }
-    if {[info exists xref($word)]} {
-	return [XrefLink $xref($word) $word]
-    }
-
-    # Convert the word to all-lower case and then try again.
-
-    set lword [string tolower $word]
-
-    foreach ext $args {
-	if {$ext != {}} {
-	    if {[info exists xref($ext,$lword)]} {
-		return [XrefLink $xref($ext,$lword) $word]
-	    }
-	}
-    }
-    if {[info exists xref($lword)]} {
-	return [XrefLink $xref($lword) $word]
-    }
-
-    return $word
-}
-
-proc XrefList {list {ext {}}} {
-    set res [list]
-    foreach w $list {lappend res [XrefMatch $w $ext]}
-    return $res
-}
-
-proc LinkHere {} {
-    return [dt_fmap [dt_mainfile]]
-}
-
-proc LinkTo {dest here} {
-    # Ensure that the link is properly done relative to this file!
-
-    set save $dest
-
-    #puts_stderr "XrefLink $dest $label"
-
-    set here [file split $here]
-    set dest [file split $dest]
-
-    #puts_stderr "XrefLink < $here"
-    #puts_stderr "XrefLink > $dest"
-
-    while {[string equal [lindex $dest 0] [lindex $here 0]]} {
-	set dest [lrange $dest 1 end]
-	set here [lrange $here 1 end]
-	if {[llength $dest] == 0} {break}
-    }
-    set ul [llength $dest]
-    set hl [llength $here]
-
-    if {$ul == 0} {
-	set dest [lindex [file split $save] end]
-    } else {
-	while {$hl > 1} {
-	    set dest [linsert $dest 0 ..]
-	    incr hl -1
-	}
-	set dest [eval file join $dest]
-    }
-
-    #puts_stderr "XrefLink --> $dest"
-    return $dest
-}
-
-proc XrefLink {dest label} {
-    # Ensure that the link is properly done relative to this file!
-
-    set here [LinkHere]
-    set dest [LinkTo $dest $here]
-
-    if {[string equal $dest [lindex [file split $here] end]]} {
-	# Suppress self-referential links, i.e. links made from the
-	# current file to itself. Note that links to specific parts of
-	# the current file are not suppressed, only exact links.
-	return $label
-    }
-    return [link $label $dest]
-}

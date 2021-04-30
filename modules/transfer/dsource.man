@@ -150,5 +150,5 @@ actually configure the object.
 [list_end]
 
 [vset CATEGORY transfer]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

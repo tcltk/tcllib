@@ -22,7 +22,8 @@
 # THE SOFTWARE.
 #
 
-package require textutil
+package require Tcl 8.5
+package require textutil::tabify
 
 ## \file
 # \brief Functions for converting markdown to HTML.
@@ -38,14 +39,17 @@ namespace eval Markdown {
     #
     # Converts text written in markdown to HTML.
     #
-    # @param markdown  currently takes as a single argument the text in markdown
+    # @param markdown  the text in markdown
+    # @param tabs      whether to preserve tabs in markdown
     #
     # The output of this function is only a fragment, not a complete HTML
     # document. The format of the output is generic XHTML.
     #
-    proc convert {markdown} {
-        set markdown [regsub {\r\n?} $markdown {\n}]
-        set markdown [::textutil::untabify2 $markdown 4]
+    proc convert {markdown {tabs 0}} {
+        set markdown [regsub -all {\r\n?} $markdown \n]
+        if {!$tabs} {
+	    set markdown [::textutil::tabify::untabify2 $markdown 4]
+	}
         set markdown [string trimright $markdown]
 
         # COLLECT REFERENCES
@@ -61,8 +65,8 @@ namespace eval Markdown {
     # used for fenced code blocks to transform the code block into a
     # prettified HTML.
     #
-    proc register {lang_specifier converter} {
-	set ::Markdown::converter($lang_specifier) $converter
+    proc register {lang_specifier converter {extended 0}} {
+	set ::Markdown::converter($lang_specifier) [list $extended $converter]
     }
 
     #
@@ -136,7 +140,7 @@ namespace eval Markdown {
         while {$index < $no_lines} {
             set line [lindex $lines $index]
 
-            switch -regexp -matchvar matches -- $line {
+            switch -regexp -matchvar line_match -- $line {
                 {^\s*$} {
                     # EMPTY LINES
                     if {![regexp {^\s*$} [lindex $lines [expr $index - 1]]]} {
@@ -161,7 +165,7 @@ namespace eval Markdown {
                 {^[ ]{0,3}_[ ]*_[ ]*_[_ ]*$} -
                 {^[ ]{0,3}\*[ ]*\*[ ]*\*[\* ]*$} {
                     # HORIZONTAL RULES
-                    append result "<hr/>"
+                    append result "<hr />"
                     incr index
                 }
                 {^[ ]{0,3}#{1,6}} {
@@ -253,9 +257,11 @@ namespace eval Markdown {
                     }
                     set code_result [join $code_result \n]
 
-                    append result <pre><code> $code_result \n </code></pre>
+                    append result <pre><code> $code_result </code></pre>
                 }
-                {^(?:(?:`{3,})|(?:~{3,}))\{?(\S+)?\}?\s*$} {
+                {^(?:(?:`{3,})|(?:~{3,}))(\{?\S+\}?)?\s*.*$} {
+		    # orig:  {^(?:(?:`{3,})|(?:~{3,}))\{?(\S+)?\}?\s*$}
+
                     # FENCED CODE BLOCKS
                     set code_result {}
                     if {[string index $line 0] eq {`}} {
@@ -270,15 +276,15 @@ namespace eval Markdown {
 		    #     ```tcl
 		    #
 		    # The language specifier is used for two purposes:
-		    # a) As a CSS class name 
+		    # a) As a CSS class name
 		    #    (useful e.g. for highlight.js)
 		    # b) As a name for a source code to HTML converter.
 		    #    When such a converter is registered,
 		    #    the codeblock will be sent through this converter.
 		    #
-		    set lang_specifier [string tolower [lindex $matches end]]
+		    set lang_specifier [string tolower [lindex $line_match 1]]
 		    if {$lang_specifier ne ""} {
-			set code_CCS_class " class='$lang_specifier'"
+			set code_CCS_class " class='[html_escape $lang_specifier]'"
 			incr ::Markdown::lang_counter($lang_specifier)
 		    } else {
 			set code_CCS_class ""
@@ -294,7 +300,7 @@ namespace eval Markdown {
                             break
                         }
 
-                        lappend code_result $line
+                        lappend code_result [html_escape $line]
                     }
                     set code_result [join $code_result \n]
 
@@ -303,17 +309,22 @@ namespace eval Markdown {
 		    # the resulting snippet.
 		    #
 		    if {[info exists ::Markdown::converter($lang_specifier)]} {
-			set code_result [{*}$::Markdown::converter($lang_specifier) $code_result]
+			lassign $::Markdown::converter($lang_specifier) extended converter
+
+			set cmd $converter
+			if {$extended} { lappend cmd [lrange [lindex $line_match 0] 1 end] }
+			lappend cmd $code_result
+			set code_result [uplevel #0 $cmd]
 		    } else {
                         set code_result [html_escape $code_result]
-                }
+		    }
                     append result \
 			"<pre class='code'>" \
 			<code$code_CCS_class> \
 			$code_result \
 			</code></pre>
                 }
-		
+
                 {^[ ]{0,3}(?:\*|-|\+) |^[ ]{0,3}\d+\. } {
                     # LISTS
                     set list_result {}
@@ -405,36 +416,43 @@ namespace eval Markdown {
                 }
                 {^<(?:p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del)} {
                     # HTML BLOCKS
+                    set block_tag [string range $line_match 1 end]
                     set re_htmltag {<(/?)(\w+)(?:\s+\w+=(?:\"[^\"]+\"|'[^']+'))*\s*>}
+
+                    set block_lines 0
                     set buffer {}
+                    while {$index < $no_lines} {
+                        append buffer $line \n
 
-                    while {$index < $no_lines} \
-                    {
-                        while {$index < $no_lines} \
-                        {
-                            incr index
+                        incr block_lines
+                        incr index
 
-                            append buffer $line \n
+                        set tags [regexp -inline -all $re_htmltag $buffer]
 
-                            if {[is_empty_line $line]} {
-                                break
-                            }
-
-                            set line [lindex $lines $index]
-                        }
-
-                        set tags [regexp -inline -all $re_htmltag  $buffer]
                         set stack_count 0
-
                         foreach {match type name} $tags {
-                            if {$type eq {}} {
-                                incr stack_count +1
-                            } else {
-                                incr stack_count -1
+                            if {$name eq $block_tag} {
+                                if {$type eq {}} {
+                                    incr stack_count +1
+                                } else {
+                                    incr stack_count -1
+                                }
                             }
                         }
 
-                        if {$stack_count == 0} { break }
+                        if {$stack_count == 0} break
+
+                        set line [lindex $lines $index]
+                    }
+
+                    # Skip empty lines after the block.
+                    while {$index < $no_lines
+                           && [regexp {^\s*$} [lindex $lines $index]]} {
+                        incr index
+                    }
+
+                    if {$index < $no_lines} {
+                        append buffer \n
                     }
 
                     append result $buffer
@@ -808,5 +826,5 @@ namespace eval Markdown {
     }
 }
 
-package provide Markdown 1.1
-
+package provide Markdown 1.2
+return

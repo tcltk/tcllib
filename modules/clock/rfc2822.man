@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin clock_rfc2822 n 0.1]
 [moddesc   {Date/Time Utilities}]
-[titledesc {Parsing ISO 8601 dates/times}]
+[titledesc {Parsing RFC 2822 dates/times}]
 [category  {Text processing}]
 [require Tcl 8.5]
 [require clock::rfc2822 [opt 0.1]]
@@ -23,5 +23,5 @@ if the command is unable to parse the date.
 [list_end]
 
 [vset CATEGORY clock::rfc2822]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

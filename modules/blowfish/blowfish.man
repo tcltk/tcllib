@@ -1,5 +1,6 @@
+[vset VERSION 1.0.5]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin blowfish n 1.0.3]
+[manpage_begin blowfish n [vset VERSION]]
 [see_also 3des]
 [see_also des]
 [see_also rc4]
@@ -13,7 +14,7 @@
 [titledesc {Implementation of the Blowfish block cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.4]
-[require blowfish [opt 1.0.4]]
+[require blowfish [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -160,5 +161,5 @@ d0d8f27e7a374b9e2dbd9938dd04195a
 Frank Pilhofer, Pat Thoyts
 
 [vset CATEGORY blowfish]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

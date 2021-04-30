@@ -2,7 +2,7 @@
 '\" Generated from file 'loggerUtils\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
-.TH "logger::utils" n 1\&.3 tcllib "Object Oriented logging facility"
+.TH "logger::utils" n 1\&.3\&.1 tcllib "Object Oriented logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ logger::utils \- Utilities for logger
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBlogger::utils  ?1\&.3?\fR
+package require \fBlogger::utils  ?1\&.3\&.1?\fR
 .sp
 \fB::logger::utils::createFormatCmd\fR \fIformatString\fR
 .sp

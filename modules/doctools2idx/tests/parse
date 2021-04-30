@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 
 source [tcllibPath doctools2base/tests/common]
-set mytestdir tests/data
+set mytestdir data
 
 # -------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-[manpage_begin md5 n 2.0.7]
+[manpage_begin md5 n 2.0.8]
 [see_also md4]
 [see_also sha1]
 [keywords hashing]
@@ -170,5 +170,5 @@ These commands are identical to the MD5 equivalent commands.
 [list_end]
 
 [vset CATEGORY md5]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

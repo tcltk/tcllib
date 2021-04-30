@@ -14,7 +14,7 @@
 [moddesc   {LDAP extended object interface}]
 [titledesc {LDAP extended object interface}]
 [category  Networking]
-[require Tcl 8.4]
+[require Tcl 8.5]
 [require ldapx [opt [vset VERSION]]]
 [description]
 [para]
@@ -807,5 +807,5 @@ This class defines two options:
 [section References]
 
 [vset CATEGORY ldap]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

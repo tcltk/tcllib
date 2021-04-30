@@ -1,12 +1,12 @@
-## 
+##
 ## This is the file `primes.test',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-## 
+##
 ## The original source files were:
-## 
+##
 ## numtheory.dtx  (with options: `test_primes test_common')
-## 
+##
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -48,7 +48,20 @@ proc matchLists { expected actual } {
    }
    return $match
 }
+
+proc matchNestedLists { expected actual } {
+   set match 1
+   foreach a $actual e $expected {
+      if { ! [matchLists $a $e] } {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+
 customMatch equalLists matchLists
+customMatch equalNestedLists matchNestedLists
 
 test first-few-primes-1 "First 10 primes" -match equalLists -body {
     ::math::numtheory::firstNprimes 10
@@ -122,6 +135,14 @@ test totient-4 "Totient 105" -body {
     ::math::numtheory::totient 105
 } -result 48
 
+test totient-5 "Totient 1-12" -match equalLists -body {
+    set result {}
+    for {set n 1} {$n <= 12} {incr n} {
+        lappend result [::math::numtheory::totient $n]
+    }
+    set result
+} -result {1 1 2 2 4 2 6 4 6 4 10 4}
+
 test factors-1 "All factors 30" -match equalLists -body {
     ::math::numtheory::factors 30
 } -result {1 2 3 5 6 10 15 30}
@@ -187,7 +208,24 @@ test number-primes "Exercise prime estimators" -match equalLists -body {
     set estimate3 [::math::numtheory::numberPrimesLegendreModified 1000]
     set result [list [expr {int($estimate1)}] [expr {int($estimate2)}] [expr {int($estimate3)}]]
 } -result {144 169 171}
+
+test list-primes-1 "Pairs of primes - twins" -match equalNestedLists -body {
+    ::math::numtheory::listPrimePairs 3 100
+} -result {{3 5} {5 7} {11 13} {17 19} {29 31} {41 43} {59 61} {71 73}}
+
+test list-primes-2 "Pairs of primes differing by 6 " -match equalNestedLists -body {
+    ::math::numtheory::listPrimePairs 3 100 6
+} -result {{5 11} {7 13} {11 17} {13 19} {17 23} {23 29} {31 37} {37 43} {41 47} {47 53} {53 59} {61 67} {67 73} {73 79} {83 89} {97 103}}
+
+test list-primes-3 "Progressions of primes differing by 2 " -match equalNestedLists -body {
+    ::math::numtheory::listPrimeProgressions 3 100 2
+} -result {{3 5 7} {11 13} {17 19} {29 31} {41 43} {59 61} {71 73}}
+
+test list-primes-4 "Progressions of primes differing by 6 " -match equalNestedLists -body {
+    ::math::numtheory::listPrimeProgressions 3 100 6
+} -result {{5 11 17 23 29} {7 13 19} {31 37 43} {41 47 53 59} {61 67 73 79} {83 89}}
+
 testsuiteCleanup
-## 
-## 
+##
+##
 ## End of file `primes.test'.

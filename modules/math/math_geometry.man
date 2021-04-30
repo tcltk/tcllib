@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.3.0]
+[manpage_begin math::geometry n 1.4.1]
 [keywords angle]
 [keywords distance]
 [keywords line]
@@ -10,11 +10,12 @@
 [copyright {2010 by Andreas Kupries}]
 [copyright {2010 by Kevin Kenny}]
 [copyright {2018 by Arjen Markus}]
+[copyright {2020 by Manfred Rosenberger}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
-[require math::geometry [opt 1.3.0]]
+[require math::geometry [opt 1.4.1]]
 
 [description]
 [para]
@@ -27,6 +28,10 @@ The geometrical objects are implemented as plain lists of coordinates.
 For instance a line is defined by a list of four numbers, the x- and
 y-coordinate of a first point and the x- and y-coordinates of a second
 point on the line.
+
+[para]
+[emph Note:] In version 1.4.0 an inconsistency was repaired - see [uri https://core.tcl-lang.org/tcllib/tktview?name=fb4812f82b].
+More in [sectref "COORDINATE SYSTEM"]
 
 [para]
 The various types of object are recognised by the number of coordinate
@@ -69,6 +74,7 @@ centre and the third is the radius.
 
 [list_end]
 
+
 [section "PROCEDURES"]
 
 The package defines the following public procedures:
@@ -80,15 +86,18 @@ The package defines the following public procedures:
 Compute the sum of the two vectors given as points and return it.
 The result is a vector as well.
 
+
 [call [cmd ::math::geometry::-] [arg point1] [arg point2]]
 
 Compute the difference (point1 - point2) of the two vectors
 given as points and return it. The result is a vector as well.
 
+
 [call [cmd ::math::geometry::p] [arg x] [arg y]]
 
 Construct a point from its coordinates and return it as the
 result of the command.
+
 
 [call [cmd ::math::geometry::distance] [arg point1] [arg point2]]
 
@@ -99,31 +108,37 @@ result of the command. This is in essence the same as
     math::geometry::length [math::geomtry::- point1 point2]
 }]
 
+
 [call [cmd ::math::geometry::length] [arg point]]
 
 Compute the length of the vector and return it as the
 result of the command.
+
 
 [call [cmd ::math::geometry::s*] [arg factor] [arg point]]
 
 Scale the vector by the factor and return it as the
 result of the command. This is a vector as well.
 
+
 [call [cmd ::math::geometry::direction] [arg angle]]
 
 Given the angle in degrees this command computes and returns
 the unit vector pointing into this direction. The vector for
-angle == 0 points to the right (up), and for angle == 90 up (north).
+angle == 0 points to the right (east), and for angle == 90 up (north).
+
 
 [call [cmd ::math::geometry::h] [arg length]]
 
 Returns a horizontal vector on the X-axis of the specified length.
 Positive lengths point to the right (east).
 
+
 [call [cmd ::math::geometry::v] [arg length]]
 
 Returns a vertical vector on the Y-axis of the specified length.
 Positive lengths point down (south).
+
 
 [call [cmd ::math::geometry::between] [arg point1] [arg point2] [arg s]]
 
@@ -131,6 +146,7 @@ Compute the point which is at relative distance [arg s] between the two
 points and return it as the result of the command. A relative distance of
 [const 0] returns [arg point1], the distance [const 1] returns [arg point2].
 Distances < 0 or > 1 extrapolate along the line between the two point.
+
 
 [call [cmd ::math::geometry::octant] [arg point]]
 
@@ -151,16 +167,19 @@ of the command. The possible results are
 Each octant is the arc of the circle +/- 22.5 degrees from the cardinal direction
 the octant is named for.
 
+
 [call [cmd ::math::geometry::rect] [arg nw] [arg se]]
 
 Construct a rectangle from its northwest and southeast corners and return
 it as the result of the command.
+
 
 [call [cmd ::math::geometry::nwse] [arg rect]]
 
 Extract the northwest and southeast corners of the rectangle and return
 them as the result of the command (a 2-element list containing the
 points, in the named order).
+
 
 [call [cmd ::math::geometry::angle] [arg line]]
 
@@ -171,7 +190,36 @@ Calculate the angle from the positive x-axis to a given line
 [arg_def list line] Coordinates of the line
 [list_end]
 
-[para]
+
+[call [cmd ::math::geometry::angleBetween] [arg vector1] [arg vector2]]
+
+Calculate the angle between two vectors (in degrees)
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
+
+[call [cmd ::math::geometry::inproduct] [arg vector1] [arg vector2]]
+
+Calculate the inner product of two vectors
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
+
+[call [cmd ::math::geometry::areaParallellogram] [arg vector1] [arg vector2]]
+
+Calculate the area of the parallellogram with the two vectors as its sides
+
+[list_begin arguments]
+[arg_def list vector1] First vector
+[arg_def list vector2] Second vector
+[list_end]
+
 
 [call [cmd ::math::geometry::calculateDistanceToLine] [arg P] [arg line]]
 
@@ -185,7 +233,6 @@ result
 on the line
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::calculateDistanceToLineSegment] [arg P] [arg linesegment]]
 
@@ -199,9 +246,6 @@ return the result.
 first and last points of the line segment
 [list_end]
 
-[para]
-
-[para]
 
 [call [cmd ::math::geometry::calculateDistanceToPolyline] [arg P] [arg polyline]]
 
@@ -215,7 +259,6 @@ return the result. Note that a polyline needs not to be closed.
 vertices of the polyline
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::calculateDistanceToPolygon] [arg P] [arg polygon]]
 
@@ -230,7 +273,6 @@ points differ), it is automatically closed.
 vertices of the polygon
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::findClosestPointOnLine] [arg P] [arg line]]
 
@@ -243,7 +285,6 @@ Return the point on a line which is closest to a given point.
 on the line
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::findClosestPointOnLineSegment] [arg P] [arg linesegment]]
 
@@ -257,7 +298,6 @@ point.
 points on the line segment
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::findClosestPointOnPolyline] [arg P] [arg polyline]]
 
@@ -270,7 +310,6 @@ point.
 [arg_def list polyline] List of numbers, the vertices of the polyline
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::lengthOfPolyline] [arg polyline]]
 
@@ -281,7 +320,6 @@ polygon)
 [arg_def list polyline] List of numbers, the vertices of the polyline
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::movePointInDirection] [arg P] [arg direction] [arg dist]]
 
@@ -295,7 +333,6 @@ upwards)
 [arg_def list dist] Distance over which to move the point
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::lineSegmentsIntersect] [arg linesegment1] [arg linesegment2]]
 
@@ -308,7 +345,6 @@ the other segment (or is very close to the segment), they are considered to inte
 [arg_def list linesegment2] Second line segment
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::findLineSegmentIntersection] [arg linesegment1] [arg linesegment2]]
 
@@ -321,7 +357,6 @@ have no points in common (in two dimensions only).
 [arg_def list linesegment2] Second line segment
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::findLineIntersection] [arg line1] [arg line2]]
 
@@ -336,7 +371,6 @@ have no points in common (in two dimensions only).
 
 See section [sectref References] for details on the algorithm and math behind it.
 
-[para]
 
 [call [cmd ::math::geometry::polylinesIntersect] [arg polyline1] [arg polyline2]]
 
@@ -347,7 +381,6 @@ Check if two polylines intersect or not (in two dimensions only).
 [arg_def list polyline2] Second polyline
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::polylinesBoundingIntersect] [arg polyline1] [arg polyline2] [arg granularity]]
 
@@ -370,7 +403,6 @@ every edge)
 
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::intervalsOverlap] [arg y1] [arg y2] [arg y3] [arg y4] [arg strict]]
 
@@ -382,7 +414,6 @@ Check if two intervals overlap.
 [arg_def logical strict] Check for strict or non-strict overlap
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::rectanglesOverlap] [arg P1] [arg P2] [arg Q1] [arg Q2] [arg strict]]
 
@@ -396,7 +427,6 @@ Check if two rectangles overlap.
 [arg_def list strict] choosing strict or non-strict interpretation
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::bbox] [arg polyline]]
 
@@ -407,7 +437,71 @@ coordinates: the upper-left and the lower-right corner of the box.
 [arg_def list polyline] The polyline to be examined
 [list_end]
 
+
+[call [cmd ::math::geometry::overlapBBox] [arg polyline1] [arg polyline2] [opt strict]]
+
+Check if the bounding boxes of two polylines overlap or not.
 [para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline1] The first polyline
+[arg_def list polyline1] The second polyline
+[arg_def int strict] Whether strict overlap is to checked (1) or if the bounding boxes may touch (0, default)
+[list_end]
+
+
+[call [cmd ::math::geometry::pointInsideBBox] [arg bbox] [arg point]]
+[para]
+Check if the point is inside or on the bounding box or not.
+
+Arguments:
+[list_begin arguments]
+[arg_def list bbox] The bounding box given as a list of x/y coordinates
+[arg_def list point] The point to be checked
+[list_end]
+
+
+[call [cmd ::math::geometry::cathetusPoint] [arg pa] [arg pb] [arg cathetusLength] [opt location]]
+
+Return the third point of the rectangular triangle defined by the two given end points of the hypothenusa.
+The triangle's side from point A (or B, if the location is given as "b") to the third point is the cathetus length.
+
+If the cathetus' length is lower than the length of the hypothenusa, an empty list is returned.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list pa] The starting point on hypotenuse
+[arg_def list pb] The ending point on hypotenuse
+[arg_def float cathetusLength] The length of the cathetus of the triangle
+[arg_def string location] The location of the given cathetus,
+"a" means given cathetus shares point pa (default)
+"b" means given cathetus shares point pb
+[list_end]
+
+
+[call [cmd ::math::geometry::parallel] [arg line] [arg offset] [opt orient]]
+
+Return a line parallel to the given line, with a distance "offset". The orientation is determined by the
+two points defining the line.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list line] The given line
+[arg_def float offset] The distance to the given line
+[arg_def string orient] Orientation of the new line with respect to the given line (defaults to "right")
+[list_end]
+[para]
+
+[call [cmd ::math::geometry::unitVector] [arg line]]
+
+Return a unit vector from the given line or direction, if the [term line] argument is
+a single point (then a line through the origin is assumed)
+
+Arguments:
+[list_begin arguments]
+[arg_def list line] The line in question (or a single point, implying a line through the origin)
+[list_end]
+
 
 [call [cmd ::math::geometry::pointInsidePolygon] [arg P] [arg polyline]]
 
@@ -420,7 +514,6 @@ polygon.
 [arg_def list polyline] The polyline to be examined
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::pointInsidePolygonAlt] [arg P] [arg polyline]]
 
@@ -435,7 +528,6 @@ in a "natural" way.
 [arg_def list polyline] The polyline to be examined
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::rectangleInsidePolygon] [arg P1] [arg P2] [arg polyline]]
 
@@ -450,7 +542,6 @@ polygon.
 [arg_def list polygon] The polygon in question
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::areaPolygon] [arg polygon]]
 
@@ -460,7 +551,6 @@ Calculate the area of a polygon.
 [arg_def list polygon] The polygon in question
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::translate] [arg vector] [arg polyline]]
 
@@ -468,10 +558,9 @@ Translate a polyline over a given vector
 
 [list_begin arguments]
 [arg_def list vector]   Translation vector
-[arg_def list polyline] The polyline to be rotated
+[arg_def list polyline] The polyline to be translated
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::rotate] [arg angle] [arg polyline]]
 
@@ -479,10 +568,21 @@ Rotate a polyline over a given angle (degrees) around the origin
 
 [list_begin arguments]
 [arg_def list angle]    Angle over which to rotate the polyline (degrees)
-[arg_def list polyline] The polyline to be translated
+[arg_def list polyline] The polyline to be rotated
 [list_end]
 
+
+[call [cmd ::math::geometry::rotateAbout] [arg p] [arg angle] [arg polyline]]
+
+Rotate a polyline around a given point p and return the new polyline.
 [para]
+Arguments:
+[list_begin arguments]
+[arg_def list p] The point of rotation
+[arg_def float angle] The angle over which to rotate the polyline (degrees)
+[arg_def list polyline] The polyline to be rotated
+[list_end]
+
 
 [call [cmd ::math::geometry::reflect] [arg angle] [arg polyline]]
 
@@ -493,7 +593,6 @@ Reflect a polyline in a line through the origin at a given angle (degrees) to th
 [arg_def list polyline] The polyline to be reflected
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::degToRad] [arg angle]]
 
@@ -503,7 +602,6 @@ Convert from degrees to radians
 [arg_def list angle]    Angle in degrees
 [list_end]
 
-[para]
 
 [call [cmd ::math::geometry::radToDeg] [arg angle]]
 
@@ -523,6 +621,7 @@ Convenience procedure to create a circle from a point and a radius.
 [arg_def list radius]    Radius of the circle
 [list_end]
 
+
 [call [cmd ::math::geometry::circleTwoPoints] [arg point1] [arg point2]]
 
 Convenience procedure to create a circle from two points on its circumference
@@ -534,6 +633,7 @@ distance between them.
 [arg_def list point2]    Second point
 [list_end]
 
+
 [call [cmd ::math::geometry::pointInsideCircle] [arg point] [arg circle]]
 
 Determine if the given point is inside the circle or on the circumference (1)
@@ -543,6 +643,7 @@ or outside (0).
 [arg_def list point]     Point to be checked
 [arg_def list circle]    Circle that may or may not contain the point
 [list_end]
+
 
 [call [cmd ::math::geometry::lineIntersectsCircle] [arg line] [arg circle]]
 
@@ -554,6 +655,7 @@ or does not (0).
 [arg_def list circle]    Circle that may or may not be intersected
 [list_end]
 
+
 [call [cmd ::math::geometry::lineSegmentIntersectsCircle] [arg segment] [arg circle]]
 
 Determine if the given line segment intersects the circle or touches it (1)
@@ -563,6 +665,7 @@ or does not (0).
 [arg_def list segment]   Line segment to be checked
 [arg_def list circle]    Circle that may or may not be intersected
 [list_end]
+
 
 [call [cmd ::math::geometry::intersectionLineWithCircle] [arg line] [arg circle]]
 
@@ -576,6 +679,7 @@ is used to determine this situation.)
 [arg_def list circle]    Circle that may or may not be intersected
 [list_end]
 
+
 [call [cmd ::math::geometry::intersectionCircleWithCircle] [arg circle1] [arg circle2]]
 
 Determine the points at which the given two circles intersect. There can
@@ -587,6 +691,7 @@ the two circles is used to determine this situation.)
 [arg_def list circle1]    First circle
 [arg_def list circle2]    Second circle
 [list_end]
+
 
 [call [cmd ::math::geometry::tangentLinesToCircle] [arg point] [arg circle]]
 
@@ -600,7 +705,105 @@ radius of the circle is used to determine this situation.)
 [arg_def list circle]     Circle to which the tangent lines are to be determined
 [list_end]
 
+
+[call [cmd ::math::geometry::intersectionPolylines] [arg polyline1] [arg polyline2] [opt mode] [opt granularity]]
+
+Return the first point or all points where the two polylines intersect. If the number of points in the polylines is large,
+you can use the granularity to get an approximate answer faster.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline1] The first polyline
+[arg_def list polyline2] The second polyline
+[arg_def string mode] Whether to return only the first (default) or to return all intersection points ("all")
+[arg_def int granularity] The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
 [list_end]
+
+
+[call [cmd ::math::geometry::intersectionPolylineCircle] [arg polyline] [arg circle] [opt mode] [opt granularity]]
+
+Return the first point or all points where the polyline intersects the circle. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline] The polyline that may intersect the circle
+[arg_def list circle] The circle in question
+[arg_def string mode] Whether to return only the first (default) or to return all intersection points ("all")
+[arg_def int granularity] The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+[list_end]
+
+
+[call [cmd ::math::geometry::polylineCutOrigin] [arg polyline1] [arg polyline2] [opt granularity]]
+
+Return the part of the first polyline from the origin up to the first intersection with the second. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline1] The first polyline (from which a part is to be returned)
+[arg_def list polyline2] The second polyline
+[arg_def int granularity] The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+[list_end]
+
+
+[call [cmd ::math::geometry::polylineCutEnd] [arg polyline1] [arg polyline2] [opt granularity]]
+
+Return the part of the first polyline from the last intersection point with the second to the end. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline1] The first polyline (from which a part is to be returned)
+[arg_def list polyline2] The second polyline
+[arg_def int granularity] The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+[list_end]
+
+
+[call [cmd ::math::geometry::splitPolyline] [arg polyline] [arg numberVertex]]
+
+Split the poyline into a set of polylines where each separate polyline holds "numberVertex" vertices between the two end points.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline] The polyline to be split up
+[arg_def int numberVertex] The number of "internal" vertices
+[list_end]
+
+
+[call [cmd ::math::geometry::enrichPolyline] [arg polyline] [arg accuracy]]
+
+Split up each segment of a polyline into a number of smaller segments and return the result.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline] The polyline to be refined
+[arg_def int accuracy] The number of subsegments to be created
+[list_end]
+
+
+[call [cmd ::math::geometry::cleanupPolyline] [arg polyline]]
+
+Remove duplicate neighbouring vertices and return the result.
+[para]
+Arguments:
+[list_begin arguments]
+[arg_def list polyline] The polyline to be cleaned up
+[list_end]
+
+[list_end]
+
+
+[section "COORDINATE SYSTEM"]
+The coordinate system used by the package is the ordinary cartesian system, where the
+positive x-axis is directed to the right and the positive y-axis is directed upwards.
+Angles and directions are defined with respect to the positive x-axis in a counter-clockwise
+direction, so that an angle of 90 degrees is the direction of the positive y-axis.
+
+Note that the Tk canvas coordinates differ from this, as there the origin is located in the
+upper left corner of the window. Up to and including version 1.3, the direction and octant
+procedures of this package used this convention inconsistently.
+
 
 [section References]
 
@@ -611,5 +814,5 @@ radius of the circle is used to determine this situation.)
 [list_end]
 
 [vset CATEGORY {math :: geometry}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

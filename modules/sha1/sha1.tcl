@@ -644,11 +644,12 @@ proc ::sha1::Pop {varname {nth 0}} {
 proc ::sha1::Chunk {token channel {chunksize 4096}} {
     upvar #0 $token state
     
+    SHA1Update $token [read $channel $chunksize]
+
     if {[eof $channel]} {
         fileevent $channel readable {}
         set state(reading) 0
     }
-    SHA1Update $token [read $channel $chunksize]
     return
 }
 
@@ -804,7 +805,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 2.0.3
+package provide sha1 2.0.4
 
 # -------------------------------------------------------------------------
 # Local Variables:

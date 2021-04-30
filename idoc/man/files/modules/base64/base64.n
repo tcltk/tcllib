@@ -3,7 +3,7 @@
 '\" Copyright (c) 2000, Eric Melski
 '\" Copyright (c) 2001, Miguel Sofer
 '\"
-.TH "base64" n 2\&.4\&.2 tcllib "Text encoding & decoding binary data"
+.TH "base64" n 2\&.5 tcllib "Text encoding & decoding binary data"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ base64 \- base64-encode/decode binary data
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBbase64  ?2\&.4\&.2?\fR
+package require \fBbase64  ?2\&.5?\fR
 .sp
 \fB::base64::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 .sp
@@ -287,6 +287,34 @@ package require \fBbase64  ?2\&.4\&.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides procedures to encode binary data into base64 and back\&.
+.SH "BEWARE: VARIATIONS IN DECODING BEHAVIOUR"
+The Tcl core provides since version 8\&.6 commands for the de- and
+encoding of base64 data\&. These are
+.CS
+
+
+    binary encode base64
+    binary decode base64
+
+.CE
+.PP
+Beware that while these are signature compatible with the
+commands provided by this package, the decoders are
+\fInot behaviourally compatible\fR\&.
+.PP
+The core decoder command accepts the option \fB-strict\fR,
+enabling the user to choose between strict and lax modes\&. In the
+strict mode invalid characters, and partial data at the end of the
+input are reported as errors\&. In lax mode they are ignored\&.
+.PP
+All the implementations provided by this package on the other
+hand implement a mix of the above, and the user cannot choose\&. Partial
+data at the end of the input is reported as error, and invalid
+characters are ignored\&.
+.PP
+\fIBeware\fR of these differences when switching code from
+one to other\&.
+.SH API
 .TP
 \fB::base64::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 Base64 encodes the given binary \fIstring\fR and returns the encoded
@@ -297,7 +325,7 @@ defaults to \fB76\fR\&.
 \fINote\fR that if \fImaxlen\fR is set to \fB0\fR, the
 output will not be wrapped at all\&.
 .sp
-\fINote well\fR: If your string is not simple ascii you should fix
+\fINote well\fR: If your string is not simple ASCII you should fix
 the string encoding before doing base64 encoding\&. See the examples\&.
 .sp
 The command will throw an error for negative values of \fImaxlen\fR,
@@ -306,6 +334,24 @@ or if \fImaxlen\fR is not an integer number\&.
 \fB::base64::decode\fR \fIstring\fR
 Base64 decodes the given \fIstring\fR and returns the binary data\&.
 The decoder ignores whitespace in the string\&.
+.PP
+.SH "IMPLEMENTATION NOTES"
+This package contains three different implementations for base64 de-
+and encoding, and chooses among them based on the environment it finds
+itself in\&.
+.PP
+All three implementations have the same behaviour\&.
+See also \fBBeware: Variations in decoding behaviour\fR at the
+beginning of this document\&.
+.IP [1]
+If Tcl 8\&.6 or higher is found the commands are implemented in
+terms of the then-available builtin commands\&.
+.IP [2]
+If the \fBTrf\fR extension cand be loaded the commands are
+implemented in terms of its commands\&.
+.IP [3]
+If neither of the above are possible a pure Tcl implementation
+is used\&. This is of course much slower\&.
 .PP
 .SH EXAMPLES
 .CS

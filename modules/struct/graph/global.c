@@ -24,7 +24,7 @@ gg_new (Tcl_Interp* interp)
   }
 	    
   gg->counter ++;
-  sprintf (gg->buf, "graph%d", gg->counter);
+  sprintf (gg->buf, "graph%ld", gg->counter);
   return gg->buf;
 }
 

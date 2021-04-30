@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>dicttool - Extensions to the standard &quot;dict&quot; command</title>
 <style type="text/css"><!--
@@ -100,12 +99,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">dicttool(n) 1.2 tcllib &quot;Extensions to the standard &quot;dict&quot; command&quot;</h1>
@@ -129,6 +128,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
+<li>package require <b class="pkgname">dicttool <span class="opt">?1.0?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1">proc <b class="cmd"><a href="../../../../index.html#proc">PROC</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i> <span class="opt">?<i class="arg">ninja</i> <b class="const"></b>?</span></a></li>
@@ -161,23 +161,24 @@ just in case any of these slip into the core.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">Commands</a></h2>
 <dl class="doctools_definitions">
-<dt><a name="1">proc <b class="cmd"><a href="../../../../index.html#proc">PROC</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i> <span class="opt">?<i class="arg">ninja</i> <b class="const"></b>?</span></a></dt>
-<dd><p>Because many features in this package may be added as
- commands to future tcl cores, or be provided in binary
- form by packages, I need a declaritive way of saying
- <em>Create this command if there isn't one already</em>.
- The <em>ninja</em> argument is a script to execute if the
- command is created by this mechanism.</p></dd>
-<dt><a name="2">proc <b class="cmd">noop</b> <span class="opt">?<i class="arg">args</i>?</span></a></dt>
-<dd><p>Perform a noop. Useful in prototyping for commenting out blocks
- of code without actually having to comment them out. It also makes
- a handy default for method delegation if a delegate has not been
- assigned yet.</p></dd>
-<dt><a name="3">proc <b class="cmd">putb</b> <span class="opt">?<i class="arg">map</i>?</span> <i class="arg">text</i></a></dt>
-<dd><p>Append a line of text to a variable. Optionally apply a string mapping.</p></dd>
-<dt><a name="4">proc <b class="cmd">tcl::dict::getnull</b> <i class="arg">dictionary</i> <span class="opt">?<i class="arg">element</i>?</span> <span class="opt">?<b class="option">element...</b>?</span></a></dt>
-<dd><p>If the path (given by the list of elements) exists, return that value.
- Otherwise return an empty string. Designed to replace</p>
+<dt><a name="1"><b class="cmd">ladd</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
+<dd><p>This command will add a new instance of each element in <i class="arg">args</i> to <i class="arg">varname</i>, but only if that element
+is not already present.</p></dd>
+<dt><a name="2"><b class="cmd">ldelete</b> <i class="arg">varname</i> <i class="arg">args</i></a></dt>
+<dd><p>This command will delete all instances of each element in <i class="arg">args</i> from <i class="arg">varname</i>.</p></dd>
+<dt><a name="3"><b class="cmd">dict getnull</b> <i class="arg">args</i></a></dt>
+<dd><p>Operates like <b class="cmd">dict get</b>, however if the key <i class="arg">args</i> does not exist, it returns an empty
+list instead of throwing an error.</p></dd>
+<dt><a name="4"><b class="cmd">dict print</b> <i class="arg">dict</i></a></dt>
+<dd><p>This command will produce a string representation of <i class="arg">dict</i>, with each nested branch on
+a newline, and indented with two spaces for every level.</p></dd>
+<dt><a name="5"><b class="cmd">dict is_dict</b> <i class="arg">value</i></a></dt>
+<dd><p>This command will return true if <i class="arg">value</i> can be interpreted as a dict. The command operates in
+such a way as to not force an existing dict representation to shimmer into another internal rep.</p></dd>
+<dt><a name="6"><b class="cmd">rmerge</b> <i class="arg">args</i></a></dt>
+<dd><p>Return a dict which is the product of a recursive merge of all of the arguments. Unlike <b class="cmd">dict merge</b>,
+this command descends into all of the levels of a dict. Dict keys which end in a : indicate a leaf, which
+will be interpreted as a literal value, and not descended into further.</p>
 <pre class="doctools_example">
  if {[dict exists $dictionary {*}$args]} {
    return [dict get $dictionary {*}$args]

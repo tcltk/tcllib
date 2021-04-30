@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'combinatorics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::combinatorics" n 1\&.2\&.3 tcllib "Tcl Math Library"
+.TH "math::combinatorics" n 2\&.0 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,6 +277,12 @@ package require \fBTcl  8\&.2\fR
 .sp
 package require \fBmath  ?1\&.2\&.3?\fR
 .sp
+package require \fBTcl  8\&.6\fR
+.sp
+package require \fBTclOO \fR
+.sp
+package require \fBmath::combinatorics  ?2\&.0?\fR
+.sp
 \fB::math::ln_Gamma\fR \fIz\fR
 .sp
 \fB::math::factorial\fR \fIx\fR
@@ -285,11 +291,60 @@ package require \fBmath  ?1\&.2\&.3?\fR
 .sp
 \fB::math::Beta\fR \fIz w\fR
 .sp
+\fB::math::combinatorics::permutations\fR \fIn\fR
+.sp
+\fB::math::combinatorics::variations\fR \fIn\fR \fIk\fR
+.sp
+\fB::math::combinatorics::combinations\fR \fIn\fR \fIk\fR
+.sp
+\fB::math::combinatorics::derangements\fR \fIn\fR
+.sp
+\fB::math::combinatorics::catalan\fR \fIn\fR
+.sp
+\fB::math::combinatorics::firstStirling\fR \fIn\fR \fIm\fR
+.sp
+\fB::math::combinatorics::secondStirling\fR \fIn\fR \fIm\fR
+.sp
+\fB::math::combinatorics::partitionP\fR \fIn\fR
+.sp
+\fB::math::combinatorics::list-permutations\fR \fIn\fR
+.sp
+\fB::math::combinatorics::list-variations\fR \fIn\fR \fIk\fR
+.sp
+\fB::math::combinatorics::list-combinations\fR \fIn\fR \fIk\fR
+.sp
+\fB::math::combinatorics::list-derangements\fR \fIn\fR
+.sp
+\fB::math::combinatorics::list-powerset\fR \fIn\fR
+.sp
+\fB::math::combinatorics::permutationObj\fR new/create NAME \fIn\fR
+.sp
+\fB$perm\fR next
+.sp
+\fB$perm\fR reset
+.sp
+\fB$perm\fR setElements \fIelements\fR
+.sp
+\fB$perm\fR setElements
+.sp
+\fB::math::combinatorics::combinationObj\fR new/create NAME \fIn\fR \fIk\fR
+.sp
+\fB$combin\fR next
+.sp
+\fB$combin\fR reset
+.sp
+\fB$combin\fR setElements \fIelements\fR
+.sp
+\fB$combin\fR setElements
+.sp
 .BE
 .SH DESCRIPTION
 .PP
 The \fBmath\fR package contains implementations of several
-functions useful in combinatorial problems\&.
+functions useful in combinatorial problems\&. The \fBmath::combinatorics\fR
+extends the collections based on features in Tcl 8\&.6\&.
+Note: the meaning of the partitionP function, Catalan and Stirling numbers is explained on the
+\fIMathWorld website\fR [http://mathworld\&.wolfram\&.com]
 .SH COMMANDS
 .TP
 \fB::math::ln_Gamma\fR \fIz\fR
@@ -366,6 +421,190 @@ Returns the Beta function of the parameters \fIz\fR and \fIw\fR\&.
 Results are returned as a floating point number precise to better than
 nine significant digits provided that \fIw\fR and \fIz\fR are both at
 least 1\&.
+.TP
+\fB::math::combinatorics::permutations\fR \fIn\fR
+Return the number of permutations of n items\&. The returned number
+is always an integer, it is not limited by the range of 32-or 64-bits
+integers using the arbitrary precision integers available in Tcl 8\&.5 and later\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be permuted\&.
+.RE
+.TP
+\fB::math::combinatorics::variations\fR \fIn\fR \fIk\fR
+Return the number of variations k items selected from the total of n items\&.
+The order of the items is taken into account\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be selected from\&.
+.TP
+int \fIk\fR
+The number of items to be selected in each variation\&.
+.RE
+.TP
+\fB::math::combinatorics::combinations\fR \fIn\fR \fIk\fR
+Return the number of combinations of k items selected from the total of n items\&.
+The order of the items is not important\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be selected from\&.
+.TP
+int \fIk\fR
+The number of items to be selected in each combination\&.
+.RE
+.TP
+\fB::math::combinatorics::derangements\fR \fIn\fR
+Return the number of derangements of n items\&. A derangement is a permutation
+where each item is displaced from the original position\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be rearranged\&.
+.RE
+.TP
+\fB::math::combinatorics::catalan\fR \fIn\fR
+Return the n'th Catalan number\&. The number n is expected to be 1 or larger\&.
+These numbers occur in various combinatorial problems\&.
+.RS
+.TP
+int \fIn\fR
+The index of the Catalan number
+.RE
+.TP
+\fB::math::combinatorics::firstStirling\fR \fIn\fR \fIm\fR
+Calculate a Stirling number of the first kind
+(signed version, m cycles in a permutation of n items)
+.RS
+.TP
+int \fIn\fR
+Number of items
+.TP
+int \fIm\fR
+Number of cycles
+.RE
+.TP
+\fB::math::combinatorics::secondStirling\fR \fIn\fR \fIm\fR
+Calculate a Stirling number of the second kind
+(m non-empty subsets from n items)
+.RS
+.TP
+int \fIn\fR
+Number of items
+.TP
+int \fIm\fR
+Number of subsets
+.RE
+.TP
+\fB::math::combinatorics::partitionP\fR \fIn\fR
+Calculate the number of ways an integer n can be written as the sum of positive integers\&.
+.RS
+.TP
+int \fIn\fR
+Number in question
+.RE
+.TP
+\fB::math::combinatorics::list-permutations\fR \fIn\fR
+Return the list of permutations of the numbers 0, \&.\&.\&., n-1\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be permuted\&.
+.RE
+.TP
+\fB::math::combinatorics::list-variations\fR \fIn\fR \fIk\fR
+Return the list of variations of k numbers selected from the numbers 0, \&.\&.\&., n-1\&.
+The order of the items is taken into account\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be selected from\&.
+.TP
+int \fIk\fR
+The number of items to be selected in each variation\&.
+.RE
+.TP
+\fB::math::combinatorics::list-combinations\fR \fIn\fR \fIk\fR
+Return the list of combinations of k numbers selected from the numbers 0, \&.\&.\&., n-1\&.
+The order of the items is ignored\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be selected from\&.
+.TP
+int \fIk\fR
+The number of items to be selected in each combination\&.
+.RE
+.TP
+\fB::math::combinatorics::list-derangements\fR \fIn\fR
+Return the list of derangements of the numbers 0, \&.\&.\&., n-1\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be rearranged\&.
+.RE
+.TP
+\fB::math::combinatorics::list-powerset\fR \fIn\fR
+Return the list of all subsets of the numbers 0, \&.\&.\&., n-1\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be rearranged\&.
+.RE
+.TP
+\fB::math::combinatorics::permutationObj\fR new/create NAME \fIn\fR
+Create a TclOO object for returning permutations one by one\&. If the last permutation
+has been reached an empty list is returned\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be rearranged\&.
+.RE
+.TP
+\fB$perm\fR next
+Return the next permutation of n objects\&.
+.TP
+\fB$perm\fR reset
+Reset the object, so that the command \fInext\fR returns the complete list again\&.
+.TP
+\fB$perm\fR setElements \fIelements\fR
+Register a list of items to be permuted, using the \fInextElements\fR command\&.
+.RS
+.TP
+list \fIelements\fR
+The list of n items that will be permuted\&.
+.RE
+.TP
+\fB$perm\fR setElements
+Return the next permulation of the registered items\&.
+.TP
+\fB::math::combinatorics::combinationObj\fR new/create NAME \fIn\fR \fIk\fR
+Create a TclOO object for returning combinations one by one\&. If the last combination
+has been reached an empty list is returned\&.
+.RS
+.TP
+int \fIn\fR
+The number of items to be rearranged\&.
+.RE
+.TP
+\fB$combin\fR next
+Return the next combination of n objects\&.
+.TP
+\fB$combin\fR reset
+Reset the object, so that the command \fInext\fR returns the complete list again\&.
+.TP
+\fB$combin\fR setElements \fIelements\fR
+Register a list of items to be permuted, using the \fInextElements\fR command\&.
+.RS
+.TP
+list \fIelements\fR
+The list of n items that will be permuted\&.
+.RE
+.TP
+\fB$combin\fR setElements
+Return the next combination of the registered items\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

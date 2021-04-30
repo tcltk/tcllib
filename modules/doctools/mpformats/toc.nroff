@@ -1,10 +1,7 @@
 # -*- tcl -*-
-#
-# $Id: toc.nroff,v 1.7 2009/01/30 04:56:47 andreas_kupries Exp $
-#
 # Engine to convert a doctoc document into nroff.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 # Freely redistributable.
 #
 ######################################################################
@@ -43,7 +40,7 @@ global prec ok
 set    prec ""
 set    ok   0
 
-proc fmt_toc_begin     {label title}      {
+proc fmt_toc_begin {label title} {
     global prec ok
     set ok 1
     set     hdr [nr_comment {}]\n
@@ -59,7 +56,7 @@ proc fmt_toc_begin     {label title}      {
     return $hdr
 }
 proc fmt_toc_end        {}           {}
-proc fmt_division_start {title symfile} {return $title[nr_in]\n}
+proc fmt_division_start {title symfile} {return [nr_blt $title][nr_in]\n}
 proc fmt_division_end   {}              {return [nr_out]\n}
 proc fmt_item           {file label desc} {return "[nr_blt [nr_bld]$label[nr_rst]]\n[nr_ul]$file[nr_rst]: $desc\n"}
 

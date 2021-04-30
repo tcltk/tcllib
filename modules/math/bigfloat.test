@@ -119,8 +119,7 @@ proc fassert {name version code result} {
 # adds 999..9 and 1 -> 1000..0
 for {set i 1} {$i<15} {incr i} {
     assert add 1.0.$i {
-	tostr [add \
-		[fromstr [string repeat 999 $i]] [fromstr 1]]
+	tostr [add [fromstr [string repeat 999 $i]] [fromstr 1]]
     } 1[string repeat 000 $i] ; # {}
 }
 
@@ -134,8 +133,9 @@ for {set i 1} {$i<15} {incr i} {
 # mul 10001000..1000 with 1..9
 for {set i 1} {$i<15} {incr i} {
     foreach j {1 2 3 4 5 6 7 8 9} {
-	assert mul 1.2.$i.$j {tostr [mul [fromstr [string repeat 1000 $i]] [fromstr $j]]} \
-		[string repeat ${j}000 $i]
+	assert mul 1.2.$i.$j \
+	    {tostr [mul [fromstr [string repeat 1000 $i]] [fromstr $j]]} \
+	    [string repeat ${j}000 $i]
     }
 }
 
@@ -157,6 +157,27 @@ fassert fromstr 2.0 {todouble [fromstr 1.0e+099]} 1.0e+099
 fassert fromstr 2.0a {todouble [fromstr 1.0e99]} 1.0e99
 fassert fromstr 2.0b {todouble [fromstr 1.0e-99]} 1.0e-99
 fassert fromstr 2.0c {todouble [fromstr 1.0e-099]} 1.0e-99
+
+foreach {x rx r} {
+    0    0  {bignum 0 0}
+    0.0  0. {F {bignum 0 0} -8 {bignum 0 26}}
+    .0   0. {F {bignum 0 0} -8 {bignum 0 26}}
+    +0   0  {bignum 0 0}
+    +0.0 0. {F {bignum 0 0} -8 {bignum 0 26}}
+    +.0  0. {F {bignum 0 0} -8 {bignum 0 26}}
+    -0   0  {bignum 0 0}
+    -0.0 0. {F {bignum 1 0} -8 {bignum 0 26}}
+    -.0  0. {F {bignum 1 0} -8 {bignum 0 26}}
+} {
+    test bigfloat-fromstr-3.[incr k] {fromstr zeroes} {
+	fromstr $x
+    } $r
+
+    test bigfloat-fromstr-4.${k} {fromstr zeroes as double} {
+	tostr [fromstr $x]
+    } $rx
+}
+unset k
 
 ################################################################################
 # fromdouble with precision
@@ -184,7 +205,7 @@ proc absTest {version x {int 0}} {
 	assert abs $version {
 	    tostr [abs [fromstr $x]]
 	} [expr {($x<0)?(-$x):$x}] ; # {}
-    }	    
+    }
 }
 
 absTest 2.2a 1.000
@@ -681,3 +702,4 @@ rename Zero ""
 testsuiteCleanup
 
 set ::tcl_precision $old_precision
+return

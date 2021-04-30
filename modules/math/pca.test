@@ -4,12 +4,12 @@ source [file join \
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-testsNeedTcl     8.5
+testsNeedTcl     8.6
 testsNeedTcltest 1.0
 
 support {
-    useLocal math.tcl math
-    useLocal linalg.tcl math::linearalgebra
+    useLocal math.tcl       math
+    useLocal linalg.tcl     math::linearalgebra
     useLocal statistics.tcl math::statistics
 }
 testing {

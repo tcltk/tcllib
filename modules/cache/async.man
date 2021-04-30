@@ -1,4 +1,5 @@
-[manpage_begin cache::async n 0.3]
+[vset Version 0.3.1]
+[manpage_begin cache::async n [vset Version]]
 [keywords asynchronous]
 [keywords cache]
 [keywords callback]
@@ -7,7 +8,7 @@
 [moddesc   {In-memory caches}]
 [titledesc {Asynchronous in-memory cache}]
 [require Tcl 8.4]
-[require cache::async [opt 0.3]]
+[require cache::async [opt [vset Version]]]
 [description]
 
 This package provides objects which cache data in memory, and operate
@@ -139,5 +140,5 @@ all keys known to the cache, making it unkown. This forces future
 [list_end]
 
 [vset CATEGORY cache]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,6 +1,6 @@
+[vset VERSION 1.2]
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: loggerAppender.man,v 1.6 2009/01/29 06:16:19 andreas_kupries Exp $}]
-[manpage_begin logger::appender n 1.2]
+[manpage_begin logger::appender n [vset VERSION]]
 [keywords appender]
 [keywords logger]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
@@ -8,7 +8,7 @@
 [titledesc {Collection of predefined appenders for logger}]
 [category  {Programming tools}]
 [require Tcl 8.2]
-[require logger::appender [opt 1.2]]
+[require logger::appender [opt [vset VERSION]]]
 [description]
 
 This package provides a predefined set of logger templates.
@@ -61,5 +61,5 @@ applicable options.
 [list_end]
 
 [vset CATEGORY logger]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 1.3.1]
+[vset VERSION 1.4]
 [manpage_begin rest n [vset VERSION]]
 [moddesc   {A framework for RESTful web services}]
 [titledesc {define REST web APIs and call them inline or asychronously}]
@@ -250,6 +250,11 @@ argument representing one part of a mime/multipart document.
 
 Arguments must be lists containing 2 elements, a list of header keys
 and values, and the mime part body, in this order.
+
+[def [const mime_multipart/<value>]]
+
+Same as mime_multipart, but the [const Content-Type] header is set to
+[const multipart/<value>].
 
 [list_end]
 
@@ -549,7 +554,7 @@ Example
 [include ../common-text/tls-security-notes.inc]
 
 [vset CATEGORY rest]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [comment {
 TOKENS
      the value is substituted into the url at call time.

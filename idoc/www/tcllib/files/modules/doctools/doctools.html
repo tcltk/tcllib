@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>doctools - Documentation tools</title>
 <style type="text/css"><!--
@@ -94,21 +93,21 @@
 </head>
 <!-- Generated from file 'doctools.man' by tcllib/doctools with format 'html'
    -->
-<!-- Copyright &amp;copy; 2003-2017 Andreas Kupries &amp;lt;andreas_kupries@users.sourceforge.net&amp;gt;
+<!-- Copyright &amp;copy; 2003-2019 Andreas Kupries &amp;lt;andreas_kupries@users.sourceforge.net&amp;gt;
    -->
 <!-- doctools.n
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">doctools(n) 1.4.21 tcllib &quot;Documentation tools&quot;</h1>
+<h1 class="doctools_title">doctools(n) 1.5.6 tcllib &quot;Documentation tools&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>doctools - doctools - Processing documents</p>
 </div>
@@ -138,7 +137,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">doctools <span class="opt">?1.4.21?</span></b></li>
+<li>package require <b class="pkgname">doctools <span class="opt">?1.5.6?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::doctools::new</b> <i class="arg">objectName</i> <span class="opt">?<i class="arg">option value</i>...?</span></a></li>
@@ -470,6 +469,23 @@ for a set of manpages.</p></dd>
 <dd><p>This engine generates nroff output, for processing by <b class="syscmd"><a href="../../../../index.html#nroff">nroff</a></b>,
 or <b class="syscmd">groff</b>. The result will be standard man pages as they are
 known in the unix world.</p></dd>
+<dt>markdown</dt>
+<dd><p>This engine generates <i class="term"><a href="../../../../index.html#markdown">Markdown</a></i> markup. This engine supports two
+parameters:</p>
+<dl class="doctools_definitions">
+<dt>header</dt>
+<dd><p>The value for this parameter has to be valid selfcontained markdown
+markup for the body section of a markdown document. The default value
+is the empty string. The value is inserted into the generated output
+just before the table of contents.</p>
+<p>This can be used to insert boilerplate header markup into the
+generated document.</p></dd>
+<dt>xref</dt>
+<dd><p>The value for this parameter has to be a list of triples specifying
+cross-reference information.</p>
+<p>The full details of expected syntax and engine-internal use are
+explained above for the <i class="term"><a href="../../../../index.html#html">html</a></i> engine.</p></dd>
+</dl></dd>
 <dt>null</dt>
 <dd><p>This engine generates no outout at all. This can be used if one just
 wants to validate some input.</p></dd>
@@ -499,12 +515,12 @@ left-most button in the secondary navigation bar.</p>
 <p><a href="doctools_intro.html">doctools_intro</a>, <a href="doctools_lang_cmdref.html">doctools_lang_cmdref</a>, <a href="doctools_lang_intro.html">doctools_lang_intro</a>, <a href="doctools_lang_syntax.html">doctools_lang_syntax</a>, <a href="doctools_plugin_apiref.html">doctools_plugin_apiref</a></p>
 </div>
 <div id="keywords" class="doctools_section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#html">HTML</a>, <a href="../../../../index.html#tmml">TMML</a>, <a href="../../../../index.html#conversion">conversion</a>, <a href="../../../../index.html#documentation">documentation</a>, <a href="../../../../index.html#manpage">manpage</a>, <a href="../../../../index.html#markup">markup</a>, <a href="../../../../index.html#nroff">nroff</a></p>
+<p><a href="../../../../index.html#html">HTML</a>, <a href="../../../../index.html#tmml">TMML</a>, <a href="../../../../index.html#conversion">conversion</a>, <a href="../../../../index.html#documentation">documentation</a>, <a href="../../../../index.html#manpage">manpage</a>, <a href="../../../../index.html#markdown">markdown</a>, <a href="../../../../index.html#markup">markup</a>, <a href="../../../../index.html#nroff">nroff</a></p>
 </div>
 <div id="category" class="doctools_section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>
 </div>
 <div id="copyright" class="doctools_section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2003-2017 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
+<p>Copyright &copy; 2003-2019 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
 </div></body></html>

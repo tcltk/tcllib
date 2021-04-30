@@ -68,7 +68,7 @@ namespace eval ::struct {
 	    }
 	    
 	    sdg->counter ++;
-	    sprintf (sdg->buf, "stack%d", sdg->counter);
+	    sprintf (sdg->buf, "stack%ld", sdg->counter);
 	    return sdg->buf;
 
 #undef  KEY

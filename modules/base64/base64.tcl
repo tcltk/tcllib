@@ -7,8 +7,6 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: base64.tcl,v 1.32 2010/07/06 19:15:40 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
@@ -17,12 +15,30 @@
 # Version 2.2.1 bugfixes
 # Version 2.2.2 bugfixes
 # Version 2.3   bugfixes and extended to support Trf
+# Version 2.4.x bugfixes
 
 # @mdgen EXCLUDE: base64c.tcl
 
 package require Tcl 8.2
 namespace eval ::base64 {
     namespace export encode decode
+}
+
+package provide base64 2.5
+
+if {[package vsatisfies [package require Tcl] 8.6]} {
+    proc ::base64::encode {args} {
+	binary encode base64 -maxlen 76 {*}$args
+    }
+
+    proc ::base64::decode {string} {
+	# Tcllib is strict with respect to end of input, yet lax for
+	# invalid characters outside of that.
+	regsub -all -- {[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/]} $string {} string
+	binary decode base64 -strict $string
+    }
+
+    return
 }
 
 if {![catch {package require Trf 2.0}]} {
@@ -35,13 +51,13 @@ if {![catch {package require Trf 2.0}]} {
     #
     # Arguments:
     #	args	?-maxlen maxlen? ?-wrapchar wrapchar? string
-    #	
+    #
     #		If maxlen is 0, the output is not wrapped.
     #
     # Results:
     #	A Base64 encoded version of $string, wrapped at $maxlen characters
     #	by $wrapchar.
-    
+
     proc ::base64::encode {args} {
 	# Set the default wrapchar and maximum line length to match
 	# the settings for MIME encoding (RFC 3548, RFC 2045). These
@@ -78,7 +94,7 @@ if {![catch {package require Trf 2.0}]} {
 	    # FRINK: nocheck
 	    set [string range [lindex $optionStrings $index] 1 end] $val
 	}
-    
+
 	# [string is] requires Tcl8.2; this works with 8.0 too
 	if {[catch {expr {$maxlen % 2}}]} {
 	    return -code error "expected integer but got \"$maxlen\""
@@ -124,7 +140,7 @@ if {![catch {package require Trf 2.0}]} {
 	    # processed part, means 'shifting down characters in
 	    # memory', making the algorithm O(n^2). By avoiding the
 	    # modification we stay in O(n).
-	    
+
 	    set result [string map [list \n ""] $result]
 	    set l [expr {[string length $result]-$maxlen}]
 	    for {set off 0} {$off < $l} {incr off $maxlen} {
@@ -213,16 +229,16 @@ if {![catch {package require Trf 2.0}]} {
     #
     # Arguments:
     #	args	?-maxlen maxlen? ?-wrapchar wrapchar? string
-    #	
+    #
     #		If maxlen is 0, the output is not wrapped.
     #
     # Results:
     #	A Base64 encoded version of $string, wrapped at $maxlen characters
     #	by $wrapchar.
-    
+
     proc ::base64::encode {args} {
 	set base64_en $::base64::base64_en
-	
+
 	# Set the default wrapchar and maximum line length to match
 	# the settings for MIME encoding (RFC 3548, RFC 2045). These
 	# are the settings used by Trf as well. Various RFCs allow for
@@ -258,7 +274,7 @@ if {![catch {package require Trf 2.0}]} {
 	    # FRINK: nocheck
 	    set [string range [lindex $optionStrings $index] 1 end] $val
 	}
-    
+
 	# [string is] requires Tcl8.2; this works with 8.0 too
 	if {[catch {expr {$maxlen % 2}}]} {
 	    return -code error "expected integer but got \"$maxlen\""
@@ -335,8 +351,10 @@ if {![catch {package require Trf 2.0}]} {
 
 	set base64 $::base64::base64
 	set output "" ; # Fix for [Bug 821126]
+	set nums {}
 
 	binary scan $string c* X
+	lappend X 61 ;# force a terminator
 	foreach x $X {
 	    set bits [lindex $base64 $x]
 	    if {$bits >= 0} {
@@ -347,13 +365,16 @@ if {![catch {package require Trf 2.0}]} {
 		    set c [expr {(($z & 0x3) << 6) | $y}]
 		    append output [binary format ccc $a $b $c]
 		    set nums {}
-		}		
+		}
 	    } elseif {$bits == -1} {
-		# = indicates end of data.  Output whatever chars are left.
-		# The encoding algorithm dictates that we can only have 1 or 2
-		# padding characters.  If x=={}, we must (*) have 12 bits of input 
-		# (enough for 1 8-bit output).  If x!={}, we have 18 bits of
-		# input (enough for 2 8-bit outputs).
+		# = indicates end of data.  Output whatever chars are
+		# left, if any.
+		if {![llength $nums]} break
+		# The encoding algorithm dictates that we can only
+		# have 1 or 2 padding characters.  If x=={}, we must
+		# (*) have 12 bits of input (enough for 1 8-bit
+		# output).  If x!={}, we have 18 bits of input (enough
+		# for 2 8-bit outputs).
 		#
 		# (*) If we don't then the input is broken (bug 2976290).
 
@@ -370,13 +391,13 @@ if {![catch {package require Trf 2.0}]} {
 		} else {
 		    set b [expr {(($w & 0xF) << 4) | (($z & 0x3C) >> 2)}]
 		    append output [binary format cc $a $b]
-		}		
+		}
 		break
 	    } else {
 		# RFC 2045 says that line breaks and other characters not part
 		# of the Base64 alphabet must be ignored, and that the decoder
 		# can optionally emit a warning or reject the message.  We opt
-		# not to do so, but to just ignore the character. 
+		# not to do so, but to just ignore the character.
 		continue
 	    }
 	}
@@ -384,4 +405,6 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.4.2
+# # ## ### ##### ######## ############# #####################
+return
+

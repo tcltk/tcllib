@@ -14,7 +14,7 @@ package require uri
 package require dns
 package require cron
 package require coroutine
-package require -exact mime 1.6
+package require mime
 package require fileutil
 package require websocket
 package require Markdown
@@ -27,49 +27,68 @@ namespace eval ::url {}
 namespace eval ::httpd {}
 namespace eval ::scgi {}
 
+if {
+    [package vsatisfies [package require fileutil::magic::filetype] 2] ||
+    [package vsatisfies [package require fileutil::magic::filetype] 1.2]
+} {
+    # v1.2+, v2+: filetype result structure was changed completely.
+    proc ::httpd::mime-type {path} {
+	join [lindex [::fileutil::magic::filetype $path] 1] /
+    }
+} else {
+    # filetype result is mime type directly.
+    proc ::httpd::mime-type {path} {
+	::fileutil::magic::filetype $path
+    }
+}
+
 ###
 # A metaclass for MIME handling behavior across a live socket
 ###
 clay::define ::httpd::mime {
 
-
   method ChannelCopy {in out args} {
-    set chunk 4096
-    set size -1
-    foreach {f v} $args {
-      set [string trim $f -] $v
-    }
-    dict set info coroutine [info coroutine]
-    if {$size>0 && $chunk>$size} {
-        set chunk $size
-    }
-    set bytes 0
-    set sofar 0
-    set method [self method]
-    while 1 {
-      set command {}
-      set error {}
-      if {$size>=0} {
-        incr sofar $bytes
-        set remaining [expr {$size-$sofar}]
-        if {$remaining <= 0} {
+    try {
+      my clay refcount_incr
+      set chunk 4096
+      set size -1
+      foreach {f v} $args {
+        set [string trim $f -] $v
+      }
+      dict set info coroutine [info coroutine]
+      if {$size>0 && $chunk>$size} {
+          set chunk $size
+      }
+      set bytes 0
+      set sofar 0
+      set method [self method]
+      while 1 {
+        set command {}
+        set error {}
+        if {$size>=0} {
+          incr sofar $bytes
+          set remaining [expr {$size-$sofar}]
+          if {$remaining <= 0} {
+            break
+          } elseif {$chunk > $remaining} {
+            set chunk $remaining
+          }
+        }
+        lassign [yieldto chan copy $in $out -size $chunk \
+          -command [list [info coroutine] $method]] \
+          command bytes error
+        if {$command ne $method} {
+          error "Subroutine $method interrupted"
+        }
+        if {[string length $error]} {
+          error $error
+        }
+        if {[chan eof $in]} {
           break
-        } elseif {$chunk > $remaining} {
-          set chunk $remaining
         }
       }
-      lassign [yieldto chan copy $in $out -size $chunk \
-        -command [list [info coroutine] $method]] \
-        command bytes error
-      if {$command ne $method} {
-        error "Subroutine $method interrupted"
-      }
-      if {[string length $error]} {
-        error $error
-      }
-      if {[chan eof $in]} {
-        break
-      }
+    } finally {
+      my clay refcount_decr
     }
   }
 
@@ -301,6 +320,7 @@ Connection close}
 
 
   method wait {mode sock} {
+    my clay refcount_incr
     if {[info coroutine] eq {}} {
       chan event $sock $mode [list set ::httpd::lock_$sock $mode]
       vwait ::httpd::lock_$sock
@@ -309,6 +329,7 @@ Connection close}
       yield
     }
     chan event $sock $mode {}
+    my clay refcount_decr
   }
 
 }

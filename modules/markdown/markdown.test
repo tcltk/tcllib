@@ -1,3 +1,4 @@
+# -*- tcl -*-
 # tool.test - Copyright (c) 2016 Sean Woods, Will DuQuette, Caius Project
 # -------------------------------------------------------------------------
 #-------------------------------------------------------------------------
@@ -19,8 +20,9 @@ testsNeedTcl     8.5
 testsNeedTcltest 2
 
 support {
-
-    use textutil/textutil.tcl textutil
+    use textutil/string.tcl   textutil::string
+    use textutil/repeat.tcl   textutil::repeat
+    use textutil/tabify.tcl   textutil::tabify
 }
 testing {
     useLocal markdown.tcl Markdown
@@ -30,7 +32,6 @@ testing {
 # Setup
 
 tcltest::testConstraint knownbug 0
-
 
 # outdent text
 #
@@ -45,7 +46,7 @@ proc outdent {text} {
     # NEXT, remove any trailing whitespace
     set text [string trimright $text]
 
-    # NEXT, get the length of the leading on the first line.
+    # NEXT, get the length of the leader on the first line.
     if {[regexp {\A(\s*)\S} $text dummy leader]} {
 
         # Remove the leader from the beginning of each indented
@@ -56,6 +57,34 @@ proc outdent {text} {
     return $text
 }
 
+proc unindent text {
+    set chars { }
+    set max inf
+
+    regsub ^\n $text {} text
+    regsub \n\[$chars\]*?$ $text {} text
+
+    set rLeading ^\[$chars\]*
+    set rBlankLine $rLeading$
+
+    foreach line [split $text \n] {
+        if {$line eq {} || [regexp $rBlankLine $line]} continue
+
+        regexp -indices $rLeading $line idc
+        set count [expr {[lindex $idc 1] + 1}]
+
+        set max [expr {$max > $count ? $count : $max}]
+    }
+
+    set start [expr { $max == inf ? {end+1} : $max }]
+
+    # Removed lmap (8.6+)
+    set r {}
+    foreach line [split $text \n] {
+	lappend r [string range $line $start end]
+    }
+    join $r \n
+}
 
 proc cmp {s1 s2} {
     set s1 [string trim $s1]
@@ -81,11 +110,11 @@ proc dumpcmp {s1 s2} {
 # in - markdown input, possibly indented.
 #
 # Outdents the input and converts it to HTML.  Indents it for inclusion
-# in a result.
+# in a result. Empty lines are kept empty.
 proc convert {in} {
     set lines [split [string trim [Markdown::convert [outdent $in]]] \n]
 
-    set out [join $lines "\n    "]
+    set out [string map [list "\n    \n" "\n\n"] [join $lines "\n    "]]
     return "\n    $out\n"
 }
 
@@ -103,7 +132,7 @@ test basic-1.1 {basic text} -body {
     }
 } -result {
     <p>A line of text.</p>
-    
+
     <p>Another line of text.</p>
 }
 
@@ -112,11 +141,11 @@ test basic-1.2 {multi-line paragraphs} -body {
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
         eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
         enim ad minim veniam, quis nostrud exercitation ullamco laboris
-        nisi ut aliquip ex ea commodo consequat. 
+        nisi ut aliquip ex ea commodo consequat.
 
-        Duis aute irure dolor in reprehenderit in voluptate velit esse 
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
-        cupidatat non proident, sunt in culpa qui officia deserunt mollit 
+        Duis aute irure dolor in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit
         anim id est laborum.
     }
 } -result {
@@ -124,10 +153,10 @@ test basic-1.2 {multi-line paragraphs} -body {
     eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
     enim ad minim veniam, quis nostrud exercitation ullamco laboris
     nisi ut aliquip ex ea commodo consequat.</p>
-    
-    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse 
-    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
-    cupidatat non proident, sunt in culpa qui officia deserunt mollit 
+
+    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+    cupidatat non proident, sunt in culpa qui officia deserunt mollit
     anim id est laborum.</p>
 }
 
@@ -158,13 +187,13 @@ test bquote-1.2 {">" on first line only.} -body {
 test bquote-1.3 {block quote with markup} -body {
     convert {
         > ### Heading 3
-        > 
+        >
         > Lorem ipsum dolor sit amet, consectetur adipiscing elit
     }
 } -result {
     <blockquote>
     <h3>Heading 3</h3>
-    
+
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
     </blockquote>
 }
@@ -175,18 +204,18 @@ test bquote-1.4 {nested block quotes} -body {
         >
         > > And then this and this
         > > and this.
-        > 
+        >
         > And then this.
     }
 } -result {
     <blockquote>
     <p>First this.</p>
-    
+
     <blockquote>
     <p>And then this and this
     and this.</p>
     </blockquote>
-    
+
     <p>And then this.</p>
     </blockquote>
 }
@@ -201,7 +230,7 @@ test bquote-1.5 {complex case (from Caius test suite)} -body {
         > >
         > > This is what he said. This is what she said. This is what
         > > he said. This is what she said.
-        > >     
+        > >
         > >     import os
         > >     os.path.listdir()
         > >
@@ -220,30 +249,27 @@ test bquote-1.5 {complex case (from Caius test suite)} -body {
     <blockquote>
     <p>This is what he said. This is what she said. This is what
     he said. This is what she said.</p>
-    
+
     <h3>Heading 3</h3>
-    
+
     <p>This is what he said. This is what she said. This is what
     he said. This is what she said.</p>
-    
+
     <pre><code>import os
-    os.path.listdir()
-    </code></pre>
-    
+    os.path.listdir()</code></pre>
+
     <p>This is what he said. This is what she said. This is what
     he said. This is what she said.</p>
     </blockquote>
-    
+
     <h2>Heading 2</h2>
-    
+
     <p>This is what he said. This is what she said. This is what
     he said. This is what she said.</p>
     </blockquote>
-    
+
     <p>This is a test.</p>
 }
-
-
 
 test convert-2.2 {refs} -body {
     convert {
@@ -255,6 +281,99 @@ test convert-2.2 {refs} -body {
     <p>Find it <a href="http://example.com/" title="Optional Title Here">here</a>!</p>
 }
 
+test code-block-1.0 {basic code block render} -body {
+    convert {
+	pre code
+
+	    in code
+
+	post code
+    }
+} -result {
+    <p>pre code</p>
+
+    <pre><code>in code</code></pre>
+
+    <p>post code</p>
+}
+
+#-------------------------------------------------------------------------
+# External conversion of Fenced Code Blocks
+
+test fcb-1.0 {register, wrong # args} -body {
+    ::Markdown::register
+} -returnCodes error -result {wrong # args: should be "::Markdown::register lang_specifier converter ?extended?"}
+
+test fcb-1.1 {register, wrong # args} -body {
+    ::Markdown::register LANG
+} -returnCodes error -result {wrong # args: should be "::Markdown::register lang_specifier converter ?extended?"}
+
+test fcb-1.2 {register, wrong # args} -body {
+    ::Markdown::register LANG CONVERTER EXTENDED X
+} -returnCodes error -result {wrong # args: should be "::Markdown::register lang_specifier converter ?extended?"}
+
+test fcb-1.3 {get_lang_counter, wrong # args} -body {
+    ::Markdown::get_lang_counter X
+} -returnCodes error -result {wrong # args: should be "::Markdown::get_lang_counter"}
+
+test fcb-1.4 {reset_lang_counter, wrong # args} -body {
+    ::Markdown::reset_lang_counter X
+} -returnCodes error -result {wrong # args: should be "::Markdown::reset_lang_counter"}
+
+test fcb-2.0 {get_lang_counter, initial} -body {
+    ::Markdown::get_lang_counter
+} -result {}
+
+test fcb-2.1 {get_lang_counter, initial} -setup {
+    set ::Markdown::lang_counter(foo) 22
+} -body {
+    ::Markdown::get_lang_counter
+} -cleanup {
+    ::Markdown::reset_lang_counter
+} -result {foo 22}
+
+test fcb-2.2 {reset_lang_counter} -body {
+    ::Markdown::reset_lang_counter
+} -result {}
+
+test fcb-2.3 {reset_lang_counter} -setup {
+    set ::Markdown::lang_counter(foo) 22
+} -body {
+    ::Markdown::reset_lang_counter
+    ::Markdown::get_lang_counter
+} -result {}
+
+test fcb-3.0 {register} -setup {
+    proc foo {text} { string reverse $text }
+} -body {
+    ::Markdown::register foo foo
+    convert {
+	```foo
+	bar
+	```
+    }
+} -cleanup {
+    unset ::Markdown::converter(foo)
+    rename foo {}
+} -result {
+    <pre class='code'><code class='foo'>rab</code></pre>
+}
+
+test fcb-3.1 {register extended} -setup {
+    proc foo {text config} { list $config $text }
+} -body {
+    ::Markdown::register foo foo 1
+    convert {
+	```foo bar
+	snafu
+	```
+    }
+} -cleanup {
+    unset ::Markdown::converter(foo)
+    rename foo {}
+} -result {
+    <pre class='code'><code class='foo'>snafu bar</code></pre>
+}
 
 #=========================================================================
 # Tests related to other processors or test suites
@@ -262,9 +381,9 @@ test convert-2.2 {refs} -body {
 #-------------------------------------------------------------------------
 # Caius Markdown Tests
 #
-# These tests translate entire files.  I prefer tests for individual 
+# These tests translate entire files.  I prefer tests for individual
 # features; when a test fails, you don't need to go hunting for the
-# specifics.  But I'm keeping these to show compatibility with the 
+# specifics.  But I'm keeping these to show compatibility with the
 # Caius processor.
 
 # 1.* - Caius markdown tests
@@ -313,9 +432,9 @@ test caius-1.7 {indent test} -body {
     cmp $html [Markdown::convert $md]
 } -result {1}
 }
+
 #-------------------------------------------------------------------------
 # mdtest: Bugs found while running michelf/mdtest
-
 
 test mdtest-1.1 {AL: Auto links: & not escaped in URL} -body {
     convert {
@@ -388,13 +507,13 @@ test mdtest-1.7 {LRS: link breaks across lines, 1} -constraints knownbug -body {
 
 test mdtest-1.8 {LRS: link breaks across lines, 2} -constraints knownbug -body {
     convert {
-        The [link 
+        The [link
         breaks] across lines, but with a line-ending space.
 
         [link breaks]: /url/
     }
 } -result {
-    <p>The <a href="/url/">link 
+    <p>The <a href="/url/">link
     breaks</a> across lines, but with a line-ending space.</p>
 }
 
@@ -409,41 +528,289 @@ test mdtest-1.9 {OAUL: "* * *" line after unordered list} -body {
     <ul>
     <li>asterisk 1
     </li></ul>
-    
-    <hr/>
+
+    <hr />
 }
 
 test mdtest-1.10 {fenced code block without language specifier} -body {
-    
     convert {
 	Here comes a generic example:
-	
+
 	```
 	set x 1
 	```
     }
 } -result {
     <p>Here comes a generic example:</p>
-    
+
     <pre class='code'><code>set x 1</code></pre>
 }
 
 test mdtest-1.11 {fenced code block with language specifier} -body {
-    
     convert {
 	Here comes a Tcl example:
-	
+
 	```tcl
 	set x 1
 	```
     }
 } -result {
     <p>Here comes a Tcl example:</p>
-    
+
     <pre class='code'><code class='tcl'>set x 1</code></pre>
 }
 
+#=========================================================================
+# Tclssg markdown tests - Copyright (c) 2015, 2017, 2018, 2020, 2021
+#-
+# D. Bohdan and contributors listed in Tclssg AUTHORS. This code is
+# released under the terms of the MIT license. See the file LICENSE
+# for details.
+
+tcltest::test markdown-3.1 {Tabs in Markdown} -cleanup {
+    unset md
+} -body {
+    set md "```\ntarget:\n\tcommand foo bar\n```"
+    list [Markdown::convert $md 0] \
+         [Markdown::convert $md 1]
+} -result [list \
+    "<pre class='code'><code>target:\n    command foo bar</code></pre>" \
+    "<pre class='code'><code>target:\n\tcommand foo bar</code></pre>" \
+]
+
+tcltest::test markdown-4.1 {Fenced code block language 1} -cleanup {
+    unset md
+} -body {
+    set md "```make\ntarget:\n\tcommand foo bar\n```"
+    Markdown::convert $md 1
+} -result "<pre class='code'><code class='make'>target:\n\tcommand\
+         foo bar</code></pre>"
+
+tcltest::test markdown-4.2 {Fenced code block language 2} -body {
+    Markdown::convert "```!@#$%^&*()\nhi\n```"
+} -result "<pre class='code'><code class='!@#$%^&amp;*()'>hi</code></pre>"
+
+tcltest::test markdown-4.3 {Fenced code block language 3} -body {
+    Markdown::convert "```foo bar baz\nhi\n```"
+} -result "<pre class='code'><code class='foo'>hi</code></pre>"
+
+tcltest::test markdown-5.1 {Newlines in HTML tag 1} -body {
+    Markdown::convert <div>Hello</div>
+} -result <div>Hello</div>\n
+
+tcltest::test markdown-5.2 {Newlines in HTML tag 2} -body {
+    Markdown::convert <div>\nHello\n</div>
+} -result <div>\nHello\n</div>\n
+
+# The tests markdown-5.{3,4,5} test for the behavior of John Gruber's
+# original Markdown.pl.  An implementation of CommonMark would remove
+# the repeated newlines and wrap the "Hello" in 5.4-5.5 in a <p>.
+tcltest::test markdown-5.3 {Newlines in HTML tag 3} -body {
+    Markdown::convert <div>\nHello\n\n\n</div>
+} -result <div>\nHello\n\n\n</div>\n
+
+tcltest::test markdown-5.4 {Newlines in HTML tag 4} -body {
+    Markdown::convert <div>\n\nHello</div>
+} -result <div>\n\nHello</div>\n
+
+tcltest::test markdown-5.5 {Newlines in HTML tag 5} -body {
+    Markdown::convert <div>\n\nHello\n\n\n</div>
+} -result <div>\n\nHello\n\n\n</div>\n
+
+tcltest::test markdown-6.1 {<hr>} -body {
+    Markdown::convert hello\n\n---\n\nworld
+} -result "<p>hello</p>\n\n<hr />\n\n<p>world</p>"
+
+tcltest::test markdown-6.2 {<hr> and HTML} -body {
+    Markdown::convert <table></table>\n\n---\n\n<table></table>
+} -result "<table></table>\n\n<hr />\n\n<table></table>\n"
+
+tcltest::test markdown-7.1 {Table} -body {
+    Markdown::convert [unindent {
+        | Foo | Bar | Baz |
+        |-----|-----|-----|
+        |   1 |   2 |   3 |
+        | 4   |  5  | 6    |
+    }]
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Foo</th>
+        <th>Bar</th>
+        <th>Baz</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>5</td>
+        <td>6</td>
+      </tr>
+    </tbody>
+    </table>
+}]\n
+
+tcltest::test markdown-7.2 {Table with HTML} -body {
+    Markdown::convert [unindent {
+        | File name | Description |
+        |-|-|
+        | <a href="download/x.zip">x.zip</a> | Source code. |
+    }]
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>File name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="download/x.zip">x.zip</a></td>
+        <td>Source code.</td>
+      </tr>
+    </tbody>
+    </table>
+}]\n
+
+tcltest::test markdown-7.3 {Table with a single column} -body {
+    Markdown::convert [unindent {
+        | Monocolumn |
+        |------------|
+        | Yes.       |
+
+        | <a name="foo">Hook</a> |
+        |-|
+        | <em>Line</em> |
+    }]
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Monocolumn</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Yes.</td>
+      </tr>
+    </tbody>
+    </table>
+
+
+    <table class="table">
+    <thead>
+      <tr>
+        <th><a name="foo">Hook</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>Line</em></td>
+      </tr>
+    </tbody>
+    </table>
+}]\n
+
+tcltest::test markdown-7.4 {Table with only a header} -body {
+    # This works on GitHub.
+    Markdown::convert "|Hello|\n|-----|"
+} -result [unindent {
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Hello</th>
+      </tr>
+    </thead>
+    </table>
+}]\n
+
+tcltest::test markdown-7.5 {HTML before a table} -body {
+    Markdown::convert [unindent {
+        <script>
+            var x = 5;
+            var y = 7;
+        </script>
+
+        | Hello! |
+        |---|
+    }]
+} -result [unindent {
+    <script>
+        var x = 5;
+        var y = 7;
+    </script>
+
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Hello!</th>
+      </tr>
+    </thead>
+    </table>
+}]\n
+
+tcltest::test markdown-8.1 {HTML blocks} -body {
+    Markdown::convert "<div>\n</div>\n\n# Hello!"
+} -result <div>\n</div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.2.1 {Newlines after a one-line HTML block} -body {
+    Markdown::convert "<div></div>\n# Hello!"
+} -result <div></div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.2.2 {Newlines after a one-line HTML block} -body {
+    Markdown::convert "<div></div>\n\n# Hello!"
+} -result <div></div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.2.3 {Newlines after a one-line HTML block} -body {
+    Markdown::convert "<div></div>\n\n\n# Hello!"
+} -result <div></div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.3.1 {Newlines after a multiline HTML block} -body {
+    Markdown::convert "<div>\n</div>\n# Hello!"
+} -result <div>\n</div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.3.2 {Newlines after a multiline HTML block} -body {
+    Markdown::convert "<div>\n</div>\n\n# Hello!"
+} -result <div>\n</div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.3.3 {Newlines after a multiline HTML block} -body {
+    Markdown::convert "<div>\n</div>\n\n\n# Hello!"
+} -result <div>\n</div>\n\n<h1>Hello!</h1>
+
+tcltest::test markdown-8.4 {Text after the opening/closing tag} -body {
+    Markdown::convert "<div>   <b>\n</b> </div> <!-- -->\n\n# Hello!"
+} -result [unindent {
+    <div>   <b>
+    </b> </div> <!-- -->
+
+    <h1>Hello!</h1>
+}]
+
+tcltest::test markdown-8.5 {} -body {
+    Markdown::convert [unindent {
+        <p><img src="https://example.com"></p>
+
+        `broken` markup
+    }]
+} -result [unindent {
+    <p><img src="https://example.com"></p>
+
+    <p><code>broken</code> markup</p>
+}]
+
 #-------------------------------------------------------------------------
 # Cleanup
-
+rename unindent {}
+rename convert {}
+rename outdent {}
+rename cmp {}
+rename dumpcmp {}
 testsuiteCleanup
+return

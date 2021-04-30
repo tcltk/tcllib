@@ -1,4 +1,4 @@
-# Tests for the base64 module.                              -*- tcl -*- 
+# Tests for the base64 module.                              -*- tcl -*-
 #
 # This file contains a collection of tests for one or more of the Tcl
 # built-in commands.  Sourcing this file into Tcl runs the tests and
@@ -6,8 +6,6 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
-#
-# RCS: @(#) $Id: base64.test,v 1.17 2011/11/09 04:31:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -24,12 +22,17 @@ testing {
 
 # -------------------------------------------------------------------------
 
-if {[catch {package present Trf}]} {
-    puts "> pure Tcl"
-    tcltest::testConstraint trf 0
-} else {
+tcltest::testConstraint tcl86 0
+tcltest::testConstraint trf   0
+
+if {[package vsatisfies [package present Tcl] 8.6]} {
+    puts "> Core based"
+    tcltest::testConstraint tcl86 1
+} elseif {![catch {package present Trf}]} {
     puts "> Trf based"
     tcltest::testConstraint trf 1
+} else {
+    puts "> pure Tcl"
 }
 
 # -------------------------------------------------------------------------
@@ -60,26 +63,55 @@ test base64-1.5 {base64::encode with wrap length set to 76, wrapchar to newline+
     base64::encode -maxlen 76 -wrapchar "\n " $str
 } "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3JlZW4gZmllbGQgYW5k
  IGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
-test base64-1.6 {base64::encode, errors} {
+
+test base64-1.6 {base64::encode, errors} !tcl86 {
     list [catch {base64::encode} msg] $msg
-} [list 1 "wrong # args: should be \"base64::encode ?-maxlen maxlen? ?-wrapchar wrapchar? string\""]
-test base64-1.7 {base64::encode, errors} {
+} {1 {wrong # args: should be "base64::encode ?-maxlen maxlen? ?-wrapchar wrapchar? string"}}
+
+test base64-1.6 {base64::encode, errors} tcl86 {
+    list [catch {base64::encode} msg] $msg
+} {1 {wrong # args: should be "binary encode base64 ?-maxlen len? ?-wrapchar char? data"}}
+
+test base64-1.7 {base64::encode, errors} !tcl86 {
     list [catch {base64::encode -maxlen foo} msg] $msg
-} [list 1 "value for \"-maxlen\" missing"]
+} {1 {value for "-maxlen" missing}}
+
+test base64-1.7 {base64::encode, errors} tcl86 {
+    list [catch {base64::encode -maxlen foo} msg] $msg
+} {1 {wrong # args: should be "binary encode base64 ?-maxlen len? ?-wrapchar char? data"}}
+
 test base64-1.8 {base64::encode, errors} {
     list [catch {base64::encode -maxlen foo bar} msg] $msg
 } [list 1 "expected integer but got \"foo\""]
-test base64-1.9 {base64::encode, errors} {
+
+test base64-1.9 {base64::encode, errors} !tcl86 {
     list [catch {base64::encode -maxlen foo -wrapchar bar} msg] $msg
-} [list 1 "value for \"-wrapchar\" missing"]
-test base64-1.10 {base64::encode, errors} {
+} {1 {value for "-wrapchar" missing}}
+
+test base64-1.9 {base64::encode, errors} tcl86 {
+    list [catch {base64::encode -maxlen foo -wrapchar bar} msg] $msg
+} {1 {wrong # args: should be "binary encode base64 ?-maxlen len? ?-wrapchar char? data"}}
+
+test base64-1.10 {base64::encode, errors} !tcl86 {
     list [catch {base64::encode -foo bar} msg] $msg
-} [list 1 "unknown option \"-foo\": must be -maxlen or -wrapchar"]
-test base64-1.11 {base64::encode with bogus wrap length (< 0)} {
+} {1 {unknown option "-foo": must be -maxlen or -wrapchar}}
+
+test base64-1.10 {base64::encode, errors} tcl86 {
+    list [catch {base64::encode -foo bar} msg] $msg
+} {1 {wrong # args: should be "binary encode base64 ?-maxlen len? ?-wrapchar char? data"}}
+
+test base64-1.11 {base64::encode with bogus wrap length (< 0)} !tcl86 {
     set str "The short red fox ran quickly through the green field "
     append str "and jumped over the tall brown bear\n"
     list [catch { base64::encode -maxlen -3 $str } msg] $msg
 } {1 {expected positive integer but got "-3"}}
+
+test base64-1.11 {base64::encode with bogus wrap length (< 0)} tcl86 {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    list [catch { base64::encode -maxlen -3 $str } msg] $msg
+} {1 {line length out of range}}
+
 test base64-1.12 {base64::encode with bogus wrap length (non-numeric)} {
     set str "The short red fox ran quickly through the green field "
     append str "and jumped over the tall brown bear\n"
@@ -139,7 +171,6 @@ test base64-2.6 {base64::decode} {
     base64::decode " "
 } ""
 
-
 test base64-3.1 {base64 identity test} {
 	base64::decode [base64::encode "this is a test"]
 } "this is a test"
@@ -151,12 +182,46 @@ test base64-3.2 {base64 identity test} {
     string compare $x $y
 } 0
 
-# For trf a known bug.
-test base64-4.0 {base64 -- sf bug 2976290} {!trf} {
+# -------------------------------------------------------------------------
+
+test base64-4.0 {base64 -- sf bug 2976290} {!tcl86 !trf} {
     list [catch {
-	::base64::decode s=GQMRAk5WXhsABh0NEx4RXBocBVgBHQMXHRgEFltMQENQXEFOExJVQ0RAQERUQ0dAEhYEExVIRRVVFENWKxMKABsPGBI6LRoYLhsEFhsXGFkXEwZXGQMIHg==
+	::base64::decode s=
     } msg] $msg
 } {1 {Not enough data to process padding}}
+
+test base64-4.0 {base64 -- sf bug 2976290} {tcl86} {
+    list [catch {
+	::base64::decode s=
+    } msg] $msg
+} {1 {invalid base64 character "s" at position 0}}
+
+test base64-4.0 {base64 -- sf bug 2976290} {trf} {
+    list [catch {
+	::base64::decode s=
+    } msg] $msg
+} {1 {illegal character found in input}}
+
+
+test base64-4.1 {base64 -- sf bug 2976290} {!tcl86 !trf} {
+    list [catch {
+	::base64::decode s
+    } msg] $msg
+} {1 {Not enough data to process padding}}
+
+test base64-4.1 {base64 -- sf bug 2976290} {tcl86} {
+    list [catch {
+	::base64::decode s
+    } msg] $msg
+} {1 {invalid base64 character "s" at position 0}}
+
+test base64-4.1 {base64 -- sf bug 2976290} {trf} {
+    list [catch {
+	::base64::decode s
+    } msg] $msg
+} {1 {illegal character found in input}}
+
+# -------------------------------------------------------------------------
 
 testsuiteCleanup
 return

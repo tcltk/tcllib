@@ -1,5 +1,5 @@
 [comment {-*- tclrep -*- doctools manpage}]
-[manpage_begin tclrep/machineparameters n 1.0]
+[manpage_begin math::machineparameters n 1.0]
 [copyright {2008 Michael Baudin <michael.baudin@sourceforge.net>}]
 [moddesc tclrep]
 [require Tcl 8.4]
@@ -187,5 +187,5 @@ Print machine parameters on standard output.
 [list_end]
 
 [vset CATEGORY math]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,4 +1,4 @@
-[vset VERSION 0.3.1]
+[vset VERSION 0.3.2]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin inifile n [vset VERSION]]
 [moddesc   {Parsing of Windows INI files}]
@@ -96,5 +96,5 @@ is [const \;].
 [list_end]
 
 [vset CATEGORY inifile]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

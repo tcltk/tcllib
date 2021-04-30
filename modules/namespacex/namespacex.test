@@ -15,6 +15,7 @@ testing {
 }
 
 # -------------------------------------------------------------------------
+## helpers
 
 
 namespace eval Q {
@@ -331,7 +332,6 @@ namespace eval Q {
 	namespacex state set N
     } -returnCodes error -result {wrong # args: should be "namespacex state set ns state"}
 
-
     test namespacex-state-set-1.2 {namespacex state set, wrong\#args} -body {
 	namespacex state set N S X
     } -returnCodes error -result {wrong # args: should be "namespacex state set ns state"}
@@ -361,6 +361,16 @@ namespace eval Q {
     } -result {B::vB 3 vXa 1 vXb aleph}
 
 
+test namespacex-info-allchildren-2.0.2 {namespacex info allchildren, relative to non-global} -setup {
+    ns_setup ::Q
+} -body {
+    namespace eval ::Q {
+        lsort -dict [namespacex info allchildren X]
+    }
+} -cleanup {
+    namespace delete ::Q
+} -result {::Q::X::A ::Q::X::B ::Q::X::B::D ::Q::X::C}
+
     test namespacex-state-set-2.1.0 {namespacex state set} -setup {
 	ns3_setup
 	set ST [namespacex state get X]
@@ -372,6 +382,46 @@ namespace eval Q {
 	namespace delete X
     } -result {B::vB mjolnir}
 
+
+    ## info vars
+
+    test namespacex-info-vars-1.0 {namespacex info vars, wrong\#args, not enough} -body {
+	namespacex info vars
+    } -returnCodes error -result {wrong # args: should be "namespacex info vars ns ?pattern?"}
+
+
+    test namespacex-info-vars-1.1 {namespacex info vars, wrong\#args, too many} -body {
+	namespacex info vars N P X
+    } -returnCodes error -result {wrong # args: should be "namespacex info vars ns ?pattern?"}
+
+
+    test namespacex-info-vars-2.0.0 {namespacex info vars, fqn} -setup {
+	ns2_setup
+    } -body {
+	lsort -dict [namespacex info vars ::X]
+    } -cleanup {
+	namespace delete ::X
+    } -result {vXa vXb}
+
+
+    test namespacex-info-vars-2.0.1 {namespacex info vars, relative to global} -setup {
+	ns2_setup
+    } -body {
+	lsort -dict [namespacex info vars X]
+    } -cleanup {
+	namespace delete ::X
+    } -result {vXa vXb}
+
+
+    test namespacex-info-vars-2.0.2 {namespacex info vars, relative to non-global} -setup {
+	ns2_setup ::Q
+    } -body {
+	namespace eval ::Q {
+	    lsort -dict [namespacex info vars X]
+	}
+    } -cleanup {
+	namespace delete ::Q
+    } -result {vXa vXb}
 
     test namespacex-state-set-2.1.1 {namespacex state set} -setup {
 	ns3_setup

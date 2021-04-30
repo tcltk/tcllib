@@ -51,17 +51,17 @@ proc dictsort3 {spec data} {
     }
 }
 
-foreach f [TestFilesGlob tests/*.json] {
+foreach f [TestFilesGlob *.json] {
     set name [file rootname [file tail $f]]
     set JSON($name) [tcltest::viewFile $f]
 }
 
-foreach f [TestFilesGlob tests/*.result] {
+foreach f [TestFilesGlob *.result] {
     set name [file rootname [file tail $f]]
     set TCL($name) [tcltest::viewFile $f]
 }
 
-foreach f [TestFilesGlob tests/*.sort] {
+foreach f [TestFilesGlob *.sort] {
     set name [file rootname [file tail $f]]
     set DICTSORT($name) [tcltest::viewFile $f]
 }

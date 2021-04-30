@@ -76,5 +76,5 @@ This code is a direct translation of version 1.3 of exif.pl by Chris
 Breeze.  See the source for full headers, references, etc.
 
 [vset CATEGORY exif]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

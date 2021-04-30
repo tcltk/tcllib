@@ -31,8 +31,8 @@ set text "Hello, world!
     This is the end,    my    friend.
 
 You're just    another   brick   in   the   wall.
-   Michele, ma belle, sont des mots qui vont trés bien ensembles,
-trés bien ensembles.
+   Michele, ma belle, sont des mots qui vont trÃ©s bien ensembles,
+trÃ©s bien ensembles.
 
    Smoke on the water, and fire in the sky.		
    Oh Lord, don't let me be misunderstood.
@@ -43,8 +43,8 @@ set text2 "Hello, world!
     This is the end,    my    friend.
 
 You're just    another   brick   in   the   wall.
-   Michele, ma belle, sont des mots qui vont trés bien ensembles,
-trés bien ensembles.
+   Michele, ma belle, sont des mots qui vont trÃ©s bien ensembles,
+trÃ©s bien ensembles.
 
 ThisIsSimilarToTextOnlyThisStringHasOneReallyLongWordInIt
 
@@ -101,8 +101,8 @@ test adjust-1.1 {adjust multi lines on left} {
     ::textutil::adjust::adjust $text -full no
 } \
 "Hello, world! This is the end, my friend. You're just another brick in
-the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
-trés bien ensembles. Smoke on the water, and fire in the sky. Oh Lord,
+the wall. Michele, ma belle, sont des mots qui vont trÃ©s bien ensembles,
+trÃ©s bien ensembles. Smoke on the water, and fire in the sky. Oh Lord,
 don't let me be misunderstood. Cause tramp like us, baby we were born to
 run."
 
@@ -110,8 +110,8 @@ test adjust-1.2 {adjust multi lines on right} {
     ::textutil::adjust::adjust $text -justify right
 } \
 "  Hello, world! This is the end, my friend. You're just another brick in
-the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
-  trés bien ensembles. Smoke on the water, and fire in the sky. Oh Lord,
+the wall. Michele, ma belle, sont des mots qui vont trÃ©s bien ensembles,
+  trÃ©s bien ensembles. Smoke on the water, and fire in the sky. Oh Lord,
 don't let me be misunderstood. Cause tramp like us, baby we were born to
                                                                     run."
 
@@ -120,7 +120,7 @@ test adjust-1.3 {adjust multi lines on center} {
 } \
 "Hello, world!             This is the end,    my    friend.  You're just
  another   brick   in   the   wall.    Michele, ma belle, sont des mots 
-   qui vont trés bien ensembles, trés bien ensembles.     Smoke on the  
+   qui vont trÃ©s bien ensembles, trÃ©s bien ensembles.     Smoke on the  
 water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
              Cause tramp like us, baby we were born to run.             "
 
@@ -129,7 +129,7 @@ test adjust-1.4 {adjust multi lines with plain justification} {
 } \
 "Hello, world!             This is the end,    my    friend.  You're just
 another     brick   in   the   wall.    Michele, ma belle, sont des mots
-qui vont trés bien ensembles, trés bien ensembles.          Smoke on the
+qui vont trÃ©s bien ensembles, trÃ©s bien ensembles.          Smoke on the
 water, and fire in the sky.      Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run.                          "
 
@@ -137,8 +137,8 @@ test adjust-1.5 {adjust multi lines with plain justification} {
     ::textutil::adjust::adjust $text -justify plain
 } \
 "Hello, world! This  is the end,  my friend. You're just another brick in
-the wall. Michele, ma belle, sont des mots qui vont trés bien ensembles,
-trés bien ensembles. Smoke  on the water, and fire  in the sky. Oh Lord,
+the wall. Michele, ma belle, sont des mots qui vont trÃ©s bien ensembles,
+trÃ©s bien ensembles. Smoke  on the water, and fire  in the sky. Oh Lord,
 don't let me be misunderstood. Cause tramp like us, baby we were born to
 run."
 
@@ -149,7 +149,7 @@ test adjust-2.1 {adjust multi lines on left with specified length} {
 } \
 "Hello, world! This is the end, my friend. You're just another
 brick in the wall. Michele, ma belle, sont des mots qui vont
-trés bien ensembles, trés bien ensembles. Smoke on the water,
+trÃ©s bien ensembles, trÃ©s bien ensembles. Smoke on the water,
 and fire in the sky. Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run."
 
@@ -158,7 +158,7 @@ test adjust-2.2 {adjust multi lines on right with specified length} {
 } \
 " Hello, world! This is the end, my friend. You're just another
   brick in the wall. Michele, ma belle, sont des mots qui vont
- trés bien ensembles, trés bien ensembles. Smoke on the water,
+ trÃ©s bien ensembles, trÃ©s bien ensembles. Smoke on the water,
   and fire in the sky. Oh Lord, don't let me be misunderstood.
                 Cause tramp like us, baby we were born to run."
 
@@ -167,7 +167,7 @@ test adjust-2.3 {adjust multi lines on center with specified length} {
 } \
 " Hello, world!             This is the end,    my    friend.  
  You're just    another   brick   in   the   wall.    Michele,
-  ma belle, sont des mots qui vont trés bien ensembles, trés  
+  ma belle, sont des mots qui vont trÃ©s bien ensembles, trÃ©s  
 bien ensembles.     Smoke on the water, and fire in the sky.  
  Oh Lord, don't let me be misunderstood.  Cause tramp like us,
                    baby we were born to run.                  "
@@ -177,7 +177,7 @@ test adjust-2.4 {adjust multi lines with plain justification} {
 } \
 "Hello, world!               This is the end,    my    friend. 
 You're just     another   brick   in   the   wall.    Michele,
-ma belle,  sont   des mots  qui vont trés bien ensembles, trés
+ma belle,  sont   des mots  qui vont trÃ©s bien ensembles, trÃ©s
 bien ensembles.     Smoke on the water, and fire in the sky.  
 Oh Lord, don't let me be misunderstood.   Cause tramp like us,
 baby we were born to run.                                     "
@@ -187,7 +187,7 @@ test adjust-2.5 {adjust multi lines with plain justification} {
 } \
 "Hello, world! This  is the end, my friend. You're just another
 brick  in the wall. Michele,  ma belle, sont des mots qui vont
-trés bien ensembles, trés bien ensembles. Smoke  on the water,
+trÃ©s bien ensembles, trÃ©s bien ensembles. Smoke  on the water,
 and fire  in the sky.  Oh Lord, don't let me be misunderstood.
 Cause tramp like us, baby we were born to run."
 
@@ -198,7 +198,7 @@ test adjust-2.6 {adjust multi lines with plain justification and long word} {
 my friend. You're  just another
 brick  in the wall. Michele, ma
 belle, sont  des mots  qui vont
-trés  bien ensembles, trés bien
+trÃ©s  bien ensembles, trÃ©s bien
 ensembles.
 ThisIsSimilarToTextOnlyThisStri
 ngHasOneReallyLongWordInIt
@@ -215,7 +215,7 @@ test adjust-2.7 {adjust multi lines with plain justification and strictlength} {
 my friend. You're  just another
 brick  in the wall. Michele, ma
 belle, sont  des mots  qui vont
-trés  bien ensembles, trés bien
+trÃ©s  bien ensembles, trÃ©s bien
 ensembles.
 ThisIsSimilarToTextOnlyThisStri
 ngHasOneReallyLongWordInIt
@@ -232,7 +232,7 @@ test adjust-2.8 {adjust multi lines with left justification and strictlength} {
 my friend. You're just another
 brick in the wall. Michele, ma
 belle, sont des mots qui vont
-trés bien ensembles, trés bien
+trÃ©s bien ensembles, trÃ©s bien
 ensembles.
 ThisIsSimilarToTextOnlyThisStri
 ngHasOneReallyLongWordInIt

@@ -340,7 +340,7 @@ tcllib
 \fIfiles/modules/clock/iso8601\&.n\fR: Parsing ISO 8601 dates/times
 .TP
 \fBclock_rfc2822\fR
-\fIfiles/modules/clock/rfc2822\&.n\fR: Parsing ISO 8601 dates/times
+\fIfiles/modules/clock/rfc2822\&.n\fR: Parsing RFC 2822 dates/times
 .TP
 \fBcmdline\fR
 \fIfiles/modules/cmdline/cmdline\&.n\fR: Procedures to process command lines and options\&.
@@ -627,6 +627,9 @@ tcllib
 \fBfileutil::multi::op\fR
 \fIfiles/modules/fileutil/multiop\&.n\fR: Multi-file operation, scatter/gather
 .TP
+\fBfileutil::paths\fR
+\fIfiles/modules/fileutil/paths\&.n\fR: Manage search path pools
+.TP
 \fBfileutil_traverse\fR
 \fIfiles/modules/fileutil/traverse\&.n\fR: Iterative directory traversal
 .TP
@@ -735,6 +738,9 @@ tcllib
 \fBlambda\fR
 \fIfiles/modules/lambda/lambda\&.n\fR: Utility commands for anonymous procedures
 .TP
+\fBlazyset\fR
+\fIfiles/modules/lazyset/lazyset\&.n\fR: Lazy evaluation
+.TP
 \fBldap\fR
 \fIfiles/modules/ldap/ldap\&.n\fR: LDAP client
 .TP
@@ -789,6 +795,9 @@ tcllib
 \fBmath::calculus::symdiff\fR
 \fIfiles/modules/math/symdiff\&.n\fR: Symbolic differentiation for Tcl
 .TP
+\fBmath::changepoint\fR
+\fIfiles/modules/math/changepoint\&.n\fR: Change point detection methods
+.TP
 \fBmath::combinatorics\fR
 \fIfiles/modules/math/combinatorics\&.n\fR: Combinatorial functions in the Tcl Math Library
 .TP
@@ -803,6 +812,9 @@ tcllib
 .TP
 \fBmath::exact\fR
 \fIfiles/modules/math/exact\&.n\fR: Exact Real Arithmetic
+.TP
+\fBmath::filters\fR
+\fIfiles/modules/math/filtergen\&.n\fR: Digital filters
 .TP
 \fBmath::fourier\fR
 \fIfiles/modules/math/fourier\&.n\fR: Discrete and fast fourier transforms
@@ -819,6 +831,9 @@ tcllib
 \fBmath::linearalgebra\fR
 \fIfiles/modules/math/linalg\&.n\fR: Linear Algebra
 .TP
+\fBmath::machineparameters\fR
+\fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
+.TP
 \fBmath::numtheory\fR
 \fIfiles/modules/math/numtheory\&.n\fR: Number Theory
 .TP
@@ -830,6 +845,12 @@ tcllib
 .TP
 \fBmath::polynomials\fR
 \fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
+.TP
+\fBmath::probopt\fR
+\fIfiles/modules/math/probopt\&.n\fR: Probabilistic optimisation methods
+.TP
+\fBmath::quasirandom\fR
+\fIfiles/modules/math/quasirandom\&.n\fR: Quasi-random points for integration and Monte Carlo type methods
 .TP
 \fBmath::rationalfunctions\fR
 \fIfiles/modules/math/rational_funcs\&.n\fR: Polynomial functions
@@ -1203,6 +1224,9 @@ tcllib
 \fBstruct::list\fR
 \fIfiles/modules/struct/struct_list\&.n\fR: Procedures for manipulating lists
 .TP
+\fBstruct::map\fR
+\fIfiles/modules/struct/struct_map\&.n\fR: Manage key/value maps
+.TP
 \fBstruct::matrix\fR
 \fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
 .TP
@@ -1335,6 +1359,9 @@ tcllib
 \fBtcl::transform::zlib\fR
 \fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
 .TP
+\fBtcl_community_communication\fR
+\fIfiles/devdoc/tcl_community_communication\&.n\fR: Tcl Community - Kind Communication
+.TP
 \fBtclDES\fR
 \fIfiles/modules/des/tcldes\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
@@ -1344,11 +1371,23 @@ tcllib
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
 .TP
+\fBtcllib_devguide\fR
+\fIfiles/devdoc/tcllib_devguide\&.n\fR: Tcllib - The Developer's Guide
+.TP
+\fBtcllib_install_guide\fR
+\fIfiles/devdoc/tcllib_installer\&.n\fR: Tcllib - The Installer's Guide
+.TP
 \fBtcllib_ip\fR
 \fIfiles/modules/dns/tcllib_ip\&.n\fR: IPv4 and IPv6 address manipulation
 .TP
-\fBtclrep/machineparameters\fR
-\fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
+\fBtcllib_license\fR
+\fIfiles/devdoc/tcllib_license\&.n\fR: Tcllib - License
+.TP
+\fBtcllib_releasemgr\fR
+\fIfiles/devdoc/tcllib_releasemgr\&.n\fR: Tcllib - The Release Manager's Guide
+.TP
+\fBtcllib_sources\fR
+\fIfiles/devdoc/tcllib_sources\&.n\fR: Tcllib - How To Get The Sources
 .TP
 \fBtepam\fR
 \fIfiles/modules/tepam/tepam_introduction\&.n\fR: An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
@@ -1406,6 +1445,9 @@ tcllib
 .TP
 \fBtextutil::expander\fR
 \fIfiles/modules/textutil/expander\&.n\fR: Procedures to process templates and expand text\&.
+.TP
+\fBtextutil::patch\fR
+\fIfiles/modules/textutil/patch\&.n\fR: Application of uni-diff patches to directory trees
 .TP
 \fBtextutil::repeat\fR
 \fIfiles/modules/textutil/repeat\&.n\fR: Procedures to repeat strings\&.

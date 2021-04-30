@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'doctoc\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::toc" n 1\&.1\&.7 tcllib "Documentation tools"
+.TH "doctools::toc" n 1\&.2 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools::toc \- doctoc - Processing tables of contents
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools::toc  ?1\&.1\&.7?\fR
+package require \fBdoctools::toc  ?1\&.2?\fR
 .sp
 \fB::doctools::toc::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp
@@ -561,6 +561,9 @@ This engine retrieves version, section and title of the manpage from
 the document\&. As such it can be used to generate a directory listing
 for a set of manpages\&.
 .TP
+markdown
+This engine generates \fIMarkdown\fR markup\&.
+.TP
 nroff
 This engine generates nroff output, for processing by \fBnroff\fR,
 or \fBgroff\fR\&. The result will be standard man pages as they are
@@ -596,11 +599,11 @@ left-most button in the secondary navigation bar\&.
 .SH "SEE ALSO"
 doctoc_intro, doctoc_lang_cmdref, doctoc_lang_intro, doctoc_lang_syntax, doctoc_plugin_apiref
 .SH KEYWORDS
-HTML, TMML, conversion, doctoc, documentation, latex, manpage, markup, nroff, table of contents, toc, wiki
+HTML, TMML, conversion, doctoc, documentation, latex, manpage, markdown, markup, nroff, table of contents, toc, wiki
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

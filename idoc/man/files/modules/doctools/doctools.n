@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'doctools\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools" n 1\&.4\&.21 tcllib "Documentation tools"
+.TH "doctools" n 1\&.5\&.6 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools \- doctools - Processing documents
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools  ?1\&.4\&.21?\fR
+package require \fBdoctools  ?1\&.5\&.6?\fR
 .sp
 \fB::doctools::new\fR \fIobjectName\fR ?\fIoption value\fR\&.\&.\&.?
 .sp
@@ -674,6 +674,29 @@ This engine generates nroff output, for processing by \fBnroff\fR,
 or \fBgroff\fR\&. The result will be standard man pages as they are
 known in the unix world\&.
 .TP
+markdown
+This engine generates \fIMarkdown\fR markup\&. This engine supports two
+parameters:
+.RS
+.TP
+header
+The value for this parameter has to be valid selfcontained markdown
+markup for the body section of a markdown document\&. The default value
+is the empty string\&. The value is inserted into the generated output
+just before the table of contents\&.
+.sp
+This can be used to insert boilerplate header markup into the
+generated document\&.
+.TP
+xref
+The value for this parameter has to be a list of triples specifying
+cross-reference information\&.
+.sp
+The full details of expected syntax and engine-internal use are
+explained above for the \fIhtml\fR engine\&.
+.RE
+.sp
+.TP
 null
 This engine generates no outout at all\&. This can be used if one just
 wants to validate some input\&.
@@ -704,11 +727,11 @@ left-most button in the secondary navigation bar\&.
 .SH "SEE ALSO"
 doctools_intro, doctools_lang_cmdref, doctools_lang_intro, doctools_lang_syntax, doctools_plugin_apiref
 .SH KEYWORDS
-HTML, TMML, conversion, documentation, manpage, markup, nroff
+HTML, TMML, conversion, documentation, manpage, markdown, markup, nroff
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003-2017 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

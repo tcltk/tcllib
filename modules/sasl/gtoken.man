@@ -23,5 +23,5 @@ for details.
 Pat Thoyts
 
 [vset CATEGORY sasl]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

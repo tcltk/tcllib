@@ -96,14 +96,14 @@ namespace eval math::calculus::symdiff {
 	expression ::= term {
 	    lindex $_ 0
 	}
-	
+
 	addop ::= + {
 	    lindex $_ 0
 	}
 	addop ::= - {
 	    lindex $_ 0
 	}
-	
+
 	term ::= term mulop factor {
 	    set result [${clientData}::MakeOperator [lindex $_ 1]]
 	    lappend result [lindex $_ 0] [lindex $_ 2]
@@ -117,7 +117,7 @@ namespace eval math::calculus::symdiff {
 	mulop ::= / {
 	    lindex $_ 0
 	}
-	
+
 	factor ::= addop factor {
 	    set result [${clientData}::MakeOperator [lindex $_ 0]]
 	    lappend result [lindex $_ 1]
@@ -125,7 +125,7 @@ namespace eval math::calculus::symdiff {
 	factor ::= expon {
 	    lindex $_ 0
 	}
-	
+
 	expon ::= primary ** expon {
 	    set result [${clientData}::MakeOperator [lindex $_ 1]]
 	    lappend result [lindex $_ 0] [lindex $_ 2]
@@ -133,7 +133,7 @@ namespace eval math::calculus::symdiff {
 	expon ::= primary {
 	    lindex $_ 0
 	}
-	
+
 	primary ::= {$} bareword {
 	    ${clientData}::MakeVariable [lindex $_ 1]
 	}
@@ -147,7 +147,7 @@ namespace eval math::calculus::symdiff {
 	primary ::= ( expression ) {
 	    lindex $_ 1
 	}
-	
+
 	arglist ::= expression {
 	    set _
 	}
@@ -290,7 +290,7 @@ proc math::calculus::symdiff::differentiate::MakeDeriv {tree var} {
 
 # math::calculus::symdiff::differentiate::ChainRule --
 #
-#       Applies the Chain Rule to evaluate the derivative of a unary 
+#       Applies the Chain Rule to evaluate the derivative of a unary
 #       function.
 #
 # Parameters:
@@ -415,7 +415,7 @@ proc {math::calculus::symdiff::differentiate::operator -} {var args} {
 #
 # Parameters:
 #       var -- Variable to differentiate with respect to.
-#       u, v -- Multiplicand and multiplier. 
+#       u, v -- Multiplicand and multiplier.
 #
 # Results:
 #       Returns a parse tree representing the derivative.
@@ -435,7 +435,7 @@ proc {math::calculus::symdiff::differentiate::operator *} {var u v} {
 #
 # Parameters:
 #       var -- Variable to differentiate with respect to.
-#       u, v -- Dividend and divisor. 
+#       u, v -- Dividend and divisor.
 #
 # Results:
 #       Returns a parse tree representing the derivative.
@@ -534,7 +534,7 @@ proc {math::calculus::symdiff::differentiate::operator atan} {var u} {
 # Results:
 #       Returns a parse tree of the derivative.
 #
-# Applies the Chain and Quotient Rules: 
+# Applies the Chain and Quotient Rules:
 #       D(atan2(f, g)) = (D(f)*g - D(g)*f)/(f*f + g*g)
 
 proc {math::calculus::symdiff::differentiate::operator atan2} {var f g} {
@@ -689,7 +689,7 @@ proc {math::calculus::symdiff::differentiate::operator **} {var f g} {
     if {[IsConstant $g]} {
         set gm1 [MakeConstant [expr {[ConstantValue $g] - 1}]]
         set result [MakeProd $df [MakeProd $g [MakePower $f $gm1]]]
-        
+
     } else {
         set dg [eval [linsert $g 1 $var]]
         set result [MakeProd [MakePower $f $g] \

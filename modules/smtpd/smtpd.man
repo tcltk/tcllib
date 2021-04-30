@@ -290,5 +290,5 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 [file license.terms] for more details.
 
 [vset CATEGORY smtpd]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

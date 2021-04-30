@@ -9,9 +9,9 @@
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+	file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
 testsNeedTcltest 2
@@ -78,7 +78,7 @@ testing {
     useLocal pt_pgen.tcl pt::pgen ;# Generator
 }
 
-set mytestdir tests/data
+set mytestdir data
 
 # Table of test cases ...
 #             Id PEG     InText Error detail    Readable char

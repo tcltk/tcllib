@@ -9,7 +9,7 @@
 ## BSD License
 ##
 # Package providing commands for the generation of a zip archive.
-# version 1.2
+# version 1.2.1
 
 package require Tcl 8.6
 
@@ -39,7 +39,7 @@ proc ::zipfile::mkzip::setbinary chan {
 proc ::zipfile::mkzip::timet_to_dos {time_t} {
     set s [clock format $time_t -format {%Y %m %e %k %M %S}]
     scan $s {%d %d %d %d %d %d} year month day hour min sec
-    expr {(($year-1980) << 25) | ($month << 21) | ($day << 16) 
+    expr {(($year-1980) << 25) | ($month << 21) | ($day << 16)
           | ($hour << 11) | ($min << 5) | ($sec >> 1)}
 }
 
@@ -64,7 +64,7 @@ proc ::zipfile::mkzip::pop {varname {nth 0}} {
 proc ::zipfile::mkzip::walk {base {excludes ""} {match *} {path {}}} {
     set result {}
     set imatch [file join $path $match]
-    set files [glob -nocomplain -tails -types f -directory $base $imatch]
+    set files [glob -nocomplain -tails -types f -directory $base -- $imatch]
     foreach file $files {
         set excluded 0
         foreach glob $excludes {
@@ -75,7 +75,7 @@ proc ::zipfile::mkzip::walk {base {excludes ""} {match *} {path {}}} {
         }
         if {!$excluded} {lappend result $file}
     }
-    foreach dir [glob -nocomplain -tails -types d -directory $base $imatch] {
+    foreach dir [glob -nocomplain -tails -types d -directory $base -- $imatch] {
         set subdir [walk $base $excludes $match $dir]
         if {[llength $subdir]>0} {
             set result [concat $result [list $dir] $subdir]
@@ -121,19 +121,19 @@ proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
             set attr 1         ;# text
         }
     }
-  
+
     if {[file isfile $fullpath]} {
         set size [file size $fullpath]
         if {!$seekable} {set flags [expr {$flags | (1 << 3)}]}
     }
-  
+
     set offset [tell $zipchan]
     set local [binary format a4sssiiiiss PK\03\04 \
                    $version $flags $method $mtime $crc $csize $size \
                    [string length $utfpath] [string length $extra]]
     append local $utfpath $extra
     puts -nonewline $zipchan $local
-  
+
     if {[file isfile $fullpath]} {
         # If the file is under 2MB then zip in one chunk, otherwize we use
         # streaming to avoid requiring excess memory. This helps to prevent
@@ -173,7 +173,7 @@ proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
             puts -nonewline $zipchan $zdata
             $zlib close
         }
-    
+
         if {$seekable} {
             # update the header if the output is seekable
             set local [binary format a4sssiiii PK\03\04 \
@@ -188,7 +188,7 @@ proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
             puts -nonewline $zipchan $ddesc
         }
     }
-  
+
     set hdr [binary format a4ssssiiiisssssii PK\01\02 0x0317 \
                  $version $flags $method $mtime $crc $csize $size \
                  [string length $utfpath] [string length $extra]\
@@ -202,20 +202,20 @@ proc ::zipfile::mkzip::add_file_to_archive {zipchan base path {comment ""}} {
 #        Create a zip archive in 'filename'. If a file already exists it will be
 #        overwritten by a new file. If '-directory' is used, the new zip archive
 #        will be rooted in the provided directory.
-#        -runtime can be used to specify a prefix file. For instance, 
+#        -runtime can be used to specify a prefix file. For instance,
 #        zip myzip -runtime unzipsfx.exe -directory subdir
 #        will create a self-extracting zip archive from the subdir/ folder.
 #        The -comment parameter specifies an optional comment for the archive.
 #
 #        eg: zip my.zip -directory Subdir -runtime unzipsfx.exe *.txt
-# 
+#
 proc ::zipfile::mkzip::mkzip {filename args} {
   array set opts {
       -zipkit 0 -runtime "" -comment "" -directory ""
       -exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
       -verbose 0
   }
-  
+
   while {[string match -* [set option [lindex $args 0]]]} {
       switch -exact -- $option {
           -verbose { set opts(-verbose) 1}
@@ -279,4 +279,4 @@ proc ::zipfile::mkzip::mkzip {filename args} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::mkzip 1.2
+package provide zipfile::mkzip 1.2.1

@@ -1,4 +1,4 @@
-[vset VERSION 1.1.3]
+[vset VERSION 1.1.4]
 [manpage_begin crc16 n [vset VERSION]]
 [see_also cksum(n)]
 [see_also crc32(n)]
@@ -145,5 +145,5 @@ argument.
 Pat Thoyts
 
 [vset CATEGORY crc]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

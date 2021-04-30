@@ -82,13 +82,16 @@ test pt-peg-import-4.2 {import object file, wrong#args} -setup {
 
 # config unset - accepts any number of arguments.
 
+# -------------------------------------------------------------------------
+## `include` component, provided via fileutil::paths, search path for includes
+
 test pt-peg-import-5.0 {include paths, wrong#args} -setup {
     pt::peg::import I
 } -body {
     I include paths X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodpaths type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodpaths type selfns win self"}
 
 test pt-peg-import-6.0 {include clear, wrong#args} -setup {
     pt::peg::import I
@@ -96,7 +99,7 @@ test pt-peg-import-6.0 {include clear, wrong#args} -setup {
     I include clear X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodclear type selfns win self"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodclear type selfns win self"}
 
 test pt-peg-import-7.0 {include add, wrong#args} -setup {
     pt::peg::import I
@@ -104,7 +107,7 @@ test pt-peg-import-7.0 {include add, wrong#args} -setup {
     I include add
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodadd type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodadd type selfns win self path"}
 
 test pt-peg-import-7.1 {include add, wrong#args} -setup {
     pt::peg::import I
@@ -112,7 +115,7 @@ test pt-peg-import-7.1 {include add, wrong#args} -setup {
     I include add P X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodadd type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodadd type selfns win self path"}
 
 test pt-peg-import-8.0 {include remove, wrong#args} -setup {
     pt::peg::import I
@@ -120,7 +123,7 @@ test pt-peg-import-8.0 {include remove, wrong#args} -setup {
     I include remove
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodremove type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodremove type selfns win self path"}
 
 test pt-peg-import-8.1 {include remove, wrong#args} -setup {
     pt::peg::import I
@@ -128,7 +131,7 @@ test pt-peg-import-8.1 {include remove, wrong#args} -setup {
     I include remove P X
 } -cleanup {
     I destroy
-} -returnCodes error -result {wrong # args: should be "::paths::Snit_methodremove type selfns win self path"}
+} -returnCodes error -result {wrong # args: should be "::fileutil::paths::Snit_methodremove type selfns win self path"}
 
 # -------------------------------------------------------------------------
 
@@ -204,7 +207,7 @@ test pt-peg-import-12.0 {include clear} -setup {
 # import manager. Numbering starts at 20.
 # -------------------------------------------------------------------------
 
-source [localPath tests/pt_peg_import_plugins.tests]
+source [localPath pt_peg_import_plugins.tests]
 
 # -------------------------------------------------------------------------
 return

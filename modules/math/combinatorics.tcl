@@ -3,13 +3,15 @@
 # math/combinatorics.tcl --
 #
 #	This file contains definitions of mathematical functions
-#	useful in combinatorial problems.  
+#	useful in combinatorial problems.
+#
+#	Note: this is the original collection, an update is in combinatoricsExt.tcl
 #
 # Copyright (c) 2001, by Kevin B. Kenny.  All rights reserved.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
+#
 # RCS: @(#) $Id: combinatorics.tcl,v 1.5 2004/02/09 19:31:54 hobbs Exp $
 #
 #----------------------------------------------------------------------
@@ -86,7 +88,7 @@ proc ::math::InitializeFactorial {} {
 #	None.
 #
 # Side effects:
-#	::math::pascal is initialized to a flat list containing 
+#	::math::pascal is initialized to a flat list containing
 #	the first 34 rows of Pascal's triangle.	 C(n,k) is to be found
 #	at [lindex $pascal $i] where i = n * ( n + 1 ) + k.  No attempt
 #	is made to exploit symmetry.
@@ -167,7 +169,7 @@ proc ::math::ln_Gamma { x } {
 	    set ser [expr { $ser + $cof / $x }]
 	}
 	return [expr { $tmp + log( 2.50662827465 * $ser ) }]
-    } 
+    }
 
     # Handle the error cases.
 
@@ -187,7 +189,7 @@ proc ::math::ln_Gamma { x } {
 	-errorcode [list ARITH OVERFLOW \
 		    "floating-point value too large to represent"] \
 	"floating-point value too large to represent"
-	
+
 }
 
 #----------------------------------------------------------------------
@@ -270,17 +272,17 @@ proc ::math::factorial { x } {
 #	k -- Number of objects to be chosen.
 #
 # Results:
-#	Returns C(n,k).	 
+#	Returns C(n,k).
 #
 # Side effects:
 #	None.
 #
 # Results are expected to be accurate to ten significant figures.
-# If both parameters are integers and the result fits in 32 bits, 
+# If both parameters are integers and the result fits in 32 bits,
 # the result is rounded to an integer.
 #
 # Integer results are exact up to at least n = 34.
-# Floating point results are precise to better than nine significant 
+# Floating point results are precise to better than nine significant
 # figures.
 #
 #----------------------------------------------------------------------
@@ -349,7 +351,7 @@ proc ::math::choose { n k } {
 
     # Round to integer if both args are integers and the result fits
 
-    if { $r <= 2147483647.5 
+    if { $r <= 2147483647.5
 	       && [string is integer -strict $n]
 	       && [string is integer -strict $k] } {
 	return [expr { round( $r ) }]
@@ -420,7 +422,7 @@ proc ::math::Beta { z w } {
 
 	return -code error -errorcode $::errorCode $beta
 
-    } 
+    }
 
     return $beta
 

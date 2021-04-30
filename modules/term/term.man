@@ -16,5 +16,5 @@ been implemented however. I.e. this package is empty. It can be loaded, yet
 provides nothing.
 
 [vset CATEGORY term]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

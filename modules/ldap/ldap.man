@@ -15,7 +15,7 @@
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [category  Networking]
-[require Tcl 8.4]
+[require Tcl 8.5]
 [require ldap [opt [vset VERSION]]]
 [description]
 [para]
@@ -699,5 +699,5 @@ results.
 }]
 
 [vset CATEGORY ldap]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

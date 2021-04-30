@@ -34,6 +34,14 @@ test graph-${impl}-${setimpl}-node-delete-2.0 {node delete, missing node} {
     set msg
 } [MissingNode $MY node0]
 
+test graph-${impl}-${setimpl}-node-delete-2.1 {node delete, missing node} {
+    SETUP
+    mygraph node insert node0
+    catch {mygraph node delete node0 node0} msg
+    mygraph destroy
+    set msg
+} [MissingNode $MY node0]
+
 # -------------------------------------------------------------------------
 # Ok arguments, single, multiple deletion.
 

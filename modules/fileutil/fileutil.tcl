@@ -8,12 +8,10 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: fileutil.tcl,v 1.78 2010/06/17 04:46:19 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.16
+package provide fileutil 1.16.1
 
 namespace eval ::fileutil {
     namespace export \
@@ -626,8 +624,8 @@ if {[string equal $tcl_platform(platform) windows]} {
 
 # ::fileutil::jail --
 #
-#	Ensures that the input path 'filename' stays within the the
-#	directory 'jail'. In this way it preventsuser-supplied paths
+#	Ensures that the input path 'filename' stays within the
+#	directory 'jail'. In this way it prevents user-supplied paths
 #	from escaping the jail.
 #
 # Arguments:
@@ -1468,7 +1466,7 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 
     proc ::fileutil::touch {args} {
         # Don't bother catching errors, just let them propagate up
-        
+
         set options {
             {a          "set the atime only"}
             {m          "set the mtime only"}
@@ -1479,12 +1477,12 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
         set usage ": [lindex [info level 0] 0]\
                       \[options] filename ...\noptions:"
         array set params [::cmdline::getoptions args $options $usage]
-        
+
         # process -a and -m options
         set set_atime [set set_mtime "true"]
         if {  $params(a) && ! $params(m)} {set set_mtime "false"}
         if {! $params(a) &&   $params(m)} {set set_atime "false"}
-        
+
         # process -r and -t
         set has_t [expr {$params(t) != -1}]
         set has_r [expr {[string length $params(r)] > 0}]
@@ -1523,10 +1521,10 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 #
 # Results
 #	type            Type of the file.  May be a list if multiple tests
-#                       are positive (eg, a file could be both a directory 
+#                       are positive (eg, a file could be both a directory
 #                       and a link).  In general, the list proceeds from most
 #                       general (eg, binary) to most specific (eg, gif), so
-#                       the full type for a GIF file would be 
+#                       the full type for a GIF file would be
 #                       "binary graphic gif"
 #
 #                       At present, the following types can be detected:
@@ -1547,7 +1545,7 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 #                       gravity_wave_data_frame
 #                       link
 #			doctools, doctoc, and docidx documentation files.
-#                  
+#
 
 proc ::fileutil::fileType {filename} {
     ;## existence test
@@ -1644,7 +1642,7 @@ proc ::fileutil::fileType {filename} {
 	    binary scan $appid H8 aid
 	    lappend type A$aid
 	}
-	
+
     } elseif { $binary && [string match "BZh91AY\&SY*" $test] } {
         lappend type compressed bzip
     } elseif { $binary && [string match "\x1f\x8b*" $test] } {
@@ -1922,7 +1920,9 @@ proc ::fileutil::MakeTempDir {config} {
 	if {[file exists $path]} continue
 	if {[catch {
 	    file mkdir $path
-	    file attributes $path -permissions 0700
+	    if {$::tcl_platform(platform) eq "unix"} {
+		file attributes $path -permissions 0700
+	    }
 	}]} continue
 
 	return $path
@@ -1933,7 +1933,7 @@ proc ::fileutil::MakeTempDir {config} {
 # ::fileutil::tempfile --
 #
 #   generate a temporary file name suitable for writing to
-#   the file name will be unique, writable and will be in the 
+#   the file name will be unique, writable and will be in the
 #   appropriate system specific temp directory
 #   Code taken from http://mini.net/tcl/772 attributed to
 #    Igor Volobouev and anon.

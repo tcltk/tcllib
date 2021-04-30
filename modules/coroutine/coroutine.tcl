@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine 1.2
+# Package coroutine 1.3
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
@@ -54,7 +54,7 @@ package require Tcl 8.6
 namespace eval ::coroutine::util {
 
     namespace export \
-	create global after exit vwait update gets read await
+	create global after exit vwait update gets read puts socket await
 
     namespace ensemble create
 }
@@ -77,6 +77,8 @@ proc ::coroutine::util::create {args} {
 # vwait
 # gets               [1]
 # read               [1]
+# puts               [1]
+# socket             [1]
 #
 # [1] These commands call on their builtin counterparts to get some of
 #     their functionality (like proper error messages for syntax errors).
@@ -88,6 +90,14 @@ proc ::coroutine::util::global {args} {
     # bottom. Variables there are out of view of the main code, and
     # can be made visible in the entire coroutine underneath.
 
+    # Ticket [bf8b80af]. Nothing needs to be done when the command is
+    # invoked by the main procedure of the coroutine. Such code
+    # already runs in frame #1, i.e. the variables are already in
+    # scope, automatically.
+    if {[info level] < 2} {
+	return
+    }
+
     set cmd [list upvar "#1"]
     foreach var $args {
 	lappend cmd $var $var
@@ -98,7 +108,7 @@ proc ::coroutine::util::global {args} {
 # - -- --- ----- -------- -------------
 
 proc ::coroutine::util::after {delay} {
-    ::after $delay [info coroutine]
+    ::after $delay [list [info coroutine]]
     yield
     return
 }
@@ -129,7 +139,7 @@ proc ::coroutine::util::vwait {varname} {
     #
     # (*) At this point we are in VWaitTrace running the coroutine.
 
-    ::after idle [info coroutine]
+    ::after idle [list [info coroutine]]
     yield
     return
 }
@@ -143,12 +153,12 @@ proc ::coroutine::util::VWaitTrace {coroutine args} {
 
 proc ::coroutine::util::update {{what {}}} {
     if {$what eq "idletasks"} {
-        ::after idle [info coroutine]
+        ::after idle [list [info coroutine]]
     } elseif {$what ne {}} {
         # Force proper error message for bad call.
         tailcall ::tcl::update $what
     } else {
-        ::after 0 [info coroutine]
+        ::after 0 [list [info coroutine]]
     }
     yield
     return
@@ -349,6 +359,80 @@ proc ::coroutine::util::read {args} {
 }
 
 # - -- --- ----- -------- -------------
+## Yields until the channel is writable before actually writing, as
+## suggested by the documentation for non-blocking puts
+
+proc ::coroutine::util::puts {args} {
+    # Process arguments.
+    # Acceptable syntax:
+    # * puts ?-nonewline? ?CHAN? string
+
+    switch [llength $args] {
+        1 {
+            set ch stdout
+        }
+        2 {
+            set ch [lindex $args 0]
+            if {[string match {-*} $ch]} {
+                if {$ch ne "-nonewline"} {
+                    # Force proper error message for bad call
+                    tailcall ::chan puts {*}$args
+                }
+                set ch stdout
+            }
+        }
+        3 {
+            lassign $args opt ch
+            if {$opt ne "-nonewline"} {
+                # Force proper error message for bad call
+                tailcall ::chan puts {*}$args
+            }
+        }
+        default {
+            # Force proper error message for bad call
+            tailcall ::chan puts {*}$args
+        }
+    }
+    set blocking [::chan configure $ch -blocking]
+    ::chan event $ch writable [info coroutine]
+    yield
+    ::chan event $ch writable {}
+    try {
+        ::chan puts {*}$args
+    } on error {result opts} {
+        return -code $result -options $opts
+    } finally {
+        ::chan configure $ch -blocking $blocking
+    }
+    return
+}
+
+# - -- --- ----- -------- -------------
+## Does a non-blocking connect in the background and yields until finished.
+proc ::coroutine::util::socket {args} {
+    # Process arguments.
+    # Acceptable syntax:
+    # * socket ?options? host port
+
+    if {[lsearch -exact $args -server] >= 0} {
+        error "[namespace current]::socket cannot be used for server sockets."
+    }
+    set s [::socket -async {*}$args]
+    ::chan event $s writable [info coroutine]
+    while {[::chan configure $s -connecting]} {
+        yield
+    }
+    ::chan event $s writable {}
+    set errmsg [::chan configure $s -error]
+    if {$errmsg ne ""} {
+        ::chan close $s
+        error $errmsg
+    }
+    return $s
+}
+
+
+# - -- --- ----- -------- -------------
 ## This goes beyond the builtin vwait, wait for multiple variables,
 ## result is the name of the variable which was written.
 ## This code mainly by Neil Madden.
@@ -380,7 +464,7 @@ proc ::coroutine::util::await args {
     #
     # (*) At this point we are in AWaitSignal running the coroutine.
 
-    ::after idle [info coroutine]
+    ::after idle [list [info coroutine]]
     yield
 
     return $choice
@@ -411,5 +495,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.2
+package provide coroutine 1.3
 return

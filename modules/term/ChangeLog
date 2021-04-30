@@ -8,13 +8,13 @@
 	* ansi/code.tcl: Unlogged rewrite, with commit message:
 	* ansi/code/ctrl.tcl: add support for default arguments to
 	* ansi/send.tcl: term::ansi::send fix documentation types
-	* ansi_ctrlu.tcl: quoting cleanup 
+	* ansi_ctrlu.tcl: quoting cleanup
 
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

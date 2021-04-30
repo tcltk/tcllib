@@ -1,0 +1,5 @@
+*.tiff *.png *.jpg *.JPG *.JPG.thumb
+*.fossil *.sqlite *.ckout *.global
+*.torrent
+*.pdf
+*/yencode.test.data */yencode.test.out

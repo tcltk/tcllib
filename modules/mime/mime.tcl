@@ -39,10 +39,17 @@ package provide mime 1.7
 
 if {[catch {package require Trf 2.0}]} {
 
-    # Fall-back to tcl-based procedures of base64 and quoted-printable encoders
+    # Fall-back to tcl-based procedures of base64 and quoted-printable
+    # encoders
+    ##
     # Warning!
-    # These are a fragile emulations of the more general calling sequence
-    # that appears to work with this code here.
+    ##
+    # These are a fragile emulations of the more general calling
+    # sequence that appears to work with this code here.
+    ##
+    # The `__ignored__` arguments are expected to be `--` options on
+    # the caller's side. (See the uses in `copymessageaux`,
+    # `buildmessageaux`, `parsepart`, and `getbody`).
 
     package require base64 2.0
     set ::major [lindex [split [package require md5] .] 0]
@@ -51,21 +58,21 @@ if {[catch {package require Trf 2.0}]} {
     # won't collide with things at the global namespace level
 
     namespace eval ::mime {
-        proc base64 {-mode what -- chunk} {
+        proc base64 {-mode what __ignored__ chunk} {
             return [base64::$what $chunk]
         }
-        proc quoted-printable {-mode what -- chunk} {
+        proc quoted-printable {-mode what __ignored__ chunk} {
             return [mime::qp_$what $chunk]
         }
 
         if {$::major < 2} {
             # md5 v1, result is hex string ready for use.
-            proc md5 {-- string} {
+            proc md5 {__ignored__ string} {
                 return [md5::md5 $string]
             }
         } else {
             # md5 v2, need option to get hex string
-            proc md5 {-- string} {
+            proc md5 {__ignored__ string} {
                 return [md5::md5 -hex $string]
             }
         }

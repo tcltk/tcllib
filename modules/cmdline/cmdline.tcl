@@ -10,11 +10,9 @@
 # Copyright (c) 2003      by David N. Welton  <davidw@dedasys.com>
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.5
+package provide cmdline 1.5.1
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -24,7 +22,7 @@ namespace eval ::cmdline {
 # ::cmdline::getopt --
 #
 #	The cmdline::getopt works in a fashion like the standard
-#	C based getopt function.  Given an option string and a 
+#	C based getopt function.  Given an option string and a
 #	pointer to an array or args this command will process the
 #	first argument and return info on how to proceed.
 #
@@ -35,8 +33,8 @@ namespace eval ::cmdline {
 #			are removed from the start of the list.
 #	optstring	A list of command options that the application
 #			will accept.  If the option ends in ".arg" the
-#			getopt routine will use the next argument as 
-#			an argument to the option.  Otherwise the option	
+#			getopt routine will use the next argument as
+#			an argument to the option.  Otherwise the option
 #			is a boolean that is set to 1 if present.
 #	optVar		The variable pointed to by optVar
 #			contains the option that was found (without the
@@ -69,7 +67,7 @@ proc ::cmdline::getopt {argvVar optstring optVar valVar} {
 # ::cmdline::getKnownOpt --
 #
 #	The cmdline::getKnownOpt works in a fashion like the standard
-#	C based getopt function.  Given an option string and a 
+#	C based getopt function.  Given an option string and a
 #	pointer to an array or args this command will process the
 #	first argument and return info on how to proceed.
 #
@@ -82,8 +80,8 @@ proc ::cmdline::getopt {argvVar optstring optVar valVar} {
 #			left in this list.
 #	optstring	A list of command options that the application
 #			will accept.  If the option ends in ".arg" the
-#			getopt routine will use the next argument as 
-#			an argument to the option.  Otherwise the option	
+#			getopt routine will use the next argument as
+#			an argument to the option.  Otherwise the option
 #			is a boolean that is set to 1 if present.
 #	optVar		The variable pointed to by optVar
 #			contains the option that was found (without the
@@ -98,7 +96,7 @@ proc ::cmdline::getopt {argvVar optstring optVar valVar} {
 # Results:
 # 	The getKnownOpt function returns 1 if an option was found,
 #	0 if no more options were found, -1 if an unknown option was
-#	encountered, and -2 if any other error occurred. 
+#	encountered, and -2 if any other error occurred.
 
 proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
     upvar 1 $argvVar argsList
@@ -175,12 +173,15 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 # Arguments:
 #	arglistVar	The name of the argument list, typically argv.
 #			We remove all known options and their args from it.
+#                       In other words, after the call to this command the
+#                       referenced variable contains only the non-options,
+#                       and unknown options.
 #	optlist		A list-of-lists where each element specifies an option
 #			in the form:
-#				(where flag takes no argument) 
-#					flag comment 
+#				(where flag takes no argument)
+#					flag comment
 #
-#				(or where flag takes an argument) 
+#				(or where flag takes an argument)
 #					flag default comment
 #
 #			If flag ends in ".arg" then the value is taken from the
@@ -192,6 +193,7 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
+#       A modified `arglistVar`.
 
 proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
     upvar 1 $arglistVar argv
@@ -222,6 +224,9 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 # Arguments:
 #	arglistVar	The name of the argument list, typically argv.  This
 #			We remove all known options and their args from it.
+#                       In other words, after the call to this command the
+#                       referenced variable contains only the non-options,
+#                       and unknown options.
 #	optlist		A list-of-lists where each element specifies an option
 #			in the form:
 #				flag default comment
@@ -234,6 +239,7 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 #
 # Results
 #	Name value pairs suitable for using with array set.
+#       A modified `arglistVar`.
 
 proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
     upvar 1 $arglistVar argv
@@ -307,7 +313,7 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 	set name [lindex $opt 0]
 	if {[regsub -- {\.secret$} $name {} name] == 1} {
 	    # Need to hide this from the usage display and getopt
-	}   
+	}
 	lappend opts $name
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
 
@@ -347,11 +353,10 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
 	if {[regsub -- {\.arg$} $name {} name] == 1} {
 	    set default [lindex $opt 1]
 	    set comment [lindex $opt 2]
-	    append str [format " %-20s %s <%s>\n" "-$name value" \
-		    $comment $default]
+	    append str [string trimright [format " %-20s %s <%s>" "-$name value" $comment $default]]\n
 	} else {
 	    set comment [lindex $opt 1]
-	    append str [format " %-20s %s\n" "-$name" $comment]
+	    append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
 	}
     }
     return $str
@@ -400,7 +405,7 @@ proc ::cmdline::getfiles {patterns quiet} {
 	# Make file an absolute path so that we will never conflict
 	# with files that might be contained in our zip file.
 	set fullPath [file join [pwd] $file]
-	
+
 	if {[file isfile $fullPath]} {
 	    lappend files $fullPath
 	} elseif {! $quiet} {
@@ -445,7 +450,7 @@ proc ::cmdline::getArgv0 {} {
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
+#
 # RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 namespace eval ::cmdline {
@@ -628,7 +633,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
                                     set oneof ", one of $charclass"
                                     set charclass an
                                 }
-    
+
                                 if {$quantifier == "?"} {
                                     set retval 1
                                     set retvar $opt
@@ -670,7 +675,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
                                 set optarg "Option requires $charclass argument$oneof -- $opt"
                                 set retvar $opt
                                 set retval -3
-    
+
                                 if {$quantifier == "?"} {
                                     set retval 1
                                     set optarg ""
@@ -842,19 +847,20 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
                 # Display something about multiple options
             }
 
-            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass]
-                    || [regexp -- {\.\(([^)]+)\)} $opt dummy charclass]} {
-                   regsub -- "\\..+\$" $name {} name
-                set comment [lindex $opt 2]
-                set default "<[lindex $opt 1]>"
-                if {$default == "<>"} {
-                    set default ""
-                }
-                append str [format " %-20s %s %s\n" "-$name $charclass" \
-                        $comment $default]
-            } else {
+            if {[regexp -- "\\.(arg|$charclasses)\$" $name dummy charclass] ||
+		[regexp -- {\.\(([^)]+)\)} $opt dummy charclass]
+	    } {
+		regsub -- "\\..+\$" $name {} name
+		set comment [lindex $opt 2]
+		set default "<[lindex $opt 1]>"
+		if {$default == "<>"} {
+		    set default ""
+		}
+		append str [string trimright [format " %-20s %s %s" "-$name $charclass" \
+						  $comment $default]]\n
+	    } else {
                 set comment [lindex $opt 1]
-		append str [format " %-20s %s\n" "-$name" $comment]
+		append str [string trimright [format " %-20s %s" "-$name" $comment]]\n
             }
         }
     }
@@ -864,7 +870,7 @@ proc ::cmdline::typedUsage {optlist {usage {options:}}} {
 # ::cmdline::prefixSearch --
 #
 #	Search a Tcl list for a pattern; searches first for an exact match,
-#	and if that fails, for a unique prefix that matches the pattern 
+#	and if that fails, for a unique prefix that matches the pattern
 #	(i.e, first "lsearch -exact", then "lsearch -glob $pattern*"
 #
 # Arguments:

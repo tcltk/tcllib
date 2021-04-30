@@ -2,7 +2,7 @@
 '\" Generated from file 'special\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "math::special" n 0\&.3 tcllib "Tcl Math Library"
+.TH "math::special" n 0\&.4 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -274,13 +274,23 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 math::special \- Special mathematical functions
 .SH SYNOPSIS
-package require \fBTcl  ?8\&.3?\fR
+package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::special  ?0\&.3?\fR
+package require \fBmath::special  ?0\&.5?\fR
+.sp
+\fB::math::special::eulerNumber\fR \fIindex\fR
+.sp
+\fB::math::special::bernoulliNumber\fR \fIindex\fR
 .sp
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 .sp
+\fB::math::special::incBeta\fR \fIa\fR \fIb\fR \fIx\fR
+.sp
+\fB::math::special::regIncBeta\fR \fIa\fR \fIb\fR \fIx\fR
+.sp
 \fB::math::special::Gamma\fR \fIx\fR
+.sp
+\fB::math::special::digamma\fR \fIx\fR
 .sp
 \fB::math::special::erf\fR \fIx\fR
 .sp
@@ -412,6 +422,11 @@ integrals    | S           |  all of R   |     --      |   < 2\&.0e-3
 general      | Beta        | (see Gamma) |     --      |   < 1\&.0e-9
              | Gamma       |  x != 0,-1, |     --      |   < 1\&.0e-9
              |             |  -2, \&.\&.\&.    |             |
+             | incBeta     |             |  a, b > 0   |   < 1\&.0e-9
+             | regIncBeta  |             |  a, b > 0   |   < 1\&.0e-9
+             | digamma     |  x != 0,-1  |             |   < 1\&.0e-9
+             |             |  -2, \&.\&.\&.    |             |
+             |             |             |             |
              | sinc        |  all of R   |     --      |   exact
              |             |             |             |
 orthogonal   | Legendre    |  all of R   | n = 0,1,\&.\&.\&. |   exact
@@ -434,12 +449,30 @@ Bessel functions of arbitrary order (and hence the Airy functions)
 .IP \(bu
 Chebyshev polynomials of the second kind (U_n)
 .IP \(bu
-The digamma function (psi)
-.IP \(bu
-The incomplete gamma and beta functions
+The incomplete gamma function
 .PP
 .SH PROCEDURES
 The package defines the following public procedures:
+.TP
+\fB::math::special::eulerNumber\fR \fIindex\fR
+Return the index'th Euler number (note: these are integer values)\&. As the
+size of these numbers grows very fast, only a limited number are available\&.
+.RS
+.TP
+int \fIindex\fR
+Index of the number to be returned (should be between 0 and 54)
+.RE
+.sp
+.TP
+\fB::math::special::bernoulliNumber\fR \fIindex\fR
+Return the index'th Bernoulli number\&. As the size of the numbers grows very fast,
+only a limited number are available\&.
+.RS
+.TP
+int \fIindex\fR
+Index of the number to be returned (should be between 0 and 52)
+.RE
+.sp
 .TP
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 Compute the Beta function for arguments "x" and "y"
@@ -453,12 +486,51 @@ Second argument for the Beta function
 .RE
 .sp
 .TP
+\fB::math::special::incBeta\fR \fIa\fR \fIb\fR \fIx\fR
+Compute the incomplete Beta function for argument "x" with parameters "a" and "b"
+.RS
+.TP
+float \fIa\fR
+First parameter for the incomplete Beta function, a > 0
+.TP
+float \fIb\fR
+Second parameter for the incomplete Beta function, b > 0
+.TP
+float \fIx\fR
+Argument for the incomplete Beta function
+.RE
+.sp
+.TP
+\fB::math::special::regIncBeta\fR \fIa\fR \fIb\fR \fIx\fR
+Compute the regularized incomplete Beta function for argument "x" with parameters "a" and "b"
+.RS
+.TP
+float \fIa\fR
+First parameter for the incomplete Beta function, a > 0
+.TP
+float \fIb\fR
+Second parameter for the incomplete Beta function, b > 0
+.TP
+float \fIx\fR
+Argument for the regularized incomplete Beta function
+.RE
+.sp
+.TP
 \fB::math::special::Gamma\fR \fIx\fR
 Compute the Gamma function for argument "x"
 .RS
 .TP
 float \fIx\fR
 Argument for the Gamma function
+.RE
+.sp
+.TP
+\fB::math::special::digamma\fR \fIx\fR
+Compute the digamma function (psi) for argument "x"
+.RS
+.TP
+float \fIx\fR
+Argument for the digamma function
 .RE
 .sp
 .TP

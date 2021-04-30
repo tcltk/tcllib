@@ -42,7 +42,7 @@
 #
 #-----------------------------------------------------------------------------
 
-package require Tcl 8.4
+package require Tcl 8.5
 package require asn 0.7
 package provide ldap 1.10
 

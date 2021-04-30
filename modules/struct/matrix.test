@@ -5,21 +5,32 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001, 2019 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
-#
-# RCS: @(#) $Id: matrix.test,v 1.21 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-source [file join \
-	[file dirname [file dirname [file join [pwd] [info script]]]] \
-	devtools testutilities.tcl]
+source [file join [
+	file dirname [file dirname [file join [pwd] [info script]]]
+] devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
+testsNeed        TclOO 1
 
 support {
+    # memchan allows proper testing of `format 2chan` method.
+    # Note, somebody may have imported these already.
+    if {![llength [info commands ::tcl::chan::core]]} {
+	use virtchannel_core/core.tcl tcl::chan::core
+    }
+    if {![llength [info commands ::tcl::chan::events]]} {
+	use virtchannel_core/events.tcl  tcl::chan::events
+    }
+    if {![llength [info commands ::tcl::chan::memchan]]} {
+	use virtchannel_base/memchan.tcl tcl::chan::memchan
+    }
+
     useLocalFile matrix.testsupport
 }
 testing {
@@ -612,7 +623,7 @@ test matrix-5.0 {format error} {
     set msg
 } {wrong # args: should be "::mymatrix format option ?arg arg ...?"}
 
-test matrix-5.1 {formatting} {
+test matrix-5.1 {formatting, 2 string, by report} {
     matrix mymatrix
     mymatrix add column
     mymatrix add row {1}
@@ -655,33 +666,65 @@ test matrix-5.3 {internal format} {
     set result
 } "1  2 5\n3a 4 6\n7  8 9\n     b"
 
-if {![catch {package require memchan}]} {
-    # We have memory channels and can therefore test
-    # 'format2channel-via' too.
+test matrix-5.4 {formatting 2 channel, by report} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 8 9}
 
-    test matrix-5.4 {formatting} {
-	matrix mymatrix
-	mymatrix add column
-	mymatrix add row {1}
-	mymatrix add column {2}
-	mymatrix add row {3 4}
-	mymatrix add column {5 6}
-	mymatrix add row {7 8 9}
+    set chan [tcl::chan::memchan]
+    mymatrix format 2chan tclformat $chan
+    mymatrix destroy
 
-	set chan [memchan]
-	mymatrix format 2chan tclformat $chan
-	mymatrix destroy
+    seek $chan 0
+    set result [read $chan]
+    close $chan
+    set result
+} "# ::mymatrix 3 x 3
+matrix ::mymatrix
+::mymatrix add rows    3
+::mymatrix add columns 3
+::mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}
+"
 
-	seek $chan 0
-	set result [read $chan]
-	close $chan
-	set result
-    } "# mymatrix 3 x 3
-matrix mymatrix
-mymatrix add rows    3
-mymatrix add columns 3
-mymatrix set rect 0 0 {{1 2 5} {3 4 6} {7 8 9}}"
-}
+test matrix-5.5 {formatting, 2 string, no report} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 8 9}
+    set result [mymatrix format 2string]
+    mymatrix destroy
+    set result
+} "1 2 5
+3 4 6
+7 8 9"
+
+test matrix-5.6 {formatting 2 channel, no report} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row {1}
+    mymatrix add column {2}
+    mymatrix add row {3 4}
+    mymatrix add column {5 6}
+    mymatrix add row {7 8 9}
+
+    set chan [tcl::chan::memchan]
+    mymatrix format 2chan {} $chan
+    mymatrix destroy
+
+    seek $chan 0
+    set result [read $chan]
+    close $chan
+    set result
+} "1 2 5
+3 4 6
+7 8 9"
 
 test matrix-6.0 {set/get error} {
     matrix mymatrix

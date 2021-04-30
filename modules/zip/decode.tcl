@@ -8,7 +8,8 @@
 # structures.
 
 package require Tcl 8.4
-package require fileutil::magic::filetype ; # Tcllib. File type determination via magic constants
+# HaO 2020-11-24 I don't see why this is helpful, so commented out
+# package require fileutil::magic::filetype ; # Tcllib. File type determination via magic constants
 package require fileutil::decode 0.2.1    ; # Framework for easy decoding of files.
 namespace eval ::zipfile::decode {}
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
@@ -60,7 +61,7 @@ proc ::zipfile::decode::open {fname} {
     if {[catch {
 	set eoa [LocateEnd $fname]
     } msg]} {
-	Error "\"$fname\" is not a zip file" BAD ARCHIVE	    
+	Error "\"$fname\" is not a zip file" BAD ARCHIVE
     }
     fileutil::decode::open $fname
     return
@@ -85,6 +86,18 @@ proc ::zipfile::decode::files {zdict} {
     array set _ $zdict
     array set f $_(files)
     return [array names f]
+}
+
+
+proc ::zipfile::decode::filelocations zdict {
+    set res {}
+    foreach {fname finfo} [dict get $zdict files] {
+	set start [dict get $finfo fileloc]
+	set size [dict get $finfo csize]
+	lappend res $start $size $fname
+    }
+    set res [lsort -stride 3 -index 0 -integer $res[set res {}]]
+    return $res
 }
 
 proc ::zipfile::decode::hasfile {zdict fname} {
@@ -116,6 +129,30 @@ proc ::zipfile::decode::getfile {zdict src} {
 
     array set fd $f($src)
     return [GetFile $src fd]
+}
+
+proc ::zipfile::decode::filesize {zdict src} {
+    array set _ $zdict
+    array set f $_(files)
+
+    if {![info exists f($src)]} {
+	Error "File \"$src\" not known" BAD PATH
+    }
+
+    array set fd $f($src)
+    return $fd(ucsize)
+}
+
+proc ::zipfile::decode::filecomment {zdict src} {
+    array set _ $zdict
+    array set f $_(files)
+
+    if {![info exists f($src)]} {
+	Error "File \"$src\" not known" BAD PATH
+    }
+
+    array set fd $f($src)
+    return $fd(comment)
 }
 
 proc ::zipfile::decode::unzip {zdict dst} {
@@ -170,7 +207,7 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 	    fconfigure $out -translation binary -encoding binary -eofchar {}
             if {$::zipfile::decode::native_zip_functs} {
               puts -nonewline $out \
-		[zlib inflate [getval]]              
+		[zlib inflate [getval]]
             } else {
               puts -nonewline $out \
 		[zip -mode decompress -nowrap 1 -- \
@@ -231,7 +268,11 @@ proc ::zipfile::decode::GetFile {src fdv} {
 	deflate {
 	    go     $fd(fileloc)
 	    nbytes $fd(csize)
-	    return [zip -mode decompress -nowrap 1 -- [getval]]
+	    if {$::zipfile::decode::native_zip_functs} {
+		return [zlib inflate [getval]]
+	    } else {
+		return [zip -mode decompress -nowrap 1 -- [getval]]
+	    }
 	}
 	default {
 	    Error "Unable to handle file \"$src\" compressed with method \"$fd(cm)\"" \
@@ -259,16 +300,16 @@ proc ::zipfile::decode::localfileheader {} {
     putloc @
     if {![tag 0403]} {clear ; return 0}
 
-    short-le ; unsigned ; recode VER ; put vnte      ; # version needed to extract				       
-    short-le ; unsigned ;              put gpbf      ; # general purpose bitflag				       
-    short-le ; unsigned ; recode CM  ; put cm        ; # compression method					       
-    short-le ; unsigned ;              put lmft      ; # last mod file time					       
-    short-le ; unsigned ;              put lmfd      ; # last mod file date					       
-    long-le  ; unsigned ;              put crc       ; # crc32                  | zero's here imply non-seekable,     
-    long-le  ; unsigned ;              put csize     ; # compressed file size   | data is in a DDS behind the stored  
-    long-le  ; unsigned ;              put ucsize    ; # uncompressed file size | file.			       
-    short-le ; unsigned ;              put fnamelen  ; # file name length					       
-    short-le ; unsigned ;              put efieldlen ; # extra field length                      
+    short-le ; unsigned ; recode VER ; put vnte      ; # version needed to extract
+    short-le ; unsigned ;              put gpbf      ; # general purpose bitflag
+    short-le ; unsigned ; recode CM  ; put cm        ; # compression method
+    short-le ; unsigned ;              put lmft      ; # last mod file time
+    short-le ; unsigned ;              put lmfd      ; # last mod file date
+    long-le  ; unsigned ;              put crc       ; # crc32                  | zero's here imply non-seekable,
+    long-le  ; unsigned ;              put csize     ; # compressed file size   | data is in a DDS behind the stored
+    long-le  ; unsigned ;              put ucsize    ; # uncompressed file size | file.
+    short-le ; unsigned ;              put fnamelen  ; # file name length
+    short-le ; unsigned ;              put efieldlen ; # extra field length
 
     array set hdr [get]
     clear
@@ -297,20 +338,20 @@ proc ::zipfile::decode::centralfileheader {} {
 
     clear
     short-le ; unsigned ; recode VER ; put vmb         ; # ++ version made by
-    short-le ; unsigned ; recode VER ; put vnte        ; #    version needed to extract				       
-    short-le ; unsigned ;              put gpbf        ; #    general purpose bitflag				       
+    short-le ; unsigned ; recode VER ; put vnte        ; #    version needed to extract
+    short-le ; unsigned ;              put gpbf        ; #    general purpose bitflag
     short-le ; unsigned ; recode CM  ; put cm          ; #    compression method
     short-le ; unsigned ;              put lmft        ; #    last mod file time
     short-le ; unsigned ;              put lmfd        ; #    last mod file date
-    long-le  ; unsigned ;              put crc         ; #    crc32                  | zero's here imply non-seekable,     
-    long-le  ; unsigned ;              put csize       ; #    compressed file size   | data is in a DDS behind the stored  
-    long-le  ; unsigned ;              put ucsize      ; #    uncompressed file size | file.			       
-    short-le ; unsigned ;              put fnamelen    ; #    file name length					       
-    short-le ; unsigned ;              put efieldlen2  ; #    extra field length                      
-    short-le ; unsigned ;              put fcommentlen ; # ++ file comment length		  
-    short-le ; unsigned ;              put dns         ; # ++ disk number start		     
-    short-le ; unsigned ; recode IFA ; put ifattr      ; # ++ internal file attributes	     
-    long-le  ; unsigned ;              put efattr      ; # ++ external file attributes	  
+    long-le  ; unsigned ;              put crc         ; #    crc32                  | zero's here imply non-seekable,
+    long-le  ; unsigned ;              put csize       ; #    compressed file size   | data is in a DDS behind the stored
+    long-le  ; unsigned ;              put ucsize      ; #    uncompressed file size | file.
+    short-le ; unsigned ;              put fnamelen    ; #    file name length
+    short-le ; unsigned ;              put efieldlen2  ; #    extra field length
+    short-le ; unsigned ;              put fcommentlen ; # ++ file comment length
+    short-le ; unsigned ;              put dns         ; # ++ disk number start
+    short-le ; unsigned ; recode IFA ; put ifattr      ; # ++ internal file attributes
+    long-le  ; unsigned ;              put efattr      ; # ++ external file attributes
     long-le  ; unsigned ;              put localloc    ; # ++ relative offset of local file header
 
     array set hdr [get]
@@ -334,9 +375,9 @@ proc ::zipfile::decode::datadescriptor {} {
     if {![tag 0807]} {return 0}
 
     clear
-    long-le  ; unsigned ; put crc    ; # crc32                 
-    long-le  ; unsigned ; put csize  ; # compressed file size  
-    long-le  ; unsigned ; put ucsize ; # uncompressed file size   
+    long-le  ; unsigned ; put crc    ; # crc32
+    long-le  ; unsigned ; put csize  ; # compressed file size
+    long-le  ; unsigned ; put ucsize ; # uncompressed file size
 
     return 1
 }
@@ -558,7 +599,7 @@ namespace eval ::zipfile::decode {
 	2,1,implode 3fano
 	3,1         dd
 	5,1         patched
- 
+
 	deflate,0 normal
 	deflate,1 maximum
 	deflate,2 fast
@@ -663,7 +704,7 @@ proc ::zipfile::decode::LocateEnd {path} {
     set hdrlen [string length $hdr]
     set hdr    [string range $hdr [expr {$pos + 4}] [expr {$pos + 21}]]
     set pos    [expr {wide([tell $fd]) + $pos - $hdrlen}]
- 
+
     if {$pos < 0} {
 	set pos 0
     }
@@ -697,5 +738,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.7.1
+package provide zipfile::decode 0.8
 return

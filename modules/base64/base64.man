@@ -1,4 +1,5 @@
-[manpage_begin base64 n 2.4.2]
+[vset VERSION 2.5]
+[manpage_begin base64 n [vset VERSION]]
 [keywords base64]
 [keywords encoding]
 [copyright {2000, Eric Melski}]
@@ -7,11 +8,40 @@
 [titledesc {base64-encode/decode binary data}]
 [category  {Text processing}]
 [require Tcl 8]
-[require base64 [opt 2.4.2]]
+[require base64 [opt [vset VERSION]]]
 [description]
 [para]
 
 This package provides procedures to encode binary data into base64 and back.
+
+[section {Beware: Variations in decoding behaviour}]
+
+The Tcl core provides since version 8.6 commands for the de- and
+encoding of base64 data. These are
+
+[example {
+    binary encode base64
+    binary decode base64
+}]
+
+[para] Beware that while these are signature compatible with the
+commands provided by this package, the decoders are
+[strong {not behaviourally compatible}].
+
+[para] The core decoder command accepts the option [option -strict],
+enabling the user to choose between strict and lax modes. In the
+strict mode invalid characters, and partial data at the end of the
+input are reported as errors. In lax mode they are ignored.
+
+[para] All the implementations provided by this package on the other
+hand implement a mix of the above, and the user cannot choose. Partial
+data at the end of the input is reported as error, and invalid
+characters are ignored.
+
+[para] [strong Beware] of these differences when switching code from
+one to other.
+
+[section API]
 
 [list_begin definitions]
 
@@ -27,7 +57,7 @@ output will not be wrapped at all.
 
 [para]
 
-[emph {Note well}]: If your string is not simple ascii you should fix
+[emph {Note well}]: If your string is not simple ASCII you should fix
 the string encoding before doing base64 encoding. See the examples.
 
 [para]
@@ -39,6 +69,30 @@ or if [arg maxlen] is not an integer number.
 
 Base64 decodes the given [arg "string"] and returns the binary data.
 The decoder ignores whitespace in the string.
+
+[list_end]
+
+[section {Implementation Notes}]
+
+This package contains three different implementations for base64 de-
+and encoding, and chooses among them based on the environment it finds
+itself in.
+
+[para] All three implementations have the same behaviour.
+
+See also [sectref {Beware: Variations in decoding behaviour}] at the
+beginning of this document.
+
+[list_begin enumerated]
+
+[enum]  If Tcl 8.6 or higher is found the commands are implemented in
+	terms of the then-available builtin commands.
+
+[enum]  If the [package Trf] extension cand be loaded the commands are
+	implemented in terms of its commands.
+
+[enum]  If neither of the above are possible a pure Tcl implementation
+	is used. This is of course much slower.
 
 [list_end]
 
@@ -66,5 +120,5 @@ Q+KCiEjigoHigoBO4oKET+KCgg==
 }]
 
 [vset CATEGORY base64]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

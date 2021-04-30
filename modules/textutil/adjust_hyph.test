@@ -34,7 +34,7 @@ test adjust-tex-1.0 {German hyphenation} {
     #puts "\nTest german hyphenation ...\n";
 
     set str "Kurz berichtet: Theodor Holzkopf (Name frei erfunden) promovierte \
-zum Doktor der Rechte über das Thema 'Die Böllerschüsse im Völkerrecht'"
+zum Doktor der Rechte Ã¼ber das Thema 'Die BÃ¶llerschÃ¼sse im VÃ¶lkerrecht'"
     set wid 16
 
     # Setup hyphenation patterns, then perform adjustment
@@ -46,9 +46,9 @@ Theodor Holzkopf
 funden) promo-
 vierte zum Dok-
 tor der Rechte
-über das Thema
-'Die Böller-
-schüsse im Völ-
+Ã¼ber das Thema
+'Die BÃ¶ller-
+schÃ¼sse im VÃ¶l-
 kerrecht'}
 
 ###########
@@ -59,9 +59,9 @@ test adjust-tex-1.1 {Italian hyphenation} {
     #puts "\nTest italian hyphenation ...\n"
 
     set str "Non sappiamo con precisione quando a Roma furono \
-        institutite le prime scuole regolari, cioè 'statali'. \
+        institutite le prime scuole regolari, cioÃ¨ 'statali'. \
         Plutarcho dice che nacquero verso il 250 avanti Cristo, \
-        cioè circa cinquecent'anni dopo la fondazione della città. \
+        cioÃ¨ circa cinquecent'anni dopo la fondazione della cittÃ . \
         (Indro Montanelli)"
     set wid 20;
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "ithyph.tex"]
@@ -70,14 +70,14 @@ test adjust-tex-1.1 {Italian hyphenation} {
 precisione quando a
 Roma furono institu-
 tite le prime scuole
-regolari, cioè 'sta-
+regolari, cioÃ¨ 'sta-
 tali'. Plutarcho di-
 ce che nacquero ver-
 so il 250 avanti
-Cristo, cioè circa
+Cristo, cioÃ¨ circa
 cinquecent'anni dopo
 la fondazione della
-città. (Indro Monta-
+cittÃ . (Indro Monta-
 nelli)}
 
 ###########
@@ -87,17 +87,17 @@ nelli)}
 test adjust-tex-1.2 {Spanish hyphenation} {
     #puts "\nTest spanish hyphenation ...\n";
 
-    set str "El panorama politico estará convulsionado porque los emeneristas, \
-        además de no contar con el apoyo del NFR para gobernar en el periodo \
+    set str "El panorama politico estarÃ¡ convulsionado porque los emeneristas, \
+        ademÃ¡s de no contar con el apoyo del NFR para gobernar en el periodo \
         2002-2007, se proponen junto con los ucesistas a aprobar los \
         cambios a la carta magna (Periodico La Razon, Bolivia)"
     set wid 20;
     textutil::adjust::readPatterns [file join $::tcltest::testsDirectory "eshyph_vo.tex"]
     textutil::adjust::adjust $str -hyphenate 1 -length $wid
 } {El panorama politico
-estará convulsionado
+estarÃ¡ convulsionado
 porque los
-emeneristas, además
+emeneristas, ademÃ¡s
 de no contar con el
 apoyo del NFR para
 gobernar en el peri-

@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi 1.4
-package provide html 1.4.5
+package provide html 1.5
 
 namespace eval ::html {
 
@@ -481,11 +481,41 @@ proc ::html::getTitle {} {
 # Side Effects:
 #	Stores HTML for the <meta> tag for use later by html::head
 
+# Ref: https://www.w3schools.com/tags/tag_meta.asp
+
 proc ::html::meta {args} {
+    # compatibility command
     variable page
-    ::set html ""
+    append html ""
     ::foreach {name value} $args {
 	append html "<meta name=\"$name\" content=\"[quoteFormValue $value]\">"
+    }
+    lappend page(meta) $html
+    return ""
+}
+
+proc ::html::meta_name {args} {
+    variable page
+    append html ""
+    ::foreach {name value} $args {
+	append html "<meta name=\"$name\" content=\"[quoteFormValue $value]\">"
+    }
+    lappend page(meta) $html
+    return ""
+}
+
+proc ::html::meta_charset {charset} {
+    variable page
+    append html "<meta charset=\"[quoteFormValue $charset]\">"
+    lappend page(meta) $html
+    return ""
+}
+
+proc ::html::meta_equiv {args} {
+    variable page
+    append html ""
+    ::foreach {name value} $args {
+	append html "<meta http-equiv=\"$name\" content=\"[quoteFormValue $value]\">"
     }
     lappend page(meta) $html
     return ""
@@ -583,7 +613,7 @@ proc ::html::author {author} {
 #
 #	Return a name, value string for the tag parameters.
 #	The values come from "hard-wired" values in the
-#	param agrument, or from the defaults set with html::init.
+#	param argument, or from the defaults set with html::init.
 #
 # Arguments:
 #	tag	Name of the HTML tag (case insensitive).
@@ -924,14 +954,17 @@ proc ::html::textarea {name {param {}} {current {}}} {
 #
 # Arguments:
 #	label		The string to appear in the submit button.
-#	name		The name for the submit button element
+#	name		The name for the submit button element.
+#	title		The string to appear on the submit button.
+#			Optional. If not specified no title is shown.
 #
 # Results:
 #	The html fragment
 
-
-proc ::html::submit {label {name submit}} {
-    ::set html "<input type=\"submit\" name=\"$name\" value=\"$label\">\n"
+proc ::html::submit {label {name submit} {title {}}} {
+    ::set html "<input type=\"submit\" name=\"$name\" value=\"$label\""
+    ::if {$title != ""} { append html " title=\"$title\"" }
+    append html ">\n"
 }
 
 # ::html::varEmpty --
@@ -1012,6 +1045,30 @@ proc ::html::h6 {string {param {}}} {
 }
 proc ::html::h {level string {param {}}} {
     return "<[string trimright "h$level [tagParam h$level $param]"]>$string</h$level>\n"
+}
+
+# ::html::wrapTag
+#   Takes an optional text and wraps it in a tag pair, along with
+#   optional attributes for the tag
+#
+# Arguments:
+#   tag      The HTML tag name 
+#   text     Optional text to insert between open/close tag
+#   args     List of optional attributes and values to use for the tag
+#
+# Results:
+#   String with the text wrapped in the open/close tag
+
+proc ::html::wrapTag {tag {text ""} args} {
+    ::set html ""
+    ::set params ""
+    ::foreach {i j} $args {
+        append params "$i=\"[quoteFormValue $j]\" "
+    }
+    append html [openTag $tag [string trimright $params]]
+    append html $text
+    append html [closeTag]
+    return $html
 }
 
 # ::html::openTag

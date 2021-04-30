@@ -1,8 +1,5 @@
 # -*- tcl -*-
-#
-# fmt.nroff
-#
-# (c) 2002 Andreas Kupries <andreas_kupries@sourceforge.net>
+# (c) 2002-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # Wiki markup.
@@ -50,10 +47,10 @@ proc fmt_postprocess {wiki} {
 	    }
 	}
     }
-    set wiki [join $lines \n]\n
+    set wiki [join $lines \n]
 
     regsub {^[ ]+} $wiki {} wiki
-    return $wiki
+    return [string trim $wiki]\n
 }
 
 
@@ -124,7 +121,9 @@ c_pass 2 fmt_manpage_end {} {
 proc fmt_section    {name {id {}}} {return "\n\n**$name**\n\n"}
 proc fmt_subsection {name {id {}}} {return "\n\n***$name***\n\n"}
 
+# TODO: Modify behaviour depending on context (normal vs list)
 proc fmt_para    {}     {return \n}
+proc fmt_nl      {}     {return \n}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
@@ -204,6 +203,14 @@ proc fmt_tkoption_def {name dbname dbclass} {
 global textmode
 set    textmode ""
 
+# NOTE: The example_begin/end combo allows for the example
+# text to contain markup. The currently used verbatim
+# environment will cause show the wiki markup of the example,
+# instead of formatting per that markup.
+#
+# TODO: Strip internal markup from the example text, wiki cannot
+# handle such at all.
+
 proc fmt_example_begin {} {
     global  mode_save textmode
     lappend mode_save $textmode
@@ -217,13 +224,13 @@ proc fmt_example_end   {} {
     return "\n======\n"
 }
 proc fmt_example {code} {
-    return "$code"
+    set code [string map [list \\\\\n \\\n] $code]
+    return "\n======\n$code\n======\n"
 }
 
 proc emph    {text} {return ''$text''}
 proc strong  {text} {return '''$text'''}
 
-proc fmt_nl      {}     {return ""}
 proc fmt_arg     {text} {return ''$text''}
 proc fmt_cmd     {text} {return '''$text'''}
 proc fmt_emph    {text} {return ''$text''}
@@ -287,6 +294,7 @@ proc fmt_plain_text {text} {
     global textmode
 
     if {"$textmode" == "example"} {
+	set text [string map [list \\\\\n \\\n] $text]
 	return "$text"
     }
 

@@ -9,8 +9,6 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #               (Boilerplate stuff (header, footer))
 # All rights reserved.
-#
-# RCS: @(#) $Id: S3.test,v 1.3 2008/09/04 02:11:12 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,15 +19,37 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
-if {[catch {package require xml}]} {
-    puts "    Aborting the tests found in \"[file tail [info script]]\""
-    puts "    Requiring xml package, not found."
+support {
+    use uri/uri.tcl uri
+}
+
+testsNeed xml ; # aka TclXML, author Steve Ball, of Zveno (Australia)
+
+# Put your own keys into test-assets/aws-access-id, aws-secret-access_key
+# -------------------------------------------------------------------------
+
+if {![file exists [localPath test-assets/aws-access-id]] ||
+    ![file exists [localPath test-assets/aws-secret-access-key]]
+} {
+    if {[file exists [localPath test-assets/no-aws]]} {
+	puts "    Skipping the tests found in \"[file tail [info script]]\""
+	puts "    AWS not configured by user choice."
+
+    } else {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    AWS configuration required, missing."
+	puts "    Place access id and secret key into the files"
+	puts "    - [localPath test-assets/aws-access-id], and"
+	puts "    - [localPath test-assets/aws-secret-access-key]"
+    }
     return
 }
 
+# -------------------------------------------------------------------------
+
 support {
     # Requires xml (TclXML)
-    useLocal xsxp.tcl xsxp
+    useLocal xsxp.tcl xsxp ;# Here we need (tcl)xml
 }
 testing {
     useLocal S3.tcl S3
@@ -43,7 +63,7 @@ testing {
 # This may clobber files starting with the characers "S3T". Don't
 # run it in a directory with such files you want.
 
-# Put your own keys in S3-test.config.
+# Put your own keys in test-assets/test-S3.config.
 
 tcltest::customMatch S3err S3ErrorMatch
 
@@ -125,7 +145,7 @@ proc bgerror {args} {set ::S3::afterResult [list "BGERROR" $args $::errorInfo]}
 # Allow easy incorporation of user's AccessID and SecretKey
 
 proc S3loadKeys {} {
-    source test-S3.config
+    source [localPath test-assets test-S3.config]
 }
 
 namespace import ::tcltest::test
@@ -196,7 +216,7 @@ test S3-2.10 {Config no args} -body {
 	puts $key ; puts $x($key)
     }
 } -cleanup {unset x} -output "-accesskeyid\n\n-bucket-prefix\nTclS3\n-default-acl\n\n-default-bucket\n\n-default-compare\nalways\n-default-separator\n/\n-reset\nfalse\n-retries\n3\n-secretaccesskey\n\n-service-access-point\ns3.amazonaws.com\n-slop-seconds\n3\n-use-tls\nfalse\n"
- 
+
 test S3-2.20 {Config, one arg} -body {
     S3::Configure -bucket-prefix
 } -result {TclS3}
@@ -341,7 +361,7 @@ test S3-4.70 {REST blocking put,delete} \
 	-setup S3loadKeys -body {
     set body "This is a test. This is only a test.\nHad this been a real emergency, you would be dead.\n"
     set b "TclTestS3.REST.[S3::Configure -accesskeyid]"
-    set req [dict create verb PUT resource /$b/t1.txt inbody $body] 
+    set req [dict create verb PUT resource /$b/t1.txt inbody $body]
     set res [S3::REST $req]
     set r1 [dict get $res httpstatus]
     set req [dict create verb DELETE resource /$b/t1.txt]
@@ -356,7 +376,7 @@ test S3-4.80 {REST nonblocking put,delete} \
     set body "This is a test. This is only a test.\nHad this been a real emergency, you would be dead.\n"
     set b "TclTestS3.REST.[S3::Configure -accesskeyid]"
     set req [dict create verb PUT resource /$b/t1.txt inbody $body \
-	resultvar ::S3RES] 
+	resultvar ::S3RES]
     set res [S3expectBackgroundREST $req]
     set r1 [dict get $res httpstatus]
     set req [dict create verb DELETE resource /$b/t1.txt resultvar ::S3RES]
@@ -384,7 +404,7 @@ test S3-4.90 {REST blocking put,head,delete} \
     set res [S3::REST $req]
     set r5 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4 $r5]
-} -result "200 200 0 204 404" 
+} -result "200 200 0 204 404"
 
 test S3-4.100 {REST blocking put,head,delete from big body} \
 	-constraints "ItemIO REST" \
@@ -407,7 +427,7 @@ test S3-4.100 {REST blocking put,head,delete from big body} \
     set res [S3::REST $req]
     set r6 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4 $r5 $r6]
-} -result "200 200 0 500000 204 404" 
+} -result "200 200 0 500000 204 404"
 
 test S3-4.110 {REST nonblocking put,head,delete from big body} \
 	-constraints "ItemIO REST" \
@@ -430,7 +450,7 @@ test S3-4.110 {REST nonblocking put,head,delete from big body} \
     set res [S3::REST $req]
     set r6 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4 $r5 $r6]
-} -result "200 200 0 500000 204 404" 
+} -result "200 200 0 500000 204 404"
 
 test S3-4.120 {REST nonblocking put,head,delete from big file} \
 	-constraints "ItemIO REST" \
@@ -456,7 +476,7 @@ test S3-4.120 {REST nonblocking put,head,delete from big file} \
     set r6 [dict get $res httpstatus]
     tcltest::removeFile S3Tone.txt
     return [list $r1 $r2 $r3 $r4 $r5 $r6]
-} -result "200 200 0 500000 204 404" 
+} -result "200 200 0 500000 204 404"
 
 test S3-4.130 {REST blocking put,head,delete from big file} \
 	-constraints "ItemIO REST" \
@@ -482,7 +502,7 @@ test S3-4.130 {REST blocking put,head,delete from big file} \
     set r6 [dict get $res httpstatus]
     tcltest::removeFile S3Tone.txt
     return [list $r1 $r2 $r3 $r4 $r5 $r6]
-} -result "200 200 0 500000 204 404" 
+} -result "200 200 0 500000 204 404"
 
 test S3-4.140 {REST nonblocking put,get,delete into file} \
 	-constraints "ItemIO REST" \
@@ -508,7 +528,7 @@ test S3-4.140 {REST nonblocking put,get,delete into file} \
     set res [S3::REST $req]
     set r5 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4 $r5]
-} -result "200 200 500000 204 404" 
+} -result "200 200 500000 204 404"
 
 test S3-4.150 {REST blocking put,get,delete into file} \
 	-constraints "ItemIO REST" \
@@ -534,7 +554,7 @@ test S3-4.150 {REST blocking put,get,delete into file} \
     set res [S3::REST $req]
     set r5 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4 $r5]
-} -result "200 200 500000 204 404" 
+} -result "200 200 500000 204 404"
 
 test S3-4.160 {REST blocking put,get,delete of file with encoded name} \
 	-constraints "ItemIO REST" \
@@ -556,12 +576,12 @@ test S3-4.160 {REST blocking put,get,delete of file with encoded name} \
     set res [S3::REST $req]
     set r4 [dict get $res httpstatus]
     return [list $r1 $r2 $r3 $r4]
-} -result "200 200 204 404" 
+} -result "200 200 204 404"
 
 test S3-4.170 {REST delete bucket} \
 	-constraints "BucketDeletion REST" \
 	-setup S3loadKeys -body {
-    # Bucket ought to be empty by now. 
+    # Bucket ought to be empty by now.
     # Of course, if a delete fails for some reason...
     set b "TclTestS3.REST.[S3::Configure -accesskeyid]"
     set req [dict create verb PUT resource /$b headers {x-amz-acl public-read}]
@@ -654,7 +674,7 @@ test S3-10.130 {ListAllMyBuckets background good} -constraints BucketIO -body {
     S3loadKeys
     set x [S3expectBackground {S3::ListAllMyBuckets -result-type REST -blocking false}]
     dict get $x httpstatus
-} -result "200" 
+} -result "200"
 
 test S3-10.140 {ListAllMyBuckets background bad} -constraints BucketIO -body {
     S3loadKeys
@@ -691,7 +711,7 @@ test S3-20.40 {PutBucket background success} -constraints BucketIO -body {
 test S3-20.50 {PutBucket test no acl} -constraints BucketIO -body {
     S3loadKeys
     set b [S3::SuggestBucket TclTestS3]
-    S3::PutBucket -bucket $b 
+    S3::PutBucket -bucket $b
     set d1 [dict create verb GET resource /$b rtype acl]
     set d2 [S3::REST $d1]
     set d3 [string first "READ" $d2]
@@ -729,7 +749,7 @@ test S3-20.80 {PutBucket test default acl} -constraints BucketIO -body {
     S3loadKeys
     set b [S3::SuggestBucket TclTestS3]
     S3::Configure -default-acl public-read-write
-    S3::PutBucket -bucket $b 
+    S3::PutBucket -bucket $b
     S3::Configure -reset true
     S3loadKeys
     set d1 [dict create verb GET resource /$b rtype acl]
@@ -983,7 +1003,7 @@ test S3-50.10 {Put, basic content} -constraints "Put ItemIO" -body {
 
 test S3-50.20 {Put, with a file} -constraints "Put ItemIO" -setup {
     set c "This is the second test.\nIt is still a test.\n"
-    tcltest::makeFile $c "S3junk.txt" 
+    tcltest::makeFile $c "S3junk.txt"
 } -body {
     set x [S3::Put -bucket $bucket -file "S3junk.txt" -resource "XYZ"]
     set y [getbody /$bucket/XYZ]
@@ -997,12 +1017,12 @@ test S3-50.20 {Put, with a file} -constraints "Put ItemIO" -setup {
 test S3-50.30 {Put with ACL, content-type, meta} \
 	-constraints "Put ItemIO" -setup {
     set c "This is the third test.\nIt is still a test.\n"
-    tcltest::makeFile $c "S3junk.txt" 
+    tcltest::makeFile $c "S3junk.txt"
 } -body {
     set x [S3::Put -bucket $bucket -file "S3junk.txt" -resource "XYZ" \
 	-content-type "application/frobulate" -acl "public-read" \
         -x-amz-meta-one ONE -x-amz-meta-two TWO]
-    set y {} ; set z {} 
+    set y {} ; set z {}
     set req [dict create verb GET resource /$bucket/XYZ]
     set res [S3::REST $req]
     S3::throwhttp $res
@@ -1160,7 +1180,7 @@ test S3-60.20 {Get, with a file} \
 test S3-60.30 {Get with meta} \
 	-setup $pgsu -cleanup $pgcu -constraints "Get ItemIO" -body {
     set x [S3::Get -bucket $bucket -file "S3junk.txt" -resource "ABC" \
-	-headers thishead] 
+	-headers thishead]
     set y [dict get $thishead content-type]
     set z [dict get $thishead x-amz-meta-thing]
     return [list $x $y $z]
@@ -1292,7 +1312,7 @@ test S3-60.131 {Get resource nonexistant, file nonexistant B} \
 	-setup $pgsu -cleanup $pgcu -constraints "Get ItemIO" -body {
     catch {S3::Get -file nonexistant.txt -bucket $bucket -resource "XYZ"}
     file exists nonexistant.txt
-} -result "0" 
+} -result "0"
 
 test S3-60.132 {Get resource nonexistant, file existant B} \
 	-setup $pgsu -cleanup $pgcu -constraints "Get ItemIO" -body {
@@ -1304,7 +1324,7 @@ test S3-60.133 {Get resource nonexistant, file existant A} \
 	-setup $pgsu -cleanup $pgcu -constraints "Get ItemIO" -body {
     catch {S3::Get -file S3Talpha.txt -bucket $bucket -resource "XYZ"}
     file exists S3Talpha.txt
-} -result "1" 
+} -result "1"
 
 test S3-60.140 {Get with -timestamp options} \
 	-constraints "Get ItemIO" -body {
@@ -1331,7 +1351,7 @@ test S3-70.10 {Head, resource exists} \
 	-setup $pgsu -cleanup $pgcu -constraints "Head ItemIO" -body {
     set x1 [S3::Head -bucket $bucket -resource "ABC" -dict dict \
 	-headers headers -status status]
-    return [list $x1 [dict get $dict httpmessage] [dict exists $headers last-modified] $status] 
+    return [list $x1 [dict get $dict httpmessage] [dict exists $headers last-modified] $status]
 } -result "1 OK 1 {200 OK}"
 
 test S3-70.20 {Head, resource does not exist} \
@@ -1372,8 +1392,8 @@ test S3-90.10 {GetAcl REST} \
 #test S3-90.11 {GetAcl XML} \
 	#-setup $pgsu -constraints "Zap" -body {
     #set x2 [S3::GetAcl -bucket $bucket -resource "ABC" -result-type xml]
-    #set x3 [open xyzzy.xml w] 
-    #fconfigure $x3 -translation binary -encoding binary 
+    #set x3 [open xyzzy.xml w]
+    #fconfigure $x3 -translation binary -encoding binary
     #puts $x3 $x2
     #close $x3
     #exit

@@ -47,5 +47,5 @@ for easier use. The other two are not, as they could interfer or be
 confused with existing Tcl commands.
 
 [vset CATEGORY {math :: roman}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

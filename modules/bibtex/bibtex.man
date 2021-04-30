@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset VERSION 0.6]
+[vset VERSION 0.7]
 [manpage_begin bibtex n [vset VERSION]]
 [keywords bibliography]
 [keywords bibtex]
@@ -176,5 +176,5 @@ a [option -stringcommand] callback in an invokation of the command
 [list_end]
 
 [vset CATEGORY bibtex]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

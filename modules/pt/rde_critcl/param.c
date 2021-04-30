@@ -8,6 +8,8 @@
 #include <tc.h>    /* Token cache handling */
 #include <util.h>  /* Allocation utilities */
 #include <string.h>
+#include <ctype.h>  /* is... */
+#include <stdlib.h> /* qsort */
 
 /*
  * = = == === ===== ======== ============= =====================

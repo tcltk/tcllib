@@ -5,7 +5,11 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 
-package require Tcl 8.3
+# -------------------------------------------------------------------------
+
+package require Tcl 8.6
+
+# -------------------------------------------------------------------------
 
 namespace eval ::irc {
     # counter used to differentiate connections
@@ -119,7 +123,7 @@ proc ::irc::connection { args } {
             set logger [logger::init [namespace tail [namespace current]]]
             if { !$config(debug) } { ${logger}::disable debug }
         }
-	
+
 
 	# ircsend --
 	# send text to the IRC server
@@ -127,7 +131,7 @@ proc ::irc::connection { args } {
 	proc ircsend { msg } {
 	    variable sock
 	    variable dispatch
-	    if { $sock == "" } { return }
+	    if { $sock eq "" } { return }
 	    cmd-log debug "ircsend: '$msg'"
 	    if { [catch {puts $sock $msg} err] } {
 	        catch { close $sock }
@@ -159,7 +163,7 @@ proc ::irc::connection { args } {
         proc cmd-config { args } {
             variable config
 	    variable logger
-	    
+
 	    if { [llength $args] == 0 } {
 		return [array get config]
 	    } elseif { [llength $args] == 1 } {
@@ -171,7 +175,7 @@ proc ::irc::connection { args } {
 	    # llength $args == 2
 	    set key [lindex $args 0]
 	    set value [lindex $args 1]
-            if { $key == "debug" } {
+            if { $key eq "debug" } {
                 if {$value} {
                     if { !$config(logger) } { cmd-config logger 1 }
                     ${logger}::enable debug
@@ -179,7 +183,7 @@ proc ::irc::connection { args } {
                     ${logger}::disable debug
 	        }
             }
-            if { $key == "logger" } {
+            if { $key eq "logger" } {
                 if { $value && !$config(logger)} {
                     package require logger
                     set logger [logger::init [namespace tail [namespace current]]]
@@ -190,13 +194,13 @@ proc ::irc::connection { args } {
             }
             set config($key) $value
         }
-        
+
         proc cmd-log {level text} {
 	    variable logger
             if { ![info exists logger] } return
             ${logger}::$level $text
         }
-        
+
         proc cmd-logname { } {
             variable logger
             if { ![info exists logger] } return
@@ -217,12 +221,12 @@ proc ::irc::connection { args } {
 
         proc cmd-connected { } {
             variable sock
-            if { $sock == "" } { return 0 }
+            if { $sock eq "" } { return 0 }
             return 1
         }
 
 	proc cmd-user { username hostname servername {userinfo ""} } {
-	    if { $userinfo == "" } {
+	    if { $userinfo eq "" } {
 		ircsend "USER $username $hostname server :$servername"
 	    } else {
 		ircsend "USER $username $hostname $servername :$userinfo"
@@ -250,7 +254,7 @@ proc ::irc::connection { args } {
 	}
 
 	proc cmd-part { chan {msg ""} } {
-	    if { $msg == "" } {
+	    if { $msg eq "" } {
 		ircsend "PART $chan"
 	    } else {
 		ircsend "PART $chan :$msg"
@@ -291,13 +295,13 @@ proc ::irc::connection { args } {
 
 	proc cmd-peername { } {
 	    variable sock
-	    if { $sock == "" } { return {} }
+	    if { $sock eq "" } { return {} }
 	    return [fconfigure $sock -peername]
 	}
 
 	proc cmd-sockname { } {
 	    variable sock
-	    if { $sock == "" } { return {} }
+	    if { $sock eq "" } { return {} }
 	    return [fconfigure $sock -sockname]
 	}
 
@@ -305,10 +309,10 @@ proc ::irc::connection { args } {
             variable sock
             return $sock
         }
-        
+
 	proc cmd-disconnect { } {
 	    variable sock
-	    if { $sock == "" } { return -1 }
+	    if { $sock eq "" } { return -1 }
 	    catch { close $sock }
 	    set sock {}
 	    return 0
@@ -325,7 +329,7 @@ proc ::irc::connection { args } {
 	   set host $h
 	   set port $p
 
-	    if { $sock == "" } {
+	    if { $sock eq "" } {
 		set sock [socket $host $port]
 		fconfigure $sock -translation crlf -buffering line
 		fileevent $sock readable [namespace current]::GetEvent
@@ -443,7 +447,7 @@ proc ::irc::connection { args } {
 		eval $dispatch($linedata(action))
 	    } elseif { [string match {[0-9]??} $linedata(action)] } {
 		eval $dispatch(defaultnumeric)
-	    } elseif { $linedata(who) == "" } {
+	    } elseif { $linedata(who) eq "" } {
 		eval $dispatch(defaultcmd)
 	    } else {
 		eval $dispatch(defaultevent)
@@ -461,7 +465,7 @@ proc ::irc::connection { args } {
 	proc cmd-registerevent { evnt cmd } {
 	    variable dispatch
 	    set dispatch($evnt) $cmd
-	    if { $cmd == "" } {
+	    if { $cmd eq "" } {
 		unset dispatch($evnt)
 	    }
 	}
@@ -524,3 +528,4 @@ proc ::irc::connection { args } {
 package provide irc 0.6.2
 
 # -------------------------------------------------------------------------
+return

@@ -5,10 +5,8 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2003-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2003-2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# RCS: @(#) $Id: doctoc.test,v 1.14 2009/02/12 05:42:47 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,6 +19,7 @@ testsNeedTcltest 1.0
 
 support {
     use textutil/expander.tcl textutil::expander
+    use fileutil/fileutil.tcl fileutil
 }
 testing {
     useLocal doctoc.tcl doctools::toc
@@ -290,30 +289,75 @@ test doctoc-9.0 {doctoc syntax} {
 [plain_text foo]
 --> (FmtError) TOC error (toc/plaintext), "plain_text foo" : Plain text beyond whitespace is not allowed..}
 
-test docidx-9.1 {doctoc syntax v1.1, empty toc, ok} {
-    new mydocidx -format null
-    set result [mydocidx format {[toc_begin TOC Test][toc_end]}]
-    mydocidx destroy
+test doctoc-9.1 {doctoc syntax v1.1, empty toc, ok} {
+    new mydoctoc -format null
+    set result [mydoctoc format {[toc_begin TOC Test][toc_end]}]
+    mydoctoc destroy
     set result
 } {}
 
-test docidx-9.2 {doctoc syntax v1.1, mixing items and divisions, ok} {
-    new mydocidx -format null
-    set result [mydocidx format {[toc_begin TOC Test][item I1f i1 i1d][division_start D Df][item I2f i2 i2d][division_end][toc_end]}]
-    mydocidx destroy
+test doctoc-9.2 {doctoc syntax v1.1, mixing items and divisions, ok} {
+    new mydoctoc -format null
+    set result [mydoctoc format {[toc_begin TOC Test][item I1f i1 i1d][division_start D Df][item I2f i2 i2d][division_end][toc_end]}]
+    mydoctoc destroy
     set result
 } {}
 
-test docidx-9.3 {doctoc syntax v1.1, empty division, ok} {
-    new mydocidx -format null
-    set result [mydocidx format {[toc_begin TOC Test][division_start D Df][division_end][toc_end]}]
-    mydocidx destroy
+test doctoc-9.3 {doctoc syntax v1.1, empty division, ok} {
+    new mydoctoc -format null
+    set result [mydoctoc format {[toc_begin TOC Test][division_start D Df][division_end][toc_end]}]
+    mydoctoc destroy
     set result
 } {}
+
+
+# -------------------------------------------------------------------------
+## Series of tests for all available backends, check their formatting.
+
+set k 11
+foreach format {
+    html tmml nroff
+    text wiki markdown
+    null
+} {
+    set n 0
+    foreach src [TestFilesGlob tests/toc/toc/*] {
+	# Get the expected result
+	set dst [localPath [file join tests toc $format [file tail $src]]]
+	set map {} ; lappend map @USR@ $tcl_platform(user)
+	set rem {} ; lappend rem $tcl_platform(user) @USR@
+	if {$format eq "nroff"} {
+		lappend map ".so man.macros\n" [fileutil::cat [localPath mpformats/man.macros]]
+	}
+	if {[catch {
+	    set expected [string map $map [fileutil::cat $dst]]
+	}]} { set expected **missing** }
+
+	test doctoc-${format}-${k}.$n "doctoc backends, $format/[file tail $src]" {
+	    new mydoctoc
+	    mydoctoc configure \
+		-format    $format \
+		-file      .FILE.
+	    if {[catch {
+		set res [mydoctoc format [fileutil::cat $src]]
+	    }]} {
+		set res $::errorInfo
+	    }
+	    mydoctoc destroy
+	    #fileutil::writeFile ${dst}.actual [string map $rem $res]
+	    set res
+	} $expected
+
+	#fileutil::writeFile ${dst}.expected $expected
+	incr n
+    }
+    incr k
+}
+
+# -------------------------------------------------------------------------
 
 namespace forget ::doctools::toc::new
 
 # -------------------------------------------------------------------------
-
 testsuiteCleanup
 return

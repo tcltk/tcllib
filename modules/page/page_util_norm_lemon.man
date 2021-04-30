@@ -47,5 +47,5 @@ The exact operations performed are left undocumented for the moment.
 [list_end]
 
 [vset CATEGORY page]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

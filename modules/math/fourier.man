@@ -11,10 +11,10 @@
 [description]
 [para]
 
-The [package math::fourier] package implements two versions of discrete
-Fourier transforms, the ordinary transform and the fast Fourier
-transform. It also provides a few simple filter procedures as an
-illustrations of how such filters can be implemented.
+The [package math::fourier] package uses the fast
+Fourier transform, if applicable, or the ordinary transform to implement
+the discrete Fourier transform. It also provides a few simple filter
+procedures as an illustration of how such filters can be implemented.
 
 [para]
 The purpose of this document is to describe the implemented procedures
@@ -48,7 +48,7 @@ due to floating point arithmetic) return the original list of numbers.
 If the input length N is a power of two then these procedures will
 utilize the O(N log N) Fast Fourier Transform algorithm. If input
 length is not a power of two then the DFT will instead be computed
-using a the naive quadratic algorithm.
+using the naive quadratic algorithm.
 
 [para]
 Some examples:
@@ -130,5 +130,5 @@ and a capacitance.
 [list_end]
 
 [vset CATEGORY {math :: fourier}]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

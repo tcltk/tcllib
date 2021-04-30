@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>zipfile::decode - Zip archive handling</title>
 <style type="text/css"><!--
@@ -100,15 +99,15 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">zipfile::decode(n) 0.7.1 tcllib &quot;Zip archive handling&quot;</h1>
+<h1 class="doctools_title">zipfile::decode(n) 0.8 tcllib &quot;Zip archive handling&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>zipfile::decode - Access to zip archives</p>
 </div>
@@ -128,11 +127,10 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">fileutil::magic::mimetype</b></li>
 <li>package require <b class="pkgname">fileutil::decode 0.2.1</b></li>
 <li>package require <b class="pkgname">Trf</b></li>
 <li>package require <b class="pkgname">zlibtcl</b></li>
-<li>package require <b class="pkgname">zipfile::decode <span class="opt">?0.7.1?</span></b></li>
+<li>package require <b class="pkgname">zipfile::decode <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::zipfile::decode::archive</b></a></li>
@@ -143,15 +141,18 @@
 <li><a href="#6"><b class="cmd">::zipfile::decode::files</b> <i class="arg">adict</i></a></li>
 <li><a href="#7"><b class="cmd">::zipfile::decode::getfile</b> <i class="arg">zdict</i> <i class="arg">path</i></a></li>
 <li><a href="#8"><b class="cmd">::zipfile::decode::hasfile</b> <i class="arg">adict</i> <i class="arg">path</i></a></li>
-<li><a href="#9"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></li>
-<li><a href="#10"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></li>
-<li><a href="#11"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></li>
-<li><a href="#12"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></li>
+<li><a href="#9"><b class="cmd">::zipfile::decode::filesize</b> <i class="arg">zdict</i> <i class="arg">path</i></a></li>
+<li><a href="#10"><b class="cmd">::zipfile::decode::filecomment</b> <i class="arg">zdict</i> <i class="arg">path</i></a></li>
+<li><a href="#11"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></li>
+<li><a href="#12"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></li>
+<li><a href="#13"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></li>
+<li><a href="#14"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></li>
 </ul>
 </div>
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
-<p>This package provides commands to decompress and access the contents
+<p>Note: packages Trf and zlibtcl are not required if TCL 8.6 is available.
+This package provides commands to decompress and access the contents
 of zip archives.</p>
 </div>
 <div id="section2" class="doctools_section"><h2><a name="section2">API</a></h2>
@@ -161,7 +162,7 @@ of zip archives.</p>
 file.
 The result of the command is a dictionary describing the contents of
 the archive. The structure of this dictionary is not public. Proper
-access should be made through the provided accessor command of this
+access should be made through the provided accessor commands of this
 package.</p></dd>
 <dt><a name="2"><b class="cmd">::zipfile::decode::close</b></a></dt>
 <dd><p>This command releases all state associated with the last call of
@@ -196,23 +197,33 @@ archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
 check if the specified <i class="arg">path</i> is found in the archive.
 The result of the command is a boolean flag, <b class="const">true</b> if the path
 is found, and <b class="const">false</b> otherwise.</p></dd>
-<dt><a name="9"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></dt>
+<dt><a name="9"><b class="cmd">::zipfile::decode::filesize</b> <i class="arg">zdict</i> <i class="arg">path</i></a></dt>
+<dd><p>This command takes a dictionary describing the currently open zip
+archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
+returns the decompressed size of the file <i class="arg">path</i> in the archive.
+An error is thrown if the file is not found in the archive.</p></dd>
+<dt><a name="10"><b class="cmd">::zipfile::decode::filecomment</b> <i class="arg">zdict</i> <i class="arg">path</i></a></dt>
+<dd><p>This command takes a dictionary describing the currently open zip
+archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
+returns the per-file comment of the file <i class="arg">path</i> in the archive.
+An error is thrown if the file is not found in the archive.</p></dd>
+<dt><a name="11"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></dt>
 <dd><p>This command takes the path of a presumed zip <i class="arg">archive</i> file and
 returns a boolean flag as the result of the command telling us if it
 actually is a zip archive (<b class="const">true</b>), or not (<b class="const">false</b>).</p></dd>
-<dt><a name="10"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></dt>
+<dt><a name="12"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></dt>
 <dd><p>This command takes the path of a zip <i class="arg">archive</i> file and prepares
 it for decoding.
 The result of the command is the empty string.
 All important information is stored in global state.  If multiple open
 calls are made one after the other only the state of the last call is
 available to the other commands.</p></dd>
-<dt><a name="11"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></dt>
+<dt><a name="13"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></dt>
 <dd><p>This command takes a dictionary describing the currently open zip
 archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
 unpacks the archive in the given destination directory <i class="arg">dstdir</i>.
 The result of the command is the empty string.</p></dd>
-<dt><a name="12"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></dt>
+<dt><a name="14"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></dt>
 <dd><p>This is a convenience command which unpacks the specified zip
 <i class="arg">archive</i> file in the given destination directory <i class="arg">dstdir</i>.</p>
 <p>The result of the command is the empty string.</p></dd>

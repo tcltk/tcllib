@@ -48,9 +48,13 @@ if { [info commands lmap] eq {} } {
 proc matchNumbers {expected actual} {
     set match 1
     foreach a $actual e $expected {
-        if {abs($a-$e) > 1.0e-4} {
-            set match 0
-            break
+        if { [llength $a] == 1 } {
+            if {abs($a-$e) > 1.0e-4} {
+                set match 0
+                break
+            }
+        } else {
+            set match [matchNumbers $a $e]
         }
     }
     return $match
@@ -140,6 +144,8 @@ test geometry-3.2 {geometry::findClosestPointOnLine, before first point} {
 # findClosestPointOnLineSegment
 ###
 
+# TODO!
+
 
 ###
 # findClosestPointOnPolyline
@@ -190,7 +196,18 @@ test geometry-6.8 {geometry::calculateDistanceToPolyline, on second line segment
 test geometry-7.1 {geometry::lineSegmentsIntersect, } {
     ::math::geometry::lineSegmentsIntersect {0 0 10 10} {0 10 10 0}
 } 1
-
+test geometry-7.2 {geometry::lineSegmentsIntersect, touching segments, in line with each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10 10 15 15}
+} 1
+test geometry-7.3 {geometry::lineSegmentsIntersect, touching segments, perpendicular to each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10 10 0 20}
+} 1
+test geometry-7.4 {geometry::lineSegmentsIntersect, slightly overlapping segments} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10.001 10.001} {10 10 15 15}
+} 1
+test geometry-7.5 {geometry::lineSegmentsIntersect, almost touching segments, perpendicular to each other} {
+    ::math::geometry::lineSegmentsIntersect {0 0 10 10} {10.0001 10 0 20}
+} 0
 
 
 ###
@@ -201,6 +218,12 @@ test geometry-8.1 {geometry::polylinesIntersect, } {
 } 1
 
 
+test intersectionPolylines-0.1 {} -body {
+    eval withFourDecimals [::math::geometry::intersectionPolylines {0 0 10 10 10 20} {0 10 10 0}]
+} -result {5.0 5.0}
+test intersectionPolylines-0.2 {} -body {
+    eval withFourDecimals [::math::geometry::intersectionPolylines {0 0 10 10 10 20} {5 4 10 4}]
+} -result {}
 
 
 ###
@@ -259,7 +282,6 @@ test geometry-9.15 {geometry::findLineIntersection, vertical, flipped direction}
 
 
 
-
 ###
 # findLineSegmentIntersection
 ###
@@ -281,6 +303,13 @@ test geometry-10.5 {geometry::findLineSegmentIntersection, both lines skaeve - p
 test geometry-10.6 {geometry::findLineSegmentIntersection, both lines skaeve - no intersection} {
     ::math::geometry::findLineSegmentIntersection {3 2 9 4} {4 5 5 4}
 } "none"
+
+test geometry-10.7 {geometry::findLineSegmentIntersection, touching segments, in line with each other} {
+    list [::math::geometry::findLineSegmentIntersection {0 0 10 10} {10 10 15 15}] \
+         [::math::geometry::findLineSegmentIntersection {10 10 0 0} {10 10 15 15}] \
+         [::math::geometry::findLineSegmentIntersection {0 0 10 10} {15 15 10 10}] \
+         [::math::geometry::findLineSegmentIntersection {10 10 0 0} {15 15 10 10}]
+} {{10 10} {10 10} {10 10} {10 10}}
 
 
 ###
@@ -358,6 +387,18 @@ test geometry-12.9 {geometry::angle, going up and right from (3,6)} {
     withFourDecimals [::math::geometry::angle {3 6 10 9}]
 } 23.1986
 
+test geometry-12.10 {geometry::angle, point as argument} -body {
+    withFourDecimals [::math::geometry::angle {10 10}]
+} -result {45.0}
+
+test geometry-12.11 {from direction to angle} -body {
+    withFourDecimals [::math::geometry::angle [::math::geometry::direction 45]]
+} -result {45.0}
+test geometry-12.12 {from angle to direction} -body {
+    withFourDecimals {*}[::math::geometry::direction [::math::geometry::angle {10 10}]]
+} -result {0.7071 0.7071}
+
+
 
 ###
 # intervalsOverlap
@@ -401,6 +442,35 @@ test geometry-14.4 {geometry::rectanglesOverlap, not strict, no overlap} {
     math::geometry::rectanglesOverlap {0 10} {10 0} {12 10} {20 0} 0
 } 0
 
+###
+# overlapBBox
+###
+test overlapBBox-0.1 {} -body {
+    ::math::geometry::overlapBBox {0 0 20 20} {10 10 30 30} 0
+} -result 1
+test overlapBBox-0.2 {} -body {
+    ::math::geometry::overlapBBox {0 0 20 20} {10 10 30 30} 1
+} -result 1
+test overlapBBox-0.3 {} -body {
+    ::math::geometry::overlapBBox {0 0 20 20} {20 20 40 40} 0
+} -result 1
+test overlapBBox-0.4 {} -body {
+    ::math::geometry::overlapBBox {0 0 20 20} {20 20 40 40} 1
+} -result 0
+test overlapBBox-0.5 {} -body {
+    ::math::geometry::overlapBBox {0 0 20 20} {30 30 50 50} 1
+} -result 0
+test overlapBBox-0.6 {} -body {
+    ::math::geometry::overlapBBox {0 0 40 40} {10 10 30 30} 1
+} -result 1
+test overlapBBox-0.7 {} -body {
+    ::math::geometry::overlapBBox {10 10 30 30} {0 0 40 40} 1
+} -result 1
+test overlapBBox-1.0 {} -body {
+::math::geometry::overlapBBox \
+    {77.10546891284076 105.79193282874378 103.04804415195639 132.87051244459752 128.9906192099546 159.9490922327779 154.93319426795279 187.0276720209583} \
+    {198.60216689249415 185.37236717607064 217.34733289655512 230.62720117200968}
+} -result 0
 
 ###
 # pointInsidePolygon
@@ -572,7 +642,7 @@ test geometry-17.6 {vector direction} {
 
 test geometry-17.7 {vector direction} {
     eval withFourDecimals [math::geometry::direction 90]
-} {0.0 -1.0}
+} {0.0 1.0}
 
 test geometry-17.8 {vector vertical} {
     math::geometry::v 90
@@ -596,14 +666,40 @@ test geometry-17.12 {point between} {
 
 test geometry-17.13 {octant} {
     math::geometry::octant {-10 -12}
-} northwest
+} southwest
+
+test octant-0.1 {} -body {
+    ::math::geometry::octant   [list  1  0]
+} -result "east"
+test octant-0.2 {} -body {
+    ::math::geometry::octant   [list  1  1]
+} -result "northeast"
+test octant-0.3 {} -body {
+    ::math::geometry::octant   [list  0  1]
+} -result "north"
+test octant-0.4 {} -body {
+    ::math::geometry::octant   [list -1  1]
+} -result "northwest"
+test octant-0.5 {} -body {
+    ::math::geometry::octant   [list -1  0]
+} -result "west"
+test octant-0.6 {} -body {
+    ::math::geometry::octant   [list -1 -1]
+} -result "southwest"
+test octant-0.7 {} -body {
+    ::math::geometry::octant   [list  0 -1]
+} -result "south"
+test octant-0.8 {} -body {
+    ::math::geometry::octant   [list  1 -1]
+} -result "southeast"
+
 
 
 ###
 # calculateDistanceToPolygon
 ###
 test geometry-18.1 {geometry::calculateDistanceToPolygon, non-closed polygon, point on polygon} {
-    eval withFourDecimals [::math::geometry::calculateDistanceToPolygon {2.0 0.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}]
+    withFourDecimals [::math::geometry::calculateDistanceToPolygon {2.0 0.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}]
 } 0.0
 
 
@@ -611,19 +707,19 @@ test geometry-18.1 {geometry::calculateDistanceToPolygon, non-closed polygon, po
 # transformations
 ###
 test geometry-19.1 {geometry::translate over (1,-1)} {
-    eval withFourDecimals [::math::geometry::translate {1.0 -1.0} {0.0 0.0 1.0 1.0}]
+    withFourDecimals {*}[::math::geometry::translate {1.0 -1.0} {0.0 0.0 1.0 1.0}]
 } {1.0 -1.0 2.0 0.0}
 
 test geometry-19.2 {geometry::rotate over 90 degrees} {
-    eval withFourDecimals [::math::geometry::rotate 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+    withFourDecimals {*}[::math::geometry::rotate 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
 } {0.0 0.0 -1.0 1.0 -1.0 0.0}
 
 test geometry-19.3 {geometry::reflect in x-axis} {
-    eval withFourDecimals [::math::geometry::reflect 180.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+    withFourDecimals {*}[::math::geometry::reflect 180.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
 } {0.0 0.0 1.0 -1.0 0.0 -1.0}
 
 test geometry-19.4 {geometry::reflect in y-axis} {
-    eval withFourDecimals [::math::geometry::reflect 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
+    withFourDecimals {*}[::math::geometry::reflect 90.0 {0.0 0.0 1.0 1.0 0.0 1.0}]
 } {0.0 0.0 -1.0 1.0 0.0 1.0}
 
 test geometry-19.5 {geometry::radToDeg} {
@@ -633,6 +729,14 @@ test geometry-19.5 {geometry::radToDeg} {
 test geometry-19.6 {geometry::degToRad} {
     ::math::geometry::degToRad 180.0
 } [expr {acos(-1.0)}]
+
+
+test rotateAbout-0.1 {rotate (poly)line about an arbitrary point, 90 degrees} -body {
+    withFourDecimals {*}[::math::geometry::rotateAbout    {10 10}  90 {20 0  20 20}]
+} -result {20.0 20.0 0.0 20.0}
+test rotateAbout-0.2 {rotate (polyline) about an arbitrary point, 180 degrees} -body {
+    withFourDecimals {*}[::math::geometry::rotateAbout    {10 10} 180 {20 0  20 20}]
+} -result {0.0 20.0 0.0 0.0}
 
 
 ###
@@ -887,6 +991,63 @@ test circleTangent-1.3 {tangent lines to a circle - point inside the circle} -bo
 
     concat {*}[::math::geometry::tangentLinesToCircle $point $circle]
 } -result {} -match numbers
+
+
+test intersectionSegmentCircle-0.1 {} -body {
+    ::math::geometry::intersectionSegmentCircle \
+        {0 0 10 10} \
+        {10 10 20}
+} -result {}
+test intersectionSegmentCircle-0.2 {} -body {
+    ::math::geometry::intersectionSegmentCircle \
+        {0 0 10 10} \
+        {10 10 10}
+} -result {{2.9289321881345254 2.9289321881345254}}
+test intersectionSegmentCircle-1.1 {} -body {
+    ::math::geometry::intersectionSegmentCircle \
+        {332.42657091861946 335.1149986982706 129.2024714436513 114.43189293419738} \
+        {94.14012946396178 76.3573401345067  64}
+} -result {{137.49433961735286 123.43613007196794}}
+
+
+test intersectionPolylineCircle-0.1 {} -body {
+    ::math::geometry::intersectionPolylineCircle \
+        {-0.7222568045061166 24.55619398118256 25.22031843460951 51.6347735970363 51.16289367372514 78.71335321289004 77.10546891284076 105.79193282874378 103.04804415195639 132.87051244459752 128.9906192099546 159.9490922327779 154.93319426795279 187.0276720209583 180.875769325951 214.1062518091387 206.8183443839492 241.1848315973191 232.76091962306484 268.26341121317284 258.7034948621805 295.3419908290266 284.6460701012961 322.4205704448803 310.58864534041174 349.49915006073405 319.11140055170637 358.6440572586041 327.634155763001 367.7889644564742 336.1569109742956 376.9338716543443 344.67966618559024 386.0787788522143 353.2024215780023 395.2236858777577 361.7251769704144 404.36859290330113 370.2479323628265 413.51349992884457 378.77068775523855 422.65840695438794 387.2934429665332 431.803314152258 395.8161981778278 440.94822135012805 404.3389533891225 450.09312854799816 412.8617086004171 459.2380357458682} \
+        {153.34733289655512 185.37236717607064  64} all
+} -result {{109.072261 139.158538} {197.622404 231.586197}} -match numbers
+test intersectionPolylineCircle-0.2 {} -body {
+    ::math::geometry::intersectionPolylineCircle \
+        {435.55404176974764 444.05134367022987 401.17821790828214 407.7392289062232 366.80239478008497 371.42711346227725 332.42657091861946 335.1149986982706 230.81452154776954 224.77344547626427 129.2024714436513 114.43189293419738 27.590422072801346 4.090339712191053} \
+        {94.14012946396178 76.3573401345067  64} all
+} -result {{137.494347 123.436124} {50.785914 29.278555}} -match numbers
+
+
+#
+# cathetus point
+#
+test cathetusPoint-0.1 {cathetus point, point a} -body {
+    withFourDecimals {*}[::math::geometry::cathetusPoint {1 1} {5 2} 3]
+} -result {3.6168 -0.4671}
+test cathetusPoint-02 {cathetus point, point b} -body {
+    withFourDecimals {*}[::math::geometry::cathetusPoint {1 1} {5 2} 3 b]
+} -result {3.3815 -0.5259}
+test cathetusPoint-0.3 {no cathetus, outside range} -body {
+    withFourDecimals {*}[::math::geometry::cathetusPoint {1 1} {5 2} 9 b]
+} -result {}
+
+
+#
+# parallel line
+#
+test parallel-0.1 {parallel line, default side} -body {
+    withFourDecimals {*}[::math::geometry::parallel  {1 1 5 2} 3]
+} -result {1.7276 -1.9104 5.7276 -0.9104}
+test parallel-0.2 {parallel line, lefthand side} -body {
+    withFourDecimals {*}[::math::geometry::parallel  {1 1 5 2} 3 right]
+} -result {1.7276 -1.9104 5.7276 -0.9104}
+test parallel-0.3 {parallel line, righthand side} -body {
+    withFourDecimals {*}[::math::geometry::parallel  {1 1 5 2} 3 left]
+} -result {0.2724 3.9104 4.2724 4.9104}
 
 
 ###

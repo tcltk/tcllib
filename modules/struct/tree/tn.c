@@ -2,6 +2,7 @@
  * (b) Node operations.
  */
 
+#include <t.h>
 #include <tn.h>
 #include <util.h>
 

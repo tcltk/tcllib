@@ -180,5 +180,5 @@ Word nodes cannot be leaves.
 [list_end]
 
 [vset CATEGORY doctools]
-[include include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

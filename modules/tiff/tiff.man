@@ -170,5 +170,5 @@ mapping uses the array ::tiff::tiff_sgat.
 [list_end]
 
 [vset CATEGORY tiff]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

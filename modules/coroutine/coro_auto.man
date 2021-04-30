@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset CORO_AUTO_VERSION 1.1.3]
+[vset CORO_AUTO_VERSION 1.2]
 [manpage_begin coroutine::auto n [vset CORO_AUTO_VERSION]]
 [keywords after]
 [keywords channel]
@@ -19,7 +19,7 @@
 [titledesc {Automatic event and IO coroutine awareness}]
 [require Tcl 8.6]
 [require coroutine::auto [vset CORO_AUTO_VERSION]]
-[require coroutine 1.1]
+[require coroutine 1.3]
 [description]
 
 The [package coroutine::auto] package provides no commands or other
@@ -36,11 +36,13 @@ coroutine without changes.
 [def [cmd exit]]
 [def [cmd gets]]
 [def [cmd global]]
+[def [cmd puts]]
 [def [cmd read]]
+[def [cmd socket]]
 [def [cmd update]]
 [def [cmd vwait]]
 [list_end]
 
 [vset CATEGORY coroutine]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -235,5 +235,39 @@ test "Block-1.0" "block generator with sides 10, 0.1 and 2.5" \
     set result [llength $rnd]
 } -result 3
 
+test "Triangle-1.0" "triangularly distributed numbers between -1.0 and 1.0" \
+    -body {
+    set p [::simulation::random::prng_Triangle -1.0 1.0]
+
+    set okay 1
+    for {set i 0} {$i < 1000} {incr i} {
+        set rnd [$p]
+
+        if { $rnd < -1.0 || $rnd > 1.0 } {
+            set okay 0
+            break
+        }
+    }
+
+    set okay
+} -result 1
+
+test "Triangle-1.1" "triangularly distributed numbers between -1.0 and 1.0 (alternative)" \
+    -body {
+    set p [::simulation::random::prng_Triangle 1.0 -1.0]
+
+    set okay 1
+    for {set i 0} {$i < 1000} {incr i} {
+        set rnd [$p]
+
+        if { $rnd < -1.0 || $rnd > 1.0 } {
+            set okay 0
+            break
+        }
+    }
+
+    set okay
+} -result 1
+
 # End of test cases
 testsuiteCleanup

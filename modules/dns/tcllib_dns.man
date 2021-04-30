@@ -1,4 +1,4 @@
-[vset DNS_VERSION 1.4.0]
+[vset DNS_VERSION 1.5.0]
 [manpage_begin dns n [vset DNS_VERSION]]
 [see_also resolver(5)]
 [keywords DNS]
@@ -287,5 +287,5 @@ ok
 Pat Thoyts
 
 [vset CATEGORY dns]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

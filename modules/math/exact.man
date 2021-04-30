@@ -108,15 +108,15 @@ The following functions are available for use within exact real expressions.
 
 
 [def [const acos(][arg x][const )]]
-The inverse cosine of [arg x]. The result is expressed in radians. 
+The inverse cosine of [arg x]. The result is expressed in radians.
 The absolute value of [arg x] must be less than 1.
 
 [def [const acosh(][arg x][const )]]
-The inverse hyperbolic cosine of [arg x]. 
+The inverse hyperbolic cosine of [arg x].
 [arg x] must be greater than 1.
 
 [def [const asin(][arg x][const )]]
-The inverse sine of [arg x]. The result is expressed in radians. 
+The inverse sine of [arg x]. The result is expressed in radians.
 The absolute value of [arg x] must be less than 1.
 
 [def [const asinh(][arg x][const )]]

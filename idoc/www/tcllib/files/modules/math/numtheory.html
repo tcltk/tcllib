@@ -100,15 +100,15 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">math::numtheory(n) 1.1.1 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="doctools_title">math::numtheory(n) 1.1.3 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>math::numtheory - Number Theory</p>
 </div>
@@ -127,7 +127,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.5?</span></b></li>
-<li>package require <b class="pkgname">math::numtheory <span class="opt">?1.1.1?</span></b></li>
+<li>package require <b class="pkgname">math::numtheory <span class="opt">?1.1.3?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">math::numtheory::isprime</b> <i class="arg">N</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></li>
@@ -147,6 +147,9 @@
 <li><a href="#15"><b class="cmd">math::numtheory::numberPrimesGauss</b> <i class="arg">N</i></a></li>
 <li><a href="#16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></li>
 <li><a href="#17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></li>
+<li><a href="#18"><b class="cmd">math::numtheory::differenceNumberPrimesLegendreModified</b> <i class="arg">lower</i> <i class="arg">upper</i></a></li>
+<li><a href="#19"><b class="cmd">math::numtheory::listPrimePairs</b> <i class="arg">lower</i> <i class="arg">upper</i> <i class="arg">step</i></a></li>
+<li><a href="#20"><b class="cmd">math::numtheory::listPrimeProgressions</b> <i class="arg">lower</i> <i class="arg">upper</i> <i class="arg">step</i></a></li>
 </ul>
 </div>
 </div>
@@ -272,19 +275,47 @@ relatively prime to N)</p>
 <dd><p>Estimate the number of primes according the formula by Gauss.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
 </dl></dd>
 <dt><a name="16"><b class="cmd">math::numtheory::numberPrimesLegendre</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
 </dl></dd>
 <dt><a name="17"><b class="cmd">math::numtheory::numberPrimesLegendreModified</b> <i class="arg">N</i></a></dt>
 <dd><p>Estimate the number of primes according the modified formula by Legendre.</p>
 <dl class="doctools_arguments">
 <dt>integer <i class="arg">N</i> (in)</dt>
-<dd><p>Number in question</p></dd>
+<dd><p>Number in question, should be larger than 0</p></dd>
+</dl></dd>
+<dt><a name="18"><b class="cmd">math::numtheory::differenceNumberPrimesLegendreModified</b> <i class="arg">lower</i> <i class="arg">upper</i></a></dt>
+<dd><p>Estimate the number of primes between tow limits according the modified formula by Legendre.</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">lower</i> (in)</dt>
+<dd><p>Lower limit for the primes, should be larger than 0</p></dd>
+<dt>integer <i class="arg">upper</i> (in)</dt>
+<dd><p>Upper limit for the primes, should be larger than 0</p></dd>
+</dl></dd>
+<dt><a name="19"><b class="cmd">math::numtheory::listPrimePairs</b> <i class="arg">lower</i> <i class="arg">upper</i> <i class="arg">step</i></a></dt>
+<dd><p>Return a list of pairs of primes each differing by the given step.</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">lower</i> (in)</dt>
+<dd><p>Lower limit for the primes, should be larger than 0</p></dd>
+<dt>integer <i class="arg">upper</i> (in)</dt>
+<dd><p>Upper limit for the primes, should be larger than the lower limit</p></dd>
+<dt>integer <i class="arg">step</i> (in)</dt>
+<dd><p>Step by which the primes should differ, defaults to 2</p></dd>
+</dl></dd>
+<dt><a name="20"><b class="cmd">math::numtheory::listPrimeProgressions</b> <i class="arg">lower</i> <i class="arg">upper</i> <i class="arg">step</i></a></dt>
+<dd><p>Return a list of lists of primes each differing by the given step from the previous one.</p>
+<dl class="doctools_arguments">
+<dt>integer <i class="arg">lower</i> (in)</dt>
+<dd><p>Lower limit for the primes, should be larger than 0</p></dd>
+<dt>integer <i class="arg">upper</i> (in)</dt>
+<dd><p>Upper limit for the primes, should be larger than the lower limit</p></dd>
+<dt>integer <i class="arg">step</i> (in)</dt>
+<dd><p>Step by which the primes should differ, defaults to 2</p></dd>
 </dl></dd>
 </dl>
 </div>

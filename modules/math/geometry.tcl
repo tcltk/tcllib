@@ -92,8 +92,8 @@ proc ::math::geometry::s* {factor p} {
 # Unit vector into specific direction given by angle (degrees)
 proc ::math::geometry::direction {angle} {
     variable torad
-    set x [expr {  cos($angle * $torad)}]
-    set y [expr {- sin($angle * $torad)}]
+    set x [expr {cos($angle * $torad)}]
+    set y [expr {sin($angle * $torad)}]
     return [list $x $y]
 }
 
@@ -118,7 +118,7 @@ proc ::math::geometry::octant {p} {
     variable todeg
     lassign $p x y
 
-    set a [expr {(atan2(-$y,$x)*$todeg)}]
+    set a [expr {(atan2($y,$x)*$todeg)}]
     while {$a >  360} {set a [expr {$a - 360}]}
     while {$a < -360} {set a [expr {$a + 360}]}
     if {$a < 0} {set a [expr {360 + $a}]}
@@ -471,7 +471,7 @@ proc ::math::geometry::findClosestPointOnPolyline {P polyline} {
     set closestPoint "none"; set closestDistance "Inf"
     foreach {Bx By} [lassign $polyline Ax Ay] {
 	set Q [findClosestPointOnLineSegment $P [list $Ax $Ay $Bx $By]]
-	set dist [lengthOfPolyline [concat $P $Q]]
+	set dist [distance $P $Q]
 	if {$dist<$closestDistance} {
 	    set closestPoint $Q
 	    set closestDistance $dist
@@ -670,6 +670,7 @@ proc ::math::geometry::lineSegmentsIntersect {linesegment1 linesegment2} {
 proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
     if {[lineSegmentsIntersect $linesegment1 $linesegment2]} {
 	set lineintersect [findLineIntersection $linesegment1 $linesegment2]
+#puts ">>Intersect: $lineintersect"
 	switch -- $lineintersect {
 
 	    "coincident" {
@@ -684,11 +685,19 @@ proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
 		set l2y2 [lindex $linesegment2 3]
 		# check if the line SEGMENTS overlap
 		# (NOT enough to check if the x-intervals overlap (vertical lines!))
-		set overlapx [intervalsOverlap $l1x1 $l1x2 $l2x1 $l2x2 0]
-		set overlapy [intervalsOverlap $l1y1 $l1y2 $l2y1 $l2y2 0]
-		if {$overlapx && $overlapy} {
+		set overlapx [intervalsOverlap $l1x1 $l1x2 $l2x1 $l2x2 1]
+		set overlapy [intervalsOverlap $l1y1 $l1y2 $l2y1 $l2y2 1]
+#puts ">>Overlap: $overlapx $overlapy"
+		if {$overlapx || $overlapy} {
 		    return "coincident"
 		} else {
+		    # If the line segments are adjacent, return the proper end point, otherwise "none"
+		    if { ( $l1x1 == $l2x1 && $l1y1 == $l2y1 ) || ( $l1x1 == $l2x2 && $l1y1 == $l2y2 ) } {
+		        return [list $l1x1 $l1y1]
+		    }
+		    if { ( $l1x2 == $l2x1 && $l1y2 == $l2y1 ) || ( $l1x2 == $l2x2 && $l1y2 == $l2y2 ) } {
+		        return [list $l1x2 $l1y2]
+		    }
 		    return "none"
 		}
 	    }
@@ -1552,9 +1561,12 @@ namespace eval ::math::geometry {
 	calculateDistanceToPolylineSegment findClosestPointOnPolyline lengthOfPolyline \
 	movePointInDirection lineSegmentsIntersect findLineSegmentIntersection findLineIntersection \
 	polylinesIntersect polylinesBoundingIntersect intervalsOverlap rectanglesOverlap pointInsidePolygon pointInsidePolygonAlt \
-	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg
+	rectangleInsidePolygon areaPolygon translate rotate reflect degToRad radToDeg \
+	calculateDistanceToPolyline calculateDistanceToPolygon areaParallellogram angle inproduct angleBetween
+
 }
 
 source [file join [file dirname [info script]] geometry_circle.tcl]
+source [file join [file dirname [info script]] geometry_ext.tcl]
 
-package provide math::geometry 1.3.0
+package provide math::geometry 1.4.1

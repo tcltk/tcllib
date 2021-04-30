@@ -432,9 +432,77 @@ proc ::simulation::random::prng_Block {length width depth} {
     return $name
 }
 
+
+# prng_Triangle --
+#     Create a PRNG with a triangular distribution of points on an interval.
+#     If the argument min is lower than the argument max, then smaller
+#     values have higher probability and vice versa.
+#
+# Arguments:
+#     min       Minimum value
+#     max       Maximum value
+#
+# Result:
+#     Name of a procedure that returns the random point
+#
+proc ::simulation::random::prng_Triangle {min max} {
+    variable count
+
+    incr count
+
+    set name ::simulation::random::PRNG_$count
+
+    set diff [expr {$max-$min}]
+
+    if { $diff > 0.0 } {
+        proc $name {} [string map [list MIN $min DIFF $diff] \
+         {
+            set r [expr {1.0 - sqrt(1.0 - rand())}]
+            set x [expr {MIN + DIFF*$r}]
+            return $x
+        }]
+    } else {
+        proc $name {} [string map [list MAX $max DIFF $diff] \
+         {
+            set x [expr {MAX - DIFF*sqrt(rand())}]
+            return $x
+        }]
+    }
+
+    return $name
+}
+
+
+# prng_SymmetricTriangle --
+#     Create a PRNG with a symmetric triangular distribution of points on an interval.
+#
+# Arguments:
+#     min       Minimum value
+#     max       Maximum value
+#
+# Result:
+#     Name of a procedure that returns the random point
+#
+proc ::simulation::random::prng_SymmetricTriangle {min max} {
+    variable count
+
+    incr count
+
+    set name ::simulation::random::PRNG_$count
+
+    set diff2 [expr {0.5 *($max-$min)}]
+
+    proc $name {} [string map [list MIN $min DIFF2 $diff2] \
+     {
+        return [expr {MIN + DIFF2 * (rand() + rand())}]
+    }]
+
+    return $name
+}
+
 # Announce the package
 #
-package provide simulation::random 0.3.1
+package provide simulation::random 0.4.0
 
 
 # main --

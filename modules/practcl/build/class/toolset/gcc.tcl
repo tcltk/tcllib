@@ -9,7 +9,8 @@
     ###
     set pwd [pwd]
     set srcdir [file normalize [my define get srcdir]]
-    cd $srcdir
+    set localsrcdir [my MakeDir $srcdir]
+    cd $localsrcdir
     foreach template {configure.ac configure.in} {
       set input [file join $srcdir $template]
       if {[file exists $input]} {
@@ -130,6 +131,11 @@
           set localsrcdir [file join $srcdir win]
         }
       }
+      macosx {
+        if {[file exists [file join $srcdir unix Makefile.in]]} {
+          set localsrcdir [file join $srcdir unix]
+        }
+      }
       default {
         if {[file exists [file join $srcdir $os]]} {
           my define add include_dir [file join $srcdir $os]
@@ -149,7 +155,10 @@
 
   Ensemble make::autodetect {} {
     set srcdir [my define get srcdir]
-    set localsrcdir [my define get localsrcdir]
+    set localsrcdir [my MakeDir $srcdir]
+    if {$localsrcdir eq {}} {
+      set localsrcdir $srcdir
+    }
     if {$localsrcdir eq {}} {
       set localsrcdir $srcdir
     }
@@ -549,7 +558,7 @@ $proj(CFLAGS_WARNING) $INCLUDES $defs"
 ###
 # Produce a static executable
 ###
-method build-tclsh {outfile PROJECT} {
+method build-tclsh {outfile PROJECT {path {auto}}} {
   if {[my define get tk 0] && [my define get static_tk 0]} {
     puts " BUILDING STATIC TCL/TK EXE $PROJECT"
     set TKOBJ  [$PROJECT tkcore]
@@ -583,7 +592,12 @@ method build-tclsh {outfile PROJECT} {
     }
   }
   array set TCL [$TCLOBJ read_configuration]
-  set path [file dirname [file normalize $outfile]]
+  if {$path in {{} auto}} {
+    set path [file dirname [file normalize $outfile]]
+  }
+  if {$path eq "."} {
+    set path [pwd]
+  }
   cd $path
   ###
   # For a static Tcl shell, we need to build all local sources

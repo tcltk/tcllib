@@ -2,7 +2,7 @@
 '\" Generated from file 'mime\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 1999-2000 Marshall T\&. Rose
 '\"
-.TH "mime" n 1\&.6 tcllib "Mime"
+.TH "mime" n 1\&.6\&.3 tcllib "Mime"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ mime \- Manipulation of Internet messages
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBmime  ?1\&.6?\fR
+package require \fBmime  ?1\&.6\&.3?\fR
 .sp
 \fB::mime::initialize\fR ?\fB-canonical\fR \fItype/subtype\fR? ?\fB-params\fR \fIdictionary\fR? ?\fB-encoding\fR \fIvalue\fR? ?\fB-headers\fR \fIdictionary\fR? ?(\fB-chan\fR \fIname\fR | \fB-file\fR \fIname\fR | \fB-string\fR \fIvalue\fR | \fB-parts\fR \fIparts\fR)?
 .sp

@@ -55,5 +55,5 @@ This tool was originally known as nns::cluster, but as development progressed, i
 clear that it wasn't interacting with any of the other facilities in NNS.
 
 [vset CATEGORY nameserv]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

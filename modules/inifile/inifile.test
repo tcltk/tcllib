@@ -17,8 +17,8 @@ testing {
 #---------------------------------------------------------------------
 
 set inifile [localPath ini.tcl]
-set testini [localPath test.ini]
-set sampini [localPath sample.ini]
+set testini [asset test.ini]
+set sampini [asset sample.ini]
 
 #---------------------------------------------------------------------
 
@@ -213,6 +213,30 @@ test inifile-4.4 {bug c4b8162da5 - ini::open - invalid mode} {
 } {w- is not a valid access mode}
 
 #---------------------------------------------------------------------
+
+test inifile-5.0 {ini::revert, wrong # args} {
+    catch { ini::revert } res
+    set res
+} {wrong # args: should be "ini::revert fh"}
+
+test inifile-5.1 {ini::revert, wrong # args} {
+    catch { ini::revert FH X } res
+    set res
+} {wrong # args: should be "ini::revert fh"}
+
+test inifile-5.2 {ini::revert, bad token} {
+    catch { ini::revert FH } res
+    set res
+} {FH is not an open INI file}
+
+test inifile-5.4 {ini::revert} {
+    set res [ini::open $testini r]
+    ini::revert $res
+    ini::close $res
+} {}
+
+#---------------------------------------------------------------------
 # Clean up
+unset res
 testsuiteCleanup
 return

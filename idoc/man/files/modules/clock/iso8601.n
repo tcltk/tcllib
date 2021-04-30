@@ -309,6 +309,65 @@ The acceptable options are
 \fB-timezone\fR
 of the builtin command \fBclock scan\fR\&.
 .PP
+.SH "DATE FORMATS"
+The commands accept the following 23 date formats:
+.CS
+
+
+(year)-(month)-(day)
+(year)(month)(day)
+(year)-(day in year)
+(year)(day in year)
+(year in century)-(month)-(day)
+(year)-(month)			Day defaults to the 1st of the month
+(year in century)(month)(day)
+(year in century)-(day in year)
+(year in century)(day in year)
+--(month)-(day)			Year defaults to the current year
+--(month)(day)			Year defaults to the current year
+--(day in year)			Year defaults to the current year
+---(day)  		        Year defaults to the current year, month to current month
+(fiscal year)-W(week)-(wday)
+(fiscal year)W(week)-(wday)
+(fiscal year in century)-W(week)-(wday)
+(fiscal year in century)W(week)(wday)
+(fiscal year)-W(week)		Weekday defaults to monday
+(fiscal year)W(week)		Weekday defaults to monday
+-W(week)-(wday)			Year defaults to current fiscal year
+-W(week)(wday)			Year defaults to current fiscal year
+(wday)				Year defaults to current fiscal year, week to current week
+(year)				Month defaults to january, day to 1st of the month
+
+.CE
+The possible parts/fields in the above, and their meanings, are:
+.TP
+year
+Year with century, 4 digits
+.TP
+month
+Month in year, 2 digits
+.TP
+day
+Day in month, 2 digits\&.
+.TP
+year in century
+Year without century, 2 digits
+.TP
+day in year
+Day in year, 3 digits
+.TP
+fiscal year
+ISO 8601 fiscal year with century, 4 digits
+.TP
+fiscal year in century
+ISO 8601 fiscal year without century, 2 digits
+.TP
+week
+ISO 8601 week number
+.TP
+wday
+Week day, 1 digit, Monday (1) to Sunday (7,0)
+.PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.

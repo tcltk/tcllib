@@ -41,7 +41,7 @@
 parses <xref target="RFC2045">MIME</xref> body parts.</t>
 
 <t>Each MIME part consists of a header
-(zero or more key/value pairs), 
+(zero or more key/value pairs),
 an empty line,
 and a structured body.
 A MIME part is either a "leaf" or has (zero or more) subordinates.</t>
@@ -58,7 +58,7 @@ encoded for transmission in an ASCII stream;</t>
 content; and,</t>
 
 <t hangText="   Content-ID:">a globally-unique identifier for the
-content.</t> 
+content.</t>
 </list></t>
 
 <t>Consult <xref target="RFC2046" /> for a list of standard content types.
@@ -77,7 +77,7 @@ consult <xref target="RFC822" /> for a list of several other header keys
     Content-Type: text/plain; charset="us-ascii"
     Content-Description: a simple example
     Content-ID: <4294407315.931384918.1@dbc.mtview.ca.us>
-    
+
     Here is the body. In this case, simply plain text.
 ]]></artwork>
 </figure>
@@ -241,7 +241,7 @@ respectively.
 <vspace blankLines="1" />
 Also, -encoding, if present,
 specifies the "Content-Transfer-Encoding" when copying the body.</t>
-    
+
 <t>If the -canonical option is not present,
 then the MIME part contained in either the -file or the -string option
 is parsed,
@@ -254,7 +254,7 @@ dynamically generating subordinates as appropriate.</t>
 
 <t>If the -subordinates option is present,
 it specifies which subordinates should also be destroyed.
-The default value is "dynamic".</t>    
+The default value is "dynamic".</t>
 </section>
 
 <section anchor="mime_getproperty" title="mime::getproperty">
@@ -281,7 +281,7 @@ instead,
 if -names is specified,
 a list of all properties is returned;
 otherwise,
-a serialized array of properties and values is returned.</t>    
+a serialized array of properties and values is returned.</t>
 </section>
 
 <section anchor="mime_getheader" title="mime::getheader">
@@ -362,7 +362,7 @@ upwards by mime::getbody.</t>
 
 <t>If the -command option is absent,
 then the return value of mime::getbody is a string containing the MIME
-part's entire body.</t>    
+part's entire body.</t>
 </section>
 
 <section anchor="mime_copymessage" title="mime::copymessage">
@@ -407,7 +407,7 @@ address specifications
 (if present the header isn't examined for recipient addresses); and,</t>
 
 <t hangText="   -header:">a keyword/value pairing
-(may occur zero or more times).</t> 
+(may occur zero or more times).</t>
 </list></t>
 
 <t>If the -originator option is not present,
@@ -445,7 +445,7 @@ one element for each address specified in the argument.</t>
     address     local@domain
     comment     822-style comment
     domain      the domain part (rhs)
-    error       non-empty on a parse error 
+    error       non-empty on a parse error
     group       this address begins a group
     friendly    user-friendly rendering
     local       the local part (lhs)
@@ -651,7 +651,7 @@ Part Two: Media Types</title>
 and also by <eref target="mailto:dnew@messagemedia.com">Darren New</eref>'s
 unpublished package of 1999.</t>
 
-<t>This package makes use of 
+<t>This package makes use of
 <eref target="mailto:a.kupries@westend.com">Andreas Kupries</eref>'s
 excellent Trf package.</t>
 </section>

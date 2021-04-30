@@ -157,8 +157,8 @@ test combinatorics-2.6 { math::factorial, evaluate at pole } {
 } {{argument to math::factorial must be greater than -1.0} {ARITH DOMAIN {argument to math::factorial must be greater than -1.0}}}
 
 test combinatorics-2.7 { math::factorial, exponent overflow } {
-    if {![catch { 
-	math::factorial 171 
+    if {![catch {
+	math::factorial 171
     } msg]} {
 	if { [string equal $msg Infinity] || [string equal $msg Inf] } {
 	    set result ok
@@ -243,7 +243,7 @@ test combinatorics-3.9 {math::choose negative fraction } {
 } {{second argument to math::choose must be non-negative, or both must be integers} {ARITH DOMAIN {second argument to math::choose must be non-negative, or both must be integers}}}
 
 test combinatorics-3.10 { math::choose big args } {
-    if {![catch { 
+    if {![catch {
 	math::choose 1500 750
     } msg]} {
 	if { [string equal $msg Infinity] || [string equal $msg Inf] } {
@@ -318,6 +318,6 @@ test combinatorics-4.7 { math::Beta, test with Pascal } {
     concat
 } {}
 
-    
+
 testsuiteCleanup
 

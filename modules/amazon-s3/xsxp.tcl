@@ -5,8 +5,8 @@
 #
 # This is pretty lame, but I needed something like this for S3,
 # and at the time, TclDOM would not work with the new 8.5 Tcl
-# due to version number problems. 
-# 
+# due to version number problems.
+#
 # In addition, this is a pure-value implementation. There is no
 # garbage to clean up in the event of a thrown error, for example.
 # This simplifies the code for sufficiently small XML documents,
@@ -22,7 +22,7 @@
 ###Revision String
 # SCCS: %Z% %M% %I% %E% %U%
 
-# xsxp::parse $xml 
+# xsxp::parse $xml
 # Returns a parsed XML, or PXML. A pxml is a list.
 # The first element is the name of the tag.
 # The second element is a list of name/value pairs of the
@@ -36,10 +36,10 @@
 # $pxml is a parsed XML, as returned from xsxp::parse.
 # $path is a list of elements. Each element is the name of
 # a child to look up, optionally followed by a hash ("#")
-# and a string of digits. An emtpy list or an initial empty 
+# and a string of digits. An emtpy list or an initial empty
 # element selects $pxml. If no hash sign is present, the
 # behavior is as if "#0" had been appended to that element.
-# An element of $path scans the children at the indicated 
+# An element of $path scans the children at the indicated
 # level for the n'th instance of a child whose tag matches
 # the part of the element before the hash sign. If an element
 # is simply "#" followed by digits, that indexed child is
@@ -134,8 +134,8 @@ namespace eval xsxp {
 
     proc Normalize {pxml} {
 	# This iterates over pxml recursively, finding entries that
-	# start with multiple %PCDATA elements, and coalesces their 
-	# content, so if an element contains only %PCDATA, it is 
+	# start with multiple %PCDATA elements, and coalesces their
+	# content, so if an element contains only %PCDATA, it is
 	# guaranteed to have only one child.
 	# Not really necessary, given definition of part=%PCDATA
 	# However, it makes pretty-prints nicer (for AWS at least)

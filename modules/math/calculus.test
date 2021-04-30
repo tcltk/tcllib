@@ -37,7 +37,7 @@ log::lvSuppress notice
 
 namespace eval ::math::calculus::test {
 # From here on we are in a namespace.
-    
+
 namespace import ::tcltest::test
 namespace import ::math::calculus::*
 
@@ -670,7 +670,7 @@ test "integrateQk15-1.2" "Integration according to Gauss-Kronrod quadrature (wit
 
 # End of test cases
 testsuiteCleanup
-	
+
 set ::tcl_precision $prec
 
 testsuiteCleanup

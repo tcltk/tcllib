@@ -30,5 +30,5 @@ objects for classes which are descendents of this class.
 Sean Woods
 
 [vset CATEGORY tool]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

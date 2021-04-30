@@ -275,7 +275,7 @@ imap4 \- imap client-side tcl implementation of imap protocol
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBimap4  ?0\&.5\&.2?\fR
+package require \fBimap4  ?0\&.5\&.3?\fR
 .sp
 \fB::imap4::open\fR \fIhostname\fR ?\fIport\fR?
 .sp
@@ -813,3 +813,5 @@ Only a small part of rfc3501 implemented\&.
 ftp, http, imap, mime, pop3, tls
 .SH KEYWORDS
 email, imap, internet, mail, net, rfc3501, ssl, tls
+.SH CATEGORY
+Networking

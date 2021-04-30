@@ -1,0 +1,3 @@
+modules/pt/tests/data/ok/peg_serial-canonical/3_peg_itself
+modules/fumagic/fumagic.testsupport
+*.bat

@@ -124,6 +124,7 @@ modules/dtplite/pkg_dtplite.man
 modules/fileutil/fileutil.man
 modules/fileutil/multi.man
 modules/fileutil/multiop.man
+modules/fileutil/paths.man
 modules/fileutil/traverse.man
 modules/ftp/ftp.man
 modules/ftp/ftp_geturl.man
@@ -167,6 +168,7 @@ modules/jpeg/jpeg.man
 modules/json/json.man
 modules/json/json_write.man
 modules/lambda/lambda.man
+modules/lazyset/lazyset.man
 modules/ldap/ldap.man
 modules/ldap/ldapx.man
 modules/log/log.man
@@ -182,10 +184,12 @@ modules/markdown/markdown.man
 modules/math/bigfloat.man
 modules/math/bignum.man
 modules/math/calculus.man
+modules/math/changepoint.man
 modules/math/combinatorics.man
 modules/math/constants.man
 modules/math/decimal.man
 modules/math/exact.man
+modules/math/filtergen.man
 modules/math/fourier.man
 modules/math/fuzzy.man
 modules/math/interpolate.man
@@ -197,7 +201,9 @@ modules/math/numtheory.man
 modules/math/optimize.man
 modules/math/pca.man
 modules/math/polynomials.man
+modules/math/probopt.man
 modules/math/qcomplex.man
+modules/math/quasirandom.man
 modules/math/rational_funcs.man
 modules/math/roman.man
 modules/math/romberg.man
@@ -326,6 +332,7 @@ modules/struct/record.man
 modules/struct/skiplist.man
 modules/struct/stack.man
 modules/struct/struct_list.man
+modules/struct/struct_map.man
 modules/struct/struct_set.man
 modules/struct/struct_tree.man
 modules/struct/struct_tree1.man
@@ -348,6 +355,7 @@ modules/term/term_bind.man
 modules/term/term_send.man
 modules/textutil/adjust.man
 modules/textutil/expander.man
+modules/textutil/patch.man
 modules/textutil/repeat.man
 modules/textutil/tabify.man
 modules/textutil/textutil.man

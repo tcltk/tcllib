@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>grammar::fa - Finite automaton operations and usage</title>
 <style type="text/css"><!--
@@ -100,12 +99,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">grammar::fa(n) 0.4 tcllib &quot;Finite automaton operations and usage&quot;</h1>
@@ -314,11 +313,11 @@ in a very simple way :)</p>
 </pre>
 <p>a possible serialization is</p>
 <pre class="doctools_example">
-    grammar::fa \\
-    {yellow red green red/yellow} \\
-    {Drive     {0 0 {yellow     Brake}} \\
-     Brake     {0 0 {red        Stop}} \\
-     Stop      {1 0 {red/yellow Attention}} \\
+    grammar::fa \
+    {yellow red green red/yellow} \
+    {Drive     {0 0 {yellow     Brake}} \
+     Brake     {0 0 {red        Stop}} \
+     Stop      {1 0 {red/yellow Attention}} \
      Attention {0 0 {green      Drive}}}
 </pre>
 <p>A possible one, because I did not care about creation order here</p></dd>

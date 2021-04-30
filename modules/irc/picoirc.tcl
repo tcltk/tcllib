@@ -1,6 +1,6 @@
 # Based upon the picoirc code by Salvatore Sanfillipo and Richard Suchenwirth
 # See http://wiki.tcl.tk/13134 for the original standalone version.
-# 
+#
 #	This package provides a general purpose minimal IRC client suitable for
 #	embedding in other applications. All communication with the parent
 #	application is done via an application provided callback procedure.
@@ -14,6 +14,10 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
+package require Tcl 8.6
+
+# -------------------------------------------------------------------------
+
 namespace eval ::picoirc {
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -21,7 +25,8 @@ namespace eval ::picoirc {
     variable defaults {
         server   "irc.freenode.net"
         port     6667
-        channel  ""
+        secure   0
+        channels ""
         callback ""
         motd     {}
         users    {}
@@ -30,12 +35,24 @@ namespace eval ::picoirc {
 }
 
 proc ::picoirc::splituri {uri} {
-    foreach {server port channel} {{} {} {}} break
-    if {![regexp {^irc://([^:/]+)(?::([^/]+))?(?:/([^,]+))?} $uri -> server port channel]} {
-        regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channel server port
+    lassign {{} {} {} {}} secure server port channels
+    if {![regexp {^irc(s)?://([^:/]+)(?::([^/]+))?(?:/([^ ]+))?} $uri -> secure server port channels]} {
+        regexp {^(?:([^@]+)@)?([^:]+)(?::(\d+))?} $uri -> channels server port
     }
-    if {$port eq {}} { set port 6667 }
-    return [list $server $port $channel]
+    set secure [expr {$secure eq "s"}]
+
+    set channels [lmap x [split $channels ,] {
+        # Filter out parameters that are special according to the IRC URL
+        # scheme Internet-Draft.
+        if {$x in {needkey needpass}} continue
+        set x
+    }]
+    if {[llength $channels] == 1} {
+        set channels [lindex $channels 0]
+    }
+
+    if {$port eq {}} { set port [expr {$secure ? 6697: 6667}] }
+    return [list $server $port $channels $secure]
 }
 
 proc ::picoirc::connect {callback nick args} {
@@ -44,22 +61,27 @@ proc ::picoirc::connect {callback nick args} {
     } elseif {[llength $args] == 1} {
         set url [lindex $args 0]
     } else {
-        foreach {passwd url} $args break 
+	lassign $args passwd url
     }
     variable defaults
     variable uid
     set context [namespace current]::irc[incr uid]
     upvar #0 $context irc
     array set irc $defaults
-    foreach {server port channel} [splituri $url] break
-    if {[info exists channel] && $channel ne ""} {set irc(channel) $channel}
-    if {[info exists server] && $server ne ""} {set irc(server) $server}
-    if {[info exists port] && $port ne ""} {set irc(port) $port}
-    if {[info exists passwd] && $passwd ne ""} {set irc(passwd) $passwd}
+    lassign [splituri $url] server port channels secure
+    if {[info exists channels] && $channels ne ""} {set irc(channels) $channels}
+    if {[info exists server]   && $server   ne ""} {set irc(server)   $server}
+    if {[info exists port]     && $port     ne ""} {set irc(port)     $port}
+    if {[info exists secure]   && $secure}         {set irc(secure)   $secure}
+    if {[info exists passwd]   && $passwd   ne ""} {set irc(passwd)   $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
     Callback $context init
-    set irc(socket) [socket -async $irc(server) $irc(port)]
+    if {$irc(secure)} {
+        set irc(socket) [::tls::socket $irc(server) $irc(port)]
+    } else {
+        set irc(socket) [socket -async $irc(server) $irc(port)]
+    }
     fileevent $irc(socket) readable [list [namespace origin Read] $context]
     fileevent $irc(socket) writable [list [namespace origin Write] $context]
     return $context
@@ -69,8 +91,10 @@ proc ::picoirc::Callback {context state args} {
     upvar #0 $context irc
     if {[llength $irc(callback)] > 0
         && [llength [info commands [lindex $irc(callback) 0]]] == 1} {
-        if {[catch {eval $irc(callback) [list $context $state] $args} err]} {
-            puts stderr "callback error: $err"
+        if {[catch {eval $irc(callback) [list $context $state] $args} result]} {
+            puts stderr "callback error: $result"
+        } else {
+            return $result
         }
     }
 }
@@ -86,7 +110,8 @@ proc ::picoirc::Version {context} {
 proc ::picoirc::Write {context} {
     upvar #0 $context irc
     fileevent $irc(socket) writable {}
-    if {[set err [fconfigure $irc(socket) -error]] ne ""} {
+    if {[set err [fconfigure $irc(socket) -error]] ne ""
+        || $irc(secure) && [catch {while {![::tls::handshake $irc(socket)]} {}} err] != 0} {
         Callback $context close $err
         close $irc(socket)
         unset irc
@@ -100,16 +125,16 @@ proc ::picoirc::Write {context} {
     set ver [join [lrange [split [Version $context] :] 0 1] " "]
     send $context "NICK $irc(nick)"
     send $context "USER $::tcl_platform(user) 0 * :$ver user"
-    if {$irc(channel) ne {}} {
-        after idle [list [namespace origin send] $context "JOIN $irc(channel)"]
+    foreach channel $irc(channels) {
+        after idle [list [namespace origin send] $context "JOIN $channel"]
     }
     return
 }
 
-proc ::picoirc::Splitirc {s} {
-    foreach v {nick flags user host} {set $v {}}
-    regexp {^([^!]*)!([^=]*)=([^@]+)@(.*)} $s -> nick flags user host
-    return [list $nick $flags $user $host]
+proc ::picoirc::Getnick {s} {
+    set nick {}
+    regexp {^([^!]*)!} $s -> nick
+    return $nick
 }
 
 proc ::picoirc::Read {context} {
@@ -133,12 +158,12 @@ proc ::picoirc::Read {context} {
         if {[regexp {:([^!]*)![^ ].* +PRIVMSG ([^ :]+) +:(.*)} $line -> \
                  nick target msg]} {
             set type ""
-            if {[regexp {\001(\S+)(.*)?\001} $msg -> ctcp data]} {
+            if {[regexp {^\001(\S+)(?: (.*))?\001$} $msg -> ctcp data]} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
                         send $context "NOTICE $nick :\001VERSION [Version $context]\001"
-                        return 
+                        return
                     }
                     PING {
                         send $context "NOTICE $nick :\001PING [lindex $data 0]\001"
@@ -159,16 +184,17 @@ proc ::picoirc::Read {context} {
             }
             if {[lsearch -exact {ijchain wubchain} $nick] != -1} {
                 if {$type eq "ACTION"} {
-                    regexp {(\S+) (.+)} $msg -> nick msg 
+                    regexp {(\S+) (.+)} $msg -> nick msg
                 } else {
                     regexp {<([^>]+)> (.+)} $msg -> nick msg
                 }
             }
+            if {$irc(nick) == $target} {set target $nick}
             Callback $context chat $target $nick $msg $type
-        } elseif {[regexp {^:((?:([^ ]+) +){1,}?):(.*)$} $line -> parts junk rest]} {
-            foreach {server code target fourth fifth} [split $parts] break
+        } elseif {[regexp {^:([^ ]+(?: +([^ :]+))*)(?: :(.*))?} $line -> parts junk rest]} {
+	    lassign [split $parts] server code target fourth fifth
             switch -- $code {
-                001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 - 
+                001 - 002 - 003 - 004 - 005 - 250 - 251 - 252 -
                 254 - 255 - 265 - 266 { return }
                 433 {
                     variable nickid ; if {![info exists nickid]} {set nickid 0}
@@ -188,7 +214,7 @@ proc ::picoirc::Read {context} {
                 372 { append irc(motd) $rest ; return}
                 376 { return }
                 311 {
-                    foreach {server code target nick name host x} [split $parts] break
+		    lassign [split $parts] server code target nick name host x
                     set irc(whois,$fourth) [list name $name host $host userinfo $rest]
                     return
                 }
@@ -202,18 +228,35 @@ proc ::picoirc::Read {context} {
                     return
                 }
                 JOIN {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic entered $rest $n
+                    set nick [Getnick $server]
+                    Callback $context traffic entered $target $nick
                     return
                 }
                 NICK {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic nickchange {} $n $rest
+                    set nick [Getnick $server]
+                    if {$irc(nick) == $nick} {set irc(nick) $rest}
+                    Callback $context traffic nickchange {} $nick $rest
                     return
                 }
                 QUIT - PART {
-                    foreach {n f u h} [Splitirc $server] break
-                    Callback $context traffic left $target $n
+                    set nick [Getnick $server]
+                    Callback $context traffic left $target $nick
+                    return
+                }
+                MODE {
+                    set nick [Getnick $server]
+                    if {$fourth != ""} {
+                        Callback $context mode $nick $target "$fourth $fifth"
+                    } else {
+                        Callback $context mode $nick $target $rest
+                    }
+                    return
+                }
+                NOTICE {
+                    if {$target in [list $irc(nick) *]} {
+                        set target {}
+                    }
+                    Callback $context chat $target [Getnick $server] $rest NOTICE
                     return
                 }
             }
@@ -226,34 +269,46 @@ proc ::picoirc::Read {context} {
 
 proc ::picoirc::post {context channel msg} {
     upvar #0 $context irc
-    set type ""
-    if [regexp {^/([^ ]+) *(.*)} $msg -> cmd msg] {
-        regexp {^([^ ]+)?(?: +(.*))?} $msg -> first rest
- 	switch -- $cmd {
- 	    me {set msg "\001ACTION $msg\001";set type ACTION}
- 	    nick {send $context "NICK $msg"; set $irc(nick) $msg}
- 	    quit {send $context "QUIT" }
-            part {send $context "PART $channel" }
- 	    names {send $context "NAMES $channel"}
-            whois {send $context "WHOIS $channel $msg"}
-            kick {send $context "KICK $channel $first :$rest"}
-            mode {send $context "MODE $msg"}
-            topic {send $context "TOPIC $channel :$msg" }
- 	    quote {send $context $msg}
- 	    join {send $context "JOIN $msg" }
-            version {send $context "PRIVMSG $first :\001VERSION\001"}
- 	    msg {
- 		if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
- 		    send $context "PRIVMSG $target :$querymsg"
- 		    Callback $context chat $target $target $querymsg ""
- 		}
- 	    }
- 	    default {Callback $context system $channel "unknown command /$cmd"}
- 	}
- 	if {$cmd ne {me} || $cmd eq {msg}} return
+    foreach line [split $msg \n] {
+        if [regexp {^/([^ ]+) *(.*)} $line -> cmd msg] {
+            regexp {^([^ ]+)?(?: +(.*))?} $msg -> first rest
+            switch -- $cmd {
+                me {
+                    if {$channel eq ""} {
+                        Callback $context system "" "not in channel"
+                        continue
+                    }
+                    send $context "PRIVMSG $channel :\001ACTION $msg\001"
+                    Callback $context chat $channel $irc(nick) $msg ACTION
+                }
+                nick {send $context "NICK $msg"}
+                quit {send $context "QUIT"}
+                part {send $context "PART $channel"}
+                names {send $context "NAMES $channel"}
+                whois {send $context "WHOIS $msg"}
+                kick {send $context "KICK $channel $first :$rest"}
+                mode {send $context "MODE $msg"}
+                topic {send $context "TOPIC $channel :$msg"}
+                quote {send $context $msg}
+                join {send $context "JOIN $msg"}
+                version {send $context "PRIVMSG $first :\001VERSION\001"}
+                msg - notice {
+                    set type [expr {$cmd == "msg" ? ""        : "NOTICE"}]
+                    set cmd  [expr {$cmd == "msg" ? "PRIVMSG" : "NOTICE"}]
+                    send $context "$cmd $first :$rest"
+                    Callback $context chat $first $irc(nick) $rest $type
+                }
+                default {Callback $context system $channel "unknown command /$cmd"}
+            }
+            continue
+        }
+        if {$channel eq ""} {
+            Callback $context system "" "not in channel"
+            continue
+        }
+        send $context "PRIVMSG $channel :$line"
+        Callback $context chat $channel $irc(nick) $line
     }
-    foreach line [split $msg \n] {send $context "PRIVMSG $channel :$line"}
-    Callback $context chat $channel $irc(nick) $msg $type
 }
 
 proc ::picoirc::send {context line} {
@@ -266,6 +321,7 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc 0.5.2
+package provide picoirc 0.10.0
 
 # -------------------------------------------------------------------------
+return

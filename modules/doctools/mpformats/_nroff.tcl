@@ -2,8 +2,7 @@
 #
 # -- nroff commands
 #
-# Copyright (c) 2003-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
-
+# Copyright (c) 2003-2019 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 ################################################################
 # nroff specific commands
@@ -178,6 +177,6 @@ proc nroff_postprocess {nroff} {
     set lines [string map $map $lines]
 
     # Return the modified result buffer
-    return [string map $finalMap $lines]
+    return [string trim [string map $finalMap $lines]]\n
 }
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'httpd\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "httpd" n 4\&.3 tcllib "Tcl Web Server"
+.TH "httpd" n 4\&.3\&.5 tcllib "Tcl Web Server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,17 @@ httpd \- A TclOO and coroutine based web server
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBhttpd  ?1\&.7?\fR
-.sp
 package require \fBuuid \fR
+.sp
+package require \fBsha1 \fR
+.sp
+package require \fBdicttool \fR
+.sp
+package require \fBoo::meta \fR
+.sp
+package require \fBoo::dialect \fR
+.sp
+package require \fBtool \fR
 .sp
 package require \fBclay \fR
 .sp
@@ -320,9 +328,19 @@ method \fBUrl_PathCheck\fR \fIurlsuffix\fR
 .sp
 method \fBwait\fR \fImode\fR \fIsock\fR
 .sp
+variable \fBChannelRegister\fR
+.sp
+variable \fBreply\fR
+.sp
+variable \fBrequest\fR
+.sp
+delegate \fB<server>\fR
+.sp
 method \fBconstructor\fR \fIServerObj\fR ?\fIargs\fR?
 .sp
 method \fBdestructor\fR ?\fIdictargs\fR?
+.sp
+method \fBChannelRegister\fR ?\fIargs\fR?
 .sp
 method \fBclose\fR
 .sp
@@ -331,8 +349,6 @@ method \fBLog_Dispatched\fR
 method \fBdispatch\fR \fInewsock\fR \fIdatastate\fR
 .sp
 method \fBDispatch\fR
-.sp
-method \fBhtml_css\fR
 .sp
 method \fBhtml_header\fR \fItitle\fR ?\fIargs\fR?
 .sp
@@ -356,8 +372,6 @@ method \fBPostData\fR \fIlength\fR
 .sp
 method \fBSession_Load\fR
 .sp
-method \fBTransferComplete\fR ?\fIargs\fR?
-.sp
 method \fBputs\fR \fIline\fR
 .sp
 method \fBRequestFind\fR \fIfield\fR
@@ -371,6 +385,10 @@ method \fBreset\fR
 method \fBtimeOutCheck\fR
 .sp
 method \fBtimestamp\fR
+.sp
+variable \fBtemplate\fR
+.sp
+variable \fBurl_patterns\fR
 .sp
 method \fBconstructor\fR \fIargs\fR ?\fIport\fR \fBauto\fR? ?\fImyaddr\fR \fB127\&.0\&.0\&.1\fR? ?\fIstring\fR \fBauto\fR? ?\fIname\fR \fBauto\fR? ?\fIdoc_root\fR \fB\fR? ?\fIreverse_dns\fR \fB0\fR? ?\fIconfiguration_file\fR \fB\fR? ?\fIprotocol\fR \fBHTTP/1\&.1\fR?
 .sp
@@ -443,6 +461,8 @@ method \fBDirectoryListing\fR \fIlocal_file\fR
 method \fBcontent\fR
 .sp
 method \fBDispatch\fR
+.sp
+variable \fBexename\fR
 .sp
 method \fBCgiExec\fR \fIexecname\fR \fIscript\fR \fIarglist\fR
 .sp
@@ -546,12 +566,14 @@ tclsh examples/httpd\&.tcl
 .CE
 .SH CLASSES
 .SS "CLASS  HTTPD::MIME"
+A metaclass for MIME handling behavior across a live socket
 .PP
 \fBMethods\fR
 .TP
 method \fBChannelCopy\fR \fIin\fR \fIout\fR ?\fIargs\fR?
 .TP
 method \fBhtml_header\fR ?\fItitle\fR \fB\fR? ?\fIargs\fR?
+Returns a block of HTML
 .TP
 method \fBhtml_footer\fR ?\fIargs\fR?
 .TP
@@ -671,12 +693,32 @@ A typical implementation of \fBcontent\fR look like:
 
 .CE
 .PP
+\fBVariable\fR
+.TP
+variable \fBChannelRegister\fR
+.TP
+variable \fBreply\fR
+A dictionary which will converted into the MIME headers of the reply
+.TP
+variable \fBrequest\fR
+A dictionary containing the SCGI transformed HTTP headers for the request
+.PP
+.PP
+\fBDelegate\fR
+.TP
+delegate \fB<server>\fR
+The server object which spawned this reply
+.PP
+.PP
 \fBMethods\fR
 .TP
 method \fBconstructor\fR \fIServerObj\fR ?\fIargs\fR?
 .TP
 method \fBdestructor\fR ?\fIdictargs\fR?
 clean up on exit
+.TP
+method \fBChannelRegister\fR ?\fIargs\fR?
+Registers a channel to be closed by the close method
 .TP
 method \fBclose\fR
 Close channels opened by this object
@@ -698,8 +740,6 @@ ensemble
 All other fields are passed along to the \fBclay\fR structure of the object\&.
 .TP
 method \fBDispatch\fR
-.TP
-method \fBhtml_css\fR
 .TP
 method \fBhtml_header\fR \fItitle\fR ?\fIargs\fR?
 .TP
@@ -739,29 +779,6 @@ POST or PUSH\&. Returns an empty string otherwise\&.
 method \fBSession_Load\fR
 Manage session data
 .TP
-method \fBTransferComplete\fR ?\fIargs\fR?
-Intended to be invoked from \fBchan copy\fR as a callback\&. This closes every channel
-fed to it on the command line, and then destroys the object\&.
-.CS
-
-
-     ###
-     # Output the body
-     ###
-     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-     if {$length} {
-       ###
-       # Send any POST/PUT/etc content
-       ###
-       chan copy $sock $chan -size $SIZE -command [info coroutine]
-       yield
-     }
-     catch {close $sock}
-     chan flush $chan
-
-.CE
-.TP
 method \fBputs\fR \fIline\fR
 Appends the value of \fIstring\fR to the end of \fIreply_body\fR, as well as a trailing newline
 character\&.
@@ -792,6 +809,13 @@ Return the current system time in the format:
 .PP
 .SS "CLASS  HTTPD::SERVER"
 \fIancestors\fR: \fBhttpd::mime\fR
+.PP
+.PP
+\fBVariable\fR
+.TP
+variable \fBtemplate\fR
+.TP
+variable \fBurl_patterns\fR
 .PP
 .PP
 \fBMethods\fR
@@ -908,7 +932,7 @@ The default implementation is:
 .CS
 
 
-   return [::uuid::uuid generate]
+   return [::clay::uuid generate]
 
 .CE
 .TP
@@ -965,6 +989,11 @@ method \fBDispatch\fR
 .PP
 .PP
 .SS "CLASS  HTTPD::CONTENT\&.EXEC"
+.PP
+\fBVariable\fR
+.TP
+variable \fBexename\fR
+.PP
 .PP
 \fBMethods\fR
 .TP

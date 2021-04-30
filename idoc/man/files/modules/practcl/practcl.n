@@ -2,7 +2,7 @@
 '\" Generated from file 'practcl\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2016-2018 Sean Woods <yoda@etoyoc\&.com>
 '\"
-.TH "practcl" n 0\&.13 tcllib "The The Proper Rational API for C to Tool Command Language Module"
+.TH "practcl" n 0\&.16\&.4 tcllib "The The Proper Rational API for C to Tool Command Language Module"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,11 @@ practcl \- The Practcl Module
 .SH SYNOPSIS
 package require \fBTclOO  1\&.0\fR
 .sp
-package require \fBpractcl  1\&.4\&.3\fR
+proc \fBpractcl::cat\fR \fIfname\fR
+.sp
+proc \fBpractcl::docstrip\fR \fItext\fR
+.sp
+proc \fBputb\fR ?\fImap\fR? \fItext\fR
 .sp
 proc \fBProc\fR \fIname\fR \fIarglist\fR \fIbody\fR
 .sp
@@ -340,9 +344,11 @@ proc \fBpractcl::file_lexnormalize\fR \fIsp\fR
 .sp
 proc \fBpractcl::file_relative\fR \fIbase\fR \fIdst\fR
 .sp
+proc \fBpractcl::findByPattern\fR \fIbasedir\fR \fIpatterns\fR
+.sp
 proc \fBpractcl::log\fR \fIfname\fR \fIcomment\fR
 .sp
-proc \fBpractcl::_isdirectory\fR \fIname\fR
+proc \fBpractcl::_pkgindex_simpleIndex\fR \fIpath\fR
 .sp
 proc \fBpractcl::_pkgindex_directory\fR \fIpath\fR
 .sp
@@ -354,11 +360,51 @@ proc \fBpractcl::installDir\fR \fId1\fR \fId2\fR
 .sp
 proc \fBpractcl::copyDir\fR \fId1\fR \fId2\fR ?\fItoplevel\fR \fB1\fR?
 .sp
+proc \fBpractcl::buildModule\fR \fImodpath\fR
+.sp
+proc \fBpractcl::installModule\fR \fImodpath\fR \fIDEST\fR
+.sp
 proc \fBpractcl::trigger\fR ?\fIargs\fR?
 .sp
 proc \fBpractcl::depends\fR ?\fIargs\fR?
 .sp
 proc \fBpractcl::target\fR \fIname\fR \fIinfo\fR ?\fIaction\fR \fB\fR?
+.sp
+method \fBconstructor\fR
+.sp
+method \fBargspec\fR \fIargspec\fR
+.sp
+method \fBcomment\fR \fIblock\fR
+.sp
+method \fBkeyword\&.Annotation\fR \fIresultvar\fR \fIcommentblock\fR \fItype\fR \fIname\fR \fIbody\fR
+.sp
+method \fBkeyword\&.Class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
+.sp
+method \fBkeyword\&.class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
+.sp
+method \fBkeyword\&.Class_Method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
+.sp
+method \fBkeyword\&.method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
+.sp
+method \fBkeyword\&.proc\fR \fIcommentblock\fR \fIname\fR \fIargspec\fR
+.sp
+method \fBreset\fR
+.sp
+method \fBMain\fR
+.sp
+method \fBsection\&.method\fR \fIkeyword\fR \fImethod\fR \fIminfo\fR
+.sp
+method \fBsection\&.annotation\fR \fItype\fR \fIname\fR \fIiinfo\fR
+.sp
+method \fBsection\&.class\fR \fIclass_name\fR \fIclass_info\fR
+.sp
+method \fBsection\&.command\fR \fIprocinfo\fR
+.sp
+method \fBmanpage\fR ?\fBheader \fIvalue\fR\fR? ?\fBfooter \fIvalue\fR\fR? ?\fBauthors \fIlist\fR\fR?
+.sp
+method \fBscan_text\fR \fItext\fR
+.sp
+method \fBscan_file\fR \fIfilename\fR
 .sp
 method \fB_MorphPatterns\fR
 .sp
@@ -371,10 +417,6 @@ method \fBinitialize\fR
 method \fBlink\fR \fIcommand\fR ?\fIargs\fR?
 .sp
 method \fBmorph\fR \fIclassname\fR
-.sp
-method \fBmixin\fR \fIslot\fR \fIclassname\fR
-.sp
-method \fBorgan\fR ?\fIargs\fR?
 .sp
 method \fBscript\fR \fIscript\fR
 .sp
@@ -396,8 +438,6 @@ method \fBbuild-cflags\fR \fIPROJECT\fR \fIDEFS\fR \fInamevar\fR \fIversionvar\f
 .sp
 method \fBcritcl\fR ?\fIargs\fR?
 .sp
-method \fBmake-autodetect\fR
-.sp
 method \fBAutoconf\fR
 .sp
 method \fBBuildDir\fR \fIPWD\fR
@@ -406,13 +446,13 @@ method \fBConfigureOpts\fR
 .sp
 method \fBMakeDir\fR \fIsrcdir\fR
 .sp
-method \fBmake-autodetect\fR
+method \fBmake {} autodetect\fR
 .sp
-method \fBmake-clean\fR
+method \fBmake {} clean\fR
 .sp
-method \fBmake-compile\fR
+method \fBmake {} compile\fR
 .sp
-method \fBmake-install\fR \fIDEST\fR
+method \fBmake {} install\fR \fIDEST\fR
 .sp
 method \fBbuild-compile-sources\fR \fIPROJECT\fR \fICOMPILE\fR \fICPPCOMPILE\fR \fIINCLUDES\fR
 .sp
@@ -420,17 +460,17 @@ method \fBbuild-Makefile\fR \fIpath\fR \fIPROJECT\fR
 .sp
 method \fBbuild-library\fR \fIoutfile\fR \fIPROJECT\fR
 .sp
-method \fBbuild-tclsh\fR \fIoutfile\fR \fIPROJECT\fR
+method \fBbuild-tclsh\fR \fIoutfile\fR \fIPROJECT\fR ?\fIpath\fR \fBauto\fR?
 .sp
 method \fBBuildDir\fR \fIPWD\fR
 .sp
-method \fBmake-autodetect\fR
+method \fBmake {} autodetect\fR
 .sp
-method \fBmake-clean\fR
+method \fBmake {} clean\fR
 .sp
-method \fBmake-compile\fR
+method \fBmake {} compile\fR
 .sp
-method \fBmake-install\fR \fIDEST\fR
+method \fBmake {} install\fR \fIDEST\fR
 .sp
 method \fBMakeDir\fR \fIsrcdir\fR
 .sp
@@ -576,13 +616,35 @@ method \fBlinker-products\fR \fIconfigdict\fR
 .sp
 method \fBinitialize\fR
 .sp
+variable \fBmake_object\fR
+.sp
 method \fB_MorphPatterns\fR
 .sp
 method \fBadd\fR ?\fIargs\fR?
 .sp
 method \fBinstall-headers\fR ?\fIargs\fR?
 .sp
-method \fBmake\fR \fIcommand\fR ?\fIargs\fR?
+method \fBmake {} _preamble\fR
+.sp
+method \fBmake {} pkginfo\fR
+.sp
+method \fBmake {} objects\fR
+.sp
+method \fBmake {} object\fR \fIname\fR
+.sp
+method \fBmake {} reset\fR
+.sp
+method \fBmake {} trigger\fR ?\fIargs\fR?
+.sp
+method \fBmake {} depends\fR ?\fIargs\fR?
+.sp
+method \fBmake {} filename\fR \fIname\fR
+.sp
+method \fBmake {} target\fR \fIname\fR \fIInfo\fR \fIbody\fR
+.sp
+method \fBmake {} todo\fR
+.sp
+method \fBmake {} do\fR
 .sp
 method \fBchild\fR \fIwhich\fR
 .sp
@@ -652,9 +714,11 @@ classmethod \fBSandbox\fR \fIobject\fR
 .sp
 classmethod \fBselect\fR \fIobject\fR
 .sp
-classmethod \fBclaim_path\fR \fIpath\fR
+classmethod \fBclaim_option\fR
 .sp
 classmethod \fBclaim_object\fR \fIobject\fR
+.sp
+classmethod \fBclaim_path\fR \fIpath\fR
 .sp
 method \fBscm_info\fR
 .sp
@@ -674,15 +738,19 @@ method \fBScmUpdate\fR
 .sp
 method \fBUnpack\fR
 .sp
-classmethod \fBclaim_path\fR \fIpath\fR
-.sp
 classmethod \fBclaim_object\fR \fIobject\fR
+.sp
+classmethod \fBclaim_option\fR
+.sp
+classmethod \fBclaim_path\fR \fIpath\fR
 .sp
 method \fBScmUnpack\fR
 .sp
-classmethod \fBclaim_path\fR \fIpath\fR
-.sp
 classmethod \fBclaim_object\fR \fIobj\fR
+.sp
+classmethod \fBclaim_option\fR
+.sp
+classmethod \fBclaim_path\fR \fIpath\fR
 .sp
 method \fBscm_info\fR
 .sp
@@ -694,9 +762,11 @@ method \fBScmUnpack\fR
 .sp
 method \fBScmUpdate\fR
 .sp
-classmethod \fBclaim_path\fR \fIpath\fR
-.sp
 classmethod \fBclaim_object\fR \fIobj\fR
+.sp
+classmethod \fBclaim_option\fR
+.sp
+classmethod \fBclaim_path\fR \fIpath\fR
 .sp
 method \fBScmTag\fR
 .sp
@@ -770,6 +840,14 @@ method \fBinstall\fR \fIDEST\fR
 .sp
 method \fBinstall-module\fR \fIDEST\fR ?\fIargs\fR?
 .sp
+method \fBenv-bootstrap\fR
+.sp
+method \fBenv-install\fR
+.sp
+method \fBinstall\fR \fIDEST\fR
+.sp
+method \fBinstall-module\fR \fIDEST\fR ?\fIargs\fR?
+.sp
 method \fBclean\fR
 .sp
 method \fBenv-install\fR
@@ -810,7 +888,30 @@ method \fBlinktype\fR
 .SH DESCRIPTION
 The Practcl module is a tool for integrating large modules for C API
 Tcl code that requires custom Tcl types and TclOO objects\&.
+.PP
+The concept with Practcl is that is a single file package that can
+assist any tcl based project with distribution, compilation, linking,
+VFS preparation, executable assembly, and installation\&. Practcl also
+allows one project to invoke the build system from another project,
+allowing complex projects such as a statically linked basekit to be
+assembled with relative ease\&.
+.PP
+Practcl ships as a single file, and aside from a Tcl 8\&.6 interpreter,
+has no external dependencies\&.
+.PP
+Making a practcl project
 .SH COMMANDS
+.TP
+proc \fBpractcl::cat\fR \fIfname\fR
+Concatenate a file
+.TP
+proc \fBpractcl::docstrip\fR \fItext\fR
+Strip the global comments from tcl code\&. Used to
+prevent the documentation markup comments from clogging
+up files intended for distribution in machine readable format\&.
+.TP
+proc \fBputb\fR ?\fImap\fR? \fItext\fR
+Append a line of text to a variable\&. Optionally apply a string mapping\&.
 .TP
 proc \fBProc\fR \fIname\fR \fIarglist\fR \fIbody\fR
 Generate a proc if no command already exists by that name
@@ -850,17 +951,90 @@ Dictionary sort a key/value list\&. Needed because pre tcl8\&.6
 does not have \fIlsort -stride 2\fR
 .TP
 proc \fBpractcl::local_os\fR
+Returns a dictionary describing the local operating system\&.
+Fields return include:
+.RS
+.IP \(bu
+download - Filesystem path where fossil repositories and source tarballs are downloaded for the current user
+.IP \(bu
+EXEEXT - The extension to give to executables\&. (i\&.e\&. \&.exe on windows)
+.IP \(bu
+fossil_mirror - A URI for a local network web server who acts as a fossil repository mirror
+.IP \(bu
+local_install - Filesystem path where packages for local consumption by the current user are installed
+.IP \(bu
+prefix - The prefix as given to the Tcl core/TEA for installation to local_install in \&./configure
+.IP \(bu
+sandbox - The file location where this project unpacks external projects
+.IP \(bu
+TEACUP_PROFILE - The ActiveState/Teacup canonical name for this platform (i\&.e\&. win32-ix86 macosx10\&.5-i386-x86_84)
+.IP \(bu
+TEACUP_OS - The local operating system (windows, macosx, openbsd, etc)\&. Gives the same answer as tcl\&.m4, except that macosx is given as macosx instead of Darwin\&.
+.IP \(bu
+TEA_PLATFORM - The platform returned by uname -s-uname -r (on Unix), or "windows" on Windows
+.IP \(bu
+TEACUP_ARCH - The processor architecture for the local os (i\&.e\&. ix86, x86_64)
+.IP \(bu
+TEACUP_ARCH - The processor architecture for the local os (i\&.e\&. ix86, x86_64)
+.IP \(bu
+teapot - Filesystem path where teapot package files are downloaded for the current user
+.IP \(bu
+userhome - File path to store localized preferences, cache download files, etc for the current user
+.RE
+.IP
+This command uses a combination of local checks with Exec, any tclConfig\&.sh file that is
+resident, autoconf data where already computed, and data gleaned from a file named
+practcl\&.rc in userhome\&. The location for userhome varies by platform and operating system:
+.RS
+.IP \(bu
+Windows: ::env(LOCALAPPDATA)/Tcl
+.IP \(bu
+Macos: ~/Library/Application Support/Tcl
+.IP \(bu
+Other: ~/tcl
+.RE
 .TP
 proc \fBpractcl::config\&.tcl\fR \fIpath\fR
-Detect local platform
+A transparent call to ::practcl::read_configuration to preserve backward compadibility
+with older copies of Practcl
 .TP
 proc \fBpractcl::read_configuration\fR \fIpath\fR
+Detect local platform\&. This command looks for data gleaned by autoconf or autosetup
+in the path specified, or perform its own logic tests if neither has been run\&.
+A file named config\&.site present in the location indicates that this project is
+cross compiling, and the data stored in that file is used for the compiler and linker\&.
+.sp
+This command looks for information from the following files, in the following order:
+.RS
+.IP \(bu
+config\&.tcl - A file generated by autoconf/configure in newer editions of TEA, encoded as a Tcl script\&.
+.IP \(bu
+config\&.site - A file containing cross compiler information, encoded as a SH script
+.IP \(bu
+::env(VisualStudioVersion) - On Windows, and environmental value that indicates MS Visual Studio is installed
+.RE
+.sp
+This command returns a dictionary containing all of the data cleaned from the sources above\&.
+In the absence of any guidance this command returns the same output as ::practcl::local_os\&.
+In this mode, if the environmental variable VisualStudioVersion exists, this command
+will provide a template of fields that are appropriate for compiling on Windows under
+Microsoft Visual Studio\&. The USEMSVC flag in the dictionary is a boolean flag to indicate
+if this is indeed the case\&.
 .TP
 proc \fBpractcl::tcllib_require\fR \fIpkg\fR ?\fIargs\fR?
 Try to load  a package, and failing that
 retrieve tcllib
 .TP
 proc \fBpractcl::platform::tcl_core_options\fR \fIos\fR
+Return the string to pass to \&./configure to compile the Tcl core for the given OS\&.
+.RS
+.IP \(bu
+windows: --with-tzdata --with-encoding utf-8
+.IP \(bu
+macosx: --enable-corefoundation=yes  --enable-framework=no --with-tzdata --with-encoding utf-8
+.IP \(bu
+other: --with-tzdata --with-encoding utf-8
+.RE
 .TP
 proc \fBpractcl::platform::tk_core_options\fR \fIos\fR
 .TP
@@ -893,16 +1067,29 @@ proc \fBpractcl::_tagblock\fR \fItext\fR ?\fIstyle\fR \fBtcl\fR? ?\fInote\fR \fB
 proc \fBpractcl::de_shell\fR \fIdata\fR
 .TP
 proc \fBpractcl::grep\fR \fIpattern\fR ?\fIfiles\fR \fB\fR?
-grep
+Search for the pattern \fIpattern\fR amongst $files
 .TP
 proc \fBpractcl::file_lexnormalize\fR \fIsp\fR
 .TP
 proc \fBpractcl::file_relative\fR \fIbase\fR \fIdst\fR
+Calculate a relative path between base and dst
+.sp
+Example:
+.CS
+
+  ::practcl::file_relative ~/build/tcl/unix ~/build/tcl/library
+  > \&.\&./library
+
+
+
+.CE
+.TP
+proc \fBpractcl::findByPattern\fR \fIbasedir\fR \fIpatterns\fR
 .TP
 proc \fBpractcl::log\fR \fIfname\fR \fIcomment\fR
+Record an event in the practcl log
 .TP
-proc \fBpractcl::_isdirectory\fR \fIname\fR
-Installer tools
+proc \fBpractcl::_pkgindex_simpleIndex\fR \fIpath\fR
 .TP
 proc \fBpractcl::_pkgindex_directory\fR \fIpath\fR
 Return true if the pkgindex file contains
@@ -910,25 +1097,222 @@ any statement other than "package ifneeded"
 and/or if any package ifneeded loads a DLL
 .TP
 proc \fBpractcl::_pkgindex_path_subdir\fR \fIpath\fR
+Helper function for ::practcl::pkgindex_path
 .TP
 proc \fBpractcl::pkgindex_path\fR ?\fIargs\fR?
 Index all paths given as though they will end up in the same
 virtual file system
 .TP
 proc \fBpractcl::installDir\fR \fId1\fR \fId2\fR
+Delete the contents of \fId2\fR, and then
+recusively Ccopy the contents of \fId1\fR to \fId2\fR\&.
 .TP
 proc \fBpractcl::copyDir\fR \fId1\fR \fId2\fR ?\fItoplevel\fR \fB1\fR?
+Recursively copy the contents of \fId1\fR to \fId2\fR
+.TP
+proc \fBpractcl::buildModule\fR \fImodpath\fR
+.TP
+proc \fBpractcl::installModule\fR \fImodpath\fR \fIDEST\fR
+Install a module from MODPATH to the directory specified\&.
+\fIdpath\fR is assumed to be the fully qualified path where module is to be placed\&.
+Any existing files will be deleted at that path\&.
+If the path is symlink the process will return with no error and no action\&.
+If the module has contents in the build/ directory that are newer than the
+\&.tcl files in the module source directory, and a build/build\&.tcl file exists,
+the build/build\&.tcl file is run\&.
+If the source directory includes a file named index\&.tcl, the directory is assumed
+to be in the tao style of modules, and the entire directory (and all subdirectories)
+are copied verbatim\&.
+If no index\&.tcl file is present, all \&.tcl files are copied from the module source
+directory, and a pkgIndex\&.tcl file is generated if non yet exists\&.
+I a folder named htdocs exists in the source directory, that directory is copied
+verbatim to the destination\&.
 .TP
 proc \fBpractcl::trigger\fR ?\fIargs\fR?
+Trigger build targets, and recompute dependencies
+.sp
+Internals:
+.CS
+
+
+  ::practcl::LOCAL make trigger {*}$args
+  foreach {name obj} [::practcl::LOCAL make objects] {
+    set ::make($name) [$obj do]
+  }
+
+.CE
 .TP
 proc \fBpractcl::depends\fR ?\fIargs\fR?
+Calculate if a dependency for any of the arguments needs to
+be fulfilled or rebuilt\&.
+.sp
+Internals:
+.CS
+
+
+  ::practcl::LOCAL make depends {*}$args
+
+.CE
 .TP
 proc \fBpractcl::target\fR \fIname\fR \fIinfo\fR ?\fIaction\fR \fB\fR?
+Declare a build product\&. This proc is just a shorthand for
+\fI::practcl::LOCAL make task $name $info $action\fR
+.sp
+Registering a build product with this command will create
+an entry in the global  array, and populate
+a value in the global  array\&.
+.sp
+Internals:
+.CS
+
+
+  set obj [::practcl::LOCAL make task $name $info $action]
+  set ::make($name) 0
+  set filename [$obj define get filename]
+  if {$filename ne {}} {
+    set ::target($name) $filename
+  }
+
+.CE
 .PP
 .SH CLASSES
-.SS "CLASS  PRACTCL::METACLASS"
-\fIancestors\fR: \fBoo::object\fR
+.SS "CLASS  PRACTCL::DOCTOOL"
+.CS
+
+{ set authors {
+   {John Doe} {jdoe@illustrious\&.edu}
+   {Tom RichardHarry} {tomdickharry@illustrius\&.edu}
+ }
+ # Create the object
+ ::practcl::doctool create AutoDoc
+ set fout [open [file join $moddir module\&.tcl] w]
+ foreach file [glob [file join $srcdir *\&.tcl]] {
+   set content [::practcl::cat [file join $srcdir $file]]
+    # Scan the file
+    AutoDoc scan_text $content
+    # Strip the comments from the distribution
+    puts $fout [::practcl::docstrip $content]
+ }
+ # Write out the manual page
+ set manout [open [file join $moddir module\&.man] w]
+ dict set args header [string map $modmap [::practcl::cat [file join $srcdir manual\&.txt]]]
+ dict set args footer [string map $modmap [::practcl::cat [file join $srcdir footer\&.txt]]]
+ dict set args authors $authors
+ puts $manout [AutoDoc manpage {*}$args]
+ close $manout
+
+
+}
+.CE
 .PP
+Tool for build scripts to dynamically generate manual files from comments
+in source code files
+.PP
+\fBMethods\fR
+.TP
+method \fBconstructor\fR
+.TP
+method \fBargspec\fR \fIargspec\fR
+Process an argument list into an informational dict\&.
+This method also understands non-positional
+arguments expressed in the notation of Tip 471
+\fIhttps://core\&.tcl-lang\&.org/tips/doc/trunk/tip/479\&.md\fR\&.
+.sp
+The output will be a dictionary of all of the fields and whether the fields
+are \fBpositional\fR, \fBmandatory\fR, and whether they have a
+\fBdefault\fR value\&.
+.sp
+.sp
+Example:
+.CS
+
+   my argspec {a b {c 10}}
+
+   > a {positional 1 mandatory 1} b {positional 1 mandatory 1} c {positional 1 mandatory 0 default 10}
+
+
+
+.CE
+.TP
+method \fBcomment\fR \fIblock\fR
+Convert a block of comments into an informational dictionary\&.
+If lines in the comment start with a single word ending in a colon,
+all subsequent lines are appended to a dictionary field of that name\&.
+If no fields are given, all of the text is appended to the \fBdescription\fR
+field\&.
+.sp
+Example:
+.CS
+
+ my comment {Does something cool}
+ > description {Does something cool}
+
+ my comment {
+ title : Something really cool
+ author : Sean Woods
+ author : John Doe
+ description :
+ This does something really cool!
+ }
+ > description {This does something really cool!}
+   title {Something really cool}
+   author {Sean Woods
+   John Doe}
+
+
+
+.CE
+.TP
+method \fBkeyword\&.Annotation\fR \fIresultvar\fR \fIcommentblock\fR \fItype\fR \fIname\fR \fIbody\fR
+.TP
+method \fBkeyword\&.Class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
+Process an oo::objdefine call that modifies the class object
+itself
+.TP
+method \fBkeyword\&.class\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR \fIbody\fR
+Process an oo::define, clay::define, etc statement\&.
+.TP
+method \fBkeyword\&.Class_Method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
+Process a statement for a clay style class method
+.TP
+method \fBkeyword\&.method\fR \fIresultvar\fR \fIcommentblock\fR \fIname\fR ?\fIargs\fR?
+Process a statement for a tcloo style object method
+.TP
+method \fBkeyword\&.proc\fR \fIcommentblock\fR \fIname\fR \fIargspec\fR
+Process a proc statement
+.TP
+method \fBreset\fR
+Reset the state of the object and its embedded coroutine
+.TP
+method \fBMain\fR
+Main body of the embedded coroutine for the object
+.TP
+method \fBsection\&.method\fR \fIkeyword\fR \fImethod\fR \fIminfo\fR
+Generate the manual page text for a method or proc
+.TP
+method \fBsection\&.annotation\fR \fItype\fR \fIname\fR \fIiinfo\fR
+.TP
+method \fBsection\&.class\fR \fIclass_name\fR \fIclass_info\fR
+Generate the manual page text for a class
+.TP
+method \fBsection\&.command\fR \fIprocinfo\fR
+Generate the manual page text for the commands section
+.TP
+method \fBmanpage\fR ?\fBheader \fIvalue\fR\fR? ?\fBfooter \fIvalue\fR\fR? ?\fBauthors \fIlist\fR\fR?
+Generate the manual page\&. Returns the completed text suitable for saving in \&.man file\&.
+The header argument is a block of doctools text to go in before the machine generated
+section\&. footer is a block of doctools text to go in after the machine generated
+section\&. authors is a list of individual authors and emails in the form of AUTHOR EMAIL ?AUTHOR EMAIL?\&.\&.\&.
+.TP
+method \fBscan_text\fR \fItext\fR
+Scan a block of text
+.TP
+method \fBscan_file\fR \fIfilename\fR
+Scan a file of text
+.PP
+.PP
+.SS "CLASS  PRACTCL::METACLASS"
+The metaclass for all practcl objects
 .PP
 \fBMethods\fR
 .TP
@@ -943,10 +1327,6 @@ method \fBinitialize\fR
 method \fBlink\fR \fIcommand\fR ?\fIargs\fR?
 .TP
 method \fBmorph\fR \fIclassname\fR
-.TP
-method \fBmixin\fR \fIslot\fR \fIclassname\fR
-.TP
-method \fBorgan\fR ?\fIargs\fR?
 .TP
 method \fBscript\fR \fIscript\fR
 .TP
@@ -963,6 +1343,7 @@ that are modified when targetting either gcc or msvc
 \fBClass Methods\fR
 .TP
 classmethod \fBselect\fR \fIobject\fR
+Perform the selection for the toolset mixin
 .PP
 .PP
 \fBMethods\fR
@@ -971,10 +1352,20 @@ method \fBconfig\&.sh\fR
 find or fake a key/value list describing this project
 .TP
 method \fBBuildDir\fR \fIPWD\fR
+Compute the location where the product will be built
 .TP
 method \fBMakeDir\fR \fIsrcdir\fR
+Return where the Makefile is located relative to \fIsrcdir\fR\&.
+For this implementation the MakeDir is always srcdir\&.
 .TP
 method \fBread_configuration\fR
+Read information about the build process for this package\&.
+For this implementation, data is sought in the following locations
+in the following order:
+config\&.tcl (generated by practcl\&.) PKGConfig\&.sh\&. The Makefile
+.sp
+If the Makefile needs to be consulted, but does not exist, the
+Configure method is invoked
 .TP
 method \fBbuild-cflags\fR \fIPROJECT\fR \fIDEFS\fR \fInamevar\fR \fIversionvar\fR \fIdefsvar\fR
 method DEFS
@@ -985,8 +1376,7 @@ defs - C flags passed to the compiler
 includedir - A list of paths to feed to the compiler for finding headers
 .TP
 method \fBcritcl\fR ?\fIargs\fR?
-.TP
-method \fBmake-autodetect\fR
+Invoke critcl in an external process
 .PP
 .PP
 .SS "CLASS  PRACTCL::TOOLSET\&.GCC"
@@ -1004,13 +1394,13 @@ method \fBConfigureOpts\fR
 method \fBMakeDir\fR \fIsrcdir\fR
 Detect what directory contains the Makefile template
 .TP
-method \fBmake-autodetect\fR
+method \fBmake {} autodetect\fR
 .TP
-method \fBmake-clean\fR
+method \fBmake {} clean\fR
 .TP
-method \fBmake-compile\fR
+method \fBmake {} compile\fR
 .TP
-method \fBmake-install\fR \fIDEST\fR
+method \fBmake {} install\fR \fIDEST\fR
 .TP
 method \fBbuild-compile-sources\fR \fIPROJECT\fR \fICOMPILE\fR \fICPPCOMPILE\fR \fIINCLUDES\fR
 .TP
@@ -1019,7 +1409,7 @@ method \fBbuild-Makefile\fR \fIpath\fR \fIPROJECT\fR
 method \fBbuild-library\fR \fIoutfile\fR \fIPROJECT\fR
 Produce a static or dynamic library
 .TP
-method \fBbuild-tclsh\fR \fIoutfile\fR \fIPROJECT\fR
+method \fBbuild-tclsh\fR \fIoutfile\fR \fIPROJECT\fR ?\fIpath\fR \fBauto\fR?
 Produce a static executable
 .PP
 .PP
@@ -1032,14 +1422,14 @@ Produce a static executable
 method \fBBuildDir\fR \fIPWD\fR
 MSVC always builds in the source directory
 .TP
-method \fBmake-autodetect\fR
+method \fBmake {} autodetect\fR
 Do nothing
 .TP
-method \fBmake-clean\fR
+method \fBmake {} clean\fR
 .TP
-method \fBmake-compile\fR
+method \fBmake {} compile\fR
 .TP
-method \fBmake-install\fR \fIDEST\fR
+method \fBmake {} install\fR \fIDEST\fR
 .TP
 method \fBMakeDir\fR \fIsrcdir\fR
 Detect what directory contains the Makefile template
@@ -1050,6 +1440,8 @@ method \fBNmakeOpts\fR
 .SS "CLASS  PRACTCL::MAKE_OBJ"
 \fIancestors\fR: \fBpractcl::metaclass\fR
 .PP
+A build deliverable object\&. Normally an object file, header, or tcl script
+which must be compiled or generated in some way
 .PP
 \fBMethods\fR
 .TP
@@ -1233,7 +1625,7 @@ method \fBtarget\fR \fImethod\fR ?\fIargs\fR?
 .SS "CLASS  PRACTCL::PRODUCT\&.CHEADER"
 \fIancestors\fR: \fBpractcl::product\fR
 .PP
-Flesh out several trivial varieties of product
+A product which generated from a C header file\&. Which is to say, nothing\&.
 .PP
 \fBMethods\fR
 .TP
@@ -1245,6 +1637,7 @@ method \fBgenerate-loader-module\fR
 .SS "CLASS  PRACTCL::PRODUCT\&.CSOURCE"
 \fIancestors\fR: \fBpractcl::product\fR
 .PP
+A product which generated from a C source file\&. Normally an object (\&.o) file\&.
 .PP
 \fBMethods\fR
 .TP
@@ -1254,6 +1647,10 @@ method \fBproject-compile-products\fR
 .SS "CLASS  PRACTCL::PRODUCT\&.CLIBRARY"
 \fIancestors\fR: \fBpractcl::product\fR
 .PP
+A product which is generated from a compiled C library\&.
+Usually a \&.a or a \&.dylib file, but in complex cases may
+actually just be a conduit for one project to integrate the
+source code of another
 .PP
 \fBMethods\fR
 .TP
@@ -1263,6 +1660,10 @@ method \fBlinker-products\fR \fIconfigdict\fR
 .SS "CLASS  PRACTCL::PRODUCT\&.DYNAMIC"
 \fIancestors\fR: \fBpractcl::dynamic\fR \fBpractcl::product\fR
 .PP
+A product which is generated from C code that itself is generated
+by practcl or some other means\&. This C file may or may not produce
+its own \&.o file, depending on whether it is eligible to become part
+of an amalgamation
 .PP
 \fBMethods\fR
 .TP
@@ -1272,6 +1673,8 @@ method \fBinitialize\fR
 .SS "CLASS  PRACTCL::PRODUCT\&.CRITCL"
 \fIancestors\fR: \fBpractcl::dynamic\fR \fBpractcl::product\fR
 .PP
+A binary product produced by critcl\&. Note: The implementation is not
+written yet, this class does nothing\&.
 .PP
 .SS "CLASS  PRACTCL::MODULE"
 \fIancestors\fR: \fBpractcl::object\fR \fBpractcl::product\&.dynamic\fR
@@ -1279,6 +1682,11 @@ method \fBinitialize\fR
 In the end, all C code must be loaded into a module
 This will either be a dynamically loaded library implementing
 a tcl extension, or a compiled in segment of a custom shell/app
+.PP
+\fBVariable\fR
+.TP
+variable \fBmake_object\fR
+.PP
 .PP
 \fBMethods\fR
 .TP
@@ -1288,8 +1696,38 @@ method \fBadd\fR ?\fIargs\fR?
 .TP
 method \fBinstall-headers\fR ?\fIargs\fR?
 .TP
-method \fBmake\fR \fIcommand\fR ?\fIargs\fR?
-Target handling
+method \fBmake {} _preamble\fR
+.TP
+method \fBmake {} pkginfo\fR
+.TP
+method \fBmake {} objects\fR
+Return a dictionary of all handles and associated objects
+.TP
+method \fBmake {} object\fR \fIname\fR
+Return the object associated with handle \fIname\fR
+.TP
+method \fBmake {} reset\fR
+Reset all deputy objects
+.TP
+method \fBmake {} trigger\fR ?\fIargs\fR?
+Exercise the triggers method for all handles listed
+.TP
+method \fBmake {} depends\fR ?\fIargs\fR?
+Exercise the check method for all handles listed
+.TP
+method \fBmake {} filename\fR \fIname\fR
+Return the file name of the build product for the listed
+handle
+.TP
+method \fBmake {} target\fR \fIname\fR \fIInfo\fR \fIbody\fR
+.TP
+method \fBmake {} todo\fR
+Return a list of handles for object which return true for the
+do method
+.TP
+method \fBmake {} do\fR
+For each target exercise the action specified in the \fIaction\fR
+definition if the \fIdo\fR method returns true
 .TP
 method \fBchild\fR \fIwhich\fR
 .TP
@@ -1313,6 +1751,7 @@ method \fBlinktype\fR
 .SS "CLASS  PRACTCL::PROJECT"
 \fIancestors\fR: \fBpractcl::module\fR
 .PP
+A toplevel project that is a collection of other projects
 .PP
 \fBMethods\fR
 .TP
@@ -1327,6 +1766,8 @@ method \fBadd_project\fR \fIpkg\fR \fIinfo\fR ?\fIoodefine\fR \fB\fR?
 method \fBadd_tool\fR \fIpkg\fR \fIinfo\fR ?\fIoodefine\fR \fB\fR?
 .TP
 method \fBbuild-tclcore\fR
+Compile the Tcl core\&. If the define \fItk\fR is true, compile the
+Tk core as well
 .TP
 method \fBchild\fR \fIwhich\fR
 .TP
@@ -1345,6 +1786,7 @@ method \fBtool\fR \fIpkg\fR ?\fIargs\fR?
 .SS "CLASS  PRACTCL::LIBRARY"
 \fIancestors\fR: \fBpractcl::project\fR
 .PP
+A toplevel project that produces a library
 .PP
 \fBMethods\fR
 .TP
@@ -1375,6 +1817,7 @@ method \fBstatic_library\fR ?\fIfilename\fR \fB\fR?
 .SS "CLASS  PRACTCL::TCLKIT"
 \fIancestors\fR: \fBpractcl::library\fR
 .PP
+A toplevel project that produces a self-contained executable
 .PP
 \fBMethods\fR
 .TP
@@ -1397,9 +1840,11 @@ classmethod \fBSandbox\fR \fIobject\fR
 .TP
 classmethod \fBselect\fR \fIobject\fR
 .TP
-classmethod \fBclaim_path\fR \fIpath\fR
+classmethod \fBclaim_option\fR
 .TP
 classmethod \fBclaim_object\fR \fIobject\fR
+.TP
+classmethod \fBclaim_path\fR \fIpath\fR
 .PP
 .PP
 \fBMethods\fR
@@ -1426,12 +1871,15 @@ method \fBUnpack\fR
 .SS "CLASS  PRACTCL::DISTRIBUTION\&.SNAPSHOT"
 \fIancestors\fR: \fBpractcl::distribution\fR
 .PP
+A file distribution from zip, tarball, or other non-scm archive format
 .PP
 \fBClass Methods\fR
 .TP
-classmethod \fBclaim_path\fR \fIpath\fR
-.TP
 classmethod \fBclaim_object\fR \fIobject\fR
+.TP
+classmethod \fBclaim_option\fR
+.TP
+classmethod \fBclaim_path\fR \fIpath\fR
 .PP
 .PP
 \fBMethods\fR
@@ -1442,14 +1890,17 @@ method \fBScmUnpack\fR
 .SS "CLASS  PRACTCL::DISTRIBUTION\&.FOSSIL"
 \fIancestors\fR: \fBpractcl::distribution\fR
 .PP
+A file distribution based on fossil
 .PP
 \fBClass Methods\fR
 .TP
-classmethod \fBclaim_path\fR \fIpath\fR
-Check for markers in the source root
-.TP
 classmethod \fBclaim_object\fR \fIobj\fR
 Check for markers in the metadata
+.TP
+classmethod \fBclaim_option\fR
+.TP
+classmethod \fBclaim_path\fR \fIpath\fR
+Check for markers in the source root
 .PP
 .PP
 \fBMethods\fR
@@ -1469,12 +1920,15 @@ method \fBScmUpdate\fR
 .SS "CLASS  PRACTCL::DISTRIBUTION\&.GIT"
 \fIancestors\fR: \fBpractcl::distribution\fR
 .PP
+A file distribution based on git
 .PP
 \fBClass Methods\fR
 .TP
-classmethod \fBclaim_path\fR \fIpath\fR
-.TP
 classmethod \fBclaim_object\fR \fIobj\fR
+.TP
+classmethod \fBclaim_option\fR
+.TP
+classmethod \fBclaim_path\fR \fIpath\fR
 .PP
 .PP
 \fBMethods\fR
@@ -1489,6 +1943,7 @@ method \fBScmUpdate\fR
 .SS "CLASS  PRACTCL::SUBPROJECT"
 \fIancestors\fR: \fBpractcl::module\fR
 .PP
+A subordinate project
 .PP
 \fBMethods\fR
 .TP
@@ -1607,10 +2062,25 @@ method \fBinstall\fR \fIDEST\fR
 method \fBinstall-module\fR \fIDEST\fR ?\fIargs\fR?
 .PP
 .PP
+.SS "CLASS  PRACTCL::SUBPROJECT\&.PRACTCL"
+\fIancestors\fR: \fBpractcl::subproject\fR
+.PP
+.PP
+\fBMethods\fR
+.TP
+method \fBenv-bootstrap\fR
+.TP
+method \fBenv-install\fR
+.TP
+method \fBinstall\fR \fIDEST\fR
+.TP
+method \fBinstall-module\fR \fIDEST\fR ?\fIargs\fR?
+.PP
+.PP
 .SS "CLASS  PRACTCL::SUBPROJECT\&.BINARY"
 \fIancestors\fR: \fBpractcl::subproject\fR
 .PP
-A binary package
+A subordinate binary package
 .PP
 \fBMethods\fR
 .TP
@@ -1640,10 +2110,12 @@ method \fBinstall\fR \fIDEST\fR
 .SS "CLASS  PRACTCL::SUBPROJECT\&.TEA"
 \fIancestors\fR: \fBpractcl::subproject\&.binary\fR
 .PP
+A subordinate TEA based binary package
 .PP
 .SS "CLASS  PRACTCL::SUBPROJECT\&.LIBRARY"
 \fIancestors\fR: \fBpractcl::subproject\&.binary\fR \fBpractcl::library\fR
 .PP
+A subordinate C library built by this project
 .PP
 \fBMethods\fR
 .TP
@@ -1653,7 +2125,7 @@ method \fBinstall\fR \fIDEST\fR
 .SS "CLASS  PRACTCL::SUBPROJECT\&.EXTERNAL"
 \fIancestors\fR: \fBpractcl::subproject\&.binary\fR
 .PP
-An external library
+A subordinate external C library
 .PP
 \fBMethods\fR
 .TP

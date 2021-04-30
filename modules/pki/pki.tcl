@@ -189,10 +189,16 @@ namespace eval ::pki {
 
 	variable handlers
 	array set handlers {
-		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate ::pki::rsa::serialize_key ::pki::rsa::serialize_public_key}
+		rsa {
+			::pki::rsa::encrypt
+			::pki::rsa::decrypt
+			::pki::rsa::generate
+			::pki::rsa::serialize_key
+			::pki::rsa::serialize_public_key
+		}
 	}
 
-	variable INT_MAX [expr {[format "%u" -1] / 2}]
+	variable INT_MAX [expr {[format %u -1] / 2}]
 }
 
 namespace eval ::pki::rsa {}
@@ -202,29 +208,32 @@ namespace eval ::pki::pkcs {}
 # # ## ### ##### ######## #############
 ## Implementation
 
-proc ::pki::_dec_to_hex {num} {
+
+proc ::pki::_dec_to_hex num {
 	set retval [format %llx $num]
 	return $retval
 }
 
+
 proc ::pki::_dec_to_ascii {num {bitlen -1}} {
-	set retval ""
+	set retval {}
 
 	while {$num} {
 		set currchar [expr {$num & 0xff}]
-		set retval "[format %c $currchar]$retval"
+		set retval [format %c $currchar]$retval
 		set num [expr {$num >> 8}]
 	}
 
 	if {$bitlen != -1} {
 		set bytelen [expr {$bitlen / 8}]
 		while {[string length $retval] < $bytelen} {
-			set retval "\x00$retval"
+			set retval \x00$retval
 		}
 	}
 
 	return $retval
 }
+
 
 proc ::pki::_powm {x y m} {
 	if {$y == 0} {
@@ -245,11 +254,13 @@ proc ::pki::_powm {x y m} {
 	return $retval
 }
 
+
 ## **NOTE** Requires that "m" be prime
 ### a^-1 === a^(m-2)    (all mod m)
 proc ::pki::_modi {a m} {
 	return [_powm $a [expr {$m - 2}] $m]
 }
+
 
 proc ::pki::_oid_number_to_name {oid} {
 	set oid [join $oid .]
@@ -257,9 +268,9 @@ proc ::pki::_oid_number_to_name {oid} {
 	if {[info exists ::pki::oids($oid)]} {
 		return $::pki::oids($oid)
 	}
-
 	return $oid
 }
+
 
 proc ::pki::_oid_name_to_number {name} {
 	foreach {chkoid chkname} [array get ::pki::oids] {
@@ -267,24 +278,24 @@ proc ::pki::_oid_name_to_number {name} {
 			return [split $chkoid .]
 		}
 	}
-
 	return -code error "Unable to convert OID $name to an OID value"
 }
 
+
 proc ::pki::rsa::_encrypt_num {input exponent mod} {
 	set ret [::pki::_powm $input $exponent $mod]
-
 	return $ret
 }
+
 
 proc ::pki::rsa::_decrypt_num {input exponent mod} {
 	set ret [::pki::_powm $input $exponent $mod]
-
 	return $ret
 }
 
+
 proc ::pki::_pad_pkcs {data bitlength {blocktype 2}} {
-	set ret ""
+	set ret {} 
 
 	set bytes_to_pad [expr {($bitlength / 8) - 3 - [string length $data]}]
 	if {$bytes_to_pad < 0} {
@@ -295,16 +306,16 @@ proc ::pki::_pad_pkcs {data bitlength {blocktype 2}} {
 		0 {
 		}
 		1 {
-			append ret "\x00\x01"
-			append ret [string repeat "\xff" $bytes_to_pad]
-			append ret "\x00"
+			append ret \x00\x01
+			append ret [string repeat \xff $bytes_to_pad]
+			append ret \x00
 		}
 		2 {
-			append ret "\x00\x02"
+			append ret \x00\x02
 			for {set idx 0} {$idx < $bytes_to_pad} {incr idx} {
 				append ret [format %c [expr {int(rand() * 255 + 1)}]]
 			}
-			append ret "\x00"
+			append ret \x00
 		}
 	}
 
@@ -313,31 +324,33 @@ proc ::pki::_pad_pkcs {data bitlength {blocktype 2}} {
 	return $ret
 }
 
-proc ::pki::_unpad_pkcs {data} {
+
+proc ::pki::_unpad_pkcs data {
 	set check [string index $data 0]
 	binary scan [string index $data 1] H* blocktype
 	set datalen [string length $data]
 
-	if {$check != "\x00"} {
+	if {$check ne "\x00"} {
 		return $data
 	}
 
 	switch -- $blocktype {
-		"00" {
+		00 {
 			# Padding Scheme 1, the first non-zero byte is the start of data
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char != "\x00"} {
+				if {$char ne "\x00"} {
 					set ret [string range $data $idx end]
+					break
 				}
 			}
 		}
-		"01" {
+		01 {
 			# Padding Scheme 2, pad bytes are 0xFF followed by 0x00
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char != "\xff"} {
-					if {$char == "\x00"} {
+				if {$char ne "\xff"} {
+					if {$char eq "\x00"} {
 						set ret [string range $data [expr {$idx + 1}] end]
 
 						break
@@ -347,11 +360,11 @@ proc ::pki::_unpad_pkcs {data} {
 				}
 			}
 		}
-		"02" {
+		02 {
 			# Padding Scheme 3, pad bytes are random, followed by 0x00
 			for {set idx 2} {$idx < $datalen} {incr idx} {
 				set char [string index $data $idx]
-				if {$char == "\x00"} {
+				if {$char eq "\x00"} {
 					set ret [string range $data [expr {$idx + 1}] end]
 
 					break
@@ -370,12 +383,13 @@ proc ::pki::_unpad_pkcs {data} {
 	return $ret
 }
 
-proc ::pki::rsa::encrypt {mode input keylist} {
+
+proc ::pki::rsa::encrypt {mode input keylist {overhead 0}} {
 	switch -- $mode {
-		"pub" {
+		pub {
 			set exponent_ent e
 		}
-		"priv" {
+		priv {
 			set exponent_ent d
 		}
 	}
@@ -386,14 +400,16 @@ proc ::pki::rsa::encrypt {mode input keylist} {
 	set mod $key(n)
 
 	## RSA requires that the input be no larger than the key
-	set input_len_bits [expr {[string length $input] * 8}]
+	set input_len_bits [expr {
+		([string length $input] - $overhead) * 8
+	}]
 	if {$key(l) < $input_len_bits} {
 		return -code error "Message length exceeds key length"
 	}
 
 	binary scan $input H* input_num
 
-	set input_num "0x${input_num}"
+	set input_num 0x${input_num}
 
 	set retval_num [_encrypt_num $input_num $exponent $mod]
 
@@ -402,12 +418,13 @@ proc ::pki::rsa::encrypt {mode input keylist} {
 	return $retval
 }
 
+
 proc ::pki::rsa::decrypt {mode input keylist} {
 	switch -- $mode {
-		"pub" {
+		pub {
 			set exponent_ent e
 		}
-		"priv" {
+		priv {
 			set exponent_ent d
 		}
 	}
@@ -419,7 +436,7 @@ proc ::pki::rsa::decrypt {mode input keylist} {
 
 	binary scan $input H* input_num
 
-	set input_num "0x${input_num}"
+	set input_num 0x${input_num}
 
 	set retval_num [_decrypt_num $input_num $exponent $mod]
 
@@ -427,6 +444,7 @@ proc ::pki::rsa::decrypt {mode input keylist} {
 
 	return $retval
 }
+
 
 proc ::pki::rsa::serialize_public_key {keylist} {
 	array set key $keylist
@@ -437,24 +455,23 @@ proc ::pki::rsa::serialize_public_key {keylist} {
 		}
 	}
 
-	set pubkey [::asn::asnSequence \
-		[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
-		[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
-		]
+	set pubkey [::asn::asnSequence [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(e)]]]
 	set pubkey_algo_params [::asn::asnNull]
 
 	binary scan $pubkey B* pubkey_bitstring
 
-	set ret [::asn::asnSequence \
-		[::asn::asnSequence \
-				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number rsaEncryption]] \
-				$pubkey_algo_params \
-			] \
-			[::asn::asnBitString $pubkey_bitstring] \
-			]
+	set ret [::asn::asnSequence [
+		::asn::asnSequence [
+			::asn::asnObjectIdentifier [::pki::_oid_name_to_number rsaEncryption]
+		] $pubkey_algo_params] [
+			::asn::asnBitString $pubkey_bitstring]
+		]
 
-	return [list data $ret begin "-----BEGIN PUBLIC KEY-----" end "-----END PUBLIC KEY-----"]
+	return [list data $ret begin -----BEGIN PUBLIC KEY----- end -----END PUBLIC KEY-----]
 }
+
 
 proc ::pki::rsa::serialize_key {keylist} {
 	array set key $keylist
@@ -477,20 +494,22 @@ proc ::pki::rsa::serialize_key {keylist} {
 	## Modular multiplicative inverse of q mod p
 	set c [::pki::_modi $key(q) $key(p)]
 
-	set ret [::asn::asnSequence \
-			[::asn::asnBigInteger [::math::bignum::fromstr 0]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $key(d)]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $key(p)]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $key(q)]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $e1]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $e2]] \
-			[::asn::asnBigInteger [::math::bignum::fromstr $c]] \
+	set ret [::asn::asnSequence [
+		::asn::asnBigInteger [::math::bignum::fromstr 0]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(d)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(p)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $key(q)]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $e1]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $e2]] [
+		::asn::asnBigInteger [::math::bignum::fromstr $c]]
 	]
 
-	return [list data $ret begin "-----BEGIN RSA PRIVATE KEY-----" end "-----END RSA PRIVATE KEY-----"]
+	return [list data $ret begin {-----BEGIN RSA PRIVATE KEY-----} \
+		end {-----END RSA PRIVATE KEY-----}]
 }
+
 
 proc ::pki::_lookup_command {action keylist} {
 	array set key $keylist
@@ -498,19 +517,19 @@ proc ::pki::_lookup_command {action keylist} {
 	set type $key(type)
 
 	switch -- $action {
-		"encrypt" {
+		encrypt {
 			set idx 0
 		}
-		"decrypt" {
+		decrypt {
 			set idx 1
 		}
-		"generate" {
+		generate {
 			set idx 2
 		}
-		"serialize_key" {
+		serialize_key {
 			set idx 3
 		}
-		"serialize_public_key" {
+		serialize_public_key {
 			set idx 4
 		}
 	}
@@ -522,14 +541,15 @@ proc ::pki::_lookup_command {action keylist} {
 	return $ret
 }
 
+
 proc ::pki::encrypt args {
-	set outmode "hex"
+	set outmode hex
 	set enablepad 1
 
 	set argsmode 0
 	set newargs [list]
 	foreach arg $args {
-		if {![string match "-*" $arg]} {
+		if {![string match -* $arg]} {
 			set argsmode 1
 		}
 
@@ -539,38 +559,40 @@ proc ::pki::encrypt args {
 		}
 
 		switch -- $arg {
-			"-pub" {
+			-pub {
 				set mode pub
 				set padmode 2
 			}
-			"-priv" {
+			-priv {
 				set mode priv
 				set padmode 1
 			}
-			"-hex" {
-				set outmode "hex"
+			-hex {
+				set outmode hex
 			}
-			"-binary" {
-				set outmode "bin"
+			-binary {
+				set outmode bin
 			}
-			"-pad" {
+			-pad {
 				set enablepad 1
 			}
-			"-nopad" {
+			-nopad {
 				set enablepad 0
 			}
-			"--" {
+			-- {
 				set argsmode 1
 			}
 			default {
-				return -code error "usage: encrypt ?-binary? ?-hex? ?-pad? ?-nopad? -priv|-pub ?--? input key"
+				return -code error "usage: encrypt ?-binary? ?-hex? ?-pad? ?-nopad?\
+					-priv|-pub ?--? input key"
 			}
 		}
 	}
 	set args $newargs
 
 	if {[llength $args] != 2 || ![info exists mode]} {
-		return -code error "usage: encrypt ?-binary? ?-hex? ?-pad? ?-nopad? -priv|-pub ?--? input key"
+		return -code error "usage: encrypt ?-binary? ?-hex? ?-pad? ?-nopad?\
+			-priv|-pub ?--? input key"
 	}
 
 	set input [lindex $args 0]
@@ -580,13 +602,14 @@ proc ::pki::encrypt args {
 	if {$enablepad} {
 		set input [::pki::_pad_pkcs $input $key(l) $padmode]
 	}
+	set overhead 3
 
 	set encrypt [::pki::_lookup_command encrypt $keylist]
 
-	set retval [$encrypt $mode $input $keylist]
+	set retval [$encrypt $mode $input $keylist $overhead]
 
 	switch -- $outmode {
-		"hex" {
+		hex {
 			binary scan $retval H* retval
 		}
 	}
@@ -594,14 +617,15 @@ proc ::pki::encrypt args {
 	return $retval
 }
 
+
 proc ::pki::decrypt args {
-	set inmode "hex"
+	set inmode hex
 	set enableunpad 1
 
 	set argsmode 0
 	set newargs [list]
 	foreach arg $args {
-		if {![string match "-*" $arg]} {
+		if {![string match -* $arg]} {
 			set argsmode 1
 		}
 
@@ -611,36 +635,38 @@ proc ::pki::decrypt args {
 		}
 
 		switch -- $arg {
-			"-pub" {
+			-pub {
 				set mode pub
 			}
-			"-priv" {
+			-priv {
 				set mode priv
 			}
-			"-hex" {
-				set inmode "hex"
+			-hex {
+				set inmode hex
 			}
-			"-binary" {
-				set inmode "bin"
+			-binary {
+				set inmode bin
 			}
-			"-unpad" {
+			-unpad {
 				set enableunpad 1
 			}
-			"-nounpad" {
+			-nounpad {
 				set enableunpad 0
 			}
-			"--" {
+			-- {
 				set argsmode 1
 			}
 			default {
-				return -code error "usage: decrypt ?-binary? ?-hex? ?-unpad? ?-nounpad? -priv|-pub ?--? input key"
+				return -code error "usage: decrypt ?-binary? ?-hex? ?-unpad? ?-nounpad?\
+					-priv|-pub ?--? input key"
 			}
 		}
 	}
 	set args $newargs
 
 	if {[llength $args] != 2 || ![info exists mode]} {
-		return -code error "usage: decrypt ?-binary? ?-hex? ?-unpad? ?-nounpad? -priv|-pub ?--? input key"
+		return -code error "usage: decrypt ?-binary? ?-hex? ?-unpad? ?-nounpad?\
+			-priv|-pub ?--? input key"
 	}
 
 	set input [lindex $args 0]
@@ -648,7 +674,7 @@ proc ::pki::decrypt args {
 	array set key $keylist
 
 	switch -- $inmode {
-		"hex" {
+		hex {
 			set input [binary format H* $input]
 		}
 	}
@@ -664,29 +690,30 @@ proc ::pki::decrypt args {
 	return $retval
 }
 
+
 # Hash and encrypt with private key
-proc ::pki::sign {input keylist {algo "sha1"}} {
+proc ::pki::sign {input keylist {algo sha1}} {
 	switch -- $algo {
-		"md5" {
+		md5 {
 			package require md5
 
-			set header "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10"
+			set header \x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10
 			set hash [md5::md5 $input]
 		}
-		"sha1" {
+		sha1 {
 			package require sha1
 
-			set header "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14"
+			set header \x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14
 			set hash [sha1::sha1 -bin $input]
 		}
-		"sha256" {
+		sha256 {
 			package require sha256
 
-			set header "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20"
+			set header \x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20
 			set hash [sha2::sha256 -bin $input]
 		}
-		"raw" {
-			set header ""
+		raw {
+			set header {}
 			set hash $input
 		}
 		default {
@@ -694,7 +721,7 @@ proc ::pki::sign {input keylist {algo "sha1"}} {
 		}
 	}
 
-	set plaintext "${header}${hash}"
+	set plaintext ${header}${hash}
 
 	array set key $keylist
 
@@ -702,6 +729,7 @@ proc ::pki::sign {input keylist {algo "sha1"}} {
 
 	return [::pki::encrypt -binary -nopad -priv -- $padded $keylist]
 }
+
 
 # Verify known-plaintext with signature
 proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
@@ -713,9 +741,9 @@ proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
 		return false
 	}
 
-	if {$algo == "default"} {
-		set algoId "unknown"
-		set digest ""
+	if {$algo eq {default}} {
+		set algoId unknown
+		set digest {}
 
 		catch {
 			::asn::asnGetSequence plaintext message
@@ -731,13 +759,13 @@ proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
 	}
 
 	switch -- $algoId {
-		"md5" - "md5WithRSAEncryption" {
+		md5 - md5WithRSAEncryption {
 			set checkdigest [md5::md5 $checkmessage]
 		}
-		"sha1" - "sha1WithRSAEncryption" {
+		sha1 - sha1WithRSAEncryption {
 			set checkdigest [sha1::sha1 -bin $checkmessage]
 		}
-		"sha256" - "sha256WithRSAEncryption" {
+		sha256 - sha256WithRSAEncryption {
 			set checkdigest [sha2::sha256 -bin $checkmessage]
 		}
 		default {
@@ -745,17 +773,18 @@ proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
 		}
 	}
 
-	if {$checkdigest != $digest} {
+	if {$checkdigest ne $digest} {
 		return false
 	}
 
 	return true
 }
 
-proc ::pki::key {keylist {password ""} {encodePem 1}} {
+
+proc ::pki::key {keylist {password {}} {encodePem 1}} {
 	set serialize_key [::pki::_lookup_command serialize_key $keylist]
 
-	if {$serialize_key eq ""} {
+	if {$serialize_key eq {}} {
 		array set key $keylist
 
 		return -code error "Do not know how to serialize an $key(type) key"
@@ -764,10 +793,11 @@ proc ::pki::key {keylist {password ""} {encodePem 1}} {
 	array set retval_parts [$serialize_key $keylist]
 
 	if {$encodePem} {
-		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) $retval_parts(end) $password]
+		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) \
+			$retval_parts(end) $password]
 	} else {
-		if {$password != ""} {
-			return -code error "DER encoded keys may not be password protected"
+		if {$password ne {}} {
+			return -code error {DER encoded keys may not be password protected}
 		}
 
 		set retval $retval_parts(data)
@@ -776,10 +806,11 @@ proc ::pki::key {keylist {password ""} {encodePem 1}} {
 	return $retval
 }
 
-proc ::pki::public_key {keylist {password ""} {encodePem 1}} {
+
+proc ::pki::public_key {keylist {password {}} {encodePem 1}} {
 	set serialize_key [::pki::_lookup_command serialize_public_key $keylist]
 
-	if {$serialize_key eq ""} {
+	if {$serialize_key eq {}} {
 		array set key $keylist
 
 		return -code error "Do not know how to serialize an $key(type) key"
@@ -788,10 +819,11 @@ proc ::pki::public_key {keylist {password ""} {encodePem 1}} {
 	array set retval_parts [$serialize_key $keylist]
 
 	if {$encodePem} {
-		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) $retval_parts(end) $password]
+		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) \
+			$retval_parts(end) $password]
 	} else {
-		if {$password != ""} {
-			return -code error "DER encoded keys may not be password protected"
+		if {$password ne {}} {
+			return -code error {DER encoded keys may not be password protected}
 		}
 
 		set retval $retval_parts(data)
@@ -799,26 +831,29 @@ proc ::pki::public_key {keylist {password ""} {encodePem 1}} {
 
 	return $retval
 }
+
 
 proc ::pki::parse {text {errorOnUnknownType 0}} {
 	set rc [list]
-	while {[regexp {^.*?-----BEGIN (.*?)-----(.*?)-----END (.*?)-----(.*)$} $text - type body type2 text]} {
+	while {[regexp {^.*?-----BEGIN (.*?)-----(.*?)-----END (.*?)-----(.*)$} \
+		$text - type body type2 text]} {
+
 		if {$type != $type2} {
 			return -code error "BEGIN and END types do not match ($type and $type2)"
 		}
 		set body "-----BEGIN $type-----\n$body\n-----END $type-----\n"
 
 		switch -- $type {
-			"RSA PRIVATE KEY" {
+			{RSA PRIVATE KEY} {
 				lappend rc key [::pki::pkcs::parse_key $body]
 			}
-			"PUBLIC KEY" {
+			{PUBLIC KEY} {
 				lappend rc public_key [::pki::pkcs::parse_public_key $body]
 			}
-			"CERTIFICATE" {
+			CERTIFICATE {
 				lappend rc certificate [::pki::x509::parse_cert $body]
 			}
-			"CERTIFICATE REQUEST" {
+			{CERTIFICATE REQUEST} {
 				lappend rc certificate_request [::pki::pkcs::parse_csr $body]
 			}
 			default {
@@ -828,9 +863,9 @@ proc ::pki::parse {text {errorOnUnknownType 0}} {
 			}
 		}
 	}
-
 	return $rc
 }
+
 
 proc ::pki::_parse_init {} {
 	if {[info exists ::pki::_parse_init_done]} {
@@ -839,16 +874,16 @@ proc ::pki::_parse_init {} {
 
 	package require asn
 
-	set test "FAIL"
+	set test FAIL
 	catch {
-		set test [binary decode base64 "UEFTUw=="]
+		set test [binary decode base64 UEFTUw==]
 	}
 
 	switch -- $test {
-		"PASS" {
+		PASS {
 			set ::pki::rsa::base64_binary 1
 		}
-		"FAIL" {
+		FAIL {
 			set ::pki::rsa::base64_binary 0
 
 			package require base64
@@ -859,17 +894,18 @@ proc ::pki::_parse_init {} {
 	return
 }
 
+
 proc ::pki::_getopensslkey {password salt bytes} {
 	package require md5
 
 	set salt [string range $salt 0 7]
 
-	set saltedkey "${password}${salt}"
-	for {set ret ""} {[string length $ret] < $bytes} {} {
+	set saltedkey $password$salt
+	for {set ret {}} {[string length $ret] < $bytes} {} {
 		if {![info exists hash]} {
 			set hash $saltedkey
 		} else {
-			set hash "${hash}${saltedkey}"
+			set hash $hash$saltedkey
 		}
 
 		set hash [md5::md5 $hash]
@@ -879,38 +915,38 @@ proc ::pki::_getopensslkey {password salt bytes} {
 
 	if {[string length $ret] < $bytes} {
 		set bytes_to_add [expr $bytes - [string length $ret]]
-		set ret "[string repeat "\x00" $bytes_to_add]${ret}"
+		set ret [string repeat \x00 $bytes_to_add]$ret
 	}
 
 	set ret [string range $ret 0 [expr {$bytes - 1}]]
-
 	return $ret
 }
 
-proc ::pki::_encode_pem {data begin end {password ""} {algo "aes-256-cbc"}} {
-	set ret ""
 
-	append ret "${begin}\n"
-	if {$password != ""} {
+proc ::pki::_encode_pem {data begin end {password {}} {algo aes-256-cbc}} {
+	set ret {} 
+
+	append ret $begin\n
+	if {$password ne {}} {
 		switch -glob -- $algo {
-			"aes-*" {
+			aes-* {
 				set algostr [string toupper $algo]
-				set work [split $algo "-"]
-				set algo "aes"
+				set work [split $algo -]
+				set algo aes
 				set keysize [lindex $work 1]
 				set mode [lindex $work 2]
 				set blocksize 16
 				set ivsize [expr {$blocksize * 8}]
 			}
 			default {
-				return -code error "Only AES is currently supported"
+				return -code error {Only AES is currently supported}
 			}
 		}
 
 		set keybytesize [expr {$keysize / 8}]
 		set ivbytesize [expr {$ivsize / 8}]
 
-		set iv ""
+		set iv {} 
 		while {[string length $iv] < $ivbytesize} {
 			append iv [::pki::_random -binary]
 		}
@@ -919,10 +955,10 @@ proc ::pki::_encode_pem {data begin end {password ""} {algo "aes-256-cbc"}} {
 		set password_key [::pki::_getopensslkey $password $iv $keybytesize]
 
 		set pad [expr {$blocksize - ([string length $data] % $blocksize)}]
-		append data [string repeat "\x09" $pad]
+		append data [string repeat \x09 $pad]
 
 		switch -- $algo {
-			"aes" {
+			aes {
 				set data [aes::aes -dir encrypt -mode $mode -iv $iv -key $password_key -- $data]
 			}
 		}
@@ -932,7 +968,7 @@ proc ::pki::_encode_pem {data begin end {password ""} {algo "aes-256-cbc"}} {
 
 		append ret "Proc-Type: 4,ENCRYPTED\n"
 		append ret "DEK-Info: $algostr,$iv\n"
-		append ret "\n"
+		append ret \n
 	}
 
 	if {$::pki::rsa::base64_binary} {
@@ -940,13 +976,13 @@ proc ::pki::_encode_pem {data begin end {password ""} {algo "aes-256-cbc"}} {
 	} else {
 		append ret [::base64::encode -maxlen 64 $data]
 	}
-	append ret "\n"
-	append ret "${end}\n"
-
+	append ret \n
+	append ret $end\n
 	return $ret
 }
 
-proc ::pki::_parse_pem {pem begin end {password ""}} {
+
+proc ::pki::_parse_pem {pem begin end {password {}}} {
 	# Unencode a PEM-encoded object
 	set testpem [split $pem \n]
 	set pem_startidx [lsearch -exact $testpem $begin]
@@ -965,7 +1001,7 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 
 	set newpem ""
 	foreach line [lrange $pem $pem_startidx $pem_endidx] {
-		if {[string match "*:*" $line]} {
+		if {[string match *:* $line]} {
 			set work [split $line :]
 
 			set var [string toupper [lindex $work 0]]
@@ -981,7 +1017,7 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 		append newpem $line
 	}
 
-	if {$newpem != ""} {
+	if {$newpem ne {}} {
 		if {$::pki::rsa::base64_binary} {
 			set pem [binary decode base64 $newpem]
 		} else {
@@ -990,13 +1026,13 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 	}
 
 	if {[info exists ret(PROC-TYPE)] && [info exists ret(DEK-INFO)]} {
-		if {$ret(PROC-TYPE) == "4,ENCRYPTED"} {
-			if {$password == ""} {
-				return [list error "ENCRYPTED"]
+		if {$ret(PROC-TYPE) eq {4,ENCRYPTED}} {
+			if {$password eq {}} {
+				return [list error ENCRYPTED]
 			}
 
 			switch -glob -- $ret(DEK-INFO) {
-				"DES-EDE3-*" {
+				DES-EDE3-* {
 					package require des
 
 					# DES-EDE3-CBC,03B1F1883BFA4412
@@ -1015,7 +1051,7 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 
 					set pem [DES::des -dir decrypt -mode $mode -iv $iv -key $password_key -- $pem]
 				}
-				"AES-*" {
+				AES-* {
 					package require aes
 
 					# AES-256-CBC,AF517BA39E94FF39D1395C63F6DE9657
@@ -1044,8 +1080,10 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 	return [array get ret]
 }
 
-proc ::pki::pkcs::parse_public_key {key {password ""}} {
-	array set parsed_key [::pki::_parse_pem $key "-----BEGIN PUBLIC KEY-----" "-----END PUBLIC KEY-----" $password]
+
+proc ::pki::pkcs::parse_public_key {key {password {}}} {
+	array set parsed_key [::pki::_parse_pem $key \
+		{-----BEGIN PUBLIC KEY-----} {-----END PUBLIC KEY-----} $password]
 
 	set key_seq $parsed_key(data)
 
@@ -1056,7 +1094,7 @@ proc ::pki::pkcs::parse_public_key {key {password ""}} {
 	set ret(pubkey_algo) [::pki::_oid_number_to_name $oid]
 
 	switch -- $ret(pubkey_algo) {
-		"rsaEncryption" {
+		rsaEncryption {
 			set pubkey [binary format B* $pubkey]
 
 			::asn::asnGetSequence pubkey pubkey_parts
@@ -1069,7 +1107,7 @@ proc ::pki::pkcs::parse_public_key {key {password ""}} {
 			set ret(type) rsa
 		}
 		default {
-			error "Unknown algorithm"
+			error {Unknown algorithm}
 		}
 	}
 
@@ -1077,8 +1115,9 @@ proc ::pki::pkcs::parse_public_key {key {password ""}} {
 }
 
 
-proc ::pki::pkcs::parse_key {key {password ""}} {
-	array set parsed_key [::pki::_parse_pem $key "-----BEGIN RSA PRIVATE KEY-----" "-----END RSA PRIVATE KEY-----" $password]
+proc ::pki::pkcs::parse_key {key {password {}}} {
+	array set parsed_key [::pki::_parse_pem $key \
+		{-----BEGIN RSA PRIVATE KEY-----} {-----END RSA PRIVATE KEY-----} $password]
 
 	set key_seq $parsed_key(data)
 
@@ -1101,10 +1140,11 @@ proc ::pki::pkcs::parse_key {key {password ""}} {
 	return [array get ret]
 }
 
-proc ::pki::x509::_dn_to_list {dn} {
-	set ret ""
 
-	while {$dn != ""} {
+proc ::pki::x509::_dn_to_list dn {
+	set ret {} 
+
+	while {$dn ne {}} {
 		::asn::asnGetSet dn dn_parts
 		::asn::asnGetSequence dn_parts curr_part
 		::asn::asnGetObjectIdentifier curr_part label
@@ -1117,8 +1157,9 @@ proc ::pki::x509::_dn_to_list {dn} {
 	return $ret
 }
 
-proc ::pki::x509::_list_to_dn {name} {
-	set ret ""
+
+proc ::pki::x509::_list_to_dn name {
+	set ret {} 
 	foreach {oid_name value} $name {
 		if {![regexp {[^ A-Za-z0-9'()+,.:/?=-]} $value]} {
 			set asnValue [::asn::asnPrintableString $value]
@@ -1126,24 +1167,24 @@ proc ::pki::x509::_list_to_dn {name} {
 			set asnValue [::asn::asnUTF8String $value]
 		}
 
-		append ret [::asn::asnSet \
-			[::asn::asnSequence \
-				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number $oid_name]] \
-				$asnValue \
-			] \
-		] \
+		append ret [::asn::asnSet [
+			::asn::asnSequence [
+				::asn::asnObjectIdentifier [::pki::_oid_name_to_number $oid_name]
+			] $asnValue ]
+		]
 	}
 
 	return $ret
 }
 
-proc ::pki::x509::_dn_to_string {dn} {
+
+proc ::pki::x509::_dn_to_string dn {
 	set ret [list]
 
 	foreach {label value} [_dn_to_list $dn] {
 		set label [string toupper $label]
 
-		lappend ret "$label=$value"
+		lappend ret $label=$value
 	}
 
 	set ret [join $ret {, }]
@@ -1151,8 +1192,9 @@ proc ::pki::x509::_dn_to_string {dn} {
 	return $ret
 }
 
-proc ::pki::x509::_string_to_dn {string} {
-	foreach {label value} [split $string ",="] {
+
+proc ::pki::x509::_string_to_dn string {
+	foreach {label value} [split $string ,=] {
 		set label [string trim $label]
 		set value [string trim $value]
 
@@ -1162,29 +1204,34 @@ proc ::pki::x509::_string_to_dn {string} {
 	return [_list_to_dn $namelist]
 }
 
-proc ::pki::x509::_dn_to_cn {dn} {
-	foreach {label value} [split $dn ",="] {
+
+proc ::pki::x509::_dn_to_cn dn {
+	foreach {label value} [split $dn ,=] {
 		set label [string toupper [string trim $label]]
 		set value [string trim $value]
 
-		if {$label == "CN"} {
+		if {$label eq {CN}} {
 			return $value
 		}
 	}
 
-	return ""
+	return {} 
 }
 
-proc ::pki::x509::_utctime_to_native {utctime} {
-	return [clock scan $utctime -format {%y%m%d%H%M%SZ} -gmt true]
+
+proc ::pki::x509::_utctime_to_native utctime {
+	return [clock scan $utctime -format %y%m%d%H%M%SZ -gmt true]
 }
 
-proc ::pki::x509::_native_to_utctime {time} {
-	return [clock format $time -format {%y%m%d%H%M%SZ} -gmt true]
+
+proc ::pki::x509::_native_to_utctime time {
+	return [clock format $time -format %y%m%d%H%M%SZ -gmt true]
 }
+
 
 proc ::pki::x509::parse_cert {cert} {
-	array set parsed_cert [::pki::_parse_pem $cert "-----BEGIN CERTIFICATE-----" "-----END CERTIFICATE-----"]
+	array set parsed_cert [::pki::_parse_pem $cert \
+		{-----BEGIN CERTIFICATE-----} {-----END CERTIFICATE-----}]
 	set cert_seq $parsed_cert(data)
 
 	array set ret [list]
@@ -1225,20 +1272,20 @@ proc ::pki::x509::parse_cert {cert} {
 		::asn::asnGetBitString pubkeyinfo pubkey
 
 	set extensions_list [list]
-	while {$cert != ""} {
+	while {$cert ne {}} {
 		::asn::asnPeekByte cert peek_tag
 
-		switch -- [format {0x%02x} $peek_tag] {
-			"0xa1" {
+		switch -- [format 0x%02x $peek_tag] {
+			0xa1 {
 				::asn::asnGetContext cert - issuerUniqID
 			}
-			"0xa2" {
+			0xa2 {
 				::asn::asnGetContext cert - subjectUniqID
 			}
-			"0xa3" {
+			0xa3 {
 				::asn::asnGetContext cert - extensions_ctx
 				::asn::asnGetSequence extensions_ctx extensions
-				while {$extensions != ""} {
+				while {$extensions ne {}} {
 					::asn::asnGetSequence extensions extension
 						::asn::asnGetObjectIdentifier extension ext_oid
 
@@ -1256,16 +1303,16 @@ proc ::pki::x509::parse_cert {cert} {
 					set ext_value [list $ext_critical]
 
 					switch -- $ext_oid {
-						"id-ce-basicConstraints" {
+						id-ce-basicConstraints {
 							::asn::asnGetSequence ext_value_seq ext_value_bin
 
-							if {$ext_value_bin != ""} {
+							if {$ext_value_bin ne {}} {
 								::asn::asnGetBoolean ext_value_bin allowCA
 							} else {
-								set allowCA "false"
+								set allowCA false
 							}
 
-							if {$ext_value_bin != ""} {
+							if {$ext_value_bin ne {}} {
 								::asn::asnGetInteger ext_value_bin caDepth
 							} else {
 								set caDepth -1
@@ -1304,7 +1351,7 @@ proc ::pki::x509::parse_cert {cert} {
 
 	# Handle RSA public keys by extracting N and E
 	switch -- $ret(pubkey_algo) {
-		"rsaEncryption" {
+		rsaEncryption {
 			set pubkey [binary format B* $pubkey]
 			binary scan $pubkey H* ret(pubkey)
 
@@ -1322,31 +1369,36 @@ proc ::pki::x509::parse_cert {cert} {
 	return [array get ret]
 }
 
+
 # Verify whether a cert is valid, regardless of trust
 proc ::pki::x509::validate_cert {cert args} {
+	set {ignore time} 0
 	# Verify arguments and load options
 	for {set idx 0} {$idx < [llength $args]} {incr idx} {
 		set arg [lindex $args $idx]
 
 		switch -- $arg {
-			"-sign_message" {
+			-ignoretime {
+				set {ignore time} true
+			}
+			-sign_message {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
 
 				set opts(sign_message) $cn
 			}
-			"-encrypt_message" {
+			-encrypt_message {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
 
 				set opts(encrypt_message) $cn
 			}
-			"-sign_cert" {
+			-sign_cert {
 				incr idx
 				set dn [lindex $args $idx]
-				if {$dn == "ALL" || $dn == "ANY"} {
+				if {$dn eq {ALL} || $dn eq {ANY}} {
 					set cn $dn
 				} else {
 					set cn [_dn_to_cn $dn]
@@ -1357,7 +1409,7 @@ proc ::pki::x509::validate_cert {cert args} {
 
 				set opts(sign_cert) [list $cn $currdepth]
 			}
-			"-ssl" {
+			-ssl {
 				incr idx
 				set dn [lindex $args $idx]
 				set cn [_dn_to_cn $dn]
@@ -1365,7 +1417,10 @@ proc ::pki::x509::validate_cert {cert args} {
 				set opts(ssl) $cn
 			}
 			default {
-				return -code error {wrong # args: should be "validate_cert cert ?-sign_message dn_of_signer? ?-encrypt_message dn_of_signer? ?-sign_cert [dn_to_be_signed | ANY | ALL] ca_depth? ?-ssl dn?"}
+				return -code error {wrong # args: should be \
+					"validate_cert cert ?-sign_message dn_of_signer?\
+						?-encrypt_message dn_of_signer? ?-sign_cert\
+						[dn_to_be_signed | ANY | ALL] ca_depth? ?-ssl dn?"}
 			}
 		}
 	}
@@ -1374,14 +1429,19 @@ proc ::pki::x509::validate_cert {cert args} {
 	array set cert_arr $cert
 
 	# Validate certificate
-	## Validate times
-	if {![info exists cert_arr(notBefore)] || ![info exists cert_arr(notAfter)]} {
-		return false
-	}
 
-	set currtime [clock seconds]
-	if {$currtime < $cert_arr(notBefore) || $currtime > $cert_arr(notAfter)} {
-		return false
+	if {!${ignore time}} {
+		## Validate times
+		if {![info exists cert_arr(notBefore)]
+			|| ![info exists cert_arr(notAfter)]
+		} {
+			return false
+		}
+
+		set currtime [clock seconds]
+		if {$currtime < $cert_arr(notBefore) || $currtime > $cert_arr(notAfter)} {
+			return false
+		}
 	}
 
 	# Check for extensions and process them
@@ -1392,7 +1452,7 @@ proc ::pki::x509::validate_cert {cert args} {
 		set critical [lindex $ext_val 0]
 
 		switch -- $ext_id {
-			"id-ce-basicConstraints" {
+			id-ce-basicConstraints {
 				set CA [lindex $ext_val 1]
 				set CAdepth [lindex $ext_val 2]
 			}
@@ -1421,9 +1481,30 @@ proc ::pki::x509::validate_cert {cert args} {
 	return true
 }
 
-proc ::pki::x509::verify_cert {cert trustedcerts {intermediatecerts ""}} {
+
+proc ::pki::x509::verify_cert {cert trustedcerts args} {
+	if {[llength $args] % 2 == 1} {
+		set args [lassign $args[set args {}] intermediatecerts]
+	} else {
+		set intermediatecerts {}
+	}
+
+	set {validate args} {}
+
+	foreach {key val} $args[set args {}] {
+		switch $key {
+			{validate args} {
+				set {validate args} $val
+			}
+			default {
+				return -code error [list {unknown agument} $key]
+			}
+			
+		}
+	}
+
 	# Validate cert
-	if {![validate_cert $cert]} {
+	if {![eval validate_cert [list $cert] ${validate args}]} {
 		return false;
 	}
 
@@ -1485,8 +1566,9 @@ proc ::pki::x509::verify_cert {cert trustedcerts {intermediatecerts ""}} {
 	return $ret
 }
 
+
 # Generate a PKCS#10 Certificate Signing Request
-proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo "sha1"}} {
+proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo sha1}} {
 	array set key $keylist
 
 	set name [::pki::x509::_list_to_dn $namelist]
@@ -1494,57 +1576,69 @@ proc ::pki::pkcs::create_csr {keylist namelist {encodePem 0} {algo "sha1"}} {
 	set type $key(type)
 
 	switch -- $type {
-		"rsa" {
-			set pubkey [::asn::asnSequence \
-				[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
-				[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
-			]
+		rsa {
+			set pubkey [::asn::asnSequence [
+				::asn::asnBigInteger [
+					::math::bignum::fromstr $key(n)
+				]
+			] [
+				::asn::asnBigInteger [::math::bignum::fromstr $key(e)]
+			]]
 			set pubkey_algo_params [::asn::asnNull]
 		}
 	}
 	binary scan $pubkey B* pubkey_bitstring
 
-	set cert_req_info [::asn::asnSequence \
-		[::asn::asnInteger 0] \
-		[::asn::asnSequence $name] \
-		[::asn::asnSequence \
-			[::asn::asnSequence \
-				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number ${type}Encryption]] \
-				$pubkey_algo_params \
-			] \
-			[::asn::asnBitString $pubkey_bitstring] \
-		] \
-		[::asn::asnContextConstr 0 ""] \
+	set cert_req_info [::asn::asnSequence [
+		::asn::asnInteger 0] [
+			::asn::asnSequence $name
+		] [
+			::asn::asnSequence [
+				::asn::asnSequence [
+					::asn::asnObjectIdentifier [
+						::pki::_oid_name_to_number ${type}Encryption]
+				] $pubkey_algo_params 
+			] [
+				::asn::asnBitString $pubkey_bitstring
+			]] [
+			::asn::asnContextConstr 0 {} 
+		]
 	]
 
 	set signature [::pki::sign $cert_req_info $keylist $algo]
 	binary scan $signature B* signature_bitstring
 	
-	set cert_req [::asn::asnSequence \
-		$cert_req_info \
-		[::asn::asnSequence [::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}With${type}Encryption"]] [::asn::asnNull]] \
-		[::asn::asnBitString $signature_bitstring] \
-	]
+	set cert_req [::asn::asnSequence $cert_req_info [
+		::asn::asnSequence [
+			::asn::asnObjectIdentifier [
+				::pki::_oid_name_to_number ${algo}With${type}Encryption
+			]
+		] [::asn::asnNull]
+	] [
+		::asn::asnBitString $signature_bitstring
+	]]
 
 	if {$encodePem} {
-		set cert_req [::pki::_encode_pem $cert_req "-----BEGIN CERTIFICATE REQUEST-----" "-----END CERTIFICATE REQUEST-----"]
+		set cert_req [::pki::_encode_pem $cert_req \
+			{-----BEGIN CERTIFICATE REQUEST-----} {-----END CERTIFICATE REQUEST-----}]
 	}
 
 	return $cert_req
 }
 
+
 # Parse a PKCS#10 CSR
-proc ::pki::pkcs::parse_csr {csr} {
+proc ::pki::pkcs::parse_csr csr {
 	array set ret [list]
 
-	array set parsed_csr [::pki::_parse_pem $csr "-----BEGIN CERTIFICATE REQUEST-----" "-----END CERTIFICATE REQUEST-----"]
+	array set parsed_csr [::pki::_parse_pem $csr \
+		{-----BEGIN CERTIFICATE REQUEST-----} {-----END CERTIFICATE REQUEST-----}]
 	set csr $parsed_csr(data)
 
 	::asn::asnGetSequence csr cert_req_seq
 		::asn::asnGetSequence cert_req_seq cert_req_info
 
 	set cert_req_info_saved [::asn::asnSequence $cert_req_info]
-
 			::asn::asnGetInteger cert_req_info version
 			::asn::asnGetSequence cert_req_info name
 			::asn::asnGetSequence cert_req_info pubkeyinfo
@@ -1564,7 +1658,7 @@ proc ::pki::pkcs::parse_csr {csr} {
 
 	# Parse public key, based on type
 	switch -- $pubkey_type {
-		"rsaEncryption" {
+		rsaEncryption {
 			set pubkey [binary format B* $pubkey]
 
 			::asn::asnGetSequence pubkey pubkey_parts
@@ -1573,7 +1667,7 @@ proc ::pki::pkcs::parse_csr {csr} {
 
 			set key(n) [::math::bignum::tostr $key(n)]
 			set key(e) [::math::bignum::tostr $key(e)]
-			set key(l) [expr {2**int(ceil(log([::pki::_bits $key(n)])/log(2)))}]
+			set key(l) [expr {2 ** int(ceil(log([::pki::_bits $key(n)])/log(2)))}]
 			set key(type) rsa
 		}
 		default {
@@ -1587,7 +1681,7 @@ proc ::pki::pkcs::parse_csr {csr} {
 	# Validate CSR requestor has access to the private key
 	set csrValid [::pki::verify $signature $cert_req_info_saved $keylist]
 	if {!$csrValid} {
-		return -code error "CSR Signature check failed"
+		return -code error {CSR Signature check failed}
 	}
 
 	array set ret $keylist
@@ -1595,7 +1689,11 @@ proc ::pki::pkcs::parse_csr {csr} {
 	return [array get ret]
 }
 
-proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore notAfter isCA extensions {encodePem 0} {algo "sha1"}} {
+
+proc ::pki::x509::create_cert {
+	signreqlist cakeylist serial_number notBefore notAfter isCA extensions
+	{encodePem 0} {algo sha1}
+} {
 	# Parse parameters
 	array set cakey $cakeylist
 	array set signreq $signreqlist
@@ -1613,7 +1711,7 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 	}
 
 	# Determine what version we need to use (default to 1)
-	if {[array get extensions] == ""} {
+	if {[array get extensions] eq {}} {
 		set version 1
 	} else {
 		set version 3
@@ -1624,7 +1722,8 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 	# Create certificate to be signed
 	## Insert version number (if not version 1)
 	if {$version != 1} {
-		lappend certlist [::asn::asnContextConstr 0 [::asn::asnInteger [expr {$version - 1}]]]
+		lappend certlist [::asn::asnContextConstr 0 [
+			::asn::asnInteger [expr {$version - 1}]]]
 	}
 
 	## Insert serial number
@@ -1632,7 +1731,7 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 
 	## Insert data algorithm
 	switch -glob -- $algo {
-		"*With*Encryption" {
+		*With*Encryption {
 			# Already fully qualified, add nothing
 			regexp {^.*With(.*)Encryption$} $algo -> type
 			regexp {^(.*)With(.*)Encryption$} $algo -> hashingAlgorithm type
@@ -1643,22 +1742,26 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 		default {
 			set hashingAlgorithm $algo
 
-			set algo "${algo}With${type}Encryption"
+			set algo ${algo}With${type}Encryption
 		}
 	}
 
-	lappend certlist [::asn::asnSequence \
-		[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}"]] \
-		[::asn::asnNull] \
+	lappend certlist [::asn::asnSequence [
+		::asn::asnObjectIdentifier [::pki::_oid_name_to_number $algo]] [
+			::asn::asnNull
+		]
 	]
 
 	## Insert issuer
 	lappend certlist [::asn::asnSequence [::pki::x509::_string_to_dn $cakey(subject)]]
 
 	## Insert validity requirements
-	lappend certlist [::asn::asnSequence \
-		[::asn::asnUTCTime [::pki::x509::_native_to_utctime $notBefore]] \
-		[::asn::asnUTCTime [::pki::x509::_native_to_utctime $notAfter]] \
+	lappend certlist [::asn::asnSequence [
+		::asn::asnUTCTime [
+			::pki::x509::_native_to_utctime $notBefore]
+		] [
+			::asn::asnUTCTime [::pki::x509::_native_to_utctime $notAfter
+		]]
 	]
 
 	## Insert subject
@@ -1666,34 +1769,38 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 
 	## Insert public key information
 	switch -- $type {
-		"rsa" {
-			set pubkey [::asn::asnSequence \
-				[::asn::asnBigInteger [::math::bignum::fromstr $signreq(n)]] \
-				[::asn::asnBigInteger [::math::bignum::fromstr $signreq(e)]] \
-			]
+		rsa {
+			set pubkey [::asn::asnSequence [
+				::asn::asnBigInteger [
+					::math::bignum::fromstr $signreq(n)]
+			] [
+				::asn::asnBigInteger [::math::bignum::fromstr $signreq(e)]
+			]]
 
 			set pubkey_algo_params [::asn::asnNull]
 		}
 	}
 	binary scan $pubkey B* pubkey_bitstring
 
-	lappend certlist [::asn::asnSequence \
-		[::asn::asnSequence \
-			[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${type}Encryption"]] \
-			$pubkey_algo_params \
-		] \
-		[::asn::asnBitString $pubkey_bitstring] \
+	lappend certlist [::asn::asnSequence [
+		::asn::asnSequence [
+			::asn::asnObjectIdentifier [
+				::pki::_oid_name_to_number ${type}Encryption
+			]
+		] $pubkey_algo_params ] [
+			::asn::asnBitString $pubkey_bitstring
+		]
 	]
 
 	## Insert extensions
-	if {[array get extensions] != ""} {
+	if {[array get extensions] ne {}} {
 		set extensionslist [list]
 
 		foreach {extension extvalue} [array get extensions] {
 			set critical 0
 
 			switch -- $extension {
-				"id-ce-basicConstraints" {
+				id-ce-basicConstraints {
 					set critical [lindex $extvalue 0]
 					set allowCA [lindex $extvalue 1]
 					set caDepth [lindex $extvalue 2]
@@ -1701,20 +1808,25 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 					if {$caDepth < 0} {
 						set extvalue [::asn::asnSequence [::asn::asnBoolean $allowCA]]
 					} else {
-						set extvalue [::asn::asnSequence [::asn::asnBoolean $allowCA] [::asn::asnInteger $caDepth]]
+						set extvalue [::asn::asnSequence [
+							::asn::asnBoolean $allowCA
+						] [
+							::asn::asnInteger $caDepth
+						]]
 					}
 				}
-				"id-ce-subjectAltName" {
+
+				id-ce-subjectAltName {
 					set critical [lindex $extvalue 0]
 	
 					unset -nocomplain altnames
 
 					foreach {altnametype altnamevalue} [lrange $extvalue 1 end] {
 						switch -- [string tolower $altnametype] {
-							"rfc822name" {
+							rfc822name {
 								lappend altnames [::asn::asnChoice 1 $altnamevalue]
 							}
-							"dnsname" {
+							dnsname {
 								lappend altnames [::asn::asnChoice 2 $altnamevalue]
 							}
 							default {
@@ -1725,7 +1837,8 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 
 					set extvalue [::asn::asnSequence {*}$altnames]
 				}
-				"id-ce-cRLDistributionPoints" {
+
+				id-ce-cRLDistributionPoints {
 					set critical [lindex $extvalue 0]
 
 					set crlDistributionPoint_objects [list distributionPoint reasons cRLIssuer]
@@ -1746,15 +1859,15 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 							set crlDistributionPoint_object [dict get $crlDistributionPoint_dict $crlDistributionPoint_objectName]
 
 							switch -- $crlDistributionPoint_objectName {
-								"distributionPoint" {
+								distributionPoint {
 									foreach {crlDistributionPointNameType crlDistributionPointName_dict} $crlDistributionPoint_object {
 										switch -- $crlDistributionPointNameType {
-											"name" {
+											name {
 												unset -nocomplain crlDistributionPointName
 												array set crlDistributionPointName $crlDistributionPointName_dict
 
 												switch -- $crlDistributionPointName(type) {
-													"url" {
+													url {
 														set crlDistributionPointNameASN [::asn::asnChoice 6 $crlDistributionPointName(value)]
 													}
 													default {
@@ -1781,7 +1894,8 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 
 					set extvalue [::asn::asnSequenceFromList $crlDistributionPointsASN]
 				}
-				"id-ce-keyUsage" {
+
+				id-ce-keyUsage {
 					set critical [lindex $extvalue 0]
 					set extvalue [string tolower [lrange $extvalue 1 end]]
 
@@ -1793,7 +1907,7 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 						}
 					}
 
-					set keyUsageValue ""
+					set keyUsageValue {}
 					foreach keyUsage $keyUsages {
 						if {$keyUsage in $extvalue} {
 							set keyUsageResult 1
@@ -1805,19 +1919,24 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 
 					set extvalue [::asn::asnBitString $keyUsageValue]
 				}
+
 				default {
 					return -code error "Unknown extension: $extension"
 				}
 			}
 
-			lappend extensionslist [::asn::asnSequence \
-				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number $extension]] \
-				[::asn::asnBoolean $critical] \
-				[::asn::asnOctetString $extvalue] \
+			lappend extensionslist [::asn::asnSequence [
+				::asn::asnObjectIdentifier [
+					::pki::_oid_name_to_number $extension]
+				] [
+					::asn::asnBoolean $critical] [
+						::asn::asnOctetString $extvalue
+				]
 			]
 		}
 
-		lappend certlist [::asn::asnContextConstr 3 [::asn::asnSequenceFromList $extensionslist]]
+		lappend certlist [::asn::asnContextConstr 3 [
+			::asn::asnSequenceFromList $extensionslist]]
 	}
 
 	## Enclose certificate data in an ASN.1 sequence
@@ -1827,31 +1946,34 @@ proc ::pki::x509::create_cert {signreqlist cakeylist serial_number notBefore not
 	set signature [::pki::sign $cert $cakeylist $hashingAlgorithm]
 	binary scan $signature B* signature_bitstring
 
-	set cert [::asn::asnSequence \
-		$cert \
-		[::asn::asnSequence \
-			[::asn::asnObjectIdentifier [::pki::_oid_name_to_number "${algo}"]] \
-			[::asn::asnNull] \
-		] \
-		[::asn::asnBitString $signature_bitstring] \
+	set cert [::asn::asnSequence $cert [
+		::asn::asnSequence [
+			::asn::asnObjectIdentifier [
+				::pki::_oid_name_to_number $algo]
+			] [
+				::asn::asnNull
+			]
+		] [
+			::asn::asnBitString $signature_bitstring
+		]
 	]
 
 	if {$encodePem} {
-		set cert [::pki::_encode_pem $cert "-----BEGIN CERTIFICATE-----" "-----END CERTIFICATE-----"]
+		set cert [::pki::_encode_pem $cert \
+			{-----BEGIN CERTIFICATE-----} {-----END CERTIFICATE-----}]
 	}
 
 	return $cert
 }
 
-proc ::pki::_bits {num} {
+
+proc ::pki::_bits num {
 	if {$num == 0} {
 		return 0
 	}
 
 	set num [format %llx $num]
-
 	set numlen [string length $num]
-
 	set numprecise 2
 
 	if {$numlen > $numprecise} {
@@ -1861,18 +1983,14 @@ proc ::pki::_bits {num} {
 	}
 
 	set highbits 0x[string range $num 0 [expr {$numprecise - 1}]]
-
 	set ret [expr {$basebits + log($highbits) / 0.69314718055994530941723}]
-
 	set ret [expr {floor($ret) + 1}]
-
 	set ret [lindex [split $ret .] 0]
-
 	return $ret
 }
 
 proc ::pki::_random args {
-	if {[lindex $args 0] == "-binary"} {
+	if {[lindex $args 0] eq {-binary}} {
 		set outputmode binary
 	} else {
 		set outputmode numeric
@@ -1880,7 +1998,7 @@ proc ::pki::_random args {
 
 	if {![info exists ::pki::_random_dev]} {
 		foreach trydev [list /dev/urandom /dev/random __RAND__] {
-			if {$trydev != "__RAND__"} {
+			if {$trydev ne {__RAND__}} {
 				if {[catch {
 					set fd [open $trydev [list RDONLY BINARY]]
 					close $fd
@@ -1896,10 +2014,10 @@ proc ::pki::_random args {
 		}
 	}
 
-	set dev ${::pki::_random_dev}
+	set dev $::pki::_random_dev
 
 	switch -- $dev {
-		"__RAND__" {
+		__RAND__ {
 			set ret [expr {int(rand() * 2147483647)}]
 		}
 		default {
@@ -1913,10 +2031,10 @@ proc ::pki::_random args {
 	}
 
 	switch -- $outputmode {
-		"numeric" {
+		numeric {
 			# Do nothing, results are already numeric
 		}
-		"binary" {
+		binary {
 			set ret [binary format H* [format %02llx $ret]]
 		}
 	}
@@ -1924,7 +2042,8 @@ proc ::pki::_random args {
 	return $ret
 }
 
-proc ::pki::_isprime {n} {
+
+proc ::pki::_isprime n {
 	set k 10
 
 	if {$n <= 3} {
@@ -1980,6 +2099,7 @@ proc ::pki::_isprime {n} {
 	return true
 }
 
+
 proc ::pki::rsa::_generate_private {p q e bitlength} {
 	set totient [expr {($p - 1) * ($q - 1)}]
 
@@ -1994,7 +2114,7 @@ proc ::pki::rsa::_generate_private {p q e bitlength} {
 	}
 
 	# puts "bd=[_bits $dchk], di = $di"
-	for {} {1} {incr di $e} {
+	for {} 1 {incr di $e} {
 		set dchk [expr {($totient * $di + 1) / $e}]
 		set chkval [expr {$dchk * $e - 1}]
 
@@ -2015,6 +2135,7 @@ proc ::pki::rsa::_generate_private {p q e bitlength} {
 
 	return $d
 }
+
 
 proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	set e $exponent

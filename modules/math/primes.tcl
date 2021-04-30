@@ -1,12 +1,12 @@
-## 
+##
 ## This is the file `primes.tcl',
 ## generated with the SAK utility
 ## (sak docstrip/regen).
-## 
+##
 ## The original source files were:
-## 
+##
 ## numtheory.dtx  (with options: `pkg_primes pkg_common')
-## 
+##
 ## In other words:
 ## **************************************
 ## * This Source is not the True Source *
@@ -26,7 +26,8 @@ namespace eval ::math::numtheory {
 
     namespace export firstNprimes primesLowerThan primeFactors uniquePrimeFactors factors \
                      totient moebius legendre jacobi gcd lcm \
-                     numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified
+                     numberPrimesGauss numberPrimesLegendre numberPrimesLegendreModified \
+                     differenceNumberPrimesLegendreModified listPrimeProgressions
 }
 
 # ComputeNextPrime --
@@ -199,10 +200,10 @@ proc ::math::numtheory::uniquePrimeFactors {number} {
 proc ::math::numtheory::totient {number} {
     set factors [uniquePrimeFactors $number]
 
-    set totient 1
+    set totient $number
 
     foreach f $factors {
-        set totient [expr {$totient * ($f-1)}]
+        set totient [expr {($totient * ($f-1)) / $f}]
     }
 
     return $totient
@@ -465,6 +466,104 @@ proc ::math::numtheory::numberPrimesLegendreModified {limit} {
     }
     expr {$limit / (log($limit) - 1.08366)}
 }
-## 
-## 
+
+# differenceNumberPrimesLegendreModified --
+#     Return the approximate difference number of primes
+#     between a lower and higher limit as given values
+#     for approximate number of primes based on the
+#     modified formula by Legendre
+#
+# Arguments:
+#     limit1     The lower limit for the interval, largest prime to be included in the l.limit
+#     limit2     The upper limit for the interval, largest prime to be included in the u.mlimit
+#
+# Returns:
+#     Approximate difference number of primes
+#
+proc ::math::numtheory::differenceNumberPrimesLegendreModified {limit1 limit2} {
+    if { $limit1 <= 1 } {
+        return -code error "The lower limit must be larger than 1"
+    }
+    if { $limit2 <= 1 } {
+        return -code error "The upper limit must be larger than 1"
+    }
+
+     set aa [::math::numtheory::numberPrimesLegendreModified [expr ($limit1)]]
+     set bb [::math::numtheory::numberPrimesLegendreModified [expr ($limit2)]]
+     expr {abs($bb-$aa)}
+}
+
+# listPrimeProgressions --
+#     Return a list of arithmetic progressions of primes that differ by a given number
+#
+# Arguments:
+#     lower      The lower limit for the interval from which to chose the primes
+#     upper      The upper limit for the interval
+#     step       The difference between sucessive primes (default to 2)
+#
+# Returns:
+#     A list of lists of successive primes differing the given step
+#
+proc ::math::numtheory::listPrimeProgressions {lower upper {step 2}} {
+    if { $upper <= $lower } {
+        return -code error "The upper limit must be larger than the lower limit"
+    }
+    if { $step <= 0 } {
+        return -code error "The step must be at least 1"
+    }
+
+    set output {}
+    set found  {}
+    for {set i $lower} {$i <= $upper} {incr i 1} {
+        if { [isprime $i] } {
+            set newset $i
+            for { set j [expr {$i + $step}]} {$j <= $upper} {incr j $step} {
+                if { [isprime $j] && $j ni $found } {
+                    lappend newset $j
+                    lappend found  $j
+                } else {
+                    break
+                }
+            }
+            if { [llength $newset] > 1 } {
+                lappend output $newset
+            }
+        }
+    }
+
+    return $output
+}
+
+# listPrimePairs --
+#     Return a list of pairso of primes that differ by a given number
+#
+# Arguments:
+#     lower      The lower limit for the interval from which to chose the primes
+#     upper      The upper limit for the interval
+#     step       The difference between sucessive primes (default to 2)
+#
+# Returns:
+#     A list of pairs of primes differing the given step
+#
+proc ::math::numtheory::listPrimePairs {lower upper {step 2}} {
+    if { $upper <= $lower } {
+        return -code error "The upper limit must be larger than the lower limit"
+    }
+    if { $step <= 0 } {
+        return -code error "The step must be at least 1"
+    }
+
+    set output {}
+    for {set i $lower} {$i <= $upper} {incr i 1} {
+        set next [expr {$i + $step}]
+        if { [isprime $i] && [isprime $next] } {
+            lappend output [list $i $next]
+        }
+    }
+
+    return $output
+}
+
+##
+##
 ## End of file `primes.tcl'.

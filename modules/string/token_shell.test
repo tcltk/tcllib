@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # Testsuite string::token::shell
 #
-# Copyright (c) 2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2013,2019 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 
 # -------------------------------------------------------------------------
@@ -25,11 +25,19 @@ testing {
 
 test string-token-shell-1.0 "string token shell, wrong#args, not enough" -body {
     string token shell
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [tcltest::byConstraint {
+    tcl8.6.10plus {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+    tcl8.6not10   {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}
+    tcl8.5minus   {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+}]
 
 test string-token-shell-1.1 "string token shell, wrong#args, too many" -body {
     string token shell T X
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [tcltest::byConstraint {
+    tcl8.6.10plus {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+    tcl8.6not10   {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}
+    tcl8.5minus   {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+}]
 
 test string-token-shell-1.2 "string token shell, bad option" -body {
     string token shell -foo T
@@ -37,7 +45,11 @@ test string-token-shell-1.2 "string token shell, bad option" -body {
 
 test string-token-shell-1.3 "string token shell, wrong#args, too many" -body {
     string token shell -- T X
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+} -returnCodes error -result [tcltest::byConstraint {
+    tcl8.6.10plus {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+    tcl8.6not10   {wrong # args: should be "shell ?-indices? ?-partial? ?--? text"}
+    tcl8.5minus   {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
+}]
 
 # -------------------------------------------------------------------------
 

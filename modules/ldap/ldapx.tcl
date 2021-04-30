@@ -9,7 +9,7 @@
 #   2006/08/08 : pda : design
 #
 
-package require Tcl 8.4
+package require Tcl 8.5
 package require snit		;# tcllib
 package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
@@ -468,7 +468,7 @@ snit::type ::ldapx::entry {
 		    foreach submod [lindex $mod 1] {
 			set subop [lindex $submod 0]
 			set attr [lindex $submod 1]
-			set vals [lindex $submod 2]		    
+			set vals [lindex $submod 2]
 			switch -- $subop {
 			    modadd {
 				$self add $attr $vals

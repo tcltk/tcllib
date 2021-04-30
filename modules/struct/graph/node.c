@@ -2,6 +2,7 @@
  * (b) Node operations.
  */
 
+#include <nacommon.h>
 #include <arc.h>
 #include <node.h>
 #include <util.h>
@@ -114,7 +115,7 @@ gn_serial_arcs (GN* n, Tcl_Obj* empty, Tcl_HashTable* cn)
 
 	if (!he) continue;
 	ASSERT_BOUNDS(i, lc);
-	id = (int) Tcl_GetHashValue (he);
+	id = (long int) Tcl_GetHashValue (he);
 	lv [i] = ga_serial (a, empty, id);
 	i++;
     }

@@ -99,6 +99,7 @@
 ###
 ::clay::define ::httpd::reply {
   superclass ::httpd::mime
+  Variable ChannelRegister {}
 
   Delegate <server> {
     description {The server object which spawned this reply}
@@ -125,7 +126,7 @@
   }
 
   constructor {ServerObj args} {
-    my variable chan dispatched_time uuid
+    my variable dispatched_time uuid
     set uuid [namespace tail [self]]
     set dispatched_time [clock milliseconds]
     my clay delegate <server> $ServerObj
@@ -141,18 +142,34 @@
     my close
   }
 
+  # Registers a channel to be closed by the close method
+  method ChannelRegister args {
+    my variable ChannelRegister
+    if {![info exists ChannelRegister]} {
+      set ChannelRegister {}
+    }
+    foreach c $args {
+      if {$c ni $ChannelRegister} {
+        lappend ChannelRegister $c
+      }
+    }
+  }
+
   ###
   # Close channels opened by this object
   ###
   method close {} {
-    my variable chan
-    if {[info exists chan] && $chan ne {}} {
-      catch {chan event $chan readable {}}
-      catch {chan event $chan writable {}}
-      catch {chan flush $chan}
-      catch {chan close $chan}
-      set chan {}
+    my variable ChannelRegister
+    if {![info exists ChannelRegister]} {
+      return
     }
+    foreach c $ChannelRegister {
+      catch {chan event $c readable {}}
+      catch {chan event $c writable {}}
+      catch {chan flush $c}
+      catch {chan close $c}
+    }
+    set ChannelRegister {}
   }
 
   ###
@@ -187,7 +204,9 @@
   method dispatch {newsock datastate} {
     my variable chan request
     try {
+      my clay refcount_incr
       set chan $newsock
+      my ChannelRegister $chan
       chan event $chan readable {}
       chan configure $chan -translation {auto crlf} -buffering line
       if {[dict exists $datastate mixin]} {
@@ -207,7 +226,7 @@
       set request [my clay get dict/ request]
       foreach {f v} $datastate {
         if {[string index $f end] eq "/"} {
-          my clay merge $f $v
+          catch {my clay merge $f $v}
         } else {
           my clay set $f $v
         }
@@ -223,6 +242,9 @@
     } on error {err errdat} {
       my error 500 $err [dict get $errdat -errorinfo]
       my DoOutput
+    } finally {
+      my close
+      my clay refcount_decr
     }
   }
 
@@ -232,16 +254,10 @@
     my DoOutput
   }
 
-  method html_css {} {
-    set result "<link rel=\"stylesheet\" href=\"/style.css\">"
-    append result \n {<style media="screen" type="text/css">
-body {
-	background:  url(images/etoyoc-circuit-tile.gif) repeat;
-	font-family: serif;
-	color:#000066;
-	font-size: 12pt;
-}
-</style>}
+  method Dispatch {} {
+    # Invoke the URL implementation.
+    my content
+    my DoOutput
   }
 
   method html_header {title args} {
@@ -250,7 +266,6 @@ body {
     if {$title ne {}} {
       append result "<TITLE>$title</TITLE>"
     }
-    append result [my html_css]
     append result "</HEAD><BODY>"
     append result \n {<div id="top-menu">}
     if {[dict exists $args banner]} {
@@ -334,7 +349,9 @@ body {
     my variable reply_body chan
     if {$chan eq {}} return
     catch {
-      my wait writable $chan
+      # Causing random issues. Technically a socket is always open for read and write
+      # anyway
+      #my wait writable $chan
       chan configure $chan  -translation {binary binary}
       ###
       # Return dynamic content
@@ -351,7 +368,6 @@ body {
       chan puts -nonewline $chan $result
       my log HttpAccess {}
     }
-    my destroy
   }
 
   ###
@@ -407,7 +423,7 @@ body {
         }
       }
     } else {
-      foreach pair [split [my clay get QUERY_STRING] "&"] {
+      foreach pair [split [my request get QUERY_STRING] "&"] {
         foreach {name value} [split $pair "="] {
           lappend formdata [my Url_Decode $name] [my Url_Decode $value]
         }
@@ -435,39 +451,6 @@ body {
 
   # Manage session data
   method Session_Load {} {}
-
-
-
-  # Intended to be invoked from [cmd {chan copy}] as a callback. This closes every channel
-  # fed to it on the command line, and then destroys the object.
-  #
-  # [example {
-  #     ###
-  #     # Output the body
-  #     ###
-  #     chan configure $sock -translation binary -blocking 0 -buffering full -buffersize 4096
-  #     chan configure $chan -translation binary -blocking 0 -buffering full -buffersize 4096
-  #     if {$length} {
-  #       ###
-  #       # Send any POST/PUT/etc content
-  #       ###
-  #       chan copy $sock $chan -size $SIZE -command [info coroutine]
-  #       yield
-  #     }
-  #     catch {close $sock}
-  #     chan flush $chan
-  # }]
-  method TransferComplete args {
-    my log TransferComplete
-    set chan {}
-    foreach c $args {
-      catch {chan event $c readable {}}
-      catch {chan event $c writable {}}
-      catch {chan flush $c}
-      catch {chan close $c}
-    }
-    my destroy
-  }
 
   # Appends the value of [arg string] to the end of [arg reply_body], as well as a trailing newline
   # character.

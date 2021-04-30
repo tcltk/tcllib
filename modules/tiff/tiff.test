@@ -3,8 +3,6 @@
 #
 # Copyright (c) 2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-#
-# TIFF: @(#) $Id: tiff.test,v 1.1 2008/03/24 03:48:59 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -48,7 +46,7 @@ test tiff-1.1 {isTIFF error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-2.$n "isTIFF, ok, [file tail $f]" {
 	::tiff::isTIFF $f
     } 1
@@ -74,7 +72,7 @@ test tiff-3.1 {byteOrder error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-4.$n "byteOrder regular, [file tail $f]" {
 	::tiff::byteOrder $f
     } little
@@ -100,7 +98,7 @@ test tiff-6.1 {numImages error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-7.$n "numImages regular, [file tail $f]" {
 	::tiff::numImages $f
     } 1
@@ -126,7 +124,7 @@ test tiff-9.1 {dimensions error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-10.$n "dimensions regular, [file tail $f]" {
 	::tiff::dimensions $f
     } {320 240}
@@ -152,7 +150,7 @@ test tiff-12.1 {imageInfo error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-13.$n "imageInfo regular, [file tail $f]" {
 	dictsort [::tiff::imageInfo $f]
     } {Artist {} BitsPerSample {8 8 8} Compression 7 DateTime {} HostComputer {} ImageDescription {} ImageLength 240 ImageWidth 320 Orientation 1 PhotometricInterpretation 2 ResolutionUnit 2 XResolution 180 YResolution 180}
@@ -178,7 +176,7 @@ test tiff-15.1 {entries error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-16.$n "entries regular, [file tail $f]" {
 	lsort [::tiff::entries $f]
     } {BitsPerSample Compression DocumentName FillOrder ImageLength ImageWidth JPEGTables Orientation PhotometricInterpretation PlanarConfiguration ResolutionUnit RowsPerStrip SamplesPerPixel Software StripByteCounts StripOffsets XResolution YCbCrSubSampling YResolution}
@@ -209,7 +207,7 @@ test tiff-18.2 {getEntry error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-19.$n "getEntry regular, [file tail $f]" {
 	::tiff::getEntry $f {Artist Compression}
     } {Artist {} Compression 7}
@@ -240,7 +238,7 @@ test tiff-21.2 {addEntry error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-22.$n "addEntry, new tag, [file tail $f]" {
 	file copy -force $f [set fx [makeFile {} ttmp]]
 	set res {}
@@ -254,7 +252,7 @@ foreach f [TestFilesGlob testimages/*.tiff] {
 }
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-23.$n "addEntry, overwrite tag, [file tail $f]" knownBug {
 	file copy -force $f [set fx [makeFile {} ttmp]]
 	set res {}
@@ -295,7 +293,7 @@ test tiff-25.2 {deleteEntry error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-26.$n "deleteEntry, [file tail $f]" {
 	file copy -force $f [set fx [makeFile {} ttmp]]
 	set res {}
@@ -329,7 +327,7 @@ test tiff-28.1 {getImage error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-29.$n "getImage, [file tail $f]" {tk unkownFormat} {
 	set image [tiff::getImage $f]
 	lappend res [image width  $image]
@@ -364,7 +362,7 @@ test tiff-31.2 {writeImage error, wrong#args, too many} {
 # -------------------------------------------------------------------------
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-32.$n "writeImage, [file tail $f]" {tk unkownFormat} {
 	set image [tiff::getImage $f]
 	set fx [makeFile {} ttmp]
@@ -541,7 +539,7 @@ test tiff-40.1 {debug error, wrong#args, too many} {
 # to stdout. This may change when we can capture stdout as test result
 
 set n 0
-foreach f [TestFilesGlob testimages/*.tiff] {
+foreach f [TestFilesGlob test-assets/*.tiff] {
     test tiff-41.$n "debug ok, [file tail $f]" donotrun {
 	::tiff::debug $f
     } {}

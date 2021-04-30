@@ -210,6 +210,21 @@ foreach module $modules {
 		{} ::tcltest::cleanupTestsHook $c
 
 
+	# configure not present in tcltest 1.x
+	if {[catch {::tcltest::configure -verbose {
+	    body skip start error pass usec line
+	}}]} {
+	    # ^ body skip start error pass usec line
+	    set ::tcltest::verbose psb ;# pass skip body
+	}
+    }
+
+    interp alias \
+	    $c ::tcltest::cleanupTestsHook \
+	    {} ::tcltest::cleanupTestsHook $c
+
+    # source each of the specified tests
+    foreach file [lsort [::tcltest::getMatchingFiles]] {
 	set tail [file tail $file]
 	Note Testsuite [string map [list "$root/" ""] $file]
 	Note StartFile [Now]

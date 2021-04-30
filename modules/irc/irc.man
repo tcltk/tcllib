@@ -1,4 +1,4 @@
-[vset VERSION 0.6.2]
+[vset VERSION 0.7.0]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin irc n [vset VERSION]]
 [see_also {rfc 1459}]
@@ -7,7 +7,7 @@
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
 [category  Networking]
-[require Tcl]
+[require Tcl 8.6]
 [require irc [opt [vset VERSION]]]
 [description]
 
@@ -236,5 +236,5 @@ Returns the message portion of the command (the part after the :).
 [list_end]
 
 [vset CATEGORY irc]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

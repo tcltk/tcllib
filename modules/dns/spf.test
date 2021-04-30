@@ -196,13 +196,13 @@ set Data {
     %{l1r-}                        strong
     %{ir}.%{v}._spf.%{d2}              3.2.0.192.in-addr._spf.example.com
     %{lr-}.lp._spf.%{d2}                   bad.strong.lp._spf.example.com
-    
+
     %{lr-}.lp.%{ir}.%{v}._spf.%{d2}
                          bad.strong.lp.3.2.0.192.in-addr._spf.example.com
-    
+
     %{ir}.%{v}.%{l1r-}.lp._spf.%{d2}
                              3.2.0.192.in-addr.strong.lp._spf.example.com
-    
+
     %{d2}.trusted-domains.example.net
                                   example.com.trusted-domains.example.net
 }

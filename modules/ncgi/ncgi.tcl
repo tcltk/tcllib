@@ -196,11 +196,11 @@ proc ::ncgi::decode str {
     set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
 
     # prepare to process all %-escapes
-    regsub -all -- {%([Ee][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])} \
+    regsub -all -nocase -- {%([E][A-F0-9])%([89AB][A-F0-9])%([89AB][A-F0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
-    regsub -all -- {%([CDcd][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])}                     \
+    regsub -all -nocase -- {%([CDcd][A-F0-9])%([89AB][A-F0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
-    regsub -all -- {%([0-7][A-Fa-f0-9])} $str {\\u00\1} str
+    regsub -all -nocase -- {%([A-F0-9][A-F0-9])} $str {\\u00\1} str
 
     # process \u unicode mapped chars
     return [subst -novar $str]

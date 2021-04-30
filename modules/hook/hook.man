@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin hook n 0.1]
+[vset VERSION 0.2]
+[manpage_begin hook n [vset VERSION]]
 [see_also uevent(n)]
 [keywords callback]
 [keywords event]
@@ -15,7 +16,7 @@
 [titledesc  {Hooks}]
 [category  {Programming tools}]
 [require Tcl 8.5]
-[require hook [opt 0.1]]
+[require hook [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -371,5 +372,5 @@ All bindings involving [widget .view] are deleted.
 Hook has been designed and implemented by William H. Duquette.
 
 [vset CATEGORY hook]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 [manpage_end]

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html><head>
 <title>clock_iso8601 - Date/Time Utilities</title>
 <style type="text/css"><!--
@@ -98,12 +97,12 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
 <h1 class="doctools_title">clock_iso8601(n) 0.1 tcllib &quot;Date/Time Utilities&quot;</h1>
@@ -115,7 +114,8 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">Date formats</a></li>
+<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 </ul>
 </div>
@@ -155,7 +155,56 @@ an unknown variant and returns the given time in seconds since epoch.</p>
 of the builtin command <b class="cmd">clock scan</b>.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">Bugs, Ideas, Feedback</a></h2>
+<div id="section2" class="doctools_section"><h2><a name="section2">Date formats</a></h2>
+<p>The commands accept the following 23 date formats:</p>
+<pre class="doctools_example">
+(year)-(month)-(day)
+(year)(month)(day)
+(year)-(day in year)
+(year)(day in year)
+(year in century)-(month)-(day)
+(year)-(month)			Day defaults to the 1st of the month
+(year in century)(month)(day)		
+(year in century)-(day in year)		
+(year in century)(day in year)		
+--(month)-(day)			Year defaults to the current year
+--(month)(day)			Year defaults to the current year
+--(day in year)			Year defaults to the current year
+---(day)  		        Year defaults to the current year, month to current month
+(fiscal year)-W(week)-(wday)
+(fiscal year)W(week)-(wday)
+(fiscal year in century)-W(week)-(wday)
+(fiscal year in century)W(week)(wday)
+(fiscal year)-W(week)		Weekday defaults to monday
+(fiscal year)W(week)		Weekday defaults to monday
+-W(week)-(wday)			Year defaults to current fiscal year
+-W(week)(wday)			Year defaults to current fiscal year
+(wday)				Year defaults to current fiscal year, week to current week
+(year)				Month defaults to january, day to 1st of the month
+</pre>
+<p>The possible parts/fields in the above, and their meanings, are:</p>
+<dl class="doctools_definitions">
+<dt>year</dt>
+<dd><p>Year with century, 4 digits</p></dd>
+<dt>month</dt>
+<dd><p>Month in year, 2 digits</p></dd>
+<dt>day</dt>
+<dd><p>Day in month, 2 digits.</p></dd>
+<dt>year in century</dt>
+<dd><p>Year without century, 2 digits</p></dd>
+<dt>day in year</dt>
+<dd><p>Day in year, 3 digits</p></dd>
+<dt>fiscal year</dt>
+<dd><p>ISO 8601 fiscal year with century, 4 digits</p></dd>
+<dt>fiscal year in century</dt>
+<dd><p>ISO 8601 fiscal year without century, 2 digits</p></dd>
+<dt>week</dt>
+<dd><p>ISO 8601 week number</p></dd>
+<dt>wday</dt>
+<dd><p>Week day, 1 digit, Monday (1) to Sunday (7,0)</p></dd>
+</dl>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>clock::iso8601</em> of the

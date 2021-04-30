@@ -33,6 +33,16 @@ array set guide {}
 Exclude calendar
 Exclude exif
 
+if {[file exists [file join $distribution modules tcllibc]]} {
+    #       name         pkg   doc   example
+    Module  tcllibc      _all  _null  _null
+}
+
+#       name           pkg   doc   example
+Module  0compatibility _tcl  _null  _null
+# Wrapper packages redirecting deprecated/moved packages to their old
+# implementations. See pkgIndex.tcl for more notes.
+
 #       name         pkg   doc   example
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
@@ -95,6 +105,7 @@ Module  javascript  _tcl  _man  _null
 Module  jpeg        _tcl  _man  _null
 Module  json        _tcl  _man  _null
 Module  lambda      _tcl  _man  _null
+Module  lazyset     _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  {_exax logger}
 Module  markdown     _tcl  _man  _null
@@ -134,7 +145,7 @@ Module  report      _tcl  _man  _null
 Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
-Module  sha1        _tcl  _man  _null
+Module  sha1        _cfh  _man  _null
 Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa
 Module  snit        _tcl  _man  _null
@@ -150,8 +161,6 @@ Module  textutil     _tex _man  _null
 Module  tie         _tcl  _man  _exa
 Module  tiff        _tcl  _man  _null
 Module  tool        _tcl  _man  _null
-Module  tool-ui     _tcl  _man  _null
-Module  tool_datatype        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
 Module  treeql      _tcl  _man  _null
 Module  try         _tcl  _man  _null

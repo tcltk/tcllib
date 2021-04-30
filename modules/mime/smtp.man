@@ -1,4 +1,4 @@
-[vset VERSION 1.5]
+[vset VERSION 1.5.1]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin smtp n [vset VERSION]]
 [see_also ftp]
@@ -203,7 +203,7 @@ send_simple_message someone@somewhere.com localhost \\
 [list_end]
 
 [vset CATEGORY smtp]
-[include ../doctools2base/include/feedback.inc]
+[include ../common-text/feedback.inc]
 
 [keywords mail mail email smtp mime tls \
      {rfc 821} {rfc 822} {rfc 2821} {rfc 3207} {rfc 2554} internet net]

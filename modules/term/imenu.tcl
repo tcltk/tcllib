@@ -90,7 +90,7 @@ snit::type ::term::interact::menu {
 	set footer [cd::groptim [cd::blc][textutil::repeat::strRepeat [cd::hl] $max][cd::brc]]
 
 	set labels {}
-	set at 0 
+	set at 0
 	foreach {l code} $dict {
 	    set map($at) $code
 	    lappend labels ${l}[textutil::repeat::strRepeat " " [expr {$max-[string length $l]}]]

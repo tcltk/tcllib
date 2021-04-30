@@ -99,15 +99,15 @@
    -->
 <body><hr> [
    <a href="../../../../../../../../home">Tcllib Home</a>
-| <a href="../../../../toc.html">Main Table Of Contents</a>
-| <a href="../../../toc.html">Table Of Contents</a>
-| <a href="../../../../index.html">Keyword Index</a>
-| <a href="../../../../toc0.html">Categories</a>
-| <a href="../../../../toc1.html">Modules</a>
-| <a href="../../../../toc2.html">Applications</a>
+&#124; <a href="../../../../toc.html">Main Table Of Contents</a>
+&#124; <a href="../../../toc.html">Table Of Contents</a>
+&#124; <a href="../../../../index.html">Keyword Index</a>
+&#124; <a href="../../../../toc0.html">Categories</a>
+&#124; <a href="../../../../toc1.html">Modules</a>
+&#124; <a href="../../../../toc2.html">Applications</a>
  ] <hr>
 <div class="doctools">
-<h1 class="doctools_title">base64(n) 2.4.2 tcllib &quot;Text encoding &amp; decoding binary data&quot;</h1>
+<h1 class="doctools_title">base64(n) 2.5 tcllib &quot;Text encoding &amp; decoding binary data&quot;</h1>
 <div id="name" class="doctools_section"><h2><a name="name">Name</a></h2>
 <p>base64 - base64-encode/decode binary data</p>
 </div>
@@ -116,8 +116,11 @@
 <li class="doctools_section"><a href="#toc">Table Of Contents</a></li>
 <li class="doctools_section"><a href="#synopsis">Synopsis</a></li>
 <li class="doctools_section"><a href="#section1">Description</a></li>
-<li class="doctools_section"><a href="#section2">EXAMPLES</a></li>
-<li class="doctools_section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
+<li class="doctools_section"><a href="#section2">Beware: Variations in decoding behaviour</a></li>
+<li class="doctools_section"><a href="#section3">API</a></li>
+<li class="doctools_section"><a href="#section4">Implementation Notes</a></li>
+<li class="doctools_section"><a href="#section5">EXAMPLES</a></li>
+<li class="doctools_section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="doctools_section"><a href="#keywords">Keywords</a></li>
 <li class="doctools_section"><a href="#category">Category</a></li>
 <li class="doctools_section"><a href="#copyright">Copyright</a></li>
@@ -127,7 +130,7 @@
 <div class="doctools_synopsis">
 <ul class="doctools_requirements">
 <li>package require <b class="pkgname">Tcl 8</b></li>
-<li>package require <b class="pkgname">base64 <span class="opt">?2.4.2?</span></b></li>
+<li>package require <b class="pkgname">base64 <span class="opt">?2.5?</span></b></li>
 </ul>
 <ul class="doctools_syntax">
 <li><a href="#1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></li>
@@ -137,6 +140,29 @@
 </div>
 <div id="section1" class="doctools_section"><h2><a name="section1">Description</a></h2>
 <p>This package provides procedures to encode binary data into base64 and back.</p>
+</div>
+<div id="section2" class="doctools_section"><h2><a name="section2">Beware: Variations in decoding behaviour</a></h2>
+<p>The Tcl core provides since version 8.6 commands for the de- and
+encoding of base64 data. These are</p>
+<pre class="doctools_example">
+    binary encode base64
+    binary decode base64
+</pre>
+<p>Beware that while these are signature compatible with the
+commands provided by this package, the decoders are
+<em>not behaviourally compatible</em>.</p>
+<p>The core decoder command accepts the option <b class="option">-strict</b>,
+enabling the user to choose between strict and lax modes. In the
+strict mode invalid characters, and partial data at the end of the
+input are reported as errors. In lax mode they are ignored.</p>
+<p>All the implementations provided by this package on the other
+hand implement a mix of the above, and the user cannot choose. Partial
+data at the end of the input is reported as error, and invalid
+characters are ignored.</p>
+<p><em>Beware</em> of these differences when switching code from
+one to other.</p>
+</div>
+<div id="section3" class="doctools_section"><h2><a name="section3">API</a></h2>
 <dl class="doctools_definitions">
 <dt><a name="1"><b class="cmd">::base64::encode</b> <span class="opt">?<b class="option">-maxlen</b> <i class="arg">maxlen</i>?</span> <span class="opt">?<b class="option">-wrapchar</b> <i class="arg">wrapchar</i>?</span> <i class="arg">string</i></a></dt>
 <dd><p>Base64 encodes the given binary <i class="arg">string</i> and returns the encoded
@@ -145,7 +171,7 @@ characters of output. <i class="arg">wrapchar</i> defaults to newline. <i class=
 defaults to <b class="const">76</b>.</p>
 <p><em>Note</em> that if <i class="arg">maxlen</i> is set to <b class="const">0</b>, the
 output will not be wrapped at all.</p>
-<p><em>Note well</em>: If your string is not simple ascii you should fix
+<p><em>Note well</em>: If your string is not simple ASCII you should fix
 the string encoding before doing base64 encoding. See the examples.</p>
 <p>The command will throw an error for negative values of <i class="arg">maxlen</i>,
 or if <i class="arg">maxlen</i> is not an integer number.</p></dd>
@@ -154,7 +180,23 @@ or if <i class="arg">maxlen</i> is not an integer number.</p></dd>
 The decoder ignores whitespace in the string.</p></dd>
 </dl>
 </div>
-<div id="section2" class="doctools_section"><h2><a name="section2">EXAMPLES</a></h2>
+<div id="section4" class="doctools_section"><h2><a name="section4">Implementation Notes</a></h2>
+<p>This package contains three different implementations for base64 de-
+and encoding, and chooses among them based on the environment it finds
+itself in.</p>
+<p>All three implementations have the same behaviour.
+See also <span class="sectref"><a href="#section2">Beware: Variations in decoding behaviour</a></span> at the
+beginning of this document.</p>
+<ol class="doctools_enumerated">
+<li><p>If Tcl 8.6 or higher is found the commands are implemented in
+	terms of the then-available builtin commands.</p></li>
+<li><p>If the <b class="package">Trf</b> extension cand be loaded the commands are
+	implemented in terms of its commands.</p></li>
+<li><p>If neither of the above are possible a pure Tcl implementation
+	is used. This is of course much slower.</p></li>
+</ol>
+</div>
+<div id="section5" class="doctools_section"><h2><a name="section5">EXAMPLES</a></h2>
 <pre class="doctools_example">
 % base64::encode &quot;Hello, world&quot;
 SGVsbG8sIHdvcmxk
@@ -174,7 +216,7 @@ Q+KCiEjigoHigoBO4oKET+KCgg==
 % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
 </pre>
 </div>
-<div id="section3" class="doctools_section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<div id="section6" class="doctools_section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>base64</em> of the

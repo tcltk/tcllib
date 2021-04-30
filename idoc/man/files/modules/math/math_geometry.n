@@ -4,8 +4,9 @@
 '\" Copyright (c) 2010 by Andreas Kupries
 '\" Copyright (c) 2010 by Kevin Kenny
 '\" Copyright (c) 2018 by Arjen Markus
+'\" Copyright (c) 2020 by Manfred Rosenberger
 '\"
-.TH "math::geometry" n 1\&.3\&.0 tcllib "Tcl Math Library"
+.TH "math::geometry" n 1\&.4\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +280,7 @@ math::geometry \- Geometrical computations
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::geometry  ?1\&.3\&.0?\fR
+package require \fBmath::geometry  ?1\&.4\&.1?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp
@@ -308,6 +309,12 @@ package require \fBmath::geometry  ?1\&.3\&.0?\fR
 \fB::math::geometry::nwse\fR \fIrect\fR
 .sp
 \fB::math::geometry::angle\fR \fIline\fR
+.sp
+\fB::math::geometry::angleBetween\fR \fIvector1\fR \fIvector2\fR
+.sp
+\fB::math::geometry::inproduct\fR \fIvector1\fR \fIvector2\fR
+.sp
+\fB::math::geometry::areaParallellogram\fR \fIvector1\fR \fIvector2\fR
 .sp
 \fB::math::geometry::calculateDistanceToLine\fR \fIP\fR \fIline\fR
 .sp
@@ -343,6 +350,16 @@ package require \fBmath::geometry  ?1\&.3\&.0?\fR
 .sp
 \fB::math::geometry::bbox\fR \fIpolyline\fR
 .sp
+\fB::math::geometry::overlapBBox\fR \fIpolyline1\fR \fIpolyline2\fR ?strict?
+.sp
+\fB::math::geometry::pointInsideBBox\fR \fIbbox\fR \fIpoint\fR
+.sp
+\fB::math::geometry::cathetusPoint\fR \fIpa\fR \fIpb\fR \fIcathetusLength\fR ?location?
+.sp
+\fB::math::geometry::parallel\fR \fIline\fR \fIoffset\fR ?orient?
+.sp
+\fB::math::geometry::unitVector\fR \fIline\fR
+.sp
 \fB::math::geometry::pointInsidePolygon\fR \fIP\fR \fIpolyline\fR
 .sp
 \fB::math::geometry::pointInsidePolygonAlt\fR \fIP\fR \fIpolyline\fR
@@ -354,6 +371,8 @@ package require \fBmath::geometry  ?1\&.3\&.0?\fR
 \fB::math::geometry::translate\fR \fIvector\fR \fIpolyline\fR
 .sp
 \fB::math::geometry::rotate\fR \fIangle\fR \fIpolyline\fR
+.sp
+\fB::math::geometry::rotateAbout\fR \fIp\fR \fIangle\fR \fIpolyline\fR
 .sp
 \fB::math::geometry::reflect\fR \fIangle\fR \fIpolyline\fR
 .sp
@@ -377,6 +396,20 @@ package require \fBmath::geometry  ?1\&.3\&.0?\fR
 .sp
 \fB::math::geometry::tangentLinesToCircle\fR \fIpoint\fR \fIcircle\fR
 .sp
+\fB::math::geometry::intersectionPolylines\fR \fIpolyline1\fR \fIpolyline2\fR ?mode? ?granularity?
+.sp
+\fB::math::geometry::intersectionPolylineCircle\fR \fIpolyline\fR \fIcircle\fR ?mode? ?granularity?
+.sp
+\fB::math::geometry::polylineCutOrigin\fR \fIpolyline1\fR \fIpolyline2\fR ?granularity?
+.sp
+\fB::math::geometry::polylineCutEnd\fR \fIpolyline1\fR \fIpolyline2\fR ?granularity?
+.sp
+\fB::math::geometry::splitPolyline\fR \fIpolyline\fR \fInumberVertex\fR
+.sp
+\fB::math::geometry::enrichPolyline\fR \fIpolyline\fR \fIaccuracy\fR
+.sp
+\fB::math::geometry::cleanupPolyline\fR \fIpolyline\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -388,6 +421,9 @@ The geometrical objects are implemented as plain lists of coordinates\&.
 For instance a line is defined by a list of four numbers, the x- and
 y-coordinate of a first point and the x- and y-coordinates of a second
 point on the line\&.
+.PP
+\fINote:\fR In version 1\&.4\&.0 an inconsistency was repaired - see \fIhttps://core\&.tcl-lang\&.org/tcllib/tktview?name=fb4812f82b\fR\&.
+More in \fBCOORDINATE SYSTEM\fR
 .PP
 The various types of object are recognised by the number of coordinate
 pairs and the context in which they are used: a list of four elements
@@ -455,7 +491,7 @@ result of the command\&. This is a vector as well\&.
 \fB::math::geometry::direction\fR \fIangle\fR
 Given the angle in degrees this command computes and returns
 the unit vector pointing into this direction\&. The vector for
-angle == 0 points to the right (up), and for angle == 90 up (north)\&.
+angle == 0 points to the right (east), and for angle == 90 up (north)\&.
 .TP
 \fB::math::geometry::h\fR \fIlength\fR
 Returns a horizontal vector on the X-axis of the specified length\&.
@@ -513,7 +549,39 @@ Calculate the angle from the positive x-axis to a given line
 list \fIline\fR
 Coordinates of the line
 .RE
-.sp
+.TP
+\fB::math::geometry::angleBetween\fR \fIvector1\fR \fIvector2\fR
+Calculate the angle between two vectors (in degrees)
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
+.RE
+.TP
+\fB::math::geometry::inproduct\fR \fIvector1\fR \fIvector2\fR
+Calculate the inner product of two vectors
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
+.RE
+.TP
+\fB::math::geometry::areaParallellogram\fR \fIvector1\fR \fIvector2\fR
+Calculate the area of the parallellogram with the two vectors as its sides
+.RS
+.TP
+list \fIvector1\fR
+First vector
+.TP
+list \fIvector2\fR
+Second vector
+.RE
 .TP
 \fB::math::geometry::calculateDistanceToLine\fR \fIP\fR \fIline\fR
 Calculate the distance of point P to the (infinite) line and return the
@@ -527,7 +595,6 @@ list \fIline\fR
 List of four numbers, the coordinates of two points
 on the line
 .RE
-.sp
 .TP
 \fB::math::geometry::calculateDistanceToLineSegment\fR \fIP\fR \fIlinesegment\fR
 Calculate the distance of point P to the (finite) line segment and
@@ -541,8 +608,6 @@ list \fIlinesegment\fR
 List of four numbers, the coordinates of the
 first and last points of the line segment
 .RE
-.sp
-.sp
 .TP
 \fB::math::geometry::calculateDistanceToPolyline\fR \fIP\fR \fIpolyline\fR
 Calculate the distance of point P to the polyline and
@@ -556,7 +621,6 @@ list \fIpolyline\fR
 List of numbers, the coordinates of the
 vertices of the polyline
 .RE
-.sp
 .TP
 \fB::math::geometry::calculateDistanceToPolygon\fR \fIP\fR \fIpolygon\fR
 Calculate the distance of point P to the polygon and
@@ -571,7 +635,6 @@ list \fIpolygon\fR
 List of numbers, the coordinates of the
 vertices of the polygon
 .RE
-.sp
 .TP
 \fB::math::geometry::findClosestPointOnLine\fR \fIP\fR \fIline\fR
 Return the point on a line which is closest to a given point\&.
@@ -584,7 +647,6 @@ list \fIline\fR
 List of four numbers, the coordinates of two points
 on the line
 .RE
-.sp
 .TP
 \fB::math::geometry::findClosestPointOnLineSegment\fR \fIP\fR \fIlinesegment\fR
 Return the point on a \fIline segment\fR which is closest to a given
@@ -598,7 +660,6 @@ list \fIlinesegment\fR
 List of four numbers, the first and last
 points on the line segment
 .RE
-.sp
 .TP
 \fB::math::geometry::findClosestPointOnPolyline\fR \fIP\fR \fIpolyline\fR
 Return the point on a \fIpolyline\fR which is closest to a given
@@ -611,7 +672,6 @@ List of two numbers, the coordinates of the point
 list \fIpolyline\fR
 List of numbers, the vertices of the polyline
 .RE
-.sp
 .TP
 \fB::math::geometry::lengthOfPolyline\fR \fIpolyline\fR
 Return the length of the \fIpolyline\fR (note: it not regarded as a
@@ -621,7 +681,6 @@ polygon)
 list \fIpolyline\fR
 List of numbers, the vertices of the polyline
 .RE
-.sp
 .TP
 \fB::math::geometry::movePointInDirection\fR \fIP\fR \fIdirection\fR \fIdist\fR
 Move a point over a given distance in a given direction and return the
@@ -638,7 +697,6 @@ upwards)
 list \fIdist\fR
 Distance over which to move the point
 .RE
-.sp
 .TP
 \fB::math::geometry::lineSegmentsIntersect\fR \fIlinesegment1\fR \fIlinesegment2\fR
 Check if two line segments intersect or coincide\&. Returns 1 if that is
@@ -652,7 +710,6 @@ First line segment
 list \fIlinesegment2\fR
 Second line segment
 .RE
-.sp
 .TP
 \fB::math::geometry::findLineSegmentIntersection\fR \fIlinesegment1\fR \fIlinesegment2\fR
 Find the intersection point of two line segments\&. Return the coordinates
@@ -666,7 +723,6 @@ First line segment
 list \fIlinesegment2\fR
 Second line segment
 .RE
-.sp
 .TP
 \fB::math::geometry::findLineIntersection\fR \fIline1\fR \fIline2\fR
 Find the intersection point of two (infinite) lines\&. Return the coordinates
@@ -682,7 +738,6 @@ Second line
 .RE
 .IP
 See section \fBReferences\fR for details on the algorithm and math behind it\&.
-.sp
 .TP
 \fB::math::geometry::polylinesIntersect\fR \fIpolyline1\fR \fIpolyline2\fR
 Check if two polylines intersect or not (in two dimensions only)\&.
@@ -694,7 +749,6 @@ First polyline
 list \fIpolyline2\fR
 Second polyline
 .RE
-.sp
 .TP
 \fB::math::geometry::polylinesBoundingIntersect\fR \fIpolyline1\fR \fIpolyline2\fR \fIgranularity\fR
 Check whether two polylines intersect, but reduce
@@ -719,7 +773,6 @@ int \fIgranularity\fR
 Number of points in each part (<=1 means check
 every edge)
 .RE
-.sp
 .TP
 \fB::math::geometry::intervalsOverlap\fR \fIy1\fR \fIy2\fR \fIy3\fR \fIy4\fR \fIstrict\fR
 Check if two intervals overlap\&.
@@ -734,7 +787,6 @@ Begin and end of second interval
 logical \fIstrict\fR
 Check for strict or non-strict overlap
 .RE
-.sp
 .TP
 \fB::math::geometry::rectanglesOverlap\fR \fIP1\fR \fIP2\fR \fIQ1\fR \fIQ2\fR \fIstrict\fR
 Check if two rectangles overlap\&.
@@ -755,7 +807,6 @@ lower-right corner of the second rectangle
 list \fIstrict\fR
 choosing strict or non-strict interpretation
 .RE
-.sp
 .TP
 \fB::math::geometry::bbox\fR \fIpolyline\fR
 Calculate the bounding box of a polyline\&. Returns a list of four
@@ -765,7 +816,86 @@ coordinates: the upper-left and the lower-right corner of the box\&.
 list \fIpolyline\fR
 The polyline to be examined
 .RE
+.TP
+\fB::math::geometry::overlapBBox\fR \fIpolyline1\fR \fIpolyline2\fR ?strict?
+Check if the bounding boxes of two polylines overlap or not\&.
 .sp
+Arguments:
+.RS
+.TP
+list \fIpolyline1\fR
+The first polyline
+.TP
+list \fIpolyline1\fR
+The second polyline
+.TP
+int \fIstrict\fR
+Whether strict overlap is to checked (1) or if the bounding boxes may touch (0, default)
+.RE
+.TP
+\fB::math::geometry::pointInsideBBox\fR \fIbbox\fR \fIpoint\fR
+.sp
+Check if the point is inside or on the bounding box or not\&.
+Arguments:
+.RS
+.TP
+list \fIbbox\fR
+The bounding box given as a list of x/y coordinates
+.TP
+list \fIpoint\fR
+The point to be checked
+.RE
+.TP
+\fB::math::geometry::cathetusPoint\fR \fIpa\fR \fIpb\fR \fIcathetusLength\fR ?location?
+Return the third point of the rectangular triangle defined by the two given end points of the hypothenusa\&.
+The triangle's side from point A (or B, if the location is given as "b") to the third point is the cathetus length\&.
+If the cathetus' length is lower than the length of the hypothenusa, an empty list is returned\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpa\fR
+The starting point on hypotenuse
+.TP
+list \fIpb\fR
+The ending point on hypotenuse
+.TP
+float \fIcathetusLength\fR
+The length of the cathetus of the triangle
+.TP
+string \fIlocation\fR
+The location of the given cathetus,
+"a" means given cathetus shares point pa (default)
+"b" means given cathetus shares point pb
+.RE
+.TP
+\fB::math::geometry::parallel\fR \fIline\fR \fIoffset\fR ?orient?
+Return a line parallel to the given line, with a distance "offset"\&. The orientation is determined by the
+two points defining the line\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIline\fR
+The given line
+.TP
+float \fIoffset\fR
+The distance to the given line
+.TP
+string \fIorient\fR
+Orientation of the new line with respect to the given line (defaults to "right")
+.RE
+.sp
+.TP
+\fB::math::geometry::unitVector\fR \fIline\fR
+Return a unit vector from the given line or direction, if the \fIline\fR argument is
+a single point (then a line through the origin is assumed)
+Arguments:
+.RS
+.TP
+list \fIline\fR
+The line in question (or a single point, implying a line through the origin)
+.RE
 .TP
 \fB::math::geometry::pointInsidePolygon\fR \fIP\fR \fIpolyline\fR
 Determine if a point is completely inside a polygon\&. If the point
@@ -779,7 +909,6 @@ Coordinates of the point
 list \fIpolyline\fR
 The polyline to be examined
 .RE
-.sp
 .TP
 \fB::math::geometry::pointInsidePolygonAlt\fR \fIP\fR \fIpolyline\fR
 Determine if a point is completely inside a polygon\&. If the point
@@ -795,7 +924,6 @@ Coordinates of the point
 list \fIpolyline\fR
 The polyline to be examined
 .RE
-.sp
 .TP
 \fB::math::geometry::rectangleInsidePolygon\fR \fIP1\fR \fIP2\fR \fIpolyline\fR
 Determine if a rectangle is completely inside a polygon\&. If polygon
@@ -813,7 +941,6 @@ Lower-right corner of the rectangle
 list \fIpolygon\fR
 The polygon in question
 .RE
-.sp
 .TP
 \fB::math::geometry::areaPolygon\fR \fIpolygon\fR
 Calculate the area of a polygon\&.
@@ -822,7 +949,6 @@ Calculate the area of a polygon\&.
 list \fIpolygon\fR
 The polygon in question
 .RE
-.sp
 .TP
 \fB::math::geometry::translate\fR \fIvector\fR \fIpolyline\fR
 Translate a polyline over a given vector
@@ -832,9 +958,8 @@ list \fIvector\fR
 Translation vector
 .TP
 list \fIpolyline\fR
-The polyline to be rotated
+The polyline to be translated
 .RE
-.sp
 .TP
 \fB::math::geometry::rotate\fR \fIangle\fR \fIpolyline\fR
 Rotate a polyline over a given angle (degrees) around the origin
@@ -844,9 +969,24 @@ list \fIangle\fR
 Angle over which to rotate the polyline (degrees)
 .TP
 list \fIpolyline\fR
-The polyline to be translated
+The polyline to be rotated
 .RE
+.TP
+\fB::math::geometry::rotateAbout\fR \fIp\fR \fIangle\fR \fIpolyline\fR
+Rotate a polyline around a given point p and return the new polyline\&.
 .sp
+Arguments:
+.RS
+.TP
+list \fIp\fR
+The point of rotation
+.TP
+float \fIangle\fR
+The angle over which to rotate the polyline (degrees)
+.TP
+list \fIpolyline\fR
+The polyline to be rotated
+.RE
 .TP
 \fB::math::geometry::reflect\fR \fIangle\fR \fIpolyline\fR
 Reflect a polyline in a line through the origin at a given angle (degrees) to the x-axis
@@ -858,7 +998,6 @@ Angle of the line of reflection (degrees)
 list \fIpolyline\fR
 The polyline to be reflected
 .RE
-.sp
 .TP
 \fB::math::geometry::degToRad\fR \fIangle\fR
 Convert from degrees to radians
@@ -867,7 +1006,6 @@ Convert from degrees to radians
 list \fIangle\fR
 Angle in degrees
 .RE
-.sp
 .TP
 \fB::math::geometry::radToDeg\fR \fIangle\fR
 Convert from radians to degrees
@@ -978,7 +1116,125 @@ Point in question
 list \fIcircle\fR
 Circle to which the tangent lines are to be determined
 .RE
+.TP
+\fB::math::geometry::intersectionPolylines\fR \fIpolyline1\fR \fIpolyline2\fR ?mode? ?granularity?
+Return the first point or all points where the two polylines intersect\&. If the number of points in the polylines is large,
+you can use the granularity to get an approximate answer faster\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline1\fR
+The first polyline
+.TP
+list \fIpolyline2\fR
+The second polyline
+.TP
+string \fImode\fR
+Whether to return only the first (default) or to return all intersection points ("all")
+.TP
+int \fIgranularity\fR
+The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+.RE
+.TP
+\fB::math::geometry::intersectionPolylineCircle\fR \fIpolyline\fR \fIcircle\fR ?mode? ?granularity?
+Return the first point or all points where the polyline intersects the circle\&. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline\fR
+The polyline that may intersect the circle
+.TP
+list \fIcircle\fR
+The circle in question
+.TP
+string \fImode\fR
+Whether to return only the first (default) or to return all intersection points ("all")
+.TP
+int \fIgranularity\fR
+The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+.RE
+.TP
+\fB::math::geometry::polylineCutOrigin\fR \fIpolyline1\fR \fIpolyline2\fR ?granularity?
+Return the part of the first polyline from the origin up to the first intersection with the second\&. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline1\fR
+The first polyline (from which a part is to be returned)
+.TP
+list \fIpolyline2\fR
+The second polyline
+.TP
+int \fIgranularity\fR
+The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+.RE
+.TP
+\fB::math::geometry::polylineCutEnd\fR \fIpolyline1\fR \fIpolyline2\fR ?granularity?
+Return the part of the first polyline from the last intersection point with the second to the end\&. If the number of points in the polyline is large,
+you can use the granularity to get an approximate answer faster\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline1\fR
+The first polyline (from which a part is to be returned)
+.TP
+list \fIpolyline2\fR
+The second polyline
+.TP
+int \fIgranularity\fR
+The number of points that will be skipped plus 1 in the search for intersection points (1 or smaller means an exact answer is returned)
+.RE
+.TP
+\fB::math::geometry::splitPolyline\fR \fIpolyline\fR \fInumberVertex\fR
+Split the poyline into a set of polylines where each separate polyline holds "numberVertex" vertices between the two end points\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline\fR
+The polyline to be split up
+.TP
+int \fInumberVertex\fR
+The number of "internal" vertices
+.RE
+.TP
+\fB::math::geometry::enrichPolyline\fR \fIpolyline\fR \fIaccuracy\fR
+Split up each segment of a polyline into a number of smaller segments and return the result\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline\fR
+The polyline to be refined
+.TP
+int \fIaccuracy\fR
+The number of subsegments to be created
+.RE
+.TP
+\fB::math::geometry::cleanupPolyline\fR \fIpolyline\fR
+Remove duplicate neighbouring vertices and return the result\&.
+.sp
+Arguments:
+.RS
+.TP
+list \fIpolyline\fR
+The polyline to be cleaned up
+.RE
 .PP
+.SH "COORDINATE SYSTEM"
+The coordinate system used by the package is the ordinary cartesian system, where the
+positive x-axis is directed to the right and the positive y-axis is directed upwards\&.
+Angles and directions are defined with respect to the positive x-axis in a counter-clockwise
+direction, so that an angle of 90 degrees is the direction of the positive y-axis\&.
+Note that the Tk canvas coordinates differ from this, as there the origin is located in the
+upper left corner of the window\&. Up to and including version 1\&.3, the direction and octant
+procedures of this package used this convention inconsistently\&.
 .SH REFERENCES
 .IP [1]
 \fIPolygon Intersection\fR [http:/wiki\&.tcl\&.tk/12070]
@@ -1012,5 +1268,6 @@ Copyright (c) 2001 by Ideogramic ApS and other parties
 Copyright (c) 2010 by Andreas Kupries
 Copyright (c) 2010 by Kevin Kenny
 Copyright (c) 2018 by Arjen Markus
+Copyright (c) 2020 by Manfred Rosenberger
 
 .fi

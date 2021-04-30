@@ -46,6 +46,8 @@ namespace eval ::PARSER {
 	/* -*- c -*- */
 
 	#include <string.h>
+	#include <ctype.h>  /* is... */
+	#include <stdlib.h> /* qsort */
 	#define SCOPE static
 
 #line 1 "rde_critcl/util.h"
