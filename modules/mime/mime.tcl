@@ -1998,19 +1998,15 @@ proc ::mime::copymessageaux {token channel} {
 
 # ::mime::buildmessage --
 #
-#     The following is a clone of the copymessage code to build up the
-#     result in memory, and, unfortunately, without using a memory channel.
-#     I considered parameterizing the "puts" calls in copy message, but
-#     the need for this procedure may go away, so I'm living with it for
-#     the moment.
+#     Like copymessage, but produces a string rather than writing the message into a channel.
 #
 # Arguments:
 #       token      The MIME token to parse.
 #
 # Results:
-#       Returns the message that has been built up in memory.
+#       The message. 
 
-proc ::mime::buildmessage {token} {
+proc ::mime::buildmessage token {
     global errorCode errorInfo
     # FRINK: nocheck
     variable $token
@@ -2036,19 +2032,6 @@ proc ::mime::buildmessage {token} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
-# ::mime::buildmessageaux --
-#
-#     The following is a clone of the copymessageaux code to build up the
-#     result in memory, and, unfortunately, without using a memory channel.
-#     I considered parameterizing the "puts" calls in copy message, but
-#     the need for this procedure may go away, so I'm living with it for
-#     the moment.
-#
-# Arguments:
-#       token      The MIME token to parse.
-#
-# Results:
-#       Returns the message that has been built up in memory.
 
 proc ::mime::buildmessageaux token {
 	set chan [tcl::chan::memchan]
