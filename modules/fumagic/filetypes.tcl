@@ -51,10 +51,11 @@ proc ::fileutil::magic::filetype file {
 	file stat $file stats
 	set finfo [array get stats]
 	dict set finfo name $file
-	set coro [coroutine [info cmdcount] rt::new $finfo $chan $named [
+	set ft [rt::new $finfo $chan $named [
 	    list [namespace which filetype::analyze]]]
+	set class [$ft]
 	while 1 {
-	    lassign [$coro] weight result mimetype ext 
+	    lassign [$ft] weight result mimetype ext 
 	    dict update matches $weight weight {
 		lappend weight [list $result $mimetype $ext]
 	    }
@@ -76,7 +77,7 @@ proc ::fileutil::magic::filetype file {
 	    return $res
 	}
     }
-    return [list {} {} {}]
+    return [list $class {} {}]
 }
 
 
