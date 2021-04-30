@@ -602,7 +602,7 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 
 
 test mime-13.0 {
-	issue a16b1095974e071d
+    issue a16b1095974e071d
 } {
     set msg "MIME-Version: 1.0
 Content-Type: text/plain\r
