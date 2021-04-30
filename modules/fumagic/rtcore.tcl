@@ -125,7 +125,7 @@ namespace eval ::fileutil::magic::rt {
     # Export APIs (full public, recognizer public)
     namespace export file_start result
     namespace export emit ext mime new offset strength \
-	D Nv N O S Nvx Nx Sx L R I U < >
+	D Nv N O S Nvx Nx Sx L R T I U < >
 }
 
 
@@ -137,13 +137,15 @@ namespace eval ::fileutil::magic::rt {
 
 proc ::fileutil::magic::rt::> {} {
     upvar #1 cursors cursors depth depth found found \
-	level level lfound lfound offsets offsets strengths strengths \
-	typematch typematch useful useful
+	level level lfound lfound strengths strengths \
+	typematch typematch useful useful virtual virtual
+    set prevlevel $level
     incr level
     incr depth
-    set cursors($level) $cursors([expr {$level-1}])
+    set cursors($level) $cursors($prevlevel)
     set strengths($level) 0
     set useful($level) 0
+    set virtual($level) $virtual($prevlevel)
     set found 0
     dict set lfound $level 0
     return
@@ -161,6 +163,23 @@ proc ::fileutil::magic::rt::< {} {
 	    set weight [
 		expr {$weight + $useful($leveln) + $strengths($leveln) + $typematch($leveln)}]
 	    incr leveln -1
+	}
+
+	foreach item $result[set result {}] {
+	    set item [lmap {-> x ->} [regexp -all -inline \
+		{(.+?)([[:punct:]][[:space:]]+|[:,+]*$)} $item[set item {}]] {
+
+		regsub {"(.*)"} $x {\1} x
+		regsub {'(.*)'} $x {\1} x
+		regsub {\((.*)\)} $x {\1} x
+		regsub {\{(.*)\}} $x {\1} x
+		regsub {<(.*)>} $x {\1} x
+		regsub {\[(.*)\]} $x {\1} x
+		regsub {[[:space:]][[:space:]]+} $x { } x
+
+		string trim $x
+	    }]
+	    lappend result {*}$item
 	}
 
 	yield [list $weight $result $mime $ext]
@@ -266,10 +285,10 @@ proc ::fileutil::magic::rt::new {finfo chan named tests} {
     array unset cursors	; # the offset just after the last matching bytes,
 			; # per nesting level.
 
-    set offsetstart 0	; # the offset for the offset.  Used to process
-			; # "indirect" entries.
-
     array unset strengths ; #strengths at each level
+
+    set virtual(0) 0	; # the virtual start of the file at each level
+
     set strengths(0) 0
     set typematch(0) 0
 
@@ -370,8 +389,7 @@ proc ::fileutil::magic::rt::D offset {
 proc ::fileutil::magic::rt::I {offset it ioi ioo iir io} {
     # Handling of base locations specified indirectly through the
     # contents of the inspected file.
-    upvar #1 level level offsets offsets
-    set offsets($level) $offset
+    upvar #1 level level
     variable typemap
     foreach {size scan} $typemap($it) break
 
@@ -445,20 +463,6 @@ proc ::fileutil::magic::rt::N {
 	    return 0
 	} else {
 	    return 1
-	}
-    }
-
-    if {[string match $scan *me]} {
-	set data [me4 $data]
-	set scan I 
-    }
-
-    switch $scan {
-	default {
-	    # get value in binary form, then back to numeric
-	    # this avoids problems with sign, as both values are
-	    # [binary scan]-converted identically (see [treegen1])
-	    binary scan [binary format $scan $val] $scan val
 	}
     }
 
@@ -772,22 +776,26 @@ proc ::fileutil::magic::rt::Smatch {val op string mod} {
 }
 
 
-proc ::fileutil::magic::rt::T {val op string mod} {
-    upvar #1 offsetstart offsetstart
-    set saved $offsetstart
+proc ::fileutil::magic::rt::T {offset mod} {
+    upvar #1 cursors cursors level level offsets offsets tests tests \
+	virtual virtual
+    if {{r} in $mod} {
+	set offset [expr {$cursors($level) + $offset}]
+    }
+    set newvirtual [expr {$virtual($level) + $offset}]
     >
-    {*}$tests
+	set virtual($level) $newvirtual
+	{*}$tests
     <
-    set offsetstart $saved
 }
 
 
 proc ::fileutil::magic::rt::U {file name offset} {
     upvar #1 level level named named offsets offsets
-    set offsets($level) $offset
     set script [use $named $file $name]
+    set offsets($level) $offset
     >
-    ::try $script
+	::try $script
     <
 }
 
@@ -800,13 +808,14 @@ proc ::fileutil::magic::rt::U {file name offset} {
 # fetch and cache a numeric value from the file
 proc ::fileutil::magic::rt::Fetch {where what scan} {
     upvar #1 cache cache chan chan cursors cursors extracted extracted \
-	level level offsets offsets strbuf strbuf
+	level level offsets offsets strbuf strbuf virtual virtual
 
+    set where [expr {$virtual($level) + $where}]
     set offsets($level) $where 
 
-    # Avoid [seek] errors
+    # A negative offset means that an attempt to extract an indirect offset failed
     if {$where < 0} {
-	set where 0
+	return {}
     }
     # {to do} id3 length
     if {[info exists cache($where,$what,$scan)]} {
@@ -829,19 +838,40 @@ proc ::fileutil::magic::rt::Fetch {where what scan} {
 
 
 proc ::fileutil::magic::rt::GetString {offset len} {
-    upvar #1 chan chan level level strbuf strbuf offsets offsets
+    upvar #1 chan chan level level strbuf strbuf offsets offsets \
+	virtual virtual
     # We have the first 1k of the file cached
 
     set offsets($level) $offset
+    set offset [expr {$virtual($level) + $offset}]
     set end [expr {$offset + $len - 1}]
     if {$end < [string length $strbuf]} {
         # in the string cache, copy the requested part.
-        set string [::string range $strbuf $offset $end]
+	try {
+	    set string [::string range $strbuf $offset $end]
+	} on error {tres topts} {
+	    lassign [dict get $topts -errorcode] TCL VALUE INDEX
+	    if {$TCL eq {TCL} && $VALUE eq {VALUE} && $INDEX eq {INDEX}} {
+		set string {}
+	    } else {
+		return -options $topts $tres
+	    }
+	}
     } else {
 	# an unusual one, move to the offset and read directly from
 	# the file.
 	::seek $chan $offset
-	set string [::read $chan $len]
+	try {
+	    # maybe offset is out of bounds
+	    set string [::read $chan $len]
+	} on error {tres topts} {
+	    lassign [dict get $topts -errorcode] TCL VALUE INDEX
+	    if {$TCL eq {TCL} && $VALUE eq {VALUE} && $INDEX eq {INDEX}} {
+		set string {}
+	    } else {
+		return -options $topts $tres
+	    }
+	}
     }
     return $string
 }
@@ -974,6 +1004,6 @@ proc ::fileutil::magic::rt::Init {} {
 # ### ### ### ######### ######### #########
 ## Ready for use.
 
-package provide fileutil::magic::rt 2.0
+package provide fileutil::magic::rt 3.0
 
 # EOF
