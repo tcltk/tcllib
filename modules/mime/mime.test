@@ -600,12 +600,19 @@ b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
 
 # -------------------------------------------------------------------------
 
-test mime-12.1 {Fossil ticket 57909d2e1c} -cleanup {
-    mime::finalize $token
-    unset -nocomplain token
-} -body {
-    set token [::mime::initialize -file [asset mail-57909d2e1c.txt]]
-} -result {::mime::*} -match glob
+
+test mime-13.0 {
+	issue a16b1095974e071d
+} {
+    set msg "MIME-Version: 1.0
+Content-Type: text/plain\r
+\r
+so plain
+"
+
+    set tok [mime::initialize -string $msg]
+	mime::getbody $tok
+} "so plain\n"
 
 # -------------------------------------------------------------------------
 

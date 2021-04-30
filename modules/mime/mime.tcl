@@ -667,23 +667,24 @@ proc ::mime::parsepart {token} {
                 incr pos [expr {$x + 1}]
             }
         } else {
-	    if {$state(lines.current) >= $state(lines.count)} {
-		set blankP 1
-		set line {}
-	    } else {
-		set line [lindex $state(lines) $state(lines.current)]
-		incr state(lines.current)
-		set x [string length $line]
-		if {$x == 0} {set blankP 1}
-	    }
+            if {$state(lines.current) >= $state(lines.count)} {
+                set blankP 1
+                set line {}
+                } else {
+                set line [lindex $state(lines) $state(lines.current)]
+                incr state(lines.current)
+                set x [string length $line]
+                if {$x == 0} {set blankP 1}
+            }
         }
 
-	if {(!$blankP) && ([string last \r $line] == ($x - 1))} {
-	    set line [string range $line 0 [expr {$x - 2}]]
-	    if {$x == 1} {
-		set blankP 1
-	    }
-	}
+
+         if {(!$blankP) && [string match *\r $line]} {
+             set line [string range $line 0 [expr {$x - 2}]]
+             if {$x == 1} {
+                 set blankP 1
+             }
+         }
 
         if {(!$blankP) && (([
             string first { } $line] == 0) || ([
