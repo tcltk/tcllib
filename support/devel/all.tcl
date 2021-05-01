@@ -154,62 +154,62 @@ foreach module $modules {
 
     Note Module [file tail $module]
 
-    set c [interp create]
-    interp alias $c pSet {} set
-    interp alias $c Note {} Note
-
-    $c eval {
-	# import the auto_path from the parent interp,
-	# so "package require" works
-
-	set ::auto_path    [pSet ::auto_path]
-	set ::argv0        [pSet ::argv0]
-	set ::tcllibModule [pSet module]
-
-	# The next command allows the execution of 'tk' constrained
-	# tests, if Tk is present (for example when this code is run
-	# run by 'wish').
-
-	# Under wish 8.2/8.3 we have to explicitly load Tk into the
-	# slave, the package management is not able to.
-
-	if {![package vsatisfies [package provide Tcl] 8.4]} {
-	    catch {
-		load {} Tk
-		wm withdraw .
-	    }
-	} else {
-	    catch {
-		package require Tk
-		wm withdraw .
-	    }
-	}
-
-	package require tcltest
-
-	# Re-import, the loading of an older tcltest package reset it
-	# to the standard set of paths.
-	set ::auto_path [pSet ::auto_path]
-
-	namespace import ::tcltest::*
-	set ::tcltest::testSingleFile false
-	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
-
-	# configure not present in tcltest 1.x
-	if {[catch {::tcltest::configure -verbose {
-	    body skip start error pass usec line
-	}}]} {
-	    # ^ body skip start error pass usec line
-	    set ::tcltest::verbose psb ;# pass skip body
-	}
-    }
-
-    interp alias \
-	    $c ::tcltest::cleanupTestsHook \
-	    {} ::tcltest::cleanupTestsHook $c
-
     # source each of the specified tests
     foreach file [lsort [::tcltest::getMatchingFiles]] {
+	set c [interp create]
+	interp alias $c pSet {} set
+	interp alias $c Note {} Note
+
+	$c eval {
+
+	    set file [pSet file]
+	    # import the auto_path from the parent interp,
+	    # so "package require" works
+
+	    set ::auto_path    [pSet ::auto_path]
+	    set ::argv0        [pSet ::argv0]
+	    set ::tcllibModule [pSet module]
+
+	    # The next command allows the execution of 'tk' constrained
+	    # tests, if Tk is present (for example when this code is run
+	    # run by 'wish').
+
+	    # Under wish 8.2/8.3 we have to explicitly load Tk into the
+	    # slave, the package management is not able to.
+
+	    if {![package vsatisfies [package provide Tcl] 8.4]} {
+		catch {
+		    load {} Tk
+		    wm withdraw .
+		}
+	    } else {
+		catch {
+		    package require Tk
+		    wm withdraw .
+		}
+	    }
+
+	    package require tcltest
+
+	    # Re-import, the loading of an older tcltest package reset it
+	    # to the standard set of paths.
+	    set ::auto_path [pSet ::auto_path]
+
+	    namespace import ::tcltest::*
+	    set ::tcltest::testSingleFile false
+	    set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
+
+	    # configure not present in tcltest 1.x
+	    if {[catch {::tcltest::configure -verbose bstep}]} {
+		set ::tcltest::verbose psb
+	    }
+	}
+
+	interp alias \
+		$c ::tcltest::cleanupTestsHook \
+		{} ::tcltest::cleanupTestsHook $c
+
+
 	set tail [file tail $file]
 	Note Testsuite [string map [list "$root/" ""] $file]
 	Note StartFile [Now]
@@ -221,9 +221,10 @@ foreach module $modules {
 	    }
 	}
 	Note EndFile [Now]
+
+	interp delete $c
+	puts stdout ""
     }
-    interp delete $c
-    puts stdout ""
 }
 
 # cleanup
