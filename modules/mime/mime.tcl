@@ -1103,23 +1103,10 @@ namespace eval ::mime {
                                     August Sepember October November December]
 }
 proc ::mime::datetime {value property} {
-    if {$value eq "-now"} {
+    if {$value eq {-now}} {
         set clock [clock seconds]
-    } elseif {[regexp {^(.*) ([+-])([0-9][0-9])([0-9][0-9])$} $value \
-	-> value zone_sign zone_hour zone_min]
-    } {
-        set clock [clock scan $value -gmt 1]
-        if {[info exists zone_min]} {
-            set zone_min [scan $zone_min %d]
-            set zone_hour [scan $zone_hour %d]
-            set zone [expr {60 * ($zone_min + 60 * $zone_hour)}]
-            if {$zone_sign eq "+"} {
-                set zone -$zone
-            }
-            incr clock $zone
-        }
     } else {
-        set clock [clock scan $value]
+        set clock [datetimescan $value]
     }
 
     switch $property {
@@ -1274,6 +1261,14 @@ proc ::mime::datetime {value property} {
         set value 0
     }
     return $value
+}
+
+proc ::mime::datetimescan value {
+    variable timeformats
+    foreach format $timeformats {
+	if {![catch {clock scan $value -format $format} cres copts]} break
+    }
+    return -options $copts $cres
 }
 
 
@@ -4033,6 +4028,7 @@ namespace eval ::mime::header {
     variable encList
     variable encAliasList
     variable reversemap
+    variable timeformats
 
     foreach {enc mimeType} $encList {
         if {$mimeType eq {}} continue
@@ -4042,6 +4038,17 @@ namespace eval ::mime::header {
     foreach {enc mimeType} $encAliasList {
         set reversemap([string tolower $mimeType]) $enc
     }
+
+    set formats1 {
+	{%a, %d %b %Y %H:%M:%S %z}
+	{%a, %d %b %Y %H:%M %z}
+	{%a , %d %b %Y %H:%M:%S %z}
+	{%a , %d %b %Y %H:%M %z}
+	{%d %b %Y %H:%M:%S %z}
+	{%d %b %Y %H:%M %z}
+    }
+
+    set timeformats [list {*}$formats1 {*}[string map {%Y %y} $formats1]]
 
     # Drop the helper variables
     unset encList encAliasList
