@@ -2139,7 +2139,7 @@ proc ::mime::header::processparams params {
 }
 
 
-proc ::mime::header::serialize {token name value params} {
+proc ::mime::header::serialize {name value params} {
     variable notattchar_re
     set lname [string tolower $name]
 
@@ -3479,7 +3479,7 @@ proc ::mime::serialize_chan {token channel level} {
 
     set result {}
     if {!$level} {
-	$channel puts [header serialize $token MIME-Version $state(version) {}]
+	$channel puts [header serialize MIME-Version $state(version) {}]
     }
     contentid $token
     if {![header exists $token content-id] && $state(addcontentid)} {
@@ -3490,7 +3490,7 @@ proc ::mime::serialize_chan {token channel level} {
     }
 
     foreach {name value} [header get $token] {
-	$channel puts [header serialize $token $name {*}$value]
+	$channel puts [header serialize $name {*}$value]
     }
 
     set converter {}
