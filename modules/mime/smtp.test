@@ -2,12 +2,12 @@
 
 # copyright 2018 Poor Yorick
 
-source [file join \
-	[file dirname [file dirname [file dirname [
-	    file normalize [info script]/...]]]]/devtools/testutilities.tcl]
+source [file join [ file dirname [file dirname [file dirname [
+	file normalize [file join [info script] ...]]]]] devtools testutilities.tcl
+]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0-
+testsNeedTcltest 1.0
 
 testing {
     useLocal smtp.tcl smtp
