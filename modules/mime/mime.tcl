@@ -23,6 +23,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.6.9
 
+package require {mime qp}
 package require namespacex
 package require tcl::chan::cat
 package provide mime 3.0.0 
@@ -92,14 +93,12 @@ if {[catch {package require Trf 2.0}]} {
 #     count: length in octets of (encoded) content
 #
 #     parts: list of bodies (tokens)
-#
-#     cid: last child-id assigned
 
 
 namespace eval ::mime {
 
     variable mime
-    array set mime {uid 0 cid 0}
+    array set mime {uid 0}
 
 
     # RFC 822 lexemes
@@ -323,8 +322,9 @@ namespace eval ::mime {
     }
 
     namespace export {*}{
-	datetime finalize getbody header initialize mapencoding parseaddress
-	property reversemapencoding serialize setheader uniqueID
+	.destroy .new body cookie datetime field_decode header mapencoding qp
+	parseaddress property reversemapencoding serialize setheader uniqueID
+	word_decode word_encode
     }
 }
 
@@ -926,10 +926,11 @@ proc ::mime::checkinputs {} {
 }
 
 
-proc ::mime::body_decoded token {
+proc ::mime::body_decoded _ {
+    set token [$_ token]
     upvar 0 $token state
     upvar 0 state(bodychandecoded) bodychandecoded
-    parsepart $token
+    $_ parsepart
     if {[info exists state(parts)]} {
 	error [list {not a leaf part} $token]
     }
@@ -946,16 +947,17 @@ proc ::mime::body_decoded token {
 	    $bodychandecoded seek 0
 	    $state(bodychan) seek 0
 	    setencoding $token $bodychandecoded
-	    setcharset $token $bodychandecoded
+	    setcharset $_ $bodychandecoded
 	}
 	$bodychandecoded seek 0
 	return $bodychandecoded
     }
 }
 
-proc ::mime::body_raw token {
+proc ::mime::body_raw _ {
+    set token [$_ token]
     upvar 0 $token state
-    parsepart $token
+    $_ parsepart
     if {[info exists state(parts)]} {
 	error [list {not a leaf part} $token]
     }
@@ -970,24 +972,25 @@ proc ::mime::body_raw token {
 
 
 namespace eval ::mime::body {
-    namespace ensemble create
+    namespace ensemble create -parameters token
     namespace export *
     namespacex import [namespace parent] body_decoded decoded body_raw raw
 }
 
 
-proc ::mime::contenttype token {
+proc ::mime::contenttype _ {
+    set token [$_ token]
     upvar 0 $token state
     try {
-	header get $token content-type
+	$_ header get content-type
     } on error {cres copts} {
 	# rfc 2045 5.2
 	try {
-	    if {header exists $token MIME-Version} {
+	    if {header::exists $token MIME-Version} {
 		    return text/plain
 	    } else {
 		switch $state(spec) {
-		    http {
+		    cgi - http {
 			return {text/html {charset UTF-8}}
 		    }
 		    mime {
@@ -1001,6 +1004,49 @@ proc ::mime::contenttype token {
 	    return application/octet-stream
 	}
     }
+}
+
+
+# ::mime::cookie_set
+#
+#	Set a return cookie.  You must call this before you call
+#	ncgi::header or ncgi::redirect
+#
+# Arguments:
+#	args	Name value pairs, where the names are:
+#		-name	Cookie name
+#		-value	Cookie value
+#		-path	Path restriction
+#		-domain	domain restriction
+#		-expires	Time restriction
+#
+# Side Effects:
+#	Formats and stores the Set-Cookie header for the reply.
+
+proc ::mime::cookie_set {_ args} {
+    array set opt $args
+    set line "$opt(-name)=$opt(-value) ;"
+    foreach extra {path domain} {
+	if {[info exists opt(-$extra)]} {
+	    append line " $extra=$opt(-$extra) ;"
+	}
+    }
+    if {[info exists opt(-expires)]} {
+	switch -glob -- $opt(-expires) {
+	    *GMT {
+		set expires $opt(-expires)
+	    }
+	    default {
+		set expires [clock format [clock scan $opt(-expires)] \
+			-format "%A, %d-%b-%Y %H:%M:%S GMT" -gmt 1]
+	    }
+	}
+	append line " expires=$expires ;"
+    }
+    if {[info exists opt(-secure)]} {
+	append line " secure "
+    }
+    $_ header set Set-Cookie $line {} 
 }
 
 
@@ -1243,7 +1289,8 @@ proc ::mime::datetime {value property} {
 #       Returns the encoding of the message (the null string, base64,
 #       or quoted-printable).
 
-proc ::mime::encoding token {
+proc ::mime::encoding _ {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
     upvar 0 state(fd) chan state(params) params
@@ -1251,7 +1298,7 @@ proc ::mime::encoding token {
     if {[info exists state(encoding)]} {
 	return $state(encoding)
     }
-    lassign [contenttype $token] content
+    lassign [$_ contenttype] content
 
     switch -glob $content {
         audio/*
@@ -1401,10 +1448,11 @@ proc ::mime::encodinglineP lines {
 }
 
 
-proc ::mime::contentid token {
+proc ::mime::contentid _ {
+    set token [$_ token]
     upvar 0 $token state
     upvar 0 state(parts) parts
-    parsepart $token
+    $_ parsepart
     if {[info exists parts]} {
 	foreach part $parts {
 	    upvar 0 $part childpart
@@ -1416,7 +1464,7 @@ proc ::mime::contentid token {
 
 	    # use message-id here, not content-id, to account for header info
 	    # in the parts
-	    append ids [header get $part message-id] 
+	    append ids [$part header get message-id] 
 
 	    if {$created} {
 		if {!$childpart(addmessageid)} {
@@ -1426,7 +1474,7 @@ proc ::mime::contentid token {
 	}
 	set id [::sha2::sha256 -hex $ids]
     } else {
-	set chan [body decoded $token]
+	set chan [$_ body decoded]
 	set config [$chan configure]
 	if {[dict exists $config -chan]} {
 	    dict unset config -chan
@@ -1460,9 +1508,9 @@ proc ::mime::dropchan token {
 }
 
 
-# ::mime::finalize --
+# ::mime::.destroy --
 #
-#   mime::finalize destroys a MIME part.
+#   mime::.destroy destroys a MIME part.
 #
 #   If the -subordinates option is present, it specifies which
 #   subordinates should also be destroyed. The default value is
@@ -1476,26 +1524,28 @@ proc ::mime::dropchan token {
 # Results:
 #       Returns an empty string.
 
-proc ::mime::finalize {token args} {
+proc ::mime::.destroy {token args} {
     # FRINK: nocheck
     upvar 0 $token state
     array set options [list -subordinates dynamic]
     array set options $args
+
+    set ensemble $state(ensemble)
 
     switch $options(-subordinates) {
         all {
             #TODO: this code path is untested
             if {[info exists state(parts)]} {
                 foreach part $state(parts) {
-                    eval [linsert $args 0 mime::finalize $part]
+		    $part .destroy
                 }
             }
         }
 
         dynamic {
-            for {set cid $state(cid)} {$cid > 0} {incr cid -1} {
-                eval [linsert $args 0 mime::finalize $token-$cid]
-            }
+	    foreach part $state(dynamic) {
+		$part .destroy
+	    }
         }
 
         none {
@@ -1521,19 +1571,24 @@ proc ::mime::finalize {token args} {
     foreach name [array names state] {
         unset state($name)
     }
-    # FRINK: nocheck
+
+    if {[namespace which $ensemble] ne {}} {
+	rename $ensemble {}
+	# FRINK: nocheck
+    }
     unset $token
 }
 
 
-proc ::mime::messageid token {
+proc ::mime::messageid _ {
+    set token [$_ token]
     upvar 0 $token state
     #set unique [uniqueID]
-    if {![header exists $token content-id] && $state(addcontentid)} {
-	header::setinternal $token Content-ID [contentid $token]
+    if {![header::exists $token content-id] && $state(addcontentid)} {
+	header::setinternal $token Content-ID [contentid $_]
     }
     set sha [::sha2::SHA256Init]
-    foreach {key val} [lsort -stride 2 [header::get $token]] {
+    foreach {key val} [lsort -stride 2 [$_ header get]] {
 	lassign $val value params
 	::sha2::SHA256Update $sha $key$value
 	foreach {pkey pval} $params {
@@ -1594,12 +1649,13 @@ proc ::mime::mimegets {token varname} {
 # Results:
 #       Returns the size in bytes of the MIME token.
 
-proc ::mime::getsize token {
+proc ::mime::getsize _ {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
     upvar 0 state(bodychan) bodychan state(fd) inputchan 
 
-    parsepart $token
+    $_ parsepart
 
     if {[info exists state(parts)]} {
 	set size 0
@@ -1628,9 +1684,11 @@ proc ::mime::getsize token {
 }
 
 
-proc ::mime::getTransferEncoding token {
+proc ::mime::getTransferEncoding _ {
+    set token [$_ token]
     upvar 0 $token state
-    set encoding [encoding $token]
+    # not the global [encoding]
+    set encoding [encoding $_]
     # See also issues [#477088] and [#539952]
     switch $encoding {
 	base64 - quoted-printable  - 7bit - 8bit - binary - {} {
@@ -1644,15 +1702,6 @@ proc ::mime::getTransferEncoding token {
 
 
 namespace eval ::mime::header {
-    namespace ensemble create -map {
-	get get
-	exists exists
-	parse parse
-	set set_
-	serialize serialize
-	setinternal setinternal
-    }
-
     variable tchar
     # hypen is first for inclusion in brackets
     variable tchar_re {-!#$%&'*+.^`|~0-9A-Za-z}
@@ -1716,7 +1765,8 @@ proc ::mime::header::exists {token name} {
 #    If -names is specified, a list of all header names is returned.
 #
 
-proc ::mime::header::get {token {key {}}} {
+proc ::mime::header::get {_ {key {}}} {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
     parse $token
@@ -1735,7 +1785,7 @@ proc ::mime::header::get {token {key {}}} {
 		{*}$header]
 	    if {![dict exists $headerlower content-transfer-encoding]
 		&& !$state(canonicalP)} {
-		set tencoding [getTransferEncoding $token]
+		set tencoding [getTransferEncoding $_]
 		if {$tencoding ne {}} {
 		    lappend result Content-Transfer-Encoding [list $tencoding {}]
 		}
@@ -1761,15 +1811,14 @@ proc ::mime::header::get {token {key {}}} {
 		    if {[dict exists $headerinternallower $lower]} {
 			return [dict get $headerinternallower $lower]
 		    } elseif {!$state(canonicalP)} {
-			return [list [getTransferEncoding $token] {}]
+			return [list [getTransferEncoding $_] {}]
 		    } else {
 			error [list {no such header} $key]
 		    }
 		}
 		message-id {
 		    if {![dict size $messageidlower]} {
-			setinternal $token Message-ID [
-			    [namespace parent]::messageid $token]
+			setinternal $token Message-ID [[namespace parent]::messageid $_]
 		    }
 		    return [dict get $messageidlower message-id]
 		}
@@ -2228,7 +2277,8 @@ proc ::mime::header::serialize {name value params} {
 #       token      The MIME token to parse.
 #       key        The name of the key whose value should be set.
 #       value      The value for the header key to be set to.
-#       args       An optional argument of the form:
+#       ?params?   A dictionary of parameters for the header.
+#       ?args?       An optional argument of the form:
 #                  ?-mode "write" | "append" | "delete"?
 #
 # Results:
@@ -2375,30 +2425,83 @@ proc ::mime::header::setinternal args {
     }
 }
 
-proc ::mime::header::dset {name key val} {
-    if {[dict exists $name]} {
-	set name [lsearch
-    }
-}
 
-
-# ::mime::initialize --
+# ::mime::.new --
 #
 #    the public interface for initializeaux
 
-proc ::mime::initialize args {
+proc ::mime::.new args {
     variable mime
+    if {[llength $args] % 2} {
+	set args [lassign $args[set args {}] name]
+    } elseif {[llength $args]} {
+	error [list {wrong # args}]
+    } else {
+	set name {}
+    }
+    set mimeid [incr mime(uid)]
+    set token [namespace current]::$mimeid
+    if {$name eq {}} {
+	set name $token
+    } elseif {![string match ::* $name]} {
+	set name [uplevel 1 {namespace current}]::$name
+    }
 
-    set token [namespace current]::[incr mime(uid)]
+    set cookiecmd [namespace current]::${mimeid}_cookie
+    namespace ensemble create -command $cookiecmd -map [list \
+	delete [list cookie_delete $name] \
+	set [list cookie_set $name]
+    ]
+
+    set headercmd [namespace current]::${mimeid}_header
+    namespace ensemble create -command $headercmd -map [list \
+	get [list header::get $name] \
+	exists [list header::exists $token] \
+	parse [list header::parse $token] \
+	set [list header::set_ $token] \
+	serialize header::serialize \
+	setinternal [list header::setinternal $token]
+    ]
+
+    namespace ensemble create -command $name -map [list \
+	.destroy [list .destroy $token] \
+	body [list body $name] \
+	contenttype [list contenttype $name] \
+	cookie [list $cookiecmd] \
+	datetime [list datetime $token] \
+	field_decode [list field_decode $token] \
+	header [list $headercmd] \
+	mapencoding [list mapencoding $token] \
+	qp [list qp $token] \
+	parseaddress [list parseaddress $token] \
+	parsepart [list parsepart $name] \
+	property [list property $name] \
+	reversemapencoding [list reversemapencoding $token] \
+	serialize [list serialize $name] \
+	setheader [list setheader $token] \
+	token [list ::lindex $token]  \
+	uniqueID [list uniqueID $token] \
+	word_decode [list word_decode $token] \
+	word_encode [list word_encode $token]
+    ]
+
+    trace add command $name delete [list apply [list {
+	token cookiecmd headercmd old new op} {
+	::mime::.destroy $token
+	rename $cookiecmd {}
+	rename $headercmd {}
+    }] $token $cookiecmd $headercmd]
+
     # FRINK: nocheck
     upvar 0 $token state
+    set state(ensemble) $name
 
     if {[catch {uplevel 1 [
-	list mime::initializeaux $token {*}$args]} result eopts]} {
-        catch {mime::finalize $token -subordinates dynamic}
+	list mime::initializeaux $name {*}$args]} result eopts]} {
+        catch {mime::.destroy $token -subordinates dynamic}
         return -options $eopts $result
     }
-    return $token
+    return $name
 }
 
 # ::mime::initializeaux --
@@ -2411,7 +2514,7 @@ proc ::mime::initialize args {
 #                  ?-params    {?key value? ...}
 #                  ?-encoding value?
 #                  ?-headers   {?key value? ...}
-#                  ?-spec   ?mime | http? 
+#                  ?-spec   ?mime | cgi | http? 
 #                  (-chan value | -parts {token1 ... tokenN})
 #
 #       If the -canonical option is present, then the body is in
@@ -2438,7 +2541,8 @@ proc ::mime::initialize args {
 #    An initialized mime token.
 
 
-proc ::mime::initializeaux {token args} {
+proc ::mime::initializeaux {_ args} {
+    set token [$_ token]
     variable channels
     # FRINK: nocheck
     upvar 0 $token state
@@ -2457,8 +2561,8 @@ proc ::mime::initializeaux {token args} {
     set state(bodychan) {}
     set state(bodydecoded) 0
     set state(bodyparsed) 0
+    set state(dynamic) {}
     set canonicalP 0
-    set state(cid) 0
     set state(closechan) 1
     set state(contentid) {}
     set state(contentidlower) {}
@@ -2584,7 +2688,7 @@ proc ::mime::initializeaux {token args} {
 
 	    -spec {
 		switch $value {
-		    http {
+		    cgi - http {
 			set state(addcontentid) 0
 			set state(addmimeversion) 0
 			set state(addmessageid) 0
@@ -2626,7 +2730,7 @@ proc ::mime::initializeaux {token args} {
     }
 
     if {$canonicalP} {
-        if {![header exists $token content-id] && $state(addcontentid)} {
+        if {![header::exists $token content-id] && $state(addcontentid)} {
 	    header::setinternal $token Content-ID [contentid $token]
         }
 
@@ -2634,7 +2738,7 @@ proc ::mime::initializeaux {token args} {
 	    set type multipart/mixed
 	}
 
-	header setinternal $token Content-Type $type $params
+	header::setinternal $token Content-Type $type $params
 
 	if {[info exists headers]} {
 	    foreach {name hvalue} $headers {
@@ -2652,7 +2756,7 @@ proc ::mime::initializeaux {token args} {
 	    }
 	}
 
-	lassign [header get $token content-type] content dummy
+	lassign [$_ header get content-type] content dummy
 
 	if {[info exists state(parts)]} {
 	    switch -glob $content {
@@ -2740,34 +2844,36 @@ proc ::mime::mapencoding {enc} {
 #       Throws an error if it has problems parsing the MIME token,
 #       otherwise it just sets up the appropriate variables.
 
-proc ::mime::parsepart token {
+proc ::mime::parsepart _ {
+    set token [$_ token]
     upvar 0 $token state
     if {$state(canonicalP) || $state(bodyparsed)} {
 	return
     }
     set state(bodyparsed) 1
-    parsepartaux $token
+    parsepartaux $_
 }
 
 
-proc ::mime::parsepartaux token {
+proc ::mime::parsepartaux _ {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
     upvar 0 state(bodychan) bodychan state(eof) eof \
 	state(fd) fd state(size) size state(usemem) usemem state(relax) relax
 
-    header parse $token
+    header::parse $token
 
     # although rfc 2045 5.2 defines a default treatment for content without a
     # type, don't automatically add an explicit content-type field
 
-    #if {![header exists $token content-type]} {
+    #if {![header::exists $token content-type]} {
     #    # rfc 2045 5.2
-    #    header setinternal $token Content-Type text/plain [
+    #    header::setinternal $token Content-Type text/plain [
     #        dict create charset us-ascii]
     #}
 
-    lassign [contenttype $token] content params
+    lassign [$_ contenttype] content params
 
     if {$usemem} {
 	set bodychan [tcllib::chan::base .new [info cmdcount]_bodychan [
@@ -2834,15 +2940,13 @@ proc ::mime::parsepartaux token {
 		    $bodychan puts $line
 		    $bodychan seek 0
 
-		    # FRINK: nocheck
-		    variable [set child $token-[incr state(cid)]]
-
-		    mime::initializeaux $child -chan $bodychan \
-			-root $state(root) -boundary $boundary -usemem $usemem
-		    parsepart $child
+		    set child [.new {} -chan $bodychan \
+			-root $state(root) -boundary $boundary -usemem $usemem]
+		    $child parsepart
 		    
 		    lappend state(parts) $child
-		    header setinternal $child Content-Type application/octet-stream
+		    lappend state(dynamic) $child
+		    $child header setinternal Content-Type application/octet-stream
 		    break
 	    } elseif {[llength $state(parts)] || [string first --$boundary $line] == 0} {
 		    # either just saw the first boundary or saw a boundary between parts
@@ -2857,14 +2961,11 @@ proc ::mime::parsepartaux token {
 		    } else {
 			#mimegets returned 0 because it found a border
 
-			# FRINK: nocheck
-			variable [set child $token-[incr state(cid)]]
-
-
-			mime::initializeaux $child -chan $fd \
-			    -root $state(root) -boundary $boundary -usemem $usemem
-			parsepart $child
+			set child [.new {} -chan $fd \
+			    -root $state(root) -boundary $boundary -usemem $usemem]
+			$child parsepart
 			lappend state(parts) $child
+			lappend state(dynamic) $child
 			upvar 0 $child childstate
 			set state(sawclosing) $childstate(sawclosing)
 			if {$childstate(eof)} break
@@ -2910,13 +3011,13 @@ proc ::mime::parsepartaux token {
         if {[string match message/* $content]} {
             # FRINK: nocheck
 	    setencoding $token $bodychan
-	    setcharset $token $bodychan
-            variable [set child $token-[incr state(cid)]]
+	    setcharset $_ $bodychan
 
-	    mime::initializeaux $child -chan $bodychan -usemem $usemem
+	    set child [.new {} -chan $bodychan -usemem $usemem]
 
-            set state(parts) $child
-	    parsepart $child
+            lappend state(parts) $child
+	    lappend state(dynamic) $child
+	    $child parsepart
         } else {
 	    # this is undtrusted data, so keep the getslimit enabled on the
 	    # assumption that no one else wants to get hit by a long-line
@@ -2959,19 +3060,20 @@ proc ::mime::parsepartaux token {
 # Results:
 #       Returns the properties of a MIME part
 
-proc ::mime::property {token {property {}}} {
+proc ::mime::property {_ {property {}}} {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
-    parsepart $token
+    $_ parsepart
 
-    lassign [contenttype $token] content params
+    lassign [$_ contenttype] content params
 
     switch $property {
         {} {
             array set properties [list content  $content \
                                        encoding $state(encoding) \
                                        params   $params \
-                                       size     [getsize $token]]
+                                       size     [getsize $_]]
             if {[info exists state(parts)]} {
                 set properties(parts) $state(parts)
             }
@@ -3007,7 +3109,7 @@ proc ::mime::property {token {property {}}} {
         }
 
         size {
-            return [getsize $token]
+            return [getsize $_]
         }
 
         default {
@@ -3440,7 +3542,7 @@ proc ::mime::relax {token args} {
 #       is being written to the channel.
 
 
-proc ::mime::serialize {token args} {
+proc ::mime::serialize {_ args} {
     set level 0
     set chan {} 
     dict for {arg val} $args {
@@ -3461,43 +3563,44 @@ proc ::mime::serialize {token args} {
     }
 
     if {$chan eq {}} {
-	# FRINK: nocheck
+	set token [$_ token]
 	upvar 0 $token state
-	set code [catch {mime::serialize_value $token $level} result copts]
+	set code [catch {serialize_value $_ $level} result copts]
 	return -options $copts $result
     } else {
-	return [serialize_chan $token $chan $level]
+	return [serialize_chan $_ $chan $level]
     }
 }
 
 
-proc ::mime::serialize_chan {token channel level} {
+proc ::mime::serialize_chan {_ channel level} {
+    set token [$_ token]
     # FRINK: nocheck
     upvar 0 $token state
     upvar 0 state(bodychan) bodychan
-    parsepart $token
+    $_ parsepart
 
     set result {}
     if {!$level} {
-	$channel puts [header serialize MIME-Version $state(version) {}]
+	$channel puts [header::serialize MIME-Version $state(version) {}]
     }
-    contentid $token
-    if {![header exists $token content-id] && $state(addcontentid)} {
-	header::setinternal $token Content-ID [contentid $token]
+    contentid $_
+    if {![header::exists $token content-id] && $state(addcontentid)} {
+	header::setinternal $token Content-ID [contentid $_]
     }
-    if {![header exists $token message-id] && $state(addmessageid)} {
-	header::setinternal $token Message-ID [messageid $token]
+    if {![header::exists $token message-id] && $state(addmessageid)} {
+	header::setinternal $token Message-ID [messageid $_]
     }
 
-    foreach {name value} [header get $token] {
-	$channel puts [header serialize $name {*}$value]
+    foreach {name value} [$_ header get] {
+	$channel puts [header::serialize $name {*}$value]
     }
 
     set converter {}
     set encoding {}
     if {![info exists state(parts)]} {
         if {$state(canonicalP)} {
-	    set encoding [getTransferEncoding $token]
+	    set encoding [getTransferEncoding $_]
             if {$encoding ne {}} {
                 $channel puts "Content-Transfer-Encoding: $encoding"
             }
@@ -3509,14 +3612,14 @@ proc ::mime::serialize_chan {token channel level} {
     }
 
     if {[info exists state(parts)]} {
-	lassign [contenttype $token] content params
+	lassign [$_ contenttype] content params
 	set boundary [dict get $params boundary]
 
 	switch -glob $content {
 	    message/* {
 		$channel puts {}
 		foreach part $state(parts) {
-		    mime::serialize_chan $part $channel 1
+		    serialize_chan $part $channel 1
 		    break
 		}
 	    }
@@ -3540,7 +3643,7 @@ proc ::mime::serialize_chan {token channel level} {
 
 		foreach part $state(parts) {
 		    $channel puts \n--$boundary
-		    mime::serialize_chan $part $channel 1
+		    serialize_chan $part $channel 1
 		}
 		$channel puts \n--$boundary--
 	    }
@@ -3568,11 +3671,11 @@ proc ::mime::serialize_chan {token channel level} {
 }
 
 
-proc ::mime::serialize_value {token level} {
+proc ::mime::serialize_value {_ level} {
     set chan [::tcllib::chan::base .new [info cmdcount]_serialize_value [
 	tcl::chan::memchan]]
     $chan configure -translation crlf
-    serialize_chan $token $chan $level
+    serialize_chan $_ $chan $level
     $chan seek 0
     $chan configure -translation binary
     set res [$chan read]
@@ -3610,14 +3713,15 @@ proc ::mime::setencoding {token chan} {
     return $transforms
 }
 
-proc ::mime::setcharset {token chan} {
+proc ::mime::setcharset {_ chan} {
+    set token [$_ token]
     upvar 0 $token state
-    lassign [contenttype $token] content params
+    lassign [$_ contenttype] content params
     if {[dict exists $params charset]} {
 	set mcharset [dict get $params charset]
     } else {
 	switch $state(spec) {
-	    http {
+	    cgi - http {
 		set mcharset UTF-8
 	    }
 	    mime - default {

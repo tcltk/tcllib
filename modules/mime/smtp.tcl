@@ -2,13 +2,14 @@
 #
 # Copyright (c) 1999-2000 Marshall T. Rose
 # Copyright (c) 2003-2006 Pat Thoyts
+# Copyright (c) 2003-2018 Poor Yorick 
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
 
 package require Tcl 8.3
-package require mime 2.0-
+package require mime 3.0-
 
 catch {
     package require SASL 1.0;           # tcllib 1.8
@@ -111,8 +112,6 @@ if {[catch {package require Trf  2.0}]} {
 #       exception with an error code and error message.
 
 proc ::smtp::sendmessage {part args} {
-    global errorCode errorInfo
-
     # Here are the meanings of the following boolean variables:
     # aloP -- value of -atleastone option above.
     # debugP -- value of -debug option above.
@@ -386,14 +385,14 @@ proc ::smtp::sendmessage {part args} {
     # the message-id.
 
     if {([lsearch -exact $lowerL $dateL] < 0) \
-            && ([catch {::mime::header get $part $dateL}])} {
+            && ([catch {$part header get $dateL}])} {
         lappend lowerL $dateL
         lappend mixedL $dateM
         lappend header($dateL) [::mime::datetime -now proper]
     }
 
     if {([lsearch -exact $lowerL ${message-idL}] < 0) \
-            && ([catch {::mime::header get $part ${message-idL}}])} {
+            && ([catch {$part header get ${message-idL}}])} {
         lappend lowerL ${message-idL}
         lappend mixedL ${message-idM}
         lappend header(${message-idL}) [::mime::uniqueID]
@@ -402,12 +401,12 @@ proc ::smtp::sendmessage {part args} {
 
     # Get all the headers from the MIME object and save them so that they can
     # later be restored.
-    set savedH [::mime::header get $part]
+    set savedH [$part header get]
 
     # Take all the headers defined earlier and add them to the MIME message.
     foreach lower $lowerL mixed $mixedL {
         foreach value $header($lower) {
-            ::mime::header set $part $mixed $value -mode append
+            $part header set $mixed $value -mode append
         }
     }
 
@@ -429,21 +428,20 @@ proc ::smtp::sendmessage {part args} {
                                 -username $username -password $password]
 
 
-    if {![string match "::smtp::*" $token]} {
+    if {![string match ::smtp::* $token]} {
 	# An error occurred and $token contains the error info
 	array set respArr $token
 	return -code error $respArr(diagnostic)
     }
 
-    set code [catch {
-	sendmessageaux $token $part $sender $vrecipients $aloP } result]
-    set ecode $errorCode
-    set einfo $errorInfo
+    set code1 [catch {
+	sendmessageaux $token $part $sender $vrecipients $aloP
+    } cres1 copts1]
+    lappend results $code1 $cres1 $copts1
 
-    # Send the message to bcc recipients as a MIME attachment.
-
-    if {($code == 0) && ($bccP)} {
-        set inner [::mime::initialize -canonical message/rfc822 \
+    if {!$code1 && $bccP} {
+	# Send the message to bcc recipients as a MIME attachment.
+        set inner [::mime::.new {} -canonical message/rfc822 \
                                     -headers [list Content-Description \
                                                   {Original Message}] \
                                     -parts [list $part]]
@@ -453,7 +451,7 @@ proc ::smtp::sendmessage {part args} {
             append subject " " [lindex $header(subject) 0]
         }
 
-        set outer [::mime::initialize \
+        set outer [::mime::.new {} \
 	    -canonical multipart/digest \
 	    -headers [list \
 		From [list $originator {}] \
@@ -462,56 +460,56 @@ proc ::smtp::sendmessage {part args} {
 		Subject $subject \
 		Message-ID [::mime::uniqueID] \
 		Content-Description {Blind Carbon Copy} \
-	     -parts [list $inner]]
+	     -parts [list $inner]]]
 
 
-        set code [catch { sendmessageaux $token $outer \
-                                               $sender $brecipients \
-                                               $aloP } result2]
-        set ecode $errorCode
-        set einfo $errorInfo
+        set code2 [catch {
+	    sendmessageaux $token $outer $sender $brecipients $aloP
+	} cres2 copts2]
 
-        if {$code == 0} {
-            set result [concat $result $result2]
-        } else {
-            set result $result2
-        }
+	lappend results $code2 $cres2 $copts2
 
-        catch { ::mime::finalize $inner -subordinates none }
-        catch { ::mime::finalize $outer -subordinates none }
+        catch {$inner .destroy -subordinates none}
+        catch {$outer .destroy -subordinates none}
     }
 
     # Determine if there was any error in prior operations and set errorcodes
     # and error messages appropriately.
 
-    switch -- $code {
-        0 {
-            set status orderly
-        }
+    foreach {code cres copts} $results {
+	# handle just the first one
+	switch -- $code {
+	    0 {
+		set status orderly
+	    }
 
-        7 {
-            set code 1
-            array set response $result
-            set result "$response(code): $response(diagnostic)"
-            set status abort
-        }
+	    7 {
+		dict set copts -code 1
+		set status abort
+		break
+	    }
 
-        default {
-            set status abort
-        }
+	    default {
+		set status abort
+		break
+	    }
+	}
     }
 
-    # Destroy SMTP token 'cause we're done with it.
+    set code3 [catch {finalize $token -close $status} cres3 copts3]
 
-    catch { finalize $token -close $status } copts cres
+    if {$code3 && !$code} {
+	# Destroy SMTP token 'cause we're done with it.
+	lassign [list $cres3 $copts3] cres copts
+    }
 
     # Restore provided MIME object to original state (without the SMTP headers).
    
-    foreach {key val} [::mime::header get $part] {
-        mime::header set $part $key "" -mode delete
+    foreach {key val} [$part header get] {
+        $part header set $key "" -mode delete
     }
     foreach {key value} $savedH {
-	::mime::header set $part $key {*}$value -mode append
+	$part header set $key {*}$value -mode append
     }
 
     return -options $copts $cres
@@ -914,7 +912,6 @@ proc ::smtp::Authenticate {token mechanism} {
 #       throw an exception with the error code and error message.
 
 proc ::smtp::finalize {token args} {
-    global errorCode errorInfo
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
@@ -922,43 +919,43 @@ proc ::smtp::finalize {token args} {
     array set options [list -close orderly]
     array set options $args
 
-    switch -- $options(-close) {
-        orderly {
-            set code [catch { talk $token 120 QUIT } result]
-        }
+    try {
+	switch -- $options(-close) {
+	    orderly {
+		set code [catch { talk $token 120 QUIT } result]
+	    }
 
-        abort {
-            set code [catch {
-                talk $token 0 RSET
-                talk $token 0 QUIT
-            } result]
-        }
+	    abort {
+		set code [catch {
+		    talk $token 0 RSET
+		    talk $token 0 QUIT
+		} result]
+	    }
 
-        drop {
-            set code 0
-            set result ""
-        }
+	    drop {
+		set code 0
+		set result ""
+	    }
 
-        default {
-            error "unknown value for -close $options(-close)"
-        }
+	    default {
+		error "unknown value for -close $options(-close)"
+	    }
+	}
+    } finally {
+	if {$state(sd) in [chan names]} {
+	    close $state(sd)
+	}
+
+	if {$state(afterID) ne {}} {
+	    after cancel $state(afterID)
+	}
+
+	foreach name [array names state] {
+	    unset state($name)
+	}
+	# FRINK: nocheck
+	unset $token
     }
-    set ecode $errorCode
-    set einfo $errorInfo
-
-    catch { close $state(sd) }
-
-    if {$state(afterID) != ""} {
-        catch { after cancel $state(afterID) }
-    }
-
-    foreach name [array names state] {
-        unset state($name)
-    }
-    # FRINK: nocheck
-    unset $token
-
-    return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
 # ::smtp::winit --
@@ -995,7 +992,7 @@ proc ::smtp::winit {token part originator {mode MAIL}} {
     if {[info exists state(esmtp)]
         && [lsearch -glob $state(esmtp) "SIZE*"] != -1} {
         catch {
-            set size [string length [mime::serialize $part]]
+            set size [string length [$part serialize]]
             append from " SIZE=$size"
         }
     }
@@ -1137,7 +1134,7 @@ proc ::smtp::wtextaux {token part} {
     if {$trf} {
         set code [catch { ::mime::copymessage $part $state(sd) } result]
     } else {
-        set code [catch { ::mime::serialize $part } result]
+        set code [catch {$part serialize} result]
         if {$code == 0} {
 	    # Detect and transform bare LF's into proper CR/LF
 	    # sequences.
@@ -1303,8 +1300,10 @@ proc ::smtp::talk {token secs command} {
         flush stderr
     }
 
-    if {[catch { puts -nonewline $state(sd) "$command\r\n"
-                 flush $state(sd) } result]} {
+    if {[catch {
+	puts -nonewline $state(sd) $command\r\n
+	flush $state(sd) } result]
+    } {
         return [list code 400 diagnostic $result]
     }
 
@@ -1333,10 +1332,10 @@ proc ::smtp::hear {token secs} {
 
     array set options $state(options)
 
-    array set response [list args ""]
+    array set response [list args {}]
 
     set firstP 1
-    while {1} {
+    while 1 {
         if {$secs >= 0} {
 	    ## SF [ 836442 ] timeout with large data
 	    ## correction, aotto 031105 -

@@ -13,7 +13,10 @@
 #    The properly quoted string is returned.
 
 
-namespace eval ::mime::qp {}
+namespace eval ::mime::qp {
+    namespace ensemble create
+    namespace export decode encode
+}
 
 proc ::mime::qp::encode {string {encoded_word 0} {no_softbreak 0}} {
     # 8.1+ improved string manipulation routines used.
