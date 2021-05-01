@@ -30,7 +30,8 @@ manipulate MIME body parts.
 
 [list_begin definitions]
 
-[call [cmd ::mime::initialize] [opt "[option -canonical] [arg type/subtype] [opt "[option -param] \{[arg {key value}]\}..."] [opt "[option -encoding] [arg value]"] [opt "[option -header] \{[arg {key value}]\}..."]"] "([option -file] [arg name] | [option -string] [arg value] | [option -parts] \{[arg token1] ... [arg tokenN]\})"]
+[call [cmd ::mime::initialize] [opt "[option -canonical] [arg type/subtype]"] [opt "[option -params] [arg dictionary]"] [opt "[option -encoding] [arg value]"] [opt "[option -headers] [arg dictionary]"] [
+opt "([option -file] [arg name] | [option -string] [arg value] | [option -parts] \{[arg token1] ... [arg tokenN]\})"]]
 
 Creates a MIME part and returns a token representing it.
 
@@ -43,13 +44,9 @@ canonical (raw) form and is found by consulting either the
 
 [option -file], [option -string], or [option -parts] option.
 
-[para]
+[option -headers] is a dictionary of headers, with possibly redundant keys that might specify for example, [const Content-Type].
 
-In addition, both the [option -param] and [option -header] options may
-occur zero or more times to specify [const Content-Type] parameters
-(e.g., [const charset]) and header keyword/values (e.g.,
-
-[const Content-Disposition]), respectively.
+[option -params] is a dictionary of parameters, with possibly redundant keys that might specify, for example [const Content-Disposition].
 
 [para]
 

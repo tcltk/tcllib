@@ -350,14 +350,22 @@ namespace eval ::mime {
 # Arguments:
 #    args   Args can be any one of the following:
 #                  ?-canonical type/subtype
-#                  ?-param    {key value}?...
+#                  ?-params    {?key value? ...}
 #                  ?-encoding value?
-#                  ?-header   {key value}?... ?
+#                  ?-headers   {?key value? ...}
 #                  (-file name | -string value | -parts {token1 ... tokenN})
 #
 #       If the -canonical option is present, then the body is in
 #       canonical (raw) form and is found by consulting either the -file,
 #       -string, or -parts option.
+#
+#       -header
+#           a dictionary of headers
+#               with possibliy-redundant keys
+#
+#       -params
+#           a dictionary of parameters
+#           with possibly-redundant keys
 #
 #       In addition, both the -param and -header options may occur zero
 #       or more times to specify "Content-Type" parameters (e.g.,
@@ -402,7 +410,7 @@ proc ::mime::initialize args {
 #                  ?-canonical type/subtype
 #                  ?-param    {key value}?...
 #                  ?-encoding value?
-#                  ?-header   {key value}?... ?
+#                  ?-headers   {?key value? ...}
 #                  (-file name | -string value | -parts {token1 ... tokenN})
 #
 # Results:
@@ -425,6 +433,7 @@ proc ::mime::initializeaux {token args} {
     set state(cid) 0
 
     set userheader 0
+    set userparams 0
 
     set argc [llength $args]
     for {set argx 0} {$argx < $argc} {incr argx} {
@@ -439,17 +448,23 @@ proc ::mime::initializeaux {token args} {
                 set state(content) [string tolower $value]
             }
 
-            -param {
-                if {[llength $value] != 2} {
-		    error "-param expects a key and a value, not $value"
+            -params {
+		if {$userparams} {
+		    error [list {-params can only be provided once}]
+		}
+		set userparams 1
+                if {[llength $value] % 2} {
+		    error [list -params expects a dictionary]
                 }
-                set lower [string tolower [set mixed [lindex $value 0]]]
-                if {[info exists params($lower)]} {
-                    error "the $mixed parameter may be specified at most once"
-                }
+		foreach {pkey pvalue} $value {
+		    set lower [string tolower [set mixed $pkey]]
+		    if {[info exists params($lower)]} {
+			error "the $mixed parameter may be specified at most once"
+		    }
 
-                set params($lower) [lindex $value 1]
-                set state(params) [array get params]
+		    set params($lower) $pvalue
+		    set state(params) [array get params]
+		}
             }
 
             -encoding {
@@ -466,30 +481,34 @@ proc ::mime::initializeaux {token args} {
                 set state(encoding) [string tolower $value]
             }
 
-            -header {
-                if {[llength $value] != 2} {
-                    error "-header expects a key and a value, not $value"
-                }
-                set lower [string tolower [set mixed [lindex $value 0]]]
-                if {$lower eq {content-type}} {
-                    error "use -canonical instead of -header $value"
-                }
-                if {$lower eq {content-transfer-encoding}} {
-                    error "use -encoding instead of -header $value"
-                }
-                if {$lower in {content-md5 mime-version}} {
-                    error {don't go there...}
-                }
-                if {$lower ni $state(lowerL)} {
-                    lappend state(lowerL) $lower
-                    lappend state(mixedL) $mixed
-                }
-
+            -headers {
+		if {$userheader} {
+		    error [list {-headers option occurred more than once}]
+		}
 		set userheader 1
+                if {[llength $value] % 2} {
+                    error [list -headers expects a key/valu pairs]
+                }
 
-                array set header $state(header)
-                lappend header($lower) [lindex $value 1]
-                set state(header) [array get header]
+		foreach {hkey hvalue} $value {
+		    set lower [string tolower [set mixed [lindex $value 0]]]
+		    if {$lower eq "content-type"} {
+			error "use -canonical instead of -headers $hvalue"
+		    }
+		    if {$lower eq "content-transfer-encoding"} {
+			error "use -encoding instead of -headers $hvalue"
+		    }
+		    if {$lower in {content-md5 mime-version}} {
+			error "don't go there..."
+		    }
+		    if {$lower ni $state(lowerL)} {
+			lappend state(lowerL) $lower
+			lappend state(mixedL) $mixed
+		    }
+		    array set header $state(header)
+		    lappend header($lower) $hvalue
+		    set state(header) [array get header]
+		}
             }
 
             -file {
@@ -2506,15 +2525,27 @@ proc ::mime::qp_decode {string {encoded_word 0}} {
 #    Returns a list of dictionaries, one element for each address
 #       specified in the argument.
 
-proc ::mime::parseaddress {string} {
+proc ::mime::parseaddress {string args} {
     global errorCode errorInfo
 
     variable mime
-
     set token [namespace current]::[incr mime(uid)]
     # FRINK: nocheck
     variable $token
     upvar 0 $token state
+
+	if {[llength $args]} {
+		set string2 [lindex $args end]
+		set args [list $string {*}[lrange $args 0 end-1]]
+		set string $string2
+	}
+	dict for {opt val} $args {
+		switch $opt {
+			hostname {
+				set state(default_host) $val
+			}
+		}
+	}
 
     set code [catch {mime::parseaddressaux $token $string} result]
     set ecode $errorCode
@@ -2583,7 +2614,10 @@ proc ::mime::parseaddressaux {token string} {
         if {[set tail $state(domain)] ne {}} {
             set tail @$state(domain)
         } else {
-            set tail @[info hostname]
+			if {![info exists state(default_host)]} {
+				set state(default_host) [info hostname]
+			}
+            set tail @$state(default_host)
         }
         if {[set address $state(local)] ne {}} {
             #TODO: this path is not covered by tests
