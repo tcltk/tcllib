@@ -16,7 +16,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     8.5
-testsNeedTcltest 1.0
+testsNeedTcltest 1.0-
 
 support {
     useLocal list.tcl struct::list
