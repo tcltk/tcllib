@@ -168,11 +168,10 @@ Returns the mime type of the uploaded file.
 
 Returns the contents of the file.
 
-[def "[option -server] [arg name] [opt [arg filename]]"]
+[def "[option -server] [arg name]"]
 
-Writes the file contents to a local temporary file, or [arg filename]
-if supplied, and returns the name of the file. The caller is
-responsible for deleting this file after use.
+Returns the name of a channel routine for the contents of the field named [arg
+name].
 
 [list_end]
 

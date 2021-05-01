@@ -42,11 +42,19 @@ oo::class create ::tcl::transform::base64::implementation {
     superclass tcl::transform::core ;# -> initialize, finalize, destructor
 
     method write {c data} {
-	my Code encodebuf encode $data 3
+	set res [my Code encodebuf encode $data 3]
+	incr encdount [string length $data]
+	return $res
     }
 
     method read {c data} {
-	my Code decodebuf decode $data 4
+	set length [string length $data]
+	# remove whitespace to make framing calculations in [Code] accurate
+	# to do:  Add a -strict configuration to disallow whitespace?
+	regsub -all {[[:space:]]} $data[set data {}] {} data
+	set res [my Code decodebuf decode $data 4]
+	incr deccount $length 
+	return $res
     }
 
     method flush {c} {
@@ -56,7 +64,11 @@ oo::class create ::tcl::transform::base64::implementation {
     }
 
     method drain {c} {
+	set length [string length $decodebuf]
 	set data [binary decode base64 $decodebuf]
+	if {$data eq {} && $length} {
+	    error [list {invalid input after } $deccount]
+	}
 	set decodebuf {}
 	return $data
     }
@@ -70,13 +82,15 @@ oo::class create ::tcl::transform::base64::implementation {
 
     constructor {} {
 	set encodebuf {}
+	set deccount 0
+	set enccount 0
 	set decodebuf {}
 	return
     }
 
     # # ## ### ##### ######## #############
 
-    variable encodebuf decodebuf
+    variable enccount encodebuf deccount decodebuf
 
     # # ## ### ##### ######## #############
 
@@ -90,13 +104,16 @@ oo::class create ::tcl::transform::base64::implementation {
 	    return {}
 	}
 
-	set result \
-	    [binary $op base64 \
-		 [string range $buffer 0 $n]]
-	incr n
-	set buffer \
-	    [string range $buffer $n end]
+	set chunk [string range $buffer 0 $n]
+	set result [binary $op base64 $chunk]
 
+	if {$result eq {} && $chunk ne {}} {
+	    error [list {invalid input after} [
+		expr {$op eq {encode} ? $enccount : $deccount}]]
+	}
+	incr n
+	set buffer [string range $buffer $n end]
+	
 	return $result
     }
 

@@ -53,7 +53,7 @@ oo::class create ::tcl::transform::core {
     }
 
     method finalize {c} {
-	set channel {} ; # Prevent destroctor from calling close.
+	set channel {} ; # Prevent destructor from calling close.
 	my destroy
 	return
     }

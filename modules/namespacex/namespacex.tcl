@@ -24,7 +24,7 @@ if {![llength [info commands try]]} {
 }
 
 namespace eval ::namespacex {
-    namespace export add hook info import normalize strip state
+    namespace export add hook import info normalize strip state
     namespace ensemble create
 
     namespace eval hook {
@@ -192,15 +192,16 @@ proc ::namespacex::hook::Handle {handler old args} {
 # # ## ### ##### ######## ############# ######################
 ## Implementation :: Info - Visible API
 
+
 proc ::namespacex::import {from args} {
-    set upns [uplevel 1 {::namespace current}]
+    set upns [uplevel 1 {namespace current}]
     if {![string match ::* $from]} {
-	set from ${upns}::$from[set from {}]
+	set from $upns::$from[set from {}]
     }
-    set orig [namespace eval $from {::namespace export}]
+    set orig [namespace eval $from {namespace export}]
     try {
-	namespace eval $from {::namespace export *}
-	set tmp [::namespace current]::[::info cmdcount]
+	namespace eval $from {namespace export *}
+	set tmp [namespace current]::[::info cmdcount]
 	namespace eval $tmp [list ::namespace import ${from}::*]
 	if {[llength $args] == 1} {
 	    lappend args [lindex $args 0]
@@ -215,6 +216,7 @@ proc ::namespacex::import {from args} {
     }
     return
 }
+
 
 proc ::namespacex::info::allvars {ns} {
     set ns [uplevel 1 [list [namespace parent] normalize $ns]]

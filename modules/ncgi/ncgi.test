@@ -20,7 +20,7 @@ testing {
     useLocal ncgi.tcl ncgi
 }
 
-proc main {} {
+proc main {} {try {
 	global env
 	global auto_path
 
@@ -29,6 +29,20 @@ proc main {} {
 	set ncgiFile   [localPath ncgi.tcl]
 	set futlFile   [tcllibPath fileutil/fileutil.tcl]
 	set cmdlFile   [tcllibPath cmdline/cmdline.tcl]
+
+	proc makescript script {
+		string map [list @script@ [list $script]] {
+			after 0 [list coroutine main try @script@ \
+				on error {tres topts} {
+				exit 1 
+			} finally {
+				set done 1
+			}]
+			vwait done
+			exit
+		}
+	}
+
 
 	proc resetenv {} {
 		global env
@@ -349,20 +363,20 @@ proc main {} {
 		set env(QUERY_STRING) {}
 		set env(SERVER_NAME) www.scriptics.com
 		set env(SERVER_PORT) 80
-		makeFile [format {
-		set auto_path {%s}
-		if {[catch {
-			source %s
-			source %s
-			source %s
-			ncgi new ncgi1
-			ncgi1 redirect %s
-			ncgi1 delete
-		} err]} {
-			puts $err
-		}
-		exit
-		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+		makeFile [makescript [format {
+			set auto_path {%s}
+			if {[catch {
+				source %s
+				source %s
+				source %s
+				ncgi new ncgi1
+				ncgi1 redirect %s
+				ncgi1 delete
+			} err eopts]} {
+				puts stderr [dict get $eopts -errorinfo]
+				puts $err
+			}
+		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL]] test1
 		set f [open "|[list $::tcltest::tcltest test1]" r+]
 		set res [read $f]
 		close $f
@@ -758,7 +772,6 @@ proc main {} {
 	}
 
 
-
 	test ncgi-14.5 {ncgi::multipart--check binary file} {
 		set X [genformdata $binary_content]
 		withncgi body $X contenttype [genformcontent_type] {
@@ -840,7 +853,10 @@ proc main {} {
 		global binary_content
 		set X [genformdata $binary_content]
 		withncgi contenttype [genformcontent_type] body $X  {
-			ncgi1 importFile -data the_file_name
+			set chan [ncgi1 importFile -data the_file_name]
+			set res [$chan read]
+			$chan close
+			return $res
 		}
 	} $binary_content
 
@@ -849,15 +865,13 @@ proc main {} {
 		global binary_content
 		set X [genformdata $binary_content]
 		withncgi contenttype [genformcontent_type] body $X  {
-			set localfile [ncgi1 importFile -server the_file_name]
+			set chan [ncgi1 importFile -server the_file_name]
 
 			# get the contents of the local file to verify
-			set in [open $localfile]
-			fconfigure $in -translation binary
-			set content [read $in]
-			close $in
-			file delete $localfile
-			set content
+			$chan configure -translation binary
+			set content [$chan read]
+			$chan close
+			return $content
 		}
 
 	} $binary_content
@@ -867,15 +881,13 @@ proc main {} {
 		global binary_content
 		set X [genformdata $binary_content]
 		withncgi contenttype [genformcontent_type] body $X {
-			set localfile [ncgi1 importFile -server the_file_name fofo]
+			set chan [ncgi1 importFile -server the_file_name]
 
 			# get the contents of the local file to verify
-			set in [open $localfile]
-			fconfigure $in -translation binary
-			set content [read $in]
-			close $in
-			file delete $localfile
-			set content
+			$chan configure -translation binary
+			set content [$chan read]
+			$chan close
+			return $content
 		}
 	} $binary_content
 
@@ -947,9 +959,10 @@ proc main {} {
 	# -------------------------------------------------------------------------
 
 	testsuiteCleanup
-	set [namespace current]::done 1
 	return
-}
+} finally {
+	set [namespace current]::done 1
+}}
 
 after 0 [list ::coroutine [info cmdcount]_main [namespace current]::main]
 vwait [namespace current]::done
