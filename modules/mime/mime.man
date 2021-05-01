@@ -162,6 +162,7 @@ Sets a cookie header.
 [def "[option expires] [arg date]"]
 [def "[option path] [arg {path restriction}]"]
 [def "[option domain] [arg {domain restriction}]"]
+[def "[option httponly] [arg boolean]"]
 [list_end]
 
 
