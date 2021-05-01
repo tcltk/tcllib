@@ -399,12 +399,12 @@ proc main {} {try {
 			source %s
 			source %s
 			source %s
-			set token [ncgi .new {}]
-			$token response cookie set -name CookieName -value 12345
-			$token redirect %s
-			$token delete
-		} err]} {
-			puts $err
+			set ncgi [ncgi .new {}]
+			$ncgi response cookie set CookieName 12345
+			$ncgi redirect %s
+			$ncgi delete
+		} err copts]} {
+			puts [dict get $copts -errorinfo]
 		}
 		exit
 		} $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
@@ -650,7 +650,7 @@ proc main {} {try {
 			source %s
 			source %s
 			ncgi .new ncgi1
-			ncgi1 response cookie set -name Name -value {The+Value}
+			ncgi1 response cookie set Name The+Value
 			ncgi1 header send text/html
 		} err]} {
 			puts $err

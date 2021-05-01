@@ -151,7 +151,7 @@ Deletes the specifed cookie. [arg args] is the same as for
 [arg -expires] is ignored.
 
 
-[call [arg message] [method {cookie set}] [arg args]]
+[call [arg message] [method {cookie set}] [arg name] [arg value] [arg args]]
 
 Sets a cookie header.
 
@@ -159,11 +159,9 @@ Sets a cookie header.
 
 [list_begin definitions]
 
-[def "[option -name] [arg name]"]
-[def "[option -value] [arg value]"]
-[def "[option -expires] [arg date]"]
-[def "[option -path] [arg {path restriction}]"]
-[def "[option -domain] [arg {domain restriction}]"]
+[def "[option expires] [arg date]"]
+[def "[option path] [arg {path restriction}]"]
+[def "[option domain] [arg {domain restriction}]"]
 [list_end]
 
 
