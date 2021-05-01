@@ -10,7 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
-# (c) 2013      PoorYorick
+# (c) 2013-2018 Poor Yorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -567,7 +567,11 @@ proc ::mime::initializeaux {token args} {
         error {specify exactly one of -file, -parts, or -string}
     }
 
-    if {[set state(canonicalP) [info exists state(content)]]} {
+    if {[set state(canonicalP) [info exists state(content)]] || [info exists state(parts)]} {
+
+	if {![info exists state(content)]} {
+	    set state(content) multipart/mixed
+	}
         switch -- $state(value) {
             file {
                 set state(offset) 0
@@ -616,9 +620,6 @@ proc ::mime::initializeaux {token args} {
     }
     if {$userheader} {
         error {-header requires -canonical}
-    }
-    if {[info exists state(parts)]} {
-        error {-parts requires -canonical}
     }
 
     if {[set fileP [info exists state(file)]]} {
